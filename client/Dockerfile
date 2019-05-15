@@ -1,0 +1,21 @@
+FROM java:8
+EXPOSE 8084:8084
+
+#ARG D_USR
+#ARG D_PW
+#ARG D_CONSTRING
+#ARG D_DRV
+#ARG CORS_ORIGINS
+
+#ENV SB_DB_USR=${D_USR}
+#ENV SB_DB_PAS=${D_PW}
+#ENV SB_JDBC_CONSTRING=${D_CONSTRING}
+#ENV SB_DB_DRIVER=${D_DRV}
+#ENV SB_CORS_ORIGINS=${CORS_ORIGINS}
+ADD ./client/startup.sh /app/startup.sh
+
+WORKDIR /app
+
+CMD ["ls", "-la"]
+#CMD ["pwd"]
+CMD ["./startup.sh"]
