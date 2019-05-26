@@ -24,10 +24,10 @@ services:
     restart: always
 
 
-  client:
-    build:
-      context: .
-      dockerfile: ./client/Dockerfile
+  #client:
+  #  build:
+  #    context: .
+  #    dockerfile: ./client/Dockerfile
   #    args:
   #      CORS_ORIGINS: "http://localhost:8080,https://localhost:8080"
   #      D_USR: "postgres"
@@ -36,6 +36,6 @@ services:
   #      D_DRV: org.postgresql.Driver
   #  ports:
   #    - 8084:8084
-    depends_on:
-      - repository
+  #   depends_on:
+  #    - repository
   #    - machine-learning-service
