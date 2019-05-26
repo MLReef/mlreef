@@ -1,20 +1,22 @@
 version: "3.0"
 services:
-  repository:
-    image: gitlab/gitlab-ce:latest
-    restart: always
-    hostname: 'localhost'
-    ports:
-    - 22:22
-    - 80:80
-    - 433:433
-    - 8080:8080
-    environment:
-    - POSTGRES_USER=postgres
-    - POSTGRES_PASSWORD=postgres
+# Deactivated self hosted gitlab for now.
+# currently the demo is hosted at https://gitlab.com/cpmlreef/mlreef-demo
+#  repository:
+#    image: gitlab/gitlab-ce:latest
+#    restart: always
+#    hostname: 'localhost'
+#    ports:
+#    - 22:22
+#    - 80:80
+#    - 433:433
+#    - 8080:8080
+#    environment:
+#    - POSTGRES_USER=postgres
+#    - POSTGRES_PASSWORD=postgres
 
   gitlab-runner-config:
-    image: gitlab/gitlab-runner:lates
+    image: gitlab/gitlab-runner:latest
     restart: always
 
   gitlab-runner:
