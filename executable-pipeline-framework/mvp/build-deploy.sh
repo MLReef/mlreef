@@ -1,6 +1,6 @@
-#!/usr/bin/env bash
+#!/usr/bin/env bash -e
 
-docker rm eps-container
+docker rm eps-container || true
 
 docker build -t eps .
 
