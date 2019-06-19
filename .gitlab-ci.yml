@@ -2,7 +2,9 @@ image: ruby:2.3
 
 pages:
   script:
-  - pwd
+  - mkdir public
+  - cp -r src/main/html/* public/
+  - ls -al public
   artifacts:
     paths:
     - public
