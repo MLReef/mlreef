@@ -1,0 +1,10 @@
+image: ruby:2.3
+
+pages:
+  script:
+  - pwd
+  artifacts:
+    paths:
+    - public
+  only:
+  - master
