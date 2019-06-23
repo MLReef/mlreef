@@ -3,10 +3,10 @@ image: alpine:latest
 pages:
   script:
   - mkdir public
-  - cp -r src/main/html/* public/
+  - cp -r src/* public/
   - ls -al public
   artifacts:
     paths:
     - public
-  only:
-  - master
+  #only:
+  #  - master
