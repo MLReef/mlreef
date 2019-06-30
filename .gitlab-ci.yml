@@ -1,12 +1,30 @@
-image: alpine:latest
+image: gradle:latest
+
+stages:
+  - build
+  - deploy
+
+
+kotlin2js:
+  stage: build
+  script:
+    - cd gitlab-api
+    - gradle clean build
+  artifacts:
+    paths:
+      - gitlab-api/build
+
 
 pages:
+  stage: deploy
   script:
-  - mkdir public
-  - cp -r src/* public/
-  - ls -al public
+    - mkdir public                                                        # create deploy directory
+    - cp -r web/* public/                                                 # deploy static files
+    - cp gitlab-api/build/classes/kotlin/main/*.js public/javascript/     # deploy gitlab-api calls
+    - ls -al public/javascript
+    - ls -al public
   artifacts:
     paths:
     - public
-  only:
-    - master
+#  only:
+#    - master
