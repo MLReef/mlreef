@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset='utf-8'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <title>Sign Up</title>
+    <meta name='viewport' content='width=device-width, initial-scale=1'>
+    <link rel='stylesheet' type='text/css' media='screen' href='css/signup.css'>
+    <script src='javascript/kotlin.js'></script>
+    <script src='javascript/kotlinx-io.js'></script>
+    <script src='javascript/kotlinx-coroutines-core.js'></script>
+    <script src='javascript/kotlinx-coroutines-io.js'></script>
+    <script src='javascript/kotlinx-serialization-runtime-js.js'></script>
+    <script src='javascript/ktor-ktor-utils.js'></script>
+    <script src='javascript/ktor-ktor-http.js'></script>
+    <script src='javascript/ktor-ktor-http-cio.js'></script>
+    <script src='javascript/ktor-ktor-client-core.js'></script>
+    <script src='javascript/kotlinx-serialization-kotlinx-serialization-runtime.js'></script>
+
+    <script src='kotlin/gitlabapi.js'></script>
+    <script src='kotlin/output.js'></script>
+</head>
+
+<body>
+<img src="logos/MLReef_Logo_POS_H_icon-01.png"/>
+
+<script>
+    var token = "4s129mSs6v1iw_uDzDc7";
+    var group = "mlreef"
+    function getDescription() {
+        gitlabapi.com.mlreef.gitlabapi.getGroup(token, group).then(function(res) {
+            alert (res.description);
+        });
+    }
+    getDescription();
+</script>
+<form class="sign-in">
+
+    <div class="incorrect-login">
+        <p><strong>Incorrect username or password</strong></p>
+        <button id="reset"><strong>Reset</strong></button>
+    </div>
+
+    <div class="form-heading">
+        <p style="font-family: Roboto; font-size: 30px;">Sign in to <strong>MLreef</strong></p>
+    </div>
+
+    <div class="form-container">
+
+
+        <p style="font-size: 20px; font-weight: 500; margin-bottom: 16px; margin-top: 10px;">Username or email
+            address</p>
+        <input type="text" id="username" name="username" required>
+
+
+
+        <p style="font-size: 20px; font-weight: 500; margin-bottom: 16px; margin-top: 30px;">Password</p>
+        <input type="password" id="pass" name="password" required>
+
+
+        <button type="button" id="signin" onclick="check(this.form)"> Sign in </button>
+
+        <button id="createaccount"> New to MLreef? <strong>Create an account.</strong></button>
+
+        <button id="createaccount" on onclick="getDescription()"> What is MLReef?</button>
+
+    </div>
+
+</form>
+
+<script language="javascript">
+    function check(form) {
+        /*function to check userid & password*/
+        /*the following code checkes whether the entered userid and password are matching*/
+        if(form.username.value == "user" && form.password.value == "password") {
+            window.open('data_rep_overview.html')/*opens the target page while Id & password matches*/
+        }
+        else {
+            document.querySelector(".incorrect-login").style.display = 'flex'; /*displays error message*/
+        }
+    }
+</script>
+
+</body>
+
+</html>
+

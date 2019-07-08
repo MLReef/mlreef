@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <bytecodeTargetLevel>
+      <module name="com.example.multi-platform-kotlin.jvmMain" target="1.6" />
+      <module name="com.example.multi-platform-kotlin.jvmTest" target="1.6" />
+      <module name="com.example.untitled.jvmMain" target="1.6" />
+      <module name="com.example.untitled.jvmTest" target="1.6" />
+      <module name="com.mlreef.gitlab-api.jvmMain" target="1.6" />
+      <module name="com.mlreef.gitlab-api.jvmTest" target="1.6" />
+      <module name="com.mlreef.gitlab-api.main" target="1.8" />
+      <module name="com.mlreef.gitlab-api.test" target="1.8" />
+      <module name="com.mlreef.gitlabapi.jvmMain" target="1.6" />
+      <module name="com.mlreef.gitlabapi.jvmTest" target="1.6" />
+      <module name="com.mlreef.multi-platform-kotlin.jvmMain" target="1.6" />
+      <module name="com.mlreef.multi-platform-kotlin.jvmTest" target="1.6" />
+      <module name="com.mlreef.web.main" target="1.8" />
+      <module name="com.mlreef.web.test" target="1.8" />
+      <module name="gitlab-api.jvmMain" target="1.6" />
+      <module name="gitlab-api.jvmTest" target="1.6" />
+      <module name="gitlab-api.main" target="1.8" />
+      <module name="gitlab-api.test" target="1.8" />
+      <module name="mlreef-frontend.web.main" target="1.8" />
+      <module name="mlreef-frontend.web.test" target="1.8" />
+      <module name="org.example.web.main" target="1.8" />
+      <module name="org.example.web.test" target="1.8" />
+      <module name="untitled.jvmMain" target="1.6" />
+      <module name="untitled.jvmTest" target="1.6" />
+    </bytecodeTargetLevel>
+  </component>
+</project>

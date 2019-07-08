@@ -8,20 +8,17 @@ stages:
 kotlin2js:
   stage: build
   script:
-    - cd gitlab-api
-    - gradle clean build
+    - ./gradlew clean build deployJs     # deployJs copies the js modules to web/…/kotlin
   artifacts:
     paths:
-      - gitlab-api/build
+      - web/src/main/web/kotlin
 
 
 pages:
   stage: deploy
   script:
-    - mkdir public                                                        # create deploy directory
-    - cp -r web/* public/                                                 # deploy static files
-    - cp gitlab-api/build/classes/kotlin/main/*.js public/javascript/     # deploy gitlab-api calls
-    - ls -al public/javascript
+    - mkdir public                       # create deploy directory
+    - cp -r web/src/main/web/* public/       # deploy static files
     - ls -al public
   artifacts:
     paths:
