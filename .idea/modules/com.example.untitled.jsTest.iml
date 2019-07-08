@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module external.linked.project.id="untitled:jsTest" external.linked.project.path="$MODULE_DIR$/../../untitled" external.root.project.path="$MODULE_DIR$/../../untitled" external.system.id="GRADLE" external.system.module.group="com.example" external.system.module.type="sourceSet" external.system.module.version="0.0.1" type="JAVA_MODULE" version="4">
+  <component name="FacetManager">
+    <facet type="kotlin-language" name="Kotlin">
+      <configuration version="3" platform="JavaScript " useProjectSettings="false" isTestModule="true" externalProjectId="untitled">
+        <sourceSets>
+          <sourceSet>com.example.untitled.commonMain</sourceSet>
+          <sourceSet>com.example.untitled.jsMain</sourceSet>
+          <sourceSet>com.example.untitled.commonTest</sourceSet>
+        </sourceSets>
+        <newMppModelJpsModuleKind>COMPILATION_AND_SOURCE_SET_HOLDER</newMppModelJpsModuleKind>
+        <compilerSettings />
+        <compilerArguments>
+          <option name="outputFile" value="$MODULE_DIR$/../../untitled/build/js/packages/untitled-test/kotlin/untitled-test.js" />
+          <option name="noStdlib" value="true" />
+          <option name="sourceMap" value="true" />
+          <option name="metaInfo" value="true" />
+          <option name="target" value="v5" />
+          <option name="moduleKind" value="umd" />
+          <option name="main" value="call" />
+          <option name="languageVersion" value="1.3" />
+          <option name="apiVersion" value="1.3" />
+          <option name="pluginOptions">
+            <array />
+          </option>
+          <option name="pluginClasspaths">
+            <array>
+              <option value="$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-reflect/1.3.40/f2f8357e000fd80d8d799110f012b86fd4637386/kotlin-reflect-1.3.40.jar" />
+              <option value="$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-script-runtime/1.3.40/3cc25515a8d5e4a59ef85e94625b8bf73bff47b2/kotlin-script-runtime-1.3.40.jar" />
+              <option value="$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-scripting-common/1.3.40/3de443ac4dc46a7606544fad207143dad1aaeeaf/kotlin-scripting-common-1.3.40.jar" />
+              <option value="$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-scripting-jvm/1.3.40/ebc58e35ce401c3550d11e4424e3f63331d9ff2d/kotlin-scripting-jvm-1.3.40.jar" />
+              <option value="$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-stdlib-common/1.3.40/ff8f3da514fc2877d1303d55e22d6da8156c29fb/kotlin-stdlib-common-1.3.40.jar" />
+              <option value="$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-stdlib/1.3.40/b8a521c687329303778548e2f09b0ba5b2665236/kotlin-stdlib-1.3.40.jar" />
+              <option value="$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlinx/kotlinx-coroutines-core/1.1.1/3d2b7321cdef9ebf9cb7729ea4f75a6f6457df86/kotlinx-coroutines-core-1.1.1.jar" />
+              <option value="$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.jetbrains/annotations/13.0/919f0dfe192fb4e063e7dacadee7f8bb9a2672a9/annotations-13.0.jar" />
+            </array>
+          </option>
+          <option name="multiPlatform" value="true" />
+          <option name="errors">
+            <ArgumentParseErrors />
+          </option>
+        </compilerArguments>
+      </configuration>
+    </facet>
+  </component>
+  <component name="NewModuleRootManager">
+    <output-test url="file://$MODULE_DIR$/../../untitled/build/js/packages/untitled-test/kotlin" />
+    <exclude-output />
+    <content url="file://$MODULE_DIR$/../../untitled/src/jsTest">
+      <sourceFolder url="file://$MODULE_DIR$/../../untitled/src/jsTest/kotlin" type="kotlin-test" />
+      <sourceFolder url="file://$MODULE_DIR$/../../untitled/src/jsTest/resources" type="kotlin-test-resource" />
+    </content>
+    <orderEntry type="jdk" jdkName="Kotlin SDK" jdkType="KotlinSDK" />
+    <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="module" module-name="com.example.untitled.commonMain" scope="TEST" />
+    <orderEntry type="library" scope="RUNTIME" name="Gradle: org.jetbrains.kotlin:kotlin-test-nodejs-runner:1.3.40" level="project" />
+    <orderEntry type="library" scope="TEST" name="Gradle: org.jetbrains.kotlin:kotlin-test-js:1.3.40" level="project" />
+    <orderEntry type="library" scope="TEST" name="Gradle: org.jetbrains.kotlin:kotlin-stdlib-js:1.3.40" level="project" />
+    <orderEntry type="library" scope="TEST" name="Gradle: org.jetbrains.kotlin:kotlin-test-annotations-common:1.3.40" level="project" />
+    <orderEntry type="library" scope="TEST" name="Gradle: org.jetbrains.kotlin:kotlin-test-common:1.3.40" level="project" />
+    <orderEntry type="library" scope="TEST" name="Gradle: org.jetbrains.kotlin:kotlin-stdlib-common:1.3.40" level="project" />
+    <orderEntry type="module" module-name="com.example.untitled.commonTest" scope="TEST" production-on-test="" />
+    <orderEntry type="module" module-name="com.example.untitled.jsMain" scope="TEST" />
+  </component>
+  <component name="TestModuleProperties" production-module="com.example.untitled.jsMain" />
+</module>

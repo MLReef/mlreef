@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="gitlabapi-js">
+    <output-path>$PROJECT_DIR$/gitlabapi/build/libs</output-path>
+    <root id="archive" name="gitlabapi-js.jar">
+      <element id="module-output" name="com.mlreef.gitlabapi.jsMain" />
+    </root>
+  </artifact>
+</component>

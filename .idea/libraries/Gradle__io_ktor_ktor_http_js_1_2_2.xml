@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="Gradle: io.ktor:ktor-http-js:1.2.2" type="kotlin.js">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/io.ktor/ktor-http-js/1.2.2/5c3bcf8ace6ea33092eafd8cd240f8bcf8e096e3/ktor-http-js-1.2.2.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/io.ktor/ktor-http-js/1.2.2/c64495325a08541297a586a647688a82a9ff8b9d/ktor-http-js-1.2.2-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>
