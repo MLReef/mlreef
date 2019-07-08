@@ -7,14 +7,20 @@
     <title>Sign Up</title>
     <meta name='viewport' content='width=device-width, initial-scale=1'>
     <link rel='stylesheet' type='text/css' media='screen' href='css/signup.css'>
-    <script src='main.js'></script>
 </head>
 
 <body>
 
     <img src="logos/MLReef_Logo_POS_H_icon-01.png" />
 
+
     <form class="sign-in">
+
+        <div class="incorrect-login">
+            <p><strong>Incorrect username or password</strong></p>
+            <button id="reset"><strong>Reset</strong></button>
+        </div>
+
 
         <div class="form-heading">
             <p style="font-family: Roboto; font-size: 30px;">Sign in to <strong>MLreef</strong></p>
@@ -33,13 +39,26 @@
             <input type="password" id="pass" name="password" required>
 
 
-            <button id="signin"> Sign in </button>
+            <button type="button" id="signin" onclick="check(this.form)"> Sign in </button>
 
             <button id="createaccount"> New to MLreef? <strong>Create an account.</strong></button>
 
         </div>
 
     </form>
+
+    <script language="javascript">
+        function check(form) {
+             /*function to check userid & password*/
+            /*the following code checkes whether the entered userid and password are matching*/
+            if(form.username.value == "user" && form.password.value == "password") {
+                window.open('data_rep_overview.html')/*opens the target page while Id & password matches*/
+            }
+            else {
+                document.querySelector(".incorrect-login").style.display = 'flex'; /*displays error message*/
+            }
+        }
+    </script>
 
 </body>
 

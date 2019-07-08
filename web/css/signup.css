@@ -94,3 +94,40 @@ input[type="text"]:focus, input[type="password"]:focus {
     outline: none !important;
     border: 1px solid #32AFC3;
 }
+
+
+.incorrect-login {
+    display: none;;
+    justify-content: space-between;
+    align-self: center;
+    align-items: center;
+    background-color: #F5544D;
+    padding: 10px;
+    margin-bottom: 15px;
+    border-radius: 8px;
+    border: 1px solid #1D2B40;
+   
+}
+
+.incorrect-login p {
+    padding-left: 10px;
+    color: #F6F6F6;
+    font-size: 20px;
+    font-weight: 600;
+}
+
+#reset {
+    display: flex;
+    align-self: center; 
+    background-color: #F6F6F6; 
+    align-items: center;
+    justify-content: center;
+    color: #1D2B40; 
+    font-size: 20px; 
+    padding: 20px; 
+    margin-top: 0px; 
+    border-radius: 8px; 
+    border: 1px solid #1D2B40; 
+    width: 100px;
+    height: 60px;
+}

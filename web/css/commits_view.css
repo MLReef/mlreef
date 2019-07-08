@@ -66,10 +66,6 @@ img.dropdown-white {
     background-color: #E5E5E5;
 }
 
-.project-container, .navbar {
-    margin: 0px 10px;
-}
-
 .project-details {
     margin: auto;
     width: 1364px;
@@ -253,38 +249,38 @@ p.stat-no {
     margin-left: 10px;
 }
 
-.pr-info {
+.commit-info {
     display: flex;
     flex-direction: row;
     align-items: center;
     justify-content: space-between;
-    margin: 20px auto 0;
+    margin: 0px auto 0;
     width: 1364px;
     height: 80px;
-    border-radius: 8px;
-    background-color: #E5E5E5;
-    /* border: 1px solid #32AFC3; */
+    background-color: #fff;
+    border: 1px solid #707070;
 }
 
-.pr-id {
+.commit-id {
     display: flex;
     width: 252px;
     height: 48px;
     margin-right: 40px;
     justify-content: center;
-    background-color: #fff;
+    background-color: #E5E5E5;
     border-radius: 12px;
-    border: 2px solid #1C2B40;
+    color: #404040;
+    border: 1px solid #B2B2B2;
 }
 
-.pr-id p {
+.commit-id p {
     font-size: 20px;
-    font-weight: 600;
+    /* font-weight: 600; */
     margin: 0;
     align-self: center;
 }
 
-.pr-details {
+.commit-details {
     display: flex;
     height: 56px;
     flex-direction: row;
@@ -292,7 +288,7 @@ p.stat-no {
     /* border: 1px solid green; */
 }
 
-.pr-profile-pic {
+.commit-profile-pic {
     height: 54px;
     width: 54px;
     margin-left: 30px;
@@ -303,22 +299,22 @@ p.stat-no {
 }
 
 
-.pr-name p {
+.commit-name p {
     margin: 0;
     align-self: center;
 }
 
-.pr-name {
+.commit-name {
     margin-left: 20px;
     align-self: center;
 }
 
-#prName {
+#commitName {
     font-size: 20px;
     color: #1C2B40;
 }
 
-#prDate {
+#commitDate {
     font-size: 12px;
     color: #1C2B40;
     margin-top: 10px;
@@ -342,7 +338,7 @@ p.stat-no {
     display: flex;
     flex-direction: row;
     align-items: center;
-    margin-left: 50px;
+    margin-left: 0px;
 }
 
 .leftside-feature, .rightside-feature {
@@ -352,16 +348,8 @@ p.stat-no {
     height: 48px;
     padding: 0px 15px;
     border-radius: 8px;
-    border: 1px solid #1C2B40;
-    background-color: #fff;
+    border: 2px solid #1D2B40;
 }
-
-#data-pipeline, #data-visualisation {
-    color: #fff;
-    background-color: #1C2B40;
-    font-weight: 600;
-}
-
 
 .leftside-feature p, .rightside-feature p{
     margin: 0px;
@@ -382,17 +370,16 @@ p.stat-no {
     display: flex;
     flex-direction: row;
     align-items: center;
-    margin-right: 30px;
+    margin-right: 0px;
 }
 
 .rightside-feature {
-    display: flex;
-    align-items: center;
-    margin-left: 10px;
-    height: 48px;
-    padding: 0px 15px;
-    border-radius: 8px;
-    border: 1px solid #1C2B40;
+    padding: 0px 100px;
+    border: 1px solid #b2b2b2;
+}
+
+.rightside-feature p {
+    color: #B2B2B2;
 }
 
 .rightside-features img {
@@ -404,19 +391,18 @@ p.stat-no {
     flex-direction: row;
     align-items: center;
     justify-content: space-between;
-    margin: 20px auto 0;
+    margin: 0px auto;
     width: 1364px;
-    height: 80px;
+    height: 48px;
     border-radius: 8px 8px 0px 0px;
-    background-color: #2DB391;
-    /* border: 1px solid #32AFC3; */
-
+    background-color: #E5E5E5;
+    border: 1px solid #707070;
 }
 
 #commitStatus {
     font-size: 20px;
-    color: #fff;
-    margin:0 50px;
+    color: #1D2B40;
+    margin:0 20px;
 }
 
 
@@ -438,137 +424,3 @@ p.stat-no {
 }
 
 
-
-.file-properties {
-    width: 1364px;
-    margin: 0px auto;
-    padding: 0px 0px 20px 0px;
-    border-radius: 0 0 8px 8px;
-    border: 1px solid #1D2B40;
-
-}
-
-.title-row {
-    background-color: #1D2B40;
-    color: #fff;
-    height: 48px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    
-}
-
-.title-row th > p {
-    font-size: 16px;
-    padding: 0px 75px;
-    text-align: left;
-}
-
-.files-row {
-    background-color: #fff;
-    color: #1C2B40;
-    height: 48px;
-    font-size: 16px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.row-border {
-    display: flex;
-    margin: 0 auto;
-    padding: 0;
-    width: 90%;
-    border: 1px solid #1C2B40;
-}
-
-.file-type {
-    display: flex;
-    align-items: center;
-    
-}
-
-.file-type img {
-    width: 30px;
-    margin: 0px 21px;
-    padding: 0;
-}
-
-.file-type p {
-   margin: 0;
-   padding: 0;
-}
-
-.files-row p {
-    font-size: 16px;
-    padding: 0px 74px 0 0;
-    text-align: left;
-}
-
-/* Readme */
-
-.readme-container {
-    width: 1294px;
-    margin: 22px auto;
-    border-radius: 8px;
-    background-color: #fff;
-    border: 1px solid #B2B2B2;
-}
-
-.readme-titlebar {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    margin: 0px auto ;
-    height: 50px;
-    border-radius: 8px 8px 0 0;
-    background-color: #E5E5E5;
-    border-bottom: 1px solid #B2B2B2;
-}
-
-.readme-profile-pic {
-    height: 36px;
-    width: 36px;
-    background-color: #fff;
-    border: 2px solid #B2B2B2;
-    border-radius: 8px;
-    margin-left: 30px;
-    display: flex;
-}
-
-.readme-name {
-    font-size: 16px;
-    margin-left: 20px;
-}
-
-#readmeName {
-    font-size: 16px;
-    color: #1C2B40;
-}
-
-.readme-content-container {
-    display: flex;
-    flex-direction: column;
-    margin: 20px 90px;
-
-}
-
-.readme-content-container p {
-    padding: 0px;
-    margin: 0;
-    color: #1C2B40;
-    text-align: left;
-    font-size: 16px;
-}
-
-#project-name-readme {
-    display: inline-flex;
-    padding-bottom: 10px; 
-    font-size: 16px; 
-    font-weight: 600;
-    border-bottom: 2px solid #1C2B40;
-}
-
-#project-content-readme {
-    padding-top: 15px;
-}
