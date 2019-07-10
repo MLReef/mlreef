@@ -8,7 +8,7 @@ stages:
 kotlin2js:
   stage: build
   script:
-    - ./gradlew clean build deployJs     # deployJs copies the js modules to web/…/kotlin
+    - ./gradlew clean build deploy     # deployJs copies the js modules to web/…/kotlin
   artifacts:
     paths:
       - web/src/main/web/kotlin

@@ -1,9 +1,7 @@
+@file:Suppress("EXPERIMENTAL_API_USAGE")
+
 package com.mlreef.gitlabapi.v4
 
-import com.mlreef.gitlabapi.Group
-import com.mlreef.gitlabapi.getGroup
-import com.mlreef.gitlabapi.getGroups
-import com.mlreef.runTest
 import kotlinx.serialization.ImplicitReflectionSerializer
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -24,7 +22,20 @@ class GitlabApiV4Test {
         assertTrue(groups.size >= 2)
         assertTrue(groups.any { it.name == "MLReef" })
     }
+
+    @Test fun canListRepoDirectory() = runTest {
+        val files = listRepoDirectory(
+            token = testToken,
+            projectId = mlReefDemoProjectId
+        )
+
+        files.forEach {
+            println("--- ${it.path}")
+        }
+    }
 }
 
 // This testing token will only work until 2019-09-30
 val testToken = "4s129mSs6v1iw_uDzDc7"
+
+val mlReefDemoProjectId: Long = 12395599
