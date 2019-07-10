@@ -80,7 +80,7 @@ kotlin {
 }
 
 tasks {
-    register("deployJs", Copy::class) {
+    register("deploy", Copy::class) {
         from("build/classes/kotlin/js/main") {
             include("**/*.js")
         }

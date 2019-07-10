@@ -37,18 +37,18 @@
     <orderEntry type="jdk" jdkName="Kotlin SDK" jdkType="KotlinSDK" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="Gradle: org.jetbrains.kotlin:kotlin-stdlib-common:1.3.40" level="project" />
-    <orderEntry type="library" name="Gradle: io.ktor:ktor-utils:1.2.2" level="project" />
-    <orderEntry type="library" name="Gradle: org.jetbrains.kotlinx:kotlinx-serialization-runtime-common:0.11.1" level="project" />
-    <orderEntry type="library" name="Gradle: org.jetbrains.kotlinx:atomicfu-common:0.12.9" level="project" />
-    <orderEntry type="library" name="Gradle: org.jetbrains:annotations:13.0" level="project" />
-    <orderEntry type="library" name="Gradle: io.ktor:ktor-http-cio:1.2.2" level="project" />
-    <orderEntry type="library" name="Gradle: io.ktor:ktor-http:1.2.2" level="project" />
-    <orderEntry type="library" name="Gradle: org.jetbrains.kotlinx:kotlinx-coroutines-io:0.1.10" level="project" />
-    <orderEntry type="library" name="Gradle: org.jetbrains.kotlinx:atomicfu:0.12.9" level="project" />
-    <orderEntry type="library" name="Gradle: org.jetbrains.kotlinx:kotlinx-io:0.1.10" level="project" />
-    <orderEntry type="library" name="Gradle: org.jetbrains.kotlinx:kotlinx-coroutines-core-common:1.2.2" level="project" />
-    <orderEntry type="library" name="Gradle: org.jetbrains.kotlin:kotlin-stdlib:1.3.40" level="project" />
-    <orderEntry type="library" name="Gradle: io.ktor:ktor-client-core:1.2.2" level="project" />
     <orderEntry type="library" name="Gradle: org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.0-M2" level="project" />
+    <orderEntry type="library" name="Gradle: org.jetbrains.kotlinx:kotlinx-serialization-runtime-common:0.11.1" level="project" />
+    <orderEntry type="library" name="Gradle: io.ktor:ktor-client-core:1.2.2" level="project" />
+    <orderEntry type="library" name="Gradle: org.jetbrains.kotlin:kotlin-stdlib:1.3.40" level="project" />
+    <orderEntry type="library" name="Gradle: org.jetbrains.kotlinx:kotlinx-coroutines-core-common:1.2.2" level="project" />
+    <orderEntry type="library" name="Gradle: org.jetbrains.kotlinx:kotlinx-io:0.1.10" level="project" />
+    <orderEntry type="library" name="Gradle: org.jetbrains.kotlinx:atomicfu:0.12.9" level="project" />
+    <orderEntry type="library" name="Gradle: org.jetbrains.kotlinx:kotlinx-coroutines-io:0.1.10" level="project" />
+    <orderEntry type="library" name="Gradle: io.ktor:ktor-http:1.2.2" level="project" />
+    <orderEntry type="library" name="Gradle: io.ktor:ktor-http-cio:1.2.2" level="project" />
+    <orderEntry type="library" name="Gradle: org.jetbrains:annotations:13.0" level="project" />
+    <orderEntry type="library" name="Gradle: org.jetbrains.kotlinx:atomicfu-common:0.12.9" level="project" />
+    <orderEntry type="library" name="Gradle: io.ktor:ktor-utils:1.2.2" level="project" />
   </component>
 </module>

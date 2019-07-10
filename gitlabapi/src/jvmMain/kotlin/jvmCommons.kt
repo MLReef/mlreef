@@ -1,4 +1,4 @@
-package com.mlreef
+package com.mlreef.gitlabapi.v4
 
 import kotlinx.coroutines.runBlocking
 

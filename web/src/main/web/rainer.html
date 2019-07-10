@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset='utf-8'>
+    <meta content='IE=edge' http-equiv='X-UA-Compatible'>
+    <title>Sign Up</title>
+    <meta content='width=device-width, initial-scale=1' name='viewport'>
+    <link href='css/signup.css' media='screen' rel='stylesheet' type='text/css'>
+    <script src='javascript/kotlin.js'></script>
+    <script src='javascript/kotlinx-io.js'></script>
+    <script src='javascript/kotlinx-coroutines-core.js'></script>
+    <script src='javascript/kotlinx-coroutines-io.js'></script>
+    <script src='javascript/kotlinx-serialization-runtime-js.js'></script>
+    <script src='javascript/ktor-ktor-utils.js'></script>
+    <script src='javascript/ktor-ktor-http.js'></script>
+    <script src='javascript/ktor-ktor-http-cio.js'></script>
+    <script src='javascript/ktor-ktor-client-core.js'></script>
+    <script src='javascript/kotlinx-serialization-kotlinx-serialization-runtime.js'></script>
+
+    <script src='kotlin/gitlabapi.js'></script>
+    <script src='kotlin/output.js'></script>
+</head>
+
+<body>
+<img alt="MlReef Logo" src="logos/MLReef_Logo_POS_H_icon-01.png"/>
+
+<script>
+    var token = "4s129mSs6v1iw_uDzDc7";
+    var group = "mlreef";
+    gitlabapi.getGroup(token, group).then(function (res) {
+        //alert (res.description);
+    });
+
+    gitlabapi.com.mlreef.gitlabapi.v4.debugLogEnabled = false;
+    alert(gitlabapi.com.mlreef.gitlabapi.v4.debugLogEnabled)
+</script>
+
+
+</body>
+
+</html>
+

@@ -4,8 +4,8 @@
     <facet type="kotlin-language" name="Kotlin">
       <configuration version="3" platform="JavaScript " useProjectSettings="false" isTestModule="true" externalProjectId=":gitlabapi">
         <sourceSets>
-          <sourceSet>com.mlreef.gitlabapi.commonMain</sourceSet>
           <sourceSet>com.mlreef.gitlabapi.jsMain</sourceSet>
+          <sourceSet>com.mlreef.gitlabapi.commonMain</sourceSet>
           <sourceSet>com.mlreef.gitlabapi.commonTest</sourceSet>
         </sourceSets>
         <newMppModelJpsModuleKind>COMPILATION_AND_SOURCE_SET_HOLDER</newMppModelJpsModuleKind>
@@ -52,7 +52,7 @@
     </content>
     <orderEntry type="jdk" jdkName="Kotlin SDK" jdkType="KotlinSDK" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="module" module-name="com.mlreef.gitlabapi.commonMain" scope="TEST" />
+    <orderEntry type="module" module-name="com.mlreef.gitlabapi.jsMain" scope="TEST" />
     <orderEntry type="library" scope="TEST" name="Gradle: io.ktor:ktor-utils-js:1.2.2" level="project" />
     <orderEntry type="library" scope="TEST" name="Gradle: io.ktor:ktor-http-cio-js:1.2.2" level="project" />
     <orderEntry type="library" scope="TEST" name="Gradle: io.ktor:ktor-http-js:1.2.2" level="project" />
@@ -82,7 +82,7 @@
     <orderEntry type="library" scope="TEST" name="Gradle: org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.0-M2" level="project" />
     <orderEntry type="library" scope="TEST" name="Gradle: org.jetbrains.kotlin:kotlin-stdlib-common:1.3.40" level="project" />
     <orderEntry type="module" module-name="com.mlreef.gitlabapi.commonTest" scope="TEST" production-on-test="" />
-    <orderEntry type="module" module-name="com.mlreef.gitlabapi.jsMain" scope="TEST" />
+    <orderEntry type="module" module-name="com.mlreef.gitlabapi.commonMain" scope="TEST" />
   </component>
   <component name="TestModuleProperties" production-module="com.mlreef.gitlabapi.jsMain" />
 </module>

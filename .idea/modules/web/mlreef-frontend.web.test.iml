@@ -1,14 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<module external.linked.project.id=":web:main" external.linked.project.path="$MODULE_DIR$/../../../web" external.root.project.path="$MODULE_DIR$/../../.." external.system.id="GRADLE" external.system.module.group="com.mlreef" external.system.module.type="sourceSet" external.system.module.version="1.0-SNAPSHOT" type="JAVA_MODULE" version="4">
+<module external.linked.project.id=":web:test" external.linked.project.path="$MODULE_DIR$/../../../web" external.root.project.path="$MODULE_DIR$/../../.." external.system.id="GRADLE" external.system.module.group="com.mlreef" external.system.module.type="sourceSet" external.system.module.version="1.0-SNAPSHOT" type="JAVA_MODULE" version="4">
   <component name="FacetManager">
     <facet type="kotlin-language" name="Kotlin">
       <configuration version="3" platform="JavaScript " useProjectSettings="false">
-        <testOutputPath>$MODULE_DIR$/../../../web/build/classes/kotlin/test/web_test.js</testOutputPath>
+        <productionOutputPath>$MODULE_DIR$/../../../web/src/main/web/kotlin/output.js</productionOutputPath>
         <compilerSettings />
         <compilerArguments>
-          <option name="outputFile" value="$MODULE_DIR$/../../../web/src/main/web/kotlin/output.js" />
+          <option name="outputFile" value="$MODULE_DIR$/../../../web/build/classes/kotlin/test/web_test.js" />
           <option name="noStdlib" value="true" />
-          <option name="sourceMap" value="true" />
           <option name="metaInfo" value="true" />
           <option name="target" value="v5" />
           <option name="main" value="call" />
@@ -28,13 +27,12 @@
     </facet>
   </component>
   <component name="NewModuleRootManager" LANGUAGE_LEVEL="JDK_1_8">
-    <output url="file://$MODULE_DIR$/../../../web/out/production/classes" />
+    <output-test url="file://$MODULE_DIR$/../../../web/out/test/classes" />
     <exclude-output />
-    <content url="file://$MODULE_DIR$/../../../web/src/main">
-      <sourceFolder url="file://$MODULE_DIR$/../../../web/src/main/kotlin" type="kotlin-source" />
-    </content>
+    <content url="file://$MODULE_DIR$/../../../web/src/test" />
     <orderEntry type="jdk" jdkName="Kotlin SDK" jdkType="KotlinSDK" />
     <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="module" module-name="mlreef-frontend.web.main" />
     <orderEntry type="library" name="Gradle: io.ktor:ktor-client-js:1.2.2" level="project" />
     <orderEntry type="library" name="Gradle: io.ktor:ktor-client-core-js:1.2.2" level="project" />
     <orderEntry type="library" name="Gradle: io.ktor:ktor-http-cio-js:1.2.2" level="project" />
@@ -50,8 +48,8 @@
     <orderEntry type="library" name="Gradle: org.jetbrains.kotlinx:kotlinx-coroutines-core-common:1.2.2" level="project" />
     <orderEntry type="library" scope="RUNTIME" name="Gradle: org.jetbrains.kotlin:kotlin-test-nodejs-runner:1.3.40" level="project" />
     <orderEntry type="library" name="Gradle: org.jetbrains.kotlin:kotlin-stdlib-common:1.3.41" level="project" />
-    <orderEntry type="library" scope="RUNTIME" name="Gradle: org.jetbrains.kotlin:kotlin-test-js:1.3.40" level="project" />
     <orderEntry type="library" name="Gradle: org.jetbrains.kotlinx:atomicfu-js:0.12.9" level="project" />
+    <orderEntry type="library" scope="RUNTIME" name="Gradle: org.jetbrains.kotlin:kotlin-test-js:1.3.40" level="project" />
     <orderEntry type="library" name="Gradle: org.jetbrains.kotlinx:atomicfu-common:0.12.9" level="project" />
     <orderEntry type="library" name="Gradle: org.jetbrains.kotlinx:atomicfu:0.12.9" level="project" />
     <orderEntry type="library" scope="RUNTIME" name="Gradle: org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.0-M2" level="project" />
@@ -64,7 +62,10 @@
     <orderEntry type="library" scope="RUNTIME" name="Gradle: org.jetbrains.kotlin:kotlin-test-common:1.3.40" level="project" />
     <orderEntry type="library" scope="RUNTIME" name="Gradle: org.jetbrains.kotlin:kotlin-test-annotations-common:1.3.40" level="project" />
     <orderEntry type="library" scope="RUNTIME" name="Gradle: org.jetbrains:annotations:13.0" level="project" />
-    <orderEntry type="module" module-name="com.mlreef.gitlabapi.jsMain" />
-    <orderEntry type="module" module-name="com.mlreef.gitlabapi.commonMain" />
+    <orderEntry type="module" module-name="com.mlreef.gitlabapi.jsMain" scope="TEST" />
+    <orderEntry type="module" module-name="com.mlreef.gitlabapi.commonMain" scope="TEST" />
+    <orderEntry type="module" module-name="com.mlreef.gitlabapi.jsTest" scope="TEST" production-on-test="" />
+    <orderEntry type="module" module-name="com.mlreef.gitlabapi.commonTest" scope="TEST" production-on-test="" />
   </component>
+  <component name="TestModuleProperties" production-module="mlreef-frontend.web.main" />
 </module>

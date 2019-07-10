@@ -23,17 +23,14 @@
 </head>
 
 <body>
-<img src="logos/MLReef_Logo_POS_H_icon-01.png"/>
+<img alt="MlReef Logo" src="logos/MLReef_Logo_POS_H_icon-01.png"/>
 
 <script>
     var token = "4s129mSs6v1iw_uDzDc7";
-    var group = "mlreef"
-    function getDescription() {
-        gitlabapi.com.mlreef.gitlabapi.getGroup(token, group).then(function(res) {
+    var group = "mlreef";
+        gitlabapi.getGroup(token, group).then(function (res) {
             alert (res.description);
         });
-    }
-    getDescription();
 </script>
 <form class="sign-in">
 
