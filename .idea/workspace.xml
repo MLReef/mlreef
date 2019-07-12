@@ -1,0 +1,1326 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="1b79e006-72ce-4a2b-bc0e-effdf2ba21e7" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/web/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/web/package.json" afterDir="false" />
+    </list>
+    <ignored path="$PROJECT_DIR$/gitlab-api/.gradle/" />
+    <ignored path="$PROJECT_DIR$/gitlab-api/build/" />
+    <ignored path="gitlab-api/gradlew" />
+    <ignored path="gitlab-api/gradlew.bat" />
+    <ignored path="gitlab-api/gradle/wrapper/gradle-wrapper.properties" />
+    <ignored path="gitlab-api/gradle/wrapper/gradle-wrapper.jar" />
+    <ignored path="$PROJECT_DIR$/gitlab-api/out/" />
+    <ignored path="$PROJECT_DIR$/gitlabapi/.gradle/" />
+    <ignored path="$PROJECT_DIR$/gitlabapi/build/" />
+    <ignored path="$PROJECT_DIR$/untitled/.gradle/" />
+    <ignored path="$PROJECT_DIR$/untitled/build/" />
+    <ignored path="$PROJECT_DIR$/.gradle/" />
+    <ignored path="$PROJECT_DIR$/build/" />
+    <ignored path="$PROJECT_DIR$/we/.gradle/" />
+    <ignored path="$PROJECT_DIR$/we/build/" />
+    <ignored path="$PROJECT_DIR$/web/.gradle/" />
+    <ignored path="$PROJECT_DIR$/web/build/" />
+    <ignored path="$PROJECT_DIR$/leweb/.gradle/" />
+    <ignored path="$PROJECT_DIR$/leweb/build/" />
+    <ignored path="$PROJECT_DIR$/web/out/" />
+    <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="DefaultGradleProjectSettings">
+    <option name="isMigrated" value="true" />
+  </component>
+  <component name="ExternalProjectsData">
+    <projectState path="$PROJECT_DIR$">
+      <ProjectState />
+    </projectState>
+    <projectState path="$PROJECT_DIR$/gitlab-api">
+      <ProjectState />
+    </projectState>
+    <projectState path="$PROJECT_DIR$/gitlabapi">
+      <ProjectState />
+    </projectState>
+    <projectState path="$PROJECT_DIR$/leweb">
+      <ProjectState />
+    </projectState>
+    <projectState path="$PROJECT_DIR$/untitled">
+      <ProjectState />
+    </projectState>
+  </component>
+  <component name="ExternalProjectsManager">
+    <system id="GRADLE">
+      <state>
+        <task path="$PROJECT_DIR$/gitlab-api">
+          <activation />
+        </task>
+        <task path="$PROJECT_DIR$/build.gradle">
+          <activation />
+        </task>
+        <task path="$PROJECT_DIR$/gitlabapi">
+          <activation />
+        </task>
+        <task path="$PROJECT_DIR$">
+          <activation />
+        </task>
+        <task path="$PROJECT_DIR$/web">
+          <activation />
+        </task>
+        <projects_view>
+          <tree_state>
+            <expand>
+              <path>
+                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
+                <item name="mlreef-frontend" type="f1a62948:ProjectNode" />
+              </path>
+              <path>
+                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
+                <item name="mlreef-frontend" type="f1a62948:ProjectNode" />
+                <item name="Tasks" type="e4a08cd1:TasksNode" />
+              </path>
+            </expand>
+            <select />
+          </tree_state>
+        </projects_view>
+      </state>
+    </system>
+  </component>
+  <component name="FileEditorManager">
+    <leaf />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Kotlin File" />
+        <option value="HTML File" />
+      </list>
+    </option>
+  </component>
+  <component name="FindBugs-IDEA-Workspace">
+    <analyzeAfterCompile>true</analyzeAfterCompile>
+    <analyzeAfterAutoMake>true</analyzeAfterAutoMake>
+    <runInBackground>true</runInBackground>
+    <toolWindowToFront>false</toolWindowToFront>
+    <analyzeBeforeCheckIn>true</analyzeBeforeCheckIn>
+  </component>
+  <component name="FindInProjectRecents">
+    <findStrings>
+      <find>gradle</find>
+      <find>gitl</find>
+      <find>compile</find>
+      <find>name</find>
+      <find>&quot; }</find>
+      <find>getLegRou</find>
+      <find>web</find>
+      <find>' /&gt;</find>
+      <find>main()</find>
+      <find>CoroutineImpl</find>
+      <find>internal_0</find>
+      <find>main</find>
+      <find>main(</find>
+      <find>testtoken</find>
+      <find>lefunction</find>
+      <find>getGrou</find>
+      <find>getGroups</find>
+      <find>doResume</find>
+      <find>leFunction</find>
+      <find>please</find>
+      <find>usin</find>
+      <find>getGroup</find>
+      <find>also</find>
+      <find>kotlin</find>
+      <find>kotlin_serialization_version</find>
+      <find>gitlab</find>
+    </findStrings>
+    <replaceStrings>
+      <replace>&quot;)</replace>
+      <replace>$TARGET</replace>
+      <replace>/&gt;</replace>
+      <replace>'/&gt;</replace>
+      <replace>kotlinSerializationVersion</replace>
+    </replaceStrings>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="master" />
+      </map>
+    </option>
+    <option name="RESET_MODE" value="HARD" />
+  </component>
+  <component name="IdeDocumentHistory">
+    <option name="CHANGED_PATHS">
+      <list>
+        <option value="$PROJECT_DIR$/web/signup.html" />
+        <option value="$PROJECT_DIR$/gitlabapi/src/commonTest/kotlin/gitlabapi/v4/ModelTest.kt" />
+        <option value="$PROJECT_DIR$/gitlabapi/src/commonTest/kotlin/packageDeclaration.kt" />
+        <option value="$PROJECT_DIR$/gitlabapi/src/jsMain/kotlin/sample/SampleJs.kt" />
+        <option value="$PROJECT_DIR$/gitlabapi/src/commonMain/kotlin/gitlabapi/v4/gitlabApi.kt" />
+        <option value="$PROJECT_DIR$/gitlabapi/src/commonMain/kotlin/gitlabapi/v4/model.kt" />
+        <option value="$PROJECT_DIR$/gitlabapi/src/commonMain/kotlin/main.kt" />
+        <option value="$PROJECT_DIR$/gitlabapi/src/commonTest/kotlin/gitlabapi/v4/GroupModelTest.kt" />
+        <option value="$PROJECT_DIR$/gitlabapi/src/commonTest/kotlin/gitlabapi/v4/GitlabApiV4Test.kt" />
+        <option value="$PROJECT_DIR$/gitlabapi/src/commonTest/kotlin/gitlabapi/v4/FileTreeModelTest.kt" />
+        <option value="$PROJECT_DIR$/gitlabapi/src/jsMain/kotlin/gitlabapi/gitlabApiV4.kt" />
+        <option value="$PROJECT_DIR$/gitlabapi/src/jvmMain/kotlin/gitlabApiV4.kt" />
+        <option value="$PROJECT_DIR$/gitlabapi/src/jsMain/kotlin/gitlabApiV4.kt" />
+        <option value="$PROJECT_DIR$/web/src/main/web/kotlin/gitlabapi.js" />
+        <option value="$PROJECT_DIR$/web/src/main/web/kotlin/output.js" />
+        <option value="$PROJECT_DIR$/gitlabapi/src/commonTest/kotlin/GroupModelTest.kt" />
+        <option value="$PROJECT_DIR$/gitlabapi/src/jvmMain/kotlin/kommons.kt" />
+        <option value="$PROJECT_DIR$/gitlabapi/src/commonMain/kotlin/kommons.kt" />
+        <option value="$PROJECT_DIR$/gitlabapi/src/jsMain/kotlin/kommons.kt" />
+        <option value="$PROJECT_DIR$/web/src/main/web/commits.html" />
+        <option value="$PROJECT_DIR$/gitlabapi/src/commonTest/kotlin/GitlabApiV4Test.kt" />
+        <option value="$PROJECT_DIR$/gitlabapi/src/commonTest/kotlin/FileTreeModelTest.kt" />
+        <option value="$PROJECT_DIR$/gitlabapi/src/commonMain/kotlin/model.kt" />
+        <option value="$PROJECT_DIR$/web/src/main/web/overview.html" />
+        <option value="$PROJECT_DIR$/gitlabapi/src/jsMain/kotlin/gitlabWrapper.kt" />
+        <option value="$PROJECT_DIR$/web/src/main/web/rainer.html" />
+        <option value="$PROJECT_DIR$/gitlabapi/src/jvmMain/kotlin/commons.kt" />
+        <option value="$PROJECT_DIR$/gitlabapi/src/commonMain/kotlin/commons.kt" />
+        <option value="$PROJECT_DIR$/gitlabapi/src/commonMain/kotlin/gitlabApi.kt" />
+        <option value="$PROJECT_DIR$/web/src/main/web/index.html" />
+        <option value="$PROJECT_DIR$/web/src/main/web/package.json" />
+        <option value="$PROJECT_DIR$/my-app/src/app/App.kt" />
+        <option value="$PROJECT_DIR$/web/src/main/web/src/index.js" />
+        <option value="$PROJECT_DIR$/web/src/main/web/src/App.js" />
+        <option value="$PROJECT_DIR$/web/src/main/web/src/components/files-container.js" />
+        <option value="$PROJECT_DIR$/web/src/main/web/src/kotlin/gitlabapi.js" />
+        <option value="$APPLICATION_CONFIG_DIR$/scratches/scratch.json" />
+        <option value="$PROJECT_DIR$/web/src/App.js" />
+        <option value="$PROJECT_DIR$/web/src/main/kotlin/model.kt" />
+        <option value="$PROJECT_DIR$/web/build.gradle.kts" />
+        <option value="$PROJECT_DIR$/web/src/main/kotlin/main.kt" />
+        <option value="$PROJECT_DIR$/gitlabapi/build.gradle.kts" />
+        <option value="$PROJECT_DIR$/web/src/kotlinjs/output.js" />
+        <option value="$PROJECT_DIR$/settings.gradle.kts" />
+        <option value="$PROJECT_DIR$/web/src/components/repo-features.js" />
+        <option value="$PROJECT_DIR$/web/src/components/projectView.js" />
+        <option value="$PROJECT_DIR$/web/src/components/projectInfo.js" />
+        <option value="$PROJECT_DIR$/web/src/components/navbar.js" />
+        <option value="$PROJECT_DIR$/web/src/components/files-container.js" />
+        <option value="$PROJECT_DIR$/.gitlab-ci.yml" />
+        <option value="$PROJECT_DIR$/web/package.json" />
+      </list>
+    </option>
+  </component>
+  <component name="ProjectFrameBounds" extendedState="6">
+    <option name="y" value="23" />
+    <option name="width" value="2389" />
+    <option name="height" value="1417" />
+  </component>
+  <component name="ProjectLevelVcsManager">
+    <OptionsSetting value="false" id="Update" />
+  </component>
+  <component name="ProjectView">
+    <navigator proportions="" version="1">
+      <flattenPackages ProjectPane="false" />
+      <foldersAlwaysOnTop value="true" />
+    </navigator>
+    <panes>
+      <pane id="PackagesPane" />
+      <pane id="Scope">
+        <subPane subId="Scope 'Project Files'; set:Project Files; class com.intellij.psi.search.scope.ProjectFilesScope">
+          <expand>
+            <path>
+              <item name="gitlabapi" type="3d21c010:ScopeViewTreeModel$ProjectNode" />
+              <item name="" type="442cc68d:ScopeViewTreeModel$RootNode" />
+            </path>
+            <path>
+              <item name="gitlabapi" type="3d21c010:ScopeViewTreeModel$ProjectNode" />
+              <item name="com" type="2674bda8:ScopeViewTreeModel$GroupNode" />
+            </path>
+            <path>
+              <item name="gitlabapi" type="3d21c010:ScopeViewTreeModel$ProjectNode" />
+              <item name="com" type="2674bda8:ScopeViewTreeModel$GroupNode" />
+              <item name="mlreef" type="2674bda8:ScopeViewTreeModel$GroupNode" />
+            </path>
+          </expand>
+          <select />
+        </subPane>
+      </pane>
+      <pane id="ProjectPane">
+        <subPane>
+          <expand>
+            <path>
+              <item name="mlreef-frontend" type="b2602c69:ProjectViewProjectNode" />
+              <item name="mlreef-frontend" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
+            </path>
+            <path>
+              <item name="mlreef-frontend" type="b2602c69:ProjectViewProjectNode" />
+              <item name="mlreef-frontend" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
+              <item name="web" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
+            </path>
+          </expand>
+          <select />
+        </subPane>
+      </pane>
+    </panes>
+  </component>
+  <component name="PropertiesComponent">
+    <property name="DefaultHtmlFileTemplate" value="HTML File" />
+    <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
+    <property name="WebServerToolWindowFactoryState" value="false" />
+    <property name="aspect.path.notification.shown" value="true" />
+    <property name="com.intellij.ide.scratch.LRUPopupBuilder$1/New Scratch File" value="JSON" />
+    <property name="full.screen.before.presentation.mode" value="false" />
+    <property name="jdk.selected.JAVA_MODULE" value="Kotlin SDK" />
+    <property name="last_directory_selection" value="$PROJECT_DIR$/gitlabapi/src/jvmMain/kotlin" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/web/src/main/kotlin" />
+    <property name="node.js.detected.package.eslint" value="true" />
+    <property name="node.js.path.for.package.eslint" value="project" />
+    <property name="node.js.selected.package.eslint" value="(autodetect)" />
+    <property name="nodejs_package_manager_path" value="npm" />
+    <property name="project.structure.last.edited" value="Libraries" />
+    <property name="project.structure.proportion" value="0.15" />
+    <property name="project.structure.side.proportion" value="0.2" />
+    <property name="settings.editor.selected.configurable" value="project.kotlinCompiler" />
+    <property name="ts.external.directory.path" value="$APPLICATION_HOME_DIR$/plugins/JavaScriptLanguage/jsLanguageServicesImpl/external" />
+  </component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/web/src/main/kotlin" />
+      <recent name="$PROJECT_DIR$/web/src/main/web" />
+      <recent name="$PROJECT_DIR$/gitlabapi/src/commonTest/kotlin/gitlabapi/v4" />
+      <recent name="$PROJECT_DIR$/web" />
+      <recent name="$PROJECT_DIR$/gitlabapi/src/jsMain/kotlin" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/web/src" />
+      <recent name="$PROJECT_DIR$/web" />
+      <recent name="$PROJECT_DIR$/web/src/main/web/src/components" />
+      <recent name="$PROJECT_DIR$/gitlabapi/src/commonTest/kotlin" />
+      <recent name="$PROJECT_DIR$/gitlabapi/src/commonMain/kotlin" />
+    </key>
+  </component>
+  <component name="RunDashboard">
+    <option name="ruleStates">
+      <list>
+        <RuleState>
+          <option name="name" value="ConfigurationTypeDashboardGroupingRule" />
+        </RuleState>
+        <RuleState>
+          <option name="name" value="StatusDashboardGroupingRule" />
+        </RuleState>
+      </list>
+    </option>
+  </component>
+  <component name="RunManager" selected="Gradle.gitlab-api [jsTest jvmTest macosTest]">
+    <configuration name="gitlab-api [build clean]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+      <ExternalSystemSettings>
+        <option name="executionName" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$/gitlab-api" />
+        <option name="externalSystemIdString" value="GRADLE" />
+        <option name="scriptParameters" />
+        <option name="taskDescriptions">
+          <list />
+        </option>
+        <option name="taskNames">
+          <list>
+            <option value="build" />
+            <option value="clean" />
+          </list>
+        </option>
+        <option name="vmOptions" />
+      </ExternalSystemSettings>
+      <GradleScriptDebugEnabled>true</GradleScriptDebugEnabled>
+      <method v="2" />
+    </configuration>
+    <configuration name="gitlab-api [build]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+      <ExternalSystemSettings>
+        <option name="executionName" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$/gitlab-api" />
+        <option name="externalSystemIdString" value="GRADLE" />
+        <option name="scriptParameters" />
+        <option name="taskDescriptions">
+          <list />
+        </option>
+        <option name="taskNames">
+          <list>
+            <option value="build" />
+          </list>
+        </option>
+        <option name="vmOptions" />
+      </ExternalSystemSettings>
+      <GradleScriptDebugEnabled>true</GradleScriptDebugEnabled>
+      <method v="2" />
+    </configuration>
+    <configuration name="gitlab-api [clean build]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+      <ExternalSystemSettings>
+        <option name="executionName" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$/gitlab-api" />
+        <option name="externalSystemIdString" value="GRADLE" />
+        <option name="scriptParameters" />
+        <option name="taskDescriptions">
+          <list />
+        </option>
+        <option name="taskNames">
+          <list>
+            <option value="clean" />
+            <option value="build" />
+          </list>
+        </option>
+        <option name="vmOptions" />
+      </ExternalSystemSettings>
+      <GradleScriptDebugEnabled>true</GradleScriptDebugEnabled>
+      <method v="2" />
+    </configuration>
+    <configuration name="gitlab-api [clean]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+      <ExternalSystemSettings>
+        <option name="executionName" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$/gitlab-api" />
+        <option name="externalSystemIdString" value="GRADLE" />
+        <option name="scriptParameters" />
+        <option name="taskDescriptions">
+          <list />
+        </option>
+        <option name="taskNames">
+          <list>
+            <option value="clean" />
+          </list>
+        </option>
+        <option name="vmOptions" />
+      </ExternalSystemSettings>
+      <GradleScriptDebugEnabled>true</GradleScriptDebugEnabled>
+      <method v="2" />
+    </configuration>
+    <configuration name="gitlab-api [jsTest jvmTest macosTest]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+      <ExternalSystemSettings>
+        <option name="executionName" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$/gitlab-api" />
+        <option name="externalSystemIdString" value="GRADLE" />
+        <option name="scriptParameters" />
+        <option name="taskDescriptions">
+          <list />
+        </option>
+        <option name="taskNames">
+          <list>
+            <option value="jsTest" />
+            <option value="jvmTest" />
+            <option value="macosTest" />
+          </list>
+        </option>
+        <option name="vmOptions" />
+      </ExternalSystemSettings>
+      <GradleScriptDebugEnabled>true</GradleScriptDebugEnabled>
+      <method v="2" />
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Gradle.gitlab-api [jsTest jvmTest macosTest]" />
+        <item itemvalue="Gradle.gitlab-api [clean]" />
+        <item itemvalue="Gradle.gitlab-api [clean build]" />
+        <item itemvalue="Gradle.gitlab-api [build]" />
+        <item itemvalue="Gradle.gitlab-api [build clean]" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="SvnConfiguration">
+    <configuration />
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="1b79e006-72ce-4a2b-bc0e-effdf2ba21e7" name="Default Changelist" comment="" />
+      <created>1561877760736</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1561877760736</updated>
+      <workItem from="1561971767231" duration="5029000" />
+      <workItem from="1562046733658" duration="7176000" />
+      <workItem from="1562399131506" duration="19825000" />
+      <workItem from="1562419564460" duration="261000" />
+      <workItem from="1562420085060" duration="20255000" />
+      <workItem from="1562448382658" duration="3805000" />
+      <workItem from="1562597228512" duration="219000" />
+      <workItem from="1562597454333" duration="1247000" />
+      <workItem from="1562599133856" duration="4685000" />
+      <workItem from="1562686551408" duration="24715000" />
+    </task>
+    <task id="LOCAL-00053" summary="Add test react project">
+      <created>1562431369527</created>
+      <option name="number" value="00053" />
+      <option name="presentableId" value="LOCAL-00053" />
+      <option name="project" value="LOCAL" />
+      <updated>1562431369527</updated>
+    </task>
+    <task id="LOCAL-00054" summary="Add Test NPM includes to web">
+      <created>1562434412281</created>
+      <option name="number" value="00054" />
+      <option name="presentableId" value="LOCAL-00054" />
+      <option name="project" value="LOCAL" />
+      <updated>1562434412281</updated>
+    </task>
+    <task id="LOCAL-00055" summary="Remove temp project">
+      <created>1562434515327</created>
+      <option name="number" value="00055" />
+      <option name="presentableId" value="LOCAL-00055" />
+      <option name="project" value="LOCAL" />
+      <updated>1562434515328</updated>
+    </task>
+    <task id="LOCAL-00056" summary="Remove temp project">
+      <created>1562441283103</created>
+      <option name="number" value="00056" />
+      <option name="presentableId" value="LOCAL-00056" />
+      <option name="project" value="LOCAL" />
+      <updated>1562441283103</updated>
+    </task>
+    <task id="LOCAL-00057" summary="Reformating code">
+      <created>1562442168141</created>
+      <option name="number" value="00057" />
+      <option name="presentableId" value="LOCAL-00057" />
+      <option name="project" value="LOCAL" />
+      <updated>1562442168141</updated>
+    </task>
+    <task id="LOCAL-00058" summary="Add Javascript Dependencies">
+      <created>1562447399957</created>
+      <option name="number" value="00058" />
+      <option name="presentableId" value="LOCAL-00058" />
+      <option name="project" value="LOCAL" />
+      <updated>1562447399957</updated>
+    </task>
+    <task id="LOCAL-00059" summary="Add Cleanup">
+      <created>1562447952162</created>
+      <option name="number" value="00059" />
+      <option name="presentableId" value="LOCAL-00059" />
+      <option name="project" value="LOCAL" />
+      <updated>1562447952162</updated>
+    </task>
+    <task id="LOCAL-00060" summary="Move web sources to subfolder">
+      <created>1562449241860</created>
+      <option name="number" value="00060" />
+      <option name="presentableId" value="LOCAL-00060" />
+      <option name="project" value="LOCAL" />
+      <updated>1562449241861</updated>
+    </task>
+    <task id="LOCAL-00061" summary="Configure gitlab api js deployment">
+      <created>1562449505161</created>
+      <option name="number" value="00061" />
+      <option name="presentableId" value="LOCAL-00061" />
+      <option name="project" value="LOCAL" />
+      <updated>1562449505161</updated>
+    </task>
+    <task id="LOCAL-00062" summary="Add literature to readme">
+      <created>1562449611533</created>
+      <option name="number" value="00062" />
+      <option name="presentableId" value="LOCAL-00062" />
+      <option name="project" value="LOCAL" />
+      <updated>1562449611533</updated>
+    </task>
+    <task id="LOCAL-00063" summary="Switch to kotlin gradle dsl for web module">
+      <created>1562451347537</created>
+      <option name="number" value="00063" />
+      <option name="presentableId" value="LOCAL-00063" />
+      <option name="project" value="LOCAL" />
+      <updated>1562451347537</updated>
+    </task>
+    <task id="LOCAL-00064" summary="Merge 'master' into feature/kotlin-multi-platform">
+      <created>1562598593914</created>
+      <option name="number" value="00064" />
+      <option name="presentableId" value="LOCAL-00064" />
+      <option name="project" value="LOCAL" />
+      <updated>1562598593915</updated>
+    </task>
+    <task id="LOCAL-00065" summary="Cleanup Code">
+      <created>1562687347634</created>
+      <option name="number" value="00065" />
+      <option name="presentableId" value="LOCAL-00065" />
+      <option name="project" value="LOCAL" />
+      <updated>1562687347635</updated>
+    </task>
+    <task id="LOCAL-00066" summary="Cleanup Code">
+      <created>1562687461053</created>
+      <option name="number" value="00066" />
+      <option name="presentableId" value="LOCAL-00066" />
+      <option name="project" value="LOCAL" />
+      <updated>1562687461054</updated>
+    </task>
+    <task id="LOCAL-00067" summary="Cleanup Code">
+      <created>1562687498234</created>
+      <option name="number" value="00067" />
+      <option name="presentableId" value="LOCAL-00067" />
+      <option name="project" value="LOCAL" />
+      <updated>1562687498234</updated>
+    </task>
+    <task id="LOCAL-00068" summary="Add File Model">
+      <created>1562688237409</created>
+      <option name="number" value="00068" />
+      <option name="presentableId" value="LOCAL-00068" />
+      <option name="project" value="LOCAL" />
+      <updated>1562688237409</updated>
+    </task>
+    <task id="LOCAL-00069" summary="Fix package naming">
+      <created>1562738850819</created>
+      <option name="number" value="00069" />
+      <option name="presentableId" value="LOCAL-00069" />
+      <option name="project" value="LOCAL" />
+      <updated>1562738850819</updated>
+    </task>
+    <task id="LOCAL-00070" summary="Fix package naming">
+      <created>1562739186800</created>
+      <option name="number" value="00070" />
+      <option name="presentableId" value="LOCAL-00070" />
+      <option name="project" value="LOCAL" />
+      <updated>1562739186800</updated>
+    </task>
+    <task id="LOCAL-00071" summary="Fix package naming">
+      <created>1562739232034</created>
+      <option name="number" value="00071" />
+      <option name="presentableId" value="LOCAL-00071" />
+      <option name="project" value="LOCAL" />
+      <updated>1562739232034</updated>
+    </task>
+    <task id="LOCAL-00072" summary="Fix package naming">
+      <created>1562739713391</created>
+      <option name="number" value="00072" />
+      <option name="presentableId" value="LOCAL-00072" />
+      <option name="project" value="LOCAL" />
+      <updated>1562739713391</updated>
+    </task>
+    <task id="LOCAL-00073" summary="Fix package naming">
+      <created>1562740162349</created>
+      <option name="number" value="00073" />
+      <option name="presentableId" value="LOCAL-00073" />
+      <option name="project" value="LOCAL" />
+      <updated>1562740162349</updated>
+    </task>
+    <task id="LOCAL-00074" summary="Fix package naming">
+      <created>1562740180188</created>
+      <option name="number" value="00074" />
+      <option name="presentableId" value="LOCAL-00074" />
+      <option name="project" value="LOCAL" />
+      <updated>1562740180188</updated>
+    </task>
+    <task id="LOCAL-00075" summary="Add ls -la request">
+      <created>1562741591350</created>
+      <option name="number" value="00075" />
+      <option name="presentableId" value="LOCAL-00075" />
+      <option name="project" value="LOCAL" />
+      <updated>1562741591351</updated>
+    </task>
+    <task id="LOCAL-00076" summary="Embedd Request in Mayanks HTML">
+      <created>1562746217962</created>
+      <option name="number" value="00076" />
+      <option name="presentableId" value="LOCAL-00076" />
+      <option name="project" value="LOCAL" />
+      <updated>1562746217962</updated>
+    </task>
+    <task id="LOCAL-00077" summary="Embedd Request in Mayanks HTML">
+      <created>1562746320951</created>
+      <option name="number" value="00077" />
+      <option name="presentableId" value="LOCAL-00077" />
+      <option name="project" value="LOCAL" />
+      <updated>1562746320951</updated>
+    </task>
+    <task id="LOCAL-00078" summary="Embedd Request in Mayanks HTML">
+      <created>1562746388470</created>
+      <option name="number" value="00078" />
+      <option name="presentableId" value="LOCAL-00078" />
+      <option name="project" value="LOCAL" />
+      <updated>1562746388470</updated>
+    </task>
+    <task id="LOCAL-00079" summary="Embedd Request in Mayanks HTML">
+      <created>1562746452369</created>
+      <option name="number" value="00079" />
+      <option name="presentableId" value="LOCAL-00079" />
+      <option name="project" value="LOCAL" />
+      <updated>1562746452369</updated>
+    </task>
+    <task id="LOCAL-00080" summary="Add logging">
+      <created>1562751879336</created>
+      <option name="number" value="00080" />
+      <option name="presentableId" value="LOCAL-00080" />
+      <option name="project" value="LOCAL" />
+      <updated>1562751879336</updated>
+    </task>
+    <task id="LOCAL-00081" summary="Add logging">
+      <created>1562753213468</created>
+      <option name="number" value="00081" />
+      <option name="presentableId" value="LOCAL-00081" />
+      <option name="project" value="LOCAL" />
+      <updated>1562753213468</updated>
+    </task>
+    <task id="LOCAL-00082" summary="Add logging">
+      <created>1562753330645</created>
+      <option name="number" value="00082" />
+      <option name="presentableId" value="LOCAL-00082" />
+      <option name="project" value="LOCAL" />
+      <updated>1562753330653</updated>
+    </task>
+    <task id="LOCAL-00083" summary="Fix ci">
+      <created>1562753559777</created>
+      <option name="number" value="00083" />
+      <option name="presentableId" value="LOCAL-00083" />
+      <option name="project" value="LOCAL" />
+      <updated>1562753559777</updated>
+    </task>
+    <task id="LOCAL-00084" summary="Bli Bla Blubb">
+      <created>1562850743008</created>
+      <option name="number" value="00084" />
+      <option name="presentableId" value="LOCAL-00084" />
+      <option name="project" value="LOCAL" />
+      <updated>1562850743008</updated>
+    </task>
+    <task id="LOCAL-00085" summary="Fix">
+      <created>1562853855429</created>
+      <option name="number" value="00085" />
+      <option name="presentableId" value="LOCAL-00085" />
+      <option name="project" value="LOCAL" />
+      <updated>1562853855429</updated>
+    </task>
+    <task id="LOCAL-00086" summary="Fix">
+      <created>1562853938865</created>
+      <option name="number" value="00086" />
+      <option name="presentableId" value="LOCAL-00086" />
+      <option name="project" value="LOCAL" />
+      <updated>1562853938866</updated>
+    </task>
+    <task id="LOCAL-00087" summary="Refactor folder structure">
+      <created>1562854183669</created>
+      <option name="number" value="00087" />
+      <option name="presentableId" value="LOCAL-00087" />
+      <option name="project" value="LOCAL" />
+      <updated>1562854183669</updated>
+    </task>
+    <task id="LOCAL-00088" summary="Deactivate gitlab-deploy">
+      <created>1562913425967</created>
+      <option name="number" value="00088" />
+      <option name="presentableId" value="LOCAL-00088" />
+      <option name="project" value="LOCAL" />
+      <updated>1562913425967</updated>
+    </task>
+    <task id="LOCAL-00089" summary="Deactivate gitlab-deploy">
+      <created>1562913487373</created>
+      <option name="number" value="00089" />
+      <option name="presentableId" value="LOCAL-00089" />
+      <option name="project" value="LOCAL" />
+      <updated>1562913487373</updated>
+    </task>
+    <task id="LOCAL-00090" summary="Deactivate gitlab-deploy">
+      <created>1562913880785</created>
+      <option name="number" value="00090" />
+      <option name="presentableId" value="LOCAL-00090" />
+      <option name="project" value="LOCAL" />
+      <updated>1562913880785</updated>
+    </task>
+    <task id="LOCAL-00091" summary="Deactivate gitlab-deploy">
+      <created>1562914194855</created>
+      <option name="number" value="00091" />
+      <option name="presentableId" value="LOCAL-00091" />
+      <option name="project" value="LOCAL" />
+      <updated>1562914194855</updated>
+    </task>
+    <task id="LOCAL-00092" summary="Fix CI">
+      <created>1562915435568</created>
+      <option name="number" value="00092" />
+      <option name="presentableId" value="LOCAL-00092" />
+      <option name="project" value="LOCAL" />
+      <updated>1562915435568</updated>
+    </task>
+    <task id="LOCAL-00093" summary="Fix CI">
+      <created>1562915651230</created>
+      <option name="number" value="00093" />
+      <option name="presentableId" value="LOCAL-00093" />
+      <option name="project" value="LOCAL" />
+      <updated>1562915651230</updated>
+    </task>
+    <task id="LOCAL-00094" summary="Fix CI">
+      <created>1562915994846</created>
+      <option name="number" value="00094" />
+      <option name="presentableId" value="LOCAL-00094" />
+      <option name="project" value="LOCAL" />
+      <updated>1562915994846</updated>
+    </task>
+    <task id="LOCAL-00095" summary="Fix production code">
+      <created>1562916480574</created>
+      <option name="number" value="00095" />
+      <option name="presentableId" value="LOCAL-00095" />
+      <option name="project" value="LOCAL" />
+      <updated>1562916480574</updated>
+    </task>
+    <task id="LOCAL-00096" summary="Fix npm prod issues">
+      <created>1562916683943</created>
+      <option name="number" value="00096" />
+      <option name="presentableId" value="LOCAL-00096" />
+      <option name="project" value="LOCAL" />
+      <updated>1562916683943</updated>
+    </task>
+    <task id="LOCAL-00097" summary="Fix npm prod issues">
+      <created>1562917618927</created>
+      <option name="number" value="00097" />
+      <option name="presentableId" value="LOCAL-00097" />
+      <option name="project" value="LOCAL" />
+      <updated>1562917618927</updated>
+    </task>
+    <task id="LOCAL-00098" summary="Fix CI Build">
+      <created>1562917880008</created>
+      <option name="number" value="00098" />
+      <option name="presentableId" value="LOCAL-00098" />
+      <option name="project" value="LOCAL" />
+      <updated>1562917880008</updated>
+    </task>
+    <task id="LOCAL-00099" summary="Fix CI Build">
+      <created>1562918238438</created>
+      <option name="number" value="00099" />
+      <option name="presentableId" value="LOCAL-00099" />
+      <option name="project" value="LOCAL" />
+      <updated>1562918238438</updated>
+    </task>
+    <task id="LOCAL-00100" summary="Add CI Cache">
+      <created>1562918615577</created>
+      <option name="number" value="00100" />
+      <option name="presentableId" value="LOCAL-00100" />
+      <option name="project" value="LOCAL" />
+      <updated>1562918615577</updated>
+    </task>
+    <task id="LOCAL-00101" summary="Add node homepage paramter">
+      <created>1562918645374</created>
+      <option name="number" value="00101" />
+      <option name="presentableId" value="LOCAL-00101" />
+      <option name="project" value="LOCAL" />
+      <updated>1562918645374</updated>
+    </task>
+    <option name="localTasksCounter" value="102" />
+    <servers />
+  </component>
+  <component name="TestHistory">
+    <history-entry file="GitlabApiV4Test_[com_mlreef_gitlabapi_jvmTest] - 2019.07.10 at 08h 48m 15s.xml">
+      <configuration name="GitlabApiV4Test [com.mlreef.gitlabapi.jvmTest]" configurationId="JUnit" />
+    </history-entry>
+    <history-entry file="GitlabApiV4Test_[com_mlreef_gitlabapi_jvmTest] - 2019.07.10 at 08h 48m 52s.xml">
+      <configuration name="GitlabApiV4Test [com.mlreef.gitlabapi.jvmTest]" configurationId="JUnit" />
+    </history-entry>
+    <history-entry file="GitlabApiV4Test_[com_mlreef_gitlabapi_jvmTest] - 2019.07.10 at 08h 49m 11s.xml">
+      <configuration name="GitlabApiV4Test [com.mlreef.gitlabapi.jvmTest]" configurationId="JUnit" />
+    </history-entry>
+    <history-entry file="GitlabApiV4Test_[com_mlreef_gitlabapi_jvmTest] - 2019.07.10 at 08h 50m 02s.xml">
+      <configuration name="GitlabApiV4Test [com.mlreef.gitlabapi.jvmTest]" configurationId="JUnit" />
+    </history-entry>
+    <history-entry file="GitlabApiV4Test_[com_mlreef_gitlabapi_jvmTest] - 2019.07.10 at 08h 52m 47s.xml">
+      <configuration name="GitlabApiV4Test [com.mlreef.gitlabapi.jvmTest]" configurationId="JUnit" />
+    </history-entry>
+    <history-entry file="FileTreeModelTest_[com_mlreef_gitlabapi_jvmTest] - 2019.07.10 at 10h 00m 38s.xml">
+      <configuration name="FileTreeModelTest [com.mlreef.gitlabapi.jvmTest]" configurationId="JUnit" />
+    </history-entry>
+    <history-entry file="FileTreeModelTest_[com_mlreef_gitlabapi_jvmTest] - 2019.07.10 at 10h 03m 15s.xml">
+      <configuration name="FileTreeModelTest [com.mlreef.gitlabapi.jvmTest]" configurationId="JUnit" />
+    </history-entry>
+    <history-entry file="FileTreeModelTest_[com_mlreef_gitlabapi_jvmTest] - 2019.07.10 at 10h 03m 44s.xml">
+      <configuration name="FileTreeModelTest [com.mlreef.gitlabapi.jvmTest]" configurationId="JUnit" />
+    </history-entry>
+    <history-entry file="GitlabApiV4Test_[com_mlreef_gitlabapi_jvmTest] - 2019.07.10 at 11h 53m 03s.xml">
+      <configuration name="GitlabApiV4Test [com.mlreef.gitlabapi.jvmTest]" configurationId="JUnit" />
+    </history-entry>
+    <history-entry file="GitlabApiV4Test_[com_mlreef_gitlabapi_jvmTest] - 2019.07.10 at 11h 54m 40s.xml">
+      <configuration name="GitlabApiV4Test [com.mlreef.gitlabapi.jvmTest]" configurationId="JUnit" />
+    </history-entry>
+  </component>
+  <component name="TimeTrackingManager">
+    <option name="totallyTimeSpent" value="95080000" />
+  </component>
+  <component name="ToolWindowManager">
+    <frame x="0" y="23" width="2560" height="1417" extended-state="6" />
+    <layout>
+      <window_info id="Structure" order="0" side_tool="true" weight="0.25" />
+      <window_info id="Image Layers" order="1" />
+      <window_info id="Designer" order="2" />
+      <window_info id="Capture Tool" order="3" />
+      <window_info id="UI Designer" order="4" />
+      <window_info id="Favorites" order="5" side_tool="true" />
+      <window_info content_ui="combo" id="Project" order="6" visible="true" weight="0.19340746" />
+      <window_info id="Repositories" order="7" visible="true" weight="0.16878475" />
+      <window_info anchor="bottom" id="Message" order="0" />
+      <window_info anchor="bottom" id="Find" order="1" weight="0.32981133" />
+      <window_info anchor="bottom" id="Run" order="2" weight="0.25132075" />
+      <window_info anchor="bottom" id="Debug" order="3" weight="0.3864151" />
+      <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
+      <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
+      <window_info anchor="bottom" id="TODO" order="6" />
+      <window_info anchor="bottom" id="Version Control" order="7" weight="0.4083019" />
+      <window_info anchor="bottom" id="Terminal" order="8" visible="true" weight="0.35320756" />
+      <window_info anchor="bottom" id="Event Log" order="9" side_tool="true" />
+      <window_info anchor="bottom" id="Build" order="10" weight="0.32830188" />
+      <window_info anchor="bottom" id="Messages" order="11" weight="0.17056604" />
+      <window_info anchor="bottom" id="FindBugs-IDEA" order="12" weight="0.32981133" />
+      <window_info anchor="bottom" id="Docker" order="13" weight="0.32992125" />
+      <window_info anchor="bottom" id="Statistic" order="14" />
+      <window_info anchor="bottom" id="Database Changes" order="15" />
+      <window_info anchor="bottom" id="TypeScript" order="16" />
+      <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
+      <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
+      <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
+      <window_info anchor="right" id="Palette" order="3" />
+      <window_info anchor="right" id="Maven" order="4" />
+      <window_info active="true" anchor="right" id="Gradle" order="5" visible="true" weight="0.14177918" />
+      <window_info anchor="right" id="Theme Preview" order="6" />
+      <window_info anchor="right" id="Capture Analysis" order="7" />
+      <window_info anchor="right" id="Palette&#9;" order="8" />
+      <window_info anchor="right" id="SciView" order="9" />
+      <window_info anchor="right" id="Database" order="10" />
+    </layout>
+    <layout-to-restore>
+      <window_info id="Structure" order="0" side_tool="true" weight="0.25" />
+      <window_info id="Image Layers" order="1" />
+      <window_info id="Designer" order="2" />
+      <window_info id="Capture Tool" order="3" />
+      <window_info id="UI Designer" order="4" />
+      <window_info id="Favorites" order="5" side_tool="true" />
+      <window_info active="true" content_ui="combo" id="Project" order="6" visible="true" weight="0.15766482" />
+      <window_info id="Repositories" order="7" visible="true" weight="0.16878475" />
+      <window_info anchor="bottom" id="Message" order="0" />
+      <window_info anchor="bottom" id="Find" order="1" />
+      <window_info anchor="bottom" id="Run" order="2" weight="0.34716982" />
+      <window_info anchor="bottom" id="Debug" order="3" weight="0.22867924" />
+      <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
+      <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
+      <window_info anchor="bottom" id="TODO" order="6" />
+      <window_info anchor="bottom" id="Version Control" order="7" weight="0.4083019" />
+      <window_info anchor="bottom" id="Terminal" order="8" weight="0.4" />
+      <window_info anchor="bottom" id="Event Log" order="9" side_tool="true" />
+      <window_info anchor="bottom" id="Build" order="10" weight="0.32830188" />
+      <window_info anchor="bottom" id="Messages" order="11" weight="0.17056604" />
+      <window_info anchor="bottom" id="FindBugs-IDEA" order="12" weight="0.32981133" />
+      <window_info anchor="bottom" id="Docker" order="13" weight="0.32992125" />
+      <window_info anchor="bottom" id="Statistic" order="14" />
+      <window_info anchor="bottom" id="Database Changes" order="15" />
+      <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
+      <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
+      <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
+      <window_info anchor="right" id="Palette" order="3" />
+      <window_info anchor="right" id="Maven" order="4" />
+      <window_info anchor="right" id="Gradle" order="5" weight="0.27839556" />
+      <window_info anchor="right" id="Theme Preview" order="6" />
+      <window_info anchor="right" id="Capture Analysis" order="7" />
+      <window_info anchor="right" id="Palette&#9;" order="8" />
+      <window_info anchor="right" id="SciView" order="9" />
+      <window_info anchor="right" id="Database" order="10" />
+    </layout-to-restore>
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="1" />
+  </component>
+  <component name="UpdateCopyrightCheckinHandler">
+    <option name="UPDATE_COPYRIGHT" value="true" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State>
+              <option name="RECENTLY_FILTERED_USER_GROUPS">
+                <collection />
+              </option>
+              <option name="RECENTLY_FILTERED_BRANCH_GROUPS">
+                <collection />
+              </option>
+              <option name="COLUMN_ORDER">
+                <list>
+                  <option value="0" />
+                  <option value="1" />
+                  <option value="2" />
+                  <option value="3" />
+                </list>
+              </option>
+            </State>
+          </value>
+        </entry>
+      </map>
+    </option>
+    <option name="RECENT_FILTERS">
+      <map>
+        <entry key="Branch">
+          <value>
+            <list />
+          </value>
+        </entry>
+        <entry key="User">
+          <value>
+            <list />
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <option name="CHECK_CODE_CLEANUP_BEFORE_PROJECT_COMMIT" value="true" />
+    <MESSAGE value="Reformating code" />
+    <MESSAGE value="Add Javascript Dependencies" />
+    <MESSAGE value="Add Cleanup" />
+    <MESSAGE value="Move web sources to subfolder" />
+    <MESSAGE value="Configure gitlab api js deployment" />
+    <MESSAGE value="Add literature to readme" />
+    <MESSAGE value="Switch to kotlin gradle dsl for web module" />
+    <MESSAGE value="Merge 'master' into feature/kotlin-multi-platform" />
+    <MESSAGE value="Cleanup Code" />
+    <MESSAGE value="Add File Model" />
+    <MESSAGE value="Fix package naming" />
+    <MESSAGE value="Add ls -la request" />
+    <MESSAGE value="Embedd Request in Mayanks HTML" />
+    <MESSAGE value="Add logging" />
+    <MESSAGE value="Fix ci" />
+    <MESSAGE value="Bli Bla Blubb" />
+    <MESSAGE value="Fix" />
+    <MESSAGE value="Refactor folder structure" />
+    <MESSAGE value="Deactivate gitlab-deploy" />
+    <MESSAGE value="Fix CI" />
+    <MESSAGE value="Fix production code" />
+    <MESSAGE value="Fix npm prod issues" />
+    <MESSAGE value="Fix CI Build" />
+    <MESSAGE value="Add CI Cache" />
+    <MESSAGE value="Add node homepage paramter" />
+    <option name="LAST_COMMIT_MESSAGE" value="Add node homepage paramter" />
+    <option name="PRESELECT_EXISTING_CHANGELIST" value="true" />
+    <option name="OPTIMIZE_IMPORTS_BEFORE_PROJECT_COMMIT" value="true" />
+    <option name="REFORMAT_BEFORE_PROJECT_COMMIT" value="true" />
+    <option name="REARRANGE_BEFORE_PROJECT_COMMIT" value="true" />
+  </component>
+  <component name="editorHistoryManager">
+    <entry file="file://$PROJECT_DIR$/my-app/scripts/build.js" />
+    <entry file="file://$PROJECT_DIR$/my-app/src/app/App.kt" />
+    <entry file="file://$PROJECT_DIR$/my-app/scripts/gen-idea-libs.js" />
+    <entry file="file://$PROJECT_DIR$/my-app/README.md" />
+    <entry file="file://$PROJECT_DIR$/my-app/scripts/start.js" />
+    <entry file="file://$PROJECT_DIR$/my-app/node_modules/@jetbrains/kotlin-webpack-plugin/plugin.js" />
+    <entry file="file://$PROJECT_DIR$/my-app/package.json" />
+    <entry file="file://$PROJECT_DIR$/web/src/main/web/kotlin/gitlabapi.js" />
+    <entry file="file://$PROJECT_DIR$/web/src/main/web/src/components/output.meta.js" />
+    <entry file="file://$PROJECT_DIR$/web/node_modules/.bin/react-scripts">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="30">
+          <caret line="2" column="39" selection-start-line="2" selection-start-column="39" selection-end-line="2" selection-end-column="39" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/web/src/main/web/src/components/output.js" />
+    <entry file="file://$PROJECT_DIR$/web/src/kotlinjs/gitlabapi.js" />
+    <entry file="file://$PROJECT_DIR$/package-lock.json" />
+    <entry file="file://$PROJECT_DIR$/node_modules/ktor-client-core-js/ktor-client-core-js.js" />
+    <entry file="file://$APPLICATION_CONFIG_DIR$/scratches/scratch.json">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="45">
+          <caret line="3" selection-start-line="3" selection-end-line="3" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/web/node_modules/kotlinx-coroutines-core/package.json" />
+    <entry file="file://$PROJECT_DIR$/frontend-only/build.gradle" />
+    <entry file="file://$PROJECT_DIR$/web/node_modules/kotlinx-serialization-runtime-js/kotlinx-serialization-runtime-js.js" />
+    <entry file="file://$PROJECT_DIR$/gitlabapi/src/commonMain/kotlin/model.kt">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/web/src/main/kotlin/model.kt" />
+    <entry file="file://$APPLICATION_HOME_DIR$/plugins/JavaScriptLanguage/jsLanguageServicesImpl/external/lib.dom.d.ts">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="15">
+          <caret line="8806" column="4" selection-start-line="8806" selection-start-column="4" selection-end-line="8806" selection-end-column="4" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/web/node_modules/gitlab/dist/index.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="15">
+          <caret line="1" lean-forward="true" selection-start-line="1" selection-end-line="1" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/web/src/main/kotlin/main.kt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="160">
+          <caret line="8" lean-forward="true" selection-start-line="8" selection-end-line="8" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/gitlabapi/src/commonMain/kotlin/gitlabApi.kt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="526">
+          <caret line="64" column="12" selection-start-line="64" selection-start-column="12" selection-end-line="64" selection-end-column="12" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/gitlabapi/src/jsMain/kotlin/commons.kt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="120">
+          <caret line="9" selection-start-line="9" selection-end-line="9" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/gitlabapi/src/commonTest/kotlin/GitlabApiV4Test.kt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="570">
+          <caret line="41" selection-start-line="41" selection-end-line="41" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/web/src/kotlinjs/output.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="225">
+          <caret line="15" lean-forward="true" selection-start-line="15" selection-end-line="15" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/web/src/reducers/filesReducer.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state>
+          <folding>
+            <element signature="e#0#42#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/web/src/reducers/initialState.js">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/web/src/reducers/index.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state>
+          <folding>
+            <element signature="e#0#38#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/web/src/components/repo-info.js">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/web/src/components/readMe.js">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/web/src/components/projectContainer.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="435">
+          <caret line="29" column="1" selection-start-line="29" selection-start-column="1" selection-end-line="29" selection-end-column="1" />
+          <folding>
+            <element signature="e#0#26#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/web/src/store/index.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="120">
+          <caret line="8" column="22" selection-start-line="8" selection-start-column="22" selection-end-line="8" selection-end-column="22" />
+          <folding>
+            <element signature="e#0#53#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/web/node_modules/redux-thunk/index.d.ts">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="240">
+          <caret line="16" column="8" selection-start-line="16" selection-start-column="8" selection-end-line="16" selection-end-column="8" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/web/src/apis/FilesApi.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="30">
+          <caret line="2" column="26" selection-start-line="2" selection-start-column="26" selection-end-line="2" selection-end-column="26" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/web/src/actions/fileActions.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="105">
+          <caret line="7" column="20" selection-start-line="7" selection-start-column="20" selection-end-line="7" selection-end-column="20" />
+          <folding>
+            <element signature="e#0#39#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/web/src/App.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="60">
+          <caret line="4" column="6" selection-start-line="4" selection-start-column="6" selection-end-line="4" selection-end-column="6" />
+          <folding>
+            <element signature="e#0#26#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/web/build.gradle.kts">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="525">
+          <caret line="35" lean-forward="true" selection-start-line="35" selection-end-line="35" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/settings.gradle.kts">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="675">
+          <caret line="45" lean-forward="true" selection-start-line="45" selection-end-line="45" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/web/src/index.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="210">
+          <caret line="14" column="12" selection-start-line="14" selection-start-column="12" selection-end-line="14" selection-end-column="12" />
+          <folding>
+            <element signature="e#0#26#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/web/src/actions/actionTypes.js">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/gitlabapi/build.gradle.kts">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="967">
+          <caret line="89" column="34" selection-start-line="89" selection-start-column="34" selection-end-line="89" selection-end-column="34" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/web/package.json">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="585">
+          <caret line="39" lean-forward="true" selection-start-line="39" selection-end-line="39" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/.gitlab-ci.yml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="225">
+          <caret line="15" lean-forward="true" selection-start-line="15" selection-end-line="15" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/web/src/components/repo-features.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="510">
+          <caret line="34" column="75" selection-start-line="34" selection-start-column="75" selection-end-line="34" selection-end-column="75" />
+          <folding>
+            <element signature="e#0#26#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/web/src/components/projectView.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="165">
+          <caret line="11" column="2" selection-start-line="11" selection-start-column="2" selection-end-line="11" selection-end-column="2" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/web/src/components/projectInfo.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="678">
+          <caret line="47" column="68" selection-start-line="47" selection-start-column="68" selection-end-line="47" selection-end-column="68" />
+          <folding>
+            <element signature="e#0#26#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/web/src/components/files-container.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="360">
+          <caret line="24" column="35" selection-start-line="24" selection-start-column="35" selection-end-line="24" selection-end-column="35" />
+          <folding>
+            <element signature="e#0#26#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/build.gradle.kts">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="165">
+          <caret line="11" selection-start-line="11" selection-end-line="11" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/web/src/components/navbar.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="105">
+          <caret line="7" column="58" selection-start-line="7" selection-start-column="58" selection-end-line="7" selection-end-column="58" />
+          <folding>
+            <element signature="e#0#26#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+  </component>
+  <component name="masterDetails">
+    <states>
+      <state key="ArtifactsStructureConfigurable.UI">
+        <settings>
+          <artifact-editor />
+          <last-edited>gitlab-api-js-1.0-SNAPSHOT</last-edited>
+          <splitter-proportions>
+            <option name="proportions">
+              <list>
+                <option value="0.2" />
+              </list>
+            </option>
+          </splitter-proportions>
+        </settings>
+      </state>
+      <state key="FacetStructureConfigurable.UI">
+        <settings>
+          <last-edited>Kotlin</last-edited>
+          <splitter-proportions>
+            <option name="proportions">
+              <list>
+                <option value="0.2" />
+              </list>
+            </option>
+          </splitter-proportions>
+        </settings>
+      </state>
+      <state key="GlobalLibrariesConfigurable.UI">
+        <settings>
+          <splitter-proportions>
+            <option name="proportions">
+              <list>
+                <option value="0.2" />
+              </list>
+            </option>
+          </splitter-proportions>
+        </settings>
+      </state>
+      <state key="JdkListConfigurable.UI">
+        <settings>
+          <last-edited>1.8</last-edited>
+          <splitter-proportions>
+            <option name="proportions">
+              <list>
+                <option value="0.2" />
+              </list>
+            </option>
+          </splitter-proportions>
+        </settings>
+      </state>
+      <state key="ModuleStructureConfigurable.UI">
+        <settings>
+          <last-edited>web|mlreef-frontend</last-edited>
+          <splitter-proportions>
+            <option name="proportions">
+              <list>
+                <option value="0.2" />
+                <option value="0.5" />
+              </list>
+            </option>
+          </splitter-proportions>
+        </settings>
+      </state>
+      <state key="ProjectLibrariesConfigurable.UI">
+        <settings>
+          <last-edited>Gradle: junit:junit:4.12</last-edited>
+          <splitter-proportions>
+            <option name="proportions">
+              <list>
+                <option value="0.2" />
+              </list>
+            </option>
+          </splitter-proportions>
+        </settings>
+      </state>
+    </states>
+  </component>
+</project>

@@ -10,7 +10,6 @@
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$" />
-            <option value="$PROJECT_DIR$/gitlabapi" />
             <option value="$PROJECT_DIR$/web" />
           </set>
         </option>

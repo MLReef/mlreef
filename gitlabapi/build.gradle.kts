@@ -14,7 +14,7 @@ buildscript {
 }
 
 plugins {
-    val kotlinVersion = "1.3.40"
+    val kotlinVersion = "1.3.41"
     kotlin("multiplatform") version kotlinVersion
     id("kotlinx-serialization") version kotlinVersion
 }
@@ -80,12 +80,13 @@ kotlin {
 }
 
 tasks {
-    register("deploy", Copy::class) {
-        from("build/classes/kotlin/js/main") {
-            include("**/*.js")
-        }
-
-        into("../web/src/main/web/kotlin")
-        includeEmptyDirs = false
-    }
+    // Deploy to "web" module is deactivated for now
+    //register("deploy", Copy::class) {
+    //    from("build/classes/kotlin/js/main") {
+    //        include("**/*.js")
+    //    }
+    //
+    //    into("../web/src/kotlinjs")
+    //    includeEmptyDirs = false
+    //}
 }

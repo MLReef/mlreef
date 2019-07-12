@@ -5,20 +5,37 @@ stages:
   - deploy
 
 
-kotlin2js:
+#kotlin2js:
+#  stage: build
+#  script:
+#    - ./gradlew clean build
+#  artifacts:
+#    paths:
+#      - web/src/main/web/kotlin
+
+
+npm-build:
+  image: node:latest
   stage: build
+  cache:
+    paths:
+      - web/node_modules      # cache externale node modules
   script:
-    - ./gradlew clean build deploy     # deployJs copies the js modules to web/…/kotlin
+    - cd web                  # switch to web module
+    - npm install             # get npm up and running
+    - npm run build
   artifacts:
     paths:
-      - web/src/main/web/kotlin
+      - web/build/            # pass build output
+      - web/node_modules      # pass downloaded node modules
 
 
 pages:
+  image: alpine:latest
   stage: deploy
   script:
-    - mkdir public                       # create deploy directory
-    - cp -r web/src/main/web/* public/       # deploy static files
+    - mkdir public             # create deploy directory
+    - cp -r web/build/* public # copy the react build to gitlab public pages
     - ls -al public
   artifacts:
     paths:
