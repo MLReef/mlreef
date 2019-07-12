@@ -2,14 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/gitlabapi/com.mlreef.gitlabapi.commonMain.iml" filepath="$PROJECT_DIR$/.idea/modules/gitlabapi/com.mlreef.gitlabapi.commonMain.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/gitlabapi/com.mlreef.gitlabapi.commonTest.iml" filepath="$PROJECT_DIR$/.idea/modules/gitlabapi/com.mlreef.gitlabapi.commonTest.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/gitlabapi/com.mlreef.gitlabapi.jsMain.iml" filepath="$PROJECT_DIR$/.idea/modules/gitlabapi/com.mlreef.gitlabapi.jsMain.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/gitlabapi/com.mlreef.gitlabapi.jsTest.iml" filepath="$PROJECT_DIR$/.idea/modules/gitlabapi/com.mlreef.gitlabapi.jsTest.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/gitlabapi/com.mlreef.gitlabapi.jvmMain.iml" filepath="$PROJECT_DIR$/.idea/modules/gitlabapi/com.mlreef.gitlabapi.jvmMain.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/gitlabapi/com.mlreef.gitlabapi.jvmTest.iml" filepath="$PROJECT_DIR$/.idea/modules/gitlabapi/com.mlreef.gitlabapi.jvmTest.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/mlreef-frontend.iml" filepath="$PROJECT_DIR$/.idea/mlreef-frontend.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/gitlabapi/mlreef-frontend.gitlabapi.iml" filepath="$PROJECT_DIR$/.idea/modules/gitlabapi/mlreef-frontend.gitlabapi.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/web/mlreef-frontend.web.iml" filepath="$PROJECT_DIR$/.idea/modules/web/mlreef-frontend.web.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/web/mlreef-frontend.web.main.iml" filepath="$PROJECT_DIR$/.idea/modules/web/mlreef-frontend.web.main.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/web/mlreef-frontend.web.test.iml" filepath="$PROJECT_DIR$/.idea/modules/web/mlreef-frontend.web.test.iml" />
