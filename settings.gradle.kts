@@ -10,9 +10,12 @@ pluginManagement {
     resolutionStrategy {
         eachPlugin {
             when {
-                requested.id.id == "kotlin2js" -> {
+                requested.id.id == "kotlin2js" ->
                     useModule("org.jetbrains.kotlin:kotlin-gradle-plugin:${requested.version}")
-                }
+
+                requested.id.id == "org.jetbrains.kotlin.frontend" ->
+                    useModule("org.jetbrains.kotlin:kotlin-frontend-plugin:${requested.version}")
+
                 requested.id.id == "kotlin-platform-common" -> {
                     println("using kotlin-platform-common")
                     useModule("org.jetbrains.kotlin:kotlin-gradle-plugin:${requested.version}")
@@ -26,17 +29,17 @@ pluginManagement {
                     useModule("org.jetbrains.kotlin:kotlin-serialization:${requested.version}")
                 }
             }
-
         }
     }
 
     repositories {
         gradlePluginPortal()
         jcenter()
+        maven { setUrl("https://jcenter.bintray.com/") }
+        maven { setUrl("https://dl.bintray.com/kotlin/kotlin-eap") }
     }
 }
 
 rootProject.name = "mlreef-frontend"
-include("gitlabapi")
+// include("gitlabapi")
 include("web")
-
