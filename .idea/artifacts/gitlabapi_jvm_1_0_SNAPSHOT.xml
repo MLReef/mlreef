@@ -1,8 +1,0 @@
-<component name="ArtifactManager">
-  <artifact type="jar" name="gitlabapi-jvm-1.0-SNAPSHOT">
-    <output-path>$PROJECT_DIR$/gitlabapi/build/libs</output-path>
-    <root id="archive" name="gitlabapi-jvm-1.0-SNAPSHOT.jar">
-      <element id="module-output" name="com.mlreef.gitlabapi.jvmMain" />
-    </root>
-  </artifact>
-</component>

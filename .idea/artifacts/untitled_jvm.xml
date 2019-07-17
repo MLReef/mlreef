@@ -1,6 +1,0 @@
-<component name="ArtifactManager">
-  <artifact type="jar" name="untitled-jvm">
-    <output-path>$PROJECT_DIR$/untitled/build/libs</output-path>
-    <root id="archive" name="untitled-jvm.jar" />
-  </artifact>
-</component>
