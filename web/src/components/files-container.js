@@ -3,18 +3,18 @@ import folderIcon from './../images/folder_01.svg'
 import fileIcon from './../images/file_01.svg'
 import { Link } from 'react-router-dom';
 
-const FilesContainer = ({branch, files}) => { 
+const FilesContainer = ({branch, files}) => {
 
     function getReturnOption() {
         if(window.location.href.includes("path")){
-            const button = <button onClick={() => {window.history.back()}}>...</button>;
+            const button = <button onClick={() => {window.history.back()}}>..</button>;
             return <tr className='files-row'>
                         <td class='file-type'>
                             <img src={folderIcon} alt=""/>
                             {button}
                         </td>
-                        <td> <p> {button} </p></td>
-                        <td> <p> {button} </p></td>
+                        <td>&nbsp;</td>
+                        <td>&nbsp;</td>
                 </tr>
         }
     }
@@ -38,7 +38,7 @@ const FilesContainer = ({branch, files}) => {
                         <th><p id="paragraphLastUpdate">Last Update</p></th>
                     </tr>
                 </thead>
-                
+
                 {getReturnOption()}
                 {files.map(function(file) {
                     let icon;

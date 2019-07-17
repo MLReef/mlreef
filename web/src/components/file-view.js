@@ -3,13 +3,13 @@ import ProjectContainer from './projectContainer';
 import "../css/file-view.css";
 import {connect} from 'react-redux';
 import * as fileActions from '../actions/fileActions';
-import { bindActionCreators } from "redux";
-import { Base64 } from 'js-base64';
+import {bindActionCreators} from "redux";
+import {Base64} from 'js-base64';
 
 class FileView extends React.Component{
     componentDidMount(){
         let path = this.props.fileData.pathToFile.substring(1, this.props.fileData.pathToFile.length);
-        path = `${path}/${this.props.match.params.file}`
+        path = `${path}/${this.props.match.params.file}`;
         path = path.replace(/\//g, '%2F');
         console.log(path);
         this.props.actions.getFileData(path, this.props.match.params.branch);
@@ -21,7 +21,7 @@ class FileView extends React.Component{
         console.log(this.props.fileData);
         let fileContent = [];
         if(this.props.fileData.content){
-            fileContent = Base64.decode(this.props.fileData.content).split("\n");;
+            fileContent = Base64.decode(this.props.fileData.content).split("\n");
         }
     
         return (
