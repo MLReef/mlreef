@@ -1,30 +1,35 @@
 import React from "react";
 import ProjectInfo from "./projectInfo";
+import {connect} from 'react-redux';
 
-
-export default class ProjectContainer extends React.Component{
-    render(){
-        return <div class="project-container">
+class ProjectContainer extends React.Component {
+    render(){   
+        const project = this.props.project;
+        return (<div class="project-container">
         <div class="project-details">
             <div class="project-nav">
-                <p>Group Name</p> <p>></p> <p>Project Name</p> <p>></p> <p>Data</p>
+                <p>Group Name</p> <p>></p> <p>{project.name}</p> <p>></p> <p>Data</p>
             </div>
 
-           <ProjectInfo/>
-
-            <p class="project-desc">Project description what this project is about, but this text only takes this much space.</p>
-
+            <ProjectInfo info={project}/>
+            { <p class="project-desc">{project.description ? project.description: "No description"}</p>  }
             <div class="feature-list">
-                <div class="feature" style={{backgroundColor: '#fff'}}><p>Data</p></div>                
-                <div class="feature"><p>Experiments</p></div>                
-                <div class="feature"><p>Inference</p></div>                
-                <div class="feature"><p>Insights</p></div>                
-                <div class="feature"><p>Pull Requests</p></div>                
-                <div class="feature"><p>Settings</p></div>                
+                <div className="feature active"><p>Data</p></div>                
+                <div className="feature"><p>Experiments</p></div>                
+                <div className="feature"><p>Inference</p></div>                
+                <div className="feature"><p>Insights</p></div>                
+                <div className="feature"><p>Pull Requests</p></div>                
+                <div className="feature"><p>Settings</p></div>                
             </div>
-
-
         </div>
-    </div>
+    </div>)
     }
+    
 }
+function mapStateToProps(state){
+    return {
+        project: state.project
+    };
+}
+
+export default connect(mapStateToProps)(ProjectContainer);

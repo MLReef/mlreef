@@ -1,3 +1,5 @@
 export default {
-    files: []
+    files: [],
+    project: {},
+    file: {pathToFile: ""}
 }

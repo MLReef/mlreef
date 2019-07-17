@@ -1,0 +1,35 @@
+.file-container {
+    margin: 1% 10% 1% 10%;
+    border: 1px solid #9e9e9e;
+    border-radius: 0.25vw;
+}
+
+.file-container .file-container-header{
+    color: #1C2B40;
+    margin-top: 0;
+    border-bottom: 1px solid #E5E5E5;
+    background-color: #E5E5E5;
+    display: flex;
+    border-radius: 0.25vw 0.25vw 0 0;
+}
+
+.file-container-header p{
+    margin-left: 1vw;
+    font-size: 1vw;
+}
+
+.file-content {
+    color: #1C2B40;
+    font-size: 0.8vw;
+    padding: 1% 2% 1% 2%;
+    overflow: scroll;
+    overflow-y: hidden;
+}
+
+.file-content table{
+    width: max-content;
+}
+
+.file-content tr td {
+    line-height: 0px;
+}
