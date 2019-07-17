@@ -10,7 +10,10 @@ const FilesContainer = ({branch, files}) => {
             const button = <button onClick={() => {window.history.back()}}>..</button>;
             return <tr className='files-row'>
                         <td class='file-type'>
-                            <img src={folderIcon} alt=""/>
+                            <button onClick={() => {window.history.back()}} style={{'padding': '0'}}>
+                                <img src={folderIcon} alt=""/>
+                            </button>
+                        
                             {button}
                         </td>
                         <td>&nbsp;</td>
@@ -53,7 +56,9 @@ const FilesContainer = ({branch, files}) => {
                     return (
                         <tr className='files-row'>
                             <td class='file-type'>
-                                <img src={icon} alt=""/>
+                                <Link to={link}>
+                                    <img src={icon} alt=""/>
+                                </Link>
                                 <Link to={link}>{file.name}</Link>
                             </td>
                             <td> <p>Something</p> </td>
