@@ -100,9 +100,14 @@ img.dropdown-white {
     height: 2.5vw;
     width: 2.5vw;
     background-color: #fff;
-    border: 2px solid #1C2B40;
+    border: 1px solid #1C2B40;
     border-radius: 13%;
     display: flex;
+}
+
+/* fix the size of the Project Avatar */
+.project-pic img {
+    height: 2.5vw;
 }
 
 .project-id {
