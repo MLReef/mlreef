@@ -27,7 +27,6 @@ npm-build:
   artifacts:
     paths:
       - web/build/            # pass build output
-      - web/node_modules      # pass downloaded node modules
 
 
 pages:
@@ -40,5 +39,5 @@ pages:
   artifacts:
     paths:
     - public
-#  only:
-#    - master
+  only:
+    - master
