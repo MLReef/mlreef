@@ -17,7 +17,7 @@ ReactDOM.render(
     <Provider store={store}>
         <BrowserRouter>
             <Navbar/>
-            <Redirect from="/" to="./home"/>
+            <Redirect from="/" to="/home"/>
             <Switch>
                 <Route path="/home" component={App}/>
                 <Route path="/files/branch/:branch/file-name/:file" exact component={FileView}/>
