@@ -5,7 +5,7 @@ import ProjectContainer from './projectContainer';
 import FilesContainer from './files-container';
 import RepoInfo from './repo-info';
 import RepoFeatures from './repo-features';
-import { bindActionCreators } from 'redux';
+import {bindActionCreators} from 'redux';
 import * as fileActions from "./../actions/fileActions";
 
 class ProjectView extends React.Component{
@@ -28,8 +28,8 @@ class ProjectView extends React.Component{
                     <div class="last-commit-details">
                         <div class="last-commit-pic"></div>
                         <div class="last-commit-name">
-                            <p id="prName">Merged Branch <b>"branch_name"</b> into <b>"new_branch_name"</b></p>
-                            <p id="prDate">by <b>user_name</b> authored <b>4_days_ago</b></p> 
+                            Merged Branch <b>"branch_name"</b> into <b>"new_branch_name"</b>
+                            by <b>user_name</b> authored <b>4_days_ago</b>
                         </div>
                     </div>
 

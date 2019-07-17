@@ -311,19 +311,9 @@ p.stat-no {
 .last-commit-name {
     margin-left: 1vw;
     align-self: center;
-}
-
-#prName {
     font-size: 1vw;
     color: #1C2B40;
 }
-
-#prDate {
-    font-size: 0.9vw;
-    color: #1C2B40;
-    
-}
-
 
 .repo-features {
     display: flex;
@@ -380,7 +370,7 @@ p.stat-no {
     flex-direction: row;
     align-items: center;
     justify-content: space-between;
-    margin: 1.5% 10% 1% 10%;
+    margin: 1.5% 10% 0% 10%;
     border-radius: 8px 8px 0px 0px;
     background-color: #2DB391;
     /* border: 1px solid #32AFC3; */
@@ -413,7 +403,7 @@ p.stat-no {
 
 
 .file-properties {
-    margin: 1.5% 10% 1% 10%;
+    margin: 0% 10% 1% 10%;
     padding: 0% 0% 1% 0%;
     border-radius: 0 0 8px 8px;
     border: 1px solid #1D2B40;

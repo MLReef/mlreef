@@ -1,6 +1,6 @@
 {
   "name": "ml-reef-front",
-  "homepage": ".",
+  "homepage": "http://mlreef.gitlab.io/frontend",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
