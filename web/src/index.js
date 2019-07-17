@@ -1,19 +1,29 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import App from './App'
-import registerServiceWorker from './registerServiceWorker';
+import { BrowserRouter, Switch, Route, Redirect } from 'react-router-dom'
 import "./css/index.css";
 import configureStore from './store';
 import { Provider } from 'react-redux';
-import { loadFiles } from './actions/fileActions';
+import { loadProjectGeneralInfo } from './actions/projectInfoActions';
+import App from './App';
+import FileView from './components/file-view';
+import projectView from './components/projectView';
+import Navbar from './components/navbar';
 
 const store = configureStore();
-store.dispatch(loadFiles());
+store.dispatch(loadProjectGeneralInfo());
 
 ReactDOM.render(
     <Provider store={store}>
-        <App/>
+        <BrowserRouter>
+        <Navbar/>
+            <Redirect from="/" to="/home"/>
+            <Switch>
+                <Route path="/home" component={App} />
+                <Route path="/files/branch/:branch/file-name/:file" exact component={FileView} />
+                <Route path="/files/branch/:branch/path/:path" component={projectView} />
+            </Switch>
+        </BrowserRouter>
     </Provider>,
     document.getElementById('root')
 );
-registerServiceWorker();

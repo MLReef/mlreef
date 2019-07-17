@@ -1,5 +1,14 @@
 @import url('https://fonts.googleapis.com/css?family=Roboto&display=swap'); 
 
+a {
+    color: #1C2B40;
+    text-decoration: none;
+}
+
+a:hover{
+    text-decoration: underline;
+}
+
 body {
     margin: 0; 
     padding: 0;
@@ -14,7 +23,7 @@ body {
 
 .logo {
     width: 8.5%;
-    margin: 1% 0% 1% 4%;
+    margin: 1% 0% 1% 10%;
 }
 
 .projects-dropdown {
@@ -22,7 +31,7 @@ body {
     justify-content: center;
     align-items: center;
     color: #fff;
-    margin-left: 10%;
+    margin-left: 12%;
 }
 
 .projects-dropdown p{
@@ -62,14 +71,14 @@ img.dropdown-white {
 
 .project-details {
     margin: auto;
-    padding: 0% 3% 0% 3%;
+    padding: 0% 10% 0% 10%;
     /* border: 1px solid red; */
 }
 
 .project-nav {
     display: flex;
     flex-direction: row;
-    /* border: 1px solid blue; */
+    padding: 1% 0% 0% 0%;
 }
 
 
@@ -98,10 +107,11 @@ img.dropdown-white {
 
 .project-id {
     display: flex;
+    width: 50%;
 }
 
 .project-name{
-    margin-left: 5%;
+    margin-left: 2%;
     width: 110%;
 }
 
@@ -130,24 +140,23 @@ img.dropdown-white {
 .options {
     display: flex;
     flex-direction: row;
-    width: 13vw;
+    width: 16vw;
     height: 60%;
-    border-radius: 8px;
+    border-radius: 0.5vw;
     margin-left: 1.5%;
 }
 
 .option-name {
     display: flex;
     flex-direction: row;
-    width: 85%;
+    width: 95%;
     background-color: #fff;
     border-radius: 5% 0% 0% 5%;
-    /* border: 4px solid yellow; */
 }
 
 
 .option-name p {
-    margin-left: 1%;
+    margin-left: 6%;
     color: #1C2B40;
     font-size: 1vw;
     font-weight: 600;
@@ -168,7 +177,7 @@ img.dropdown-white {
     background-color: #fff;
     border-radius: 0px 8px 8px 0px;
     border-left: 2px solid #e5e5e5;
-    /* border: 4px solid pink; */
+    min-width: 45px;
 
 }
 
@@ -200,15 +209,17 @@ img.dropdown-white {
     text-align: center;
     padding: 1% 5%;
     border-radius: 8px 8px 0px 0px;
-    /* background-color: #fff; */
-    /* border: 1px solid purple; */
 }
 
 .feature p{
     margin: 0;
     font-size: 1vw;
-    font-weight: 600;
     color: #1C2B40;
+}
+
+.feature.active {
+    background-color: white;
+    font-weight: 600;
 }
 
 
@@ -217,7 +228,7 @@ img.dropdown-white {
     flex-direction: row;
     justify-content: space-between;
     background-color: #32AFC3;
-    margin: 0.7% 10% 0.7% 10%;
+    margin: 1.5% 10% 0.7% 10%;
     border-radius: 8px;
 }
 
@@ -239,18 +250,18 @@ p.stat-no {
     margin-left: 10px;
 }
 
-.pr-info {
+.last-commit-info {
     display: flex;
     flex-direction: row;
     align-items: center;
     justify-content: space-between;
-    margin: 1% 10% 1% 10%;
+    margin: 1.5% 10% 1% 10%;
     border-radius: 8px;
     background-color: #E5E5E5;
     /* border: 1px solid #32AFC3; */
 }
 
-.pr-id {
+.last-commit-id {
     display: flex;
     width: auto;
     padding: 0.7% 0.2% 0.7% 0.2%;
@@ -258,25 +269,25 @@ p.stat-no {
     margin-right: 5%;
     justify-content: center;
     background-color: #fff;
-    border-radius: 12px;
+    border-radius: 0.5vw;
     border: 2px solid #1C2B40;
 }
 
-.pr-id p {
-    font-size: 1vw;
+.last-commit-id p {
+    font-size: 0.5vw;
     font-weight: 600;
     margin: 0;
     align-self: center;
 }
 
-.pr-details {
+.last-commit-details {
     display: flex;
     flex-direction: row;
-    justify-content: space-between;
+    width: 80%;
     /* border: 1px solid green; */
 }
 
-.pr-profile-pic {
+.last-commit-pic {
     height: 3vw;
     width: 3vw;
     margin: 1% 1% 1% 5%;
@@ -292,7 +303,7 @@ p.stat-no {
     align-self: center;
 }
 
-.pr-name {
+.last-commit-name {
     margin-left: 1vw;
     align-self: center;
 }
@@ -314,27 +325,23 @@ p.stat-no {
     flex-direction: row;
     align-items: center;
     justify-content: space-between;
-    margin: 0% 10% 0% 10%;
+    margin: 1.5% 10% 0% 10%;
     width: auto;
-    height: auto;
+    height: 2vw;
     border-radius: 8px;
     background-color: #fff;
     /* border: 1px solid #32AFC3; */
 }
 
-.leftside-features {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-}
-
 .leftside-feature, .rightside-feature {
     display: flex;
     align-items: center;
-    padding: 0.5% 2% 0.5% 2%;
+    padding: 0.1% 3% 0.1% 3%;
     border-radius: 8px;
     border: 1px solid #1C2B40;
     background-color: #fff;
+    height: inherit;
+    width: max-content;
 }
 
 #data-pipeline, #data-visualisation {
@@ -350,29 +357,13 @@ p.stat-no {
 }
 
 #leftfeature-image {
-    width: 1.5vw;
-    margin-left: 1%;
+    width: 0.8vw;
+    margin-left: 0%;
+
 }
 
 .leftside-feature #plus {
     width: 2vw;
-}
-
-.rightside-features {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    margin-right: 1%;
-}
-
-.rightside-feature {
-    display: flex;
-    align-items: center;
-    
-    
-    padding: 0px 15px;
-    border-radius: 8px;
-    border: 1px solid #1C2B40;
 }
 
 .rightside-features img {
@@ -384,7 +375,7 @@ p.stat-no {
     flex-direction: row;
     align-items: center;
     justify-content: space-between;
-    margin: 1% 10% 1% 10%;
+    margin: 1.5% 10% 1% 10%;
     border-radius: 8px 8px 0px 0px;
     background-color: #2DB391;
     /* border: 1px solid #32AFC3; */
@@ -417,7 +408,7 @@ p.stat-no {
 
 
 .file-properties {
-    margin: 1% 10% 1% 10%;
+    margin: 1.5% 10% 1% 10%;
     padding: 0% 0% 1% 0%;
     border-radius: 0 0 8px 8px;
     border: 1px solid #1D2B40;
@@ -427,26 +418,40 @@ p.stat-no {
 .title-row {
     background-color: #1D2B40;
     color: #fff;
-    
+    font-size: 1vw;
     display: flex;
     justify-content: space-between;
     align-items: center;
 }
 
 .title-row th {
-    width: 25%;
+    width: 33%;
 }
 
 .title-row th > p {
     font-size: 1vw;
 }
 
+#paragraphName{
+    text-align: left;
+    padding-left: 8%;
+}
+
+#paragraphLastUpdate{
+    text-align: left;
+    padding-left: 18%;
+}
+
+#paragraphLastCommit{
+    text-align: left;
+    padding-left: 11%;
+}
 .files-row {
     background-color: #fff;
     color: #1C2B40;
     font-size: 0.9vw;
     display: flex;
-    /* justify-content: space-between; */
+    justify-content: space-between;
     padding: 0% 3.5% 0% 1%;
     border-bottom: 1px solid #1C2B40;
 }
@@ -471,7 +476,7 @@ p.stat-no {
 
 .file-type img {
     height: auto;
-    width: 3vw;
+    width: 2.5vw;
     margin: 0px 1vw;
     padding: 0;
 }
@@ -479,7 +484,16 @@ p.stat-no {
 .files-row p {
     font-size: 0.9vw;
     padding: 0% 2% 0% 0%;
-    text-align: center;
+}
+
+.files-row button{
+    background-color: #FFFFFF;
+    border: none;
+    cursor: pointer;
+}
+
+.files-row button:hover{
+    text-decoration: underline;
 }
 
 /* Readme */
