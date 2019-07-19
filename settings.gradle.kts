@@ -41,5 +41,5 @@ pluginManagement {
 }
 
 rootProject.name = "mlreef-frontend"
-// include("gitlabapi")
+include("gitlabapi")
 include("web")

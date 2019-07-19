@@ -1,35 +1,21 @@
 plugins {
-    val kotlinVersion = "1.3.41"
-    id("kotlin2js") version kotlinVersion
-    id("kotlinx-serialization") version kotlinVersion
+    base
+    //documentation: https://github.com/srs/gradle-node-plugin/blob/master/docs/node.md
+    id("com.moowork.node") version "1.3.1"
 }
 
-
-repositories {
-    jcenter()
-    mavenCentral()
-}
-
-
-dependencies {
-    val ktorVersion = "1.2.2"
-    val kotlinxCoroutinesVersion = "1.3.0-M2"
-    val serializationVersion = "0.11.1"
-
-    implementation(kotlin("stdlib-js"))
-    //implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core-js:$kotlinxCoroutinesVersion")
-    //implementation("org.jetbrains.kotlinx:kotlinx-serialization-runtime-js:$serializationVersion")
-    //implementation("io.ktor:ktor-client-js:$ktorVersion")
-
-//    implementation(project(":gitlabapi"))
+node {
+    // Version of node to use.
+    version = "12.3.1"
+    npmVersion = "6.9.0"
+    yarnVersion = "1.16.0"
+    // If true, it will download node using above parameters.
+    // If false, it will try to use globally installed node.
+    download = true
 }
 
 tasks {
-    compileKotlin2Js {
-        kotlinOptions {
-            outputFile = "web/src/kotlinjs/output.js"
-            kotlinOptions.moduleKind = "commonjs" // plain (default), amd, commonjs, umd
-            sourceMap = true
-        }
+    npmInstall {
+        enabled = false
     }
 }

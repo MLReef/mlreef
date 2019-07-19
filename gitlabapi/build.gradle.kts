@@ -1,8 +1,7 @@
-
 group = "com.mlreef"
 
 buildscript {
-    val kotlinVersion: String by extra { "1.3.40" }
+    val kotlinVersion: String by extra { "1.3.41" }
     repositories {
         jcenter()
     }
