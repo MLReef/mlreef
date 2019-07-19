@@ -23,10 +23,10 @@ const ProjectInfo = ({info}) => {
 
                 <div className="options">
 
-                    <div className="option-name">
+                    <button className="option-name">
                         <img id="option-image" src={star_01} alt=""/>
                         <p>Star</p>
-                    </div>
+                    </button>
 
                     <div className="counter">
                         <p>{info.star_count}</p>

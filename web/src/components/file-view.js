@@ -5,6 +5,7 @@ import {connect} from 'react-redux';
 import * as fileActions from '../actions/fileActions';
 import {bindActionCreators} from "redux";
 import {Base64} from 'js-base64';
+import Navbar from './navbar';
 
 class FileView extends React.Component{
     componentDidMount(){
@@ -26,6 +27,7 @@ class FileView extends React.Component{
     
         return (
             <div>
+                <Navbar/>
                 <ProjectContainer/>
                 <div className="file-container">
                     <div className="file-container-header">

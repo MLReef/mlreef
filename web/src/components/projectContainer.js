@@ -6,7 +6,7 @@ class ProjectContainer extends React.Component {
     render(){   
         const project = this.props.project;
         return (<div class="project-container">
-        <div class="project-details">
+        <div class="project-details main-content">
             <div class="project-nav">
                 <p>Group Name</p> <p>></p> <p>{project.name}</p> <p>></p> <p>Data</p>
             </div>

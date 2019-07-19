@@ -8,7 +8,6 @@ import {loadProjectGeneralInfo} from './actions/projectInfoActions';
 import App from './App';
 import FileView from './components/file-view';
 import projectView from './components/projectView';
-import Navbar from './components/navbar';
 
 const store = configureStore();
 store.dispatch(loadProjectGeneralInfo());
@@ -16,7 +15,6 @@ store.dispatch(loadProjectGeneralInfo());
 ReactDOM.render(
     <Provider store={store}>
         <BrowserRouter>
-            <Navbar/>
             <Redirect from="/" to="/home"/>
             <Switch>
                 <Route path="/home" component={App}/>

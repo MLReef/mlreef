@@ -5,6 +5,7 @@ import ProjectContainer from './projectContainer';
 import FilesContainer from './files-container';
 import RepoInfo from './repo-info';
 import RepoFeatures from './repo-features';
+import Navbar from './navbar';
 import {bindActionCreators} from 'redux';
 import * as fileActions from "./../actions/fileActions";
 
@@ -22,24 +23,27 @@ class ProjectView extends React.Component{
         const files = this.props.files;
         const branch = this.props.project.default_branch;
         return (<div className="project-component">
+            <Navbar/>
             <ProjectContainer project/>
-            <RepoInfo/>
-            <div class="last-commit-info">
-                    <div class="last-commit-details">
-                        <div class="last-commit-pic"></div>
-                        <div class="last-commit-name">
-                            Merged Branch <b>"branch_name"</b> into <b>"new_branch_name"</b>
-                            by <b>user_name</b> authored <b>4_days_ago</b>
+            <div class="main-content"> 
+                <RepoInfo/>
+                <div class="last-commit-info">
+                        <div class="last-commit-details">
+                            <div class="last-commit-pic"></div>
+                            <div class="last-commit-name">
+                                Merged Branch <b>"branch_name"</b> into <b>"new_branch_name"</b><br/>
+                                by <b>user_name</b> authored <b>4_days_ago</b>
+                            </div>
                         </div>
-                    </div>
 
-                    <div class="last-commit-id">
-                        <p>PR_ID</p>
-                    </div>              
+                        <div class="last-commit-id">
+                            <p>PR_ID</p>
+                        </div>              
+                </div>
+                <RepoFeatures/>
+                <FilesContainer branch={branch} files={files}/>
+                <ReadMeComponent/>
             </div>
-            <RepoFeatures/>
-            <FilesContainer branch={branch} files={files}/>
-            <ReadMeComponent/>
         </div>)
     }
 }
