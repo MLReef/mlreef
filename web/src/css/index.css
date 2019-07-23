@@ -14,6 +14,7 @@ body {
     padding: 0;
     font-family: 'Roboto', sans-serif;
     font-size: 13px;
+    min-width: 768px;
 }
 
 button {
@@ -24,6 +25,7 @@ button {
 /** This is applied to everything below the nav-bar. */
 .main-content {
     max-width: 1024px;
+    min-width: 786px;
     align-items: center;
     margin: 0% auto 0% auto;
 }
@@ -74,7 +76,7 @@ button {
 }
 
 img.dropdown-white {
-    width: 2vw;
+    width: 1.5vw;
     margin-right: 4px;
 }
 
@@ -186,7 +188,7 @@ img.dropdown-white {
 }
 
 #option-image {
-    width: 2vw;
+    width: 1.8vw;
     margin-left: 1vw;
     margin-right: 0.25vw;
 
@@ -288,7 +290,7 @@ p.stat-no {
     width: auto;
     min-width: 35px;
     padding: 0.7% 0.2% 0.7% 0.2%;
-    height: 1.5vw;
+    height: 1.2vw;
     margin-right: 3.5%;
     justify-content: center;
     background-color: #fff;
@@ -333,48 +335,63 @@ p.stat-no {
     color: #1C2B40;
 }
 
-.repo-features {
+#repo-features {
     display: flex;
     flex-direction: row;
     justify-content: space-between;
-    align-items: center;
-    margin: 15px 3.5% 0% 3.5%;
+    padding: 15px 3% 0 3%;
     background-color: #fff;
-    /* border: 1px solid #32AFC3; */
 }
 
-.repo-features button {
+#repo-features div {
     display: flex;
+}
+
+#repo-features button {
     align-items: center;
-    padding: 0.1% 3% 0.1% 3%;
+    margin-right: 8px;
     border-radius: 8px;
     border: 1px solid #1C2B40;
-    background-color: #fff;
     width: max-content;
 }
 
-#data-pipeline, #data-visualisation {
+.white-button {
+    color: #1C2B40;
+    background-color: #fff;
+    font-weight: 400;
+    display: flex;
+    padding-right: 8px;
+    padding-left: 8px;
+}
+
+.blue-button {
     color: #fff;
     background-color: #1C2B40;
     font-weight: 600;
+    display: flex;
+    padding-right: 8px;
 }
 
 
-.repo-features button p{
-    margin: 0px;
+#repo-features button p{
+    align-content: center;
+    margin-right: 5px;
+    margin-left: 5px;
+    margin-bottom: 0px;
+    margin-top: 0px;
 }
 
 #leftfeature-image {
-    width: 0.8vw;
-    margin-left: 0%;
-
+    padding-left: 5px;
+    margin-left: 1%;
+    margin-right: 1%;
 }
 
-.repo-features button #plus {
+#repo-features button #plus {
     width: 2vw;
 }
 
-.repo-features button img {
+#repo-features button img {
     width: 20px;
 }
 
@@ -403,20 +420,21 @@ p.stat-no {
     margin: 0.5% 3.5% 0.5% 0%;
     padding: 0.3% 1.5% 0.3% 1.5%;
     border-radius: 8px;
+    min-width: 120px;
     border: 1px solid #1C2B40;
     background-color: #FFFFFF;
 }
 
 .create-pr p {
     margin: 0px;
-    font-weight: 600;
+    font-weight: 400;
 }
 
 
 .file-properties {
     padding: 0% 0% 1% 0%;
     border-radius: 0 0 8px 8px;
-    border: 1px solid #1D2B40;
+    border: 1px solid #b2b2b2;
     width: 100%;
 }
 
@@ -452,8 +470,8 @@ p.stat-no {
 }
 
 #paragraphLastCommit{
-    text-align: left;
-    padding-left: 11%;
+    text-align: right;
+    padding-right: 18%;
 }
 .files-row {
     background-color: #fff;
@@ -462,7 +480,7 @@ p.stat-no {
     display: flex;
     justify-content: space-between;
     padding: 0% 3.5% 0% 1%;
-    border-bottom: 1px solid #1C2B40;
+    border-bottom: 1px solid #b2b2b2;
 }
 
 .row-border {
@@ -486,7 +504,7 @@ p.stat-no {
 
 .file-type img {
     height: auto;
-    width: 2.5vw;
+    width: 2vw;
     margin: 0px 1vw;
     padding: 0;
 }
@@ -530,7 +548,7 @@ p.stat-no {
     height: 2.5vw;
     width: 2.5vw;
     background-color: #fff;
-    border: 2px solid #B2B2B2;
+    border: 1px solid #B2B2B2;
     border-radius: 8px;
     margin-left: 30px;
     display: flex;

@@ -36,10 +36,10 @@ const ProjectInfo = ({info}) => {
 
                 <div className="options">
 
-                    <div className="option-name">
+                    <button className="option-name">
                         <img id="option-image" src={fork_01} alt=""/>
                         <p>Fork</p>
-                    </div>
+                    </button>
 
                     <div className="counter">
                         <p>{info.forks_count}</p>

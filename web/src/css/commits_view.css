@@ -405,7 +405,6 @@ p.stat-no {
     margin:0 20px;
 }
 
-
 .create-pr {
     display: flex;
     align-items: center;
@@ -419,8 +418,6 @@ p.stat-no {
 
 .create-pr p {
     margin: 0px;
-    font-size: 20px;
-    font-weight: 600;
+    font-size: 13px;
+    font-weight: 400;
 }
-
-

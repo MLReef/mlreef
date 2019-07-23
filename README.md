@@ -9,6 +9,8 @@
 ## Setup
 For setting up the frontend dependencies you have to run: `./gradlew npm_install`
 
+On windows you need to run: `gradlew.bat npm_install`
+
 
 ## Run Locally
 For running locally plesae refer to the web module's [README.md](web/README.md) 
