@@ -1,6 +1,6 @@
 export default class FilesApi {
 
-    static getFilesPerProject(token, projectId, path, recursive, domain, branch) {
+    static getFilesPerProject(token, projectId, path, recursive = false, domain = "gitlab.com", branch = "master") {
         return fetch(new Request(
                 `https://${domain}/api/v4/projects/${projectId}/repository/` +
                         `tree?ref=${branch}&recursive=${recursive}&path=${path}`, {
@@ -15,8 +15,8 @@ export default class FilesApi {
                 return err;
               }); 
     }
-    
-    static getFileData(domain, projectId, path, branch, token) {
+
+    static getFileData(domain, projectId, path = "/", branch = "master", token) {
         let url = `https://${domain}/api/v4/projects/${projectId}/repository/files/${path}?ref=${branch}`;
         console.log(url);
         return fetch(new Request(

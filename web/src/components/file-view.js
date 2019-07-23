@@ -37,6 +37,9 @@ class FileView extends React.Component{
                         <table>
                             <tbody>
                                 {fileContent.map(function(line) {
+                                    let foo = this.props.actions.getFileData();
+                                    console.log("foo.size:" + foo.size + "; foo.length:" + foo.length);
+
                                     return (
                                         <tr>
                                             <td>

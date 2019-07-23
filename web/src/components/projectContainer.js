@@ -5,15 +5,15 @@ import {connect} from 'react-redux';
 class ProjectContainer extends React.Component {
     render(){   
         const project = this.props.project;
-        return (<div class="project-container">
-        <div class="project-details main-content">
-            <div class="project-nav">
+        return (<div className="project-container">
+            <div className="project-details main-content">
+                <div className="project-nav">
                 <p>Group Name</p> <p>></p> <p>{project.name}</p> <p>></p> <p>Data</p>
             </div>
 
             <ProjectInfo info={project}/>
-            { <p class="project-desc">{project.description ? project.description: "No description"}</p>  }
-            <div class="feature-list">
+                {<p className="project-desc">{project.description ? project.description : "No description"}</p>}
+                <div className="feature-list">
                 <div className="feature active"><p>Data</p></div>                
                 <div className="feature"><p>Experiments</p></div>                
                 <div className="feature"><p>Inference</p></div>                

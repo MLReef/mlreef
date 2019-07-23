@@ -25,18 +25,18 @@ class ProjectView extends React.Component{
         return (<div className="project-component">
             <Navbar/>
             <ProjectContainer project/>
-            <div class="main-content"> 
+            <div className="main-content">
                 <RepoInfo/>
-                <div class="last-commit-info">
+                <div className="last-commit-info">
                         <div class="last-commit-details">
-                            <div class="last-commit-pic"></div>
-                            <div class="last-commit-name">
+                            <div className="last-commit-pic"></div>
+                            <div className="last-commit-name">
                                 Merged Branch <b>"branch_name"</b> into <b>"new_branch_name"</b><br/>
                                 by <b>user_name</b> authored <b>4_days_ago</b>
                             </div>
                         </div>
 
-                        <div class="last-commit-id">
+                    <div className="last-commit-id">
                             <p>PR_ID</p>
                         </div>              
                 </div>

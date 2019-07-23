@@ -4,17 +4,17 @@ import arrow_down_white_01 from './../images/arrow_down_white_01.svg'
 
 export default class Navbar extends React.Component{    
     render(){
-        return <div class="navbar">
-            <img class="logo" src={ml_reef_icon_01} alt=""/>
+        return <div className="navbar">
+            <img className="logo" src={ml_reef_icon_01} alt=""/>
 
-            <div class="projects-dropdown">
+            <div className="projects-dropdown">
                 <p>Projects</p>
-                <img class="dropdown-white" src={arrow_down_white_01} alt=""/>
+                <img className="dropdown-white" src={arrow_down_white_01} alt=""/>
             </div>
 
-            <div class="profile-options">
-                <img class="dropdown-white" src={arrow_down_white_01} alt=""/>
-                <div class="profile-pic-circle"></div>
+            <div className="profile-options">
+                <img className="dropdown-white" src={arrow_down_white_01} alt=""/>
+                <div className="profile-pic-circle"/>
             </div>
         </div>
     }

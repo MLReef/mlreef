@@ -1,7 +1,7 @@
 import React from "react";
 import folderIcon from './../images/folder_01.svg'
 import fileIcon from './../images/file_01.svg'
-import { Link } from 'react-router-dom';
+import {Link} from 'react-router-dom';
 
 const FilesContainer = ({branch, files}) => {
 
@@ -9,7 +9,7 @@ const FilesContainer = ({branch, files}) => {
         if(window.location.href.includes("path")){
             const button = <button onClick={() => {window.history.back()}}>..</button>;
             return <tr className='files-row'>
-                        <td class='file-type'>
+                <td className='file-type'>
                             <button onClick={() => {window.history.back()}} style={{'padding': '0'}}>
                                 <img src={folderIcon} alt=""/>
                             </button>
@@ -24,15 +24,15 @@ const FilesContainer = ({branch, files}) => {
 
     return (
         <div className="files-container">
-            <div class="commit-status">
+            <div className="commit-status">
                 <p id="commitStatus">This branch is <b>123 commits</b> ahead and <b>1 commit</b> behind <b>"master".</b>
                 </p>
-                <button class="create-pr">
+                <button className="create-pr">
                     <p>Create Pull Request</p>
                 </button>
             </div>
 
-            <table className="file-properties" cellspacing="0" cellpadding="0" id="file-tree">
+            <table className="file-properties" cellSpacing="0" cellPadding="0" id="file-tree">
                 <thead>
                     <tr className="title-row">
                         <th><p id="paragraphName">Name</p></th>
@@ -41,32 +41,33 @@ const FilesContainer = ({branch, files}) => {
                         <th><p id="paragraphLastUpdate">Last Update</p></th>
                     </tr>
                 </thead>
-
+                <tbody>
                 {getReturnOption()}
-                {files.map(function(file) {
+                {files.map(function (file) {
                     let icon;
                     let link;
                     if (file.type === "tree") {
                         icon = folderIcon;
                         link = `/files/branch/${branch}/path/${file.name}`;
-                    }else{
+                    } else {
                         icon = fileIcon;
                         link = `/files/branch/${branch}/file-name/${file.name}`;
                     }
                     return (
                         <tr className='files-row'>
-                            <td class='file-type'>
+                            <td className='file-type'>
                                 <Link to={link}>
                                     <img src={icon} alt=""/>
                                 </Link>
                                 <Link to={link}>{file.name}</Link>
                             </td>
-                            <td> <p>Something</p> </td>
+                            <td><p>Something</p></td>
                             {/* <td> <p>big</p> </td> */}
-                            <td> <p> yesterday </p> </td>
+                            <td><p> yesterday </p></td>
                         </tr>
                     )
                 })}
+                </tbody>
             </table>
         </div>
     );
