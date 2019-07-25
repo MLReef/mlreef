@@ -21,8 +21,10 @@ class FileView extends React.Component{
         const fileSize = this.props.fileData.size;
         console.log(this.props.fileData);
         let fileContent = [];
+        let foo;
         if(this.props.fileData.content){
             fileContent = Base64.decode(this.props.fileData.content).split("\n");
+            foo = this.props.fileData.content;
         }
     
         return (
@@ -37,7 +39,6 @@ class FileView extends React.Component{
                         <table>
                             <tbody>
                                 {fileContent.map(function(line) {
-                                    let foo = this.props.actions.getFileData();
                                     console.log("foo.size:" + foo.size + "; foo.length:" + foo.length);
 
                                     return (
