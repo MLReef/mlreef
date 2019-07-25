@@ -48,10 +48,10 @@ const FilesContainer = ({branch, files}) => {
                     let link;
                     if (file.type === "tree") {
                         icon = folderIcon;
-                        link = `/files/branch/${branch}/path/${file.name}`;
+                        link = `./files/branch/${branch}/path/${file.name}`;
                     } else {
                         icon = fileIcon;
-                        link = `/files/branch/${branch}/file-name/${file.name}`;
+                        link = `./branch/${branch}/file-name/${file.name}`;
                     }
                     return (
                         <tr className='files-row'>

@@ -14,12 +14,12 @@ store.dispatch(loadProjectGeneralInfo());
 
 ReactDOM.render(
     <Provider store={store}>
-        <BrowserRouter>
-            <Redirect from="/" to="/home"/>
+        <BrowserRouter> 
+            <Redirect from={`./`} to={`./home`}/>
             <Switch>
-                <Route path="/home" component={App}/>
-                <Route path="/files/branch/:branch/file-name/:file" exact component={FileView}/>
-                <Route path="/files/branch/:branch/path/:path" component={projectView}/>
+                <Route path={`${process.env.PUBLIC_URL}/home`} exact component={App}/>
+                <Route path={`${process.env.PUBLIC_URL}/branch/:branch/file-name/:file`} exact component={FileView}/>
+                <Route path={`${process.env.PUBLIC_URL}/files/branch/:branch/path/:path`} exact component={projectView}/>
             </Switch>
         </BrowserRouter>
     </Provider>,
