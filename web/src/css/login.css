@@ -1,55 +1,74 @@
-.login-containter{
+#login-container {
+    margin: 3.5% 35% 0% 35%;
     font-family: 'Roboto', sans-serif;
+}
+
+.paragraph{
+    color: #404040;
+    font-size: 1.1vw;
+}
+
+.border-div {
     border: 2px solid #e5e5e5;
     border-radius: 0.5vw;
-    margin: 10% 20% 0% 20%;
-    box-shadow: 11px 7px 12px #e5e5e5;
 }
 
-.login-containter .title {
+#icon-div{
+    display: flex;
+    align-items: center;
+}
+
+#icon-div img {
+    max-width: 100px;
+    width: 4vw;
+    margin-left: 48%;
+    margin-bottom: 4%;
+}
+
+.login-form .title {
     background-color: #1C2B40;
     color: white;
-    font-size: 1.5vw;
-    font-weight: 600;
+    font-size: 1.3vw;
     text-align: center;
     border-radius: inherit;
-}
-
-.login-containter p{
-    font-size: 1.2vw;
-}
-
-.form-container {
-    
+    padding: 3% 0% 3% 0%;
 }
 
 .input-container {
-    margin-top: 2%;
+    margin-top: 4%;
     margin-bottom: 2%;
+    margin-left: 4%;
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     flex-flow: column;
 }
 
 input {
     padding: 1%;
-    border-radius: 0.5vw;
+    border-radius: 0.2vw;
+    width: 90%;
+    height: 2vw;
+    font-size: 1vw;
 }
 
 input:focus {
-    box-shadow: 5px 2px 3px rgb(171, 213, 219);
+    box-shadow: 5px 3px 3px rgb(171, 213, 219);
 }
 
 .input-container button {
     margin-top: 2%;
-    background-color: #1C2B40;
+    background-color: #2DB391;
     color: white;
-    border: 1px solid #1C2B40;
-    border-radius: 1vw;
-    padding: 1% 4% 1% 4%;
+    border: 1px solid #2DB391;
+    border-radius: 0.5vw;
+    padding: 1% 18% 3% 18%;
     font-size: 1vw;
 
     cursor: pointer;
+}
+
+#sign-in-btn {
+    align-items: center !important;
 }
 
 .invisible {
@@ -57,10 +76,39 @@ input:focus {
 }
 
 .error {
-    text-align: center;
-    padding: 1%;
-    margin: 2% 2% 0% 2%;
-    background-color: #f2c6c6;
-    color: #c62828;
+    margin: 2% 0% 1% 0%;
+    background-color: #F5544D;
+    color: white;
     border-radius: 0.5vw;
+    font-size: 1.1vw;
+    padding: 1% 2% 1% 4%
+}
+
+#create-account-div {
+    margin-top: 2%;
+    background-color: #F6F6F6;
+}
+
+#create-account-div p{
+    margin-left: 4%;
+    text-align: center;
+    color: #1D2B40;
+}
+ 
+.error div, .error p {
+    display: inline-block;
+}
+
+.error div{
+    margin-left: 20%;
+}
+
+.error div button {
+    padding: 25% 50% 25% 50%;
+    background-color: white;
+    border-radius: 0.4vw;
+    font-size: 1vw;
+    border: 1px solid black;
+    font-weight: 600;
+    cursor: pointer;
 }

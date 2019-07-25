@@ -28,7 +28,7 @@ class ProjectView extends React.Component{
             <div className="main-content">
                 <RepoInfo/>
                 <div className="last-commit-info">
-                        <div class="last-commit-details">
+                        <div className="last-commit-details">
                             <div className="last-commit-pic"></div>
                             <div className="last-commit-name">
                                 Merged Branch <b>"branch_name"</b> into <b>"new_branch_name"</b><br/>
