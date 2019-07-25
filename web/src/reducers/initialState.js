@@ -1,5 +1,6 @@
 export default {
     files: [],
     project: {},
-    file: {pathToFile: ""}
+    file: {pathToFile: ""},
+    auth: false
 }
