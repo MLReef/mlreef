@@ -75,6 +75,8 @@ undeploy:
   when: manual
   image: python:latest
   stage: teardown
+  variables:
+    GIT_STRATEGY: none
   cache:
     key: mlreef-all-python-dependencies
     paths:
