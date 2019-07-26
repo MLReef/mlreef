@@ -3,6 +3,11 @@ image: gradle:latest
 stages:
   - build
   - deploy
+  - teardown
+
+variables:
+  BUILD_PATH: "web/build"
+  BUCKET_NAME: mlreef-$CI_COMMIT_REF_SLUG   #environment name and url are set separately
 
 
 #kotlin2js:
@@ -26,18 +31,64 @@ npm-build:
     - npm run build
   artifacts:
     paths:
-      - web/build/            # pass build output
+      - ${BUILD_PATH}            # pass build output
 
 
-pages:
-  image: alpine:latest
+# The deployment on aws dependes on thre main environment variables
+# AWS_ACCESS_KEY_ID         create at https://console.aws.amazon.com/iam/
+# AWS_SECRET_ACCESS_KEY     create at https://console.aws.amazon.com/iam/
+# AWS_DEFAULT_REGION        default:eu-central-1
+deploy:
+  image: python:3.7  # We use python because there is a well-working AWS Sdk
   stage: deploy
-  script:
-    - mkdir public             # create deploy directory
-    - cp -r web/build/* public # copy the react build to gitlab public pages
-    - ls -al public
-  artifacts:
+  dependencies:
+    - npm-build         # We want to specify dependencies in an explicit way, to avoid confusion if there are different build jobs
+  cache:
+    key: mlreef-all-python-dependencies
     paths:
-    - public
-#  only:
-#    - master
+      - .cache/pip
+      - venv/
+  before_script:
+    - pip install awscli # Install the SDK
+  variables:
+    POLICY1: '{ "Version": "2008-10-17", "Id": "PolicyForPublicWebsiteContent", "Statement": [ {"Sid": "PublicReadGetObject","Effect": "Allow","Principal": {"AWS": "*"},"Action": "s3:GetObject","Resource": "arn:aws:s3:::'
+    POLICY2: '/*"}]}'
+  script:
+    - aws s3api create-bucket --bucket ${BUCKET_NAME}
+      --region ${AWS_DEFAULT_REGION}
+      --create-bucket-configuration LocationConstraint=${AWS_DEFAULT_REGION}
+      || echo "Bucket already existed" # ignore fail if bucket exists
+    - rm -f policy.json
+    - echo ${POLICY1}${BUCKET_NAME}${POLICY2}  > policy.json
+    - aws s3api put-bucket-policy --bucket ${BUCKET_NAME}
+      --no-confirm-remove-self-bucket-access
+      --policy file://policy.json
+    - aws s3 sync ${BUILD_PATH} s3://${BUCKET_NAME} --delete # upload new version
+    - echo "Instance location https://${BUCKET_NAME}.s3.${AWS_DEFAULT_REGION}.amazonaws.com/index.html"
+  environment:
+    name: $CI_COMMIT_REF_SLUG
+    url: https://mlreef-${CI_COMMIT_REF_SLUG}.s3.${AWS_DEFAULT_REGION}.amazonaws.com/index.html  # This is the url of the bucket we saved before
+    on_stop: undeploy       # clean up after branch merge
+
+
+undeploy:
+  when: manual
+  image: python:latest
+  stage: teardown
+  cache:
+    key: mlreef-all-python-dependencies
+    paths:
+      - .cache/pip
+      - venv/
+  before_script:
+    - pip install awscli
+  script:
+    - aws s3 rm s3://${BUCKET_NAME} --recursive
+    - aws s3api delete-bucket --bucket ${BUCKET_NAME}
+  environment:
+    name: $CI_COMMIT_REF_SLUG
+    action: stop
+  except:
+    refs:
+      - master
+      - develop
