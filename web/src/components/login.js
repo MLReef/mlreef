@@ -15,7 +15,6 @@ export default class Login extends React.Component {
 
         this.submit = this.submit.bind(this);
         this.validateForm = this.validateForm.bind(this);
-        this.cleanCredentialFields = this.cleanCredentialFields.bind(this);
     }    
 
     handleChange = event => {
@@ -30,17 +29,8 @@ export default class Login extends React.Component {
             && this.state.email === "camillo" 
             && this.state.password === "password";
         
-    cleanCredentialFields(e){
-        e.preventDefault();
-        this.setState({
-            email: "",
-            password: "",
-            redirect: false
-        });
-    }
-
     renderRedirect(){
-        if(this.state.redirect){
+        if(this.state.redirect || sessionStorage.getItem("auth") === "true"){
             return <Redirect to="/home"/>
         }
     }
@@ -59,7 +49,7 @@ export default class Login extends React.Component {
             return;
         }
         
-        sessionStorage.auth = true;
+        sessionStorage.setItem("auth", true);
         this.setState({
             redirect: true
         });
@@ -77,7 +67,7 @@ export default class Login extends React.Component {
                             Incorrect username or password
                         </p>
                         <div>
-                            <button onClick={this.cleanCredentialFields} className="paragraph">Reset</button>
+                            <button className="paragraph">Reset</button>
                         </div>
                     </div>
                 <div className="login-form border-div">

@@ -9,7 +9,7 @@ import App from './App';
 import FileView from './components/file-view';
 import Login from './components/login';
 import projectView from './components/projectView';
-//import PrivateRoute from './private-route';
+import PrivateRoute from './private-route';
 
 const store = configureStore();
 store.dispatch(loadProjectGeneralInfo());
@@ -20,9 +20,9 @@ ReactDOM.render(
             <Switch>
                 <Route path="/" exact component={Login}/>
                 <Route path="/index.html" exact component={Login}/>
-                <Route path="/home" exact component={App}/>
-                <Route path="/branch/:branch/file-name/:file" exact component={FileView}/>
-                <Route path="/files/branch/:branch/path/:path" exact component={projectView}/>
+                <PrivateRoute path="/home" component={App}/>
+                <PrivateRoute path="/branch/:branch/file-name/:file" component={FileView}/>
+                <PrivateRoute path="/files/branch/:branch/path/:path" component={projectView}/>
            </Switch>
         </BrowserRouter>
     </Provider>,
