@@ -144,7 +144,7 @@ img.dropdown-white {
 }
 
 #projectId {
-    font-size: 0.8vw;
+    font-size: 0.8em;
     color: #909090;
 }
 
@@ -204,7 +204,7 @@ img.dropdown-white {
     border-left: 2px solid #e5e5e5;
     min-width: 30px;
     width: 3vw;
-    height: 2em;
+    height: 2.05em;
 
 }
 
@@ -247,7 +247,6 @@ img.dropdown-white {
     background-color: white;
     font-weight: 600;
 }
-
 
 .repo-info {
     display: flex;
@@ -339,7 +338,7 @@ p.stat-no {
     display: flex;
     flex-direction: row;
     justify-content: space-between;
-    padding: 15px 3% 0 3%;
+    padding: 15px 3% 0% 3%;
     background-color: #fff;
 }
 
@@ -372,13 +371,9 @@ p.stat-no {
     padding-right: 8px;
 }
 
-
 #repo-features button p{
     align-content: center;
-    margin-right: 5px;
-    margin-left: 5px;
-    margin-bottom: 0px;
-    margin-top: 0px;
+    margin: 0 5px 0 5px;
 }
 
 #leftfeature-image {
@@ -388,11 +383,11 @@ p.stat-no {
 }
 
 #repo-features button #plus {
-    width: 2vw;
+    width: 2em;
 }
 
 #repo-features button img {
-    width: 20px;
+    width: 2em;
 }
 
 .commit-status {
@@ -487,10 +482,11 @@ p.stat-no {
     display: flex;
     margin: 0 auto;
     width: 95%;
-    border: 1px solid #1C2B40;
+    border: 1px solid #b2b2b2;
 }
 
 .files-row td{
+    height: 3em;
     width: 25%;
     margin: 0;
     text-align: left;
@@ -544,6 +540,7 @@ p.stat-no {
     border-bottom: 1px solid #B2B2B2;
 }
 
+
 .readme-profile-pic {
     height: 2.5vw;
     width: 2.5vw;
@@ -563,7 +560,6 @@ p.stat-no {
     display: flex;
     flex-direction: column;
     margin: 20px 90px;
-
 }
 
 .readme-content-container p {
