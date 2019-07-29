@@ -21,8 +21,8 @@ ReactDOM.render(
                 <Route path="/" exact component={Login}/>
                 <Route path="/index.html" exact component={Login}/>
                 <PrivateRoute path="/home" component={App}/>
-                <PrivateRoute path="/branch/:branch/file-name/:file" component={FileView}/>
-                <PrivateRoute path="/files/branch/:branch/path/:path" component={projectView}/>
+                <PrivateRoute path="/files/branch/:branch/file-name/:file" component={FileView}/>
+                <PrivateRoute path="/files/branch/:branch" component={projectView}/>
            </Switch>
         </BrowserRouter>
     </Provider>,

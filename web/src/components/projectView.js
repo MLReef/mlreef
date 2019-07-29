@@ -10,12 +10,12 @@ import {bindActionCreators} from 'redux';
 import * as fileActions from "./../actions/fileActions";
 
 class ProjectView extends React.Component{
-    componentDidMount(){       
-        if(this.props.match){
-            this.props.actions.updatePathToFile(`${this.props.file.pathToFile}/${this.props.match.params.path}`);
-            this.props.actions.loadFiles(this.props.match.params.path, this.props.match.params.branch);
-        } else {
-            this.props.actions.loadFiles("", this.props.project.default_branch);
+    componentDidMount(){        
+        if(!this.props.match){
+            this.props.actions.loadFiles(
+                    null, 
+                    this.props.project.default_branch
+                );
         }
     }
     
