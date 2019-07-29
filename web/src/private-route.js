@@ -1,12 +1,13 @@
 import React from "react";
 import {Redirect, Route} from 'react-router-dom'
 
-const PrivateRoute = ({component: Component, path, auth, ...rest}) => {
+const PrivateRoute = ({component: Component, path, ...rest}) => {
+    const auth = sessionStorage.getItem("auth");
     return (
         <Route {...rest}
-            render={(props) => auth === "true"
+            exact render={(props) => auth === "true" 
                 ? <Component {...props}/>
-                : <Redirect to="/login"/>
+                : <Redirect to="/"/>
             }
         />
     )
