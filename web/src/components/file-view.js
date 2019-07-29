@@ -9,17 +9,23 @@ import Navbar from './navbar';
 
 class FileView extends React.Component{
     componentDidMount(){
-        let path = this.props.fileData.pathToFile.substring(1, this.props.fileData.pathToFile.length);
-        path = `${path}/${this.props.match.params.file}`;
-        path = path.replace(/\//g, '%2F');
-        console.log(path);
+        var url_string = window.location.href;
+        var url = new URL(url_string);
+        var path = url.searchParams.get("path");
+        
+        if(path){
+            path = path.replace(/\//g, '%2F');
+            path = path + "%2F" + this.props.match.params.file
+        } else {
+            path = this.props.match.params.file;
+        }
+
         this.props.actions.getFileData(path, this.props.match.params.branch);
     }
 
     render(){
         const fileName = this.props.fileData.file_name;
         const fileSize = this.props.fileData.size;
-        console.log(this.props.fileData);
         let fileContent = [];
         let foo;
         if(this.props.fileData.content){
