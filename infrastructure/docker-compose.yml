@@ -1,22 +1,20 @@
 version: "3.0"
 services:
-# Deactivated self hosted gitlab for now.
-# currently the demo is hosted at https://gitlab.com/cpmlreef/mlreef-demo
-#  repository:
-#    image: gitlab/gitlab-ce:latest
-#    restart: always
-#    hostname: 'localhost'
-#    ports:
-#    - 22:22
-#    - 80:80
-#    - 433:433
-#    - 8080:8080
-#    environment:
-#    - POSTGRES_USER=postgres
-#    - POSTGRES_PASSWORD=postgres
+  repository:
+    image: gitlab/gitlab-ce:latest
+    restart: always
+    hostname: 'localhost'
+    ports:
+      - 22:22
+      - 80:80
+      - 433:433
+      - 8080:8080
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
 
   gitlab-runner-config:
-    image: gitlab/gitlab-runner:latest
+    image: gitlab/gitlab-runner:lates
     restart: always
 
   gitlab-runner:
@@ -24,10 +22,10 @@ services:
     restart: always
 
 
-  #client:
-  #  build:
-  #    context: .
-  #    dockerfile: ./client/Dockerfile
+  client:
+    build:
+      context: .
+      dockerfile: ./client/Dockerfile
   #    args:
   #      CORS_ORIGINS: "http://localhost:8080,https://localhost:8080"
   #      D_USR: "postgres"
@@ -36,6 +34,6 @@ services:
   #      D_DRV: org.postgresql.Driver
   #  ports:
   #    - 8084:8084
-  #   depends_on:
-  #    - repository
+    depends_on:
+      - repository
   #    - machine-learning-service
