@@ -28,7 +28,7 @@ export default class Navbar extends React.Component {
           }
           onClick={this.handleProject}
         >
-          <a href="#">Projects</a>
+          <a href="#foo">Projects</a>
           <img
             className="dropdown-white"
             src={
