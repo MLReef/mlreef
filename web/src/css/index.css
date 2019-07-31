@@ -1,584 +1,689 @@
-@import url('https://fonts.googleapis.com/css?family=Roboto&display=swap'); 
+@import url("https://fonts.googleapis.com/css?family=Roboto&display=swap");
 
 a {
-    color: #1C2B40;
-    text-decoration: none;
+  color: #1c2b40;
+  text-decoration: none;
 }
 
-a:hover{
-    text-decoration: underline;
+a:hover {
+  text-decoration: underline;
 }
 
 body {
-    margin: 0; 
-    padding: 0;
-    font-family: 'Roboto', sans-serif;
-    font-size: 13px;
-    min-width: 768px;
+  margin: 0;
+  padding: 0;
+  font-family: "Roboto", sans-serif;
+  font-size: 13px;
+  min-width: 768px;
 }
 
 button {
-    font-family: 'Roboto', sans-serif;
-    height: 2em;
+  font-family: "Roboto", sans-serif;
+  height: 2em;
 }
 
 /** This is applied to everything below the nav-bar. */
 .main-content {
-    max-width: 1024px;
-    min-width: 786px;
-    align-items: center;
-    margin: 0% auto 0% auto;
+  max-width: 1024px;
+  min-width: 786px;
+  align-items: center;
+  margin: 0% auto 0% auto;
 }
 
 .navbar {
-    display: flex;
-    align-items: center;
-    background-color: #1C2B40;
+  display: flex;
+  align-items: center;
+  background-color: #1c2b40;
 }
 
 .logo {
-    width: 8.5%;
-    margin: 1% 0% 1% 3%;
+  width: 8.5%;
+  margin: 1% 0% 1% 3%;
 }
 
 .projects-dropdown {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    color: #fff;
-    margin-left: 45px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #fff;
+  margin-left: 45px;
+  padding: 0.5em;
+  cursor: pointer;
 }
 
-.projects-dropdown p{
-    margin: 0px;
+.projects-dropdown-click {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #292961;
+  background: white;
+  margin-left: 45px;
+  padding: 0.5em;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.projects-dropdown-click a:hover {
+  text-decoration: none;
+}
+
+.projects-dropdown:hover {
+  background: rgb(197, 197, 197, 0.2);
+}
+
+.projects-dropdown a {
+  color: #ffffff;
+  text-decoration: none;
+  margin: 0px;
 }
 
 .projects-dropdown img {
-    margin-left: 4%;
+  margin-left: 4%;
 }
-
 
 .profile-options {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    position: absolute;
-    right: 3%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: absolute;
+  right: 3%;
+  padding: 5px 15px;
+  margin-top: 3px;
+  border-radius: 10px;
+  cursor: pointer;
 }
 
-
 .profile-pic-circle {
-    height: 2.5vw;
-    width: 2.5vw;
-    background-color: #fff;
-    display: flex;
-    border-radius: 50%;
+  height: 2.5vw;
+  width: 2.5vw;
+  background-color: #fff;
+  display: flex;
+  border-radius: 50%;
 }
 
 img.dropdown-white {
-    width: 1.5vw;
-    margin-right: 4px;
+  width: 1.5vw;
+  margin-right: 4px;
 }
 
 .project-container {
-    background-color: #E5E5E5;
+  background-color: #e5e5e5;
 }
 
 .project-details {
-    margin: auto;
-    padding: 0% 1% 0% 1%;
+  margin: auto;
+  padding: 0% 1% 0% 1%;
 }
 
 .project-nav {
-    display: flex;
-    flex-direction: row;
-    padding: 1% 0% 0% 0%;
+  display: flex;
+  flex-direction: row;
+  padding: 1% 0% 0% 0%;
 }
 
-
 .project-nav p {
-    margin: 0.3% 0.4% 0.4% 0%;
-    color: #1C2B40;
+  margin: 0.3% 0.4% 0.4% 0%;
+  color: #1c2b40;
 }
 
 .project-info {
-    margin-top: 1%;
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    /* border: 1px solid green; */
+  margin-top: 1%;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  /* border: 1px solid green; */
 }
 
 .project-pic {
-    height: 2.5em;
-    width: 2.5em;
-    background-color: #fff;
-    border: 1px solid #1C2B40;
-    border-radius: 8px;
-    display: flex;
+  height: 2.5em;
+  width: 2.5em;
+  background-color: #fff;
+  border: 1px solid #1c2b40;
+  border-radius: 8px;
+  display: flex;
 }
 
 /* fix the size of the Project Avatar */
 .project-pic img {
-    height: 2.5em;
+  height: 2.5em;
 }
 
 .project-id {
-    display: flex;
-    width: 50%;
+  display: flex;
+  width: 50%;
 }
 
-.project-name{
-    margin-left: 2%;
-    width: 110%;
+.project-name {
+  margin-left: 2%;
+  width: 110%;
 }
 
-.project-name p{
-    margin: 0%;
+.project-name p {
+  margin: 0%;
 }
 
 #projectName {
-    font-size: 1.5em;
-    color: #1C2B40;
-    font-weight: 600;
+  font-size: 1.5em;
+  color: #1c2b40;
+  font-weight: 600;
 }
 
 #projectId {
-    font-size: 0.8em;
-    color: #909090;
+  font-size: 0.8em;
+  color: #909090;
 }
 
-.project-options {   
-    display: flex;
-    justify-content: flex-end;
-    /* border: 2px solid red; */
+.project-options {
+  display: flex;
+  justify-content: flex-end;
+  /* border: 2px solid red; */
 }
-
 
 .options {
-    display: flex;
-    flex-direction: row;
-    width: 12vw;
-    height: 60%;
-    border-radius: 0.5vw;
-    margin-left: 1.5%;
-    min-width: 60px;
+  display: flex;
+  flex-direction: row;
+  width: 12vw;
+  height: 60%;
+  border-radius: 0.5vw;
+  margin-left: 1.5%;
+  min-width: 60px;
 }
 
 .option-name {
-    display: flex;
-    flex-direction: row;
-    width: 8vw;
-    height: 2em;
-    background-color: #fff;
-    border-radius: 8px 0px 0px 8px;
-    border: none;
-    padding-bottom: 0px;
-    padding-top: 0px;
-    min-width: 50px;
+  display: flex;
+  flex-direction: row;
+  width: 8vw;
+  height: 2em;
+  background-color: #fff;
+  border-radius: 8px 0px 0px 8px;
+  border: none;
+  padding-bottom: 0px;
+  padding-top: 0px;
+  min-width: 50px;
 }
 
 .option-name p {
-    margin-left: 6%;
-    color: #1C2B40;
-    font-size: 13px;
-    font-weight: 600;
-    margin-top: auto;
-    margin-bottom: auto;
+  margin-left: 6%;
+  color: #1c2b40;
+  font-size: 13px;
+  font-weight: 600;
+  margin-top: auto;
+  margin-bottom: auto;
 }
 
 #option-image {
-    width: 1.8vw;
-    margin-left: 1vw;
-    margin-right: 0.25vw;
-
+  width: 1.8vw;
+  margin-left: 1vw;
+  margin-right: 0.25vw;
 }
 
 .counter {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-    background-color: #fff;
-    border-radius: 0px 8px 8px 0px;
-    border-left: 2px solid #e5e5e5;
-    min-width: 30px;
-    width: 3vw;
-    height: 2.05em;
-
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  background-color: #fff;
+  border-radius: 0px 8px 8px 0px;
+  border-left: 2px solid #e5e5e5;
+  min-width: 30px;
+  width: 3vw;
+  height: 2.05em;
 }
 
 .counter p {
-    color: #1C2B40;
-    font-size: 13px;
-    font-weight: 600;
-    margin: 0px 1vw;
+  color: #1c2b40;
+  font-size: 13px;
+  font-weight: 600;
+  margin: 0px 1vw;
 }
 
 .project-desc {
-    color: #1C2B40;
-    margin-top: 1.5%;
+  color: #1c2b40;
+  margin-top: 1.5%;
 }
 
 .feature-list {
-    display: flex;
-    justify-content: space-between;
-    flex-direction: row;
-    max-height: 50px;
+  display: flex;
+  justify-content: space-between;
+  flex-direction: row;
+  max-height: 50px;
 }
 
 .feature {
-    display: flex;
-    height: inherit;
-    justify-content: center;
-    align-items: center;
-    margin-top: 0.1%;
-    text-align: center;
-    padding: 1% 5%;
-    border-radius: 8px 8px 0px 0px;
+  display: flex;
+  height: inherit;
+  justify-content: center;
+  align-items: center;
+  margin-top: 0.1%;
+  text-align: center;
+  padding: 1% 5%;
+  border-radius: 8px 8px 0px 0px;
 }
 
-.feature p{
-    margin: 0;
-    color: #1C2B40;
+.feature p {
+  margin: 0;
+  color: #1c2b40;
 }
 
 .feature.active {
-    background-color: white;
-    font-weight: 600;
+  background-color: white;
+  font-weight: 600;
 }
 
 .repo-info {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    background-color: #32AFC3;
-    margin-top: 15px;
-    border-radius: 8px;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  background-color: #32afc3;
+  margin-top: 15px;
+  border-radius: 8px;
 }
 
 .repo-stat {
-    display: flex;
-    margin: 0% 2% 0% 2%;
+  display: flex;
+  margin: 0% 2% 0% 2%;
 }
 
 .repo-stat p {
-    color: #fff;
+  color: #fff;
 }
 
 p.stat-no {
-    font-weight: 700;
+  font-weight: 700;
 }
 
 .stat-type {
-    margin-left: 10px;
+  margin-left: 10px;
 }
 
 .last-commit-info {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
-    margin-top: 15px;
-    border-radius: 8px;
-    background-color: #E5E5E5;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 15px;
+  border-radius: 8px;
+  background-color: #e5e5e5;
 }
 
 .last-commit-id {
-    display: flex;
-    width: auto;
-    min-width: 35px;
-    padding: 0.7% 0.2% 0.7% 0.2%;
-    height: 1.2vw;
-    margin-right: 3.5%;
-    justify-content: center;
-    background-color: #fff;
-    border-radius: 0.75vw;
-    border: 1px solid #B2B2B2;
+  display: flex;
+  width: auto;
+  min-width: 35px;
+  padding: 0.7% 0.2% 0.7% 0.2%;
+  height: 1.2vw;
+  margin-right: 3.5%;
+  justify-content: center;
+  background-color: #fff;
+  border-radius: 0.75vw;
+  border: 1px solid #b2b2b2;
 }
 
 .last-commit-id p {
-    padding-left: 24px; 
-    padding-right: 24px;
-    font-weight: 400;
-    color: #404040;
-    margin: 0;
-    align-self: center;
+  padding-left: 24px;
+  padding-right: 24px;
+  font-weight: 400;
+  color: #404040;
+  margin: 0;
+  align-self: center;
 }
 
 .last-commit-details {
-    display: flex;
-    flex-direction: row;
-    width: 80%;
+  display: flex;
+  flex-direction: row;
+  width: 80%;
 }
 
 .last-commit-pic {
-    height: 3vw;
-    width: 3vw;
-    margin: 1% 1% 1% 5%;
-    background-color: #fff;
-    border: 1px solid #1C2B40;
-    border-radius: 50%;
-    display: flex;
+  height: 3vw;
+  width: 3vw;
+  margin: 1% 1% 1% 5%;
+  background-color: #fff;
+  border: 1px solid #1c2b40;
+  border-radius: 50%;
+  display: flex;
 }
 
-
 .pr-name p {
-    margin: 0;
-    align-self: center;
+  margin: 0;
+  align-self: center;
 }
 
 .last-commit-name {
-    margin-left: 1vw;
-    align-self: center;
-    color: #1C2B40;
+  margin-left: 1vw;
+  align-self: center;
+  color: #1c2b40;
 }
 
 #repo-features {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    padding: 15px 3% 0% 3%;
-    background-color: #fff;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  padding: 15px 3% 0% 3%;
+  background-color: #fff;
 }
 
 #repo-features div {
-    display: flex;
+  display: flex;
 }
 
 #repo-features button {
-    align-items: center;
-    margin-right: 8px;
-    border-radius: 8px;
-    border: 1px solid #1C2B40;
-    width: max-content;
+  align-items: center;
+  margin-right: 8px;
+  border-radius: 8px;
+  border: 1px solid #1c2b40;
+  width: max-content;
 }
 
 .white-button {
-    color: #1C2B40;
-    background-color: #fff;
-    font-weight: 400;
-    display: flex;
-    padding-right: 8px;
-    padding-left: 8px;
+  color: #1c2b40;
+  background-color: #fff;
+  font-weight: 400;
+  display: flex;
+  padding-right: 8px;
+  padding-left: 8px;
 }
 
 .blue-button {
-    color: #fff;
-    background-color: #1C2B40;
-    font-weight: 600;
-    display: flex;
-    padding-right: 8px;
+  color: #fff;
+  background-color: #1c2b40;
+  font-weight: 600;
+  display: flex;
+  padding-right: 8px;
 }
 
-#repo-features button p{
-    align-content: center;
-    margin: 0 5px 0 5px;
+#repo-features button p {
+  align-content: center;
+  margin: 0 5px 0 5px;
 }
 
 #leftfeature-image {
-    padding-left: 5px;
-    margin-left: 1%;
-    margin-right: 1%;
+  padding-left: 5px;
+  margin-left: 1%;
+  margin-right: 1%;
 }
 
 #repo-features button #plus {
-    width: 2em;
+  width: 2em;
 }
 
 #repo-features button img {
-    width: 2em;
+  width: 2em;
 }
 
 .commit-status {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
-    height: 40px;
-    margin-top: 15px;
-    border-radius: 8px 8px 0px 0px;
-    background-color: #2DB391;
-    /* border: 1px solid #32AFC3; */
-
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  height: 40px;
+  margin-top: 15px;
+  border-radius: 8px 8px 0px 0px;
+  background-color: #2db391;
+  /* border: 1px solid #32AFC3; */
 }
 
 #commitStatus {
-    color: #fff;
-    margin:0 2%;
+  color: #fff;
+  margin: 0 2%;
 }
 
-
 .create-pr {
-    display: flex;
-    align-items: center;
-    margin: 0.5% 3.5% 0.5% 0%;
-    padding: 0.3% 1.5% 0.3% 1.5%;
-    border-radius: 8px;
-    min-width: 120px;
-    border: 1px solid #1C2B40;
-    background-color: #FFFFFF;
+  display: flex;
+  align-items: center;
+  margin: 0.5% 3.5% 0.5% 0%;
+  padding: 0.3% 1.5% 0.3% 1.5%;
+  border-radius: 8px;
+  min-width: 120px;
+  border: 1px solid #1c2b40;
+  background-color: #ffffff;
 }
 
 .create-pr p {
-    margin: 0px;
-    font-weight: 400;
+  margin: 0px;
+  font-weight: 400;
 }
 
-
 .file-properties {
-    padding: 0% 0% 1% 0%;
-    border-radius: 0 0 8px 8px;
-    border: 1px solid #b2b2b2;
-    width: 100%;
+  padding: 0% 0% 1% 0%;
+  border-radius: 0 0 8px 8px;
+  border: 1px solid #b2b2b2;
+  width: 100%;
 }
 
 .files-contrainer {
-    margin-top: 15px;
+  margin-top: 15px;
 }
 
-
 .title-row {
-    background-color: #1D2B40;
-    color: #fff;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+  background-color: #1d2b40;
+  color: #fff;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .title-row th {
-    width: 33%;
+  width: 33%;
 }
 
 .title-row th > p {
-    font-size: 13px;
+  font-size: 13px;
 }
 
-#paragraphName{
-    text-align: left;
-    padding-left: 8%;
+#paragraphName {
+  text-align: left;
+  padding-left: 8%;
 }
 
-#paragraphLastUpdate{
-    text-align: right;
-    padding-right: 10%;
+#paragraphLastUpdate {
+  text-align: right;
+  padding-right: 10%;
 }
 
-#paragraphLastCommit{
-    text-align: right;
-    padding-right: 18%;
+#paragraphLastCommit {
+  text-align: right;
+  padding-right: 18%;
 }
 .files-row {
-    background-color: #fff;
-    color: #1C2B40;
-    font-size: 1em;
-    display: flex;
-    justify-content: space-between;
-    padding: 0% 3.5% 0% 1%;
-    border-bottom: 1px solid #b2b2b2;
+  background-color: #fff;
+  color: #1c2b40;
+  font-size: 1em;
+  display: flex;
+  justify-content: space-between;
+  padding: 0% 3.5% 0% 1%;
+  border-bottom: 1px solid #b2b2b2;
 }
 
 .row-border {
-    display: flex;
-    margin: 0 auto;
-    width: 95%;
-    border: 1px solid #b2b2b2;
+  display: flex;
+  margin: 0 auto;
+  width: 95%;
+  border: 1px solid #b2b2b2;
 }
 
-.files-row td{
-    height: 3em;
-    width: 25%;
-    margin: 0;
-    text-align: left;
+.files-row td {
+  height: 3em;
+  width: 25%;
+  margin: 0;
+  text-align: left;
 }
 
 .file-type {
-    display: flex;
-    align-items: center;
-    width: 15%;
+  display: flex;
+  align-items: center;
+  width: 15%;
 }
 
 .file-type img {
-    height: auto;
-    width: 2vw;
-    margin: 0px 1vw;
-    padding: 0;
+  height: auto;
+  width: 2vw;
+  margin: 0px 1vw;
+  padding: 0;
 }
 
 .files-row p {
-    font-size: 1em;
-    text-align: right;
-    padding-right: 5%;
+  font-size: 1em;
+  text-align: right;
+  padding-right: 5%;
 }
 
-.files-row button{
-    background-color: #FFFFFF;
-    border: none;
-    cursor: pointer;
+.files-row button {
+  background-color: #ffffff;
+  border: none;
+  cursor: pointer;
 }
 
-.files-row button:hover{
-    text-decoration: underline;
+.files-row button:hover {
+  text-decoration: underline;
 }
 
 /* Readme */
 
 .readme-container {
-    margin-top: 15px;
-    border-radius: 8px;
-    background-color: #fff;
-    border: 1px solid #B2B2B2;
+  margin-top: 15px;
+  border-radius: 8px;
+  background-color: #fff;
+  border: 1px solid #b2b2b2;
 }
 
 .readme-titlebar {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    margin: 0px auto;
-    border-radius: 8px 8px 0 0;
-    background-color: #E5E5E5;
-    border-bottom: 1px solid #B2B2B2;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin: 0px auto;
+  border-radius: 8px 8px 0 0;
+  background-color: #e5e5e5;
+  border-bottom: 1px solid #b2b2b2;
 }
 
-
 .readme-profile-pic {
-    height: 2.5vw;
-    width: 2.5vw;
-    background-color: #fff;
-    border: 1px solid #B2B2B2;
-    border-radius: 8px;
-    margin-left: 30px;
-    display: flex;
+  height: 2.5vw;
+  width: 2.5vw;
+  background-color: #fff;
+  border: 1px solid #b2b2b2;
+  border-radius: 8px;
+  margin-left: 30px;
+  display: flex;
 }
 
 .readme-name {
-    margin-left: 2.5%;
-    color: #1C2B40;
+  margin-left: 2.5%;
+  color: #1c2b40;
 }
 
 .readme-content-container {
-    display: flex;
-    flex-direction: column;
-    margin: 20px 90px;
+  display: flex;
+  flex-direction: column;
+  margin: 20px 90px;
 }
 
 .readme-content-container p {
-    padding: 0px;
-    margin: 0;
-    color: #1C2B40;
-    text-align: left;
-    font-size: 1vw;
+  padding: 0px;
+  margin: 0;
+  color: #1c2b40;
+  text-align: left;
+  font-size: 1vw;
 }
 
 #project-name-readme {
-    display: inline-flex;
-    padding-bottom: 10px; 
-    font-size: 1.2em; 
-    font-weight: 600;
-    border-bottom: 2px solid #1C2B40;
+  display: inline-flex;
+  padding-bottom: 10px;
+  font-size: 1.2em;
+  font-weight: 600;
+  border-bottom: 2px solid #1c2b40;
 }
 
 #project-content-readme {
-    padding-top: 1.5%;
-    font-size: 1em; 
+  padding-top: 1.5%;
+  font-size: 1em;
+}
+
+.box {
+  width: 50px;
+  height: 100px;
+}
+
+.sign-box {
+  box-shadow: 0 0 5px #c5c5c5;
+  position: absolute;
+  width: 180px;
+  height: auto;
+  background: #fff;
+  right: 0;
+  top: 50px;
+}
+
+.sign-box p {
+  padding: 0.75em;
+  font-family: "Roboto", sans-serif;
+  font-weight: 200;
+  transition: all 0.4s ease;
+}
+
+.sign-box div {
+  font-family: "Roboto", sans-serif;
+  font-weight: 200;
+  margin: 0.75em;
+}
+
+.sign-box p:hover {
+  background: #c5c5c5;
+  cursor: pointer;
+}
+
+hr {
+  border: none;
+  height: 1px;
+  background: #dddddd;
+}
+
+.selected-controller {
+  background: #fff;
+}
+
+.profile-pic-darkcircle {
+  height: 2.5vw;
+  width: 2.5vw;
+  background-color: #fff;
+  display: flex;
+  border-radius: 50%;
+  -moz-border-radius: 50%;
+  -webkit-border-radius: 50%;
+  border: 2px solid rgb(13, 5, 85);
+}
+
+.project-box {
+  box-shadow: 0 0 5px #c5c5c5;
+  position: absolute;
+  display: flex;
+  flex-direction: row;
+  width: 500px;
+  height: 334px;
+  background: #fff;
+  left: 17em;
+  top: 63px;
+}
+
+.project-box p {
+  padding: 0.75em;
+  color: #000;
+  font-family: "Roboto", sans-serif;
+  font-weight: 200;
+  transition: all 0.4s ease;
+}
+
+.project-box p:hover {
+  background: #c5c5c5;
+  cursor: pointer;
+}
+
+.user-projects {
+  width: 40%;
+}
+
+.project-search {
+  border-left: 1px solid #dddddd;
+  padding: 0.5em;
+  width: 100%;
 }
