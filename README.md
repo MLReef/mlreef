@@ -10,6 +10,17 @@ Please read the [Contribution Guidelines](CONTRIBUTE.md) carefully
 # Element styles and transitions
 Here is the XD file for the definitions of all elements: https://xd.adobe.com/spec/e23711b1-f385-4729-5034-632fbe73bb6b-9406/
 
+**Color Pallette:**
+
+<p>Deep dark (primary blue): #1D2B40</p>
+<p>Almost white (base color, very light grey): #e5e5e5</p>
+<p>Signal fire (red): #f5544d</p>
+<p>Algae (green): #15B785</p>
+<p>Sponge (yellow): #EABA44</p>
+<p>Lagoon (light blue): #16ADCE</p>
+<p>Less white (grey): #b2b2b2</p>
+
+Please also see "MLreef CD Guide" for detailed view of the corporate design features in MLreef.
 
 ## Setup Developer Environment
 * Install Node (10.16.0 LTS) [link](https://nodejs.org/en/download/)
