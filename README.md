@@ -20,6 +20,9 @@ Here is the XD file for the definitions of all elements: https://xd.adobe.com/sp
 <p>Lagoon (light blue): #16ADCE</p>
 <p>Less white (grey): #b2b2b2</p>
 
+**Border Radius**
+All border radius is: 0,3vw
+
 Please also see "MLreef CD Guide" for detailed view of the corporate design features in MLreef.
 
 ## Setup Developer Environment
