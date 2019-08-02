@@ -1,7 +1,7 @@
 .file-container {
     margin: 1% 10% 1% 10%;
     border: 1px solid #9e9e9e;
-    border-radius: 0.25vw;
+    border-radius: 0.3vw;
 }
 
 .file-container .file-container-header{
@@ -10,7 +10,7 @@
     border-bottom: 1px solid #E5E5E5;
     background-color: #E5E5E5;
     display: flex;
-    border-radius: 0.25vw 0.25vw 0 0;
+    border-radius: 0.3vw 0.3vw 0 0;
 }
 
 .file-container-header p{

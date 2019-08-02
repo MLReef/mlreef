@@ -6,7 +6,7 @@ export default class RepoFeatures extends React.Component{
     render() {
         return <div id="repo-features">
             <div>
-                <button class="white-button">
+                <button class="dropdown-button">
                     Master
                     <img id="leftfeature-image" src={arrow_down_blue_01} alt=""/>
                 </button>                    
