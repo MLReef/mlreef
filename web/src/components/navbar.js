@@ -8,11 +8,26 @@ export default class Navbar extends React.Component {
 
   handleProfile = () => {
     this.setState({ dialogOpen: !this.state.dialogOpen });
-    console.log(this.state);
   };
 
-  handleProject = () => {
+  handleProject = e => {
+    e.target.focus();
     this.setState({ projectDialog: !this.state.projectDialog });
+  };
+
+  handleBlur = e => {
+    if (
+      e.nativeEvent.explicitOriginalTarget &&
+      e.nativeEvent.explicitOriginalTarget === e.nativeEvent.originalTarget
+    ) {
+      return;
+    }
+
+    if (this.state.projectDialog) {
+      setTimeout(() => {
+        this.setState({ projectDialog: false });
+      }, 200);
+    }
   };
 
   render() {
@@ -38,15 +53,34 @@ export default class Navbar extends React.Component {
             }
             alt=""
           />
+          {this.state.projectDialog && (
+            <div className="project-box" onBlur={this.handleBlur}>
+              <div className="user-projects">
+                <p>Your Projects</p>
+                <p>Starred Projects</p>
+                <p>Explore Projects</p>
+              </div>
+              <div className="project-search">
+                <input
+                  autoFocus={true}
+                  type="text"
+                  placeholder="Search your projects"
+                />
+                <div style={{ margin: "1em" }}>
+                  <b>Frequently visited</b>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
-        {this.state.projectDialog && <ProjectDialog />}
 
         <div
           className={
             "profile-options " +
             (this.state.dialogOpen ? "selected-controller" : "")
           }
-          onClick={this.handleProfile}
+          onMouseEnter={this.handleProfile}
+          onMouseLeave={this.handleProfile}
         >
           <img
             className="dropdown-white"
@@ -62,43 +96,19 @@ export default class Navbar extends React.Component {
                 : "profile-pic-circle"
             }
           />
-          {this.state.dialogOpen && <Dialog />}
+          <div className="sign-box">
+            <div>
+              Signed in as <b>user_name</b>
+            </div>
+            <hr />
+            <p>Set Status</p>
+            <p>Your Profile</p>
+            <p>Settings</p>
+            <hr />
+            <p>Sign Out</p>
+          </div>
         </div>
       </div>
     );
   }
-}
-
-function Dialog() {
-  return (
-    <div className="sign-box">
-      <div>
-        Signed in as <b>user_name</b>
-      </div>
-      <hr />
-      <p>Set Status</p>
-      <p>Your Profile</p>
-      <p>Settings</p>
-      <hr />
-      <p>Sign Out</p>
-    </div>
-  );
-}
-
-function ProjectDialog() {
-  return (
-    <div className="project-box">
-      <div className="user-projects">
-        <p>Your Projects</p>
-        <p>Starred Projects</p>
-        <p>Explore Projects</p>
-      </div>
-      <div className="project-search">
-        <input type="text" placeholder="Search your projects" />
-        <div style={{ margin: "1em" }}>
-          <b>Frequently visited</b>
-        </div>
-      </div>
-    </div>
-  );
 }

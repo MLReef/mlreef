@@ -87,7 +87,10 @@ class FilesContainer extends Component {
           </td>
           <td>
             {" "}
-            <p>Something</p>{" "}
+            <p>Something</p>
+          </td>
+          <td>
+            <p>48Kb</p>{" "}
           </td>
           <td>
             {" "}
@@ -121,6 +124,9 @@ class FilesContainer extends Component {
               </th>
               <th>
                 <p id="paragraphLastCommit">Last Commit</p>
+              </th>
+              <th>
+                <p id="paragraphSize">Size(files)</p>
               </th>
               <th>
                 <p id="paragraphLastUpdate">Last Update</p>

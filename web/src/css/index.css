@@ -43,6 +43,7 @@ button {
 
 .projects-dropdown {
   display: flex;
+  position: relative;
   justify-content: center;
   align-items: center;
   color: #fff;
@@ -53,6 +54,7 @@ button {
 
 .projects-dropdown-click {
   display: flex;
+  position: relative;
   justify-content: center;
   align-items: center;
   color: #292961;
@@ -91,6 +93,16 @@ button {
   margin-top: 3px;
   border-radius: 10px;
   cursor: pointer;
+}
+
+.show {
+  display: block;
+}
+
+.profile-options:hover .sign-box {
+  visibility: visible; /* show it on hover */
+  opacity: 1;
+  transition-delay: 0.1s;
 }
 
 .profile-pic-circle {
@@ -478,13 +490,19 @@ p.stat-no {
 
 #paragraphLastUpdate {
   text-align: right;
-  padding-right: 10%;
+  padding-right: 16%;
 }
 
 #paragraphLastCommit {
   text-align: right;
-  padding-right: 18%;
+  padding-right: 10%;
 }
+
+#paragraphSize {
+  text-align: right;
+  padding-right: 10%;
+}
+
 .files-row {
   background-color: #fff;
   color: #1c2b40;
@@ -612,6 +630,9 @@ p.stat-no {
   background: #fff;
   right: 0;
   top: 50px;
+  opacity: 0;
+  visibility: hidden;
+  transition: visibility 0s linear 0.1s, opacity 0.2s linear;
 }
 
 .sign-box p {
@@ -654,15 +675,17 @@ hr {
 }
 
 .project-box {
-  box-shadow: 0 0 5px #c5c5c5;
+  box-shadow: 0 2px 4px rgb(0, 0, 0, 0.1);
+  padding-top: 0.5em;
   position: absolute;
   display: flex;
   flex-direction: row;
   width: 500px;
   height: 334px;
   background: #fff;
-  left: 17em;
-  top: 63px;
+  left: 0;
+  border-radius: 3px;
+  top: 120%;
 }
 
 .project-box p {
@@ -679,6 +702,7 @@ hr {
 }
 
 .user-projects {
+  display: block;
   width: 40%;
 }
 
@@ -686,4 +710,5 @@ hr {
   border-left: 1px solid #dddddd;
   padding: 0.5em;
   width: 100%;
+  display: block;
 }
