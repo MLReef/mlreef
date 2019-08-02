@@ -11,7 +11,7 @@
 
 .border-div {
     border: 2px solid #e5e5e5;
-    border-radius: 0.5vw;
+    border-radius: 0.3vw;
 }
 
 #icon-div{
@@ -31,7 +31,7 @@
     color: white;
     font-size: 1.3em;
     text-align: center;
-    border-radius: 0.5vw 0.5vw 0 0;
+    border-radius: 0.3vw 0.3vw 0 0;
     padding: 3% 0% 3% 0%;
 }
 
@@ -46,7 +46,7 @@
 
 input {
     padding: 1%;
-    border-radius: 0.5vw;
+    border-radius: 0.3vw;
     border: 1px solid #B2B2B2; 
     width: 90%;
     height: 2em;
@@ -62,7 +62,7 @@ input:focus {
     background-color: #2DB391;
     color: white;
     border: 1px solid #2DB391;
-    border-radius: 0.5vw;
+    border-radius: 0.3vw;
     height: 2.5em;
     padding: 1% 18% 3% 18%;
     font-size: 1em;
@@ -82,7 +82,7 @@ input:focus {
     margin: 2% 0% 1% 0%;
     background-color: #F5544D;
     color: white;
-    border-radius: 0.5vw;
+    border-radius: 0.3vw;
     font-size: 1.1em;
     padding: 1% 2% 1% 4%
 }
@@ -109,7 +109,7 @@ input:focus {
 .error div button {
     background-color: white;
     width: 5em;
-    border-radius: 0.4vw;
+    border-radius: 0.3vw;
     font-size: 1em;
     border: 1px solid black;
     font-weight: 600;

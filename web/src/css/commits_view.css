@@ -11,11 +11,11 @@ body {
     align-items: center;
     background-color: #1C2B40;
     margin: 0px auto;
-    height: 80px;
+    height: 3em;
 }
 
 .logo {
-    width: 180px;
+    width: 8em;
     margin-left: 40px;
 }
 
@@ -99,7 +99,7 @@ img.dropdown-white {
     width: 56px;
     background-color: #fff;
     border: 2px solid #1C2B40;
-    border-radius: 12px;
+    border-radius: 0.3vw;
     display: flex;
 }
 
@@ -139,7 +139,7 @@ img.dropdown-white {
     flex-direction: row;
     width: 200px;
     /* background-color: #fff; */
-    border-radius: 8px;
+    border-radius: 0.3vw;
     margin-left: 10px;
 }
 
@@ -148,8 +148,7 @@ img.dropdown-white {
     flex-direction: row;
     width: 142px;
     background-color: #fff;
-    border-radius: 8px 0px 0px 8px;
-    /* border: 4px solid yellow; */
+    border-radius: 0.3vw 0px 0px 0.3vw;
 }
 
 
@@ -173,10 +172,8 @@ img.dropdown-white {
     align-items: center;
     text-align: center;
     background-color: #fff;
-    border-radius: 0px 8px 8px 0px;
+    border-radius: 0px 0.3vw 0.3vw 0px;
     border-left: 2px solid #e5e5e5;
-    /* border: 4px solid pink; */
-
 }
 
 .counter p {
@@ -208,9 +205,7 @@ img.dropdown-white {
     margin-top: 15px;
     text-align: center;
     padding: 5px 45px;
-    border-radius: 8px 8px 0px 0px;
-    /* background-color: #fff; */
-    /* border: 1px solid purple; */
+    border-radius: 0.3vw 0.3vw 0px 0px;
 }
 
 .feature p{
@@ -228,7 +223,7 @@ img.dropdown-white {
     background-color: #32AFC3;
     margin: 30px auto 0 auto;
     width: 1364px;
-    border-radius: 8px;
+    border-radius: 0.3vw;
 }
 
 .repo-stat {
@@ -268,7 +263,7 @@ p.stat-no {
     margin-right: 40px;
     justify-content: center;
     background-color: #E5E5E5;
-    border-radius: 12px;
+    border-radius: 0.3vw;
     color: #404040;
     border: 1px solid #B2B2B2;
 }
@@ -329,7 +324,7 @@ p.stat-no {
     margin: 20px auto 0;
     width: 1364px;
     height: 80px;
-    border-radius: 8px;
+    border-radius: 0.3vw;
     background-color: #fff;
     /* border: 1px solid #32AFC3; */
 }
@@ -347,7 +342,7 @@ p.stat-no {
     margin-right: 10px;
     height: 48px;
     padding: 0px 15px;
-    border-radius: 8px;
+    border-radius: 0.3vw;
     border: 2px solid #1D2B40;
 }
 
@@ -394,7 +389,7 @@ p.stat-no {
     margin: 0px auto;
     width: 1364px;
     height: 48px;
-    border-radius: 8px 8px 0px 0px;
+    border-radius: 0.3vw 0.3vw 0px 0px;
     background-color: #E5E5E5;
     border: 1px solid #707070;
 }
@@ -411,7 +406,7 @@ p.stat-no {
     margin-right: 40px;
     height: 48px;
     padding: 0px 30px;
-    border-radius: 12px;
+    border-radius: 0.3vw;
     border: 1px solid #1C2B40;
     background-color: #FFFFFF;
 }
