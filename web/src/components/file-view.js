@@ -27,12 +27,10 @@ class FileView extends React.Component {
     const fileName = this.props.fileData.file_name;
     const fileSize = this.props.fileData.size;
     let fileContent = [];
-    let foo;
     let extension;
     if (this.props.fileData.content) {
       fileContent = Base64.decode(this.props.fileData.content).split("\n");
       extension = fileName.split(".").pop();
-      foo = this.props.fileData.content;
     }
 
     return (
