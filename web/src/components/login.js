@@ -31,7 +31,7 @@ export default class Login extends React.Component {
 
   renderRedirect() {
     if (this.state.redirect || sessionStorage.getItem("auth") === "true") {
-      return <Redirect to="/home" />;
+      return <Redirect to="/my-projects" />;
     }
   }
 
