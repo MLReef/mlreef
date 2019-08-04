@@ -1,35 +1,99 @@
 .file-container {
-    margin: 1% 10% 1% 10%;
-    border: 1px solid #9e9e9e;
-    border-radius: 0.25vw;
+  margin: 1% 10% 1% 10%;
+  border: 1px solid #9e9e9e;
+  border-radius: 0.25vw;
 }
 
-.file-container .file-container-header{
-    color: #1C2B40;
-    margin-top: 0;
-    border-bottom: 1px solid #E5E5E5;
-    background-color: #E5E5E5;
-    display: flex;
-    border-radius: 0.25vw 0.25vw 0 0;
+.file-container .file-container-header {
+  color: #1c2b40;
+  margin-top: 0;
+  border-bottom: 1px solid #e5e5e5;
+  background-color: #e5e5e5;
+  display: flex;
+  border-radius: 0.25vw 0.25vw 0 0;
 }
 
-.file-container-header p{
-    margin-left: 1vw;
-    font-size: 1vw;
+.file-container-header p {
+  margin-left: 1vw;
+  font-size: 1vw;
 }
 
 .file-content {
-    color: #1C2B40;
-    font-size: 0.8vw;
-    padding: 1% 2% 1% 2%;
-    overflow: scroll;
-    overflow-y: hidden;
+  color: #1c2b40;
+  font-size: 0.8vw;
+  padding: 1% 2% 1% 2%;
+  overflow: scroll;
+  overflow-y: hidden;
 }
 
-.file-content table{
-    width: max-content;
+.file-content table {
+  width: max-content;
+  text-align: left !important;
 }
 
 .file-content tr td {
-    line-height: 0px;
+  line-height: 0px;
+}
+
+.Box-body:last-of-type {
+  border-bottom-left-radius: 2px;
+  border-bottom-right-radius: 2px;
+  margin-bottom: -1px;
+}
+.blob-wrapper {
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+.p-0 {
+  padding: 0 !important;
+}
+
+.file-content {
+  text-align: center !important;
+  padding: 16px !important;
+}
+
+.file-info {
+  display: flex;
+  flex: 1 1 auto !important;
+  padding-right: 16px !important;
+}
+
+.wrapper {
+  display: flex !important;
+  padding-bottom: 0 !important;
+  padding-top: 0 !important;
+}
+
+.file-actions button {
+  display: flex;
+  align-items: center;
+  margin-right: 8px;
+  border-radius: 8px;
+  border: 1px solid #1c2b40;
+  width: max-content;
+  margin-top: 0.5em;
+}
+
+.file-actions {
+  display: inline-flex;
+  vertical-align: middle;
+}
+
+.white-button {
+  color: #1c2b40;
+  background-color: #fff;
+  font-weight: 400;
+  display: flex;
+  padding-right: 8px;
+  padding-left: 8px;
+}
+
+.red-button {
+  color: #ffffff;
+  background-color: red;
+  font-weight: 400;
+  display: flex;
+  padding-right: 8px;
+  padding-left: 8px;
 }

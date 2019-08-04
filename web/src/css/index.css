@@ -102,7 +102,7 @@ button {
 .profile-options:hover .sign-box {
   visibility: visible; /* show it on hover */
   opacity: 1;
-  transition-delay: 0.1s;
+  transition-delay: 0.09s;
 }
 
 .profile-pic-circle {
@@ -711,4 +711,64 @@ hr {
   padding: 0.5em;
   width: 100%;
   display: block;
+}
+
+.select-branch {
+  box-shadow: 0 2px 4px rgb(0, 0, 0, 0.3);
+  position: absolute;
+  display: block !important;
+  width: 300px;
+  height: auto;
+  background: #fff;
+  top: 100%;
+  left: 0px;
+  border-radius: 4px;
+}
+
+.reference {
+  position: relative;
+}
+
+.search-branch {
+  position: relative;
+  display: block !important;
+  padding: 0.5em;
+}
+
+.branches {
+  display: block;
+  margin: "1em";
+}
+
+.branches ul {
+  list-style: none;
+  margin: 0;
+  padding: 1em 0;
+  width: 100%;
+}
+
+.branches ul li {
+  padding-left: 10px;
+}
+
+.branch-header {
+  padding-left: 2px !important;
+}
+
+.branches ul li p {
+  margin-left: 4px;
+  padding: 0.5em 0;
+  width: 100%;
+  transition: background-color 0.2s ease;
+}
+
+.branches ul p:hover {
+  cursor: pointer;
+  background: #c5c5c5;
+}
+
+.branches .branch-header {
+  color: #707070;
+  font-size: 13px;
+  line-height: 16px;
 }
