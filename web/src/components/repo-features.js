@@ -1,6 +1,7 @@
 import React from "react";
 import arrow_down_blue_01 from "./../images/arrow_down_blue_01.svg";
 import plus_01 from "./../images/plus_01.svg";
+import { Link } from "react-router-dom";
 
 export default class RepoFeatures extends React.Component {
   state = {
@@ -77,26 +78,26 @@ export default class RepoFeatures extends React.Component {
               <img id="leftfeature-image" src={arrow_down_blue_01} alt="" />
             </button>
 
-            <button className="blue-button">
-              <p>Data Visualisation</p>
+            <button class="blue-button">
+                Data Visualisation
             </button>
 
             <button className="blue-button">
-              <p>Data Pipeline</p>
+                <Link to="/pipe-line"><p>Data Pipeline</p></Link>
             </button>
           </div>
           <div>
-            <button className="white-button">
-              <p>History</p>
-            </button>
+                <button class="white-button">
+                    History
+                </button>                    
 
-            <button className="white-button">
-              <p>Web IDE</p>
-            </button>
+                <button class="white-button">
+                    Web IDE
+                </button>                   
 
-            <button className="white-button">
-              <img id="leftfeature-image" src={arrow_down_blue_01} alt="" />
-            </button>
+                <button class="white-button">
+                    <img id="leftfeature-image" src={arrow_down_blue_01} alt=""/>
+                </button>
           </div>
         </div>
       </>
