@@ -1,0 +1,38 @@
+
+
+.hiddenMss {
+    visibility: hidden;
+    color: #3f4b5d;
+    height: inherit;
+}
+
+.hiddenMss > p {
+    padding: 0;
+    margin: 5px 0 0 0;
+}
+
+.input-component-container {
+    width: max-content;
+    flex-direction: row;
+    display: flex;
+}
+
+.input-component-container > .hiddenMss{
+    margin-left: 2%;
+}
+
+.input-component-container > div {
+    height: max-content;
+}
+
+.input-component-container > div, .input-component-container > div > input {
+    border-radius: 6px;
+}
+
+.input-component-container > div > input {
+    padding: 4px 6px 4px 6px !important;
+}
+
+.grey-border {
+    border: 2px solid #888f9a;
+}

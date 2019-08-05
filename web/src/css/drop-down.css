@@ -1,0 +1,77 @@
+/* Styles used just by drop-down comp*/
+
+span.msg,
+span.choose {
+  color: #555;
+  padding: 5px 0 10px;
+  display: inherit
+}
+
+.dropdown {
+  background-color: #fff;
+  box-shadow: 0 0 2px rgb(204, 204, 204);
+  transition: all .5s ease;
+  position: relative;
+  text-align: left;
+  display: unset !important;
+}
+
+.dropdown .select {
+    cursor: pointer;
+    display: block;
+}
+
+.dropdown:hover {
+    box-shadow: 0 0 4px rgb(204, 204, 204)
+}
+
+.dropdown:active {
+    background-color: #f8f8f8
+}
+
+.dropdown.active:hover,
+.dropdown.active {
+    box-shadow: 0 0 4px rgb(204, 204, 204);
+    border-radius: 5px 5px 0 0;
+    background-color: #f8f8f8
+}
+
+.dropdown.active .select > img {
+    transform: rotate(-180deg);
+    -webkit-transition-duration: 0.3s;
+    transition-duration: 0.3s;
+}
+
+.dropdown .dropdown-menu {
+    position: absolute;
+    background-color: #fff;
+    width: 100%;
+    left: 0;
+    margin-top: 1px;
+    box-shadow: 0 1px 2px rgb(204, 204, 204);
+    border-radius: 0 1px 5px 5px;
+    overflow: hidden;
+    display: none;
+    max-height: 144px;
+    overflow-y: auto;
+    z-index: 1
+}
+
+.dropdown .dropdown-menu li {
+    padding: 5px;
+    transition: all .2s ease-in-out;
+    cursor: pointer
+} 
+
+.dropdown .dropdown-menu {
+    padding: 0;
+    list-style: none
+}
+
+.dropdown .dropdown-menu li:hover {
+    background-color: #f2f2f2
+}
+
+.dropdown .dropdown-menu li:active {
+    background-color: #e2e2e2
+}

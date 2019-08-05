@@ -55,10 +55,8 @@ class FilesContainer extends Component {
         const fileElements = [];
         this.props.files.forEach(file => {
             let icon;
-            let link;
-            var url_string = window.location.href
-            var url = new URL(url_string);
-            var path = url.searchParams.get("path");
+            let link;            
+            var path = this.getParamFromUrl("path", window.location.href);
             
             if (file.type === "tree") {
                 icon = folderIcon;
@@ -72,7 +70,7 @@ class FilesContainer extends Component {
             }
         
             fileElements.push(
-                <tr className='files-row'>
+                <tr className='files-row blue-effect-hover'>
                     <td className='file-type'>
                         <Link onClick={this.clickListener} to={link}>
                             <img src={icon} alt=""/>

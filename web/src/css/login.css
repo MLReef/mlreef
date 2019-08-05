@@ -44,7 +44,7 @@
     flex-flow: column;
 }
 
-input {
+.input-container > input {
     padding: 1%;
     border-radius: 0.3vw;
     border: 1px solid #B2B2B2; 
@@ -53,7 +53,7 @@ input {
     font-size: 1em;
 }
 
-input:focus {
+.input-container > input:focus {
     border: 1px solid #32AFC3;
 }
 

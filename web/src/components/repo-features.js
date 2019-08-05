@@ -1,6 +1,7 @@
 import React from 'react';
 import arrow_down_blue_01 from './../images/arrow_down_blue_01.svg';
 import plus_01 from './../images/plus_01.svg';
+import { Link } from "react-router-dom";
 
 export default class RepoFeatures extends React.Component{
     render() {
@@ -20,8 +21,8 @@ export default class RepoFeatures extends React.Component{
                     <p>Data Visualisation</p>
                 </button>
 
-                <button class="blue-button">
-                    <p>Data Pipeline</p>
+                <button className="blue-button">
+                    <Link to="/pipe-line"><p>Data Pipeline</p></Link>
                 </button>
             </div>
             <div>
