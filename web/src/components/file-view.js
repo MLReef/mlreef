@@ -24,6 +24,7 @@ class FileView extends React.Component {
   }
 
   render() {
+    const projectName = this.props.project.name;
     const fileName = this.props.fileData.file_name;
     const fileSize = this.props.fileData.size;
     let fileContent = [];
@@ -36,7 +37,11 @@ class FileView extends React.Component {
     return (
       <div>
         <Navbar />
-        <ProjectContainer />
+        <ProjectContainer
+          project
+          activeFeature="data"
+          folders={["Group Name", projectName, "Data"]}
+        />
         <div className="file-container">
           <div className="file-container-header">
             <div className="file-info">
