@@ -1,15 +1,15 @@
 import React from "react";
 import ProjectInfo from "./projectInfo";
 import {connect} from 'react-redux';
+import ProjectNav from './projectNav';
 
 class ProjectContainer extends React.Component {
     render(){   
         const project = this.props.project;
+        const folders = this.props.folders;
         return (<div className="project-container">
             <div className="project-details main-content">
-                <div className="project-nav">
-                <p>Group Name</p> <p>></p> <p>{project.name}</p> <p>></p> <p>Data</p>
-            </div>
+            <ProjectNav folders = {folders}/>
 
             <ProjectInfo info={project}/>
                 {<p className="project-desc">{project.description ? project.description : "No description"}</p>}

@@ -1,0 +1,44 @@
+/*------------------- Colors --------------------*/
+
+
+.light-green-background, .light-green-button {
+   background-color: #2db391;
+}
+
+/*------------------- ----- --------------------*/
+.light-green-button {
+   color: white;
+   border: 1px solid #2db391;
+}
+
+.dangerous-red {
+   background-color: #F5544D;
+   color: white;
+   border: 1.5px solid black;
+}
+
+.grey-border-white-background {
+   border: 2px solid #e1e1e1;
+   background-color: white;
+   color: #e1e1e1;
+}
+
+.blue-border-grey-letter {
+   border: 2px solid #32AFC3;
+   background-color: white;
+   color: #B2B2B2;
+}
+
+/*------------------- Hover effects--------------------*/
+
+.white-button:hover{
+   background-color: #e5e5e5;
+}
+
+.blue-button:hover, .light-green-button:hover {
+   filter: brightness(120%);
+}
+
+.blue-effect-hover:hover {
+   background-color: #e0f3f6;
+} 

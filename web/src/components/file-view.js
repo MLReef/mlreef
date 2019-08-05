@@ -26,6 +26,7 @@ class FileView extends React.Component{
     render(){
         const fileName = this.props.fileData.file_name;
         const fileSize = this.props.fileData.size;
+        const projectName = this.props.project.name;
         let fileContent = [];
         let foo;
         if(this.props.fileData.content){
@@ -36,7 +37,7 @@ class FileView extends React.Component{
         return (
             <div>
                 <Navbar/>
-                <ProjectContainer/>
+                <ProjectContainer folders = {['Group Name', projectName, 'Data', 'File-view']} />
                 <div className="file-container">
                     <div className="file-container-header">
                         <p>{fileName} | {fileSize} Bytes</p>
