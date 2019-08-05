@@ -8,6 +8,7 @@ import RepoFeatures from './repo-features';
 import Navbar from './navbar';
 import {bindActionCreators} from 'redux';
 import * as fileActions from "./../actions/fileActions";
+import "../css/index.css";
 
 class ProjectView extends React.Component{
     componentDidMount(){        
@@ -22,9 +23,10 @@ class ProjectView extends React.Component{
     render() {
         const files = this.props.files;
         const branch = this.props.project.default_branch;
+        const projectName = this.props.project.name;
         return (<div className="project-component">
             <Navbar/>
-            <ProjectContainer project/>
+            <ProjectContainer folders={["Group Name", projectName, "Data"]}/>
             <div className="main-content">
                 <RepoInfo/>
                 <div className="last-commit-info">

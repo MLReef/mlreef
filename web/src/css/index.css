@@ -94,11 +94,11 @@ img.dropdown-white {
     display: flex;
     flex-direction: row;
     padding: 1% 0% 0% 0%;
+    width: 100%;
 }
 
 
 .project-nav p {
-    margin: 0.3% 0.4% 0.4% 0%;
     color: #1C2B40;
 }
 
@@ -386,9 +386,10 @@ p.stat-no {
     padding-right: 8px;
 }
 
-#repo-features button p{
+#repo-features button a p{
     align-content: center;
     margin: 0 5px 0 5px;
+    color: white;
 }
 
 #leftfeature-image {
