@@ -16,7 +16,6 @@
     font-weight: 600;
 }
 
-
 .round-border-button {
     border-radius: 0.3vw;
 }
@@ -31,7 +30,7 @@
     margin: 1.5% 17vw 0.7% 16vw;
     display: flex;
     background-color: #2db391;
-    border-radius: 5px;
+    border-radius: 0.3vw;
 }
 
 #instruction-pipe-line > #instruction {

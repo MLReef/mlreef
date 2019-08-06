@@ -88,7 +88,7 @@ class PipeLineView extends React.Component{
                         <p id="title"> <b>How to create a data processing pipeline:</b></p>
                         <p>
                             First, select your data you want to process. Then select one or multiple data operations from the right. The result of a data pipeline
-                            is a data instance, which you can use directly to train a model or merge them into a data branch.
+                            is a data instance, which you can use directly to train a model or merge it into a branch.
                         </p>
                     </div>
                     <div id="xButton">
