@@ -90,8 +90,7 @@ button {
   align-items: center;
   position: absolute;
   right: 3%;
-  padding: 5px 15px;
-  margin-top: 3px;
+  padding: 2px 15px;
   border-radius: 10px;
   cursor: pointer;
 }
@@ -107,8 +106,8 @@ button {
 }
 
 .profile-pic-circle {
-  height: 2.5em;
-  width: 2.5em;
+  height: 2em;
+  width: 2em;
   background-color: #fff;
   display: flex;
   border-radius: 50%;
@@ -716,10 +715,7 @@ p.stat-no {
   height: auto;
   background: #fff;
   right: 0;
-  top: 50px;
-  opacity: 0;
-  visibility: hidden;
-  transition: visibility 0s linear 0.1s, opacity 0.2s linear;
+  top: 40px;
 }
 
 .sign-box p {
@@ -751,8 +747,8 @@ hr {
 }
 
 .profile-pic-darkcircle {
-  height: 2.5vw;
-  width: 2.5vw;
+  height: 2em;
+  width: 2em;
   background-color: #fff;
   display: flex;
   border-radius: 50%;

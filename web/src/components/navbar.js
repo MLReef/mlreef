@@ -6,28 +6,45 @@ import arrow_down_blue_01 from "./../images/arrow_down_blue_01.svg";
 export default class Navbar extends React.Component {
   state = { dialogOpen: false, projectDialog: false };
 
-  handleProfile = () => {
-    this.setState({ dialogOpen: !this.state.dialogOpen });
+  handleProfile = e => {
+    if (!this.state.dialogOpen) {
+      document.addEventListener("click", this.handleOutsideClick, false);
+    } else {
+      document.removeEventListener("click", this.handleOutsideClick, false);
+    }
+
+    this.setState(prevState => ({
+      dialogOpen: !prevState.dialogOpen
+    }));
   };
 
-  handleProject = e => {
-    e.target.focus();
-    this.setState({ projectDialog: !this.state.projectDialog });
-  };
-
-  handleBlur = e => {
-    if (
-      e.nativeEvent.explicitOriginalTarget &&
-      e.nativeEvent.explicitOriginalTarget === e.nativeEvent.originalTarget
-    ) {
+  handleOutsideClick = e => {
+    // ignore clicks on the component itself
+    if (this.node.contains(e.target)) {
       return;
     }
 
-    if (this.state.projectDialog) {
-      setTimeout(() => {
-        this.setState({ projectDialog: false });
-      }, 200);
+    this.handleProfile();
+  };
+
+  handleProject = e => {
+    if (!this.state.projectDialog) {
+      document.addEventListener("click", this.handleBlur, false);
+    } else {
+      document.removeEventListener("click", this.handleBlur, false);
     }
+
+    this.setState(prevState => ({
+      projectDialog: !prevState.projectDialog
+    }));
+  };
+
+  handleBlur = e => {
+    if (this.node.contains(e.target)) {
+      return;
+    }
+
+    this.handleProject();
   };
 
   render() {
@@ -54,7 +71,7 @@ export default class Navbar extends React.Component {
             alt=""
           />
           {this.state.projectDialog && (
-            <div className="project-box" onBlur={this.handleBlur}>
+            <div className="project-box">
               <div className="user-projects">
                 <p>Your Projects</p>
                 <p>Starred Projects</p>
@@ -79,8 +96,10 @@ export default class Navbar extends React.Component {
             "profile-options " +
             (this.state.dialogOpen ? "selected-controller" : "")
           }
-          onMouseEnter={this.handleProfile}
-          onMouseLeave={this.handleProfile}
+          onClick={this.handleProfile}
+          ref={node => {
+            this.node = node;
+          }}
         >
           <img
             className="dropdown-white"
@@ -96,17 +115,19 @@ export default class Navbar extends React.Component {
                 : "profile-pic-circle"
             }
           />
-          <div className="sign-box">
-            <div>
-              Signed in as <b>user_name</b>
+          {this.state.dialogOpen && (
+            <div className="sign-box">
+              <div>
+                Signed in as <b>user_name</b>
+              </div>
+              <hr />
+              <p>Set Status</p>
+              <p>Your Profile</p>
+              <p>Settings</p>
+              <hr />
+              <p>Sign Out</p>
             </div>
-            <hr />
-            <p>Set Status</p>
-            <p>Your Profile</p>
-            <p>Settings</p>
-            <hr />
-            <p>Sign Out</p>
-          </div>
+          )}
         </div>
       </div>
     );
