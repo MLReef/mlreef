@@ -26,13 +26,16 @@
 }
 
 .input-component-container > div, .input-component-container > div > input {
-    border-radius: 6px;
+    border-radius: 0.3vw;
+    width: 240%;
+    margin-right: 8px;
 }
 
 .input-component-container > div > input {
     padding: 4px 6px 4px 6px !important;
+    height: 1.5em;
 }
 
 .grey-border {
-    border: 2px solid #888f9a;
+    border: 1px solid #888f9a;
 }

@@ -27,7 +27,7 @@ class PipeLineView extends React.Component{
     }
 
     componentDidMount(){
-        document.getElementById("show-filters-button").style.width = '40%';
+        document.getElementById("show-filters-button").style.width = '80%';
     }
 
     handleCheckMarkClick(e){
@@ -66,10 +66,10 @@ class PipeLineView extends React.Component{
         if(showFilters){
             document.getElementById("show-filters-button").src = minus;
             filters.classList.remove("invisible");
-            document.getElementById("show-filters-button").style.width = '20%';
+            document.getElementById("show-filters-button").style.width = '40%';
         } else {
             document.getElementById("show-filters-button").src = plus;
-            document.getElementById("show-filters-button").style.width = '40%';
+            document.getElementById("show-filters-button").style.width = '80%';
             filters.classList.add("invisible");
         }
     }
@@ -157,7 +157,10 @@ class PipeLineView extends React.Component{
                             <div id="filters" className="invisible">
 
                                 <select className="data-operations-select round-border-button">
-                                    <option>Data type</option>
+                                    <option>All data types</option>
+                                    <option>Images data</option>
+                                    <option>Text data</option>
+                                    <option>Tabular data</option>
                                 </select>
                                 
                                 <div id="checkbox-zone">
@@ -178,11 +181,11 @@ class PipeLineView extends React.Component{
                             </div>
 
                             <div id="data-operations-list" onDrop={this.drop} onDragOver={this.allowDrop} >
-                                <DataOperationsItem title={"Data operation 1"} username={"UserName 1"} starCount={"243"} index={1}/>
-                                <DataOperationsItem title={"Data operation 2"} username={"UserName 2"} starCount={"201"} index={2}/>
-                                <DataOperationsItem title={"Data operation 3"} username={"UserName 3"} starCount={"170"} index={3}/>
-                                <DataOperationsItem title={"Data operation 4"} username={"UserName 4"} starCount={"199"} index={4}/>
-                                <DataOperationsItem title={"Data operation 5"} username={"UserName 5"} starCount={"203"} index={5}/>
+                                <DataOperationsItem title={"Augment"} username={"UserName 1"} starCount={"243"} index={1}/>
+                                <DataOperationsItem title={"Random crop"} username={"UserName 2"} starCount={"201"} index={2}/>
+                                <DataOperationsItem title={"Random rotate"} username={"UserName 3"} starCount={"170"} index={3}/>
+                                <DataOperationsItem title={"Convert to RGB"} username={"UserName 4"} starCount={"199"} index={4}/>
+                                <DataOperationsItem title={"Resize_img"} username={"UserName 5"} starCount={"203"} index={5}/>
                             </div>    
                         </div>
                     </div>
