@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 import ml_reef_icon_01 from "./../images/MLReef_Logo_navbar.png";
 import arrow_down_white_01 from "./../images/arrow_down_white_01.svg";
 import arrow_down_blue_01 from "./../images/arrow_down_blue_01.svg";
@@ -23,15 +24,15 @@ export default class Navbar extends React.Component {
     if (this.node.contains(e.target)) {
       return;
     }
-
-    this.handleProfile();
+    if (this.state.dialogOpen) this.handleProfile();
+    else if (this.state.projectDialog) this.handleProject();
   };
 
   handleProject = e => {
     if (!this.state.projectDialog) {
-      document.addEventListener("click", this.handleBlur, false);
+      document.addEventListener("click", this.handleOutsideClick, false);
     } else {
-      document.removeEventListener("click", this.handleBlur, false);
+      document.removeEventListener("click", this.handleOutsideClick, false);
     }
 
     this.setState(prevState => ({
@@ -39,19 +40,12 @@ export default class Navbar extends React.Component {
     }));
   };
 
-  handleBlur = e => {
-    if (this.node.contains(e.target)) {
-      return;
-    }
-
-    this.handleProject();
-  };
-
   render() {
     return (
       <div className="navbar">
-        <img className="logo" src={ml_reef_icon_01} alt="" />
-
+        <Link to="/home">
+          <img className="logo" src={ml_reef_icon_01} alt="" />
+        </Link>
         <div
           className={
             this.state.projectDialog

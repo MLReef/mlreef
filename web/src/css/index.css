@@ -261,6 +261,10 @@ img.dropdown-white {
   max-height: 50px;
 }
 
+.feature-list > a {
+  text-decoration: none;
+}
+
 .tag-list {
   display: flex;
   justify-content: space-evenly;
@@ -334,14 +338,14 @@ img.dropdown-white {
 }
 
 .feature {
-  display: flex;
-  height: inherit;
-  justify-content: center;
-  align-items: center;
-  margin-top: 0.1%;
-  text-align: center;
-  padding: 1% 5%;
-  border-radius: 8px 8px 0px 0px;
+  display: flex !important;
+  height: inherit !important;
+  justify-content: center !important;
+  align-items: center !important;
+  margin-top: 0.1% !important;
+  text-align: center !important;
+  padding: 1% 5% !important;
+  border-radius: 8px 8px 0px 0px !important;
 }
 
 .feature p {
@@ -349,9 +353,16 @@ img.dropdown-white {
   color: #1c2b40;
 }
 
+.feature a {
+  display: block;
+  text-decoration: none;
+  margin: 0;
+  color: #1c2b40;
+}
+
 .feature.active {
-  background-color: white;
-  font-weight: 600;
+  background-color: white !important;
+  font-weight: 600 !important;
 }
 
 .repo-info {
