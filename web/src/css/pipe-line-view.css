@@ -9,7 +9,7 @@
 }
 
 .pipe-line-active {
-    border: 2px solid #32AFC3 !important;
+    border: 2px solid #1C2B40 !important;
 }
 
 .bold-text {
@@ -27,10 +27,12 @@
 /* ---------------------------Instruction------------------------- */
 
 #instruction-pipe-line {
-    margin: 1.5% 17vw 0.7% 16vw;
+    margin: 15px auto 0 auto;
     display: flex;
     background-color: #2db391;
     border-radius: 0.3vw;
+    max-width: 1024px;
+    min-width: 786px;
 }
 
 #instruction-pipe-line > #instruction {
@@ -51,7 +53,7 @@
     justify-content: center;
     align-items: center;
     width: 10%;
-    margin: 1% 1% 1% 2%;
+    margin: 0% 0% 0% 1%;
 }
 
 #xButton > button {
@@ -60,6 +62,8 @@
     border: none;   
     font-weight: bold;
     cursor: pointer;
+    margin-top: 2px;
+    margin-left: 4px;
 }
 
 .invisible {
@@ -69,23 +73,25 @@
 /* ----------------------------------------------------------------*/
 
 .pipe-line-execution-container{
-    margin: 1.5% 17vw 0.7% 16vw;
+    margin: 15px auto 0 auto;
     justify-content: space-between;
+    max-width: 1024px;
+    min-width: 786px;
 }
 
 .pipe-line-execution{
     width: 65%;
     min-height: 700px;
-    border: 2px solid #e5e5e5;
-    border-radius: 0.5vw 0.5vw 0 0;
+    border: 1px solid #e5e5e5;
+    border-radius: 0.3vw;
 }
 
 .pipe-line-execution > .header{
     background-color: #1C2B40;
     padding: 0.5% 0% 0.5% 1%;
     border: 1px solid #1C2B40;
-    border-radius: inherit;
-    height: 2.6vw;
+    border-radius: 0.3vw 0.3vw 0 0;
+    height: 2.5em;
     align-items: center;
 }
 
@@ -120,19 +126,20 @@
 }
 
 .header .header-button {
-    color: #1C2B40;
+    color: #b2b2b2;
+    font-weight: 400;
     width: max-content;
-    height: inherit;
+    height: 2em;
 }
 
 #renaming-pipeline{
-    margin-left: 2%;
+    margin-left: 8px;
     padding: 0% 7%; 
 }
 
 .pipe-line-execution.tasks-list{
-    width: 33% !important;
-    margin-left: 1%;
+    width: 34% !important;
+    margin-left: 8px;
     overflow: hidden;
 }
 
@@ -181,16 +188,17 @@
 
 .pipe-line-execution.tasks-list > .content{
     padding: 1%;
+    margin-top: 8px;
 }
 
 .filter-div {
-    border-radius: 0.5vw;
+    border-radius: 0.3vw;
 }
 
 .search {
     color: #B2B2B2;
     border-radius: inherit;
-    width: 17%;
+    width: 2em;
     margin-left: 2%;
 }
 
@@ -206,10 +214,11 @@
     border-radius: inherit;
     align-content: center;
     justify-content: center;
+    margin-left: auto;
 }
 
 .search.button img{
-    width: 20%;
+    width: 100%;
     height: 100%;
 }
 
@@ -220,29 +229,33 @@
 .data-operations-select {
     margin-top: 2%;
     padding: 1% 15% 1% 0.5%;
+    height: 2.3em;
     
 }
 
 #data-operations-list {
-    overflow-y: scroll;
     height: 100%;
     border-top-style: solid;
     border-top-width: 1px;
     border-top-color: #e5e5e5;
+    margin-top: 8px;
 }
 
 /* ---------------data-operations-item-header----------- */
 
 .data-operations-item{
-    border: 2px solid #e5e5e5;
-    padding: 0% 0% 0% 2%;
+    border: 1px solid #e5e5e5;
+    padding: 1% 1% 1% 2%;
     margin-top: 2%;
     cursor: grab;
     transition: transform 200ms ease, box-shadow 200ms ease;
 }
 
 .data-operations-item:hover{
-    transform: scale(1.02);
+    transform: scale(1.015);
+    border: 1px solid #32AFC3;
+    /*transition-property: box-shadow;
+    box-shadow: inset 0 0 0 1px #32AFC3, 0 0 1px rgba(0, 0, 0, 0);*/
 }
 
 #drop-zone{
@@ -259,8 +272,8 @@
 .customized-checkbox {
     display: block;
     position: relative;
-    padding-left: 3vw;
-    margin-bottom: 1.3vw;
+    padding-left: 35px;
+    margin-bottom: 15px;
     cursor: pointer;
     
     -webkit-user-select: none;
@@ -280,11 +293,11 @@
   .checkmark {
     position: absolute;
     left: 0;
-    height: 1.7vw;
-    width: 1.7vw;
-    background-color: #eee;
-    border-radius: 25%;
-    border: 1.5px solid #5a5a5a;
+    height: 1.5em;
+    width: 1.5em;
+    background-color: #fff;
+    border-radius: 0.3vw;
+    border: 1px solid #5a5a5a;
   }
   
   /* On mouse-over, add a grey background color */
@@ -331,7 +344,7 @@
     padding: 0% 0% 0% 6% !important;
   }
   .data-oper-options img{
-    width: 0.9vw !important;
+    width: 0.9em !important;
   }
 
   .data-oper-options.flexible-div p{

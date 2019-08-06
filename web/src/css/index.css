@@ -91,8 +91,7 @@ button {
   position: absolute;
   right: 3%;
   padding: 5px 15px;
-  margin-top: 3px;
-  border-radius: 10px;
+  border-radius: 0.3vw;
   cursor: pointer;
 }
 
@@ -107,8 +106,8 @@ button {
 }
 
 .profile-pic-circle {
-    height: 2.5em;
-    width: 2.5em;
+    height: 2em;
+    width: 2em;
     background-color: #fff;
     display: flex;
     border-radius: 50%;
@@ -195,7 +194,6 @@ img.dropdown-white {
 .options {
     display: flex;
     flex-direction: row;
-    width: 12vw;
     height: 60%;
     border-radius: 0.3vw;
     margin-left: 1.5%;
@@ -205,14 +203,13 @@ img.dropdown-white {
 .option-name {
     display: flex;
     flex-direction: row;
-    width: 8vw;
+    width: 100px;
     height: 2em;
     background-color: #fff;
     border-radius: 0.3vw 0px 0px 0.3vw;
     border: none;
     padding-bottom: 0px;
     padding-top: 0px;
-    min-width: 50px;
 }
 
 .option-name p {
@@ -642,12 +639,13 @@ p.stat-no {
 
 .sign-box {
   box-shadow: 0 0 5px #c5c5c5;
+  border-radius: 0.3vw;
   position: absolute;
   width: 180px;
   height: auto;
   background: #fff;
   right: 0;
-  top: 50px;
+  top: 40px;
   opacity: 0;
   visibility: hidden;
   transition: visibility 0s linear 0.1s, opacity 0.2s linear;
@@ -682,14 +680,14 @@ hr {
 }
 
 .profile-pic-darkcircle {
-  height: 2.5vw;
-  width: 2.5vw;
+  height: 2vw;
+  width: 2vw;
   background-color: #fff;
   display: flex;
   border-radius: 50%;
   -moz-border-radius: 50%;
   -webkit-border-radius: 50%;
-  border: 2px solid rgb(13, 5, 85);
+  border: 1px solid rgb(13, 5, 85);
 }
 
 .project-box {
