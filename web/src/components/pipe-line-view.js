@@ -122,9 +122,9 @@ class PipeLineView extends React.Component{
                     <div className="pipe-line-execution">
                         <div className="header flexible-div">
                         <div className="header-left-items flexible-div">
-                            Data Pipeline:
+                            <p>Data Pipeline:</p>
                             <div id="renaming-pipeline" className="header-button round-border-button">
-                                Renaming pipeline
+                                <p>Renaming pipeline</p>
                             </div>
                         </div>
 
