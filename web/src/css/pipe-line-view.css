@@ -253,7 +253,10 @@
 }
 
 .data-operations-item:hover{
-        border: 1px solid #32AFC3;
+    transform: scale(1.015);
+    border: 1px solid #32AFC3;
+    /*transition-property: box-shadow;
+    box-shadow: inset 0 0 0 1px #32AFC3, 0 0 1px rgba(0, 0, 0, 0);*/
 }
 
 #drop-zone{
