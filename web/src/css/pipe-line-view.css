@@ -97,6 +97,7 @@
 
 .header > .header-right-items, .header-left-items{
     width: 50%;
+    align-content: center;
 }
 
 .header-right-items {
