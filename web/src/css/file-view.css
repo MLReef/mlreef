@@ -1,7 +1,10 @@
 .file-container {
-  margin: 1% 10% 1% 10%;
+  margin: 0% auto 0% auto;
+  margin-top: 15px;
   border: 1px solid #9e9e9e;
   border-radius: 0.3vw;
+  max-width: 1024px;
+  align-items: center;
 }
 
 .file-container .file-container-header {
@@ -15,12 +18,13 @@
 
 .file-container-header p {
   margin-left: 1vw;
-  font-size: 1vw;
+  font-size: 1em;
+  font-weight: 600;
 }
 
 .file-content {
   color: #1c2b40;
-  font-size: 0.8vw;
+  font-size: 1em;
   padding: 1% 2% 1% 2%;
   overflow: scroll;
   overflow-y: hidden;
@@ -57,6 +61,7 @@
   display: flex;
   flex: 1 1 auto !important;
   padding-right: 16px !important;
+  height: 3em;
 }
 
 .wrapper {
@@ -99,16 +104,20 @@
 }
 
 .commit-container {
-  margin: 1% 10% 1% 10%;
+  margin: 0% auto 0% auto;
+  margin-top: 15px;
   border: 1px solid #9e9e9e;
   border-radius: 0.3vw;
+  max-width: 1024px;
+  align-items: center;
 }
 
 .branch-path {
   display: flex;
-  margin: 1% 10% 1% 10%;
-  padding: 2em 2em 0;
-  padding-left: 0;
+  margin: 0% auto 0% auto;
+  margin-top: 15px;
+  max-width: 1024px;
+  align-items: center;
 }
 
 .branch-path span {

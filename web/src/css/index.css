@@ -90,8 +90,8 @@ button {
   align-items: center;
   position: absolute;
   right: 3%;
-  padding: 2px 15px;
-  border-radius: 10px;
+  padding: 5px 15px;
+  border-radius: 0.3vw;
   cursor: pointer;
 }
 
@@ -730,6 +730,7 @@ p.stat-no {
 
 .sign-box {
   box-shadow: 0 0 5px #c5c5c5;
+  border-radius: 0.3vw;
   position: absolute;
   width: 180px;
   height: auto;
@@ -767,14 +768,14 @@ hr {
 }
 
 .profile-pic-darkcircle {
-  height: 2em;
-  width: 2em;
+  height: 2vw;
+  width: 2vw;
   background-color: #fff;
   display: flex;
   border-radius: 50%;
   -moz-border-radius: 50%;
   -webkit-border-radius: 50%;
-  border: 2px solid rgb(13, 5, 85);
+  border: 1px solid rgb(13, 5, 85);
 }
 
 .project-box {
