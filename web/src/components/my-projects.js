@@ -25,41 +25,12 @@ class Myprojects extends React.Component {
     return (
       <div>
         <Navbar />
-        <div className="project-container">
-          <div className="project-details main-content">
-            <div className="tag-list">
-              <div
-                className={
-                  "feature " + (this.state.showOverview ? "active" : "")
-                }
-                onClick={this.handleOverview}
-              >
-                <p>Overview</p>
-              </div>
-              <div
-                className={
-                  "feature " + (this.state.showProjects ? "active" : "")
-                }
-                onClick={this.handleProjectList}
-              >
-                <p>Projects</p>
-              </div>
-              <div
-                className={"feature " + (this.state.showRepo ? "active" : "")}
-                onClick={this.handleRepo}
-              >
-                <p>Code Repository</p>
-              </div>
-            </div>
-          </div>
+        <div class="project-content">
+          <NewProject />
+          <hr />
+          <ProjectSet />
         </div>
-        {this.state.showProjects && (
-          <div class="project-content">
-            <NewProject />
-            <hr />
-            <ProjectSet />
-          </div>
-        )}
+        )
       </div>
     );
   }
@@ -68,6 +39,7 @@ class Myprojects extends React.Component {
 const NewProject = () => {
   return (
     <div className="new-project">
+      <p id="title">Projects</p>
       <p class="add">New Project</p>
     </div>
   );

@@ -291,14 +291,23 @@ img.dropdown-white {
   padding: 0.5em 2em;
   float: right;
   margin-right: 20px;
+  margin-bottom: 0;
+}
+
+.new-project #title {
+  margin: 0;
+  flex: 1;
+  padding-top: 1em;
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.new-project {
+  display: flex;
 }
 
 .project-content > hr {
-  margin-top: 5em;
-}
-
-.project-content > div {
-  padding-top: 50px;
+  margin-top: 2em;
 }
 
 .project-list {
