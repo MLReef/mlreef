@@ -100,7 +100,7 @@ class PipeLineView extends React.Component{
         return (
             <div className="pipe-line-view">
                 <Navbar/>
-                <ProjectContainer folders = {['Group Name', project.name, 'Data', 'Pipeline']}/>
+                <ProjectContainer activeFeature="data" folders = {['Group Name', project.name, 'Data', 'Pipeline']}/>
                 <div id="instruction-pipe-line">
                     <div id="icon">
                         <img src={advice_01} alt=""/>
