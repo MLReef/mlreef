@@ -35,9 +35,11 @@
   height: auto;
 }
 
-.file-content > img {
-  background-color: #e5e5e5;
-  min-width: 100%;
+.file-img {
+  max-height: 100%;
+  max-width: 100%;
+  object-fit: scale-down;
+  object-position: center center;
 }
 
 .file-content table {
