@@ -26,8 +26,18 @@
   color: #1c2b40;
   font-size: 1em;
   padding: 1% 2% 1% 2%;
-  overflow: scroll;
   overflow-y: hidden;
+}
+
+.file-content > div {
+  top: 50%;
+  left: 50%;
+  height: auto;
+}
+
+.file-content > img {
+  background-color: #e5e5e5;
+  min-width: 100%;
 }
 
 .file-content table {

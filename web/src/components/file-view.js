@@ -118,10 +118,18 @@ class FileView extends React.Component {
           >
             <div className="file-content">
               {extension === ("png" || "jpg" || "jpeg") ? (
-                <img
-                  src={`data:image/png;base64,${this.props.fileData.content}`}
-                  alt={fileName}
-                />
+                <div>
+                  <img
+                    style={{
+                      maxheight: "100%",
+                      maxWidth: "100%",
+                      objectFit: "scale-dwn",
+                      objectPosition: "center center"
+                    }}
+                    src={`data:image/png;base64,${this.props.fileData.content}`}
+                    alt={fileName}
+                  />
+                </div>
               ) : (
                 <table>
                   <tbody>
