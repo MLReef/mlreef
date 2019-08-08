@@ -123,7 +123,7 @@ class FileView extends React.Component {
                     style={{
                       maxheight: "100%",
                       maxWidth: "100%",
-                      objectFit: "scale-dwn",
+                      objectFit: "scale-down",
                       objectPosition: "center center"
                     }}
                     src={`data:image/png;base64,${this.props.fileData.content}`}
