@@ -26,7 +26,7 @@ class ProjectView extends React.Component{
         const projectName = this.props.project.name;
         return (<div className="project-component">
             <Navbar/>
-            <ProjectContainer folders={["Group Name", projectName, "Data"]}/>
+            <ProjectContainer project activeFeature="data" folders={["Group Name", projectName, "Data"]}/>
             <div className="main-content">
                 <RepoInfo/>
                 <div className="last-commit-info">
