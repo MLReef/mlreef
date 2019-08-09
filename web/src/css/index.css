@@ -31,15 +31,15 @@ button {
 }
 
 .navbar {
-    display: flex;
-    height: 3em;
-    align-items: center;
-    background-color: #1C2B40;
+  display: flex;
+  height: 3em;
+  align-items: center;
+  background-color: #1c2b40;
 }
 
 .logo {
-    width: 8em;
-    margin: 1% 0% 1% 3%;
+  width: 8em;
+  margin: 1% 0% 1% 3%;
 }
 
 .projects-dropdown {
@@ -106,16 +106,16 @@ button {
 }
 
 .profile-pic-circle {
-    height: 2em;
-    width: 2em;
-    background-color: #fff;
-    display: flex;
-    border-radius: 50%;
+  height: 2em;
+  width: 2em;
+  background-color: #fff;
+  display: flex;
+  border-radius: 50%;
 }
 
 img.dropdown-white {
-    width: 1.5em;
-    margin-right: 6px;
+  width: 1.5em;
+  margin-right: 6px;
 }
 
 .project-container {
@@ -128,14 +128,14 @@ img.dropdown-white {
 }
 
 .project-nav {
-    display: flex;
-    flex-direction: row;
-    padding: 1% 0% 0% 0%;
-    width: 100%;
+  display: flex;
+  flex-direction: row;
+  padding: 1% 0% 0% 0%;
+  width: 100%;
 }
 
 .project-nav p {
-    color: #1C2B40;
+  color: #1c2b40;
 }
 
 .project-info {
@@ -147,12 +147,12 @@ img.dropdown-white {
 }
 
 .project-pic {
-    height: 2.5em;
-    width: 2.5em;
-    background-color: #fff;
-    border: 1px solid #1C2B40;
-    border-radius: 0.3vw;
-    display: flex;
+  height: 2.5em;
+  width: 2.5em;
+  background-color: #fff;
+  border: 1px solid #1c2b40;
+  border-radius: 8px;
+  display: flex;
 }
 
 /* fix the size of the Project Avatar */
@@ -192,24 +192,26 @@ img.dropdown-white {
 }
 
 .options {
-    display: flex;
-    flex-direction: row;
-    height: 60%;
-    border-radius: 0.3vw;
-    margin-left: 1.5%;
-    min-width: 60px;
+  display: flex;
+  flex-direction: row;
+  width: 12vw;
+  height: 60%;
+  border-radius: 0.3vw;
+  margin-left: 1.5%;
+  min-width: 60px;
 }
 
 .option-name {
-    display: flex;
-    flex-direction: row;
-    width: 100px;
-    height: 2em;
-    background-color: #fff;
-    border-radius: 0.3vw 0px 0px 0.3vw;
-    border: none;
-    padding-bottom: 0px;
-    padding-top: 0px;
+  display: flex;
+  flex-direction: row;
+  width: 8vw;
+  height: 2em;
+  background-color: #fff;
+  border-radius: 0.3vw 0px 0px 0.3vw;
+  border: none;
+  padding-bottom: 0px;
+  padding-top: 0px;
+  min-width: 50px;
 }
 
 .option-name p {
@@ -222,24 +224,22 @@ img.dropdown-white {
 }
 
 #option-image {
-    width: 1.8em;
-    margin-left: 1vw;
-    margin-right: 0.25vw;
-
+  width: 1.8em;
+  margin-left: 1vw;
+  margin-right: 0.25vw;
 }
 
 .counter {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-    background-color: #fff;
-    border-radius: 0px 0.3vw 0.3vw 0px;
-    border-left: 2px solid #e5e5e5;
-    min-width: 30px;
-    width: 3vw;
-    height: 2.05em;
-
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  background-color: #fff;
+  border-radius: 0px 0.3vw 0.3vw 0px;
+  border-left: 2px solid #e5e5e5;
+  min-width: 30px;
+  width: 3vw;
+  height: 2.05em;
 }
 
 .counter p {
@@ -261,15 +261,100 @@ img.dropdown-white {
   max-height: 50px;
 }
 
+.feature-list > a {
+  text-decoration: none;
+}
+
+.tag-list {
+  display: flex;
+  justify-content: space-evenly;
+  flex-direction: row;
+  padding-top: 50px;
+}
+
+.tag-list div {
+  cursor: pointer;
+}
+
+.project-content {
+  max-width: 1024px;
+  min-width: 786px;
+  align-items: center;
+  margin: 0 auto;
+}
+
+.new-project .add {
+  text-decoration: none;
+  background-color: #07db94;
+  border-radius: 8px;
+  color: #f2f2f2;
+  padding: 0.5em 2em;
+  float: right;
+  margin-right: 20px;
+  margin-bottom: 0;
+}
+
+.new-project #title {
+  margin: 0;
+  flex: 1;
+  padding-top: 1em;
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.new-project {
+  display: flex;
+}
+
+.project-content > hr {
+  margin-top: 2em;
+}
+
+.project-list {
+  display: flex;
+  flex: 1;
+}
+
+.project-tab {
+  cursor: pointer;
+  display: flex;
+  transition: border-bottom 0.1s;
+}
+
+.project-border {
+  font-size: 13px;
+  font-weight: bold;
+  border-bottom: 2px solid #1c2b40;
+}
+
+.project-tab p {
+  color: #1c2b40;
+}
+
+#count {
+  background-color: #c5c5c5;
+  margin-left: 4px;
+  padding: 2px;
+}
+
+.project-dashboard {
+  display: flex;
+  padding-top: 20px !important;
+}
+
+.project-list > div {
+  margin-right: 50px;
+}
+
 .feature {
-    display: flex;
-    height: inherit;
-    justify-content: center;
-    align-items: center;
-    margin-top: 0.1%;
-    text-align: center;
-    padding: 1% 5%;
-    border-radius: 0.3vw 0.3vw 0px 0px;
+  display: flex !important;
+  height: inherit !important;
+  justify-content: center !important;
+  align-items: center !important;
+  margin-top: 0.1% !important;
+  text-align: center !important;
+  padding: 1% 5% !important;
+  border-radius: 8px 8px 0px 0px !important;
 }
 
 .feature p {
@@ -277,18 +362,25 @@ img.dropdown-white {
   color: #1c2b40;
 }
 
+.feature a {
+  display: block;
+  text-decoration: none;
+  margin: 0;
+  color: #1c2b40;
+}
+
 .feature.active {
-  background-color: white;
-  font-weight: 600;
+  background-color: white !important;
+  font-weight: 600 !important;
 }
 
 .repo-info {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    background-color: #32AFC3;
-    margin-top: 15px;
-    border-radius: 0.3vw;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  background-color: #32afc3;
+  margin-top: 15px;
+  border-radius: 0.3vw;
 }
 
 .repo-stat {
@@ -309,26 +401,26 @@ p.stat-no {
 }
 
 .last-commit-info {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
-    margin-top: 15px;
-    border-radius: 0.3vw;
-    background-color: #E5E5E5;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 15px;
+  border-radius: 0.3vw;
+  background-color: #e5e5e5;
 }
 
 .last-commit-id {
-    display: flex;
-    width: auto;
-    min-width: 35px;
-    padding: 0.7% 0.2% 0.7% 0.2%;
-    height: 1em;
-    margin-right: 3.5%;
-    justify-content: center;
-    background-color: #fff;
-    border-radius: 0.3vw;
-    border: 1px solid #B2B2B2;
+  display: flex;
+  width: auto;
+  min-width: 35px;
+  padding: 0.7% 0.2% 0.7% 0.2%;
+  height: 1em;
+  margin-right: 3.5%;
+  justify-content: center;
+  background-color: #fff;
+  border-radius: 0.3vw;
+  border: 1px solid #b2b2b2;
 }
 
 .last-commit-id p {
@@ -347,13 +439,13 @@ p.stat-no {
 }
 
 .last-commit-pic {
-    height: 3em;
-    width: 3em;
-    margin: 1% 1% 1% 5%;
-    background-color: #fff;
-    border: 1px solid #1C2B40;
-    border-radius: 50%;
-    display: flex;
+  height: 3em;
+  width: 3em;
+  margin: 1% 1% 1% 5%;
+  background-color: #fff;
+  border: 1px solid #1c2b40;
+  border-radius: 50%;
+  display: flex;
 }
 
 .pr-name p {
@@ -380,11 +472,11 @@ p.stat-no {
 }
 
 #repo-features button {
-    align-items: center;
-    margin-right: 8px;
-    border-radius: 0.3vw;
-    border: 1px solid #1C2B40;
-    width: max-content;
+  align-items: center;
+  margin-right: 8px;
+  border-radius: 0.3vw;
+  border: 1px solid #1c2b40;
+  width: max-content;
 }
 
 .white-button {
@@ -397,17 +489,17 @@ p.stat-no {
 }
 
 .dropdown-button {
-    color: #1C2B40;
-    background-color: #fff;
-    font-weight: 400;
-    display: flex;
-    padding-right: 8px;
-    padding-left: 8px;
-    min-width: 10em;
-    position: relative;
-    width: max-content;
-    text-overflow: ellipsis;
-    overflow: hidden;
+  color: #1c2b40;
+  background-color: #fff;
+  font-weight: 400;
+  display: flex;
+  padding-right: 8px;
+  padding-left: 8px;
+  min-width: 10em;
+  position: relative;
+  width: max-content;
+  text-overflow: ellipsis;
+  overflow: hidden;
 }
 
 .blue-button {
@@ -418,15 +510,15 @@ p.stat-no {
   padding-right: 8px;
 }
 
-#repo-features button a p{
-    align-content: center;
-    margin: 0 5px 0 5px;
-    color: white;
+#repo-features button a p {
+  align-content: center;
+  margin: 0 5px 0 5px;
+  color: white;
 }
 
 #leftfeature-image {
-    margin-left: 1%;
-    margin-right: 1%;
+  margin-left: 1%;
+  margin-right: 1%;
 }
 
 #repo-features button #plus {
@@ -434,20 +526,19 @@ p.stat-no {
 }
 
 #repo-features button img {
-    width: 1.5em;
+  width: 1.5em;
 }
 
 .commit-status {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
-    height: 40px;
-    margin-top: 15px;
-    border-radius: 0.3vw 0.3vw 0px 0px;
-    background-color: #2DB391;
-    /* border: 1px solid #32AFC3; */
-
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  height: 40px;
+  margin-top: 15px;
+  border-radius: 0.3vw 0.3vw 0px 0px;
+  background-color: #2db391;
+  /* border: 1px solid #32AFC3; */
 }
 
 #commitStatus {
@@ -456,14 +547,14 @@ p.stat-no {
 }
 
 .create-pr {
-    display: flex;
-    align-items: center;
-    margin: 0.5% 3.5% 0.5% 0%;
-    padding: 0.3% 1.5% 0.3% 1.5%;
-    border-radius: 0.3vw;
-    min-width: 120px;
-    border: 1px solid #1C2B40;
-    background-color: #FFFFFF;
+  display: flex;
+  align-items: center;
+  margin: 0.5% 3.5% 0.5% 0%;
+  padding: 0.3% 1.5% 0.3% 1.5%;
+  border-radius: 0.3vw;
+  min-width: 120px;
+  border: 1px solid #1c2b40;
+  background-color: #ffffff;
 }
 
 .create-pr p {
@@ -472,10 +563,10 @@ p.stat-no {
 }
 
 .file-properties {
-    padding: 0% 0% 1% 0%;
-    border-radius: 0 0 0.3vw 0.3vw;
-    border: 1px solid #b2b2b2;
-    width: 100%;
+  padding: 0% 0% 1% 0%;
+  border-radius: 0 0 0.3vw 0.3vw;
+  border: 1px solid #b2b2b2;
+  width: 100%;
 }
 
 .files-contrainer {
@@ -549,10 +640,10 @@ p.stat-no {
 }
 
 .file-type img {
-    height: 2em;
-    width: 2em;
-    margin: 0px 1vw;
-    padding: 0;
+  height: 2em;
+  width: 2em;
+  margin: 0px 1vw;
+  padding: 0;
 }
 
 .files-row p {
@@ -574,30 +665,30 @@ p.stat-no {
 /* Readme */
 
 .readme-container {
-    margin-top: 15px;
-    border-radius: 0.3vw;
-    background-color: #fff;
-    border: 1px solid #B2B2B2;
+  margin-top: 15px;
+  border-radius: 0.3vw;
+  background-color: #fff;
+  border: 1px solid #b2b2b2;
 }
 
 .readme-titlebar {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    margin: 0px auto;
-    border-radius: 0.3vw 0.3vw 0 0;
-    background-color: #E5E5E5;
-    border-bottom: 1px solid #B2B2B2;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin: 0px auto;
+  border-radius: 0.3vw 0.3vw 0 0;
+  background-color: #e5e5e5;
+  border-bottom: 1px solid #b2b2b2;
 }
 
 .readme-profile-pic {
-    height: 2em;
-    width: 2em;
-    background-color: #fff;
-    border: 1px solid #B2B2B2;
-    border-radius: 0.3vw;
-    margin-left: 3%;
-    display: flex;
+  height: 2em;
+  width: 2em;
+  background-color: #fff;
+  border: 1px solid #b2b2b2;
+  border-radius: 0.3vw;
+  margin-left: 3%;
+  display: flex;
 }
 
 .readme-name {
@@ -646,9 +737,6 @@ p.stat-no {
   background: #fff;
   right: 0;
   top: 40px;
-  opacity: 0;
-  visibility: hidden;
-  transition: visibility 0s linear 0.1s, opacity 0.2s linear;
 }
 
 .sign-box p {
@@ -694,6 +782,7 @@ hr {
   box-shadow: 0 2px 4px rgb(0, 0, 0, 0.1);
   padding-top: 0.5em;
   position: absolute;
+  z-index: 2;
   display: flex;
   flex-direction: row;
   width: 500px;
@@ -787,4 +876,23 @@ hr {
   color: #707070;
   font-size: 13px;
   line-height: 16px;
+}
+
+.create-project a {
+  text-decoration: none;
+  padding: 0.5em 2em;
+  background-color: #07db94;
+  float: right;
+  border-radius: 8px;
+  margin-top: 50px;
+  color: #f2f2f2;
+}
+
+.pro-info {
+  padding-right: 1em;
+  display: flex;
+}
+
+.pro-info div {
+  margin-right: 1em;
 }

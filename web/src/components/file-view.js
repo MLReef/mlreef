@@ -6,6 +6,8 @@ import * as fileActions from "../actions/fileActions";
 import { bindActionCreators } from "redux";
 import { Base64 } from "js-base64";
 import Navbar from "./navbar";
+import file_01 from "./../images/file_01.svg";
+import arrow_blue from "./../images/arrow_down_blue_01.svg";
 
 class FileView extends React.Component {
   componentDidMount() {
@@ -28,16 +30,73 @@ class FileView extends React.Component {
     const fileName = this.props.fileData.file_name;
     const fileSize = this.props.fileData.size;
     let fileContent = [];
+    let filepath = [];
     let extension;
     if (this.props.fileData.content) {
       fileContent = Base64.decode(this.props.fileData.content).split("\n");
       extension = fileName.split(".").pop();
+      filepath = this.props.fileData.file_path.split("/");
+      console.log(filepath[0].file_path);
     }
 
     return (
       <div>
-        <Navbar/>
-        <ProjectContainer project activeFeature="data" folders={["Group Name", projectName, "Data"]}/>
+        <Navbar />
+        <ProjectContainer
+          project
+          activeFeature="data"
+          folders={["Group Name", projectName, "Data"]}
+        />
+        <div className="branch-path">
+          <div className="branch-btn">
+            <a href="#f00">
+              <b>Sub-master</b>
+              <img className="dropdown-white" src={arrow_blue} alt="" />
+            </a>
+          </div>
+          <span className="filepath">
+            <b>
+              <a href="/home">{projectName}</a> /
+              {filepath.map((path, i) => {
+                return filepath.length === i + 1 ? (
+                  <span>{path}</span>
+                ) : (
+                  <span>
+                    <a href="#foo">{path} </a>/
+                  </span>
+                );
+              })}
+            </b>
+          </span>
+        </div>
+        <div className="commit-container">
+          <div className="file-container-header">
+            <div className="commit-info">
+              <div className="commit-pic-circle" />
+              <div className="commit-msg">
+                <p>Commit message</p>
+                <span>
+                  by <b>user_name</b> authored <b>4</b> days ago
+                </span>
+              </div>
+            </div>
+            <div className="commit-code">
+              <span>Commit code</span>
+              <img className="file-icon" src={file_01} alt="" />
+            </div>
+          </div>
+          <div className="contributors">
+            <p>
+              <b>3 Contributors</b>
+            </p>
+            <div class="contributor-list">
+              <div className="commit-pic-circle" />
+              <div className="commit-pic-circle" />
+              <div className="commit-pic-circle" />
+            </div>
+          </div>
+        </div>
+
         <div className="file-container">
           <div className="file-container-header">
             <div className="file-info">
@@ -59,10 +118,13 @@ class FileView extends React.Component {
           >
             <div className="file-content">
               {extension === ("png" || "jpg" || "jpeg") ? (
-                <img
-                  src={`data:image/png;base64,${this.props.fileData.content}`}
-                  alt={fileName}
-                />
+                <div>
+                  <img
+                    className="file-img"
+                    src={`data:image/png;base64,${this.props.fileData.content}`}
+                    alt={fileName}
+                  />
+                </div>
               ) : (
                 <table>
                   <tbody>

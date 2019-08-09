@@ -12,23 +12,23 @@ export default class RepoFeatures extends React.Component {
   Branches = ["Master", "feature/28-repo", "feature/41-pipeline"];
 
   handleBlur = e => {
-    if (
-      e.nativeEvent.explicitOriginalTarget &&
-      e.nativeEvent.explicitOriginalTarget === e.nativeEvent.originalTarget
-    ) {
+    if (this.node.contains(e.target)) {
       return;
     }
 
-    if (this.state.isOpen) {
-      setTimeout(() => {
-        this.setState({ isOpen: false });
-      }, 200);
-    }
+    this.handleBranch();
   };
 
   handleBranch = e => {
-    e.target.focus();
-    this.setState({ isOpen: !this.state.isOpen });
+    if (!this.state.isOpen) {
+      document.addEventListener("click", this.handleBlur, false);
+    } else {
+      document.removeEventListener("click", this.handleBlur, false);
+    }
+
+    this.setState(prevState => ({
+      isOpen: !prevState.isOpen
+    }));
   };
 
   render() {
@@ -37,12 +37,18 @@ export default class RepoFeatures extends React.Component {
         <div id="repo-features">
           <div>
             <div className="reference">
-              <button className="white-button" onClick={this.handleBranch}>
+              <button
+                className="white-button"
+                onClick={this.handleBranch}
+                ref={node => {
+                  this.node = node;
+                }}
+              >
                 {this.state.branchSelected}
                 <img id="leftfeature-image" src={arrow_down_blue_01} alt="" />
               </button>
               {this.state.isOpen && (
-                <div className="select-branch" onBlur={this.handleBlur}>
+                <div className="select-branch">
                   <div
                     style={{
                       margin: "0 50px",
