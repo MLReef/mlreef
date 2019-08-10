@@ -1,6 +1,6 @@
 import React from "react";
-import "../css/login.css";
-import icon from "../images/ml_reef_icon_01.svg";
+import "./login.css";
+import icon from "../../images/ml_reef_icon_01.svg";
 import { Redirect } from "react-router-dom";
 
 export default class Login extends React.Component {

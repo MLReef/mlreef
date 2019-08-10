@@ -1,6 +1,6 @@
 import React, {Component} from "react";
 import ReactDOM from 'react-dom';
-import Navbar from "./navbar";
+import Navbar from "./navbar/navbar";
 import ProjectContainer from "./projectContainer";
 import "../css/experiments-overview.css";
 import $ from "jquery";

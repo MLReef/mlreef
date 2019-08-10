@@ -31,18 +31,18 @@ class ProjectContainer extends React.Component {
             <Link to="experiments-overview" className="feature" id="experiments">
               <p>Experiments</p>
             </Link>
-            <Link className="feature ">
+            <div className="feature">
               <p>Inference</p>
-            </Link>
-            <Link className="feature ">
+            </div>
+            <div className="feature">
               <p>Insights</p>
-            </Link>
-            <Link className="feature ">
+            </div>
+            <div className="feature">
               <p>Pull Requests</p>
-            </Link>
-            <Link className="feature ">
+            </div>
+            <div className="feature">
               <p>Settings</p>
-            </Link>
+            </div>
           </div>
         </div>
       </div>
