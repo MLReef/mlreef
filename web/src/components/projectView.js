@@ -5,7 +5,7 @@ import ProjectContainer from './projectContainer';
 import FilesContainer from './files-container';
 import RepoInfo from './repo-info';
 import RepoFeatures from './repo-features';
-import Navbar from './navbar';
+import Navbar from './navbar/navbar';
 import {bindActionCreators} from 'redux';
 import * as fileActions from "./../actions/fileActions";
 import "../css/index.css";

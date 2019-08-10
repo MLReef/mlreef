@@ -3,24 +3,16 @@ import { Link } from "react-router-dom";
 
 const ProjectNav = (params) => {
     return (
-        <div class="project-nav">
-        {
-            params.folders.map((folder) => {
-                if(params.folders.indexOf(folder) === (params.folders.length - 1)){
-                    if(folder === 'Data'){
-                        return <Link to="/home"> <p> &nbsp; {folder} &nbsp;</p></Link>;
-                    } else {
-                        return <p>&nbsp;{folder}&nbsp;</p>
-                    }
-                } else {
-                    if(folder === 'Data'){
-                        return <Link to="/home"> <p> &nbsp; {folder} &nbsp;> &nbsp;</p></Link>;
-                    } else {
-                        return <p> &nbsp;{folder}&nbsp;>&nbsp;</p>
-                    }            
-                }
-            })
-        }
+        <div className="project-nav">
+            {params.folders.map((folder, index) => 
+                (index === (params.folders.length - 1)) 
+                    ? folder === 'Data' 
+                        ? <Link key={`project-nav-link-${index}`}to="/home"> <p> &nbsp; {folder} &nbsp;</p></Link>
+                        : <p key={`project-nav-paragraph-${index}`}>&nbsp;{folder}&nbsp;</p>
+                    : folder === 'Data'
+                        ? <Link to="/home"> <p key={`project-nav-link-${index}`}> &nbsp; {folder} &nbsp;> &nbsp;</p></Link>
+                        : <p key={`project-nav-paragraph-${index}`}> &nbsp;{folder}&nbsp;>&nbsp;</p>
+            )}
         </div>    
     )
 }

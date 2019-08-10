@@ -1,117 +1,4 @@
-@import url("https://fonts.googleapis.com/css?family=Roboto&display=swap");
-
-a {
-  color: #1c2b40;
-  text-decoration: none;
-}
-
-a:hover {
-  text-decoration: underline;
-}
-
-body {
-  margin: 0;
-  padding: 0;
-  font-family: "Roboto", sans-serif;
-  font-size: 13px;
-  min-width: 768px;
-}
-
-button {
-  font-family: "Roboto", sans-serif;
-  height: 2em;
-}
-
 /** This is applied to everything below the nav-bar. */
-.main-content {
-  max-width: 1024px;
-  min-width: 786px;
-  align-items: center;
-  margin: 0% auto 0% auto;
-}
-
-.navbar {
-  display: flex;
-  height: 3em;
-  align-items: center;
-  background-color: #1c2b40;
-}
-
-.logo {
-  width: 8em;
-  margin: 1% 0% 1% 3%;
-}
-
-.projects-dropdown {
-  display: flex;
-  position: relative;
-  justify-content: center;
-  align-items: center;
-  color: #fff;
-  margin-left: 45px;
-  padding: 0.5em;
-  cursor: pointer;
-}
-
-.projects-dropdown-click {
-  display: flex;
-  position: relative;
-  justify-content: center;
-  align-items: center;
-  color: #292961;
-  background: white;
-  margin-left: 45px;
-  padding: 0.5em;
-  border-radius: 5px;
-  cursor: pointer;
-}
-
-.projects-dropdown-click a:hover {
-  text-decoration: none;
-}
-
-.projects-dropdown:hover {
-  background: rgb(197, 197, 197, 0.2);
-}
-
-.projects-dropdown a {
-  color: #ffffff;
-  text-decoration: none;
-  margin: 0px;
-}
-
-.projects-dropdown img {
-  margin-left: 4%;
-}
-
-.profile-options {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  position: absolute;
-  right: 3%;
-  padding: 5px 15px;
-  border-radius: 0.3vw;
-  cursor: pointer;
-}
-
-.show {
-  display: block;
-}
-
-.profile-options:hover .sign-box {
-  visibility: visible; /* show it on hover */
-  opacity: 1;
-  transition-delay: 0.09s;
-}
-
-.profile-pic-circle {
-  height: 2em;
-  width: 2em;
-  background-color: #fff;
-  display: flex;
-  border-radius: 50%;
-}
 
 img.dropdown-white {
   width: 1.5em;
@@ -146,6 +33,7 @@ img.dropdown-white {
   /* border: 1px solid green; */
 }
 
+
 .project-pic {
   height: 2.5em;
   width: 2.5em;
@@ -155,7 +43,6 @@ img.dropdown-white {
   display: flex;
 }
 
-/* fix the size of the Project Avatar */
 .project-pic img {
   height: 2.5em;
 }
@@ -254,6 +141,8 @@ img.dropdown-white {
   margin-top: 1.5%;
 }
 
+/* Natigation tabs in the header of project*/
+
 .feature-list {
   display: flex;
   justify-content: space-between;
@@ -263,17 +152,6 @@ img.dropdown-white {
 
 .feature-list > a {
   text-decoration: none;
-}
-
-.tag-list {
-  display: flex;
-  justify-content: space-evenly;
-  flex-direction: row;
-  padding-top: 50px;
-}
-
-.tag-list div {
-  cursor: pointer;
 }
 
 .project-content {

@@ -24,7 +24,7 @@ class DataOperationsItem extends Component{
         return (
             <div draggable={true} onDragStart={this.handleDragStart}
                 className="data-operations-item round-border-button shadowed-element" id={`data-operations-item-${index}`}>
-                <div class="header flexible-div">
+                <div className="header flexible-div">
                     <div id="title-content">
                         <p className="bold-text">{title}</p>
                     </div>

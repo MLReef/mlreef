@@ -4,7 +4,7 @@ import minus from '../images/minus.svg';
 import plus from '../images/plus_01.svg';
 import '../css/pipe-line-view.css';
 /* import DataOperationsItem from './data-operations-item'; */
-import Navbar from './navbar';
+import Navbar from "./navbar/navbar";
 import Input from './input';
 import ProjectContainer from './projectContainer';
 import advice_01 from '../images/advice-01.png';
@@ -205,7 +205,7 @@ class PipeLineView extends React.Component{
                                 {dataOperations.map( (dataOperation, index) => 
                                         <div draggable={true} onDragStart={this.handleDragStart}
                                             className="data-operations-item round-border-button shadowed-element" id={`data-operations-item-${index}`}>
-                                            <div class="header flexible-div">
+                                            <div className="header flexible-div">
                                                 <div id="title-content">
                                                     <p className="bold-text">{dataOperation.title}</p>
                                                 </div>
