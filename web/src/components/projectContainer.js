@@ -25,7 +25,7 @@ class ProjectContainer extends React.Component {
             </p>
           }
           <div className="feature-list">
-            <Link to="/home" className="feature active" id="data">
+            <Link to="/home" className="feature" id="data">
               Data
             </Link>
             <Link to="experiments-overview" className="feature" id="experiments">
