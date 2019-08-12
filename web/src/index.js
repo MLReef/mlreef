@@ -7,7 +7,7 @@ import { Provider } from "react-redux";
 import { loadProjectGeneralInfo } from "./actions/projectInfoActions";
 import App from "./App";
 import FileView from "./components/file-view";
-import Login from "./components/login";
+import Login from "./components/login/login";
 import projectView from "./components/projectView";
 import PipeLineView from "./components/pipe-line-view";
 import PrivateRoute from "./private-route";

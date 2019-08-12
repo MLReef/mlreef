@@ -1,6 +1,6 @@
 import React, {Component} from "react";
 import ReactDOM from 'react-dom';
-import Navbar from "./navbar";
+import Navbar from "./navbar/navbar";
 import ProjectContainer from "./projectContainer";
 import "../css/experiments-overview.css";
 import $ from "jquery";
@@ -97,7 +97,8 @@ class ExperimentCard extends React.Component {
         const index = params.ind;
         const exp = this.props.params.experiments[index];
         const newState = this.state;
-        const chartDiv = document.getElementById(this.state.chartDivId)
+        const chartDiv = document.getElementById(this.state.chartDivId);
+        const cardResults = `${this.state.chartDivId}-Idcard-results-${index}`;
         
         newState.showChart = !this.state.showChart;
         this.setState(
@@ -105,6 +106,7 @@ class ExperimentCard extends React.Component {
         );
         if(exp.data && newState.showChart){
              chartDiv.parentNode.childNodes[1].style.display = "unset";
+             $(`#${cardResults}`).css("display", "flex");
              ReactDOM.render(
                 <div>
                     <Line data={exp.data} height={50} />
@@ -112,6 +114,7 @@ class ExperimentCard extends React.Component {
                 chartDiv
             )
         }else { 
+            $(`#${cardResults}`).css("display", "none");
             chartDiv.parentNode.childNodes[1].style.display = "none";
             ReactDOM.unmountComponentAtNode(chartDiv);
         }
@@ -188,7 +191,7 @@ class ExperimentCard extends React.Component {
                                     }
                                 </div>
                             </div>
-                            <div className="card-results">
+                            <div className="card-results" id={`${chartDivId}-Idcard-results-${index}`}>
                                 <DataCard title="Data" linesOfContent={["17.215 files selected", "Data instance: DI_pipeline_2", "op1: augmentation", "op2: random crop", "op3: random rotate"]}/>
                                 <DataCard title="Algorithm" linesOfContent={["17.215 files selected", "Data instance: DI_pipeline_2", "op1: augmentation", "op2: random crop", "op3: random rotate"]}/>
                                 <DataCard title="Training" linesOfContent={["17.215 files selected", "Data instance: DI_pipeline_2", "op1: augmentation", "op2: random crop", "op3: random rotate"]}/>

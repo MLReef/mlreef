@@ -5,7 +5,7 @@ import { connect } from "react-redux";
 import * as fileActions from "../actions/fileActions";
 import { bindActionCreators } from "redux";
 import { Base64 } from "js-base64";
-import Navbar from "./navbar";
+import Navbar from "./navbar/navbar";
 import file_01 from "./../images/file_01.svg";
 import arrow_blue from "./../images/arrow_down_blue_01.svg";
 
@@ -61,10 +61,10 @@ class FileView extends React.Component {
                 return filepath.length === i + 1 ? (
                   <span>{path}</span>
                 ) : (
-                  <span>
-                    <a href="#foo">{path} </a>/
+                    <span>
+                      <a href="#foo">{path} </a>/
                   </span>
-                );
+                  );
               })}
             </b>
           </span>
@@ -89,7 +89,7 @@ class FileView extends React.Component {
             <p>
               <b>3 Contributors</b>
             </p>
-            <div class="contributor-list">
+            <div className="contributor-list">
               <div className="commit-pic-circle" />
               <div className="commit-pic-circle" />
               <div className="commit-pic-circle" />
@@ -126,20 +126,20 @@ class FileView extends React.Component {
                   />
                 </div>
               ) : (
-                <table>
-                  <tbody>
-                    {fileContent.map(function(line) {
-                      return (
-                        <tr>
-                          <td>
-                            <p>{line}</p>
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              )}
+                  <table>
+                    <tbody>
+                      {fileContent.map(function (line) {
+                        return (
+                          <tr>
+                            <td>
+                              <p>{line}</p>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                )}
             </div>
           </div>
         </div>

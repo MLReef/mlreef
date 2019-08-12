@@ -1,5 +1,5 @@
 import React from "react";
-import Navbar from "./navbar";
+import Navbar from "./navbar/navbar";
 import ProjectSet from "./projectSet";
 
 class Myprojects extends React.Component {
@@ -25,7 +25,7 @@ class Myprojects extends React.Component {
     return (
       <div>
         <Navbar />
-        <div class="project-content">
+        <div className="project-content">
           <NewProject />
           <hr />
           <ProjectSet />
@@ -40,7 +40,7 @@ const NewProject = () => {
   return (
     <div className="new-project">
       <p id="title">Projects</p>
-      <p class="add">New Project</p>
+      <p className="add">New Project</p>
     </div>
   );
 };

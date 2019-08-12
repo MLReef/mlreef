@@ -127,7 +127,7 @@
 /* --------------------------- Card results css --------------------------- */
 
 .card-content > .card-results {
-    display: flex;   
+    display: none;   
     margin-left: 1.5%;
 }
 

@@ -1,3 +1,37 @@
+/* Main container styles which give same sizes to all views in project*/ 
+
+@import url("https://fonts.googleapis.com/css?family=Roboto&display=swap");
+
+a {
+  color: #1c2b40;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: "Roboto", sans-serif;
+  font-size: 13px;
+  min-width: 768px;
+}
+
+button {
+  font-family: "Roboto", sans-serif;
+  height: 2em;
+}
+
+
+.main-content {
+   max-width: 1024px;
+   min-width: 786px;
+   align-items: center;
+   margin: 0% auto 0% auto;
+ }
+ 
 /*------------------- Colors --------------------*/
 
 

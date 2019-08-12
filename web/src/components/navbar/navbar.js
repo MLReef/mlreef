@@ -1,8 +1,9 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import ml_reef_icon_01 from "./../images/MLReef_Logo_navbar.png";
-import arrow_down_white_01 from "./../images/arrow_down_white_01.svg";
-import arrow_down_blue_01 from "./../images/arrow_down_blue_01.svg";
+import ml_reef_icon_01 from "../../images/MLReef_Logo_navbar.png";
+import arrow_down_white_01 from "../../images/arrow_down_white_01.svg";
+import arrow_down_blue_01 from "../../images/arrow_down_blue_01.svg";
+import "./navbar.css";
 
 export default class Navbar extends React.Component {
   state = { dialogOpen: false, projectDialog: false };

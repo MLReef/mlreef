@@ -25,8 +25,8 @@ export default class ProjectSet extends React.Component {
   render() {
     return (
       <>
-        <div class="project-dashboard" style={{}}>
-          <div class="project-list">
+        <div className="project-dashboard" style={{}}>
+          <div className="project-list">
             <div
               className={
                 "project-tab " + (this.state.personal ? "project-border" : "")

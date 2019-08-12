@@ -84,7 +84,7 @@ export default class RepoFeatures extends React.Component {
               <img id="leftfeature-image" src={arrow_down_blue_01} alt="" />
             </button>
 
-            <button class="blue-button">
+            <button className="blue-button">
                 Data Visualisation
             </button>
 
@@ -93,15 +93,15 @@ export default class RepoFeatures extends React.Component {
             </button>
           </div>
           <div>
-                <button class="white-button">
+                <button className="white-button">
                     History
                 </button>                    
 
-                <button class="white-button">
+                <button className="white-button">
                     Web IDE
                 </button>                   
 
-                <button class="white-button">
+                <button className="white-button">
                     <img id="leftfeature-image" src={arrow_down_blue_01} alt=""/>
                 </button>
           </div>
