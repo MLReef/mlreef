@@ -1,0 +1,152 @@
+/* ------------ CSS for project page ----------- */
+
+.project-content {
+    max-width: 1024px;
+    min-width: 786px;
+    align-items: center;
+    margin: 0 auto;
+}
+  
+.new-project button {
+    background-color: #2db391;
+    border-radius: 0.3vw;
+    border: 1px solid #2db391;
+    height: 2.5em;
+    color: #fff;
+    padding: 0.5em 2em;
+    margin-top: 15px;
+}
+  
+.new-project button:hover {
+    background-color: #2DB391;
+    opacity: 0.9;
+    border-radius: 0.3vw;
+    border: 1px solid #2DB391;
+    height: 2.5em;
+    color: #fff;
+    padding: 0.5em 2em;
+    margin-top: 15px;
+}
+  
+.new-project button:focus {
+    background-color: #fff;
+    opacity: 0.9;
+    border-radius: 0.3vw;
+    border: 1px solid #B2B2B2;
+    height: 2.5em;
+    color: #B2B2B2;
+    padding: 0.5em 2em;
+    margin-top: 15px;
+}
+  
+.new-project #title {
+    margin: 0;
+    flex: 1;
+    padding-top: 1em;
+    font-size: 18px;
+    font-weight: bold;
+}
+  
+.new-project {
+    display: flex;
+  }
+  
+.project-content > hr {
+    margin-top: 2em;
+}
+  
+.project-list {
+    display: flex;
+    flex: 1;
+}
+  
+.project-tab {
+    cursor: pointer;
+    display: flex;
+    transition: border-bottom 0.1s;
+}
+  
+.project-border {
+    font-size: 13px;
+    font-weight: bold;
+    border-bottom: 2px solid #1c2b40;
+}
+  
+.project-tab p {
+    color: #1c2b40;
+}
+  
+#count {
+    background-color: #c5c5c5;
+    margin-left: 4px;
+    min-width: 10px;
+    max-width: max-content;
+    min-height: 1.3em;
+    border-radius: 2px;
+}
+
+#filter {
+    padding: 0.3em;
+    border-radius: .3vw;
+    border: 1px solid #b2b2b2;
+    width: 95%;
+    height: 2em;
+    font-size: 1em;
+}
+
+#filter:focus {
+    padding: 0.3em;
+    border-radius: .3vw;
+    border: 1px solid #32afc3;
+    color: #1D2B40;
+    width: 95%;
+    height: 2em;
+    font-size: 1em;
+}
+
+#project-display {
+    padding-top: 30px;
+    vertical-align: 50%;
+    display: flex;
+    cursor: pointer;
+    justify-content: space-between;
+}
+
+#project-display > div {
+    display: flex;
+}
+
+#project-icon {
+    width: 40px;
+    height: 40px;
+    background-color: #fff;
+    border: 1px solid #000;
+    border-radius: 0.3vw;
+    margin-right: 12px;
+}
+#project-descriptors {
+    display: block;
+    margin-left: 1em;
+    flex: 1 1 auto;
+    margin: 0px;
+    margin-right: 50px;
+}
+
+.project-dashboard {
+    display: flex;
+    padding-top: 20px !important;
+}
+  
+.project-list > div {
+    margin-right: 50px;
+}
+
+#pro-info {
+    padding-right: 1em;
+    display: flex;
+  }
+  
+#pro-info div {
+    margin: auto 1em auto 0;
+  }
+  

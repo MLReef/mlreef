@@ -290,38 +290,13 @@ img.dropdown-white {
 
 .project-list {
   display: flex;
-  flex: 1;
+  justify-content: space-evenly;
+  flex-direction: row;
+  padding-top: 50px;
 }
 
-.project-tab {
+.tag-list div {
   cursor: pointer;
-  display: flex;
-  transition: border-bottom 0.1s;
-}
-
-.project-border {
-  font-size: 13px;
-  font-weight: bold;
-  border-bottom: 2px solid #1c2b40;
-}
-
-.project-tab p {
-  color: #1c2b40;
-}
-
-#count {
-  background-color: #c5c5c5;
-  margin-left: 4px;
-  padding: 2px;
-}
-
-.project-dashboard {
-  display: flex;
-  padding-top: 20px !important;
-}
-
-.project-list > div {
-  margin-right: 50px;
 }
 
 .feature {
@@ -866,11 +841,3 @@ hr {
   color: #f2f2f2;
 }
 
-.pro-info {
-  padding-right: 1em;
-  display: flex;
-}
-
-.pro-info div {
-  margin-right: 1em;
-}
