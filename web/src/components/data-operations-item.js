@@ -3,7 +3,6 @@ import star_01 from './../images/star_01.svg';
 import triangle_01 from './../images/triangle-01.png';
 
 class DataOperationsItem extends Component {
-
     constructor(props) {
         super(props);
 
