@@ -1,25 +1,26 @@
 import React from "react";
 import Navbar from "./navbar/navbar";
 import ProjectSet from "./projectSet";
+import "../css/project-overview.css";
 
 class Myprojects extends React.Component {
   state = {
     showOverview: true,
     showProjects: false,
     showRepo: false
-  };
+  }
 
   handleOverview = () => {
-    this.setState({ showOverview: true, showProjects: false, showRepo: false });
-  };
+    this.setState({ showOverview: true, showProjects: false, showRepo: false })
+  }
 
   handleProjectList = () => {
-    this.setState({ showOverview: false, showProjects: true, showRepo: false });
-  };
+    this.setState({ showOverview: false, showProjects: true, showRepo: false })
+  }
 
   handleRepo = () => {
-    this.setState({ showOverview: false, showProjects: false, showRepo: true });
-  };
+    this.setState({ showOverview: false, showProjects: false, showRepo: true })
+  }
 
   render() {
     return (
@@ -30,9 +31,8 @@ class Myprojects extends React.Component {
           <hr />
           <ProjectSet />
         </div>
-        )
       </div>
-    );
+    )
   }
 }
 
@@ -40,9 +40,11 @@ const NewProject = () => {
   return (
     <div className="new-project">
       <p id="title">Projects</p>
-      <p className="add">New Project</p>
+      <button class="add">
+        New Project
+      </button>
     </div>
-  );
-};
+  )
+}
 
 export default Myprojects;

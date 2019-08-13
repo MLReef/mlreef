@@ -9,7 +9,7 @@ import App from "./App";
 import FileView from "./components/file-view";
 import Login from "./components/login/login";
 import projectView from "./components/projectView";
-import PipeLineView from "./components/pipe-line-view";
+import PipeLineView from "./components/pipeline-view";
 import PrivateRoute from "./private-route";
 import ExperimentsOverview from "./components/experiments-overview";
 import Projects from "./components/my-projects";

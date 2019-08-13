@@ -7,6 +7,7 @@ import $ from "jquery";
 import traiangle01 from './../images/triangle-01.png';
 import { Line } from "react-chartjs-2";
 import { connect } from "react-redux";
+import ArrowButton from "./arrow-button/arrow-button";
 
 const Running = "Running";
 const Open = "Open";
@@ -25,31 +26,6 @@ const DataCard = ({title, linesOfContent}) => <div className="data-card">
         }
     </div>
 </div>
-
-
-const ArrowButton = ({callback, params, imgPlaceHolder}) => {
-    
-    function handleDropDownClick(e){
-        $(e.currentTarget).attr('tabindex', 1).focus();
-        $(e.currentTarget).toggleClass('active');
-        $(e.currentTarget).find('.dropdown-menu').slideToggle(300);
-        callback(params);
-    }
-
-    function handleBlur(e){
-        $(e.currentTarget).removeClass('active');
-        $(e.currentTarget).find('.dropdown-menu').slideUp(300);
-    }
-
-    return (
-        <button className="arrow-button dropdown white-button non-active-black-border" onClick={(e) => {handleDropDownClick(e)}} onBlur={(e) => {handleBlur(e)}}>
-                <div className="select">
-                    <img src={imgPlaceHolder} alt=""/>
-                </div>
-        </button>
-    )
-    
-}
 
 class ExperimentCard extends React.Component {
     constructor(props){
@@ -93,7 +69,7 @@ class ExperimentCard extends React.Component {
         )
     }
 
-    handleArrowDownButtonClick(params){
+    handleArrowDownButtonClick(e, params){
         const index = params.ind;
         const exp = this.props.params.experiments[index];
         const newState = this.state;

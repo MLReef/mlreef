@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {Component} from 'react';
 import { connect } from 'react-redux';
 import minus from '../images/minus.svg';
 import plus from '../images/plus_01.svg';
@@ -10,9 +10,9 @@ import ProjectContainer from './projectContainer';
 import advice_01 from '../images/advice-01.png';
 import star_01 from './../images/star_01.svg';
 import triangle_01 from './../images/triangle-01.png';
+import SelectDataPipelineModal from "./select-data-pipeline/select-data-pipeline-modal";
 
-
-class PipeLineView extends React.Component{
+class PipeLineView extends Component{
     constructor(props){
         super(props);
         this.state = {
@@ -26,13 +26,14 @@ class PipeLineView extends React.Component{
                 {title: "Random rotate", username: "UserName 3", starCount: "170", index: 3},
                 {title: "Convert to RGB", username: "UserName 4", starCount: "199", index: 4},
                 {title: "Resize_img", username: "UserName 5", starCount: "203", index: 4}
-            ]
+            ],
+            showSelectFilesModal: false
         }
-
         this.handleCheckMarkClick = this.handleCheckMarkClick.bind(this);
         this.drop = this.drop.bind(this);
         this.allowDrop = this.allowDrop.bind(this);
         this.handleDragStart = this.handleDragStart.bind(this);
+        this.selectDataClick = this.selectDataClick.bind(this);
 
     }
 
@@ -91,14 +92,21 @@ class PipeLineView extends React.Component{
         const dt = e.dataTransfer;
         dt.setData('text/plain', e.currentTarget.id);
         dt.effectAllowed = 'move';
-
     } 
+    
+    selectDataClick(e){
+        const newState = this.state;
+        newState.showSelectFilesModal = !this.state.showSelectFilesModal;
+        this.setState(newState);
+    }
 
     render(){
         const project = this.props.project;
         const dataOperations = this.state.dataOperations;
+        const showSelectFilesModal = this.state.showSelectFilesModal;
         return (
             <div className="pipe-line-view">
+                <SelectDataPipelineModal selectDataClick={this.selectDataClick} show={showSelectFilesModal}/>
                 <Navbar/>
                 <ProjectContainer activeFeature="data" folders = {['Group Name', project.name, 'Data', 'Pipeline']}/>
                 <div id="instruction-pipe-line">
@@ -152,7 +160,7 @@ class PipeLineView extends React.Component{
                             </p>
                             
                             <div className="data-button-container flexible-div">
-                                <div id="select-data-btn">
+                                <div id="select-data-btn" onClick={this.selectDataClick}>
                                     Select data
                                 </div>
                             </div>
@@ -184,7 +192,7 @@ class PipeLineView extends React.Component{
                                     <option>Tabular data</option>
                                 </select>
                                 
-                                <div id="checkbox-zone">
+                                <div class="checkbox-zone">
                                     <label className="customized-checkbox" >
                                         Only own data operations
                                         <input type="checkbox" value={this.state.checkBoxOwnDataOperations} onChange={this.handleCheckMarkClick} id="checkBoxOwnDataOperations"> 
