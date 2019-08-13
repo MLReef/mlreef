@@ -178,6 +178,7 @@
     border: 2px solid #2db391;
     color: white;
     background-color: #2db391;
+    cursor: pointer;
 }
 
 .data-button-container{
@@ -264,72 +265,7 @@
     height: 95%;
 }
 
-/* --------------------------  CHECKBOX STYLES --------------------------*/
-
-#checkbox-zone{
-    margin-top: 3%;
-}
-
-.customized-checkbox {
-    display: block;
-    position: relative;
-    padding-left: 35px;
-    margin-bottom: 15px;
-    cursor: pointer;
-    
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    user-select: none;
-  }
-  
-  /* Hide the browser's default checkbox */
-  .customized-checkbox input {
-    position: absolute;
-    opacity: 0;
-    cursor: pointer;
-  }
-  
-  /* Create a custom checkbox */
-  .checkmark {
-    position: absolute;
-    left: 0;
-    height: 1.5em;
-    width: 1.5em;
-    background-color: #fff;
-    border-radius: 0.3vw;
-    border: 1px solid #5a5a5a;
-  }
-  
-  /* On mouse-over, add a grey background color */
-  .customized-checkbox:hover input ~ .checkmark {
-    background-color: #ccc;
-  }
-    
-  /* Create the checkmark/indicator (hidden when not checked) */
-  .checkmark:after {
-    content: "";
-    position: absolute;
-    display: none;
-  }
-  
-  /* Show the checkmark when checked */
-  .customized-checkbox input:checked ~ .checkmark:after {
-    display: block;
-  }
-  
-  /* Style the checkmark/indicator */
-  .customized-checkbox .checkmark:after {
-    left: 0.6vw;
-    top: 0.2vw;
-    width: 0.5vw;
-    height: 1vw;
-    border: 0.5px solid #1C2B40;
-    border-width: 0 2px 2px 0;
-    -webkit-transform: rotate(45deg);
-    -ms-transform: rotate(45deg);
-    transform: rotate(45deg);
-  }
+/* ---------------------- Data operations styles --------------------- */
 
   #title-content{
       width: 75%;
