@@ -61,10 +61,10 @@ class FileView extends React.Component {
                 return filepath.length === i + 1 ? (
                   <span>{path}</span>
                 ) : (
-                  <span>
-                    <a href="#foo">{path} </a>/
+                    <span>
+                      <a href="#foo">{path} </a>/
                   </span>
-                );
+                  );
               })}
             </b>
           </span>
@@ -126,20 +126,20 @@ class FileView extends React.Component {
                   />
                 </div>
               ) : (
-                <table>
-                  <tbody>
-                    {fileContent.map(function(line) {
-                      return (
-                        <tr>
-                          <td>
-                            <p>{line}</p>
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              )}
+                  <table>
+                    <tbody>
+                      {fileContent.map(function (line) {
+                        return (
+                          <tr>
+                            <td>
+                              <p>{line}</p>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                )}
             </div>
           </div>
         </div>

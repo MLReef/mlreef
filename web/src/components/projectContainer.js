@@ -6,7 +6,7 @@ import { Link } from "react-router-dom";
 
 class ProjectContainer extends React.Component {
 
-  componentDidMount(){
+  componentDidMount() {
     document.getElementById(this.props.activeFeature).classList.add("active");
   }
 
@@ -31,18 +31,18 @@ class ProjectContainer extends React.Component {
             <Link to="experiments-overview" className="feature" id="experiments">
               <p>Experiments</p>
             </Link>
-            <div className="feature">
+            <Link className="feature ">
               <p>Inference</p>
-            </div>
-            <div className="feature">
+            </Link>
+            <Link className="feature ">
               <p>Insights</p>
-            </div>
-            <div className="feature">
+            </Link>
+            <Link className="feature ">
               <p>Pull Requests</p>
-            </div>
-            <div className="feature">
+            </Link>
+            <Link className="feature ">
               <p>Settings</p>
-            </div>
+            </Link>
           </div>
         </div>
       </div>
