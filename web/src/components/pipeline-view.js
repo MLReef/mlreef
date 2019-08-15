@@ -129,28 +129,24 @@ class PipeLineView extends Component{
                 <div className="pipe-line-execution-container flexible-div">
                     <div className="pipe-line-execution">
                         <div className="header flexible-div">
-                        <div className="header-left-items flexible-div">
-                            Data Pipeline:
-                            <div id="renaming-pipeline" className="header-button round-border-button">
-                                Renaming pipeline
+                            <div className="header-left-items flexible-div">
+                                <div>
+                                    <p>Data Pipeline:</p>
+                                </div>
+                                <Input name="DataPipelineID" id="renaming-pipeline" placeholder="Rename data pipeline..."/>
                             </div>
-                        </div>
-
                             <div className="header-right-items flexible-div">
                                 <div id="execute-button" className="header-button round-border-button right-item flexible-div">
                                     Execute
                                 </div>
-
                                 <div className="header-button round-border-button right-item flexible-div">
                                     Save
                                 </div>
-
                                 <div className="header-button round-border-button right-item flexible-div">
                                     Load
                                 </div>
                             </div>
                         </div>
-
                         <div className="upload-file">
                             <p className="instruction">
                                 Start by selecting your data file(s) you want to include <br/> in your data processing pipeline.
