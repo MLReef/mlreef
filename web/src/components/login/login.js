@@ -14,6 +14,7 @@ export default class Login extends React.Component {
     };
 
     this.submit = this.submit.bind(this);
+    this.reset = this.reset.bind(this);
     this.validateForm = this.validateForm.bind(this);
   }
 
@@ -37,11 +38,7 @@ export default class Login extends React.Component {
 
   submit(e) {
     //test purposes
-    if (this.state.email === "andres" && this.state.password === "andres") {
-      const errorDiv = document.getElementById("errorDiv");
-      errorDiv.classList.remove("invisible");
-      return;
-    }
+    e.preventDefault();
 
     if (!this.validateForm()) {
       const errorDiv = document.getElementById("errorDiv");
@@ -55,6 +52,13 @@ export default class Login extends React.Component {
     });
   }
 
+  reset(e) {
+    this.setState({
+      email: "",
+      password: ""
+    })
+  }
+
   render() {
     return (
       <div id="login-container">
@@ -65,7 +69,7 @@ export default class Login extends React.Component {
         <div id="errorDiv" className="invisible error border-div">
           <p>Incorrect username or password</p>
           <div>
-            <button className="paragraph">Reset</button>
+            <button className="paragraph" onClick={this.reset}>Reset</button>
           </div>
         </div>
         <div className="login-form border-div">
