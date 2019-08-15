@@ -140,8 +140,8 @@ button {
  
  /* Style the checkmark/indicator */
  .customized-checkbox .checkmark:after {
-   left: 0.6vw;
-   top: 0.2vw;
+   left: 0.5vw;
+   top: 0.1vw;
    width: 0.5vw;
    height: 1vw;
    border: 0.5px solid #1C2B40;

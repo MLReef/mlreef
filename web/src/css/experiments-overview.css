@@ -23,6 +23,7 @@
 
 .non-active-black-border {
     border: 2px solid #1C2B40;
+    border-radius: 0.3vw;
 }
 
 #new-experiment{
