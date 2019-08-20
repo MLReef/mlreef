@@ -8,6 +8,8 @@ The so called Gitlab Runner Bastion is a specially configured EC2 Instance.
 To login you need the private keypair.
 login: `ssh -i "Runner-Bastion-Keypair.pem" ubuntu@ec2-35-156-142-172.eu-central-1.compute.amazonaws.com`
 
+The installation is based on this article: [link](https://rpadovani.com/aws-s3-gitlab)
+
 #### Management Commands
 ```shell script
 sudo vi /etc/gitlab-runner/config.toml # edit the bastion configuration file

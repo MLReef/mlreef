@@ -1,12 +1,31 @@
+# Variables provided by the repository
 # DOCKER_HUB_USER
 # DOCKER_HUB_PASSWORD
 variables:
   DOCKER_HUB_ORGANISATION: "camillopachmann"
-  IMAGE_NAME: "eps"
+  IMAGE_NAME: "mlreef-epf"
 
 before_script:
-  - echo "creating docker image $IMAGE_NAME for organisation $DOCKER_HUB_ORGANISATION"
+  - echo "creating docker image $IMAGE_NAME for user $DOCKER_HUB_USER"
   - docker login -u "$DOCKER_HUB_USER" -p "$DOCKER_HUB_PASSWORD"
+
+
+build-nightly:
+  # official docker image.
+  image: docker:latest
+  stage: build
+  variables:
+    TAG: "nightly"
+    IMAGE_PATH: "$DOCKER_HUB_ORGANISATION/$IMAGE_NAME:$TAG"
+  services:
+    - docker:dind
+  #before_script: # this will completely override the global before_script
+  script:
+    - bin/build.sh
+    - docker push "$IMAGE_PATH"
+  except:
+    - master
+
 
 build-master:
   # Official docker image.
@@ -15,27 +34,11 @@ build-master:
   variables:
     TAG: "latest"
     IMAGE_PATH: "$DOCKER_HUB_ORGANISATION/$IMAGE_NAME:$TAG"
-  #before_script: # this will completly override the global before_script
+  #before_script: # this will completely override the global before_script
   services:
     - docker:dind
   script:
-    - docker build --pull --tag "$IMAGE_PATH" executable-pipeline-framework/mvp/
+    - bin/build.sh
     - docker push "$IMAGE_PATH"
   only:
-    - master
-
-build:
-  # Official docker image.
-  image: docker:latest
-  stage: build
-  variables:
-    TAG: "nightly"
-    IMAGE_PATH: "$DOCKER_HUB_ORGANISATION/$IMAGE_NAME:$TAG"
-  services:
-    - docker:dind
-  #before_script: # this will completly override the global before_script
-  script:
-    - docker build --pull --tag "$IMAGE_PATH" executable-pipeline-framework/mvp/
-    - docker push "$IMAGE_PATH"
-  except:
     - master
