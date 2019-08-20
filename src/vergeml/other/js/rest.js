@@ -1,26 +1,26 @@
 var hamburger = document.getElementById("hamburger");
 var overlay = document.getElementById("overlay");
 var sidebar = document.getElementsByClassName("sidebar")[0];
-var form = document.getElementById("main-form")
+var form = document.getElementById("main-form");
 
 hamburger.onclick = function(e) {
     sidebar.className = "sidebar open";
     overlay.style.display = "block";
-}
+};
 
 overlay.onclick = function(e) {
     if (overlay.style.display == "block") {
-        overlay.style.display = "none"
+        overlay.style.display = "none";
         sidebar.className = "sidebar";
     }
-}
+};
 
 var timer = null;
 var start = null;
 
 function updateMs() {
     var now = +new Date();
-    var diff = Math.round((now-start) / 100 ) * 100
+    var diff = Math.round((now - start) / 100) * 100;
     document.getElementById("time").innerText = "TIME " + diff +"ms"
 }
 
@@ -77,7 +77,7 @@ function ajaxPost (form, callback) {
         clearTimeout(timer);
         document.getElementById("submit-button").disabled = false;
         if (response.status == 200) {
-            document.getElementById("status-ok").style.display = 'inline'
+            document.getElementById("status-ok").style.display = 'inline';
             document.getElementById("status-ok").innerText = 'STATUS ' + response.status + " " + response.statusText;
             response.text().then(function (text) {
                 var resContainer = document.getElementsByClassName("json")[0];
@@ -87,7 +87,7 @@ function ajaxPost (form, callback) {
             });
         } else {
             var message = response.status + " " + response.statusText;
-            document.getElementById("status-err").style.display = 'inline'
+            document.getElementById("status-err").style.display = 'inline';
             document.getElementById("status-err").innerText = 'STATUS ' + message;
             response.text().then(function (text) {
                 var resContainer = document.getElementsByClassName("json")[0];
@@ -107,11 +107,11 @@ if (form) {
         start = +new Date();
         timer = window.setInterval(updateMs, 100);
 
-        document.getElementById("B").className = "column open"
-        document.getElementById("time").innerText = "TIME 0ms"
-        document.getElementById("status-ok").style.display = 'none'
-        document.getElementById("status-err").style.display = 'none'
-        ajaxPost(form, null)
+        document.getElementById("B").className = "column open";
+        document.getElementById("time").innerText = "TIME 0ms";
+        document.getElementById("status-ok").style.display = 'none';
+        document.getElementById("status-err").style.display = 'none';
+        ajaxPost(form, null);
 
         return false;
     }
@@ -119,16 +119,16 @@ if (form) {
 
 function updateFileInput(name) {
 
-    console.log(name)
-    var input = document.getElementById('__'+name+'_input__')
+    console.log(name);
+    var input = document.getElementById('__' + name + '_input__');
 
-    res = []
+    res = [];
     for(var i = 0; i < input.files.length; i++) {
-        var file = input.files[i]
+        var file = input.files[i];
         res.push(file.name)
     }
 
-    var label = document.getElementById('__'+name+'_label__')
+    var label = document.getElementById('__' + name + '_label__');
     if(res.length == 0) {
         if (input.multiple) {
             label.innerText = "Select files..."
@@ -136,7 +136,7 @@ function updateFileInput(name) {
             label.innerText = "Select file..."
         }
     } else {
-        var firstFile = res[0]
+        var firstFile = res[0];
         if (firstFile.length > 15) {
             firstFile = firstFile.substring(0,15)
         }
