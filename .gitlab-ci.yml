@@ -1,13 +1,14 @@
 # Variables provided by the repository
-# DOCKER_HUB_USER
-# DOCKER_HUB_PASSWORD
+# DOCKER_USER
+# DOCKER_PASSWORD
 variables:
-  DOCKER_HUB_ORGANISATION: "camillopachmann"
-  IMAGE_NAME: "mlreef-epf"
+  DOCKER_REGISTRY: "registry.gitlab.com"
+  DOCKER_ORGANISATION: "mlreef"
+  IMAGE_NAME: "epf"
 
 before_script:
-  - echo "creating docker image $IMAGE_NAME for user $DOCKER_HUB_USER"
-  - docker login -u "$DOCKER_HUB_USER" -p "$DOCKER_HUB_PASSWORD"
+  - echo "creating docker image ${IMAGE_NAME} for user ${DOCKER_USER}"
+  - docker login ${DOCKER_REGISTRY} -u "${DOCKER_USER}" -p "${DOCKER_PASSWORD}"
 
 
 build-nightly:
@@ -16,13 +17,13 @@ build-nightly:
   stage: build
   variables:
     TAG: "nightly"
-    IMAGE_PATH: "$DOCKER_HUB_ORGANISATION/$IMAGE_NAME:$TAG"
+    IMAGE_PATH: "$DOCKER_REGISTRY/$DOCKER_ORGANISATION/$IMAGE_NAME:$TAG"
   services:
     - docker:dind
   #before_script: # this will completely override the global before_script
   script:
     - bin/build.sh
-    - docker push "$IMAGE_PATH"
+    - docker push "${IMAGE_PATH}"
   except:
     - master
 
@@ -33,12 +34,12 @@ build-master:
   stage: build
   variables:
     TAG: "latest"
-    IMAGE_PATH: "$DOCKER_HUB_ORGANISATION/$IMAGE_NAME:$TAG"
+    IMAGE_PATH: "$DOCKER_REGISTRY/$DOCKER_ORGANISATION/$IMAGE_NAME:$TAG"
   #before_script: # this will completely override the global before_script
   services:
     - docker:dind
   script:
     - bin/build.sh
-    - docker push "$IMAGE_PATH"
+    - docker push "${IMAGE_PATH}"
   only:
     - master
