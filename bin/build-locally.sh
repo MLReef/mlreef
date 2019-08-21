@@ -2,13 +2,11 @@
 # shellcheck disable=SC2096
 
 # prepare environment, see ../gitlab-ci.yml
-export DEV_NAME="epf"
-export IMAGE_NAME="mlreef-epf"
-export DOCKER_HUB_ORGANISATION="camillopachmann"
+export IMAGE_NAME="epf"
+export DOCKER_REGISTRY="registry.gitlab.com"
+export DOCKER_ORGANISATION="mlreef"
+
 export TAG="nightly"
-export IMAGE_PATH="${DOCKER_HUB_ORGANISATION}/${IMAGE_NAME}:${TAG}"
+export IMAGE_PATH="${DOCKER_REGISTRY}/${DOCKER_ORGANISATION}/${IMAGE_NAME}:${TAG}"
 
 bin/build.sh
-
-# test run image (mainly for log output)
-docker run --name="$IMAGE_NAME-container" "$IMAGE_NAME"
