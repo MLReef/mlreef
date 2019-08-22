@@ -10,15 +10,6 @@ variables:
   BUCKET_NAME: mlreef-$CI_COMMIT_REF_SLUG   #environment name and url are set separately
 
 
-#kotlin2js:
-#  stage: build
-#  script:
-#    - ./gradlew clean build
-#  artifacts:
-#    paths:
-#      - web/src/main/web/kotlin
-
-
 npm-build:
   image: node:latest
   stage: build
@@ -31,25 +22,25 @@ npm-build:
     - npm run build
   artifacts:
     paths:
-      - ${BUILD_PATH}            # pass build output
+      - ${BUILD_PATH}         # pass build output
 
 
 # The deployment on aws dependes on thre main environment variables
-# AWS_ACCESS_KEY_ID         create at https://console.aws.amazon.com/iam/
-# AWS_SECRET_ACCESS_KEY     create at https://console.aws.amazon.com/iam/
-# AWS_DEFAULT_REGION        default:eu-central-1
+# AWS_ACCESS_KEY_ID       create at https://console.aws.amazon.com/iam/
+# AWS_SECRET_ACCESS_KEY   create at https://console.aws.amazon.com/iam/
+# AWS_DEFAULT_REGION      default:eu-central-1
 deploy:
-  image: python:3.7  # We use python because there is a well-working AWS Sdk
+  image: python:3.7       # We use python because there is a well-working AWS Sdk
   stage: deploy
   dependencies:
-    - npm-build         # We want to specify dependencies in an explicit way, to avoid confusion if there are different build jobs
+    - npm-build           # We want to specify dependencies in an explicit way, to avoid confusion if there are different build jobs
   cache:
     key: mlreef-all-python-dependencies
     paths:
       - .cache/pip
       - venv/
   before_script:
-    - pip install awscli # Install the SDK
+    - pip install awscli  # Install the SDK
   variables:
     POLICY1: '{ "Version": "2008-10-17", "Id": "PolicyForPublicWebsiteContent", "Statement": [ {"Sid": "PublicReadGetObject","Effect": "Allow","Principal": {"AWS": "*"},"Action": "s3:GetObject","Resource": "arn:aws:s3:::'
     POLICY2: '/*"}]}'
