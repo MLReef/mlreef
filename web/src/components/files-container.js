@@ -12,13 +12,29 @@ class FilesContainer extends Component {
     this.clickListener = this.clickListener.bind(this);
     this.getBack = this.getBack.bind(this);
 
+    this.state = {
+      currentPath: ""
+    }
+
     window.onpopstate = () => {
       var path = this.getParamFromUrl("path", window.location.href);
-
-      if (path) {
-        this.props.actions.loadFiles(path, this.props.branch);
-      }
+      this.props.actions.loadFiles(path, this.props.branch, this.props.projectId);
+      
     };
+  }
+
+  componentWillUpdate(){
+    const projectId = window.location.href.split("/my-projects/")[1].split("/")[0];
+    const urlPath = this.getParamFromUrl("path", window.location.href);
+
+    if(urlPath !== this.state.currentPath){
+        this.setState({currentPath: urlPath});
+        this.props.actions.loadFiles(
+            urlPath, 
+            this.props.branch,
+            projectId
+        );
+    }
   }
 
   getReturnOption() {
@@ -57,6 +73,7 @@ class FilesContainer extends Component {
   renderFiles() {
     const branch = this.props.branch;
     const fileElements = [];
+    const projectId = this.props.projectId;
     this.props.files.forEach((file, index) => {
       let icon;
       let link;
@@ -67,12 +84,12 @@ class FilesContainer extends Component {
       if (file.type === "tree") {
         icon = folderIcon;
         link = path
-          ? `/files/branch/${branch}?path=${path}/${file.name}`
-          : `/files/branch/${branch}?path=${file.name}`;
+          ? `/my-projects/${projectId}/files/branch/${branch}?path=${path}/${file.name}`
+          : `/my-projects/${projectId}/files/branch/${branch}?path=${file.name}`;
       } else {
         icon = fileIcon;
         path = path ? path : "";
-        link = `/files/branch/${branch}/file-name/${file.name}?path=${path}`;
+        link = `/my-projects/${projectId}/files/branch/${branch}/file-name/${file.name}?path=${path}`;
       }
 
       fileElements.push(

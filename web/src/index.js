@@ -4,18 +4,17 @@ import { BrowserRouter, Route, Switch } from "react-router-dom";
 import "./css/global-styles.css";
 import configureStore from "./store";
 import { Provider } from "react-redux";
-import { loadProjectGeneralInfo } from "./actions/projectInfoActions";
-import App from "./App";
+import { getProjectsList } from "./actions/projectInfoActions";
 import FileView from "./components/file-view";
 import Login from "./components/login/login";
 import projectView from "./components/projectView";
 import PipeLineView from "./components/pipeline-view";
 import PrivateRoute from "./private-route";
 import ExperimentsOverview from "./components/experiments-overview";
-import Projects from "./components/my-projects";
+import MyProjects from "./components/my-projects";
 
 const store = configureStore();
-store.dispatch(loadProjectGeneralInfo());
+store.dispatch(getProjectsList());
 
 ReactDOM.render(
   <Provider store={store}>
@@ -23,18 +22,18 @@ ReactDOM.render(
       <Switch>
         <Route path="/" exact component={Login} />
         <Route path="/index.html" exact component={Login} />
-        <PrivateRoute path="/home" component={App} />
+        <PrivateRoute path="/my-projects" exact component={MyProjects} />
+        <PrivateRoute path="/my-projects/:projectId" exact component={projectView} />
         <PrivateRoute
-          path="/files/branch/:branch/file-name/:file"
-          component={FileView}
-        />
-        <PrivateRoute path="/files/branch/:branch" component={projectView} />
-        <PrivateRoute
-          path="/experiments-overview"
+          path="/my-projects/:projectId/experiments-overview"
           component={ExperimentsOverview}
         />
-        <PrivateRoute path="/my-projects" component={Projects} />
-        <PrivateRoute path="/pipe-line" component={PipeLineView} />
+        <PrivateRoute
+          path="/my-projects/:projectId/files/branch/:branch/file-name/:file"
+          component={FileView}
+        />
+        <PrivateRoute path="/my-projects/:projectId/files/branch/:branch" component={projectView} />
+        <PrivateRoute path="/my-projects/:projectId/pipe-line" component={PipeLineView} />
       </Switch>
     </BrowserRouter>
   </Provider>,

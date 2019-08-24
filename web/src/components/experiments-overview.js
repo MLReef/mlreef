@@ -182,6 +182,15 @@ class ExperimentCard extends React.Component {
 
 
 class ExperimentsOverview extends Component {
+    constructor(props){
+        super(props);
+        const project = this.props.projects.filter(proj => proj.id === parseInt(this.props.match.params.projectId))[0];
+        
+        this.state = {
+            project: project
+        };
+    }
+
     handleButtonsClick(e){
         e.target.parentNode.childNodes.forEach(childNode => {
             if(childNode.id !== e.target.id){
@@ -194,11 +203,11 @@ class ExperimentsOverview extends Component {
     }
     
     render(){
-        const project = this.props.project;
+        const project = this.state.project;
         return(
             <div id="experiments-overview-container">
                 <Navbar />
-                <ProjectContainer project activeFeature="experiments" folders = {['Group Name', project.name, 'Data', 'Experiments']}/>
+                <ProjectContainer project={project} activeFeature="experiments" folders = {['Group Name', project.name, 'Data', 'Experiments']}/>
                 <br/>
                 <br/>
                 <div className="main-content">
@@ -295,7 +304,7 @@ class ExperimentsOverview extends Component {
 
 function mapStateToProps(state){
     return {
-        project: state.project
+        projects: state.projects
     };
 }
 

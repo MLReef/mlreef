@@ -1,21 +1,32 @@
 import projectGeneralInfoApi from "./../apis/projectGeneralInfoApi";
 import * as types from "./actionTypes";
-import { loadFiles } from "./fileActions";
 
-export function loadProjectInfoSuccessfully(project) {
-    return {type: types.GET_GENERAL_INFO_REPO, project};
+/**
+ * 
+ * @param {*} projects: load list for redux global state
+ */
+
+export function getProjectsInfoSuccessfully(projects) {
+    return {type: types.GET_LIST_OF_PROJECTS, projects};
 }
 
-export function loadProjectGeneralInfo() {
-    return function(dispatch) {
-        let token = "4s129mSs6v1iw_uDzDc7";
-        let projectId = "12395599";
+/**
+ * get list of projects associated with authenticated user
+ */
 
-        return projectGeneralInfoApi.getProjectInfoApi(token, projectId).then(project => {
-            dispatch(loadProjectInfoSuccessfully(project));
-            dispatch(loadFiles("", project.default_branch))
-        }).catch(err => {
+export function getProjectsList(){ 
+    return (dispatch) => projectGeneralInfoApi
+        .getProjectsList()
+        .then(
+            projects => dispatch(getProjectsInfoSuccessfully(
+                    projects.filter(project =>
+                        project.id !== 13464627 
+                            && project.id !== 12339780 
+                            && project.id !== 12894267                    
+                        )
+                    )
+                )
+        ).catch(err => {
             throw err;
         });
-    }
 }

@@ -10,11 +10,20 @@ import file_01 from "./../images/file_01.svg";
 import arrow_blue from "./../images/arrow_down_blue_01.svg";
 
 class FileView extends React.Component {
-  componentDidMount() {
+  state = {
+    project: null
+  }
+
+  componentWillMount() {
     var url_string = window.location.href;
     var url = new URL(url_string);
     var path = url.searchParams.get("path");
+    const projectId = this.props.match.params.projectId;
+    const proj = this.props.projects.filter(proj => proj.id === parseInt(projectId))[0];
 
+    this.setState({
+      project: proj
+    })
     if (path) {
       path = path.replace(/\//g, "%2F");
       path = path + "%2F" + this.props.match.params.file;
@@ -26,7 +35,8 @@ class FileView extends React.Component {
   }
 
   render() {
-    const projectName = this.props.project.name;
+    const project = this.state.project;
+
     const fileName = this.props.fileData.file_name;
     const fileSize = this.props.fileData.size;
     let fileContent = [];
@@ -36,16 +46,15 @@ class FileView extends React.Component {
       fileContent = Base64.decode(this.props.fileData.content).split("\n");
       extension = fileName.split(".").pop();
       filepath = this.props.fileData.file_path.split("/");
-      console.log(filepath[0].file_path);
     }
 
     return (
       <div>
         <Navbar />
         <ProjectContainer
-          project
+          project={project}
           activeFeature="data"
-          folders={["Group Name", projectName, "Data"]}
+          folders={["Group Name", project.name, "Data"]}
         />
         <div className="branch-path">
           <div className="branch-btn">
@@ -56,7 +65,7 @@ class FileView extends React.Component {
           </div>
           <span className="filepath">
             <b>
-              <a href="/home">{projectName}</a> /
+              <a href="/home">{project.name}</a> /
               {filepath.map((path, i) => {
                 return filepath.length === i + 1 ? (
                   <span>{path}</span>
@@ -151,7 +160,7 @@ class FileView extends React.Component {
 function mapStateToProps(state) {
   return {
     fileData: state.file,
-    project: state.project
+    projects: state.projects
   };
 }
 

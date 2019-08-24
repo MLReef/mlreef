@@ -1,15 +1,32 @@
+import { SECURITY_TOKEN } from "../api-config";
 export default class ProjectGeneralInfoApi{
-    static getProjectInfoApi(token, projectId, domain = "gitlab.com") {
-        return fetch(new Request(`https://${domain}/api/v4/projects/${projectId}`, {
+    static async getProjectInfoApi(projectId, domain = "gitlab.com") {
+        try {
+            const respone = await fetch(new Request(`https://${domain}/api/v4/projects/${projectId}`, {
                 method: 'GET',
                 headers: new Headers({
-                    'PRIVATE-TOKEN': token
+                    'PRIVATE-TOKEN': SECURITY_TOKEN
                 })
-            }
-        )).then(respone => {
+            }));
             return respone.json();
-        }).catch(err => {
+        }
+        catch (err) {
             return err;
-        });
+        }
+    }
+
+    static async getProjectsList(domain = "gitlab.com") {
+        try {
+            const respone = await fetch(new Request(`https://${domain}/api/v4/projects?membership=true`, {
+                method: 'GET',
+                headers: new Headers({
+                    'PRIVATE-TOKEN': SECURITY_TOKEN
+                })
+            }));
+            return respone.json();
+        }
+        catch (err) {
+            return err;
+        }
     }
 }
