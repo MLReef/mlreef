@@ -1,35 +1,35 @@
+import { SECURITY_TOKEN } from "../api-config";
+
 export default class FilesApi {
 
-    static getFilesPerProject(token, projectId, path, recursive = false, domain = "gitlab.com", branch = "master") {
-        return fetch(new Request(
-                `https://${domain}/api/v4/projects/${projectId}/repository/` +
-                        `tree?ref=${branch}&recursive=${recursive}&path=${path}`, {
-                            method: 'GET',
-                            headers: new Headers({
-                                "PRIVATE-TOKEN": token
-                            })
-                }
-            )).then(response => {
-                return response.json();
-              }).catch(err => {
-                return err;
-              }); 
+    static async getFilesPerProject(projectId, path, recursive = false, domain = "gitlab.com", branch = "master") {
+        try {
+            const response = await fetch(new Request(`https://${domain}/api/v4/projects/${projectId}/repository/` +
+                `tree?ref=${branch}&recursive=${recursive}&path=${path}`, {
+                    method: 'GET',
+                    headers: new Headers({
+                        "PRIVATE-TOKEN": SECURITY_TOKEN
+                    })
+                }));
+            return response.json();
+        }
+        catch (err) {
+            return err;
+        } 
     }
 
-    static getFileData(domain, projectId, path = "/", branch = "master", token) {
-        let url = `https://${domain}/api/v4/projects/${projectId}/repository/files/${path}?ref=${branch}`;
-        console.log(url);
-        return fetch(new Request(
-            url, {
+    static async getFileData(domain, projectId, path = "/", branch = "master") {
+        try {
+            const response = await fetch(new Request(`https://${domain}/api/v4/projects/${projectId}/repository/files/${path}?ref=${branch}`, {
                 method: 'GET',
                 headers: new Headers({
-                    "PRIVATE-TOKEN": token
+                    "PRIVATE-TOKEN": SECURITY_TOKEN
                 })
-            }
-            )).then(response => {
-                return response.json();
-            }).catch(err => {
-                return err;
-            }); 
+            }));
+            return response.json();
         }
+        catch (err) {
+            return err;
+        } 
+    }
 }

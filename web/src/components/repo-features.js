@@ -1,12 +1,13 @@
-import React from "react";
+import React, {Component} from "react";
 import arrow_down_blue_01 from "./../images/arrow_down_blue_01.svg";
 import plus_01 from "./../images/plus_01.svg";
 import { Link } from "react-router-dom";
 
-export default class RepoFeatures extends React.Component {
+export default class RepoFeatures extends Component {
   state = {
     isOpen: false,
-    branchSelected: "Master"
+    branchSelected: "Master",
+    projectId: null
   };
 
   Branches = ["Master", "feature/28-repo", "feature/41-pipeline"];
@@ -30,6 +31,12 @@ export default class RepoFeatures extends React.Component {
       isOpen: !prevState.isOpen
     }));
   };
+
+  componentWillMount(){
+    this.setState({
+      projectId: window.location.href.split("/my-projects/")[1].split("/")[0]
+    })
+  }
 
   render() {
     return (
@@ -89,7 +96,7 @@ export default class RepoFeatures extends React.Component {
             </button>
 
             <button className="blue-button">
-                <Link to="/pipe-line"><p>Data Pipeline</p></Link>
+                <Link to={`/my-projects/${this.state.projectId}/pipe-line`}><p>Data Pipeline</p></Link>
             </button>
           </div>
           <div>

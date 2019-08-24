@@ -1,6 +1,5 @@
 import React from "react";
 import ProjectInfo from "./projectInfo";
-import { connect } from "react-redux";
 import ProjectNav from "./projectNav";
 import { Link } from "react-router-dom";
 
@@ -16,7 +15,7 @@ class ProjectContainer extends React.Component {
     return (
       <div className="project-container">
         <div className="project-details main-content">
-          <ProjectNav folders={folders} />
+          <ProjectNav projectId={project.id} folders={folders} />
 
           <ProjectInfo info={project} />
           {
@@ -25,10 +24,10 @@ class ProjectContainer extends React.Component {
             </p>
           }
           <div className="feature-list">
-            <Link to="/home" className="feature" id="data">
+            <Link to={`/my-projects/${project.id}`} className="feature" id="data">
               Data
             </Link>
-            <Link to="experiments-overview" className="feature" id="experiments">
+            <Link to={`/my-projects/${project.id}/experiments-overview`} className="feature" id="experiments">
               <p>Experiments</p>
             </Link>
             <Link className="feature ">
@@ -49,10 +48,5 @@ class ProjectContainer extends React.Component {
     );
   }
 }
-function mapStateToProps(state) {
-  return {
-    project: state.project
-  };
-}
 
-export default connect(mapStateToProps)(ProjectContainer);
+export default ProjectContainer;

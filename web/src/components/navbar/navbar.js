@@ -1,12 +1,13 @@
-import React from "react";
+import React,{Component} from "react";
+import { connect } from "react-redux";
 import { Link } from "react-router-dom";
 import ml_reef_icon_01 from "../../images/MLReef_Logo_navbar.png";
 import arrow_down_white_01 from "../../images/arrow_down_white_01.svg";
 import arrow_down_blue_01 from "../../images/arrow_down_blue_01.svg";
 import "./navbar.css";
 
-export default class Navbar extends React.Component {
-  state = { dialogOpen: false, projectDialog: false };
+class Navbar extends Component {
+  state = { dialogOpen: false, projectDialog: false, yourProjects: false};
 
   handleProfile = e => {
     if (!this.state.dialogOpen) {
@@ -30,21 +31,29 @@ export default class Navbar extends React.Component {
   };
 
   handleProject = e => {
-    if (!this.state.projectDialog) {
-      document.addEventListener("click", this.handleOutsideClick, false);
-    } else {
-      document.removeEventListener("click", this.handleOutsideClick, false);
+    if(!e){
+      return;
     }
-
-    this.setState(prevState => ({
-      projectDialog: !prevState.projectDialog
-    }));
+    switch (e.target.id) {
+      case "your-projects":
+          this.setState({yourProjects: true});
+        break;
+    
+      default:
+        !this.state.projectDialog 
+          ? document.addEventListener("click", this.handleOutsideClick, false)
+          : document.removeEventListener("click", this.handleOutsideClick, false);
+        this.setState(prevState => ({
+          projectDialog: !prevState.projectDialog
+        }));
+        break;
+      }
   };
 
   render() {
     return (
       <div className="navbar">
-        <Link to="/home">
+        <Link to="/">
           <img className="logo" src={ml_reef_icon_01} alt="" />
         </Link>
         <div
@@ -68,11 +77,11 @@ export default class Navbar extends React.Component {
           {this.state.projectDialog && (
             <div className="project-box">
               <div className="user-projects">
-                <p>Your Projects</p>
+                <p><Link to="/my-projects">Your Projects</Link></p>
                 <p>Starred Projects</p>
                 <p>Explore Projects</p>
               </div>
-              <div className="project-search">
+              {!this.state.yourProjects && <div className="project-search">
                 <input
                   autoFocus={true}
                   type="text"
@@ -81,7 +90,7 @@ export default class Navbar extends React.Component {
                 <div style={{ margin: "1em" }}>
                   <b>Frequently visited</b>
                 </div>
-              </div>
+              </div>}
             </div>
           )}
         </div>
@@ -128,3 +137,11 @@ export default class Navbar extends React.Component {
     );
   }
 }
+
+function mapStateToProps(state){
+  return {
+    projectsList: state.projects
+  };
+}
+
+export default connect(mapStateToProps)(Navbar);

@@ -3,7 +3,6 @@ import { connect } from 'react-redux';
 import minus from '../images/minus.svg';
 import plus from '../images/plus_01.svg';
 import '../css/pipe-line-view.css';
-/* import DataOperationsItem from './data-operations-item'; */
 import Navbar from "./navbar/navbar";
 import Input from './input';
 import ProjectContainer from './projectContainer';
@@ -27,14 +26,18 @@ class PipeLineView extends Component{
                 {title: "Convert to RGB", username: "UserName 4", starCount: "199", index: 4},
                 {title: "Resize_img", username: "UserName 5", starCount: "203", index: 4}
             ],
-            showSelectFilesModal: false
+            showSelectFilesModal: false,
+            project: null
         }
         this.handleCheckMarkClick = this.handleCheckMarkClick.bind(this);
         this.drop = this.drop.bind(this);
         this.allowDrop = this.allowDrop.bind(this);
         this.handleDragStart = this.handleDragStart.bind(this);
         this.selectDataClick = this.selectDataClick.bind(this);
+    }
 
+    componentWillMount(){
+        this.setState({project: this.props.projects.filter(proj => proj.id === parseInt(this.props.match.params.projectId))[0]});
     }
 
     componentDidMount(){
@@ -101,14 +104,14 @@ class PipeLineView extends Component{
     }
 
     render(){
-        const project = this.props.project;
+        const project = this.state.project;
         const dataOperations = this.state.dataOperations;
         const showSelectFilesModal = this.state.showSelectFilesModal;
         return (
             <div className="pipe-line-view">
                 <SelectDataPipelineModal selectDataClick={this.selectDataClick} show={showSelectFilesModal}/>
                 <Navbar/>
-                <ProjectContainer activeFeature="data" folders = {['Group Name', project.name, 'Data', 'Pipeline']}/>
+                <ProjectContainer project={project} activeFeature="data" folders = {['Group Name', project.name, 'Data', 'Pipeline']}/>
                 <div id="instruction-pipe-line">
                     <div id="icon">
                         <img src={advice_01} alt=""/>
@@ -236,7 +239,7 @@ class PipeLineView extends Component{
 
 function mapStateToProps(state){
     return {
-        project: state.project
+        projects: state.projects
     };
 }
 

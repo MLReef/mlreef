@@ -1,10 +1,11 @@
 import React from "react";
+import { connect } from "react-redux";
 import star_01 from "./../images/star_01.svg";
 import fork_01 from "./../images/fork_01.svg";
 import { Link } from "react-router-dom";
 import "../css/project-overview.css";
 
-export default class ProjectSet extends React.Component {
+class ProjectSet extends React.Component {
   state = {
     personal: true,
     starred: false,
@@ -61,8 +62,10 @@ export default class ProjectSet extends React.Component {
         </div>
         <hr style={{ marginTop: "0" }} />
         
-        {this.state.personal && <Project owner="Mlreef" name="demo" />}
-        {this.state.starred && <Project owner="Mlreef" name="demo" />}
+        {this.state.personal && this.props.projects.map((proj) => 
+          <Project owner={proj.creator_id} name={proj.name} projId={proj.id} desc={proj.description}/>
+        )}
+        {this.state.starred && <Project owner="Mlreef" name="demo" projId={"12395599"}/>}
         
       </>
     );
@@ -72,17 +75,18 @@ export default class ProjectSet extends React.Component {
 const Project = props => {
   return (
     <div id="project-display" onClick={props.click}>
-      <div>
-        <div id="project-icon" />
-        <div id="project-descriptor">
-          <Link to="/home">
-            <h4 style={{ margin: "0" }}>
-              {props.owner}/{props.name}
-            </h4>
-            <span>This is a MLreef demo project</span>
-          </Link>
+        <div>
+          <div id="project-icon" />
+          <div id="project-descriptor">
+            <Link to={`/my-projects/${props.projId}`}>
+              <h4 style={{ margin: "0" }}>
+                {props.owner}/{props.name}
+              </h4>
+              <span style={{maxWidth:"400px", textOverflow: "ellipsis"}}>{props.desc ? props.desc.length > 50 ? props.desc.substring(0,100) + "...": props.desc : "No description"}</span>
+            </Link>
+          </div>
         </div>
-      </div>
+
       <div>
         <div id="pro-info">
           <div>
@@ -96,6 +100,14 @@ const Project = props => {
         </div>
         <p>Updated 10 minutes ago</p>
         </div>
-      </div>
+        </div>
   )
 }
+
+function mapStateToProps(state){
+  return {
+      projects: state.projects
+  };
+}
+
+export default connect(mapStateToProps)(ProjectSet);

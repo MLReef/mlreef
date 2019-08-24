@@ -40,7 +40,7 @@ const NewProject = () => {
   return (
     <div className="new-project">
       <p id="title">Projects</p>
-      <button class="add">
+      <button className="add">
         New Project
       </button>
     </div>

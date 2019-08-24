@@ -9,15 +9,13 @@ export function getFileInfoSuccessfully(fileData) {
     return {type: types.GET_FILE_DATA, fileData}
 }
 
-export function loadFiles(path, branch){
+export function loadFiles(path, branch, projectId){
     return async function(dispatch) {
-        let token = "4s129mSs6v1iw_uDzDc7";
-        let projectId = "12395599";
         let recursive = false;
         let domain = "gitlab.com";
 
         try {
-            const files = await filesApi.getFilesPerProject(token, projectId, path ? path : "", recursive, domain, branch);
+            const files = await filesApi.getFilesPerProject(projectId, path ? path : "", recursive, domain, branch);
             dispatch(loadFilesSuccessfully(files));
         }
         catch (err) {
@@ -27,13 +25,12 @@ export function loadFiles(path, branch){
 }
 
 export function getFileData(path, branch){
-    return async function(dispatch) {
-        let token = "4s129mSs6v1iw_uDzDc7";
+    return async function(dispatch) {   
         let projectId = "12395599";
         let domain = "gitlab.com";
 
         try {
-            const file = await filesApi.getFileData(domain, projectId, path, branch, token);
+            const file = await filesApi.getFileData(domain, projectId, path, branch);
             dispatch(getFileInfoSuccessfully(file));
         }
         catch (err) {

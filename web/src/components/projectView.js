@@ -11,22 +11,43 @@ import * as fileActions from "./../actions/fileActions";
 import "../css/index.css";
 
 class ProjectView extends React.Component{
-    componentDidMount(){        
-        if(!this.props.match){
+    state = {
+        project: null
+    }
+
+    componentWillMount(){
+        const project = this.props.projects.filter(proj => proj.id === parseInt(this.props.match.params.projectId))[0];
+        this.setState({project: project});
+        this.props.actions.loadFiles(
+            null, 
+            project.default_branch,
+            this.props.match.params.projectId
+        );
+    }
+
+    componentWillUpdate(){
+        const projectId = window.location.href.split("/my-projects/")[1]
+        
+        if(this.state.project.id !== parseInt(projectId)){
+            const project = this.props.projects.filter(proj => proj.id === parseInt(projectId))[0];
+            this.setState({
+                project: project
+            });
             this.props.actions.loadFiles(
-                    null, 
-                    this.props.project.default_branch
-                );
-        }
+                null, 
+                project.default_branch,
+                projectId
+            );
+        }   
     }
     
     render() {
         const files = this.props.files;
-        const branch = this.props.project.default_branch;
-        const projectName = this.props.project.name;
+        const branch = this.state.project.default_branch;
+        const projectName = this.state.project.name;
         return (<div className="project-component">
             <Navbar/>
-            <ProjectContainer project activeFeature="data" folders={["Group Name", projectName, "Data"]}/>
+            <ProjectContainer project={this.state.project} activeFeature="data" folders={["Group Name", projectName, "Data"]}/>
             <div className="main-content">
                 <RepoInfo/>
                 <div className="last-commit-info">
@@ -43,7 +64,7 @@ class ProjectView extends React.Component{
                         </div>              
                 </div>
                 <RepoFeatures/>
-                <FilesContainer branch={branch} files={files}/>
+                <FilesContainer projectId={this.state.project.id} branch={branch} files={files}/>
                 <ReadMeComponent/>
             </div>
         </div>)
@@ -53,7 +74,7 @@ class ProjectView extends React.Component{
 function mapStateToProps(state){
     return {
         files: state.files,
-        project: state.project,
+        projects: state.projects,
         file: state.file
     };
 }
