@@ -16,7 +16,8 @@ class SelectDataPipelineModal extends Component{
 
         this.state = {
             show: this.props.show,
-            files: this.props.files
+            files: this.props.files,
+            filesSelected: []
         }
 
         this.handleCloseButton = this.handleCloseButton.bind(this);
@@ -39,7 +40,20 @@ class SelectDataPipelineModal extends Component{
         e.target.focus();
         this.setState({ isOpen: !this.state.isOpen });
     }
-      
+
+    selectFileFromGrid = e => {
+        const filesSelected = this.state.filesSelected;
+        const fileSelected = this.state.files[e.target.id.split("-")[2]];
+        const stringifiedFile = JSON.stringify(fileSelected);
+        if(filesSelected.filter(file => JSON.stringify(file) === stringifiedFile).length === 0){
+            filesSelected.push(fileSelected);
+        } else {
+            filesSelected.splice(filesSelected.indexOf(fileSelected), 1);
+        }
+        
+        this.setState({filesSelected: filesSelected});
+    }
+
     render(){
         if(!this.state.show){
             return null;
@@ -67,9 +81,9 @@ class SelectDataPipelineModal extends Component{
                                 <div className="select-branch" onBlur={this.handleBlur}>
                                 <div
                                     style={{
-                                    margin: "0 50px",
-                                    fontSize: "14px",
-                                    padding: "0 40px"
+                                        margin: "0 50px",
+                                        fontSize: "14px",
+                                        padding: "0 40px"
                                     }}
                                 >
                                     <p>Switch Branches</p>
@@ -77,9 +91,9 @@ class SelectDataPipelineModal extends Component{
                                 <hr />
                                 <div className="search-branch">
                                     <input
-                                    autoFocus={true}
-                                    type="text"
-                                    placeholder="Search branches or tags"
+                                        autoFocus={true}
+                                        type="text"
+                                        placeholder="Search branches or tags"
                                     />
                                     <div className="branches">
                                     <ul>
@@ -98,14 +112,14 @@ class SelectDataPipelineModal extends Component{
                             <Input placeholder="Search a file"/>
                         </div>   
                         <div id="right-div">
-                            <button className="light-green-button">Accept</button>
+                            <button className="light-green-button" onClick={(e) => {this.props.handleModalAccept(e, this.state.filesSelected)}}>Accept</button>
                             <button className="white-button round-border-black-color"> <p> Diselect all </p></button>
                             <button className="white-button round-border-black-color"> <p> Select all </p></button>
                         </div>
                     </div>
                     <br />
                     <div id="table-container">
-                        <table className="file-properties" id="file-tree">
+                        <table className="file-properties" id="file-tree" style={{Height: '15vw'}}>
                             <thead>
                                 <tr className="title-row">
                                     <th style={{width: '6%'}}>
@@ -115,7 +129,7 @@ class SelectDataPipelineModal extends Component{
                                         <p id="paragraphName">Name</p>
                                     </th>
                                     <th style={{width: '87%'}}>
-                                        <p> { this.props.files.length } files selected</p>
+                                        <p> { this.state.filesSelected.length } files selected</p>
                                     </th>
                                 </tr>
                             </thead>
@@ -123,13 +137,12 @@ class SelectDataPipelineModal extends Component{
                          <tbody>
                             {this.props.files.map((file, index) => {
                             return (
-                                <tr key={index} className="files-row" style={{justifyContent: 'unset'}}>
+                                <tr key={index} id={`tr-file-${index}`} className="files-row" style={{justifyContent: 'unset'}}>
                                     
                                     <td className="file-type" style={{width: 'unset'}}>
                                         <label className="customized-checkbox" >
-                                            <input type="checkbox"> 
-                                            </input>
-                                            <span className="checkmark"></span> 
+                                            <input type="checkbox" checked={this.state.filesSelected.includes(file)} /> 
+                                            <span id={`span-file-${index}`} onClick={(e) => {this.selectFileFromGrid(e)}} className="checkmark"></span>
                                         </label>
                                     </td>
                                     <td className="file-type" style={{width: 'unset'}}>

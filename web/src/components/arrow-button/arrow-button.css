@@ -11,9 +11,20 @@
     display: unset !important;
   }
   
-  .dropdown .select {
+  .dropdown > .select {
       cursor: pointer;
       display: flex;
+      height: min-content;
+      margin-top: 7px;
+  }
+
+  .dropdown-btn-container-div {
+    display: flex;
+    align-items: center;
+  }
+
+  .dropdown-btn-container-div > p {
+    margin: 0;
   }
   
   .dropdown > .select > img{
@@ -43,4 +54,20 @@
   
   .buttons-div > button {
       height: 2.5em !important;
+  }
+
+  .arrow-button {
+    background-position: center !important;
+    background-size: 17px !important;
+    background-repeat: no-repeat !important;
+    width: 25px !important;
+    border: none;
+  }
+
+  .background-rotate {
+    -webkit-transform: rotate(180deg);
+    -moz-transform: rotate(180deg);
+    -ms-transform: rotate(180deg);
+    -o-transform: rotate(180deg);
+    transform: rotate(180deg);
   }

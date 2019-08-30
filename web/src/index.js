@@ -8,7 +8,7 @@ import { getProjectsList } from "./actions/projectInfoActions";
 import FileView from "./components/file-view";
 import Login from "./components/login/login";
 import projectView from "./components/projectView";
-import PipeLineView from "./components/pipeline-view";
+import PipeLineView from "./components/pipeline-view/pipeline-view";
 import PrivateRoute from "./private-route";
 import ExperimentsOverview from "./components/experiments-overview";
 import MyProjects from "./components/my-projects";
