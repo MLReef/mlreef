@@ -250,9 +250,10 @@
 
 /* ---------------data-operations-item-header----------- */
 
-.data-operations-item{
+.data-operations-item {
     border: 1px solid #e5e5e5;
-    padding: 1% 1% 1% 2%;
+    min-width: 85%;
+    padding: 2% 2% 2% 3%;
     margin-top: 2%;
     cursor: grab;
     transition: transform 200ms ease, box-shadow 200ms ease;
@@ -263,29 +264,101 @@
 }
 
 #drop-zone{
-    min-height: 690px;
-    height: 95%;
+    display: flex;
+    min-height: 100px;
+    border: 1px solid #e5e5e5;
+    align-items: center;
+}
+
+/* ---------------------- selected-operation-container-div ---------------------- */
+
+.selected-operation-container-div {
+    padding: 0 2% 2% 2%;
+    border: 1.5px solid #e5e5e5;
+    display: flex;
+}
+
+.selected-operation-container-div > .op-div {
+    display: flex;
+    align-items: center;
+    margin-top: 2%;
+    padding: 0 2% 2% 2%;
+    width: 7%;
 }
 
 /* ---------------------- Data operations styles --------------------- */
 
-  #title-content{
-      width: 75%;
-  }
+#title-content{
+    width: 90%;
+}
 
-  .data-oper-options {
-      align-items: first baseline;
-      width: 20%;
-      justify-content: end;
-  }
+.data-oper-options {
+    align-items: center;
+    width: max-content;
+    border: 1px solid #e5e5e5;
+    border-radius: 0.5vw;
+    height: min-content;
+}
 
-  .data-oper-options div{
-    padding: 0% 0% 0% 6% !important;
-  }
-  .data-oper-options img{
-    width: 0.9em !important;
-  }
+.data-oper-options > div > img {
+    width: 0.9em;
+}
 
-  .data-oper-options.flexible-div p{
-      padding: 1%;
-  }
+.data-oper-options > div > button {
+    border: none;
+    border-left: 1px solid #e5e5e5;
+    border-radius: inherit !important;
+}
+
+.data-oper-options > div {
+    border-radius: inherit !important;
+} 
+
+.data-oper-options.flexible-div > div > p{
+    padding: 1%;
+    margin: 0;
+}
+
+.data-oper-options.flexible-div > div > button.dangerous-red {
+    font-weight: 600;
+}
+
+.copy-btn-item {
+    background: url('../../images/file-01.png');
+    background-position: center;
+    background-size: cover;
+}
+
+/* ------------------------ data-operation-form -----------------------*/
+
+.data-operation-form > div:not(.advanced-opts-div) {
+    margin: 1% 0 0 3%;
+}
+
+.data-operation-form > div > p {
+    margin: 1% 2% 0 0;
+}
+
+.advanced-opt-drop-down {
+    display: flex;
+    border-bottom: 1px solid #e5e5e5;
+}
+
+.advanced-opt-drop-down > .drop-down {
+    display: flex;
+    align-items: center;
+    width: 50%;
+}
+
+.advanced-opt-drop-down > .drop-down > button {
+    margin: 0 0 5px 5px;
+    border: none !important;
+}
+
+.advanced-opts-div > div {
+    margin: 1% 0 0 3%;
+}
+
+.advanced-opts-div > div > p {
+    margin: 1% 2% 0 0;
+}

@@ -10,9 +10,9 @@
 
 .select-data-pipeline-modal > .modal-content {
     width: 72%;
-    height: 50%;
+    height: 60%;
     min-width: 900px;
-    min-height: 400px;
+    min-height: 450px;
     background-color: #ffffff;
     position: relative;
     top: 20%;
@@ -88,7 +88,7 @@
 }
 
 #left-div > .reference > button > .select p{
-    margin: 0 4px 0 0;
+    margin: 16px 4px 0 0;
 }
 
 .select-data-pipeline-modal > .modal-content > #buttons > div > button {
@@ -101,12 +101,16 @@
     width: max-content;
 }
 
+.arrow-button > .select {
+    height: unset;
+    margin-top: unset;
+}
+
 /* ------------- table styles ----------------*/
 
 .modal-content > #table-container {
     margin-left: 4%;
     width: 92%;
-    max-height: 240px;
     overflow-y: scroll;
 }
 
