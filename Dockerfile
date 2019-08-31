@@ -4,7 +4,7 @@ MAINTAINER MLReef
 
 ##### ADD files to the image
 WORKDIR /
-ADD src /src
+ADD src /epf
 
 
 ###### Setup Python and vergeml
@@ -20,7 +20,7 @@ RUN echo "----------------------------------------------------------------------
     virtualenv venv --distribute && \
     #source venv/bin/activate && \
     pip install --upgrade tensorflow && \
-    cd /src/vergeml && \
+    cd /epf/vergeml && \
     pip install vergeml
 
 
