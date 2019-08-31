@@ -3,43 +3,52 @@
 # DOCKER_PASSWORD
 variables:
   DOCKER_REGISTRY: "registry.gitlab.com"
+  DOCKER_REGISTRY_REPOSITORY_ID: "676639"
   DOCKER_ORGANISATION: "mlreef"
   IMAGE_NAME: "epf"
 
-before_script:
-  - echo "creating docker image ${IMAGE_NAME} for user ${DOCKER_USER}"
-  - docker login ${DOCKER_REGISTRY} -u "${DOCKER_USER}" -p "${DOCKER_PASSWORD}"
+stages:
+  - build
+  - undeploy
 
 
-build-nightly:
-  # official docker image.
+build-deploy:
   image: docker:latest
   stage: build
+  before_script:
+    - export TAG="${CI_COMMIT_REF_SLUG}"
+    - if [ $TAG == "master" ]; then TAG="latest";  fi  # follow docker naming conventions
+    - export IMAGE_PATH="$DOCKER_REGISTRY/$DOCKER_ORGANISATION/$IMAGE_NAME:$TAG"
+    - echo "creating docker image ${IMAGE_NAME} for user ${DOCKER_USER}"
+    - docker login ${DOCKER_REGISTRY} -u "${DOCKER_USER}" -p "${DOCKER_PASSWORD}"
   variables:
-    TAG: "nightly"
     IMAGE_PATH: "$DOCKER_REGISTRY/$DOCKER_ORGANISATION/$IMAGE_NAME:$TAG"
+  # Workaround for Gitlab Bug https://gitlab.com/gitlab-org/gitlab-runner/issues/1809
+  #  variables:
+  #    TAG: $CI_COMMIT_REF_SLUG
+  #    IMAGE_PATH: "$DOCKER_REGISTRY/$DOCKER_ORGANISATION/$IMAGE_NAME:$TAG"
   services:
     - docker:dind
-  #before_script: # this will completely override the global before_script
   script:
-    - bin/build.sh
+    - docker build --quiet --tag "$IMAGE_PATH" -f Dockerfile .
     - docker push "${IMAGE_PATH}"
+  environment:
+    name: $CI_COMMIT_REF_SLUG
+    url: $CI_PROJECT_URL/container_registry#$CI_COMMIT_REF_SLUG   # This is the url of the bucket we saved before
+    on_stop: undeploy
+
+
+undeploy:
+  when: manual
+  image: pstauffer/curl:latest
+  stage: undeploy
+  variables:
+    GIT_STRATEGY: none
+    NAME: "PRIVATE-TOKEN:" # workaround to not break the yaml structure
+  script:
+    - curl --request DELETE --header "$NAME $GITLAB_API_TOKEN" "https://gitlab.com/api/v4/projects/$CI_PROJECT_ID/registry/repositories/$DOCKER_REGISTRY_REPOSITORY_ID/tags/$CI_COMMIT_REF_SLUG"
+  environment:
+    name: $CI_COMMIT_REF_SLUG
+    action: stop
   except:
-    - master
-
-
-build-master:
-  # Official docker image.
-  image: docker:latest
-  stage: build
-  variables:
-    TAG: "latest"
-    IMAGE_PATH: "$DOCKER_REGISTRY/$DOCKER_ORGANISATION/$IMAGE_NAME:$TAG"
-  #before_script: # this will completely override the global before_script
-  services:
-    - docker:dind
-  script:
-    - bin/build.sh
-    - docker push "${IMAGE_PATH}"
-  only:
     - master

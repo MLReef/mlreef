@@ -1,14 +1,19 @@
-#!/bin/sh
+#!/usr/bin/env bash -e
+# shellcheck disable=SC2096
 
-echo "IMAGE_PATH: $IMAGE_PATH"
+# prepare environment, see ../gitlab-ci.yml
+export IMAGE_NAME="epf"
+export DOCKER_REGISTRY="registry.gitlab.com"
+export DOCKER_ORGANISATION="mlreef"
 
-docker rm "mlreef-$IMAGE_NAME-container" || true
+export TAG="nightly"
+export IMAGE_PATH="${DOCKER_REGISTRY}/${DOCKER_ORGANISATION}/${IMAGE_NAME}:${TAG}"
 
 # build with default name to not spam developer machines
 # for faster developer builds build without --pull
-docker build --pull --tag "$IMAGE_NAME" .
+docker build --quiet --tag "$IMAGE_PATH" -f Dockerfile .
 
-docker tag "$IMAGE_NAME" "$IMAGE_PATH"
+docker rm "mlreef-$IMAGE_NAME-container" || true
 
 # test run image (mainly for log output)
 docker run --name="mlreef-$IMAGE_NAME-container" "$IMAGE_NAME"

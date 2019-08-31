@@ -2,7 +2,8 @@ MLReef Extendable Pipeline Framework
 ====================================
 
 
-## Usage
+Usage
+----------------------
 
 To run the EPF locally from a docker container use this command:
 ```
@@ -10,16 +11,17 @@ docker run --name=epf-container --rm --tty --volume ${HOME}:/root --volume ${PWD
 ```
 
 
-## Alternative Usage 2
+Alternative Usage
+----------------------
 
 Add the following alias to your `~/.bash_rc` or `~/.bash_profile` depending on your OS 
 
 ```
-#    --rm                       # Automatically remove the container when it exits
-#    --tty                      # Allocate a pseudo-TTY
-#    --volume ${HOME}:/root     # Bind mount host os user home directory to container root
-#    --volume ${pwd}:/app       # Mount current directory to /app
-#    s5:latest                  # Select docker image
+#   --rm                       # Automatically remove the container when it exits
+#   --tty                      # Allocate a pseudo-TTY
+#   --volume ${HOME}:/root     # Bind mount host os user home directory to container root
+#   --volume ${pwd}:/app       # Mount current directory to /app
+#   s5:latest                  # Select docker image
 alias epf-run="docker run --name=epf-shell-alias-container                    \
     --rm                                                                      \
     --tty                                                                     \
@@ -29,9 +31,16 @@ alias epf-run="docker run --name=epf-shell-alias-container                    \
 ```
 
 
+Deployment
+----------------------
+The Docker image built in this repostitories `master` branch is deployed as `registry.gitlab.com/mlreef/epf:latest`.
+
+Every other branch and tag is automatically deplyoed to `registry.gitlab.com/mlreef/epf:$TAG_NAME` / `registry.gitlab.com/mlreef/epf:$BRANCH_NAME.
+Deployments representing a specific branch or tag are deleted if the branch is merged or the branch / tag is deleted
 
 
-## Infrastructure
+Infrastructure
+----------------------
 The MLReef Infrastructure is deplyoyed on Aamazon Web Services (AWS). 
 
 ### Gitlab Runner Manager
