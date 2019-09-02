@@ -58,7 +58,7 @@ deploy:
 
 undeploy:
   when: manual
-  image: python:latest
+  image: python:3-slim
   stage: teardown
   variables:
     GIT_STRATEGY: none
