@@ -1,0 +1,103 @@
+.commit-path {
+display: flex;
+margin: 0% auto 0% auto;
+margin-top: 15px;
+max-width: 1024px;
+align-items: center;
+position: relative;
+}
+
+.commit-path input{
+margin-left: auto;
+padding: 0.5em 3em;
+border: 2px solid #e5e5e5;
+border-radius: 4px;
+}
+
+.commit-per-date{
+    border: 1px solid #adadad;
+}
+
+.commit-per-date:last-child{
+    border-bottom: 1px solid #adadad;
+    margin-bottom: 2em;
+}
+
+.commit-header{
+margin-top: 0;
+border-bottom: 1px solid #e5e5e5;
+background-color: #e5e5e5;
+display: flex;
+border-radius: 0.3vw 0.3vw 0 0;
+}
+
+.commit-header p{
+    margin-left: 1em;
+    color: #1c2b40;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.btn a {
+    color: #1c2b40;
+    text-decoration: none;
+    font-size: 16px;
+    border: 1.5px solid #1c2b40;
+    border-radius: 6px;
+    padding: 0.5em 0.5em;
+}
+  
+.btn img {
+    width: 1em;
+    margin-right: 0;
+    top: 4px;
+}
+  
+.btn {
+    display: flex;
+}
+
+.commits{
+    margin: 0.5em 1em 0.5em 1em;
+    display: flex;
+}
+
+.commit-list{
+    display: flex;
+    width: 100%;
+}
+
+.commit-pic-circle{
+    margin: 1em 0 0 1em;
+    border: 2px solid #1c2b40;
+    height: 2.5em;
+    width: 2.5em;
+    background-color: #fff;
+    display: flex;
+    border-radius: 50%;
+}
+
+.commit-data{
+    padding-left: 0.5em;
+}
+
+.commit-data p{
+    margin-bottom: 5px;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.commit-details{
+    display: flex;
+    margin: 1em 1em 1em auto;
+    border: 1px solid #adadad;
+    border-radius: 3px;
+    height: 30px;
+}
+
+.commit-details span{
+    background-color: #e5e5e5;
+    margin-left: 0;
+    padding: 0.5em 1em;
+}
+

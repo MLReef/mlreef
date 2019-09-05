@@ -11,7 +11,8 @@ import projectView from "./components/projectView";
 import PipeLineView from "./components/pipeline-view/pipeline-view";
 import PrivateRoute from "./private-route";
 import ExperimentsOverview from "./components/experiments-overview";
-import MyProjects from "./components/my-projects";
+import Projects from "./components/my-projects";
+import Commits from "./components/commits-view/commitsView";
 
 const store = configureStore();
 store.dispatch(getProjectsList());
@@ -22,7 +23,7 @@ ReactDOM.render(
       <Switch>
         <Route path="/" exact component={Login} />
         <Route path="/index.html" exact component={Login} />
-        <PrivateRoute path="/my-projects" exact component={MyProjects} />
+        <PrivateRoute path="/my-projects" exact component={Projects} />
         <PrivateRoute path="/my-projects/:projectId" exact component={projectView} />
         <PrivateRoute
           path="/my-projects/:projectId/experiments-overview"
@@ -34,6 +35,7 @@ ReactDOM.render(
         />
         <PrivateRoute path="/my-projects/:projectId/files/branch/:branch" component={projectView} />
         <PrivateRoute path="/my-projects/:projectId/pipe-line" component={PipeLineView} />
+        <PrivateRoute path="/my-projects/:projectId/commits" exact component={Commits} />
       </Switch>
     </BrowserRouter>
   </Provider>,
