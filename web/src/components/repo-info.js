@@ -1,12 +1,14 @@
 import React from 'react';
+import { Link } from "react-router-dom";
 
-export default class RepoInfo extends React.Component{
-    render(){
+export default class RepoInfo extends React.Component {
+    render() {
+        const projectId = window.location.href.split("/my-projects/")[1];
         return <div className="repo-info">
-            <div className="repo-stat">
+            <Link to={`/my-projects/${projectId}/commits`} className="repo-stat">
                 <p className="stat-no">01</p>
                 <p className="stat-type">Commits</p>
-            </div>
+            </Link>
             <div className="repo-stat">
                 <p className="stat-no">01</p>
                 <p className="stat-type">Branches</p>
@@ -26,7 +28,7 @@ export default class RepoInfo extends React.Component{
             <div className="repo-stat">
                 <p className="stat-no"></p>
                 <p className="stat-type">MIT License</p>
-            </div>   
+            </div>
         </div>
     }
 }

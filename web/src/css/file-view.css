@@ -211,13 +211,6 @@
   margin-top: 0.5em;
 }
 
-.file-icon {
-  padding: 0.5em;
-  border-left: 1px solid #adadad;
-  width: 2em;
-  background-color: #ffffff;
-}
-
 .contributors {
   margin: 1em 1em 1em 4.5em;
   display: flex;
