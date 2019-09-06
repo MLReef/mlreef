@@ -79,7 +79,7 @@ const Project = props => {
           <div id="project-icon" />
           <div id="project-descriptor">
             <Link to={`/my-projects/${props.projId}`}>
-              <h4 style={{ margin: "0" }}>
+              <h4 style={{ margin: "0", marginBottom: "5px" }}>
                 {props.owner}/{props.name}
               </h4>
               <span style={{maxWidth:"400px", textOverflow: "ellipsis"}}>{props.desc ? props.desc.length > 50 ? props.desc.substring(0,100) + "...": props.desc : "No description"}</span>

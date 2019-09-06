@@ -21,7 +21,7 @@ const ProjectInfo = ({ info }) => {
         </Link>
         <div className="project-name">
           <Link to={`/my-projects/${info.id}`} id="projectName">{info.name}</Link>
-          <p id="projectId">Project ID: {info.id}</p>
+          <p id="projectId">Project ID: {info.id} | 526MB used</p>
         </div>
       </div>
 
