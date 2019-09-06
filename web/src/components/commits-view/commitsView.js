@@ -55,7 +55,7 @@ class CommitsView extends Component {
                     <div className="commit-path">
                         <div className="btn">
                             <a href="#f00" onClick={this.handleDrop} ref={node => { this.node = node; }}>
-                                <b>Sub-master</b>
+                                <b>Master</b>
                                 <img className="dropdown-white" src={arrow_blue} alt="" />
                             </a>
                         </div>
