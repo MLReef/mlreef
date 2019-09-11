@@ -13,6 +13,7 @@ import PrivateRoute from "./private-route";
 import ExperimentsOverview from "./components/experiments-overview";
 import Projects from "./components/my-projects";
 import Commits from "./components/commits-view/commitsView";
+import CommitDetails from "./components/commits-details/commitDetails";
 
 const store = configureStore();
 store.dispatch(getProjectsList());
@@ -36,6 +37,7 @@ ReactDOM.render(
         <PrivateRoute path="/my-projects/:projectId/files/branch/:branch" component={projectView} />
         <PrivateRoute path="/my-projects/:projectId/pipe-line" component={PipeLineView} />
         <PrivateRoute path="/my-projects/:projectId/commits" exact component={Commits} />
+        <PrivateRoute path="/my-projects/:projectId/commit/:id" exact component={CommitDetails} />
       </Switch>
     </BrowserRouter>
   </Provider>,

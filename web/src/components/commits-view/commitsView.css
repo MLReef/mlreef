@@ -83,12 +83,16 @@ border-radius: 0.3vw 0.3vw 0 0;
 
 .commit-data{
     padding-left: 0.5em;
+    display: flex;
+    flex-direction: column;
 }
 
-.commit-data p{
+.commit-data a{
     margin-bottom: 5px;
     font-size: 13px;
     font-weight: 700;
+    padding-top: 1em;
+    cursor: pointer;
 }
 
 .commit-details{

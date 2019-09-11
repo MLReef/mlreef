@@ -16,3 +16,14 @@ export function getCommits(domain, projectId) {
         }
     }
 }
+
+export function getCommitDetails(domain, projectId, commitId) {
+    return async function () {
+        try {
+            return commitsApi.getCommitDetails(domain, projectId, commitId, SECURITY_TOKEN);
+        }
+        catch (err) {
+            throw err;
+        }
+    }
+}
