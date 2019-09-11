@@ -57,16 +57,16 @@ class ProjectSet extends React.Component {
             </div>
           </div>
           <div>
-            <input id="filter" type="text" placeholder="Filter by name"/>
+            <input id="filter" type="text" placeholder="Filter by name" />
           </div>
         </div>
         <hr style={{ marginTop: "0" }} />
-        
-        {this.state.personal && this.props.projects.map((proj) => 
-          <Project key={`proj-key-${proj.id}`} owner={proj.creator_id} name={proj.name} projId={proj.id} desc={proj.description}/>
+
+        {this.state.personal && this.props.projects.map((proj) =>
+          <Project key={`proj-key-${proj.id}`} owner={proj.id} name={proj.name} projId={proj.id} desc={proj.description} />
         )}
-        {this.state.starred && <Project owner="Mlreef" name="demo" projId={"12395599"}/>}
-        
+        {this.state.starred && <Project owner="Mlreef" name="demo" projId={"12395599"} />}
+
       </>
     );
   }
@@ -75,17 +75,17 @@ class ProjectSet extends React.Component {
 const Project = props => {
   return (
     <div id="project-display" onClick={props.click}>
-        <div>
-          <div id="project-icon" />
-          <div id="project-descriptor">
-            <Link to={`/my-projects/${props.projId}`}>
-              <h4 style={{ margin: "0", marginBottom: "5px" }}>
-                {props.owner}/{props.name}
-              </h4>
-              <span style={{maxWidth:"400px", textOverflow: "ellipsis"}}>{props.desc ? props.desc.length > 50 ? props.desc.substring(0,100) + "...": props.desc : "No description"}</span>
-            </Link>
-          </div>
+      <div>
+        <div id="project-icon" />
+        <div id="project-descriptor">
+          <Link to={`/my-projects/${props.projId}`}>
+            <h4 style={{ margin: "0", marginBottom: "5px" }}>
+              {props.owner}/{props.name}
+            </h4>
+            <span style={{ maxWidth: "400px", textOverflow: "ellipsis" }}>{props.desc ? props.desc.length > 50 ? props.desc.substring(0, 100) + "..." : props.desc : "No description"}</span>
+          </Link>
         </div>
+      </div>
 
       <div>
         <div id="pro-info">
@@ -99,14 +99,14 @@ const Project = props => {
           </div>
         </div>
         <p>Updated 10 minutes ago</p>
-        </div>
-        </div>
+      </div>
+    </div>
   )
 }
 
-function mapStateToProps(state){
+function mapStateToProps(state) {
   return {
-      projects: state.projects
+    projects: state.projects
   };
 }
 

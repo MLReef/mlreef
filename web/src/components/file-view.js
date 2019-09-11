@@ -36,7 +36,7 @@ class FileView extends React.Component {
 
   render() {
     const project = this.state.project;
-
+    console.log(this.props);
     const fileName = this.props.fileData.file_name;
     const fileSize = this.props.fileData.size;
     let fileContent = [];
@@ -45,6 +45,7 @@ class FileView extends React.Component {
     if (this.props.fileData.content) {
       fileContent = Base64.decode(this.props.fileData.content).split("\n");
       extension = fileName.split(".").pop();
+      console.log(extension);
       filepath = this.props.fileData.file_path.split("/");
     }
 
@@ -68,9 +69,9 @@ class FileView extends React.Component {
               <a href="/home">{project.name}</a> /
               {filepath.map((path, i) => {
                 return filepath.length === i + 1 ? (
-                  <span>{path}</span>
+                  <span key={i}>{path}</span>
                 ) : (
-                    <span>
+                    <span key={i}>
                       <a href="#foo">{path} </a>/
                   </span>
                   );
@@ -126,7 +127,7 @@ class FileView extends React.Component {
             className="Box-body p-0 blob-wrapper data type-text"
           >
             <div className="file-content">
-              {extension === ("png" || "jpg" || "jpeg") ? (
+              {extension === "jpg" || extension === "png" ? (
                 <div>
                   <img
                     className="file-img"
@@ -137,9 +138,9 @@ class FileView extends React.Component {
               ) : (
                   <table>
                     <tbody>
-                      {fileContent.map(function (line) {
+                      {fileContent.map(function (line, index) {
                         return (
-                          <tr>
+                          <tr key={index}>
                             <td>
                               <p>{line}</p>
                             </td>
