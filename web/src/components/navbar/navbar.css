@@ -18,19 +18,14 @@
     color: #fff;
     margin-left: 45px;
     padding: 0.5em;
+    border-radius: 0.3vw;
     cursor: pointer;
 }
 
 .projects-dropdown-click {
-    display: flex;
-    position: relative;
-    justify-content: center;
-    align-items: center;
     color: #292961;
     background: white;
-    margin-left: 45px;
-    padding: 0.5em;
-    border-radius: 5px;
+    border-radius: 0.3vw;
     cursor: pointer;
   }
   
@@ -58,7 +53,6 @@
     align-items: center;
     position: absolute;
     right: 3%;
-    padding: 5px 15px;
     border-radius: 0.3vw;
     cursor: pointer;
   }

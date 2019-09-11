@@ -15,28 +15,17 @@
     color: #fff;
     padding: 0.5em 2em;
     margin-top: 15px;
+    width: 165px;
 }
   
 .new-project button:hover {
-    background-color: #2DB391;
     opacity: 0.9;
-    border-radius: 0.3vw;
-    border: 1px solid #2DB391;
-    height: 2.5em;
-    color: #fff;
-    padding: 0.5em 2em;
-    margin-top: 15px;
 }
   
 .new-project button:focus {
     background-color: #fff;
-    opacity: 0.9;
-    border-radius: 0.3vw;
     border: 1px solid #B2B2B2;
-    height: 2.5em;
     color: #B2B2B2;
-    padding: 0.5em 2em;
-    margin-top: 15px;
 }
   
 .new-project #title {
