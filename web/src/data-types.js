@@ -33,7 +33,7 @@ cache:
 data-pipeline:
   stage: experiment
   before_script:
-    - git remote set-url origin https://\${CI_PUSH_USER}:\${CI_PUSH_TOKEN}@gitlab.com:mlreef/sar-esa.git
+    - git remote set-url origin https://\${CI_PUSH_USER}:\${CI_PUSH_TOKEN}@gitlab.com/mlreef/sar-esa.git
     - git config --global user.email "noreply@mlreef.com"
     - git config --global user.name "MLReef Data Pipeline"
   script:
