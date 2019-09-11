@@ -86,8 +86,9 @@
   display: flex;
   align-items: center;
   margin-right: 8px;
-  border-radius: 8px;
+  border-radius: 0.3vw;
   border: 1px solid #1c2b40;
+  height: 2.2em;
   width: max-content;
   margin-top: 0.5em;
 }
@@ -133,7 +134,6 @@
 }
 
 .branch-path span {
-  font-size: 14px;
   margin-top: 0.7em;
   margin-left: 1em;
 }
@@ -141,16 +141,13 @@
 .branch-btn a {
   color: #1c2b40;
   text-decoration: none;
-  font-size: 16px;
-  border: 1.5px solid #1c2b40;
-  border-radius: 6px;
+  border: 1px solid #1c2b40;
+  border-radius: 0.3vw;
   padding: 0.5em 0.5em;
 }
 
 .branch-btn img {
-  width: 1em;
   margin-right: 0;
-  top: 4px;
 }
 
 .branch-btn {
@@ -227,7 +224,8 @@
 
 .contributors .commit-pic-circle {
   margin-top: 0.5em;
-  border: 2px solid #1c2b40;
+  margin-left: 5px;
+  border: 1px solid #1c2b40;
 }
 
 .filepath span {

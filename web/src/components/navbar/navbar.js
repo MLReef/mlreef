@@ -122,7 +122,7 @@ class Navbar extends Component {
           {this.state.dialogOpen && (
             <div className="sign-box">
               <div>
-                Signed in as <b>user_name</b>
+                Signed in as <b>camillo</b>
               </div>
               <hr />
               <p>Set Status</p>

@@ -82,8 +82,8 @@
 }
 
 .profile-pic-circle {
-  height: 2em;
-  width: 2em;
+  height: 1.8em;
+  width: 1.8em;
   background-color: #fff;
   display: flex;
   border-radius: 50%;
@@ -263,12 +263,12 @@ img.dropdown-white {
 
 .new-project .add {
   text-decoration: none;
-  background-color: #07db94;
-  border-radius: 8px;
+  background-color: #15b785;
+  border-radius: 0.3vw;
   color: #f2f2f2;
   padding: 0.5em 2em;
   float: right;
-  margin-right: 20px;
+
   margin-bottom: 0;
 }
 
@@ -726,8 +726,8 @@ hr {
 }
 
 .profile-pic-darkcircle {
-  height: 2vw;
-  width: 2vw;
+  height: 1.8em;
+  width: 1.8em;
   background-color: #fff;
   display: flex;
   border-radius: 50%;
