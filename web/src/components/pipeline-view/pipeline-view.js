@@ -117,6 +117,7 @@ class PipeLineView extends Component{
             action
         )
         .then(res => {
+                console.log(res);
                 !res['id'] || typeof res['id'] === undefined
                     ? this.callToCommitApi(finalContent, "update")
                     : this.setState({commitResponse: res});
@@ -294,7 +295,7 @@ class PipeLineView extends Component{
                     default:
                         break;
                 }
-                line = `    - python ${op}.py test_images/`;
+                line = `    - python src/pipelines/${op}.py data/images_SAR/`;
                 const dataOpInputs = Array.prototype.slice.call(dataOperationsHtmlElm.getElementsByTagName("input"));
                 let advancedParamsCounter = 0;
                 dataOpInputs.forEach((input, inputIndex) => {
@@ -341,9 +342,10 @@ class PipeLineView extends Component{
         );
         if(errorCounter === 0){
             //this.props.actions.getFileData("gitlab.com", this.state.project.id, ".gitlab-ci.yml", "feat/pipelines");
-            const finalContent = mlreefFileContent.replace("#replace-here-new-lines", linesToAdd);
-            console.log(finalContent);
-            this.callToCommitApi(finalContent, "create");
+            // TODO: Hardcode all the things
+            // const finalContent = mlreefFileContent //.replace("#replace-here-the-lines", linesToAdd);
+            console.log(mlreefFileContent);
+            this.callToCommitApi(mlreefFileContent, "create");
         }
     }
 
