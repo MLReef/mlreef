@@ -43,30 +43,49 @@ class ExperimentCard extends React.Component {
         let buttons;
         switch (experimentState) {
             case Running:
-                buttons = [<ArrowButton imgPlaceHolder={traiangle01} callback={this.handleArrowDownButtonClick} params={{ "ind": index }} />, <button className="dangerous-red"> <b> Abort </b></button>];
+                buttons = [
+                    <ArrowButton imgPlaceHolder={traiangle01}
+                                 callback={this.handleArrowDownButtonClick}
+                                 params={{"ind": index}}
+                    />,
+                    <button className="dangerous-red"><b> Abort </b></button>];
                 break;
             case Open:
-                buttons = [<ArrowButton imgPlaceHolder={traiangle01} callback={this.handleArrowDownButtonClick} params={{ "ind": index }} />, <button className="dangerous-red"> <b>X</b> </button>,
-                <button className="light-green-button experiment-button non-active-black-border"> <b>Rerun</b> </button>
+                buttons = [
+                    <ArrowButton imgPlaceHolder={traiangle01}
+                                 callback={this.handleArrowDownButtonClick}
+                                 params={{"ind": index}}
+                    />,
+                    <button className="dangerous-red"><b>X</b></button>,
+                    <button className="light-green-button experiment-button non-active-black-border"><b>Resume</b>
+                    </button>
                 ];
                 break;
             case Completed:
-                buttons = [<ArrowButton imgPlaceHolder={traiangle01} callback={this.handleArrowDownButtonClick} params={{ "ind": index }} />, <button className="dangerous-red"> <b>X</b> </button>,
-                <button className="light-green-button experiment-button non-active-black-border"> <b>Deploy</b> </button>
+                buttons = [
+                    <ArrowButton imgPlaceHolder={traiangle01}
+                                 callback={this.handleArrowDownButtonClick}
+                                 params={{"ind": index}}
+                    />,
+                    <button className="dangerous-red"><b>X</b></button>,
+                    <button className="light-green-button experiment-button non-active-black-border">
+                        <b>Deploy</b>
+                    </button>
                 ];
                 break;
             case Aborted:
-                buttons = [<ArrowButton imgPlaceHolder={traiangle01} callback={this.handleArrowDownButtonClick} params={{ "ind": index }} />, <button className="dangerous-red"> <b>X</b> </button>];
+                buttons = [
+                    <ArrowButton imgPlaceHolder={traiangle01}
+                                 callback={this.handleArrowDownButtonClick}
+                                 params={{"ind": index}}
+                    />,
+                    <button className="dangerous-red"><b>X</b></button>];
                 break;
             default:
                 break;
         }
 
-        return (
-            <div className="buttons-div">
-                {buttons}
-            </div>
-        )
+        return (<div className="buttons-div">{buttons}</div>)
     }
 
     handleArrowDownButtonClick(e, params) {
@@ -85,7 +104,7 @@ class ExperimentCard extends React.Component {
             $(`#${cardResults}`).css("display", "flex");
             ReactDOM.render(
                 <div>
-                    <Line data={exp.data} height={50} />
+                    <Line data={exp.data} height={50}/>
                 </div>,
                 chartDiv
             )
@@ -104,13 +123,11 @@ class ExperimentCard extends React.Component {
             <div className="experiment-card">
                 <div className="header">
                     <div className="title-div">
-                        <p> <b>{params.currentState}</b> </p>
+                        <p><b>{params.currentState}</b></p>
                     </div>
                     <div className="select-div">
                         <select>
-                            <option value="">
-                                Sort by
-                            </option>
+                            <option value="">Sort by</option>
                         </select>
                     </div>
                 </div>
@@ -128,25 +145,17 @@ class ExperimentCard extends React.Component {
                         <div className="card-content">
                             <div className="summary-data">
                                 <div className="project-desc-experiment">
-                                    <p>
-                                        <b>{experiment.descTitle}</b>
-                                    </p>
-                                    <p>
-                                        Created by <b>{experiment.userName}</b>&nbsp;{experiment.timeCreatedAgo}
+                                    <p><b>{experiment.descTitle}</b></p>
+                                    <p>Created by <b>{experiment.userName}</b><br/>
+                                        {experiment.timeCreatedAgo} ago
                                     </p>
                                 </div>
-                                <div className="project-desc-experiment" style={{ visibility: progressVisibility }}>
-                                    <p>
-                                        <b>Completed</b>
-                                    </p>
-                                    <p>
-                                        ETA: {experiment.eta} hours
-                                    </p>
+                                <div className="project-desc-experiment" style={{visibility: progressVisibility}}>
+                                    <p><b>{experiment.percentProgress}% completed</b></p>
+                                    <p>ETA: {experiment.eta} hours</p>
                                 </div>
-                                <div className="project-desc-experiment" style={{ visibility: modelDiv }}>
-                                    <p>
-                                        Model: <b>{experiment.modelTitle}</b>
-                                    </p>
+                                <div className="project-desc-experiment" style={{visibility: modelDiv}}>
+                                    <p>Model: <b>{experiment.modelTitle}</b></p>
                                     <p>
                                         {experiment.averageParams
                                             .filter(avgParam => avgParam.showBellowModel)
@@ -157,7 +166,7 @@ class ExperimentCard extends React.Component {
                                 {this.getButtonsDiv(experiment.currentState, index)}
                             </div>
                             <div className="data-summary">
-                                <div className="chart-container" id={chartDivId}></div>
+                                <div className="chart-container" id={chartDivId}/>
                                 <div className="content">
                                     <p><b>Performace achieved from last epoch:</b></p>
                                     {
@@ -168,9 +177,26 @@ class ExperimentCard extends React.Component {
                                 </div>
                             </div>
                             <div className="card-results" id={`${chartDivId}-Idcard-results-${index}`}>
-                                <DataCard title="Data" linesOfContent={["17.215 files selected", "Data instance: DI_pipeline_2", "op1: augmentation", "op2: random crop", "op3: random rotate"]} />
-                                <DataCard title="Algorithm" linesOfContent={["17.215 files selected", "Data instance: DI_pipeline_2", "op1: augmentation", "op2: random crop", "op3: random rotate"]} />
-                                <DataCard title="Training" linesOfContent={["17.215 files selected", "Data instance: DI_pipeline_2", "op1: augmentation", "op2: random crop", "op3: random rotate"]} />
+                                <DataCard title="Data" linesOfContent={[
+                                    "17.215 files selected",
+                                    "Data instance: DI_pipeline_2",
+                                    "op1: augmentation",
+                                    "op2: random crop",
+                                    "op3: random rotate"]}
+                                />
+                                <DataCard title="Algorithm" linesOfContent={[
+                                    "17.215 files selected",
+                                    "Data instance: DI_pipeline_2",
+                                    "op1: augmentation",
+                                    "op2: random crop",
+                                    "op3: random rotate"]}
+                                />
+                                <DataCard title="Training" linesOfContent={[
+                                    "17.215 files selected",
+                                    "Data instance: DI_pipeline_2",
+                                    "op1: augmentation",
+                                    "op2: random crop",
+                                    "op3: random rotate"]}/>
                             </div>
                         </div>)
                 })
@@ -206,34 +232,58 @@ class ExperimentsOverview extends Component {
         const project = this.state.project;
         return (
             <div id="experiments-overview-container">
-                <Navbar />
-                <ProjectContainer project={project} activeFeature="experiments" folders={['Group Name', project.name, 'Data', 'Experiments']} />
-                <br />
-                <br />
+                <Navbar/>
+                <ProjectContainer project={project}
+                                  activeFeature="experiments"
+                                  folders={['Group Name', project.name, 'Data', 'Experiments']}
+                />
+                <br/>
+                <br/>
                 <div className="main-content">
-                    <br />
-                    <div id="line" />
-                    <br />
+                    <br/>
+                    <div id="line"/>
+                    <br/>
                     <div id="buttons-container">
-                        <button id="all" className="non-active-black-border experiment-button" onClick={(e) => this.handleButtonsClick(e)}>All</button>
-                        <button id="running" className="non-active-black-border experiment-button" onClick={(e) => this.handleButtonsClick(e)}>Running</button>
-                        <button id="open" className="non-active-black-border experiment-button" onClick={(e) => this.handleButtonsClick(e)}>Open</button>
-                        <button id="completed" className="non-active-black-border experiment-button" onClick={(e) => this.handleButtonsClick(e)}>Completed</button>
-                        <button id="aborted" className="non-active-black-border experiment-button" onClick={(e) => this.handleButtonsClick(e)}>Aborted</button>
-                        <button id="new-experiment" className="light-green-button experiment-button"><b>New experiment</b></button>
+                        <button id="all" className="non-active-black-border experiment-button"
+                                onClick={(e) => this.handleButtonsClick(e)}>
+                            All
+                        </button>
+                        <button id="running" className="non-active-black-border experiment-button"
+                                onClick={(e) => this.handleButtonsClick(e)}>
+                            Running
+                        </button>
+                        <button id="open" className="non-active-black-border experiment-button"
+                                onClick={(e) => this.handleButtonsClick(e)}>
+                            Open
+                        </button>
+                        <button id="completed" className="non-active-black-border experiment-button"
+                                onClick={(e) => this.handleButtonsClick(e)}>
+                            Completed
+                        </button>
+                        <button id="aborted" className="non-active-black-border experiment-button"
+                                onClick={(e) => this.handleButtonsClick(e)}>Aborted
+                        </button>
+                        <button id="new-experiment" className="light-green-button experiment-button">
+                            <b>New experiment</b>
+                        </button>
                     </div>
                     <ExperimentCard params={
                         {
-                            "currentState": Open,
+                            "currentState": Completed,
                             "experiments": [
                                 {
-                                    "currentState": Open, "descTitle": "EX_ProjectShort_3", "userName": "User", "percentProgress": "49", "eta": "2",
-                                    "modelTitle": "Inception_V3", "timeCreatedAgo": "7 hours",
+                                    "currentState": Completed,
+                                    "descTitle": "EX_ProjectShort_3",
+                                    "userName": "Camillo Pachmann",
+                                    "percentProgress": "100",
+                                    "eta": "0",
+                                    "modelTitle": "Inception_V3",
+                                    "timeCreatedAgo": "7 hours",
                                     "averageParams": [
-                                        { name: "val_acc", value: "0.82", showBellowModel: true },
-                                        { name: "t_acc", value: "0.98" },
-                                        { name: "val_loss", value: "0.23" },
-                                        { name: "train_locc", value: "0.14" }
+                                        {name: "val_acc", value: "0.82", showBellowModel: true},
+                                        {name: "t_acc", value: "0.98"},
+                                        {name: "val_loss", value: "0.23"},
+                                        {name: "train_locc", value: "0.14"}
                                     ],
                                     "data": {
                                         labels: ["", "", "", "", "", "", "", "", "", ""],
@@ -245,14 +295,14 @@ class ExperimentsOverview extends Component {
                                             lineTension: 0,
                                             data: [0.9, 0.8, 0.8, 0.9, 0.7, 0.5, 0.6, 0.8, 0.4, 0.1]
                                         },
-                                        {
-                                            label: "val_loss",
-                                            fill: false,
-                                            borderColor: '#2db391',
-                                            backgroundColor: '#2db391',
-                                            lineTension: 0,
-                                            data: [0.1, 0.2, 0.4, 0.3, 0.4, 0.45, 0.6, 0.8, 0.9, 0.9]
-                                        }
+                                            {
+                                                label: "val_loss",
+                                                fill: false,
+                                                borderColor: '#2db391',
+                                                backgroundColor: '#2db391',
+                                                lineTension: 0,
+                                                data: [0.1, 0.2, 0.4, 0.3, 0.4, 0.45, 0.6, 0.8, 0.9, 0.9]
+                                            }
                                         ]
                                     }
                                 }
@@ -263,13 +313,17 @@ class ExperimentsOverview extends Component {
 
                     <ExperimentCard params={
                         {
-                            "currentState": Open,
+                            "currentState": Completed,
                             "experiments": [
                                 {
-                                    "currentState": Open, "descTitle": "EX_ProjectShort_2", "userName": "User", "percentProgress": "49", "eta": "2",
-                                    "modelTitle": "Inception_V4", "timeCreatedAgo": "8 hours",
-                                    "averageParams": [
-                                    ],
+                                    "currentState": Completed,
+                                    "descTitle": "EX_ProjectShort_2",
+                                    "userName": "Vaibhav Mehotra",
+                                    "percentProgress": "100",
+                                    "eta": "0",
+                                    "modelTitle": "Inception_V4",
+                                    "timeCreatedAgo": "2 Weeks",
+                                    "averageParams": [],
                                     "data": {
                                         labels: ["", "", "", "", "", "", "", "", "", ""],
                                         datasets: [{
@@ -280,14 +334,14 @@ class ExperimentsOverview extends Component {
                                             lineTension: 0,
                                             data: []
                                         },
-                                        {
-                                            label: "val_loss",
-                                            fill: false,
-                                            borderColor: '#2db391',
-                                            backgroundColor: '#2db391',
-                                            lineTension: 0,
-                                            data: []
-                                        }
+                                            {
+                                                label: "val_loss",
+                                                fill: false,
+                                                borderColor: '#2db391',
+                                                backgroundColor: '#2db391',
+                                                lineTension: 0,
+                                                data: []
+                                            }
                                         ]
                                     }
                                 }
@@ -296,8 +350,8 @@ class ExperimentsOverview extends Component {
                     }
                     />
                 </div>
-                <br />
-                <br />
+                <br/>
+                <br/>
             </div>
         )
     }
