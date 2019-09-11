@@ -178,22 +178,22 @@ class ExperimentCard extends React.Component {
                             </div>
                             <div className="card-results" id={`${chartDivId}-Idcard-results-${index}`}>
                                 <DataCard title="Data" linesOfContent={[
-                                    "10,000 files selected",
-                                    "Data instance: DI_pipeline_2",
+                                    "10000 files selected",
+                                    "Data instance: DL_pipeline_1",
                                     "op1: Augment",
                                     "op2: Random Crop",
                                     "op3: Rotate"]}
                                 />
                                 <DataCard title="Algorithm" linesOfContent={[
                                     "30 files selected",
-                                    "Data instance: DI_pipeline_2",
+                                    "Data instance: ML-cycle-3",
                                     "op1: Speckle Filter",
                                     "op2: Random Crop",
                                     "op3: Augment"]}
                                 />
                                 <DataCard title="Training" linesOfContent={[
-                                    "32,500 files selected",
-                                    "Data instance: DI_pipeline_2",
+                                    "32500 files selected",
+                                    "Data instance: Pipeline_DeepLearning_SAR",
                                     "op1: Speckle Filter",
                                     "op2: Tile to Size",
                                     "op3: Rotate"]}/>
@@ -288,7 +288,7 @@ class ExperimentsOverview extends Component {
                                         "data": {
                                                 labels: ["", "", "", "", "", "", "", "", "", ""],
                                                 datasets: [{
-                                                    label: "val_acc",
+                                                    label: "Validation Accuracy",
                                                     fill: false,
                                                     backgroundColor: '#f5544d',
                                                     borderColor: '#f5544d',
@@ -296,7 +296,7 @@ class ExperimentsOverview extends Component {
                                                     data: [0.8491, 0.8513, 0.8699, 0.8950, 0.9023, 0.9064, 0.9077, 0.9120, 0.9140, 0.9100]
                                                 },
                                                 {
-                                                    label: "val_loss",
+                                                    label: "Training Accuracy",
                                                     fill: false,
                                                     borderColor: '#2db391',
                                                     backgroundColor: '#2db391',
@@ -323,24 +323,30 @@ class ExperimentsOverview extends Component {
                                         "eta": "0",
                                         "modelTitle": "Inception_V4",
                                         "timeCreatedAgo": "2 Weeks",
-                                        "averageParams": [],
+                                        "averageParams": [
+                                            {name: "Validation Accuracy", value: "0.86", showBellowModel: true},
+                                            {name: "Training Accuracy", value: "0.89"},
+                                            {name: "Validation Loss", value: "0.43"},
+                                            {name: "Training Loss", value: "0.35"}
+                                        ],
                                         "data": {
                                             labels: ["", "", "", "", "", "", "", "", "", ""],
                                             datasets: [{
-                                                label: "val_acc",
+                                                label: "Validation Accuracy",
                                                 fill: false,
                                                 backgroundColor: '#f5544d',
                                                 borderColor: '#f5544d',
                                                 lineTension: 0,
-                                                data: [0.9, 0.8, 0.8, 0.9, 0.7, 0.5, 0.6, 0.8, 0.4, 0.1]
+                                                data: [0.5931, 0.6113, 0.6320, 0.6476, 0.6511, 0.6589, 0.6700, 0.6781, 0.6880, 0,6969, 0.7080, 0.7129, 0.7357, 0.7459, 0.7655, 0.7700, 0.7835, 
+                                                    0.7938, 0.8119, 0.8299, .8365, 0.8412, 0.8475, 0.8520, 0.8660]
                                             },
                                                 {
-                                                    label: "val_loss",
+                                                    label: "Training Accuracy",
                                                     fill: false,
                                                     borderColor: '#2db391',
                                                     backgroundColor: '#2db391',
                                                     lineTension: 0,
-                                                    data: [0.1, 0.2, 0.4, 0.3, 0.4, 0.45, 0.6, 0.8, 0.9, 0.9]
+                                                    data: [-0.65, 0.67 ,  0.69, 0.70, 0.71, 0.73, 0.75, 0.7588, 0.77, 0.78, 0.8110, 0.8302, 0.8442, 0.8700, 0.8800, 0.8800, 0.8800, 0.8800, 0.89]
                                                 }
                                             ]
                                         }
