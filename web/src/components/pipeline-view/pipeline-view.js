@@ -12,10 +12,10 @@ import SelectDataPipelineModal from "../select-data-pipeline/select-data-pipelin
 import arrayMove from 'array-move';
 import * as fileActions from "../../actions/fileActions";
 import { bindActionCreators } from "redux";
-import { Base64 } from "js-base64";
 import commitsApi from "../../apis/CommitsApi";
 import {INT, FLOAT, regExps, BOOL} from "../../data-types";
 import { DataOperationsList } from './data-operations-list';
+import { mlreefFileContent } from "../../data-types";
 
 let linesToAdd = [];
 
@@ -93,15 +93,20 @@ class PipeLineView extends Component{
         document.getElementById("show-filters-button").style.width = '80%';
     }
 
+    /*
     componentWillReceiveProps(nextProps){
-        const finalContent = [
+         const finalContent = [
                 ...Base64
                     .decode(nextProps.fileData.content)
                     .split("\n"), 
                 ...linesToAdd
             ]
             .join('\n');
-
+            
+        }
+    */
+    
+    callToCommitApi = (finalContent, action) =>
         commitsApi.performCommit(
             this.state.project.id,
             ".mlreef.yml",
@@ -109,12 +114,16 @@ class PipeLineView extends Component{
             "gitlab.com",
             "feat/pipelines",
             "pipeline execution",
-            "create"
+            action
         )
-        .then(res => this.setState({commitResponse: res}))
+        .then(res => {
+                !res['id'] || typeof res['id'] === undefined
+                    ? this.callToCommitApi(finalContent, "update")
+                    : this.setState({commitResponse: res});
+            }
+        )
         .catch(err => console.log(err));
-    }
-    
+
     onSortEnd = ({oldIndex, newIndex}) => this.setState(({dataOperationsSelected}) => ({
         dataOperationsSelected: arrayMove(dataOperationsSelected, oldIndex, newIndex)
     }))
@@ -323,15 +332,18 @@ class PipeLineView extends Component{
                     }
                     if(input.value){
                         line = line.concat(` ${input.value}`);
-                    }else{
-                        line = line.concat(" None");
-                    }
+                    }/* else{
+                        line = line.concat(" None"); TODO: THIS MUST BE ENABLED WHEN VAIBHAV RECOGNIZE NONE PARAMS
+                    } */
                 });
                 linesToAdd.push(line);
             }
         );
         if(errorCounter === 0){
-            this.props.actions.getFileData("gitlab.com", this.state.project.id, ".gitlab-ci.yml", "feat/pipelines");
+            //this.props.actions.getFileData("gitlab.com", this.state.project.id, ".gitlab-ci.yml", "feat/pipelines");
+            const finalContent = mlreefFileContent.replace("#replace-here-new-lines", linesToAdd);
+            console.log(finalContent);
+            this.callToCommitApi(finalContent, "create");
         }
     }
 
