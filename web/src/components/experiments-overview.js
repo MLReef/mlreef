@@ -1,12 +1,12 @@
-import React, { Component } from "react";
+import React, {Component} from "react";
 import ReactDOM from 'react-dom';
 import Navbar from "./navbar/navbar";
 import ProjectContainer from "./projectContainer";
 import "../css/experiments-overview.css";
 import $ from "jquery";
 import traiangle01 from './../images/triangle-01.png';
-import { Line } from "react-chartjs-2";
-import { connect } from "react-redux";
+import {Line} from "react-chartjs-2";
+import {connect} from "react-redux";
 import ArrowButton from "./arrow-button/arrow-button";
 
 const Running = "Running";
@@ -25,7 +25,7 @@ const DataCard = ({ title, linesOfContent }) => <div className="data-card">
             )
         }
     </div>
-</div>
+</div>;
 
 class ExperimentCard extends React.Component {
     constructor(props) {
@@ -34,7 +34,7 @@ class ExperimentCard extends React.Component {
         this.state = {
             showChart: false,
             chartDivId: new Date().getTime()
-        }
+        };
 
         this.handleArrowDownButtonClick = this.handleArrowDownButtonClick.bind(this);
     }
@@ -178,25 +178,25 @@ class ExperimentCard extends React.Component {
                             </div>
                             <div className="card-results" id={`${chartDivId}-Idcard-results-${index}`}>
                                 <DataCard title="Data" linesOfContent={[
-                                    "17.215 files selected",
+                                    "10,000 files selected",
                                     "Data instance: DI_pipeline_2",
-                                    "op1: augmentation",
-                                    "op2: random crop",
-                                    "op3: random rotate"]}
+                                    "op1: Augment",
+                                    "op2: Random Crop",
+                                    "op3: Rotate"]}
                                 />
                                 <DataCard title="Algorithm" linesOfContent={[
-                                    "17.215 files selected",
+                                    "30 files selected",
                                     "Data instance: DI_pipeline_2",
-                                    "op1: augmentation",
-                                    "op2: random crop",
-                                    "op3: random rotate"]}
+                                    "op1: Speckle Filter",
+                                    "op2: Random Crop",
+                                    "op3: Augment"]}
                                 />
                                 <DataCard title="Training" linesOfContent={[
-                                    "17.215 files selected",
+                                    "32,500 files selected",
                                     "Data instance: DI_pipeline_2",
-                                    "op1: augmentation",
-                                    "op2: random crop",
-                                    "op3: random rotate"]}/>
+                                    "op1: Speckle Filter",
+                                    "op2: Tile to Size",
+                                    "op3: Rotate"]}/>
                             </div>
                         </div>)
                 })
@@ -268,86 +268,86 @@ class ExperimentsOverview extends Component {
                         </button>
                     </div>
                     <ExperimentCard params={
-                        {
-                            "currentState": Completed,
-                            "experiments": [
-                                {
-                                    "currentState": Completed,
-                                    "descTitle": "EX_ProjectShort_3",
-                                    "userName": "Camillo Pachmann",
-                                    "percentProgress": "100",
-                                    "eta": "0",
-                                    "modelTitle": "Inception_V3",
-                                    "timeCreatedAgo": "7 hours",
-                                    "averageParams": [
-                                        {name: "val_acc", value: "0.82", showBellowModel: true},
-                                        {name: "t_acc", value: "0.98"},
-                                        {name: "val_loss", value: "0.23"},
-                                        {name: "train_locc", value: "0.14"}
-                                    ],
-                                    "data": {
-                                        labels: ["", "", "", "", "", "", "", "", "", ""],
-                                        datasets: [{
-                                            label: "val_acc",
-                                            fill: false,
-                                            backgroundColor: '#f5544d',
-                                            borderColor: '#f5544d',
-                                            lineTension: 0,
-                                            data: [0.9, 0.8, 0.8, 0.9, 0.7, 0.5, 0.6, 0.8, 0.4, 0.1]
-                                        },
-                                            {
-                                                label: "val_loss",
-                                                fill: false,
-                                                borderColor: '#2db391',
-                                                backgroundColor: '#2db391',
-                                                lineTension: 0,
-                                                data: [0.1, 0.2, 0.4, 0.3, 0.4, 0.45, 0.6, 0.8, 0.9, 0.9]
-                                            }
-                                        ]
-                                    }
-                                }
-                            ]
+                            {
+                                "currentState": Completed,
+                                "experiments": [
+                                    {
+                                        "currentState": Completed,
+                                        "descTitle": "UNET_SARData",
+                                        "userName": "Camillo Pachmann",
+                                        "percentProgress": "100",
+                                        "eta": "0",
+                                        "modelTitle": "Inception_V3",
+                                        "timeCreatedAgo": "7 hours",
+                                        "averageParams": [
+                                            {name: "Validation Accuracy", value: "0.91", showBellowModel: true},
+                                            {name: "Training Accuracy", value: "0.93"},
+                                            {name: "Validation Loss", value: "0.32"},
+                                            {name: "Training Loss", value: "0.28"}
+                                        ],
+                                        "data": {
+                                                labels: ["", "", "", "", "", "", "", "", "", ""],
+                                                datasets: [{
+                                                    label: "val_acc",
+                                                    fill: false,
+                                                    backgroundColor: '#f5544d',
+                                                    borderColor: '#f5544d',
+                                                    lineTension: 0,
+                                                    data: [0.8491, 0.8513, 0.8699, 0.8950, 0.9023, 0.9064, 0.9077, 0.9120, 0.9140, 0.9100]
+                                                },
+                                                {
+                                                    label: "val_loss",
+                                                    fill: false,
+                                                    borderColor: '#2db391',
+                                                    backgroundColor: '#2db391',
+                                                    lineTension: 0,
+                                                    data: [0.8530, 0.8673, 0.8702, 0.8791, 0.8828, 0.8953, 0.9056, 0.9147, 0.9223, 0.9310]
+                                                }
+                                            ]
+                                        }
+                                    } 
+                                ]
+                            }
                         }
-                    }
                     />
 
                     <ExperimentCard params={
-                        {
-                            "currentState": Completed,
-                            "experiments": [
-                                {
-                                    "currentState": Completed,
-                                    "descTitle": "EX_ProjectShort_2",
-                                    "userName": "Vaibhav Mehotra",
-                                    "percentProgress": "100",
-                                    "eta": "0",
-                                    "modelTitle": "Inception_V4",
-                                    "timeCreatedAgo": "2 Weeks",
-                                    "averageParams": [],
-                                    "data": {
-                                        labels: ["", "", "", "", "", "", "", "", "", ""],
-                                        datasets: [{
-                                            label: "val_acc",
-                                            fill: false,
-                                            backgroundColor: '#f5544d',
-                                            borderColor: '#f5544d',
-                                            lineTension: 0,
-                                            data: []
-                                        },
-                                            {
-                                                label: "val_loss",
+                            {
+                                "currentState": Completed,
+                                "experiments": [ 
+                                    {
+                                        "currentState": Completed,
+                                        "descTitle": "HAM10000_ShallowTrain_1",
+                                        "userName": "Vaibhav Mehotra",
+                                        "percentProgress": "100",
+                                        "eta": "0",
+                                        "modelTitle": "Inception_V4",
+                                        "timeCreatedAgo": "2 Weeks",
+                                        "averageParams": [],
+                                        "data": {
+                                            labels: ["", "", "", "", "", "", "", "", "", ""],
+                                            datasets: [{
+                                                label: "val_acc",
                                                 fill: false,
-                                                borderColor: '#2db391',
-                                                backgroundColor: '#2db391',
+                                                backgroundColor: '#f5544d',
+                                                borderColor: '#f5544d',
                                                 lineTension: 0,
-                                                data: []
-                                            }
-                                        ]
-                                    }
-                                }
-                            ]
+                                                data: [0.9, 0.8, 0.8, 0.9, 0.7, 0.5, 0.6, 0.8, 0.4, 0.1]
+                                            },
+                                                {
+                                                    label: "val_loss",
+                                                    fill: false,
+                                                    borderColor: '#2db391',
+                                                    backgroundColor: '#2db391',
+                                                    lineTension: 0,
+                                                    data: [0.1, 0.2, 0.4, 0.3, 0.4, 0.45, 0.6, 0.8, 0.9, 0.9]
+                                                }
+                                            ]
+                                        }
+                                    } 
+                                ]
+                            }
                         }
-                    }
                     />
                 </div>
                 <br/>
