@@ -1,5 +1,5 @@
 import { SECURITY_TOKEN } from "../api-config";
-export default class ProjectGeneralInfoApi{
+export default class ProjectGeneralInfoApi {
     static async getProjectInfoApi(projectId, domain = "gitlab.com") {
         try {
             const respone = await fetch(new Request(`https://${domain}/api/v4/projects/${projectId}`, {
@@ -17,7 +17,7 @@ export default class ProjectGeneralInfoApi{
 
     static async getProjectsList(domain = "gitlab.com") {
         try {
-            const respone = await fetch(new Request(`https://${domain}/api/v4/projects?membership=true`, {
+            const respone = await fetch(new Request(`https://${domain}/api/v4/projects?simple=true&membership=true`, {
                 method: 'GET',
                 headers: new Headers({
                     'PRIVATE-TOKEN': SECURITY_TOKEN

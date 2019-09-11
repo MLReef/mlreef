@@ -18,7 +18,7 @@ class CommitsView extends Component {
 
     componentDidMount() {
         const projectId = this.props.match.params.projectId;
-        this.props.actions.getCommits(projectId)
+        this.props.actions.getCommits("gitlab.com", projectId)
             .then(res => res.json())
             .then(response => this.setState({ commits: response }));
     }
@@ -64,14 +64,14 @@ class CommitsView extends Component {
                     </div>
                     {distinct.map((commit, index) => {
                         return (
-                            <div className="commit-per-date">
+                            <div key={index} className="commit-per-date">
                                 <div className="commit-header">
                                     <p>Commits on {commit}</p>
                                 </div>
                                 {this.state.commits.map(item => {
                                     return (
                                         new Date(item.committed_date).toLocaleString("en-eu", { day: "numeric", month: "short", year: "numeric" }) === commit
-                                            ? <Commits title={item.title} name={item.committer_name} id={item.short_id} time={item.committed_date} />
+                                            ? <Commits key={item.short_id} title={item.title} name={item.committer_name} id={item.short_id} time={item.committed_date} />
                                             : ""
                                     )
                                 })}
