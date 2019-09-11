@@ -83,7 +83,7 @@ class PipeLineView extends Component{
                     showDescription:false, showAdvancedOptsDivDataPipeline: false, dataType: "Something Else", 
                     params: {
                         standard: [
-                            {name: "Angle of rotation", dataType: FLOAT, required: true}
+                            {name: "Insentity", dataType: INT, required: true}
                         ]
                     }
                 }
