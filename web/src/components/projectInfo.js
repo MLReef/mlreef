@@ -7,16 +7,13 @@ import clone_01 from "./../images/clone_01.svg";
 import arrow_01 from "./../images/arrow_down_blue-01.png";
 
 const ProjectInfo = ({ info }) => {
-  let iconUrl = "";
-  if (info.namespace) {
-    iconUrl = info.namespace.avatar_url;
-  }
+  let iconUrl = info.avatar_url;
   return (
     <div className="project-info">
       <div className="project-id">
         <Link to={`/my-projects/${info.id}`}>
           <div className="project-pic">
-            <img src={iconUrl} alt="" />
+            <img style={{ minWidth: "100%" }} src={iconUrl} alt="" />
           </div>
         </Link>
         <div className="project-name">

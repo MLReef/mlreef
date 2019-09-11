@@ -63,7 +63,7 @@ class ProjectSet extends React.Component {
         <hr style={{ marginTop: "0" }} />
 
         {this.state.personal && this.props.projects.map((proj) =>
-          <Project key={`proj-key-${proj.id}`} owner={proj.id} name={proj.name} projId={proj.id} desc={proj.description} />
+          <Project key={`proj-key-${proj.id}`} owner={proj.id} name={proj.name} projId={proj.id} desc={proj.description} avatar={proj.avatar_url} />
         )}
         {this.state.starred && <Project owner="Mlreef" name="demo" projId={"12395599"} />}
 
@@ -76,7 +76,12 @@ const Project = props => {
   return (
     <div id="project-display" onClick={props.click}>
       <div>
-        <div id="project-icon" />
+        <div id="project-icon">
+          <div className="project-pic">
+            <img style={{ minWidth: "100%" }} src={props.avatar} alt="" />
+          </div>
+          {console.log(props)}
+        </div>
         <div id="project-descriptor">
           <Link to={`/my-projects/${props.projId}`}>
             <h4 style={{ margin: "0", marginBottom: "5px" }}>
