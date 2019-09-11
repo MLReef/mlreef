@@ -112,7 +112,7 @@ class PipeLineView extends Component{
             ".mlreef.yml",
             finalContent,
             "gitlab.com",
-            "feat/pipelines",
+            "master",
             "pipeline execution",
             action
         )
