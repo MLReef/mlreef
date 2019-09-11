@@ -112,7 +112,36 @@
     padding: 0 12% 0 12%;
     color: white !important;
     background-color: #2db391;
+    cursor: pointer;
+    position: relative;
+    border: none;   
+    text-align: center;
+    -webkit-transition-duration: 0.4s; /* Safari */
+    transition-duration: 0.4s;
+    text-decoration: none;
+    overflow: hidden;
+    cursor: pointer;
 }
+
+#execute-button:after{
+    content: "";
+    background: #b2c7c2;
+    display: block;
+    position: absolute;
+    padding-top: 300%;
+    padding-left: 350%;
+    margin-left: -40%!important;
+    margin-top: -120%;
+    opacity: 0;
+    transition: all 1s   
+}
+
+#execute-button:active:after {
+    padding: 0;
+    margin: 0;
+    opacity: 1;
+    transition: 0s
+  }
 
 .pipe-line-execution > .header {
     color: white;
@@ -327,6 +356,7 @@
     background: url('../../images/file-01.png');
     background-position: center;
     background-size: cover;
+    min-width: 2em;
 }
 
 /* ------------------------ data-operation-form -----------------------*/

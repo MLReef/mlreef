@@ -31,7 +31,7 @@ class FileView extends React.Component {
       path = this.props.match.params.file;
     }
 
-    this.props.actions.getFileData(path, this.props.match.params.branch);
+    this.props.actions.getFileData("gitlab.com", projectId, path, this.props.match.params.branch);
   }
 
   render() {

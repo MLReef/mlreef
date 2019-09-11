@@ -63,7 +63,7 @@ class ProjectSet extends React.Component {
         <hr style={{ marginTop: "0" }} />
         
         {this.state.personal && this.props.projects.map((proj) => 
-          <Project owner={proj.creator_id} name={proj.name} projId={proj.id} desc={proj.description}/>
+          <Project key={`proj-key-${proj.id}`} owner={proj.creator_id} name={proj.name} projId={proj.id} desc={proj.description}/>
         )}
         {this.state.starred && <Project owner="Mlreef" name="demo" projId={"12395599"}/>}
         

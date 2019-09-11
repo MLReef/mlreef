@@ -7,12 +7,17 @@ import Navbar from "../navbar/navbar";
 import Input from '../input';
 import ProjectContainer from '../projectContainer';
 import advice_01 from '../../images/advice-01.png';
-import star_01 from '../../images/star_01.svg';
-import triangle_01 from '../../images/triangle-01.png';
 import {SortableDataOperationsList} from './sortable-data-operation-list';
-import ArrowButton from "../arrow-button/arrow-button";
 import SelectDataPipelineModal from "../select-data-pipeline/select-data-pipeline-modal";
 import arrayMove from 'array-move';
+import * as fileActions from "../../actions/fileActions";
+import { bindActionCreators } from "redux";
+import { Base64 } from "js-base64";
+import commitsApi from "../../apis/CommitsApi";
+import {INT, FLOAT, regExps, BOOL} from "../../data-types";
+import { DataOperationsList } from './data-operations-list';
+
+let linesToAdd = [];
 
 class PipeLineView extends Component{
     constructor(props){
@@ -26,29 +31,48 @@ class PipeLineView extends Component{
             dataOperations: [
                 {title: "Augment", username: "UserName 1", starCount: "243", index: 1, 
                     description: "Some short description of the data operation to see what it does",
-                    showDescription:false, showAdvancedOptsDivDataPipeline: false, dataType: "Images"
+                    showDescription:false, showAdvancedOptsDivDataPipeline: false, dataType: "Images", 
+                    params: {
+                        standard: [{name: "Number of augmented images", dataType: INT, required: true}],
+                        advanced: [
+                            {name: "Rotation range", dataType: FLOAT, required: false},
+                            {name: "Width shift range", dataType: FLOAT, required: false},
+                            {name: "Height shift range", dataType: FLOAT, required: false},
+                            {name: "Shear range", dataType: FLOAT, required: false},
+                            {name: "Zoom range", dataType: FLOAT, required: false},
+                            {name: "Horizontal flip", dataType: BOOL, required: false},
+                        ]
+                    }
                 },
                 {title: "Random crop", username: "UserName 2", starCount: "201", index: 2, 
                     description: "Some short description of the data operation to see what it does",
-                    showDescription:false, showAdvancedOptsDivDataPipeline: false, dataType: "Text"
+                    showDescription:false, showAdvancedOptsDivDataPipeline: false, dataType: "Text", 
+                    params: {
+                       standard: [
+                            {name: "Height", dataType: INT, required: true},
+                            {name: "Width", dataType: INT, required: true},
+                            {name: "Channels", dataType: INT, required: true},
+                       ],
+                       advanced: [
+                           {name: "Seed", dataType: INT, required: false}
+                       ]
+                    }
                 },
                 {title: "Random rotate", username: "UserName 3", starCount: "170", index: 3, 
                     description: "Some short description of the data operation to see what it does",
-                    showDescription:false, showAdvancedOptsDivDataPipeline: false, dataType: "Something Else"
-                },
-                {title: "Convert to RGB", username: "UserName 4", starCount: "199", index: 4, 
-                    description: "Some short description of the data operation to see what it does",
-                    showDescription:false, showAdvancedOptsDivDataPipeline: false, dataType: "Something more"
-                },
-                {title: "Resize_img", username: "UserName 5", starCount: "203", index: 5, 
-                    description: "Some short description of the data operation to see what it does",
-                    showDescription:false, showAdvancedOptsDivDataPipeline: false, dataType: "Images"
+                    showDescription:false, showAdvancedOptsDivDataPipeline: false, dataType: "Something Else", 
+                    params: {
+                        standard: [
+                            {name: "Angle of rotation", dataType: FLOAT, required: true}
+                        ]
+                    }
                 }
             ],
             showSelectFilesModal: false,
             project: null,
             dataOperationsSelected: [],
-            filesSelectedInModal: []
+            filesSelectedInModal: [],
+            commitResponse: null
         }
         this.handleCheckMarkClick = this.handleCheckMarkClick.bind(this);
         this.drop = this.drop.bind(this);
@@ -58,21 +82,43 @@ class PipeLineView extends Component{
         this.handleModalAccept = this.handleModalAccept.bind(this);
         this.copyDataOperationEvent = this.copyDataOperationEvent.bind(this);
         this.deleteDataOperationEvent = this.deleteDataOperationEvent.bind(this);
-
+        this.handleExecuteBtn = this.handleExecuteBtn.bind(this);
     }
 
     componentWillMount(){
         this.setState({project: this.props.projects.filter(proj => proj.id === parseInt(this.props.match.params.projectId))[0]});
     }
 
-    componentDidMount = () =>
+    componentDidMount(){
         document.getElementById("show-filters-button").style.width = '80%';
+    }
+
+    componentWillReceiveProps(nextProps){
+        const finalContent = [
+                ...Base64
+                    .decode(nextProps.fileData.content)
+                    .split("\n"), 
+                ...linesToAdd
+            ]
+            .join('\n');
+
+        commitsApi.performCommit(
+            this.state.project.id,
+            ".mlreef.yml",
+            finalContent,
+            "gitlab.com",
+            "feat/pipelines",
+            "pipeline execution",
+            "create"
+        )
+        .then(res => this.setState({commitResponse: res}))
+        .catch(err => console.log(err));
+    }
     
     onSortEnd = ({oldIndex, newIndex}) => this.setState(({dataOperationsSelected}) => ({
         dataOperationsSelected: arrayMove(dataOperationsSelected, oldIndex, newIndex)
     }))
-    
-          
+              
     handleCheckMarkClick(e){
         const newState = this.state;
         newState[e.currentTarget.id] = !this.state[e.currentTarget.id];
@@ -208,6 +254,102 @@ class PipeLineView extends Component{
         document.getElementsByTagName("body").item(0).style.overflow = 'scroll';
     }
 
+    handleExecuteBtn = () => {
+        linesToAdd = [];
+        let errorCounter = 0;
+        const dataOperationsHtmlElms = Array.prototype.slice.call(
+            document
+                .getElementById('data-operations-selected-container')
+                .childNodes
+            ).map(child => child.childNodes[1]);
+
+        Array.prototype.slice.call(
+                this.state.dataOperationsSelected
+            ).forEach((dataOperation, index) => {
+                let op;
+                let line;
+                const dataOperationsHtmlElm = dataOperationsHtmlElms[index];
+                switch (dataOperation.title) {
+                    case "Random crop":
+                        op = "crop";
+                        break;
+                        
+                    case "Augment":
+                        op = "augment";
+                        break;    
+                    
+                    case "Random rotate":
+                        op = "rotate";
+                        break;
+
+                    default:
+                        break;
+                }
+                line = `    - python ${op}.py test_images/`;
+                const dataOpInputs = Array.prototype.slice.call(dataOperationsHtmlElm.getElementsByTagName("input"));
+                let advancedParamsCounter = 0;
+                dataOpInputs.forEach((input, inputIndex) => {
+                    let paramInput = null;
+                    if(input.id.startsWith("ad-")){
+                        paramInput = dataOperation.params.advanced[advancedParamsCounter];
+                        advancedParamsCounter = advancedParamsCounter + 1;
+                    } else {
+                        paramInput = dataOperation.params.standard[inputIndex];
+                    }
+                    
+                    if(!this.validateInput(input.value, paramInput.dataType, paramInput.required)){
+                        errorCounter = errorCounter + 1;
+                        input.style.border = "1px solid red";
+                        dataOperationsHtmlElm.style.border = "1px solid red";
+                        const errorDiv = document.getElementById(`error-div-for-${input.id}`);
+                        errorDiv.style.display = "flex";
+                        
+                        input.addEventListener('focusout', () => {
+                            input.removeAttribute("style");
+                            errorDiv.style.display = "none";
+                        });
+
+                        dataOperationsHtmlElm.addEventListener('focusout', () => {
+                            dataOperationsHtmlElm.removeAttribute("style");
+                        });
+
+                        if(paramInput.dataType === BOOL){
+                            const dropDown = input.parentNode.childNodes[1]
+                            dropDown.style.border = "1px solid red";
+                            dropDown.addEventListener('focusout', () => {
+                                dropDown.removeAttribute("style");
+                            });
+                        }
+                    }
+                    if(input.value){
+                        line = line.concat(` ${input.value}`);
+                    }else{
+                        line = line.concat(" None");
+                    }
+                });
+                linesToAdd.push(line);
+            }
+        );
+        if(errorCounter === 0){
+            this.props.actions.getFileData("gitlab.com", this.state.project.id, ".gitlab-ci.yml", "feat/pipelines");
+        }
+    }
+
+    validateInput = (value, dataType, required) => {
+        if(required && (typeof(value) === undefined || value === "")){
+            return false;
+        }
+        
+        switch (dataType) {
+            case INT:
+                return regExps.INT.test(value);
+            case FLOAT:
+                return regExps.FLOAT.test(value);
+            default:
+                return (value === "") || (value === "true") || (value === "false");
+        }
+    }
+
     render = () => {
         const project = this.state.project;
         const dataOperations = this.state.dataOperations;
@@ -215,6 +357,7 @@ class PipeLineView extends Component{
         const items = this.state.dataOperationsSelected;
         let operationsSelected = items.length;
         operationsSelected++; 
+        
         return (
             <div className="pipe-line-view">
                 <SelectDataPipelineModal 
@@ -251,7 +394,7 @@ class PipeLineView extends Component{
                                 </div>
                                 <Input name="DataPipelineID" id="renaming-pipeline" placeholder="Rename data pipeline..."/>
                             </div>
-                            <div className="header-right-items flexible-div">
+                            <div className="header-right-items flexible-div" onClick={this.handleExecuteBtn}>
                                 <div id="execute-button" className="header-button round-border-button right-item flexible-div">
                                     Execute
                                 </div>
@@ -322,7 +465,7 @@ class PipeLineView extends Component{
                                     <option>Tabular data</option>
                                 </select>
                                 
-                                <div class="checkbox-zone">
+                                <div className="checkbox-zone">
                                     <label className="customized-checkbox" >
                                         Only own data operations
                                         <input type="checkbox" value={this.state.checkBoxOwnDataOperations} 
@@ -341,36 +484,11 @@ class PipeLineView extends Component{
                                 <Input name="minOfStart" id="minOfStart" placeholder="Minimum of stars"/>
                             </div>
 
-                            <div id="data-operations-list">
-                                {dataOperations.map((dataOperation, index) => 
-                                    <div draggable onDragStart={this.handleDragStart}
-                                        className="data-operations-item round-border-button shadowed-element" id={`data-operations-item-${index}`}>
-                                        <div className="header flexible-div">
-                                        <div id="title-content">
-                                            <p className="bold-text">{dataOperation.title}</p>
-                                            <p>Created by <span className="bold-text">{dataOperation.username}</span></p>
-                                        </div>
-                                        <div id={`data-options-first-${index}`} className="data-oper-options flexible-div">
-                                            <div><img alt="" src={star_01} /></div>
-                                            <div><p>&nbsp;{dataOperation.starCount}&nbsp;</p></div>
-                                            <div>
-                                                <ArrowButton placeholder={""} imgPlaceHolder={triangle_01} params={{index: index}} callback={this.whenDataCardArrowButtonIsPressed}/>
-                                            </div>
-                                        </div>
-                                        </div>
-                                        <div id={`description-data-operation-item-${index}`} style={{display: 'none'}}>
-                                            <p>
-                                                {dataOperation.description}
-                                            </p>
-                                            <br/>
-                                            <div style={{display: 'flex', justifyContent: "space-between"}}>
-                                                <p>Data type: {dataOperation.dataType}</p>
-                                                <p style={{marginRight: "11px"}}><b>Source Code</b></p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                )}
-                            </div>    
+                            <DataOperationsList 
+                                handleDragStart={this.handleDragStart} 
+                                whenDataCardArrowButtonIsPressed={this.whenDataCardArrowButtonIsPressed}
+                                dataOperations={dataOperations}
+                            />
                         </div>
                     </div>
                 </div>
@@ -381,8 +499,18 @@ class PipeLineView extends Component{
 
 function mapStateToProps(state){
     return {
+        fileData: state.file,
         projects: state.projects
     };
 }
 
-export default connect(mapStateToProps)(PipeLineView);
+function mapDispatchToProps(dispatch) {
+    return {
+        actions: bindActionCreators(fileActions, dispatch)
+    };
+}
+
+export default connect(
+    mapStateToProps,
+    mapDispatchToProps
+)(PipeLineView);
