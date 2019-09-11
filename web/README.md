@@ -14,3 +14,11 @@ You can start the frontend separately with npm using the `npm start` command.
 
 ## Frontend production build
 To build the frontend project with npm use `npm run build`
+
+## Execution of pipelines
+
+This feature lets user execute pipelines directly from the web interface
+
+First Open the overview and click in "Data pipeline" button.
+
+Next just drag-and-drop the operations to the selection area, type parameters and press in execute button.

@@ -15,7 +15,7 @@ class ProjectContainer extends React.Component {
     return (
       <div className="project-container">
         <div className="project-details main-content">
-          <ProjectNav projectId={project.id} folders={folders} />
+          <ProjectNav key={`project-key-${project.id}`} projectId={project.id} folders={folders} />
 
           <ProjectInfo info={project} />
           {
@@ -30,18 +30,18 @@ class ProjectContainer extends React.Component {
             <Link to={`/my-projects/${project.id}/experiments-overview`} className="feature" id="experiments">
               <p>Experiments</p>
             </Link>
-            <Link className="feature ">
+            <div className="feature ">
               <p>Inference</p>
-            </Link>
-            <Link className="feature ">
+            </div>
+            <div className="feature ">
               <p>Insights</p>
-            </Link>
-            <Link className="feature ">
+            </div>
+            <div className="feature ">
               <p>Pull Requests</p>
-            </Link>
-            <Link className="feature ">
+            </div>
+            <div className="feature ">
               <p>Settings</p>
-            </Link>
+            </div>
           </div>
         </div>
       </div>

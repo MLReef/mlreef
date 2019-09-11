@@ -10,7 +10,7 @@ const ProjectNav = (params) => {
                         ? <Link key={`project-nav-link-${index}`} to={`/my-projects/${params.projectId}`}> <p> &nbsp; {folder} &nbsp;</p></Link>
                         : <p key={`project-nav-paragraph-${index}`}>&nbsp;{folder}&nbsp;</p>
                     : folder === 'Data'
-                        ? <Link to={`/my-projects/${params.projectId}`}> <p key={`project-nav-link-${index}`}> &nbsp; {folder} &nbsp;> &nbsp;</p></Link>
+                        ? <Link key={`project-nav-link-${index}`} to={`/my-projects/${params.projectId}`}> <p> &nbsp; {folder} &nbsp;> &nbsp;</p></Link>
                         : <p key={`project-nav-paragraph-${index}`}> &nbsp;{folder}&nbsp;>&nbsp;</p>
             )}
         </div>    

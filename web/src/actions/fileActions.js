@@ -10,7 +10,7 @@ export function getFileInfoSuccessfully(fileData) {
 }
 
 export function loadFiles(path, branch, projectId){
-    return async function(dispatch) {
+    return async (dispatch) => {
         let recursive = false;
         let domain = "gitlab.com";
 
@@ -24,13 +24,10 @@ export function loadFiles(path, branch, projectId){
     }
 }
 
-export function getFileData(path, branch){
-    return async function(dispatch) {   
-        let projectId = "12395599";
-        let domain = "gitlab.com";
-
+export function getFileData(domain = "gitlab.com", projectId = "12395599", path = "/", branch = "master"){
+    return async (dispatch) => {   
         try {
-            const file = await filesApi.getFileData(domain, projectId, path, branch);
+            const file = await filesApi.getFileData( domain, projectId, path, branch );
             dispatch(getFileInfoSuccessfully(file));
         }
         catch (err) {
