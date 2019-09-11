@@ -36,7 +36,6 @@ class FileView extends React.Component {
 
   render() {
     const project = this.state.project;
-    console.log(this.props);
     const fileName = this.props.fileData.file_name;
     const fileSize = this.props.fileData.size;
     let fileContent = [];

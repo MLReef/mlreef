@@ -13,27 +13,28 @@ class FilesContainer extends Component {
     this.getBack = this.getBack.bind(this);
 
     this.state = {
-      currentPath: ""
+      currentPath: "",
+      fileSize: ""
     }
 
     window.onpopstate = () => {
       var path = this.getParamFromUrl("path", window.location.href);
       this.props.actions.loadFiles(path, this.props.branch, this.props.projectId);
-      
+
     };
   }
 
-  componentWillUpdate(){
+  componentWillUpdate() {
     const projectId = window.location.href.split("/my-projects/")[1].split("/")[0];
     const urlPath = this.getParamFromUrl("path", window.location.href);
 
-    if(urlPath !== this.state.currentPath){
-        this.setState({currentPath: urlPath});
-        this.props.actions.loadFiles(
-            urlPath, 
-            this.props.branch,
-            projectId
-        );
+    if (urlPath !== this.state.currentPath) {
+      this.setState({ currentPath: urlPath });
+      this.props.actions.loadFiles(
+        urlPath,
+        this.props.branch,
+        projectId
+      );
     }
   }
 

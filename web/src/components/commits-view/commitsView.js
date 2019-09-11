@@ -9,6 +9,7 @@ import arrow_blue from "../../images/arrow_down_blue_01.svg";
 import file_01 from "../../images/file_01.svg";
 import folder_01 from "../../images/folder_01.svg";
 import { connect } from "react-redux";
+import { Link } from "react-router-dom";
 
 class CommitsView extends Component {
     state = {
@@ -71,7 +72,7 @@ class CommitsView extends Component {
                                 {this.state.commits.map(item => {
                                     return (
                                         new Date(item.committed_date).toLocaleString("en-eu", { day: "numeric", month: "short", year: "numeric" }) === commit
-                                            ? <Commits key={item.short_id} title={item.title} name={item.committer_name} id={item.short_id} time={item.committed_date} />
+                                            ? <Commits key={item.short_id} projectId={projectId} commitid={item.id} title={item.title} name={item.committer_name} id={item.short_id} time={item.committed_date} />
                                             : ""
                                     )
                                 })}
@@ -112,7 +113,7 @@ function Commits(props) {
             <div className="commit-list">
                 <div className="commit-pic-circle" />
                 <div className="commit-data">
-                    <p>{props.title}</p>
+                    <Link to={`/my-projects/${props.projectId}/commit/${props.commitid}`}>{props.title}</Link>
                     <span>
                         {props.name} authored {timediff}
                     </span>

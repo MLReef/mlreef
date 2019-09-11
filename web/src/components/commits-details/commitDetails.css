@@ -1,0 +1,148 @@
+.wrapper{
+    display: flex; 
+    color: #1c2b40; 
+    padding-bottom: 0.5em
+}
+
+.wrapper > span:first-child{
+    display: flex; 
+    flex: 1
+}
+
+.commit-authored{
+    margin-top: 0.5em;
+    padding-right: 1em
+}
+
+.other-options{
+    display: flex
+}
+
+.author{
+    margin-top: 0.5em; 
+    padding-left: 1em
+}
+
+.commit-message{
+    margin: 1em 0
+}
+
+.commit-message > div{
+    border-left: 3px solid rgb(230, 230, 230); 
+    color: rgb(204, 204, 204); 
+    width: 100%; 
+    margin-top: 1em; 
+    padding: 0.5em 0 0 1em; 
+    min-height: 3em
+}
+
+.stats{
+    color: #1c2b40; 
+    font-weight: 700
+}
+
+.file-changed-header{
+    margin-top: 0;
+    color: "#fff";
+    border-bottom: 1px solid #e5e5e5;
+    display: flex;
+    border-radius: 0.3vw 0.3vw 0 0;
+    background-color: #2db391
+}
+
+.file-changed-header p{
+    color: white;
+    padding:0.5em 1em;
+    width: auto;
+}
+
+.pipeline-details{
+    display: flex;
+    margin: 1em 1em 1em auto;
+    border: 1px solid #adadad;
+    border-radius: 3px;
+    height: 30px;
+}
+
+.pipeline-details span{
+    background-color: #e5e5e5;
+    margin-left: 0;
+    padding: 0.5em 1em;
+}
+
+.pipeline-details a{
+    padding: 0.5em;
+    text-decoration: none;
+    cursor: pointer;
+    border-left: 1px solid #adadad;
+    width: 6em;
+    background-color: #ffffff;
+    transition: background 0.3s ease;
+}
+
+.pipeline-details a:hover{
+    background-color: #e5e5e5
+}
+
+.pipeline-modify-details{
+    border-bottom: 1px solid #e5e5e5;
+    background-color: #e5e5e5;
+    display: flex;
+}
+
+.pipeline-modify-details span{
+    font-weight: 700;
+    padding-left: 1em
+}
+
+.addition{
+    color: #00b809
+}
+
+.deleted{
+    color: #ff5757
+}
+
+.btn{
+    margin-left: 1em;
+}
+
+.btn a{
+    width: auto
+}
+
+.btn img{
+    margin: 0 auto !important ;
+}
+
+.btn-background{
+    background-color: white;
+}
+
+.image-display{
+    display: flex;
+    padding: 3em
+}
+
+.image-display > div{
+    display: flex; 
+    flex-direction: column
+}
+
+.grey-area{
+    background-color: #797a79; 
+    width: 400px; 
+    height: 300px;
+}
+
+.image-display span{
+    text-align: center;
+    font-weight: 700
+}
+.image-display div:last-child{
+    margin-left: auto;
+}
+.filechange-info{
+    display: flex; 
+    padding: 0.5em
+}
