@@ -8,46 +8,47 @@ export const errorMessages = {
     BOOL: "Required filed or bool type"
 };
 export const mlreefFileContent = 
-`# https://gitlab.com/gitlab-org/gitlab-ce/tree/master/lib/gitlab/ci/templates/Python.gitlab-ci.yml
-image: python:3.7
-#image: tensorflow/tensorflow:latest-py3
+`################################################################################
+# This is the MLReef configuration file.                                       #
+# It contains the current configuration of your model-experiment (training)    #
+# as well as the temporary configurations executed data pipelines              #
+################################################################################
+
+# This is the docker image your model training will be executed in
+image: registry.gitlab.com/mlreef/epf:latest
+
+stages:
+  - experiment
 
 variables:
-  # Change pip's cache directory to be inside the roject directory since we can only cache local items.
+  # Change pip's cache directory to be inside the project directory since we can only cache local items.
   PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
 
 cache:
-  key: one-key-to-rule-them-all-2
+  key: global-pip-cache
   paths:
     - .cache/pip
     - venv/
-    
-before_script:
-  - git remote set-url origin https://\${CI_PUSH_USER}:\${CI_PUSH_TOKEN}@gitlab.com/mlreef/mlreef-demo.git
-  - git config --global user.email "noreply@mlreef.com"
-  - git config --global user.name "MLReef Data Pipeline"
-  - python3 --version
-  - pip3 --version
-  - python -m pip install --upgrade --force pip
-  - echo $PIP_CACHE_DIR
-  # Switch Python to virtualenv "venv"
-  - pip install virtualenv
-  - virtualenv venv --distribute
-  - source venv/bin/activate
-  # Python libraries
-  - pip install opencv-python
-  - pip install tensorflow
-  - pip install Keras
-  - pip install Pillow
-  
-test:
+
+data-pipeline:
+  stage: experiment
+  before_script:
+    - git remote set-url origin https://\${CI_PUSH_USER}:\${CI_PUSH_TOKEN}@gitlab.com:mlreef/sar-esa.git
+    - git config --global user.email "noreply@mlreef.com"
+    - git config --global user.name "MLReef Data Pipeline"
   script:
     - pwd
-    - ls -l
-    - cd pipeline
-#replace-here-new-lines
-    - git checkout \${CI_COMMIT_REF_NAME}
-    - echo \${CI_JOB_ID} >> ci_job_id
+    - ls -al
+#    - git checkout -b pipeline/\${CI_JOB_ID}
+    - git checkout master
+    - echo \${CI_JOB_ID} >> data_pipeline.info
+    - python src/pipelines/lee_filter.py data/images_SAR/ 4
+    - python src/pipelines/rotate.py data/images_SAR/ 90
+    - python src/pipelines/augment.py data/images_SAR/ 2
+#replace-here-the-lines
     - git add .
-    - git commit -m "Add pipeline results [skip ci]"
-    - git push`;
+    - git status
+    - git commit -m"Add pipeline results [skip ci]"
+#    - git push --set-upstream origin pipeline/\${CI_JOB_ID}
+    - git push
+`;
