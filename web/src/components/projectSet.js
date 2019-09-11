@@ -36,7 +36,7 @@ class ProjectSet extends React.Component {
               onClick={this.handlePersonal}
             >
               <p>Your Projects </p>
-              <p id="count">1</p>
+              <p id="count">3</p>
             </div>
             <div
               className={
