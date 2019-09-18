@@ -65,7 +65,7 @@ class NewExperiment extends Component{
                 }
             ],
             showSelectFilesModal: false,
-            project: null,
+            project: this.props.projects.selectedProject,
             dataOperationsSelected: [],
             filesSelectedInModal: [],
             commitResponse: null
@@ -79,10 +79,6 @@ class NewExperiment extends Component{
         this.copyDataOperationEvent = this.copyDataOperationEvent.bind(this);
         this.deleteDataOperationEvent = this.deleteDataOperationEvent.bind(this);
         this.handleExecuteBtn = this.handleExecuteBtn.bind(this);
-    }
-
-    componentWillMount(){
-        this.setState({project: this.props.projects.filter(proj => proj.id === parseInt(this.props.match.params.projectId))[0]});
     }
 
     componentDidMount(){
