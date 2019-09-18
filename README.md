@@ -33,7 +33,7 @@ For setting up the frontend dependencies you have to run: `./gradlew npm_install
 
 
 ## Run Locally
-For running locally plesae refer to the web module's [README.md](web/README.md) 
+For running locally please refer to the web module's [README.md](web/README.md) 
 
 
 ## Production build

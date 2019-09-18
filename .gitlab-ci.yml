@@ -1,81 +1,110 @@
 image: gradle:latest
 
 stages:
-  - build
+  - prepare
   - deploy
   - teardown
-
-variables:
-  BUILD_PATH: "web/build"
-  BUCKET_NAME: mlreef-$CI_COMMIT_REF_SLUG   #environment name and url are set separately
-
-
-npm-build:
-  image: node:latest
-  stage: build
-  cache:
-    paths:
-      - web/node_modules      # cache externale node modules
-  script:
-    - cd web                  # switch to web module
-    - npm install             # get npm up and running
-    - npm run build
-  artifacts:
-    paths:
-      - ${BUILD_PATH}         # pass build output
-
 
 # The deployment on aws dependes on thre main environment variables
 # AWS_ACCESS_KEY_ID       create at https://console.aws.amazon.com/iam/
 # AWS_SECRET_ACCESS_KEY   create at https://console.aws.amazon.com/iam/
 # AWS_DEFAULT_REGION      default:eu-central-1
-deploy:
-  image: registry.gitlab.com/systemkern/s5:latest-aws   # based on python:3-slim
-  stage: deploy
-  dependencies:
-    - npm-build                      # explicit dependencies, to avoid confusion
-  cache:
-    key: mlreef-all-python-dependencies
-    paths:
-      - .cache/pip
-      - venv/
+variables:
+  BUILD_PATH: "web/build"
+  BUCKET_NAME: mlreef-$CI_COMMIT_REF_SLUG              # environment name and url are set separately
+  EC2_INSTANCE_NAME: mlreef-$CI_COMMIT_REF_SLUG        # environment name and url are set separately
+  INSTANCE_INFO: instance.info                         # workaround for transmitting information between stages
+
+
+package:
+  image: registry.gitlab.com/systemkern/s5:latest
+  stage: prepare
   script:
-    - aws s3api create-bucket --bucket ${BUCKET_NAME}
-      --region ${AWS_DEFAULT_REGION}
-      --create-bucket-configuration LocationConstraint=${AWS_DEFAULT_REGION}
-      || echo "Bucket already existed" # ignore fail if bucket exists
-    - create-aws-policy ${BUCKET_NAME}
-    - aws s3api put-bucket-policy --bucket ${BUCKET_NAME}
-      --no-confirm-remove-self-bucket-access
-      --policy file://policy.json
-    - aws s3 sync ${BUILD_PATH} s3://${BUCKET_NAME} --delete # upload new version
-    - echo "Instance location https://${BUCKET_NAME}.s3.${AWS_DEFAULT_REGION}.amazonaws.com/index.html"
+    - cd web
+    - zip -qr deploy.zip .
+  artifacts:
+    paths:
+      - web/deploy.zip
+
+
+provision-ec2:
+  image: registry.gitlab.com/systemkern/s5:latest-aws  # based on python:3-slim
+  stage: prepare
+  variables:
+    EC2_IMAGE_AMI:    "ami-03c87d96f6702a119"          # aws-elasticbeanstalk-amzn-2018.03.0.x86_64-nodejs-hvm-201904170656
+    EC2_MACHINE_SIZE: "t2.micro"                       # https://aws.amazon.com/ec2/instance-types/
+    EC2_SECURITY_GRP: "application_servers"
+  before_script:
+    - chmod 400 development_deployment.pem             # prepare private key file
+    - ./bin/decomission.sh                             # first shutdown all current instances
+  script:
+    - INSTANCE=$(./bin/provision.sh)
+    - echo "$INSTANCE"
+    - echo "$INSTANCE" | tr -d '\r' > $INSTANCE_INFO   # pass instance url to deploy stage
+    - sleep 120 # wait for the instance to boot
+    - cat $INSTANCE_INFO
+  artifacts:
+    paths:
+      - "$INSTANCE_INFO"                               # pass the file which contains our instance URL
   environment:
     name: $CI_COMMIT_REF_SLUG
-    url: https://mlreef-${CI_COMMIT_REF_SLUG}.s3.${AWS_DEFAULT_REGION}.amazonaws.com/index.html  # This is the url of the bucket we saved before
-    on_stop: undeploy       # clean up after branch merge
+    url: http://www.example.com                        # temporary url will be corrected by the gitlab-env-conf job
+    on_stop: decomission                               # clean up after branch merge
+
+gitlab-env-conf:
+  image: pstauffer/curl:latest
+  stage: deploy
+  variables:
+    KEY: "Authorization:"                              # workaround to preserver the yaml structure
+  before_script:
+    - cat $INSTANCE_INFO                               # debug output
+    - URL=$(cat $INSTANCE_INFO)
+    - chmod +x bin/jq                                  # assure execution permissions
+  script:
+    # Get the ID of the gitlab environment we want to edit
+    - ID=$(curl --header "$KEY Bearer $GITLAB_API_TOKEN"
+      https://gitlab.com/api/v4/projects/$CI_PROJECT_ID/environments?name=$CI_COMMIT_REF_SLUG
+      | bin/jq -c '.[] | select(.name | contains("'$CI_REF_SLUG'")) | .id'
+      )
+    - echo "ID is $ID"                                 # debug output
+    # configure the gitlab environment with the correct URL
+    - curl --request PUT --header "$KEY Bearer $GITLAB_API_TOKEN"
+      --data "name=$CI_COMMIT_REF_SLUG&external_url=http://$URL:3000"
+      https://gitlab.com/api/v4/projects/$CI_PROJECT_ID/environments/$ID
 
 
-undeploy:
+
+# deploy the application to the ec2 instance
+deploy-ec2:
+  image: registry.gitlab.com/systemkern/s5:latest
+  stage: deploy
+  before_script:
+    - cat $INSTANCE_INFO
+    - INSTANCE=$(cat $INSTANCE_INFO)
+    - chmod 400 development_deployment.pem             # prepare private key file
+  script:
+    - bin/deploy.sh $INSTANCE
+
+
+decomission:
   when: manual
-  image: python:3-slim
+  image: registry.gitlab.com/systemkern/s5:latest-aws   # based on python:3-slim
   stage: teardown
   variables:
     GIT_STRATEGY: none
-  cache:
-    key: mlreef-all-python-dependencies
-    paths:
-      - .cache/pip
-      - venv/
   before_script:
-    - pip install awscli
+    - INSTANCE=$(cat $INSTANCE_INFO)
   script:
-    - aws s3 rm s3://${BUCKET_NAME} --recursive
-    - aws s3api delete-bucket --bucket ${BUCKET_NAME}
+    # use the aws-cli to retrieve the desciptoion (json) for our machine
+    # parse the json with jq to get the instance id
+    # the xargs command at the end submits the termination command to AWS
+    - aws ec2 describe-instances
+      --filters "Name=tag:Name,Values=$INSTANCE"
+      | jq -r ".Reservations[].Instances[].InstanceId"
+      | xargs --no-run-if-empty aws ec2 terminate-instances --instance-id
   environment:
     name: $CI_COMMIT_REF_SLUG
     action: stop
   except:
     refs:
       - master
-      - develop
