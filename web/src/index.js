@@ -11,6 +11,7 @@ import projectView from "./components/projectView";
 import PipeLineView from "./components/pipeline-view/pipeline-view";
 import PrivateRoute from "./private-route";
 import ExperimentsOverview from "./components/experiments-overview";
+import NewExperiment from "./components/new-experiment/new-experiment";
 import Projects from "./components/my-projects";
 import Commits from "./components/commits-view/commitsView";
 import CommitDetails from "./components/commits-details/commitDetails";
@@ -36,6 +37,7 @@ ReactDOM.render(
         />
         <PrivateRoute path="/my-projects/:projectId/files/branch/:branch" component={projectView} />
         <PrivateRoute path="/my-projects/:projectId/pipe-line" component={PipeLineView} />
+        <PrivateRoute path="/my-projects/:projectId/new-experiment" component={NewExperiment} />
         <PrivateRoute path="/my-projects/:projectId/commits" exact component={Commits} />
         <PrivateRoute path="/my-projects/:projectId/commit/:id" exact component={CommitDetails} />
       </Switch>
