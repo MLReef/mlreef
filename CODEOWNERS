@@ -44,5 +44,6 @@
 # If the path contains spaces, these need to be escaped like this:
 # path\ with\ spaces/ @space-owner
 
-* @rainerkern
-web @andres46
+/bin @rainerkern
+/web @andres46
+.gitlab-ci.yml @rainerkern
