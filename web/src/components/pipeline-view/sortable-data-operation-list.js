@@ -42,7 +42,7 @@ const SortableDataOperationItem = SortableElement(({ value }) => {
                     {value.params.standard.map((param, index) =>
                         <>
                             <div style={{ display: 'flex' }}>
-                                <p>{param.name}: </p>
+                                <p style={{ width: '14em' }}> {param.name}: </p>
                                 <Input id={`param-${index}-item-data-operation-selected-form-${value.index}`} placeholder="" />
                             </div>
                             <div id={`error-div-for-param-${index}-item-data-operation-selected-form-${value.index}`} style={{ display: 'none' }}>
@@ -139,7 +139,7 @@ const SortableDataOperationItem = SortableElement(({ value }) => {
                                         :
                                         <>
                                             <div style={{ display: 'flex' }}>
-                                                <p style={{ width: '15em' }}>{advancedParam.name}: </p>
+                                                <p style={{ width: '14em' }}>{advancedParam.name}: </p>
                                                 <Input id={`ad-param-${advancedParamIndex}-item-data-operation-form-${value.index}`} />
                                             </div>
                                             <div id={`error-div-for-ad-param-${advancedParamIndex}-item-data-operation-form-${value.index}`} style={{ display: 'none' }}>
