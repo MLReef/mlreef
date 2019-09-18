@@ -14,7 +14,8 @@ import { Link } from "react-router-dom";
 class CommitsView extends Component {
     state = {
         show: false,
-        commits: []
+        commits: [],
+        users: []
     }
 
     componentDidMount() {
@@ -22,6 +23,9 @@ class CommitsView extends Component {
         this.props.actions.getCommits("gitlab.com", projectId)
             .then(res => res.json())
             .then(response => this.setState({ commits: response }));
+        this.props.actions.getUsers("gitlab.com", projectId)
+            .then(res => res.json())
+            .then(response => this.setState({ users: response }))
     }
 
     handleBlur = e => {
@@ -70,9 +74,15 @@ class CommitsView extends Component {
                                     <p>Commits on {commit}</p>
                                 </div>
                                 {this.state.commits.map(item => {
+                                    // Temporary solution for avatar, using cpmlreef avatar
+                                    let avatar = "https://assets.gitlab-static.net/uploads/-/system/user/avatar/3839940/avatar.png";
+                                    this.state.users.map(function (user) {
+                                        return (
+                                            user.name === item.author_name ? avatar = user.avatar_url : "")
+                                    })
                                     return (
                                         new Date(item.committed_date).toLocaleString("en-eu", { day: "numeric", month: "short", year: "numeric" }) === commit
-                                            ? <Commits key={item.short_id} projectId={projectId} commitid={item.id} title={item.title} name={item.committer_name} id={item.short_id} time={item.committed_date} />
+                                            ? <Commits key={item.short_id} projectId={projectId} commitid={item.id} title={item.title} name={item.author_name} id={item.short_id} time={item.committed_date} avatar_name={avatar} />
                                             : ""
                                     )
                                 })}
@@ -106,12 +116,14 @@ function Commits(props) {
         timediff = Math.floor(diff / 60e3) + " minutes ago"
     }
     else {
-        timediff = Math.floor(diff / 1e3) + " seconds ago"
+        timediff = "just now"
     }
     return (
         <div className="commits">
             <div className="commit-list">
-                <div className="commit-pic-circle" />
+                <div className="commit-pic-circle">
+                    <img src={props.avatar_name} alt="avatar" />
+                </div>
                 <div className="commit-data">
                     <Link to={`/my-projects/${props.projectId}/commit/${props.commitid}`}>{props.title}</Link>
                     <span>

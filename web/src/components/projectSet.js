@@ -80,7 +80,6 @@ const Project = props => {
           <div className="project-pic">
             <img style={{ minWidth: "100%" }} src={props.avatar} alt="" />
           </div>
-          {console.log(props)}
         </div>
         <div id="project-descriptor">
           <Link to={`/my-projects/${props.projId}`}>

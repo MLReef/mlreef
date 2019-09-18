@@ -27,3 +27,14 @@ export function getCommitDetails(domain, projectId, commitId) {
         }
     }
 }
+
+export function getUsers(domain, projectId) {
+    return async function () {
+        try {
+            return commitsApi.getUsers(domain, projectId);
+        }
+        catch (err) {
+            throw err;
+        }
+    }
+}
