@@ -26,36 +26,6 @@
 
 /* ---------------------------Instruction------------------------- */
 
-#instruction-pipe-line {
-    margin: 15px auto 0 auto;
-    display: flex;
-    background-color: #2db391;
-    border-radius: 0.3vw;
-    max-width: 1024px;
-    min-width: 786px;
-}
-
-#instruction-pipe-line > #instruction {
-    margin: 0.5% 0% 0.5% 0%;
-    background-color: white;
-    width: 83%;
-    border-radius: inherit;
-    padding: 0.1% 1% 0.1% 2%;
-}
-
-#instruction-pipe-line > #instruction > #title {
-    color: #2db391;
-}
-
-#instruction-pipe-line > #icon {
-    background-color: transparent;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 10%;
-    margin: 0% 0% 0% 1%;
-}
-
 #xButton > button {
     background-color: #2db391;
     color: white;

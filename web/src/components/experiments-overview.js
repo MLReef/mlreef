@@ -8,6 +8,7 @@ import traiangle01 from './../images/triangle-01.png';
 import {Line} from "react-chartjs-2";
 import {connect} from "react-redux";
 import ArrowButton from "./arrow-button/arrow-button";
+import { Link } from "react-router-dom";
 
 const Running = "Running";
 const Open = "Open";
@@ -262,10 +263,16 @@ class ExperimentsOverview extends Component {
                         </button>
                         <button id="aborted" className="non-active-black-border experiment-button"
                                 onClick={(e) => this.handleButtonsClick(e)}>Aborted
-                        </button>
-                        <button id="new-experiment" className="light-green-button experiment-button">
-                            <b>New experiment</b>
-                        </button>
+                        </button>                            
+                        <Link 
+                            id="new-experiment" 
+                            to={`/my-projects/${project.id}/new-experiment`}
+                            style={{height: '0.2em'}} 
+                            className="light-green-button experiment-button">
+                            <b>
+                                New experiment
+                            </b>
+                        </Link>
                     </div>
                     <ExperimentCard params={
                             {

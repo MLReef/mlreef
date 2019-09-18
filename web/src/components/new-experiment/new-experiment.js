@@ -2,25 +2,20 @@ import React, {Component} from 'react';
 import { connect } from 'react-redux';
 import minus from '../../images/minus.svg';
 import plus from '../../images/plus_01.svg';
-import './pipe-line-view.css';
+import '../pipeline-view/pipe-line-view.css';
 import Navbar from "../navbar/navbar";
 import Input from '../input';
 import ProjectContainer from '../projectContainer';
-import {SortableDataOperationsList} from './sortable-data-operation-list';
+import {SortableDataOperationsList} from '../pipeline-view/sortable-data-operation-list';
 import SelectDataPipelineModal from "../select-data-pipeline/select-data-pipeline-modal";
 import arrayMove from 'array-move';
 import * as fileActions from "../../actions/fileActions";
 import { bindActionCreators } from "redux";
-import commitsApi from "../../apis/CommitsApi";
-import {INT, FLOAT, regExps, BOOL} from "../../data-types";
-import { DataOperationsList } from './data-operations-list';
-import { Instruction } from '../instruction/instruction';
-import { mlreefFileContent } from "../../data-types";
+import {INT, FLOAT, BOOL} from "../../data-types";
+import { DataOperationsList } from '../pipeline-view/data-operations-list';
+import { Instruction } from "../instruction/instruction";
 
-
-let linesToAdd = [];
-
-class PipeLineView extends Component{
+class NewExperiment extends Component{
     constructor(props){
         super(props);
         this.state = {
@@ -30,12 +25,8 @@ class PipeLineView extends Component{
             showFilters: false,
             showForm: false,
             dataOperations: [
-                {title: "Augment", username: "UserName 1", starCount: "243", index: 1, 
-                    description: 
-                        `Neural network architectures have a large number of trainable parameters and therefore they require a very large number of 
-                        images to train on to effectively capture the distrubution of the data and 'learn'. Data augmentation is a 
-                        strategy that enables us to significantly increase the diversity of data available for training models, without actually collecting new data. 
-                        For example, in the case of images, the data is tweaked by changing angle of rotation, flipping the images, zooming in, etc.`,
+                {title: "Algorithm 1", username: "UserName 1", starCount: "243", index: 1, 
+                    description: "Some short description of the data operation to see what it does",
                     showDescription:false, showAdvancedOptsDivDataPipeline: false, dataType: "Images", 
                     params: {
                         standard: [{name: "Number of augmented images", dataType: INT, required: true}],
@@ -49,10 +40,8 @@ class PipeLineView extends Component{
                         ]
                     }
                 },
-                {title: "Random crop", username: "UserName 2", starCount: "201", index: 2, 
-                    description: 
-                        `This pipeline operation randomly crops a NxM (height x width) portion of the given dataset. 
-                        This is used to randomly extract parts of the image incase we need to remove bias present in image data.`,
+                {title: "Algorithm 2", username: "UserName 2", starCount: "201", index: 2, 
+                    description: "Some short description of the data operation to see what it does",
                     showDescription:false, showAdvancedOptsDivDataPipeline: false, dataType: "Text", 
                     params: {
                        standard: [
@@ -65,26 +54,12 @@ class PipeLineView extends Component{
                        ]
                     }
                 },
-                {title: "Random rotate", username: "UserName 3", starCount: "170", index: 3, 
-                    description: 
-                        `A simple rotation operation to rotate images by a specified angle. All images are rotated by this angle.
-                        Such a pipeline operation finds use in the case where an entire dataset is skewed and needs to be normalized.`,
+                {title: "Algorithm 3", username: "UserName 3", starCount: "170", index: 3, 
+                    description: "Some short description of the data operation to see what it does",
                     showDescription:false, showAdvancedOptsDivDataPipeline: false, dataType: "Something Else", 
                     params: {
                         standard: [
                             {name: "Angle of rotation", dataType: FLOAT, required: true}
-                        ]
-                    }
-                },
-                {title: "Lee filter", username: "UserName 4", starCount: "200", index: 4, 
-                    description: 
-                        `The presence of speckle noise in Synthetic Aperture Radar (SAR) images makes the interpretation of the contents difficult, 
-                        thereby degrading the quality of the image. Therefore an efficient speckle noise removal technique, the Lee Filter is used to 
-                        smoothen the static-like noise present in these images`,
-                    showDescription:false, showAdvancedOptsDivDataPipeline: false, dataType: "Something Else", 
-                    params: {
-                        standard: [
-                            {name: "Insentity", dataType: INT, required: true}
                         ]
                     }
                 }
@@ -113,39 +88,7 @@ class PipeLineView extends Component{
     componentDidMount(){
         document.getElementById("show-filters-button").style.width = '80%';
     }
-
-    /*
-    componentWillReceiveProps(nextProps){
-         const finalContent = [
-                ...Base64
-                    .decode(nextProps.fileData.content)
-                    .split("\n"), 
-                ...linesToAdd
-            ]
-            .join('\n');
-            
-        }
-    */
-    
-    callToCommitApi = (finalContent, action) =>
-        commitsApi.performCommit(
-            this.state.project.id,
-            ".mlreef.yml",
-            finalContent,
-            "gitlab.com",
-            "master",
-            "pipeline execution",
-            action
-        )
-        .then(res => {
-                console.log(res);
-                !res['id'] || typeof res['id'] === undefined
-                    ? this.callToCommitApi(finalContent, "update")
-                    : this.setState({commitResponse: res});
-            }
-        )
-        .catch(err => console.log(err));
-
+   
     onSortEnd = ({oldIndex, newIndex}) => this.setState(({dataOperationsSelected}) => ({
         dataOperationsSelected: arrayMove(dataOperationsSelected, oldIndex, newIndex)
     }))
@@ -286,103 +229,7 @@ class PipeLineView extends Component{
     }
 
     handleExecuteBtn = () => {
-        linesToAdd = [];
-        let errorCounter = 0;
-        const dataOperationsHtmlElms = Array.prototype.slice.call(
-            document
-                .getElementById('data-operations-selected-container')
-                .childNodes
-            ).map(child => child.childNodes[1]);
-
-        Array.prototype.slice.call(
-                this.state.dataOperationsSelected
-            ).forEach((dataOperation, index) => {
-                let op;
-                let line;
-                const dataOperationsHtmlElm = dataOperationsHtmlElms[index];
-                switch (dataOperation.title) {
-                    case "Random crop":
-                        op = "crop";
-                        break;
-                        
-                    case "Augment":
-                        op = "augment";
-                        break;    
-                    
-                    case "Random rotate":
-                        op = "rotate";
-                        break;
-
-                    default:
-                        break;
-                }
-                line = `    - python src/pipelines/${op}.py data/images_SAR/`;
-                const dataOpInputs = Array.prototype.slice.call(dataOperationsHtmlElm.getElementsByTagName("input"));
-                let advancedParamsCounter = 0;
-                dataOpInputs.forEach((input, inputIndex) => {
-                    let paramInput = null;
-                    if(input.id.startsWith("ad-")){
-                        paramInput = dataOperation.params.advanced[advancedParamsCounter];
-                        advancedParamsCounter = advancedParamsCounter + 1;
-                    } else {
-                        paramInput = dataOperation.params.standard[inputIndex];
-                    }
-                    
-                    if(!this.validateInput(input.value, paramInput.dataType, paramInput.required)){
-                        errorCounter = errorCounter + 1;
-                        input.style.border = "1px solid red";
-                        dataOperationsHtmlElm.style.border = "1px solid red";
-                        const errorDiv = document.getElementById(`error-div-for-${input.id}`);
-                        errorDiv.style.display = "flex";
-                        
-                        input.addEventListener('focusout', () => {
-                            input.removeAttribute("style");
-                            errorDiv.style.display = "none";
-                        });
-
-                        dataOperationsHtmlElm.addEventListener('focusout', () => {
-                            dataOperationsHtmlElm.removeAttribute("style");
-                        });
-
-                        if(paramInput.dataType === BOOL){
-                            const dropDown = input.parentNode.childNodes[1]
-                            dropDown.style.border = "1px solid red";
-                            dropDown.addEventListener('focusout', () => {
-                                dropDown.removeAttribute("style");
-                            });
-                        }
-                    }
-                    if(input.value){
-                        line = line.concat(` ${input.value}`);
-                    }/* else{
-                        line = line.concat(" None"); TODO: THIS MUST BE ENABLED WHEN VAIBHAV RECOGNIZE NONE PARAMS
-                    } */
-                });
-                linesToAdd.push(line);
-            }
-        );
-        if(errorCounter === 0){
-            //this.props.actions.getFileData("gitlab.com", this.state.project.id, ".gitlab-ci.yml", "feat/pipelines");
-            // TODO: Hardcode all the things
-            // const finalContent = mlreefFileContent //.replace("#replace-here-the-lines", linesToAdd);
-            console.log(mlreefFileContent);
-            this.callToCommitApi(mlreefFileContent, "create");
-        }
-    }
-
-    validateInput = (value, dataType, required) => {
-        if(required && (typeof(value) === undefined || value === "")){
-            return false;
-        }
-        
-        switch (dataType) {
-            case INT:
-                return regExps.INT.test(value);
-            case FLOAT:
-                return regExps.FLOAT.test(value);
-            default:
-                return (value === "") || (value === "true") || (value === "false");
-        }
+      console.log("execute");
     }
 
     render = () => {
@@ -402,12 +249,12 @@ class PipeLineView extends Component{
                     handleModalAccept={this.handleModalAccept}
                 />
                 <Navbar/>
-                <ProjectContainer project={project} activeFeature="data" folders = {['Group Name', project.name, 'Data', 'Pipeline']}/>
+                <ProjectContainer project={project} activeFeature="experiments" folders = {['Group Name', project.name, 'Data', 'Pipeline']}/>
                 <Instruction 
-                    titleText={"How to create a data processing pipeline:"}
+                    titleText={"How to create a new experiment:"}
                     paragraph={
-                        `First, select your data you want to process. Then select one or multiple data operations from the right. 
-                            The result of a data pipeline is a data instance, which you can use directly to train a model or merge it into a branch.`
+                        `First, select your data you want to do your experiment on. Then select one or multiple algorithms from the right. 
+                            If needed, you can adapt the parameters of your algorithm directly`
                     }
                  />
                 <div className="pipe-line-execution-container flexible-div">
@@ -415,9 +262,9 @@ class PipeLineView extends Component{
                         <div className="header flexible-div">
                             <div className="header-left-items flexible-div">
                                 <div>
-                                    <p>Data Pipeline:</p>
+                                    <p>Experiment:</p>
                                 </div>
-                                <Input name="DataPipelineID" id="renaming-pipeline" placeholder="Rename data pipeline..."/>
+                                <Input name="DataPipelineID" id="renaming-pipeline" placeholder="EX_Project_1"/>
                             </div>
                             <div className="header-right-items flexible-div" onClick={this.handleExecuteBtn}>
                                 <div id="execute-button" className="header-button round-border-button right-item flexible-div">
@@ -492,14 +339,14 @@ class PipeLineView extends Component{
                                 
                                 <div className="checkbox-zone">
                                     <label className="customized-checkbox" >
-                                        Only own data operations
+                                        Only own experiments
                                         <input type="checkbox" value={this.state.checkBoxOwnDataOperations} 
                                             onChange={this.handleCheckMarkClick} id="checkBoxOwnDataOperations"> 
                                         </input>
                                         <span className="checkmark"></span> 
                                     </label>
                                     <label className="customized-checkbox" >
-                                        Only starred data operations
+                                        Only starred experiments
                                         <input type="checkbox" value={this.state.checkBoxStarredDataOperations} 
                                             onChange={this.handleCheckMarkClick} id="checkBoxStarredDataOperations">
                                         </input>
@@ -538,4 +385,4 @@ function mapDispatchToProps(dispatch) {
 export default connect(
     mapStateToProps,
     mapDispatchToProps
-)(PipeLineView);
+)(NewExperiment);

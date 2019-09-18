@@ -3,7 +3,12 @@ import star_01 from '../../images/star-01.png';
 import triangle_01 from '../../images/triangle-01.png';
 import ArrowButton from "../arrow-button/arrow-button";
 
-export const DataOperationsList=({handleDragStart, whenDataCardArrowButtonIsPressed, dataOperations}) => <div id="data-operations-list">
+export const DataOperationsList = ({
+    handleDragStart, 
+    whenDataCardArrowButtonIsPressed, 
+    dataOperations
+}) => 
+<div id="data-operations-list">
     {dataOperations.map((dataOperation, index) => 
         <div draggable onDragStart={handleDragStart}
             className="data-operations-item round-border-button shadowed-element" 
