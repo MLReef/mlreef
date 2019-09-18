@@ -44,7 +44,6 @@ class FileView extends React.Component {
     if (this.props.fileData.content) {
       fileContent = Base64.decode(this.props.fileData.content).split("\n");
       extension = fileName.split(".").pop();
-      console.log(extension);
       filepath = this.props.fileData.file_path.split("/");
     }
 

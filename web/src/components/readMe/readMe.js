@@ -1,6 +1,8 @@
 import React from 'react';
+import marked from "marked";
 import { connect } from "react-redux";
-import * as fileActions from "../actions/fileActions";
+import "./readme.css"
+import * as fileActions from "../../actions/fileActions";
 import { Base64 } from "js-base64";
 import { bindActionCreators } from "redux";
 
@@ -13,11 +15,16 @@ class ReadMeComponent extends React.Component {
         this.props.actions.getFileData("gitlab.com", projectId, "README.md", this.props.branch);
     }
 
+    rawMarkup(content) {
+        return { __html: marked(content, { sanitize: true }) };
+    }
+
+
     render() {
         const projectName = this.state.project.name;
-        let fileContent = [];
+        let textContent;
         if (this.props.fileData.content) {
-            fileContent = Base64.decode(this.props.fileData.content).split("\n");
+            textContent = Base64.decode(this.props.fileData.content);
         }
         return <div className="readme-container">
             <div className="readme-titlebar">
@@ -27,23 +34,10 @@ class ReadMeComponent extends React.Component {
                 </div>
             </div>
 
-            <div className="readme-content-container">
+            <div className="readme-content-container readme-style">
                 <div className="readme-content">
                     <p id="project-name-readme">{projectName}</p>
-                    <div id="project-content-readme">
-                        <table>
-                            <tbody>
-                                {fileContent.map(function (line, index) {
-                                    return (
-                                        <tr key={index}>
-                                            <td>
-                                                <p>{line}</p>
-                                            </td>
-                                        </tr>
-                                    );
-                                })}
-                            </tbody>
-                        </table>
+                    <div id="project-content-readme" dangerouslySetInnerHTML={textContent && this.rawMarkup(textContent)}>
                     </div>
                 </div>
             </div>

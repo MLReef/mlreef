@@ -13,6 +13,7 @@ class CommitDetails extends Component {
     state = {
         show: false,
         commits: {},
+        users: [],
         commitId: window.location.href.split("/commit/")[1]
     }
 
@@ -22,6 +23,9 @@ class CommitDetails extends Component {
         this.props.actions.getCommitDetails("gitlab.com", projectId, this.state.commitId)
             .then(res => res.json())
             .then(response => this.setState({ commits: response }));
+        this.props.actions.getUsers("gitlab.com", projectId)
+            .then(res => res.json())
+            .then(response => this.setState({ users: response }))
     }
 
     render() {
@@ -30,7 +34,11 @@ class CommitDetails extends Component {
         const proj = this.props.projects.filter(proj => proj.id === parseInt(projectId))[0];
         const author_name = this.state.commits.author_name;
         const commitId = this.state.commits.short_id;
-
+        let avatar = "https://assets.gitlab-static.net/uploads/-/system/user/avatar/3839940/avatar.png";
+        this.state.users.map(function (user) {
+            return (
+                user.name === author_name ? avatar = user.avatar_url : "")
+        })
         return (
             <div id="commits-view-container">
                 <Navbar />
@@ -41,7 +49,9 @@ class CommitDetails extends Component {
                     <div className="wrapper">
                         <span className="commit-information">
                             <span className="commit-authored">Commit <b>{commitId}</b> authored 4 days ago by</span>
-                            <div className="profile-pic-darkcircle" />
+                            <div className="committer-pic">
+                                <img src={avatar} alt="avatar" />
+                            </div>
                             <span className="author"><b>{author_name}</b></span>
                         </span>
                         <div className="other-options">
@@ -123,7 +133,6 @@ class CommitDetails extends Component {
 }
 
 function mapStateToProps(state) {
-    console.log(state);
     return {
         projects: state.projects
     };

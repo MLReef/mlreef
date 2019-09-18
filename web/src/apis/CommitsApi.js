@@ -58,4 +58,16 @@ export default class CommitsApi {
         ))
     }
 
+    static async getUsers(domain, projectId) {
+        let url = `https://${domain}/api/v4/projects/${projectId}/users`;
+        return fetch(new Request(
+            url, {
+            method: 'GET',
+            headers: new Headers({
+                "PRIVATE-TOKEN": SECURITY_TOKEN
+            })
+        }
+        ))
+    }
+
 }

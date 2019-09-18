@@ -1,6 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import ReadMeComponent from './../components/readMe'
+import ReadMeComponent from './readMe/readMe'
 import ProjectContainer from './projectContainer';
 import FilesContainer from './files-container';
 import RepoInfo from './repo-info';

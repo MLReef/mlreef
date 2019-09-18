@@ -1,0 +1,27 @@
+.readme-content-container p{
+    padding: 1em 0 !important;
+}
+
+.readme-content-container{
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans", Ubuntu, Cantarell, "Helvetica Neue", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+}
+
+.readme-content-container p > a{
+    color: #1b69b6
+}
+
+pre{
+    margin-bottom: 16px;
+    font-size: 13px;
+    line-height: 1.6em;
+    border-radius: 2px;
+    overflow-x: auto;
+    border: 1px solid #e5e5e5;
+    padding: 1em;
+}
+
+pre code{
+    white-space: pre;
+}
+
+

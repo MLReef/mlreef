@@ -146,3 +146,15 @@
     display: flex; 
     padding: 0.5em
 }
+
+.committer-pic{
+    height: 1.8em;
+    width: 1.8em;
+    background-color: #fff;
+    display: flex;
+}
+
+.committer-pic > img{
+    width: 100%;
+    border-radius: 50%;
+}
