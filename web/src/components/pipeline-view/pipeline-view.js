@@ -107,7 +107,7 @@ class PipeLineView extends Component{
     }
 
     componentWillMount(){
-        this.setState({project: this.props.projects.filter(proj => proj.id === parseInt(this.props.match.params.projectId))[0]});
+        this.setState({project: this.props.projects.selectedProject});
     }
 
     componentDidMount(){

@@ -18,13 +18,27 @@ export function getProjectsList() {
     return (dispatch) => projectGeneralInfoApi
         .getProjectsList()
         .then(
-            projects => dispatch(getProjectsInfoSuccessfully(
-                projects.filter(project =>
-                    project.id
-                )
-            )
+            projects => dispatch(
+                getProjectsInfoSuccessfully(
+                    projects.filter(project =>
+                        project.id
+                ))
             )
         ).catch(err => {
             throw err;
         });
+}
+
+export function setSelectedProjectSuccesfully(project) {
+    return { type: types.SET_SELECTED_PROJECT, project };
+}
+
+/**
+ * Set the project selected by user in project state so it can be accessed anywhere
+ */
+
+export function setSelectedProject(projectSelected) {
+    return (dispatch) => {
+        dispatch(setSelectedProjectSuccesfully(projectSelected));
+    }
 }

@@ -1,7 +1,8 @@
 export default {
     files: [],
-    project: {},
     file: {pathToFile: ""},
-    auth: false,
-    projectsList: []
+    projects: {
+        all: [],
+        selectedProject: {}
+    }
 }
