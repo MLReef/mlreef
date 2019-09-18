@@ -18,11 +18,11 @@
 }
 
 .active-border-light-blue {
-    border: 2px solid #32AFC3;
+    border: 1px solid #32AFC3;
 }
 
 .non-active-black-border {
-    border: 2px solid #1C2B40;
+    border: 1px solid #1C2B40;
     border-radius: 0.3vw;
 }
 
@@ -99,7 +99,7 @@
 .experiment-card > .card-content > .summary-data > .buttons-div button.dangerous-red {
     border-radius: 0.3vw;
     border-width: 1.7px;
-    padding: 0.5em 2em 1.7em 2em;
+    width: 35px;
 }
 
 .card-content > .summary-data > .buttons-div > button{
