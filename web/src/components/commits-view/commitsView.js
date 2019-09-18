@@ -48,8 +48,20 @@ class CommitsView extends Component {
 
     render() {
         const projectId = this.props.match.params.projectId;
-        const proj = this.props.projects.filter(proj => proj.id === parseInt(projectId))[0];
-        const distinct = [...new Set(this.state.commits.map(x => new Date(x.committed_date).toLocaleString("en-eu", { day: "numeric", month: "short", year: "numeric" })))];
+        const proj = this.props.projects.selectedProject;
+        const distinct = [
+            ...new Set(
+                this.state.commits.map(
+                    x => new Date(x.committed_date)
+                .toLocaleString(
+                    "en-eu", { 
+                        day: "numeric", 
+                        month: "short", 
+                        year: "numeric"
+                    }
+                )
+            )
+        )];
         return (
             <div id="commits-view-container">
                 <Navbar />

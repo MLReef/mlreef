@@ -36,7 +36,7 @@ class ProjectSet extends React.Component {
               onClick={this.handlePersonal}
             >
               <p>Your Projects </p>
-              <p id="count">3</p>
+              <p id="count">{this.props.projects.length}</p>
             </div>
             <div
               className={
@@ -63,7 +63,15 @@ class ProjectSet extends React.Component {
         <hr style={{ marginTop: "0" }} />
 
         {this.state.personal && this.props.projects.map((proj) =>
-          <Project key={`proj-key-${proj.id}`} owner={proj.id} name={proj.name} projId={proj.id} desc={proj.description} avatar={proj.avatar_url} />
+          <Project 
+            key={`proj-key-${proj.id}`}
+            owner={proj.id} 
+            name={proj.name} 
+            projId={proj.id} 
+            desc={proj.description} 
+            avatar={proj.avatar_url} 
+            projects={this.props.projects}
+          />
         )}
         {this.state.starred && <Project owner="Mlreef" name="demo" projId={"12395599"} />}
 
@@ -110,7 +118,7 @@ const Project = props => {
 
 function mapStateToProps(state) {
   return {
-    projects: state.projects
+    projects: state.projects.all
   };
 }
 

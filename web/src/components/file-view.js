@@ -19,11 +19,11 @@ class FileView extends React.Component {
     var url = new URL(url_string);
     var path = url.searchParams.get("path");
     const projectId = this.props.match.params.projectId;
-    const proj = this.props.projects.filter(proj => proj.id === parseInt(projectId))[0];
+    const proj = this.props.projects.selectedProject;
 
     this.setState({
       project: proj
-    })
+    });
     if (path) {
       path = path.replace(/\//g, "%2F");
       path = path + "%2F" + this.props.match.params.file;

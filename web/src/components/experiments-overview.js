@@ -211,7 +211,7 @@ class ExperimentCard extends React.Component {
 class ExperimentsOverview extends Component {
     constructor(props) {
         super(props);
-        const project = this.props.projects.filter(proj => proj.id === parseInt(this.props.match.params.projectId))[0];
+        const project = this.props.projects.selectedProject;
 
         this.state = {
             project: project

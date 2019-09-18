@@ -47,7 +47,6 @@ export default class CommitsApi {
 
     static getCommitDetails(domain, projectId, commitId, token) {
         let url = `https://${domain}/api/v4/projects/${projectId}/repository/commits/${commitId}`;
-        console.log(url);
         return fetch(new Request(
             url, {
             method: 'GET',

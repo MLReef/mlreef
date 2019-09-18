@@ -9,10 +9,8 @@ import { bindActionCreators } from "redux";
 class ReadMeComponent extends React.Component {
 
     componentWillMount() {
-        const projectId = this.props.projectId;
-        const proj = this.props.projects.filter(proj => proj.id === parseInt(projectId))[0];
-        this.setState({ project: proj })
-        this.props.actions.getFileData("gitlab.com", projectId, "README.md", this.props.branch);
+        this.setState({ project: this.props.project })
+        this.props.actions.getFileData("gitlab.com", this.props.project.id, "README.md", this.props.branch);
     }
 
     rawMarkup(content) {

@@ -29,9 +29,7 @@ class CommitDetails extends Component {
     }
 
     render() {
-
-        const projectId = this.props.match.params.projectId;
-        const proj = this.props.projects.filter(proj => proj.id === parseInt(projectId))[0];
+        const proj = this.props.projects.selectedProject;
         const author_name = this.state.commits.author_name;
         const commitId = this.state.commits.short_id;
         let avatar = "https://assets.gitlab-static.net/uploads/-/system/user/avatar/3839940/avatar.png";
