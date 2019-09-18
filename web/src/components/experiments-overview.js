@@ -16,16 +16,18 @@ const Completed = "Completed";
 const Aborted = "Aborted";
 
 const DataCard = ({ title, linesOfContent }) => <div className="data-card">
-    <div className="title">
-        <p><b>{title}</b></p>
-    </div>
-    <div>
-        {
-            linesOfContent.map((line) =>
-                <p className="line"> {line}</p>
-            )
-        }
-    </div>
+   <div className="title">
+       <p><b>{title}</b></p>
+   </div>
+   <div>
+       {linesOfContent.map((line) => {
+               const lineContent = line.startsWith("*")
+                   ? <b>{line.replace("*", "")}</b>
+                   : line
+               return <p className="line">{lineContent}</p>;
+           }
+       )}
+   </div>
 </div>;
 
 class ExperimentCard extends React.Component {
@@ -179,25 +181,38 @@ class ExperimentCard extends React.Component {
                             </div>
                             <div className="card-results" id={`${chartDivId}-Idcard-results-${index}`}>
                                 <DataCard title="Data" linesOfContent={[
-                                    "10000 files selected",
-                                    "Data instance: DL_pipeline_1",
-                                    "op1: Augment",
-                                    "op2: Random Crop",
-                                    "op3: Rotate"]}
+                                    "*3.245 files selected",
+                                    "  from",
+                                    "*data instance: DL_pipeline_1",
+                                    "resulting from a data pipeline with",
+                                    "*op1: Augment",
+                                    "*op2: Random Crop",
+                                    "*op3: Rotate",
+                                    "sourced from",
+                                    "*data branch: Master"
+                                    ]}
                                 />
                                 <DataCard title="Algorithm" linesOfContent={[
-                                    "30 files selected",
-                                    "Data instance: ML-cycle-3",
-                                    "op1: Speckle Filter",
-                                    "op2: Random Crop",
-                                    "op3: Augment"]}
+                                    "*Inception-V3",
+                                    "from",
+                                    "*branch: feature/3-layers",
+                                    "authored by",
+                                    "*Camillo 8 hours ago",
+                                    "being",
+                                    "*2 commits and 1 commit behind",
+                                    "of its master branch"
+                                    ]}
                                 />
                                 <DataCard title="Training" linesOfContent={[
-                                    "32500 files selected",
-                                    "Data instance: Pipeline_DeepLearning_SAR",
-                                    "op1: Speckle Filter",
-                                    "op2: Tile to Size",
-                                    "op3: Rotate"]}/>
+                                    "*10 epochs trained",
+                                    "with",
+                                    "*P: learning_r = 0.002",
+                                    "*P: optimizer = adam",
+                                    "*P: lr_decay = 0.0005",
+                                    "*P: layers = 3",
+                                    "*P: dropout = 0.5",
+                                    "*P: alpha = 1",
+                                    ]}/>
                             </div>
                         </div>)
                 })
@@ -300,7 +315,7 @@ class ExperimentsOverview extends Component {
                                                     backgroundColor: '#f5544d',
                                                     borderColor: '#f5544d',
                                                     lineTension: 0,
-                                                    data: [0.8491, 0.8513, 0.8699, 0.8950, 0.9023, 0.9064, 0.9077, 0.9120, 0.9140, 0.9100]
+                                                    data: [0.3491, 0.5513, 0.7699, 0.8450, 0.7823, 0.9064, 0.8677, 0.9120, 0.9140, 0.9100]
                                                 },
                                                 {
                                                     label: "Training Accuracy",
@@ -308,7 +323,7 @@ class ExperimentsOverview extends Component {
                                                     borderColor: '#2db391',
                                                     backgroundColor: '#2db391',
                                                     lineTension: 0,
-                                                    data: [0.8530, 0.8673, 0.8702, 0.8791, 0.8828, 0.8953, 0.9056, 0.9147, 0.9223, 0.9310]
+                                                    data: [0.530, 0.673, 0.602, 0.7791, 0.8828, 0.753, 0.8956, 0.9147, 0.9223, 0.9310]
                                                 }
                                             ]
                                         }
@@ -320,21 +335,18 @@ class ExperimentsOverview extends Component {
 
                     <ExperimentCard params={
                             {
-                                "currentState": Completed,
+                                "currentState": Open,
                                 "experiments": [ 
                                     {
-                                        "currentState": Completed,
+                                        "currentState": Open,
                                         "descTitle": "HAM10000_ShallowTrain_1",
                                         "userName": "Vaibhav Mehotra",
-                                        "percentProgress": "100",
-                                        "eta": "0",
-                                        "modelTitle": "Inception_V4",
                                         "timeCreatedAgo": "2 Weeks",
                                         "averageParams": [
-                                            {name: "Validation Accuracy", value: "0.86", showBellowModel: true},
-                                            {name: "Training Accuracy", value: "0.89"},
-                                            {name: "Validation Loss", value: "0.43"},
-                                            {name: "Training Loss", value: "0.35"}
+                                            {name: "Validation Accuracy", value: "---", showBellowModel: true},
+                                            {name: "Training Accuracy", value: "---"},
+                                            {name: "Validation Loss", value: "---"},
+                                            {name: "Training Loss", value: "---"}
                                         ],
                                         "data": {
                                             labels: ["", "", "", "", "", "", "", "", "", ""],
@@ -344,7 +356,7 @@ class ExperimentsOverview extends Component {
                                                 backgroundColor: '#f5544d',
                                                 borderColor: '#f5544d',
                                                 lineTension: 0,
-                                                data: [0.5931, 0.6113, 0.6320, 0.6476, 0.6511, 0.6589, 0.6700, 0.6781, 0.6880, 0.6969, 0.7080, 0.7129, 0.7357, 0.7459, 0.7655, 0.7700, 0.7835, 0.7938, 0.8119, 0.8299, 0.8365, 0.8412, 0.8475, 0.8520, 0.8660]
+                                                data: []
                                             },
                                                 {
                                                     label: "Training Accuracy",
@@ -352,7 +364,7 @@ class ExperimentsOverview extends Component {
                                                     borderColor: '#2db391',
                                                     backgroundColor: '#2db391',
                                                     lineTension: 0,
-                                                    data: [0.6431, 0.6450, 0.6500, 0.6570, 0.6590, 0.67, 0.6881, 0.6919, 0.7050, 0.7124, 0.7229, 0.7388, 0.75, 0.7588, 0.77, 0.78, 0.8110, 0.8302, 0.8442, 0.8720, 0.8830, 0.8850, 0.8850, 0.8850, 0.89]
+                                                    data: []
                                                 }
                                             ]
                                         }
