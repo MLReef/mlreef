@@ -58,7 +58,7 @@ class FileView extends React.Component {
         <div className="branch-path">
           <div className="branch-btn">
             <a href="#f00">
-              <b>Sub-master</b>
+              Master
               <img className="dropdown-white" src={arrow_blue} alt="" />
             </a>
           </div>

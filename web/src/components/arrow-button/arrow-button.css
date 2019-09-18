@@ -43,7 +43,6 @@
   
   .dropdown.active:hover,
   .dropdown.active {
-      box-shadow: 0 0 4px rgb(204, 204, 204);
       border-radius: 5px 5px 0 0;
       background-color: #f8f8f8
   }

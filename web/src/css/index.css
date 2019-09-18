@@ -265,6 +265,7 @@ img.dropdown-white {
   text-decoration: none;
   background-color: #15b785;
   border-radius: 0.3vw;
+  width: 180px;
   color: #f2f2f2;
   padding: 0.5em 2em;
   float: right;

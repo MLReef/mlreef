@@ -26,6 +26,37 @@
 
 /* ---------------------------Instruction------------------------- */
 
+#instruction-pipe-line {
+    margin: 15px auto 0 auto;
+    display: flex;
+    background-color: #2db391;
+    border-radius: 0.3vw;
+    max-width: 1024px;
+    min-width: 786px;
+}
+
+#instruction-pipe-line > #instruction {
+    margin: 0.5% 0% 0.5% 0%;
+    background-color: white;
+    width: 83%;
+    border-radius: inherit;
+    padding: 0.1% 1% 0.1% 2%;
+}
+
+#instruction-pipe-line > #instruction > #title {
+    color: #2db391;
+    font-size: 1.2em;
+}
+
+#instruction-pipe-line > #icon {
+    background-color: transparent;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 10%;
+    margin: 0% 0% 0% 1%;
+}
+
 #xButton > button {
     background-color: #2db391;
     color: white;
@@ -154,7 +185,7 @@
 }
 
 .pipe-line-execution > .upload-file{
-    border-bottom: 2px solid #e5e5e5;
+    border-bottom: 1px solid #e5e5e5;
     border-left: none !important;
     border-right: none !important;
 }
@@ -251,6 +282,7 @@
 
 .data-operations-item {
     border: 1px solid #e5e5e5;
+    background-color: white;
     min-width: 85%;
     padding: 2% 2% 2% 3%;
     margin-top: 2%;
@@ -265,8 +297,9 @@
 #drop-zone{
     display: flex;
     min-height: 100px;
-    border: 1px solid #e5e5e5;
+    border-bottom: 1px solid #e5e5e5;
     align-items: center;
+
 }
 
 /* ---------------------- selected-operation-container-div ---------------------- */
@@ -295,7 +328,7 @@
     align-items: center;
     width: max-content;
     border: 1px solid #e5e5e5;
-    border-radius: 0.5vw;
+    border-radius: 0.3vw;
     height: min-content;
 }
 
@@ -305,7 +338,6 @@
 
 .data-oper-options > div > button {
     border: none;
-    border-left: 1px solid #e5e5e5;
     border-radius: inherit !important;
 }
 
@@ -320,6 +352,9 @@
 
 .data-oper-options.flexible-div > div > button.dangerous-red {
     font-weight: 600;
+    width: 30px;
+    border: 1px solid #1D2B40;
+    margin-right: 3px;
 }
 
 .copy-btn-item {
@@ -341,7 +376,6 @@
 
 .advanced-opt-drop-down {
     display: flex;
-    border-bottom: 1px solid #e5e5e5;
 }
 
 .advanced-opt-drop-down > .drop-down {
@@ -356,7 +390,7 @@
 }
 
 .advanced-opts-div > div {
-    margin: 1% 0 0 3%;
+    margin: 1% 0 0 0%;
 }
 
 .advanced-opts-div > div > p {
