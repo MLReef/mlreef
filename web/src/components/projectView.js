@@ -27,15 +27,20 @@ class ProjectView extends React.Component {
             selectedProject: project
         }
     }
-    
+
     render() {
-        const files = this.props.files;
         const branch = this.state.selectedProject ? this.state.selectedProject.default_branch: "master";
         const projectName = this.state.selectedProject  ? this.state.selectedProject.name: "";
+        const showReadMe = !window.location.href.includes("path");
+
         return (
             <div className="project-component">
                 <Navbar />
-                <ProjectContainer project={this.props.projects.selectedProject} activeFeature="data" folders={["Group Name", projectName, "Data"]} />
+                <ProjectContainer 
+                    project={this.props.projects.selectedProject} 
+                    activeFeature="data" 
+                    folders={["Group Name", projectName, "Data"]}
+                />
                 <div className="main-content">
                     <RepoInfo />
                     <div className="last-commit-info">
@@ -52,8 +57,8 @@ class ProjectView extends React.Component {
                         </div>
                     </div>
                     <RepoFeatures />
-                    <FilesContainer projectId={this.state.selectedProject.id} branch={branch} files={files} />
-                    <ReadMeComponent project={this.state.selectedProject} branch={branch} files={files} />
+                    <FilesContainer projectId={this.state.selectedProject.id} branch={branch}/>
+                    {showReadMe && <ReadMeComponent project={this.state.selectedProject} branch={branch}/>}
                 </div>
             </div>
         )}
