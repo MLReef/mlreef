@@ -2,16 +2,16 @@ import React from "react";
 import ProjectContainer from "./projectContainer";
 import "../css/file-view.css";
 import { connect } from "react-redux";
-import * as fileActions from "../actions/fileActions";
-import { bindActionCreators } from "redux";
 import { Base64 } from "js-base64";
 import Navbar from "./navbar/navbar";
 import file_01 from "./../images/file_01.svg";
 import arrow_blue from "./../images/arrow_down_blue_01.svg";
+import filesApi from "../apis/FilesApi";
 
 class FileView extends React.Component {
   state = {
-    project: null
+    project: null,
+    fileData: null
   }
 
   componentWillMount() {
@@ -31,20 +31,28 @@ class FileView extends React.Component {
       path = this.props.match.params.file;
     }
 
-    this.props.actions.getFileData("gitlab.com", projectId, path, this.props.match.params.branch);
+    filesApi.getFileData(
+      "gitlab.com", 
+      projectId, 
+      path, 
+      this.props.match.params.branch
+    ).then(res => this.setState({fileData: res})) ;
   }
 
   render() {
     const project = this.state.project;
-    const fileName = this.props.fileData.file_name;
-    const fileSize = this.props.fileData.size;
+    let fileName = null;
+    let fileSize = null;
     let fileContent = [];
     let filepath = [];
     let extension;
-    if (this.props.fileData.content) {
-      fileContent = Base64.decode(this.props.fileData.content).split("\n");
+
+    if(this.state.fileData){ 
+      fileName = this.state.fileData.file_name;
+      fileSize = this.state.fileData.size;
+      fileContent = Base64.decode(this.state.fileData.content).split("\n");
       extension = fileName.split(".").pop();
-      filepath = this.props.fileData.file_path.split("/");
+      filepath = this.state.fileData.file_path.split("/");
     }
 
     return (
@@ -129,7 +137,7 @@ class FileView extends React.Component {
                 <div>
                   <img
                     className="file-img"
-                    src={`data:image/png;base64,${this.props.fileData.content}`}
+                    src={`data:image/png;base64,${this.state.fileData.content}`}
                     alt={fileName}
                   />
                 </div>
@@ -158,18 +166,10 @@ class FileView extends React.Component {
 
 function mapStateToProps(state) {
   return {
-    fileData: state.file,
     projects: state.projects
   };
 }
 
-function mapDispatchToProps(dispatch) {
-  return {
-    actions: bindActionCreators(fileActions, dispatch)
-  };
-}
-
 export default connect(
-  mapStateToProps,
-  mapDispatchToProps
+  mapStateToProps
 )(FileView);

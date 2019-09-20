@@ -1,28 +1,43 @@
 import React from 'react';
 import marked from "marked";
-import { connect } from "react-redux";
 import "./readme.css"
-import * as fileActions from "../../actions/fileActions";
 import { Base64 } from "js-base64";
-import { bindActionCreators } from "redux";
+import filesApi from "../../apis/FilesApi";
 
 class ReadMeComponent extends React.Component {
+    constructor(props){
+        super(props);
+        this.state = {
+            project: this.props.project,
+            fileData: null
+        }
+    }
 
-    componentWillMount() {
-        this.setState({ project: this.props.project })
-        this.props.actions.getFileData("gitlab.com", this.props.project.id, "README.md", this.props.branch);
+    componentDidMount(){
+        filesApi.getFileData(
+            "gitlab.com", 
+            this.props.project.id, 
+            "README.md", 
+            this.props.branch
+        )
+        .then(
+            res => this.setState({fileData: res})
+        );
     }
 
     rawMarkup(content) {
         return { __html: marked(content, { sanitize: true }) };
     }
 
-
     render() {
         const projectName = this.state.project.name;
         let textContent;
-        if (this.props.fileData.content) {
-            textContent = Base64.decode(this.props.fileData.content);
+        if(!this.state.fileData){
+            return null;
+        }
+
+        if (this.state.fileData.content) {
+            textContent = Base64.decode(this.state.fileData.content);
         }
         return <div className="readme-container">
             <div className="readme-titlebar">
@@ -43,20 +58,4 @@ class ReadMeComponent extends React.Component {
     }
 }
 
-function mapStateToProps(state) {
-    return {
-        fileData: state.file,
-        projects: state.projects
-    };
-}
-
-function mapDispatchToProps(dispatch) {
-    return {
-        actions: bindActionCreators(fileActions, dispatch)
-    };
-}
-
-export default connect(
-    mapStateToProps,
-    mapDispatchToProps
-)(ReadMeComponent);
+export default ReadMeComponent;
