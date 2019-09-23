@@ -1,0 +1,30 @@
+variables:
+  EC2_INSTANCE_NAME: mlreef-aiops-dispatcher        #environment name and url are set separately
+
+
+provision-dispatcher:
+  image: registry.gitlab.com/systemkern/s5:latest-aws  # based on python:3-slim
+  variables:
+    #EC2_IMAGE_AMI: "ami-0ac05733838eabc06"            # ubuntu/images/hvm-ssd/ubuntu-bionic-18.04-amd64-server-20190722.1
+    EC2_IMAGE_AMI: "ami-050a22b7e0cf85dd0"             # ubuntu 16.04 LTS
+    EC2_MACHINE_SIZE: "t2.micro"
+    EC2_SECURITY_GRP: "launch-wizard-2"
+  before_script:
+    - chmod 400 development_deployment.pem             # prepare private key file
+    - ./aiops-runner-dispatcher/decomission.sh                  # first shutdown all current instances
+  script:
+    - INSTANCE=$(./aiops-runner-dispatcher/provision.sh)
+    - echo "$INSTANCE"
+    - echo "$INSTANCE" | tr -d '\r' > instance.info    # pass instance url to deploy stage
+  #    - sleep 120 # wait for the instance to boot
+  artifacts:
+    paths:
+      - instance.info
+  only:
+    refs:
+      - master
+
+#  environment:
+#    name: "$EC2_INSTANCE_NAME"
+#    url: https://www.google.com
+#    on_stop: decomission-ec2                           # clean up after branch merge

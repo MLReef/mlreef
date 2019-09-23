@@ -1,4 +1,4 @@
-MLReef
+5MLReef
 ===========================
 MLReef is being developed by the MLReef GmbH based in Vienna, Austria, Europe
 with the purpose to support collaborative and versioned data set and model 
@@ -43,6 +43,11 @@ For more information please see the [architecture documentation](docs/developmen
 The Web Frontend is implemented with the following technologies and frameworks
 - Javascript/Typescript
 - ReactJS 
+
+
+## Gitlab Runners 
+The Gitlab Runner Bastion - the machine which spawns the actual gitlab runners is set up following this 
+(article)[https://about.gitlab.com/2017/11/23/autoscale-ci-runners/] 
 
 
 ## Is it any good?
