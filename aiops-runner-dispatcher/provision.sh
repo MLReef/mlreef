@@ -11,9 +11,9 @@ INSTANCE_ID=$(aws ec2 run-instances --count 1 \
   --instance-type ${EC2_MACHINE_SIZE}         \
   --security-groups ${EC2_SECURITY_GRP}       \
   --key-name development_deployment           \
-  --user-data file://aiops-runner-dispatcher/ec2-startup.sh       \
  | jq -r ".Instances[].InstanceId")
 
+#  --user-data file://aiops-runner-dispatcher/ec2-startup.sh       \
 #  --tags "Key=Name,Value=${EC2_INSTANCE_NAME}" \
 
 aws ec2 create-tags                             \

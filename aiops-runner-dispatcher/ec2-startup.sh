@@ -10,7 +10,6 @@ yum update -y
 # Pin-Priority: 1001
 # EOF
 
-
 # Setup Gitlab Repository and install gitlab-runner
 curl -L https://packages.gitlab.com/install/repositories/runner/gitlab-ci-multi-runner/script.deb.sh | sudo bash
 sudo apt-get install -y gitlab-ci-multi-runner
