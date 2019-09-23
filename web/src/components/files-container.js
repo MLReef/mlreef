@@ -66,7 +66,12 @@ class FilesContainer extends Component {
 
   clickListener(e) {
     this.props.actions.loadFiles(
-      this.getParamFromUrl("path", e.target.href),
+      this.getParamFromUrl(
+        "path", 
+        e.target.nodeName === "IMG" 
+          ? e.target.parentNode.href
+          : e.target.href
+      ),
       this.props.branch
     );
   }
