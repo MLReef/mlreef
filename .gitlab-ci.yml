@@ -1,78 +1,87 @@
-image: gradle:latest
+image: alpine:latest
+
+# The deployment on aws depends on thre main environment variables
+# AWS_ACCESS_KEY_ID       create at https://console.aws.amazon.com/iam/
+# AWS_SECRET_ACCESS_KEY   create at https://console.aws.amazon.com/iam/
+# AWS_DEFAULT_REGION      default:eu-central-1
+variables:
+  BUILD_PATH: "web/build"
+  IMAGE_NAME: "frontend"
+  BUCKET_NAME: mlreef-$CI_COMMIT_REF_SLUG              # environment name and url are set separately
+  EC2_INSTANCE_NAME: mlreef-$CI_COMMIT_REF_SLUG        # environment name and url are set separately
+  INSTANCE_INFO: instance.info                         # workaround for transmitting information between stages
+  DOCKER_REGISTRY_REPOSITORY_ID: "717423"              # https://gitlab.com/api/v4/projects/12894267/registry/repositories/
+  IMAGE_PATH: "$DOCKER_REGISTRY/$DOCKER_ORGANISATION/$IMAGE_NAME:$CI_COMMIT_REF_SLUG"
 
 stages:
   - prepare
   - deploy
   - teardown
 
-# The deployment on aws dependes on thre main environment variables
-# AWS_ACCESS_KEY_ID       create at https://console.aws.amazon.com/iam/
-# AWS_SECRET_ACCESS_KEY   create at https://console.aws.amazon.com/iam/
-# AWS_DEFAULT_REGION      default:eu-central-1
-variables:
-  BUILD_PATH: "web/build"
-  BUCKET_NAME: mlreef-$CI_COMMIT_REF_SLUG              # environment name and url are set separately
-  EC2_INSTANCE_NAME: mlreef-$CI_COMMIT_REF_SLUG        # environment name and url are set separately
-  INSTANCE_INFO: instance.info                         # workaround for transmitting information between stages
 
-
-package:
-  image: registry.gitlab.com/systemkern/s5:latest
+# "." hides the job from execution
+build:
+  image: docker:latest
   stage: prepare
+  services:
+    - docker:dind
+  before_script:
+    - docker login ${DOCKER_REGISTRY} -u "${DOCKER_USER}" -p "${DOCKER_PASSWORD}"
   script:
     - cd web
-    - zip -qr deploy.zip .
-  artifacts:
-    paths:
-      - web/deploy.zip
+    - rm -rf package-lock.json
+    - rm -rf node_modules
+    - echo "creating docker image ${IMAGE_NAME} for user ${DOCKER_USER}"
+    - docker build --pull --tag "$IMAGE_PATH" -f Dockerfile .
+    - docker push "${IMAGE_PATH}"
 
 
 provision-ec2:
   image: registry.gitlab.com/systemkern/s5:latest-aws  # based on python:3-slim
   stage: prepare
   variables:
-    EC2_IMAGE_AMI:    "ami-03c87d96f6702a119"          # aws-elasticbeanstalk-amzn-2018.03.0.x86_64-nodejs-hvm-201904170656
-    EC2_MACHINE_SIZE: "t2.micro"                       # https://aws.amazon.com/ec2/instance-types/
+    EC2_IMAGE_AMI:    "ami-03c87d96f6702a119"           # aws-elasticbeanstalk-amzn-2018.03.0.x86_64-nodejs-hvm-201904170656
+    EC2_MACHINE_SIZE: "t2.nano"                         # https://aws.amazon.com/ec2/instance-types/
     EC2_SECURITY_GRP: "application_servers"
   before_script:
-    - chmod 400 development_deployment.pem             # prepare private key file
-    - ./bin/decomission.sh                             # first shutdown all current instances
+    - chmod 400 development_deployment.pem              # prepare private key file
+    - ./bin/decomission.sh                              # first shutdown all current instances
   script:
     - INSTANCE=$(./bin/provision.sh)
     - echo "$INSTANCE"
-    - echo "$INSTANCE" | tr -d '\r' > $INSTANCE_INFO   # pass instance url to deploy stage
+    - echo "$INSTANCE" | tr -d '\r' > $INSTANCE_INFO    # pass instance url to deploy stage
     - sleep 120 # wait for the instance to boot
+  after_script:
     - cat $INSTANCE_INFO
+    - if [ $INSTANCE_INFO == "null" ]; then exit 1;  fi # error on invalid INSTANCE_INFO
   artifacts:
     paths:
-      - "$INSTANCE_INFO"                               # pass the file which contains our instance URL
+      - "$INSTANCE_INFO"                                # pass the file which contains our instance URL
   environment:
     name: $CI_COMMIT_REF_SLUG
-    url: http://www.example.com                        # temporary url will be corrected by the gitlab-env-conf job
-    on_stop: decomission                               # clean up after branch merge
+    url: http://www.example.com                         # temporary url will be corrected by the gitlab-env-conf job
+    on_stop: decomission                                # clean up after branch merge
+
 
 gitlab-env-conf:
   image: pstauffer/curl:latest
   stage: deploy
   variables:
-    KEY: "Authorization:"                              # workaround to preserver the yaml structure
+    KEY: "Authorization:"                               # workaround to preserver the yaml structure
   before_script:
-    - cat $INSTANCE_INFO                               # debug output
+    - cat $INSTANCE_INFO                                # debug output
     - URL=$(cat $INSTANCE_INFO)
-    - chmod +x bin/jq                                  # assure execution permissions
   script:
     # Get the ID of the gitlab environment we want to edit
     - ID=$(curl --header "$KEY Bearer $GITLAB_API_TOKEN"
       https://gitlab.com/api/v4/projects/$CI_PROJECT_ID/environments?name=$CI_COMMIT_REF_SLUG
       | bin/jq -c '.[] | select(.name | contains("'$CI_REF_SLUG'")) | .id'
       )
-    - echo "ID is $ID"                                 # debug output
+    - echo "ID is $ID"                                  # debug output
     # configure the gitlab environment with the correct URL
     - curl --request PUT --header "$KEY Bearer $GITLAB_API_TOKEN"
       --data "name=$CI_COMMIT_REF_SLUG&external_url=http://$URL:3000"
       https://gitlab.com/api/v4/projects/$CI_PROJECT_ID/environments/$ID
-
-
 
 # deploy the application to the ec2 instance
 deploy-ec2:
@@ -81,30 +90,36 @@ deploy-ec2:
   before_script:
     - cat $INSTANCE_INFO
     - INSTANCE=$(cat $INSTANCE_INFO)
-    - chmod 400 development_deployment.pem             # prepare private key file
+    - chmod +x bin/jq
   script:
-    - bin/deploy.sh $INSTANCE
+    - chmod 400 development_deployment.pem              # prepare private key file
+    - bin/deploy.sh $INSTANCE $IMAGE_PATH
 
 
 decomission:
   when: manual
-  image: registry.gitlab.com/systemkern/s5:latest-aws   # based on python:3-slim
+  image: registry.gitlab.com/systemkern/s5:latest-aws    # based on python:3-slim
   stage: teardown
   variables:
     GIT_STRATEGY: none
-  before_script:
-    - INSTANCE=$(cat $INSTANCE_INFO)
+    # Workaround for Gitlab Bug https://gitlab.com/gitlab-org/gitlab-runner/issues/1809
+    WORKAROUND: "PRIVATE-TOKEN:" # workaround to not break the yaml structure
   script:
     # use the aws-cli to retrieve the desciptoion (json) for our machine
     # parse the json with jq to get the instance id
     # the xargs command at the end submits the termination command to AWS
     - aws ec2 describe-instances
-      --filters "Name=tag:Name,Values=$INSTANCE"
+      --filters "Name=tag:Name,Values=$EC2_INSTANCE_NAME"
       | jq -r ".Reservations[].Instances[].InstanceId"
-      | xargs --no-run-if-empty aws ec2 terminate-instances --instance-id
+      | xargs --no-run-if-empty aws ec2 terminate-instances
+      --instance-id
+    - curl --request DELETE --header "$WORKAROUND $GITLAB_API_TOKEN"
+      https://gitlab.com/api/v4/projects/$CI_PROJECT_ID/registry/repositories/$DOCKER_REGISTRY_REPOSITORY_ID/tags/$CI_COMMIT_REF_SLUG
   environment:
     name: $CI_COMMIT_REF_SLUG
     action: stop
   except:
     refs:
       - master
+
+
