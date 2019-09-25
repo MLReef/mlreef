@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import { connect } from 'react-redux';
+import {connect} from 'react-redux';
 import minus from '../../images/minus.svg';
 import plus from '../../images/plus_01.svg';
 import './pipe-line-view.css';
@@ -10,12 +10,11 @@ import {SortableDataOperationsList} from './sortable-data-operation-list';
 import SelectDataPipelineModal from "../select-data-pipeline/select-data-pipeline-modal";
 import arrayMove from 'array-move';
 import * as fileActions from "../../actions/fileActions";
-import { bindActionCreators } from "redux";
+import {bindActionCreators} from "redux";
 import commitsApi from "../../apis/CommitsApi";
-import {INT, FLOAT, regExps, BOOL} from "../../data-types";
-import { DataOperationsList } from './data-operations-list';
-import { Instruction } from '../instruction/instruction';
-import { mlreefFileContent } from "../../data-types";
+import {BOOL, FLOAT, INT, mlreefFileContent, regExps} from "../../data-types";
+import {DataOperationsList} from './data-operations-list';
+import {Instruction} from '../instruction/instruction';
 
 
 let linesToAdd = [];
@@ -30,7 +29,8 @@ class PipeLineView extends Component{
             showFilters: false,
             showForm: false,
             dataOperations: [
-                {title: "Augment", username: "UserName 1", starCount: "243", index: 1, 
+                {
+                    title: "Augment", username: "Camillo Pachmann", starCount: "243", index: 1,
                     description: 
                         `Neural network architectures have a large number of trainable parameters and therefore they require a very large number of 
                         images to train on to effectively capture the distrubution of the data and 'learn'. Data augmentation is a 
@@ -49,7 +49,8 @@ class PipeLineView extends Component{
                         ]
                     }
                 },
-                {title: "Random crop", username: "UserName 2", starCount: "201", index: 2, 
+                {
+                    title: "Random crop", username: "Vaibhav Mehrotra", starCount: "201", index: 2,
                     description: 
                         `This pipeline operation randomly crops a NxM (height x width) portion of the given dataset. 
                         This is used to randomly extract parts of the image incase we need to remove bias present in image data.`,
@@ -65,7 +66,8 @@ class PipeLineView extends Component{
                        ]
                     }
                 },
-                {title: "Random rotate", username: "UserName 3", starCount: "170", index: 3, 
+                {
+                    title: "Random rotate", username: "Vaibhav Mehrotra", starCount: "170", index: 3,
                     description: 
                         `A simple rotation operation to rotate images by a specified angle. All images are rotated by this angle.
                         Such a pipeline operation finds use in the case where an entire dataset is skewed and needs to be normalized.`,
@@ -76,7 +78,8 @@ class PipeLineView extends Component{
                         ]
                     }
                 },
-                {title: "Lee filter", username: "UserName 4", starCount: "200", index: 4, 
+                {
+                    title: "Lee filter", username: "Vaibhav Mehrotra", starCount: "200", index: 4,
                     description: 
                         `The presence of speckle noise in Synthetic Aperture Radar (SAR) images makes the interpretation of the contents difficult, 
                         thereby degrading the quality of the image. Therefore an efficient speckle noise removal technique, the Lee Filter is used to 
@@ -94,7 +97,7 @@ class PipeLineView extends Component{
             dataOperationsSelected: [],
             filesSelectedInModal: [],
             commitResponse: null
-        }
+        };
         this.handleCheckMarkClick = this.handleCheckMarkClick.bind(this);
         this.drop = this.drop.bind(this);
         this.allowDrop = this.allowDrop.bind(this);
@@ -148,7 +151,7 @@ class PipeLineView extends Component{
 
     onSortEnd = ({oldIndex, newIndex}) => this.setState(({dataOperationsSelected}) => ({
         dataOperationsSelected: arrayMove(dataOperationsSelected, oldIndex, newIndex)
-    }))
+    }));
               
     handleCheckMarkClick(e){
         const newState = this.state;
@@ -179,7 +182,7 @@ class PipeLineView extends Component{
             array.push(dataOperationCopy);
             this.setState({dataOperationsSelected: array});
         }
-    }
+    };
 
     copyDataOperationEvent(e){
         const array = this.state.dataOperationsSelected;
@@ -209,7 +212,7 @@ class PipeLineView extends Component{
         }
         
         e.preventDefault();
-    }
+    };
 
     hideInstruction = () =>
         document.getElementById("instruction-pipe-line").classList.add("invisible");
@@ -228,7 +231,7 @@ class PipeLineView extends Component{
             filtersBtn.style.width = '80%';
             filters.classList.add("invisible");
         }
-    }
+    };
 
     handleDragStart(e){
         const newState = {...this.state};
@@ -241,7 +244,7 @@ class PipeLineView extends Component{
     
     selectDataClick = () => {
         this.setState({showSelectFilesModal: !this.state.showSelectFilesModal});
-    }
+    };
     
     whenDataCardArrowButtonIsPressed = (e, params) => {
         const desc = document.getElementById(`description-data-operation-item-${params.index}`);
@@ -263,7 +266,7 @@ class PipeLineView extends Component{
                 : dataOpForm.style.display = 'none'
         }    
         this.setState(newState);
-    }
+    };
 
     showAdvancedOptionsDivDataPipeline = (e, params) => {
         const newState = this.state.dataOperations[params.index];
@@ -276,14 +279,14 @@ class PipeLineView extends Component{
             : advancedOptsDiv.style.display = 'none';
         
         this.setState({newState});
-    }
+    };
     
     handleModalAccept = (e, filesSelected) => {
         this.setState({filesSelectedInModal: filesSelected, showSelectFilesModal: !this.state.showSelectFilesModal});
         document.getElementById("text-after-files-selected").style.display = "flex";
         document.getElementById("upload-files-options").style.display = "none"; 
         document.getElementsByTagName("body").item(0).style.overflow = 'scroll';
-    }
+    };
 
     handleExecuteBtn = () => {
         linesToAdd = [];
@@ -345,7 +348,7 @@ class PipeLineView extends Component{
                         });
 
                         if(paramInput.dataType === BOOL){
-                            const dropDown = input.parentNode.childNodes[1]
+                            const dropDown = input.parentNode.childNodes[1];
                             dropDown.style.border = "1px solid red";
                             dropDown.addEventListener('focusout', () => {
                                 dropDown.removeAttribute("style");
@@ -368,7 +371,7 @@ class PipeLineView extends Component{
             console.log(mlreefFileContent);
             this.callToCommitApi(mlreefFileContent, "create");
         }
-    }
+    };
 
     validateInput = (value, dataType, required) => {
         if(required && (typeof(value) === undefined || value === "")){
@@ -383,7 +386,7 @@ class PipeLineView extends Component{
             default:
                 return (value === "") || (value === "true") || (value === "false");
         }
-    }
+    };
 
     render = () => {
         const project = this.state.project;

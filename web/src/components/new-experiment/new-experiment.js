@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import { connect } from 'react-redux';
+import {connect} from 'react-redux';
 import minus from '../../images/minus.svg';
 import plus from '../../images/plus_01.svg';
 import '../pipeline-view/pipe-line-view.css';
@@ -10,10 +10,10 @@ import {SortableDataOperationsList} from '../pipeline-view/sortable-data-operati
 import SelectDataPipelineModal from "../select-data-pipeline/select-data-pipeline-modal";
 import arrayMove from 'array-move';
 import * as fileActions from "../../actions/fileActions";
-import { bindActionCreators } from "redux";
-import {INT, FLOAT, BOOL} from "../../data-types";
-import { DataOperationsList } from '../pipeline-view/data-operations-list';
-import { Instruction } from "../instruction/instruction";
+import {bindActionCreators} from "redux";
+import {FLOAT} from "../../data-types";
+import {DataOperationsList} from '../pipeline-view/data-operations-list';
+import {Instruction} from "../instruction/instruction";
 
 class NewExperiment extends Component{
     constructor(props){
@@ -25,42 +25,34 @@ class NewExperiment extends Component{
             showFilters: false,
             showForm: false,
             dataOperations: [
-                {title: "Algorithm 1", username: "UserName 1", starCount: "243", index: 1, 
-                    description: "Some short description of the data operation to see what it does",
+                {
+                    title: "Resnet 50", username: "Keras", starCount: "243", index: 1,
+                    description: "ResNet50 is a 50 layer Residual Network.",
                     showDescription:false, showAdvancedOptsDivDataPipeline: false, dataType: "Images", 
                     params: {
-                        standard: [{name: "Number of augmented images", dataType: INT, required: true}],
+                        standard: [],
                         advanced: [
-                            {name: "Rotation range", dataType: FLOAT, required: false},
-                            {name: "Width shift range", dataType: FLOAT, required: false},
-                            {name: "Height shift range", dataType: FLOAT, required: false},
-                            {name: "Shear range", dataType: FLOAT, required: false},
-                            {name: "Zoom range", dataType: FLOAT, required: false},
-                            {name: "Horizontal flip", dataType: BOOL, required: false},
+                            {name: "Hyperparameter 1", dataType: FLOAT, required: false},
+                            {name: "Hyperparameter 2", dataType: FLOAT, required: false},
+                            {name: "Hyperparameter 3", dataType: FLOAT, required: false},
+                            {name: "Hyperparameter 4", dataType: FLOAT, required: false}
                         ]
                     }
                 },
-                {title: "Algorithm 2", username: "UserName 2", starCount: "201", index: 2, 
-                    description: "Some short description of the data operation to see what it does",
+                {
+                    title: "Inception", username: "GoogLeNet", starCount: "201", index: 2,
+                    description: "Inception approximates a sparse CNN with a normal dense construction Also, it uses convolutions of different sizes to capture details at varied scales(5X5, 3X3, 1X1).",
                     showDescription:false, showAdvancedOptsDivDataPipeline: false, dataType: "Text", 
                     params: {
-                       standard: [
-                            {name: "Height", dataType: INT, required: true},
-                            {name: "Width", dataType: INT, required: true},
-                            {name: "Channels", dataType: INT, required: true},
-                       ],
-                       advanced: [
-                           {name: "Seed", dataType: INT, required: false}
-                       ]
+                        standard: []
                     }
                 },
-                {title: "Algorithm 3", username: "UserName 3", starCount: "170", index: 3, 
-                    description: "Some short description of the data operation to see what it does",
+                {
+                    title: "VGG16", username: "VGG group", starCount: "170", index: 3,
+                    description: "The VGG convolutional layers are followed by 3 fully connected layers. The width of the network starts at a small value of 64 and increases by a factor of 2 after every sub-sampling/pooling layer. It achieves the top-5 accuracy of 92.3 % on ImageNet.",
                     showDescription:false, showAdvancedOptsDivDataPipeline: false, dataType: "Something Else", 
                     params: {
-                        standard: [
-                            {name: "Angle of rotation", dataType: FLOAT, required: true}
-                        ]
+                        standard: []
                     }
                 }
             ],
@@ -69,7 +61,7 @@ class NewExperiment extends Component{
             dataOperationsSelected: [],
             filesSelectedInModal: [],
             commitResponse: null
-        }
+        };
         this.handleCheckMarkClick = this.handleCheckMarkClick.bind(this);
         this.drop = this.drop.bind(this);
         this.allowDrop = this.allowDrop.bind(this);
@@ -87,7 +79,7 @@ class NewExperiment extends Component{
    
     onSortEnd = ({oldIndex, newIndex}) => this.setState(({dataOperationsSelected}) => ({
         dataOperationsSelected: arrayMove(dataOperationsSelected, oldIndex, newIndex)
-    }))
+    }));
               
     handleCheckMarkClick(e){
         const newState = this.state;
@@ -118,7 +110,7 @@ class NewExperiment extends Component{
             array.push(dataOperationCopy);
             this.setState({dataOperationsSelected: array});
         }
-    }
+    };
 
     copyDataOperationEvent(e){
         const array = this.state.dataOperationsSelected;
@@ -148,7 +140,7 @@ class NewExperiment extends Component{
         }
         
         e.preventDefault();
-    }
+    };
 
     hideInstruction = () =>
         document.getElementById("instruction-pipe-line").classList.add("invisible");
@@ -167,7 +159,7 @@ class NewExperiment extends Component{
             filtersBtn.style.width = '80%';
             filters.classList.add("invisible");
         }
-    }
+    };
 
     handleDragStart(e){
         const newState = {...this.state};
@@ -180,7 +172,7 @@ class NewExperiment extends Component{
     
     selectDataClick = () => {
         this.setState({showSelectFilesModal: !this.state.showSelectFilesModal});
-    }
+    };
     
     whenDataCardArrowButtonIsPressed = (e, params) => {
         const desc = document.getElementById(`description-data-operation-item-${params.index}`);
@@ -202,7 +194,7 @@ class NewExperiment extends Component{
                 : dataOpForm.style.display = 'none'
         }    
         this.setState(newState);
-    }
+    };
 
     showAdvancedOptionsDivDataPipeline = (e, params) => {
         const newState = this.state.dataOperations[params.index];
@@ -215,18 +207,18 @@ class NewExperiment extends Component{
             : advancedOptsDiv.style.display = 'none';
         
         this.setState({newState});
-    }
+    };
     
     handleModalAccept = (e, filesSelected) => {
         this.setState({filesSelectedInModal: filesSelected, showSelectFilesModal: !this.state.showSelectFilesModal});
         document.getElementById("text-after-files-selected").style.display = "flex";
         document.getElementById("upload-files-options").style.display = "none"; 
         document.getElementsByTagName("body").item(0).style.overflow = 'scroll';
-    }
+    };
 
     handleExecuteBtn = () => {
       console.log("execute");
-    }
+    };
 
     render = () => {
         const project = this.state.project;
