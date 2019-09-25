@@ -3,6 +3,7 @@ import ProjectContainer from "./projectContainer";
 import "../css/file-view.css";
 import { connect } from "react-redux";
 import { Base64 } from "js-base64";
+import CommitsApi from "./../apis/CommitsApi";
 import Navbar from "./navbar/navbar";
 import file_01 from "./../images/file_01.svg";
 import arrow_blue from "./../images/arrow_down_blue_01.svg";
@@ -11,6 +12,7 @@ import filesApi from "../apis/FilesApi";
 class FileView extends React.Component {
   state = {
     project: null,
+    committer: [],
     fileData: null
   }
 
@@ -32,22 +34,37 @@ class FileView extends React.Component {
     }
 
     filesApi.getFileData(
-      "gitlab.com", 
-      projectId, 
-      path, 
+      "gitlab.com",
+      projectId,
+      path,
       this.props.match.params.branch
-    ).then(res => this.setState({fileData: res})) ;
+    ).then(res => this.setState({ fileData: res }));
+  }
+
+  componentWillUnmount() {
+    this.setState = (state, callback) => {
+      return;
+    };
+  }
+
+  getCommit() {
+    const projectId = this.props.match.params.projectId;
+    CommitsApi.getCommitDetails("gitlab.com", projectId, this.state.fileData.last_commit_id)
+      .then(res => res.json())
+      .then(result => this.setState({ committer: result }))
   }
 
   render() {
     const project = this.state.project;
+    const committer = this.state.committer;
     let fileName = null;
     let fileSize = null;
     let fileContent = [];
     let filepath = [];
     let extension;
 
-    if(this.state.fileData){ 
+    if (this.state.fileData) {
+      this.getCommit();
       fileName = this.state.fileData.file_name;
       fileSize = this.state.fileData.size;
       fileContent = Base64.decode(this.state.fileData.content).split("\n");
@@ -90,14 +107,14 @@ class FileView extends React.Component {
             <div className="commit-info">
               <div className="commit-pic-circle" />
               <div className="commit-msg">
-                <p>Commit message</p>
+                <p>{committer.message}</p>
                 <span>
-                  by <b>user_name</b> authored <b>4</b> days ago
+                  by <b>{committer.author_name}</b> authored <b>4</b> days ago
                 </span>
               </div>
             </div>
             <div className="commit-code">
-              <span>Commit code</span>
+              <span>{committer.short_id}</span>
               <img className="file-icon" src={file_01} alt="" />
             </div>
           </div>
