@@ -268,7 +268,7 @@ class NewExperiment extends Component{
                         </div>
                         <div id="upload-files-options" className="upload-file">
                             <p className="instruction">
-                                Start by selecting your data file(s) you want to include <br/> in your data processing pipeline.
+                                Start by selecting your data file(s) you want to include <br/> in your experiments.
                             </p>
                             <p id="data">
                                 Data:
@@ -294,11 +294,11 @@ class NewExperiment extends Component{
                         
                         <SortableDataOperationsList items={items} onSortEnd={this.onSortEnd}/>
                         <div id="drop-zone" onDrop={this.drop} onDragOver={this.allowDrop} >
-                            <p style={{marginLeft: '10px', fontWeight: 600}}>{`Op.${operationsSelected}:`}</p>
+                            <p style={{marginLeft: '10px', fontWeight: 600}}>{`Algo.${operationsSelected}:`}</p>
                             <img src={plus} alt="" style={{height: '80px', marginLeft: '60px'}}/>
                             <p style={{margin: '0', padding: '0', width: '100%', textAlign: 'center'}}> 
-                                Drag and drop a data operation from the right into your 
-                                <br/>pipeline or <b>create a new one</b>
+                                Drag and drop an algorithm from the right into your 
+                                <br/>experiment pipeline or <b>create a new one</b>
                             </p>
                         </div>
                         
@@ -306,7 +306,7 @@ class NewExperiment extends Component{
 
                     <div className="pipe-line-execution tasks-list">
                         <div className="header">
-                            <p>Select a data operations from list:</p>
+                            <p>Select an algorithm from list:</p>
                         </div>
                         <div className="content">
                             <div className="filter-div flexible-div">
@@ -327,14 +327,14 @@ class NewExperiment extends Component{
                                 
                                 <div className="checkbox-zone">
                                     <label className="customized-checkbox" >
-                                        Only own experiments
+                                        Only own algorithms
                                         <input type="checkbox" value={this.state.checkBoxOwnDataOperations} 
                                             onChange={this.handleCheckMarkClick} id="checkBoxOwnDataOperations"> 
                                         </input>
                                         <span className="checkmark"></span> 
                                     </label>
                                     <label className="customized-checkbox" >
-                                        Only starred experiments
+                                        Only starred algorithms
                                         <input type="checkbox" value={this.state.checkBoxStarredDataOperations} 
                                             onChange={this.handleCheckMarkClick} id="checkBoxStarredDataOperations">
                                         </input>
