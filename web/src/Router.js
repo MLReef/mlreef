@@ -18,22 +18,25 @@ const RouterComp = () => (
             <Route path="/" exact component={Login} />
             <Route path="/index.html" exact component={Login} />
             <PrivateRoute path="/my-projects" exact component={Projects} />
-            <PrivateRoute path="/my-projects/:projectId" exact component={projectView} />
+            <PrivateRoute path="/my-projects/:projectId/:branch/commits" exact component={Commits} />
+            <PrivateRoute exact path="/my-projects/:projectId/pipe-line" component={PipeLineView} />
             <PrivateRoute
                 path="/my-projects/:projectId/experiments-overview"
+                exact
                 component={ExperimentsOverview}
             />
+            <PrivateRoute path="/my-projects/:projectId" exact component={projectView} />
+            <PrivateRoute path="/my-projects/:projectId/:branch" exact component={projectView} />
             <PrivateRoute
                 path="/my-projects/:projectId/files/branch/:branch/file-name/:file"
                 component={FileView}
             />
             <PrivateRoute path="/my-projects/:projectId/files/branch/:branch" component={projectView} />
-            <PrivateRoute path="/my-projects/:projectId/pipe-line" component={PipeLineView} />
             <PrivateRoute path="/my-projects/:projectId/new-experiment" component={NewExperiment} />
             <PrivateRoute path="/my-projects/:projectId/commits" exact component={Commits} />
             <PrivateRoute path="/my-projects/:projectId/commit/:id" exact component={CommitDetails} />
         </Switch>
-    </BrowserRouter>   
+    </BrowserRouter>
 );
 
 export default RouterComp;

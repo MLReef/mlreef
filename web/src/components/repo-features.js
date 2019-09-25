@@ -1,13 +1,17 @@
 import React, { Component } from "react";
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
+import * as fileActions from "./../actions/fileActions";
 import arrow_down_blue_01 from "./../images/arrow_down_blue_01.svg";
 import plus_01 from "./../images/plus_01.svg";
 import { Link } from "react-router-dom";
 
-export default class RepoFeatures extends Component {
+class RepoFeatures extends Component {
   state = {
     isOpen: false,
-    branchSelected: "Master",
-    projectId: null
+    branchSelected: decodeURIComponent(this.props.info.match.params.branch),
+    projectId: null,
+    branches: []
   };
 
   handleBlur = e => {
@@ -29,13 +33,37 @@ export default class RepoFeatures extends Component {
     }));
   };
 
+  componentDidMount() {
+    this.props.actions.getBranches("gitlab.com", this.state.projectId)
+      .then(res => res.json())
+      .then(response => this.setState({ branches: response }));
+  }
+
   componentWillMount() {
     this.setState({
       projectId: window.location.href.split("/my-projects/")[1].split("/")[0]
     })
   }
 
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.info.match.params.branch !== this.props.info.match.params.branch) {
+      const branchSelected = nextProps.info.match.params.branch;
+      this.setState({
+        branchSelected: decodeURIComponent(branchSelected)
+      })
+    }
+  }
+
+  handleClick = (e) => {
+    this.props.actions.loadFiles(
+      null,
+      encodeURIComponent(e.currentTarget.id),
+      this.state.projectId
+    );
+  }
+
   render() {
+    const branches = this.state.branches;
     return (
       <>
         <div id="repo-features">
@@ -48,12 +76,38 @@ export default class RepoFeatures extends Component {
                   this.node = node;
                 }}
               >
-                {this.state.branchSelected}
+                <span>{this.state.branchSelected}</span>
                 <img id="leftfeature-image" src={arrow_down_blue_01} alt="" />
               </button>
-              {this.state.isOpen && (
-                <BranchDropdown />
-              )}
+              {this.state.isOpen &&
+                <div className="select-branch">
+                  <div
+                    style={{ margin: "0 50px", fontSize: "14px", padding: "0 40px" }}>
+                    <p>Switch Branches</p>
+                  </div>
+                  <hr />
+                  <div className="search-branch">
+                    <input
+                      autoFocus={true}
+                      type="text"
+                      placeholder="Search branches or tags"
+                    />
+                    <div className="branches">
+                      <ul>
+                        <li className="branch-header">Branches</li>
+                        {branches.map((branch, index) => {
+                          let encoded = encodeURIComponent(branch.name);
+                          return (
+                            <li key={encoded}>
+                              <Link id={branch.name} to={`/my-projects/${this.state.projectId}/${encoded}`} onClick={this.handleClick}><p>{branch.name}</p></Link>
+                            </li>
+                          )
+                        })}
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              }
             </div>
             <button className="white-button">
               <img id="plus" src={plus_01} alt="" />
@@ -86,32 +140,18 @@ export default class RepoFeatures extends Component {
   }
 }
 
-export function BranchDropdown() {
-  const Branches = ["Master", "feature/28-repo", "feature/41-pipeline"];
-  return (
-    <div className="select-branch">
-      <div
-        style={{ margin: "0 50px", fontSize: "14px", padding: "0 40px" }}>
-        <p>Switch Branches</p>
-      </div>
-      <hr />
-      <div className="search-branch">
-        <input
-          autoFocus={true}
-          type="text"
-          placeholder="Search branches or tags"
-        />
-        <div className="branches">
-          <ul>
-            <li className="branch-header">Branches</li>
-            {Branches.map((branch, index) => (
-              <li key={index}>
-                <p>{branch}</p>
-              </li>
-            ))}
-          </ul>
-        </div>
-      </div>
-    </div>
-  )
+function mapStateToProps(state) {
+  return {
+    files: state.files,
+    projects: state.projects,
+    file: state.file
+  };
 }
+
+function mapDispatchToProps(dispatch) {
+  return {
+    actions: bindActionCreators(fileActions, dispatch)
+  };
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(RepoFeatures);

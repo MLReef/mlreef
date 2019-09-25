@@ -11,6 +11,7 @@ class ProjectContainer extends React.Component {
 
   render() {
     const project = this.props.project;
+    //console.log(project);
     const folders = this.props.folders;
     return (
       <div className="project-container">
@@ -24,7 +25,7 @@ class ProjectContainer extends React.Component {
             </p>
           }
           <div className="feature-list">
-            <Link to={`/my-projects/${project.id}`} className="feature" id="data">
+            <Link to={`/my-projects/${project.id}/${project.default_branch}`} className="feature" id="data">
               Data
             </Link>
             <Link to={`/my-projects/${project.id}/experiments-overview`} className="feature" id="experiments">

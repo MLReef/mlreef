@@ -11,13 +11,13 @@ const ProjectInfo = ({ info }) => {
   return (
     <div className="project-info">
       <div className="project-id">
-        <Link to={`/my-projects/${info.id}`}>
+        <Link to={`/my-projects/${info.id}/${info.default_branch}`}>
           <div className="project-pic">
             <img style={{ minWidth: "100%" }} src={iconUrl} alt="" />
           </div>
         </Link>
         <div className="project-name">
-          <Link to={`/my-projects/${info.id}`} id="projectName">{info.name}</Link>
+          <Link to={`/my-projects/${info.id}/${info.default_branch}`} id="projectName">{info.name}</Link>
           <p id="projectId">Project ID: {info.id} | 526MB used</p>
         </div>
       </div>

@@ -25,17 +25,17 @@ store.dispatch(getProjectsList());
 
 ReactDOM.render(
   <Provider store={store}>
-      <PersistGate 
-        loading={
-          <div> 
-            <h1>
-              Loading...
-              </h1> 
-          </div>
-        } 
-        persistor={persistor}>
-        <RouterComp store={store}/>
-      </PersistGate>
+    <PersistGate
+      loading={
+        <div>
+          <h1>
+            Loading...
+              </h1>
+        </div>
+      }
+      persistor={persistor}>
+      <RouterComp store={store} />
+    </PersistGate>
   </Provider>,
   document.getElementById("root")
 );

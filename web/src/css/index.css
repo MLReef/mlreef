@@ -447,6 +447,14 @@ p.stat-no {
   padding-left: 8px;
 }
 
+.white-button span{
+  text-overflow: ellipsis;
+  width: 5em;
+  overflow: hidden;
+  display: block;
+  white-space: nowrap;
+}
+
 .dropdown-button {
   color: #1c2b40;
   background-color: #fff;
