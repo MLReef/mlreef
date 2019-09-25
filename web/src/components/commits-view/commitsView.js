@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import Navbar from "../navbar/navbar";
 import ProjectContainer from "../projectContainer";
-import { BranchDropdown } from "../repo-features";
+import BranchDropdown from "../branchDropDown";
 import { bindActionCreators } from "redux";
 import * as commitActions from "../../actions/commitActions";
 import "./commitsView.css";
@@ -53,15 +53,15 @@ class CommitsView extends Component {
             ...new Set(
                 this.state.commits.map(
                     x => new Date(x.committed_date)
-                .toLocaleString(
-                    "en-eu", { 
-                        day: "numeric", 
-                        month: "short", 
-                        year: "numeric"
-                    }
+                        .toLocaleString(
+                            "en-eu", {
+                            day: "numeric",
+                            month: "short",
+                            year: "numeric"
+                        }
+                        )
                 )
-            )
-        )];
+            )];
         return (
             <div id="commits-view-container">
                 <Navbar />

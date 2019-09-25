@@ -5,7 +5,7 @@ export default class RepoInfo extends React.Component {
     render() {
         const projectId = window.location.href.split("/my-projects/")[1];
         return <div className="repo-info">
-            <Link to={`/my-projects/${projectId}/commits`} className="repo-stat">
+            <Link to={`/my-projects/${projectId}/commits`} className="repo-stat" replace>
                 <p className="stat-no">17</p>
                 <p className="stat-type">Commits</p>
             </Link>

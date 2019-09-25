@@ -63,13 +63,14 @@ class ProjectSet extends React.Component {
         <hr style={{ marginTop: "0" }} />
 
         {this.state.personal && this.props.projects.map((proj) =>
-          <Project 
+          <Project
             key={`proj-key-${proj.id}`}
-            owner={proj.id} 
-            name={proj.name} 
-            projId={proj.id} 
-            desc={proj.description} 
-            avatar={proj.avatar_url} 
+            owner={proj.id}
+            name={proj.name}
+            projId={proj.id}
+            branch={proj.default_branch}
+            desc={proj.description}
+            avatar={proj.avatar_url}
             projects={this.props.projects}
           />
         )}
@@ -90,7 +91,7 @@ const Project = props => {
           </div>
         </div>
         <div id="project-descriptor">
-          <Link to={`/my-projects/${props.projId}`}>
+          <Link to={`/my-projects/${props.projId}/${props.branch}`}>
             <h4 style={{ margin: "0", marginBottom: "5px" }}>
               {props.owner}/{props.name}
             </h4>
