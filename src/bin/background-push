@@ -1,0 +1,24 @@
+#!/bin/sh
+
+git status
+git remote set-url origin https://${GIT_PUSH_USER}:${GIT_PUSH_TOKEN}@gitlab.com/mlreef/mlreef-demo.git
+git config --global user.name "MLReef Data Pipeline"    # use the mlreef demo user
+git config --global user.email "noreply@mlreef.com"     # use a nonexistent email address
+git checkout $CI_COMMIT_REF_NAME                        # checkout the current branch
+git status
+git pull origin $CI_COMMIT_REF_NAME
+git status
+
+i=0
+while [ "$i" -lt 1000 ] # run 1_000 iterations max
+do
+  echo "------------------------------------------------------------"
+  echo "Background Commit PID=$BG_PID- Iteration $i"
+  git add experiment.json
+  git commit -m "Automatic commit [skip ci]"
+  git push origin $CI_COMMIT_REF_NAME
+  echo ""
+  sleep 6               # sleep for 1 second
+  i=`expr $i + 1`       # increment running variable
+done
+# 6 seconds times 1_000 ==> 6_000 seconds => 100 minutes => 1 hour 40 minutes
