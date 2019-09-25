@@ -29,13 +29,9 @@ class PipeLineView extends Component{
             showFilters: false,
             showForm: false,
             dataOperations: [
-                {
-                    title: "Augment", username: "Camillo Pachmann", starCount: "243", index: 1,
+                {title: "Augment", username: "Vaibhav_M", starCount: "243", index: 1, 
                     description: 
-                        `Neural network architectures have a large number of trainable parameters and therefore they require a very large number of 
-                        images to train on to effectively capture the distrubution of the data and 'learn'. Data augmentation is a 
-                        strategy that enables us to significantly increase the diversity of data available for training models, without actually collecting new data. 
-                        For example, in the case of images, the data is tweaked by changing angle of rotation, flipping the images, zooming in, etc.`,
+                        `Data augmentation multiplies and tweakes the data by changing angle of rotation, flipping the images, zooming in, etc.`,
                     showDescription:false, showAdvancedOptsDivDataPipeline: false, dataType: "Images", 
                     params: {
                         standard: [{name: "Number of augmented images", dataType: INT, required: true}],
@@ -49,8 +45,7 @@ class PipeLineView extends Component{
                         ]
                     }
                 },
-                {
-                    title: "Random crop", username: "Vaibhav Mehrotra", starCount: "201", index: 2,
+                {title: "Random crop", username: "Camillo", starCount: "201", index: 2, 
                     description: 
                         `This pipeline operation randomly crops a NxM (height x width) portion of the given dataset. 
                         This is used to randomly extract parts of the image incase we need to remove bias present in image data.`,
@@ -62,12 +57,11 @@ class PipeLineView extends Component{
                             {name: "Channels", dataType: INT, required: true},
                        ],
                        advanced: [
-                           {name: "Seed", dataType: INT, required: false}
+                           {name: "Random Seed", dataType: INT, required: false}
                        ]
                     }
                 },
-                {
-                    title: "Random rotate", username: "Vaibhav Mehrotra", starCount: "170", index: 3,
+                {title: "Random rotate", username: "Vaibhav_M", starCount: "170", index: 3, 
                     description: 
                         `A simple rotation operation to rotate images by a specified angle. All images are rotated by this angle.
                         Such a pipeline operation finds use in the case where an entire dataset is skewed and needs to be normalized.`,
@@ -78,8 +72,7 @@ class PipeLineView extends Component{
                         ]
                     }
                 },
-                {
-                    title: "Lee filter", username: "Vaibhav Mehrotra", starCount: "200", index: 4,
+                {title: "Lee filter", username: "RK_ESA", starCount: "126", index: 4, 
                     description: 
                         `The presence of speckle noise in Synthetic Aperture Radar (SAR) images makes the interpretation of the contents difficult, 
                         thereby degrading the quality of the image. Therefore an efficient speckle noise removal technique, the Lee Filter is used to 
@@ -87,7 +80,7 @@ class PipeLineView extends Component{
                     showDescription:false, showAdvancedOptsDivDataPipeline: false, dataType: "Something Else", 
                     params: {
                         standard: [
-                            {name: "Insentity", dataType: INT, required: true}
+                            {name: "Intensity", dataType: INT, required: true}
                         ]
                     }
                 }
