@@ -5,12 +5,13 @@ MAINTAINER MLReef
 ##### ADD files to the image
 WORKDIR /
 ADD src /epf
+ADD src/bin /bin
 
 
 ###### Setup Python and vergeml
 WORKDIR /app
 RUN echo "------------------------------------------------------------------------" && \
-    echo "                       MLREEF EPS: Setting Up"                            && \
+    echo "                       MLREEF EPF: Setting Up"                            && \
     echo "------------------------------------------------------------------------" && \
     python --version 				                                                && \
     pip3 --version 				                                                    && \
@@ -29,9 +30,8 @@ RUN echo "----------------------------------------------------------------------
 
 ##### Add container startup script
 CMD echo "------------------------------------"                                     && \
-    echo "       MLREEF EPS Starting" 	                                           	&& \
+    echo "       MLREEF EPF Starting" 	                                           	&& \
     echo "------------------------------------"                                     && \
     cd /app 					                                                    && \
     python --version 			                                                	&& \
     pip3 --version
-
