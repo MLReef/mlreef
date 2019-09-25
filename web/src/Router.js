@@ -11,6 +11,7 @@ import Projects from "./components/my-projects";
 import Commits from "./components/commits-view/commitsView";
 import CommitDetails from "./components/commits-details/commitDetails";
 import NewExperiment from "./components/new-experiment/new-experiment";
+import DataInstanceOverview from "./components/data-instance/dataInstanceOverview";
 
 const RouterComp = () => (
     <BrowserRouter>
@@ -20,20 +21,19 @@ const RouterComp = () => (
             <PrivateRoute path="/my-projects" exact component={Projects} />
             <PrivateRoute path="/my-projects/:projectId/:branch/commits" exact component={Commits} />
             <PrivateRoute exact path="/my-projects/:projectId/pipe-line" component={PipeLineView} />
+            <PrivateRoute path="/my-projects/:projectId/:branch/data-instances" component={DataInstanceOverview} />
+            <PrivateRoute path="/my-projects/:projectId/new-experiment" component={NewExperiment} />
             <PrivateRoute
                 path="/my-projects/:projectId/experiments-overview"
                 exact
                 component={ExperimentsOverview}
             />
-            <PrivateRoute path="/my-projects/:projectId" exact component={projectView} />
             <PrivateRoute path="/my-projects/:projectId/:branch" exact component={projectView} />
             <PrivateRoute
                 path="/my-projects/:projectId/files/branch/:branch/file-name/:file"
                 component={FileView}
             />
             <PrivateRoute path="/my-projects/:projectId/files/branch/:branch" component={projectView} />
-            <PrivateRoute path="/my-projects/:projectId/new-experiment" component={NewExperiment} />
-            <PrivateRoute path="/my-projects/:projectId/commits" exact component={Commits} />
             <PrivateRoute path="/my-projects/:projectId/commit/:id" exact component={CommitDetails} />
         </Switch>
     </BrowserRouter>
