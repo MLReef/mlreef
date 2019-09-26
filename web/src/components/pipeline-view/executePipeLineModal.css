@@ -1,0 +1,21 @@
+.blue-border-on-hover:hover {
+    border: 1px solid #32AFC3;
+}
+
+.drop-down-select {
+    border: 1px solid black;
+    align-items: center;
+}
+
+.blue-background-on-hover:hover {
+    background-color: #afe3ee;
+}
+
+.machines-paragraph {
+    margin: 0 0 0 1em;
+    padding: 5px 1px;
+    overflow: hidden;
+    height: 1em;
+    white-space: nowrap; 
+    text-overflow: ellipsis;
+}

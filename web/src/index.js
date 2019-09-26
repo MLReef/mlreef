@@ -11,6 +11,7 @@ import storage from 'redux-persist/lib/storage' // defaults to localStorage for 
 import { createStore, applyMiddleware } from "redux";
 import initialState from "./reducers/initialState";
 import thunk from "redux-thunk";
+import ToastMessage from "./components/toast/toast";
 
 const persistConfig = {
   key: 'root',
@@ -25,17 +26,18 @@ store.dispatch(getProjectsList());
 
 ReactDOM.render(
   <Provider store={store}>
-    <PersistGate
-      loading={
-        <div>
-          <h1>
-            Loading...
-              </h1>
-        </div>
-      }
-      persistor={persistor}>
-      <RouterComp store={store} />
-    </PersistGate>
+      <ToastMessage />
+      <PersistGate 
+        loading={
+          <div> 
+            <h1>
+              Loading...
+              </h1> 
+          </div>
+        } 
+        persistor={persistor}>
+        <RouterComp store={store}/>
+      </PersistGate>
   </Provider>,
   document.getElementById("root")
 );

@@ -12,12 +12,14 @@ import arrayMove from 'array-move';
 import * as fileActions from "../../actions/fileActions";
 import {bindActionCreators} from "redux";
 import commitsApi from "../../apis/CommitsApi";
-import {BOOL, FLOAT, INT, mlreefFileContent, regExps} from "../../data-types";
-import {DataOperationsList} from './data-operations-list';
-import {Instruction} from '../instruction/instruction';
-
-
-let linesToAdd = [];
+import {INT, FLOAT, regExps, BOOL} from "../../data-types";
+import { DataOperationsList } from './data-operations-list';
+import { Instruction } from '../instruction/instruction';
+import { mlreefFileContent } from "../../data-types";
+import {toastr} from 'react-redux-toastr';
+import branchesApi from "../../apis/BranchesApi";
+import uuidv1 from 'uuid/v1';
+import ExecutePipelineModal from './executePipeLineModal';
 
 class PipeLineView extends Component{
     constructor(props){
@@ -28,8 +30,11 @@ class PipeLineView extends Component{
             idCardSelected: null,
             showFilters: false,
             showForm: false,
+            isShowingExecutePipelineModal: false,
             dataOperations: [
-                {title: "Augment", username: "Vaibhav_M", starCount: "243", index: 1, 
+                {
+                    title: "Augment", username: "Vaibhav_M", starCount: "243", index: 1, 
+                    command: "augment",
                     description: 
                         `Data augmentation multiplies and tweakes the data by changing angle of rotation, flipping the images, zooming in, etc.`,
                     showDescription:false, showAdvancedOptsDivDataPipeline: false, dataType: "Images", 
@@ -45,7 +50,9 @@ class PipeLineView extends Component{
                         ]
                     }
                 },
-                {title: "Random crop", username: "Camillo", starCount: "201", index: 2, 
+                {
+                    title: "Random crop", username: "Vaibhav_M", starCount: "201", index: 2,
+                    command: "crop",
                     description: 
                         `This pipeline operation randomly crops a NxM (height x width) portion of the given dataset. 
                         This is used to randomly extract parts of the image incase we need to remove bias present in image data.`,
@@ -61,7 +68,9 @@ class PipeLineView extends Component{
                        ]
                     }
                 },
-                {title: "Random rotate", username: "Vaibhav_M", starCount: "170", index: 3, 
+                {
+                    title: "Random rotate", username: "Vaibhav_M", starCount: "170", index: 3,
+                    command: "rotate",
                     description: 
                         `A simple rotation operation to rotate images by a specified angle. All images are rotated by this angle.
                         Such a pipeline operation finds use in the case where an entire dataset is skewed and needs to be normalized.`,
@@ -72,7 +81,9 @@ class PipeLineView extends Component{
                         ]
                     }
                 },
-                {title: "Lee filter", username: "RK_ESA", starCount: "126", index: 4, 
+                {
+                    title: "Lee filter", username: "RK_ESA", starCount: "126", index: 4, 
+                    command: "filter",
                     description: 
                         `The presence of speckle noise in Synthetic Aperture Radar (SAR) images makes the interpretation of the contents difficult, 
                         thereby degrading the quality of the image. Therefore an efficient speckle noise removal technique, the Lee Filter is used to 
@@ -89,8 +100,8 @@ class PipeLineView extends Component{
             project: null,
             dataOperationsSelected: [],
             filesSelectedInModal: [],
-            commitResponse: null
-        };
+            commitResponse: null,
+        }
         this.handleCheckMarkClick = this.handleCheckMarkClick.bind(this);
         this.drop = this.drop.bind(this);
         this.allowDrop = this.allowDrop.bind(this);
@@ -100,6 +111,7 @@ class PipeLineView extends Component{
         this.copyDataOperationEvent = this.copyDataOperationEvent.bind(this);
         this.deleteDataOperationEvent = this.deleteDataOperationEvent.bind(this);
         this.handleExecuteBtn = this.handleExecuteBtn.bind(this);
+        this.toggleExecutePipeLineModal = this.toggleExecutePipeLineModal.bind(this);
     }
 
     componentWillMount(){
@@ -123,23 +135,25 @@ class PipeLineView extends Component{
         }
     */
     
-    callToCommitApi = (finalContent, action) =>
+    callToCommitApi = (branch, action, finalContent) =>
         commitsApi.performCommit(
             this.state.project.id,
             ".mlreef.yml",
             finalContent,
             "gitlab.com",
-            "master",
+            branch,
             "pipeline execution",
             action
         )
         .then(res => {
-                console.log(res);
-                !res['id'] || typeof res['id'] === undefined
-                    ? this.callToCommitApi(finalContent, "update")
+            console.log(branch);
+            console.log(action);
+            console.log(finalContent);
+            console.log(res);
+                 !res['id'] || typeof res['id'] === undefined
+                    ? this.callToCommitApi(branch, "update", finalContent)
                     : this.setState({commitResponse: res});
-            }
-        )
+        })
         .catch(err => console.log(err));
 
     onSortEnd = ({oldIndex, newIndex}) => this.setState(({dataOperationsSelected}) => ({
@@ -275,96 +289,153 @@ class PipeLineView extends Component{
     };
     
     handleModalAccept = (e, filesSelected) => {
-        this.setState({filesSelectedInModal: filesSelected, showSelectFilesModal: !this.state.showSelectFilesModal});
+        this.setState({
+            filesSelectedInModal: filesSelected, 
+            showSelectFilesModal: !this.state.showSelectFilesModal
+        });
         document.getElementById("text-after-files-selected").style.display = "flex";
         document.getElementById("upload-files-options").style.display = "none"; 
         document.getElementsByTagName("body").item(0).style.overflow = 'scroll';
     };
 
-    handleExecuteBtn = () => {
-        linesToAdd = [];
-        let errorCounter = 0;
-        const dataOperationsHtmlElms = Array.prototype.slice.call(
-            document
-                .getElementById('data-operations-selected-container')
-                .childNodes
-            ).map(child => child.childNodes[1]);
+    generateCodeForBranch = () => (uuidv1()).split("-")[0];
 
-        Array.prototype.slice.call(
-                this.state.dataOperationsSelected
-            ).forEach((dataOperation, index) => {
-                let op;
-                let line;
-                const dataOperationsHtmlElm = dataOperationsHtmlElms[index];
-                switch (dataOperation.title) {
-                    case "Random crop":
-                        op = "crop";
-                        break;
-                        
-                    case "Augment":
-                        op = "augment";
-                        break;    
-                    
-                    case "Random rotate":
-                        op = "rotate";
-                        break;
+    modifyStylesOfWrongInputs = (input, paramInput, dataOperationsHtmlElm) => {
+        input.style.border = "1px solid red";
+        dataOperationsHtmlElm.style.border = "1px solid red";
+        const errorDiv = document.getElementById(`error-div-for-${input.id}`);
+        errorDiv.style.display = "flex";
+        
+        input.addEventListener('focusout', () => {
+            input.removeAttribute("style");
+            errorDiv.style.display = "none";
+        });
 
-                    default:
-                        break;
-                }
-                line = `    - python src/pipelines/${op}.py data/images_SAR/`;
-                const dataOpInputs = Array.prototype.slice.call(dataOperationsHtmlElm.getElementsByTagName("input"));
-                let advancedParamsCounter = 0;
-                dataOpInputs.forEach((input, inputIndex) => {
-                    let paramInput = null;
-                    if(input.id.startsWith("ad-")){
-                        paramInput = dataOperation.params.advanced[advancedParamsCounter];
-                        advancedParamsCounter = advancedParamsCounter + 1;
-                    } else {
-                        paramInput = dataOperation.params.standard[inputIndex];
-                    }
-                    
-                    if(!this.validateInput(input.value, paramInput.dataType, paramInput.required)){
-                        errorCounter = errorCounter + 1;
-                        input.style.border = "1px solid red";
-                        dataOperationsHtmlElm.style.border = "1px solid red";
-                        const errorDiv = document.getElementById(`error-div-for-${input.id}`);
-                        errorDiv.style.display = "flex";
-                        
-                        input.addEventListener('focusout', () => {
-                            input.removeAttribute("style");
-                            errorDiv.style.display = "none";
-                        });
+        dataOperationsHtmlElm.addEventListener('focusout', () => {
+            dataOperationsHtmlElm.removeAttribute("style");
+        });
 
-                        dataOperationsHtmlElm.addEventListener('focusout', () => {
-                            dataOperationsHtmlElm.removeAttribute("style");
-                        });
+        if(paramInput.dataType === BOOL){
+            const dropDown = input.parentNode.childNodes[1]
+            dropDown.style.border = "1px solid red";
+            dropDown.addEventListener('focusout', () => {
+                dropDown.removeAttribute("style");
+            });
+        }
+    }
 
-                        if(paramInput.dataType === BOOL){
-                            const dropDown = input.parentNode.childNodes[1];
-                            dropDown.style.border = "1px solid red";
-                            dropDown.addEventListener('focusout', () => {
-                                dropDown.removeAttribute("style");
-                            });
-                        }
-                    }
-                    if(input.value){
-                        line = line.concat(` ${input.value}`);
-                    }/* else{
-                        line = line.concat(" None"); TODO: THIS MUST BE ENABLED WHEN VAIBHAV RECOGNIZE NONE PARAMS
-                    } */
-                });
-                linesToAdd.push(line);
+    /**
+     * @method concatFilesSelectedInModal: This funtion is to add folders and files to the command
+     * @param {lineWithOutFolderAndFiles}: This is the line without directories or files
+     */
+    addFilesSelectedInModal(lineWithOutFoldersAndFiles){
+        let filesLine = "";
+        this.state.filesSelectedInModal.forEach((file) => {
+            filesLine = `${filesLine} ${file.path}`;
+            
+            if(file.type === "tree"){
+                filesLine = filesLine.concat("/");
             }
-        );
-        if(errorCounter === 0){
-            //this.props.actions.getFileData("gitlab.com", this.state.project.id, ".gitlab-ci.yml", "feat/pipelines");
-            // TODO: Hardcode all the things
-            // const finalContent = mlreefFileContent //.replace("#replace-here-the-lines", linesToAdd);
-            console.log(mlreefFileContent);
-            this.callToCommitApi(mlreefFileContent, "create");
+        });
+
+        return lineWithOutFoldersAndFiles.replace("#directoriesAndFiles", filesLine);
+    }
+
+    buildCommandLinesFromSelectedPipelines = (
+        dataOperationsHtmlElms, 
+        errorCounter
+    ) =>
+        this.state.dataOperationsSelected.map((dataOperation, index) => {
+            const dataOperationsHtmlElm = dataOperationsHtmlElms[index];
+            let line = `   - python /epf/pipelines/${dataOperation.command}.py#directoriesAndFiles`;
+            const dataOpInputs = Array.prototype.slice.call(dataOperationsHtmlElm.getElementsByTagName("input"));
+            let advancedParamsCounter = 0;
+            dataOpInputs.forEach((input, inputIndex) => {
+                let paramInput = null;
+                if(input.id.startsWith("ad-")){
+                    paramInput = dataOperation.params.advanced[advancedParamsCounter];
+                    advancedParamsCounter = advancedParamsCounter + 1;
+                } else {
+                    paramInput = dataOperation.params.standard[inputIndex];
+                }
+                
+                if(!this.validateInput(input.value, paramInput.dataType, paramInput.required)){
+                    errorCounter = errorCounter + 1;
+                    this.modifyStylesOfWrongInputs(input, paramInput, dataOperationsHtmlElm);
+                    return;
+                }
+                line = line.concat(` ${input.value}`);
+            });
+
+            return errorCounter === 0 
+                ? this.addFilesSelectedInModal(line)
+                : undefined;
+        });
+
+    generateRealContentFromTemplate = (
+        mlreefFileContent,
+        pipeLineOperationCommands,
+        dataInstanceName
+    ) => 
+        mlreefFileContent
+            .replace(/#replace-here-the-lines/g, pipeLineOperationCommands)
+            .replace(/#new-datainstance/g, dataInstanceName)
+            .replace(
+                /#repo-url/g, 
+                this.state.project.http_url_to_repo.substr(
+                    8, 
+                    this.state.project.http_url_to_repo.length
+                )
+            );
+
+    handleExecuteModalBtnNextPressed = () => {
+        const uuidCodeForBranch = this.generateCodeForBranch();
+        const branchName = `data-pipeline/${uuidCodeForBranch}`;
+        const dataInstanceName = `data-instance/${uuidCodeForBranch}`;
+        const pipeLineOperationCommands = this.buildCommandLinesFromSelectedPipelines(
+            Array.prototype.slice.call(
+                document
+                    .getElementById('data-operations-selected-container')
+                    .childNodes
+            ).map(
+                child => child.childNodes[1]
+            ), 0
+        );        
+        if(pipeLineOperationCommands
+            .filter(
+                line => line !== undefined
+            ).length > 0 
+        ){
+            const finalContent = this.generateRealContentFromTemplate(
+                mlreefFileContent, 
+                pipeLineOperationCommands, 
+                dataInstanceName
+            );
+            toastr.info('Execution', 'Pipeline execution has already started');
+            console.log(finalContent);
+            branchesApi.create(
+                this.state.project.id,
+                branchName,
+                "master"
+            ).then((res) => {
+                if(res['commit']){
+                    toastr.info('Execution', 'The branch for pipeline was created');
+                    this.callToCommitApi(branchName, "create", finalContent);
+                }else{
+                    toastr.error('Execution', 'The branch for pipeline could not be created');
+                }
+            }).catch((err) => {
+                console.log(err);
+                toastr.error('Error', 'Something went wrong, try again later please');
+            });
+        } else {
+            toastr.error('Form', 'Validate please data provided in inputs');
         }
     };
+
+    handleExecuteBtn = () => {
+        this.toggleExecutePipeLineModal();    
+    }
 
     validateInput = (value, dataType, required) => {
         if(required && (typeof(value) === undefined || value === "")){
@@ -381,6 +452,11 @@ class PipeLineView extends Component{
         }
     };
 
+    toggleExecutePipeLineModal(){
+        const isShowingExecutePipelineModal = !this.state.isShowingExecutePipelineModal;
+        this.setState({isShowingExecutePipelineModal: isShowingExecutePipelineModal});
+    }
+
     render = () => {
         const project = this.state.project;
         const dataOperations = this.state.dataOperations;
@@ -396,6 +472,12 @@ class PipeLineView extends Component{
                     show={showSelectFilesModal} 
                     filesSelectedInModal={this.state.filesSelectedInModal} 
                     handleModalAccept={this.handleModalAccept}
+                />
+                <ExecutePipelineModal
+                    isShowing={this.state.isShowingExecutePipelineModal} 
+                    amountFilesSelected={this.state.filesSelectedInModal.length}
+                    toggle={this.toggleExecutePipeLineModal}
+                    handleExecuteModalBtnNextPressed={this.handleExecuteModalBtnNextPressed}
                 />
                 <Navbar/>
                 <ProjectContainer project={project} activeFeature="data" folders = {['Group Name', project.name, 'Data', 'Pipeline']}/>
@@ -415,8 +497,8 @@ class PipeLineView extends Component{
                                 </div>
                                 <Input name="DataPipelineID" id="renaming-pipeline" placeholder="Rename data pipeline..."/>
                             </div>
-                            <div className="header-right-items flexible-div" onClick={this.handleExecuteBtn}>
-                                <div id="execute-button" className="header-button round-border-button right-item flexible-div">
+                            <div className="header-right-items flexible-div" >
+                                <div id="execute-button" className="header-button round-border-button right-item flexible-div" onClick={this.handleExecuteBtn}>
                                     Execute
                                 </div>
                                 <div className="header-button round-border-button right-item flexible-div">

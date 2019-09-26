@@ -1,5 +1,6 @@
 import React, {Component} from 'react';
 import PropTypes from 'prop-types';
+import "../../css/generic-modal.css";
 import "./select-data-pipeline-modal.css";
 import Input from "../input";
 import { connect } from "react-redux";
@@ -58,10 +59,11 @@ class SelectDataPipelineModal extends Component{
         if(!this.state.show){
             return null;
         }
+
         document.getElementsByTagName("body").item(0).style.overflow = 'hidden';
-        return(
-            <div className="select-data-pipeline-modal">
-                <div className="modal-content">
+        return (
+            <div className="generic-modal">
+                <div className="modal-content" style={{height: '70%', minHeight: 450}}>
                     <div className="title light-green-button">
                         <div>
                             <p>Select data to pre-process in your current data pipeline.</p>
