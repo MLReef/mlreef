@@ -1,13 +1,24 @@
 import React from "react";
 import { connect } from 'react-redux';
 import { Link } from "react-router-dom";
+import { Redirect } from 'react-router-dom'
 import star_01 from "./../images/star_01.svg";
 import fork_01 from "./../images/fork_01.svg";
 import clone_01 from "./../images/clone_01.svg";
+import projectGeneralInfoApi from "./../apis/projectGeneralInfoApi";
 import arrow_01 from "./../images/arrow_down_blue-01.png";
 
 const ProjectInfo = ({ info }) => {
   let iconUrl = info.avatar_url;
+  const [redirect, setRedirect] = React.useState(false);
+
+  function handleFork() {
+    projectGeneralInfoApi.forkProject("gitlab.com", info.id, info.name)
+      .then(res => res.json())
+      .then(result => console.log(result));
+    setRedirect(true);
+  }
+
   return (
     <div className="project-info">
       <div className="project-id">
@@ -21,7 +32,7 @@ const ProjectInfo = ({ info }) => {
           <p id="projectId">Project ID: {info.id} | 526MB used</p>
         </div>
       </div>
-
+      {redirect ? <Redirect to='/my-projects' /> : null}
       <div className="project-options">
         <div className="options">
           <button className="option-name">
@@ -35,7 +46,7 @@ const ProjectInfo = ({ info }) => {
         </div>
 
         <div className="options">
-          <button className="option-name">
+          <button className="option-name" onClick={handleFork}>
             <img id="option-image" src={fork_01} alt="" />
             <p>Fork</p>
           </button>

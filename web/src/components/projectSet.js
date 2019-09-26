@@ -3,6 +3,7 @@ import { connect } from "react-redux";
 import star_01 from "./../images/star_01.svg";
 import fork_01 from "./../images/fork_01.svg";
 import { Link } from "react-router-dom";
+import projectGeneralInfoApi from "../apis/projectGeneralInfoApi"
 import "../css/project-overview.css";
 
 class ProjectSet extends React.Component {
@@ -63,6 +64,7 @@ class ProjectSet extends React.Component {
         <hr style={{ marginTop: "0" }} />
 
         {this.state.personal && this.props.projects.map((proj) =>
+          proj.name.includes("forked") &&
           <Project
             key={`proj-key-${proj.id}`}
             owner={proj.id}
@@ -75,13 +77,32 @@ class ProjectSet extends React.Component {
           />
         )}
         {this.state.starred && <Project owner="Mlreef" name="demo" projId={"12395599"} />}
-
+        {this.state.explore && this.props.projects.map((proj) =>
+          !proj.name.includes("forked") &&
+          <Project
+            key={`proj-key-${proj.id}`}
+            owner={proj.id}
+            name={proj.name}
+            projId={proj.id}
+            branch={proj.default_branch}
+            desc={proj.description}
+            avatar={proj.avatar_url}
+            projects={this.props.projects}
+          />
+        )}
       </>
     );
   }
 }
 
 const Project = props => {
+
+  function handleClick() {
+    projectGeneralInfoApi.removeProject("gitlab.com", props.owner)
+      .then(res => res.json())
+      .then(result => console.log(result))
+  }
+
   return (
     <div id="project-display" onClick={props.click}>
       <div>
@@ -112,6 +133,7 @@ const Project = props => {
           </div>
         </div>
         <p>Updated 10 minutes ago</p>
+        <button style={{ margin: "0.5em", cursor: "pointer" }} class="dangerous-red" onClick={handleClick}><b>X</b></button>
       </div>
     </div>
   )
