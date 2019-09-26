@@ -1,0 +1,127 @@
+../../data/images_SAR/214.png ,../../data/images_SAR/214-45.png ,rotate.py ,45 
+../../data/images_SAR/212.png ,../../data/images_SAR/212-45.png ,rotate.py ,45 
+../../data/images_SAR/117.png ,../../data/images_SAR/117-45.png ,rotate.py ,45 
+../../data/images_SAR/211.png ,../../data/images_SAR/211-45.png ,rotate.py ,45 
+../../data/images_SAR/203.png ,../../data/images_SAR/203-45.png ,rotate.py ,45 
+../../data/images_SAR/136.png ,../../data/images_SAR/136-45.png ,rotate.py ,45 
+../../data/images_SAR/128.png ,../../data/images_SAR/128-45.png ,rotate.py ,45 
+../../data/images_SAR/201.png ,../../data/images_SAR/201-45.png ,rotate.py ,45 
+../../data/images_SAR/204.png ,../../data/images_SAR/204-45.png ,rotate.py ,45 
+../../data/images_SAR/123.png ,../../data/images_SAR/123-45.png ,rotate.py ,45 
+../../data/images_SAR/152.png ,../../data/images_SAR/152-45.png ,rotate.py ,45 
+../../data/images_SAR/205.png ,../../data/images_SAR/205-45.png ,rotate.py ,45 
+../../data/images_SAR/124.png ,../../data/images_SAR/124-45.png ,rotate.py ,45 
+../../data/images_SAR/100.png ,../../data/images_SAR/100-45.png ,rotate.py ,45 
+../../data/images_SAR/133.png ,../../data/images_SAR/133-45.png ,rotate.py ,45 
+../../data/images_SAR/144.png ,../../data/images_SAR/144-45.png ,rotate.py ,45 
+../../data/images_SAR/113.png ,../../data/images_SAR/113-45.png ,rotate.py ,45 
+../../data/images_SAR/202.png ,../../data/images_SAR/202-45.png ,rotate.py ,45 
+../../data/images_SAR/208.png ,../../data/images_SAR/208-45.png ,rotate.py ,45 
+../../data/images_SAR/213.png ,../../data/images_SAR/213-45.png ,rotate.py ,45 
+../../data/images_SAR/103.png ,../../data/images_SAR/103-45.png ,rotate.py ,45 
+../../data/images_SAR/206.png ,../../data/images_SAR/206-45.png ,rotate.py ,45 
+../../data/images_SAR/200.png ,../../data/images_SAR/200-45.png ,rotate.py ,45 
+../../data/images_SAR/118.png ,../../data/images_SAR/118-45.png ,rotate.py ,45 
+../../data/images_SAR/148.png ,../../data/images_SAR/148-45.png ,rotate.py ,45 
+../../data/images_SAR/129.png ,../../data/images_SAR/129-45.png ,rotate.py ,45 
+../../data/images_SAR/207.png ,../../data/images_SAR/207-45.png ,rotate.py ,45 
+../../data/images_SAR/105.png ,../../data/images_SAR/105-45.png ,rotate.py ,45 
+../../data/images_SAR/101.png ,../../data/images_SAR/101-45.png ,rotate.py ,45 
+../../data/images_SAR/209.png ,../../data/images_SAR/209-45.png ,rotate.py ,45 
+../../data/images_SAR/100.png ,-45.png ,rotate.py ,45 
+../../data/images_SAR/100.png ,-45.png ,rotate.py ,45 
+../../data/images_SAR/100.png ,-45.png ,rotate.py ,45 
+../../data/images_SAR/214.png ,../../data/images_SAR/214-45.png ,rotate.py ,45 
+../../data/images_SAR/212.png ,../../data/images_SAR/212-45.png ,rotate.py ,45 
+../../data/images_SAR/117.png ,../../data/images_SAR/117-45.png ,rotate.py ,45 
+../../data/images_SAR/211.png ,../../data/images_SAR/211-45.png ,rotate.py ,45 
+../../data/images_SAR/203.png ,../../data/images_SAR/203-45.png ,rotate.py ,45 
+../../data/images_SAR/136.png ,../../data/images_SAR/136-45.png ,rotate.py ,45 
+../../data/images_SAR/128.png ,../../data/images_SAR/128-45.png ,rotate.py ,45 
+../../data/images_SAR/201.png ,../../data/images_SAR/201-45.png ,rotate.py ,45 
+../../data/images_SAR/204.png ,../../data/images_SAR/204-45.png ,rotate.py ,45 
+../../data/images_SAR/123.png ,../../data/images_SAR/123-45.png ,rotate.py ,45 
+../../data/images_SAR/152.png ,../../data/images_SAR/152-45.png ,rotate.py ,45 
+../../data/images_SAR/205.png ,../../data/images_SAR/205-45.png ,rotate.py ,45 
+../../data/images_SAR/124.png ,../../data/images_SAR/124-45.png ,rotate.py ,45 
+../../data/images_SAR/100.png ,../../data/images_SAR/100-45.png ,rotate.py ,45 
+../../data/images_SAR/133.png ,../../data/images_SAR/133-45.png ,rotate.py ,45 
+../../data/images_SAR/144.png ,../../data/images_SAR/144-45.png ,rotate.py ,45 
+../../data/images_SAR/113.png ,../../data/images_SAR/113-45.png ,rotate.py ,45 
+../../data/images_SAR/202.png ,../../data/images_SAR/202-45.png ,rotate.py ,45 
+../../data/images_SAR/208.png ,../../data/images_SAR/208-45.png ,rotate.py ,45 
+../../data/images_SAR/213.png ,../../data/images_SAR/213-45.png ,rotate.py ,45 
+../../data/images_SAR/103.png ,../../data/images_SAR/103-45.png ,rotate.py ,45 
+../../data/images_SAR/206.png ,../../data/images_SAR/206-45.png ,rotate.py ,45 
+../../data/images_SAR/200.png ,../../data/images_SAR/200-45.png ,rotate.py ,45 
+../../data/images_SAR/118.png ,../../data/images_SAR/118-45.png ,rotate.py ,45 
+../../data/images_SAR/148.png ,../../data/images_SAR/148-45.png ,rotate.py ,45 
+../../data/images_SAR/129.png ,../../data/images_SAR/129-45.png ,rotate.py ,45 
+../../data/images_SAR/207.png ,../../data/images_SAR/207-45.png ,rotate.py ,45 
+../../data/images_SAR/105.png ,../../data/images_SAR/105-45.png ,rotate.py ,45 
+../../data/images_SAR/101.png ,../../data/images_SAR/101-45.png ,rotate.py ,45 
+../../data/images_SAR/209.png ,../../data/images_SAR/209-45.png ,rotate.py ,45 
+../../data/images_SAR/ ,-[20, 20].png ,random_crop.py ,[20, 20] 
+../../data/images_SAR/ ,-[20, 20].png ,random_crop.py ,[20, 20] 
+../../data/images_SAR/ ,-[20, 20].png ,random_crop.py ,[20, 20] 
+../../data/images_SAR/ ,-[20, 20].png ,random_crop.py ,[20, 20] 
+../../data/images_SAR/ ,-[20, 20].png ,random_crop.py ,[20, 20] 
+../../data/images_SAR/ ,-[20, 20].png ,random_crop.py ,[20, 20] 
+../../data/images_SAR/ ,-[20, 20].png ,random_crop.py ,[20, 20] 
+../../data/images_SAR/ ,-[20, 20].png ,random_crop.py ,[20, 20] 
+../../data/images_SAR/ ,-[20, 20].png ,random_crop.py ,[20, 20] 
+../../data/images_SAR/ ,-[20, 20].png ,random_crop.py ,[20, 20] 
+../../data/images_SAR/ ,-[20, 20].png ,random_crop.py ,[20, 20] 
+../../data/images_SAR/ ,-[20, 20].png ,random_crop.py ,[20, 20] 
+../../data/images_SAR/ ,-[20, 20].png ,random_crop.py ,[20, 20] 
+../../data/images_SAR/ ,-[20, 20].png ,random_crop.py ,[20, 20] 
+../../data/images_SAR/ ,-[20, 20].png ,random_crop.py ,[20, 20] 
+../../data/images_SAR/ ,-[20, 20].png ,random_crop.py ,[20, 20] 
+../../data/images_SAR/ ,-[20, 20].png ,random_crop.py ,[20, 20] 
+../../data/images_SAR/ ,-[20, 20].png ,random_crop.py ,[20, 20] 
+../../data/images_SAR/ ,-[20, 20].png ,random_crop.py ,[20, 20] 
+../../data/images_SAR/ ,-[20, 20].png ,random_crop.py ,[20, 20] 
+../../data/images_SAR/ ,-[20, 20].png ,random_crop.py ,[20, 20] 
+../../data/images_SAR/ ,-[20, 20].png ,random_crop.py ,[20, 20] 
+../../data/images_SAR/ ,-[20, 20].png ,random_crop.py ,[20, 20] 
+../../data/images_SAR/ ,-[20, 20].png ,random_crop.py ,[20, 20] 
+../../data/images_SAR/ ,-[20, 20].png ,random_crop.py ,[20, 20] 
+../../data/images_SAR/ ,-[20, 20].png ,random_crop.py ,[20, 20] 
+../../data/images_SAR/ ,-[20, 20].png ,random_crop.py ,[20, 20] 
+../../data/images_SAR/ ,-[20, 20].png ,random_crop.py ,[20, 20] 
+../../data/images_SAR/ ,-[20, 20].png ,random_crop.py ,[20, 20] 
+../../data/images_SAR/ ,-[20, 20].png ,random_crop.py ,[20, 20] 
+../../data/images_SAR/100.png ,-[20, 20].png ,random_crop.py ,[20, 20] 
+../../data/images_SAR/ ,-[20, 20].png ,random_crop.py ,[20, 20] 
+../../data/images_SAR/ ,-[20, 20].png ,random_crop.py ,[20, 20] 
+../../data/images_SAR/ ,-[20, 20].png ,random_crop.py ,[20, 20] 
+../../data/images_SAR/ ,-[20, 20].png ,random_crop.py ,[20, 20] 
+../../data/images_SAR/ ,-[20, 20].png ,random_crop.py ,[20, 20] 
+../../data/images_SAR/ ,-[20, 20].png ,random_crop.py ,[20, 20] 
+../../data/images_SAR/ ,-[20, 20].png ,random_crop.py ,[20, 20] 
+../../data/images_SAR/ ,-[20, 20].png ,random_crop.py ,[20, 20] 
+../../data/images_SAR/ ,-[20, 20].png ,random_crop.py ,[20, 20] 
+../../data/images_SAR/ ,-[20, 20].png ,random_crop.py ,[20, 20] 
+../../data/images_SAR/ ,-[20, 20].png ,random_crop.py ,[20, 20] 
+../../data/images_SAR/ ,-[20, 20].png ,random_crop.py ,[20, 20] 
+../../data/images_SAR/ ,-[20, 20].png ,random_crop.py ,[20, 20] 
+../../data/images_SAR/ ,-[20, 20].png ,random_crop.py ,[20, 20] 
+../../data/images_SAR/ ,-[20, 20].png ,random_crop.py ,[20, 20] 
+../../data/images_SAR/ ,-[20, 20].png ,random_crop.py ,[20, 20] 
+../../data/images_SAR/ ,-[20, 20].png ,random_crop.py ,[20, 20] 
+../../data/images_SAR/ ,-[20, 20].png ,random_crop.py ,[20, 20] 
+../../data/images_SAR/ ,-[20, 20].png ,random_crop.py ,[20, 20] 
+../../data/images_SAR/ ,-[20, 20].png ,random_crop.py ,[20, 20] 
+../../data/images_SAR/ ,-[20, 20].png ,random_crop.py ,[20, 20] 
+../../data/images_SAR/ ,-[20, 20].png ,random_crop.py ,[20, 20] 
+../../data/images_SAR/ ,-[20, 20].png ,random_crop.py ,[20, 20] 
+../../data/images_SAR/ ,-[20, 20].png ,random_crop.py ,[20, 20] 
+../../data/images_SAR/ ,-[20, 20].png ,random_crop.py ,[20, 20] 
+../../data/images_SAR/ ,-[20, 20].png ,random_crop.py ,[20, 20] 
+../../data/images_SAR/ ,-[20, 20].png ,random_crop.py ,[20, 20] 
+../../data/images_SAR/ ,-[20, 20].png ,random_crop.py ,[20, 20] 
+../../data/images_SAR/ ,-[20, 20].png ,random_crop.py ,[20, 20] 
+../../data/images_SAR/ ,-[20, 20].png ,random_crop.py ,[20, 20] 
+../../data/images_SAR/ ,-[20, 20].png ,random_crop.py ,[20, 20] 
+../../data/images_SAR/101.png ,-[20, 20].png ,random_crop.py ,[20, 20] 
+../../data/images_SAR/105.png ,-[20, 20].png ,random_crop.py ,[20, 20] 
