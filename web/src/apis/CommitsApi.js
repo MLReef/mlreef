@@ -1,4 +1,4 @@
-import { SUPER_SECURITY_TOKEN, SECURITY_TOKEN } from "../api-config";
+import { SECURITY_TOKEN } from "../api-config";
 
 export default class CommitsApi {
 
@@ -8,7 +8,7 @@ export default class CommitsApi {
                 `https://${domain}/api/v4/projects/${projectId}/repository/commits`, {
                 method: 'POST',
                 headers: new Headers({
-                    "PRIVATE-TOKEN": SUPER_SECURITY_TOKEN,
+                    "PRIVATE-TOKEN": SECURITY_TOKEN,
                     "Content-Type": "application/json",
                     "Access-Control-Allow-Origin": "https://gitlab.com"
                 }),
