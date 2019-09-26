@@ -32,15 +32,18 @@ if __name__ == "__main__":
         print("Done")
 
     if os.path.isdir(string):   
-        for file in os.listdir(string):
-            path = '/'.join(string.split('/')[0:-1])
-            image = cv2.imread(string+file,0)
-            print(path)
-            rows,cols = image.shape
-            height,width = image.shape
-            image_despeckeled = lee_filter(image,intensity)
-            cv2.imwrite("{}/{}-filtered.png".format(path,file.split('.')[0]),image_despeckeled)
-            image_despeckeled = lee_filter(image,intensity)
-            print(file)
-            print("Done")
+        for subdir, dirs, files in os.walk(string):
+            for file in files:
+                try:
+                    path = '/'.join(string.split('/')[0:-1])
+                    image = cv2.imread(os.path.join(subdir,file),0)
+                    rows,cols = image.shape
+                    height,width = image.shape
+                    image_despeckeled = lee_filter(image,intensity)
+                    cv2.imwrite("{}/{}-filtered.png".format(subdir,file.split('.')[0]),image_despeckeled)
+                    print("Done")
+                
+                except Exception as identifier:
+                    print("Error:", identifier)
+                    pass
 pass

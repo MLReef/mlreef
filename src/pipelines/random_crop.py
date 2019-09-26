@@ -36,16 +36,17 @@ if os.path.isfile(string):
 
 
 if os.path.isdir(string):   
-    
-    for file in os.listdir(string):
-        image = cv2.imread(string+file)
-        image_cropped = tf.image.random_crop(image,[height,width,channels])
-        png = tf.image.encode_png(image_cropped,compression=-1,name=None)
-        with tf.compat.v1.Session() as sess:
-            sess.run(tf.compat.v1.global_variables_initializer())
-            png_data_ = sess.run(png)
-            open("{}/{}-{}.png".format(path,file.split('.')[0],[height,width]), 'wb+').write(png_data_)   
-            
-        with open("logging.txt","a+") as logging_file: 
-            logging_file.write("{} ,{} ,{} ,{} \n".format(string,(string.split('.')[0]+"-"+str([height,width])+".png"),pipeline,[height,width]))
-    print("Done Directory!")
+    for subdir, dirs, files in os.walk(string):
+        for file in files:
+            try:
+                image = cv2.imread(os.path.join(subdir,file))
+                image_cropped = tf.image.random_crop(image,[height,width,channels])
+                png = tf.image.encode_png(image_cropped,compression=-1,name=None)
+                with tf.compat.v1.Session() as sess:
+                    sess.run(tf.compat.v1.global_variables_initializer())
+                    png_data_ = sess.run(png)
+                    open("{}/{}-{}.png".format(subdir,file.split('.')[0],[height,width]), 'wb+').write(png_data_)   
+            except Exception as identifier:
+                print("Error:", identifier)
+                pass
+print("Done Directory!")
