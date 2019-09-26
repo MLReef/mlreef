@@ -61,16 +61,22 @@ if os.path.isfile(string):
         if iterator > iterations:
             break  # otherwise the generator would loop indefinitely
 
-if os.path.isdir(string):   
-    for file in os.listdir(string):
-        image = imread(string+file)
-        image_array = img_to_array(image)  
-        image_array = image_array.reshape((1,) + image_array.shape) 
+if os.path.isdir(string):  
+    print(string) 
+    for subdir, dirs, files in os.walk(string):
+        for file in files:
+            try:
+                image = imread(os.path.join(subdir,file))
+                image_array = img_to_array(image)  
+                image_array = image_array.reshape((1,) + image_array.shape) 
 
-        iterator = 0
-        for batch in datagen.flow(image_array, batch_size=1, save_to_dir=path, save_prefix='augment', save_format='png'):
-            iterator += 1
-            if iterator >= iterations:
-                break  # otherwise the generator would loop indefinitely
-
+                iterator = 0
+                for batch in datagen.flow(image_array, batch_size=1, save_to_dir=subdir, save_prefix='augment', save_format='png'):
+                    iterator += 1
+                    if iterator >= iterations:
+                        break  # otherwise the generator would loop indefinitely
+            except Exception as identifier:
+                print("Error:", identifier)
+                pass
+        
 print("Done")
