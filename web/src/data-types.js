@@ -17,38 +17,26 @@ export const mlreefFileContent =
 # This is the docker image your model training will be executed in
 image: registry.gitlab.com/mlreef/epf:latest
 
-stages:
-  - experiment
-
 variables:
   # Change pip's cache directory to be inside the project directory since we can only cache local items.
   PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
 
-cache:
-  key: global-pip-cache
-  paths:
-    - .cache/pip
-    - venv/
+# The before_script handles everything git related and sets up the automatic committing
+before_script:
+  - background-push &
+  - export BG_PID=$!
+  - echo "Background Commit PID $BG_PID"
+  - git remote set-url origin https://\${CI_PUSH_USER}:\${CI_PUSH_TOKEN}@#repo-url
 
 data-pipeline:
-  stage: experiment
-  before_script:
-    - git remote set-url origin https://\${CI_PUSH_USER}:\${CI_PUSH_TOKEN}@gitlab.com/mlreef/sar-esa.git
-    - git config --global user.email "noreply@mlreef.com"
-    - git config --global user.name "MLReef Data Pipeline"
   script:
-    - pwd
-    - ls -al
-#    - git checkout -b pipeline/\${CI_JOB_ID}
-    - git checkout master
-    - echo \${CI_JOB_ID} >> data_pipeline.info
-    - python src/pipelines/lee_filter.py data/images_SAR/ 4
-    - python src/pipelines/rotate.py data/images_SAR/ 90
-    - python src/pipelines/augment.py data/images_SAR/ 2
+   - git checkout -b #new-datainstance
+   - echo \${CI_JOB_ID} >> data_pipeline.info
 #replace-here-the-lines
-    - git add .
-    - git status
-    - git commit -m"Add pipeline results [skip ci]"
-#    - git push --set-upstream origin pipeline/\${CI_JOB_ID}
-    - git push
+   - git add .
+   - git status
+   - git commit -m "Add pipeline results [skip ci]"
+   - git push
 `;
+
+export const domain = "gitlab.com"
