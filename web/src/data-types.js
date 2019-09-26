@@ -21,12 +21,14 @@ variables:
   # Change pip's cache directory to be inside the project directory since we can only cache local items.
   PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
 
+
 # The before_script handles everything git related and sets up the automatic committing
 before_script:
   - background-push &
   - export BG_PID=$!
   - echo "Background Commit PID $BG_PID"
-  - git remote set-url origin https://\${CI_PUSH_USER}:\${CI_PUSH_TOKEN}@#repo-url
+  - git remote set-url origin https://\${GIT_PUSH_USER}:\${GIT_PUSH_TOKEN}@#repo-url
+
 
 data-pipeline:
   script:
