@@ -60,7 +60,9 @@ class ExperimentCard extends React.Component {
                                  params={{"ind": index}}
                     />,
                     <button className="dangerous-red"><b>X</b></button>,
-                    <button className="light-green-button experiment-button non-active-black-border"><b>Resume</b>
+                    <button className="light-green-button experiment-button non-active-black-border"
+                    style={{width: '100px'}}
+                    ><b>Resume</b>
                     </button>
                 ];
                 break;
@@ -71,7 +73,8 @@ class ExperimentCard extends React.Component {
                                  params={{"ind": index}}
                     />,
                     <button className="dangerous-red"><b>X</b></button>,
-                    <button className="light-green-button experiment-button non-active-black-border">
+                    <button className="light-green-button experiment-button non-active-black-border"
+                    style={{width: '100px'}}>
                         <b>Deploy</b>
                     </button>
                 ];
@@ -282,7 +285,7 @@ class ExperimentsOverview extends Component {
                         <Link 
                             id="new-experiment" 
                             to={`/my-projects/${project.id}/new-experiment`}
-                            style={{height: '0.2em'}} 
+                            style={{height: '0.1em'}} 
                             className="light-green-button experiment-button">
                             <b>
                                 New experiment
