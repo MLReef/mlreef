@@ -11,7 +11,7 @@ import SelectDataPipelineModal from "../select-data-pipeline/select-data-pipelin
 import arrayMove from 'array-move';
 import * as fileActions from "../../actions/fileActions";
 import {bindActionCreators} from "redux";
-import {FLOAT} from "../../data-types";
+import {FLOAT, INT} from "../../data-types";
 import {DataOperationsList} from '../pipeline-view/data-operations-list';
 import {Instruction} from "../instruction/instruction";
 
@@ -30,12 +30,16 @@ class NewExperiment extends Component{
                     description: "ResNet50 is a 50 layer Residual Network.",
                     showDescription:false, showAdvancedOptsDivDataPipeline: false, dataType: "Images", 
                     params: {
-                        standard: [],
+                        standard: [
+                            {name: "input_height", dataType: INT, required: true},
+                            {name: "input_width", dataType: INT, required: true},
+                            {name: "epochs", dataType: INT, required: true}
+                        ],
                         advanced: [
-                            {name: "Hyperparameter 1", dataType: FLOAT, required: false},
-                            {name: "Hyperparameter 2", dataType: FLOAT, required: false},
-                            {name: "Hyperparameter 3", dataType: FLOAT, required: false},
-                            {name: "Hyperparameter 4", dataType: FLOAT, required: false}
+                            {name: "l_rate", dataType: FLOAT, required: false},
+                            {name: "drop-out", dataType: FLOAT, required: false},
+                            {name: "loss_function", dataType: FLOAT, required: false},
+                            {name: "val_split", dataType: FLOAT, required: false}
                         ]
                     }
                 },
