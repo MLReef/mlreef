@@ -9,8 +9,6 @@ import ProjectContainer from '../projectContainer';
 import {SortableDataOperationsList} from './sortable-data-operation-list';
 import SelectDataPipelineModal from "../select-data-pipeline/select-data-pipeline-modal";
 import arrayMove from 'array-move';
-import * as fileActions from "../../actions/fileActions";
-import {bindActionCreators} from "redux";
 import commitsApi from "../../apis/CommitsApi";
 import {INT, FLOAT, regExps, BOOL} from "../../data-types";
 import { DataOperationsList } from './data-operations-list';
@@ -20,11 +18,14 @@ import {toastr} from 'react-redux-toastr';
 import branchesApi from "../../apis/BranchesApi";
 import uuidv1 from 'uuid/v1';
 import ExecutePipelineModal from './executePipeLineModal';
+import filesApi from "./../../apis/FilesApi";
 
-class PipeLineView extends Component{
+class PipeLineView extends Component {
     constructor(props){
         super(props);
         this.state = {
+            project: this.props.projects.selectedProject,
+            files: null,
             checkBoxOwnDataOperations: false,
             checkBoxStarredDataOperations: false,
             idCardSelected: null,
@@ -97,11 +98,19 @@ class PipeLineView extends Component{
                 }
             ],
             showSelectFilesModal: false,
-            project: null,
             dataOperationsSelected: [],
             filesSelectedInModal: [],
             commitResponse: null,
         }
+        filesApi.getFilesPerProject(
+            this.props.projects.selectedProject.id, 
+            "",
+            false, 
+            "gitlab.com",
+            "master"
+        ).then(res => this.setState({files: res}))
+        .catch(err => console.log(err));
+
         this.handleCheckMarkClick = this.handleCheckMarkClick.bind(this);
         this.drop = this.drop.bind(this);
         this.allowDrop = this.allowDrop.bind(this);
@@ -113,11 +122,7 @@ class PipeLineView extends Component{
         this.handleExecuteBtn = this.handleExecuteBtn.bind(this);
         this.toggleExecutePipeLineModal = this.toggleExecutePipeLineModal.bind(this);
     }
-
-    componentWillMount(){
-        this.setState({project: this.props.projects.selectedProject});
-    }
-
+    
     componentDidMount(){
         document.getElementById("show-filters-button").style.width = '80%';
     }
@@ -462,6 +467,7 @@ class PipeLineView extends Component{
         return (
             <div className="pipe-line-view">
                 <SelectDataPipelineModal 
+                    files={this.state.files}
                     selectDataClick={this.selectDataClick} 
                     show={showSelectFilesModal} 
                     filesSelectedInModal={this.state.filesSelectedInModal} 
@@ -601,13 +607,6 @@ function mapStateToProps(state){
     };
 }
 
-function mapDispatchToProps(dispatch) {
-    return {
-        actions: bindActionCreators(fileActions, dispatch)
-    };
-}
-
 export default connect(
-    mapStateToProps,
-    mapDispatchToProps
+    mapStateToProps
 )(PipeLineView);

@@ -56,6 +56,7 @@
 /* ------------- table styles ----------------*/
 
 .modal-content > #table-container {
+    max-height: 330px;
     margin-left: 4%;
     width: 92%;
     overflow-y: scroll;
