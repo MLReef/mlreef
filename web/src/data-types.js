@@ -32,7 +32,7 @@ before_script:
 
 data-pipeline:
   script:
-   - git checkout -b #new-datainstance
+   #- git checkout -b #new-datainstance
    - echo \${CI_JOB_ID} >> data_pipeline.info
 #replace-here-the-lines
    - git add .

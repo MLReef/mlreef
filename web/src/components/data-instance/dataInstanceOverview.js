@@ -209,7 +209,7 @@ class DataInstanceOverview extends Component {
                                         {
                                             "currentState": Active,
                                             "di_id": item.commit.short_id,
-                                            "descTitle": `data-instance/${item.name}`,
+                                            "descTitle": `${item.name}`,
                                             "userName": item.commit.author_name,
                                             "timeCreatedAgo": timediff,
                                             "expiration": timediff,

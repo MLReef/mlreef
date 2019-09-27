@@ -103,7 +103,6 @@
 .experiment-card > .card-content > .summary-data > .buttons-div button.dangerous-red {
     border-radius: 0.3vw;
     border-width: 1.7px;
-    width: auto;
 }
 
 .card-content > .summary-data > .buttons-div > button{
