@@ -52,7 +52,7 @@ class PipeLineView extends Component{
                 },
                 {
                     title: "Random crop", username: "Vaibhav_M", starCount: "201", index: 2,
-                    command: "crop",
+                    command: "random_crop",
                     description: 
                         `This pipeline operation randomly crops a NxM (height x width) portion of the given dataset. 
                         This is used to randomly extract parts of the image incase we need to remove bias present in image data.`,
@@ -83,7 +83,7 @@ class PipeLineView extends Component{
                 },
                 {
                     title: "Lee filter", username: "RK_ESA", starCount: "126", index: 4, 
-                    command: "filter",
+                    command: "lee_filter",
                     description: 
                         `The presence of speckle noise in Synthetic Aperture Radar (SAR) images makes the interpretation of the contents difficult, 
                         thereby degrading the quality of the image. Therefore an efficient speckle noise removal technique, the Lee Filter is used to 
@@ -121,19 +121,6 @@ class PipeLineView extends Component{
     componentDidMount(){
         document.getElementById("show-filters-button").style.width = '80%';
     }
-
-    /*
-    componentWillReceiveProps(nextProps){
-         const finalContent = [
-                ...Base64
-                    .decode(nextProps.fileData.content)
-                    .split("\n"), 
-                ...linesToAdd
-            ]
-            .join('\n');
-            
-        }
-    */
     
     callToCommitApi = (branch, action, finalContent) =>
         commitsApi.performCommit(
@@ -146,10 +133,6 @@ class PipeLineView extends Component{
             action
         )
         .then(res => {
-            console.log(branch);
-            console.log(action);
-            console.log(finalContent);
-            console.log(res);
                  !res['id'] || typeof res['id'] === undefined
                     ? this.callToCommitApi(branch, "update", finalContent)
                     : this.setState({commitResponse: res});
@@ -300,7 +283,12 @@ class PipeLineView extends Component{
 
     generateCodeForBranch = () => (uuidv1()).split("-")[0];
 
-    modifyStylesOfWrongInputs = (input, paramInput, dataOperationsHtmlElm) => {
+    /**
+     * @param {input}: input html element which must be highlited to the user as wrong
+     * @param {inputDataModel}: data model of input(data type, required, etc)
+     * @param {dataOperationsHtmlElm}: operation container which must be highligthed
+     */
+    showErrorsInTheOperationsSelected = (input, inputDataModel, dataOperationsHtmlElm) => {
         input.style.border = "1px solid red";
         dataOperationsHtmlElm.style.border = "1px solid red";
         const errorDiv = document.getElementById(`error-div-for-${input.id}`);
@@ -315,7 +303,7 @@ class PipeLineView extends Component{
             dataOperationsHtmlElm.removeAttribute("style");
         });
 
-        if(paramInput.dataType === BOOL){
+        if(inputDataModel.dataType === BOOL){
             const dropDown = input.parentNode.childNodes[1]
             dropDown.style.border = "1px solid red";
             dropDown.addEventListener('focusout', () => {
@@ -325,18 +313,21 @@ class PipeLineView extends Component{
     }
 
     /**
-     * @method concatFilesSelectedInModal: This funtion is to add folders and files to the command
+     * @method addFilesSelectedInModal: This funtion is to add folders and files to the command
      * @param {lineWithOutFolderAndFiles}: This is the line without directories or files
      */
     addFilesSelectedInModal(lineWithOutFoldersAndFiles){
+        if(this.state.filesSelectedInModal.length === 0){
+            toastr.error('Execution failed', 'Check please that you have selected files to be used in the pipeline');
+            return undefined;
+        }
         let filesLine = "";
-        this.state.filesSelectedInModal.forEach((file) => {
-            filesLine = `${filesLine} ${file.path}`;
-            
-            if(file.type === "tree"){
-                filesLine = filesLine.concat("/");
-            }
-        });
+        const file = this.state.filesSelectedInModal[0];
+        filesLine = `${filesLine} ${file.path}`;
+        
+        if(file.type === "tree"){
+            filesLine = filesLine.concat("/");
+        }        
 
         return lineWithOutFoldersAndFiles.replace("#directoriesAndFiles", filesLine);
     }
@@ -351,17 +342,17 @@ class PipeLineView extends Component{
             const dataOpInputs = Array.prototype.slice.call(dataOperationsHtmlElm.getElementsByTagName("input"));
             let advancedParamsCounter = 0;
             dataOpInputs.forEach((input, inputIndex) => {
-                let paramInput = null;
+                let inputDataModel = null;
                 if(input.id.startsWith("ad-")){
-                    paramInput = dataOperation.params.advanced[advancedParamsCounter];
+                    inputDataModel = dataOperation.params.advanced[advancedParamsCounter];
                     advancedParamsCounter = advancedParamsCounter + 1;
                 } else {
-                    paramInput = dataOperation.params.standard[inputIndex];
+                    inputDataModel = dataOperation.params.standard[inputIndex];
                 }
                 
-                if(!this.validateInput(input.value, paramInput.dataType, paramInput.required)){
+                if(!this.validateInput(input.value, inputDataModel.dataType, inputDataModel.required)){
                     errorCounter = errorCounter + 1;
-                    this.modifyStylesOfWrongInputs(input, paramInput, dataOperationsHtmlElm);
+                    this.showErrorsInTheOperationsSelected(input, inputDataModel, dataOperationsHtmlElm);
                     return;
                 }
                 line = line.concat(` ${input.value}`);
@@ -378,7 +369,11 @@ class PipeLineView extends Component{
         dataInstanceName
     ) => 
         mlreefFileContent
-            .replace(/#replace-here-the-lines/g, pipeLineOperationCommands)
+            .replace(/#replace-here-the-lines/g,
+                pipeLineOperationCommands
+                    .toString()
+                    .replace(/,/g, "\n")
+            )
             .replace(/#new-datainstance/g, dataInstanceName)
             .replace(
                 /#repo-url/g, 
@@ -400,11 +395,11 @@ class PipeLineView extends Component{
             ).map(
                 child => child.childNodes[1]
             ), 0
-        );        
+        );
         if(pipeLineOperationCommands
             .filter(
                 line => line !== undefined
-            ).length > 0 
+            ).length === this.state.dataOperationsSelected.length 
         ){
             const finalContent = this.generateRealContentFromTemplate(
                 mlreefFileContent, 
@@ -412,7 +407,6 @@ class PipeLineView extends Component{
                 dataInstanceName
             );
             toastr.info('Execution', 'Pipeline execution has already started');
-            console.log(finalContent);
             branchesApi.create(
                 this.state.project.id,
                 branchName,
