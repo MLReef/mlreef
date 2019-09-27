@@ -40,9 +40,13 @@ Must be a positive float value.
 This pipeline operation randomly crops a NxM (height x width) portion of the given dataset. This is used to randomly extract parts of the image incase we need to remove bias present in image data.
 
 #### Standard Parameter(s):  
-1. height(int): Height of resulting randomly cropped image
-2. width(int): Width of resulting randomly cropped image
-3. channels(int): Number of channles in resulting randomly cropped image
+1. height(int): Height of resulting randomly cropped image.
+2. width(int): Width of resulting randomly cropped image.
+
+#### Advanced Parameter(s):  
+
+1. channels(int): Number of channles in resulting randomly cropped image.
+2. seed(int): Random seed.
 
 # Executing the Pipeline scripts
 
