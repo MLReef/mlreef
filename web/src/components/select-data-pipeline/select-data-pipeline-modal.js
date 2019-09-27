@@ -77,10 +77,10 @@ class SelectDataPipelineModal extends Component{
                     <br />
                     <div id="buttons">
                         <div id="left-div">
-                            <div className="reference">
+                            <div className="white-button round-border-black-color">
                             <ArrowButton placeholder={"Master"} imgPlaceHolder={traiangle01} callback={this.handleBranch}/>
                             {this.state.isOpen && (
-                                <div className="select-branch" onBlur={this.handleBlur}>
+                                <div className="select-branch" style={{top:"27%", left:"35px"}} onBlur={this.handleBlur}>
                                 <div
                                     style={{
                                         margin: "0 50px",

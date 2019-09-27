@@ -789,6 +789,8 @@ hr {
 .select-branch {
   box-shadow: 0 2px 4px rgb(0, 0, 0, 0.3);
   position: absolute;
+  background-color: white;
+  z-index: 10;
   display: block !important;
   width: 300px;
   height: auto;

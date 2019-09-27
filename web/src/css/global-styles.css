@@ -37,6 +37,7 @@ button {
 
 .light-green-background, .light-green-button {
    background-color: #2db391;
+   border-radius: 0.3vw;
 }
 
 /*------------------- ----- --------------------*/
@@ -90,7 +91,7 @@ button {
 
 .round-border-black-color {
    border-radius: 0.3vw;
-   border: 2px solid #1C2B40;
+   border: 1px solid #1C2B40;
    color: #1C2B40;
    width: max-content;
 }
