@@ -106,7 +106,11 @@ class DataInstanceOverview extends Component {
     componentDidMount() {
         filesApi.getBranches("gitlab.com", this.state.project.id)
             .then(res => res.json())
-            .then(response => this.setState({ branches: response }))
+            .then(response => 
+                this.setState({ 
+                    branches: response.filter(branch => branch.name.startsWith("data-pipeline")) 
+                }
+            ))    
     }
 
     handleButtonsClick(e) {
