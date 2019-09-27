@@ -36,7 +36,7 @@ const ExecutePipelineModal = ({
     return isShowing
     ? (
         <div className="generic-modal">
-            <div className="modal-content" style={{height: '25%', minHeight: 250}}>
+            <div className="modal-content" style={{height: '30%', minHeight: 250}}>
                 <div className="title light-green-button">
                     <div style={{padding: '0 3em'}}>
                         <p>
@@ -150,8 +150,8 @@ const ExecutePipelineModal = ({
                     <p>You can close this window, your task will run on the background under <b>"Insights/tasks"</b></p>
 
                 </div>}
-                <div style={{display: 'flex', margin: '1em 3em'}}>
-                        <div style={{width: '50%', }}>
+                <div style={{display: 'flex', margin: '0em 3em', alignItems: 'first baseline'}}>
+                        <div style={{display: 'flex', width: '50%' }}>
                             <button className="white-button" style={{padding: '3px 3em'}} onClick={() => cleanForm() }>Abort</button>
                         </div>
                         <div style={{width: '50%', display: 'flex', justifyContent: 'flex-end'}}>
@@ -159,16 +159,16 @@ const ExecutePipelineModal = ({
                                 onClick={() => {
                                     if(section === 1){
                                         setSection(2);
+                                        handleExecuteModalBtnNextPressed();
                                     } else {
                                         cleanForm();
-                                        handleExecuteModalBtnNextPressed();
                                     }
                                 }}
                                 style={{borderRadius: '0.3vw', padding: '3px 3em'}} 
                                 className="round light-green-button">
                                     {section === 1 
-                                        ? "Next"
-                                        : "Execute"
+                                        ? "Execute"
+                                        : "Ok"
                                     }
                             </button>
                         </div>

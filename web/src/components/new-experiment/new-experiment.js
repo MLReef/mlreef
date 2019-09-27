@@ -9,16 +9,17 @@ import ProjectContainer from '../projectContainer';
 import {SortableDataOperationsList} from '../pipeline-view/sortable-data-operation-list';
 import SelectDataPipelineModal from "../select-data-pipeline/select-data-pipeline-modal";
 import arrayMove from 'array-move';
-import * as fileActions from "../../actions/fileActions";
-import {bindActionCreators} from "redux";
 import {FLOAT, INT} from "../../data-types";
 import {DataOperationsList} from '../pipeline-view/data-operations-list';
 import {Instruction} from "../instruction/instruction";
+import filesApi from "./../../apis/FilesApi";
 
-class NewExperiment extends Component{
+class NewExperiment extends Component {
     constructor(props){
         super(props);
         this.state = {
+            project: this.props.projects.selectedProject,
+            files: null,
             checkBoxOwnDataOperations: false,
             checkBoxStarredDataOperations: false,
             idCardSelected: null,
@@ -61,11 +62,18 @@ class NewExperiment extends Component{
                 }
             ],
             showSelectFilesModal: false,
-            project: this.props.projects.selectedProject,
             dataOperationsSelected: [],
             filesSelectedInModal: [],
             commitResponse: null
         };
+        filesApi.getFilesPerProject(
+            this.props.projects.selectedProject.id, 
+            "",
+            false, 
+            "gitlab.com",
+            "master"
+        ).then(res => this.setState({files: res}))
+        .catch(err => console.log(err));
         this.handleCheckMarkClick = this.handleCheckMarkClick.bind(this);
         this.drop = this.drop.bind(this);
         this.allowDrop = this.allowDrop.bind(this);
@@ -235,6 +243,7 @@ class NewExperiment extends Component{
         return (
             <div className="pipe-line-view">
                 <SelectDataPipelineModal 
+                    files={this.state.files}
                     selectDataClick={this.selectDataClick} 
                     show={showSelectFilesModal} 
                     filesSelectedInModal={this.state.filesSelectedInModal} 
@@ -368,13 +377,6 @@ function mapStateToProps(state){
     };
 }
 
-function mapDispatchToProps(dispatch) {
-    return {
-        actions: bindActionCreators(fileActions, dispatch)
-    };
-}
-
 export default connect(
-    mapStateToProps,
-    mapDispatchToProps
+    mapStateToProps
 )(NewExperiment);

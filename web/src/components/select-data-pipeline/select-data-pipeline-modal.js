@@ -3,18 +3,14 @@ import PropTypes from 'prop-types';
 import "../../css/generic-modal.css";
 import "./select-data-pipeline-modal.css";
 import Input from "../input";
-import { connect } from "react-redux";
-import { bindActionCreators } from "redux";
-import * as fileActions from "../../actions/fileActions";
 import folderIcon from "../../images/folder_01.svg";
 import fileIcon from "../../images/file_01.svg";
 import traiangle01 from "../../images/triangle-01.png";
 import ArrowButton from "../arrow-button/arrow-button";
 
-class SelectDataPipelineModal extends Component{
+class SelectDataPipelineModal extends Component {
     constructor(props){
         super(props);
-
         this.state = {
             show: this.props.show,
             files: this.props.files,
@@ -28,6 +24,7 @@ class SelectDataPipelineModal extends Component{
 
     componentWillReceiveProps(nextProps){
         this.setState({
+            files: nextProps.files,
             show: nextProps.show
         });
     }
@@ -149,10 +146,10 @@ class SelectDataPipelineModal extends Component{
                                     </td>
                                     <td className="file-type" style={{width: 'unset'}}>
                                         <p>
-                                        <img src={ file.type === "tree" ? folderIcon: fileIcon } alt="" />
+                                            <img src={ file.type === "tree" ? folderIcon: fileIcon } alt="" />
                                         </p>
                                         <p>
-                                        {file.name}
+                                            {file.name}
                                         </p>
                                     </td>
                                 </tr>
@@ -171,22 +168,5 @@ SelectDataPipelineModal.propTypes = {
     show: PropTypes.bool
 }
 
-function mapStateToProps(state) {
-    return {
-      files: state.files,
-      project: state.project,
-      file: state.file
-    };
-  }
-  
-  function mapDispatchToProps(dispatch) {
-    return {
-      actions: bindActionCreators(fileActions, dispatch)
-    };
-  }
-  
-  export default connect(
-    mapStateToProps,
-    mapDispatchToProps
-  )(SelectDataPipelineModal);
+export default SelectDataPipelineModal;
   
