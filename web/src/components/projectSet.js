@@ -97,13 +97,16 @@ class ProjectSet extends React.Component {
 
 const Project = props => {
 
+  const [refresh, setRefresh] = React.useState(true);
+
   function handleClick() {
     projectGeneralInfoApi.removeProject("gitlab.com", props.owner)
       .then(res => res.json())
       .then(result => console.log(result))
+    setRefresh(!refresh);
   }
 
-  return (
+  return (refresh &&
     <div id="project-display" onClick={props.click}>
       <div>
         <div id="project-icon">
@@ -133,7 +136,7 @@ const Project = props => {
           </div>
         </div>
         <p>Updated 10 minutes ago</p>
-        <button style={{ margin: "0.5em", cursor: "pointer" }} class="dangerous-red" onClick={handleClick}><b>X</b></button>
+        <button style={{ margin: "0.5em", cursor: "pointer" }} className="dangerous-red" onClick={handleClick}><b>X</b></button>
       </div>
     </div>
   )
