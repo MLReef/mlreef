@@ -6,7 +6,7 @@ import sys
 import argparse
 
 
-def processArguments(args):
+def process_arguments(args):
     parser = argparse.ArgumentParser(description='Pipeline: Lee Filter')
     parser.add_argument('--images-path', action='store', help='path to directory of images or image file')
     parser.add_argument('--intensity', action='store', help='intensity of the Lee Filter')
@@ -24,6 +24,7 @@ def lee_filter(img, intensity):
 
 
 if __name__ == "__main__":
+    print("Beginning execution of lee_filter.py script ......... \n")    
     params = process_arguments(sys.argv[1:])
     string = params['images_path']
     intensity = int(params['intensity'])
@@ -35,7 +36,6 @@ if __name__ == "__main__":
         height,width = image.shape
         image_despeckeled = lee_filter(image,intensity)
         cv2.imwrite("{}/{}-despeckled.png".format(path,string.split('.')[-2].split('/')[-1]),image_despeckeled)
-        print("Done")
 
     if os.path.isdir(string):   
         for subdir, dirs, files in os.walk(string):
@@ -52,4 +52,5 @@ if __name__ == "__main__":
                 except Exception as identifier:
                     print("Error:", identifier)
                     pass
+    print("Filtering done")
 pass
