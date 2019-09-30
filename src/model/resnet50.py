@@ -23,20 +23,15 @@ from keras.callbacks import ReduceLROnPlateau, CSVLogger
 
 class Metrics(keras.callbacks.Callback):
     def on_train_begin(self, logs={}):
-        self.losses = []
         self.metrics = {}
         self.metrics2 = {}
     
     
     def on_batch_end(self, batch, logs={}):
-        #self.losses.append(logs.get('loss'))
-        print("batch done")
         try:
             self.metrics2[batch] = {
                 'acc': float(logs.get('acc')),
-                #'val_acc': float(logs.get('val_acc')),
                 'loss': float(logs.get('loss')),
-                #'val_loss': float(logs.get('val_loss'))
             }
             with open('vaibhav_export_batch.json','w') as file:
                 json.dump(self.metrics2,file)
@@ -45,18 +40,15 @@ class Metrics(keras.callbacks.Callback):
 
         return None
 
-
     def on_epoch_end(self, epoch, logs={}):
-        #self.metrics.append([logs.get('acc'),logs.get('val_acc'),logs.get('loss'),logs.get('val_loss')])
         self.metrics[epoch] = {
             'acc': logs.get('acc'),
             'val_acc': logs.get('val_acc'),
             'loss': logs.get('loss'),
             'val_loss': logs.get('val_loss')
         }
-        with open('vaibhav_export_epoch.json','w') as file:
+        with open('experiment.json','w') as file:
             json.dump(self.metrics,file)
-        
         return None
 
 
