@@ -13,21 +13,21 @@ WORKDIR /app
 RUN echo "------------------------------------------------------------------------" && \
     echo "                       MLREEF EPF: Setting Up"                            && \
     echo "------------------------------------------------------------------------" && \
-    python --version 				                                                && \
-    pip3 --version 				                                                    && \
+    python --version 				                                    && \
+    pip3 --version 				                                    && \
     python -m pip install --upgrade --force pip                                     && \
-    pip install virtualenv 		                                                    && \
-    # Switch Python to virtualenv "venv" 	                                        && \
-    virtualenv venv --distribute 	 	                                            && \
-    #source venv/bin/activate            	                                        && \
-    pip install --upgrade tensorflow     	                                        && \
-    pip install keras   		 	                                                && \
-    pip install sklearn 		 	                                                && \
-    pip install Pillow  		                                                    && \
-    pip install scikit-learn		                                                && \
+    pip install virtualenv 		                                            && \
+    # Switch Python to virtualenv "venv" 	                                    && \
+    virtualenv venv --distribute 	 	                                    && \
+    #source venv/bin/activate            	                                    && \
+    pip install --upgrade tensorflow     	                                    && \
+    pip install keras   		 	                                    && \
+    pip install sklearn 		 	                                    && \
+    pip install Pillow  		                                            && \
+    pip install scikit-learn		                                            && \
     pip install matplotlib                                                          && \
-    pip install opencv-python
-
+    pip install opencv-python                                                       && \
+    pip install pandas 
 ##### Add container startup script
 CMD echo "------------------------------------"                                     && \
     echo "       MLREEF EPF Starting" 	                                           	&& \
