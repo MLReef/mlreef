@@ -102,3 +102,35 @@ an error.  Default = `32`.
 ## Resnet50
 
     python resnet50.py --images-path ../../PATH_TO_DATA --output-path ../../PATH_TO_OUTPUT --height 100 --width 100 --channels 3 --use_pretrained False --epochs 35 --batch-size 32 --validation-split .35 --loss binary_crossentropy --learning-rate 0.002 
+    
+### Outputs 
+
+1. Model weights: model weights are saved in .h5 format which can be used for later use. They are saved as model-{timestamp}-epochs-{number of epocs}.h5
+2. Figures of metrics: Two plots showing graphical distribution of accuracy vs validation accuracy and loss vs validation loss. They are saved as fig1.png and fig2.png
+3. Json dumps of metrics: Two different json dumps.
+    1. vaibhav_export_batch.json: Showing accuracy and loss as calculated at the end of each batch. Output frequency is too high to be used for graphical represnetation. Closest to realtime
+    2. vaibhav_export_epoch.json: Showing acccuracy, loss, validation accuracy and validation loss as calculated at the end of each epoch. This is the file to be parsed for grapphical representation.
+
+Format of vaibhav_export_epoch.json:
+    
+        {
+            "epoch_number":
+            {
+                "acc": Accuracy at end of epoch,
+                "val_acc": Validation Accuracy at end of epoch,
+                "loss": Loss at end of epoch,
+                "val_acc": Validation Loss at end of epoch,
+            }
+        }
+
+Example:
+
+        {
+            "0": 
+            {
+                "acc": 0.48484848484848486,
+                "val_acc": 0.5,
+                "loss": 7.721049770911451,
+                "val_loss": 8.059047736904837
+            }
+        }
