@@ -24,20 +24,23 @@ variables:
 
 # The before_script handles everything git related and sets up the automatic committing
 before_script:
-  - background-push &
-  - export BG_PID=$!
+  #- background-push &
+  #- export BG_PID=$!
+  - git config --global user.email "rainer+mlreefdemo@systemkern.com"
+  - git config --global user.name "mlreefdemo"
   - echo "Background Commit PID $BG_PID"
   - git remote set-url origin https://\${GIT_PUSH_USER}:\${GIT_PUSH_TOKEN}@#repo-url
 
 
 data-pipeline:
   script:
-   #- git checkout -b #new-datainstance
+   - git checkout -b #new-datainstance
    - echo \${CI_JOB_ID} >> data_pipeline.info
 #replace-here-the-lines
    - git add .
    - git status
    - git commit -m "Add pipeline results [skip ci]"
+   - git push --set-upstream origin #new-datainstance 
    - git push
 `;
 
