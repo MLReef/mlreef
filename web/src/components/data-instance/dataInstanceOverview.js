@@ -6,6 +6,7 @@ import { connect } from "react-redux";
 import filesApi from "../../apis/FilesApi";
 import arrow_down_white_01 from "../../images/arrow_down_white_01.svg";
 import { Instruction } from '../instruction/instruction';
+import {getTimeCreatedAgo} from '../../functions/utilities';
 
 const Active = "Active";
 const Expired = "Expired";
@@ -179,28 +180,7 @@ class DataInstanceOverview extends Component {
                     }
                     />
                     {this.state.branches.map((item, index) => {
-                        const today = new Date();
-                        const created = new Date(item.commit.created_at);
-                        let diff = today - created;
-                        let timediff;
-                        if (diff > 2678400e3) {
-                            timediff = Math.floor(diff / 2678400e3) + " months"
-                        }
-                        else if (diff > 604800e3) {
-                            timediff = Math.floor(diff / 604800e3) + " weeks"
-                        }
-                        else if (diff > 86400e3) {
-                            timediff = Math.floor(diff / 86400e3) + " days"
-                        }
-                        else if (diff > 3600e3) {
-                            timediff = Math.floor(diff / 3600e3) + " hours"
-                        }
-                        else if (diff > 60e3) {
-                            timediff = Math.floor(diff / 60e3) + " minutes"
-                        }
-                        else {
-                            timediff = "just now"
-                        }
+                        const timediff = getTimeCreatedAgo(item.commit.created_at);
                         return (
                             <InstanceCard key={index} params={
                                 {

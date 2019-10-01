@@ -9,6 +9,14 @@ import {Line} from "react-chartjs-2";
 import {connect} from "react-redux";
 import ArrowButton from "./arrow-button/arrow-button";
 import { Link } from "react-router-dom";
+import filesApi from "./../apis/FilesApi";
+import { 
+    getTimeCreatedAgo,
+    generateSummarizedInfo
+} from "../functions/utilities";
+import { colorsForCharts } from './../data-types';
+import { Base64 } from "js-base64";
+
 
 const Running = "Running";
 const Open = "Open";
@@ -36,7 +44,8 @@ class ExperimentCard extends React.Component {
 
         this.state = {
             showChart: false,
-            chartDivId: new Date().getTime()
+            chartDivId: new Date().getTime(),
+            experiments: this.props.params.experiments
         };
 
         this.handleArrowDownButtonClick = this.handleArrowDownButtonClick.bind(this);
@@ -47,17 +56,19 @@ class ExperimentCard extends React.Component {
         switch (experimentState) {
             case Running:
                 buttons = [
-                    <ArrowButton imgPlaceHolder={traiangle01}
-                                 callback={this.handleArrowDownButtonClick}
-                                 params={{"ind": index}}
+                    <ArrowButton 
+                        imgPlaceHolder={traiangle01}
+                        callback={this.handleArrowDownButtonClick}
+                        params={{"ind": index}}
                     />,
                     <button className="dangerous-red"><b> Abort </b></button>];
                 break;
             case Open:
                 buttons = [
-                    <ArrowButton imgPlaceHolder={traiangle01}
-                                 callback={this.handleArrowDownButtonClick}
-                                 params={{"ind": index}}
+                    <ArrowButton 
+                        imgPlaceHolder={traiangle01}
+                        callback={this.handleArrowDownButtonClick}
+                        params={{"ind": index}}
                     />,
                     <button className="dangerous-red"><b>X</b></button>,
                     <button className="light-green-button experiment-button non-active-black-border"
@@ -68,13 +79,15 @@ class ExperimentCard extends React.Component {
                 break;
             case Completed:
                 buttons = [
-                    <ArrowButton imgPlaceHolder={traiangle01}
-                                 callback={this.handleArrowDownButtonClick}
-                                 params={{"ind": index}}
+                    <ArrowButton 
+                        imgPlaceHolder={traiangle01}         
+                        callback={this.handleArrowDownButtonClick}
+                        params={{"ind": index}}
                     />,
                     <button className="dangerous-red"><b>X</b></button>,
                     <button className="light-green-button experiment-button non-active-black-border"
-                    style={{width: '100px'}}>
+                        style={{width: '100px'}}
+                    >
                         <b>Deploy</b>
                     </button>
                 ];
@@ -82,8 +95,8 @@ class ExperimentCard extends React.Component {
             case Aborted:
                 buttons = [
                     <ArrowButton imgPlaceHolder={traiangle01}
-                                 callback={this.handleArrowDownButtonClick}
-                                 params={{"ind": index}}
+                        callback={this.handleArrowDownButtonClick}
+                        params={{"ind": index}}
                     />,
                     <button className="dangerous-red"><b>X</b></button>];
                 break;
@@ -94,31 +107,73 @@ class ExperimentCard extends React.Component {
         return (<div className="buttons-div">{buttons}</div>)
     }
 
+    mapSummarizedInfoToDatasets = (summarizedInfo) => summarizedInfo.map(
+        (epochObjectVal, index) => {
+            const currentValueName = Object.keys(epochObjectVal)[0];
+            const dataSet = {};
+
+            dataSet["label"] = currentValueName;
+            dataSet["fill"] = false;
+            dataSet["backgroundColor"] = colorsForCharts[index];
+            dataSet["borderColor"] = colorsForCharts[index];
+            dataSet["lineTension"] = 0;
+            dataSet["data"] = epochObjectVal[currentValueName];
+
+            return dataSet;
+    });
+
     handleArrowDownButtonClick(e, params) {
         const index = params.ind;
-        const exp = this.props.params.experiments[index];
+        const exp = this.state.experiments[index];
         const newState = this.state;
         const chartDiv = document.getElementById(this.state.chartDivId);
         const cardResults = `${this.state.chartDivId}-Idcard-results-${index}`;
-
         newState.showChart = !this.state.showChart;
-        this.setState(
-            newState
-        );
-        if (exp.data && newState.showChart) {
-            chartDiv.parentNode.childNodes[1].style.display = "unset";
-            $(`#${cardResults}`).css("display", "flex");
-            ReactDOM.render(
-                <div>
-                    <Line data={exp.data} height={50}/>
-                </div>,
-                chartDiv
-            )
+        
+        if(newState.showChart){            
+            filesApi.getFileData(
+                "gitlab.com",
+                this.props.params.project.id,
+                "experiment.json",
+                exp.descTitle
+            ).then(res => {
+                const jsonExperimentFileParsed = JSON.parse(Base64.decode((res.content)).replace(/\n/g, ""));
+                const summarizedInfo = generateSummarizedInfo(jsonExperimentFileParsed);
+                const dataSets = this.mapSummarizedInfoToDatasets(summarizedInfo);
+                const labels = Object.keys(dataSets[0].data);
+                const avgValues = Object.keys(summarizedInfo)
+                    .filter(sInfoItem => sInfoItem.startsWith("avg_"))
+                    .map(sInfoItem => {
+                        return {name: sInfoItem.substring(4, sInfoItem.length), value: summarizedInfo[sInfoItem]}
+                    }
+                );
+                exp.data = { labels: labels, datasets: dataSets };
+                exp.averageParams = avgValues;
+
+                const newExperimentsArr = this.state.experiments;
+                newExperimentsArr[index] = exp;
+                this.setState({experiments: newExperimentsArr});
+                if (exp.data) {
+                    chartDiv.parentNode.childNodes[1].style.display = "unset";
+                    $(`#${cardResults}`).css("display", "flex");
+                    ReactDOM.render(
+                        <div>
+                            <Line data={exp.data} height={50}/>
+                        </div>,
+                        chartDiv
+                    )
+                }
+               
+            })
+            .catch(err => console.log(err));
         } else {
             $(`#${cardResults}`).css("display", "none");
             chartDiv.parentNode.childNodes[1].style.display = "none";
             ReactDOM.unmountComponentAtNode(chartDiv);
         }
+        this.setState(
+            newState
+        );
     }
 
     render() {
@@ -138,7 +193,7 @@ class ExperimentCard extends React.Component {
                     </div>
                 </div>
 
-                {params.experiments.map((experiment, index) => {
+                {this.state.experiments.map((experiment, index) => {
                     let modelDiv = "inherit";
                     let progressVisibility = "inherit";
                     if (!experiment.percentProgress) {
@@ -232,8 +287,17 @@ class ExperimentsOverview extends Component {
         const project = this.props.projects.selectedProject;
 
         this.state = {
-            project: project
+            project: project,
+            branches: []
         };
+
+        filesApi.getBranches("gitlab.com", project.id)
+            .then(res => res.json())
+            .then(response =>
+                this.setState({
+                    branches: response.filter(branch => branch.name.startsWith("experiment")) 
+                }
+            ));  
     }
 
     handleButtonsClick(e) {
@@ -252,9 +316,10 @@ class ExperimentsOverview extends Component {
         return (
             <div id="experiments-overview-container">
                 <Navbar/>
-                <ProjectContainer project={project}
-                                  activeFeature="experiments"
-                                  folders={['Group Name', project.name, 'Data', 'Experiments']}
+                <ProjectContainer 
+                    project={project}
+                    activeFeature="experiments"
+                    folders={['Group Name', project.name, 'Data', 'Experiments']}
                 />
                 <br/>
                 <br/>
@@ -292,90 +357,24 @@ class ExperimentsOverview extends Component {
                             </b>
                         </Link>
                     </div>
-                    <ExperimentCard params={
-                            {
+                    {this.state.branches.map((branch) => 
+                        <ExperimentCard params={{
+                                "project": project,
                                 "currentState": Completed,
-                                "experiments": [
-                                    {
-                                        "currentState": Completed,
-                                        "descTitle": "UNET_SARData",
-                                        "userName": "Camillo Pachmann",
-                                        "percentProgress": "100",
-                                        "eta": "0",
-                                        "modelTitle": "Inception_V3",
-                                        "timeCreatedAgo": "7 hours",
-                                        "averageParams": [
-                                            {name: "Validation Accuracy", value: "0.91", showBellowModel: true},
-                                            {name: "Training Accuracy", value: "0.93"},
-                                            {name: "Validation Loss", value: "0.32"},
-                                            {name: "Training Loss", value: "0.28"}
-                                        ],
-                                        "data": {
-                                                labels: ["", "", "", "", "", "", "", "", "", ""],
-                                                datasets: [{
-                                                    label: "Validation Accuracy",
-                                                    fill: false,
-                                                    backgroundColor: '#f5544d',
-                                                    borderColor: '#f5544d',
-                                                    lineTension: 0,
-                                                    data: [0.3491, 0.5513, 0.7699, 0.8450, 0.7823, 0.9064, 0.8677, 0.9120, 0.9140, 0.9100]
-                                                },
-                                                {
-                                                    label: "Training Accuracy",
-                                                    fill: false,
-                                                    borderColor: '#2db391',
-                                                    backgroundColor: '#2db391',
-                                                    lineTension: 0,
-                                                    data: [0.530, 0.673, 0.602, 0.7791, 0.8828, 0.753, 0.8956, 0.9147, 0.9223, 0.9310]
-                                                }
-                                            ]
-                                        }
-                                    } 
-                                ]
-                            }
-                        }
-                    />
-
-                    <ExperimentCard params={
-                            {
-                                "currentState": Open,
-                                "experiments": [ 
-                                    {
-                                        "currentState": Open,
-                                        "descTitle": "HAM10000_ShallowTrain_1",
-                                        "userName": "Vaibhav Mehotra",
-                                        "timeCreatedAgo": "2 Weeks",
-                                        "averageParams": [
-                                            {name: "Validation Accuracy", value: "---", showBellowModel: true},
-                                            {name: "Training Accuracy", value: "---"},
-                                            {name: "Validation Loss", value: "---"},
-                                            {name: "Training Loss", value: "---"}
-                                        ],
-                                        "data": {
-                                            labels: ["", "", "", "", "", "", "", "", "", ""],
-                                            datasets: [{
-                                                label: "Validation Accuracy",
-                                                fill: false,
-                                                backgroundColor: '#f5544d',
-                                                borderColor: '#f5544d',
-                                                lineTension: 0,
-                                                data: []
-                                            },
-                                                {
-                                                    label: "Training Accuracy",
-                                                    fill: false,
-                                                    borderColor: '#2db391',
-                                                    backgroundColor: '#2db391',
-                                                    lineTension: 0,
-                                                    data: []
-                                                }
-                                            ]
-                                        }
-                                    } 
-                                ]
-                            }
-                        }
-                    />
+                                "experiments": [{
+                                    "currentState": Completed,
+                                    "descTitle": branch.name,
+                                    "userName": branch.commit.author_name,
+                                    "percentProgress": "100",
+                                    "eta": "0",
+                                    "modelTitle": "Inception_V3",
+                                    "timeCreatedAgo": getTimeCreatedAgo(branch.commit.created_at),
+                                    "averageParams": [],
+                                    "data": {}
+                                }]
+                            }}
+                        />
+                    )}
                 </div>
                 <br/>
                 <br/>
@@ -385,6 +384,7 @@ class ExperimentsOverview extends Component {
 }
 
 function mapStateToProps(state) {
+    console.log(state);
     return {
         projects: state.projects
     };
