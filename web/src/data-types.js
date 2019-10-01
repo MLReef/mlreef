@@ -2,6 +2,7 @@ export const INT = "INT";
 export const FLOAT = "FLOAT";
 export const BOOL = "Boolean";
 export const regExps = {"INT": /^[0-9]+$/, "FLOAT": /^-?\d*\.?\d*$/};
+export const STRING = "String";
 export const errorMessages = {
     INT: "Integer, value must be between 1 - 9.999",
     FLOAT: "Required field or float type",
@@ -24,24 +25,32 @@ variables:
 
 # The before_script handles everything git related and sets up the automatic committing
 before_script:
-  #- background-push &
-  #- export BG_PID=$!
+  - git remote set-url origin https://\${GIT_PUSH_USER}:\${GIT_PUSH_TOKEN}@#repo-url
   - git config --global user.email "rainer+mlreefdemo@systemkern.com"
   - git config --global user.name "mlreefdemo"
+  - export TARGET_BRANCH="#target-branch"
+  - background-push &
+  - export BG_PID=$!
   - echo "Background Commit PID $BG_PID"
-  - git remote set-url origin https://\${GIT_PUSH_USER}:\${GIT_PUSH_TOKEN}@#repo-url
 
-
-data-pipeline:
+#pipeline-operation-script-name:
   script:
-   - git checkout -b #new-datainstance
+   - git checkout -b #target-branch
    - echo \${CI_JOB_ID} >> data_pipeline.info
 #replace-here-the-lines
    - git add .
    - git status
    - git commit -m "Add pipeline results [skip ci]"
-   - git push --set-upstream origin #new-datainstance 
+   - git push --set-upstream origin #target-branch 
    - git push
 `;
 
 export const domain = "gitlab.com"
+
+export const colorsForCharts = [
+  "#f5544d",
+  "#2db391",
+  "#ffa000",
+  "#311b92",
+  "#00796b"
+]

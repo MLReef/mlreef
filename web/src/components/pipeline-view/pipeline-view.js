@@ -9,16 +9,15 @@ import ProjectContainer from '../projectContainer';
 import {SortableDataOperationsList} from './sortable-data-operation-list';
 import SelectDataPipelineModal from "../select-data-pipeline/select-data-pipeline-modal";
 import arrayMove from 'array-move';
-import commitsApi from "../../apis/CommitsApi";
-import {INT, FLOAT, regExps, BOOL} from "../../data-types";
+import {INT, FLOAT, BOOL} from "../../data-types";
 import { DataOperationsList } from './data-operations-list';
 import { Instruction } from '../instruction/instruction';
-import { mlreefFileContent } from "../../data-types";
-import {toastr} from 'react-redux-toastr';
-import branchesApi from "../../apis/BranchesApi";
-import uuidv1 from 'uuid/v1';
 import ExecutePipelineModal from './executePipeLineModal';
 import filesApi from "./../../apis/FilesApi";
+import {
+    createPipelineInProject
+} from './../../functions/utilities';
+import uuidv1 from 'uuid/v1';
 
 class PipeLineView extends Component {
     constructor(props){
@@ -40,7 +39,7 @@ class PipeLineView extends Component {
                         `Data augmentation multiplies and tweakes the data by changing angle of rotation, flipping the images, zooming in, etc.`,
                     showDescription:false, showAdvancedOptsDivDataPipeline: false, dataType: "Images", 
                     params: {
-                        standard: [{name: "Number of augmented images", dataType: INT, required: true}],
+                        standard: [{name: "Number of augmented images", dataType: INT, required: true, commandName: "iterations"}],
                         advanced: [
                             {name: "Rotation range", dataType: FLOAT, required: false},
                             {name: "Width shift range", dataType: FLOAT, required: false},
@@ -99,8 +98,7 @@ class PipeLineView extends Component {
             ],
             showSelectFilesModal: false,
             dataOperationsSelected: [],
-            filesSelectedInModal: [],
-            commitResponse: null,
+            filesSelectedInModal: []
         }
         filesApi.getFilesPerProject(
             this.props.projects.selectedProject.id, 
@@ -127,23 +125,6 @@ class PipeLineView extends Component {
         document.getElementById("show-filters-button").style.width = '80%';
     }
     
-    callToCommitApi = (branch, action, finalContent) =>
-        commitsApi.performCommit(
-            this.state.project.id,
-            ".mlreef.yml",
-            finalContent,
-            "gitlab.com",
-            branch,
-            "pipeline execution",
-            action
-        )
-        .then(res => {
-                 !res['id'] || typeof res['id'] === undefined
-                    ? this.callToCommitApi(branch, "update", finalContent)
-                    : this.setState({commitResponse: res});
-        })
-        .catch(err => console.log(err));
-
     onSortEnd = ({oldIndex, newIndex}) => this.setState(({dataOperationsSelected}) => ({
         dataOperationsSelected: arrayMove(dataOperationsSelected, oldIndex, newIndex)
     }));
@@ -285,171 +266,26 @@ class PipeLineView extends Component {
         document.getElementById("upload-files-options").style.display = "none"; 
         document.getElementsByTagName("body").item(0).style.overflow = 'scroll';
     };
-
-    generateCodeForBranch = () => (uuidv1()).split("-")[0];
-
-    /**
-     * @param {input}: input html element which must be highlited to the user as wrong
-     * @param {inputDataModel}: data model of input(data type, required, etc)
-     * @param {dataOperationsHtmlElm}: operation container which must be highligthed
-     */
-    showErrorsInTheOperationsSelected = (input, inputDataModel, dataOperationsHtmlElm) => {
-        input.style.border = "1px solid red";
-        dataOperationsHtmlElm.style.border = "1px solid red";
-        const errorDiv = document.getElementById(`error-div-for-${input.id}`);
-        errorDiv.style.display = "flex";
-        
-        input.addEventListener('focusout', () => {
-            input.removeAttribute("style");
-            errorDiv.style.display = "none";
-        });
-
-        dataOperationsHtmlElm.addEventListener('focusout', () => {
-            dataOperationsHtmlElm.removeAttribute("style");
-        });
-
-        if(inputDataModel.dataType === BOOL){
-            const dropDown = input.parentNode.childNodes[1]
-            dropDown.style.border = "1px solid red";
-            dropDown.addEventListener('focusout', () => {
-                dropDown.removeAttribute("style");
-            });
-        }
-    }
-
-    /**
-     * @method addFilesSelectedInModal: This funtion is to add folders and files to the command
-     * @param {lineWithOutFolderAndFiles}: This is the line without directories or files
-     */
-    addFilesSelectedInModal(lineWithOutFoldersAndFiles){
-        if(this.state.filesSelectedInModal.length === 0){
-            toastr.error('Execution failed', 'Check please that you have selected files to be used in the pipeline');
-            return undefined;
-        }
-        let filesLine = "";
-        const file = this.state.filesSelectedInModal[0];
-        filesLine = `${filesLine} ${file.path}`;
-        
-        if(file.type === "tree"){
-            filesLine = filesLine.concat("/");
-        }        
-
-        return lineWithOutFoldersAndFiles.replace("#directoriesAndFiles", filesLine);
-    }
-
-    buildCommandLinesFromSelectedPipelines = (
-        dataOperationsHtmlElms, 
-        errorCounter
-    ) =>
-        this.state.dataOperationsSelected.map((dataOperation, index) => {
-            const dataOperationsHtmlElm = dataOperationsHtmlElms[index];
-            let line = `   - python /epf/pipelines/${dataOperation.command}.py#directoriesAndFiles`;
-            const dataOpInputs = Array.prototype.slice.call(dataOperationsHtmlElm.getElementsByTagName("input"));
-            let advancedParamsCounter = 0;
-            dataOpInputs.forEach((input, inputIndex) => {
-                let inputDataModel = null;
-                if(input.id.startsWith("ad-")){
-                    inputDataModel = dataOperation.params.advanced[advancedParamsCounter];
-                    advancedParamsCounter = advancedParamsCounter + 1;
-                } else {
-                    inputDataModel = dataOperation.params.standard[inputIndex];
-                }
-                
-                if(!this.validateInput(input.value, inputDataModel.dataType, inputDataModel.required)){
-                    errorCounter = errorCounter + 1;
-                    this.showErrorsInTheOperationsSelected(input, inputDataModel, dataOperationsHtmlElm);
-                    return;
-                }
-                line = line.concat(` ${input.value}`);
-            });
-
-            return errorCounter === 0 
-                ? this.addFilesSelectedInModal(line)
-                : undefined;
-        });
-
-    generateRealContentFromTemplate = (
-        mlreefFileContent,
-        pipeLineOperationCommands,
-        dataInstanceName
-    ) => 
-        mlreefFileContent
-            .replace(/#replace-here-the-lines/g,
-                pipeLineOperationCommands
-                    .toString()
-                    .replace(/,/g, "\n")
-            )
-            .replace(/#new-datainstance/g, dataInstanceName)
-            .replace(
-                /#repo-url/g, 
-                this.state.project.http_url_to_repo.substr(
-                    8, 
-                    this.state.project.http_url_to_repo.length
-                )
-            );
-
+    
     handleExecuteModalBtnNextPressed = () => {
-        const uuidCodeForBranch = this.generateCodeForBranch();
+        const uuidCodeForBranch = (uuidv1()).split("-")[0];
         const branchName = `data-pipeline/${uuidCodeForBranch}`;
         const dataInstanceName = `data-instance/${uuidCodeForBranch}`;
-        const pipeLineOperationCommands = this.buildCommandLinesFromSelectedPipelines(
-            Array.prototype.slice.call(
-                document
-                    .getElementById('data-operations-selected-container')
-                    .childNodes
-            ).map(
-                child => child.childNodes[1]
-            ), 0
+
+        createPipelineInProject(
+            this.state.dataOperationsSelected,
+            this.state.filesSelectedInModal,
+            this.state.project.http_url_to_repo,
+            this.state.project.id,
+            "data-pipeline",
+            branchName,
+            dataInstanceName
         );
-        if(pipeLineOperationCommands
-            .filter(
-                line => line !== undefined
-            ).length === this.state.dataOperationsSelected.length 
-        ){
-            const finalContent = this.generateRealContentFromTemplate(
-                mlreefFileContent, 
-                pipeLineOperationCommands, 
-                dataInstanceName
-            );
-            toastr.info('Execution', 'Pipeline execution has already started');
-            branchesApi.create(
-                this.state.project.id,
-                branchName,
-                "master"
-            ).then((res) => {
-                if(res['commit']){
-                    toastr.info('Execution', 'The branch for pipeline was created');
-                    this.callToCommitApi(branchName, "create", finalContent);
-                }else{
-                    toastr.error('Execution', 'The branch for pipeline could not be created');
-                }
-            }).catch((err) => {
-                console.log(err);
-                toastr.error('Error', 'Something went wrong, try again later please');
-            });
-        } else {
-            toastr.error('Form', 'Validate please data provided in inputs');
-        }
-    };
+    }
 
     handleExecuteBtn = () => {
         this.toggleExecutePipeLineModal();    
     }
-
-    validateInput = (value, dataType, required) => {
-        if(required && (typeof(value) === undefined || value === "")){
-            return false;
-        }
-        
-        switch (dataType) {
-            case INT:
-                return regExps.INT.test(value);
-            case FLOAT:
-                return regExps.FLOAT.test(value);
-            default:
-                return (value === "") || (value === "true") || (value === "false");
-        }
-    };
 
     toggleExecutePipeLineModal(){
         const isShowingExecutePipelineModal = !this.state.isShowingExecutePipelineModal;
@@ -600,13 +436,10 @@ class PipeLineView extends Component {
     }
 }
 
-function mapStateToProps(state){
-    return {
-        fileData: state.file,
-        projects: state.projects
-    };
-}
-
 export default connect(
-    mapStateToProps
+    (state) => { 
+        return { 
+            projects: state.projects 
+        } 
+    }
 )(PipeLineView);

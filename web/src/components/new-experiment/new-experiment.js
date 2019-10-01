@@ -9,10 +9,14 @@ import ProjectContainer from '../projectContainer';
 import {SortableDataOperationsList} from '../pipeline-view/sortable-data-operation-list';
 import SelectDataPipelineModal from "../select-data-pipeline/select-data-pipeline-modal";
 import arrayMove from 'array-move';
-import {FLOAT, INT} from "../../data-types";
+import {FLOAT, INT, STRING} from "../../data-types";
 import {DataOperationsList} from '../pipeline-view/data-operations-list';
 import {Instruction} from "../instruction/instruction";
 import filesApi from "./../../apis/FilesApi";
+import {
+    createPipelineInProject
+} from './../../functions/utilities';
+import uuidv1 from 'uuid/v1';
 
 class NewExperiment extends Component {
     constructor(props){
@@ -28,13 +32,15 @@ class NewExperiment extends Component {
             dataOperations: [
                 {
                     title: "Resnet 50", username: "Keras", starCount: "243", index: 1,
+                    command: "resnet50",
                     description: "ResNet50 is a 50 layer Residual Network.",
                     showDescription:false, showAdvancedOptsDivDataPipeline: false, dataType: "Images", 
                     params: {
                         standard: [
-                            {name: "input_height", dataType: INT, required: true},
-                            {name: "input_width", dataType: INT, required: true},
-                            {name: "epochs", dataType: INT, required: true}
+                            /* {name: "images_path", dataType: STRING, required: true}, */
+                            {name: "output_path", dataType: STRING, required: true, commandName: "output-path"},
+                            {name: "input_height", dataType: INT, required: true, commandName: "height"},
+                            {name: "input_width", dataType: INT, required: true, commandName: "width"},
                         ],
                         advanced: [
                             {name: "l_rate", dataType: FLOAT, required: false},
@@ -63,8 +69,7 @@ class NewExperiment extends Component {
             ],
             showSelectFilesModal: false,
             dataOperationsSelected: [],
-            filesSelectedInModal: [],
-            commitResponse: null
+            filesSelectedInModal: []
         };
         filesApi.getFilesPerProject(
             this.props.projects.selectedProject.id, 
@@ -229,7 +234,19 @@ class NewExperiment extends Component {
     };
 
     handleExecuteBtn = () => {
-      console.log("execute");
+        const uuidCodeForBranch = (uuidv1()).split("-")[0];
+        const branchName = `experiment/${uuidCodeForBranch}`;
+        const dataInstanceName = `experiment/${uuidCodeForBranch}`;
+
+        createPipelineInProject(
+            this.state.dataOperationsSelected,
+            this.state.filesSelectedInModal,
+            this.state.project.http_url_to_repo,
+            this.state.project.id,
+            "model-experiment",
+            branchName,
+            dataInstanceName
+        );
     };
 
     render = () => {
