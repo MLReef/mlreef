@@ -1,6 +1,8 @@
-5MLReef
+![Build Status](https://gitlab.com/mlreef/backend/badges/master/build.svg)
+
+MLReef
 ===========================
-MLReef is being developed by the MLReef GmbH based in Vienna, Austria, Europe
+MLReef is being developed by the MLReef GmbH based in Austria, Europe
 with the purpose to support collaborative and versioned data set and model 
 management for the best Machine Learning projects.
 
@@ -17,7 +19,7 @@ Information about development and contribution can be found in the [development 
 ## Hiring
 
 We're hiring developers, support people, and production engineers all the time,
-please see our [jobs page](https://www.mlreef.com/).
+please see our [homepage](https://www.mlreef.com/).
 
 
 ## Software Stack
@@ -46,8 +48,8 @@ The Web Frontend is implemented with the following technologies and frameworks
 
 
 ## Gitlab Runners 
-The Gitlab Runner Bastion - the machine which spawns the actual gitlab runners is set up following this 
-(article)[https://about.gitlab.com/2017/11/23/autoscale-ci-runners/] 
+Gitlab runners are spawned dynamically by the AiOps Dispatcher.
+The AiOps dispatcher was set up following this (article)[https://about.gitlab.com/2017/11/23/autoscale-ci-runners/] 
 
 
 ## Is it any good?
