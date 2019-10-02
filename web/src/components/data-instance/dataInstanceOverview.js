@@ -6,7 +6,7 @@ import { connect } from "react-redux";
 import filesApi from "../../apis/FilesApi";
 import arrow_down_white_01 from "../../images/arrow_down_white_01.svg";
 import { Instruction } from '../instruction/instruction';
-import {getTimeCreatedAgo} from '../../functions/utilities';
+import { getTimeCreatedAgo } from '../../functions/utilities';
 
 const Active = "Active";
 const Expired = "Expired";
@@ -21,15 +21,22 @@ class InstanceCard extends React.Component {
     }
 
     handleButtonsClick(e) {
+        const branchName = encodeURIComponent(e.currentTarget.parentNode.parentNode.getAttribute("data-key"));
+        const pId = this.props.params.experiments[0].projId;
+        this.props.history.push(`/my-projects/${pId}/master/data-instances/${branchName}`)
     }
 
-    getButtonsDiv(experimentState, index) {
+    handleEmptyClick(e) {
+        return;
+    }
+
+    getButtonsDiv(experimentState) {
         let buttons;
         switch (experimentState) {
             case Active:
                 buttons = [
                     <button className="non-active-black-border experiment-button"
-                        onClick={(e) => this.handleButtonsClick(e)}>
+                        onClick={(e) => this.handleEmptyClick(e)}>
                         View Pipeline
                     </button>,
                     <button className="dangerous-red"><b>X</b></button>,
@@ -39,7 +46,7 @@ class InstanceCard extends React.Component {
             case Expired:
                 buttons = [
                     <button className="non-active-black-border experiment-button"
-                        onClick={(e) => this.handleButtonsClick(e)}>
+                        onClick={(e) => this.handleEmptyClick(e)}>
                         View Pipeline
                     </button>];
                 break;
@@ -67,9 +74,9 @@ class InstanceCard extends React.Component {
                         progressVisibility = "hidden"
                     return (
                         <div key={index} className="card-content">
-                            <div className="summary-data">
+                            <div className="summary-data" data-key={`${experiment.descTitle}`}>
                                 <div className="project-desc-experiment">
-                                    <p><b>{experiment.descTitle}</b></p>
+                                    <p onClick={(e) => this.handleButtonsClick(e)} style={{ cursor: "pointer" }}><b>{experiment.descTitle}</b></p>
                                     <p>Created by <b>{experiment.userName}</b><br />
                                         {experiment.timeCreatedAgo} ago
                                     </p>
@@ -82,7 +89,7 @@ class InstanceCard extends React.Component {
                                     <p><b>24,051 files changed</b></p>
                                     <p>Id: {experiment.di_id ? experiment.di_id : "72fb5m"}</p>
                                 </div>
-                                {this.getButtonsDiv(experiment.currentState, index)}
+                                {this.getButtonsDiv(experiment.currentState)}
                             </div>
                         </div>)
                 })
@@ -107,11 +114,9 @@ class DataInstanceOverview extends Component {
     componentDidMount() {
         filesApi.getBranches("gitlab.com", this.state.project.id)
             .then(res => res.json())
-            .then(response => 
-                this.setState({ 
-                    branches: response.filter(branch => branch.name.startsWith("data-pipeline")) 
-                }
-            ))    
+            .then(response =>
+                this.setState({ branches: response.filter(branch => branch.name.startsWith("data-pipeline")) })
+            )
     }
 
     handleButtonsClick(e) {
@@ -182,14 +187,14 @@ class DataInstanceOverview extends Component {
                     {this.state.branches.map((item, index) => {
                         const timediff = getTimeCreatedAgo(item.commit.created_at);
                         return (
-                            <InstanceCard key={index} params={
+                            <InstanceCard key={index} history={this.props.history} params={
                                 {
                                     "currentState": Active,
                                     "experiments": [
                                         {
                                             "currentState": Active,
                                             "di_id": item.commit.short_id,
-                                            "descTitle": `${item.name}`,
+                                            "descTitle": item.name,
                                             "userName": item.commit.author_name,
                                             "timeCreatedAgo": timediff,
                                             "expiration": timediff,
