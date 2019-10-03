@@ -54,13 +54,16 @@ const ExecutePipelineModal = ({
                     <div style={{padding: '1em 0 1em 3em', cursor: 'pointer', height: '50%' }}>
                         <div 
                             style={{display: 'flex', alignItems: 'center'}} 
-                            onClick={ () => { 
-                                document.getElementById("second-option-execution-modal").style.marginTop = !isFirstOptSelected ? '3em': '0';
+                            onClick={ () => {
+                                const secondOptExecModal = document.getElementById("second-option-execution-modal");
+                                if(secondOptExecModal){
+                                    secondOptExecModal.style.marginTop = !isFirstOptSelected ? '3em': '0';
+                                }
                                 setIsFirstOptSelected(!isFirstOptSelected);
                                 setIsSecondOptSelected(false);
                             }}
                         >
-                            <input type="radio" checked={isFirstOptSelected} />
+                            <input type="radio" checked={isFirstOptSelected} id="show-first-opt" onChange={() => {}}/>
                             <p style={{marginLeft: "1em", fontWeight: "700"}}>Create a new set of data instances in your data repository</p>
                         </div>
                         {isFirstOptSelected &&
@@ -87,7 +90,7 @@ const ExecutePipelineModal = ({
                                     </div>
                                 </div>
                                 {showMachines && 
-                                    <ul style={{margin: 0, padding: 0, listStyleType: 'none'}}>
+                                    <ul style={{margin: 0, padding: 0, listStyleType: 'none'}} id="machines-list">
                                         {fakeMachinesToShow.map((machine, index) =>
                                             <li key={`machine-${index}`} id={`machine-${index}`} onClick={(e) => {
                                                 $(`#machines-drop-down-btn`).click();
@@ -105,12 +108,15 @@ const ExecutePipelineModal = ({
                         <div id="second-option-execution-modal"
                             style={{display: 'flex', alignItems: 'center', cursor: 'pointer', marginTop: 0}} 
                             onClick={ () => {
-                                document.getElementById("second-option-execution-modal").style.marginTop = '0';
+                                const secondOptExecModal = document.getElementById("second-option-execution-modal");
+                                if(secondOptExecModal){
+                                    secondOptExecModal.style.marginTop = '0';
+                                }
                                 setIsFirstOptSelected(false);
                                 setIsSecondOptSelected(!isSecondOptSelected);
                             }}
                         >
-                            <input type="radio" checked={isSecondOptSelected} />
+                            <input type="radio" checked={isSecondOptSelected} onChange={() => {}}/>
                             <p style={{marginLeft: "1em", fontWeight: "700"}}>
                                 Launch Jupyter notebook on your web browser to execute the pipeline locally on your machine
                             </p>
@@ -155,7 +161,7 @@ const ExecutePipelineModal = ({
                             <button className="white-button" style={{padding: '3px 3em'}} onClick={() => cleanForm() }>Abort</button>
                         </div>
                         <div style={{width: '50%', display: 'flex', justifyContent: 'flex-end'}}>
-                            <button 
+                            <button id="show-machines"
                                 onClick={() => {
                                     if(section === 1){
                                         setSection(2);
