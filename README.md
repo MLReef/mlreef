@@ -1,3 +1,5 @@
+![Build Status](https://gitlab.com/mlreef/frontend/badges/master/build.svg)
+
 MLReef Frontend
 ====================
 Please read the [Contribution Guidelines](CONTRIBUTE.md) carefully
