@@ -1,18 +1,18 @@
-import {INT, FLOAT, regExps, STRING } from "../data-types";
+import {INT, FLOAT, regExps, BOOL } from "../data-types";
 
 export const validateInput = (value, dataType, required) => {
-    if(required && (typeof(value) === undefined || value === "")){
-        return false;
-    }
+    if(required && (typeof(value) === undefined || value.length === 0)) return false
+    else if(value.length === 0) return true;
     
     switch (dataType) {
         case INT:
             return regExps.INT.test(value);
         case FLOAT:
             return regExps.FLOAT.test(value);
-        case STRING:
-            return (value !== "")
+        case BOOL:
+            return (value === "true") || (value === "false");
         default:
-            return (value === "") || (value === "true") || (value === "false");
+            return true
     }
+    
 };

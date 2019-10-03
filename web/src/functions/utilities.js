@@ -88,7 +88,7 @@ export const buildCommandLinesFromSelectedPipelines = (
                 line = line.concat(` --${inputDataModel.commandName} ${input.value}`);
             }
         });
-
+        
         return errorCounter === 0 
             ? addFilesSelectedInModal(line, filesSelectedInModal)
             : undefined;
@@ -108,7 +108,6 @@ export const generateRealContentFromTemplate = (
                 .replace(/,/g, "\n")
         )
         .replace(/#target-branch/g, dataInstanceName)
-        .replace(/#pipeline-operation-script-name/g, pipelineOpScriptName)
         .replace(/#pipeline-operation-script-name/g, pipelineOpScriptName)
         .replace(
             /#repo-url/g, 

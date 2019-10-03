@@ -10,18 +10,22 @@ import {connect} from "react-redux";
 import ArrowButton from "./arrow-button/arrow-button";
 import { Link } from "react-router-dom";
 import filesApi from "./../apis/FilesApi";
+import pipelinesApi from "./../apis/PipelinesApi";
 import { 
     getTimeCreatedAgo,
     generateSummarizedInfo
 } from "../functions/utilities";
-import { colorsForCharts } from './../data-types';
+import { 
+    colorsForCharts, 
+    SKIPPED, 
+    RUNNING, 
+    SUCCESS, 
+    CANCELED, 
+    FAILED, 
+    PENDING 
+} from './../data-types';
 import { Base64 } from "js-base64";
-
-
-const Running = "Running";
-const Open = "Open";
-const Completed = "Completed";
-const Aborted = "Aborted";
+import {toastr} from 'react-redux-toastr';
 
 const DataCard = ({ title, linesOfContent }) => <div className="data-card">
    <div className="title">
@@ -53,57 +57,51 @@ class ExperimentCard extends React.Component {
 
     getButtonsDiv(experimentState, index) {
         let buttons;
-        switch (experimentState) {
-            case Running:
-                buttons = [
-                    <ArrowButton 
-                        imgPlaceHolder={traiangle01}
-                        callback={this.handleArrowDownButtonClick}
-                        params={{"ind": index}}
-                    />,
-                    <button className="dangerous-red"><b> Abort </b></button>];
-                break;
-            case Open:
-                buttons = [
-                    <ArrowButton 
-                        imgPlaceHolder={traiangle01}
-                        callback={this.handleArrowDownButtonClick}
-                        params={{"ind": index}}
+        if(experimentState === RUNNING || experimentState === PENDING){
+            buttons = [
+                <ArrowButton 
+                imgPlaceHolder={traiangle01}
+                callback={this.handleArrowDownButtonClick}
+                params={{"ind": index}}
+                />,
+                <button className="dangerous-red" style={{width: 'max-content'}}><b> Abort </b></button>];
+        } else if (experimentState === SKIPPED){
+            buttons = [
+                <ArrowButton 
+                    imgPlaceHolder={traiangle01}
+                    callback={this.handleArrowDownButtonClick}
+                    params={{"ind": index}}
+                />,
+                <button className="dangerous-red"><b>X</b></button>,
+                <button className="light-green-button experiment-button non-active-black-border"
+                style={{width: '100px'}}
+                ><b>Resume</b>
+                </button>
+            ];
+        } else if(experimentState === SUCCESS || experimentState === FAILED) {
+            buttons = [
+                <ArrowButton 
+                    imgPlaceHolder={traiangle01}         
+                    callback={this.handleArrowDownButtonClick}
+                    params={{"ind": index}}
                     />,
                     <button className="dangerous-red"><b>X</b></button>,
                     <button className="light-green-button experiment-button non-active-black-border"
                     style={{width: '100px'}}
-                    ><b>Resume</b>
-                    </button>
-                ];
-                break;
-            case Completed:
-                buttons = [
-                    <ArrowButton 
-                        imgPlaceHolder={traiangle01}         
-                        callback={this.handleArrowDownButtonClick}
-                        params={{"ind": index}}
-                    />,
-                    <button className="dangerous-red"><b>X</b></button>,
-                    <button className="light-green-button experiment-button non-active-black-border"
-                        style={{width: '100px'}}
-                    >
-                        <b>Deploy</b>
-                    </button>
-                ];
-                break;
-            case Aborted:
-                buttons = [
-                    <ArrowButton imgPlaceHolder={traiangle01}
-                        callback={this.handleArrowDownButtonClick}
-                        params={{"ind": index}}
-                    />,
-                    <button className="dangerous-red"><b>X</b></button>];
-                break;
-            default:
-                break;
+                >
+                    <b>Deploy</b>
+                </button>
+            ];
+        } else if(experimentState === CANCELED){
+            buttons = [
+                <ArrowButton 
+                    imgPlaceHolder={traiangle01}
+                    callback={this.handleArrowDownButtonClick}
+                    params={{"ind": index}}
+                />,
+                <button className="dangerous-red"><b>X</b></button>
+            ];
         }
-
         return (<div className="buttons-div">{buttons}</div>)
     }
 
@@ -122,58 +120,77 @@ class ExperimentCard extends React.Component {
             return dataSet;
     });
 
+    parseDataAndRefreshChart(fileContent, index){
+        const chartDiv = document.getElementById(this.state.chartDivId);
+        const cardResults = `${this.state.chartDivId}-Idcard-results-${index}`;
+        const exp = this.state.experiments[index];
+        const jsonExperimentFileParsed = JSON.parse(Base64.decode((fileContent)).replace(/\n/g, ""));
+        const summarizedInfo = generateSummarizedInfo(jsonExperimentFileParsed);
+        const dataSets = this.mapSummarizedInfoToDatasets(summarizedInfo);
+        const labels = Object.keys(dataSets[0].data);
+        const avgValues = Object.keys(summarizedInfo)
+            .filter(sInfoItem => sInfoItem.startsWith("avg_"))
+            .map(sInfoItem => {
+                return { name: sInfoItem.substring(4, sInfoItem.length), value: summarizedInfo[sInfoItem] }
+            });
+        exp.data = { labels: labels, datasets: dataSets };
+        exp.averageParams = avgValues;
+
+        const newExperimentsArr = this.state.experiments;
+        newExperimentsArr[index] = exp;
+        this.setState({experiments: newExperimentsArr});
+        if (exp.data) {
+            chartDiv.parentNode.childNodes[1].style.display = "unset";
+            $(`#${cardResults}`).css("display", "flex");
+            ReactDOM.render(
+                <div>
+                    <Line data={exp.data} height={50}/>
+                </div>,
+                chartDiv
+            )
+        }
+    }
+
+    callToFilesApi = (index) => 
+        filesApi.getFileData(
+            "gitlab.com",
+            this.props.params.project.id,
+            "experiment.json",
+            this.state.experiments[index].descTitle//exp.descTitle
+        ).then(res => {
+            if(!res.content){
+                toastr.warning('Wait', 'No data has been generated for this experiment yet');
+                return;
+            }
+            this.parseDataAndRefreshChart(res.content, index);
+            if(this.state.experiments[index].status === RUNNING 
+                || this.state.experiments[index].status === PENDING
+            ){
+                setTimeout(() => {
+                    this.callToFilesApi(index);
+                }, 30000);
+            }
+        })
+        .catch(
+            err => console.log(err)
+        );
+
     handleArrowDownButtonClick(e, params) {
         const index = params.ind;
-        const exp = this.state.experiments[index];
         const newState = this.state;
         const chartDiv = document.getElementById(this.state.chartDivId);
         const cardResults = `${this.state.chartDivId}-Idcard-results-${index}`;
         newState.showChart = !this.state.showChart;
-        
+        this.setState(
+            newState
+        );
         if(newState.showChart){            
-            filesApi.getFileData(
-                "gitlab.com",
-                this.props.params.project.id,
-                "experiment.json",
-                exp.descTitle
-            ).then(res => {
-                const jsonExperimentFileParsed = JSON.parse(Base64.decode((res.content)).replace(/\n/g, ""));
-                const summarizedInfo = generateSummarizedInfo(jsonExperimentFileParsed);
-                const dataSets = this.mapSummarizedInfoToDatasets(summarizedInfo);
-                const labels = Object.keys(dataSets[0].data);
-                const avgValues = Object.keys(summarizedInfo)
-                    .filter(sInfoItem => sInfoItem.startsWith("avg_"))
-                    .map(sInfoItem => {
-                        return {name: sInfoItem.substring(4, sInfoItem.length), value: summarizedInfo[sInfoItem]}
-                    }
-                );
-                exp.data = { labels: labels, datasets: dataSets };
-                exp.averageParams = avgValues;
-
-                const newExperimentsArr = this.state.experiments;
-                newExperimentsArr[index] = exp;
-                this.setState({experiments: newExperimentsArr});
-                if (exp.data) {
-                    chartDiv.parentNode.childNodes[1].style.display = "unset";
-                    $(`#${cardResults}`).css("display", "flex");
-                    ReactDOM.render(
-                        <div>
-                            <Line data={exp.data} height={50}/>
-                        </div>,
-                        chartDiv
-                    )
-                }
-               
-            })
-            .catch(err => console.log(err));
+            this.callToFilesApi(index);
         } else {
             $(`#${cardResults}`).css("display", "none");
             chartDiv.parentNode.childNodes[1].style.display = "none";
             ReactDOM.unmountComponentAtNode(chartDiv);
         }
-        this.setState(
-            newState
-        );
     }
 
     render() {
@@ -288,16 +305,33 @@ class ExperimentsOverview extends Component {
 
         this.state = {
             project: project,
-            branches: []
+            branches: [],
+            experiments: []
         };
 
         filesApi.getBranches("gitlab.com", project.id)
             .then(res => res.json())
-            .then(response =>
-                this.setState({
-                    branches: response.filter(branch => branch.name.startsWith("experiment")) 
-                }
-            ));  
+            .then(response => {  
+              const branches = response.filter(branch => branch.name.startsWith("experiment"));
+              pipelinesApi.getPipesByProjectId(project.id).then(res => {
+                const pipes = res.filter(pipe => pipe.status !== SKIPPED);
+                const experiments = branches.map(branch => {
+                    const pipeBranch = pipes.filter(pipe => pipe.ref === branch.name)[0];
+                    if(pipeBranch){
+                        const experiment = {};
+                        experiment["status"] = pipeBranch.status;
+                        experiment["name"] = branch.name;
+                        experiment["authorName"] = branch.author_name;
+                        experiment["commit"] = branch.commit;
+                        return experiment;
+                    }
+                    
+                    return null;
+                });
+
+                this.setState({experiments: experiments});
+              });
+            });
     }
 
     handleButtonsClick(e) {
@@ -357,18 +391,18 @@ class ExperimentsOverview extends Component {
                             </b>
                         </Link>
                     </div>
-                    {this.state.branches.map((branch) => 
-                        <ExperimentCard params={{
+                    {this.state.experiments.map((experiment) =>
+                        experiment && <ExperimentCard params={{
                                 "project": project,
-                                "currentState": Completed,
+                                "currentState": experiment.status,
                                 "experiments": [{
-                                    "currentState": Completed,
-                                    "descTitle": branch.name,
-                                    "userName": branch.commit.author_name,
+                                    "currentState": experiment.status,
+                                    "descTitle": experiment.name,
+                                    "userName": experiment.commit.author_name,
                                     "percentProgress": "100",
                                     "eta": "0",
                                     "modelTitle": "Inception_V3",
-                                    "timeCreatedAgo": getTimeCreatedAgo(branch.commit.created_at),
+                                    "timeCreatedAgo": getTimeCreatedAgo(experiment.commit.created_at),
                                     "averageParams": [],
                                     "data": {}
                                 }]

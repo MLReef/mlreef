@@ -54,3 +54,10 @@ export const colorsForCharts = [
   "#311b92",
   "#00796b"
 ]
+
+export const RUNNING = "running";
+export const PENDING = "pending";
+export const SUCCESS = "success";
+export const FAILED = "failed";
+export const CANCELED = "canceled";
+export const SKIPPED = "skipped";
