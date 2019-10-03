@@ -41,12 +41,12 @@ class PipeLineView extends Component {
                     params: {
                         standard: [{name: "Number of augmented images", dataType: INT, required: true, commandName: "iterations"}],
                         advanced: [
-                            {name: "Rotation range", dataType: FLOAT, required: false},
-                            {name: "Width shift range", dataType: FLOAT, required: false},
-                            {name: "Height shift range", dataType: FLOAT, required: false},
-                            {name: "Shear range", dataType: FLOAT, required: false},
-                            {name: "Zoom range", dataType: FLOAT, required: false},
-                            {name: "Horizontal flip", dataType: BOOL, required: false},
+                            {name: "Rotation range", dataType: FLOAT, required: false, commandName: "rotation_range"},
+                            {name: "Width shift range", dataType: FLOAT, required: false, commandName: "width_shift_range"},
+                            {name: "Height shift range", dataType: FLOAT, required: false, commandName: "height_shift_range"},
+                            {name: "Shear range", dataType: FLOAT, required: false, commandName: "shear_range"},
+                            {name: "Zoom range", dataType: FLOAT, required: false, commandName: "zoom_range"},
+                            {name: "Horizontal flip", dataType: BOOL, required: false, commandName: "horizontal_flip"},
                         ]
                     }
                 },
@@ -59,16 +59,16 @@ class PipeLineView extends Component {
                     showDescription:false, showAdvancedOptsDivDataPipeline: false, dataType: "Text", 
                     params: {
                        standard: [
-                            {name: "Height", dataType: INT, required: true},
-                            {name: "Width", dataType: INT, required: true},
-                            {name: "Channels", dataType: INT, required: true},
+                            {name: "Height", dataType: INT, required: true, commandName: "height"},
+                            {name: "Width", dataType: INT, required: true, commandName: "width"},
+                            {name: "Channels", dataType: INT, required: true, commandName: "channels"},
                        ],
                        advanced: [
-                           {name: "Random Seed", dataType: INT, required: false}
+                           {name: "Random Seed", dataType: INT, required: false, commandName: "seed"}
                        ]
                     }
                 },
-                {
+                /* {
                     title: "Random rotate", username: "Vaibhav_M", starCount: "170", index: 3,
                     command: "rotate",
                     description: 
@@ -77,10 +77,10 @@ class PipeLineView extends Component {
                     showDescription:false, showAdvancedOptsDivDataPipeline: false, dataType: "Something Else", 
                     params: {
                         standard: [
-                            {name: "Angle of rotation", dataType: FLOAT, required: true}
+                            {name: "Angle of rotation", dataType: FLOAT, required: true, commandName: "angle_of_rotation"}
                         ]
                     }
-                },
+                }, */
                 {
                     title: "Lee filter", username: "RK_ESA", starCount: "126", index: 4, 
                     command: "lee_filter",
@@ -91,7 +91,7 @@ class PipeLineView extends Component {
                     showDescription:false, showAdvancedOptsDivDataPipeline: false, dataType: "Something Else", 
                     params: {
                         standard: [
-                            {name: "Intensity", dataType: INT, required: true}
+                            {name: "Intensity", dataType: INT, required: true, commandName: "intensity"}
                         ]
                     }
                 }

@@ -1,4 +1,5 @@
 import { SECURITY_TOKEN } from "../api-config";
+import { domain } from "../data-types";
 
 export default class PipeLinesApi {
     static async create(projectId, refBranch) {
@@ -19,5 +20,20 @@ export default class PipeLinesApi {
         }
     }
 
- 
+    static async getPipesByProjectId(projectId) {
+        try {
+            const response = await fetch(
+                `https://${domain}/api/v4/projects/${projectId}/pipelines/`, {
+                    method: 'GET',
+                    headers: new Headers({
+                        "PRIVATE-TOKEN": SECURITY_TOKEN
+                    })
+                });
+                return response.json();
+        } 
+        catch (err) {
+            console.log(err);
+            return err;
+        }
+    }
 }

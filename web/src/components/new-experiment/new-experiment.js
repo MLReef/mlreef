@@ -37,19 +37,18 @@ class NewExperiment extends Component {
                     showDescription:false, showAdvancedOptsDivDataPipeline: false, dataType: "Images", 
                     params: {
                         standard: [
-                            /* {name: "images_path", dataType: STRING, required: true}, */
                             {name: "output_path", dataType: STRING, required: true, commandName: "output-path"},
                             {name: "input_height", dataType: INT, required: true, commandName: "height"},
                             {name: "input_width", dataType: INT, required: true, commandName: "width"},
                         ],
                         advanced: [
-                            {name: "l_rate", dataType: FLOAT, required: false},
-                            {name: "drop-out", dataType: FLOAT, required: false},
-                            {name: "loss_function", dataType: FLOAT, required: false},
-                            {name: "val_split", dataType: FLOAT, required: false}
+                            {name: "channels", dataType: INT, required: false, commandName: "channels"},
+                            {name: "Use pre-trained", dataType: FLOAT, required: false, commandName: "use-pretrained"},
+                            {name: "epochs", dataType: FLOAT, required: false, commandName: "echos"},
+                            {name: "batch-size", dataType: FLOAT, required: false, commandName: "batch-size"}
                         ]
                     }
-                },
+                }/* ,
                 {
                     title: "Inception", username: "GoogLeNet", starCount: "201", index: 2,
                     description: "Inception approximates a sparse CNN with a normal dense construction Also, it uses convolutions of different sizes to capture details at varied scales(5X5, 3X3, 1X1).",
@@ -65,7 +64,7 @@ class NewExperiment extends Component {
                     params: {
                         standard: []
                     }
-                }
+                } */
             ],
             showSelectFilesModal: false,
             dataOperationsSelected: [],
