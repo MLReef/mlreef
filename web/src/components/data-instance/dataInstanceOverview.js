@@ -76,7 +76,14 @@ class InstanceCard extends React.Component {
                         <div key={index} className="card-content">
                             <div className="summary-data" data-key={`${experiment.descTitle}`}>
                                 <div className="project-desc-experiment">
-                                    <p onClick={(e) => this.handleButtonsClick(e)} style={{ cursor: "pointer" }}><b>{experiment.descTitle}</b></p>
+                                    <p onClick={(e) => {
+                                        experiment.currentState === "Expired"
+                                            ? this.handleEmptyClick()
+                                            : this.handleButtonsClick(e)
+                                    }}
+                                        style={{ cursor: "pointer" }}>
+                                        <b>{experiment.descTitle}</b>
+                                    </p>
                                     <p>Created by <b>{experiment.userName}</b><br />
                                         {experiment.timeCreatedAgo} ago
                                     </p>
