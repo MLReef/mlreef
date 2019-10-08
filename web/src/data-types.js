@@ -28,10 +28,11 @@ before_script:
   - git remote set-url origin https://\${GIT_PUSH_USER}:\${GIT_PUSH_TOKEN}@#repo-url
   - git config --global user.email "rainer+mlreefdemo@systemkern.com"
   - git config --global user.name "mlreefdemo"
+  - export GITLAB_API_TOKEN="\${GIT_PUSH_TOKEN}"
+  - export CI_COMMIT_REF_SLUG="\${CI_COMMIT_REF_SLUG}"
+  - export CI_PROJECT_ID="\${CI_PROJECT_ID}"
   - export TARGET_BRANCH="#target-branch"
   - background-push &
-  - export BG_PID=$!
-  - echo "Background Commit PID $BG_PID"
 
 #pipeline-operation-script-name:
   script:
@@ -45,7 +46,7 @@ before_script:
    - git push
 `;
 
-export const domain = "gitlab.com"
+export const domain = "gitlab.com";
 
 export const colorsForCharts = [
   "#f5544d",
@@ -53,7 +54,7 @@ export const colorsForCharts = [
   "#ffa000",
   "#311b92",
   "#00796b"
-]
+];
 
 export const RUNNING = "running";
 export const PENDING = "pending";
