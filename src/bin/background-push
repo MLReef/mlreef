@@ -1,24 +1,86 @@
 #!/bin/sh
 
-#git status
-#git remote set-url origin https://${GIT_PUSH_USER}:${GIT_PUSH_TOKEN}@gitlab.com/mlreef/mlreef-demo.git
-#git config --global user.name "MLReef Data Pipeline"    # use the mlreef demo user
-#git config --global user.email "noreply@mlreef.com"     # use a nonexistent email address
-#git checkout $CI_COMMIT_REF_NAME                        # checkout the current branch
-#git status
-#git pull origin $CI_COMMIT_REF_NAME
-#git status
+
+# json with job's experiment model statistics
+STATISTIC_FILE="experiment.json"
+PROJECT_ID=$CI_PROJECT_ID
+EXPERIMENT_ID=$CI_COMMIT_REF_SLUG
+
 echo "TARGET_BRANCH is $TARGET_BRANCH"
-i=0
-while [ "$i" -lt 1000 ] # run 1_000 iterations max
-do
-  echo "------------------------------------------------------------"
-  echo "Background Commit PID=$BG_PID- Iteration $i"
+echo "EXPERIMENT_ID is $EXPERIMENT_ID"
+echo "PROJECT_ID is $PROJECT_ID"
+echo "GITLAB_API_TOKEN is $( echo $GITLAB_API_TOKEN | cut -c1-5 )********"
+
+# create a Gitlab Snippet model with the experiment.json as payload for "code"
+build_json () {
+  local iteration=$1
+  jq -n \
+    --arg title "$EXPERIMENT_ID"    \
+    --arg file_name "$EXPERIMENT_ID-$STATISTIC_FILE"    \
+    --arg code "$( cat $STATISTIC_FILE)" \
+    --arg visibility "private" \
+    --arg description "Last updated with iteration $iteration on $( date )" \
+   '{title: $title, file_name: $file_name, code: $code, visibility: $visibility, description: $description}' 
+}
+
+# creates a new snippet in project and returns the snippet_id
+perform_create_snippet () {
+  local iteration=$1
+  build_json $iteration > create-snippet.json
+  curl -sS --fail --request POST https://gitlab.com/api/v4/projects/$PROJECT_ID/snippets \
+      --header "PRIVATE-TOKEN: $GITLAB_API_TOKEN" \
+      --header "Content-Type: application/json" \
+      -d @create-snippet.json | jq .id
+}
+
+# updates the snippet with the given id
+perform_update_snippet () {
+  local iteration=$1
+  local snippet_id=$2
+  build_json $iteration > update-snippet.json
+  echo "Refreshing realtime statistics: https://gitlab.com/api/v4/projects/$PROJECT_ID/snippets/$snippet_id"
+  curl -sS --request PUT https://gitlab.com/api/v4/projects/$PROJECT_ID/snippets/$snippet_id \
+     --header "PRIVATE-TOKEN: $GITLAB_API_TOKEN" \
+     --header "Content-Type: application/json" \
+     -d @update-snippet.json > /dev/null
+}
+
+perform_native_git_commit () {
   git add experiment.json
   git commit -m "Automatic commit [skip ci]"
   git push origin $TARGET_BRANCH
   echo ""
+}
+
+
+
+iteration=0
+last_id=-1
+while [ "$iteration" -lt 1000 ] # run 1_000 iterations max
+do
+  echo "------------------------------------------------------------"
+  echo "Background Commit Iteration $iteration"
+  if [ ! -f "$STATISTIC_FILE" ]; then
+    echo "$STATISTIC_FILE does not exist yet, waiting for experiment to start.."
+    sleep 10
+    iteration=`expr $iteration + 1` 
+    continue
+  fi
+  if [ "$last_id" -eq -1 ]; then
+    echo "Create Snippet for $STATISTIC_FILE"
+    last_id=$( perform_create_snippet $iteration )
+    if [ "$?" -gt 0 ]; then
+      echo "Could not write to backend"
+    fi
+  else
+    echo "Updated experiment.json"
+    perform_update_snippet $iteration $last_id
+  fi
+
+  # TODO: keep "git commit" for now, remove later.
+  perform_native_git_commit
+
   sleep 6               # sleep for 1 second
-  i=`expr $i + 1`       # increment running variable
+  iteration=`expr $iteration + 1`       # increment running variable
 done
 # 6 seconds times 1_000 ==> 6_000 seconds => 100 minutes => 1 hour 40 minutes
