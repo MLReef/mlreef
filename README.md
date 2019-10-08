@@ -54,9 +54,3 @@ For running locally please refer to the web module's [README.md](web/README.md)
 Production build
 --------------------
 To build the frontend project use: `./gradlew npm_run_build`
-
-
-Literature
-====================
-* https://medium.com/@chris.barbour03/kotlin-js-building-deploying-and-depending-on-it-with-npm-and-webpack-2f7aab544c9f
-* https://www.youtube.com/watch?v=FDOECr-sT6U
