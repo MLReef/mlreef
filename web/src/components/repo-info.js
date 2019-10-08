@@ -13,10 +13,10 @@ export default class RepoInfo extends React.Component {
                 <p className="stat-no">2</p>
                 <p className="stat-type">Branches</p>
             </div>
-            <div className="repo-stat">
+            <Link to={`/my-projects/${projectId}/visualizations`} className="repo-stat" replace>
                 <p className="stat-no">2</p>
                 <p className="stat-type">Visualizations</p>
-            </div>
+            </Link>
             <Link to={`/my-projects/${projectId}/data-instances`} className="repo-stat" replace>
                 <p className="stat-no">3</p>
                 <p className="stat-type">Data Instances</p>

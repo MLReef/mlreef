@@ -13,6 +13,7 @@ import CommitDetails from "./components/commits-details/commitDetails";
 import NewExperiment from "./components/new-experiment/new-experiment";
 import DataInstanceOverview from "./components/data-instance/dataInstanceOverview";
 import DataInstanceDetails from "./components/data-instance/dataInstanceDetails";
+import EmptyDataVisualization from "./components/data-visualization/dataVisualization";
 
 const RouterComp = () => (
     <BrowserRouter>
@@ -22,6 +23,7 @@ const RouterComp = () => (
             <PrivateRoute path="/my-projects" exact component={Projects} />
             <PrivateRoute path="/my-projects/:projectId/:branch/commits" exact component={Commits} />
             <PrivateRoute exact path="/my-projects/:projectId/pipe-line" component={PipeLineView} />
+            <PrivateRoute exact path="/my-projects/:projectId/:branch/visualizations" component={EmptyDataVisualization} />
             <PrivateRoute exact path="/my-projects/:projectId/:branch/data-instances" component={DataInstanceOverview} />
             <PrivateRoute path="/my-projects/:projectId/:branch/data-instances/:di_name" component={DataInstanceDetails} />
             <PrivateRoute path="/my-projects/:projectId/new-experiment" component={NewExperiment} />
