@@ -206,7 +206,7 @@ class DataInstanceOverview extends Component {
                                             "timeCreatedAgo": timediff,
                                             "expiration": timediff,
                                             "projId": this.state.project.id,
-                                            "modelTitle": "Inception_V3",
+                                            "modelTitle": "Resnet-50",
                                         }
                                     ]
                                 }
