@@ -114,7 +114,7 @@ export const generateRealContentFromTemplate = (
             http_url_to_repo.substr(
                 8, 
                 http_url_to_repo.length
-            )
+            )       
         );
 
 export const createPipelineInProject = (

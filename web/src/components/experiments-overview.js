@@ -8,38 +8,38 @@ import traiangle01 from './../images/triangle-01.png';
 import {Line} from "react-chartjs-2";
 import {connect} from "react-redux";
 import ArrowButton from "./arrow-button/arrow-button";
-import { Link } from "react-router-dom";
+import {Link} from "react-router-dom";
 import filesApi from "./../apis/FilesApi";
+import snippetApi from "./../apis/SnippetApi";
 import pipelinesApi from "./../apis/PipelinesApi";
-import { 
+import {
     getTimeCreatedAgo,
     generateSummarizedInfo
 } from "../functions/utilities";
-import { 
-    colorsForCharts, 
-    SKIPPED, 
-    RUNNING, 
-    SUCCESS, 
-    CANCELED, 
-    FAILED, 
-    PENDING 
+import {
+    colorsForCharts,
+    SKIPPED,
+    RUNNING,
+    SUCCESS,
+    CANCELED,
+    FAILED,
+    PENDING
 } from './../data-types';
-import { Base64 } from "js-base64";
 import {toastr} from 'react-redux-toastr';
 
-const DataCard = ({ title, linesOfContent }) => <div className="data-card">
-   <div className="title">
-       <p><b>{title}</b></p>
-   </div>
-   <div>
-       {linesOfContent.map((line) => {
-               const lineContent = line.startsWith("*")
-                   ? <b>{line.replace("*", "")}</b>
-                   : line
-               return <p className="line">{lineContent}</p>;
-           }
-       )}
-   </div>
+const DataCard = ({title, linesOfContent}) => <div className="data-card">
+    <div className="title">
+        <p><b>{title}</b></p>
+    </div>
+    <div>
+        {linesOfContent.map((line) => {
+                const lineContent = line.startsWith("*")
+                    ? <b>{line.replace("*", "")}</b>
+                    : line;
+                return <p className="line">{lineContent}</p>;
+            }
+        )}
+    </div>
 </div>;
 
 class ExperimentCard extends React.Component {
@@ -57,44 +57,44 @@ class ExperimentCard extends React.Component {
 
     getButtonsDiv(experimentState, index) {
         let buttons;
-        if(experimentState === RUNNING || experimentState === PENDING){
+        if (experimentState === RUNNING || experimentState === PENDING) {
             buttons = [
-                <ArrowButton 
-                imgPlaceHolder={traiangle01}
-                callback={this.handleArrowDownButtonClick}
-                params={{"ind": index}}
+                <ArrowButton
+                    imgPlaceHolder={traiangle01}
+                    callback={this.handleArrowDownButtonClick}
+                    params={{"ind": index}}
                 />,
                 <button className="dangerous-red" style={{width: 'max-content'}}><b> Abort </b></button>];
-        } else if (experimentState === SKIPPED){
+        } else if (experimentState === SKIPPED) {
             buttons = [
-                <ArrowButton 
+                <ArrowButton
                     imgPlaceHolder={traiangle01}
                     callback={this.handleArrowDownButtonClick}
                     params={{"ind": index}}
                 />,
                 <button className="dangerous-red"><b>X</b></button>,
                 <button className="light-green-button experiment-button non-active-black-border"
-                style={{width: '100px'}}
+                        style={{width: '100px'}}
                 ><b>Resume</b>
                 </button>
             ];
-        } else if(experimentState === SUCCESS || experimentState === FAILED) {
+        } else if (experimentState === SUCCESS || experimentState === FAILED) {
             buttons = [
-                <ArrowButton 
-                    imgPlaceHolder={traiangle01}         
+                <ArrowButton
+                    imgPlaceHolder={traiangle01}
                     callback={this.handleArrowDownButtonClick}
                     params={{"ind": index}}
-                    />,
-                    <button className="dangerous-red"><b>X</b></button>,
-                    <button className="light-green-button experiment-button non-active-black-border"
-                    style={{width: '100px'}}
+                />,
+                <button className="dangerous-red"><b>X</b></button>,
+                <button className="light-green-button experiment-button non-active-black-border"
+                        style={{width: '100px'}}
                 >
                     <b>Deploy</b>
                 </button>
             ];
-        } else if(experimentState === CANCELED){
+        } else if (experimentState === CANCELED) {
             buttons = [
-                <ArrowButton 
+                <ArrowButton
                     imgPlaceHolder={traiangle01}
                     callback={this.handleArrowDownButtonClick}
                     params={{"ind": index}}
@@ -118,22 +118,21 @@ class ExperimentCard extends React.Component {
             dataSet["data"] = epochObjectVal[currentValueName];
 
             return dataSet;
-    });
+        });
 
-    parseDataAndRefreshChart(fileContent, index){
+    parseDataAndRefreshChart(jsonExperimentFileParsed, index) {
         const chartDiv = document.getElementById(this.state.chartDivId);
         const cardResults = `${this.state.chartDivId}-Idcard-results-${index}`;
         const exp = this.state.experiments[index];
-        const jsonExperimentFileParsed = JSON.parse(Base64.decode((fileContent)).replace(/\n/g, ""));
         const summarizedInfo = generateSummarizedInfo(jsonExperimentFileParsed);
         const dataSets = this.mapSummarizedInfoToDatasets(summarizedInfo);
         const labels = Object.keys(dataSets[0].data);
         const avgValues = Object.keys(summarizedInfo)
             .filter(sInfoItem => sInfoItem.startsWith("avg_"))
             .map(sInfoItem => {
-                return { name: sInfoItem.substring(4, sInfoItem.length), value: summarizedInfo[sInfoItem] }
+                return {name: sInfoItem.substring(4, sInfoItem.length), value: summarizedInfo[sInfoItem]}
             });
-        exp.data = { labels: labels, datasets: dataSets };
+        exp.data = {labels: labels, datasets: dataSets};
         exp.averageParams = avgValues;
 
         const newExperimentsArr = this.state.experiments;
@@ -151,28 +150,26 @@ class ExperimentCard extends React.Component {
         }
     }
 
-    callToFilesApi = (index) => 
-        filesApi.getFileData(
-            "gitlab.com",
+    retrieveStatisticsFromApi = (index) =>
+        snippetApi.getSnippetFile(
             this.props.params.project.id,
+            this.state.experiments[index].descTitle.replace("/", "-"),
             "experiment.json",
-            this.state.experiments[index].descTitle//exp.descTitle
+            "gitlab.com"
         ).then(res => {
-            if(!res.content){
-                toastr.warning('Wait', 'No data has been generated for this experiment yet');
-                return;
-            }
-            this.parseDataAndRefreshChart(res.content, index);
-            if(this.state.experiments[index].status === RUNNING 
+            this.parseDataAndRefreshChart(res, index);
+            if (this.state.experiments[index].status === RUNNING
                 || this.state.experiments[index].status === PENDING
-            ){
+            ) {
                 setTimeout(() => {
-                    this.callToFilesApi(index);
+                    this.retrieveStatisticsFromApi(index);
                 }, 30000);
             }
-        })
-        .catch(
-            err => console.log(err)
+        }).catch(
+            err => {
+                console.log(err);
+                toastr.warning('Wait', 'No data has been generated for this experiment yet');
+            }
         );
 
     handleArrowDownButtonClick(e, params) {
@@ -184,8 +181,8 @@ class ExperimentCard extends React.Component {
         this.setState(
             newState
         );
-        if(newState.showChart){            
-            this.callToFilesApi(index);
+        if (newState.showChart) {
+            this.retrieveStatisticsFromApi(index);
         } else {
             $(`#${cardResults}`).css("display", "none");
             chartDiv.parentNode.childNodes[1].style.display = "none";
@@ -265,7 +262,7 @@ class ExperimentCard extends React.Component {
                                     "*op3: Rotate",
                                     "sourced from",
                                     "*data branch: Master"
-                                    ]}
+                                ]}
                                 />
                                 <DataCard title="Algorithm" linesOfContent={[
                                     "*Inception-V3",
@@ -276,7 +273,7 @@ class ExperimentCard extends React.Component {
                                     "being",
                                     "*2 commits and 1 commit behind",
                                     "of its master branch"
-                                    ]}
+                                ]}
                                 />
                                 <DataCard title="Training" linesOfContent={[
                                     "*10 epochs trained",
@@ -287,7 +284,7 @@ class ExperimentCard extends React.Component {
                                     "*P: layers = 3",
                                     "*P: dropout = 0.5",
                                     "*P: alpha = 1",
-                                    ]}/>
+                                ]}/>
                             </div>
                         </div>)
                 })
@@ -311,26 +308,26 @@ class ExperimentsOverview extends Component {
 
         filesApi.getBranches("gitlab.com", project.id)
             .then(res => res.json())
-            .then(response => {  
-              const branches = response.filter(branch => branch.name.startsWith("experiment"));
-              pipelinesApi.getPipesByProjectId(project.id).then(res => {
-                const pipes = res.filter(pipe => pipe.status !== SKIPPED);
-                const experiments = branches.map(branch => {
-                    const pipeBranch = pipes.filter(pipe => pipe.ref === branch.name)[0];
-                    if(pipeBranch){
-                        const experiment = {};
-                        experiment["status"] = pipeBranch.status;
-                        experiment["name"] = branch.name;
-                        experiment["authorName"] = branch.author_name;
-                        experiment["commit"] = branch.commit;
-                        return experiment;
-                    }
-                    
-                    return null;
-                });
+            .then(response => {
+                const branches = response.filter(branch => branch.name.startsWith("experiment"));
+                pipelinesApi.getPipesByProjectId(project.id).then(res => {
+                    const pipes = res.filter(pipe => pipe.status !== SKIPPED);
+                    const experiments = branches.map(branch => {
+                        const pipeBranch = pipes.filter(pipe => pipe.ref === branch.name)[0];
+                        if (pipeBranch) {
+                            const experiment = {};
+                            experiment["status"] = pipeBranch.status;
+                            experiment["name"] = branch.name;
+                            experiment["authorName"] = branch.author_name;
+                            experiment["commit"] = branch.commit;
+                            return experiment;
+                        }
 
-                this.setState({experiments: experiments});
-              });
+                        return null;
+                    });
+
+                    this.setState({experiments: experiments});
+                });
             });
     }
 
@@ -350,7 +347,7 @@ class ExperimentsOverview extends Component {
         return (
             <div id="experiments-overview-container">
                 <Navbar/>
-                <ProjectContainer 
+                <ProjectContainer
                     project={project}
                     activeFeature="experiments"
                     folders={['Group Name', project.name, 'Data', 'Experiments']}
@@ -380,11 +377,11 @@ class ExperimentsOverview extends Component {
                         </button>
                         <button id="aborted" className="non-active-black-border experiment-button"
                                 onClick={(e) => this.handleButtonsClick(e)}>Aborted
-                        </button>                            
-                        <Link 
-                            id="new-experiment" 
+                        </button>
+                        <Link
+                            id="new-experiment"
                             to={`/my-projects/${project.id}/new-experiment`}
-                            style={{height: '0.1em'}} 
+                            style={{height: '0.1em'}}
                             className="light-green-button experiment-button">
                             <b>
                                 New experiment
@@ -393,20 +390,20 @@ class ExperimentsOverview extends Component {
                     </div>
                     {this.state.experiments.map((experiment) =>
                         experiment && <ExperimentCard params={{
-                                "project": project,
+                            "project": project,
+                            "currentState": experiment.status,
+                            "experiments": [{
                                 "currentState": experiment.status,
-                                "experiments": [{
-                                    "currentState": experiment.status,
-                                    "descTitle": experiment.name,
-                                    "userName": experiment.commit.author_name,
-                                    "percentProgress": "100",
-                                    "eta": "0",
-                                    "modelTitle": "Inception_V3",
-                                    "timeCreatedAgo": getTimeCreatedAgo(experiment.commit.created_at),
-                                    "averageParams": [],
-                                    "data": {}
-                                }]
-                            }}
+                                "descTitle": experiment.name,
+                                "userName": experiment.commit.author_name,
+                                "percentProgress": "100",
+                                "eta": "0",
+                                "modelTitle": "Inception_V3",
+                                "timeCreatedAgo": getTimeCreatedAgo(experiment.commit.created_at),
+                                "averageParams": [],
+                                "data": {}
+                            }]
+                        }}
                         />
                     )}
                 </div>
