@@ -34,11 +34,6 @@ build:
     - echo "creating docker image ${IMAGE_NAME} for user ${DOCKER_USER}"
     - docker build --pull --tag "$IMAGE_PATH" -f Dockerfile .
     - docker push "${IMAGE_PATH}"
-  except:
-    changes:
-      - "*.md"                                         # skip the pipeline for documentation changes
-      - "*.txt"
-
 
 
 provision-ec2:
@@ -66,11 +61,7 @@ provision-ec2:
     name: $CI_COMMIT_REF_SLUG
     url: http://www.example.com                         # temporary url will be corrected by the gitlab-env-conf job
     on_stop: decomission                                # clean up after branch merge
-  except:
-    changes:
-      - "*.md"                                         # skip the pipeline for documentation changes
-      - "*.txt"
-      
+    
 
 gitlab-env-conf:
   image: pstauffer/curl:latest
@@ -91,11 +82,7 @@ gitlab-env-conf:
     - curl --request PUT --header "$KEY Bearer $GITLAB_API_TOKEN"
       --data "name=$CI_COMMIT_REF_SLUG&external_url=http://$URL:3000"
       https://gitlab.com/api/v4/projects/$CI_PROJECT_ID/environments/$ID
-  except:
-    changes:
-      - "*.md"                                         # skip the pipeline for documentation changes
-      - "*.txt"
-      
+     
       
 # deploy the application to the ec2 instance
 deploy-ec2:
@@ -108,11 +95,7 @@ deploy-ec2:
   script:
     - chmod 400 development_deployment.pem              # prepare private key file
     - bin/deploy.sh $INSTANCE $IMAGE_PATH
-  except:
-    changes:
-      - "*.md"                                         # skip the pipeline for documentation changes
-      - "*.txt"
-      
+
 
 decomission:
   when: manual
@@ -139,5 +122,4 @@ decomission:
   except:
     refs:
       - master
-      - "*.md"                                         # skip the pipeline for documentation changes
-      - "*.txt"
+
