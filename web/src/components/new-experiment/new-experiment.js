@@ -44,7 +44,7 @@ class NewExperiment extends Component {
                         advanced: [
                             {name: "channels", dataType: INT, required: false, commandName: "channels"},
                             {name: "Use pre-trained", dataType: FLOAT, required: false, commandName: "use-pretrained"},
-                            {name: "epochs", dataType: FLOAT, required: false, commandName: "echos"},
+                            {name: "epochs", dataType: FLOAT, required: false, commandName: "epochs"},
                             {name: "batch-size", dataType: FLOAT, required: false, commandName: "batch-size"}
                         ]
                     }
