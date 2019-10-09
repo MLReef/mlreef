@@ -95,13 +95,16 @@ class RepoFeatures extends Component {
                     <div className="branches">
                       <ul>
                         <li className="branch-header">Branches</li>
-                        {branches.map((branch, index) => {
-                          let encoded = encodeURIComponent(branch.name);
-                          return (
-                            <li key={encoded}>
-                              <Link id={branch.name} to={`/my-projects/${this.state.projectId}/${encoded}`} onClick={this.handleClick}><p>{branch.name}</p></Link>
-                            </li>
-                          )
+                        {branches.filter(branch => 
+                            !branch.name.startsWith("data-pipeline/") &&
+                            !branch.name.startsWith("experiment/")
+                          ).map((branch) => {
+                            let encoded = encodeURIComponent(branch.name);
+                            return (
+                              <li key={encoded}>
+                                <Link id={branch.name} to={`/my-projects/${this.state.projectId}/${encoded}`} onClick={this.handleClick}><p>{branch.name}</p></Link>
+                              </li>
+                            )
                         })}
                       </ul>
                     </div>
