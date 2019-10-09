@@ -15,7 +15,7 @@ import { Instruction } from '../instruction/instruction';
 import filesApi from "./../../apis/FilesApi";
 import {
     createPipelineInProject
-} from './../../functions/utilities';
+} from './../../functions/pipeLinesHelpers';
 import uuidv1 from 'uuid/v1';
 
 class EmptyDataVisualization extends Component {
