@@ -8,7 +8,7 @@ import { callToCommitApi } from "./apiCalls";
  * @method addFilesSelectedInModal: This funtion is to add folders and files to the command
  * @param {lineWithOutFolderAndFiles}: This is the line without directories or files
  */
-export const addFilesSelectedInModal = (
+const addFilesSelectedInModal = (
     lineWithOutFoldersAndFiles, 
     filesSelectedInModal
 ) => {
@@ -32,7 +32,7 @@ export const addFilesSelectedInModal = (
  * @param {inputDataModel}: data model of input(data type, required, etc)
  * @param {dataOperationsHtmlElm}: operation container which must be highligthed
  */
-export const showErrorsInTheOperationsSelected = (input, inputDataModel, dataOperationsHtmlElm) => {
+const showErrorsInTheOperationsSelected = (input, inputDataModel, dataOperationsHtmlElm) => {
     input.style.border = "1px solid red";
     dataOperationsHtmlElm.style.border = "1px solid red";
     const errorDiv = document.getElementById(`error-div-for-${input.id}`);
@@ -56,8 +56,7 @@ export const showErrorsInTheOperationsSelected = (input, inputDataModel, dataOpe
     }
 }
 
-
-export const buildCommandLinesFromSelectedPipelines = (
+const buildCommandLinesFromSelectedPipelines = (
     dataOperationsSelected,
     dataOperationsHtmlElms,
     filesSelectedInModal,
@@ -94,7 +93,7 @@ export const buildCommandLinesFromSelectedPipelines = (
             : undefined;
     });
 
-export const generateRealContentFromTemplate = (
+const generateRealContentFromTemplate = (
     mlreefFileContent,
     pipeLineOperationCommands,
     dataInstanceName,
@@ -151,7 +150,6 @@ export const createPipelineInProject = (
             http_url_to_repo,
             pipelineOpScriptName
         );
-        console.log(finalContent);
         toastr.info('Execution', 'Pipeline execution has already started');
         branchesApi.create(
             projectId,
@@ -172,61 +170,3 @@ export const createPipelineInProject = (
         toastr.error('Form', 'Validate please data provided in inputs');
     }
 };
-
-export const getTimeCreatedAgo = (timeAgoCreatedAt) => {
-    const today = new Date();
-    const timeAgoCreatedAtDate = new Date(timeAgoCreatedAt);
-    let diff = today - timeAgoCreatedAtDate;
-    let timediff;
-    if (diff > 2678400e3) {
-        timediff = `${Math.floor(diff / 2678400e3)} months`
-    }
-    else if (diff > 604800e3) {
-        timediff = `${Math.floor(diff / 604800e3)} weeks`
-    }
-    else if (diff > 86400e3) {
-        timediff = `${Math.floor(diff / 86400e3)} days`
-    }
-    else if (diff > 3600e3) {
-        timediff = `${Math.floor(diff / 3600e3)} hour(s)`
-    }
-    else if (diff > 60e3) {
-        timediff = `${Math.floor(diff / 60e3)} minutes`
-    }
-    else {
-        timediff = "just now"
-    }
-
-    return timediff;
-}
-
-export const generateSummarizedInfo = (epochObjects) => {
-    /**
-     * Next loop is to get all the epoc keys like acc, val_acc, loss, val_loss.
-     */
-    const resultData = Object.keys(epochObjects[0]).map( key => {
-        const pipeLineEpochValue = {};
-        pipeLineEpochValue[key] = [];
-
-        return pipeLineEpochValue;
-    });
-
-    Object.keys(epochObjects).forEach(obj => {
-        Object.keys(epochObjects[obj]).forEach((objKey, index) => {
-            resultData[index][objKey].push(epochObjects[obj][objKey]);
-        });
-    });
-
-    /**
-     * Get average data per epoch value
-     */
-    resultData.forEach((epochValue) => {
-        const epochNameValue = Object.keys(epochValue)[0];
-        resultData[`avg_${epochNameValue}`] = (
-            epochValue[epochNameValue]
-                .reduce((a, b) => a + b)
-                    / epochValue[epochNameValue].length
-        );
-    })
-    return resultData;
-}

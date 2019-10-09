@@ -1,3 +1,4 @@
+import filesApi from "../apis/FilesApi";
 import commitsApi from "./../apis/CommitsApi";
 
 export const callToCommitApi = (
@@ -21,3 +22,13 @@ export const callToCommitApi = (
         }
     })
     .catch(err => console.log(err));
+
+export const callToGetFilesInFolder = (
+    path,
+    branch,
+    projectId,
+    recursive
+) =>
+    filesApi
+    .getFilesPerProject(projectId, path ? path : "", recursive, "gitlab.com", branch)
+    .catch(err => console.error(err));

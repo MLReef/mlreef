@@ -5,7 +5,7 @@ export default class FilesApi {
     static async getFilesPerProject(projectId, path, recursive = false, domain = "gitlab.com", branch = "master") {
         try {
             const response = await fetch(new Request(`https://${domain}/api/v4/projects/${projectId}/repository/` +
-                `tree?ref=${branch}&recursive=${recursive}&path=${path}`, {
+                `tree?ref=${branch}&recursive=${recursive}&path=${path}&per_page=50`, {
                 method: 'GET',
                 headers: new Headers({
                     "PRIVATE-TOKEN": SECURITY_TOKEN
@@ -14,6 +14,7 @@ export default class FilesApi {
             return response.json();
         }
         catch (err) {
+            console.log(err);
             return err;
         }
     }

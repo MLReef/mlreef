@@ -3,8 +3,14 @@ import folderIcon from "./../images/folder_01.svg";
 import fileIcon from "./../images/file_01.svg";
 import { Link } from "react-router-dom";
 import { connect } from "react-redux";
-import { bindActionCreators } from "redux";
-import * as fileActions from "./../actions/fileActions";
+import { 
+  generateNewArrayOfFilesToRender,
+  getParamFromUrl,
+  getFilesInFolder,
+  findFolderContainer
+}
+from "./../functions/dataParserHelpers";
+import { callToGetFilesInFolder } from './../functions/apiCalls';
 
 class FilesContainer extends Component {
   constructor(props) {
@@ -14,27 +20,33 @@ class FilesContainer extends Component {
 
     this.state = {
       currentPath: "",
-      fileSize: ""
+      currentBranch: "",
+      fileSize: "",
+      files: []
     }
 
     window.onpopstate = () => {
-      var path = this.getParamFromUrl("path", window.location.href);
-      this.props.actions.loadFiles(path, this.props.branch, this.props.projectId);
-
+      this.updateState();
     };
   }
 
-  componentWillUpdate() {
-    const projectId = window.location.href.split("/my-projects/")[1].split("/")[0];
-    const urlPath = this.getParamFromUrl("path", window.location.href);
+  updateState = async () => {
+    var path = getParamFromUrl("path", window.location.href);
+    const res = await Promise.all([callToGetFilesInFolder(path, this.props.branch, this.props.projectId, true)])
+    const updatedFiles = await generateNewArrayOfFilesToRender(res[0], this.props.projectId, this.props.branch);
+    this.setState({files: updatedFiles})
+  }
+    
+  componentDidUpdate() {
+    const urlPath = getParamFromUrl("path", window.location.href);
 
+    if(this.props.branch !== this.state.currentBranch){
+      this.setState({ currentBranch: this.props.branch });
+      this.updateState();
+    }
     if (urlPath !== this.state.currentPath) {
       this.setState({ currentPath: urlPath });
-      this.props.actions.loadFiles(
-        urlPath,
-        this.props.branch,
-        projectId
-      );
+      this.updateState();
     }
   }
 
@@ -56,78 +68,14 @@ class FilesContainer extends Component {
     }
   }
 
-  getParamFromUrl(param, url) {
-    return new URL(url).searchParams.get(param);
-  }
-
-  getBack() {
-    window.history.back();
-  }
-
+  
+  getBack = () => window.history.back()
+  
   clickListener(e) {
-    this.props.actions.loadFiles(
-      this.getParamFromUrl(
-        "path", 
-        e.target.nodeName === "IMG" 
-          ? e.target.parentNode.href
-          : e.target.href
-      ),
-      this.props.branch
-    );
+    this.updateState()
   }
 
-  renderFiles() {
-    const branch = this.props.branch;
-    const fileElements = [];
-    const projectId = this.props.projectId;
-    this.props.files.forEach((file, index) => {
-      let icon;
-      let link;
-      var url_string = window.location.href;
-      var url = new URL(url_string);
-      var path = url.searchParams.get("path");
-
-      if (file.type === "tree") {
-        icon = folderIcon;
-        link = path
-          ? `/my-projects/${projectId}/files/branch/${branch}?path=${path}/${file.name}`
-          : `/my-projects/${projectId}/files/branch/${branch}?path=${file.name}`;
-      } else {
-        icon = fileIcon;
-        path = path ? path : "";
-        link = `/my-projects/${projectId}/files/branch/${branch}/file-name/${file.name}?path=${path}`;
-      }
-
-      fileElements.push(
-        <tr key={index} className="files-row">
-          <td className="file-type">
-            <Link onClick={this.clickListener} to={link}>
-              <img src={icon} alt="" />
-            </Link>
-            <Link onClick={this.clickListener} to={link}>
-              {file.name}
-            </Link>
-          </td>
-          <td>
-            {" "}
-            <p>Something</p>
-          </td>
-          <td>
-            <p>48Kb</p>{" "}
-          </td>
-          <td>
-            {" "}
-            <p> yesterday </p>{" "}
-          </td>
-        </tr>
-      );
-    });
-
-    return fileElements;
-  }
-
-  render() {
-    return (
+  render = () =>
       <div className="files-container">
         <div className="commit-status">
           <p id="commitStatus">
@@ -159,29 +107,64 @@ class FilesContainer extends Component {
 
           <tbody>
             {this.getReturnOption()}
-            {this.renderFiles()}
+            {this.state.files.map((file, index) => {
+              if(findFolderContainer(file, this.state.files).length > 0){
+                return null;
+              }
+
+              let icon;
+              let link;
+              var url_string = window.location.href;
+              var url = new URL(url_string);
+              var path = url.searchParams.get("path");
+              let filesInFolder = null;
+
+              if (file.type === "tree") {
+                filesInFolder = getFilesInFolder(file, this.state.files);
+                icon = folderIcon;
+                const basePath = `/my-projects/${this.props.projectId}/files/branch/${this.props.branch}?path=`
+                link = path
+                  ? `${basePath}${path}/${file.name}`
+                  : `${basePath}${file.name}`;
+              } else {
+                icon = fileIcon;
+                path = path ? path : "";
+                link = `/my-projects/${this.props.projectId}/files/branch/${this.props.branch}/file-name/${file.name}?path=${path}`;
+              }
+
+              return <tr key={index} className="files-row">
+                  <td className="file-type">
+                    <Link onClick={this.clickListener} to={link}>
+                      <img src={icon} alt="" />
+                    </Link>
+                    <Link onClick={this.clickListener} to={link}>
+                      {file.name}
+                    </Link>
+                  </td>
+                  <td>
+                    {" "}
+                    <p>Something</p>
+                  </td>
+                  <td>
+                    <p>{file.size}KB {filesInFolder && `(${filesInFolder.length})`}</p>
+                  </td>
+                  <td>
+                    {" "}
+                    <p> yesterday </p>{" "}
+                  </td>
+                </tr>
+            })}
           </tbody>
         </table>
       </div>
-    );
-  }
 }
 
 function mapStateToProps(state) {
   return {
-    files: state.files,
-    project: state.project,
-    file: state.file
-  };
-}
-
-function mapDispatchToProps(dispatch) {
-  return {
-    actions: bindActionCreators(fileActions, dispatch)
+    files: state.files
   };
 }
 
 export default connect(
-  mapStateToProps,
-  mapDispatchToProps
+  mapStateToProps
 )(FilesContainer);
