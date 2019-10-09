@@ -12,7 +12,7 @@ import arrayMove from 'array-move';
 import {INT, FLOAT, BOOL} from "../../data-types";
 import { DataOperationsList } from './data-operations-list';
 import { Instruction } from '../instruction/instruction';
-import ExecutePipelineModal from './executePipeLineModal';
+import ExecutePipelineModal from '../execute-pipeline-modal/executePipeLineModal';
 import filesApi from "./../../apis/FilesApi";
 import {
     createPipelineInProject

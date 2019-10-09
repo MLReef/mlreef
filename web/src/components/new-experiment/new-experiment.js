@@ -17,6 +17,7 @@ import {
     createPipelineInProject
 } from './../../functions/utilities';
 import uuidv1 from 'uuid/v1';
+import ExecutePipelineModal from "./../execute-pipeline-modal/executePipeLineModal";
 
 class NewExperiment extends Component {
     constructor(props){
@@ -68,7 +69,8 @@ class NewExperiment extends Component {
             ],
             showSelectFilesModal: false,
             dataOperationsSelected: [],
-            filesSelectedInModal: []
+            filesSelectedInModal: [],
+            isShowingExecutePipelineModal: false
         };
         filesApi.getFilesPerProject(
             this.props.projects.selectedProject.id, 
@@ -87,6 +89,7 @@ class NewExperiment extends Component {
         this.copyDataOperationEvent = this.copyDataOperationEvent.bind(this);
         this.deleteDataOperationEvent = this.deleteDataOperationEvent.bind(this);
         this.handleExecuteBtn = this.handleExecuteBtn.bind(this);
+        this.toggleExecutePipeLineModal = this.toggleExecutePipeLineModal.bind(this);
     }
 
     componentDidMount(){
@@ -233,6 +236,15 @@ class NewExperiment extends Component {
     };
 
     handleExecuteBtn = () => {
+        this.toggleExecutePipeLineModal();    
+    }
+
+    toggleExecutePipeLineModal(){
+        const isShowingExecutePipelineModal = !this.state.isShowingExecutePipelineModal;
+        this.setState({isShowingExecutePipelineModal: isShowingExecutePipelineModal});
+    }
+    
+    handleExecuteModalBtnNextPressed = () => {
         const uuidCodeForBranch = (uuidv1()).split("-")[0];
         const branchName = `experiment/${uuidCodeForBranch}`;
         const dataInstanceName = `experiment/${uuidCodeForBranch}`;
@@ -246,7 +258,7 @@ class NewExperiment extends Component {
             branchName,
             dataInstanceName
         );
-    };
+    }
 
     render = () => {
         const project = this.state.project;
@@ -264,6 +276,12 @@ class NewExperiment extends Component {
                     show={showSelectFilesModal} 
                     filesSelectedInModal={this.state.filesSelectedInModal} 
                     handleModalAccept={this.handleModalAccept}
+                />
+                <ExecutePipelineModal
+                    isShowing={this.state.isShowingExecutePipelineModal} 
+                    amountFilesSelected={this.state.filesSelectedInModal.length}
+                    toggle={this.toggleExecutePipeLineModal}
+                    handleExecuteModalBtnNextPressed={this.handleExecuteModalBtnNextPressed}
                 />
                 <Navbar/>
                 <ProjectContainer project={project} activeFeature="experiments" folders = {['Group Name', project.name, 'Data', 'Pipeline']}/>

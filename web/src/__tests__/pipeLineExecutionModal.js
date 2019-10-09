@@ -1,5 +1,5 @@
 import React from 'react';
-import ExecutePipeLineModal from "./../components/pipeline-view/executePipeLineModal";
+import ExecutePipeLineModal from "../components/execute-pipeline-modal/executePipeLineModal";
 import Enzyme, { mount } from 'enzyme';
 import Adapter from 'enzyme-adapter-react-16';
 
