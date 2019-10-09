@@ -20,7 +20,8 @@ class ProjectView extends React.Component {
         this.props.actions.loadFiles(
             null,
             this.props.match.params.branch,
-            this.props.match.params.projectId
+            this.props.match.params.projectId,
+            true
         );
 
         this.state = {

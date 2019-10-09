@@ -15,7 +15,7 @@ import pipelinesApi from "./../apis/PipelinesApi";
 import {
     getTimeCreatedAgo,
     generateSummarizedInfo
-} from "../functions/utilities";
+} from "../functions/dataParserHelpers";
 import {
     colorsForCharts,
     SKIPPED,
@@ -415,7 +415,6 @@ class ExperimentsOverview extends Component {
 }
 
 function mapStateToProps(state) {
-    console.log(state);
     return {
         projects: state.projects
     };

@@ -9,11 +9,9 @@ export function getFileInfoSuccessfully(fileData) {
     return { type: types.GET_FILE_DATA, fileData }
 }
 
-export function loadFiles(path, branch, projectId) {
+export function loadFiles(path, branch, projectId, recursive) {
     return async (dispatch) => {
-        let recursive = false;
         let domain = "gitlab.com";
-
         try {
             const files = await filesApi.getFilesPerProject(projectId, path ? path : "", recursive, domain, branch);
             dispatch(loadFilesSuccessfully(files));

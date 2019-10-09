@@ -6,7 +6,7 @@ import { connect } from "react-redux";
 import filesApi from "../../apis/FilesApi";
 import arrow_down_white_01 from "../../images/arrow_down_white_01.svg";
 import { Instruction } from '../instruction/instruction';
-import { getTimeCreatedAgo } from '../../functions/utilities';
+import { getTimeCreatedAgo } from '../../functions/dataParserHelpers';
 
 const Active = "Active";
 const Expired = "Expired";

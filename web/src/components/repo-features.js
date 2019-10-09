@@ -58,7 +58,8 @@ class RepoFeatures extends Component {
     this.props.actions.loadFiles(
       null,
       encodeURIComponent(e.currentTarget.id),
-      this.state.projectId
+      this.state.projectId,
+      true
     );
   }
 

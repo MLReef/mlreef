@@ -7,7 +7,6 @@ import * as types from "./actionTypes";
  */
 
 export function getProjectsInfoSuccessfully(projects) {
-    console.log(projects);
     return { type: types.GET_LIST_OF_PROJECTS, projects };
 }
 
