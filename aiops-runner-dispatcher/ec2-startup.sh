@@ -1,14 +1,37 @@
 #!/bin/bash
 
+if [ "DISPATCHER_DESCRIPTION" = "" ]; then
+  EC2_INSTANCE_NAME="mlreef-aiops-dispatcher"
+fi
+
+AIOPS_RUNNER_EC2_INSTANCE_TYPE="p3.8xlarge"
 # number of instances is limited by aws
 # https://eu-central-1.console.aws.amazon.com/ec2/v2/home?region=eu-central-1#Limits:
-AIOPS_RUNNER_EC2_INSTANCE_TYPE="p3.8xlarge"
 AIOPS_RUNNER_EC2_INSTANCE_LIMIT=2
+
+sudo tee -a install.log > /dev/null <<EOF
+DISPATCHER_DESCRIPTION=${EC2_INSTANCE_NAME}
+AIOPS_RUNNER_EC2_INSTANCE_TYPE=$AIOPS_RUNNER_EC2_INSTANCE_TYPE
+AIOPS_RUNNER_EC2_INSTANCE_LIMIT=$AIOPS_RUNNER_EC2_INSTANCE_LIMIT
+
+sudo gitlab-ci-multi-runner register          \
+  --non-interactive                           \
+  --url "https://gitlab.com/"                 \
+  --registration-token "LEAazFo7ZfJysnY_ore3" \
+  --executor "docker+machine"                 \
+  --docker-image alpine:latest                \
+  --description "${DISPATCHER_DESCRIPTION}"   \
+  --tag-list "docker,aws"                     \
+  --run-untagged="true"                       \
+  --locked="false"
+  
+EOF
+
 
 # Following the Guide
 # https://about.gitlab.com/2017/11/23/autoscale-ci-runners/
 curl -L https://packages.gitlab.com/install/repositories/runner/gitlab-ci-multi-runner/script.deb.sh | sudo bash
-sudo apt-get install gitlab-ci-multi-runner
+sudo apt-get install gitlab-ci-multi-runner >> install.log
 
 curl -L https://github.com/docker/machine/releases/download/v0.12.2/docker-machine-`uname -s`-`uname -m` >/tmp/docker-machine &&
 chmod +x /tmp/docker-machine &&
@@ -23,11 +46,12 @@ sudo gitlab-ci-multi-runner register          \
   --registration-token "LEAazFo7ZfJysnY_ore3" \
   --executor "docker+machine"                 \
   --docker-image alpine:latest                \
-  --description "aiops-runner-dispatcher"     \
+  --description "$DISPATCHER_DESCRIPTION"     \
   --tag-list "docker,aws"                     \
   --run-untagged="true"                       \
-  --locked="false"
-
+  --locked="false"                            \
+  >> install.log
+  
 LINE=$(sudo cat $TOML | grep token)
 sudo rm -rf "$TOML"
 
@@ -37,7 +61,7 @@ concurrent = 12
 check_interval = 0
 
 [[runners]]
-  name = "aiops-runner-dispatcher"
+  name = "${DISPATCHER_DESCRIPTION}"
   limit = $AIOPS_RUNNER_EC2_INSTANCE_LIMIT
   url = "https://gitlab.com/"
 $LINE
@@ -49,6 +73,12 @@ $LINE
     disable_cache = false
     volumes = ["/cache"]
     shm_size = 0
+  [runners.cache]
+    ServerAddress = "s3.amazonaws.com"
+    AccessKey = "$AWS_ACCESS_KEY_ID"
+    SecretKey = "$AWS_SECRET_ACCESS_KEY"
+    BucketName = "mlreef-runner-cache"
+    BucketLocation = "eu-central-1"
   [runners.machine]
     IdleCount = 0
     MachineDriver = "amazonec2"
@@ -66,4 +96,4 @@ $LINE
 
 EOF
 
-sudo service gitlab-runner start
+sudo service gitlab-runner start >> install.log

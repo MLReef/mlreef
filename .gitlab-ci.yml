@@ -1,8 +1,14 @@
+stages:
+  - deploy
+  - teardown
+
+
 variables:
-  EC2_INSTANCE_NAME: mlreef-aiops-dispatcher        #environment name and url are set separately
+  EC2_INSTANCE_NAME: mlreef-aiops-dispatch-$CI_COMMIT_REF_SLUG        # environment name and url are set separately
 
 
 provision-dispatcher:
+  stage: deploy
   image: registry.gitlab.com/systemkern/s5:latest-aws  # based on python:3-slim
   variables:
     #EC2_IMAGE_AMI: "ami-0ac05733838eabc06"            # ubuntu/images/hvm-ssd/ubuntu-bionic-18.04-amd64-server-20190722.1
@@ -11,8 +17,17 @@ provision-dispatcher:
     EC2_SECURITY_GRP: "launch-wizard-2"
   before_script:
     - chmod 400 development_deployment.pem             # prepare private key file
-    - ./aiops-runner-dispatcher/decomission.sh                  # first shutdown all current instances
+    - ./aiops-runner-dispatcher/decomission.sh         # first shutdown all current instances
   script:
+    # rewrite ec2-startup.sh
+    - echo "#!/bin/bash"                                >> aiops-runner-dispatcher/ec2-startup.updated
+    - echo "DISPATCHER_DESCRIPTION=$EC2_INSTANCE_NAME"  >> aiops-runner-dispatcher/ec2-startup.updated
+    - tail -n +2 aiops-runner-dispatcher/ec2-startup.sh >> aiops-runner-dispatcher/ec2-startup.updated
+    - chmod +x                                             aiops-runner-dispatcher/ec2-startup.updated
+    - rm -rf                                               aiops-runner-dispatcher/ec2-startup.sh
+    - mv aiops-runner-dispatcher/ec2-startup.updated       aiops-runner-dispatcher/ec2-startup.sh
+    - cat aiops-runner-dispatcher/ec2-startup.sh
+    # provision instance
     - INSTANCE=$(./aiops-runner-dispatcher/provision.sh)
     - echo "$INSTANCE"
     - echo "$INSTANCE" | tr -d '\r' > instance.info    # pass instance url to deploy stage
@@ -20,6 +35,32 @@ provision-dispatcher:
   artifacts:
     paths:
       - instance.info
-  only:
+  environment:
+    name: $CI_COMMIT_REF_SLUG
+    url: https://eu-central-1.console.aws.amazon.com/ec2/home?region=eu-central-1#Instances:sort=desc:launchTime
+    on_stop: decomission
+
+
+decomission:
+  image: registry.gitlab.com/systemkern/s5:latest-aws    # based on python:3-slim
+  stage: teardown
+  when: manual
+  variables:
+    GIT_STRATEGY: none
+    # Workaround for Gitlab Bug https://gitlab.com/gitlab-org/gitlab-runner/issues/1809
+    WORKAROUND: "PRIVATE-TOKEN:" # workaround to not break the yaml structure
+  script:
+    # use the aws-cli to retrieve the desciptoion (json) for our machine
+    # parse the json with jq to get the instance id
+    # the xargs command at the end submits the termination command to AWS
+    - aws ec2 describe-instances
+      --filters "Name=tag:Name,Values=$EC2_INSTANCE_NAME"
+      | jq -r ".Reservations[].Instances[].InstanceId"
+      | xargs --no-run-if-empty aws ec2 terminate-instances
+      --instance-id
+  environment:
+    name: $CI_COMMIT_REF_SLUG
+    action: stop
+  except:
     refs:
       - master
