@@ -23,13 +23,3 @@ provision-dispatcher:
   only:
     refs:
       - master
-  except:
-    changes:
-      - "*.md"                                         # skip the pipeline for documentation changes
-      - "*.txt"
-
-
-#  environment:
-#    name: "$EC2_INSTANCE_NAME"
-#    url: https://www.google.com
-#    on_stop: decomission-ec2                           # clean up after branch merge

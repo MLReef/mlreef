@@ -1,5 +1,10 @@
 #!/bin/bash
 
+# number of instances is limited by aws
+# https://eu-central-1.console.aws.amazon.com/ec2/v2/home?region=eu-central-1#Limits:
+AIOPS_RUNNER_EC2_INSTANCE_TYPE="p3.8xlarge"
+AIOPS_RUNNER_EC2_INSTANCE_LIMIT=2
+
 # Following the Guide
 # https://about.gitlab.com/2017/11/23/autoscale-ci-runners/
 curl -L https://packages.gitlab.com/install/repositories/runner/gitlab-ci-multi-runner/script.deb.sh | sudo bash
@@ -33,7 +38,7 @@ check_interval = 0
 
 [[runners]]
   name = "aiops-runner-dispatcher"
-  limit = 6
+  limit = $AIOPS_RUNNER_EC2_INSTANCE_LIMIT
   url = "https://gitlab.com/"
 $LINE
   executor = "docker+machine"
@@ -53,7 +58,8 @@ $LINE
       "amazonec2-secret-key=Y/evp2RoQ44O7Bt7LqtXjlEz03EEjdLkIP1T/rFl",
       "amazonec2-ssh-user=ubuntu",
       "amazonec2-region=eu-central-1",
-      "amazonec2-instance-type=m4.xlarge",
+      "amazonec2-zone=b",
+      "amazonec2-instance-type=$AIOPS_RUNNER_EC2_INSTANCE_TYPE",
       "amazonec2-ami=ami-050a22b7e0cf85dd0",
     ]
     IdleTime = 1800
