@@ -265,7 +265,7 @@ class ExperimentCard extends React.Component {
                                 ]}
                                 />
                                 <DataCard title="Algorithm" linesOfContent={[
-                                    "*Inception-V3",
+                                    "*Resnet 50",
                                     "from",
                                     "*branch: feature/3-layers",
                                     "authored by",
@@ -398,7 +398,7 @@ class ExperimentsOverview extends Component {
                                 "userName": experiment.commit.author_name,
                                 "percentProgress": "100",
                                 "eta": "0",
-                                "modelTitle": "Inception_V3",
+                                "modelTitle": "Resnet 50",
                                 "timeCreatedAgo": getTimeCreatedAgo(experiment.commit.created_at),
                                 "averageParams": [],
                                 "data": {}

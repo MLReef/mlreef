@@ -37,7 +37,7 @@ class ProjectSet extends React.Component {
               onClick={this.handlePersonal}
             >
               <p>Your Projects </p>
-              <p id="count">{this.props.projects.length}</p>
+              
             </div>
             <div
               className={
@@ -46,7 +46,7 @@ class ProjectSet extends React.Component {
               onClick={this.handleStarred}
             >
               <p>Starred Projects </p>
-              <p id="count">1</p>
+              
             </div>
             <div
               className={
