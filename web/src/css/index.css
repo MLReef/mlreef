@@ -911,3 +911,33 @@ hr {
   padding: 0 5em;
   margin: 0.5em 0 0 0;
 }
+
+.plus-dropdown{
+  width: 200px; 
+  height: auto; 
+  background: #fff; 
+  border-radius: 3px; 
+  top: 100%; 
+  box-shadow: 0 2px 4px rgb(0, 0, 0, 0.3); 
+  position: absolute
+}
+
+.plus-list{
+  list-style: none; 
+  padding: 0;
+  width: 100%
+}
+
+.plus-list li{
+  padding: 8px 12px;
+}
+
+.plus-list li > a{
+  width: 100%;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.plus-list .plus-option:hover{
+  background-color: #e5e5e5
+}
