@@ -23,7 +23,7 @@ const RouterComp = () => (
             <PrivateRoute path="/my-projects" exact component={Projects} />
             <PrivateRoute path="/my-projects/:projectId/:branch/commits" exact component={Commits} />
             <PrivateRoute exact path="/my-projects/:projectId/pipe-line" component={PipeLineView} />
-            <PrivateRoute exact path="/my-projects/:projectId/:branch/visualizations" component={EmptyDataVisualization} />
+            <PrivateRoute path="/my-projects/:projectId/visualizations" component={EmptyDataVisualization} />
             <PrivateRoute exact path="/my-projects/:projectId/:branch/data-instances" component={DataInstanceOverview} />
             <PrivateRoute path="/my-projects/:projectId/:branch/data-instances/:di_name" component={DataInstanceDetails} />
             <PrivateRoute path="/my-projects/:projectId/new-experiment" component={NewExperiment} />
