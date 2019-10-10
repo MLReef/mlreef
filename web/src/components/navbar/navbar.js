@@ -1,4 +1,4 @@
-import React,{Component} from "react";
+import React, { Component } from "react";
 import { connect } from "react-redux";
 import { Link } from "react-router-dom";
 import ml_reef_icon_01 from "../../images/MLReef_Logo_navbar.png";
@@ -7,7 +7,7 @@ import arrow_down_blue_01 from "../../images/arrow_down_blue_01.svg";
 import "./navbar.css";
 
 class Navbar extends Component {
-  state = { dialogOpen: false, projectDialog: false, yourProjects: false};
+  state = { dialogOpen: false, projectDialog: false, yourProjects: false };
 
   handleProfile = e => {
     if (!this.state.dialogOpen) {
@@ -22,33 +22,35 @@ class Navbar extends Component {
   };
 
   handleOutsideClick = e => {
-    // ignore clicks on the component itself
-    if (this.node.contains(e.target)) {
-      return;
-    }
     if (this.state.dialogOpen) this.handleProfile();
     else if (this.state.projectDialog) this.handleProject();
   };
 
   handleProject = e => {
-    if(!e){
+    if (!e) {
       return;
     }
     switch (e.target.id) {
       case "your-projects":
-          this.setState({yourProjects: true});
+        this.setState({ yourProjects: true });
         break;
-    
+
       default:
-        !this.state.projectDialog 
+        !this.state.projectDialog
           ? document.addEventListener("click", this.handleOutsideClick, false)
           : document.removeEventListener("click", this.handleOutsideClick, false);
         this.setState(prevState => ({
           projectDialog: !prevState.projectDialog
         }));
         break;
-      }
+    }
   };
+
+  componentWillUnmount() {
+    this.setState = (state, callback) => {
+      return;
+    };
+  }
 
   render() {
     return (
@@ -138,7 +140,7 @@ class Navbar extends Component {
   }
 }
 
-function mapStateToProps(state){
+function mapStateToProps(state) {
   return {
     projectsList: state.projects
   };
