@@ -21,6 +21,8 @@ class Metrics(keras.callbacks.Callback):
     def on_train_begin(self, logs={}):
         self.metrics = {}
         self.metrics2 = {}
+        with open('{}/experiment.json'.format(output_path), 'w') as file:
+            json.dump(self.metrics, file)
 
     def on_batch_end(self, batch, logs={}):
         try:
