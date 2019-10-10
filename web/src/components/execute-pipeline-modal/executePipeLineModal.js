@@ -6,6 +6,9 @@ import ArrowButton from '../arrow-button/arrow-button';
 import traiangle01 from '../../images/triangle-01.png';
 import $ from 'jquery';
 import './../../css/global-styles.css';
+import {
+    createPipelineInProject
+} from './../../functions/pipeLinesHelpers';
 
 const fakeMachinesToShow = [
     $.parseHTML("Small CPU - (CPU: 8 cores, RAM 8 GB) - 2&euro; per hour")[0].data,
@@ -16,7 +19,13 @@ const ExecutePipelineModal = ({
     isShowing,
     toggle,
     amountFilesSelected,
-    handleExecuteModalBtnNextPressed
+    dataOperationsSelected,
+    filesSelectedInModal,
+    http_url_to_repo,
+    projectId,
+    branchName,
+    dataInstanceName,
+    jobName
 }) => {
     const [section, setSection] = useState(1);
     const [isFirstOptSelected, setIsFirstOptSelected] = useState(false);
@@ -180,7 +189,15 @@ const ExecutePipelineModal = ({
                                 onClick={() => {
                                     if(section === 1){
                                         setSection(2);
-                                        /* handleExecuteModalBtnNextPressed(); */
+                                        createPipelineInProject(
+                                            dataOperationsSelected,
+                                            filesSelectedInModal,
+                                            http_url_to_repo,
+                                            projectId,
+                                            jobName,
+                                            branchName,
+                                            dataInstanceName
+                                        );   
                                     } else {
                                         cleanForm();
                                     }
