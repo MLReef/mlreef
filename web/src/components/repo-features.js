@@ -9,16 +9,21 @@ import { Link } from "react-router-dom";
 class RepoFeatures extends Component {
   state = {
     isOpen: false,
+    plusOpen: false,
     branchSelected: decodeURIComponent(this.props.info.match.params.branch),
     projectId: null,
     branches: []
   };
 
+  branchRef = React.createRef();
+  plusRef = React.createRef();
+
   handleBlur = e => {
-    if (this.node.contains(e.target)) {
-      return;
-    }
     this.handleBranch();
+  };
+
+  plusDropdownBlur = e => {
+    this.plusDropdown();
   };
 
   handleBranch = e => {
@@ -33,6 +38,18 @@ class RepoFeatures extends Component {
     }));
   };
 
+  plusDropdown = e => {
+    if (!this.state.plusOpen) {
+      document.addEventListener("click", this.plusDropdownBlur, false);
+    } else {
+      document.removeEventListener("click", this.plusDropdownBlur, false);
+    }
+
+    this.setState(prevState => ({
+      plusOpen: !prevState.plusOpen
+    }));
+  };
+
   componentDidMount() {
     this.props.actions.getBranches("gitlab.com", this.state.projectId)
       .then(res => res.json())
@@ -43,6 +60,12 @@ class RepoFeatures extends Component {
     this.setState({
       projectId: window.location.href.split("/my-projects/")[1].split("/")[0]
     })
+  }
+
+  componentWillUnmount() {
+    this.setState = (state, callback) => {
+      return;
+    };
   }
 
   componentWillReceiveProps(nextProps) {
@@ -69,13 +92,10 @@ class RepoFeatures extends Component {
       <>
         <div id="repo-features">
           <div>
-            <div className="reference">
+            <div className="reference" ref={this.branchRef}>
               <button
                 className="white-button"
                 onClick={this.handleBranch}
-                ref={node => {
-                  this.node = node;
-                }}
               >
                 <span>{this.state.branchSelected}</span>
                 <img id="leftfeature-image" src={arrow_down_blue_01} alt="" />
@@ -113,10 +133,24 @@ class RepoFeatures extends Component {
                 </div>
               }
             </div>
-            <button className="white-button">
-              <img id="plus" src={plus_01} alt="" />
-              <img id="leftfeature-image" src={arrow_down_blue_01} alt="" />
-            </button>
+            <div className="reference" ref={this.plusRef}>
+              <button className="white-button" style={{ position: "relative" }} onClick={this.plusDropdown}>
+                <img id="plus" src={plus_01} alt="" />
+                <img id="leftfeature-image" src={arrow_down_blue_01} alt="" />
+              </button>
+              {this.state.plusOpen && <div className="plus-dropdown">
+                <ul className="plus-list">
+                  <li>This directory</li>
+                  <li className="plus-option"><Link to="/">New file</Link></li>
+                  <li className="plus-option"><Link to="/">Upload file</Link></li>
+                  <li className="plus-option"><Link to="/">New directory</Link></li>
+                  <hr />
+                  <li>This repository</li>
+                  <li className="plus-option"><Link to="/">New branch</Link></li>
+                  <li className="plus-option"><Link to="/">New tag</Link></li>
+                </ul>
+              </div>}
+            </div>
             <button className="blue-button">
               Data Visualisation
             </button>
