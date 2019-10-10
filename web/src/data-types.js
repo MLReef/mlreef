@@ -62,3 +62,105 @@ export const SUCCESS = "success";
 export const FAILED = "failed";
 export const CANCELED = "canceled";
 export const SKIPPED = "skipped";
+
+export const dataPipeLines = [{
+  title: "Augment", username: "Vaibhav_M", starCount: "243", index: 1, 
+  command: "augment",
+  description: 
+      `Data augmentation multiplies and tweakes the data by changing angle of rotation, flipping the images, zooming in, etc.`,
+  showDescription:false, showAdvancedOptsDivDataPipeline: false, dataType: "Images", 
+  params: {
+      standard: [{name: "Number of augmented images", dataType: INT, required: true, commandName: "iterations"}],
+      advanced: [
+          {name: "Rotation range", dataType: FLOAT, required: false, commandName: "rotation_range"},
+          {name: "Width shift range", dataType: FLOAT, required: false, commandName: "width_shift_range"},
+          {name: "Height shift range", dataType: FLOAT, required: false, commandName: "height_shift_range"},
+          {name: "Shear range", dataType: FLOAT, required: false, commandName: "shear_range"},
+          {name: "Zoom range", dataType: FLOAT, required: false, commandName: "zoom_range"},
+          {name: "Horizontal flip", dataType: BOOL, required: false, commandName: "horizontal_flip"},
+      ]
+  }
+},
+{
+  title: "Random crop", username: "Vaibhav_M", starCount: "201", index: 2,
+  command: "random_crop",
+  description: 
+      `This pipeline operation randomly crops a NxM (height x width) portion of the given dataset. 
+      This is used to randomly extract parts of the image incase we need to remove bias present in image data.`,
+  showDescription:false, showAdvancedOptsDivDataPipeline: false, dataType: "Text", 
+  params: {
+     standard: [
+          {name: "Height", dataType: INT, required: true, commandName: "height"},
+          {name: "Width", dataType: INT, required: true, commandName: "width"},
+          {name: "Channels", dataType: INT, required: true, commandName: "channels"},
+     ],
+     advanced: [
+         {name: "Random Seed", dataType: INT, required: false, commandName: "seed"}
+     ]
+  }
+},
+/* {
+  title: "Random rotate", username: "Vaibhav_M", starCount: "170", index: 3,
+  command: "rotate",
+  description: 
+      `A simple rotation operation to rotate images by a specified angle. All images are rotated by this angle.
+      Such a pipeline operation finds use in the case where an entire dataset is skewed and needs to be normalized.`,
+  showDescription:false, showAdvancedOptsDivDataPipeline: false, dataType: "Something Else", 
+  params: {
+      standard: [
+          {name: "Angle of rotation", dataType: FLOAT, required: true, commandName: "angle_of_rotation"}
+      ]
+  }
+}, */
+{
+  title: "Lee filter", username: "RK_ESA", starCount: "126", index: 4, 
+  command: "lee_filter",
+  description: 
+      `The presence of speckle noise in Synthetic Aperture Radar (SAR) images makes the interpretation of the contents difficult, 
+      thereby degrading the quality of the image. Therefore an efficient speckle noise removal technique, the Lee Filter is used to 
+      smoothen the static-like noise present in these images`,
+  showDescription:false, showAdvancedOptsDivDataPipeline: false, dataType: "Something Else", 
+  params: {
+      standard: [
+          {name: "Intensity", dataType: INT, required: true, commandName: "intensity"}
+      ]
+  }
+}];
+
+export const experiments = [
+  {
+      title: "Resnet 50", username: "Keras", starCount: "243", index: 1,
+      command: "resnet50",
+      description: "ResNet50 is a 50 layer Residual Network.",
+      showDescription:false, showAdvancedOptsDivDataPipeline: false, dataType: "Images", 
+      params: {
+          standard: [
+              {name: "output_path", dataType: STRING, required: true, commandName: "output-path"},
+              {name: "input_height", dataType: INT, required: true, commandName: "height"},
+              {name: "input_width", dataType: INT, required: true, commandName: "width"},
+          ],
+          advanced: [
+              {name: "channels", dataType: INT, required: false, commandName: "channels"},
+              {name: "Use pre-trained", dataType: FLOAT, required: false, commandName: "use-pretrained"},
+              {name: "epochs", dataType: FLOAT, required: false, commandName: "epochs"},
+              {name: "batch-size", dataType: FLOAT, required: false, commandName: "batch-size"}
+          ]
+      }
+  }/* ,
+  {
+      title: "Inception", username: "GoogLeNet", starCount: "201", index: 2,
+      description: "Inception approximates a sparse CNN with a normal dense construction Also, it uses convolutions of different sizes to capture details at varied scales(5X5, 3X3, 1X1).",
+      showDescription:false, showAdvancedOptsDivDataPipeline: false, dataType: "Text", 
+      params: {
+          standard: []
+      }
+  },
+  {
+      title: "VGG16", username: "VGG group", starCount: "170", index: 3,
+      description: "The VGG convolutional layers are followed by 3 fully connected layers. The width of the network starts at a small value of 64 and increases by a factor of 2 after every sub-sampling/pooling layer. It achieves the top-5 accuracy of 92.3 % on ImageNet.",
+      showDescription:false, showAdvancedOptsDivDataPipeline: false, dataType: "Something Else", 
+      params: {
+          standard: []
+      }
+  } */
+];
