@@ -71,11 +71,13 @@ will execute the augmentation file and will create 10 augmeented images for each
 
 1. `images-path`: Path to the location of the dataset. With the current version, it is recommended to use only one directory where all the data exists. The validation-training split is handled by the  `validation-split` parameter and the user does not need to handle it at the directory level
 
-2. `output-path`: Path to the location where the user wants to save the output metrics, the model 
+2. `epochs`: Number of epochs the model should train for.
 
 3. `height`: Height of the image that should be fed into the model. This height is independent of the size of the dataset. The keras `ImageDataGenerator` class handles the resizing of these images.
 
 4. `width`: Width of the image that should be fed into the model.
+
+> Info: The minimum height and width for the resnet model is (30,30). Any value below this will raise an exception.
 
 #### Optional Parameter(s): These parameters have a default value and therefore the script runs using them. Please note that these are still essential to the model and the default values are put in keeping in mind the most standard practices and use cases
 
@@ -83,7 +85,7 @@ will execute the augmentation file and will create 10 augmeented images for each
 
 6. `use-pretrained`: Boolen variable which decided if a pre-trained version of the ResNet50 model should be used. If set to `False`, the model trains from scratch. Default = `True`.
 
-7. `epochs`: Number of epochs the model should train for. Default = `35`.
+7. `output-path`: Path to the location where the user wants to save the output metrics, the model. Default = `.`
 
 8. `batch-size`: Batch size that the `ImageDataGenerator` generates and feeds to the network. This affects the number of steps per epoch also. **Note**: No part of your training or validation set should be smaller than the `batch-size` as this will return 
 an error.  Default = `32`.
@@ -96,6 +98,42 @@ an error.  Default = `32`.
 
 12. loss (str): loss function used to compile model. Default = `categorical_crossentropy`.
 
+
+## U-Net
+
+#### Standard Parameter(s): 
+
+1. `images-path`: Path to the location of the dataset. This should point to the directory where the subfolders are the images and their corresponding labels.
+
+2. `images-name`: Name of the folder which contains the images
+
+3. `mask-name`: Name of the folder which contains the masks/labels corresponding to the images in `images-name`
+
+> Info: Only the name of the folder is required for `--images-name` and `--mask-name` and therefore a / is not required.
+
+4. `epochs`: Number of epochs the model should train for.
+
+
+#### Optional Parameter(s): These parameters have a default value and therefore the script runs using them. Please note that these are still essential to the model and the default values are put in keeping in mind the most standard practices and use cases
+
+5. `steps-per-epoch`: Number of steps per epochs for training
+
+6. `height`: Height of the image that should be fed into the model. This height is independent of the size of the dataset. The keras `ImageDataGenerator` class handles the resizing of these images.
+
+7. `width`: Width of the image that should be fed into the model.
+
+> Info: Do not pass `--height` and --`width` parameters. For the current implementation of the U-Net, these have to be fixed at (256,256). These parameters are left for future implementations.
+
+8. `output-path`: Path to the location where the user wants to save the output metrics, the model. Default = `.`
+
+9. `batch-size`: Batch size that the `ImageDataGenerator` generates and feeds to the network. This affects the number of steps per epoch also. **Note**: No part of your training or validation set should be smaller than the `batch-size` as this will return 
+an error.  Default = `4`.
+
+11. learning-rate (float): Learning rate of the Adam Optimizer. Default = `0.0001`.
+
+12. loss (str): loss function used to compile model. Default = `binary_crossentropy`.
+
+
         
 # Executing the Model scripts
     
@@ -105,13 +143,13 @@ an error.  Default = `32`.
     
 ### Outputs 
 
-1. Model weights: model weights are saved in .h5 format which can be used for later use. They are saved as model-{timestamp}-epochs-{number of epocs}.h5
+1. Model weights: model weights are saved in .h5 format which can be used for later use. They are saved as model_Resnet50_{timestamp}_epochs_{number of epocs}.h5
 2. Figures of metrics: Two plots showing graphical distribution of accuracy vs validation accuracy and loss vs validation loss. They are saved as fig1.png and fig2.png
 3. Json dumps of metrics: Two different json dumps.
-    1. vaibhav_export_batch.json: Showing accuracy and loss as calculated at the end of each batch. Output frequency is too high to be used for graphical represnetation. Closest to realtime
-    2. vaibhav_export_epoch.json: Showing acccuracy, loss, validation accuracy and validation loss as calculated at the end of each epoch. This is the file to be parsed for grapphical representation.
+    1. experiment_batch.json: Showing accuracy and loss as calculated at the end of each batch. Output frequency is too high to be used for graphical represnetation. Closest to realtime
+    2. experiment.json: Showing acccuracy, loss, validation accuracy and validation loss as calculated at the end of each epoch. This is the file to be parsed for grapphical representation.
 
-Format of vaibhav_export_epoch.json:
+Format of experiment.json:
     
         {
             "epoch_number":
@@ -134,3 +172,44 @@ Example:
                 "val_loss": 8.059047736904837
             }
         }
+        
+> Info: All the ouput files will be found in the directory specified by `--output-path`.
+
+
+## U-Net
+
+    python unet.py --images-path ../../PATH_TO_DATA --images-name NAME_OF_FOLDER --mask-name NAME_OF_FOLDER --output-path ../../PATH_TO_OUTPUT --epochs 35 --steps-per-epoch 1000 --batch-size 32 
+    
+### Outputs 
+
+1. Model weights: model weights are saved in .h5 format which can be used for later use. They are saved as model_unet_{timestamp}_epochs_{number of epocs}.h5
+2. Figures of metrics: Two plots showing graphical distribution of accuracy vs validation accuracy and loss vs validation loss. They are saved as fig1.png and fig2.png
+3. Json dumps of metrics: Two different json dumps.
+    1. experiment_batch_unet.json: Showing accuracy and loss as calculated at the end of each batch. Output frequency is too high to be used for graphical represnetation. Closest to realtime
+    2. experiment_unet.json: Showing acccuracy, loss, validation accuracy and validation loss as calculated at the end of each epoch. This is the file to be parsed for grapphical representation.
+
+Format of experiment.json:
+    
+        {
+            "epoch_number":
+            {
+                "acc": Accuracy at end of epoch,
+                "val_acc": Validation Accuracy at end of epoch,
+                "loss": Loss at end of epoch,
+                "val_acc": Validation Loss at end of epoch,
+            }
+        }
+
+Example:
+
+        {
+            "0": 
+            {
+                "acc": 0.48484848484848486,
+                "val_acc": 0.5,
+                "loss": 7.721049770911451,
+                "val_loss": 8.059047736904837
+            }
+        }
+        
+> Info: All the ouput files will be found in the directory specified by `--output-path`.
