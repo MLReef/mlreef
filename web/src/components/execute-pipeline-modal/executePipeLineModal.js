@@ -12,7 +12,7 @@ import {
 
 const fakeMachinesToShow = [
     $.parseHTML("Small CPU - (CPU: 8 cores, RAM 8 GB) - 2&euro; per hour")[0].data,
-    $.parseHTML("Medium CPU - (CPU: 8 cores, RAM 16 GB) - 4&euro; per hour")[0].data
+    $.parseHTML("Small GPU - (CPU: 8 cores, GPU: 1, RAM 16 GB) - 4&euro; per hour")[0].data
 ];
 
 const ExecutePipelineModal = ({
@@ -112,21 +112,24 @@ const ExecutePipelineModal = ({
                                         </ul>
                                     }
                                 </div>
-                                <p style={{fontSize: '0.8em', margin: '5em 0em 0em 3em'}}>Select a hyperparameter tuning method</p>
-                                <div style={{display: 'flex', marginLeft: '1.8em'}}>
-                                    <div style={{display: 'inherit'}}>
-                                        <input id="execution-radio-input-1" type="radio" onChange={() => {}}/>
-                                        <p onClick={() => { $("#execution-radio-input-1").click()}}>Simple execution</p>
+                                {jobName === "model-experiment" && <div>
+                                    <p style={{fontSize: '0.9em', margin: '5em 0em 0em 3em'}}>Select a hyperparameter tuning method:</p>
+                                    <div style={{display: 'flex', marginLeft: '1.8em'}}>
+                                        <div style={{display: 'inherit'}}>
+                                            <input id="execution-radio-input-1" type="radio" onChange={() => {}}/>
+                                            <p onClick={() => { $("#execution-radio-input-1").click()}}>Simple execution</p>
+                                        </div>
+                                        <div style={{display: 'inherit'}}>
+                                            <input id="execution-radio-input-2" type="radio" onChange={() => {}}/>
+                                            <p onClick={() => { $("#execution-radio-input-2").click()}}>Grid search</p>
+                                        </div>
+                                        <div style={{display: 'inherit'}}>
+                                            <input id="execution-radio-input-3" type="radio" onChange={() => {}}/>
+                                            <p onClick={() => { $("#execution-radio-input-3").click()}}>Bayesian</p>
+                                        </div>
                                     </div>
-                                    <div style={{display: 'inherit'}}>
-                                        <input id="execution-radio-input-2" type="radio" onChange={() => {}}/>
-                                        <p onClick={() => { $("#execution-radio-input-2").click()}}>Grid search</p>
-                                    </div>
-                                    <div style={{display: 'inherit'}}>
-                                        <input id="execution-radio-input-3" type="radio" onChange={() => {}}/>
-                                        <p onClick={() => { $("#execution-radio-input-3").click()}}>Bayesian</p>
-                                    </div>
-                                </div>
+                                </div>}
+                                {jobName !== "model-experiment" && <div style={{height: 30}}></div>}
                             </>
                         }
                         <div id="second-option-execution-modal"
