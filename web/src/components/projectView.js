@@ -10,6 +10,7 @@ import { bindActionCreators } from 'redux';
 import * as fileActions from "./../actions/fileActions";
 import * as projectActions from "./../actions/projectInfoActions";
 import "../css/index.css";
+import LoadingModal from "./loading-modal/loadingModal";
 
 class ProjectView extends React.Component {
     constructor(props) {
@@ -26,8 +27,11 @@ class ProjectView extends React.Component {
 
         this.state = {
             selectedProject: project,
-            branch: this.props.match.params.branch
+            branch: this.props.match.params.branch,
+            showLoadingModal: true
         }
+
+        this.setModalVisibility = this.setModalVisibility.bind(this);
     }
 
     componentWillReceiveProps(nextProps) {
@@ -39,6 +43,9 @@ class ProjectView extends React.Component {
         }
     }
 
+    setModalVisibility = (modalVisibility) => 
+        this.setState({showLoadingModal: modalVisibility});
+    
     render() {
         const files = this.props.files;
         const branch = encodeURIComponent(this.state.branch);
@@ -46,6 +53,7 @@ class ProjectView extends React.Component {
         const showReadMe = !window.location.href.includes("path");
         return (
             <div className="project-component">
+                <LoadingModal isShowing={this.state.showLoadingModal}/>
                 <Navbar />
                 <ProjectContainer 
                     project={this.state.selectedProject} 
@@ -68,7 +76,12 @@ class ProjectView extends React.Component {
                         </div>
                     </div>
                     <RepoFeatures info={this.props} />
-                    <FilesContainer projectId={this.state.selectedProject.id} branch={branch} files={files} />
+                    <FilesContainer 
+                        projectId={this.state.selectedProject.id} 
+                        branch={branch} 
+                        files={files} 
+                        setModalVisibility={this.setModalVisibility}
+                    />
                     {showReadMe && <ReadMeComponent project={this.state.selectedProject} branch={branch} />}
                 </div>
             </div >
