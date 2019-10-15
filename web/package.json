@@ -8,6 +8,7 @@
     "babel-core": "^6.26.3",
     "babel-preset-env": "^1.7.0",
     "chart.js": "^2.8.0",
+    "core-js": "^3.2.1",
     "history": "^4.9.0",
     "jquery": "^3.4.1",
     "js-base64": "^2.5.1",
@@ -25,6 +26,7 @@
     "redux": "^4.0.3",
     "redux-persist": "^6.0.0",
     "redux-thunk": "^2.3.0",
+    "regenerator-runtime": "^0.13.3",
     "uuid": "^3.3.3"
   },
   "devDependencies": {

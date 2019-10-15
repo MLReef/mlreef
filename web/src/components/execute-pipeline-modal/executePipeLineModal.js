@@ -66,8 +66,11 @@ const ExecutePipelineModal = ({
                             onClick={ () => {
                                 setIsFirstOptSelected(!isFirstOptSelected);
                                 setIsSecondOptSelected(false);
-                                document.getElementById("paragraph-op1").style.fontWeight = 700;
-                                document.getElementById("paragraph-op2").style.fontWeight = 100;
+                                const po1 = document.getElementById("paragraph-op1");
+                                if(po1){
+                                    po1.style.fontWeight = 700;
+                                    document.getElementById("paragraph-op2").style.fontWeight = 100;
+                                }
                             }}
                         >
                             <input type="radio" checked={isFirstOptSelected} id="show-first-opt" onChange={() => {}}/>
@@ -141,8 +144,11 @@ const ExecutePipelineModal = ({
                                 }
                                 setIsFirstOptSelected(false);
                                 setIsSecondOptSelected(!isSecondOptSelected);
-                                document.getElementById("paragraph-op1").style.fontWeight = 100;
-                                document.getElementById("paragraph-op2").style.fontWeight = 700;
+                                const po1 = document.getElementById("paragraph-op1");
+                                if(po1){
+                                    po1.style.fontWeight = 100;
+                                    document.getElementById("paragraph-op2").style.fontWeight = 700;
+                                }
                             }}
                         >
                             <input type="radio" checked={isSecondOptSelected} onChange={() => {}}/>
