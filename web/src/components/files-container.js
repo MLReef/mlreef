@@ -26,6 +26,7 @@ class FilesContainer extends Component {
     }
 
     window.onpopstate = () => {
+      this.props.setModalVisibility(true);
       this.updateState();
     };
   }
@@ -34,18 +35,27 @@ class FilesContainer extends Component {
     var path = getParamFromUrl("path", window.location.href);
     const res = await Promise.all([callToGetFilesInFolder(path, this.props.branch, this.props.projectId, true)])
     const updatedFiles = await generateNewArrayOfFilesToRender(res[0], this.props.projectId, this.props.branch);
-    this.setState({files: updatedFiles})
+    const filteredFiles = updatedFiles.filter(file => findFolderContainer(file, updatedFiles).length === 0);
+    filteredFiles.forEach(file => {
+      if(file.type === "tree"){
+        file['count'] = getFilesInFolder(file, updatedFiles).length
+      }
+    });
+    this.setState({files: filteredFiles});
+    this.forceUpdate(() => {
+      this.props.setModalVisibility(false)
+    })
   }
     
   componentDidUpdate() {
     const urlPath = getParamFromUrl("path", window.location.href);
 
     if(this.props.branch !== this.state.currentBranch){
-      this.setState({ currentBranch: this.props.branch });
+      this.setState({ currentBranch: this.props.branch, files: [] });
       this.updateState();
     }
     if (urlPath !== this.state.currentPath) {
-      this.setState({ currentPath: urlPath });
+      this.setState({ currentPath: urlPath, files: []});
       this.updateState();
     }
   }
@@ -72,7 +82,8 @@ class FilesContainer extends Component {
   getBack = () => window.history.back()
   
   clickListener(e) {
-    this.updateState()
+    this.props.setModalVisibility(true);
+    this.updateState();
   }
 
   render = () =>
@@ -108,19 +119,13 @@ class FilesContainer extends Component {
           <tbody>
             {this.getReturnOption()}
             {this.state.files.map((file, index) => {
-              if(findFolderContainer(file, this.state.files).length > 0){
-                return null;
-              }
-
               let icon;
               let link;
               var url_string = window.location.href;
               var url = new URL(url_string);
               var path = url.searchParams.get("path");
-              let filesInFolder = null;
 
               if (file.type === "tree") {
-                filesInFolder = getFilesInFolder(file, this.state.files);
                 icon = folderIcon;
                 const basePath = `/my-projects/${this.props.projectId}/files/branch/${this.props.branch}?path=`
                 link = path
@@ -146,7 +151,7 @@ class FilesContainer extends Component {
                     <p>Something</p>
                   </td>
                   <td>
-                    <p>{file.size}KB {filesInFolder && `(${filesInFolder.length})`}</p>
+                    <p>{file.size}KB {file.count && `(${file.count})`}</p>
                   </td>
                   <td>
                     {" "}
