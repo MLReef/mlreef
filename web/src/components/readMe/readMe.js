@@ -3,6 +3,7 @@ import marked from "marked";
 import "./readme.css"
 import { Base64 } from "js-base64";
 import filesApi from "../../apis/FilesApi";
+import DOMPurify from 'dompurify';
 
 class ReadMeComponent extends React.Component {
     constructor(props){
@@ -23,10 +24,6 @@ class ReadMeComponent extends React.Component {
         .then(
             res => this.setState({fileData: res})
         );
-    }
-
-    rawMarkup(content) {
-        return { __html: marked(content, { sanitize: true }) };
     }
 
     render() {
@@ -50,8 +47,14 @@ class ReadMeComponent extends React.Component {
             <div className="readme-content-container readme-style">
                 <div className="readme-content">
                     <p id="project-name-readme">{projectName}</p>
-                    <div id="project-content-readme" dangerouslySetInnerHTML={textContent && this.rawMarkup(textContent)}>
-                    </div>
+                    <div 
+                        id="project-content-readme" 
+                        dangerouslySetInnerHTML={
+                            textContent && {
+                                __html: marked(DOMPurify.sanitize(textContent))
+                            }
+                        } 
+                    />
                 </div>
             </div>
         </div>

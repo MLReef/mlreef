@@ -1,7 +1,7 @@
 import React from "react";
 import star_01 from '../../images/star-01.png';
 import triangle_01 from '../../images/triangle-01.png';
-import ArrowButton from "../arrow-button/arrow-button";
+import ArrowButton from "../arrow-button/arrowButton";
 
 export const DataOperationsList = ({
     handleDragStart, 

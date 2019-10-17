@@ -1,4 +1,4 @@
-import {INT, FLOAT, regExps, BOOL } from "../data-types";
+import {INT, FLOAT, regExps, BOOL } from "../dataTypes";
 
 export const validateInput = (value, dataType, required) => {
     if(required && (typeof(value) === undefined || value.length === 0)) return false

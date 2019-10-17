@@ -1,19 +1,28 @@
 import React, { Component } from "react";
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import * as fileActions from "./../actions/fileActions";
+import * as fileActions from "../actions/fileActions";
 import arrow_down_blue_01 from "./../images/arrow_down_blue_01.svg";
 import plus_01 from "./../images/plus_01.svg";
 import { Link } from "react-router-dom";
 
 class RepoFeatures extends Component {
-  state = {
-    isOpen: false,
-    plusOpen: false,
-    branchSelected: decodeURIComponent(this.props.info.match.params.branch),
-    projectId: null,
-    branches: []
-  };
+  constructor(props){
+    super(props);
+    this.state = {
+      isOpen: false,
+      plusOpen: false,
+      branchSelected: decodeURIComponent(this.props.branch),
+      projectId: this.props.projects.selectedProject.id,
+      branches: []
+    };
+
+    this.props.actions.getBranches("gitlab.com", this.state.projectId)
+      .then(res => res.json())
+      .then(response => {
+        this.setState({ branches: response });
+      });
+  }
 
   branchRef = React.createRef();
   plusRef = React.createRef();
@@ -50,32 +59,17 @@ class RepoFeatures extends Component {
     }));
   };
 
-  componentDidMount() {
-    this.props.actions.getBranches("gitlab.com", this.state.projectId)
-      .then(res => res.json())
-      .then(response => this.setState({ branches: response }));
-  }
-
-  componentWillMount() {
-    this.setState({
-      projectId: window.location.href.split("/my-projects/")[1].split("/")[0]
-    })
-  }
-
   componentWillUnmount() {
     this.setState = (state, callback) => {
       return;
     };
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.info.match.params.branch !== this.props.info.match.params.branch) {
-      const branchSelected = nextProps.info.match.params.branch;
-      this.setState({
-        branchSelected: decodeURIComponent(branchSelected)
-      })
+  static getDerivedStateFromProps = (nextProps, prevState) =>
+    nextProps.branch !== prevState.branchSelected ? {
+      branchSelected: nextProps.branch
     }
-  }
+    : prevState;
 
   handleClick = (e) => {
     this.props.actions.loadFiles(
@@ -86,9 +80,7 @@ class RepoFeatures extends Component {
     );
   }
 
-  render() {
-    const branches = this.state.branches;
-    return (
+  render = () => (
       <>
         <div id="repo-features">
           <div>
@@ -116,7 +108,7 @@ class RepoFeatures extends Component {
                     <div className="branches">
                       <ul>
                         <li className="branch-header">Branches</li>
-                        {branches.filter(branch =>
+                        {this.state.branches.filter(branch =>
                           !branch.name.startsWith("data-pipeline/") &&
                           !branch.name.startsWith("experiment/")
                         ).map((branch) => {
@@ -174,15 +166,12 @@ class RepoFeatures extends Component {
           </div>
         </div>
       </>
-    );
-  }
+  );
 }
 
 function mapStateToProps(state) {
   return {
-    files: state.files,
-    projects: state.projects,
-    file: state.file
+    projects: state.projects
   };
 }
 

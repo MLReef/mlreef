@@ -1,5 +1,5 @@
-import { SECURITY_TOKEN } from "../api-config";
-import { domain } from "../data-types";
+import { SECURITY_TOKEN } from "../apiConfig";
+import { domain } from "../dataTypes";
 /**
  * core-js and regenerator-runtime imports are necessary to make tests run
  */

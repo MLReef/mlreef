@@ -1,13 +1,13 @@
 import React from "react";
-import ProjectContainer from "./projectContainer";
-import "../css/file-view.css";
+import ProjectContainer from "./../projectContainer";
+import "./fileView.css";
 import { connect } from "react-redux";
 import { Base64 } from "js-base64";
-import CommitsApi from "./../apis/CommitsApi";
-import Navbar from "./navbar/navbar";
-import file_01 from "./../images/file_01.svg";
-import arrow_blue from "./../images/arrow_down_blue_01.svg";
-import filesApi from "../apis/FilesApi";
+import CommitsApi from "./../../apis/CommitsApi";
+import Navbar from "./../navbar/navbar";
+import file_01 from "./../../images/file_01.svg";
+import arrow_blue from "./../../images/arrow_down_blue_01.svg";
+import filesApi from "./../../apis/FilesApi";
 
 class FileView extends React.Component {
   state = {
