@@ -1,17 +1,17 @@
 import React from 'react';
-import plus from '../../images/plus_01.svg';
-import '../pipeline-view/pipe-line-view.css';
-import Navbar from "../navbar/navbar";
-import Input from '../input';
-import ProjectContainer from '../projectContainer';
-import {SortableDataOperationsList} from '../pipeline-view/sortable-data-operation-list';
-import SelectDataPipelineModal from "../select-data-pipeline/select-data-pipeline-modal";
-import {DataOperationsList} from '../pipeline-view/data-operations-list';
-import {Instruction} from "../instruction/instruction";
+import plus from './../images/plus_01.svg';
+import './pipeline-view/pipelineView.css';
+import Navbar from "./navbar/navbar";
+import Input from './input/input';
+import ProjectContainer from './projectContainer';
+import {SortableDataOperationsList} from './pipeline-view/sortableDataOperationList';
+import SelectDataPipelineModal from "./select-data-pipeline/selectDataPipelineModal";
+import {DataOperationsList} from './pipeline-view/dataOperationsList';
+import {Instruction} from "./instruction/instruction";
 import uuidv1 from 'uuid/v1';
-import ExecutePipelineModal from "./../execute-pipeline-modal/executePipeLineModal";
-import withPipelineExecution from '../withPipelinesExecution';
-import { experiments } from './../../data-types';
+import ExecutePipelineModal from "./execute-pipeline-modal/executePipeLineModal";
+import withPipelineExecution from './withPipelinesExecution';
+import { experiments } from '../dataTypes';
 
 const NewExperiment = ({...props}) => {
     const project = props.project;

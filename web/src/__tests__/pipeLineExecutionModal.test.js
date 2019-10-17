@@ -19,7 +19,3 @@ test('The machines list should be displayed when dropdown button is clicked', ()
   wrapper.find("button.arrow-button").simulate("click");
   expect(wrapper.find("#machines-list")).toHaveLength(1);
 });
-
-/* test('Assert if command generation from operations selected works properly', () => {
-  
-}); */

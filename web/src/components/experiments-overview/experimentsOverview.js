@@ -1,21 +1,21 @@
 import React, {Component} from "react";
 import ReactDOM from 'react-dom';
-import Navbar from "./navbar/navbar";
-import ProjectContainer from "./projectContainer";
-import "../css/experiments-overview.css";
+import Navbar from "../navbar/navbar";
+import ProjectContainer from "../projectContainer";
+import "./experimentsOverview.css";
 import $ from "jquery";
-import traiangle01 from './../images/triangle-01.png';
+import traiangle01 from './../../images/triangle-01.png';
 import {Line} from "react-chartjs-2";
 import {connect} from "react-redux";
-import ArrowButton from "./arrow-button/arrow-button";
+import ArrowButton from "../arrow-button/arrowButton";
 import {Link} from "react-router-dom";
-import filesApi from "./../apis/FilesApi";
-import snippetApi from "./../apis/SnippetApi";
-import pipelinesApi from "./../apis/PipelinesApi";
+import filesApi from "../../apis/FilesApi";
+import snippetApi from "../../apis/SnippetApi";
+import pipelinesApi from "../../apis/PipelinesApi";
 import {
     getTimeCreatedAgo,
     generateSummarizedInfo
-} from "../functions/dataParserHelpers";
+} from "../../functions/dataParserHelpers";
 import {
     colorsForCharts,
     SKIPPED,
@@ -24,19 +24,20 @@ import {
     CANCELED,
     FAILED,
     PENDING
-} from './../data-types';
+} from '../../dataTypes';
 import {toastr} from 'react-redux-toastr';
+import uuidv1 from 'uuid/v1';
 
 const DataCard = ({title, linesOfContent}) => <div className="data-card">
     <div className="title">
         <p><b>{title}</b></p>
     </div>
     <div>
-        {linesOfContent.map((line) => {
+        {linesOfContent.map((line, index) => {
                 const lineContent = line.startsWith("*")
                     ? <b>{line.replace("*", "")}</b>
                     : line;
-                return <p className="line">{lineContent}</p>;
+                return <p key={`data-card-${title}-line-cont-${index}`} className="line">{lineContent}</p>;
             }
         )}
     </div>
@@ -57,49 +58,46 @@ class ExperimentCard extends React.Component {
 
     getButtonsDiv(experimentState, index) {
         let buttons;
+        const uniqueCode = uuidv1();
+        const arrowBtn = <ArrowButton
+            imgPlaceHolder={traiangle01}
+            callback={this.handleArrowDownButtonClick}
+            params={{"ind": index}}
+            id={`ArrowButton-${index}`}
+            key={`ArrowButton-${uniqueCode}-${index}`}
+        />
         if (experimentState === RUNNING || experimentState === PENDING) {
             buttons = [
-                <ArrowButton
-                    imgPlaceHolder={traiangle01}
-                    callback={this.handleArrowDownButtonClick}
-                    params={{"ind": index}}
-                />,
-                <button className="dangerous-red" style={{width: 'max-content'}}><b> Abort </b></button>];
+                arrowBtn,
+                <button key={`dangerous-red-${uniqueCode}`} className="dangerous-red" style={{width: 'max-content'}}><b> Abort </b></button>
+            ];
         } else if (experimentState === SKIPPED) {
             buttons = [
-                <ArrowButton
-                    imgPlaceHolder={traiangle01}
-                    callback={this.handleArrowDownButtonClick}
-                    params={{"ind": index}}
-                />,
-                <button className="dangerous-red"><b>X</b></button>,
-                <button className="light-green-button experiment-button non-active-black-border"
-                        style={{width: '100px'}}
+                arrowBtn,
+                <button key={`dangerous-red-${uniqueCode}`} className="dangerous-red"><b>X</b></button>,
+                <button
+                    key={`deploy-${uniqueCode}`}
+                    className="light-green-button experiment-button non-active-black-border"
+                    style={{width: '100px'}}
                 ><b>Resume</b>
                 </button>
             ];
         } else if (experimentState === SUCCESS || experimentState === FAILED) {
             buttons = [
-                <ArrowButton
-                    imgPlaceHolder={traiangle01}
-                    callback={this.handleArrowDownButtonClick}
-                    params={{"ind": index}}
-                />,
-                <button className="dangerous-red"><b>X</b></button>,
-                <button className="light-green-button experiment-button non-active-black-border"
-                        style={{width: '100px'}}
+                arrowBtn,
+                <button key={`dangerous-red-${uniqueCode}`} className="dangerous-red"><b>X</b></button>,
+                <button
+                    key={`deploy-${uniqueCode}`}
+                    className="light-green-button experiment-button non-active-black-border"
+                    style={{width: '100px'}}
                 >
                     <b>Deploy</b>
                 </button>
             ];
         } else if (experimentState === CANCELED) {
             buttons = [
-                <ArrowButton
-                    imgPlaceHolder={traiangle01}
-                    callback={this.handleArrowDownButtonClick}
-                    params={{"ind": index}}
-                />,
-                <button className="dangerous-red"><b>X</b></button>
+                arrowBtn,
+                <button key={`dangerous-red-${uniqueCode}`} className="dangerous-red"><b>X</b></button>
             ];
         }
         return (<div className="buttons-div">{buttons}</div>)
@@ -167,7 +165,7 @@ class ExperimentCard extends React.Component {
             }
         }).catch(
             err => {
-                console.log(err);
+                console.log(err)
                 toastr.warning('Wait', 'No data has been generated for this experiment yet');
             }
         );
@@ -217,7 +215,10 @@ class ExperimentCard extends React.Component {
                         progressVisibility = "hidden";
                     }
                     return (
-                        <div className="card-content">
+                        <div 
+                            key={`${experiment.timeCreatedAgo}-${experiment.descTitle}-${index}`} 
+                            className="card-content"
+                        >
                             <div className="summary-data">
                                 <div className="project-desc-experiment">
                                     <p><b>{experiment.descTitle}</b></p>
@@ -245,8 +246,8 @@ class ExperimentCard extends React.Component {
                                 <div className="content">
                                     <p><b>Performace achieved from last epoch:</b></p>
                                     {
-                                        experiment.averageParams.map((opt) =>
-                                            <p> {`${opt.name}: ${opt.value}`} </p>
+                                        experiment.averageParams.map((opt, index) =>
+                                            <p key={`${opt.name}-${index}`}> {`${opt.name}: ${opt.value}`} </p>
                                         )
                                     }
                                 </div>
@@ -388,22 +389,24 @@ class ExperimentsOverview extends Component {
                             </b>
                         </Link>
                     </div>
-                    {this.state.experiments.map((experiment) =>
-                        experiment && <ExperimentCard params={{
-                            "project": project,
-                            "currentState": experiment.status,
-                            "experiments": [{
+                    {this.state.experiments.map((experiment, index) =>
+                        experiment && <ExperimentCard 
+                            key={`${experiment.name}-${index}`}
+                            params={{
+                                "project": project,
                                 "currentState": experiment.status,
-                                "descTitle": experiment.name,
-                                "userName": experiment.commit.author_name,
-                                "percentProgress": "100",
-                                "eta": "0",
-                                "modelTitle": "Resnet 50",
-                                "timeCreatedAgo": getTimeCreatedAgo(experiment.commit.created_at),
-                                "averageParams": [],
-                                "data": {}
-                            }]
-                        }}
+                                "experiments": [{
+                                    "currentState": experiment.status,
+                                    "descTitle": experiment.name,
+                                    "userName": experiment.commit.author_name,
+                                    "percentProgress": "100",
+                                    "eta": "0",
+                                    "modelTitle": "Resnet 50",
+                                    "timeCreatedAgo": getTimeCreatedAgo(experiment.commit.created_at),
+                                    "averageParams": [],
+                                    "data": {}
+                                }]
+                            }}
                         />
                     )}
                 </div>

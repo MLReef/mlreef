@@ -1,7 +1,7 @@
 import React from "react";
-import Navbar from "./navbar/navbar";
-import ProjectSet from "./projectSet";
-import "../css/project-overview.css";
+import Navbar from "../navbar/navbar";
+import ProjectSet from "../projectSet";
+import "./myProjects.css";
 
 class Myprojects extends React.Component {
   state = {

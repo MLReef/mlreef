@@ -1,6 +1,6 @@
 import React from "react";
 import $ from 'jquery';
-import "./arrow-button.css";
+import "./arrowButton.css";
 
 const ArrowButton = ({placeholder, callback, params, imgPlaceHolder, id}) => {
     
@@ -21,7 +21,9 @@ const ArrowButton = ({placeholder, callback, params, imgPlaceHolder, id}) => {
 
     return (
         <div className="dropdown-btn-container-div">
-            <button id={id}
+            <button 
+                id={id}
+                key={id}
                 className="arrow-button dropdown white-button" 
                 onClick={(e) => {handleDropDownClick(e)}} 
                 style={{

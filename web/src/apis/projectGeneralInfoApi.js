@@ -1,4 +1,4 @@
-import { SECURITY_TOKEN } from "../api-config";
+import { SECURITY_TOKEN } from "../apiConfig";
 
 export default class ProjectGeneralInfoApi {
     static async getProjectInfoApi(projectId, domain = "gitlab.com") {

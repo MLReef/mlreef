@@ -1,5 +1,5 @@
 import {toastr} from 'react-redux-toastr';
-import { BOOL, mlreefFileContent } from "./../data-types";
+import { BOOL, mlreefFileContent } from "../dataTypes";
 import { validateInput } from './validations'
 import branchesApi from "../apis/BranchesApi";
 import { callToCommitApi } from "./apiCalls";

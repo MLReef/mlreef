@@ -1,11 +1,11 @@
 import React from 'react';
 import { SortableContainer, SortableElement } from 'react-sortable-hoc';
-import Input from '../input';
+import Input from '../input/input';
 import triangle_01 from '../../images/triangle-01.png';
-import ArrowButton from "../arrow-button/arrow-button";
+import ArrowButton from "../arrow-button/arrowButton";
 import $ from 'jquery';
 import advice_01 from '../../images/advice-01.png';
-import { BOOL, errorMessages } from "../../data-types";
+import { BOOL, errorMessages } from "../../dataTypes";
 
 const SortableDataOperationItem = SortableElement(({ value }) => {
     const index = value.index++;

@@ -1,5 +1,5 @@
 import * as types from './actionTypes';
-import { SECURITY_TOKEN } from "../api-config";
+import { SECURITY_TOKEN } from "../apiConfig";
 import commitsApi from "./../apis/CommitsApi";
 
 export function getCommitInfoSuccessfully(commitData) {

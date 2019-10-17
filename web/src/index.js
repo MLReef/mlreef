@@ -1,11 +1,11 @@
 import React from "react";
 import ReactDOM from "react-dom";
-import "./css/global-styles.css";
+import "./css/globalStyles.css";
 import { Provider } from "react-redux";
 import { getProjectsList } from "./actions/projectInfoActions";
 import { PersistGate } from 'redux-persist/integration/react';
 import { persistStore, persistReducer } from 'redux-persist'
-import RouterComp from "./Router";
+import RouterComp from "./router";
 import rootReducer from "./reducers/index";
 import storage from 'redux-persist/lib/storage' // defaults to localStorage for web
 import { createStore, applyMiddleware } from "redux";

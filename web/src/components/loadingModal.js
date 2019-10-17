@@ -1,8 +1,7 @@
 import React from "react";
-import loading from './../../images/loading.gif'
-import "../../css/global-styles.css";
-import "../../css/generic-modal.css";
-import './../../css/global-styles.css';
+import loading from './../images/loading.gif'
+import "../css/globalStyles.css";
+import "../css/genericModal.css";
 
 const LoadingModal = ({isShowing}) =>
     isShowing 

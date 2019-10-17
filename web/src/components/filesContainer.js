@@ -49,11 +49,11 @@ class FilesContainer extends Component {
     
   componentDidUpdate() {
     const urlPath = getParamFromUrl("path", window.location.href);
-
     if(this.props.branch !== this.state.currentBranch){
       this.setState({ currentBranch: this.props.branch, files: [] });
       this.updateState();
     }
+
     if (urlPath !== this.state.currentPath) {
       this.setState({ currentPath: urlPath, files: []});
       this.updateState();

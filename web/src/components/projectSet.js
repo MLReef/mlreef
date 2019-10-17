@@ -3,8 +3,7 @@ import { connect } from "react-redux";
 import star_01 from "./../images/star_01.svg";
 import fork_01 from "./../images/fork_01.svg";
 import { Link } from "react-router-dom";
-import projectGeneralInfoApi from "../apis/projectGeneralInfoApi"
-import "../css/project-overview.css";
+import projectGeneralInfoApi from "../apis/projectGeneralInfoApi";
 
 class ProjectSet extends React.Component {
   state = {

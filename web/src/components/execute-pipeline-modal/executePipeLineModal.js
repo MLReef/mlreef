@@ -1,11 +1,10 @@
 import React, { useState } from 'react';
 import "./executePipeLineModal.css";
-import "../../css/global-styles.css";
-import "../../css/generic-modal.css";
-import ArrowButton from '../arrow-button/arrow-button';
+import "../../css/globalStyles.css";
+import "../../css/genericModal.css";
+import ArrowButton from '../arrow-button/arrowButton';
 import traiangle01 from '../../images/triangle-01.png';
 import $ from 'jquery';
-import './../../css/global-styles.css';
 import {
     createPipelineInProject
 } from './../../functions/pipeLinesHelpers';

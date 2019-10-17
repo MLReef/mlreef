@@ -1,12 +1,12 @@
 import React, {Component} from 'react';
 import PropTypes from 'prop-types';
-import "../../css/generic-modal.css";
-import "./select-data-pipeline-modal.css";
-import Input from "../input";
+import "../../css/genericModal.css";
+import "./selectDataPipelineModal.css";
+import Input from "../input/input";
 import folderIcon from "../../images/folder_01.svg";
 import fileIcon from "../../images/file_01.svg";
 import traiangle01 from "../../images/triangle-01.png";
-import ArrowButton from "../arrow-button/arrow-button";
+import ArrowButton from "../arrow-button/arrowButton";
 
 class SelectDataPipelineModal extends Component {
     constructor(props){
@@ -22,13 +22,13 @@ class SelectDataPipelineModal extends Component {
 
     Branches = ["Master", "feature/28-repo", "feature/41-pipeline"];
 
-    componentWillReceiveProps(nextProps){
-        this.setState({
+    static getDerivedStateFromProps = (nextProps) => {
+        return {
             files: nextProps.files,
             show: nextProps.show
-        });
+        }
     }
-
+    
     handleCloseButton(e){
         this.props.selectDataClick();
         document.getElementsByTagName("body").item(0).style.overflow = 'scroll';

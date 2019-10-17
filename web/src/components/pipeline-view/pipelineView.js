@@ -1,16 +1,16 @@
 import React from 'react';
 import plus from '../../images/plus_01.svg';
-import './pipe-line-view.css';
+import './pipelineView.css';
 import Navbar from "../navbar/navbar";
-import Input from '../input';
+import Input from '../input/input';
 import ProjectContainer from '../projectContainer';
-import {SortableDataOperationsList} from './sortable-data-operation-list';
-import SelectDataPipelineModal from "../select-data-pipeline/select-data-pipeline-modal";
-import { DataOperationsList } from './data-operations-list';
+import {SortableDataOperationsList} from './sortableDataOperationList';
+import SelectDataPipelineModal from "../select-data-pipeline/selectDataPipelineModal";
+import { DataOperationsList } from './dataOperationsList';
 import { Instruction } from '../instruction/instruction';
 import ExecutePipelineModal from '../execute-pipeline-modal/executePipeLineModal';
 import withPipelineExecution from '../withPipelinesExecution';
-import {dataPipeLines} from "./../../data-types";
+import {dataPipeLines} from "../../dataTypes";
 import uuidv1 from 'uuid/v1';
 
 const PipeLineView = ({...props}) => {

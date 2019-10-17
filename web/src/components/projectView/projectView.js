@@ -1,16 +1,16 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import ReadMeComponent from './readMe/readMe'
-import ProjectContainer from './projectContainer';
-import FilesContainer from './files-container';
-import RepoInfo from './repo-info';
-import RepoFeatures from './repo-features';
-import Navbar from './navbar/navbar';
+import ReadMeComponent from '../readMe/readMe'
+import ProjectContainer from '../projectContainer';
+import FilesContainer from '../filesContainer';
+import RepoInfo from '../repoInfo';
+import RepoFeatures from '../repoFeatures';
+import Navbar from '../navbar/navbar';
 import { bindActionCreators } from 'redux';
-import * as fileActions from "./../actions/fileActions";
-import * as projectActions from "./../actions/projectInfoActions";
-import "../css/index.css";
-import LoadingModal from "./loading-modal/loadingModal";
+import * as fileActions from "../../actions/fileActions";
+import * as projectActions from "../../actions/projectInfoActions";
+import "./../../css/index.css";
+import LoadingModal from "../loadingModal";
 
 class ProjectView extends React.Component {
     constructor(props) {
@@ -34,14 +34,12 @@ class ProjectView extends React.Component {
         this.setModalVisibility = this.setModalVisibility.bind(this);
     }
 
-    componentWillReceiveProps(nextProps) {
-        if (nextProps.match.params.branch !== this.props.match.params.branch) {
-            const branchSelected = nextProps.match.params.branch;
-            this.setState({
-                branch: decodeURIComponent(branchSelected)
-            })
-        }
-    }
+    static getDerivedStateFromProps = (nextProps, prevState) =>
+        nextProps.match.params.branch !== prevState.branch 
+            ? { 
+                branch: decodeURIComponent(nextProps.match.params.branch) 
+            }
+            : prevState;
 
     setModalVisibility = (modalVisibility) => 
         this.setState({showLoadingModal: modalVisibility});
@@ -75,7 +73,10 @@ class ProjectView extends React.Component {
                             <p>PR_ID</p>
                         </div>
                     </div>
-                    <RepoFeatures info={this.props} />
+                    <RepoFeatures 
+                        projectId={this.state.selectedProject.id} 
+                        branch={branch}
+                    />
                     <FilesContainer 
                         projectId={this.state.selectedProject.id} 
                         branch={branch} 
@@ -93,7 +94,6 @@ function mapStateToProps(state) {
     return {
         files: state.files,
         projects: state.projects,
-        file: state.file,
         selectedProject: state.selectedProject
     };
 
