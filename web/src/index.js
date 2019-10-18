@@ -5,7 +5,7 @@ import { Provider } from "react-redux";
 import { getProjectsList } from "./actions/projectInfoActions";
 import { PersistGate } from 'redux-persist/integration/react';
 import { persistStore, persistReducer } from 'redux-persist'
-import RouterComp from "./router";
+import RouterComp from "./routerComp";
 import rootReducer from "./reducers/index";
 import storage from 'redux-persist/lib/storage' // defaults to localStorage for web
 import { createStore, applyMiddleware } from "redux";
