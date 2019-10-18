@@ -1,4 +1,5 @@
 stages:
+  - build
   - deploy
   - teardown
 
@@ -9,6 +10,7 @@ variables:
 
 provision-dispatcher:
   stage: deploy
+  when: always                                         # provision-dispatcher must be independent of "build" and "test"
   image: registry.gitlab.com/systemkern/s5:latest-aws  # based on python:3-slim
   variables:
     #EC2_IMAGE_AMI: "ami-0ac05733838eabc06"            # ubuntu/images/hvm-ssd/ubuntu-bionic-18.04-amd64-server-20190722.1
@@ -64,3 +66,17 @@ decomission:
   except:
     refs:
       - master
+
+
+service-backend-build:
+  stage: build
+  image: java:8
+  script:
+    - ./gradlew build
+    - ./gradlew :mlreef-rest:bootJar
+  only:
+    changes:
+      - build.gradle
+      - mlreef-domain/**/*
+      - mlreef-rest/**/*
+
