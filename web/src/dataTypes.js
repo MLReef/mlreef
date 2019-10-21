@@ -164,3 +164,23 @@ export const experiments = [
       }
   } */
 ];
+
+
+export const dataVisualizations = [
+    {
+        title: "t-SNE", username: "Vaibhav_M", starCount: "301", index: 1,
+        command: "tsne",
+        description:
+            `No description yet`,
+        showDescription: false, showAdvancedOptsDivDataPipeline: false, dataType: "Images",
+        params: {
+            standard: [{ name: "Output path", dataType: INT, required: true, commandName: "output_path" }],
+            advanced: [
+                {name: "num_dimensions", dataType: INT, required: false, commandName: "num_dimensions"},
+                {name: "perplexity", dataType: FLOAT, required: false, commandName: "perplexity"},
+                {name: "learning_rate", dataType: FLOAT, required: false, commandName: "learning_rate"},
+                {name: "max_iter", dataType: FLOAT, required: false, commandName: "max_iter"}
+            ]
+        }
+    }
+]
