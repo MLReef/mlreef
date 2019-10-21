@@ -23,9 +23,11 @@ import {
     SUCCESS,
     CANCELED,
     FAILED,
-    PENDING
+    PENDING,
+    filesForExperimentsDetails
 } from '../../dataTypes';
 import {toastr} from 'react-redux-toastr';
+import ExperimentDetails from './../experiment-details/experimentDetails';
 import uuidv1 from 'uuid/v1';
 
 const DataCard = ({title, linesOfContent}) => <div className="data-card">
@@ -221,9 +223,21 @@ class ExperimentCard extends React.Component {
                         >
                             <div className="summary-data">
                                 <div className="project-desc-experiment">
-                                    <p><b>{experiment.descTitle}</b></p>
+                                    <button 
+                                        onClick={() => {
+                                            this.props.setSelectedExperiment(experiment);
+                                        }}
+                                        style={{
+                                            border: 'none', 
+                                            backgroundColor: 'transparent', 
+                                            marginTop: 7, 
+                                            padding: 0
+                                        }}
+                                    >
+                                        <b>{experiment.descTitle}</b>
+                                    </button>
                                     <p>Created by <b>{experiment.userName}</b><br/>
-                                        {experiment.timeCreatedAgo} ago
+                                        {getTimeCreatedAgo(experiment.timeCreatedAgo)} ago
                                     </p>
                                 </div>
                                 <div className="project-desc-experiment" style={{visibility: progressVisibility}}>
@@ -304,8 +318,11 @@ class ExperimentsOverview extends Component {
         this.state = {
             project: project,
             branches: [],
-            experiments: []
+            experiments: [],
+            selectedExperiment: null
         };
+
+        this.setSelectedExperiment = this.setSelectedExperiment.bind(this);
 
         filesApi.getBranches("gitlab.com", project.id)
             .then(res => res.json())
@@ -343,6 +360,9 @@ class ExperimentsOverview extends Component {
         e.target.classList.remove("non-active-black-border");
     }
 
+    setSelectedExperiment = (experiment) =>
+        this.setState({selectedExperiment: experiment});
+
     render() {
         const project = this.state.project;
         return (
@@ -356,10 +376,12 @@ class ExperimentsOverview extends Component {
                 <br/>
                 <br/>
                 <div className="main-content">
-                    <br/>
-                    <div id="line"/>
-                    <br/>
-                    <div id="buttons-container">
+                    {this.state.selectedExperiment === null && <>
+                        <br/>
+                        <div id="line"/>
+                        <br/>
+                    </>}
+                    {this.state.selectedExperiment === null && <div id="buttons-container">
                         <button id="all" className="non-active-black-border experiment-button"
                                 onClick={(e) => this.handleButtonsClick(e)}>
                             All
@@ -388,8 +410,8 @@ class ExperimentsOverview extends Component {
                                 New experiment
                             </b>
                         </Link>
-                    </div>
-                    {this.state.experiments.map((experiment, index) =>
+                    </div>}
+                    {this.state.selectedExperiment === null && this.state.experiments.map((experiment, index) =>
                         experiment && <ExperimentCard 
                             key={`${experiment.name}-${index}`}
                             params={{
@@ -402,13 +424,21 @@ class ExperimentsOverview extends Component {
                                     "percentProgress": "100",
                                     "eta": "0",
                                     "modelTitle": "Resnet 50",
-                                    "timeCreatedAgo": getTimeCreatedAgo(experiment.commit.created_at),
+                                    "timeCreatedAgo": experiment.commit.created_at,
                                     "averageParams": [],
                                     "data": {}
                                 }]
                             }}
+                            setSelectedExperiment={this.setSelectedExperiment}
                         />
                     )}
+                    {this.state.selectedExperiment && 
+                        <ExperimentDetails 
+                            setNullExperiment={this.setSelectedExperiment}
+                            experiment={this.state.selectedExperiment} 
+                            files={filesForExperimentsDetails}
+                        />
+                    }
                 </div>
                 <br/>
                 <br/>
