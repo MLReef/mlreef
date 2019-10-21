@@ -14,6 +14,7 @@ import NewExperiment from "./components/newExperiment";
 import DataInstanceOverview from "./components/data-instance/dataInstanceOverview";
 import DataInstanceDetails from "./components/data-instance/dataInstanceDetails";
 import EmptyDataVisualization from "./components/data-visualization/dataVisualization";
+import ExperimentDetails from "./components/experiment-details/experimentDetails";
 
 const RouterComp = () => (
     <BrowserRouter>
@@ -32,6 +33,7 @@ const RouterComp = () => (
                 exact
                 component={ExperimentsOverview}
             />
+            <PrivateRoute path="/my-projects/:projectId/experiment-details/:experimentId" exact component={ExperimentDetails} />
             <PrivateRoute path="/my-projects/:projectId/:branch" exact component={projectView} />
             <PrivateRoute
                 path="/my-projects/:projectId/files/branch/:branch/file-name/:file"
