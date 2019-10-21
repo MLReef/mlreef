@@ -184,3 +184,22 @@ export const dataVisualizations = [
         }
     }
 ]
+
+
+export const filesForExperimentsDetails = [
+    {
+        param: "param1", 
+        value: "value1",
+        description: "description"
+    },
+    {
+        param: "param2", 
+        value: "value2",
+        description: "description"
+    },
+    {
+        param: "param2", 
+        value: "value3",
+        description: "description"
+    }
+]
