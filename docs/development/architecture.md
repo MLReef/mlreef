@@ -32,10 +32,14 @@ There are some key requirements and system constraints that have a significant b
   Currently those include Python and Tensorflow
 - A on-premise installation shall be possible
 
+To better understand some of the choices made please read the  [designd decisions documentation](docs/development/design_decisions.md).
+
 
 Simplified Component Overview
 ----------------------------------
 This is a simplified architecture diagram that can be used to understand MLReef’s architecture.
 
 ![(container-diagram.json](container-diagram.png)
+
 _Fig 1: container level diagram of the MLReef system architecture_
+

@@ -29,22 +29,15 @@ MLReef is SaaS application that runs on the following software
 - Gitlab 12.1
 - Git 2.8.4+
 - Docker
-- Custom developed micro-services will be implemented in Kotlin and run on the JVM unless there are legitimate or
-  pressing reasons to use a different Technology.
-- Lambda functions will also be developed in Kotlin and run either on the JVM or as Javascript unless there are legitimate
-  or pressing reasons to use a different Technology.
-- The Git backend will be provided by the platform Gitlab-ce platform.
-  Gitlab already offers a lot of necessary functionality and is extendible via a well-documented REST API.
-  Gitlab is developed in Ruby on Rails and completely open source - which gives us the flexibility in the future to
-  modify it for our needs. Direct programmatical access to the repositories can be gained through Gitlab's _Gitaly_ service
-
-
-
-For more information please see the [architecture documentation](docs/development/architecture.md).
 
 The Web Frontend is implemented with the following technologies and frameworks
 - Javascript/Typescript
 - ReactJS 
+
+To better understand some of the choices made please read the  [designd decisions documentation](docs/development/design_decisions.md).
+
+For more information please see the [architecture documentation](docs/development/architecture.md).
+
 
 
 ## Gitlab Runners 
