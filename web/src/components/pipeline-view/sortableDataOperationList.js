@@ -9,6 +9,17 @@ import { BOOL, errorMessages } from "../../dataTypes";
 
 const SortableDataOperationItem = SortableElement(({ value }) => {
     const index = value.index++;
+
+    function handleSelectClick(value, advancedParamIndex, newBoolValue){
+        $(`#advanced-drop-down-${value.index}-param-${advancedParamIndex}`).click();
+        $(`#paragraph-op-${value.index}-value-${advancedParamIndex}`).text(newBoolValue ? "Yes" : "No");
+        document
+            .getElementById(
+                `ad-hidden-input-advanced-drop-down-${value.index}-param-${advancedParamIndex}`
+            )
+            .value = newBoolValue
+    }
+
     return (
         <span key={`data-operations-item-selected-${index}`} style={{ height: 'auto', display: 'flex', alignItems: 'center' }}>
             <p style={{ marginRight: '15px' }}><b>Op. {value.index}:</b></p>
@@ -70,28 +81,30 @@ const SortableDataOperationItem = SortableElement(({ value }) => {
                             <div id={`advanced-opts-div-${value.index}`} className="advanced-opts-div" style={{ display: 'none' }}>
                                 {value.params.advanced.map((advancedParam, advancedParamIndex) =>
                                     advancedParam.dataType === BOOL
-                                        ? <div style={{ display: 'flex' }}>
-                                            <p>{advancedParam.name}: </p>
+                                        ? <div style={{ display: 'flex'}}>
+                                            <p style={{width: '14em'}}>{advancedParam.name}: </p>
                                             <div>
                                                 <input
                                                     id={`ad-hidden-input-advanced-drop-down-${value.index}-param-${advancedParamIndex}`}
                                                     style={{ display: 'none' }}
                                                     onChange={(e) => { }}
                                                 />
+                                                <div style={{display: 'flex'}}>
                                                 <ArrowButton
                                                     id={`advanced-drop-down-${value.index}-param-${advancedParamIndex}`}
-                                                    placeholder={"Choose value"}
                                                     imgPlaceHolder={triangle_01}
                                                     params={{ index: value.index }}
                                                     callback={() => {
-                                                        const el = document.getElementById(`options-for-bool-select-${value.index}`);
+                                                        const el = document.getElementById(`options-for-bool-select-${advancedParamIndex}`);
 
                                                         el.style.display = el.style.display === "none"
                                                             ? "unset"
                                                             : "none";
                                                     }}
                                                 />
-                                                <div style={{ display: 'none' }} id={`options-for-bool-select-${value.index}`}>
+                                                <p id={`paragraph-op-${value.index}-value-${advancedParamIndex}`}>Choose value</p>
+                                                </div>
+                                                <div style={{ display: 'none' }} id={`options-for-bool-select-${advancedParamIndex}`}>
                                                     <ul style={{
                                                         boxShadow: '0 2px 4px rgb(0, 0, 0, 0.3)',
                                                         display: 'block !important',
@@ -104,32 +117,17 @@ const SortableDataOperationItem = SortableElement(({ value }) => {
                                                     >
                                                         <li>
                                                             <button style={{ border: 'none', backgroundColor: 'transparent' }}
-                                                                onClick={(e) => {
-                                                                    $(`#advanced-drop-down-${value.index}-param-${advancedParamIndex}`).click();
-
-                                                                    document
-                                                                        .getElementById(
-                                                                            `ad-hidden-input-advanced-drop-down-${value.index}-param-${advancedParamIndex}`
-                                                                        )
-                                                                        .value = true
-                                                                }}
+                                                                onClick={(e) => handleSelectClick(value, advancedParamIndex, true)}
                                                             >
                                                                 Yes
-                                                                    </button>
+                                                            </button>
                                                         </li>
                                                         <li>
                                                             <button style={{ border: 'none', backgroundColor: 'transparent' }}
-                                                                onClick={(e) => {
-                                                                    $(`#advanced-drop-down-${value.index}`).click();
-                                                                    document
-                                                                        .getElementById(
-                                                                            `ad-hidden-input-advanced-drop-down-${value.index}-param-${advancedParamIndex}`
-                                                                        )
-                                                                        .value = false
-                                                                }}
+                                                                onClick={(e) => handleSelectClick(value, advancedParamIndex, false)}
                                                             >
                                                                 No
-                                                                    </button>
+                                                            </button>
                                                         </li>
                                                     </ul>
                                                 </div>
@@ -140,9 +138,15 @@ const SortableDataOperationItem = SortableElement(({ value }) => {
                                         <>
                                             <div style={{ display: 'flex' }}>
                                                 <p style={{ width: '14em' }}>{advancedParam.name}: </p>
-                                                <Input id={`ad-param-${advancedParamIndex}-item-data-operation-form-${value.index}`} />
+                                                <Input 
+                                                    id={`ad-param-${advancedParamIndex}-item-data-operation-form-${value.index}`}
+                                                    placeholder={advancedParam.standardValue}
+                                                />
                                             </div>
-                                            <div id={`error-div-for-ad-param-${advancedParamIndex}-item-data-operation-form-${value.index}`} style={{ display: 'none' }}>
+                                            <div 
+                                                id={`error-div-for-ad-param-${advancedParamIndex}-item-data-operation-form-${value.index}`} 
+                                                style={{ display: 'none' }}
+                                            >
                                                 <img style={{ height: '15px' }} src={advice_01} alt="" />
                                                 <p style={{ margin: '0 0 0 5px' }}>{errorMessages[advancedParam.dataType]}</p>
                                             </div>

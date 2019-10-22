@@ -72,12 +72,13 @@ export const dataPipeLines = [{
   params: {
       standard: [{name: "Number of augmented images", dataType: INT, required: true, commandName: "iterations"}],
       advanced: [
-          {name: "Rotation range", dataType: FLOAT, required: false, commandName: "rotation_range"},
-          {name: "Width shift range", dataType: FLOAT, required: false, commandName: "width_shift_range"},
-          {name: "Height shift range", dataType: FLOAT, required: false, commandName: "height_shift_range"},
-          {name: "Shear range", dataType: FLOAT, required: false, commandName: "shear_range"},
-          {name: "Zoom range", dataType: FLOAT, required: false, commandName: "zoom_range"},
-          {name: "Horizontal flip", dataType: BOOL, required: false, commandName: "horizontal_flip"},
+          {name: "Rotation range", dataType: FLOAT, required: false, commandName: "rotation-range", standardValue: "0"},
+          {name: "Width shift range", dataType: FLOAT, required: false, commandName: "width-shift-range", standardValue: "0"},
+          {name: "Height shift range", dataType: FLOAT, required: false, commandName: "height-shift-range", standardValue: "0"},
+          {name: "Shear range", dataType: FLOAT, required: false, commandName: "shear-range", standardValue: "0"},
+          {name: "Zoom range", dataType: FLOAT, required: false, commandName: "zoom-range", standardValue: "0"},
+          {name: "Horizontal flip", dataType: BOOL, required: false, commandName: "horizontal-flip", standardValue: "false"},
+          {name: "Vertical flip", dataType: BOOL, required: false, commandName: "vertical-flip", standardValue: "false"},
       ]
   }
 },
@@ -92,10 +93,10 @@ export const dataPipeLines = [{
      standard: [
           {name: "Height", dataType: INT, required: true, commandName: "height"},
           {name: "Width", dataType: INT, required: true, commandName: "width"},
-          {name: "Channels", dataType: INT, required: true, commandName: "channels"},
+          {name: "Channels", dataType: INT, required: true, commandName: "channels", standardValue: "3"},
      ],
      advanced: [
-         {name: "Random Seed", dataType: INT, required: false, commandName: "seed"}
+         {name: "Random Seed", dataType: INT, required: false, commandName: "seed", standardValue: "None"}
      ]
   }
 },
@@ -138,12 +139,16 @@ export const experiments = [
               {name: "output_path", dataType: STRING, required: true, commandName: "output-path"},
               {name: "input_height", dataType: INT, required: true, commandName: "height"},
               {name: "input_width", dataType: INT, required: true, commandName: "width"},
+              {name: "epochs", dataType: FLOAT, required: true, commandName: "epochs", standardValue: "35"}
           ],
           advanced: [
-              {name: "channels", dataType: INT, required: false, commandName: "channels"},
-              {name: "Use pre-trained", dataType: FLOAT, required: false, commandName: "use-pretrained"},
-              {name: "epochs", dataType: FLOAT, required: false, commandName: "epochs"},
-              {name: "batch-size", dataType: FLOAT, required: false, commandName: "batch-size"}
+              {name: "channels", dataType: INT, required: false, commandName: "channels", standardValue: 3},
+              {name: "Use pre-trained", dataType: BOOL, required: false, commandName: "use-pretrained", standardValue: "true"},
+              {name: "batch-size", dataType: FLOAT, required: false, commandName: "batch_size", standardValue: "32"},
+              {name: "validation-split", dataType: FLOAT, required: false, commandName: "validation_split", standardValue: "0.25"},
+              {name: "class_mode", dataType: FLOAT, required: false, commandName: "class_mode", standardValue: "categorical"},
+              {name: "learning-rate", dataType: FLOAT, required: false, commandName: "learning_rate", standardValue: "0.0001"},
+              {name: "loss", dataType: FLOAT, required: false, commandName: "loss", standardValue: "categorical_crossentropy"}
           ]
       }
   }/* ,
