@@ -3,7 +3,6 @@ import Navbar from "../navbar/navbar";
 import ProjectContainer from "../projectContainer";
 import "./dataInstanceOverview.css";
 import { connect } from "react-redux";
-import filesApi from "../../apis/FilesApi";
 import arrow_down_white_01 from "../../images/arrow_down_white_01.svg";
 import { Instruction } from '../instruction/instruction';
 import { getTimeCreatedAgo } from '../../functions/dataParserHelpers';
@@ -114,18 +113,8 @@ class DataInstanceOverview extends Component {
 
         this.state = {
             project: project,
-            branches: []
+            branches: props.branches.filter(branch => branch.name.startsWith("data-pipeline"))
         };
-    }
-
-    componentDidMount() {
-        filesApi.getBranches("gitlab.com", this.state.project.id)
-            .then(res => res.json())
-            .then(response =>
-                this.setState({
-                    branches: response.filter(branch => branch.name.startsWith("data-pipeline"))
-                }
-                ))
     }
 
     handleButtonsClick(e) {
@@ -277,7 +266,8 @@ function Dropdown() {
 
 function mapStateToProps(state) {
     return {
-        projects: state.projects
+        projects: state.projects,
+        branches: state.branches
     };
 }
 

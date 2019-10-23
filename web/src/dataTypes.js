@@ -28,6 +28,7 @@ before_script:
   - git remote set-url origin https://\${GIT_PUSH_USER}:\${GIT_PUSH_TOKEN}@#repo-url
   - git config --global user.email "rainer+mlreefdemo@systemkern.com"
   - git config --global user.name "mlreefdemo"
+  - git checkout #initialBranch
   - export GITLAB_API_TOKEN="\${GIT_PUSH_TOKEN}"
   - export CI_COMMIT_REF_SLUG="\${CI_COMMIT_REF_SLUG}"
   - export CI_PROJECT_ID="\${CI_PROJECT_ID}"

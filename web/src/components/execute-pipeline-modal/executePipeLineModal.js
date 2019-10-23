@@ -24,7 +24,8 @@ const ExecutePipelineModal = ({
     projectId,
     branchName,
     dataInstanceName,
-    jobName
+    jobName,
+    branchSelected
 }) => {
     const [section, setSection] = useState(1);
     const [isFirstOptSelected, setIsFirstOptSelected] = useState(false);
@@ -199,6 +200,7 @@ const ExecutePipelineModal = ({
                                         setSection(2);
                                         createPipelineInProject(
                                             dataOperationsSelected,
+                                            branchSelected,
                                             filesSelectedInModal,
                                             http_url_to_repo,
                                             projectId,

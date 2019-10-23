@@ -1,28 +1,18 @@
-import React, { useEffect } from "react";
+import React from "react";
 import Navbar from "../navbar/navbar";
 import ProjectContainer from "../projectContainer";
 import folderIcon from "../../images/folder_01.svg";
 import fileIcon from "../../images/file_01.svg";
 import "./dataInstanceDetails.css";
-import filesApi from "../../apis/FilesApi";
 import { connect } from "react-redux";
 
-const DataInstanceDetails = (props) => {
-
-    const [project,] = React.useState(props.projects.selectedProject);
-    const [selectedPipeline, setPipeline] = React.useState(null);
+const DataInstanceDetails = ({...props}) => {
+    const project = props.projects.selectedProject;
     const pipelineName = decodeURIComponent(props.match.params.di_name);
-    const pId = props.projects.selectedProject.id;
-    console.log(props.match.params.di_name);
-    useEffect(() => {
-        filesApi.getBranches("gitlab.com", pId)
-            .then(res => res.json())
-            .then(response => setPipeline(
-                response.filter(function (item) {
-                    return item.name === pipelineName
-                })
-            ))
-    }, [pId, pipelineName])
+    const selectedPipeline = props.branches.filter(function (item) {
+        return item.name === pipelineName
+    });
+
     return (
         <div id="experiments-overview-container">
             <Navbar />
@@ -128,7 +118,8 @@ function RenderFiles() {
 
 function mapStateToProps(state) {
     return {
-        projects: state.projects
+        projects: state.projects,
+        branches: state.branches
     };
 }
 

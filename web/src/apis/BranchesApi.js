@@ -23,4 +23,20 @@ export default class BranchesApi {
                 return err;
             }
     }
+
+    static async getBranches(projectId) {
+        let url = `https://${domain}/api/v4/projects/${projectId}/repository/branches`;
+        try {
+            const response = await fetch(
+                url, {
+                method: 'GET',
+                headers: new Headers({
+                    "PRIVATE-TOKEN": SECURITY_TOKEN
+                })
+            });
+            return response.json();
+        } catch(err){
+            console.log(err);
+        }
+    }
 }

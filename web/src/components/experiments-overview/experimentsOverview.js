@@ -9,7 +9,6 @@ import {Line} from "react-chartjs-2";
 import {connect} from "react-redux";
 import ArrowButton from "../arrow-button/arrowButton";
 import {Link} from "react-router-dom";
-import filesApi from "../../apis/FilesApi";
 import snippetApi from "../../apis/SnippetApi";
 import pipelinesApi from "../../apis/PipelinesApi";
 import {
@@ -323,30 +322,26 @@ class ExperimentsOverview extends Component {
         };
 
         this.setSelectedExperiment = this.setSelectedExperiment.bind(this);
+        const branches = this.props.branches.filter(branch => branch.name.startsWith("experiment"));
+        pipelinesApi.getPipesByProjectId(project.id).then(res => {
+            const pipes = res.filter(pipe => pipe.status !== SKIPPED);
+            const experiments = branches.map(branch => {
+                const pipeBranch = pipes.filter(pipe => pipe.ref === branch.name)[0];
+                if (pipeBranch) {
+                    const experiment = {};
+                    experiment["status"] = pipeBranch.status;
+                    experiment["name"] = branch.name;
+                    experiment["authorName"] = branch.author_name;
+                    experiment["commit"] = branch.commit;
+                    return experiment;
+                }
 
-        filesApi.getBranches("gitlab.com", project.id)
-            .then(res => res.json())
-            .then(response => {
-                const branches = response.filter(branch => branch.name.startsWith("experiment"));
-                pipelinesApi.getPipesByProjectId(project.id).then(res => {
-                    const pipes = res.filter(pipe => pipe.status !== SKIPPED);
-                    const experiments = branches.map(branch => {
-                        const pipeBranch = pipes.filter(pipe => pipe.ref === branch.name)[0];
-                        if (pipeBranch) {
-                            const experiment = {};
-                            experiment["status"] = pipeBranch.status;
-                            experiment["name"] = branch.name;
-                            experiment["authorName"] = branch.author_name;
-                            experiment["commit"] = branch.commit;
-                            return experiment;
-                        }
-
-                        return null;
-                    });
-
-                    this.setState({experiments: experiments});
-                });
+                return null;
             });
+
+            this.setState({experiments: experiments});
+        });
+           
     }
 
     handleButtonsClick(e) {
@@ -449,7 +444,8 @@ class ExperimentsOverview extends Component {
 
 function mapStateToProps(state) {
     return {
-        projects: state.projects
+        projects: state.projects,
+        branches: state.branches
     };
 }
 

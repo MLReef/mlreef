@@ -95,6 +95,7 @@ const buildCommandLinesFromSelectedPipelines = (
 
 const generateRealContentFromTemplate = (
     mlreefFileContent,
+    branchSelected,
     pipeLineOperationCommands,
     dataInstanceName,
     http_url_to_repo,
@@ -106,6 +107,7 @@ const generateRealContentFromTemplate = (
                 .toString()
                 .replace(/,/g, "\n")
         )
+        .replace(/#initialBranch/g, branchSelected)
         .replace(/#target-branch/g, dataInstanceName)
         .replace(/#pipeline-operation-script-name/g, pipelineOpScriptName)
         .replace(
@@ -117,7 +119,8 @@ const generateRealContentFromTemplate = (
         );
 
 export const createPipelineInProject = (
-    dataOperationsSelected, 
+    dataOperationsSelected,
+    branchSelected,
     filesSelectedInModal, 
     http_url_to_repo,
     projectId,
@@ -144,7 +147,8 @@ export const createPipelineInProject = (
         ).length === dataOperationsSelected.length 
     ){
         const finalContent = generateRealContentFromTemplate(
-            mlreefFileContent, 
+            mlreefFileContent,
+            branchSelected,
             pipeLineOperationCommands, 
             dataInstanceName,
             http_url_to_repo,
