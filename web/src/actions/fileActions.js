@@ -33,14 +33,3 @@ export function getFileData(domain = "gitlab.com", projectId = "12395599", path 
         }
     }
 }
-
-export function getBranches(domain = "gitlab.com", projectId) {
-    return async () => {
-        try {
-            return filesApi.getBranches(domain, projectId);
-        }
-        catch (err) {
-            throw err;
-        }
-    }
-}

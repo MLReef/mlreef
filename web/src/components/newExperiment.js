@@ -28,6 +28,8 @@ const NewExperiment = ({...props}) => {
     return (
         <div className="pipe-line-view">
             <SelectDataPipelineModal 
+                project={props.project}
+                branches={props.branches}
                 files={props.files}
                 selectDataClick={props.selectDataClick} 
                 show={showSelectFilesModal} 

@@ -27,6 +27,8 @@ const PipeLineView = ({...props}) => {
     return (
         <div className="pipe-line-view">
             <SelectDataPipelineModal 
+                project={props.project}
+                branches={props.branches}
                 files={props.files}
                 selectDataClick={props.selectDataClick} 
                 show={showSelectFilesModal} 
@@ -44,6 +46,7 @@ const PipeLineView = ({...props}) => {
                 branchName={branchName}
                 dataInstanceName={dataInstanceName}
                 jobName={jobName}
+                branchSelected={props.branchSelected}
             />
             <Navbar/>
             <ProjectContainer project={project} activeFeature="data" folders = {['Group Name', project.name, 'Data', 'Pipeline']}/>

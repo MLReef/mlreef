@@ -11,7 +11,6 @@ class ProjectContainer extends React.Component {
 
   render() {
     const project = this.props.project;
-    //console.log(project);
     const folders = this.props.folders;
     return (
       <div className="project-container">

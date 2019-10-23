@@ -60,6 +60,7 @@
     margin-left: 4%;
     width: 92%;
     overflow-y: scroll;
+    border-bottom: 1px solid #e8e8e8;
 }
 
 .modal-content > #table-container > table { 

@@ -28,6 +28,7 @@
 .input-component-container > div, .input-component-container > div > input {
     border-radius: 0.3vw;
     margin-right: 8px;
+    max-width: 200px;
 }
 
 .input-component-container > div > input {

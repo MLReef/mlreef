@@ -14,8 +14,7 @@ const ProjectInfo = ({ info }) => {
 
   function handleFork() {
     projectGeneralInfoApi.forkProject("gitlab.com", info.id, info.name)
-      .then(res => res.json())
-      .then(result => console.log(result));
+      .then(res => res.json());
     setRedirect(true);
   }
 

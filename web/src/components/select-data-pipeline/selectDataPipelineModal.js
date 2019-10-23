@@ -7,24 +7,25 @@ import folderIcon from "../../images/folder_01.svg";
 import fileIcon from "../../images/file_01.svg";
 import traiangle01 from "../../images/triangle-01.png";
 import ArrowButton from "../arrow-button/arrowButton";
+import filesApi from "./../../apis/FilesApi";
 
 class SelectDataPipelineModal extends Component {
     constructor(props){
         super(props);
         this.state = {
             show: this.props.show,
-            files: this.props.files,
-            filesSelected: []
+            project: this.props.project,
+            files: [],
+            filesSelected: [],
+            branches: this.props.branches,
+            branchSelected: null
         }
-
+        this.getFiles("master");
         this.handleCloseButton = this.handleCloseButton.bind(this);
     }
 
-    Branches = ["Master", "feature/28-repo", "feature/41-pipeline"];
-
     static getDerivedStateFromProps = (nextProps) => {
         return {
-            files: nextProps.files,
             show: nextProps.show
         }
     }
@@ -52,6 +53,26 @@ class SelectDataPipelineModal extends Component {
         this.setState({filesSelected: filesSelected});
     }
 
+    getFiles = (newBranchSelected) => filesApi
+        .getFilesPerProject(
+            this.state.project.id, 
+            "", 
+            false, 
+            "gitlab.com", 
+            newBranchSelected.name
+        )
+        .then(
+            res => 
+                this.setState({
+                    filesSelected: [],
+                    branchSelected: newBranchSelected.name, 
+                    files: res
+                })
+        )
+        .catch(
+            err => console.log(err)
+        )
+
     render(){
         if(!this.state.show){
             return null;
@@ -74,8 +95,8 @@ class SelectDataPipelineModal extends Component {
                     <br />
                     <div id="buttons">
                         <div id="left-div">
-                            <div className="white-button round-border-black-color">
-                            <ArrowButton placeholder={"Master"} imgPlaceHolder={traiangle01} callback={this.handleBranch}/>
+                            <div className="white-button round-border-black-color" onClick={this.handleBranch} style={{cursor: 'pointer'}}>
+                            <ArrowButton placeholder={this.state.branchSelected ? this.state.branchSelected : "Select branch"} imgPlaceHolder={traiangle01}/>
                             {this.state.isOpen && (
                                 <div className="select-branch" style={{top:"27%", left:"35px"}} onBlur={this.handleBlur}>
                                 <div
@@ -97,11 +118,18 @@ class SelectDataPipelineModal extends Component {
                                     <div className="branches">
                                     <ul>
                                         <li className="branch-header">Branches</li>
-                                        {this.Branches.map((branch, index) => (
-                                        <li key={index}>
-                                            <p>{branch}</p>
-                                        </li>
-                                        ))}
+                                        {this.state.branches.filter(branch =>
+                                                !branch.name.startsWith("data-pipeline") 
+                                                    && !branch.name.startsWith("experiment")
+                                            )
+                                            .map((branch, index) => (
+                                                <li key={index} onClick={(e) => {
+                                                    this.getFiles(this.state.branches[index]);
+                                                }}>
+                                                    <p>{branch.name}</p>
+                                                </li>
+                                            ))
+                                        }
                                     </ul>
                                     </div>
                                 </div>
@@ -111,7 +139,13 @@ class SelectDataPipelineModal extends Component {
                             <Input placeholder="Search a file"/>
                         </div>   
                         <div id="right-div">
-                            <button className="light-green-button" onClick={(e) => {this.props.handleModalAccept(e, this.state.filesSelected)}}>Accept</button>
+                            <button className="light-green-button" 
+                                onClick={(e) => {
+                                    this.props.handleModalAccept(e, this.state.filesSelected, this.state.branchSelected);
+                                }}
+                            >
+                                Accept
+                            </button>
                             <button className="white-button round-border-black-color"> <p> Diselect all </p></button>
                             <button className="white-button round-border-black-color"> <p> Select all </p></button>
                         </div>
@@ -134,13 +168,11 @@ class SelectDataPipelineModal extends Component {
                             </thead>
 
                          <tbody>
-                            {this.props.files.map((file, index) => {
-                            return (
+                            {this.state.files.map((file, index) => 
                                 <tr key={index} id={`tr-file-${index}`} className="files-row" style={{justifyContent: 'unset'}}>
-                                    
                                     <td className="file-type" style={{width: 'unset'}}>
                                         <label className="customized-checkbox" >
-                                            <input type="checkbox" checked={this.state.filesSelected.includes(file)} /> 
+                                            <input type="checkbox" checked={this.state.filesSelected.includes(file)} onChange={() => {}}/> 
                                             <span id={`span-file-${index}`} onClick={(e) => {this.selectFileFromGrid(e)}} className="checkmark"></span>
                                         </label>
                                     </td>
@@ -153,8 +185,7 @@ class SelectDataPipelineModal extends Component {
                                         </p>
                                     </td>
                                 </tr>
-                            )})
-                        }
+                            )}
                         </tbody> 
                         </table>
                     </div>

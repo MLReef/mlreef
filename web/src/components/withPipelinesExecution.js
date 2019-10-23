@@ -2,21 +2,17 @@ import React from 'react';
 import minus from './../images/minus.svg';
 import plus from './../images/plus_01.svg';
 import arrayMove from 'array-move';
-import filesApi from "./../apis/FilesApi";
 
 const withPipelineExecution = (WrappedComponent, operationsToExecute) =>
     class extends React.Component {
         constructor(props){
             super(props);
-            const selectedProject = JSON.parse(
-                JSON.parse(
-                    localStorage.getItem("persist:root"))
-                        .projects
-                )
-                .selectedProject;
+            const root = JSON.parse(localStorage.getItem("persist:root"));
+            const selectedProject = JSON.parse(root.projects).selectedProject;
+            const projectBranches = JSON.parse(root.branches);
             this.state = {
+                branchSelected: null,
                 project: selectedProject,
-                files: null,
                 checkBoxOwnDataOperations: false,
                 checkBoxStarredDataOperations: false,
                 idCardSelected: null,
@@ -26,17 +22,10 @@ const withPipelineExecution = (WrappedComponent, operationsToExecute) =>
                 dataOperations: operationsToExecute,
                 showSelectFilesModal: false,
                 dataOperationsSelected: [],
-                filesSelectedInModal: []
+                filesSelectedInModal: [],
+                branches: projectBranches
             }
-            filesApi.getFilesPerProject(
-                selectedProject.id, 
-                "",
-                false, 
-                "gitlab.com",
-                "master"
-            ).then(res => this.setState({files: res}))
-            .catch(err => console.log(err));
-    
+                
             this.handleCheckMarkClick = this.handleCheckMarkClick.bind(this);
             this.drop = this.drop.bind(this);
             this.allowDrop = this.allowDrop.bind(this);
@@ -185,8 +174,9 @@ const withPipelineExecution = (WrappedComponent, operationsToExecute) =>
             this.setState({newState});
         };
         
-        handleModalAccept = (e, filesSelected) => {
+        handleModalAccept = (e, filesSelected, branchSelected) => {
             this.setState({
+                branchSelected: branchSelected,
                 filesSelectedInModal: filesSelected, 
                 showSelectFilesModal: !this.state.showSelectFilesModal
             });
@@ -195,9 +185,7 @@ const withPipelineExecution = (WrappedComponent, operationsToExecute) =>
             document.getElementsByTagName("body").item(0).style.overflow = 'scroll';
         };
             
-        handleExecuteBtn = () => {
-            this.toggleExecutePipeLineModal();    
-        }
+        handleExecuteBtn = () => this.toggleExecutePipeLineModal();
     
         toggleExecutePipeLineModal(){
             const isShowingExecutePipelineModal = !this.state.isShowingExecutePipelineModal;
@@ -207,11 +195,12 @@ const withPipelineExecution = (WrappedComponent, operationsToExecute) =>
         render = () => (
             <WrappedComponent 
                 project={this.state.project} 
+                branches={this.state.branches}
+                branchSelected={this.state.branchSelected}
                 dataOperationsSelected={this.state.dataOperationsSelected}
                 filesSelectedInModal={this.state.filesSelectedInModal}
                 dataOperations={this.state.dataOperations}
                 showSelectFilesModal={this.state.showSelectFilesModal}
-                files={this.state.files}
                 isShowingExecutePipelineModal={this.state.isShowingExecutePipelineModal}
                 onSortEnd={this.onSortEnd}
                 handleCheckMarkClick={this.handleCheckMarkClick}

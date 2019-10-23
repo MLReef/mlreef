@@ -1,10 +1,10 @@
 import React, { Component } from "react";
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import * as fileActions from "../actions/fileActions";
 import arrow_down_blue_01 from "./../images/arrow_down_blue_01.svg";
 import plus_01 from "./../images/plus_01.svg";
 import { Link } from "react-router-dom";
+import * as branchesActions from "./../actions/branchesActions";
 
 class RepoFeatures extends Component {
   constructor(props){
@@ -17,11 +17,7 @@ class RepoFeatures extends Component {
       branches: []
     };
 
-    this.props.actions.getBranches("gitlab.com", this.state.projectId)
-      .then(res => res.json())
-      .then(response => {
-        this.setState({ branches: response });
-      });
+    this.props.actions.getBranchesList(this.state.projectId);
   }
 
   branchRef = React.createRef();
@@ -65,11 +61,16 @@ class RepoFeatures extends Component {
     };
   }
 
-  static getDerivedStateFromProps = (nextProps, prevState) =>
-    nextProps.branch !== prevState.branchSelected ? {
-      branchSelected: nextProps.branch
-    }
-    : prevState;
+  static getDerivedStateFromProps = (nextProps, prevState) => {
+    const newState = {...prevState};
+    newState.branches = nextProps.branches;
+    
+    newState.branchSelected = nextProps.branch !== prevState.branchSelected 
+      ? nextProps.branch
+      : newState.branchSelected;
+   
+    return newState;
+  }
 
   handleClick = (e) => {
     this.props.actions.loadFiles(
@@ -171,13 +172,14 @@ class RepoFeatures extends Component {
 
 function mapStateToProps(state) {
   return {
-    projects: state.projects
+    projects: state.projects,
+    branches: state.branches
   };
 }
 
 function mapDispatchToProps(dispatch) {
   return {
-    actions: bindActionCreators(fileActions, dispatch)
+    actions: bindActionCreators(branchesActions, dispatch)
   };
 }
 
