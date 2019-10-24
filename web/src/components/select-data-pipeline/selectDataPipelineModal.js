@@ -53,19 +53,19 @@ class SelectDataPipelineModal extends Component {
         this.setState({filesSelected: filesSelected});
     }
 
-    getFiles = (newBranchSelected) => filesApi
+    getFiles = (newBranchSelectedName) => filesApi
         .getFilesPerProject(
             this.state.project.id, 
             "", 
             false, 
             "gitlab.com", 
-            newBranchSelected.name
+            newBranchSelectedName
         )
         .then(
             res => 
                 this.setState({
                     filesSelected: [],
-                    branchSelected: newBranchSelected.name, 
+                    branchSelected: newBranchSelectedName, 
                     files: res
                 })
         )
@@ -95,8 +95,19 @@ class SelectDataPipelineModal extends Component {
                     <br />
                     <div id="buttons">
                         <div id="left-div">
-                            <div className="white-button round-border-black-color" onClick={this.handleBranch} style={{cursor: 'pointer'}}>
-                            <ArrowButton placeholder={this.state.branchSelected ? this.state.branchSelected : "Select branch"} imgPlaceHolder={traiangle01}/>
+                            <div 
+                                className="white-button round-border-black-color" 
+                                onClick={this.handleBranch} 
+                                style={{cursor: 'pointer'}}
+                            >
+                            <ArrowButton 
+                                placeholder={
+                                    this.state.branchSelected 
+                                        ? this.state.branchSelected 
+                                        : "Select branch"
+                                } 
+                                imgPlaceHolder={traiangle01}
+                            />
                             {this.state.isOpen && (
                                 <div className="select-branch" style={{top:"27%", left:"35px"}} onBlur={this.handleBlur}>
                                 <div
@@ -124,7 +135,7 @@ class SelectDataPipelineModal extends Component {
                                             )
                                             .map((branch, index) => (
                                                 <li key={index} onClick={(e) => {
-                                                    this.getFiles(this.state.branches[index]);
+                                                    this.getFiles(branch.name);
                                                 }}>
                                                     <p>{branch.name}</p>
                                                 </li>
