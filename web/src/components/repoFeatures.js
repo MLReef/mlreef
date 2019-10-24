@@ -5,10 +5,12 @@ import arrow_down_blue_01 from "./../images/arrow_down_blue_01.svg";
 import plus_01 from "./../images/plus_01.svg";
 import { Link } from "react-router-dom";
 import * as branchesActions from "./../actions/branchesActions";
+import * as fileActions from "./../actions/fileActions";
 
 class RepoFeatures extends Component {
   constructor(props){
     super(props);
+
     this.state = {
       isOpen: false,
       plusOpen: false,
@@ -90,7 +92,7 @@ class RepoFeatures extends Component {
                 className="white-button"
                 onClick={this.handleBranch}
               >
-                <span>{this.state.branchSelected}</span>
+                <span>{decodeURIComponent(this.state.branchSelected)}</span>
                 <img id="leftfeature-image" src={arrow_down_blue_01} alt="" />
               </button>
               {this.state.isOpen &&
@@ -179,7 +181,7 @@ function mapStateToProps(state) {
 
 function mapDispatchToProps(dispatch) {
   return {
-    actions: bindActionCreators(branchesActions, dispatch)
+    actions: bindActionCreators({...branchesActions, ...fileActions}, dispatch)
   };
 }
 

@@ -47,6 +47,7 @@ const NewExperiment = ({...props}) => {
                 branchName={branchName}
                 dataInstanceName={dataInstanceName}
                 jobName={jobName}
+                branchSelected={props.branchSelected}
             />
             <Navbar/>
             <ProjectContainer project={project} activeFeature="experiments" folders = {['Group Name', project.name, 'Data', 'Pipeline']}/>

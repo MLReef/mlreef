@@ -16,10 +16,11 @@ const EmptyDataVisualization = ({...props}) => {
     const dataOperations = props.dataOperations;
     const showSelectFilesModal = props.showSelectFilesModal;
     const items = props.dataOperationsSelected;
-
     return (
         <div className="pipe-line-view">
             <SelectDataPipelineModal 
+                project={props.project}
+                branches={props.branches}
                 files={props.files}
                 selectDataClick={props.selectDataClick} 
                 show={showSelectFilesModal} 
