@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import folderIcon from "./../images/folder_01.svg";
 import fileIcon from "./../images/file_01.svg";
-import { Link } from "react-router-dom";
+import { Link, Redirect } from "react-router-dom";
 import { connect } from "react-redux";
 import { 
   generateNewArrayOfFilesToRender,
@@ -22,7 +22,8 @@ class FilesContainer extends Component {
       currentPath: "",
       currentBranch: "",
       fileSize: "",
-      files: []
+      files: [],
+      redirect: false
     }
 
     window.onpopstate = () => {
@@ -33,7 +34,11 @@ class FilesContainer extends Component {
 
   updateState = async () => {
     var path = getParamFromUrl("path", window.location.href);
-    const res = await Promise.all([callToGetFilesInFolder(path, this.props.branch, this.props.projectId, true)])
+    const res = await Promise.all([callToGetFilesInFolder(path, this.props.branch, this.props.projectId, true)]);
+    if(res[0].message){
+      this.setState({redirect: true});
+      return;
+    }
     const updatedFiles = await generateNewArrayOfFilesToRender(res[0], this.props.projectId, this.props.branch);
     const filteredFiles = updatedFiles.filter(file => findFolderContainer(file, updatedFiles).length === 0);
     filteredFiles.forEach(file => {
@@ -87,6 +92,11 @@ class FilesContainer extends Component {
   }
 
   render = () =>
+    <>
+      {this.state.redirect
+        ? <Redirect to="/error-page" />
+        : null
+      }
       <div className="files-container">
         <div className="commit-status">
           <p id="commitStatus">
@@ -162,6 +172,7 @@ class FilesContainer extends Component {
           </tbody>
         </table>
       </div>
+    </>
 }
 
 function mapStateToProps(state) {
