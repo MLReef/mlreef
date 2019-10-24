@@ -75,7 +75,6 @@ class ProjectSet extends React.Component {
             projects={this.props.projects}
           />
         )}
-        {this.state.starred && <Project owner="Mlreef" name="demo" projId={"12395599"} />}
         {this.state.explore && this.props.projects.map((proj) =>
           !proj.name.includes("forked") &&
           <Project
@@ -118,7 +117,18 @@ const Project = props => {
             <h4 style={{ margin: "0", marginBottom: "5px" }}>
               {props.owner}/{props.name}
             </h4>
-            <span style={{ maxWidth: "400px", textOverflow: "ellipsis" }}>{props.desc ? props.desc.length > 50 ? props.desc.substring(0, 100) + "..." : props.desc : "No description"}</span>
+            <span 
+              style={{ 
+                maxWidth: "400px", 
+                textOverflow: "ellipsis" 
+                }}
+            >
+              {props.desc 
+                ? props.desc.length > 50 
+                  ? props.desc.substring(0, 100) + "..." 
+                  : props.desc 
+                : "No description"}
+            </span>
           </Link>
         </div>
       </div>
