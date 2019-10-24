@@ -8,7 +8,7 @@ import * as branchesActions from "./../actions/branchesActions";
 import * as fileActions from "./../actions/fileActions";
 
 class RepoFeatures extends Component {
-  constructor(props){
+  constructor(props) {
     super(props);
 
     this.state = {
@@ -64,13 +64,13 @@ class RepoFeatures extends Component {
   }
 
   static getDerivedStateFromProps = (nextProps, prevState) => {
-    const newState = {...prevState};
+    const newState = { ...prevState };
     newState.branches = nextProps.branches;
-    
-    newState.branchSelected = nextProps.branch !== prevState.branchSelected 
+
+    newState.branchSelected = nextProps.branch !== prevState.branchSelected
       ? nextProps.branch
       : newState.branchSelected;
-   
+
     return newState;
   }
 
@@ -84,91 +84,91 @@ class RepoFeatures extends Component {
   }
 
   render = () => (
-      <>
-        <div id="repo-features">
-          <div>
-            <div className="reference" ref={this.branchRef}>
-              <button
-                className="white-button"
-                onClick={this.handleBranch}
-              >
-                <span>{decodeURIComponent(this.state.branchSelected)}</span>
-                <img id="leftfeature-image" src={arrow_down_blue_01} alt="" />
-              </button>
-              {this.state.isOpen &&
-                <div className="select-branch">
-                  <div
-                    style={{ margin: "0 50px", fontSize: "14px", padding: "0 40px" }}>
-                    <p>Switch Branches</p>
-                  </div>
-                  <hr />
-                  <div className="search-branch">
-                    <input
-                      autoFocus={true}
-                      type="text"
-                      placeholder="Search branches or tags"
-                    />
-                    <div className="branches">
-                      <ul>
-                        <li className="branch-header">Branches</li>
-                        {this.state.branches.filter(branch =>
-                          !branch.name.startsWith("data-pipeline/") &&
-                          !branch.name.startsWith("experiment/")
-                        ).map((branch) => {
-                          let encoded = encodeURIComponent(branch.name);
-                          return (
-                            <li key={encoded}>
-                              <Link id={branch.name} to={`/my-projects/${this.state.projectId}/${encoded}`} onClick={this.handleClick}><p>{branch.name}</p></Link>
-                            </li>
-                          )
-                        })}
-                      </ul>
-                    </div>
-                  </div>
-                </div>
-              }
-            </div>
-            <div className="reference" ref={this.plusRef}>
-              <button className="white-button" style={{ position: "relative" }} onClick={this.plusDropdown}>
-                <img id="plus" src={plus_01} alt="" />
-                <img id="leftfeature-image" src={arrow_down_blue_01} alt="" />
-              </button>
-              {this.state.plusOpen && <div className="plus-dropdown">
-                <ul className="plus-list">
-                  <li>This directory</li>
-                  <li className="plus-option"><Link to="/">New file</Link></li>
-                  <li className="plus-option"><Link to="/">Upload file</Link></li>
-                  <li className="plus-option"><Link to="/">New directory</Link></li>
-                  <hr />
-                  <li>This repository</li>
-                  <li className="plus-option"><Link to="/">New branch</Link></li>
-                  <li className="plus-option"><Link to="/">New tag</Link></li>
-                </ul>
-              </div>}
-            </div>
-            <button className="blue-button">
-              <Link to={`/my-projects/${this.state.projectId}/visualizations`}><p>Data Visualisation</p></Link>
-            </button>
-
-            <button className="blue-button">
-              <Link to={`/my-projects/${this.state.projectId}/pipe-line`}><p>Data Pipeline</p></Link>
-            </button>
-          </div>
-          <div>
-            <button className="white-button">
-              History
-                </button>
-
-            <button className="white-button">
-              Web IDE
-                </button>
-
-            <button className="white-button">
+    <>
+      <div id="repo-features">
+        <div>
+          <div className="reference" ref={this.branchRef}>
+            <button
+              className="white-button"
+              onClick={this.handleBranch}
+            >
+              <span>{decodeURIComponent(this.state.branchSelected)}</span>
               <img id="leftfeature-image" src={arrow_down_blue_01} alt="" />
             </button>
+            {this.state.isOpen &&
+              <div className="select-branch">
+                <div
+                  style={{ margin: "0 50px", fontSize: "14px", padding: "0 40px" }}>
+                  <p>Switch Branches</p>
+                </div>
+                <hr />
+                <div className="search-branch">
+                  <input
+                    autoFocus={true}
+                    type="text"
+                    placeholder="Search branches or tags"
+                  />
+                  <div className="branches">
+                    <ul>
+                      <li className="branch-header">Branches</li>
+                      {this.state.branches.filter(branch =>
+                        !branch.name.startsWith("data-pipeline/") &&
+                        !branch.name.startsWith("experiment/")
+                      ).map((branch) => {
+                        let encoded = encodeURIComponent(branch.name);
+                        return (
+                          <li key={encoded}>
+                            <Link id={branch.name} to={`/my-projects/${this.state.projectId}/${encoded}`} onClick={this.handleClick}><p>{branch.name}</p></Link>
+                          </li>
+                        )
+                      })}
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            }
           </div>
+          <div className="reference" ref={this.plusRef}>
+            <button className="white-button" style={{ position: "relative" }} onClick={this.plusDropdown}>
+              <img id="plus" src={plus_01} alt="" />
+              <img id="leftfeature-image" src={arrow_down_blue_01} alt="" />
+            </button>
+            {this.state.plusOpen && <div className="plus-dropdown">
+              <ul className="plus-list">
+                <li>This directory</li>
+                <li className="plus-option"><Link to="/">New file</Link></li>
+                <li className="plus-option"><Link to="/">Upload file</Link></li>
+                <li className="plus-option"><Link to="/">New directory</Link></li>
+                <hr />
+                <li>This repository</li>
+                <li className="plus-option"><Link to="/">New branch</Link></li>
+                <li className="plus-option"><Link to="/">New tag</Link></li>
+              </ul>
+            </div>}
+          </div>
+          <button className="blue-button">
+            <Link to={`/my-projects/${this.state.projectId}/visualizations`}><p>Data Visualisation</p></Link>
+          </button>
+
+          <button className="blue-button">
+            <Link to={`/my-projects/${this.state.projectId}/pipe-line`}><p>Data Pipeline</p></Link>
+          </button>
         </div>
-      </>
+        <div>
+          <button className="white-button">
+            History
+                </button>
+
+          <button className="white-button">
+            Web IDE
+                </button>
+
+          <button className="white-button">
+            <img id="leftfeature-image" src={arrow_down_blue_01} alt="" />
+          </button>
+        </div>
+      </div>
+    </>
   );
 }
 
@@ -181,7 +181,7 @@ function mapStateToProps(state) {
 
 function mapDispatchToProps(dispatch) {
   return {
-    actions: bindActionCreators({...branchesActions, ...fileActions}, dispatch)
+    actions: bindActionCreators({ ...branchesActions, ...fileActions }, dispatch)
   };
 }
 
