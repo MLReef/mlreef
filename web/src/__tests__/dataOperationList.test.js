@@ -2,8 +2,8 @@ import '@testing-library/jest-dom/extend-expect';
 
 import React from 'react';
 import {cleanup, render} from '@testing-library/react';
-import { DataOperationsList } from "../components/pipeline-view/data-operations-list";
-import { INT, FLOAT, BOOL } from "../data-types";
+import { DataOperationsList } from "../components/pipeline-view/dataOperationsList";
+import { INT, FLOAT, BOOL } from "../dataTypes";
 
 // automatically unmount and cleanup DOM after the test is finished.
 afterEach(cleanup);
