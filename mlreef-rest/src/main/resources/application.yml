@@ -1,0 +1,15 @@
+logging:
+  level:
+    root: INFO
+    com.mlreef.rest: DEBUG
+    org.springframework.security: DEBUG
+
+spring:
+  redis:
+    host: localhost
+  session:
+    store-type: redis
+    redis:
+      flush-mode: on_save
+      namespace: spring:session
+

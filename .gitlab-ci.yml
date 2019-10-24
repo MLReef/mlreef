@@ -5,7 +5,14 @@ stages:
 
 
 variables:
-  EC2_INSTANCE_NAME: mlreef-aiops-dispatch-$CI_COMMIT_REF_SLUG        # environment name and url are set separately
+  AIOPS_EC2_INSTANCE_NAME: mlreef-aiops-dispatch-$CI_COMMIT_REF_SLUG        # environment name and url are set separately
+  BUILD_PATH: "mlreef-rest/build/docker"
+  IMAGE_NAME: "mlreef-rest"
+  BUCKET_NAME: mlreef-rest-$CI_COMMIT_REF_SLUG              # environment name and url are set separately
+  REST_EC2_INSTANCE_NAME: mlreef-rest-$CI_COMMIT_REF_SLUG        # environment name and url are set separately
+  INSTANCE_INFO: instance.info                         # workaround for transmitting information between stages
+  DOCKER_REGISTRY_REPOSITORY_ID: "753711"              # https://gitlab.com/api/v4/projects/13830884/registry/repositories/
+  IMAGE_PATH: "$DOCKER_REGISTRY/$DOCKER_ORGANISATION/$IMAGE_NAME:$CI_COMMIT_REF_SLUG"
 
 
 provision-dispatcher:
@@ -22,12 +29,12 @@ provision-dispatcher:
     - ./aiops-runner-dispatcher/decomission.sh         # first shutdown all current instances
   script:
     # rewrite ec2-startup.sh
-    - echo "#!/bin/bash"                                >> aiops-runner-dispatcher/ec2-startup.updated
-    - echo "DISPATCHER_DESCRIPTION=$EC2_INSTANCE_NAME"  >> aiops-runner-dispatcher/ec2-startup.updated
-    - tail -n +2 aiops-runner-dispatcher/ec2-startup.sh >> aiops-runner-dispatcher/ec2-startup.updated
-    - chmod +x                                             aiops-runner-dispatcher/ec2-startup.updated
-    - rm -rf                                               aiops-runner-dispatcher/ec2-startup.sh
-    - mv aiops-runner-dispatcher/ec2-startup.updated       aiops-runner-dispatcher/ec2-startup.sh
+    - echo "#!/bin/bash"                                      >> aiops-runner-dispatcher/ec2-startup.updated
+    - echo "DISPATCHER_DESCRIPTION=$AIOPS_EC2_INSTANCE_NAME"  >> aiops-runner-dispatcher/ec2-startup.updated
+    - tail -n +2 aiops-runner-dispatcher/ec2-startup.sh       >> aiops-runner-dispatcher/ec2-startup.updated
+    - chmod +x                                                   aiops-runner-dispatcher/ec2-startup.updated
+    - rm -rf                                                     aiops-runner-dispatcher/ec2-startup.sh
+    - mv aiops-runner-dispatcher/ec2-startup.updated             aiops-runner-dispatcher/ec2-startup.sh
     - cat aiops-runner-dispatcher/ec2-startup.sh
     # provision instance
     - INSTANCE=$(./aiops-runner-dispatcher/provision.sh)
@@ -56,7 +63,7 @@ decomission:
     # parse the json with jq to get the instance id
     # the xargs command at the end submits the termination command to AWS
     - aws ec2 describe-instances
-      --filters "Name=tag:Name,Values=$EC2_INSTANCE_NAME"
+      --filters "Name=tag:Name,Values=$AIOPS_EC2_INSTANCE_NAME"
       | jq -r ".Reservations[].Instances[].InstanceId"
       | xargs --no-run-if-empty aws ec2 terminate-instances
       --instance-id
@@ -68,7 +75,7 @@ decomission:
       - master
 
 
-service-backend-build:
+build-backend:
   stage: build
   image: java:8
   script:
@@ -80,3 +87,19 @@ service-backend-build:
       - mlreef-domain/**/*
       - mlreef-rest/**/*
 
+#deploy-backend:
+#  stage: deploy
+#  image: docker:latest
+#  services:
+#    - docker:dind
+#  before_script:
+#    - docker login ${DOCKER_REGISTRY} -u "${DOCKER_USER}" -p "${DOCKER_PASSWORD}"
+#  script:
+#    - cd mlreef-rest
+#    - docker build --pull --tag "$IMAGE_PATH" -f Dockerfile .
+#    - docker push "${IMAGE_PATH}"
+#  only:
+#    changes:
+#      - build.gradle
+#      - mlreef-domain/**/*
+#      - mlreef-rest/**/*
