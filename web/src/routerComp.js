@@ -14,6 +14,7 @@ import NewExperiment from "./components/newExperiment";
 import DataInstanceOverview from "./components/data-instance/dataInstanceOverview";
 import DataInstanceDetails from "./components/data-instance/dataInstanceDetails";
 import EmptyDataVisualization from "./components/data-visualization/dataVisualization";
+import ErrorPage from "./components/error-page/errorPage";
 import ExperimentDetails from "./components/experiment-details/experimentDetails";
 
 const RouterComp = () => (
@@ -21,6 +22,7 @@ const RouterComp = () => (
         <Switch>
             <Route path="/" exact component={Login} />
             <Route path="/index.html" exact component={Login} />
+            <Route path="/error-page" exact component={ErrorPage}/>
             <PrivateRoute path="/my-projects" exact component={Projects} />
             <PrivateRoute path="/my-projects/:projectId/:branch/commits" exact component={Commits} />
             <PrivateRoute exact path="/my-projects/:projectId/pipe-line" component={PipeLineView} />
