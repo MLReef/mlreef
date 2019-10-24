@@ -2,6 +2,9 @@ plugins {
 	id 'org.springframework.boot' version '2.1.9.RELEASE'
 	id 'io.spring.dependency-management' version '1.0.8.RELEASE'
 	id 'org.jetbrains.kotlin.jvm'
+	id 'com.palantir.docker'
+	id 'kotlin-jpa'
+	id 'kotlin-allopen'
 }
 
 group = 'com.mlreef'
@@ -12,17 +15,25 @@ dependencies {
 	implementation project(':mlreef-domain')
 	implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
     implementation 'org.jetbrains.kotlin:kotlin-reflect'
+    implementation "org.projectlombok:lombok"
 
 	// Rest and HATEOAS
 	implementation 'org.springframework.boot:spring-boot-starter-hateoas'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 
+	// Security
+	implementation "org.springframework.boot:spring-boot-starter-security"
+	implementation "org.springframework.session:spring-session-data-redis"
+
 	// spring data, JPA and Repositories
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+	implementation 'org.springframework.data:spring-data-redis'
 	runtimeOnly 'com.h2database:h2'
+	runtimeOnly 'redis.clients:jedis:2.9.0'
 
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
-	testCompile "org.springframework.restdocs:spring-restdocs-mockmvc"
+	testImplementation "org.springframework.security:spring-security-test"
+	testImplementation "org.springframework.restdocs:spring-restdocs-mockmvc"
 }
 compileKotlin {
 	kotlinOptions {
@@ -33,4 +44,21 @@ compileTestKotlin {
 	kotlinOptions {
 		jvmTarget = "1.8"
 	}
+}
+
+allOpen {
+	annotation("javax.persistence.Entity")
+	annotation("javax.persistence.MappedSuperclass")
+	annotation("javax.persistence.Embeddable")
+}
+
+task unpack(type: Copy) {
+	dependsOn ":mlreef-rest:bootJar"
+	from(zipTree(tasks.bootJar.outputs.files.singleFile))
+	into("build/dependency")
+}
+docker {
+	name "${project.group}/${bootJar.baseName}"
+	copySpec.from(tasks.unpack.outputs).into("dependency")
+	buildArgs(['DEPENDENCY': "dependency"])
 }

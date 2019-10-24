@@ -2,6 +2,8 @@ plugins {
 	id 'org.springframework.boot' version '2.1.9.RELEASE'
 	id 'io.spring.dependency-management' version '1.0.8.RELEASE'
 	id 'org.jetbrains.kotlin.jvm'
+	id 'kotlin-jpa'
+	id 'kotlin-allopen'
 }
 
 group = 'com.mlreef'
@@ -10,7 +12,9 @@ sourceCompatibility = '1.8'
 
 dependencies {
 	implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
+	implementation 'org.springframework.boot:spring-boot-starter'
 	implementation 'javax.persistence:javax.persistence-api'
+	implementation 'org.springframework.data:spring-data-jpa'
 	implementation 'org.jetbrains.kotlin:kotlin-reflect'
 
 	// testing
