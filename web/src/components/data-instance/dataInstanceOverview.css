@@ -182,8 +182,3 @@
     background-color: #ececec;
     cursor: pointer;
 }
-
-.experiment-card:last-child .save-instance{
-    top: auto;
-    bottom: 100%;
-}

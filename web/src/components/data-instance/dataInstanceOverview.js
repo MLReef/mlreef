@@ -226,13 +226,12 @@ function Dropdown() {
 
     React.useEffect(() => {
         if (state) {
-            document.addEventListener("mousedown", handleClickOutside);
-        } else {
-            document.removeEventListener("mousedown", handleClickOutside);
+            document.addEventListener("click", handleClickOutside);
         }
         return () => {
-            document.removeEventListener("mousedown", handleClickOutside);
+            document.removeEventListener("click", handleClickOutside);
         };
+
     }, [state]);
 
     return (
