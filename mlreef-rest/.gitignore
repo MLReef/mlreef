@@ -1,5 +1,4 @@
 .idea
 /.gradle/
 build
-src/main/resources/secrets.properties
-src/test/resources/secrets.properties
+/init-test-env-windows.bat
