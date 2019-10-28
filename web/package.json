@@ -7,9 +7,10 @@
     "array-move": "^2.1.0",
     "babel-core": "^6.26.3",
     "babel-preset-env": "^1.7.0",
+    "browserslist": "^4.7.1",
     "chart.js": "^2.8.0",
     "core-js": "^3.2.1",
-    "dompurify": "^2.0.6",
+    "dompurify": "^2.0.7",
     "history": "^4.9.0",
     "jquery": "^3.4.1",
     "js-base64": "^2.5.1",
@@ -46,7 +47,8 @@
     "eslint-plugin-react-hooks": "^1.7.0",
     "jest": "^24.9.0",
     "react-test-renderer": "^16.9.0",
-    "redux-immutable-state-invariant": "2.1.0"
+    "redux-immutable-state-invariant": "2.1.0",
+    "typescript": "^3.6.4"
   },
   "scripts": {
     "start": "react-scripts start",
