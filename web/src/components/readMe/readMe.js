@@ -1,12 +1,11 @@
 import React from 'react';
-import marked from "marked";
+import ReactMarkdown from "react-markdown";
 import "./readme.css"
 import { Base64 } from "js-base64";
 import filesApi from "../../apis/FilesApi";
-import DOMPurify from 'dompurify';
 
 class ReadMeComponent extends React.Component {
-    constructor(props){
+    constructor(props) {
         super(props);
         this.state = {
             project: this.props.project,
@@ -14,22 +13,22 @@ class ReadMeComponent extends React.Component {
         }
     }
 
-    componentDidMount(){
+    componentDidMount() {
         filesApi.getFileData(
-            "gitlab.com", 
-            this.props.project.id, 
-            "README.md", 
+            "gitlab.com",
+            this.props.project.id,
+            "README.md",
             this.props.branch
         )
-        .then(
-            res => this.setState({fileData: res})
-        );
+            .then(
+                res => this.setState({ fileData: res })
+            );
     }
 
     render() {
         const projectName = this.state.project.name;
         let textContent;
-        if(!this.state.fileData){
+        if (!this.state.fileData) {
             return null;
         }
 
@@ -47,14 +46,7 @@ class ReadMeComponent extends React.Component {
             <div className="readme-content-container readme-style">
                 <div className="readme-content">
                     <p id="project-name-readme">{projectName}</p>
-                    <div 
-                        id="project-content-readme" 
-                        dangerouslySetInnerHTML={
-                            textContent && {
-                                __html: marked(DOMPurify.sanitize(textContent))
-                            }
-                        } 
-                    />
+                    <ReactMarkdown id="project-content-readme" source={textContent && textContent} />
                 </div>
             </div>
         </div>
