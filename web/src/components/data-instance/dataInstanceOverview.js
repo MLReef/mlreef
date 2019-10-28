@@ -57,7 +57,8 @@ const InstanceCard = ({...props}) => {
         let buttons;
         if (experimentState === RUNNING || experimentState === PENDING) {
             buttons = [
-                <button 
+                <button
+                    key={"abort-button"}
                     className="dangerous-red" 
                     onClick={
                         () => props.setIsDeleteModalVisible(true, "abort")
@@ -68,11 +69,12 @@ const InstanceCard = ({...props}) => {
             ];
         }  else if (experimentState === SUCCESS || experimentState === FAILED || experimentState === CANCELED) {
             buttons = [
-                <button className="non-active-black-border experiment-button"
+                <button key={"experiment-button"} className="non-active-black-border experiment-button"
                     onClick={(e) => handleEmptyClick(e)}>
                     View Pipeline
                 </button>,
                 <button 
+                    key={"delete-button"}
                     onClick={
                         () => props.setIsDeleteModalVisible(true, "delete")
                     }
@@ -81,7 +83,7 @@ const InstanceCard = ({...props}) => {
                             X
                         </b>
                 </button>,
-                <Dropdown />
+                <Dropdown key={"dropdown-save"}/>
             ];
         }
 
@@ -145,6 +147,7 @@ class DataInstanceOverview extends Component {
         const branches = props.branches.filter(branch => branch.name.startsWith("data-pipeline"));
         this.state = {
             project: project,
+            branches: branches,
             isDeleteModalVisible: false,
             dataInstances: [],
             typeOfMessage: null
