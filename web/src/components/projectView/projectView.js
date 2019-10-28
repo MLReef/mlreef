@@ -11,6 +11,7 @@ import * as fileActions from "../../actions/fileActions";
 import * as projectActions from "../../actions/projectInfoActions";
 import "./../../css/index.css";
 import LoadingModal from "../loadingModal";
+import contributorsApi from "./../../apis/contributorsApi";
 
 class ProjectView extends React.Component {
     constructor(props) {
@@ -28,8 +29,15 @@ class ProjectView extends React.Component {
         this.state = {
             selectedProject: project,
             branch: this.props.match.params.branch,
-            showLoadingModal: true
+            showLoadingModal: true,
+            contributors: []
         }
+
+        contributorsApi
+            .getProjectContributors(
+                this.state.selectedProject.id
+            )
+            .then(res => this.setState({contributors: res}));
 
         this.setModalVisibility = this.setModalVisibility.bind(this);
     }
@@ -59,7 +67,13 @@ class ProjectView extends React.Component {
                     folders={["Group Name", projectName, "Data"]} 
                 />
                 <div className="main-content">
-                    <RepoInfo />
+                    <RepoInfo
+                        projectId={this.state.selectedProject.id}
+                        currentBranch={branch}
+                        numberOfContributors={this.state.contributors.length}
+                        branchesCount={this.props.branches.length}
+                        dataInstanesCount={this.props.branches.filter(branch => branch.name.startsWith("data-pipeline")).length}
+                    />
                     <div className="last-commit-info">
                         <div className="last-commit-details">
                             <div className="last-commit-pic"></div>
@@ -92,9 +106,10 @@ class ProjectView extends React.Component {
 
 function mapStateToProps(state) {
     return {
-        files: state.files,
         projects: state.projects,
-        selectedProject: state.selectedProject
+        selectedProject: state.selectedProject,
+        branches: state.branches,
+        files: state.files
     };
 
 }
