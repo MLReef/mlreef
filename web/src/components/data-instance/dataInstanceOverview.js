@@ -6,103 +6,134 @@ import { connect } from "react-redux";
 import arrow_down_white_01 from "../../images/arrow_down_white_01.svg";
 import { Instruction } from '../instruction/instruction';
 import { getTimeCreatedAgo } from '../../functions/dataParserHelpers';
+import DataInstancesDeleteModal from "../data-instances-delete-and-abort-modal/dataInstancesDeleteNAbortModal";
+import pipelinesApi from "../../apis/PipelinesApi";
+import {
+    SKIPPED,
+    RUNNING,
+    SUCCESS,
+    CANCELED,
+    FAILED,
+    PENDING,
+} from '../../dataTypes';
 
-const Active = "Active";
-const Expired = "Expired";
-
-class InstanceCard extends React.Component {
-    constructor(props) {
-        super(props);
-
-        this.state = {
-            showChart: false,
-        };
+const getStatusForDataInstance = (status) => {
+    let mappedStatus = status;
+    switch (status) {
+        case RUNNING:
+            mappedStatus = "In progress"
+            break;
+        case SUCCESS:
+            mappedStatus = "Active"
+            break;
+        case CANCELED:
+            mappedStatus = "Aborted"
+            break;
+        case PENDING:
+            mappedStatus = "In progress"
+            break;
+    
+        default:
+            break;
     }
 
-    handleButtonsClick(e) {
+    return mappedStatus;
+}
+    
+const InstanceCard = ({...props}) => {
+    const params = props.params;
+
+    function handleButtonsClick(e) {
         const branchName = encodeURIComponent(e.currentTarget.parentNode.parentNode.getAttribute("data-key"));
-        const pId = this.props.params.experiments[0].projId;
-        this.props.history.push(`/my-projects/${pId}/master/data-instances/${branchName}`)
+        const pId = props.params.experiments[0].projId;
+        props.history.push(`/my-projects/${pId}/master/data-instances/${branchName}`)
     }
 
-    handleEmptyClick(e) {
+    function handleEmptyClick(e) {
         return;
     }
 
-    getButtonsDiv(experimentState) {
+    function getButtonsDiv(experimentState) {
         let buttons;
-        switch (experimentState) {
-            case Active:
-                buttons = [
-                    <button className="non-active-black-border experiment-button"
-                        onClick={(e) => this.handleEmptyClick(e)}>
-                        View Pipeline
-                    </button>,
-                    <button className="dangerous-red"><b>X</b></button>,
-                    <Dropdown />
-                ];
-                break;
-            case Expired:
-                buttons = [
-                    <button className="non-active-black-border experiment-button"
-                        onClick={(e) => this.handleEmptyClick(e)}>
-                        View Pipeline
-                    </button>];
-                break;
-            default:
-                break;
+        if (experimentState === RUNNING || experimentState === PENDING) {
+            buttons = [
+                <button 
+                    className="dangerous-red" 
+                    onClick={
+                        () => props.setIsDeleteModalVisible(true, "abort")
+                    }
+                    style={{width: 'max-content'}}>
+                        <b> Abort </b>
+                    </button>
+            ];
+        }  else if (experimentState === SUCCESS || experimentState === FAILED || experimentState === CANCELED) {
+            buttons = [
+                <button className="non-active-black-border experiment-button"
+                    onClick={(e) => handleEmptyClick(e)}>
+                    View Pipeline
+                </button>,
+                <button 
+                    onClick={
+                        () => props.setIsDeleteModalVisible(true, "delete")
+                    }
+                    className="dangerous-red">
+                        <b>
+                            X
+                        </b>
+                </button>,
+                <Dropdown />
+            ];
         }
 
-        return (<div className="buttons-div">{buttons}</div>)
-    }
-
-    render() {
-        const params = this.props.params;
         return (
-            <div className="experiment-card">
-                <div className="header">
-                    <div className="title-div">
-                        <p><b>{params.currentState}</b></p>
-                    </div>
-                </div>
-
-                {params.experiments.map((experiment, index) => {
-                    let modelDiv = "inherit";
-                    let progressVisibility = "inherit";
-                    if (experiment.currentState === "Expired")
-                        progressVisibility = "hidden"
-                    return (
-                        <div key={index} className="card-content">
-                            <div className="summary-data" data-key={`${experiment.descTitle}`}>
-                                <div className="project-desc-experiment">
-                                    <p onClick={(e) => {
-                                        experiment.currentState === "Expired"
-                                            ? this.handleEmptyClick()
-                                            : this.handleButtonsClick(e)
-                                    }}
-                                        style={{ cursor: "pointer" }}>
-                                        <b>{experiment.descTitle}</b>
-                                    </p>
-                                    <p>Created by <b>{experiment.userName}</b><br />
-                                        {experiment.timeCreatedAgo} ago
-                                    </p>
-                                </div>
-                                <div className="project-desc-experiment" style={{ visibility: progressVisibility }}>
-                                    <p><b>Use: 24GB</b></p>
-                                    <p>Expires in:{experiment.expiration}</p>
-                                </div>
-                                <div className="project-desc-experiment" style={{ visibility: modelDiv }}>
-                                    <p><b>24,051 files changed</b></p>
-                                    <p>Id: {experiment.di_id ? experiment.di_id : "72fb5m"}</p>
-                                </div>
-                                {this.getButtonsDiv(experiment.currentState)}
-                            </div>
-                        </div>)
-                })
-                }
-            </div>
+            <div className="buttons-div">{buttons}</div>
         )
     }
+
+    return (
+        <div className="experiment-card">
+            <div className="header">
+                <div className="title-div">
+                    <p><b>{getStatusForDataInstance(params.currentState)}</b></p>
+                </div>
+            </div>
+
+            {params.experiments.map((experiment, index) => {
+                let modelDiv = "inherit";
+                let progressVisibility = "inherit";
+                if (experiment.currentState === "Expired")
+                    progressVisibility = "hidden"
+                return (
+                    <div key={index} className="card-content">
+                        <div className="summary-data" data-key={`${experiment.descTitle}`}>
+                            <div className="project-desc-experiment">
+                                <p onClick={(e) => {
+                                    experiment.currentState === "Expired"
+                                        ? handleEmptyClick()
+                                        : handleButtonsClick(e)
+                                }}
+                                    style={{ cursor: "pointer" }}>
+                                    <b>{experiment.descTitle}</b>
+                                </p>
+                                <p>Created by <b>{experiment.userName}</b><br />
+                                    {experiment.timeCreatedAgo} ago
+                                </p>
+                            </div>
+                            <div className="project-desc-experiment" style={{ visibility: progressVisibility }}>
+                                <p><b>Use: 24GB</b></p>
+                                <p>Expires in:{experiment.expiration}</p>
+                            </div>
+                            <div className="project-desc-experiment" style={{ visibility: modelDiv }}>
+                                <p><b>24,051 files changed</b></p>
+                                <p>Id: {experiment.di_id ? experiment.di_id : "72fb5m"}</p>
+                            </div>
+                            { getButtonsDiv(experiment.currentState) }
+                        </div>
+                    </div>
+                )
+            })}
+        </div>
+    )
 }
 
 
@@ -111,11 +142,39 @@ class DataInstanceOverview extends Component {
         super(props);
         const project = this.props.projects.selectedProject;
 
+        const branches = props.branches.filter(branch => branch.name.startsWith("data-pipeline"));
         this.state = {
             project: project,
-            branches: props.branches.filter(branch => branch.name.startsWith("data-pipeline"))
+            isDeleteModalVisible: false,
+            dataInstances: [],
+            typeOfMessage: null
         };
+
+        pipelinesApi.getPipesByProjectId(project.id).then(res => {
+            const pipes = res.filter(pipe => pipe.status !== SKIPPED);
+            const dataInstances = branches.map(branch => {
+                const pipeBranch = pipes.filter(pipe => pipe.ref === branch.name)[0];
+                if (pipeBranch) {
+                    const dataInstance = {};
+                    dataInstance["status"] = pipeBranch.status;
+                    dataInstance["name"] = branch.name;
+                    dataInstance["authorName"] = branch.author_name;
+                    dataInstance["commit"] = branch.commit;
+                    return dataInstance;
+                }
+
+                return null;
+            });
+            this.setState({dataInstances: dataInstances});
+        });
+        this.setIsDeleteModalVisible = this.setIsDeleteModalVisible.bind(this);
     }
+
+    setIsDeleteModalVisible = (isDeleteModalVisible, typeOfMessage) =>
+        this.setState({
+            isDeleteModalVisible: isDeleteModalVisible,
+            typeOfMessage: typeOfMessage
+        });
 
     handleButtonsClick(e) {
         e.target.parentNode.childNodes.forEach(childNode => {
@@ -134,6 +193,12 @@ class DataInstanceOverview extends Component {
     render() {
         const project = this.state.project;
         return (
+            <>
+            <DataInstancesDeleteModal 
+                isModalVisible={this.state.isDeleteModalVisible}
+                setIsVisible={this.setIsDeleteModalVisible}
+                typeOfMessage={this.state.typeOfMessage}
+            />
             <div id="experiments-overview-container">
                 <Navbar />
                 <ProjectContainer project={project}
@@ -168,40 +233,28 @@ class DataInstanceOverview extends Component {
                             onClick={(e) => this.handleButtonsClick(e)}>Expired
                         </button>
                     </div>
-
-                    <InstanceCard params={
-                        {
-                            "currentState": Expired,
-                            "experiments": [
-                                {
-                                    "currentState": Expired,
-                                    "descTitle": "UNET_SARData",
-                                    "userName": "Camillo Pachmann",
-                                }
-                            ]
-                        }
-                    }
-                    />
-                    {this.state.branches.map((item, index) => {
+                    {this.state.dataInstances
+                        .filter(item => item !== null)
+                        .map((item, index) => {
                         const timediff = getTimeCreatedAgo(item.commit.created_at);
                         return (
-                            <InstanceCard key={index} history={this.props.history} params={
-                                {
-                                    "currentState": Active,
-                                    "experiments": [
-                                        {
-                                            "currentState": Active,
-                                            "di_id": item.commit.short_id,
-                                            "descTitle": item.name,
-                                            "userName": item.commit.author_name,
-                                            "timeCreatedAgo": timediff,
-                                            "expiration": timediff,
-                                            "projId": this.state.project.id,
-                                            "modelTitle": "Resnet-50",
-                                        }
-                                    ]
-                                }
-                            }
+                            <InstanceCard 
+                                key={index} 
+                                history={this.props.history}
+                                setIsDeleteModalVisible={this.setIsDeleteModalVisible}
+                                params={{
+                                    "currentState": item.status,
+                                    "experiments": [{
+                                        "currentState": item.status,
+                                        "di_id": item.commit.short_id,
+                                        "descTitle": item.name,
+                                        "userName": item.commit.author_name,
+                                        "timeCreatedAgo": timediff,
+                                        "expiration": timediff,
+                                        "projId": this.state.project.id,
+                                        "modelTitle": "Resnet-50"
+                                    }]
+                                }}
                             />
                         )
                     })}
@@ -209,6 +262,7 @@ class DataInstanceOverview extends Component {
                 <br />
                 <br />
             </div>
+            </>
         )
     }
 }
@@ -236,8 +290,14 @@ function Dropdown() {
 
     return (
         <>
-            <button onClick={e => setState(!state)} ref={node} className="light-green-button experiment-button non-active-black-border">
-                <span><b style={{ margin: "0 10px 10px 0" }}>Save</b></span>
+            <button 
+                onClick={e => setState(!state)} ref={node} 
+                className="light-green-button experiment-button non-active-black-border">
+                    <span>
+                        <b style={{ margin: "0 10px 10px 0" }}>
+                            Save
+                        </b>
+                    </span>
                 <img className="dropdown-white" src={arrow_down_white_01} alt="" />
             </button>
             {state &&
