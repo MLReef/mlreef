@@ -24,4 +24,9 @@ pre code{
     white-space: pre;
 }
 
+p code{
+    color: #c0341d;
+    background-color: #fbe5e1;
+}
+
 
