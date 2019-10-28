@@ -14,7 +14,7 @@ open class GitlabAuthService(
         val gitlabRestClient: GitlabRestClient
 ) : AuthService {
 
-    override fun findByToken(token: String): GitlabUserDetails? {
+    override fun findByToken(token: String): TokenDetails? {
 
         val user = try {
             gitlabRestClient.getUser(token)
@@ -23,7 +23,7 @@ open class GitlabAuthService(
             null
         }
 
-        return GitlabUserDetails(
+        return TokenDetails(
                 token = token,
                 gitlabUser = user,
                 valid = (user != null)
