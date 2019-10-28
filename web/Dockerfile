@@ -8,7 +8,7 @@ WORKDIR /app
 ENV PATH /app/node_modules/.bin:$PATH
 
 # install and cache app dependencies
-RUN npm install --global react-scripts
+RUN npm install --global react-scripts --silent
 RUN npm install --global create-react-app@latest
 RUN npm install --silent
 RUN npm install react-scripts@3.0.1 -g --silent
