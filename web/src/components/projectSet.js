@@ -1,15 +1,17 @@
 import React from "react";
-import { connect } from "react-redux";
+
 import star_01 from "./../images/star_01.svg";
 import fork_01 from "./../images/fork_01.svg";
 import { Link } from "react-router-dom";
-import projectGeneralInfoApi from "../apis/projectGeneralInfoApi";
 
 class ProjectSet extends React.Component {
-  state = {
-    personal: true,
-    starred: false,
-    explore: false
+  constructor(props){
+    super(props);
+    this.state = {
+      personal: true,
+      starred: false,
+      explore: false
+    }
   }
 
   handlePersonal = () => {
@@ -73,6 +75,7 @@ class ProjectSet extends React.Component {
             desc={proj.description}
             avatar={proj.avatar_url}
             projects={this.props.projects}
+            handleShowModal={this.props.handleShowModal}
           />
         )}
         {this.state.explore && this.props.projects.map((proj) =>
@@ -86,6 +89,7 @@ class ProjectSet extends React.Component {
             desc={proj.description}
             avatar={proj.avatar_url}
             projects={this.props.projects}
+            handleShowModal={this.props.handleShowModal}
           />
         )}
       </>
@@ -93,18 +97,7 @@ class ProjectSet extends React.Component {
   }
 }
 
-const Project = props => {
-
-  const [refresh, setRefresh] = React.useState(true);
-
-  function handleClick() {
-    projectGeneralInfoApi.removeProject("gitlab.com", props.owner)
-      .then(res => res.json())
-      .then(result => console.log(result))
-    setRefresh(!refresh);
-  }
-
-  return (refresh &&
+const Project = ({...props}) =>
     <div id="project-display" onClick={props.click}>
       <div>
         <div id="project-icon">
@@ -145,16 +138,23 @@ const Project = props => {
           </div>
         </div>
         <p>Updated 10 minutes ago</p>
-        <button style={{ margin: "0.5em", cursor: "pointer" }} className="dangerous-red" onClick={handleClick}><b>X</b></button>
+        <button 
+          style={{ 
+            margin: "0.5em", 
+            cursor: "pointer" 
+          }} 
+          className="dangerous-red"
+          onClick={
+            () => props.handleShowModal(
+              props.name, 
+              props.owner
+            )
+          }>
+            <b>
+              X
+            </b>
+        </button>
       </div>
-    </div>
-  )
-}
+    </div>;
 
-function mapStateToProps(state) {
-  return {
-    projects: state.projects.all
-  };
-}
-
-export default connect(mapStateToProps)(ProjectSet);
+export default ProjectSet;

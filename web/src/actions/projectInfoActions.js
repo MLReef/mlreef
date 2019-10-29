@@ -42,3 +42,8 @@ export function setSelectedProject(projectSelected) {
         dispatch(setSelectedProjectSuccesfully(projectSelected));
     }
 }
+
+export function updateProjectsList(projects) {
+    return (dispatch) => 
+        dispatch({ type: types.UPDATE_PROJECTS_LIST, projects });
+}

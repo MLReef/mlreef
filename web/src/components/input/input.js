@@ -14,7 +14,11 @@ class Input extends Component {
         }else{
             e.currentTarget.classList.remove("blue-border-dark-blue-letter");
             e.currentTarget.classList.add("grey-border");
-        }        
+        }
+        
+        if(this.props.callback && typeof this.props.callback === 'function'){
+            this.props.callback(e);
+        }
     }
     
     render() {
@@ -22,7 +26,7 @@ class Input extends Component {
         const name = this.props.name;
         const id = this.props.id;
         return (
-            <div id={` input-${id}-div-container`} className="input-component-container">
+            <div id={`input-${id}-div-container`} className="input-component-container">
                 <div>
                     <input name={name} id={id} className="grey-border" placeholder={placeholder} onKeyUp={this.handleKeyUp}/>
                 </div>

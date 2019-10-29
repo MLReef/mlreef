@@ -1,0 +1,41 @@
+.title-div {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1em;
+    border-bottom: 1px solid gray;
+}
+
+.title-div > p {
+    font-size: 1.1em;
+    margin: 0;
+}
+
+.title-div > button {
+    border: none;
+    background-color: transparent;
+}
+
+.modal-content > #project-deletion-message {
+    margin: 1em 2em 1em 1em;
+}
+
+.modal-content > #project-deletion-message > #warning {
+    font-weight: 600;
+    color: #bf542f
+}
+
+.modal-content > #project-deletion-message > #confirmation > b {
+    color: #bf542f;
+    background-color: #bf542f54;
+    padding: 1px 3px;
+}
+
+#project-input {
+    width: 27em;
+    max-width: 390px;
+}
+
+#button-container {
+    padding: 0em 0em 0em 1em;
+}
