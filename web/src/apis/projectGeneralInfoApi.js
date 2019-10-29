@@ -1,4 +1,5 @@
 import { SECURITY_TOKEN } from "../apiConfig";
+import { domain } from "./../dataTypes";
 
 export default class ProjectGeneralInfoApi {
     static async getProjectInfoApi(projectId, domain = "gitlab.com") {
@@ -43,7 +44,7 @@ export default class ProjectGeneralInfoApi {
         ))
     }
 
-    static async removeProject(domain, projectId) {
+    static async removeProject(projectId) {
         let url = `https://${domain}/api/v4/projects/${projectId}`;
         return fetch(new Request(
             url, {

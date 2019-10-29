@@ -72,7 +72,12 @@ class ProjectView extends React.Component {
                         currentBranch={branch}
                         numberOfContributors={this.state.contributors.length}
                         branchesCount={this.props.branches.length}
-                        dataInstanesCount={this.props.branches.filter(branch => branch.name.startsWith("data-pipeline")).length}
+                        dataInstanesCount={
+                            this.props.branches
+                                .filter(
+                                    branch => branch.name.startsWith("data-pipeline")
+                                ).length
+                            }
                     />
                     <div className="last-commit-info">
                         <div className="last-commit-details">

@@ -1,13 +1,24 @@
 import React from "react";
+import { connect } from "react-redux";
 import Navbar from "../navbar/navbar";
 import ProjectSet from "../projectSet";
 import "./myProjects.css";
+import ProjectDeletionModal from "../project-deletion-modal/projectDeletionModal";
 
 class Myprojects extends React.Component {
-  state = {
-    showOverview: true,
-    showProjects: false,
-    showRepo: false
+  constructor(props){
+    super(props);
+    this.handleShowModal = this.handleShowModal.bind(this);
+    this.hideModal = this.hideModal.bind(this);
+    
+    this.state = {
+      showOverview: true,
+      showProjects: false,
+      showRepo: false,
+      showModal: false,
+      projectName: "",
+      owner: ""
+    }
   }
 
   handleOverview = () => {
@@ -22,14 +33,34 @@ class Myprojects extends React.Component {
     this.setState({ showOverview: false, showProjects: false, showRepo: true })
   }
 
+  handleShowModal= (projectName, owner) => 
+    this.setState({ 
+      showModal: true, 
+      projectName: projectName,
+      owner: owner
+    });
+
+  hideModal = () =>
+    this.setState({ 
+      showModal: false,
+      isEnabledConfirmButton: false
+    });
+
   render() {
     return (
       <div>
+        <ProjectDeletionModal 
+          isShowing={this.state.showModal} 
+          projectName={this.state.projectName} 
+          owner={this.state.owner} 
+          hideModal={this.hideModal}
+          projectsList={this.props.projects}
+        />
         <Navbar />
         <div className="project-content">
           <NewProject />
           <hr />
-          <ProjectSet />
+          <ProjectSet projects={this.props.projects} handleShowModal={this.handleShowModal}/>
         </div>
       </div>
     )
@@ -47,4 +78,10 @@ const NewProject = () => {
   )
 }
 
-export default Myprojects;
+function mapStateToProps(state) {
+  return {
+    projects: state.projects.all
+  };
+}
+
+export default connect(mapStateToProps)(Myprojects);
