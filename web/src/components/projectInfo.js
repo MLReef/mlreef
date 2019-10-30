@@ -1,20 +1,20 @@
-import React from "react";
+import React from 'react';
 import { connect } from 'react-redux';
-import { Link } from "react-router-dom";
-import { Redirect } from 'react-router-dom'
-import star_01 from "./../images/star_01.svg";
-import fork_01 from "./../images/fork_01.svg";
-import clone_01 from "./../images/clone_01.svg";
-import projectGeneralInfoApi from "./../apis/projectGeneralInfoApi";
-import arrow_01 from "./../images/arrow_down_blue-01.png";
+import { Link, Redirect } from 'react-router-dom';
+
+import star_01 from '../images/star_01.svg';
+import fork_01 from '../images/fork_01.svg';
+import clone_01 from '../images/clone_01.svg';
+import projectGeneralInfoApi from '../apis/projectGeneralInfoApi';
+import arrow_01 from '../images/arrow_down_blue-01.png';
 
 const ProjectInfo = ({ info }) => {
-  let iconUrl = info.avatar_url;
+  const iconUrl = info.avatar_url;
   const [redirect, setRedirect] = React.useState(false);
 
   function handleFork() {
-    projectGeneralInfoApi.forkProject("gitlab.com", info.id, info.name)
-      .then(res => res.json());
+    projectGeneralInfoApi.forkProject('gitlab.com', info.id, info.name)
+      .then((res) => res.json());
     setRedirect(true);
   }
 
@@ -23,15 +23,20 @@ const ProjectInfo = ({ info }) => {
       <div className="project-id">
         <Link to={`/my-projects/${info.id}/${info.default_branch}`}>
           <div className="project-pic">
-            <img style={{ minWidth: "100%" }} src={iconUrl} alt="" />
+            <img style={{ minWidth: '100%' }} src={iconUrl} alt="" />
           </div>
         </Link>
         <div className="project-name">
           <Link to={`/my-projects/${info.id}/${info.default_branch}`} id="projectName">{info.name}</Link>
-          <p id="projectId">Project ID: {info.id} | 526MB used</p>
+          <p id="projectId">
+Project ID:
+            {info.id}
+            {' '}
+| 526MB used
+          </p>
         </div>
       </div>
-      {redirect ? <Redirect to='/my-projects' /> : null}
+      {redirect ? <Redirect to="/my-projects" /> : null}
       <div className="project-options">
         <div className="options">
           <button className="option-name">
@@ -67,11 +72,11 @@ const ProjectInfo = ({ info }) => {
 };
 
 function Clonedropdown(props) {
-  //The following code can be used to refactor the rest of the code. New way of writing the code.
+  // The following code can be used to refactor the rest of the code. New way of writing the code.
   const node = React.useRef();
   const [open, setOpen] = React.useState(false);
 
-  const handleClickOutside = e => {
+  const handleClickOutside = (e) => {
     if (node.current.contains(e.target)) {
       // inside click
       return;
@@ -82,18 +87,18 @@ function Clonedropdown(props) {
 
   React.useEffect(() => {
     if (open) {
-      document.addEventListener("mousedown", handleClickOutside);
+      document.addEventListener('mousedown', handleClickOutside);
     } else {
-      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener('mousedown', handleClickOutside);
     }
     return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener('mousedown', handleClickOutside);
     };
   }, [open]);
 
   return (
     <>
-      <div className="counter clone-dropdown" ref={node} onClick={e => setOpen(!open)}>
+      <div className="counter clone-dropdown" ref={node} onClick={(e) => setOpen(!open)}>
         <img className="dropdown-white" src={arrow_01} alt="Clone" />
         {open && (
           <div className="clone-box">
@@ -115,14 +120,14 @@ function Clonedropdown(props) {
         )}
       </div>
     </>
-  )
+  );
 }
 
 function mapStateToProps(state) {
   return {
     files: state.files,
     project: state.project,
-    file: state.file
+    file: state.file,
   };
 }
 

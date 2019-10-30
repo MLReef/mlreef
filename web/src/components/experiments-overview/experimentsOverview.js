@@ -166,7 +166,6 @@ class ExperimentCard extends React.Component {
             }
         }).catch(
             err => {
-                console.log(err)
                 toastr.warning('Wait', 'No data has been generated for this experiment yet');
             }
         );

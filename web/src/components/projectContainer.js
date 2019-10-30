@@ -1,28 +1,25 @@
-import React from "react";
-import ProjectInfo from "./projectInfo";
-import ProjectNav from "./projectNav";
-import { Link } from "react-router-dom";
+import React from 'react';
+import { Link } from 'react-router-dom';
+import ProjectInfo from './projectInfo';
+import ProjectNav from './projectNav';
 
 class ProjectContainer extends React.Component {
-
   componentDidMount() {
-    document.getElementById(this.props.activeFeature).classList.add("active");
+    document.getElementById(this.props.activeFeature).classList.add('active');
   }
 
   render() {
-    const project = this.props.project;
-    const folders = this.props.folders;
+    const { project } = this.props;
+    const { folders } = this.props;
     return (
       <div className="project-container">
         <div className="project-details main-content">
           <ProjectNav key={`project-key-${project.id}`} projectId={project.id} folders={folders} />
 
           <ProjectInfo info={project} />
-          {
-            <p className="project-desc">
-              {project.description ? project.description : "No description"}
-            </p>
-          }
+          <p className="project-desc">
+            {project.description ? project.description : 'No description'}
+          </p>
           <div className="feature-list">
             <Link to={`/my-projects/${project.id}/${project.default_branch}`} className="feature" id="data">
               Data
