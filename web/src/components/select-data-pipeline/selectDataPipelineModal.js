@@ -70,7 +70,7 @@ class SelectDataPipelineModal extends Component {
                 })
         )
         .catch(
-            err => console.log(err)
+            err => err
         )
 
     render(){
