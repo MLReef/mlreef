@@ -10,33 +10,17 @@ import arrow_blue from "./../../images/arrow_down_blue_01.svg";
 import filesApi from "./../../apis/FilesApi";
 
 class FileView extends React.Component {
-  state = {
-    project: null,
-    committer: [],
-    fileData: null
-  }
-
-  componentWillMount() {
-    var url_string = window.location.href;
-    var url = new URL(url_string);
-    var path = url.searchParams.get("path");
-    const projectId = this.props.match.params.projectId;
-    const proj = this.props.projects.selectedProject;
-
-    this.setState({
-      project: proj
-    });
-    if (path) {
-      path = path.replace(/\//g, "%2F");
-      path = path + "%2F" + this.props.match.params.file;
-    } else {
-      path = this.props.match.params.file;
+  constructor(props){
+    super(props);
+    this.state = {
+      project: this.props.projects.selectedProject,
+      committer: [],
+      fileData: null
     }
-
+ 
     filesApi.getFileData(
-      "gitlab.com",
-      projectId,
-      path,
+      this.props.match.params.projectId,
+      this.props.match.params.file,
       this.props.match.params.branch
     ).then(res => this.setState({ fileData: res }));
   }

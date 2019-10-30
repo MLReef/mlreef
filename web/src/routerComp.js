@@ -18,33 +18,33 @@ import ErrorPage from './components/error-page/errorPage';
 import ExperimentDetails from './components/experiment-details/experimentDetails';
 
 const RouterComp = () => (
-  <BrowserRouter>
-    <Switch>
-      <Route path="/" exact component={Login} />
-      <Route path="/index.html" exact component={Login} />
-      <Route path="/error-page" exact component={ErrorPage} />
-      <PrivateRoute path="/my-projects" exact component={Projects} />
-      <PrivateRoute path="/my-projects/:projectId/:branch/commits" exact component={Commits} />
-      <PrivateRoute exact path="/my-projects/:projectId/pipe-line" component={PipeLineView} />
-      <PrivateRoute path="/my-projects/:projectId/visualizations" component={EmptyDataVisualization} />
-      <PrivateRoute exact path="/my-projects/:projectId/:branch/data-instances" component={DataInstanceOverview} />
-      <PrivateRoute path="/my-projects/:projectId/:branch/data-instances/:di_name" component={DataInstanceDetails} />
-      <PrivateRoute path="/my-projects/:projectId/new-experiment" component={NewExperiment} />
-      <PrivateRoute
-        path="/my-projects/:projectId/experiments-overview"
-        exact
-        component={ExperimentsOverview}
-      />
-      <PrivateRoute path="/my-projects/:projectId/experiment-details/:experimentId" exact component={ExperimentDetails} />
-      <PrivateRoute path="/my-projects/:projectId/:branch" exact component={projectView} />
-      <PrivateRoute
-        path="/my-projects/:projectId/files/branch/:branch/file-name/:file"
-        component={FileView}
-      />
-      <PrivateRoute path="/my-projects/:projectId/files/branch/:branch" component={projectView} />
-      <PrivateRoute path="/my-projects/:projectId/commit/:id" exact component={CommitDetails} />
-    </Switch>
-  </BrowserRouter>
+    <BrowserRouter>
+        <Switch>
+            <Route path="/" exact component={Login} />
+            <Route path="/index.html" exact component={Login} />
+            <Route path="/error-page" exact component={ErrorPage}/>
+            <PrivateRoute path="/my-projects" exact component={Projects} />
+            <PrivateRoute path="/my-projects/:projectId/:branch/commits" exact component={Commits} />
+            <PrivateRoute exact path="/my-projects/:projectId/pipe-line" component={PipeLineView} />
+            <PrivateRoute path="/my-projects/:projectId/visualizations" component={EmptyDataVisualization} />
+            <PrivateRoute exact path="/my-projects/:projectId/:branch/data-instances" component={DataInstanceOverview} />
+            <PrivateRoute path="/my-projects/:projectId/:branch/data-instances/:di_name" component={DataInstanceDetails} />
+            <PrivateRoute path="/my-projects/:projectId/new-experiment" component={NewExperiment} />
+            <PrivateRoute
+                path="/my-projects/:projectId/experiments-overview"
+                exact
+                component={ExperimentsOverview}
+            />
+            <PrivateRoute path="/my-projects/:projectId/experiment-details/:experimentId" exact component={ExperimentDetails} />
+            <PrivateRoute path="/my-projects/:projectId/:branch" exact component={projectView} />
+            <PrivateRoute
+                path="/my-projects/:projectId/:branch/blob/:file"
+                component={FileView}
+            />
+            <PrivateRoute path="/my-projects/:projectId/:branch/path/:path" component={projectView} />
+            <PrivateRoute path="/my-projects/:projectId/commit/:id" exact component={CommitDetails} />
+        </Switch>
+    </BrowserRouter>
 );
 
 export default RouterComp;
