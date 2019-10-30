@@ -15,7 +15,6 @@ class ReadMeComponent extends React.Component {
 
   componentDidMount() {
     filesApi.getFileData(
-      'gitlab.com',
       this.props.project.id,
       'README.md',
       this.props.branch,

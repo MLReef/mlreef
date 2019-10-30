@@ -16,7 +16,7 @@ export const callToCommitApi = (
   action,
 )
   .then((res) => {
-    if (!res.id || typeof res.id === undefined) {
+    if (!res.id || typeof res.id === 'undefined') {
       callToCommitApi(branch, 'update', finalContent);
     }
   })
@@ -28,5 +28,5 @@ export const callToGetFilesInFolder = (
   projectId,
   recursive,
 ) => filesApi
-  .getFilesPerProject(projectId, path || '', recursive, 'gitlab.com', branch)
+  .getFilesPerProject(projectId, path || '', recursive, branch)
   .catch((err) => err);

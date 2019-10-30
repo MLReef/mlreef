@@ -68,7 +68,6 @@ export const generateNewArrayOfFilesToRender = async (filesResponse, projectId, 
   const files = filesResponse.filter((file) => file.type === 'blob');
   const folders = filesResponse.filter((file) => file.type === 'tree');
   const filesData = await Promise.all(files.map((file) => filesApi.getFileData(
-    'gitlab.com',
     projectId,
     file.path.replace(/\//g, '%2F'),
     branch,

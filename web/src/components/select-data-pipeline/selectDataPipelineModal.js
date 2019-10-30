@@ -57,8 +57,7 @@ class SelectDataPipelineModal extends Component {
         .getFilesPerProject(
             this.state.project.id, 
             "", 
-            false, 
-            "gitlab.com", 
+            false,
             newBranchSelectedName
         )
         .then(

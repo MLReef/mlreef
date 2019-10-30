@@ -11,23 +11,7 @@ export function getFileInfoSuccessfully(fileData) {
 
 export function loadFiles(path, branch, projectId, recursive) {
   return async (dispatch) => {
-    const domain = 'gitlab.com';
-    try {
-      const files = await filesApi.getFilesPerProject(projectId, path || '', recursive, domain, branch);
-      dispatch(loadFilesSuccessfully(files));
-    } catch (err) {
-      throw err;
-    }
-  };
-}
-
-export function getFileData(domain = 'gitlab.com', projectId = '12395599', path = '/', branch = 'master') {
-  return async (dispatch) => {
-    try {
-      const file = await filesApi.getFileData(domain, projectId, path, branch);
-      dispatch(getFileInfoSuccessfully(file));
-    } catch (err) {
-      throw err;
-    }
+    const files = await filesApi.getFilesPerProject(projectId, path || '', recursive, branch);
+    dispatch(loadFilesSuccessfully(files));
   };
 }

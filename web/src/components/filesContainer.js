@@ -5,7 +5,6 @@ import { Link, Redirect } from "react-router-dom";
 import { connect } from "react-redux";
 import { 
   generateNewArrayOfFilesToRender,
-  getParamFromUrl,
   getFilesInFolder,
   findFolderContainer
 }
@@ -15,7 +14,6 @@ import { callToGetFilesInFolder } from './../functions/apiCalls';
 class FilesContainer extends Component {
   constructor(props) {
     super(props);
-    this.clickListener = this.clickListener.bind(this);
     this.getBack = this.getBack.bind(this);
 
     this.state = {
@@ -28,16 +26,22 @@ class FilesContainer extends Component {
 
     window.onpopstate = () => {
       this.props.setModalVisibility(true);
-      this.updateState();
+      this.updateFilesArray();
     };
   }
 
-  updateState = async () => {
-    var path = getParamFromUrl("path", window.location.href);
-    const res = await Promise.all([callToGetFilesInFolder(path, this.props.branch, this.props.projectId, true)]);
+  updateFilesArray = async () => {
+    this.props.setModalVisibility(true);
+    const res = await Promise.all([
+      callToGetFilesInFolder(
+        this.props.path, 
+        this.props.branch, 
+        this.props.projectId, 
+        true
+      )
+    ]);
     if(res[0].message){
-      this.setState({redirect: true});
-      return;
+      return false;
     }
     const updatedFiles = await generateNewArrayOfFilesToRender(res[0], this.props.projectId, this.props.branch);
     const filteredFiles = updatedFiles.filter(file => findFolderContainer(file, updatedFiles).length === 0);
@@ -46,22 +50,29 @@ class FilesContainer extends Component {
         file['count'] = getFilesInFolder(file, updatedFiles).length
       }
     });
-    this.setState({files: filteredFiles});
-    this.forceUpdate(() => {
-      this.props.setModalVisibility(false)
-    })
-  }
-    
-  componentDidUpdate() {
-    const urlPath = getParamFromUrl("path", window.location.href);
-    if(this.props.branch !== this.state.currentBranch){
-      this.setState({ currentBranch: this.props.branch, files: [] });
-      this.updateState();
-    }
 
-    if (urlPath !== this.state.currentPath) {
-      this.setState({ currentPath: urlPath, files: []});
-      this.updateState();
+    return filteredFiles;
+  }
+
+  componentDidUpdate = async () => {
+    const urlPath = this.props.path 
+      ? decodeURIComponent(this.props.path)
+      : null;
+    if(
+        this.props.branch !== this.state.currentBranch 
+          || urlPath !== this.state.currentPath
+      ){
+        const files = await this.updateFilesArray();
+        if(!files){
+          this.setState({redirect: true});
+          return;
+        }
+        this.setState({ 
+          currentPath: urlPath, 
+          currentBranch: this.props.branch, 
+          files: files
+        });
+        this.props.setModalVisibility(false)
     }
   }
 
@@ -85,11 +96,6 @@ class FilesContainer extends Component {
 
   
   getBack = () => window.history.back()
-  
-  clickListener(e) {
-    this.props.setModalVisibility(true);
-    this.updateState();
-  }
 
   render = () =>
     <>
@@ -130,29 +136,22 @@ class FilesContainer extends Component {
             {this.getReturnOption()}
             {this.state.files.map((file, index) => {
               let icon;
-              let link;
-              var url_string = window.location.href;
-              var url = new URL(url_string);
-              var path = url.searchParams.get("path");
-
+              let routeType = "";
               if (file.type === "tree") {
+                routeType = "path";
                 icon = folderIcon;
-                const basePath = `/my-projects/${this.props.projectId}/files/branch/${this.props.branch}?path=`
-                link = path
-                  ? `${basePath}${path}/${file.name}`
-                  : `${basePath}${file.name}`;
               } else {
+                routeType = "blob";
                 icon = fileIcon;
-                path = path ? path : "";
-                link = `/my-projects/${this.props.projectId}/files/branch/${this.props.branch}/file-name/${file.name}?path=${path}`;
               }
-
+              const link = `/my-projects/${this.props.projectId}/${this.props.branch}/${routeType}/${encodeURIComponent(file.path)}`;
+  
               return <tr key={index} className="files-row">
                   <td className="file-type">
-                    <Link onClick={this.clickListener} to={link}>
+                    <Link to={link}>
                       <img src={icon} alt="" />
                     </Link>
-                    <Link onClick={this.clickListener} to={link}>
+                    <Link to={link}>
                       {file.name}
                     </Link>
                   </td>

@@ -55,6 +55,7 @@ class ProjectView extends React.Component {
     render() {
         const files = this.props.files;
         const branch = encodeURIComponent(this.state.branch);
+        const path = this.props.match.params.path;
         const projectName = this.state.selectedProject.name;
         const showReadMe = !window.location.href.includes("path");
         return (
@@ -98,8 +99,9 @@ class ProjectView extends React.Component {
                     />
                     <FilesContainer 
                         projectId={this.state.selectedProject.id} 
-                        branch={branch} 
-                        files={files} 
+                        path={path}
+                        branch={branch}
+                        files={files}
                         setModalVisibility={this.setModalVisibility}
                     />
                     {showReadMe && <ReadMeComponent project={this.state.selectedProject} branch={branch} />}
