@@ -12,10 +12,13 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 
 
+//open class KGenericContainer(dockerImageName: String) : GenericContainer<KGenericContainer>(dockerImageName)
+//class RedisContainer : KGenericContainer("redis:alpine")
+
 @RunWith(SpringRunner::class)
 @SpringBootTest(classes = [RestApplication::class])
 @AutoConfigureMockMvc
-class AuthenticationSessionTest {
+class AuthenticationSessionTest() {
 
     @Autowired
     private val mockMvc: MockMvc? = null

@@ -78,14 +78,15 @@ decomission:
 build-backend:
   stage: build
   image: java:8
+  services:
+    - redis:latest
+  variables:
+    REDIS_HOST: "redis"
+    REDIS_PORT: 6379
   script:
     - ./gradlew build
     - ./gradlew :mlreef-rest:bootJar
-  only:
-    changes:
-      - build.gradle
-      - mlreef-domain/**/*
-      - mlreef-rest/**/*
+
 
 #deploy-backend:
 #  stage: deploy
