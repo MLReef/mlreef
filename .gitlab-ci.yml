@@ -40,7 +40,7 @@ provision-ec2:
   image: registry.gitlab.com/systemkern/s5:latest-aws  # based on python:3-slim
   stage: prepare
   variables:
-    EC2_IMAGE_AMI:    "ami-03c87d96f6702a119"          # aws-elasticbeanstalk-amzn-2018.03.0.x86_64-nodejs-hvm-201904170656
+    EC2_IMAGE_AMI:    "ami-03c87d96f6702a119"           # aws-elasticbeanstalk-amzn-2018.03.0.x86_64-nodejs-hvm-201904170656
     EC2_MACHINE_SIZE: "t2.nano"                         # https://aws.amazon.com/ec2/instance-types/
     EC2_SECURITY_GRP: "application_servers"
   before_script:
@@ -59,9 +59,9 @@ provision-ec2:
       - "$INSTANCE_INFO"                                # pass the file which contains our instance URL
   environment:
     name: $CI_COMMIT_REF_SLUG
-    url: http://www.example.com                         # temporary url will be corrected by the gitlab-env-conf job
+    url: $CI_PIPELINE_URL	                            # temporary url will be corrected by the gitlab-env-conf job
     on_stop: decomission                                # clean up after branch merge
-    
+
 
 gitlab-env-conf:
   image: pstauffer/curl:latest
@@ -82,8 +82,8 @@ gitlab-env-conf:
     - curl --request PUT --header "$KEY Bearer $GITLAB_API_TOKEN"
       --data "name=$CI_COMMIT_REF_SLUG&external_url=http://$URL:3000"
       https://gitlab.com/api/v4/projects/$CI_PROJECT_ID/environments/$ID
-     
-      
+
+
 # deploy the application to the ec2 instance
 deploy-ec2:
   image: registry.gitlab.com/systemkern/s5:latest
