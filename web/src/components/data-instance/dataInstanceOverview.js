@@ -100,36 +100,36 @@ const InstanceCard = ({...props}) => {
                 </div>
             </div>
 
-            {params.experiments.map((experiment, index) => {
+            {params.instances.map((instance, index) => {
                 let modelDiv = "inherit";
                 let progressVisibility = "inherit";
-                if (experiment.currentState === "Expired")
+                if (instance.currentState === "Expired")
                     progressVisibility = "hidden"
                 return (
                     <div key={index} className="card-content">
-                        <div className="summary-data" data-key={`${experiment.descTitle}`}>
+                        <div className="summary-data" data-key={`${instance.descTitle}`}>
                             <div className="project-desc-experiment">
                                 <p onClick={(e) => {
-                                    experiment.currentState === "Expired"
+                                    instance.currentState === "Expired"
                                         ? handleEmptyClick()
                                         : handleButtonsClick(e)
                                 }}
                                     style={{ cursor: "pointer" }}>
-                                    <b>{experiment.descTitle}</b>
+                                    <b>{instance.descTitle}</b>
                                 </p>
-                                <p>Created by <b>{experiment.userName}</b><br />
-                                    {experiment.timeCreatedAgo} ago
+                                <p>Created by <b>{instance.userName}</b><br />
+                                    {instance.timeCreatedAgo} ago
                                 </p>
                             </div>
                             <div className="project-desc-experiment" style={{ visibility: progressVisibility }}>
                                 <p><b>Use: 24GB</b></p>
-                                <p>Expires in:{experiment.expiration}</p>
+                                <p>Expires in:{instance.expiration}</p>
                             </div>
                             <div className="project-desc-experiment" style={{ visibility: modelDiv }}>
                                 <p><b>24,051 files changed</b></p>
-                                <p>Id: {experiment.di_id ? experiment.di_id : "72fb5m"}</p>
+                                <p>Id: {instance.di_id ? instance.di_id : "72fb5m"}</p>
                             </div>
-                            { getButtonsDiv(experiment.currentState) }
+                            { getButtonsDiv(instance.currentState) }
                         </div>
                     </div>
                 )
@@ -167,8 +167,20 @@ class DataInstanceOverview extends Component {
                 }
 
                 return null;
-            });
-            this.setState({dataInstances: dataInstances});
+            }).filter(dataInstance => dataInstance !== null);
+            const dataInstancesClassified = [
+                { status: RUNNING,
+                    values: 
+                        dataInstances
+                        .filter(dataIns => dataIns.status === RUNNING 
+                            || dataIns.status === PENDING
+                        )
+                },
+                { status: SUCCESS, values: dataInstances.filter(dataIns => dataIns.status === SUCCESS) },
+                { status: CANCELED, values: dataInstances.filter(dataIns => dataIns.status === CANCELED) },
+                { status: FAILED, values: dataInstances.filter(dataIns => dataIns.status === FAILED) },
+            ];
+            this.setState({dataInstances: dataInstancesClassified});
         });
         this.setIsDeleteModalVisible = this.setIsDeleteModalVisible.bind(this);
     }
@@ -237,26 +249,29 @@ class DataInstanceOverview extends Component {
                         </button>
                     </div>
                     {this.state.dataInstances
-                        .filter(item => item !== null)
-                        .map((item, index) => {
-                        const timediff = getTimeCreatedAgo(item.commit.created_at);
+                        .map((dataInstanceClassification, index) => {
+                            const instances = dataInstanceClassification.values.map(val => {
+                            const timediff = getTimeCreatedAgo(val.commit.created_at);
+                            return {
+                                    "currentState": val.status,
+                                    "di_id": val.commit.short_id,
+                                    "descTitle": val.name,
+                                    "userName": val.commit.author_name,
+                                    "timeCreatedAgo": timediff,
+                                    "expiration": timediff,
+                                    "projId": this.state.project.id,
+                                    "modelTitle": "Resnet-50"
+                                }
+                            });
+                            
                         return (
                             <InstanceCard 
                                 key={index} 
                                 history={this.props.history}
                                 setIsDeleteModalVisible={this.setIsDeleteModalVisible}
                                 params={{
-                                    "currentState": item.status,
-                                    "experiments": [{
-                                        "currentState": item.status,
-                                        "di_id": item.commit.short_id,
-                                        "descTitle": item.name,
-                                        "userName": item.commit.author_name,
-                                        "timeCreatedAgo": timediff,
-                                        "expiration": timediff,
-                                        "projId": this.state.project.id,
-                                        "modelTitle": "Resnet-50"
-                                    }]
+                                    "currentState": dataInstanceClassification.status,
+                                    "instances": instances
                                 }}
                             />
                         )
