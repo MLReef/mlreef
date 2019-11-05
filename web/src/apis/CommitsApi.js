@@ -1,4 +1,5 @@
 import { SECURITY_TOKEN } from '../apiConfig';
+import { domain } from '../dataTypes';
 
 export default class CommitsApi {
   static async performCommit(projectId, filePath, fileContent, domain = 'gitlab.com', branch = 'master', commitMss, action) {
@@ -31,9 +32,9 @@ export default class CommitsApi {
     }
   }
 
-  static async getCommits(domain, projectId) {
-    const url = `https://${domain}/api/v4/projects/${projectId}/repository/commits`;
-    return fetch(new Request(
+  static async getCommits(projectId, refName = 'master', perPage = 20) {
+    const url = `https://${domain}/api/v4/projects/${projectId}/repository/commits?per_page=${perPage}&ref_name=${refName}`;
+    const response = await fetch(new Request(
       url, {
         method: 'GET',
         headers: new Headers({
@@ -41,11 +42,12 @@ export default class CommitsApi {
         }),
       },
     ));
+    return response.json();
   }
 
-  static getCommitDetails(domain, projectId, commitId) {
+  static async getCommitDetails(projectId, commitId) {
     const url = `https://${domain}/api/v4/projects/${projectId}/repository/commits/${commitId}`;
-    return fetch(new Request(
+    const response = await fetch(new Request(
       url, {
         method: 'GET',
         headers: new Headers({
@@ -53,11 +55,12 @@ export default class CommitsApi {
         }),
       },
     ));
+    return response.json();
   }
 
-  static async getUsers(domain, projectId) {
+  static async getUsers(projectId) {
     const url = `https://${domain}/api/v4/projects/${projectId}/users`;
-    return fetch(new Request(
+    const response = await fetch(new Request(
       url, {
         method: 'GET',
         headers: new Headers({
@@ -65,5 +68,7 @@ export default class CommitsApi {
         }),
       },
     ));
+
+    return response.json();
   }
 }

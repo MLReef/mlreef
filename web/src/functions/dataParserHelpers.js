@@ -1,12 +1,11 @@
 import filesApi from '../apis/FilesApi';
 
-export const getTimeCreatedAgo = (timeAgoCreatedAt) => {
-  const today = new Date();
+export const getTimeCreatedAgo = (timeAgoCreatedAt, today) => {
   const timeAgoCreatedAtDate = new Date(timeAgoCreatedAt);
   const diff = today - timeAgoCreatedAtDate;
   let timediff;
   if (diff > 2678400e3) {
-    timediff = `${Math.floor(diff / 2678400e3)} months`;
+    timediff = `${Math.floor(diff / 2678400e3)} month(s)`;
   } else if (diff > 604800e3) {
     timediff = `${Math.floor(diff / 604800e3)} weeks`;
   } else if (diff > 86400e3) {
