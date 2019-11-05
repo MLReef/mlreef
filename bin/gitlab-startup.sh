@@ -1,0 +1,11 @@
+#!/bin/bash
+
+wget -qO- https://get.docker.com/ | sh
+wget https://raw.githubusercontent.com/sameersbn/docker-gitlab/master/docker-compose.yml
+sudo apt install -y docker-compose
+
+export GITLAB_SECRETS_SECRET_KEY_BASE="1111111111122222222222333333333334444444444555555555566666666661234"
+export    GITLAB_SECRETS_OTP_KEY_BASE="1111111111122222222222333333333334444444444555555555566666666661234"
+export     GITLAB_SECRETS_DB_KEY_BASE="1111111111122222222222333333333334444444444555555555566666666661234"
+
+sudo docker-compose up -d
