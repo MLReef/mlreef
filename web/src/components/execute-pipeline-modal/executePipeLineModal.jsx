@@ -55,7 +55,11 @@ const ExecutePipelineModal = ({
               </p>
             </div>
             <div id="x-button-div">
-              <button onClick={() => cleanForm()} className="light-green-button">
+              <button
+                type="button"
+                onClick={() => cleanForm()}
+                className="light-green-button"
+              >
                 {' '}
                 <b>X</b>
                 {' '}
@@ -172,7 +176,7 @@ const ExecutePipelineModal = ({
                 >
                   <input type="radio" checked={isSecondOptSelected} onChange={() => {}} />
                   <p style={{ marginLeft: '1em' }} id="paragraph-op2">
-                                Launch Jupyter notebook on your web browser to execute the pipeline locally on your machine
+                    Launch Jupyter notebook on your web browser to execute the pipeline locally on your machine
                   </p>
                 </div>
               </div>
@@ -181,7 +185,7 @@ const ExecutePipelineModal = ({
           {section === 2 && (
             <div style={{ padding: '1em 0 1em 3em', cursor: 'pointer', height: '70%' }}>
               <p>
-Data instance:
+                Data instance:
                 <b>DI_ProjectName_1</b>
               </p>
               <div style={{
@@ -212,7 +216,7 @@ Data instance:
               </div>
 
               <p>
-You can close this window, your task will run on the background under
+                You can close this window, your task will run on the background under
                 <b>"Insights/tasks"</b>
               </p>
 
@@ -220,11 +224,19 @@ You can close this window, your task will run on the background under
           )}
           <div style={{ display: 'flex', margin: '0em 3em', alignItems: 'first baseline' }}>
             <div style={{ display: 'flex', width: '50%' }}>
-              <button className="white-button" style={{ padding: '3px 3em' }} onClick={() => cleanForm()}>Abort</button>
+              <button
+                type="button"
+                className="white-button"
+                style={{ padding: '3px 3em' }}
+                onClick={() => cleanForm()}
+              >
+                Abort
+              </button>
             </div>
             <div style={{ width: '50%', display: 'flex', justifyContent: 'flex-end' }}>
               <button
                 id="show-machines"
+                type="button"
                 onClick={() => {
                   if (section === 1) {
                     setSection(2);

@@ -1,10 +1,10 @@
 import React from 'react';
+import { connect } from 'react-redux';
 import Navbar from '../navbar/navbar';
 import ProjectContainer from '../projectContainer';
 import folderIcon from '../../images/folder_01.svg';
 import fileIcon from '../../images/file_01.svg';
 import './dataInstanceDetails.css';
-import { connect } from 'react-redux';
 
 const DataInstanceDetails = ({ ...props }) => {
   const project = props.projects.selectedProject;

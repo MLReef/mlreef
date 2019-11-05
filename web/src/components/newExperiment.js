@@ -7,7 +7,7 @@ import ProjectContainer from './projectContainer';
 import { SortableDataOperationsList } from './pipeline-view/sortableDataOperationList';
 import SelectDataPipelineModal from './select-data-pipeline/selectDataPipelineModal';
 import { DataOperationsList } from './pipeline-view/dataOperationsList';
-import { Instruction } from './instruction/instruction';
+import Instruction from './instruction/instruction';
 import uuidv1 from 'uuid/v1';
 import ExecutePipelineModal from './execute-pipeline-modal/executePipeLineModal';
 import withPipelineExecution from './withPipelinesExecution';
