@@ -33,8 +33,7 @@ class FileView extends React.Component {
 
   getCommit() {
     const { projectId } = this.props.match.params;
-    CommitsApi.getCommitDetails('gitlab.com', projectId, this.state.fileData.last_commit_id)
-      .then((res) => res.json())
+    CommitsApi.getCommitDetails(projectId, this.state.fileData.last_commit_id)
       .then((result) => this.setState({ committer: result }));
   }
 

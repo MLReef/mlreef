@@ -1,12 +1,11 @@
 import React, { Component } from 'react';
-import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import Navbar from '../navbar/navbar';
 import ProjectContainer from '../projectContainer';
-import * as commitActions from '../../actions/commitActions';
 import './commitDetails.css';
 import arrowBlue from '../../images/arrow_down_blue_01.svg';
 import triangle01 from '../../images/triangle-01.png';
+import CommitsApi from '../../apis/CommitsApi';
 
 class CommitDetails extends Component {
   constructor(props) {
@@ -20,11 +19,9 @@ class CommitDetails extends Component {
 
   componentDidMount() {
     const { projectId } = this.props.match.params;
-    this.props.actions.getCommitDetails('gitlab.com', projectId, this.state.commitId)
-      .then((res) => res.json())
+    CommitsApi.getCommitDetails(projectId, this.state.commitId)
       .then((response) => this.setState({ commits: response }));
-    this.props.actions.getUsers('gitlab.com', projectId)
-      .then((res) => res.json())
+    CommitsApi.getUsers(projectId)
       .then((response) => this.setState({ users: response }));
   }
 
@@ -152,10 +149,4 @@ function mapStateToProps(state) {
   };
 }
 
-function mapDispatchToProps(dispatch) {
-  return {
-    actions: bindActionCreators(commitActions, dispatch),
-  };
-}
-
-export default connect(mapStateToProps, mapDispatchToProps)(CommitDetails);
+export default connect(mapStateToProps)(CommitDetails);

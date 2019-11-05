@@ -162,3 +162,19 @@ button {
    -ms-transform: rotate(45deg);
    transform: rotate(45deg);
  }
+
+ /* round picture with avatar*/
+
+ .commit-pic-circle {
+   margin: 1em 0 0 1em;
+   height: 2.5em;
+   width: 2.5em;
+   background-color: #fff;
+   display: flex;
+   border-radius: 50%;
+}
+
+.commit-pic-circle > img {
+   width: 100%;
+   border-radius: 50%;
+}

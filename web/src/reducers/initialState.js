@@ -6,4 +6,5 @@ export default {
     all: [],
     selectedProject: {},
   },
+  users: [],
 };

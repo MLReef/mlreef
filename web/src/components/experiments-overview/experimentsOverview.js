@@ -191,7 +191,7 @@ class ExperimentCard extends React.Component {
     render() {
         const params = this.props.params;
         const chartDivId = this.state.chartDivId;
-
+        const today = new Date();
         return (
             <div className="experiment-card">
                 <div className="header">
@@ -235,7 +235,7 @@ class ExperimentCard extends React.Component {
                                         <b>{experiment.descTitle}</b>
                                     </button>
                                     <p>Created by <b>{experiment.userName}</b><br/>
-                                        {getTimeCreatedAgo(experiment.timeCreatedAgo)} ago
+                                        {getTimeCreatedAgo(experiment.timeCreatedAgo, today)} ago
                                     </p>
                                 </div>
                                 <div className="project-desc-experiment" style={{visibility: progressVisibility}}>

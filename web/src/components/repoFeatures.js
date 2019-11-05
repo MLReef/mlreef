@@ -75,6 +75,7 @@ class RepoFeatures extends Component {
   }
 
   handleClick = (e) => {
+    this.props.updateLastCommit();
     this.props.actions.loadFiles(
       null,
       encodeURIComponent(e.currentTarget.id),
