@@ -50,7 +50,7 @@ INSTANCE=$(docker run --rm  \
   -e EC2_MACHINE_SIZE       \
   -e EC2_SECURITY_GRP       \
   $DOCKER_IMAGE             \
-  ./bin/provision.sh)
+  ./bin/provision-frontend.sh)
 
 INSTANCE=$(echo "$INSTANCE" | tr -d '\r')
 
