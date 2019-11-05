@@ -1,0 +1,134 @@
+@startuml
+
+interface Subject {
+    id: UUID? = null
+    slug: String = ""
+    name: String = ""
+    email: String ....
+}
+class Person
+class Organisation
+enum VisibilityScope {
+    PRIVATE,
+    PUBLIC,
+    GROUP
+}
+Subject <|-- Person
+Subject <|-- Organisation
+
+MLRepository - Subject : < owns
+Person - Organisation : > is member of
+
+interface Searchable {
+    name: String
+    description: String
+    author: Subject
+    visibilityScope: VisibilityScope
+}
+
+Searchable - Tag
+
+interface MLRepository {
+    UUID: String
+    slug: String
+    url: String
+}
+
+class MLDataRepository {
+    dataTypes: List<DataType>
+}
+class MLCodeRepository
+Searchable <|-- MLRepository
+Searchable <|-- DataProcessor
+Searchable <|-- ProcessorParameter
+MLRepository <|-- MLCodeRepository
+MLRepository <|-- MLDataRepository
+
+enum ExperimentStatus {
+    CREATED,
+    STARTING,
+    STARTED,
+    RUNNING,
+    SUCCEEDED,
+    FAILED,
+}
+
+class Experiment {
+    createdAt: Timestamp
+    startedAt: Timestamp
+    finishedAt: Timestamp
+    status: ExperimentStatus
+    output: OutputFiles..
+}
+class PerformanceMetrics {
+    jsonBlob: String
+    epochs: Int
+}
+Experiment *- PerformanceMetrics
+MLDataRepository o-- "many" Experiment : "has"
+
+interface DataProcessor {
+    val id: UUID? = null
+    val slug: String = ""
+    val inputDataType: DataType? = null
+}
+class DataOperation {
+   resultDataType: DataType? = null
+}
+class DataVisualization {
+   resultFiles: List<File> = listOf()
+}
+DataProcessor  <|-- DataOperation
+DataProcessor  <|-- DataVisualization
+DataProcessor  <|-- DataAlgorithm
+DataProcessor  *-- "many " ProcessorParameter : uses many parameters
+
+MLCodeRepository  -- DataProcessor : "lives in" <
+DataProcessor  - DataProcessorInstance : "execution with config"
+class DataProcessorInstance {
+    parent: DataProcessorInstance
+}
+class ParameterInstance {
+    parameter:ProcessorParameter
+    value: Object // depends on ParameterType
+}
+ProcessorParameter -- "many" ParameterInstance
+Experiment *-- "several" DataProcessorInstance : preProcessing
+Experiment *-- "several" DataProcessorInstance : postProcessing
+Experiment *-- "one" DataProcessorInstance : algorithm
+DataProcessorInstance *- "many" ParameterInstance
+
+class ProcessorParameter {
+    name: String = ""
+    type: ParameterType? = null
+    description: String = ""
+    nullable: Boolean = true
+    defaultValue: String = ""
+}
+
+enum ParameterType {
+    BOOLEAN,
+    STRING,
+    INTEGER,
+    COMPLEX,
+    FLOAT,
+    LIST,
+    TUPLE,
+    DICTIONARY,
+    OBJECT,
+    NUMPY_ARRAY
+}
+
+enum DataType {
+    ANY,
+    IMAGE,
+    VIDEO,
+    SENSOR,
+    NUMBER,
+    TABULAR,
+    TEXT,
+    BINARY,
+    MODEL
+}
+
+@enduml
