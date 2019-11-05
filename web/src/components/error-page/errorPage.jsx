@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import errorIcon from '../../images/error_icon.png';
 
-const ErrorPage = (errCode, errMesage) => (
+const ErrorPage = () => (
   <div
     style={{
       marginTop: '2.5%',
@@ -23,7 +23,7 @@ const ErrorPage = (errCode, errMesage) => (
       }}
     >
       <h1>
-                Error
+        Error
       </h1>
       <h2>404</h2>
       <p>The site you requested does not exist</p>

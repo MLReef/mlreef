@@ -1,68 +1,71 @@
-import React, { Component } from "react";
-import { connect } from "react-redux";
-import { Link } from "react-router-dom";
-import ml_reef_icon_01 from "../../images/MLReef_Logo_navbar.png";
-import arrow_down_white_01 from "../../images/arrow_down_white_01.svg";
-import arrow_down_blue_01 from "../../images/arrow_down_blue_01.svg";
-import "./navbar.css";
+import React, { Component } from 'react';
+import { connect } from 'react-redux';
+import { Link } from 'react-router-dom';
+import mlReefIcon01 from '../../images/MLReef_Logo_navbar.png';
+import arrowDownWhite01 from '../../images/arrow_down_white_01.svg';
+import arrowDownBlue01 from '../../images/arrow_down_blue_01.svg';
+import './navbar.css';
 
 class Navbar extends Component {
-  state = { dialogOpen: false, projectDialog: false, yourProjects: false };
+  constructor(props) {
+    super(props);
+    this.state = { dialogOpen: false, projectDialog: false, yourProjects: false };
+  }
 
-  handleProfile = e => {
+  componentWillUnmount() {
+    this.setState = (state, callback) => {
+
+    };
+  }
+
+  handleProfile() {
     if (!this.state.dialogOpen) {
-      document.addEventListener("click", this.handleOutsideClick, false);
+      document.addEventListener('click', this.handleOutsideClick, false);
     } else {
-      document.removeEventListener("click", this.handleOutsideClick, false);
+      document.removeEventListener('click', this.handleOutsideClick, false);
     }
 
-    this.setState(prevState => ({
-      dialogOpen: !prevState.dialogOpen
+    this.setState((prevState) => ({
+      dialogOpen: !prevState.dialogOpen,
     }));
-  };
+  }
 
-  handleOutsideClick = e => {
+  handleOutsideClick(e) {
     if (this.state.dialogOpen) this.handleProfile();
     else if (this.state.projectDialog) this.handleProject();
-  };
+  }
 
-  handleProject = e => {
+  handleProject(e) {
     if (!e) {
       return;
     }
     switch (e.target.id) {
-      case "your-projects":
+      case 'your-projects':
         this.setState({ yourProjects: true });
         break;
 
       default:
         !this.state.projectDialog
-          ? document.addEventListener("click", this.handleOutsideClick, false)
-          : document.removeEventListener("click", this.handleOutsideClick, false);
-        this.setState(prevState => ({
-          projectDialog: !prevState.projectDialog
+          ? document.addEventListener('click', this.handleOutsideClick, false)
+          : document.removeEventListener('click', this.handleOutsideClick, false);
+        this.setState((prevState) => ({
+          projectDialog: !prevState.projectDialog,
         }));
         break;
     }
-  };
-
-  componentWillUnmount() {
-    this.setState = (state, callback) => {
-      return;
-    };
   }
 
   render() {
     return (
       <div className="navbar">
         <Link to="/">
-          <img className="logo" src={ml_reef_icon_01} alt="" />
+          <img className="logo" src={mlReefIcon01} alt="" />
         </Link>
         <div
           className={
             this.state.projectDialog
-              ? "projects-dropdown-click"
-              : "projects-dropdown"
+              ? 'projects-dropdown-click'
+              : 'projects-dropdown'
           }
           onClick={this.handleProject}
         >
@@ -71,8 +74,8 @@ class Navbar extends Component {
             className="dropdown-white"
             src={
               this.state.projectDialog
-                ? arrow_down_blue_01
-                : arrow_down_white_01
+                ? arrowDownBlue01
+                : arrowDownWhite01
             }
             alt=""
           />
@@ -83,48 +86,52 @@ class Navbar extends Component {
                 <p>Starred Projects</p>
                 <p>Explore Projects</p>
               </div>
-              {!this.state.yourProjects && <div className="project-search">
+              {!this.state.yourProjects && (
+              <div className="project-search">
                 <input
-                  autoFocus={true}
+                  autoFocus
                   type="text"
                   placeholder="Search your projects"
                 />
-                <div style={{ margin: "1em" }}>
+                <div style={{ margin: '1em' }}>
                   <b>Frequently visited</b>
                 </div>
-              </div>}
+              </div>
+              )}
             </div>
           )}
         </div>
 
         <div
           className={
-            "profile-options " +
-            (this.state.dialogOpen ? "selected-controller" : "")
+            `profile-options ${
+              this.state.dialogOpen ? 'selected-controller' : ''}`
           }
           onClick={this.handleProfile}
-          ref={node => {
+          ref={(node) => {
             this.node = node;
           }}
         >
           <img
             className="dropdown-white"
             src={
-              this.state.dialogOpen ? arrow_down_blue_01 : arrow_down_white_01
+              this.state.dialogOpen ? arrowDownBlue01 : arrowDownWhite01
             }
             alt=""
           />
           <div
             className={
               this.state.dialogOpen
-                ? "profile-pic-darkcircle"
-                : "profile-pic-circle"
+                ? 'profile-pic-darkcircle'
+                : 'profile-pic-circle'
             }
           />
           {this.state.dialogOpen && (
             <div className="sign-box">
               <div>
-                Signed in as <b>camillo</b>
+                Signed in as
+                {' '}
+                <b>camillo</b>
               </div>
               <hr />
               <p>Set Status</p>
@@ -142,7 +149,7 @@ class Navbar extends Component {
 
 function mapStateToProps(state) {
   return {
-    projectsList: state.projects
+    projectsList: state.projects,
   };
 }
 

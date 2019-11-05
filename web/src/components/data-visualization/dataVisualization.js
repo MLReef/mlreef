@@ -8,7 +8,7 @@ import { dataVisualizations } from '../../dataTypes';
 import { SortableDataOperationsList } from '../pipeline-view/sortableDataOperationList';
 import SelectDataPipelineModal from '../select-data-pipeline/selectDataPipelineModal';
 import { DataOperationsList } from '../pipeline-view/dataOperationsList';
-import { Instruction } from '../instruction/instruction';
+import Instruction from '../instruction/instruction';
 import withPipelinesExecution from '../withPipelinesExecution';
 
 const EmptyDataVisualization = ({ ...props }) => {

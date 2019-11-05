@@ -1,46 +1,46 @@
-import React from "react";
-import ProjectContainer from "./../projectContainer";
-import "./fileView.css";
-import { connect } from "react-redux";
-import { Base64 } from "js-base64";
-import CommitsApi from "./../../apis/CommitsApi";
-import Navbar from "./../navbar/navbar";
-import file_01 from "./../../images/file_01.svg";
-import arrow_blue from "./../../images/arrow_down_blue_01.svg";
-import filesApi from "./../../apis/FilesApi";
+import React from 'react';
+import './fileView.css';
+import { connect } from 'react-redux';
+import { Base64 } from 'js-base64';
+import ProjectContainer from '../projectContainer';
+import CommitsApi from '../../apis/CommitsApi';
+import Navbar from '../navbar/navbar';
+import file_01 from '../../images/file_01.svg';
+import arrow_blue from '../../images/arrow_down_blue_01.svg';
+import filesApi from '../../apis/FilesApi';
 
 class FileView extends React.Component {
-  constructor(props){
+  constructor(props) {
     super(props);
     this.state = {
       project: this.props.projects.selectedProject,
       committer: [],
-      fileData: null
-    }
- 
+      fileData: null,
+    };
+
     filesApi.getFileData(
       this.props.match.params.projectId,
       this.props.match.params.file,
-      this.props.match.params.branch
-    ).then(res => this.setState({ fileData: res }));
+      this.props.match.params.branch,
+    ).then((res) => this.setState({ fileData: res }));
   }
 
   componentWillUnmount() {
     this.setState = (state, callback) => {
-      return;
+
     };
   }
 
   getCommit() {
-    const projectId = this.props.match.params.projectId;
-    CommitsApi.getCommitDetails("gitlab.com", projectId, this.state.fileData.last_commit_id)
-      .then(res => res.json())
-      .then(result => this.setState({ committer: result }))
+    const { projectId } = this.props.match.params;
+    CommitsApi.getCommitDetails('gitlab.com', projectId, this.state.fileData.last_commit_id)
+      .then((res) => res.json())
+      .then((result) => this.setState({ committer: result }));
   }
 
   render() {
-    const project = this.state.project;
-    const committer = this.state.committer;
+    const { project } = this.state;
+    const { committer } = this.state;
     let fileName = null;
     let fileSize = null;
     let fileContent = [];
@@ -51,9 +51,9 @@ class FileView extends React.Component {
       this.getCommit();
       fileName = this.state.fileData.file_name;
       fileSize = this.state.fileData.size;
-      fileContent = Base64.decode(this.state.fileData.content).split("\n");
-      extension = fileName.split(".").pop();
-      filepath = this.state.fileData.file_path.split("/");
+      fileContent = Base64.decode(this.state.fileData.content).split('\n');
+      extension = fileName.split('.').pop();
+      filepath = this.state.fileData.file_path.split('/');
     }
 
     return (
@@ -62,7 +62,7 @@ class FileView extends React.Component {
         <ProjectContainer
           project={project}
           activeFeature="data"
-          folders={["Group Name", project.name, "Data"]}
+          folders={['Group Name', project.name, 'Data']}
         />
         <div className="branch-path">
           <div className="branch-btn">
@@ -73,16 +73,20 @@ class FileView extends React.Component {
           </div>
           <span className="filepath">
             <b>
-              <a href="/home">{project.name}</a> /
-              {filepath.map((path, i) => {
-                return filepath.length === i + 1 ? (
-                  <span key={i}>{path}</span>
-                ) : (
-                    <span key={i}>
-                      <a href="#foo">{path} </a>/
-                  </span>
-                  );
-              })}
+              <a href="/home">{project.name}</a>
+              {' '}
+/
+              {filepath.map((path, i) => (filepath.length === i + 1 ? (
+                <span key={i}>{path}</span>
+              ) : (
+                <span key={i}>
+                  <a href="#foo">
+                    {path}
+                    {' '}
+                  </a>
+/
+                </span>
+              )))}
             </b>
           </span>
         </div>
@@ -93,7 +97,15 @@ class FileView extends React.Component {
               <div className="commit-msg">
                 <p>{committer.message}</p>
                 <span>
-                  by <b>{committer.author_name}</b> authored <b>4</b> days ago
+                  by
+                  {' '}
+                  <b>{committer.author_name}</b>
+                  {' '}
+authored
+                  {' '}
+                  <b>4</b>
+                  {' '}
+days ago
                 </span>
               </div>
             </div>
@@ -118,14 +130,19 @@ class FileView extends React.Component {
           <div className="file-container-header">
             <div className="file-info">
               <p>
-                {fileName} | {fileSize} Bytes
+                {fileName}
+                {' '}
+|
+                {fileSize}
+                {' '}
+Bytes
               </p>
             </div>
             <div className="wrapper">
               <div className="file-actions">
-                <button className="white-button">History</button>
-                <button className="white-button">Replace</button>
-                <button className="red-button">Delete</button>
+                <button type="button" className="white-button">History</button>
+                <button type="button" className="white-button">Replace</button>
+                <button type="button" className="red-button">Delete</button>
               </div>
             </div>
           </div>
@@ -134,7 +151,7 @@ class FileView extends React.Component {
             className="Box-body p-0 blob-wrapper data type-text"
           >
             <div className="file-content">
-              {extension === "jpg" || extension === "png" ? (
+              {extension === 'jpg' || extension === 'png' ? (
                 <div>
                   <img
                     className="file-img"
@@ -143,20 +160,18 @@ class FileView extends React.Component {
                   />
                 </div>
               ) : (
-                  <table>
-                    <tbody>
-                      {fileContent.map(function (line, index) {
-                        return (
-                          <tr key={index}>
-                            <td>
-                              <p>{line}</p>
-                            </td>
-                          </tr>
-                        );
-                      })}
-                    </tbody>
-                  </table>
-                )}
+                <table>
+                  <tbody>
+                    {fileContent.map((line, index) => (
+                      <tr key={index}>
+                        <td>
+                          <p>{line}</p>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
             </div>
           </div>
         </div>
@@ -167,10 +182,10 @@ class FileView extends React.Component {
 
 function mapStateToProps(state) {
   return {
-    projects: state.projects
+    projects: state.projects,
   };
 }
 
 export default connect(
-  mapStateToProps
+  mapStateToProps,
 )(FileView);
