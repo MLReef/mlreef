@@ -5,23 +5,27 @@ import { Base64 } from 'js-base64';
 import ProjectContainer from '../projectContainer';
 import CommitsApi from '../../apis/CommitsApi';
 import Navbar from '../navbar/navbar';
-import file_01 from '../../images/file_01.svg';
-import arrow_blue from '../../images/arrow_down_blue_01.svg';
+import file01 from '../../images/file_01.svg';
+import arrowBlue from '../../images/arrow_down_blue_01.svg';
 import filesApi from '../../apis/FilesApi';
 
 class FileView extends React.Component {
   constructor(props) {
     super(props);
+    const { projects } = this.props;
+    const { projectId } = this.props.match.params;
+    const { file } = this.props.match.params;
+    const { branch } = this.props.match.params;
     this.state = {
-      project: this.props.projects.selectedProject,
+      project: projects.selectedProject,
       committer: [],
       fileData: null,
     };
 
     filesApi.getFileData(
-      this.props.match.params.projectId,
-      this.props.match.params.file,
-      this.props.match.params.branch,
+      projectId,
+      file,
+      branch,
     ).then((res) => this.setState({ fileData: res }));
   }
 
@@ -67,7 +71,7 @@ class FileView extends React.Component {
           <div className="branch-btn">
             <a href="#f00">
               Master
-              <img className="dropdown-white" src={arrow_blue} alt="" />
+              <img className="dropdown-white" src={arrowBlue} alt="" />
             </a>
           </div>
           <span className="filepath">
@@ -110,7 +114,7 @@ days ago
             </div>
             <div className="commit-code">
               <span>{committer.short_id}</span>
-              <img className="file-icon" src={file_01} alt="" />
+              <img className="file-icon" src={file01} alt="" />
             </div>
           </div>
           <div className="contributors">

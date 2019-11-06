@@ -1,4 +1,5 @@
 import React from 'react';
+import { shape, string } from 'prop-types';
 import ReactMarkdown from 'react-markdown';
 import './readme.css';
 import { Base64 } from 'js-base64';
@@ -7,17 +8,20 @@ import filesApi from '../../apis/FilesApi';
 class ReadMeComponent extends React.Component {
   constructor(props) {
     super(props);
+    const { project } = this.props;
     this.state = {
-      project: this.props.project,
+      project,
       fileData: null,
     };
   }
 
   componentDidMount() {
+    const { project } = this.props;
+    const { branch } = this.props;
     filesApi.getFileData(
-      this.props.project.id,
+      project.id,
       'README.md',
-      this.props.branch,
+      branch,
     )
       .then(
         (res) => this.setState({ fileData: res }),
@@ -25,14 +29,16 @@ class ReadMeComponent extends React.Component {
   }
 
   render() {
-    const projectName = this.state.project.name;
+    const { project } = this.state;
+    const projectName = project.name;
+    const { fileData } = this.state;
     let textContent;
-    if (!this.state.fileData) {
+    if (!fileData) {
       return null;
     }
 
-    if (this.state.fileData.content) {
-      textContent = Base64.decode(this.state.fileData.content);
+    if (fileData.content) {
+      textContent = Base64.decode(fileData.content);
     }
     return (
       <div className="readme-container">
@@ -53,5 +59,10 @@ class ReadMeComponent extends React.Component {
     );
   }
 }
+
+ReadMeComponent.propTypes = {
+  project: shape.isRequired,
+  branch: string.isRequired,
+};
 
 export default ReadMeComponent;

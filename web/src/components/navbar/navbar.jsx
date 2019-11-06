@@ -10,6 +10,8 @@ class Navbar extends Component {
   constructor(props) {
     super(props);
     this.state = { dialogOpen: false, projectDialog: false, yourProjects: false };
+    this.handleProject = this.handleProject.bind(this);
+    this.handleOutsideClick = this.handleOutsideClick.bind(this);
   }
 
   componentWillUnmount() {

@@ -257,7 +257,7 @@ export const filesForExperimentsDetails = [
     description: 'description',
   },
   {
-    param: 'param2',
+    param: 'param3',
     value: 'value3',
     description: 'description',
   },

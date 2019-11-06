@@ -1,4 +1,5 @@
 import React from 'react';
+import { shape, arrayOf, func } from 'prop-types';
 import plus from '../../images/plus_01.svg';
 import '../pipeline-view/pipelineView.css';
 import Navbar from '../navbar/navbar';
@@ -14,27 +15,43 @@ import withPipelinesExecution from '../withPipelinesExecution';
 const EmptyDataVisualization = ({ ...props }) => {
   const { project } = props;
   const { dataOperations } = props;
+  const { branches } = props;
+  const { files } = props;
+  const { dataOperationsSelected } = props;
+  const { filesSelectedInModal } = props;
+  const items = dataOperationsSelected;
+  /*
+    next props are functions
+  */
   const { showSelectFilesModal } = props;
-  const items = props.dataOperationsSelected;
+  const { selectDataClick } = props;
+  const { handleModalAccept } = props;
+  const { onSortEnd } = props;
+  const { showFilters } = props;
+  const { handleDragStart } = props;
+  const { whenDataCardArrowButtonIsPressed } = props;
+  const { checkBoxOwnDataOperations } = props;
+  const { checkBoxStarredDataOperations } = props;
+  const { handleCheckMarkClick } = props;
   return (
     <div className="pipe-line-view">
       <SelectDataPipelineModal
-        project={props.project}
-        branches={props.branches}
-        files={props.files}
-        selectDataClick={props.selectDataClick}
+        project={project}
+        branches={branches}
+        files={files}
+        selectDataClick={selectDataClick}
         show={showSelectFilesModal}
-        filesSelectedInModal={props.filesSelectedInModal}
-        handleModalAccept={props.handleModalAccept}
+        filesSelectedInModal={filesSelectedInModal}
+        handleModalAccept={handleModalAccept}
       />
       <Navbar />
       <ProjectContainer project={project} activeFeature="data" folders={['Group Name', project.name, 'Data', 'Visualization']} />
       <Instruction
         titleText="How to create a data visualization:"
         paragraph={
-                    `First, select your data you want to analyze. Then select one or multiple data visualizations from the right. 
-                        After execution each visualization will be displayed in a new window.`
-                }
+          `First, select your data you want to analyze. Then select one or multiple data visualizations from the right. 
+              After execution each visualization will be displayed in a new window.`
+        }
       />
       <div className="pipe-line-execution-container flexible-div">
         <div className="pipe-line-execution">
@@ -47,31 +64,34 @@ const EmptyDataVisualization = ({ ...props }) => {
             </div>
             <div className="header-right-items flexible-div">
               <div id="execute-button" className="header-button round-border-button right-item flexible-div">
-                                Execute
+                Execute
               </div>
               <div className="header-button round-border-button right-item flexible-div">
-                                Save
+                Save
               </div>
               <div className="header-button round-border-button right-item flexible-div">
-                                Load
+                Load
               </div>
             </div>
           </div>
           <div id="upload-files-options" className="upload-file">
             <p className="instruction">
-                            Start by selecting your data file(s) you want to include
+              Start by selecting your data file(s) you want to include
               {' '}
               <br />
               {' '}
-in your data visualization.
+              in your data visualization.
             </p>
             <p id="data">
-                            Data:
+              Data:
             </p>
 
             <div className="data-button-container flexible-div">
-              <div id="select-data-btn" onClick={props.selectDataClick}>
-                                Select data
+              <div
+                id="select-data-btn"
+                onClick={selectDataClick}
+              >
+                Select data
               </div>
             </div>
           </div>
@@ -80,10 +100,10 @@ in your data visualization.
             <div style={{ width: '50%' }}>
               <p style={{ margin: '6% 0% 6% 2%' }}>
                 <b>
-Data:&nbsp;&nbsp;
-                  {props.filesSelectedInModal.length}
+                  Data:&nbsp;&nbsp;
+                  {filesSelectedInModal.length}
                   {' '}
-file(s) selected
+                  file(s) selected
                 </b>
               </p>
             </div>
@@ -91,11 +111,17 @@ file(s) selected
               width: '50%', display: 'flex', alignItems: 'center', justifyContent: 'right', marginRight: '2%',
             }}
             >
-              <button style={{ backgroundColor: 'white', border: 'none' }} onClick={() => { props.selectDataClick(); }}><b> select data </b></button>
+              <button
+                type="button"
+                style={{ backgroundColor: 'white', border: 'none' }}
+                onClick={() => { selectDataClick(); }}
+              >
+                <b> select data </b>
+              </button>
             </div>
           </div>
 
-          <SortableDataOperationsList items={items} onSortEnd={props.onSortEnd} />
+          <SortableDataOperationsList items={items} onSortEnd={onSortEnd} />
 
         </div>
 
@@ -106,7 +132,10 @@ file(s) selected
           <div className="content">
             <div className="filter-div flexible-div">
               <Input name="selectDataOp" id="selectDataOp" placeholder="Search a visualization" />
-              <div className="search button pipe-line-active flexible-div" onClick={(e) => props.showFilters(e)}>
+              <div 
+                className="search button pipe-line-active flexible-div" 
+                onClick={(e) => showFilters(e)}
+              >
                 <img id="show-filters-button" src={plus} alt="" />
               </div>
             </div>
@@ -121,22 +150,28 @@ file(s) selected
               </select>
 
               <div className="checkbox-zone">
-                <label className="customized-checkbox">
-                                    Only own data operations
+                <label
+                  className="customized-checkbox"
+                  htmlFor="checkBoxOwnDataOperations"
+                >
+                  Only own data operations
                   <input
                     type="checkbox"
-                    value={props.checkBoxOwnDataOperations}
-                    onChange={props.handleCheckMarkClick}
+                    value={checkBoxOwnDataOperations}
+                    onChange={handleCheckMarkClick}
                     id="checkBoxOwnDataOperations"
                   />
                   <span className="checkmark" />
                 </label>
-                <label className="customized-checkbox">
-                                    Only starred data operations
+                <label
+                  className="customized-checkbox"
+                  htmlFor="checkBoxStarredDataOperations"
+                >
+                  Only starred data operations
                   <input
                     type="checkbox"
-                    value={props.checkBoxStarredDataOperations}
-                    onChange={props.handleCheckMarkClick}
+                    value={checkBoxStarredDataOperations}
+                    onChange={handleCheckMarkClick}
                     id="checkBoxStarredDataOperations"
                   />
                   <span className="checkmark" />
@@ -146,8 +181,8 @@ file(s) selected
             </div>
 
             <DataOperationsList
-              handleDragStart={props.handleDragStart}
-              whenDataCardArrowButtonIsPressed={props.whenDataCardArrowButtonIsPressed}
+              handleDragStart={handleDragStart}
+              whenDataCardArrowButtonIsPressed={whenDataCardArrowButtonIsPressed}
               dataOperations={dataOperations}
             />
           </div>
@@ -155,6 +190,25 @@ file(s) selected
       </div>
     </div>
   );
+};
+
+EmptyDataVisualization.propTypes = {
+  project: shape.isRequired,
+  branches: arrayOf.isRequired,
+  files: arrayOf.isRequired,
+  dataOperations: arrayOf.isRequired,
+  dataOperationsSelected: arrayOf.isRequired,
+  filesSelectedInModal: arrayOf.isRequired,
+  showSelectFilesModal: func.isRequired,
+  selectDataClick: func.isRequired,
+  handleModalAccept: func.isRequired,
+  onSortEnd: func.isRequired,
+  showFilters: func.isRequired,
+  handleDragStart: func.isRequired,
+  whenDataCardArrowButtonIsPressed: func.isRequired,
+  checkBoxOwnDataOperations: func.isRequired,
+  checkBoxStarredDataOperations: func.isRequired,
+  handleCheckMarkClick: func.isRequired,
 };
 
 export default withPipelinesExecution(EmptyDataVisualization, dataVisualizations);
