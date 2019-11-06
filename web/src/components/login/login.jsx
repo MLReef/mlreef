@@ -1,65 +1,74 @@
-import React from "react";
-import "./login.css";
-import icon from "../../images/ml_reef_icon_01.svg";
-import { Redirect } from "react-router-dom";
+import React from 'react';
+import './login.css';
+import { Redirect } from 'react-router-dom';
+import icon from '../../images/ml_reef_icon_01.svg';
 
 export default class Login extends React.Component {
   constructor(props) {
     super(props);
 
     this.state = {
-      email: "",
-      password: "",
-      redirect: false
+      email: '',
+      password: '',
+      redirect: false,
     };
 
     this.submit = this.submit.bind(this);
     this.reset = this.reset.bind(this);
     this.validateForm = this.validateForm.bind(this);
+    this.handleChange = this.handleChange.bind(this);
   }
 
-  handleChange = event => {
+  handleChange(event) {
     this.setState({
-      [event.target.id]: event.target.value
+      [event.target.id]: event.target.value,
     });
-  };
+  }
 
-  validateForm = () =>
-    this.state.email.length > 0 &&
-    this.state.password.length > 0 &&
-    this.state.email === "camillo" &&
-    this.state.password === "password";
-
-  renderRedirect() {
-    if (this.state.redirect || sessionStorage.getItem("auth") === "true") {
-      return <Redirect to="/my-projects" />;
-    }
+  validateForm() {
+    const { email } = this.state;
+    const { password } = this.state;
+    return email.length > 0
+      && password.length > 0
+      && email === 'camillo'
+      && password === 'password';
   }
 
   submit(e) {
-    //test purposes
+    // test purposes
     e.preventDefault();
 
     if (!this.validateForm()) {
-      const errorDiv = document.getElementById("errorDiv");
-      errorDiv.classList.remove("invisible");
+      const errorDiv = document.getElementById('errorDiv');
+      errorDiv.classList.remove('invisible');
       return;
     }
 
-    sessionStorage.setItem("auth", true);
+    sessionStorage.setItem('auth', true);
     this.setState({
-      redirect: true
+      redirect: true,
     });
   }
 
-  reset(e) {
+  reset() {
     this.setState({
-      email: "",
-      password: ""
-    })
+      email: '',
+      password: '',
+    });
+  }
+
+  renderRedirect() {
+    const { redirect } = this.state;
+    if (redirect || sessionStorage.getItem('auth') === 'true') {
+      return <Redirect to="/my-projects" />;
+    }
+
+    return null;
   }
 
   render() {
+    const { email } = this.state;
+    const { password } = this.state;
     return (
       <div id="login-container">
         {this.renderRedirect()}
@@ -69,12 +78,19 @@ export default class Login extends React.Component {
         <div id="errorDiv" className="invisible error border-div">
           <p>Incorrect username or password</p>
           <div>
-            <button className="paragraph" onClick={this.reset}>Reset</button>
+            <button
+              type="button"
+              onClick={this.reset}
+            >
+              Reset
+            </button>
           </div>
         </div>
         <div className="login-form border-div">
           <div className="title">
-            Sign in to <b>MLreef</b>
+            Sign in to
+            {' '}
+            <b>MLreef</b>
           </div>
           <form onSubmit={this.submit}>
             <div className="form-container">
@@ -83,7 +99,7 @@ export default class Login extends React.Component {
                 <input
                   id="email"
                   type="text"
-                  value={this.state.email}
+                  value={email}
                   onChange={this.handleChange}
                 />
               </div>
@@ -92,7 +108,7 @@ export default class Login extends React.Component {
                 <input
                   id="password"
                   type="password"
-                  value={this.state.password}
+                  value={password}
                   onChange={this.handleChange}
                 />
               </div>
@@ -107,7 +123,9 @@ export default class Login extends React.Component {
         </div>
         <div id="create-account-div" className="border-div paragraph">
           <p>
-            New to MLreef? <b>Create an account.</b>
+            New to MLreef?
+            {' '}
+            <b>Create an account.</b>
           </p>
         </div>
       </div>

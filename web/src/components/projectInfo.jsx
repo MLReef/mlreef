@@ -2,11 +2,11 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { Link, Redirect } from 'react-router-dom';
 
-import star_01 from '../images/star_01.svg';
-import fork_01 from '../images/fork_01.svg';
-import clone_01 from '../images/clone_01.svg';
+import star01 from '../images/star_01.svg';
+import fork01 from '../images/fork_01.svg';
+import clone01 from '../images/clone_01.svg';
 import projectGeneralInfoApi from '../apis/projectGeneralInfoApi';
-import arrow_01 from '../images/arrow_down_blue-01.png';
+import arrow01 from '../images/arrow_down_blue-01.png';
 
 const ProjectInfo = ({ info }) => {
   const iconUrl = info.avatar_url;
@@ -29,18 +29,25 @@ const ProjectInfo = ({ info }) => {
         <div className="project-name">
           <Link to={`/my-projects/${info.id}/${info.default_branch}`} id="projectName">{info.name}</Link>
           <p id="projectId">
-Project ID:
+            Project ID:
             {info.id}
             {' '}
-| 526MB used
+            | 526MB used
           </p>
         </div>
       </div>
       {redirect ? <Redirect to="/my-projects" /> : null}
       <div className="project-options">
         <div className="options">
-          <button className="option-name">
-            <img id="option-image" src={star_01} alt="" />
+          <button
+            type="button"
+            className="option-name"
+          >
+            <img
+              id="option-image"
+              src={star01}
+              alt=""
+            />
             <p>Star</p>
           </button>
 
@@ -50,8 +57,12 @@ Project ID:
         </div>
 
         <div className="options">
-          <button className="option-name" onClick={handleFork}>
-            <img id="option-image" src={fork_01} alt="" />
+          <button
+            type="button"
+            className="option-name"
+            onClick={handleFork}
+          >
+            <img id="option-image" src={fork01} alt="" />
             <p>Fork</p>
           </button>
 
@@ -60,8 +71,11 @@ Project ID:
           </div>
         </div>
         <div className="options">
-          <button className="option-name">
-            <img id="option-image" src={clone_01} alt="" />
+          <button
+            type="button"
+            className="option-name"
+          >
+            <img id="option-image" src={clone01} alt="" />
             <p>Clone</p>
           </button>
           <Clonedropdown http={info.http_url_to_repo} ssh={info.ssh_url_to_repo} />
@@ -98,22 +112,26 @@ function Clonedropdown(props) {
 
   return (
     <>
-      <div className="counter clone-dropdown" ref={node} onClick={(e) => setOpen(!open)}>
-        <img className="dropdown-white" src={arrow_01} alt="Clone" />
+      <div
+        className="counter clone-dropdown"
+        ref={node}
+        onClick={() => setOpen(!open)}
+      >
+        <img className="dropdown-white" src={arrow01} alt="Clone" />
         {open && (
           <div className="clone-box">
             <div className="link-box">
               <p>Clone with SSH</p>
               <div className="clone-link">
                 <input type="text" value={props.ssh} className="ssh-http-link" readOnly />
-                <img className="clone-icon" src={clone_01} alt="" />
+                <img className="clone-icon" src={clone01} alt="" />
               </div>
             </div>
             <div className="link-box">
               <p>Clone with HTTPS</p>
               <div className="clone-link">
                 <input type="text" value={props.http} className="ssh-http-link" readOnly />
-                <img className="clone-icon" src={clone_01} alt="" />
+                <img className="clone-icon" src={clone01} alt="" />
               </div>
             </div>
           </div>

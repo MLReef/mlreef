@@ -1,22 +1,29 @@
 import React from 'react';
 import './experimentDetails.css';
+import { func, shape, arrayOf } from 'prop-types';
 
-const ExperimentDetails = ({ ...props }) => (
+const ExperimentDetails = ({ setNullExperiment, experiment, files }) => (
   <>
     <div style={{ display: 'flex', padding: '1em 2em' }}>
-      <p
-        style={{ cursor: 'pointer' }}
-        onClick={() => props.setNullExperiment(null)}
+      <button
+        type="button"
+        style={{
+          cursor: 'pointer',
+          border: 'none',
+          backgroundColor: 'transparent',
+          height: 'auto',
+        }}
+        onClick={() => setNullExperiment(null)}
       >
-                Experiments
+        Experiments
+      </button>
+      <p>
+        &nbsp;
+        <b>&gt;</b>
+        &nbsp;
       </p>
       <p>
-                &nbsp;
-        <b>></b>
-&nbsp;
-      </p>
-      <p>
-        {props.experiment.descTitle}
+        {experiment.descTitle}
       </p>
     </div>
     <div style={{ display: 'flex', width: '100%' }}>
@@ -30,7 +37,7 @@ const ExperimentDetails = ({ ...props }) => (
             borderRadius: '4px',
           }}
         >
-                    Details
+          Details
         </p>
         <p>Performance</p>
         <p>Data</p>
@@ -64,17 +71,19 @@ const ExperimentDetails = ({ ...props }) => (
               <div className="composed-row">
                 <div style={{ display: 'flex', alignItems: 'center' }}>
                   <p style={{ width: '10em', margin: '5px' }}>Experiment name: </p>
-                  <p><b>{props.experiment.modelTitle}</b></p>
+                  <p><b>{experiment.modelTitle}</b></p>
                 </div>
                 <p>
                             ID:
-                  <button style={{
-                    border: '1px solid gray',
-                    borderRadius: '4px',
-                    backgroundColor: 'white',
-                  }}
+                  <button
+                    type="button"
+                    style={{
+                      border: '1px solid gray',
+                      borderRadius: '4px',
+                      backgroundColor: 'white',
+                    }}
                   >
-                    {props.experiment.descTitle}
+                    {experiment.descTitle}
                   </button>
                 </p>
               </div>
@@ -83,12 +92,12 @@ const ExperimentDetails = ({ ...props }) => (
                 <p style={{ margin: 0 }}>
                   <b
                     style={{
-                      color: props.experiment.currentState === 'success'
+                      color: experiment.currentState === 'success'
                         ? '#38b797'
                         : 'red',
                     }}
                   >
-                    {props.experiment.currentState}
+                    {experiment.currentState}
                   </b>
                 </p>
               </div>
@@ -99,7 +108,7 @@ const ExperimentDetails = ({ ...props }) => (
                 style={{ display: 'flex' }}
               >
                 <p style={{ width: '10em' }}>Created:</p>
-                <p style={{ marginLeft: 0 }}><b>{props.experiment.timeCreatedAgo}</b></p>
+                <p style={{ marginLeft: 0 }}><b>{experiment.timeCreatedAgo}</b></p>
               </div>
               <div className="composed-row">
                 <div style={{ display: 'flex' }}>
@@ -107,13 +116,13 @@ const ExperimentDetails = ({ ...props }) => (
                   <p style={{ marginLeft: '5px' }}><b>01.01.2019 - 17:00</b></p>
                 </div>
                 <p>
-Training time:
+                  Training time:
                   <b>2h, 12 minutes, 3 seconds</b>
                 </p>
               </div>
               <div style={{ display: 'flex' }}>
                 <p style={{ width: '10em' }}>Owner: </p>
-                <p style={{ marginLeft: 0 }}><b>{props.experiment.userName}</b></p>
+                <p style={{ marginLeft: 0 }}><b>{experiment.userName}</b></p>
               </div>
             </div>
             <br />
@@ -121,14 +130,14 @@ Training time:
             <div className="composed-row">
               <div style={{ display: 'flex' }}>
                 <p style={{ marginRight: 5, width: '10em' }}>
-                            Code repository:
+                  Code repository:
                 </p>
                 <p>
                   <b>Code_repository</b>
                 </p>
               </div>
               <p>
-Branch:
+                Branch:
                 <b>Code_Branch_Name</b>
               </p>
             </div>
@@ -138,7 +147,7 @@ Branch:
                 <p><b>Data_Repository / Data Instance</b></p>
               </div>
               <p>
-Branch:
+                Branch:
                 <b>Data_Branch_Name</b>
               </p>
             </div>
@@ -173,8 +182,8 @@ Branch:
           </tr>
         </thead>
         <tbody className="files-tbody">
-          {props.files.map((file, index) => (
-            <tr key={index}>
+          {files.map((file, index) => (
+            <tr key={file.param}>
               <td>
                 {index}
               </td>
@@ -194,5 +203,11 @@ Branch:
     </div>
   </>
 );
+
+ExperimentDetails.propTypes = {
+  setNullExperiment: func.isRequired,
+  experiment: shape.isRequired,
+  files: arrayOf.isRequired,
+};
 
 export default ExperimentDetails;
