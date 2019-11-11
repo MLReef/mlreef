@@ -1,19 +1,19 @@
 import React from 'react';
-import plus from '../images/plus_01.svg';
-import './pipeline-view/pipelineView.css';
-import Navbar from './navbar/navbar';
-import Input from './input/input';
-import ProjectContainer from './projectContainer';
-import { SortableDataOperationsList } from './pipeline-view/sortableDataOperationList';
-import SelectDataPipelineModal from './select-data-pipeline/selectDataPipelineModal';
-import { DataOperationsList } from './pipeline-view/dataOperationsList';
-import Instruction from './instruction/instruction';
 import uuidv1 from 'uuid/v1';
-import ExecutePipelineModal from './execute-pipeline-modal/executePipeLineModal';
-import withPipelineExecution from './withPipelinesExecution';
-import { experiments } from '../dataTypes';
+import plus from '../../images/plus_01.svg';
+import './pipelineView.css';
+import Navbar from '../navbar/navbar';
+import Input from '../input/input';
+import ProjectContainer from '../projectContainer';
+import { SortableDataOperationsList } from './sortableDataOperationList';
+import SelectDataPipelineModal from '../select-data-pipeline/selectDataPipelineModal';
+import { DataOperationsList } from './dataOperationsList';
+import Instruction from '../instruction/instruction';
+import ExecutePipelineModal from '../execute-pipeline-modal/executePipeLineModal';
+import withPipelineExecution from '../withPipelinesExecution';
+import { dataPipeLines } from '../../dataTypes';
 
-const NewExperiment = ({ ...props }) => {
+const PipeLineView = ({ ...props }) => {
   const { project } = props;
   const { dataOperations } = props;
   const { showSelectFilesModal } = props;
@@ -21,10 +21,9 @@ const NewExperiment = ({ ...props }) => {
   let operationsSelected = items.length;
   operationsSelected++;
   const uuidCodeForBranch = (uuidv1()).split('-')[0];
-  const branchName = `experiment/${uuidCodeForBranch}`;
-  const dataInstanceName = `experiment/${uuidCodeForBranch}`;
-  const jobName = 'model-experiment';
-
+  const branchName = `data-pipeline/${uuidCodeForBranch}`;
+  const dataInstanceName = `data-instance/${uuidCodeForBranch}`;
+  const jobName = 'data-pipeline';
   return (
     <div className="pipe-line-view">
       <SelectDataPipelineModal
@@ -50,12 +49,12 @@ const NewExperiment = ({ ...props }) => {
         branchSelected={props.branchSelected}
       />
       <Navbar />
-      <ProjectContainer project={project} activeFeature="experiments" folders={['Group Name', project.name, 'Data', 'Pipeline']} />
+      <ProjectContainer project={project} activeFeature="data" folders={['Group Name', project.name, 'Data', 'Pipeline']} />
       <Instruction
-        titleText="How to create a new experiment:"
+        titleText="How to create a data processing pipeline:"
         paragraph={
-                    `First, select your data you want to do your experiment on. Then select one or multiple algorithms from the right. 
-                        If needed, you can adapt the parameters of your algorithm directly`
+                    `First, select your data you want to process. Then select one or multiple data operations from the right. 
+                        The result of a data pipeline is a data instance, which you can use directly to train a model or merge it into a branch.`
                 }
       />
       <div className="pipe-line-execution-container flexible-div">
@@ -63,12 +62,12 @@ const NewExperiment = ({ ...props }) => {
           <div className="header flexible-div">
             <div className="header-left-items flexible-div">
               <div>
-                <p>Experiment:</p>
+                <p>Data Pipeline:</p>
               </div>
-              <Input name="DataPipelineID" id="renaming-pipeline" placeholder="EX_Project_1" />
+              <Input name="DataPipelineID" id="renaming-pipeline" placeholder="Rename data pipeline..." />
             </div>
-            <div className="header-right-items flexible-div" onClick={props.handleExecuteBtn}>
-              <div id="execute-button" className="header-button round-border-button right-item flexible-div">
+            <div className="header-right-items flexible-div">
+              <div id="execute-button" className="header-button round-border-button right-item flexible-div" onClick={props.handleExecuteBtn}>
                                 Execute
               </div>
               <div className="header-button round-border-button right-item flexible-div">
@@ -85,7 +84,7 @@ const NewExperiment = ({ ...props }) => {
               {' '}
               <br />
               {' '}
-in your experiments.
+in your data processing pipeline.
             </p>
             <p id="data">
                             Data:
@@ -119,15 +118,15 @@ file(s) selected
 
           <SortableDataOperationsList items={items} onSortEnd={props.onSortEnd} />
           <div id="drop-zone" onDrop={props.drop} onDragOver={props.allowDrop}>
-            <p style={{ marginLeft: '10px', fontWeight: 600 }}>{`Algo.${operationsSelected}:`}</p>
+            <p style={{ marginLeft: '10px', fontWeight: 600 }}>{`Op.${operationsSelected}:`}</p>
             <img src={plus} alt="" style={{ height: '80px', marginLeft: '60px' }} />
             <p style={{
               margin: '0', padding: '0', width: '100%', textAlign: 'center',
             }}
             >
-                            Drag and drop an algorithm from the right into your
+                            Drag and drop a data operation from the right into your
               <br />
-experiment pipeline or
+pipeline or
               <b>create a new one</b>
             </p>
           </div>
@@ -136,7 +135,7 @@ experiment pipeline or
 
         <div className="pipe-line-execution tasks-list">
           <div className="header">
-            <p>Select an algorithm from list:</p>
+            <p>Select a data operations from list:</p>
           </div>
           <div className="content">
             <div className="filter-div flexible-div">
@@ -157,7 +156,7 @@ experiment pipeline or
 
               <div className="checkbox-zone">
                 <label className="customized-checkbox">
-                                    Only own algorithms
+                                    Only own data operations
                   <input
                     type="checkbox"
                     value={props.checkBoxOwnDataOperations}
@@ -167,7 +166,7 @@ experiment pipeline or
                   <span className="checkmark" />
                 </label>
                 <label className="customized-checkbox">
-                                    Only starred algorithms
+                                    Only starred data operations
                   <input
                     type="checkbox"
                     value={props.checkBoxStarredDataOperations}
@@ -192,4 +191,4 @@ experiment pipeline or
   );
 };
 
-export default withPipelineExecution(NewExperiment, experiments);
+export default withPipelineExecution(PipeLineView, dataPipeLines);
