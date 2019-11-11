@@ -1,0 +1,97 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`The branches list should be displayed when dropdown button is clicked dropdown of branches appear 1`] = `
+<div
+  id="repo-features"
+>
+  <div>
+    <div
+      className="reference"
+    >
+      <button
+        className="white-button"
+        id="branch-dropdown"
+        onClick={[Function]}
+      >
+        <span>
+          undefined
+        </span>
+        <img
+          alt=""
+          id="leftfeature-image"
+          src={Object {}}
+        />
+      </button>
+    </div>
+    <div
+      className="reference"
+    >
+      <button
+        className="white-button"
+        onClick={[Function]}
+        style={
+          Object {
+            "position": "relative",
+          }
+        }
+      >
+        <img
+          alt=""
+          id="plus"
+          src={Object {}}
+        />
+        <img
+          alt=""
+          id="leftfeature-image"
+          src={Object {}}
+        />
+      </button>
+    </div>
+    <button
+      className="blue-button"
+    >
+      <a
+        href="/my-projects/undefined/visualizations"
+        onClick={[Function]}
+      >
+        <p>
+          Data Visualisation
+        </p>
+      </a>
+    </button>
+    <button
+      className="blue-button"
+    >
+      <a
+        href="/my-projects/undefined/pipe-line"
+        onClick={[Function]}
+      >
+        <p>
+          Data Pipeline
+        </p>
+      </a>
+    </button>
+  </div>
+  <div>
+    <button
+      className="white-button"
+    >
+      History
+    </button>
+    <button
+      className="white-button"
+    >
+      Web IDE
+    </button>
+    <button
+      className="white-button"
+    >
+      <img
+        alt=""
+        id="leftfeature-image"
+        src={Object {}}
+      />
+    </button>
+  </div>
+</div>
+`;
