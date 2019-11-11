@@ -134,16 +134,33 @@
 }
 
 .branch-path span {
-  margin-top: 0.7em;
   margin-left: 1em;
 }
 
-.branch-btn a {
+.branch-btn button {
   color: #1c2b40;
+  position: relative;
+  cursor: pointer;
+  background: none;
   text-decoration: none;
   border: 1px solid #1c2b40;
   border-radius: 0.3vw;
-  padding: 0.5em 0.5em;
+  font-weight: 400;
+  display: flex;
+  padding-right: 8px;
+  padding-left: 8px;
+}
+
+.fileview-select{
+  top: 38% !important;
+  left: auto !important;
+}
+
+.branch-btn span{
+  text-overflow: ellipsis;
+  width: 5em;
+  overflow: hidden;
+  white-space: nowrap;
 }
 
 .branch-btn img {
@@ -168,7 +185,7 @@
 }
 
 .commit-pic-circle {
-  margin: 1em 0 0 1em;
+  margin: 1.5em 0 0 1em;
   height: 2.5em;
   width: 2.5em;
   background-color: #fff;
