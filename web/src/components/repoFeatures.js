@@ -7,7 +7,7 @@ import { Link } from "react-router-dom";
 import * as branchesActions from "./../actions/branchesActions";
 import * as fileActions from "./../actions/fileActions";
 
-class RepoFeatures extends Component {
+export class RepoFeatures extends Component {
   constructor(props) {
     super(props);
 
@@ -15,11 +15,11 @@ class RepoFeatures extends Component {
       isOpen: false,
       plusOpen: false,
       branchSelected: decodeURIComponent(this.props.branch),
-      projectId: this.props.projects.selectedProject.id,
+      projectId: this.props.projects && this.props.projects.selectedProject.id,
       branches: []
     };
 
-    this.props.actions.getBranchesList(this.state.projectId);
+    this.props.actions && this.props.actions.getBranchesList(this.state.projectId);
   }
 
   branchRef = React.createRef();
@@ -90,6 +90,7 @@ class RepoFeatures extends Component {
         <div>
           <div className="reference" ref={this.branchRef}>
             <button
+              id="branch-dropdown"
               className="white-button"
               onClick={this.handleBranch}
             >
@@ -97,7 +98,7 @@ class RepoFeatures extends Component {
               <img id="leftfeature-image" src={arrow_down_blue_01} alt="" />
             </button>
             {this.state.isOpen &&
-              <div className="select-branch">
+              <div id="branches-list" className="select-branch">
                 <div
                   style={{ margin: "0 50px", fontSize: "14px", padding: "0 40px" }}>
                   <p>Switch Branches</p>
@@ -112,7 +113,7 @@ class RepoFeatures extends Component {
                   <div className="branches">
                     <ul>
                       <li className="branch-header">Branches</li>
-                      {this.state.branches.filter(branch =>
+                      {this.state.branches && this.state.branches.filter(branch =>
                         !branch.name.startsWith("data-pipeline/") &&
                         !branch.name.startsWith("experiment/")
                       ).map((branch) => {
