@@ -147,7 +147,13 @@ class ProjectView extends React.Component {
             files={files}
             setModalVisibility={this.setModalVisibility}
           />
-          {showReadMe && <ReadMeComponent project={selectedProject} branch={encodedBranch} />}
+          {showReadMe && (
+            <ReadMeComponent
+              projectName={selectedProject.name}
+              projectId={selectedProject.id}
+              branch={encodedBranch}
+            />
+          )}
         </div>
       </div>
     );

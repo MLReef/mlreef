@@ -1,8 +1,13 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { string, number } from 'prop-types';
 
 const RepoInfo = ({
-  projectId, numberOfContributors, currentBranch, branchesCount, dataInstanesCount,
+  projectId,
+  numberOfContributors,
+  currentBranch,
+  branchesCount,
+  dataInstanesCount,
 }) => (
   <>
     <div className="repo-info">
@@ -33,5 +38,13 @@ const RepoInfo = ({
     </div>
   </>
 );
+
+RepoInfo.propTypes = {
+  projectId: number.isRequired,
+  numberOfContributors: number.isRequired,
+  currentBranch: string.isRequired,
+  branchesCount: number.isRequired,
+  dataInstanesCount: number.isRequired,
+};
 
 export default RepoInfo;
