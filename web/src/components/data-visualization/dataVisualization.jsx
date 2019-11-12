@@ -20,6 +20,8 @@ const EmptyDataVisualization = ({ ...props }) => {
   const { dataOperationsSelected } = props;
   const { filesSelectedInModal } = props;
   const items = dataOperationsSelected;
+  let operationsSelected = items.length;
+  operationsSelected += 1;
   /*
     next props are functions
   */
@@ -33,6 +35,8 @@ const EmptyDataVisualization = ({ ...props }) => {
   const { checkBoxOwnDataOperations } = props;
   const { checkBoxStarredDataOperations } = props;
   const { handleCheckMarkClick } = props;
+  const { drop } = props;
+  const { allowDrop } = props;
   return (
     <div className="pipe-line-view">
       <SelectDataPipelineModal
@@ -88,8 +92,11 @@ const EmptyDataVisualization = ({ ...props }) => {
 
             <div className="data-button-container flexible-div">
               <div
+                role="button"
+                tabIndex="0"
                 id="select-data-btn"
                 onClick={selectDataClick}
+                onKeyDown={selectDataClick}
               >
                 Select data
               </div>
@@ -122,6 +129,19 @@ const EmptyDataVisualization = ({ ...props }) => {
           </div>
 
           <SortableDataOperationsList items={items} onSortEnd={onSortEnd} />
+          <div id="drop-zone" onDrop={drop} onDragOver={allowDrop}>
+            <p style={{ marginLeft: '10px', fontWeight: 600 }}>{`Op.${operationsSelected}:`}</p>
+            <img src={plus} alt="" style={{ height: '80px', marginLeft: '60px' }} />
+            <p style={{
+              margin: '0', padding: '0', width: '100%', textAlign: 'center',
+            }}
+            >
+                            Drag and drop a data visualization from the right into your
+              <br />
+pipeline or
+              <b>create a new one</b>
+            </p>
+          </div>
 
         </div>
 
@@ -132,9 +152,12 @@ const EmptyDataVisualization = ({ ...props }) => {
           <div className="content">
             <div className="filter-div flexible-div">
               <Input name="selectDataOp" id="selectDataOp" placeholder="Search a visualization" />
-              <div 
-                className="search button pipe-line-active flexible-div" 
+              <div
+                role="button"
+                tabIndex="0"
+                className="search button pipe-line-active flexible-div"
                 onClick={(e) => showFilters(e)}
+                onKeyDown={(e) => showFilters(e)}
               >
                 <img id="show-filters-button" src={plus} alt="" />
               </div>
@@ -209,6 +232,8 @@ EmptyDataVisualization.propTypes = {
   checkBoxOwnDataOperations: func.isRequired,
   checkBoxStarredDataOperations: func.isRequired,
   handleCheckMarkClick: func.isRequired,
+  allowDrop: func.isRequired,
+  drop: func.isRequired,
 };
 
 export default withPipelinesExecution(EmptyDataVisualization, dataVisualizations);
