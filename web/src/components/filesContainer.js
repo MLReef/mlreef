@@ -1,15 +1,15 @@
-import React, { Component } from "react";
-import folderIcon from "./../images/folder_01.svg";
-import fileIcon from "./../images/file_01.svg";
-import { Link, Redirect } from "react-router-dom";
-import { connect } from "react-redux";
-import { 
+import React, { Component } from 'react';
+import { Link, Redirect } from 'react-router-dom';
+import { connect } from 'react-redux';
+import folderIcon from '../images/folder_01.svg';
+import fileIcon from '../images/file_01.svg';
+import {
   generateNewArrayOfFilesToRender,
   getFilesInFolder,
-  findFolderContainer
+  findFolderContainer,
 }
-from "./../functions/dataParserHelpers";
-import { callToGetFilesInFolder } from './../functions/apiCalls';
+  from '../functions/dataParserHelpers';
+import { callToGetFilesInFolder } from '../functions/apiCalls';
 
 class FilesContainer extends Component {
   constructor(props) {
@@ -17,12 +17,12 @@ class FilesContainer extends Component {
     this.getBack = this.getBack.bind(this);
 
     this.state = {
-      currentPath: "",
-      currentBranch: "",
-      fileSize: "",
+      currentPath: '',
+      currentBranch: '',
+      fileSize: '',
       files: [],
-      redirect: false
-    }
+      redirect: false,
+    };
 
     window.onpopstate = () => {
       this.props.setModalVisibility(true);
@@ -34,20 +34,20 @@ class FilesContainer extends Component {
     this.props.setModalVisibility(true);
     const res = await Promise.all([
       callToGetFilesInFolder(
-        this.props.path, 
-        this.props.branch, 
-        this.props.projectId, 
-        true
-      )
+        this.props.path,
+        this.props.branch,
+        this.props.projectId,
+        true,
+      ),
     ]);
-    if(res[0].message){
+    if (res[0].message) {
       return false;
     }
     const updatedFiles = await generateNewArrayOfFilesToRender(res[0], this.props.projectId, this.props.branch);
-    const filteredFiles = updatedFiles.filter(file => findFolderContainer(file, updatedFiles).length === 0);
-    filteredFiles.forEach(file => {
-      if(file.type === "tree"){
-        file['count'] = getFilesInFolder(file, updatedFiles).length
+    const filteredFiles = updatedFiles.filter((file) => findFolderContainer(file, updatedFiles).length === 0);
+    filteredFiles.forEach((file) => {
+      if (file.type === 'tree') {
+        file.count = getFilesInFolder(file, updatedFiles).length;
       }
     });
 
@@ -55,33 +55,33 @@ class FilesContainer extends Component {
   }
 
   componentDidUpdate = async () => {
-    const urlPath = this.props.path 
+    const urlPath = this.props.path
       ? decodeURIComponent(this.props.path)
       : null;
-    if(
-        this.props.branch !== this.state.currentBranch 
+    if (
+      this.props.branch !== this.state.currentBranch
           || urlPath !== this.state.currentPath
-      ){
-        const files = await this.updateFilesArray();
-        if(!files){
-          this.setState({redirect: true});
-          return;
-        }
-        this.setState({ 
-          currentPath: urlPath, 
-          currentBranch: this.props.branch, 
-          files: files
-        });
-        this.props.setModalVisibility(false)
+    ) {
+      const files = await this.updateFilesArray();
+      if (!files) {
+        this.setState({ redirect: true });
+        return;
+      }
+      this.setState({
+        currentPath: urlPath,
+        currentBranch: this.props.branch,
+        files,
+      });
+      this.props.setModalVisibility(false);
     }
   }
 
   getReturnOption() {
-    if (window.location.href.includes("path")) {
+    if (window.location.href.includes('path')) {
       return (
         <tr className="files-row">
           <td className="file-type">
-            <button onClick={this.getBack} style={{ padding: "0" }}>
+            <button onClick={this.getBack} style={{ padding: '0' }}>
               <img src={folderIcon} alt="" />
             </button>
 
@@ -94,19 +94,27 @@ class FilesContainer extends Component {
     }
   }
 
-  
+
   getBack = () => window.history.back()
 
-  render = () =>
+  render = () => (
     <>
       {this.state.redirect
         ? <Redirect to="/error-page" />
-        : null
-      }
+        : null}
       <div className="files-container">
         <div className="commit-status">
           <p id="commitStatus">
-            This branch is <b>123 commits</b> ahead and <b>1 commit</b> behind{" "}
+            This branch is
+            {' '}
+            <b>123 commits</b>
+            {' '}
+ahead and
+            {' '}
+            <b>1 commit</b>
+            {' '}
+behind
+            {' '}
             <b>"master".</b>
           </p>
           <button className="create-pr">
@@ -136,17 +144,18 @@ class FilesContainer extends Component {
             {this.getReturnOption()}
             {this.state.files.map((file, index) => {
               let icon;
-              let routeType = "";
-              if (file.type === "tree") {
-                routeType = "path";
+              let routeType = '';
+              if (file.type === 'tree') {
+                routeType = 'path';
                 icon = folderIcon;
               } else {
-                routeType = "blob";
+                routeType = 'blob';
                 icon = fileIcon;
               }
               const link = `/my-projects/${this.props.projectId}/${this.props.branch}/${routeType}/${encodeURIComponent(file.path)}`;
-  
-              return <tr key={index} className="files-row">
+
+              return (
+                <tr key={index} className="files-row">
                   <td className="file-type">
                     <Link to={link}>
                       <img src={icon} alt="" />
@@ -156,30 +165,38 @@ class FilesContainer extends Component {
                     </Link>
                   </td>
                   <td>
-                    {" "}
+                    {' '}
                     <p>Something</p>
                   </td>
                   <td>
-                    <p>{file.size}KB {file.count && `(${file.count})`}</p>
+                    <p>
+                      {file.size}
+KB
+                      {' '}
+                      {file.count && `(${file.count})`}
+                    </p>
                   </td>
                   <td>
-                    {" "}
-                    <p> yesterday </p>{" "}
+                    {' '}
+                    <p> yesterday </p>
+                    {' '}
                   </td>
                 </tr>
+              );
             })}
           </tbody>
         </table>
       </div>
     </>
+  )
 }
 
 function mapStateToProps(state) {
   return {
-    files: state.files
+    files: state.files,
   };
 }
 
 export default connect(
-  mapStateToProps
+  mapStateToProps,
 )(FilesContainer);

@@ -15,13 +15,12 @@ class Navbar extends Component {
   }
 
   componentWillUnmount() {
-    this.setState = (state, callback) => {
-
-    };
+    this.setState = (state) => (state);
   }
 
-  handleProfile() {
-    if (!this.state.dialogOpen) {
+  handleProfile = () => {
+    const { dialogOpen } = this.state;
+    if (!dialogOpen) {
       document.addEventListener('click', this.handleOutsideClick, false);
     } else {
       document.removeEventListener('click', this.handleOutsideClick, false);
@@ -32,12 +31,14 @@ class Navbar extends Component {
     }));
   }
 
-  handleOutsideClick(e) {
-    if (this.state.dialogOpen) this.handleProfile();
-    else if (this.state.projectDialog) this.handleProject();
+  handleOutsideClick = () => {
+    const { dialogOpen, projectDialog } = this.state;
+    if (dialogOpen) this.handleProfile();
+    else if (projectDialog) this.handleProject();
   }
 
   handleProject(e) {
+    const { projectDialog } = this.state;
     if (!e) {
       return;
     }
@@ -47,9 +48,11 @@ class Navbar extends Component {
         break;
 
       default:
-        !this.state.projectDialog
-          ? document.addEventListener('click', this.handleOutsideClick, false)
-          : document.removeEventListener('click', this.handleOutsideClick, false);
+        if (!projectDialog) {
+          document.addEventListener('click', this.handleOutsideClick, false);
+        } else {
+          document.removeEventListener('click', this.handleOutsideClick, false);
+        }
         this.setState((prevState) => ({
           projectDialog: !prevState.projectDialog,
         }));
@@ -58,40 +61,43 @@ class Navbar extends Component {
   }
 
   render() {
+    const { dialogOpen, projectDialog, yourProjects } = this.state;
     return (
       <div className="navbar">
         <Link to="/">
           <img className="logo" src={mlReefIcon01} alt="" />
         </Link>
         <div
+          role="button"
+          tabIndex="0"
           className={
-            this.state.projectDialog
+            projectDialog
               ? 'projects-dropdown-click'
               : 'projects-dropdown'
           }
           onClick={this.handleProject}
+          onKeyDown={this.handleProject}
         >
           <a href="#foo">Projects</a>
           <img
             className="dropdown-white"
             src={
-              this.state.projectDialog
+              projectDialog
                 ? arrowDownBlue01
                 : arrowDownWhite01
             }
             alt=""
           />
-          {this.state.projectDialog && (
+          {projectDialog && (
             <div className="project-box">
               <div className="user-projects">
                 <p><Link to="/my-projects">Your Projects</Link></p>
                 <p>Starred Projects</p>
                 <p>Explore Projects</p>
               </div>
-              {!this.state.yourProjects && (
+              {!yourProjects && (
               <div className="project-search">
                 <input
-                  autoFocus
                   type="text"
                   placeholder="Search your projects"
                 />
@@ -105,11 +111,14 @@ class Navbar extends Component {
         </div>
 
         <div
+          role="button"
+          tabIndex="0"
           className={
             `profile-options ${
-              this.state.dialogOpen ? 'selected-controller' : ''}`
+              dialogOpen ? 'selected-controller' : ''}`
           }
           onClick={this.handleProfile}
+          onKeyDown={this.handleProfile}
           ref={(node) => {
             this.node = node;
           }}
@@ -117,18 +126,18 @@ class Navbar extends Component {
           <img
             className="dropdown-white"
             src={
-              this.state.dialogOpen ? arrowDownBlue01 : arrowDownWhite01
+              dialogOpen ? arrowDownBlue01 : arrowDownWhite01
             }
             alt=""
           />
           <div
             className={
-              this.state.dialogOpen
+              dialogOpen
                 ? 'profile-pic-darkcircle'
                 : 'profile-pic-circle'
             }
           />
-          {this.state.dialogOpen && (
+          {dialogOpen && (
             <div className="sign-box">
               <div>
                 Signed in as

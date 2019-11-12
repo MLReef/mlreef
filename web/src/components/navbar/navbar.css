@@ -11,6 +11,7 @@
 }
 
 .projects-dropdown {
+    outline: none;
     display: flex;
     position: relative;
     justify-content: center;
@@ -48,6 +49,7 @@
   }
 
   .profile-options {
+    outline: none;
     display: flex;
     justify-content: center;
     align-items: center;
