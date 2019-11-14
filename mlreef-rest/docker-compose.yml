@@ -8,3 +8,9 @@ services:
     image: "redis:alpine"
     ports:
       - "6379:6379"
+  postgres:
+    image: "postgres:alpine"
+    environment:
+      POSTGRES_PASSWORD: "password"
+    ports:
+      - "5432:5432"

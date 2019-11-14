@@ -7,17 +7,17 @@ interface Subject {
     email: String ....
 }
 class Person
-class Organisation
+class Group
 enum VisibilityScope {
     PRIVATE,
     PUBLIC,
     GROUP
 }
 Subject <|-- Person
-Subject <|-- Organisation
+Subject <|-- Group
+Person - Group: via [Membership]
 
-MLRepository - Subject : < owns
-Person - Organisation : > is member of
+MLProject - Subject : < owns
 
 interface Searchable {
     name: String
@@ -28,21 +28,21 @@ interface Searchable {
 
 Searchable - Tag
 
-interface MLRepository {
+interface MLProject {
     UUID: String
     slug: String
     url: String
 }
 
-class MLDataRepository {
+class DataProject {
     dataTypes: List<DataType>
 }
-class MLCodeRepository
-Searchable <|-- MLRepository
+class CodeProject
+Searchable <|-- MLProject
 Searchable <|-- DataProcessor
 Searchable <|-- ProcessorParameter
-MLRepository <|-- MLCodeRepository
-MLRepository <|-- MLDataRepository
+MLProject <|-- CodeProject
+MLProject <|-- DataProject
 
 enum ExperimentStatus {
     CREATED,
@@ -65,25 +65,25 @@ class PerformanceMetrics {
     epochs: Int
 }
 Experiment *- PerformanceMetrics
-MLDataRepository o-- "many" Experiment : "has"
+DataProject o-- "many" Experiment : "has"
 
 interface DataProcessor {
     val id: UUID? = null
     val slug: String = ""
     val inputDataType: DataType? = null
 }
-class DataOperation {
+class Operation {
    resultDataType: DataType? = null
 }
-class DataVisualization {
+class Visualization {
    resultFiles: List<File> = listOf()
 }
-DataProcessor  <|-- DataOperation
-DataProcessor  <|-- DataVisualization
-DataProcessor  <|-- DataAlgorithm
+DataProcessor  <|-- Operation
+DataProcessor  <|-- Visualization
+DataProcessor  <|-- Model
 DataProcessor  *-- "many " ProcessorParameter : uses many parameters
 
-MLCodeRepository  -- DataProcessor : "lives in" <
+CodeProject  -- DataProcessor : "lives in" <
 DataProcessor  - DataProcessorInstance : "execution with config"
 class DataProcessorInstance {
     parent: DataProcessorInstance
@@ -115,8 +115,7 @@ enum ParameterType {
     LIST,
     TUPLE,
     DICTIONARY,
-    OBJECT,
-    NUMPY_ARRAY
+    OBJECT
 }
 
 enum DataType {
@@ -128,7 +127,8 @@ enum DataType {
     TABULAR,
     TEXT,
     BINARY,
-    MODEL
+    MODEL,
+    NUMPY_ARRAY
 }
 
 @enduml

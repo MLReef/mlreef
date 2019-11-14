@@ -18,9 +18,9 @@ open class GitlabAuthService(private val gitlabRestClient: GitlabRestClient) : A
         }
 
         return TokenDetails(
-                token = token,
-                gitlabUser = user,
-                valid = (user != null)
+            token = token,
+            gitlabUser = user,
+            valid = (user != null)
         )
     }
 
