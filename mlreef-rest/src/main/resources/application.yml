@@ -2,9 +2,29 @@ logging:
   level:
     root: INFO
     com.mlreef.rest: DEBUG
-    org.springframework.security: DEBUG
+    org.springframework.security: INFO
+    org.springframework.orm: INFO
+    org.hibernate: INFO
 
 spring:
+  data:
+    repositories.type: none
+    redis:
+      repositories:
+        enabled: false
+  datasource:
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:mlreef_backend}
+    username: ${DB_USER:postgres}
+    password: ${DB_PASSWORD:password}
+  jpa:
+    show-sql: true
+    generate-ddl: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        temp.use_jdbc_metadata_defaults: false
+    hibernate:
+      ddl-auto: create-drop
   redis:
     host: ${REDIS_HOST:localhost}
     port: ${REDIS_PORT:6379}

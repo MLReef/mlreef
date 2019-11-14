@@ -80,11 +80,17 @@ build-backend:
   image: java:8
   services:
     - redis:latest
+    - postgres:latest
   variables:
     REDIS_HOST: "redis"
     REDIS_PORT: 6379
+    POSTGRES_DB: ${DB_NAME}
+    POSTGRES_USER: ${DB_USER}
+    POSTGRES_PASSWORD: ${DB_PASSWORD}
+  before_script:
+    - echo "Use DB ${DB_NAME} with ${DB_USER}"
   script:
-    - ./gradlew build
+    - ./gradlew build --stacktrace
     - ./gradlew :mlreef-rest:bootJar
 
 

@@ -18,6 +18,22 @@ and will be kept up to date
   * ```KEY spring*``` to see all current (Spring session) keys 
 * Create a bash/batch file to prepare you environment with the needed env vars. See [init-test-env-windows.bat.example](init-test-env-windows.bat.example)
 
+####  Setup PostgreSQL DB 
+
+Setup your ENV variables!
+
+```
+docker pull postgres:11
+docker run --name postgres -p $DB_PORT:$DB_PORT -e POSTGRES_PASSWORD=$DB_PASSWORD -d postgres:11
+# CREATE db coursedb
+docker exec postgres psql -U postgres -c"CREATE DATABASE $DB_NAME" postgres
+```
+
+```
+# for windows: 
+docker run --name postgres -p %DB_PORT%:%DB_PORT% -e POSTGRES_PASSWORD=%DB_PASSWORD% -d postgres:11
+docker exec postgres psql -U postgres -c"CREATE DATABASE %DB_NAME%" postgres
+```
 ## Environment
 
 The non-secret variables should go directly into the config files. Other non-secret env variables may be used as switches and should provide a default values.
@@ -35,6 +51,15 @@ Common prefixes are:
 * JAVA_TEST_PRIVATE_TOKEN := Gitlab Private Token (API permissions) of User for test repos
   * will be injected by Gitlab CI
   * must be provided locally for tests
+
+For develop/testing we will use the following:
+* DB_HOST = localhost on machine, "postgres" in gitlab ci
+* DB_PORT = 5432
+* DB_NAME = mlreef_backend
+* DB_USER = postgres
+* DB_PASSWORD = password
+* REDIS_HOST = localhost on machine, "redis" in gitlab ci
+* REDIS_PORT = 6379
   
 ### Services
 

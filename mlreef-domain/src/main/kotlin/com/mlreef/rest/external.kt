@@ -1,4 +1,5 @@
-package com.mlreef.domain.entities
+package com.mlreef.rest
+
 import org.springframework.data.repository.CrudRepository
 import org.springframework.data.repository.NoRepositoryBean
 import java.io.Serializable
@@ -21,8 +22,8 @@ interface KtCrudRepository<T, ID : Serializable> : CrudRepository<T, ID> {
     override fun <S : T> saveAll(entities: Iterable<S>): Iterable<S>
 
     @Deprecated(
-            message = "Java Optional is not the preferable way to handle database returns in Kotlin",
-            replaceWith = ReplaceWith("com.systemkern.kommons.KtCrudRepository.findById2(id)")
+        message = "Java Optional is not the preferable way to handle database returns in Kotlin",
+        replaceWith = ReplaceWith("com.systemkern.kommons.KtCrudRepository.findById2(id)")
     )
     override fun findById(id: ID): Optional<T>
 
@@ -40,12 +41,12 @@ interface KtCrudRepository<T, ID : Serializable> : CrudRepository<T, ID> {
  */
 @Suppress("DEPRECATION")
 fun <T, ID : Serializable> KtCrudRepository<T, ID>.findById2(id: ID): T? =
-        findById(id).orElse(null)
+    findById(id).orElse(null)
 
 /**
  * @throws IllegalArgumentException if no entity can be found
  */
 @Suppress("DEPRECATION")
 inline fun <reified T, ID : Serializable> KtCrudRepository<T, ID>.getById(id: ID): T =
-        this.findById(id).orElse(null)
-                ?: throw IllegalArgumentException("Could not find ${T::class.qualifiedName} with id $id")
+    this.findById(id).orElse(null)
+        ?: throw IllegalArgumentException("Could not find ${T::class.qualifiedName} with id $id")

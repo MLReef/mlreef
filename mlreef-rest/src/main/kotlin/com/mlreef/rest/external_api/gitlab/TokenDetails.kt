@@ -4,9 +4,9 @@ import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.userdetails.UserDetails
 
 class TokenDetails(
-        val token: String,
-        val valid: Boolean = false,
-        private val gitlabUser: GitlabUser? = null
+    val token: String,
+    val valid: Boolean = false,
+    private val gitlabUser: GitlabUser? = null
 ) : UserDetails {
 
     override fun getAuthorities(): MutableCollection<out GrantedAuthority> {
