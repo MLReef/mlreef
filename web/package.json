@@ -7,6 +7,7 @@
     "array-move": "^2.1.0",
     "babel-core": "^6.26.3",
     "babel-preset-env": "^1.7.0",
+    "base64-arraybuffer": "^0.2.0",
     "browserslist": "^4.7.1",
     "chart.js": "^2.8.0",
     "core-js": "^3.2.1",

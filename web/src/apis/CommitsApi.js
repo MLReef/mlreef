@@ -1,5 +1,6 @@
 import { SECURITY_TOKEN } from '../apiConfig';
 import { domain } from '../dataTypes';
+import { generateGetRequest } from './apiHelpers';
 
 export default class CommitsApi {
   static async performCommit(projectId, filePath, fileContent, domain = 'gitlab.com', branch = 'master', commitMss, action) {
@@ -68,6 +69,20 @@ export default class CommitsApi {
         }),
       },
     ));
+
+    return response.json();
+  }
+
+  static async getFileDataInCertainCommit(projectId, pathToFile, commitId) {
+    const url = `https://${domain}/api/v4/projects/${projectId}/repository/files/${pathToFile}/raw?ref=${commitId}`;
+    const response = await generateGetRequest(url);
+
+    return response.arrayBuffer();
+  }
+
+  static async getCommitDiff(projectId, commitId) {
+    const url = `https://${domain}/api/v4/projects/${projectId}/repository/commits/${commitId}/diff`;
+    const response = await generateGetRequest(url);
 
     return response.json();
   }

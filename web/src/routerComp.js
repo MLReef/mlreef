@@ -42,7 +42,7 @@ const RouterComp = () => (
         component={FileView}
       />
       <PrivateRoute path="/my-projects/:projectId/:branch/path/:path" component={projectView} />
-      <PrivateRoute path="/my-projects/:projectId/commit/:id" exact component={CommitDetails} />
+      <PrivateRoute path="/my-projects/:projectId/commit/:commitId" exact component={CommitDetails} />
     </Switch>
   </BrowserRouter>
 );

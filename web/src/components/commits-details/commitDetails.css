@@ -121,7 +121,8 @@
 
 .image-display{
     display: flex;
-    padding: 3em
+    justify-content: space-around;
+    margin: 5% 20%;
 }
 
 .image-display > div{
@@ -139,9 +140,7 @@
     text-align: center;
     font-weight: 700
 }
-.image-display div:last-child{
-    margin-left: auto;
-}
+
 .filechange-info{
     display: flex; 
     padding: 0.5em
