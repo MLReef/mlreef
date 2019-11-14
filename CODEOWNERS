@@ -47,3 +47,4 @@
 /bin @rainerkern
 /web @andres46
 .gitlab-ci.yml @rainerkern
+docker-compose.yml @rainerkern

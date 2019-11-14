@@ -1,0 +1,18 @@
+[
+  {
+    "DeviceName": "/dev/sda1",
+    "Ebs": {
+      "DeleteOnTermination": true,
+      "VolumeSize": 16,
+      "VolumeType": "gp2"
+    }
+  },
+  {
+    "DeviceName": "/dev/sda2",
+    "Ebs": {
+      "DeleteOnTermination": true,
+      "VolumeSize": 300,
+      "VolumeType": "gp2"
+    }
+  }
+]
