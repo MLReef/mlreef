@@ -10,6 +10,7 @@
     "base64-arraybuffer": "^0.2.0",
     "browserslist": "^4.7.1",
     "chart.js": "^2.8.0",
+    "check-prop-types": "^1.1.2",
     "core-js": "^3.2.1",
     "dompurify": "^2.0.7",
     "history": "^4.9.0",
