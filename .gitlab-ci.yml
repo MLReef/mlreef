@@ -3,6 +3,7 @@ image: alpine:latest
 stages:
   - prepare
   - deploy
+  - publish
   - teardown
 
 # The deployment on aws depends on thre main environment variables
@@ -11,13 +12,11 @@ stages:
 # AWS_DEFAULT_REGION      default:eu-central-1
 variables:
   BUILD_PATH: "web/build"
-  IMAGE_NAME: "frontend"
-  FRONTEND_INSTANCE_NAME: frontend-$CI_COMMIT_REF_SLUG     # environment name and url are set separately
-  GITLAB_EC2_INSTANCE_NAME: gitlab-$CI_COMMIT_REF_SLUG     # environment name and url are set separately
-  FRONTEND_INSTANCE: frontend.instance                     # file for transmitting VM information between stages
-  GITLAB_INSTANCE:   gitlab.instance                       # file for transmitting VM information between stages
-  DOCKER_REGISTRY_REPOSITORY_ID: "717423"                  # https://gitlab.com/api/v4/projects/12894267/registry/repositories/
+  IMAGE_NAME: "frontend"                                   # docker image base name
   IMAGE_PATH: "$DOCKER_REGISTRY/$DOCKER_ORGANISATION/$IMAGE_NAME:$CI_COMMIT_REF_SLUG"
+  DOCKER_REGISTRY_REPOSITORY_ID: "717423"                  # https://gitlab.com/api/v4/projects/12894267/registry/repositories/
+  EC2_INSTANCE_NAME: mlreef-$CI_COMMIT_REF_SLUG            # environment name and url are set separately
+  INSTANCE_INFO: instance.info                             # file for transmitting VM information between stages
 
 
 # "." hides the job from execution
@@ -36,67 +35,57 @@ build:
     - docker build --pull --tag "$IMAGE_PATH" -f Dockerfile .
     - docker push "${IMAGE_PATH}"
 
-provision-gitlab:
-  stage: prepare
-  when: always
+provision-ec2:
+  stage: deploy
   image: registry.gitlab.com/systemkern/s5:latest-aws
   variables:
+    EC2_MACHINE_SIZE:  "t3a.small"                          # https://aws.amazon.com/ec2/instance-types/
     EC2_IMAGE_AMI:     "ami-050a22b7e0cf85dd0"              # ubuntu 16.04 LTS
-    EC2_MACHINE_SIZE:  "m4.xlarge"
     EC2_SECURITY_GRP:  "application_servers"
-    STARTUP_SCRIPT:    "bin/gitlab-startup.sh"
+    STARTUP_SCRIPT:    "bin/startup.sh"
   before_script:
     - chmod 400 development_deployment.pem                  # prepare private key file
-    - bin/decomission.sh $GITLAB_EC2_INSTANCE_NAME          # first shutdown all current instances
+    - bin/decomission.sh $EC2_INSTANCE_NAME                 # first shutdown all current instances
+    # rewrite ec2 startup script so it uses the current branch
+    - echo "sudo tee -a docker-compose.yml > /dev/null <<EOF" >> bin/startup.sh
+    - cat docker-compose.yml                                  >> bin/startup.sh
+    - echo ""                                                 >> bin/startup.sh
+    - echo "EOF"                                              >> bin/startup.sh
+    - echo "sudo docker-compose up -d"                        >> bin/startup.sh
+    # rewrite startup script
+    - sed -i "s~master/bin~$CI_COMMIT_REF_NAME/bin~"        $STARTUP_SCRIPT
+    - sed -i "s/$IMAGE_NAME:master/$IMAGE_NAME:$CI_COMMIT_REF_SLUG/" $STARTUP_SCRIPT
+    - sed -i "s~-\ postgresql-data~-\ /data/postgres~"      $STARTUP_SCRIPT
+    - sed -i "s~-\ gitlab-data~-\ /data/gitlab~"            $STARTUP_SCRIPT
+    - sed -i "s/\ \ postgresql-data/#postgresql-data/"      $STARTUP_SCRIPT
+    - sed -i "s/\ \ gitlab-data/#postgresql-data/"          $STARTUP_SCRIPT
+    - cat $STARTUP_SCRIPT                                   # debug output
   script:
-    - INSTANCE=$(./bin/provision-gitlab.sh $GITLAB_EC2_INSTANCE_NAME $STARTUP_SCRIPT)
+    - INSTANCE=$(./bin/provision.sh $EC2_INSTANCE_NAME $STARTUP_SCRIPT)
     - echo "$INSTANCE"
-    - echo "$INSTANCE" | tr -d '\r' > $GITLAB_INSTANCE      # pass instance url to deploy stage
+    - echo "$INSTANCE" | tr -d '\r' > $INSTANCE_INFO        # pass instance url to deploy stage
   after_script:
-    - cat $GITLAB_INSTANCE
-    - if [ $GITLAB_INSTANCE == "null" ]; then exit 1;  fi   # error on invalid INSTANCE_INFO
+    - cat $INSTANCE_INFO
+    - if [ $INSTANCE == "null" ]; then exit 1;  fi          # error on invalid INSTANCE_INFO
   artifacts:
     paths:
-      - "$GITLAB_INSTANCE"                                  # pass the file which contains our instance URL
-
-provision-frontend:
-  image: registry.gitlab.com/systemkern/s5:latest-aws
-  stage: prepare
-  variables:
-    EC2_IMAGE_AMI:    "ami-03c87d96f6702a119"               # aws-elasticbeanstalk-amzn-2018.03.0.x86_64-nodejs-hvm-201904170656
-    EC2_MACHINE_SIZE: "t2.nano"                             # https://aws.amazon.com/ec2/instance-types/
-    EC2_SECURITY_GRP: "application_servers"
-  before_script:
-    - chmod 400 development_deployment.pem                  # prepare private key file
-    - ./bin/decomission.sh $FRONTEND_INSTANCE_NAME          # first shutdown all current instances
-  script:
-    - echo "FRONTEND_INSTANCE_NAME $FRONTEND_INSTANCE_NAME"
-    - INSTANCE=$(./bin/provision-frontend.sh $FRONTEND_INSTANCE_NAME)
-    - echo "$INSTANCE"
-    - echo "$INSTANCE" | tr -d '\r' > $FRONTEND_INSTANCE    # pass instance url to deploy stage
-  after_script:
-    - cat $FRONTEND_INSTANCE
-    - if [ $FRONTEND_INSTANCE == "null" ]; then exit 1;  fi # error on invalid INSTANCE_INFO
-  artifacts:
-    paths:
-      - "$FRONTEND_INSTANCE"                                # pass the file which contains our instance URL
+      - "$INSTANCE_INFO"                                    # pass the file which contains our instance URL
   environment:
     name: $CI_COMMIT_REF_SLUG
-    url: $CI_PIPELINE_URL	                            # temporary url will be corrected by the gitlab-env-conf job
-    on_stop: decomission                                # clean up after branch merge
-
+    url: $CI_PIPELINE_URL                                   # temporary url will be corrected by the gitlab-env-conf job
+    on_stop: decomission                                    # clean up after branch merge
 
 
 # This job adds the actual frontend URL to the Environments GUI in gitlab.com
 gitlab-env-conf:
   image: registry.gitlab.com/systemkern/s5:latest
-  stage: deploy
+  stage: publish
   variables:
     GIT_STRATEGY: none
     KEY: "Authorization:"                                   # workaround to preserver the yaml structure
   before_script:
-    - cat $FRONTEND_INSTANCE                                # debug output
-    - URL=$(cat $FRONTEND_INSTANCE)
+    - URL=$(cat $INSTANCE_INFO)
+    - echo $URL                                             # debug output
   script:
     # Get the ID of the gitlab environment we want to edit
     - ID=$(curl --header "$KEY Bearer $GITLAB_API_TOKEN"
@@ -106,20 +95,8 @@ gitlab-env-conf:
     - echo "ID is $ID"                                      # debug output
     # configure the gitlab environment with the correct URL
     - curl --request PUT --header "$KEY Bearer $GITLAB_API_TOKEN"
-      --data "name=$CI_COMMIT_REF_SLUG&external_url=http://$URL:3000"
+      --data "name=$CI_COMMIT_REF_SLUG&external_url=http://$URL"
       https://gitlab.com/api/v4/projects/$CI_PROJECT_ID/environments/$ID
-
-# deploy the application to the ec2 instance
-deploy-ec2:
-  image: registry.gitlab.com/systemkern/s5:latest
-  stage: deploy
-  before_script:
-    - cat $FRONTEND_INSTANCE
-    - INSTANCE=$(cat $FRONTEND_INSTANCE)
-    - chmod +x bin/jq
-  script:
-    - chmod 400 development_deployment.pem                  # prepare private key file
-    - bin/deploy.sh $INSTANCE $IMAGE_PATH
 
 
 decomission:
@@ -135,12 +112,7 @@ decomission:
     # parse the json with jq to get the instance id
     # the xargs command at the end submits the termination command to AWS
     - aws ec2 describe-instances
-      --filters "Name=tag:Name,Values=$FRONTEND_INSTANCE_NAME"
-      | jq -r ".Reservations[].Instances[].InstanceId"
-      | xargs --no-run-if-empty aws ec2 terminate-instances
-      --instance-id
-    - aws ec2 describe-instances
-      --filters "Name=tag:Name,Values=$GITLAB_EC2_INSTANCE_NAME"
+      --filters "Name=tag:Name,Values=$EC2_INSTANCE_NAME"
       | jq -r ".Reservations[].Instances[].InstanceId"
       | xargs --no-run-if-empty aws ec2 terminate-instances
       --instance-id
