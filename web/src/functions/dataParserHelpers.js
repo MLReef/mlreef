@@ -1,4 +1,7 @@
 import filesApi from '../apis/FilesApi';
+import {
+  colorsForCharts,
+} from '../dataTypes';
 
 export const getTimeCreatedAgo = (timeAgoCreatedAt, today) => {
   const timeAgoCreatedAtDate = new Date(timeAgoCreatedAt);
@@ -117,3 +120,21 @@ export const getParamFromUrl = (
   param,
   url,
 ) => new URL(url).searchParams.get(param);
+
+export function mapSummarizedInfoToDatasets(summarizedInfo) {
+  return summarizedInfo.map(
+    (epochObjectVal, index) => {
+      const currentValueName = Object.keys(epochObjectVal)[0];
+      const dataSet = {};
+
+      dataSet.label = currentValueName;
+      dataSet.fill = false;
+      dataSet.backgroundColor = colorsForCharts[index];
+      dataSet.borderColor = colorsForCharts[index];
+      dataSet.lineTension = 0;
+      dataSet.data = epochObjectVal[currentValueName];
+
+      return dataSet;
+    },
+  );
+}

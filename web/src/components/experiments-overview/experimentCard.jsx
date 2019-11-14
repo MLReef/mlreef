@@ -1,10 +1,15 @@
-/* eslint-disable implicit-arrow-linebreak */
+
 import React, { Component } from 'react';
-import ReactDOM from 'react-dom';
+import {
+  string,
+  arrayOf,
+  shape,
+  number,
+  func,
+} from 'prop-types';
 import './experimentsOverview.css';
 import $ from 'jquery';
 import uuidv1 from 'uuid/v1';
-import { toastr } from 'react-redux-toastr';
 import { Line } from 'react-chartjs-2';
 import traiangle01 from '../../images/triangle-01.png';
 import ArrowButton from '../arrow-button/arrowButton';
@@ -12,9 +17,9 @@ import snippetApi from '../../apis/SnippetApi';
 import {
   getTimeCreatedAgo,
   generateSummarizedInfo,
+  mapSummarizedInfoToDatasets,
 } from '../../functions/dataParserHelpers';
 import {
-  colorsForCharts,
   SKIPPED,
   RUNNING,
   SUCCESS,
@@ -29,24 +34,30 @@ const DataCard = ({ title, linesOfContent }) => (
       <p><b>{title}</b></p>
     </div>
     <div>
-      {linesOfContent.map((line, index) => {
+      {linesOfContent.map((line) => {
         const lineContent = line.startsWith('*')
           ? <b>{line.replace('*', '')}</b>
           : line;
-        return <p key={`data-card-${title}-line-cont-${index}`} className="line">{lineContent}</p>;
+        return <p key={`${title} ${line}`} className="line">{lineContent}</p>;
       })}
     </div>
   </div>
 );
 
+DataCard.propTypes = {
+  title: string.isRequired,
+  linesOfContent: arrayOf(string).isRequired,
+};
+
 class ExperimentCard extends Component {
   constructor(props) {
     super(props);
-
+    const { params } = this.props;
     this.state = {
       showChart: false,
       chartDivId: new Date().getTime(),
-      experiments: this.props.params.experiments,
+      experiments: params.experiments,
+      dataToPlot: [],
     };
 
     this.handleArrowDownButtonClick = this.handleArrowDownButtonClick.bind(this);
@@ -67,14 +78,32 @@ class ExperimentCard extends Component {
     if (experimentState === RUNNING || experimentState === PENDING) {
       buttons = [
         arrowBtn,
-        <button key={`dangerous-red-${uniqueCode}`} className="dangerous-red" style={{ width: 'max-content' }}><b> Abort </b></button>,
+        <button
+          key={`dangerous-red-${uniqueCode}`}
+          type="button"
+          className="dangerous-red"
+          style={{ width: 'max-content' }}
+        >
+          <b>
+            Abort
+          </b>
+        </button>,
       ];
     } else if (experimentState === SKIPPED) {
       buttons = [
         arrowBtn,
-        <button key={`dangerous-red-${uniqueCode}`} className="dangerous-red"><b>X</b></button>,
+        <button
+          key={`dangerous-red-${uniqueCode}`}
+          type="button"
+          className="dangerous-red"
+        >
+          <b>
+            X
+          </b>
+        </button>,
         <button
           key={`deploy-${uniqueCode}`}
+          type="button"
           className="light-green-button experiment-button non-active-black-border"
           style={{ width: '100px' }}
         >
@@ -84,9 +113,18 @@ class ExperimentCard extends Component {
     } else if (experimentState === SUCCESS || experimentState === FAILED) {
       buttons = [
         arrowBtn,
-        <button key={`dangerous-red-${uniqueCode}`} className="dangerous-red"><b>X</b></button>,
+        <button
+          key={`dangerous-red-${uniqueCode}`}
+          type="button"
+          className="dangerous-red"
+        >
+          <b>
+            X
+          </b>
+        </button>,
         <button
           key={`deploy-${uniqueCode}`}
+          type="button"
           className="light-green-button experiment-button non-active-black-border"
           style={{ width: '100px' }}
         >
@@ -96,86 +134,91 @@ class ExperimentCard extends Component {
     } else if (experimentState === CANCELED) {
       buttons = [
         arrowBtn,
-        <button key={`dangerous-red-${uniqueCode}`} className="dangerous-red"><b>X</b></button>,
+        <button
+          key={`dangerous-red-${uniqueCode}`}
+          type="button"
+          className="dangerous-red"
+        >
+          <b>
+            X
+          </b>
+        </button>,
       ];
     }
-    return (<div className="buttons-div">{buttons}</div>);
-  }
-
-  mapSummarizedInfoToDatasets(summarizedInfo) {
-    return summarizedInfo.map(
-      (epochObjectVal, index) => {
-        const currentValueName = Object.keys(epochObjectVal)[0];
-        const dataSet = {};
-
-        dataSet.label = currentValueName;
-        dataSet.fill = false;
-        dataSet.backgroundColor = colorsForCharts[index];
-        dataSet.borderColor = colorsForCharts[index];
-        dataSet.lineTension = 0;
-        dataSet.data = epochObjectVal[currentValueName];
-
-        return dataSet;
-      },
+    return (
+      <div className="buttons-div">{buttons}</div>
     );
   }
 
   parseDataAndRefreshChart(jsonExperimentFileParsed, index) {
-    const chartDiv = document.getElementById(this.state.chartDivId);
-    const cardResults = `${this.state.chartDivId}-Idcard-results-${index}`;
-    const exp = this.state.experiments[index];
+    const { chartDivId, experiments } = this.state;
+    const chartDiv = document.getElementById(chartDivId);
+    if (jsonExperimentFileParsed.length === 0) {
+      return;
+    }
+    const cardResults = `${chartDivId}-Idcard-results-${index}`;
+    const exp = experiments[index];
     const summarizedInfo = generateSummarizedInfo(jsonExperimentFileParsed);
-    const dataSets = this.mapSummarizedInfoToDatasets(summarizedInfo);
+    const dataSets = mapSummarizedInfoToDatasets(summarizedInfo);
     const labels = Object.keys(dataSets[0].data);
     const avgValues = Object.keys(summarizedInfo)
       .filter((sInfoItem) => sInfoItem.startsWith('avg_'))
-      .map((sInfoItem) => ({ name: sInfoItem.substring(4, sInfoItem.length), value: summarizedInfo[sInfoItem] }));
+      .map((sInfoItem) => ({
+        name: sInfoItem.substring(4, sInfoItem.length),
+        value: summarizedInfo[sInfoItem],
+      }));
     exp.data = { labels, datasets: dataSets };
     exp.averageParams = avgValues;
 
-    const newExperimentsArr = this.state.experiments;
+    const newExperimentsArr = experiments;
     newExperimentsArr[index] = exp;
-    this.setState({ experiments: newExperimentsArr });
     if (exp.data) {
       chartDiv.parentNode.childNodes[1].style.display = 'unset';
       $(`#${cardResults}`).css('display', 'flex');
-      ReactDOM.render(
-        <div>
-          <Line data={exp.data} height={50} />
-        </div>,
-        chartDiv,
-      );
+      this.setState({
+        experiments: newExperimentsArr,
+        dataToPlot: exp.data,
+      });
     }
   }
 
   retrieveStatisticsFromApi(index) {
+    const { params } = this.props;
+    const { experiments } = this.state;
     return snippetApi.getSnippetFile(
-      this.props.params.project.id,
-      this.state.experiments[index].descTitle.replace('/', '-'),
+      params.projectId,
+      experiments[index].descTitle.replace('/', '-'),
       'experiment.json',
       'gitlab.com',
     ).then((res) => {
       this.parseDataAndRefreshChart(res, index);
-      if (this.state.experiments[index].status === RUNNING
-                  || this.state.experiments[index].status === PENDING
-      ) {
-        setTimeout(() => {
-          this.retrieveStatisticsFromApi(index);
-        }, 30000);
-      }
+      this.retrieveDataConstantly(experiments[index].status, index);
     }).catch(
-      (err) => {
-        toastr.warning('Wait', 'No data has been generated for this experiment yet');
+      () => {
+        this.parseDataAndRefreshChart([], index);
+        this.retrieveDataConstantly(experiments[index].status, index);
       },
     );
   }
 
+  retrieveDataConstantly(status, index) {
+    if (status === RUNNING
+      || status === PENDING
+    ) {
+      setTimeout(() => {
+        this.retrieveStatisticsFromApi(index);
+      }, 30000);
+    }
+  }
+
   handleArrowDownButtonClick(e, params) {
     const index = params.ind;
-    const newState = this.state;
-    const chartDiv = document.getElementById(this.state.chartDivId);
-    const cardResults = `${this.state.chartDivId}-Idcard-results-${index}`;
-    newState.showChart = !this.state.showChart;
+    const newState = { ...this.state };
+    const { chartDivId } = this.state;
+
+    const chartDiv = document.getElementById(chartDivId);
+    const cardResults = `${chartDivId}-Idcard-results-${index}`;
+    newState.showChart = !newState.showChart;
     this.setState(
       newState,
     );
@@ -184,14 +227,18 @@ class ExperimentCard extends Component {
     } else {
       $(`#${cardResults}`).css('display', 'none');
       chartDiv.parentNode.childNodes[1].style.display = 'none';
-      ReactDOM.unmountComponentAtNode(chartDiv);
     }
   }
 
   render() {
-    const { params } = this.props;
-    const { chartDivId } = this.state;
-
+    const { params, setSelectedExperiment } = this.props;
+    const {
+      chartDivId,
+      experiments,
+      dataToPlot,
+      showChart,
+    } = this.state;
+    const today = new Date();
     return (
       <div className="experiment-card">
         <div className="header">
@@ -205,7 +252,7 @@ class ExperimentCard extends Component {
           </div>
         </div>
 
-        {this.state.experiments.map((experiment, index) => {
+        {experiments.map((experiment, index) => {
           let modelDiv = 'inherit';
           let progressVisibility = 'inherit';
           if (!experiment.percentProgress) {
@@ -222,8 +269,9 @@ class ExperimentCard extends Component {
               <div className="summary-data">
                 <div className="project-desc-experiment">
                   <button
+                    type="button"
                     onClick={() => {
-                      this.props.setSelectedExperiment(experiment);
+                      setSelectedExperiment(experiment);
                     }}
                     style={{
                       border: 'none',
@@ -234,35 +282,34 @@ class ExperimentCard extends Component {
                   >
                     <b>{experiment.descTitle}</b>
                   </button>
-                  <p>
-  Created by
-                    {' '}
+                  <p id="time-created-ago">
+                    Created by
+                    &nbsp;
                     <b>{experiment.userName}</b>
                     <br />
-                    {getTimeCreatedAgo(experiment.timeCreatedAgo)}
-                    {' '}
-  ago
+                    {getTimeCreatedAgo(experiment.timeCreatedAgo, today)}
+                    &nbsp;
+                    ago
                   </p>
                 </div>
                 <div className="project-desc-experiment" style={{ visibility: progressVisibility }}>
                   <p>
                     <b>
                       {experiment.percentProgress}
-  % completed
+                      % completed
                     </b>
-
                   </p>
                   <p>
-  ETA:
+                    ETA:
                     {' '}
                     {experiment.eta}
                     {' '}
-  hours
+                    hours
                   </p>
                 </div>
                 <div className="project-desc-experiment" style={{ visibility: modelDiv }}>
                   <p>
-  Model:
+                    Model:
                     {' '}
                     <b>{experiment.modelTitle}</b>
                   </p>
@@ -275,7 +322,11 @@ class ExperimentCard extends Component {
                 {this.getButtonsDiv(experiment.currentState, index)}
               </div>
               <div className="data-summary">
-                <div className="chart-container" id={chartDivId} />
+                {showChart && (
+                  <div className="chart-container" id={chartDivId}>
+                    <Line data={dataToPlot} height={50} />
+                  </div>
+                )}
                 <div className="content">
                   <p><b>Performace achieved from last epoch:</b></p>
                   {
@@ -338,5 +389,26 @@ class ExperimentCard extends Component {
     );
   }
 }
+
+ExperimentCard.propTypes = {
+  params: shape({
+    currentState: string.isRequired,
+    experiments: arrayOf(
+      shape({
+        currentState: string,
+        descTitle: string,
+        userName: string,
+        percentProgress: string,
+        eta: string,
+        modelTitle: string,
+        timeCreatedAgo: string,
+        averageParams: arrayOf,
+        data: arrayOf,
+      }),
+    ).isRequired,
+    projectId: number.isRequired,
+  }).isRequired,
+  setSelectedExperiment: func.isRequired,
+};
 
 export default ExperimentCard;

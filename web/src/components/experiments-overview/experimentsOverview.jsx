@@ -63,7 +63,7 @@ class ExperimentsOverview extends Component {
   }
 
   render() {
-    const { project } = this.state;
+    const { project, selectedExperiment, experiments } = this.state;
     return (
       <div id="experiments-overview-container">
         <Navbar />
@@ -75,14 +75,14 @@ class ExperimentsOverview extends Component {
         <br />
         <br />
         <div className="main-content">
-          {this.state.selectedExperiment === null && (
+          {selectedExperiment === null && (
           <>
             <br />
             <div id="line" />
             <br />
           </>
           )}
-          {this.state.selectedExperiment === null && (
+          {selectedExperiment === null && (
           <div id="buttons-container">
             <button
               id="all"
@@ -136,13 +136,13 @@ class ExperimentsOverview extends Component {
             </Link>
           </div>
           )}
-          {this.state.selectedExperiment === null
-            && this.state.experiments.map((experiment, index) =>
+          {selectedExperiment === null
+            && experiments.map((experiment, index) =>
               experiment && (
               <ExperimentCard
                 key={`${experiment.name}-${index}`}
                 params={{
-                  project,
+                  projectId: project.id,
                   currentState: experiment.status,
                   experiments: [{
                     currentState: experiment.status,
@@ -159,11 +159,11 @@ class ExperimentsOverview extends Component {
                 setSelectedExperiment={this.setSelectedExperiment}
               />
               ))}
-          {this.state.selectedExperiment
+          {selectedExperiment
             && (
             <ExperimentDetails
               setNullExperiment={this.setSelectedExperiment}
-              experiment={this.state.selectedExperiment}
+              experiment={selectedExperiment}
               files={filesForExperimentsDetails}
             />
             )}

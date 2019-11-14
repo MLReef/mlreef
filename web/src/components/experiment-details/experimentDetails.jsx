@@ -1,6 +1,11 @@
 import React from 'react';
 import './experimentDetails.css';
-import { func, shape, arrayOf } from 'prop-types';
+import {
+  func,
+  shape,
+  arrayOf,
+  string,
+} from 'prop-types';
 
 const ExperimentDetails = ({ setNullExperiment, experiment, files }) => (
   <>
@@ -206,8 +211,20 @@ const ExperimentDetails = ({ setNullExperiment, experiment, files }) => (
 
 ExperimentDetails.propTypes = {
   setNullExperiment: func.isRequired,
-  experiment: shape.isRequired,
-  files: arrayOf.isRequired,
+  experiment: shape({
+    currentState: string,
+    descTitle: string,
+    userName: string,
+    modelTitle: string,
+    timeCreatedAgo: string,
+  }).isRequired,
+  files: arrayOf(
+    shape({
+      description: string.isRequired,
+      param: string.isRequired,
+      value: string.isRequired,
+    }),
+  ).isRequired,
 };
 
 export default ExperimentDetails;
