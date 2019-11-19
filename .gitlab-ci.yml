@@ -23,7 +23,6 @@ variables:
   INSTANCE_INFO:  instance.info                            # file for transmitting VM information between stages
 
 
-# "." hides the job from execution
 provision-ec2:
   stage: prepare
   image: registry.gitlab.com/systemkern/s5:latest-aws
@@ -35,6 +34,9 @@ provision-ec2:
     - chmod 400 development_deployment.pem                 # prepare private key file
     - bin/decomission.sh $EC2_INSTANCE_NAME                # first shutdown all current instances
     - sed -i "s~master/bin~$CI_COMMIT_REF_NAME/bin~"       $STARTUP_SCRIPT
+    - sed -i "s~AWS_ACCESS_KEY_ID=XXXXX~AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID~"                 $STARTUP_SCRIPT
+    - sed -i "s~AWS_SECRET_ACCESS_KEY=XXXXX~AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY~"     $STARTUP_SCRIPT
+    - cat $STARTUP_SCRIPT
   script:
     - INSTANCE=$($EC2_PROVISION_SCRIPT $EC2_INSTANCE_NAME $STARTUP_SCRIPT)
     - echo "$INSTANCE"
@@ -80,7 +82,7 @@ gitlab-env-conf:
     - chmod 400 development_deployment.pem                 # prepare private key file
     - chmod +x $DEPLOY_SCRIPT
     # rewrite deploy script to include the correct url
-    - sed -i "s~http://gitlab:80~http://$URL:$GITLAB_PORT~" $DEPLOY_SCRIPT
+    - sed -i "s~http://gitlab:80~http://$URL:$GITLAB_PORT~"    $DEPLOY_SCRIPT
     - sed -i "s/frontend:master/frontend:$CI_COMMIT_REF_SLUG/" $DOCKER_COMPOSE
   script:
     - $DEPLOY_SCRIPT $URL $IMAGE_PATH
