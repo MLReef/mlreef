@@ -3,7 +3,7 @@ import './fileView.css';
 import { connect } from 'react-redux';
 import { Base64 } from 'js-base64';
 import { Link } from 'react-router-dom';
-import { string } from 'prop-types';
+import { string, shape } from 'prop-types';
 import ProjectContainer from '../projectContainer';
 import CommitsApi from '../../apis/CommitsApi';
 import Navbar from '../navbar/navbar';
@@ -11,17 +11,14 @@ import file01 from '../../images/file_01.svg';
 import arrowBlue from '../../images/arrow_down_blue_01.svg';
 import filesApi from '../../apis/FilesApi';
 
-class FileView extends React.Component {
+export class FileView extends React.Component {
   constructor(props) {
     super(props);
-    const propList = this.props;
     const { projects } = this.props;
-    const { projectId } = propList.match.params;
-    const { file } = propList.match.params;
-    const { branch } = propList.match.params;
+    const { match: { params: { projectId, file, branch } } } = this.props;
     this.state = {
       isOpen: false,
-      project: projects.selectedProject,
+      project: projects && projects.selectedProject,
       committer: [],
       fileData: null,
     };
@@ -81,11 +78,15 @@ class FileView extends React.Component {
     let filepath = [];
     let extension;
 
-    users.forEach((contributor) => {
-      if (contributor.name === committer.author_name) {
-        avatar = contributor.avatar_url;
-      }
-    });
+    if (users) {
+      users.forEach((contributor) => {
+        const { name } = contributor;
+        const avatarUrl = contributor.avatar_url;
+        if (name === committer.author_name) {
+          avatar = avatarUrl;
+        }
+      });
+    }
 
     if (fileData) {
       this.getCommit();
@@ -102,7 +103,7 @@ class FileView extends React.Component {
         <ProjectContainer
           project={project}
           activeFeature="data"
-          folders={['Group Name', project.name, 'Data']}
+          folders={['Group Name', project && project.name, 'Data']}
         />
         <div className="branch-path">
           <div className="branch-btn" ref={this.branchRef}>
@@ -143,7 +144,7 @@ class FileView extends React.Component {
           )}
           <span className="filepath">
             <b>
-              <a href="/home">{project.name}</a>
+              <a href="/home">{project && project.name}</a>
               {' '}
               /
               {filepath.map((path, i) => (filepath.length === i + 1 ? (
@@ -252,13 +253,27 @@ class FileView extends React.Component {
   }
 }
 
+FileView.defaultProps = {
+  match: {
+    params: {},
+  },
+};
+
 FileView.propTypes = {
-  match: Object.isRequired,
-  projects: Array.isRequired,
-  users: Array.isRequired,
-  projectId: string.isRequired,
-  file: string.isRequired,
-  branch: string.isRequired,
+  match: shape({
+    params: shape({
+      projectId: string.isRequired,
+      file: string.isRequired,
+      branch: string.isRequired,
+    }),
+  }),
+  users: shape({
+    name: string.isRequired,
+    avatar_url: string.isRequired,
+  }).isRequired,
+  projects: shape({
+    selectedProject: string.isRequired,
+  }).isRequired,
 };
 
 function mapStateToProps(state) {
