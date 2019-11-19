@@ -3,16 +3,19 @@ version: '2'
 
 services:
   frontend:
+    image: registry.gitlab.com/mlreef/frontend:master
+    container_name: frontend
     restart: always
-    image: registry.gitlab.com/mlreef/frontend:master                # this line gets rewritten by the CI/CD pipeline
     depends_on:
       - gitlab
+      - postgresql
     ports:
-      - "80:3000"
-      - "3000:3000"
+      - 80:3000
+      - 3000:3000
 
 
   gitlab:
+    container_name: gitlab
     restart: always
     image: sameersbn/gitlab:12.4.0
     depends_on:
@@ -20,6 +23,7 @@ services:
       - postgresql
     ports:
       - "10080:80"
+      - "10022:22"
     volumes:
       - gitlab-data:/home/git/data:Z                                 # this line gets rewritten by the CI/CD pipeline
     environment:
@@ -142,7 +146,17 @@ services:
       - OAUTH_AZURE_API_SECRET=
       - OAUTH_AZURE_TENANT_ID=
 
+
+  gitlab-runner:
+    container_name: gitlab-runner
+    image: gitlab/gitlab-runner:alpine
+    volumes:
+      #  - gitlab-runner-config:/etc/gitlab-runner:Z
+      - /var/run/docker.sock:/var/run/docker.sock
+
+
   postgresql:
+    container_name: postgres
     restart: always
     image: sameersbn/postgresql:10-2
     ports:
@@ -156,15 +170,16 @@ services:
       - DB_EXTENSION=pg_trgm
 
   redis:
+    container_name: redis
     restart: always
     image: sameersbn/redis:4.0.9-2
-    command:
-      - --loglevel warning
-    volumes:
-      - redis-data:/var/lib/redis:Z
+#    command:
+#      - --loglevel warning
+#    volumes:
+#      - redis-data:/var/lib/redis:Z
 
 # Portable volumes which can be listed by `docker volume ls`
 volumes:
-  redis-data:
+  sock:
   postgresql-data:                                                   # this line gets removed by the CI/CD pipeline
   gitlab-data:                                                       # this line gets removed by the CI/CD pipeline
