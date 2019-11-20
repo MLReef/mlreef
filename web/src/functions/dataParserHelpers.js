@@ -138,3 +138,26 @@ export function mapSummarizedInfoToDatasets(summarizedInfo) {
     },
   );
 }
+
+export function parseDataAndRefreshChart(rawJsonData) {
+  /* set information to show in the chart */
+  const summarizedInfo = generateSummarizedInfo(rawJsonData);
+  const datasets = mapSummarizedInfoToDatasets(summarizedInfo);
+  const labels = Object.keys(datasets[0].data);
+
+  /* set average values to show beside chart */
+  const averageParams = Object.keys(summarizedInfo)
+    .filter((sInfoItem) => sInfoItem.startsWith('avg_'))
+    .map((sInfoItem) => ({
+      name: sInfoItem.substring(4, sInfoItem.length),
+      value: summarizedInfo[sInfoItem],
+    }));
+  const data = {
+    labels,
+    datasets,
+  };
+  return {
+    data,
+    averageParams,
+  };
+}

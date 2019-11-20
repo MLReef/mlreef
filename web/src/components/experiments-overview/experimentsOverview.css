@@ -71,10 +71,15 @@
 
 /* ------------- Card content ---------------*/
 
+.experiment-card > .card-content {
+    display: flex;
+}
+
 .experiment-card > .card-content > .summary-data {
+    width: 80%;
     color: #1c2b40;
     display: flex;
-    border-top: 2px solid #e5e5e5;
+    border-top: none !important;
 }
 
 .experiment-card > .card-content > .summary-data > .project-desc-experiment {
@@ -83,8 +88,7 @@
     width: 20%;
 }
 
-.experiment-card > .card-content > .summary-data > .buttons-div {
-    width: 35%;
+.experiment-card > .card-content > .buttons-div {
     display: flex;
     flex-direction: row-reverse;
     padding: 0% 1% 0% 1%;
@@ -92,22 +96,28 @@
     height: max-content;
 }
 
-.experiment-card > .card-content > .summary-data > .buttons-div button {
+.experiment-card > .card-content > .buttons-div button {
     cursor: pointer;
     border-radius: 0.3vw;
 }
 
-.experiment-card > .card-content > .summary-data > .buttons-div button.dangerous-red {
+.experiment-card > .card-content > .buttons-div button.dangerous-red {
     border-radius: 0.3vw;
     border-width: 1.7px;
     width: 35px;
 }
 
-.card-content > .summary-data > .buttons-div > button{
-    margin-right: 5px !important;
+
+/* ----------------------- Card container ----------------------- */
+
+.card-content {
+    flex-wrap: wrap;
+    border-bottom: 2px solid #e5e5e5;
 }
 
-/* ----------------------- Chart container ----------------------- */
+.card-content > .buttons-div > button{
+    margin-right: 5px !important;
+}
 
 .card-content .data-summary {
     display: flex;
@@ -118,7 +128,6 @@
 }
 
 .card-content > .data-summary > .content {
-    display: none;
     margin-left: 3%;
 }
 
@@ -129,7 +138,6 @@
 /* --------------------------- Card results css --------------------------- */
 
 .card-content > .card-results {
-    display: none;   
     margin-left: 1.5%;
 }
 
@@ -140,7 +148,7 @@
     border-radius: 0.5vw;
 }
 
-.card-content > .card-results > .data-card > .title{
+.card-content > .card-results > .data-card > .title {
     border-radius : inherit;
     border-bottom-left-radius: 0;
     border-bottom-right-radius: 0;

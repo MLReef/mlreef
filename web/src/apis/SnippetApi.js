@@ -1,4 +1,5 @@
 import { SECURITY_TOKEN } from '../apiConfig';
+import { domain } from '../dataTypes';
 
 export default class SnippetApi {
   static buildRequest(url, method) {
@@ -10,7 +11,7 @@ export default class SnippetApi {
     });
   }
 
-  static async getSnippetFile(projectId, experimentId, fileName, domain = 'gitlab.com') {
+  static async getSnippetFile(projectId, experimentId, fileName) {
     const fileNameFilter = `${experimentId}-${fileName}`;
     const results = this.findSnippets(projectId, fileNameFilter, domain);
     return results.then((results) => (results !== undefined && results.length > 0
@@ -18,7 +19,7 @@ export default class SnippetApi {
       : Promise.reject(`File not found in backend: ${fileNameFilter}`)));
   }
 
-  static async findSnippets(projectId, fileNameFilter = '', domain = 'gitlab.com') {
+  static async findSnippets(projectId, fileNameFilter = '') {
     try {
       const url = `https://${domain}/api/v4/projects/${projectId}/snippets/`;
       const response = await fetch(this.buildRequest(url, 'GET'));
@@ -32,7 +33,7 @@ export default class SnippetApi {
     }
   }
 
-  static async getSnippetContent(snippetId, domain = 'gitlab.com') {
+  static async getSnippetContent(snippetId) {
     try {
       const url = `https://${domain}/api/v4/snippets/${snippetId}/raw`;
       const response = await fetch(this.buildRequest(url, 'GET'));
