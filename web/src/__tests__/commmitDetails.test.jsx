@@ -4,12 +4,12 @@ import Enzyme, { shallow } from 'enzyme';
 import Adapter from 'enzyme-adapter-react-16';
 import CommitDetails from '../components/commits-details/commitDetails';
 import { storeFactory } from '../functions/testUtils';
-import { mockPropsForCommitDetails, mockMatchDataCommitDet, imagesToRender } from '../testData';
+import { projectsArrayMock, mockMatchDataCommitDet, imagesToRender } from '../testData';
 
 Enzyme.configure({ adapter: new Adapter() });
 
 const setup = () => {
-  const store = storeFactory(mockPropsForCommitDetails);
+  const store = storeFactory(projectsArrayMock);
   const wrapper = shallow(<CommitDetails store={store} match={mockMatchDataCommitDet} />);
   const afterDiveWrapper = wrapper.dive().dive();
   afterDiveWrapper.setState({ imagesToRender });

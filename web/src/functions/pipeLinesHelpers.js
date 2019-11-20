@@ -1,6 +1,5 @@
 import { toastr } from 'react-redux-toastr';
 import { BOOL, mlreefFileContent } from '../dataTypes';
-import { validateInput } from './validations';
 import branchesApi from '../apis/BranchesApi';
 import { callToCommitApi } from './apiCalls';
 
@@ -32,7 +31,7 @@ const addFilesSelectedInModal = (
  * @param {inputDataModel}: data model of input(data type, required, etc)
  * @param {dataOperationsHtmlElm}: operation container which must be highligthed
  */
-const showErrorsInTheOperationsSelected = (input, inputDataModel, dataOperationsHtmlElm) => {
+export const showErrorsInTheOperationsSelected = (input, inputDataModel, dataOperationsHtmlElm) => {
   input.style.border = '1px solid red';
   dataOperationsHtmlElm.style.border = '1px solid red';
   const errorDiv = document.getElementById(`error-div-for-${input.id}`);
@@ -58,38 +57,15 @@ const showErrorsInTheOperationsSelected = (input, inputDataModel, dataOperations
 
 const buildCommandLinesFromSelectedPipelines = (
   dataOperationsSelected,
-  dataOperationsHtmlElms,
   filesSelectedInModal,
-  errorCounter,
   path,
-) => dataOperationsSelected.map((dataOperation, index) => {
-  const dataOperationsHtmlElm = dataOperationsHtmlElms[index];
+) => dataOperationsSelected.map((dataOperation) => {
   let line = `   - python ${path}/${dataOperation.command}.py --images-path#directoriesAndFiles`;
-  const dataOpInputs = Array.prototype.slice.call(dataOperationsHtmlElm.getElementsByTagName('input'));
-  let advancedParamsCounter = 0;
-  dataOpInputs.forEach((input, inputIndex) => {
-    let inputDataModel = null;
-    if (input.id.startsWith('ad-')) {
-      inputDataModel = dataOperation.params.advanced[advancedParamsCounter];
-      advancedParamsCounter += 1;
-    } else {
-      inputDataModel = dataOperation.params.standard[inputIndex];
-    }
-
-    if (!validateInput(input.value, inputDataModel.dataType, inputDataModel.required)) {
-      errorCounter += 1;
-      showErrorsInTheOperationsSelected(input, inputDataModel, dataOperationsHtmlElm);
-      return;
-    }
-
-    if (input.value) {
-      line = line.concat(` --${inputDataModel.commandName} ${input.value}`);
-    }
+  dataOperation.inputValuesAndDataModels.forEach((input) => {
+    line = line.concat(` --${input.inputDataModel.commandName} ${input.value}`);
   });
 
-  return errorCounter === 0
-    ? addFilesSelectedInModal(line, filesSelectedInModal)
-    : undefined;
+  return addFilesSelectedInModal(line, filesSelectedInModal);
 });
 
 const generateRealContentFromTemplate = (
@@ -115,7 +91,7 @@ const generateRealContentFromTemplate = (
     ),
   );
 
-export const createPipelineInProject = (
+const createPipelineInProject = (
   dataOperationsSelected,
   branchSelected,
   filesSelectedInModal,
@@ -127,46 +103,32 @@ export const createPipelineInProject = (
 ) => {
   const pipeLineOperationCommands = buildCommandLinesFromSelectedPipelines(
     dataOperationsSelected,
-    Array.prototype.slice.call(
-      document
-        .getElementById('data-operations-selected-container')
-        .childNodes,
-    ).map(
-      (child) => child.childNodes[1],
-    ),
     filesSelectedInModal,
-    0,
     pipelineOpScriptName === 'data-pipeline' ? '/epf/pipelines' : '/epf/model',
   );
-  if (pipeLineOperationCommands
-    .filter(
-      (line) => line !== undefined,
-    ).length === dataOperationsSelected.length
-  ) {
-    const finalContent = generateRealContentFromTemplate(
-      mlreefFileContent,
-      branchSelected,
-      pipeLineOperationCommands,
-      dataInstanceName,
-      http_url_to_repo,
-      pipelineOpScriptName,
-    );
-    toastr.info('Execution', 'Pipeline execution has already started');
-    branchesApi.create(
-      projectId,
-      branchName,
-      'master',
-    ).then((res) => {
-      if (res.commit) {
-        toastr.info('Execution', 'The branch for pipeline was created');
-        callToCommitApi(projectId, branchName, 'create', finalContent);
-      } else {
-        toastr.error('Execution', 'The branch for pipeline could not be created');
-      }
-    }).catch(() => {
-      toastr.error('Error', 'Something went wrong, try again later please');
-    });
-  } else {
-    toastr.error('Form', 'Validate please data provided in inputs');
-  }
+  const finalContent = generateRealContentFromTemplate(
+    mlreefFileContent,
+    branchSelected,
+    pipeLineOperationCommands,
+    dataInstanceName,
+    http_url_to_repo,
+    pipelineOpScriptName,
+  );
+  toastr.info('Execution', 'Pipeline execution has already started');
+  branchesApi.create(
+    projectId,
+    branchName,
+    'master',
+  ).then((res) => {
+    if (res.commit) {
+      toastr.info('Execution', 'The branch for pipeline was created');
+      callToCommitApi(projectId, branchName, 'create', finalContent);
+    } else {
+      toastr.error('Execution', 'The branch for pipeline could not be created');
+    }
+  }).catch(() => {
+    toastr.error('Error', 'Something went wrong, try again later please');
+  });
 };
+
+export default createPipelineInProject;

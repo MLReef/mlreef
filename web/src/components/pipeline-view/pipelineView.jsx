@@ -1,4 +1,5 @@
 import React from 'react';
+import { connect } from 'react-redux';
 import uuidv1 from 'uuid/v1';
 import plus from '../../images/plus_01.svg';
 import './pipelineView.css';
@@ -53,9 +54,9 @@ const PipeLineView = ({ ...props }) => {
       <Instruction
         titleText="How to create a data processing pipeline:"
         paragraph={
-                    `First, select your data you want to process. Then select one or multiple data operations from the right. 
-                        The result of a data pipeline is a data instance, which you can use directly to train a model or merge it into a branch.`
-                }
+          `First, select your data you want to process. Then select one or multiple data operations from the right. 
+              The result of a data pipeline is a data instance, which you can use directly to train a model or merge it into a branch.`
+        }
       />
       <div className="pipe-line-execution-container flexible-div">
         <div className="pipe-line-execution">
@@ -101,10 +102,10 @@ in your data processing pipeline.
             <div style={{ width: '50%' }}>
               <p style={{ margin: '6% 0% 6% 2%' }}>
                 <b>
-Data:&nbsp;&nbsp;
+                  Data:&nbsp;&nbsp;
                   {props.filesSelectedInModal.length}
                   {' '}
-file(s) selected
+                  file(s) selected
                 </b>
               </p>
             </div>
@@ -124,9 +125,9 @@ file(s) selected
               margin: '0', padding: '0', width: '100%', textAlign: 'center',
             }}
             >
-                            Drag and drop a data operation from the right into your
+              Drag and drop a data operation from the right into your
               <br />
-pipeline or
+              pipeline or
               <b>create a new one</b>
             </p>
           </div>
@@ -191,4 +192,11 @@ pipeline or
   );
 };
 
-export default withPipelineExecution(PipeLineView, dataPipeLines);
+function mapStateToProps(state) {
+  return {
+    selectedProject: state.projects.selectedProject,
+    branches: state.branches,
+  };
+}
+
+export default connect(mapStateToProps)(withPipelineExecution(PipeLineView, dataPipeLines));

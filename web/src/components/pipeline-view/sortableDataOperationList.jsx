@@ -24,9 +24,9 @@ const SortableDataOperationItem = SortableElement(({ value }) => {
     <span key={`data-operations-item-selected-${index}`} style={{ height: 'auto', display: 'flex', alignItems: 'center' }}>
       <p style={{ marginRight: '15px' }}>
         <b>
-Op.
+          Op.
           {value.index}
-:
+          :
         </b>
       </p>
       <div
@@ -44,10 +44,21 @@ Created by
           </div>
           <div id={`data-options-second-${value.index}`} className="data-oper-options flexible-div ">
             <div>
-              <button id={`delete-btn-item-${value.index}`} onClick={value.deleteDataOperationEvent} className="dangerous-red">X</button>
+              <button
+                type="button"
+                id={`delete-btn-item-${value.index}`}
+                onClick={value.deleteDataOperationEvent}
+                className="dangerous-red"
+              >
+                X
+              </button>
             </div>
             <div onClick={value.copyDataOperationEvent}>
-              <button id={`copy-btn-item-${value.index}`} className="copy-btn-item" />
+              <button
+                type="button"
+                id={`copy-btn-item-${value.index}`}
+                className="copy-btn-item"
+              />
             </div>
             <div>
               <ArrowButton
@@ -83,113 +94,118 @@ Created by
           ))}
 
           {value.params.advanced
-                        && (
+            && (
+            <div>
+              <div className="advanced-opt-drop-down">
+                <div className="drop-down">
+                  <p><b>Advanced</b></p>
+                  <ArrowButton
+                    placeholder=""
+                    imgPlaceHolder={triangle_01}
+                    params={{ index: value.index }}
+                    callback={() => {
+                      const formDiv = document.getElementById(`advanced-opts-div-${value.index}`);
+                      formDiv.style.display = formDiv.style.display === 'none' ? 'unset' : 'none';
+                    }}
+                  />
+                </div>
+                <div style={{ width: '50%', textAlign: 'end' }}>
+                  <p><b>Source code</b></p>
+                </div>
+              </div>
+              <div id={`advanced-opts-div-${value.index}`} className="advanced-opts-div" style={{ display: 'none' }}>
+                {value.params.advanced.map((advancedParam, advancedParamIndex) => (
+                  advancedParam.dataType === BOOL
+                    ? (
+                      <div style={{ display: 'flex' }}>
+                        <p style={{ width: '14em' }}>
+                          {advancedParam.name}
+:
+                          {' '}
+                        </p>
                         <div>
-                          <div className="advanced-opt-drop-down">
-                            <div className="drop-down">
-                              <p><b>Advanced</b></p>
-                              <ArrowButton
-                                placeholder=""
-                                imgPlaceHolder={triangle_01}
-                                params={{ index: value.index }}
-                                callback={() => {
-                                  const formDiv = document.getElementById(`advanced-opts-div-${value.index}`);
-                                  formDiv.style.display = formDiv.style.display === 'none' ? 'unset' : 'none';
-                                }}
-                              />
-                            </div>
-                            <div style={{ width: '50%', textAlign: 'end' }}>
-                              <p><b>Source code</b></p>
-                            </div>
+                          <input
+                            id={`ad-hidden-input-advanced-drop-down-${value.index}-param-${advancedParamIndex}`}
+                            style={{ display: 'none' }}
+                            onChange={(e) => { }}
+                          />
+                          <div style={{ display: 'flex' }}>
+                            <ArrowButton
+                              id={`advanced-drop-down-${value.index}-param-${advancedParamIndex}`}
+                              imgPlaceHolder={triangle_01}
+                              params={{ index: value.index }}
+                              callback={() => {
+                                const el = document.getElementById(`options-for-bool-select-${advancedParamIndex}`);
+
+                                el.style.display = el.style.display === 'none'
+                                  ? 'unset'
+                                  : 'none';
+                              }}
+                            />
+                            <p id={`paragraph-op-${value.index}-value-${advancedParamIndex}`}>Choose value</p>
                           </div>
-                          <div id={`advanced-opts-div-${value.index}`} className="advanced-opts-div" style={{ display: 'none' }}>
-                            {value.params.advanced.map((advancedParam, advancedParamIndex) => (advancedParam.dataType === BOOL
-                              ? (
-                                <div style={{ display: 'flex' }}>
-                                  <p style={{ width: '14em' }}>
-                                    {advancedParam.name}
-:
-                                    {' '}
-                                  </p>
-                                  <div>
-                                    <input
-                                      id={`ad-hidden-input-advanced-drop-down-${value.index}-param-${advancedParamIndex}`}
-                                      style={{ display: 'none' }}
-                                      onChange={(e) => { }}
-                                    />
-                                    <div style={{ display: 'flex' }}>
-                                      <ArrowButton
-                                        id={`advanced-drop-down-${value.index}-param-${advancedParamIndex}`}
-                                        imgPlaceHolder={triangle_01}
-                                        params={{ index: value.index }}
-                                        callback={() => {
-                                          const el = document.getElementById(`options-for-bool-select-${advancedParamIndex}`);
-
-                                          el.style.display = el.style.display === 'none'
-                                            ? 'unset'
-                                            : 'none';
-                                        }}
-                                      />
-                                      <p id={`paragraph-op-${value.index}-value-${advancedParamIndex}`}>Choose value</p>
-                                    </div>
-                                    <div style={{ display: 'none' }} id={`options-for-bool-select-${advancedParamIndex}`}>
-                                      <ul style={{
-                                        boxShadow: '0 2px 4px rgb(0, 0, 0, 0.3)',
-                                        display: 'block !important',
-                                        position: 'absolute',
-                                        width: '80px',
-                                        height: 'auto',
-                                        background: '#fff',
-                                        borderRadius: '1em',
-                                      }}
-                                      >
-                                        <li>
-                                          <button
-                                            style={{ border: 'none', backgroundColor: 'transparent' }}
-                                            onClick={(e) => handleSelectClick(value, advancedParamIndex, true)}
-                                          >
-                                                                Yes
-                                          </button>
-                                        </li>
-                                        <li>
-                                          <button
-                                            style={{ border: 'none', backgroundColor: 'transparent' }}
-                                            onClick={(e) => handleSelectClick(value, advancedParamIndex, false)}
-                                          >
-                                                                No
-                                          </button>
-                                        </li>
-                                      </ul>
-                                    </div>
-                                  </div>
-
-                                </div>
-                              )
-                              : (
-                                <>
-                                  <div style={{ display: 'flex' }}>
-                                    <p style={{ width: '14em' }}>
-                                      {advancedParam.name}
-:
-                                      {' '}
-                                    </p>
-                                    <Input
-                                      id={`ad-param-${advancedParamIndex}-item-data-operation-form-${value.index}`}
-                                      placeholder={advancedParam.standardValue}
-                                    />
-                                  </div>
-                                  <div
-                                    id={`error-div-for-ad-param-${advancedParamIndex}-item-data-operation-form-${value.index}`}
-                                    style={{ display: 'none' }}
-                                  >
-                                    <img style={{ height: '15px' }} src={advice_01} alt="" />
-                                    <p style={{ margin: '0 0 0 5px' }}>{errorMessages[advancedParam.dataType]}</p>
-                                  </div>
-                                </>
-                              )))}
+                          <div style={{ display: 'none' }} id={`options-for-bool-select-${advancedParamIndex}`}>
+                            <ul style={{
+                              boxShadow: '0 2px 4px rgb(0, 0, 0, 0.3)',
+                              display: 'block !important',
+                              position: 'absolute',
+                              width: '80px',
+                              height: 'auto',
+                              background: '#fff',
+                              borderRadius: '1em',
+                            }}
+                            >
+                              <li>
+                                <button
+                                  type="button"
+                                  style={{ border: 'none', backgroundColor: 'transparent' }}
+                                  onClick={() => handleSelectClick(value, advancedParamIndex, true)}
+                                >
+                                  Yes
+                                </button>
+                              </li>
+                              <li>
+                                <button
+                                  type="button"
+                                  style={{ border: 'none', backgroundColor: 'transparent' }}
+                                  onClick={
+                                    () => handleSelectClick(value, advancedParamIndex, false)
+                                  }
+                                >
+                                  No
+                                </button>
+                              </li>
+                            </ul>
                           </div>
                         </div>
-                        )}
+
+                      </div>
+                    )
+                    : (
+                      <>
+                        <div style={{ display: 'flex' }}>
+                          <p style={{ width: '14em' }}>
+                            {advancedParam.name}
+:
+                            {' '}
+                          </p>
+                          <Input
+                            id={`ad-param-${advancedParamIndex}-item-data-operation-form-${value.index}`}
+                            placeholder={advancedParam.standardValue}
+                          />
+                        </div>
+                        <div
+                          id={`error-div-for-ad-param-${advancedParamIndex}-item-data-operation-form-${value.index}`}
+                          style={{ display: 'none' }}
+                        >
+                          <img style={{ height: '15px' }} src={advice_01} alt="" />
+                          <p style={{ margin: '0 0 0 5px' }}>{errorMessages[advancedParam.dataType]}</p>
+                        </div>
+                      </>
+                    )))}
+              </div>
+            </div>
+            )}
         </div>
       </div>
     </span>

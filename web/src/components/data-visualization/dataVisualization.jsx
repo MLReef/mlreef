@@ -1,4 +1,5 @@
 import React from 'react';
+import { connect } from "react-redux";
 import { shape, arrayOf, func } from 'prop-types';
 import plus from '../../images/plus_01.svg';
 import '../pipeline-view/pipelineView.css';
@@ -236,4 +237,15 @@ EmptyDataVisualization.propTypes = {
   drop: func.isRequired,
 };
 
-export default withPipelinesExecution(EmptyDataVisualization, dataVisualizations);
+function mapStateToProps(state) {
+  return {
+    selectedProject: state.projects.selectedProject,
+    branches: state.branches,
+  };
+}
+
+export default connect(
+  mapStateToProps,
+)(
+  withPipelinesExecution(EmptyDataVisualization, dataVisualizations),
+);
