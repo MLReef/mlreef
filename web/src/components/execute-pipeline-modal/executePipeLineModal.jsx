@@ -5,9 +5,7 @@ import '../../css/genericModal.css';
 import $ from 'jquery';
 import ArrowButton from '../arrow-button/arrowButton';
 import traiangle01 from '../../images/triangle-01.png';
-import {
-  createPipelineInProject,
-} from '../../functions/pipeLinesHelpers';
+import createPipelineInProject from '../../functions/pipeLinesHelpers';
 
 const fakeMachinesToShow = [
   $.parseHTML('Small CPU - (CPU: 8 cores, RAM 8 GB) - 2&euro; per hour')[0].data,
@@ -85,76 +83,76 @@ const ExecutePipelineModal = ({
                   <p style={{ marginLeft: '1em' }} id="paragraph-op1">Create a new set of data instances in your data repository</p>
                 </div>
                 {isFirstOptSelected
-                            && (
-                              <>
-                                <div
-                                  style={{
-                                    width: '50%', borderRadius: '0.5em', marginLeft: '2.5em', position: 'absolute', zIndex: '2', backgroundColor: 'white',
-                                  }}
-                                  className="drop-down-select blue-border-on-hover"
-                                >
-                                  <div
-                                    style={{ display: 'flex', alignItems: 'center' }}
-                                    onClick={() => {
-                                      $('#machines-drop-down-btn').click();
-                                    }}
-                                  >
-                                    <div style={{ width: '90%' }}>
-                                      <p className="machines-paragraph">{selectMachinesMess}</p>
-                                    </div>
-                                    <div style={{ width: '10%', display: 'flex', justifyContent: 'flex-end' }}>
-                                      <ArrowButton
-                                        imgPlaceHolder={traiangle01}
-                                        callback={() => {
-                                          setShowMachines(!showMachines);
-                                        }}
-                                        params={{}}
-                                        id="machines-drop-down-btn"
-                                      />
-                                    </div>
-                                  </div>
-                                  {showMachines
-                                        && (
-                                        <ul style={{ margin: 0, padding: 0, listStyleType: 'none' }} id="machines-list">
-                                          {fakeMachinesToShow.map((machine, index) => (
-                                            <li
-                                              key={`machine-${index}`}
-                                              id={`machine-${index}`}
-                                              onClick={(e) => {
-                                                $('#machines-drop-down-btn').click();
-                                                setSelectMachinesMess($.parseHTML(machine)[0].data);
-                                              }}
-                                            >
-                                              <p className="blue-background-on-hover machines-paragraph">
-                                                {machine}
-                                              </p>
-                                            </li>
-                                          ))}
-                                        </ul>
-                                        )}
-                                </div>
-                                {jobName === 'model-experiment' && (
-                                <div>
-                                  <p style={{ fontSize: '0.9em', margin: '5em 0em 0em 3em' }}>Select a hyperparameter tuning method:</p>
-                                  <div style={{ display: 'flex', marginLeft: '1.8em' }}>
-                                    <div style={{ display: 'inherit' }}>
-                                      <input id="execution-radio-input-1" type="radio" onChange={() => {}} />
-                                      <p onClick={() => { $('#execution-radio-input-1').click(); }}>Simple execution</p>
-                                    </div>
-                                    <div style={{ display: 'inherit' }}>
-                                      <input id="execution-radio-input-2" type="radio" onChange={() => {}} />
-                                      <p onClick={() => { $('#execution-radio-input-2').click(); }}>Grid search</p>
-                                    </div>
-                                    <div style={{ display: 'inherit' }}>
-                                      <input id="execution-radio-input-3" type="radio" onChange={() => {}} />
-                                      <p onClick={() => { $('#execution-radio-input-3').click(); }}>Bayesian</p>
-                                    </div>
-                                  </div>
-                                </div>
-                                )}
-                                {jobName !== 'model-experiment' && <div style={{ height: 30 }} />}
-                              </>
-                            )}
+                  && (
+                    <>
+                      <div
+                        style={{
+                          width: '50%', borderRadius: '0.5em', marginLeft: '2.5em', position: 'absolute', zIndex: '2', backgroundColor: 'white',
+                        }}
+                        className="drop-down-select blue-border-on-hover"
+                      >
+                        <div
+                          style={{ display: 'flex', alignItems: 'center' }}
+                          onClick={() => {
+                            $('#machines-drop-down-btn').click();
+                          }}
+                        >
+                          <div style={{ width: '90%' }}>
+                            <p className="machines-paragraph">{selectMachinesMess}</p>
+                          </div>
+                          <div style={{ width: '10%', display: 'flex', justifyContent: 'flex-end' }}>
+                            <ArrowButton
+                              imgPlaceHolder={traiangle01}
+                              callback={() => {
+                                setShowMachines(!showMachines);
+                              }}
+                              params={{}}
+                              id="machines-drop-down-btn"
+                            />
+                          </div>
+                        </div>
+                        {showMachines
+                          && (
+                          <ul style={{ margin: 0, padding: 0, listStyleType: 'none' }} id="machines-list">
+                            {fakeMachinesToShow.map((machine, index) => (
+                              <li
+                                key={`machine-${index}`}
+                                id={`machine-${index}`}
+                                onClick={(e) => {
+                                  $('#machines-drop-down-btn').click();
+                                  setSelectMachinesMess($.parseHTML(machine)[0].data);
+                                }}
+                              >
+                                <p className="blue-background-on-hover machines-paragraph">
+                                  {machine}
+                                </p>
+                              </li>
+                            ))}
+                          </ul>
+                          )}
+                      </div>
+                      {jobName === 'model-experiment' && (
+                      <div>
+                        <p style={{ fontSize: '0.9em', margin: '5em 0em 0em 3em' }}>Select a hyperparameter tuning method:</p>
+                        <div style={{ display: 'flex', marginLeft: '1.8em' }}>
+                          <div style={{ display: 'inherit' }}>
+                            <input id="execution-radio-input-1" type="radio" onChange={() => {}} />
+                            <p onClick={() => { $('#execution-radio-input-1').click(); }}>Simple execution</p>
+                          </div>
+                          <div style={{ display: 'inherit' }}>
+                            <input id="execution-radio-input-2" type="radio" onChange={() => {}} />
+                            <p onClick={() => { $('#execution-radio-input-2').click(); }}>Grid search</p>
+                          </div>
+                          <div style={{ display: 'inherit' }}>
+                            <input id="execution-radio-input-3" type="radio" onChange={() => {}} />
+                            <p onClick={() => { $('#execution-radio-input-3').click(); }}>Bayesian</p>
+                          </div>
+                        </div>
+                      </div>
+                      )}
+                      {jobName !== 'model-experiment' && <div style={{ height: 30 }} />}
+                    </>
+                  )}
                 <div
                   id="second-option-execution-modal"
                   style={{

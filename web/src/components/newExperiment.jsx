@@ -1,4 +1,5 @@
 import React from 'react';
+import { connect } from 'react-redux';
 import uuidv1 from 'uuid/v1';
 import plus from '../images/plus_01.svg';
 import './pipeline-view/pipelineView.css';
@@ -224,4 +225,11 @@ experiment pipeline or
   );
 };
 
-export default withPipelineExecution(NewExperiment, experiments);
+function mapStateToProps(state) {
+  return {
+    selectedProject: state.projects.selectedProject,
+    branches: state.branches,
+  };
+}
+
+export default connect(mapStateToProps)(withPipelineExecution(NewExperiment, experiments));

@@ -56,7 +56,7 @@ export const mockDiffArray = [
   },
 ];
 
-export const mockPropsForCommitDetails = {
+export const projectsArrayMock = {
   projects: {
     all: [
       {
@@ -130,3 +130,53 @@ export const mockPropsForCommitDetails = {
     },
   ],
 };
+
+
+export const branchesMock = [
+  {
+    name: 'data-instance/664e1c60',
+    commit: {
+      id: '12e05078d142b2bee947e86d6a52db4a5f85eb65',
+      short_id: '12e05078',
+      created_at: '2019-11-01T21:08:23.000+00:00',
+      parent_ids: null,
+      title: 'Add pipeline results [skip ci]',
+      message: 'Add pipeline results [skip ci]',
+      author_name: 'mlreefdemo',
+      author_email: 'rainer+mlreefdemo@systemkern.com',
+      authored_date: '2019-11-01T21:08:23.000+00:00',
+      committer_name: 'mlreefdemo',
+      committer_email: 'rainer+mlreefdemo@systemkern.com',
+      committed_date: '2019-11-01T21:08:23.000+00:00',
+    },
+    merged: false,
+    protected: false,
+    developers_can_push: false,
+    developers_can_merge: false,
+    can_push: true,
+    default: false,
+  },
+  {
+    name: 'data-instance/9ae9c8c0',
+    commit: {
+      id: '3e36bfab31a1d43457e00f46af9e6d31d4f55a66',
+      short_id: '3e36bfab',
+      created_at: '2019-11-14T20:32:52.000+00:00',
+      parent_ids: null,
+      title: 'Add pipeline results [skip ci]',
+      message: 'Add pipeline results [skip ci]',
+      author_name: 'mlreefdemo',
+      author_email: 'rainer+mlreefdemo@systemkern.com',
+      authored_date: '2019-11-14T20:32:52.000+00:00',
+      committer_name: 'mlreefdemo',
+      committer_email: 'rainer+mlreefdemo@systemkern.com',
+      committed_date: '2019-11-14T20:32:52.000+00:00',
+    },
+    merged: false,
+    protected: false,
+    developers_can_push: false,
+    developers_can_merge: false,
+    can_push: true,
+    default: false,
+  },
+];
