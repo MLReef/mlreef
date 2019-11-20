@@ -2,6 +2,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
+import uuidv1 from 'uuid/v1';
 import Navbar from '../navbar/navbar';
 import ProjectContainer from '../projectContainer';
 import './experimentsOverview.css';
@@ -9,6 +10,11 @@ import pipelinesApi from '../../apis/PipelinesApi';
 import {
   SKIPPED,
   filesForExperimentsDetails,
+  RUNNING,
+  PENDING,
+  SUCCESS,
+  CANCELED,
+  FAILED,
 } from '../../dataTypes';
 import ExperimentDetails from '../experiment-details/experimentDetails';
 import ExperimentCard from './experimentCard';
@@ -35,15 +41,28 @@ class ExperimentsOverview extends Component {
           const experiment = {};
           experiment.status = pipeBranch.status;
           experiment.name = branch.name;
-          experiment.authorName = branch.author_name;
+          experiment.authorName = branch.commit.author_name;
+          experiment.createdAt = branch.commit.created_at;
           experiment.commit = branch.commit;
           return experiment;
         }
 
         return null;
-      });
+      }).filter((experiment) => experiment !== null);
+      const experimentsClassified = [
+        {
+          status: RUNNING,
+          values:
+          experiments
+            .filter((exp) => exp.status === RUNNING
+              || exp.status === PENDING),
+        },
+        { status: SUCCESS, values: experiments.filter((exp) => exp.status === SUCCESS) },
+        { status: CANCELED, values: experiments.filter((exp) => exp.status === CANCELED) },
+        { status: FAILED, values: experiments.filter((exp) => exp.status === FAILED) },
+      ];
 
-      this.setState({ experiments });
+      this.setState({ experiments: experimentsClassified });
     });
   }
 
@@ -137,31 +156,35 @@ class ExperimentsOverview extends Component {
           </div>
           )}
           {selectedExperiment === null
-            && experiments.map((experiment, index) =>
-              experiment && (
-              <ExperimentCard
-                key={`${experiment.name}-${index}`}
-                params={{
-                  projectId: project.id,
+            && experiments.map((experimentClassification) => {
+              const expMapped = experimentClassification.values.map(
+                (experiment) => ({
                   currentState: experiment.status,
-                  experiments: [{
-                    currentState: experiment.status,
-                    descTitle: experiment.name,
-                    userName: experiment.commit.author_name,
-                    percentProgress: '100',
-                    eta: '0',
-                    modelTitle: 'Resnet 50',
-                    timeCreatedAgo: experiment.commit.created_at,
-                    averageParams: [],
-                    data: {},
-                  }],
-                }}
-                setSelectedExperiment={this.setSelectedExperiment}
-              />
-              ))}
+                  descTitle: experiment.name,
+                  userName: experiment.authorName,
+                  percentProgress: '100',
+                  eta: '0',
+                  modelTitle: 'Resnet 50',
+                  timeCreatedAgo: experiment.createdAt,
+                }),
+              );
+
+              return (
+                <ExperimentCard
+                  key={uuidv1()}
+                  params={{
+                    projectId: project.id,
+                    currentState: experimentClassification.status,
+                    experiments: expMapped,
+                  }}
+                  setSelectedExperiment={this.setSelectedExperiment}
+                />
+              );
+            })}
           {selectedExperiment
             && (
             <ExperimentDetails
+              key={uuidv1()}
               setNullExperiment={this.setSelectedExperiment}
               experiment={selectedExperiment}
               files={filesForExperimentsDetails}
