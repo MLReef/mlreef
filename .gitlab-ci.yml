@@ -116,7 +116,8 @@ decomission:
       | jq -r ".Reservations[].Instances[].InstanceId"
       | xargs --no-run-if-empty aws ec2 terminate-instances
       --instance-id
-    - curl --request DELETE --header "$WORKAROUND $GITLAB_API_TOKEN"
+    - echo "Delete URL is https://gitlab.com/api/v4/projects/$CI_PROJECT_ID/registry/repositories/$DOCKER_REGISTRY_REPOSITORY_ID/tags/$CI_COMMIT_REF_SLUG"
+    - curl --request DELETE --header "$WORKAROUND $GITLAB_API_TOKEN" --fail
       https://gitlab.com/api/v4/projects/$CI_PROJECT_ID/registry/repositories/$DOCKER_REGISTRY_REPOSITORY_ID/tags/$CI_COMMIT_REF_SLUG
   environment:
     name: $CI_COMMIT_REF_SLUG
