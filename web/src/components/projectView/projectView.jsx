@@ -7,7 +7,6 @@ import FilesContainer from '../filesContainer';
 import RepoInfo from '../repoInfo';
 import RepoFeatures from '../repoFeatures';
 import Navbar from '../navbar/navbar';
-import * as fileActions from '../../actions/fileActions';
 import * as projectActions from '../../actions/projectInfoActions';
 import '../../css/index.css';
 import LoadingModal from '../loadingModal';
@@ -27,18 +26,12 @@ class ProjectView extends React.Component {
     const { users } = this.props;
     project = projects.all.filter((proj) => proj.id === parseInt(match.params.projectId))[0];
     actions.setSelectedProject(project);
-    actions.loadFiles(
-      null,
-      branch,
-      match.params.projectId,
-      true,
-    );
     actions.getUsersLit(match.params.projectId);
 
     this.state = {
       selectedProject: project,
       branch,
-      showLoadingModal: true,
+      showLoadingModal: false,
       contributors: [],
       lastCommit: {},
       users,
@@ -79,15 +72,21 @@ class ProjectView extends React.Component {
   }
 
   render() {
-    const { files } = this.props;
-    const { lastCommit } = this.state;
-    const { selectedProject } = this.state;
-    const { showLoadingModal } = this.state;
-    const { users } = this.state;
+    const {
+      lastCommit,
+      branch,
+      selectedProject,
+      showLoadingModal,
+      users,
+      contributors,
+    } = this.state;
     const today = new Date();
     const timediff = getTimeCreatedAgo(lastCommit.authored_date, today);
-    const encodedBranch = encodeURIComponent(this.state.branch);
+    const encodedBranch = branch.includes('%2F')
+      ? branch
+      : encodeURIComponent(branch);
     const { path } = this.props.match.params;
+    const { branches } = this.props;
     const projectName = selectedProject.name;
     const showReadMe = !window.location.href.includes('path');
     const committer = users.filter((user) => user.name === lastCommit.author_name)[0];
@@ -104,12 +103,12 @@ class ProjectView extends React.Component {
           <RepoInfo
             projectId={selectedProject.id}
             currentBranch={encodedBranch}
-            numberOfContributors={this.state.contributors.length}
-            branchesCount={this.props.branches.length}
+            numberOfContributors={contributors.length}
+            branchesCount={branches.length}
             dataInstanesCount={
-              this.props.branches
+              branches
                 .filter(
-                  (branch) => branch.name.startsWith('data-pipeline'),
+                  (dInstBranch) => dInstBranch.name.startsWith('data-pipeline'),
                 ).length
             }
           />
@@ -144,7 +143,6 @@ class ProjectView extends React.Component {
             projectId={selectedProject.id}
             path={path}
             branch={encodedBranch}
-            files={files}
             setModalVisibility={this.setModalVisibility}
           />
           {showReadMe && (
@@ -165,14 +163,12 @@ function mapStateToProps(state) {
     projects: state.projects,
     users: state.users,
     branches: state.branches,
-    files: state.files,
   };
 }
 
 function mapDispatchToProps(dispatch) {
   return {
     actions: bindActionCreators({
-      ...fileActions,
       ...projectActions,
       ...usersActions,
     }, dispatch),
