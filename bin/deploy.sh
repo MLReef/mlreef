@@ -35,7 +35,6 @@ sed -i "s/\ \ gitlab-data/#postgresql-data/"                      docker-compose
 cat docker-compose.yml
 scp -i development_deployment.pem -o 'AddKeysToAgent yes' docker-compose.yml ubuntu@${INSTANCE}:~
 
-remote-ec2 "sudo cat docker-compose.yml"
 remote-ec2 "sudo docker-compose up -d"
 
 # wait for startup and installation of gitlab

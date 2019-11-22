@@ -43,7 +43,7 @@ provision-ec2:
     - echo "$INSTANCE" | tr -d '\r' > $INSTANCE_INFO       # pass instance url to deploy stage
   after_script:
     - cat $INSTANCE_INFO
-    - if [ $INSTANCE == "null" ]; then exit 1;  fi         # error on invalid INSTANCE_INFO
+  #TODO    - if [ $INSTANCE == "null" ]; then exit 1;  fi         # error on invalid INSTANCE_INFO
   artifacts:
     paths:
       - "$INSTANCE_INFO"                                   # pass the file which contains our instance URL
@@ -53,6 +53,33 @@ provision-ec2:
     on_stop: decomission                                   # clean up after branch merge
 
 
+prepare-npm:
+  stage: prepare
+  image: node:latest
+  cache:
+    key: mlreef-npm-cache
+    paths:
+      - /usr/local/lib/node_modules
+      - web/node_modules
+  before_script:
+    - ls -al /usr/local/lib/node_modules
+  script:
+    - cd web
+    - pwd && ls -al
+    - npm install --global --silent react-scripts
+    - npm install --global --silent create-react-app@latest
+    - npm install --global --silent react-scripts@3.0.1
+    - npm install --silent .
+    - cp -r /usr/local/lib/node_modules ../node_modules_global
+  after_script:
+    - ls -al /usr/local/lib/node_modules
+    - ls -al node_modules_global
+  artifacts:
+    paths:
+      - web/node_modules
+      - node_modules_global
+
+
 build-frontend:
   image: docker:latest
   stage: build
@@ -60,10 +87,11 @@ build-frontend:
     - docker:dind
   before_script:
     - docker login ${DOCKER_REGISTRY} -u "${DOCKER_USER}" -p "${DOCKER_PASSWORD}"
+    - mv node_modules_global web/node_modules_global
+    - rm -rf web/package-lock.json
+    - rm -rf web/node_modules
   script:
     - cd web
-    - rm -rf package-lock.json
-    - rm -rf node_modules
     - echo "creating docker image ${IMAGE_NAME} for user ${DOCKER_USER}"
     - docker build --pull --tag "$IMAGE_PATH" -f Dockerfile .
     - docker push "${IMAGE_PATH}"
