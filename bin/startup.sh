@@ -1,6 +1,9 @@
 #!/bin/bash
 
 LOG="/root/startup.log"
+INIT_ZIP="mlreef-data-develop.zip"                         # see backup.sh
+S3_BUCKET_NAME="mlreef-data"                               # see backup.sh
+
 sudo touch $LOG
 sudo chmod 777 $LOG
 sudo apt install zip unzip
@@ -11,9 +14,6 @@ echo "Preparing Gitlab data folder: /data " >> $LOG
 mkfs.ext4 /dev/xvdb
 mkdir /data
 mount /dev/xvdb /data
-
-INIT_ZIP="mlreef-data-develop.zip"
-S3_BUCKET_NAME="mlreef-data"
 
 echo "Installing Docker" >> $LOG
 wget -qO- https://get.docker.com/ | sh
@@ -27,7 +27,7 @@ docker run --name=systemkern-s5-shell-alias-container --rm --tty \
   -e AWS_SECRET_ACCESS_KEY=XXXXX                \
   -e AWS_DEFAULT_REGION=eu-central-1            \
   registry.gitlab.com/systemkern/s5:latest-aws  \
-  aws s3 cp s3://$S3_BUCKET_NAME/$INIT_ZIP .  \
+  aws s3 cp s3://$S3_BUCKET_NAME/$INIT_ZIP .    \
   >> $LOG
 
 ls -la /$INIT_ZIP >> $LOG
@@ -36,6 +36,7 @@ echo "Unzipping $INIT_ZIP to /data" >> $LOG
 unzip /$INIT_ZIP -d /data
 echo "Init data unzipped:" >> $LOG
 ls -la /data >> $LOG
+chown -R ubuntu:ubuntu /data/* >> $LOG
 
 export GITLAB_SECRETS_SECRET_KEY_BASE="1111111111122222222222333333333334444444444555555555566666666661234"
 export    GITLAB_SECRETS_OTP_KEY_BASE="1111111111122222222222333333333334444444444555555555566666666661234"

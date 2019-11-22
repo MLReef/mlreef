@@ -4,7 +4,7 @@ stages:
   - prepare
   - build
   - deploy
-  - teardown
+  - maintenance
 
 # The deployment on aws depends on thre main environment variables
 # AWS_ACCESS_KEY_ID       create at https://console.aws.amazon.com/iam/
@@ -19,8 +19,12 @@ variables:
   EC2_PROVISION_SCRIPT: "./bin/provision.sh"
   STARTUP_SCRIPT: "bin/startup.sh"
   DEPLOY_SCRIPT:  "bin/deploy.sh"
+  BACKUP_SCRIPT:  "bin/backup.sh"
+  RESTORE_SCRIPT: "bin/restore.sh"
   DOCKER_COMPOSE: docker-compose.yml                       # file for transmitting VM information between stages
   INSTANCE_INFO:  instance.info                            # file for transmitting VM information between stages
+  S3_DATA_BUCKET: "mlreef-data"
+  DATA_ARCHIVE:   "mlreef-data-develop.zip"
 
 
 provision-ec2:
@@ -110,19 +114,20 @@ gitlab-env-conf:
     - chmod 400 development_deployment.pem                 # prepare private key file
     - chmod +x $DEPLOY_SCRIPT
     # rewrite deploy script to include the correct url
-    - sed -i "s~http://gitlab:80~http://$URL:$GITLAB_PORT~"    $DEPLOY_SCRIPT
     - sed -i "s/frontend:master/frontend:$CI_COMMIT_REF_SLUG/" $DOCKER_COMPOSE
   script:
-    - $DEPLOY_SCRIPT $URL $IMAGE_PATH
+    - $DEPLOY_SCRIPT --instance $URL --file $IMAGE_PATH --port $GITLAB_PORT
     - echo "========= ========== ========== =========="
     # Get the ID of the gitlab environment we want to edit
-    - ID=$(curl --header "$KEY Bearer $GITLAB_API_TOKEN"
+    - ID=$(curl --fail
+      --header "$KEY Bearer $GITLAB_API_TOKEN"
       https://gitlab.com/api/v4/projects/$CI_PROJECT_ID/environments?name=$CI_COMMIT_REF_SLUG
       | jq -c '.[] | select(.name | contains("'$CI_REF_SLUG'")) | .id'
       )
     - echo "ID is $ID"                                      # debug output
     # configure the gitlab environment with the correct URL
-    - curl --request PUT --header "$KEY Bearer $GITLAB_API_TOKEN"
+    - curl --request PUT --fail
+      --header "$KEY Bearer $GITLAB_API_TOKEN"
       --data "name=$CI_COMMIT_REF_SLUG&external_url=http://$URL"
       https://gitlab.com/api/v4/projects/$CI_PROJECT_ID/environments/$ID
 
@@ -130,7 +135,7 @@ gitlab-env-conf:
 decomission:
   when: manual
   image: registry.gitlab.com/systemkern/s5:latest-aws
-  stage: teardown
+  stage: maintenance
   variables:
     GIT_STRATEGY: none
     # Workaround for Gitlab Bug https://gitlab.com/gitlab-org/gitlab-runner/issues/1809
@@ -147,9 +152,46 @@ decomission:
     - echo "Delete URL is https://gitlab.com/api/v4/projects/$CI_PROJECT_ID/registry/repositories/$DOCKER_REGISTRY_REPOSITORY_ID/tags/$CI_COMMIT_REF_SLUG"
     - curl --request DELETE --header "$WORKAROUND $GITLAB_API_TOKEN" --fail
       https://gitlab.com/api/v4/projects/$CI_PROJECT_ID/registry/repositories/$DOCKER_REGISTRY_REPOSITORY_ID/tags/$CI_COMMIT_REF_SLUG
+    - aws s3 rm "s3://mlreef-data/mlreef-data-$CI_COMMIT_REF_SLUG.zip"
   environment:
     name: $CI_COMMIT_REF_SLUG
     action: stop
   except:
     refs:
+      - develop
       - master
+
+backup-data:
+  image: registry.gitlab.com/systemkern/s5:latest-aws
+  stage: maintenance
+  when: manual
+  before_script:
+    - URL=$(cat $INSTANCE_INFO)
+    - echo $URL                                            # debug output
+    - chmod 400 development_deployment.pem                 # prepare private key file
+    - chmod +x $BACKUP_SCRIPT
+    - sed -i "s~AWS_ACCESS_KEY_ID=XXXXX~AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID~"                  $BACKUP_SCRIPT
+    - sed -i "s~AWS_SECRET_ACCESS_KEY=XXXXX~AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY~"      $BACKUP_SCRIPT
+  script:
+    - $BACKUP_SCRIPT --instance $URL --bucket $S3_DATA_BUCKET --file mlreef-data-$CI_COMMIT_REF_SLUG.zip
+
+restore-from-develop:
+  image: registry.gitlab.com/systemkern/s5:latest-aws
+  stage: maintenance
+  when: manual
+  before_script:
+    - URL=$(cat $INSTANCE_INFO)
+    - echo $URL                                            # debug output
+    - chmod 400 development_deployment.pem                 # prepare private key file
+    - chmod +x $BACKUP_SCRIPT
+    - sed -i "s~AWS_ACCESS_KEY_ID=XXXXX~AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID~"                  $RESTORE_SCRIPT
+    - sed -i "s~AWS_SECRET_ACCESS_KEY=XXXXX~AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY~"      $RESTORE_SCRIPT
+  script:
+    - $RESTORE_SCRIPT $URL
+
+restore-from-branch-backup:
+  extends: restore-from-develop
+  script:
+    - sed -i "s/INIT_ZIP=mlreef-data-develop.zip/INIT_ZIP=mlreef-data-$CI_COMMIT_REF_SLUG.zip/" $RESTORE_SCRIPT
+    - $RESTORE_SCRIPT $URL
+
