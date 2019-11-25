@@ -86,6 +86,7 @@ open class Subject(
 ) : BaseEntity(id)
 
 @Entity
+@Table(name = "person")
 open class Person(
     id: UUID,
     slug: String,
@@ -94,6 +95,34 @@ open class Person(
 ) : Subject(id, slug, name)
 
 @Entity
+@Table(name = "account")
+open class Account(
+    id: UUID,
+    val username: String,
+    val email: String,
+    val passwordEncrypted: String,
+    @OneToOne(fetch = FetchType.EAGER) @JoinColumn(name = "person_id") val person: Person,
+    @OneToMany(mappedBy = "account") val tokens: List<AccountToken> = listOf()
+) : BaseEntity(id)
+
+@Entity
+@Table(name = "account_token")
+open class AccountToken(
+    id: UUID,
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "account_id") val account: Account,
+    val token: String,
+    @Column(name = "gitlab_id")
+    val gitlabId: Int,
+    val active: Boolean = true,
+    val revoked: Boolean = false,
+    @Column(name = "expires_at")
+    val expiresAt: LocalDateTime? = null
+) : BaseEntity(id)
+
+
+@Entity
+@Table(name = "group")
 open class Group(
     id: UUID,
     slug: String,
@@ -168,6 +197,7 @@ open class CodeProject(
  */
 
 @Entity
+@Table(name = "output_file")
 open class OutputFile(
     id: UUID,
     @ManyToOne(fetch = FetchType.LAZY) @JoinColumn(name = "experiment_id") val experiment: Experiment?,
@@ -243,6 +273,7 @@ interface DataProcessorWithOutput {
  * Therefore they must be chainable
  */
 @Entity
+@Table(name = "operation")
 open class Operation(
     id: UUID,
     slug: String,
@@ -253,6 +284,7 @@ open class Operation(
 ) : DataProcessor(id, slug, name, visibilityScope), DataProcessorWithInput, DataProcessorWithOutput
 
 @Entity
+@Table(name = "visualization")
 open class Visualization(
     id: UUID,
     slug: String,
@@ -265,6 +297,7 @@ open class Visualization(
  * Proposal: Model DataAlgorithm as a Data processor, even if it not chainable
  */
 @Entity
+@Table(name = "model")
 open class Model(
     id: UUID,
     slug: String,

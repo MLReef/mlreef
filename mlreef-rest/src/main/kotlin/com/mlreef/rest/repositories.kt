@@ -3,6 +3,15 @@ package com.mlreef.rest
 import org.springframework.stereotype.Repository
 import java.util.*
 
+@Repository interface AccountRepository : KtCrudRepository<Account, UUID> {
+    fun findOneByUsername(username: String): Account?
+    fun findOneByEmail(email: String): Account?
+}
+
+@Repository interface AccountTokenRepository : KtCrudRepository<AccountToken, UUID> {
+    fun findAllByAccountId(id: UUID): List<AccountToken>
+}
+
 @Repository interface SubjectRepository : KtCrudRepository<Subject, UUID>
 
 @Repository interface PersonRepository : KtCrudRepository<Person, UUID>
@@ -24,7 +33,6 @@ import java.util.*
 @Repository interface VisualizationRepository : KtCrudRepository<Visualization, UUID>
 
 @Repository interface ModelRepository : KtCrudRepository<Model, UUID>
-
 
 @Repository interface ProcessorParameterRepository : KtCrudRepository<ProcessorParameter, UUID>
 

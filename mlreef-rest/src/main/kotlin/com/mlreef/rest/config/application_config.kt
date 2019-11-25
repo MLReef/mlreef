@@ -34,3 +34,15 @@ open class CachingConfig {
         return ConcurrentMapCacheManager("addresses")
     }
 }
+
+//@Configuration
+//@EnableWebMvc
+//open class MvcConfig : WebMvcConfigurer {
+//
+//    override fun addResourceHandlers(registry: ResourceHandlerRegistry) {
+////       registry
+////           .addResourceHandler("/static")
+////           .addResourceLocations("/static")
+//    }
+//
+//}

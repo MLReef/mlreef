@@ -3,6 +3,7 @@ package com.mlreef.rest.integrationtests
 import com.mlreef.rest.external_api.gitlab.GitlabRestClient
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.springframework.beans.factory.annotation.Value
@@ -10,13 +11,13 @@ import org.springframework.boot.web.client.RestTemplateBuilder
 import org.springframework.test.context.TestPropertySource
 import org.springframework.web.client.HttpClientErrorException
 
-@TestPropertySource(locations = ["/secrets.properties"])
+@TestPropertySource(locations = ["classpath:secrets.properties"])
 class GitlabRestClientIntegrationTest {
 
     lateinit var gitlabRestClient: GitlabRestClient
 
     @Value("\${TEST_PRIVATE_TOKEN}")
-    private val secretPrivateToken: String? = null
+    private var secretPrivateToken: String = ""
 
     @BeforeEach
     fun prepare() {
@@ -38,17 +39,18 @@ class GitlabRestClientIntegrationTest {
         }
     }
 
+    @Disabled
     @Test
     fun `gitlabapi accepts valid Token`() {
-        val user = gitlabRestClient.getUser(secretPrivateToken!!)
+        val user = gitlabRestClient.getUser(secretPrivateToken)
         assertThat(user).isNotNull
     }
 
+    @Disabled
     @Test
     fun `API |user returns at least id, name and email`() {
-        val user = gitlabRestClient.getUser(secretPrivateToken!!)
+        val user = gitlabRestClient.getUser(secretPrivateToken)
         assertThat(user).isNotNull
-        // TODO assertJ later
 
 //        assertThat(user!!.id).isNotBlank
 //        assertThat(user!!.username).isNotBlank

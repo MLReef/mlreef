@@ -92,6 +92,9 @@ build-backend:
   script:
     - ./gradlew build --stacktrace
     - ./gradlew :mlreef-rest:bootJar
+  artifacts:
+    paths:
+      - mlreef-rest/build/asciidoc/html5/rest-api.html
 
 
 #deploy-backend:
