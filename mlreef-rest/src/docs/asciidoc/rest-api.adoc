@@ -1,0 +1,128 @@
+= MLReef API v1 Rest Docs
+Florian Hintermeier;
+:doctype: book
+:icons: font
+:source-highlighter: highlightjs
+:toc: left
+:toclevels: 2
+:sectlinks:
+:operation-curl-request-title: Example request
+:operation-http-response-title: Example response
+
+[[overview]]
+= Overview
+
+[[overview-http-verbs]]
+== HTTP verbs
+
+RESTful notes tries to adhere as closely as possible to standard HTTP and REST conventions in its
+use of HTTP verbs.
+
+|===
+| Verb | Usage
+
+| `GET`
+| Used to retrieve a resource
+
+| `POST`
+| Used to create a new resource
+
+| `PATCH`
+| Used to update an existing resource, including partial updates
+
+| `DELETE`
+| Used to delete an existing resource
+|===
+
+[[overview-http-status-codes]]
+== HTTP status codes
+
+RESTful notes tries to adhere as closely as possible to standard HTTP and REST conventions in its
+use of HTTP status codes.
+
+|===
+| Status code | Usage
+
+| `200 OK`
+| The request completed successfully
+
+| `201 Created`
+| A new resource has been created successfully. The resource's URI is available from the response's
+`Location` header
+
+| `204 No Content`
+| An update to an existing resource has been applied successfully
+
+| `400 Bad Request`
+| The request was malformed. The response body will include an error providing further information
+
+| `404 Not Found`
+| The requested resource did not exist
+|===
+
+[[overview-headers]]
+== Headers
+
+=== Requests
+
+Every authenticated request needs following header(s):
+
+```
+Content-Type: application/json
+Accept: application/json
+PRIVATE-TOKEN: $SECRET_PRIVATE_TOKEN
+```
+
+The Private Token can be obtained during authentication
+
+=== Response
+
+```
+Content-Type: application/json;charset=UTF-8
+Content-Length: $NUMBER
+```
+
+[[overview-errors]]
+== Errors
+
+Whenever an error response (status code >= 400) is returned, the body will contain a JSON object
+that describes the problem. The error object has the following structure:
+
+include::{snippets}/register-fail/response-fields.adoc[]
+
+For example, a request that attempts to register a user with a existing username
+`400 Bad Request` response:
+
+include::{snippets}/register-fail/http-response.adoc[]
+
+[[authentication]]
+== Authentication - /auth
+
+Almost every endpoint has to be authenticated. Exceptions are those endpoints under /api/v1/auth/ and /docs.
+
+Authentication is possible by setting the PRIVATE-TOKEN in the header. This uses the same strategy like gitlab,
+therefore clients can use the same header to communicate with the gitlab backend as to the MLReef backend.
+
+To obtain this token, a login is necessary with valid credentials.
+
+[[authentication-register]]
+=== /auth/register
+
+Registering creates a new MLReef user which has a new gitlab user and Person.
+
+
+operation::register-success[snippets='curl-request,request-fields,http-response,response-fields']
+
+[[authentication-login]]
+=== /auth/login
+
+Login can be executed with the username or the email.
+
+operation::login-success[snippets='curl-request,request-fields,http-response,response-fields']
+
+[[resources]]
+= Resources
+
+[[experiments]]
+== Experiments - /experiments
+

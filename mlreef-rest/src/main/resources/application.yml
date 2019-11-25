@@ -2,9 +2,9 @@ logging:
   level:
     root: INFO
     com.mlreef.rest: DEBUG
-    org.springframework.security: INFO
-    org.springframework.orm: INFO
-    org.hibernate: INFO
+    org.springframework.security: DEBUG
+    org.springframework.orm: WARN
+    org.hibernate: WARN
 
 spring:
   data:

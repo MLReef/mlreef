@@ -4,7 +4,8 @@ plugins {
     id 'org.jetbrains.kotlin.jvm'
     id 'com.palantir.docker'
     id 'kotlin-jpa'
-    id 'kotlin-allopen'
+    id 'kotlin-spring'
+    id 'org.asciidoctor.convert' version "1.5.9.2"
 }
 
 group = 'com.mlreef'
@@ -38,6 +39,7 @@ dependencies {
     }
     testImplementation "org.springframework.security:spring-security-test"
     testImplementation "org.springframework.restdocs:spring-restdocs-mockmvc"
+    asciidoctor 'org.springframework.restdocs:spring-restdocs-asciidoctor'
 }
 
 test {
@@ -62,6 +64,10 @@ allOpen {
     annotation("javax.persistence.Embeddable")
 }
 
+noArg {
+    annotation("com.mlreef.rest.api.Dto")
+    annotation("com.mlreef.rest.api.DtoRequest")
+}
 task unpack(type: Copy) {
     dependsOn ":mlreef-rest:bootJar"
     from(zipTree(tasks.bootJar.outputs.files.singleFile))
@@ -72,4 +78,24 @@ docker {
     name "${project.group}/${bootJar.baseName}"
     copySpec.from(tasks.unpack.outputs).into("dependency")
     buildArgs(['DEPENDENCY': "dependency"])
+}
+
+ext {
+    snippetsDir = file('build/generated-snippets')
+}
+
+test {
+    outputs.dir snippetsDir
+}
+
+asciidoctor {
+    inputs.dir snippetsDir
+    dependsOn test
+}
+
+bootJar {
+    dependsOn asciidoctor
+    from("${asciidoctor.outputDir}/html5") {
+        into 'static/docs'
+    }
 }

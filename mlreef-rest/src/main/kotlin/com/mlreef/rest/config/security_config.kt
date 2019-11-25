@@ -12,19 +12,32 @@ import org.springframework.security.config.annotation.web.builders.WebSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
 import org.springframework.security.config.http.SessionCreationPolicy
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
+import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.security.web.AuthenticationEntryPoint
 import org.springframework.security.web.authentication.AnonymousAuthenticationFilter
 import org.springframework.security.web.authentication.HttpStatusEntryPoint
 import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy
+import org.springframework.security.web.util.matcher.AndRequestMatcher
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher
-import org.springframework.security.web.util.matcher.OrRequestMatcher
+import org.springframework.security.web.util.matcher.NegatedRequestMatcher
 import org.springframework.session.FindByIndexNameSessionRepository
 import org.springframework.session.Session
 
 @Configuration
+open class BasicSecurity {
+
+    @Bean
+    open fun passwordEncoder(): PasswordEncoder {
+        return BCryptPasswordEncoder()
+    }
+}
+
+
+@Configuration
 @EnableWebSecurity(debug = true)
 @EnableGlobalMethodSecurity(prePostEnabled = true)
-open class SecurityConfiguration(var provider: AuthenticationProvider) : WebSecurityConfigurerAdapter() {
+open class SecurityConfiguration(private val provider: AuthenticationProvider) : WebSecurityConfigurerAdapter() {
 
     @Autowired
     lateinit var sessionRepo: FindByIndexNameSessionRepository<out Session>
@@ -34,28 +47,26 @@ open class SecurityConfiguration(var provider: AuthenticationProvider) : WebSecu
     }
 
     override fun configure(webSecurity: WebSecurity) {
+        webSecurity.ignoring().antMatchers("/docs", "/docs/**","/static/**", AUTH_URL)
     }
 
     @Throws(Exception::class)
-    public override fun configure(http: HttpSecurity) {
-        http.sessionManagement()
-            .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
-            .and()
-            .exceptionHandling()
-            .and()
-            .authenticationProvider(provider)
-            .addFilterBefore(authenticationFilter(), AnonymousAuthenticationFilter::class.java)
-            .authorizeRequests().requestMatchers(PROTECTED_URLS).authenticated()
-            .and()
+    public override fun configure(httpSecurity: HttpSecurity) {
+        httpSecurity
+            .exceptionHandling().and()
+            .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED).and()
+            .anonymous().and()
+            .authorizeRequests().antMatchers("/docs", "/docs/**", "/static/**", AUTH_URL).permitAll().and()
+            .authorizeRequests().anyRequest().fullyAuthenticated()
+            .and().authenticationProvider(provider).addFilterBefore(authenticationFilter(), AnonymousAuthenticationFilter::class.java)
             .csrf().disable()
-            .formLogin().disable()
             .httpBasic().disable()
             .logout().disable()
     }
 
     @Bean
-    open fun authenticationFilter(): CustomAuthenticationFilter {
-        val filter = CustomAuthenticationFilter(PROTECTED_URLS)
+    open fun authenticationFilter(): GitlabTokenAuthenticationFilter {
+        val filter = GitlabTokenAuthenticationFilter(PROTECTED_MATCHER)
         filter.setAuthenticationManager(authenticationManager())
         filter.setSessionAuthenticationStrategy(sessionStrategy())
         return filter
@@ -63,7 +74,7 @@ open class SecurityConfiguration(var provider: AuthenticationProvider) : WebSecu
 
     @Bean
     open fun sessionStrategy(): SessionAuthenticationStrategy {
-        return CustomSessionStrategy(sessionRepo)
+        return RedisSessionStrategy(sessionRepo)
     }
 
     @Bean
@@ -72,6 +83,11 @@ open class SecurityConfiguration(var provider: AuthenticationProvider) : WebSecu
     }
 
     companion object {
-        private val PROTECTED_URLS = OrRequestMatcher(AntPathRequestMatcher("/api/**"))
+        private const val PROTECTED_URL = "/api/v1/**"
+        private const val AUTH_URL = "/api/v1/auth/**"
+        private val PROTECTED_MATCHER = AndRequestMatcher(
+            AntPathRequestMatcher(PROTECTED_URL),
+            NegatedRequestMatcher(AntPathRequestMatcher(AUTH_URL))
+        )
     }
 }
