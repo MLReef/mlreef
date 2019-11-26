@@ -147,11 +147,11 @@ services:
       - OAUTH_AZURE_TENANT_ID=
 
 
-  gitlab-runner:
-    container_name: gitlab-runner
+  gitlab-runner-dispatcher:
+    container_name: gitlab-runner-dispatcher
     image: gitlab/gitlab-runner:alpine
     volumes:
-      #  - gitlab-runner-config:/etc/gitlab-runner:Z
+      - gitlab-runner-config:/etc/gitlab-runner/:Z                   # this line gets rewritten by the CI/CD pipeline
       - /var/run/docker.sock:/var/run/docker.sock
 
 
@@ -183,3 +183,4 @@ volumes:
   sock:
   postgresql-data:                                                   # this line gets removed by the CI/CD pipeline
   gitlab-data:                                                       # this line gets removed by the CI/CD pipeline
+  gitlab-runner-config:                                              # this line gets removed by the CI/CD pipeline

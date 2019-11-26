@@ -54,3 +54,22 @@ For running locally please refer to the web module's [README.md](web/README.md)
 Production build
 --------------------
 To build the frontend project use: `./gradlew npm_run_build`
+
+
+Per-Branch Develop Cloud Deployment
+--------------------
+MLReef's infrastructure is deployed to the AWS cloud automatically. One separate fresh environment for every branch
+(feature-branch or other) deployed freshly for every developer push.
+
+Currently, to deploy every branch to a separate ec2 instance the following steps are performed:
+1. Build docker image for the frontend NodeJS App
+2. Provision a new ec2 instance with docker pre-installed
+3. Download user data (~40 GB) from s3
+4. Start the MLReef service stack - based on our `docker-compose.yml` - on the ec2 instance
+   The service stack consists of postgres, redis, gitlab, gitlab runner, micro services, NodeJS Frontend
+5. Configure the gitlab-runner-dispatcher
+   (This has to be done after gitlab has successfully started)
+   The Gitlab runner dispatcher boots new ec2 instances for running gitlab pipelines
+
+After a branch is merged/deleted the Gitlab pipeline is used again to terminate the ec2 instance
+

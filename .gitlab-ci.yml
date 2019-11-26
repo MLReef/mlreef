@@ -6,7 +6,7 @@ stages:
   - deploy
   - maintenance
 
-# The deployment on aws depends on thre main environment variables
+# The deployment on aws depends on three main environment variables
 # AWS_ACCESS_KEY_ID       create at https://console.aws.amazon.com/iam/
 # AWS_SECRET_ACCESS_KEY   create at https://console.aws.amazon.com/iam/
 # AWS_DEFAULT_REGION      default:eu-central-1
@@ -18,7 +18,6 @@ variables:
   EC2_INSTANCE_NAME: mlreef-$CI_COMMIT_REF_SLUG            # environment name and url are set separately
   EC2_PROVISION_SCRIPT: "./bin/provision.sh"
   STARTUP_SCRIPT: "bin/startup.sh"
-  DEPLOY_SCRIPT:  "bin/deploy.sh"
   BACKUP_SCRIPT:  "bin/backup.sh"
   RESTORE_SCRIPT: "bin/restore.sh"
   DOCKER_COMPOSE: docker-compose.yml                       # file for transmitting VM information between stages
@@ -112,11 +111,38 @@ gitlab-env-conf:
     - URL=$(cat $INSTANCE_INFO)
     - echo $URL                                            # debug output
     - chmod 400 development_deployment.pem                 # prepare private key file
-    - chmod +x $DEPLOY_SCRIPT
-    # rewrite deploy script to include the correct url
-    - sed -i "s/frontend:master/frontend:$CI_COMMIT_REF_SLUG/" $DOCKER_COMPOSE
+    - chmod +x bin/deploy.sh
+    # rewrite docker dompose file
+    # change the frontend docker image from master branch to current branch
+    - sed -i "s/$IMAGE_NAME:master/$IMAGE_NAME:$CI_COMMIT_REF_SLUG/"          $DOCKER_COMPOSE
+    # change postgres-data local image to /data/postgres on host machine
+    - sed -i "s~-\ postgresql-data~-\ /data/postgres~"                        $DOCKER_COMPOSE
+    # change gitlab-data local image to /data/gitlab on host machine
+    - sed -i "s~-\ gitlab-data~-\ /data/gitlab~"                              $DOCKER_COMPOSE
+    # change gitlab-data local image to /data/gitlab on host machine
+    - sed -i "s~-\ gitlab-runner-config~-\ /data/gitlab-runner-config~"       $DOCKER_COMPOSE
+    # Let gitlab know its own URL
+    # deactivate "docker portable volumes
+    - sed -i "s/\ \ postgresql-data/#postgresql-data/"                        $DOCKER_COMPOSE
+    - sed -i "s/\ \ gitlab-data/#gitlab-data/"                                $DOCKER_COMPOSE
+    - sed -i "s/\ \ gitlab-runner-config/#gitlab-runner-config/"              $DOCKER_COMPOSE
+    - sed -i "s~GITLAB_HOST=localhost~GITLAB_HOST=$URL~"                      $DOCKER_COMPOSE
+    - cat $DOCKER_COMPOSE
+    # upload modified compose to ec2 instance
   script:
-    - $DEPLOY_SCRIPT --instance $URL --file $IMAGE_PATH --port $GITLAB_PORT
+    - ssh-keyscan -H "$URL" >>~/.ssh/known_hosts
+    - scp -i development_deployment.pem -o 'AddKeysToAgent yes' $DOCKER_COMPOSE ubuntu@${URL}:/home/ubuntu
+    - scp -i development_deployment.pem -o 'AddKeysToAgent yes' bin/deploy.sh ubuntu@${URL}:/home/ubuntu
+    - echo "starting deploy.sh"
+    - echo "----------------------------------------"
+    - ssh -i development_deployment.pem -o 'AddKeysToAgent yes' ubuntu@"${URL}" "
+      sudo ./deploy.sh
+        --instance $URL
+        --file $IMAGE_PATH
+        --port $GITLAB_PORT
+        --key $AWS_ACCESS_KEY_ID
+        --secret $AWS_SECRET_ACCESS_KEY
+      "
     - echo "========= ========== ========== =========="
     # Get the ID of the gitlab environment we want to edit
     - ID=$(curl --fail
