@@ -66,3 +66,7 @@
 .modal-content > #table-container > table { 
     height: 100%;
 }
+
+.MuiIconButton-label {
+    color: #1d2b40;
+}
