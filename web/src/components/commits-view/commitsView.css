@@ -41,20 +41,28 @@ border-radius: 0.3vw 0.3vw 0 0;
     font-weight: 600;
 }
 
-.btn a {
+.btn button {
     color: #1c2b40;
+    cursor: pointer;
+    position: relative;
+    background: none;
     text-decoration: none;
     border: 1px solid #1c2b40;
     border-radius: 0.3vw;
+    display: flex;
     padding: 0.5em 0.5em;
-    width: 80px;
+    font-weight: 400;
+}
+
+.btn span{
+    text-overflow: ellipsis;
+    width: 5em;
+    overflow: hidden;
+    white-space: nowrap;
 }
   
 .btn img {
-    width: 1em;
     margin-right: 0;
-    top: 4px;
-    margin-left: 20px;
 }
   
 .btn {
@@ -97,5 +105,10 @@ border-radius: 0.3vw 0.3vw 0 0;
     background-color: #e5e5e5;
     margin-left: 0;
     padding: 0.5em 1em;
+}
+
+.commitview-select{
+  left: 1% !important;
+  top: 100%;
 }
 

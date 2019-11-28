@@ -2,7 +2,7 @@
 import React from 'react';
 import Enzyme, { shallow } from 'enzyme';
 import Adapter from 'enzyme-adapter-react-16';
-import FileView from '../components/fileView/fileView';
+import { FileView } from '../components/fileView/fileView';
 
 Enzyme.configure({ adapter: new Adapter() });
 
