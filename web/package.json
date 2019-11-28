@@ -4,6 +4,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@material-ui/core": "^4.7.0",
     "array-move": "^2.1.0",
     "babel-core": "^6.26.3",
     "babel-preset-env": "^1.7.0",
