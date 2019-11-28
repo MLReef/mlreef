@@ -103,7 +103,7 @@ const InstanceCard = ({ ...props }) => {
     );
   }
 
-  return (
+  return params.instances.length > 0 ? (
     <div className="experiment-card">
       <div className="header">
         <div className="title-div">
@@ -162,6 +162,8 @@ const InstanceCard = ({ ...props }) => {
         );
       })}
     </div>
+  ) : (
+    null
   );
 };
 
