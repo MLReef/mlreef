@@ -22,7 +22,8 @@ const ExperimentCard = (props) => {
     setSelectedExperiment,
   } = props;
   const today = new Date();
-  return (
+  
+  return experiments.length > 0 ? (
     <div className="experiment-card" key={today}>
       <div className="header">
         <div className="title-div">
@@ -103,6 +104,8 @@ const ExperimentCard = (props) => {
         );
       })}
     </div>
+  ) : (
+    null
   );
 };
 
