@@ -7,7 +7,7 @@ import { Link } from "react-router-dom";
 import * as branchesActions from "./../actions/branchesActions";
 import * as fileActions from "./../actions/fileActions";
 
-class RepoFeatures extends Component {
+export class RepoFeatures extends Component {
   constructor(props) {
     super(props);
 
