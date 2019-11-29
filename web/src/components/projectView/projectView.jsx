@@ -118,15 +118,17 @@ class ProjectView extends React.Component {
                 <img src={committer ? committer.avatar_url : ''} alt="" />
               </div>
               <div className="last-commit-name">
-                {lastCommit.message}
-                <br />
-                by
-                {' '}
-                <b>{lastCommit.author_name}</b>
-                {' '}
-                authored
-                {' '}
-                <b>{timediff}</b>
+                <p>
+                  {lastCommit.message}
+                  <br />
+                  by
+                  {' '}
+                  <b>{lastCommit.author_name}</b>
+                  {' '}
+                  authored
+                  {' '}
+                  <b>{timediff}</b>
+                </p>
               </div>
             </div>
 
