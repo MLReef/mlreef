@@ -1,11 +1,11 @@
-import React, { Component } from "react";
+import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import arrow_down_blue_01 from "./../images/arrow_down_blue_01.svg";
-import plus_01 from "./../images/plus_01.svg";
-import { Link } from "react-router-dom";
-import * as branchesActions from "./../actions/branchesActions";
-import * as fileActions from "./../actions/fileActions";
+import { Link } from 'react-router-dom';
+import arrow_down_blue_01 from '../images/arrow_down_blue_01.svg';
+import plus_01 from '../images/plus_01.svg';
+import * as branchesActions from '../actions/branchesActions';
+import * as fileActions from '../actions/fileActions';
 
 export class RepoFeatures extends Component {
   constructor(props) {
@@ -16,50 +16,51 @@ export class RepoFeatures extends Component {
       plusOpen: false,
       branchSelected: decodeURIComponent(this.props.branch),
       projectId: this.props.projects && this.props.projects.selectedProject.id,
-      branches: []
+      branches: [],
     };
 
     this.props.actions && this.props.actions.getBranchesList(this.state.projectId);
   }
 
   branchRef = React.createRef();
+
   plusRef = React.createRef();
 
-  handleBlur = e => {
+  handleBlur = (e) => {
     this.handleBranch();
   };
 
-  plusDropdownBlur = e => {
+  plusDropdownBlur = (e) => {
     this.plusDropdown();
   };
 
-  handleBranch = e => {
+  handleBranch = (e) => {
     if (!this.state.isOpen) {
-      document.addEventListener("click", this.handleBlur, false);
+      document.addEventListener('click', this.handleBlur, false);
     } else {
-      document.removeEventListener("click", this.handleBlur, false);
+      document.removeEventListener('click', this.handleBlur, false);
     }
 
-    this.setState(prevState => ({
-      isOpen: !prevState.isOpen
+    this.setState((prevState) => ({
+      isOpen: !prevState.isOpen,
     }));
   };
 
-  plusDropdown = e => {
+  plusDropdown = (e) => {
     if (!this.state.plusOpen) {
-      document.addEventListener("click", this.plusDropdownBlur, false);
+      document.addEventListener('click', this.plusDropdownBlur, false);
     } else {
-      document.removeEventListener("click", this.plusDropdownBlur, false);
+      document.removeEventListener('click', this.plusDropdownBlur, false);
     }
 
-    this.setState(prevState => ({
-      plusOpen: !prevState.plusOpen
+    this.setState((prevState) => ({
+      plusOpen: !prevState.plusOpen,
     }));
   };
 
   componentWillUnmount() {
     this.setState = (state, callback) => {
-      return;
+
     };
   }
 
@@ -80,110 +81,140 @@ export class RepoFeatures extends Component {
       null,
       encodeURIComponent(e.currentTarget.id),
       this.state.projectId,
-      true
+      true,
     );
   }
 
-  render = () => (
-    <>
-      <div id="repo-features">
-        <div>
-          <div className="reference" ref={this.branchRef}>
-            <button
-              id="branch-dropdown"
-              className="white-button"
-              onClick={this.handleBranch}
-            >
-              <span>{decodeURIComponent(this.state.branchSelected)}</span>
-              <img id="leftfeature-image" src={arrow_down_blue_01} alt="" />
-            </button>
-            {this.state.isOpen &&
+  render = () => {
+    const {
+      projectId,
+      isOpen,
+      branchSelected,
+      branches,
+      plusOpen,
+    } = this.state;
+    return (
+      <>
+        <div id="repo-features">
+          <div>
+            <div className="reference" ref={this.branchRef}>
+              <button
+                id="branch-dropdown"
+                type="button"
+                className="white-button"
+                onClick={this.handleBranch}
+              >
+                <span>{decodeURIComponent(branchSelected)}</span>
+                <img id="leftfeature-image" src={arrow_down_blue_01} alt="" />
+              </button>
+              {isOpen
+              && (
               <div id="branches-list" className="select-branch">
                 <div
-                  style={{ margin: "0 50px", fontSize: "14px", padding: "0 40px" }}>
+                  style={{ margin: '0 50px', fontSize: '14px', padding: '0 40px' }}
+                >
                   <p>Switch Branches</p>
                 </div>
                 <hr />
                 <div className="search-branch">
                   <input
-                    autoFocus={true}
+                    autoFocus
                     type="text"
                     placeholder="Search branches or tags"
                   />
                   <div className="branches">
                     <ul>
                       <li className="branch-header">Branches</li>
-                      {this.state.branches && this.state.branches.filter(branch =>
-                        !branch.name.startsWith("data-pipeline/") &&
-                        !branch.name.startsWith("experiment/")
-                      ).map((branch) => {
-                        let encoded = encodeURIComponent(branch.name);
+                      {branches && branches.filter((branch) => !branch.name.startsWith('data-pipeline/')
+                        && !branch.name.startsWith('experiment/')).map((branch) => {
+                        const encoded = encodeURIComponent(branch.name);
                         return (
                           <li key={encoded}>
-                            <Link id={branch.name} to={`/my-projects/${this.state.projectId}/${encoded}`} onClick={this.handleClick}><p>{branch.name}</p></Link>
+                            <Link id={branch.name} to={`/my-projects/${projectId}/${encoded}`} onClick={this.handleClick}><p>{branch.name}</p></Link>
                           </li>
-                        )
+                        );
                       })}
                     </ul>
                   </div>
                 </div>
               </div>
-            }
+              )}
+            </div>
+            <div className="reference" ref={this.plusRef}>
+              <button
+                type="button"
+                className="white-button"
+                style={{ position: 'relative' }}
+                onClick={this.plusDropdown}
+              >
+                <img id="plus" src={plus_01} alt="" />
+                <img id="leftfeature-image" src={arrow_down_blue_01} alt="" />
+              </button>
+              {plusOpen && (
+              <div className="plus-dropdown">
+                <ul className="plus-list">
+                  <li>This directory</li>
+                  <li className="plus-option"><Link to="/">New file</Link></li>
+                  <li className="plus-option"><Link to="/">Upload file</Link></li>
+                  <li className="plus-option"><Link to="/">New directory</Link></li>
+                  <hr />
+                  <li>This repository</li>
+                  <li className="plus-option"><Link to={`/my-projects/${projectId}/new-branch`}>New branch</Link></li>
+                  <li className="plus-option"><Link to="/">New tag</Link></li>
+                </ul>
+              </div>
+              )}
+            </div>
+            <button
+              type="button"
+              className="blue-button"
+            >
+              <Link to={`/my-projects/${projectId}/visualizations`}><p>Data Visualisation</p></Link>
+            </button>
+            <button
+              type="button"
+              className="blue-button"
+            >
+              <Link to={`/my-projects/${projectId}/pipe-line`}><p>Data Pipeline</p></Link>
+            </button>
           </div>
-          <div className="reference" ref={this.plusRef}>
-            <button className="white-button" style={{ position: "relative" }} onClick={this.plusDropdown}>
-              <img id="plus" src={plus_01} alt="" />
+          <div>
+            <button
+              type="button"
+              className="white-button"
+            >
+              History
+            </button>
+
+            <button
+              type="button"
+              className="white-button"
+            >
+              Web IDE
+            </button>
+            <button
+              type="button"
+              className="white-button"
+            >
               <img id="leftfeature-image" src={arrow_down_blue_01} alt="" />
             </button>
-            {this.state.plusOpen && <div className="plus-dropdown">
-              <ul className="plus-list">
-                <li>This directory</li>
-                <li className="plus-option"><Link to="/">New file</Link></li>
-                <li className="plus-option"><Link to="/">Upload file</Link></li>
-                <li className="plus-option"><Link to="/">New directory</Link></li>
-                <hr />
-                <li>This repository</li>
-                <li className="plus-option"><Link to="/">New branch</Link></li>
-                <li className="plus-option"><Link to="/">New tag</Link></li>
-              </ul>
-            </div>}
           </div>
-          <button className="blue-button">
-            <Link to={`/my-projects/${this.state.projectId}/visualizations`}><p>Data Visualisation</p></Link>
-          </button>
-
-          <button className="blue-button">
-            <Link to={`/my-projects/${this.state.projectId}/pipe-line`}><p>Data Pipeline</p></Link>
-          </button>
         </div>
-        <div>
-          <button className="white-button">
-            History
-                </button>
-
-          <button className="white-button">
-            Web IDE
-                </button>
-
-          <button className="white-button">
-            <img id="leftfeature-image" src={arrow_down_blue_01} alt="" />
-          </button>
-        </div>
-      </div>
-    </>
-  );
+      </>
+    );
+  }
 }
 
 function mapStateToProps(state) {
   return {
     projects: state.projects,
-    branches: state.branches
+    branches: state.branches,
   };
 }
 
 function mapDispatchToProps(dispatch) {
   return {
-    actions: bindActionCreators({ ...branchesActions, ...fileActions }, dispatch)
+    actions: bindActionCreators({ ...branchesActions, ...fileActions }, dispatch),
   };
 }
 
