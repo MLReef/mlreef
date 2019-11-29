@@ -16,6 +16,7 @@ import DataInstanceDetails from './components/data-instance/dataInstanceDetails'
 import EmptyDataVisualization from './components/data-visualization/dataVisualization';
 import ErrorPage from './components/error-page/errorPage';
 import ExperimentDetails from './components/experiment-details/experimentDetails';
+import NewBranch from './components/newBranch';
 
 const RouterComp = () => (
   <BrowserRouter>
@@ -24,6 +25,16 @@ const RouterComp = () => (
       <Route path="/index.html" exact component={Login} />
       <Route path="/error-page" exact component={ErrorPage} />
       <PrivateRoute path="/my-projects" exact component={Projects} />
+      <PrivateRoute
+        exact
+        path="/my-projects/:projectId"
+        component={projectView}
+      />
+      <PrivateRoute
+        exact
+        path="/my-projects/:projectId/new-branch"
+        component={NewBranch}
+      />
       <PrivateRoute path="/my-projects/:projectId/:branch/commits" exact component={Commits} />
       <PrivateRoute exact path="/my-projects/:projectId/pipe-line" component={PipeLineView} />
       <PrivateRoute path="/my-projects/:projectId/visualizations" component={EmptyDataVisualization} />

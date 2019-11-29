@@ -12,6 +12,7 @@ exports[`The branches list should be displayed when dropdown button is clicked d
         className="white-button"
         id="branch-dropdown"
         onClick={[Function]}
+        type="button"
       >
         <span>
           undefined
@@ -34,6 +35,7 @@ exports[`The branches list should be displayed when dropdown button is clicked d
             "position": "relative",
           }
         }
+        type="button"
       >
         <img
           alt=""
@@ -49,6 +51,7 @@ exports[`The branches list should be displayed when dropdown button is clicked d
     </div>
     <button
       className="blue-button"
+      type="button"
     >
       <a
         href="/my-projects/undefined/visualizations"
@@ -61,6 +64,7 @@ exports[`The branches list should be displayed when dropdown button is clicked d
     </button>
     <button
       className="blue-button"
+      type="button"
     >
       <a
         href="/my-projects/undefined/pipe-line"
@@ -75,16 +79,19 @@ exports[`The branches list should be displayed when dropdown button is clicked d
   <div>
     <button
       className="white-button"
+      type="button"
     >
       History
     </button>
     <button
       className="white-button"
+      type="button"
     >
       Web IDE
     </button>
     <button
       className="white-button"
+      type="button"
     >
       <img
         alt=""
