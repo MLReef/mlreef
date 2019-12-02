@@ -18,25 +18,22 @@ import * as usersActions from '../../actions/usersActions';
 class ProjectView extends React.Component {
   constructor(props) {
     super(props);
-    let project = null;
-    const { actions } = this.props;
-    const { match } = this.props;
-    const { projects } = this.props;
+    const { actions, match, projects, users } = this.props;
+    const project = projects.all.filter((proj) => proj.id === parseInt(match.params.projectId))[0];
     const { branch } = match.params;
-    const { users } = this.props;
-    project = projects.all.filter((proj) => proj.id === parseInt(match.params.projectId))[0];
     actions.setSelectedProject(project);
     actions.getUsersLit(match.params.projectId);
+    const decodedBranch = decodeURIComponent(branch);
 
     this.state = {
       selectedProject: project,
-      branch,
+      branch: decodedBranch,
       showLoadingModal: false,
       contributors: [],
       lastCommit: {},
       users,
     };
-    commitsApi.getCommits(project.id, branch, 1)
+    commitsApi.getCommits(project.id, decodedBranch, 1)
       .then(
         (res) => this.setState({ lastCommit: res[0] }),
       );

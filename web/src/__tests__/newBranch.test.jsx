@@ -21,7 +21,8 @@ const setup = () => {
   const wrapper = shallow(
     <NewBranch store={store} />,
   );
-  return wrapper.dive().dive();
+  const afterDive = wrapper.dive().dive();
+  return afterDive;
 };
 
 describe('test the frontend features', () => {
@@ -29,12 +30,11 @@ describe('test the frontend features', () => {
   beforeEach(() => {
     wrapper = setup();
   });
-  test('assert that component contains buttons', () => {
-    expect(wrapper.find('button').length).toBe(1);
+  test('assert that there exists a select', () => {
+    expect(wrapper.find('GenerateSelect')).toHaveLength(1);
   });
-  test('assert that select branches has the right number of children', () => {
-    wrapper.instance().setState({ showBranches: true });
-    expect(wrapper.find('li').length).toBe(4);
+  test('assert that there an input to enter branch name', () => {
+    expect(wrapper.find('#new-branch-name')).toHaveLength(1);
   });
 });
 describe('test functionality', () => {
