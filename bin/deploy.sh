@@ -65,24 +65,8 @@ if [ "$AWS_SECRET_ACCESS_KEY" = "" ]; then
 fi
 export DISPATCHER_DESCRIPTION="Packaged Dispatcher on $CI_COMMIT_REF_SLUG-$INSTANCE"
 
-docker-compose up -d
-
-# wait for startup and installation of gitlab (gitlab shows an HTTP 502 while it is booting)
-sleep 300
 
 echo "Registering packaged runner to local Gitlab instance" >> $LOG
-rm -rf "$TOML"
-
-docker exec -i gitlab-runner-dispatcher gitlab-ci-multi-runner register  \
-  --non-interactive                             \
-  --url "http://gitlab:80"                      \
-  --registration-token "xCsBLo7kBpwxp1wMv4JR"   \
-  --executor "docker+machine"                   \
-  --docker-image alpine:latest                  \
-  --description "$DISPATCHER_DESCRIPTION"       \
-  --tag-list "docker,aws"                       \
-  --run-untagged=true                           \
-  --locked="false"                              >> $LOG
 
 LINE=$(sudo cat $TOML | grep token)
 echo "The registration token is: $LINE"         >> $LOG
@@ -125,8 +109,10 @@ $LINE
       "amazonec2-instance-type=$AIOPS_RUNNER_EC2_INSTANCE_TYPE",
       "amazonec2-ami=ami-050a22b7e0cf85dd0",
     ]
-    IdleTime = 60
+    IdleTime = 5
+    OffPeakTimezone = ""
+    OffPeakIdleCount = 0
 
 EOF
 
-echo "Registration performed without errors" >> $LOG
+docker-compose up -d

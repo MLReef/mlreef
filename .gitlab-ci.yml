@@ -1,4 +1,5 @@
-image: alpine:latest
+# This file contains the build and deployment configuration of MLReef.
+image: alpine:latest                                       # default image for ci jobs
 
 stages:
   - prepare
@@ -16,7 +17,6 @@ variables:
   IMAGE_PATH: "$DOCKER_REGISTRY/$DOCKER_ORGANISATION/$IMAGE_NAME:$CI_COMMIT_REF_SLUG"
   DOCKER_REGISTRY_REPOSITORY_ID: "717423"                  # https://gitlab.com/api/v4/projects/12894267/registry/repositories/
   EC2_INSTANCE_NAME: mlreef-$CI_COMMIT_REF_SLUG            # environment name and url are set separately
-  EC2_PROVISION_SCRIPT: "./bin/provision.sh"
   STARTUP_SCRIPT: "bin/startup.sh"
   BACKUP_SCRIPT:  "bin/backup.sh"
   RESTORE_SCRIPT: "bin/restore.sh"
@@ -26,6 +26,7 @@ variables:
   DATA_ARCHIVE:   "mlreef-data-develop.zip"
 
 
+# The provision job boots up the new ec2 instance for deploying MLReef
 provision-ec2:
   stage: prepare
   image: registry.gitlab.com/systemkern/s5:latest-aws
@@ -41,12 +42,25 @@ provision-ec2:
     - sed -i "s~AWS_SECRET_ACCESS_KEY=XXXXX~AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY~"     $STARTUP_SCRIPT
     - cat $STARTUP_SCRIPT
   script:
-    - INSTANCE=$($EC2_PROVISION_SCRIPT $EC2_INSTANCE_NAME $STARTUP_SCRIPT)
-    - echo "$INSTANCE"
-    - echo "$INSTANCE" | tr -d '\r' > $INSTANCE_INFO       # pass instance url to deploy stage
+     # aws ec2 run instances documentation
+     # https://docs.aws.amazon.com/cli/latest/reference/ec2/run-instances.html
+    - aws ec2 run-instances --count 1
+      --region ${AWS_DEFAULT_REGION}
+      --image-id ${EC2_IMAGE_AMI}
+      --instance-type ${EC2_MACHINE_SIZE}
+      --security-groups ${EC2_SECURITY_GRP}
+      --key-name development_deployment
+      --user-data file://"${STARTUP_SCRIPT}"
+      --block-device-mappings file://bin/block-device-mappings.json
+      --tag-specifications "ResourceType=instance,Tags=[{Key=Name,Value=$EC2_INSTANCE_NAME}]"
+      --credit-specification CpuCredits=standard
+      | jq -r ".Instances[].InstanceId"
+      | xargs --no-run-if-empty -I {} aws ec2 describe-instances --filters "Name=instance-id,Values={}"
+      | jq -r ".Reservations[].Instances[].NetworkInterfaces[].Association.PublicDnsName"
+      | tr -d '\r' > $INSTANCE_INFO                        # pass instance url to deploy stage
   after_script:
-    - cat $INSTANCE_INFO
-  #TODO    - if [ $INSTANCE == "null" ]; then exit 1;  fi         # error on invalid INSTANCE_INFO
+    - cat $INSTANCE_INFO                                   # debug output
+    - if [ -n $INSTANCE ]; then exit 1;  fi                # error on invalid INSTANCE_INFO
   artifacts:
     paths:
       - "$INSTANCE_INFO"                                   # pass the file which contains our instance URL
@@ -173,8 +187,7 @@ decomission:
     - aws ec2 describe-instances
       --filters "Name=tag:Name,Values=$EC2_INSTANCE_NAME"
       | jq -r ".Reservations[].Instances[].InstanceId"
-      | xargs --no-run-if-empty aws ec2 terminate-instances
-      --instance-id
+      | xargs --no-run-if-empty aws ec2 terminate-instances --instance-id
     - echo "Delete URL is https://gitlab.com/api/v4/projects/$CI_PROJECT_ID/registry/repositories/$DOCKER_REGISTRY_REPOSITORY_ID/tags/$CI_COMMIT_REF_SLUG"
     - curl --request DELETE --header "$WORKAROUND $GITLAB_API_TOKEN" --fail
       https://gitlab.com/api/v4/projects/$CI_PROJECT_ID/registry/repositories/$DOCKER_REGISTRY_REPOSITORY_ID/tags/$CI_COMMIT_REF_SLUG
@@ -200,6 +213,9 @@ backup-data:
     - sed -i "s~AWS_SECRET_ACCESS_KEY=XXXXX~AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY~"      $BACKUP_SCRIPT
   script:
     - $BACKUP_SCRIPT --instance $URL --bucket $S3_DATA_BUCKET --file mlreef-data-$CI_COMMIT_REF_SLUG.zip
+  except:
+    refs:
+      - develop
 
 restore-from-develop:
   image: registry.gitlab.com/systemkern/s5:latest-aws
@@ -214,6 +230,9 @@ restore-from-develop:
     - sed -i "s~AWS_SECRET_ACCESS_KEY=XXXXX~AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY~"      $RESTORE_SCRIPT
   script:
     - $RESTORE_SCRIPT $URL
+  except:
+    refs:
+      - master
 
 restore-from-branch-backup:
   extends: restore-from-develop
