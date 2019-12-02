@@ -1,13 +1,22 @@
 @startuml
 
 interface Subject {
-    id: UUID? = null
+    An abstract entity describing "someone" who can own things
+    ==
+    id: UUID
     slug: String = ""
     name: String = ""
     email: String ....
 }
-class Person
-class Group
+class Person {
+    A real person, which acts as an User
+    ==
+}
+class Group {
+    A team, organisation or group of users.
+    Is a Subject and may own Projects and other things.
+    ==
+}
 enum VisibilityScope {
     PRIVATE,
     PUBLIC,
@@ -20,6 +29,9 @@ Person - Group: via [Membership]
 MLProject - Subject : < owns
 
 interface Searchable {
+    Future! Defines an Entity which can be found in the marketplace
+    with certain fields or text search
+    ==
     name: String
     description: String
     author: Subject
@@ -29,15 +41,23 @@ interface Searchable {
 Searchable - Tag
 
 interface MLProject {
-    UUID: String
+    Describes a MLReef project linked to (gitlab) project.
+    Certain properties (size, type) can describe this ML project.
+    ==
+    id: UUID
     slug: String
     url: String
 }
 
 class DataProject {
+    Contains Data and lots of Experiments
+    ==
     dataTypes: List<DataType>
 }
-class CodeProject
+class CodeProject {
+    Hosts DataProcessors and ML runnable code.
+    ==
+}
 Searchable <|-- MLProject
 Searchable <|-- DataProcessor
 Searchable <|-- ProcessorParameter
@@ -54,13 +74,23 @@ enum ExperimentStatus {
 }
 
 class Experiment {
+    Describes an Instance of a pipeline with several preProcessing Operations,
+    one processing Model, and optional several Visualizations.
+
+    Holds saved Instances of its configuration and is therefore repeatable
+    ==
     createdAt: Timestamp
     startedAt: Timestamp
     finishedAt: Timestamp
     status: ExperimentStatus
     output: OutputFiles..
+    commitStart:String
+    commitFinished:String
 }
 class PerformanceMetrics {
+    Saves information how the Model performs.
+    Will be visualised in MLReef Frontend.
+    ==
     jsonBlob: String
     epochs: Int
 }
@@ -68,15 +98,33 @@ Experiment *- PerformanceMetrics
 DataProject o-- "many" Experiment : "has"
 
 interface DataProcessor {
-    val id: UUID? = null
-    val slug: String = ""
-    val inputDataType: DataType? = null
+    They live in a CodeProject and exist in several versions,
+    for example in git branches or git tags
+    ==
+    +id: UUID
+    +version:String
+    +slug: String = ""
+    +inputDataType: DataType? = null
 }
 class Operation {
-   resultDataType: DataType? = null
+    They can be chained, have input and output data and
+    will be executed in the preProcessing pipeline during the Experiment
+    ==
+    resultDataType: DataType? = null
 }
 class Visualization {
-   resultFiles: List<File> = listOf()
+     Has input data for calculating/displaying insights on data.
+     Chaining is not useful, data will be treated as readonly
+     ==
+     resultFiles: List<File> = listOf()
+}
+
+class Model {
+    Exactly one Model is used in processing during Experiment.
+    This is executed after the preProcessing pipeline of chainable Operations.
+    A model or classifier is the result.
+    ==
+    resultFiles: List<File> = listOf()
 }
 DataProcessor  <|-- Operation
 DataProcessor  <|-- Visualization
@@ -86,9 +134,14 @@ DataProcessor  *-- "many " ProcessorParameter : uses many parameters
 CodeProject  -- DataProcessor : "lives in" <
 DataProcessor  - DataProcessorInstance : "execution with config"
 class DataProcessorInstance {
+    An (instance of an) Experiment will have an Instance of DataProcessor.
+    The actual configuration and parameters are coupled to this one-time instance.
+    ==
     parent: DataProcessorInstance
 }
 class ParameterInstance {
+    An Instance of an abstract ProcessorParameter with actual Value
+    ==
     parameter:ProcessorParameter
     value: Object // depends on ParameterType
 }
@@ -99,6 +152,8 @@ Experiment *-- "one" DataProcessorInstance : algorithm
 DataProcessorInstance *- "many" ParameterInstance
 
 class ProcessorParameter {
+    Describes the structure of a Parameter for a DataProcessor
+    ==
     name: String = ""
     type: ParameterType? = null
     description: String = ""
