@@ -72,7 +72,7 @@ provision-ec2:
 
 prepare-npm:
   stage: prepare
-  image: node:latest
+  image: node:13.2.0-alpine                                # https://hub.docker.com/_/node/
   cache:
     key: mlreef-npm-cache
     paths:
@@ -98,7 +98,7 @@ prepare-npm:
 
 
 build-frontend:
-  image: docker:latest
+  image: docker:19.03.5                                    # https://hub.docker.com/_/docker/
   stage: build
   services:
     - docker:dind
