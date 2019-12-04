@@ -11,7 +11,7 @@ PORT=10080
 
 export TOML="/data/gitlab-runner-config/config.toml"
 export DISPATCHER_DESCRIPTION="Packaged Dispatcher on $CI_COMMIT_REF_SLUG-$INSTANCE"
-export AIOPS_RUNNER_EC2_INSTANCE_TYPE="t3a.small"
+export AIOPS_RUNNER_EC2_INSTANCE_TYPE="p2.xlarge"
 export AIOPS_RUNNER_EC2_INSTANCE_LIMIT=2
 # number of instances is limited by aws
 # https://eu-central-1.console.aws.amazon.com/ec2/v2/home?region=eu-central-1#Limits:
@@ -72,8 +72,39 @@ LINE=$(sudo cat $TOML | grep token)
 echo "The registration token is: $LINE"         >> $LOG
 rm -rf $TOML                                    >> $LOG
 
+
+# Update the Runner configuration on the new instance.
+# https://docs.gitlab.com/runner/configuration/advanced-configuration.html#volumes-in-the-runnersdocker-section
 # tee copies data from standard input to each FILE, and also to standard output.
 echo | sudo tee $TOML <<EOF
+concurrent = 12
+check_interval = 0
+
+[[runners]]
+  name = "${DISPATCHER_DESCRIPTION}"
+  limit = $AIOPS_RUNNER_EC2_INSTANCE_LIMIT
+  url = "http://$INSTANCE:$PORT/"
+$LINE
+  executor = "docker"
+  [runners.docker]
+    runtime="nvidia"
+    image = "alpine:latest"
+    tls_verify = false
+    privileged = true
+    disable_cache = false
+    volumes = ["/cache"]
+    shm_size = 0
+  [runners.cache]
+    ServerAddress = "s3.amazonaws.com"
+    AccessKey = "$AWS_ACCESS_KEY_ID"
+    SecretKey = "$AWS_SECRET_ACCESS_KEY"
+    BucketName = "mlreef-runner-cache"
+    BucketLocation = "eu-central-1"
+
+EOF
+
+# Just a copy of the multi runner configuration to be able to play with it
+echo | sudo tee "$TOML.multi-runner" <<EOF
 concurrent = 12
 check_interval = 0
 
