@@ -35,6 +35,8 @@ provision-ec2:
     EC2_IMAGE_AMI:     "ami-050a22b7e0cf85dd0"             # ubuntu 16.04 LTS
     EC2_SECURITY_GRP:  "application_servers"
   before_script:
+    # if on develop, deploy a larger instance
+    - if [ $CI_COMMIT_REF_SLUG == "develop" ]; then EC2_MACHINE_SIZE="p2.xlarge"; fi
     - chmod 400 development_deployment.pem                 # prepare private key file
     - bin/decomission.sh $EC2_INSTANCE_NAME                # first shutdown all current instances
     - sed -i "s~master/bin~$CI_COMMIT_REF_NAME/bin~"       $STARTUP_SCRIPT
@@ -44,6 +46,7 @@ provision-ec2:
   script:
      # aws ec2 run instances documentation
      # https://docs.aws.amazon.com/cli/latest/reference/ec2/run-instances.html
+#      --credit-specification CpuCredits=standard
     - aws ec2 run-instances --count 1
       --region ${AWS_DEFAULT_REGION}
       --image-id ${EC2_IMAGE_AMI}
@@ -53,7 +56,6 @@ provision-ec2:
       --user-data file://"${STARTUP_SCRIPT}"
       --block-device-mappings file://bin/block-device-mappings.json
       --tag-specifications "ResourceType=instance,Tags=[{Key=Name,Value=$EC2_INSTANCE_NAME}]"
-      --credit-specification CpuCredits=standard
       | jq -r ".Instances[].InstanceId"
       | xargs --no-run-if-empty -I {} aws ec2 describe-instances --filters "Name=instance-id,Values={}"
       | jq -r ".Reservations[].Instances[].NetworkInterfaces[].Association.PublicDnsName"
