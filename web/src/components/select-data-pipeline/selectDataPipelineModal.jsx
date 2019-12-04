@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
+import PropTypes, { shape, number } from 'prop-types';
 import Checkbox from '@material-ui/core/Checkbox';
 import '../../css/genericModal.css';
 import './selectDataPipelineModal.css';
@@ -13,12 +13,19 @@ import filesApi from '../../apis/FilesApi';
 class SelectDataPipelineModal extends Component {
   constructor(props) {
     super(props);
+    const {
+      show,
+      project,
+      filesSelectedInModal,
+      branches,
+    } = this.props;
+
     this.state = {
-      show: this.props.show,
-      project: this.props.project,
+      show,
+      project,
       files: [],
-      filesSelected: [],
-      branches: this.props.branches,
+      filesSelected: filesSelectedInModal,
+      branches,
       branchSelected: null,
     };
     this.getFiles('master');
@@ -27,6 +34,7 @@ class SelectDataPipelineModal extends Component {
 
     static getDerivedStateFromProps = (nextProps) => ({
       show: nextProps.show,
+      filesSelected: nextProps.filesSelectedInModal,
     })
 
     handleCloseButton() {
@@ -40,10 +48,9 @@ class SelectDataPipelineModal extends Component {
     }
 
     selectFileFromGrid = (e) => {
-      const { filesSelected } = this.state;
-      const fileSelected = this.state.files[e.target.id.split('-')[2]];
-      const stringifiedFile = JSON.stringify(fileSelected);
-      if (filesSelected.filter((file) => JSON.stringify(file) === stringifiedFile).length === 0) {
+      const { filesSelected, files } = this.state;
+      const fileSelected = files[e.target.id.split('-')[2]];
+      if (filesSelected.filter((file) => file.path === fileSelected.path).length === 0) {
         filesSelected.push(fileSelected);
       } else {
         filesSelected.splice(filesSelected.indexOf(fileSelected), 1);
@@ -75,17 +82,16 @@ class SelectDataPipelineModal extends Component {
 
     render() {
       const {
+        filesSelected,
         show,
-        branches,
         branchSelected,
         isOpen,
-        filesSelected,
+        branches,
         files,
       } = this.state;
       if (!show) {
         return null;
       }
-      console.log(filesSelected);
       document.getElementsByTagName('body').item(0).style.overflow = 'hidden';
       return (
         <div className="generic-modal">
@@ -136,7 +142,6 @@ class SelectDataPipelineModal extends Component {
                     <hr />
                     <div className="search-branch">
                       <input
-                        autoFocus
                         type="text"
                         placeholder="Search branches or tags"
                       />
@@ -144,7 +149,7 @@ class SelectDataPipelineModal extends Component {
                         <ul>
                           <li className="branch-header">Branches</li>
                           {branches.filter((branch) => !branch.name.startsWith('data-pipeline')
-                              && !branch.name.startsWith('experiment'))
+                            && !branch.name.startsWith('experiment'))
                             .map((branch, index) => (
                               <li
                                 key={index}
@@ -168,7 +173,7 @@ class SelectDataPipelineModal extends Component {
                   type="button"
                   className="light-green-button"
                   onClick={(e) => {
-                    this.props.handleModalAccept(e, filesSelected, this.state.branchSelected);
+                    this.props.handleModalAccept(e, filesSelected, branchSelected);
                   }}
                 >
                   Accept
@@ -215,7 +220,9 @@ class SelectDataPipelineModal extends Component {
                       <td className="file-type" style={{ width: 'unset' }}>
                         <Checkbox
                           id={`span-file-${index}`}
-                          checked={filesSelected.includes(file)}
+                          checked={filesSelected.filter(
+                            (fileSelected) => fileSelected.path === file.path,
+                          ).length > 0}
                           onChange={(e) => { this.selectFileFromGrid(e); }}
                           color="primary"
                           inputProps={{
@@ -244,6 +251,13 @@ class SelectDataPipelineModal extends Component {
 
 SelectDataPipelineModal.propTypes = {
   show: PropTypes.bool,
+  project: shape({
+    id: number.isRequired,
+  }).isRequired,
+};
+
+SelectDataPipelineModal.defaultProps = {
+  show: false,
 };
 
 SelectDataPipelineModal.defaultProps = {

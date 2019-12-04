@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Component } from 'react';
 import $ from 'jquery';
 import { toastr } from 'react-redux-toastr';
 import arrayMove from 'array-move';
@@ -10,7 +10,7 @@ import { showErrorsInTheOperationsSelected } from '../functions/pipeLinesHelpers
 const withPipelineExecution = (
   WrappedComponent,
   operationsToExecute,
-) => class extends React.Component {
+) => class extends Component {
   constructor(props) {
     super(props);
     const { selectedProject, branches } = this.props;
@@ -31,6 +31,7 @@ const withPipelineExecution = (
     };
 
     this.handleCheckMarkClick = this.handleCheckMarkClick.bind(this);
+    this.setPreconfiguredOperations = this.setPreconfiguredOperations.bind(this);
     this.drop = this.drop.bind(this);
     this.allowDrop = this.allowDrop.bind(this);
     this.handleDragStart = this.handleDragStart.bind(this);
@@ -46,6 +47,46 @@ const withPipelineExecution = (
     const showFiltersButton = document.getElementById('show-filters-button');
     if (showFiltersButton) {
       showFiltersButton.style.width = '80%';
+    }
+  }
+
+  setPreconfiguredOperations(operationTemplates) {
+    let items;
+    const configuredOperations = sessionStorage.getItem('configuredOperations');
+    if (configuredOperations) {
+      const parsedConfiguredOps = JSON.parse(configuredOperations);
+      // The next operation is necessary to create a new object
+      // and be able to create a new conf file
+      const parsedOperationTemplates = JSON.parse(JSON.stringify(operationTemplates));
+      items = parsedConfiguredOps.map((confOp) => {
+        // filter the operation executed to get its template
+        const newOperationSelected = parsedOperationTemplates
+          .filter(
+            (dataPipe) => confOp.name === dataPipe.command,
+          )[0];
+        // get params entered by user to execute operation
+        let directory = confOp.params.filter((param) => param.name === 'images-path')[0].value;
+        directory = directory.substr(0, directory.length - 1);
+        this.setState({ filesSelectedInModal: [{ path: directory }] });
+        confOp.params.forEach((configuredParam) => {
+          const typesOfParams = Object.keys(newOperationSelected.params);
+          typesOfParams.forEach((type) => {
+            const paramArr = newOperationSelected.params[type]
+              .filter(
+                (sp) => sp.commandName === configuredParam.name,
+              );
+            if (paramArr.length > 0) {
+              const param = paramArr[0];
+              const paramIndex = newOperationSelected.params[type].indexOf(param);
+              param.value = configuredParam.value;
+              newOperationSelected.params[type][paramIndex] = param;
+            }
+          });
+        });
+        return newOperationSelected;
+      });
+      this.setState({ dataOperationsSelected: items });
+      sessionStorage.removeItem('configuredOperations');
     }
   }
 
@@ -169,17 +210,27 @@ const withPipelineExecution = (
   };
 
   handleModalAccept = (e, filesSelected, branchSelected) => {
+    const { showSelectFilesModal } = this.state;
     this.setState({
       branchSelected,
       filesSelectedInModal: filesSelected,
-      showSelectFilesModal: !this.state.showSelectFilesModal,
+      showSelectFilesModal: !showSelectFilesModal,
     });
-    document.getElementById('text-after-files-selected').style.display = 'flex';
-    document.getElementById('upload-files-options').style.display = 'none';
     document.getElementsByTagName('body').item(0).style.overflow = 'scroll';
   };
 
   handleExecuteBtn = () => this.toggleExecutePipeLineModal();
+
+  // eslint-disable-next-line class-methods-use-this
+  replaceParam(newOperationSelected, templateParam, paramConfigured, typeOfParam) {
+    if (templateParam && templateParam.length > 0) {
+      const index = newOperationSelected.params[typeOfParam].indexOf(templateParam[0]);
+      templateParam[0].value = paramConfigured.value;
+      newOperationSelected.params[typeOfParam][index] = templateParam[0];
+    }
+
+    return newOperationSelected;
+  }
 
   handleCheckMarkClick(e) {
     const newState = this.state;
@@ -248,35 +299,49 @@ const withPipelineExecution = (
     }
   }
 
-  render = () => (
-    <WrappedComponent
-      project={this.state.project}
-      branches={this.state.branches}
-      branchSelected={this.state.branchSelected}
-      dataOperationsSelected={this.state.dataOperationsSelected}
-      filesSelectedInModal={this.state.filesSelectedInModal}
-      dataOperations={this.state.dataOperations}
-      showSelectFilesModal={this.state.showSelectFilesModal}
-      isShowingExecutePipelineModal={this.state.isShowingExecutePipelineModal}
-      inputValuesAndDataModels={this.state.inputValuesAndDataModels}
-      onSortEnd={this.onSortEnd}
-      handleCheckMarkClick={this.handleCheckMarkClick}
-      drop={this.drop}
-      createDivToContainOperationSelected={this.createDivToContainOperationSelected}
-      copyDataOperationEvent={this.copyDataOperationEvent}
-      deleteDataOperationEvent={this.deleteDataOperationEvent}
-      allowDrop={this.allowDrop}
-      hideInstruction={this.hideInstruction}
-      showFilters={this.showFilters}
-      handleDragStart={this.handleDragStart}
-      selectDataClick={this.selectDataClick}
-      whenDataCardArrowButtonIsPressed={this.whenDataCardArrowButtonIsPressed}
-      showAdvancedOptionsDivDataPipeline={this.showAdvancedOptionsDivDataPipeline}
-      handleModalAccept={this.handleModalAccept}
-      handleExecuteBtn={this.handleExecuteBtn}
-      toggleExecutePipeLineModal={this.toggleExecutePipeLineModal}
-    />
-  )
+  render = () => {
+    const {
+      project,
+      branches,
+      branchSelected,
+      dataOperationsSelected,
+      filesSelectedInModal,
+      dataOperations,
+      showSelectFilesModal,
+      isShowingExecutePipelineModal,
+      inputValuesAndDataModels,
+    } = this.state;
+    return (
+      <WrappedComponent
+        project={project}
+        branches={branches}
+        branchSelected={branchSelected}
+        dataOperationsSelected={dataOperationsSelected}
+        filesSelectedInModal={filesSelectedInModal}
+        dataOperations={dataOperations}
+        showSelectFilesModal={showSelectFilesModal}
+        isShowingExecutePipelineModal={isShowingExecutePipelineModal}
+        inputValuesAndDataModels={inputValuesAndDataModels}
+        onSortEnd={this.onSortEnd}
+        handleCheckMarkClick={this.handleCheckMarkClick}
+        drop={this.drop}
+        createDivToContainOperationSelected={this.createDivToContainOperationSelected}
+        copyDataOperationEvent={this.copyDataOperationEvent}
+        deleteDataOperationEvent={this.deleteDataOperationEvent}
+        allowDrop={this.allowDrop}
+        hideInstruction={this.hideInstruction}
+        showFilters={this.showFilters}
+        handleDragStart={this.handleDragStart}
+        selectDataClick={this.selectDataClick}
+        whenDataCardArrowButtonIsPressed={this.whenDataCardArrowButtonIsPressed}
+        showAdvancedOptionsDivDataPipeline={this.showAdvancedOptionsDivDataPipeline}
+        handleModalAccept={this.handleModalAccept}
+        handleExecuteBtn={this.handleExecuteBtn}
+        toggleExecutePipeLineModal={this.toggleExecutePipeLineModal}
+        setPreconfiguredOperations={this.setPreconfiguredOperations}
+      />
+    );
+  }
 };
 
 export default withPipelineExecution;

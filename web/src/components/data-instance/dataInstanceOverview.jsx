@@ -1,11 +1,12 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
+import { Base64 } from 'js-base64';
 import Navbar from '../navbar/navbar';
 import ProjectContainer from '../projectContainer';
 import './dataInstanceOverview.css';
 import arrowDownWhite01 from '../../images/arrow_down_white_01.svg';
 import Instruction from '../instruction/instruction';
-import { getTimeCreatedAgo } from '../../functions/dataParserHelpers';
+import { getTimeCreatedAgo, mlreefLinesToExtractConfiguration } from '../../functions/dataParserHelpers';
 import DataInstancesDeleteModal from '../data-instances-delete-and-abort-modal/dataInstancesDeleteNAbortModal';
 import pipelinesApi from '../../apis/PipelinesApi';
 import {
@@ -16,6 +17,7 @@ import {
   FAILED,
   PENDING,
 } from '../../dataTypes';
+import filesApi from '../../apis/FilesApi';
 
 const getStatusForDataInstance = (status) => {
   let mappedStatus = status;
@@ -44,13 +46,31 @@ const InstanceCard = ({ ...props }) => {
 
   function handleButtonsClick(e) {
     const branchName = encodeURIComponent(e.currentTarget.parentNode.parentNode.getAttribute('data-key'));
-    const pId = props.params.experiments[0].projId;
+    const pId = props.params.instances[0].projId;
     props.history.push(`/my-projects/${pId}/master/data-instances/${branchName}`);
   }
 
-  function handleEmptyClick(e) {
+  function goToPipelineView(e) {
+    const pId = props.params.instances[0].projId;
+    const branch = e.currentTarget.parentNode.parentNode.getAttribute('data-key');
+    filesApi
+      .getFileData(
+        pId,
+        '.mlreef.yml',
+        branch,
+      )
+      .then((fileData) => {
+        const dataParsedInLines = Base64.decode(fileData.content).split('\n');
+        const configuredOperation = mlreefLinesToExtractConfiguration(dataParsedInLines);
+        sessionStorage.setItem('configuredOperations', JSON.stringify(configuredOperation));
+        props.history.push(`/my-projects/${pId}/pipe-line`);
+      })
+      .catch(() => {
 
+      });
   }
+
+  function handleEmptyClick() { }
 
   function getButtonsDiv(experimentState) {
     let buttons;
@@ -78,9 +98,9 @@ const InstanceCard = ({ ...props }) => {
           type="button"
           key="experiment-button"
           className="non-active-black-border experiment-button"
-          onClick={(e) => handleEmptyClick(e)}
+          onClick={(e) => goToPipelineView(e)}
         >
-                    View Pipeline
+          View Pipeline
         </button>,
         <button
           type="button"
@@ -104,7 +124,7 @@ const InstanceCard = ({ ...props }) => {
   }
 
   return params.instances.length > 0 ? (
-    <div className="experiment-card">
+    <div className="data-instance-card">
       <div className="header">
         <div className="title-div">
           <p><b>{getStatusForDataInstance(params.currentState)}</b></p>
@@ -201,9 +221,9 @@ class DataInstanceOverview extends Component {
         {
           status: RUNNING,
           values:
-                        dataInstances
-                          .filter((dataIns) => dataIns.status === RUNNING
-                            || dataIns.status === PENDING),
+          dataInstances
+            .filter((dataIns) => dataIns.status === RUNNING
+              || dataIns.status === PENDING),
         },
         { status: SUCCESS, values: dataInstances.filter((dataIns) => dataIns.status === SUCCESS) },
         { status: CANCELED, values: dataInstances.filter((dataIns) => dataIns.status === CANCELED) },
@@ -255,9 +275,9 @@ class DataInstanceOverview extends Component {
           <Instruction
             titleText="Handling Data instances:"
             paragraph={
-                        `A data instance is a reslt of an executed data pipeline, thus being a pre-processed data set. You can use these data sets
-                        directly for training or to merge them into a data repository in order to permanently save the changes made.`
-                    }
+              `A data instance is the result of an executed data pipeline. You can use this dataset directly as your source of data for an experiment (or another data pipeline). You can also merge the data instance to your master - thus making it the new master data set.
+                directly for training or to merge them into a data repository in order to permanently save the changes made.`
+            }
           />
           <div className="main-content">
             <br />
@@ -364,32 +384,32 @@ function Dropdown() {
       >
         <span>
           <b style={{ margin: '0 10px 10px 0' }}>
-                            Save
+            Save
           </b>
         </span>
         <img className="dropdown-white" src={arrowDownWhite01} alt="" />
       </button>
       {state
-            && (
-            <div className="save-instance">
-              <div
-                style={{ marginLeft: '25%', fontSize: '14px' }}
-              >
-                <p>Save Data Instances</p>
-              </div>
-              <hr />
-              <div className="search-branch">
-                <div>
-                  <p><b>New branch</b></p>
-                  <p className="dull">Only new data is saved in new branch</p>
-                </div>
-                <div>
-                  <p><b>Create Pull Request</b></p>
-                  <p className="dull">New data and original data coexist in existing branch</p>
-                </div>
-              </div>
+        && (
+        <div className="save-instance">
+          <div
+            style={{ marginLeft: '25%', fontSize: '14px' }}
+          >
+            <p>Save Data Instances</p>
+          </div>
+          <hr />
+          <div className="search-branch">
+            <div>
+              <p><b>New branch</b></p>
+              <p className="dull">Only new data is saved in new branch</p>
             </div>
-            )}
+            <div>
+              <p><b>Create Pull Request</b></p>
+              <p className="dull">New data and original data coexist in existing branch</p>
+            </div>
+          </div>
+        </div>
+        )}
     </>
   );
 }
