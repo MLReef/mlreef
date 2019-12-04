@@ -1,13 +1,15 @@
 import React from 'react';
-import { connect } from "react-redux";
-import { shape, arrayOf, func } from 'prop-types';
+import { connect } from 'react-redux';
+import {
+  shape, arrayOf, func, bool,
+} from 'prop-types';
 import plus from '../../images/plus_01.svg';
 import '../pipeline-view/pipelineView.css';
 import Navbar from '../navbar/navbar';
 import Input from '../input/input';
 import ProjectContainer from '../projectContainer';
 import { dataVisualizations } from '../../dataTypes';
-import { SortableDataOperationsList } from '../pipeline-view/sortableDataOperationList';
+import SortableDataOperationsList from '../pipeline-view/sortableDataOperationList';
 import SelectDataPipelineModal from '../select-data-pipeline/selectDataPipelineModal';
 import { DataOperationsList } from '../pipeline-view/dataOperationsList';
 import Instruction from '../instruction/instruction';
@@ -79,6 +81,7 @@ const EmptyDataVisualization = ({ ...props }) => {
               </div>
             </div>
           </div>
+          {filesSelectedInModal.length === 0 && (
           <div id="upload-files-options" className="upload-file">
             <p className="instruction">
               Start by selecting your data file(s) you want to include
@@ -103,8 +106,9 @@ const EmptyDataVisualization = ({ ...props }) => {
               </div>
             </div>
           </div>
-
-          <div id="text-after-files-selected" className="upload-file" style={{ display: 'none' }}>
+          )}
+          {filesSelectedInModal.length > 0 && (
+          <div id="text-after-files-selected" className="upload-file" style={{ display: 'flex' }}>
             <div style={{ width: '50%' }}>
               <p style={{ margin: '6% 0% 6% 2%' }}>
                 <b>
@@ -128,6 +132,7 @@ const EmptyDataVisualization = ({ ...props }) => {
               </button>
             </div>
           </div>
+          )}
 
           <SortableDataOperationsList items={items} onSortEnd={onSortEnd} />
           <div id="drop-zone" onDrop={drop} onDragOver={allowDrop}>
@@ -231,7 +236,7 @@ EmptyDataVisualization.propTypes = {
   handleDragStart: func.isRequired,
   whenDataCardArrowButtonIsPressed: func.isRequired,
   checkBoxOwnDataOperations: func.isRequired,
-  checkBoxStarredDataOperations: func.isRequired,
+  checkBoxStarredDataOperations: bool.isRequired,
   handleCheckMarkClick: func.isRequired,
   allowDrop: func.isRequired,
   drop: func.isRequired,

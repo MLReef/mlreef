@@ -37,7 +37,7 @@ class FilesContainer extends Component {
       try {
         this.updateFilesArray();
       } catch (error) {
-        console.log(error);
+        return error;
       }
       this.setState({
         currentPath: urlPath,

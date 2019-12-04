@@ -78,7 +78,6 @@ class CommitDetails extends Component {
           nextImage,
           fileName: imageDiff.old_path.split('/').slice(-1)[0],
         });
-        console.log(imagesToRender);
         this.setState({ ...imagesToRender });
       });
   }

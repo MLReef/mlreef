@@ -7,6 +7,7 @@
     "@material-ui/core": "^4.7.0",
     "array-move": "^2.1.0",
     "babel-core": "^6.26.3",
+    "babel-polyfill": "^6.26.0",
     "babel-preset-env": "^1.7.0",
     "base64-arraybuffer": "^0.2.0",
     "browserslist": "^4.7.1",

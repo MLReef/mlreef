@@ -2,15 +2,15 @@ import React from 'react';
 import { SortableContainer, SortableElement } from 'react-sortable-hoc';
 import $ from 'jquery';
 import Input from '../input/input';
-import triangle_01 from '../../images/triangle-01.png';
+import triangle01 from '../../images/triangle-01.png';
 import ArrowButton from '../arrow-button/arrowButton';
-import advice_01 from '../../images/advice-01.png';
+import advice01 from '../../images/advice-01.png';
 import { BOOL, errorMessages } from '../../dataTypes';
 
 const SortableDataOperationItem = SortableElement(({ value }) => {
-  const index = value.index++;
-
-  function handleSelectClick(value, advancedParamIndex, newBoolValue) {
+  //value.index = value.index + 1;
+  const { index } = value;
+  function handleSelectClick(advancedParamIndex, newBoolValue) {
     $(`#advanced-drop-down-${value.index}-param-${advancedParamIndex}`).click();
     $(`#paragraph-op-${value.index}-value-${advancedParamIndex}`).text(newBoolValue ? 'Yes' : 'No');
     document
@@ -38,7 +38,7 @@ const SortableDataOperationItem = SortableElement(({ value }) => {
           <div id="title-content">
             <p className="bold-text">{value.title}</p>
             <p>
-Created by
+              Created by
               <span className="bold-text">{value.username}</span>
             </p>
           </div>
@@ -63,7 +63,7 @@ Created by
             <div>
               <ArrowButton
                 placeholder=""
-                imgPlaceHolder={triangle_01}
+                imgPlaceHolder={triangle01}
                 params={{ index: value.index }}
                 callback={() => {
                   const formDiv = document.getElementById(`data-operation-selected-form-${value.index}`);
@@ -75,19 +75,19 @@ Created by
         </div>
         <div id={`data-operation-selected-form-${value.index}`} className="data-operation-form" style={{ display: 'none' }}>
           <br />
-          {value.params.standard.map((param, index) => (
+          {value.params.standard.map((param, paramIndex) => (
             <>
               <div style={{ display: 'flex' }}>
                 <p style={{ width: '14em' }}>
                   {' '}
                   {param.name}
-:
+                  :
                   {' '}
                 </p>
-                <Input id={`param-${index}-item-data-operation-selected-form-${value.index}`} placeholder="" />
+                <Input id={`param-${paramIndex}-item-data-operation-selected-form-${value.index}`} placeholder="" value={param.value} />
               </div>
-              <div id={`error-div-for-param-${index}-item-data-operation-selected-form-${value.index}`} style={{ display: 'none' }}>
-                <img style={{ height: '15px' }} src={advice_01} alt="" />
+              <div id={`error-div-for-param-${paramIndex}-item-data-operation-selected-form-${value.index}`} style={{ display: 'none' }}>
+                <img style={{ height: '15px' }} src={advice01} alt="" />
                 <p style={{ margin: '0 0 0 5px' }}>{errorMessages[param.dataType]}</p>
               </div>
             </>
@@ -101,7 +101,7 @@ Created by
                   <p><b>Advanced</b></p>
                   <ArrowButton
                     placeholder=""
-                    imgPlaceHolder={triangle_01}
+                    imgPlaceHolder={triangle01}
                     params={{ index: value.index }}
                     callback={() => {
                       const formDiv = document.getElementById(`advanced-opts-div-${value.index}`);
@@ -120,19 +120,20 @@ Created by
                       <div style={{ display: 'flex' }}>
                         <p style={{ width: '14em' }}>
                           {advancedParam.name}
-:
+                          :
                           {' '}
                         </p>
                         <div>
                           <input
                             id={`ad-hidden-input-advanced-drop-down-${value.index}-param-${advancedParamIndex}`}
                             style={{ display: 'none' }}
-                            onChange={(e) => { }}
+                            onChange={() => { }}
+                            value={advancedParam.value}
                           />
                           <div style={{ display: 'flex' }}>
                             <ArrowButton
                               id={`advanced-drop-down-${value.index}-param-${advancedParamIndex}`}
-                              imgPlaceHolder={triangle_01}
+                              imgPlaceHolder={triangle01}
                               params={{ index: value.index }}
                               callback={() => {
                                 const el = document.getElementById(`options-for-bool-select-${advancedParamIndex}`);
@@ -142,7 +143,11 @@ Created by
                                   : 'none';
                               }}
                             />
-                            <p id={`paragraph-op-${value.index}-value-${advancedParamIndex}`}>Choose value</p>
+                            <p
+                              id={`paragraph-op-${value.index}-value-${advancedParamIndex}`}
+                            >
+                              {advancedParam.value === 'true' ? 'Yes' : 'No'}
+                            </p>
                           </div>
                           <div style={{ display: 'none' }} id={`options-for-bool-select-${advancedParamIndex}`}>
                             <ul style={{
@@ -159,7 +164,7 @@ Created by
                                 <button
                                   type="button"
                                   style={{ border: 'none', backgroundColor: 'transparent' }}
-                                  onClick={() => handleSelectClick(value, advancedParamIndex, true)}
+                                  onClick={() => handleSelectClick(advancedParamIndex, true)}
                                 >
                                   Yes
                                 </button>
@@ -169,7 +174,7 @@ Created by
                                   type="button"
                                   style={{ border: 'none', backgroundColor: 'transparent' }}
                                   onClick={
-                                    () => handleSelectClick(value, advancedParamIndex, false)
+                                    () => handleSelectClick(advancedParamIndex, false)
                                   }
                                 >
                                   No
@@ -186,19 +191,20 @@ Created by
                         <div style={{ display: 'flex' }}>
                           <p style={{ width: '14em' }}>
                             {advancedParam.name}
-:
+                            :
                             {' '}
                           </p>
                           <Input
                             id={`ad-param-${advancedParamIndex}-item-data-operation-form-${value.index}`}
                             placeholder={advancedParam.standardValue}
+                            value={advancedParam.value}
                           />
                         </div>
                         <div
                           id={`error-div-for-ad-param-${advancedParamIndex}-item-data-operation-form-${value.index}`}
                           style={{ display: 'none' }}
                         >
-                          <img style={{ height: '15px' }} src={advice_01} alt="" />
+                          <img style={{ height: '15px' }} src={advice01} alt="" />
                           <p style={{ margin: '0 0 0 5px' }}>{errorMessages[advancedParam.dataType]}</p>
                         </div>
                       </>
@@ -213,13 +219,15 @@ Created by
 });
 
 
-export const SortableDataOperationsList = SortableContainer(({ items }) => (
+const SortableDataOperationsList = SortableContainer(({ items }) => (
   <ul style={{ paddingLeft: '11px' }} id="data-operations-selected-container" key="data-operations-selected-container">
     {items.map((value, index) => {
-      value.index = index;
+      value.index = index + 1;
       return (
         <SortableDataOperationItem key={`item-${index}`} value={value} index={index} />
       );
     })}
   </ul>
 ));
+
+export default SortableDataOperationsList;

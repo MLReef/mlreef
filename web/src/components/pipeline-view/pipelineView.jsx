@@ -1,12 +1,15 @@
 import React from 'react';
 import { connect } from 'react-redux';
+import {
+  shape, arrayOf, func, string, bool, number,
+} from 'prop-types';
 import uuidv1 from 'uuid/v1';
 import plus from '../../images/plus_01.svg';
 import './pipelineView.css';
 import Navbar from '../navbar/navbar';
 import Input from '../input/input';
 import ProjectContainer from '../projectContainer';
-import { SortableDataOperationsList } from './sortableDataOperationList';
+import SortableDataOperationsList from './sortableDataOperationList';
 import SelectDataPipelineModal from '../select-data-pipeline/selectDataPipelineModal';
 import { DataOperationsList } from './dataOperationsList';
 import Instruction from '../instruction/instruction';
@@ -14,40 +17,57 @@ import ExecutePipelineModal from '../execute-pipeline-modal/executePipeLineModal
 import withPipelineExecution from '../withPipelinesExecution';
 import { dataPipeLines } from '../../dataTypes';
 
-const PipeLineView = ({ ...props }) => {
-  const { project } = props;
-  const { dataOperations } = props;
-  const { showSelectFilesModal } = props;
-  const items = props.dataOperationsSelected;
-  let operationsSelected = items.length;
-  operationsSelected++;
+const PipeLineView = ({
+  project,
+  dataOperations,
+  showSelectFilesModal,
+  dataOperationsSelected,
+  branches,
+  selectDataClick,
+  filesSelectedInModal,
+  handleModalAccept,
+  isShowingExecutePipelineModal,
+  toggleExecutePipeLineModal,
+  branchSelected,
+  handleExecuteBtn,
+  onSortEnd,
+  drop,
+  allowDrop,
+  showFilters,
+  handleCheckMarkClick,
+  handleDragStart,
+  whenDataCardArrowButtonIsPressed,
+  setPreconfiguredOperations,
+}) => {
+  const items = dataOperationsSelected;
+  setPreconfiguredOperations(dataPipeLines);
   const uuidCodeForBranch = (uuidv1()).split('-')[0];
   const branchName = `data-pipeline/${uuidCodeForBranch}`;
   const dataInstanceName = `data-instance/${uuidCodeForBranch}`;
   const jobName = 'data-pipeline';
+  const operationsSelected = items.length + 1;
   return (
     <div className="pipe-line-view">
       <SelectDataPipelineModal
-        project={props.project}
-        branches={props.branches}
-        files={props.files}
-        selectDataClick={props.selectDataClick}
+        project={project}
+        branches={branches}
+        selectDataClick={selectDataClick}
         show={showSelectFilesModal}
-        filesSelectedInModal={props.filesSelectedInModal}
-        handleModalAccept={props.handleModalAccept}
+        filesSelectedInModal={filesSelectedInModal}
+        handleModalAccept={handleModalAccept}
       />
       <ExecutePipelineModal
-        isShowing={props.isShowingExecutePipelineModal}
-        amountFilesSelected={props.filesSelectedInModal.length}
-        toggle={props.toggleExecutePipeLineModal}
-        dataOperationsSelected={props.dataOperationsSelected}
-        filesSelectedInModal={props.filesSelectedInModal}
+        isShowing={isShowingExecutePipelineModal}
+        amountFilesSelected={filesSelectedInModal.length}
+        toggle={toggleExecutePipeLineModal}
+        dataOperationsSelected={dataOperationsSelected}
+        filesSelectedInModal={filesSelectedInModal}
         http_url_to_repo={project.http_url_to_repo}
         projectId={project.id}
         branchName={branchName}
         dataInstanceName={dataInstanceName}
         jobName={jobName}
-        branchSelected={props.branchSelected}
+        branchSelected={branchSelected}
       />
       <Navbar />
       <ProjectContainer project={project} activeFeature="data" folders={['Group Name', project.name, 'Data', 'Pipeline']} />
@@ -68,42 +88,45 @@ const PipeLineView = ({ ...props }) => {
               <Input name="DataPipelineID" id="renaming-pipeline" placeholder="Rename data pipeline..." />
             </div>
             <div className="header-right-items flexible-div">
-              <div id="execute-button" className="header-button round-border-button right-item flexible-div" onClick={props.handleExecuteBtn}>
-                                Execute
+              <div id="execute-button" className="header-button round-border-button right-item flexible-div" onClick={handleExecuteBtn}>
+                Execute
               </div>
               <div className="header-button round-border-button right-item flexible-div">
-                                Save
+                Save
               </div>
               <div className="header-button round-border-button right-item flexible-div">
-                                Load
+                Load
               </div>
             </div>
           </div>
-          <div id="upload-files-options" className="upload-file">
-            <p className="instruction">
-                            Start by selecting your data file(s) you want to include
-              {' '}
-              <br />
-              {' '}
-in your data processing pipeline.
-            </p>
-            <p id="data">
-                            Data:
-            </p>
+          {filesSelectedInModal.length === 0 && (
+            <div id="upload-files-options" className="upload-file">
+              <p className="instruction">
+                Start by selecting your data file(s) you want to include
+                {' '}
+                <br />
+                {' '}
+                in your data processing pipeline.
+              </p>
+              <p id="data">
+                Data:
+              </p>
 
-            <div className="data-button-container flexible-div">
-              <div id="select-data-btn" onClick={props.selectDataClick}>
-                                Select data
+              <div className="data-button-container flexible-div">
+                <div id="select-data-btn" onClick={selectDataClick}>
+                  Select data
+                </div>
               </div>
             </div>
-          </div>
+          )}
 
-          <div id="text-after-files-selected" className="upload-file" style={{ display: 'none' }}>
+          {filesSelectedInModal.length > 0 && (
+          <div id="text-after-files-selected" className="upload-file" style={{ display: 'flex' }}>
             <div style={{ width: '50%' }}>
               <p style={{ margin: '6% 0% 6% 2%' }}>
                 <b>
                   Data:&nbsp;&nbsp;
-                  {props.filesSelectedInModal.length}
+                  {filesSelectedInModal.length}
                   {' '}
                   file(s) selected
                 </b>
@@ -113,12 +136,12 @@ in your data processing pipeline.
               width: '50%', display: 'flex', alignItems: 'center', justifyContent: 'right', marginRight: '2%',
             }}
             >
-              <button style={{ backgroundColor: 'white', border: 'none' }} onClick={() => { props.selectDataClick(); }}><b> select data </b></button>
+              <button style={{ backgroundColor: 'white', border: 'none' }} onClick={() => { selectDataClick(); }}><b> select data </b></button>
             </div>
           </div>
-
-          <SortableDataOperationsList items={items} onSortEnd={props.onSortEnd} />
-          <div id="drop-zone" onDrop={props.drop} onDragOver={props.allowDrop}>
+          )}
+          <SortableDataOperationsList items={items} onSortEnd={onSortEnd} />
+          <div id="drop-zone" onDrop={drop} onDragOver={allowDrop}>
             <p style={{ marginLeft: '10px', fontWeight: 600 }}>{`Op.${operationsSelected}:`}</p>
             <img src={plus} alt="" style={{ height: '80px', marginLeft: '60px' }} />
             <p style={{
@@ -141,7 +164,10 @@ in your data processing pipeline.
           <div className="content">
             <div className="filter-div flexible-div">
               <Input name="selectDataOp" id="selectDataOp" placeholder="Search a data operation" />
-              <div className="search button pipe-line-active flexible-div" onClick={(e) => props.showFilters(e)}>
+              <div
+                className="search button pipe-line-active flexible-div"
+                onClick={(e) => showFilters(e)}
+              >
                 <img id="show-filters-button" src={plus} alt="" />
               </div>
             </div>
@@ -157,21 +183,19 @@ in your data processing pipeline.
 
               <div className="checkbox-zone">
                 <label className="customized-checkbox">
-                                    Only own data operations
+                    Only own data operations
                   <input
                     type="checkbox"
-                    value={props.checkBoxOwnDataOperations}
-                    onChange={props.handleCheckMarkClick}
+                    onChange={handleCheckMarkClick}
                     id="checkBoxOwnDataOperations"
                   />
                   <span className="checkmark" />
                 </label>
                 <label className="customized-checkbox">
-                                    Only starred data operations
+                    Only starred data operations
                   <input
                     type="checkbox"
-                    value={props.checkBoxStarredDataOperations}
-                    onChange={props.handleCheckMarkClick}
+                    onChange={handleCheckMarkClick}
                     id="checkBoxStarredDataOperations"
                   />
                   <span className="checkmark" />
@@ -181,8 +205,8 @@ in your data processing pipeline.
             </div>
 
             <DataOperationsList
-              handleDragStart={props.handleDragStart}
-              whenDataCardArrowButtonIsPressed={props.whenDataCardArrowButtonIsPressed}
+              handleDragStart={handleDragStart}
+              whenDataCardArrowButtonIsPressed={whenDataCardArrowButtonIsPressed}
               dataOperations={dataOperations}
             />
           </div>
@@ -198,5 +222,39 @@ function mapStateToProps(state) {
     branches: state.branches,
   };
 }
+
+PipeLineView.propTypes = {
+  project: shape({
+    http_url_to_repo: string.isRequired,
+    id: number.isRequired,
+    name: string.isRequired,
+  }).isRequired,
+  branches: arrayOf(shape({
+  })).isRequired,
+  dataOperations: arrayOf(shape({})).isRequired,
+  branchSelected: string,
+  dataOperationsSelected: arrayOf(shape({})),
+  filesSelectedInModal: arrayOf(shape({})),
+  showSelectFilesModal: bool.isRequired,
+  selectDataClick: func.isRequired,
+  handleModalAccept: func.isRequired,
+  onSortEnd: func.isRequired,
+  showFilters: func.isRequired,
+  handleDragStart: func.isRequired,
+  whenDataCardArrowButtonIsPressed: func.isRequired,
+  handleCheckMarkClick: func.isRequired,
+  allowDrop: func.isRequired,
+  drop: func.isRequired,
+  isShowingExecutePipelineModal: bool.isRequired,
+  toggleExecutePipeLineModal: func.isRequired,
+  handleExecuteBtn: func.isRequired,
+  setPreconfiguredOperations: func.isRequired,
+};
+
+PipeLineView.defaultProps = {
+  branchSelected: '',
+  dataOperationsSelected: [],
+  filesSelectedInModal: [],
+};
 
 export default connect(mapStateToProps)(withPipelineExecution(PipeLineView, dataPipeLines));

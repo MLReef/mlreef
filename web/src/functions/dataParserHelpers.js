@@ -161,3 +161,42 @@ export function parseDataAndRefreshChart(rawJsonData) {
     averageParams,
   };
 }
+
+export function mlreefLinesToExtractConfiguration(linesOfContent) {
+  const operationsArray = [];
+  let operationName;
+  let rawParams;
+  let lineParams;
+  linesOfContent.forEach((line) => {
+    if (line.includes('python')) {
+      lineParams = [];
+      operationName = line.match(/[/][a-zA-z]+.py/g);
+      let parametersWithBooleanPat = line.match(/--[a-zA-z]+-+[a-zA-z]+\s+[a-zA-z]+\S/g);
+      // some parametters are so rare that sometimes match returns null which raises an exception
+      if (parametersWithBooleanPat === null) {
+        parametersWithBooleanPat = [];
+      }
+      lineParams = [
+        ...lineParams,
+        ...line.match(/--[a-zA-z]+\s+[0-9]{1,5}/g),
+        ...parametersWithBooleanPat,
+      ];
+      rawParams = lineParams
+        .filter((param) => param.name !== '')
+        .map((param) => param.substring(2, param.length))
+        .map((paramsAndValues) => {
+          const dividedParam = paramsAndValues.split(' ');
+          return {
+            name: dividedParam[0],
+            value: dividedParam[1],
+          };
+        });
+      const dataOperation = {
+        name: operationName[0].substring(1, operationName[0].length).split('.')[0],
+        params: rawParams,
+      };
+      operationsArray.push(dataOperation);
+    }
+  });
+  return operationsArray;
+}

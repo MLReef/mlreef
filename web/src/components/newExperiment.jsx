@@ -6,7 +6,7 @@ import './pipeline-view/pipelineView.css';
 import Navbar from './navbar/navbar';
 import Input from './input/input';
 import ProjectContainer from './projectContainer';
-import { SortableDataOperationsList } from './pipeline-view/sortableDataOperationList';
+import SortableDataOperationsList from './pipeline-view/sortableDataOperationList';
 import SelectDataPipelineModal from './select-data-pipeline/selectDataPipelineModal';
 import { DataOperationsList } from './pipeline-view/dataOperationsList';
 import Instruction from './instruction/instruction';
@@ -44,7 +44,6 @@ const NewExperiment = ({
   const branchName = `experiment/${uuidCodeForBranch}`;
   const dataInstanceName = `experiment/${uuidCodeForBranch}`;
   const jobName = 'model-experiment';
-  
   return (
     <div className="pipe-line-view">
       <SelectDataPipelineModal
@@ -87,9 +86,10 @@ const NewExperiment = ({
               </div>
               <Input name="DataPipelineID" id="renaming-pipeline" placeholder="EX_Project_1" />
             </div>
-            <div 
-              className="header-right-items flexible-div" 
-              onClick={handleExecuteBtn}>
+            <div
+              className="header-right-items flexible-div"
+              onClick={handleExecuteBtn}
+            >
               <div id="execute-button" className="header-button round-border-button right-item flexible-div">
                 Execute
               </div>
@@ -101,6 +101,7 @@ const NewExperiment = ({
               </div>
             </div>
           </div>
+          {filesSelectedInModal.length === 0 && (
           <div id="upload-files-options" className="upload-file">
             <p className="instruction">
               Start by selecting your data file(s) you want to include
@@ -114,15 +115,17 @@ const NewExperiment = ({
             </p>
 
             <div className="data-button-container flexible-div">
-              <div 
-                id="select-data-btn" 
+              <div
+                id="select-data-btn"
                 onClick={selectDataClick}
               >
                 Select data
               </div>
             </div>
           </div>
+          )}
 
+          {filesSelectedInModal.length > 0 && (
           <div id="text-after-files-selected" className="upload-file" style={{ display: 'none' }}>
             <div style={{ width: '50%' }}>
               <p style={{ margin: '6% 0% 6% 2%' }}>
@@ -149,6 +152,7 @@ const NewExperiment = ({
               </button>
             </div>
           </div>
+          )}
 
           <SortableDataOperationsList items={items} onSortEnd={onSortEnd} />
           <div id="drop-zone" onDrop={drop} onDragOver={allowDrop}>
@@ -158,9 +162,9 @@ const NewExperiment = ({
               margin: '0', padding: '0', width: '100%', textAlign: 'center',
             }}
             >
-                            Drag and drop an algorithm from the right into your
+              Drag and drop an algorithm from the right into your
               <br />
-experiment pipeline or
+              experiment pipeline or
               <b>create a new one</b>
             </p>
           </div>
@@ -190,7 +194,7 @@ experiment pipeline or
 
               <div className="checkbox-zone">
                 <label className="customized-checkbox">
-                                    Only own algorithms
+                  Only own algorithms
                   <input
                     type="checkbox"
                     value={checkBoxOwnDataOperations}
@@ -200,7 +204,7 @@ experiment pipeline or
                   <span className="checkmark" />
                 </label>
                 <label className="customized-checkbox">
-                                    Only starred algorithms
+                  Only starred algorithms
                   <input
                     type="checkbox"
                     value={checkBoxStarredDataOperations}

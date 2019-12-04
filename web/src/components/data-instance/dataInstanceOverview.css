@@ -36,57 +36,58 @@
 
 /* --------------  Experiment cards -------------- */
 
-.experiment-card {
+.data-instance-card {
     border: 2px solid #e5e5e5;
     border-radius: 0.3vw;
     margin-top: 1%;
     color: #1c2b40;
 }
 
-.experiment-card > .header{
+.data-instance-card > .header{
     display: flex;
     background-color:#e5e5e5;
     padding: 1% 2% 0.5% 2%;
 }
 
-.experiment-card > .header > .title-div {
+.data-instance-card > .header > .title-div {
     width: 50%;
 }
 
-.experiment-card > .header > .title-div > p {
+.data-instance-card > .header > .title-div > p {
     margin: unset;
 }
 
-.experiment-card > .header > .select-div {
+.data-instance-card > .header > .select-div {
     display: flex;
     align-content: flex-end;
     width: 50%;
     flex-direction: row-reverse;
 }
 
-.experiment-card > .header > .select-div > select {
+.data-instance-card > .header > .select-div > select {
     border: none;
     background-color: transparent;
 }
 
 /* ------------- Card content ---------------*/
 
-.experiment-card > .card-content > .summary-data {
+.data-instance-card > .card-content > .summary-data {
     color: #1c2b40;
     display: flex;
     border-top: 2px solid #e5e5e5;
+    width: 100%;
 }
 
-.experiment-card .card-content .summary-data .dull {
+.data-instance-card .card-content .summary-data .dull {
     color: #949494
 }
-.experiment-card > .card-content > .summary-data > .project-desc-experiment {
+.data-instance-card > .card-content > .summary-data > .project-desc-experiment {
     padding: 0% 1% 0% 1%;
     margin-left: 1%;
     width: 20%;
 }
 
-.experiment-card > .card-content > .summary-data > .buttons-div {
+.data-instance-card > .card-content > .summary-data > .buttons-div {
     position: relative;
     width: 35%;
     display: flex;
@@ -95,12 +96,12 @@
     margin-top: 15px;
 }
 
-.experiment-card > .card-content > .summary-data > .buttons-div button {
+.data-instance-card > .card-content > .summary-data > .buttons-div button {
     cursor: pointer;
     border-radius: 0.3vw;
 }
 
-.experiment-card > .card-content > .summary-data > .buttons-div button.dangerous-red {
+.data-instance-card > .card-content > .summary-data > .buttons-div button.dangerous-red {
     border-radius: 0.3vw;
     border-width: 1.7px;
 }
