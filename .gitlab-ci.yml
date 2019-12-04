@@ -215,9 +215,7 @@ backup-data:
     - sed -i "s~AWS_SECRET_ACCESS_KEY=XXXXX~AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY~"      $BACKUP_SCRIPT
   script:
     - $BACKUP_SCRIPT --instance $URL --bucket $S3_DATA_BUCKET --file mlreef-data-$CI_COMMIT_REF_SLUG.zip
-  except:
-    refs:
-      - develop
+
 
 restore-from-develop:
   image: registry.gitlab.com/systemkern/s5:latest-aws
@@ -241,4 +239,6 @@ restore-from-branch-backup:
   script:
     - sed -i "s/INIT_ZIP=mlreef-data-develop.zip/INIT_ZIP=mlreef-data-$CI_COMMIT_REF_SLUG.zip/" $RESTORE_SCRIPT
     - $RESTORE_SCRIPT $URL
-
+  except:
+    refs:
+      - develop
