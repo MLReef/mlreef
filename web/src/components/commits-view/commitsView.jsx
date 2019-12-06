@@ -23,8 +23,8 @@ class CommitsView extends Component {
   }
 
   componentDidMount() {
-    const { match: { params: { projectId } } } = this.props;
-    commitsApi.getCommits(projectId)
+    const { match: { params: { projectId, branch, pathParam } } } = this.props;
+    commitsApi.getCommits(projectId, branch, pathParam)
       .then((response) => this.setState({ commits: response }));
   }
 
@@ -100,11 +100,11 @@ class CommitsView extends Component {
                     <ul>
                       <li className="branch-header">Branches</li>
                       {branches && branches.filter((branchItem) => !branchItem.name.startsWith('data-pipeline/')
-                        && !branchItem.name.startsWith('experiment/')).map((branchItem) => {
-                        const encoded = encodeURIComponent(branchItem.name);
+                        && !branchItem.name.startsWith('experiment/')).map((item) => {
+                        const encoded = encodeURIComponent(item.name);
                         return (
                           <li key={encoded}>
-                            <Link id={branchItem.name} to={`/my-projects/${project.id}/${encoded}`} onClick={this.handleClick}><p>{branchItem.name}</p></Link>
+                            <Link id={item.name} to={`/my-projects/${project.id}/${encoded}/commits`} onClick={this.handleClick}><p>{item.name}</p></Link>
                           </li>
                         );
                       })}
@@ -221,6 +221,7 @@ CommitsView.propTypes = {
       projectId: string.isRequired,
       file: string.isRequired,
       branch: string.isRequired,
+      path: string,
     }),
   }),
   users: shape({

@@ -33,8 +33,8 @@ export default class CommitsApi {
     }
   }
 
-  static async getCommits(projectId, refName = 'master', perPage = 20) {
-    const url = `https://${domain}/api/v4/projects/${projectId}/repository/commits?per_page=${perPage}&ref_name=${refName}`;
+  static async getCommits(projectId, refName = 'master', path = '', perPage = 20) {
+    const url = `https://${domain}/api/v4/projects/${projectId}/repository/commits?per_page=${perPage}&ref_name=${refName}&path=${path}`;
     const response = await fetch(new Request(
       url, {
         method: 'GET',

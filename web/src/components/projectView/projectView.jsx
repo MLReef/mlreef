@@ -1,6 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
+import { string, shape, func } from 'prop-types';
 import ReadMeComponent from '../readMe/readMe';
 import ProjectContainer from '../projectContainer';
 import FilesContainer from '../filesContainer';
@@ -18,11 +19,17 @@ import * as usersActions from '../../actions/usersActions';
 class ProjectView extends React.Component {
   constructor(props) {
     super(props);
-    const { actions, match, projects, users } = this.props;
-    const project = projects.all.filter((proj) => proj.id === parseInt(match.params.projectId))[0];
-    const { branch } = match.params;
+    const {
+      actions,
+      match:
+      {
+        params:
+        { projectId, branch },
+      }, projects, users,
+    } = this.props;
+    const project = projects.all.filter((proj) => proj.id === parseInt(projectId, 10))[0];
     actions.setSelectedProject(project);
-    actions.getUsersLit(match.params.projectId);
+    actions.getUsersLit(projectId);
     const decodedBranch = decodeURIComponent(branch);
 
     this.state = {
@@ -33,7 +40,7 @@ class ProjectView extends React.Component {
       lastCommit: {},
       users,
     };
-    commitsApi.getCommits(project.id, decodedBranch, 1)
+    commitsApi.getCommits(project.id, branch, '', 1)
       .then(
         (res) => this.setState({ lastCommit: res[0] }),
       );
@@ -62,7 +69,7 @@ class ProjectView extends React.Component {
   updateLastCommit() {
     const { selectedProject } = this.state;
     const { branch } = this.state;
-    commitsApi.getCommits(selectedProject.id, branch, 1)
+    commitsApi.getCommits(selectedProject.id, branch, '', 1)
       .then(
         (res) => this.setState({ lastCommit: res[0] }),
       );
@@ -82,8 +89,7 @@ class ProjectView extends React.Component {
     const encodedBranch = branch.includes('%2F')
       ? branch
       : encodeURIComponent(branch);
-    const { path } = this.props.match.params;
-    const { branches } = this.props;
+    const { match: { params: { path } }, branches } = this.props;
     const projectName = selectedProject.name;
     const showReadMe = !window.location.href.includes('path');
     const committer = users.filter((user) => user.name === lastCommit.author_name)[0];
@@ -136,6 +142,7 @@ class ProjectView extends React.Component {
           <RepoFeatures
             projectId={selectedProject.id}
             branch={encodedBranch}
+            path={path || ''}
             updateLastCommit={this.updateLastCommit}
           />
           <FilesContainer
@@ -156,6 +163,28 @@ class ProjectView extends React.Component {
     );
   }
 }
+
+ProjectView.propTypes = {
+  match: shape({
+    params: shape({
+      projectId: string.isRequired,
+      file: string.isRequired,
+      branch: string.isRequired,
+      path: string.isRequired,
+    }),
+  }).isRequired,
+  users: shape({
+    name: string.isRequired,
+  }).isRequired,
+  branches: shape.isRequired,
+  projects: shape({
+    all: shape.isRequired,
+  }).isRequired,
+  actions: shape({
+    setSelectedProject: func.isRequired,
+    getUsersLit: func.isRequired,
+  }).isRequired,
+};
 
 function mapStateToProps(state) {
   return {

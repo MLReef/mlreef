@@ -457,6 +457,10 @@ p.stat-no {
   padding-left: 8px;
 }
 
+.white-button > a {
+  text-decoration: none;
+}
+
 .white-button span{
   text-overflow: ellipsis;
   width: 5em;
