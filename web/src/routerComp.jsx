@@ -25,6 +25,7 @@ const RouterComp = () => (
       <Route path="/index.html" exact component={Login} />
       <Route path="/error-page" exact component={ErrorPage} />
       <PrivateRoute path="/my-projects" exact component={Projects} />
+      <PrivateRoute path="/my-projects/:projectId/:branch/commits/:pathParam?" exact component={Commits} />
       <PrivateRoute
         exact
         path="/my-projects/:projectId"
@@ -35,7 +36,6 @@ const RouterComp = () => (
         path="/my-projects/:projectId/new-branch"
         component={NewBranch}
       />
-      <PrivateRoute path="/my-projects/:projectId/:branch/commits" exact component={Commits} />
       <PrivateRoute exact path="/my-projects/:projectId/pipe-line" component={PipeLineView} />
       <PrivateRoute path="/my-projects/:projectId/visualizations" component={EmptyDataVisualization} />
       <PrivateRoute exact path="/my-projects/:projectId/:branch/data-instances" component={DataInstanceOverview} />

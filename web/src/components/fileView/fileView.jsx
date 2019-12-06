@@ -63,7 +63,9 @@ export class FileView extends React.Component {
 
   render() {
     const propsValidate = this.props;
+    const { match: { params: { file, branch } } } = this.props;
     const { users } = this.props;
+    const { projectId } = propsValidate.match.params;
     const {
       project,
       committer,
@@ -213,7 +215,9 @@ export class FileView extends React.Component {
             </div>
             <div className="wrapper">
               <div className="file-actions">
-                <button type="button" className="white-button">History</button>
+                <button type="button" className="white-button">
+                  <Link to={`/my-projects/${projectId}/${branch}/commits/${file}`}>History</Link>
+                </button>
                 <button type="button" className="white-button">Replace</button>
                 <button type="button" className="red-button">Delete</button>
               </div>
