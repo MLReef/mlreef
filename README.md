@@ -73,3 +73,36 @@ Currently, to deploy every branch to a separate ec2 instance the following steps
 
 After a branch is merged/deleted the Gitlab pipeline is used again to terminate the ec2 instance
 
+
+
+Infrastructure Deployment
+-------------------
+
+Infrastructure as Code as well as the MLReef deployment pipeline
+
+### Instance Maintainance
+To connect to a development instance you will need either the IP or hostname of the instance.
+This can be found in the [Environments Section](https://gitlab.com/mlreef/infrastructure/-/environments) on gitlab.com
+
+You will also need the most current `development.pem` which contains the private key to authenticate with the ec2 instance
+
+To login to the an instance located at `ec2-3-122-224-139.eu-central-1.compute.amazonaws.com` use the following command.
+
+```bash
+ssh -i "development.pem" ubuntu@ec2-3-122-224-139.eu-central-1.compute.amazonaws.com
+
+# to switch to the root user type:
+sudo bash
+```
+
+### Docker Maintenance
+To display all running containers
+```bash
+docker ps
+docker ps -all
+```
+
+To look at the container's logs
+```bash
+docker logs $CONTAINER_NAME
+```

@@ -2,7 +2,7 @@
 
 LOG="/root/startup.log"
 INIT_ZIP="mlreef-data-develop.zip"                         # see backup.sh
-S3_BUCKET_NAME="mlreef-data"                               # see backup.sh
+S3_BUCKET_NAME="mlreef-application-data"                               # see backup.sh
 
 touch $LOG
 chmod 777 $LOG

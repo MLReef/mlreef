@@ -7,38 +7,59 @@ stages:
   - deploy
   - maintenance
 
+
 # The deployment on aws depends on three main environment variables
 # AWS_ACCESS_KEY_ID       create at https://console.aws.amazon.com/iam/
 # AWS_SECRET_ACCESS_KEY   create at https://console.aws.amazon.com/iam/
 # AWS_DEFAULT_REGION      default:eu-central-1
+# GITLAB_API_TOKEN        for creating and deleting environments on gitlab.com
 variables:
-  BUILD_PATH: "web/build"
-  IMAGE_NAME: "frontend"                                   # docker image base name
-  IMAGE_PATH: "$DOCKER_REGISTRY/$DOCKER_ORGANISATION/$IMAGE_NAME:$CI_COMMIT_REF_SLUG"
+  FRONTEND_IMAGE_NAME: "frontend"                               # docker image base name
+  FRONTEND_BRANCH:     "$CI_COMMIT_REF_SLUG"
+  FRONTEND_IMAGE_PATH: "$DOCKER_REGISTRY/$DOCKER_ORGANISATION/$FRONTEND_IMAGE_NAME:$CI_COMMIT_REF_SLUG"
+  BACKEND_BRANCH:  "master"
   DOCKER_REGISTRY_REPOSITORY_ID: "717423"                  # https://gitlab.com/api/v4/projects/12894267/registry/repositories/
-  EC2_INSTANCE_NAME: mlreef-$CI_COMMIT_REF_SLUG            # environment name and url are set separately
+  EC2_INSTANCE_NAME: "mlreef-$CI_COMMIT_REF_SLUG"          # environment name and url are set separately
+  SSH_KEYFILE:    "development.pem"
   STARTUP_SCRIPT: "bin/startup.sh"
   BACKUP_SCRIPT:  "bin/backup.sh"
   RESTORE_SCRIPT: "bin/restore.sh"
-  DOCKER_COMPOSE: docker-compose.yml                       # file for transmitting VM information between stages
-  INSTANCE_INFO:  instance.info                            # file for transmitting VM information between stages
+  DOCKER_COMPOSE: "docker-compose.yml"                     # file for transmitting VM information between stages
+  INSTANCE_INFO:  "instance.info"                          # file for transmitting VM information between stages
   S3_DATA_BUCKET: "mlreef-data"
   DATA_ARCHIVE:   "mlreef-data-develop.zip"
 
 
+log output:
+  stage: prepare
+  image: alpine:latest
+  script:
+    - echo "CI_COMMIT_REF_SLUG  is $CI_COMMIT_REF_SLUG"
+    - echo "FRONTEND_BRANCH     is $FRONTEND_BRANCH"
+    - echo "BACKEND_BRANCH      is $BACKEND_BRANCH"
+    - echo "FRONTEND_IMAGE_PATH is $FRONTEND_IMAGE_PATH"
+
 # The provision job boots up the new ec2 instance for deploying MLReef
-provision-ec2:
+provision ec2:
   stage: prepare
   image: registry.gitlab.com/systemkern/s5:latest-aws
   variables:
     EC2_MACHINE_SIZE:  "t3a.medium"                        # https://aws.amazon.com/ec2/instance-types/
     EC2_IMAGE_AMI:     "ami-050a22b7e0cf85dd0"             # ubuntu 16.04 LTS
-    EC2_SECURITY_GRP:  "application_servers"
+    EC2_SECURITY_GRP:  "application-servers"
   before_script:
     # if on develop, deploy a larger instance
     - if [ $CI_COMMIT_REF_SLUG == "develop" ]; then EC2_MACHINE_SIZE="p2.xlarge"; fi
-    - chmod 400 development_deployment.pem                 # prepare private key file
-    - bin/decomission.sh $EC2_INSTANCE_NAME                # first shutdown all current instances
+    - chmod 400 $SSH_KEYFILE                 # prepare private key file
+
+    # decommission the current environment
+    # use the aws-cli to retrieve the description (json) for our machine
+    # parse the json with jq to get the instance id
+    # the xargs command submits the termination command to AWS
+    - aws ec2 describe-instances --filters "Name=tag:Name,Values=$EC2_INSTANCE_NAME"
+      | jq -r ".Reservations[].Instances[].InstanceId"
+      | xargs --no-run-if-empty aws ec2 terminate-instances --instance-id
+
     - sed -i "s~master/bin~$CI_COMMIT_REF_NAME/bin~"       $STARTUP_SCRIPT
     - sed -i "s~AWS_ACCESS_KEY_ID=XXXXX~AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID~"                 $STARTUP_SCRIPT
     - sed -i "s~AWS_SECRET_ACCESS_KEY=XXXXX~AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY~"     $STARTUP_SCRIPT
@@ -52,7 +73,7 @@ provision-ec2:
       --image-id ${EC2_IMAGE_AMI}
       --instance-type ${EC2_MACHINE_SIZE}
       --security-groups ${EC2_SECURITY_GRP}
-      --key-name development_deployment
+      --key-name development
       --user-data file://"${STARTUP_SCRIPT}"
       --block-device-mappings file://bin/block-device-mappings.json
       --tag-specifications "ResourceType=instance,Tags=[{Key=Name,Value=$EC2_INSTANCE_NAME}]"
@@ -69,10 +90,10 @@ provision-ec2:
   environment:
     name: $CI_COMMIT_REF_SLUG
     url: $CI_PIPELINE_URL                                  # temporary url will be corrected by the gitlab-env-conf job
-    on_stop: decomission                                   # clean up after branch merge
+    on_stop: decommission                                  # clean up after branch merge
 
 
-prepare-npm:
+prepare npm:
   stage: prepare
   image: node:13.2.0-alpine                                # https://hub.docker.com/_/node/
   cache:
@@ -99,7 +120,7 @@ prepare-npm:
       - node_modules_global
 
 
-build-frontend:
+build frontend:
   image: docker:19.03.5                                    # https://hub.docker.com/_/docker/
   stage: build
   services:
@@ -112,12 +133,12 @@ build-frontend:
   script:
     - cd web
     - echo "creating docker image ${IMAGE_NAME} for user ${DOCKER_USER}"
-    - docker build --pull --tag "$IMAGE_PATH" -f Dockerfile .
-    - docker push "${IMAGE_PATH}"
+    - docker build --pull --tag "$FRONTEND_IMAGE_PATH" -f Dockerfile .
+    - docker push "${FRONTEND_IMAGE_PATH}"
 
 
 # This job adds the actual frontend URL to the Environments GUI in gitlab.com
-gitlab-env-conf:
+deploy:
   image: registry.gitlab.com/systemkern/s5:latest
   stage: deploy
   variables:
@@ -126,11 +147,11 @@ gitlab-env-conf:
   before_script:
     - URL=$(cat $INSTANCE_INFO)
     - echo $URL                                            # debug output
-    - chmod 400 development_deployment.pem                 # prepare private key file
+    - chmod 400 $SSH_KEYFILE                               # prepare private key file
     - chmod +x bin/deploy.sh
     # rewrite docker dompose file
     # change the frontend docker image from master branch to current branch
-    - sed -i "s/$IMAGE_NAME:master/$IMAGE_NAME:$CI_COMMIT_REF_SLUG/"          $DOCKER_COMPOSE
+    - sed -i "s/$FRONTEND_IMAGE_NAME:master/$FRONTEND_IMAGE_NAME:$CI_COMMIT_REF_SLUG/"  $DOCKER_COMPOSE
     # change postgres-data local image to /data/postgres on host machine
     - sed -i "s~-\ postgresql-data~-\ /data/postgres~"                        $DOCKER_COMPOSE
     # change gitlab-data local image to /data/gitlab on host machine
@@ -144,22 +165,32 @@ gitlab-env-conf:
     - sed -i "s/\ \ gitlab-runner-config/#gitlab-runner-config/"              $DOCKER_COMPOSE
     - sed -i "s~GITLAB_HOST=localhost~GITLAB_HOST=$URL~"                      $DOCKER_COMPOSE
     - cat $DOCKER_COMPOSE
-    # upload modified compose to ec2 instance
   script:
     - ssh-keyscan -H "$URL" >>~/.ssh/known_hosts
-    - scp -i development_deployment.pem -o 'AddKeysToAgent yes' $DOCKER_COMPOSE ubuntu@${URL}:/home/ubuntu
-    - scp -i development_deployment.pem -o 'AddKeysToAgent yes' bin/deploy.sh ubuntu@${URL}:/home/ubuntu
+    # upload modified docker-compose to ec2 instance
+    - scp -i $SSH_KEYFILE -o 'AddKeysToAgent yes' $DOCKER_COMPOSE ubuntu@${URL}:/home/ubuntu
+    - scp -i $SSH_KEYFILE -o 'AddKeysToAgent yes' bin/deploy.sh ubuntu@${URL}:/home/ubuntu
     - echo "starting deploy.sh"
     - echo "----------------------------------------"
-    - ssh -i development_deployment.pem -o 'AddKeysToAgent yes' ubuntu@"${URL}" "
+    - ssh -i $SSH_KEYFILE -o 'AddKeysToAgent yes' ubuntu@"${URL}" "
       sudo ./deploy.sh
         --instance $URL
-        --file $IMAGE_PATH
+        --file $FRONTEND_IMAGE_PATH
         --port $GITLAB_PORT
         --key $AWS_ACCESS_KEY_ID
         --secret $AWS_SECRET_ACCESS_KEY
       "
-    - echo "========= ========== ========== =========="
+
+gitlab env config:
+  image: registry.gitlab.com/systemkern/s5:latest
+  stage: deploy
+  variables:
+    KEY: "Authorization:"                                  # workaround to preserver the yaml structure
+    GITLAB_PORT: 10080
+  before_script:
+    - URL=$(cat $INSTANCE_INFO)
+    - echo $URL                                            # debug output
+  script:
     # Get the ID of the gitlab environment we want to edit
     - ID=$(curl --fail
       --header "$KEY Bearer $GITLAB_API_TOKEN"
@@ -174,25 +205,31 @@ gitlab-env-conf:
       https://gitlab.com/api/v4/projects/$CI_PROJECT_ID/environments/$ID
 
 
-decomission:
+# The decommission job is configured by the provision's job `on_stop` command.
+# The execution of decommission is triggered by merging or deleting a branch.
+decommission:
   when: manual
   image: registry.gitlab.com/systemkern/s5:latest-aws
   stage: maintenance
   variables:
-    GIT_STRATEGY: none
-    # Workaround for Gitlab Bug https://gitlab.com/gitlab-org/gitlab-runner/issues/1809
-    WORKAROUND: "PRIVATE-TOKEN:" # workaround to not break the yaml structure
+    GIT_STRATEGY: "none"                                   # because branches are deleted on merge, we must not access the git repo
+    # workaround for YAML structure incompatibility https://gitlab.com/gitlab-org/gitlab-runner/issues/1809
+    WORKAROUND: "PRIVATE-TOKEN:"                           # workaround to not break the yaml structure
   script:
+    # decommission the current environment
     # use the aws-cli to retrieve the description (json) for our machine
     # parse the json with jq to get the instance id
-    # the xargs command at the end submits the termination command to AWS
-    - aws ec2 describe-instances
-      --filters "Name=tag:Name,Values=$EC2_INSTANCE_NAME"
+    # the xargs command submits the termination command to AWS
+    - aws ec2 describe-instances --filters "Name=tag:Name,Values=$EC2_INSTANCE_NAME"
       | jq -r ".Reservations[].Instances[].InstanceId"
       | xargs --no-run-if-empty aws ec2 terminate-instances --instance-id
-    - echo "Delete URL is https://gitlab.com/api/v4/projects/$CI_PROJECT_ID/registry/repositories/$DOCKER_REGISTRY_REPOSITORY_ID/tags/$CI_COMMIT_REF_SLUG"
+
+    # remove the branch's frontend docker container
+    - echo "Delete URL is https://gitlab.com/api/v4/projects/$CI_PROJECT_ID/registry/repositories/$DOCKER_REGISTRY_REPOSITORY_ID/tags/$CI_COMMIT_REF_SLUG/
     - curl --request DELETE --header "$WORKAROUND $GITLAB_API_TOKEN" --fail
       https://gitlab.com/api/v4/projects/$CI_PROJECT_ID/registry/repositories/$DOCKER_REGISTRY_REPOSITORY_ID/tags/$CI_COMMIT_REF_SLUG
+  after_script:
+    # remove the data backup from s3 (if it exists)
     - aws s3 rm "s3://mlreef-data/mlreef-data-$CI_COMMIT_REF_SLUG.zip"
   environment:
     name: $CI_COMMIT_REF_SLUG
@@ -202,14 +239,14 @@ decomission:
       - develop
       - master
 
-backup-data:
+backup branch:
   image: registry.gitlab.com/systemkern/s5:latest-aws
   stage: maintenance
   when: manual
   before_script:
     - URL=$(cat $INSTANCE_INFO)
     - echo $URL                                            # debug output
-    - chmod 400 development_deployment.pem                 # prepare private key file
+    - chmod 400 $SSH_KEYFILE                               # prepare private key file
     - chmod +x $BACKUP_SCRIPT
     - sed -i "s~AWS_ACCESS_KEY_ID=XXXXX~AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID~"                  $BACKUP_SCRIPT
     - sed -i "s~AWS_SECRET_ACCESS_KEY=XXXXX~AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY~"      $BACKUP_SCRIPT
@@ -217,14 +254,14 @@ backup-data:
     - $BACKUP_SCRIPT --instance $URL --bucket $S3_DATA_BUCKET --file mlreef-data-$CI_COMMIT_REF_SLUG.zip
 
 
-restore-from-develop:
+restore from develop:
   image: registry.gitlab.com/systemkern/s5:latest-aws
   stage: maintenance
   when: manual
   before_script:
     - URL=$(cat $INSTANCE_INFO)
     - echo $URL                                            # debug output
-    - chmod 400 development_deployment.pem                 # prepare private key file
+    - chmod 400 $SSH_KEYFILE                               # prepare private key file
     - chmod +x $BACKUP_SCRIPT
     - sed -i "s~AWS_ACCESS_KEY_ID=XXXXX~AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID~"                  $RESTORE_SCRIPT
     - sed -i "s~AWS_SECRET_ACCESS_KEY=XXXXX~AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY~"      $RESTORE_SCRIPT
@@ -234,8 +271,8 @@ restore-from-develop:
     refs:
       - master
 
-restore-from-branch-backup:
-  extends: restore-from-develop
+restore branch backup:
+  extends: restore from develop
   script:
     - sed -i "s/INIT_ZIP=mlreef-data-develop.zip/INIT_ZIP=mlreef-data-$CI_COMMIT_REF_SLUG.zip/" $RESTORE_SCRIPT
     - $RESTORE_SCRIPT $URL
