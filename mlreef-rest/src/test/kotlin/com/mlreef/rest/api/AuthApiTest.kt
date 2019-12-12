@@ -1,11 +1,10 @@
 package com.mlreef.rest.api
 
 import com.mlreef.rest.Account
-import com.mlreef.rest.AccountRepository
 import com.mlreef.rest.AccountToken
-import com.mlreef.rest.AccountTokenRepository
+import com.mlreef.rest.DataProjectRepository
+import com.mlreef.rest.ExperimentRepository
 import com.mlreef.rest.Person
-import com.mlreef.rest.PersonRepository
 import com.mlreef.rest.api.v1.dto.LoginRequest
 import com.mlreef.rest.api.v1.dto.RegisterRequest
 import com.mlreef.rest.api.v1.dto.UserDto
@@ -18,12 +17,11 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.MediaType
 import org.springframework.restdocs.RestDocumentationExtension
+import org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.post
 import org.springframework.restdocs.payload.FieldDescriptor
 import org.springframework.restdocs.payload.JsonFieldType
-import org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath
-import org.springframework.restdocs.payload.PayloadDocumentation.requestFields
-import org.springframework.restdocs.payload.PayloadDocumentation.responseFields
+import org.springframework.restdocs.payload.PayloadDocumentation.*
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.test.annotation.Rollback
@@ -33,27 +31,23 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import java.util.UUID.randomUUID
 import javax.transaction.Transactional
 
-@TestPropertySource(locations = ["classpath:secrets.properties"])
+@TestPropertySource("classpath:application.yml")
 @ExtendWith(value = [RestDocumentationExtension::class, SpringExtension::class])
 @SpringBootTest
 class AuthApiTest : RestApiTest() {
 
-    val AUTH = "/api/v1/auth"
+    val authUrl = "/api/v1/auth"
 
-    @Autowired
-    private lateinit var accountRepository: AccountRepository
-
-    @Autowired
-    private lateinit var accountTokenRepository: AccountTokenRepository
-
-    @Autowired
-    private lateinit var personRepository: PersonRepository
+    @Autowired private lateinit var experimentRepository: ExperimentRepository
+    @Autowired private lateinit var dataProjectRepository: DataProjectRepository
 
     private val passwordEncoder: PasswordEncoder = BCryptPasswordEncoder()
 
     @BeforeEach
     @AfterEach
     fun clearRepo() {
+        experimentRepository.deleteAll()
+        dataProjectRepository.deleteAll()
         accountTokenRepository.deleteAll()
         accountRepository.deleteAll()
         personRepository.deleteAll()
@@ -65,12 +59,12 @@ class AuthApiTest : RestApiTest() {
         val registerRequest = RegisterRequest("username", email, "a password", "name")
 
         val returnedResult: UserDto = this.mockMvc.perform(
-            post("$AUTH/register")
+            post("$authUrl/register")
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(registerRequest)))
             .andExpect(status().isOk)
-            .andDo(this.document(
+            .andDo(document(
                 "register-success",
                 requestFields(registerRequestFields()),
                 responseFields(userDtoResponseFields())))
@@ -89,12 +83,12 @@ class AuthApiTest : RestApiTest() {
         val registerRequest = RegisterRequest(existingUser.username, existingUser.email, "a password", "name")
 
         this.mockMvc.perform(
-            post("$AUTH/register")
+            post("$authUrl/register")
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(registerRequest)))
             .andExpect(status().is4xxClientError)
-            .andDo(this.document(
+            .andDo(document(
                 "register-fail",
                 responseFields(errorResponseFields())))
 
@@ -107,20 +101,19 @@ class AuthApiTest : RestApiTest() {
         val loginRequest = LoginRequest(existingUser.username, existingUser.email, plainPassword)
 
         val returnedResult: UserDto = this.mockMvc.perform(
-            post("$AUTH/login")
+            post("$authUrl/login")
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(loginRequest)))
             .andExpect(status().isOk)
-            .andDo(this.document(
+            .andDo(document(
                 "login-success",
                 requestFields(loginRequestFields()),
                 responseFields(userDtoResponseFields())))
             .andReturn().let {
-                objectMapper.readValue(it.response.contentAsByteArray, UserDto::class.java)
+                objectMapper.readValue(it.response.contentAsByteArray, UserDto::class.java).censor()
             }
-
-//        assertThat(returnedResult.token).isNotEmpty
+        assertThat(returnedResult).isNotNull
     }
 
     private fun userDtoResponseFields(): List<FieldDescriptor> {
@@ -150,11 +143,11 @@ class AuthApiTest : RestApiTest() {
     }
 
     @Transactional
-    private fun createMockUser(plainPassword: String = "password"): Account {
+    override fun createMockUser(plainPassword: String): Account {
         val passwordEncrypted = passwordEncoder.encode(plainPassword)
         val person = Person(randomUUID(), "person_slug", "user name")
         val account = Account(randomUUID(), "username", "email@example.com", passwordEncrypted, person)
-        val token = AccountToken(randomUUID(), account, "secret_token", 0)
+        val token = AccountToken(randomUUID(), account.id, "secret_token", 0)
         personRepository.save(person)
         accountRepository.save(account)
         accountTokenRepository.save(token)

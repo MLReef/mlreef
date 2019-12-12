@@ -1,10 +1,6 @@
 package com.mlreef.rest.persistence
 
-import com.mlreef.rest.DataProject
-import com.mlreef.rest.Experiment
-import com.mlreef.rest.ExperimentRepository
-import com.mlreef.rest.Person
-import com.mlreef.rest.findById2
+import com.mlreef.rest.*
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -32,7 +28,7 @@ class ExperimentRepositoryTest : AbstractRepositoryTest() {
         val owner = Person(randomUUID(), "slug", "name")
         val dataProject = DataProject(randomUUID(), "slug", "url,", owner)
         val id = randomUUID()
-        val item = Experiment(id, dataProject)
+        val item = Experiment(id, dataProject.id, "branch")
 
         assertThat(experimentRepository?.findById2(id)).isNull()
         experimentRepository?.save(item)

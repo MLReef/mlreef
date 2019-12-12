@@ -7,7 +7,6 @@ import com.mlreef.rest.api.v1.dto.RegisterRequest
 import com.mlreef.rest.api.v1.dto.UserDto
 import com.mlreef.rest.exceptions.UserNotExistsException
 import com.mlreef.rest.feature.auth.AuthService
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
@@ -15,13 +14,10 @@ import org.springframework.web.bind.annotation.RestController
 
 @RestController
 @RequestMapping("/api/v1/auth", produces = ["application/json"], consumes = ["application/json"])
-class AuthController {
-
-    @Autowired
-    lateinit var authService: AuthService
-
-    @Autowired
-    lateinit var accountTokenRepository: AccountTokenRepository
+class AuthController(
+    val authService: AuthService,
+    val accountTokenRepository: AccountTokenRepository
+) {
 
     @PostMapping("/login")
     fun login(@RequestBody loginRequest: LoginRequest): UserDto {

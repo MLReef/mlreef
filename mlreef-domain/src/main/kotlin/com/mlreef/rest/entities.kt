@@ -1,10 +1,18 @@
+@file:Suppress("JpaObjectClassSignatureInspection", "JpaDataSourceORMInspection")
+
 package com.mlreef.rest
 
+import org.hibernate.annotations.Fetch
+import org.hibernate.annotations.FetchMode
+import org.hibernate.annotations.LazyCollection
+import org.hibernate.annotations.LazyCollectionOption
 import org.springframework.data.annotation.CreatedDate
 import org.springframework.data.annotation.LastModifiedDate
 import org.springframework.data.domain.Persistable
+import java.io.Serializable
 import java.time.LocalDateTime
 import java.util.*
+import java.util.UUID.randomUUID
 import javax.persistence.CascadeType
 import javax.persistence.Column
 import javax.persistence.Embeddable
@@ -15,8 +23,12 @@ import javax.persistence.Id
 import javax.persistence.Inheritance
 import javax.persistence.InheritanceType
 import javax.persistence.JoinColumn
+import javax.persistence.JoinColumns
 import javax.persistence.ManyToOne
 import javax.persistence.MappedSuperclass
+import javax.persistence.NamedAttributeNode
+import javax.persistence.NamedEntityGraph
+import javax.persistence.NamedEntityGraphs
 import javax.persistence.OneToMany
 import javax.persistence.OneToOne
 import javax.persistence.PostLoad
@@ -32,16 +44,13 @@ abstract class BaseEntity(
     @Id @Column(name = "id", length = 16, unique = true, nullable = false) private val id: UUID
 ) : Persistable<UUID> {
 
-    @Version
-    var version: Long? = 0
+    @Version var version: Long? = 0
 
     @CreatedDate
-    @Column(name = "created_at")
-    var createdAt: LocalDateTime? = null
+    @Column(name = "created_at") var createdAt: LocalDateTime? = null
 
     @LastModifiedDate
-    @Column(name = "updated_at")
-    var updatedAt: LocalDateTime? = null
+    @Column(name = "updated_at") var updatedAt: LocalDateTime? = null
 
     @Transient
     private var persisted: Boolean = version ?: 0 > 0
@@ -78,39 +87,67 @@ abstract class BaseEntity(
 
 @Table(name = "subject")
 @Entity
-@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
-open class Subject(
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE) class Subject(
     id: UUID,
     val slug: String,
     val name: String
 ) : BaseEntity(id)
 
 @Entity
-@Table(name = "person")
-open class Person(
+@Table(name = "membership")
+class Membership(
+    id: UUID,
+    @Column(name = "person_id")
+    val personId: UUID,
+    @Column(name = "group_id")
+    val groupId: UUID
+) : BaseEntity(id)
+
+@Entity
+class Person(
     id: UUID,
     slug: String,
     name: String,
-    @OneToMany(mappedBy = "person") val memberships: List<Membership> = listOf()
+    @OneToMany(fetch = FetchType.EAGER, cascade = [CascadeType.REMOVE])
+    @JoinColumn(name = "person_id")
+    @Fetch(value = FetchMode.SUBSELECT)
+//    @LazyCollection(LazyCollectionOption.FALSE)
+    val memberships: List<Membership> = listOf()
+) : Subject(id, slug, name)
+
+@Entity
+class Group(
+    id: UUID,
+    slug: String,
+    name: String,
+    @OneToMany(fetch = FetchType.EAGER, cascade = [CascadeType.REMOVE])
+    @JoinColumn(name = "group_id")
+    @Fetch(value = FetchMode.SUBSELECT)
+//    @LazyCollection(LazyCollectionOption.FALSE)
+    val members: List<Membership> = listOf()
 ) : Subject(id, slug, name)
 
 @Entity
 @Table(name = "account")
-open class Account(
+class Account(
     id: UUID,
     val username: String,
     val email: String,
     val passwordEncrypted: String,
-    @OneToOne(fetch = FetchType.EAGER) @JoinColumn(name = "person_id") val person: Person,
-    @OneToMany(mappedBy = "account") val tokens: List<AccountToken> = listOf()
+    @OneToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "person_id")
+    val person: Person,
+    @OneToMany(fetch = FetchType.EAGER, cascade = [CascadeType.ALL])
+    @JoinColumn(name = "account_id")
+    val tokens: List<AccountToken> = listOf()
 ) : BaseEntity(id)
 
 @Entity
 @Table(name = "account_token")
-open class AccountToken(
+class AccountToken(
     id: UUID,
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "account_id") val account: Account,
+    @Column(name = "account_id")
+    val accountId: UUID,
     val token: String,
     @Column(name = "gitlab_id")
     val gitlabId: Int,
@@ -121,23 +158,6 @@ open class AccountToken(
 ) : BaseEntity(id)
 
 
-@Entity
-@Table(name = "group")
-open class Group(
-    id: UUID,
-    slug: String,
-    name: String,
-    @OneToMany(mappedBy = "group") val memberships: List<Membership> = listOf()
-) : Subject(id, slug, name)
-
-@Entity
-@Table(name = "membership")
-open class Membership(
-    id: UUID,
-    @OneToOne(fetch = FetchType.LAZY) @JoinColumn(name = "person_id") val person: Person,
-    @OneToOne(fetch = FetchType.LAZY) @JoinColumn(name = "group_id") val group: Group
-) : BaseEntity(id)
-
 enum class VisibilityScope {
     PRIVATE,
     PUBLIC,
@@ -147,7 +167,6 @@ enum class VisibilityScope {
         fun default(): VisibilityScope = TEAM
     }
 }
-
 
 /**
  * Symbolize a Gitlab repository which is used in the context of MLReef.
@@ -165,13 +184,20 @@ interface MLProject {
  */
 @Entity
 @Table(name = "data_project")
-open class DataProject(
+class DataProject(
     id: UUID,
     override val slug: String,
     override val url: String,
-    @ManyToOne(fetch = FetchType.LAZY, targetEntity = Subject::class) @JoinColumn(name = "owner_id") override val owner: Subject,
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "dataProject", targetEntity = Experiment::class) val experiments: List<Experiment> = listOf()
-//        @ElementCollection val dataTypes: List<DataType> = listOf()
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "owner_id")
+    override val owner: Subject,
+
+    @OneToMany(fetch = FetchType.LAZY, cascade = [CascadeType.ALL])
+    @JoinColumn(name = "data_project_id")
+    val experiments: List<Experiment> = listOf()
+
+//        @ElementCollection  val dataTypes: List<DataType> = listOf()
 ) : BaseEntity(id), MLProject
 
 /**
@@ -182,12 +208,18 @@ open class DataProject(
  */
 @Entity
 @Table(name = "code_project")
-open class CodeProject(
+class CodeProject(
     id: UUID,
     override val slug: String,
     override val url: String,
-    @ManyToOne(fetch = FetchType.LAZY, targetEntity = Subject::class) @JoinColumn(name = "owner_id") override val owner: Subject,
-    @OneToOne(mappedBy = "codeProject", fetch = FetchType.LAZY) val operation: Operation? = null
+    @ManyToOne(fetch = FetchType.LAZY, targetEntity = Subject::class)
+    @JoinColumn(name = "owner_id")
+    override val owner: Subject,
+
+    @OneToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "code_project_id")
+    val dataProcessor: DataProcessor? = null
+
 ) : BaseEntity(id), MLProject
 
 /**
@@ -198,10 +230,14 @@ open class CodeProject(
 
 @Entity
 @Table(name = "output_file")
-open class OutputFile(
+class OutputFile(
     id: UUID,
-    @ManyToOne(fetch = FetchType.LAZY) @JoinColumn(name = "experiment_id") val experiment: Experiment?,
-    @ManyToOne(fetch = FetchType.LAZY) @JoinColumn(name = "processor_id") val dataProcessor: DataProcessor?
+
+    @Column(name = "experiment_id")
+    val experimentId: UUID?,
+
+    @Column(name = "data_processor_id")
+    val dataProcessorId: UUID?
 ) : BaseEntity(id)
 
 /**
@@ -209,32 +245,85 @@ open class OutputFile(
  */
 @Entity
 @Table(name = "experiment")
-open class Experiment(
+@NamedEntityGraphs(
+    NamedEntityGraph(name = "Experiment-full", attributeNodes = [
+        NamedAttributeNode("preProcessing"),
+        NamedAttributeNode("postProcessing"),
+        NamedAttributeNode("processing"),
+        NamedAttributeNode("outputFiles")
+    ])
+
+)
+class Experiment(
     id: UUID,
-    @ManyToOne(fetch = FetchType.LAZY) @JoinColumn(name = "data_project_id") val dataProject: DataProject,
-    @Embedded val performanceMetrics: PerformanceMetrics? = null,
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "experiment") val outputFile: List<OutputFile> = arrayListOf(),
+    @Column(name = "data_project_id")
+    val dataProjectId: UUID,
+
+    val branch: String,
+
+    @Embedded
+    val performanceMetrics: PerformanceMetrics = PerformanceMetrics(),
+
+    @OneToMany(fetch = FetchType.EAGER)
+    @Fetch(value = FetchMode.SUBSELECT)
+    @JoinColumn(name = "experiment_id")
+    val outputFiles: List<OutputFile> = arrayListOf(),
 
     /**
      * Has DataOps and DataVisuals
      */
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "experimentPreProcessing") val preProcessing: List<DataProcessorInstance> = arrayListOf(),
+    @OneToMany(fetch = FetchType.EAGER, cascade = [CascadeType.ALL])
+    @Fetch(value = FetchMode.SUBSELECT)
+    @JoinColumn(name = "experimentPreProcessingId")
+    val preProcessing: MutableList<DataProcessorInstance> = arrayListOf(),
     /**
      * Has DataOps and maybe DataVisuals
      */
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "experimentPostProcessing") val postProcessing: List<DataProcessorInstance> = arrayListOf(),
+    @OneToMany(fetch = FetchType.EAGER, cascade = [CascadeType.ALL])
+    @Fetch(value = FetchMode.SUBSELECT)
+    @JoinColumn(name = "experimentPostProcessingId")
+    val postProcessing: MutableList<DataProcessorInstance> = arrayListOf(),
     /**
      * Contains exactly 1 Algorithm (could be implement as DataExecutionInstance as well)
      */
-    @OneToOne(fetch = FetchType.LAZY, mappedBy = "experimentProcessing") val processing: DataProcessorInstance? = null
-) : BaseEntity(id)
+    @OneToOne(fetch = FetchType.EAGER, cascade = [CascadeType.ALL])
+    @JoinColumn(name = "experimentProcessingId")
+    protected var processing: DataProcessorInstance? = null
+
+) : BaseEntity(id) {
+
+
+    fun addPreProcessor(processorInstance: DataProcessorInstance) {
+        preProcessing.add(processorInstance)
+        processorInstance.experimentPreProcessingId = this.id
+    }
+
+    fun addPostProcessor(processorInstance: DataProcessorInstance) {
+        postProcessing.add(processorInstance)
+        processorInstance.experimentPostProcessingId = this.id
+    }
+
+    fun setProcessor(processorInstance: DataProcessorInstance) {
+        processing = (processorInstance)
+        processorInstance.experimentProcessingId = this.id
+    }
+
+    fun getProcessor() = this.processing
+}
 
 @Embeddable
-open class PerformanceMetrics(
-    val jsonBlob: String? = "",
-    val startedAt: Long? = 0,
-    val finishedAt: Long? = 0
+class PerformanceMetrics(
+    var jobStartedAt: Long? = 0,
+    var jobUpdatedAt: Long? = 0,
+    var jobFinishedAt: Long? = 0,
+    var jsonBlob: String = ""
 )
+
+enum class DataProcessorType {
+    ALGORITHM,
+    OPERATION,
+    VISUALISATION
+}
 
 /**
  * A DataProcessor can be applied onto Data to filter or manipulate the Data.
@@ -248,79 +337,134 @@ open class PerformanceMetrics(
 @Table(name = "data_processor")
 @Entity
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
-abstract class DataProcessor(
+@NamedEntityGraphs(
+    NamedEntityGraph(name = "DataProcessor-full", attributeNodes = [
+        NamedAttributeNode("parameters"),
+//        NamedAttributeNode("output"),
+        NamedAttributeNode("author")
+    ])
+
+) class DataProcessor(
     id: UUID,
     val slug: String,
     val name: String,
+    val inputDataType: DataType,
+    val outputDataType: DataType,
+    val type: DataProcessorType,
     val visibilityScope: VisibilityScope = VisibilityScope.default(),
     val description: String = "",
-    @OneToOne(fetch = FetchType.LAZY) @JoinColumn(name = "code_project_id") val codeProject: CodeProject? = null,
-    @ManyToOne(fetch = FetchType.LAZY, targetEntity = Subject::class) @JoinColumn(name = "author_id") val author: Subject? = null,
-    @OneToMany(fetch = FetchType.LAZY, targetEntity = ProcessorParameter::class, mappedBy = "dataProcessor") val parameters: List<ProcessorParameter> = listOf(),
-    @OneToMany(fetch = FetchType.LAZY, targetEntity = OutputFile::class, mappedBy = "dataProcessor") val output: List<OutputFile> = listOf()
-) : BaseEntity(id)
 
-interface DataProcessorWithInput {
-    val inputDataType: DataType
+    @Column(name = "code_project_id")
+    val codeProjectId: UUID? = null,
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "author_id")
+    val author: Subject? = null,
+
+    @OneToMany(fetch = FetchType.EAGER, cascade = [CascadeType.ALL])
+    @JoinColumn(name = "data_processor_id")
+    @Fetch(value = FetchMode.SUBSELECT)
+    val parameters: List<ProcessorParameter> = arrayListOf(),
+
+    @OneToMany(fetch = FetchType.EAGER, cascade = [CascadeType.ALL])
+    @JoinColumn(name = "data_processor_id")
+    @Fetch(value = FetchMode.SUBSELECT)
+    @LazyCollection(LazyCollectionOption.FALSE)
+    val outputFiles: List<OutputFile> = listOf()
+) : BaseEntity(id), Serializable {
+
+    fun isChainable(): Boolean {
+        return type != DataProcessorType.ALGORITHM
+    }
 }
 
-interface DataProcessorWithOutput {
-    val outputDataType: DataType
-}
 
 /**
  * DataOperation perform on Data and create Data.
  * Therefore they must be chainable
  */
 @Entity
-@Table(name = "operation")
-open class Operation(
+class DataOperation(
     id: UUID,
     slug: String,
     name: String,
-    override val inputDataType: DataType,
-    override val outputDataType: DataType,
+    inputDataType: DataType,
+    outputDataType: DataType,
     visibilityScope: VisibilityScope = VisibilityScope.default()
-) : DataProcessor(id, slug, name, visibilityScope), DataProcessorWithInput, DataProcessorWithOutput
+) : DataProcessor(id, slug, name, inputDataType, outputDataType, DataProcessorType.OPERATION, visibilityScope) {
+
+    override fun isChainable(): Boolean = true
+}
 
 @Entity
-@Table(name = "visualization")
-open class Visualization(
+class DataVisualization(
     id: UUID,
     slug: String,
     name: String,
-    override val inputDataType: DataType,
+    inputDataType: DataType,
     visibilityScope: VisibilityScope = VisibilityScope.default()
-) : DataProcessor(id, slug, name, visibilityScope), DataProcessorWithInput
+) : DataProcessor(id, slug, name, inputDataType, DataType.NONE, DataProcessorType.VISUALISATION, visibilityScope) {
+    override fun isChainable(): Boolean = true
+}
 
 /**
  * Proposal: Model DataAlgorithm as a Data processor, even if it not chainable
  */
 @Entity
-@Table(name = "model")
-open class Model(
+class DataAlgorithm(
     id: UUID,
     slug: String,
     name: String,
-    override val outputDataType: DataType,
+    inputDataType: DataType,
+    outputDataType: DataType,
     visibilityScope: VisibilityScope = VisibilityScope.default()
 
-) : DataProcessor(id, slug, name, visibilityScope), DataProcessorWithOutput
+) : DataProcessor(id, slug, name, inputDataType, outputDataType, DataProcessorType.ALGORITHM, visibilityScope) {
+    override fun isChainable(): Boolean = false
+}
 
 /**
  * An Instance of DataOperation or DataVisualisation contains instantiated values of Parameters
  */
 @Entity
 @Table(name = "data_processor_instance")
-open class DataProcessorInstance(
+class DataProcessorInstance(
     id: UUID,
-    @OneToMany(targetEntity = ParameterInstance::class, fetch = FetchType.EAGER, mappedBy = "dataProcessorInstance", cascade = [CascadeType.REMOVE]) val parameterInstances: List<ParameterInstance>,
-    @ManyToOne(targetEntity = DataProcessorInstance::class, fetch = FetchType.LAZY) @JoinColumn(name = "parent_id") val parent: DataProcessorInstance?,
-    @OneToMany(targetEntity = DataProcessorInstance::class, fetch = FetchType.LAZY, mappedBy = "parent") val children: List<DataProcessorInstance>,
-    @ManyToOne(targetEntity = Experiment::class, fetch = FetchType.LAZY) @JoinColumn(name = "experiment_preprocessing_id") val experimentPreProcessing: Experiment?,
-    @ManyToOne(targetEntity = Experiment::class, fetch = FetchType.LAZY) @JoinColumn(name = "experiment_postprocessing_id") val experimentPostProcessing: Experiment?,
-    @OneToOne(targetEntity = Experiment::class, fetch = FetchType.LAZY) @JoinColumn(name = "experiment_processing_id") val experimentProcessing: Experiment?
-) : BaseEntity(id)
+
+    @OneToOne(fetch = FetchType.EAGER)
+    @JoinColumns(
+        JoinColumn(name = "data_processor_id", referencedColumnName = "id"),
+        JoinColumn(name = "data_processor_version", referencedColumnName = "version")
+    )
+    val dataProcessor: DataProcessor,
+    val slug: String = dataProcessor.slug,
+    val name: String = dataProcessor.name,
+
+    @OneToMany(fetch = FetchType.EAGER, cascade = [CascadeType.ALL])
+    @JoinColumn(name = "data_processor_instance_id")
+    val parameterInstances: MutableList<ParameterInstance> = arrayListOf(),
+
+    @Column(name = "parent_id")
+    val parentId: UUID? = null,
+
+    @OneToMany(fetch = FetchType.LAZY)
+    @JoinColumn(name = "parent_id")
+    val children: MutableList<DataProcessorInstance> = arrayListOf(),
+
+    var experimentPreProcessingId: UUID? = null,
+
+    var experimentPostProcessingId: UUID? = null,
+
+    var experimentProcessingId: UUID? = null
+
+) : BaseEntity(id) {
+
+    fun addParameterInstances(processorParameter: ProcessorParameter, value: String): ParameterInstance {
+        val parameterInstance = ParameterInstance(randomUUID(), processorParameter, this.id, value)
+        this.parameterInstances.add(parameterInstance)
+        return parameterInstance
+    }
+}
 
 
 /**
@@ -329,9 +473,10 @@ open class DataProcessorInstance(
  */
 @Entity
 @Table(name = "processor_parameter")
-open class ProcessorParameter(
+class ProcessorParameter(
     id: UUID,
-    @ManyToOne(fetch = FetchType.LAZY, targetEntity = DataProcessor::class) @JoinColumn(name = "data_processor_id") val dataProcessor: DataProcessor,
+    @Column(name = "data_processor_id")
+    val dataProcessorId: UUID,
     val name: String,
     val type: ParameterType,
     val description: String? = null,
@@ -341,11 +486,16 @@ open class ProcessorParameter(
 
 @Entity
 @Table(name = "parameter_instance")
-open class ParameterInstance(
+class ParameterInstance(
     id: UUID,
-    @OneToOne(fetch = FetchType.EAGER) @JoinColumn(name = "parameter_id") val processorParameter: ProcessorParameter? = null,
-    @ManyToOne @JoinColumn(name = "data_processor_instance_id") val dataProcessorInstance: DataProcessorInstance? = null,
-    val value: String? = null
+    @OneToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "parameter_id")
+    val processorParameter: ProcessorParameter,
+    @Column(name = "data_processor_instance_id")
+    val dataProcessorInstanceId: UUID,
+    val value: String,
+    val name: String = processorParameter.name,
+    val type: ParameterType = processorParameter.type
 ) : BaseEntity(id)
 
 /**
@@ -381,5 +531,8 @@ enum class DataType {
     TABULAR,
     TEXT,
     BINARY,
-    MODEL
+    MODEL,
+
+
+    NONE
 }

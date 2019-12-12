@@ -11,7 +11,7 @@ import org.springframework.session.web.context.AbstractHttpSessionApplicationIni
 
 @EnableRedisHttpSession
 @Configuration
-open class RedisSessionConfig {
+class RedisSessionConfig {
 
     @Value("\${spring.redis.host}")
     private var redisHost: String = ""
@@ -19,16 +19,14 @@ open class RedisSessionConfig {
     @Value("\${spring.redis.port}")
     private var redisPort: Int = 0
 
-    @Bean
-    open fun jedisConnectionFactory(): JedisConnectionFactory {
+    @Bean fun jedisConnectionFactory(): JedisConnectionFactory {
         val hostname = redisHost
         val port = redisPort
         val redisStandaloneConfiguration = RedisStandaloneConfiguration(hostname, port)
         return JedisConnectionFactory(redisStandaloneConfiguration)
     }
 
-    @Bean
-    open fun redisTemplate(): RedisTemplate<String, Any> {
+    @Bean fun redisTemplate(): RedisTemplate<String, Any> {
         val template = RedisTemplate<String, Any>()
         template.connectionFactory = jedisConnectionFactory()
         return template

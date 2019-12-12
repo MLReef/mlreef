@@ -22,13 +22,17 @@ use of HTTP verbs.
 | Verb | Usage
 
 | `GET`
-| Used to retrieve a resource
+| Used to retrieve a resource. Will return 200.
 
 | `POST`
-| Used to create a new resource
+| Used to create a new resource. Will return 201 for success.
+
+| `PUT`
+| Used to update an existing resource as an idempotent call. May also create the resource in
+rare cases, e.g. if it a singleton resource. Will return 200 with Content of 204 without Content
 
 | `PATCH`
-| Used to update an existing resource, including partial updates
+| Used to update an existing resource, including partial updates. Will return 200 with Content of 204 without Content
 
 | `DELETE`
 | Used to delete an existing resource
@@ -44,7 +48,8 @@ use of HTTP status codes.
 | Status code | Usage
 
 | `200 OK`
-| The request completed successfully
+|  * The request completed successfully
+* An update to an existing resource has been applied successfully
 
 | `201 Created`
 | A new resource has been created successfully. The resource's URI is available from the response's
@@ -54,10 +59,24 @@ use of HTTP status codes.
 | An update to an existing resource has been applied successfully
 
 | `400 Bad Request`
-| The request was malformed. The response body will include an error providing further information
+| The request was malformed. The response body will include an error providing further information.
+
+
+| `401 Unauthorized`
+|
+
+| `403 Forbidden`
+|
 
 | `404 Not Found`
-| The requested resource did not exist
+| The requested resource did not exist, the URL describes nothing
+
+| `405 Method not allowed`
+| The requested path does not support this operation
+
+| `415 Unsupported Media Type`
+| Only json is supported
+
 |===
 
 [[overview-headers]]
@@ -67,20 +86,22 @@ use of HTTP status codes.
 
 Every authenticated request needs following header(s):
 
-```
+[source]
+----
 Content-Type: application/json
 Accept: application/json
 PRIVATE-TOKEN: $SECRET_PRIVATE_TOKEN
-```
+----
 
 The Private Token can be obtained during authentication
 
 === Response
 
-```
+[source]
+----
 Content-Type: application/json;charset=UTF-8
 Content-Length: $NUMBER
-```
+----
 
 [[overview-errors]]
 == Errors
@@ -106,7 +127,7 @@ therefore clients can use the same header to communicate with the gitlab backend
 To obtain this token, a login is necessary with valid credentials.
 
 [[authentication-register]]
-=== /auth/register
+=== POST /auth/register
 
 Registering creates a new MLReef user which has a new gitlab user and Person.
 
@@ -114,7 +135,7 @@ Registering creates a new MLReef user which has a new gitlab user and Person.
 operation::register-success[snippets='curl-request,request-fields,http-response,response-fields']
 
 [[authentication-login]]
-=== /auth/login
+=== POST /auth/login
 
 Login can be executed with the username or the email.
 
@@ -125,4 +146,30 @@ operation::login-success[snippets='curl-request,request-fields,http-response,res
 
 [[experiments]]
 == Experiments - /experiments
+
+Experiments are created once and cannot be modified.
+But nevertheless, the PerformanceMetrics can be updated (creation happens automatically).
+
+Every Subject can just retrieve own Experiments of own DataProjects.
+Currently, there is no rights management which allows for more granular access rules.
+
+=== GET /experiments
+
+operation::experiment-retrieve-all[snippets='curl-request,response-body,response-fields']
+
+=== GET /experiments/:id
+
+operation::experiment-retrieve-one[snippets='curl-request,response-body,response-fields']
+
+=== POST /experiments
+
+operation::experiment-create-success[snippets='curl-request,request-fields,http-response,response-fields']
+
+=== GET /experiments/:id/metrics
+
+operation::experiment-retrieve-one-metrics[snippets='curl-request,response-body,response-fields']
+
+=== PUT /experiments/:id/metrics
+
+operation::experiment-update-metrics[snippets='curl-request,http-response,response-fields']
 

@@ -3,20 +3,21 @@ plugins {
     id 'io.spring.dependency-management' version '1.0.8.RELEASE'
     id 'org.jetbrains.kotlin.jvm'
     id 'com.palantir.docker'
-    id 'kotlin-jpa'
     id 'kotlin-spring'
+    id 'kotlin-jpa'
+    id 'kotlin-allopen'
     id 'org.asciidoctor.convert' version "1.5.9.2"
 }
 
 group = 'com.mlreef'
 version = '0.0.1-SNAPSHOT'
-sourceCompatibility = '1.8'
 
 dependencies {
     implementation project(':mlreef-domain')
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
     implementation 'org.jetbrains.kotlin:kotlin-reflect'
     implementation "org.projectlombok:lombok"
+    implementation "com.fasterxml.jackson.module:jackson-module-kotlin:2.9.+"
 
     // Rest and HATEOAS
     implementation 'org.springframework.boot:spring-boot-starter-hateoas'
@@ -58,16 +59,11 @@ compileTestKotlin {
     }
 }
 
-allOpen {
-    annotation("javax.persistence.Entity")
-    annotation("javax.persistence.MappedSuperclass")
-    annotation("javax.persistence.Embeddable")
-}
-
 noArg {
     annotation("com.mlreef.rest.api.Dto")
     annotation("com.mlreef.rest.api.DtoRequest")
 }
+
 task unpack(type: Copy) {
     dependsOn ":mlreef-rest:bootJar"
     from(zipTree(tasks.bootJar.outputs.files.singleFile))

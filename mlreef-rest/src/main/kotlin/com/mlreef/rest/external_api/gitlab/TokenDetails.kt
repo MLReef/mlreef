@@ -2,11 +2,14 @@ package com.mlreef.rest.external_api.gitlab
 
 import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.userdetails.UserDetails
+import java.util.*
 
 class TokenDetails(
     val token: String,
+    val accountId: UUID,
+    val personId: UUID,
     val valid: Boolean = false,
-    private val gitlabUser: GitlabUser? = null
+    val gitlabUser: GitlabUser? = null
 ) : UserDetails {
 
     override fun getAuthorities(): MutableCollection<out GrantedAuthority> {

@@ -9,9 +9,9 @@ import com.mlreef.rest.PersonRepository
 import com.mlreef.rest.exceptions.UserAlreadyExistsException
 import com.mlreef.rest.external_api.gitlab.GitlabRestClient
 import com.mlreef.rest.external_api.gitlab.TokenDetails
+import com.mlreef.rest.findById2
 import lombok.extern.slf4j.Slf4j
 import org.springframework.beans.factory.annotation.Value
-import org.springframework.context.annotation.PropertySource
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import java.util.UUID.randomUUID
@@ -28,8 +28,7 @@ interface AuthService {
 
 @Slf4j
 @Service("authService")
-@PropertySource("classpath:secrets.properties")
-open class GitlabAuthService(
+class GitlabAuthService(
     private val gitlabRestClient: GitlabRestClient,
     private val accountRepository: AccountRepository,
     private val personRepository: PersonRepository,
@@ -37,8 +36,8 @@ open class GitlabAuthService(
     private val passwordEncoder: PasswordEncoder
 ) : AuthService {
 
-    @Value("\${JAVA_TEST_PRIVATE_TOKEN}")
-    private val secretPrivateToken: String? = null
+    @Value("\${mlreef.gitlab.mockUserToken}")
+    private val secretPrivateTokenMock: String? = null
 
     override fun loginUser(plainPassword: String, username: String?, email: String?): Account? {
         val byUsername: Account? = if (username != null) accountRepository.findOneByUsername(username) else null
@@ -66,20 +65,27 @@ open class GitlabAuthService(
             throw UserAlreadyExistsException(username, email)
         }
 
-        val person = Person(randomUUID(), username, username)
-        val newUser = Account(randomUUID(), username, email, encryptedPassword, person)
+        val person = Person(id = randomUUID(), slug = username, name = username)
+        val newUser = Account(id = randomUUID(), username = username, email = email, passwordEncrypted = encryptedPassword, person = person)
 
         personRepository.save(person)
         val savedUser = accountRepository.save(newUser)
 
-        val newToken = AccountToken(randomUUID(), newUser, secretPrivateToken!!, 0)
+        val newToken = AccountToken(id = randomUUID(), accountId = newUser.id, token = secretPrivateTokenMock!!, gitlabId = 0)
         accountTokenRepository.save(newToken)
 
         return savedUser
     }
 
     override fun findByToken(token: String): TokenDetails? {
-        val user = try {
+
+
+        val findOneByToken = accountTokenRepository.findOneByToken(token) ?: return null
+
+        val account = accountRepository.findById2(findOneByToken.accountId)!!
+        val person = personRepository.findById2(account.person.id)!!
+
+        val gitlabUser = try {
             gitlabRestClient.getUser(token)
         } catch (e: Exception) {
             e.printStackTrace()
@@ -87,8 +93,10 @@ open class GitlabAuthService(
         }
         return TokenDetails(
             token = token,
-            gitlabUser = user,
-            valid = (user != null)
+            accountId = account.id,
+            personId = person.id,
+            gitlabUser = gitlabUser,
+            valid = (gitlabUser != null)
         )
     }
 }

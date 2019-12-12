@@ -2,9 +2,9 @@ logging:
   level:
     root: INFO
     com.mlreef.rest: DEBUG
-    org.springframework.security: DEBUG
-    org.springframework.orm: WARN
-    org.hibernate: WARN
+    org.springframework.security: INFO
+    org.springframework.orm: INFO
+    org.hibernate: INFO
 
 spring:
   data:
@@ -13,8 +13,8 @@ spring:
       repositories:
         enabled: false
   datasource:
-    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:mlreef_backend}
-    username: ${DB_USER:postgres}
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:6000}/${DB_NAME:mlreef_backend}
+    username: ${DB_USER:mlreef}
     password: ${DB_PASSWORD:password}
   jpa:
     show-sql: true
