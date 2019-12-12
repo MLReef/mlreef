@@ -8,10 +8,10 @@ variables:
   AIOPS_EC2_INSTANCE_NAME: mlreef-aiops-dispatch-$CI_COMMIT_REF_SLUG        # environment name and url are set separately
   BUILD_PATH: "mlreef-rest/build/docker"
   IMAGE_NAME: "mlreef-rest"
-  BUCKET_NAME: mlreef-rest-$CI_COMMIT_REF_SLUG              # environment name and url are set separately
+  BUCKET_NAME: mlreef-rest-$CI_COMMIT_REF_SLUG                   # environment name and url are set separately
   REST_EC2_INSTANCE_NAME: mlreef-rest-$CI_COMMIT_REF_SLUG        # environment name and url are set separately
-  INSTANCE_INFO: instance.info                         # workaround for transmitting information between stages
-  DOCKER_REGISTRY_REPOSITORY_ID: "753711"              # https://gitlab.com/api/v4/projects/13830884/registry/repositories/
+  INSTANCE_INFO: instance.info                                   # workaround for transmitting information between stages
+  DOCKER_REGISTRY_REPOSITORY_ID: "753711"                        # https://gitlab.com/api/v4/projects/13830884/registry/repositories/
   IMAGE_PATH: "$DOCKER_REGISTRY/$DOCKER_ORGANISATION/$IMAGE_NAME:$CI_COMMIT_REF_SLUG"
 
 
@@ -84,30 +84,36 @@ build-backend:
   variables:
     REDIS_HOST: "redis"
     REDIS_PORT: 6379
-    POSTGRES_DB: ${DB_NAME}
-    POSTGRES_USER: ${DB_USER}
-    POSTGRES_PASSWORD: ${DB_PASSWORD}
+    POSTGRES_DB: $DB_NAME
+    POSTGRES_USER: $DB_USER
+    POSTGRES_PASSWORD: $DB_PASSWORD
   before_script:
-    - echo "Use DB ${DB_NAME} with ${DB_USER}"
+    - echo "Use DB $DB_NAME with $DB_USER"
   script:
     - ./gradlew build --stacktrace
     - ./gradlew :mlreef-rest:bootJar
+#    - ./gradlew :mlreef-rest:docker
   artifacts:
     paths:
       - mlreef-rest/build/asciidoc/html5/rest-api.html
+      - mlreef-rest/build/libs/*
+      - mlreef-rest/build/docker/*
 
 
-#deploy-backend:
-#  stage: deploy
-#  image: docker:latest
-#  services:
-#    - docker:dind
-#  before_script:
-#    - docker login ${DOCKER_REGISTRY} -u "${DOCKER_USER}" -p "${DOCKER_PASSWORD}"
-#  script:
-#    - cd mlreef-rest
-#    - docker build --pull --tag "$IMAGE_PATH" -f Dockerfile .
-#    - docker push "${IMAGE_PATH}"
+.deploy-backend:
+  stage: deploy
+  image: docker:latest
+  dependencies:
+    - build-backend
+  services:
+    - docker:dind
+  before_script:
+    - docker login ${DOCKER_REGISTRY} -u "${DOCKER_USER}" -p "${DOCKER_PASSWORD}"
+  script:
+    - echo "IMAGE_PATH=$IMAGE_PATH"
+    - cd mlreef-rest/build/docker/
+    - docker build --pull --tag "$IMAGE_PATH" -f Dockerfile .
+    - docker push "${IMAGE_PATH}"
 #  only:
 #    changes:
 #      - build.gradle

@@ -1,5 +1,6 @@
 package com.mlreef.rest
 
+import org.springframework.data.jpa.repository.EntityGraph
 import org.springframework.stereotype.Repository
 import java.util.*
 
@@ -10,6 +11,7 @@ import java.util.*
 
 @Repository interface AccountTokenRepository : KtCrudRepository<AccountToken, UUID> {
     fun findAllByAccountId(id: UUID): List<AccountToken>
+    fun findOneByToken(token:String): AccountToken?
 }
 
 @Repository interface SubjectRepository : KtCrudRepository<Subject, UUID>
@@ -18,7 +20,10 @@ import java.util.*
 
 @Repository interface GroupRepository : KtCrudRepository<Group, UUID>
 
-@Repository interface ExperimentRepository : KtCrudRepository<Experiment, UUID>
+@Repository interface ExperimentRepository : KtCrudRepository<Experiment, UUID> {
+    fun findAllByDataProjectId(dataProjectId: UUID): List<Experiment>
+    fun findOneByDataProjectIdAndId(dataProjectId: UUID, id: UUID): Experiment?
+}
 
 @Repository interface DataProjectRepository : KtCrudRepository<DataProject, UUID>
 
@@ -26,17 +31,20 @@ import java.util.*
 
 @Repository interface OutputFileRepository : KtCrudRepository<OutputFile, UUID>
 
-@Repository interface DataProcessorRepository : KtCrudRepository<DataProcessor, UUID>
+@Repository interface DataProcessorRepository : KtCrudRepository<DataProcessor, UUID> {
+    @EntityGraph(value = "DataProcessor-full", type = EntityGraph.EntityGraphType.LOAD)
+    fun findBySlug(processorSlug: String): DataProcessor?
+}
 
-@Repository interface OperationRepository : KtCrudRepository<Operation, UUID>
+@Repository interface DataOperationRepository : KtCrudRepository<DataOperation, UUID>
 
-@Repository interface VisualizationRepository : KtCrudRepository<Visualization, UUID>
+@Repository interface DataVisualizationRepository : KtCrudRepository<DataVisualization, UUID>
 
-@Repository interface ModelRepository : KtCrudRepository<Model, UUID>
+@Repository interface DataAlgorithmRepository : KtCrudRepository<DataAlgorithm, UUID>
 
-@Repository interface ProcessorParameterRepository : KtCrudRepository<ProcessorParameter, UUID>
+@Repository interface ProcessorParameterRepository : KtCrudRepository<ProcessorParameter, UUID> {
+    fun findByDataProcessorIdAndName(id: UUID, name: String): ProcessorParameter?
+}
 
-// instances of experiments
 @Repository interface ParameterInstanceRepository : KtCrudRepository<ParameterInstance, UUID>
-
 @Repository interface DataProcessorInstanceRepository : KtCrudRepository<DataProcessorInstance, UUID>

@@ -1,5 +1,6 @@
 package com.mlreef.rest.external_api.gitlab
 
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.web.client.RestTemplateBuilder
 import org.springframework.context.annotation.Bean
 import org.springframework.http.HttpEntity
@@ -10,11 +11,13 @@ import org.springframework.stereotype.Component
 import org.springframework.web.client.RestTemplate
 
 @Component
-open class GitlabRestClient(private val builder: RestTemplateBuilder) {
+class GitlabRestClient(
+    private val builder: RestTemplateBuilder,
+    @Value("\${mlreef.gitlab.hostnamePort}")
+    val gitlabSocket: String
+) {
 
-    companion object {
-        private const val GITLAB_API_ROOT = "https://gitlab.com/api/v4"
-    }
+    fun getRoot() = "http://$gitlabSocket/api/v4"
 
     @Bean
     fun restTemplate(builder: RestTemplateBuilder): RestTemplate {
@@ -26,7 +29,8 @@ open class GitlabRestClient(private val builder: RestTemplateBuilder) {
         val headers = HttpHeaders()
         headers.set("PRIVATE-TOKEN", token)
         val entity = HttpEntity<String>("body", headers)
-        val response: ResponseEntity<GitlabUser> = restTemplate.exchange("$GITLAB_API_ROOT/user", HttpMethod.GET, entity, GitlabUser::class.java)
+        val url = getRoot() + "/user"
+        val response: ResponseEntity<GitlabUser> = restTemplate.exchange(url, HttpMethod.GET, entity, GitlabUser::class.java)
         return response.body
     }
 }

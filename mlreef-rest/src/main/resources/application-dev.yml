@@ -1,0 +1,5 @@
+mlreef:
+  gitlab:
+    hostnamePort: ${GITLAB_HOSTNAME:localhost:10080}
+    adminUserToken: ${GITLAB_ADMIN_TOKEN}
+    mockUserToken: ${JAVA_TEST_PRIVATE_TOKEN:dev-mock-token}

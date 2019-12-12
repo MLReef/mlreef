@@ -1,5 +1,8 @@
 package com.mlreef.rest.config
 
+import com.fasterxml.jackson.databind.DeserializationFeature
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import org.springframework.boot.context.properties.ConfigurationProperties
 import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.cache.CacheManager
@@ -15,34 +18,40 @@ import java.util.*
 @EnableConfigurationProperties
 @ConfigurationProperties("application")
 @EnableJpaAuditing
-open class YAMLConfig {
-
+class YAMLConfig {
     private val name: String? = null
     private val environment: String? = null
     private val servers = ArrayList<String>()
-
-    // standard getters and setters
-
 }
 
 @Configuration
 @EnableCaching
-open class CachingConfig {
+class CachingConfig {
 
     @Bean
-    open fun cacheManager(): CacheManager {
+    fun cacheManager(): CacheManager {
         return ConcurrentMapCacheManager("addresses")
     }
 }
 
-//@Configuration
-//@EnableWebMvc
-//open class MvcConfig : WebMvcConfigurer {
-//
-//    override fun addResourceHandlers(registry: ResourceHandlerRegistry) {
-////       registry
-////           .addResourceHandler("/static")
-////           .addResourceLocations("/static")
-//    }
-//
-//}
+@Configuration
+class BeansConfig {
+    @Bean
+    fun objectMapper(): ObjectMapper {
+        return MLReefObjectMapper()
+    }
+}
+
+class MLReefObjectMapper : ObjectMapper() {
+
+    init {
+        this.registerKotlinModule()
+        this.configure(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES, true)
+
+//        this.registerModule(JavaTimeModule())
+    }
+
+    override fun copy(): ObjectMapper {
+        return MLReefObjectMapper()
+    }
+}

@@ -32,7 +32,7 @@ docker exec postgres psql -U postgres -c"CREATE DATABASE $DB_NAME" postgres
 ```
 # for windows: 
 docker run --name postgres -p %DB_PORT%:%DB_PORT% -e POSTGRES_PASSWORD=%DB_PASSWORD% -d postgres:11
-docker exec postgres psql -U postgres -c"CREATE DATABASE %DB_NAME%" postgres
+docker exec mlreef-rest_postgres_1 psql -U postgres -c"CREATE DATABASE mlreef_backend" postgres
 ```
 ## Environment
 
@@ -42,8 +42,6 @@ Other env vars are totally secret and should never go into the git repo, for exa
 This will be provided by GitlabCI, you local env (you have to setup this yourself), test envs or AWS.
 
 Common prefixes are:
-* AWS_ := related to secret AWS configuration
-* JAVA_ := necessary for the spring container or java during Runtime, providable via IDE run config, env or system vars.
 * JAVA_TEST_ := just used in Tests, can be provided via IDE run config
 
 ### Variables
@@ -51,6 +49,8 @@ Common prefixes are:
 * JAVA_TEST_PRIVATE_TOKEN := Gitlab Private Token (API permissions) of User for test repos
   * will be injected by Gitlab CI
   * must be provided locally for tests
+* GITLAB_HOSTNAME := hostname and port of gitlab instance to be used by backend, default: "localhost:10080"
+* GITLAB_ADMIN_TOKEN := The PTA of the Admin user with API and SUDO rights. keep it secret!
 
 For develop/testing we will use the following:
 * DB_HOST = localhost on machine, "postgres" in gitlab ci
@@ -64,3 +64,13 @@ For develop/testing we will use the following:
 ### Services
 
 * Redis on port 6379
+
+### Tipps
+
+#### Windows
+
+Killing stale server:
+```
+netstat -ano | grep 8080
+taskkill /F /PID 1
+```

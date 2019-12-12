@@ -1,0 +1,19 @@
+@startuml
+actor User
+participant Frontend
+participant Backend
+participant Gitlab
+
+User -> Frontend: Sends username and password
+activate Frontend
+Frontend -> Gitlab: Sends username and password
+activate Gitlab
+Frontend <- Gitlab: return Token of  User
+deactivate Gitlab
+Frontend -> Frontend: cache Token as "Session"
+Frontend -> Backend: Sends cached Token
+Backend -> Backend: authenticate User and cache Session
+User <- Frontend: display success
+deactivate Frontend
+@enduml
+

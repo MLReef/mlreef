@@ -25,10 +25,9 @@ import org.springframework.session.FindByIndexNameSessionRepository
 import org.springframework.session.Session
 
 @Configuration
-open class BasicSecurity {
+class BasicSecurity {
 
-    @Bean
-    open fun passwordEncoder(): PasswordEncoder {
+    @Bean fun passwordEncoder(): PasswordEncoder {
         return BCryptPasswordEncoder()
     }
 }
@@ -37,7 +36,7 @@ open class BasicSecurity {
 @Configuration
 @EnableWebSecurity(debug = true)
 @EnableGlobalMethodSecurity(prePostEnabled = true)
-open class SecurityConfiguration(private val provider: AuthenticationProvider) : WebSecurityConfigurerAdapter() {
+class SecurityConfiguration(private val provider: AuthenticationProvider) : WebSecurityConfigurerAdapter() {
 
     @Autowired
     lateinit var sessionRepo: FindByIndexNameSessionRepository<out Session>
@@ -47,7 +46,7 @@ open class SecurityConfiguration(private val provider: AuthenticationProvider) :
     }
 
     override fun configure(webSecurity: WebSecurity) {
-        webSecurity.ignoring().antMatchers("/docs", "/docs/**","/static/**", AUTH_URL)
+        webSecurity.ignoring().antMatchers("/docs", "/docs/*", AUTH_URL)
     }
 
     @Throws(Exception::class)
@@ -56,7 +55,7 @@ open class SecurityConfiguration(private val provider: AuthenticationProvider) :
             .exceptionHandling().and()
             .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED).and()
             .anonymous().and()
-            .authorizeRequests().antMatchers("/docs", "/docs/**", "/static/**", AUTH_URL).permitAll().and()
+            .authorizeRequests().antMatchers("/docs", "/docs/*", AUTH_URL).permitAll().and()
             .authorizeRequests().anyRequest().fullyAuthenticated()
             .and().authenticationProvider(provider).addFilterBefore(authenticationFilter(), AnonymousAuthenticationFilter::class.java)
             .csrf().disable()
@@ -64,21 +63,18 @@ open class SecurityConfiguration(private val provider: AuthenticationProvider) :
             .logout().disable()
     }
 
-    @Bean
-    open fun authenticationFilter(): GitlabTokenAuthenticationFilter {
+    @Bean fun authenticationFilter(): GitlabTokenAuthenticationFilter {
         val filter = GitlabTokenAuthenticationFilter(PROTECTED_MATCHER)
         filter.setAuthenticationManager(authenticationManager())
         filter.setSessionAuthenticationStrategy(sessionStrategy())
         return filter
     }
 
-    @Bean
-    open fun sessionStrategy(): SessionAuthenticationStrategy {
+    @Bean fun sessionStrategy(): SessionAuthenticationStrategy {
         return RedisSessionStrategy(sessionRepo)
     }
 
-    @Bean
-    open fun forbiddenEntryPoint(): AuthenticationEntryPoint {
+    @Bean fun forbiddenEntryPoint(): AuthenticationEntryPoint {
         return HttpStatusEntryPoint(HttpStatus.FORBIDDEN)
     }
 

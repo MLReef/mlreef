@@ -3,7 +3,6 @@ package com.mlreef.rest.config
 import com.mlreef.rest.external_api.gitlab.TokenDetails
 import com.mlreef.rest.feature.auth.AuthService
 import lombok.extern.slf4j.Slf4j
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.authentication.dao.AbstractUserDetailsAuthenticationProvider
@@ -27,24 +26,20 @@ import javax.servlet.http.HttpSession
 
 
 fun String.censor(): String {
-    return if (this.length > 2) {
-        val half = this.length / 2
-        this.replaceRange(half, this.length - 1, "*")
+    val censoringShortener = 3
+    return if (this.length >= censoringShortener) {
+        val censoringBegin = this.length / censoringShortener
+        this.replaceRange(censoringBegin, this.length - 1, "*")
     } else {
-        ""
+        "**"
     }
 }
 
-
 @Slf4j
-@Component
-open class CustomAuthenticationProvider : AbstractUserDetailsAuthenticationProvider() {
-    @Autowired
-    lateinit var authService: AuthService
-
-    @Autowired
-    lateinit var sessionRepository: FindByIndexNameSessionRepository<out Session>
-
+@Component class CustomAuthenticationProvider(
+    val authService: AuthService,
+    val sessionRepository: FindByIndexNameSessionRepository<out Session>
+) : AbstractUserDetailsAuthenticationProvider() {
     override fun retrieveUser(token: String?, authentication: UsernamePasswordAuthenticationToken?): UserDetails {
         if (token == null) {
             throw BadCredentialsException("token is null during AuthenticationProvider")
@@ -111,20 +106,15 @@ class GitlabTokenAuthenticationFilter(requestMatcher: RequestMatcher) : Abstract
 
     override fun successfulAuthentication(request: HttpServletRequest?, response: HttpServletResponse?, chain: FilterChain?, authResult: Authentication?) {
         SecurityContextHolder.getContext().authentication = authResult
-//        request?.session?.setAttribute("isAuthenticated", authResult!!.isAuthenticated)
         chain?.doFilter(request, response)
     }
 
-//    override fun unsuccessfulAuthentication(request: HttpServletRequest?, response: HttpServletResponse?, failed: AuthenticationException?) {
-//        super.unsuccessfulAuthentication(request, response, failed)
-//        request?.session?.setAttribute("isAuthenticated", false)
-//    }
 }
 
 @Slf4j
 class RedisSessionStrategy<T : Session>(private val sessionRepo: FindByIndexNameSessionRepository<T>) : SessionAuthenticationStrategy {
 
-    val log = Logger.getLogger(this::class.simpleName)
+    val log: Logger = Logger.getLogger(this::class.simpleName)
 
     override fun onAuthentication(authentication: Authentication?, request: HttpServletRequest?, response: HttpServletResponse?) {
 

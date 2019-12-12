@@ -11,6 +11,8 @@ services:
   postgres:
     image: "postgres:alpine"
     environment:
+      POSTGRES_USER: "mlreef"
       POSTGRES_PASSWORD: "password"
+      POSTGRES_DB: "mlreef_backend"
     ports:
       - "5432:5432"

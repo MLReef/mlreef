@@ -2,6 +2,7 @@ plugins {
     id 'org.springframework.boot' version '2.1.9.RELEASE'
     id 'io.spring.dependency-management' version '1.0.8.RELEASE'
     id 'org.jetbrains.kotlin.jvm'
+    id 'kotlin-spring'
     id 'kotlin-jpa'
     id 'kotlin-allopen'
 }
@@ -14,6 +15,8 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
     implementation 'org.springframework.boot:spring-boot-starter'
     implementation 'javax.persistence:javax.persistence-api'
+    implementation 'org.hibernate:hibernate-core' //, version: '5.3.12.Final'
+
     implementation 'org.springframework.data:spring-data-jpa'
     implementation 'org.jetbrains.kotlin:kotlin-reflect'
 
@@ -28,6 +31,12 @@ bootJar {
 
 jar {
     enabled = true
+}
+
+allOpen {
+    annotation("javax.persistence.Entity")
+    annotation("javax.persistence.MappedSuperclass")
+    annotation("javax.persistence.Embeddable")
 }
 
 compileKotlin {
