@@ -19,13 +19,6 @@ const setup = () => {
 describe('images diff', () => {
   test('assert that both images are rendered previous and new ones', () => {
     const wrapper = setup();
-    expect(wrapper.find('.image-display > div > img')).toHaveLength(2);
-  });
-});
-
-describe('Additional data is presented', () => {
-  test('assert that file name is present in the div title', () => {
-    const wrapper = setup();
-    expect(wrapper.find('#image-modified-name').text()).toBe('color_0_0054_A.png');
+    expect(wrapper.find('ImageDiffSection')).toHaveLength(1);
   });
 });

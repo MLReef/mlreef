@@ -1,7 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { string, shape, func } from 'prop-types';
+import { string, shape, func, arrayOf } from 'prop-types';
 import ReadMeComponent from '../readMe/readMe';
 import ProjectContainer from '../projectContainer';
 import FilesContainer from '../filesContainer';
@@ -168,14 +168,14 @@ ProjectView.propTypes = {
   match: shape({
     params: shape({
       projectId: string.isRequired,
-      file: string.isRequired,
+      file: string,
       branch: string.isRequired,
-      path: string.isRequired,
+      path: string,
     }),
   }).isRequired,
-  users: shape({
+  users: arrayOf(shape({
     name: string.isRequired,
-  }).isRequired,
+  })).isRequired,
   branches: shape.isRequired,
   projects: shape({
     all: shape.isRequired,

@@ -5,10 +5,11 @@ import renderer from 'react-test-renderer';
 import { MemoryRouter } from 'react-router-dom';
 import Adapter from 'enzyme-adapter-react-16';
 import { RepoFeatures } from '../components/repoFeatures';
+import { projectsArrayMock } from '../testData';
 
 Enzyme.configure({ adapter: new Adapter() });
 
-const wrapper = shallow(<RepoFeatures />);
+const wrapper = shallow(<RepoFeatures projects={projectsArrayMock.projects} />);
 
 describe('There should be 7 buttons', () => {
   it('renders without crashing given the required props', () => {
@@ -29,7 +30,7 @@ describe('The branches list should be displayed when dropdown button is clicked'
     const component = renderer
       .create(
         <MemoryRouter>
-          <RepoFeatures />
+          <RepoFeatures projects={projectsArrayMock.projects} />
         </MemoryRouter>,
       )
       .toJSON();

@@ -31,7 +31,7 @@ describe('test the frontend features', () => {
     wrapper = setup();
   });
   test('assert that there exists a select', () => {
-    expect(wrapper.find('GenerateSelect')).toHaveLength(1);
+    expect(wrapper.find('CustomizedSelect')).toHaveLength(1);
   });
   test('assert that there an input to enter branch name', () => {
     expect(wrapper.find('#new-branch-name')).toHaveLength(1);

@@ -1,0 +1,20 @@
+#branches-select {
+  height: 0.5em
+}
+
+#title-mr-input {
+  height: 0.5em
+}
+
+.separation-div {
+  background-color: #E5E5E5;
+  padding: 1.1em;
+}
+
+.separation-div > p {
+  margin: 0;
+}
+
+#description-mr-input {
+  width: '100%';
+}
