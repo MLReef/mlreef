@@ -3,7 +3,7 @@ version: '2'
 
 services:
   frontend:
-    image: registry.gitlab.com/mlreef/frontend:master
+    image: registry.gitlab.com/mlreef/frontend:develop
     container_name: frontend
     restart: always
     depends_on:
@@ -13,7 +13,43 @@ services:
       - 80:3000
       - 3000:3000
 
+      
+  backend:
+    container_name: backend
+    image: registry.gitlab.com/mlreef/backend:develop
+    restart: always
+    depends_on:
+      - gitlab
+      - mlreef-postgres
+      - redis
+    ports:
+      - "8080:8080"
+      - "20080:8080"
+    environment: 
+      - SPRING_PROFILES_ACTIVE=dev
+      - JAVA_TEST_PRIVATE_TOKEN=$JAVA_TEST_PRIVATE_TOKEN  # secret, use ENV var
+      - GITLAB_HOSTNAME=$GITLAB_HOSTNAME
+      - GITLAB_ADMIN_TOKEN=$GITLAB_ADMIN_TOKEN            # secret, use ENV var
+      - DB_HOST=mlreef-postgres
+      - DB_PORT=6000
+      - DB_USER=mlreef
+      - DB_PASS=password                                  # secret, use ENV var
+      - DB_NAME=mlreef_backend
 
+
+  mlreef-postgres:
+    container_name: mlreef-postgres
+    restart: always
+    image: sameersbn/postgresql:10-2
+    ports:
+      - "6000:5432"
+    environment:
+      - DB_USER=mlreef
+      - DB_PASS=password                                  # secret, use ENV var
+      - DB_NAME=mlreef_backend
+      - DB_EXTENSION=pg_trgm
+
+      
   gitlab:
     container_name: gitlab
     restart: always
@@ -33,7 +69,7 @@ services:
       - DB_HOST=postgresql
       - DB_PORT=5432
       - DB_USER=gitlab
-      - DB_PASS=password
+      - DB_PASS=password                                            #secret, use ENV var
       - DB_NAME=gitlabhq_production
 
       - REDIS_HOST=redis
@@ -165,7 +201,7 @@ services:
       - postgresql-data:/var/lib/postgresql:Z                        # this line gets rewritten by the CI/CD pipeline
     environment:
       - DB_USER=gitlab
-      - DB_PASS=password
+      - DB_PASS=password                                             # secret, use ENV var                              
       - DB_NAME=gitlabhq_production
       - DB_EXTENSION=pg_trgm
 
@@ -173,6 +209,8 @@ services:
     container_name: redis
     restart: always
     image: sameersbn/redis:4.0.9-2
+    ports:
+      - "6379:6379"
 #    command:
 #      - --loglevel warning
 #    volumes:

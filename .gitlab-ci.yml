@@ -14,30 +14,24 @@ stages:
 # AWS_DEFAULT_REGION      default:eu-central-1
 # GITLAB_API_TOKEN        for creating and deleting environments on gitlab.com
 variables:
-  FRONTEND_IMAGE_NAME: "frontend"                               # docker image base name
-  FRONTEND_BRANCH:     "$CI_COMMIT_REF_SLUG"
-  FRONTEND_IMAGE_PATH: "$DOCKER_REGISTRY/$DOCKER_ORGANISATION/$FRONTEND_IMAGE_NAME:$CI_COMMIT_REF_SLUG"
-  BACKEND_BRANCH:  "master"
-  DOCKER_REGISTRY_REPOSITORY_ID: "717423"                  # https://gitlab.com/api/v4/projects/12894267/registry/repositories/
-  EC2_INSTANCE_NAME: "mlreef-$CI_COMMIT_REF_SLUG"          # environment name and url are set separately
-  SSH_KEYFILE:    "development.pem"
-  STARTUP_SCRIPT: "bin/startup.sh"
-  BACKUP_SCRIPT:  "bin/backup.sh"
-  RESTORE_SCRIPT: "bin/restore.sh"
-  DOCKER_COMPOSE: "docker-compose.yml"                     # file for transmitting VM information between stages
-  INSTANCE_INFO:  "instance.info"                          # file for transmitting VM information between stages
-  S3_DATA_BUCKET: "mlreef-data"
-  DATA_ARCHIVE:   "mlreef-data-develop.zip"
+  FRONTEND_IMAGE_NAME:  "frontend"                         # docker image base name
+  FRONTEND_TAG:         "$CI_COMMIT_REF_SLUG"              # must be the same as "tag" in in FRONTEND_IMAGE_PATH
+  # unfortunately using the $FRONTEND_TAG variable inside the FRONTEND_IMAGE_PATH does not work
+  FRONTEND_IMAGE_PATH:  "$DOCKER_REGISTRY/$DOCKER_ORGANISATION/$FRONTEND_IMAGE_NAME:$CI_COMMIT_REF_SLUG"
+  BACKEND_IMAGE_NAME:   "backend"                          # docker image base name
+  BACKEND_TAG:          "latest"
+  BACKEND_IMAGE_PATH:   "$DOCKER_REGISTRY/$DOCKER_ORGANISATION/$BACKEND_IMAGE_NAME:$BACKEND_TAG"
+  DOCKER_REGISTRY_REPO: "717423"                           # https://gitlab.com/api/v4/projects/12894267/registry/repositories/
+  EC2_INSTANCE_NAME:    "mlreef-$CI_COMMIT_REF_SLUG"       # environment name and url are set separately
+  SSH_KEYFILE:          "development.pem"
+  STARTUP_SCRIPT:       "bin/startup.sh"
+  BACKUP_SCRIPT:        "bin/backup.sh"
+  RESTORE_SCRIPT:       "bin/restore.sh"
+  DOCKER_COMPOSE:       "docker-compose.yml"
+  INSTANCE_INFO:        "instance.info"                    # file for transmitting VM information between stages
+  S3_DATA_BUCKET:       "mlreef-data"
+  DATA_ARCHIVE:         "mlreef-data-develop.zip"
 
-
-log output:
-  stage: prepare
-  image: alpine:latest
-  script:
-    - echo "CI_COMMIT_REF_SLUG  is $CI_COMMIT_REF_SLUG"
-    - echo "FRONTEND_BRANCH     is $FRONTEND_BRANCH"
-    - echo "BACKEND_BRANCH      is $BACKEND_BRANCH"
-    - echo "FRONTEND_IMAGE_PATH is $FRONTEND_IMAGE_PATH"
 
 # The provision job boots up the new ec2 instance for deploying MLReef
 provision ec2:
@@ -60,7 +54,7 @@ provision ec2:
       | jq -r ".Reservations[].Instances[].InstanceId"
       | xargs --no-run-if-empty aws ec2 terminate-instances --instance-id
 
-    - sed -i "s~master/bin~$CI_COMMIT_REF_NAME/bin~"       $STARTUP_SCRIPT
+    - sed -i "s~master/bin~$CI_COMMIT_REF_NAME/bin~"                                           $STARTUP_SCRIPT
     - sed -i "s~AWS_ACCESS_KEY_ID=XXXXX~AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID~"                 $STARTUP_SCRIPT
     - sed -i "s~AWS_SECRET_ACCESS_KEY=XXXXX~AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY~"     $STARTUP_SCRIPT
     - cat $STARTUP_SCRIPT
@@ -115,6 +109,7 @@ prepare npm:
     - ls -al /usr/local/lib/node_modules
     - ls -al node_modules_global
   artifacts:
+    expire_in: 3 days
     paths:
       - web/node_modules
       - node_modules_global
@@ -145,13 +140,22 @@ deploy:
     KEY: "Authorization:"                                  # workaround to preserver the yaml structure
     GITLAB_PORT: 10080
   before_script:
+    - echo "CI_COMMIT_REF_SLUG  is $CI_COMMIT_REF_SLUG"
+    - echo "FRONTEND_TAG        is $FRONTEND_TAG"
+    - echo "BACKEND_TAG         is $BACKEND_TAG"
+    - echo "FRONTEND_IMAGE_NAME is $FRONTEND_IMAGE_NAME"
+    - echo "BACKEND_IMAGE_NAME  is $BACKEND_IMAGE_NAME"
+    - echo "FRONTEND_IMAGE_PATH is $FRONTEND_IMAGE_PATH"
+    - echo "BACKEND_IMAGE_PATH  is $BACKEND_IMAGE_PATH"
+
     - URL=$(cat $INSTANCE_INFO)
     - echo $URL                                            # debug output
     - chmod 400 $SSH_KEYFILE                               # prepare private key file
     - chmod +x bin/deploy.sh
     # rewrite docker dompose file
     # change the frontend docker image from master branch to current branch
-    - sed -i "s/$FRONTEND_IMAGE_NAME:master/$FRONTEND_IMAGE_NAME:$CI_COMMIT_REF_SLUG/"  $DOCKER_COMPOSE
+    - sed -i "s/$FRONTEND_IMAGE_NAME:develop/$FRONTEND_IMAGE_NAME:$FRONTEND_TAG/" $DOCKER_COMPOSE
+    - sed -i "s/$BACKEND_IMAGE_NAME:develop/$BACKEND_IMAGE_NAME:$BACKEND_TAG/"    $DOCKER_COMPOSE
     # change postgres-data local image to /data/postgres on host machine
     - sed -i "s~-\ postgresql-data~-\ /data/postgres~"                        $DOCKER_COMPOSE
     # change gitlab-data local image to /data/gitlab on host machine
@@ -172,6 +176,9 @@ deploy:
     - scp -i $SSH_KEYFILE -o 'AddKeysToAgent yes' bin/deploy.sh ubuntu@${URL}:/home/ubuntu
     - echo "starting deploy.sh"
     - echo "----------------------------------------"
+    - ssh -i $SSH_KEYFILE -o 'AddKeysToAgent yes' ubuntu@"${URL}" "
+        sudo docker login ${DOCKER_REGISTRY} -u \"${DOCKER_USER}\" -p \"${DOCKER_PASSWORD}\"
+      "
     - ssh -i $SSH_KEYFILE -o 'AddKeysToAgent yes' ubuntu@"${URL}" "
       sudo ./deploy.sh
         --instance $URL
@@ -225,9 +232,9 @@ decommission:
       | xargs --no-run-if-empty aws ec2 terminate-instances --instance-id
 
     # remove the branch's frontend docker container
-    - echo "Delete URL is https://gitlab.com/api/v4/projects/$CI_PROJECT_ID/registry/repositories/$DOCKER_REGISTRY_REPOSITORY_ID/tags/$CI_COMMIT_REF_SLUG/
+    - echo "Delete URL is https://gitlab.com/api/v4/projects/$CI_PROJECT_ID/registry/repositories/$DOCKER_REGISTRY_REPO/tags/$CI_COMMIT_REF_SLUG/
     - curl --request DELETE --header "$WORKAROUND $GITLAB_API_TOKEN" --fail
-      https://gitlab.com/api/v4/projects/$CI_PROJECT_ID/registry/repositories/$DOCKER_REGISTRY_REPOSITORY_ID/tags/$CI_COMMIT_REF_SLUG
+      https://gitlab.com/api/v4/projects/$CI_PROJECT_ID/registry/repositories/$DOCKER_REGISTRY_REPO/tags/$CI_COMMIT_REF_SLUG
   after_script:
     # remove the data backup from s3 (if it exists)
     - aws s3 rm "s3://mlreef-data/mlreef-data-$CI_COMMIT_REF_SLUG.zip"
