@@ -92,7 +92,7 @@ class FilesContainer extends Component {
   getBack = () => window.history.back()
 
   render = () => {
-    const { redirect, files } = this.state;
+    const { redirect, files, currentBranch } = this.state;
     const { projectId, branch } = this.props;
     return (
       <>
@@ -114,14 +114,15 @@ class FilesContainer extends Component {
               {' '}
               <b>&quot;master&quot;.</b>
             </p>
-            <button
+            <Link
               type="button"
               className="create-pr"
+              to={`/my-projects/${projectId}/${currentBranch}/new-merge-request`}
             >
               <p>
-              Create Pull Request
+                Create Pull Request
               </p>
-            </button>
+            </Link>
           </div>
 
           <table className="file-properties" id="file-tree">
@@ -170,7 +171,11 @@ class FilesContainer extends Component {
 FilesContainer.propTypes = {
   projectId: number.isRequired,
   branch: string.isRequired,
-  path: string.isRequired,
+  path: string,
+};
+
+FilesContainer.defaultProps = {
+  path: '',
 };
 
 export default FilesContainer;

@@ -31,7 +31,7 @@ const filesMock = [
 ];
 
 const setup = () => {
-  const wrapper = shallow(<FilesContainer />);
+  const wrapper = shallow(<FilesContainer projectId={14448940} branch="master" />);
   wrapper.instance().setState({ files: filesMock });
   return wrapper;
 };

@@ -1,6 +1,7 @@
 import React from 'react';
 import './fileView.css';
 import { connect } from 'react-redux';
+import { toastr } from 'react-redux-toastr';
 import { Base64 } from 'js-base64';
 import { Link } from 'react-router-dom';
 import { string, shape } from 'prop-types';
@@ -29,7 +30,8 @@ export class FileView extends React.Component {
       projectId,
       file,
       branch,
-    ).then((res) => this.setState({ fileData: res }));
+    ).then((res) => this.setState({ fileData: res }))
+      .catch((err) => toastr.error('Error: ', err.message));
   }
 
   componentWillUnmount() {
@@ -41,7 +43,8 @@ export class FileView extends React.Component {
     const { projectId } = propSet.match.params;
     const { fileData } = this.state;
     CommitsApi.getCommitDetails(projectId, fileData.last_commit_id)
-      .then((result) => this.setState({ committer: result }));
+      .then((result) => this.setState({ committer: result }))
+      .catch((err) => toastr.error('Error: ', err.message));
   }
 
   handleOutsideClick = () => {

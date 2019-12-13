@@ -16,6 +16,7 @@ import DataInstanceDetails from './components/data-instance/dataInstanceDetails'
 import EmptyDataVisualization from './components/data-visualization/dataVisualization';
 import ErrorPage from './components/error-page/errorPage';
 import ExperimentDetails from './components/experiment-details/experimentDetails';
+import NewMergeRequest from './components/new-merge-request/newMergeRequest';
 import NewBranch from './components/newBranch';
 
 const RouterComp = () => (
@@ -54,6 +55,11 @@ const RouterComp = () => (
       />
       <PrivateRoute path="/my-projects/:projectId/:branch/path/:path" component={projectView} />
       <PrivateRoute path="/my-projects/:projectId/commit/:commitId" exact component={CommitDetails} />
+      <PrivateRoute
+        exact
+        path="/my-projects/:projectId/:branch/new-merge-request"
+        component={NewMergeRequest}
+      />
     </Switch>
   </BrowserRouter>
 );

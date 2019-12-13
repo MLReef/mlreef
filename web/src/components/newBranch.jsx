@@ -1,51 +1,30 @@
-import React, { Component, useState } from 'react';
+import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import {
-  number, arrayOf, string, shape, func, bool,
+  number, arrayOf, string, shape, func,
 } from 'prop-types';
 import { Redirect } from 'react-router-dom';
 import { toastr } from 'react-redux-toastr';
 import {
-  makeStyles, withStyles,
+  makeStyles,
 } from '@material-ui/core/styles';
 import InputLabel from '@material-ui/core/InputLabel';
-import MenuItem from '@material-ui/core/MenuItem';
 import FormControl from '@material-ui/core/FormControl';
 import {
   Button,
   Typography,
-  CircularProgress,
 } from '@material-ui/core';
-import InputBase from '@material-ui/core/InputBase';
-import Select from '@material-ui/core/Select';
 import ProjectContainer from './projectContainer';
 import Navbar from './navbar/navbar';
 import branchesApi from '../apis/BranchesApi';
-
-const BorderedInput = withStyles((theme) => ({
-  root: {
-    'label + &': {
-      backgroundColor: 'white',
-    },
-  },
-  input: {
-    borderRadius: 4,
-    backgroundColor: theme.palette.background.paper,
-    border: '1px solid #ced4da',
-    padding: '18px 19px',
-    '&:focus': {
-      borderRadius: 4,
-      boxShadow: '0 0 0 0.1rem rgb(50, 175, 195)',
-    },
-  },
-}))(InputBase);
+import CustomizedButton from './CustomizedButton';
+import BorderedInput from './BlueBorderedInput';
+import CustomizedSelect from './CustomizedSelect';
 
 const cuztomizedStyles = makeStyles((theme) => ({
   formControl: {
-    marginBottom: theme.spacing(2),
-    marginLeft: theme.spacing(10),
     minWidth: 120,
-    width: '80%',
+    width: '100%',
   },
   loadingDiv: {
     margin: theme.spacing(1),
@@ -61,14 +40,6 @@ const cuztomizedStyles = makeStyles((theme) => ({
   },
 }));
 
-const useStylesSubmitButton = makeStyles((theme) => ({
-  style: {
-    height: theme.spacing(5),
-    backgroundColor: '#15B785',
-    color: 'white',
-  },
-}));
-
 const TextFieldFromControl = ({ id, labelTxt, onChangeHandler }) => (
   <FormControl required variant="outlined" className={cuztomizedStyles().formControl}>
     <InputLabel id={`label-for-${id}`} style={{ backgroundColor: 'white', color: '#1A2B3F' }}>
@@ -81,78 +52,6 @@ const TextFieldFromControl = ({ id, labelTxt, onChangeHandler }) => (
 TextFieldFromControl.propTypes = {
   id: string.isRequired,
   labelTxt: string.isRequired,
-  onChangeHandler: func.isRequired,
-};
-
-const CustomizedButton = ({
-  id,
-  onClickHandler,
-  buttonLabel,
-  loading,
-}) => {
-  const classes = useStylesSubmitButton();
-  const customizedStyles = cuztomizedStyles();
-  return (
-    <div className={customizedStyles.loadingDiv}>
-      <Button
-        className={classes.style}
-        id={id}
-        variant="contained"
-        disabled={loading}
-        onClick={(e) => onClickHandler(e)}
-      >
-        {buttonLabel}
-      </Button>
-      {loading && <CircularProgress size={30} className={customizedStyles.buttonProgress} />}
-    </div>
-  );
-};
-
-CustomizedButton.propTypes = {
-  id: string.isRequired,
-  onClickHandler: func.isRequired,
-  buttonLabel: string.isRequired,
-  loading: bool.isRequired,
-};
-
-const GenerateSelect = ({ options, inputId, onChangeHandler }) => {
-  const [value, setValue] = useState('');
-  const inputLabel = React.useRef(null);
-  const [labelWidth, setLabelWidth] = React.useState(0);
-
-  React.useEffect(() => {
-    setLabelWidth(inputLabel.current.offsetWidth);
-  }, []);
-  return (
-    <FormControl required variant="outlined" className={cuztomizedStyles().formControl}>
-      <InputLabel ref={inputLabel} id={`label-for-${inputId}`} style={{ backgroundColor: 'white', color: '#1A2B3F' }}>
-        Create from
-      </InputLabel>
-      <Select
-        labelId={`label-for-${inputId}`}
-        id={inputId}
-        value={value}
-        labelWidth={labelWidth}
-        input={<BorderedInput />}
-        onChange={(e) => {
-          onChangeHandler(e.target.value);
-          setValue(e.target.value);
-        }}
-      >
-        <MenuItem value="">
-          <em>None</em>
-        </MenuItem>
-        {options.map((option) => (
-          <MenuItem key={option} value={option}>{option}</MenuItem>
-        ))}
-      </Select>
-    </FormControl>
-  );
-};
-
-GenerateSelect.propTypes = {
-  options: arrayOf(string).isRequired,
-  inputId: string.isRequired,
   onChangeHandler: func.isRequired,
 };
 
@@ -260,16 +159,21 @@ class NewBranch extends Component {
             </Typography>
           </div>
           <br />
-          <TextFieldFromControl
-            id="new-branch-name"
-            labelTxt="Branch name"
-            onChangeHandler={(e) => this.setState({ newBranchName: e.target.value })}
-          />
-          <GenerateSelect
-            options={branches}
-            inputId="branches-select"
-            onChangeHandler={this.setBranchSelected}
-          />
+          <div style={{ width: '74%', marginLeft: '5vw', marginBottom: '2vw' }}>
+            <TextFieldFromControl
+              id="new-branch-name"
+              labelTxt="Branch name"
+              onChangeHandler={(e) => this.setState({ newBranchName: e.target.value })}
+            />
+          </div>
+          <div style={{ width: '74%', marginLeft: '5vw', marginBottom: '2vw' }}>
+            <CustomizedSelect
+              options={branches}
+              inputId="branches-select"
+              onChangeHandler={this.setBranchSelected}
+              inputLabelText="Create from"
+            />
+          </div>
           <div style={{
             display: 'flex',
             backgroundColor: '#F9F8F8',

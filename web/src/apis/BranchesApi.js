@@ -1,5 +1,7 @@
 import { SECURITY_TOKEN } from '../apiConfig';
 import { domain } from '../dataTypes';
+import { generateGetRequest } from './apiHelpers';
+
 /**
  * core-js and regenerator-runtime imports are necessary to make tests run
  */
@@ -39,5 +41,12 @@ export default class BranchesApi {
     } catch (err) {
       return err;
     }
+  }
+
+  static async compare(projectId, from, to) {
+    const url = `https://${domain}/api/v4/projects/${projectId}/repository/compare?from=${from}&to=${to}`;
+    const response = await generateGetRequest(url);
+
+    return response.json();
   }
 }

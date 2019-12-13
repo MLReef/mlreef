@@ -138,7 +138,7 @@ class CommitsView extends Component {
                 return (
                   new Date(item.committed_date).toLocaleString('en-eu', { day: 'numeric', month: 'short', year: 'numeric' }) === commit
                     ? (
-                      <Commits
+                      <CommitDiv
                         key={item.short_id}
                         projectId={project.id}
                         commitid={item.id}
@@ -160,7 +160,7 @@ class CommitsView extends Component {
   }
 }
 
-function Commits(props) {
+export function CommitDiv(props) {
   const {
     time,
     id,
@@ -174,7 +174,7 @@ function Commits(props) {
   const previous = new Date(time);
   const timediff = getTimeCreatedAgo(previous, today);
   return (
-    <div className="commits">
+    <div className="commits" key={id}>
       <div className="commit-list">
         <div className="commit-pic-circle">
           <img src={avatarName} alt="avatar" />
@@ -199,9 +199,9 @@ function Commits(props) {
   );
 }
 
-Commits.propTypes = {
+CommitDiv.propTypes = {
   time: string.isRequired,
-  id: number.isRequired,
+  id: string.isRequired,
   name: string.isRequired,
   title: string.isRequired,
   commitid: string.isRequired,
