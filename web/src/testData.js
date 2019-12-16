@@ -14,6 +14,8 @@ export const mockMatchDataCommitDet = {
   isExact: true,
   params: {
     projectId: '12395599',
+    branch: 'master',
+    file: '.gitignore',
     commitId: 'aede036f526ea5d591f5ee56c131ed8472483912',
   },
 };

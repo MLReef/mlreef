@@ -120,7 +120,7 @@ class NewBranch extends Component {
     )
       .then(() => {
         this.setState({ redirect: true, loading: false });
-        toastr.success('Sucess:', 'The branch was created');
+        toastr.success('Success:', 'The branch was created');
       })
       .catch(
         () => {

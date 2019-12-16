@@ -20,14 +20,6 @@ const cuztomizedStyles = makeStyles((theme) => ({
     margin: theme.spacing(1),
     position: 'relative',
   },
-  buttonProgress: {
-    color: '#15b785',
-    position: 'absolute',
-    top: '45%',
-    left: '45%',
-    marginTop: -12,
-    marginLeft: -6,
-  },
 }));
 
 const CustomizedSelect = ({

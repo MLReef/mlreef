@@ -1,6 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { arrayOf } from 'prop-types';
+import { arrayOf, shape } from 'prop-types';
 import Navbar from '../navbar/navbar';
 import ProjectSet from '../projectSet';
 import './myProjects.css';
@@ -77,7 +77,9 @@ function mapStateToProps(state) {
 }
 
 Myprojects.propTypes = {
-  projects: arrayOf.isRequired,
+  projects: arrayOf(
+    shape({}).isRequired,
+  ).isRequired,
 };
 
 export default connect(mapStateToProps)(Myprojects);

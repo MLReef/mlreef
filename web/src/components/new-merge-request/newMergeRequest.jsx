@@ -56,7 +56,7 @@ export class NewMergeRequest extends Component {
       },
     } = this.props;
     branchesApi
-      .compare(selectedProject.id, branch, branchSelected)
+      .compare(selectedProject.id, branchSelected, branch)
       .then((res) => {
         this.setState({
           lastCommit: res.commit,
@@ -64,8 +64,8 @@ export class NewMergeRequest extends Component {
           diffs: res.diffs,
         });
         this.getDiffDetails(res.diffs);
-      }).catch(() => {
-
+      }).catch((err) => {
+        toastr.error('Error', err.message);
       });
   }
 

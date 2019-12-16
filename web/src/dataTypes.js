@@ -262,3 +262,14 @@ export const filesForExperimentsDetails = [
     description: 'description',
   },
 ];
+
+/**
+ * Gitlab actions
+ */
+export const CREATE = 'create';
+export const DELETE = 'delete';
+export const MOVE = 'move';
+export const UPDATE = 'update';
+export const CHMOD = 'chmod';
+
+/*-----------------------------------------*/

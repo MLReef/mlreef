@@ -1,7 +1,9 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { string, shape, func, arrayOf } from 'prop-types';
+import {
+ string, shape, func, arrayOf 
+} from 'prop-types';
 import ReadMeComponent from '../readMe/readMe';
 import ProjectContainer from '../projectContainer';
 import FilesContainer from '../filesContainer';
@@ -66,10 +68,9 @@ class ProjectView extends React.Component {
     this.setState({ showLoadingModal: modalVisibility });
   }
 
-  updateLastCommit() {
+  updateLastCommit(newBranch) {
     const { selectedProject } = this.state;
-    const { branch } = this.state;
-    commitsApi.getCommits(selectedProject.id, branch, '', 1)
+    commitsApi.getCommits(selectedProject.id, newBranch, '', 1)
       .then(
         (res) => this.setState({ lastCommit: res[0] }),
       );
@@ -176,7 +177,10 @@ ProjectView.propTypes = {
   users: arrayOf(shape({
     name: string.isRequired,
   })).isRequired,
-  branches: shape.isRequired,
+  branches: arrayOf(
+    shape({
+    }).isRequired,
+  ).isRequired,
   projects: shape({
     all: shape.isRequired,
   }).isRequired,
