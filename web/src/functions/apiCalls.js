@@ -10,7 +10,6 @@ export const callToCommitApi = (
   projectId,
   '.mlreef.yml',
   finalContent,
-  'gitlab.com',
   branch,
   'pipeline execution',
   action,

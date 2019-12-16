@@ -7,6 +7,7 @@ import {
   shape,
   number,
   func,
+  arrayOf,
 } from 'prop-types';
 import arrowDown from '../images/arrow_down_blue_01.svg';
 import plus01 from '../images/plus_01.svg';
@@ -20,7 +21,7 @@ export class RepoFeatures extends Component {
 
   constructor(props) {
     super(props);
-    const { branch, projects: { selectedProject: { id } } } = this.props;
+    const { branch, projects: { selectedProject: { id } }, actions } = this.props;
 
     this.state = {
       isOpen: false,
@@ -30,7 +31,9 @@ export class RepoFeatures extends Component {
       branches: [],
     };
 
-    this.props.actions && this.props.actions.getBranchesList(this.state.projectId);
+    if (actions) {
+      actions.getBranchesList(id);
+    }
   }
 
   static getDerivedStateFromProps = (nextProps, prevState) => {
@@ -85,7 +88,7 @@ export class RepoFeatures extends Component {
   handleClick = (e) => {
     const { projectId } = this.state;
     const { updateLastCommit, actions: { loadFiles } } = this.props;
-    updateLastCommit();
+    updateLastCommit(e.currentTarget.id);
     loadFiles(
       null,
       encodeURIComponent(e.currentTarget.id),
@@ -213,12 +216,16 @@ RepoFeatures.propTypes = {
   branch: string.isRequired,
   path: string.isRequired,
   projects: shape({
-    selectedProject: {
+    selectedProject: shape({
       id: number.isRequired,
-    },
+    }),
   }).isRequired,
   updateLastCommit: func.isRequired,
-  branches: shape.isRequired,
+  branches: arrayOf(
+    shape({
+      name: string.isRequired,
+    }),
+  ).isRequired,
   actions: shape({
     loadFiles: func.isRequired,
   }).isRequired,

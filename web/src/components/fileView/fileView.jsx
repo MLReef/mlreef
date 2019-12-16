@@ -4,13 +4,14 @@ import { connect } from 'react-redux';
 import { toastr } from 'react-redux-toastr';
 import { Base64 } from 'js-base64';
 import { Link } from 'react-router-dom';
-import { string, shape } from 'prop-types';
+import { string, shape, arrayOf } from 'prop-types';
 import ProjectContainer from '../projectContainer';
 import CommitsApi from '../../apis/CommitsApi';
 import Navbar from '../navbar/navbar';
 import file01 from '../../images/file_01.svg';
 import arrowBlue from '../../images/arrow_down_blue_01.svg';
 import filesApi from '../../apis/FilesApi';
+import DeleteFileModal from '../delete-file-modal/deleteFileModal';
 
 export class FileView extends React.Component {
   constructor(props) {
@@ -22,9 +23,11 @@ export class FileView extends React.Component {
       project: projects && projects.selectedProject,
       committer: [],
       fileData: null,
+      isdeleteModalVisible: false,
     };
 
     this.handleBranch = this.handleBranch.bind(this);
+    this.showDeleteModal = this.showDeleteModal.bind(this);
 
     filesApi.getFileData(
       projectId,
@@ -64,16 +67,17 @@ export class FileView extends React.Component {
     }));
   }
 
+  showDeleteModal = () => this.setState((prevState) => (
+    { isdeleteModalVisible: !prevState.isdeleteModalVisible }
+  ));
+
   render() {
-    const propsValidate = this.props;
-    const { match: { params: { file, branch } } } = this.props;
-    const { users } = this.props;
-    const { projectId } = propsValidate.match.params;
+    const { users, branches, match: { params: { file, branch, projectId } } } = this.props;
     const {
       project,
       committer,
-      branches,
       fileData,
+      isdeleteModalVisible,
     } = this.state;
     const { isOpen } = this.state;
     let fileName = null;
@@ -104,6 +108,15 @@ export class FileView extends React.Component {
 
     return (
       <div>
+        <DeleteFileModal
+          projectId={projectId}
+          filepath={file}
+          isModalVisible={isdeleteModalVisible}
+          fileName={fileName}
+          branches={branches.map((branchObj) => branchObj.name)}
+          showDeleteModal={this.showDeleteModal}
+          branchSelected={branch}
+        />
         <Navbar />
         <ProjectContainer
           project={project}
@@ -113,7 +126,7 @@ export class FileView extends React.Component {
         <div className="branch-path">
           <div className="branch-btn" ref={this.branchRef}>
             <button type="button" onClick={this.handleBranch}>
-              <span>{decodeURIComponent(propsValidate.match.params.branch)}</span>
+              <span>{decodeURIComponent(branch)}</span>
               <img className="dropdown-white" src={arrowBlue} alt="" />
             </button>
           </div>
@@ -138,7 +151,13 @@ export class FileView extends React.Component {
                       const encoded = encodeURIComponent(branch.name);
                       return (
                         <li key={encoded}>
-                          <Link id={branch.name} to={`/my-projects/${project.id}/${encoded}`} onClick={this.handleClick}><p>{branch.name}</p></Link>
+                          <Link
+                            id={branch.name}
+                            to={`/my-projects/${project.id}/${encoded}`}
+                            onClick={this.handleClick}
+                          >
+                            <p>{branch.name}</p>
+                          </Link>
                         </li>
                       );
                     })}
@@ -222,7 +241,14 @@ export class FileView extends React.Component {
                   <Link to={`/my-projects/${projectId}/${branch}/commits/${file}`}>History</Link>
                 </button>
                 <button type="button" className="white-button">Replace</button>
-                <button type="button" className="red-button">Delete</button>
+                <button
+                  type="button"
+                  className="red-button"
+                  onClick={this.showDeleteModal}
+                  style={{ cursor: 'pointer' }}
+                >
+                  Delete
+                </button>
               </div>
             </div>
           </div>
@@ -274,12 +300,19 @@ FileView.propTypes = {
       branch: string.isRequired,
     }),
   }),
-  users: shape({
+  users: arrayOf(shape({
     name: string.isRequired,
     avatar_url: string.isRequired,
-  }).isRequired,
+  })).isRequired,
+  branches: arrayOf(
+    shape({
+      name: string.isRequired,
+    }).isRequired,
+  ).isRequired,
   projects: shape({
-    selectedProject: string.isRequired,
+    selectedProject: shape({
+
+    }),
   }).isRequired,
 };
 

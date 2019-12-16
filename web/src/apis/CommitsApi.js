@@ -3,7 +3,7 @@ import { domain } from '../dataTypes';
 import { generateGetRequest } from './apiHelpers';
 
 export default class CommitsApi {
-  static async performCommit(projectId, filePath, fileContent, domain = 'gitlab.com', branch = 'master', commitMss, action) {
+  static async performCommit(projectId, filePath, fileContent, branch, commitMss, action) {
     try {
       const response = await fetch(
         `https://${domain}/api/v4/projects/${projectId}/repository/commits`, {
