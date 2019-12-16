@@ -9,7 +9,9 @@ object ApplicationProfiles {
     const val PROD = "prod"
 }
 
-@SpringBootApplication(scanBasePackages = ["com.mlreef", "com.mlreef.rest"]) class RestApplication
+@SpringBootApplication(scanBasePackages = ["com.mlreef", "com.mlreef.rest"])
+class RestApplication
+
 fun main(args: Array<String>) {
     runApplication<RestApplication>(*args)
 }

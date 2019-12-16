@@ -1,16 +1,61 @@
 # MLReef REST Backend
 
+## Environment
+
+The non-secret variables should go directly into the config files.
+Other non-secret env variables may be used as switches and should provide a default values.
+Other env vars are totally secret and should never go into the git repo, for example API keys, tokens and passwords.
+
+This will be provided by GitlabCI, you local env (you have to setup this yourself), test envs or AWS.
+
+Common prefixes are:
+* JAVA_TEST_ := just used in Tests, can be provided via IDE run config
+
+### Environment Variables
+
+* **JAVA_TEST_PRIVATE_TOKEN**
+  * Gitlab Private Token (API permissions) of User for test repos
+  * will be injected by Gitlab CI
+  * must be provided locally for tests
+* **GITLAB_HOSTNAME** 
+  * hostname and port of gitlab instance to be used by backend, 
+  * default: "localhost:10080"
+* **GITLAB_ADMIN_TOKEN** 
+  * The PTA of the Admin user with API and SUDO rights. keep it secret!
+* **SPRING_PROFILES_ACTIVE** 
+  * MUST BE provided! 
+  * "dev", "test",  or "prod"
+* DB_HOST = localhost on machine, "postgres" in gitlab ci
+* DB_PORT = 6000
+* DB_NAME = mlreef_backend
+* DB_USER = mlreef
+* DB_PASSWORD = guess
+* REDIS_HOST = "localhost" on machine, "redis" in gitlab ci
+* REDIS_PORT = 6379
+
+Variables with* have no default and must be provided
+  
+### Needed Services
+
+* Redis on port 6379
+* postgres on port 6000 with database "mlreef_backend"
+* gitlab-docker or gitlab.com
+
+For docker-compose, you could say it ...
+
+```
+    depends_on:
+      - gitlab
+      - mlreef-postgres #6000
+      - redis
+```
 
 ## Development & Testing
 
-Spring boot runs on its own and will bind to local port 8080. You may use it as a docker service, 
-see the [Dockerfile](Dockerfile) for that.
-Some services are needed, Redis now and PostgreSQL in future. [Docker-compose](docker-compose.yml) will setup the necessary machines 
-and will be kept up to date
 
 ### Prepare your environment:
 
-* start docker-compose
+* start docker-compose up in frontend project
 * use docker image "mlreef-rest" at 8080 or explicitly kill it to run the backend with your IDE
 * for manipulating redis sessions:
   * start a redis-cli and type:
@@ -18,12 +63,17 @@ and will be kept up to date
   * ```KEY spring*``` to see all current (Spring session) keys 
 * Create a bash/batch file to prepare you environment with the needed env vars. See [init-test-env-windows.bat.example](init-test-env-windows.bat.example)
 
+### Run as standalone docker container
+
+docker run -d -p 8080:8080 -e "SPRING_PROFILES_ACTIVE=dev" --name backend-2 registry.gitlab.com/mlreef/backend:latest
+
+
 ####  Setup PostgreSQL DB 
 
 Setup your ENV variables!
 
 ```
-docker pull postgres:11
+docker pull postgres:11-alpine
 docker run --name postgres -p $DB_PORT:$DB_PORT -e POSTGRES_PASSWORD=$DB_PASSWORD -d postgres:11
 # CREATE db coursedb
 docker exec postgres psql -U postgres -c"CREATE DATABASE $DB_NAME" postgres
@@ -34,36 +84,20 @@ docker exec postgres psql -U postgres -c"CREATE DATABASE $DB_NAME" postgres
 docker run --name postgres -p %DB_PORT%:%DB_PORT% -e POSTGRES_PASSWORD=%DB_PASSWORD% -d postgres:11
 docker exec mlreef-rest_postgres_1 psql -U postgres -c"CREATE DATABASE mlreef_backend" postgres
 ```
-## Environment
 
-The non-secret variables should go directly into the config files. Other non-secret env variables may be used as switches and should provide a default values.
-Other env vars are totally secret and should never go into the git repo, for example API keys, tokens and passwords.
+## Deploy as Docker Image
 
-This will be provided by GitlabCI, you local env (you have to setup this yourself), test envs or AWS.
+The Dockerfile builds the Backend as a "FROM openjdk" image.
+Project must be build and have a populated build/dependency dir!
 
-Common prefixes are:
-* JAVA_TEST_ := just used in Tests, can be provided via IDE run config
+Hint: Tests must succeed to build asciidoc and the bootJar ;)
 
-### Variables
+Run at least the following:
 
-* JAVA_TEST_PRIVATE_TOKEN := Gitlab Private Token (API permissions) of User for test repos
-  * will be injected by Gitlab CI
-  * must be provided locally for tests
-* GITLAB_HOSTNAME := hostname and port of gitlab instance to be used by backend, default: "localhost:10080"
-* GITLAB_ADMIN_TOKEN := The PTA of the Admin user with API and SUDO rights. keep it secret!
-
-For develop/testing we will use the following:
-* DB_HOST = localhost on machine, "postgres" in gitlab ci
-* DB_PORT = 5432
-* DB_NAME = mlreef_backend
-* DB_USER = postgres
-* DB_PASSWORD = password
-* REDIS_HOST = localhost on machine, "redis" in gitlab ci
-* REDIS_PORT = 6379
-  
-### Services
-
-* Redis on port 6379
+```
+./gradlew :mlreef-rest:prepareDocker
+docker build --pull --tag "$IMAGE_PATH" -f Dockerfile .   # $IMAGE_PATH via GitlabCI
+```
 
 ### Tipps
 

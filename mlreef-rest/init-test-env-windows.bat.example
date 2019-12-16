@@ -5,7 +5,7 @@
 # create a script which has the following prepared:
 set JAVA_TEST_PRIVATE_TOKEN=#your secret gitlab api token
 set DB_HOST=localhost
-set DB_PORT=5432
+set DB_PORT=6000
 set DB_NAME=mlreef_backend
-set DB_USER=postgres
+set DB_USER=mlreef
 set DB_PASSWORD=password
