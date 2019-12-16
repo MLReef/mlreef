@@ -65,7 +65,17 @@ For docker-compose, you could say it ...
 
 ### Run as standalone docker container
 
-docker run -d -p 8080:8080 -e "SPRING_PROFILES_ACTIVE=dev" --name backend-2 registry.gitlab.com/mlreef/backend:latest
+Run in production mode
+
+```
+docker run -d -p 8080:8080 --name backend registry.gitlab.com/mlreef/backend:latest
+```
+
+Run in "develop" mode by using the Spring profile called `dev`
+
+```
+docker run -d -p 8080:8080 -e "SPRING_PROFILES_ACTIVE=dev" --name backend registry.gitlab.com/mlreef/backend:latest
+```
 
 
 ####  Setup PostgreSQL DB 
