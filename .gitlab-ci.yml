@@ -3,19 +3,69 @@ stages:
   - deploy
   - teardown
 
+services:
+  - docker:19.03.1-dind
+
 
 variables:
-  AIOPS_EC2_INSTANCE_NAME: mlreef-aiops-dispatch-$CI_COMMIT_REF_SLUG        # environment name and url are set separately
-  BUILD_PATH: "mlreef-rest/build/docker"
-  IMAGE_NAME: "mlreef-rest"
-  BUCKET_NAME: mlreef-rest-$CI_COMMIT_REF_SLUG                   # environment name and url are set separately
-  REST_EC2_INSTANCE_NAME: mlreef-rest-$CI_COMMIT_REF_SLUG        # environment name and url are set separately
-  INSTANCE_INFO: instance.info                                   # workaround for transmitting information between stages
-  DOCKER_REGISTRY_REPOSITORY_ID: "753711"                        # https://gitlab.com/api/v4/projects/13830884/registry/repositories/
+  DOCKER_DRIVER: overlay2
+  DOCKER_TLS_CERTDIR: "/certs"
+  #DOCKER_BUILD_PATH: "mlreef-rest/build/docker"
+  IMAGE_NAME: "backend"
   IMAGE_PATH: "$DOCKER_REGISTRY/$DOCKER_ORGANISATION/$IMAGE_NAME:$CI_COMMIT_REF_SLUG"
+  DOCKER_REGISTRY_REPOSITORY_ID: "753711"                        # https://gitlab.com/api/v4/projects/13830884/registry/repositories/
+  REDIS_HOST: "redis"
+  REDIS_PORT: 6379
+  POSTGRES_DB: $DB_NAME
+  POSTGRES_USER: $DB_USER
+  POSTGRES_PASSWORD: $DB_PASSWORD
+  #  AIOPS_EC2_INSTANCE_NAME: mlreef-aiops-dispatch-$CI_COMMIT_REF_SLUG        # environment name and url are set separately
+  #  BUCKET_NAME: mlreef-rest-$CI_COMMIT_REF_SLUG                   # environment name and url are set separately
+  #  REST_EC2_INSTANCE_NAME: mlreef-rest-$CI_COMMIT_REF_SLUG        # environment name and url are set separately
+  #  INSTANCE_INFO: instance.info                                   # workaround for transmitting information between stages
 
 
-provision-dispatcher:
+build-backend:
+  stage: build
+  image: java:8
+  services:
+    - redis:5-alpine
+    - postgres:11-alpine
+  variables:
+    REDIS_HOST: "redis"
+    REDIS_PORT: 6379
+    POSTGRES_DB: $DB_NAME
+    POSTGRES_USER: $DB_USER
+    POSTGRES_PASSWORD: $DB_PASSWORD
+  before_script:
+    - echo "Use DB $DB_NAME with $DB_USER"
+  script:
+    - ./gradlew build --stacktrace
+    - ./gradlew :mlreef-rest:bootJar
+    - ./gradlew :mlreef-rest:prepareDocker
+  artifacts:
+    paths:
+      - mlreef-rest/build/asciidoc/html5/rest-api.html
+      - mlreef-rest/build/libs/*
+      - mlreef-rest/build/dependency/*
+    expire_in: 1 week
+
+
+deploy-backend:
+  stage: deploy
+  image: docker:19.03.1
+  dependencies:
+    - build-backend
+  before_script:
+    - docker login ${DOCKER_REGISTRY} -u "${DOCKER_USER}" -p "${DOCKER_PASSWORD}"
+  script:
+    - echo "IMAGE_PATH=${IMAGE_PATH}"
+    - cd mlreef-rest
+    - docker build --pull --tag "$IMAGE_PATH" -f Dockerfile .
+    - docker push "${IMAGE_PATH}"
+
+
+.provision-dispatcher:
   stage: deploy
   when: always                                         # provision-dispatcher must be independent of "build" and "test"
   image: registry.gitlab.com/systemkern/s5:latest-aws  # based on python:3-slim
@@ -49,8 +99,7 @@ provision-dispatcher:
     url: https://eu-central-1.console.aws.amazon.com/ec2/home?region=eu-central-1#Instances:sort=desc:launchTime
     on_stop: decomission
 
-
-decomission:
+.decomission:
   image: registry.gitlab.com/systemkern/s5:latest-aws    # based on python:3-slim
   stage: teardown
   when: manual
@@ -73,49 +122,3 @@ decomission:
   except:
     refs:
       - master
-
-
-build-backend:
-  stage: build
-  image: java:8
-  services:
-    - redis:latest
-    - postgres:latest
-  variables:
-    REDIS_HOST: "redis"
-    REDIS_PORT: 6379
-    POSTGRES_DB: $DB_NAME
-    POSTGRES_USER: $DB_USER
-    POSTGRES_PASSWORD: $DB_PASSWORD
-  before_script:
-    - echo "Use DB $DB_NAME with $DB_USER"
-  script:
-    - ./gradlew build --stacktrace
-    - ./gradlew :mlreef-rest:bootJar
-#    - ./gradlew :mlreef-rest:docker
-  artifacts:
-    paths:
-      - mlreef-rest/build/asciidoc/html5/rest-api.html
-      - mlreef-rest/build/libs/*
-      - mlreef-rest/build/docker/*
-
-
-.deploy-backend:
-  stage: deploy
-  image: docker:latest
-  dependencies:
-    - build-backend
-  services:
-    - docker:dind
-  before_script:
-    - docker login ${DOCKER_REGISTRY} -u "${DOCKER_USER}" -p "${DOCKER_PASSWORD}"
-  script:
-    - echo "IMAGE_PATH=$IMAGE_PATH"
-    - cd mlreef-rest/build/docker/
-    - docker build --pull --tag "$IMAGE_PATH" -f Dockerfile .
-    - docker push "${IMAGE_PATH}"
-#  only:
-#    changes:
-#      - build.gradle
-#      - mlreef-domain/**/*
-#      - mlreef-rest/**/*

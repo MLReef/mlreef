@@ -6,6 +6,14 @@ logging:
     org.springframework.orm: INFO
     org.hibernate: INFO
 
+
+mlreef:
+  gitlab:
+    hostnamePort: ${GITLAB_HOSTNAME}
+    adminUserToken: ${GITLAB_ADMIN_TOKEN}
+    mockUserToken: ${JAVA_TEST_PRIVATE_TOKEN}
+
+
 spring:
   data:
     repositories.type: none

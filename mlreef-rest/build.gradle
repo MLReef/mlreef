@@ -2,7 +2,6 @@ plugins {
     id 'org.springframework.boot' version '2.1.9.RELEASE'
     id 'io.spring.dependency-management' version '1.0.8.RELEASE'
     id 'org.jetbrains.kotlin.jvm'
-    id 'com.palantir.docker'
     id 'kotlin-spring'
     id 'kotlin-jpa'
     id 'kotlin-allopen'
@@ -64,18 +63,6 @@ noArg {
     annotation("com.mlreef.rest.api.DtoRequest")
 }
 
-task unpack(type: Copy) {
-    dependsOn ":mlreef-rest:bootJar"
-    from(zipTree(tasks.bootJar.outputs.files.singleFile))
-    into("build/dependency")
-}
-docker {
-    //noinspection GrDeprecatedAPIUsage
-    name "${project.group}/${bootJar.baseName}"
-    copySpec.from(tasks.unpack.outputs).into("dependency")
-    buildArgs(['DEPENDENCY': "dependency"])
-}
-
 ext {
     snippetsDir = file('build/generated-snippets')
 }
@@ -93,5 +80,21 @@ bootJar {
     dependsOn asciidoctor
     from("${asciidoctor.outputDir}/html5") {
         into 'static/docs'
+    }
+}
+
+task explodeJar(type: Copy) {
+    dependsOn ":mlreef-rest:bootJar"
+    mustRunAfter ":mlreef-rest:bootJar"
+    from(zipTree(tasks.bootJar.outputs.files.singleFile))
+    into("build/dependency")
+}
+
+task prepareDocker {
+    dependsOn ":mlreef-rest:bootJar"
+    dependsOn ":mlreef-rest:explodeJar"
+    mustRunAfter ":mlreef-rest:explodeJar"
+    doLast {
+       print("Explode Jar for docker")
     }
 }
