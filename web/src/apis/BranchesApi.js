@@ -1,6 +1,6 @@
 import { SECURITY_TOKEN } from '../apiConfig';
-import { domain } from '../dataTypes';
 import { generateGetRequest } from './apiHelpers';
+import { domain } from '../dataTypes';
 
 /**
  * core-js and regenerator-runtime imports are necessary to make tests run

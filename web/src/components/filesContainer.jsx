@@ -4,6 +4,7 @@ import { string, number } from 'prop-types';
 import folderIcon from '../images/folder_01.svg';
 import fileIcon from '../images/file_01.svg';
 import filesApi from '../apis/FilesApi';
+import BranchesApi from '../apis/BranchesApi';
 
 class FilesContainer extends Component {
   constructor(props) {
@@ -14,6 +15,8 @@ class FilesContainer extends Component {
       currentPath: '',
       currentBranch: '',
       files: [],
+      behind: [],
+      ahead: [],
       redirect: false,
     };
   }
@@ -36,6 +39,7 @@ class FilesContainer extends Component {
     ) {
       try {
         this.updateFilesArray();
+        if (branch !== 'master') this.getBranchInfo();
       } catch (error) {
         return error;
       }
@@ -91,24 +95,47 @@ class FilesContainer extends Component {
 
   getBack = () => window.history.back()
 
+  getBranchInfo = () => {
+    const { projectId, branch } = this.props;
+    BranchesApi.compare(projectId, branch, 'master')
+      .then((res) => this.setState({ behind: res.commits.length }));
+    BranchesApi.compare(projectId, 'master', branch)
+      .then((res) => this.setState({ ahead: res.commits.length }));
+  }
+
   render = () => {
-    const { redirect, files, currentBranch } = this.state;
+    const {
+      redirect,
+      files,
+      ahead,
+      behind,
+      currentBranch,
+    } = this.state;
     const { projectId, branch } = this.props;
     return (
       <>
         {redirect
           ? <Redirect to="/error-page" />
           : null}
-        <div className="files-container">
+        <div className={`files-container ${branch === 'master' ? 'files-container-master' : ''}`}>
+          {branch !== 'master' && (
           <div className="commit-status">
             <p id="commitStatus">
               This branch is
               {' '}
-              <b>123 commits</b>
+              <b>
+                {ahead}
+                {' '}
+commit(s)
+              </b>
               {' '}
               ahead and
               {' '}
-              <b>1 commit</b>
+              <b>
+                {behind}
+                {' '}
+commit(s)
+              </b>
               {' '}
               behind
               {' '}
@@ -124,6 +151,7 @@ class FilesContainer extends Component {
               </p>
             </Link>
           </div>
+          )}
 
           <table className="file-properties" id="file-tree">
             <thead>

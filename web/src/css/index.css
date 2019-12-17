@@ -550,6 +550,10 @@ p.stat-no {
   width: 100%;
 }
 
+.files-container-master{
+  padding-top: 15px;
+}
+
 .files-contrainer {
   margin-top: 15px;
 }
