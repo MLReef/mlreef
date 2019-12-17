@@ -21,7 +21,11 @@ export class RepoFeatures extends Component {
 
   constructor(props) {
     super(props);
-    const { branch, projects: { selectedProject: { id } }, actions } = this.props;
+    const {
+      branch,
+      projects: { selectedProject: { id } },
+      actions: { getBranchesList },
+    } = this.props;
 
     this.state = {
       isOpen: false,
@@ -31,9 +35,7 @@ export class RepoFeatures extends Component {
       branches: [],
     };
 
-    if (actions) {
-      actions.getBranchesList(id);
-    }
+    getBranchesList(id);
   }
 
   static getDerivedStateFromProps = (nextProps, prevState) => {
@@ -228,6 +230,7 @@ RepoFeatures.propTypes = {
   ).isRequired,
   actions: shape({
     loadFiles: func.isRequired,
+    getBranchesList: func.isRequired,
   }).isRequired,
 };
 
