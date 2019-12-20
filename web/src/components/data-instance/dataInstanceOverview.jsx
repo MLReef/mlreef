@@ -192,7 +192,6 @@ class DataInstanceOverview extends Component {
   constructor(props) {
     super(props);
     const project = this.props.projects.selectedProject;
-
     const branches = props.branches.filter((branch) => branch.name.startsWith('data-pipeline'));
     this.state = {
       project,
@@ -258,6 +257,7 @@ class DataInstanceOverview extends Component {
 
   render() {
     const { project } = this.state;
+    const groupName = project.namespace.name;
     return (
       <>
         <DataInstancesDeleteModal
@@ -270,7 +270,7 @@ class DataInstanceOverview extends Component {
           <ProjectContainer
             project={project}
             activeFeature="data"
-            folders={['Group Name', project.name, 'Data', 'Instances']}
+            folders={[groupName, project.name, 'Data', 'Instances']}
           />
           <Instruction
             titleText="Handling Data instances:"

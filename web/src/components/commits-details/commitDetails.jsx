@@ -86,6 +86,7 @@ class CommitDetails extends Component {
   render() {
     const { projects } = this.props;
     const proj = projects.selectedProject;
+    const groupName = proj.namespace.name;
     const {
       commits,
       users,
@@ -101,7 +102,7 @@ class CommitDetails extends Component {
     return (
       <div id="commits-view-container">
         <Navbar />
-        <ProjectContainer project={proj} activeFeature="data" folders={['Group Name', proj.name, 'Data', 'Commits', commits.short_id]} />
+        <ProjectContainer project={proj} activeFeature="data" folders={[groupName, proj.name, 'Data', 'Commits', commits.short_id]} />
         <br />
         <br />
         <div className="main-content">

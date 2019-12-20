@@ -83,13 +83,14 @@ class ExperimentsOverview extends Component {
 
   render() {
     const { project, selectedExperiment, experiments } = this.state;
+    const groupName = project.namespace.name;
     return (
       <div id="experiments-overview-container">
         <Navbar />
         <ProjectContainer
           project={project}
           activeFeature="experiments"
-          folders={['Group Name', project.name, 'Data', 'Experiments']}
+          folders={[groupName, project.name, 'Data', 'Experiments']}
         />
         <br />
         <br />

@@ -8,6 +8,7 @@ import './dataInstanceDetails.css';
 
 const DataInstanceDetails = ({ ...props }) => {
   const project = props.projects.selectedProject;
+  const groupName = project.namespace.name;
   const pipelineName = decodeURIComponent(props.match.params.di_name);
   const selectedPipeline = props.branches.filter((item) => item.name === pipelineName);
 
@@ -17,7 +18,7 @@ const DataInstanceDetails = ({ ...props }) => {
       <ProjectContainer
         project={project}
         activeFeature="data"
-        folders={['Group Name', project.name, 'Data', 'Instances']}
+        folders={[groupName, project.name, 'Data', 'Instances']}
       />
       <div className="main-content">
         <br />

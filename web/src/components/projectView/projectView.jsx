@@ -2,7 +2,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import {
- string, shape, func, arrayOf 
+  string, shape, func, arrayOf,
 } from 'prop-types';
 import ReadMeComponent from '../readMe/readMe';
 import ProjectContainer from '../projectContainer';
@@ -92,6 +92,7 @@ class ProjectView extends React.Component {
       : encodeURIComponent(branch);
     const { match: { params: { path } }, branches } = this.props;
     const projectName = selectedProject.name;
+    const groupName = selectedProject.namespace.name;
     const showReadMe = !window.location.href.includes('path');
     const committer = users.filter((user) => user.name === lastCommit.author_name)[0];
     return (
@@ -101,7 +102,7 @@ class ProjectView extends React.Component {
         <ProjectContainer
           project={selectedProject}
           activeFeature="data"
-          folders={['Group Name', projectName, 'Data']}
+          folders={[groupName, projectName, 'Data']}
         />
         <div className="main-content">
           <RepoInfo

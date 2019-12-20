@@ -54,6 +54,10 @@ export class FileView extends React.Component {
     this.handleBranch();
   }
 
+  showDeleteModal = () => this.setState((prevState) => (
+    { isdeleteModalVisible: !prevState.isdeleteModalVisible }
+  ));
+
   handleBranch() {
     const { isOpen } = this.state;
     if (!isOpen) {
@@ -67,10 +71,6 @@ export class FileView extends React.Component {
     }));
   }
 
-  showDeleteModal = () => this.setState((prevState) => (
-    { isdeleteModalVisible: !prevState.isdeleteModalVisible }
-  ));
-
   render() {
     const { users, branches, match: { params: { file, branch, projectId } } } = this.props;
     const {
@@ -80,6 +80,7 @@ export class FileView extends React.Component {
       isdeleteModalVisible,
     } = this.state;
     const { isOpen } = this.state;
+    const groupName = project.namespace.name;
     let fileName = null;
     let fileSize = null;
     let avatar = 'https://assets.gitlab-static.net/uploads/-/system/user/avatar/3839940/avatar.png';
@@ -121,7 +122,7 @@ export class FileView extends React.Component {
         <ProjectContainer
           project={project}
           activeFeature="data"
-          folders={['Group Name', project && project.name, 'Data']}
+          folders={[groupName, project && project.name, 'Data']}
         />
         <div className="branch-path">
           <div className="branch-btn" ref={this.branchRef}>

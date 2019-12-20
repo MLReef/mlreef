@@ -46,6 +46,7 @@ const PipeLineView = ({
   const dataInstanceName = `data-instance/${uuidCodeForBranch}`;
   const jobName = 'data-pipeline';
   const operationsSelected = items.length + 1;
+  const groupName = project.namespace.name;
   return (
     <div className="pipe-line-view">
       <SelectDataPipelineModal
@@ -70,7 +71,7 @@ const PipeLineView = ({
         branchSelected={branchSelected}
       />
       <Navbar />
-      <ProjectContainer project={project} activeFeature="data" folders={['Group Name', project.name, 'Data', 'Pipeline']} />
+      <ProjectContainer project={project} activeFeature="data" folders={[groupName, project.name, 'Data', 'Pipeline']} />
       <Instruction
         titleText="How to create a data processing pipeline:"
         paragraph={
