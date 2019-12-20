@@ -1,16 +1,17 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { string, arrayOf, objectOf, shape } from 'prop-types';
 import ProjectInfo from './projectInfo';
 import ProjectNav from './projectNav';
 
 class ProjectContainer extends React.Component {
   componentDidMount() {
-    document.getElementById(this.props.activeFeature).classList.add('active');
+    const { activeFeature } = this.props;
+    document.getElementById(activeFeature).classList.add('active');
   }
 
   render() {
-    const { project } = this.props;
-    const { folders } = this.props;
+    const { project, folders } = this.props;
     return (
       <div className="project-container">
         <div className="project-details main-content">
@@ -45,5 +46,11 @@ class ProjectContainer extends React.Component {
     );
   }
 }
+
+ProjectContainer.propTypes = {
+  project: objectOf(shape).isRequired,
+  activeFeature: string.isRequired,
+  folders: arrayOf(string).isRequired,
+};
 
 export default ProjectContainer;

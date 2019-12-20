@@ -24,6 +24,7 @@ const EmptyDataVisualization = ({ ...props }) => {
   const { filesSelectedInModal } = props;
   const items = dataOperationsSelected;
   let operationsSelected = items.length;
+  const groupName = project.namespace.name;
   operationsSelected += 1;
   /*
     next props are functions
@@ -52,7 +53,7 @@ const EmptyDataVisualization = ({ ...props }) => {
         handleModalAccept={handleModalAccept}
       />
       <Navbar />
-      <ProjectContainer project={project} activeFeature="data" folders={['Group Name', project.name, 'Data', 'Visualization']} />
+      <ProjectContainer project={project} activeFeature="data" folders={[groupName, project.name, 'Data', 'Visualization']} />
       <Instruction
         titleText="How to create a data visualization:"
         paragraph={

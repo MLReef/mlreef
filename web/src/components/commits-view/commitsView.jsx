@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
-import { string, shape, number } from 'prop-types';
+import { string, shape, number, objectOf, arrayOf } from 'prop-types';
 import Navbar from '../navbar/navbar';
 import ProjectContainer from '../projectContainer';
 import './commitsView.css';
@@ -54,6 +54,7 @@ class CommitsView extends Component {
       commits,
       show,
     } = this.state;
+    const groupName = project.namespace.name;
     const { users } = this.props;
     const { match: { params: { branch } } } = this.props;
     const distinct = [
@@ -72,7 +73,7 @@ class CommitsView extends Component {
     return (
       <div id="commits-view-container">
         <Navbar />
-        <ProjectContainer project={project} activeFeature="data" folders={['Group Name', project.name, 'Data', 'Commits']} />
+        <ProjectContainer project={project} activeFeature="data" folders={[groupName, project.name, 'Data', 'Commits']} />
         <br />
         <br />
         <div className="main-content">
@@ -219,17 +220,16 @@ CommitsView.propTypes = {
   match: shape({
     params: shape({
       projectId: string.isRequired,
-      file: string.isRequired,
       branch: string.isRequired,
       path: string,
     }),
   }),
-  users: shape({
+  users: arrayOf(shape({
     name: string.isRequired,
     avatar_url: string.isRequired,
-  }).isRequired,
+  })).isRequired,
   projects: shape({
-    selectedProject: string.isRequired,
+    selectedProject: objectOf(shape).isRequired,
   }).isRequired,
 };
 

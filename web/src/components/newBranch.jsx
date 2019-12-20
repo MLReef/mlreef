@@ -132,6 +132,7 @@ class NewBranch extends Component {
 
   render() {
     const { projects: { selectedProject }, branches } = this.props;
+    const groupName = selectedProject.namespace.name;
     const {
       branchSelected,
       newBranchName,
@@ -149,7 +150,7 @@ class NewBranch extends Component {
         <ProjectContainer
           project={selectedProject}
           activeFeature="data"
-          folders={['Group Name', selectedProject.name, 'Data', 'New branch']}
+          folders={[groupName, selectedProject.name, 'Data', 'New branch']}
         />
         <div className="main-content">
           <br />

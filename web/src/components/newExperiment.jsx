@@ -44,6 +44,7 @@ const NewExperiment = ({
   const branchName = `experiment/${uuidCodeForBranch}`;
   const dataInstanceName = `experiment/${uuidCodeForBranch}`;
   const jobName = 'model-experiment';
+  const groupName = project.namespace.name;
   return (
     <div className="pipe-line-view">
       <SelectDataPipelineModal
@@ -69,7 +70,7 @@ const NewExperiment = ({
         branchSelected={branchSelected}
       />
       <Navbar />
-      <ProjectContainer project={project} activeFeature="experiments" folders={['Group Name', project.name, 'Data', 'Pipeline']} />
+      <ProjectContainer project={project} activeFeature="experiments" folders={[groupName, project.name, 'Data', 'Pipeline']} />
       <Instruction
         titleText="How to create a new experiment:"
         paragraph={

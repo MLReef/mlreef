@@ -171,6 +171,7 @@ export class NewMergeRequest extends Component {
         },
       },
     } = this.props;
+    const groupName = selectedProject.namespace.name;
     const distinct = [
       ...new Set(
         commits.map(
@@ -193,7 +194,7 @@ export class NewMergeRequest extends Component {
         <ProjectContainer
           project={selectedProject}
           activeFeature="data"
-          folders={['Group Name', selectedProject.name, 'Data', 'New merge request']}
+          folders={[groupName, selectedProject.name, 'Data', 'New merge request']}
         />
         <div className="main-content">
           <br />
