@@ -1,6 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { arrayOf, shape } from 'prop-types';
+import { Link } from 'react-router-dom';
 import Navbar from '../navbar/navbar';
 import ProjectSet from '../projectSet';
 import './myProjects.css';
@@ -61,12 +62,13 @@ class Myprojects extends React.Component {
 const NewProject = () => (
   <div className="new-project">
     <p id="title">Projects</p>
-    <button
+    <Link
+      to="/new-project"
       type="button"
       className="add"
     >
         New Project
-    </button>
+    </Link>
   </div>
 );
 
