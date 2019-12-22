@@ -7,33 +7,25 @@
     margin: 0 auto;
 }
   
-.new-project button {
+.new-project > a {
     background-color: #2db391;
     border-radius: 0.3vw;
     border: 1px solid #2db391;
-    height: 2.5em;
+    text-align: center;
     color: #fff;
     padding: 0.5em 2em;
     margin-top: 15px;
-    width: 165px;
+    width: 95px !important;
 }
   
-.new-project button:hover {
+.new-project > a:hover {
     opacity: 0.9;
 }
   
-.new-project button:focus {
+.new-project > a:focus {
     background-color: #fff;
     border: 1px solid #B2B2B2;
     color: #B2B2B2;
-}
-  
-.new-project #title {
-    margin: 0;
-    flex: 1;
-    padding-top: 1em;
-    font-size: 18px;
-    font-weight: bold;
 }
   
 .new-project {
@@ -61,7 +53,7 @@
     border-bottom: 2px solid #1c2b40;
 }
   
-.project-tab p {
+.project-tab > p {
     color: #1c2b40;
 }
   
@@ -134,7 +126,7 @@
     display: flex;
 }
   
-#pro-info div {
+#pro-info > div {
   margin: auto 1em auto 0;
 }
   

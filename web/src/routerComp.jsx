@@ -16,6 +16,7 @@ import DataInstanceDetails from './components/data-instance/dataInstanceDetails'
 import EmptyDataVisualization from './components/data-visualization/dataVisualization';
 import ErrorPage from './components/error-page/errorPage';
 import ExperimentDetails from './components/experiment-details/experimentDetails';
+import NewProject from './components/new-project/newProject';
 import NewMergeRequest from './components/new-merge-request/newMergeRequest';
 import NewBranch from './components/newBranch';
 
@@ -26,6 +27,7 @@ const RouterComp = () => (
       <Route path="/index.html" exact component={Login} />
       <Route path="/error-page" exact component={ErrorPage} />
       <PrivateRoute path="/my-projects" exact component={Projects} />
+      <PrivateRoute path="/new-project" exact component={NewProject} />
       <PrivateRoute path="/my-projects/:projectId/:branch/commits/:pathParam?" exact component={Commits} />
       <PrivateRoute
         exact

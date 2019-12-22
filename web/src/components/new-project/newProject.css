@@ -1,0 +1,166 @@
+.main-div{
+    display: flex;
+    margin: 0 12%;
+    height: auto;
+}
+
+.proj-description{
+    margin: 2em 4em; 
+    width: 300px;
+}
+
+.proj-description > span{
+    color: #1c2b40; 
+    font-weight: 600; 
+    font-size: 1.3125rem;
+}
+
+.separator{
+    border-left: 3px solid #e5e5e5; 
+    margin: 2em 0; 
+    padding-right: 2em;
+}
+
+.heading{
+    color: #1c2b40; 
+    font-weight: 600; 
+    font-size: 0.875rem
+}
+
+.label-name{
+    display: flex; 
+    flex-direction: column;
+}
+
+.data-types{
+    display: grid; 
+    grid-template-columns: repeat(3, 1fr); 
+    grid-gap: 1em; 
+    margin-top: 1em
+}
+
+.data-types > div{
+    background-color: #e5e5e5; 
+    max-width: 14em; 
+    border-radius: 6px; 
+    max-height: 3em;
+}
+
+.form-controls{
+    display: flex; 
+    margin-top: 1em;
+}
+
+.visibility-msg{
+    color: #919191; 
+    padding-left: 2.5em
+}
+
+.readME{
+    margin-top: 1em;
+}
+
+.readme-msg{
+    color: #919191; 
+    padding-left: 2.5em;
+    margin: 0;   
+}
+
+.form-control{
+    margin: 2em 0;
+}
+
+.customize{
+    width: 180px; 
+    top: 16em; 
+    right: 44.5em; 
+    z-index: 10;
+}
+
+.text-input {
+    max-width: 320px; 
+    min-width: fit-content;
+    margin: 1em 0;
+    padding: 6px 10px;
+    width: 100%; 
+    border: 1px solid #dfdfdf; 
+    border-radius: 4px;
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out; 
+    background-clip: padding-box;
+}
+
+textarea{ 
+    overflow: auto;
+    margin: 1em 0;
+    padding: 6px 10px;
+    width: 100%; 
+    border: 1px solid #dfdfdf; 
+    border-radius: 4px;
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out; 
+    background-clip: padding-box;
+}
+
+textarea:focus,
+input[type=text]:focus {
+    -webkit-box-shadow: 0 0 10px #99ddff;
+    box-shadow: 0 0 8px #99ddff;
+}
+
+.MuiButton-root{
+    background-color: #e6f7ff !important;
+    min-width: auto !important;
+    margin: 1em 0 !important;
+    text-transform: none !important;
+}
+
+.MuiButton-root:hover{
+    cursor: text !important;
+}
+
+.create{
+    text-decoration: none;
+    background-color: #15b785;
+    cursor: pointer;
+    border: 1px solid #2db391;
+    border-radius: 0.3vw;
+    height: 2.5em;
+    width: 100px;
+    margin-left: auto;
+    color: #f2f2f2;
+    padding: 0.5em 2em;
+}
+
+.create:focus{
+    background-color: #fff;
+    color: #d1d1d1;
+}
+
+.cancel{
+    text-decoration: none;
+    cursor: pointer;
+    background: none;
+    border: 1px solid #000;
+    padding: 0.5em 2em;
+    border-radius: 0.3vw;
+    width: 100px;
+    height: 2.5em;
+}
+
+#visibility-icon{
+    width: 1em;
+    margin-left: 0;
+    margin-right: 4px;
+}
+
+.MuiSelect-select{
+    min-width: 160px !important;
+}
+
+.MuiOutlinedInput-root {
+    margin: 1em 0 !important;
+}
+
+.MuiSelect-selectMenu {
+    padding-top: 0.4em !important;
+    padding-bottom: 0.2em !important;
+}
