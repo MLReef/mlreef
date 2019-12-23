@@ -21,13 +21,13 @@ class RestExceptionHandler {
 
     @ExceptionHandler(NotFoundException::class)
     fun handleNotFoundException(exception: NotFoundException): ResponseEntity<RestExceptionDto> {
-        val error = RestExceptionDto(exception, System.currentTimeMillis())
+        val error = RestExceptionDto(exception)
         return ResponseEntity(error, HttpStatus.NOT_FOUND)
     }
 
     @ExceptionHandler(RestException::class)
     fun handleException(exception: RestException): ResponseEntity<RestExceptionDto> {
-        val error = RestExceptionDto(exception, System.currentTimeMillis())
+        val error = RestExceptionDto(exception)
         return ResponseEntity(error, HttpStatus.BAD_REQUEST)
     }
 

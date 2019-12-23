@@ -7,9 +7,13 @@ import org.springframework.web.bind.annotation.ResponseStatus
 enum class Error(val errorCode: Int, val errorName: String) {
     // authentication and general errors: 1xxx
     NotFound(1404, "Entity not found"),
+
     // specific user management errors 2xxx
     UserAlreadyExisting(2001, "User already exists"),
     UserNotExisting(2002, "User does not exist"),
+    GitlabUserCreationFailed(2101, "Cannot create user in gitlab"),
+    GitlabUserTokenCreationFailed(2102, "Cannot create user token in gitlab"),
+    GitlabUserNotExisting(2103, "Cannot find user in gitlab via token"),
 
     // Business errors: 3xxx
     ValidationFailed(3000, "ValidationFailed"),
@@ -38,5 +42,8 @@ class UserAlreadyExistsException(username: String, email: String) : RestExceptio
 class UserNotExistsException(username: String, email: String) : RestException(Error.UserNotExisting, "User ($username/$email) does not exist")
 
 class CreateExperimentException(error: Error, parameterName: String) : RestException(error, "Name/Slug: '$parameterName'")
+
+@ResponseStatus(code = HttpStatus.CONFLICT, reason = "Gitlab problem")
+class GitlabException(error: Error, message: String) : RestException(error, message)
 
 

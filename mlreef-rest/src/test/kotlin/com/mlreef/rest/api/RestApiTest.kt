@@ -10,6 +10,7 @@ import com.mlreef.rest.Person
 import com.mlreef.rest.PersonRepository
 import com.mlreef.rest.external_api.gitlab.GitlabRestClient
 import com.mlreef.rest.external_api.gitlab.GitlabUser
+import com.mlreef.rest.external_api.gitlab.GitlabUserToken
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.Mockito
@@ -89,9 +90,37 @@ abstract class RestApiTest {
             )
             .build()
 
-        Mockito.`when`(restClient.getUser(Mockito.anyString())).thenReturn(GitlabUser(
+        Mockito.`when`(restClient.getUser(Mockito.anyString())).thenReturn(
+            GitlabUser(
+                id = 1,
+                name = "Mock Gitlab User",
+                username = "mock_user",
+                email = "mock@example.com",
+                state = "active"
+            )
+        )
 
-        ))
+        Mockito.`when`(restClient.adminCreateUser(
+            Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()
+        )).thenReturn(
+            GitlabUser(
+                id = 1,
+                name = "Mock Gitlab User",
+                username = "mock_user",
+                email = "mock@example.com",
+                state = "active"
+            )
+        )
+
+        Mockito.`when`(restClient.adminCreateUserToken(Mockito.anyInt(), Mockito.anyString())).thenReturn(
+            GitlabUserToken(
+                id = 1,
+                revoked = false,
+                token = testPrivateUserTokenMock!!,
+                active = true,
+                name = "mlreef-token"
+            )
+        )
 
         Mockito.`when`(currentUserService.person()).then { personRepository.findAll().first() }
     }
@@ -109,7 +138,7 @@ abstract class RestApiTest {
             PayloadDocumentation.fieldWithPath("errorCode").type(JsonFieldType.NUMBER).description("Unique error code"),
             PayloadDocumentation.fieldWithPath("errorName").type(JsonFieldType.STRING).description("Short error title"),
             PayloadDocumentation.fieldWithPath("errorMessage").type(JsonFieldType.STRING).description("A detailed message"),
-            PayloadDocumentation.fieldWithPath("time").type(JsonFieldType.NUMBER).description("Timestamp of error")
+            PayloadDocumentation.fieldWithPath("time").type(JsonFieldType.STRING).description("Timestamp of error")
         )
     }
 
