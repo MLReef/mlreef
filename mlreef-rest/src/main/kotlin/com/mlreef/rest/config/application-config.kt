@@ -2,6 +2,8 @@ package com.mlreef.rest.config
 
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.databind.SerializationFeature
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import org.springframework.boot.context.properties.ConfigurationProperties
 import org.springframework.boot.context.properties.EnableConfigurationProperties
@@ -46,9 +48,9 @@ class MLReefObjectMapper : ObjectMapper() {
 
     init {
         this.registerKotlinModule()
+        this.registerModule(JavaTimeModule())
+        this.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
         this.configure(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES, true)
-
-//        this.registerModule(JavaTimeModule())
     }
 
     override fun copy(): ObjectMapper {

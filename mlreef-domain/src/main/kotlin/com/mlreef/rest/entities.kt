@@ -11,6 +11,7 @@ import org.springframework.data.annotation.LastModifiedDate
 import org.springframework.data.domain.Persistable
 import java.io.Serializable
 import java.time.LocalDateTime
+import java.time.ZonedDateTime
 import java.util.*
 import java.util.UUID.randomUUID
 import javax.persistence.CascadeType
@@ -47,10 +48,10 @@ abstract class BaseEntity(
     @Version var version: Long? = 0
 
     @CreatedDate
-    @Column(name = "created_at") var createdAt: LocalDateTime? = null
+    @Column(name = "created_at") var createdAt: ZonedDateTime? = null
 
     @LastModifiedDate
-    @Column(name = "updated_at") var updatedAt: LocalDateTime? = null
+    @Column(name = "updated_at") var updatedAt: ZonedDateTime? = null
 
     @Transient
     private var persisted: Boolean = version ?: 0 > 0
@@ -76,12 +77,12 @@ abstract class BaseEntity(
 
     @PrePersist
     private fun onPrePersist() {
-        createdAt = LocalDateTime.now()
+        createdAt = I18N.dateTime()
     }
 
     @PreUpdate
     private fun onPreUpdate() {
-        updatedAt = LocalDateTime.now()
+        updatedAt = I18N.dateTime()
     }
 }
 
@@ -139,7 +140,9 @@ class Account(
     val person: Person,
     @OneToMany(fetch = FetchType.EAGER, cascade = [CascadeType.ALL])
     @JoinColumn(name = "account_id")
-    val tokens: List<AccountToken> = listOf()
+    val tokens: List<AccountToken> = listOf(),
+    @Column(name = "gitlab_id")
+    val gitlabId: Int? = null
 ) : BaseEntity(id)
 
 @Entity
@@ -150,7 +153,7 @@ class AccountToken(
     val accountId: UUID,
     val token: String,
     @Column(name = "gitlab_id")
-    val gitlabId: Int,
+    val gitlabId: Int? = null,
     val active: Boolean = true,
     val revoked: Boolean = false,
     @Column(name = "expires_at")
@@ -313,9 +316,9 @@ class Experiment(
 
 @Embeddable
 class PerformanceMetrics(
-    var jobStartedAt: Long? = 0,
-    var jobUpdatedAt: Long? = 0,
-    var jobFinishedAt: Long? = 0,
+    var jobStartedAt: ZonedDateTime? = null,
+    var jobUpdatedAt: ZonedDateTime? = null,
+    var jobFinishedAt: ZonedDateTime? = null,
     var jsonBlob: String = ""
 )
 

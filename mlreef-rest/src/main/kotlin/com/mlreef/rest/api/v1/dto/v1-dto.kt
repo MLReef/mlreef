@@ -3,6 +3,7 @@ package com.mlreef.rest.api.v1.dto
 import com.mlreef.rest.DataProcessor
 import com.mlreef.rest.DataProcessorInstance
 import com.mlreef.rest.Experiment
+import com.mlreef.rest.I18N
 import com.mlreef.rest.ParameterInstance
 import com.mlreef.rest.PerformanceMetrics
 import com.mlreef.rest.ProcessorParameter
@@ -10,8 +11,8 @@ import com.mlreef.rest.config.censor
 import com.mlreef.rest.exceptions.RestException
 import com.mlreef.rest.exceptions.ValidationException
 import org.springframework.validation.FieldError
-import java.lang.System.currentTimeMillis
 import java.time.LocalDateTime
+import java.time.ZonedDateTime
 import java.util.*
 import javax.validation.Valid
 import javax.validation.constraints.Email
@@ -22,11 +23,11 @@ data class RestExceptionDto(
     val errorCode: Int,
     val errorName: String,
     val errorMessage: String,
-    val time: Long = currentTimeMillis()
+    val time: ZonedDateTime = I18N.dateTime()
 ) {
     constructor(
         restException: RestException,
-        time: Long = currentTimeMillis()
+        time: ZonedDateTime = I18N.dateTime()
     ) : this(
         restException.errorCode,
         restException.errorName,
@@ -100,9 +101,9 @@ data class DataProcessorInstanceDto(
 )
 
 data class PerformanceMetricsDto(
-    @get:PositiveOrZero val jobStartedAt: Long = 0,
-    @get:PositiveOrZero val jobUpdatedAt: Long = 0,
-    @get:PositiveOrZero val jobFinishedAt: Long = 0,
+    @get:PositiveOrZero val jobStartedAt: ZonedDateTime? = null,
+    @get:PositiveOrZero val jobUpdatedAt: ZonedDateTime? = null,
+    @get:PositiveOrZero val jobFinishedAt: ZonedDateTime? = null,
     val jsonBlob: String = "")
 
 class ExperimentDto(
@@ -115,8 +116,8 @@ class ExperimentDto(
     @get:Valid val processing: DataProcessorInstanceDto? = null
 )
 
-internal fun Experiment.toDto(): ExperimentDto {
-    return ExperimentDto(
+internal fun Experiment.toDto() =
+    ExperimentDto(
         this.id,
         this.dataProjectId,
         this.branch,
@@ -125,40 +126,40 @@ internal fun Experiment.toDto(): ExperimentDto {
         this.postProcessing.toDataProcessorInstanceDtoList(),
         this.getProcessor()?.toDto()
     )
-}
 
-internal fun PerformanceMetrics.toDto(): PerformanceMetricsDto? {
-    return PerformanceMetricsDto(
-        this.jobStartedAt ?: 0,
-        this.jobUpdatedAt ?: 0,
-        this.jobFinishedAt ?: 0,
+
+internal fun PerformanceMetrics.toDto(): PerformanceMetricsDto =
+    PerformanceMetricsDto(
+        this.jobStartedAt,
+        this.jobUpdatedAt,
+        this.jobFinishedAt,
         this.jsonBlob
     )
-}
 
-internal fun DataProcessorInstance.toDto(): DataProcessorInstanceDto {
-    return DataProcessorInstanceDto(
+
+internal fun DataProcessorInstance.toDto(): DataProcessorInstanceDto =
+    DataProcessorInstanceDto(
         this.slug,
         this.parameterInstances.toParameterInstanceDtoList(),
         this.name
     )
-}
 
-internal fun ParameterInstance.toDto(): ParameterInstanceDto {
-    return ParameterInstanceDto(
+
+internal fun ParameterInstance.toDto(): ParameterInstanceDto =
+    ParameterInstanceDto(
         this.processorParameter.name,
         this.value,
         this.processorParameter.type.name
     )
-}
 
-internal fun DataProcessor.toDto(): DataProcessorDto {
-    return DataProcessorDto(this.parameters.toProcessorParameterDtoList())
-}
 
-internal fun ProcessorParameter.toDto(): ParameterDto {
-    return ParameterDto(this.name, this.type.name)
-}
+internal fun DataProcessor.toDto(): DataProcessorDto =
+    DataProcessorDto(this.parameters.toProcessorParameterDtoList())
+
+
+internal fun ProcessorParameter.toDto(): ParameterDto =
+    ParameterDto(this.name, this.type.name)
+
 
 internal fun List<Experiment>.toExperimentDtoList(): List<ExperimentDto> = this.map { it.toDto() }
 internal fun List<ParameterInstance>.toParameterInstanceDtoList(): List<ParameterInstanceDto> = this.map { it.toDto() }

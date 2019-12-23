@@ -21,15 +21,15 @@ class GitlabRestClientIntegrationTest {
     lateinit var gitlabRestClient: GitlabRestClient
 
     @Value("\${mlreef.gitlab.adminUserToken}")
-    private lateinit var adminPrivateToken: String
+    private lateinit var adminUserToken: String
 
-    @Value("\${mlreef.gitlab.hostnamePort}")
+    @Value("\${mlreef.gitlab.rootUrl}")
     lateinit var gitlabSocket: String
 
     @BeforeEach
     fun prepare() {
         val restTemplateBuilder = RestTemplateBuilder()
-        gitlabRestClient = GitlabRestClient(restTemplateBuilder, gitlabSocket)
+        gitlabRestClient = GitlabRestClient(restTemplateBuilder, gitlabSocket, adminUserToken)
     }
 
     @Disabled
@@ -51,17 +51,16 @@ class GitlabRestClientIntegrationTest {
     @Disabled
     @Test
     fun `gitlabapi accepts valid Token`() {
-        val user = gitlabRestClient.getUser(adminPrivateToken)
+        val user = gitlabRestClient.getUser(adminUserToken)
         assertThat(user).isNotNull
     }
 
     @Test
     @Disabled
     fun `API |user returns at least id, name and email`() {
-        val user = gitlabRestClient.getUser(adminPrivateToken)
+        val user = gitlabRestClient.getUser(adminUserToken)
         assertThat(user).isNotNull
 
-        assertThat(user!!.id).isNotBlank()
         assertThat(user.username).isNotBlank()
         assertThat(user.email).isNotBlank()
         assertThat(user.state).isNotBlank()
