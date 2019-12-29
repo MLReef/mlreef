@@ -1,5 +1,10 @@
 import 'babel-polyfill';
+import {  mlreefFileContent } from '../dataTypes';
 import { mlreefLinesToExtractConfiguration } from '../functions/dataParserHelpers';
+import {
+  buildCommandLinesFromSelectedPipelines,
+  generateRealContentFromTemplate,
+} from '../functions/pipeLinesHelpers';
 
 const testDataDocument = `
 ################################################################################
@@ -48,12 +53,146 @@ const operationsArray = [{
   ],
 }];
 
-describe('operations and params', () => {
-  test('assert that parsers reads operations and params from file', () => {
+const dataOperationsSelected = [{
+  title: 'Augment',
+  username: 'Vaibhav_M',
+  starCount: '243',
+  index: 1,
+  command: 'augment',
+  description: 'Data augmentation multiplies and tweakes the data by changing angle of rotation, flipping the images, zooming in, etc.',
+  showDescription: false,
+  showAdvancedOptsDivDataPipeline: false,
+  dataType: 'Images',
+  params: {
+    standard: [
+      {
+        name: 'Number of augmented images',
+        dataType: 'INT',
+        required: true,
+        commandName: 'iterations',
+      },
+    ],
+    advanced: [
+      {
+        name: 'Rotation range',
+        dataType: 'FLOAT',
+        required: false,
+        commandName: 'rotation-range',
+        standardValue: '0',
+      },
+      {
+        name: 'Width shift range',
+        dataType: 'FLOAT',
+        required: false,
+        commandName: 'width-shift-range',
+        standardValue: '0',
+      },
+      {
+        name: 'Height shift range',
+        dataType: 'FLOAT',
+        required: false,
+        commandName: 'height-shift-range',
+        standardValue: '0',
+      },
+      {
+        name: 'Shear range',
+        dataType: 'FLOAT',
+        required: false,
+        commandName: 'shear-range',
+        standardValue: '0',
+      },
+      {
+        name: 'Zoom range',
+        dataType: 'FLOAT',
+        required: false,
+        commandName: 'zoom-range',
+        standardValue: '0',
+      },
+      {
+        name: 'Horizontal flip',
+        dataType: 'Boolean',
+        required: false,
+        commandName: 'horizontal-flip',
+        standardValue: 'false',
+      },
+      {
+        name: 'Vertical flip',
+        dataType: 'Boolean',
+        required: false,
+        commandName: 'vertical-flip',
+        standardValue: 'false',
+      },
+    ],
+  },
+  inputValuesAndDataModels: [
+    {
+      id: 'param-0-item-data-operation-selected-form-1',
+      value: '2',
+      inputDataModel: {
+        name: 'Number of augmented images',
+        dataType: 'INT',
+        required: true,
+        commandName: 'iterations',
+      },
+    },
+  ],
+}];
+
+const mockFilesArr = [{
+  id: '7405cad8db781b166de002da8f996fe84049e100',
+  name: 'directory_1',
+  type: 'tree',
+  path: 'directory_1',
+  mode: '040000',
+}];
+
+describe('Read mlreef file', () => {
+  test('assert that parsers read operations and params from file', () => {
     const operationsAndParameters = mlreefLinesToExtractConfiguration(testDataDocument.split('\n'));
     expect(
       JSON.stringify(operationsAndParameters)
         === JSON.stringify(operationsArray),
     ).toBe(true);
+  });
+});
+
+
+describe('Pipelines mlreef file generation', () => {
+  test('assert that commands format is correct', () => {
+    const expectedCommandsArr = [
+      '   - python /epf/pipelines/augment.py --images-path directory_1/ --iterations 2',
+    ];
+    const generatedArrOfOperationCommands = buildCommandLinesFromSelectedPipelines(
+      dataOperationsSelected,
+      mockFilesArr,
+      '/epf/pipelines',
+    );
+    generatedArrOfOperationCommands.forEach((opCommand, opCommandInd) => {
+      const isEqual = expectedCommandsArr[opCommandInd] === opCommand;
+      expect(isEqual).toBe(true);
+    });
+  });
+
+  test('assert that content generated is replaced properly in the base mlreef file', () => {
+    const expectedCommandsArr = [
+      '   - python /epf/pipelines/augment.py --images-path directory_1/ --iterations 2',
+    ];
+    const httpUrlToRepo = 'https://gitlab.com/mlreef/mlreef-demo.git';
+    const dataInstanceName = 'data-instance/019ead10';
+    const branchSelected = 'master';
+    const pipelineOpScriptName = 'data-pipeline';
+
+    const finalMockContent = generateRealContentFromTemplate(
+      mlreefFileContent,
+      branchSelected,
+      expectedCommandsArr,
+      dataInstanceName,
+      httpUrlToRepo,
+      pipelineOpScriptName,
+    );
+    expect(finalMockContent.includes(expectedCommandsArr[0])).toBe(true);
+    expect(finalMockContent.includes(branchSelected)).toBe(true);
+    expect(finalMockContent.includes(dataInstanceName)).toBe(true);
+    expect(finalMockContent.includes(pipelineOpScriptName)).toBe(true);
   });
 });
