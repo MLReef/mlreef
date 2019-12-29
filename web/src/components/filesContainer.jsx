@@ -65,7 +65,7 @@ class FilesContainer extends Component {
             type="button"
             onClick={this.getBack}
           >
-                ..
+            ..
           </button>
         </td>
         <td>&nbsp;</td>

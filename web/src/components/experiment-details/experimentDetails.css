@@ -22,13 +22,14 @@
 }
 
 .experiment-details-menu {
+    display: grid;
+    height: min-content;
     padding: 0px 2em; 
     border-right: 1px solid #ececec;
 }
 
-.experiment-details-menu > p{
-    text-align: center;
-    margin: 2em 0px;
+.experiment-details-menu > button {
+    margin: 0.8em 0px;
 }
 
 .files-tbody > tr {
@@ -39,4 +40,18 @@
 
 .files-tbody > tr > td {
     border-bottom: 1px solid #b2b2b2;
+}
+
+.experiment-details-menu > .menu-button {
+  padding: 10px 15px;
+  background-color: white;
+  color: #1c2b40;
+  border-radius: 4px;
+  cursor: pointer;
+  height: 3em;
+}
+
+.experiment-details-menu > .menu-button.active {
+  border: 1px solid #16ADCE;
+  background-color: #16ADCE;
 }
