@@ -24,7 +24,7 @@ export class RepoFeatures extends Component {
     const {
       branch,
       projects: { selectedProject: { id } },
-      actions: { getBranchesList },
+      actions,
     } = this.props;
 
     this.state = {
@@ -34,8 +34,9 @@ export class RepoFeatures extends Component {
       projectId: id,
       branches: [],
     };
-
-    getBranchesList(id);
+    if(actions){
+      actions.getBranchesList(id);
+    }
   }
 
   static getDerivedStateFromProps = (nextProps, prevState) => {

@@ -178,3 +178,9 @@ button {
    width: 100%;
    border-radius: 50%;
 }
+
+/* For all the buttons the cursor should be pointer*/
+
+button {
+  cursor: pointer;
+}
