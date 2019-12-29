@@ -83,6 +83,11 @@ class ExperimentsOverview extends Component {
 
   render() {
     const { project, selectedExperiment, experiments } = this.state;
+    const { jobs }  = this.props;
+    let experimentJob;
+    if(selectedExperiment){
+      experimentJob = jobs.filter(job => job.ref === selectedExperiment.descTitle)[0];
+    }
     const groupName = project.namespace.name;
     return (
       <div id="experiments-overview-container">
@@ -186,9 +191,11 @@ class ExperimentsOverview extends Component {
             && (
             <ExperimentDetails
               key={uuidv1()}
+              projectId={project.id}
               setNullExperiment={this.setSelectedExperiment}
               experiment={selectedExperiment}
-              files={filesForExperimentsDetails}
+              job={experimentJob}
+              parameters={filesForExperimentsDetails}
             />
             )}
         </div>
@@ -201,6 +208,7 @@ class ExperimentsOverview extends Component {
 
 function mapStateToProps(state) {
   return {
+    jobs: state.jobs,
     projects: state.projects,
     branches: state.branches,
   };

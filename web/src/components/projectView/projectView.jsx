@@ -17,6 +17,7 @@ import contributorsApi from '../../apis/contributorsApi';
 import commitsApi from '../../apis/CommitsApi';
 import { getTimeCreatedAgo } from '../../functions/dataParserHelpers';
 import * as usersActions from '../../actions/usersActions';
+import * as jobsActions from '../../actions/jobsActions';
 
 class ProjectView extends React.Component {
   constructor(props) {
@@ -32,6 +33,7 @@ class ProjectView extends React.Component {
     const project = projects.all.filter((proj) => proj.id === parseInt(projectId, 10))[0];
     actions.setSelectedProject(project);
     actions.getUsersLit(projectId);
+    actions.getJobsListPerProject(projectId);
     const decodedBranch = decodeURIComponent(branch);
 
     this.state = {
@@ -204,6 +206,7 @@ function mapDispatchToProps(dispatch) {
     actions: bindActionCreators({
       ...projectActions,
       ...usersActions,
+      ...jobsActions,
     }, dispatch),
   };
 }
