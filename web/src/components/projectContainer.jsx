@@ -17,7 +17,7 @@ class ProjectContainer extends React.Component {
         <div className="project-details main-content">
           <ProjectNav key={`project-key-${project.id}`} projectId={project.id} folders={folders} />
 
-          <ProjectInfo info={project} />
+          <ProjectInfo project={project} />
           <p className="project-desc">
             {project.description ? project.description : 'No description'}
           </p>

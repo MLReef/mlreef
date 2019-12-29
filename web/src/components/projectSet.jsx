@@ -1,8 +1,10 @@
 import React from 'react';
+import { arrayOf, shape } from 'prop-types';
 
 import { Link } from 'react-router-dom';
-import star_01 from '../images/star_01.svg';
-import fork_01 from '../images/fork_01.svg';
+import star01 from '../images/star_01.svg';
+import fork01 from '../images/fork_01.svg';
+import { func } from 'prop-types';
 
 class ProjectSet extends React.Component {
   constructor(props) {
@@ -27,13 +29,22 @@ class ProjectSet extends React.Component {
   }
 
   render() {
+    const {
+      personal,
+      starred,
+      explore,
+    } = this.state;
+    const {
+      projects,
+      handleShowModal,
+    } = this.props;
     return (
       <>
         <div className="project-dashboard">
           <div className="project-list">
             <div
               className={
-                `project-tab ${this.state.personal ? 'project-border' : ''}`
+                `project-tab ${personal ? 'project-border' : ''}`
               }
               onClick={this.handlePersonal}
             >
@@ -42,7 +53,7 @@ class ProjectSet extends React.Component {
             </div>
             <div
               className={
-                `project-tab ${this.state.starred ? 'project-border' : ''}`
+                `project-tab ${starred? 'project-border' : ''}`
               }
               onClick={this.handleStarred}
             >
@@ -51,7 +62,7 @@ class ProjectSet extends React.Component {
             </div>
             <div
               className={
-                `project-tab ${this.state.explore ? 'project-border' : ''}`
+                `project-tab ${explore ? 'project-border' : ''}`
               }
               onClick={this.handleExplore}
             >
@@ -64,7 +75,7 @@ class ProjectSet extends React.Component {
         </div>
         <hr style={{ marginTop: '0' }} />
 
-        {this.state.personal && this.props.projects.map((proj) => proj.name.includes('forked')
+        {personal && projects.map((proj) => proj.name.includes('forked')
           && (
           <Project
             key={`proj-key-${proj.id}`}
@@ -74,11 +85,11 @@ class ProjectSet extends React.Component {
             branch={proj.default_branch}
             desc={proj.description}
             avatar={proj.avatar_url}
-            projects={this.props.projects}
-            handleShowModal={this.props.handleShowModal}
+            projects={projects}
+            handleShowModal={handleShowModal}
           />
           ))}
-        {this.state.explore && this.props.projects.map((proj) => !proj.name.includes('forked')
+        {explore && projects.map((proj) => !proj.name.includes('forked')
           && (
           <Project
             key={`proj-key-${proj.id}`}
@@ -88,8 +99,8 @@ class ProjectSet extends React.Component {
             branch={proj.default_branch}
             desc={proj.description}
             avatar={proj.avatar_url}
-            projects={this.props.projects}
-            handleShowModal={this.props.handleShowModal}
+            projects={projects}
+            handleShowModal={handleShowModal}
           />
           ))}
       </>
@@ -109,7 +120,7 @@ const Project = ({ ...props }) => (
         <Link to={`/my-projects/${props.projId}/${props.branch}`}>
           <h4 style={{ margin: '0', marginBottom: '5px' }}>
             {props.owner}
-/
+            /
             {props.name}
           </h4>
           <span
@@ -131,16 +142,17 @@ const Project = ({ ...props }) => (
     <div>
       <div id="pro-info">
         <div>
-          <img className="dropdown-white" src={star_01} alt="" />
+          <img className="dropdown-white" src={star01} alt="" />
             12
         </div>
         <div>
-          <img className="dropdown-white" src={fork_01} alt="" />
+          <img className="dropdown-white" src={fork01} alt="" />
             8
         </div>
       </div>
       <p>Updated 10 minutes ago</p>
       <button
+        type="button"
         style={{
           margin: '0.5em',
           cursor: 'pointer',
@@ -154,11 +166,19 @@ const Project = ({ ...props }) => (
           }
       >
         <b>
-              X
+          X
         </b>
       </button>
     </div>
   </div>
 );
+
+ProjectSet.propTypes = {
+  projects: arrayOf(
+    shape({
+    }).isRequired,
+  ).isRequired,
+  handleShowModal: func.isRequired,
+}
 
 export default ProjectSet;

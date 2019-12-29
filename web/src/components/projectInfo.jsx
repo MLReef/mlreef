@@ -1,36 +1,53 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { Link, Redirect } from 'react-router-dom';
+import { bindActionCreators } from 'redux';
+import { _ } from 'core-js';
 
+import {
+  func, shape, string, number,
+} from 'prop-types';
 import star01 from '../images/star_01.svg';
 import fork01 from '../images/fork_01.svg';
 import clone01 from '../images/clone_01.svg';
 import projectGeneralInfoApi from '../apis/projectGeneralInfoApi';
 import arrow01 from '../images/arrow_down_blue-01.png';
+import * as projectActions from '../actions/projectInfoActions';
 
-const ProjectInfo = ({ info }) => {
-  const iconUrl = info.avatar_url;
+const ProjectInfo = ({ project, actions }) => {
+  const iconUrl = project.avatar_url;
   const [redirect, setRedirect] = React.useState(false);
 
   function handleFork() {
-    projectGeneralInfoApi.forkProject('gitlab.com', info.id, info.name)
-      .then((res) => res.json());
-    setRedirect(true);
+    /**
+     * @var nameSpace: mlreefdemo is hardcoded
+     * because we do not have a real user authentication mechanism
+     */
+    const nameSpace = 'mlreefdemo';
+    const newNumberOfForks = project.forks_count + 1;
+    const name = `${project.name} forked ${newNumberOfForks}`;
+    projectGeneralInfoApi.forkProject(project.id, nameSpace, name)
+      .then(
+        () => {
+          actions.getProjectsList();
+          setRedirect(true);
+        },
+      );
   }
 
   return (
     <div className="project-info">
       <div className="project-id">
-        <Link to={`/my-projects/${info.id}/${info.default_branch}`}>
+        <Link to={`/my-projects/${project.id}/${project.default_branch}`}>
           <div className="project-pic">
             <img style={{ minWidth: '100%' }} src={iconUrl} alt="" />
           </div>
         </Link>
         <div className="project-name">
-          <Link to={`/my-projects/${info.id}/${info.default_branch}`} id="projectName">{info.name}</Link>
+          <Link to={`/my-projects/${project.id}/${project.default_branch}`} id="projectName">{project.name}</Link>
           <p id="projectId">
             Project ID:
-            {info.id}
+            {project.id}
             {' '}
             | 526MB used
           </p>
@@ -52,7 +69,7 @@ const ProjectInfo = ({ info }) => {
           </button>
 
           <div className="counter">
-            <p>{info.star_count}</p>
+            <p>{project.star_count}</p>
           </div>
         </div>
 
@@ -67,7 +84,7 @@ const ProjectInfo = ({ info }) => {
           </button>
 
           <div className="counter">
-            <p>{info.forks_count}</p>
+            <p>{project.forks_count}</p>
           </div>
         </div>
         <div className="options">
@@ -78,14 +95,14 @@ const ProjectInfo = ({ info }) => {
             <img id="option-image" src={clone01} alt="" />
             <p>Clone</p>
           </button>
-          <Clonedropdown http={info.http_url_to_repo} ssh={info.ssh_url_to_repo} />
+          <Clonedropdown http={project.http_url_to_repo} ssh={project.ssh_url_to_repo} />
         </div>
       </div>
     </div>
   );
 };
 
-function Clonedropdown(props) {
+function Clonedropdown({ ssh, http }) {
   // The following code can be used to refactor the rest of the code. New way of writing the code.
   const node = React.useRef();
   const [open, setOpen] = React.useState(false);
@@ -123,14 +140,14 @@ function Clonedropdown(props) {
             <div className="link-box">
               <p>Clone with SSH</p>
               <div className="clone-link">
-                <input type="text" value={props.ssh} className="ssh-http-link" readOnly />
+                <input type="text" value={ssh} className="ssh-http-link" readOnly />
                 <img className="clone-icon" src={clone01} alt="" />
               </div>
             </div>
             <div className="link-box">
               <p>Clone with HTTPS</p>
               <div className="clone-link">
-                <input type="text" value={props.http} className="ssh-http-link" readOnly />
+                <input type="text" value={http} className="ssh-http-link" readOnly />
                 <img className="clone-icon" src={clone01} alt="" />
               </div>
             </div>
@@ -139,14 +156,35 @@ function Clonedropdown(props) {
       </div>
     </>
   );
-}
+};
 
-function mapStateToProps(state) {
+Clonedropdown.propTypes = {
+  ssh: string.isRequired,
+  http: string.isRequired,
+};
+
+function mapDispatchToProps(dispatch) {
   return {
-    files: state.files,
-    project: state.project,
-    file: state.file,
+    actions: bindActionCreators({
+      ...projectActions,
+    }, dispatch),
   };
 }
 
-export default connect(mapStateToProps)(ProjectInfo);
+ProjectInfo.propTypes = {
+  project: shape({
+    avatar_url: string.isRequired,
+    forks_count: number.isRequired,
+    name: string.isRequired,
+    id: number.isRequired,
+    default_branch: string.isRequired,
+    star_count: number.isRequired,
+    http_url_to_repo: string.isRequired,
+    ssh_url_to_repo: string.isRequired,
+  }).isRequired,
+  actions: shape({
+    getProjectsList: func.isRequired,
+  }).isRequired,
+};
+
+export default connect(_, mapDispatchToProps)(ProjectInfo);
