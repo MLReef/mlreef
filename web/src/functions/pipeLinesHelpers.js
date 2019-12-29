@@ -55,7 +55,7 @@ export const showErrorsInTheOperationsSelected = (input, inputDataModel, dataOpe
   }
 };
 
-const buildCommandLinesFromSelectedPipelines = (
+export const buildCommandLinesFromSelectedPipelines = (
   dataOperationsSelected,
   filesSelectedInModal,
   path,
@@ -68,7 +68,7 @@ const buildCommandLinesFromSelectedPipelines = (
   return addFilesSelectedInModal(line, filesSelectedInModal);
 });
 
-const generateRealContentFromTemplate = (
+export const generateRealContentFromTemplate = (
   mlreefFileContent,
   branchSelected,
   pipeLineOperationCommands,
