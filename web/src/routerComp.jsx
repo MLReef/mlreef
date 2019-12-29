@@ -19,6 +19,7 @@ import ExperimentDetails from './components/experiment-details/experimentDetails
 import NewProject from './components/new-project/newProject';
 import NewMergeRequest from './components/new-merge-request/newMergeRequest';
 import NewBranch from './components/newBranch';
+import BranchesView from './components/branches-list-view/branchesView';
 
 const RouterComp = () => (
   <BrowserRouter>
@@ -38,6 +39,11 @@ const RouterComp = () => (
         exact
         path="/my-projects/:projectId/new-branch"
         component={NewBranch}
+      />
+      <PrivateRoute
+        exact
+        path="/my-projects/:projectId/branches"
+        component={BranchesView}
       />
       <PrivateRoute exact path="/my-projects/:projectId/pipe-line" component={PipeLineView} />
       <PrivateRoute path="/my-projects/:projectId/visualizations" component={EmptyDataVisualization} />

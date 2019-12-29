@@ -28,19 +28,9 @@ export default class BranchesApi {
 
   static async getBranches(projectId) {
     const url = `https://${domain}/api/v4/projects/${projectId}/repository/branches`;
-    try {
-      const response = await fetch(
-        url, {
-          method: 'GET',
-          headers: new Headers({
-            'PRIVATE-TOKEN': SECURITY_TOKEN,
-          }),
-        },
-      );
-      return response.json();
-    } catch (err) {
-      return err;
-    }
+    const response = await generateGetRequest(url);
+
+    return response.json();
   }
 
   static async compare(projectId, from, to) {
@@ -48,5 +38,22 @@ export default class BranchesApi {
     const response = await generateGetRequest(url);
 
     return response.json();
+  }
+
+  static async delete(projectId, branchName) {
+    const url = `https://${domain}/api/v4/projects/${projectId}/repository/branches/${branchName}`;
+    try {
+      const response = await fetch(
+        url, {
+          method: 'DELETE',
+          headers: new Headers({
+            'PRIVATE-TOKEN': SECURITY_TOKEN,
+          }),
+        },
+      );
+      return response.status;
+    } catch (err) {
+      return err;
+    }
   }
 }

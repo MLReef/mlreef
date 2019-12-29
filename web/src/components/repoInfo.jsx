@@ -15,10 +15,10 @@ const RepoInfo = ({
         <p className="stat-no" />
         <p className="stat-type">Commits</p>
       </Link>
-      <div className="repo-stat">
+      <Link to={`/my-projects/${projectId}/branches`} className="repo-stat">
         <p className="stat-no">{branchesCount}</p>
         <p className="stat-type">Branches</p>
-      </div>
+      </Link>
       <div className="repo-stat">
         <p className="stat-no" />
         <p className="stat-type">Visualizations</p>
