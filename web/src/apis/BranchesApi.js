@@ -1,6 +1,5 @@
-import { SECURITY_TOKEN } from '../apiConfig';
+import { SECURITY_TOKEN, GITLAB_INSTANCE } from '../apiConfig';
 import { generateGetRequest } from './apiHelpers';
-import { domain } from '../dataTypes';
 
 /**
  * core-js and regenerator-runtime imports are necessary to make tests run
@@ -12,7 +11,7 @@ export default class BranchesApi {
   static async create(projectId, branchName, refBranch) {
     try {
       const response = await fetch(
-        `https://${domain}/api/v4/projects/${projectId}/repository/branches?branch=${branchName}&ref=${refBranch}`, {
+        `${GITLAB_INSTANCE}/api/v4/projects/${projectId}/repository/branches?branch=${branchName}&ref=${refBranch}`, {
           method: 'POST',
           headers: new Headers({
             'PRIVATE-TOKEN': SECURITY_TOKEN,
@@ -27,21 +26,21 @@ export default class BranchesApi {
   }
 
   static async getBranches(projectId) {
-    const url = `https://${domain}/api/v4/projects/${projectId}/repository/branches`;
+    const url = `${GITLAB_INSTANCE}/api/v4/projects/${projectId}/repository/branches`;
     const response = await generateGetRequest(url);
 
     return response.json();
   }
 
   static async compare(projectId, from, to) {
-    const url = `https://${domain}/api/v4/projects/${projectId}/repository/compare?from=${from}&to=${to}`;
+    const url = `${GITLAB_INSTANCE}/api/v4/projects/${projectId}/repository/compare?from=${from}&to=${to}`;
     const response = await generateGetRequest(url);
 
     return response.json();
   }
 
   static async delete(projectId, branchName) {
-    const url = `https://${domain}/api/v4/projects/${projectId}/repository/branches/${branchName}`;
+    const url = `${GITLAB_INSTANCE}/api/v4/projects/${projectId}/repository/branches/${branchName}`;
     try {
       const response = await fetch(
         url, {

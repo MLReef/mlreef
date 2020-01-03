@@ -122,15 +122,19 @@ build frontend:
     - docker:dind
   before_script:
     - docker login ${DOCKER_REGISTRY} -u "${DOCKER_USER}" -p "${DOCKER_PASSWORD}"
+    - URL=$(cat $INSTANCE_INFO)
+    - echo $URL                                             # debug output
     - mv node_modules_global web/node_modules_global
     - rm -rf web/package-lock.json
     - rm -rf web/node_modules
+    - ls -al web/src
+    - echo "REACT_APP_BACKEND=http://$URL" >> web/.env
+    - cat web/.env
   script:
     - cd web
     - echo "creating docker image ${IMAGE_NAME} for user ${DOCKER_USER}"
     - docker build --pull --tag "$FRONTEND_IMAGE_PATH" -f Dockerfile .
     - docker push "${FRONTEND_IMAGE_PATH}"
-
 
 # This job adds the actual frontend URL to the Environments GUI in gitlab.com
 deploy:

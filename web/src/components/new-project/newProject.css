@@ -106,17 +106,6 @@ input[type=text]:focus {
     box-shadow: 0 0 8px #99ddff;
 }
 
-.MuiButton-root{
-    background-color: #e6f7ff !important;
-    min-width: auto !important;
-    margin: 1em 0 !important;
-    text-transform: none !important;
-}
-
-.MuiButton-root:hover{
-    cursor: text !important;
-}
-
 .create{
     text-decoration: none;
     background-color: #15b785;

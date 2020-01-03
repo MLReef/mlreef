@@ -1,4 +1,4 @@
-import { SECURITY_TOKEN } from '../apiConfig';
+import { SECURITY_TOKEN, GITLAB_INSTANCE } from '../apiConfig';
 import { domain } from '../dataTypes';
 
 export default class SnippetApi {
@@ -21,7 +21,7 @@ export default class SnippetApi {
 
   static async findSnippets(projectId, fileNameFilter = '') {
     try {
-      const url = `https://${domain}/api/v4/projects/${projectId}/snippets/`;
+      const url = `${GITLAB_INSTANCE}/api/v4/projects/${projectId}/snippets/`;
       const response = await fetch(this.buildRequest(url, 'GET'));
 
       const promise = response.json();
@@ -35,7 +35,7 @@ export default class SnippetApi {
 
   static async getSnippetContent(snippetId) {
     try {
-      const url = `https://${domain}/api/v4/snippets/${snippetId}/raw`;
+      const url = `${GITLAB_INSTANCE}/api/v4/snippets/${snippetId}/raw`;
       const response = await fetch(this.buildRequest(url, 'GET'));
       return response.json();
     } catch (err) {

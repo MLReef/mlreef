@@ -15,3 +15,7 @@
 
 * Tests are always in "src/\__tests\__" folder, files in this folder must always finish with ".test.js"
 * Camell case will be used throughout the project for files(except for some configuration files that have to be named in other ways), for folder the words should be separated by "-"
+
+## Env vars
+
+* The .env file contains vars that can be read for multiple purposes. eg. url of the corresponding backend instance.

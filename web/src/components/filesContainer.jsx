@@ -86,10 +86,14 @@ class FilesContainer extends Component {
       false,
       branch,
     ).then((res) => {
+      console.log(res);
       this.setState({ files: res });
     })
       .catch(
-        () => this.setState({ redirect: true }),
+        (err) => {
+          console.log(err);
+          this.setState({ redirect: true })
+        },
       );
   }
 

@@ -6,13 +6,11 @@ import icon from '../../images/ml_reef_icon_01.svg';
 export default class Login extends React.Component {
   constructor(props) {
     super(props);
-
     this.state = {
       email: '',
       password: '',
       redirect: false,
     };
-
     this.submit = this.submit.bind(this);
     this.reset = this.reset.bind(this);
     this.validateForm = this.validateForm.bind(this);
