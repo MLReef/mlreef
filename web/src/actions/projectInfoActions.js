@@ -20,7 +20,7 @@ export function getProjectsList() {
     .then(
       (projects) => dispatch(
         getProjectsInfoSuccessfully(
-          projects.filter((project) => project.id),
+          projects,
         ),
       ),
     ).catch((err) => {

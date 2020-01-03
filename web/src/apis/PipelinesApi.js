@@ -1,11 +1,10 @@
-import { SECURITY_TOKEN } from '../apiConfig';
-import { domain } from '../dataTypes';
+import { SECURITY_TOKEN, GITLAB_INSTANCE } from '../apiConfig';
 
 export default class PipeLinesApi {
   static async create(projectId, refBranch) {
     try {
       const response = await fetch(
-        `https://${domain}/api/v4/projects/${projectId}/pipeline?ref=${refBranch}`, {
+        `${GITLAB_INSTANCE}/api/v4/projects/${projectId}/pipeline?ref=${refBranch}`, {
           method: 'POST',
           headers: new Headers({
             'PRIVATE-TOKEN': SECURITY_TOKEN,
@@ -22,7 +21,7 @@ export default class PipeLinesApi {
   static async getPipesByProjectId(projectId) {
     try {
       const response = await fetch(
-        `https://${domain}/api/v4/projects/${projectId}/pipelines/`, {
+        `${GITLAB_INSTANCE}/api/v4/projects/${projectId}/pipelines/`, {
           method: 'GET',
           headers: new Headers({
             'PRIVATE-TOKEN': SECURITY_TOKEN,

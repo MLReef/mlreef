@@ -1,19 +1,32 @@
-import { SECURITY_TOKEN } from '../apiConfig';
-import { domain } from '../dataTypes';
-
+import { SECURITY_TOKEN, GITLAB_INSTANCE } from '../apiConfig';
 
 export default class ProjectGeneralInfoApi {
-  static async getProjectsList() {
+  static async getProjectInfoApi(projectId) {
     try {
-      const response = await fetch(new Request(`https://${domain}/api/v4/projects?simple=true&membership=true`, {
+      const respone = await fetch(new Request(`${GITLAB_INSTANCE}/api/v4/projects/${projectId}`, {
         method: 'GET',
         headers: new Headers({
           'PRIVATE-TOKEN': SECURITY_TOKEN,
         }),
       }));
-      return response.json();
+      return respone.json();
     } catch (err) {
       return err;
+    }
+  }
+
+  static async getProjectsList() {
+    try {
+      const response = await fetch(new Request(`${GITLAB_INSTANCE}/api/v4/projects?simple=true&membership=true`, {
+        method: 'GET',
+        headers: new Headers({
+          'PRIVATE-TOKEN': SECURITY_TOKEN,
+        }),
+      }));
+      
+      return response.json();
+    } catch (err) {
+      console.error(err);
     }
   }
 
@@ -23,7 +36,7 @@ export default class ProjectGeneralInfoApi {
    * @param {*} name: forked project name
    */
   static async forkProject(id, namespace, name) {
-    const url = `https://${domain}/api/v4/projects/${id}/fork`;
+    const url = `${GITLAB_INSTANCE}/api/v4/projects/${id}/fork`;
     return fetch(new Request(
       url, {
         method: 'POST',
@@ -39,7 +52,7 @@ export default class ProjectGeneralInfoApi {
   }
 
   static async removeProject(projectId) {
-    const url = `https://${domain}/api/v4/projects/${projectId}`;
+    const url = `${GITLAB_INSTANCE}/api/v4/projects/${projectId}`;
     return fetch(new Request(
       url, {
         method: 'DELETE',
