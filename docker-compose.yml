@@ -8,7 +8,7 @@ services:
     restart: always
     depends_on:
       - gitlab
-      - postgresql
+      - gitlab-postgres
     ports:
       - 80:3000
       - 3000:3000
@@ -28,12 +28,12 @@ services:
     environment: 
       - SPRING_PROFILES_ACTIVE=dev
       - JAVA_TEST_PRIVATE_TOKEN=$JAVA_TEST_PRIVATE_TOKEN  # secret, use ENV var
-      - GITLAB_HOSTNAME=$GITLAB_HOSTNAME
+      - GITLAB_ROOT_URL=$GITLAB_ROOT_URL
       - GITLAB_ADMIN_TOKEN=$GITLAB_ADMIN_TOKEN            # secret, use ENV var
       - DB_HOST=mlreef-postgres
       - DB_PORT=6000
       - DB_USER=mlreef
-      - DB_PASS=password                                  # secret, use ENV var
+      - DB_PASS=password                                             # secret, use ENV var
       - DB_NAME=mlreef_backend
 
 
@@ -43,20 +43,60 @@ services:
     image: sameersbn/postgresql:10-2
     ports:
       - "6000:5432"
+    volumes:
+      - mlreefsql-data:/var/lib/postgresql:Z                         # this line gets rewritten by the CI/CD pipeline
     environment:
       - DB_USER=mlreef
-      - DB_PASS=password                                  # secret, use ENV var
+      - DB_PASS=password                                             # secret, use ENV var
       - DB_NAME=mlreef_backend
       - DB_EXTENSION=pg_trgm
 
+  
+  gitlab-postgres:
+    container_name: gitlab-postgres
+    restart: always
+    image: sameersbn/postgresql:10-2
+    ports:
+      - "5432:5432"
+    volumes:
+      - "./bin/setup-gitlab.sh:/usr/local/bin/setup-gitlab.sh"
+      - postgresql-data:/var/lib/postgresql:Z                        # this line gets rewritten by the CI/CD pipeline
+    environment:
+      - DB_USER=gitlab
+      - DB_PASS=password                                             # secret, use ENV var                              
+      - DB_NAME=gitlabhq_production
+      - DB_EXTENSION=pg_trgm
+      - GITLAB_ADMIN_TOKEN=$GITLAB_ADMIN_TOKEN  
+      - GITLAB_SECRETS_DB_KEY_BASE=long-and-random-alphanumeric-string
       
+
+  gitlab-runner-dispatcher:
+    container_name: gitlab-runner-dispatcher
+    image: gitlab/gitlab-runner:alpine
+    volumes:
+      - gitlab-runner-config:/etc/gitlab-runner/:Z                   # this line gets rewritten by the CI/CD pipeline
+      - /var/run/docker.sock:/var/run/docker.sock
+
+
+  redis:
+    container_name: redis
+    restart: always
+    image: sameersbn/redis:4.0.9-2
+    ports:
+      - "6379:6379"
+#    command:
+#      - --loglevel warning
+#    volumes:
+#      - redis-data:/var/lib/redis:Z
+
+
   gitlab:
     container_name: gitlab
     restart: always
     image: sameersbn/gitlab:12.4.0
     depends_on:
       - redis
-      - postgresql
+      - gitlab-postgres
     ports:
       - "10080:80"
       - "10022:22"
@@ -66,7 +106,7 @@ services:
       - DEBUG=false
 
       - DB_ADAPTER=postgresql
-      - DB_HOST=postgresql
+      - DB_HOST=gitlab-postgres
       - DB_PORT=5432
       - DB_USER=gitlab
       - DB_PASS=password                                            #secret, use ENV var
@@ -89,7 +129,7 @@ services:
       - GITLAB_SECRETS_SECRET_KEY_BASE=long-and-random-alphanumeric-string
       - GITLAB_SECRETS_OTP_KEY_BASE=long-and-random-alphanumeric-string
 
-      - GITLAB_ROOT_PASSWORD=
+      - GITLAB_ROOT_PASSWORD=password
       - GITLAB_ROOT_EMAIL=
 
       - GITLAB_NOTIFY_ON_BROKEN_BUILDS=true
@@ -183,42 +223,12 @@ services:
       - OAUTH_AZURE_TENANT_ID=
 
 
-  gitlab-runner-dispatcher:
-    container_name: gitlab-runner-dispatcher
-    image: gitlab/gitlab-runner:alpine
-    volumes:
-      - gitlab-runner-config:/etc/gitlab-runner/:Z                   # this line gets rewritten by the CI/CD pipeline
-      - /var/run/docker.sock:/var/run/docker.sock
-
-
-  postgresql:
-    container_name: postgres
-    restart: always
-    image: sameersbn/postgresql:10-2
-    ports:
-      - "5432:5432"
-    volumes:
-      - postgresql-data:/var/lib/postgresql:Z                        # this line gets rewritten by the CI/CD pipeline
-    environment:
-      - DB_USER=gitlab
-      - DB_PASS=password                                             # secret, use ENV var                              
-      - DB_NAME=gitlabhq_production
-      - DB_EXTENSION=pg_trgm
-
-  redis:
-    container_name: redis
-    restart: always
-    image: sameersbn/redis:4.0.9-2
-    ports:
-      - "6379:6379"
-#    command:
-#      - --loglevel warning
-#    volumes:
-#      - redis-data:/var/lib/redis:Z
+  
 
 # Portable volumes which can be listed by `docker volume ls`
 volumes:
   sock:
   postgresql-data:                                                   # this line gets removed by the CI/CD pipeline
+  mlreefsql-data:                                                   # this line gets removed by the CI/CD pipeline
   gitlab-data:                                                       # this line gets removed by the CI/CD pipeline
   gitlab-runner-config:                                              # this line gets removed by the CI/CD pipeline

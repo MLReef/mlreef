@@ -155,13 +155,15 @@ deploy:
     - URL=$(cat $INSTANCE_INFO)
     - echo $URL                                            # debug output
     - chmod 400 $SSH_KEYFILE                               # prepare private key file
-    - chmod +x bin/deploy.sh
+    - chmod +x bin/*
     # rewrite docker dompose file
     # change the frontend docker image from master branch to current branch
     - sed -i "s/$FRONTEND_IMAGE_NAME:develop/$FRONTEND_IMAGE_NAME:$FRONTEND_TAG/" $DOCKER_COMPOSE
     - sed -i "s/$BACKEND_IMAGE_NAME:develop/$BACKEND_IMAGE_NAME:$BACKEND_TAG/"    $DOCKER_COMPOSE
     # change postgres-data local image to /data/postgres on host machine
     - sed -i "s~-\ postgresql-data~-\ /data/postgres~"                        $DOCKER_COMPOSE
+    # change mlreefsql-data local image to /data/postgres on host machine
+    - sed -i "s~-\ mlreefsql-data~-\ /data/mlreefdb~"                         $DOCKER_COMPOSE
     # change gitlab-data local image to /data/gitlab on host machine
     - sed -i "s~-\ gitlab-data~-\ /data/gitlab~"                              $DOCKER_COMPOSE
     # change gitlab-data local image to /data/gitlab on host machine
@@ -178,6 +180,7 @@ deploy:
     # upload modified docker-compose to ec2 instance
     - scp -i $SSH_KEYFILE -o 'AddKeysToAgent yes' $DOCKER_COMPOSE ubuntu@${URL}:/home/ubuntu
     - scp -i $SSH_KEYFILE -o 'AddKeysToAgent yes' bin/deploy.sh ubuntu@${URL}:/home/ubuntu
+    - scp -i $SSH_KEYFILE -o 'AddKeysToAgent yes' bin/setup-gitlab.sh ubuntu@${URL}:/home/ubuntu
     - echo "starting deploy.sh"
     - echo "----------------------------------------"
     - ssh -i $SSH_KEYFILE -o 'AddKeysToAgent yes' ubuntu@"${URL}" "

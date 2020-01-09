@@ -106,3 +106,18 @@ To look at the container's logs
 ```bash
 docker logs $CONTAINER_NAME
 ```
+
+### Initialise Docker 
+
+Before the first start of a docker context you must provide the needed ENV vars!
+
+```bash
+docker-compose up
+```
+
+After starting for the first time, gitlab and gitlab post needs to be initialized.
+Run the setup-gitlab.sh in the postgres container
+
+```bash
+docker exec -it gitlab-postgres setup-gitlab.sh
+```
