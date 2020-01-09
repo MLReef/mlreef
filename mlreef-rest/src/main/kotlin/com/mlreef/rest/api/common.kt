@@ -10,11 +10,11 @@ import org.springframework.security.core.Authentication
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.stereotype.Component
 
-
 interface CurrentUserService {
     fun authentication(): Authentication
     fun person(): Person
     fun account(): Account
+    fun token(): String
 }
 
 @Component
@@ -29,8 +29,12 @@ class SimpleCurrentUserService(
 
     override fun person(): Person {
         val tokenDetails: TokenDetails = authentication().principal as TokenDetails
-        val findAll = personRepository.findAll()
         return personRepository.findById2(tokenDetails.personId)!!
+    }
+
+    override fun token(): String {
+        val tokenDetails: TokenDetails = authentication().principal as TokenDetails
+        return tokenDetails.token
     }
 
     override fun account(): Account {

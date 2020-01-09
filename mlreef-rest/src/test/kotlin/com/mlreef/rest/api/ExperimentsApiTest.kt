@@ -16,6 +16,7 @@ import com.mlreef.rest.DataVisualization
 import com.mlreef.rest.DataVisualizationRepository
 import com.mlreef.rest.Experiment
 import com.mlreef.rest.ExperimentRepository
+import com.mlreef.rest.ExperimentStatus
 import com.mlreef.rest.ParameterInstanceRepository
 import com.mlreef.rest.ParameterType
 import com.mlreef.rest.Person
@@ -56,6 +57,7 @@ class ExperimentsApiTest : RestApiTest() {
     private lateinit var dataOp3: DataVisualization
     private lateinit var subject: Person
     private lateinit var dataProject: DataProject
+    private lateinit var dataProject2: DataProject
     val rootUrl = "/api/v1/data-projects"
 
     @Autowired private lateinit var experimentRepository: ExperimentRepository
@@ -88,16 +90,24 @@ class ExperimentsApiTest : RestApiTest() {
         accountRepository.deleteAll()
 
         account = createMockUser()
+        val account2 = createMockUser(userOverrideSuffix = "0002")
         subject = account.person
-        dataProject = DataProject(UUID.fromString("aaaa0001-0000-0000-0000-dbdbdbdbdbdb"), "slug", "url", owner = account.person)
+        dataProject = DataProject(
+            UUID.fromString("aaaa0001-0000-0000-0000-dbdbdbdbdbdb"), "slug1", "url",
+            ownerId = account.person.id, gitlabId = 1, gitlabGroup = "mlreef", gitlabProject = "project1"
+        )
+        dataProject2 = DataProject(
+            UUID.fromString("aaaa0001-0000-0000-0002-dbdbdbdbdbdb"), "slug2", "url",
+            ownerId = account2.person.id, gitlabId = 2, gitlabGroup = "mlreef", gitlabProject = "project1")
         dataProjectRepository.save(dataProject)
+        dataProjectRepository.save(dataProject2)
         val codeRepoId = randomUUID()
-        val codeProject = CodeProject(codeRepoId, "slug", "url", owner = account.person)
+        val codeProject = CodeProject(codeRepoId, "slug", "url", ownerId = account.person.id)
         codeProjectRepository.save(codeProject)
 
-        dataOp1 = DataOperation(UUID.randomUUID(), "commons-data-operation1", "name", DataType.ANY, DataType.ANY)
-        dataOp2 = DataAlgorithm(randomUUID(), "commons-algorithm", "name", DataType.ANY, DataType.ANY)
-        dataOp3 = DataVisualization(randomUUID(), "commons-data-visualisation", "name", DataType.ANY)
+        dataOp1 = DataOperation(randomUUID(), "commons-data-operation1", "name", "command", DataType.ANY, DataType.ANY)
+        dataOp2 = DataAlgorithm(randomUUID(), "commons-algorithm", "name", "command", DataType.ANY, DataType.ANY)
+        dataOp3 = DataVisualization(randomUUID(), "commons-data-visualisation", "name", "command", DataType.ANY)
 
         dataOperationRepository.save(dataOp1)
         dataAlgorithmRepository.save(dataOp2)
@@ -120,7 +130,8 @@ class ExperimentsApiTest : RestApiTest() {
     @Test
     fun `Can create new Experiment`() {
         val request = ExperimentCreateRequest(
-            branch = "branch",
+            sourceBranch = "source",
+            targetBranch = "target",
             preProcessing = listOf(
                 DataProcessorInstanceDto("commons-data-operation1", listOf(
                     ParameterInstanceDto("stringParam", type = ParameterType.STRING.name, value = "string value"),
@@ -166,8 +177,8 @@ class ExperimentsApiTest : RestApiTest() {
     @Test
     fun `Can retrieve all own Experiments`() {
 
-        val experiment1 = Experiment(randomUUID(), dataProjectId = dataProject.id, branch = "branch")
-        val experiment2 = Experiment(randomUUID(), dataProjectId = dataProject.id, branch = "branch")
+        val experiment1 = Experiment(randomUUID(), dataProjectId = dataProject.id, sourceBranch = "source", targetBranch = "target")
+        val experiment2 = Experiment(randomUUID(), dataProjectId = dataProject.id, sourceBranch = "source", targetBranch = "target")
         experimentRepository.save(experiment1)
         experimentRepository.save(experiment2)
 
@@ -192,7 +203,10 @@ class ExperimentsApiTest : RestApiTest() {
     fun `Can retrieve specific own Experiment`() {
         val dataProcessorInstance = DataProcessorInstance(randomUUID(), dataOp1)
         dataProcessorInstanceRepository.save(dataProcessorInstance)
-        val experiment1 = Experiment(randomUUID(), dataProjectId = dataProject.id, branch = "branch",
+        val experiment1 = Experiment(
+            id = randomUUID(),
+            dataProjectId = dataProject.id,
+            sourceBranch = "source", targetBranch = "target",
             preProcessing = arrayListOf(dataProcessorInstance))
         experimentRepository.save(experiment1)
 
@@ -211,8 +225,28 @@ class ExperimentsApiTest : RestApiTest() {
     @Transactional
     @Rollback
     @Test
+    fun `Cannot retrieve foreign Experiment`() {
+        val dataProcessorInstance = DataProcessorInstance(randomUUID(), dataOp1)
+        dataProcessorInstanceRepository.save(dataProcessorInstance)
+
+        val experiment1 = Experiment(
+            id = randomUUID(),
+            dataProjectId = dataProject2.id,
+            sourceBranch = "source", targetBranch = "target",
+            preProcessing = arrayListOf(dataProcessorInstance))
+        experimentRepository.save(experiment1)
+
+        this.mockMvc.perform(
+            this.defaultAcceptContentAuth(get("$rootUrl/${dataProject2.id}/experiments/${experiment1.id}")))
+            .andExpect(status().isNotFound)
+
+    }
+
+    @Transactional
+    @Rollback
+    @Test
     fun `Can update own Experiment's PerformanceMetrics`() {
-        val experiment1 = Experiment(randomUUID(), dataProjectId = dataProject.id, branch = "branch")
+        val experiment1 = Experiment(randomUUID(), dataProjectId = dataProject.id, sourceBranch = "source", targetBranch = "target")
         experimentRepository.save(experiment1)
 
         val request = PerformanceMetricsDto()
@@ -236,7 +270,7 @@ class ExperimentsApiTest : RestApiTest() {
     @Rollback
     @Test
     fun `Can retrieve own Experiment's PerformanceMetrics`() {
-        val experiment1 = Experiment(randomUUID(), dataProjectId = dataProject.id, branch = "branch")
+        val experiment1 = Experiment(randomUUID(), dataProjectId = dataProject.id, sourceBranch = "source", targetBranch = "target")
         experimentRepository.save(experiment1)
 
         this.mockMvc.perform(
@@ -246,6 +280,61 @@ class ExperimentsApiTest : RestApiTest() {
                 "experiment-retrieve-one-metrics",
                 responseFields(experimentMetricsDtoResponseFields())))
 
+    }
+
+    @Transactional
+    @Rollback
+    @Test
+    fun `Can retrieve own Experiment's MLReef file`() {
+        val experiment1 = Experiment(randomUUID(), dataProjectId = dataProject.id, sourceBranch = "source", targetBranch = "target")
+        experimentRepository.save(experiment1)
+
+        val returnedResult = this.mockMvc.perform(
+            this.defaultAcceptContentAuth(get("$rootUrl/${dataProject.id}/experiments/${experiment1.id}/mlreef-file")))
+            .andExpect(status().isOk)
+            .andDo(document("experiment-retrieve-one-mlreef-file"))
+            .andReturn().response.contentAsString
+
+        assertThat(returnedResult).isNotEmpty()
+        assertThat(returnedResult).contains("git checkout -b target")
+    }
+
+    @Transactional
+    @Rollback
+    @Test
+    fun `Can commit own Experiment's MLReef file`() {
+        val experiment1 = Experiment(randomUUID(), dataProjectId = dataProject.id, sourceBranch = "source", targetBranch = "target")
+        experimentRepository.save(experiment1)
+
+        val returnedResult = this.mockMvc.perform(
+            this.defaultAcceptContentAuth(post("$rootUrl/${dataProject.id}/experiments/${experiment1.id}/mlreef-file")))
+            .andExpect(status().isOk)
+            .andDo(document("experiment-create-mlreef-file-commit"))
+            .andReturn().response.contentAsString
+
+        assertThat(returnedResult).isNotEmpty()
+        assertThat(returnedResult).contains("git checkout -b target")
+    }
+
+    @Transactional
+    @Rollback
+    @Test
+    fun `Can update own Experiment's Status`() {
+        val experiment1 = Experiment(randomUUID(), dataProjectId = dataProject.id, sourceBranch = "source", targetBranch = "target")
+        experimentRepository.save(experiment1)
+
+        val request = ExperimentStatus.RUNNING
+        val url = "$rootUrl/${dataProject.id}/experiments/${experiment1.id}/status"
+        val returnedResult = this.mockMvc.perform(
+            this.defaultAcceptContentAuth(put(url))
+                .content(objectMapper.writeValueAsString(request)))
+            .andExpect(status().isOk)
+            .andDo(document("experiment-update-status"))
+            .andReturn().let {
+                objectMapper.readValue(it.response.contentAsString, String::class.java)
+            }
+
+        assertThat(returnedResult).isNotEmpty()
     }
 
     private fun experimentDtoResponseFields(prefix: String = ""): List<FieldDescriptor> {
@@ -261,7 +350,9 @@ class ExperimentsApiTest : RestApiTest() {
             fieldWithPath(prefix + "preProcessing").optional().type(JsonFieldType.ARRAY).optional().description("An optional List of DataProcessors used during PreProcessing"),
             fieldWithPath(prefix + "postProcessing").optional().type(JsonFieldType.ARRAY).optional().description("An optional List of DataProcessors used during PostProcessing"),
             fieldWithPath(prefix + "processing").optional().type(JsonFieldType.OBJECT).optional().description("An optional DataAlgorithm"),
-            fieldWithPath(prefix + "branch").type(JsonFieldType.STRING).description("Branch name")
+            fieldWithPath(prefix + "status").type(JsonFieldType.STRING).description("Status of experiment"),
+            fieldWithPath(prefix + "sourceBranch").type(JsonFieldType.STRING).description("Branch name"),
+            fieldWithPath(prefix + "targetBranch").type(JsonFieldType.STRING).description("Branch name")
         )
     }
 
@@ -285,9 +376,16 @@ class ExperimentsApiTest : RestApiTest() {
         )
     }
 
+//    private fun experimentStatusDtoResponseFields(prefix: String = ""): List<FieldDescriptor> {
+//        return listOf(
+//            fieldWithPath(prefix + "status").type(JsonFieldType.STRING).optional().description("Json object describing specific metrics")
+//        )
+//    }
+
     private fun experimentCreateRequestFields(): List<FieldDescriptor> {
         return listOf(
-            fieldWithPath("branch").type(JsonFieldType.STRING).description("Branch name"),
+            fieldWithPath("sourceBranch").type(JsonFieldType.STRING).description("Branch name for initial checkout"),
+            fieldWithPath("targetBranch").type(JsonFieldType.STRING).description("Branch name for destination"),
             fieldWithPath("preProcessing").type(JsonFieldType.ARRAY).optional().description("An optional List of DataProcessors used during PreProcessing"),
             fieldWithPath("postProcessing").type(JsonFieldType.ARRAY).optional().description("An optional List of DataProcessors used during PostProcessing"),
             fieldWithPath("processing").type(JsonFieldType.OBJECT).optional().description("An optional DataAlgorithm")

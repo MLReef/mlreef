@@ -109,22 +109,26 @@ data class PerformanceMetricsDto(
 class ExperimentDto(
     val id: UUID,
     val dataProjectId: UUID,
-    val branch: String,
+    val sourceBranch: String,
+    val targetBranch: String,
+    val status: String,
     val performanceMetrics: PerformanceMetricsDto? = null,
     @get:Valid val preProcessing: List<DataProcessorInstanceDto>? = arrayListOf(),
     @get:Valid val postProcessing: List<DataProcessorInstanceDto>? = arrayListOf(),
     @get:Valid val processing: DataProcessorInstanceDto? = null
 )
 
-internal fun Experiment.toDto() =
+internal fun Experiment.toDto(): ExperimentDto =
     ExperimentDto(
-        this.id,
-        this.dataProjectId,
-        this.branch,
-        this.performanceMetrics.toDto(),
-        this.preProcessing.toDataProcessorInstanceDtoList(),
-        this.postProcessing.toDataProcessorInstanceDtoList(),
-        this.getProcessor()?.toDto()
+        id = this.id,
+        dataProjectId = this.dataProjectId,
+        sourceBranch = this.sourceBranch,
+        targetBranch = this.targetBranch,
+        status = this.status.name,
+        performanceMetrics = this.performanceMetrics.toDto(),
+        preProcessing = this.preProcessing.toDataProcessorInstanceDtoList(),
+        postProcessing = this.postProcessing.toDataProcessorInstanceDtoList(),
+        processing = this.getProcessor()?.toDto()
     )
 
 
@@ -136,7 +140,6 @@ internal fun PerformanceMetrics.toDto(): PerformanceMetricsDto =
         this.jsonBlob
     )
 
-
 internal fun DataProcessorInstance.toDto(): DataProcessorInstanceDto =
     DataProcessorInstanceDto(
         this.slug,
@@ -144,14 +147,12 @@ internal fun DataProcessorInstance.toDto(): DataProcessorInstanceDto =
         this.name
     )
 
-
 internal fun ParameterInstance.toDto(): ParameterInstanceDto =
     ParameterInstanceDto(
         this.processorParameter.name,
         this.value,
         this.processorParameter.type.name
     )
-
 
 internal fun DataProcessor.toDto(): DataProcessorDto =
     DataProcessorDto(this.parameters.toProcessorParameterDtoList())

@@ -16,9 +16,13 @@ import java.util.*
 import java.util.UUID.randomUUID
 import javax.persistence.CascadeType
 import javax.persistence.Column
+import javax.persistence.DiscriminatorColumn
+import javax.persistence.DiscriminatorValue
 import javax.persistence.Embeddable
 import javax.persistence.Embedded
 import javax.persistence.Entity
+import javax.persistence.EnumType
+import javax.persistence.Enumerated
 import javax.persistence.FetchType
 import javax.persistence.Id
 import javax.persistence.Inheritance
@@ -88,7 +92,8 @@ abstract class BaseEntity(
 
 @Table(name = "subject")
 @Entity
-@Inheritance(strategy = InheritanceType.SINGLE_TABLE) class Subject(
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+class Subject(
     id: UUID,
     val slug: String,
     val name: String
@@ -151,6 +156,7 @@ class AccountToken(
     id: UUID,
     @Column(name = "account_id")
     val accountId: UUID,
+    @Column(unique = true)
     val token: String,
     @Column(name = "gitlab_id")
     val gitlabId: Int? = null,
@@ -178,7 +184,7 @@ enum class VisibilityScope {
 interface MLProject {
     val slug: String
     val url: String
-    val owner: Subject?
+    val ownerId: UUID
 }
 
 /**
@@ -192,15 +198,21 @@ class DataProject(
     override val slug: String,
     override val url: String,
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "owner_id")
-    override val owner: Subject,
+    @Column(name = "owner_id")
+    override val ownerId: UUID,
+
+    @Column(name = "gitlab_group")
+    val gitlabGroup: String,
+
+    @Column(name = "gitlab_project")
+    val gitlabProject: String,
+
+    @Column(name = "gitlab_id")
+    val gitlabId: Int,
 
     @OneToMany(fetch = FetchType.LAZY, cascade = [CascadeType.ALL])
     @JoinColumn(name = "data_project_id")
     val experiments: List<Experiment> = listOf()
-
-//        @ElementCollection  val dataTypes: List<DataType> = listOf()
 ) : BaseEntity(id), MLProject
 
 /**
@@ -215,9 +227,9 @@ class CodeProject(
     id: UUID,
     override val slug: String,
     override val url: String,
-    @ManyToOne(fetch = FetchType.LAZY, targetEntity = Subject::class)
-    @JoinColumn(name = "owner_id")
-    override val owner: Subject,
+
+    @Column(name = "owner_id")
+    override val ownerId: UUID,
 
     @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "code_project_id")
@@ -243,26 +255,40 @@ class OutputFile(
     val dataProcessorId: UUID?
 ) : BaseEntity(id)
 
+enum class ExperimentStatus(private val stage: Int) {
+    CREATED(1),
+    PENDING(2),
+    RUNNING(3),
+    SKIPPED(3),
+    SUCCESS(4),
+    FAILED(4),
+    CANCELED(4),
+    ARCHIVED(5);
+
+    fun isDone() {
+        this == SUCCESS || this == FAILED
+    }
+
+    fun canUpdateTo(next: ExperimentStatus): Boolean {
+        return next.stage > this.stage
+    }
+}
+
 /**
  * An Experiment is a instance of a ProcessingChain with Data
  */
 @Entity
 @Table(name = "experiment")
-@NamedEntityGraphs(
-    NamedEntityGraph(name = "Experiment-full", attributeNodes = [
-        NamedAttributeNode("preProcessing"),
-        NamedAttributeNode("postProcessing"),
-        NamedAttributeNode("processing"),
-        NamedAttributeNode("outputFiles")
-    ])
-
-)
 class Experiment(
     id: UUID,
     @Column(name = "data_project_id")
     val dataProjectId: UUID,
 
-    val branch: String,
+    @Column(name = "source_branch")
+    val sourceBranch: String,
+
+    @Column(name = "target_branch")
+    val targetBranch: String,
 
     @Embedded
     val performanceMetrics: PerformanceMetrics = PerformanceMetrics(),
@@ -291,10 +317,12 @@ class Experiment(
      */
     @OneToOne(fetch = FetchType.EAGER, cascade = [CascadeType.ALL])
     @JoinColumn(name = "experimentProcessingId")
-    protected var processing: DataProcessorInstance? = null
+    protected var processing: DataProcessorInstance? = null,
+
+    @Enumerated(EnumType.STRING)
+    val status: ExperimentStatus = ExperimentStatus.CREATED
 
 ) : BaseEntity(id) {
-
 
     fun addPreProcessor(processorInstance: DataProcessorInstance) {
         preProcessing.add(processorInstance)
@@ -312,6 +340,30 @@ class Experiment(
     }
 
     fun getProcessor() = this.processing
+
+    fun copy(
+        sourceBranch: String? = null,
+        targetBranch: String? = null,
+        performanceMetrics: PerformanceMetrics? = null,
+        outputFiles: List<OutputFile>? = null,
+        preProcessing: MutableList<DataProcessorInstance>? = null,
+        postProcessing: MutableList<DataProcessorInstance>? = null,
+        processing: DataProcessorInstance? = null,
+        status: ExperimentStatus? = null
+    ): Experiment {
+        return Experiment(
+            id = id,
+            dataProjectId = dataProjectId,
+            sourceBranch = sourceBranch ?: this.sourceBranch,
+            targetBranch = targetBranch ?: this.targetBranch,
+            performanceMetrics = performanceMetrics ?: this.performanceMetrics,
+            outputFiles = outputFiles ?: this.outputFiles,
+            preProcessing = preProcessing ?: this.preProcessing,
+            postProcessing = postProcessing ?: this.postProcessing,
+            processing = processing ?: this.processing,
+            status = status ?: this.status
+        )
+    }
 }
 
 @Embeddable
@@ -347,14 +399,21 @@ enum class DataProcessorType {
         NamedAttributeNode("author")
     ])
 
-) class DataProcessor(
+)
+@DiscriminatorColumn(name = "PROCESSOR_TYPE")
+class DataProcessor(
     id: UUID,
     val slug: String,
     val name: String,
+    val command: String,
+    @Enumerated(EnumType.STRING)
     val inputDataType: DataType,
+    @Enumerated(EnumType.STRING)
     val outputDataType: DataType,
     val type: DataProcessorType,
+    @Enumerated(EnumType.STRING)
     val visibilityScope: VisibilityScope = VisibilityScope.default(),
+    @Column(length = 1024)
     val description: String = "",
 
     @Column(name = "code_project_id")
@@ -387,26 +446,40 @@ enum class DataProcessorType {
  * Therefore they must be chainable
  */
 @Entity
+@DiscriminatorValue("OPERATION")
 class DataOperation(
     id: UUID,
     slug: String,
     name: String,
+    command: String,
     inputDataType: DataType,
     outputDataType: DataType,
-    visibilityScope: VisibilityScope = VisibilityScope.default()
-) : DataProcessor(id, slug, name, inputDataType, outputDataType, DataProcessorType.OPERATION, visibilityScope) {
+    visibilityScope: VisibilityScope = VisibilityScope.default(),
+    description: String = "",
+    author: Subject? = null,
+    codeProjectId: UUID? = null,
+    parameters: List<ProcessorParameter> = listOf()
+) : DataProcessor(id, slug, name, command, inputDataType, outputDataType, DataProcessorType.OPERATION,
+    visibilityScope, description, codeProjectId, author, parameters) {
 
     override fun isChainable(): Boolean = true
 }
 
 @Entity
+@DiscriminatorValue("VISUALISATION")
 class DataVisualization(
     id: UUID,
     slug: String,
     name: String,
+    command: String,
     inputDataType: DataType,
-    visibilityScope: VisibilityScope = VisibilityScope.default()
-) : DataProcessor(id, slug, name, inputDataType, DataType.NONE, DataProcessorType.VISUALISATION, visibilityScope) {
+    visibilityScope: VisibilityScope = VisibilityScope.default(),
+    description: String = "",
+    author: Subject? = null,
+    codeProjectId: UUID? = null,
+    parameters: List<ProcessorParameter> = listOf()
+) : DataProcessor(id, slug, name, command, inputDataType, DataType.NONE, DataProcessorType.VISUALISATION,
+    visibilityScope, description, codeProjectId, author, parameters) {
     override fun isChainable(): Boolean = true
 }
 
@@ -414,15 +487,21 @@ class DataVisualization(
  * Proposal: Model DataAlgorithm as a Data processor, even if it not chainable
  */
 @Entity
+@DiscriminatorValue("ALGORITHM")
 class DataAlgorithm(
     id: UUID,
     slug: String,
     name: String,
+    command: String,
     inputDataType: DataType,
     outputDataType: DataType,
-    visibilityScope: VisibilityScope = VisibilityScope.default()
-
-) : DataProcessor(id, slug, name, inputDataType, outputDataType, DataProcessorType.ALGORITHM, visibilityScope) {
+    visibilityScope: VisibilityScope = VisibilityScope.default(),
+    description: String = "",
+    author: Subject? = null,
+    codeProjectId: UUID? = null,
+    parameters: List<ProcessorParameter> = listOf()
+) : DataProcessor(id, slug, name, command, inputDataType, outputDataType, DataProcessorType.ALGORITHM,
+    visibilityScope, description, codeProjectId, author, parameters) {
     override fun isChainable(): Boolean = false
 }
 
@@ -481,10 +560,14 @@ class ProcessorParameter(
     @Column(name = "data_processor_id")
     val dataProcessorId: UUID,
     val name: String,
+    @Enumerated(EnumType.STRING)
     val type: ParameterType,
-    val description: String? = null,
-    val nullable: Boolean = false,
-    val defaultValue: String? = null
+    val required: Boolean = true,
+    val defaultValue: String? = null,
+    @Column(name = "parameter_group")
+    val group: String = "",
+    @Column(length = 1024)
+    val description: String? = null
 ) : BaseEntity(id)
 
 @Entity

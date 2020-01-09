@@ -143,7 +143,7 @@ class AuthApiTest : RestApiTest() {
     }
 
     @Transactional
-    override fun createMockUser(plainPassword: String): Account {
+    override fun createMockUser(plainPassword: String, userOverrideSuffix: String?): Account {
         val passwordEncrypted = passwordEncoder.encode(plainPassword)
         val person = Person(randomUUID(), "person_slug", "user name")
         val account = Account(randomUUID(), "username", "email@example.com", passwordEncrypted, person)

@@ -5,12 +5,14 @@ import com.mlreef.rest.DataProject
 import com.mlreef.rest.DataProjectRepository
 import com.mlreef.rest.Experiment
 import com.mlreef.rest.ExperimentRepository
+import com.mlreef.rest.ExperimentStatus
 import com.mlreef.rest.api.CurrentUserService
 import com.mlreef.rest.api.v1.dto.DataProcessorInstanceDto
 import com.mlreef.rest.api.v1.dto.ExperimentDto
 import com.mlreef.rest.api.v1.dto.PerformanceMetricsDto
 import com.mlreef.rest.api.v1.dto.toDto
 import com.mlreef.rest.api.v1.dto.toExperimentDtoList
+import com.mlreef.rest.exceptions.ExperimentUpdateException
 import com.mlreef.rest.exceptions.NotFoundException
 import com.mlreef.rest.feature.experiment.ExperimentService
 import com.mlreef.rest.findById2
@@ -24,6 +26,7 @@ import org.springframework.web.bind.annotation.RestController
 import java.util.*
 import java.util.logging.Logger
 import javax.validation.Valid
+import javax.validation.constraints.NotEmpty
 
 @RestController
 @RequestMapping("/api/v1/data-projects/{dataProjectId}/experiments")
@@ -33,11 +36,19 @@ class ExperimentController(
     val dataProjectRepository: DataProjectRepository,
     val experimentRepo: ExperimentRepository
 ) {
-    private val logger: Logger = Logger.getLogger(ExperimentController::class.simpleName)
+    private val log: Logger = Logger.getLogger(ExperimentController::class.simpleName)
 
     private fun beforeGetDataProject(dataProjectId: UUID): DataProject {
-        return dataProjectRepository.findById2(dataProjectId)
-            ?: throw NotFoundException("dataProject was not found")
+        val dataProject = (dataProjectRepository.findById2(dataProjectId)
+            ?: throw NotFoundException("dataProject was not found"))
+
+        // FIXME: ask Rainer/Christoph about best-practise with Spring Roles, Authorities and stuff
+        val id = currentUserService.person().id
+        if (dataProject.ownerId != id) {
+            log.warning("User $id requested an DataProject of ${dataProject.ownerId}")
+            throw NotFoundException("dataProject was not found")
+        }
+        return dataProject
     }
 
     private fun beforeGetExperiment(experimentId: UUID): Experiment {
@@ -77,14 +88,56 @@ class ExperimentController(
         return saved.performanceMetrics.toDto()
     }
 
+    @PutMapping("/{id}/status")
+    fun updateExperimentStatus(@PathVariable dataProjectId: UUID, @PathVariable id: UUID, @Valid @RequestBody newStatus: ExperimentStatus): ExperimentStatus {
+        beforeGetDataProject(dataProjectId)
+        val experiment = beforeGetExperiment(id)
+        if (experiment.status.canUpdateTo(newStatus)) {
+            log.info("Update status of Experiment to $newStatus")
+            val changeExperiment = experiment.copy(
+                status = newStatus
+            )
+            val saved = experimentRepo.save(experiment)
+            return saved.status
+        } else {
+            log.warning("Update status of Experiment to $newStatus not possible, already has ${experiment.status}")
+            throw ExperimentUpdateException("Cannot increate ExperimentStatus to $newStatus")
+        }
+
+    }
+
+    @GetMapping("/{id}/mlreef-file")
+    fun getExperimentMlreefFile(@PathVariable dataProjectId: UUID, @PathVariable id: UUID): String {
+        beforeGetDataProject(dataProjectId)
+        val experiment = beforeGetExperiment(id)
+
+        val account = currentUserService.account()
+        return service.createExperimentFile(experiment = experiment, author = account)
+    }
+
+    @PostMapping("/{id}/mlreef-file")
+    fun createExperimentMlreefFile(@PathVariable dataProjectId: UUID, @PathVariable id: UUID): String {
+        val dataProject = beforeGetDataProject(dataProjectId)
+        val experiment = beforeGetExperiment(id)
+
+        val account = currentUserService.account()
+        val fileContent = service.createExperimentFile(experiment = experiment, author = account)
+
+        val userToken = currentUserService.token()
+        service.commitExperimentFile(
+            userToken = userToken, projectId = dataProject.gitlabId,
+            targetBranch = experiment.targetBranch, sourceBranch = experiment.sourceBranch,
+            fileContent = fileContent)
+        return fileContent
+    }
+
     @PostMapping
     fun createExperiment(@PathVariable dataProjectId: UUID, @Valid @RequestBody experimentCreateRequest: ExperimentCreateRequest): ExperimentDto {
         val dataProject = beforeGetDataProject(dataProjectId)
         val person = currentUserService.person()
-        logger.info(experimentCreateRequest.toString())
-        val branch = experimentCreateRequest.branch
+        log.info(experimentCreateRequest.toString())
 
-        val newExperiment = service.createExperiment(person.id, dataProject.id, branch)
+        val newExperiment = service.createExperiment(person.id, dataProject.id, "source", "target")
 
         experimentCreateRequest.preProcessing.forEach { processorInstanceDto ->
             val preProcessorInstance = service.newDataProcessorInstance(processorInstanceDto.slug)
@@ -121,7 +174,8 @@ class ExperimentController(
 }
 
 class ExperimentCreateRequest(
-    @Valid val branch: String,
+    @NotEmpty val sourceBranch: String,
+    @NotEmpty val targetBranch: String,
     @Valid val preProcessing: List<DataProcessorInstanceDto> = arrayListOf(),
     @Valid val postProcessing: List<DataProcessorInstanceDto> = arrayListOf(),
     @Valid val processing: DataProcessorInstanceDto? = null
