@@ -173,3 +173,20 @@ operation::experiment-retrieve-one-metrics[snippets='curl-request,response-body,
 
 operation::experiment-update-metrics[snippets='curl-request,http-response,response-fields']
 
+=== GET /experiments/:id/mlreef-file
+
+Exports the Experiment's metainformation and generate the mlreef.yml file
+
+Output is the mlreef.yml file contents as text
+
+operation::experiment-retrieve-one-mlreef-file[snippets='curl-request']
+
+=== POST /experiments/:id/mlreef-file
+
+Creates the target branch and commits the mlreef.yml.
+Cannot be repeated for the same Experiment
+
+Output is the mlreef.yml file contents as text
+
+operation::experiment-create-mlreef-file-commit[snippets='curl-request']
+

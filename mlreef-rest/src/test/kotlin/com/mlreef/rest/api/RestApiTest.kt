@@ -41,7 +41,6 @@ import java.util.*
 import java.util.regex.Pattern
 import javax.transaction.Transactional
 
-
 @ExtendWith(value = [RestDocumentationExtension::class, SpringExtension::class])
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles(ApplicationProfiles.TEST)
@@ -123,8 +122,9 @@ abstract class RestApiTest {
         )
 
         Mockito.`when`(currentUserService.person()).then { personRepository.findAll().first() }
+        Mockito.`when`(currentUserService.account()).then { account }
+        Mockito.`when`(currentUserService.token()).then { testPrivateUserTokenMock }
     }
-
 
     protected fun defaultAcceptContentAuth(requestBuilder: MockHttpServletRequestBuilder): MockHttpServletRequestBuilder {
         return requestBuilder
@@ -143,27 +143,33 @@ abstract class RestApiTest {
     }
 
     @Transactional
-    protected fun createMockUser(plainPassword: String = "password"): Account {
+    protected fun createMockUser(plainPassword: String = "password", userOverrideSuffix: String? = null): Account {
+
+        var mockToken = testPrivateUserTokenMock!!
+        var userSuffix = "0000"
+        if (userOverrideSuffix != null) {
+            userSuffix = userOverrideSuffix
+            mockToken = "second-token-$userSuffix"
+        }
         val passwordEncrypted = passwordEncoder.encode(plainPassword)
         val person = Person(
-            id = UUID.fromString("aaaa0000-0001-0000-0000-cccccccccccc"),
-            slug = "person_slug",
+            id = UUID.fromString("aaaa0000-0001-0000-$userSuffix-cccccccccccc"),
+            slug = "person_slug$userSuffix",
             name = "user name")
         val account = Account(
-            id = UUID.fromString("aaaa0000-0002-0000-0000-aaaaaaaaaaaa"),
-            username = "username",
-            email = "email@example.com",
+            id = UUID.fromString("aaaa0000-0002-0000-$userSuffix-aaaaaaaaaaaa"),
+            username = "username$userSuffix",
+            email = "email$userSuffix@example.com",
             passwordEncrypted = passwordEncrypted,
             person = person)
         val token = AccountToken(
-            id = UUID.fromString("aaaa0000-0003-0000-0000-bbbbbbbbbbbb"),
+            id = UUID.fromString("aaaa0000-0003-0000-$userSuffix-bbbbbbbbbbbb"),
             accountId = account.id,
-            token = testPrivateUserTokenMock!!,
+            token = mockToken,
             gitlabId = 0)
         personRepository.save(person)
         accountRepository.save(account)
         accountTokenRepository.save(token)
         return account
     }
-
 }

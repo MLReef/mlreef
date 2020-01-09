@@ -6,10 +6,10 @@ import com.mlreef.rest.AccountToken
 import com.mlreef.rest.AccountTokenRepository
 import com.mlreef.rest.Person
 import com.mlreef.rest.PersonRepository
-import com.mlreef.rest.config.RedisSessionStrategy
 import com.mlreef.rest.config.censor
 import com.mlreef.rest.exceptions.Error
-import com.mlreef.rest.exceptions.GitlabException
+import com.mlreef.rest.exceptions.GitlabConflictException
+import com.mlreef.rest.exceptions.GitlabConnectException
 import com.mlreef.rest.exceptions.UserAlreadyExistsException
 import com.mlreef.rest.external_api.gitlab.GitlabRestClient
 import com.mlreef.rest.external_api.gitlab.GitlabUser
@@ -20,6 +20,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
+import org.springframework.web.client.ResourceAccessException
 import java.util.UUID.randomUUID
 import javax.transaction.Transactional
 
@@ -43,7 +44,7 @@ class GitlabAuthService(
     private val passwordEncoder: PasswordEncoder
 ) : AuthService {
 
-    val log = LoggerFactory.getLogger(RedisSessionStrategy::class.java)
+    val log = LoggerFactory.getLogger(this::class.java)
 
     override fun loginUser(plainPassword: String, username: String?, email: String?): Account {
         val byUsername: Account? = if (username != null) accountRepository.findOneByUsername(username) else null
@@ -99,9 +100,11 @@ class GitlabAuthService(
     override fun findGitlabUserViaToken(token: String): GitlabUser {
         return try {
             gitlabRestClient.getUser(token)
+        } catch (e: ResourceAccessException) {
+            throw GitlabConnectException(e.message ?: "Cannot execute gitlabRestClient.getUser")
         } catch (e: Exception) {
             log.error(e.message, e)
-            throw GitlabException(Error.GitlabUserNotExisting, "Cannot find Gitlab user with this token ${token.censor()}")
+            throw GitlabConflictException(Error.GitlabUserNotExisting, "Cannot find Gitlab user with this token ${token.censor()}")
         }
     }
 
@@ -111,18 +114,18 @@ class GitlabAuthService(
             gitlabRestClient.adminCreateUser(email = email, name = gitlabName, username = username, password = password)
         } catch (e: Exception) {
             log.error(e.message, e)
-            throw GitlabException(Error.GitlabUserCreationFailed, "Cannot create user for $username")
+            throw GitlabConflictException(Error.GitlabUserCreationFailed, "Cannot create user for $username")
         }
     }
 
     private fun createGitlabToken(username: String, gitlabUser: GitlabUser): GitlabUserToken {
         return try {
-            val gitlabUserId = gitlabUser.id.toInt()
+            val gitlabUserId = gitlabUser.id
             val tokenName = "mlreef-user-token"
             gitlabRestClient.adminCreateUserToken(gitlabUserId = gitlabUserId, tokenName = tokenName)
         } catch (e: Exception) {
             log.error(e.message, e)
-            throw GitlabException(Error.GitlabUserTokenCreationFailed, "Cannot create user token for $username")
+            throw GitlabConflictException(Error.GitlabUserTokenCreationFailed, "Cannot create user token for $username")
         }
     }
 

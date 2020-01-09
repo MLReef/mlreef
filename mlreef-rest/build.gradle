@@ -18,6 +18,8 @@ dependencies {
     implementation "org.projectlombok:lombok"
     implementation "com.fasterxml.jackson.module:jackson-module-kotlin:2.9.+"
 
+    implementation "org.springframework.boot:spring-boot-devtools"
+
     // Rest and HATEOAS
     implementation 'org.springframework.boot:spring-boot-starter-hateoas'
     implementation 'org.springframework.boot:spring-boot-starter-web'

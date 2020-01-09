@@ -48,3 +48,51 @@ class GitlabUserToken(
     val created_at: String? = "",
     val expires_at: String? = ""
 ) : Serializable
+
+// https://docs.gitlab.com/ee/api/branches.html#create-repository-branch
+internal class GitlabCreateBranchRequest(
+    val branch: String,
+    val ref: String
+) : Serializable
+
+// https://docs.gitlab.com/ee/api/commits.html#create-a-commit-with-multiple-files-and-actions
+internal class GitlabCreateCommitRequest(
+    val branch: String,
+    val commit_message: String,
+    val actions: List<GitlabCreateCommitAction>
+) : Serializable
+
+internal class GitlabCreateCommitAction(
+    val file_path: String,
+    val content: String,
+    val action: String = "create"
+) : Serializable
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+class Branch(
+    val branch: String = "",
+    val ref: String = ""
+) : Serializable
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+class Commit(
+    val author_email: String = "",
+    val author_name: String = "",
+    val authored_date: String = "",
+    val committer_email: String = "",
+    val committer_name: String = "",
+    val committed_date: String = "",
+    val title: String = "",
+    val message: String = "",
+    val id: String = "",
+    val short_id: String = "",
+    val status: String? = null,
+    val stats: CommitStats? = null
+) : Serializable
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+class CommitStats(
+    val additions: Int,
+    val deletions: Int,
+    val total: Int
+) : Serializable
