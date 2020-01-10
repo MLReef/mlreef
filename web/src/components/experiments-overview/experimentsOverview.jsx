@@ -3,6 +3,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
 import uuidv1 from 'uuid/v1';
+import { shape, arrayOf, objectOf } from 'prop-types';
 import Navbar from '../navbar/navbar';
 import ProjectContainer from '../projectContainer';
 import './experimentsOverview.css';
@@ -22,20 +23,20 @@ import ExperimentCard from './experimentCard';
 class ExperimentsOverview extends Component {
   constructor(props) {
     super(props);
-    const project = this.props.projects.selectedProject;
+    const { projects: { selectedProject }, branches } = this.props;
 
     this.state = {
-      project,
-      branches: [],
+      selectedProject,
+      all: [],
       experiments: [],
       selectedExperiment: null,
     };
 
     this.setSelectedExperiment = this.setSelectedExperiment.bind(this);
-    const branches = this.props.branches.filter((branch) => branch.name.startsWith('experiment'));
-    pipelinesApi.getPipesByProjectId(project.id).then((res) => {
+    const arrayOfBranches = branches.filter((branch) => branch.name.startsWith('experiment'));
+    pipelinesApi.getPipesByProjectId(selectedProject.id).then((res) => {
       const pipes = res.filter((pipe) => pipe.status !== SKIPPED);
-      const experiments = branches.map((branch) => {
+      const experiments = arrayOfBranches.map((branch) => {
         const pipeBranch = pipes.filter((pipe) => pipe.ref === branch.name)[0];
         if (pipeBranch) {
           const experiment = {};
@@ -61,8 +62,7 @@ class ExperimentsOverview extends Component {
         { status: CANCELED, values: experiments.filter((exp) => exp.status === CANCELED) },
         { status: FAILED, values: experiments.filter((exp) => exp.status === FAILED) },
       ];
-
-      this.setState({ experiments: experimentsClassified });
+      this.setState({ experiments: experimentsClassified, all: experimentsClassified });
     });
   }
 
@@ -79,23 +79,45 @@ class ExperimentsOverview extends Component {
     });
     e.target.classList.add('active-border-light-blue');
     e.target.classList.remove('non-active-black-border');
+
+    const { all } = this.state;
+
+    if (e.target.id === 'all') {
+      const allExperiments = all;
+      this.setState({ experiments: allExperiments });
+    } else if (e.target.id === 'completed') {
+      const completed = all.filter((exp) => exp.status === 'success');
+      this.setState({ experiments: completed });
+    } else if (e.target.id === 'aborted') {
+      const canceled = all.filter((exp) => exp.status === 'canceled');
+      this.setState({ experiments: canceled });
+    } else if (e.target.id === 'failed') {
+      const failed = all.filter((exp) => exp.status === 'failed');
+      this.setState({ experiments: failed });
+    } else if (e.target.id === 'running') {
+      const running = all.filter((exp) => exp.status === 'running');
+      this.setState({ experiments: running });
+    } else if (e.target.id === 'open') {
+      const open = all.filter((exp) => exp.status === 'open');
+      this.setState({ experiments: open });
+    }
   }
 
   render() {
-    const { project, selectedExperiment, experiments } = this.state;
+    const { selectedProject, selectedExperiment, experiments } = this.state;
     const { jobs }  = this.props;
     let experimentJob;
     if(selectedExperiment){
       experimentJob = jobs.filter(job => job.ref === selectedExperiment.descTitle)[0];
     }
-    const groupName = project.namespace.name;
+    const groupName = selectedProject.namespace.name;
     return (
       <div id="experiments-overview-container">
         <Navbar />
         <ProjectContainer
-          project={project}
+          project={selectedProject}
           activeFeature="experiments"
-          folders={[groupName, project.name, 'Data', 'Experiments']}
+          folders={[groupName, selectedProject.name, 'Data', 'Experiments']}
         />
         <br />
         <br />
@@ -142,16 +164,24 @@ class ExperimentsOverview extends Component {
                             Completed
             </button>
             <button
+              id="failed"
+              type="button"
+              className="non-active-black-border experiment-button"
+              onClick={(e) => this.handleButtonsClick(e)}
+            >
+                            Failed
+            </button>
+            <button
               id="aborted"
               type="button"
               className="non-active-black-border experiment-button"
               onClick={(e) => this.handleButtonsClick(e)}
             >
-              Aborted
+                            Aborted
             </button>
             <Link
               id="new-experiment"
-              to={`/my-projects/${project.id}/new-experiment`}
+              to={`/my-projects/${selectedProject.id}/new-experiment`}
               style={{ height: '0.1em' }}
               className="light-green-button experiment-button"
             >
@@ -179,7 +209,7 @@ class ExperimentsOverview extends Component {
                 <ExperimentCard
                   key={uuidv1()}
                   params={{
-                    projectId: project.id,
+                    projectId: selectedProject.id,
                     currentState: experimentClassification.status,
                     experiments: expMapped,
                   }}
@@ -191,7 +221,7 @@ class ExperimentsOverview extends Component {
             && (
             <ExperimentDetails
               key={uuidv1()}
-              projectId={project.id}
+              projectId={selectedProject.id}
               setNullExperiment={this.setSelectedExperiment}
               experiment={selectedExperiment}
               job={experimentJob}
@@ -205,6 +235,16 @@ class ExperimentsOverview extends Component {
     );
   }
 }
+
+ExperimentsOverview.propTypes = {
+  projects: shape({
+    selectedProject: objectOf(shape).isRequired,
+  }).isRequired,
+  branches: arrayOf(
+    shape({
+    }).isRequired,
+  ).isRequired,
+};
 
 function mapStateToProps(state) {
   return {

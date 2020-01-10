@@ -195,7 +195,7 @@ class DataInstanceOverview extends Component {
     const branches = props.branches.filter((branch) => branch.name.startsWith('data-pipeline'));
     this.state = {
       project,
-      branches,
+      all: [],
       isDeleteModalVisible: false,
       dataInstances: [],
       typeOfMessage: null,
@@ -228,7 +228,7 @@ class DataInstanceOverview extends Component {
         { status: CANCELED, values: dataInstances.filter((dataIns) => dataIns.status === CANCELED) },
         { status: FAILED, values: dataInstances.filter((dataIns) => dataIns.status === FAILED) },
       ];
-      this.setState({ dataInstances: dataInstancesClassified });
+      this.setState({ dataInstances: dataInstancesClassified, all: dataInstancesClassified });
     });
     this.setIsDeleteModalVisible = this.setIsDeleteModalVisible.bind(this);
   }
@@ -249,6 +249,21 @@ class DataInstanceOverview extends Component {
     });
     e.target.classList.add('active-border-light-blue');
     e.target.classList.remove('non-active-black-border');
+
+    const { all } = this.state;
+    if (e.target.id === 'all') {
+      const allInstances = all;
+      this.setState({ dataInstances: allInstances });
+    } else if (e.target.id === 'InProgress') {
+      const completed = all.filter((exp) => exp.status === 'running');
+      this.setState({ dataInstances: completed });
+    } else if (e.target.id === 'Active') {
+      const canceled = all.filter((exp) => exp.status === 'success');
+      this.setState({ dataInstances: canceled });
+    } else if (e.target.id === 'expired') {
+      const failed = all.filter((exp) => exp.status === 'failed');
+      this.setState({ dataInstances: failed });
+    }
   }
 
   hideInstruction() {
