@@ -1,7 +1,13 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
-import { string, shape, number, objectOf, arrayOf } from 'prop-types';
+import {
+  string,
+  shape,
+  number,
+  objectOf,
+  arrayOf,
+} from 'prop-types';
 import Navbar from '../navbar/navbar';
 import ProjectContainer from '../projectContainer';
 import './commitsView.css';
@@ -28,6 +34,15 @@ class CommitsView extends Component {
       .then((response) => this.setState({ commits: response }));
   }
 
+  componentDidUpdate(prevProps) {
+    const { match: { params: { projectId, branch } } } = this.props;
+    const prevBranch = prevProps.match.params.branch;
+    if (branch !== prevBranch) {
+      commitsApi.getCommits(projectId, branch)
+        .then((response) => this.setState({ commits: response }));
+    }
+  }
+
   handleBlur = (e) => {
     if (this.node.contains(e.target)) {
       return;
@@ -50,12 +65,11 @@ class CommitsView extends Component {
   render() {
     const {
       project,
-      branches,
       commits,
       show,
     } = this.state;
     const groupName = project.namespace.name;
-    const { users } = this.props;
+    const { users, branches } = this.props;
     const { match: { params: { branch } } } = this.props;
     const distinct = [
       ...new Set(
@@ -100,12 +114,11 @@ class CommitsView extends Component {
                   <div className="branches">
                     <ul>
                       <li className="branch-header">Branches</li>
-                      {branches && branches.filter((branchItem) => !branchItem.name.startsWith('data-pipeline/')
-                        && !branchItem.name.startsWith('experiment/')).map((item) => {
+                      {branches && branches.map((item) => {
                         const encoded = encodeURIComponent(item.name);
                         return (
                           <li key={encoded}>
-                            <Link id={item.name} to={`/my-projects/${project.id}/${encoded}/commits`} onClick={this.handleClick}><p>{item.name}</p></Link>
+                            <Link id={item.name} to={`/my-projects/${project.id}/${encoded}/commits`}><p>{item.name}</p></Link>
                           </li>
                         );
                       })}
@@ -224,6 +237,11 @@ CommitsView.propTypes = {
       path: string,
     }),
   }),
+  branches: arrayOf(
+    shape({
+      name: string.isRequired,
+    }),
+  ).isRequired,
   users: arrayOf(shape({
     name: string.isRequired,
     avatar_url: string.isRequired,
