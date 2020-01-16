@@ -173,7 +173,7 @@ internal class DataPopulator(
         val account = Account(
             id = accountId, username = username, email = email,
             gitlabId = gitlabUser.id, person = person,
-            passwordEncrypted = encryptedPassword, tokens = listOf())
+            passwordEncrypted = encryptedPassword, tokens = arrayListOf())
         safeSave { personRepository.save(person) }
         safeSave { accountRepository.save(account) }
 

@@ -1,6 +1,8 @@
 package com.mlreef.rest.persistence
 
 import com.mlreef.rest.ApplicationProfiles
+import com.mlreef.rest.AuditEntity
+import org.assertj.core.api.Assertions.assertThat
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.jdbc.EmbeddedDatabaseConnection
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase
@@ -26,4 +28,21 @@ class AbstractRepositoryTest {
     @Autowired
     val entityManager: EntityManager? = null
 
+    protected fun checkAfterCreated(saved: Any) {
+        if (saved is AuditEntity) {
+            assertThat(saved.version).isNotNull()
+            assertThat(saved.createdAt).isNotNull()
+            assertThat(saved.updatedAt).isNull()
+            assertThat(saved.version).isEqualTo(0)
+        }
+    }
+
+    protected fun checkAfterUpdated(saved: Any) {
+        if (saved is AuditEntity) {
+            assertThat(saved.version).isNotNull()
+            assertThat(saved.createdAt).isNotNull()
+            assertThat(saved.updatedAt).isNotNull()
+            assertThat(saved.version).isGreaterThan(0)
+        }
+    }
 }

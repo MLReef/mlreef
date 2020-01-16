@@ -31,25 +31,18 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.restdocs.RestDocumentationExtension
 import org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.*
 import org.springframework.restdocs.payload.FieldDescriptor
 import org.springframework.restdocs.payload.JsonFieldType
 import org.springframework.restdocs.payload.PayloadDocumentation.*
 import org.springframework.test.annotation.Rollback
-import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import java.util.*
 import java.util.UUID.randomUUID
 import javax.transaction.Transactional
 
-
-@ExtendWith(value = [RestDocumentationExtension::class, SpringExtension::class])
-@SpringBootTest
 class ExperimentsApiTest : RestApiTest() {
 
     private lateinit var dataOp1: DataOperation
@@ -85,9 +78,9 @@ class ExperimentsApiTest : RestApiTest() {
         dataProjectRepository.deleteAll()
         codeProjectRepository.deleteAll()
 
-        personRepository.deleteAll()
         accountTokenRepository.deleteAll()
         accountRepository.deleteAll()
+        personRepository.deleteAll()
 
         account = createMockUser()
         val account2 = createMockUser(userOverrideSuffix = "0002")

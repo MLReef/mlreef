@@ -4,6 +4,7 @@ import com.mlreef.rest.Account
 import com.mlreef.rest.AccountRepository
 import com.mlreef.rest.AccountToken
 import com.mlreef.rest.AccountTokenRepository
+import com.mlreef.rest.I18N
 import com.mlreef.rest.Person
 import com.mlreef.rest.PersonRepository
 import com.mlreef.rest.config.censor
@@ -62,7 +63,9 @@ class GitlabAuthService(
 
         // assert that user is found in gitlab
         findGitlabUserViaToken(accountToken.token)
-        return account
+
+        val accountUpdate = account.copy(lastLogin = I18N.dateTime())
+        return accountRepository.save(accountUpdate)
     }
 
     override fun getBestToken(findAccount: Account?): AccountToken? {

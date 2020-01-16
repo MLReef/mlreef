@@ -5,7 +5,6 @@ import com.mlreef.rest.AccountTokenRepository
 import com.mlreef.rest.api.v1.dto.LoginRequest
 import com.mlreef.rest.api.v1.dto.RegisterRequest
 import com.mlreef.rest.api.v1.dto.UserDto
-import com.mlreef.rest.exceptions.UserNotExistsException
 import com.mlreef.rest.feature.auth.AuthService
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
@@ -22,9 +21,6 @@ class AuthController(
     @PostMapping("/login")
     fun login(@RequestBody loginRequest: LoginRequest): UserDto {
         val findUser = authService.loginUser(loginRequest.password, loginRequest.username, loginRequest.email)
-        if (findUser == null) {
-            throw UserNotExistsException(loginRequest.username.orEmpty(), loginRequest.email.orEmpty())
-        }
         return buildUserDtoWithToken(findUser)
     }
 
