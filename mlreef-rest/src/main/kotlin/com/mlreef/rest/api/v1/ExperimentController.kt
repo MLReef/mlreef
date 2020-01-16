@@ -37,23 +37,24 @@ class ExperimentController(
     val experimentRepo: ExperimentRepository
 ) {
     private val log: Logger = Logger.getLogger(ExperimentController::class.simpleName)
+    private val dataProjectNotFound = "dataProject was not found"
 
     private fun beforeGetDataProject(dataProjectId: UUID): DataProject {
         val dataProject = (dataProjectRepository.findById2(dataProjectId)
-            ?: throw NotFoundException("dataProject was not found"))
+            ?: throw NotFoundException(dataProjectNotFound))
 
         // FIXME: ask Rainer/Christoph about best-practise with Spring Roles, Authorities and stuff
         val id = currentUserService.person().id
         if (dataProject.ownerId != id) {
             log.warning("User $id requested an DataProject of ${dataProject.ownerId}")
-            throw NotFoundException("dataProject was not found")
+            throw NotFoundException(dataProjectNotFound)
         }
         return dataProject
     }
 
     private fun beforeGetExperiment(experimentId: UUID): Experiment {
         return experimentRepo.findById2(experimentId)
-            ?: throw NotFoundException("dataProject was not found")
+            ?: throw NotFoundException(dataProjectNotFound)
     }
 
     @GetMapping
@@ -94,10 +95,10 @@ class ExperimentController(
         val experiment = beforeGetExperiment(id)
         if (experiment.status.canUpdateTo(newStatus)) {
             log.info("Update status of Experiment to $newStatus")
-            val changeExperiment = experiment.copy(
+            val changeExperiment = experiment.smartCopy(
                 status = newStatus
             )
-            val saved = experimentRepo.save(experiment)
+            val saved = experimentRepo.save(changeExperiment)
             return saved.status
         } else {
             log.warning("Update status of Experiment to $newStatus not possible, already has ${experiment.status}")

@@ -12,11 +12,8 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.MediaType
-import org.springframework.restdocs.RestDocumentationExtension
 import org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.post
 import org.springframework.restdocs.payload.FieldDescriptor
@@ -25,15 +22,11 @@ import org.springframework.restdocs.payload.PayloadDocumentation.*
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.test.annotation.Rollback
-import org.springframework.test.context.TestPropertySource
-import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import java.util.UUID.randomUUID
 import javax.transaction.Transactional
 
-@TestPropertySource("classpath:application.yml")
-@ExtendWith(value = [RestDocumentationExtension::class, SpringExtension::class])
-@SpringBootTest
+
 class AuthApiTest : RestApiTest() {
 
     val authUrl = "/api/v1/auth"

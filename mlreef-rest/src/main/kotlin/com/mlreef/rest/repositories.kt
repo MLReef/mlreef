@@ -1,6 +1,5 @@
 package com.mlreef.rest
 
-import org.springframework.data.jpa.repository.EntityGraph
 import org.springframework.stereotype.Repository
 import java.util.*
 
@@ -32,7 +31,6 @@ import java.util.*
 @Repository interface OutputFileRepository : KtCrudRepository<OutputFile, UUID>
 
 @Repository interface DataProcessorRepository : KtCrudRepository<DataProcessor, UUID> {
-    @EntityGraph(value = "DataProcessor-full", type = EntityGraph.EntityGraphType.LOAD)
     fun findBySlug(processorSlug: String): DataProcessor?
 }
 

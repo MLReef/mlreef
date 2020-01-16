@@ -9,7 +9,6 @@ import org.hibernate.annotations.LazyCollectionOption
 import org.springframework.data.annotation.CreatedDate
 import org.springframework.data.annotation.LastModifiedDate
 import org.springframework.data.domain.Persistable
-import java.io.Serializable
 import java.time.LocalDateTime
 import java.time.ZonedDateTime
 import java.util.*
@@ -31,107 +30,152 @@ import javax.persistence.JoinColumn
 import javax.persistence.JoinColumns
 import javax.persistence.ManyToOne
 import javax.persistence.MappedSuperclass
-import javax.persistence.NamedAttributeNode
-import javax.persistence.NamedEntityGraph
-import javax.persistence.NamedEntityGraphs
 import javax.persistence.OneToMany
 import javax.persistence.OneToOne
-import javax.persistence.PostLoad
-import javax.persistence.PostPersist
 import javax.persistence.PrePersist
 import javax.persistence.PreUpdate
 import javax.persistence.Table
-import javax.persistence.Transient
 import javax.persistence.Version
 
 @MappedSuperclass
-abstract class BaseEntity(
-    @Id @Column(name = "id", length = 16, unique = true, nullable = false) private val id: UUID
+abstract class AuditEntity(
+    @Id @Column(name = "id", length = 16, unique = true, nullable = false)
+    private val id: UUID,
+    copyVersion: Long? = null,
+    copyCreatedAt: ZonedDateTime? = null,
+    copyUpdatedAt: ZonedDateTime? = null
 ) : Persistable<UUID> {
 
-    @Version var version: Long? = 0
+    @Version var version: Long? = copyVersion
 
     @CreatedDate
-    @Column(name = "created_at") var createdAt: ZonedDateTime? = null
+    @Column(name = "created_at")
+    var createdAt: ZonedDateTime? = copyCreatedAt
 
     @LastModifiedDate
-    @Column(name = "updated_at") var updatedAt: ZonedDateTime? = null
-
-    @Transient
-    private var persisted: Boolean = version ?: 0 > 0
+    @Column(name = "updated_at")
+    var updatedAt: ZonedDateTime? = copyUpdatedAt
 
     override fun getId(): UUID = id
-    override fun isNew(): Boolean = !persisted
+    override fun isNew(): Boolean = createdAt == null
     override fun hashCode(): Int = id.hashCode()
 
     override fun equals(other: Any?): Boolean {
         return when {
             this === other -> true
             other == null -> false
-            other !is BaseEntity -> false
+            other !is AuditEntity -> false
             else -> getId() == other.getId()
         }
     }
 
-    @PostPersist
-    @PostLoad
-    private fun setPersisted() {
-        persisted = true
-    }
-
     @PrePersist
-    private fun onPrePersist() {
-        createdAt = I18N.dateTime()
-    }
+    private fun onPrePersist() = handleSaveUpdate()
 
     @PreUpdate
-    private fun onPreUpdate() {
-        updatedAt = I18N.dateTime()
+    private fun onPreUpdate() = handleSaveUpdate()
+
+    private fun handleSaveUpdate() {
+        if (createdAt == null) {
+            createdAt = I18N.dateTime()
+        } else {
+            updatedAt = I18N.dateTime()
+        }
+        version = (version ?: -1) + 1
     }
 }
+
+
+/**
+@Id @Column(name = "id", length = 16, unique = true, nullable = false) val@Id @Column(name = "id", length = 16, unique = true, nullable = false) val id: UUID,
+.... own properties
+// Auditing
+@Version val version: Long? = null,
+@CreatedDate @Column(name = "created_at", nullable = false, updatable = false)
+createdAt: ZonedDateTime = I18N.dateTime(),
+@LastModifiedDate @Column(name = "updated_at")
+val updatedAt: ZonedDateTime? = null
+ */
 
 @Table(name = "subject")
 @Entity
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
-class Subject(
+abstract class Subject(
     id: UUID,
     val slug: String,
-    val name: String
-) : BaseEntity(id)
+    val name: String,
+    version: Long? = null,
+    createdAt: ZonedDateTime? = null,
+    updatedAt: ZonedDateTime? = null
+) : AuditEntity(id, version, createdAt, updatedAt)
 
 @Entity
 @Table(name = "membership")
 class Membership(
-    id: UUID,
+    @Id @Column(name = "id", length = 16, unique = true, nullable = false) val id: UUID,
     @Column(name = "person_id")
     val personId: UUID,
     @Column(name = "group_id")
     val groupId: UUID
-) : BaseEntity(id)
+)
 
 @Entity
 class Person(
     id: UUID,
-    slug: String,
-    name: String,
+    override val slug: String,
+    override val name: String,
     @OneToMany(fetch = FetchType.EAGER, cascade = [CascadeType.REMOVE])
     @JoinColumn(name = "person_id")
     @Fetch(value = FetchMode.SUBSELECT)
 //    @LazyCollection(LazyCollectionOption.FALSE)
-    val memberships: List<Membership> = listOf()
-) : Subject(id, slug, name)
+    val memberships: List<Membership> = listOf(),
+    version: Long? = null,
+    createdAt: ZonedDateTime? = null,
+    updatedAt: ZonedDateTime? = null
+) : Subject(id, slug, name, version, createdAt, updatedAt) {
+    fun copy(
+        slug: String? = null,
+        name: String? = null,
+        memberships: List<Membership>? = null
+    ): Person = Person(
+        id = this.id,
+        slug = slug ?: this.slug,
+        name = name ?: this.name,
+        memberships = memberships ?: this.memberships,
+        version = this.version,
+        createdAt = this.createdAt,
+        updatedAt = this.updatedAt
+    )
+}
 
 @Entity
 class Group(
     id: UUID,
-    slug: String,
-    name: String,
+    override val slug: String,
+    override val name: String,
     @OneToMany(fetch = FetchType.EAGER, cascade = [CascadeType.REMOVE])
     @JoinColumn(name = "group_id")
     @Fetch(value = FetchMode.SUBSELECT)
 //    @LazyCollection(LazyCollectionOption.FALSE)
-    val members: List<Membership> = listOf()
-) : Subject(id, slug, name)
+    val members: List<Membership> = listOf(),
+    version: Long? = null,
+    createdAt: ZonedDateTime? = null,
+    updatedAt: ZonedDateTime? = null
+) : Subject(id, slug, name, version, createdAt, updatedAt) {
+    fun copy(
+        slug: String? = null,
+        name: String? = null,
+        members: List<Membership>? = null
+    ): Group = Group(
+        id = this.id,
+        slug = slug ?: this.slug,
+        name = name ?: this.name,
+        members = members ?: this.members,
+        version = this.version,
+        createdAt = this.createdAt,
+        updatedAt = this.updatedAt
+    )
+}
 
 @Entity
 @Table(name = "account")
@@ -140,20 +184,48 @@ class Account(
     val username: String,
     val email: String,
     val passwordEncrypted: String,
-    @OneToOne(fetch = FetchType.EAGER)
+    @OneToOne(fetch = FetchType.EAGER, cascade = [CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH])
     @JoinColumn(name = "person_id")
     val person: Person,
     @OneToMany(fetch = FetchType.EAGER, cascade = [CascadeType.ALL])
     @JoinColumn(name = "account_id")
-    val tokens: List<AccountToken> = listOf(),
+    val tokens: MutableList<AccountToken> = arrayListOf(),
     @Column(name = "gitlab_id")
-    val gitlabId: Int? = null
-) : BaseEntity(id)
+    val gitlabId: Int? = null,
+    val lastLogin: ZonedDateTime? = null,
+    // Auditing
+    version: Long? = null,
+    createdAt: ZonedDateTime? = null,
+    updatedAt: ZonedDateTime? = null
+) : AuditEntity(id, version, createdAt, updatedAt) {
+    fun copy(
+        id: UUID? = null,
+        username: String? = null,
+        email: String? = null,
+        passwordEncrypted: String? = null,
+        person: Person? = null,
+        tokens: MutableList<AccountToken>? = null,
+        gitlabId: Int? = null,
+        lastLogin: ZonedDateTime? = null
+    ): Account = Account(
+        id = this.id,
+        username = username ?: this.username,
+        email = email ?: this.email,
+        passwordEncrypted = passwordEncrypted ?: this.passwordEncrypted,
+        person = person ?: this.person,
+        gitlabId = gitlabId ?: this.gitlabId,
+        lastLogin = lastLogin ?: this.lastLogin,
+        tokens = tokens ?: this.tokens,
+        version = this.version,
+        createdAt = this.createdAt,
+        updatedAt = this.updatedAt
+    )
+}
 
 @Entity
 @Table(name = "account_token")
-class AccountToken(
-    id: UUID,
+data class AccountToken(
+    @Id @Column(name = "id", length = 16, unique = true, nullable = false) val id: UUID,
     @Column(name = "account_id")
     val accountId: UUID,
     @Column(unique = true)
@@ -164,7 +236,7 @@ class AccountToken(
     val revoked: Boolean = false,
     @Column(name = "expires_at")
     val expiresAt: LocalDateTime? = null
-) : BaseEntity(id)
+)
 
 
 enum class VisibilityScope {
@@ -193,8 +265,8 @@ interface MLProject {
  */
 @Entity
 @Table(name = "data_project")
-class DataProject(
-    id: UUID,
+data class DataProject(
+    @Id @Column(name = "id", length = 16, unique = true, nullable = false) val id: UUID,
     override val slug: String,
     override val url: String,
 
@@ -213,7 +285,7 @@ class DataProject(
     @OneToMany(fetch = FetchType.LAZY, cascade = [CascadeType.ALL])
     @JoinColumn(name = "data_project_id")
     val experiments: List<Experiment> = listOf()
-) : BaseEntity(id), MLProject
+) : MLProject
 
 /**
  * A Code Repository is used for the working Code like Data Operations,
@@ -223,8 +295,8 @@ class DataProject(
  */
 @Entity
 @Table(name = "code_project")
-class CodeProject(
-    id: UUID,
+data class CodeProject(
+    @Id @Column(name = "id", length = 16, unique = true, nullable = false) val id: UUID,
     override val slug: String,
     override val url: String,
 
@@ -235,7 +307,7 @@ class CodeProject(
     @JoinColumn(name = "code_project_id")
     val dataProcessor: DataProcessor? = null
 
-) : BaseEntity(id), MLProject
+) : MLProject
 
 /**
  * Descriptor of an Output, which could be a Gitlab Artifact, an S3 Bucket or many more.
@@ -246,14 +318,14 @@ class CodeProject(
 @Entity
 @Table(name = "output_file")
 class OutputFile(
-    id: UUID,
+    @Id @Column(name = "id", length = 16, unique = true, nullable = false) val id: UUID,
 
     @Column(name = "experiment_id")
     val experimentId: UUID?,
 
     @Column(name = "data_processor_id")
     val dataProcessorId: UUID?
-) : BaseEntity(id)
+)
 
 enum class ExperimentStatus(private val stage: Int) {
     CREATED(1),
@@ -279,8 +351,8 @@ enum class ExperimentStatus(private val stage: Int) {
  */
 @Entity
 @Table(name = "experiment")
-class Experiment(
-    id: UUID,
+data class Experiment(
+    @Id @Column(name = "id", length = 16, unique = true, nullable = false) val id: UUID,
     @Column(name = "data_project_id")
     val dataProjectId: UUID,
 
@@ -322,7 +394,7 @@ class Experiment(
     @Enumerated(EnumType.STRING)
     val status: ExperimentStatus = ExperimentStatus.CREATED
 
-) : BaseEntity(id) {
+) {
 
     fun addPreProcessor(processorInstance: DataProcessorInstance) {
         preProcessing.add(processorInstance)
@@ -341,7 +413,7 @@ class Experiment(
 
     fun getProcessor() = this.processing
 
-    fun copy(
+    fun smartCopy(
         sourceBranch: String? = null,
         targetBranch: String? = null,
         performanceMetrics: PerformanceMetrics? = null,
@@ -392,16 +464,8 @@ enum class DataProcessorType {
 @Table(name = "data_processor")
 @Entity
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
-@NamedEntityGraphs(
-    NamedEntityGraph(name = "DataProcessor-full", attributeNodes = [
-        NamedAttributeNode("parameters"),
-//        NamedAttributeNode("output"),
-        NamedAttributeNode("author")
-    ])
-
-)
 @DiscriminatorColumn(name = "PROCESSOR_TYPE")
-class DataProcessor(
+abstract class DataProcessor(
     id: UUID,
     val slug: String,
     val name: String,
@@ -412,28 +476,43 @@ class DataProcessor(
     val outputDataType: DataType,
     val type: DataProcessorType,
     @Enumerated(EnumType.STRING)
-    val visibilityScope: VisibilityScope = VisibilityScope.default(),
+    val visibilityScope: VisibilityScope,
     @Column(length = 1024)
-    val description: String = "",
+    val description: String,
 
     @Column(name = "code_project_id")
-    val codeProjectId: UUID? = null,
+    val codeProjectId: UUID?,
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "author_id")
-    val author: Subject? = null,
+    val author: Subject?,
 
     @OneToMany(fetch = FetchType.EAGER, cascade = [CascadeType.ALL])
     @JoinColumn(name = "data_processor_id")
     @Fetch(value = FetchMode.SUBSELECT)
-    val parameters: List<ProcessorParameter> = arrayListOf(),
+    val parameters: List<ProcessorParameter>,
 
     @OneToMany(fetch = FetchType.EAGER, cascade = [CascadeType.ALL])
     @JoinColumn(name = "data_processor_id")
     @Fetch(value = FetchMode.SUBSELECT)
     @LazyCollection(LazyCollectionOption.FALSE)
-    val outputFiles: List<OutputFile> = listOf()
-) : BaseEntity(id), Serializable {
+    val outputFiles: List<OutputFile>,
+
+    version: Long? = null,
+    createdAt: ZonedDateTime? = null,
+    updatedAt: ZonedDateTime? = null
+) : AuditEntity(id, version, createdAt, updatedAt) {
+
+//    override fun hashCode(): Int {
+//        val hashCode = id.hashCode()
+//        return hashCode
+//    }
+//
+//    override fun equals(other: Any?): Boolean {
+//        if (other === this) return true
+//        if (other !is DataProcessor) return false
+//        return this.id == other.id
+//    }
 
     fun isChainable(): Boolean {
         return type != DataProcessorType.ALGORITHM
@@ -458,11 +537,54 @@ class DataOperation(
     description: String = "",
     author: Subject? = null,
     codeProjectId: UUID? = null,
-    parameters: List<ProcessorParameter> = listOf()
+    parameters: List<ProcessorParameter> = listOf(),
+    outputFiles: List<OutputFile> = listOf(),
+    version: Long? = null,
+    createdAt: ZonedDateTime? = null,
+    updatedAt: ZonedDateTime? = null
 ) : DataProcessor(id, slug, name, command, inputDataType, outputDataType, DataProcessorType.OPERATION,
-    visibilityScope, description, codeProjectId, author, parameters) {
+    visibilityScope, description, codeProjectId, author, parameters, outputFiles, version, createdAt, updatedAt) {
 
     override fun isChainable(): Boolean = true
+
+//    override fun equals(other: Any?): Boolean {
+//        if (other === this) return true
+//        if (other !is DataOperation) return false
+//        return this.id == other.id
+//    }
+//
+//    override fun hashCode(): Int {
+//        return super.hashCode()
+//    }
+
+    fun copy(
+        slug: String? = null,
+        name: String? = null,
+        command: String? = null,
+        inputDataType: DataType? = null,
+        outputDataType: DataType? = null,
+        visibilityScope: VisibilityScope? = null,
+        description: String? = null,
+        author: Subject? = null,
+        outputFiles: List<OutputFile>? = null
+
+    ): DataOperation = DataOperation(
+        slug = slug ?: this.slug,
+        name = name ?: this.name,
+        command = command ?: this.command,
+        inputDataType = inputDataType ?: this.inputDataType,
+        outputDataType = outputDataType ?: this.outputDataType,
+        visibilityScope = visibilityScope ?: this.visibilityScope,
+        description = description ?: this.description,
+        author = author ?: this.author,
+        outputFiles = outputFiles ?: this.outputFiles,
+        id = id,
+        codeProjectId = codeProjectId ?: this.codeProjectId,
+        parameters = parameters,
+        version = this.version,
+        createdAt = this.createdAt,
+        updatedAt = this.updatedAt
+    )
 }
 
 @Entity
@@ -477,10 +599,52 @@ class DataVisualization(
     description: String = "",
     author: Subject? = null,
     codeProjectId: UUID? = null,
-    parameters: List<ProcessorParameter> = listOf()
+    parameters: List<ProcessorParameter> = listOf(),
+    outputFiles: List<OutputFile> = listOf(),
+    version: Long? = null,
+    createdAt: ZonedDateTime? = null,
+    updatedAt: ZonedDateTime? = null
 ) : DataProcessor(id, slug, name, command, inputDataType, DataType.NONE, DataProcessorType.VISUALISATION,
-    visibilityScope, description, codeProjectId, author, parameters) {
+    visibilityScope, description, codeProjectId, author, parameters, outputFiles, version, createdAt, updatedAt) {
+
     override fun isChainable(): Boolean = true
+
+//    override fun equals(other: Any?): Boolean {
+//        if (other === this) return true
+//        if (other !is DataVisualization) return false
+//        return this.id == other.id
+//    }
+//
+//    override fun hashCode(): Int {
+//        return super.hashCode()
+//    }
+
+    fun copy(
+        slug: String? = null,
+        name: String? = null,
+        command: String? = null,
+        inputDataType: DataType? = null,
+        outputDataType: DataType? = null,
+        visibilityScope: VisibilityScope? = null,
+        description: String? = null,
+        author: Subject? = null,
+        outputFiles: List<OutputFile>? = null
+    ): DataVisualization = DataVisualization(
+        slug = slug ?: this.slug,
+        name = name ?: this.name,
+        command = command ?: this.command,
+        inputDataType = inputDataType ?: this.inputDataType,
+        visibilityScope = visibilityScope ?: this.visibilityScope,
+        description = description ?: this.description,
+        author = author ?: this.author,
+        outputFiles = outputFiles ?: this.outputFiles,
+        id = id,
+        codeProjectId = codeProjectId ?: this.codeProjectId,
+        parameters = parameters,
+        version = this.version,
+        createdAt = this.createdAt,
+        updatedAt = this.updatedAt
+    )
 }
 
 /**
@@ -490,19 +654,53 @@ class DataVisualization(
 @DiscriminatorValue("ALGORITHM")
 class DataAlgorithm(
     id: UUID,
-    slug: String,
-    name: String,
-    command: String,
-    inputDataType: DataType,
-    outputDataType: DataType,
-    visibilityScope: VisibilityScope = VisibilityScope.default(),
-    description: String = "",
-    author: Subject? = null,
-    codeProjectId: UUID? = null,
-    parameters: List<ProcessorParameter> = listOf()
+    override val slug: String,
+    override val name: String,
+    override val command: String,
+    override val inputDataType: DataType,
+    override val outputDataType: DataType,
+    override val visibilityScope: VisibilityScope = VisibilityScope.default(),
+    override val description: String = "",
+    override val author: Subject? = null,
+    override val codeProjectId: UUID? = null,
+    override val parameters: List<ProcessorParameter> = listOf(),
+    override val outputFiles: List<OutputFile> = listOf(),
+    version: Long? = null,
+    createdAt: ZonedDateTime? = null,
+    updatedAt: ZonedDateTime? = null
 ) : DataProcessor(id, slug, name, command, inputDataType, outputDataType, DataProcessorType.ALGORITHM,
-    visibilityScope, description, codeProjectId, author, parameters) {
+    visibilityScope, description, codeProjectId, author, parameters, outputFiles, version, createdAt, updatedAt) {
+
     override fun isChainable(): Boolean = false
+
+    fun copy(
+        slug: String? = null,
+        name: String? = null,
+        command: String? = null,
+        inputDataType: DataType? = null,
+        outputDataType: DataType? = null,
+        visibilityScope: VisibilityScope? = null,
+        description: String? = null,
+        author: Subject? = null,
+        outputFiles: List<OutputFile>? = null
+
+    ): DataAlgorithm = DataAlgorithm(
+        slug = slug ?: this.slug,
+        name = name ?: this.name,
+        command = command ?: this.command,
+        inputDataType = inputDataType ?: this.inputDataType,
+        outputDataType = outputDataType ?: this.outputDataType,
+        visibilityScope = visibilityScope ?: this.visibilityScope,
+        description = description ?: this.description,
+        author = author ?: this.author,
+        outputFiles = outputFiles ?: this.outputFiles,
+        id = id,
+        codeProjectId = codeProjectId ?: this.codeProjectId,
+        parameters = parameters,
+        version = this.version,
+        createdAt = this.createdAt,
+        updatedAt = this.updatedAt
+    )
 }
 
 /**
@@ -510,8 +708,8 @@ class DataAlgorithm(
  */
 @Entity
 @Table(name = "data_processor_instance")
-class DataProcessorInstance(
-    id: UUID,
+data class DataProcessorInstance(
+    @Id @Column(name = "id", length = 16, unique = true, nullable = false) val id: UUID,
 
     @OneToOne(fetch = FetchType.EAGER)
     @JoinColumns(
@@ -539,7 +737,7 @@ class DataProcessorInstance(
 
     var experimentProcessingId: UUID? = null
 
-) : BaseEntity(id) {
+) {
 
     fun addParameterInstances(processorParameter: ProcessorParameter, value: String): ParameterInstance {
         val parameterInstance = ParameterInstance(randomUUID(), processorParameter, this.id, value)
@@ -555,8 +753,8 @@ class DataProcessorInstance(
  */
 @Entity
 @Table(name = "processor_parameter")
-class ProcessorParameter(
-    id: UUID,
+data class ProcessorParameter(
+    @Id @Column(name = "id", length = 16, unique = true, nullable = false) val id: UUID,
     @Column(name = "data_processor_id")
     val dataProcessorId: UUID,
     val name: String,
@@ -568,12 +766,12 @@ class ProcessorParameter(
     val group: String = "",
     @Column(length = 1024)
     val description: String? = null
-) : BaseEntity(id)
+)
 
 @Entity
 @Table(name = "parameter_instance")
-class ParameterInstance(
-    id: UUID,
+data class ParameterInstance(
+    @Id @Column(name = "id", length = 16, unique = true, nullable = false) val id: UUID,
     @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "parameter_id")
     val processorParameter: ProcessorParameter,
@@ -582,7 +780,7 @@ class ParameterInstance(
     val value: String,
     val name: String = processorParameter.name,
     val type: ParameterType = processorParameter.type
-) : BaseEntity(id)
+)
 
 /**
  * ParameterTypes are typical simple data types.
