@@ -5,13 +5,44 @@ MLReef Frontend
 Please read the [Contribution Guidelines](CONTRIBUTE.md) carefully
 
 
-Module Structure
---------------------
-* **gitlab-api**: currently deprecated because of incompatibilities between kotlin-js and react.
+### Module Structure
 * **web**: the npm based react frontend
 
 
-Element styles and transitions
+Getting Started
+--------------------
+
+### Setup your developer environment
+* Install Node (10.16.0 LTS)
+  * Windows [link](https://nodejs.org/en/download/)
+  * **OSX:**
+  ```shell script
+  # install homebrew
+  /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+  # use homebrew to install node
+  brew install node`
+  ```
+* Install react scripts `npm install --global react-scripts`
+
+For setting up the web dependencies please see the [web module's readme](web/README.md)
+
+
+### Run Locally
+For running locally we are using _docker-compose_. The full docker compose file contains all services (inluding the module).
+
+For starting and setting up your local docker environment run: `bin/docker-compose-new.sh` and follow the instructions for setting up your local instance including gitlab runners
+
+During setup, you **WILL** ecounter the following error message: `ERROR: Failed to load config stat /etc/gitlab-runner/config.toml: no such file or directory  builds=0` until the setup has completed successfully.
+
+This is the gitlab runner complaing about its missing configuration. As soon as the last step of the `bin/docker-compose-new.sh` script has been performed you will encounter no more errors.
+
+Since the runner hot-reloads the config file, no restart is necessary.
+
+For further information on running locally, please refer to the web module's [README.md](web/README.md)
+
+
+
+Styleguide
 --------------------
 Here is the XD file for the definitions of all elements: https://xd.adobe.com/spec/e23711b1-f385-4729-5034-632fbe73bb6b-9406/
 
@@ -30,30 +61,7 @@ All border radius is: 0,3vw
 
 Please also see "MLreef CD Guide" for detailed view of the corporate design features in MLreef.
 
-Setup Developer Environment
---------------------
-* Install Node (10.16.0 LTS)
-  * Windows [link](https://nodejs.org/en/download/)
-  * **OSX:**
-  ```shell script
-  # install homebrew
-  /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
-  # use homebrew to install node
-  brew install node`
-  ```
-* Install react scripts `npm install --global react-scripts`
 
-For setting up the frontend dependencies you have to run: `./gradlew npm_install` on Linux and MacOSX, or `gradlew.bat npm_install` on Windows
-
-
-Run Locally
---------------------
-For running locally please refer to the web module's [README.md](web/README.md) 
-
-
-Production build
---------------------
-To build the frontend project use: `./gradlew npm_run_build`
 
 
 Per-Branch Develop Cloud Deployment

@@ -173,7 +173,8 @@ deploy:
     - sed -i "s/\ \ postgresql-data/#postgresql-data/"                        $DOCKER_COMPOSE
     - sed -i "s/\ \ gitlab-data/#gitlab-data/"                                $DOCKER_COMPOSE
     - sed -i "s/\ \ gitlab-runner-config/#gitlab-runner-config/"              $DOCKER_COMPOSE
-    - sed -i "s~GITLAB_HOST=localhost~GITLAB_HOST=$URL~"                      $DOCKER_COMPOSE
+    - sed -i "s~GITLAB_HOST=gitlab~GITLAB_HOST=$URL~"                         $DOCKER_COMPOSE
+    - sed -i "s~GITLAB_PORT=80~GITLAB_PORT=10080~"                            $DOCKER_COMPOSE
     - cat $DOCKER_COMPOSE
   script:
     - ssh-keyscan -H "$URL" >>~/.ssh/known_hosts
