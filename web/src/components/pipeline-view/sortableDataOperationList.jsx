@@ -7,8 +7,7 @@ import ArrowButton from '../arrow-button/arrowButton';
 import advice01 from '../../images/advice-01.png';
 import { BOOL, errorMessages } from '../../dataTypes';
 
-const SortableDataOperationItem = SortableElement(({ value }) => {
-  //value.index = value.index + 1;
+const SortableDataOperation = SortableElement(({ value }) => {
   const { index } = value;
   function handleSelectClick(advancedParamIndex, newBoolValue) {
     $(`#advanced-drop-down-${value.index}-param-${advancedParamIndex}`).click();
@@ -224,7 +223,7 @@ const SortableDataOperationsList = SortableContainer(({ items }) => (
     {items.map((value, index) => {
       value.index = index + 1;
       return (
-        <SortableDataOperationItem key={`item-${index}`} value={value} index={index} />
+        <SortableDataOperation key={`item-${index}`} value={value} index={index} />
       );
     })}
   </ul>
