@@ -51,6 +51,9 @@ class ExperimentCreateException(error: Error, parameterName: String) : RestExcep
 class ExperimentStartException(message: String) : RestException(Error.CommitPipelineScriptFailed, message)
 class ExperimentUpdateException(message: String) : RestException(Error.ExperimentCannotBeChanged, message)
 
+@ResponseStatus(code = HttpStatus.BAD_REQUEST, reason = "Gitlab cannot create entity due to a bad request")
+class GitlabBadRequestException(error: Error, message: String) : RestException(error, message)
+
 @ResponseStatus(code = HttpStatus.CONFLICT, reason = "Gitlab cannot create entity due to a conflict")
 class GitlabConflictException(error: Error, message: String) : RestException(error, message)
 

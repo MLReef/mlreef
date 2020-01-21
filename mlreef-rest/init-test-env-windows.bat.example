@@ -5,7 +5,6 @@
 # create a script which has the following prepared:
 set GITLAB_ADMIN_TOKEN=secret_admin_api_token
 set GITLAB_ROOT_URL=http://localhost:10080
-set JAVA_TEST_PRIVATE_TOKEN=#your secret gitlab api token
 set DB_HOST=localhost
 set DB_PORT=6000
 set DB_NAME=mlreef_backend

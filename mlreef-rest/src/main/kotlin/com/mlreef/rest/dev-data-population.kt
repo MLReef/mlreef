@@ -4,7 +4,6 @@ import com.mlreef.rest.external_api.gitlab.GitlabRestClient
 import com.mlreef.rest.external_api.gitlab.GitlabUser
 import com.mlreef.rest.feature.auth.AuthService
 import org.slf4j.LoggerFactory
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.CommandLineRunner
 import org.springframework.context.annotation.Profile
 import org.springframework.stereotype.Component
@@ -44,8 +43,7 @@ internal class DataPopulator(
     val dataProcessorInstanceRepository: DataProcessorInstanceRepository,
     val processorParameterRepository: ProcessorParameterRepository,
     val parameterInstanceRepository: ParameterInstanceRepository,
-    val experimentRepository: ExperimentRepository,
-    @Value("\${mlreef.gitlab.mockUserToken}") val mockUserToken: String? = null
+    val experimentRepository: ExperimentRepository
 ) {
 
     val username = "mlreef"
@@ -163,10 +161,15 @@ internal class DataPopulator(
     private fun createUserAndTokenInGitlab() {
         val gitlabUser = try {
             gitlabRestClient.adminCreateUser(email = email, name = username, username = username, password = "password")
-        } catch (e: HttpClientErrorException) {
-            log.info("Already existing dev user")
-            val adminGetUsers = gitlabRestClient.adminGetUsers()
-            adminGetUsers.first { it.username == username }
+        } catch (clientErrorException: HttpClientErrorException) {
+            if (clientErrorException.rawStatusCode == 409) {
+                log.info("Already existing dev user")
+                val adminGetUsers = gitlabRestClient.adminGetUsers()
+                adminGetUsers.first { it.username == username }
+            } else {
+                log.error("Major Gitlab issues:", clientErrorException)
+                throw clientErrorException
+            }
         }
 
         val person = Person(subjectId, username, username)
@@ -174,8 +177,8 @@ internal class DataPopulator(
             id = accountId, username = username, email = email,
             gitlabId = gitlabUser.id, person = person,
             passwordEncrypted = encryptedPassword, tokens = arrayListOf())
-        safeSave { personRepository.save(person) }
         safeSave { accountRepository.save(account) }
+        safeSave { personRepository.save(person) }
 
         createUserToken(gitlabUser)
 
@@ -190,12 +193,15 @@ internal class DataPopulator(
 
         safeSave { accountTokenRepository.save(accountToken) }
     }
-}
 
-internal fun safeSave(f: () -> Unit) {
-    try {
-        f.invoke()
-    } catch (e: Exception) {
-        e.printStackTrace()
+    internal fun safeSave(f: () -> Unit) {
+        try {
+            f.invoke()
+        } catch (e: Exception) {
+            log.warn("Savely catched error: ${e}")
+            e.printStackTrace()
+        }
     }
 }
+
+

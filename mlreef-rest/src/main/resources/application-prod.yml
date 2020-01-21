@@ -1,0 +1,4 @@
+mlreef:
+  gitlab:
+    rootUrl: ${GITLAB_ROOT_URL}
+    adminUserToken: ${GITLAB_ADMIN_TOKEN}

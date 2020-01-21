@@ -77,6 +77,14 @@ class GitlabRestClient(
     }
 
     fun assertConnection() {
+        log.info("HEALTH-CHECK: GITLAB_ROOT_URL is set to ${gitlabRootUrl.censor()}")
+        log.info("HEALTH-CHECK: GITLAB_ADMIN_TOKEN is set to ${gitlabAdminUserToken.censor()}")
+        if (gitlabRootUrl.isBlank()) {
+            throw Error("FATAL: GITLAB_ROOT_URL is empty: $gitlabRootUrl")
+        }
+        if (gitlabAdminUserToken.isBlank()) {
+            throw Error("FATAL: GITLAB_ADMIN_TOKEN is empty: $gitlabAdminUserToken")
+        }
         try {
             val adminGetUsers = adminGetUsers()
             log.info("SUCCESS: Found ${adminGetUsers.size} users on connected Gitlab")
