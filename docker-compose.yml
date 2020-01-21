@@ -1,23 +1,39 @@
 # original source: https://github.com/sameersbn/docker-gitlab/blob/master/docker-compose.yml
 version: '2'
 
+# please research https://docs.docker.com/compose/environment-variables/ for howto setup your environment
 services:
+
+  nginx-proxy:
+    image: nginx
+    container_name: nginx-proxy
+    restart: always
+    depends_on:
+      - gitlab
+      - backend
+      - frontend
+    ports:
+      - "80:80"
+    volumes:
+      - "./bin/nginx_proxy.conf:/etc/nginx/conf.d/default.conf"      # this line gets rewritten by the CI/CD pipeline
+
   frontend:
     image: registry.gitlab.com/mlreef/frontend:develop
     container_name: frontend
     restart: always
     depends_on:
       - gitlab
-      - gitlab-postgres
+      - backend
     ports:
-      - 80:3000
-      - 3000:3000
-
+      - "3000:3000"
+    environment: 
+      - BACKEND_INSTANCE_URL=http://backend:8080
+      - REACT_APP_MLREEF_INSTANCE_URL=http://backend:8080
       
   backend:
     container_name: backend
     image: registry.gitlab.com/mlreef/backend:develop
-    restart: always
+    restart: "no"    # TODO: change this to always when migration is done
     depends_on:
       - gitlab
       - mlreef-postgres
@@ -27,14 +43,15 @@ services:
       - "20080:8080"
     environment: 
       - SPRING_PROFILES_ACTIVE=dev
-      - JAVA_TEST_PRIVATE_TOKEN=$JAVA_TEST_PRIVATE_TOKEN             # secret, use ENV var
       - GITLAB_ROOT_URL=$GITLAB_ROOT_URL
       - GITLAB_ADMIN_TOKEN=$GITLAB_ADMIN_TOKEN                       # secret, use ENV var
-      - DB_HOST=mlreef-postgres
-      - DB_PORT=6000
+      - DB_HOST=mlreef-postgres 
+      - DB_PORT=5432
       - DB_USER=mlreef
       - DB_PASS=password                                             # secret, use ENV var
       - DB_NAME=mlreef_backend
+      - REDIS_HOST=redis
+      - STARTUP_DELAY=30
 
 
   mlreef-postgres:
@@ -50,6 +67,44 @@ services:
       - DB_PASS=password                                             # secret, use ENV var
       - DB_NAME=mlreef_backend
       - DB_EXTENSION=pg_trgm
+
+
+  gitlab-runner-dispatcher:
+    container_name: gitlab-runner-dispatcher
+    image: gitlab/gitlab-runner:alpine
+    volumes:
+      - gitlab-runner-config:/etc/gitlab-runner/:Z               # this line gets rewritten by the CI/CD pipeline
+      - /var/run/docker.sock:/var/run/docker.sock
+
+
+  gitlab-postgres:
+    container_name: gitlab-postgres
+    restart: always
+    image: sameersbn/postgresql:10-2
+    ports:
+      - "5432:5432"
+    volumes:
+      - "./bin/setup-gitlab.sh:/usr/local/bin/setup-gitlab.sh"
+      - postgresql-data:/var/lib/postgresql:Z                        # this line gets rewritten by the CI/CD pipeline
+    environment:
+      - DB_USER=gitlab
+      - DB_PASS=password                                             # secret, use ENV var
+      - DB_NAME=gitlabhq_production
+      - DB_EXTENSION=pg_trgm
+      - GITLAB_ADMIN_TOKEN=$GITLAB_ADMIN_TOKEN
+      - GITLAB_SECRETS_DB_KEY_BASE=$GITLAB_SECRETS_DB_KEY_BASE
+
+
+  redis:
+    container_name: redis
+    restart: always
+    image: sameersbn/redis:4.0.9-2
+    ports:
+      - "6379:6379"
+#    command:
+#      - --loglevel warning
+#    volumes:
+#      - redis-data:/var/lib/redis:Z      
 
 
   gitlab:
@@ -87,10 +142,9 @@ services:
       - GITLAB_PORT=80                                               # this line gets rewritten by the CI/CD pipeline
       - GITLAB_SSH_PORT=10022
       - GITLAB_RELATIVE_URL_ROOT=
-      - GITLAB_SECRETS_DB_KEY_BASE=long-and-random-alphanumeric-string
+      - GITLAB_SECRETS_DB_KEY_BASE=$GITLAB_SECRETS_DB_KEY_BASE
       - GITLAB_SECRETS_SECRET_KEY_BASE=long-and-random-alphanumeric-string
       - GITLAB_SECRETS_OTP_KEY_BASE=long-and-random-alphanumeric-string
-
       - GITLAB_ROOT_PASSWORD=password
       - GITLAB_ROOT_EMAIL=
 
@@ -185,41 +239,7 @@ services:
       - OAUTH_AZURE_TENANT_ID=
 
 
-  gitlab-runner-dispatcher:
-    container_name: gitlab-runner-dispatcher
-    image: gitlab/gitlab-runner:alpine
-    volumes:
-      - gitlab-runner-config:/etc/gitlab-runner/:Z                   # this line gets rewritten by the CI/CD pipeline
-      - /var/run/docker.sock:/var/run/docker.sock
 
-
-  gitlab-postgres:
-    container_name: gitlab-postgres
-    restart: always
-    image: sameersbn/postgresql:10-2
-    ports:
-      - "5432:5432"
-    volumes:
-      - "./bin/setup-gitlab.sh:/usr/local/bin/setup-gitlab.sh"
-      - postgresql-data:/var/lib/postgresql:Z                        # this line gets rewritten by the CI/CD pipeline
-    environment:
-      - DB_USER=gitlab
-      - DB_PASS=password                                             # secret, use ENV var
-      - DB_NAME=gitlabhq_production
-      - DB_EXTENSION=pg_trgm
-      - GITLAB_ADMIN_TOKEN=$GITLAB_ADMIN_TOKEN
-      - GITLAB_SECRETS_DB_KEY_BASE=long-and-random-alphanumeric-string
-
-  redis:
-    container_name: redis
-    restart: always
-    image: sameersbn/redis:4.0.9-2
-    ports:
-      - "6379:6379"
-#    command:
-#      - --loglevel warning
-#    volumes:
-#      - redis-data:/var/lib/redis:Z
 
 
 # Portable volumes which can be listed by `docker volume ls`

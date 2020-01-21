@@ -14,7 +14,7 @@
 ## Files naming
 
 * Tests are always in "src/\__tests\__" folder, files in this folder must always finish with ".test.js"
-* Camell case will be used throughout the project for files(except for some configuration files that have to be named in other ways), for folder the words should be separated by "-"
+* Camel case will be used throughout the project for files(except for some configuration files that have to be named in other ways), for folder the words should be separated by "-"
 
 ## Env vars
 

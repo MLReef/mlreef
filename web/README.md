@@ -4,16 +4,25 @@ React Web App
 This module contains the MLReef frontend web app which is implemented as a [REACT Web App](https://reactjs.org/).
 
 
-Getting Started
+Getting Started for Frontend Development
 --------------------
-### Setup
+### Setup your developer environment
+* Install Node (10.16.0 LTS)
+  * Windows [link](https://nodejs.org/en/download/)
+  * **OSX:**
+  ```shell script
+  # install homebrew
+  /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+  # use homebrew to install node
+  brew install node`
+  ```
+* Install react scripts `npm install --global react-scripts`
+
+### Download Dependencies
 Install all frontend dependencies with via npm: `npm install`
 
 ### Run Locally
 You can start the frontend separately with npm using the `npm start` command. 
-
-### Frontend production build
-To build the frontend project with npm use `npm run build`
 
 
 

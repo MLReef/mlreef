@@ -2,6 +2,8 @@ import React from 'react';
 import './login.css';
 import { Redirect } from 'react-router-dom';
 import icon from '../../images/ml_reef_icon_01.svg';
+import MLRAuthApi from '../../apis/MLAuthApi';
+import { toastr } from 'react-redux-toastr';
 
 export default class Login extends React.Component {
   constructor(props) {
@@ -27,9 +29,7 @@ export default class Login extends React.Component {
     const { email } = this.state;
     const { password } = this.state;
     return email.length > 0
-      && password.length > 0
-      && email === 'camillo'
-      && password === 'password';
+      && password.length > 0;
   }
 
   submit(e) {
@@ -42,10 +42,29 @@ export default class Login extends React.Component {
       return;
     }
 
-    sessionStorage.setItem('auth', true);
-    this.setState({
-      redirect: true,
-    });
+    const { email } = this.state;
+    const { password } = this.state;
+
+    MLRAuthApi
+      .login(email,email, password)
+      .then((user) => {
+        sessionStorage.setItem('auth', true);
+        sessionStorage.setItem('user', user); // FIXME: Does not work, but would the best IMHO
+        sessionStorage.setItem('user.id', user.id);
+        sessionStorage.setItem('user.username', user.username);
+        sessionStorage.setItem('user.email', user.email);
+        sessionStorage.setItem('token', user.token);
+        this.setState({ redirect: true, loading: false });
+        toastr.success('Success:', 'Login successfully');
+      })
+      .catch(
+        (error) => {
+          this.setState({ loading: false });
+          toastr.error('Error:', 'Try Login with mlreef + password or get: '+error);
+          const errorDiv = document.getElementById('errorDiv');
+          errorDiv.classList.remove('invisible');
+        },
+      );
   }
 
   reset() {
