@@ -15,7 +15,6 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.Mockito
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.jdbc.EmbeddedDatabaseConnection
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase
 import org.springframework.boot.test.context.SpringBootTest
@@ -55,8 +54,7 @@ abstract class RestApiTest {
 
     lateinit var mockMvc: MockMvc
 
-    @Value("\${mlreef.gitlab.mockUserToken}")
-    protected val testPrivateUserTokenMock: String? = null
+    protected val testPrivateUserTokenMock: String = "doesnotmatterat-all123"
     protected val HEADER_PRIVATE_TOKEN = "PRIVATE-TOKEN"
 
     @Autowired protected lateinit var objectMapper: ObjectMapper
@@ -80,7 +78,7 @@ abstract class RestApiTest {
         webApplicationContext: WebApplicationContext,
         restDocumentation: RestDocumentationContextProvider
     ) {
-        val censoredSecretHash = testPrivateUserTokenMock!!.substring(0, 5) + "**********"
+        val censoredSecretHash = testPrivateUserTokenMock.substring(0, 5) + "**********"
         this.mockMvc = MockMvcBuilders
             .webAppContextSetup(webApplicationContext)
             .apply<DefaultMockMvcBuilder>(springSecurity())
@@ -89,10 +87,10 @@ abstract class RestApiTest {
                 .withRequestDefaults(
                     removeHeaders(HEADER_PRIVATE_TOKEN),
                     Preprocessors.prettyPrint(),
-                    Preprocessors.replacePattern(Pattern.compile(testPrivateUserTokenMock!!), censoredSecretHash))
+                    Preprocessors.replacePattern(Pattern.compile(testPrivateUserTokenMock), censoredSecretHash))
                 .withResponseDefaults(
                     Preprocessors.prettyPrint(),
-                    Preprocessors.replacePattern(Pattern.compile(testPrivateUserTokenMock!!), censoredSecretHash))
+                    Preprocessors.replacePattern(Pattern.compile(testPrivateUserTokenMock), censoredSecretHash))
             )
             .build()
 
@@ -122,7 +120,7 @@ abstract class RestApiTest {
             GitlabUserToken(
                 id = 1,
                 revoked = false,
-                token = testPrivateUserTokenMock!!,
+                token = testPrivateUserTokenMock,
                 active = true,
                 name = "mlreef-token"
             )
@@ -152,7 +150,7 @@ abstract class RestApiTest {
     @Transactional
     protected fun createMockUser(plainPassword: String = "password", userOverrideSuffix: String? = null): Account {
 
-        var mockToken = testPrivateUserTokenMock!!
+        var mockToken = testPrivateUserTokenMock
         var userSuffix = "0000"
         if (userOverrideSuffix != null) {
             userSuffix = userOverrideSuffix

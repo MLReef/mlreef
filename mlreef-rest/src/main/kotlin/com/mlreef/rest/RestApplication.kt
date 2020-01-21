@@ -20,7 +20,7 @@ fun main(args: Array<String>) {
     runApplication<RestApplication>(*args)
 }
 
-@Profile(ApplicationProfiles.DEV)
+@Profile(value = [ApplicationProfiles.DEV, ApplicationProfiles.PROD])
 @Component
 internal class AssertGitlabAppStartupRunner(private val restClient: GitlabRestClient) : CommandLineRunner {
     @Throws(Exception::class)

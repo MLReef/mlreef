@@ -13,13 +13,9 @@ Common prefixes are:
 
 ### Environment Variables
 
-* **JAVA_TEST_PRIVATE_TOKEN**
-  * Gitlab Private Token (API permissions) of User for test repos
-  * will be injected by Gitlab CI
-  * must be provided locally for tests
-* **GITLAB_HOSTNAME** 
-  * hostname and port of gitlab instance to be used by backend, 
-  * default: "localhost:10080"
+* **GITLAB_ROOT_URL** 
+  * root url of gitlab service to be used by backend, 
+  * default: "http://localhost:10080"
 * **GITLAB_ADMIN_TOKEN** 
   * The PTA of the Admin user with API and SUDO rights. keep it secret!
 * **SPRING_PROFILES_ACTIVE** 
@@ -100,9 +96,6 @@ docker exec mlreef-rest_postgres_1 psql -U postgres -c"CREATE DATABASE mlreef_ba
 The Dockerfile builds the Backend as a "FROM openjdk" image.
 Project must be build and have a populated build/dependency dir!
 
-* JAVA_TEST_PRIVATE_TOKEN := Gitlab Private Token (API permissions) of User for test repos
-  * will be injected by Gitlab CI
-  * must be provided locally for tests
 * GITLAB_ROOT_URL := root url of gitlab instance to be used by backend, default: "http://localhost:10080"
 * GITLAB_ADMIN_TOKEN := The PTA of the Admin user with API and SUDO rights. keep it secret!
 

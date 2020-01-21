@@ -9,6 +9,7 @@ import com.mlreef.rest.Person
 import com.mlreef.rest.PersonRepository
 import com.mlreef.rest.config.censor
 import com.mlreef.rest.exceptions.Error
+import com.mlreef.rest.exceptions.GitlabBadRequestException
 import com.mlreef.rest.exceptions.GitlabConflictException
 import com.mlreef.rest.exceptions.GitlabConnectException
 import com.mlreef.rest.exceptions.UserAlreadyExistsException
@@ -21,6 +22,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
+import org.springframework.web.client.HttpClientErrorException
 import org.springframework.web.client.ResourceAccessException
 import java.util.UUID.randomUUID
 import javax.transaction.Transactional
@@ -115,9 +117,17 @@ class GitlabAuthService(
         return try {
             val gitlabName = "mlreef-user-$username"
             gitlabRestClient.adminCreateUser(email = email, name = gitlabName, username = username, password = password)
-        } catch (e: Exception) {
-            log.error(e.message, e)
-            throw GitlabConflictException(Error.GitlabUserCreationFailed, "Cannot create user for $username")
+        } catch (clientErrorException: HttpClientErrorException) {
+            log.error(clientErrorException.message, clientErrorException)
+            if (clientErrorException.rawStatusCode == 409) {
+                // TODO FIXME: In production, this is not okay!
+                log.info("Already existing dev user")
+                val adminGetUsers = gitlabRestClient.adminGetUsers()
+                adminGetUsers.first { it.username == username }
+                // TODO USE THIS: throw GitlabConflictException(Error.GitlabUserCreationFailed, "Cannot create user for $username")
+            } else {
+                throw GitlabBadRequestException(Error.GitlabUserCreationFailed, "Cannot create user for $username")
+            }
         }
     }
 
