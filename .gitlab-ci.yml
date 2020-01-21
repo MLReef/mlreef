@@ -157,8 +157,9 @@ deploy:
     - chmod 400 $SSH_KEYFILE                               # prepare private key file
     - chmod +x bin/*
     # rewrite docker dompose file
-    # change the frontend docker image from master branch to current branch
+    # change the frontend docker image from develop branch to current branch
     - sed -i "s/$FRONTEND_IMAGE_NAME:develop/$FRONTEND_IMAGE_NAME:$FRONTEND_TAG/" $DOCKER_COMPOSE
+    # change the frontend docker image from develop branch to current branch
     - sed -i "s/$BACKEND_IMAGE_NAME:develop/$BACKEND_IMAGE_NAME:$BACKEND_TAG/"    $DOCKER_COMPOSE
     # change postgres-data local image to /data/postgres on host machine
     - sed -i "s~-\ postgresql-data~-\ /data/postgres~"                        $DOCKER_COMPOSE
@@ -182,6 +183,8 @@ deploy:
     - scp -i $SSH_KEYFILE -o 'AddKeysToAgent yes' $DOCKER_COMPOSE ubuntu@${URL}:/home/ubuntu
     - scp -i $SSH_KEYFILE -o 'AddKeysToAgent yes' bin/deploy.sh ubuntu@${URL}:/home/ubuntu
     - scp -i $SSH_KEYFILE -o 'AddKeysToAgent yes' bin/setup-gitlab.sh ubuntu@${URL}:/home/ubuntu
+    - ssh -i $SSH_KEYFILE -o 'AddKeysToAgent yes' ubuntu@"${URL}" "mkdir -p /home/ubuntu/bin"
+    - scp -i $SSH_KEYFILE -o 'AddKeysToAgent yes' ./bin/nginx_proxy.conf ubuntu@${URL}:/home/ubuntu/bin/nginx_proxy.conf
     - echo "starting deploy.sh"
     - echo "----------------------------------------"
     - ssh -i $SSH_KEYFILE -o 'AddKeysToAgent yes' ubuntu@"${URL}" "

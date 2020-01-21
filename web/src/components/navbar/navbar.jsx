@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { Link } from 'react-router-dom';
+import { Link, Redirect } from 'react-router-dom';
 import mlReefIcon01 from '../../images/MLReef_Logo_navbar.png';
 import arrowDownWhite01 from '../../images/arrow_down_white_01.svg';
 import arrowDownBlue01 from '../../images/arrow_down_blue_01.svg';
@@ -9,9 +9,10 @@ import './navbar.css';
 class Navbar extends Component {
   constructor(props) {
     super(props);
-    this.state = { dialogOpen: false, projectDialog: false, yourProjects: false };
+    this.state = { dialogOpen: false, projectDialog: false, yourProjects: false, redirect: false };
     this.handleProject = this.handleProject.bind(this);
     this.handleOutsideClick = this.handleOutsideClick.bind(this);
+    this.handleSignOut = this.handleSignOut.bind(this);
   }
 
   componentWillUnmount() {
@@ -35,6 +36,29 @@ class Navbar extends Component {
     const { dialogOpen, projectDialog } = this.state;
     if (dialogOpen) this.handleProfile();
     else if (projectDialog) this.handleProject();
+  }
+
+  handleSignOut() {
+    sessionStorage.setItem('auth', false);
+    sessionStorage.setItem('user.id', '');
+    sessionStorage.setItem('user.username', '');
+    sessionStorage.setItem('user.email', '');
+    sessionStorage.setItem('token', '');
+    this.setState(() => ({
+      redirect: true,
+    }));
+  }
+
+  redirectAfterSignOut() {
+    if (sessionStorage.getItem("auth") !== true) {
+      if (this.state.redirect === true) {
+        this.setState(() => ({
+          redirect: false,
+        }));
+        return <Redirect to="/" />
+      }
+    }
+    return null;
   }
 
   handleProject(e) {
@@ -64,6 +88,7 @@ class Navbar extends Component {
     const { dialogOpen, projectDialog, yourProjects } = this.state;
     return (
       <div className="navbar">
+        {this.redirectAfterSignOut()}
         <Link to="/">
           <img className="logo" src={mlReefIcon01} alt="" />
         </Link>
@@ -96,15 +121,15 @@ class Navbar extends Component {
                 <p>Explore Projects</p>
               </div>
               {!yourProjects && (
-              <div className="project-search">
-                <input
-                  type="text"
-                  placeholder="Search your projects"
-                />
-                <div style={{ margin: '1em' }}>
-                  <b>Frequently visited</b>
+                <div className="project-search">
+                  <input
+                    type="text"
+                    placeholder="Search your projects"
+                  />
+                  <div style={{ margin: '1em' }}>
+                    <b>Frequently visited</b>
+                  </div>
                 </div>
-              </div>
               )}
             </div>
           )}
@@ -115,7 +140,7 @@ class Navbar extends Component {
           tabIndex="0"
           className={
             `profile-options ${
-              dialogOpen ? 'selected-controller' : ''}`
+            dialogOpen ? 'selected-controller' : ''}`
           }
           onClick={this.handleProfile}
           onKeyDown={this.handleProfile}
@@ -142,14 +167,18 @@ class Navbar extends Component {
               <div>
                 Signed in as
                 {' '}
-                <b>camillo</b>
+                <b>{sessionStorage.getItem('user.username')}</b>
+                <i> ({sessionStorage.getItem('user.email')})</i>
               </div>
               <hr />
               <p>Set Status</p>
               <p>Your Profile</p>
               <p>Settings</p>
               <hr />
-              <p>Sign Out</p>
+              <p
+                onClick={this.handleSignOut}
+                onKeyDown={this.handleSignOut}
+              >Sign Out</p>
             </div>
           )}
         </div>

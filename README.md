@@ -12,34 +12,39 @@ Please read the [Contribution Guidelines](CONTRIBUTE.md) carefully
 Getting Started
 --------------------
 
-### Setup your developer environment
-* Install Node (10.16.0 LTS)
-  * Windows [link](https://nodejs.org/en/download/)
-  * **OSX:**
-  ```shell script
-  # install homebrew
-  /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
-  # use homebrew to install node
-  brew install node`
-  ```
-* Install react scripts `npm install --global react-scripts`
-
-For setting up the web dependencies please see the [web module's readme](web/README.md)
+### 1. Setup your developer environment
+ 1. Install latest Docker
+ 2. Login to our private docker registry with your gitlab credentials by executing `docker login registry.gitlab.com
+ 3. Set the Gitlab ROOT ADMIN token as environment variable: `export GITLAB_ADMIN_TOKEN="QVj_FkeHyuJURko2ggZT"`
 
 
-### Run Locally
+### 2. Setup Gitlab (in docker) infrastructure
 For running locally we are using _docker-compose_. The full docker compose file contains all services (inluding the module).
 
-For starting and setting up your local docker environment run: `bin/docker-compose-new.sh` and follow the instructions for setting up your local instance including gitlab runners
+For starting and setting up your local docker environment run: `bin/setup-local-environment.sh` and follow the instructions for setting up your local instance including gitlab runners
 
 During setup, you **WILL** ecounter the following error message: `ERROR: Failed to load config stat /etc/gitlab-runner/config.toml: no such file or directory  builds=0` until the setup has completed successfully.
 
 This is the gitlab runner complaing about its missing configuration. As soon as the last step of the `bin/docker-compose-new.sh` script has been performed you will encounter no more errors.
 
+For understanding:
+
+* this injects the GITLAB_ADMIN_TOKEN into the gitlab-postgres database in a encrypted way.
+  * **Do not change the gitlab salts afterwards**, as everything encrypted (all tokens and passwords) would then be lost.
+* gitlab runners will be set up via browser
+
 Since the runner hot-reloads the config file, no restart is necessary.
 
-For further information on running locally, please refer to the web module's [README.md](web/README.md)
 
+### Start Frontend Development
+Stop the frontend docker and start locally with "npm start"
+
+`docker stop frontend`
+
+For actually developing in the frontend, you might want to remove (or comment) the complete `frontend`
+section from the `docker-compose` file.
+
+For further information on running locally, please refer to the web module's [README.md](web/README.md)
 
 
 Styleguide
@@ -62,8 +67,6 @@ All border radius is: 0,3vw
 Please also see "MLreef CD Guide" for detailed view of the corporate design features in MLreef.
 
 
-
-
 Per-Branch Develop Cloud Deployment
 --------------------
 MLReef's infrastructure is deployed to the AWS cloud automatically. One separate fresh environment for every branch
@@ -80,7 +83,6 @@ Currently, to deploy every branch to a separate ec2 instance the following steps
    The Gitlab runner dispatcher boots new ec2 instances for running gitlab pipelines
 
 After a branch is merged/deleted the Gitlab pipeline is used again to terminate the ec2 instance
-
 
 
 Infrastructure Deployment
@@ -115,17 +117,88 @@ To look at the container's logs
 docker logs $CONTAINER_NAME
 ```
 
-### Initialise Docker 
 
-Before the first start of a docker context you must provide the needed ENV vars!
+Initialise Docker for development ENV
+--------------------
+The systems relies on just one ENV variable which must be provided and must not have a default:
+
+* ***GITLAB_ADMIN_TOKEN*** (secret and mandatory)
+  * the Private Access Token (PTA) to access the gitlab container as gitlab admin
+  * must not be changed after initialisation (without resetting gitlab)
+  * must be provided to backend and gitlab
+  * must not be used in the frontend
+
+
+#### Optional
+As we are in development for pre-alpha: Set GITLAB_ADMIN_TOKEN is sufficent.
+
+More ENV vars can be used for local adaption, development and debugging:
+
+* GITLAB_ROOT_URL (optional)
+  * may default to "http://gitlab:80" but could be provided anyway in the backend
+* GITLAB_SECRETS_DB_KEY_BASE (should be: secret, mandatory)
+  * use the same salt for gitlab and for gitlab-postgres
+  * salt for encryption: **must not be changed after initialisation!**
+  * currently "long-and-random-alphanumeric-string" is used for dev env
+* SPRING_PROFILES_ACTIVE (optional defined)
+  * provides useful defaults for GITLAB_ROOT_URL and logging output 
+  * provide "dev" for development env: much logging, recreates the database
+  * provide "test" for testing: uses testcontainers instead of docker services for tests
+  * provide "prod" for testing: less logging  
+
+TODO: Refactor this in the frontend:
+
+* BACKEND_INSTANCE_URL (optional)
+  * may default to "http://localhost:20080" but must be provided for the frontend connection
+* GITLAB_ROOT_URL (optional)
+  * may default to "http://gitlab:80" but should be provided anyway in the backend
+
+
+### Debugging the connection
+
+When, and only when, backend found the gitlab instance the backend will start.
+Otherwise a crash will inform you about bad credentials (GITLAB_ADMIN_TOKEN) or a invalid GITLAB_ROOT_URL
 
 ```bash
-docker-compose up
+docker ps
+
+# you may need to restart backend or gitlab after the setup-gitlab
+docker restart backend
+docker restart gitlab
+
+# restart the frontend
+docker restart frontend
+docker restart nginx-proxy
 ```
 
-After starting for the first time, gitlab and gitlab post needs to be initialized.
-Run the setup-gitlab.sh in the postgres container
+#### Attention: 2nd Proxy for local dev environment
+There is a middleware proxy in setupProxy.js to proxy during development (does not need nginx-proxy)
+
+This is meant as a helper for frontend developers and a work-in-progress.
+
+To stop the nginx-proxy run this:
+```
+cd frontend/
+docker stop nginx-proxy
+cd web/
+npm start
+```
+
+#### Register additional test users
+As registration is not implemented in the frontend yet, a user must be registered via backend REST-service.
+This requirement will vanish, as we are working on a better way to populate with test data.
 
 ```bash
-docker exec -it gitlab-postgres setup-gitlab.sh
+curl 'http://localhost:8080/api/v1/auth/register' -i -X POST \
+    -H 'Content-Type: application/json' \
+    -H 'Accept: application/json' \
+    -d '{
+  "username" : "mlreef",
+  "email" : "mlreef-demo@example.org",
+  "password" : "password",
+  "name" : "name"
+}'
 ```
+
+***Hint 1***: due to some versioning issues, you may need to use a different user, as "mlreef" or the email is already taken.
+***Hint 2***: check host an port again
