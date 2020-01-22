@@ -280,7 +280,7 @@ class DataInstanceOverview extends Component {
           setIsVisible={this.setIsDeleteModalVisible}
           typeOfMessage={this.state.typeOfMessage}
         />
-        <div id="experiments-overview-container">
+        <div>
           <Navbar />
           <ProjectContainer
             project={project}
