@@ -1,16 +1,61 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { connect } from 'react-redux';
 import Navbar from '../navbar/navbar';
 import ProjectContainer from '../projectContainer';
 import folderIcon from '../../images/folder_01.svg';
 import fileIcon from '../../images/file_01.svg';
 import './dataInstanceDetails.css';
+import filesApi from '../../apis/FilesApi';
 
 const DataInstanceDetails = ({ ...props }) => {
   const project = props.projects.selectedProject;
   const groupName = project.namespace.name;
   const pipelineName = decodeURIComponent(props.match.params.di_name);
   const selectedPipeline = props.branches.filter((item) => item.name === pipelineName);
+
+  const { match: { params: { projectId, path, di_name, branch } } } = props;
+  const [files, setFiles] = useState([]);
+
+  useEffect(() => {
+    filesApi.getFilesPerProject(
+      projectId,
+      path || '',
+      false,
+      di_name,
+    ).then((res) => {
+      setFiles(res);
+    }).catch((err) => {
+      console.log(err);
+    })
+  }, [di_name, projectId, path])
+
+  const getBack = () => window.history.back()
+
+  const getReturnOption = () => (
+    window.location.href.includes('path') ? (
+      <tr className="files-row">
+        <td className="file-type">
+          <button
+            type="button"
+            onClick={getBack}
+            style={{ padding: '0' }}
+          >
+            <img src={folderIcon} alt="" />
+          </button>
+          <button
+            type="button"
+            onClick={getBack}
+          >
+            ..
+          </button>
+        </td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+      </tr>
+    )
+      : null);
+
 
   return (
     <div id="experiments-overview-container">
@@ -74,7 +119,33 @@ Id:
               </tr>
             </thead>
             <tbody>
-              <RenderFiles />
+            {getReturnOption()}
+              {files.map((file) => {
+                  let icon;
+                  let link;
+                  let routeType = '';
+                  if (file.type === 'tree') {
+                    routeType = 'path';
+                    icon = folderIcon;
+                    link = `/my-projects/${projectId}/${branch}/data-instances/${di_name}/${routeType}/${encodeURIComponent(file.path)}`;
+                  } else {
+                    routeType = 'blob';
+                    icon = fileIcon;
+                    link = `/my-projects/${projectId}/${di_name}/${routeType}/${encodeURIComponent(file.path)}`;
+                  } 
+                  return (
+                    <tr key={`${file.id} ${file.name}`} className="files-row">
+                      <td className="file-type">
+                        <Link to={link}>
+                          <img src={icon} alt="" />
+                        </Link>
+                        <Link to={link} className="file-name-link">
+                          {file.name}
+                        </Link>
+                      </td>
+                    </tr>
+                  );
+                })}
             </tbody>
           </table>
         </div>
@@ -82,51 +153,6 @@ Id:
     </div>
   );
 };
-
-function RenderFiles() {
-  return (
-    <>
-      <tr className="files-row">
-        <td className="file-type">
-          <img src={folderIcon} alt="" />
-                    src
-        </td>
-        <td>
-          {' '}
-          <p>Something</p>
-        </td>
-        <td>
-          <p>48Kb</p>
-          {' '}
-        </td>
-        <td>
-          {' '}
-          <p> yesterday </p>
-          {' '}
-        </td>
-      </tr>
-      <tr className="files-row">
-        <td className="file-type">
-          <img src={fileIcon} alt="" />
-                    file01.jpg
-        </td>
-        <td>
-          {' '}
-          <p>Something</p>
-        </td>
-        <td>
-          <p>48Kb</p>
-          {' '}
-        </td>
-        <td>
-          {' '}
-          <p> yesterday </p>
-          {' '}
-        </td>
-      </tr>
-    </>
-  );
-}
 
 function mapStateToProps(state) {
   return {
