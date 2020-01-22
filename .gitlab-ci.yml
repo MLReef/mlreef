@@ -243,7 +243,7 @@ decommission:
       | xargs --no-run-if-empty aws ec2 terminate-instances --instance-id
 
     # remove the branch's frontend docker container
-    - echo "Delete URL is https://gitlab.com/api/v4/projects/$CI_PROJECT_ID/registry/repositories/$DOCKER_REGISTRY_REPO/tags/$CI_COMMIT_REF_SLUG/
+    - echo "Delete URL is https://gitlab.com/api/v4/projects/$CI_PROJECT_ID/registry/repositories/$DOCKER_REGISTRY_REPO/tags/$CI_COMMIT_REF_SLUG/"
     - curl --request DELETE --header "$WORKAROUND $GITLAB_API_TOKEN" --fail
       https://gitlab.com/api/v4/projects/$CI_PROJECT_ID/registry/repositories/$DOCKER_REGISTRY_REPO/tags/$CI_COMMIT_REF_SLUG
   after_script:
