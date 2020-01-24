@@ -491,8 +491,6 @@ buildNumber.properties
 ### OSX ###
 # General
 
-# Icon must end with two \r
-
 # Thumbnails
 
 # Files that might appear in the root of a volume
@@ -638,10 +636,6 @@ gradle-app.setting
 
 ### ReactNative.macOS Stack ###
 # General
-
-# Icon must end with two \r
-Icon
-
 
 # Thumbnails
 
@@ -795,3 +789,6 @@ iOSInjectionProject/
 **/build/
 
 # End of https://www.gitignore.io/api/osx,java,sass,unity,xcode,macos,maven,linux,matlab,gradle,kotlin,ionic3,android,angular,windows,eclipse,java-web,intellij,reactnative,androidstudio,xcodeinjection
+
+### Terraform ###
+**/.terraform/

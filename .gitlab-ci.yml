@@ -33,6 +33,59 @@ variables:
   DATA_ARCHIVE:         "mlreef-data-develop.zip"
 
 
+terraform:
+  stage: prepare
+  image: registry.gitlab.com/systemkern/s5:latest-aws
+  variables:
+    EC2_MACHINE_SIZE:  "t3a.large"                         # https://aws.amazon.com/ec2/instance-types/
+    EC2_IMAGE_AMI:     "ami-050a22b7e0cf85dd0"             # ubuntu 16.04 LTS
+    EC2_SECURITY_GRP:  "application-servers"
+    STARTUP_SCRIPT:    "src/terraform/startup.sh"
+  before_script:
+    # if on develop, deploy a larger instance
+    - if [ $CI_COMMIT_REF_SLUG == "develop" ]; then EC2_MACHINE_SIZE="p2.xlarge"; fi
+    - chmod 400 $SSH_KEYFILE                 # prepare private key file
+
+    - export TF_VAR_environment_name=$EC2_INSTANCE_NAME
+    - export TF_VAR_instance_type=$EC2_MACHINE_SIZE
+
+    - sed -i "s~master/bin~$CI_COMMIT_REF_NAME/bin~"                                           $STARTUP_SCRIPT
+    - sed -i "s~AWS_ACCESS_KEY_ID=XXXXX~AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID~"                 $STARTUP_SCRIPT
+    - sed -i "s~AWS_SECRET_ACCESS_KEY=XXXXX~AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY~"     $STARTUP_SCRIPT
+    - cat $STARTUP_SCRIPT
+    - aws configure set aws_access_key_id     $AWS_ACCESS_KEY_ID
+    - aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
+    - aws configure set default.region        eu-central-1
+    - ls -al ~/.aws/
+    - cat ~/.aws/credentials
+  script:
+    - echo $TF_VAR_environment_name
+    - cd src/terraform
+    - terraform init    -input=false
+    - terraform apply   -auto-approve
+    - ls -al
+    - aws ec2 describe-instances --filters "Name=tag:Name,Values=$TF_VAR_environment_name"
+      | jq -r ".Reservations[].Instances[].InstanceId"
+      | xargs --no-run-if-empty -I {} aws ec2 describe-instances --filters "Name=instance-id,Values={}"
+      | jq -r ".Reservations[].Instances[].NetworkInterfaces[].Association.PublicDnsName"
+      | tr -d '\r' > $INSTANCE_INFO                        # pass instance url to deploy stage
+    - cat $INSTANCE_INFO                                   # debug output
+    - mv instance.info ../../instance.info
+  after_script:
+    - cat $INSTANCE_INFO                                   # debug output
+    - if [ -n $INSTANCE ]; then exit 1;  fi                # error on invalid INSTANCE_INFO
+  artifacts:
+    paths:
+      - "$INSTANCE_INFO"                                   # pass the file which contains our instance URL
+  environment:
+    name: $CI_COMMIT_REF_SLUG
+    url: $CI_PIPELINE_URL                                  # temporary url will be corrected by the gitlab-env-conf job
+    on_stop: decommission                                  # clean up after branch merge
+  only:
+    refs:
+      - master
+      - develop
+
 # The provision job boots up the new ec2 instance for deploying MLReef
 provision ec2:
   stage: prepare
@@ -43,7 +96,6 @@ provision ec2:
     EC2_SECURITY_GRP:  "application-servers"
   before_script:
     # if on develop, deploy a larger instance
-    - if [ $CI_COMMIT_REF_SLUG == "develop" ]; then EC2_MACHINE_SIZE="p2.xlarge"; fi
     - chmod 400 $SSH_KEYFILE                 # prepare private key file
 
     # decommission the current environment
@@ -85,6 +137,10 @@ provision ec2:
     name: $CI_COMMIT_REF_SLUG
     url: $CI_PIPELINE_URL                                  # temporary url will be corrected by the gitlab-env-conf job
     on_stop: decommission                                  # clean up after branch merge
+  except:
+    refs:
+      - develop
+      - master
 
 
 prepare npm:
