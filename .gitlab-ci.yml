@@ -68,6 +68,7 @@ terraform:
       | jq -r ".Reservations[].Instances[].InstanceId"
       | xargs --no-run-if-empty -I {} aws ec2 describe-instances --filters "Name=instance-id,Values={}"
       | jq -r ".Reservations[].Instances[].NetworkInterfaces[].Association.PublicDnsName"
+      | head -1
       | tr -d '\r' > $INSTANCE_INFO                        # pass instance url to deploy stage
     - cat $INSTANCE_INFO                                   # debug output
     - mv instance.info ../../instance.info
@@ -113,7 +114,7 @@ provision ec2:
   script:
      # aws ec2 run instances documentation
      # https://docs.aws.amazon.com/cli/latest/reference/ec2/run-instances.html
-#      --credit-specification CpuCredits=standard
+     #   --credit-specification CpuCredits=standard
     - aws ec2 run-instances --count 1
       --region ${AWS_DEFAULT_REGION}
       --image-id ${EC2_IMAGE_AMI}
