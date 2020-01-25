@@ -3,7 +3,7 @@ set -e
 set -x
 
 INIT_ZIP=mlreef-data-develop.zip                           # see startup.sh
-S3_BUCKET_NAME="mlreef-data"                               # see startup.sh
+S3_BUCKET_NAME="mlreef-application-data"                   # see startup.sh
 
 alias remote-ec2="ssh -i development_deployment.pem -o 'AddKeysToAgent yes' ubuntu@\${INSTANCE} "
 

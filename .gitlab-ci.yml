@@ -29,7 +29,7 @@ variables:
   RESTORE_SCRIPT:       "bin/restore.sh"
   DOCKER_COMPOSE:       "docker-compose.yml"
   INSTANCE_INFO:        "instance.info"                    # file for transmitting VM information between stages
-  S3_DATA_BUCKET:       "mlreef-data"
+  S3_DATA_BUCKET:       "mlreef-application-data"          # see also ec2 startup script
   DATA_ARCHIVE:         "mlreef-data-develop.zip"
 
 
@@ -218,21 +218,11 @@ deploy:
     - sed -i "s/$FRONTEND_IMAGE_NAME:develop/$FRONTEND_IMAGE_NAME:$FRONTEND_TAG/" $DOCKER_COMPOSE
     # change the frontend docker image from develop branch to current branch
     - sed -i "s/$BACKEND_IMAGE_NAME:develop/$BACKEND_IMAGE_NAME:$BACKEND_TAG/"    $DOCKER_COMPOSE
-    # change postgres-data local image to /data/postgres on host machine
-    - sed -i "s~-\ postgresql-data~-\ /data/postgres~"                        $DOCKER_COMPOSE
-    # change mlreefsql-data local image to /data/postgres on host machine
-    - sed -i "s~-\ mlreefsql-data~-\ /data/mlreefdb~"                         $DOCKER_COMPOSE
-    # change gitlab-data local image to /data/gitlab on host machine
-    - sed -i "s~-\ gitlab-data~-\ /data/gitlab~"                              $DOCKER_COMPOSE
-    # change gitlab-data local image to /data/gitlab on host machine
-    - sed -i "s~-\ gitlab-runner-config~-\ /data/gitlab-runner-config~"       $DOCKER_COMPOSE
-    # Let gitlab know its own URL
-    # deactivate "docker portable volumes
-    - sed -i "s/\ \ postgresql-data/#postgresql-data/"                        $DOCKER_COMPOSE
-    - sed -i "s/\ \ gitlab-data/#gitlab-data/"                                $DOCKER_COMPOSE
-    - sed -i "s/\ \ gitlab-runner-config/#gitlab-runner-config/"              $DOCKER_COMPOSE
-    - sed -i "s~GITLAB_HOST=gitlab~GITLAB_HOST=$URL~"                         $DOCKER_COMPOSE
-    - sed -i "s~GITLAB_PORT=80~GITLAB_PORT=10080~"                            $DOCKER_COMPOSE
+    # reactivate deactivated lines
+    - sed -i "s~#CI_REMOVE~~"                                                     $DOCKER_COMPOSE
+
+    - sed -i "s/GITLAB_HOST=gitlab/GITLAB_HOST=$URL/"                         $DOCKER_COMPOSE
+    - sed -i "s/GITLAB_PORT=80/GITLAB_PORT=10080/"                            $DOCKER_COMPOSE
     - cat $DOCKER_COMPOSE
   script:
     - ssh-keyscan -H "$URL" >>~/.ssh/known_hosts
@@ -305,7 +295,7 @@ decommission:
       https://gitlab.com/api/v4/projects/$CI_PROJECT_ID/registry/repositories/$DOCKER_REGISTRY_REPO/tags/$CI_COMMIT_REF_SLUG
   after_script:
     # remove the data backup from s3 (if it exists)
-    - aws s3 rm "s3://mlreef-data/mlreef-data-$CI_COMMIT_REF_SLUG.zip"
+    - aws s3 rm "s3://$S3_DATA_BUCKET/mlreef-data-$CI_COMMIT_REF_SLUG.zip"
   environment:
     name: $CI_COMMIT_REF_SLUG
     action: stop

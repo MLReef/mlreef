@@ -33,21 +33,21 @@ docker run --name=systemkern-s5-shell-alias-container --rm --tty  \
 
 ls -la /$INIT_ZIP >>$LOG
 
-echo "Unzipping $INIT_ZIP to /data"                         >>$LOG
-unzip /$INIT_ZIP -d /data
-echo "Init data unzipped:"                                  >>$LOG
-ls -la /data                                                >>$LOG
-chown -R ubuntu:ubuntu /data/*                              >>$LOG
+{
+  echo "Unzipping $INIT_ZIP  to /data"
+  unzip /$INIT_ZIP -d /data
+  echo "Init data unzipped:"
+  ls -la /data
+  chown -R ubuntu:ubuntu /data/**
+} >>$LOG
 
-export GITLAB_SECRETS_SECRET_KEY_BASE="1111111111122222222222333333333334444444444555555555566666666661234"
-export GITLAB_SECRETS_OTP_KEY_BASE="1111111111122222222222333333333334444444444555555555566666666661234"
-export GITLAB_SECRETS_DB_KEY_BASE="1111111111122222222222333333333334444444444555555555566666666661234"
 
 # Pull the used Docker images already during startup, this will speed up the deployment phase
+docker pull nginx
 docker pull sameersbn/gitlab:12.4.0
-docker pull gitlab/gitlab-runner:alpine
 docker pull sameersbn/postgresql:10-2
 docker pull sameersbn/redis:4.0.9-2
+docker pull gitlab/gitlab-runner:alpine
 
 # Install nvidia-docker and nvidia-docker-plugin
 # https://github.com/NVIDIA/nvidia-docker

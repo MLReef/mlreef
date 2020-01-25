@@ -5,7 +5,9 @@ if [ "$1" = "" ]; then
   echo "Missing Gitlab Token"
   exit 1
 fi
+TOKEN=$1
 
+echo "Removing configuration if it exists"
 docker exec gitlab-runner-dispatcher ls -al  /etc/gitlab-runner/config.toml
 docker exec gitlab-runner-dispatcher rm      /etc/gitlab-runner/config.toml
 docker exec gitlab-runner-dispatcher ls -al  /etc/gitlab-runner/config.toml
@@ -14,7 +16,7 @@ docker exec gitlab-runner-dispatcher gitlab-runner register   \
   --non-interactive                                           \
   --url="http://gitlab:80/"                                   \
   --docker-network-mode frontend_default                      \
-  --registration-token "$1"                                   \
+  --registration-token "$TOKEN"                                   \
   --executor "docker"                                         \
   --docker-image alpine:latest                                \
   --docker-volumes /var/run/docker.sock:/var/run/docker.sock  \
