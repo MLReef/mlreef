@@ -12,7 +12,6 @@ PORT=10080
 export TOML="/data/gitlab-runner-config/config.toml"
 export DISPATCHER_DESCRIPTION="Packaged Dispatcher on $CI_COMMIT_REF_SLUG-$INSTANCE"
 export AIOPS_RUNNER_EC2_INSTANCE_TYPE="p2.xlarge"
-export AIOPS_RUNNER_EC2_INSTANCE_LIMIT=2
 # number of instances is limited by aws
 # https://eu-central-1.console.aws.amazon.com/ec2/v2/home?region=eu-central-1#Limits:
 export AIOPS_RUNNER_EC2_INSTANCE_LIMIT=1

@@ -3,15 +3,14 @@ version: '2'
 
 # please research https://docs.docker.com/compose/environment-variables/ for howto setup your environment
 services:
-
   nginx-proxy:
     image: nginx
     container_name: nginx-proxy
     restart: always
     depends_on:
-      - gitlab
-      - backend
       - frontend
+#      - backend
+      - gitlab
     ports:
       - "80:80"
     volumes:
@@ -23,36 +22,35 @@ services:
     restart: always
     depends_on:
       - gitlab
-      - backend
+#      - backend
     ports:
       - "3000:3000"
-    environment: 
+    environment:
       - BACKEND_INSTANCE_URL=http://backend:8080
       - REACT_APP_MLREEF_INSTANCE_URL=http://backend:8080
-      
-  backend:
-    container_name: backend
-    image: registry.gitlab.com/mlreef/backend:develop
-    restart: "no"    # TODO: change this to always when migration is done
-    depends_on:
-      - gitlab
-      - mlreef-postgres
-      - redis
-    ports:
-      - "8080:8080"
-      - "20080:8080"
-    environment: 
-      - SPRING_PROFILES_ACTIVE=dev
-      - GITLAB_ROOT_URL=$GITLAB_ROOT_URL
-      - GITLAB_ADMIN_TOKEN=$GITLAB_ADMIN_TOKEN                       # secret, use ENV var
-      - DB_HOST=mlreef-postgres 
-      - DB_PORT=5432
-      - DB_USER=mlreef
-      - DB_PASS=password                                             # secret, use ENV var
-      - DB_NAME=mlreef_backend
-      - REDIS_HOST=redis
-      - STARTUP_DELAY=30
 
+#  backend:
+#    container_name: backend
+#    image: registry.gitlab.com/mlreef/backend:develop
+#    restart: always             # TODO: change this to always when migration is done
+#    depends_on:
+#      - mlreef-postgres
+#      - gitlab
+#      - redis
+#    ports:
+#      - "8080:8080"
+#      - "20080:8080"
+#    environment:
+#      - SPRING_PROFILES_ACTIVE=dev
+#      - GITLAB_ROOT_URL=http://gitlab:80
+#      - GITLAB_ADMIN_TOKEN="-QmLDx6yHfzmgp5_XDz_"                    # hardcoded in register and below in postgresql
+#      - DB_HOST=mlreef-postgres
+#      - DB_PORT=5432
+#      - DB_USER=mlreef
+#      - DB_PASS=password                                             # secret, use ENV var
+#      - DB_NAME=mlreef_backend
+#      - REDIS_HOST=redis
+#      - STARTUP_DELAY=30
 
   mlreef-postgres:
     container_name: mlreef-postgres
@@ -60,51 +58,12 @@ services:
     image: sameersbn/postgresql:10-2
     ports:
       - "6000:5432"
-    volumes:
-      - mlreefsql-data:/var/lib/postgresql:Z                         # this line gets rewritten by the CI/CD pipeline
+    #CI_REMOVEvolumes: [/data/mlreefdb:/var/lib/postgresql:Z]          # this line gets rewritten by the CI/CD pipeline
     environment:
       - DB_USER=mlreef
       - DB_PASS=password                                             # secret, use ENV var
       - DB_NAME=mlreef_backend
       - DB_EXTENSION=pg_trgm
-
-
-  gitlab-runner-dispatcher:
-    container_name: gitlab-runner-dispatcher
-    image: gitlab/gitlab-runner:alpine
-    volumes:
-      - gitlab-runner-config:/etc/gitlab-runner/:Z               # this line gets rewritten by the CI/CD pipeline
-      - /var/run/docker.sock:/var/run/docker.sock
-
-
-  gitlab-postgres:
-    container_name: gitlab-postgres
-    restart: always
-    image: sameersbn/postgresql:10-2
-    ports:
-      - "5432:5432"
-    volumes:
-      - "./bin/setup-gitlab.sh:/usr/local/bin/setup-gitlab.sh"
-      - postgresql-data:/var/lib/postgresql:Z                        # this line gets rewritten by the CI/CD pipeline
-    environment:
-      - DB_USER=gitlab
-      - DB_PASS=password                                             # secret, use ENV var
-      - DB_NAME=gitlabhq_production
-      - DB_EXTENSION=pg_trgm
-      - GITLAB_ADMIN_TOKEN=$GITLAB_ADMIN_TOKEN
-      - GITLAB_SECRETS_DB_KEY_BASE=$GITLAB_SECRETS_DB_KEY_BASE
-
-
-  redis:
-    container_name: redis
-    restart: always
-    image: sameersbn/redis:4.0.9-2
-    ports:
-      - "6379:6379"
-#    command:
-#      - --loglevel warning
-#    volumes:
-#      - redis-data:/var/lib/redis:Z      
 
 
   gitlab:
@@ -113,17 +72,15 @@ services:
     image: sameersbn/gitlab:12.4.0
     depends_on:
       - redis
-      - gitlab-postgres
+      - postgresql
     ports:
       - "10080:80"
       - "10022:22"
-    volumes:
-      - gitlab-data:/home/git/data:Z                                 # this line gets rewritten by the CI/CD pipeline
+    #CI_REMOVEvolumes: [/data/gitlab:/home/git/data:Z]               # this line gets activated by the CI/CD pipeline
     environment:
       - DEBUG=false
-
       - DB_ADAPTER=postgresql
-      - DB_HOST=gitlab-postgres
+      - DB_HOST=postgresql
       - DB_PORT=5432
       - DB_USER=gitlab
       - DB_PASS=password                                             #secret, use ENV var
@@ -142,110 +99,42 @@ services:
       - GITLAB_PORT=80                                               # this line gets rewritten by the CI/CD pipeline
       - GITLAB_SSH_PORT=10022
       - GITLAB_RELATIVE_URL_ROOT=
-      - GITLAB_SECRETS_DB_KEY_BASE=$GITLAB_SECRETS_DB_KEY_BASE
-      - GITLAB_SECRETS_SECRET_KEY_BASE=long-and-random-alphanumeric-string
-      - GITLAB_SECRETS_OTP_KEY_BASE=long-and-random-alphanumeric-string
+
+      # These three values are also hardcoded in the setup-local-environment.sh
+      - GITLAB_SECRETS_DB_KEY_BASE=     "1111111111122222222222333333333334444444444555555555566666666661234"
+      - GITLAB_SECRETS_SECRET_KEY_BASE= "1111111111122222222222333333333334444444444555555555566666666661234"
+      - GITLAB_SECRETS_OTP_KEY_BASE=    "1111111111122222222222333333333334444444444555555555566666666661234"
+
       - GITLAB_ROOT_PASSWORD=password
       - GITLAB_ROOT_EMAIL=
 
-      - GITLAB_NOTIFY_ON_BROKEN_BUILDS=true
-      - GITLAB_NOTIFY_PUSHER=false
 
-      - GITLAB_EMAIL=notifications@example.com
-      - GITLAB_EMAIL_REPLY_TO=noreply@example.com
-      - GITLAB_INCOMING_EMAIL_ADDRESS=reply@example.com
+  gitlab-runner-dispatcher:
+    container_name: gitlab-runner-dispatcher
+    image: gitlab/gitlab-runner:alpine
+    volumes:
+      #CI_REMOVE- /data/gitlab-runner-config:/etc/gitlab-runner/:Z   # this line gets activated by the CI/CD pipeline
+      - /var/run/docker.sock:/var/run/docker.sock                    # needed for "docker in docker" to work
 
-      - GITLAB_BACKUP_SCHEDULE=daily
-      - GITLAB_BACKUP_TIME=01:00
+  postgresql:
+    container_name: postgresql
+    restart: always
+    image: sameersbn/postgresql:10-2
+    volumes:
+      #CI_REMOVE- /data/postgres:/var/lib/postgresql:Z               # this line gets activated by the CI/CD pipeline
+      - "./bin/setup-gitlab.sh:/usr/local/bin/setup-gitlab.sh"
+    ports: ["5432:5432"]
+    environment:
+      - DB_USER=gitlab
+      - DB_PASS=password                                             # secret, use ENV var
+      - DB_NAME=gitlabhq_production
+      - DB_EXTENSION=pg_trgm
+      - GITLAB_ADMIN_TOKEN="-QmLDx6yHfzmgp5_XDz_"
+      - GITLAB_SECRETS_DB_KEY_BASE="1111111111122222222222333333333334444444444555555555566666666661234"
 
-      - SMTP_ENABLED=false
-      - SMTP_DOMAIN=www.example.com
-      - SMTP_HOST=smtp.gmail.com
-      - SMTP_PORT=587
-      - SMTP_USER=mailer@example.com
-      - SMTP_PASS=password
-      - SMTP_STARTTLS=true
-      - SMTP_AUTHENTICATION=login
-
-      - IMAP_ENABLED=false
-      - IMAP_HOST=imap.gmail.com
-      - IMAP_PORT=993
-      - IMAP_USER=mailer@example.com
-      - IMAP_PASS=password
-      - IMAP_SSL=true
-      - IMAP_STARTTLS=false
-
-      - OAUTH_ENABLED=false
-      - OAUTH_AUTO_SIGN_IN_WITH_PROVIDER=
-      - OAUTH_ALLOW_SSO=
-      - OAUTH_BLOCK_AUTO_CREATED_USERS=true
-      - OAUTH_AUTO_LINK_LDAP_USER=false
-      - OAUTH_AUTO_LINK_SAML_USER=false
-      - OAUTH_EXTERNAL_PROVIDERS=
-
-      - OAUTH_CAS3_LABEL=cas3
-      - OAUTH_CAS3_SERVER=
-      - OAUTH_CAS3_DISABLE_SSL_VERIFICATION=false
-      - OAUTH_CAS3_LOGIN_URL=/cas/login
-      - OAUTH_CAS3_VALIDATE_URL=/cas/p3/serviceValidate
-      - OAUTH_CAS3_LOGOUT_URL=/cas/logout
-
-      - OAUTH_GOOGLE_API_KEY=
-      - OAUTH_GOOGLE_APP_SECRET=
-      - OAUTH_GOOGLE_RESTRICT_DOMAIN=
-
-      - OAUTH_FACEBOOK_API_KEY=
-      - OAUTH_FACEBOOK_APP_SECRET=
-
-      - OAUTH_TWITTER_API_KEY=
-      - OAUTH_TWITTER_APP_SECRET=
-
-      - OAUTH_GITHUB_API_KEY=
-      - OAUTH_GITHUB_APP_SECRET=
-      - OAUTH_GITHUB_URL=
-      - OAUTH_GITHUB_VERIFY_SSL=
-
-      - OAUTH_GITLAB_API_KEY=
-      - OAUTH_GITLAB_APP_SECRET=
-
-      - OAUTH_BITBUCKET_API_KEY=
-      - OAUTH_BITBUCKET_APP_SECRET=
-
-      - OAUTH_SAML_ASSERTION_CONSUMER_SERVICE_URL=
-      - OAUTH_SAML_IDP_CERT_FINGERPRINT=
-      - OAUTH_SAML_IDP_SSO_TARGET_URL=
-      - OAUTH_SAML_ISSUER=
-      - OAUTH_SAML_LABEL="Our SAML Provider"
-      - OAUTH_SAML_NAME_IDENTIFIER_FORMAT=urn:oasis:names:tc:SAML:2.0:nameid-format:transient
-      - OAUTH_SAML_GROUPS_ATTRIBUTE=
-      - OAUTH_SAML_EXTERNAL_GROUPS=
-      - OAUTH_SAML_ATTRIBUTE_STATEMENTS_EMAIL=
-      - OAUTH_SAML_ATTRIBUTE_STATEMENTS_NAME=
-      - OAUTH_SAML_ATTRIBUTE_STATEMENTS_USERNAME=
-      - OAUTH_SAML_ATTRIBUTE_STATEMENTS_FIRST_NAME=
-      - OAUTH_SAML_ATTRIBUTE_STATEMENTS_LAST_NAME=
-
-      - OAUTH_CROWD_SERVER_URL=
-      - OAUTH_CROWD_APP_NAME=
-      - OAUTH_CROWD_APP_PASSWORD=
-
-      - OAUTH_AUTH0_CLIENT_ID=
-      - OAUTH_AUTH0_CLIENT_SECRET=
-      - OAUTH_AUTH0_DOMAIN=
-      - OAUTH_AUTH0_SCOPE=
-
-      - OAUTH_AZURE_API_KEY=
-      - OAUTH_AZURE_API_SECRET=
-      - OAUTH_AZURE_TENANT_ID=
-
-
-
-
-
-# Portable volumes which can be listed by `docker volume ls`
-volumes:
-  sock:
-  postgresql-data:                                                   # this line gets removed by the CI/CD pipeline
-  mlreefsql-data:                                                    # this line gets removed by the CI/CD pipeline
-  gitlab-data:                                                       # this line gets removed by the CI/CD pipeline
-  gitlab-runner-config:                                              # this line gets removed by the CI/CD pipeline
+  redis:
+    container_name: redis
+    restart: always
+    image: sameersbn/redis:4.0.9-2
+#    command:
+#      - --loglevel warning
