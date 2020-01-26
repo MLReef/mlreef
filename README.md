@@ -21,11 +21,18 @@ Getting Started
 ### 2. Setup Gitlab (in docker) infrastructure
 For running locally we are using _docker-compose_. The full docker compose file contains all services (inluding the module).
 
+#### MacOs / Linux:
 For starting and setting up your local docker environment run: `bin/setup-local-environment.sh` and follow the instructions for setting up your local instance including gitlab runners
 
 During setup, you **WILL** ecounter the following error message: `ERROR: Failed to load config stat /etc/gitlab-runner/config.toml: no such file or directory  builds=0` until the setup has completed successfully.
 
-This is the gitlab runner complaing about its missing configuration. As soon as the last step of the `bin/docker-compose-new.sh` script has been performed you will encounter no more errors.
+This is the gitlab runner complain about its missing configuration. As soon as the last step of the `bin/docker-compose-new.sh` script has been performed you will encounter no more errors.
+Since the runner hot-reloads the config file, no restart is necessary.
+
+#### Windows:
+
+For starting and setting up your local docker environment run: `bin/setup-local-environment.bat` and follow the instructions for setting up your local instance, but without gitlab runners.
+gitlab runners are not working yet under windows.
 
 For understanding:
 
@@ -33,7 +40,7 @@ For understanding:
   * **Do not change the gitlab salts afterwards**, as everything encrypted (all tokens and passwords) would then be lost.
 * gitlab runners will be set up via browser
 
-Since the runner hot-reloads the config file, no restart is necessary.
+
 
 
 ### Start Frontend Development
@@ -142,6 +149,7 @@ More ENV vars can be used for local adaption, development and debugging:
   * currently "long-and-random-alphanumeric-string" is used for dev env
 * SPRING_PROFILES_ACTIVE (optional defined)
   * provides useful defaults for GITLAB_ROOT_URL and logging output 
+  * provide "docker" for docker development env: less logging, recreates the database
   * provide "dev" for development env: much logging, recreates the database
   * provide "test" for testing: uses testcontainers instead of docker services for tests
   * provide "prod" for testing: less logging  
@@ -159,16 +167,26 @@ TODO: Refactor this in the frontend:
 When, and only when, backend found the gitlab instance the backend will start.
 Otherwise a crash will inform you about bad credentials (GITLAB_ADMIN_TOKEN) or a invalid GITLAB_ROOT_URL
 
+You can ask the backend how it feels:
+
+Test if backend is reachable
+```bash
+curl "http://localhost:8080/api/v1/info/status" -i -X GET -H "Content-Type: application/json" -H "Accept: application/json"
+```
+
+Print out information about gitlab connection:
+```bash
+curl "http://localhost:8080/api/v1/info/health" -i -X GET -H "Content-Type: application/json" -H "Accept: application/json"
+```
+
 ```bash
 docker ps
 
 # you may need to restart backend or gitlab after the setup-gitlab
-docker restart backend
-docker restart gitlab
+docker-compose up -d backend
 
 # restart the frontend
-docker restart frontend
-docker restart nginx-proxy
+docker-compose up -d frontend  nginx-proxy
 ```
 
 #### Attention: 2nd Proxy for local dev environment
@@ -185,8 +203,11 @@ npm start
 ```
 
 #### Register additional test users
+
 As registration is not implemented in the frontend yet, a user must be registered via backend REST-service.
 This requirement will vanish, as we are working on a better way to populate with test data.
+
+This is not necessary now, as the backend creates a user when started in "dev" or "docker" spring environment
 
 ```bash
 curl 'http://localhost:8080/api/v1/auth/register' -i -X POST \
@@ -199,6 +220,3 @@ curl 'http://localhost:8080/api/v1/auth/register' -i -X POST \
   "name" : "name"
 }'
 ```
-
-***Hint 1***: due to some versioning issues, you may need to use a different user, as "mlreef" or the email is already taken.
-***Hint 2***: check host an port again

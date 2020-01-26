@@ -229,8 +229,8 @@ deploy:
     # upload modified docker-compose to ec2 instance
     - scp -i $SSH_KEYFILE -o 'AddKeysToAgent yes' $DOCKER_COMPOSE ubuntu@${URL}:/home/ubuntu
     - scp -i $SSH_KEYFILE -o 'AddKeysToAgent yes' bin/deploy.sh ubuntu@${URL}:/home/ubuntu
-    - scp -i $SSH_KEYFILE -o 'AddKeysToAgent yes' bin/setup-gitlab.sh ubuntu@${URL}:/home/ubuntu
     - ssh -i $SSH_KEYFILE -o 'AddKeysToAgent yes' ubuntu@"${URL}" "mkdir -p /home/ubuntu/bin"
+    - scp -i $SSH_KEYFILE -o 'AddKeysToAgent yes' bin/setup-gitlab.sh ubuntu@${URL}:/home/ubuntu/bin
     - scp -i $SSH_KEYFILE -o 'AddKeysToAgent yes' ./bin/nginx_proxy.conf ubuntu@${URL}:/home/ubuntu/bin/nginx_proxy.conf
     - echo "starting deploy.sh"
     - echo "----------------------------------------"

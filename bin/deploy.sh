@@ -146,4 +146,28 @@ $LINE
 
 EOF
 
-docker-compose up -d
+
+export GITLAB_SECRETS_SECRET_KEY_BASE=1111111111122222222222333333333334444444444555555555566666666661234
+export    GITLAB_SECRETS_OTP_KEY_BASE=1111111111122222222222333333333334444444444555555555566666666661234
+export     GITLAB_SECRETS_DB_KEY_BASE=1111111111122222222222333333333334444444444555555555566666666661234
+export             GITLAB_ADMIN_TOKEN=-QmLDx6yHfzmgp5_XDz_
+
+docker-compose up --detach
+sleep 120
+
+docker-compose stop backend
+sleep 120
+
+# 1. Inject known admin token
+echo "Creating the admin token with GITLAB_ADMIN_TOKEN: ${GITLAB_ADMIN_TOKEN}"
+chmod +x bin/setup-gitlab.sh
+docker exec --tty postgresql setup-gitlab.sh
+
+docker-compose up --detach
+sleep 120
+
+docker-compose stop backend
+sleep 120
+
+
+docker-compose up --detach
