@@ -1,0 +1,3 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Button filters data instances according to the parameter 1`] = `ReactWrapper {}`;

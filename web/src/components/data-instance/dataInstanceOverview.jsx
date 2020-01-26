@@ -41,9 +41,8 @@ const getStatusForDataInstance = (status) => {
   return mappedStatus;
 };
 
-const InstanceCard = ({ ...props }) => {
+export const InstanceCard = ({ ...props }) => {
   const { params } = props;
-
   function handleButtonsClick(e) {
     const branchName = encodeURIComponent(e.currentTarget.parentNode.parentNode.getAttribute('data-key'));
     const pId = props.params.instances[0].projId;
@@ -123,76 +122,82 @@ const InstanceCard = ({ ...props }) => {
     );
   }
 
-  return params.instances.length > 0 ? (
-    <div className="data-instance-card">
-      <div className="header">
-        <div className="title-div">
-          <p><b>{getStatusForDataInstance(params.currentState)}</b></p>
-        </div>
-      </div>
-
-      {params.instances.map((instance, index) => {
-        const modelDiv = 'inherit';
-        let progressVisibility = 'inherit';
-        if (instance.currentState === 'Expired') { progressVisibility = 'hidden'; }
-        return (
-          <div key={index} className="card-content">
-            <div className="summary-data" data-key={`${instance.descTitle}`}>
-              <div className="project-desc-experiment">
-                <p
-                  onClick={(e) => {
-                    if (instance.currentState === 'Expired') {
-                      handleEmptyClick();
-                    } else {
-                      handleButtonsClick(e);
-                    }
-                  }}
-                  style={{ cursor: 'pointer' }}
-                >
-                  <b>{instance.descTitle}</b>
-                </p>
-                <p>
-                  Created by
-                  {' '}
-                  <b>{instance.userName}</b>
-                  <br />
-                  {instance.timeCreatedAgo}
-                  {' '}
-                  ago
-                </p>
-              </div>
-              <div className="project-desc-experiment" style={{ visibility: progressVisibility }}>
-                <p><b>Use: 24GB</b></p>
-                <p>
-                  Expires in:
-                  {instance.expiration}
-                </p>
-              </div>
-              <div className="project-desc-experiment" style={{ visibility: modelDiv }}>
-                <p><b>24,051 files changed</b></p>
-                <p>
-                  Id:
-                  {' '}
-                  {instance.di_id ? instance.di_id : '72fb5m'}
-                </p>
-              </div>
-              { getButtonsDiv(instance.currentState) }
-            </div>
+  if(params && params.instances) {
+      return params.instances.length > 0 ? (
+      <div className="data-instance-card">
+        <div className="header">
+          <div className="title-div">
+            <p><b>{getStatusForDataInstance(params.currentState)}</b></p>
           </div>
-        );
-      })}
-    </div>
-  ) : (
-    null
-  );
+        </div>
+
+        {params.instances.map((instance, index) => {
+          const modelDiv = 'inherit';
+          let progressVisibility = 'inherit';
+          if (instance.currentState === 'Expired') { progressVisibility = 'hidden'; }
+          return (
+            <div key={index} className="card-content">
+              <div className="summary-data" data-key={`${instance.descTitle}`}>
+                <div className="project-desc-experiment">
+                  <p
+                    onClick={(e) => {
+                      if (instance.currentState === 'Expired') {
+                        handleEmptyClick();
+                      } else {
+                        handleButtonsClick(e);
+                      }
+                    }}
+                    style={{ cursor: 'pointer' }}
+                  >
+                    <b>{instance.descTitle}</b>
+                  </p>
+                  <p>
+                    Created by
+                    {' '}
+                    <b>{instance.userName}</b>
+                    <br />
+                    {instance.timeCreatedAgo}
+                    {' '}
+                    ago
+                  </p>
+                </div>
+                <div className="project-desc-experiment" style={{ visibility: progressVisibility }}>
+                  <p><b>Use: 24GB</b></p>
+                  <p>
+                    Expires in:
+                    {instance.expiration}
+                  </p>
+                </div>
+                <div className="project-desc-experiment" style={{ visibility: modelDiv }}>
+                  <p><b>24,051 files changed</b></p>
+                  <p>
+                    Id:
+                    {' '}
+                    {instance.di_id ? instance.di_id : '72fb5m'}
+                  </p>
+                </div>
+                { getButtonsDiv(instance.currentState) }
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    ) : (
+      null
+    );
+  }
 };
 
 
-class DataInstanceOverview extends Component {
+export class DataInstanceOverview extends Component {
   constructor(props) {
     super(props);
-    const project = this.props.projects.selectedProject;
-    const branches = props.branches.filter((branch) => branch.name.startsWith('data-pipeline'));
+    let project, branches, id;
+    if(props.projects){
+      project = props.projects.selectedProject;
+      branches = props.branches.filter((branch) => branch.name.startsWith('data-pipeline'));
+      id = project.id;
+    }
     this.state = {
       project,
       all: [],
@@ -201,7 +206,7 @@ class DataInstanceOverview extends Component {
       typeOfMessage: null,
     };
 
-    pipelinesApi.getPipesByProjectId(project.id).then((res) => {
+    pipelinesApi.getPipesByProjectId(id).then((res) => {
       const pipes = res.filter((pipe) => pipe.status !== SKIPPED);
       const dataInstances = branches.map((branch) => {
         const pipeBranch = pipes.filter((pipe) => pipe.ref === branch.name)[0];
@@ -241,28 +246,30 @@ class DataInstanceOverview extends Component {
   }
 
   handleButtonsClick(e) {
-    e.target.parentNode.childNodes.forEach((childNode) => {
-      if (childNode.id !== e.target.id) {
-        childNode.classList.remove('active-border-light-blue');
-        childNode.classList.add('non-active-black-border');
-      }
-    });
-    e.target.classList.add('active-border-light-blue');
-    e.target.classList.remove('non-active-black-border');
+    if(e) {
+        e.target.parentNode.childNodes.forEach((childNode) => {
+        if (childNode.id !== e.target.id) {
+          childNode.classList.remove('active-border-light-blue');
+          childNode.classList.add('non-active-black-border');
+        }
+      });
+      e.target.classList.add('active-border-light-blue');
+      e.target.classList.remove('non-active-black-border');
 
-    const { all } = this.state;
-    if (e.target.id === 'all') {
-      const allInstances = all;
-      this.setState({ dataInstances: allInstances });
-    } else if (e.target.id === 'InProgress') {
-      const completed = all.filter((exp) => exp.status === 'running');
-      this.setState({ dataInstances: completed });
-    } else if (e.target.id === 'Active') {
-      const canceled = all.filter((exp) => exp.status === 'success');
-      this.setState({ dataInstances: canceled });
-    } else if (e.target.id === 'expired') {
-      const failed = all.filter((exp) => exp.status === 'failed');
-      this.setState({ dataInstances: failed });
+      const { all } = this.state;
+      if (e.target.id === 'all') {
+        const allInstances = all;
+        this.setState({ dataInstances: allInstances });
+      } else if (e.target.id === 'InProgress') {
+        const completed = all.filter((exp) => exp.status === 'running');
+        this.setState({ dataInstances: completed });
+      } else if (e.target.id === 'Active') {
+        const canceled = all.filter((exp) => exp.status === 'success');
+        this.setState({ dataInstances: canceled });
+      } else if (e.target.id === 'expired') {
+        const failed = all.filter((exp) => exp.status === 'failed');
+        this.setState({ dataInstances: failed });
+      }
     }
   }
 
@@ -272,7 +279,11 @@ class DataInstanceOverview extends Component {
 
   render() {
     const { project } = this.state;
-    const groupName = project.namespace.name;
+    let groupName, name;
+    if(project){
+      groupName = project.namespace.name;
+      name = project.name;
+    }
     return (
       <>
         <DataInstancesDeleteModal
@@ -285,7 +296,7 @@ class DataInstanceOverview extends Component {
           <ProjectContainer
             project={project}
             activeFeature="data"
-            folders={[groupName, project.name, 'Data', 'Instances']}
+            folders={[groupName, name, 'Data', 'Instances']}
           />
           <Instruction
             titleText="Handling Data instances:"
