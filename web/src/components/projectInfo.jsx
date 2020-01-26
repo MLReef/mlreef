@@ -15,7 +15,21 @@ import arrow01 from '../images/arrow_down_blue-01.png';
 import * as projectActions from '../actions/projectInfoActions';
 
 const ProjectInfo = ({ project, actions }) => {
-  const iconUrl = project.avatar_url;
+
+  let id, projectName, iconUrl, default_branch, name, stars, forks, http_url_to_repo, ssh_url_to_repo;
+
+  if(project) {
+    iconUrl = project.avatar_url;
+    projectName = project.name;
+    default_branch = project.default_branch;
+    id = project.id;
+    name = project.name;
+    stars = project.star_count;
+    forks = project.forks_count;
+    http_url_to_repo = project.http_url_to_repo;
+    ssh_url_to_repo = project.ssh_url_to_repo;
+  }
+
   const [redirect, setRedirect] = React.useState(false);
 
   function handleFork() {
@@ -24,9 +38,9 @@ const ProjectInfo = ({ project, actions }) => {
      * because we do not have a real user authentication mechanism
      */
     const nameSpace = 'mlreefdemo';
-    const newNumberOfForks = project.forks_count + 1;
-    const name = `${project.name} forked ${newNumberOfForks}`;
-    projectGeneralInfoApi.forkProject(project.id, nameSpace, name)
+    const newNumberOfForks = forks + 1;
+    const name = `${projectName} forked ${newNumberOfForks}`;
+    projectGeneralInfoApi.forkProject(id, nameSpace, name)
       .then(
         () => {
           actions.getProjectsList();
@@ -38,16 +52,16 @@ const ProjectInfo = ({ project, actions }) => {
   return (
     <div className="project-info">
       <div className="project-id">
-        <Link to={`/my-projects/${project.id}/${project.default_branch}`}>
+        <Link to={`/my-projects/${id}/${default_branch}`}>
           <div className="project-pic">
             <img style={{ minWidth: '100%' }} src={iconUrl} alt="" />
           </div>
         </Link>
         <div className="project-name">
-          <Link to={`/my-projects/${project.id}/${project.default_branch}`} id="projectName">{project.name}</Link>
+          <Link to={`/my-projects/${id}/${default_branch}`} id="projectName">{name}</Link>
           <p id="projectId">
             Project ID:
-            {project.id}
+            {id}
             {' '}
             | 526MB used
           </p>
@@ -69,7 +83,7 @@ const ProjectInfo = ({ project, actions }) => {
           </button>
 
           <div className="counter">
-            <p>{project.star_count}</p>
+            <p>{stars}</p>
           </div>
         </div>
 
@@ -84,7 +98,7 @@ const ProjectInfo = ({ project, actions }) => {
           </button>
 
           <div className="counter">
-            <p>{project.forks_count}</p>
+            <p>{forks}</p>
           </div>
         </div>
         <div className="options">
@@ -95,7 +109,7 @@ const ProjectInfo = ({ project, actions }) => {
             <img id="option-image" src={clone01} alt="" />
             <p>Clone</p>
           </button>
-          <Clonedropdown http={project.http_url_to_repo} ssh={project.ssh_url_to_repo} />
+          <Clonedropdown http={http_url_to_repo} ssh={ssh_url_to_repo} />
         </div>
       </div>
     </div>
