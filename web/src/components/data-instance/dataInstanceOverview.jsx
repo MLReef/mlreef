@@ -132,6 +132,8 @@ export const InstanceCard = ({ ...props }) => {
         </div>
 
         {params.instances.map((instance, index) => {
+          const dataInstanceName = instance.descTitle;
+          const uniqueName = dataInstanceName.split('/')[1];
           const modelDiv = 'inherit';
           let progressVisibility = 'inherit';
           if (instance.currentState === 'Expired') { progressVisibility = 'hidden'; }
@@ -149,7 +151,7 @@ export const InstanceCard = ({ ...props }) => {
                     }}
                     style={{ cursor: 'pointer' }}
                   >
-                    <b>{instance.descTitle}</b>
+                    <b>{uniqueName}</b>
                   </p>
                   <p>
                     Created by
