@@ -1,6 +1,5 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import uuidv1 from 'uuid/v1';
 import plus from '../images/plus_01.svg';
 import './pipeline-view/pipelineView.css';
 import Navbar from './navbar/navbar';
@@ -12,7 +11,7 @@ import { DataOperationsList } from './pipeline-view/dataOperationsList';
 import Instruction from './instruction/instruction';
 import ExecutePipelineModal from './execute-pipeline-modal/executePipeLineModal';
 import withPipelineExecution from './withPipelinesExecution';
-import { experiments } from '../dataTypes';
+import { experiments, Adjectives, Nouns } from '../dataTypes';
 
 const NewExperiment = ({
   project,
@@ -40,9 +39,17 @@ const NewExperiment = ({
 }) => {
   const items = dataOperationsSelected;
   const operationsSelected = items.length + 1;
-  const uuidCodeForBranch = (uuidv1()).split('-')[0];
-  const branchName = `experiment/${uuidCodeForBranch}`;
-  const dataInstanceName = `experiment/${uuidCodeForBranch}`;
+  const randomFirstName = Math.floor(Math.random()*Adjectives.length);
+  const randomLastName = Math.floor(Math.random()*Nouns.length);
+  const currentDate = new Date();
+  const date = currentDate.getDate();
+  const month = currentDate.getMonth();
+  const year = currentDate.getFullYear();
+  const dateString = date + "" + (month + 1) + "" + year;
+  const uniqueName = Adjectives[randomFirstName] + "-" + Nouns[randomLastName] + "_" + dateString;
+
+  const branchName = `experiment/${uniqueName}`;
+  const dataInstanceName = `experiment/${uniqueName}`;
   const jobName = 'model-experiment';
   const groupName = project.namespace.name;
   return (

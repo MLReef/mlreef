@@ -37,6 +37,8 @@ const ExperimentCard = (props) => {
       </div>
 
       {experiments.map((experiment) => {
+        const experimentName = experiment.descTitle;
+        const uniqueName = experimentName.split('/')[1];
         let modelDiv = 'inherit';
         let progressVisibility = 'inherit';
         if (!experiment.percentProgress) {
@@ -64,7 +66,7 @@ const ExperimentCard = (props) => {
                     padding: 0,
                   }}
                 >
-                  <b>{experiment.descTitle}</b>
+                  <b>{uniqueName}</b>
                 </button>
                 <p id="time-created-ago">
                     Created by

@@ -3,7 +3,6 @@ import { connect } from 'react-redux';
 import {
   shape, arrayOf, func, string, bool, number,
 } from 'prop-types';
-import uuidv1 from 'uuid/v1';
 import plus from '../../images/plus_01.svg';
 import './pipelineView.css';
 import Navbar from '../navbar/navbar';
@@ -15,7 +14,7 @@ import { DataOperationsList } from './dataOperationsList';
 import Instruction from '../instruction/instruction';
 import ExecutePipelineModal from '../execute-pipeline-modal/executePipeLineModal';
 import withPipelineExecution from '../withPipelinesExecution';
-import { dataPipeLines } from '../../dataTypes';
+import { dataPipeLines, Adjectives, Nouns } from '../../dataTypes';
 
 const PipeLineView = ({
   project,
@@ -41,9 +40,17 @@ const PipeLineView = ({
 }) => {
   const items = dataOperationsSelected;
   setPreconfiguredOperations(dataPipeLines);
-  const uuidCodeForBranch = (uuidv1()).split('-')[0];
-  const branchName = `data-pipeline/${uuidCodeForBranch}`;
-  const dataInstanceName = `data-instance/${uuidCodeForBranch}`;
+  const randomFirstName = Math.floor(Math.random()*Adjectives.length);
+  const randomLastName = Math.floor(Math.random()*Nouns.length);
+  const currentDate = new Date();
+  const date = currentDate.getDate();
+  const month = currentDate.getMonth();
+  const year = currentDate.getFullYear();
+  const dateString = date + "" + (month + 1) + "" + year;
+  const uniqueName = Adjectives[randomFirstName] + "-" + Nouns[randomLastName] + "_" + dateString;
+
+  const branchName = `data-pipeline/${uniqueName}`;
+  const dataInstanceName = `data-pipeline/${uniqueName}`;
   const jobName = 'data-pipeline';
   const operationsSelected = items.length + 1;
   const groupName = project.namespace.name;
