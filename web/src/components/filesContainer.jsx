@@ -86,25 +86,23 @@ class FilesContainer extends Component {
       false,
       branch,
     ).then((res) => {
-      console.log(res);
       this.setState({ files: res });
     })
       .catch(
-        (err) => {
-          console.log(err);
+        () => {
           this.setState({ redirect: true })
         },
       );
   }
 
-  getBack = () => window.history.back()
+  getBack = () => window.history.back();
 
   getBranchInfo = () => {
     const { projectId, branch } = this.props;
     BranchesApi.compare(projectId, branch, 'master')
-      .then((res) => this.setState({ behind: res.commits.length }));
+      .then((res) => this.setState({ behind: res.commits.length })).catch((err) => err);
     BranchesApi.compare(projectId, 'master', branch)
-      .then((res) => this.setState({ ahead: res.commits.length }));
+      .then((res) => this.setState({ ahead: res.commits.length })).catch((err) => err);
   }
 
   render = () => {

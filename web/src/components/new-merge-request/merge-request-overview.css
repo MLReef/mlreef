@@ -1,0 +1,51 @@
+#filter-buttons-new-mr {
+  width: 100%;
+  display: flex;
+  height: max-content;
+}
+
+#filter-buttons-new-mr > div {
+  width: 50%;
+}
+
+#filter-buttons-new-mr > :nth-last-child(1) {
+  display: flex;
+  justify-content: right;
+}
+
+#filter-btns {
+  display: flex;
+  align-items: center;
+}
+
+#filter-btns > button {
+  margin-right: 1em;
+}
+
+#circular-progress-container {
+  display: flex;
+  justify-content: center;
+}
+
+
+/* -------------------------- MergeRequestCard -------------------------- */
+
+.merge-request-card {
+  margin-top: 1em;
+}
+
+.merge-request-card > .title {
+  border-top-left-radius: 0.3vw;
+  border-top-right-radius: 0.3vw;
+  background-color: #e5e5e5;
+  padding: 0.25em 0 0.25em 2em;
+}
+
+.merge-request-card > .title > p {
+  font-weight: 700;
+}
+
+.merge-request-card > div >.merge-request-subcard {
+  padding: 0 0 0 3em;
+  border: 1px solid #e5e5e5;
+}

@@ -20,6 +20,7 @@ import NewProject from './components/new-project/newProject';
 import NewMergeRequest from './components/new-merge-request/newMergeRequest';
 import NewBranch from './components/newBranch';
 import BranchesView from './components/branches-list-view/branchesView';
+import mergeRequestOverview from './components/new-merge-request/merge-request-overview';
 
 const RouterComp = () => (
   <BrowserRouter>
@@ -64,6 +65,11 @@ const RouterComp = () => (
       />
       <PrivateRoute path="/my-projects/:projectId/:branch/path/:path" component={projectView} />
       <PrivateRoute path="/my-projects/:projectId/commit/:commitId" exact component={CommitDetails} />
+      <PrivateRoute
+        exact
+        path="/my-projects/:projectId/merge-requests/overview"
+        component={mergeRequestOverview}
+      />
       <PrivateRoute
         exact
         path="/my-projects/:projectId/:branch/new-merge-request"

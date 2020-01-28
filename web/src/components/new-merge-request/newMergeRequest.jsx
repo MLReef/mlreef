@@ -17,6 +17,7 @@ import { CommitDiv } from '../commits-view/commitsView';
 import './newMergeRequest.css';
 import branchesApi from '../../apis/BranchesApi';
 import commitsApi from '../../apis/CommitsApi';
+import mergeRequestAPI from '../../apis/mergeRequestApi';
 import ImageDiffSection from '../imageDiffSection';
 
 const imageFormats = [
@@ -138,7 +139,7 @@ export class NewMergeRequest extends Component {
         },
       },
     } = this.props;
-    commitsApi
+    mergeRequestAPI
       .submitMergeReq(id, branch, branchToMergeInto, title, description)
       .then(() => {
         this.setState({ loading: false, redirect: true });

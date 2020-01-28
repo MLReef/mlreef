@@ -18,6 +18,7 @@ import commitsApi from '../../apis/CommitsApi';
 import { getTimeCreatedAgo } from '../../functions/dataParserHelpers';
 import * as usersActions from '../../actions/usersActions';
 import * as jobsActions from '../../actions/jobsActions';
+import * as mergeActions from '../../actions/mergeActions';
 
 class ProjectView extends React.Component {
   constructor(props) {
@@ -34,10 +35,12 @@ class ProjectView extends React.Component {
     actions.setSelectedProject(project);
     actions.getUsersLit(projectId);
     actions.getJobsListPerProject(projectId);
+    actions.getMergeRequestsList(projectId);
     const decodedBranch = decodeURIComponent(branch);
 
     this.state = {
       selectedProject: project,
+      mergeRequests: [],
       branch: decodedBranch,
       showLoadingModal: false,
       contributors: [],
@@ -59,6 +62,11 @@ class ProjectView extends React.Component {
   }
 
   static getDerivedStateFromProps(nextProps, prevState) {
+    if (nextProps.mergeRequests.length > 0) {
+      return {
+        mergeRequests: nextProps.mergeRequests,
+      };
+    }
     return nextProps.match.params.branch !== prevState.branch
       ? {
         branch: decodeURIComponent(nextProps.match.params.branch),
@@ -86,6 +94,7 @@ class ProjectView extends React.Component {
       showLoadingModal,
       users,
       contributors,
+      mergeRequests
     } = this.state;
     const today = new Date();
     const timediff = getTimeCreatedAgo(lastCommit.authored_date, today);
@@ -108,6 +117,7 @@ class ProjectView extends React.Component {
         />
         <div className="main-content">
           <RepoInfo
+            mergeRequests={mergeRequests}
             projectId={selectedProject.id}
             currentBranch={encodedBranch}
             numberOfContributors={contributors.length}
@@ -198,6 +208,7 @@ function mapStateToProps(state) {
     projects: state.projects,
     users: state.users,
     branches: state.branches,
+    mergeRequests: state.mergeRequests,
   };
 }
 
@@ -207,6 +218,7 @@ function mapDispatchToProps(dispatch) {
       ...projectActions,
       ...usersActions,
       ...jobsActions,
+      ...mergeActions,
     }, dispatch),
   };
 }

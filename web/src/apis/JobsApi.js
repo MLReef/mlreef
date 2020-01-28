@@ -11,7 +11,6 @@ export default class JobsApi {
 
   static async getArtifacts(projectId, jobId) {
     const url = `https://${domain}/api/v4/projects/${projectId}/jobs/${jobId}/artifacts`;
-    console.log(url);
     const jobsProm = await generateGetRequest(url);
 
     return jobsProm.json();

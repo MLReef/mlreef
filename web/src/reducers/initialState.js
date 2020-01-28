@@ -8,4 +8,5 @@ export default {
     selectedProject: {},
   },
   users: [],
+  mergeRequests: [],
 };

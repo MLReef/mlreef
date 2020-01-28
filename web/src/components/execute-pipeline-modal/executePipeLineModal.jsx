@@ -30,7 +30,6 @@ const ExecutePipelineModal = ({
   const [isSecondOptSelected, setIsSecondOptSelected] = useState(false);
   const [showMachines, setShowMachines] = useState(false);
   const [selectMachinesMess, setSelectMachinesMess] = useState('Select a machine...');
-
   function cleanForm() {
     setIsFirstOptSelected(false);
     setIsSecondOptSelected(false);

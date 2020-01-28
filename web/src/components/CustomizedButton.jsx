@@ -48,7 +48,7 @@ const CustomizedButton = ({
   const classes = useStylesSubmitButton();
   const customizedStyles = cuztomizedStyles();
   return (
-    <div className={customizedStyles.loadingDiv}>
+    <>
       <Button
         className={classes.style}
         id={id}
@@ -59,7 +59,7 @@ const CustomizedButton = ({
         {buttonLabel}
       </Button>
       {loading && <CircularProgress size={30} className={customizedStyles.buttonProgress} />}
-    </div>
+    </>
   );
 };
 
