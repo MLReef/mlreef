@@ -3,7 +3,6 @@ import React from 'react';
 import Enzyme, { mount } from 'enzyme';
 import EnzymeAdapter from 'enzyme-adapter-react-16';
 import SummarizedDataAndChartComp from '../components/experiments-overview/summarizedDataAndChartComp';
-import { checkProps } from '../functions/testUtils';
 
 Enzyme.configure({
   adapter: new EnzymeAdapter(),
@@ -26,11 +25,6 @@ const params = {
 const setup = () => mount(
   <SummarizedDataAndChartComp experiment={params.experiment} projectId={params.projectId} />,
 );
-
-test('errors should not be thrown when props are valid', () => {
-  const summarizedDataAndChartComp = setup();
-  checkProps(summarizedDataAndChartComp, params);
-});
 
 test('assert that after clicking dropdown button the chart is rendered', () => {
   const wrapper = setup();

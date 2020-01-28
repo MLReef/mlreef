@@ -294,3 +294,14 @@ export const UPDATE = 'update';
 export const CHMOD = 'chmod';
 
 /*-----------------------------------------*/
+
+
+/**
+ * Merge req states
+*/
+
+export const mrStates = [
+  'opened',
+  'closed',
+  'merged'
+];

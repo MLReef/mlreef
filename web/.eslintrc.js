@@ -24,8 +24,4 @@ module.exports = {
   ],
   rules: {
   },
-  "editor.codeActionsOnSave": {
-    "source.fixAll": true,
-    "source.fixAll.eslint": false
-  }
 };

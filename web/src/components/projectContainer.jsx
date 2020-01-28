@@ -41,9 +41,6 @@ class ProjectContainer extends React.Component {
               <p>Insights</p>
             </div>
             <div className="feature ">
-              <p>Pull Requests</p>
-            </div>
-            <div className="feature ">
               <p>Settings</p>
             </div>
           </div>
