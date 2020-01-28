@@ -47,7 +47,8 @@ abstract class AuditEntity(
     copyUpdatedAt: ZonedDateTime?
 ) : Persistable<UUID> {
 
-    @Version var version: Long? = copyVersion
+    @Version
+    var version: Long? = copyVersion
 
     @CreatedDate
     @Column(name = "created_at")

@@ -1,18 +1,34 @@
 package com.mlreef.rest.feature.auth
 
-import com.mlreef.rest.*
+import com.mlreef.rest.Account
+import com.mlreef.rest.AccountRepository
+import com.mlreef.rest.AccountToken
+import com.mlreef.rest.AccountTokenRepository
+import com.mlreef.rest.Group
+import com.mlreef.rest.GroupRepository
+import com.mlreef.rest.I18N
+import com.mlreef.rest.Person
+import com.mlreef.rest.PersonRepository
 import com.mlreef.rest.config.censor
 import com.mlreef.rest.exceptions.Error
 import com.mlreef.rest.exceptions.GitlabAlreadyExistingConflictException
-import com.mlreef.rest.exceptions.GitlabBadRequestException
+import com.mlreef.rest.exceptions.GitlabConflictException
 import com.mlreef.rest.exceptions.GitlabConnectException
 import com.mlreef.rest.exceptions.UserAlreadyExistsException
-import com.mlreef.rest.external_api.gitlab.*
+import com.mlreef.rest.external_api.gitlab.GitlabGroup
+import com.mlreef.rest.external_api.gitlab.GitlabRestClient
+import com.mlreef.rest.external_api.gitlab.GitlabUser
+import com.mlreef.rest.external_api.gitlab.GitlabUserInGroup
+import com.mlreef.rest.external_api.gitlab.GitlabUserToken
+import com.mlreef.rest.external_api.gitlab.GroupVariable
+import com.mlreef.rest.external_api.gitlab.TokenDetails
+import com.mlreef.rest.findById2
+import com.mlreef.rest.utils.RandomUtils
 import org.slf4j.LoggerFactory
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
-import org.springframework.web.client.HttpClientErrorException
 import org.springframework.web.client.ResourceAccessException
 import java.util.UUID.randomUUID
 import javax.transaction.Transactional
@@ -34,8 +50,17 @@ class GitlabAuthService(
     private val accountRepository: AccountRepository,
     private val personRepository: PersonRepository,
     private val accountTokenRepository: AccountTokenRepository,
+    private val groupRepository: GroupRepository,
     private val passwordEncoder: PasswordEncoder
 ) : AuthService {
+
+    @Value("\${mlreef.bot-management.epf-bot-email-domain:\"\"}")
+    private val botEmailDomain: String = ""
+
+    @Value("\${mlreef.bot-management.epf-bot-password-length}")
+    private val botPasswordLength: Int = 0
+
+    private val GITLAB_GROUP_VARIABLE_NAME_FOR_BOT_TOKEN = "EPF_BOT_TOKEN"
 
     val log = LoggerFactory.getLogger(this::class.java)
 
@@ -76,11 +101,8 @@ class GitlabAuthService(
             throw UserAlreadyExistsException(username, email)
         }
 
-        val newGitlabGroup = createGitlabGroup(username)
         val newGitlabUser = createGitlabUser(username = username, email = email, password = plainPassword)
         val newGitlabToken = createGitlabToken(username, newGitlabUser)
-
-        addGitlabUserToGroup(newGitlabUser, newGitlabGroup)
 
         val token = newGitlabToken.token
 
@@ -91,6 +113,23 @@ class GitlabAuthService(
         personRepository.save(person)
         accountRepository.save(newUser)
         accountTokenRepository.save(newToken)
+
+        val newGitlabGroup = createGitlabGroup(token, username) //User is being added to group automatically
+
+        val group = Group(id = randomUUID(), slug = newGitlabGroup.name, name = newGitlabGroup.name)
+        groupRepository.save(group)
+
+        //Create EPF-Bot and add it to user's group
+        val botName = "$username-bot"
+        val botEmail = "$botName@$botEmailDomain" //we have to use unique email for user creation
+        val botPassword = RandomUtils.generateRandomPassword(botPasswordLength)
+        val newGitlabEPFBot = createGitlabUser(username = botName, email = botEmail, password = botPassword)
+        val newGitlabEPFBotToken = createGitlabToken(botName, newGitlabEPFBot)
+
+        addGitlabUserToGroup(newGitlabEPFBot, newGitlabGroup)
+
+        //Create variable in group with bot token
+        createGitlabVariable(token, newGitlabGroup.id, GITLAB_GROUP_VARIABLE_NAME_FOR_BOT_TOKEN, newGitlabEPFBotToken.token)
 
         return newUser
     }
@@ -109,52 +148,34 @@ class GitlabAuthService(
     private fun createGitlabUser(username: String, email: String, password: String): GitlabUser {
         return try {
             val gitlabName = "mlreef-user-$username"
-            gitlabRestClient.adminCreateUser(email = email, name = gitlabName, username = username, password = password)
-        } catch (clientErrorException: HttpClientErrorException) {
-            log.error(clientErrorException.message, clientErrorException)
-            if (clientErrorException.rawStatusCode == 409) {
-                // TODO FIXME: In production, this is not okay!
-                log.info("Already existing dev user")
-                val adminGetUsers = gitlabRestClient.adminGetUsers()
-                adminGetUsers.first { it.username == username }
-                // TODO USE THIS: throw GitlabAlreadyExistingConflictException(Error.GitlabUserCreationFailed, "Cannot create user for $username")
-            } else {
-                throw GitlabBadRequestException(Error.GitlabUserCreationFailed, "Cannot create user for $username")
-            }
+            return gitlabRestClient.adminCreateUser(email = email, name = gitlabName, username = username, password = password)
+        } catch (clientErrorException: GitlabConflictException) {
+            log.info("Already existing dev user. Error message: ${clientErrorException.message}")
+            val adminGetUsers = gitlabRestClient.adminGetUsers()
+            return adminGetUsers.first { it.username == username }
         }
     }
 
     private fun createGitlabToken(username: String, gitlabUser: GitlabUser): GitlabUserToken {
-        return try {
-            val gitlabUserId = gitlabUser.id
-            val tokenName = "mlreef-user-token"
-            gitlabRestClient.adminCreateUserToken(gitlabUserId = gitlabUserId, tokenName = tokenName)
-        } catch (e: Exception) {
-            log.error(e.message, e)
-            throw GitlabAlreadyExistingConflictException(Error.GitlabUserTokenCreationFailed, "Cannot create user token for $username")
-        }
+        val gitlabUserId = gitlabUser.id
+        val tokenName = "mlreef-user-token"
+        return gitlabRestClient.adminCreateUserToken(gitlabUserId = gitlabUserId, tokenName = tokenName)
     }
 
     private fun addGitlabUserToGroup(user: GitlabUser, group: GitlabGroup): GitlabUserInGroup {
-        return try {
-            val userId = user.id
-            val groupId = group.id
-            gitlabRestClient.adminAddUserToGroup(groupId = groupId, userId = userId)
-        } catch (e: Exception) {
-            log.error(e.message, e)
-            throw GitlabAlreadyExistingConflictException(Error.GitlabUserAddingToGroupFailed, "Cannot add user ${user.name} to group ${group.name}")
-        }
+        val userId = user.id
+        val groupId = group.id
+        return gitlabRestClient.adminAddUserToGroup(groupId = groupId, userId = userId.toLong())
     }
 
-    private fun createGitlabGroup(groupName: String, path: String? = null): GitlabGroup {
-        return try {
-            val gitlabName = "mlreef-group-$groupName"
-            val gitlabPath = path ?: "$groupName-path"
-            gitlabRestClient.adminCreateGroup(groupName = gitlabName, path = gitlabPath)
-        } catch (e: Exception) {
-            log.error(e.message, e)
-            throw GitlabAlreadyExistingConflictException(Error.GitlabGroupCreationFailed, "Cannot create group $groupName")
-        }
+    private fun createGitlabGroup(token: String, groupName: String, path: String? = null): GitlabGroup {
+        val gitlabName = "mlreef-group-$groupName"
+        val gitlabPath = path ?: "$groupName-path"
+        return gitlabRestClient.userCreateGroup(token = token, groupName = gitlabName, path = gitlabPath)
+    }
+
+    private fun createGitlabVariable(token: String, groupId: Int, variableName: String, value: String): GroupVariable {
+        return gitlabRestClient.userCreateGroupVariable(token = token, groupId = groupId, name = variableName, value = value)
     }
 
     override fun createTokenDetails(token: String, account: Account, gitlabUser: GitlabUser): TokenDetails {

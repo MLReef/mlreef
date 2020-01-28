@@ -12,6 +12,7 @@ import com.mlreef.rest.SubjectRepository
 import com.mlreef.rest.exceptions.Error
 import com.mlreef.rest.exceptions.ExperimentCreateException
 import com.mlreef.rest.exceptions.ExperimentStartException
+import com.mlreef.rest.exceptions.RestException
 import com.mlreef.rest.external_api.gitlab.Commit
 import com.mlreef.rest.external_api.gitlab.GitlabRestClient
 import com.mlreef.rest.findById2
@@ -19,7 +20,6 @@ import lombok.RequiredArgsConstructor
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
-import org.springframework.web.client.HttpClientErrorException
 import java.util.*
 import java.util.UUID.randomUUID
 
@@ -101,16 +101,15 @@ class ExperimentService(
                 token = userToken, projectId = projectId,
                 targetBranch = targetBranch, sourceBranch = sourceBranch
             )
-        } catch (e: HttpClientErrorException) {
-            log.info("Cannot create branch $targetBranch from $sourceBranch for project $projectId: ${e.responseBodyAsString}")
+        } catch (e: RestException) {
+            log.info(e.message)
         }
         return try {
             val commitFiles = gitlabRestClient.commitFiles(
                 token = userToken, projectId = projectId, targetBranch = targetBranch,
                 commitMessage = commitMessage, fileContents = fileContents)
             commitFiles
-        } catch (e: HttpClientErrorException) {
-            log.warn("Cannot commit mlreef.yml in $targetBranch: ${e.responseBodyAsString}")
+        } catch (e: RestException) {
             throw ExperimentStartException("Cannot commit mlreef file to branch $targetBranch for project $projectId")
         }
     }

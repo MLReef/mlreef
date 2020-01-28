@@ -10,6 +10,10 @@ mlreef:
   gitlab:
     rootUrl: ${GITLAB_ROOT_URL}
     adminUserToken: ${GITLAB_ADMIN_TOKEN}
+  bot-management:
+    epf-bot-email-domain: mlreef.com
+    epf-bot-password-length: 20
+
 
 spring:
   devtools:
