@@ -46,7 +46,7 @@ class SecurityConfiguration(private val provider: AuthenticationProvider) : WebS
     }
 
     override fun configure(webSecurity: WebSecurity) {
-        webSecurity.ignoring().antMatchers("/docs", "/docs/*", AUTH_URL)
+        webSecurity.ignoring().antMatchers("/docs", "/docs/*", AUTH_URL, INFO_URL)
     }
 
     @Throws(Exception::class)
@@ -55,7 +55,7 @@ class SecurityConfiguration(private val provider: AuthenticationProvider) : WebS
             .exceptionHandling().and()
             .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED).and()
             .anonymous().and()
-            .authorizeRequests().antMatchers("/docs", "/docs/*", AUTH_URL).permitAll().and()
+            .authorizeRequests().antMatchers("/docs", "/docs/*", AUTH_URL, INFO_URL).permitAll().and()
             .authorizeRequests().anyRequest().fullyAuthenticated()
             .and().authenticationProvider(provider).addFilterBefore(authenticationFilter(), AnonymousAuthenticationFilter::class.java)
             .csrf().disable()
@@ -81,9 +81,11 @@ class SecurityConfiguration(private val provider: AuthenticationProvider) : WebS
     companion object {
         private const val PROTECTED_URL = "/api/v1/**"
         private const val AUTH_URL = "/api/v1/auth/**"
+        private const val INFO_URL = "/api/v1/info/**"
         private val PROTECTED_MATCHER = AndRequestMatcher(
             AntPathRequestMatcher(PROTECTED_URL),
-            NegatedRequestMatcher(AntPathRequestMatcher(AUTH_URL))
+            NegatedRequestMatcher(AntPathRequestMatcher(AUTH_URL)),
+            NegatedRequestMatcher(AntPathRequestMatcher(INFO_URL))
         )
     }
 }

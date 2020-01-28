@@ -1,0 +1,24 @@
+logging:
+  level:
+    root: INFO
+    com.mlreef.rest: INFO
+    org.springframework.security: WARN
+    org.springframework.orm: WARN
+    org.hibernate: WARN
+
+spring:
+  devtools:
+    add-properties: true
+  jpa:
+    show-sql: false # true for debugging
+    generate-ddl: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        temp.use_jdbc_metadata_defaults: false
+    hibernate:
+      ddl-auto: create-drop
+mlreef:
+  gitlab:
+    rootUrl: ${GITLAB_ROOT_URL:http://localhost:10080}
+    adminUserToken: ${GITLAB_ADMIN_TOKEN}
