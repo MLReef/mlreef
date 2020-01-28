@@ -12,7 +12,7 @@ import java.util.*
 import java.util.UUID.randomUUID
 
 
-@Profile(ApplicationProfiles.DEV)
+@Profile(value = [ApplicationProfiles.DEV, ApplicationProfiles.DOCKER])
 @Component
 internal class CommandLineAppStartupRunner(
     val dataPopulator: DataPopulator
@@ -29,7 +29,7 @@ internal class CommandLineAppStartupRunner(
     }
 }
 
-@Profile(ApplicationProfiles.DEV)
+@Profile(value = [ApplicationProfiles.DEV, ApplicationProfiles.DOCKER])
 @Component
 internal class DataPopulator(
     private val authService: AuthService,
@@ -59,8 +59,8 @@ internal class DataPopulator(
     val log = LoggerFactory.getLogger(this::class.java)
 
     fun init() {
-        createUserAndTokenInGitlab()
         try {
+            createUserAndTokenInGitlab()
             createDataProject()
             createCodeRepo()
 
@@ -87,8 +87,9 @@ internal class DataPopulator(
 
             safeSave { experimentRepository.save(experiment) }
         } catch (e: Exception) {
-            e.printStackTrace()
-            throw e
+            log.error("####################################################")
+            log.error("Could not run Initial Dev/Docker Test Setup properly")
+            log.error("####################################################", e)
         }
     }
 

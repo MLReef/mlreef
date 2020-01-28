@@ -35,7 +35,7 @@ class GitlabRestClient(
 
     val gitlabServiceRootUrl = "$gitlabRootUrl/api/v4"
 
-    val log = LoggerFactory.getLogger(RedisSessionStrategy::class.java)
+    val log = LoggerFactory.getLogger(GitlabRestClient::class.java)
 
     fun restTemplate(builder: RestTemplateBuilder): RestTemplate = builder.build()
 
@@ -136,7 +136,7 @@ class GitlabRestClient(
             .body!!
     }
 
-    fun assertConnection() {
+    fun assertConnection(): String? {
         log.info("HEALTH-CHECK: GITLAB_ROOT_URL is set to ${gitlabRootUrl.censor()}")
         log.info("HEALTH-CHECK: GITLAB_ADMIN_TOKEN is set to ${gitlabAdminUserToken.censor()}")
         if (gitlabRootUrl.isBlank()) {
@@ -147,10 +147,14 @@ class GitlabRestClient(
         }
         try {
             val adminGetUsers = adminGetUsers()
-            log.info("SUCCESS: Found ${adminGetUsers.size} users on connected Gitlab")
+            val returnInfo = "SUCCESS: Found ${adminGetUsers.size} users on connected Gitlab"
+            log.info(returnInfo)
+            return returnInfo
         } catch (e: ResourceAccessException) {
             logFatal(e)
-            throw Error("FATAL: Gitlab is not available during startup! CHECK GITLAB_ROOT_URL", e)
+            val returnInfo = "WARNING: Gitlab is not available currently! CHECK GITLAB_ROOT_URL or just wait ..."
+            log.error(returnInfo, e)
+            return returnInfo
         } catch (e: HttpClientErrorException) {
             logFatal(e)
             if (e.statusCode.is4xxClientError && e.statusCode.value() == 403) {
@@ -158,12 +162,15 @@ class GitlabRestClient(
             }
         } catch (e: HttpServerErrorException) {
             logFatal(e)
-            if (e.statusCode.is5xxServerError) {
-                throw Error("FATAL: Gitlab is not working correctly, fix this", e)
-            }
+            val returnInfo = "WARNING: Gitlab is not working correctly, fix this: ${e.message}"
+            log.error(returnInfo, e)
+            return returnInfo
         } catch (e: Exception) {
-            log.error("CRITICAL: Another error during gitlab assertConnection", e)
+            val returnInfo = "WARNING: Another error during gitlab assertConnection: ${e.message}"
+            log.error(returnInfo, e)
+            return returnInfo
         }
+        return null
     }
 
     private fun logFatal(e: Exception) {
@@ -240,9 +247,9 @@ class GitlabRestClient(
 
     private fun logGitlabCall(it: ResponseEntity<out Any>) {
         if (it.statusCode.is2xxSuccessful) {
-            log.info("Received from gitlab: ${it.headers.location} ${it.statusCode}")
+            log.info("Received from gitlab: ${it.statusCode}")
         } else {
-            log.warn("Received from gitlab: ${it.headers.location} ${it.statusCode}")
+            log.warn("Received from gitlab: ${it.statusCode}")
             log.warn(it.headers.toString())
         }
     }

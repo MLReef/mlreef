@@ -1,5 +1,19 @@
 # MLReef REST Backend
 
+## Debug connection
+
+```bash
+curl 'http://localhost:8080/api/v1/info/status' -i -X GET     -H 'Content-Type: application/json'    -H 'Accept: application/json' 
+```
+
+```bash
+curl 'http://localhost:8080/api/v1/info/health' -i -X GET     -H 'Content-Type: application/json'    -H 'Accept: application/json' 
+```
+
+```bash
+curl 'http://localhost:8080/api/v1/info/whoami' -i -X GET     -H 'Content-Type: application/json'    -H 'Accept: application/json' 
+```
+
 ## Environment
 
 The non-secret variables should go directly into the config files.
