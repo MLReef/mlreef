@@ -1,93 +1,23 @@
-#buttons-container {
-    display: flex;
-}
-
-#line {
-    border: 0.01px solid #ececec;
-}
-
-.experiment-button{
-    padding: 0.5em 2em 1.7em 2em;
-    border-radius: 0.3vw;
-}
-
-#buttons-container > button:not(#new-experiment) {
-    background-color: #ffffff;
-    margin-right: 1%;
-    cursor: pointer;
-}
-
-.active-border-light-blue {
-    border: 1px solid #32AFC3;
-}
-
-.non-active-black-border {
-    border: 1px solid #1C2B40;
-    border-radius: 0.3vw;
-}
-
-#new-experiment{
-    border: 1px solid #2db391;
-    color: #ffffff;
-    padding: 0.5em 2em 1.7em 2em;
-    border-radius: 0.3vw;
-    cursor: pointer;
-}
-
-/* --------------  Experiment cards -------------- */
-
-.data-instance-card {
-    border: 2px solid #e5e5e5;
-    border-radius: 0.3vw;
-    margin-top: 1%;
-    color: #1c2b40;
-}
-
-.data-instance-card > .header{
-    display: flex;
-    background-color:#e5e5e5;
-    padding: 1% 2% 0.5% 2%;
-}
-
-.data-instance-card > .header > .title-div {
-    width: 50%;
-}
-
-.data-instance-card > .header > .title-div > p {
-    margin: unset;
-}
-
-.data-instance-card > .header > .select-div {
-    display: flex;
-    align-content: flex-end;
-    width: 50%;
-    flex-direction: row-reverse;
-}
-
-.data-instance-card > .header > .select-div > select {
-    border: none;
-    background-color: transparent;
-}
-
 /* ------------- Card content ---------------*/
 
-.data-instance-card > .card-content > .summary-data {
+.pipeline-card > .card-content > .summary-data {
     color: #1c2b40;
     display: flex;
     border-top: 2px solid #e5e5e5;
     width: 100%;
 }
 
-.data-instance-card .card-content .summary-data .dull {
+.pipeline-card > .card-content > .summary-data > .dull {
     color: #949494
 }
-.data-instance-card > .card-content > .summary-data > .project-desc-experiment {
+
+.pipeline-card > .card-content > .summary-data > .project-desc-experiment {
     padding: 0% 1% 0% 1%;
     margin-left: 1%;
     width: 20%;
 }
 
-.data-instance-card > .card-content > .summary-data > .buttons-div {
+.pipeline-card > .card-content > .summary-data > .buttons-div {
     position: relative;
     width: 35%;
     display: flex;
@@ -96,12 +26,12 @@
     margin-top: 15px;
 }
 
-.data-instance-card > .card-content > .summary-data > .buttons-div button {
+.pipeline-card > .card-content > .summary-data > .buttons-div button {
     cursor: pointer;
     border-radius: 0.3vw;
 }
 
-.data-instance-card > .card-content > .summary-data > .buttons-div button.dangerous-red {
+.pipeline-card > .card-content > .summary-data > .buttons-div button.dangerous-red {
     border-radius: 0.3vw;
     border-width: 1.7px;
 }
@@ -128,43 +58,7 @@
     margin: 4px;
 }
 
-/* --------------------------- Card results css --------------------------- */
-
-.card-content > .card-results {
-    display: flex;
-    width: 100%;
-    margin-left: 1.5%;
-}
-
-.card-content > .card-results > .data-card {
-    border: 1px solid #e5e5e5;
-    /* width: 32%; */
-    margin: 0% 0% 1% 0.5%;
-    border-radius: 0.5vw;
-}
-
-.card-content > .card-results > .data-card > .title{
-    border-radius : inherit;
-    border-bottom-left-radius: 0;
-    border-bottom-right-radius: 0;
-    text-align: center;
-    padding: 5px;
-}
-
-.card-content > .card-results > .data-card > .title {
-    border: 1px solid #e5e5e5;
-    background-color: #1c2b40;
-    color: #ffff;
-}
-
-.card-content > .card-results > .data-card > div:not(.title) {
-    padding: 3% 0% 0% 5%;
-}
-
-.card-content > .card-results > .data-card > div > p {
-    margin-top: 4px;
-    margin-bottom: 4px;
-}
+/* Instance  dropdown*/
 
 .save-instance {
     box-shadow: 0 2px 4px rgb(0, 0, 0, 0.3);

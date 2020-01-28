@@ -134,7 +134,7 @@ class ExperimentsOverview extends Component {
             <button
               id="all"
               type="button"
-              className="non-active-black-border experiment-button"
+              className="non-active-black-border rounded-pipeline-btn"
               onClick={(e) => this.handleButtonsClick(e)}
             >
                             All
@@ -142,7 +142,7 @@ class ExperimentsOverview extends Component {
             <button
               id="running"
               type="button"
-              className="non-active-black-border experiment-button"
+              className="non-active-black-border rounded-pipeline-btn"
               onClick={(e) => this.handleButtonsClick(e)}
             >
                             Running
@@ -150,7 +150,7 @@ class ExperimentsOverview extends Component {
             <button
               id="open"
               type="button"
-              className="non-active-black-border experiment-button"
+              className="non-active-black-border rounded-pipeline-btn"
               onClick={(e) => this.handleButtonsClick(e)}
             >
                             Open
@@ -158,7 +158,7 @@ class ExperimentsOverview extends Component {
             <button
               id="completed"
               type="button"
-              className="non-active-black-border experiment-button"
+              className="non-active-black-border rounded-pipeline-btn"
               onClick={(e) => this.handleButtonsClick(e)}
             >
                             Completed
@@ -166,7 +166,7 @@ class ExperimentsOverview extends Component {
             <button
               id="failed"
               type="button"
-              className="non-active-black-border experiment-button"
+              className="non-active-black-border rounded-pipeline-btn"
               onClick={(e) => this.handleButtonsClick(e)}
             >
                             Failed
@@ -174,7 +174,7 @@ class ExperimentsOverview extends Component {
             <button
               id="aborted"
               type="button"
-              className="non-active-black-border experiment-button"
+              className="non-active-black-border rounded-pipeline-btn"
               onClick={(e) => this.handleButtonsClick(e)}
             >
                             Aborted
@@ -183,7 +183,7 @@ class ExperimentsOverview extends Component {
               id="new-experiment"
               to={`/my-projects/${selectedProject.id}/new-experiment`}
               style={{ height: '0.1em' }}
-              className="light-green-button experiment-button"
+              className="light-green-button rounded-pipeline-btn"
             >
               <b>
                 New experiment

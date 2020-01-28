@@ -183,7 +183,7 @@ export class RepoFeatures extends Component {
               type="button"
               className="blue-button"
             >
-              <Link to={`/my-projects/${projectId}/visualizations`}><p>Data Visualisation</p></Link>
+              <Link to={`/my-projects/${projectId}/empty-data-visualization`}><p>Data Visualisation</p></Link>
             </button>
             <button
               type="button"

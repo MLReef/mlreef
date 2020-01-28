@@ -56,12 +56,17 @@ export const colorsForCharts = [
   '#00796b',
 ];
 
+/* ------------------------- Statuses for pipelines ------------------------- */
+
 export const RUNNING = 'running';
 export const PENDING = 'pending';
 export const SUCCESS = 'success';
 export const FAILED = 'failed';
 export const CANCELED = 'canceled';
 export const SKIPPED = 'skipped';
+export const EXPIRED = 'expired';
+
+/* ------------------------- ---------------------- ------------------------- */
 
 /*
   Adjectives and Nouns for Random Name Generation
