@@ -67,7 +67,6 @@ class ExperimentsApiTest : RestApiTest() {
     @BeforeEach
     @AfterEach
     fun clearRepo() {
-
         parameterInstanceRepository.deleteAll()
         dataProcessorInstanceRepository.deleteAll()
         experimentRepository.deleteAll()
@@ -86,16 +85,17 @@ class ExperimentsApiTest : RestApiTest() {
         val account2 = createMockUser(userOverrideSuffix = "0002")
         subject = account.person
         dataProject = DataProject(
-            UUID.fromString("aaaa0001-0000-0000-0000-dbdbdbdbdbdb"), "slug1", "url",
+            UUID.fromString("aaaa0001-0000-0000-0000-dbdbdbdbdbdb"), "slug1", "url", "Test DataProject",
             ownerId = account.person.id, gitlabId = 1, gitlabGroup = "mlreef", gitlabProject = "project1"
         )
         dataProject2 = DataProject(
-            UUID.fromString("aaaa0001-0000-0000-0002-dbdbdbdbdbdb"), "slug2", "url",
+            UUID.fromString("aaaa0001-0000-0000-0002-dbdbdbdbdbdb"), "slug2", "url", "Test DataProject",
             ownerId = account2.person.id, gitlabId = 2, gitlabGroup = "mlreef", gitlabProject = "project1")
         dataProjectRepository.save(dataProject)
         dataProjectRepository.save(dataProject2)
         val codeRepoId = randomUUID()
-        val codeProject = CodeProject(codeRepoId, "slug", "url", ownerId = account.person.id)
+        val codeProject = CodeProject(codeRepoId, "slug", "url", "Test DataProject", ownerId = account.person.id,
+            gitlabGroup = "", gitlabId = 0, gitlabProject = "")
         codeProjectRepository.save(codeProject)
 
         dataOp1 = DataOperation(randomUUID(), "commons-data-operation1", "name", "command", DataType.ANY, DataType.ANY)
@@ -120,8 +120,7 @@ class ExperimentsApiTest : RestApiTest() {
 
     @Transactional
     @Rollback
-    @Test
-    fun `Can create new Experiment`() {
+    @Test fun `Can create new Experiment`() {
         val request = ExperimentCreateRequest(
             sourceBranch = "source",
             targetBranch = "target",
@@ -148,14 +147,14 @@ class ExperimentsApiTest : RestApiTest() {
                 .content(objectMapper.writeValueAsString(request)))
             .andExpect(status().isOk)
             .andDo(document(
-                "experiment-create-success",
+                "experiments-create-success",
                 requestFields(experimentCreateRequestFields())
-                    .and(dataProcessorFields("preProcessing[]."))
-                    .and(dataProcessorFields("postProcessing[]."))
+                    .and(dataProcessorFields("pre_processing[]."))
+                    .and(dataProcessorFields("post_processing[]."))
                     .and(dataProcessorFields("processing.")),
                 responseFields(experimentDtoResponseFields())
-                    .and(dataProcessorFields("preProcessing[]."))
-                    .and(dataProcessorFields("postProcessing[]."))
+                    .and(dataProcessorFields("pre_processing[]."))
+                    .and(dataProcessorFields("post_processing[]."))
                     .and(dataProcessorFields("processing."))
             ))
             .andReturn().let {
@@ -167,8 +166,7 @@ class ExperimentsApiTest : RestApiTest() {
 
     @Transactional
     @Rollback
-    @Test
-    fun `Can retrieve all own Experiments`() {
+    @Test fun `Can retrieve all own Experiments`() {
 
         val experiment1 = Experiment(randomUUID(), dataProjectId = dataProject.id, sourceBranch = "source", targetBranch = "target")
         val experiment2 = Experiment(randomUUID(), dataProjectId = dataProject.id, sourceBranch = "source", targetBranch = "target")
@@ -179,7 +177,7 @@ class ExperimentsApiTest : RestApiTest() {
             this.defaultAcceptContentAuth(get("$rootUrl/${dataProject.id}/experiments")))
             .andExpect(status().isOk)
             .andDo(document(
-                "experiment-retrieve-all",
+                "experiments-retrieve-all",
                 responseFields(experimentDtoResponseFields("[]."))))
             .andReturn().let {
                 val constructCollectionType = objectMapper.typeFactory.constructCollectionType(List::class.java, ExperimentDto::class.java)
@@ -187,13 +185,11 @@ class ExperimentsApiTest : RestApiTest() {
             }
 
         assertThat(returnedResult.size).isEqualTo(2)
-
     }
 
     @Transactional
     @Rollback
-    @Test
-    fun `Can retrieve specific own Experiment`() {
+    @Test fun `Can retrieve specific own Experiment`() {
         val dataProcessorInstance = DataProcessorInstance(randomUUID(), dataOp1)
         dataProcessorInstanceRepository.save(dataProcessorInstance)
         val experiment1 = Experiment(
@@ -207,18 +203,17 @@ class ExperimentsApiTest : RestApiTest() {
             this.defaultAcceptContentAuth(get("$rootUrl/${dataProject.id}/experiments/${experiment1.id}")))
             .andExpect(status().isOk)
             .andDo(document(
-                "experiment-retrieve-one",
+                "experiments-retrieve-one",
                 responseFields(experimentDtoResponseFields())
-                    .and(dataProcessorFields("preProcessing[]."))
-                    .and(dataProcessorFields("postProcessing[]."))
+                    .and(dataProcessorFields("pre_processing[]."))
+                    .and(dataProcessorFields("post_processing[]."))
                     .and(dataProcessorFields("processing."))))
 
     }
 
     @Transactional
     @Rollback
-    @Test
-    fun `Cannot retrieve foreign Experiment`() {
+    @Test fun `Cannot retrieve foreign Experiment`() {
         val dataProcessorInstance = DataProcessorInstance(randomUUID(), dataOp1)
         dataProcessorInstanceRepository.save(dataProcessorInstance)
 
@@ -237,8 +232,7 @@ class ExperimentsApiTest : RestApiTest() {
 
     @Transactional
     @Rollback
-    @Test
-    fun `Can update own Experiment's PerformanceMetrics`() {
+    @Test fun `Can update own Experiment's PerformanceMetrics`() {
         val experiment1 = Experiment(randomUUID(), dataProjectId = dataProject.id, sourceBranch = "source", targetBranch = "target")
         experimentRepository.save(experiment1)
 
@@ -249,7 +243,7 @@ class ExperimentsApiTest : RestApiTest() {
                 .content(objectMapper.writeValueAsString(request)))
             .andExpect(status().isOk)
             .andDo(document(
-                "experiment-update-metrics",
+                "experiments-update-metrics",
                 requestFields(experimentMetricsDtoResponseFields()),
                 responseFields(experimentMetricsDtoResponseFields())))
             .andReturn().let {
@@ -261,8 +255,7 @@ class ExperimentsApiTest : RestApiTest() {
 
     @Transactional
     @Rollback
-    @Test
-    fun `Can retrieve own Experiment's PerformanceMetrics`() {
+    @Test fun `Can retrieve own Experiment's PerformanceMetrics`() {
         val experiment1 = Experiment(randomUUID(), dataProjectId = dataProject.id, sourceBranch = "source", targetBranch = "target")
         experimentRepository.save(experiment1)
 
@@ -270,22 +263,21 @@ class ExperimentsApiTest : RestApiTest() {
             this.defaultAcceptContentAuth(get("$rootUrl/${dataProject.id}/experiments/${experiment1.id}/metrics")))
             .andExpect(status().isOk)
             .andDo(document(
-                "experiment-retrieve-one-metrics",
+                "experiments-retrieve-one-metrics",
                 responseFields(experimentMetricsDtoResponseFields())))
 
     }
 
     @Transactional
     @Rollback
-    @Test
-    fun `Can retrieve own Experiment's MLReef file`() {
+    @Test fun `Can retrieve own Experiment's MLReef file`() {
         val experiment1 = Experiment(randomUUID(), dataProjectId = dataProject.id, sourceBranch = "source", targetBranch = "target")
         experimentRepository.save(experiment1)
 
         val returnedResult = this.mockMvc.perform(
             this.defaultAcceptContentAuth(get("$rootUrl/${dataProject.id}/experiments/${experiment1.id}/mlreef-file")))
             .andExpect(status().isOk)
-            .andDo(document("experiment-retrieve-one-mlreef-file"))
+            .andDo(document("experiments-retrieve-one-mlreef-file"))
             .andReturn().response.contentAsString
 
         assertThat(returnedResult).isNotEmpty()
@@ -294,15 +286,14 @@ class ExperimentsApiTest : RestApiTest() {
 
     @Transactional
     @Rollback
-    @Test
-    fun `Can commit own Experiment's MLReef file`() {
+    @Test fun `Can commit own Experiment's MLReef file`() {
         val experiment1 = Experiment(randomUUID(), dataProjectId = dataProject.id, sourceBranch = "source", targetBranch = "target")
         experimentRepository.save(experiment1)
 
         val returnedResult = this.mockMvc.perform(
             this.defaultAcceptContentAuth(post("$rootUrl/${dataProject.id}/experiments/${experiment1.id}/mlreef-file")))
             .andExpect(status().isOk)
-            .andDo(document("experiment-create-mlreef-file-commit"))
+            .andDo(document("experiments-create-mlreef-file-commit"))
             .andReturn().response.contentAsString
 
         assertThat(returnedResult).isNotEmpty()
@@ -311,8 +302,7 @@ class ExperimentsApiTest : RestApiTest() {
 
     @Transactional
     @Rollback
-    @Test
-    fun `Can update own Experiment's Status`() {
+    @Test fun `Can update own Experiment's Status`() {
         val experiment1 = Experiment(randomUUID(), dataProjectId = dataProject.id, sourceBranch = "source", targetBranch = "target")
         experimentRepository.save(experiment1)
 
@@ -322,7 +312,7 @@ class ExperimentsApiTest : RestApiTest() {
             this.defaultAcceptContentAuth(put(url))
                 .content(objectMapper.writeValueAsString(request)))
             .andExpect(status().isOk)
-            .andDo(document("experiment-update-status"))
+            .andDo(document("experiments-update-status"))
             .andReturn().let {
                 objectMapper.readValue(it.response.contentAsString, String::class.java)
             }
@@ -334,18 +324,18 @@ class ExperimentsApiTest : RestApiTest() {
         return listOf(
             fieldWithPath(prefix + "id").type(JsonFieldType.STRING).description("UUID"),
 //            fieldWithPath(prefix + "authorId").type(JsonFieldType.STRING).description("Id of a Subject which authors this Experiment"),
-            fieldWithPath(prefix + "dataProjectId").type(JsonFieldType.STRING).description("Id of DataProject"),
-            fieldWithPath(prefix + "performanceMetrics").type(JsonFieldType.OBJECT).optional().description("Optional embedded PerformanceMetric"),
-            fieldWithPath(prefix + "performanceMetrics.jobStartedAt").type(JsonFieldType.NUMBER).optional().description("Timestamp when the job was started"),
-            fieldWithPath(prefix + "performanceMetrics.jobUpdatedAt").type(JsonFieldType.NUMBER).optional().description("Timestamp when the job was updated"),
-            fieldWithPath(prefix + "performanceMetrics.jobFinishedAt").type(JsonFieldType.NUMBER).optional().description("Optional timestamp when the job was finished "),
-            fieldWithPath(prefix + "performanceMetrics.jsonBlob").type(JsonFieldType.STRING).optional().description("Json object describing specific metrics"),
-            fieldWithPath(prefix + "preProcessing").optional().type(JsonFieldType.ARRAY).optional().description("An optional List of DataProcessors used during PreProcessing"),
-            fieldWithPath(prefix + "postProcessing").optional().type(JsonFieldType.ARRAY).optional().description("An optional List of DataProcessors used during PostProcessing"),
+            fieldWithPath(prefix + "data_project_id").type(JsonFieldType.STRING).description("Id of DataProject"),
+            fieldWithPath(prefix + "performance_metrics").type(JsonFieldType.OBJECT).optional().description("Optional embedded PerformanceMetric"),
+            fieldWithPath(prefix + "performance_metrics.job_started_at").type(JsonFieldType.NUMBER).optional().description("Timestamp when the job was started"),
+            fieldWithPath(prefix + "performance_metrics.job_updated_at").type(JsonFieldType.NUMBER).optional().description("Timestamp when the job was updated"),
+            fieldWithPath(prefix + "performance_metrics.job_finished_at").type(JsonFieldType.NUMBER).optional().description("Optional timestamp when the job was finished "),
+            fieldWithPath(prefix + "performance_metrics.json_blob").type(JsonFieldType.STRING).optional().description("Json object describing specific metrics"),
+            fieldWithPath(prefix + "pre_processing").optional().type(JsonFieldType.ARRAY).optional().description("An optional List of DataProcessors used during PreProcessing"),
+            fieldWithPath(prefix + "post_processing").optional().type(JsonFieldType.ARRAY).optional().description("An optional List of DataProcessors used during PostProcessing"),
             fieldWithPath(prefix + "processing").optional().type(JsonFieldType.OBJECT).optional().description("An optional DataAlgorithm"),
             fieldWithPath(prefix + "status").type(JsonFieldType.STRING).description("Status of experiment"),
-            fieldWithPath(prefix + "sourceBranch").type(JsonFieldType.STRING).description("Branch name"),
-            fieldWithPath(prefix + "targetBranch").type(JsonFieldType.STRING).description("Branch name")
+            fieldWithPath(prefix + "source_branch").type(JsonFieldType.STRING).description("Branch name"),
+            fieldWithPath(prefix + "target_branch").type(JsonFieldType.STRING).description("Branch name")
         )
     }
 
@@ -362,25 +352,19 @@ class ExperimentsApiTest : RestApiTest() {
 
     private fun experimentMetricsDtoResponseFields(prefix: String = ""): List<FieldDescriptor> {
         return listOf(
-            fieldWithPath(prefix + "jsonBlob").type(JsonFieldType.STRING).optional().description("Json object describing specific metrics"),
-            fieldWithPath(prefix + "jobStartedAt").type(JsonFieldType.NUMBER).optional().description("Timestamp when the job was started"),
-            fieldWithPath(prefix + "jobUpdatedAt").type(JsonFieldType.NUMBER).optional().description("Timestamp when the job was updated"),
-            fieldWithPath(prefix + "jobFinishedAt").type(JsonFieldType.NUMBER).optional().description("Optional timestamp when the job was finished ")
+            fieldWithPath(prefix + "json_blob").type(JsonFieldType.STRING).optional().description("Json object describing specific metrics"),
+            fieldWithPath(prefix + "job_started_at").type(JsonFieldType.NUMBER).optional().description("Timestamp when the job was started"),
+            fieldWithPath(prefix + "job_updated_at").type(JsonFieldType.NUMBER).optional().description("Timestamp when the job was updated"),
+            fieldWithPath(prefix + "job_finished_at").type(JsonFieldType.NUMBER).optional().description("Optional timestamp when the job was finished ")
         )
     }
 
-//    private fun experimentStatusDtoResponseFields(prefix: String = ""): List<FieldDescriptor> {
-//        return listOf(
-//            fieldWithPath(prefix + "status").type(JsonFieldType.STRING).optional().description("Json object describing specific metrics")
-//        )
-//    }
-
     private fun experimentCreateRequestFields(): List<FieldDescriptor> {
         return listOf(
-            fieldWithPath("sourceBranch").type(JsonFieldType.STRING).description("Branch name for initial checkout"),
-            fieldWithPath("targetBranch").type(JsonFieldType.STRING).description("Branch name for destination"),
-            fieldWithPath("preProcessing").type(JsonFieldType.ARRAY).optional().description("An optional List of DataProcessors used during PreProcessing"),
-            fieldWithPath("postProcessing").type(JsonFieldType.ARRAY).optional().description("An optional List of DataProcessors used during PostProcessing"),
+            fieldWithPath("source_branch").type(JsonFieldType.STRING).description("Branch name for initial checkout"),
+            fieldWithPath("target_branch").type(JsonFieldType.STRING).description("Branch name for destination"),
+            fieldWithPath("pre_processing").type(JsonFieldType.ARRAY).optional().description("An optional List of DataProcessors used during PreProcessing"),
+            fieldWithPath("post_processing").type(JsonFieldType.ARRAY).optional().description("An optional List of DataProcessors used during PostProcessing"),
             fieldWithPath("processing").type(JsonFieldType.OBJECT).optional().description("An optional DataAlgorithm")
         )
     }

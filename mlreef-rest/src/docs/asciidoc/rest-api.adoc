@@ -144,34 +144,62 @@ operation::login-success[snippets='curl-request,request-fields,http-response,res
 [[resources]]
 = Resources
 
+[[data-projects]]
+== Data Projects - /data-projects
+
+Data Projects are the semantic equivalent of a gitlab project which holds data used for machine learning and model creation.
+Those DataProjects are the parent of holder of many Experiments and DataSets.
+
+Currently users can only retrieve and manipulate their own DataProjects
+
+=== GET /data-projects
+
+operation::dataprojects-retrieve-all[snippets='curl-request,response-body,response-fields']
+
+=== GET /data-projects/:id
+
+operation::dataprojects-retrieve-one[snippets='curl-request,response-body,response-fields']
+
+=== POST /data-projects
+
+operation::dataprojects-create[snippets='curl-request,response-body,response-fields']
+
+=== PUT /data-projects/:id
+
+operation::dataprojects-update[snippets='curl-request,response-body,response-fields']
+
+=== DELETE /data-projects/:id
+
+operation::dataprojects-delete[snippets='curl-request,response-body,response-fields']
+
 [[experiments]]
-== Experiments - /experiments
+== Experiments - /data-projects/:id/experiments
 
 Experiments are created once and cannot be modified.
-But nevertheless, the PerformanceMetrics can be updated (creation happens automatically).
+They are scoped to their parent DataProject But nevertheless, the PerformanceMetrics can be updated (creation happens automatically).
 
 Every Subject can just retrieve own Experiments of own DataProjects.
 Currently, there is no rights management which allows for more granular access rules.
 
-=== GET /experiments
+=== GET .../experiments
 
-operation::experiment-retrieve-all[snippets='curl-request,response-body,response-fields']
+operation::experiments-retrieve-all[snippets='curl-request,response-body,response-fields']
 
-=== GET /experiments/:id
+=== GET .../experiments/:id
 
-operation::experiment-retrieve-one[snippets='curl-request,response-body,response-fields']
+operation::experiments-retrieve-one[snippets='curl-request,response-body,response-fields']
 
-=== POST /experiments
+=== POST .../experiments
 
-operation::experiment-create-success[snippets='curl-request,request-fields,http-response,response-fields']
+operation::experiments-create-success[snippets='curl-request,request-fields,http-response,response-fields']
 
-=== GET /experiments/:id/metrics
+=== GET .../experiments/:id/metrics
 
-operation::experiment-retrieve-one-metrics[snippets='curl-request,response-body,response-fields']
+operation::experiments-retrieve-one-metrics[snippets='curl-request,response-body,response-fields']
 
-=== PUT /experiments/:id/metrics
+=== PUT .../experiments/:id/metrics
 
-operation::experiment-update-metrics[snippets='curl-request,http-response,response-fields']
+operation::experiments-update-metrics[snippets='curl-request,http-response,response-fields']
 
 === GET /experiments/:id/mlreef-file
 
@@ -179,7 +207,7 @@ Exports the Experiment's metainformation and generate the mlreef.yml file
 
 Output is the mlreef.yml file contents as text
 
-operation::experiment-retrieve-one-mlreef-file[snippets='curl-request']
+operation::experiments-retrieve-one-mlreef-file[snippets='curl-request']
 
 === POST /experiments/:id/mlreef-file
 
@@ -188,5 +216,5 @@ Cannot be repeated for the same Experiment
 
 Output is the mlreef.yml file contents as text
 
-operation::experiment-create-mlreef-file-commit[snippets='curl-request']
+operation::experiments-create-mlreef-file-commit[snippets='curl-request']
 

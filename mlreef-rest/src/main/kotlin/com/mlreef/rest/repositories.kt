@@ -24,7 +24,11 @@ import java.util.*
     fun findOneByDataProjectIdAndId(dataProjectId: UUID, id: UUID): Experiment?
 }
 
-@Repository interface DataProjectRepository : KtCrudRepository<DataProject, UUID>
+@Repository interface DataProjectRepository : KtCrudRepository<DataProject, UUID> {
+    fun findAllByOwnerId(ownerId: UUID): List<DataProject>
+    fun findOneByOwnerIdAndId(ownerId: UUID, id: UUID): DataProject?
+    fun findOneByOwnerIdAndSlug(ownerId: UUID, slug: String): DataProject?
+}
 
 @Repository interface CodeProjectRepository : KtCrudRepository<CodeProject, UUID>
 

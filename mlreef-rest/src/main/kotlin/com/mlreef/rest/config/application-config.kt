@@ -1,7 +1,9 @@
 package com.mlreef.rest.config
 
 import com.fasterxml.jackson.databind.DeserializationFeature
+import com.fasterxml.jackson.databind.MapperFeature
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.databind.PropertyNamingStrategy
 import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
@@ -51,6 +53,8 @@ class MLReefObjectMapper : ObjectMapper() {
         this.registerModule(JavaTimeModule())
         this.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
         this.configure(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES, true)
+        this.enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS)
+        this.propertyNamingStrategy = PropertyNamingStrategy.SNAKE_CASE //Don't delete it. Plz see file com.mlreef.rest.external_api.gitlab.GitlabRestClient
     }
 
     override fun copy(): ObjectMapper {

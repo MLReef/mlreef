@@ -2,6 +2,7 @@ package com.mlreef.rest.api.v1.dto
 
 import com.mlreef.rest.DataProcessor
 import com.mlreef.rest.DataProcessorInstance
+import com.mlreef.rest.DataProject
 import com.mlreef.rest.Experiment
 import com.mlreef.rest.I18N
 import com.mlreef.rest.ParameterInstance
@@ -104,19 +105,45 @@ data class PerformanceMetricsDto(
     @get:PositiveOrZero val jobStartedAt: ZonedDateTime? = null,
     @get:PositiveOrZero val jobUpdatedAt: ZonedDateTime? = null,
     @get:PositiveOrZero val jobFinishedAt: ZonedDateTime? = null,
-    val jsonBlob: String = "")
+    val jsonBlob: String = ""
+)
+
+data class DataProjectDto(
+    val id: UUID,
+    val slug: String,
+    val url: String,
+    val ownerId: UUID,
+    val gitlabGroup: String,
+    val gitlabProject: String,
+    val gitlabId: Int,
+    val experiments: List<ExperimentDto> = listOf()
+)
+
+
 
 class ExperimentDto(
     val id: UUID,
     val dataProjectId: UUID,
-    val sourceBranch: String,
-    val targetBranch: String,
+    @get:NotEmpty val sourceBranch: String,
+    @get:NotEmpty val targetBranch: String,
     val status: String,
     val performanceMetrics: PerformanceMetricsDto? = null,
     @get:Valid val preProcessing: List<DataProcessorInstanceDto>? = arrayListOf(),
     @get:Valid val postProcessing: List<DataProcessorInstanceDto>? = arrayListOf(),
     @get:Valid val processing: DataProcessorInstanceDto? = null
 )
+
+internal fun DataProject.toDto() =
+    DataProjectDto(
+        id = this.id,
+        slug = this.slug,
+        url = this.url,
+        ownerId = this.ownerId,
+        gitlabGroup = this.gitlabGroup,
+        gitlabProject = this.gitlabProject,
+        gitlabId = this.gitlabId,
+        experiments = this.experiments.map { it.toDto() }
+    )
 
 internal fun Experiment.toDto(): ExperimentDto =
     ExperimentDto(
@@ -163,6 +190,7 @@ internal fun ProcessorParameter.toDto(): ParameterDto =
 
 
 internal fun List<Experiment>.toExperimentDtoList(): List<ExperimentDto> = this.map { it.toDto() }
+internal fun List<DataProject>.toDataProjectDtoList(): List<DataProjectDto> = this.map { it.toDto() }
 internal fun List<ParameterInstance>.toParameterInstanceDtoList(): List<ParameterInstanceDto> = this.map { it.toDto() }
 internal fun Collection<ProcessorParameter>.toProcessorParameterDtoList(): List<ParameterDto> = this.map { it.toDto() }
 

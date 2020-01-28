@@ -11,6 +11,7 @@ plugins {
 group = 'com.mlreef'
 version = '0.0.1-SNAPSHOT'
 
+
 dependencies {
     implementation project(':mlreef-domain')
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
@@ -31,23 +32,40 @@ dependencies {
     // spring data, JPA and Repositories
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     runtimeOnly 'org.postgresql:postgresql'
-    runtimeOnly 'redis.clients:jedis:2.9.0'
+    runtimeOnly 'redis.clients:jedis:2.9.3'
     runtimeOnly 'com.h2database:h2'
 
     def jupiter = "5.4.0"
+    def mockkVersion = "1.9.3"
     testImplementation "org.junit.jupiter:junit-jupiter:$jupiter"
+    // DO NOT USE:   testImplementation "org.junit.jupiter:junit-jupiter-api:$jupiter"
+    // DO NOT USE:   testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:$jupiter"
     testImplementation('org.springframework.boot:spring-boot-starter-test') {
         exclude group: 'junit', module: 'junit' //by both name and group
     }
     testImplementation "org.springframework.security:spring-security-test"
     testImplementation "org.springframework.restdocs:spring-restdocs-mockmvc"
+    testImplementation "io.mockk:mockk:${mockkVersion}"
     asciidoctor 'org.springframework.restdocs:spring-restdocs-asciidoctor'
+
+    // testcontainers
+    testImplementation "org.testcontainers:testcontainers:1.12.3"
+    testImplementation "org.testcontainers:postgresql:1.12.4"
+
 }
+
+
+configurations {
+    integrationTestImplementation.extendsFrom testImplementation
+    integrationTestRuntime.extendsFrom testRuntime
+}
+
 
 test {
     systemProperty 'junit.jupiter.extensions.autodetection.enabled', 'true'
     useJUnitPlatform()
 }
+
 
 compileKotlin {
     kotlinOptions {

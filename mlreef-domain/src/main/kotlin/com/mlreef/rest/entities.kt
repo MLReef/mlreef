@@ -35,15 +35,16 @@ import javax.persistence.OneToOne
 import javax.persistence.PrePersist
 import javax.persistence.PreUpdate
 import javax.persistence.Table
+import javax.persistence.UniqueConstraint
 import javax.persistence.Version
 
 @MappedSuperclass
 abstract class AuditEntity(
     @Id @Column(name = "id", length = 16, unique = true, nullable = false)
     private val id: UUID,
-    copyVersion: Long? = null,
-    copyCreatedAt: ZonedDateTime? = null,
-    copyUpdatedAt: ZonedDateTime? = null
+    copyVersion: Long?,
+    copyCreatedAt: ZonedDateTime?,
+    copyUpdatedAt: ZonedDateTime?
 ) : Persistable<UUID> {
 
     @Version var version: Long? = copyVersion
@@ -223,7 +224,9 @@ class Account(
 }
 
 @Entity
-@Table(name = "account_token")
+@Table(
+    name = "account_token",
+    uniqueConstraints = [UniqueConstraint(name = "unique-token", columnNames = ["token", "active"])])
 data class AccountToken(
     @Id @Column(name = "id", length = 16, unique = true, nullable = false) val id: UUID,
     @Column(name = "account_id")
@@ -256,7 +259,11 @@ enum class VisibilityScope {
 interface MLProject {
     val slug: String
     val url: String
+    val name: String
     val ownerId: UUID
+    val gitlabGroup: String
+    val gitlabProject: String
+    val gitlabId: Int
 }
 
 /**
@@ -265,27 +272,61 @@ interface MLProject {
  */
 @Entity
 @Table(name = "data_project")
-data class DataProject(
-    @Id @Column(name = "id", length = 16, unique = true, nullable = false) val id: UUID,
+class DataProject(
+    id: UUID,
     override val slug: String,
     override val url: String,
+    override val name: String,
 
     @Column(name = "owner_id")
     override val ownerId: UUID,
 
     @Column(name = "gitlab_group")
-    val gitlabGroup: String,
+    override val gitlabGroup: String,
 
     @Column(name = "gitlab_project")
-    val gitlabProject: String,
+    override val gitlabProject: String,
 
     @Column(name = "gitlab_id")
-    val gitlabId: Int,
+    override val gitlabId: Int,
 
     @OneToMany(fetch = FetchType.LAZY, cascade = [CascadeType.ALL])
     @JoinColumn(name = "data_project_id")
-    val experiments: List<Experiment> = listOf()
-) : MLProject
+    val experiments: List<Experiment> = listOf(),
+
+    version: Long? = null,
+    createdAt: ZonedDateTime? = null,
+    updatedAt: ZonedDateTime? = null
+) : AuditEntity(id, version, createdAt, updatedAt), MLProject {
+
+    fun copy(
+        url: String? = null,
+        slug: String? = null,
+        name: String? = null,
+        gitlabGroup: String? = null,
+        gitlabProject: String? = null,
+        gitlabId: Int? = null,
+        experiments: List<Experiment>? = null,
+        version: Long? = null,
+        createdAt: ZonedDateTime? = null,
+        updatedAt: ZonedDateTime? = null
+    ): DataProject {
+        return DataProject(
+            id = this.id,
+            slug = slug ?: this.slug,
+            url = url ?: this.url,
+            name = name ?: this.name,
+            ownerId = this.ownerId,
+            gitlabGroup = gitlabGroup ?: this.gitlabGroup,
+            gitlabProject = gitlabProject ?: this.gitlabProject,
+            gitlabId = gitlabId ?: this.gitlabId,
+            experiments = this.experiments,
+            version = version ?: this.version,
+            createdAt = createdAt ?: this.createdAt,
+            updatedAt = updatedAt ?: this.updatedAt
+        )
+    }
+}
 
 /**
  * A Code Repository is used for the working Code like Data Operations,
@@ -295,19 +336,60 @@ data class DataProject(
  */
 @Entity
 @Table(name = "code_project")
-data class CodeProject(
-    @Id @Column(name = "id", length = 16, unique = true, nullable = false) val id: UUID,
+class CodeProject(
+    id: UUID,
     override val slug: String,
     override val url: String,
-
+    override val name: String,
     @Column(name = "owner_id")
     override val ownerId: UUID,
 
+    @Column(name = "gitlab_group")
+    override val gitlabGroup: String,
+
+    @Column(name = "gitlab_project")
+    override val gitlabProject: String,
+
+    @Column(name = "gitlab_id")
+    override val gitlabId: Int,
+
     @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "code_project_id")
-    val dataProcessor: DataProcessor? = null
+    val dataProcessor: DataProcessor? = null,
 
-) : MLProject
+    version: Long? = null,
+    createdAt: ZonedDateTime? = null,
+    updatedAt: ZonedDateTime? = null
+
+) : AuditEntity(id, version, createdAt, updatedAt), MLProject {
+    fun copy(
+        url: String? = null,
+        slug: String? = null,
+        name: String? = null,
+        gitlabGroup: String? = null,
+        gitlabProject: String? = null,
+        gitlabId: Int? = null,
+        dataProcessor: DataProcessor? = null,
+        version: Long? = null,
+        createdAt: ZonedDateTime? = null,
+        updatedAt: ZonedDateTime? = null
+    ): CodeProject {
+        return CodeProject(
+            id = this.id,
+            slug = slug ?: this.slug,
+            url = url ?: this.url,
+            name = name ?: this.name,
+            ownerId = this.ownerId,
+            gitlabGroup = gitlabGroup ?: this.gitlabGroup,
+            gitlabProject = gitlabProject ?: this.gitlabProject,
+            gitlabId = gitlabId ?: this.gitlabId,
+            dataProcessor = dataProcessor ?: this.dataProcessor,
+            version = version ?: this.version,
+            createdAt = createdAt ?: this.createdAt,
+            updatedAt = updatedAt ?: this.updatedAt
+        )
+    }
+}
 
 /**
  * Descriptor of an Output, which could be a Gitlab Artifact, an S3 Bucket or many more.
@@ -503,16 +585,6 @@ abstract class DataProcessor(
     updatedAt: ZonedDateTime? = null
 ) : AuditEntity(id, version, createdAt, updatedAt) {
 
-//    override fun hashCode(): Int {
-//        val hashCode = id.hashCode()
-//        return hashCode
-//    }
-//
-//    override fun equals(other: Any?): Boolean {
-//        if (other === this) return true
-//        if (other !is DataProcessor) return false
-//        return this.id == other.id
-//    }
 
     fun isChainable(): Boolean {
         return type != DataProcessorType.ALGORITHM
@@ -546,16 +618,6 @@ class DataOperation(
     visibilityScope, description, codeProjectId, author, parameters, outputFiles, version, createdAt, updatedAt) {
 
     override fun isChainable(): Boolean = true
-
-//    override fun equals(other: Any?): Boolean {
-//        if (other === this) return true
-//        if (other !is DataOperation) return false
-//        return this.id == other.id
-//    }
-//
-//    override fun hashCode(): Int {
-//        return super.hashCode()
-//    }
 
     fun copy(
         slug: String? = null,

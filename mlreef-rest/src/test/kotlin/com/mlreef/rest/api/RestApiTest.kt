@@ -8,8 +8,12 @@ import com.mlreef.rest.AccountTokenRepository
 import com.mlreef.rest.ApplicationProfiles
 import com.mlreef.rest.Person
 import com.mlreef.rest.PersonRepository
+import com.mlreef.rest.SubjectRepository
+import com.mlreef.rest.external_api.gitlab.GitlabGroup
+import com.mlreef.rest.external_api.gitlab.GitlabProject
 import com.mlreef.rest.external_api.gitlab.GitlabRestClient
 import com.mlreef.rest.external_api.gitlab.GitlabUser
+import com.mlreef.rest.external_api.gitlab.GitlabUserInGroup
 import com.mlreef.rest.external_api.gitlab.GitlabUserToken
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.extension.ExtendWith
@@ -27,7 +31,7 @@ import org.springframework.restdocs.operation.preprocess.Preprocessors
 import org.springframework.restdocs.operation.preprocess.Preprocessors.removeHeaders
 import org.springframework.restdocs.payload.FieldDescriptor
 import org.springframework.restdocs.payload.JsonFieldType
-import org.springframework.restdocs.payload.PayloadDocumentation
+import org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity
@@ -48,8 +52,6 @@ import javax.transaction.Transactional
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles(ApplicationProfiles.TEST)
 @AutoConfigureTestDatabase(connection = EmbeddedDatabaseConnection.H2)
-//@DataJpaTest(showSql = false)
-//@EnableTransactionManagement
 abstract class RestApiTest {
 
     lateinit var mockMvc: MockMvc
@@ -62,6 +64,7 @@ abstract class RestApiTest {
     @Autowired protected lateinit var accountTokenRepository: AccountTokenRepository
     @Autowired protected lateinit var personRepository: PersonRepository
     @Autowired protected lateinit var accountRepository: AccountRepository
+    @Autowired protected lateinit var subjectRepository: SubjectRepository
 
     @MockBean
     protected lateinit var restClient: GitlabRestClient
@@ -94,6 +97,14 @@ abstract class RestApiTest {
             )
             .build()
 
+        val gitlabUser = GitlabUser(
+            id = 1,
+            name = "Mock Gitlab User",
+            username = "mock_user",
+            email = "mock@example.com",
+            state = "active"
+        )
+
         Mockito.`when`(restClient.getUser(Mockito.anyString())).thenReturn(
             GitlabUser(
                 id = 1,
@@ -107,13 +118,7 @@ abstract class RestApiTest {
         Mockito.`when`(restClient.adminCreateUser(
             Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()
         )).thenReturn(
-            GitlabUser(
-                id = 1,
-                name = "Mock Gitlab User",
-                username = "mock_user",
-                email = "mock@example.com",
-                state = "active"
-            )
+            gitlabUser
         )
 
         Mockito.`when`(restClient.adminCreateUserToken(Mockito.anyInt(), Mockito.anyString())).thenReturn(
@@ -123,6 +128,43 @@ abstract class RestApiTest {
                 token = testPrivateUserTokenMock,
                 active = true,
                 name = "mlreef-token"
+            )
+        )
+
+        Mockito.`when`(restClient.adminCreateGroup(
+            Mockito.anyString(), Mockito.anyString()
+        )).thenReturn(
+            GitlabGroup(
+                id = 1,
+                webUrl = "http://127.0.0.1/",
+                name = "Mock Gitlab Group",
+                path = "mock-group"
+            )
+        )
+
+        Mockito.`when`(restClient.adminAddUserToGroup(
+            Mockito.anyInt(), Mockito.anyInt(), anyObject()
+        )).thenReturn(
+            GitlabUserInGroup(
+                id = 1,
+                webUrl = "http://127.0.0.1/",
+                name = "Mock Gitlab Group",
+                username = "mock-group"
+            )
+        )
+
+        Mockito.`when`(restClient.createProject(
+            Mockito.anyString(), Mockito.anyString(), anyObject()
+        )).thenReturn(
+            GitlabProject(
+                id = 1,
+                name = "Mock Gitlab Project",
+                nameWithNamespace = "namespace",
+                path = "test-path",
+                pathWithNamespace = "test-path",
+                owner = gitlabUser,
+                creatorId = 1L,
+                webUrl = "http://127.0.0.1/"
             )
         )
 
@@ -140,10 +182,10 @@ abstract class RestApiTest {
 
     protected fun errorResponseFields(): List<FieldDescriptor> {
         return listOf(
-            PayloadDocumentation.fieldWithPath("errorCode").type(JsonFieldType.NUMBER).description("Unique error code"),
-            PayloadDocumentation.fieldWithPath("errorName").type(JsonFieldType.STRING).description("Short error title"),
-            PayloadDocumentation.fieldWithPath("errorMessage").type(JsonFieldType.STRING).description("A detailed message"),
-            PayloadDocumentation.fieldWithPath("time").type(JsonFieldType.STRING).description("Timestamp of error")
+            fieldWithPath("error_code").type(JsonFieldType.NUMBER).description("Unique error code"),
+            fieldWithPath("error_name").type(JsonFieldType.STRING).description("Short error title"),
+            fieldWithPath("error_message").type(JsonFieldType.STRING).description("A detailed message"),
+            fieldWithPath("time").type(JsonFieldType.STRING).description("Timestamp of error")
         )
     }
 
@@ -176,5 +218,10 @@ abstract class RestApiTest {
         accountRepository.save(account)
         accountTokenRepository.save(token)
         return account
+    }
+
+    //Workaround for Mockito to use Kotlin's default parameters in methods
+    private fun <T> anyObject(): T {
+        return Mockito.any<T>()
     }
 }

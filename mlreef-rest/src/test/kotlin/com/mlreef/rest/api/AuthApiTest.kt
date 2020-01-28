@@ -46,7 +46,8 @@ class AuthApiTest : RestApiTest() {
         personRepository.deleteAll()
     }
 
-    @Transactional @Rollback
+    @Transactional
+    @Rollback
     @Test fun `Can register with new user`() {
         val email = "email@example.org"
         val registerRequest = RegisterRequest("username", email, "a password", "name")
@@ -70,7 +71,8 @@ class AuthApiTest : RestApiTest() {
         }
     }
 
-    @Transactional @Rollback
+    @Transactional
+    @Rollback
     @Test fun `Cannot register with existing user`() {
         val existingUser = createMockUser()
         val registerRequest = RegisterRequest(existingUser.username, existingUser.email, "a password", "name")
@@ -87,7 +89,8 @@ class AuthApiTest : RestApiTest() {
 
     }
 
-    @Transactional @Rollback
+    @Transactional
+    @Rollback
     @Test fun `Can login with existing user`() {
         val plainPassword = "password"
         val existingUser = createMockUser(plainPassword)

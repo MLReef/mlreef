@@ -1,23 +1,13 @@
 package com.mlreef.rest.feature.auth
 
-import com.mlreef.rest.Account
-import com.mlreef.rest.AccountRepository
-import com.mlreef.rest.AccountToken
-import com.mlreef.rest.AccountTokenRepository
-import com.mlreef.rest.I18N
-import com.mlreef.rest.Person
-import com.mlreef.rest.PersonRepository
+import com.mlreef.rest.*
 import com.mlreef.rest.config.censor
 import com.mlreef.rest.exceptions.Error
+import com.mlreef.rest.exceptions.GitlabAlreadyExistingConflictException
 import com.mlreef.rest.exceptions.GitlabBadRequestException
-import com.mlreef.rest.exceptions.GitlabConflictException
 import com.mlreef.rest.exceptions.GitlabConnectException
 import com.mlreef.rest.exceptions.UserAlreadyExistsException
-import com.mlreef.rest.external_api.gitlab.GitlabRestClient
-import com.mlreef.rest.external_api.gitlab.GitlabUser
-import com.mlreef.rest.external_api.gitlab.GitlabUserToken
-import com.mlreef.rest.external_api.gitlab.TokenDetails
-import com.mlreef.rest.findById2
+import com.mlreef.rest.external_api.gitlab.*
 import org.slf4j.LoggerFactory
 import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.security.crypto.password.PasswordEncoder
@@ -86,8 +76,11 @@ class GitlabAuthService(
             throw UserAlreadyExistsException(username, email)
         }
 
+        val newGitlabGroup = createGitlabGroup(username)
         val newGitlabUser = createGitlabUser(username = username, email = email, password = plainPassword)
         val newGitlabToken = createGitlabToken(username, newGitlabUser)
+
+        addGitlabUserToGroup(newGitlabUser, newGitlabGroup)
 
         val token = newGitlabToken.token
 
@@ -109,7 +102,7 @@ class GitlabAuthService(
             throw GitlabConnectException(e.message ?: "Cannot execute gitlabRestClient.getUser")
         } catch (e: Exception) {
             log.error(e.message, e)
-            throw GitlabConflictException(Error.GitlabUserNotExisting, "Cannot find Gitlab user with this token ${token.censor()}")
+            throw GitlabAlreadyExistingConflictException(Error.GitlabUserNotExisting, "Cannot find Gitlab user with this token ${token.censor()}")
         }
     }
 
@@ -124,7 +117,7 @@ class GitlabAuthService(
                 log.info("Already existing dev user")
                 val adminGetUsers = gitlabRestClient.adminGetUsers()
                 adminGetUsers.first { it.username == username }
-                // TODO USE THIS: throw GitlabConflictException(Error.GitlabUserCreationFailed, "Cannot create user for $username")
+                // TODO USE THIS: throw GitlabAlreadyExistingConflictException(Error.GitlabUserCreationFailed, "Cannot create user for $username")
             } else {
                 throw GitlabBadRequestException(Error.GitlabUserCreationFailed, "Cannot create user for $username")
             }
@@ -138,7 +131,29 @@ class GitlabAuthService(
             gitlabRestClient.adminCreateUserToken(gitlabUserId = gitlabUserId, tokenName = tokenName)
         } catch (e: Exception) {
             log.error(e.message, e)
-            throw GitlabConflictException(Error.GitlabUserTokenCreationFailed, "Cannot create user token for $username")
+            throw GitlabAlreadyExistingConflictException(Error.GitlabUserTokenCreationFailed, "Cannot create user token for $username")
+        }
+    }
+
+    private fun addGitlabUserToGroup(user: GitlabUser, group: GitlabGroup): GitlabUserInGroup {
+        return try {
+            val userId = user.id
+            val groupId = group.id
+            gitlabRestClient.adminAddUserToGroup(groupId = groupId, userId = userId)
+        } catch (e: Exception) {
+            log.error(e.message, e)
+            throw GitlabAlreadyExistingConflictException(Error.GitlabUserAddingToGroupFailed, "Cannot add user ${user.name} to group ${group.name}")
+        }
+    }
+
+    private fun createGitlabGroup(groupName: String, path: String? = null): GitlabGroup {
+        return try {
+            val gitlabName = "mlreef-group-$groupName"
+            val gitlabPath = path ?: "$groupName-path"
+            gitlabRestClient.adminCreateGroup(groupName = gitlabName, path = gitlabPath)
+        } catch (e: Exception) {
+            log.error(e.message, e)
+            throw GitlabAlreadyExistingConflictException(Error.GitlabGroupCreationFailed, "Cannot create group $groupName")
         }
     }
 
