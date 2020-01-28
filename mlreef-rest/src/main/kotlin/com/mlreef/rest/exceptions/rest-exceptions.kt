@@ -20,6 +20,12 @@ enum class Error(val errorCode: Int, val errorName: String) {
     GitlabProjectCreationFailed(2106, "Cannot create project in gitlab"),
     GitlabProjectUpdateFailed(2107, "Cannot update project in gitlab"),
     GitlabProjectDeleteFailed(2108, "Cannot delete project in gitlab"),
+    GitlabVariableCreationFailed(2109, "Cannot create group variable in gitlab"),
+    GitlabCommonError(2110, "Gitlab common error"),
+    GitlabBadGateway(2111, "Gitlab server is unavailable"),
+    GitlabBranchCreationFailed(2112, "Cannot create branch in gitlab"),
+    GitlabCommitFailed(2113, "Cannot commit files in gitlab"),
+    GitlabProjectAlreadyExists(2114, "Cannot create project in gitlab. Project already exists"),
 
     // Business errors: 3xxx
     ValidationFailed(3000, "ValidationFailed"),
@@ -66,7 +72,24 @@ class ProjectCreationException(error: Error, message: String) : RestException(er
 class ProjectUpdateException(error: Error, message: String) : RestException(error, message)
 class ProjectDeleteException(error: Error, message: String) : RestException(error, message)
 
+
+
+@ResponseStatus(code = HttpStatus.INTERNAL_SERVER_ERROR, reason = "Gitlab is unavailable")
+class GitlabCommonException(error: Error? = null, message: String? = null) : RestException(error ?: Error.GitlabCommonError, message ?: "Gitlab common exception")
+
+@ResponseStatus(code = HttpStatus.BAD_REQUEST, reason = "Gitlab cannot create entity due to a bad request")
 class GitlabBadRequestException(error: Error, message: String) : RestException(error, message)
 
+@ResponseStatus(code = HttpStatus.BAD_GATEWAY, reason = "Gitlab is unavailable")
+class GitlabBadGatewayException() : RestException(Error.GitlabBadGateway, "Gitlab server is unavailable")
+
+@ResponseStatus(code = HttpStatus.CONFLICT, reason = "Gitlab cannot create entity due to a conflict")
+class GitlabConflictException(error: Error, message: String) : RestException(error, message)
+
+@ResponseStatus(code = HttpStatus.NOT_FOUND, reason = "Gitlab not found the object")
+class GitlabNotFoundException(error: Error, message: String) : RestException(error, message)
+
+@ResponseStatus(code = HttpStatus.INTERNAL_SERVER_ERROR, reason = "Gitlab authentication failed")
+class GitlabAuthenticationFailedException(error: Error, message: String) : RestException(error, message)
 
 

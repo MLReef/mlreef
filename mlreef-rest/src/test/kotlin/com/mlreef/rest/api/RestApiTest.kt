@@ -143,7 +143,7 @@ abstract class RestApiTest {
         )
 
         Mockito.`when`(restClient.adminAddUserToGroup(
-            Mockito.anyInt(), Mockito.anyInt(), anyObject()
+            Mockito.anyInt(), Mockito.anyLong(), anyObject()
         )).thenReturn(
             GitlabUserInGroup(
                 id = 1,
@@ -165,6 +165,15 @@ abstract class RestApiTest {
                 owner = gitlabUser,
                 creatorId = 1L,
                 webUrl = "http://127.0.0.1/"
+            )
+        )
+
+        Mockito.`when`(restClient.userCreateGroup(Mockito.anyString(), Mockito.anyString(), Mockito.anyString())).thenReturn(
+            GitlabGroup(
+                id = 1,
+                webUrl = "www.url.com",
+                name = "test-group",
+                path = "test-path"
             )
         )
 

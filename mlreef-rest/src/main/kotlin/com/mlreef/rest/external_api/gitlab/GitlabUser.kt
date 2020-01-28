@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonProperty
+import com.fasterxml.jackson.annotation.JsonValue
 import org.springframework.context.annotation.Scope
 import java.io.Serializable
 
@@ -98,6 +99,12 @@ class GitlabUserInGroup(
     val avatarUrl: String = "",
     val accessLevel: GroupAccessLevel = GroupAccessLevel.DEVELOPER,
     val expiresAt: String? = null
+) : Serializable
+
+// https://docs.gitlab.com/ee/api/members.html#add-a-member-to-a-group-or-project
+internal class GitlabAddUserToGroupRequest(
+    val userId: Long,
+    val accessLevel: Int
 ) : Serializable
 
 // https://docs.gitlab.com/ee/api/branches.html#create-repository-branch
@@ -238,22 +245,23 @@ class CommitStats(
     val total: Int
 ) : Serializable
 
-enum class GitlabVisibility {
-    PRIVATE,
-    INTERNAL,
-    PUBLIC
-}
+// https://docs.gitlab.com/ee/api/group_level_variables.html#create-variable
+internal class GitlabCreateGroupVariableRequest(
+    val key: String,
+    val value: String,
+    val variableType: VariableType = VariableType.ENV_VAR,
+    val protected: Boolean = false
+) : Serializable
 
-enum class ProjectCreationLevel {
-    NOONE,
-    MAINTAINER,
-    DEVELOPER
-}
-
-enum class SubgroupCreationLevel {
-    OWNER,
-    MAINTAINER
-}
+@JsonIgnoreProperties(ignoreUnknown = true)
+@JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
+@JsonInclude(JsonInclude.Include.NON_NULL)
+class GroupVariable(
+    val key: String,
+    val variableType: VariableType = VariableType.ENV_VAR,
+    val value: String? = null,
+    val protected: Boolean = false
+) : Serializable
 
 enum class GroupAccessLevel(val accessCode: Int) {
     GUEST(10),
@@ -269,6 +277,33 @@ enum class GroupAccessLevel(val accessCode: Int) {
             return values().firstOrNull { it.accessCode == code }
         }
     }
+}
+
+enum class VariableType {
+    ENV_VAR,
+    FILE;
+
+    @JsonValue
+    open fun getValue(): String {
+        return this.name.toLowerCase()
+    }
+}
+
+enum class GitlabVisibility {
+    PRIVATE,
+    INTERNAL,
+    PUBLIC
+}
+
+enum class ProjectCreationLevel {
+    NOONE,
+    MAINTAINER,
+    DEVELOPER
+}
+
+enum class SubgroupCreationLevel {
+    OWNER,
+    MAINTAINER
 }
 
 enum class GitlabActivityState {
