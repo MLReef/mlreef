@@ -47,7 +47,7 @@ class ExperimentServiceTest : AbstractServiceTest() {
             gitlabRestClient = gitlabRestClient)
 
         val subject = Person(ownerId, "new-person", "person's name")
-        val dataRepository = DataProject(dataRepositoryId, "new-repo", "url", subject.id, "mlreef", "project", 0, arrayListOf())
+        val dataRepository = DataProject(dataRepositoryId, "new-repo", "url","Test DataProject", subject.id, "mlreef", "project", 0, arrayListOf())
 
         subjectRepository.save(subject)
         dataProjectRepository.save(dataRepository)

@@ -94,7 +94,7 @@ internal class DataPopulator(
 
     private fun createDataProject() {
         val dataProject = DataProject(
-            id = dataProjectId, slug = "test-data-project", ownerId = subjectId,
+            id = dataProjectId, slug = "test-data-project", name = "Test DataProject", ownerId = subjectId,
             url = "https://gitlab.com/mlreef/sign-language-classifier",
             gitlabProject = "sign-language-classifier", gitlabGroup = "mlreef", gitlabId = 1)
         safeSave { dataProjectRepository.save(dataProject) }
@@ -102,7 +102,10 @@ internal class DataPopulator(
 
     private fun createDataOperation1(author: Subject): Triple<DataOperation, ProcessorParameter, ProcessorParameter> {
         val codeProjectId = randomUUID()
-        codeProjectRepository.save(CodeProject(id = codeProjectId, slug = "code-project-augment", ownerId = author.id, url = "url"))
+        codeProjectRepository.save(CodeProject(
+            id = codeProjectId, slug = "code-project-augment", name = "Test DataProject",
+            ownerId = author.id, url = "url",
+            gitlabGroup = "", gitlabId = 0, gitlabProject = ""))
         val dataOp1 = DataOperation(
             id = randomUUID(), slug = "commons-augment", name = "Augment",
             command = "augment", inputDataType = DataType.IMAGE, outputDataType = DataType.IMAGE,
@@ -117,7 +120,10 @@ internal class DataPopulator(
 
     private fun createDataOperation2(author: Subject): Triple<DataOperation, ProcessorParameter, ProcessorParameter> {
         val codeProjectId = randomUUID()
-        codeProjectRepository.save(CodeProject(id = codeProjectId, slug = "code-project-random-crop", ownerId = author.id, url = "url"))
+        codeProjectRepository.save(CodeProject(
+            id = codeProjectId, slug = "code-project-random-crop", name = "Test DataProject",
+            ownerId = author.id, url = "url",
+            gitlabGroup = "", gitlabId = 0, gitlabProject = ""))
         val dataOp2 = DataOperation(
             id = randomUUID(), slug = "commons-random-crop", name = "Random crop",
             command = "random_crop", inputDataType = DataType.IMAGE, outputDataType = DataType.IMAGE,
@@ -136,7 +142,10 @@ internal class DataPopulator(
 
     private fun createDataOperation3(author: Subject): Triple<DataOperation, ProcessorParameter, ProcessorParameter> {
         val codeProjectId = randomUUID()
-        codeProjectRepository.save(CodeProject(id = codeProjectId, slug = "code-project-visualisation", ownerId = author.id, url = "url"))
+        codeProjectRepository.save(CodeProject(
+            id = codeProjectId, slug = "code-project-visualisation", name = "Test DataProject",
+            ownerId = author.id, url = "url",
+            gitlabGroup = "", gitlabId = 0, gitlabProject = ""))
         val dataOp3 = DataOperation(
             id = randomUUID(), slug = "commons-lee-filter", name = "Lee filter",
             command = "lee_filter", inputDataType = DataType.IMAGE, outputDataType = DataType.IMAGE,
@@ -154,7 +163,7 @@ internal class DataPopulator(
 
     private fun createCodeRepo() {
         val codeRepoId = randomUUID()
-        val codeProject = CodeProject(codeRepoId, "slug", "url", ownerId = subjectId)
+        val codeProject = CodeProject(codeRepoId, "slug", "url", ownerId = subjectId, name = "Test DataProject", gitlabGroup = "", gitlabId = 0, gitlabProject = "")
         safeSave { codeProjectRepository.save(codeProject) }
     }
 

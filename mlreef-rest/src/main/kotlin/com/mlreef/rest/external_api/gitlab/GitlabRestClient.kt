@@ -1,8 +1,12 @@
 package com.mlreef.rest.external_api.gitlab
 
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.databind.PropertyNamingStrategy
 import com.mlreef.rest.config.RedisSessionStrategy
 import com.mlreef.rest.config.censor
+import com.mlreef.rest.exceptions.GitlabAlreadyExistingConflictException
 import org.slf4j.LoggerFactory
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.web.client.RestTemplateBuilder
 import org.springframework.core.ParameterizedTypeReference
@@ -26,12 +30,68 @@ class GitlabRestClient(
     @Value("\${mlreef.gitlab.adminUserToken}")
     val gitlabAdminUserToken: String
 ) {
+    @Autowired
+    private lateinit var objectMapper: ObjectMapper
 
     val gitlabServiceRootUrl = "$gitlabRootUrl/api/v4"
 
     val log = LoggerFactory.getLogger(RedisSessionStrategy::class.java)
 
     fun restTemplate(builder: RestTemplateBuilder): RestTemplate = builder.build()
+
+    /**
+     * TODO: Currently we have next working logic for json parsing:
+     * 1. We receiving json objects from Gitlab. They have snake_case name convention
+     * 2. We sending json objects to client. They have camelCase name convention
+     * 3. Kotlin DTOs should use java rules - camelCase
+     * 4. Json objects that we send to client should use JS rules - snake_case
+     * 5. Currently we have half of Gitlabs DTOs in snake_case, other in camelCase
+     * 6. Currently we send json objects to client in camelCase
+     *
+     * To fix it there is setting for ObjectMapper - setPropertyNamingStrategy(PropertyNamingStrategy.SNAKE_CASE). See com.mlreef.rest.config.application-config
+     * If we apply it - we break item 6. Need to fix on UI side first
+     */
+
+    fun createProject(token: String, name: String, path: String?): GitlabProject {
+        val project: GitlabProject?
+
+//        try {
+//            objectMapper.setPropertyNamingStrategy(PropertyNamingStrategy.SNAKE_CASE)
+        project = GitlabCreateProjectRequest(name = name, path = path)
+            .let { HttpEntity(it, createUserHeaders(token)) }
+            .let {
+                val url = "$gitlabServiceRootUrl/projects"
+                restTemplate(builder).exchange(url, HttpMethod.POST, it, GitlabProject::class.java)
+            }
+            .also { logGitlabCall(it) }
+            .body!!
+//        } finally {
+//            objectMapper.setPropertyNamingStrategy(PropertyNamingStrategy.LOWER_CAMEL_CASE)
+//        }
+
+        return project
+    }
+
+    fun updateProject(id: Long, token: String, name: String): GitlabProject {
+        return GitlabCreateProjectRequest(name = name, path = null)
+            .let { HttpEntity(it, createUserHeaders(token)) }
+            .let {
+                val url = "$gitlabServiceRootUrl/projects/$id"
+                restTemplate(builder).exchange(url, HttpMethod.PUT, it, GitlabProject::class.java)
+            }
+            .also { logGitlabCall(it) }
+            .body!!
+    }
+
+    fun deleteProject(id: Long, token: String) {
+        HttpEntity(null, createUserHeaders(token))
+            .let {
+                val url = "$gitlabServiceRootUrl/projects/$id"
+                restTemplate(builder).exchange(url, HttpMethod.DELETE, it, Any::class.java)
+            }
+            .also { logGitlabCall(it) }
+    }
+
 
     fun createBranch(token: String, projectId: Int, targetBranch: String, sourceBranch: String = "master"): Branch {
         return GitlabCreateBranchRequest(branch = targetBranch, ref = sourceBranch)
@@ -45,8 +105,8 @@ class GitlabRestClient(
     }
 
     fun commitFiles(token: String, projectId: Int, targetBranch: String, commitMessage: String, fileContents: Map<String, String>, action: String = "create"): Commit {
-        val actionList = fileContents.map { GitlabCreateCommitAction(file_path = it.key, content = it.value, action = action) }
-        return GitlabCreateCommitRequest(branch = targetBranch, actions = actionList, commit_message = commitMessage)
+        val actionList = fileContents.map { GitlabCreateCommitAction(filePath = it.key, content = it.value, action = action) }
+        return GitlabCreateCommitRequest(branch = targetBranch, actions = actionList, commitMessage = commitMessage)
             .let { HttpEntity(it, createUserHeaders(token)) }
             .let {
                 val url = "$gitlabServiceRootUrl/projects/$projectId/repository/commits"
@@ -121,6 +181,28 @@ class GitlabRestClient(
             .body!!
     }
 
+    fun adminCreateGroup(groupName: String, path: String): GitlabGroup {
+        val group: GitlabGroup?
+
+        try {
+            objectMapper.propertyNamingStrategy = PropertyNamingStrategy.SNAKE_CASE
+            group = GitlabCreateGroupRequest(name = groupName, path = path)
+                .let { HttpEntity(it, createAdminHeaders()) }
+                .let {
+                    val url = "$gitlabServiceRootUrl/groups"
+                    restTemplate(builder).exchange(url, HttpMethod.POST, it, GitlabGroup::class.java)
+                }
+                .also { logGitlabCall(it) }
+                .apply { }
+                .body!!
+        } finally {
+            objectMapper.propertyNamingStrategy = PropertyNamingStrategy.LOWER_CAMEL_CASE
+        }
+
+        return group
+            ?: throw GitlabAlreadyExistingConflictException(com.mlreef.rest.exceptions.Error.GitlabGroupCreationFailed, "Gitlab group creation failed")
+    }
+
     fun adminCreateUserToken(gitlabUserId: Int, tokenName: String): GitlabUserToken {
         return GitlabCreateUserTokenRequest(name = tokenName)
             .let { HttpEntity(it, createAdminHeaders()) }
@@ -134,6 +216,27 @@ class GitlabRestClient(
             .also { logGitlabCall(it) }
             .body!!
     }
+
+    fun adminAddUserToGroup(groupId: Int, userId: Int, accessLevel: GroupAccessLevel = GroupAccessLevel.DEVELOPER): GitlabUserInGroup {
+        val userInGroup: GitlabUserInGroup?
+        try {
+            objectMapper.propertyNamingStrategy = PropertyNamingStrategy.SNAKE_CASE
+            userInGroup = HttpEntity(null, createAdminHeaders())
+                .let {
+                    val url = "$gitlabServiceRootUrl/groups/$groupId/members?user_id=$userId&access_level=${accessLevel.accessCode}"
+                    restTemplate(builder).exchange(
+                        url, HttpMethod.POST, it, GitlabUserInGroup::class.java)
+                }
+                .also { logGitlabCall(it) }
+                .body!!
+        } finally {
+            objectMapper.propertyNamingStrategy = PropertyNamingStrategy.LOWER_CAMEL_CASE
+        }
+
+        return userInGroup
+            ?: throw GitlabAlreadyExistingConflictException(com.mlreef.rest.exceptions.Error.GitlabUserAddingToGroupFailed, "Gitlab adding user to group filed")
+    }
+
 
     private fun logGitlabCall(it: ResponseEntity<out Any>) {
         if (it.statusCode.is2xxSuccessful) {

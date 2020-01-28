@@ -30,13 +30,13 @@ import javax.validation.constraints.NotEmpty
 
 @RestController
 @RequestMapping("/api/v1/data-projects/{dataProjectId}/experiments")
-class ExperimentController(
+class ExperimentsController(
     val service: ExperimentService,
     val currentUserService: CurrentUserService,
     val dataProjectRepository: DataProjectRepository,
     val experimentRepo: ExperimentRepository
 ) {
-    private val log: Logger = Logger.getLogger(ExperimentController::class.simpleName)
+    private val log: Logger = Logger.getLogger(ExperimentsController::class.simpleName)
     private val dataProjectNotFound = "dataProject was not found"
 
     private fun beforeGetDataProject(dataProjectId: UUID): DataProject {
