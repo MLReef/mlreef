@@ -117,7 +117,7 @@ const SummarizedDataAndChartComp = ({ experiment, projectId }) => {
         <button
           key={`deploy-${commitCode}`}
           type="button"
-          className="light-green-button experiment-button non-active-black-border"
+          className="light-green-button rounded-pipeline-btn non-active-black-border"
           style={{ width: '100px' }}
         >
           <b>Resume</b>
@@ -138,7 +138,7 @@ const SummarizedDataAndChartComp = ({ experiment, projectId }) => {
         <button
           key={`deploy-${commitCode}`}
           type="button"
-          className="light-green-button experiment-button non-active-black-border"
+          className="light-green-button rounded-pipeline-btn non-active-black-border"
           style={{ width: '100px' }}
         >
           <b>Deploy</b>

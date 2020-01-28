@@ -54,7 +54,7 @@ exports[`The branches list should be displayed when dropdown button is clicked d
       type="button"
     >
       <a
-        href="/my-projects/12395599/visualizations"
+        href="/my-projects/12395599/empty-data-visualization"
         onClick={[Function]}
       >
         <p>

@@ -13,6 +13,7 @@ import CommitDetails from './components/commits-details/commitDetails';
 import NewExperiment from './components/newExperiment';
 import DataInstanceOverview from './components/data-instance/dataInstanceOverview';
 import DataInstanceDetails from './components/data-instance/dataInstanceDetails';
+import DataVisualizationOverview from './components/data-visualization/dataVisualizationOverview';
 import EmptyDataVisualization from './components/data-visualization/dataVisualization';
 import ErrorPage from './components/error-page/errorPage';
 import ExperimentDetails from './components/experiment-details/experimentDetails';
@@ -47,7 +48,8 @@ const RouterComp = () => (
         component={BranchesView}
       />
       <PrivateRoute exact path="/my-projects/:projectId/pipe-line" component={PipeLineView} />
-      <PrivateRoute path="/my-projects/:projectId/visualizations" component={EmptyDataVisualization} />
+      <PrivateRoute path="/my-projects/:projectId/empty-data-visualization" component={EmptyDataVisualization} />
+      <PrivateRoute path="/my-projects/:projectId/visualizations" component={DataVisualizationOverview} />
       <PrivateRoute exact path="/my-projects/:projectId/:branch/data-instances" component={DataInstanceOverview} />
       <PrivateRoute path="/my-projects/:projectId/:branch/data-instances/:di_name/path/:path" component={DataInstanceDetails} />
       <PrivateRoute path="/my-projects/:projectId/:branch/data-instances/:di_name" component={DataInstanceDetails} />

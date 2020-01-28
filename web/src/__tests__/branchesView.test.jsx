@@ -44,7 +44,7 @@ describe('test functionality',() => {
     const input = wrapper.find('#filter-input');
     input.value = "master";
     const event = { currentTarget: input };
-    input.simulate('change', event)       
+    input.simulate('change', event);
     expect(wrapper.find('.branch-row')).toHaveLength(1);
   });
 })

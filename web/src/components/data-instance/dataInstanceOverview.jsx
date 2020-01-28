@@ -4,7 +4,6 @@ import { Base64 } from 'js-base64';
 import Navbar from '../navbar/navbar';
 import ProjectContainer from '../projectContainer';
 import './dataInstanceOverview.css';
-import arrowDownWhite01 from '../../images/arrow_down_white_01.svg';
 import Instruction from '../instruction/instruction';
 import { getTimeCreatedAgo, mlreefLinesToExtractConfiguration } from '../../functions/dataParserHelpers';
 import DataInstancesDeleteModal from '../data-instances-delete-and-abort-modal/dataInstancesDeleteNAbortModal';
@@ -18,6 +17,7 @@ import {
   PENDING,
 } from '../../dataTypes';
 import filesApi from '../../apis/FilesApi';
+import Dropdown from '../DropDown';
 
 const getStatusForDataInstance = (status) => {
   let mappedStatus = status;
@@ -96,7 +96,7 @@ export const InstanceCard = ({ ...props }) => {
         <button
           type="button"
           key="experiment-button"
-          className="non-active-black-border experiment-button"
+          className="non-active-black-border rounded-pipeline-btn"
           onClick={(e) => goToPipelineView(e)}
         >
           View Pipeline
@@ -122,8 +122,8 @@ export const InstanceCard = ({ ...props }) => {
     );
   }
 
-  if(params && params.instances) {
-      return params.instances.length > 0 ? (
+  if (params && params.instances) {
+    return params.instances.length > 0 ? (
       <div className="data-instance-card">
         <div className="header">
           <div className="title-div">
@@ -275,10 +275,6 @@ export class DataInstanceOverview extends Component {
     }
   }
 
-  hideInstruction() {
-    document.getElementById('instruction-pipe-line').classList.add('invisible');
-  }
-
   render() {
     const { project } = this.state;
     let groupName, name;
@@ -315,7 +311,7 @@ export class DataInstanceOverview extends Component {
               <button
                 id="all"
                 type="button"
-                className="non-active-black-border experiment-button"
+                className="non-active-black-border rounded-pipeline-btn"
                 onClick={(e) => this.handleButtonsClick(e)}
               >
                 All
@@ -323,7 +319,7 @@ export class DataInstanceOverview extends Component {
               <button
                 id="InProgress"
                 type="button"
-                className="non-active-black-border experiment-button"
+                className="non-active-black-border rounded-pipeline-btn"
                 onClick={(e) => this.handleButtonsClick(e)}
               >
                 In Progress
@@ -331,7 +327,7 @@ export class DataInstanceOverview extends Component {
               <button
                 id="Active"
                 type="button"
-                className="non-active-black-border experiment-button"
+                className="non-active-black-border rounded-pipeline-btn"
                 onClick={(e) => this.handleButtonsClick(e)}
               >
                 Active
@@ -339,7 +335,7 @@ export class DataInstanceOverview extends Component {
               <button
                 id="expired"
                 type="button"
-                className="non-active-black-border experiment-button"
+                className="non-active-black-border rounded-pipeline-btn"
                 onClick={(e) => this.handleButtonsClick(e)}
               >
                 Expired
@@ -380,66 +376,6 @@ export class DataInstanceOverview extends Component {
       </>
     );
   }
-}
-
-function Dropdown() {
-  const [state, setState] = React.useState(false);
-  const node = React.useRef();
-
-  const handleClickOutside = (e) => {
-    if (node.current.contains(e.target)) {
-      return;
-    }
-    setState(false);
-  };
-
-  React.useEffect(() => {
-    if (state) {
-      document.addEventListener('click', handleClickOutside);
-    }
-    return () => {
-      document.removeEventListener('click', handleClickOutside);
-    };
-  }, [state]);
-
-  return (
-    <>
-      <button
-        type="button"
-        onClick={() => setState(!state)}
-        ref={node}
-        className="light-green-button experiment-button non-active-black-border"
-      >
-        <span>
-          <b style={{ margin: '0 10px 10px 0' }}>
-            Save
-          </b>
-        </span>
-        <img className="dropdown-white" src={arrowDownWhite01} alt="" />
-      </button>
-      {state
-        && (
-        <div className="save-instance">
-          <div
-            style={{ marginLeft: '25%', fontSize: '14px' }}
-          >
-            <p>Save Data Instances</p>
-          </div>
-          <hr />
-          <div className="search-branch">
-            <div>
-              <p><b>New branch</b></p>
-              <p className="dull">Only new data is saved in new branch</p>
-            </div>
-            <div>
-              <p><b>Create Pull Request</b></p>
-              <p className="dull">New data and original data coexist in existing branch</p>
-            </div>
-          </div>
-        </div>
-        )}
-    </>
-  );
 }
 
 function mapStateToProps(state) {

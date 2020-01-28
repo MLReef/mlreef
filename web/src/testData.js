@@ -1,3 +1,9 @@
+import {
+  RUNNING,
+  SUCCESS,
+  EXPIRED,
+} from './dataTypes';
+
 export const imagesToRender = [
   {
     commitId: 'd80ab8ff15fb1f327bac0f5679b454cbec247759',
@@ -206,6 +212,47 @@ export const branchesMock = [
   },
 ];
 
+export const mockDataInstancesList = [
+  {
+    status: RUNNING,
+    values: [{
+      name: 'DI_Data_Pipeline_Name_1',
+      creator: 'UserName',
+      timeAgo: '',
+      completedPercentage: '49',
+      filesChanged: '24.051',
+    }],
+  },
+  {
+    status: SUCCESS,
+    values: [{
+      name: 'DI_Data_Pipeline_Name_2',
+      creator: 'UserName',
+      timeAgo: '',
+      completedPercentage: '49',
+      filesChanged: '24.051',
+      spaceUsed: '24 GB',
+      expiresIn: '2 days',
+    }],
+  },
+  {
+    status: EXPIRED,
+    values: [{
+      name: 'DI_Data_Pipeline_Name_3',
+      creator: 'UserName',
+      timeAgo: '',
+      completedPercentage: '49',
+      filesChanged: '24.051',
+    },
+    {
+      name: 'DI_Data_Pipeline_Name_4',
+      creator: 'UserName',
+      timeAgo: '',
+      completedPercentage: '49',
+      filesChanged: '24.051',
+    }],
+  },
+];
 
 export const mockMergeRequests = [
   {

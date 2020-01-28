@@ -184,3 +184,61 @@ button {
 button {
   cursor: pointer;
 }
+
+/* The next styles are created for those views that contain cards with pipelines execution information */
+
+#buttons-container {
+   display: flex;
+}
+
+#line {
+   border: 0.01px solid #ececec;
+}
+
+.rounded-pipeline-btn {
+   padding: 0.5em 2em 1.7em 2em;
+   border-radius: 0.3vw;
+}
+
+.active-border-light-blue {
+   border: 1px solid #32AFC3;
+}
+
+.non-active-black-border {
+   border: 1px solid #1C2B40;
+   border-radius: 0.3vw;
+}
+/* --------------  pipeline cards -------------- */
+
+.pipeline-card {
+   border: 2px solid #e5e5e5;
+   border-radius: 0.3vw;
+   margin-top: 1%;
+   color: #1c2b40;
+}
+
+.pipeline-card > .header{
+   display: flex;
+   background-color:#e5e5e5;
+   padding: 1% 2% 0.5% 2%;
+}
+
+.pipeline-card > .header > .title-div {
+   width: 50%;
+}
+
+.pipeline-card > .header > .title-div > p {
+   margin: unset;
+}
+
+.pipeline-card > .header > .select-div {
+   display: flex;
+   align-content: flex-end;
+   width: 50%;
+   flex-direction: row-reverse;
+}
+
+.pipeline-card > .header > .select-div > select {
+   border: none;
+   background-color: transparent;
+}

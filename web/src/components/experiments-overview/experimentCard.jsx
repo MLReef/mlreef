@@ -6,6 +6,7 @@ import {
   number,
   func,
 } from 'prop-types';
+import "../../css/globalStyles.css";
 import './experimentsOverview.css';
 import {
   getTimeCreatedAgo,
@@ -24,7 +25,7 @@ const ExperimentCard = (props) => {
   const today = new Date();
   
   return experiments.length > 0 ? (
-    <div className="experiment-card" key={today}>
+    <div className="pipeline-card" key={today}>
       <div className="header">
         <div className="title-div">
           <p><b>{currentState}</b></p>
@@ -52,7 +53,7 @@ const ExperimentCard = (props) => {
             key={`${experiment.timeCreatedAgo}-${experiment.descTitle}`}
             className="card-content"
           >
-            <div className="summary-data">
+            <div className="summary-data" style={{width: '80%'}}>
               <div className="project-desc-experiment">
                 <button
                   type="button"

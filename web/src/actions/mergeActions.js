@@ -7,7 +7,6 @@ import * as types from './actionTypes';
  */
 
 export function getMergeRequestsSuccessfully(mrs) {
-  console.log(mrs);
   return { type: types.GET_MERGE_REQUESTS, mrs };
 }
 
