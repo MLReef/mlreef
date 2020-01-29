@@ -29,8 +29,9 @@ dependencies {
     implementation "org.springframework.boot:spring-boot-starter-security"
     implementation "org.springframework.session:spring-session-data-redis"
 
-    // spring data, JPA and Repositories
+    // spring data, JPA, Repositories and DB migration
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation "org.flywaydb:flyway-core"
     runtimeOnly 'org.postgresql:postgresql'
     runtimeOnly 'redis.clients:jedis:2.9.3'
     runtimeOnly 'com.h2database:h2'
