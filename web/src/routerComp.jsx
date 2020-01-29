@@ -77,6 +77,7 @@ const RouterComp = () => (
         path="/my-projects/:projectId/:branch/new-merge-request"
         component={NewMergeRequest}
       />
+      <Route component={ErrorPage} />
     </Switch>
   </BrowserRouter>
 );

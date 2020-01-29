@@ -50,6 +50,10 @@ class FilesContainer extends Component {
     }
   }
 
+  componentWillUnmount() {
+    this.setState = (state) => (state);
+  }
+
   getReturnOption = () => (
     window.location.href.includes('path') ? (
       <tr className="files-row">

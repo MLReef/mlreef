@@ -12,7 +12,7 @@ class Myprojects extends React.Component {
     super(props);
     this.handleShowModal = this.handleShowModal.bind(this);
     this.hideModal = this.hideModal.bind(this);
-
+    
     this.state = {
       showModal: false,
       projectName: '',
@@ -39,6 +39,7 @@ class Myprojects extends React.Component {
     const { projectName } = this.state;
     const { owner } = this.state;
     const { projects } = this.props;
+    
     return (
       <div>
         <ProjectDeletionModal

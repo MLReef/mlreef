@@ -9,9 +9,9 @@ import { createStore, applyMiddleware } from 'redux';
 import thunk from 'redux-thunk';
 import initialState from './reducers/initialState';
 import rootReducer from './reducers/index';
-import { getProjectsList } from './actions/projectInfoActions';
 import RouterComp from './routerComp';
 import ToastMessage from './components/toast/toast';
+import ErrorHandler from "./ErrorHandler";
 
 const persistConfig = {
   key: 'root',
@@ -22,23 +22,23 @@ const persistedReducer = persistReducer(persistConfig, rootReducer);
 const store = createStore(persistedReducer, initialState, applyMiddleware(thunk));
 const persistor = persistStore(store);
 
-store.dispatch(getProjectsList());
-
 ReactDOM.render(
-  <Provider store={store}>
-    <ToastMessage />
-    <PersistGate
-      loading={(
-        <div>
-          <h1>
+  <ErrorHandler>
+    <Provider store={store}>
+      <ToastMessage />
+      <PersistGate
+        loading={(
+          <div>
+            <h1>
               Loading...
-          </h1>
-        </div>
+            </h1>
+          </div>
         )}
-      persistor={persistor}
-    >
-      <RouterComp store={store} />
-    </PersistGate>
-  </Provider>,
+        persistor={persistor}
+      >
+        <RouterComp store={store} />
+      </PersistGate>
+    </Provider>
+  </ErrorHandler>,
   document.getElementById('root'),
 );

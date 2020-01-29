@@ -1,35 +1,28 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import "./errorPage.css";
 import errorIcon from '../../images/error_icon.png';
 
-const ErrorPage = () => (
-  <div
-    style={{
-      marginTop: '2.5%',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      textAlign: 'center',
-      fontSize: '2em',
-    }}
-  >
-    <img src={errorIcon} style={{ height: '30%', maxHeight: 600 }} alt="error" />
-    <div
-      style={{
-        backgroundColor: 'beige',
-        color: ' #f5544d',
-        padding: '1.5em',
-        borderRadius: '1em',
-      }}
-    >
+const ErrorPage = ({ errorCode, errorMessage }) => {
+  let finalErrorCode;
+  let finalErrorMessage;
+  if(!errorCode){
+    finalErrorCode = 500;
+    finalErrorMessage = "Internal server error";
+  } else {
+    finalErrorCode = errorCode;
+    finalErrorMessage = errorMessage;
+  }
+  return (
+  <div id="error-page-container">
+    <img src={errorIcon} alt="error" />
+    <div>
       <h1>
         Error
       </h1>
-      <h2>404</h2>
-      <p>The site you requested does not exist</p>
-      <Link to="/my-projects">Go to the beginning</Link>
+      <h2>{finalErrorCode}</h2>
+      <p>{finalErrorMessage}</p>
     </div>
   </div>
-);
+)};
 
 export default ErrorPage;
