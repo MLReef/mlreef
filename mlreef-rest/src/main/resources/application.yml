@@ -14,7 +14,6 @@ mlreef:
     epf-bot-email-domain: mlreef.com
     epf-bot-password-length: 20
 
-
 spring:
   devtools:
     add-properties: false
@@ -35,7 +34,9 @@ spring:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         temp.use_jdbc_metadata_defaults: false
     hibernate:
-      ddl-auto: update
+      ddl-auto: none
+  flyway:
+    baseline-on-migrate: true
   redis:
     host: ${REDIS_HOST:localhost}
     port: ${REDIS_PORT:6379}

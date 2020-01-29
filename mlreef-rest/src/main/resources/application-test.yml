@@ -18,6 +18,9 @@ spring:
         temp.use_jdbc_metadata_defaults: false
     hibernate:
       ddl-auto: create-drop
+  flyway:
+    enabled: false
+
 mlreef:
   gitlab:
     rootUrl: ${GITLAB_ROOT_URL:http://localhost:10080}
