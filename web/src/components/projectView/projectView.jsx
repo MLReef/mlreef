@@ -50,12 +50,13 @@ class ProjectView extends React.Component {
     commitsApi.getCommits(project.id, branch, '', 1)
       .then(
         (res) => this.setState({ lastCommit: res[0] }),
-      );
+      ).catch(err => err);
     contributorsApi
       .getProjectContributors(
         project.id,
       )
-      .then((res) => this.setState({ contributors: res }));
+      .then((res) => this.setState({ contributors: res }))
+      .catch(err => err);
 
     this.setModalVisibility = this.setModalVisibility.bind(this);
     this.updateLastCommit = this.updateLastCommit.bind(this);
@@ -74,6 +75,10 @@ class ProjectView extends React.Component {
       : prevState;
   }
 
+  componentWillUnmount() {
+    this.setState = (state) => (state);
+  }
+
   setModalVisibility(modalVisibility) {
     this.setState({ showLoadingModal: modalVisibility });
   }
@@ -83,7 +88,7 @@ class ProjectView extends React.Component {
     commitsApi.getCommits(selectedProject.id, newBranch, '', 1)
       .then(
         (res) => this.setState({ lastCommit: res[0] }),
-      );
+      ).catch(err => err);
   }
 
   render() {
@@ -96,6 +101,7 @@ class ProjectView extends React.Component {
       contributors,
       mergeRequests
     } = this.state;
+    
     const today = new Date();
     const timediff = getTimeCreatedAgo(lastCommit.authored_date, today);
     const encodedBranch = branch.includes('%2F')

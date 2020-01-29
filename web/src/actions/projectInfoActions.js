@@ -18,11 +18,15 @@ export function getProjectsList() {
   return (dispatch) => projectGeneralInfoApi
     .getProjectsList()
     .then(
-      (projects) => dispatch(
-        getProjectsInfoSuccessfully(
-          projects,
-        ),
-      ),
+      (projects) => {
+        if(projects){
+          dispatch(
+            getProjectsInfoSuccessfully(
+              projects,
+            ),
+          )
+        }
+      },
     ).catch((err) => {
       throw err;
     });

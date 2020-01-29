@@ -12,7 +12,8 @@ export default class FilesApi {
       }));
       return response.json();
     } catch (err) {
-      return err;
+      window.history.replaceState({ errorCode: 500 }, "Mlreef", '/error-page');
+      window.location.reload();
     }
   }
 

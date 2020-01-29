@@ -1,11 +1,14 @@
 import React from 'react';
-import './login.css';
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
+import { toastr } from 'react-redux-toastr';
 import { Redirect } from 'react-router-dom';
+import * as projectActions from '../../actions/projectInfoActions';
+import './login.css';
 import icon from '../../images/ml_reef_icon_01.svg';
 import MLRAuthApi from '../../apis/MLAuthApi';
-import { toastr } from 'react-redux-toastr';
 
-export default class Login extends React.Component {
+class Login extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -33,7 +36,6 @@ export default class Login extends React.Component {
   }
 
   submit(e) {
-    // test purposes
     e.preventDefault();
 
     if (!this.validateForm()) {
@@ -41,13 +43,14 @@ export default class Login extends React.Component {
       errorDiv.classList.remove('invisible');
       return;
     }
-
     const { email } = this.state;
     const { password } = this.state;
+    const { actions } = this.props;
 
     MLRAuthApi
       .login(email,email, password)
       .then((user) => {
+        actions.getProjectsList();
         sessionStorage.setItem('auth', true);
         sessionStorage.setItem('user', user); // FIXME: Does not work, but would the best IMHO
         sessionStorage.setItem('user.id', user.id);
@@ -60,7 +63,7 @@ export default class Login extends React.Component {
       .catch(
         (error) => {
           this.setState({ loading: false });
-          toastr.error('Error:', 'Try Login with mlreef + password or get: '+error);
+          toastr.error('Error:', 'Try Login with mlreef + password or get: '+ error);
           const errorDiv = document.getElementById('errorDiv');
           errorDiv.classList.remove('invisible');
         },
@@ -149,3 +152,12 @@ export default class Login extends React.Component {
     );
   }
 }
+function mapDispatchToProps(dispatch) {
+  return {
+    actions: bindActionCreators({
+      ...projectActions,
+    }, dispatch),
+  };
+}
+
+export default connect(() => ({ }), mapDispatchToProps)(Login);

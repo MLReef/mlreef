@@ -26,7 +26,8 @@ export default class ProjectGeneralInfoApi {
       
       return response.json();
     } catch (err) {
-      console.error(err);
+      window.history.replaceState({ errorCode: 500 }, "Mlreef", '/error-page');
+      window.location.reload();
     }
   }
 

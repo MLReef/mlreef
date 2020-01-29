@@ -1,0 +1,22 @@
+#error-page-container {
+  display: flex;
+  height: 100%;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font-size: 1.5em;
+}
+
+#error-page-container > img {
+  margin-top: 5%;
+  height: 30%;
+  max-height: 500px;
+}
+
+#error-page-container > div {
+  background-color: beige;
+  color: #f5544d;
+  padding: 1.5em;
+  border-radius: 1em;
+}
+
