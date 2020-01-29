@@ -5,12 +5,12 @@ import { func, string } from 'prop-types';
 const makeStylesBlackBorderedButton = makeStyles(() => ({
   styles: {
     '&:focus': {
-      border: '2px solid #32afc3',
+      border: '1px solid #32afc3',
       color: '#32afc3',
     },
-    border: '2px solid #1c2b40',
+    border: '1px solid #1c2b40',
     padding: '0.5em 1em 0.5em 1em',
-    height: '100%',
+    height: '2em',
   },
 }));
 

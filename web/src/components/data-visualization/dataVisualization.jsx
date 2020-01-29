@@ -143,10 +143,9 @@ const EmptyDataVisualization = ({ ...props }) => {
               margin: '0', padding: '0', width: '100%', textAlign: 'center',
             }}
             >
-                            Drag and drop a data visualization from the right into your
+                            Drag and drop a data visualization from the right
               <br />
-pipeline or
-              <b>create a new one</b>
+              into your pipeline.
             </p>
           </div>
 
@@ -154,7 +153,7 @@ pipeline or
 
         <div className="pipe-line-execution tasks-list">
           <div className="header">
-            <p>Select a visualization(s) from list:</p>
+            <p>Select a visualization:</p>
           </div>
           <div className="content">
             <div className="filter-div flexible-div">

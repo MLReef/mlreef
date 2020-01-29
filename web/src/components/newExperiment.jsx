@@ -172,8 +172,7 @@ const NewExperiment = ({
             >
               Drag and drop an algorithm from the right into your
               <br />
-              experiment pipeline or
-              <b>create a new one</b>
+              experiment pipeline.
             </p>
           </div>
 
@@ -181,7 +180,7 @@ const NewExperiment = ({
 
         <div className="pipe-line-execution tasks-list">
           <div className="header">
-            <p>Select an algorithm from list:</p>
+            <p>Select a model:</p>
           </div>
           <div className="content">
             <div className="filter-div flexible-div">

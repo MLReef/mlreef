@@ -397,6 +397,7 @@ p.stat-no {
   flex-direction: row;
   width: 80%;
   padding: 0.5em;
+  margin-left: 15px;
 }
 
 .last-commit-pic {
@@ -446,6 +447,7 @@ p.stat-no {
   border-radius: 0.3vw;
   border: 1px solid #1c2b40;
   width: max-content;
+  height: 2.2em;
 }
 
 .white-button {
@@ -544,7 +546,6 @@ p.stat-no {
 }
 
 .file-properties {
-  padding: 0% 0% 1% 0%;
   border-radius: 0 0 0.3vw 0.3vw;
   border: 1px solid #b2b2b2;
   width: 100%;
@@ -601,7 +602,7 @@ p.stat-no {
   display: flex;
   justify-content: space-between;
   padding: 0% 3.5% 0% 1%;
-  border-bottom: 1px solid #b2b2b2;
+  border-top: 1px solid #b2b2b2;
 }
 
 .row-border {
@@ -654,6 +655,7 @@ p.stat-no {
   border-radius: 0.3vw;
   background-color: #fff;
   border: 1px solid #b2b2b2;
+  padding-bottom: 15px;
 }
 
 .readme-titlebar {

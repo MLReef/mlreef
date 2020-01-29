@@ -156,10 +156,9 @@ const PipeLineView = ({
               margin: '0', padding: '0', width: '100%', textAlign: 'center',
             }}
             >
-              Drag and drop a data operation from the right into your
+              Drag and drop a data operation from the right
               <br />
-              pipeline or
-              <b>create a new one</b>
+              into your pipeline.
             </p>
           </div>
 
@@ -167,7 +166,7 @@ const PipeLineView = ({
 
         <div className="pipe-line-execution tasks-list">
           <div className="header">
-            <p>Select a data operations from list:</p>
+            <p>Select a data operations:</p>
           </div>
           <div className="content">
             <div className="filter-div flexible-div">
