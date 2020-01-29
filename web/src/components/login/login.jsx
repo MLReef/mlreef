@@ -98,10 +98,7 @@ class Login extends React.Component {
         <div id="errorDiv" className="invisible error border-div">
           <p>Incorrect username or password</p>
           <div>
-            <button
-              type="button"
-              onClick={this.reset}
-            >
+            <button type="button" onClick={this.reset}>
               Reset
             </button>
           </div>
