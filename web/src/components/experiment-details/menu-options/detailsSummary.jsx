@@ -83,29 +83,11 @@ const DetailsSummary = ({ experiment, files }) => (
         <p className="experiment-details-subtitle" style={{ paddingLeft: '5px' }}>Source summary</p>
         <div className="composed-row">
           <div style={{ display: 'flex' }}>
-            <p style={{ marginRight: 5, width: '10em' }}>
-              Code repository:
-            </p>
-            <p>
-              <b>Code_repository</b>
-            </p>
-          </div>
-          <p>
-            Branch:
-            <b>Code_Branch_Name</b>
-          </p>
-        </div>
-        <div className="composed-row">
-          <div style={{ display: 'flex' }}>
             <p style={{ marginRight: 5, width: '10em' }}>Data source:</p>
             <p><b>Data_Repository / Data Instance</b></p>
           </div>
-          <p>
-            Branch:
-            <b>Data_Branch_Name</b>
-          </p>
         </div>
-        <p className="experiment-details-subtitle" style={{ paddingLeft: '5px' }}>Parameters</p>
+        <p className="experiment-details-subtitle" style={{ paddingLeft: '5px' }}>Model parameters</p>
       </div>
     </div>
     <div style={{ margin: '1em' }}>
@@ -129,7 +111,7 @@ const DetailsSummary = ({ experiment, files }) => (
               <p>Values</p>
             </th>
             <th>
-              <p>Last update</p>
+              <p>Description</p>
             </th>
           </tr>
         </thead>

@@ -78,18 +78,18 @@ const DataInstanceDetails = ({ ...props }) => {
             <div className="project-desc-experiment">
               <p><b>{pipelineName}</b></p>
               <p>
-Created by
+                Created by
                 <b>{selectedPipeline[0].commit.author_name}</b>
                 <br />
-                                20 days ago
+                --- ago
               </p>
             </div>
             <div className="project-desc-experiment" style={{ visibility: 'inherit' }}>
-              <p><b>Use: 24GB</b></p>
-              <p>Expires in: 2 days</p>
+              <p><b>Usage: ---</b></p>
+              <p>Expires in: ---</p>
             </div>
             <div className="project-desc-experiment" style={{ visibility: 'inherit' }}>
-              <p><b>24,051 files changed</b></p>
+              <p><b>--- files changed</b></p>
               <p>
 Id:
                 {selectedPipeline[0].commit.short_id}

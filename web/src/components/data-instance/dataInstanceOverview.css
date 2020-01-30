@@ -34,6 +34,7 @@
 .pipeline-card > .card-content > .summary-data > .buttons-div button.dangerous-red {
     border-radius: 0.3vw;
     border-width: 1.7px;
+    width: 35px;
 }
 
 .card-content > .summary-data > .buttons-div > button{

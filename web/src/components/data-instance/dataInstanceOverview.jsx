@@ -164,14 +164,14 @@ export const InstanceCard = ({ ...props }) => {
                   </p>
                 </div>
                 <div className="project-desc-experiment" style={{ visibility: progressVisibility }}>
-                  <p><b>Use: 24GB</b></p>
+                  <p><b>Usage: ---</b></p>
                   <p>
                     Expires in:
                     {instance.expiration}
                   </p>
                 </div>
                 <div className="project-desc-experiment" style={{ visibility: modelDiv }}>
-                  <p><b>24,051 files changed</b></p>
+                  <p><b>--- files changed</b></p>
                   <p>
                     Id:
                     {' '}

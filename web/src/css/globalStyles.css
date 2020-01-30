@@ -49,7 +49,8 @@ button {
 .dangerous-red {
    background-color: #F5544D;
    color: white;
-   border: 1.5px solid black;
+   border: 1.7px solid black;
+   height: 2.2em;
 }
 
 .grey-border-white-background {
@@ -220,7 +221,6 @@ button {
 .pipeline-card > .header{
    display: flex;
    background-color:#e5e5e5;
-   padding: 1% 2% 0.5% 2%;
 }
 
 .pipeline-card > .header > .title-div {

@@ -76,7 +76,7 @@ const ExperimentCard = (props) => {
                   <br />
                   {getTimeCreatedAgo(experiment.timeCreatedAgo, today)}
                     &nbsp;
-                    ago
+                  ago
                 </p>
               </div>
               <div className="project-desc-experiment" style={{ visibility: progressVisibility }}>
@@ -85,13 +85,6 @@ const ExperimentCard = (props) => {
                     {experiment.percentProgress}
                       % completed
                   </b>
-                </p>
-                <p>
-                    ETA:
-                  {' '}
-                  {experiment.eta}
-                  {' '}
-                    hours
                 </p>
               </div>
               <div className="project-desc-experiment" style={{ visibility: modelDiv }}>
