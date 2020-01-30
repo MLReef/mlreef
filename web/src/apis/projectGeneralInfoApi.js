@@ -1,6 +1,31 @@
 import { SECURITY_TOKEN, GITLAB_INSTANCE } from '../apiConfig';
 
 export default class ProjectGeneralInfoApi {
+
+  static async create(projectName, readme, description) {
+    let baseUrl = `${GITLAB_INSTANCE}/api/v4/projects?name=${projectName}`;
+    if(description){
+      baseUrl = `${baseUrl}&description=${description}`
+    }
+    if(readme){
+      baseUrl = `${baseUrl}&initialize_with_readme=${readme}`
+    }
+    try {
+      const response = await fetch(
+        baseUrl, {
+          method: 'POST',
+          headers: new Headers({
+            'PRIVATE-TOKEN': SECURITY_TOKEN,
+            'Content-Type': 'application/json',
+          }),
+        },
+      );
+      return response
+    } catch (err) {
+      return err;
+    }
+  }
+
   static async getProjectInfoApi(projectId) {
     try {
       const respone = await fetch(new Request(`${GITLAB_INSTANCE}/api/v4/projects/${projectId}`, {

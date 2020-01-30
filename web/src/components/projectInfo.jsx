@@ -3,7 +3,6 @@ import { connect } from 'react-redux';
 import { Link, Redirect } from 'react-router-dom';
 import { bindActionCreators } from 'redux';
 import { _ } from 'core-js';
-
 import {
   func, shape, string, number,
 } from 'prop-types';
@@ -16,11 +15,10 @@ import * as projectActions from '../actions/projectInfoActions';
 
 const ProjectInfo = ({ project, actions }) => {
 
-  let id, projectName, iconUrl, default_branch, name, stars, forks, http_url_to_repo, ssh_url_to_repo;
+  let id, iconUrl, default_branch, name, stars, forks, http_url_to_repo, ssh_url_to_repo;
 
   if(project) {
     iconUrl = project.avatar_url;
-    projectName = project.name;
     default_branch = project.default_branch;
     id = project.id;
     name = project.name;
@@ -29,7 +27,6 @@ const ProjectInfo = ({ project, actions }) => {
     http_url_to_repo = project.http_url_to_repo;
     ssh_url_to_repo = project.ssh_url_to_repo;
   }
-
   const [redirect, setRedirect] = React.useState(false);
 
   function handleFork() {
@@ -37,6 +34,12 @@ const ProjectInfo = ({ project, actions }) => {
      * @var nameSpace: mlreefdemo is hardcoded
      * because we do not have a real user authentication mechanism
      */
+    let id, projectName, forks;
+    if(project) {
+      id = project.id;
+      projectName = project.name;
+      forks = project.forks_count;
+    }
     const nameSpace = 'mlreefdemo';
     const newNumberOfForks = forks + 1;
     const name = `${projectName} forked ${newNumberOfForks}`;

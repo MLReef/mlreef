@@ -13,16 +13,19 @@ class ReadMeComponent extends React.Component {
     };
   }
 
-  componentDidMount() {
-    const { projectId, branch } = this.props;
-    filesApi.getFileData(
+  componentDidUpdate(prevProps, prevState) {
+    const { projectId, branch } = prevProps;
+    const { fileData } = prevState;
+    if(projectId !== undefined && fileData === null){
+      filesApi.getFileData(
       projectId,
       'README.md',
       branch,
-    )
+      )
       .then(
         (res) => this.setState({ fileData: res }),
       );
+    }
   }
 
   render() {
