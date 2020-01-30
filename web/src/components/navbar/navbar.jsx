@@ -171,10 +171,6 @@ class Navbar extends Component {
                 <i> ({sessionStorage.getItem('user.email')})</i>
               </div>
               <hr />
-              <p>Set Status</p>
-              <p>Your Profile</p>
-              <p>Settings</p>
-              <hr />
               <p
                 onClick={this.handleSignOut}
                 onKeyDown={this.handleSignOut}

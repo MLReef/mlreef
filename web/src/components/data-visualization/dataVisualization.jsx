@@ -33,7 +33,6 @@ const EmptyDataVisualization = ({ ...props }) => {
   const { selectDataClick } = props;
   const { handleModalAccept } = props;
   const { onSortEnd } = props;
-  const { showFilters } = props;
   const { handleDragStart } = props;
   const { whenDataCardArrowButtonIsPressed } = props;
   const { checkBoxOwnDataOperations } = props;
@@ -66,19 +65,12 @@ const EmptyDataVisualization = ({ ...props }) => {
           <div className="header flexible-div">
             <div className="header-left-items flexible-div">
               <div>
-                <p>Visualization:</p>
+                <p>Visualization</p>
               </div>
-              <Input name="DataPipelineID" id="renaming-pipeline" placeholder="ProjectName" />
             </div>
             <div className="header-right-items flexible-div">
               <div id="execute-button" className="header-button round-border-button right-item flexible-div">
                 Execute
-              </div>
-              <div className="header-button round-border-button right-item flexible-div">
-                Save
-              </div>
-              <div className="header-button round-border-button right-item flexible-div">
-                Load
               </div>
             </div>
           </div>
@@ -145,7 +137,9 @@ const EmptyDataVisualization = ({ ...props }) => {
             >
                             Drag and drop a data visualization from the right
               <br />
-              into your pipeline.
+              pipeline 
+              {/* or
+              <b>create a new one</b> */}
             </p>
           </div>
 
@@ -156,7 +150,7 @@ const EmptyDataVisualization = ({ ...props }) => {
             <p>Select a visualization:</p>
           </div>
           <div className="content">
-            <div className="filter-div flexible-div">
+            {/* <div className="filter-div flexible-div">
               <Input name="selectDataOp" id="selectDataOp" placeholder="Search a visualization" />
               <div
                 role="button"
@@ -167,7 +161,7 @@ const EmptyDataVisualization = ({ ...props }) => {
               >
                 <img id="show-filters-button" src={plus} alt="" />
               </div>
-            </div>
+            </div> */}
 
             <div id="filters" className="invisible">
 

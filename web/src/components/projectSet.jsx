@@ -2,6 +2,7 @@ import React from 'react';
 import { arrayOf, shape } from 'prop-types';
 
 import { Link } from 'react-router-dom';
+import { getTimeCreatedAgo } from '../functions/dataParserHelpers';
 import star01 from '../images/star_01.svg';
 import fork01 from '../images/fork_01.svg';
 import { func } from 'prop-types';
@@ -69,11 +70,8 @@ class ProjectSet extends React.Component {
               <p>Explore Projects </p>
             </div>
           </div>
-          <div>
-            <input id="filter" type="text" placeholder="Filter by name" />
-          </div>
         </div>
-        <hr style={{ marginTop: '0' }} />
+        <hr style={{ marginTop: '0' }} />{console.log(projects)}
 
         {personal && projects.map((proj) => proj.name.includes('forked')
           && (
@@ -85,6 +83,9 @@ class ProjectSet extends React.Component {
             branch={proj.default_branch}
             desc={proj.description}
             avatar={proj.avatar_url}
+            starCount={proj.star_count}
+            forkCount={proj.forks_count}
+            updatedAt={proj.last_activity_at}
             projects={projects}
             handleShowModal={handleShowModal}
           />
@@ -99,6 +100,9 @@ class ProjectSet extends React.Component {
             branch={proj.default_branch}
             desc={proj.description}
             avatar={proj.avatar_url}
+            starCount={proj.star_count}
+            forkCount={proj.forks_count}
+            updatedAt={proj.last_activity_at}
             projects={projects}
             handleShowModal={handleShowModal}
           />
@@ -110,7 +114,7 @@ class ProjectSet extends React.Component {
 
 const Project = ({ ...props }) => (
   <div id="project-display" onClick={props.click}>
-    <div>
+    <div style={{minWidth: '0', flex: '1 1 40%'}}>
       <div id="project-icon">
         <div className="project-pic">
           <img style={{ minWidth: '100%' }} src={props.avatar} alt="" />
@@ -139,18 +143,19 @@ const Project = ({ ...props }) => (
       </div>
     </div>
 
-    <div>
+    <div style={{flex: '1 1 10%', justifyContent: 'space-between'}}>
       <div id="pro-info">
         <div>
           <img className="dropdown-white" src={star01} alt="" />
-            12
+            {props.starCount}
         </div>
         <div>
           <img className="dropdown-white" src={fork01} alt="" />
-            8
+            {props.forkCount}
         </div>
       </div>
-      <p>Updated 10 minutes ago</p>
+      <div style={{display: "flex"}}>
+      <p>Updated {getTimeCreatedAgo(props.updatedAt, new Date())} ago</p>
       <button
         type="button"
         style={{
@@ -169,6 +174,7 @@ const Project = ({ ...props }) => (
           X
         </b>
       </button>
+      </div>
     </div>
   </div>
 );

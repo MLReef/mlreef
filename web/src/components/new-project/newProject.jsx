@@ -18,7 +18,6 @@ import * as projectActions from '../../actions/projectInfoActions';
 import projectGeneraInfoApi from '../../apis/projectGeneralInfoApi';
 import { Component } from 'react';
 
-const dataTypes = ['Text', 'Image', 'Audio', 'Video', 'Tabular', 'Sensor', 'Number', 'Binary', 'Model'];
 const publicIcon = 'https://gitlab.com/mlreef/frontend/uploads/b93c33fb581d154b037294ccef81dadf/global-01.png';
 const privateIcon = 'https://gitlab.com/mlreef/frontend/uploads/83b8885be99f4176f1749924772411b3/lock-01.png';
 
@@ -193,24 +192,7 @@ where you perform data processing
                 placeholder="Description Format"
               />
             </label>
-            <span className="label-name" htmlFor="data_types">
-              <span className="heading">Data Types</span>
-              <span style={{ color: '#919191', marginTop: '0.5em' }}>Select what data types your project will be based on</span>
-              <div className="data-types">
-                {dataTypes.map((type, index) => (
-                  <div key={index.toString()}>
-                    <Checkbox
-                      id={`data_types${index.toString()}`}
-                      color="primary"
-                      inputProps={{
-                        'aria-label': 'primary checkbox',
-                      }}
-                    />
-                    <span>{type}</span>
-                  </div>
-                ))}
-              </div>
-            </span>
+            {/* Code for various data types to be included in later stages. Hint: Use an array of data-types */}
             <div style={{ marginTop: '1em' }}>
               <span className="heading">Visibilty level</span>
               <RadioGroup aria-label="visibility" name="visibility" value={value} onChange={this.handleVisibility}>

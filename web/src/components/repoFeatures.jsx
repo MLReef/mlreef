@@ -168,13 +168,11 @@ export class RepoFeatures extends Component {
               <div className="plus-dropdown">
                 <ul className="plus-list">
                   <li>This directory</li>
-                  <li className="plus-option"><Link to="/">New file</Link></li>
                   <li className="plus-option"><Link to="/">Upload file</Link></li>
                   <li className="plus-option"><Link to="/">New directory</Link></li>
                   <hr />
                   <li>This repository</li>
                   <li className="plus-option"><Link to={`/my-projects/${projectId}/new-branch`}>New branch</Link></li>
-                  <li className="plus-option"><Link to="/">New tag</Link></li>
                 </ul>
               </div>
               )}
@@ -195,18 +193,6 @@ export class RepoFeatures extends Component {
           <div>
             <button type="button" className="white-button">
               <Link to={`/my-projects/${projectId}/${branch}/commits/${path}`}>History</Link>
-            </button>
-            <button
-              type="button"
-              className="white-button"
-            >
-              Web IDE
-            </button>
-            <button
-              type="button"
-              className="white-button"
-            >
-              <img id="leftfeature-image" src={arrowDown} alt="" />
             </button>
           </div>
         </div> : null}
