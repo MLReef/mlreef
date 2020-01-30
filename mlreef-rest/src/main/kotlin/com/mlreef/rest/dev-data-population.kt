@@ -114,8 +114,8 @@ internal class DataPopulator(
             description = "Data augmentation multiplies and tweakes the data by changing angle of rotation, flipping the images, zooming in, etc.",
             codeProjectId = codeProjectId)
         dataProcessorRepository.save(dataOp1)
-        val parameter1 = processorParameterRepository.save(ProcessorParameter(randomUUID(), dataOp1.id, "stringParam", ParameterType.STRING))
-        val parameter2 = processorParameterRepository.save(ProcessorParameter(randomUUID(), dataOp1.id, "floatParam", ParameterType.FLOAT))
+        val parameter1 = processorParameterRepository.save(ProcessorParameter(randomUUID(), dataOp1.id, "stringParam", ParameterType.STRING, 0, ""))
+        val parameter2 = processorParameterRepository.save(ProcessorParameter(randomUUID(), dataOp1.id, "floatParam", ParameterType.FLOAT, 1, "0.1"))
         return Triple(dataOp1, parameter1, parameter2)
     }
 
@@ -134,10 +134,10 @@ internal class DataPopulator(
             codeProjectId = codeProjectId)
 
         dataProcessorRepository.save(dataOp2)
-        val parameter1 = processorParameterRepository.save(ProcessorParameter(randomUUID(), dataOp2.id, "height", ParameterType.INTEGER))
-        val parameter2 = processorParameterRepository.save(ProcessorParameter(randomUUID(), dataOp2.id, "width", ParameterType.INTEGER))
-        processorParameterRepository.save(ProcessorParameter(randomUUID(), dataOp2.id, "channels", ParameterType.INTEGER, false, "3"))
-        processorParameterRepository.save(ProcessorParameter(randomUUID(), dataOp2.id, "seed", ParameterType.INTEGER, false, null, "advanced"))
+        val parameter1 = processorParameterRepository.save(ProcessorParameter(randomUUID(), dataOp2.id, "height", ParameterType.INTEGER, 0, "35"))
+        val parameter2 = processorParameterRepository.save(ProcessorParameter(randomUUID(), dataOp2.id, "width", ParameterType.INTEGER, 1, "35"))
+        processorParameterRepository.save(ProcessorParameter(randomUUID(), dataOp2.id, "channels", ParameterType.INTEGER, 0, "3", false))
+        processorParameterRepository.save(ProcessorParameter(randomUUID(), dataOp2.id, "seed", ParameterType.INTEGER, 1, "3", false, "advanced"))
         return Triple(dataOp2, parameter1, parameter2)
     }
 
@@ -157,8 +157,8 @@ internal class DataPopulator(
             codeProjectId = codeProjectId)
 
         dataProcessorRepository.save(dataOp3)
-        val dataOp1processorParameter1 = processorParameterRepository.save(ProcessorParameter(randomUUID(), dataOp3.id, "tupleParam", ParameterType.TUPLE))
-        val dataOp1processorParameter2 = processorParameterRepository.save(ProcessorParameter(randomUUID(), dataOp3.id, "hashParam", ParameterType.DICTIONARY))
+        val dataOp1processorParameter1 = processorParameterRepository.save(ProcessorParameter(randomUUID(), dataOp3.id, "tupleParam", ParameterType.TUPLE, 0, "(1,2)"))
+        val dataOp1processorParameter2 = processorParameterRepository.save(ProcessorParameter(randomUUID(), dataOp3.id, "hashParam", ParameterType.DICTIONARY, 1, "{a:b}"))
         return Triple(dataOp3, dataOp1processorParameter1, dataOp1processorParameter2)
     }
 

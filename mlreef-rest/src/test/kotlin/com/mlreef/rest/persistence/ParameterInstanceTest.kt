@@ -36,7 +36,7 @@ class ParameterInstanceTest : AbstractRepositoryTest() {
             description = "description",
             codeProjectId = codeProjectId)
 
-        val processorParameter = ProcessorParameter(UUID.randomUUID(), dataProcessor.id, "height", ParameterType.INTEGER)
+        val processorParameter = ProcessorParameter(UUID.randomUUID(), dataProcessor.id, "height", ParameterType.INTEGER, 1, "")
         val dataProcessorInstance = DataProcessorInstance(id = UUID.randomUUID(), dataProcessor = dataProcessor)
         val entity = ParameterInstance(
             id = id, processorParameter = processorParameter,

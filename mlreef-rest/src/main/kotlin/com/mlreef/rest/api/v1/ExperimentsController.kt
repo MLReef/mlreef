@@ -102,9 +102,8 @@ class ExperimentsController(
             return saved.status
         } else {
             log.warning("Update status of Experiment to $newStatus not possible, already has ${experiment.status}")
-            throw ExperimentUpdateException("Cannot increate ExperimentStatus to $newStatus")
+            throw ExperimentUpdateException("Cannot increase ExperimentStatus to $newStatus")
         }
-
     }
 
     @GetMapping("/{id}/mlreef-file")

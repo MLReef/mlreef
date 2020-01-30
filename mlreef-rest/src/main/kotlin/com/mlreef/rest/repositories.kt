@@ -11,7 +11,7 @@ import java.util.*
 
 @Repository interface AccountTokenRepository : KtCrudRepository<AccountToken, UUID> {
     fun findAllByAccountId(id: UUID): List<AccountToken>
-    fun findOneByToken(token:String): AccountToken?
+    fun findOneByToken(token: String): AccountToken?
 }
 
 @Repository interface SubjectRepository : KtCrudRepository<Subject, UUID>

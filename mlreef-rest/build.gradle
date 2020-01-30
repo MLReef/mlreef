@@ -14,7 +14,7 @@ version = '0.0.1-SNAPSHOT'
 
 
 dependencies {
-    implementation project(':mlreef-domain')
+    implementation project(path: ':mlreef-domain', configuration:'default')
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
     implementation 'org.jetbrains.kotlin:kotlin-reflect'
     implementation "org.projectlombok:lombok"
