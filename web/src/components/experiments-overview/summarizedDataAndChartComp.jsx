@@ -135,14 +135,6 @@ const SummarizedDataAndChartComp = ({ experiment, projectId }) => {
               X
           </b>
         </button>,
-        <button
-          key={`deploy-${commitCode}`}
-          type="button"
-          className="light-green-button rounded-pipeline-btn non-active-black-border"
-          style={{ width: '100px' }}
-        >
-          <b>Deploy</b>
-        </button>,
       ];
     } else if (experimentState === CANCELED) {
       buttons = [

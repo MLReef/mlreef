@@ -44,14 +44,6 @@ const RepoInfo = ({
         <p className="stat-no">{dataInstanesCount}</p>
         <p className="stat-type">Data Instances</p>
       </Link>
-      <div className="repo-stat">
-        <p className="stat-no">{numberOfContributors}</p>
-        <p className="stat-type">Contributers</p>
-      </div>
-      <div className="repo-stat">
-        <p className="stat-no" />
-        <p className="stat-type">MIT License</p>
-      </div>
     </div>
   </>
 )};

@@ -3,7 +3,6 @@ import PropTypes, { shape, number } from 'prop-types';
 import Checkbox from '@material-ui/core/Checkbox';
 import '../../css/genericModal.css';
 import './selectDataPipelineModal.css';
-import Input from '../input/input';
 import folderIcon from '../../images/folder_01.svg';
 import fileIcon from '../../images/file_01.svg';
 import traiangle01 from '../../images/triangle-01.png';
@@ -166,7 +165,6 @@ class SelectDataPipelineModal extends Component {
                   </div>
                   )}
                 </div>
-                <Input placeholder="Search a file" />
               </div>
               <div id="right-div">
                 <button
@@ -178,7 +176,7 @@ class SelectDataPipelineModal extends Component {
                 >
                   Accept
                 </button>
-                <button
+                {/* <button
                   type="button"
                   className="white-button round-border-black-color"
                 >
@@ -191,7 +189,7 @@ class SelectDataPipelineModal extends Component {
                 >
                   {' '}
                   <p> Select all </p>
-                </button>
+                </button> */}
               </div>
             </div>
             <br />

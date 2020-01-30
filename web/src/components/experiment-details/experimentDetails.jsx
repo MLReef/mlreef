@@ -75,13 +75,9 @@ const ExperimentDetails = ({
 
       <div style={{ display: 'flex' }}>
         <div className="experiment-details-menu">
-          <button type="button" id="details-btn" onClick={menuBtnHandler} className="menu-button active">Details</button>
-          <button type="button" id="performance-btn" onClick={menuBtnHandler} className="menu-button">Performance</button>
-          <button type="button" id="data-btn" onClick={menuBtnHandler} className="menu-button">Data</button>
-          <button type="button" id="algorithm-btn" onClick={menuBtnHandler} className="menu-button">Model</button>
-          <button type="button" id="training-btn" onClick={menuBtnHandler} className="menu-button">Training Log</button>
-          <button type="button" id="monitoring-btn" onClick={menuBtnHandler} className="menu-button">Monitoring</button>
-          <button type="button" id="files-btn" onClick={menuBtnHandler} className="menu-button">Files</button>
+          <button id="details-btn" onClick={menuBtnHandler} className="menu-button active">Details</button>
+          <button id="training-btn" onClick={menuBtnHandler} className="menu-button">Training</button>
+          <button id="files-btn" onClick={menuBtnHandler} className="menu-button">Files</button>
         </div>
         {renderTheSelectedSection()}
       </div>

@@ -90,9 +90,8 @@ const NewExperiment = ({
           <div className="header flexible-div">
             <div className="header-left-items flexible-div">
               <div>
-                <p>Experiment:</p>
+                <p>Experiment</p>
               </div>
-              <Input name="DataPipelineID" id="renaming-pipeline" placeholder="EX_Project_1" />
             </div>
             <div
               className="header-right-items flexible-div"
@@ -100,12 +99,6 @@ const NewExperiment = ({
             >
               <div id="execute-button" className="header-button round-border-button right-item flexible-div">
                 Execute
-              </div>
-              <div className="header-button round-border-button right-item flexible-div">
-                Save
-              </div>
-              <div className="header-button round-border-button right-item flexible-div">
-                Load
               </div>
             </div>
           </div>
@@ -172,7 +165,9 @@ const NewExperiment = ({
             >
               Drag and drop an algorithm from the right into your
               <br />
-              experiment pipeline.
+              experiment pipeline
+              {/* or
+              <b>create a new one</b> */}
             </p>
           </div>
 
@@ -183,12 +178,12 @@ const NewExperiment = ({
             <p>Select a model:</p>
           </div>
           <div className="content">
-            <div className="filter-div flexible-div">
+            {/* <div className="filter-div flexible-div">
               <Input name="selectDataOp" id="selectDataOp" placeholder="Search a data operation" />
               <div className="search button pipe-line-active flexible-div" onClick={(e) => showFilters(e)}>
                 <img id="show-filters-button" src={plus} alt="" />
               </div>
-            </div>
+            </div> */}
 
             <div id="filters" className="invisible">
 
