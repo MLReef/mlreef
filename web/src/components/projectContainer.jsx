@@ -13,7 +13,7 @@ class ProjectContainer extends React.Component {
   render() {
     const { project, folders } = this.props;
     let id, description, default_branch;
-    if(project){
+    if (project) {
       id = project.id;
       description = project.description;
       default_branch = project.default_branch;

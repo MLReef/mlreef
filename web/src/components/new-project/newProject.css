@@ -89,6 +89,11 @@
     background-clip: padding-box;
 }
 
+.text-input:focus {
+    -webkit-box-shadow: 0 0 10px #99ddff;
+    box-shadow: 0 0 8px #99ddff;
+}
+
 textarea{ 
     overflow: auto;
     margin: 1em 0;
@@ -100,8 +105,7 @@ textarea{
     background-clip: padding-box;
 }
 
-textarea:focus,
-input[type=text]:focus {
+.area-focus:focus{
     -webkit-box-shadow: 0 0 10px #99ddff;
     box-shadow: 0 0 8px #99ddff;
 }
@@ -141,15 +145,8 @@ input[type=text]:focus {
     margin-right: 4px;
 }
 
-.MuiSelect-select{
+#demo-simple-select-outlined{
     min-width: 160px !important;
-}
-
-.MuiOutlinedInput-root {
-    margin: 1em 0 !important;
-}
-
-.MuiSelect-selectMenu {
     padding-top: 0.4em !important;
     padding-bottom: 0.2em !important;
 }

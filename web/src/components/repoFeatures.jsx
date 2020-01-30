@@ -111,7 +111,7 @@ export class RepoFeatures extends Component {
     const { branch, path } = this.props;
     return (
       <>
-        <div id="repo-features">
+        {branch !== null ? <div id="repo-features">
           <div>
             <div className="reference" ref={this.branchRef}>
               <button
@@ -209,7 +209,7 @@ export class RepoFeatures extends Component {
               <img id="leftfeature-image" src={arrowDown} alt="" />
             </button>
           </div>
-        </div>
+        </div> : null}
       </>
     );
   }

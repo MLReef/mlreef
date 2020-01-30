@@ -10,8 +10,8 @@ class FilesContainer extends Component {
   constructor(props) {
     super(props);
     this.getBack = this.getBack.bind(this);
-
     this.state = {
+      projectId: null,
       currentPath: '',
       currentBranch: '',
       files: [],
@@ -21,18 +21,23 @@ class FilesContainer extends Component {
     };
   }
 
-  componentDidUpdate() {
+  componentDidUpdate(prevProps) {
     const {
       path,
       branch,
     } = this.props;
     const {
+      projectId,
       currentBranch,
       currentPath,
     } = this.state;
     const urlPath = path
       ? decodeURIComponent(path)
       : null;
+    if(prevProps.projectId !== undefined && prevProps.projectId !== projectId){
+      this.updateFilesArray();
+      this.setState({ projectId: prevProps.projectId });
+    }
     if (
       branch !== currentBranch
         || urlPath !== currentPath
@@ -123,7 +128,7 @@ class FilesContainer extends Component {
         {redirect
           ? <Redirect to="/error-page" />
           : null}
-        <div className={`files-container ${branch === 'master' ? 'files-container-master' : ''}`}>
+        {files.length > 0 ? <div className={`files-container ${branch === 'master' ? 'files-container-master' : ''}`}>
           {branch !== 'master' && (
           <div className="commit-status">
             <p id="commitStatus">
@@ -159,7 +164,7 @@ commit(s)
           </div>
           )}
 
-          <table className="file-properties" id="file-tree">
+            <table className="file-properties" id="file-tree">
             <thead>
               <tr className="title-row">
                 <th>
@@ -194,9 +199,9 @@ commit(s)
                   </tr>
                 );
               })}
-            </tbody>
+            </tbody> 
           </table>
-        </div>
+        </div> : null }
       </>
     );
   }

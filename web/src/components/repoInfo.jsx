@@ -10,9 +10,12 @@ const RepoInfo = ({
   currentBranch,
   branchesCount,
   dataInstanesCount,
-}) => (
+}) => {
+  return (
   <>
     <div className="repo-info">
+    {branchesCount > 0 && (
+      <>
       <Link to={`/my-projects/${projectId}/${currentBranch}/commits`} className="repo-stat" replace>
         <p className="stat-no" />
         <p className="stat-type">Commits</p>
@@ -20,6 +23,12 @@ const RepoInfo = ({
       <Link to={`/my-projects/${projectId}/branches`} className="repo-stat">
         <p className="stat-no">{branchesCount}</p>
         <p className="stat-type">Branches</p>
+      </Link>
+      </>
+    )}
+      <Link className="repo-stat" to={`/my-projects/${projectId}/visualizations`} >
+        <p className="stat-no" />
+        <p className="stat-type">Visualizations</p>
       </Link>
       <Link to={`/my-projects/${projectId}/merge-requests/overview`} className="repo-stat">
         {mergeRequests.length > 0
@@ -45,7 +54,7 @@ const RepoInfo = ({
       </div>
     </div>
   </>
-);
+)};
 
 RepoInfo.propTypes = {
   projectId: number.isRequired,
