@@ -4,7 +4,6 @@ set -x
 LOG="/home/ubuntu/deploy.log"
 touch $LOG
 
-DOCKER_COMPOSE="docker-compose.yml"
 DATA_DIRECTORY="/data"
 TOML="$DATA_DIRECTORY/gitlab-runner-config/config.toml"
 PORT=10080
@@ -16,28 +15,34 @@ export AIOPS_RUNNER_EC2_INSTANCE_TYPE="p2.xlarge"
 # https://eu-central-1.console.aws.amazon.com/ec2/v2/home?region=eu-central-1#Limits:
 export AIOPS_RUNNER_EC2_INSTANCE_LIMIT=1
 
+export INSTANCE=""
+export IMAGE_PATH=""
 export AWS_ACCESS_KEY_ID=""
 export AWS_SECRET_ACCESS_KEY=""
+export WORKAROUND_SLEEP="120"                               # This is a workaround variable used for deployment
 
 while [ -n "$1" ]; do
   case "$1" in
-  -f | --file) IMAGE_PATH="$2"
-    echo "Using docker image: $IMAGE_PATH"                >> $LOG
-    shift ;;
   -i | --instance) INSTANCE="$2"
-    echo "Connecting to ec2 instance $INSTANCE"           >> $LOG
+    echo "Connecting to ec2 instance $INSTANCE"            >> $LOG
+    shift ;;
+  -I | --image) IMAGE_PATH="$2"
+    echo "Using docker image: $IMAGE_PATH"                 >> $LOG
     shift ;;
   -p | --port) PORT="$2"
-    echo "Expecting gitlab at port $PORT"                 >> $LOG
+    echo "Expecting gitlab at port $PORT"                  >> $LOG
     shift ;;
   -k | --key) AWS_ACCESS_KEY_ID="$2"
-    echo "Using AWS_ACCESS_KEY_ID $AWS_ACCESS_KEY_ID"     >> $LOG
+    echo "Using AWS_ACCESS_KEY_ID $AWS_ACCESS_KEY_ID"      >> $LOG
     shift ;;
   -s | --secret) AWS_SECRET_ACCESS_KEY="$2"
-    echo "Using AWS_ACCESS_KEY_ID $AWS_SECRET_ACCESS_KEY" >> $LOG
+    echo "Using AWS_ACCESS_KEY_ID $AWS_SECRET_ACCESS_KEY"  >> $LOG
     shift ;;
   -n | --name) EC2_INSTANCE_NAME="$2"
     echo "Using EC2_INSTANCE_NAME $EC2_INSTANCE_NAME"
+    shift ;;
+  -w | --workaround) WORKAROUND_SLEEP="$2"
+    echo "Using WORKAROUND_SLEEP $WORKAROUND_SLEEP"          >> $LOG
     shift ;;
   *) echo "Option $1 not recognized" ;;
   esac
@@ -150,24 +155,22 @@ EOF
 export GITLAB_SECRETS_SECRET_KEY_BASE=1111111111122222222222333333333334444444444555555555566666666661234
 export    GITLAB_SECRETS_OTP_KEY_BASE=1111111111122222222222333333333334444444444555555555566666666661234
 export     GITLAB_SECRETS_DB_KEY_BASE=1111111111122222222222333333333334444444444555555555566666666661234
-export             GITLAB_ADMIN_TOKEN=-QmLDx6yHfzmgp5_XDz_
 
 docker-compose up --detach
-sleep 120
+sleep "${WORKAROUND_SLEEP}"
 
 docker-compose stop backend
-sleep 120
+sleep "${WORKAROUND_SLEEP}"
 
 # 1. Inject known admin token
 echo "Creating the admin token with GITLAB_ADMIN_TOKEN: ${GITLAB_ADMIN_TOKEN}"
-chmod +x bin/setup-gitlab.sh
 docker exec --tty postgresql setup-gitlab.sh
 
 docker-compose up --detach
-sleep 120
+sleep "${WORKAROUND_SLEEP}"
 
 docker-compose stop backend
-sleep 120
+sleep "${WORKAROUND_SLEEP}"
 
 
 docker-compose up --detach
