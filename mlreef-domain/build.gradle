@@ -5,6 +5,7 @@ plugins {
     id 'kotlin-spring'
     id 'kotlin-jpa'
     id 'kotlin-allopen'
+    id 'antlr'
 }
 
 group = 'com.mlreef'
@@ -20,9 +21,12 @@ dependencies {
     implementation 'org.springframework.data:spring-data-jpa'
     implementation 'org.jetbrains.kotlin:kotlin-reflect'
 
-    // testing
-    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	// parsing python files with ANTLR
+	antlr 'org.antlr:antlr4:4.7.2'
+	implementation 'org.antlr:antlr4-runtime:4.7.2'
 
+	// testing
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 }
 
 bootJar {
@@ -38,6 +42,7 @@ allOpen {
     annotation("javax.persistence.MappedSuperclass")
     annotation("javax.persistence.Embeddable")
 }
+sourceSets.main.java.srcDir new File("build/generated-src/")
 
 compileKotlin {
     kotlinOptions {
@@ -49,3 +54,10 @@ compileTestKotlin {
         jvmTarget = "1.8"
     }
 }
+generateGrammarSource {
+	maxHeapSize = "64m"
+	arguments += ["-visitor"]
+	outputDirectory = file("build/generated-src/com/mlreef/antlr")
+}
+
+compileKotlin.dependsOn generateGrammarSource

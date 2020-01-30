@@ -136,8 +136,8 @@ class ExperimentFileGeneratorTest {
 
     private fun mockDataProcessorInstance(slug: String): DataProcessorInstance {
         val dataOp1 = DataOperation(randomUUID(), slug, "name", "command", DataType.ANY, DataType.ANY)
-        val processorParameter1 = ProcessorParameter(randomUUID(), dataOp1.id, "stringParam", ParameterType.STRING)
-        val processorParameter2 = ProcessorParameter(randomUUID(), dataOp1.id, "floatParam", ParameterType.FLOAT)
+        val processorParameter1 = ProcessorParameter(randomUUID(), dataOp1.id, "stringParam", ParameterType.STRING, 0, "")
+        val processorParameter2 = ProcessorParameter(randomUUID(), dataOp1.id, "floatParam", ParameterType.FLOAT, 1, "0.1")
         val dataProcessorInstance = DataProcessorInstance(randomUUID(), dataOp1)
         dataProcessorInstance.addParameterInstances(processorParameter1, "string")
         dataProcessorInstance.addParameterInstances(processorParameter2, "0.1")

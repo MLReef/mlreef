@@ -523,9 +523,13 @@ data class Experiment(
 
 @Embeddable
 class PerformanceMetrics(
+    @Column(name = "performance_job_started_at")
     var jobStartedAt: ZonedDateTime? = null,
+    @Column(name = "performance_job_updated_at")
     var jobUpdatedAt: ZonedDateTime? = null,
+    @Column(name = "performance_job_finished_at")
     var jobFinishedAt: ZonedDateTime? = null,
+    @Column(name = "performance_json_blob")
     var jsonBlob: String = ""
 )
 
@@ -535,6 +539,7 @@ enum class DataProcessorType {
     VISUALISATION
 }
 
+interface EPFAnnotation
 /**
  * A DataProcessor can be applied onto Data to filter or manipulate the Data.
  * The result of DataOperation over Data is Data again, or in special cases, Visualisation output
@@ -581,15 +586,22 @@ abstract class DataProcessor(
     @LazyCollection(LazyCollectionOption.FALSE)
     val outputFiles: List<OutputFile>,
 
+    @Embedded
+    @Column(name = "metric_schema_")
+    val metricSchema: MetricSchema,
+
     version: Long? = null,
     createdAt: ZonedDateTime? = null,
     updatedAt: ZonedDateTime? = null
-) : AuditEntity(id, version, createdAt, updatedAt) {
-
+) : AuditEntity(id, version, createdAt, updatedAt), EPFAnnotation {
 
     fun isChainable(): Boolean {
         return type != DataProcessorType.ALGORITHM
     }
+
+    abstract fun withParameters(
+        parameters: List<ProcessorParameter>,
+        metricSchema: MetricSchema): DataProcessor
 }
 
 
@@ -612,11 +624,12 @@ class DataOperation(
     codeProjectId: UUID? = null,
     parameters: List<ProcessorParameter> = listOf(),
     outputFiles: List<OutputFile> = listOf(),
+    metricSchema: MetricSchema = MetricSchema(MetricType.UNDEFINED),
     version: Long? = null,
     createdAt: ZonedDateTime? = null,
     updatedAt: ZonedDateTime? = null
 ) : DataProcessor(id, slug, name, command, inputDataType, outputDataType, DataProcessorType.OPERATION,
-    visibilityScope, description, codeProjectId, author, parameters, outputFiles, version, createdAt, updatedAt) {
+    visibilityScope, description, codeProjectId, author, parameters, outputFiles, metricSchema, version, createdAt, updatedAt) {
 
     override fun isChainable(): Boolean = true
 
@@ -629,8 +642,9 @@ class DataOperation(
         visibilityScope: VisibilityScope? = null,
         description: String? = null,
         author: Subject? = null,
-        outputFiles: List<OutputFile>? = null
-
+        parameters: List<ProcessorParameter>? = null,
+        outputFiles: List<OutputFile>? = null,
+        metricSchema: MetricSchema? = null
     ): DataOperation = DataOperation(
         slug = slug ?: this.slug,
         name = name ?: this.name,
@@ -643,11 +657,17 @@ class DataOperation(
         outputFiles = outputFiles ?: this.outputFiles,
         id = id,
         codeProjectId = codeProjectId ?: this.codeProjectId,
-        parameters = parameters,
+        metricSchema = metricSchema ?: this.metricSchema,
+        parameters = parameters ?: this.parameters,
         version = this.version,
         createdAt = this.createdAt,
         updatedAt = this.updatedAt
     )
+
+    override fun withParameters(parameters: List<ProcessorParameter>,
+                                metricSchema: MetricSchema): DataOperation {
+        return copy(parameters = parameters, metricSchema = metricSchema)
+    }
 }
 
 @Entity
@@ -664,23 +684,14 @@ class DataVisualization(
     codeProjectId: UUID? = null,
     parameters: List<ProcessorParameter> = listOf(),
     outputFiles: List<OutputFile> = listOf(),
+    metricSchema: MetricSchema = MetricSchema(MetricType.UNDEFINED),
     version: Long? = null,
     createdAt: ZonedDateTime? = null,
     updatedAt: ZonedDateTime? = null
 ) : DataProcessor(id, slug, name, command, inputDataType, DataType.NONE, DataProcessorType.VISUALISATION,
-    visibilityScope, description, codeProjectId, author, parameters, outputFiles, version, createdAt, updatedAt) {
+    visibilityScope, description, codeProjectId, author, parameters, outputFiles, metricSchema, version, createdAt, updatedAt) {
 
     override fun isChainable(): Boolean = true
-
-//    override fun equals(other: Any?): Boolean {
-//        if (other === this) return true
-//        if (other !is DataVisualization) return false
-//        return this.id == other.id
-//    }
-//
-//    override fun hashCode(): Int {
-//        return super.hashCode()
-//    }
 
     fun copy(
         slug: String? = null,
@@ -689,9 +700,11 @@ class DataVisualization(
         inputDataType: DataType? = null,
         outputDataType: DataType? = null,
         visibilityScope: VisibilityScope? = null,
+        parameters: List<ProcessorParameter>? = null,
         description: String? = null,
         author: Subject? = null,
-        outputFiles: List<OutputFile>? = null
+        outputFiles: List<OutputFile>? = null,
+        metricSchema: MetricSchema? = null
     ): DataVisualization = DataVisualization(
         slug = slug ?: this.slug,
         name = name ?: this.name,
@@ -703,36 +716,43 @@ class DataVisualization(
         outputFiles = outputFiles ?: this.outputFiles,
         id = id,
         codeProjectId = codeProjectId ?: this.codeProjectId,
-        parameters = parameters,
+        metricSchema = metricSchema ?: this.metricSchema,
+        parameters = parameters ?: this.parameters,
         version = this.version,
         createdAt = this.createdAt,
         updatedAt = this.updatedAt
     )
+
+    override fun withParameters(parameters: List<ProcessorParameter>,
+                                metricSchema: MetricSchema): DataVisualization {
+        return copy(parameters = parameters, metricSchema = metricSchema)
+    }
 }
 
 /**
- * Proposal: Model DataAlgorithm as a Data processor, even if it not chainable
+ * Proposal: Model DataAlgorithm as a Data processor, even if it is not chainable
  */
 @Entity
 @DiscriminatorValue("ALGORITHM")
 class DataAlgorithm(
     id: UUID,
-    override val slug: String,
-    override val name: String,
-    override val command: String,
-    override val inputDataType: DataType,
-    override val outputDataType: DataType,
-    override val visibilityScope: VisibilityScope = VisibilityScope.default(),
-    override val description: String = "",
-    override val author: Subject? = null,
-    override val codeProjectId: UUID? = null,
-    override val parameters: List<ProcessorParameter> = listOf(),
-    override val outputFiles: List<OutputFile> = listOf(),
+    slug: String,
+    name: String,
+    command: String,
+    inputDataType: DataType,
+    outputDataType: DataType,
+    visibilityScope: VisibilityScope = VisibilityScope.default(),
+    description: String = "",
+    author: Subject? = null,
+    codeProjectId: UUID? = null,
+    parameters: List<ProcessorParameter> = listOf(),
+    outputFiles: List<OutputFile> = listOf(),
+    metricSchema: MetricSchema = MetricSchema(MetricType.UNDEFINED),
     version: Long? = null,
     createdAt: ZonedDateTime? = null,
     updatedAt: ZonedDateTime? = null
 ) : DataProcessor(id, slug, name, command, inputDataType, outputDataType, DataProcessorType.ALGORITHM,
-    visibilityScope, description, codeProjectId, author, parameters, outputFiles, version, createdAt, updatedAt) {
+    visibilityScope, description, codeProjectId, author, parameters, outputFiles, metricSchema, version, createdAt, updatedAt) {
 
     override fun isChainable(): Boolean = false
 
@@ -745,8 +765,9 @@ class DataAlgorithm(
         visibilityScope: VisibilityScope? = null,
         description: String? = null,
         author: Subject? = null,
-        outputFiles: List<OutputFile>? = null
-
+        parameters: List<ProcessorParameter>? = null,
+        outputFiles: List<OutputFile>? = null,
+        metricSchema: MetricSchema? = null
     ): DataAlgorithm = DataAlgorithm(
         slug = slug ?: this.slug,
         name = name ?: this.name,
@@ -759,11 +780,19 @@ class DataAlgorithm(
         outputFiles = outputFiles ?: this.outputFiles,
         id = id,
         codeProjectId = codeProjectId ?: this.codeProjectId,
-        parameters = parameters,
+        metricSchema = metricSchema ?: this.metricSchema,
+        parameters = parameters ?: this.parameters,
         version = this.version,
         createdAt = this.createdAt,
         updatedAt = this.updatedAt
     )
+
+
+    override fun withParameters(parameters: List<ProcessorParameter>,
+                                metricSchema: MetricSchema): DataAlgorithm {
+        return copy(parameters = parameters, metricSchema = metricSchema)
+    }
+
 }
 
 /**
@@ -823,13 +852,16 @@ data class ProcessorParameter(
     val name: String,
     @Enumerated(EnumType.STRING)
     val type: ParameterType,
-    val required: Boolean = true,
-    val defaultValue: String? = null,
+    @Column(name = "parameter_order")
+    val order: Int,
+    val defaultValue: String,
+    @Column(name = "parameter_required")
+    val required: Boolean = false,
     @Column(name = "parameter_group")
     val group: String = "",
     @Column(length = 1024)
     val description: String? = null
-)
+) : EPFAnnotation
 
 @Entity
 @Table(name = "parameter_instance")
@@ -859,7 +891,27 @@ enum class ParameterType {
     TUPLE,
     DICTIONARY,
     OBJECT,
+    UNDEFINED
 }
+
+enum class MetricType {
+    RECALL,
+    PRECISION,
+    F1_SCORE,
+    UNDEFINED
+}
+
+@Embeddable
+class MetricSchema(
+    @Column(name = "metric_schema_type")
+    var metricType: MetricType,
+    @Column(name = "metric_schema_ground_truth")
+    var groundTruth: String = "",
+    @Column(name = "metric_schema_prediction")
+    var prediction: String = "",
+    @Column(name = "metric_schema_json_blob")
+    var jsonBlob: String = ""
+) : EPFAnnotation
 
 /**
  * DataTypes describe the Data of a MLDataProject on a higher level.
