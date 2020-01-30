@@ -15,4 +15,11 @@ export default class JobsApi {
 
     return jobsProm.json();
   }
+
+  static async getLog(projectId, jobId) {
+    const url = `https://${domain}/api/v4/projects/${projectId}/jobs/${jobId}/trace`;
+    const jobsProm = await generateGetRequest(url);
+
+    return jobsProm;
+  }
 }
