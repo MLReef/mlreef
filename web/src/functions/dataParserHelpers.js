@@ -24,6 +24,19 @@ export const getTimeCreatedAgo = (timeAgoCreatedAt, today) => {
   return timediff;
 };
 
+/**
+ * @param {*} duration in seconds to parse into hours, minutes and seconds
+ */
+export const parseDurationInSeconds = (duration) => {
+  const durationMinutesStr = (duration / 60).toString();
+  const durationParts = durationMinutesStr.split(".");
+
+  const minutesStr = durationParts[0];
+  const secondsFloat = Math.round(parseFloat(`0.${durationParts[1]}`) * 60);
+
+  return `${minutesStr}m ${secondsFloat}s`;
+}
+
 export const generateSummarizedInfo = (epochObjects) => {
   /**
      * Next loop is to get all the epoc keys like acc, val_acc, loss, val_loss.

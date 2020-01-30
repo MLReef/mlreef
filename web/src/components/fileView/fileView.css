@@ -184,15 +184,6 @@
   border-radius: 0.3vw 0.3vw 0 0;
 }
 
-.commit-pic-circle {
-  margin: 1.5em 0 0 1em;
-  height: 2.5em;
-  width: 2.5em;
-  background-color: #fff;
-  display: flex;
-  border-radius: 50%;
-}
-
 .commit-info {
   display: flex;
   flex: 1;
@@ -239,7 +230,7 @@
   margin-left: 0;
 }
 
-.contributors .commit-pic-circle {
+.contributors > .commit-pic-circle {
   margin-top: 0.5em;
   margin-left: 5px;
   border: 1px solid #1c2b40;
