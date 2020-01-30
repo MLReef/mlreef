@@ -11,34 +11,27 @@ terraform {
   }
 }
 
-variable "instance_type" {
-  type = string
-}
-variable "environment_name" {
-  type = string
-}
-
 locals {
   availability_zone = "eu-central-1b"
 }
 
 resource "aws_instance" "develop" {
   ami               = "ami-050a22b7e0cf85dd0"
-  instance_type     = var.instance_type
+  instance_type     = "p2.xlarge"
   availability_zone = local.availability_zone    // see ebs volume's availability zone
   key_name          = "development"              // private public key pair "develppment.pem"
   monitoring        = true
   tags = {
-    Name = var.environment_name
+    Name = "develop"
   }
   vpc_security_group_ids = [                     // add to security group "application-servers"
       "sg-01c6f11ecf39a976e"
   ]
   root_block_device {
     delete_on_termination = true
-    volume_size = 16                            // size of the / hdd in Gigabytes
+    volume_size = 16                             // size of the / hdd in Gigabytes
   }
-  user_data = file("startup.sh")
+  user_data = file("develop-startup.sh")
 }
 
 
@@ -48,9 +41,10 @@ resource "aws_ebs_volume" "data" {
   size              = 100                        // 100 Gigabyte
 }
 resource "aws_volume_attachment" "data-volume" {
-  device_name = "/dev/sda2"
-  instance_id = aws_instance.develop.id
-  volume_id   = aws_ebs_volume.data.id
+  device_name  = "/dev/sda2"
+  instance_id  = aws_instance.develop.id
+  volume_id    = aws_ebs_volume.data.id
+  force_detach = true
 }
 
 

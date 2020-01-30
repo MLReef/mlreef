@@ -1,5 +1,5 @@
 # original source: https://github.com/sameersbn/docker-gitlab/blob/master/docker-compose.yml
-version: '2'
+version: '3.7'
 
 # please research https://docs.docker.com/compose/environment-variables/ for howto setup your environment
 services:
@@ -15,7 +15,7 @@ services:
     ports:
       - "80:80"
     volumes:
-      - "./bin/nginx_proxy.conf:/etc/nginx/conf.d/default.conf"      # this line gets rewritten by the CI/CD pipeline
+      - "./src/resources/nginx_proxy.conf:/etc/nginx/conf.d/default.conf"
 
   frontend:
     image: registry.gitlab.com/mlreef/frontend:develop
@@ -94,7 +94,6 @@ services:
 
       - TZ=Austria/Vienna
       - GITLAB_TIMEZONE=Vienna
-
       - GITLAB_HTTPS=false
       - SSL_SELF_SIGNED=false
 
@@ -125,7 +124,7 @@ services:
     image: sameersbn/postgresql:10-2
     volumes:
       #CI_REMOVE- /data/postgres:/var/lib/postgresql:Z               # this line gets activated by the CI/CD pipeline
-      - "./bin/setup-gitlab.sh:/usr/local/bin/setup-gitlab.sh"
+      - "./src/bin/setup-gitlab.sh:/usr/local/bin/setup-gitlab.sh"
     ports: ["5432:5432"]
     environment:
       - DB_USER=gitlab
@@ -139,6 +138,6 @@ services:
     container_name: redis
     restart: always
     image: sameersbn/redis:4.0.9-2
-#    ports: [6379:6379]
+    ports: [6379:6379]
 #    command:
 #      - --loglevel warning

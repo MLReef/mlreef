@@ -23,11 +23,16 @@ variables:
   BACKEND_IMAGE_PATH:   "$DOCKER_REGISTRY/$DOCKER_ORGANISATION/$BACKEND_IMAGE_NAME:$BACKEND_TAG"
   DOCKER_REGISTRY_REPO: "717423"                           # https://gitlab.com/api/v4/projects/12894267/registry/repositories/
   EC2_INSTANCE_NAME:    "mlreef-$CI_COMMIT_REF_SLUG"       # environment name and url are set separately
-  SSH_KEYFILE:          "development.pem"
-  STARTUP_SCRIPT:       "bin/startup.sh"
-  BACKUP_SCRIPT:        "bin/backup.sh"
-  RESTORE_SCRIPT:       "bin/restore.sh"
+  SSH_KEYFILE:          "src/terraform/development.pem"
+  DEVICE_MAPPINGS:      "src/resources/block-device-mappings.json"
+  NGINX_CONFIG:         "src/resources/nginx_proxy.conf"
+  STARTUP_SCRIPT:       "src/bin/startup.sh"
+  GITLAB_SETUP:         "src/bin/setup-gitlab.sh"
+  DEPLOY_SCRIPT:        "src/bin/deploy.sh"
+  BACKUP_SCRIPT:        "src/bin/backup.sh"
+  RESTORE_SCRIPT:       "src/bin/restore.sh"
   DOCKER_COMPOSE:       "docker-compose.yml"
+  DOCKER_ENV:           ".env"
   INSTANCE_INFO:        "instance.info"                    # file for transmitting VM information between stages
   S3_DATA_BUCKET:       "mlreef-application-data"          # see also ec2 startup script
   DATA_ARCHIVE:         "mlreef-data-develop.zip"
@@ -37,25 +42,17 @@ terraform:
   stage: prepare
   image: registry.gitlab.com/systemkern/s5:latest-aws
   variables:
-    EC2_MACHINE_SIZE:  "t3a.large"                         # https://aws.amazon.com/ec2/instance-types/
     EC2_IMAGE_AMI:     "ami-050a22b7e0cf85dd0"             # ubuntu 16.04 LTS
     EC2_SECURITY_GRP:  "application-servers"
-    STARTUP_SCRIPT:    "src/terraform/startup.sh"
   before_script:
     # if on develop, deploy a larger instance
-    - if [ $CI_COMMIT_REF_SLUG == "develop" ]; then EC2_MACHINE_SIZE="p2.xlarge"; fi
-    - chmod 400 $SSH_KEYFILE                 # prepare private key file
-
-    - export TF_VAR_environment_name=$EC2_INSTANCE_NAME
-    - export TF_VAR_instance_type=$EC2_MACHINE_SIZE
-
-    - sed -i "s~master/bin~$CI_COMMIT_REF_NAME/bin~"                                           $STARTUP_SCRIPT
-    - sed -i "s~AWS_ACCESS_KEY_ID=XXXXX~AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID~"                 $STARTUP_SCRIPT
-    - sed -i "s~AWS_SECRET_ACCESS_KEY=XXXXX~AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY~"     $STARTUP_SCRIPT
+    - if [ $CI_COMMIT_REF_SLUG == "master" ]; then EC2_MACHINE_SIZE="t3a.medium"; fi
+    - chmod 400 $SSH_KEYFILE                               # prepare private key file
+    - sed -i "s~master/bin~$CI_COMMIT_REF_NAME/bin~"     $STARTUP_SCRIPT
     - cat $STARTUP_SCRIPT
-    - aws configure set aws_access_key_id     $AWS_ACCESS_KEY_ID
-    - aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
-    - aws configure set default.region        eu-central-1
+    - aws configure set aws_access_key_id                $AWS_ACCESS_KEY_ID
+    - aws configure set aws_secret_access_key            $AWS_SECRET_ACCESS_KEY
+    - aws configure set default.region                   eu-central-1
     - ls -al ~/.aws/
     - cat ~/.aws/credentials
   script:
@@ -97,7 +94,7 @@ provision ec2:
     EC2_SECURITY_GRP:  "application-servers"
   before_script:
     # if on develop, deploy a larger instance
-    - chmod 400 $SSH_KEYFILE                 # prepare private key file
+    - chmod 400 $SSH_KEYFILE                               # prepare private key file
 
     # decommission the current environment
     # use the aws-cli to retrieve the description (json) for our machine
@@ -106,7 +103,6 @@ provision ec2:
     - aws ec2 describe-instances --filters "Name=tag:Name,Values=$EC2_INSTANCE_NAME"
       | jq -r ".Reservations[].Instances[].InstanceId"
       | xargs --no-run-if-empty aws ec2 terminate-instances --instance-id
-
     - sed -i "s~master/bin~$CI_COMMIT_REF_NAME/bin~"                                           $STARTUP_SCRIPT
     - sed -i "s~AWS_ACCESS_KEY_ID=XXXXX~AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID~"                 $STARTUP_SCRIPT
     - sed -i "s~AWS_SECRET_ACCESS_KEY=XXXXX~AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY~"     $STARTUP_SCRIPT
@@ -122,7 +118,7 @@ provision ec2:
       --security-groups ${EC2_SECURITY_GRP}
       --key-name development
       --user-data file://"${STARTUP_SCRIPT}"
-      --block-device-mappings file://bin/block-device-mappings.json
+      --block-device-mappings file://$DEVICE_MAPPINGS
       --tag-specifications "ResourceType=instance,Tags=[{Key=Name,Value=$EC2_INSTANCE_NAME}]"
       | jq -r ".Instances[].InstanceId"
       | xargs --no-run-if-empty -I {} aws ec2 describe-instances --filters "Name=instance-id,Values={}"
@@ -212,8 +208,8 @@ deploy:
     - URL=$(cat $INSTANCE_INFO)
     - echo $URL                                            # debug output
     - chmod 400 $SSH_KEYFILE                               # prepare private key file
-    - chmod +x bin/*
-    # rewrite docker dompose file
+    - chmod +x src/bin/*
+    # rewrite docker compose file
     # change the frontend docker image from develop branch to current branch
     - sed -i "s/$FRONTEND_IMAGE_NAME:develop/$FRONTEND_IMAGE_NAME:$FRONTEND_TAG/" $DOCKER_COMPOSE
     # change the frontend docker image from develop branch to current branch
@@ -221,29 +217,33 @@ deploy:
     # reactivate deactivated lines
     - sed -i "s~#CI_REMOVE~~"                                                     $DOCKER_COMPOSE
 
-    - sed -i "s/GITLAB_HOST=gitlab/GITLAB_HOST=$URL/"                         $DOCKER_COMPOSE
-    - sed -i "s/GITLAB_PORT=80/GITLAB_PORT=10080/"                            $DOCKER_COMPOSE
+    - sed -i "s/GITLAB_HOST=gitlab/GITLAB_HOST=$URL/"                             $DOCKER_COMPOSE
+    - sed -i "s/GITLAB_PORT=80/GITLAB_PORT=10080/"                                $DOCKER_COMPOSE
     - cat $DOCKER_COMPOSE
   script:
     - ssh-keyscan -H "$URL" >>~/.ssh/known_hosts
     # upload modified docker-compose to ec2 instance
     - scp -i $SSH_KEYFILE -o 'AddKeysToAgent yes' $DOCKER_COMPOSE ubuntu@${URL}:/home/ubuntu
-    - scp -i $SSH_KEYFILE -o 'AddKeysToAgent yes' bin/deploy.sh ubuntu@${URL}:/home/ubuntu
+    - scp -i $SSH_KEYFILE -o 'AddKeysToAgent yes' $DOCKER_ENV     ubuntu@${URL}:/home/ubuntu
     - ssh -i $SSH_KEYFILE -o 'AddKeysToAgent yes' ubuntu@"${URL}" "mkdir -p /home/ubuntu/bin"
-    - scp -i $SSH_KEYFILE -o 'AddKeysToAgent yes' bin/setup-gitlab.sh ubuntu@${URL}:/home/ubuntu/bin
-    - scp -i $SSH_KEYFILE -o 'AddKeysToAgent yes' ./bin/nginx_proxy.conf ubuntu@${URL}:/home/ubuntu/bin/nginx_proxy.conf
-    - echo "starting deploy.sh"
+    - ssh -i $SSH_KEYFILE -o 'AddKeysToAgent yes' ubuntu@"${URL}" "mkdir -p /home/ubuntu/src/bin"
+    - scp -i $SSH_KEYFILE -o 'AddKeysToAgent yes' $DEPLOY_SCRIPT  ubuntu@${URL}:/home/ubuntu/$DEPLOY_SCRIPT
+    - scp -i $SSH_KEYFILE -o 'AddKeysToAgent yes' $GITLAB_SETUP   ubuntu@${URL}:/home/ubuntu/$GITLAB_SETUP
+    - ssh -i $SSH_KEYFILE -o 'AddKeysToAgent yes' ubuntu@"${URL}" "mkdir -p /home/ubuntu/src/resources"
+    - scp -i $SSH_KEYFILE -o 'AddKeysToAgent yes' $NGINX_CONFIG ubuntu@${URL}:/home/ubuntu/$NGINX_CONFIG
+    - echo "starting deploy script"
     - echo "----------------------------------------"
     - ssh -i $SSH_KEYFILE -o 'AddKeysToAgent yes' ubuntu@"${URL}" "
         sudo docker login ${DOCKER_REGISTRY} -u \"${DOCKER_USER}\" -p \"${DOCKER_PASSWORD}\"
       "
     - ssh -i $SSH_KEYFILE -o 'AddKeysToAgent yes' ubuntu@"${URL}" "
-      sudo ./deploy.sh
+      sudo $DEPLOY_SCRIPT
         --instance $URL
-        --file $FRONTEND_IMAGE_PATH
+        --image $FRONTEND_IMAGE_PATH
         --port $GITLAB_PORT
         --key $AWS_ACCESS_KEY_ID
         --secret $AWS_SECRET_ACCESS_KEY
+        --workaround 120
       "
 
 gitlab env config:

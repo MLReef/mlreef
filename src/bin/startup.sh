@@ -6,48 +6,45 @@ S3_BUCKET_NAME="mlreef-application-data" # see backup.sh
 
 touch $LOG
 chmod 777 $LOG
-apt install zip unzip
-
-echo "Preparing Gitlab data folder: /data "                 >>$LOG
-# mount second block device; see: block-device-mappings.json
-# fdisk -l
-mkfs.ext4 /dev/xvdb
-mkdir /data
-mount /dev/xvdb /data
-
-echo "Installing Docker"                                    >>$LOG
-wget -qO- https://get.docker.com/ | sh
-curl -L https://github.com/docker/compose/releases/download/v1.25.2/docker-compose-$(uname -s)-$(uname -m) -o /usr/local/bin/docker-compose
-chmod +x /usr/local/bin/docker-compose
-
-echo "Downloading Gitlab Database" >>$LOG
-docker run --name=systemkern-s5-shell-alias-container --rm --tty  \
-  --volume ${HOME}:/root                                          \
-  --volume ${PWD}:/app                                            \
-  -e AWS_ACCESS_KEY_ID=XXXXX                                      \
-  -e AWS_SECRET_ACCESS_KEY=XXXXX                                  \
-  -e AWS_DEFAULT_REGION=eu-central-1                              \
-  registry.gitlab.com/systemkern/s5:latest-aws                    \
-  aws s3 cp s3://$S3_BUCKET_NAME/$INIT_ZIP .                      \
-  >>$LOG
-
-ls -la /$INIT_ZIP >>$LOG
 
 {
-  echo "Unzipping $INIT_ZIP  to /data"
-  unzip /$INIT_ZIP -d /data
-  echo "Init data unzipped:"
-  ls -la /data
-  chown -R ubuntu:ubuntu /data/**
+  echo "Installing ZIP"
+  apt install zip unzip
+
+  echo "Mounting data folder: /data "
+  # mount second block device; see: block-device-mappings.json
+  # fdisk -l
+  mkfs.ext4 /dev/xvdb
+  mkdir /data
+  mount /dev/xvdb /data
+
+  echo "Installing Docker"
+  wget -qO- https://get.docker.com/ | sh
+  curl -L https://github.com/docker/compose/releases/download/v1.25.2/docker-compose-$(uname -s)-$(uname -m) -o /usr/local/bin/docker-compose
+  chmod +x /usr/local/bin/docker-compose
+
 } >>$LOG
 
 
-# Pull the used Docker images already during startup, this will speed up the deployment phase
-docker pull nginx
-docker pull sameersbn/gitlab:12.4.0
-docker pull sameersbn/postgresql:10-2
-docker pull sameersbn/redis:4.0.9-2
-docker pull gitlab/gitlab-runner:alpine
+{
+  echo "Downloading Gitlab Database"
+  docker run --name=systemkern-s5-shell-alias-container --rm --tty  \
+    --volume ${HOME}:/root                                          \
+    --volume ${PWD}:/app                                            \
+    -e AWS_ACCESS_KEY_ID=XXXXX                                      \
+    -e AWS_SECRET_ACCESS_KEY=XXXXX                                  \
+    -e AWS_DEFAULT_REGION=eu-central-1                              \
+    registry.gitlab.com/systemkern/s5:latest-aws                    \
+    aws s3 cp s3://$S3_BUCKET_NAME/$INIT_ZIP .
+
+  echo "Unzipping $INIT_ZIP to /data"
+  ls -la /$INIT_ZIP
+  unzip /$INIT_ZIP -d /data > /dev/null
+  echo "Init data unzipped:"
+  ls -la /data
+  chown -R ubuntu:ubuntu /data/*
+} >>$LOG
+
 
 # Install nvidia-docker and nvidia-docker-plugin
 # https://github.com/NVIDIA/nvidia-docker
@@ -62,7 +59,7 @@ docker pull gitlab/gitlab-runner:alpine
 #
 # This script currently installs nvidia-docker, cuda drivers and the nvidia-container-toolkit.
 # Since nvidia-docker-2 has already been released the installation method should also be modified.
-echo "Installing NVIDIA "                 >>$LOG
+echo "Installing NVIDIA Drivers"                            >>$LOG
 
 apt-key adv --fetch-keys http://developer.download.nvidia.com/compute/cuda/repos/ubuntu1604/x86_64/7fa2af80.pub
 echo "deb http://developer.download.nvidia.com/compute/cuda/repos/ubuntu1604/x86_64 /" >/etc/apt/sources.list.d/cuda.list
@@ -90,5 +87,16 @@ tee /etc/docker/daemon.json <<EOF
 }
 EOF
 # restart docker to finish gpu installation
+
+echo "NVIDIA drivers installed ... restarting docker service" >>$LOG
 systemctl restart docker
 
+echo "Caching images" >>$LOG
+
+# Pull the used Docker images already during startup, this will speed up the deployment phase
+docker pull sameersbn/gitlab:12.4.0
+docker pull gitlab/gitlab-runner:alpine
+docker pull sameersbn/postgresql:10-2
+docker pull sameersbn/redis:4.0.9-2
+
+echo "done" >>$LOG

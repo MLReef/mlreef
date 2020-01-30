@@ -44,7 +44,8 @@
 # If the path contains spaces, these need to be escaped like this:
 # path\ with\ spaces/ @space-owner
 
-/bin @rainerkern
+/bin @rainerkern @flohin
+/src/bin @rainerkern
 /web @andres46
 .gitlab-ci.yml @rainerkern
-docker-compose.yml @rainerkern
+docker-compose.yml @rainerkern @flohin
