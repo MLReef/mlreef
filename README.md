@@ -1,5 +1,10 @@
 ![Build Status](https://gitlab.com/mlreef/backend/badges/master/build.svg)
 
+
+[![pipeline status](https://gitlab.com/mlreef/backend/badges/develop/pipeline.svg)](https://gitlab.com/mlreef/backend/commits/develop)
+
+[![coverage report](https://gitlab.com/mlreef/backend/badges/develop/coverage.svg)](https://gitlab.com/mlreef/backend/commits/develop)
+
 MLReef
 ===========================
 MLReef is being developed by the MLReef GmbH based in Austria, Europe

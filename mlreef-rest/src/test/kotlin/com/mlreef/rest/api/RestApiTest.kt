@@ -230,7 +230,7 @@ abstract class RestApiTest {
     }
 
     //Workaround for Mockito to use Kotlin's default parameters in methods
-    private fun <T> anyObject(): T {
+    protected fun <T> anyObject(): T {
         return Mockito.any<T>()
     }
 }

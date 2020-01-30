@@ -1,5 +1,6 @@
 package com.mlreef.rest.api.v1.dto
 
+import com.mlreef.rest.CodeProject
 import com.mlreef.rest.DataProcessor
 import com.mlreef.rest.DataProcessorInstance
 import com.mlreef.rest.DataProject
@@ -119,6 +120,15 @@ data class DataProjectDto(
     val experiments: List<ExperimentDto> = listOf()
 )
 
+data class CodeProjectDto(
+    val id: UUID,
+    val slug: String,
+    val url: String,
+    val ownerId: UUID,
+    val gitlabGroup: String,
+    val gitlabProject: String,
+    val gitlabId: Int
+)
 
 
 class ExperimentDto(
@@ -143,6 +153,17 @@ internal fun DataProject.toDto() =
         gitlabProject = this.gitlabProject,
         gitlabId = this.gitlabId,
         experiments = this.experiments.map { it.toDto() }
+    )
+
+internal fun CodeProject.toDto() =
+    CodeProjectDto(
+        id = this.id,
+        slug = this.slug,
+        url = this.url,
+        ownerId = this.ownerId,
+        gitlabGroup = this.gitlabGroup,
+        gitlabProject = this.gitlabProject,
+        gitlabId = this.gitlabId
     )
 
 internal fun Experiment.toDto(): ExperimentDto =
@@ -191,6 +212,7 @@ internal fun ProcessorParameter.toDto(): ParameterDto =
 
 internal fun List<Experiment>.toExperimentDtoList(): List<ExperimentDto> = this.map { it.toDto() }
 internal fun List<DataProject>.toDataProjectDtoList(): List<DataProjectDto> = this.map { it.toDto() }
+internal fun List<CodeProject>.toCodeProjectDtoList(): List<CodeProjectDto> = this.map { it.toDto() }
 internal fun List<ParameterInstance>.toParameterInstanceDtoList(): List<ParameterInstanceDto> = this.map { it.toDto() }
 internal fun Collection<ProcessorParameter>.toProcessorParameterDtoList(): List<ParameterDto> = this.map { it.toDto() }
 
