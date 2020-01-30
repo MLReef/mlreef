@@ -45,8 +45,6 @@ terraform:
     EC2_IMAGE_AMI:     "ami-050a22b7e0cf85dd0"             # ubuntu 16.04 LTS
     EC2_SECURITY_GRP:  "application-servers"
   before_script:
-    # if on develop, deploy a larger instance
-    - if [ $CI_COMMIT_REF_SLUG == "master" ]; then EC2_MACHINE_SIZE="t3a.medium"; fi
     - chmod 400 $SSH_KEYFILE                               # prepare private key file
     - sed -i "s~master/bin~$CI_COMMIT_REF_NAME/bin~"     $STARTUP_SCRIPT
     - cat $STARTUP_SCRIPT
@@ -56,12 +54,11 @@ terraform:
     - ls -al ~/.aws/
     - cat ~/.aws/credentials
   script:
-    - echo $TF_VAR_environment_name
     - cd src/terraform
     - terraform init    -input=false
     - terraform apply   -auto-approve
     - ls -al
-    - aws ec2 describe-instances --filters "Name=tag:Name,Values=$TF_VAR_environment_name"
+    - aws ec2 describe-instances --filters "Name=tag:Name,Values=$EC2_INSTANCE_NAME"
       | jq -r ".Reservations[].Instances[].InstanceId"
       | xargs --no-run-if-empty -I {} aws ec2 describe-instances --filters "Name=instance-id,Values={}"
       | jq -r ".Reservations[].Instances[].NetworkInterfaces[].Association.PublicDnsName"

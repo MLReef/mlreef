@@ -22,7 +22,7 @@ resource "aws_instance" "develop" {
   key_name          = "development"              // private public key pair "develppment.pem"
   monitoring        = true
   tags = {
-    Name = "develop"
+    Name = "mlreef-develop"
   }
   vpc_security_group_ids = [                     // add to security group "application-servers"
       "sg-01c6f11ecf39a976e"
@@ -51,7 +51,4 @@ resource "aws_volume_attachment" "data-volume" {
 resource "aws_eip_association" "develop" {
   instance_id   = aws_instance.develop.id
   allocation_id = "eipalloc-0efb3e016625a71a2"
-  provisioner "local-exec" {
-    command = "echo ${aws_eip_association.develop.public_ip} > instance.info"
-  }
 }
