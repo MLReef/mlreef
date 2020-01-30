@@ -9,7 +9,7 @@ import com.mlreef.rest.ExperimentRepository
 import com.mlreef.rest.ParameterInstance
 import com.mlreef.rest.ProcessorParameterRepository
 import com.mlreef.rest.SubjectRepository
-import com.mlreef.rest.exceptions.Error
+import com.mlreef.rest.exceptions.ErrorCode
 import com.mlreef.rest.exceptions.ExperimentCreateException
 import com.mlreef.rest.exceptions.ExperimentStartException
 import com.mlreef.rest.exceptions.RestException
@@ -81,14 +81,14 @@ class ExperimentService(
 
     fun newDataProcessorInstance(processorSlug: String): DataProcessorInstance {
         val findBySlug = dataProcessorRepository.findBySlug(processorSlug)
-            ?: throw ExperimentCreateException(Error.DataProcessorNotUsable, processorSlug)
+            ?: throw ExperimentCreateException(ErrorCode.DataProcessorNotUsable, processorSlug)
 
         return DataProcessorInstance(randomUUID(), findBySlug, parameterInstances = arrayListOf())
     }
 
     fun addParameterInstance(processorInstance: DataProcessorInstance, name: String, value: String): ParameterInstance {
         val processorParameter = processorParameterRepository.findByDataProcessorIdAndName(processorInstance.dataProcessor.id, name)
-            ?: throw ExperimentCreateException(Error.ProcessorParameterNotUsable, name)
+            ?: throw ExperimentCreateException(ErrorCode.ProcessorParameterNotUsable, name)
 
         return processorInstance.addParameterInstances(processorParameter, value)
     }

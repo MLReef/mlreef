@@ -10,7 +10,7 @@ import com.mlreef.rest.I18N
 import com.mlreef.rest.Person
 import com.mlreef.rest.PersonRepository
 import com.mlreef.rest.config.censor
-import com.mlreef.rest.exceptions.Error
+import com.mlreef.rest.exceptions.ErrorCode
 import com.mlreef.rest.exceptions.GitlabAlreadyExistingConflictException
 import com.mlreef.rest.exceptions.GitlabConflictException
 import com.mlreef.rest.exceptions.GitlabConnectException
@@ -141,7 +141,7 @@ class GitlabAuthService(
             throw GitlabConnectException(e.message ?: "Cannot execute gitlabRestClient.getUser")
         } catch (e: Exception) {
             log.error(e.message, e)
-            throw GitlabAlreadyExistingConflictException(Error.GitlabUserNotExisting, "Cannot find Gitlab user with this token ${token.censor()}")
+            throw GitlabAlreadyExistingConflictException(ErrorCode.GitlabUserNotExisting, "Cannot find Gitlab user with this token ${token.censor()}")
         }
     }
 

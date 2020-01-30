@@ -1,5 +1,6 @@
 stages:
   - build
+  - test
   - deploy
   - teardown
 
@@ -41,6 +42,7 @@ build-backend:
     - echo "Use DB $DB_NAME with $DB_USER"
   script:
     - ./gradlew build --stacktrace
+    - ./gradlew jacocoTestReport coverageReport
     - ./gradlew :mlreef-rest:bootJar
     - ./gradlew :mlreef-rest:prepareDocker
   artifacts:
@@ -48,8 +50,22 @@ build-backend:
       - mlreef-rest/build/asciidoc/html5/rest-api.html
       - mlreef-rest/build/libs/*
       - mlreef-rest/build/dependency/*
+      - mlreef-rest/build/reports/jacoco/test
+      - mlreef-rest/build/reports/tests/
     expire_in: 1 week
 
+pages:
+  stage: test
+  dependencies:
+    - build-backend
+  script:
+    - mkdir public
+    - mv mlreef-rest/build/reports/jacoco/test/html/* public
+  artifacts:
+    paths:
+      - public
+  only:
+    - develop
 
 deploy-backend:
   stage: deploy

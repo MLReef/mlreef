@@ -144,6 +144,33 @@ operation::login-success[snippets='curl-request,request-fields,http-response,res
 [[resources]]
 = Resources
 
+[[code-projects]]
+== CodeProjects - /code-projects
+
+CodeProjects are the semantic equivalent of a gitlab project which acts as a place for DataProcessors
+
+Currently users can only retrieve and manipulate their own CodeProjects
+
+=== GET /code-projects
+
+operation::codeprojects-retrieve-all[snippets='curl-request,response-body,response-fields']
+
+=== GET /code-projects/:id
+
+operation::codeprojects-retrieve-one[snippets='curl-request,response-body,response-fields']
+
+=== POST /code-projects
+
+operation::codeprojects-create[snippets='curl-request,response-body,response-fields']
+
+=== PUT /code-projects/:id
+
+operation::codeprojects-update[snippets='curl-request,response-body,response-fields']
+
+=== DELETE /code-projects/:id
+
+operation::codeprojects-delete[snippets='curl-request']
+
 [[data-projects]]
 == Data Projects - /data-projects
 
@@ -170,7 +197,7 @@ operation::dataprojects-update[snippets='curl-request,response-body,response-fie
 
 === DELETE /data-projects/:id
 
-operation::dataprojects-delete[snippets='curl-request,response-body,response-fields']
+operation::dataprojects-delete[snippets='curl-request']
 
 [[experiments]]
 == Experiments - /data-projects/:id/experiments

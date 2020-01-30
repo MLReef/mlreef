@@ -1,12 +1,12 @@
 package com.mlreef.rest.api.v1
 
-import com.mlreef.rest.DataProject
-import com.mlreef.rest.DataProjectRepository
+import com.mlreef.rest.CodeProject
+import com.mlreef.rest.CodeProjectRepository
 import com.mlreef.rest.api.CurrentUserService
-import com.mlreef.rest.api.v1.dto.DataProjectDto
+import com.mlreef.rest.api.v1.dto.CodeProjectDto
 import com.mlreef.rest.api.v1.dto.toDto
 import com.mlreef.rest.exceptions.NotFoundException
-import com.mlreef.rest.feature.project.DataProjectService
+import com.mlreef.rest.feature.project.CodeProjectService
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
@@ -23,69 +23,69 @@ import javax.validation.Valid
 import javax.validation.constraints.NotEmpty
 
 @RestController
-@RequestMapping("/api/v1/data-projects")
-class DataProjectsController(
-    val dataProjectRepository: DataProjectRepository,
-    val dataProjectService: DataProjectService,
+@RequestMapping("/api/v1/code-projects")
+class CodeProjectsController(
+    val codeProjectRepository: CodeProjectRepository,
+    val codeProjectService: CodeProjectService,
     val currentUserService: CurrentUserService
 ) {
-    private val log: Logger = Logger.getLogger(DataProjectsController::class.simpleName)
+    private val log: Logger = Logger.getLogger(CodeProjectsController::class.simpleName)
 
     fun assertFindExisting(projectUUID: UUID) =
-        dataProjectRepository.findOneByOwnerIdAndId(currentUserService.person().id, projectUUID)
+        codeProjectRepository.findOneByOwnerIdAndId(currentUserService.person().id, projectUUID)
             ?: throw NotFoundException("Data project not found")
 
     @GetMapping
-    fun getAllDataProjects(): List<DataProjectDto> {
-        return dataProjectRepository.findAllByOwnerId(currentUserService.person().id).map(DataProject::toDto)
+    fun getAllCodeProjects(): List<CodeProjectDto> {
+        return codeProjectRepository.findAllByOwnerId(currentUserService.person().id).map(CodeProject::toDto)
     }
 
     @GetMapping("/{id}")
-    fun getDataProjectById(@PathVariable id: UUID): DataProjectDto {
-        val dataProject = assertFindExisting(id)
-
-        return dataProject.toDto()
+    fun getCodeProjectById(@PathVariable id: UUID): CodeProjectDto {
+        val codeProject = assertFindExisting(id)
+        return codeProject.toDto()
     }
 
     @PostMapping
-    fun createDataProject(@Valid @RequestBody dataProjectCreateRequest: DataProjectCreateRequest): DataProjectDto {
+    fun createCodeProject(@Valid @RequestBody dataProjectCreateRequest: DataProjectCreateRequest): CodeProjectDto {
         val userToken = currentUserService.token()
         val ownerId = currentUserService.person().id
-        val dataProject = dataProjectService.createProject(
+        val codeProject = codeProjectService.createProject(
             userToken = userToken,
             ownerId = ownerId,
             projectPath = dataProjectCreateRequest.path,
             projectName = dataProjectCreateRequest.name)
 
-        return dataProject.toDto()
+        return codeProject.toDto()
     }
 
     @PutMapping("/{id}")
-    fun updateDataProject(@PathVariable id: UUID, @Valid @RequestBody dataProjectCreateRequest: DataProjectCreateRequest): DataProjectDto {
+    fun updateCodeProject(@PathVariable id: UUID, @Valid @RequestBody codeProjectCreateRequest: CodeProjectCreateRequest): CodeProjectDto {
         val userToken = currentUserService.token()
         val ownerId = currentUserService.person().id
-        val dataProject = dataProjectService.updateProject(
+        val findExisting = assertFindExisting(id)
+        val codeProject = codeProjectService.updateProject(
             userToken = userToken,
             ownerId = ownerId,
             projectUUID = id,
-            projectName = dataProjectCreateRequest.name)
+            projectName = codeProjectCreateRequest.name)
 
-        return dataProject.toDto()
+        return codeProject.toDto()
     }
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    fun deleteDataProject(@PathVariable id: UUID) {
+    fun deleteCodeProject(@PathVariable id: UUID) {
         val userToken = currentUserService.token()
         val ownerId = currentUserService.person().id
-        dataProjectService.deleteProject(
+        codeProjectService.deleteProject(
             userToken = userToken,
             ownerId = ownerId,
             projectUUID = id)
     }
 }
 
-class DataProjectCreateRequest(
+class CodeProjectCreateRequest(
     @NotEmpty val path: String,
     @NotEmpty val name: String
 )

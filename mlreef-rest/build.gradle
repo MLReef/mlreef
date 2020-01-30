@@ -6,6 +6,7 @@ plugins {
     id 'kotlin-jpa'
     id 'kotlin-allopen'
     id 'org.asciidoctor.convert' version "1.5.9.2"
+    id 'jacoco'
 }
 
 group = 'com.mlreef'
@@ -90,6 +91,7 @@ ext {
 
 test {
     outputs.dir snippetsDir
+    finalizedBy jacocoTestReport
 }
 
 asciidoctor {
@@ -101,6 +103,13 @@ bootJar {
     dependsOn asciidoctor
     from("${asciidoctor.outputDir}/html5") {
         into 'static/docs'
+    }
+}
+
+jacocoTestReport {
+    reports {
+        xml.enabled true
+        csv.enabled true
     }
 }
 
@@ -117,5 +126,31 @@ task prepareDocker {
     mustRunAfter ":mlreef-rest:explodeJar"
     doLast {
        print("Explode Jar for docker")
+    }
+}
+
+task coverageReport() {
+    dependsOn jacocoTestReport
+
+    def reportFile = project.file("build/reports/jacoco/test/jacocoTestReport.xml")
+    inputs.file(reportFile)
+
+    doLast {
+        def slurper = new XmlSlurper()
+        slurper.setFeature("http://apache.org/xml/features/disallow-doctype-decl", false)
+        slurper.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false)
+        def xml = slurper.parse(reportFile)
+        def counter = xml.counter.find {
+            node -> node.@type == 'BRANCH'
+        }
+        def missed = counter.@missed.toDouble()
+        def covered = counter.@covered.toDouble()
+        def total = missed + covered
+        def percentage = covered / total * 100
+
+        printf "Coverage: Missed %.0f branches%n", missed
+        printf "Covered %.0f branches%n", covered
+        printf "Total %.0f%%%n", percentage
+        printf "Coverage: Total %.0f%%%n", percentage
     }
 }

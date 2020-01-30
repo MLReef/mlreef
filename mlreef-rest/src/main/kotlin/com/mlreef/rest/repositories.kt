@@ -3,6 +3,7 @@ package com.mlreef.rest
 import org.springframework.stereotype.Repository
 import java.util.*
 
+
 @Repository interface AccountRepository : KtCrudRepository<Account, UUID> {
     fun findOneByUsername(username: String): Account?
     fun findOneByEmail(email: String): Account?
@@ -30,7 +31,10 @@ import java.util.*
     fun findOneByOwnerIdAndSlug(ownerId: UUID, slug: String): DataProject?
 }
 
-@Repository interface CodeProjectRepository : KtCrudRepository<CodeProject, UUID>
+@Repository interface CodeProjectRepository : KtCrudRepository<CodeProject, UUID> {
+    fun findAllByOwnerId(ownerId: UUID): List<CodeProject>
+    fun findOneByOwnerIdAndId(ownerId: UUID, id: UUID): CodeProject?
+}
 
 @Repository interface OutputFileRepository : KtCrudRepository<OutputFile, UUID>
 
