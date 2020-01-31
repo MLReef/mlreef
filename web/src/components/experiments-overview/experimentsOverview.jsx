@@ -19,6 +19,7 @@ import {
 } from '../../dataTypes';
 import ExperimentDetails from '../experiment-details/experimentDetails';
 import ExperimentCard from './experimentCard';
+import { classifyPipeLines } from '../../functions/pipeLinesHelpers';
 
 class ExperimentsOverview extends Component {
   constructor(props) {
@@ -35,33 +36,7 @@ class ExperimentsOverview extends Component {
     this.setSelectedExperiment = this.setSelectedExperiment.bind(this);
     const arrayOfBranches = branches.filter((branch) => branch.name.startsWith('experiment'));
     pipelinesApi.getPipesByProjectId(selectedProject.id).then((res) => {
-      const pipes = res.filter((pipe) => pipe.status !== SKIPPED);
-      const experiments = arrayOfBranches.map((branch) => {
-        const pipeBranch = pipes.filter((pipe) => pipe.ref === branch.name)[0];
-        if (pipeBranch) {
-          const experiment = {};
-          experiment.status = pipeBranch.status;
-          experiment.name = branch.name;
-          experiment.authorName = branch.commit.author_name;
-          experiment.createdAt = branch.commit.created_at;
-          experiment.commit = branch.commit;
-          return experiment;
-        }
-
-        return null;
-      }).filter((experiment) => experiment !== null);
-      const experimentsClassified = [
-        {
-          status: RUNNING,
-          values:
-          experiments
-            .filter((exp) => exp.status === RUNNING
-              || exp.status === PENDING),
-        },
-        { status: SUCCESS, values: experiments.filter((exp) => exp.status === SUCCESS) },
-        { status: CANCELED, values: experiments.filter((exp) => exp.status === CANCELED) },
-        { status: FAILED, values: experiments.filter((exp) => exp.status === FAILED) },
-      ];
+      const experimentsClassified = classifyPipeLines(res, arrayOfBranches);
       this.setState({ experiments: experimentsClassified, all: experimentsClassified });
     });
   }

@@ -1,5 +1,7 @@
 import { toastr } from 'react-redux-toastr';
-import { BOOL, mlreefFileContent } from '../dataTypes';
+import {
+  Adjectives, BOOL, mlreefFileContent, Nouns, RUNNING, SUCCESS, CANCELED, FAILED, PENDING, SKIPPED, EXPIRED,
+} from '../dataTypes';
 import branchesApi from '../apis/BranchesApi';
 import { callToCommitApi } from './apiCalls';
 
@@ -132,3 +134,42 @@ const createPipelineInProject = (
 };
 
 export default createPipelineInProject;
+
+export const randomNameGenerator = () => {
+  const randomFirstName = Math.floor(Math.random() * Adjectives.length);
+  const randomLastName = Math.floor(Math.random() * Nouns.length);
+  const currentDate = new Date();
+  const date = currentDate.getDate();
+  const month = currentDate.getMonth();
+  const year = currentDate.getFullYear();
+  const dateString = `${date}${month + 1}${year}`;
+  return `${Adjectives[randomFirstName]}-${Nouns[randomLastName]}_${dateString}`;
+};
+
+export const classifyPipeLines = (pipelinesToClassify, arrayOfBranches) => {
+  const pipes = pipelinesToClassify.filter((pipe) => pipe.status !== SKIPPED);
+  const infoPipelinesComplemented = arrayOfBranches.map((branch) => {
+    const pipeBranch = pipes.filter((pipe) => pipe.ref === branch.name)[0];
+    if (pipeBranch) {
+      return {
+        status: pipeBranch.status,
+        name: branch.name,
+        authorName: branch.commit.author_name,
+        createdAt: branch.commit.created_at,
+        commit: branch.commit,
+      };
+    }
+
+    return null;
+  }).filter((pipeline) => pipeline !== null);
+  return [
+    {
+      status: RUNNING,
+      values: infoPipelinesComplemented.filter((exp) => exp.status === RUNNING || exp.status === PENDING),
+    },
+    { status: SUCCESS, values: infoPipelinesComplemented.filter((exp) => exp.status === SUCCESS) },
+    { status: CANCELED, values: infoPipelinesComplemented.filter((exp) => exp.status === CANCELED) },
+    { status: FAILED, values: infoPipelinesComplemented.filter((exp) => exp.status === FAILED) },
+    { status: EXPIRED, values: infoPipelinesComplemented.filter((exp) => exp.status === EXPIRED) },
+  ];
+};

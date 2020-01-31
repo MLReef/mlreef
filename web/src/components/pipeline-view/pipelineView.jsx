@@ -14,7 +14,8 @@ import { DataOperationsList } from './dataOperationsList';
 import Instruction from '../instruction/instruction';
 import ExecutePipelineModal from '../execute-pipeline-modal/executePipeLineModal';
 import withPipelineExecution from '../withPipelinesExecution';
-import { dataPipeLines, Adjectives, Nouns } from '../../dataTypes';
+import { dataPipeLines } from '../../dataTypes';
+import { randomNameGenerator } from '../../functions/pipeLinesHelpers';
 
 const PipeLineView = ({
   project,
@@ -40,15 +41,7 @@ const PipeLineView = ({
 }) => {
   const items = dataOperationsSelected;
   setPreconfiguredOperations(dataPipeLines);
-  const randomFirstName = Math.floor(Math.random()*Adjectives.length);
-  const randomLastName = Math.floor(Math.random()*Nouns.length);
-  const currentDate = new Date();
-  const date = currentDate.getDate();
-  const month = currentDate.getMonth();
-  const year = currentDate.getFullYear();
-  const dateString = date + "" + (month + 1) + "" + year;
-  const uniqueName = Adjectives[randomFirstName] + "-" + Nouns[randomLastName] + "_" + dateString;
-
+  const uniqueName = randomNameGenerator();
   const branchName = `data-pipeline/${uniqueName}`;
   const dataInstanceName = `data-pipeline/${uniqueName}`;
   const jobName = 'data-pipeline';

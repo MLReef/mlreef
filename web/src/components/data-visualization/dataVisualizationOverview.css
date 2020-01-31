@@ -1,0 +1,6 @@
+#loading-circular-progress {
+  width: 100%;
+  margin-top: 2em;
+  display: flex;
+  justify-content: center
+}

@@ -30,6 +30,7 @@ const ExecutePipelineModal = ({
   const [isSecondOptSelected, setIsSecondOptSelected] = useState(false);
   const [showMachines, setShowMachines] = useState(false);
   const [selectMachinesMess, setSelectMachinesMess] = useState('Select a machine...');
+  const isADataVisualizationPipe = dataInstanceName.includes('data-visualization');
   function cleanForm() {
     setIsFirstOptSelected(false);
     setIsSecondOptSelected(false);
@@ -38,7 +39,6 @@ const ExecutePipelineModal = ({
     toggle();
     setSelectMachinesMess('Select a machine...');
   }
-
   return isShowing
     ? (
       <div className="generic-modal">
@@ -47,7 +47,9 @@ const ExecutePipelineModal = ({
             <div style={{ padding: '0 3em' }}>
               <p>
                 {section === 1
-                  ? `Select output method for your data pipeline with ${amountFilesSelected} data files selected`
+                  ? 'Select output method for your'
+                    + `${isADataVisualizationPipe ? ' data visualization ' : ' set of data instances '}`
+                    + `with ${amountFilesSelected} data files selected`
                   : 'Your new set of data intances is being created'}
               </p>
             </div>
@@ -79,7 +81,12 @@ const ExecutePipelineModal = ({
                   }}
                 >
                   <input type="radio" checked={isFirstOptSelected} id="show-first-opt" onChange={() => {}} />
-                  <p style={{ marginLeft: '1em' }} id="paragraph-op1">Create a new set of data instances in your data repository</p>
+                  <p style={{ marginLeft: '1em' }} id="paragraph-op1">
+                    Create a new
+                    {' '}
+                    {isADataVisualizationPipe ? 'data visualization ' : ' set of data instances '}
+                    in your data repository
+                  </p>
                 </div>
                 {isFirstOptSelected
                   && (
@@ -182,8 +189,8 @@ const ExecutePipelineModal = ({
           {section === 2 && (
             <div style={{ padding: '1em 0 1em 3em', cursor: 'pointer', height: '70%' }}>
               <p>
-                Data instance:
-                <b>DI_ProjectName_1</b>
+                {isADataVisualizationPipe ? 'Data visualization: ' : 'Data instance: '}
+                <b>{dataInstanceName}</b>
               </p>
               <div style={{
                 backgroundColor: 'white',
