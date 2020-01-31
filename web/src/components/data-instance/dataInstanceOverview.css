@@ -1,42 +1,5 @@
 /* ------------- Card content ---------------*/
 
-.pipeline-card > .card-content > .summary-data {
-    color: #1c2b40;
-    display: flex;
-    border-top: 2px solid #e5e5e5;
-    width: 100%;
-}
-
-.pipeline-card > .card-content > .summary-data > .dull {
-    color: #949494
-}
-
-.pipeline-card > .card-content > .summary-data > .project-desc-experiment {
-    padding: 0% 1% 0% 1%;
-    margin-left: 1%;
-    width: 20%;
-}
-
-.pipeline-card > .card-content > .summary-data > .buttons-div {
-    position: relative;
-    width: 35%;
-    display: flex;
-    flex-direction: row-reverse;
-    padding: 0% 1% 0% 1%;
-    margin-top: 15px;
-}
-
-.pipeline-card > .card-content > .summary-data > .buttons-div button {
-    cursor: pointer;
-    border-radius: 0.3vw;
-}
-
-.pipeline-card > .card-content > .summary-data > .buttons-div button.dangerous-red {
-    border-radius: 0.3vw;
-    border-width: 1.7px;
-    width: 35px;
-}
-
 .card-content > .summary-data > .buttons-div > button{
     margin-right: 5px !important;
 }
@@ -77,4 +40,8 @@
 .save-instance .search-branch > div:hover{
     background-color: #ececec;
     cursor: pointer;
+}
+
+#data-ins-summary-data {
+  width: 100%;
 }

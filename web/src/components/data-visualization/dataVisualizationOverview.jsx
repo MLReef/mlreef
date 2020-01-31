@@ -1,51 +1,63 @@
-import React, { Component } from "react";
-import { connect } from "react-redux";
-import Navbar from "../navbar/navbar";
-import ProjectContainer from "../projectContainer";
-import Instruction from "../instruction/instruction";
-import DataVisualizationCard from "./dataVisualizationCard";
+import React, { Component } from 'react';
+import { connect } from 'react-redux';
+import { CircularProgress } from '@material-ui/core';
+import './dataVisualizationOverview.css';
+import Navbar from '../navbar/navbar';
+import ProjectContainer from '../projectContainer';
+import Instruction from '../instruction/instruction';
+import DataVisualizationCard from './dataVisualizationCard';
 import {
   RUNNING,
   SUCCESS,
   EXPIRED,
 } from '../../dataTypes';
-import { mockDataInstancesList } from "../../testData";
+import PipeLinesApi from '../../apis/PipelinesApi';
+import { classifyPipeLines } from '../../functions/pipeLinesHelpers';
 
 export class DataVisualizationOverview extends Component {
-  constructor(props){
+  constructor(props) {
     super(props);
+    const { selectedProject, branches } = this.props;
     this.state = {
-      filteredVisualizations: mockDataInstancesList
-    }
+      filteredVisualizations: [],
+    };
+    const arrayOfBranches = branches.filter((branch) => branch.name.startsWith('data-visualization'));
+    PipeLinesApi.getPipesByProjectId(selectedProject.id).then((res) => {
+      const filteredVisualizations = classifyPipeLines(res, arrayOfBranches);
+      this.setState({
+        filteredVisualizations,
+        all: filteredVisualizations,
+      });
+    });
     this.handleFilterBtnClick = this.handleFilterBtnClick.bind(this);
   }
 
-  handleFilterBtnClick(idFilterButtonPressed){
+  handleFilterBtnClick(idFilterButtonPressed) {
     let filteredIns = [];
+    const { all } = this.state;
     switch (idFilterButtonPressed) {
       case 'all':
-        filteredIns = mockDataInstancesList;
+        filteredIns = all;
         break;
       case 'progress':
-        filteredIns = mockDataInstancesList.filter(dataIns => dataIns.status === RUNNING);
+        filteredIns = all.filter((dataIns) => dataIns.status === RUNNING);
         break;
       case 'active':
-        filteredIns = mockDataInstancesList.filter(dataIns => dataIns.status === SUCCESS);
+        filteredIns = all.filter((dataIns) => dataIns.status === SUCCESS);
         break;
       default:
-        filteredIns = mockDataInstancesList.filter(dataIns => dataIns.status === EXPIRED);
+        filteredIns = all.filter((dataIns) => dataIns.status === EXPIRED);
         break;
     }
     this.setState({ filteredVisualizations: filteredIns });
   }
 
-  render(){
+  render() {
     const {
-      projects: { selectedProject }
+      selectedProject,
     } = this.props;
     const { filteredVisualizations } = this.state;
     const groupName = selectedProject.namespace.name;
-
     return (
       <>
         <Navbar />
@@ -99,19 +111,21 @@ export class DataVisualizationOverview extends Component {
               Expired
             </button>
           </div>
-          {filteredVisualizations.map(dataInsClas => (
-            <DataVisualizationCard classification={dataInsClas} key={dataInsClas.status}/>
-          ))}
+          {filteredVisualizations.length === 0
+            ? <div id="loading-circular-progress"><CircularProgress size={30} /></div>
+            : filteredVisualizations.map((dataInsClas) => (
+              <DataVisualizationCard classification={dataInsClas} key={dataInsClas.status} />
+            ))}
         </div>
-        <br/>
+        <br />
       </>
-    )
+    );
   }
 }
 
 function mapStateToProps(state) {
   return {
-    projects: state.projects,
+    selectedProject: state.projects.selectedProject,
     branches: state.branches,
   };
 }

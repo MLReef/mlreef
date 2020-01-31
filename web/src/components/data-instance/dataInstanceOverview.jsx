@@ -18,6 +18,7 @@ import {
 } from '../../dataTypes';
 import filesApi from '../../apis/FilesApi';
 import Dropdown from '../DropDown';
+import { classifyPipeLines } from '../../functions/pipeLinesHelpers';
 
 const getStatusForDataInstance = (status) => {
   let mappedStatus = status;
@@ -124,7 +125,7 @@ export const InstanceCard = ({ ...props }) => {
 
   if (params && params.instances) {
     return params.instances.length > 0 ? (
-      <div className="data-instance-card">
+      <div className="pipeline-card">
         <div className="header">
           <div className="title-div">
             <p><b>{getStatusForDataInstance(params.currentState)}</b></p>
@@ -139,7 +140,7 @@ export const InstanceCard = ({ ...props }) => {
           if (instance.currentState === 'Expired') { progressVisibility = 'hidden'; }
           return (
             <div key={index} className="card-content">
-              <div className="summary-data" data-key={`${instance.descTitle}`}>
+              <div id="data-ins-summary-data" className="summary-data" data-key={`${instance.descTitle}`}>
                 <div className="project-desc-experiment">
                   <p
                     onClick={(e) => {
@@ -194,8 +195,10 @@ export const InstanceCard = ({ ...props }) => {
 export class DataInstanceOverview extends Component {
   constructor(props) {
     super(props);
-    let project, branches, id;
-    if(props.projects){
+    let project;
+    let branches;
+    let id;
+    if (props.projects) {
       project = props.projects.selectedProject;
       branches = props.branches.filter((branch) => branch.name.startsWith('data-pipeline'));
       id = project.id;
@@ -209,32 +212,7 @@ export class DataInstanceOverview extends Component {
     };
 
     pipelinesApi.getPipesByProjectId(id).then((res) => {
-      const pipes = res.filter((pipe) => pipe.status !== SKIPPED);
-      const dataInstances = branches.map((branch) => {
-        const pipeBranch = pipes.filter((pipe) => pipe.ref === branch.name)[0];
-        if (pipeBranch) {
-          const dataInstance = {};
-          dataInstance.status = pipeBranch.status;
-          dataInstance.name = branch.name;
-          dataInstance.authorName = branch.author_name;
-          dataInstance.commit = branch.commit;
-          return dataInstance;
-        }
-
-        return null;
-      }).filter((dataInstance) => dataInstance !== null);
-      const dataInstancesClassified = [
-        {
-          status: RUNNING,
-          values:
-          dataInstances
-            .filter((dataIns) => dataIns.status === RUNNING
-              || dataIns.status === PENDING),
-        },
-        { status: SUCCESS, values: dataInstances.filter((dataIns) => dataIns.status === SUCCESS) },
-        { status: CANCELED, values: dataInstances.filter((dataIns) => dataIns.status === CANCELED) },
-        { status: FAILED, values: dataInstances.filter((dataIns) => dataIns.status === FAILED) },
-      ];
+      const dataInstancesClassified = classifyPipeLines(res, branches);
       this.setState({ dataInstances: dataInstancesClassified, all: dataInstancesClassified });
     });
     this.setIsDeleteModalVisible = this.setIsDeleteModalVisible.bind(this);
@@ -248,8 +226,8 @@ export class DataInstanceOverview extends Component {
   }
 
   handleButtonsClick(e) {
-    if(e) {
-        e.target.parentNode.childNodes.forEach((childNode) => {
+    if (e) {
+      e.target.parentNode.childNodes.forEach((childNode) => {
         if (childNode.id !== e.target.id) {
           childNode.classList.remove('active-border-light-blue');
           childNode.classList.add('non-active-black-border');
@@ -277,8 +255,9 @@ export class DataInstanceOverview extends Component {
 
   render() {
     const { project } = this.state;
-    let groupName, name;
-    if(project){
+    let groupName; let
+      name;
+    if (project) {
       groupName = project.namespace.name;
       name = project.name;
     }

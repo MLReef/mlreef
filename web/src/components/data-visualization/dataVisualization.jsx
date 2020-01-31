@@ -14,42 +14,63 @@ import SelectDataPipelineModal from '../select-data-pipeline/selectDataPipelineM
 import { DataOperationsList } from '../pipeline-view/dataOperationsList';
 import Instruction from '../instruction/instruction';
 import withPipelinesExecution from '../withPipelinesExecution';
+import ExecutePipelineModal from '../execute-pipeline-modal/executePipeLineModal';
+import { randomNameGenerator } from '../../functions/pipeLinesHelpers';
 
 const EmptyDataVisualization = ({ ...props }) => {
-  const { project } = props;
-  const { dataOperations } = props;
-  const { branches } = props;
-  const { files } = props;
-  const { dataOperationsSelected } = props;
-  const { filesSelectedInModal } = props;
+  const {
+    project,
+    dataOperations,
+    showSelectFilesModal,
+    dataOperationsSelected,
+    branches,
+    selectDataClick,
+    filesSelectedInModal,
+    handleModalAccept,
+    isShowingExecutePipelineModal,
+    toggleExecutePipeLineModal,
+    branchSelected,
+    handleExecuteBtn,
+    onSortEnd,
+    drop,
+    allowDrop,
+    showFilters,
+    handleCheckMarkClick,
+    handleDragStart,
+    whenDataCardArrowButtonIsPressed,
+    setPreconfiguredOperations,
+  } = props;
+  setPreconfiguredOperations(dataVisualizations);
   const items = dataOperationsSelected;
   let operationsSelected = items.length;
   const groupName = project.namespace.name;
   operationsSelected += 1;
-  /*
-    next props are functions
-  */
-  const { showSelectFilesModal } = props;
-  const { selectDataClick } = props;
-  const { handleModalAccept } = props;
-  const { onSortEnd } = props;
-  const { handleDragStart } = props;
-  const { whenDataCardArrowButtonIsPressed } = props;
-  const { checkBoxOwnDataOperations } = props;
-  const { checkBoxStarredDataOperations } = props;
-  const { handleCheckMarkClick } = props;
-  const { drop } = props;
-  const { allowDrop } = props;
+  const uniqueName = randomNameGenerator();
+  const branchName = `data-visualization/${uniqueName}`;
+  const dataInstanceName = `data-visualization/${uniqueName}`;
+  const jobName = 'data-visualization';
   return (
     <div className="pipe-line-view">
       <SelectDataPipelineModal
         project={project}
         branches={branches}
-        files={files}
         selectDataClick={selectDataClick}
         show={showSelectFilesModal}
         filesSelectedInModal={filesSelectedInModal}
         handleModalAccept={handleModalAccept}
+      />
+      <ExecutePipelineModal
+        isShowing={isShowingExecutePipelineModal}
+        amountFilesSelected={filesSelectedInModal.length}
+        toggle={toggleExecutePipeLineModal}
+        dataOperationsSelected={dataOperationsSelected}
+        filesSelectedInModal={filesSelectedInModal}
+        http_url_to_repo={project.http_url_to_repo}
+        projectId={project.id}
+        branchName={branchName}
+        dataInstanceName={dataInstanceName}
+        jobName={jobName}
+        branchSelected={branchSelected}
       />
       <Navbar />
       <ProjectContainer project={project} activeFeature="data" folders={[groupName, project.name, 'Data', 'Visualization']} />
@@ -69,7 +90,7 @@ const EmptyDataVisualization = ({ ...props }) => {
               </div>
             </div>
             <div className="header-right-items flexible-div">
-              <div id="execute-button" className="header-button round-border-button right-item flexible-div">
+              <div id="execute-button" className="header-button round-border-button right-item flexible-div" onClick={handleExecuteBtn}>
                 Execute
               </div>
             </div>
@@ -180,7 +201,6 @@ const EmptyDataVisualization = ({ ...props }) => {
                   Only own data operations
                   <input
                     type="checkbox"
-                    value={checkBoxOwnDataOperations}
                     onChange={handleCheckMarkClick}
                     id="checkBoxOwnDataOperations"
                   />
@@ -193,7 +213,6 @@ const EmptyDataVisualization = ({ ...props }) => {
                   Only starred data operations
                   <input
                     type="checkbox"
-                    value={checkBoxStarredDataOperations}
                     onChange={handleCheckMarkClick}
                     id="checkBoxStarredDataOperations"
                   />
