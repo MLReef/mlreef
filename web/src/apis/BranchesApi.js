@@ -1,5 +1,5 @@
-import { SECURITY_TOKEN, GITLAB_INSTANCE } from '../apiConfig';
-import { generateGetRequest } from './apiHelpers';
+import { GITLAB_INSTANCE } from '../apiConfig';
+import { generateGetRequest, getCurrentToken } from './apiHelpers';
 
 /**
  * core-js and regenerator-runtime imports are necessary to make tests run
@@ -14,7 +14,7 @@ export default class BranchesApi {
         `${GITLAB_INSTANCE}/api/v4/projects/${projectId}/repository/branches?branch=${branchName}&ref=${refBranch}`, {
           method: 'POST',
           headers: new Headers({
-            'PRIVATE-TOKEN': SECURITY_TOKEN,
+            'PRIVATE-TOKEN': getCurrentToken(),
             'Content-Type': 'application/json',
           }),
         },
@@ -46,7 +46,7 @@ export default class BranchesApi {
         url, {
           method: 'DELETE',
           headers: new Headers({
-            'PRIVATE-TOKEN': SECURITY_TOKEN,
+            'PRIVATE-TOKEN': getCurrentToken(),
           }),
         },
       );

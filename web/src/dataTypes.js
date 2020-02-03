@@ -46,8 +46,6 @@ before_script:
    - git push
 `;
 
-export const domain = 'gitlab.com';
-
 export const colorsForCharts = [
   '#f5544d',
   '#2db391',

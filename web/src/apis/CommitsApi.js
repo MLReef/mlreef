@@ -1,5 +1,5 @@
-import { SECURITY_TOKEN, GITLAB_INSTANCE } from '../apiConfig';
-import { generateGetRequest } from './apiHelpers';
+import { GITLAB_INSTANCE } from '../apiConfig';
+import { generateGetRequest, getCurrentToken } from './apiHelpers';
 
 export default class CommitsApi {
   static async performCommit(projectId, filePath, fileContent, branch, commitMss, action) {
@@ -8,9 +8,8 @@ export default class CommitsApi {
         `${GITLAB_INSTANCE}/api/v4/projects/${projectId}/repository/commits`, {
           method: 'POST',
           headers: new Headers({
-            'PRIVATE-TOKEN': SECURITY_TOKEN,
+            'PRIVATE-TOKEN': getCurrentToken(),
             'Content-Type': 'application/json',
-            'Access-Control-Allow-Origin': 'https://gitlab.com',
           }),
           body: JSON.stringify({
             branch,
@@ -38,7 +37,7 @@ export default class CommitsApi {
       url, {
         method: 'GET',
         headers: new Headers({
-          'PRIVATE-TOKEN': SECURITY_TOKEN,
+          'PRIVATE-TOKEN': getCurrentToken(),
         }),
       },
     ));
@@ -51,7 +50,7 @@ export default class CommitsApi {
       url, {
         method: 'GET',
         headers: new Headers({
-          'PRIVATE-TOKEN': SECURITY_TOKEN,
+          'PRIVATE-TOKEN': getCurrentToken(),
         }),
       },
     ));
@@ -64,7 +63,7 @@ export default class CommitsApi {
       url, {
         method: 'GET',
         headers: new Headers({
-          'PRIVATE-TOKEN': SECURITY_TOKEN,
+          'PRIVATE-TOKEN': getCurrentToken(),
         }),
       },
     ));
@@ -85,5 +84,4 @@ export default class CommitsApi {
 
     return response.json();
   }
-
 }

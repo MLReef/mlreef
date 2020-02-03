@@ -50,13 +50,13 @@ class Login extends React.Component {
     MLRAuthApi
       .login(email,email, password)
       .then((user) => {
-        actions.getProjectsList();
         sessionStorage.setItem('auth', true);
         sessionStorage.setItem('user', user); // FIXME: Does not work, but would the best IMHO
         sessionStorage.setItem('user.id', user.id);
         sessionStorage.setItem('user.username', user.username);
         sessionStorage.setItem('user.email', user.email);
         sessionStorage.setItem('token', user.token);
+        actions.getProjectsList();
         this.setState({ redirect: true, loading: false });
         toastr.success('Success:', 'Login successfully');
       })

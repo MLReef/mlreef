@@ -1,19 +1,19 @@
-import { SECURITY_TOKEN, GITLAB_INSTANCE } from '../apiConfig';
-import { domain } from '../dataTypes';
+import { GITLAB_INSTANCE } from '../apiConfig';
+import { getCurrentToken } from './apiHelpers';
 
 export default class SnippetApi {
   static buildRequest(url, method) {
     return new Request(url, {
       method,
       headers: new Headers({
-        'PRIVATE-TOKEN': SECURITY_TOKEN,
+        'PRIVATE-TOKEN': getCurrentToken(),
       }),
     });
   }
 
   static async getSnippetFile(projectId, experimentId, fileName) {
     const fileNameFilter = `${experimentId}-${fileName}`;
-    const results = this.findSnippets(projectId, fileNameFilter, domain);
+    const results = this.findSnippets(projectId, fileNameFilter);
     return results.then((results) => (results !== undefined && results.length > 0
       ? this.getSnippetContent(results[0].id)
       : Promise.reject(`File not found in backend: ${fileNameFilter}`)));

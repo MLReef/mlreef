@@ -1,26 +1,26 @@
-import { SECURITY_TOKEN, GITLAB_INSTANCE } from '../apiConfig';
+import { GITLAB_INSTANCE } from '../apiConfig';
+import { getCurrentToken } from './apiHelpers';
 
 export default class ProjectGeneralInfoApi {
-
   static async create(projectName, readme, description) {
     let baseUrl = `${GITLAB_INSTANCE}/api/v4/projects?name=${projectName}`;
-    if(description){
-      baseUrl = `${baseUrl}&description=${description}`
+    if (description) {
+      baseUrl = `${baseUrl}&description=${description}`;
     }
-    if(readme){
-      baseUrl = `${baseUrl}&initialize_with_readme=${readme}`
+    if (readme) {
+      baseUrl = `${baseUrl}&initialize_with_readme=${readme}`;
     }
     try {
       const response = await fetch(
         baseUrl, {
           method: 'POST',
           headers: new Headers({
-            'PRIVATE-TOKEN': SECURITY_TOKEN,
+            'PRIVATE-TOKEN': getCurrentToken(),
             'Content-Type': 'application/json',
           }),
         },
       );
-      return response
+      return response;
     } catch (err) {
       return err;
     }
@@ -31,7 +31,7 @@ export default class ProjectGeneralInfoApi {
       const respone = await fetch(new Request(`${GITLAB_INSTANCE}/api/v4/projects/${projectId}`, {
         method: 'GET',
         headers: new Headers({
-          'PRIVATE-TOKEN': SECURITY_TOKEN,
+          'PRIVATE-TOKEN': getCurrentToken(),
         }),
       }));
       return respone.json();
@@ -45,13 +45,13 @@ export default class ProjectGeneralInfoApi {
       const response = await fetch(new Request(`${GITLAB_INSTANCE}/api/v4/projects?simple=true&membership=true`, {
         method: 'GET',
         headers: new Headers({
-          'PRIVATE-TOKEN': SECURITY_TOKEN,
+          'PRIVATE-TOKEN': getCurrentToken(),
         }),
       }));
-      
+
       return response.json();
     } catch (err) {
-      window.history.replaceState({ errorCode: 500 }, "Mlreef", '/error-page');
+      window.history.replaceState({ errorCode: 500 }, 'Mlreef', '/error-page');
       window.location.reload();
     }
   }
@@ -67,7 +67,7 @@ export default class ProjectGeneralInfoApi {
       url, {
         method: 'POST',
         headers: new Headers({
-          'PRIVATE-TOKEN': SECURITY_TOKEN,
+          'PRIVATE-TOKEN': getCurrentToken(),
           'Content-Type': 'application/json',
         }),
         body: JSON.stringify({
@@ -83,7 +83,7 @@ export default class ProjectGeneralInfoApi {
       url, {
         method: 'DELETE',
         headers: new Headers({
-          'PRIVATE-TOKEN': SECURITY_TOKEN,
+          'PRIVATE-TOKEN': getCurrentToken(),
         }),
       },
     ));
