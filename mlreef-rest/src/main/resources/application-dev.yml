@@ -5,6 +5,7 @@ logging:
     org.springframework.security: INFO
     org.springframework.orm: INFO
     org.hibernate: INFO
+    web: DEBUG
 
 spring:
   devtools:

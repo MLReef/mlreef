@@ -34,7 +34,7 @@ internal class AssertGitlabAppStartupRunner(private val restClient: GitlabRestCl
             restClient.assertConnection()
         } catch (e: Exception) {
             log.error("####################################################################################################")
-            log.error("# Could not run AssertGitlabAppStartupRunner Gitlab connection will never work with this config    #")
+            log.error("# Could not run AssertGitlabAppStartupRunner: Gitlab connection will never work with this config   #")
             log.error("####################################################################################################", e)
             throw e
         }

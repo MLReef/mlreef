@@ -3,6 +3,7 @@ package com.mlreef.rest
 import org.springframework.data.annotation.CreatedDate
 import org.springframework.data.annotation.LastModifiedDate
 import org.springframework.data.domain.Persistable
+import java.io.Serializable
 import java.time.ZonedDateTime
 import java.util.*
 import javax.persistence.Column
@@ -19,7 +20,7 @@ abstract class AuditEntity(
     copyVersion: Long?,
     copyCreatedAt: ZonedDateTime?,
     copyUpdatedAt: ZonedDateTime?
-) : Persistable<UUID> {
+) : Persistable<UUID>, Serializable {
 
     @Version
     var version: Long? = copyVersion

@@ -27,7 +27,7 @@ data class ProcessorParameter(
     @Column(name = "parameter_order")
     val order: Int,
     val defaultValue: String,
-    @Column(name = "parameter_required")
+    @Column(name = "required")
     val required: Boolean = false,
     @Column(name = "parameter_group")
     val group: String = "",
