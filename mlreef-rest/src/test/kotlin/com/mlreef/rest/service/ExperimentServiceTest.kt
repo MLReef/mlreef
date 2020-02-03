@@ -7,9 +7,9 @@ import com.mlreef.rest.ExperimentRepository
 import com.mlreef.rest.Person
 import com.mlreef.rest.ProcessorParameterRepository
 import com.mlreef.rest.SubjectRepository
-import com.mlreef.rest.external_api.gitlab.Branch
-import com.mlreef.rest.external_api.gitlab.Commit
 import com.mlreef.rest.external_api.gitlab.GitlabRestClient
+import com.mlreef.rest.external_api.gitlab.dto.Branch
+import com.mlreef.rest.external_api.gitlab.dto.Commit
 import com.mlreef.rest.feature.experiment.ExperimentService
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach

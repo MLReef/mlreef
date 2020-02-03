@@ -5,8 +5,8 @@ import com.mlreef.rest.exceptions.ErrorCode
 import com.mlreef.rest.exceptions.ProjectCreationException
 import com.mlreef.rest.exceptions.ProjectDeleteException
 import com.mlreef.rest.exceptions.ProjectUpdateException
-import com.mlreef.rest.external_api.gitlab.GitlabProject
 import com.mlreef.rest.external_api.gitlab.GitlabRestClient
+import com.mlreef.rest.external_api.gitlab.dto.GitlabProject
 import org.springframework.stereotype.Service
 import org.springframework.web.client.HttpClientErrorException
 import java.util.*

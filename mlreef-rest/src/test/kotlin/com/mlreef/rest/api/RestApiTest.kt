@@ -9,12 +9,12 @@ import com.mlreef.rest.ApplicationProfiles
 import com.mlreef.rest.Person
 import com.mlreef.rest.PersonRepository
 import com.mlreef.rest.SubjectRepository
-import com.mlreef.rest.external_api.gitlab.GitlabGroup
-import com.mlreef.rest.external_api.gitlab.GitlabProject
 import com.mlreef.rest.external_api.gitlab.GitlabRestClient
-import com.mlreef.rest.external_api.gitlab.GitlabUser
-import com.mlreef.rest.external_api.gitlab.GitlabUserInGroup
-import com.mlreef.rest.external_api.gitlab.GitlabUserToken
+import com.mlreef.rest.external_api.gitlab.dto.GitlabGroup
+import com.mlreef.rest.external_api.gitlab.dto.GitlabProject
+import com.mlreef.rest.external_api.gitlab.dto.GitlabUser
+import com.mlreef.rest.external_api.gitlab.dto.GitlabUserInGroup
+import com.mlreef.rest.external_api.gitlab.dto.GitlabUserToken
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.Mockito

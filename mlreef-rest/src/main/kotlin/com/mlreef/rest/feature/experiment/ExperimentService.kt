@@ -13,8 +13,8 @@ import com.mlreef.rest.exceptions.ErrorCode
 import com.mlreef.rest.exceptions.ExperimentCreateException
 import com.mlreef.rest.exceptions.ExperimentStartException
 import com.mlreef.rest.exceptions.RestException
-import com.mlreef.rest.external_api.gitlab.Commit
 import com.mlreef.rest.external_api.gitlab.GitlabRestClient
+import com.mlreef.rest.external_api.gitlab.dto.Commit
 import com.mlreef.rest.findById2
 import lombok.RequiredArgsConstructor
 import org.slf4j.LoggerFactory

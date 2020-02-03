@@ -3,8 +3,8 @@ package com.mlreef.rest.feature.project
 import com.mlreef.rest.DataProject
 import com.mlreef.rest.DataProjectRepository
 import com.mlreef.rest.exceptions.NotFoundException
-import com.mlreef.rest.external_api.gitlab.GitlabProject
 import com.mlreef.rest.external_api.gitlab.GitlabRestClient
+import com.mlreef.rest.external_api.gitlab.dto.GitlabProject
 import org.springframework.stereotype.Service
 import java.util.*
 

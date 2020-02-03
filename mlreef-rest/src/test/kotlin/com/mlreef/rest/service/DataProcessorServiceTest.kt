@@ -3,7 +3,6 @@ package com.mlreef.rest.service
 import com.mlreef.rest.DataAlgorithmRepository
 import com.mlreef.rest.DataOperationRepository
 import com.mlreef.rest.DataProcessorRepository
-import com.mlreef.rest.DataProject
 import com.mlreef.rest.DataType
 import com.mlreef.rest.DataVisualizationRepository
 import com.mlreef.rest.ParameterType
@@ -41,7 +40,7 @@ class DataProcessorServiceTest : AbstractServiceTest() {
         dataProcessorService = DataProcessorService(dataProcessorRepository = dataProcessorRepository)
 
         val subject = Person(ownerId, "new-person", "person's name")
-        val dataRepository = DataProject(dataRepositoryId, "new-repo", "url", "Project", subject.id, "mlreef", "project", 0, arrayListOf())
+//        val dataRepository = DataProject(dataRepositoryId, "new-repo", "url", "Project", subject.id, "mlreef", "project", 0, arrayListOf())
 
         subjectRepository.save(subject)
     }
@@ -49,7 +48,7 @@ class DataProcessorServiceTest : AbstractServiceTest() {
     @Test
     fun `Can parse python example files`() {
         val filename = "resnet_annotations_demo.py"
-        val resource = javaClass.classLoader.getResource(filename)
+        val resource = javaClass.classLoader.getResource(filename)!!
         val dataProcessor = dataProcessorService.parsePythonFile(resource)
         assertNotNull(dataProcessor)
     }
@@ -57,7 +56,7 @@ class DataProcessorServiceTest : AbstractServiceTest() {
     @Test
     fun `Can save parsed DataProcessors`() {
         val filename = "resnet_annotations_demo.py"
-        val resource = javaClass.classLoader.getResource(filename)
+        val resource = javaClass.classLoader.getResource(filename)!!
         val dataProcessor = dataProcessorService.parseAndSave(resource)
         assertNotNull(dataProcessor)
         assertThat(dataProcessor.name).isEqualTo("Resnet 2.0 Filter")

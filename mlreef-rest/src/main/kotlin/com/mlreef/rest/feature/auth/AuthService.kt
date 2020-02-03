@@ -12,16 +12,16 @@ import com.mlreef.rest.PersonRepository
 import com.mlreef.rest.config.censor
 import com.mlreef.rest.exceptions.ErrorCode
 import com.mlreef.rest.exceptions.GitlabAlreadyExistingConflictException
-import com.mlreef.rest.exceptions.GitlabConflictException
 import com.mlreef.rest.exceptions.GitlabConnectException
+import com.mlreef.rest.exceptions.RestException
 import com.mlreef.rest.exceptions.UserAlreadyExistsException
-import com.mlreef.rest.external_api.gitlab.GitlabGroup
 import com.mlreef.rest.external_api.gitlab.GitlabRestClient
-import com.mlreef.rest.external_api.gitlab.GitlabUser
-import com.mlreef.rest.external_api.gitlab.GitlabUserInGroup
-import com.mlreef.rest.external_api.gitlab.GitlabUserToken
-import com.mlreef.rest.external_api.gitlab.GroupVariable
 import com.mlreef.rest.external_api.gitlab.TokenDetails
+import com.mlreef.rest.external_api.gitlab.dto.GitlabGroup
+import com.mlreef.rest.external_api.gitlab.dto.GitlabUser
+import com.mlreef.rest.external_api.gitlab.dto.GitlabUserInGroup
+import com.mlreef.rest.external_api.gitlab.dto.GitlabUserToken
+import com.mlreef.rest.external_api.gitlab.dto.GroupVariable
 import com.mlreef.rest.findById2
 import com.mlreef.rest.utils.RandomUtils
 import org.slf4j.LoggerFactory
@@ -102,7 +102,7 @@ class GitlabAuthService(
         }
 
         val newGitlabUser = createGitlabUser(username = username, email = email, password = plainPassword)
-        val newGitlabToken = createGitlabToken(username, newGitlabUser)
+        val newGitlabToken = createGitlabToken(newGitlabUser)
 
         val token = newGitlabToken.token
 
@@ -124,7 +124,7 @@ class GitlabAuthService(
         val botEmail = "$botName@$botEmailDomain" //we have to use unique email for user creation
         val botPassword = RandomUtils.generateRandomPassword(botPasswordLength)
         val newGitlabEPFBot = createGitlabUser(username = botName, email = botEmail, password = botPassword)
-        val newGitlabEPFBotToken = createGitlabToken(botName, newGitlabEPFBot)
+        val newGitlabEPFBotToken = createGitlabToken(newGitlabEPFBot)
 
         addGitlabUserToGroup(newGitlabEPFBot, newGitlabGroup)
 
@@ -148,15 +148,15 @@ class GitlabAuthService(
     private fun createGitlabUser(username: String, email: String, password: String): GitlabUser {
         return try {
             val gitlabName = "mlreef-user-$username"
-            return gitlabRestClient.adminCreateUser(email = email, name = gitlabName, username = username, password = password)
-        } catch (clientErrorException: GitlabConflictException) {
+            gitlabRestClient.adminCreateUser(email = email, name = gitlabName, username = username, password = password)
+        } catch (clientErrorException: RestException) {
             log.info("Already existing dev user. Error message: ${clientErrorException.message}")
             val adminGetUsers = gitlabRestClient.adminGetUsers()
-            return adminGetUsers.first { it.username == username }
+            adminGetUsers.first { it.username == username }
         }
     }
 
-    private fun createGitlabToken(username: String, gitlabUser: GitlabUser): GitlabUserToken {
+    private fun createGitlabToken(gitlabUser: GitlabUser): GitlabUserToken {
         val gitlabUserId = gitlabUser.id
         val tokenName = "mlreef-user-token"
         return gitlabRestClient.adminCreateUserToken(gitlabUserId = gitlabUserId, tokenName = tokenName)

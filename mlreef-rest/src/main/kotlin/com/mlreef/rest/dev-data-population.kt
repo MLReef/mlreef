@@ -1,7 +1,7 @@
 package com.mlreef.rest
 
 import com.mlreef.rest.external_api.gitlab.GitlabRestClient
-import com.mlreef.rest.external_api.gitlab.GitlabUser
+import com.mlreef.rest.external_api.gitlab.dto.GitlabUser
 import com.mlreef.rest.feature.auth.AuthService
 import org.slf4j.LoggerFactory
 import org.springframework.boot.CommandLineRunner

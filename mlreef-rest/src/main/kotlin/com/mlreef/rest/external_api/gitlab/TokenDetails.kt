@@ -1,5 +1,6 @@
 package com.mlreef.rest.external_api.gitlab
 
+import com.mlreef.rest.external_api.gitlab.dto.GitlabUser
 import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.userdetails.UserDetails
 import java.util.*
