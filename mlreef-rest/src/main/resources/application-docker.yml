@@ -8,7 +8,7 @@ logging:
 
 spring:
   devtools:
-    add-properties: true
+    add-properties: false
   jpa:
     properties:
       hibernate:

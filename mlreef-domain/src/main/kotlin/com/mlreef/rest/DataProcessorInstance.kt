@@ -36,7 +36,7 @@ data class DataProcessorInstance(
     @Column(name = "parent_id")
     val parentId: UUID? = null,
 
-    @OneToMany(fetch = FetchType.LAZY)
+    @OneToMany(fetch = FetchType.LAZY, cascade = [CascadeType.MERGE, CascadeType.PERSIST])
     @JoinColumn(name = "parent_id")
     val children: MutableList<DataProcessorInstance> = arrayListOf(),
 

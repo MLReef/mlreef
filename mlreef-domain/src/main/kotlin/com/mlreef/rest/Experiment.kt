@@ -132,12 +132,12 @@ enum class ExperimentStatus(private val stage: Int) {
 
 @Embeddable
 class PerformanceMetrics(
-    @Column(name = "performance_job_started_at")
+    @Column(name = "job_started_at")
     var jobStartedAt: ZonedDateTime? = null,
-    @Column(name = "performance_job_updated_at")
+    @Column(name = "job_updated_at")
     var jobUpdatedAt: ZonedDateTime? = null,
-    @Column(name = "performance_job_finished_at")
+    @Column(name = "job_finished_at")
     var jobFinishedAt: ZonedDateTime? = null,
-    @Column(name = "performance_json_blob")
+    @Column(name = "json_blob")
     var jsonBlob: String = ""
 )
