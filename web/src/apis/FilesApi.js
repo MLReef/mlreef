@@ -1,4 +1,5 @@
-import { SECURITY_TOKEN, GITLAB_INSTANCE } from '../apiConfig';
+import { GITLAB_INSTANCE } from '../apiConfig';
+import { getCurrentToken } from './apiHelpers';
 
 export default class FilesApi {
   static async getFilesPerProject(projectId, path, recursive = false, branch = 'master') {
@@ -7,12 +8,12 @@ export default class FilesApi {
                 + `tree?ref=${branch}&recursive=${recursive}&path=${path}&per_page=50`, {
         method: 'GET',
         headers: new Headers({
-          'PRIVATE-TOKEN': SECURITY_TOKEN,
+          'PRIVATE-TOKEN': getCurrentToken(),
         }),
       }));
       return response.json();
     } catch (err) {
-      window.history.replaceState({ errorCode: 500 }, "Mlreef", '/error-page');
+      window.history.replaceState({ errorCode: 500 }, 'Mlreef', '/error-page');
       window.location.reload();
     }
   }
@@ -23,7 +24,7 @@ export default class FilesApi {
       const response = await fetch(new Request(url, {
         method: 'GET',
         headers: new Headers({
-          'PRIVATE-TOKEN': SECURITY_TOKEN,
+          'PRIVATE-TOKEN': getCurrentToken(),
         }),
       }));
       return response.json();

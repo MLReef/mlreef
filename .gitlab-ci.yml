@@ -90,7 +90,7 @@ provision ec2:
     EC2_IMAGE_AMI:     "ami-050a22b7e0cf85dd0"             # ubuntu 16.04 LTS
     EC2_SECURITY_GRP:  "application-servers"
   before_script:
-    # if on develop, deploy a larger instance
+    - echo $EC2_INSTANCE_NAME
     - chmod 400 $SSH_KEYFILE                               # prepare private key file
 
     # decommission the current environment
@@ -178,7 +178,9 @@ build frontend:
     - rm -rf web/package-lock.json
     - rm -rf web/node_modules
     - ls -al web/src
-    - echo "REACT_APP_BACKEND=http://$URL" >> web/.env
+    - echo "REACT_APP_BACKEND_DEV=http://$URL"              >> web/.env # TOOD: remove deprecated parameters
+    - echo "REACT_APP_BACKEND=http://$URL:10080"                  >> web/.env # TOOD: remove deprecated parameters
+    - echo "REACT_APP_MLREEF_INSTANCE_URL=http://$URL"      >> web/.env # TOOD: remove deprecated parameters
     - cat web/.env
   script:
     - cd web

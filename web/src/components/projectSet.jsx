@@ -1,11 +1,10 @@
 import React from 'react';
-import { arrayOf, shape } from 'prop-types';
+import { arrayOf, shape, func } from 'prop-types';
 
 import { Link } from 'react-router-dom';
 import { getTimeCreatedAgo } from '../functions/dataParserHelpers';
 import star01 from '../images/star_01.svg';
 import fork01 from '../images/fork_01.svg';
-import { func } from 'prop-types';
 
 class ProjectSet extends React.Component {
   constructor(props) {
@@ -54,7 +53,7 @@ class ProjectSet extends React.Component {
             </div>
             <div
               className={
-                `project-tab ${starred? 'project-border' : ''}`
+                `project-tab ${starred ? 'project-border' : ''}`
               }
               onClick={this.handleStarred}
             >
@@ -71,7 +70,7 @@ class ProjectSet extends React.Component {
             </div>
           </div>
         </div>
-        <hr style={{ marginTop: '0' }} />{console.log(projects)}
+        <hr style={{ marginTop: '0' }} />
 
         {personal && projects.map((proj) => proj.name.includes('forked')
           && (
@@ -114,7 +113,7 @@ class ProjectSet extends React.Component {
 
 const Project = ({ ...props }) => (
   <div id="project-display" onClick={props.click}>
-    <div style={{minWidth: '0', flex: '1 1 40%'}}>
+    <div style={{ minWidth: '0', flex: '1 1 40%' }}>
       <div id="project-icon">
         <div className="project-pic">
           <img style={{ minWidth: '100%' }} src={props.avatar} alt="" />
@@ -143,37 +142,42 @@ const Project = ({ ...props }) => (
       </div>
     </div>
 
-    <div style={{flex: '1 1 10%', justifyContent: 'space-between'}}>
+    <div style={{ flex: '1 1 10%', justifyContent: 'space-between' }}>
       <div id="pro-info">
         <div>
           <img className="dropdown-white" src={star01} alt="" />
-            {props.starCount}
+          {props.starCount}
         </div>
         <div>
           <img className="dropdown-white" src={fork01} alt="" />
-            {props.forkCount}
+          {props.forkCount}
         </div>
       </div>
-      <div style={{display: "flex"}}>
-      <p>Updated {getTimeCreatedAgo(props.updatedAt, new Date())} ago</p>
-      <button
-        type="button"
-        style={{
-          margin: '0.5em',
-          cursor: 'pointer',
-        }}
-        className="dangerous-red"
-        onClick={
+      <div style={{ display: 'flex' }}>
+        <p>
+Updated
+          {getTimeCreatedAgo(props.updatedAt, new Date())}
+          {' '}
+ago
+        </p>
+        <button
+          type="button"
+          style={{
+            margin: '0.5em',
+            cursor: 'pointer',
+          }}
+          className="dangerous-red"
+          onClick={
             () => props.handleShowModal(
               props.name,
               props.owner,
             )
           }
-      >
-        <b>
+        >
+          <b>
           X
-        </b>
-      </button>
+          </b>
+        </button>
       </div>
     </div>
   </div>
@@ -185,6 +189,6 @@ ProjectSet.propTypes = {
     }).isRequired,
   ).isRequired,
   handleShowModal: func.isRequired,
-}
+};
 
 export default ProjectSet;
