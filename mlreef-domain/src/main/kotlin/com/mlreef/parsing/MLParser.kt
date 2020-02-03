@@ -27,14 +27,12 @@ object ModelExtractor {
         var slug: String? = null
         var name: String? = null
         var command: String? = null
-        var author: String? = null
         var description: String? = null
 
         if (values.containsKey("slug")) slug = values["slug"]
         if (values.containsKey("name")) name = values["name"]
         if (values.containsKey("command")) command = values["command"]
         if (values.containsKey("description")) description = values["description"]
-        if (values.containsKey("author")) author = values["author"]
         if (slug.isNullOrEmpty()) {
             slug = name?.toSlug()
         }

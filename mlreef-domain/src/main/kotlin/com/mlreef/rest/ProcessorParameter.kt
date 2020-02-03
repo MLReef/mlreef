@@ -1,0 +1,68 @@
+package com.mlreef.rest
+
+import java.util.*
+import javax.persistence.Column
+import javax.persistence.Entity
+import javax.persistence.EnumType
+import javax.persistence.Enumerated
+import javax.persistence.FetchType
+import javax.persistence.Id
+import javax.persistence.JoinColumn
+import javax.persistence.OneToOne
+import javax.persistence.Table
+
+/**
+ * A Parameter describes a native data type (e.g. floating number in python), with a title and descriptions.
+ * To support more features, nullable and defaultValues could be provided
+ */
+@Entity
+@Table(name = "processor_parameter")
+data class ProcessorParameter(
+    @Id @Column(name = "id", length = 16, unique = true, nullable = false) val id: UUID,
+    @Column(name = "data_processor_id")
+    val dataProcessorId: UUID,
+    val name: String,
+    @Enumerated(EnumType.STRING)
+    val type: ParameterType,
+    @Column(name = "parameter_order")
+    val order: Int,
+    val defaultValue: String,
+    @Column(name = "parameter_required")
+    val required: Boolean = false,
+    @Column(name = "parameter_group")
+    val group: String = "",
+    @Column(length = 1024)
+    val description: String? = null
+) : EPFAnnotation
+
+
+@Entity
+@Table(name = "parameter_instance")
+data class ParameterInstance(
+    @Id @Column(name = "id", length = 16, unique = true, nullable = false) val id: UUID,
+    @OneToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "parameter_id")
+    val processorParameter: ProcessorParameter,
+    @Column(name = "data_processor_instance_id")
+    val dataProcessorInstanceId: UUID,
+    val value: String,
+    val name: String = processorParameter.name,
+    val type: ParameterType = processorParameter.type
+)
+
+/**
+ * ParameterTypes are typical simple data types.
+ * Lists and Objects should be supported, but cannot be interfered in a global scope.
+ */
+enum class ParameterType {
+    BOOLEAN,
+    STRING,
+    INTEGER,
+    COMPLEX,
+    FLOAT,
+    LIST,
+    TUPLE,
+    DICTIONARY,
+    OBJECT,
+    UNDEFINED
+}

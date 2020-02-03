@@ -9,6 +9,15 @@ import com.mlreef.rest.exceptions.GitlabBadRequestException
 import com.mlreef.rest.exceptions.GitlabCommonException
 import com.mlreef.rest.exceptions.GitlabConflictException
 import com.mlreef.rest.exceptions.GitlabNotFoundException
+import com.mlreef.rest.exceptions.RestException
+import com.mlreef.rest.external_api.gitlab.dto.Branch
+import com.mlreef.rest.external_api.gitlab.dto.Commit
+import com.mlreef.rest.external_api.gitlab.dto.GitlabGroup
+import com.mlreef.rest.external_api.gitlab.dto.GitlabProject
+import com.mlreef.rest.external_api.gitlab.dto.GitlabUser
+import com.mlreef.rest.external_api.gitlab.dto.GitlabUserInGroup
+import com.mlreef.rest.external_api.gitlab.dto.GitlabUserToken
+import com.mlreef.rest.external_api.gitlab.dto.GroupVariable
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
@@ -39,6 +48,7 @@ class GitlabRestClient(
     @Autowired
     private lateinit var objectMapper: ObjectMapper
 
+    @Suppress("LeakingThis")
     val gitlabServiceRootUrl = "$gitlabRootUrl/api/v4"
 
     val log = LoggerFactory.getLogger(GitlabRestClient::class.java)
@@ -309,7 +319,7 @@ class GitlabRestClient(
         }
     }
 
-    private fun handleException(error: ErrorCode?, message: String?, response: HttpClientErrorException): Exception {
+    private fun handleException(error: ErrorCode?, message: String?, response: HttpClientErrorException): RestException {
         log.error("Received error from gitlab: ${response.responseHeaders?.location} ${response.statusCode}")
         log.error(response.responseHeaders?.toString())
         log.error(response.responseBodyAsString)
