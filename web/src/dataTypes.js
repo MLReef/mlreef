@@ -24,7 +24,7 @@ variables:
 
 # The before_script handles everything git related and sets up the automatic committing
 before_script:
-  - git remote set-url origin https://\${GIT_PUSH_USER}:\${GIT_PUSH_TOKEN}@#repo-url
+  - git remote set-url origin http://\${GIT_PUSH_USER}:\${GIT_PUSH_TOKEN}@#repo-url
   - git config --global user.email "rainer+mlreefdemo@systemkern.com"
   - git config --global user.name "mlreefdemo"
   - git checkout #initialBranch
