@@ -85,13 +85,8 @@ export const generateRealContentFromTemplate = (
   .replace(/#initialBranch/g, branchSelected)
   .replace(/#target-branch/g, dataInstanceName)
   .replace(/#pipeline-operation-script-name/g, pipelineOpScriptName)
-  .replace(
-    /#repo-url/g,
-    http_url_to_repo.substr(
-      8,
-      http_url_to_repo.length,
-    ),
-  );
+  .replace(/^(https?:|)\/\//, '') // remove http://, https:// protocols
+  ;
 
 const createPipelineInProject = (
   dataOperationsSelected,
