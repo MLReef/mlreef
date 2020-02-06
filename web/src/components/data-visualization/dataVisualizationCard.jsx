@@ -1,25 +1,22 @@
-import React from 'react';
-import { Base64 } from 'js-base64';
-import './dataVisualizationCard.css';
+import React, { useState } from 'react';
 import {
-  RUNNING,
-  SUCCESS,
-  CANCELED,
-  FAILED,
-  PENDING,
-} from '../../dataTypes';
-/* import { mlreefLinesToExtractConfiguration } from '../../functions/dataParserHelpers';
-import filesApi from '../../apis/FilesApi'; */
+  number, string, arrayOf, shape,
+} from 'prop-types';
+import { Base64 } from 'js-base64';
+import { Redirect } from 'react-router';
+import { toastr } from 'react-redux-toastr';
+import { getTimeCreatedAgo, mlreefLinesToExtractConfiguration } from '../../functions/dataParserHelpers';
+import './dataVisualizationCard.css';
+import filesApi from '../../apis/FilesApi';
 
-const DataVisualizationCard = ({ classification }) => {
+const DataVisualizationCard = ({ classification, projectId }) => {
   const today = new Date();
-  /* 
+  const [redirect, setRedirect] = useState(false);
   function goToPipelineView(e) {
-    const pId = props.params.instances[0].projId;
     const branch = e.currentTarget.parentNode.parentNode.getAttribute('data-key');
     filesApi
       .getFileData(
-        pId,
+        projectId,
         '.mlreef.yml',
         branch,
       )
@@ -27,26 +24,27 @@ const DataVisualizationCard = ({ classification }) => {
         const dataParsedInLines = Base64.decode(fileData.content).split('\n');
         const configuredOperation = mlreefLinesToExtractConfiguration(dataParsedInLines);
         sessionStorage.setItem('configuredOperations', JSON.stringify(configuredOperation));
-        //props.history.push(`/my-projects/${pId}/pipe-line`);
+
+        setRedirect(true);
       })
       .catch(() => {
-
+        toastr.error('Error:', 'An error occurred while parsing your configuration');
       });
-  } */
+  }
 
-  function getButtonsDiv(experimentState) {
+  function getButtonsDiv(dataVisualizationState) {
     let buttons;
     const viewPipeLineBtn = (
       <button
         type="button"
         key="experiment-button"
         className="non-active-black-border rounded-pipeline-btn"
-        /* onClick={goToPipelineView} */
+        onClick={goToPipelineView}
       >
         View Pipeline
       </button>
     );
-    if (experimentState === RUNNING || experimentState === PENDING) {
+    if (dataVisualizationState.toLowerCase() === 'in progress') {
       buttons = [
         viewPipeLineBtn,
         <button
@@ -59,9 +57,7 @@ const DataVisualizationCard = ({ classification }) => {
         </button>,
       ];
     } else if (
-      experimentState === SUCCESS
-        || experimentState === FAILED
-        || experimentState === CANCELED
+      dataVisualizationState.toLowerCase() === 'active'
     ) {
       buttons = [
         viewPipeLineBtn,
@@ -86,59 +82,53 @@ const DataVisualizationCard = ({ classification }) => {
     );
   }
 
-  function getTitle(status) {
-    switch (status) {
-      case RUNNING:
-        return 'In progress';
-      case SUCCESS:
-        return 'Active';
-      case FAILED:
-        return 'Active';
-      default:
-        return 'Expired';
-    }
+  if (redirect) {
+    return <Redirect to={`/my-projects/${projectId}/empty-data-visualization`} />;
   }
 
   return (
     <div className="pipeline-card" key={today}>
       <div className="header">
         <div className="title-div">
-          <p><b>{getTitle(classification.status)}</b></p>
+          <p><b>{classification.status}</b></p>
         </div>
       </div>
       {classification.values.map((val) => (
-        <div className="data-visualization-card-content" key={`${val.creator} ${val.name}`}>
+        <div className="data-visualization-card-content" key={`${val.creator} ${val.name}`} data-key={val.name}>
           <div className="general-information">
             <p>
               <b>{val.name}</b>
             </p>
             <p>
-            Create by&nbsp;
-              <b>{val.creator}</b>
-            &nbsp;
-            10 minutes ago
+              Create by
+              &nbsp;
+              <b>{val.authorName}</b>
+              &nbsp;
+              {getTimeCreatedAgo(val.createdAt, new Date())}
+              &nbsp;
+              ago
             </p>
           </div>
           <div className="detailed-information-1">
-            {classification.status === RUNNING && (
+            {classification.status.toLowerCase() === 'in progress' && (
             <p>
               <b>
                 {val.completedPercentage}
-% completed
+                % completed
               </b>
             </p>
             )}
-            {classification.status === SUCCESS || classification.status === FAILED
+            {classification.status.toLowerCase() === 'active'
               ? (
                 <>
                   <p>
                     <b>
-Use:
+                      Use:
                       {val.spaceUsed}
                     </b>
                   </p>
                   <p>
-Expires in:
+                    Expires in:
                     {val.expiresIn}
                   </p>
                 </>
@@ -150,7 +140,7 @@ Expires in:
               <b>
                 {val.filesChanged}
                 {' '}
-files
+                files
               </b>
             </p>
             <p>dl_code</p>
@@ -160,6 +150,23 @@ files
       ))}
     </div>
   );
+};
+
+DataVisualizationCard.propTypes = {
+  classification: shape({
+    status: string.isRequired,
+    values: arrayOf(shape({
+      creator: string,
+      name: string.isRequired,
+      authorName: string.isRequired,
+      createdAt: string.isRequired,
+      completedPercentage: string,
+      spaceUsed: string,
+      expiresIn: string,
+      filesChanged: string,
+    })).isRequired,
+  }).isRequired,
+  projectId: number.isRequired,
 };
 
 export default DataVisualizationCard;

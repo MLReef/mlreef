@@ -52,7 +52,7 @@ const JobLog = ({
   }, [projectId, job.id]);
   return (
     <div id="job-information-container">
-      <div id="basic-information-container" className="flexible-div">
+      <div id="basic-information-container" className="flexible-div-basic-info-cont">
         <div id="number-and-time-ago-cont">
           <p style={{ marginRight: '0.5em' }}>
             <b>
@@ -84,7 +84,7 @@ const JobLog = ({
         width: '100%',
       }}
       >
-        <div id="additional-info-job" className="flexible-div">
+        <div id="additional-info-job" className="flexible-div-basic-info-cont">
           <div className="flexible-row">
             <p>Duration: &nbsp;</p>
             <p>{parsedDuration}</p>

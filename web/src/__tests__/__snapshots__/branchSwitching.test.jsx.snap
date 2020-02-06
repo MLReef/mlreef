@@ -88,22 +88,6 @@ exports[`The branches list should be displayed when dropdown button is clicked d
         History
       </a>
     </button>
-    <button
-      className="white-button"
-      type="button"
-    >
-      Web IDE
-    </button>
-    <button
-      className="white-button"
-      type="button"
-    >
-      <img
-        alt=""
-        id="leftfeature-image"
-        src={Object {}}
-      />
-    </button>
   </div>
 </div>
 `;

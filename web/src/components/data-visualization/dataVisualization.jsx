@@ -1,7 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import {
-  shape, arrayOf, func, bool,
+  shape, arrayOf, func, bool, number, string,
 } from 'prop-types';
 import plus from '../../images/plus_01.svg';
 import '../pipeline-view/pipelineView.css';
@@ -34,7 +34,6 @@ const EmptyDataVisualization = ({ ...props }) => {
     onSortEnd,
     drop,
     allowDrop,
-    showFilters,
     handleCheckMarkClick,
     handleDragStart,
     whenDataCardArrowButtonIsPressed,
@@ -156,9 +155,9 @@ const EmptyDataVisualization = ({ ...props }) => {
               margin: '0', padding: '0', width: '100%', textAlign: 'center',
             }}
             >
-                            Drag and drop a data visualization from the right
+              Drag and drop a data visualization from the right
               <br />
-              pipeline 
+              pipeline
               {/* or
               <b>create a new one</b> */}
             </p>
@@ -235,25 +234,42 @@ const EmptyDataVisualization = ({ ...props }) => {
 };
 
 EmptyDataVisualization.propTypes = {
-  project: shape.isRequired,
-  branches: arrayOf.isRequired,
-  files: arrayOf.isRequired,
-  dataOperations: arrayOf.isRequired,
-  dataOperationsSelected: arrayOf.isRequired,
-  filesSelectedInModal: arrayOf.isRequired,
-  showSelectFilesModal: func.isRequired,
+  project: shape({
+    namespace: shape({
+      name: string.isRequired,
+    }).isRequired,
+    http_url_to_repo: string.isRequired,
+    id: number.isRequired,
+    name: string.isRequired,
+  }).isRequired,
+  branches: arrayOf(shape({})).isRequired,
+  dataOperations: arrayOf(shape({})).isRequired,
+  branchSelected: string,
+  dataOperationsSelected: arrayOf(shape({})),
+  filesSelectedInModal: arrayOf(shape({})),
+  showSelectFilesModal: bool.isRequired,
   selectDataClick: func.isRequired,
   handleModalAccept: func.isRequired,
   onSortEnd: func.isRequired,
   showFilters: func.isRequired,
   handleDragStart: func.isRequired,
   whenDataCardArrowButtonIsPressed: func.isRequired,
-  checkBoxOwnDataOperations: func.isRequired,
-  checkBoxStarredDataOperations: bool.isRequired,
   handleCheckMarkClick: func.isRequired,
   allowDrop: func.isRequired,
   drop: func.isRequired,
+  isShowingExecutePipelineModal: bool.isRequired,
+  toggleExecutePipeLineModal: func.isRequired,
+  handleExecuteBtn: func.isRequired,
+  setPreconfiguredOperations: func.isRequired,
 };
+
+
+EmptyDataVisualization.defaultProps = {
+  branchSelected: '',
+  dataOperationsSelected: [],
+  filesSelectedInModal: [],
+};
+
 
 function mapStateToProps(state) {
   return {

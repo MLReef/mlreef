@@ -1,16 +1,14 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
+import {
+  number, shape, string, arrayOf,
+} from 'prop-types';
 import { CircularProgress } from '@material-ui/core';
 import './dataVisualizationOverview.css';
 import Navbar from '../navbar/navbar';
 import ProjectContainer from '../projectContainer';
 import Instruction from '../instruction/instruction';
 import DataVisualizationCard from './dataVisualizationCard';
-import {
-  RUNNING,
-  SUCCESS,
-  EXPIRED,
-} from '../../dataTypes';
 import PipeLinesApi from '../../apis/PipelinesApi';
 import { classifyPipeLines } from '../../functions/pipeLinesHelpers';
 
@@ -19,14 +17,31 @@ export class DataVisualizationOverview extends Component {
     super(props);
     const { selectedProject, branches } = this.props;
     this.state = {
-      filteredVisualizations: [],
+      visualizations: null,
+      all: null,
     };
     const arrayOfBranches = branches.filter((branch) => branch.name.startsWith('data-visualization'));
     PipeLinesApi.getPipesByProjectId(selectedProject.id).then((res) => {
-      const filteredVisualizations = classifyPipeLines(res, arrayOfBranches);
+      const visualizations = classifyPipeLines(res, arrayOfBranches);
+      const finalClassification = [];
+      finalClassification[0] = { status: 'In progress', values: [...visualizations[0].values] };
+      finalClassification[1] = {
+        status: 'Active',
+        values: [
+          ...visualizations[1].values,
+          ...visualizations[2].values,
+          ...visualizations[3].values,
+        ],
+      };
+      finalClassification[2] = {
+        status: 'Expired',
+        values: [
+          ...visualizations[4].values,
+        ],
+      };
       this.setState({
-        filteredVisualizations,
-        all: filteredVisualizations,
+        visualizations: finalClassification,
+        all: finalClassification,
       });
     });
     this.handleFilterBtnClick = this.handleFilterBtnClick.bind(this);
@@ -40,23 +55,23 @@ export class DataVisualizationOverview extends Component {
         filteredIns = all;
         break;
       case 'progress':
-        filteredIns = all.filter((dataIns) => dataIns.status === RUNNING);
+        filteredIns = all.filter((dataIns) => dataIns.status === 'In progress');
         break;
       case 'active':
-        filteredIns = all.filter((dataIns) => dataIns.status === SUCCESS);
+        filteredIns = all.filter((dataIns) => dataIns.status === 'Active');
         break;
       default:
-        filteredIns = all.filter((dataIns) => dataIns.status === EXPIRED);
+        filteredIns = all.filter((dataIns) => dataIns.status === 'Expired');
         break;
     }
-    this.setState({ filteredVisualizations: filteredIns });
+    this.setState({ visualizations: filteredIns });
   }
 
   render() {
     const {
       selectedProject,
     } = this.props;
-    const { filteredVisualizations } = this.state;
+    const { visualizations } = this.state;
     const groupName = selectedProject.namespace.name;
     return (
       <>
@@ -111,10 +126,14 @@ export class DataVisualizationOverview extends Component {
               Expired
             </button>
           </div>
-          {filteredVisualizations.length === 0
+          {visualizations === null
             ? <div id="loading-circular-progress"><CircularProgress size={30} /></div>
-            : filteredVisualizations.map((dataInsClas) => (
-              <DataVisualizationCard classification={dataInsClas} key={dataInsClas.status} />
+            : visualizations.map((dataInsClas) => (
+              <DataVisualizationCard
+                classification={dataInsClas}
+                projectId={selectedProject.id}
+                key={dataInsClas.status}
+              />
             ))}
         </div>
         <br />
@@ -129,5 +148,16 @@ function mapStateToProps(state) {
     branches: state.branches,
   };
 }
+
+DataVisualizationOverview.propTypes = {
+  selectedProject: shape({
+    id: number.isRequired,
+    namespace: shape({
+      name: string.isRequired,
+    }).isRequired,
+    name: string.isRequired,
+  }).isRequired,
+  branches: arrayOf(shape({})).isRequired,
+};
 
 export default connect(mapStateToProps)(DataVisualizationOverview);

@@ -9,7 +9,6 @@ import { getTimeCreatedAgo, mlreefLinesToExtractConfiguration } from '../../func
 import DataInstancesDeleteModal from '../data-instances-delete-and-abort-modal/dataInstancesDeleteNAbortModal';
 import pipelinesApi from '../../apis/PipelinesApi';
 import {
-  SKIPPED,
   RUNNING,
   SUCCESS,
   CANCELED,

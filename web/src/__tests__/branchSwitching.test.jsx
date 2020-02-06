@@ -14,7 +14,7 @@ const wrapper = shallow(<RepoFeatures projects={projectsArrayMock.projects} />);
 describe('There should be 7 buttons', () => {
   it('renders without crashing given the required props', () => {
     const buttonsArr = wrapper.find('button');
-    expect(buttonsArr).toHaveLength(7);
+    expect(buttonsArr).toHaveLength(5);
   });
 });
 

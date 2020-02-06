@@ -29,13 +29,13 @@ export const getTimeCreatedAgo = (timeAgoCreatedAt, today) => {
  */
 export const parseDurationInSeconds = (duration) => {
   const durationMinutesStr = (duration / 60).toString();
-  const durationParts = durationMinutesStr.split(".");
+  const durationParts = durationMinutesStr.split('.');
 
   const minutesStr = durationParts[0];
   const secondsFloat = Math.round(parseFloat(`0.${durationParts[1]}`) * 60);
 
   return `${minutesStr}m ${secondsFloat}s`;
-}
+};
 
 export const generateSummarizedInfo = (epochObjects) => {
   /**
@@ -189,9 +189,10 @@ export function mlreefLinesToExtractConfiguration(linesOfContent) {
       if (parametersWithBooleanPat === null) {
         parametersWithBooleanPat = [];
       }
+      const match = line.match(/--[a-zA-z]+\s+[0-9]{1,5}/g);
       lineParams = [
         ...lineParams,
-        ...line.match(/--[a-zA-z]+\s+[0-9]{1,5}/g),
+        ...(match || []),
         ...parametersWithBooleanPat,
       ];
       rawParams = lineParams
