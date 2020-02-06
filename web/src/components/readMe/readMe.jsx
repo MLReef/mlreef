@@ -1,4 +1,5 @@
 import React from 'react';
+import { toastr } from 'react-redux-toastr';
 import { string, number } from 'prop-types';
 import ReactMarkdown from 'react-markdown';
 import './readme.css';
@@ -16,16 +17,22 @@ class ReadMeComponent extends React.Component {
   componentDidUpdate(prevProps, prevState) {
     const { projectId, branch } = prevProps;
     const { fileData } = prevState;
-    if(projectId !== undefined && fileData === null){
+    if (projectId !== undefined && fileData === null) {
       filesApi.getFileData(
-      projectId,
-      'README.md',
-      branch,
+        projectId,
+        'README.md',
+        branch,
       )
-      .then(
-        (res) => this.setState({ fileData: res }),
-      );
+        .then(
+          (res) => this.setState({ fileData: res }),
+        ).catch(() => {
+          toastr.error('Error', 'An error occurred recovering your readme');
+        });
     }
+  }
+
+  componentWillUnmount() {
+    this.setState = (state) => (state);
   }
 
   render() {

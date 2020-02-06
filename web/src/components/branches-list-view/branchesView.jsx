@@ -2,6 +2,8 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Redirect } from 'react-router';
 import { bindActionCreators } from 'redux';
+import { toastr } from 'react-redux-toastr';
+import { Button } from '@material-ui/core';
 import {
   number, string, shape, arrayOf, bool,
 } from 'prop-types';
@@ -12,38 +14,36 @@ import BlueBorderedInput from '../BlueBorderedInput';
 import CustomizedButton from '../CustomizedButton';
 import { getTimeCreatedAgo } from '../../functions/dataParserHelpers';
 import './branchesView.css';
-import { Button } from '@material-ui/core';
 import DeleteBranchModal from './deleteBranchModal';
 import * as branchesActions from '../../actions/branchesActions';
 import BranchesApi from '../../apis/BranchesApi';
-import { toastr } from 'react-redux-toastr';
 
 class BranchesView extends Component {
   constructor(props) {
     super(props);
-    const { 
+    const {
       branches,
     } = this.props;
     this.state = {
       isModalVisible: false,
       branchName: '',
       urlToRedirect: '',
-      currentBranches: branches
+      currentBranches: branches,
     };
   }
 
-  componentDidMount(){
-    const { 
+  componentDidMount() {
+    const {
       branches,
       selectedProject: { id },
     } = this.props;
-    const defaultBranch = branches.filter(branch => branch.default === true)[0];
+    const defaultBranch = branches.filter((branch) => branch.default === true)[0];
     const currentBranchesUpdated = branches;
     branches.forEach(async (branch, index) => {
-      if(!branch.default){
+      if (!branch.default) {
         try {
           const behind = await BranchesApi.compare(
-            id, branch.name, defaultBranch.name
+            id, branch.name, defaultBranch.name,
           );
           const ahead = await BranchesApi.compare(
             id, defaultBranch.name, branch.name,
@@ -51,7 +51,7 @@ class BranchesView extends Component {
           branch.ahead = ahead.commits.length;
           branch.behind = behind.commits.length;
         } catch (error) {
-          toastr.error("Error", "Something went wrong requesting commits");
+          toastr.error('Error', 'Something went wrong requesting commits');
         }
       }
       currentBranchesUpdated[index] = branch;
@@ -66,18 +66,17 @@ class BranchesView extends Component {
     this.setState = (state) => (state);
   }
 
-  static getDerivedStateFromProps(nextProps, prevState){
-    if(nextProps.branches.length !== prevState.currentBranches.length && !prevState.isFiltering){
+  static getDerivedStateFromProps(nextProps, prevState) {
+    if (nextProps.branches.length !== prevState.currentBranches.length && !prevState.isFiltering) {
       return {
-        currentBranches: nextProps.branches
-      }
+        currentBranches: nextProps.branches,
+      };
     }
     return { ...prevState };
   }
 
   toggleModalAndUpdateList = (branchName, isNeededUpdateBranchesAgain) => {
-    if(isNeededUpdateBranchesAgain)
-      this.updateBranchesArr();
+    if (isNeededUpdateBranchesAgain) this.updateBranchesArr();
     this.setState(
       (prevState) => ({
         branchName,
@@ -87,7 +86,7 @@ class BranchesView extends Component {
     );
   }
 
-  updateBranchesArr(){
+  updateBranchesArr() {
     const { actions, selectedProject: { id } } = this.props;
     actions.getBranchesList(id);
   }
@@ -108,7 +107,7 @@ class BranchesView extends Component {
     const commitShortIdUpperLimit = 9;
     return (
       <>
-        {urlToRedirect.length > 0 && <Redirect to={urlToRedirect}/>}
+        {urlToRedirect.length > 0 && <Redirect to={urlToRedirect} />}
         <DeleteBranchModal
           isModalVisible={isModalVisible}
           toggleIsModalVisible={this.toggleModalAndUpdateList}
@@ -130,8 +129,8 @@ class BranchesView extends Component {
                 const currentValue = e.currentTarget.value;
                 const { branches } = this.props;
                 let filteredBranches = branches;
-                if(currentValue !== ''){
-                  filteredBranches = branches.filter(branch => branch.name.includes(e.currentTarget.value));
+                if (currentValue !== '') {
+                  filteredBranches = branches.filter((branch) => branch.name.includes(e.currentTarget.value));
                 }
                 this.setState({
                   isFiltering: true,
@@ -140,13 +139,13 @@ class BranchesView extends Component {
               }}
             />
             <CustomizedButton
-              id="new-branch" 
+              id="new-branch"
               buttonLabel="New branch"
               loading={false}
               onClickHandler={() => {
                 this.setState({
-                  urlToRedirect: `/my-projects/${selectedProject.id}/new-branch`
-                })
+                  urlToRedirect: `/my-projects/${selectedProject.id}/new-branch`,
+                });
               }}
             />
           </div>
@@ -155,7 +154,7 @@ class BranchesView extends Component {
             {currentBranches.map((branch) => (
               <div key={`key-for-${branch.name}`} className="branch-row">
                 <div className="info">
-                  <div style={{ display: 'flex', }}>
+                  <div style={{ display: 'flex' }}>
                     <p className="branch-title">{branch.name}</p>
                     {branch.protected && (
                       <>
@@ -175,15 +174,22 @@ class BranchesView extends Component {
                 {!branch.protected && (
                   <div className="buttons">
                     {branch.behind || branch.ahead ? (
-                      <p style={{marginRight: '1em'}}>{branch.behind} | {branch.ahead}</p>
+                      <p style={{ marginRight: '1em' }}>
+                        {branch.behind}
+                        {' '}
+|
+                        {' '}
+                        {branch.ahead}
+                      </p>
                     ) : (
-                      <div style={{marginRight: '1em'}}>
-                        <CircularProgress size={20}/>
+                      <div style={{ marginRight: '1em' }}>
+                        <CircularProgress size={20} />
                       </div>
                     )}
                     <Button variant="outlined">Merge request</Button>
                     <Button variant="outlined">Compare</Button>
                     <button
+                      type="button"
                       className="dangerous-red delete-branch-btn"
                       onClick={() => this.toggleModalAndUpdateList(branch.name, false)}
                     >
@@ -221,7 +227,7 @@ function mapStateToProps(state) {
 function mapDispatchToProps(dispatch) {
   return {
     actions: bindActionCreators({
-      ...branchesActions
+      ...branchesActions,
     }, dispatch),
   };
 }
@@ -230,7 +236,7 @@ BranchesView.propTypes = {
   selectedProject: shape({
     id: number.isRequired,
     name: string.isRequired,
-  }),
+  }).isRequired,
   branches: arrayOf(shape({
     name: string.isRequired,
     default: bool.isRequired,

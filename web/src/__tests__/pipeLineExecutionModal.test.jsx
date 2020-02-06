@@ -7,7 +7,7 @@ import ExecutePipeLineModal from '../components/execute-pipeline-modal/executePi
 Enzyme.configure({ adapter: new Adapter() });
 
 const wrapper = mount(
-  <ExecutePipeLineModal isShowing toggle={() => { }} amountFilesSelected={3} />,
+  <ExecutePipeLineModal isShowing toggle={() => { }} amountFilesSelected={3} dataInstanceName="experiment-weird-exp" />,
 );
 
 test('There should be three buttons', () => {

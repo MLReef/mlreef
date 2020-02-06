@@ -9,13 +9,7 @@ import ProjectContainer from '../projectContainer';
 import './experimentsOverview.css';
 import pipelinesApi from '../../apis/PipelinesApi';
 import {
-  SKIPPED,
   filesForExperimentsDetails,
-  RUNNING,
-  PENDING,
-  SUCCESS,
-  CANCELED,
-  FAILED,
 } from '../../dataTypes';
 import ExperimentDetails from '../experiment-details/experimentDetails';
 import ExperimentCard from './experimentCard';
@@ -56,34 +50,19 @@ class ExperimentsOverview extends Component {
     e.target.classList.remove('non-active-black-border');
 
     const { all } = this.state;
-
-    if (e.target.id === 'all') {
-      const allExperiments = all;
-      this.setState({ experiments: allExperiments });
-    } else if (e.target.id === 'completed') {
-      const completed = all.filter((exp) => exp.status === 'success');
-      this.setState({ experiments: completed });
-    } else if (e.target.id === 'aborted') {
-      const canceled = all.filter((exp) => exp.status === 'canceled');
-      this.setState({ experiments: canceled });
-    } else if (e.target.id === 'failed') {
-      const failed = all.filter((exp) => exp.status === 'failed');
-      this.setState({ experiments: failed });
-    } else if (e.target.id === 'running') {
-      const running = all.filter((exp) => exp.status === 'running');
-      this.setState({ experiments: running });
-    } else if (e.target.id === 'open') {
-      const open = all.filter((exp) => exp.status === 'open');
-      this.setState({ experiments: open });
+    let experiments = all;
+    if (e.target.id !== 'all') {
+      experiments = all.filter((exp) => exp.status === e.target.id);
     }
+    this.setState({ experiments });
   }
 
   render() {
     const { selectedProject, selectedExperiment, experiments } = this.state;
-    const { jobs }  = this.props;
+    const { jobs } = this.props;
     let experimentJob;
-    if(selectedExperiment){
-      experimentJob = jobs.filter(job => job.ref === selectedExperiment.descTitle)[0];
+    if (selectedExperiment) {
+      experimentJob = jobs.filter((job) => job.ref === selectedExperiment.descTitle)[0];
     }
     const groupName = selectedProject.namespace.name;
     return (
