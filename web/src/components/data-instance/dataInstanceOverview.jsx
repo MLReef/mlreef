@@ -9,7 +9,6 @@ import { getTimeCreatedAgo, mlreefLinesToExtractConfiguration } from '../../func
 import DataInstancesDeleteModal from '../data-instances-delete-and-abort-modal/dataInstancesDeleteNAbortModal';
 import pipelinesApi from '../../apis/PipelinesApi';
 import {
-  SKIPPED,
   RUNNING,
   SUCCESS,
   CANCELED,
@@ -90,8 +89,6 @@ export const InstanceCard = ({ ...props }) => {
       ];
     } else if (
       experimentState === SUCCESS
-        || experimentState === FAILED
-        || experimentState === CANCELED
     ) {
       buttons = [
         <button
@@ -114,7 +111,30 @@ export const InstanceCard = ({ ...props }) => {
             X
           </b>
         </button>,
-        <Dropdown key="dropdown-save" />,
+      ];
+    } else if (experimentState === FAILED
+      || experimentState === CANCELED) {
+      buttons = [
+        <button
+          type="button"
+          key="experiment-button"
+          className="non-active-black-border rounded-pipeline-btn"
+          onClick={(e) => goToPipelineView(e)}
+        >
+          View Pipeline
+        </button>,
+        <button
+          type="button"
+          key="delete-button"
+          onClick={
+            () => props.setIsDeleteModalVisible(true, 'delete')
+          }
+          className="dangerous-red"
+        >
+          <b>
+            X
+          </b>
+        </button>,
       ];
     }
 
