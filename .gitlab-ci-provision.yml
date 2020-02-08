@@ -1,0 +1,154 @@
+develop provision:
+  stage: provision
+  only:
+    refs:
+      - develop
+  image: registry.gitlab.com/systemkern/s5:latest-aws
+  variables:
+    EC2_IMAGE_AMI:     "ami-050a22b7e0cf85dd0"             # ubuntu 16.04 LTS
+    EC2_SECURITY_GRP:  "application-servers"
+  before_script:
+    - chmod 400 $SSH_KEYFILE                               # prepare private key file
+    - sed -i "s~master/bin~$CI_COMMIT_REF_NAME/bin~"     $STARTUP_SCRIPT
+    - cat $STARTUP_SCRIPT
+    - aws configure set aws_access_key_id                $AWS_ACCESS_KEY_ID
+    - aws configure set aws_secret_access_key            $AWS_SECRET_ACCESS_KEY
+    - aws configure set default.region                   eu-central-1
+    - ls -al ~/.aws/
+    - cat ~/.aws/credentials
+  script:
+    - cd src/terraform
+    - terraform init    -input=false
+    - terraform apply   -auto-approve
+    - ls -al
+    - aws ec2 describe-instances --filters "Name=tag:Name,Values=$EC2_INSTANCE_NAME"
+      | jq -r ".Reservations[].Instances[].InstanceId"
+      | xargs --no-run-if-empty -I {} aws ec2 describe-instances --filters "Name=instance-id,Values={}"
+      | jq -r ".Reservations[].Instances[].NetworkInterfaces[].Association.PublicDnsName"
+      | head -1
+      | tr -d '\r' > $INSTANCE_INFO                        # pass instance url to deploy stage
+    - cat $INSTANCE_INFO                                   # debug output
+    - mv instance.info ../../instance.info
+  after_script:
+    - cat $INSTANCE_INFO                                   # debug output
+    - if [ -n $INSTANCE ]; then exit 1;  fi                # error on invalid INSTANCE_INFO
+  artifacts:
+    paths:
+      - "$INSTANCE_INFO"                                   # pass the file which contains our instance URL
+  environment:
+    name: $CI_COMMIT_REF_SLUG
+    url: $CI_PIPELINE_URL                                  # temporary url will be corrected by the gitlab-env-conf job
+    on_stop: decommission                                  # clean up after branch merge
+
+
+# The provision job boots up the new ec2 instance for deploying MLReef
+feature branch provision:
+  stage: provision
+  except:
+    refs:
+      - develop
+  image: registry.gitlab.com/systemkern/s5:latest-aws
+  variables:
+    EC2_MACHINE_SIZE:  "t3a.medium"                        # https://aws.amazon.com/ec2/instance-types/
+    EC2_IMAGE_AMI:     "ami-050a22b7e0cf85dd0"             # ubuntu 16.04 LTS
+    EC2_SECURITY_GRP:  "application-servers"
+  before_script:
+    - echo $EC2_INSTANCE_NAME
+    - chmod 400 $SSH_KEYFILE                               # prepare private key file
+
+    # decommission the current environment
+    # use the aws-cli to retrieve the description (json) for our machine
+    # parse the json with jq to get the instance id
+    # the xargs command submits the termination command to AWS
+    - aws ec2 describe-instances --filters "Name=tag:Name,Values=$EC2_INSTANCE_NAME"
+      | jq -r ".Reservations[].Instances[].InstanceId"
+      | xargs --no-run-if-empty aws ec2 terminate-instances --instance-id
+    - sed -i "s~master/bin~$CI_COMMIT_REF_NAME/bin~"                                           $STARTUP_SCRIPT
+    - sed -i "s~AWS_ACCESS_KEY_ID=XXXXX~AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID~"                 $STARTUP_SCRIPT
+    - sed -i "s~AWS_SECRET_ACCESS_KEY=XXXXX~AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY~"     $STARTUP_SCRIPT
+    - cat $STARTUP_SCRIPT
+  script:
+    # aws ec2 run instances documentation
+    # https://docs.aws.amazon.com/cli/latest/reference/ec2/run-instances.html
+    #   --credit-specification CpuCredits=standard
+    - aws ec2 run-instances --count 1
+      --region ${AWS_DEFAULT_REGION}
+      --image-id ${EC2_IMAGE_AMI}
+      --instance-type ${EC2_MACHINE_SIZE}
+      --security-groups ${EC2_SECURITY_GRP}
+      --key-name development
+      --user-data file://"${STARTUP_SCRIPT}"
+      --block-device-mappings file://$DEVICE_MAPPINGS
+      --tag-specifications "ResourceType=instance,Tags=[{Key=Name,Value=$EC2_INSTANCE_NAME}]"
+      | jq -r ".Instances[].InstanceId"
+      | xargs --no-run-if-empty -I {} aws ec2 describe-instances --filters "Name=instance-id,Values={}"
+      | jq -r ".Reservations[].Instances[].NetworkInterfaces[].Association.PublicDnsName"
+      | tr -d '\r' > $INSTANCE_INFO                        # pass instance url to deploy stage
+  after_script:
+    - cat $INSTANCE_INFO                                   # debug output
+    - if [ -n $INSTANCE ]; then exit 1;  fi                # error on invalid INSTANCE_INFO
+  artifacts:
+    paths:
+      - "$INSTANCE_INFO"                                   # pass the file which contains our instance URL
+  environment:
+    name: $CI_COMMIT_REF_SLUG
+    url: $CI_PIPELINE_URL                                  # temporary url will be corrected by the gitlab-env-conf job
+    on_stop: decommission                                  # clean up after branch merge
+
+
+gitlab env config:
+  image: registry.gitlab.com/systemkern/s5:latest
+  stage: deploy
+  variables:
+    KEY: "Authorization:"                                  # workaround to preserver the yaml structure
+  before_script:
+    - URL=$(cat $INSTANCE_INFO)
+    - echo $URL                                            # debug output
+  script:
+    # Get the ID of the gitlab environment we want to edit
+    - ID=$(curl --fail
+      --header "$KEY Bearer $GITLAB_API_TOKEN"
+      https://gitlab.com/api/v4/projects/$CI_PROJECT_ID/environments?name=$CI_COMMIT_REF_SLUG
+      | jq -c '.[] | select(.name | contains("'$CI_REF_SLUG'")) | .id'
+      )
+    - echo "ID is $ID"                                      # debug output
+    # configure the gitlab environment with the correct URL
+    - curl --request PUT --fail
+      --header "$KEY Bearer $GITLAB_API_TOKEN"
+      --data "name=$CI_COMMIT_REF_SLUG&external_url=http://$URL"
+      https://gitlab.com/api/v4/projects/$CI_PROJECT_ID/environments/$ID
+
+
+# The decommission job is configured by the provision's job `on_stop` command.
+# The execution of decommission is triggered by merging or deleting a branch.
+decommission:
+  stage: maintenance
+  except:
+    refs:
+      - develop
+      - master
+  when: manual
+  image: registry.gitlab.com/systemkern/s5:latest-aws
+  variables:
+    GIT_STRATEGY: "none"                                   # because branches are deleted on merge, we must not access the git repo
+    # workaround for YAML structure incompatibility https://gitlab.com/gitlab-org/gitlab-runner/issues/1809
+    WORKAROUND: "PRIVATE-TOKEN:"                           # workaround to not break the yaml structure
+  script:
+    # decommission the current environment
+    # use the aws-cli to retrieve the description (json) for our machine
+    # parse the json with jq to get the instance id
+    # the xargs command submits the termination command to AWS
+    - aws ec2 describe-instances --filters "Name=tag:Name,Values=$EC2_INSTANCE_NAME"
+      | jq -r ".Reservations[].Instances[].InstanceId"
+      | xargs --no-run-if-empty aws ec2 terminate-instances --instance-id
+
+    # remove the branch's frontend docker container
+    - echo "Delete URL is https://gitlab.com/api/v4/projects/$CI_PROJECT_ID/registry/repositories/$DOCKER_REGISTRY_REPO/tags/$CI_COMMIT_REF_SLUG/"
+    - curl --request DELETE --header "$WORKAROUND $GITLAB_API_TOKEN" --fail
+      https://gitlab.com/api/v4/projects/$CI_PROJECT_ID/registry/repositories/$DOCKER_REGISTRY_REPO/tags/$CI_COMMIT_REF_SLUG
+  after_script:
+    # remove the data backup from s3 (if it exists)
+    - aws s3 rm "s3://$S3_DATA_BUCKET/mlreef-data-$CI_COMMIT_REF_SLUG.zip"
+  environment:
+    name: $CI_COMMIT_REF_SLUG
+    action: stop
