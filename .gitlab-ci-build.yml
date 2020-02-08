@@ -1,0 +1,52 @@
+# The "prepare npm" job runs already during the provisioning phase
+# to save a little bit of time for the overall pipeline
+prepare npm:
+  stage: provision
+  image: node:13.2.0-alpine                                # https://hub.docker.com/_/node/
+  cache:
+    key: mlreef-npm-cache
+    paths:
+      - /usr/local/lib/node_modules
+      - web/node_modules
+  before_script:
+    - ls -al /usr/local/lib/node_modules
+  script:
+    - cd web
+    - pwd && ls -al
+    - npm install --global --silent react-scripts
+    - npm install --global --silent create-react-app@latest
+    - npm install --global --silent react-scripts@3.0.1
+    - npm install --silent .
+    - cp -r /usr/local/lib/node_modules ../node_modules_global
+  after_script:
+    - ls -al /usr/local/lib/node_modules
+    - ls -al node_modules_global
+  artifacts:
+    expire_in: 3 days
+    paths:
+      - web/node_modules
+      - node_modules_global
+
+
+build frontend:
+  image: docker:19.03.5                                    # https://hub.docker.com/_/docker/
+  stage: build
+  services:
+    - docker:dind
+  before_script:
+    - docker login ${DOCKER_REGISTRY} -u "${DOCKER_USER}" -p "${DOCKER_PASSWORD}"
+    - URL=$(cat $INSTANCE_INFO)
+    - echo $URL                                             # debug output
+    - mv node_modules_global web/node_modules_global
+    - rm -rf web/package-lock.json
+    - rm -rf web/node_modules
+    - ls -al web/src
+    - echo "REACT_APP_BACKEND_DEV=http://$URL"              >> web/.env # TOOD: remove deprecated parameters
+    - echo "REACT_APP_BACKEND=http://$URL:10080"            >> web/.env # TOOD: remove deprecated parameters
+    - echo "REACT_APP_MLREEF_INSTANCE_URL=http://$URL"      >> web/.env # TOOD: remove deprecated parameters
+    - cat web/.env
+  script:
+    - cd web
+    - echo "creating docker image ${IMAGE_NAME} for user ${DOCKER_USER}"
+    - docker build --pull --tag "$FRONTEND_IMAGE_PATH" -f Dockerfile .
+    - docker push "${FRONTEND_IMAGE_PATH}"
