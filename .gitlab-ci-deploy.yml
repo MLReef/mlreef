@@ -49,7 +49,7 @@ develop deploy:
   only:
     refs: [develop, master]
   script: ssh -i $SSH_KEYFILE -o 'AddKeysToAgent yes' ubuntu@"${URL}" "
-      docker-compose pull
+      docker-compose pull &&
       docker-compose up --detach
       "
 
