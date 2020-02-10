@@ -56,6 +56,11 @@ class ExperimentsOverview extends Component {
     }
     this.setState({ experiments });
   }
+  
+  // this is called when user clicks Experiments Tab forcing to shown the list
+  forceShowExperimentList = () => {
+    this.setState({ selectedExperiment: null })
+  }
 
   render() {
     const { selectedProject, selectedExperiment, experiments } = this.state;
@@ -69,6 +74,7 @@ class ExperimentsOverview extends Component {
       <div id="experiments-overview-container">
         <Navbar />
         <ProjectContainer
+          forceShowExperimentList={this.forceShowExperimentList}
           project={selectedProject}
           activeFeature="experiments"
           folders={[groupName, selectedProject.name, 'Data', 'Experiments']}

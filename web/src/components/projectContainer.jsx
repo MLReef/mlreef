@@ -31,7 +31,11 @@ class ProjectContainer extends React.Component {
             <Link to={`/my-projects/${id}/${default_branch}`} className="feature" id="data">
               Data
             </Link>
-            <Link to={`/my-projects/${id}/experiments-overview`} className="feature" id="experiments">
+            <Link 
+              onClick={this.props.forceShowExperimentList}
+              to={`/my-projects/${id}/experiments-overview`} 
+              className="feature" 
+              id="experiments">
               <p>Experiments</p>
             </Link>
           </div>
