@@ -15,7 +15,7 @@ echo "Tip: You CAN delete other unused volumes with: docker volume prune"
 export GITLAB_SECRETS_SECRET_KEY_BASE=1111111111122222222222333333333334444444444555555555566666666661234
 export    GITLAB_SECRETS_OTP_KEY_BASE=1111111111122222222222333333333334444444444555555555566666666661234
 export     GITLAB_SECRETS_DB_KEY_BASE=1111111111122222222222333333333334444444444555555555566666666661234
-export             GITLAB_ADMIN_TOKEN=-QmLDx6yHfzmgp5_XDz_
+# we must not check this in. the setup does not fail due to that var: export             GITLAB_ADMIN_TOKEN=-QmLDx6yHfzmgp5_XDz_
 docker-compose up --detach
 
 echo "Wait: for postgresql is starting ..."
