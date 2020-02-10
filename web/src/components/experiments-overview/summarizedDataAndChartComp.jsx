@@ -12,6 +12,7 @@ import ArrowButton from '../arrow-button/arrowButton';
 import snippetApi from '../../apis/SnippetApi';
 import {
   parseDataAndRefreshChart,
+  parseDecimal
 } from '../../functions/dataParserHelpers';
 import {
   SKIPPED,
@@ -170,7 +171,7 @@ const SummarizedDataAndChartComp = ({ experiment, projectId }) => {
                 averageParams.map((opt) => (
                   <p key={`${opt.name}-${opt.value}`}>
                     {' '}
-                    {`${opt.name}: ${opt.value}`}
+                    {`${opt.name}: ${ parseDecimal(opt.value) }`}
                     {' '}
                   </p>
                 ))

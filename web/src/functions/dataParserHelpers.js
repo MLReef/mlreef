@@ -214,3 +214,42 @@ export function mlreefLinesToExtractConfiguration(linesOfContent) {
   });
   return operationsArray;
 }
+
+/**
+ * Return a number with desired format.
+ *
+ * 5 significant digits preferred, max 5 fractional digits, keep integer part.
+ *
+ * @param {Number} num and integer or float, any else will just returned.
+ * @param {Number[integer]} digits max desired digits.
+ *
+ * @return {Number[float]}
+ */
+export const parseDecimal = (input, digits = 5) => {
+  const num = parseFloat(input);
+  const minimum = 1 / (10 ** (digits - 1));
+
+  if (isNaN(num)) {
+    return input;
+  }
+
+  if (num >= 10 ** digits) {
+    return Math.trunc(num);
+  }
+
+  if (num < minimum) {
+    return minimum;
+  }
+
+  if (num < 1) {
+    return parseFloat(num.toLocaleString('en', {
+      maximumFractionDigits: digits - 1,
+      useGrouping: false
+    }));
+  }
+
+  return parseFloat(num.toLocaleString('en' , {
+    maximumSignificantDigits: digits,
+    useGrouping: false
+  }));
+};
