@@ -30,7 +30,7 @@ build-deploy:
   services:
     - docker:dind
   script:
-    - docker build --quiet --tag "$IMAGE_PATH" -f Dockerfile .
+    - docker build --tag "$IMAGE_PATH" -f Dockerfile .
     - docker push "${IMAGE_PATH}"
   environment:
     name: $CI_COMMIT_REF_SLUG
