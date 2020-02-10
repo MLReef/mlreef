@@ -190,11 +190,11 @@ function mapDispatchToProps(dispatch) {
 
 ProjectInfo.propTypes = {
   project: shape({
-    avatar_url: string.isRequired,
+    avatar_url: string,
     forks_count: number.isRequired,
     name: string.isRequired,
     id: number.isRequired,
-    default_branch: string.isRequired,
+    default_branch: string,
     star_count: number.isRequired,
     http_url_to_repo: string.isRequired,
     ssh_url_to_repo: string.isRequired,

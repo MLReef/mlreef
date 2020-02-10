@@ -23,20 +23,16 @@ export class RepoFeatures extends Component {
     super(props);
     const {
       branch,
-      projects: { selectedProject: { id } },
-      actions,
+      projectId,
     } = this.props;
 
     this.state = {
       isOpen: false,
       plusOpen: false,
       branchSelected: decodeURIComponent(branch),
-      projectId: id,
+      projectId,
       branches: [],
     };
-    if(actions){
-      actions.getBranchesList(id);
-    }
   }
 
   static getDerivedStateFromProps = (nextProps, prevState) => {

@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import {
   number, string, arrayOf, shape,
 } from 'prop-types';
+import { Redirect } from 'react-router-dom';
 import { Base64 } from 'js-base64';
-import { Redirect } from 'react-router';
 import { toastr } from 'react-redux-toastr';
 import { getTimeCreatedAgo, mlreefLinesToExtractConfiguration } from '../../functions/dataParserHelpers';
 import './dataVisualizationCard.css';
