@@ -78,7 +78,7 @@ const DataInstanceDetails = ({ ...props }) => {
             <div className="project-desc-experiment">
               <p><b>{pipelineName}</b></p>
               <p>
-                Created by
+                Created by 
                 <b>{selectedPipeline[0].commit.author_name}</b>
                 <br />
                 --- ago

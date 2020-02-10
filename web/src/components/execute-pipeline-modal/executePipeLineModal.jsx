@@ -42,7 +42,7 @@ const ExecutePipelineModal = ({
   return isShowing
     ? (
       <div className="generic-modal">
-        <div className="modal-content" style={{ height: '50%', minHeight: 250 }}>
+        <div className="modal-content" style={{ height: '35%', minHeight: 250 }}>
           <div className="title light-green-button">
             <div style={{ padding: '0 3em' }}>
               <p>
@@ -218,10 +218,8 @@ const ExecutePipelineModal = ({
                   <p style={{ fontSize: '0.8em', width: '90%', textAlign: 'end' }}>ETA: 12min 45sec</p>
                 </div>
               </div>
-
               <p>
-                You can close this window, your task will run on the background under
-                <b>"Insights/tasks"</b>
+                You can close this window, your task will run on the background.
               </p>
 
             </div>

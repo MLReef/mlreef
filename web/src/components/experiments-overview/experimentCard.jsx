@@ -70,7 +70,7 @@ const ExperimentCard = (props) => {
                   <b>{uniqueName}</b>
                 </button>
                 <p id="time-created-ago">
-                    Created by
+                    Created by 
                     &nbsp;
                   <b>{experiment.userName}</b>
                   <br />

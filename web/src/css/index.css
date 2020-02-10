@@ -163,6 +163,7 @@ img.dropdown-white {
 
 .project-options {
   display: flex;
+  max-width: 400px;
   justify-content: flex-end;
   /* border: 2px solid red; */
 }
@@ -529,7 +530,7 @@ p.stat-no {
   margin: 0 2%;
 }
 
-.create-pr {
+.create-mr {
   display: flex;
   align-items: center;
   margin: 0.5% 3.5% 0.5% 0%;
@@ -540,7 +541,7 @@ p.stat-no {
   background-color: #ffffff;
 }
 
-.create-pr p {
+.create-mr p {
   margin: 0px;
   font-weight: 400;
 }

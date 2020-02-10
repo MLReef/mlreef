@@ -154,7 +154,7 @@ export const InstanceCard = ({ ...props }) => {
                     <b>{uniqueName}</b>
                   </p>
                   <p>
-                    Created by
+                    Created by 
                     {' '}
                     <b>{instance.userName}</b>
                     <br />

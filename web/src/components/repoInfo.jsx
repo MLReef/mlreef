@@ -34,16 +34,18 @@ const RepoInfo = ({
       </Link>
       </>
     )}
-      <Link className="repo-stat" to={`/my-projects/${projectId}/visualizations`} >
-        <p className="stat-no" />
-        <p className="stat-type">Visualizations</p>
-      </Link>
       <Link to={`/my-projects/${projectId}/merge-requests/overview`} className="repo-stat">
         {isFetching
           ? <div style={{ marginTop: '0.7em' }}><CircularProgress size={20} /></div>
           : <p className="stat-no">{mergeRequests.length}</p>}
         <p className="stat-type">Merge requests</p>
       </Link>
+
+      <Link className="repo-stat" to={`/my-projects/${projectId}/visualizations`} >
+        <p className="stat-no" />
+        <p className="stat-type">Visualizations</p>
+      </Link>
+
       <Link to={`/my-projects/${projectId}/${currentBranch}/data-instances`} className="repo-stat" replace>
         <p className="stat-no">{dataInstanesCount}</p>
         <p className="stat-type">Data Instances</p>
