@@ -24,7 +24,10 @@
     - sed -i "s/$BACKEND_IMAGE_NAME:develop/$BACKEND_IMAGE_NAME:$BACKEND_TAG/"    $DOCKER_COMPOSE
     # reactivate deactivated lines
     - sed -i "s~#CI_REMOVE~~"                                                     $DOCKER_COMPOSE
-
+    # remove local docker-compose lines
+    - sed -i "/gitlab-data:\/home\/git\/data:Z/d"                                    $DOCKER_COMPOSE
+    - sed -i "/postgresql-data:\/var\/lib\/postgresql:Z/d"                           $DOCKER_COMPOSE
+    - sed -i "/mlreefsql-data:\/var\/lib\/postgresql:Z/d"                            $DOCKER_COMPOSE
     - sed -i "s/GITLAB_HOST=gitlab/GITLAB_HOST=$URL/"                             $DOCKER_COMPOSE
     - sed -i "s/GITLAB_PORT=80/GITLAB_PORT=${GITLAB_PORT}/"                       $DOCKER_COMPOSE
     - ssh-keyscan -H "$URL" >>~/.ssh/known_hosts
@@ -65,5 +68,6 @@ feature branch deploy:
       --port $GITLAB_PORT
       --key $AWS_ACCESS_KEY_ID
       --secret $AWS_SECRET_ACCESS_KEY
+      --gitlab-admin-token $GITLAB_ADMIN_TOKEN
       --workaround 120
       "

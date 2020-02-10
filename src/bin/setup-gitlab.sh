@@ -6,8 +6,7 @@ salt=$(echo $GITLAB_SECRETS_DB_KEY_BASE | cut -c1-32)
 echo "   -> limit salt to 32 bytes/chars: $salt"
 token=$GITLAB_ADMIN_TOKEN$salt
 echo "   -> run echo -n token | openssl sha256 -binary | base64 -"
-#token_digest=$(echo -n $token | openssl sha256 -binary | base64 -)
-token_digest=YGFTRyL77y7tXq9N3LzVCryK72Tg6WQbhJ4gqWCavUE=
+token_digest=$(echo -n $token | openssl sha256 -binary | base64 -)
 echo "   = created token_digest: $token_digest"
 echo " "
 echo " "
@@ -25,7 +24,7 @@ sql_select="SELECT id,user_id,\"name\",created_at,impersonation,token_digest FRO
 echo "############################################"
 echo "Updating token: Next lines MUST have \"UPDATE 1\" otherwise there was an error"
 
-PGPASSWORD=$DB_PASS psql -U $DB_USER -h localhost -d $DB_NAME -c "$sql_truncate"
+# actually not needed: PGPASSWORD=$DB_PASS psql -U $DB_USER -h localhost -d $DB_NAME -c "$sql_truncate"
 PGPASSWORD=$DB_PASS psql -U $DB_USER -h localhost -d $DB_NAME -c "$sql_insert"
 PGPASSWORD=$DB_PASS psql -U $DB_USER -h localhost -d $DB_NAME -c "$sql_update"
 exit_value=$?

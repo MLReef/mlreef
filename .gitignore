@@ -797,3 +797,5 @@ iOSInjectionProject/
 
 ### Terraform ###
 **/.terraform/
+/local.env
+last-runner-registration-token.txt

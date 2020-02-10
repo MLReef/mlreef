@@ -1,5 +1,5 @@
 # original source: https://github.com/sameersbn/docker-gitlab/blob/master/docker-compose.yml
-version: '3.7'
+version: '3.3'
 
 # please research https://docs.docker.com/compose/environment-variables/ for howto setup your environment
 services:
@@ -17,6 +17,7 @@ services:
     volumes:
       - "./src/resources/nginx_proxy.conf:/etc/nginx/conf.d/default.conf"
 
+
   frontend:
     image: registry.gitlab.com/mlreef/frontend:develop
     container_name: frontend
@@ -30,9 +31,10 @@ services:
       - BACKEND_INSTANCE_URL=http://backend:8080
       - REACT_APP_MLREEF_INSTANCE_URL=http://backend:8080
 
+
   backend:
     container_name: backend
-    image: registry.gitlab.com/mlreef/backend:feature-fix-backend-starting
+    image: registry.gitlab.com/mlreef/backend:develop
     restart: always
     depends_on:
       - gitlab
@@ -41,10 +43,10 @@ services:
     ports:
       - "8080:8080"
       - "20080:8080"
+    env_file: local.env
     environment:
       - SPRING_PROFILES_ACTIVE=docker
       - GITLAB_ROOT_URL=http://gitlab:80
-      - GITLAB_ADMIN_TOKEN=5CDpsszVnFo-VdQD4pqT                     # secret, use ENV var
       - DB_HOST=mlreef-postgres
       - DB_PORT=5432
       - DB_USER=mlreef
@@ -52,20 +54,6 @@ services:
       - DB_NAME=mlreef_backend
       - REDIS_HOST=redis
       - STARTUP_DELAY=30
-
-
-  mlreef-postgres:
-    container_name: mlreef-postgres
-    restart: always
-    image: sameersbn/postgresql:10-2
-    ports:
-      - "6000:5432"
-    #CI_REMOVEvolumes: [/data/mlreefdb:/var/lib/postgresql:Z]          # this line gets rewritten by the CI/CD pipeline
-    environment:
-      - DB_USER=mlreef
-      - DB_PASS=password                                             # secret, use ENV var
-      - DB_NAME=mlreef_backend
-      - DB_EXTENSION=pg_trgm
 
 
   gitlab:
@@ -78,7 +66,10 @@ services:
     ports:
       - "10080:80"
       - "10022:22"
-    #CI_REMOVEvolumes: [/data/gitlab:/home/git/data:Z]               # this line gets activated by the CI/CD pipeline
+    volumes:
+      - gitlab-data:/home/git/data:Z
+      #CI_REMOVE- /data/gitlab:/home/git/data:Z               # this line gets activated by the CI/CD pipeline
+    env_file: local.env # do not remove. contains secrets
     environment:
       - DEBUG=false
 
@@ -102,13 +93,48 @@ services:
       - GITLAB_SSH_PORT=10022
       - GITLAB_RELATIVE_URL_ROOT=
 
-      # These three values are also hardcoded in the setup-local-environment.sh
-      - GITLAB_SECRETS_DB_KEY_BASE=     "1111111111122222222222333333333334444444444555555555566666666661234"
-      - GITLAB_SECRETS_SECRET_KEY_BASE= "1111111111122222222222333333333334444444444555555555566666666661234"
-      - GITLAB_SECRETS_OTP_KEY_BASE=    "1111111111122222222222333333333334444444444555555555566666666661234"
-
       - GITLAB_ROOT_PASSWORD=password
       - GITLAB_ROOT_EMAIL=
+
+
+  postgresql:
+    container_name: postgresql
+    restart: always
+    image: sameersbn/postgresql:10-2
+    volumes:
+      - postgresql-data:/var/lib/postgresql:Z
+      #CI_REMOVE- /data/postgres:/var/lib/postgresql:Z               # this line gets activated by the CI/CD pipeline
+      - "./src/bin/setup-gitlab.sh:/usr/local/bin/setup-gitlab.sh"
+    ports: ["5432:5432"]
+    env_file: local.env
+    environment:
+      - DB_USER=gitlab
+      - DB_PASS=password                                             # secret, use ENV var
+      - DB_NAME=gitlabhq_production
+      - DB_EXTENSION=pg_trgm
+
+
+  mlreef-postgres:
+    container_name: mlreef-postgres
+    restart: always
+    image: sameersbn/postgresql:10-2
+    ports:
+      - "6000:5432"
+    volumes:
+      - mlreefsql-data:/var/lib/postgresql:Z
+      #CI_REMOVE- /data/mlreefdb:/var/lib/postgresql:Z        # this line gets rewritten by the CI/CD pipeline
+    environment:
+      - DB_USER=mlreef
+      - DB_PASS=password                                             # secret, use ENV var
+      - DB_NAME=mlreef_backend
+      - DB_EXTENSION=pg_trgm
+
+
+  redis:
+    container_name: redis
+    restart: always
+    image: sameersbn/redis:4.0.9-2
+    ports: ["6379:6379"]
 
 
   gitlab-runner-dispatcher:
@@ -118,26 +144,10 @@ services:
       #CI_REMOVE- /data/gitlab-runner-config:/etc/gitlab-runner/:Z   # this line gets activated by the CI/CD pipeline
       - /var/run/docker.sock:/var/run/docker.sock                    # needed for "docker in docker" to work
 
-  postgresql:
-    container_name: postgresql
-    restart: always
-    image: sameersbn/postgresql:10-2
-    volumes:
-      #CI_REMOVE- /data/postgres:/var/lib/postgresql:Z               # this line gets activated by the CI/CD pipeline
-      - "./src/bin/setup-gitlab.sh:/usr/local/bin/setup-gitlab.sh"
-    ports: ["5432:5432"]
-    environment:
-      - DB_USER=gitlab
-      - DB_PASS=password                                             # secret, use ENV var
-      - DB_NAME=gitlabhq_production
-      - DB_EXTENSION=pg_trgm
-      - GITLAB_ADMIN_TOKEN=5CDpsszVnFo-VdQD4pqT
-      - GITLAB_SECRETS_DB_KEY_BASE="1111111111122222222222333333333334444444444555555555566666666661234"
+volumes:
+  sock:
+  postgresql-data:                                                   # this line gets removed by the CI/CD pipeline
+  mlreefsql-data:                                                    # this line gets removed by the CI/CD pipeline
+  gitlab-data:                                                       # this line gets removed by the CI/CD pipeline
+  gitlab-runner-config:
 
-  redis:
-    container_name: redis
-    restart: always
-    image: sameersbn/redis:4.0.9-2
-    ports: [6379:6379]
-#    command:
-#      - --loglevel warning
