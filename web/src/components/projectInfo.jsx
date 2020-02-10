@@ -119,9 +119,11 @@ const ProjectInfo = ({ project, actions }) => {
   );
 };
 
-function Clonedropdown({ ssh, http }) {
+export function Clonedropdown({ ssh, http }) {
   // The following code can be used to refactor the rest of the code. New way of writing the code.
   const node = React.useRef();
+  const sshRef = React.useRef(null);
+  const httpRef = React.useRef(null);
   const [open, setOpen] = React.useState(false);
 
   const handleClickOutside = (e) => {
@@ -144,28 +146,67 @@ function Clonedropdown({ ssh, http }) {
     };
   }, [open]);
 
+  const handleCopySsh = e => {
+    sshRef && sshRef.current.select();
+    document.execCommand('copy');
+    setOpen(false);
+  };
+
+  const handleCopyHttp = e => {
+    httpRef && httpRef.current.select();
+    document.execCommand('copy');
+    setOpen(false);
+  };
+
+  const handleClickInput = e => {
+    e.target.select();
+  };
+
   return (
     <>
       <div
         className="counter clone-dropdown"
         ref={node}
-        onClick={() => setOpen(!open)}
       >
-        <img className="dropdown-white" src={arrow01} alt="Clone" />
+        <img
+          onClick={ () => setOpen(!open) }
+          className="dropdown-white toggle-btn"
+          src={arrow01}
+          alt="Clone button" />
         {open && (
           <div className="clone-box">
             <div className="link-box">
               <p>Clone with SSH</p>
               <div className="clone-link">
-                <input type="text" value={ssh} className="ssh-http-link" readOnly />
-                <img className="clone-icon" src={clone01} alt="" />
+                <input
+                  ref={sshRef}
+                  onClick={handleClickInput}
+                  type="text"
+                  value={ssh}
+                  className="ssh-http-link"
+                  readOnly />
+                <img
+                  onClick={handleCopySsh}
+                  className="clone-icon ssh"
+                  src={clone01}
+                  alt="copy-icon" />
               </div>
             </div>
             <div className="link-box">
               <p>Clone with HTTPS</p>
               <div className="clone-link">
-                <input type="text" value={http} className="ssh-http-link" readOnly />
-                <img className="clone-icon" src={clone01} alt="" />
+                <input
+                  ref={httpRef}
+                  onClick={handleClickInput}
+                  type="text"
+                  value={http}
+                  className="ssh-http-link"
+                  readOnly />
+                <img
+                  onClick={handleCopyHttp}
+                  className="clone-icon http"
+                  src={clone01}
+                  alt="copy-icon" />
               </div>
             </div>
           </div>
