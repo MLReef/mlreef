@@ -37,7 +37,7 @@ const SortableDataOperation = SortableElement(({ value }) => {
           <div id="title-content">
             <p className="bold-text">{value.title}</p>
             <p>
-              Created by
+              Created by 
               <span className="bold-text">{value.username}</span>
             </p>
           </div>

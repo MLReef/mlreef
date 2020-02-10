@@ -164,8 +164,7 @@ export class RepoFeatures extends Component {
               <div className="plus-dropdown">
                 <ul className="plus-list">
                   <li>This directory</li>
-                  <li className="plus-option"><Link to="/">Upload file</Link></li>
-                  <li className="plus-option"><Link to="/">New directory</Link></li>
+                  ---
                   <hr />
                   <li>This repository</li>
                   <li className="plus-option"><Link to={`/my-projects/${projectId}/new-branch`}>New branch</Link></li>

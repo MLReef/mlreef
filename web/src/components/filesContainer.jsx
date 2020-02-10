@@ -154,11 +154,11 @@ commit(s)
             </p>
             <Link
               type="button"
-              className="create-pr"
+              className="create-mr"
               to={`/my-projects/${projectId}/${currentBranch}/new-merge-request`}
             >
               <p>
-                Create Pull Request
+                Create merge request
               </p>
             </Link>
           </div>

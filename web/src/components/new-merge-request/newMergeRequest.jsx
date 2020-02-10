@@ -199,7 +199,7 @@ export class NewMergeRequest extends Component {
         />
         <div className="main-content">
           <br />
-          <p style={{ color: '#1A2B3F', marginTop: '1.5em', fontSize: '1.3em' }}>
+          <p style={{ color: '#1A2B3F', fontSize: '1em' }}>
             <b>New Merge request</b>
           </p>
           <br />
@@ -207,7 +207,6 @@ export class NewMergeRequest extends Component {
             display: 'flex',
             alignItems: 'center',
             height: 'max-content',
-            marginTop: '1em',
           }}
           >
             <p id="branch-selected-name" variant="h6" component="h5" style={{ color: '#1A2B3F', fontSize: '1.1em' }}>

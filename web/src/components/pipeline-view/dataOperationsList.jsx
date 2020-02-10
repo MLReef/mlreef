@@ -21,7 +21,7 @@ export const DataOperationsList = ({
           <div id="title-content">
             <p className="bold-text">{dataOperation.title}</p>
             <p>
-Created by
+              Created by 
               <span className="bold-text">{dataOperation.username}</span>
             </p>
           </div>
