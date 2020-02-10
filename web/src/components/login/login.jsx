@@ -45,10 +45,9 @@ class Login extends React.Component {
     }
     const { email } = this.state;
     const { password } = this.state;
-    const { actions } = this.props;
 
     MLRAuthApi
-      .login(email,email, password)
+      .login(email, email, password)
       .then((user) => {
         sessionStorage.setItem('auth', true);
         sessionStorage.setItem('user', user); // FIXME: Does not work, but would the best IMHO
@@ -56,14 +55,12 @@ class Login extends React.Component {
         sessionStorage.setItem('user.username', user.username);
         sessionStorage.setItem('user.email', user.email);
         sessionStorage.setItem('token', user.token);
-        actions.getProjectsList();
-        this.setState({ redirect: true, loading: false });
+        this.setState({ redirect: true });
         toastr.success('Success:', 'Login successfully');
       })
       .catch(
         (error) => {
-          this.setState({ loading: false });
-          toastr.error('Error:', 'Try Login with mlreef + password or get: '+ error);
+          toastr.error('Error:', `Try Login with mlreef + password or get: ${error}`);
           const errorDiv = document.getElementById('errorDiv');
           errorDiv.classList.remove('invisible');
         },

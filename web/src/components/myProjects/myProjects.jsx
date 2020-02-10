@@ -1,23 +1,38 @@
 import React from 'react';
+import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import { arrayOf, shape } from 'prop-types';
+import { CircularProgress } from '@material-ui/core';
+import { arrayOf, shape, func } from 'prop-types';
 import { Link } from 'react-router-dom';
 import Navbar from '../navbar/navbar';
 import ProjectSet from '../projectSet';
 import './myProjects.css';
 import ProjectDeletionModal from '../project-deletion-modal/projectDeletionModal';
+import * as projectActions from '../../actions/projectInfoActions';
 
 class Myprojects extends React.Component {
   constructor(props) {
     super(props);
     this.handleShowModal = this.handleShowModal.bind(this);
     this.hideModal = this.hideModal.bind(this);
-    
+    const { actions } = this.props;
+    actions.getProjectsList();
     this.state = {
+      currentProjects: null,
       showModal: false,
       projectName: '',
       owner: '',
     };
+  }
+
+  static getDerivedStateFromProps(prevProps, nextState) {
+    const { projects } = prevProps;
+    const { currentProjects } = nextState;
+    if (JSON.stringify(projects) !== JSON.stringify(currentProjects)) {
+      return { currentProjects: projects };
+    }
+
+    return { currentProjects };
   }
 
   handleShowModal(projectName, owner) {
@@ -38,8 +53,11 @@ class Myprojects extends React.Component {
     const { showModal } = this.state;
     const { projectName } = this.state;
     const { owner } = this.state;
-    const { projects } = this.props;
-    
+    const { currentProjects } = this.state;
+
+    if (!currentProjects) {
+      return <CircularProgress size={20} />;
+    }
     return (
       <div>
         <ProjectDeletionModal
@@ -47,13 +65,13 @@ class Myprojects extends React.Component {
           projectName={projectName}
           owner={owner}
           hideModal={this.hideModal}
-          projectsList={projects}
+          projectsList={currentProjects}
         />
         <Navbar />
         <div className="project-content">
           <NewProject />
           <hr />
-          <ProjectSet projects={projects} handleShowModal={this.handleShowModal} />
+          <ProjectSet projects={currentProjects} handleShowModal={this.handleShowModal} />
         </div>
       </div>
     );
@@ -79,10 +97,21 @@ function mapStateToProps(state) {
   };
 }
 
+function mapDispatchToProps(dispatch) {
+  return {
+    actions: bindActionCreators({
+      ...projectActions,
+    }, dispatch),
+  };
+}
+
 Myprojects.propTypes = {
   projects: arrayOf(
     shape({}).isRequired,
   ).isRequired,
+  actions: shape({
+    getProjectsList: func.isRequired,
+  }).isRequired,
 };
 
-export default connect(mapStateToProps)(Myprojects);
+export default connect(mapStateToProps, mapDispatchToProps)(Myprojects);
