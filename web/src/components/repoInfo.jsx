@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState, useEffect} from 'react';
 import { Link } from 'react-router-dom';
 import { string, number } from 'prop-types';
 import { CircularProgress } from '@material-ui/core';
@@ -11,6 +11,14 @@ const RepoInfo = ({
   branchesCount,
   dataInstanesCount,
 }) => {
+  const [isFetching, setIsFetching] = useState(true);
+  
+  useEffect(() => {
+    setTimeout(() => {
+      setIsFetching(false);
+    }, 2000);
+  }, []);
+  
   return (
   <>
     <div className="repo-info">
@@ -31,9 +39,9 @@ const RepoInfo = ({
         <p className="stat-type">Visualizations</p>
       </Link>
       <Link to={`/my-projects/${projectId}/merge-requests/overview`} className="repo-stat">
-        {mergeRequests.length > 0
-          ? <p className="stat-no">{mergeRequests.length}</p>
-          : <div style={{ marginTop: '0.7em' }}><CircularProgress size={20} /></div>}
+        {isFetching
+          ? <div style={{ marginTop: '0.7em' }}><CircularProgress size={20} /></div>
+          : <p className="stat-no">{mergeRequests.length}</p>}
         <p className="stat-type">Merge requests</p>
       </Link>
       <Link to={`/my-projects/${projectId}/${currentBranch}/data-instances`} className="repo-stat" replace>

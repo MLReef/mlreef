@@ -29,10 +29,18 @@ class MergeRequestOverview extends Component {
   constructor(props) {
     super(props);
     this.state = {
+      isFetching: true,
       mrsList: [],
       btnSelected: 'all-btn',
     };
     this.handleFilterBtnClick = this.handleFilterBtnClick.bind(this);
+  }
+  
+  componentDidMount = () => {
+    // spinner for 2 seconds and then the results
+    setTimeout(() => {
+      this.setState({ isFetching: false });
+    }, 2000);
   }
 
   static getDerivedStateFromProps(nextProps, prevState) {
@@ -55,11 +63,12 @@ class MergeRequestOverview extends Component {
     return mrsList
       .filter(
         (mrClass) => mrClass.mrState === mrStates[stateIndex],
-      )[0];
+      )[0] || [];
   }
 
   render() {
     const {
+      isFetching,
       mrsList,
       btnSelected,
     } = this.state;
@@ -81,7 +90,7 @@ class MergeRequestOverview extends Component {
           folders={[groupName, projectName, 'Data']}
         />
         <div className="main-content">
-          {mrsList.length === 0
+          {isFetching
             ? <div id="circular-progress-container"><CircularProgress /></div>
             : (
               <>
