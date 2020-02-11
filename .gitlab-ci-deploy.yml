@@ -52,9 +52,10 @@ develop deploy:
   only:
     refs: [develop, master]
   script: ssh -i $SSH_KEYFILE -o 'AddKeysToAgent yes' ubuntu@"${URL}" "
-      sudo docker-compose pull &&
-      sudo docker-compose up --detach
-      "
+    sudo docker-compose pull          &&
+    sudo docker-compose up --detach   &&
+    sudo docker system prune --force
+    "
 
 
 feature branch deploy:
