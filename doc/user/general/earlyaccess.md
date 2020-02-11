@@ -1,5 +1,4 @@
-Early access guide
-====================
+# Early access guide
 
 Hello early-fish! 
 
@@ -7,14 +6,12 @@ The following topics should provide you with the basic to start with MLReef:
 
 | Early access documentation | Documentation for |
 |---|---|
-| [Basic concepts](../User_Documentation)  | Providing you the MLReef basics. |
-| [Available features](../User_Documentation)  | What is currently possible? |
-| [Known limitations](../User_Documentation)  | What is currently NOT possible? |
-| [Your contribution](#your_contribution)  | A guide for an enriching early access experience. |
+| [Basic concepts](##basic_concepts)  | Providing you the MLReef basics. |
+| [Known limitations](##limitations)  | What is currently NOT possible? |
+| [Your contribution](##your_contribution)  | A guide for an enriching early access experience. |
 
 
-Basic concepts
---------------------
+## <a name="basic_concepts"></a> Basic concepts
 
 MLReef is a [MLOps](https://en.wikipedia.org/wiki/MLOps) platform for the entire Machine Learninge lifecycle. It is based on four major pillars: 
 
@@ -29,14 +26,14 @@ The following content will provide a fast overview of the major concepts in MLRe
 
 | Basic concepts | Documentation for |
 |---|---|
-| [Maturity](../User_Documentation)  | The end-to-end scope of MLReef. |
-| [ML project repositories](../User_Documentation)  | Start your project with a Git based repository. |
-| [Processing data](../User_Documentation)  | Create a data processing pipeline in MLReef. |
-| [Visualizing data](../User_Documentation)  | Create a data visualization pipeline in MLReef. |
-| [Experiments and models](../User_Documentation)  | Experiment pipelines and their output. |
+| [Maturity](###maturity)  | The end-to-end scope of MLReef. |
+| [ML project repositories](###project_repos)  | Start your project with a Git based repository. |
+| [Processing data](###processing_data)  | Create a data processing pipeline in MLReef. |
+| [Visualizing data](###visualizations)  | Create a data visualization pipeline in MLReef. |
+| [Experiments and models](###experiments)  | Experiment pipelines and their output. |
 
 
-**Maturity**
+### <a name="maturity"></a> Maturity
 
 MLReef has a broad scope and vision, and we are constantly iterating on existing and new features. Some stages and features are more mature than others. To convey the state of our feature set and be transparent, we have developed a maturity framework for categories, application types, and stages.
 
@@ -60,7 +57,7 @@ MLReef has a broad scope and vision, and we are constantly iterating on existing
 |**Data source integrations**<br>Planned|||
 
 
-**ML project repositories**
+### <a name="project_repos"></a> ML project repositories
 
 A ML project is hosted and managed within a Git based repository. Similar to how traditional software development is managed but with additional ML focused functions.
 
@@ -77,7 +74,7 @@ or start working based on an existing one via a `fork` or `clone`:
 For further documentation, visit the [ML project repostitory](../User_Documentation) documentation. 
 
 
-**Processing data**
+### <a name="processing_data"></a> Processing data
 
 Processing data in MLReef is structured through the [data processing pipeline](../User_Documentation) and completed through atomic [data instance](../User_Documentation). 
 
@@ -108,7 +105,7 @@ You can access the data processing pipeline within your `data tab` in your ML pr
 
 
 
-**Processing visualization**
+### <a name="visualizations"></a> Data visualizations
 
 Visualizing your data through the data visualization pipeline works very similar to the above described data processing pipeline. 
 
@@ -132,7 +129,7 @@ You can access the data visualization pipeline within your `data tab` in your ML
 5.  Execute your data visualization pipeline by pressing the "execute" button. This will create your [data visualization](../User_Documentation).
 
 
-**Experiments and models**
+### <a name="experiments"></a> Experiments and models
 
 MLReef has a built-in experiment environment accessed through the `experiment tab` in your ML project repository. In here, you can create new ML experiments with full reproducibility on the underlying data and model. 
 
@@ -163,8 +160,7 @@ You can access the experiment pipeline within your `experiment tab` in your ML p
 ![image](\experiment_overview.PNG)
 
 
-Known limitations and problems
---------------------
+## <a name="limitations"></a> Known limitations and problems
 
 MLReef is currently in version `alpha 0.3`. The general aim of this alpha is to test the broad range of functions, such as the data repository and the main three pipelines. 
 
@@ -179,7 +175,7 @@ Here you can find a list of major features and known problems. This list will co
 | **Experiment values seem incorrect** | A parsing problem reads only the 5 first epochs. Status: Listed | 
 
 
-# <a name="your_contribution"></a> Your contribution
+## <a name="your_contribution"></a> Your contribution
 
 You can contribute by: 
 
