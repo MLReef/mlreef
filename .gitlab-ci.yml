@@ -21,7 +21,7 @@ variables:
   # unfortunately using the $FRONTEND_TAG variable inside the FRONTEND_IMAGE_PATH does not work
   FRONTEND_IMAGE_PATH:  "$DOCKER_REGISTRY/$DOCKER_ORGANISATION/$FRONTEND_IMAGE_NAME:$CI_COMMIT_REF_SLUG"
   BACKEND_IMAGE_NAME:   "backend"                          # docker image base name
-  BACKEND_TAG:          "latest"
+  BACKEND_TAG:          "develop"
   BACKEND_IMAGE_PATH:   "$DOCKER_REGISTRY/$DOCKER_ORGANISATION/$BACKEND_IMAGE_NAME:$BACKEND_TAG"
   DOCKER_REGISTRY_REPO: "717423"                           # https://gitlab.com/api/v4/projects/12894267/registry/repositories/
   EC2_INSTANCE_NAME:    "mlreef-$CI_COMMIT_REF_SLUG"       # environment name and url are set separately

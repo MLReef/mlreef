@@ -15,7 +15,7 @@ export const mlreefFileContent = `##############################################
 ################################################################################
 
 # This is the docker image your model training will be executed in
-image: registry.gitlab.com/mlreef/epf:latest
+image: registry.gitlab.com/mlreef/epf:feature-deactivate-git-push
 
 variables:
   # Change pip's cache directory to be inside the project directory since we can only cache local items.
@@ -27,23 +27,26 @@ before_script:
   - git remote set-url origin http://\${GIT_PUSH_USER}:\${GIT_PUSH_TOKEN}@#repo-url
   - git config --global user.email "rainer+mlreefdemo@systemkern.com"
   - git config --global user.name "mlreefdemo"
-  - git checkout #initialBranch
   - export GITLAB_API_TOKEN="\${GIT_PUSH_TOKEN}"
   - export CI_COMMIT_REF_SLUG="\${CI_COMMIT_REF_SLUG}"
   - export CI_PROJECT_ID="\${CI_PROJECT_ID}"
-  - export TARGET_BRANCH="#target-branch"
+  - export TARGET_BRANCH=$CI_COMMIT_REF_NAME
+  - git checkout $CI_COMMIT_REF_NAME
   - background-push &
+  - echo \${CI_JOB_ID} >> data_pipeline.info
 
-#pipeline-operation-script-name:
-  script:
-   - git checkout -b #target-branch
-   - echo \${CI_JOB_ID} >> data_pipeline.info
-#replace-here-the-lines
+
+after_script:
    - git add .
    - git status
    - git commit -m "Add pipeline results [skip ci]"
-   - git push --set-upstream origin #target-branch 
+   - git push --set-upstream origin $CI_COMMIT_REF_NAME
    - git push
+
+
+#pipeline-operation-script-name:
+  script:
+#replace-here-the-lines
 `;
 
 export const colorsForCharts = [
