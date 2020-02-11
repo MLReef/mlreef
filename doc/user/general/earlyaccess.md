@@ -10,7 +10,7 @@ The following topics should provide you with the basic to start with MLReef:
 | [Basic concepts](../User_Documentation)  | Providing you the MLReef basics. |
 | [Available features](../User_Documentation)  | What is currently possible? |
 | [Known limitations](../User_Documentation)  | What is currently NOT possible? |
-| [Your contribution](../User_Documentation)  | A guide for an enriching early access experience. |
+| [Your contribution](#your_contribution)  | A guide for an enriching early access experience. |
 
 
 Basic concepts
@@ -163,15 +163,50 @@ You can access the experiment pipeline within your `experiment tab` in your ML p
 ![image](\experiment_overview.PNG)
 
 
-Available features
+Known limitations and problems
 --------------------
 
+MLReef is currently in version `alpha 0.3`. The general aim of this alpha is to test the broad range of functions, such as the data repository and the main three pipelines. 
+
+There are many things that are still in development and probably many that still dont work. 
+
+Here you can find a list of major features and known problems. This list will continously be updated. 
+
+| Limitation or problem | Description |
+|---|---|
+| **All projects are found in "explore projects" tab** | New projects and forked projects are always here. Status: doing | 
+| **Data instances have a copy of original files** | This is due to an error in the config file. Satus: doing | 
+| **Experiment values seem incorrect** | A parsing problem reads only the 5 first epochs. Status: Listed | 
 
 
-Known limitations
---------------------
+# <a name="your_contribution"></a> Your contribution
+
+You can contribute by: 
+
+1.  Sending an email to help@mlreef.com - This will automatically create a ticket in our service desk. 
+2.  Raising a [ticket](https://gitlab.com/mlreef/frontend/issues) manually.
+3.  Ask the community through our slack channel: mlreefcommunity.slack.com
+4.  Answer our [Early Access Evaluation](https://mlreef.typeform.com/to/X0QUt2) 
+
+Thank you from the entire MLReef team! 
 
 
 
-Your contribution
---------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
