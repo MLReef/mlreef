@@ -101,7 +101,7 @@ echo "Runner was registered successfully"
 
 echo "### 3. Injecting Admin token into gitlab"
 echo "Creating the admin token with GITLAB_ADMIN_TOKEN: ${GITLAB_ADMIN_TOKEN}"
-chmod +x bin/setup-gitlab.sh
+chmod +x src/bin/setup-gitlab.sh
 docker exec -it postgresql setup-gitlab.sh
 
 

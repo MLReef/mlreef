@@ -25,12 +25,16 @@
     # reactivate deactivated lines
     - sed -i "s~#CI_REMOVE~~"                                                     $DOCKER_COMPOSE
     # remove local docker-compose lines
-    - sed -i "/gitlab-data:\/home\/git\/data:Z/d"                                    $DOCKER_COMPOSE
-    - sed -i "/postgresql-data:\/var\/lib\/postgresql:Z/d"                           $DOCKER_COMPOSE
-    - sed -i "/mlreefsql-data:\/var\/lib\/postgresql:Z/d"                            $DOCKER_COMPOSE
+    - sed -i "/gitlab-data:\/home\/git\/data:Z/d"                                 $DOCKER_COMPOSE
+    - sed -i "/postgresql-data:\/var\/lib\/postgresql:Z/d"                        $DOCKER_COMPOSE
+    - sed -i "/mlreefsql-data:\/var\/lib\/postgresql:Z/d"                         $DOCKER_COMPOSE
     - sed -i "s/GITLAB_HOST=gitlab/GITLAB_HOST=$URL/"                             $DOCKER_COMPOSE
     - sed -i "s/GITLAB_PORT=80/GITLAB_PORT=${GITLAB_PORT}/"                       $DOCKER_COMPOSE
     - ssh-keyscan -H "$URL" >>~/.ssh/known_hosts
+    # rewrite .env file
+    - echo GITLAB_SECRETS_DB_KEY_BASE=secret1111111111122222222222333333333334444444444555555555566666666661234 >>     $DOCKER_ENV
+    - echo GITLAB_SECRETS_OTP_KEY_BASE=secret1111111111122222222222333333333334444444444555555555566666666661234 >>    $DOCKER_ENV
+    - echo GITLAB_SECRETS_SECRET_KEY_BASE=secret1111111111122222222222333333333334444444444555555555566666666661234 >> $DOCKER_ENV
     # upload modified docker-compose to ec2 instance
     - scp -i $SSH_KEYFILE -o 'AddKeysToAgent yes' $DOCKER_COMPOSE ubuntu@${URL}:/home/ubuntu
     - scp -i $SSH_KEYFILE -o 'AddKeysToAgent yes' $DOCKER_ENV     ubuntu@${URL}:/home/ubuntu
@@ -52,10 +56,17 @@ develop deploy:
   only:
     refs: [develop, master]
   script: ssh -i $SSH_KEYFILE -o 'AddKeysToAgent yes' ubuntu@"${URL}" "
-    sudo docker-compose pull          &&
-    sudo docker-compose up --detach   &&
+    export DOCKER_ENV="test.env"                                     &&
+    echo GITLAB_ADMIN_TOKEN=$GITLAB_ADMIN_TOKEN >> $DOCKER_ENV       &&
+    sudo docker-compose pull                                         &&
+    sudo docker-compose up --detach                                  &&
     sudo docker system prune --force
     "
+
+# TODO: at the beginning of time NO secrets have been used, therefore we might not even need the following lines
+#echo GITLAB_SECRETS_SECRET_KEY_BASE=$GITLAB_SECRETS_SECRET_KEY_BASE >> local.env &&
+#echo GITLAB_SECRETS_OTP_KEY_BASE=$GITLAB_SECRETS_OTP_KEY_BASE >> local.env &&
+#echo GITLAB_SECRETS_DB_KEY_BASE=$GITLAB_SECRETS_DB_KEY_BASE >> local.env &&
 
 
 feature branch deploy:
