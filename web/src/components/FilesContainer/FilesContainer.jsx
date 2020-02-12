@@ -1,10 +1,11 @@
 import React, { Component } from 'react';
 import { Link, Redirect } from 'react-router-dom';
 import { string, number } from 'prop-types';
-import folderIcon from '../images/folder_01.svg';
-import fileIcon from '../images/file_01.svg';
-import filesApi from '../apis/FilesApi';
-import BranchesApi from '../apis/BranchesApi';
+import folderIcon from 'images/folder_01.svg';
+import fileIcon from 'images/file_01.svg';
+import filesApi from 'apis/FilesApi';
+import BranchesApi from 'apis/BranchesApi';
+import './FilesContainer.css';
 
 class FilesContainer extends Component {
   constructor(props) {
@@ -192,7 +193,7 @@ commit(s)
                       <Link to={link}>
                         <img src={icon} alt="" />
                       </Link>
-                      <Link to={link} className="file-name-link">
+                      <Link to={link} title={file.name} className="file-name-link">
                         {file.name}
                       </Link>
                     </td>
