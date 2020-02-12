@@ -34,7 +34,7 @@ variables:
   BACKUP_SCRIPT:        "src/bin/backup.sh"
   RESTORE_SCRIPT:       "src/bin/restore.sh"
   DOCKER_COMPOSE:       "docker-compose.yml"
-  DOCKER_ENV:           ".env"
+  DOCKER_ENV:           "local.env"
   INSTANCE_INFO:        "instance.info"                    # file for transmitting VM information between stages
   S3_DATA_BUCKET:       "mlreef-application-data"          # see also ec2 startup script
   DATA_ARCHIVE:         "mlreef-data-develop.zip"

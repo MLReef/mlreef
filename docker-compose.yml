@@ -67,9 +67,9 @@ services:
       - "10080:80"
       - "10022:22"
     volumes:
-      - gitlab-data:/home/git/data:Z
-      #CI_REMOVE- /data/gitlab:/home/git/data:Z               # this line gets activated by the CI/CD pipeline
-    env_file: local.env # do not remove. contains secrets
+      - gitlab-data:/home/git/data:Z                                 # this line gets rewritten by the CI/CD pipeline
+      #CI_REMOVE- /data/gitlab:/home/git/data:Z                      # this line gets activated by the CI/CD pipeline
+    env_file: local.env                                              # do not remove. contains secrets
     environment:
       - DEBUG=false
 
@@ -102,7 +102,7 @@ services:
     restart: always
     image: sameersbn/postgresql:10-2
     volumes:
-      - postgresql-data:/var/lib/postgresql:Z
+      - postgresql-data:/var/lib/postgresql:Z                        # this line gets rewritten by the CI/CD pipeline
       #CI_REMOVE- /data/postgres:/var/lib/postgresql:Z               # this line gets activated by the CI/CD pipeline
       - "./src/bin/setup-gitlab.sh:/usr/local/bin/setup-gitlab.sh"
     ports: ["5432:5432"]
@@ -121,8 +121,8 @@ services:
     ports:
       - "6000:5432"
     volumes:
-      - mlreefsql-data:/var/lib/postgresql:Z
-      #CI_REMOVE- /data/mlreefdb:/var/lib/postgresql:Z        # this line gets rewritten by the CI/CD pipeline
+      - mlreefsql-data:/var/lib/postgresql:Z                         # this line gets rewritten by the CI/CD pipeline
+      #CI_REMOVE- /data/mlreefdb:/var/lib/postgresql:Z               # this line gets activated by the CI/CD pipeline
     environment:
       - DB_USER=mlreef
       - DB_PASS=password                                             # secret, use ENV var
@@ -149,5 +149,5 @@ volumes:
   postgresql-data:                                                   # this line gets removed by the CI/CD pipeline
   mlreefsql-data:                                                    # this line gets removed by the CI/CD pipeline
   gitlab-data:                                                       # this line gets removed by the CI/CD pipeline
-  gitlab-runner-config:
+  gitlab-runner-config:                                              # this line gets removed by the CI/CD pipeline
 

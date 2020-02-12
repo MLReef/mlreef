@@ -47,5 +47,5 @@
 /bin @rainerkern @flohin
 /src/bin @rainerkern
 /web @andres46
-.gitlab-ci.yml @rainerkern
+.gitlab-ci*.yml @rainerkern @flohin
 docker-compose.yml @rainerkern @flohin
