@@ -34,9 +34,13 @@ export default class ProjectGeneralInfoApi {
           'PRIVATE-TOKEN': getCurrentToken(),
         }),
       }));
+      if (!respone.ok) {
+        throw new Error();
+      }
       return respone.json();
     } catch (err) {
-      return err;
+      window.history.replaceState({ errorCode: 500 }, 'Mlreef', '/error-page');
+      window.location.reload();
     }
   }
 
