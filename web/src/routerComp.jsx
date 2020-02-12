@@ -22,6 +22,7 @@ import NewMergeRequest from './components/new-merge-request/newMergeRequest';
 import NewBranch from './components/newBranch';
 import BranchesView from './components/branches-list-view/branchesView';
 import mergeRequestOverview from './components/new-merge-request/merge-request-overview';
+import BasicMergeRequestView from './components/mergeRequestDetailView/basicMergeRequestView';
 
 const RouterComp = () => (
   <BrowserRouter>
@@ -71,6 +72,11 @@ const RouterComp = () => (
         exact
         path="/my-projects/:projectId/merge-requests/overview"
         component={mergeRequestOverview}
+      />
+      <PrivateRoute
+        exact
+        path="/my-projects/:projectId/merge-requests/:iid"
+        component={BasicMergeRequestView}
       />
       <PrivateRoute
         exact

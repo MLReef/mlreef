@@ -12,6 +12,20 @@ export default class MergeRequestAPI {
     return jobsProm.json();
   }
 
+  static async getSingleMR(id, iid) {
+    const url = `${GITLAB_INSTANCE}/api/v4/projects/${id}/merge_requests/${iid}`;
+
+    const response = await fetch(new Request(
+      url, {
+        method: 'GET',
+        headers: new Headers({
+          'PRIVATE-TOKEN': getCurrentToken(),
+        }),
+      },
+    ));
+    return response.json();
+  }
+
   static async submitMergeReq(id, sourceBranch, targetBranch, title, description = '') {
     const url = `${GITLAB_INSTANCE}/api/v4/projects/${id}/merge_requests`;
     try {
@@ -21,7 +35,7 @@ export default class MergeRequestAPI {
           headers: new Headers({
             'PRIVATE-TOKEN': getCurrentToken(),
             'Content-Type': 'application/json',
-            'Access-Control-Allow-Origin': 'https://gitlab.com',
+            'Access-Control-Allow-Origin': `${GITLAB_INSTANCE}`,
           }),
           body: JSON.stringify({
             id,
@@ -38,4 +52,25 @@ export default class MergeRequestAPI {
       return err;
     }
   }
+
+  static async acceptMergeRequest(id, iid, squash, removeSourceBranch) {
+    let baseUrl = `${GITLAB_INSTANCE}/api/v4/projects/${id}/merge_requests/${iid}/merge?squash=${squash}`;
+
+    if (removeSourceBranch) {
+      baseUrl = `${baseUrl}&should_remove_source_branch=${removeSourceBranch}`;
+    }
+
+    const response = await fetch(new Request(
+      baseUrl, {
+        method: 'PUT',
+        headers: new Headers({
+          'PRIVATE-TOKEN': getCurrentToken(),
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': `${GITLAB_INSTANCE}`,
+        }),
+      },
+    ));
+    return response.json();
+  }
+
 }
