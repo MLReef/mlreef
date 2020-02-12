@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { CircularProgress } from '@material-ui/core';
 import { connect } from 'react-redux';
+import { Link } from 'react-router-dom';
 import {
   number, shape, string, arrayOf,
 } from 'prop-types';
@@ -148,7 +149,11 @@ const MergeRequestCard = ({ mergeRequestsList }) => (
     <div>
       {mergeRequestsList.list.map(((mr, index) => (
         <div className="merge-request-subcard" key={`${index.toString()}`}>
-          <p><b>{mr.title}</b></p>
+          <p>
+            <b>
+              <Link to={`/my-projects/${mr.project_id}/merge-requests/${mr.iid}`}>{mr.title}</Link>
+            </b>
+          </p>
           <p>
             {mr.reference}
             {' '}
