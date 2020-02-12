@@ -1,0 +1,15 @@
+.files-container {
+
+}
+
+.files-container .files-row .file-type {
+  width: 100%;
+}
+
+.files-container .files-row .file-type .file-name-link {
+  /* color: red !important; */
+  max-width: 40ch;
+  overflow-x: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

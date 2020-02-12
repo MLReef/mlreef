@@ -8,7 +8,7 @@ import { toastr } from 'react-redux-toastr';
 import { CircularProgress } from '@material-ui/core';
 import ReadMeComponent from '../readMe/readMe';
 import ProjectContainer from '../projectContainer';
-import FilesContainer from '../filesContainer';
+import FilesContainer from '../FilesContainer';
 import RepoInfo from '../repoInfo';
 import RepoFeatures from '../repoFeatures';
 import Navbar from '../navbar/navbar';
