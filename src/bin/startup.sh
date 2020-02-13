@@ -78,12 +78,13 @@ apt-get update && sudo apt-get install -y nvidia-container-toolkit
 apt-get install nvidia-container-runtime
 tee /etc/docker/daemon.json <<EOF
 {
-    "runtimes": {
-        "nvidia": {
-            "path": "/usr/bin/nvidia-container-runtime",
-            "runtimeArgs": []
-        }
+  "graph": "/data/docker",
+  "runtimes": {
+    "nvidia": {
+      "path": "/usr/bin/nvidia-container-runtime",
+      "runtimeArgs": []
     }
+  }
 }
 EOF
 # restart docker to finish gpu installation
