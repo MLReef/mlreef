@@ -6,7 +6,7 @@ import {
 import {
   Button,
 } from '@material-ui/core';
-import { Redirect } from 'react-router-dom';
+import { Redirect, Link } from 'react-router-dom';
 import { toastr } from 'react-redux-toastr';
 import ProjectContainer from '../projectContainer';
 import Navbar from '../navbar/navbar';
@@ -211,7 +211,9 @@ export class NewMergeRequest extends Component {
           >
             <p id="branch-selected-name" variant="h6" component="h5" style={{ color: '#1A2B3F', fontSize: '1.1em' }}>
               from&nbsp;
-              <b>{branch}</b>
+              <Link to={`/my-projects/${selectedProject.id}/${branch}`}>
+                <b>{decodeURIComponent(branch)}</b>
+              </Link>
               &nbsp;into
             </p>
             &nbsp;
