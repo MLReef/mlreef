@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Redirect } from 'react-router';
+import { Link } from 'react-router-dom';
 import { bindActionCreators } from 'redux';
 import { toastr } from 'react-redux-toastr';
 import { Button } from '@material-ui/core';
@@ -95,16 +96,23 @@ class BranchesView extends Component {
     const {
       selectedProject,
     } = this.props;
+    
     const {
       isModalVisible,
       branchName,
       urlToRedirect,
       currentBranches,
     } = this.state;
-    const projectName = selectedProject.name;
+
+    const {
+      name: projectName,
+      id: projectId
+    } = selectedProject;
+
     const today = new Date();
     const commitShortIdLowerLimit = 0;
     const commitShortIdUpperLimit = 9;
+
     return (
       <>
         {urlToRedirect.length > 0 && <Redirect to={urlToRedirect} />}
@@ -155,7 +163,9 @@ class BranchesView extends Component {
               <div key={`key-for-${branch.name}`} className="branch-row">
                 <div className="info">
                   <div style={{ display: 'flex' }}>
-                    <p className="branch-title">{branch.name}</p>
+                    <Link to={`/my-projects/${projectId}/${encodeURIComponent(branch.name)}`} >
+                      <p className="branch-title">{branch.name}</p>
+                    </Link>
                     {branch.protected && (
                       <>
                         <p className="additional-branch-info" style={{ color: '#2DB391' }}>default</p>
