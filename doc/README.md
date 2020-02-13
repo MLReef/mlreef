@@ -1,47 +1,40 @@
-MLReef Docs
-=============
+# MLReef Docs
 
 Welcome to [MLReef](https://mlreef.com) documentation. 
 
 > MLReef is currently on **closed alpha** and therefore, this documentation is subject to change. 
 
-For all early access user we suggest starting with this [**early access documentation**](../../../doc/user/General/earlyaccess.md). It will give you a fast introduction to the basic concepts and features of MLReef and guide you savely on your pioneering voyage.
+For all early access user we suggest starting with this [**early access documentation**](../../../doc/user/general/earlyaccess.md). It will give you a fast introduction to the basic concepts and features of MLReef and guide you savely on your pioneering voyage.
 
 > If you need support and you can´t find help here, don´t hesitate to either [raise a ticket](https://gitlab.com/mlreef/frontend/issues), connect with the MLReef community through our [slack channel](https://mlreefcommunity.slack.com) or send us an email at help@mlreef.com. You are never alone in the reef!
 
 
-Overview
---------------------
+## Overview
 
 No matter how you use MLReef, we have the documentation for you: 
 
 | Essential Documentation  | Essential Documentation  |
 |---|---|
-| [**User Documentation**](../User_Documentation)<br>Discover features and concepts for MLReef users. | [**Early Access Documentation**](./doc/user/General/earlyaccess.md)<br>Best start for all early access users. |
-| [**Contributing to MLReef**](../User_Documentation)<br>Explore this section if you want to contribute.  | [**New to GIT and MLReef?**](#New_to_Git_and_MLReef?)<br>We have the resources to get you started.  |
-| [**Use-Cases**](../User_Documentation)<br>Explore the power of MLReef through hands-on use cases!  | [**MLReef releases**](../User_Documentation)<br>Whats new in MLReef.  |
+| [**User Documentation**](../../../doc/user/index.md)<br>Discover features and concepts for MLReef users. | [**Early Access Documentation**](../../../doc/user/general/earlyaccess.md)<br>Best start for all early access users. |
+| [**Contributing to MLReef**](../../../doc/user/contributing.md)<br>Explore this section if you want to contribute.  | [**New to GIT and MLReef?**](##new_to_git)<br>We have the resources to get you started.  |
+| [**Use-Cases**](../../../doc/user/general/use_cases.md)<br>Explore the power of MLReef through hands-on use cases!  | [**MLReef releases**](../../../doc/user/releases.md)<br>Whats new in MLReef.  |
 
-Popular documentation
---------------------
+## Popular documentation
 
 Take a look at some of our most popular documentation resources:
 
 | Essential Documentation | Documentation for |
 |---|---|
-| [Parameter settings](../User_Documentation)  | Setting parameter values on data operations and models. |
-| [SSH Authentification](../User_Documentation)  | Secure your network communication. |
+| [Parameter settings](../../../doc/user/pipelines/parameters.md)  | Setting parameter values on data operations and models. |
+| [SSH Authentification](../../../doc/user/general/ssh/doc_ssh_README.md)  | Secure your network communication. |
 
 
-The entire MLOps cycle
---------------------
+## The entire MLOps cycle
 
 MLReef aims to be the first single application for the entire value chain when creating Machine Learning (ML) projects. 
-MLReef builds on the experience gathered in [Concurrent DevOps](../User_Documentation) and ML specific operations that will
-enable you to work faster, more transparent and use the power of the entire MLReef community to create best Machine Learning. 
+MLReef builds on the experience gathered in [Concurrent DevOps](https://en.wikipedia.org/wiki/DevOps) and ML specific operations that will enable you to work faster, more transparent and use the power of the entire MLReef community to create best Machine Learning. 
 
 MLReef provides solutions for [all the stages in MLOps](../User_Documentation)
-
-**Graphic for MLOps stages!**
 
 The following links provide documentation for each MLOps stage: 
 
@@ -51,7 +44,7 @@ The following links provide documentation for each MLOps stage:
 | [Manage models and operations](../User_Documentation)  | Source code management features. |
 | [Experiment](../User_Documentation)  | Training, experiment metrics and output files. |
 
-## Manage data
+### <a name="manage_data"></a> Manage data
 
 MLReef consolidates your data sets in one [distributed version control system](../User_Documentation) that´s easily managed and processed without disrupting your workflow. 
 
@@ -65,7 +58,7 @@ The following documentation relates to the MLOps **Manage data** stage:
 | [Version control](../User_Documentation)  | GIT and MLReef based workflow for full version control on your data. |
 
 
-## Manage models and operations
+### <a name="manage_models"></a> Manage models and operations
 
 MLreef is built from ground up to offer the highest degree of collaboration, wihtin your team and throughout the entire MLReef community. The marketplace offers you instant accessible models and operations with full access.
 
@@ -76,7 +69,7 @@ The following documentation relates to the MLOps **Manage models and operations*
 | [Pipelines](../User_Documentation)  | Data sourced pipelines for models and operations. |
 | [Code repositories](../User_Documentation)  | GIT based repositories for your models and operations. |
 
-## Experiment
+### <a name="experiments"></a> Experiment
 
 Training your model on your data 
 
@@ -89,8 +82,7 @@ The following documentation relates to the MLOps **Experiment** stage:
 | [Model output](../User_Documentation)  | Metrics and model binary storage and download. |
 
 
-New to GIT and MLReef
---------------------
+## <a name="new_to_git"></a> New to GIT and MLReef
 
 Working with new systems can be daunting. 
 
@@ -102,8 +94,7 @@ We have the following documentation to get you started with MLReef:
 | [MLReef workflow overview](../User_Documentation)  | Enhance your workflow with the best of MLReef workflow. |
 
 
-User account
---------------------
+## <a name="user_account"></a> User account
 
 Lear more about user management in MLReef. 
 
@@ -113,8 +104,7 @@ Lear more about user management in MLReef.
 | [Authentification](../User_Documentation)  | Account security with two-factor authentication, set up your SSH keys, and deploy keys for secure access to your projects. |
 
 
-GIT and MLReef
---------------------
+## <a name="git_mlreef"></a> GIT and MLReef
 
 Learn more about using Git, and using Git with MLReef:
 
