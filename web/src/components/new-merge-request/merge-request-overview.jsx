@@ -30,24 +30,20 @@ class MergeRequestOverview extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      isFetching: true,
-      mrsList: [],
+      mrsList: null,
       btnSelected: 'all-btn',
     };
     this.handleFilterBtnClick = this.handleFilterBtnClick.bind(this);
-  }
-  
-  componentDidMount = () => {
-    // spinner for 2 seconds and then the results
-    setTimeout(() => {
-      this.setState({ isFetching: false });
-    }, 2000);
   }
 
   static getDerivedStateFromProps(nextProps, prevState) {
     if (nextProps.mergeRequests.length > 0) {
       const classifiedMrs = classifyMrsByState(nextProps.mergeRequests);
       return { mrsList: classifiedMrs };
+    }
+
+    if (nextProps.mergeRequests.length === 0) {
+      return { mrsList: [] };
     }
 
     return prevState;
@@ -61,15 +57,17 @@ class MergeRequestOverview extends Component {
     const {
       mrsList,
     } = this.state;
+    if (!mrsList) {
+      return [];
+    }
     return mrsList
       .filter(
         (mrClass) => mrClass.mrState === mrStates[stateIndex],
-      )[0] || [];
+      )[0] || { list: [] };
   }
 
   render() {
     const {
-      isFetching,
       mrsList,
       btnSelected,
     } = this.state;
@@ -91,7 +89,7 @@ class MergeRequestOverview extends Component {
           folders={[groupName, projectName, 'Data']}
         />
         <div className="main-content">
-          {isFetching
+          {!mrsList
             ? <div id="circular-progress-container"><CircularProgress /></div>
             : (
               <>
@@ -99,9 +97,9 @@ class MergeRequestOverview extends Component {
                 <br />
                 <div id="filter-buttons-new-mr">
                   <div id="filter-btns">
-                    <BlackBorderedButton id="open-btn" textContent={`${openedMrs.length} Open`} onClickHandler={this.handleFilterBtnClick} />
-                    <BlackBorderedButton id="merged-btn" textContent={`${mergedMrs.length} Merged`} onClickHandler={this.handleFilterBtnClick} />
-                    <BlackBorderedButton id="closed-btn" textContent={`${closedMrs.length} Closed`} onClickHandler={this.handleFilterBtnClick} />
+                    <BlackBorderedButton id="open-btn" textContent={`${openedMrs.list.length} Open`} onClickHandler={this.handleFilterBtnClick} />
+                    <BlackBorderedButton id="merged-btn" textContent={`${mergedMrs.list.length} Merged`} onClickHandler={this.handleFilterBtnClick} />
+                    <BlackBorderedButton id="closed-btn" textContent={`${closedMrs.list.length} Closed`} onClickHandler={this.handleFilterBtnClick} />
                     <BlackBorderedButton id="all-btn" textContent="All" onClickHandler={this.handleFilterBtnClick} />
                   </div>
                   <div>
@@ -125,7 +123,7 @@ class MergeRequestOverview extends Component {
                   {btnSelected === 'closed-btn' && closedMrs.list.length > 0
                     ? <MergeRequestCard mergeRequestsList={closedMrs} key={closedMrs.mrState} />
                     : null}
-                  {btnSelected === 'all-btn' && mrsList.length > 0
+                  {btnSelected === 'all-btn' && mrsList
                     ? mrsList.map((mrsClass) => (
                       <MergeRequestCard mergeRequestsList={mrsClass} key={mrsClass.mrState} />
                     ))
@@ -149,11 +147,7 @@ const MergeRequestCard = ({ mergeRequestsList }) => (
     <div>
       {mergeRequestsList.list.map(((mr, index) => (
         <div className="merge-request-subcard" key={`${index.toString()}`}>
-          <p>
-            <b>
-              <Link to={`/my-projects/${mr.project_id}/merge-requests/${mr.iid}`}>{mr.title}</Link>
-            </b>
-          </p>
+          <p><b><Link to={`/my-projects/${mr.project_id}/merge-requests/${mr.iid}`}>{mr.title}</Link></b></p>
           <p>
             {mr.reference}
             {' '}

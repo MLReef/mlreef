@@ -1,6 +1,9 @@
-import React, { Component } from 'react';
+/* eslint-disable jsx-a11y/control-has-associated-label */
+import React, { Component, useRef } from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
+import { Tooltip } from '@material-ui/core';
+import { toastr } from 'react-redux-toastr';
 import {
   string,
   shape,
@@ -13,7 +16,7 @@ import ProjectContainer from '../projectContainer';
 import './commitsView.css';
 import arrowBlue from '../../images/arrow_down_blue_01.svg';
 import file01 from '../../images/file_01.svg';
-import folder01 from '../../images/folder_01.svg';
+// import folder01 from '../../images/folder_01.svg';
 import commitsApi from '../../apis/CommitsApi';
 import { getTimeCreatedAgo } from '../../functions/dataParserHelpers';
 
@@ -31,7 +34,8 @@ class CommitsView extends Component {
   componentDidMount() {
     const { match: { params: { projectId, branch, pathParam } } } = this.props;
     commitsApi.getCommits(projectId, branch, pathParam)
-      .then((response) => this.setState({ commits: response }));
+      .then((response) => this.setState({ commits: response }))
+      .catch(() => toastr.error('Error getting commits'));
   }
 
   componentDidUpdate(prevProps) {
@@ -39,7 +43,8 @@ class CommitsView extends Component {
     const prevBranch = prevProps.match.params.branch;
     if (branch !== prevBranch) {
       commitsApi.getCommits(projectId, branch)
-        .then((response) => this.setState({ commits: response }));
+        .then((response) => this.setState({ commits: response }))
+        .catch(() => toastr.error('Error getting commits'));
     }
   }
 
@@ -184,6 +189,7 @@ export function CommitDiv(props) {
     projectId,
     avatarName,
   } = props;
+  const spanRef = useRef();
   const today = new Date();
   const previous = new Date(time);
   const timediff = getTimeCreatedAgo(previous, today);
@@ -204,9 +210,25 @@ export function CommitDiv(props) {
           </span>
         </div>
         <div className="commit-details">
-          <span>{id}</span>
-          <img className="file-icon" src={file01} alt="" />
-          <img className="folder-icon" src={folder01} alt="" />
+          <span ref={spanRef}>{id}</span>
+          <Tooltip title={`Copy ${id}`} aria-label="copy">
+            <button
+              type="button"
+              className="copy-commit-id"
+              style={{
+                background: `url(${file01})`,
+              }}
+              onClick={() => {
+                const phantomInput = document.createElement('input');
+                phantomInput.value = spanRef.current.innerText;
+                document.body.appendChild(phantomInput);
+                phantomInput.select();
+                document.execCommand('copy');
+                document.body.removeChild(phantomInput);
+              }}
+            />
+          </Tooltip>
+          {/* <img className="folder-icon" src={folder01} alt="" /> */}
         </div>
       </div>
     </div>

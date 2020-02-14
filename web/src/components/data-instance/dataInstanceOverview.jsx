@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Base64 } from 'js-base64';
+import { toastr } from 'react-redux-toastr';
 import Navbar from '../navbar/navbar';
 import ProjectContainer from '../projectContainer';
 import './dataInstanceOverview.css';
@@ -16,7 +17,6 @@ import {
   PENDING,
 } from '../../dataTypes';
 import filesApi from '../../apis/FilesApi';
-import Dropdown from '../DropDown';
 import { classifyPipeLines } from '../../functions/pipeLinesHelpers';
 
 const getStatusForDataInstance = (status) => {
@@ -234,7 +234,7 @@ export class DataInstanceOverview extends Component {
     pipelinesApi.getPipesByProjectId(id).then((res) => {
       const dataInstancesClassified = classifyPipeLines(res, branches);
       this.setState({ dataInstances: dataInstancesClassified, all: dataInstancesClassified });
-    });
+    }).catch(() => toastr.error('Error', 'Error getting the pipelines'));
     this.setIsDeleteModalVisible = this.setIsDeleteModalVisible.bind(this);
   }
 

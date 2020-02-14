@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import {
-  number, shape, string,
+  number, shape, string, arrayOf,
 } from 'prop-types';
 import Checkbox from '@material-ui/core/Checkbox';
 import { Redirect } from 'react-router';
 import Navbar from '../navbar/navbar';
+import CommitsList from '../commitsList';
 import mergeRequestAPI from '../../apis/mergeRequestApi';
 import BranchesApi from '../../apis/BranchesApi';
 import { getTimeCreatedAgo } from '../../functions/dataParserHelpers';
@@ -25,12 +26,13 @@ const BasicMergeRequestView = (props) => {
 
   const [mrInfo, setMRInfo] = useState({});
   const [behind, setBehind] = useState(0);
-  const [ahead, setAhead] = useState(0);
+  const [aheadCommits, setAheadCommits] = useState([]);
+  const [diffs, setDiffs] = useState([]);
   const [squash, setSquash] = useState(false);
   const [removeBranch, setRemoveBranch] = useState(false);
   const [redirectMR, setRedirect] = useState(false);
 
-  const { selectedProject, selectedProject: { id }, match: { params: { iid } } } = props;
+  const { selectedProject, selectedProject: { id }, match: { params: { iid } }, users } = props;
   const { title, description, state } = mrInfo;
 
   const projectName = selectedProject.name;
@@ -54,7 +56,7 @@ const BasicMergeRequestView = (props) => {
 
   const removeSourceBranch = () => {
     setRemoveBranch(!removeBranch);
-  }
+  };
 
   const acceptMergeRequest = () => {
     mergeRequestAPI.acceptMergeRequest(id, iid, squash, removeBranch)
@@ -90,7 +92,10 @@ const BasicMergeRequestView = (props) => {
     BranchesApi.compare(id, sourceBranch, targetBranch)
       .then((res) => setBehind(res.commits.length)).catch((err) => err);
     BranchesApi.compare(id, targetBranch, sourceBranch)
-      .then((res) => setAhead(res.commits.length)).catch((err) => err);
+      .then((res) => {
+        setAheadCommits(res.commits);
+        setDiffs(res.diffs);
+      }).catch((err) => err);
   }, [id, iid, targetBranch, sourceBranch]);
 
   return (
@@ -139,7 +144,11 @@ const BasicMergeRequestView = (props) => {
           <input type="radio" name="tabset" id="tab1" aria-controls="overview" defaultChecked />
           <label htmlFor="tab1">Overview</label>
           <input type="radio" name="tabset" id="tab2" aria-controls="commits" />
-          <label htmlFor="tab2">Commits</label>
+            <label htmlFor="tab2">  
+              {aheadCommits.length}
+              {' '}
+              Commits
+            </label>
           <input type="radio" name="tabset" id="tab3" aria-controls="changes" />
           <label htmlFor="tab3">Changes</label>
           <div className="tab-panels">
@@ -169,7 +178,7 @@ const BasicMergeRequestView = (props) => {
                   The source branch is
                   {' '}
                   <b className="addition">
-                    {ahead}
+                    {aheadCommits.length}
                     {' '}
                     commits ahead
                   </b>
@@ -291,7 +300,7 @@ const BasicMergeRequestView = (props) => {
                         {squash && (
                         <div>
                           <p>
-                            {ahead}
+                            {aheadCommits.length}
                             commits and 1 merge commit will be added into
                             {' '}
                             {targetBranch}
@@ -303,9 +312,14 @@ const BasicMergeRequestView = (props) => {
               </div>
             </section>
             <section id="commits" className="tab-panel">
-              <h2>
-                {/* Code for Commits for a merge request goes here */}
-              </h2>
+              {aheadCommits.length > 0 && (
+                <CommitsList
+                  commits={aheadCommits}
+                  users={users}
+                  projectId={selectedProject.id}
+                  changesNumber={diffs.length}
+                />
+              )}
             </section>
             <section id="changes" className="tab-panel">
               <h2>{/* Code for Changes in a merge request goes here */}</h2>
@@ -320,6 +334,7 @@ const BasicMergeRequestView = (props) => {
 function mapStateToProps(state) {
   return {
     selectedProject: state.projects.selectedProject,
+    users: state.users,
   };
 }
 
@@ -342,6 +357,7 @@ BasicMergeRequestView.propTypes = {
       name: string.isRequired,
     }).isRequired,
   }).isRequired,
+  users: arrayOf(shape({})).isRequired,
 };
 
 export default connect(mapStateToProps)(BasicMergeRequestView);

@@ -107,19 +107,20 @@ export class RepoFeatures extends Component {
     const { branch, path } = this.props;
     return (
       <>
-        {branch !== null ? <div id="repo-features">
-          <div>
-            <div className="reference" ref={this.branchRef}>
-              <button
-                type="button"
-                id="branch-dropdown"
-                className="white-button"
-                onClick={this.handleBranch}
-              >
-                <span>{decodeURIComponent(branchSelected)}</span>
-                <img id="leftfeature-image" src={arrowDown} alt="" />
-              </button>
-              {isOpen && (
+        {branch !== null ? (
+          <div id="repo-features">
+            <div>
+              <div className="reference" ref={this.branchRef}>
+                <button
+                  type="button"
+                  id="branch-dropdown"
+                  className="white-button"
+                  onClick={this.handleBranch}
+                >
+                  <span>{decodeURIComponent(branchSelected)}</span>
+                  <img id="leftfeature-image" src={arrowDown} alt="" />
+                </button>
+                {isOpen && (
                 <div id="branches-list" className="select-branch">
                   <div
                     style={{ margin: '0 50px', fontSize: '14px', padding: '0 40px' }}
@@ -137,60 +138,61 @@ export class RepoFeatures extends Component {
                         <li className="branch-header">Branches</li>
                         {branches && branches.filter((branch) => !branch.name.startsWith('data-pipeline/')
                           && !branch.name.startsWith('experiment/')).map((branch) => {
-                          const encoded = encodeURIComponent(branch.name);
-                          return (
+                const encoded = encodeURIComponent(branch.name);
+                return (
                             <li key={encoded}>
                               <Link id={branch.name} to={`/my-projects/${projectId}/${encoded}`} onClick={this.handleClick}><p>{branch.name}</p></Link>
                             </li>
-                          );
-                        })}
+                );
+              })}
                       </ul>
                     </div>
                   </div>
                 </div>
-              )}
-            </div>
-            <div className="reference" ref={this.plusRef}>
+                )}
+              </div>
+              <div className="reference" ref={this.plusRef}>
+                <button
+                  type="button"
+                  className="white-button"
+                  style={{ position: 'relative' }}
+                  onClick={this.plusDropdown}
+                >
+                  <img id="plus" src={plus01} alt="" />
+                  <img id="leftfeature-image" src={arrowDown} alt="" />
+                </button>
+                {plusOpen && (
+                <div className="plus-dropdown">
+                  <ul className="plus-list">
+                    <li>This directory</li>
+                  ---
+                    <hr />
+                    <li>This repository</li>
+                    <li className="plus-option"><Link to={`/my-projects/${projectId}/new-branch`}>New branch</Link></li>
+                  </ul>
+                </div>
+                )}
+              </div>
               <button
                 type="button"
-                className="white-button"
-                style={{ position: 'relative' }}
-                onClick={this.plusDropdown}
+                className="blue-button"
               >
-                <img id="plus" src={plus01} alt="" />
-                <img id="leftfeature-image" src={arrowDown} alt="" />
+                <Link to={`/my-projects/${projectId}/empty-data-visualization`}><p>Data Visualisation</p></Link>
               </button>
-              {plusOpen && (
-              <div className="plus-dropdown">
-                <ul className="plus-list">
-                  <li>This directory</li>
-                  ---
-                  <hr />
-                  <li>This repository</li>
-                  <li className="plus-option"><Link to={`/my-projects/${projectId}/new-branch`}>New branch</Link></li>
-                </ul>
-              </div>
-              )}
+              <button
+                type="button"
+                className="blue-button"
+              >
+                <Link to={`/my-projects/${projectId}/pipe-line`}><p>Data Pipeline</p></Link>
+              </button>
             </div>
-            <button
-              type="button"
-              className="blue-button"
-            >
-              <Link to={`/my-projects/${projectId}/empty-data-visualization`}><p>Data Visualisation</p></Link>
-            </button>
-            <button
-              type="button"
-              className="blue-button"
-            >
-              <Link to={`/my-projects/${projectId}/pipe-line`}><p>Data Pipeline</p></Link>
-            </button>
+            <div>
+              <button type="button" className="white-button">
+                <Link to={`/my-projects/${projectId}/${branch}/commits/${path}`}>History</Link>
+              </button>
+            </div>
           </div>
-          <div>
-            <button type="button" className="white-button">
-              <Link to={`/my-projects/${projectId}/${branch}/commits/${path}`}>History</Link>
-            </button>
-          </div>
-        </div> : null}
+        ) : null}
       </>
     );
   }

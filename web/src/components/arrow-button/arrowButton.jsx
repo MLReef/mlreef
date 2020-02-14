@@ -52,7 +52,6 @@ ArrowButton.propTypes = {
   placeholder: PropTypes.string,
   callback: PropTypes.func,
   params: PropTypes.object,
-  imgPlaceHolder: PropTypes.string,
   id: PropTypes.string,
 };
 
@@ -60,7 +59,6 @@ ArrowButton.defaultProps = {
   placeholder: '',
   callback: () => {},
   params: {},
-  imgPlaceHolder: '',
   id: '',
 };
 
