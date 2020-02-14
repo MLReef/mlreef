@@ -1,0 +1,41 @@
+.viewing-visualization {
+  border: 2px solid #e5e5e5;
+  border-radius: 0.3em;
+}
+
+.viewing-visualization > .title-bar {
+  display: flex;
+  align-items: center;
+  background-color: #e5e5e5;
+  height: 2.5em;
+  border-radius: 0.3em;
+  padding: 0.3em;
+  color: #1C2B40;
+}
+
+.viewing-visualization > .title-bar > p { 
+  margin-left: 1.6em;
+  color: #1C2B40;
+  font-weight: 700;
+}
+
+.viewing-visualization > .content-data {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.7em 0.7em 0.7em 3em;
+}
+
+#buttons-div > .dangerous-red {
+  border-radius: 0.3em;
+}
+
+#file1 {
+  text-align: center;
+  width: 100%;
+}
+
+/* file row styles */
+
+.blue-on-hover:hover {
+  background-color: #32AFC333;
+}

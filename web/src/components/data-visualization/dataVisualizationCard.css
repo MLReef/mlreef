@@ -10,6 +10,10 @@
   text-align: left;
 }
 
+.data-visualization-card-content > .general-information > p {
+  cursor: pointer;
+}
+
 .data-visualization-card-content > .detailed-information-1 {
   width: 17.5%;
   text-align: center;
