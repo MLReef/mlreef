@@ -48,7 +48,9 @@ export default class ProjectGeneralInfoApi {
           'PRIVATE-TOKEN': getCurrentToken(),
         }),
       }));
-
+      if (!response.ok) {
+        throw Error();
+      }
       return response.json();
     } catch (err) {
       window.history.replaceState({ errorCode: 500 }, 'Mlreef', '/error-page');

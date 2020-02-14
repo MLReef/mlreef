@@ -63,7 +63,7 @@ class MergeRequestOverview extends Component {
     return mrsList
       .filter(
         (mrClass) => mrClass.mrState === mrStates[stateIndex],
-      )[0] || [];
+      )[0] || { list: [] };
   }
 
   render() {
@@ -79,6 +79,7 @@ class MergeRequestOverview extends Component {
     const openedMrs = this.filterStateAndCount(0);
     const closedMrs = this.filterStateAndCount(1);
     const mergedMrs = this.filterStateAndCount(2);
+
     const projectName = selectedProject.name;
     const groupName = selectedProject.namespace.name;
     return (
@@ -98,9 +99,9 @@ class MergeRequestOverview extends Component {
                 <br />
                 <div id="filter-buttons-new-mr">
                   <div id="filter-btns">
-                    <BlackBorderedButton id="open-btn" textContent={`${openedMrs.length} Open`} onClickHandler={this.handleFilterBtnClick} />
-                    <BlackBorderedButton id="merged-btn" textContent={`${mergedMrs.length} Merged`} onClickHandler={this.handleFilterBtnClick} />
-                    <BlackBorderedButton id="closed-btn" textContent={`${closedMrs.length} Closed`} onClickHandler={this.handleFilterBtnClick} />
+                    <BlackBorderedButton id="open-btn" textContent={`${openedMrs.list.length} Open`} onClickHandler={this.handleFilterBtnClick} />
+                    <BlackBorderedButton id="merged-btn" textContent={`${mergedMrs.list.length} Merged`} onClickHandler={this.handleFilterBtnClick} />
+                    <BlackBorderedButton id="closed-btn" textContent={`${closedMrs.list.length} Closed`} onClickHandler={this.handleFilterBtnClick} />
                     <BlackBorderedButton id="all-btn" textContent="All" onClickHandler={this.handleFilterBtnClick} />
                   </div>
                   <div>

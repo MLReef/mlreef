@@ -11,6 +11,7 @@ import Instruction from '../instruction/instruction';
 import DataVisualizationCard from './dataVisualizationCard';
 import PipeLinesApi from '../../apis/PipelinesApi';
 import { classifyPipeLines } from '../../functions/pipeLinesHelpers';
+import DataVisualizationDetails from './dataVisualizationDetail';
 
 export class DataVisualizationOverview extends Component {
   constructor(props) {
@@ -19,6 +20,7 @@ export class DataVisualizationOverview extends Component {
     this.state = {
       visualizations: null,
       all: null,
+      visualizationSelected: null,
     };
     const arrayOfBranches = branches.filter((branch) => branch.name.startsWith('data-visualization'));
     PipeLinesApi.getPipesByProjectId(selectedProject.id).then((res) => {
@@ -45,7 +47,12 @@ export class DataVisualizationOverview extends Component {
       });
     });
     this.handleFilterBtnClick = this.handleFilterBtnClick.bind(this);
+    this.setVisualizationSelected = this.setVisualizationSelected.bind(this);
   }
+
+  setVisualizationSelected = (visualization) => this.setState(() => ({
+    visualizationSelected: visualization,
+  }));
 
   handleFilterBtnClick(idFilterButtonPressed) {
     let filteredIns = [];
@@ -71,7 +78,10 @@ export class DataVisualizationOverview extends Component {
     const {
       selectedProject,
     } = this.props;
-    const { visualizations } = this.state;
+    const {
+      visualizations,
+      visualizationSelected,
+    } = this.state;
     const groupName = selectedProject.namespace.name;
     return (
       <>
@@ -81,60 +91,70 @@ export class DataVisualizationOverview extends Component {
           activeFeature="data"
           folders={[groupName, selectedProject.name, 'Data', 'Visualizations']}
         />
-        <Instruction
-          titleText="Handling data visualizations:"
-          paragraph={
-            `A data visualization is the output of your data visualization pipeline. 
-            By clicking on the name of your visualization, you will get access to the output files`
-          }
-        />
         <div className="main-content">
-          <br />
-          <div id="line" />
-          <br />
-          <div id="buttons-container">
-            <button
-              id="all"
-              type="button"
-              className="non-active-black-border rounded-pipeline-btn"
-              onClick={(e) => this.handleFilterBtnClick(e.target.id)}
-            >
-              All
-            </button>
-            <button
-              id="progress"
-              type="button"
-              className="non-active-black-border rounded-pipeline-btn"
-              onClick={(e) => this.handleFilterBtnClick(e.target.id)}
-            >
-              In progress
-            </button>
-            <button
-              id="active"
-              type="button"
-              className="non-active-black-border rounded-pipeline-btn"
-              onClick={(e) => this.handleFilterBtnClick(e.target.id)}
-            >
-              Active
-            </button>
-            <button
-              id="expired"
-              type="button"
-              className="non-active-black-border rounded-pipeline-btn"
-              onClick={(e) => this.handleFilterBtnClick(e.target.id)}
-            >
-              Expired
-            </button>
-          </div>
-          {visualizations === null
-            ? <div id="loading-circular-progress"><CircularProgress size={30} /></div>
-            : visualizations.map((dataInsClas) => (
-              <DataVisualizationCard
-                classification={dataInsClas}
-                projectId={selectedProject.id}
-                key={dataInsClas.status}
+          {visualizationSelected ? (
+            <DataVisualizationDetails
+              visualizationSelected={visualizationSelected}
+              setVisualizationSelected={this.setVisualizationSelected}
+            />
+          ) : (
+            <>
+              <Instruction
+                titleText="Handling data visualizations:"
+                paragraph={
+                `A data visualization is the output of your data visualization pipeline. 
+                By clicking on the name of your visualization, you will get access to the output files`
+                }
               />
-            ))}
+              <br />
+              <div id="line" />
+              <br />
+              <div id="buttons-container">
+                <button
+                  id="all"
+                  type="button"
+                  className="non-active-black-border rounded-pipeline-btn"
+                  onClick={(e) => this.handleFilterBtnClick(e.target.id)}
+                >
+                All
+                </button>
+                <button
+                  id="progress"
+                  type="button"
+                  className="non-active-black-border rounded-pipeline-btn"
+                  onClick={(e) => this.handleFilterBtnClick(e.target.id)}
+                >
+                In progress
+                </button>
+                <button
+                  id="active"
+                  type="button"
+                  className="non-active-black-border rounded-pipeline-btn"
+                  onClick={(e) => this.handleFilterBtnClick(e.target.id)}
+                >
+                Active
+                </button>
+                <button
+                  id="expired"
+                  type="button"
+                  className="non-active-black-border rounded-pipeline-btn"
+                  onClick={(e) => this.handleFilterBtnClick(e.target.id)}
+                >
+                Expired
+                </button>
+              </div>
+              {visualizations === null
+                ? <div id="loading-circular-progress"><CircularProgress size={30} /></div>
+                : visualizations.map((dataInsClas) => (
+                  <DataVisualizationCard
+                    setVisualizationSelected={this.setVisualizationSelected}
+                    classification={dataInsClas}
+                    projectId={selectedProject.id}
+                    key={dataInsClas.status}
+                  />
+                ))}
+            </>
+          )}
         </div>
         <br />
       </>

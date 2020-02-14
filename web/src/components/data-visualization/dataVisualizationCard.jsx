@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import {
-  number, string, arrayOf, shape,
+  func, number, string, arrayOf, shape,
 } from 'prop-types';
 import { Redirect } from 'react-router-dom';
 import { Base64 } from 'js-base64';
@@ -9,7 +9,7 @@ import { getTimeCreatedAgo, mlreefLinesToExtractConfiguration } from '../../func
 import './dataVisualizationCard.css';
 import filesApi from '../../apis/FilesApi';
 
-const DataVisualizationCard = ({ classification, projectId }) => {
+const DataVisualizationCard = ({ classification, projectId, setVisualizationSelected }) => {
   const today = new Date();
   const [redirect, setRedirect] = useState(false);
   function goToPipelineView(e) {
@@ -96,7 +96,7 @@ const DataVisualizationCard = ({ classification, projectId }) => {
       {classification.values.map((val) => (
         <div className="data-visualization-card-content" key={`${val.creator} ${val.name}`} data-key={val.name}>
           <div className="general-information">
-            <p>
+            <p  onClick={() => { setVisualizationSelected(val); }}>
               <b>{val.name}</b>
             </p>
             <p>
@@ -118,22 +118,20 @@ const DataVisualizationCard = ({ classification, projectId }) => {
               </b>
             </p>
             )}
-            {classification.status.toLowerCase() === 'active'
-              ? (
-                <>
-                  <p>
-                    <b>
-                      Use:
-                      {val.spaceUsed}
-                    </b>
-                  </p>
-                  <p>
-                    Expires in:
-                    {val.expiresIn}
-                  </p>
-                </>
-              )
-              : null}
+            {classification.status.toLowerCase() === 'active' && (
+            <>
+              <p>
+                <b>
+                  Use:
+                  {val.spaceUsed}
+                </b>
+              </p>
+              <p>
+                Expires in:
+                {val.expiresIn}
+              </p>
+            </>
+            )}
           </div>
           <div className="detailed-information-2">
             <p>
@@ -166,6 +164,7 @@ DataVisualizationCard.propTypes = {
       filesChanged: string,
     })).isRequired,
   }).isRequired,
+  setVisualizationSelected: func.isRequired,
   projectId: number.isRequired,
 };
 
