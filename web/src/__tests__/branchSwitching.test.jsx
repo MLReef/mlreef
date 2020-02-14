@@ -9,10 +9,9 @@ import { projectsArrayMock } from '../testData';
 
 Enzyme.configure({ adapter: new Adapter() });
 
-const wrapper = shallow(<RepoFeatures projects={projectsArrayMock.projects} />);
-
 describe('There should be 7 buttons', () => {
   it('renders without crashing given the required props', () => {
+    const wrapper = shallow(<RepoFeatures projects={projectsArrayMock.projects} />);
     const buttonsArr = wrapper.find('button');
     expect(buttonsArr).toHaveLength(5);
   });
@@ -20,6 +19,7 @@ describe('There should be 7 buttons', () => {
 
 describe('Dropdown appears on button click', () => {
   it('renders without crashing given the required props', () => {
+    const wrapper = shallow(<RepoFeatures projects={projectsArrayMock.projects} />);
     wrapper.find('#branch-dropdown').simulate('click');
     expect(wrapper.find('#branches-list')).toHaveLength(1);
   });
@@ -30,7 +30,7 @@ describe('The branches list should be displayed when dropdown button is clicked'
     const component = renderer
       .create(
         <MemoryRouter>
-          <RepoFeatures projects={projectsArrayMock.projects} />
+          <RepoFeatures projectId={projectsArrayMock.projects.selectedProject.id} />
         </MemoryRouter>,
       )
       .toJSON();

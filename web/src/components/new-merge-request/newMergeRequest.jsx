@@ -13,12 +13,12 @@ import Navbar from '../navbar/navbar';
 import CustomizedSelect from '../CustomizedSelect';
 import BlueBorderedInput from '../BlueBorderedInput';
 import CustomizedButton from '../CustomizedButton';
-import { CommitDiv } from '../commits-view/commitsView';
 import './newMergeRequest.css';
 import branchesApi from '../../apis/BranchesApi';
 import commitsApi from '../../apis/CommitsApi';
 import mergeRequestAPI from '../../apis/mergeRequestApi';
 import ImageDiffSection from '../imageDiffSection';
+import CommitsList from '../commitsList';
 
 const imageFormats = [
   '.png',
@@ -173,19 +173,6 @@ export class NewMergeRequest extends Component {
       },
     } = this.props;
     const groupName = selectedProject.namespace.name;
-    const distinct = [
-      ...new Set(
-        commits.map(
-          (x) => new Date(x.committed_date)
-            .toLocaleString(
-              'en-eu', {
-                day: 'numeric',
-                month: 'short',
-                year: 'numeric',
-              },
-            ),
-        ),
-      )];
     return (
       <>
         {redirect && (
@@ -290,78 +277,12 @@ export class NewMergeRequest extends Component {
           </div>
           <br />
           {commits.length > 0 && (
-            <div style={{
-              borderTopLeftRadius: '1em',
-              borderTopRightRadius: '1em',
-            }}
-            >
-              <div style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                padding: '3px 5em',
-                color: 'white',
-                backgroundColor: '#32AFC3',
-                borderRadius: 'inherit',
-              }}
-              >
-                <p>
-                  <b>
-                    {commits.length}
-                    {' '}
-                    commit(s)
-                  </b>
-                </p>
-                <p>
-                  <b>
-                    {diffs.length}
-                    {' '}
-                    file(s) changed
-                  </b>
-                </p>
-                <p><b>0 contributors</b></p>
-              </div>
-              <div>
-                {distinct.map((commit, index) => (
-                  <div key={index.toString()} className="commit-per-date">
-                    <div className="commit-header">
-                      <p>
-                        Commits on
-                        {' '}
-                        {commit}
-                      </p>
-                    </div>
-                    {commits.map((item) => {
-                      let avatar = 'https://assets.gitlab-static.net/uploads/-/system/user/avatar/3839940/avatar.png';
-                      if (users) {
-                        users.forEach((user) => {
-                          const { name } = user;
-                          const avatarUrl = user.avatar_url;
-                          if (name === item.author_name) {
-                            avatar = avatarUrl;
-                          }
-                        });
-                      }
-                      return (
-                        new Date(item.committed_date).toLocaleString('en-eu', { day: 'numeric', month: 'short', year: 'numeric' }) === commit
-                          ? (
-                            <CommitDiv
-                              key={item.short_id}
-                              projectId={selectedProject.id}
-                              commitid={item.id}
-                              title={item.title}
-                              name={item.author_name}
-                              id={item.short_id}
-                              time={item.committed_date}
-                              avatarName={avatar}
-                            />
-                          )
-                          : ''
-                      );
-                    })}
-                  </div>
-                ))}
-              </div>
-            </div>
+            <CommitsList
+              commits={commits}
+              users={users}
+              projectId={selectedProject.id}
+              changesNumber={diffs.length}
+            />
           )}
           {imagesToRender.map((imageFile) => (
             <ImageDiffSection key={imageFile.fileName} imageFile={imageFile} />
