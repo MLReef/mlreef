@@ -15,7 +15,7 @@ import Navbar from '../navbar/navbar';
 import ProjectContainer from '../projectContainer';
 import './commitsView.css';
 import arrowBlue from '../../images/arrow_down_blue_01.svg';
-import file01 from '../../images/file_01.svg';
+import clone01 from '../../images/clone_01.svg';
 // import folder01 from '../../images/folder_01.svg';
 import commitsApi from '../../apis/CommitsApi';
 import { getTimeCreatedAgo } from '../../functions/dataParserHelpers';
@@ -216,7 +216,7 @@ export function CommitDiv(props) {
               type="button"
               className="copy-commit-id"
               style={{
-                background: `url(${file01})`,
+                background: `url(${clone01})`,
               }}
               onClick={() => {
                 const phantomInput = document.createElement('input');
