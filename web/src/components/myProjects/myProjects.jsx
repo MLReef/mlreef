@@ -15,24 +15,32 @@ class Myprojects extends React.Component {
     super(props);
     this.handleShowModal = this.handleShowModal.bind(this);
     this.hideModal = this.hideModal.bind(this);
-    const { actions } = this.props;
-    actions.getProjectsList();
+
     this.state = {
-      currentProjects: null,
       showModal: false,
       projectName: '',
       owner: '',
+      isFetching: false,
     };
   }
 
-  static getDerivedStateFromProps(prevProps, nextState) {
-    const { projects } = prevProps;
-    const { currentProjects } = nextState;
-    if (JSON.stringify(projects) !== JSON.stringify(currentProjects)) {
-      return { currentProjects: projects };
-    }
+  componentDidMount() {
+    const { actions } = this.props;
+    this.setState({ isFetching: true });
 
-    return { currentProjects };
+    // fetch 3 list of projects using a fetching flag
+    Promise.all([
+      actions.getUserProjects(),
+      actions.getStarredProjects(),
+      actions.getProjectsList(),
+    ])
+      .catch((err) => {
+        // eslint-disable-next-line
+        console.warn('Myprojects error (prov)', err);
+      })
+      .finally(() => {
+        this.setState({ isFetching: false });
+      });
   }
 
   handleShowModal(projectName, owner) {
@@ -50,14 +58,19 @@ class Myprojects extends React.Component {
   }
 
   render() {
-    const { showModal } = this.state;
-    const { projectName } = this.state;
-    const { owner } = this.state;
-    const { currentProjects } = this.state;
+    const {
+      isFetching,
+      showModal,
+      projectName,
+      owner,
+    } = this.state;
 
-    if (!currentProjects) {
-      return <CircularProgress size={20} />;
-    }
+    const {
+      userProjects,
+      starredProjects,
+      allProjects,
+    } = this.props;
+
     return (
       <div>
         <ProjectDeletionModal
@@ -65,13 +78,26 @@ class Myprojects extends React.Component {
           projectName={projectName}
           owner={owner}
           hideModal={this.hideModal}
-          projectsList={currentProjects}
+          projectsList={userProjects}
         />
         <Navbar />
         <div className="project-content">
           <NewProject />
           <hr />
-          <ProjectSet projects={currentProjects} handleShowModal={this.handleShowModal} />
+          {isFetching
+            ? (
+              <div className="project-content-loader">
+                <CircularProgress size={40} />
+              </div>
+            )
+            : (
+              <ProjectSet
+                allProjects={allProjects}
+                personalProjects={userProjects}
+                starredProjects={starredProjects}
+                handleShowModal={this.handleShowModal}
+              />
+            )}
         </div>
       </div>
     );
@@ -93,7 +119,9 @@ const NewProject = () => (
 
 function mapStateToProps(state) {
   return {
-    projects: state.projects.all,
+    allProjects: state.projects.all,
+    userProjects: state.projects.userProjects,
+    starredProjects: state.projects.starredProjects,
   };
 }
 
@@ -106,11 +134,22 @@ function mapDispatchToProps(dispatch) {
 }
 
 Myprojects.propTypes = {
-  projects: arrayOf(
+  allProjects: arrayOf(
     shape({}).isRequired,
   ).isRequired,
+
+  starredProjects: arrayOf(
+    shape({}).isRequired,
+  ).isRequired,
+
+  userProjects: arrayOf(
+    shape({}).isRequired,
+  ).isRequired,
+
   actions: shape({
     getProjectsList: func.isRequired,
+    getUserProjects: func.isRequired,
+    getStarredProjects: func.isRequired,
   }).isRequired,
 };
 

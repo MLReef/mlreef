@@ -12,6 +12,25 @@ export default function projectReducer(state = initialState.projects, action) {
     case types.UPDATE_PROJECTS_LIST:
       state.all = action.projects;
       return { ...state };
+
+    case types.SET_STARRED_PROJECTS:
+      return {
+        ...state,
+        starredProjects: action.projects,
+      };
+
+    case types.SET_USER_PROJECTS:
+      return {
+        ...state,
+        userProjects: action.projects,
+      };
+
+    case types.SET_ALL_PROJECTS:
+      return {
+        ...state,
+        all: action.projects,
+      };
+
     default:
       return state;
   }
