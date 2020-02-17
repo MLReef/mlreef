@@ -5,6 +5,8 @@ export default {
   jobs: [],
   projects: {
     all: [],
+    userProjects: [],
+    starredProjects: [],
     selectedProject: {},
   },
   users: [],

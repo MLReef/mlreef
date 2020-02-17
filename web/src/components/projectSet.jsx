@@ -10,61 +10,55 @@ class ProjectSet extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      personal: true,
-      starred: false,
-      explore: false,
+      // controls the tabs, values : personal, starred, explore
+      screen: 'personal',
     };
   }
 
-  handlePersonal = () => {
-    this.setState({ personal: true, starred: false, explore: false });
-  }
-
-  handleStarred = () => {
-    this.setState({ personal: false, starred: true, explore: false });
-  }
-
-  handleExplore = () => {
-    this.setState({ personal: false, starred: false, explore: true });
+  // this handle the displayed tab
+  handleScreen = (screen) => () => {
+    this.setState({ screen });
   }
 
   render() {
     const {
-      personal,
-      starred,
-      explore,
+      screen,
     } = this.state;
+
     const {
-      projects,
+      allProjects,
+      personalProjects,
+      starredProjects,
       handleShowModal,
     } = this.props;
+
     return (
       <>
         <div className="project-dashboard">
           <div className="project-list">
             <div
               className={
-                `project-tab ${personal ? 'project-border' : ''}`
+                `project-tab ${screen === 'personal' ? 'project-border' : ''}`
               }
-              onClick={this.handlePersonal}
+              onClick={this.handleScreen('personal')}
             >
               <p>Your Projects </p>
 
             </div>
             <div
               className={
-                `project-tab ${starred ? 'project-border' : ''}`
+                `project-tab ${screen === 'starred' ? 'project-border' : ''}`
               }
-              onClick={this.handleStarred}
+              onClick={this.handleScreen('starred')}
             >
               <p>Starred Projects </p>
 
             </div>
             <div
               className={
-                `project-tab ${explore ? 'project-border' : ''}`
+                `project-tab ${screen === 'explore' ? 'project-border' : ''}`
               }
-              onClick={this.handleExplore}
+              onClick={this.handleScreen('explore')}
             >
               <p>Explore Projects </p>
             </div>
@@ -72,10 +66,9 @@ class ProjectSet extends React.Component {
         </div>
         <hr style={{ marginTop: '0' }} />
 
-        {personal && projects.map((proj) => proj.name.includes('forked')
-          && (
+        {(screen === 'personal') && personalProjects.map((proj) => (
           <Project
-            key={`proj-key-${proj.id}`}
+            key={`proj-personal-key-${proj.name}`}
             owner={proj.id}
             name={proj.name}
             projId={proj.id}
@@ -85,14 +78,14 @@ class ProjectSet extends React.Component {
             starCount={proj.star_count}
             forkCount={proj.forks_count}
             updatedAt={proj.last_activity_at}
-            projects={projects}
+            projects={personalProjects}
             handleShowModal={handleShowModal}
           />
-          ))}
-        {explore && projects.map((proj) => !proj.name.includes('forked')
-          && (
+        ))}
+
+        {screen === 'starred' && starredProjects.map((proj) => (
           <Project
-            key={`proj-key-${proj.id}`}
+            key={`proj-starred-key-${proj.name}`}
             owner={proj.id}
             name={proj.name}
             projId={proj.id}
@@ -102,10 +95,27 @@ class ProjectSet extends React.Component {
             starCount={proj.star_count}
             forkCount={proj.forks_count}
             updatedAt={proj.last_activity_at}
-            projects={projects}
+            projects={starredProjects}
             handleShowModal={handleShowModal}
           />
-          ))}
+        ))}
+
+        {screen === 'explore' && allProjects.map((proj) => (
+          <Project
+            key={`proj-explore-key-${proj.name}`}
+            owner={proj.id}
+            name={proj.name}
+            projId={proj.id}
+            branch={proj.default_branch}
+            desc={proj.description}
+            avatar={proj.avatar_url}
+            starCount={proj.star_count}
+            forkCount={proj.forks_count}
+            updatedAt={proj.last_activity_at}
+            projects={allProjects}
+            handleShowModal={handleShowModal}
+          />
+        ))}
       </>
     );
   }
@@ -184,10 +194,15 @@ ago
 );
 
 ProjectSet.propTypes = {
-  projects: arrayOf(
+  allProjects: arrayOf(
     shape({
     }).isRequired,
   ).isRequired,
+
+  starredProjects: arrayOf(shape({}).isRequired).isRequired,
+
+  personalProjects: arrayOf(shape({}).isRequired).isRequired,
+
   handleShowModal: func.isRequired,
 };
 

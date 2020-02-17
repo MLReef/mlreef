@@ -19,17 +19,29 @@ export function getProjectsList() {
     .getProjectsList()
     .then(
       (projects) => {
-        if(projects){
+        if (projects) {
           dispatch(
             getProjectsInfoSuccessfully(
               projects,
             ),
-          )
+          );
         }
       },
     ).catch((err) => {
       throw err;
     });
+}
+
+export function getUserProjects() {
+  return (dispatch) => projectGeneralInfoApi
+    .getProjectsList({ owned: true, membership: true })
+    .then((projects) => projects && dispatch({ type: types.SET_USER_PROJECTS, projects }));
+}
+
+export function getStarredProjects() {
+  return (dispatch) => projectGeneralInfoApi
+    .getProjectsList({ starred: true })
+    .then((projects) => projects && dispatch({ type: types.SET_STARRED_PROJECTS, projects }));
 }
 
 export function setSelectedProjectSuccesfully(project) {

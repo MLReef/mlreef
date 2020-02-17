@@ -44,22 +44,22 @@ export default class ProjectGeneralInfoApi {
     }
   }
 
-  static async getProjectsList() {
-    try {
-      const response = await fetch(new Request(`${GITLAB_INSTANCE}/api/v4/projects?simple=true&membership=true`, {
-        method: 'GET',
-        headers: new Headers({
-          'PRIVATE-TOKEN': getCurrentToken(),
-        }),
-      }));
-      if (!response.ok) {
-        throw Error();
-      }
-      return response.json();
-    } catch (err) {
-      window.history.replaceState({ errorCode: 500 }, 'Mlreef', '/error-page');
-      window.location.reload();
-    }
+  static getProjectsList(params = {}) {
+    const url = new URL(`${GITLAB_INSTANCE}/api/v4/projects`);
+    // set query params
+    Object.entries({ simple: true, ...params })
+      .forEach((param) => url.searchParams.append(...param));
+
+    const request = new Request(url, {
+      method: 'GET',
+      headers: new Headers({
+        'PRIVATE-TOKEN': getCurrentToken(),
+      }),
+    });
+
+    return fetch(request)
+      .then((res) => res.json())
+      .then((projects) => Array.isArray(projects) ? projects : Promise.reject(projects));
   }
 
   /**
