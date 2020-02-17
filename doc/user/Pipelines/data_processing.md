@@ -9,21 +9,21 @@ You will find the key resources here to use data pipelines and operations here.
 
 You can access the data processing pipeline through your ML project repository within the `data` tab by pressing the `Data Pipeline` button: 
 
-![image](\Data_Rep_Overview_A.png)
+![image](Data_Rep_Overview_A.png)
 
 ### Creating a new pipeline
 
 Now you are viewing the default data pipeline. Start by selecting the data files you want to pre-process by pressing the `select data` button, which will open a modal view of your repository: 
 
-![image](/Select_Data_PPL.png)
+![image](Select_Data_PPL.png)
 
 > Tip: You can select data from different branches. Use this for creating fast iterations or building more complex processing chains. 
 
-Accpet the files or folders you want to preprocess. Now you can create a data processing pipeline by searching and `drag´n drop` data processing operations from the list on the right to your pipeline: 
+Select the files or folders you want to preprocess. Now you can create a data processing pipeline by searching and `drag´n drop` data processing operations from the list on the right to your pipeline: 
 
-![image](/Data_Proc_Pipeline_A.png)
+![image](Data_Proc_Pipeline_A.png)
 
-> Note, that in a data processin pipeline the selected data operations are executed one after the other in an upcounting order. Each selected file will therefore be processed first by the first data operations.
+> Note, that in a data processing pipeline the selected data operations are executed one after the other in an upcounting order. Each selected file will therefore be processed first by the first data operations.
 
 ### Changing parameters
 

@@ -4,7 +4,7 @@ Welcome to [MLReef](https://mlreef.com) documentation.
 
 > MLReef is currently on **closed alpha** and therefore, this documentation is subject to change. 
 
-For all early access user we suggest starting with this [**early access documentation**](../../../doc/user/general/earlyaccess.md). It will give you a fast introduction to the basic concepts and features of MLReef and guide you savely on your pioneering voyage.
+For all early access user we suggest starting with this [**early access documentation**](user/General/earlyaccess.md). It will give you a fast introduction to the basic concepts and features of MLReef and guide you savely on your pioneering voyage.
 
 > If you need support and you can´t find help here, don´t hesitate to either [raise a ticket](https://gitlab.com/mlreef/frontend/issues), connect with the MLReef community through our [slack channel](https://mlreefcommunity.slack.com) or send us an email at help@mlreef.com. You are never alone in the reef!
 
@@ -15,9 +15,9 @@ No matter how you use MLReef, we have the documentation for you:
 
 | Essential Documentation  | Essential Documentation  |
 |---|---|
-| [**User Documentation**](../../../doc/user/index.md)<br>Discover features and concepts for MLReef users. | [**Early Access Documentation**](../../../doc/user/general/earlyaccess.md)<br>Best start for all early access users. |
-| [**Contributing to MLReef**](../../../doc/user/contributing.md)<br>Explore this section if you want to contribute.  | [**New to GIT and MLReef?**](##new_to_git)<br>We have the resources to get you started.  |
-| [**Use-Cases**](../../../doc/user/general/use_cases.md)<br>Explore the power of MLReef through hands-on use cases!  | [**MLReef releases**](../../../doc/user/releases.md)<br>Whats new in MLReef.  |
+| [**User Documentation**](user/index.md)<br>Discover features and concepts for MLReef users. | [**Early Access Documentation**](user/General/earlyaccess.md)<br>Best start for all early access users. |
+| [**Contributing to MLReef**](user/contributing.md)<br>Explore this section if you want to contribute.  | [**New to GIT and MLReef?**](#new_to_git)<br>We have the resources to get you started.  |
+| [**Use-Cases**](user/general/use_cases.md)<br>Explore the power of MLReef through hands-on use cases!  | [**MLReef releases**](user/releases.md)<br>Whats new in MLReef.  |
 
 ## Popular documentation
 
@@ -25,8 +25,8 @@ Take a look at some of our most popular documentation resources:
 
 | Essential Documentation | Documentation for |
 |---|---|
-| [Parameter settings](../../../doc/user/pipelines/parameters.md)  | Setting parameter values on data operations and models. |
-| [SSH Authentification](../../../doc/user/general/ssh/doc_ssh_README.md)  | Secure your network communication. |
+| [Parameter settings](user/Pipelines/parameters.md)  | Setting parameter values on data operations and models. |
+| [SSH Authentification](user/General/SSH/doc_ssh_README.md)  | Secure your network communication. |
 
 
 ## The entire MLOps cycle
@@ -53,14 +53,14 @@ The following documentation relates to the MLOps **Manage data** stage:
 | Manage data topics  | Documentation for  |
 |---|---|
 | [ML projects](../User_Documentation)  | Creating and managing ML projects. |
-| [Data processing](../doc/user/Pipelines/data_processing.md)  | Data import, management and pre-processing. |
+| [Data processing](user/Pipelines/data_processing.md)  | Data import, management and pre-processing. |
 | [Data visualization](../User_Documentation)  | Built-in data visualization pipeline for plotting and charting. |
 | [Version control](../User_Documentation)  | GIT and MLReef based workflow for full version control on your data. |
 
 
 ### <a name="manage_models"></a> Manage models and operations
 
-MLreef is built from ground up to offer the highest degree of collaboration, wihtin your team and throughout the entire MLReef community. The marketplace offers you instant accessible models and operations with full access.
+MLreef is built from ground up to offer the highest degree of collaboration, within your team and throughout the entire MLReef community. The marketplace offers you instant accessible models and operations with full access.
 
 The following documentation relates to the MLOps **Manage models and operations** stage: 
 
@@ -101,7 +101,7 @@ Lear more about user management in MLReef.
 | Topic  | Documentation for  |
 |---|---|
 | [User account](../User_Documentation)  | 	Manage your account. |
-| [Authentification](../User_Documentation)  | Account security with two-factor authentication, set up your SSH keys, and deploy keys for secure access to your projects. |
+| [Authentication](../User_Documentation)  | Account security with two-factor authentication, set up your SSH keys, and deploy keys for secure access to your projects. |
 
 
 ## <a name="git_mlreef"></a> GIT and MLReef

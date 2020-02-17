@@ -6,17 +6,17 @@ The following topics should provide you with the basic to start with MLReef:
 
 | Early access documentation | Documentation for |
 |---|---|
-| [Basic concepts](##basic_concepts)  | Providing you the MLReef basics. |
-| [Known limitations](##limitations)  | What is currently NOT possible? |
-| [Your contribution](##your_contribution)  | A guide for an enriching early access experience. |
+| [Basic concepts](#basic_concepts)  | Providing you the MLReef basics. |
+| [Known limitations](#limitations)  | What is currently NOT possible? |
+| [Your contribution](#your_contribution)  | A guide for an enriching early access experience. |
 
 
 ## <a name="basic_concepts"></a> Basic concepts
 
-MLReef is a [MLOps](https://en.wikipedia.org/wiki/MLOps) platform for the entire Machine Learninge lifecycle. It is based on four major pillars: 
+MLReef is a [MLOps](https://en.wikipedia.org/wiki/MLOps) platform for the entire Machine Learning lifecycle. It is based on four major pillars: 
 
 *  **Access**: Gain access to community based ML content, from data operations to models.
-*  **Efficiency**: Fast iteration, clear and structured workflow with full flexibilty.
+*  **Efficiency**: Fast iteration, clear and structured workflow with full flexibility.
 *  **Reproducibility**: Gain confidence and ownership through full transparency in each step.
 *  **Collaboration**: Promoting collaboration within a team and beyond the entire MLReef community.
 
@@ -26,11 +26,11 @@ The following content will provide a fast overview of the major concepts in MLRe
 
 | Basic concepts | Documentation for |
 |---|---|
-| [Maturity](###maturity)  | The end-to-end scope of MLReef. |
-| [ML project repositories](###project_repos)  | Start your project with a Git based repository. |
-| [Processing data](###processing_data)  | Create a data processing pipeline in MLReef. |
-| [Visualizing data](###visualizations)  | Create a data visualization pipeline in MLReef. |
-| [Experiments and models](###experiments)  | Experiment pipelines and their output. |
+| [Maturity](#maturity)  | The end-to-end scope of MLReef. |
+| [ML project repositories](#project_repos)  | Start your project with a Git based repository. |
+| [Processing data](#processing_data)  | Create a data processing pipeline in MLReef. |
+| [Visualizing data](#visualizations)  | Create a data visualization pipeline in MLReef. |
+| [Experiments and models](#experiments)  | Experiment pipelines and their output. |
 
 
 ### <a name="maturity"></a> Maturity
@@ -65,22 +65,22 @@ Your data and your experiments are stored here. Your different ML pipelines can 
 
 You can either create a new project: 
 
-![image](\projects.JPG)
+![image](projects.JPG)
 
 or start working based on an existing one via a `fork` or `clone`: 
 
-![image](\repository.JPG)
+![image](repository.JPG)
 
-For further documentation, visit the [ML project repostitory](../User_Documentation) documentation. 
+For further documentation, visit the [ML project repository](../User_Documentation) documentation. 
 
 
 ### <a name="processing_data"></a> Processing data
 
 Processing data in MLReef is structured through the [data processing pipeline](../User_Documentation) and completed through atomic [data instance](../User_Documentation). 
 
-The following ilustration highlights the workflow of processing data in MLReef: 
+The following illustration highlights the workflow of processing data in MLReef: 
 
-![image](\Data_processing.png)
+![image](Data_processing.png)
 
 You can access the data processing pipeline within your `data tab` in your ML project repository. To create a processing pipeline, follow these steps: 
 
@@ -89,11 +89,11 @@ You can access the data processing pipeline within your `data tab` in your ML pr
 
     By selecting a folder, all containing files will automatically be selected.
 
-    The data processing pipeline will not change the folder tree structure and the data instance will have the same structure. This can be specially relevant if your labled your data through folders.
+    The data processing pipeline will not change the folder tree structure and the data instance will have the same structure. This can be specially relevant if your labeled your data through folders.
 
 3.  Drag and drop data operations from the right side into the data processing pipeline on the left.
     
-    **Important note:** The order of placing multiple data operations is relevant. The data will flow subsequentially through all operations starting by the first. 
+    **Important note:** The order of placing multiple data operations is relevant. The data will flow sub-sequentially through all operations starting by the first. 
 
 4.  Change parameters of your data operations by expanding the allocated data operations. 
 
@@ -133,7 +133,7 @@ You can access the data visualization pipeline within your `data tab` in your ML
 
 MLReef has a built-in experiment environment accessed through the `experiment tab` in your ML project repository. In here, you can create new ML experiments with full reproducibility on the underlying data and model. 
 
-> Currently, one one model for image classfication is available, see [Demo: Image classification with resnet 50](../User_Documentation) for a detailed demo on how to use this model.
+> Currently, one one model for image classification is available, see [Demo: Image classification with resnet 50](../User_Documentation) for a detailed demo on how to use this model.
 
 You can access the experiment pipeline within your `experiment tab` in your ML project repository. To create a data visualization, follow these steps: 
 
@@ -157,21 +157,21 @@ You can access the experiment pipeline within your `experiment tab` in your ML p
 
 5.  Execute your experiment pipeline by pressing the "execute" button. This will create your [experiment entry](../User_Documentation) in your experiment overview page:
 
-![image](\experiment_overview.PNG)
+![image](experiment_overview.PNG)
 
 
 ## <a name="limitations"></a> Known limitations and problems
 
 MLReef is currently in version `alpha 0.3`. The general aim of this alpha is to test the broad range of functions, such as the data repository and the main three pipelines. 
 
-There are many things that are still in development and probably many that still dont work. 
+There are many things that are still in development and probably many that still don't work. 
 
-Here you can find a list of major features and known problems. This list will continously be updated. 
+Here you can find a list of major features and known problems. This list will continuously be updated. 
 
 | Limitation or problem | Description |
 |---|---|
 | **All projects are found in "explore projects" tab** | New projects and forked projects are always here. Status: doing | 
-| **Data instances have a copy of original files** | This is due to an error in the config file. Satus: doing | 
+| **Data instances have a copy of original files** | This is due to an error in the config file. Status: doing | 
 | **Experiment values seem incorrect** | A parsing problem reads only the 5 first epochs. Status: Listed | 
 
 
