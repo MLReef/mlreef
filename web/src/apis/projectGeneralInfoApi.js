@@ -3,7 +3,7 @@ import { getCurrentToken } from './apiHelpers';
 
 export default class ProjectGeneralInfoApi {
   static async create(projectName, readme, description) {
-    let baseUrl = `${GITLAB_INSTANCE}/api/v4/projects?name=${projectName}`;
+    let baseUrl = `${GITLAB_INSTANCE}/api/v4/projects?name=${projectName}&ci_config_path=.mlreef.yml`;
     if (description) {
       baseUrl = `${baseUrl}&description=${description}`;
     }
