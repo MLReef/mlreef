@@ -51,7 +51,7 @@ const SummarizedDataAndChartComp = ({ experiment, projectId }) => {
     labels: [],
   });
   const [averageParams, setAverageParams] = React.useState([]);
-  const { descTitle, currentState } = experiment;
+  const { descTitle, currentState, userName } = experiment;
 
   function retrieveStatisticsFromApi() {
     return snippetApi.getSnippetFile(
@@ -198,13 +198,8 @@ const SummarizedDataAndChartComp = ({ experiment, projectId }) => {
               title="Algorithm"
               linesOfContent={[
                 '*Resnet 50',
-                'from',
-                '*branch: feature/3-layers',
                 'authored by',
-                '*Camillo 8 hours ago',
-                'being',
-                '*2 commits and 1 commit behind',
-                'of its master branch',
+                `*${userName}`,
               ]}
             />
             <DataCard
