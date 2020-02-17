@@ -1,22 +1,25 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { string, arrayOf, objectOf, shape } from 'prop-types';
+import {
+  string, arrayOf, objectOf, shape,
+} from 'prop-types';
 import ProjectInfo from './projectInfo';
 import ProjectNav from './projectNav';
 
 class ProjectContainer extends React.Component {
   componentDidMount() {
     const { activeFeature } = this.props;
-    if(document.getElementById(activeFeature)) document.getElementById(activeFeature).classList.add('active');
+    if (document.getElementById(activeFeature)) document.getElementById(activeFeature).classList.add('active');
   }
 
   render() {
-    const { project, folders } = this.props;
-    let id, description, default_branch;
+    const { project, folders, forceShowExperimentList } = this.props;
+    let id; let description; let
+      defaultBranch;
     if (project) {
       id = project.id;
       description = project.description;
-      default_branch = project.default_branch;
+      defaultBranch = project.default_branch;
     }
     return (
       <div className="project-container">
@@ -25,17 +28,18 @@ class ProjectContainer extends React.Component {
 
           <ProjectInfo project={project} />
           <p className="project-desc">
-            {description ? description : 'No description'}
+            {description || 'No description'}
           </p>
           <div className="feature-list">
-            <Link to={`/my-projects/${id}/${default_branch}`} className="feature" id="data">
+            <Link to={`/my-projects/${id}/${defaultBranch}`} className="feature" id="data">
               Data
             </Link>
-            <Link 
-              onClick={this.props.forceShowExperimentList}
-              to={`/my-projects/${id}/experiments-overview`} 
-              className="feature" 
-              id="experiments">
+            <Link
+              onClick={forceShowExperimentList}
+              to={`/my-projects/${id}/experiments-overview`}
+              className="feature"
+              id="experiments"
+            >
               <p>Experiments</p>
             </Link>
           </div>

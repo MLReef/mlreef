@@ -42,7 +42,7 @@ const ExecutePipelineModal = ({
   return isShowing
     ? (
       <div className="generic-modal">
-        <div className="modal-content" style={{ height: '35%', minHeight: 250 }}>
+        <div className="modal-content" style={{ height: '40%', minHeight: 350 }}>
           <div className="title light-green-button">
             <div style={{ padding: '0 3em' }}>
               <p>
@@ -244,7 +244,6 @@ const ExecutePipelineModal = ({
                     setSection(2);
                     createPipelineInProject(
                       dataOperationsSelected,
-                      branchSelected,
                       filesSelectedInModal,
                       http_url_to_repo,
                       projectId,

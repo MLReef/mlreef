@@ -1,4 +1,3 @@
-import filesApi from '../apis/FilesApi';
 import {
   colorsForCharts,
 } from '../dataTypes';
@@ -68,71 +67,10 @@ export const generateSummarizedInfo = (epochObjects) => {
   return resultData;
 };
 
-/**
-   * @param {fileToTest} file to be checked if should be displayed,
-   * as some files belong to subfolders they should not be displayed in table
-*/
-export const findFolderContainer = (fileToTest, files) => files
-  .filter((file) => file.type === 'tree')
-  .filter(
-    (folderFile) => fileToTest.path.includes(folderFile.path)
-        && folderFile.id !== fileToTest.id, // this is to avoid a folder crash against itself
-  );
-
-export const generateNewArrayOfFilesToRender = async (filesResponse, projectId, branch) => {
-  const files = filesResponse.filter((file) => file.type === 'blob');
-  const folders = filesResponse.filter((file) => file.type === 'tree');
-  const filesData = await Promise.all(files.map((file) => filesApi.getFileData(
-    projectId,
-    file.path.replace(/\//g, '%2F'),
-    branch,
-  )));
-
-  const updatedFiles = assignSizeToFiles(files, filesData);
-  const updatedFolders = updatedFiles.length === 0
-    ? folders
-    : assignSizeToFiles(folders, [], updatedFiles);
-
-  return [...updatedFolders, ...updatedFiles];
-};
-
-export const assignSizeToFiles = (files, filesData, updatedFiles) => files.map((file) => {
-  const newFile = file;
-  newFile.size = file.type === 'blob'
-    ? calculateSize(
-      filesData.filter(
-        (fD) => fD.blob_id === file.id,
-      )[0].size,
-      file,
-      files,
-    )
-    : calculateSize(null, file, updatedFiles);
-
-  return newFile;
-});
-
-export const calculateSize = (size, file, fullArrayOfFiles) => {
-  if (file.type === 'blob') {
-    return Math.floor(size / 1000);
-  }
-  const filesInFolder = getFilesInFolder(file, fullArrayOfFiles)
-    .map((file) => file.size)
-    .filter((size) => size !== undefined);
-
-  return filesInFolder.length > 0
-    ? filesInFolder.reduce((a, b) => a + b)
-    : 0;
-};
-
 export const getFilesInFolder = (folder, files) => files.filter(
   (file) => file.path.includes(folder.name)
         && file.id !== folder.id,
 );
-
-export const getParamFromUrl = (
-  param,
-  url,
-) => new URL(url).searchParams.get(param);
 
 export function mapSummarizedInfoToDatasets(summarizedInfo) {
   return summarizedInfo.map(
@@ -244,12 +182,28 @@ export const parseDecimal = (input, digits = 5) => {
   if (num < 1) {
     return parseFloat(num.toLocaleString('en', {
       maximumFractionDigits: digits - 1,
-      useGrouping: false
+      useGrouping: false,
     }));
   }
 
-  return parseFloat(num.toLocaleString('en' , {
+  return parseFloat(num.toLocaleString('en', {
     maximumSignificantDigits: digits,
-    useGrouping: false
+    useGrouping: false,
   }));
+};
+
+/** */
+
+export const getCurrentUserInformation = () => {
+  const token = sessionStorage.getItem('token');
+  const userEmail = sessionStorage.getItem('user.email');
+  const userId = sessionStorage.getItem('user.id');
+  const userName = sessionStorage.getItem('user.username');
+
+  return {
+    token,
+    userEmail,
+    userId,
+    userName,
+  };
 };

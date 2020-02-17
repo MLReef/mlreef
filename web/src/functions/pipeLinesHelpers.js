@@ -4,6 +4,7 @@ import {
 } from '../dataTypes';
 import branchesApi from '../apis/BranchesApi';
 import { callToCommitApi } from './apiCalls';
+import { getCurrentUserInformation } from './dataParserHelpers';
 
 /**
  * @method addFilesSelectedInModal: This funtion is to add folders and files to the command
@@ -71,28 +72,27 @@ export const buildCommandLinesFromSelectedPipelines = (
 });
 
 export const generateRealContentFromTemplate = (
-  mlreefFileContent,
-  branchSelected,
+  pushUser,
+  pushToken,
   pipeLineOperationCommands,
   dataInstanceName,
-  http_url_to_repo,
+  httpUrlToRepo,
   pipelineOpScriptName,
 ) => mlreefFileContent
   .replace(/#replace-here-the-lines/g,
     pipeLineOperationCommands
       .toString()
       .replace(/,/g, '\n'))
-  .replace(/#initialBranch/g, branchSelected)
+  .replace(/#GIT-PUSH-USER/g, pushUser)
+  .replace(/#GIT-PUSH-TOKEN/g, pushToken)
   .replace(/#target-branch/g, dataInstanceName)
   .replace(/#pipeline-operation-script-name/g, pipelineOpScriptName)
-  .replace(/#repo-url/g,http_url_to_repo.replace(/^(https?:|)\/\//, '')) // remove http://, https:// protocols  
-  ;
+  .replace(/#repo-url/g, httpUrlToRepo.replace(/^(http?:|)\/\//, '')); // remove http://, https:// protocols
 
 const createPipelineInProject = (
   dataOperationsSelected,
-  branchSelected,
   filesSelectedInModal,
-  http_url_to_repo,
+  httpUrlToRepo,
   projectId,
   pipelineOpScriptName,
   branchName,
@@ -103,12 +103,13 @@ const createPipelineInProject = (
     filesSelectedInModal,
     pipelineOpScriptName === 'data-pipeline' ? '/epf/pipelines' : '/epf/model',
   );
+  const userInfo = getCurrentUserInformation();
   const finalContent = generateRealContentFromTemplate(
-    mlreefFileContent,
-    branchSelected,
+    userInfo.userName,
+    userInfo.token,
     pipeLineOperationCommands,
     dataInstanceName,
-    http_url_to_repo,
+    httpUrlToRepo,
     pipelineOpScriptName,
   );
   toastr.info('Execution', 'Pipeline execution has already started');
