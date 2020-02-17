@@ -24,10 +24,10 @@ variables:
 
 # The before_script handles everything git related and sets up the automatic committing
 before_script:
-  - git remote set-url origin http://\${GIT_PUSH_USER}:\${GIT_PUSH_TOKEN}@#repo-url
+  - git remote set-url origin http://#GIT-PUSH-USER:#GIT-PUSH-TOKEN@#repo-url
   - git config --global user.email "rainer+mlreefdemo@systemkern.com"
   - git config --global user.name "mlreefdemo"
-  - export GITLAB_API_TOKEN="\${GIT_PUSH_TOKEN}"
+  - export GITLAB_API_TOKEN="#GIT-PUSH-TOKEN"
   - export CI_COMMIT_REF_SLUG="\${CI_COMMIT_REF_SLUG}"
   - export CI_PROJECT_ID="\${CI_PROJECT_ID}"
   - export TARGET_BRANCH=$CI_COMMIT_REF_NAME
