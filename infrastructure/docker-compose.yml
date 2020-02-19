@@ -21,6 +21,22 @@ services:
     image: gitlab/gitlab-runner:alpine
     restart: always
 
+version: '2.3'
+services:
+  object_detection:
+    build:
+      context: object_detection/
+    ports:
+      - "8000:8000"
+    runtime: nvidia
+    volumes:
+      - ./object_detection:/object_detection
+      - /usr/local/cuda:/usr/local/cuda
+    links:
+      - fluent-bit
+      - redis
+      - nginx
+    restart: on-failure
 
   client:
     build:
