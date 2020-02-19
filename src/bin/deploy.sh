@@ -88,6 +88,7 @@ rm -rf $TOML                                    >> $LOG
 # Update the Runner configuration on the new instance.
 # https://docs.gitlab.com/runner/configuration/advanced-configuration.html#volumes-in-the-runnersdocker-section
 # tee copies data from standard input to each FILE, and also to standard output.
+# runtime="nvidia"
 echo | sudo tee $TOML <<EOF
 concurrent = 12
 check_interval = 0
@@ -99,7 +100,6 @@ check_interval = 0
 $LINE
   executor = "docker"
   [runners.docker]
-    runtime="nvidia"
     image = "alpine:latest"
     tls_verify = false
     privileged = true

@@ -74,12 +74,12 @@ feature branch deploy:
   except:
     refs: [develop, master]
   script: ssh -i $SSH_KEYFILE -o 'AddKeysToAgent yes' ubuntu@"${URL}" "
-      sudo $DEPLOY_SCRIPT
-      --instance $URL
-      --image $FRONTEND_IMAGE_PATH
-      --port $GITLAB_PORT
-      --key $AWS_ACCESS_KEY_ID
-      --secret $AWS_SECRET_ACCESS_KEY
-      --gitlab-admin-token $GITLAB_ADMIN_TOKEN
-      --workaround 120
-      "
+    sudo $DEPLOY_SCRIPT
+    --instance $URL
+    --image $FRONTEND_IMAGE_PATH
+    --port $GITLAB_PORT
+    --key $AWS_ACCESS_KEY_ID
+    --secret $AWS_SECRET_ACCESS_KEY
+    --gitlab-admin-token $GITLAB_ADMIN_TOKEN
+    --workaround 120
+    "
