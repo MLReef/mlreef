@@ -296,6 +296,7 @@ export class DataInstanceOverview extends Component {
             folders={[groupName, name, 'Data', 'Instances']}
           />
           <Instruction
+            id="DataInstanceOverview"
             titleText="Handling Data instances:"
             paragraph={
               `A data instance is the result of an executed data pipeline. You can use this dataset directly as your source of data for an experiment (or another data pipeline). You can also merge the data instance to your master - thus making it the new master data set.

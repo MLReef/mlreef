@@ -1,10 +1,20 @@
-import React, { useState } from 'react';
-import { string } from 'prop-types';
+import React, { useMemo } from 'react';
+import { bindActionCreators } from 'redux';
+import { connect } from 'react-redux';
+import PropTypes from 'prop-types';
+import { updateUserClosedInstructions } from '../../actions/userActions';
 import advice01 from '../../images/advice-01.png';
 import './instruction.css';
 
-const Instruction = ({ titleText, paragraph }) => {
-  const [isShown, setIsShown] = useState(true);
+const Instruction = ({
+  id, titleText, paragraph, closedInstructions, actions,
+}) => {
+  const isShown = useMemo(() => !closedInstructions[id] || false, [id, closedInstructions]);
+
+  const handleClose = () => {
+    actions.updateUserClosedInstructions({ [id]: true });
+  };
+
   return (
     isShown
       ? (
@@ -24,7 +34,7 @@ const Instruction = ({ titleText, paragraph }) => {
           <div id="xButton">
             <button
               type="button"
-              onClick={() => setIsShown(!isShown)}
+              onClick={handleClose}
             >
               X
             </button>
@@ -35,9 +45,22 @@ const Instruction = ({ titleText, paragraph }) => {
   );
 };
 
+const mapStateToProps = (state) => ({
+  closedInstructions: state.user.meta.closedInstructions,
+});
+
+const mapDispatchToProps = (dispatch) => ({
+  actions: bindActionCreators({ updateUserClosedInstructions }, dispatch),
+});
+
 Instruction.propTypes = {
-  titleText: string.isRequired,
-  paragraph: string.isRequired,
+  id: PropTypes.string.isRequired,
+  titleText: PropTypes.string.isRequired,
+  paragraph: PropTypes.string.isRequired,
+  closedInstructions: PropTypes.shape({}).isRequired,
+  actions: PropTypes.shape({
+    updateUserClosedInstructions: PropTypes.func.isRequired,
+  }).isRequired,
 };
 
-export default Instruction;
+export default connect(mapStateToProps, mapDispatchToProps)(Instruction);

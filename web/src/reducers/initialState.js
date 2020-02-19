@@ -11,4 +11,15 @@ export default {
   },
   users: [],
   mergeRequests: [],
+  user: {
+    meta: {
+      closedInstructions: {
+        EmptyDataVisualization: false,
+        DataInstanceOverview: false,
+        DataVisualizationOverview: false,
+        NewExperiment: false,
+        PipeLineView: false,
+      }
+    }
+  },
 };

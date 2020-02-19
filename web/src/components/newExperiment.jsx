@@ -79,6 +79,7 @@ const NewExperiment = ({
       <Navbar />
       <ProjectContainer project={project} activeFeature="experiments" folders={[groupName, project.name, 'Data', 'Pipeline']} />
       <Instruction
+        id="NewExperiment"
         titleText="How to create a new experiment:"
         paragraph={
                     `First, select your data you want to do your experiment on. Then select one or multiple algorithms from the right. 
