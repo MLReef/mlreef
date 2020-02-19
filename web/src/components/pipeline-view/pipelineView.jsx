@@ -72,6 +72,7 @@ const PipeLineView = ({
       <Navbar />
       <ProjectContainer project={project} activeFeature="data" folders={[groupName, project.name, 'Data', 'Pipeline']} />
       <Instruction
+        id="PipeLineView"
         titleText="How to create a data processing pipeline:"
         paragraph={
           `First, select your data you want to process. Then select one or multiple data operations from the right. 

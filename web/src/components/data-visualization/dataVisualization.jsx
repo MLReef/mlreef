@@ -74,6 +74,7 @@ const EmptyDataVisualization = ({ ...props }) => {
       <Navbar />
       <ProjectContainer project={project} activeFeature="data" folders={[groupName, project.name, 'Data', 'Visualization']} />
       <Instruction
+        id="EmptyDataVisualization"
         titleText="How to create a data visualization:"
         paragraph={
           `First, select your data you want to analyze. Then select one or multiple data visualizations from the right. 
