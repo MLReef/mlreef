@@ -2,11 +2,10 @@
 set -e
 set -x
 
+INIT_ZIP=mlreef-data-develop.zip         # see startup.sh
+S3_BUCKET_NAME="mlreef-application-data" # see startup.sh
 
-INIT_ZIP=mlreef-data-develop.zip                           # see startup.sh
-S3_BUCKET_NAME="mlreef-data"                               # see startup.sh
-
-alias remote-ec2="ssh -i development_deployment.pem -o 'AddKeysToAgent yes' ubuntu@\${INSTANCE} "
+alias remote-ec2="ssh -i $SSH_KEYFILE -o 'AddKeysToAgent yes' ubuntu@\${INSTANCE} "
 
 if [ "$1" = "" ]; then
   echo "Missing instance url"
@@ -32,7 +31,13 @@ remote-ec2 "sudo docker run --name=systemkern-s5-shell-alias-container --rm --tt
   registry.gitlab.com/systemkern/s5:latest-aws   \
   aws s3 cp s3://$S3_BUCKET_NAME/$INIT_ZIP /root/$INIT_ZIP"
 
-remote-ec2 "sudo rm -rf /data/*"
+remote-ec2 "sudo rm -rf /data/gitlab"
+remote-ec2 "sudo rm -rf /data/gitlab-runner-config"
+remote-ec2 "sudo rm -rf /data/mlreefdb"
+remote-ec2 "sudo rm -rf /data/postgres"
 remote-ec2 "sudo unzip /root/$INIT_ZIP -d /data"
-remote-ec2 "sudo chown -R ubuntu:ubuntu /data/*"
-remote-ec2 "sudo docker-compose up -d"
+remote-ec2 "sudo chown -R ubuntu:ubuntu /data/gitlab"
+remote-ec2 "sudo chown -R ubuntu:ubuntu /data/gitlab-runner-config"
+remote-ec2 "sudo chown -R ubuntu:ubuntu /data/postgres"
+remote-ec2 "sudo chown -R ubuntu:ubuntu /data/mlreefdb"
+remote-ec2 "sudo docker-compose up --detach"
