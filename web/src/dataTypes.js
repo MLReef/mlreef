@@ -15,7 +15,7 @@ export const mlreefFileContent = `##############################################
 ################################################################################
 
 # This is the docker image your model training will be executed in
-image: registry.gitlab.com/mlreef/epf:feature-deactivate-git-push
+image: registry.gitlab.com/mlreef/epf:latest
 
 variables:
   # Change pip's cache directory to be inside the project directory since we can only cache local items.
