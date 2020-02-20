@@ -4,6 +4,8 @@ import os
 import sys
 import argparse
 
+tf.compat.v1.disable_eager_execution()
+
 def process_arguments(args):
     parser = argparse.ArgumentParser(description='Pipeline: Lee Filter')
     parser.add_argument('--images-path', action='store', help='path to directory of images or image file')
