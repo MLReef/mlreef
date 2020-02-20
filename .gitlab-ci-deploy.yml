@@ -12,6 +12,8 @@
     - echo "BACKEND_IMAGE_NAME  is $BACKEND_IMAGE_NAME"
     - echo "FRONTEND_IMAGE_PATH is $FRONTEND_IMAGE_PATH"
     - echo "BACKEND_IMAGE_PATH  is $BACKEND_IMAGE_PATH"
+    - echo "DOCKER_ENV          is $DOCKER_ENV"
+    - echo "DOCKER_COMPOSE      is $DOCKER_COMPOSE"
 
     - URL=$(cat $INSTANCE_INFO)
     - echo $URL                                            # debug output
