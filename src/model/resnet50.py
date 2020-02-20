@@ -102,7 +102,7 @@ def resnet_model(height, width, channels, color_mode, use_pretrained, trainGener
 
     # Freeze the layers except the last 4 layers
     model.add(Dropout(0.40))
-    model.add(Flatten()(pool2))
+    model.add(Flatten())
     model.add(Dense(512, activation='relu'))
     model.add(Dropout(0.5))
     model.add(Dense(len(trainGenerator.class_indices), activation='softmax'))  # Check len feature
