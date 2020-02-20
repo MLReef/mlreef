@@ -102,7 +102,7 @@ def resnet_model(height, width, channels, color_mode, use_pretrained, trainGener
 
     # Freeze the layers except the last 4 layers
     model.add(Dropout(0.40))
-    model.add(Flatten())
+    model.add(Flatten()(pool2))
     model.add(Dense(512, activation='relu'))
     model.add(Dropout(0.5))
     model.add(Dense(len(trainGenerator.class_indices), activation='softmax'))  # Check len feature
@@ -172,7 +172,7 @@ def process_arguments(args):
     parser.add_argument('--learning-rate', action='store', default=0.0001,
                         help='learning rate of Adam Optimizer (float)'
                              '')
-    parser.add_argument('--loss', action='store', default='categorical_crossentropy', help='loss function used to'
+    parser.add_argument('--loss', action='store', default='sparse_categorical_crossentropy', help='loss function used to'
                                                                                            ' compile model')
     params = vars(parser.parse_args(args))
     return params
