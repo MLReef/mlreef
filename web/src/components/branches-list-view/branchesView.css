@@ -87,3 +87,7 @@
 .additional-branch-info {
   margin: 0 0 0 1em;
 }
+
+.merge-btn{
+  height: 2.5em;
+}
