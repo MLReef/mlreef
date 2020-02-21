@@ -106,7 +106,7 @@ class BranchesView extends Component {
 
     const {
       name: projectName,
-      id: projectId
+      id: projectId,
     } = selectedProject;
 
     const today = new Date();
@@ -163,7 +163,7 @@ class BranchesView extends Component {
               <div key={`key-for-${branch.name}`} className="branch-row">
                 <div className="info">
                   <div style={{ display: 'flex' }}>
-                    <Link to={`/my-projects/${projectId}/${encodeURIComponent(branch.name)}`} >
+                    <Link to={`/my-projects/${projectId}/${encodeURIComponent(branch.name)}`}>
                       <p className="branch-title">{branch.name}</p>
                     </Link>
                     {branch.protected && (
@@ -183,7 +183,7 @@ class BranchesView extends Component {
                 </div>
                 {!branch.protected && (
                   <div className="buttons">
-                    {branch.behind || branch.ahead ? (
+                    {branch.behind >= 0 || branch.ahead >= 0 ? (
                       <p style={{ marginRight: '1em' }}>
                         {branch.behind}
                         {' '}
@@ -196,7 +196,14 @@ class BranchesView extends Component {
                         <CircularProgress size={20} />
                       </div>
                     )}
-                    <Button variant="outlined">Merge request</Button>
+                    <Button
+                      className="merge-btn"
+                      variant="outlined"
+                      component={Link}
+                      to={`/my-projects/${projectName}/${encodeURIComponent(branch.name)}/new-merge-request`}
+                    >
+                      Merge request
+                    </Button>
                     <Button variant="outlined">Compare</Button>
                     <button
                       type="button"
