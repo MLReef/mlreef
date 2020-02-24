@@ -167,7 +167,7 @@ def process_arguments(args):
     parser.add_argument('--batch-size', action='store', default=32, help='batch size fed to the neural network (int)')
     parser.add_argument('--validation-split', action='store', default=.25, help='fraction of images to be used for '
                                                                                 'validation (float)')
-    parser.add_argument('--class_mode', action='store', default='categorical', help='"categorical", "binary", "sparse",'
+    parser.add_argument('--class_mode', action='store', default='binary', help='"categorical", "binary", "sparse",'
                                                                                     ' "input", or None')
     parser.add_argument('--learning-rate', action='store', default=0.0001,
                         help='learning rate of Adam Optimizer (float)'
