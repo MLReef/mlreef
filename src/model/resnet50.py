@@ -172,7 +172,7 @@ def process_arguments(args):
     parser.add_argument('--learning-rate', action='store', default=0.0001,
                         help='learning rate of Adam Optimizer (float)'
                              '')
-    parser.add_argument('--loss', action='store', default='sparse_categorical_crossentropy', help='loss function used to'
+    parser.add_argument('--loss', action='store', default='binary_crossentropy', help='loss function used to'
                                                                                            ' compile model')
     params = vars(parser.parse_args(args))
     return params
