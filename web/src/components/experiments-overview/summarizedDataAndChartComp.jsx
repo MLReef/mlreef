@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   string,
   arrayOf,
@@ -7,12 +7,14 @@ import {
 } from 'prop-types';
 import './experimentsOverview.css';
 import { Line } from 'react-chartjs-2';
+import BranchesApi from '../../apis/BranchesApi';
 import traiangle01 from '../../images/triangle-01.png';
 import ArrowButton from '../arrow-button/arrowButton';
 import snippetApi from '../../apis/SnippetApi';
 import {
+  getTimeCreatedAgo,
   parseDataAndRefreshChart,
-  parseDecimal
+  parseDecimal,
 } from '../../functions/dataParserHelpers';
 import {
   SKIPPED,
@@ -44,14 +46,28 @@ DataCard.propTypes = {
   linesOfContent: arrayOf(string).isRequired,
 };
 
-const SummarizedDataAndChartComp = ({ experiment, projectId }) => {
-  const [showSummary, setShowSummary] = React.useState(false);
-  const [dataToGraph, setDataToGraph] = React.useState({
+const SummarizedDataAndChartComp = ({ experiment, projectId, defaultBranch }) => {
+  const [showSummary, setShowSummary] = useState(false);
+  const [dataToGraph, setDataToGraph] = useState({
     datasets: [],
     labels: [],
   });
-  const [averageParams, setAverageParams] = React.useState([]);
-  const { descTitle, currentState, userName } = experiment;
+  const [averageParams, setAverageParams] = useState([]);
+  const [ahead, setAhead] = useState(0);
+  const [behind, setBehind] = useState(0);
+  const {
+    descTitle,
+    currentState,
+    userName,
+    timeCreatedAgo,
+  } = experiment;
+
+  useEffect(() => {
+    BranchesApi.compare(projectId, descTitle, defaultBranch)
+      .then((res) => setBehind(res.commits.length)).catch((err) => err);
+    BranchesApi.compare(projectId, defaultBranch, descTitle)
+      .then((res) => setAhead(res.commits.length)).catch((err) => err);
+  }, [ahead, behind, projectId, descTitle, defaultBranch]);
 
   function retrieveStatisticsFromApi() {
     return snippetApi.getSnippetFile(
@@ -171,7 +187,7 @@ const SummarizedDataAndChartComp = ({ experiment, projectId }) => {
                 averageParams.map((opt) => (
                   <p key={`${opt.name}-${opt.value}`}>
                     {' '}
-                    {`${opt.name}: ${ parseDecimal(opt.value) }`}
+                    {`${opt.name}: ${parseDecimal(opt.value)}`}
                     {' '}
                   </p>
                 ))
@@ -198,8 +214,13 @@ const SummarizedDataAndChartComp = ({ experiment, projectId }) => {
               title="Algorithm"
               linesOfContent={[
                 '*Resnet 50',
+                'from',
+                `*branch:${descTitle}`,
                 'authored by',
-                `*${userName}`,
+                `*${userName}${' '}${getTimeCreatedAgo(timeCreatedAgo)}`,
+                'being',
+                `*${ahead} commits ahead and ${behind} commits behind`,
+                `of its ${defaultBranch} branch`,
               ]}
             />
             <DataCard
@@ -233,6 +254,7 @@ SummarizedDataAndChartComp.propTypes = {
     timeCreatedAgo: string,
   }).isRequired,
   projectId: number.isRequired,
+  defaultBranch: string.isRequired,
 };
 
 export default SummarizedDataAndChartComp;

@@ -195,7 +195,7 @@ const SortableDataOperation = SortableElement(({ value }) => {
                           </p>
                           <Input
                             id={`ad-param-${advancedParamIndex}-item-data-operation-form-${value.index}`}
-                            placeholder={advancedParam.standardValue}
+                            placeholder={String(advancedParam.standardValue)}
                             value={advancedParam.value}
                           />
                         </div>

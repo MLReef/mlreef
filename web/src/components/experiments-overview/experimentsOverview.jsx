@@ -19,7 +19,6 @@ class ExperimentsOverview extends Component {
   constructor(props) {
     super(props);
     const { projects: { selectedProject }, branches } = this.props;
-
     this.state = {
       selectedProject,
       all: [],
@@ -170,6 +169,7 @@ class ExperimentsOverview extends Component {
                   key={uuidv1()}
                   params={{
                     projectId: selectedProject.id,
+                    defaultBranch: selectedProject.default_branch,
                     currentState: experimentClassification.status,
                     experiments: expMapped,
                   }}

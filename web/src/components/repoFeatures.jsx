@@ -138,13 +138,13 @@ export class RepoFeatures extends Component {
                         <li className="branch-header">Branches</li>
                         {branches && branches.filter((branch) => !branch.name.startsWith('data-pipeline/')
                           && !branch.name.startsWith('experiment/')).map((branch) => {
-                const encoded = encodeURIComponent(branch.name);
-                return (
+                          const encoded = encodeURIComponent(branch.name);
+                          return (
                             <li key={encoded}>
                               <Link id={branch.name} to={`/my-projects/${projectId}/${encoded}`} onClick={this.handleClick}><p>{branch.name}</p></Link>
                             </li>
-                );
-              })}
+                          );
+                        })}
                       </ul>
                     </div>
                   </div>
@@ -201,11 +201,7 @@ export class RepoFeatures extends Component {
 RepoFeatures.propTypes = {
   branch: string.isRequired,
   path: string.isRequired,
-  projects: shape({
-    selectedProject: shape({
-      id: number.isRequired,
-    }),
-  }).isRequired,
+  projectId: number.isRequired,
   updateLastCommit: func.isRequired,
   branches: arrayOf(
     shape({
