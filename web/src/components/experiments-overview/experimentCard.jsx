@@ -18,6 +18,7 @@ const ExperimentCard = (props) => {
     params: {
       experiments,
       currentState,
+      defaultBranch,
       projectId,
     },
     setSelectedExperiment,
@@ -95,7 +96,7 @@ const ExperimentCard = (props) => {
                 </p>
               </div>
             </div>
-            <SummarizedDataAndChartComp experiment={experiment} projectId={projectId} />
+            <SummarizedDataAndChartComp experiment={experiment} projectId={projectId} defaultBranch={defaultBranch} />
           </div>
         );
       })}
