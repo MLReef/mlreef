@@ -137,7 +137,7 @@ export class RepoFeatures extends Component {
                       <ul>
                         <li className="branch-header">Branches</li>
                         {branches && branches.filter((branch) => !branch.name.startsWith('data-pipeline/')
-                          && !branch.name.startsWith('experiment/')).map((branch) => {
+                          && !branch.name.startsWith('data-visualization/') && !branch.name.startsWith('experiment/')).map((branch) => {
                           const encoded = encodeURIComponent(branch.name);
                           return (
                             <li key={encoded}>
