@@ -12,6 +12,9 @@ import rootReducer from './reducers/index';
 import RouterComp from './routerComp';
 import ToastMessage from './components/toast/toast';
 import ErrorHandler from "./ErrorHandler";
+import { checkVersion } from './functions/helpers';
+
+checkVersion();
 
 const persistConfig = {
   key: 'root',
