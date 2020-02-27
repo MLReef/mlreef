@@ -1,9 +1,9 @@
 /* eslint-disable implicit-arrow-linebreak */
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { Link } from 'react-router-dom';
 import uuidv1 from 'uuid/v1';
 import { shape, arrayOf, objectOf } from 'prop-types';
+import CustomizedButton from 'components/CustomizedButton';
 import Navbar from '../navbar/navbar';
 import ProjectContainer from '../projectContainer';
 import './experimentsOverview.css';
@@ -55,15 +55,15 @@ class ExperimentsOverview extends Component {
     }
     this.setState({ experiments });
   }
-  
+
   // this is called when user clicks Experiments Tab forcing to shown the list
   forceShowExperimentList = () => {
-    this.setState({ selectedExperiment: null })
+    this.setState({ selectedExperiment: null });
   }
 
   render() {
     const { selectedProject, selectedExperiment, experiments } = this.state;
-    const { jobs } = this.props;
+    const { jobs, history } = this.props;
     let experimentJob;
     if (selectedExperiment) {
       experimentJob = jobs.filter((job) => job.ref === selectedExperiment.descTitle)[0];
@@ -96,7 +96,7 @@ class ExperimentsOverview extends Component {
               className="non-active-black-border rounded-pipeline-btn"
               onClick={(e) => this.handleButtonsClick(e)}
             >
-                            All
+              All
             </button>
             <button
               id="running"
@@ -104,7 +104,7 @@ class ExperimentsOverview extends Component {
               className="non-active-black-border rounded-pipeline-btn"
               onClick={(e) => this.handleButtonsClick(e)}
             >
-                            Running
+              Running
             </button>
             <button
               id="open"
@@ -112,7 +112,7 @@ class ExperimentsOverview extends Component {
               className="non-active-black-border rounded-pipeline-btn"
               onClick={(e) => this.handleButtonsClick(e)}
             >
-                            Open
+              Open
             </button>
             <button
               id="completed"
@@ -120,7 +120,7 @@ class ExperimentsOverview extends Component {
               className="non-active-black-border rounded-pipeline-btn"
               onClick={(e) => this.handleButtonsClick(e)}
             >
-                            Completed
+              Completed
             </button>
             <button
               id="failed"
@@ -128,7 +128,7 @@ class ExperimentsOverview extends Component {
               className="non-active-black-border rounded-pipeline-btn"
               onClick={(e) => this.handleButtonsClick(e)}
             >
-                            Failed
+              Failed
             </button>
             <button
               id="aborted"
@@ -136,18 +136,17 @@ class ExperimentsOverview extends Component {
               className="non-active-black-border rounded-pipeline-btn"
               onClick={(e) => this.handleButtonsClick(e)}
             >
-                            Aborted
+              Aborted
             </button>
-            <Link
+            <CustomizedButton
               id="new-experiment"
-              to={`/my-projects/${selectedProject.id}/new-experiment`}
-              style={{ height: '0.1em' }}
-              className="light-green-button rounded-pipeline-btn"
-            >
-              <b>
-                New experiment
-              </b>
-            </Link>
+              loading={false}
+              onClickHandler={() => {
+                history.push(`/my-projects/${selectedProject.id}/new-experiment`);
+              }}
+              buttonLabel="New experiment"
+            />
+
           </div>
           )}
           {selectedExperiment === null
