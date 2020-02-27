@@ -144,4 +144,12 @@ text's length.
 * Sometimes we can combine min-width, max-width and widh with px, vw, vh, %, rem combinations,
 depending on the case.
 
+### Examples
+
+1. [Dropdown component](examples/Dropdown.md)
+
+2. [Customizing Bootstrap](examples/customizing-bootstrap.md)
+
+3. [General components](examples/general-components.md)
+
 
