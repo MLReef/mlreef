@@ -1,8 +1,9 @@
-/* eslint-disable implicit-arrow-linebreak */
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
+import { toastr } from 'react-redux-toastr';
 import uuidv1 from 'uuid/v1';
-import { shape, arrayOf, objectOf } from 'prop-types';
+import BranchesApi from 'apis/BranchesApi';
+import { shape, objectOf } from 'prop-types';
 import CustomizedButton from 'components/CustomizedButton';
 import Navbar from '../navbar/navbar';
 import ProjectContainer from '../projectContainer';
@@ -18,7 +19,8 @@ import { classifyPipeLines } from '../../functions/pipeLinesHelpers';
 class ExperimentsOverview extends Component {
   constructor(props) {
     super(props);
-    const { projects: { selectedProject }, branches } = this.props;
+    const { projects: { selectedProject } } = this.props;
+
     this.state = {
       selectedProject,
       all: [],
@@ -27,10 +29,18 @@ class ExperimentsOverview extends Component {
     };
 
     this.setSelectedExperiment = this.setSelectedExperiment.bind(this);
-    const arrayOfBranches = branches.filter((branch) => branch.name.startsWith('experiment'));
+  }
+
+  componentDidMount() {
+    const { projects: { selectedProject } } = this.props;
     pipelinesApi.getPipesByProjectId(selectedProject.id).then((res) => {
-      const experimentsClassified = classifyPipeLines(res, arrayOfBranches);
-      this.setState({ experiments: experimentsClassified, all: experimentsClassified });
+      BranchesApi.getBranches(selectedProject.id)
+        .then((branches) => {
+          const arrayOfBranches = branches.filter((branch) => branch.name.startsWith('experiment'));
+          const experimentsClassified = classifyPipeLines(res, arrayOfBranches);
+          this.setState({ experiments: experimentsClassified, all: experimentsClassified });
+        })
+        .catch(() => toastr.error('Error', 'Something went wrong getting your experiments'));
     });
   }
 
@@ -199,17 +209,12 @@ ExperimentsOverview.propTypes = {
   projects: shape({
     selectedProject: objectOf(shape).isRequired,
   }).isRequired,
-  branches: arrayOf(
-    shape({
-    }).isRequired,
-  ).isRequired,
 };
 
 function mapStateToProps(state) {
   return {
     jobs: state.jobs,
     projects: state.projects,
-    branches: state.branches,
   };
 }
 
