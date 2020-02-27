@@ -61,8 +61,11 @@
 
 .branch-row > .info > .additional-data > .commit-code {
   margin-left: 0;
-  color: #32AFC3;
   height: 0;
+}
+
+.branch-row > .info > .additional-data > .commit-code > a{
+  color: #32afc3
 }
 
 .branch-row > .info > .additional-data > .commit-mss {

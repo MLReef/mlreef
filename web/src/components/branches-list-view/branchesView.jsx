@@ -96,7 +96,7 @@ class BranchesView extends Component {
     const {
       selectedProject,
     } = this.props;
-    
+
     const {
       isModalVisible,
       branchName,
@@ -174,7 +174,11 @@ class BranchesView extends Component {
                     )}
                   </div>
                   <div className="additional-data">
-                    <p className="commit-code">{branch.commitInfo.id.slice(commitShortIdLowerLimit, commitShortIdUpperLimit)}</p>
+                    <p className="commit-code">
+                      <Link to={`/my-projects/${projectId}/commit/${branch.commitInfo.id}`}>
+                        {branch.commitInfo.id.slice(commitShortIdLowerLimit, commitShortIdUpperLimit)}
+                      </Link>
+                    </p>
                     <p>-</p>
                     <p className="commit-mss">{branch.commitInfo.message}</p>
                     <p>-</p>
