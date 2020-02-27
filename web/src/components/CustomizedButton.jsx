@@ -31,11 +31,12 @@ const cuztomizedStyles = makeStyles((theme) => ({
   },
 }));
 
-const useStylesSubmitButton = makeStyles((theme) => ({
+const useStylesSubmitButton = makeStyles(() => ({
   style: {
-    height: theme.spacing(5),
+    height: '2.2em',
     backgroundColor: '#15B785',
     color: 'white',
+    boxShadow: 'none',
   },
 }));
 
