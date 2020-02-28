@@ -89,19 +89,30 @@ export const generateRealContentFromTemplate = (
   .replace(/#pipeline-operation-script-name/g, pipelineOpScriptName)
   .replace(/#repo-url/g, httpUrlToRepo.replace(/^(http?:|)\/\//, '')); // remove http://, https:// protocols
 
+const getPathToPipiline = (pipelineType) => {
+  switch (pipelineType) {
+    case 'data-pipeline':
+      return '/epf/pipelines';
+    case 'model-experiment':
+      return '/epf/model';
+    default:
+      return '/src/visualisation/';
+  }
+};
+
 const createPipelineInProject = (
   dataOperationsSelected,
   filesSelectedInModal,
   httpUrlToRepo,
   projectId,
-  pipelineOpScriptName,
+  pipelineOpScriptType,
   branchName,
   dataInstanceName,
 ) => {
   const pipeLineOperationCommands = buildCommandLinesFromSelectedPipelines(
     dataOperationsSelected,
     filesSelectedInModal,
-    pipelineOpScriptName === 'data-pipeline' ? '/epf/pipelines' : '/epf/model',
+    getPathToPipiline(pipelineOpScriptType),
   );
   const userInfo = getCurrentUserInformation();
   const finalContent = generateRealContentFromTemplate(
@@ -110,7 +121,7 @@ const createPipelineInProject = (
     pipeLineOperationCommands,
     dataInstanceName,
     httpUrlToRepo,
-    pipelineOpScriptName,
+    pipelineOpScriptType,
   );
   toastr.info('Execution', 'Pipeline execution has already started');
   branchesApi.create(
