@@ -103,7 +103,7 @@ export class FileView extends React.Component {
       fileName = fileData.file_name;
       fileSize = fileData.size;
       fileContent = Base64.decode(fileData.content).split('\n');
-      extension = fileName.split('.').pop();
+      extension = fileName.split('.').pop().toLowerCase();
       filepath = fileData.file_path.split('/');
     }
 
