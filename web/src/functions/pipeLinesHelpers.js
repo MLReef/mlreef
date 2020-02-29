@@ -1,10 +1,19 @@
 import { toastr } from 'react-redux-toastr';
 import {
-  Adjectives, BOOL, mlreefFileContent, Nouns, RUNNING, SUCCESS, CANCELED, FAILED, PENDING, SKIPPED, EXPIRED,
+  Adjectives,
+  BOOL,
+  mlreefFileContent,
+  Nouns,
+  RUNNING,
+  SUCCESS,
+  CANCELED,
+  FAILED,
+  PENDING,
+  SKIPPED,
+  EXPIRED,
 } from '../dataTypes';
 import branchesApi from '../apis/BranchesApi';
 import { callToCommitApi } from './apiCalls';
-import { getCurrentUserInformation } from './dataParserHelpers';
 
 /**
  * @method addFilesSelectedInModal: This funtion is to add folders and files to the command
@@ -72,8 +81,6 @@ export const buildCommandLinesFromSelectedPipelines = (
 });
 
 export const generateRealContentFromTemplate = (
-  pushUser,
-  pushToken,
   pipeLineOperationCommands,
   dataInstanceName,
   httpUrlToRepo,
@@ -83,8 +90,6 @@ export const generateRealContentFromTemplate = (
     pipeLineOperationCommands
       .toString()
       .replace(/,/g, '\n'))
-  .replace(/#GIT-PUSH-USER/g, pushUser)
-  .replace(/#GIT-PUSH-TOKEN/g, pushToken)
   .replace(/#target-branch/g, dataInstanceName)
   .replace(/#pipeline-operation-script-name/g, pipelineOpScriptName)
   .replace(/#repo-url/g, httpUrlToRepo.replace(/^(http?:|)\/\//, '')); // remove http://, https:// protocols
@@ -114,16 +119,12 @@ const createPipelineInProject = (
     filesSelectedInModal,
     getPathToPipiline(pipelineOpScriptType),
   );
-  const userInfo = getCurrentUserInformation();
   const finalContent = generateRealContentFromTemplate(
-    userInfo.userName,
-    userInfo.token,
     pipeLineOperationCommands,
     dataInstanceName,
     httpUrlToRepo,
     pipelineOpScriptType,
   );
-  toastr.info('Execution', 'Pipeline execution has already started');
   branchesApi.create(
     projectId,
     branchName,

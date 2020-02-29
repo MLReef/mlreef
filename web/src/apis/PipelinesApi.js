@@ -2,7 +2,8 @@ import { GITLAB_INSTANCE } from '../apiConfig';
 import { getCurrentToken } from './apiHelpers';
 
 export default class PipeLinesApi {
-  static async create(projectId, refBranch) {
+  static async create(projectId, refBranch, payload) {
+    const body = JSON.stringify(payload);
     try {
       const response = await fetch(
         `${GITLAB_INSTANCE}/api/v4/projects/${projectId}/pipeline?ref=${refBranch}`, {
@@ -11,6 +12,7 @@ export default class PipeLinesApi {
             'PRIVATE-TOKEN': getCurrentToken(),
             'Content-Type': 'application/json',
           }),
+          body,
         },
       );
       return response.json();
