@@ -26,7 +26,7 @@ variables:
   DOCKER_REGISTRY_REPO: "717423"                           # https://gitlab.com/api/v4/projects/12894267/registry/repositories/
   EC2_INSTANCE_NAME:    "mlreef-$CI_COMMIT_REF_SLUG"       # environment name and url are set separately
   SSH_KEYFILE:          "src/terraform/development.pem"
-  DEVICE_MAPPINGS:      "src/resources/block-device-mappings.json"
+  DEVICE_MAPPINGS:      "src/resources/feature-branch-block-device-mappings.json"
   NGINX_CONFIG:         "src/resources/nginx_proxy.conf"
   STARTUP_SCRIPT:       "src/bin/startup.sh"
   GITLAB_SETUP:         "src/bin/setup-gitlab.sh"
