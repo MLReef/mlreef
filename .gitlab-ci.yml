@@ -38,3 +38,22 @@ variables:
   INSTANCE_INFO:        "instance.info"                    # file for transmitting VM information between stages
   S3_DATA_BUCKET:       "mlreef-application-data"          # see also ec2 startup script
   DATA_ARCHIVE:         "mlreef-data-develop.zip"
+
+
+.except-docu-branches:
+  except:
+    variables:
+      - $CI_COMMIT_REF_NAME =~ /^docs\//                   # match every branch "docs/**"
+      - $CI_COMMIT_REF_NAME =~ /^docu\//                   # match every branch "docu/**"
+      - $CI_COMMIT_REF_NAME =~ /^documentation\//          # match every branch "documentation/**"
+
+.feature-branches-only:
+  extends: [".except-docu-branches"]
+  except:
+    refs:
+      - develop
+      - master
+
+render documentation:
+  stage: build
+  script: echo "Hello World"

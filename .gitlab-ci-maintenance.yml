@@ -1,6 +1,5 @@
-
-
 backup branch:
+  extends: [.feature-branches-only]
   stage: maintenance
   when: manual
   image: registry.gitlab.com/systemkern/s5:latest-aws
@@ -16,6 +15,7 @@ backup branch:
 
 
 restore from develop:
+  extends: [.feature-branches-only]
   stage: maintenance
   when: manual
   image: registry.gitlab.com/systemkern/s5:latest-aws
@@ -33,7 +33,7 @@ restore from develop:
       - master
 
 restore branch backup:
-  extends: restore from develop
+  extends: [.feature-branches-only, "restore from develop"]
   script:
     - sed -i "s/INIT_ZIP=mlreef-data-develop.zip/INIT_ZIP=mlreef-data-$CI_COMMIT_REF_SLUG.zip/" $RESTORE_SCRIPT
     - $RESTORE_SCRIPT $URL

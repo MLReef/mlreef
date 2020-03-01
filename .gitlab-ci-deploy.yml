@@ -1,4 +1,5 @@
 .deploy-base:
+  extends: [".except-docu-branches"]
   stage: deploy
   image: registry.gitlab.com/systemkern/s5:latest
   variables:
@@ -72,9 +73,7 @@ develop deploy:
 
 
 feature branch deploy:
-  extends: .deploy-base
-  except:
-    refs: [develop, master]
+  extends: [".deploy-base", ".feature-branches-only"]
   script: ssh -i $SSH_KEYFILE -o 'AddKeysToAgent yes' ubuntu@"${URL}" "
     sudo $DEPLOY_SCRIPT
     --instance $URL
