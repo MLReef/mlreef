@@ -12,7 +12,8 @@ import ProjectContainer from '../projectContainer';
 import './commitDetails.css';
 import arrowBlue from '../../images/arrow_down_blue_01.svg';
 import CommitsApi from '../../apis/CommitsApi';
-import ImageDiffSection from '../imageDiffSection';
+import ImageDiffSection from '../imageDiffSection/imageDiffSection';
+import { getFileDifferences } from 'functions/apiCalls';
 
 const imageFormats = [
   '.png',
@@ -54,27 +55,13 @@ class CommitDetails extends Component {
       .length > 0)
       .forEach(async (imageDiff) => {
         const { imagesToRender } = this.state;
-        let previousImage;
-        if (!imageDiff.new_file) {
-          previousImage = await CommitsApi.getFileDataInCertainCommit(
-            projectId,
-            encodeURIComponent(
-              imageDiff.old_path,
-            ), commits.parent_ids[0],
-          );
-        }
-        let nextImage;
-        if (!imageDiff.deleted_file) {
-          nextImage = await CommitsApi.getFileDataInCertainCommit(
-            projectId,
-            encodeURIComponent(
-              imageDiff.old_path,
-            ), commits.id,
-          );
-        }
+        const {
+          previousVersionFile,
+          nextVersionFile,
+        } = await getFileDifferences(projectId, imageDiff, commits.parent_ids[0], commits.id);
         imagesToRender.push({
-          previousImage,
-          nextImage,
+          previousVersionFileParsed: previousVersionFile,
+          nextVersionFileParsed: nextVersionFile,
           fileName: imageDiff.old_path.split('/').slice(-1)[0],
         });
         this.setState({ ...imagesToRender });
@@ -166,7 +153,7 @@ class CommitDetails extends Component {
             .
           </p>
           {imagesToRender.map((imageFile) => (
-            <ImageDiffSection imageFile={imageFile} key={imageFile.fileName}/>
+            <ImageDiffSection imageFile={imageFile} key={imageFile.fileName} />
           ))}
         </div>
       </div>

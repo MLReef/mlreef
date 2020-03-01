@@ -16,7 +16,7 @@ prepare npm:
     - npm install --global --silent react-scripts
     - npm install --global --silent create-react-app@latest
     - npm install --global --silent react-scripts@3.0.1
-    - npm install --silent .
+    - npm install .
     - cp -r /usr/local/lib/node_modules ../node_modules_global
   after_script:
     - ls -al /usr/local/lib/node_modules
