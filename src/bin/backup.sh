@@ -34,6 +34,7 @@ if [ "$INSTANCE" = "" ]; then
   exit 1
 fi
 
+
 echo "starting backup script"
 echo "----------------------------------------"
 
