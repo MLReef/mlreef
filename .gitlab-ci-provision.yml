@@ -43,10 +43,8 @@ develop provision:
 
 # The provision job boots up the new ec2 instance for deploying MLReef
 feature branch provision:
+  extends: [.feature-branches-only]
   stage: provision
-  except:
-    refs:
-      - develop
   image: registry.gitlab.com/systemkern/s5:latest-aws
   variables:
     EC2_MACHINE_SIZE:  "t3a.medium"                        # https://aws.amazon.com/ec2/instance-types/
@@ -97,6 +95,7 @@ feature branch provision:
 
 
 gitlab env config:
+  extends: [".except-docu-branches"]
   image: registry.gitlab.com/systemkern/s5:latest
   stage: deploy
   variables:
@@ -122,11 +121,8 @@ gitlab env config:
 # The decommission job is configured by the provision's job `on_stop` command.
 # The execution of decommission is triggered by merging or deleting a branch.
 decommission:
+  extends: [".feature-branches-only"]
   stage: maintenance
-  except:
-    refs:
-      - develop
-      - master
   when: manual
   image: registry.gitlab.com/systemkern/s5:latest-aws
   variables:

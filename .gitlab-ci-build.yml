@@ -1,6 +1,7 @@
 # The "prepare npm" job runs already during the provisioning phase
 # to save a little bit of time for the overall pipeline
 prepare npm:
+  extends: [".except-docu-branches"]
   stage: provision
   image: node:13.2.0-alpine                                # https://hub.docker.com/_/node/
   cache:
@@ -8,9 +9,8 @@ prepare npm:
     paths:
       - /usr/local/lib/node_modules
       - web/node_modules
-  before_script:
-    - ls -al /usr/local/lib/node_modules
   script:
+    - ls -al /usr/local/lib/node_modules
     - cd web
     - pwd && ls -al
     - npm install --global --silent react-scripts
@@ -29,6 +29,7 @@ prepare npm:
 
 
 build frontend:
+  extends: [".except-docu-branches"]
   image: docker:19.03.5                                    # https://hub.docker.com/_/docker/
   stage: build
   services:
