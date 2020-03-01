@@ -5,6 +5,8 @@ import {
 } from 'prop-types';
 import Checkbox from '@material-ui/core/Checkbox';
 import { Redirect } from 'react-router';
+
+import ChangesMrSection from 'components/changes-mr-section/ChangesMrSection';
 import Navbar from '../navbar/navbar';
 import CommitsList from '../commitsList';
 import mergeRequestAPI from '../../apis/mergeRequestApi';
@@ -28,11 +30,14 @@ const BasicMergeRequestView = (props) => {
   const [behind, setBehind] = useState(0);
   const [aheadCommits, setAheadCommits] = useState([]);
   const [diffs, setDiffs] = useState([]);
+  const [areChangesRequired, setAreChangesRequired] = useState(false);
   const [squash, setSquash] = useState(false);
   const [removeBranch, setRemoveBranch] = useState(false);
   const [redirectMR, setRedirect] = useState(false);
 
-  const { selectedProject, selectedProject: { id }, match: { params: { iid } }, users } = props;
+  const {
+    selectedProject, selectedProject: { id }, match: { params: { iid } }, users,
+  } = props;
   const { title, description, state } = mrInfo;
 
   const projectName = selectedProject.name;
@@ -90,13 +95,13 @@ const BasicMergeRequestView = (props) => {
       .catch((err) => err);
 
     BranchesApi.compare(id, sourceBranch, targetBranch)
-      .then((res) => setBehind(res.commits.length)).catch((err) => err);
+      .then((res) => setBehind(res.commits)).catch((err) => err);
     BranchesApi.compare(id, targetBranch, sourceBranch)
       .then((res) => {
         setAheadCommits(res.commits);
         setDiffs(res.diffs);
       }).catch((err) => err);
-  }, [id, iid, targetBranch, sourceBranch]);
+  }, [id, iid, targetBranch, sourceBranch, areChangesRequired]);
 
   return (
     <>
@@ -141,16 +146,40 @@ const BasicMergeRequestView = (props) => {
         </div>
         <br />
         <div className="tabset">
-          <input type="radio" name="tabset" id="tab1" aria-controls="overview" defaultChecked />
+          <input
+            type="radio"
+            name="tabset"
+            id="tab1"
+            aria-controls="overview"
+            defaultChecked
+          />
           <label htmlFor="tab1">Overview</label>
-          <input type="radio" name="tabset" id="tab2" aria-controls="commits" />
-            <label htmlFor="tab2">  
-              {aheadCommits.length}
-              {' '}
-              Commits
-            </label>
-          <input type="radio" name="tabset" id="tab3" aria-controls="changes" />
+
+          <input
+            type="radio"
+            name="tabset"
+            id="tab2"
+            aria-controls="commits"
+          />
+          <label htmlFor="tab2">
+            {aheadCommits.length}
+            {' '}
+            Commits
+          </label>
+
+          <input
+            id="tab3"
+            type="radio"
+            name="tabset"
+            aria-controls="changes"
+            onClick={() => {
+              if (!areChangesRequired) {
+                setAreChangesRequired(!areChangesRequired);
+              }
+            }}
+          />
           <label htmlFor="tab3">Changes</label>
+
           <div className="tab-panels">
             <section id="overview" className="tab-panel">
               {description && (
@@ -186,7 +215,7 @@ const BasicMergeRequestView = (props) => {
                   and
                   <b className="deleted">
                     {' '}
-                    {behind}
+                    {behind.length}
                     {' '}
                     commits behind
                     {' '}
@@ -322,7 +351,7 @@ const BasicMergeRequestView = (props) => {
               )}
             </section>
             <section id="changes" className="tab-panel">
-              <h2>{/* Code for Changes in a merge request goes here */}</h2>
+              {areChangesRequired && <ChangesMrSection projectId={id} aheadCommits={aheadCommits} />}
             </section>
           </div>
         </div>

@@ -1,4 +1,3 @@
-/* eslint-disable no-undef */
 import React from 'react';
 import Enzyme, { shallow } from 'enzyme';
 import renderer from 'react-test-renderer';

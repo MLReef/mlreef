@@ -15,10 +15,10 @@ import BlueBorderedInput from '../BlueBorderedInput';
 import CustomizedButton from '../CustomizedButton';
 import './newMergeRequest.css';
 import branchesApi from '../../apis/BranchesApi';
-import commitsApi from '../../apis/CommitsApi';
 import mergeRequestAPI from '../../apis/mergeRequestApi';
-import ImageDiffSection from '../imageDiffSection';
+import ImageDiffSection from '../imageDiffSection/imageDiffSection';
 import CommitsList from '../commitsList';
+import { getFileDifferences } from '../../functions/apiCalls';
 
 const imageFormats = [
   '.png',
@@ -95,27 +95,13 @@ export class NewMergeRequest extends Component {
       .filter((format) => diff.old_path.includes(format)).length > 0)
       .forEach(async (imageDiff) => {
         const { imagesToRender } = this.state;
-        let previousImage;
-        let nextImage;
-        if (!imageDiff.new_file) {
-          previousImage = await commitsApi.getFileDataInCertainCommit(
-            projectId,
-            encodeURIComponent(
-              imageDiff.old_path,
-            ), lastCommit.parent_ids[0],
-          );
-        }
-        if (!imageDiff.deleted_file) {
-          nextImage = await commitsApi.getFileDataInCertainCommit(
-            projectId,
-            encodeURIComponent(
-              imageDiff.old_path,
-            ), lastCommit.id,
-          );
-        }
+        const {
+          previousVersionFile,
+          nextVersionFile,
+        } = await getFileDifferences(projectId, imageDiff, lastCommit.parent_ids[0], lastCommit.id);
         imagesToRender.push({
-          previousImage,
-          nextImage,
+          previousVersionFileParsed: previousVersionFile,
+          nextVersionFileParsed: nextVersionFile,
           fileName: imageDiff.old_path.split('/').slice(-1)[0],
         });
         this.setState({ ...imagesToRender });

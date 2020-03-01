@@ -41,3 +41,26 @@ export const callToGetFilesInFolder = (
 ) => filesApi
   .getFilesPerProject(projectId, path || '', recursive, branch)
   .catch((err) => err);
+
+export const getFileDifferences = async (projectId, diff, previousCommitId, lastCommitId) => {
+  let previousVersionFile;
+  let nextVersionFile;
+  if (!diff.new_file) {
+    previousVersionFile = await commitsApi.getFileDataInCertainCommit(
+      projectId,
+      encodeURIComponent(
+        diff.old_path,
+      ), previousCommitId,
+    );
+  }
+  if (!diff.deleted_file) {
+    nextVersionFile = await commitsApi.getFileDataInCertainCommit(
+      projectId,
+      encodeURIComponent(
+        diff.old_path,
+      ), lastCommitId,
+    );
+  }
+
+  return { previousVersionFile, nextVersionFile };
+};

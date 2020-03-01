@@ -2,6 +2,17 @@ import {
   colorsForCharts,
 } from '../dataTypes';
 
+const imageFormats = [
+  '.png',
+  '.jpg',
+  '.gif',
+  '.ico',
+  '.jpeg',
+  '.raw',
+  '.clip',
+  '.bmp',
+];
+
 export const getTimeCreatedAgo = (timeAgoCreatedAt, today) => {
   const timeAgoCreatedAtDate = new Date(timeAgoCreatedAt);
   const diff = today - timeAgoCreatedAtDate;
@@ -192,7 +203,15 @@ export const parseDecimal = (input, digits = 5) => {
   }));
 };
 
-/** */
+export const isImageFormat = (fileName) => {
+  let imageFormatCounter = 0;
+  imageFormats.forEach((format) => {
+    if (fileName.includes(format)) {
+      imageFormatCounter += 1;
+    }
+  });
+  return imageFormatCounter > 0;
+};
 
 export const getCurrentUserInformation = () => {
   const token = sessionStorage.getItem('token');

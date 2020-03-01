@@ -1,0 +1,22 @@
+.diff-container {
+  margin-top: 2em;
+  background-color: #e5e5e5;
+  border-radius: 0.3vw;
+  margin-bottom: 8px;
+}
+
+.diff-section {
+  height: 400px;
+  width: 100%;
+  border: 1px solid #ccc;
+}
+
+.diff-container > .file-name-section {
+  flex: 1 1 0%; 
+  padding: 1em;
+}
+
+.diff-container > .file-name-section > span {
+  padding-left: 1em;
+  font-weight: 700;
+}
