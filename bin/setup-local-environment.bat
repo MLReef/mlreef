@@ -45,12 +45,6 @@ docker-compose pull
 IF /I "%1"=="" (
     echo Attention: run this script with argument "force" for the first time to generate local.env
 )
-echo.
-echo ### 1. MANDATORY ENV VARS:
-echo GITLAB_ADMIN_TOKEN=%GITLAB_ADMIN_TOKEN%
-echo *GITLAB_SECRETS_SECRET_KEY_BASE=%GITLAB_SECRETS_SECRET_KEY_BASE%
-echo *GITLAB_SECRETS_OTP_KEY_BASE=%GITLAB_SECRETS_OTP_KEY_BASE%
-echo *GITLAB_SECRETS_DB_KEY_BASE=%GITLAB_SECRETS_DB_KEY_BASE%
 
 echo.
 echo ### 2. Manual Steps: register runners
