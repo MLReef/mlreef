@@ -113,6 +113,7 @@ const createPipelineInProject = (
   pipelineOpScriptType,
   branchName,
   dataInstanceName,
+  branchSelected,
 ) => {
   const pipeLineOperationCommands = buildCommandLinesFromSelectedPipelines(
     dataOperationsSelected,
@@ -124,11 +125,12 @@ const createPipelineInProject = (
     dataInstanceName,
     httpUrlToRepo,
     pipelineOpScriptType,
+    branchSelected,
   );
   branchesApi.create(
     projectId,
     branchName,
-    'master',
+    branchSelected || 'master',
   ).then((res) => {
     if (res.commit) {
       toastr.info('Execution', 'The branch for pipeline was created');

@@ -250,6 +250,7 @@ const ExecutePipelineModal = ({
                       jobName,
                       branchName,
                       dataInstanceName,
+                      branchSelected,
                     );
                   } else {
                     cleanForm();

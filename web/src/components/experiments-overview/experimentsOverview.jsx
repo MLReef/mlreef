@@ -48,6 +48,11 @@ class ExperimentsOverview extends Component {
     this.setState({ selectedExperiment: experiment });
   }
 
+  // this is called when user clicks Experiments Tab forcing to shown the list
+  forceShowExperimentList = () => {
+    this.setState({ selectedExperiment: null });
+  }
+
   handleButtonsClick(e) {
     e.target.parentNode.childNodes.forEach((childNode) => {
       if (childNode.id !== e.target.id) {
@@ -75,8 +80,9 @@ class ExperimentsOverview extends Component {
     const { selectedProject, selectedExperiment, experiments } = this.state;
     const { jobs, history } = this.props;
     let experimentJob;
+    const firstInd = 0;
     if (selectedExperiment) {
-      experimentJob = jobs.filter((job) => job.ref === selectedExperiment.descTitle)[0];
+      experimentJob = jobs.filter((job) => job.ref === selectedExperiment.descTitle)[firstInd];
     }
     const groupName = selectedProject.namespace.name;
     return (

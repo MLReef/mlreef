@@ -6,7 +6,7 @@ import {
   number,
   func,
 } from 'prop-types';
-import "../../css/globalStyles.css";
+import '../../css/globalStyles.css';
 import './experimentsOverview.css';
 import {
   getTimeCreatedAgo,
@@ -24,7 +24,7 @@ const ExperimentCard = (props) => {
     setSelectedExperiment,
   } = props;
   const today = new Date();
-  
+
   return experiments.length > 0 ? (
     <div className="pipeline-card" key={today}>
       <div className="header">
@@ -41,20 +41,12 @@ const ExperimentCard = (props) => {
       {experiments.map((experiment) => {
         const experimentName = experiment.descTitle;
         const uniqueName = experimentName.split('/')[1];
-        let modelDiv = 'inherit';
-        let progressVisibility = 'inherit';
-        if (!experiment.percentProgress) {
-          modelDiv = 'hidden';
-        }
-        if (!experiment.modelTitle) {
-          progressVisibility = 'hidden';
-        }
         return (
           <div
             key={`${experiment.timeCreatedAgo}-${experiment.descTitle}`}
             className="card-content"
           >
-            <div className="summary-data" style={{width: '80%'}}>
+            <div className="summary-data" style={{ width: '80%' }}>
               <div className="project-desc-experiment">
                 <button
                   type="button"
@@ -71,8 +63,8 @@ const ExperimentCard = (props) => {
                   <b>{uniqueName}</b>
                 </button>
                 <p id="time-created-ago">
-                    Created by 
-                    &nbsp;
+                  Created by
+                  &nbsp;
                   <b>{experiment.userName}</b>
                   <br />
                   {getTimeCreatedAgo(experiment.timeCreatedAgo, today)}
@@ -80,21 +72,25 @@ const ExperimentCard = (props) => {
                   ago
                 </p>
               </div>
-              <div className="project-desc-experiment" style={{ visibility: progressVisibility }}>
-                <p>
-                  <b>
-                    {experiment.percentProgress}
+              {!experiment.modelTitle && (
+                <div className="project-desc-experiment">
+                  <p>
+                    <b>
+                      {experiment.percentProgress}
                       % completed
-                  </b>
-                </p>
-              </div>
-              <div className="project-desc-experiment" style={{ visibility: modelDiv }}>
-                <p>
+                    </b>
+                  </p>
+                </div>
+              )}
+              {!experiment.percentProgress && (
+                <div className="project-desc-experiment">
+                  <p>
                     Model:
-                  {' '}
-                  <b>{experiment.modelTitle}</b>
-                </p>
-              </div>
+                    {' '}
+                    <b>{experiment.modelTitle}</b>
+                  </p>
+                </div>
+              )}
             </div>
             <SummarizedDataAndChartComp experiment={experiment} projectId={projectId} defaultBranch={defaultBranch} />
           </div>

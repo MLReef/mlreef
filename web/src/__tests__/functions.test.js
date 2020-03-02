@@ -1,7 +1,7 @@
 import 'babel-polyfill';
 import { mlreefFileContent } from '../dataTypes';
 import {
-  mlreefLinesToExtractConfiguration,
+  parseMlreefConfigurationLines,
   parseDecimal,
 } from '../functions/dataParserHelpers';
 import {
@@ -151,7 +151,7 @@ const mockFilesArr = [{
 
 describe('Read mlreef file', () => {
   test('assert that parsers read operations and params from file', () => {
-    const operationsAndParameters = mlreefLinesToExtractConfiguration(testDataDocument.split('\n'));
+    const operationsAndParameters = parseMlreefConfigurationLines(testDataDocument.split('\n'));
     expect(
       JSON.stringify(operationsAndParameters)
         === JSON.stringify(operationsArray),
