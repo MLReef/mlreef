@@ -90,6 +90,7 @@ const ProjectInfo = ({ project, actions }) => {
           </div>
         </div>
 
+        {default_branch !== null && (
         <div className="options">
           <button
             type="button"
@@ -104,6 +105,7 @@ const ProjectInfo = ({ project, actions }) => {
             <p>{forks}</p>
           </div>
         </div>
+        )}
         <div className="options">
           <button
             type="button"

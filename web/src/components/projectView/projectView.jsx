@@ -131,23 +131,23 @@ class ProjectView extends React.Component {
           folders={[groupName, projectName, 'Data']}
         />
         <div className="main-content">
-          <RepoInfo
-            mergeRequests={mergeRequests}
-            projectId={selectedProject.id}
-            currentBranch={encodedBranch}
-            numberOfContributors={contributors.length}
-            branchesCount={branches.length}
-            dataInstanesCount={
-              branches
-                .filter(
-                  (dInstBranch) => dInstBranch.name.startsWith('data-pipeline'),
-                ).length
-            }
-          />
           {isEmptyProject ? (
             <EmptyProject sshUrlToRepo={sshUrlToRepo} />
           ) : (
             <>
+              <RepoInfo
+                mergeRequests={mergeRequests}
+                projectId={selectedProject.id}
+                currentBranch={encodedBranch}
+                numberOfContributors={contributors.length}
+                branchesCount={branches.length}
+                dataInstanesCount={
+                  branches
+                    .filter(
+                      (dInstBranch) => dInstBranch.name.startsWith('data-pipeline'),
+                    ).length
+                }
+              />
               {lastCommit && (
               <div className="last-commit-info">
                 <div className="last-commit-details">
@@ -185,11 +185,11 @@ class ProjectView extends React.Component {
                 branch={encodedBranch}
               />
               {showReadMe && (
-                <ReadMeComponent
-                  projectName={selectedProject.name}
-                  projectId={selectedProject.id}
-                  branch={encodedBranch}
-                />
+              <ReadMeComponent
+                projectName={selectedProject.name}
+                projectId={selectedProject.id}
+                branch={encodedBranch}
+              />
               )}
             </>
           )}
