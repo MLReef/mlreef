@@ -6,7 +6,7 @@ import Navbar from '../navbar/navbar';
 import ProjectContainer from '../projectContainer';
 import './dataInstanceOverview.css';
 import Instruction from '../instruction/instruction';
-import { getTimeCreatedAgo, mlreefLinesToExtractConfiguration } from '../../functions/dataParserHelpers';
+import { getTimeCreatedAgo, parseMlreefConfigurationLines } from '../../functions/dataParserHelpers';
 import DataInstancesDeleteModal from '../data-instances-delete-and-abort-modal/dataInstancesDeleteNAbortModal';
 import pipelinesApi from '../../apis/PipelinesApi';
 import {
@@ -60,7 +60,7 @@ export const InstanceCard = ({ ...props }) => {
       )
       .then((fileData) => {
         const dataParsedInLines = Base64.decode(fileData.content).split('\n');
-        const configuredOperation = mlreefLinesToExtractConfiguration(dataParsedInLines);
+        const configuredOperation = parseMlreefConfigurationLines(dataParsedInLines);
         sessionStorage.setItem('configuredOperations', JSON.stringify(configuredOperation));
         props.history.push(`/my-projects/${pId}/pipe-line`);
       })

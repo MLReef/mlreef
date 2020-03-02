@@ -14,6 +14,8 @@ export const mlreefFileContent = `##############################################
 # as well as the temporary configurations executed data pipelines              #
 ################################################################################
 
+# source-branch-name:#source-branch
+
 # This is the docker image your model training will be executed in
 image: registry.gitlab.com/mlreef/epf:latest
 

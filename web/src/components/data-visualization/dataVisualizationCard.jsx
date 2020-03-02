@@ -5,7 +5,7 @@ import {
 import { Redirect } from 'react-router-dom';
 import { Base64 } from 'js-base64';
 import { toastr } from 'react-redux-toastr';
-import { getTimeCreatedAgo, mlreefLinesToExtractConfiguration } from '../../functions/dataParserHelpers';
+import { getTimeCreatedAgo, parseMlreefConfigurationLines } from '../../functions/dataParserHelpers';
 import './dataVisualizationCard.css';
 import filesApi from '../../apis/FilesApi';
 
@@ -22,7 +22,7 @@ const DataVisualizationCard = ({ classification, projectId, setVisualizationSele
       )
       .then((fileData) => {
         const dataParsedInLines = Base64.decode(fileData.content).split('\n');
-        const configuredOperation = mlreefLinesToExtractConfiguration(dataParsedInLines);
+        const configuredOperation = parseMlreefConfigurationLines(dataParsedInLines);
         sessionStorage.setItem('configuredOperations', JSON.stringify(configuredOperation));
 
         setRedirect(true);

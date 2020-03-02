@@ -5,8 +5,12 @@ import {
   shape,
   number,
 } from 'prop-types';
+import { Base64 } from 'js-base64';
 import './experimentsOverview.css';
 import { Line } from 'react-chartjs-2';
+import { toastr } from 'react-redux-toastr';
+import { CircularProgress } from '@material-ui/core';
+import FilesApi from '../../apis/FilesApi';
 import BranchesApi from '../../apis/BranchesApi';
 import traiangle01 from '../../images/triangle-01.png';
 import ArrowButton from '../arrow-button/arrowButton';
@@ -15,6 +19,7 @@ import {
   getTimeCreatedAgo,
   parseDataAndRefreshChart,
   parseDecimal,
+  parseMlreefConfigurationLines,
 } from '../../functions/dataParserHelpers';
 import {
   SKIPPED,
@@ -24,6 +29,7 @@ import {
   FAILED,
   PENDING,
 } from '../../dataTypes';
+
 
 const DataCard = ({ title, linesOfContent }) => (
   <div className="data-card">
@@ -52,6 +58,8 @@ const SummarizedDataAndChartComp = ({ experiment, projectId, defaultBranch }) =>
     datasets: [],
     labels: [],
   });
+  const [parametersForDataCard, setParametersForDataCard] = useState([]);
+  const [isFetchingParams, setIsFetchingParams] = useState(true);
   const [averageParams, setAverageParams] = useState([]);
   const [ahead, setAhead] = useState(0);
   const [behind, setBehind] = useState(0);
@@ -70,9 +78,10 @@ const SummarizedDataAndChartComp = ({ experiment, projectId, defaultBranch }) =>
   }, [ahead, behind, projectId, descTitle, defaultBranch]);
 
   function retrieveStatisticsFromApi() {
-    return snippetApi.getSnippetFile(
+    const branchName = descTitle.replace('/', '-');
+    snippetApi.getSnippetFile(
       projectId,
-      descTitle.replace('/', '-'),
+      branchName,
       'experiment.json',
     ).then((res) => {
       const parsedData = parseDataAndRefreshChart(res);
@@ -86,6 +95,28 @@ const SummarizedDataAndChartComp = ({ experiment, projectId, defaultBranch }) =>
         });
       },
     );
+
+    FilesApi
+      .getFileData(
+        projectId,
+        '.mlreef.yml',
+        descTitle,
+      )
+      .then((fileData) => {
+        const dataParsedInLines = Base64.decode(fileData.content).split('\n');
+        const match = dataParsedInLines.filter((line) => line.startsWith('# source-branch-name'))[0];
+        const sourceBranch = match.split(':')[1];
+        const isSourceBranchDataInstance = sourceBranch.startsWith('data-instance');
+        const configuredOperations = parseMlreefConfigurationLines(dataParsedInLines);
+        const folder = configuredOperations[0].params.filter((param) => param.name === 'images-path')[0].value;
+
+        setParametersForDataCard({ folder, sourceBranch, isSourceBranchDataInstance });
+      })
+      .catch(() => {
+        toastr.error('Error', 'Something went wrong parsing your configuration');
+      }).finally(() => {
+        setIsFetchingParams(false);
+      });
   }
 
   function handleArrowDownButtonClick() {
@@ -149,7 +180,7 @@ const SummarizedDataAndChartComp = ({ experiment, projectId, defaultBranch }) =>
           className="dangerous-red"
         >
           <b>
-              X
+            X
           </b>
         </button>,
       ];
@@ -162,7 +193,7 @@ const SummarizedDataAndChartComp = ({ experiment, projectId, defaultBranch }) =>
           className="dangerous-red"
         >
           <b>
-              X
+            X
           </b>
         </button>,
       ];
@@ -196,20 +227,22 @@ const SummarizedDataAndChartComp = ({ experiment, projectId, defaultBranch }) =>
           </div>
           <div style={{ flexBasis: '100%', height: 0 }} key={`${descTitle} ${currentState} division2`} />
           <div key={`${descTitle} ${currentState} card-results`} className="card-results">
-            <DataCard
-              title="Data"
-              linesOfContent={[
-                '*3.245 files selected',
-                '  from',
-                '*data instance: DL_pipeline_1',
-                'resulting from a data pipeline with',
-                '*op1: Augment',
-                '*op2: Random Crop',
-                '*op3: Rotate',
-                'sourced from',
-                '*data branch: Master',
-              ]}
-            />
+            {isFetchingParams ? (
+              <CircularProgress size={20} />
+            )
+              : (
+                <DataCard
+                  title="Data"
+                  linesOfContent={[
+                    'files selected from folder',
+                    `*${parametersForDataCard.folder}`,
+                    parametersForDataCard.isSourceBranchDataInstance
+                      ? 'sourcing from data instance'
+                      : 'sourcing from',
+                    `*${parametersForDataCard.sourceBranch}`,
+                  ]}
+                />
+              )}
             <DataCard
               title="Algorithm"
               linesOfContent={[
@@ -250,7 +283,6 @@ SummarizedDataAndChartComp.propTypes = {
     userName: string,
     percentProgress: string,
     eta: string,
-    modelTitle: string,
     timeCreatedAgo: string,
   }).isRequired,
   projectId: number.isRequired,
