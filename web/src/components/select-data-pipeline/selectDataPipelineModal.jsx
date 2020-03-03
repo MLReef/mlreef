@@ -8,6 +8,7 @@ import fileIcon from '../../images/file_01.svg';
 import traiangle01 from '../../images/triangle-01.png';
 import ArrowButton from '../arrow-button/arrowButton';
 import filesApi from '../../apis/FilesApi';
+import '../files-table/filesTable.css';
 
 class SelectDataPipelineModal extends Component {
   constructor(props) {
@@ -198,7 +199,7 @@ class SelectDataPipelineModal extends Component {
                 <thead>
                   <tr className="title-row">
                     <th style={{ width: '6%' }} />
-                    <th style={{ width: '5%' }}>
+                    <th style={{ width: '13%' }}>
                       <p id="paragraphName">Name</p>
                     </th>
                     <th style={{ width: '87%' }}>
@@ -215,7 +216,7 @@ class SelectDataPipelineModal extends Component {
                 <tbody>
                   {files.map((file, index) => (
                     <tr key={index} id={`tr-file-${index}`} className="files-row" style={{ justifyContent: 'unset' }}>
-                      <td className="file-type" style={{ width: 'unset' }}>
+                      <td className="icon-container-column">
                         <Checkbox
                           id={`span-file-${index}`}
                           checked={filesSelected.filter(
@@ -228,13 +229,13 @@ class SelectDataPipelineModal extends Component {
                           }}
                         />
                       </td>
-                      <td className="file-type" style={{ width: 'unset' }}>
-                        <p>
+                      <td className="icon-container-column">
+                        <div>
                           <img src={file.type === 'tree' ? folderIcon : fileIcon} alt="" />
-                        </p>
-                        <p>
+                        </div>
+                        <div>
                           {file.name}
-                        </p>
+                        </div>
                       </td>
                     </tr>
                   ))}

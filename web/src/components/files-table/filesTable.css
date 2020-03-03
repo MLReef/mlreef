@@ -1,0 +1,69 @@
+.file-properties {
+  border-radius: 0 0 0.3vw 0.3vw;
+  border: 1px solid #b2b2b2;
+  width: 100%;
+}
+
+.title-row {
+  background-color: #1d2b40;
+  color: #fff;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.title-row > th > p {
+  font-size: 13px;
+  text-align: left;
+}
+
+.files-row {
+  background-color: #fff;
+  color: #1c2b40;
+  font-size: 1em;
+  display: flex;
+  justify-content: space-between;
+  border-top: 1px solid #b2b2b2;
+}
+
+.files-row > .icon-container-column {
+  display: flex;
+  align-items: center;
+  overflow-x: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.files-row > .icon-container-column > div > img {
+  height: 2em;
+  width: 2em;
+  margin: 0px 1.1em;
+  padding: 0;
+}
+
+.clickable:hover {
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.return-button {
+  display: flex;
+  align-items: center;
+}
+
+.return-button > button {
+  background-color: #ffffff;
+  border: none;
+  cursor: pointer;
+}
+
+.return-button > button > img {
+  height: 2em;
+  width: 2em;
+  margin: 0px 1.1em;
+  padding: 0;
+}
+
+.return-button > button:hover {
+  text-decoration: underline;
+}
