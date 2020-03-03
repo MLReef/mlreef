@@ -2,14 +2,14 @@ import React, { useState } from 'react';
 import {
   func, number, string, arrayOf, shape,
 } from 'prop-types';
-import { Redirect } from 'react-router-dom';
+import { Redirect, Link } from 'react-router-dom';
 import { Base64 } from 'js-base64';
 import { toastr } from 'react-redux-toastr';
 import { getTimeCreatedAgo, mlreefLinesToExtractConfiguration } from '../../functions/dataParserHelpers';
 import './dataVisualizationCard.css';
 import filesApi from '../../apis/FilesApi';
 
-const DataVisualizationCard = ({ classification, projectId, setVisualizationSelected }) => {
+const DataVisualizationCard = ({ classification, projectId }) => {
   const today = new Date();
   const [redirect, setRedirect] = useState(false);
   function goToPipelineView(e) {
@@ -96,9 +96,10 @@ const DataVisualizationCard = ({ classification, projectId, setVisualizationSele
       {classification.values.map((val) => (
         <div className="data-visualization-card-content" key={`${val.creator} ${val.name}`} data-key={val.name}>
           <div className="general-information">
-            <p  onClick={() => { setVisualizationSelected(val); }}>
+        
+            <Link to={`/my-projects/${projectId}/visualizations/${encodeURIComponent(val.name)}`}>
               <b>{val.name}</b>
-            </p>
+            </Link>
             <p>
               Create by
               &nbsp;

@@ -1,20 +1,29 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { toastr } from 'react-redux-toastr';
 import { connect } from 'react-redux';
+import FilesTable from 'components/files-table/filesTable';
 import Navbar from '../navbar/navbar';
 import ProjectContainer from '../projectContainer';
 import folderIcon from '../../images/folder_01.svg';
 import fileIcon from '../../images/file_01.svg';
 import './dataInstanceDetails.css';
 import filesApi from '../../apis/FilesApi';
+import returnLink from '../returnLink';
 
 const DataInstanceDetails = ({ ...props }) => {
-  const project = props.projects.selectedProject;
+  const {
+    projects: { selectedProject: project },
+    branches,
+    match: {
+      params: {
+        projectId, path, di_name: diName, branch,
+      },
+    },
+  } = props;
+  const pipelineName = decodeURIComponent(diName);
+  const selectedPipeline = branches.filter((item) => item.name === pipelineName);
   const groupName = project.namespace.name;
-  const pipelineName = decodeURIComponent(props.match.params.di_name);
-  const selectedPipeline = props.branches.filter((item) => item.name === pipelineName);
-
-  const { match: { params: { projectId, path, di_name, branch } } } = props;
   const [files, setFiles] = useState([]);
 
   useEffect(() => {
@@ -22,40 +31,13 @@ const DataInstanceDetails = ({ ...props }) => {
       projectId,
       path || '',
       false,
-      di_name,
+      diName,
     ).then((res) => {
       setFiles(res);
-    }).catch((err) => {
-      console.log(err);
-    })
-  }, [di_name, projectId, path])
-
-  const getBack = () => window.history.back()
-
-  const getReturnOption = () => (
-    window.location.href.includes('path') ? (
-      <tr className="files-row">
-        <td className="file-type">
-          <button
-            type="button"
-            onClick={getBack}
-            style={{ padding: '0' }}
-          >
-            <img src={folderIcon} alt="" />
-          </button>
-          <button
-            type="button"
-            onClick={getBack}
-          >
-            ..
-          </button>
-        </td>
-        <td>&nbsp;</td>
-        <td>&nbsp;</td>
-      </tr>
-    )
-      : null);
-
+    }).catch(() => {
+      toastr.error('Error', 'Something went wrong getting your files');
+    });
+  }, [diName, projectId, path]);
 
   return (
     <div id="experiments-overview-container">
@@ -78,7 +60,7 @@ const DataInstanceDetails = ({ ...props }) => {
             <div className="project-desc-experiment">
               <p><b>{pipelineName}</b></p>
               <p>
-                Created by 
+                Created by
                 <b>{selectedPipeline[0].commit.author_name}</b>
                 <br />
                 --- ago
@@ -91,64 +73,43 @@ const DataInstanceDetails = ({ ...props }) => {
             <div className="project-desc-experiment" style={{ visibility: 'inherit' }}>
               <p><b>--- files changed</b></p>
               <p>
-Id:
+                Id:
                 {selectedPipeline[0].commit.short_id}
               </p>
             </div>
-            <button style={{ margin: '1.5em', cursor: 'pointer', marginLeft: 'auto' }} className="dangerous-red"><b>X</b></button>
+            <button
+              type="button"
+              style={{ margin: '1.5em', cursor: 'pointer', marginLeft: 'auto' }}
+              className="dangerous-red"
+            >
+              <b>X</b>
+            </button>
           </div>
           )}
         </div>
         <br />
-        <div className="files-container">
-          <table className="file-properties" id="file-tree">
-            <thead>
-              <tr className="title-row">
-                <th>
-                  <p id="paragraphName">Name</p>
-                </th>
-                <th>
-                  <p id="paragraphLastCommit">Last Commit</p>
-                </th>
-                <th>
-                  <p id="paragraphSize">Size(files)</p>
-                </th>
-                <th>
-                  <p id="paragraphLastUpdate">Last Update</p>
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-            {getReturnOption()}
-              {files.map((file) => {
-                  let icon;
-                  let link;
-                  let routeType = '';
-                  if (file.type === 'tree') {
-                    routeType = 'path';
-                    icon = folderIcon;
-                    link = `/my-projects/${projectId}/${branch}/data-instances/${di_name}/${routeType}/${encodeURIComponent(file.path)}`;
-                  } else {
-                    routeType = 'blob';
-                    icon = fileIcon;
-                    link = `/my-projects/${projectId}/${di_name}/${routeType}/${encodeURIComponent(file.path)}`;
-                  } 
-                  return (
-                    <tr key={`${file.id} ${file.name}`} className="files-row">
-                      <td className="file-type">
-                        <Link to={link}>
-                          <img src={icon} alt="" />
-                        </Link>
-                        <Link to={link} className="file-name-link">
-                          {file.name}
-                        </Link>
-                      </td>
-                    </tr>
-                  );
-                })}
-            </tbody>
-          </table>
-        </div>
+        <FilesTable
+          files={files.map((f) => ({ id: f.id, name: f.name, type: f.type }))}
+          headers={[
+            'Name',
+          ]}
+          onClick={(e) => {
+            const target = e.currentTarget;
+            const targetDataKey = target.getAttribute('data-key');
+            const targetId = target.id;
+            const file = files.filter((f) => f.id === targetId)[0];
+            let link = '';
+            let routeType = '';
+            if (targetDataKey === 'tree') {
+              routeType = 'path';
+              link = `/my-projects/${projectId}/${branch}/data-instances/${diName}/${routeType}/${encodeURIComponent(file.path)}`;
+            } else {
+              routeType = 'blob';
+              link = `/my-projects/${projectId}/${diName}/${routeType}/${encodeURIComponent(file.path)}`;
+            }
+            props.history.push(link);
+          }}
+        />
       </div>
     </div>
   );

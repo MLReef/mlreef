@@ -23,6 +23,7 @@ import NewBranch from './components/newBranch';
 import BranchesView from './components/branches-list-view/branchesView';
 import mergeRequestOverview from './components/new-merge-request/merge-request-overview';
 import BasicMergeRequestView from './components/mergeRequestDetailView/basicMergeRequestView';
+import DataVisualizationDetail from './components/data-visualization/dataVisualizationDetail';
 
 const RouterComp = () => (
   <BrowserRouter>
@@ -50,6 +51,8 @@ const RouterComp = () => (
       />
       <PrivateRoute exact path="/my-projects/:projectId/pipe-line" component={PipeLineView} />
       <PrivateRoute path="/my-projects/:projectId/empty-data-visualization" component={EmptyDataVisualization} />
+      <PrivateRoute path="/my-projects/:projectId/visualizations/:visName/path/:path" component={DataVisualizationDetail} />
+      <PrivateRoute path="/my-projects/:projectId/visualizations/:visName" component={DataVisualizationDetail} />
       <PrivateRoute path="/my-projects/:projectId/visualizations" component={DataVisualizationOverview} />
       <PrivateRoute exact path="/my-projects/:projectId/:branch/data-instances" component={DataInstanceOverview} />
       <PrivateRoute path="/my-projects/:projectId/:branch/data-instances/:di_name/path/:path" component={DataInstanceDetails} />

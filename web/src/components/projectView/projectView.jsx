@@ -96,7 +96,7 @@ class ProjectView extends React.Component {
   }
 
   render() {
-    const { match: { params: { path } }, branches } = this.props;
+    const { match: { params: { path } }, branches, history } = this.props;
     const {
       lastCommit,
       branch,
@@ -183,6 +183,7 @@ class ProjectView extends React.Component {
                 projectId={selectedProject.id}
                 path={path}
                 branch={encodedBranch}
+                history={history}
               />
               {showReadMe && (
                 <ReadMeComponent
