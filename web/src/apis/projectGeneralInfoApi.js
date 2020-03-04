@@ -1,15 +1,22 @@
-import { GITLAB_INSTANCE } from '../apiConfig';
+import { GITLAB_INSTANCE, BUILD_TIMEOUT } from '../apiConfig';
 import { getCurrentToken } from './apiHelpers';
 
+const defaultProjectSettings = {
+  ci_config_path: '.mlreef.yml',
+  build_timeout: BUILD_TIMEOUT,
+};
+
 export default class ProjectGeneralInfoApi {
-  static async create(projectName, readme, description) {
-    let baseUrl = `${GITLAB_INSTANCE}/api/v4/projects?name=${projectName}&ci_config_path=.mlreef.yml`;
-    if (description) {
-      baseUrl = `${baseUrl}&description=${description}`;
-    }
-    if (readme) {
-      baseUrl = `${baseUrl}&initialize_with_readme=${readme}`;
-    }
+  static async create(settings) {
+    const baseUrl = new URL(`${GITLAB_INSTANCE}/api/v4/projects`);
+    const params = {
+      ...defaultProjectSettings,
+      ...settings,
+    };
+
+    Object.entries(params)
+      .forEach((param) => baseUrl.searchParams.append(...param));
+
     try {
       const response = await fetch(
         baseUrl, {

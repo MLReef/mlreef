@@ -26,7 +26,7 @@ class NewProject extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      value: 'Private',
+      visibility: 'private',
       input: '',
       redirect: false,
       readme: false,
@@ -38,7 +38,7 @@ class NewProject extends Component {
   }
 
   handleVisibility = (e) => {
-    this.setState({ value: e.target.value });
+    this.setState({ visibility: e.target.value });
   }
 
   handleProjectName = (e) => {
@@ -73,7 +73,13 @@ class NewProject extends Component {
   }
 
   handleSubmit = () => {
-    const { input, readme, description } = this.state;
+    const {
+      input,
+      readme,
+      description,
+      visibility,
+    } = this.state;
+
     const bannedName = this.validateProjectName(input);
 
     if (!bannedName) {
@@ -85,7 +91,13 @@ class NewProject extends Component {
       toastr.error('Error:', 'Enter a valid project name');
       return;
     }
-    projectGeneraInfoApi.create(input, readme, description)
+
+    projectGeneraInfoApi.create({
+      name: input,
+      readme,
+      description,
+      visibility,
+    })
       .then(async (res) => {
         if (res.ok) {
           const pro = await res.json();
@@ -108,7 +120,7 @@ class NewProject extends Component {
 
  render() {
    const {
-     value,
+     visibility,
      input,
      redirect,
      readme,
@@ -194,10 +206,10 @@ where you perform data processing
              {/* Code for various data types to be included in later stages. Hint: Use an array of data-types */}
              <div style={{ marginTop: '1em' }}>
                <span className="heading">Visibilty level</span>
-               <RadioGroup aria-label="visibility" name="visibility" value={value} onChange={this.handleVisibility}>
+               <RadioGroup aria-label="visibility" name="visibility" value={visibility} onChange={this.handleVisibility}>
                  <FormControlLabel
                    className="heading"
-                   value="Private"
+                   value="private"
                    control={<Radio />}
                    label={(
                      <>
@@ -209,7 +221,7 @@ where you perform data processing
                  <span className="visibility-msg">Project access must be granted explicitly to every user.</span>
                  <FormControlLabel
                    className="heading"
-                   value="Public"
+                   value="public"
                    control={<Radio />}
                    label={(
                      <>
