@@ -10,3 +10,5 @@ export const GITLAB_INSTANCE = process.env.REACT_APP_BACKEND !== undefined
 export const MLREEF_INSTANCE = process.env.REACT_APP_MLREEF_INSTANCE_URL !== undefined
   ? process.env.REACT_APP_MLREEF_INSTANCE_URL
   : 'http://localhost:8080';
+
+export const BUILD_TIMEOUT = process.env.REACT_APP_BUILD_TIMEOUT;
