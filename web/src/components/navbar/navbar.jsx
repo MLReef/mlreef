@@ -148,13 +148,6 @@ class Navbar extends Component {
             this.node = node;
           }}
         >
-          <img
-            className="dropdown-white"
-            src={
-              dialogOpen ? arrowDownBlue01 : arrowDownWhite01
-            }
-            alt=""
-          />
           <div
             className={
               dialogOpen
@@ -177,6 +170,13 @@ class Navbar extends Component {
               >Sign Out</p>
             </div>
           )}
+          <img
+            className="dropdown-white"
+            src={
+              dialogOpen ? arrowDownBlue01 : arrowDownWhite01
+            }
+            alt=""
+          />
         </div>
       </div>
     );
