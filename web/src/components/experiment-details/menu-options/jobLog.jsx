@@ -13,15 +13,22 @@ const JobLog = ({
 }) => {
   const [jobLog, setJobLog] = useState(null);
   const parsedDuration = parseDurationInSeconds(job.duration);
-  const { created_at, user, runner } = job;
-  const jobTimeCreatedAgo = getTimeCreatedAgo(created_at, new Date());
+  const { created_at: createdAt, user, runner } = job;
+  const jobTimeCreatedAgo = getTimeCreatedAgo(createdAt, new Date());
+
   function parseLine(line) {
     let classList = 'line-span';
     let finalLine = line;
-    if (finalLine.includes('\u001b[32;1m')) {
-      finalLine = finalLine.substr(7, finalLine.length);
+    if (finalLine.includes('\u001b[31;1mERROR:')) {
+      const errorIndex = finalLine.indexOf('[31;1mERROR:');
+      finalLine = finalLine.substr(errorIndex, finalLine.length);
+      classList = `${classList} red-letter`;
+    } else if (finalLine.includes('\u001b[32;1m')) {
+      const errorIndex = finalLine.indexOf('32;1m');
+      finalLine = finalLine.substr(errorIndex, finalLine.length);
       classList = `${classList} green-letter`;
     }
+
     finalLine = finalLine
       .replace(' ', '  ')
       .replace('[31;1m', '')
@@ -35,21 +42,25 @@ const JobLog = ({
       </span>
     );
   }
+
+  async function handleResponse(res) {
+    const blob = await res.blob();
+    const reader = new FileReader();
+    reader.onload = () => {
+      const b64 = reader.result.replace(/^data:.+;base64,/, '');
+      const finalLog = atob(b64).split('\n');
+      setJobLog(finalLog);
+    };
+    reader.readAsDataURL(blob);
+  }
+
   useEffect(() => {
     JobsApi.getLog(projectId, job.id)
-      .then(async (res) => {
-        const blob = await res.blob();
-        const reader = new FileReader();
-        reader.onload = () => {
-          const b64 = reader.result.replace(/^data:.+;base64,/, '');
-          const finalLog = atob(b64).split('\n');
-          setJobLog(finalLog);
-        };
-        reader.readAsDataURL(blob);
-      }).catch(() => {
+      .then((res) => res.ok ? handleResponse(res) : Promise.reject(res)).catch(() => {
         toastr.error('Error', 'The log could not be read');
       });
   }, [projectId, job.id]);
+
   return (
     <div id="job-information-container">
       <div id="basic-information-container" className="flexible-div-basic-info-cont">
@@ -124,7 +135,7 @@ const JobLog = ({
             }
             return (
               <div className="log-line" key={`${index.toString()} ${line}`}>
-                <div style={{ display: 'flex', justifyContent: 'right', width: '1em' }}>
+                <div className="number-span-container">
                   <span style={{ color: 'gray' }}>{index}</span>
                 </div>
                 {parseLine(line)}
