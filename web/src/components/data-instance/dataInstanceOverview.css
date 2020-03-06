@@ -2,6 +2,7 @@
 
 .card-content > .summary-data > .buttons-div > button{
     margin-right: 5px !important;
+    margin-top: 28px;
 }
 
 /* ----------------------- Chart container ----------------------- */

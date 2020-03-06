@@ -41,25 +41,25 @@ class ProjectDeletionModal extends React.Component {
               <p>
                 <b>Confirmation required</b>
               </p>
-              <button onClick={() => this.props.hideModal()}>
+              <button onClick={() => this.props.hideModal()} style={{ color: 'white' }}>
                 <b>
-                            X
+                        X
                 </b>
               </button>
             </div>
             <div id="project-deletion-message">
               <p id="warning">
-                        You are going to remove Kotlin-Vienna / management.
+                        You are going to remove {this.props.projectName}.
                         Removed project CANNOT be restored!
                         are you ABSOLUTELY sure?
               </p>
               <p id="confirmation">
                         This action can lead to data loss. To prevent accidental actions we ask you permission to confirm your intention.
-                        PLease type
+                        Please type
                 {' '}
                 <b>{this.props.projectName}</b>
                 {' '}
-to proceed or close this modal.
+                        to proceed or close this modal.
               </p>
               <br />
               <Input id="project-input" callback={this.inputKeyUp} />
