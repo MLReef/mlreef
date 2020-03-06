@@ -40,9 +40,11 @@ const ExperimentDetails = ({
       case 0:
         return <DetailsSummary experiment={experiment} files={parameters} />;
       case 4:
-        return <JobLog projectId={projectId} job={job} />;
+        return job ? <JobLog projectId={projectId} job={job} /> : null;
       case 6:
-        return <Files projectId={projectId} job={job} experimentName={experiment.descTitle} />;
+        return job
+          ? <Files projectId={projectId} job={job} experimentName={experiment.descTitle} />
+          : null;
       default:
         return <DetailsSummary experiment={experiment} files={parameters} />;
     }
