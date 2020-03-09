@@ -55,7 +55,7 @@ just change the mixin.
 * Better comment support. We can add comments that will throw out in the final css.
   
 #### Sass
-* Largely the most wide used pre-processor.
+* One of the most widely used pre-processors.
 * Vuetify is migrating from stylus to sass.
 * Semantic-ui is migrating from less to sass.
 
