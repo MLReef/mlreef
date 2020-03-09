@@ -1,4 +1,4 @@
-import { GITLAB_INSTANCE } from '../apiConfig';
+import { API_GATEWAY, GITLAB_PORT } from '../apiConfig';
 import { generateGetRequest, getCurrentToken } from './apiHelpers';
 
 /**
@@ -11,7 +11,7 @@ export default class BranchesApi {
   static async create(projectId, branchName, refBranch) {
     try {
       const response = await fetch(
-        `${GITLAB_INSTANCE}/api/v4/projects/${projectId}/repository/branches?branch=${branchName}&ref=${refBranch}`, {
+        `${API_GATEWAY}:${GITLAB_PORT}/api/v4/projects/${projectId}/repository/branches?branch=${branchName}&ref=${refBranch}`, {
           method: 'POST',
           headers: new Headers({
             'PRIVATE-TOKEN': getCurrentToken(),
@@ -26,21 +26,21 @@ export default class BranchesApi {
   }
 
   static async getBranches(projectId) {
-    const url = `${GITLAB_INSTANCE}/api/v4/projects/${projectId}/repository/branches`;
+    const url = `${API_GATEWAY}:${GITLAB_PORT}/api/v4/projects/${projectId}/repository/branches`;
     const response = await generateGetRequest(url);
 
     return response.json();
   }
 
   static async compare(projectId, from, to) {
-    const url = `${GITLAB_INSTANCE}/api/v4/projects/${projectId}/repository/compare?from=${from}&to=${to}`;
+    const url = `${API_GATEWAY}:${GITLAB_PORT}/api/v4/projects/${projectId}/repository/compare?from=${from}&to=${to}`;
     const response = await generateGetRequest(url);
 
     return response.json();
   }
 
   static async delete(projectId, branchName) {
-    const url = `${GITLAB_INSTANCE}/api/v4/projects/${projectId}/repository/branches/${branchName}`;
+    const url = `${API_GATEWAY}:${GITLAB_PORT}/api/v4/projects/${projectId}/repository/branches/${branchName}`;
     try {
       const response = await fetch(
         url, {

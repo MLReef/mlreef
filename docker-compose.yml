@@ -27,10 +27,8 @@ services:
       - backend
     ports:
       - "3000:3000"
-    environment:
-      - BACKEND_INSTANCE_URL=http://backend:8080
-      - REACT_APP_MLREEF_INSTANCE_URL=http://backend:8080
-
+  #    environment:
+  #      - REACT_APP_API_GATEWAY=http://localhost
 
   backend:
     container_name: backend
