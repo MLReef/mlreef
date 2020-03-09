@@ -1,5 +1,3 @@
-import { MLREEF_INSTANCE } from '../apiConfig';
-
 export default class MLRAuthApi {
   static buildAuthHeaders(token) {
     return new Headers({
@@ -13,7 +11,6 @@ export default class MLRAuthApi {
     return new Headers({
       'Content-Type': 'application/json',
       Accept: 'application/json',
-      'Access-Control-Allow-Origin': `${MLREEF_INSTANCE}`,
     });
   }
 

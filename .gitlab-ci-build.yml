@@ -30,7 +30,7 @@ prepare npm:
 
 build frontend:
   extends: [".except-docu-branches"]
-  image: docker:19.03.5                                    # https://hub.docker.com/_/docker/
+  image: docker:19.03.5                                     # https://hub.docker.com/_/docker/
   stage: build
   services:
     - docker:dind
@@ -42,9 +42,10 @@ build frontend:
     - rm -rf web/package-lock.json
     - rm -rf web/node_modules
     - ls -al web/src
-    - echo "REACT_APP_BACKEND_DEV=http://$URL"              >> web/.env # TOOD: remove deprecated parameters
-    - echo "REACT_APP_BACKEND=http://$URL:10080"            >> web/.env # TOOD: remove deprecated parameters
-    - echo "REACT_APP_MLREEF_INSTANCE_URL=http://$URL"      >> web/.env # TOOD: remove deprecated parameters
+    - echo "REACT_APP_API_GATEWAY=\"http://$URL\""          >> web/.env
+    - echo "REACT_APP_GITLAB_PORT=10080"                    >> web/.env
+    - echo "REACT_APP_BACKEND_PORT=8080"                    >> web/.env
+    - echo "REACT_APP_BUILD_TIMEOUT=18000"                  >> web/.env
     - cat web/.env
   script:
     - cd web

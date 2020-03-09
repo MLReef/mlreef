@@ -68,7 +68,7 @@ Add or change the documentation where necessary.
 
 Version Control
 ===============
-When commiting code please make sure that you:
+When committing code please make sure that you:
 * Make commits of logical units.
 * Be sure to use the issue key in the commit message.
 * Ensure you have added and run the necessary tests for your changes.
