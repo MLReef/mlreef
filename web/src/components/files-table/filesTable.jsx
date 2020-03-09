@@ -19,7 +19,7 @@ const FilesTable = ({ files, headers, onClick }) => {
           {headers.map((header, headerIndex) => {
             const paddingLeft = headerIndex === 0 ? '1.2em' : '0em';
             return (
-              <th style={{ width: `${tableColumnsWidth}%` }}>
+              <th key={`tableHeader ${header}`} style={{ width: `${tableColumnsWidth}%` }}>
                 <p style={{ paddingLeft }}>{header}</p>
               </th>
             );
@@ -32,6 +32,7 @@ const FilesTable = ({ files, headers, onClick }) => {
           <tr key={file.id} id={file.id} className="files-row clickable" data-key={file.type} onClick={onClick}>
             {Object.keys(file).filter((key) => key !== 'id' && key !== 'type').map((k, keyIndex) => (
               <td
+                key={`column-name-${k}`}
                 className="icon-container-column"
                 style={{ width: `${tableColumnsWidth}%` }}
               >

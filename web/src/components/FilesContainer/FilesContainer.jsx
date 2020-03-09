@@ -13,11 +13,12 @@ class FilesContainer extends Component {
   constructor(props) {
     super(props);
     this.getBack = this.getBack.bind(this);
+    const { files } = this.props;
     this.state = {
       projectId: null,
       currentPath: '',
       currentBranch: '',
-      files: [],
+      files: files || [],
       behind: [],
       ahead: [],
       redirect: false,

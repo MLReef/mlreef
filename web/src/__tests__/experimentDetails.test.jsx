@@ -10,9 +10,9 @@ Enzyme.configure({ adapter: new Adapter() });
 
 const setup = () => {
   const wrapper = shallow(
-    <JobLog projectId={"14448940"} job={jobMock} />,
+    <JobLog projectId={14448940} job={jobMock} />,
   );
-  
+
   return wrapper;
 };
 
@@ -25,14 +25,14 @@ describe('assert that component includes information about job', () => {
   test('main info', () => {
     const { created_at } = jobMock;
     const jobTimeCreatedAgo = getTimeCreatedAgo(created_at, new Date());
-    const titleText = wrapper.find("#number-and-time-ago-cont").text();
+    const titleText = wrapper.find('#number-and-time-ago-cont').text();
     expect(titleText.includes(jobMock.id)).toBe(true);
     expect(titleText.includes(jobTimeCreatedAgo)).toBe(true);
   });
 
   test('additional info', () => {
-    const { duration, runner  } = jobMock;
-    const additionalInfo = wrapper.find("#additional-info-job");
+    const { duration, runner } = jobMock;
+    const additionalInfo = wrapper.find('#additional-info-job');
     const parsedDuration = parseDurationInSeconds(duration);
     const children = additionalInfo.children();
     const jobInfoLine = children.first().children();
@@ -43,5 +43,4 @@ describe('assert that component includes information about job', () => {
     expect(runnerInfo.text().includes(runner.description));
     expect(runnerInfo.text().includes(runner.id));
   });
-  
 });
