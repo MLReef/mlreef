@@ -2,8 +2,32 @@ MLReef Extendable Pipeline Framework
 ====================================
 
 
-Usage
-----------------------
+EPF Testing and debugging
+----------------------------------------
+Even tough main development of the EPF is conducted here, there are still some more steps necessary to test and debug the
+EPF fully.
+
+
+### Docker Images and development branches
+Everytime a branch is pushed, the Gitlab pipeline builds a new Docker image for the branch.
+The Docker image built in this repostitories `master` branch is deployed as `registry.gitlab.com/mlreef/epf:latest`.
+Every other branch and tag is automatically deplyoed to `registry.gitlab.com/mlreef/epf:$GIT_BRANCH_NAME` or `registry.gitlab.com/mlreef/epf:$GIT_TAG_NAME` respectively.
+Deployments representing a specific branch or tag are deleted if the branch is merged or the branch or tag is deleted.
+
+
+### Pointing the Frontend to the correct EPF branch
+The EPF is executed durin MLReef pipeline runs. Currently, the template for those pipeline configurations is located
+in the [frontend-repository/web/src/dataTypes.js](https://gitlab.com/mlreef/frontend/-/blob/develop/web/src/dataTypes.js).
+At the very top of the template the line `image: registry.gitlab.com/mlreef/epf:latest` defines which EPF branch is being used.
+
+
+### Running an Experiment
+Firstly, for running an experiment please consult the [MLreef User Documentation](https://gitlab.com/mlreef/frontend/-/blob/docu/remove-dead-links/doc/user/general/README.md)
+
+Also, the [section on pipelines](https://gitlab.com/mlreef/frontend/-/tree/docu/remove-dead-links/doc/user/pipelines) might be very interesting
+
+
+### Usage
 
 To run the EPF locally from a docker container use this command:
 ```
@@ -11,8 +35,8 @@ docker run --name=epf-container --rm --tty --volume ${HOME}:/root --volume ${PWD
 ```
 
 
-Alternative Usage
-----------------------
+### Alternative Usage
+
 
 Add the following alias to your `~/.bash_rc` or `~/.bash_profile` depending on your OS 
 
@@ -33,10 +57,8 @@ alias epf-run="docker run --name=epf-shell-alias-container                    \
 
 Deployment
 ----------------------
-The Docker image built in this repostitories `master` branch is deployed as `registry.gitlab.com/mlreef/epf:latest`.
 
-Every other branch and tag is automatically deplyoed to `registry.gitlab.com/mlreef/epf:$TAG_NAME` / `registry.gitlab.com/mlreef/epf:$BRANCH_NAME.
-Deployments representing a specific branch or tag are deleted if the branch is merged or the branch / tag is deleted
+
 
 
 Infrastructure
