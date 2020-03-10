@@ -1,5 +1,5 @@
 # original source: https://github.com/sameersbn/docker-gitlab/blob/master/docker-compose.yml
-version: '3.3'
+version: '3.5'
 
 # please research https://docs.docker.com/compose/environment-variables/ for howto setup your environment
 services:
@@ -170,3 +170,4 @@ volumes:
 
 networks:
   mlreef-docker-network:
+    name: mlreef-docker-network
