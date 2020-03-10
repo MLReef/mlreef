@@ -16,6 +16,8 @@ services:
       - "80:80"
     volumes:
       - "./src/resources/nginx_proxy.conf:/etc/nginx/conf.d/default.conf"
+    networks:
+      - mlreef-docker-network
 
 
   frontend:
@@ -29,6 +31,9 @@ services:
       - "3000:3000"
   #    environment:
   #      - REACT_APP_API_GATEWAY=http://localhost
+    networks:
+      - mlreef-docker-network
+
 
   backend:
     container_name: backend
@@ -52,6 +57,8 @@ services:
       - DB_NAME=mlreef_backend
       - REDIS_HOST=redis
       - STARTUP_DELAY=30
+    networks:
+      - mlreef-docker-network
 
 
   gitlab:
@@ -93,6 +100,8 @@ services:
 
       - GITLAB_ROOT_PASSWORD=password
       - GITLAB_ROOT_EMAIL=
+    networks:
+      - mlreef-docker-network
 
 
   postgresql:
@@ -110,6 +119,8 @@ services:
       - DB_PASS=password                                             # secret, use ENV var
       - DB_NAME=gitlabhq_production
       - DB_EXTENSION=pg_trgm
+    networks:
+      - mlreef-docker-network
 
 
   mlreef-postgres:
@@ -126,6 +137,8 @@ services:
       - DB_PASS=password                                             # secret, use ENV var
       - DB_NAME=mlreef_backend
       - DB_EXTENSION=pg_trgm
+    networks:
+      - mlreef-docker-network
 
 
   redis:
@@ -133,6 +146,8 @@ services:
     restart: always
     image: sameersbn/redis:4.0.9-2
     ports: ["6379:6379"]
+    networks:
+      - mlreef-docker-network
 
 
   gitlab-runner-dispatcher:
@@ -141,6 +156,9 @@ services:
     volumes:
       #CI_REMOVE- /data/gitlab-runner-config:/etc/gitlab-runner/:Z   # this line gets activated by the CI/CD pipeline
       - /var/run/docker.sock:/var/run/docker.sock                    # needed for "docker in docker" to work
+    networks:
+      - mlreef-docker-network
+
 
 volumes:
   sock:
@@ -149,3 +167,6 @@ volumes:
   gitlab-data:                                                       # this line gets removed by the CI/CD pipeline
   gitlab-runner-config:                                              # this line gets removed by the CI/CD pipeline
 
+
+networks:
+  mlreef-docker-network:

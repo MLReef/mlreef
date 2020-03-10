@@ -77,7 +77,7 @@ docker exec gitlab-runner-dispatcher ls -al /etc/gitlab-runner/
 docker exec gitlab-runner-dispatcher gitlab-runner register   \
   --non-interactive                                           \
   --url="http://gitlab:80/"                                   \
-  --docker-network-mode frontend_default                      \
+  --docker-network-mode mlreef-docker-network                 \
   --registration-token "$TOKEN"                               \
   --executor "docker"                                         \
   --docker-image alpine:latest                                \
