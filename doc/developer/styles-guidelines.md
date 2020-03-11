@@ -156,18 +156,40 @@ depending on the case.
 These links show the initial design of each view in MLReef. 
 
 **General**
+
 [Marketplace](https://xd.adobe.com/view/5d9dcfd2-3bfb-4ee0-5069-8c9e2f0a5b7b-2bac/)
+
 [New Group](https://xd.adobe.com/view/ee07af82-4f62-499d-45af-eb3db4871e5c-9836/)
+
 [New Project](https://xd.adobe.com/view/c1bef4a8-42a9-40b0-6669-00305c4adbd7-b78f/)
+
 [Registration](https://xd.adobe.com/view/c4069ef1-b6d4-44f5-528c-4e0da5800e5a-b237/)
+
 [Sign-in](https://xd.adobe.com/spec/73ca4d40-8b2c-4daf-6e21-de66179316b1-05fb/)
+
 [User Profile](https://xd.adobe.com/view/7a312cce-4d5e-4c9c-5bdf-620569bb679c-0c00/)
 
 **Data**
+
 [Commits_View](https://xd.adobe.com/spec/75077ae6-de00-45d0-6fd3-759602edd0d1-0336/)
+
 [Commits_Detail](https://xd.adobe.com/view/489d424c-6bd9-41c5-43cd-0ad0f220adf4-3eac/)
+
 [Data Instances Overview](https://xd.adobe.com/view/209888ea-007c-4cd4-6cff-e246d446ebd9-56a9/)
+
 [Data Instances Details](https://xd.adobe.com/view/fec3ad9b-7452-42d8-4152-acf03b7c8bf6-88f2/)
+
 [Data Instances Abort_delete](https://xd.adobe.com/view/e153a9e3-1cad-432b-7a05-7c98fc856d72-9762/)
+
+[Data Visualization Pipeline Empty](https://xd.adobe.com/view/b589da30-873c-464d-4638-1472579d21a4-c3b8/)
+
+[Data Visualization Pipeline](https://xd.adobe.com/view/13689233-69cb-4985-5a96-03023e492d68-6559/)
+
+[Data Visualization Pipeline Modal](https://xd.adobe.com/view/528d7eb2-3422-4fc3-6a33-8c4ba4aaa4cb-24bc/)
+
+[Data Visualization Pipeline Select_data](https://xd.adobe.com/view/d1614d97-daf6-4a2b-600a-5c9e173ac739-a750/)
+
+
+
 
 
