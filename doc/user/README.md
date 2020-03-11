@@ -15,7 +15,7 @@ Overview
 
 MLReef is the first of its kind MLOps platform, that will allow you to create and manage your Machine Learning (ML) projects fast, efficiently, reproducible and cohesively. 
 
-For more information, see [all MLReef features](../User_Documentation).
+For more information, see [all MLReef features](https://www.mlreef.com).
 
 
 ## Concepts
@@ -62,7 +62,7 @@ In MLReef there are currently three different types of drag-and-drop pipelines:
 *  **Data processing**: Use built-in pre-processing operations to rapidly and reproducibly enhance, adapt or filter unlimited data points and files.
 *  **Experiments**: Train models in parallel and track all relevant metrics to compare and find the best performing model. 
 
-Visit the section [pipelines](../User_Documentation) for more details. 
+Visit the [pipelines section](pipelines/) for more details. 
 
 Git and MLReef
 --------------------
