@@ -128,7 +128,7 @@ const NewExperiment = ({
           )}
 
           {filesSelectedInModal.length > 0 && (
-          <div id="text-after-files-selected" className="upload-file" style={{ display: 'none' }}>
+          <div id="text-after-files-selected" className="upload-file" style={{ display: 'flex' }}>
             <div style={{ width: '50%' }}>
               <p style={{ margin: '6% 0% 6% 2%' }}>
                 <b>

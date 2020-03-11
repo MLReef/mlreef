@@ -550,6 +550,99 @@ p.stat-no {
   padding-top: 15px;
 }
 
+.files-contrainer {
+  margin-top: 15px;
+}
+
+.title-row {
+  background-color: #1d2b40;
+  color: #fff;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.title-row th {
+  width: 33%;
+}
+
+.title-row th > p {
+  font-size: 13px;
+}
+
+#paragraphName {
+  text-align: left;
+  padding-left: 8%;
+}
+
+#paragraphLastUpdate {
+  text-align: right;
+  padding-right: 16%;
+}
+
+#paragraphLastCommit {
+  text-align: right;
+  padding-right: 10%;
+}
+
+#paragraphSize {
+  text-align: right;
+  padding-right: 10%;
+}
+
+.files-row {
+  background-color: #fff;
+  color: #1c2b40;
+  font-size: 1em;
+  display: flex;
+  justify-content: space-between;
+  padding: 0% 3.5% 0% 1%;
+  border-top: 1px solid #b2b2b2;
+}
+
+.row-border {
+  display: flex;
+  margin: 0 auto;
+  width: 95%;
+  border: 1px solid #b2b2b2;
+}
+
+.files-row td {
+  height: 3em;
+  width: 25%;
+  margin: 0;
+  text-align: left;
+}
+
+.file-type {
+  display: flex;
+  align-items: center;
+  width: 15%;
+}
+
+.file-type img {
+  height: 2em;
+  width: 2em;
+  margin: 0px 1vw;
+  padding: 0;
+}
+
+.files-row p {
+  font-size: 1em;
+  text-align: left;
+  padding-right: 5%;
+}
+
+.files-row button {
+  background-color: #ffffff;
+  border: none;
+  cursor: pointer;
+}
+
+.files-row button:hover {
+  text-decoration: underline;
+}
+
 /* Readme */
 
 .readme-container {
@@ -730,6 +823,10 @@ hr {
   position: relative;
   display: block !important;
   padding: 0.5em;
+}
+
+.search-branch > input {
+  width: -webkit-fill-available;
 }
 
 .branches {

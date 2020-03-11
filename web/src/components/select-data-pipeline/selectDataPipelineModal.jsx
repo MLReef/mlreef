@@ -89,6 +89,15 @@ class SelectDataPipelineModal extends Component {
         branches,
         files,
       } = this.state;
+      const customTime = (ISODate) => {
+        const today = new Date(ISODate);
+        const h = today.getHours();
+        let m = today.getMinutes();
+        if (m < 10) {
+          m = `0${m}`;
+        }
+        return (`${h}:${m}`);
+      };
       if (!show) {
         return null;
       }
@@ -130,13 +139,7 @@ class SelectDataPipelineModal extends Component {
                   />
                   {isOpen && (
                   <div className="select-branch" style={{ top: '27%', left: '35px' }} onBlur={this.handleBlur}>
-                    <div
-                      style={{
-                        margin: '0 50px',
-                        fontSize: '14px',
-                        padding: '0 40px',
-                      }}
-                    >
+                    <div className="switch-header">
                       <p>Switch Branches</p>
                     </div>
                     <hr />
@@ -156,10 +159,52 @@ class SelectDataPipelineModal extends Component {
                                 onClick={() => {
                                   this.getFiles(branch.name);
                                 }}
+                                onKeyDown={() => {
+                                  this.getFiles(branch.name);
+                                }}
                               >
                                 <p>{branch.name}</p>
                               </li>
                             ))}
+                        </ul>
+                      </div>
+                    </div>
+                    <div className="switch-header">
+                      <p>or switch to a data instance</p>
+                    </div>
+                    <hr />
+                    <div className="search-branch">
+                      <input
+                        type="text"
+                        placeholder="Search a data instance"
+                      />
+                      <div className="branches">
+                        <ul>
+                          <li className="branch-header">Data instances</li>
+                          {branches.filter((branch) => branch.name.startsWith('data-pipeline'))
+                            .map((branch, index) => {
+                              const pipelineName = branch.name;
+                              const uniqueName = pipelineName.split('/')[1];
+                              return (
+                                <li
+                                  key={index}
+                                  onKeyDown={() => {
+                                    this.getFiles(branch.name);
+                                  }}
+                                  onClick={() => {
+                                    this.getFiles(branch.name);
+                                  }}
+                                >
+                                  <p>
+                                    {uniqueName}
+                                    {' '}
+                                    -
+                                    {' '}
+                                    {customTime(branch.commit.created_at)}
+                                  </p>
+                                </li>
+                              );
+                            }).reverse()}
                         </ul>
                       </div>
                     </div>
