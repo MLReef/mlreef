@@ -5,7 +5,8 @@
 STATISTIC_FILE="experiment.json"
 PROJECT_ID=$CI_PROJECT_ID
 EXPERIMENT_ID=$CI_COMMIT_REF_SLUG
-
+GITLAB_API=$CI_API_V4_URL
+echo "GITLAB_API is $GITLAB_API"
 echo "TARGET_BRANCH is $TARGET_BRANCH"
 echo "EXPERIMENT_ID is $EXPERIMENT_ID"
 echo "PROJECT_ID is $PROJECT_ID"
@@ -27,7 +28,7 @@ build_json () {
 perform_create_snippet () {
   local iteration=$1
   build_json $iteration > create-snippet.json
-  curl -sS --fail --request POST https://gitlab.com/api/v4/projects/$PROJECT_ID/snippets \
+  curl -sS --fail --request POST $GITLAB_API/projects/$PROJECT_ID/snippets \
       --header "PRIVATE-TOKEN: $GITLAB_API_TOKEN" \
       --header "Content-Type: application/json" \
       -d @create-snippet.json | jq .id
@@ -38,8 +39,8 @@ perform_update_snippet () {
   local iteration=$1
   local snippet_id=$2
   build_json $iteration > update-snippet.json
-  echo "Refreshing realtime statistics: https://gitlab.com/api/v4/projects/$PROJECT_ID/snippets/$snippet_id"
-  curl -sS --request PUT https://gitlab.com/api/v4/projects/$PROJECT_ID/snippets/$snippet_id \
+  echo "Refreshing realtime statistics: $GITLAB_API/projects/$PROJECT_ID/snippets/$snippet_id"
+  curl -sS --request PUT $GITLAB_API/projects/$PROJECT_ID/snippets/$snippet_id \
      --header "PRIVATE-TOKEN: $GITLAB_API_TOKEN" \
      --header "Content-Type: application/json" \
      -d @update-snippet.json > /dev/null
