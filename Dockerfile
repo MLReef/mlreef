@@ -43,6 +43,7 @@ RUN echo "----------------------------------------------------------------------
     pip install matplotlib                                                          && \
     pip install opencv-python                                                       && \
     pip install pandas                                                              && \
+    pip install hyperopt                                                            && \
     apt-get update && apt-get install -y jq
 
     

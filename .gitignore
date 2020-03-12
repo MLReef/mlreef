@@ -115,3 +115,5 @@ $RECYCLE.BIN/
 !.idea/codeStyleSettings.xml
 *.iml
 
+src/pipelines/experiment.json
+src/annotations/__pycache__/
