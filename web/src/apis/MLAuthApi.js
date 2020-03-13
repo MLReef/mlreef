@@ -31,4 +31,15 @@ export default class MLRAuthApi {
     }
     return body;
   }
+
+  static register(data) {
+    const request = new Request('/api/v1/auth/register', {
+      method: 'POST',
+      headers: this.buildAnonHeaders(),
+      body: JSON.stringify(data),
+    });
+
+    return fetch(request)
+      .then((res) => res.ok ? res.json() : Promise.reject(res));
+  }
 }

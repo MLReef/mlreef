@@ -1,9 +1,12 @@
 import React, { Component } from 'react';
+import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { Link, Redirect } from 'react-router-dom';
+import PropTypes from 'prop-types';
 import mlReefIcon01 from '../../images/MLReef_Logo_navbar.png';
 import arrowDownWhite01 from '../../images/arrow_down_white_01.svg';
 import arrowDownBlue01 from '../../images/arrow_down_blue_01.svg';
+import { logout } from '../../actions/userActions';
 import './navbar.css';
 
 class Navbar extends Component {
@@ -39,18 +42,20 @@ class Navbar extends Component {
   }
 
   handleSignOut() {
-    sessionStorage.setItem('auth', false);
-    sessionStorage.setItem('user.id', '');
-    sessionStorage.setItem('user.username', '');
-    sessionStorage.setItem('user.email', '');
-    sessionStorage.setItem('token', '');
-    this.setState(() => ({
-      redirect: true,
-    }));
+    const { actions } = this.props;
+
+    actions.logout()
+      .then(() => {
+        this.setState(() => ({
+          redirect: true,
+        }));
+      });
   }
 
   redirectAfterSignOut() {
-    if (sessionStorage.getItem("auth") !== true) {
+    const { user: { auth } } = this.props;
+
+    if (auth) {
       if (this.state.redirect === true) {
         this.setState(() => ({
           redirect: false,
@@ -86,6 +91,8 @@ class Navbar extends Component {
 
   render() {
     const { dialogOpen, projectDialog, yourProjects } = this.state;
+    const { user } = this.props;
+
     return (
       <div className="navbar">
         {this.redirectAfterSignOut()}
@@ -160,8 +167,8 @@ class Navbar extends Component {
               <div>
                 Signed in as
                 {' '}
-                <b>{sessionStorage.getItem('user.username')}</b>
-                <i> ({sessionStorage.getItem('user.email')})</i>
+                <b>{user.username}</b>
+                <i>{user.email}</i>
               </div>
               <hr />
               <p
@@ -183,10 +190,35 @@ class Navbar extends Component {
   }
 }
 
+Navbar.propTypes = {
+  actions: PropTypes
+    .shape({
+      logout: PropTypes.func.isRequired,
+    })
+    .isRequired,
+  user: PropTypes
+    .shape({
+      auth: PropTypes.bool.isRequired,
+      username: PropTypes.string.isRequired,
+      email: PropTypes.string.isRequired,
+    })
+    .isRequired,
+};
+
+
 function mapStateToProps(state) {
   return {
     projectsList: state.projects,
+    user: state.user,
   };
 }
 
-export default connect(mapStateToProps)(Navbar);
+function mapDispatchToProps(dispatch) {
+  return {
+    actions: {
+      logout: bindActionCreators(logout, dispatch),
+    },
+  };
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(Navbar);

@@ -1,0 +1,25 @@
+.m-input_container {
+  padding-bottom: 0.25rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.m-input label {
+  margin-bottom: 0.25rem;
+}
+
+.m-input_input {
+  box-sizing: border-box;
+  width: 100%;
+  border: solid 1px var(--secondary);
+  border-radius: 5px;
+  padding: 0.5rem;
+}
+
+.m-input_errors {
+  min-height: 1rem;
+}
+
+.m-input_errors .m-error {
+  color: var(--danger);
+}

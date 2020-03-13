@@ -94,7 +94,7 @@ class NewProject extends Component {
 
     projectGeneraInfoApi.create({
       name: input,
-      readme,
+      initialize_with_readme: readme,
       description,
       visibility,
     })

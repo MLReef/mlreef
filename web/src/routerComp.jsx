@@ -3,6 +3,7 @@ import { BrowserRouter, Route, Switch } from 'react-router-dom';
 import './css/globalStyles.css';
 import FileView from './components/fileView/fileView';
 import Login from './components/login/login';
+import RegisterView from './components/RegisterView';
 import projectView from './components/projectView/projectView';
 import PipeLineView from './components/pipeline-view/pipelineView';
 import PrivateRoute from './privateRoute';
@@ -30,6 +31,7 @@ const RouterComp = () => (
     <Switch>
       <Route path="/" exact component={Login} />
       <Route path="/index.html" exact component={Login} />
+      <Route path="/register" exact component={RegisterView} />
       <Route path="/error-page" exact component={ErrorPage} />
       <PrivateRoute path="/my-projects" exact component={Projects} />
       <PrivateRoute path="/new-project" exact component={NewProject} />
