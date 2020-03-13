@@ -15,6 +15,7 @@
     "check-prop-types": "^1.1.2",
     "core-js": "^3.6.4",
     "dompurify": "^2.0.8",
+    "formik": "^2.1.4",
     "history": "^4.10.1",
     "http-proxy-middleware": "^0.20.0",
     "jquery": "^3.4.1",
@@ -35,7 +36,8 @@
     "redux-persist": "^6.0.0",
     "redux-thunk": "^2.3.0",
     "regenerator-runtime": "^0.13.3",
-    "uuid": "^3.4.0"
+    "uuid": "^3.4.0",
+    "yup": "^0.28.1"
   },
   "devDependencies": {
     "@babel/preset-env": "^7.8.4",
