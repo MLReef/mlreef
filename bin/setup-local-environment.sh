@@ -110,8 +110,12 @@ sleep 30
 echo Let backend wait for gitlab restart ...
 sleep 30
 docker-compose stop backend nginx-proxy frontend
+sleep 60
+docker-compose up --detach
 sleep 30
-docker-compose up -d
+docker-compose stop backend
+sleep 60
+docker-compose up --detach
 
 #echo Test connection for admin:
 #curl -f -I -X GET --header "Content-Type: application/json" --header "Accept: application/json" --header "PRIVATE-TOKEN: $GITLAB_ADMIN_TOKEN" "localhost:20080/api/v1"

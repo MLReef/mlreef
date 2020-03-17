@@ -50,10 +50,10 @@ variables:
 
 .feature-branches-only:
   extends: [".except-docu-branches"]
-  except:
-    refs:
-      - develop
-      - master
+#  except:
+#    refs:
+#      - develop
+#      - master
 
 render documentation:
   stage: build
