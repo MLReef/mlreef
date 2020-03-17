@@ -87,20 +87,12 @@ export class DataVisualizationOverview extends Component {
           id="DataVisualizationOverview"
           titleText="Handling data visualizations:"
           paragraph={
-            `A data visualization is the output of your data visualization pipeline. 
+            `A data visualization is the output of your data visualization pipeline.
             By clicking on the name of your visualization, you will get access to the output files`
           }
         />
 
         <div className="main-content">
-
-          <Instruction
-            titleText="Handling data visualizations:"
-            paragraph={
-                `A data visualization is the output of your data visualization pipeline. 
-                By clicking on the name of your visualization, you will get access to the output files`
-                }
-          />
           <br />
           <div id="line" />
           <br />
