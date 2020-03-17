@@ -29,8 +29,7 @@ services:
       - backend
     ports:
       - "3000:3000"
-  #    environment:
-  #      - REACT_APP_API_GATEWAY=http://localhost
+    env_file: local.env
     networks:
       - mlreef-docker-network
 
