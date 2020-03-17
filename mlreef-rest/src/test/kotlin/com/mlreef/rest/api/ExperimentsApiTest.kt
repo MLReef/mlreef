@@ -1,27 +1,17 @@
 package com.mlreef.rest.api
 
-import com.mlreef.rest.CodeProject
-import com.mlreef.rest.CodeProjectRepository
+import com.mlreef.rest.Account
 import com.mlreef.rest.DataAlgorithm
-import com.mlreef.rest.DataAlgorithmRepository
 import com.mlreef.rest.DataOperation
-import com.mlreef.rest.DataOperationRepository
 import com.mlreef.rest.DataProcessorInstance
 import com.mlreef.rest.DataProcessorInstanceRepository
-import com.mlreef.rest.DataProcessorRepository
 import com.mlreef.rest.DataProject
-import com.mlreef.rest.DataProjectRepository
-import com.mlreef.rest.DataType
 import com.mlreef.rest.DataVisualization
-import com.mlreef.rest.DataVisualizationRepository
 import com.mlreef.rest.Experiment
 import com.mlreef.rest.ExperimentRepository
 import com.mlreef.rest.ExperimentStatus
-import com.mlreef.rest.ParameterInstanceRepository
 import com.mlreef.rest.ParameterType
 import com.mlreef.rest.Person
-import com.mlreef.rest.ProcessorParameter
-import com.mlreef.rest.ProcessorParameterRepository
 import com.mlreef.rest.api.v1.ExperimentCreateRequest
 import com.mlreef.rest.api.v1.dto.DataProcessorInstanceDto
 import com.mlreef.rest.api.v1.dto.ExperimentDto
@@ -45,6 +35,7 @@ import javax.transaction.Transactional
 
 class ExperimentsApiTest : RestApiTest() {
 
+    private lateinit var account: Account
     private lateinit var dataOp1: DataOperation
     private lateinit var dataOp2: DataAlgorithm
     private lateinit var dataOp3: DataVisualization
@@ -54,68 +45,20 @@ class ExperimentsApiTest : RestApiTest() {
     val rootUrl = "/api/v1/data-projects"
 
     @Autowired private lateinit var experimentRepository: ExperimentRepository
-    @Autowired private lateinit var dataProjectRepository: DataProjectRepository
-    @Autowired private lateinit var codeProjectRepository: CodeProjectRepository
     @Autowired private lateinit var dataProcessorInstanceRepository: DataProcessorInstanceRepository
-    @Autowired private lateinit var parameterInstanceRepository: ParameterInstanceRepository
-    @Autowired private lateinit var processorParameterRepository: ProcessorParameterRepository
-    @Autowired private lateinit var dataOperationRepository: DataOperationRepository
-    @Autowired private lateinit var dataAlgorithmRepository: DataAlgorithmRepository
-    @Autowired private lateinit var dataVisualizationRepository: DataVisualizationRepository
-    @Autowired private lateinit var dataProcessorRepository: DataProcessorRepository
+    @Autowired private lateinit var pipelineTestPreparationTrait: PipelineTestPreparationTrait
 
     @BeforeEach
     @AfterEach
     fun clearRepo() {
-        parameterInstanceRepository.deleteAll()
-        dataProcessorInstanceRepository.deleteAll()
-        experimentRepository.deleteAll()
-
-        processorParameterRepository.deleteAll()
-        dataProcessorRepository.deleteAll()
-
-        dataProjectRepository.deleteAll()
-        codeProjectRepository.deleteAll()
-
-        accountTokenRepository.deleteAll()
-        accountRepository.deleteAll()
-        personRepository.deleteAll()
-
-        account = createMockUser()
-        val account2 = createMockUser(userOverrideSuffix = "0002")
-        subject = account.person
-        dataProject = DataProject(
-            UUID.fromString("aaaa0001-0000-0000-0000-dbdbdbdbdbdb"), "slug1", "url", "Test DataProject",
-            ownerId = account.person.id, gitlabId = 1, gitlabGroup = "mlreef", gitlabProject = "project1"
-        )
-        dataProject2 = DataProject(
-            UUID.fromString("aaaa0001-0000-0000-0002-dbdbdbdbdbdb"), "slug2", "url", "Test DataProject",
-            ownerId = account2.person.id, gitlabId = 2, gitlabGroup = "mlreef", gitlabProject = "project1")
-        dataProjectRepository.save(dataProject)
-        dataProjectRepository.save(dataProject2)
-        val codeRepoId = randomUUID()
-        val codeProject = CodeProject(codeRepoId, "slug", "url", "Test DataProject", ownerId = account.person.id,
-            gitlabGroup = "", gitlabId = 0, gitlabProject = "")
-        codeProjectRepository.save(codeProject)
-
-        dataOp1 = DataOperation(randomUUID(), "commons-data-operation1", "name", "command", DataType.ANY, DataType.ANY)
-        dataOp2 = DataAlgorithm(randomUUID(), "commons-algorithm", "name", "command", DataType.ANY, DataType.ANY)
-        dataOp3 = DataVisualization(randomUUID(), "commons-data-visualisation", "name", "command", DataType.ANY)
-
-        dataOperationRepository.save(dataOp1)
-        dataAlgorithmRepository.save(dataOp2)
-        dataVisualizationRepository.save(dataOp3)
-
-        processorParameterRepository.save(ProcessorParameter(randomUUID(), dataOp1.id, "stringParam", type = ParameterType.STRING, order = 0, defaultValue = ""))
-        processorParameterRepository.save(ProcessorParameter(randomUUID(), dataOp1.id, "floatParam", type = ParameterType.FLOAT, order = 1, defaultValue = ""))
-        processorParameterRepository.save(ProcessorParameter(randomUUID(), dataOp1.id, "integerParam", type = ParameterType.INTEGER, order = 2, defaultValue = ""))
-        processorParameterRepository.save(ProcessorParameter(randomUUID(), dataOp1.id, "stringList", type = ParameterType.LIST, order = 3, defaultValue = ""))
-
-        processorParameterRepository.save(ProcessorParameter(randomUUID(), dataOp2.id, "booleanParam", type = ParameterType.BOOLEAN, order = 0, defaultValue = ""))
-        processorParameterRepository.save(ProcessorParameter(randomUUID(), dataOp2.id, "complexName", type = ParameterType.COMPLEX, order = 1, defaultValue = ""))
-
-        processorParameterRepository.save(ProcessorParameter(randomUUID(), dataOp3.id, "tupleParam", type = ParameterType.TUPLE, order = 0, defaultValue = ""))
-        processorParameterRepository.save(ProcessorParameter(randomUUID(), dataOp3.id, "hashParam", type = ParameterType.DICTIONARY, order = 1, defaultValue = ""))
+        pipelineTestPreparationTrait.apply()
+        account = pipelineTestPreparationTrait.account
+        subject = pipelineTestPreparationTrait.subject
+        dataOp1 = pipelineTestPreparationTrait.dataOp1
+        dataOp2 = pipelineTestPreparationTrait.dataOp2
+        dataOp3 = pipelineTestPreparationTrait.dataOp3
+        dataProject = pipelineTestPreparationTrait.dataProject
+        dataProject2 = pipelineTestPreparationTrait.dataProject2
     }
 
     @Transactional
@@ -168,17 +111,19 @@ class ExperimentsApiTest : RestApiTest() {
     @Rollback
     @Test fun `Can retrieve all own Experiments`() {
 
-        val experiment1 = Experiment(randomUUID(), dataProjectId = dataProject.id, sourceBranch = "source", targetBranch = "target")
-        val experiment2 = Experiment(randomUUID(), dataProjectId = dataProject.id, sourceBranch = "source", targetBranch = "target")
-        experimentRepository.save(experiment1)
-        experimentRepository.save(experiment2)
+        createExperiment(dataProject.id)
+        createExperiment(dataProject.id)
+        createExperiment(dataProject2.id)
 
         val returnedResult: List<ExperimentDto> = this.mockMvc.perform(
             this.defaultAcceptContentAuth(get("$rootUrl/${dataProject.id}/experiments")))
             .andExpect(status().isOk)
             .andDo(document(
                 "experiments-retrieve-all",
-                responseFields(experimentDtoResponseFields("[]."))))
+                responseFields(experimentDtoResponseFields("[]."))
+                    .and(dataProcessorFields("[].pre_processing[]."))
+                    .and(dataProcessorFields("[].post_processing[]."))
+                    .and(dataProcessorFields("[].processing."))))
             .andReturn().let {
                 val constructCollectionType = objectMapper.typeFactory.constructCollectionType(List::class.java, ExperimentDto::class.java)
                 objectMapper.readValue(it.response.contentAsByteArray, constructCollectionType)
@@ -190,15 +135,7 @@ class ExperimentsApiTest : RestApiTest() {
     @Transactional
     @Rollback
     @Test fun `Can retrieve specific own Experiment`() {
-        val dataProcessorInstance = DataProcessorInstance(randomUUID(), dataOp1)
-        dataProcessorInstanceRepository.save(dataProcessorInstance)
-        val experiment1 = Experiment(
-            id = randomUUID(),
-            dataProjectId = dataProject.id,
-            sourceBranch = "source", targetBranch = "target",
-            preProcessing = arrayListOf(dataProcessorInstance))
-        experimentRepository.save(experiment1)
-
+        val experiment1 = createExperiment(dataProject.id)
         this.mockMvc.perform(
             this.defaultAcceptContentAuth(get("$rootUrl/${dataProject.id}/experiments/${experiment1.id}")))
             .andExpect(status().isOk)
@@ -214,27 +151,17 @@ class ExperimentsApiTest : RestApiTest() {
     @Transactional
     @Rollback
     @Test fun `Cannot retrieve foreign Experiment`() {
-        val dataProcessorInstance = DataProcessorInstance(randomUUID(), dataOp1)
-        dataProcessorInstanceRepository.save(dataProcessorInstance)
-
-        val experiment1 = Experiment(
-            id = randomUUID(),
-            dataProjectId = dataProject2.id,
-            sourceBranch = "source", targetBranch = "target",
-            preProcessing = arrayListOf(dataProcessorInstance))
-        experimentRepository.save(experiment1)
+        val experiment1 = createExperiment(dataProject.id)
 
         this.mockMvc.perform(
             this.defaultAcceptContentAuth(get("$rootUrl/${dataProject2.id}/experiments/${experiment1.id}")))
             .andExpect(status().isNotFound)
-
     }
 
     @Transactional
     @Rollback
     @Test fun `Can update own Experiment's PerformanceMetrics`() {
-        val experiment1 = Experiment(randomUUID(), dataProjectId = dataProject.id, sourceBranch = "source", targetBranch = "target")
-        experimentRepository.save(experiment1)
+        val experiment1 = createExperiment(dataProject.id)
 
         val request = PerformanceMetricsDto()
         val url = "$rootUrl/${dataProject.id}/experiments/${experiment1.id}/metrics"
@@ -256,8 +183,7 @@ class ExperimentsApiTest : RestApiTest() {
     @Transactional
     @Rollback
     @Test fun `Can retrieve own Experiment's PerformanceMetrics`() {
-        val experiment1 = Experiment(randomUUID(), dataProjectId = dataProject.id, sourceBranch = "source", targetBranch = "target")
-        experimentRepository.save(experiment1)
+        val experiment1 = createExperiment(dataProject.id)
 
         this.mockMvc.perform(
             this.defaultAcceptContentAuth(get("$rootUrl/${dataProject.id}/experiments/${experiment1.id}/metrics")))
@@ -271,8 +197,7 @@ class ExperimentsApiTest : RestApiTest() {
     @Transactional
     @Rollback
     @Test fun `Can retrieve own Experiment's MLReef file`() {
-        val experiment1 = Experiment(randomUUID(), dataProjectId = dataProject.id, sourceBranch = "source", targetBranch = "target")
-        experimentRepository.save(experiment1)
+        val experiment1 = createExperiment(dataProject.id)
 
         val returnedResult = this.mockMvc.perform(
             this.defaultAcceptContentAuth(get("$rootUrl/${dataProject.id}/experiments/${experiment1.id}/mlreef-file")))
@@ -287,8 +212,7 @@ class ExperimentsApiTest : RestApiTest() {
     @Transactional
     @Rollback
     @Test fun `Can commit own Experiment's MLReef file`() {
-        val experiment1 = Experiment(randomUUID(), dataProjectId = dataProject.id, sourceBranch = "source", targetBranch = "target")
-        experimentRepository.save(experiment1)
+        val experiment1 = createExperiment(dataProject.id)
 
         val returnedResult = this.mockMvc.perform(
             this.defaultAcceptContentAuth(post("$rootUrl/${dataProject.id}/experiments/${experiment1.id}/mlreef-file")))
@@ -303,8 +227,7 @@ class ExperimentsApiTest : RestApiTest() {
     @Transactional
     @Rollback
     @Test fun `Can update own Experiment's Status`() {
-        val experiment1 = Experiment(randomUUID(), dataProjectId = dataProject.id, sourceBranch = "source", targetBranch = "target")
-        experimentRepository.save(experiment1)
+        val experiment1 = createExperiment(dataProject.id)
 
         val request = ExperimentStatus.RUNNING
         val url = "$rootUrl/${dataProject.id}/experiments/${experiment1.id}/status"
@@ -318,6 +241,17 @@ class ExperimentsApiTest : RestApiTest() {
             }
 
         assertThat(returnedResult).isNotEmpty()
+    }
+
+    private fun createExperiment(dataProjectId: UUID): Experiment {
+        val entity = DataProcessorInstance(randomUUID(), dataOp1)
+        dataProcessorInstanceRepository.save(entity)
+        val experiment1 = Experiment(
+            id = randomUUID(),
+            dataProjectId = dataProjectId,
+            sourceBranch = "source", targetBranch = "target",
+            preProcessing = arrayListOf(entity))
+        return experimentRepository.save(experiment1)
     }
 
     private fun experimentDtoResponseFields(prefix: String = ""): List<FieldDescriptor> {
@@ -336,17 +270,6 @@ class ExperimentsApiTest : RestApiTest() {
             fieldWithPath(prefix + "status").type(JsonFieldType.STRING).description("Status of experiment"),
             fieldWithPath(prefix + "source_branch").type(JsonFieldType.STRING).description("Branch name"),
             fieldWithPath(prefix + "target_branch").type(JsonFieldType.STRING).description("Branch name")
-        )
-    }
-
-    private fun dataProcessorFields(prefix: String = ""): List<FieldDescriptor> {
-        return listOf(
-            fieldWithPath(prefix + "slug").type(JsonFieldType.STRING).optional().description("Unique slug of this DataProcessor"),
-            fieldWithPath(prefix + "name").optional().type(JsonFieldType.STRING).optional().description("Optional Name of this DataProcessor ( not needed in Inputs)"),
-            fieldWithPath(prefix + "parameters[].name").type(JsonFieldType.STRING).optional().description("Name of Parameter"),
-            fieldWithPath(prefix + "parameters").type(JsonFieldType.ARRAY).optional().description("Name of Parameter"),
-            fieldWithPath(prefix + "parameters[].type").type(JsonFieldType.STRING).optional().description("Provided ParameterType of this Parameter"),
-            fieldWithPath(prefix + "parameters[].value").type(JsonFieldType.STRING).optional().description("Provided value (as parsable String) of Parameter ")
         )
     }
 

@@ -2,6 +2,7 @@ stages:
   - build
   - test
   - deploy
+  - premerge
   - teardown
 
 services:
@@ -59,13 +60,15 @@ pages:
   dependencies:
     - build-backend
   script:
-    - mkdir public
-    - mv mlreef-rest/build/reports/jacoco/test/html/* public
+    - mkdir public/$CI_COMMIT_BRANCH -p
+    - mkdir public/$CI_COMMIT_BRANCH/coverage -p
+    - mv mlreef-rest/build/reports/jacoco/test/html/* public/$CI_COMMIT_BRANCH/coverage
+    - mv mlreef-rest/build/asciidoc/html5/rest-api.html public/$CI_COMMIT_BRANCH/index.html
   artifacts:
     paths:
       - public
-  only:
-    - develop
+  #only:
+  #  - develop
 
 deploy-backend:
   stage: deploy
@@ -79,6 +82,19 @@ deploy-backend:
     - cd mlreef-rest
     - docker build --pull --tag "$IMAGE_PATH" -f Dockerfile .
     - docker push "${IMAGE_PATH}"
+
+#prevent-hacks:
+#  stage: premerge
+#  image: java:8
+#  dependencies:
+#    - build-backend
+#  variables:
+#    CMD: grep "FIXME" . -r --include=*.{yml,yaml} --exclude=.gitlab-ci.yml
+#
+#  script:
+#    - $CMD
+#    - if [ "$($CMD)" = "" ]; then echo "No FIXMEs found, Code is mergeable; fi
+#    - if [ "$($CMD)" != "" ]; then exit 1; fi
 
 
 .provision-dispatcher:

@@ -5,7 +5,7 @@ import com.mlreef.rest.AccountRepository
 import com.mlreef.rest.Person
 import com.mlreef.rest.PersonRepository
 import com.mlreef.rest.external_api.gitlab.TokenDetails
-import com.mlreef.rest.findById2
+import org.springframework.data.repository.findByIdOrNull
 import org.springframework.security.core.Authentication
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.stereotype.Component
@@ -29,7 +29,7 @@ class SimpleCurrentUserService(
 
     override fun person(): Person {
         val tokenDetails: TokenDetails = authentication().principal as TokenDetails
-        return personRepository.findById2(tokenDetails.personId)!!
+        return personRepository.findByIdOrNull(tokenDetails.personId)!!
     }
 
     override fun token(): String {
@@ -39,6 +39,6 @@ class SimpleCurrentUserService(
 
     override fun account(): Account {
         val tokenDetails: TokenDetails = authentication().principal as TokenDetails
-        return accountRepository.findById2(tokenDetails.accountId)!!
+        return accountRepository.findByIdOrNull(tokenDetails.accountId)!!
     }
 }

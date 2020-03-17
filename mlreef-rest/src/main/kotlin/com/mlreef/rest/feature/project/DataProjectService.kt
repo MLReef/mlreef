@@ -24,17 +24,20 @@ class GitlabDataProjectService(
         return dataProjectRepository.delete(mlProject)
     }
 
-    override fun createNewProject(ownerId: UUID, gitLabProject: GitlabProject): DataProject {
+    override fun createNewProject(ownerId: UUID, gitlabProject: GitlabProject): DataProject {
         val id = UUID.randomUUID()
+        val pathWithNamespace = gitlabProject.pathWithNamespace
+        val group = pathWithNamespace.split("/")[0]
         return DataProject(
             id = id,
-            slug = gitLabProject.path,
+            slug = gitlabProject.path,
             ownerId = ownerId,
-            url = gitLabProject.webUrl,
-            name = gitLabProject.name,
-            gitlabProject = gitLabProject.path,
-            gitlabGroup = "data-group-$id",
-            gitlabId = gitLabProject.id.toInt()
+            url = gitlabProject.webUrl,
+            name = gitlabProject.name,
+            gitlabProject = gitlabProject.path,
+            gitlabPathWithNamespace = gitlabProject.pathWithNamespace,
+            gitlabGroup = group,
+            gitlabId = gitlabProject.id.toInt()
         )
     }
 

@@ -12,4 +12,8 @@ class GitlabUser(
     val name: String = "",
     val email: String = "",
     val publicEmail: String = "",
-    val state: String = "") : Serializable
+    val state: String = "",
+//    val organization: String = "",
+    val avatarUrl: String = "",
+    val weburlUrl: String = ""
+) : Serializable

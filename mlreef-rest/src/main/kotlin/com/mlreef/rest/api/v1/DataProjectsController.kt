@@ -37,13 +37,14 @@ class DataProjectsController(
 
     @GetMapping
     fun getAllDataProjects(): List<DataProjectDto> {
-        return dataProjectRepository.findAllByOwnerId(currentUserService.person().id).map(DataProject::toDto)
+        val userId = currentUserService.person().id
+        val findAllByOwnerId = dataProjectRepository.findAllByOwnerId(userId)
+        return findAllByOwnerId.map(DataProject::toDto)
     }
 
     @GetMapping("/{id}")
     fun getDataProjectById(@PathVariable id: UUID): DataProjectDto {
         val dataProject = assertFindExisting(id)
-
         return dataProject.toDto()
     }
 
@@ -54,21 +55,23 @@ class DataProjectsController(
         val dataProject = dataProjectService.createProject(
             userToken = userToken,
             ownerId = ownerId,
-            projectPath = dataProjectCreateRequest.path,
+            projectSlug = dataProjectCreateRequest.slug,
+            projectNamespace = dataProjectCreateRequest.namespace,
             projectName = dataProjectCreateRequest.name)
 
         return dataProject.toDto()
     }
 
     @PutMapping("/{id}")
-    fun updateDataProject(@PathVariable id: UUID, @Valid @RequestBody dataProjectCreateRequest: DataProjectCreateRequest): DataProjectDto {
+    fun updateDataProject(@PathVariable id: UUID, @Valid @RequestBody dataProjectUpdateRequest: DataProjectUpdateRequest): DataProjectDto {
         val userToken = currentUserService.token()
         val ownerId = currentUserService.person().id
+        assertFindExisting(id)
         val dataProject = dataProjectService.updateProject(
             userToken = userToken,
             ownerId = ownerId,
             projectUUID = id,
-            projectName = dataProjectCreateRequest.name)
+            projectName = dataProjectUpdateRequest.name)
 
         return dataProject.toDto()
     }
@@ -86,6 +89,11 @@ class DataProjectsController(
 }
 
 class DataProjectCreateRequest(
-    @NotEmpty val path: String,
+    @NotEmpty val slug: String,
+    @NotEmpty val namespace: String,
+    @NotEmpty val name: String
+)
+
+class DataProjectUpdateRequest(
     @NotEmpty val name: String
 )

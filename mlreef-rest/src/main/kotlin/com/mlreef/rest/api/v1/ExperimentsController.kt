@@ -15,7 +15,8 @@ import com.mlreef.rest.api.v1.dto.toExperimentDtoList
 import com.mlreef.rest.exceptions.ExperimentUpdateException
 import com.mlreef.rest.exceptions.NotFoundException
 import com.mlreef.rest.feature.experiment.ExperimentService
-import com.mlreef.rest.findById2
+import com.mlreef.rest.feature.pipeline.PipelineService
+import org.springframework.data.repository.findByIdOrNull
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
@@ -32,6 +33,7 @@ import javax.validation.constraints.NotEmpty
 @RequestMapping("/api/v1/data-projects/{dataProjectId}/experiments")
 class ExperimentsController(
     val service: ExperimentService,
+    val pipelineService: PipelineService,
     val currentUserService: CurrentUserService,
     val dataProjectRepository: DataProjectRepository,
     val experimentRepo: ExperimentRepository
@@ -40,7 +42,7 @@ class ExperimentsController(
     private val dataProjectNotFound = "dataProject was not found"
 
     private fun beforeGetDataProject(dataProjectId: UUID): DataProject {
-        val dataProject = (dataProjectRepository.findById2(dataProjectId)
+        val dataProject = (dataProjectRepository.findByIdOrNull(dataProjectId)
             ?: throw NotFoundException(dataProjectNotFound))
 
         // FIXME: ask Rainer/Christoph about best-practise with Spring Roles, Authorities and stuff
@@ -53,7 +55,7 @@ class ExperimentsController(
     }
 
     private fun beforeGetExperiment(experimentId: UUID): Experiment {
-        return experimentRepo.findById2(experimentId)
+        return experimentRepo.findByIdOrNull(experimentId)
             ?: throw NotFoundException(dataProjectNotFound)
     }
 
@@ -121,10 +123,10 @@ class ExperimentsController(
         val experiment = beforeGetExperiment(id)
 
         val account = currentUserService.account()
+        val userToken = currentUserService.token()
         val fileContent = service.createExperimentFile(experiment = experiment, author = account)
 
-        val userToken = currentUserService.token()
-        service.commitExperimentFile(
+        pipelineService.commitYamlFile(
             userToken = userToken, projectId = dataProject.gitlabId,
             targetBranch = experiment.targetBranch, sourceBranch = experiment.sourceBranch,
             fileContent = fileContent)

@@ -24,18 +24,20 @@ class GitlabCodeProjectService(
         return codeProjectRepository.delete(mlProject)
     }
 
-    override fun createNewProject(ownerId: UUID, gitLabProject: GitlabProject): CodeProject {
+    override fun createNewProject(ownerId: UUID, gitlabProject: GitlabProject): CodeProject {
         val id = UUID.randomUUID()
+        val pathWithNamespace = gitlabProject.pathWithNamespace
+        val group = pathWithNamespace.split("/")[0]
         return CodeProject(
             id = id,
-            slug = gitLabProject.path,
+            slug = gitlabProject.path,
             ownerId = ownerId,
-            url = gitLabProject.webUrl,
-            name = gitLabProject.name,
-            gitlabProject = gitLabProject.path,
-            gitlabGroup = "code-group-$id",
-            gitlabId = gitLabProject.id.toInt(),
-            dataProcessor = null
+            url = gitlabProject.webUrl,
+            name = gitlabProject.name,
+            gitlabProject = gitlabProject.path,
+            gitlabPathWithNamespace = gitlabProject.pathWithNamespace,
+            gitlabGroup = group,
+            gitlabId = gitlabProject.id.toInt()
         )
     }
 
@@ -46,5 +48,4 @@ class GitlabCodeProjectService(
     override fun updateSaveProject(mlProject: CodeProject, projectName: String?): CodeProject {
         return codeProjectRepository.save(mlProject.copy(gitlabProject = projectName))
     }
-
 }

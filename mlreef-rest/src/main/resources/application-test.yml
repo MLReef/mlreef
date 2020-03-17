@@ -10,7 +10,7 @@ spring:
   devtools:
     add-properties: true
   jpa:
-    show-sql: true # true for debuggin
+    show-sql: false # true for debuggin
     generate-ddl: false
     properties:
       hibernate:

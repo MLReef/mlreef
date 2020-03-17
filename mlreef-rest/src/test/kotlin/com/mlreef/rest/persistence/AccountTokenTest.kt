@@ -2,10 +2,10 @@ package com.mlreef.rest.persistence
 
 import com.mlreef.rest.AccountToken
 import com.mlreef.rest.AccountTokenRepository
-import com.mlreef.rest.findById2
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.data.repository.findByIdOrNull
 import java.util.*
 
 class AccountTokenTest : AbstractRepositoryTest() {
@@ -23,19 +23,19 @@ class AccountTokenTest : AbstractRepositoryTest() {
     fun `find works`() {
         val (id, entity) = createEntity()
 
-        assertThat(repository.findById2(id)).isNull()
+        assertThat(repository.findByIdOrNull(id)).isNull()
         repository.save(entity)
-        assertThat(repository.findById2(id)).isNotNull
+        assertThat(repository.findByIdOrNull(id)).isNotNull
     }
 
     @Test
     fun `save works`() {
         val (id, entity) = createEntity()
-        assertThat(repository.findById2(id)).isNull()
+        assertThat(repository.findByIdOrNull(id)).isNull()
         val saved = repository.save(entity)
         assertThat(saved).isNotNull
         checkAfterCreated(saved)
-        assertThat(repository.findById2(id)).isNotNull
+        assertThat(repository.findByIdOrNull(id)).isNotNull
     }
 
     @Test

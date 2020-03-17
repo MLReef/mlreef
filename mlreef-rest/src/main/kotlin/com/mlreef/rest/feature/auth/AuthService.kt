@@ -22,10 +22,10 @@ import com.mlreef.rest.external_api.gitlab.dto.GitlabUser
 import com.mlreef.rest.external_api.gitlab.dto.GitlabUserInGroup
 import com.mlreef.rest.external_api.gitlab.dto.GitlabUserToken
 import com.mlreef.rest.external_api.gitlab.dto.GroupVariable
-import com.mlreef.rest.findById2
 import com.mlreef.rest.utils.RandomUtils
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.data.repository.findByIdOrNull
 import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
@@ -192,7 +192,7 @@ class GitlabAuthService(
         val findOneByToken = accountTokenRepository.findOneByToken(token)
             ?: throw BadCredentialsException("Token not found in Database")
 
-        return accountRepository.findById2(findOneByToken.accountId)
+        return accountRepository.findByIdOrNull(findOneByToken.accountId)
             ?: throw BadCredentialsException("Token not attached to a Account in Database")
     }
 }

@@ -27,6 +27,15 @@ dependencies {
 
 	// testing
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+
+    def jupiter = "5.4.0"
+    def mockkVersion = "1.9.3"
+    testImplementation "org.junit.jupiter:junit-jupiter:$jupiter"
+    testImplementation('org.springframework.boot:spring-boot-starter-test') {
+        exclude group: 'junit', module: 'junit' //by both name and group
+    }
+    testImplementation "io.mockk:mockk:${mockkVersion}"
+
 }
 
 bootJar {
@@ -35,6 +44,11 @@ bootJar {
 
 jar {
     enabled = true
+}
+
+test {
+    systemProperty 'junit.jupiter.extensions.autodetection.enabled', 'true'
+    useJUnitPlatform()
 }
 
 allOpen {

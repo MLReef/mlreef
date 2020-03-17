@@ -6,6 +6,7 @@ logging:
     org.springframework.orm: WARN
     org.hibernate: WARN
 
+
 spring:
   devtools:
     add-properties: false

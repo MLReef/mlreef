@@ -23,7 +23,7 @@ interface KtCrudRepository<T, ID : Serializable> : CrudRepository<T, ID> {
 
     @Deprecated(
         message = "Java Optional is not the preferable way to handle database returns in Kotlin",
-        replaceWith = ReplaceWith("com.systemkern.kommons.KtCrudRepository.findById2(id)")
+        replaceWith = ReplaceWith("CrudRepository.findByIdOrNull(id)")
     )
     override fun findById(id: ID): Optional<T>
 
@@ -32,21 +32,20 @@ interface KtCrudRepository<T, ID : Serializable> : CrudRepository<T, ID> {
     override fun deleteById(id: ID)
 
     override fun deleteAll(ids: Iterable<T>)
-
 }
 
-/**
- * unwraps the optional returned by findById to either the entity or null
- * @see CrudRepository.findById
- */
-@Suppress("DEPRECATION")
-fun <T, ID : Serializable> KtCrudRepository<T, ID>.findById2(id: ID): T? =
-    findById(id).orElse(null)
+@NoRepositoryBean
+interface ReadOnlyRepository<T, ID : Serializable> : CrudRepository<T, ID> {
 
-/**
- * @throws IllegalArgumentException if no entity can be found
- */
-@Suppress("DEPRECATION")
-inline fun <reified T, ID : Serializable> KtCrudRepository<T, ID>.getById(id: ID): T =
-    this.findById(id).orElse(null)
-        ?: throw IllegalArgumentException("Could not find ${T::class.qualifiedName} with id $id")
+    override fun existsById(id: ID): Boolean
+
+    override fun findAll(): Iterable<T>
+
+    override fun findAllById(ids: Iterable<ID>): Iterable<T>
+
+    @Deprecated(
+        message = "Java Optional is not the preferable way to handle database returns in Kotlin",
+        replaceWith = ReplaceWith("CrudRepository.findByIdOrNull(id)")
+    )
+    override fun findById(id: ID): Optional<T>
+}

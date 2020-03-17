@@ -1,62 +1,57 @@
 package com.mlreef.rest.api
 
-import com.mlreef.rest.Account
 import com.mlreef.rest.DataProject
 import com.mlreef.rest.DataProjectRepository
+import com.mlreef.rest.Person
 import com.mlreef.rest.api.v1.DataProjectCreateRequest
+import com.mlreef.rest.api.v1.DataProjectUpdateRequest
 import com.mlreef.rest.api.v1.dto.DataProjectDto
-import com.mlreef.rest.findById2
+import com.mlreef.rest.exceptions.ErrorCode
+import com.mlreef.rest.exceptions.GitlabBadRequestException
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.mockito.Mockito
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.http.HttpStatus
+import org.springframework.data.repository.findByIdOrNull
 import org.springframework.restdocs.mockmvc.MockMvcRestDocumentation
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders
 import org.springframework.restdocs.payload.FieldDescriptor
 import org.springframework.restdocs.payload.JsonFieldType
-import org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath
-import org.springframework.restdocs.payload.PayloadDocumentation.responseFields
+import org.springframework.restdocs.payload.PayloadDocumentation.*
 import org.springframework.test.annotation.Rollback
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
-import org.springframework.web.client.HttpClientErrorException
-import java.util.*
+import java.util.UUID.randomUUID
 import javax.transaction.Transactional
 
 class DataProjectsApiTest : RestApiTest() {
-    @Autowired
-    private lateinit var dataProjectRepository: DataProjectRepository
-
-    private lateinit var account2: Account
 
     val rootUrl = "/api/v1/data-projects"
+    private lateinit var subject: Person
+
+    @Autowired private lateinit var accountSubjectPreparationTrait: AccountSubjectPreparationTrait
+    @Autowired private lateinit var dataProjectRepository: DataProjectRepository
 
     @BeforeEach
     @AfterEach
     fun setUp() {
-        dataProjectRepository.deleteAll()
-
-        accountTokenRepository.deleteAll()
-        accountRepository.deleteAll()
-        personRepository.deleteAll()
-
-        account = createMockUser()
-        account2 = createMockUser(userOverrideSuffix = "0002")
+        accountSubjectPreparationTrait.apply()
+        subject = accountSubjectPreparationTrait.subject
     }
 
     @Transactional
     @Rollback
     @Test fun `Can create DataProject`() {
-        val request = DataProjectCreateRequest("test-project", "Test project")
+        val request = DataProjectCreateRequest("test-project", "mlreef", "Test project")
         val returnedResult = this.mockMvc.perform(
             this.defaultAcceptContentAuth(RestDocumentationRequestBuilders.post(rootUrl))
                 .content(objectMapper.writeValueAsString(request)))
             .andExpect(MockMvcResultMatchers.status().isOk)
             .andDo(MockMvcRestDocumentation.document(
                 "dataprojects-create",
-                responseFields(dataProjectCreateRequestFields())))
+                requestFields(dataProjectCreateRequestFields()),
+                responseFields(dataProjectResponseFields())))
             .andReturn().let {
                 objectMapper.readValue(it.response.contentAsByteArray, DataProjectDto::class.java)
             }
@@ -68,12 +63,12 @@ class DataProjectsApiTest : RestApiTest() {
     @Rollback
     @Test fun `Cannot create duplicate DataProject`() {
         Mockito.`when`(restClient.createProject(
-            Mockito.anyString(), Mockito.anyString(), anyObject()
+            Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), anyObject()
         )).then {
-            throw HttpClientErrorException(HttpStatus.CONFLICT)
+            throw GitlabBadRequestException("", ErrorCode.Conflict, "")
         }
 
-        val request = DataProjectCreateRequest("test-project", "Test project")
+        val request = DataProjectCreateRequest("test-project", "mlreef", "Test project")
         this.mockMvc.perform(
             this.defaultAcceptContentAuth(RestDocumentationRequestBuilders.post(rootUrl))
                 .content(objectMapper.writeValueAsString(request)))
@@ -84,12 +79,12 @@ class DataProjectsApiTest : RestApiTest() {
     @Rollback
     @Test fun `Cannot create DataProject with invalid params`() {
         Mockito.`when`(restClient.createProject(
-            Mockito.anyString(), Mockito.anyString(), anyObject()
+            Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), anyObject()
         )).then {
-            throw HttpClientErrorException(HttpStatus.BAD_REQUEST)
+            throw GitlabBadRequestException("", ErrorCode.GitlabCommonError, "")
         }
 
-        val request = DataProjectCreateRequest("", "")
+        val request = DataProjectCreateRequest("", "", "")
         this.mockMvc.perform(
             this.defaultAcceptContentAuth(RestDocumentationRequestBuilders.post(rootUrl))
                 .content(objectMapper.writeValueAsString(request)))
@@ -99,9 +94,9 @@ class DataProjectsApiTest : RestApiTest() {
     @Transactional
     @Rollback
     @Test fun `Can retrieve all own DataProjects only`() {
-        val project1 = DataProject(UUID.randomUUID(), "slug-1", "www.url.com", "Test Project 1", account.person.id, "group1", "project-1", 1, listOf())
-        val project2 = DataProject(UUID.randomUUID(), "slug-2", "www.url.net", "Test Project 2", account.person.id, "group2", "project-2", 2, listOf())
-        val project3 = DataProject(UUID.randomUUID(), "slug-3", "www.url.xyz", "Test Project 3", account2.person.id, "group3", "project-3", 3, listOf())
+        val project1 = DataProject(randomUUID(), "slug-1", "www.url.com", "Test Project 1", subject.id, "mlreef", "group1", "mlreef/project-1", 1, listOf())
+        val project2 = DataProject(randomUUID(), "slug-2", "www.url.net", "Test Project 2", subject.id, "mlreef", "group2", "mlreef/project-2", 2, listOf())
+        val project3 = DataProject(randomUUID(), "slug-3", "www.url.xyz", "Test Project 3", randomUUID(), "mlreef", "group3", "mlreef/project-3", 3, listOf())
         dataProjectRepository.save(project1)
         dataProjectRepository.save(project2)
         dataProjectRepository.save(project3)
@@ -111,7 +106,8 @@ class DataProjectsApiTest : RestApiTest() {
             .andExpect(MockMvcResultMatchers.status().isOk)
             .andDo(MockMvcRestDocumentation.document(
                 "dataprojects-retrieve-all",
-                responseFields(dataProjectCreateRequestFields("[]."))))
+                responseFields(dataProjectResponseFields("[]."))
+            ))
             .andReturn().let {
                 val constructCollectionType = objectMapper.typeFactory.constructCollectionType(List::class.java, DataProjectDto::class.java)
                 objectMapper.readValue(it.response.contentAsByteArray, constructCollectionType)
@@ -123,10 +119,10 @@ class DataProjectsApiTest : RestApiTest() {
     @Transactional
     @Rollback
     @Test fun `Can retrieve specific own DataProject`() {
-        val id1 = UUID.randomUUID()
-        val project1 = DataProject(id1, "slug-1", "www.url.com", "Test Project 1", account.person.id, "group1", "project-1", 1, listOf())
-        val project2 = DataProject(UUID.randomUUID(), "slug-2", "www.url.net", "Test Project 2", account.person.id, "group2", "project-2", 2, listOf())
-        val project3 = DataProject(UUID.randomUUID(), "slug-3", "www.url.xyz", "Test Project 3", account2.person.id, "group3", "project-3", 3, listOf())
+        val id1 = randomUUID()
+        val project1 = DataProject(id1, "slug-1", "www.url.com", "Test Project 1", subject.id, "mlreef", "project-1", "mlreef/project-1", 1, listOf())
+        val project2 = DataProject(randomUUID(), "slug-2", "www.url.net", "Test Project 2", subject.id, "mlreef", "project-2", "mlreef/project-2", 2, listOf())
+        val project3 = DataProject(randomUUID(), "slug-3", "www.url.xyz", "Test Project 3", subject.id, "mlreef", "project-3", "mlreef/project-3", 3, listOf())
         dataProjectRepository.save(project1)
         dataProjectRepository.save(project2)
         dataProjectRepository.save(project3)
@@ -136,7 +132,7 @@ class DataProjectsApiTest : RestApiTest() {
             .andExpect(MockMvcResultMatchers.status().isOk)
             .andDo(MockMvcRestDocumentation.document(
                 "dataprojects-retrieve-one",
-                responseFields(dataProjectCreateRequestFields())))
+                responseFields(dataProjectResponseFields())))
             .andReturn().let {
                 objectMapper.readValue(it.response.contentAsByteArray, DataProjectDto::class.java)
             }
@@ -148,10 +144,10 @@ class DataProjectsApiTest : RestApiTest() {
     @Transactional
     @Rollback
     @Test fun `Cannot retrieve specific not own DataProject`() {
-        val id1 = UUID.randomUUID()
-        val project1 = DataProject(UUID.randomUUID(), "slug-1", "www.url.com", "Test Project 1", account.person.id, "group1", "project-1", 1, listOf())
-        val project2 = DataProject(UUID.randomUUID(), "slug-2", "www.url.net", "Test Project 2", account.person.id, "group2", "project-2", 2, listOf())
-        val project3 = DataProject(id1, "slug-3", "www.url.xyz", "Test Project 3", account2.person.id, "group3", "project-3", 3, listOf())
+        val id1 = randomUUID()
+        val project1 = DataProject(randomUUID(), "slug-1", "www.url.com", "Test Project 1", subject.id, "mlreef", "group1", "mlreef/project-1", 1, listOf())
+        val project2 = DataProject(randomUUID(), "slug-2", "www.url.net", "Test Project 2", subject.id, "mlreef", "group2", "mlreef/project-2", 2, listOf())
+        val project3 = DataProject(id1, "slug-3", "www.url.xyz", "Test Project 3", randomUUID(), "mlreef", "group3", "mlreef/project-3", 3, listOf())
         dataProjectRepository.save(project1)
         dataProjectRepository.save(project2)
         dataProjectRepository.save(project3)
@@ -164,11 +160,11 @@ class DataProjectsApiTest : RestApiTest() {
     @Transactional
     @Rollback
     @Test fun `Can update own DataProject`() {
-        val id1 = UUID.randomUUID()
-        val project1 = DataProject(id1, "slug-1", "www.url.com", "Test Project 1", account.person.id, "group1", "project-1", 1, listOf())
+        val id1 = randomUUID()
+        val project1 = DataProject(id1, "slug-1", "www.url.com", "Test Project 1", subject.id, "mlreef", "project-1", "mlreef/project-1", 1, listOf())
         dataProjectRepository.save(project1)
 
-        val request = DataProjectCreateRequest("test-project", "New Test project")
+        val request = DataProjectUpdateRequest("New Test project")
 
         val returnedResult = this.mockMvc.perform(
             this.defaultAcceptContentAuth(RestDocumentationRequestBuilders.put("$rootUrl/$id1"))
@@ -176,7 +172,8 @@ class DataProjectsApiTest : RestApiTest() {
             .andExpect(MockMvcResultMatchers.status().isOk)
             .andDo(MockMvcRestDocumentation.document(
                 "dataprojects-update",
-                responseFields(dataProjectCreateRequestFields())))
+                requestFields(dataProjectUpdateRequestFields()),
+                responseFields(dataProjectResponseFields())))
             .andReturn().let {
                 objectMapper.readValue(it.response.contentAsByteArray, DataProjectDto::class.java)
             }
@@ -187,45 +184,44 @@ class DataProjectsApiTest : RestApiTest() {
     @Transactional
     @Rollback
     @Test fun `Cannot update not-own DataProject`() {
-        val id1 = UUID.randomUUID()
-        val project1 = DataProject(id1, "slug-1", "www.url.com", "Test Project 1", account2.person.id, "group1", "project-1", 1)
+        val id1 = randomUUID()
+        val project1 = DataProject(id1, "slug-1", "www.url.com", "Test Project 1", subject.id, "mlreef", "group1", "mlreef/project-1", 1, listOf())
         dataProjectRepository.save(project1)
 
-        val request = DataProjectCreateRequest("test-project", "New Test project")
+        val request = DataProjectCreateRequest("test-project", "mlreef", "New Test project")
 
         this.mockMvc.perform(
             this.defaultAcceptContentAuth(RestDocumentationRequestBuilders.put("$rootUrl/$id1"))
                 .content(objectMapper.writeValueAsString(request)))
-            .andExpect(MockMvcResultMatchers.status().isNotFound)
+            .andExpect(MockMvcResultMatchers.status().isBadRequest)
     }
 
     @Transactional
     @Rollback
     @Test fun `Can delete own DataProject`() {
-        val id1 = UUID.randomUUID()
-        val project1 = DataProject(id1, "slug-1", "www.url.com", "Test Project 1", account.person.id, "group1", "project-1", 1, listOf())
+        val id1 = randomUUID()
+        val project1 = DataProject(id1, "slug-1", "www.url.com", "Test Project 1", subject.id, "mlreef", "group1", "mlreef/project-1", 1, listOf())
         dataProjectRepository.save(project1)
 
-        assertThat(dataProjectRepository.findById2(id1)).isNotNull
+        assertThat(dataProjectRepository.findByIdOrNull(id1)).isNotNull
 
-        // TODO document delete "dataprojects-delete"
         this.mockMvc.perform(
             this.defaultAcceptContentAuth(RestDocumentationRequestBuilders.delete("$rootUrl/$id1")))
             .andExpect(MockMvcResultMatchers.status().isNoContent)
             .andDo(MockMvcRestDocumentation.document(
                 "dataprojects-delete"))
 
-        assertThat(dataProjectRepository.findById2(id1)).isNull()
+        assertThat(dataProjectRepository.findByIdOrNull(id1)).isNull()
     }
 
     @Transactional
     @Rollback
     @Test fun `Cannot delete not-own DataProject`() {
-        val id1 = UUID.randomUUID()
-        val project1 = DataProject(id1, "slug-1", "www.url.com", "Test Project 1", account2.person.id, "group1", "project-1", 1)
+        val id1 = randomUUID()
+        val project1 = DataProject(id1, "slug-1", "www.url.com", "Test Project 1", randomUUID(), "mlreef", "group1", "mlreef/project-1", 1, listOf())
         dataProjectRepository.save(project1)
 
-        assertThat(dataProjectRepository.findById2(id1)).isNotNull
+        assertThat(dataProjectRepository.findByIdOrNull(id1)).isNotNull
 
         this.mockMvc.perform(
             this.defaultAcceptContentAuth(RestDocumentationRequestBuilders.delete("$rootUrl/$id1")))
@@ -233,7 +229,7 @@ class DataProjectsApiTest : RestApiTest() {
     }
 
 
-    private fun dataProjectCreateRequestFields(prefix: String = ""): List<FieldDescriptor> {
+    private fun dataProjectResponseFields(prefix: String = ""): List<FieldDescriptor> {
         return listOf(
             fieldWithPath(prefix + "id").type(JsonFieldType.STRING).description("Data project id"),
             fieldWithPath(prefix + "slug").type(JsonFieldType.STRING).description("Data project slug"),
@@ -243,6 +239,20 @@ class DataProjectsApiTest : RestApiTest() {
             fieldWithPath(prefix + "gitlab_project").type(JsonFieldType.STRING).description("Project name"),
             fieldWithPath(prefix + "gitlab_id").type(JsonFieldType.NUMBER).description("Id in gitlab"),
             fieldWithPath(prefix + "experiments").type(JsonFieldType.ARRAY).optional().description("List of experiments inside the project (empty on creation)")
+        )
+    }
+
+    private fun dataProjectCreateRequestFields(): List<FieldDescriptor> {
+        return listOf(
+            fieldWithPath("slug").type(JsonFieldType.STRING).description("Valid slug of Project (matches Gitlab)"),
+            fieldWithPath("namespace").type(JsonFieldType.STRING).description("Gitlab group or user namespace"),
+            fieldWithPath("name").type(JsonFieldType.STRING).description("Name of Project")
+        )
+    }
+
+    private fun dataProjectUpdateRequestFields(): List<FieldDescriptor> {
+        return listOf(
+            fieldWithPath("name").type(JsonFieldType.STRING).description("Name of Project")
         )
     }
 }

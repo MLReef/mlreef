@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.ResponseStatus
 enum class ErrorCode(val errorCode: Int, val errorName: String) {
     // authentication and general errors: 1xxx
     NotFound(1404, "Entity not found"),
+    NotAllowed(1405, "Method NotAllowed "),
     Conflict(1409, "Entity already exists"),
 
     // specific user management errors 2xxx
@@ -26,6 +27,7 @@ enum class ErrorCode(val errorCode: Int, val errorName: String) {
     GitlabBranchCreationFailed(2112, "Cannot create branch in gitlab"),
     GitlabCommitFailed(2113, "Cannot commit files in gitlab"),
     GitlabProjectAlreadyExists(2114, "Cannot create project in gitlab. Project already exists"),
+    GitlabBranchDeletionFailed(2115, "Cannot delete branch in gitlab"),
 
     // Business errors: 3xxx
     ValidationFailed(3000, "ValidationFailed"),
@@ -55,6 +57,9 @@ class ValidationException(val validationErrors: Array<FieldError?>) : RestExcept
 @ResponseStatus(code = HttpStatus.NOT_FOUND, reason = "Entity not found")
 class NotFoundException(message: String) : RestException(ErrorCode.NotFound, message)
 
+@ResponseStatus(code = HttpStatus.METHOD_NOT_ALLOWED, reason = "Method not allowed or supported")
+class MethodNotAllowedException(message: String) : RestException(ErrorCode.NotAllowed, message)
+
 @ResponseStatus(code = HttpStatus.INTERNAL_SERVER_ERROR, reason = "Gitlab not reachable!")
 class GitlabConnectException(message: String) : RestException(ErrorCode.NotFound, message)
 
@@ -67,29 +72,33 @@ class UserNotExistsException(username: String, email: String) : RestException(Er
 class ExperimentCreateException(errorCode: ErrorCode, parameterName: String) : RestException(errorCode, "Name/Slug: '$parameterName'")
 class ExperimentStartException(message: String) : RestException(ErrorCode.CommitPipelineScriptFailed, message)
 class ExperimentUpdateException(message: String) : RestException(ErrorCode.ExperimentCannotBeChanged, message)
-
 class ProjectCreationException(errorCode: ErrorCode, message: String) : RestException(errorCode, message)
+
 class ProjectUpdateException(errorCode: ErrorCode, message: String) : RestException(errorCode, message)
 class ProjectDeleteException(errorCode: ErrorCode, message: String) : RestException(errorCode, message)
 
+class PipelineCreateException(errorCode: ErrorCode, parameterName: String) : RestException(errorCode, "Name/Slug: '$parameterName'")
+class PipelineStartException(message: String) : RestException(ErrorCode.CommitPipelineScriptFailed, message)
 
 @ResponseStatus(code = HttpStatus.INTERNAL_SERVER_ERROR, reason = "Gitlab is unavailable")
-class GitlabCommonException(error: ErrorCode? = null, message: String? = null) : RestException(error
-    ?: ErrorCode.GitlabCommonError, message ?: "Gitlab common exception")
+open class GitlabCommonException(
+    val statusCode: Int, val responseBodyAsString: String,
+    error: ErrorCode? = null, message: String? = null
+) : RestException(error ?: ErrorCode.GitlabCommonError, message ?: "Gitlab common exception")
 
 @ResponseStatus(code = HttpStatus.BAD_REQUEST, reason = "Gitlab cannot create entity due to a bad request")
-class GitlabBadRequestException(error: ErrorCode, message: String) : RestException(error, message)
+class GitlabBadRequestException(responseBodyAsString: String, error: ErrorCode, message: String) : GitlabCommonException(400, responseBodyAsString, error, message)
 
 @ResponseStatus(code = HttpStatus.BAD_GATEWAY, reason = "Gitlab is unavailable")
-class GitlabBadGatewayException : RestException(ErrorCode.GitlabBadGateway, "Gitlab server is unavailable")
+class GitlabBadGatewayException(responseBodyAsString: String) : GitlabCommonException(502, responseBodyAsString, ErrorCode.GitlabBadGateway, "Gitlab server is unavailable")
 
 @ResponseStatus(code = HttpStatus.CONFLICT, reason = "Gitlab cannot create entity due to a conflict")
-class GitlabConflictException(error: ErrorCode, message: String) : RestException(error, message)
+class GitlabConflictException(responseBodyAsString: String, error: ErrorCode, message: String) : GitlabCommonException(409, responseBodyAsString, error, message)
 
-@ResponseStatus(code = HttpStatus.NOT_FOUND, reason = "Gitlab not found the object")
-class GitlabNotFoundException(error: ErrorCode, message: String) : RestException(error, message)
+@ResponseStatus(code = HttpStatus.NOT_FOUND, reason = "Gitlab did not find the object")
+class GitlabNotFoundException(responseBodyAsString: String, error: ErrorCode, message: String) : GitlabCommonException(404, responseBodyAsString, error, message)
 
 @ResponseStatus(code = HttpStatus.INTERNAL_SERVER_ERROR, reason = "Gitlab authentication failed")
-class GitlabAuthenticationFailedException(error: ErrorCode, message: String) : RestException(error, message)
+class GitlabAuthenticationFailedException(statusCode: Int, responseBodyAsString: String, error: ErrorCode, message: String) : GitlabCommonException(statusCode, responseBodyAsString, error, message)
 
 
