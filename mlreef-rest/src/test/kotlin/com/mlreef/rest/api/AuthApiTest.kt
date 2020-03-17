@@ -26,7 +26,6 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import java.util.UUID.randomUUID
 import javax.transaction.Transactional
 
-
 class AuthApiTest : RestApiTest() {
 
     val authUrl = "/api/v1/auth"
@@ -93,7 +92,7 @@ class AuthApiTest : RestApiTest() {
     @Rollback
     @Test fun `Can login with existing user`() {
         val plainPassword = "password"
-        val existingUser = createMockUser(plainPassword)
+        val existingUser = createMockUser(plainPassword, "0000")
         val loginRequest = LoginRequest(existingUser.username, existingUser.email, plainPassword)
 
         val returnedResult: UserDto = this.mockMvc.perform(
@@ -139,7 +138,7 @@ class AuthApiTest : RestApiTest() {
     }
 
     @Transactional
-    override fun createMockUser(plainPassword: String, userOverrideSuffix: String?): Account {
+    fun createMockUser(plainPassword: String = "password", userOverrideSuffix: String? = null): Account {
         val passwordEncrypted = passwordEncoder.encode(plainPassword)
         val person = Person(randomUUID(), "person_slug", "user name")
         val account = Account(randomUUID(), "username", "email@example.com", passwordEncrypted, person)

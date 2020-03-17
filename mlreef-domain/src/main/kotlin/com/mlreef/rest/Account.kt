@@ -1,7 +1,7 @@
 package com.mlreef.rest
 
 import java.time.ZonedDateTime
-import java.util.*
+import java.util.UUID
 import javax.persistence.CascadeType
 import javax.persistence.Column
 import javax.persistence.Entity

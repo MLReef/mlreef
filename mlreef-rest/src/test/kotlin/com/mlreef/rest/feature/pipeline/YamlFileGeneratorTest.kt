@@ -1,4 +1,4 @@
-package com.mlreef.rest.feature.experiment
+package com.mlreef.rest.feature.pipeline
 
 import com.mlreef.rest.ApplicationProfiles
 import com.mlreef.rest.DataOperation
@@ -15,18 +15,18 @@ import java.util.UUID.randomUUID
 
 @SpringJUnitConfig(initializers = [ConfigFileApplicationContextInitializer::class])
 @ActiveProfiles(ApplicationProfiles.TEST)
-class ExperimentFileGeneratorTest {
+class YamlFileGeneratorTest {
 
     @Test
     fun `template is found`() {
-        val generator = ExperimentFileGenerator()
+        val generator = YamlFileGenerator()
         generator.init()
         assertThat(generator).isNotNull
     }
 
     @Test
     fun `input and output is not empty`() {
-        val generator = ExperimentFileGenerator()
+        val generator = YamlFileGenerator()
         generator.init()
         assertThat(generator.input).isNotEmpty()
         assertThat(generator.output).isNotEmpty()
@@ -34,68 +34,68 @@ class ExperimentFileGeneratorTest {
 
     @Test
     fun `template contains all necessary constants`() {
-        val generator = ExperimentFileGenerator()
+        val generator = YamlFileGenerator()
         generator.init()
-        assertContains(generator.input, ExperimentFileGenerator.EPF_TAG)
-        assertContains(generator.input, ExperimentFileGenerator.CONF_EMAIL)
-        assertContains(generator.input, ExperimentFileGenerator.CONF_NAME)
-        assertContains(generator.input, ExperimentFileGenerator.GITLAB_ROOT_URL)
-        assertContains(generator.input, ExperimentFileGenerator.GITLAB_GROUP)
-        assertContains(generator.input, ExperimentFileGenerator.GITLAB_PROJECT)
-        assertContains(generator.input, ExperimentFileGenerator.SOURCE_BRANCH)
-        assertContains(generator.input, ExperimentFileGenerator.TARGET_BRANCH)
-        assertContains(generator.input, ExperimentFileGenerator.PIPELINE_STRING)
+        assertContains(generator.input, YamlFileGenerator.EPF_TAG)
+        assertContains(generator.input, YamlFileGenerator.CONF_EMAIL)
+        assertContains(generator.input, YamlFileGenerator.CONF_NAME)
+        assertContains(generator.input, YamlFileGenerator.GITLAB_ROOT_URL)
+        assertContains(generator.input, YamlFileGenerator.GITLAB_GROUP)
+        assertContains(generator.input, YamlFileGenerator.GITLAB_PROJECT)
+        assertContains(generator.input, YamlFileGenerator.SOURCE_BRANCH)
+        assertContains(generator.input, YamlFileGenerator.TARGET_BRANCH)
+        assertContains(generator.input, YamlFileGenerator.PIPELINE_STRING)
     }
 
     @Test
     fun `single strings get replaced`() {
-        val generator = ExperimentFileGenerator()
+        val generator = YamlFileGenerator()
         generator.init()
-        assertContains(generator.output, ExperimentFileGenerator.EPF_TAG)
-        assertContains(generator.output, ExperimentFileGenerator.CONF_EMAIL)
-        assertContains(generator.output, ExperimentFileGenerator.CONF_NAME)
-        assertContains(generator.output, ExperimentFileGenerator.GITLAB_ROOT_URL)
-        assertContains(generator.output, ExperimentFileGenerator.GITLAB_GROUP)
-        assertContains(generator.output, ExperimentFileGenerator.GITLAB_PROJECT)
-        assertContains(generator.output, ExperimentFileGenerator.SOURCE_BRANCH)
-        assertContains(generator.output, ExperimentFileGenerator.TARGET_BRANCH)
-        assertContains(generator.output, ExperimentFileGenerator.PIPELINE_STRING)
+        assertContains(generator.output, YamlFileGenerator.EPF_TAG)
+        assertContains(generator.output, YamlFileGenerator.CONF_EMAIL)
+        assertContains(generator.output, YamlFileGenerator.CONF_NAME)
+        assertContains(generator.output, YamlFileGenerator.GITLAB_ROOT_URL)
+        assertContains(generator.output, YamlFileGenerator.GITLAB_GROUP)
+        assertContains(generator.output, YamlFileGenerator.GITLAB_PROJECT)
+        assertContains(generator.output, YamlFileGenerator.SOURCE_BRANCH)
+        assertContains(generator.output, YamlFileGenerator.TARGET_BRANCH)
+        assertContains(generator.output, YamlFileGenerator.PIPELINE_STRING)
 
         generator.replaceAllSingleStrings()
 
-        assertMissing(generator.output, ExperimentFileGenerator.EPF_TAG)
-        assertMissing(generator.output, ExperimentFileGenerator.CONF_EMAIL)
-        assertMissing(generator.output, ExperimentFileGenerator.CONF_NAME)
-        assertMissing(generator.output, ExperimentFileGenerator.GITLAB_ROOT_URL)
-        assertMissing(generator.output, ExperimentFileGenerator.GITLAB_GROUP)
-        assertMissing(generator.output, ExperimentFileGenerator.GITLAB_PROJECT)
-        assertMissing(generator.output, ExperimentFileGenerator.SOURCE_BRANCH)
-        assertMissing(generator.output, ExperimentFileGenerator.TARGET_BRANCH)
+        assertMissing(generator.output, YamlFileGenerator.EPF_TAG)
+        assertMissing(generator.output, YamlFileGenerator.CONF_EMAIL)
+        assertMissing(generator.output, YamlFileGenerator.CONF_NAME)
+        assertMissing(generator.output, YamlFileGenerator.GITLAB_ROOT_URL)
+        assertMissing(generator.output, YamlFileGenerator.GITLAB_GROUP)
+        assertMissing(generator.output, YamlFileGenerator.GITLAB_PROJECT)
+        assertMissing(generator.output, YamlFileGenerator.SOURCE_BRANCH)
+        assertMissing(generator.output, YamlFileGenerator.TARGET_BRANCH)
     }
 
     @Test
     fun `PIPELINE_STRING is not replaced implicitly`() {
-        val generator = ExperimentFileGenerator()
+        val generator = YamlFileGenerator()
         generator.init()
-        assertContains(generator.output, ExperimentFileGenerator.PIPELINE_STRING)
+        assertContains(generator.output, YamlFileGenerator.PIPELINE_STRING)
         generator.replaceAllSingleStrings()
-        assertContains(generator.output, ExperimentFileGenerator.PIPELINE_STRING)
+        assertContains(generator.output, YamlFileGenerator.PIPELINE_STRING)
     }
 
     @Test
     fun `PIPELINE_STRING is replaced explicitly`() {
-        val generator = ExperimentFileGenerator()
+        val generator = YamlFileGenerator()
         generator.init()
-        assertContains(generator.output, ExperimentFileGenerator.PIPELINE_STRING)
+        assertContains(generator.output, YamlFileGenerator.PIPELINE_STRING)
         generator.replacePipeline(listOf())
-        assertMissing(generator.output, ExperimentFileGenerator.PIPELINE_STRING)
+        assertMissing(generator.output, YamlFileGenerator.PIPELINE_STRING)
     }
 
     @Test
     fun `Pipelines are multiline`() {
-        val generator = ExperimentFileGenerator()
+        val generator = YamlFileGenerator()
         generator.init()
-        assertContains(generator.output, ExperimentFileGenerator.PIPELINE_STRING)
+        assertContains(generator.output, YamlFileGenerator.PIPELINE_STRING)
 
         val countLinesBefore = generator.output.count { it == '\n' }
 
@@ -106,15 +106,15 @@ class ExperimentFileGeneratorTest {
 
         val countLinesAfterwards = generator.output.count { it == '\n' }
 
-        assertMissing(generator.output, ExperimentFileGenerator.PIPELINE_STRING)
+        assertMissing(generator.output, YamlFileGenerator.PIPELINE_STRING)
         assertThat(countLinesAfterwards).isEqualTo(countLinesBefore + 1)
     }
 
     @Test
     fun `Pipelines are indented correctly`() {
-        val generator = ExperimentFileGenerator()
+        val generator = YamlFileGenerator()
         generator.init()
-        assertContains(generator.output, ExperimentFileGenerator.PIPELINE_STRING)
+        assertContains(generator.output, YamlFileGenerator.PIPELINE_STRING)
 
         val indexOf = generator.output.indexOf("git checkout -b %TARGET_BRANCH%")
         val lineBegin = generator.output.indexOf("\n", indexOf)

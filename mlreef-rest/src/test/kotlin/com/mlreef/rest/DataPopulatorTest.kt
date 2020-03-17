@@ -2,6 +2,7 @@ package com.mlreef.rest
 
 import com.mlreef.rest.api.RestApiTest
 import com.mlreef.rest.external_api.gitlab.dto.GitlabUser
+import com.mlreef.rest.feature.project.DataProjectService
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -16,6 +17,7 @@ import javax.transaction.Transactional
  */
 class DataPopulatorTest : RestApiTest() {
 
+    private val userToken: String = "ysfd"
     private lateinit var author: Person
     private lateinit var dataPopulator: DataPopulator
 
@@ -26,6 +28,7 @@ class DataPopulatorTest : RestApiTest() {
     @Autowired private lateinit var codeProjectRepository: CodeProjectRepository
     @Autowired private lateinit var experimentRepository: ExperimentRepository
     @Autowired private lateinit var dataProcessorRepository: DataProcessorRepository
+    @Autowired private lateinit var dataProjectService: DataProjectService
     @Autowired private lateinit var processorParameterRepository: ProcessorParameterRepository
     @Autowired private lateinit var processorInstanceRepository: DataProcessorInstanceRepository
     @Autowired private lateinit var parameterInstanceRepository: ParameterInstanceRepository
@@ -40,6 +43,7 @@ class DataPopulatorTest : RestApiTest() {
             experimentRepository = experimentRepository,
             dataProjectRepository = dataProjectRepository,
             dataProcessorRepository = dataProcessorRepository,
+            dataProjectService = dataProjectService,
             processorParameterRepository = processorParameterRepository,
             gitlabRestClient = restClient,
             personRepository = personRepository,
@@ -92,7 +96,7 @@ class DataPopulatorTest : RestApiTest() {
 
         val accountId = UUID.fromString("aaaa0000-0002-0000-0000-aaaaaaaaaaaa")
 
-        val testAccount = accountRepository.save(Account(
+        accountRepository.save(Account(
             id = accountId, gitlabId = 0, email = "",
             username = "", passwordEncrypted = "", person = author
         ))
@@ -110,7 +114,7 @@ class DataPopulatorTest : RestApiTest() {
         assertThat(processorParameterRepository.findAll().toList()).isEmpty()
 
         val (dataOp, param1, param2) =
-            dataPopulator.createDataOperation1(author)
+            dataPopulator.createDataOperation1(userToken, author)
         assertThat(dataOp).isNotNull
         assertThat(param1).isNotNull
         assertThat(param2).isNotNull
@@ -127,7 +131,7 @@ class DataPopulatorTest : RestApiTest() {
         assertThat(processorParameterRepository.findAll().toList()).isEmpty()
 
         val (dataOp, param1, param2) =
-            dataPopulator.createDataOperation2(author)
+            dataPopulator.createDataOperation2(userToken, author)
         assertThat(dataOp).isNotNull
         assertThat(param1).isNotNull
         assertThat(param2).isNotNull
@@ -144,7 +148,7 @@ class DataPopulatorTest : RestApiTest() {
         assertThat(processorParameterRepository.findAll().toList()).isEmpty()
 
         val (dataOp, param1, param2) =
-            dataPopulator.createDataOperation3(author)
+            dataPopulator.createDataOperation3(userToken, author)
         assertThat(dataOp).isNotNull
         assertThat(param1).isNotNull
         assertThat(param2).isNotNull
@@ -160,24 +164,27 @@ class DataPopulatorTest : RestApiTest() {
     @Rollback
     fun `create DataProject`() {
         assertThat(dataProjectRepository.findAll().toList()).isEmpty()
-        dataPopulator.createDataProject()
+        val createUserAndTokenInGitlab = dataPopulator.createUserAndTokenInGitlab()
+        val createUserToken = dataPopulator.createUserToken(createUserAndTokenInGitlab)
+        dataPopulator.createDataProject(userToken = createUserToken.token)
         assertThat(dataProjectRepository.findAll().toList()).isNotEmpty
     }
 
     @Test
     fun `create experiment with dataOperations`() {
-
-        dataPopulator.createDataProject()
+        val createUserAndTokenInGitlab = dataPopulator.createUserAndTokenInGitlab()
+        val createUserToken = dataPopulator.createUserToken(createUserAndTokenInGitlab)
+        dataPopulator.createDataProject(userToken = createUserToken.token)
         assertThat(experimentRepository.findAll().toList()).isEmpty()
         assertThat(dataProcessorRepository.findAll().toList()).isEmpty()
         assertThat(processorParameterRepository.findAll().toList()).isEmpty()
 
 
         val (dataOp1, param11, param12) =
-            dataPopulator.createDataOperation1(author)
+            dataPopulator.createDataOperation1(userToken, author)
 
         val (dataOp2, param21, param22) =
-            dataPopulator.createDataOperation2(author)
+            dataPopulator.createDataOperation2(userToken, author)
 
         val experiment = dataPopulator.createExperiment(
             dataOp1, param11, param12,

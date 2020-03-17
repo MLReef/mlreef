@@ -8,15 +8,12 @@ import com.mlreef.rest.Person
 import com.mlreef.rest.ProcessorParameterRepository
 import com.mlreef.rest.SubjectRepository
 import com.mlreef.rest.external_api.gitlab.GitlabRestClient
-import com.mlreef.rest.external_api.gitlab.dto.Branch
-import com.mlreef.rest.external_api.gitlab.dto.Commit
 import com.mlreef.rest.feature.experiment.ExperimentService
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.mockito.Mock
-import org.mockito.Mockito
 import org.springframework.beans.factory.annotation.Autowired
 import java.util.*
 import java.util.UUID.randomUUID
@@ -47,7 +44,7 @@ class ExperimentServiceTest : AbstractServiceTest() {
             gitlabRestClient = gitlabRestClient)
 
         val subject = Person(ownerId, "new-person", "person's name")
-        val dataRepository = DataProject(dataRepositoryId, "new-repo", "url","Test DataProject", subject.id, "mlreef", "project", 0, arrayListOf())
+        val dataRepository = DataProject(dataRepositoryId, "new-repo", "url", "Test DataProject", subject.id, "mlreef", "project", "group/project", 0, arrayListOf())
 
         subjectRepository.save(subject)
         dataProjectRepository.save(dataRepository)
@@ -95,34 +92,5 @@ class ExperimentServiceTest : AbstractServiceTest() {
             "target")
 
         assertThat(createExperiment).isNotNull
-    }
-
-    @Test
-    fun `Can commit mlreef file to gitlab`() {
-        val userToken = "userToken"
-        val projectId = 1
-        val targetBranch = "targetBranch"
-        val fileContent = "fileContent"
-        val sourceBranch = "master"
-
-        val assertCommitMessage = "pipeline execution"
-
-        val fileContents: Map<String, String> = mapOf(Pair(".mlreef.yml", fileContent))
-
-        Mockito.`when`(
-            gitlabRestClient.createBranch(userToken, projectId, targetBranch, sourceBranch)
-        ).thenReturn(Branch(ref = sourceBranch, branch = targetBranch))
-        Mockito.`when`(
-            gitlabRestClient.commitFiles(
-                token = userToken, targetBranch = targetBranch,
-                fileContents = fileContents, projectId = projectId, commitMessage = assertCommitMessage)
-        ).thenReturn(Commit())
-
-        val commit = experimentService.commitExperimentFile(userToken, projectId, targetBranch, fileContent, sourceBranch)
-
-        Mockito.verify(gitlabRestClient).createBranch(userToken, projectId, targetBranch, sourceBranch)
-        Mockito.verify(gitlabRestClient).commitFiles(userToken, projectId, targetBranch, assertCommitMessage, fileContents)
-
-        assertThat(commit).isNotNull
     }
 }

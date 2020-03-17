@@ -1,14 +1,16 @@
-package com.mlreef.rest.feature.experiment
+package com.mlreef.rest.feature.pipeline
 
+import com.mlreef.rest.Account
 import com.mlreef.rest.DataProcessorInstance
 import com.mlreef.rest.DataProcessorType
+import com.mlreef.rest.DataProject
 import com.mlreef.rest.ParameterInstance
 import org.springframework.core.io.ClassPathResource
 import java.io.BufferedReader
 import java.io.InputStreamReader
 import java.util.stream.Collectors
 
-class ExperimentFileGenerator {
+class YamlFileGenerator {
 
     companion object {
         const val EPF_TAG = "%EPF_TAG%"
@@ -29,12 +31,16 @@ class ExperimentFileGenerator {
         fun writeInstance(instance: DataProcessorInstance): String {
             // /epf/pipelines
             //  let line = `   - python ${path}/${dataOperation.command}.py --images-path#directoriesAndFiles`;
-            val path = if (instance.dataProcessor.type == DataProcessorType.ALGORITHM) {
-                "/epf/model/"
-            } else {
-                "/epf/pipelines/"
+            return try {
+                val path = if (instance.dataProcessor.type == DataProcessorType.ALGORITHM) {
+                    "/epf/model/"
+                } else {
+                    "/epf/pipelines/"
+                }
+                "python $path${instance.dataProcessor.command}.py " + writeParameters(instance.parameterInstances)
+            } catch (e: Exception) {
+                "# could not parse dataprocessor: ${e.message}"
             }
-            return "python $path${instance.dataProcessor.command}.py " + writeParameters(instance.parameterInstances)
         }
 
         fun writeParameters(parameterInstances: List<ParameterInstance>): String {
@@ -49,7 +55,7 @@ class ExperimentFileGenerator {
     var input: String = ""
     var output: String = ""
 
-    fun init(): ExperimentFileGenerator {
+    fun init(): YamlFileGenerator {
         input = ""
         output = ""
 
@@ -66,7 +72,24 @@ class ExperimentFileGenerator {
         return this
     }
 
-    fun replacePipeline(list: List<DataProcessorInstance>): ExperimentFileGenerator {
+    fun generateYamlFile(author: Account, dataProject: DataProject, gitlabRootUrl: String, sourceBranch: String, targetBranch: String, processors: List<DataProcessorInstance>): String {
+        init()
+        replaceAllSingleStrings(
+            epfTag = "latest",
+            confEmail = author.email,
+            confName = author.username,
+            gitlabGroup = dataProject.gitlabGroup,
+            gitlabRootUrl = gitlabRootUrl,
+            gitlabProject = dataProject.gitlabProject,
+            sourceBranch = sourceBranch,
+            targetBranch = targetBranch
+        )
+        replacePipeline(processors)
+
+        return output
+    }
+
+    fun replacePipeline(list: List<DataProcessorInstance>): YamlFileGenerator {
         val pipelineStrings = writeInstances(list)
         val indexOf = input.indexOf("- git add .")
         val lineBegin = input.indexOf(NEWLINE, indexOf)
@@ -89,7 +112,7 @@ class ExperimentFileGenerator {
         sourceBranch: String = "",
         targetBranch: String = ""
 
-    ): ExperimentFileGenerator {
+    ): YamlFileGenerator {
         output = output
             .replace(EPF_TAG, epfTag)
             .replace(GITLAB_ROOT_URL, gitlabRootUrl.replace("https://", "").replace("http://", ""))

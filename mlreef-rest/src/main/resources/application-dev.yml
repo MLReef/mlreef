@@ -15,6 +15,9 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         temp.use_jdbc_metadata_defaults: false
+  flyway:
+    enabled: true
+
 mlreef:
   gitlab:
     rootUrl: ${GITLAB_ROOT_URL:http://localhost:10080}

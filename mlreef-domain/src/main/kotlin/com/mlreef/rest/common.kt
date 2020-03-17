@@ -28,6 +28,7 @@ interface MLProject {
     val name: String
     val ownerId: UUID
     val gitlabGroup: String
+    val gitlabPathWithNamespace: String
     val gitlabProject: String
     val gitlabId: Int
 }

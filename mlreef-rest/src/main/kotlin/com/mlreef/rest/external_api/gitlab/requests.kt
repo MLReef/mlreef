@@ -70,5 +70,16 @@ internal class GitlabCreateGroupVariableRequest(
 @JsonInclude(JsonInclude.Include.NON_NULL)
 internal class GitlabCreateProjectRequest(
     val name: String,
-    val path: String? = null
+    val path: String,
+    val ciConfigPath: String = "mlreef.yml",
+    val description: String = "",
+    val defaultBranch: String = "",
+    val namespace_id: Int? = null
+) : Serializable
+
+@JsonInclude(JsonInclude.Include.NON_NULL)
+internal class GitlabUpdateProjectRequest(
+    val name: String,
+    val description: String = "",
+    val defaultBranch: String = ""
 ) : Serializable

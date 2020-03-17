@@ -56,7 +56,6 @@ enum class DataType {
     NONE
 }
 
-
 /**
  * A DataProcessor can be applied onto Data to filter or manipulate the Data.
  * The result of DataOperation over Data is Data again, or in special cases, Visualisation output

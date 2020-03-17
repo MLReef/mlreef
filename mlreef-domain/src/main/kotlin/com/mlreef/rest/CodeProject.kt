@@ -31,6 +31,9 @@ class CodeProject(
     @Column(name = "gitlab_project")
     override val gitlabProject: String,
 
+    @Column(name = "gitlab_path_with_namespace")
+    override val gitlabPathWithNamespace: String = "$gitlabGroup/$gitlabProject",
+
     @Column(name = "gitlab_id")
     override val gitlabId: Int,
 
@@ -48,6 +51,7 @@ class CodeProject(
         slug: String? = null,
         name: String? = null,
         gitlabGroup: String? = null,
+        gitlabPathWithNamespace: String? = null,
         gitlabProject: String? = null,
         gitlabId: Int? = null,
         dataProcessor: DataProcessor? = null,
@@ -63,6 +67,7 @@ class CodeProject(
             ownerId = this.ownerId,
             gitlabGroup = gitlabGroup ?: this.gitlabGroup,
             gitlabProject = gitlabProject ?: this.gitlabProject,
+            gitlabPathWithNamespace = gitlabPathWithNamespace ?: this.gitlabPathWithNamespace,
             gitlabId = gitlabId ?: this.gitlabId,
             dataProcessor = dataProcessor ?: this.dataProcessor,
             version = version ?: this.version,

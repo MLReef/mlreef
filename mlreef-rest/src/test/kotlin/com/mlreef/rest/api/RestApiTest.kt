@@ -1,14 +1,10 @@
 package com.mlreef.rest.api
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.mlreef.rest.Account
 import com.mlreef.rest.AccountRepository
-import com.mlreef.rest.AccountToken
 import com.mlreef.rest.AccountTokenRepository
 import com.mlreef.rest.ApplicationProfiles
-import com.mlreef.rest.Person
 import com.mlreef.rest.PersonRepository
-import com.mlreef.rest.SubjectRepository
 import com.mlreef.rest.external_api.gitlab.GitlabRestClient
 import com.mlreef.rest.external_api.gitlab.dto.GitlabGroup
 import com.mlreef.rest.external_api.gitlab.dto.GitlabProject
@@ -43,9 +39,7 @@ import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilde
 import org.springframework.test.web.servlet.setup.DefaultMockMvcBuilder
 import org.springframework.test.web.servlet.setup.MockMvcBuilders
 import org.springframework.web.context.WebApplicationContext
-import java.util.*
 import java.util.regex.Pattern
-import javax.transaction.Transactional
 
 @TestPropertySource("classpath:application.yml")
 @ExtendWith(value = [RestDocumentationExtension::class, SpringExtension::class])
@@ -56,15 +50,16 @@ abstract class RestApiTest {
 
     lateinit var mockMvc: MockMvc
 
-    protected val testPrivateUserTokenMock: String = "doesnotmatterat-all123"
-    protected val HEADER_PRIVATE_TOKEN = "PRIVATE-TOKEN"
+    companion object {
+        const val testPrivateUserTokenMock: String = "doesnotmatterat-all123"
+        const val HEADER_PRIVATE_TOKEN = "PRIVATE-TOKEN"
+    }
 
     @Autowired protected lateinit var objectMapper: ObjectMapper
 
     @Autowired protected lateinit var accountTokenRepository: AccountTokenRepository
     @Autowired protected lateinit var personRepository: PersonRepository
     @Autowired protected lateinit var accountRepository: AccountRepository
-    @Autowired protected lateinit var subjectRepository: SubjectRepository
 
     @MockBean
     protected lateinit var restClient: GitlabRestClient
@@ -73,8 +68,6 @@ abstract class RestApiTest {
     protected lateinit var currentUserService: CurrentUserService
 
     private val passwordEncoder: PasswordEncoder = BCryptPasswordEncoder()
-
-    protected lateinit var account: Account
 
     @BeforeEach
     fun setUp(
@@ -154,18 +147,22 @@ abstract class RestApiTest {
         )
 
         Mockito.`when`(restClient.createProject(
-            Mockito.anyString(), Mockito.anyString(), anyObject()
+            Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), anyObject()
         )).thenReturn(
             GitlabProject(
                 id = 1,
                 name = "Mock Gitlab Project",
-                nameWithNamespace = "namespace",
+                nameWithNamespace = "mlreef / Mock Gitlab Project",
                 path = "test-path",
-                pathWithNamespace = "test-path",
+                pathWithNamespace = "mlreef/test-path",
                 owner = gitlabUser,
                 creatorId = 1L,
                 webUrl = "http://127.0.0.1/"
             )
+        )
+
+        Mockito.doNothing().`when`(restClient).deleteProject(
+            Mockito.anyLong(), Mockito.anyString()
         )
 
         Mockito.`when`(restClient.userCreateGroup(Mockito.anyString(), Mockito.anyString(), Mockito.anyString())).thenReturn(
@@ -178,7 +175,7 @@ abstract class RestApiTest {
         )
 
         Mockito.`when`(currentUserService.person()).then { personRepository.findAll().first() }
-        Mockito.`when`(currentUserService.account()).then { account }
+        Mockito.`when`(currentUserService.account()).then { accountRepository.findAll().first() }
         Mockito.`when`(currentUserService.token()).then { testPrivateUserTokenMock }
     }
 
@@ -196,37 +193,6 @@ abstract class RestApiTest {
             fieldWithPath("error_message").type(JsonFieldType.STRING).description("A detailed message"),
             fieldWithPath("time").type(JsonFieldType.STRING).description("Timestamp of error")
         )
-    }
-
-    @Transactional
-    protected fun createMockUser(plainPassword: String = "password", userOverrideSuffix: String? = null): Account {
-
-        var mockToken = testPrivateUserTokenMock
-        var userSuffix = "0000"
-        if (userOverrideSuffix != null) {
-            userSuffix = userOverrideSuffix
-            mockToken = "second-token-$userSuffix"
-        }
-        val passwordEncrypted = passwordEncoder.encode(plainPassword)
-        val person = Person(
-            id = UUID.fromString("aaaa0000-0001-0000-$userSuffix-cccccccccccc"),
-            slug = "person_slug$userSuffix",
-            name = "user name")
-        val account = Account(
-            id = UUID.fromString("aaaa0000-0002-0000-$userSuffix-aaaaaaaaaaaa"),
-            username = "username$userSuffix",
-            email = "email$userSuffix@example.com",
-            passwordEncrypted = passwordEncrypted,
-            person = person)
-        val token = AccountToken(
-            id = UUID.fromString("aaaa0000-0003-0000-$userSuffix-bbbbbbbbbbbb"),
-            accountId = account.id,
-            token = mockToken,
-            gitlabId = 0)
-        personRepository.save(person)
-        accountRepository.save(account)
-        accountTokenRepository.save(token)
-        return account
     }
 
     //Workaround for Mockito to use Kotlin's default parameters in methods

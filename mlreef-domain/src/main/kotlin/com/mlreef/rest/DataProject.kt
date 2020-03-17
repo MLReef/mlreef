@@ -31,6 +31,9 @@ class DataProject(
     @Column(name = "gitlab_project")
     override val gitlabProject: String,
 
+    @Column(name = "gitlab_path_with_namespace")
+    override val gitlabPathWithNamespace: String = "$gitlabGroup/$gitlabProject",
+
     @Column(name = "gitlab_id")
     override val gitlabId: Int,
 
@@ -44,11 +47,13 @@ class DataProject(
 ) : AuditEntity(id, version, createdAt, updatedAt), MLProject {
 
     fun copy(
+        id: UUID? = null,
         url: String? = null,
         slug: String? = null,
         name: String? = null,
         gitlabGroup: String? = null,
         gitlabProject: String? = null,
+        gitlabPathWithNamespace: String? = null,
         gitlabId: Int? = null,
         experiments: List<Experiment>? = null,
         version: Long? = null,
@@ -56,12 +61,13 @@ class DataProject(
         updatedAt: ZonedDateTime? = null
     ): DataProject {
         return DataProject(
-            id = this.id,
+            id = id ?: this.id,
             slug = slug ?: this.slug,
             url = url ?: this.url,
             name = name ?: this.name,
             ownerId = this.ownerId,
             gitlabGroup = gitlabGroup ?: this.gitlabGroup,
+            gitlabPathWithNamespace = gitlabPathWithNamespace ?: this.gitlabPathWithNamespace,
             gitlabProject = gitlabProject ?: this.gitlabProject,
             gitlabId = gitlabId ?: this.gitlabId,
             experiments = this.experiments,

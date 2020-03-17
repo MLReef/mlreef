@@ -5,10 +5,10 @@ import com.mlreef.rest.DataAlgorithmRepository
 import com.mlreef.rest.DataType
 import com.mlreef.rest.Person
 import com.mlreef.rest.VisibilityScope
-import com.mlreef.rest.findById2
 import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.data.repository.findByIdOrNull
 import java.util.*
 
 class DataProcessorAlgorithmTest : AbstractRepositoryTest() {
@@ -34,19 +34,19 @@ class DataProcessorAlgorithmTest : AbstractRepositoryTest() {
     fun `find works`() {
         val (id, entity) = createEntity()
 
-        Assertions.assertThat(repository.findById2(id)).isNull()
+        Assertions.assertThat(repository.findByIdOrNull(id)).isNull()
         repository.save(entity)
-        Assertions.assertThat(repository.findById2(id)).isNotNull
+        Assertions.assertThat(repository.findByIdOrNull(id)).isNotNull
     }
 
     @Test
     fun `save works`() {
         val (id, entity) = createEntity()
-        Assertions.assertThat(repository.findById2(id)).isNull()
+        Assertions.assertThat(repository.findByIdOrNull(id)).isNull()
         val saved = repository.save(entity)
         Assertions.assertThat(saved).isNotNull
         checkAfterCreated(saved)
-        Assertions.assertThat(repository.findById2(id)).isNotNull
+        Assertions.assertThat(repository.findByIdOrNull(id)).isNotNull
     }
 
     @Test

@@ -5,7 +5,7 @@ import org.springframework.data.annotation.LastModifiedDate
 import org.springframework.data.domain.Persistable
 import java.io.Serializable
 import java.time.ZonedDateTime
-import java.util.*
+import java.util.UUID
 import javax.persistence.Column
 import javax.persistence.Id
 import javax.persistence.MappedSuperclass

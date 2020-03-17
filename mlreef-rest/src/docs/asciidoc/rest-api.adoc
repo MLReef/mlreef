@@ -63,16 +63,19 @@ use of HTTP status codes.
 
 
 | `401 Unauthorized`
-|
+| User is not logged in and Authorization is necessary
 
 | `403 Forbidden`
-|
+| User is authenticated but Authorization is not given on this resource
 
 | `404 Not Found`
 | The requested resource did not exist, the URL describes nothing
 
 | `405 Method not allowed`
 | The requested path does not support this operation
+
+| `409 Conflict`
+| Another similar resource already exist, Creation is not possible
 
 | `415 Unsupported Media Type`
 | Only json is supported
@@ -199,6 +202,30 @@ operation::dataprojects-update[snippets='curl-request,response-body,response-fie
 
 operation::dataprojects-delete[snippets='curl-request']
 
+[[project-pipelineconfig]]
+== Pipelines of Project  - /data-projects/:id/pipelines
+
+Pipelines can be accessed in two manners: scoped to a DataProject or standalone.
+For creation, a DataProject and therefore a nested call is necessary.
+
+See link:#pipelines[Pipelines] for the introduction
+
+=== GET .../pipelines
+
+operation::project-pipelineconfig-retrieve-all[snippets='curl-request,response-body,response-fields']
+
+=== GET .../pipelines/:id
+
+operation::project-pipelineconfig-retrieve-one[snippets='curl-request,response-body,response-fields']
+
+=== POST .../pipelines
+
+operation::project-pipelineconfig-create-success[snippets='curl-request,request-fields,http-response,response-fields']
+
+=== PUT .../pipelines
+
+operation::project-pipelineconfig-update-success[snippets='curl-request,request-fields,http-response,response-fields']
+
 [[experiments]]
 == Experiments - /data-projects/:id/experiments
 
@@ -228,7 +255,7 @@ operation::experiments-retrieve-one-metrics[snippets='curl-request,response-body
 
 operation::experiments-update-metrics[snippets='curl-request,http-response,response-fields']
 
-=== GET /experiments/:id/mlreef-file
+=== GET .../experiments/:id/mlreef-file
 
 Exports the Experiment's metainformation and generate the mlreef.yml file
 
@@ -236,7 +263,7 @@ Output is the mlreef.yml file contents as text
 
 operation::experiments-retrieve-one-mlreef-file[snippets='curl-request']
 
-=== POST /experiments/:id/mlreef-file
+=== POST .../experiments/:id/mlreef-file
 
 Creates the target branch and commits the mlreef.yml.
 Cannot be repeated for the same Experiment
@@ -245,3 +272,76 @@ Output is the mlreef.yml file contents as text
 
 operation::experiments-create-mlreef-file-commit[snippets='curl-request']
 
+[[pipelines]]
+= Pipelines - Configuration & Instances - /pipelines
+
+Pipelines can be accessed in two manners: scoped to a DataProject or standalone.
+For creation, a DataProject and therefore a nested call is necessary.
+
+All other actions, like DataInstance creation and Pipeline execution will be handled of the global endpoint
+
+GET on the scoped endpoint delivers just PipelineConfigs of this DataProject.
+GET on the global endpoint delivers every PipelineConfig that the user is allowed to see (viewable).
+
+Therefore use /data-project/:id/pipelines for CREATE and RETRIEVE of scoped pipelines, and /pipelines/ for every other general action, like RETRIEVE, UPDATE and DELETE and the CRUD operations of PipelineInstances
+
+Pipelines can be understood as the abstract configuration PipelineConfig and the specific runtime which resulted in a new branch (PipelineInstance)
+
+[[pipelineconfig]]
+== Pipelines - Configuration /pipelines
+
+=== GET /pipelines
+
+operation::pipelineconfig-retrieve-all[snippets='curl-request,response-body,response-fields']
+
+=== GET /pipelines/:id
+
+operation::pipelineconfig-retrieve-one[snippets='curl-request,response-body,response-fields']
+
+[[pipelineinstances]]
+== Pipelines - PipelineInstances //pipelines/:pid/instances
+
+=== GET /pipelines/:pid/instances
+
+operation::pipelineinstance-retrieve-all[snippets='curl-request,response-body,response-fields']
+
+=== GET /pipelines/:pid/instances/:id
+
+operation::pipelineinstance-retrieve-one[snippets='curl-request,response-body,response-fields']
+
+=== POST /pipelines/:pid/instances/
+
+Creation of PipelineInstance is special as it does not need any parameters.
+Creation is actually an Instantiation of a PipelineConfig, which copies all the needed information and starts a new Pipeline.
+
+operation::pipelineinstance-create-success[snippets='curl-request,http-response,response-fields']
+
+=== PUT /pipelines/:pid/instances/:id
+
+A PipelineInstance cannot be "updated" in terms of an entity, but certain actions can be executed:
+
+* start
+* cancel
+* archive
+
+Provide the action as a QueryParam "action", further actions will be implemented.
+
+PipelineInstance's Status:
+
+[source]
+----
+    CREATED
+    PENDING
+    RUNNING
+    SKIPPED
+    SUCCESS
+    FAILED
+    CANCELED
+    ARCHIVED
+----
+
+operation::pipelineinstance-update-success[snippets='curl-request,http-response,response-fields']
+
+=== DELETE /pipelines/:pid/instances/:id
+
+operation::pipelineinstance-delete-success[snippets='curl-request,http-response']

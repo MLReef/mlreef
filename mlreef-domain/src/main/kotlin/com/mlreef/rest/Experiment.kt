@@ -3,7 +3,7 @@ package com.mlreef.rest
 import org.hibernate.annotations.Fetch
 import org.hibernate.annotations.FetchMode
 import java.time.ZonedDateTime
-import java.util.*
+import java.util.UUID
 import javax.persistence.CascadeType
 import javax.persistence.Column
 import javax.persistence.Embeddable

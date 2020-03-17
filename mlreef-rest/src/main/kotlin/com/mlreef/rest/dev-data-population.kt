@@ -2,14 +2,16 @@ package com.mlreef.rest
 
 import com.mlreef.rest.exceptions.GitlabConflictException
 import com.mlreef.rest.external_api.gitlab.GitlabRestClient
+import com.mlreef.rest.external_api.gitlab.dto.GitlabProject
 import com.mlreef.rest.external_api.gitlab.dto.GitlabUser
+import com.mlreef.rest.feature.project.DataProjectService
 import org.slf4j.LoggerFactory
 import org.springframework.boot.CommandLineRunner
 import org.springframework.context.annotation.Profile
+import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Component
 import java.util.*
 import javax.transaction.Transactional
-
 
 @Profile(value = ["!" + ApplicationProfiles.TEST])
 @Component
@@ -33,6 +35,7 @@ internal class CommandLineAppStartupRunner(
 internal class DataPopulator(
     private val gitlabRestClient: GitlabRestClient,
     val dataProjectRepository: DataProjectRepository,
+    val dataProjectService: DataProjectService,
     val personRepository: PersonRepository,
     val accountTokenRepository: AccountTokenRepository,
     val accountRepository: AccountRepository,
@@ -57,33 +60,36 @@ internal class DataPopulator(
 
     fun init() {
         try {
+            lateinit var createUserToken: AccountToken
             executeLogged("1. Create Demo-User and Token in Gitlab") {
                 val gitlabUser = createUserAndTokenInGitlab()
                 executeLogged("1b. Create Token in Gitlab") {
-                    val createUserToken = createUserToken(gitlabUser)
+                    createUserToken = createUserToken(gitlabUser)
                     log.info("Create user with token: ${gitlabUser.username} -> ${createUserToken.token}")
                 }
             }
 
+            val token = createUserToken.token
+
             val entity = Person(id = authorId, slug = "user-demo", name = "Author1")
-            val author = personRepository.findById2(entity.id) ?: personRepository.save(entity)
+            val author = personRepository.findByIdOrNull(entity.id) ?: personRepository.save(entity)
 
             val (dataOp1,
                 dataOp1processorParameter1,
                 dataOp1processorParameter2) = executeLogged("2a. Create DataOperation: Augment") {
-                createDataOperation1(author)
+                createDataOperation1(token, author)
             }
             val (dataOp2,
                 dataOp2processorParameter1,
                 dataOp2processorParameter2) = executeLogged("2b. Create DataOperation: Random crop") {
-                createDataOperation2(author)
+                createDataOperation2(token, author)
             }
             executeLogged("2c. Create DataOperation: Lee Filter") {
-                createDataOperation3(author)
+                createDataOperation3(token, author)
             }
 
             executeLogged("3. Create example DataProject & Experiment") {
-                createDataProject()
+                createDataProject(token)
             }
 
             executeLogged("4. Create example Experiment") {
@@ -110,45 +116,104 @@ internal class DataPopulator(
             id = experimentId, dataProjectId = dataProjectId,
             sourceBranch = "source", targetBranch = "target",
             preProcessing = arrayListOf(processorInstance, processorInstance2))
-        return experimentRepository.findById2(experiment.id) ?: experimentRepository.save(experiment)
+        return experimentRepository.findByIdOrNull(experiment.id) ?: experimentRepository.save(experiment)
     }
 
-    fun createDataProject() {
+    fun createDataProject(userToken: String) {
+        val projectSlug = "sign-language-classifier"
+        val gitLabProject: GitlabProject = try {
+            gitlabRestClient.createProject(
+                token = userToken,
+                slug = projectSlug,
+                name = "Sign Language Classifier Repo",
+                defaultBranch = "master",
+                nameSpaceId = null)
+
+        } catch (e: Exception) {
+            log.info("Already existing dev user")
+            val projects = gitlabRestClient.getProjects(userToken)
+            projects.first { it.path == projectSlug }
+        }
+
+        val pathWithNamespace = gitLabProject.pathWithNamespace
+        val group = pathWithNamespace.split("/")[0]
         val dataProject = DataProject(
-            id = dataProjectId, slug = "test-data-project", name = "Test DataProject", ownerId = subjectId,
-            url = "https://gitlab.com/mlreef/sign-language-classifier",
-            gitlabProject = "sign-language-classifier", gitlabGroup = "mlreef", gitlabId = 1)
-        dataProjectRepository.findById2(dataProject.id) ?: dataProjectRepository.save(dataProject)
+            id = dataProjectId,
+            slug = gitLabProject.path,
+            ownerId = accountId,
+            url = gitLabProject.webUrl,
+            name = gitLabProject.name,
+            gitlabProject = gitLabProject.path,
+            gitlabPathWithNamespace = gitLabProject.pathWithNamespace,
+            gitlabGroup = group,
+            gitlabId = gitLabProject.id.toInt()
+        )
 
+        dataProjectRepository.findByIdOrNull(dataProject.id) ?: dataProjectRepository.save(dataProject)
     }
 
-    fun createDataOperation1(author: Subject): Triple<DataOperation, ProcessorParameter, ProcessorParameter> {
+    fun createCodeProject(userToken: String, codeProjectId: UUID, projectSlug: String, name: String, gitlabId: Int): CodeProject {
+        val findByIdOrNull = codeProjectRepository.findByIdOrNull(codeProjectId)
+
+        if (findByIdOrNull != null) {
+            return findByIdOrNull
+        }
+
+        val gitLabProject: GitlabProject = try {
+            gitlabRestClient.createProject(
+                token = userToken,
+                slug = projectSlug,
+                name = "Testproject $projectSlug",
+                defaultBranch = "master",
+                nameSpaceId = null)
+
+        } catch (e: Exception) {
+            val projects = gitlabRestClient.getProjects(userToken)
+            projects.first { it.path == projectSlug }
+        }
+
+        val pathWithNamespace = gitLabProject.pathWithNamespace
+        val group = pathWithNamespace.split("/")[0]
+        val codeProject = CodeProject(
+            id = dataProjectId,
+            slug = gitLabProject.path,
+            ownerId = subjectId,
+            url = gitLabProject.webUrl,
+            name = gitLabProject.name,
+            gitlabProject = gitLabProject.path,
+            gitlabPathWithNamespace = gitLabProject.pathWithNamespace,
+            gitlabGroup = group,
+            gitlabId = gitLabProject.id.toInt()
+        )
+
+        return codeProjectRepository.findByIdOrNull(codeProject.id) ?: codeProjectRepository.save(codeProject)
+    }
+
+    fun createDataOperation1(userToken: String, author: Subject): Triple<DataOperation, ProcessorParameter, ProcessorParameter> {
         val codeProjectId = UUID.fromString("1000000-0000-0001-0001-000000000000")
         val dataOperationId = UUID.fromString("1000000-0000-0001-0002-000000000000")
         val processorParameter1Id = UUID.fromString("1000000-0000-0001-0011-000000000000")
         val processorParameter2Id = UUID.fromString("1000000-0000-0001-0012-000000000000")
 
-        val entity = codeProjectRepository.findById2(codeProjectId) ?: codeProjectRepository.save(CodeProject(
-            id = codeProjectId, slug = "code-project-augment", name = "Test DataProject",
-            ownerId = author.id, url = "url",
-            gitlabGroup = "", gitlabId = 0, gitlabProject = ""))
+        createCodeProject(userToken, codeProjectId, "code-project-augment", "Test DataProject 2", 0)
 
-        val dataOp1 = dataProcessorRepository.findById2(dataOperationId) ?: dataProcessorRepository.save(DataOperation(
-            id = dataOperationId, slug = "commons-augment", name = "Augment",
-            command = "augment", inputDataType = DataType.IMAGE, outputDataType = DataType.IMAGE,
-            visibilityScope = VisibilityScope.PUBLIC, author = author,
-            description = "Data augmentation multiplies and tweakes the data by changing angle of rotation, flipping the images, zooming in, etc.",
-            codeProjectId = codeProjectId))
+        val dataOp1 = dataProcessorRepository.findByIdOrNull(dataOperationId)
+            ?: dataProcessorRepository.save(DataOperation(
+                id = dataOperationId, slug = "commons-augment", name = "Augment",
+                command = "augment", inputDataType = DataType.IMAGE, outputDataType = DataType.IMAGE,
+                visibilityScope = VisibilityScope.PUBLIC, author = author,
+                description = "Data augmentation multiplies and tweakes the data by changing angle of rotation, flipping the images, zooming in, etc.",
+                codeProjectId = codeProjectId))
 
-        val parameter1 = processorParameterRepository.findById2(processorParameter1Id)
+        val parameter1 = processorParameterRepository.findByIdOrNull(processorParameter1Id)
             ?: processorParameterRepository.save(ProcessorParameter(UUID.fromString("5d005488-afb6-4a0c-0002-f471153a04b5"), dataOp1.id, "stringParam", ParameterType.STRING, 0, ""))
-        val parameter2 = processorParameterRepository.findById2(processorParameter2Id)
+        val parameter2 = processorParameterRepository.findByIdOrNull(processorParameter2Id)
             ?: processorParameterRepository.save(ProcessorParameter(UUID.fromString("5d005488-afb6-4a0c-0003-f471153a04b5"), dataOp1.id, "floatParam", ParameterType.FLOAT, 1, "0.1"))
 
         return Triple(dataOp1 as DataOperation, parameter1, parameter2)
     }
 
-    fun createDataOperation2(author: Subject): Triple<DataOperation, ProcessorParameter, ProcessorParameter> {
+    fun createDataOperation2(userToken: String, author: Subject): Triple<DataOperation, ProcessorParameter, ProcessorParameter> {
         val codeProjectId = UUID.fromString("1000000-0000-0002-0001-000000000000")
         val dataOperationId = UUID.fromString("1000000-0000-0002-0002-000000000000")
         val processorParameter1Id = UUID.fromString("1000000-0000-0002-0011-000000000000")
@@ -156,54 +221,50 @@ internal class DataPopulator(
         val processorParameter3Id = UUID.fromString("1000000-0000-0002-0013-000000000000")
         val processorParameter4Id = UUID.fromString("1000000-0000-0002-0014-000000000000")
 
-        val entity2 = codeProjectRepository.findById2(codeProjectId) ?: codeProjectRepository.save(CodeProject(
-            id = codeProjectId, slug = "code-project-random-crop", name = "Test DataProject",
-            ownerId = author.id, url = "url",
-            gitlabGroup = "", gitlabId = 0, gitlabProject = ""))
+        createCodeProject(userToken, codeProjectId, "code-project-random-crop", "Test DataProject", 0)
 
-        val dataOp2 = dataProcessorRepository.findById2(dataOperationId) ?: dataProcessorRepository.save(DataOperation(
-            id = dataOperationId, slug = "commons-random-crop", name = "Random crop",
-            command = "random_crop", inputDataType = DataType.IMAGE, outputDataType = DataType.IMAGE,
-            visibilityScope = VisibilityScope.PUBLIC, author = author,
-            description = "This pipeline operation randomly crops a NxM (height x width) portion of the given dataset. \n" +
-                "      This is used to randomly extract parts of the image incase we need to remove bias present in image data.",
-            codeProjectId = codeProjectId))
+        val dataOp2 = dataProcessorRepository.findByIdOrNull(dataOperationId)
+            ?: dataProcessorRepository.save(DataOperation(
+                id = dataOperationId, slug = "commons-random-crop", name = "Random crop",
+                command = "random_crop", inputDataType = DataType.IMAGE, outputDataType = DataType.IMAGE,
+                visibilityScope = VisibilityScope.PUBLIC, author = author,
+                description = "This pipeline operation randomly crops a NxM (height x width) portion of the given dataset. \n" +
+                    "      This is used to randomly extract parts of the image incase we need to remove bias present in image data.",
+                codeProjectId = codeProjectId))
 
-        val parameter1 = processorParameterRepository.findById2(processorParameter1Id)
+        val parameter1 = processorParameterRepository.findByIdOrNull(processorParameter1Id)
             ?: processorParameterRepository.save(ProcessorParameter(processorParameter1Id, dataOp2.id, "height", ParameterType.INTEGER, 0, "35"))
-        val parameter2 = processorParameterRepository.findById2(processorParameter2Id)
+        val parameter2 = processorParameterRepository.findByIdOrNull(processorParameter2Id)
             ?: processorParameterRepository.save(ProcessorParameter(processorParameter2Id, dataOp2.id, "width", ParameterType.INTEGER, 1, "35"))
-        val dataOp1processorParameter1 = processorParameterRepository.findById2(processorParameter3Id)
+        processorParameterRepository.findByIdOrNull(processorParameter3Id)
             ?: processorParameterRepository.save(ProcessorParameter(processorParameter3Id, dataOp2.id, "channels", ParameterType.INTEGER, 0, "3", false))
-        val dataOp1processorParameter2 = processorParameterRepository.findById2(processorParameter4Id)
+        processorParameterRepository.findByIdOrNull(processorParameter4Id)
             ?: processorParameterRepository.save(ProcessorParameter(processorParameter4Id, dataOp2.id, "seed", ParameterType.INTEGER, 1, "3", false, "advanced"))
 
         return Triple(dataOp2 as DataOperation, parameter1, parameter2)
     }
 
-    fun createDataOperation3(author: Subject): Triple<DataOperation, ProcessorParameter, ProcessorParameter> {
+    fun createDataOperation3(userToken: String, author: Subject): Triple<DataOperation, ProcessorParameter, ProcessorParameter> {
         val codeProjectId = UUID.fromString("1000000-0000-0003-0001-000000000000")
         val dataOperationId = UUID.fromString("1000000-0000-0003-0002-000000000000")
         val processorParameter1Id = UUID.fromString("1000000-0000-0003-0011-000000000000")
         val processorParameter2Id = UUID.fromString("1000000-0000-0003-0012-000000000000")
 
-        codeProjectRepository.findById2(codeProjectId) ?: codeProjectRepository.save(CodeProject(
-            id = codeProjectId, slug = "code-project-visualisation", name = "Test DataProject",
-            ownerId = author.id, url = "url",
-            gitlabGroup = "", gitlabId = 0, gitlabProject = ""))
+        createCodeProject(userToken, codeProjectId, "code-project-visualisation", "Test DataProject", 0)
 
-        val dataOp3 = dataProcessorRepository.findById2(dataOperationId) ?: dataProcessorRepository.save(DataOperation(
-            id = dataOperationId, slug = "commons-lee-filter", name = "Lee filter",
-            command = "lee_filter", inputDataType = DataType.IMAGE, outputDataType = DataType.IMAGE,
-            visibilityScope = VisibilityScope.PUBLIC, author = author,
-            description = "The presence of speckle noise in Synthetic Aperture Radar (SAR) images makes the interpretation of the contents difficult, \n" +
-                "thereby degrading the quality of the image. Therefore an efficient speckle noise removal technique, the Lee Filter is used to \n" +
-                "smoothen the static-like noise present in these images",
-            codeProjectId = codeProjectId))
+        val dataOp3 = dataProcessorRepository.findByIdOrNull(dataOperationId)
+            ?: dataProcessorRepository.save(DataOperation(
+                id = dataOperationId, slug = "commons-lee-filter", name = "Lee filter",
+                command = "lee_filter", inputDataType = DataType.IMAGE, outputDataType = DataType.IMAGE,
+                visibilityScope = VisibilityScope.PUBLIC, author = author,
+                description = "The presence of speckle noise in Synthetic Aperture Radar (SAR) images makes the interpretation of the contents difficult, \n" +
+                    "thereby degrading the quality of the image. Therefore an efficient speckle noise removal technique, the Lee Filter is used to \n" +
+                    "smoothen the static-like noise present in these images",
+                codeProjectId = codeProjectId))
 
-        val dataOp1processorParameter1 = processorParameterRepository.findById2(processorParameter1Id)
+        val dataOp1processorParameter1 = processorParameterRepository.findByIdOrNull(processorParameter1Id)
             ?: processorParameterRepository.save(ProcessorParameter(processorParameter1Id, dataOp3.id, "tupleParam", ParameterType.TUPLE, 0, "(1,2)"))
-        val dataOp1processorParameter2 = processorParameterRepository.findById2(processorParameter2Id)
+        val dataOp1processorParameter2 = processorParameterRepository.findByIdOrNull(processorParameter2Id)
             ?: processorParameterRepository.save(ProcessorParameter(processorParameter2Id, dataOp3.id, "hashParam", ParameterType.DICTIONARY, 1, "{a:b}"))
         return Triple(dataOp3 as DataOperation, dataOp1processorParameter1, dataOp1processorParameter2)
     }
@@ -222,8 +283,8 @@ internal class DataPopulator(
             id = accountId, username = username, email = email,
             gitlabId = gitlabUser.id, person = person,
             passwordEncrypted = encryptedPassword, tokens = arrayListOf())
-        accountRepository.findById2(accountId) ?: accountRepository.save(account)
-        personRepository.findById2(person.id) ?: personRepository.save(person)
+        accountRepository.findByIdOrNull(accountId) ?: accountRepository.save(account)
+        personRepository.findByIdOrNull(person.id) ?: personRepository.save(person)
 
         return gitlabUser
     }
@@ -235,7 +296,7 @@ internal class DataPopulator(
             token = gitlabUserToken.token, gitlabId = gitlabUserToken.id,
             active = true, revoked = false)
 
-        accountTokenRepository.findById2(accountToken.id) ?: accountTokenRepository.save(accountToken)
+        accountTokenRepository.findByIdOrNull(accountToken.id) ?: accountTokenRepository.save(accountToken)
         return accountToken
     }
 
