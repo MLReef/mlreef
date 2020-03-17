@@ -10,7 +10,8 @@ internal class GitlabCreateUserRequest(
     val username: String,
     val name: String,
     val password: String,
-    val resetPassword: Boolean = false
+    val resetPassword: Boolean = false,
+    val skipConfirmation: Boolean = true
 ) : Serializable
 
 // https://docs.gitlab.com/ee/api/users.html#get-all-impersonation-tokens-of-a-user
