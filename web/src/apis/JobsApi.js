@@ -9,11 +9,11 @@ export default class JobsApi {
     return jobsProm.json();
   }
 
-  static async getArtifacts(projectId, jobId) {
-    const url = `${API_GATEWAY}:${GITLAB_PORT}/api/v4/projects/${projectId}/jobs/${jobId}/artifacts`;
+  static async downloadArtifacts(projectId, refName, jobName) {
+    const url = `${API_GATEWAY}:${GITLAB_PORT}/api/v4/projects/${projectId}/jobs/artifacts/${refName}/download?job=${jobName}`;
     const jobsProm = await generateGetRequest(url);
 
-    return jobsProm.json();
+    return jobsProm;
   }
 
   static async getLog(projectId, jobId) {
