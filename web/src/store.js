@@ -8,6 +8,7 @@ import initialState from './reducers/initialState';
 const persistConfig = {
   key: 'root',
   storage,
+  blacklist: ['actionModal'],
 };
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);

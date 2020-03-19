@@ -1,5 +1,4 @@
 #inputs-div {
-  margin-top: 2em;
   display: flex;
   justify-content: flex-end;
 }
@@ -40,11 +39,6 @@
   height: 2.5em;
 }
 
-.branch-row > .buttons > .delete-branch-btn {
-  border-radius: 0.2em;
-  padding: 0.5em;
-}
-
 .branch-row > .buttons > .MuiButton-outlined {
   border: 1px solid #1D2B40
 }
@@ -64,23 +58,10 @@
   height: 0;
 }
 
-.branch-row > .info > .additional-data > .commit-code > a{
-  color: #32afc3
-}
-
-.branch-row > .info > .additional-data > .commit-mss {
-  color: #1C2B40;
-}
-
-.branch-row > .info > .additional-data > .time-ago { 
-  color: #B2B2B2;
-}
-
 .branch-title {
   margin: 0;
   font-size: 0.95em;
   font-weight: 700;
-  color: #1C2B40;
 }
 
 #message-content > p {
@@ -89,8 +70,4 @@
 
 .additional-branch-info {
   margin: 0 0 0 1em;
-}
-
-.merge-btn{
-  height: 2.5em;
 }

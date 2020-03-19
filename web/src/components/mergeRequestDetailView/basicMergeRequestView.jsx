@@ -128,13 +128,11 @@ const BasicMergeRequestView = (props) => {
                 ago by
                 {' '}
               </p>
-              <div style={{ margin: '6px 4px 0 2px' }}>
-                <img className="avatar-style" width="24" src={avatarUrl} alt="avatar" />
-              </div>
-              <span style={{ marginTop: '1em' }}><b>{name}</b></span>
+              <img className="avatar-style ml-2 mr-1 my-auto" width="24" src={avatarUrl} alt="avatar" />
+              <span className="my-auto"><b>{name}</b></span>
             </div>
           </div>
-          <div className="modify-MR">
+          <div style={{ height: 'max-content' }} className="modify-MR mr-0">
             <BlackBorderedButton
               id="edit-btn"
               className="left-margin"
@@ -288,7 +286,13 @@ const BasicMergeRequestView = (props) => {
                     && (
                       <>
                         <div style={{ display: 'flex' }}>
-                          <button className="merge-action" type="button" disabled={hasConflicts} onClick={acceptMergeRequest}>Merge</button>
+                          <button 
+                            className="merge-action btn btn-primary" 
+                            type="button" 
+                            disabled={hasConflicts} 
+                            onClick={acceptMergeRequest}>
+                            Merge
+                          </button>
                           {!hasConflicts ? (
                             <>
                               <div style={{ marginLeft: '1em' }}>

@@ -2,24 +2,12 @@
   width: 100%;
   display: flex;
   height: max-content;
-}
-
-#filter-buttons-new-mr > div {
-  width: 50%;
-}
-
-#filter-buttons-new-mr > :nth-last-child(1) {
-  display: flex;
-  justify-content: right;
+  flex-wrap: wrap;
 }
 
 #filter-btns {
   display: flex;
   align-items: center;
-}
-
-#filter-btns > button {
-  margin-right: 8px;
 }
 
 #circular-progress-container {

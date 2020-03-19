@@ -2,7 +2,6 @@ import React from 'react';
 import { SortableContainer, SortableElement } from 'react-sortable-hoc';
 import $ from 'jquery';
 import Input from '../input/input';
-import triangle01 from '../../images/triangle-01.png';
 import ArrowButton from '../arrow-button/arrowButton';
 import advice01 from '../../images/advice-01.png';
 import { BOOL, errorMessages } from '../../dataTypes';
@@ -37,7 +36,7 @@ const SortableDataOperation = SortableElement(({ value }) => {
           <div id="title-content">
             <p className="bold-text">{value.title}</p>
             <p>
-              Created by 
+              Created by
               <span className="bold-text">{value.username}</span>
             </p>
           </div>
@@ -47,22 +46,19 @@ const SortableDataOperation = SortableElement(({ value }) => {
                 type="button"
                 id={`delete-btn-item-${value.index}`}
                 onClick={value.deleteDataOperationEvent}
-                className="dangerous-red"
-              >
-                X
-              </button>
+                className="btn btn-icon btn-hidden p-1 mr-1 fa fa-times"
+              />
             </div>
             <div onClick={value.copyDataOperationEvent}>
               <button
                 type="button"
                 id={`copy-btn-item-${value.index}`}
-                className="copy-btn-item"
+                className="btn btn-icon btn-hidden p-1 fa fa-copy mr-1"
               />
             </div>
             <div>
               <ArrowButton
                 placeholder=""
-                imgPlaceHolder={triangle01}
                 params={{ index: value.index }}
                 callback={() => {
                   const formDiv = document.getElementById(`data-operation-selected-form-${value.index}`);
@@ -97,10 +93,9 @@ const SortableDataOperation = SortableElement(({ value }) => {
             <div>
               <div className="advanced-opt-drop-down">
                 <div className="drop-down">
-                  <p><b>Advanced</b></p>
+                  <p className="mr-2"><b>Advanced</b></p>
                   <ArrowButton
                     placeholder=""
-                    imgPlaceHolder={triangle01}
                     params={{ index: value.index }}
                     callback={() => {
                       const formDiv = document.getElementById(`advanced-opts-div-${value.index}`);
@@ -132,7 +127,6 @@ const SortableDataOperation = SortableElement(({ value }) => {
                           <div style={{ display: 'flex' }}>
                             <ArrowButton
                               id={`advanced-drop-down-${value.index}-param-${advancedParamIndex}`}
-                              imgPlaceHolder={triangle01}
                               params={{ index: value.index }}
                               callback={() => {
                                 const el = document.getElementById(`options-for-bool-select-${advancedParamIndex}`);
@@ -229,4 +223,5 @@ const SortableDataOperationsList = SortableContainer(({ items }) => (
   </ul>
 ));
 
-export default SortableDataOperationsList;
+// this pressDelay avoid conflics with onClick events
+export default (props) => <SortableDataOperationsList pressDelay={500} {...props} />;

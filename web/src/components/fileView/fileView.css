@@ -82,17 +82,6 @@
   padding-top: 0 !important;
 }
 
-.file-actions button {
-  display: flex;
-  align-items: center;
-  margin-right: 8px;
-  border-radius: 0.3vw;
-  border: 1px solid #1c2b40;
-  height: 2.2em;
-  width: max-content;
-  margin-top: 0.5em;
-}
-
 .file-actions {
   display: inline-flex;
   vertical-align: middle;

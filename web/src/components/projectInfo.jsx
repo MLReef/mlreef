@@ -72,56 +72,60 @@ const ProjectInfo = ({ project, actions }) => {
       </div>
       {redirect ? <Redirect to="/my-projects" /> : null}
       <div className="project-options">
-        <div className="options">
+        <div className="options d-flex mr-2">
           <button
             type="button"
-            className="option-name"
+            className="option-name btn btn-hidden border-rounded-left py-2 px-3 my-0"
           >
             <img
+              className="mr-0 mr-lg-1"
               id="option-image"
               src={star01}
               alt=""
             />
-            <p>Star</p>
+          <span className="my-auto d-none d-lg-block">Star</span>
           </button>
 
-          <div className="counter">
-            <p>{stars}</p>
+          <div className="counter border-rounded-right h-100">
+            <span>{stars}</span>
           </div>
         </div>
 
         {default_branch !== null && (
-        <div className="options">
+        <div className="options d-flex mr-2">
           <button
             type="button"
-            className="option-name"
+            className="option-name btn btn-hidden border-rounded-left py-2 px-3 my-0"
             onClick={handleFork}
           >
-            <img id="option-image" src={fork01} alt="" />
-            <p>Fork</p>
+            <img className="mr-0 mr-lg-1" id="option-image" src={fork01} alt="" />
+            <span className="my-auto d-none d-lg-block">Fork</span>
           </button>
 
-          <div className="counter">
-            <p>{forks}</p>
+          <div className="counter border-rounded-right h-100">
+            <span>{forks}</span>
           </div>
         </div>
         )}
-        <div className="options">
-          <button
-            type="button"
-            className="option-name"
-          >
-            <img id="option-image" src={clone01} alt="" />
-            <p>Clone</p>
-          </button>
-          <Clonedropdown http={http_url_to_repo} ssh={ssh_url_to_repo} />
+        <div className="options d-flex">
+          <div className="option-name border-rounded-left py-2 px-3 my-0">
+            <img className="mr-0 mr-lg-1" id="option-image" src={clone01} alt="" />
+            <span className="my-auto d-none d-lg-block">Clone</span>
+          </div>
+          <Clonedropdown className="border-rounded-right h-100" http={http_url_to_repo} ssh={ssh_url_to_repo} />
         </div>
       </div>
     </div>
   );
 };
 
-export function Clonedropdown({ ssh, http }) {
+export function Clonedropdown(props) {
+  const {
+    ssh,
+    http,
+    className,
+  } = props;
+
   // The following code can be used to refactor the rest of the code. New way of writing the code.
   const node = React.useRef();
   const sshRef = React.useRef(null);
@@ -165,56 +169,57 @@ export function Clonedropdown({ ssh, http }) {
   };
 
   return (
-    <>
-      <div
-        className="counter clone-dropdown"
-        ref={node}
-      >
-        <img
-          onClick={ () => setOpen(!open) }
-          className="dropdown-white toggle-btn"
-          src={arrow01}
-          alt="Clone button" />
-        {open && (
-          <div className="clone-box">
-            <div className="link-box">
-              <p>Clone with SSH</p>
-              <div className="clone-link">
-                <input
-                  ref={sshRef}
-                  onClick={handleClickInput}
-                  type="text"
-                  value={ssh}
-                  className="ssh-http-link"
-                  readOnly />
-                <img
-                  onClick={handleCopySsh}
-                  className="clone-icon ssh"
-                  src={clone01}
-                  alt="copy-icon" />
-              </div>
-            </div>
-            <div className="link-box">
-              <p>Clone with HTTPS</p>
-              <div className="clone-link">
-                <input
-                  ref={httpRef}
-                  onClick={handleClickInput}
-                  type="text"
-                  value={http}
-                  className="ssh-http-link"
-                  readOnly />
-                <img
-                  onClick={handleCopyHttp}
-                  className="clone-icon http"
-                  src={clone01}
-                  alt="copy-icon" />
-              </div>
+    <div
+      className={`${className} counter clone-dropdown`}
+      ref={node}
+      onClick={ () => setOpen(!open) }
+      style={{ cursor: 'pointer' }}
+    >
+      <span
+        role="button"
+        className={`fa fa-chevron-${open ? 'up' : 'down'}`}
+      />
+      {open && (
+        <div className="clone-box mt-1">
+          <div className="link-box">
+            <p>Clone with SSH</p>
+            <div className="clone-link">
+              <input
+                ref={sshRef}
+                onClick={handleClickInput}
+                type="text"
+                value={ssh}
+                className="ssh-http-link"
+                readOnly
+              />
+              <img
+                onClick={handleCopySsh}
+                className="clone-icon ssh"
+                src={clone01}
+                alt="copy-icon" />
             </div>
           </div>
-        )}
-      </div>
-    </>
+          <div className="link-box">
+            <p>Clone with HTTPS</p>
+            <div className="clone-link">
+              <input
+                ref={httpRef}
+                onClick={handleClickInput}
+                type="text"
+                value={http}
+                className="ssh-http-link"
+                readOnly
+              />
+              <img
+                onClick={handleCopyHttp}
+                className="clone-icon http"
+                src={clone01}
+                alt="copy-icon" />
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
   );
 };
 

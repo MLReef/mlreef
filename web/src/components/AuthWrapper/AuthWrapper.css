@@ -1,0 +1,21 @@
+.auth-wrapper {
+  position: relative;
+  opacity: 0.7;
+  height: fit-content;
+}
+
+.auth-wrapper-cover {
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  background-color: #000;
+  opacity: 0;
+  cursor: auto;
+}
+
+.auth-wrapper-wrapped > * {
+  display: block;
+  margin: 0 !important;
+}

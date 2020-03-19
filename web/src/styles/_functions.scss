@@ -1,0 +1,11 @@
+@function pxToRem ($pixels, $context: $font-size) {
+  @return ($pixels / $context) * 1rem;
+}
+
+@function remToPx ($rems, $context: $font-size) {
+  @return ($rems / 1rem) * $context;
+}
+
+@mixin card-shadown {
+  box-shadow: 2px 2px 6px 1px var(--secondary);
+}

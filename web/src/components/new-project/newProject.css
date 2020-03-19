@@ -4,11 +4,6 @@
     height: auto;
 }
 
-.proj-description{
-    margin: 2em 4em; 
-    width: 300px;
-}
-
 .proj-description > span{
     color: #1c2b40; 
     font-weight: 600; 
@@ -63,11 +58,7 @@
 .readme-msg{
     color: #919191; 
     padding-left: 2.5em;
-    margin: 0;   
-}
-
-.form-control{
-    margin: 2em 0;
+    margin: 0;
 }
 
 .customize{
@@ -110,33 +101,8 @@ textarea{
     box-shadow: 0 0 8px #99ddff;
 }
 
-.create{
-    text-decoration: none;
-    background-color: #15b785;
-    cursor: pointer;
-    border: 1px solid #2db391;
-    border-radius: 0.3vw;
-    height: 2.5em;
-    width: 100px;
-    margin-left: auto;
-    color: #f2f2f2;
-    padding: 0.5em 2em;
-}
-
-.create:focus{
-    background-color: #fff;
-    color: #d1d1d1;
-}
-
-.cancel{
-    text-decoration: none;
-    cursor: pointer;
-    background: none;
-    border: 1px solid #000;
-    padding: 0.5em 2em;
-    border-radius: 0.3vw;
-    width: 100px;
-    height: 2.5em;
+.new-project .form-control {
+  border-left: solid 1px var(--secondary);
 }
 
 #visibility-icon{

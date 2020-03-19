@@ -1,5 +1,7 @@
 #login-container {
-    margin: 3.5% 35% 0% 35%;
+    margin: 5rem auto;
+    max-width: 380px;
+    padding: 0 1rem;
     align-content: center;
     font-family: 'Roboto', sans-serif;
 }
@@ -20,10 +22,7 @@
 }
 
 #icon-div img {
-    max-width: 100px;
-    width: 4vw;
-    margin-left: 48%;
-    margin-bottom: 4%;
+    max-width: 80px;
 }
 
 .login-form .title {
@@ -36,9 +35,7 @@
 }
 
 .input-container {
-    margin-top: 4%;
-    margin-bottom: 2%;
-    margin-left: 4%;
+    margin: 1rem 2rem;
     display: flex;
     align-items: flex-start;
     flex-flow: column;
@@ -47,7 +44,7 @@
 .input-container > input {
     padding: 1%;
     border-radius: 0.3vw;
-    border: 1px solid #B2B2B2; 
+    border: 1px solid #B2B2B2;
     width: 90%;
     height: 2em;
     font-size: 1em;
@@ -57,7 +54,7 @@
     border: 1px solid #32AFC3;
 }
 
-.input-container button {
+/* .input-container button {
     margin-top: 2%;
     background-color: #2DB391;
     color: white;
@@ -68,7 +65,7 @@
     font-size: 1em;
 
     cursor: pointer;
-}
+} */
 
 #sign-in-btn {
     align-items: center !important;
@@ -97,7 +94,7 @@
     text-align: center;
     color: #1D2B40;
 }
- 
+
 .error div, .error p {
     display: inline-block;
 }
@@ -107,10 +104,12 @@
 }
 
 .error div{
-    margin-left: 40%;
+    /* margin-left: 40%; */
+    width: 100%;
+    text-align: center;
 }
 
-.error div button {
+/* .error div button {
     background-color: white;
     width: 5em;
     border-radius: 0.3vw;
@@ -118,4 +117,4 @@
     border: 1px solid black;
     font-weight: 600;
     cursor: pointer;
-}
+} */

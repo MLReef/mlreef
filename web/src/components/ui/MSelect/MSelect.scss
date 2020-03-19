@@ -1,0 +1,48 @@
+.m-select {
+  width: 100%;
+  margin-bottom: 0.5rem;
+
+  &-button {
+    & > .btn {
+      border-width: 1px;
+      padding-left: 1rem;
+      padding-right: 0.5rem;
+    }
+  }
+
+  &-list {
+    &-container {
+      width: 100%;
+      margin-top: 2px;
+      min-width: unset;
+    }
+
+    &-item {
+      cursor: pointer;
+    }
+  }
+
+  &.minimal {
+    width: min-content;
+
+    & .m-select {
+      &-button {
+        width: min-content;
+
+        & > .btn {
+          border: none;
+        }
+      }
+
+      &-list {
+        border: none;
+
+        &-container {
+          width: min-content;
+          min-width: unset;
+          right: 0;
+        }
+      }
+    }
+  }
+}

@@ -4,7 +4,6 @@ import { Redirect } from 'react-router';
 import { Link } from 'react-router-dom';
 import { bindActionCreators } from 'redux';
 import { toastr } from 'react-redux-toastr';
-import { Button } from '@material-ui/core';
 import {
   number, string, shape, arrayOf, bool,
 } from 'prop-types';
@@ -129,8 +128,9 @@ class BranchesView extends Component {
           folders={['Group Name', projectName, 'Data', 'Branches']}
         />
         <div className="main-content">
-          <div id="inputs-div">
+          <div id="inputs-div" className="my-3">
             <BlueBorderedInput
+              className="mr-3"
               placeholder="Filter by branch name"
               id="filter-input"
               onChange={(e) => {
@@ -164,58 +164,59 @@ class BranchesView extends Component {
                 <div className="info">
                   <div style={{ display: 'flex' }}>
                     <Link to={`/my-projects/${projectId}/${encodeURIComponent(branch.name)}`}>
-                      <p className="branch-title">{branch.name}</p>
+                      <p className="branch-title t-dark">{branch.name}</p>
                     </Link>
                     {branch.protected && (
                       <>
-                        <p className="additional-branch-info" style={{ color: '#2DB391' }}>default</p>
-                        <p className="additional-branch-info" style={{ color: '#F5544D' }}>protected</p>
+                        <p className="additional-branch-info t-info">default</p>
+                        <p className="additional-branch-info t-danger">protected</p>
                       </>
                     )}
                   </div>
                   <div className="additional-data">
                     <p className="commit-code">
-                      <Link to={`/my-projects/${projectId}/commit/${branch.commitInfo.id}`}>
+                      <Link
+                        className="t-info"
+                        to={`/my-projects/${projectId}/commit/${branch.commitInfo.id}`}
+                      >
                         {branch.commitInfo.id.slice(commitShortIdLowerLimit, commitShortIdUpperLimit)}
                       </Link>
                     </p>
                     <p>-</p>
-                    <p className="commit-mss">{branch.commitInfo.message}</p>
+                    <p className="commit-mss t-dark">{branch.commitInfo.message}</p>
                     <p>-</p>
-                    <p className="time-ago">{getTimeCreatedAgo(branch.commitInfo.createdAt, today)}</p>
+                    <p className="time-ago t-secondary">
+                      {getTimeCreatedAgo(branch.commitInfo.createdAt, today)}
+                    </p>
                   </div>
                 </div>
                 {!branch.protected && (
                   <div className="buttons">
                     {branch.behind >= 0 || branch.ahead >= 0 ? (
-                      <p style={{ marginRight: '1em' }}>
-                        {branch.behind}
-                        {' '}
-|
-                        {' '}
-                        {branch.ahead}
+                      <p className="mr-2">
+                        {`${branch.behind} | ${branch.ahead}`}
                       </p>
                     ) : (
-                      <div style={{ marginRight: '1em' }}>
+                      <div className="mr-2">
                         <CircularProgress size={20} />
                       </div>
                     )}
-                    <Button
-                      className="merge-btn"
-                      variant="outlined"
-                      component={Link}
+                    <Link
+                      className="btn btn-outline-dark my-auto mr-2"
                       to={`/my-projects/${projectName}/${encodeURIComponent(branch.name)}/new-merge-request`}
                     >
                       Merge request
-                    </Button>
-                    <Button variant="outlined">Compare</Button>
+                    </Link>
+                    <button
+                      className="btn btn-outline-dark my-auto mr-2"
+                    >
+                      Compare
+                    </button>
                     <button
                       type="button"
-                      className="dangerous-red delete-branch-btn"
+                      className="btn btn-danger btn-icon fa fa-times my-auto"
                       onClick={() => this.toggleModalAndUpdateList(branch.name, false)}
-                    >
-                      <b>X</b>
-                    </button>
+                    />
                   </div>
                 )}
               </div>

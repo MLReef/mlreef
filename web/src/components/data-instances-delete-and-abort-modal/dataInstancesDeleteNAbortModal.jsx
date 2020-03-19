@@ -3,8 +3,20 @@ import { string, bool, func } from 'prop-types';
 import '../../css/globalStyles.css';
 import '../../css/genericModal.css';
 
-const DataInstanteDeleteModal = ({ isModalVisible, setIsVisible, typeOfMessage }) => (isModalVisible
-  ? (
+const DataInstanteDeleteModal = (props) => {
+  const {
+    isModalVisible,
+    setIsVisible,
+    typeOfMessage,
+    onPositiveAction,
+  } = props;
+
+  const handlePositiveAction = (e) => {
+    onPositiveAction(e);
+    setIsVisible(false);
+  };
+
+  return isModalVisible && (
     <div>
       <div className="generic-modal">
         <div className="modal-content" style={{ height: '40%', minHeight: 250 }}>
@@ -110,6 +122,7 @@ const DataInstanteDeleteModal = ({ isModalVisible, setIsVisible, typeOfMessage }
             </button>
             <button
               type="button"
+              onClick={handlePositiveAction}
               style={{
                 backgroundColor: '#f5544d',
                 color: 'white',
@@ -124,12 +137,17 @@ const DataInstanteDeleteModal = ({ isModalVisible, setIsVisible, typeOfMessage }
         </div>
       </div>
     </div>
-  )
-  : null);
+  );
+};
+
+DataInstanteDeleteModal.defaultProps = {
+  onPositiveAction: (x) => x,
+};
 
 DataInstanteDeleteModal.propTypes = {
   isModalVisible: bool.isRequired,
   setIsVisible: func.isRequired,
+  onPositiveAction: func,
   typeOfMessage: string,
 };
 
