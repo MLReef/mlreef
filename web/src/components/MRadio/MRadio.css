@@ -1,0 +1,40 @@
+.m-radio_label {
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+  display: block;
+}
+
+.m-radio_container {
+  display: flex;
+}
+
+.m-radio_option {
+  flex: 1 1 50%;
+  display: flex;
+}
+
+.m-radio_input {
+  width: 100%;
+  padding: 0.5rem;
+  border-radius: 5px;
+  border: solid 2px var(--info);
+  background-color: #fff;
+  color: var(--dark);
+  margin-bottom: 0.5rem;
+}
+
+.m-radio_footer {
+  color: var(--secondary);
+}
+
+@media screen and (max-width: 570px) {
+  .m-radio_container {
+    flex-wrap: wrap;
+  }
+
+  .m-radio_option {
+    flex-basis: 100%;
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+  }
+}

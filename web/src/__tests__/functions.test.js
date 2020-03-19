@@ -180,18 +180,17 @@ describe('Pipelines mlreef file generation', () => {
     const expectedCommandsArr = [
       '   - python /epf/pipelines/augment.py --images-path directory_1/ --iterations 2',
     ];
-    const httpUrlToRepo = 'https://gitlab.com/mlreef/mlreef-demo.git';
+    const httpUrlToRepo = 'http://gitlab.com/mlreef/mlreef-demo.git';
     const dataInstanceName = 'data-instance/019ead10';
     const branchSelected = 'master';
     const pipelineOpScriptName = 'data-pipeline';
 
     const finalMockContent = generateRealContentFromTemplate(
-      mlreefFileContent,
-      branchSelected,
       expectedCommandsArr,
       dataInstanceName,
       httpUrlToRepo,
       pipelineOpScriptName,
+      branchSelected,
     );
     expect(finalMockContent.includes(expectedCommandsArr[0])).toBe(true);
     expect(finalMockContent.includes(pipelineOpScriptName)).toBe(true);
@@ -216,7 +215,7 @@ describe('Parse decimal numbers', () => {
       { original: 34.5678976, expected: 34.568 },
       { original: 0.0034567, expected: 0.0035 },
       { original: 0.000000434, expected: 0.0001 },
-      { original: '456.78923', expected: 456.79 },
+      { original: 456.78923, expected: 456.79 },
     ];
 
     const res = values

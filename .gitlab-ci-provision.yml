@@ -1,44 +1,44 @@
-develop provision:
-  stage: provision
-  only:
-    refs:
-      - develop
-  image: registry.gitlab.com/systemkern/s5:latest-aws
-  variables:
-    EC2_IMAGE_AMI:     "ami-050a22b7e0cf85dd0"             # ubuntu 16.04 LTS
-    EC2_SECURITY_GRP:  "application-servers"
-  before_script:
-    - chmod 400 $SSH_KEYFILE                               # prepare private key file
-    - sed -i "s~master/bin~$CI_COMMIT_REF_NAME/bin~"     $STARTUP_SCRIPT
-    - cat $STARTUP_SCRIPT
-    - aws configure set aws_access_key_id                $AWS_ACCESS_KEY_ID
-    - aws configure set aws_secret_access_key            $AWS_SECRET_ACCESS_KEY
-    - aws configure set default.region                   eu-central-1
-    - ls -al ~/.aws/
-    - cat ~/.aws/credentials
-  script:
-    - cd src/terraform
-    - terraform init    -input=false
-    - terraform apply   -auto-approve
-    - ls -al
-    - aws ec2 describe-instances --filters "Name=tag:Name,Values=$EC2_INSTANCE_NAME"
-      | jq -r ".Reservations[].Instances[].InstanceId"
-      | xargs --no-run-if-empty -I {} aws ec2 describe-instances --filters "Name=instance-id,Values={}"
-      | jq -r ".Reservations[].Instances[].NetworkInterfaces[].Association.PublicDnsName"
-      | head -1
-      | tr -d '\r' > $INSTANCE_INFO                        # pass instance url to deploy stage
-    - cat $INSTANCE_INFO                                   # debug output
-    - mv instance.info ../../instance.info
-  after_script:
-    - cat $INSTANCE_INFO                                   # debug output
-    - if [ -n $INSTANCE ]; then exit 1;  fi                # error on invalid INSTANCE_INFO
-  artifacts:
-    paths:
-      - "$INSTANCE_INFO"                                   # pass the file which contains our instance URL
-  environment:
-    name: $CI_COMMIT_REF_SLUG
-    url: $CI_PIPELINE_URL                                  # temporary url will be corrected by the gitlab-env-conf job
-    on_stop: decommission                                  # clean up after branch merge
+#develop provision:
+#  stage: provision
+#  only:
+#    refs:
+#      - develop
+#  image: registry.gitlab.com/systemkern/s5:latest-aws
+#  variables:
+#    EC2_IMAGE_AMI:     "ami-050a22b7e0cf85dd0"             # ubuntu 16.04 LTS
+#    EC2_SECURITY_GRP:  "application-servers"
+#  before_script:
+#    - chmod 400 $SSH_KEYFILE                               # prepare private key file
+#    - sed -i "s~master/bin~$CI_COMMIT_REF_NAME/bin~"     $STARTUP_SCRIPT
+#    - cat $STARTUP_SCRIPT
+#    - aws configure set aws_access_key_id                $AWS_ACCESS_KEY_ID
+#    - aws configure set aws_secret_access_key            $AWS_SECRET_ACCESS_KEY
+#    - aws configure set default.region                   eu-central-1
+#    - ls -al ~/.aws/
+#    - cat ~/.aws/credentials
+#  script:
+#    - cd src/terraform
+#    - terraform init    -input=false
+#    - terraform apply   -auto-approve
+#    - ls -al
+#    - aws ec2 describe-instances --filters "Name=tag:Name,Values=$EC2_INSTANCE_NAME"
+#      | jq -r ".Reservations[].Instances[].InstanceId"
+#      | xargs --no-run-if-empty -I {} aws ec2 describe-instances --filters "Name=instance-id,Values={}"
+#      | jq -r ".Reservations[].Instances[].NetworkInterfaces[].Association.PublicDnsName"
+#      | head -1
+#      | tr -d '\r' > $INSTANCE_INFO                        # pass instance url to deploy stage
+#    - cat $INSTANCE_INFO                                   # debug output
+#    - mv instance.info ../../instance.info
+#  after_script:
+#    - cat $INSTANCE_INFO                                   # debug output
+#    - if [ -n $INSTANCE_INFO ]; then exit 1;  fi           # error on invalid INSTANCE_INFO
+#  artifacts:
+#    paths:
+#      - "$INSTANCE_INFO"                                   # pass the file which contains our instance URL
+#  environment:
+#    name: $CI_COMMIT_REF_SLUG
+#    url: $CI_PIPELINE_URL                                  # temporary url will be corrected by the gitlab-env-conf job
+#    on_stop: decommission                                  # clean up after branch merge
 
 
 # The provision job boots up the new ec2 instance for deploying MLReef
@@ -51,8 +51,10 @@ feature branch provision:
     EC2_IMAGE_AMI:     "ami-050a22b7e0cf85dd0"             # ubuntu 16.04 LTS
     EC2_SECURITY_GRP:  "application-servers"
   before_script:
-    - echo $EC2_INSTANCE_NAME
     - chmod 400 $SSH_KEYFILE                               # prepare private key file
+    - if [ "$CI_COMMIT_REF_SLUG" == "develop" ]; then EC2_MACHINE_SIZE="p2.xlarge"; fi
+    - echo "EC2 machine name $EC2_INSTANCE_NAME"
+    - echo "EC2 machine size $EC2_MACHINE_SIZE"
 
     # decommission the current environment
     # use the aws-cli to retrieve the description (json) for our machine

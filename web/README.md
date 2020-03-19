@@ -46,7 +46,7 @@ The presence of speckle noise in Synthetic Aperture Radar (SAR) images makes the
 #### Standard Parameter(s):
 1. intensity(int): The internsity of the filter decided the level of smoothening that will be carried out. Ideal values lie between 2-7. A large value will result in high levels of blurring and might render the image without many features to extract. Must be a non zero positive value
 
-#### Advanced Parameter(s): -
+#### Advanced Parameter(s):
 
 ### Augment
 

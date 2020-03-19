@@ -1,10 +1,11 @@
-# MLReef Docs
+MLReef Docs
+===================
 
 Welcome to [MLReef](https://mlreef.com) documentation. 
 
 > MLReef is currently on **closed alpha** and therefore, this documentation is subject to change. 
 
-For all early access user we suggest starting with this [**early access documentation**](user/General/earlyaccess.md). It will give you a fast introduction to the basic concepts and features of MLReef and guide you savely on your pioneering voyage.
+For all early access user we suggest starting with this [**early access documentation**](user/general/README.md). It will give you a fast introduction to the basic concepts and features of MLReef and guide you savely on your pioneering voyage.
 
 > If you need support and you can´t find help here, don´t hesitate to either [raise a ticket](https://gitlab.com/mlreef/frontend/issues), connect with the MLReef community through our [slack channel](https://mlreefcommunity.slack.com) or send us an email at help@mlreef.com. You are never alone in the reef!
 
@@ -15,9 +16,10 @@ No matter how you use MLReef, we have the documentation for you:
 
 | Essential Documentation  | Essential Documentation  |
 |---|---|
-| [**User Documentation**](user/index.md)<br>Discover features and concepts for MLReef users. | [**Early Access Documentation**](user/General/earlyaccess.md)<br>Best start for all early access users. |
+| [**User Documentation**](user/README.md)<br>Discover features and concepts for MLReef users. | [**Early Access Documentation**](user/general/README.md)<br>Best start for all early access users. |
 | [**Contributing to MLReef**](user/contributing.md)<br>Explore this section if you want to contribute.  | [**New to GIT and MLReef?**](#new_to_git)<br>We have the resources to get you started.  |
 | [**Use-Cases**](user/general/use_cases.md)<br>Explore the power of MLReef through hands-on use cases!  | [**MLReef releases**](user/releases.md)<br>Whats new in MLReef.  |
+
 
 ## Popular documentation
 
@@ -25,8 +27,8 @@ Take a look at some of our most popular documentation resources:
 
 | Essential Documentation | Documentation for |
 |---|---|
-| [Parameter settings](user/Pipelines/parameters.md)  | Setting parameter values on data operations and models. |
-| [SSH Authentification](user/General/SSH/doc_ssh_README.md)  | Secure your network communication. |
+| [Parameter settings](user/pipelines/parameters.md)  | Setting parameter values on data operations and models. |
+| [SSH Authentification](user/general/ssh/doc_ssh_README.md)  | Secure your network communication. |
 
 
 ## The entire MLOps cycle
@@ -43,6 +45,7 @@ The following links provide documentation for each MLOps stage:
 | [Manage data](../User_Documentation)  | Data management features. |
 | [Manage models and operations](../User_Documentation)  | Source code management features. |
 | [Experiment](../User_Documentation)  | Training, experiment metrics and output files. |
+
 
 ### <a name="manage_data"></a> Manage data
 
@@ -68,6 +71,7 @@ The following documentation relates to the MLOps **Manage models and operations*
 |---|---|
 | [Pipelines](../User_Documentation)  | Data sourced pipelines for models and operations. |
 | [Code repositories](../User_Documentation)  | GIT based repositories for your models and operations. |
+
 
 ### <a name="experiments"></a> Experiment
 

@@ -15,7 +15,7 @@ exports[`The branches list should be displayed when dropdown button is clicked d
         type="button"
       >
         <span>
-          undefined
+          master
         </span>
         <img
           alt=""
@@ -82,7 +82,7 @@ exports[`The branches list should be displayed when dropdown button is clicked d
       type="button"
     >
       <a
-        href="/my-projects/12395599/undefined/commits/undefined"
+        href="/my-projects/12395599/master/commits/"
         onClick={[Function]}
       >
         History

@@ -23,7 +23,11 @@ const params = {
 };
 
 const setup = () => mount(
-  <SummarizedDataAndChartComp experiment={params.experiment} projectId={params.projectId} />,
+  <SummarizedDataAndChartComp
+    experiment={params.experiment}
+    projectId={params.projectId}
+    defaultBranch="master"
+  />,
 );
 
 test('assert that after clicking dropdown button the chart is rendered', () => {

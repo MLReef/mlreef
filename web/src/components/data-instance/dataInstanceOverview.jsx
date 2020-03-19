@@ -175,7 +175,7 @@ export const InstanceCard = ({ ...props }) => {
                     <b>{uniqueName}</b>
                   </p>
                   <p>
-                    Created by 
+                    Created by
                     {' '}
                     <b>{instance.userName}</b>
                     <br />
@@ -212,19 +212,19 @@ export const InstanceCard = ({ ...props }) => {
 };
 
 
-export class DataInstanceOverview extends Component {
+class DataInstanceOverview extends Component {
   constructor(props) {
     super(props);
     let project;
     let branches;
     let id;
-    if (props.projects) {
+    const { projects } = this.props;
+    if (projects) {
       project = props.projects.selectedProject;
       branches = props.branches.filter((branch) => branch.name.startsWith('data-pipeline'));
       id = project.id;
     }
     this.state = {
-      project,
       all: [],
       isDeleteModalVisible: false,
       dataInstances: [],
@@ -274,24 +274,29 @@ export class DataInstanceOverview extends Component {
   }
 
   render() {
-    const { project } = this.state;
-    let groupName; let
-      name;
-    if (project) {
-      groupName = project.namespace.name;
-      name = project.name;
+    const {
+      dataInstances,
+      isDeleteModalVisible,
+      typeOfMessage,
+    } = this.state;
+    const { history, projects: { selectedProject } } = this.props;
+    let groupName; 
+    let name;
+    if (selectedProject) {
+      groupName = selectedProject.namespace.name;
+      name = selectedProject.name;
     }
     return (
       <>
         <DataInstancesDeleteModal
-          isModalVisible={this.state.isDeleteModalVisible}
+          isModalVisible={isDeleteModalVisible}
           setIsVisible={this.setIsDeleteModalVisible}
-          typeOfMessage={this.state.typeOfMessage}
+          typeOfMessage={typeOfMessage}
         />
         <div>
           <Navbar />
           <ProjectContainer
-            project={project}
+            project={selectedProject}
             activeFeature="data"
             folders={[groupName, name, 'Data', 'Instances']}
           />
@@ -341,7 +346,7 @@ export class DataInstanceOverview extends Component {
                 Expired
               </button>
             </div>
-            {this.state.dataInstances
+            {dataInstances
               .map((dataInstanceClassification, index) => {
                 const instances = dataInstanceClassification.values.map((val) => {
                   const timediff = getTimeCreatedAgo(val.commit.created_at);
@@ -352,7 +357,7 @@ export class DataInstanceOverview extends Component {
                     userName: val.commit.author_name,
                     timeCreatedAgo: timediff,
                     expiration: timediff,
-                    projId: this.state.project.id,
+                    projId: selectedProject.id,
                     modelTitle: 'Resnet-50',
                   };
                 });
@@ -360,7 +365,7 @@ export class DataInstanceOverview extends Component {
                 return (
                   <InstanceCard
                     key={index}
-                    history={this.props.history}
+                    history={history}
                     setIsDeleteModalVisible={this.setIsDeleteModalVisible}
                     params={{
                       currentState: dataInstanceClassification.status,

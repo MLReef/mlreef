@@ -1,3 +1,4 @@
+import store from '../store';
 import {
   colorsForCharts,
 } from '../dataTypes';
@@ -210,15 +211,12 @@ export const isImageFormat = (fileName) => {
 };
 
 export const getCurrentUserInformation = () => {
-  const token = sessionStorage.getItem('token');
-  const userEmail = sessionStorage.getItem('user.email');
-  const userId = sessionStorage.getItem('user.id');
-  const userName = sessionStorage.getItem('user.username');
+  const { user } = store.getState();
 
   return {
-    token,
-    userEmail,
-    userId,
-    userName,
+    token: user.token,
+    userEmail: user.email,
+    userId: user.id,
+    userName: user.username,
   };
 };

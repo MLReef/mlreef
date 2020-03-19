@@ -12,6 +12,13 @@ export default {
   users: [],
   mergeRequests: [],
   user: {
+    id: null,
+    username: null,
+    email: null,
+    token: null,
+    auth: false,
+    role: null,
+    type: null,
     meta: {
       closedInstructions: {
         EmptyDataVisualization: false,
@@ -19,7 +26,7 @@ export default {
         DataVisualizationOverview: false,
         NewExperiment: false,
         PipeLineView: false,
-      }
-    }
+      },
+    },
   },
 };

@@ -6,4 +6,9 @@ export default class UserApi {
     console.info('updateMeta (prov)', meta);
     return Promise.resolve(true);
   }
+
+  static updateUserInfo(info) {
+    // waiting for the endpoint
+    return Promise.resolve(info);
+  }
 }

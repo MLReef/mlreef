@@ -1,3 +1,5 @@
+@import 'variables.css';
+
 /** This is applied to everything below the nav-bar. */
 .main-content {
   max-width: 1024px;
@@ -546,12 +548,6 @@ p.stat-no {
   font-weight: 400;
 }
 
-.file-properties {
-  border-radius: 0 0 0.3vw 0.3vw;
-  border: 1px solid #b2b2b2;
-  width: 100%;
-}
-
 .files-container-master{
   padding-top: 15px;
 }
@@ -635,7 +631,7 @@ p.stat-no {
 
 .files-row p {
   font-size: 1em;
-  text-align: right;
+  text-align: left;
   padding-right: 5%;
 }
 
@@ -829,6 +825,10 @@ hr {
   position: relative;
   display: block !important;
   padding: 0.5em;
+}
+
+.search-branch > input {
+  width: -webkit-fill-available;
 }
 
 .branches {

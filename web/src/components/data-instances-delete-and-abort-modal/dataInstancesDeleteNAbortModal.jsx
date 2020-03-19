@@ -130,7 +130,11 @@ const DataInstanteDeleteModal = ({ isModalVisible, setIsVisible, typeOfMessage }
 DataInstanteDeleteModal.propTypes = {
   isModalVisible: bool.isRequired,
   setIsVisible: func.isRequired,
-  typeOfMessage: string.isRequired,
+  typeOfMessage: string,
+};
+
+DataInstanteDeleteModal.defaultProps = {
+  typeOfMessage: 'delete',
 };
 
 export default DataInstanteDeleteModal;

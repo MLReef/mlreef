@@ -1,21 +1,24 @@
 import React, { Component } from 'react';
 import { Link, Redirect } from 'react-router-dom';
-import { string, number } from 'prop-types';
-import folderIcon from 'images/folder_01.svg';
-import fileIcon from 'images/file_01.svg';
-import filesApi from 'apis/FilesApi';
-import BranchesApi from 'apis/BranchesApi';
+import {
+  string, number, shape, func,
+} from 'prop-types';
+import FilesTable from '../files-table/filesTable';
+import filesApi from '../../apis/FilesApi';
+import folderIcon from '../../images/folder_01.svg';
+import BranchesApi from '../../apis/BranchesApi';
 import './FilesContainer.css';
 
 class FilesContainer extends Component {
   constructor(props) {
     super(props);
     this.getBack = this.getBack.bind(this);
+    const { files } = this.props;
     this.state = {
       projectId: null,
       currentPath: '',
       currentBranch: '',
-      files: [],
+      files: files || [],
       behind: [],
       ahead: [],
       redirect: false,
@@ -35,7 +38,7 @@ class FilesContainer extends Component {
     const urlPath = path
       ? decodeURIComponent(path)
       : null;
-    if(prevProps.projectId !== undefined && prevProps.projectId !== projectId){
+    if (prevProps.projectId !== undefined && prevProps.projectId !== projectId) {
       this.updateFilesArray();
       this.setState({ projectId: prevProps.projectId });
     }
@@ -60,30 +63,6 @@ class FilesContainer extends Component {
     this.setState = (state) => (state);
   }
 
-  getReturnOption = () => (
-    window.location.href.includes('path') ? (
-      <tr className="files-row">
-        <td className="file-type">
-          <button
-            type="button"
-            onClick={this.getBack}
-            style={{ padding: '0' }}
-          >
-            <img src={folderIcon} alt="" />
-          </button>
-          <button
-            type="button"
-            onClick={this.getBack}
-          >
-            ..
-          </button>
-        </td>
-        <td>&nbsp;</td>
-        <td>&nbsp;</td>
-      </tr>
-    )
-      : null);
-
   updateFilesArray = () => {
     const {
       projectId,
@@ -100,7 +79,7 @@ class FilesContainer extends Component {
     })
       .catch(
         () => {
-          this.setState({ redirect: true })
+          this.setState({ redirect: true });
         },
       );
   }
@@ -123,86 +102,68 @@ class FilesContainer extends Component {
       behind,
       currentBranch,
     } = this.state;
-    const { projectId, branch } = this.props;
+    const { projectId, branch, history } = this.props;
     return (
       <>
         {redirect
           ? <Redirect to="/error-page" />
           : null}
-        {files.length > 0 ? <div className={`files-container ${branch === 'master' ? 'files-container-master' : ''}`}>
-          {branch !== 'master' && (
-          <div className="commit-status">
-            <p id="commitStatus">
-              This branch is
-              {' '}
-              <b>
-                {ahead}
+        {files.length > 0 ? (
+          <div className={`files-container ${branch === 'master' ? 'files-container-master' : ''}`}>
+            {branch !== 'master' && (
+            <div className="commit-status">
+              <p id="commitStatus">
+                This branch is
                 {' '}
-commit(s)
-              </b>
-              {' '}
-              ahead and
-              {' '}
-              <b>
-                {behind}
+                <b>
+                  {ahead}
+                  {' '}
+                  commit(s)
+                </b>
                 {' '}
-commit(s)
-              </b>
-              {' '}
-              behind
-              {' '}
-              <b>&quot;master&quot;.</b>
-            </p>
-            <Link
-              type="button"
-              className="create-mr"
-              to={`/my-projects/${projectId}/${currentBranch}/new-merge-request`}
-            >
-              <p>
-                Create merge request
+                ahead and
+                {' '}
+                <b>
+                  {behind}
+                  {' '}
+                  commit(s)
+                </b>
+                {' '}
+                behind
+                {' '}
+                <b>&quot;master&quot;.</b>
               </p>
-            </Link>
-          </div>
-          )}
-
-            <table className="file-properties" id="file-tree">
-            <thead>
-              <tr className="title-row">
-                <th>
-                  <p id="paragraphName">Name</p>
-                </th>
-              </tr>
-            </thead>
-
-            <tbody>
-              {this.getReturnOption()}
-              {files.map((file) => {
-                let icon;
-                let routeType = '';
-                if (file.type === 'tree') {
+              <Link
+                type="button"
+                className="create-mr"
+                to={`/my-projects/${projectId}/${currentBranch}/new-merge-request`}
+              >
+                <p>
+                  Create merge request
+                </p>
+              </Link>
+            </div>
+            )}
+            <FilesTable
+              files={files.map((f) => ({ id: f.id, name: f.name, type: f.type }))}
+              headers={['Name']}
+              onClick={(e) => {
+                const target = e.currentTarget;
+                const targetDataKey = target.getAttribute('data-key');
+                const targetId = target.id;
+                const file = files.filter((f) => f.id === targetId)[0];
+                let routeType;
+                if (targetDataKey === 'tree') {
                   routeType = 'path';
-                  icon = folderIcon;
                 } else {
                   routeType = 'blob';
-                  icon = fileIcon;
                 }
                 const link = `/my-projects/${projectId}/${branch}/${routeType}/${encodeURIComponent(file.path)}`;
-                return (
-                  <tr key={`${file.id} ${file.name}`} className="files-row">
-                    <td className="file-type">
-                      <Link to={link}>
-                        <img src={icon} alt="" />
-                      </Link>
-                      <Link to={link} title={file.name} className="file-name-link">
-                        {file.name}
-                      </Link>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody> 
-          </table>
-        </div> : null }
+                history.push(link);
+              }}
+            />
+          </div>
+        ) : null }
       </>
     );
   }
@@ -212,6 +173,7 @@ FilesContainer.propTypes = {
   projectId: number.isRequired,
   branch: string.isRequired,
   path: string,
+  history: shape({ push: func }).isRequired,
 };
 
 FilesContainer.defaultProps = {

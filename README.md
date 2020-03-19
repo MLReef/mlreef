@@ -5,8 +5,9 @@ MLReef Frontend
 Please read the [Contribution Guidelines](CONTRIBUTE.md) carefully
 
 ### Module Structure
-* **/**:   the root module contains docker and infrastructure sources
-* **web**: the npm based react frontend
+* **/bin**: contains scripts which help developers with their jobs  
+* **/src**: the root module contains terraform and infrastructure sources
+* **/web**: the npm based react frontend
 
 
 Getting Started
@@ -14,10 +15,10 @@ Getting Started
 
 ### 1. Setup your developer environment
  1. Install latest Docker
- 2. Login to our private docker registry with your gitlab credentials by executing `docker login registry.gitlab.com`
+ 2. Login to our private docker registry hosted on gitlab, with your gitlab credentials by executing `docker login registry.gitlab.com`
 
 ### 2. Setup Gitlab (in docker) infrastructure
-For running locally we are using _docker-compose_. The full docker compose file contains all services (inluding the frontend).
+For running locally we are using _docker-compose_. The full docker compose file contains all services (including the frontend).
 
 #### Use the "force"
 
@@ -26,7 +27,7 @@ The scripts can run in two modes, with "force" or without force.
 *Important*: docker needs a "local.env" to run the stack
 
 So for the FIRST time, use "force" to define your environment which shall never change.
-Otherwise, do not use force as it changes the local.env and will take a lot of time and will kill your local data.
+Otherwise, do **not** use force as it changes the local.env and will take a lot of time and will kill your local data.
 
 example of local.env:
 ```
@@ -38,7 +39,6 @@ GITLAB_ADMIN_TOKEN=asdf2rasdf4safsa
 ```
 
 
-
 #### MacOs / Linux
 For starting and setting up your local docker environment run: `bin/setup-local-environment.sh force` or `bin/setup-local-environment.sh`and follow the instructions for setting up your local instance including gitlab runners
 
@@ -46,11 +46,10 @@ During setup, you **WILL** encounter the following error message: `ERROR: Failed
 
 This is the gitlab runner complain about its missing configuration. As soon as the last step of the `bin/docker-compose-new.sh` script has been performed you will encounter no more errors.
 
-The runner hot-reloads the config file every 5 sconds, so no restart is necessary.
+The gitlab runner hot-reloads the config file every 5 sconds, so no restart is necessary.
 
 
 #### Windows
-
 Ensure your git client is working correctly: 
 * Linux scripts must be in LF! Ensure that you checkout them out as-is and NOT convert to CRLF
 * https://stackoverflow.com/questions/2517190/how-do-i-force-git-to-use-lf-instead-of-crlf-under-windows
@@ -64,14 +63,18 @@ For understanding:
   * **Do not change the gitlab salts afterwards**, as everything encrypted (all tokens and passwords) would then be lost.
 * gitlab runners will be set up via browser
 
-#### Debugging & Migrating from old versions
 
+#### Debugging & Migrating from old versions
 You have several options, we suggest you try with least-invasive and hope it works.
 Occasionally it happens, that you have to make a fresh start with a clean state (delete your data volumes), and need a proper setup again
 
-* **hard-reset**: run "bin/setup-local-environment.bat force" to generate a local.env and re-setup your stack. Your data will be lost, but afterwards you have docker volumes to keep them.
-* **soft**: gather all necessary env vars (see local.env below) and put them in a local.env. For example, with your currently configured admin_token and secrets. Your env must not change in this case ! This will not work if you have different secrets.
-* **mixed** and little hacky: Copy the example local.env, and then run "bin/setup-local-environment.bat" to inject that admin_token into gitlab. Your env changes a bit, a small setup is done again, but you should keep all your data.
+* **hard-reset**: run "bin/setup-local-environment.bat force" to generate a local.env and re-setup your stack.
+Your data will be lost, but afterwards you have docker volumes to keep them.
+* **soft**: gather all necessary env vars (see local.env below) and put them in a local.env. For example, with your
+currently configured admin_token and secrets. Your env must not change in this case ! This will not work if you have different secrets.
+* **mixed** and little hacky: Copy the example local.env, and then run "bin/setup-local-environment.bat"
+to inject that admin_token into gitlab. Your env changes a bit, a small setup is done again, but you should keep all your data.
+
 
 ### Start Frontend Development
 * Stop the frontend docker  `docker stop frontend`
@@ -83,22 +86,16 @@ section from the `docker-compose.yml` file.
 For further information on running locally, please refer to the web module's [README.md](web/README.md)
 
 
+### Connecting to different components 
+* The main entry point is the standard http port: 80
+* The gitlab instance can be reached directly at port: 10080
+* The backend can be reached directly at port.: 20080 
+
+
 Styleguide
 --------------------
-Here is the XD file for the definitions of all elements: https://xd.adobe.com/spec/e23711b1-f385-4729-5034-632fbe73bb6b-9406/
 
-**Color Pallette:**
-
-<p>Deep dark (primary blue): #1D2B40</p>
-<p>Almost white (base color, very light grey): #e5e5e5</p>
-<p>Signal fire (red): #f5544d</p>
-<p>Algae (green): #15B785</p>
-<p>Sponge (yellow): #EABA44</p>
-<p>Lagoon (light blue): #16ADCE</p>
-<p>Less white (grey): #b2b2b2</p>
-
-**UI Elements**
-In this [list](uielements.md) you will all used standard UI elements. 
+In this [list](STYLEGUIDE.md) you will all used standard UI elements. 
 
 
 Infrastructure
@@ -133,7 +130,7 @@ The _docker-compose.yml_ features **nginx** as reverse proxy running on port 80.
 we can route API calls to the Backend, Gitlab and other services through the same _orgign_ and preven CORS errors.
 
 
-### Instance Maintainance
+### Instance Maintenance
 To connect to a development instance you will need either the IP or hostname of the instance.
 This can be found in the [Environments Section](https://gitlab.com/mlreef/frontend/-/environments) on gitlab.com
 

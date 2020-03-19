@@ -1,12 +1,4 @@
-/**
- * This API token was generated via the Gitlab GUI.
- * This token belongs to Mlreef demo's account
- * The Token's name is INVESTOR_DEMO_TOKEN
- */
-export const GITLAB_INSTANCE = process.env.REACT_APP_BACKEND !== undefined
-  ? process.env.REACT_APP_BACKEND
-  : process.env.REACT_APP_BACKEND_DEV;
-
-export const MLREEF_INSTANCE = process.env.REACT_APP_MLREEF_INSTANCE_URL !== undefined
-  ? process.env.REACT_APP_MLREEF_INSTANCE_URL
-  : 'http://localhost:8080';
+export const API_GATEWAY = process.env.REACT_APP_API_GATEWAY || 'http://ec2-3-126-88-77.eu-central-1.compute.amazonaws.com';
+export const GITLAB_PORT = process.env.REACT_APP_GITLAB_PORT || '10080';
+export const BACKEND_PORT = process.env.REACT_APP_BACKEND_PORT || '8080';
+export const BUILD_TIMEOUT = process.env.REACT_APP_BUILD_TIMEOUT || 18000;

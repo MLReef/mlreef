@@ -42,8 +42,8 @@ Static imports are used to be used as a default, erspecially if the Type is defi
 They can only be ommited to improve readability or prevent compile errors. 
 
 ### Test Code
-**Naming:** When writing tests in koltin we like to make use of the fact, that Kotlin allows Unicode function names. This means
-please name your tests in the following pattern.
+**Naming:** When writing tests in koltin we like to make use of the fact, that Kotlin allows Unicode function names.
+This means please name your tests in the following pattern.
 * ```@Test fun `Can do Stuff when Condition is given`() {…}```
 * ```@Test fun `Cannot do Stuff when condition is missing`() {…}```
 * ```@Test fun `Throw Exception when something unexpected happens`() {…}```
@@ -68,7 +68,7 @@ Add or change the documentation where necessary.
 
 Version Control
 ===============
-When commiting code please make sure that you:
+When committing code please make sure that you:
 * Make commits of logical units.
 * Be sure to use the issue key in the commit message.
 * Ensure you have added and run the necessary tests for your changes.

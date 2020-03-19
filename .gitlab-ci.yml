@@ -43,16 +43,17 @@ variables:
 .except-docu-branches:
   except:
     variables:
+      - $CI_COMMIT_REF_NAME =~ /^doc\//                   # match every branch "doc/**"
       - $CI_COMMIT_REF_NAME =~ /^docs\//                   # match every branch "docs/**"
       - $CI_COMMIT_REF_NAME =~ /^docu\//                   # match every branch "docu/**"
       - $CI_COMMIT_REF_NAME =~ /^documentation\//          # match every branch "documentation/**"
 
 .feature-branches-only:
   extends: [".except-docu-branches"]
-  except:
-    refs:
-      - develop
-      - master
+#  except:
+#    refs:
+#      - develop
+#      - master
 
 render documentation:
   stage: build

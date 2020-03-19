@@ -37,11 +37,11 @@ const DataCard = ({ title, linesOfContent }) => (
       <p><b>{title}</b></p>
     </div>
     <div>
-      {linesOfContent.map((line) => {
+      {linesOfContent.map((line, lineIndex) => {
         const lineContent = line.startsWith('*')
           ? <b>{line.replace('*', '')}</b>
           : line;
-        return <p key={`${title} ${line}`} className="line">{lineContent}</p>;
+        return <p key={`${title} ${line} ${lineIndex.toString()}`} className="line">{lineContent}</p>;
       })}
     </div>
   </div>

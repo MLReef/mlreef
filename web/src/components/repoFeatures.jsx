@@ -106,21 +106,20 @@ export class RepoFeatures extends Component {
     } = this.state;
     const { branch, path } = this.props;
     return (
-      <>
-        {branch !== null ? (
-          <div id="repo-features">
-            <div>
-              <div className="reference" ref={this.branchRef}>
-                <button
-                  type="button"
-                  id="branch-dropdown"
-                  className="white-button"
-                  onClick={this.handleBranch}
-                >
-                  <span>{decodeURIComponent(branchSelected)}</span>
-                  <img id="leftfeature-image" src={arrowDown} alt="" />
-                </button>
-                {isOpen && (
+      branch !== null ? (
+        <div id="repo-features">
+          <div>
+            <div className="reference" ref={this.branchRef}>
+              <button
+                type="button"
+                id="branch-dropdown"
+                className="white-button"
+                onClick={this.handleBranch}
+              >
+                <span>{decodeURIComponent(branchSelected)}</span>
+                <img id="leftfeature-image" src={arrowDown} alt="" />
+              </button>
+              {isOpen && (
                 <div id="branches-list" className="select-branch">
                   <div
                     style={{ margin: '0 50px', fontSize: '14px', padding: '0 40px' }}
@@ -137,11 +136,19 @@ export class RepoFeatures extends Component {
                       <ul>
                         <li className="branch-header">Branches</li>
                         {branches && branches.filter((branch) => !branch.name.startsWith('data-pipeline/')
-                          && !branch.name.startsWith('data-visualization/') && !branch.name.startsWith('experiment/')).map((branch) => {
-                          const encoded = encodeURIComponent(branch.name);
+                          && !branch.name.startsWith('data-visualization/')
+                          && !branch.name.startsWith('experiment/')).map((br) => {
+                          const encoded = encodeURIComponent(br.name);
                           return (
                             <li key={encoded}>
-                              <Link id={branch.name} to={`/my-projects/${projectId}/${encoded}`} onClick={this.handleClick}><p>{branch.name}</p></Link>
+                              <Link
+                                key={`${encoded} link`}
+                                id={br.name}
+                                to={`/my-projects/${projectId}/${encoded}`}
+                                onClick={this.handleClick}
+                              >
+                                <p>{br.name}</p>
+                              </Link>
                             </li>
                           );
                         })}
@@ -149,51 +156,50 @@ export class RepoFeatures extends Component {
                     </div>
                   </div>
                 </div>
-                )}
-              </div>
-              <div className="reference" ref={this.plusRef}>
-                <button
-                  type="button"
-                  className="white-button"
-                  style={{ position: 'relative' }}
-                  onClick={this.plusDropdown}
-                >
-                  <img id="plus" src={plus01} alt="" />
-                  <img id="leftfeature-image" src={arrowDown} alt="" />
-                </button>
-                {plusOpen && (
+              )}
+            </div>
+            <div className="reference" ref={this.plusRef}>
+              <button
+                type="button"
+                className="white-button"
+                style={{ position: 'relative' }}
+                onClick={this.plusDropdown}
+              >
+                <img id="plus" src={plus01} alt="" />
+                <img id="leftfeature-image" src={arrowDown} alt="" />
+              </button>
+              {plusOpen && (
                 <div className="plus-dropdown">
                   <ul className="plus-list">
                     <li>This directory</li>
-                  ---
+                    ---
                     <hr />
                     <li>This repository</li>
                     <li className="plus-option"><Link to={`/my-projects/${projectId}/new-branch`}>New branch</Link></li>
                   </ul>
                 </div>
-                )}
-              </div>
-              <button
-                type="button"
-                className="blue-button"
-              >
-                <Link to={`/my-projects/${projectId}/empty-data-visualization`}><p>Data Visualisation</p></Link>
-              </button>
-              <button
-                type="button"
-                className="blue-button"
-              >
-                <Link to={`/my-projects/${projectId}/pipe-line`}><p>Data Pipeline</p></Link>
-              </button>
+              )}
             </div>
-            <div>
-              <button type="button" className="white-button">
-                <Link to={`/my-projects/${projectId}/${branch}/commits/${path}`}>History</Link>
-              </button>
-            </div>
+            <button
+              type="button"
+              className="blue-button"
+            >
+              <Link to={`/my-projects/${projectId}/empty-data-visualization`}><p>Data Visualisation</p></Link>
+            </button>
+            <button
+              type="button"
+              className="blue-button"
+            >
+              <Link to={`/my-projects/${projectId}/pipe-line`}><p>Data Pipeline</p></Link>
+            </button>
           </div>
-        ) : null}
-      </>
+          <div>
+            <button type="button" className="white-button">
+              <Link to={`/my-projects/${projectId}/${branch}/commits/${path}`}>History</Link>
+            </button>
+          </div>
+        </div>
+      ) : null
     );
   }
 }
@@ -209,9 +215,16 @@ RepoFeatures.propTypes = {
     }),
   ).isRequired,
   actions: shape({
-    loadFiles: func.isRequired,
-    getBranchesList: func.isRequired,
-  }).isRequired,
+    loadFiles: func,
+    getBranchesList: func,
+  }),
+};
+
+RepoFeatures.defaultProps = {
+  actions: {
+    loadFiles: () => {},
+    getBranchesList: () => {},
+  },
 };
 
 function mapStateToProps(state) {

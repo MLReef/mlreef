@@ -2,11 +2,10 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { toastr } from 'react-redux-toastr';
-import { Redirect } from 'react-router-dom';
-import * as projectActions from '../../actions/projectInfoActions';
+import { Link } from 'react-router-dom';
+import { login } from '../../actions/userActions';
 import './login.css';
 import icon from '../../images/ml_reef_icon_01.svg';
-import MLRAuthApi from '../../apis/MLAuthApi';
 
 class Login extends React.Component {
   constructor(props) {
@@ -14,12 +13,24 @@ class Login extends React.Component {
     this.state = {
       email: '',
       password: '',
-      redirect: false,
     };
+
     this.submit = this.submit.bind(this);
     this.reset = this.reset.bind(this);
     this.validateForm = this.validateForm.bind(this);
     this.handleChange = this.handleChange.bind(this);
+  }
+
+  componentDidMount() {
+    const { isAuth, history } = this.props;
+
+    if (isAuth) history.push('/my-projects');
+  }
+
+  componentDidUpdate() {
+    const { isAuth, history } = this.props;
+
+    if (isAuth) history.push('/my-projects');
   }
 
   handleChange(event) {
@@ -43,28 +54,27 @@ class Login extends React.Component {
       errorDiv.classList.remove('invisible');
       return;
     }
+
     const { email } = this.state;
     const { password } = this.state;
 
-    MLRAuthApi
-      .login(email, email, password)
-      .then((user) => {
-        sessionStorage.setItem('auth', true);
-        sessionStorage.setItem('user', user); // FIXME: Does not work, but would the best IMHO
-        sessionStorage.setItem('user.id', user.id);
-        sessionStorage.setItem('user.username', user.username);
-        sessionStorage.setItem('user.email', user.email);
-        sessionStorage.setItem('token', user.token);
-        this.setState({ redirect: true });
+    const { actions } = this.props;
+
+    const formData = {
+      username: email,
+      email,
+      password,
+    };
+
+    actions.login(formData)
+      .then(() => {
         toastr.success('Success:', 'Login successfully');
       })
-      .catch(
-        (error) => {
-          toastr.error('Error:', `Try Login with mlreef + password or get: ${error}`);
-          const errorDiv = document.getElementById('errorDiv');
-          errorDiv.classList.remove('invisible');
-        },
-      );
+      .catch((error) => {
+        toastr.error('Error:', `Try Login with mlreef + password or get: ${error}`);
+        const errorDiv = document.getElementById('errorDiv');
+        errorDiv.classList.remove('invisible');
+      });
   }
 
   reset() {
@@ -74,21 +84,11 @@ class Login extends React.Component {
     });
   }
 
-  renderRedirect() {
-    const { redirect } = this.state;
-    if (redirect || sessionStorage.getItem('auth') === 'true') {
-      return <Redirect to="/my-projects" />;
-    }
-
-    return null;
-  }
-
   render() {
-    const { email } = this.state;
-    const { password } = this.state;
+    const { email, password } = this.state;
+
     return (
       <div id="login-container">
-        {this.renderRedirect()}
         <div id="icon-div">
           <img src={icon} alt="" />
         </div>
@@ -139,19 +139,28 @@ class Login extends React.Component {
           <p>
             New to MLreef?
             {' '}
-            <b>Create an account.</b>
+            <Link to="/register">
+              <b>Create an account.</b>
+            </Link>
           </p>
         </div>
       </div>
     );
   }
 }
+
+function mapStateToProps(state) {
+  return {
+    isAuth: state.user && state.user.auth,
+  };
+}
+
 function mapDispatchToProps(dispatch) {
   return {
     actions: bindActionCreators({
-      ...projectActions,
+      login,
     }, dispatch),
   };
 }
 
-export default connect(() => ({ }), mapDispatchToProps)(Login);
+export default connect(mapStateToProps, mapDispatchToProps)(Login);

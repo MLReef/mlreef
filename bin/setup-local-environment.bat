@@ -75,7 +75,7 @@ echo REGISTER_RUNNER_TOKEN=%token% > last-runner-registration-token.txt
 
 docker-compose up --detach gitlab-runner-dispatcher
 docker exec gitlab-runner-dispatcher rm      /etc/gitlab-runner/config.toml
-docker exec gitlab-runner-dispatcher gitlab-runner register --non-interactive  --url="http://gitlab:80/" --docker-network-mode frontend_default --registration-token "%token%" --executor "docker" --docker-image alpine:latest --docker-volumes /var/run/docker.sock:/var/run/docker.sock --description "local developer runner" --tag-list "docker" --run-untagged="true" --env "ENVIRONMENT_TEST_VARIABLE=foo-bar" --locked="false" --access-level="not_protected"
+docker exec gitlab-runner-dispatcher gitlab-runner register --non-interactive  --url="http://gitlab:80/" --docker-network-mode mlreef-docker-network --registration-token "%token%" --executor "docker" --docker-image alpine:latest --docker-volumes /var/run/docker.sock:/var/run/docker.sock --description "local developer runner" --tag-list "docker" --run-untagged="true" --env "ENVIRONMENT_TEST_VARIABLE=foo-bar" --locked="false" --access-level="not_protected"
 
 echo.
 echo ### 3. Inject Admin token into gitlab

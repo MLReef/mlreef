@@ -8,6 +8,7 @@ import fileIcon from '../../images/file_01.svg';
 import traiangle01 from '../../images/triangle-01.png';
 import ArrowButton from '../arrow-button/arrowButton';
 import filesApi from '../../apis/FilesApi';
+import '../files-table/filesTable.css';
 
 class SelectDataPipelineModal extends Component {
   constructor(props) {
@@ -155,6 +156,15 @@ class SelectDataPipelineModal extends Component {
         filePath,
         project,
       } = this.state;
+      const customTime = (ISODate) => {
+        const today = new Date(ISODate);
+        const h = today.getHours();
+        let m = today.getMinutes();
+        if (m < 10) {
+          m = `0${m}`;
+        }
+        return (`${h}:${m}`);
+      };
       if (!show) {
         return null;
       }
@@ -196,13 +206,7 @@ class SelectDataPipelineModal extends Component {
                   />
                   {isOpen && (
                   <div className="select-branch" style={{ top: '27%', left: '35px' }} onBlur={this.handleBlur}>
-                    <div
-                      style={{
-                        margin: '0 50px',
-                        fontSize: '14px',
-                        padding: '0 40px',
-                      }}
-                    >
+                    <div className="switch-header">
                       <p>Switch Branches</p>
                     </div>
                     <hr />
@@ -222,10 +226,52 @@ class SelectDataPipelineModal extends Component {
                                 onClick={() => {
                                   this.getFiles(branch.name);
                                 }}
+                                onKeyDown={() => {
+                                  this.getFiles(branch.name);
+                                }}
                               >
                                 <p>{branch.name}</p>
                               </li>
                             ))}
+                        </ul>
+                      </div>
+                    </div>
+                    <div className="switch-header">
+                      <p>or switch to a data instance</p>
+                    </div>
+                    <hr />
+                    <div className="search-branch">
+                      <input
+                        type="text"
+                        placeholder="Search a data instance"
+                      />
+                      <div className="branches">
+                        <ul>
+                          <li className="branch-header">Data instances</li>
+                          {branches.filter((branch) => branch.name.startsWith('data-pipeline'))
+                            .map((branch, index) => {
+                              const pipelineName = branch.name;
+                              const uniqueName = pipelineName.split('/')[1];
+                              return (
+                                <li
+                                  key={index}
+                                  onKeyDown={() => {
+                                    this.getFiles(branch.name);
+                                  }}
+                                  onClick={() => {
+                                    this.getFiles(branch.name);
+                                  }}
+                                >
+                                  <p>
+                                    {uniqueName}
+                                    {' '}
+                                    -
+                                    {' '}
+                                    {customTime(branch.commit.created_at)}
+                                  </p>
+                                </li>
+                              );
+                            }).reverse()}
                         </ul>
                       </div>
                     </div>
@@ -234,10 +280,7 @@ class SelectDataPipelineModal extends Component {
                 </div>
                 <div style={{ paddingLeft: '1em' }}>
                   <p style={{ fontSize: '15px' }}>
-                    {project.name}
-                    {' '}
-                    /
-                    {' '}
+                    {` ${project.name} / `}
                     <b>{filePath}</b>
                   </p>
                 </div>
@@ -274,7 +317,7 @@ class SelectDataPipelineModal extends Component {
                 <thead>
                   <tr className="title-row">
                     <th style={{ width: '6%' }} />
-                    <th style={{ width: '5%' }}>
+                    <th style={{ width: '13%' }}>
                       <p id="paragraphName">Name</p>
                     </th>
                     <th style={{ width: '87%' }}>
@@ -292,7 +335,7 @@ class SelectDataPipelineModal extends Component {
                   {showReturnOption && this.getReturnOption()}
                   {files.map((file, index) => (
                     <tr key={index} id={`tr-file-${index}`} className="files-row" style={{ justifyContent: 'unset' }}>
-                      <td className="file-type" style={{ width: 'unset' }}>
+                      <td className="icon-container-column">
                         <Checkbox
                           id={`span-file-${index}`}
                           checked={filesSelected.filter(
@@ -305,10 +348,10 @@ class SelectDataPipelineModal extends Component {
                           }}
                         />
                       </td>
-                      <td className="file-type" style={{ width: 'unset' }}>
-                        <p>
+                      <td className="icon-container-column">
+                        <div>
                           <img src={file.type === 'tree' ? folderIcon : fileIcon} alt="" />
-                        </p>
+                        </div>
                         <p>
                           {file.type === 'tree'
                             ? (

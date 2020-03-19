@@ -1,5 +1,3 @@
-import { MLREEF_INSTANCE } from '../apiConfig';
-
 export default class MLRAuthApi {
   static buildAuthHeaders(token) {
     return new Headers({
@@ -13,7 +11,6 @@ export default class MLRAuthApi {
     return new Headers({
       'Content-Type': 'application/json',
       Accept: 'application/json',
-      'Access-Control-Allow-Origin': `${MLREEF_INSTANCE}`,
     });
   }
 
@@ -33,5 +30,16 @@ export default class MLRAuthApi {
       throw new Error(`Bad response from server: ${body.errorName}`);
     }
     return body;
+  }
+
+  static register(data) {
+    const request = new Request('/api/v1/auth/register', {
+      method: 'POST',
+      headers: this.buildAnonHeaders(),
+      body: JSON.stringify(data),
+    });
+
+    return fetch(request)
+      .then((res) => res.ok ? res.json() : Promise.reject(res));
   }
 }

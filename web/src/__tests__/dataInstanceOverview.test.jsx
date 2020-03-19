@@ -4,23 +4,27 @@ import { BrowserRouter as Router } from 'react-router-dom';
 import Adapter from 'enzyme-adapter-react-16';
 import { Provider } from 'react-redux';
 import { storeFactory } from '../functions/testUtils';
-import { DataInstanceOverview } from '../components/data-instance/dataInstanceOverview';
-import { projectsArrayMock } from '../testData';
+import DataInstanceOverview from '../components/data-instance/dataInstanceOverview';
+import { projectsArrayMock, branchesMock } from '../testData';
 
 Enzyme.configure({ adapter: new Adapter() });
 
-const store = storeFactory(projectsArrayMock);
+const store = storeFactory({
+  projects: projectsArrayMock.projects,
+  branches: branchesMock,
+});
 const wrapper = shallow(<DataInstanceOverview store={store} />);
 
 describe('Data instance overview contains 4 buttons', () => {
   it('renders filtering functionality buttons', () => {
-    expect(wrapper.find('#buttons-container').contains([
+    const afterDiveWrapper = wrapper.dive().dive();
+    expect(afterDiveWrapper.find('#buttons-container').contains([
       <button>All</button>,
       <button>In Progress</button>,
       <button>Active</button>,
       <button>Expired</button>,
     ]));
-    expect(wrapper.find('#buttons-container').children()).toHaveLength(4);
+    expect(afterDiveWrapper.find('#buttons-container').children()).toHaveLength(4);
   });
 });
 
@@ -30,7 +34,6 @@ describe('Button filters data instances', () => {
       <Provider store={store}>
         <Router>
           <DataInstanceOverview />
-)
         </Router>
       </Provider>
     ));

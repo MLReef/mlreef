@@ -2,7 +2,7 @@
 import React from 'react';
 import Enzyme, { shallow } from 'enzyme';
 import Adapter from 'enzyme-adapter-react-16';
-import FilesContainer from '../components/FilesContainer';
+import FilesTable from '../components/files-table/filesTable';
 
 Enzyme.configure({ adapter: new Adapter() });
 
@@ -30,11 +30,9 @@ const filesMock = [
   },
 ];
 
-const setup = () => {
-  const wrapper = shallow(<FilesContainer projectId={14448940} branch="master" />);
-  wrapper.instance().setState({ files: filesMock });
-  return wrapper;
-};
+const setup = () => shallow(
+  <FilesTable files={filesMock} headers={['Name']} onCLick={() => {}} />,
+);
 
 describe('files table should render properly', () => {
   let wrapper;

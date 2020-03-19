@@ -53,24 +53,18 @@
       sudo docker login ${DOCKER_REGISTRY} -u \"${DOCKER_USER}\" -p \"${DOCKER_PASSWORD}\"
       "
 
-
-develop deploy:
-  extends: .deploy-base
-  only:
-    refs: [develop, master]
-  script: ssh -i $SSH_KEYFILE -o 'AddKeysToAgent yes' ubuntu@"${URL}" "
-    export DOCKER_ENV="test.env"                                     &&
-    echo GITLAB_ADMIN_TOKEN=$GITLAB_ADMIN_TOKEN >> $DOCKER_ENV       &&
-    sudo docker-compose pull                                         &&
-    sudo docker-compose up --detach                                  &&
-    sudo docker system prune --force
-    "
-
-# TODO: at the beginning of time NO secrets have been used, therefore we might not even need the following lines
-#echo GITLAB_SECRETS_SECRET_KEY_BASE=$GITLAB_SECRETS_SECRET_KEY_BASE >> local.env &&
-#echo GITLAB_SECRETS_OTP_KEY_BASE=$GITLAB_SECRETS_OTP_KEY_BASE >> local.env &&
-#echo GITLAB_SECRETS_DB_KEY_BASE=$GITLAB_SECRETS_DB_KEY_BASE >> local.env &&
-
+# Development deployment has been temporarily changed to 
+#develop deploy:
+#  extends: .deploy-base
+#  only:
+#    refs: [develop, master]
+#  script: ssh -i $SSH_KEYFILE -o 'AddKeysToAgent yes' ubuntu@"${URL}" "
+#    export DOCKER_ENV="test.env"                                     &&
+#    echo GITLAB_ADMIN_TOKEN=$GITLAB_ADMIN_TOKEN >> $DOCKER_ENV       &&
+#    sudo docker-compose pull                                         &&
+#    sudo docker-compose up --detach                                  &&
+#    sudo docker system prune --force
+#    "
 
 feature branch deploy:
   extends: [".deploy-base", ".feature-branches-only"]
