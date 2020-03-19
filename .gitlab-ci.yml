@@ -40,9 +40,18 @@ build-backend:
     POSTGRES_USER: $DB_USER
     POSTGRES_PASSWORD: $DB_PASSWORD
   before_script:
+    - export GRADLE_USER_HOME=`pwd`/.gradle
+    - chmod +x ./gradlew
     - echo "Use DB $DB_NAME with $DB_USER"
+  cache:
+    key: "$CI_COMMIT_REF_SLUG"
+    paths:
+      - .gradle/wrapper
+      - .gradle/caches
   script:
     - ./gradlew build --stacktrace
+    - mkdir mlreef-rest/build/test-results/test/mlreef-domain
+    - cp mlreef-domain/build/test-results/test/TEST-*.xml mlreef-rest/build/test-results/test/mlreef-domain/
     - ./gradlew jacocoTestReport coverageReport
     - ./gradlew :mlreef-rest:bootJar
     - ./gradlew :mlreef-rest:prepareDocker
@@ -53,22 +62,28 @@ build-backend:
       - mlreef-rest/build/dependency/*
       - mlreef-rest/build/reports/jacoco/test
       - mlreef-rest/build/reports/tests/
-    expire_in: 1 week
+    reports:
+      junit: mlreef-rest/build/test-results/test/**/TEST-*.xml
 
 pages:
   stage: test
+  cache:
+    key: pages-public-cache
+    paths:
+      - public/
   dependencies:
     - build-backend
   script:
-    - mkdir public/$CI_COMMIT_BRANCH -p
+    - ls public/develop public/feature/* -l || echo "Still empty"
+    - mkdir public/$CI_COMMIT_BRANCH -p || echo "Already existing"
+    - rm public/$CI_COMMIT_BRANCH/* -R || echo "Still empty"
     - mkdir public/$CI_COMMIT_BRANCH/coverage -p
     - mv mlreef-rest/build/reports/jacoco/test/html/* public/$CI_COMMIT_BRANCH/coverage
     - mv mlreef-rest/build/asciidoc/html5/rest-api.html public/$CI_COMMIT_BRANCH/index.html
   artifacts:
     paths:
       - public
-  #only:
-  #  - develop
+
 
 deploy-backend:
   stage: deploy
