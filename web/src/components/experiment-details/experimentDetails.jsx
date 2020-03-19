@@ -23,7 +23,11 @@ const sections = {
 };
 
 const ExperimentDetails = ({
- projectId, setNullExperiment, experiment, job, parameters 
+ projectId,
+ setNullExperiment,
+ experiment,
+ job,
+ parameters
 }) => {
   const [selectedSection, setSelectedSection] = useState(0);
   function menuBtnHandler(e) {

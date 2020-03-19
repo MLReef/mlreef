@@ -5,7 +5,6 @@ import {
 } from 'prop-types';
 import FilesTable from '../files-table/filesTable';
 import filesApi from '../../apis/FilesApi';
-import folderIcon from '../../images/folder_01.svg';
 import BranchesApi from '../../apis/BranchesApi';
 import './FilesContainer.css';
 
