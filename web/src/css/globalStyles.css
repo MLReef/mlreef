@@ -1,4 +1,4 @@
-/* Main container styles which give same sizes to all views in project*/ 
+/* Main container styles which give same sizes to all views in project*/
 
 @import url("https://fonts.googleapis.com/css?family=Roboto&display=swap");
 
@@ -11,27 +11,13 @@ a:hover {
   text-decoration: underline;
 }
 
-body {
-  margin: 0;
-  padding: 0;
-  font-family: "Roboto", sans-serif;
-  font-size: 13px;
-  min-width: 768px;
-}
-
-button {
-  font-family: "Roboto", sans-serif;
-  height: 2em;
-}
-
-
 .main-content {
    max-width: 1024px;
-   min-width: 786px;
    align-items: center;
-   margin: 0% auto 0% auto;
+   margin: 0 auto;
+   padding: 0 1rem;
  }
- 
+
 /*------------------- Colors --------------------*/
 
 
@@ -44,14 +30,6 @@ button {
 .light-green-button {
    color: white;
    border: 1px solid #2db391;
-}
-
-.dangerous-red {
-   background-color: #F5544D;
-   color: white;
-   border: 1.7px solid black;
-   height: 2.2em;
-   width: 2.2em;
 }
 
 .grey-border-white-background {
@@ -83,13 +61,9 @@ button {
    background-color: #e5e5e5;
 }
 
-.blue-button:hover, .light-green-button:hover {
-   filter: brightness(120%);
-}
-
 .blue-effect-hover:hover {
    background-color: #e0f3f6;
-} 
+}
 
 .round-border-black-color {
    border-radius: 0.3vw;
@@ -110,20 +84,20 @@ button {
    padding-left: 35px;
    margin-bottom: 15px;
    cursor: pointer;
-   
+
    -webkit-user-select: none;
    -moz-user-select: none;
    -ms-user-select: none;
    user-select: none;
  }
- 
+
  /* Hide the browser's default checkbox */
  .customized-checkbox input {
    position: absolute;
    opacity: 0;
    cursor: pointer;
  }
- 
+
  /* Create a custom checkbox */
  .checkmark {
    position: absolute;
@@ -134,24 +108,24 @@ button {
    border-radius: 0.3vw;
    border: 1px solid #5a5a5a;
  }
- 
+
  /* On mouse-over, add a grey background color */
  .customized-checkbox:hover input ~ .checkmark {
    background-color: #ccc;
  }
-   
+
  /* Create the checkmark/indicator (hidden when not checked) */
  .checkmark:after {
    content: "";
    position: absolute;
    display: none;
  }
- 
+
  /* Show the checkmark when checked */
  .customized-checkbox input:checked ~ .checkmark:after {
    display: block;
  }
- 
+
  /* Style the checkmark/indicator */
  .customized-checkbox .checkmark:after {
    left: 0.5vw;
@@ -179,12 +153,6 @@ button {
 .commit-pic-circle > img {
    width: 100%;
    border-radius: 50%;
-}
-
-/* For all the buttons the cursor should be pointer*/
-
-button {
-  cursor: pointer;
 }
 
 /* The next styles are created for those views that contain cards with pipelines execution information */

@@ -1,0 +1,50 @@
+
+$slot-list: 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12;
+
+.row {
+  display: flex;
+  margin-left: -1rem;
+  margin-right: -1rem;
+  flex-wrap: wrap;
+
+  & > * {
+    box-sizing: border-box;
+  }
+}
+
+.col {
+  @each $num in $slot-list {
+    $width: 100% * $num / 12;
+
+    &-#{$num} {
+      width: auto;
+      max-width: $width;
+      flex-grow: 1;
+      flex-shrink: 1;
+      flex-basis: auto;
+
+      padding-left: 1rem;
+      padding-right: 1rem;
+    }
+
+    @media screen and (max-width: $sm) {
+      &-sm-#{$num} {
+        width: auto;
+        max-width: $width;
+        flex-grow: 1;
+        flex-shrink: 1;
+        flex-basis: auto;
+      }
+    }
+
+    @media screen and (min-width: $sm) {
+      &-lg-#{$num} {
+        width: auto;
+        max-width: $width;
+        flex-grow: 1;
+        flex-shrink: 1;
+        flex-basis: auto;
+      }
+    }
+  }
+}

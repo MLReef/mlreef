@@ -100,7 +100,7 @@ export class DataVisualizationOverview extends Component {
             <button
               id="all"
               type="button"
-              className="non-active-black-border rounded-pipeline-btn"
+              className="btn btn-switch"
               onClick={(e) => this.handleFilterBtnClick(e.target.id)}
             >
               All
@@ -108,7 +108,7 @@ export class DataVisualizationOverview extends Component {
             <button
               id="progress"
               type="button"
-              className="non-active-black-border rounded-pipeline-btn"
+              className="btn btn-switch"
               onClick={(e) => this.handleFilterBtnClick(e.target.id)}
             >
               In progress
@@ -116,7 +116,7 @@ export class DataVisualizationOverview extends Component {
             <button
               id="active"
               type="button"
-              className="non-active-black-border rounded-pipeline-btn"
+              className="btn btn-switch"
               onClick={(e) => this.handleFilterBtnClick(e.target.id)}
             >
               Active
@@ -124,7 +124,7 @@ export class DataVisualizationOverview extends Component {
             <button
               id="expired"
               type="button"
-              className="non-active-black-border rounded-pipeline-btn"
+              className="btn btn-switch"
               onClick={(e) => this.handleFilterBtnClick(e.target.id)}
             >
               Expired

@@ -4,41 +4,15 @@ import { connect } from 'react-redux';
 import { Link, Redirect } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import mlReefIcon01 from '../../images/MLReef_Logo_navbar.png';
-import arrowDownWhite01 from '../../images/arrow_down_white_01.svg';
-import arrowDownBlue01 from '../../images/arrow_down_blue_01.svg';
-import { logout } from '../../actions/userActions';
+import MDropdown from 'components/ui/MDropdown';
+import { logout } from 'actions/userActions';
 import './navbar.css';
 
 class Navbar extends Component {
   constructor(props) {
     super(props);
-    this.state = { dialogOpen: false, projectDialog: false, yourProjects: false, redirect: false };
-    this.handleProject = this.handleProject.bind(this);
-    this.handleOutsideClick = this.handleOutsideClick.bind(this);
+    this.state = { redirect: null };
     this.handleSignOut = this.handleSignOut.bind(this);
-  }
-
-  componentWillUnmount() {
-    this.setState = (state) => (state);
-  }
-
-  handleProfile = () => {
-    const { dialogOpen } = this.state;
-    if (!dialogOpen) {
-      document.addEventListener('click', this.handleOutsideClick, false);
-    } else {
-      document.removeEventListener('click', this.handleOutsideClick, false);
-    }
-
-    this.setState((prevState) => ({
-      dialogOpen: !prevState.dialogOpen,
-    }));
-  }
-
-  handleOutsideClick = () => {
-    const { dialogOpen, projectDialog } = this.state;
-    if (dialogOpen) this.handleProfile();
-    else if (projectDialog) this.handleProject();
   }
 
   handleSignOut() {
@@ -95,94 +69,59 @@ class Navbar extends Component {
 
     return (
       <div className="navbar">
-        {this.redirectAfterSignOut()}
-        <Link to="/">
-          <img className="logo" src={mlReefIcon01} alt="" />
-        </Link>
-        <div
-          role="button"
-          tabIndex="0"
-          className={
-            projectDialog
-              ? 'projects-dropdown-click'
-              : 'projects-dropdown'
-          }
-          onClick={this.handleProject}
-          onKeyDown={this.handleProject}
-        >
-          <a href="#foo">Projects</a>
-          <img
-            className="dropdown-white"
-            src={
-              projectDialog
-                ? arrowDownBlue01
-                : arrowDownWhite01
-            }
-            alt=""
-          />
-          {projectDialog && (
-            <div className="project-box">
-              <div className="user-projects">
-                <p><Link to="/my-projects">Your Projects</Link></p>
-                <p>Starred Projects</p>
-                <p>Explore Projects</p>
-              </div>
-              {!yourProjects && (
+        <div className="w-container d-flex">
+          <div className="my-auto">
+            <Link to="/">
+              <img className="logo" src={mlReefIcon01} alt="" />
+            </Link>
+          </div>
+
+          <MDropdown
+            className="ml-3 my-auto"
+            buttonClasses="btn btn-dark px-1"
+            label="Projects"
+            component={
+              <div className="project-box">
+                <div className="user-projects">
+                  <p><Link to="/my-projects#personal">Your Projects</Link></p>
+                  <p><Link to="/my-projects#starred">Starred Projects</Link></p>
+                  <p><Link to="/my-projects#explore">Explore Projects</Link></p>
+                </div>
                 <div className="project-search">
                   <input
                     type="text"
                     placeholder="Search your projects"
                   />
-                  <div style={{ margin: '1em' }}>
+                  <div className="mt-3">
                     <b>Frequently visited</b>
                   </div>
                 </div>
-              )}
-            </div>
-          )}
-        </div>
-
-        <div
-          role="button"
-          tabIndex="0"
-          className={
-            `profile-options ${
-            dialogOpen ? 'selected-controller' : ''}`
-          }
-          onClick={this.handleProfile}
-          onKeyDown={this.handleProfile}
-          ref={(node) => {
-            this.node = node;
-          }}
-        >
-          <div
-            className={
-              dialogOpen
-                ? 'profile-pic-darkcircle'
-                : 'profile-pic-circle'
+              </div>
             }
           />
-          {dialogOpen && (
-            <div className="sign-box">
-              <div>
-                Signed in as
-                {' '}
-                <b>{user.username}</b>
-                <i>{user.email}</i>
+
+          <MDropdown
+            align="right"
+            className="ml-auto my-auto"
+            buttonClasses="btn btn-dark d-flex p-2"
+            label={(
+              <div className="profile-pic-circle"/>
+            )}
+            component={(
+              <div className="sign-box">
+                <div>
+                  Signed in as
+                  {' '}
+                  <b>{user.username}</b>
+                  <i> {user.email}</i>
+                </div>
+                <hr />
+                <p
+                  onClick={this.handleSignOut}
+                  onKeyDown={this.handleSignOut}
+                >Sign Out</p>
               </div>
-              <hr />
-              <p
-                onClick={this.handleSignOut}
-                onKeyDown={this.handleSignOut}
-              >Sign Out</p>
-            </div>
-          )}
-          <img
-            className="dropdown-white"
-            src={
-              dialogOpen ? arrowDownBlue01 : arrowDownWhite01
-            }
-            alt=""
+            )}
           />
         </div>
       </div>

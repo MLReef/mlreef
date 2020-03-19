@@ -7,6 +7,7 @@ import jobs from './jobsReducer';
 import users from './usersReducer';
 import mergeRequests from './mergeReducer';
 import user from './userReducer';
+import actionModal from './actionModalReducer';
 
 const rootReducer = combineReducers({
   branches,
@@ -17,6 +18,7 @@ const rootReducer = combineReducers({
   users,
   mergeRequests,
   user,
+  actionModal,
 });
 
 export default rootReducer;

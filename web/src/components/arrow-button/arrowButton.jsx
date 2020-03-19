@@ -34,16 +34,12 @@ const ArrowButton = ({
         type="button"
         id={id}
         key={id}
-        className="arrow-button dropdown white-button"
+        className="btn btn-icon btn-hidden fa fa-chevron-down p-1"
         onClick={(e) => { handleDropDownClick(e); }}
-        style={{
-          background: `url(${imgPlaceHolder})`,
-        }}
       />
       { placeholder && (
       <p>{placeholder}</p>
       )}
-
     </div>
   );
 };

@@ -97,22 +97,19 @@ class MergeRequestOverview extends Component {
                 <br />
                 <br />
                 <div id="filter-buttons-new-mr">
-                  <div id="filter-btns">
-                    <BlackBorderedButton id="open-btn" textContent={`${openedMrs.list.length} Open`} onClickHandler={this.handleFilterBtnClick} />
-                    <BlackBorderedButton id="merged-btn" textContent={`${mergedMrs.list.length} Merged`} onClickHandler={this.handleFilterBtnClick} />
-                    <BlackBorderedButton id="closed-btn" textContent={`${closedMrs.list.length} Closed`} onClickHandler={this.handleFilterBtnClick} />
-                    <BlackBorderedButton id="all-btn" textContent="All" onClickHandler={this.handleFilterBtnClick} />
-                  </div>
-                  <div>
-                    <CustomizedButton
-                      id="new-mr-link"
-                      loading={false}
-                      onClickHandler={() => {
-                        history.push(`/my-projects/${selectedProject.id}/master/new-merge-request`);
-                      }}
-                      buttonLabel="New merge request"
-                    />
-                  </div>
+                  <BlackBorderedButton className="mr-2 mb-2" id="open-btn" textContent={`${openedMrs.list.length} Open`} onClickHandler={this.handleFilterBtnClick} />
+                  <BlackBorderedButton className="mr-2 mb-2" id="merged-btn" textContent={`${mergedMrs.list.length} Merged`} onClickHandler={this.handleFilterBtnClick} />
+                  <BlackBorderedButton className="mr-2 mb-2" id="closed-btn" textContent={`${closedMrs.list.length} Closed`} onClickHandler={this.handleFilterBtnClick} />
+                  <BlackBorderedButton className="mr-auto mb-2" id="all-btn" textContent="All" onClickHandler={this.handleFilterBtnClick} />
+                  <CustomizedButton
+                    className="ml-2 mb-2"
+                    id="new-mr-link"
+                    loading={false}
+                    onClickHandler={() => {
+                      history.push(`/my-projects/${selectedProject.id}/master/new-merge-request`);
+                    }}
+                    buttonLabel="New merge request"
+                  />
                 </div>
                 <div id="merge-requests-container-div">
                   {btnSelected === 'open-btn' && openedMrs.list.length > 0

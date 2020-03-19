@@ -39,20 +39,15 @@ export default class BranchesApi {
     return response.json();
   }
 
-  static async delete(projectId, branchName) {
+  static async delete(projectId, branch) {
+    const branchName = encodeURIComponent(branch);
     const url = `${API_GATEWAY}:${GITLAB_PORT}/api/v4/projects/${projectId}/repository/branches/${branchName}`;
-    try {
-      const response = await fetch(
-        url, {
-          method: 'DELETE',
-          headers: new Headers({
-            'PRIVATE-TOKEN': getCurrentToken(),
-          }),
-        },
-      );
-      return response.status;
-    } catch (err) {
-      return err;
-    }
+    const method = 'DELETE';
+    const headers = new Headers({
+      'PRIVATE-TOKEN': getCurrentToken(),
+    });
+
+    return fetch(url, { method, headers })
+      .then((res) => res.ok ? res : Promise.reject(res));
   }
 }

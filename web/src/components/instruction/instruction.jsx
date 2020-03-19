@@ -34,10 +34,9 @@ const Instruction = ({
           <div id="xButton">
             <button
               type="button"
+              className="btn btn-hidden fa fa-times pl-2 pt-1"
               onClick={handleClose}
-            >
-              X
-            </button>
+            />
           </div>
         </div>
       )

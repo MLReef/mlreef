@@ -3,7 +3,7 @@
 prepare npm:
   extends: [".except-docu-branches"]
   stage: provision
-  image: node:13.2.0-alpine                                # https://hub.docker.com/_/node/
+  image: node:10.19.0-alpine                                # https://hub.docker.com/_/node/
   cache:
     key: mlreef-npm-cache
     paths:

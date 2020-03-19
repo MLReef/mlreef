@@ -1,0 +1,37 @@
+
+.m-card {
+    // width: 65%;
+    // min-height: 700px;
+    border: 1px solid var(--light);
+
+    &-header {
+      background-color: var(--dark);
+      padding: 0.5rem;
+      border: 1px solid var(--dark);
+      align-items: center;
+      display: flex;
+      justify-content: space-between;
+
+      &-title {
+        color: var(--white);
+      }
+
+      &-buttons {
+        & > * {
+          margin-right: 0.5rem;
+        }
+      }
+    }
+
+    &-content {
+      &-section {
+        padding-top: 1rem;
+        padding-bottom: 1rem;
+        border-bottom: solid 1px var(--light);
+
+        &:last-child {
+          border: none;
+        }
+      }
+    }
+}

@@ -23,31 +23,21 @@ class ProjectDeletionModal extends React.Component {
       isEnabledConfirmButton: e.target.value === this.props.projectName,
     });
 
-    render = () => (this.props.isShowing
-      ? (
-        <div className="generic-modal">
-          <div
-            className="modal-content"
-            style={{
-              height: '25%',
-              width: '25%',
-              minHeight: '280px',
-              minWidth: '420px',
-              left: '35%',
-              top: '10%',
-            }}
-          >
-            <div className="title-div">
-              <p>
-                <b>Confirmation required</b>
-              </p>
-              <button onClick={() => this.props.hideModal()} style={{ color: 'white' }}>
-                <b>
-                        X
-                </b>
-              </button>
+    render = () =>
+      (
+        <div className={`modal modal-danger dark-cover ${this.props.isShowing ? 'show' : ''}`}>
+          <div onClick={() => this.props.hideModal()} className="modal-cover"></div>
+          <div className="modal-container">
+            <div className="modal-container-close">
+              <button
+                className="btn btn-hidden fa fa-times"
+                onClick={() => this.props.hideModal()}
+              />
             </div>
-            <div id="project-deletion-message">
+            <div className="modal-header py-2">
+              Confirmation required
+            </div>
+            <div className="modal-content" id="project-deletion-message">
               <p id="warning">
                         You are going to remove {this.props.projectName}.
                         Removed project CANNOT be restored!
@@ -64,12 +54,11 @@ class ProjectDeletionModal extends React.Component {
               <br />
               <Input id="project-input" callback={this.inputKeyUp} />
             </div>
-            <div id="button-container">
-              {this.state.isEnabledConfirmButton
-                ? (
+            <div className="modal-actions p-3" id="button-container">
                   <button
                     style={{ cursor: 'pointer' }}
-                    className="dangerous-red"
+                    className="btn btn-danger ml-auto"
+                    disabled={this.state.isEnabledConfirmButton}
                     onClick={() => {
                       projectGeneralInfoApi
                         .removeProject(this.props.owner)
@@ -89,21 +78,12 @@ class ProjectDeletionModal extends React.Component {
                         });
                     }}
                   >
-                            Confirm
+                    Confirm
                   </button>
-                )
-                : (
-                  <button
-                    disabled
-                  >
-                            Confirm
-                  </button>
-                )}
             </div>
           </div>
         </div>
       )
-      : null)
 }
 
 ProjectDeletionModal.propTypes = {

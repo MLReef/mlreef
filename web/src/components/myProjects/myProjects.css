@@ -2,7 +2,10 @@
 
 .project-content {
     max-width: 1024px;
-    min-width: 786px;
+    /* min-width: 786px; */
+    width: auto;
+    padding-left: 1rem;
+    padding-right: 1rem;
     align-items: center;
     margin: 0 auto;
 }
@@ -12,28 +15,8 @@
   text-align: center;
 }
 
-.new-project > a {
-    background-color: #2db391;
-    border-radius: 0.3vw;
-    border: 1px solid #2db391;
-    text-align: center;
-    color: #fff;
-    padding: 0.5em 2em;
-    margin-top: 15px;
-    width: 95px !important;
-}
-
-.new-project > a:hover {
-    opacity: 0.9;
-}
-
-.new-project > a:focus {
-    background-color: #fff;
-    border: 1px solid #B2B2B2;
-    color: #B2B2B2;
-}
-
 .new-project {
+    padding: 1rem 0;
     display: flex;
   }
 

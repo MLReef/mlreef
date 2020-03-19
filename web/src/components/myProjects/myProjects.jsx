@@ -9,6 +9,7 @@ import ProjectSet from '../projectSet';
 import './myProjects.css';
 import ProjectDeletionModal from '../project-deletion-modal/projectDeletionModal';
 import * as projectActions from '../../actions/projectInfoActions';
+// import AuthWrapper from 'components/AuthWrapper';
 
 class Myprojects extends React.Component {
   constructor(props) {
@@ -57,6 +58,20 @@ class Myprojects extends React.Component {
     });
   }
 
+  // this change tabs in projectSet
+  changeScreen = (screen) => {
+    const {
+      history: {
+        push,
+        location: {
+          pathname,
+        },
+      }
+    } = this.props;
+
+    push(`${pathname}${screen}`);
+  }
+
   render() {
     const {
       isFetching,
@@ -69,6 +84,11 @@ class Myprojects extends React.Component {
       userProjects,
       starredProjects,
       allProjects,
+      history: {
+        location: {
+          hash: screen,
+        },
+      }
     } = this.props;
 
     return (
@@ -92,6 +112,8 @@ class Myprojects extends React.Component {
             )
             : (
               <ProjectSet
+                screen={screen || '#personal'}
+                changeScreen={this.changeScreen}
                 allProjects={allProjects}
                 personalProjects={userProjects}
                 starredProjects={starredProjects}
@@ -107,13 +129,13 @@ class Myprojects extends React.Component {
 const NewProject = () => (
   <div className="new-project">
     <p id="title">Projects</p>
-    <Link
-      to="/new-project"
-      type="button"
-      className="add"
-    >
-        New Project
-    </Link>
+      <Link
+        to="/new-project"
+        type="button"
+        className="btn btn-primary"
+      >
+          New Project
+      </Link>
   </div>
 );
 

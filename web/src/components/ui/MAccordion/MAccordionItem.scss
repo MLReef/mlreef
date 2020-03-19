@@ -1,0 +1,58 @@
+@mixin collapsable {
+  overflow-y: hidden;
+  max-height: 500px;
+  transition: max-height 0.25s ease-in;
+
+  &.collapsed {
+    max-height: 0;
+    transition: max-height 0.15s ease-out;
+  }
+}
+
+.m-btn-outline {
+  padding: 0.25rem 1rem;
+  border: solid 1px var(--dark);
+  border-radius: 5px;
+  background-color: transparent;
+  height: unset;
+
+  &:active, &:focus, &:focus-within {
+    outline: none;
+  }
+}
+
+.m-accordion-item {
+  border-bottom: solid 1px var(--light);
+
+  &_header {
+    display: flex;
+    padding: 0.5rem 1rem;
+
+    &_label {
+      flex: 1;
+
+      & .title {
+        font-size: 110%;
+        font-weight: bold;
+        color: var(--dark);
+      }
+
+      & .subtitle {
+        color: var(--dark);
+      }
+    }
+
+    &_action {
+      display: flex;
+
+      & button {
+        margin: auto;
+      }
+    }
+  }
+
+  &_content {
+    @include collapsable
+    // background-color: antiquewhite;
+  }
+}

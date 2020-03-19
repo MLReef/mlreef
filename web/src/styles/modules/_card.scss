@@ -1,0 +1,33 @@
+$card-padding: 1rem;
+
+.card {
+  margin-right: $card-padding;
+  margin-bottom: $card-padding;
+  
+  &-container {
+    max-width: 250px;
+    @include card-shadown;
+    padding: $card-padding;
+    border-radius: $border-radius;
+  }
+
+  &-title {
+    font-size: $font-size * 1.25;
+    color: $dark;
+    font-weight: bold;
+    padding-right: $card-padding * 2;
+    padding-bottom: $card-padding;
+    line-height: $line-height * 1.25;
+  }
+
+  &-content {
+
+  }
+
+  &-actions {
+    display: flex;
+    padding-top: $card-padding;
+    margin-top: $card-padding;
+    border-top: solid 1px $secondary;
+  }
+}

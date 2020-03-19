@@ -1,29 +1,15 @@
 import React from 'react';
-import { Button, makeStyles } from '@material-ui/core';
 import { func, string } from 'prop-types';
 
-const makeStylesBlackBorderedButton = makeStyles(() => ({
-  styles: {
-    '&:focus': {
-      border: '1px solid #32afc3',
-      color: '#32afc3',
-    },
-    border: '1px solid #1c2b40',
-    padding: '0.5em 1em 0.5em 1em',
-    height: '2em',
-  },
-}));
-
-const BlackBorderedButton = ({ id, textContent, onClickHandler }) => {
-  const classes = makeStylesBlackBorderedButton();
+const BlackBorderedButton = ({ id, textContent, onClickHandler, className }) => {
   return (
-    <Button
+    <button
       id={id}
       onClick={onClickHandler}
-      className={classes.styles}
+      className={`${className} btn btn-basic-dark t-uppercase`}
     >
       {textContent}
-    </Button>
+    </button>
   );
 };
 

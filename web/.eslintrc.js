@@ -23,6 +23,7 @@ module.exports = {
     'react',
   ],
   rules: {
-    'no-confusing-arrow': 0
+    'no-confusing-arrow': 0,
+    'import/no-unresolved': 0
   },
 };

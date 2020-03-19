@@ -1,0 +1,25 @@
+@import 'buttons';
+@import 'grid';
+@import 'helpers';
+@import 'modal';
+@import 'card';
+
+.fa {
+  // because fa uses weight bold
+  & > .label {
+    font-weight: normal;
+  }
+}
+
+.avatar-container {
+  background-color: $secondary;
+  width: 30px;
+  height: 30px;
+  border: solid 1px var(--white);
+  border-radius: 50%;
+
+  // stack circles
+  &.grouped {
+    margin-right: -1rem;
+  }
+}

@@ -12,6 +12,7 @@ export default {
   users: [],
   mergeRequests: [],
   user: {
+    membership: 1,
     id: null,
     username: null,
     email: null,
@@ -28,5 +29,20 @@ export default {
         PipeLineView: false,
       },
     },
+  },
+  actionModal: {
+    title: 'Modal title',
+    subtitle: '',
+    content: '',
+    positiveLabel: 'Accept',
+    onPositive: (val) => {
+      // console.log('this is a positive action', val);
+      return Promise.resolve(val);
+    },
+    negativeLabel: 'Cancel',
+    onNegative: () => Promise.resolve(false),
+    ignoreLabel: '',
+    isShown: false,
+    closable: true,
   },
 };

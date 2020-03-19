@@ -12,6 +12,7 @@ import file01 from '../../images/file_01.svg';
 import arrowBlue from '../../images/arrow_down_blue_01.svg';
 import filesApi from '../../apis/FilesApi';
 import DeleteFileModal from '../delete-file-modal/deleteFileModal';
+import MDropdown from 'components/ui/MDropdown';
 
 export class FileView extends React.Component {
   constructor(props) {
@@ -26,7 +27,6 @@ export class FileView extends React.Component {
       isdeleteModalVisible: false,
     };
 
-    this.handleBranch = this.handleBranch.bind(this);
     this.showDeleteModal = this.showDeleteModal.bind(this);
 
     filesApi.getFileData(
@@ -50,26 +50,9 @@ export class FileView extends React.Component {
       .catch((err) => toastr.error('Error: ', err.message));
   }
 
-  handleOutsideClick = () => {
-    this.handleBranch();
-  }
-
   showDeleteModal = () => this.setState((prevState) => (
     { isdeleteModalVisible: !prevState.isdeleteModalVisible }
   ));
-
-  handleBranch() {
-    const { isOpen } = this.state;
-    if (!isOpen) {
-      document.addEventListener('click', this.handleOutsideClick, false);
-    } else {
-      document.removeEventListener('click', this.handleOutsideClick, false);
-    }
-
-    this.setState((prevState) => ({
-      isOpen: !prevState.isOpen,
-    }));
-  }
 
   render() {
     const { users, branches, match: { params: { file, branch, projectId } } } = this.props;
@@ -125,48 +108,46 @@ export class FileView extends React.Component {
           folders={[groupName, project && project.name, 'Data']}
         />
         <div className="branch-path">
-          <div className="branch-btn" ref={this.branchRef}>
-            <button type="button" onClick={this.handleBranch}>
-              <span>{decodeURIComponent(branch)}</span>
-              <img className="dropdown-white" src={arrowBlue} alt="" />
-            </button>
-          </div>
-          {isOpen && (
-            <div id="branches-list" className="select-branch fileview-select">
-              <div
-                style={{ margin: '0 50px', fontSize: '14px', padding: '0 40px' }}
-              >
-                <p>Switch Branches</p>
-              </div>
-              <hr />
-              <div className="search-branch">
-                <input
-                  type="text"
-                  placeholder="Search branches or tags"
-                />
-                <div className="branches">
-                  <ul>
-                    <li className="branch-header">Branches</li>
-                    {branches && branches.filter((branch) => !branch.name.startsWith('data-pipeline/')
-                      && !branch.name.startsWith('experiment/')).map((branch) => {
-                      const encoded = encodeURIComponent(branch.name);
-                      return (
-                        <li key={encoded}>
-                          <Link
-                            id={branch.name}
-                            to={`/my-projects/${project.id}/${encoded}`}
-                            onClick={this.handleClick}
-                          >
-                            <p>{branch.name}</p>
-                          </Link>
-                        </li>
-                      );
-                    })}
-                  </ul>
+          <MDropdown
+            label={decodeURIComponent(branch)}
+            component={(
+              <div id="branches-list" className="select-branch fileview-select">
+                <div
+                  style={{ margin: '0 50px', fontSize: '14px', padding: '0 40px' }}
+                >
+                  <p>Switch Branches</p>
+                </div>
+                <hr />
+                <div className="search-branch">
+                  <input
+                    type="text"
+                    placeholder="Search branches or tags"
+                  />
+                  <div className="branches">
+                    <ul>
+                      <li className="branch-header">Branches</li>
+                      {branches && branches.filter((branch) => !branch.name.startsWith('data-pipeline/')
+                        && !branch.name.startsWith('experiment/')).map((branch) => {
+                        const encoded = encodeURIComponent(branch.name);
+                        return (
+                          <li key={encoded}>
+                            <Link
+                              id={branch.name}
+                              to={`/my-projects/${project.id}/${encoded}`}
+                              onClick={this.handleClick}
+                            >
+                              <p>{branch.name}</p>
+                            </Link>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  </div>
                 </div>
               </div>
-            </div>
-          )}
+            )}
+          />
+
           <span className="filepath">
             <b>
               <a href="/home">{project && project.name}</a>
@@ -237,16 +218,23 @@ export class FileView extends React.Component {
               </p>
             </div>
             <div className="wrapper">
-              <div className="file-actions">
-                <button type="button" className="white-button">
-                  <Link to={`/my-projects/${projectId}/${branch}/commits/${file}`}>History</Link>
-                </button>
-                <button type="button" className="white-button">Replace</button>
+              <div className="file-actions pr-2">
+                <Link
+                  to={`/my-projects/${projectId}/${branch}/commits/${file}`}
+                  className="btn btn-sm btn-basic-dark my-auto ml-2"
+                >
+                  History
+                </Link>
                 <button
                   type="button"
-                  className="red-button"
+                  className="btn btn-sm btn-basic-dark my-auto ml-2"
+                >
+                  Replace
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-sm btn-danger my-auto ml-2"
                   onClick={this.showDeleteModal}
-                  style={{ cursor: 'pointer' }}
                 >
                   Delete
                 </button>

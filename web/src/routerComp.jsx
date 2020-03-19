@@ -25,10 +25,15 @@ import BranchesView from './components/branches-list-view/branchesView';
 import mergeRequestOverview from './components/new-merge-request/merge-request-overview';
 import BasicMergeRequestView from './components/mergeRequestDetailView/basicMergeRequestView';
 import DataVisualizationDetail from './components/data-visualization/dataVisualizationDetail';
+// this is component for testing layout and should be removed after alpha
+import Demo from './components/Demo';
 
 const RouterComp = () => (
   <BrowserRouter>
     <Switch>
+      {/* this is a route for testing layout and should be removed after alpha */}
+      <Route path="/demo" exact component={Demo} />
+
       <Route path="/" exact component={Login} />
       <Route path="/index.html" exact component={Login} />
       <Route path="/register" exact component={RegisterView} />

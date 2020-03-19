@@ -10,14 +10,9 @@ import {
 } from '@material-ui/core/styles';
 import InputLabel from '@material-ui/core/InputLabel';
 import FormControl from '@material-ui/core/FormControl';
-import {
-  Button,
-  Typography,
-} from '@material-ui/core';
 import ProjectContainer from './projectContainer';
 import Navbar from './navbar/navbar';
 import branchesApi from '../apis/BranchesApi';
-import CustomizedButton from './CustomizedButton';
 import BorderedInput from './BlueBorderedInput';
 import CustomizedSelect from './CustomizedSelect';
 
@@ -25,18 +20,6 @@ const cuztomizedStyles = makeStyles((theme) => ({
   formControl: {
     minWidth: 120,
     width: '100%',
-  },
-  loadingDiv: {
-    margin: theme.spacing(1),
-    position: 'relative',
-  },
-  buttonProgress: {
-    color: '#15b785',
-    position: 'absolute',
-    top: '45%',
-    left: '45%',
-    marginTop: -12,
-    marginLeft: -6,
   },
 }));
 
@@ -91,6 +74,14 @@ class NewBranch extends Component {
     return bannedCharCount === 0;
   }
 
+  handleCancel = (e) => {
+    const {
+      history
+    } = this.props;
+
+    return history.goBack();
+  }
+
   handleCreateBranchEv() {
     this.setState({ loading: true });
     const {
@@ -137,8 +128,9 @@ class NewBranch extends Component {
       branchSelected,
       newBranchName,
       redirect,
-      loading,
+      // loading,
     } = this.state;
+
     const isValidBranchName = this.validateBranchName(newBranchName);
     const isEnabledCreateBranchButton = ((branchSelected !== null && branchSelected !== '') && isValidBranchName);
 
@@ -155,9 +147,9 @@ class NewBranch extends Component {
         <div className="main-content">
           <br />
           <div style={{ margin: '1%' }}>
-            <Typography variant="h6" component="h2" style={{ color: '#1A2B3F' }}>
+            <h6 className="t-dark">
               New branch
-            </Typography>
+            </h6>
           </div>
           <br />
           <div style={{ width: '74%', marginLeft: '5vw', marginBottom: '2vw' }}>
@@ -182,27 +174,23 @@ class NewBranch extends Component {
             justifyContent: 'space-between',
           }}
           >
-            <Button
-              variant="contained"
+            <button
+              className="btn btn-basic-dark"
+              onClick={this.handleCancel}
               href={`/my-projects/${selectedProject.id}/master`}
             >
               Cancel
-            </Button>
-            {isEnabledCreateBranchButton ? (
-              <CustomizedButton
-                id="create-branch-btn"
-                onClickHandler={this.handleCreateBranchEv}
-                buttonLabel="Create branch"
-                loading={loading}
-              />
-            ) : (
-              <Button
-                disabled
-                type="button"
-              >
-                Create Branch
-              </Button>
-            )}
+            </button>
+
+            <button
+              id="create-branch-btn"
+              type="button"
+              onClick={this.handleCreateBranchEv}
+              disabled={!isEnabledCreateBranchButton}
+              className="btn btn-primary"
+            >
+              Create Branch
+            </button>
           </div>
         </div>
       </>
