@@ -1,0 +1,95 @@
+
+$dark: gray !default;
+$light: white !default;
+$primary: green !default;
+$secondary: grey !default;
+$success: aqua !default;
+$danger: red !default;
+$warning: yellow !default;
+$info: cyan !default;
+
+:root {
+  --white: #fff;
+  --black: #000;
+  --dark: #{$dark};
+  --light: #{$light};
+  --primary: #{$primary};
+  --secondary: #{$secondary};
+  --success: #{$success};
+  --danger: #{$danger};
+  --warning: #{$warning};
+  --info: #{$info};
+}
+
+$theme-colors: (
+  "dark": $dark,
+  "light": $light,
+  "primary": $primary,
+  "secondary": $secondary,
+  "success": $success,
+  "danger": $danger,
+  "warning": $warning,
+  "info": $info
+);
+
+
+$line-height: 1.15 !default;
+
+$sm: 570px !default;
+
+$color-modifier: 40% !default;
+
+$border-radius: 20px !default;
+$border-width: 1px !default;
+
+$container-width: 1040px !default;
+
+$size-factor-lg: 4 / 3 !default;
+$size-factor-sm: 2 / 3 !default;
+
+$font-family: sans-serif !default;
+$font-size: 14px !default;
+
+$padding: 1rem !default;
+$btn-padding: $padding !default;
+$btn-padding-v: 0.5 * $btn-padding !default;
+$btn-padding-h: 2 * $btn-padding !default;
+$btn-width: 10rem !default;
+$btn-width-sm: $btn-width *2 / 3 !default;
+
+$btn-padding-lg: $btn-padding * $size-factor-lg !default;
+$btn-padding-sm: $btn-padding * $size-factor-sm !default;
+$btn-padding-v-lg: 0.5 * $btn-padding * $size-factor-lg !default;
+$btn-padding-h-lg: 2 * $btn-padding * $size-factor-lg !default;
+$btn-padding-v-sm: 0.5 * $btn-padding * $size-factor-sm !default;
+$btn-padding-h-sm: 2 * $btn-padding * $size-factor-sm !default;
+
+$btn-transition-time: 0.2s !default;
+
+// this is the space that should be filled by a button
+$btn-height: ($font-size * $line-height) + 2 * $border-width + remToPx(2 * $btn-padding-v);
+$btn-sm-height: (0.9 * $font-size * $line-height) + (2 * $border-width) + remToPx(2 * $btn-padding-v-sm);
+// $btn-lg-height: !default;
+
+$theme-spaces: (
+  "auto": auto,
+  "0": 0,
+  "1": 0.25rem,
+  "2": 0.5rem,
+  "3": 1rem,
+  "4": 2rem,
+  "5": 5rem,
+  "25": 25%,
+  "50": 50%,
+  "75": 75%,
+  "100": 100%
+);
+
+$display-list: none, block, inline, flex, inline-flex;
+
+$modal-margin-top: map-get($theme-spaces, "5") !default;
+$modal-margin: map-get($theme-spaces, "2") !default;
+$modal-padding: map-get($theme-spaces, "1") !default;
+$modal-width: 600px !default;
+$modal-width-lg: $modal-width * 4 / 3 !default;
+$modal-width-sm: $modal-width * 2 / 3 !default;

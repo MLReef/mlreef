@@ -17,16 +17,6 @@
     margin: 16px 4px 0 0;
 }
 
-.generic-modal > .modal-content > #buttons > div > button {
-    padding: 0.5em 2em 2em 2em;
-    margin-right: 2%;
-}
-
-.generic-modal > .modal-content > #buttons > div > button > p {
-    margin-top: 0;
-    width: max-content;
-}
-
 .switch-header{
     font-size: 14px;
     text-align: center;
@@ -37,27 +27,6 @@
     margin-top: unset;
 }
 
-.generic-modal > .modal-content > #buttons {
-    display: flex;
-}
-
-.generic-modal > .modal-content > #buttons > #right-div, #left-div {
-    display: inherit;
-    width: 50%;
-}
-
-.generic-modal > .modal-content > #buttons > #right-div, #left-div{
-    margin-left: 4%;
-}
-
-.generic-modal > .modal-content > #buttons > #right-div {
-    margin-right: 3%;
-    flex-direction: row-reverse;
-}
-
-.select-data-pipeline-modal > .modal-content > #buttons > #right-div > .light-green-button{
-    border-radius: 0.3vw;
-}
 /* ------------- table styles ----------------*/
 
 .modal-content > #table-container {
@@ -68,7 +37,7 @@
     border-bottom: 1px solid #e8e8e8;
 }
 
-.modal-content > #table-container > table { 
+.modal-content > #table-container > table {
     height: 100%;
 }
 

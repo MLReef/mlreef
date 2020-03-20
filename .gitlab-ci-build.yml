@@ -3,7 +3,7 @@
 prepare npm:
   extends: [".except-docu-branches"]
   stage: provision
-  image: node:13.2.0-alpine                                # https://hub.docker.com/_/node/
+  image: node:10.19.0-alpine                                # https://hub.docker.com/_/node/
   cache:
     key: mlreef-npm-cache
     paths:
@@ -44,7 +44,6 @@ build frontend:
     - ls -al web/src
     - echo "REACT_APP_API_GATEWAY=\"http://$URL\""          >> web/.env
     - echo "REACT_APP_GITLAB_PORT=10080"                    >> web/.env
-    - echo "REACT_APP_BACKEND_PORT=8080"                    >> web/.env
     - echo "REACT_APP_BUILD_TIMEOUT=18000"                  >> web/.env
     - cat web/.env
   script:

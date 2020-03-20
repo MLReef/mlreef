@@ -5,9 +5,9 @@ import {
 } from 'prop-types';
 import FilesTable from '../files-table/filesTable';
 import filesApi from '../../apis/FilesApi';
-import folderIcon from '../../images/folder_01.svg';
 import BranchesApi from '../../apis/BranchesApi';
 import './FilesContainer.css';
+import AuthWrapper from 'components/AuthWrapper';
 
 class FilesContainer extends Component {
   constructor(props) {
@@ -111,7 +111,7 @@ class FilesContainer extends Component {
         {files.length > 0 ? (
           <div className={`files-container ${branch === 'master' ? 'files-container-master' : ''}`}>
             {branch !== 'master' && (
-            <div className="commit-status">
+            <div className="commit-status px-3 py-2">
               <p id="commitStatus">
                 This branch is
                 {' '}
@@ -133,15 +133,15 @@ class FilesContainer extends Component {
                 {' '}
                 <b>&quot;master&quot;.</b>
               </p>
-              <Link
-                type="button"
-                className="create-mr"
-                to={`/my-projects/${projectId}/${currentBranch}/new-merge-request`}
-              >
-                <p>
-                  Create merge request
-                </p>
+              <AuthWrapper role={3}>
+                <Link
+                  type="button"
+                  className="btn btn-basic-dark"
+                  to={`/my-projects/${projectId}/${currentBranch}/new-merge-request`}
+                >
+                Create merge request
               </Link>
+              </AuthWrapper>
             </div>
             )}
             <FilesTable

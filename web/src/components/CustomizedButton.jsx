@@ -2,64 +2,27 @@ import React from 'react';
 import {
   string, func, bool,
 } from 'prop-types';
-import {
-  makeStyles,
-} from '@material-ui/core/styles';
-import {
-  Button,
-  CircularProgress,
-} from '@material-ui/core';
-
-const cuztomizedStyles = makeStyles((theme) => ({
-  formControl: {
-    marginBottom: theme.spacing(2),
-    marginLeft: theme.spacing(10),
-    minWidth: 120,
-    width: '80%',
-  },
-  loadingDiv: {
-    margin: theme.spacing(1),
-    position: 'relative',
-  },
-  buttonProgress: {
-    color: '#15b785',
-    position: 'absolute',
-    top: '45%',
-    left: '45%',
-    marginTop: -12,
-    marginLeft: -6,
-  },
-}));
-
-const useStylesSubmitButton = makeStyles(() => ({
-  style: {
-    height: '2.2em',
-    backgroundColor: '#15B785',
-    color: 'white',
-    boxShadow: 'none',
-  },
-}));
+import { CircularProgress } from '@material-ui/core';
 
 const CustomizedButton = ({
   id,
   onClickHandler,
   buttonLabel,
   loading,
+  className,
 }) => {
-  const classes = useStylesSubmitButton();
-  const customizedStyles = cuztomizedStyles();
   return (
     <>
-      <Button
-        className={classes.style}
+      <button
+        className={`${className} btn btn-primary`}
         id={id}
         variant="contained"
         disabled={loading}
         onClick={(e) => onClickHandler(e)}
       >
         {buttonLabel}
-      </Button>
-      {loading && <CircularProgress size={30} className={customizedStyles.buttonProgress} />}
+      </button>
+      {loading && <CircularProgress size={30} className="" />}
     </>
   );
 };

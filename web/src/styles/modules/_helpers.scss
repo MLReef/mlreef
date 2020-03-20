@@ -1,0 +1,239 @@
+/* mlreef theme helpers */
+
+@mixin set-spaces($type, $label, $value) {
+  &-#{$label} {
+    #{$type}: $value !important;
+  }
+
+  &t-#{$label} {
+    #{$type}-top: $value !important;
+  }
+
+  &b-#{$label} {
+    #{$type}-bottom: $value !important;
+  }
+
+  &l-#{$label} {
+    #{$type}-left: $value !important;
+  }
+
+  &r-#{$label} {
+    #{$type}-right: $value !important;
+  }
+
+  &y-#{$label} {
+    #{$type}-top: $value !important;
+    #{$type}-bottom: $value !important;
+  }
+
+  &x-#{$label} {
+    #{$type}-left: $value !important;
+    #{$type}-right: $value !important;
+  }
+
+  @media screen and (min-width: $sm) {
+    &-lg-#{$label} {
+      #{$type}: $value !important;
+    }
+
+    &t-lg-#{$label} {
+      #{$type}-top: $value !important;
+    }
+
+    &b-lg-#{$label} {
+      #{$type}-bottom: $value !important;
+    }
+
+    &l-lg-#{$label} {
+      #{$type}-left: $value !important;
+    }
+
+    &r-lg-#{$label} {
+      #{$type}-right: $value !important;
+    }
+
+    &y-lg-#{$label} {
+      #{$type}-top: $value !important;
+      #{$type}-bottom: $value !important;
+    }
+
+    &x-lg-#{$label} {
+      #{$type}-left: $value !important;
+      #{$type}-right: $value !important;
+    }
+  }
+}
+
+////////////////////////////////////////////////////
+
+/* border helpers */
+.border {
+  &-0 {
+    border-radius: 0 !important;
+  }
+
+  &-rounded {
+    border-radius: $border-radius !important;
+
+    &-left {
+      border-top-left-radius: $border-radius !important;
+      border-bottom-left-radius: $border-radius !important;
+    }
+
+    &-top {
+      border-top-left-radius: $border-radius !important;
+      border-top-right-radius: $border-radius !important;
+    }
+
+    &-bottom {
+      border-bottom-right-radius: $border-radius !important;
+      border-bottom-left-radius: $border-radius !important;
+  }
+
+    &-right {
+      border-top-right-radius: $border-radius !important;
+      border-bottom-right-radius: $border-radius !important;
+    }
+  }
+
+  &-solid {
+    border-style: solid !important;
+  }
+}
+
+/* margin helpers */
+.m {
+  @each $label, $value in $theme-spaces {
+    @include set-spaces(margin, $label, $value);
+  }
+}
+
+/* padding helpers */
+.p {
+  @each $label, $value in $theme-spaces {
+    @include set-spaces(padding, $label, $value);
+  }
+}
+
+/* width helpers */
+.w {
+  &-container {
+    width: 100%;
+    max-width: $container-width;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  &-100 {
+    width: 100% !important;
+  }
+
+  &-75 {
+    width: 75% !important;
+  }
+
+  &-50 {
+    width: 50% !important;
+  }
+
+  &-25 {
+    width: 25% !important;
+  }
+}
+
+/* height helpers */
+.h {
+  &-100 {
+    height: 100% !important;
+  }
+
+  &-75 {
+    height: 75% !important;
+  }
+
+  &-50 {
+    height: 50% !important;
+  }
+
+  &-25 {
+    height: 25% !important;
+  }
+
+  &-min-btn-sm {
+    min-height: $btn-sm-height !important;
+  }
+}
+
+/* display helpers */
+.d {
+  @each $display in $display-list {
+    &-#{$display} {
+      display: $display !important;
+    }
+
+    @media screen and (min-width: $sm) {
+      &-lg-#{$display} {
+        display: $display !important;
+      }
+    }
+  }
+}
+
+/* flex helpers */
+.flex {
+  &-column {
+    flex-direction: column !important;
+  }
+
+  &-row {
+    flex-direction: row !important;
+  }
+
+  &-1 {
+    flex: 1 !important;
+  }
+
+  &-0 {
+    flex: 0 !important;
+  }
+}
+
+/* text helpers */
+.t {
+  &-uppercase {
+    text-transform: uppercase;
+  }
+
+  @each $color, $value in $theme-colors {
+    &-#{$color} {
+      color: $value !important;
+    }
+  }
+
+  &-left {
+    text-align: left !important;
+  }
+
+  &-right {
+    text-align: right !important;
+  }
+
+  &-center {
+    text-align: center !important;
+  }
+}
+
+/* background helpers */
+.bg {
+  @each $color, $value in $theme-colors {
+    &-#{$color} {
+      background-color: $value !important;
+    }
+  }
+}
+
+.container {
+  &-shadow {
+    @include card-shadown;
+  }
+}

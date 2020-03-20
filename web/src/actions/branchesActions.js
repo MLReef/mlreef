@@ -21,3 +21,6 @@ export const getBranchesList = (projectId) => async (dispatch) => {
     branches,
   ));
 };
+
+export const deleteBranch = (projectId, branch) => () => branchesApi
+  .delete(projectId, branch);

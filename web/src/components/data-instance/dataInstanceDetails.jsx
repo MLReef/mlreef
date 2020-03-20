@@ -1,15 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
 import { toastr } from 'react-redux-toastr';
 import { connect } from 'react-redux';
-import FilesTable from 'components/files-table/filesTable';
+import FilesTable from '../files-table/filesTable';
 import Navbar from '../navbar/navbar';
 import ProjectContainer from '../projectContainer';
-import folderIcon from '../../images/folder_01.svg';
-import fileIcon from '../../images/file_01.svg';
 import './dataInstanceDetails.css';
 import filesApi from '../../apis/FilesApi';
-import returnLink from '../returnLink';
 
 const DataInstanceDetails = ({ ...props }) => {
   const {

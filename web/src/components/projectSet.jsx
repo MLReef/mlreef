@@ -3,33 +3,26 @@ import { arrayOf, shape, func } from 'prop-types';
 
 import { Link } from 'react-router-dom';
 import { getTimeCreatedAgo } from '../functions/dataParserHelpers';
+import AuthWrapper from 'components/AuthWrapper';
 import star01 from '../images/star_01.svg';
 import fork01 from '../images/fork_01.svg';
 
 class ProjectSet extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      // controls the tabs, values : personal, starred, explore
-      screen: 'personal',
-    };
-  }
-
-  // this handle the displayed tab
   handleScreen = (screen) => () => {
-    this.setState({ screen });
+    const {
+      changeScreen,
+    } = this.props;
+
+    return changeScreen(screen);
   }
 
   render() {
-    const {
-      screen,
-    } = this.state;
-
     const {
       allProjects,
       personalProjects,
       starredProjects,
       handleShowModal,
+      screen,
     } = this.props;
 
     return (
@@ -38,27 +31,27 @@ class ProjectSet extends React.Component {
           <div className="project-list">
             <div
               className={
-                `project-tab ${screen === 'personal' ? 'project-border' : ''}`
+                `project-tab ${screen === '#personal' ? 'project-border' : ''}`
               }
-              onClick={this.handleScreen('personal')}
+              onClick={this.handleScreen('#personal')}
             >
               <p>Your Projects </p>
 
             </div>
             <div
               className={
-                `project-tab ${screen === 'starred' ? 'project-border' : ''}`
+                `project-tab ${screen === '#starred' ? 'project-border' : ''}`
               }
-              onClick={this.handleScreen('starred')}
+              onClick={this.handleScreen('#starred')}
             >
               <p>Starred Projects </p>
 
             </div>
             <div
               className={
-                `project-tab ${screen === 'explore' ? 'project-border' : ''}`
+                `project-tab ${screen === '#explore' ? 'project-border' : ''}`
               }
-              onClick={this.handleScreen('explore')}
+              onClick={this.handleScreen('#explore')}
             >
               <p>Explore Projects </p>
             </div>
@@ -66,7 +59,7 @@ class ProjectSet extends React.Component {
         </div>
         <hr style={{ marginTop: '0' }} />
 
-        {(screen === 'personal') && personalProjects.map((proj) => (
+        {(screen === '#personal') && personalProjects.map((proj) => (
           <Project
             key={`proj-personal-key-${proj.name}`}
             owner={proj.id}
@@ -83,7 +76,7 @@ class ProjectSet extends React.Component {
           />
         ))}
 
-        {screen === 'starred' && starredProjects.map((proj) => (
+        {screen === '#starred' && starredProjects.map((proj) => (
           <Project
             key={`proj-starred-key-${proj.name}`}
             owner={proj.id}
@@ -100,7 +93,7 @@ class ProjectSet extends React.Component {
           />
         ))}
 
-        {screen === 'explore' && allProjects.map((proj) => (
+        {screen === '#explore' && allProjects.map((proj) => (
           <Project
             key={`proj-explore-key-${proj.name}`}
             owner={proj.id}
@@ -164,34 +157,32 @@ const Project = ({ ...props }) => (
         </div>
       </div>
       <div style={{ display: 'flex' }}>
-        <p>
+        <p className="mr-3">
 Updated
           {getTimeCreatedAgo(props.updatedAt, new Date())}
           {' '}
 ago
         </p>
-        <button
-          type="button"
-          style={{
-            margin: '0.5em',
-            cursor: 'pointer',
-          }}
-          className="dangerous-red"
-          onClick={
-            () => props.handleShowModal(
-              props.name,
-              props.owner,
-            )
-          }
-        >
-          <b>
-          X
-          </b>
-        </button>
+        <AuthWrapper groupRole={2} style={{ margin: 'auto' }}>
+          <button
+            type="button"
+            className="btn btn-danger btn-icon fa fa-times m-auto"
+            onClick={
+              () => props.handleShowModal(
+                props.name,
+                props.owner,
+              )
+            }
+          />
+        </AuthWrapper>
       </div>
     </div>
   </div>
 );
+
+ProjectSet.defaultProps = {
+  screen: '#personal',
+};
 
 ProjectSet.propTypes = {
   allProjects: arrayOf(

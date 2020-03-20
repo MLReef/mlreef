@@ -48,7 +48,10 @@ after_script:
 
 #pipeline-operation-script-name:
   script:
-#replace-here-the-lines
+    echo super-andres          >> amigo.txt
+  artifacts:
+    paths:
+      - amigo.txt
 `;
 
 export const colorsForCharts = [

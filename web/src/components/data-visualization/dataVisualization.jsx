@@ -3,10 +3,11 @@ import { connect } from 'react-redux';
 import {
   shape, arrayOf, func, bool, number, string,
 } from 'prop-types';
-import plus from '../../images/plus_01.svg';
 import '../pipeline-view/pipelineView.css';
+import MCard from 'components/ui/MCard';
+import FilesSelector from 'components/layout/FilesSelector';
+import DataOperationFilters from 'components/layout/DataOperationFilters';
 import Navbar from '../navbar/navbar';
-import Input from '../input/input';
 import ProjectContainer from '../projectContainer';
 import { dataVisualizations } from '../../dataTypes';
 import SortableDataOperationsList from '../pipeline-view/sortableDataOperationList';
@@ -16,6 +17,7 @@ import Instruction from '../instruction/instruction';
 import withPipelinesExecution from '../withPipelinesExecution';
 import ExecutePipelineModal from '../execute-pipeline-modal/executePipeLineModal';
 import { randomNameGenerator } from '../../functions/pipeLinesHelpers';
+import plus from '../../images/plus_01.svg';
 
 const EmptyDataVisualization = ({ ...props }) => {
   const {
@@ -48,6 +50,7 @@ const EmptyDataVisualization = ({ ...props }) => {
   const branchName = `data-visualization/${uniqueName}`;
   const dataInstanceName = `data-visualization/${uniqueName}`;
   const jobName = 'data-visualization';
+
   return (
     <div className="pipe-line-view">
       <SelectDataPipelineModal
@@ -77,100 +80,58 @@ const EmptyDataVisualization = ({ ...props }) => {
         id="EmptyDataVisualization"
         titleText="How to create a data visualization:"
         paragraph={
-          `First, select your data you want to analyze. Then select one or multiple data visualizations from the right. 
+          `First, select your data you want to analyze. Then select one or multiple data visualizations from the right.
               After execution each visualization will be displayed in a new window.`
         }
       />
-      <div className="pipe-line-execution-container flexible-div">
-        <div className="pipe-line-execution">
-          <div className="header flexible-div">
-            <div className="header-left-items flexible-div">
-              <div>
-                <p>Visualization</p>
-              </div>
-            </div>
-            <div className="header-right-items flexible-div">
-              <div id="execute-button" className="header-button round-border-button right-item flexible-div" onClick={handleExecuteBtn}>
-                Execute
-              </div>
-            </div>
-          </div>
-          {filesSelectedInModal.length === 0 && (
-          <div id="upload-files-options" className="upload-file">
-            <p className="instruction">
-              Start by selecting your data file(s) you want to include
-              {' '}
-              <br />
-              {' '}
-              in your data visualization.
-            </p>
-            <p id="data">
-              Data:
-            </p>
 
-            <div className="data-button-container flexible-div">
-              <div
-                role="button"
-                tabIndex="0"
-                id="select-data-btn"
-                onClick={selectDataClick}
-                onKeyDown={selectDataClick}
+      <div className="pipe-line-execution-container flexible-div px-3">
+        <MCard
+          className="pipe-line-execution"
+          title="Visualization"
+          buttons={[
+            <button key="loading" type="button" className="btn btn-basic-primary btn-sm">
+              Load
+            </button>,
+            <button key="save" type="button" className="btn btn-basic-primary btn-sm">
+              Save
+            </button>,
+            <button
+              key="execute"
+              type="button"
+              onClick={handleExecuteBtn}
+              className="btn btn-primary btn-sm border-none"
+            >
+              Execute
+            </button>,
+          ]}
+        >
+          <MCard.Section>
+            <FilesSelector files={filesSelectedInModal} handleSelectData={selectDataClick} />
+          </MCard.Section>
+
+          <MCard.Section>
+            <SortableDataOperationsList items={items} onSortEnd={onSortEnd} />
+
+            <div id="drop-zone" onDrop={drop} onDragOver={allowDrop}>
+              <p style={{ marginLeft: '10px', fontWeight: 600 }}>{`Op.${operationsSelected}:`}</p>
+              <img src={plus} alt="" style={{ height: '80px', marginLeft: '60px' }} />
+              <p style={{
+                margin: '0', padding: '0', width: '100%', textAlign: 'center',
+              }}
               >
-                Select data
-              </div>
-            </div>
-          </div>
-          )}
-          {filesSelectedInModal.length > 0 && (
-          <div id="text-after-files-selected" className="upload-file" style={{ display: 'flex' }}>
-            <div style={{ width: '50%' }}>
-              <p style={{ margin: '6% 0% 6% 2%' }}>
-                <b>
-                  Data:&nbsp;&nbsp;
-                  {filesSelectedInModal.length}
-                  {' '}
-                  file(s) selected
-                </b>
+                Drag and drop a data visualization from the right
+                <br />
+                pipeline
+                {/* or
+                <b>create a new one</b> */}
               </p>
             </div>
-            <div style={{
-              width: '50%', display: 'flex', alignItems: 'center', justifyContent: 'right', marginRight: '2%',
-            }}
-            >
-              <button
-                type="button"
-                style={{ backgroundColor: 'white', border: 'none' }}
-                onClick={() => { selectDataClick(); }}
-              >
-                <b> select data </b>
-              </button>
-            </div>
-          </div>
-          )}
+          </MCard.Section>
+        </MCard>
 
-          <SortableDataOperationsList items={items} onSortEnd={onSortEnd} />
-          <div id="drop-zone" onDrop={drop} onDragOver={allowDrop}>
-            <p style={{ marginLeft: '10px', fontWeight: 600 }}>{`Op.${operationsSelected}:`}</p>
-            <img src={plus} alt="" style={{ height: '80px', marginLeft: '60px' }} />
-            <p style={{
-              margin: '0', padding: '0', width: '100%', textAlign: 'center',
-            }}
-            >
-              Drag and drop a data visualization from the right
-              <br />
-              pipeline
-              {/* or
-              <b>create a new one</b> */}
-            </p>
-          </div>
-
-        </div>
-
-        <div className="pipe-line-execution tasks-list">
-          <div className="header">
-            <p>Select a visualization:</p>
-          </div>
-          <div className="content">
+        <MCard className="pipe-line-execution tasks-list" title="Select a visualization:">
+          <MCard.Section>
             {/* <div className="filter-div flexible-div">
               <Input name="selectDataOp" id="selectDataOp" placeholder="Search a visualization" />
               <div
@@ -184,51 +145,15 @@ const EmptyDataVisualization = ({ ...props }) => {
               </div>
             </div> */}
 
-            <div id="filters" className="invisible">
-
-              <select className="data-operations-select round-border-button">
-                <option>All data types</option>
-                <option>Images data</option>
-                <option>Text data</option>
-                <option>Tabular data</option>
-              </select>
-
-              <div className="checkbox-zone">
-                <label
-                  className="customized-checkbox"
-                  htmlFor="checkBoxOwnDataOperations"
-                >
-                  Only own data operations
-                  <input
-                    type="checkbox"
-                    onChange={handleCheckMarkClick}
-                    id="checkBoxOwnDataOperations"
-                  />
-                  <span className="checkmark" />
-                </label>
-                <label
-                  className="customized-checkbox"
-                  htmlFor="checkBoxStarredDataOperations"
-                >
-                  Only starred data operations
-                  <input
-                    type="checkbox"
-                    onChange={handleCheckMarkClick}
-                    id="checkBoxStarredDataOperations"
-                  />
-                  <span className="checkmark" />
-                </label>
-              </div>
-              <Input name="minOfStart" id="minOfStart" placeholder="Minimum of stars" />
-            </div>
+            <DataOperationFilters show={false} handleCheckMarkClick={handleCheckMarkClick} />
 
             <DataOperationsList
               handleDragStart={handleDragStart}
               whenDataCardArrowButtonIsPressed={whenDataCardArrowButtonIsPressed}
               dataOperations={dataOperations}
             />
-          </div>
-        </div>
+          </MCard.Section>
+        </MCard>
       </div>
     </div>
   );

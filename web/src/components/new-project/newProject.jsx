@@ -133,8 +133,8 @@ class NewProject extends Component {
    ) : (
      <>
        <Navbar />
-       <div className="main-div">
-         <div className="proj-description">
+       <div className="new-project main-div row mt-4">
+         <div className="proj-description col-sm-12 col-lg-4 pr-3 ">
            <span>New ML Project</span>
            <p>
 A Machine Learning (ML) project is where you house your data set (repository),
@@ -142,8 +142,7 @@ where you perform data processing
 (data pipeline), visualize your data set (data visualization) and where you create your experiments
            </p>
          </div>
-         <div className="separator" />
-         <div className="form-control">
+         <div className="form-control col-sm-12 col-lg-8 pl-3">
            <form>
              <label className="label-name" htmlFor="projectTitle">
                <span className="heading">Project Name</span>
@@ -157,8 +156,8 @@ where you perform data processing
                  required
                />
              </label>
-             <div style={{ display: 'flex' }}>
-               <label className="label-name" htmlFor="projectURL">
+             <div style={{ display: 'flex', flexWrap: 'wrap' }}>
+               <label className="label-name pr-4" htmlFor="projectURL">
                  <span className="heading">Project URL</span>
                  <div style={{ display: 'flex', margin: '1em 0' }}>
                    <Tooltip arrow disableFocusListener disableTouchListener title="https://mlreef.com/">
@@ -177,7 +176,7 @@ where you perform data processing
                    </FormControl>
                  </div>
                </label>
-               <label className="label-name" htmlFor="projectSlug" style={{ paddingLeft: '2em' }}>
+               <label className="label-name flex-1" htmlFor="projectSlug">
                  <span className="heading">Project Slug</span>
                  <input
                    value={this.convertToSlug(input)}
@@ -248,17 +247,17 @@ Allows you to immediately clone this projects repository.
 Skip this if you want to push up an existing repository
                </p>
              </div>
-             <div className="form-controls">
+             <div className="form-controls mt-4">
                <button
                  type="reset"
-                 className="cancel"
+                 className="btn btn-basic-dark"
                  onClick={this.cancelCreate}
                >
                 Cancel
                </button>
                <button
                  type="button"
-                 className="create"
+                 className="btn btn-primary ml-auto"
                  onClick={this.handleSubmit}
                >
                 Create

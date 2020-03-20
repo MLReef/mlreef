@@ -11,6 +11,7 @@ class Login extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
+      hasErrors: false,
       email: '',
       password: '',
     };
@@ -50,8 +51,6 @@ class Login extends React.Component {
     e.preventDefault();
 
     if (!this.validateForm()) {
-      const errorDiv = document.getElementById('errorDiv');
-      errorDiv.classList.remove('invisible');
       return;
     }
 
@@ -72,8 +71,7 @@ class Login extends React.Component {
       })
       .catch((error) => {
         toastr.error('Error:', `Try Login with mlreef + password or get: ${error}`);
-        const errorDiv = document.getElementById('errorDiv');
-        errorDiv.classList.remove('invisible');
+        this.setState({ hasErrors: true });
       });
   }
 
@@ -81,21 +79,26 @@ class Login extends React.Component {
     this.setState({
       email: '',
       password: '',
+      hasErrors: false,
     });
   }
 
   render() {
-    const { email, password } = this.state;
+    const {
+      email,
+      password,
+      hasErrors,
+    } = this.state;
 
     return (
       <div id="login-container">
         <div id="icon-div">
-          <img src={icon} alt="" />
+          <img className="mx-auto mb-2" src={icon} alt="" />
         </div>
-        <div id="errorDiv" className="invisible error border-div">
-          <p>Incorrect username or password</p>
-          <div>
-            <button type="button" onClick={this.reset}>
+        <div id="errorDiv" className={`${!hasErrors? 'invisible' : ''} error border-div d-flex py-2`}>
+          <p className="my-auto flex-1">Incorrect username or password</p>
+          <div className="flex-0">
+            <button className="btn btn-basic-dark btn-sm my-auto" type="button" onClick={this.reset}>
               Reset
             </button>
           </div>
@@ -128,8 +131,8 @@ class Login extends React.Component {
               </div>
 
               <div id="sign-in-btn" className="input-container">
-                <button type="submit">
-                  <b>Sign in</b>
+                <button type="submit" className="btn btn-primary">
+                  Sign in
                 </button>
               </div>
             </div>

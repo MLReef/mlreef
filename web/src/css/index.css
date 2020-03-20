@@ -1,24 +1,6 @@
 @import 'variables.css';
 
 /** This is applied to everything below the nav-bar. */
-.main-content {
-  max-width: 1024px;
-  min-width: 786px;
-  align-items: center;
-  margin: 0% auto 0% auto;
-}
-
-.navbar {
-  display: flex;
-  height: 3em;
-  align-items: center;
-  background-color: #1c2b40;
-}
-
-.logo {
-  width: 8em;
-  margin: 1% 0% 1% 25%;
-}
 
 .projects-dropdown {
   display: flex;
@@ -73,10 +55,6 @@
   cursor: pointer;
 }
 
-.show {
-  display: block;
-}
-
 .profile-options:hover .sign-box {
   visibility: visible; /* show it on hover */
   opacity: 1;
@@ -102,7 +80,7 @@ img.dropdown-white {
 
 .project-details {
   margin: auto;
-  padding: 0% 1% 0% 1%;
+
 }
 
 .project-nav {
@@ -117,7 +95,8 @@ img.dropdown-white {
 }
 
 .project-info {
-  margin-top: 1%;
+  margin-top: 0.5rem;
+  flex-wrap: wrap;
   display: flex;
   flex-direction: row;
   justify-content: space-between;
@@ -165,48 +144,23 @@ img.dropdown-white {
 
 .project-options {
   display: flex;
+  height: min-content;
   max-width: 400px;
   justify-content: flex-end;
   /* border: 2px solid red; */
 }
 
-.options {
-  display: flex;
-  flex-direction: row;
-  width: 12vw;
-  height: 60%;
-  border-radius: 0.3vw;
-  margin-left: 1.5%;
-  min-width: 60px;
-}
-
 .option-name {
-  cursor: pointer;
   display: flex;
   flex-direction: row;
-  width: 8vw;
-  height: 2em;
   background-color: #fff;
-  border-radius: 0.3vw 0px 0px 0.3vw;
   border: none;
-  padding-bottom: 0px;
-  padding-top: 0px;
-  min-width: 50px;
-}
-
-.option-name p {
-  margin-left: 6%;
-  color: #1c2b40;
-  font-size: 13px;
-  font-weight: 600;
-  margin-top: auto;
-  margin-bottom: auto;
+  border-radius: 0;
+  line-height: 160%;
 }
 
 #option-image {
-  width: 1.8em;
-  margin-left: 1vw;
-  margin-right: 0.25vw;
+  width: 1.5rem;
 }
 
 .counter {
@@ -215,7 +169,6 @@ img.dropdown-white {
   align-items: center;
   text-align: center;
   background-color: #fff;
-  border-radius: 0px 0.3vw 0.3vw 0px;
   border-left: 2px solid #e5e5e5;
   min-width: 30px;
   width: 3vw;
@@ -260,7 +213,8 @@ img.dropdown-white {
 
 .project-content {
   max-width: 1024px;
-  min-width: 786px;
+  /* min-width: 786px; */
+  width: 100%;
   align-items: center;
   margin: 0 auto;
 }
@@ -278,9 +232,8 @@ img.dropdown-white {
 }
 
 .new-project #title {
-  margin: 0;
   flex: 1;
-  padding-top: 1em;
+  margin: auto;
   font-size: 18px;
   font-weight: bold;
 }
@@ -343,7 +296,7 @@ img.dropdown-white {
 
 .repo-stat {
   display: flex;
-  padding: 0% 2% 0% 2%;
+  padding: 0 1rem;
 }
 
 .repo-stat:hover {
@@ -435,22 +388,7 @@ p.stat-no {
 #repo-features {
   display: flex;
   flex-direction: row;
-  justify-content: space-between;
-  padding: 15px 3% 0% 3%;
-  background-color: #fff;
-}
-
-#repo-features div {
-  display: flex;
-}
-
-#repo-features button {
-  align-items: center;
-  margin-right: 8px;
-  border-radius: 0.3vw;
-  border: 1px solid #1c2b40;
-  width: max-content;
-  height: 2.2em;
+  flex-wrap: wrap;
 }
 
 .white-button {
@@ -488,28 +426,28 @@ p.stat-no {
   overflow: hidden;
 }
 
-.blue-button {
+/* .blue-button {
   color: #fff;
   background-color: #1c2b40;
   font-weight: 600;
   display: flex;
   padding-right: 8px;
-}
+} */
 
-#repo-features button a p {
+/* #repo-features button a p {
   align-content: center;
   margin: 0 5px 0 5px;
   color: white;
-}
+} */
 
 #leftfeature-image {
   margin-left: 1%;
   margin-right: 1%;
 }
 
-#repo-features button #plus {
+/* #repo-features button #plus {
   width: 2em;
-}
+} */
 
 #repo-features button img {
   width: 1.5em;
@@ -611,7 +549,7 @@ p.stat-no {
 
 .files-row td {
   height: 3em;
-  width: 25%;
+  /* width: 25%; */
   margin: 0;
   text-align: left;
 }
@@ -719,8 +657,6 @@ p.stat-no {
   width: 180px;
   height: auto;
   background: #fff;
-  right: 0;
-  top: 40px;
 }
 
 .sign-box p {
@@ -890,28 +826,28 @@ hr {
   vertical-align: middle;
   width: 8%;
   cursor: pointer;
-  background-color: #e5e5e5; 
+  background-color: #e5e5e5;
 }
 
 .ssh-http-link{
   display: table-cell;
   position: relative;
-  width: 100%; 
+  width: 100%;
 }
 
 .clone-box{
   width: 280px;
   height: auto;
   position: absolute;
-  background: #fff; 
-  box-shadow: 0 2px 5px #e5e5e5; 
-  top: 100%; 
-  right: 0; 
+  background: #fff;
+  box-shadow: 0 2px 5px #e5e5e5;
+  top: 100%;
+  right: 0;
   z-index: 10
 }
 
 .link-box{
-  text-align: initial; 
+  text-align: initial;
   margin-top: 1em
 }
 
@@ -924,7 +860,7 @@ hr {
   margin: 1em 1em;
   border: 1px solid #adadad;
   border-radius: 3px;
-  height: 30px;  
+  height: 30px;
 }
 
 .clone-link span{
@@ -933,17 +869,17 @@ hr {
 }
 
 .plus-dropdown{
-  width: 200px; 
-  height: auto; 
-  background: #fff; 
-  border-radius: 3px; 
-  top: 100%; 
-  box-shadow: 0 2px 4px rgb(0, 0, 0, 0.3); 
+  width: 200px;
+  height: auto;
+  background: #fff;
+  border-radius: 3px;
+  top: 100%;
+  box-shadow: 0 2px 4px rgb(0, 0, 0, 0.3);
   position: absolute
 }
 
 .plus-list{
-  list-style: none; 
+  list-style: none;
   padding: 0;
   width: 100%
 }
@@ -974,7 +910,7 @@ h5{
 }
 
 pre{
-  font-family: "Menlo", "DejaVu Sans Mono", "Liberation Mono", 
+  font-family: "Menlo", "DejaVu Sans Mono", "Liberation Mono",
   "Consolas", "Ubuntu Mono", "Courier New", "andale mono", "lucida console", monospace;
   display: block;
   padding: 8px 12px;

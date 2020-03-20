@@ -37,11 +37,6 @@
 
 /* ----------------------- Card container ----------------------- */
 
-.card-content {
-    flex-wrap: wrap;
-    border-bottom: 2px solid #e5e5e5;
-}
-
 .card-content > .buttons-div > button{
     margin-right: 5px !important;
 }
@@ -58,7 +53,7 @@
     margin-left: 3%;
 }
 
-.card-content > .data-summary > .content > p { 
+.card-content > .data-summary > .content > p {
     margin: 4px;
 }
 

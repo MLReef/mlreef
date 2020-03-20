@@ -86,7 +86,7 @@ const NewExperiment = ({
                         If needed, you can adapt the parameters of your algorithm directly`
                 }
       />
-      <div className="pipe-line-execution-container flexible-div">
+      <div className="pipe-line-execution-container px-3 flexible-div">
         <div className="pipe-line-execution">
           <div className="header flexible-div">
             <div className="header-left-items flexible-div">
@@ -94,14 +94,13 @@ const NewExperiment = ({
                 <p>Experiment</p>
               </div>
             </div>
-            <div
-              className="header-right-items flexible-div"
+            <button
+              id="execute-button"
               onClick={handleExecuteBtn}
+              className="btn btn-primary ml-auto mr-3"
             >
-              <div id="execute-button" className="header-button round-border-button right-item flexible-div">
-                Execute
-              </div>
-            </div>
+              Execute
+            </button>
           </div>
           {filesSelectedInModal.length === 0 && (
           <div id="upload-files-options" className="upload-file">
@@ -117,12 +116,13 @@ const NewExperiment = ({
             </p>
 
             <div className="data-button-container flexible-div">
-              <div
+              <button
+                className="btn btn-primary"
                 id="select-data-btn"
                 onClick={selectDataClick}
               >
                 Select data
-              </div>
+              </button>
             </div>
           </div>
           )}

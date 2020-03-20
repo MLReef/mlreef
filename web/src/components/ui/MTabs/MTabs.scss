@@ -1,0 +1,136 @@
+@import '../../../styles/variables';
+
+$max-width: 650px !default;
+$border-radius: 0.25rem !default;
+
+@mixin round-top {
+  border-top-right-radius: $border-radius;
+  border-top-left-radius: $border-radius;
+}
+
+@mixin round-bottom {
+  border-bottom-right-radius: $border-radius;
+  border-bottom-left-radius: $border-radius;
+}
+
+.m-tabs {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  margin: 0 1rem;
+
+  &_menu {
+    flex: 0;
+    width: 100%;
+    max-width: $max-width;
+    margin: auto;
+
+    &_container {
+      display: flex;
+      margin: 0;
+      margin-right: auto;
+      padding: 0;
+    }
+
+    &_tab {
+      padding: 0.5rem 2rem;
+      list-style: none;
+      color: var(--secondary);
+
+      &_btn {
+        cursor: pointer;
+        text-align: center;
+      }
+
+      &.active {
+        @include round-top;
+        background-color: #fff;
+        color: var(--dark);
+        font-weight: bold;
+      }
+    }
+  }
+
+  &_content {
+    flex: 1;
+    height: 100%;
+    background-color: #fff;
+    overflow-y: auto;
+
+    &_section {
+      height: 100%;
+      background-color: #fff;
+      max-width: $max-width;
+      width: 100%;
+      margin: auto;
+      display: none;
+
+      &.active {
+        display: flex;
+      }
+
+      &_container {
+        flex: 1;
+        padding: 1rem;
+      }
+    }
+  }
+
+  &.vertical {
+    flex-direction: row;
+    margin: 0;
+
+    & .m-tabs {
+
+      &_menu {
+        flex: 0 0 25%;
+        width: 25%;
+        height: 100%;
+        padding-right: 1rem;
+        border-right: solid 1px var(--light);
+
+        &_container {
+          flex-direction: column;
+        }
+
+        &_tab {
+          white-space: nowrap;
+          margin-bottom: 0.5rem;
+          padding: 0.5rem 1rem;
+          text-align: center;
+
+          &_btn {
+
+          }
+
+          &.active {
+            @include round-bottom;
+            background-color: var(--primary);
+            color: #fff;
+
+             & button {
+               color: #fff;
+               font-weight: bold;
+             }
+          }
+        }
+      }
+
+      &_content {
+        flex: 1;
+        height: 100%;
+      }
+    }
+  }
+
+  & .neutral {
+    border: none;
+    background-color: transparent;
+    padding: 0;
+    margin: 0;
+
+    &:active, &:focus, &:focus-within {
+      outline: none;
+    }
+  }
+}

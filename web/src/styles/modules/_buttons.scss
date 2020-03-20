@@ -1,0 +1,210 @@
+// buttons
+
+@mixin btn-variant($name, $color) {
+  &-#{$name} {
+    background-color: $color;
+    color: var(--white);
+    border-style: solid;
+    border-color: $color;
+
+    &:hover,
+    &.hover {
+      font-size: bold;
+      background-color: darken($color, $color-modifier);
+      border-color: darken($color, $color-modifier);
+    }
+  }
+}
+
+@mixin btn-basic-variant($name, $color) {
+  &-basic-#{$name} {
+    background-color: var(--white);
+    color: $color;
+    border-style: solid;
+    border-color: $color;
+
+    &:hover,
+    &.hover {
+      color: lighten($color, 2 * $color-modifier);
+      border-color: lighten($color, 2 * $color-modifier);
+    }
+  }
+}
+
+@mixin btn-outline-variant($name, $color) {
+  &-outline-#{$name} {
+    background-color: transparent;
+    color: $color;
+    border-style: solid;
+    border-color: $color;
+
+    &:hover,
+    &.hover {
+      color: var(--white);
+      background-color: lighten($color, $color-modifier);
+    }
+
+    &:active,
+    &.active {
+      color: var(--white);
+      background-color: $color;
+    }
+  }
+}
+
+@mixin btn-disabled {
+  &:disabled,
+  &[disabled],
+  &.disabled {
+    background-color: #{$light};
+    cursor: auto;
+  }
+}
+
+@mixin btn-hover($color) {
+  &:hover,
+  &.hover {
+    background-color: lighten(var(--#{$color}), 20%);
+    color: lighten(var(--#{$color}), 20%);
+    border-color: lighten(var(--#{$color}), 20%);
+  }
+}
+
+@mixin btn-size {
+  &-sm {
+    padding: $btn-padding-v-sm $btn-padding-h-sm;
+    font-size: 90%;
+  }
+
+  &-lg {
+    padding: $btn-padding-v-lg $btn-padding-h-lg;
+    font-size: 110%;
+  }
+}
+
+//////////////////////////////////////////////////
+
+.btn {
+  // box-sizing: border-box;
+  display: inline-block;
+  border-style: none;
+  border-width: $border-width;
+  border-radius: $border-radius;
+  margin: 0;
+  padding: $btn-padding-v $btn-padding-h;
+  height: unset;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background $btn-transition-time,
+              border $btn-transition-time,
+              color $btn-transition-time;
+
+  &:hover {
+    text-decoration: none;
+  }
+
+  &:focus,
+  &:focus-within {
+    outline: none;
+  }
+
+  @each $color, $value in $theme-colors {
+    @include btn-variant($color, $value);
+
+    @include btn-outline-variant($color, $value);
+
+    @include btn-basic-variant($color, $value);
+  }
+
+  &-switch {
+    background-color: var(--white);
+    color: var(--dark);
+    border-color: var(--dark);
+    border-style: solid;
+
+    &:hover {
+      color: var(--info);
+      border-color: var(--info);
+    }
+
+    &:active,
+    &.active {
+      color: var(--primary);
+      border-color: var(--primary);
+    }
+  }
+
+  &-block {
+    display: block;
+    width: 100%;
+  }
+
+  &-label {
+    min-width: $btn-width;
+    padding-left: unset;
+    padding-right: unset;
+
+    &-sm {
+      min-width: $btn-width-sm;
+      padding-left: unset;
+      padding-right: unset;
+    }
+  }
+
+  &-icon {
+    padding-left: $btn-padding-sm;
+    padding-right: $btn-padding-sm;
+    border-style: solid;
+  }
+
+  &-bg {
+    @each $color, $value in $theme-colors {
+      &-#{$color} {
+        background-color: $value;
+      }
+    }
+  }
+
+  &-hidden {
+    background-color: transparent;
+    border-color: transparent;
+    color: inherit;
+    padding: unset;
+    margin: auto;
+  }
+
+  &-transparent {
+    background-color: transparent;
+    border-color: transparent;
+    color: transparent;
+  }
+
+  @include btn-size;
+
+  @include btn-disabled;
+
+  &-group {
+    display: flex;
+
+    & > .btn {
+      margin: 0;
+      border-radius: 0;
+
+      &:first-child {
+        border-top-left-radius: $border-radius;
+        border-bottom-left-radius: $border-radius;
+      }
+
+      &:last-child {
+        border-top-right-radius: $border-radius;
+        border-bottom-right-radius: $border-radius;
+      }
+    }
+
+    &.border-thin {
+      & > .btn {
+        border-width: 1px;
+      }
+    }
+  }
+}

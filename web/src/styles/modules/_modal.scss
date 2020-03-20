@@ -1,0 +1,114 @@
+@mixin round-top {
+  border-top-right-radius: $border-radius;
+  border-top-left-radius: $border-radius;
+}
+
+@mixin round-bottom {
+  border-bottom-right-radius: $border-radius;
+  border-bottom-left-radius: $border-radius;
+}
+
+////////////////////////////////////////////////////////
+
+.modal {
+  position: fixed;
+  width: 100vw;
+  height: 100vh;
+  transition: top .3s;
+  z-index: 1;
+  display: flex;
+  border: 5px;
+  top: -110%;
+
+  @each $color, $value in $theme-colors {
+    &-#{$color} {
+      border-color: $value;
+    }
+
+    &-#{$color} &-header {
+      @include round-top;
+      background-color: $value;
+      color: var(--white);
+    }
+
+    &-#{$color} &-container {
+      border-color: $value;
+    }
+  }
+
+  &-cover {
+    position: absolute;
+    top: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 2;
+  }
+
+  &-container {
+    background-color: aliceblue;
+    @include round-top;
+    @include round-bottom;
+    // top: $modal-margin-top;
+    position: relative;
+    width: $modal-width;
+    min-height: 40vh;
+    margin: auto;
+    background-color: #fff;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    transition: top .5s;
+    z-index: 3;
+    box-sizing: border-box;
+    border-style: solid;
+    border-width: $border-width;
+
+    &-close {
+      position: absolute;
+      top: $modal-padding;
+      right: 2 * $modal-padding;
+      color: #fff;
+    }
+  }
+
+  &-header {
+    flex: 0 1 auto;
+    margin: auto;
+    text-align: center;
+    width: 100%;
+    padding: $modal-padding 0;
+    border-color: $dark;
+  }
+
+  &-content {
+    flex: 1;
+    padding: 1rem;
+    overflow-y: auto;
+  }
+
+  &-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    min-height: 3rem;
+    margin-top: 0.5rem;
+    margin-bottom: 0.5rem;
+  }
+
+  &-lg &-container {
+    width: $modal-width-lg;
+  }
+
+  &-sm &-container {
+    width: $modal-width-sm;
+  }
+
+  &.dark-cover .modal-cover {
+    background-color: rgba(0, 0, 0, 0.6);
+  }
+
+  &.show {
+    top: 0;
+    display: flex;
+  }
+}

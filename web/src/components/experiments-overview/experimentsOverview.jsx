@@ -56,12 +56,10 @@ class ExperimentsOverview extends Component {
   handleButtonsClick(e) {
     e.target.parentNode.childNodes.forEach((childNode) => {
       if (childNode.id !== e.target.id) {
-        childNode.classList.remove('active-border-light-blue');
-        childNode.classList.add('non-active-black-border');
+        childNode.classList.remove('active');
       }
     });
-    e.target.classList.add('active-border-light-blue');
-    e.target.classList.remove('non-active-black-border');
+    e.target.classList.add('active');
 
     const { all } = this.state;
     let experiments = all;
@@ -109,7 +107,7 @@ class ExperimentsOverview extends Component {
             <button
               id="all"
               type="button"
-              className="non-active-black-border rounded-pipeline-btn"
+              className="btn btn-switch btn-bg-light btn-label-sm my-auto"
               onClick={(e) => this.handleButtonsClick(e)}
             >
               All
@@ -117,7 +115,7 @@ class ExperimentsOverview extends Component {
             <button
               id="running"
               type="button"
-              className="non-active-black-border rounded-pipeline-btn"
+              className="btn btn-switch btn-bg-light btn-label-sm my-auto"
               onClick={(e) => this.handleButtonsClick(e)}
             >
               Running
@@ -125,7 +123,7 @@ class ExperimentsOverview extends Component {
             <button
               id="open"
               type="button"
-              className="non-active-black-border rounded-pipeline-btn"
+              className="btn btn-switch btn-bg-light btn-label-sm my-auto"
               onClick={(e) => this.handleButtonsClick(e)}
             >
               Open
@@ -133,7 +131,7 @@ class ExperimentsOverview extends Component {
             <button
               id="completed"
               type="button"
-              className="non-active-black-border rounded-pipeline-btn"
+              className="btn btn-switch btn-bg-light btn-label-sm my-auto"
               onClick={(e) => this.handleButtonsClick(e)}
             >
               Completed
@@ -141,7 +139,7 @@ class ExperimentsOverview extends Component {
             <button
               id="failed"
               type="button"
-              className="non-active-black-border rounded-pipeline-btn"
+              className="btn btn-switch btn-bg-light btn-label-sm my-auto"
               onClick={(e) => this.handleButtonsClick(e)}
             >
               Failed
@@ -149,7 +147,7 @@ class ExperimentsOverview extends Component {
             <button
               id="aborted"
               type="button"
-              className="non-active-black-border rounded-pipeline-btn"
+              className="btn btn-switch btn-bg-light btn-label-sm my-auto"
               onClick={(e) => this.handleButtonsClick(e)}
             >
               Aborted

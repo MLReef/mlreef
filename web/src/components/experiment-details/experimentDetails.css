@@ -32,7 +32,7 @@
     margin: 0.8em 0px;
 }
 
-.files-tbody > tr {
+/* .files-tbody > tr {
     text-align: center; 
     justify-content: space-between;
     padding: 0% 3.5% 0% 1%;
@@ -41,7 +41,7 @@
 .files-tbody > tr > td {
     border-bottom: 1px solid #b2b2b2;
 }
-
+ */
 .experiment-details-menu > .menu-button {
   padding: 10px 15px;
   background-color: white;

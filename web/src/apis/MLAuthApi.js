@@ -1,3 +1,5 @@
+import { API_GATEWAY } from '../apiConfig';
+
 export default class MLRAuthApi {
   static buildAuthHeaders(token) {
     return new Headers({
@@ -15,7 +17,7 @@ export default class MLRAuthApi {
   }
 
   static async login(username, email, password) {
-    const url = '/api/v1/auth/login';
+    const url = `${API_GATEWAY}/api/v1/auth/login`;
     const response = await fetch(url, {
       method: 'POST',
       headers: this.buildAnonHeaders(),

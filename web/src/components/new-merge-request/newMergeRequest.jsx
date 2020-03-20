@@ -1,18 +1,14 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import {
-  shape, number, string, arrayOf,
+  shape, number, string, arrayOf, func,
 } from 'prop-types';
-import {
-  Button,
-} from '@material-ui/core';
 import { Redirect, Link } from 'react-router-dom';
 import { toastr } from 'react-redux-toastr';
 import ProjectContainer from '../projectContainer';
 import Navbar from '../navbar/navbar';
 import CustomizedSelect from '../CustomizedSelect';
 import BlueBorderedInput from '../BlueBorderedInput';
-import CustomizedButton from '../CustomizedButton';
 import './newMergeRequest.css';
 import branchesApi from '../../apis/BranchesApi';
 import mergeRequestAPI from '../../apis/mergeRequestApi';
@@ -108,6 +104,14 @@ export class NewMergeRequest extends Component {
       });
   }
 
+  handleCancel = () => {
+    const {
+      history,
+    } = this.props;
+
+    return history.goBack();
+  };
+
   handleCreateBranchEv() {
     this.setState({ loading: true });
     const {
@@ -141,7 +145,7 @@ export class NewMergeRequest extends Component {
       commits,
       diffs,
       imagesToRender,
-      loading,
+      // loading,
       redirect,
     } = this.state;
     const isEnabledCreateMergeReq = title.length > 0
@@ -237,29 +241,24 @@ export class NewMergeRequest extends Component {
             justifyContent: 'space-between',
           }}
           >
-            <Button
+            <button
               id="cancel-button"
-              variant="contained"
-              href={`/my-projects/${selectedProject.id}/master`}
+              type="button"
+              className="btn btn-basic-dark"
+              onClick={this.handleCancel}
             >
               Cancel
-            </Button>
-            {isEnabledCreateMergeReq ? (
-              <CustomizedButton
-                id="submit-merge-request"
-                onClickHandler={this.handleCreateBranchEv}
-                buttonLabel="Submit merge request"
-                loading={loading}
-              />
-            ) : (
-              <Button
-                id="submit-merge-request"
-                disabled
-                type="button"
-              >
-                Submit merge request
-              </Button>
-            )}
+            </button>
+
+            <button
+              id="submit-merge-request"
+              type="button"
+              className="btn btn-primary"
+              onClick={this.handleCreateBranchEv}
+              disabled={!isEnabledCreateMergeReq}
+            >
+              Submit merge request
+            </button>
           </div>
           <br />
           {commits.length > 0 && (
@@ -296,6 +295,9 @@ NewMergeRequest.propTypes = {
       name: string.isRequired,
     }).isRequired,
   ).isRequired,
+  history: shape({
+    goBack: func.isRequired,
+  }).isRequired,
 };
 
 function mapStateToProps(state) {
