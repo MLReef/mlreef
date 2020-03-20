@@ -16,6 +16,7 @@ from keras import optimizers
 from keras.callbacks import ReduceLROnPlateau, CSVLogger
 
 
+
 class Metrics(keras.callbacks.Callback):
 
     def on_train_begin(self, logs={}):
@@ -158,8 +159,8 @@ def process_arguments(args):
     parser = argparse.ArgumentParser(description='ResNet50')
     parser.add_argument('--images-path', action='store', help='path to directory of images')
     parser.add_argument('--output-path', action='store', default='.', help='path to output metrics')
-    parser.add_argument('--height', action='store', help='height of images (int)')
-    parser.add_argument('--width', action='store', help='width of images (int)')
+    parser.add_argument('--height', action='store', default=224, help='height of images (int)')
+    parser.add_argument('--width', action='store', default=224,help='width of images (int)')
     parser.add_argument('--channels', action='store', default=3, help='channels of images: 1 = grayscale, 3 = RGB ,'
                                                                       '4=RGBA (int)')
     parser.add_argument('--use-pretrained', action='store', default=True, help='use pretrained ResNet50 weights (bool)')
@@ -172,7 +173,7 @@ def process_arguments(args):
     parser.add_argument('--learning-rate', action='store', default=0.0001,
                         help='learning rate of Adam Optimizer (float)'
                              '')
-    parser.add_argument('--loss', action='store', default='binary_crossentropy', help='loss function used to'
+    parser.add_argument('--loss', action='store', default='sparse_categorical_crossentropy', help='loss function used to'
                                                                                            ' compile model')
     params = vars(parser.parse_args(args))
     return params
