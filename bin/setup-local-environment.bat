@@ -96,6 +96,10 @@ timeout 15
 docker-compose stop backend nginx-proxy frontend
 timeout 15
 docker-compose up --detach
+timeout 15
+docker-compose stop backend
+timeout 15
+docker-compose up --detach
 
 echo.
 echo Test connection for admin:
