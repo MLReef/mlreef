@@ -50,7 +50,8 @@ In MLReef you can create ML projects to host and manage your data sets, create d
 
 *  **Data repository**: A git-based repository which stores your data sets for your ML project. 
 *  **Data instances**: These are data sets resulting from your data processing pipelines which can be reviewed, saved as a new branch or merged into an existing one or directly used for your model training. 
-*  **Experiments**: Experiments are the single-source-of-truth behind your model training. They host absolutely all value added steps and model binaries.
+*  **Experiments**: Experiments are the single-source-of-truth behind your model training. They host all value added steps, training log and model binaries.
+   [how to run experiments](pipelines/experiment.md)
 
 
 Pipelines
