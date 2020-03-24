@@ -189,6 +189,8 @@ These links show the initial design of each view in MLReef.
 
 [Data Visualization Pipeline Select_data](https://xd.adobe.com/view/d1614d97-daf6-4a2b-600a-5c9e173ac739-a750/)
 
+[Data Visualization Delete / Abort](https://xd.adobe.com/view/20cff280-7a9c-416e-5f08-10da7f0d87ff-56fe/)
+
 
 
 
