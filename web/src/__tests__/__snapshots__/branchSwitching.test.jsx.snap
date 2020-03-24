@@ -4,90 +4,170 @@ exports[`The branches list should be displayed when dropdown button is clicked d
 <div
   id="repo-features"
 >
-  <div>
+  <div
+    className="m-dropdown  mr-2 mt-3"
+  >
     <div
-      className="reference"
+      className="m-dropdown-button"
     >
       <button
-        className="white-button"
-        id="branch-dropdown"
+        className="btn btn-basic-dark px-2"
         onClick={[Function]}
         type="button"
       >
-        <span>
-          master
-        </span>
-        <img
-          alt=""
-          id="leftfeature-image"
-          src={Object {}}
+        Master
+        <i
+          className="fa fa-chevron-down ml-2 my-auto"
         />
       </button>
     </div>
     <div
-      className="reference"
+      className="m-dropdown-list-container container-shadow border-rounded  mt-1"
+      onClick={[Function]}
     >
-      <button
-        className="white-button"
-        onClick={[Function]}
-        style={
-          Object {
-            "position": "relative",
+      <div
+        className="select-branch"
+        id="branches-list"
+      >
+        <div
+          style={
+            Object {
+              "fontSize": "14px",
+              "margin": "0 50px",
+              "padding": "0 40px",
+            }
           }
-        }
+        >
+          <p>
+            Switch Branches
+          </p>
+        </div>
+        <hr />
+        <div
+          className="search-branch"
+        >
+          <input
+            placeholder="Search branches or tags"
+            type="text"
+          />
+          <div
+            className="branches"
+          >
+            <ul>
+              <li
+                className="branch-header"
+              >
+                Branches
+              </li>
+              <li>
+                <a
+                  href="/my-projects/12395599/data-instance%2F664e1c60"
+                  id="data-instance/664e1c60"
+                  onClick={[Function]}
+                >
+                  <p>
+                    data-instance/664e1c60
+                  </p>
+                </a>
+              </li>
+              <li>
+                <a
+                  href="/my-projects/12395599/data-instance%2F9ae9c8c0"
+                  id="data-instance/9ae9c8c0"
+                  onClick={[Function]}
+                >
+                  <p>
+                    data-instance/9ae9c8c0
+                  </p>
+                </a>
+              </li>
+              <li>
+                <a
+                  href="/my-projects/12395599/master"
+                  id="master"
+                  onClick={[Function]}
+                >
+                  <p>
+                    master
+                  </p>
+                </a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div
+    className="m-dropdown  mr-2 mt-3"
+  >
+    <div
+      className="m-dropdown-button"
+    >
+      <button
+        className="btn btn-basic-dark px-2"
+        onClick={[Function]}
         type="button"
       >
-        <img
-          alt=""
-          id="plus"
-          src={Object {}}
+        <i
+          className="fa fa-plus"
         />
-        <img
-          alt=""
-          id="leftfeature-image"
-          src={Object {}}
+        <i
+          className="fa fa-chevron-down ml-2 my-auto"
         />
       </button>
     </div>
-    <button
-      className="blue-button"
-      type="button"
+    <div
+      className="m-dropdown-list-container container-shadow border-rounded  mt-1"
+      onClick={[Function]}
     >
-      <a
-        href="/my-projects/12395599/empty-data-visualization"
-        onClick={[Function]}
+      <div
+        className="plus-dropdown"
       >
-        <p>
-          Data Visualisation
-        </p>
-      </a>
-    </button>
-    <button
-      className="blue-button"
-      type="button"
-    >
-      <a
-        href="/my-projects/12395599/pipe-line"
-        onClick={[Function]}
-      >
-        <p>
-          Data Pipeline
-        </p>
-      </a>
-    </button>
+        <ul
+          className="plus-list"
+        >
+          <li>
+            This directory
+          </li>
+          <hr />
+          <li>
+            This repository
+          </li>
+          <li
+            className="plus-option"
+          >
+            <a
+              href="/my-projects/12395599/new-branch"
+              onClick={[Function]}
+            >
+              New branch
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
   </div>
-  <div>
-    <button
-      className="white-button"
-      type="button"
-    >
-      <a
-        href="/my-projects/12395599/master/commits/"
-        onClick={[Function]}
-      >
-        History
-      </a>
-    </button>
-  </div>
+  <a
+    className="btn btn-dark px-3 mr-2 mt-3"
+    href="/my-projects/12395599/empty-data-visualization"
+    onClick={[Function]}
+  >
+    Data Visualisation
+  </a>
+  <a
+    className="btn btn-dark px-3 mr-auto mt-3"
+    href="/my-projects/12395599/pipe-line"
+    onClick={[Function]}
+  >
+    Data Pipeline
+  </a>
+  <a
+    className="btn btn-outline-dark mt-3"
+    href="/my-projects/12395599/master/commits/"
+    onClick={[Function]}
+  >
+    History
+  </a>
 </div>
 `;

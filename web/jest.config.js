@@ -87,6 +87,7 @@ module.exports = {
   // that allow to stub out resources with a single module
 
   moduleNameMapper: {
+    '^.+\\.(css|less|scss)$': 'babel-jest',
     '\\.(jpg|jpeg|png|gif|eot|otf|webp|svg|css)$': '<rootDir>/src/__tests__/dataOperationList.test.jsx',
     // eslint-disable-next-line no-dupe-keys
     '\\.(jpg|jpeg|png|gif|eot|otf|webp|svg|css)$': '<rootDir>/src/__tests__/pipeLineExecutionModal.test.jsx',
