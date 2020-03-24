@@ -191,6 +191,14 @@ These links show the initial design of each view in MLReef.
 
 [Data Visualization Delete / Abort](https://xd.adobe.com/view/20cff280-7a9c-416e-5f08-10da7f0d87ff-56fe/)
 
+[Data Visualization Details](https://xd.adobe.com/view/a2e65c2d-7210-44d9-405b-e4b05d39f367-d4d7/)
+
+[Data Visualization Overview](https://xd.adobe.com/view/6c673bab-6cad-46ec-4995-0e01fec6f3f1-1a56/)
+
+
+**Data Repository (ML Project)**
+
+[Data Visualization Overview](https://xd.adobe.com/view/c6c402fa-d7f8-4b46-4c6f-dd6257402fb4-b0f5/)
 
 
 
