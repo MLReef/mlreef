@@ -94,3 +94,14 @@
     margin-top: 4px;
     margin-bottom: 4px;
 }
+
+/* --------------------------- Empty experiment --------------------------- */
+
+.epmty-experiment-logo{
+    width: 350px;
+    align-items: center;
+    margin: 0 auto;
+    font-size: 14px;
+    display: flex;
+    flex-direction: column;
+}
