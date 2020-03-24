@@ -11,7 +11,7 @@ exports[`The branches list should be displayed when dropdown button is clicked d
       className="m-dropdown-button"
     >
       <button
-        className="btn btn-basic-dark px-2"
+        className="btn btn-basic-dark px-2 "
         onClick={[Function]}
         type="button"
       >
@@ -22,7 +22,7 @@ exports[`The branches list should be displayed when dropdown button is clicked d
       </button>
     </div>
     <div
-      className="m-dropdown-list-container container-shadow border-rounded  mt-1"
+      className="m-dropdown-list-container border-rounded  mt-1"
       onClick={[Function]}
     >
       <div
@@ -105,7 +105,7 @@ exports[`The branches list should be displayed when dropdown button is clicked d
       className="m-dropdown-button"
     >
       <button
-        className="btn btn-basic-dark px-2"
+        className="btn btn-basic-dark px-2 "
         onClick={[Function]}
         type="button"
       >
@@ -118,7 +118,7 @@ exports[`The branches list should be displayed when dropdown button is clicked d
       </button>
     </div>
     <div
-      className="m-dropdown-list-container container-shadow border-rounded  mt-1"
+      className="m-dropdown-list-container border-rounded  mt-1"
       onClick={[Function]}
     >
       <div

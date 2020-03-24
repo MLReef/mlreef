@@ -1,8 +1,10 @@
 .pipeline-card > .card-content {
     display: flex;
+    flex-wrap: wrap;
 }
 
 .pipeline-card > .card-content > .summary-data {
+    flex: 1 0 auto;
     width: 80%;
     color: #1c2b40;
     display: flex;

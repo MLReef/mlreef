@@ -30,9 +30,7 @@ $m-dropdown-min-width: 300px;
       position: absolute;
       display: none;
       z-index: 2;
-      border-style: solid;
-      border-width: 1px;
-      border-color: var(--secondary);
+      border: none;
 
       &.left {
         left: 0;

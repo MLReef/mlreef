@@ -209,15 +209,13 @@ export function CommitDiv(props) {
             {timediff}
           </span>
         </div>
-        <div className="commit-details">
-          <span ref={spanRef}>{id}</span>
+        <div className="commit-details btn-group">
+          <span ref={spanRef} className="border-rounded-left">{id}</span>
           <Tooltip title={`Copy ${id}`} aria-label="copy">
             <button
               type="button"
-              className="copy-commit-id"
-              style={{
-                background: `url(${clone01})`,
-              }}
+              label="clone"
+              className="btn btn-icon fa fa-copy t-primary"
               onClick={() => {
                 const phantomInput = document.createElement('input');
                 phantomInput.value = spanRef.current.innerText;

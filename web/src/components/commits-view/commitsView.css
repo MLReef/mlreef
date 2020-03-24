@@ -81,14 +81,13 @@ border-radius: 0.3vw 0.3vw 0 0;
 .commit-details{
     display: flex;
     margin: 1em 1em 1em auto;
-    border: 1px solid #adadad;
-    border-radius: 0.3vw;
-    height: 2.2em;
+    border: 1px solid var(--secondary);
+    border-radius: 5px;
+    background-color: var(--light);
 }
 
 .commit-details span{
-    background-color: #e5e5e5;
-    margin-left: 0;
+    margin: auto;
     padding: 0.5em 1em;
 }
 
