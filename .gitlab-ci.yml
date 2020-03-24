@@ -8,11 +8,9 @@ stages:
 services:
   - docker:19.03.1-dind
 
-
 variables:
   DOCKER_DRIVER: overlay2
   DOCKER_TLS_CERTDIR: "/certs"
-  #DOCKER_BUILD_PATH: "mlreef-rest/build/docker"
   IMAGE_NAME: "backend"
   IMAGE_PATH: "$DOCKER_REGISTRY/$DOCKER_ORGANISATION/$IMAGE_NAME:$CI_COMMIT_REF_SLUG"
   DOCKER_REGISTRY_REPOSITORY_ID: "753711"                        # https://gitlab.com/api/v4/projects/13830884/registry/repositories/
@@ -21,13 +19,9 @@ variables:
   POSTGRES_DB: $DB_NAME
   POSTGRES_USER: $DB_USER
   POSTGRES_PASSWORD: $DB_PASSWORD
-  #  AIOPS_EC2_INSTANCE_NAME: mlreef-aiops-dispatch-$CI_COMMIT_REF_SLUG        # environment name and url are set separately
-  #  BUCKET_NAME: mlreef-rest-$CI_COMMIT_REF_SLUG                   # environment name and url are set separately
-  #  REST_EC2_INSTANCE_NAME: mlreef-rest-$CI_COMMIT_REF_SLUG        # environment name and url are set separately
-  #  INSTANCE_INFO: instance.info                                   # workaround for transmitting information between stages
 
 
-build-backend:
+build and test:
   stage: build
   image: java:8
   services:
@@ -65,14 +59,24 @@ build-backend:
     reports:
       junit: mlreef-rest/build/test-results/test/**/TEST-*.xml
 
+
+deploy:
+  stage: deploy
+  image: docker:19.03.1
+  script:
+    - docker login ${DOCKER_REGISTRY} -u "${DOCKER_USER}" -p "${DOCKER_PASSWORD}"
+    - echo "IMAGE_PATH=${IMAGE_PATH}"
+    - cd mlreef-rest
+    - docker build --pull --tag "$IMAGE_PATH" -f Dockerfile .
+    - docker push "${IMAGE_PATH}"
+
+
 pages:
-  stage: test
+  stage: deploy
   cache:
     key: pages-public-cache
     paths:
       - public/
-  dependencies:
-    - build-backend
   script:
     - ls public/develop public/feature/* -l || echo "Still empty"
     - mkdir public/$CI_COMMIT_BRANCH -p || echo "Already existing"
@@ -80,23 +84,14 @@ pages:
     - mkdir public/$CI_COMMIT_BRANCH/coverage -p
     - mv mlreef-rest/build/reports/jacoco/test/html/* public/$CI_COMMIT_BRANCH/coverage
     - mv mlreef-rest/build/asciidoc/html5/rest-api.html public/$CI_COMMIT_BRANCH/index.html
+    - echo "Documentation URL is $CI_PAGES_URL/$CI_COMMIT_BRANCH" 
   artifacts:
     paths:
       - public
-
-
-deploy-backend:
-  stage: deploy
-  image: docker:19.03.1
-  dependencies:
-    - build-backend
-  before_script:
-    - docker login ${DOCKER_REGISTRY} -u "${DOCKER_USER}" -p "${DOCKER_PASSWORD}"
-  script:
-    - echo "IMAGE_PATH=${IMAGE_PATH}"
-    - cd mlreef-rest
-    - docker build --pull --tag "$IMAGE_PATH" -f Dockerfile .
-    - docker push "${IMAGE_PATH}"
+  environment:
+    name: $CI_COMMIT_REF_SLUG
+    url: $CI_PAGES_URL/$CI_COMMIT_BRANCH
+    on_stop: decommission
 
 #prevent-hacks:
 #  stage: premerge
@@ -112,57 +107,25 @@ deploy-backend:
 #    - if [ "$($CMD)" != "" ]; then exit 1; fi
 
 
-.provision-dispatcher:
-  stage: deploy
-  when: always                                         # provision-dispatcher must be independent of "build" and "test"
-  image: registry.gitlab.com/systemkern/s5:latest-aws  # based on python:3-slim
-  variables:
-    #EC2_IMAGE_AMI: "ami-0ac05733838eabc06"            # ubuntu/images/hvm-ssd/ubuntu-bionic-18.04-amd64-server-20190722.1
-    EC2_IMAGE_AMI: "ami-050a22b7e0cf85dd0"             # ubuntu 16.04 LTS
-    EC2_MACHINE_SIZE: "t2.micro"
-    EC2_SECURITY_GRP: "launch-wizard-2"
-  before_script:
-    - chmod 400 development_deployment.pem             # prepare private key file
-    - ./aiops-runner-dispatcher/decomission.sh         # first shutdown all current instances
-  script:
-    # rewrite ec2-startup.sh
-    - echo "#!/bin/bash"                                      >> aiops-runner-dispatcher/ec2-startup.updated
-    - echo "DISPATCHER_DESCRIPTION=$AIOPS_EC2_INSTANCE_NAME"  >> aiops-runner-dispatcher/ec2-startup.updated
-    - tail -n +2 aiops-runner-dispatcher/ec2-startup.sh       >> aiops-runner-dispatcher/ec2-startup.updated
-    - chmod +x                                                   aiops-runner-dispatcher/ec2-startup.updated
-    - rm -rf                                                     aiops-runner-dispatcher/ec2-startup.sh
-    - mv aiops-runner-dispatcher/ec2-startup.updated             aiops-runner-dispatcher/ec2-startup.sh
-    - cat aiops-runner-dispatcher/ec2-startup.sh
-    # provision instance
-    - INSTANCE=$(./aiops-runner-dispatcher/provision.sh)
-    - echo "$INSTANCE"
-    - echo "$INSTANCE" | tr -d '\r' > instance.info    # pass instance url to deploy stage
-  #    - sleep 120 # wait for the instance to boot
-  artifacts:
-    paths:
-      - instance.info
-  environment:
-    name: $CI_COMMIT_REF_SLUG
-    url: https://eu-central-1.console.aws.amazon.com/ec2/home?region=eu-central-1#Instances:sort=desc:launchTime
-    on_stop: decomission
-
-.decomission:
-  image: registry.gitlab.com/systemkern/s5:latest-aws    # based on python:3-slim
-  stage: teardown
+decommission:
   when: manual
+  stage: teardown
+  image: registry.gitlab.com/systemkern/s5:latest-aws    # based on python:3-slim
   variables:
     GIT_STRATEGY: none
     # Workaround for Gitlab Bug https://gitlab.com/gitlab-org/gitlab-runner/issues/1809
     WORKAROUND: "PRIVATE-TOKEN:" # workaround to not break the yaml structure
+  cache:
+    key: pages-public-cache
+    paths:
+      - public/
   script:
-    # use the aws-cli to retrieve the desciptoion (json) for our machine
-    # parse the json with jq to get the instance id
-    # the xargs command at the end submits the termination command to AWS
-    - aws ec2 describe-instances
-      --filters "Name=tag:Name,Values=$AIOPS_EC2_INSTANCE_NAME"
-      | jq -r ".Reservations[].Instances[].InstanceId"
-      | xargs --no-run-if-empty aws ec2 terminate-instances
-      --instance-id
+    - curl --request DELETE --header "$WORKAROUND $GITLAB_API_TOKEN"
+      https://gitlab.com/api/v4/projects/$CI_PROJECT_ID/registry/repositories/$DOCKER_REGISTRY_REPOSITORY_ID/tags/$CI_COMMIT_REF_SLUG
+    - rm public/$CI_COMMIT_BRANCH/* -R || echo "Still empty"
+  artifacts:
+    paths:
+      - public
   environment:
     name: $CI_COMMIT_REF_SLUG
     action: stop
