@@ -170,6 +170,7 @@ export function Clonedropdown(props) {
 
   return (
     <div
+      id="t-clonedropdown-toggle"
       className={`${className} counter clone-dropdown`}
       ref={node}
       onClick={ () => setOpen(!open) }

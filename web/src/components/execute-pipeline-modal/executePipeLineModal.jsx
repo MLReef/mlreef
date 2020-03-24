@@ -89,7 +89,7 @@ const ExecutePipelineModal = ({
 
                   {isFirstOptSelected && (
                     <div className="row pl-3">
-                      <div className="col-8">
+                      <div id="t-machine-selector" className="col-8">
                         <MSelect
                           label="Select a machine..."
                           options={fakeMachinesToShow}

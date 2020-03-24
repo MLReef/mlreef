@@ -93,6 +93,7 @@ const PipeLineView = ({
               Save
             </button>,
             <button
+              id="execute-button"
               key="pipeline-execute"
               type="button"
               onClick={handleExecuteBtn}

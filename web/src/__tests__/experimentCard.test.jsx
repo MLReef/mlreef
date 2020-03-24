@@ -1,6 +1,7 @@
-/* eslint-disable no-undef */
+import 'babel-polyfill';
 import React from 'react';
-import Enzyme, { mount } from 'enzyme';
+import Enzyme, { shallow } from 'enzyme';
+import ArrowButton from 'components/arrow-button/arrowButton';
 import EnzymeAdapter from 'enzyme-adapter-react-16';
 import SummarizedDataAndChartComp from '../components/experiments-overview/summarizedDataAndChartComp';
 
@@ -22,7 +23,7 @@ const params = {
   },
 };
 
-const setup = () => mount(
+const setup = () => shallow(
   <SummarizedDataAndChartComp
     experiment={params.experiment}
     projectId={params.projectId}
@@ -32,6 +33,8 @@ const setup = () => mount(
 
 test('assert that after clicking dropdown button the chart is rendered', () => {
   const wrapper = setup();
-  wrapper.find('button#ArrowButton-e07a6540').simulate('click');
+  const mockEvent = { currentTarget: { classList: { contains: () => {} } } };
+  const btn = wrapper.find(ArrowButton).dive().find('button#ArrowButton-e07a6540');
+  btn.simulate('click', mockEvent);
   expect(wrapper.find('.data-summary')).toHaveLength(1);
 });

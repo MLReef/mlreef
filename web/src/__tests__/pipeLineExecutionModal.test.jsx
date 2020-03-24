@@ -17,6 +17,5 @@ test('There should be three buttons', () => {
 
 test('The machines list should be displayed when dropdown button is clicked', () => {
   wrapper.find('#show-first-opt').simulate('click');
-  wrapper.find('button.arrow-button').simulate('click');
-  expect(wrapper.find('#machines-list')).toHaveLength(1);
+  expect(wrapper.find('#t-machine-selector')).toHaveLength(1);
 });
