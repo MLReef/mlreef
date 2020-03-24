@@ -56,9 +56,8 @@ class ProjectDeletionModal extends React.Component {
             </div>
             <div className="modal-actions p-3" id="button-container">
                   <button
-                    style={{ cursor: 'pointer' }}
                     className="btn btn-danger ml-auto"
-                    disabled={this.state.isEnabledConfirmButton}
+                    disabled={!this.state.isEnabledConfirmButton}
                     onClick={() => {
                       projectGeneralInfoApi
                         .removeProject(this.props.owner)

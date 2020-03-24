@@ -92,7 +92,11 @@ const ExperimentCard = (props) => {
                 </div>
               )}
             </div>
-            <SummarizedDataAndChartComp experiment={experiment} projectId={projectId} defaultBranch={defaultBranch} />
+            <SummarizedDataAndChartComp
+              experiment={experiment}
+              projectId={projectId}
+              defaultBranch={defaultBranch}
+            />
           </div>
         );
       })}

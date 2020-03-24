@@ -77,7 +77,11 @@ const NewExperiment = ({
         branchSelected={branchSelected}
       />
       <Navbar />
-      <ProjectContainer project={project} activeFeature="experiments" folders={[groupName, project.name, 'Data', 'Pipeline']} />
+      <ProjectContainer
+        project={project}
+        activeFeature="experiments"
+        folders={[groupName, project.name, 'Data', 'Experiments']}
+      />
       <Instruction
         id="NewExperiment"
         titleText="How to create a new experiment:"

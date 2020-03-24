@@ -142,12 +142,10 @@ const SummarizedDataAndChartComp = ({ experiment, projectId, defaultBranch }) =>
         <button
           key={`dangerous-red-${commitCode}`}
           type="button"
-          className="dangerous-red"
+          className="btn btn-danger"
           style={{ width: 'max-content' }}
         >
-          <b>
-            Abort
-          </b>
+          Abort
         </button>,
       ];
     } else if (experimentState === SKIPPED) {
@@ -156,19 +154,15 @@ const SummarizedDataAndChartComp = ({ experiment, projectId, defaultBranch }) =>
         <button
           key={`dangerous-red-${commitCode}`}
           type="button"
-          className="dangerous-red"
-        >
-          <b>
-            X
-          </b>
-        </button>,
+          label="close"
+          className="btn btn-icon btn-danger fa fa-times"
+        />,
         <button
           key={`deploy-${commitCode}`}
           type="button"
-          className="light-green-button rounded-pipeline-btn non-active-black-border"
-          style={{ width: '100px' }}
+          className="btn btn-basic-primary"
         >
-          <b>Resume</b>
+          Resume
         </button>,
       ];
     } else if (experimentState === SUCCESS || experimentState === FAILED) {
@@ -177,12 +171,9 @@ const SummarizedDataAndChartComp = ({ experiment, projectId, defaultBranch }) =>
         <button
           key={`dangerous-red-${commitCode}`}
           type="button"
-          className="dangerous-red"
-        >
-          <b>
-            X
-          </b>
-        </button>,
+          label="close"
+          className="btn btn-icon btn-danger fa fa-times"
+        />,
       ];
     } else if (experimentState === CANCELED) {
       buttons = [
@@ -190,12 +181,9 @@ const SummarizedDataAndChartComp = ({ experiment, projectId, defaultBranch }) =>
         <button
           key={`dangerous-red-${commitCode}`}
           type="button"
-          className="dangerous-red"
-        >
-          <b>
-            X
-          </b>
-        </button>,
+          label="close"
+          className="btn btn-icon btn-danger fa fa-times"
+        />,
       ];
     }
     return (
@@ -205,7 +193,6 @@ const SummarizedDataAndChartComp = ({ experiment, projectId, defaultBranch }) =>
   return (
     <>
       {getButtonsDiv(currentState)}
-      <div style={{ flexBasis: '100%', height: 0 }} key={`${descTitle} ${currentState} division1`} />
       {showSummary && (
         <>
           <div key={`${descTitle} ${currentState} data-summary`} className="data-summary">

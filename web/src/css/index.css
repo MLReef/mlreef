@@ -548,7 +548,7 @@ p.stat-no {
 }
 
 .files-row td {
-  height: 3em;
+  /* height: 3em; */
   /* width: 25%; */
   margin: 0;
   text-align: left;
