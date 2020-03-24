@@ -1,3 +1,7 @@
+.gradle/
 .idea
-/.gradle/
-build
+/build
+/mlreef-domain/build/
+/mlreef-domain/out/
+/mlreef-rest/build/
+/mlreef-rest/out/
