@@ -64,7 +64,6 @@ class Navbar extends Component {
   }
 
   render() {
-    const { dialogOpen, projectDialog, yourProjects } = this.state;
     const { user } = this.props;
 
     return (

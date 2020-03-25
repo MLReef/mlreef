@@ -3,6 +3,7 @@ import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { Base64 } from 'js-base64';
 import { toastr } from 'react-redux-toastr';
+import { shape, objectOf } from 'prop-types';
 import Navbar from '../navbar/navbar';
 import ProjectContainer from '../projectContainer';
 import './dataInstanceOverview.css';
@@ -236,13 +237,9 @@ class DataInstanceOverview extends Component {
   constructor(props) {
     super(props);
     let project;
-    let branches;
-    let id;
     const { projects } = this.props;
     if (projects) {
-      project = props.projects.selectedProject;
-      branches = props.branches.filter((branch) => branch.name.startsWith('data-pipeline'));
-      id = project.id;
+      project = projects.selectedProject;
     }
     this.state = {
       project,
@@ -457,6 +454,12 @@ class DataInstanceOverview extends Component {
       </>
     );
   }
+}
+
+DataInstanceOverview.propTypes = {
+  projects: shape({
+    selectedProject: objectOf(shape).isRequired,
+  }).isRequired,
 }
 
 function mapStateToProps(state) {

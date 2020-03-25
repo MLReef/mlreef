@@ -29,7 +29,7 @@ const MActionModal = (props) => {
     btnPositive: `positive btn btn-${type}`,
     btnNegative: `negative btn btn-outline-${type}`,
     btnIgnore: `ignore btn  btn-outline-${type}`,
-  }), [isShown, dark, type]);
+  }), [isShown, dark, type, small]);
 
   const closeModal = () => actions.closeModal();
 
