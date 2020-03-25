@@ -198,8 +198,91 @@ These links show the initial design of each view in MLReef.
 
 **Data Repository (ML Project)**
 
-[Data Visualization Overview](https://xd.adobe.com/view/c6c402fa-d7f8-4b46-4c6f-dd6257402fb4-b0f5/)
+[Data Repo Overview](https://xd.adobe.com/view/c6c402fa-d7f8-4b46-4c6f-dd6257402fb4-b0f5/)
+
+[Data Repo Overview Empty](https://xd.adobe.com/view/7359345f-498c-4827-5cb8-eb7d5ad329b5-0568/)
+
+[Data Repo File View](https://xd.adobe.com/view/487ab346-ffb9-4a30-52b9-57d37fbb43c1-3e4b/)
 
 
+**Data Repository (ML Project) Side functions**
 
+[Branches](https://xd.adobe.com/view/23417c6e-c683-4dd3-6f32-ad5bbef0753d-5570/)
 
+[Delete File](https://xd.adobe.com/view/b093afeb-118a-48f2-5b24-8684dbf5014c-c6a2/)
+
+[Forking](https://xd.adobe.com/view/b4d538d5-666e-40d6-614c-6a995806ee4d-c2e4/)
+
+[Forking Namespace](https://xd.adobe.com/view/06b4dc63-345c-4dde-7c54-3391ecf37440-7085/)
+
+[History](https://xd.adobe.com/view/f1ebb054-cf1d-4692-637e-a8504f10d1ec-87da/)
+
+[New Branch](https://xd.adobe.com/view/43dd2017-0402-4643-42a8-f16e0731d7a7-35ec/)
+
+[Upload New File](https://xd.adobe.com/view/cdd59855-ac05-48c4-5888-7a0a453e79e7-bbe4/)
+
+**Merge Request**
+
+[MR Overview](https://xd.adobe.com/view/91c19db9-c67c-4ead-42a3-ac3c8cc8dc07-e7f0/)
+
+[Review MR Changes](https://xd.adobe.com/view/59e6fed8-a6a1-44e2-6cbb-c0020831dae0-2fd7/)
+
+[Review MR Overview](https://xd.adobe.com/view/7fe07979-d332-483b-4680-3111e9174096-09d1/)
+
+[Review MR Commits](https://xd.adobe.com/view/20e327f7-f8e1-4d4e-6be6-035b686aa22e-56d2/)
+
+[New MR](https://xd.adobe.com/view/d299271c-6e84-4a9f-4918-b83014f539ab-a4a8/)
+
+**Data Processing Pipeline**
+
+[Data Processing Empty](https://xd.adobe.com/view/6da25d40-2a4d-4743-5776-767e53100df5-1b93/)
+
+[Data Processing Modal](https://xd.adobe.com/view/670866c8-87ad-4002-64c0-0894d3d7e9cd-1139/)
+
+[Data Processing Overview](https://xd.adobe.com/view/566ad5dc-edcf-49e3-7230-c4d0e1fa4078-205b/)
+
+[Data Processing Select Data](https://xd.adobe.com/view/cd08a4b8-ecab-4508-4e6a-a00bb3967697-bb39/)
+
+**Experiments**
+
+[Experiments Overview](https://xd.adobe.com/view/26f1e720-73a0-43a3-7eeb-08bb38abd986-50c0/)
+
+[Experiments Overview Empty](https://xd.adobe.com/view/e233e6ca-7ec7-4842-58ff-f724872b4612-9402/)
+
+[Experiments Delete](https://xd.adobe.com/view/7ba128d3-8ff7-4290-437c-d6706c120c3e-0d90/)
+
+[Experiments Abort](https://xd.adobe.com/view/036b80f1-9769-4112-7315-a6ed5c55f165-755a/)
+
+[Experiments Details General](https://xd.adobe.com/view/4c36303b-dc02-4fa6-6714-a51bcc19bab6-3a07/)
+
+[Experiments Details Files](https://xd.adobe.com/view/acf7fd8b-01b4-4903-65a6-c348a4417cb6-dac6/)
+
+[Experiments Details Training Log](https://xd.adobe.com/view/dd562d39-9d8b-4d1b-4a26-e29fefe3314e-ab67/)
+
+[Experiments Pipeline Overview](https://xd.adobe.com/view/5e5706b9-f556-4c88-7106-5edc92fef339-2866/)
+
+[Experiments Pipeline Overview Empty](https://xd.adobe.com/view/8d73060c-174a-43e6-6a96-78861d008514-fb42/)
+
+[Experiments Pipeline Modal](https://xd.adobe.com/view/b44d7673-34c1-461e-483f-604ca3647c2e-c27c/)
+
+[Experiments Pipeline Select Data](https://xd.adobe.com/view/f059d209-7ad7-4789-7f96-20b99b464f11-8668/)
+
+**Insights**
+
+[Insights Jobs (ML Project)](https://xd.adobe.com/view/07843c33-3b31-43b5-6d0f-10684160726c-71b5/)
+
+**Models Repository**
+
+[Model Repository Overview](https://xd.adobe.com/view/0743573d-9d17-4819-6dd4-fb5bc8fd63cc-7172/)
+
+[Model Repository Publishing](https://xd.adobe.com/view/85704017-c0c9-41b9-5646-28a6f23a1ce4-f341/)
+
+**Settings**
+
+[Settings General (ML Project)](https://xd.adobe.com/view/65e88d76-2c29-4503-47d1-3148049ed484-13d9/)
+
+[Settings Members (ML Project)](https://xd.adobe.com/view/06099f51-b2c6-4532-4020-800b4f7e5efa-7038/)
+
+[Settings Resources (ML Project)](https://xd.adobe.com/view/9721b063-fb36-4cd7-5f2a-1649a9aafeee-e110/)
+
+[Settings Storage (ML Project)](https://xd.adobe.com/view/ef7862a5-1181-4543-59e0-d5d9d5d33742-9949/)
