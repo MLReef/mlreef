@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { useHistory } from 'react-router-dom';
 import propTypes from 'prop-types';
 import './AuthWrapper.css';
@@ -21,7 +21,6 @@ const AuthWrapper = (props) => {
   
   const history = useHistory();
   const dispatch = useDispatch();
-  const user = useSelector(({ user }) => user);
   
   const owned = useMemo(() => owneronly ? isOwner : true, [owneronly]);
   

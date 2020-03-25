@@ -15,7 +15,6 @@ import Navbar from '../navbar/navbar';
 import ProjectContainer from '../projectContainer';
 import './commitsView.css';
 import arrowBlue from '../../images/arrow_down_blue_01.svg';
-import clone01 from '../../images/clone_01.svg';
 // import folder01 from '../../images/folder_01.svg';
 import commitsApi from '../../apis/CommitsApi';
 import { getTimeCreatedAgo } from '../../functions/dataParserHelpers';
@@ -209,15 +208,13 @@ export function CommitDiv(props) {
             {timediff}
           </span>
         </div>
-        <div className="commit-details">
-          <span ref={spanRef}>{id}</span>
+        <div className="commit-details btn-group">
+          <span ref={spanRef} className="border-rounded-left">{id}</span>
           <Tooltip title={`Copy ${id}`} aria-label="copy">
             <button
               type="button"
-              className="copy-commit-id"
-              style={{
-                background: `url(${clone01})`,
-              }}
+              label="clone"
+              className="btn btn-icon fa fa-copy t-primary"
               onClick={() => {
                 const phantomInput = document.createElement('input');
                 phantomInput.value = spanRef.current.innerText;

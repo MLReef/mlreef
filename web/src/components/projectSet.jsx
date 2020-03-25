@@ -61,9 +61,10 @@ class ProjectSet extends React.Component {
 
         {(screen === '#personal') && personalProjects.map((proj) => (
           <Project
-            key={`proj-personal-key-${proj.name}`}
+            key={`proj-personal-key-${proj.name_with_namespace}`}
             owner={proj.id}
             name={proj.name}
+            namespacedName={proj.name_with_namespace}
             projId={proj.id}
             branch={proj.default_branch}
             desc={proj.description}
@@ -78,9 +79,10 @@ class ProjectSet extends React.Component {
 
         {screen === '#starred' && starredProjects.map((proj) => (
           <Project
-            key={`proj-starred-key-${proj.name}`}
+            key={`proj-starred-key-${proj.name_with_namespace}`}
             owner={proj.id}
             name={proj.name}
+            namespacedName={proj.name_with_namespace}
             projId={proj.id}
             branch={proj.default_branch}
             desc={proj.description}
@@ -95,9 +97,10 @@ class ProjectSet extends React.Component {
 
         {screen === '#explore' && allProjects.map((proj) => (
           <Project
-            key={`proj-explore-key-${proj.name}`}
+            key={`proj-explore-key-${proj.name_with_namespace}`}
             owner={proj.id}
             name={proj.name}
+            namespacedName={proj.name_with_namespace}
             projId={proj.id}
             branch={proj.default_branch}
             desc={proj.description}
@@ -125,9 +128,7 @@ const Project = ({ ...props }) => (
       <div id="project-descriptor">
         <Link to={`/my-projects/${props.projId}/${props.branch}`}>
           <h4 style={{ margin: '0', marginBottom: '5px' }}>
-            {props.owner}
-            /
-            {props.name}
+            {props.namespacedName}
           </h4>
           <span
             style={{
@@ -158,10 +159,7 @@ const Project = ({ ...props }) => (
       </div>
       <div style={{ display: 'flex' }}>
         <p className="mr-3">
-Updated
-          {getTimeCreatedAgo(props.updatedAt, new Date())}
-          {' '}
-ago
+          {`Updated ${getTimeCreatedAgo(props.updatedAt, new Date())} ago`}
         </p>
         <AuthWrapper groupRole={2} style={{ margin: 'auto' }}>
           <button

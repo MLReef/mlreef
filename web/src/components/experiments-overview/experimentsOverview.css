@@ -1,8 +1,10 @@
 .pipeline-card > .card-content {
     display: flex;
+    flex-wrap: wrap;
 }
 
 .pipeline-card > .card-content > .summary-data {
+    flex: 1 0 auto;
     width: 80%;
     color: #1c2b40;
     display: flex;
@@ -93,4 +95,15 @@
 .card-content > .card-results > .data-card > div > p {
     margin-top: 4px;
     margin-bottom: 4px;
+}
+
+/* --------------------------- Empty experiment --------------------------- */
+
+.epmty-experiment-logo{
+    width: 350px;
+    align-items: center;
+    margin: 0 auto;
+    font-size: 14px;
+    display: flex;
+    flex-direction: column;
 }

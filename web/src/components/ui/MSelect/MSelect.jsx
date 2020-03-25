@@ -1,7 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import './MSelect.scss';
-import MDropdown from 'components/ui/MDropdown';
 
 const MSelect = (props) => {
   const {
@@ -17,7 +16,7 @@ const MSelect = (props) => {
   const selected = useMemo(() => {
     const option = options.find((opt) => opt.value === value);
     return option && option.label;
-  }, [value]);
+  }, [value, options]);
 
   const [optionsShown, setOptionsShown] = useState(false);
 

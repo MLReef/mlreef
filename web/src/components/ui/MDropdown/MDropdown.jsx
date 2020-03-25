@@ -29,7 +29,7 @@ const MDropdown = (props) => {
       <div className="m-dropdown-button">
         <button
           type="button"
-          className={buttonClasses}
+          className={`${buttonClasses} ${isShown ? 'active' : ''}`}
           onClick={toggleShow}
         >
           {label}
@@ -38,7 +38,7 @@ const MDropdown = (props) => {
       </div>
       <div
         onClick={handleContainerClick}
-        className={`m-dropdown-list-container container-shadow border-rounded ${align} mt-1`}
+        className={`m-dropdown-list-container border-rounded ${align} mt-1`}
       >
         {component || (
           <>

@@ -64,12 +64,11 @@ class Navbar extends Component {
   }
 
   render() {
-    const { dialogOpen, projectDialog, yourProjects } = this.state;
     const { user } = this.props;
 
     return (
       <div className="navbar">
-        <div className="w-container d-flex">
+        <div className="w-100 px-3 d-flex">
           <div className="my-auto">
             <Link to="/">
               <img className="logo" src={mlReefIcon01} alt="" />

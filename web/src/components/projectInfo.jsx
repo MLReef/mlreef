@@ -2,7 +2,6 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { Link, Redirect } from 'react-router-dom';
 import { bindActionCreators } from 'redux';
-import { _ } from 'core-js';
 import {
   func, shape, string, number,
 } from 'prop-types';
@@ -10,10 +9,15 @@ import star01 from '../images/star_01.svg';
 import fork01 from '../images/fork_01.svg';
 import clone01 from '../images/clone_01.svg';
 import projectGeneralInfoApi from '../apis/projectGeneralInfoApi';
-import arrow01 from '../images/arrow_down_blue-01.png';
 import * as projectActions from '../actions/projectInfoActions';
 
-const ProjectInfo = ({ project, actions }) => {
+const ProjectInfo = (props) => {
+  const {
+    project,
+    actions,
+    userNamespace,
+    setIsForking,
+  } = props;
 
   let id, iconUrl, default_branch, name, stars, forks, http_url_to_repo, ssh_url_to_repo;
 
@@ -30,26 +34,25 @@ const ProjectInfo = ({ project, actions }) => {
   const [redirect, setRedirect] = React.useState(false);
 
   function handleFork() {
-    /**
-     * @var nameSpace: mlreefdemo is hardcoded
-     * because we do not have a real user authentication mechanism
-     */
-    let id, projectName, forks;
-    if(project) {
-      id = project.id;
+    let Id;
+    let projectName;
+    if (project) {
+      Id = project.id;
       projectName = project.name;
-      forks = project.forks_count;
     }
-    const nameSpace = 'mlreefdemo';
-    const newNumberOfForks = forks + 1;
-    const name = `${projectName} forked ${newNumberOfForks}`;
-    projectGeneralInfoApi.forkProject(id, nameSpace, name)
+
+    setIsForking(true);
+
+    projectGeneralInfoApi.forkProject(Id, userNamespace, projectName)
       .then(
         () => {
           actions.getProjectsList();
           setRedirect(true);
         },
-      );
+      )
+      .finally(() => {
+        setIsForking(false);
+      });
   }
 
   return (
@@ -83,7 +86,7 @@ const ProjectInfo = ({ project, actions }) => {
               src={star01}
               alt=""
             />
-          <span className="my-auto d-none d-lg-block">Star</span>
+            <span className="my-auto d-none d-lg-block">Star</span>
           </button>
 
           <div className="counter border-rounded-right h-100">
@@ -170,6 +173,7 @@ export function Clonedropdown(props) {
 
   return (
     <div
+      id="t-clonedropdown-toggle"
       className={`${className} counter clone-dropdown`}
       ref={node}
       onClick={ () => setOpen(!open) }
@@ -236,6 +240,15 @@ function mapDispatchToProps(dispatch) {
   };
 }
 
+function mapStateToProps({ user }) {
+  return {
+    userNamespace: user.username || '',
+  };
+}
+ProjectInfo.defaultProps = {
+  setIsForking: () => {},
+};
+
 ProjectInfo.propTypes = {
   project: shape({
     avatar_url: string,
@@ -250,6 +263,8 @@ ProjectInfo.propTypes = {
   actions: shape({
     getProjectsList: func.isRequired,
   }).isRequired,
+  userNamespace: string.isRequired,
+  setIsForking: func,
 };
 
-export default connect(_, mapDispatchToProps)(ProjectInfo);
+export default connect(mapStateToProps, mapDispatchToProps)(ProjectInfo);

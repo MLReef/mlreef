@@ -28,6 +28,7 @@ const setup = () => {
       store={store}
       match={match}
       branchSelected="master"
+      history={{ goBack: () => {} }}
     />,
   );
   const afterDive = wrapper.dive().dive();

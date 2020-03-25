@@ -12,6 +12,14 @@ Enzyme.configure({ adapter: new Adapter() });
 const store = storeFactory({
   projects: projectsArrayMock.projects,
   branches: branchesMock,
+  user: {
+    username: 'mlreef',
+    email: 'user@mlreef.com',
+    auth: true,
+    meta: {
+      closedInstructions: {},
+    },
+  },
 });
 const wrapper = shallow(<DataInstanceOverview store={store} />);
 

@@ -64,7 +64,6 @@ export class RepoFeatures extends Component {
   render() {
     const {
       projectId,
-      branchSelected,
       branches,
     } = this.state;
 

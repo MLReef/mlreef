@@ -26,7 +26,6 @@
     }
 
     &-#{$color} &-header {
-      @include round-top;
       background-color: $value;
       color: var(--white);
     }
@@ -66,7 +65,7 @@
     &-close {
       position: absolute;
       top: $modal-padding;
-      right: 2 * $modal-padding;
+      right: $modal-padding;
       color: #fff;
     }
   }

@@ -1,10 +1,11 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { toastr } from 'react-redux-toastr';
+import { CircularProgress } from '@material-ui/core';
 import uuidv1 from 'uuid/v1';
-import BranchesApi from 'apis/BranchesApi';
-import { shape, objectOf } from 'prop-types';
+import { shape, objectOf, arrayOf } from 'prop-types';
 import CustomizedButton from 'components/CustomizedButton';
+import BranchesApi from '../../apis/BranchesApi';
 import Navbar from '../navbar/navbar';
 import ProjectContainer from '../projectContainer';
 import './experimentsOverview.css';
@@ -15,6 +16,7 @@ import {
 import ExperimentDetails from '../experiment-details/experimentDetails';
 import ExperimentCard from './experimentCard';
 import { classifyPipeLines } from '../../functions/pipeLinesHelpers';
+import emptyLogo from '../../images/experiments_empty-01.png';
 
 class ExperimentsOverview extends Component {
   constructor(props) {
@@ -24,21 +26,28 @@ class ExperimentsOverview extends Component {
     this.state = {
       selectedProject,
       all: [],
+      empty: true,
+      loading: true,
       experiments: [],
       selectedExperiment: null,
     };
 
     this.setSelectedExperiment = this.setSelectedExperiment.bind(this);
+    this.displayEmptyLogo = this.displayEmptyLogo.bind(this);
   }
 
   componentDidMount() {
     const { projects: { selectedProject } } = this.props;
+    setTimeout(() => {
+      this.setState({ loading: false });
+    }, 500);
     pipelinesApi.getPipesByProjectId(selectedProject.id).then((res) => {
       BranchesApi.getBranches(selectedProject.id)
         .then((branches) => {
           const arrayOfBranches = branches.filter((branch) => branch.name.startsWith('experiment'));
           const experimentsClassified = classifyPipeLines(res, arrayOfBranches);
           this.setState({ experiments: experimentsClassified, all: experimentsClassified });
+          this.displayEmptyLogo();
         })
         .catch(() => toastr.error('Error', 'Something went wrong getting your experiments'));
     });
@@ -51,6 +60,15 @@ class ExperimentsOverview extends Component {
   // this is called when user clicks Experiments Tab forcing to shown the list
   forceShowExperimentList = () => {
     this.setState({ selectedExperiment: null });
+  }
+
+  displayEmptyLogo = () => {
+    const { experiments } = this.state;
+    experiments.forEach((experimentClassification) => {
+      if (experimentClassification.values.length !== 0) {
+        this.setState({ empty: false });
+      }
+    });
   }
 
   handleButtonsClick(e) {
@@ -69,13 +87,8 @@ class ExperimentsOverview extends Component {
     this.setState({ experiments });
   }
 
-  // this is called when user clicks Experiments Tab forcing to shown the list
-  forceShowExperimentList = () => {
-    this.setState({ selectedExperiment: null });
-  }
-
   render() {
-    const { selectedProject, selectedExperiment, experiments } = this.state;
+    const { selectedProject, selectedExperiment, experiments, empty, loading } = this.state;
     const { jobs, history } = this.props;
     let experimentJob;
     const firstInd = 0;
@@ -85,125 +98,155 @@ class ExperimentsOverview extends Component {
     const groupName = selectedProject.namespace.name;
     return (
       <div id="experiments-overview-container">
-        <Navbar />
-        <ProjectContainer
-          forceShowExperimentList={this.forceShowExperimentList}
-          project={selectedProject}
-          activeFeature="experiments"
-          folders={[groupName, selectedProject.name, 'Data', 'Experiments']}
-        />
-        <br />
-        <br />
-        <div className="main-content">
-          {selectedExperiment === null && (
-          <>
-            <br />
-            <div id="line" />
-            <br />
-          </>
-          )}
-          {selectedExperiment === null && (
-          <div id="buttons-container">
-            <button
-              id="all"
-              type="button"
-              className="btn btn-switch btn-bg-light btn-label-sm my-auto"
-              onClick={(e) => this.handleButtonsClick(e)}
-            >
-              All
-            </button>
-            <button
-              id="running"
-              type="button"
-              className="btn btn-switch btn-bg-light btn-label-sm my-auto"
-              onClick={(e) => this.handleButtonsClick(e)}
-            >
-              Running
-            </button>
-            <button
-              id="open"
-              type="button"
-              className="btn btn-switch btn-bg-light btn-label-sm my-auto"
-              onClick={(e) => this.handleButtonsClick(e)}
-            >
-              Open
-            </button>
-            <button
-              id="completed"
-              type="button"
-              className="btn btn-switch btn-bg-light btn-label-sm my-auto"
-              onClick={(e) => this.handleButtonsClick(e)}
-            >
-              Completed
-            </button>
-            <button
-              id="failed"
-              type="button"
-              className="btn btn-switch btn-bg-light btn-label-sm my-auto"
-              onClick={(e) => this.handleButtonsClick(e)}
-            >
-              Failed
-            </button>
-            <button
-              id="aborted"
-              type="button"
-              className="btn btn-switch btn-bg-light btn-label-sm my-auto"
-              onClick={(e) => this.handleButtonsClick(e)}
-            >
-              Aborted
-            </button>
-            <CustomizedButton
-              id="new-experiment"
-              loading={false}
-              onClickHandler={() => {
-                history.push(`/my-projects/${selectedProject.id}/new-experiment`);
-              }}
-              buttonLabel="New experiment"
-            />
+        <>
+          <Navbar />
+          <ProjectContainer
+            forceShowExperimentList={this.forceShowExperimentList}
+            project={selectedProject}
+            activeFeature="experiments"
+            folders={[groupName, selectedProject.name, 'Data', 'Experiments']}
+          />
+          {loading
+            ? (
+              <div style={{ display: 'flex' }}>
+                <CircularProgress style={{ marginLeft: '50%', marginTop: '5%' }} size={30} />
+              </div>
+            )
+            : (
+              <>
+                <br />
+                <br />
+                {empty ? (
+                  <div className="main-content">
+                    <div className="epmty-experiment-logo">
+                      <img src={emptyLogo} width="240" alt="Create an experiment" />
+                      <span>You don't have any experiment in your ML project</span>
+                      <p>Why not start one?</p>
+                      <CustomizedButton
+                        id="new-experiment"
+                        loading={false}
+                        onClickHandler={() => {
+                          history.push(`/my-projects/${selectedProject.id}/new-experiment`);
+                        }}
+                        buttonLabel="Start an experiment"
+                      />
+                    </div>
+                  </div>
+                ) : (
+                  <div className="main-content">
+                    {selectedExperiment === null && (
+                    <>
+                      <br />
+                      <div id="line" />
+                      <br />
+                    </>
+                    )}
+                    {selectedExperiment === null && (
+                    <div id="buttons-container">
+                      <button
+                        id="all"
+                        type="button"
+                        className="non-active-black-border rounded-pipeline-btn"
+                        onClick={(e) => this.handleButtonsClick(e)}
+                      >
+                        All
+                      </button>
+                      <button
+                        id="running"
+                        type="button"
+                        className="non-active-black-border rounded-pipeline-btn"
+                        onClick={(e) => this.handleButtonsClick(e)}
+                      >
+                        Running
+                      </button>
+                      <button
+                        id="open"
+                        type="button"
+                        className="non-active-black-border rounded-pipeline-btn"
+                        onClick={(e) => this.handleButtonsClick(e)}
+                      >
+                        Open
+                      </button>
+                      <button
+                        id="completed"
+                        type="button"
+                        className="non-active-black-border rounded-pipeline-btn"
+                        onClick={(e) => this.handleButtonsClick(e)}
+                      >
+                        Completed
+                      </button>
+                      <button
+                        id="failed"
+                        type="button"
+                        className="non-active-black-border rounded-pipeline-btn"
+                        onClick={(e) => this.handleButtonsClick(e)}
+                      >
+                        Failed
+                      </button>
+                      <button
+                        id="aborted"
+                        type="button"
+                        className="non-active-black-border rounded-pipeline-btn"
+                        onClick={(e) => this.handleButtonsClick(e)}
+                      >
+                        Aborted
+                      </button>
+                      <CustomizedButton
+                        id="new-experiment"
+                        loading={false}
+                        onClickHandler={() => {
+                          history.push(`/my-projects/${selectedProject.id}/new-experiment`);
+                        }}
+                        buttonLabel="New experiment"
+                      />
 
-          </div>
-          )}
-          {selectedExperiment === null
-            && experiments.map((experimentClassification) => {
-              const expMapped = experimentClassification.values.map(
-                (experiment) => ({
-                  currentState: experiment.status,
-                  descTitle: experiment.name,
-                  userName: experiment.authorName,
-                  percentProgress: '100',
-                  eta: '0',
-                  modelTitle: 'Resnet 50',
-                  timeCreatedAgo: experiment.createdAt,
-                }),
-              );
+                    </div>
+                    )}
+                    {selectedExperiment === null
+                      && experiments.map((experimentClassification) => {
+                        const expMapped = experimentClassification.values.map(
+                          (experiment) => ({
+                            currentState: experiment.status,
+                            descTitle: experiment.name,
+                            userName: experiment.authorName,
+                            percentProgress: '100',
+                            eta: '0',
+                            modelTitle: 'Resnet 50',
+                            timeCreatedAgo: experiment.createdAt,
+                          }),
+                        );
 
-              return (
-                <ExperimentCard
-                  key={uuidv1()}
-                  params={{
-                    projectId: selectedProject.id,
-                    defaultBranch: selectedProject.default_branch,
-                    currentState: experimentClassification.status,
-                    experiments: expMapped,
-                  }}
-                  setSelectedExperiment={this.setSelectedExperiment}
-                />
-              );
-            })}
-          {selectedExperiment
-            && (
-            <ExperimentDetails
-              key={uuidv1()}
-              projectId={selectedProject.id}
-              setNullExperiment={this.setSelectedExperiment}
-              experiment={selectedExperiment}
-              job={experimentJob}
-              parameters={filesForExperimentsDetails}
-            />
+                        return (
+                          <ExperimentCard
+                            key={uuidv1()}
+                            params={{
+                              projectId: selectedProject.id,
+                              defaultBranch: selectedProject.default_branch,
+                              currentState: experimentClassification.status,
+                              experiments: expMapped,
+                            }}
+                            setSelectedExperiment={this.setSelectedExperiment}
+                          />
+                        );
+                      })}
+                    {selectedExperiment
+                      && (
+                      <ExperimentDetails
+                        key={uuidv1()}
+                        projectId={selectedProject.id}
+                        setNullExperiment={this.setSelectedExperiment}
+                        experiment={selectedExperiment}
+                        job={experimentJob}
+                        parameters={filesForExperimentsDetails}
+                      />
+                      )}
+                  </div>
+                )}
+                <br />
+                <br />
+              </>
             )}
-        </div>
-        <br />
-        <br />
+        </>
       </div>
     );
   }
@@ -213,6 +256,8 @@ ExperimentsOverview.propTypes = {
   projects: shape({
     selectedProject: objectOf(shape).isRequired,
   }).isRequired,
+  jobs: arrayOf.isRequired,
+  history: objectOf.isRequired,
 };
 
 function mapStateToProps(state) {

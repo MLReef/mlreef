@@ -2,9 +2,6 @@ import React, { useState } from 'react';
 import './executePipeLineModal.css';
 import '../../css/globalStyles.css';
 import '../../css/genericModal.css';
-import $ from 'jquery';
-import ArrowButton from '../arrow-button/arrowButton';
-import traiangle01 from '../../images/triangle-01.png';
 import createPipelineInProject from '../../functions/pipeLinesHelpers';
 import MSelect from 'components/ui/MSelect';
 
@@ -36,14 +33,12 @@ const ExecutePipelineModal = ({
   const [section, setSection] = useState(1);
   const [isFirstOptSelected, setIsFirstOptSelected] = useState(false);
   const [isSecondOptSelected, setIsSecondOptSelected] = useState(false);
-  const [showMachines, setShowMachines] = useState(false);
   const [selectMachinesMess, setSelectMachinesMess] = useState(null);
   const [tuningMethod, setTuningMethod] = useState(null);
   const isADataVisualizationPipe = dataInstanceName.includes('data-visualization');
   function cleanForm() {
     setIsFirstOptSelected(false);
     setIsSecondOptSelected(false);
-    setShowMachines(false);
     setSection(1);
     toggle();
     setSelectMachinesMess('Select a machine...');
@@ -89,7 +84,7 @@ const ExecutePipelineModal = ({
 
                   {isFirstOptSelected && (
                     <div className="row pl-3">
-                      <div className="col-8">
+                      <div id="t-machine-selector" className="col-8">
                         <MSelect
                           label="Select a machine..."
                           options={fakeMachinesToShow}

@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes, { shape, number, func } from 'prop-types';
 import Checkbox from '@material-ui/core/Checkbox';
+import returnLink from '../returnLink';
 import '../../css/genericModal.css';
 import './selectDataPipelineModal.css';
 import folderIcon from '../../images/folder_01.svg';
@@ -53,6 +54,31 @@ class SelectDataPipelineModal extends Component {
         filesSelected.splice(filesSelected.indexOf(fileSelected), 1);
       }
 
+      this.setState({ filesSelected });
+    }
+
+    selectAllFiles = () => {
+      const { filesSelected, files } = this.state;
+      // Checks if there are any files already selected. If so, selects rest of the files.
+      if (filesSelected.length > 0 && filesSelected.length < files.length) {
+        files.forEach((file) => {
+          if (!filesSelected.includes(file)) {
+            this.setState({ filesSelected: filesSelected.push(file) });
+          }
+        });
+      }
+      // If there is no file selected, selects all of the files
+      if (filesSelected.length === 0) {
+        files.forEach((file) => this.setState({ filesSelected: filesSelected.push(file) }));
+      }
+    };
+
+    deSelectAllFiles = () => {
+      const { filesSelected } = this.state;
+      // Checks if files are selected and then deselects them one by one.
+      while (filesSelected.length > 0) {
+        filesSelected.pop();
+      }
       this.setState({ filesSelected });
     }
 
@@ -139,10 +165,10 @@ class SelectDataPipelineModal extends Component {
     }
 
     handleCloseButton() {
-      this.props.selectDataClick();
+      const { selectDataClick } = this.props;
+      selectDataClick();
       document.getElementsByTagName('body').item(0).style.overflow = 'scroll';
     }
-
 
     render() {
       const {
@@ -156,7 +182,7 @@ class SelectDataPipelineModal extends Component {
         filePath,
         project,
       } = this.state;
-
+      const { handleModalAccept } = this.props;
       const customTime = (ISODate) => {
         const today = new Date(ISODate);
         const h = today.getHours();
@@ -199,14 +225,37 @@ class SelectDataPipelineModal extends Component {
                     />
                     {isOpen && (
                     <div className="select-branch" style={{ top: '27%', left: '35px' }} onBlur={this.handleBlur}>
-                      <div
-                        style={{
-                          margin: '0 50px',
-                          fontSize: '14px',
-                          padding: '0 40px',
-                        }}
-                      >
+                      <div className="switch-header">
                         <p>Switch Branches</p>
+                      </div>
+                      <hr />
+                      <div className="search-branch">
+                        <input
+                          type="text"
+                          placeholder="Search branches or tags"
+                        />
+                        <div className="branches">
+                          <ul>
+                            <li className="branch-header">Branches</li>
+                            {branches.filter((branch) => !branch.name.startsWith('data-pipeline')
+                              && !branch.name.startsWith('experiment'))
+                              .map((branch, index) => (
+                                <li
+                                  tabIndex="0"
+                                  role="button"
+                                  key={index.toString()}
+                                  onClick={() => {
+                                    this.getFiles(branch.name);
+                                  }}
+                                  onKeyDown={() => {
+                                    this.getFiles(branch.name);
+                                  }}
+                                >
+                                  <p>{branch.name}</p>
+                                </li>
+                              ))}
+                          </ul>
+                        </div>
                       </div>
                       <hr />
                       <div className="search-branch">
@@ -238,8 +287,7 @@ class SelectDataPipelineModal extends Component {
                                     </p>
                                   </li>
                                 );
-                              })
-                              .reverse()}
+                              }).reverse()}
                           </ul>
                         </div>
                       </div>
@@ -252,25 +300,27 @@ class SelectDataPipelineModal extends Component {
                     type="button"
                     className="btn btn-primary"
                     onClick={(e) => {
-                      this.props.handleModalAccept(e, filesSelected, branchSelected);
+                      handleModalAccept(e, filesSelected, branchSelected);
                     }}
                   >
                     Accept
                   </button>
-                  {/* <button
+                  <button
                     type="button"
+                    onClick={this.deSelectAllFiles}
                     className="white-button round-border-black-color"
                   >
                     {' '}
-                    <p> Diselect all </p>
+                    <p> Deselect all </p>
                   </button>
                   <button
                     type="button"
+                    onClick={this.selectAllFiles}
                     className="white-button round-border-black-color"
                   >
                     {' '}
                     <p> Select all </p>
-                  </button> */}
+                  </button>
                 </div>
                 <div style={{ paddingLeft: '1em' }}>
                   <p style={{ fontSize: '15px' }}>
@@ -302,9 +352,9 @@ class SelectDataPipelineModal extends Component {
                       </thead>
 
                       <tbody>
-                        {showReturnOption && this.getReturnOption()}
+                        {showReturnOption && returnLink(this.getBack)}
                         {files.map((file, index) => (
-                          <tr key={index} id={`tr-file-${index}`} className="files-row" style={{ justifyContent: 'unset' }}>
+                          <tr key={index.toString()} id={`tr-file-${index}`} className="files-row" style={{ justifyContent: 'unset' }}>
                             <td className="icon-container-column">
                               <Checkbox
                                 id={`span-file-${index}`}
@@ -351,11 +401,8 @@ SelectDataPipelineModal.propTypes = {
   project: shape({
     id: number.isRequired,
   }).isRequired,
+  handleModalAccept: func.isRequired,
   selectDataClick: func.isRequired,
-};
-
-SelectDataPipelineModal.defaultProps = {
-  show: false,
 };
 
 SelectDataPipelineModal.defaultProps = {

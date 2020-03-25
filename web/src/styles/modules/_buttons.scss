@@ -7,6 +7,11 @@
     border-style: solid;
     border-color: $color;
 
+    &:disabled {
+      color: $color;
+    }
+
+    &.active,
     &:hover,
     &.hover {
       font-size: bold;
@@ -23,6 +28,7 @@
     border-style: solid;
     border-color: $color;
 
+    &.active,
     &:hover,
     &.hover {
       color: lighten($color, 2 * $color-modifier);
@@ -38,6 +44,7 @@
     border-style: solid;
     border-color: $color;
 
+    &.active,
     &:hover,
     &.hover {
       color: var(--white);

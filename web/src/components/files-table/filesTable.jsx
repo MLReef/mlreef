@@ -12,6 +12,8 @@ const FilesTable = ({ files, headers, onClick }) => {
   if (headers.length > 1) {
     tableColumnsWidth = 100 / headers.length;
   }
+
+  const getBack = () => window.history.back();
   return (
     <table className="file-properties">
       <thead>
@@ -27,7 +29,7 @@ const FilesTable = ({ files, headers, onClick }) => {
         </tr>
       </thead>
       <tbody>
-        {returnLink()}
+        {returnLink(getBack)}
         {files.map((file) => (
           <tr key={file.id} id={file.id} className="files-row clickable" data-key={file.type} onClick={onClick}>
             {Object.keys(file).filter((key) => key !== 'id' && key !== 'type').map((k, keyIndex) => (
