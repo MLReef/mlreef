@@ -26,7 +26,7 @@ class ProjectContainer extends React.Component {
         <div className="project-details main-content">
           <ProjectNav key={`project-key-${id}`} projectId={id} folders={folders} />
 
-          <ProjectInfo project={project} />
+          <ProjectInfo project={project} setIsForking={this.props.setIsForking} />
           <p className="project-desc">
             {description || 'No description'}
           </p>

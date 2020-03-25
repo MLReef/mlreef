@@ -230,6 +230,12 @@
       background-color: $value !important;
     }
   }
+
+  &-image {
+    background-repeat: no-repeat;
+    background-size: contain;
+    background-position: center;
+  }
 }
 
 .container {

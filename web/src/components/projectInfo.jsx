@@ -13,7 +13,13 @@ import projectGeneralInfoApi from '../apis/projectGeneralInfoApi';
 import arrow01 from '../images/arrow_down_blue-01.png';
 import * as projectActions from '../actions/projectInfoActions';
 
-const ProjectInfo = ({ project, actions }) => {
+const ProjectInfo = (props) => {
+  const {
+    project,
+    actions,
+    userNamespace,
+    setIsForking,
+  } = props;
 
   let id, iconUrl, default_branch, name, stars, forks, http_url_to_repo, ssh_url_to_repo;
 
@@ -30,26 +36,24 @@ const ProjectInfo = ({ project, actions }) => {
   const [redirect, setRedirect] = React.useState(false);
 
   function handleFork() {
-    /**
-     * @var nameSpace: mlreefdemo is hardcoded
-     * because we do not have a real user authentication mechanism
-     */
-    let id, projectName, forks;
+    let id, projectName;
     if(project) {
       id = project.id;
       projectName = project.name;
-      forks = project.forks_count;
     }
-    const nameSpace = 'mlreefdemo';
-    const newNumberOfForks = forks + 1;
-    const name = `${projectName} forked ${newNumberOfForks}`;
-    projectGeneralInfoApi.forkProject(id, nameSpace, name)
+
+    setIsForking(true);
+
+    projectGeneralInfoApi.forkProject(id, userNamespace, projectName)
       .then(
         () => {
           actions.getProjectsList();
           setRedirect(true);
         },
-      );
+      )
+      .finally(() => {
+        setIsForking(false);
+      });
   }
 
   return (
@@ -237,6 +241,15 @@ function mapDispatchToProps(dispatch) {
   };
 }
 
+function mapStateToProps({ user }) {
+  return {
+    userNamespace: user.username || '',
+  };
+}
+ProjectInfo.defaultProps = {
+  setIsForking: () => {},
+};
+
 ProjectInfo.propTypes = {
   project: shape({
     avatar_url: string,
@@ -251,6 +264,8 @@ ProjectInfo.propTypes = {
   actions: shape({
     getProjectsList: func.isRequired,
   }).isRequired,
+  userNamespace: string.isRequired,
+  setIsForking: func,
 };
 
-export default connect(_, mapDispatchToProps)(ProjectInfo);
+export default connect(mapStateToProps, mapDispatchToProps)(ProjectInfo);

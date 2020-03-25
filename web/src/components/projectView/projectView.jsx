@@ -6,6 +6,7 @@ import {
 } from 'prop-types';
 import { toastr } from 'react-redux-toastr';
 import { CircularProgress } from '@material-ui/core';
+import forkingImage from 'images/forking.png';
 import ReadMeComponent from '../readMe/readMe';
 import ProjectContainer from '../projectContainer';
 import FilesContainer from '../FilesContainer';
@@ -63,8 +64,10 @@ class ProjectView extends React.Component {
       contributors: [],
       lastCommit: null,
       users,
+      isForking: false,
     };
     this.updateLastCommit = this.updateLastCommit.bind(this);
+    this.setIsForking = this.setIsForking.bind(this);
   }
 
   static getDerivedStateFromProps(nextProps, prevState) {
@@ -83,6 +86,10 @@ class ProjectView extends React.Component {
 
   componentWillUnmount() {
     this.setState = (state) => (state);
+  }
+
+  setIsForking(status) {
+    this.setState({ isForking: status });
   }
 
   isValidBranch = (branch) => branch !== 'null' && branch !== null && branch !== undefined
@@ -104,7 +111,9 @@ class ProjectView extends React.Component {
       users,
       contributors,
       mergeRequests,
+      isForking,
     } = this.state;
+
     if (!selectedProject) {
       return <CircularProgress size={20} />;
     }
@@ -125,75 +134,97 @@ class ProjectView extends React.Component {
     return (
       <div className="project-component">
         <Navbar />
-        <ProjectContainer
-          project={selectedProject}
-          activeFeature="data"
-          folders={[groupName, projectName, 'Data']}
-        />
-        <div className="main-content">
-          {isEmptyProject ? (
-            <EmptyProject sshUrlToRepo={sshUrlToRepo} />
-          ) : (
-            <>
-              <RepoInfo
-                mergeRequests={mergeRequests}
-                projectId={selectedProject.id}
-                currentBranch={encodedBranch}
-                numberOfContributors={contributors.length}
-                branchesCount={branches.length}
-                dataInstanesCount={
-                  branches
-                    .filter(
-                      (dInstBranch) => dInstBranch.name.startsWith('data-pipeline'),
-                    ).length
-                }
-              />
-              {lastCommit && (
-              <div className="last-commit-info">
-                <div className="last-commit-details">
-                  <div className="commit-pic-circle" style={{ margin: 0 }}>
-                    <img src={committer ? committer.avatar_url : ''} alt="" />
+        {isForking && (
+          <div
+            className="mx-auto mt-5 t-center"
+            style={{ maxWidth: '250px' }}
+          >
+            <div>
+              <h2 className="t-dark">Froking in process</h2>
+              <p className="t-secondary">You may wait while we import the repository for you. You may refresh at will.</p>
+            </div>
+            <div
+              className="bg-image m-auto"
+              style={{
+                backgroundImage: `url(${forkingImage})`,
+                width: '200px',
+                height: '160px',
+              }}
+            />
+          </div>
+        )}
+        <div style={{ display: isForking ? 'none' : 'block' }}>
+          <ProjectContainer
+            setIsForking={this.setIsForking}
+            project={selectedProject}
+            activeFeature="data"
+            folders={[groupName, projectName, 'Data']}
+          />
+          <div className="main-content">
+            {isEmptyProject ? (
+              <EmptyProject sshUrlToRepo={sshUrlToRepo} />
+            ) : (
+              <>
+                <RepoInfo
+                  mergeRequests={mergeRequests}
+                  projectId={selectedProject.id}
+                  currentBranch={encodedBranch}
+                  numberOfContributors={contributors.length}
+                  branchesCount={branches.length}
+                  dataInstanesCount={
+                    branches
+                      .filter(
+                        (dInstBranch) => dInstBranch.name.startsWith('data-pipeline'),
+                      ).length
+                  }
+                />
+                {lastCommit && (
+                <div className="last-commit-info">
+                  <div className="last-commit-details">
+                    <div className="commit-pic-circle" style={{ margin: 0 }}>
+                      <img src={committer ? committer.avatar_url : ''} alt="" />
+                    </div>
+                    <div className="last-commit-name">
+                      <p>
+                        {lastCommit.message}
+                        <br />
+                        by
+                        {' '}
+                        <b>{lastCommit.author_name}</b>
+                        {' '}
+                        authored
+                        {' '}
+                        <b>{timediff}</b>
+                      </p>
+                    </div>
                   </div>
-                  <div className="last-commit-name">
-                    <p>
-                      {lastCommit.message}
-                      <br />
-                      by
-                      {' '}
-                      <b>{lastCommit.author_name}</b>
-                      {' '}
-                      authored
-                      {' '}
-                      <b>{timediff}</b>
-                    </p>
+                  <div className="last-commit-id">
+                    <p>{lastCommit.short_id}</p>
                   </div>
                 </div>
-                <div className="last-commit-id">
-                  <p>{lastCommit.short_id}</p>
-                </div>
-              </div>
-              )}
-              <RepoFeatures
-                projectId={selectedProject.id}
-                branch={encodedBranch}
-                path={path || ''}
-                updateLastCommit={this.updateLastCommit}
-              />
-              <FilesContainer
-                projectId={selectedProject.id}
-                path={path}
-                branch={encodedBranch}
-                history={history}
-              />
-              {showReadMe && (
-              <ReadMeComponent
-                projectName={selectedProject.name}
-                projectId={selectedProject.id}
-                branch={encodedBranch}
-              />
-              )}
-            </>
-          )}
+                )}
+                <RepoFeatures
+                  projectId={selectedProject.id}
+                  branch={encodedBranch}
+                  path={path || ''}
+                  updateLastCommit={this.updateLastCommit}
+                />
+                <FilesContainer
+                  projectId={selectedProject.id}
+                  path={path}
+                  branch={encodedBranch}
+                  history={history}
+                />
+                {showReadMe && (
+                <ReadMeComponent
+                  projectName={selectedProject.name}
+                  projectId={selectedProject.id}
+                  branch={encodedBranch}
+                />
+                )}
+              </>
+            )}
+          </div>
         </div>
       </div>
     );
