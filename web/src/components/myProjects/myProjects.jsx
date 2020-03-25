@@ -4,6 +4,7 @@ import { connect } from 'react-redux';
 import { CircularProgress } from '@material-ui/core';
 import { arrayOf, shape, func } from 'prop-types';
 import { Link } from 'react-router-dom';
+import { suscribeRT } from 'functions/apiCalls';
 import Navbar from '../navbar/navbar';
 import ProjectSet from '../projectSet';
 import './myProjects.css';
@@ -16,21 +17,37 @@ class Myprojects extends React.Component {
     super(props);
     this.handleShowModal = this.handleShowModal.bind(this);
     this.hideModal = this.hideModal.bind(this);
+    this.fetch = this.fetch.bind(this);
 
     this.state = {
       showModal: false,
       projectName: '',
       owner: '',
       isFetching: false,
+      unsuscribeServices: null,
     };
   }
 
   componentDidMount() {
-    const { actions } = this.props;
     this.setState({ isFetching: true });
 
+    // polling every 10 seconds (it is the default value, it's just for demostration)
+    const unsuscribeServices = suscribeRT({ timeout: 10000 })(this.fetch);
+    // keep this for clear timeouts
+    this.setState({ unsuscribeServices });
+  }
+
+  componentWillUnmount() {
+    // clean timeouts
+    const { unsuscribeServices } = this.state;
+    if (unsuscribeServices) unsuscribeServices();
+  }
+
+  fetch() {
+    const { actions } = this.props;
+
     // fetch 3 list of projects using a fetching flag
-    Promise.all([
+    return Promise.all([
       actions.getUserProjects(),
       actions.getStarredProjects(),
       actions.getProjectsList(),

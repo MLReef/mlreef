@@ -1,7 +1,8 @@
 import { toastr } from 'react-redux-toastr';
+import { POLL_TIMEOUT } from 'apiConfig.js';
+import PipeLinesApi from 'apis/PipelinesApi';
 import filesApi from '../apis/FilesApi';
 import commitsApi from '../apis/CommitsApi';
-import PipeLinesApi from 'apis/PipelinesApi';
 import { getCurrentUserInformation } from './dataParserHelpers';
 
 export const callToCommitApi = (
@@ -63,4 +64,34 @@ export const getFileDifferences = async (projectId, diff, previousCommitId, last
   }
 
   return { previousVersionFile, nextVersionFile };
+};
+
+/**
+ * Suscribe to a real time (polling) communication.
+ *
+ * @param {Object} options
+ * @param {Number[integer]} options.timeout interval in milliseconds (default 1000).
+ * @param {Function} action the function to be called.
+ * @param {any} args the parameter for the function.
+ *
+ * @return {Function} the unsuscribe function.
+ */
+export const suscribeRT = (options = {}) => (action, args) => {
+  const {
+    timeout,
+  } = options;
+
+  let timeoutId = null;
+
+  const executeTimedAction = () => {
+    action(args);
+
+    timeoutId = setTimeout(executeTimedAction, timeout || POLL_TIMEOUT);
+  };
+
+  executeTimedAction();
+
+  return () => {
+    clearTimeout(timeoutId);
+  };
 };
