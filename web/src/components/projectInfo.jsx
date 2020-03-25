@@ -2,7 +2,6 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { Link, Redirect } from 'react-router-dom';
 import { bindActionCreators } from 'redux';
-import { _ } from 'core-js';
 import {
   func, shape, string, number,
 } from 'prop-types';
@@ -10,7 +9,6 @@ import star01 from '../images/star_01.svg';
 import fork01 from '../images/fork_01.svg';
 import clone01 from '../images/clone_01.svg';
 import projectGeneralInfoApi from '../apis/projectGeneralInfoApi';
-import arrow01 from '../images/arrow_down_blue-01.png';
 import * as projectActions from '../actions/projectInfoActions';
 
 const ProjectInfo = (props) => {
@@ -36,15 +34,16 @@ const ProjectInfo = (props) => {
   const [redirect, setRedirect] = React.useState(false);
 
   function handleFork() {
-    let id, projectName;
-    if(project) {
-      id = project.id;
+    let Id;
+    let projectName;
+    if (project) {
+      Id = project.id;
       projectName = project.name;
     }
 
     setIsForking(true);
 
-    projectGeneralInfoApi.forkProject(id, userNamespace, projectName)
+    projectGeneralInfoApi.forkProject(Id, userNamespace, projectName)
       .then(
         () => {
           actions.getProjectsList();
@@ -87,7 +86,7 @@ const ProjectInfo = (props) => {
               src={star01}
               alt=""
             />
-          <span className="my-auto d-none d-lg-block">Star</span>
+            <span className="my-auto d-none d-lg-block">Star</span>
           </button>
 
           <div className="counter border-rounded-right h-100">

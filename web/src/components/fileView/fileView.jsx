@@ -5,14 +5,13 @@ import { toastr } from 'react-redux-toastr';
 import { Base64 } from 'js-base64';
 import { Link } from 'react-router-dom';
 import { string, shape, arrayOf } from 'prop-types';
+import MDropdown from 'components/ui/MDropdown';
 import ProjectContainer from '../projectContainer';
 import CommitsApi from '../../apis/CommitsApi';
 import Navbar from '../navbar/navbar';
 import file01 from '../../images/file_01.svg';
-import arrowBlue from '../../images/arrow_down_blue_01.svg';
 import filesApi from '../../apis/FilesApi';
 import DeleteFileModal from '../delete-file-modal/deleteFileModal';
-import MDropdown from 'components/ui/MDropdown';
 
 export class FileView extends React.Component {
   constructor(props) {
@@ -20,7 +19,6 @@ export class FileView extends React.Component {
     const { projects } = this.props;
     const { match: { params: { projectId, file, branch } } } = this.props;
     this.state = {
-      isOpen: false,
       project: projects && projects.selectedProject,
       committer: [],
       fileData: null,
@@ -62,7 +60,6 @@ export class FileView extends React.Component {
       fileData,
       isdeleteModalVisible,
     } = this.state;
-    const { isOpen } = this.state;
     const groupName = project.namespace.name;
     let fileName = null;
     let fileSize = null;
