@@ -127,11 +127,11 @@ class SelectDataPipelineModal extends Component {
 
     getBack = (e) => {
       const { filePath } = this.state;
+      const path = filePath.substring(0, filePath.lastIndexOf('/'));
       if (!filePath.includes('/')) {
         this.setState({ filePath: '' });
         this.updateFiles(e, '');
       } else {
-        const path = filePath.substring(0, filePath.lastIndexOf('/'));
         this.setState({ filePath: path });
         this.updateFiles(e, path);
       }
