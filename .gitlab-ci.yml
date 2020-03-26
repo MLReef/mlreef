@@ -1,12 +1,14 @@
 include:
   - local: .gitlab-ci-provision.yml
   - local: .gitlab-ci-build.yml
+  - local: .gitlab-ci-test.yml
   - local: .gitlab-ci-deploy.yml
   - local: .gitlab-ci-maintenance.yml
 
 stages:
   - provision
   - build
+  - test
   - deploy
   - maintenance
 
