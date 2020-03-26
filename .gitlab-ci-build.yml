@@ -1,8 +1,9 @@
-# The "prepare npm" job runs already during the provisioning phase
+# This job runs already during the provisioning phase
 # to save a little bit of time for the overall pipeline
-prepare npm:
+npm tests:
   extends: [".except-docu-branches"]
   stage: provision
+  # The Node Version has to correspond with the node version of the web/Dockerfile
   image: node:10.19.0-alpine                                # https://hub.docker.com/_/node/
   cache:
     key: mlreef-npm-cache
@@ -17,19 +18,24 @@ prepare npm:
     - npm install --global --silent create-react-app@latest
     - npm install --global --silent react-scripts@3.0.1
     - npm install .
-    - cp -r /usr/local/lib/node_modules ../node_modules_global
+    - npm test
+    - cp -r /usr/local/lib/node_modules node_modules_global
   after_script:
+    - ls -al web/
+    - ls -al web/node_modules
+    - ls -al web/node_modules_global
     - ls -al /usr/local/lib/node_modules
-    - ls -al node_modules_global
   artifacts:
     expire_in: 3 days
     paths:
+      # cache the node modules for the docker build
       - web/node_modules
-      - node_modules_global
+      - web/node_modules_global
 
 
 build frontend:
   extends: [".except-docu-branches"]
+  # This docker version should correspond with the on docker version in the EC2 deployment
   image: docker:19.03.5                                     # https://hub.docker.com/_/docker/
   stage: build
   services:
@@ -38,13 +44,12 @@ build frontend:
     - docker login ${DOCKER_REGISTRY} -u "${DOCKER_USER}" -p "${DOCKER_PASSWORD}"
     - URL=$(cat $INSTANCE_INFO)
     - echo $URL                                             # debug output
-    - mv node_modules_global web/node_modules_global
-    - rm -rf web/package-lock.json
-    - rm -rf web/node_modules
     - ls -al web/src
+    - echo "SKIP_PREFLIGHT_CHECK=true"                      >> web/.env
     - echo "REACT_APP_API_GATEWAY=\"http://$URL\""          >> web/.env
     - echo "REACT_APP_GITLAB_PORT=10080"                    >> web/.env
     - echo "REACT_APP_BUILD_TIMEOUT=18000"                  >> web/.env
+    - echo "REACT_APP_POLL_TIMEOUT=10000"                   >> web/.env
     - cat web/.env
   script:
     - cd web

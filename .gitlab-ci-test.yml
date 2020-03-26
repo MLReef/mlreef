@@ -1,6 +1,0 @@
-run tests:
-  image: node:10.19.0-alpine
-  stage: test
-  script:
-    - cd web
-    - npm test
