@@ -1,43 +1,37 @@
-import React, { Component } from 'react';
+import React, { Component, createRef } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import { Link, Redirect } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
-import mlReefIcon01 from '../../images/MLReef_Logo_navbar.png';
 import MDropdown from 'components/ui/MDropdown';
 import { logout } from 'actions/userActions';
+import mlReefIcon01 from '../../images/MLReef_Logo_navbar.png';
+import helpWhite from '../../images/help_white.png';
 import './navbar.css';
 
 class Navbar extends Component {
+  btnPicUser = createRef();
+
   constructor(props) {
     super(props);
-    this.state = { redirect: null };
     this.handleSignOut = this.handleSignOut.bind(this);
   }
 
-  handleSignOut() {
-    const { actions } = this.props;
-
-    actions.logout()
-      .then(() => {
-        this.setState(() => ({
-          redirect: true,
-        }));
-      });
+  componentDidMount() {
+    this.btnPicUser.current.setAttribute('style', 'margin-left: 0px !important');
   }
 
-  redirectAfterSignOut() {
-    const { user: { auth } } = this.props;
-
-    if (auth) {
-      if (this.state.redirect === true) {
-        this.setState(() => ({
-          redirect: false,
-        }));
-        return <Redirect to="/" />
-      }
+  handleHelp = () => {
+    const { helpDialog } = this.state;
+    if (!helpDialog) {
+      document.addEventListener('click', this.handleOutsideClick, false);
+    } else {
+      document.removeEventListener('click', this.handleOutsideClick, false);
     }
-    return null;
+
+    this.setState((prevState) => ({
+      helpDialog: !prevState.helpDialog,
+    }));
   }
 
   handleProject(e) {
@@ -45,22 +39,21 @@ class Navbar extends Component {
     if (!e) {
       return;
     }
-    switch (e.target.id) {
-      case 'your-projects':
-        this.setState({ yourProjects: true });
-        break;
 
-      default:
-        if (!projectDialog) {
-          document.addEventListener('click', this.handleOutsideClick, false);
-        } else {
-          document.removeEventListener('click', this.handleOutsideClick, false);
-        }
-        this.setState((prevState) => ({
-          projectDialog: !prevState.projectDialog,
-        }));
-        break;
+    if (!projectDialog) {
+      document.addEventListener('click', this.handleOutsideClick, false);
+    } else {
+      document.removeEventListener('click', this.handleOutsideClick, false);
     }
+    this.setState((prevState) => ({
+      projectDialog: !prevState.projectDialog,
+    }));
+  }
+
+
+  handleSignOut() {
+    const { actions } = this.props;
+    actions.logout();
   }
 
   render() {
@@ -79,7 +72,7 @@ class Navbar extends Component {
             className="ml-3 my-auto"
             buttonClasses="btn btn-dark px-1"
             label="Projects"
-            component={
+            component={(
               <div className="project-box">
                 <div className="user-projects">
                   <p><Link to="/my-projects#personal">Your Projects</Link></p>
@@ -96,15 +89,33 @@ class Navbar extends Component {
                   </div>
                 </div>
               </div>
-            }
+            )}
           />
-
           <MDropdown
+            align="right"
+            className="m-dropdown ml-auto my-auto"
+            buttonClasses="btn btn-dark d-flex p-2"
+            label={(
+              <img src={helpWhite} alt="" style={{ width: '1.8rem' }} />
+            )}
+            component={(
+              <div className="help-box">
+                <div>
+                  <a target="_blank" rel="noopener noreferrer" href="https://gitlab.com/mlreef/frontend/-/blob/develop/doc/README.md">Documentation</a>
+                </div>
+                <div>
+                  <a target="_blank" rel="noopener noreferrer" href="https://mlreefcommunity.slack.com">Slack Community</a>
+                </div>
+              </div>
+            )}
+          />
+          <MDropdown
+            reference={this.btnPicUser}
             align="right"
             className="ml-auto my-auto"
             buttonClasses="btn btn-dark d-flex p-2"
             label={(
-              <div className="profile-pic-circle"/>
+              <div className="profile-pic-circle" />
             )}
             component={(
               <div className="sign-box">
@@ -112,13 +123,18 @@ class Navbar extends Component {
                   Signed in as
                   {' '}
                   <b>{user.username}</b>
-                  <i> {user.email}</i>
+                  <i>
+                    {' '}
+                    {user.email}
+                  </i>
                 </div>
                 <hr />
                 <p
                   onClick={this.handleSignOut}
                   onKeyDown={this.handleSignOut}
-                >Sign Out</p>
+                >
+                  Sign Out
+                </p>
               </div>
             )}
           />

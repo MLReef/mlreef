@@ -8,10 +8,73 @@
     width: 8em;
 }
 
-  .profile-pic-circle {
-    height: 2em;
-    width: 2em;
-    background-color: #fff;
-    display: flex;
-    border-radius: 50%;
-  }
+.profile-pic-circle {
+  height: 2em;
+  width: 2em;
+  background-color: #fff;
+  display: flex;
+  border-radius: 50%;
+}
+
+/* -------------------------- documentation dropdown -------------------------- */
+
+.header-help {
+  outline: none;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: absolute;
+  border-radius: 0.3vw;
+  cursor: pointer;
+}
+
+.header-help:hover .sign-box {
+  visibility: visible; /* show it on hover */
+  opacity: 1;
+  transition-delay: 0.09s;
+}
+
+.help-box {
+  box-shadow: 0 0 5px #c5c5c5;
+  border-radius: 0.3vw;
+  position: absolute;
+  width: max-content;
+  background: #fff;
+}
+
+.help-box div {
+  padding: 1rem 3.5rem 1rem 1rem;
+  transition: all 0.4s ease;
+}
+
+.help-box div:hover {
+  background: #c5c5c5;
+  cursor: pointer;
+}
+
+.sign-box {
+  box-shadow: 0 0 5px #c5c5c5;
+  border-radius: 0.3vw;
+  position: absolute;
+  width: 180px;
+  height: auto;
+  background: #fff;
+}
+
+.sign-box p {
+  padding: 0.75em;
+  font-family: "Roboto", sans-serif;
+  font-weight: 200;
+  transition: all 0.4s ease;
+}
+
+.sign-box div {
+  font-family: "Roboto", sans-serif;
+  font-weight: 200;
+  margin: 0.75em;
+}
+
+.sign-box p:hover {
+  background: #c5c5c5;
+  cursor: pointer;
+}

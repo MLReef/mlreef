@@ -4,6 +4,7 @@ import './MDropdown.scss';
 
 const MDropdown = (props) => {
   const {
+    reference,
     className,
     label,
     align,
@@ -25,7 +26,7 @@ const MDropdown = (props) => {
   const handleContainerClick = () => onClickClose && close();
 
   return (
-    <div className={`m-dropdown ${isShown ? 'show' : ''} ${className}`}>
+    <div ref={reference} className={`m-dropdown ${isShown ? 'show' : ''} ${className}`} id="some-shit">
       <div className="m-dropdown-button">
         <button
           type="button"

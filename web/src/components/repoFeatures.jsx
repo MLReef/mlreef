@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { Link } from 'react-router-dom';
+import MDropdown from 'components/ui/MDropdown';
 import {
   string,
   shape,
@@ -11,13 +12,8 @@ import {
 } from 'prop-types';
 import * as branchesActions from '../actions/branchesActions';
 import * as fileActions from '../actions/fileActions';
-import MDropdown from 'components/ui/MDropdown';
 
 export class RepoFeatures extends Component {
-  branchRef = React.createRef();
-
-  plusRef = React.createRef();
-
   constructor(props) {
     super(props);
     const {
