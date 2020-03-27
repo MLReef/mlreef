@@ -1,6 +1,7 @@
 package com.mlreef.rest.persistence
 
 import com.mlreef.rest.DataProject
+import com.mlreef.rest.DataProjectRepository
 import com.mlreef.rest.Person
 import com.mlreef.rest.PipelineConfig
 import com.mlreef.rest.PipelineConfigRepository
@@ -13,14 +14,19 @@ import java.util.*
 import java.util.UUID.randomUUID
 
 class PipelineConfigTest : AbstractRepositoryTest() {
+
     @Autowired
     private lateinit var repository: PipelineConfigRepository
 
+    @Autowired
+    private lateinit var dataProjectRepository: DataProjectRepository
 
     private fun createEntity(): Pair<UUID, PipelineConfig> {
         val id = randomUUID()
         val owner = Person(randomUUID(), "slug", "name")
         val dataProject = DataProject(randomUUID(), "slug", "url,", "CodeProject Augment", owner.id, "group", "project", "group/project", 0)
+
+        dataProjectRepository.save(dataProject)
 
         val entity = PipelineConfig(
             id = id, slug = "pipeline-1", name = "Pipeline 1",

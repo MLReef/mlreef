@@ -2,29 +2,29 @@ package com.mlreef.rest.persistence
 
 import com.mlreef.rest.ApplicationProfiles
 import com.mlreef.rest.AuditEntity
+import com.mlreef.rest.testcommons.TestPostgresContainer
+import com.mlreef.rest.testcommons.TestRedisContainer
 import org.assertj.core.api.Assertions.assertThat
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.jdbc.EmbeddedDatabaseConnection
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
+import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.test.context.ActiveProfiles
+import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.context.TestPropertySource
 import javax.persistence.EntityManager
 import javax.sql.DataSource
 
-
-@TestPropertySource(properties = [
-    "spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.H2Dialect"
-])
-@AutoConfigureTestDatabase(connection = EmbeddedDatabaseConnection.H2)
-@DataJpaTest(showSql = false)
-@ActiveProfiles(ApplicationProfiles.TEST)
+@TestPropertySource("classpath:application-integration-test.yml")
+@SpringBootTest
+@ActiveProfiles(ApplicationProfiles.INTEGRATION_TEST)
+@ContextConfiguration(initializers = [TestPostgresContainer.Initializer::class, TestRedisContainer.Initializer::class])
 class AbstractRepositoryTest {
     @Autowired
     val dataSource: DataSource? = null
+
     @Autowired
     val jdbcTemplate: JdbcTemplate? = null
+
     @Autowired
     val entityManager: EntityManager? = null
 
@@ -43,6 +43,17 @@ class AbstractRepositoryTest {
             assertThat(saved.createdAt).isNotNull()
             assertThat(saved.updatedAt).isNotNull()
             assertThat(saved.version).isGreaterThan(0)
+        }
+    }
+
+    protected fun truncateDbTables(tables: List<String>, cascade: Boolean = true) {
+        println("Truncating tables: $tables")
+        val joinToString = tables.joinToString("\", \"", "\"", "\"")
+
+        if (cascade) {
+            entityManager!!.createNativeQuery("truncate table $joinToString CASCADE ").executeUpdate()
+        } else {
+            entityManager!!.createNativeQuery("truncate table $joinToString ").executeUpdate()
         }
     }
 }
