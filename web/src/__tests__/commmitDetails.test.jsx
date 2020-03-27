@@ -2,6 +2,7 @@
 import React from 'react';
 import Enzyme, { shallow } from 'enzyme';
 import Adapter from 'enzyme-adapter-react-16';
+import 'babel-polyfill';
 import CommitDetails from '../components/commits-details/commitDetails';
 import { storeFactory } from '../functions/testUtils';
 import { projectsArrayMock, mockMatchDataCommitDet, imagesToRender } from '../testData';

@@ -26,7 +26,7 @@ const MDropdown = (props) => {
   const handleContainerClick = () => onClickClose && close();
 
   return (
-    <div ref={reference} className={`m-dropdown ${isShown ? 'show' : ''} ${className}`} id="some-shit">
+    <div ref={reference} className={`m-dropdown ${isShown ? 'show' : ''} ${className}`}>
       <div className="m-dropdown-button">
         <button
           type="button"
