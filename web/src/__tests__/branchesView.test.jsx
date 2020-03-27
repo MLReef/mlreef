@@ -1,6 +1,7 @@
 import React from 'react';
 import Enzyme, { shallow } from 'enzyme';
 import Adapter from 'enzyme-adapter-react-16';
+import 'babel-polyfill';
 import BranchesView from '../components/branches-list-view/branchesView';
 import { storeFactory } from '../functions/testUtils';
 import { projectsArrayMock, branchesMock } from '../testData';

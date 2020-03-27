@@ -2,6 +2,7 @@ import React from 'react';
 import Enzyme, { shallow, mount } from 'enzyme';
 import { BrowserRouter as Router } from 'react-router-dom';
 import Adapter from 'enzyme-adapter-react-16';
+import 'babel-polyfill';
 import { Provider } from 'react-redux';
 import { storeFactory } from '../functions/testUtils';
 import DataInstanceOverview from '../components/data-instance/dataInstanceOverview';
