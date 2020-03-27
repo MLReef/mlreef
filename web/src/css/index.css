@@ -2,65 +2,6 @@
 
 /** This is applied to everything below the nav-bar. */
 
-.projects-dropdown {
-  display: flex;
-  position: relative;
-  justify-content: center;
-  align-items: center;
-  color: #fff;
-  margin-left: 55px;
-  padding: 0.5em;
-  cursor: pointer;
-}
-
-.projects-dropdown-click {
-  display: flex;
-  position: relative;
-  justify-content: center;
-  align-items: center;
-  color: #292961;
-  background: white;
-  margin-left: 45px;
-  padding: 0.5em;
-  border-radius: 5px;
-  cursor: pointer;
-}
-
-.projects-dropdown-click a:hover {
-  text-decoration: none;
-}
-
-.projects-dropdown:hover {
-  background: rgb(197, 197, 197, 0.2);
-}
-
-.projects-dropdown a {
-  color: #ffffff;
-  text-decoration: none;
-  margin: 0px;
-}
-
-.projects-dropdown img {
-  margin-left: 4%;
-}
-
-.profile-options {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  position: absolute;
-  right: 3%;
-  padding: 5px 15px;
-  border-radius: 0.3vw;
-  cursor: pointer;
-}
-
-.profile-options:hover .sign-box {
-  visibility: visible; /* show it on hover */
-  opacity: 1;
-  transition-delay: 0.09s;
-}
-
 .profile-pic-circle {
   height: 1.8em;
   width: 1.8em;
@@ -426,28 +367,10 @@ p.stat-no {
   overflow: hidden;
 }
 
-/* .blue-button {
-  color: #fff;
-  background-color: #1c2b40;
-  font-weight: 600;
-  display: flex;
-  padding-right: 8px;
-} */
-
-/* #repo-features button a p {
-  align-content: center;
-  margin: 0 5px 0 5px;
-  color: white;
-} */
-
 #leftfeature-image {
   margin-left: 1%;
   margin-right: 1%;
 }
-
-/* #repo-features button #plus {
-  width: 2em;
-} */
 
 #repo-features button img {
   width: 1.5em;
@@ -650,33 +573,6 @@ p.stat-no {
   height: 100px;
 }
 
-.sign-box {
-  box-shadow: 0 0 5px #c5c5c5;
-  border-radius: 0.3vw;
-  position: absolute;
-  width: 180px;
-  height: auto;
-  background: #fff;
-}
-
-.sign-box p {
-  padding: 0.75em;
-  font-family: "Roboto", sans-serif;
-  font-weight: 200;
-  transition: all 0.4s ease;
-}
-
-.sign-box div {
-  font-family: "Roboto", sans-serif;
-  font-weight: 200;
-  margin: 0.75em;
-}
-
-.sign-box p:hover {
-  background: #c5c5c5;
-  cursor: pointer;
-}
-
 hr {
   border: none;
   height: 1px;
@@ -687,9 +583,9 @@ hr {
   background: #fff;
 }
 
-.profile-pic-darkcircle {
-  height: 1.8em;
-  width: 1.8em;
+.help-darkcircle {
+  height: 1em;
+  width: 1em;
   background-color: #fff;
   display: flex;
   border-radius: 50%;
