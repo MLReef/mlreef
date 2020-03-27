@@ -6,11 +6,13 @@ stages:
   - teardown
 
 services:
-  - docker:19.03.1-dind
+  - docker:19.03.0-dind
+
 
 variables:
-  DOCKER_DRIVER: overlay2
-  DOCKER_TLS_CERTDIR: "/certs"
+  DOCKER_HOST: "tcp://docker:2375"  # gitlab needs this to support docker testcontainers
+  DOCKER_DRIVER: overlay2           # gitlab needs this to support docker testcontainers
+  DOCKER_TLS_CERTDIR: ""            # "/certs" gitlab needs this to support docker testcontainers
   IMAGE_NAME: "backend"
   IMAGE_PATH: "$DOCKER_REGISTRY/$DOCKER_ORGANISATION/$IMAGE_NAME:$CI_COMMIT_REF_SLUG"
   DOCKER_REGISTRY_REPOSITORY_ID: "753711"                        # https://gitlab.com/api/v4/projects/13830884/registry/repositories/
@@ -24,15 +26,12 @@ variables:
 build and test:
   stage: build
   image: java:8
-  services:
-    - redis:5-alpine
-    - postgres:11-alpine
   variables:
     REDIS_HOST: "redis"
     REDIS_PORT: 6379
-    POSTGRES_DB: $DB_NAME
-    POSTGRES_USER: $DB_USER
-    POSTGRES_PASSWORD: $DB_PASSWORD
+  #    POSTGRES_DB: $DB_NAME
+  #    POSTGRES_USER: $DB_USER
+  #    POSTGRES_PASSWORD: $DB_PASSWORD
   before_script:
     - export GRADLE_USER_HOME=`pwd`/.gradle
     - chmod +x ./gradlew
@@ -43,7 +42,7 @@ build and test:
       - .gradle/wrapper
       - .gradle/caches
   script:
-    - ./gradlew build --stacktrace
+    - ./gradlew build
     - mkdir mlreef-rest/build/test-results/test/mlreef-domain
     - cp mlreef-domain/build/test-results/test/TEST-*.xml mlreef-rest/build/test-results/test/mlreef-domain/
     - ./gradlew jacocoTestReport coverageReport
@@ -84,7 +83,7 @@ pages:
     - mkdir public/$CI_COMMIT_BRANCH/coverage -p
     - mv mlreef-rest/build/reports/jacoco/test/html/* public/$CI_COMMIT_BRANCH/coverage
     - mv mlreef-rest/build/asciidoc/html5/rest-api.html public/$CI_COMMIT_BRANCH/index.html
-    - echo "Documentation URL is $CI_PAGES_URL/$CI_COMMIT_BRANCH" 
+    - echo "Documentation URL is $CI_PAGES_URL/$CI_COMMIT_BRANCH"
   artifacts:
     paths:
       - public
@@ -92,19 +91,6 @@ pages:
     name: $CI_COMMIT_REF_SLUG
     url: $CI_PAGES_URL/$CI_COMMIT_BRANCH
     on_stop: decommission
-
-#prevent-hacks:
-#  stage: premerge
-#  image: java:8
-#  dependencies:
-#    - build-backend
-#  variables:
-#    CMD: grep "FIXME" . -r --include=*.{yml,yaml} --exclude=.gitlab-ci.yml
-#
-#  script:
-#    - $CMD
-#    - if [ "$($CMD)" = "" ]; then echo "No FIXMEs found, Code is mergeable; fi
-#    - if [ "$($CMD)" != "" ]; then exit 1; fi
 
 
 decommission:

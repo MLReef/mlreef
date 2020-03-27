@@ -1,0 +1,48 @@
+logging:
+  level:
+    root: INFO
+    com.mlreef.rest: DEBUG
+    org.springframework.security: INFO
+    org.springframework.orm: INFO
+    org.hibernate: INFO
+
+mlreef:
+  gitlab:
+    rootUrl: ${GITLAB_ROOT_URL:http://ec2-35-158-125-20.eu-central-1.compute.amazonaws.com:10080}
+    adminUserToken: ${GITLAB_ADMIN_TOKEN:QVj_FkeHyuJURko2ggZT}
+  bot-management:
+    epf-bot-email-domain: mlreef.com
+    epf-bot-password-length: 20
+
+spring:
+  devtools:
+    add-properties: false
+  data:
+    repositories.type: none
+    redis:
+      repositories:
+        enabled: false
+  datasource:
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:6000}/${DB_NAME:mlreef_backend}
+    username: ${DB_USER:mlreef}
+    password: ${DB_PASSWORD:password}
+  jpa:
+    show-sql: true
+    generate-ddl: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        temp.use_jdbc_metadata_defaults: false
+    hibernate:
+      ddl-auto: none
+  flyway:
+    baseline-on-migrate: true
+  redis:
+    host: ${REDIS_HOST:localhost}
+    port: ${REDIS_PORT:6379}
+  session:
+    store-type: redis
+    redis:
+      flush-mode: on_save
+      namespace: spring:session
+

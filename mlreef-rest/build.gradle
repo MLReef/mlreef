@@ -18,7 +18,7 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
     implementation 'org.jetbrains.kotlin:kotlin-reflect'
     implementation "org.projectlombok:lombok"
-    implementation "com.fasterxml.jackson.module:jackson-module-kotlin:2.9.+"
+    implementation "com.fasterxml.jackson.module:jackson-module-kotlin:2.9.10"
 
     implementation "org.springframework.boot:spring-boot-devtools"
 
@@ -51,15 +51,9 @@ dependencies {
     asciidoctor 'org.springframework.restdocs:spring-restdocs-asciidoctor'
 
     // testcontainers
-    testImplementation "org.testcontainers:testcontainers:1.12.3"
-    testImplementation "org.testcontainers:postgresql:1.12.4"
+    testImplementation "org.testcontainers:testcontainers:1.12.5"
+    testImplementation "org.testcontainers:postgresql:1.12.5"
 
-}
-
-
-configurations {
-    integrationTestImplementation.extendsFrom testImplementation
-    integrationTestRuntime.extendsFrom testRuntime
 }
 
 
@@ -67,7 +61,6 @@ test {
     systemProperty 'junit.jupiter.extensions.autodetection.enabled', 'true'
     useJUnitPlatform()
 }
-
 
 compileKotlin {
     kotlinOptions {
@@ -92,6 +85,12 @@ ext {
 test {
     outputs.dir snippetsDir
     finalizedBy jacocoTestReport
+}
+
+test {
+    testLogging {
+        exceptionFormat = 'full'
+    }
 }
 
 asciidoctor {

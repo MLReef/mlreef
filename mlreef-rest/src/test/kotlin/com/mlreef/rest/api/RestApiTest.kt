@@ -11,6 +11,8 @@ import com.mlreef.rest.external_api.gitlab.dto.GitlabProject
 import com.mlreef.rest.external_api.gitlab.dto.GitlabUser
 import com.mlreef.rest.external_api.gitlab.dto.GitlabUserInGroup
 import com.mlreef.rest.external_api.gitlab.dto.GitlabUserToken
+import com.mlreef.rest.testcommons.TestPostgresContainer
+import com.mlreef.rest.testcommons.TestRedisContainer
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.Mockito
@@ -32,6 +34,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity
 import org.springframework.test.context.ActiveProfiles
+import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.context.TestPropertySource
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.test.web.servlet.MockMvc
@@ -46,6 +49,7 @@ import java.util.regex.Pattern
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles(ApplicationProfiles.TEST)
 @AutoConfigureTestDatabase(connection = EmbeddedDatabaseConnection.H2)
+@ContextConfiguration(initializers = [TestRedisContainer.Initializer::class, TestPostgresContainer.Initializer::class])
 abstract class RestApiTest {
 
     lateinit var mockMvc: MockMvc

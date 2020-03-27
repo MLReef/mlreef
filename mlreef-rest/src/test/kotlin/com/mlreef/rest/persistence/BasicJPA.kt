@@ -12,13 +12,13 @@ class BasicJPA : AbstractRepositoryTest() {
 
     @Test
     fun `JPA context exists`() {
-        assertThat(dataSource).isNotNull
-        assertThat(jdbcTemplate).isNotNull
-        assertThat(entityManager).isNotNull
+        assertThat(dataSource).isNotNull()
+        assertThat(jdbcTemplate).isNotNull()
+        assertThat(entityManager).isNotNull()
     }
 
     @Test
     fun `ExperimentRepository exists`() {
-        assertThat(experimentRepository).isNotNull
+        assertThat(experimentRepository).isNotNull()
     }
 }
