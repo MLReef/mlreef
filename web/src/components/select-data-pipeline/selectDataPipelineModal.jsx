@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes, { shape, number, func } from 'prop-types';
 import Checkbox from '@material-ui/core/Checkbox';
-import returnLink from '../returnLink';
 import '../../css/genericModal.css';
 import './selectDataPipelineModal.css';
 import folderIcon from '../../images/folder_01.svg';
@@ -352,7 +351,7 @@ class SelectDataPipelineModal extends Component {
                       </thead>
 
                       <tbody>
-                        {showReturnOption && returnLink(this.getBack)}
+                        {showReturnOption && this.getReturnOption()}
                         {files.map((file, index) => (
                           <tr key={index.toString()} id={`tr-file-${index}`} className="files-row" style={{ justifyContent: 'unset' }}>
                             <td className="icon-container-column">
