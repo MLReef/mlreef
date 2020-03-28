@@ -23,6 +23,8 @@ class SelectDataPipelineModal extends Component {
     this.state = {
       show,
       project,
+      showReturnOption: false,
+      filePath: '',
       files: [],
       filesSelected: filesSelectedInModal,
       branches,
@@ -100,8 +102,70 @@ class SelectDataPipelineModal extends Component {
         );
     }
 
+    getReturnOption = () => (
+      <tr className="files-row">
+        <td style={{ paddingLeft: '3em' }} className="file-type">
+          <button
+            type="button"
+            onClick={this.getBack}
+            style={{ padding: '0' }}
+          >
+            <img src={folderIcon} alt="" />
+          </button>
+          <button
+            type="button"
+            onClick={this.getBack}
+          >
+            ..
+          </button>
+        </td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+      </tr>
+    );
+
+    getBack = (e) => {
+      const { filePath } = this.state;
+      const path = filePath.substring(0, filePath.lastIndexOf('/'));
+      if (!filePath.includes('/')) {
+        this.setState({ filePath: '' });
+        this.updateFiles(e, '');
+      } else {
+        this.setState({ filePath: path });
+        this.updateFiles(e, path);
+      }
+    };
+
+    updateFiles = (e, path) => {
+      e.preventDefault();
+      if (path === '') {
+        this.setState({ showReturnOption: false });
+      } else {
+        this.setState({ showReturnOption: true });
+      }
+      this.setState({ filePath: path });
+      const {
+        project: { id },
+        branchSelected,
+      } = this.state;
+      filesApi.getFilesPerProject(
+        id,
+        path || '',
+        false,
+        branchSelected,
+      ).then((res) => {
+        this.setState({ files: res });
+      })
+        .catch(
+          (err) => {
+            console.log(err);
+          },
+        );
+    }
+
     handleCloseButton() {
-      this.props.selectDataClick();
+      const { selectDataClick } = this.props;
+      selectDataClick();
       document.getElementsByTagName('body').item(0).style.overflow = 'scroll';
     }
 
@@ -113,6 +177,9 @@ class SelectDataPipelineModal extends Component {
         isOpen,
         branches,
         files,
+        showReturnOption,
+        filePath,
+        project,
       } = this.state;
       const { handleModalAccept } = this.props;
       const customTime = (ISODate) => {
@@ -131,6 +198,7 @@ class SelectDataPipelineModal extends Component {
           <div className="modal-container" style={{ minHeight: 450 }}>
             <div className="modal-container-close">
               <button
+                type="button"
                 onClick={this.handleCloseButton}
                 className="btn btn-hidden fa fa-times"
               />
@@ -253,6 +321,12 @@ class SelectDataPipelineModal extends Component {
                     <p> Select all </p>
                   </button>
                 </div>
+                <div style={{ paddingLeft: '1em' }}>
+                  <p style={{ fontSize: '15px' }}>
+                    {` ${project.name} / `}
+                    <b>{filePath}</b>
+                  </p>
+                </div>
               </div>
               <div className="row flex-1 mb-3">
                 <div className="col-12">
@@ -277,6 +351,7 @@ class SelectDataPipelineModal extends Component {
                       </thead>
 
                       <tbody>
+                        {showReturnOption && this.getReturnOption()}
                         {files.map((file, index) => (
                           <tr key={index.toString()} id={`tr-file-${index}`} className="files-row" style={{ justifyContent: 'unset' }}>
                             <td className="icon-container-column">
@@ -296,9 +371,14 @@ class SelectDataPipelineModal extends Component {
                               <div>
                                 <img src={file.type === 'tree' ? folderIcon : fileIcon} alt="" />
                               </div>
-                              <div>
-                                {file.name}
-                              </div>
+                              <p>
+                                {file.type === 'tree'
+                                  ? (
+                                    <button type="button" onClick={(e) => this.updateFiles(e, file.path)} className="file-name-link">
+                                      {file.name}
+                                    </button>
+                                  ) : file.name}
+                              </p>
                             </td>
                           </tr>
                         ))}

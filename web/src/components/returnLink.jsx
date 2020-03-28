@@ -1,9 +1,7 @@
 import React from 'react';
 import folderIcon from '../images/folder_01.svg';
 
-const getBack = () => window.history.back();
-
-export default () => (
+export default (getBack) => (
   window.location.href.includes('path') ? (
     <tr className="files-row">
       <td className="return-button">
