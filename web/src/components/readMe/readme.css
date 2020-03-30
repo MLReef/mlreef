@@ -1,3 +1,68 @@
+/* ---------------------------- Readme section ----------------------------*/
+
+.readme-container {
+    margin-top: 15px;
+    border-radius: 0.3vw;
+    background-color: #fff;
+    border: 1px solid #b2b2b2;
+    padding-bottom: 15px;
+  }
+  
+  .readme-titlebar {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    margin: 0px auto;
+    border-radius: 0.3vw 0.3vw 0 0;
+    background-color: #e5e5e5;
+    border-bottom: 1px solid #b2b2b2;
+  }
+  
+  .readme-profile-pic {
+    height: 2em;
+    width: 2em;
+    background-color: #fff;
+    border: 1px solid #b2b2b2;
+    border-radius: 0.3vw;
+    margin-left: 3%;
+    display: flex;
+  }
+  
+  .readme-name {
+    margin-left: 2.5%;
+    color: #1c2b40;
+  }
+  
+  .readme-content-container {
+    display: flex;
+    flex-direction: column;
+    margin: 20px 90px;
+  }
+  
+  .readme-content-container p {
+    padding: 0px;
+    margin: 0;
+    color: #1c2b40;
+    text-align: left;
+    font-size: 1vw;
+  }
+  
+  #project-name-readme {
+    display: inline-flex;
+    padding-bottom: 10px;
+    font-size: 1.2em;
+    font-weight: 600;
+    border-bottom: 2px solid #1c2b40;
+  }
+  
+  #project-content-readme {
+    padding-top: 1.5%;
+    font-size: 1em;
+  }
+  
+  /* ----------------------- ----------------------- ----------------------- */
+  
+
 .readme-content-container p{
     padding: 1em 0 !important;
 }

@@ -4,7 +4,7 @@ import {
   string, arrayOf, objectOf, shape,
 } from 'prop-types';
 import ProjectInfo from './projectInfo';
-import ProjectNav from './projectNav';
+import ProjectNav from './project-nav/projectNav';
 
 class ProjectContainer extends React.Component {
   componentDidMount() {
@@ -13,7 +13,7 @@ class ProjectContainer extends React.Component {
   }
 
   render() {
-    const { project, folders, forceShowExperimentList } = this.props;
+    const { project, folders, forceShowExperimentList, setIsForking } = this.props;
     let id; let description; let
       defaultBranch;
     if (project) {
@@ -22,11 +22,11 @@ class ProjectContainer extends React.Component {
       defaultBranch = project.default_branch;
     }
     return (
-      <div className="project-container">
+      <div className="project-container" style={{ backgroundColor: '#e5e5e5' }}>
         <div className="project-details main-content">
           <ProjectNav key={`project-key-${id}`} projectId={id} folders={folders} />
 
-          <ProjectInfo project={project} setIsForking={this.props.setIsForking} />
+          <ProjectInfo project={project} setIsForking={setIsForking} />
           <p className="project-desc">
             {description || 'No description'}
           </p>

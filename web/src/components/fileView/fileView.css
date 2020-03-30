@@ -87,15 +87,6 @@
   vertical-align: middle;
 }
 
-.white-button {
-  color: #1c2b40;
-  background-color: #fff;
-  font-weight: 400;
-  display: flex;
-  padding-right: 8px;
-  padding-left: 8px;
-}
-
 .red-button {
   color: #ffffff;
   background-color: red;

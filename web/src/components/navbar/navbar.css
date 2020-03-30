@@ -16,6 +16,74 @@
   border-radius: 50%;
 }
 
+.sign-box {
+  box-shadow: 0 0 5px #c5c5c5;
+  border-radius: 0.3vw;
+  position: absolute;
+  width: 180px;
+  height: auto;
+  background: #fff;
+}
+
+.sign-box p {
+  padding: 0.75em;
+  font-family: "Roboto", sans-serif;
+  font-weight: 200;
+  transition: all 0.4s ease;
+}
+
+.sign-box div {
+  font-family: "Roboto", sans-serif;
+  font-weight: 200;
+  margin: 0.75em;
+}
+
+.sign-box p:hover {
+  background: #c5c5c5;
+  cursor: pointer;
+}
+
+.project-box {
+  box-shadow: 0 2px 4px rgb(0, 0, 0, 0.1);
+  padding-top: 0.5em;
+  position: absolute;
+  z-index: 2;
+  display: flex;
+  flex-direction: row;
+  width: 500px;
+  height: 334px;
+  background: #fff;
+  left: 0;
+  border-radius: 3px;
+  top: 120%;
+}
+
+.project-box p {
+  padding: 0.75em;
+  color: #000;
+  font-family: "Roboto", sans-serif;
+  font-weight: 200;
+  transition: all 0.4s ease;
+}
+
+.project-box p:hover {
+  background: #c5c5c5;
+  cursor: pointer;
+}
+
+.user-projects {
+  display: block;
+  width: 40%;
+}
+
+.project-search {
+  border-left: 1px solid #dddddd;
+  padding: 0.5em;
+  width: 100%;
+  display: block;
+}
+
+
 /* -------------------------- documentation dropdown -------------------------- */
 
 .header-help {
@@ -48,33 +116,6 @@
 }
 
 .help-box div:hover {
-  background: #c5c5c5;
-  cursor: pointer;
-}
-
-.sign-box {
-  box-shadow: 0 0 5px #c5c5c5;
-  border-radius: 0.3vw;
-  position: absolute;
-  width: 180px;
-  height: auto;
-  background: #fff;
-}
-
-.sign-box p {
-  padding: 0.75em;
-  font-family: "Roboto", sans-serif;
-  font-weight: 200;
-  transition: all 0.4s ease;
-}
-
-.sign-box div {
-  font-family: "Roboto", sans-serif;
-  font-weight: 200;
-  margin: 0.75em;
-}
-
-.sign-box p:hover {
   background: #c5c5c5;
   cursor: pointer;
 }

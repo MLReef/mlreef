@@ -1,0 +1,10 @@
+.project-nav {
+    display: flex;
+    flex-direction: row;
+    padding: 1% 0% 0% 0%;
+    width: 100%;
+  }
+  
+  .project-nav p {
+    color: #1c2b40;
+  }

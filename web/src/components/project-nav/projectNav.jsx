@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import './projectNav.css';
 
 const ProjectNav = (params) => (
   <div className="project-nav">

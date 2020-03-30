@@ -18,24 +18,14 @@ a:hover {
    padding: 0 1rem;
  }
 
-/*------------------- Colors --------------------*/
-
-
 .light-green-background, .light-green-button {
    background-color: #2db391;
    border-radius: 0.3vw;
 }
 
-/*------------------- ----- --------------------*/
 .light-green-button {
    color: white;
    border: 1px solid #2db391;
-}
-
-.grey-border-white-background {
-   border: 2px solid #e1e1e1;
-   background-color: white;
-   color: #e1e1e1;
 }
 
 .blue-border-dark-blue-letter {
@@ -55,14 +45,8 @@ a:hover {
    padding-left: 8px;
  }
 
-/*------------------- Hover effects--------------------*/
-
 .white-button:hover{
    background-color: #e5e5e5;
-}
-
-.blue-effect-hover:hover {
-   background-color: #e0f3f6;
 }
 
 .round-border-black-color {
@@ -72,76 +56,17 @@ a:hover {
    width: max-content;
 }
 
-/* --------------------------  CHECKBOX STYLES --------------------------*/
+/* ------- Hr for all the proj ------- */
 
-.checkbox-zone{
-   margin-top: 3%;
-}
-
-.customized-checkbox {
-   display: block;
-   position: relative;
-   padding-left: 35px;
-   margin-bottom: 15px;
-   cursor: pointer;
-
-   -webkit-user-select: none;
-   -moz-user-select: none;
-   -ms-user-select: none;
-   user-select: none;
+hr {
+   border: none;
+   height: 1px;
+   background: #dddddd;
  }
 
- /* Hide the browser's default checkbox */
- .customized-checkbox input {
-   position: absolute;
-   opacity: 0;
-   cursor: pointer;
- }
+/* ------------- round picture with avatar ------------- */
 
- /* Create a custom checkbox */
- .checkmark {
-   position: absolute;
-   left: 0;
-   height: 1.5em;
-   width: 1.5em;
-   background-color: #fff;
-   border-radius: 0.3vw;
-   border: 1px solid #5a5a5a;
- }
-
- /* On mouse-over, add a grey background color */
- .customized-checkbox:hover input ~ .checkmark {
-   background-color: #ccc;
- }
-
- /* Create the checkmark/indicator (hidden when not checked) */
- .checkmark:after {
-   content: "";
-   position: absolute;
-   display: none;
- }
-
- /* Show the checkmark when checked */
- .customized-checkbox input:checked ~ .checkmark:after {
-   display: block;
- }
-
- /* Style the checkmark/indicator */
- .customized-checkbox .checkmark:after {
-   left: 0.5vw;
-   top: 0.1vw;
-   width: 0.5vw;
-   height: 1vw;
-   border: 0.5px solid #1C2B40;
-   border-width: 0 2px 2px 0;
-   -webkit-transform: rotate(45deg);
-   -ms-transform: rotate(45deg);
-   transform: rotate(45deg);
- }
-
- /* round picture with avatar*/
-
- .commit-pic-circle {
+.commit-pic-circle {
    margin: 1em 0 0 1em;
    height: 2.5em;
    width: 2.5em;
@@ -150,12 +75,13 @@ a:hover {
    border-radius: 50%;
 }
 
+
 .commit-pic-circle > img {
    width: 100%;
    border-radius: 50%;
 }
 
-/* The next styles are created for those views that contain cards with pipelines execution information */
+/* ------------- -------------------------- ------------- */
 
 #buttons-container {
    display: flex;
@@ -178,6 +104,12 @@ a:hover {
    border: 1px solid #1C2B40;
    border-radius: 0.3vw;
 }
+
+img.dropdown-white {
+   width: 1.5em;
+   margin-right: 6px;
+}
+
 /* --------------  pipeline cards -------------- */
 
 .pipeline-card {
@@ -211,3 +143,70 @@ a:hover {
    border: none;
    background-color: transparent;
 }
+
+/* ----------------------- branches drop down ----------------------- */
+
+.select-branch {
+   box-shadow: 0 2px 4px rgb(0, 0, 0, 0.3);
+   position: absolute;
+   background-color: white;
+   z-index: 10;
+   display: block !important;
+   width: 300px;
+   height: auto;
+   background: #fff;
+   top: 100%;
+   left: 0px;
+   border-radius: 4px;
+ }
+ 
+ .search-branch {
+   position: relative;
+   display: block !important;
+   padding: 0.5em;
+ }
+ 
+ .search-branch > input {
+   width: -webkit-fill-available;
+ }
+ 
+ .branches {
+   display: block;
+   margin: "1em";
+ }
+ 
+ .branches ul {
+   list-style: none;
+   margin: 0;
+   padding: 1em 0;
+   width: 100%;
+ }
+ 
+ .branches ul li {
+   padding-left: 10px;
+ }
+ 
+ .branch-header {
+   padding-left: 2px !important;
+ }
+ 
+ .branches ul li p {
+   margin-left: 4px;
+   padding: 0.5em 0;
+   width: 100%;
+   transition: background-color 0.2s ease;
+ }
+ 
+ .branches ul p:hover {
+   cursor: pointer;
+   background: #c5c5c5;
+ }
+ 
+ .branches .branch-header {
+   color: #707070;
+   font-size: 13px;
+   line-height: 16px;
+ }
+ 
+ /* ----------------------- ----------------------- ----------------------- */
+ 

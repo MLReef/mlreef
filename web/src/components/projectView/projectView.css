@@ -1,0 +1,361 @@
+@import '../../css/variables.css';
+
+/*----------------------------------- Project Info styles ----------------------------------*/
+
+.project-info {
+  margin-top: 0.5rem;
+  flex-wrap: wrap;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+.project-pic {
+  height: 2.5em;
+  width: 2.5em;
+  background-color: #fff;
+  border: 1px solid #1c2b40;
+  border-radius: 8px;
+  display: flex;
+}
+
+.project-pic img {
+  height: 2.5em;
+}
+
+.project-id {
+  display: flex;
+  width: 50%;
+}
+
+.project-name {
+  margin-left: 2%;
+  width: 110%;
+}
+
+.project-name p {
+  margin: 0%;
+}
+
+
+#projectName {
+  font-size: 1.5em;
+  color: #1c2b40;
+  font-weight: 600;
+}
+
+#projectId {
+  font-size: 0.8em;
+  color: #909090;
+}
+
+
+.project-options {
+  display: flex;
+  height: min-content;
+  max-width: 400px;
+  justify-content: flex-end;
+}
+
+
+.option-name {
+  display: flex;
+  flex-direction: row;
+  background-color: #fff;
+  border: none;
+  border-radius: 0;
+  line-height: 160%;
+}
+
+#option-image {
+  width: 1.5rem;
+}
+
+.counter {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  background-color: #fff;
+  border-left: 2px solid #e5e5e5;
+  min-width: 30px;
+  width: 3vw;
+  height: 2.05em;
+}
+
+.counter p {
+  color: #1c2b40;
+  font-size: 13px;
+  font-weight: 600;
+  margin: 0px 1vw;
+}
+
+/* ---------------------- ---------------------- ---------------------- */
+
+
+/*----------------------------------- Project Container styles ----------------------------------*/
+
+.project-desc {
+  color: #1c2b40;
+  margin-top: 1.5%;
+}
+
+/* Natigation tabs in the header of project*/
+
+.feature-list {
+  display: flex;
+  /* justify-content: space-between; */
+  flex-direction: row;
+  max-height: 50px;
+}
+
+.feature-list > a {
+  text-decoration: none;
+}
+
+.feature {
+  display: flex !important;
+  height: inherit !important;
+  justify-content: center !important;
+  align-items: center !important;
+  margin-top: 0.1% !important;
+  text-align: center !important;
+  padding: 1% 5% !important;
+  border-radius: 8px 8px 0px 0px !important;
+}
+
+.feature p {
+  margin: 0;
+  color: #1c2b40;
+}
+
+.feature a {
+  display: block;
+  text-decoration: none;
+  margin: 0;
+  color: #1c2b40;
+}
+
+.feature.active {
+  background-color: white !important;
+  font-weight: 600 !important;
+}
+
+/*  ----------- Clone dropdown styles -------- */
+
+.file-icon, .folder-icon, .clone-icon {
+  padding: 0.5em;
+  border-left: 1px solid #adadad;
+  width: 2em;
+  background-color: #ffffff;
+}
+
+.clone-icon{
+  vertical-align: middle;
+  width: 8%;
+  cursor: pointer;
+  background-color: #e5e5e5;
+}
+
+.ssh-http-link{
+  display: table-cell;
+  position: relative;
+  width: 100%;
+}
+
+.clone-box{
+  width: 280px;
+  height: auto;
+  position: absolute;
+  background: #fff;
+  box-shadow: 0 2px 5px #e5e5e5;
+  top: 100%;
+  right: 0;
+  z-index: 10
+}
+
+.link-box{
+  text-align: initial;
+  margin-top: 1em
+}
+
+.clone-dropdown{
+  position: relative;
+}
+
+.clone-link{
+  display: flex;
+  margin: 1em 1em;
+  border: 1px solid #adadad;
+  border-radius: 3px;
+  height: 30px;
+}
+
+.clone-link span{
+  padding: 0 5em;
+  margin: 0.5em 0 0 0;
+}
+
+
+/*----------------- Repo info (light blue var, ie: commits, branches, MR's etc.) ------------------*/
+
+.repo-info {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  background-color: #32afc3;
+  margin-top: 15px;
+  border-radius: 0.3vw;
+}
+
+.repo-stat {
+  display: flex;
+  padding: 0 1rem;
+}
+
+.repo-stat:hover {
+ background-color: rgb(209,209,209,0.2);
+ text-decoration: none;
+}
+
+.repo-stat p {
+  color: #fff;
+}
+
+p.stat-no {
+  font-weight: 700;
+}
+
+.stat-type {
+  margin-left: 10px;
+}
+
+/* ---------------------------- ---------------------------- ----------------------------*/
+
+/* ---------------------------- Project view commit section ----------------------------*/
+
+.last-commit-info {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 15px;
+  border-radius: 0.3vw;
+  background-color: #e5e5e5;
+}
+
+.last-commit-id {
+  display: flex;
+  width: auto;
+  min-width: 35px;
+  padding: 0.7% 0.2% 0.7% 0.2%;
+  height: 1em;
+  margin-right: 3.5%;
+  justify-content: center;
+  background-color: #fff;
+  border-radius: 0.3vw;
+  border: 1px solid #b2b2b2;
+}
+
+.last-commit-id p {
+  padding-left: 24px;
+  padding-right: 24px;
+  font-weight: 400;
+  color: #404040;
+  margin: 0;
+  align-self: center;
+}
+
+.last-commit-details {
+  display: flex;
+  flex-direction: row;
+  width: 80%;
+  padding: 0.5em;
+  margin-left: 15px;
+}
+
+.last-commit-name {
+  margin-left: 1vw;
+  align-self: center;
+  color: #1c2b40;
+}
+
+.last-commit-name > p {
+  margin: 0;
+  max-width: 250px;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+/* ---------------------------- ---------------------------- ----------------------------*/
+
+/* ---------------------------- Repository features section (branches dropdown, plus btn, history) ----------------------------*/
+
+#repo-features {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+}
+
+#repo-features button img {
+  width: 1.5em;
+}
+
+/* ----- plus drodown btn ------*/
+
+.plus-dropdown{
+  width: 200px;
+  height: auto;
+  background: #fff;
+  border-radius: 3px;
+  top: 100%;
+  box-shadow: 0 2px 4px rgb(0, 0, 0, 0.3);
+  position: absolute
+}
+
+.plus-list{
+  list-style: none;
+  padding: 0;
+  width: 100%
+}
+
+.plus-list li{
+  padding: 8px 12px;
+}
+
+.plus-list li > a{
+  width: 100%;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.plus-list .plus-option:hover{
+  background-color: #e5e5e5
+}
+
+/* ---------------------------- ---------------------------- ----------------------------*/
+
+
+/* ---------------------------- Files container section ----------------------------*/
+
+.commit-status {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  height: 40px;
+  margin-top: 15px;
+  border-radius: 0.3vw 0.3vw 0px 0px;
+  background-color: #2db391;
+  /* border: 1px solid #32AFC3; */
+}
+
+#commitStatus {
+  color: #fff;
+  margin: 0 2%;
+}
+
+.files-container-master{
+  padding-top: 15px;
+}
