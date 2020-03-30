@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { Link, Redirect } from 'react-router-dom';
+import AuthWrapper from 'components/AuthWrapper';
 import {
   string, number, shape, func,
 } from 'prop-types';
@@ -7,7 +8,6 @@ import FilesTable from '../files-table/filesTable';
 import filesApi from '../../apis/FilesApi';
 import BranchesApi from '../../apis/BranchesApi';
 import './FilesContainer.css';
-import AuthWrapper from 'components/AuthWrapper';
 
 class FilesContainer extends Component {
   constructor(props) {

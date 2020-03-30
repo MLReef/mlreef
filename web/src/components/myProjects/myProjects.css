@@ -1,4 +1,27 @@
 /* ------------ CSS for project page ----------- */
+.new-project .add {
+    text-decoration: none;
+    background-color: #15b785;
+    border-radius: 0.3vw;
+    width: 180px;
+    color: #f2f2f2;
+    padding: 0.5em 2em;
+    float: right;
+  
+    margin-bottom: 0;
+  }
+  
+  .new-project #title {
+    flex: 1;
+    margin: auto;
+    font-size: 18px;
+    font-weight: bold;
+  }
+  
+  .new-project {
+    display: flex;
+  }
+  
 
 .project-content {
     max-width: 1024px;
@@ -26,7 +49,10 @@
 
 .project-list {
     display: flex;
+    flex-direction: row;
     flex: 1;
+    justify-content: space-evenly;
+    padding-top: 50px;
 }
 
 .project-tab {

@@ -137,9 +137,9 @@ class NewProject extends Component {
          <div className="proj-description col-sm-12 col-lg-4 pr-3 ">
            <span>New ML Project</span>
            <p>
-A Machine Learning (ML) project is where you house your data set (repository),
-where you perform data processing
-(data pipeline), visualize your data set (data visualization) and where you create your experiments
+             A Machine Learning (ML) project is where you house your data set (repository),
+             where you perform data processing
+             (data pipeline), visualize your data set (data visualization) and where you create your experiments
            </p>
          </div>
          <div className="form-control col-sm-12 col-lg-8 pl-3">
@@ -165,14 +165,14 @@ where you perform data processing
                    </Tooltip>
                    <FormControl id="projectURL" variant="outlined">
                      <Select
-                      labelId="demo-simple-select-outlined-label"
-                      id="demo-simple-select-outlined"
-                      value={user}
-                      onChange={this.handleUser}
-                    >
-                      <MenuItem value="mlreef">mlreef</MenuItem>
-                      <MenuItem value="SaathvikT">SaathvikT</MenuItem>
-                    </Select>
+                       labelId="demo-simple-select-outlined-label"
+                       id="demo-simple-select-outlined"
+                       value={user}
+                       onChange={this.handleUser}
+                     >
+                       <MenuItem value="mlreef">mlreef</MenuItem>
+                       <MenuItem value="SaathvikT">SaathvikT</MenuItem>
+                     </Select>
                    </FormControl>
                  </div>
                </label>
@@ -212,9 +212,9 @@ where you perform data processing
                    control={<Radio />}
                    label={(
                      <>
-                      <img id="visibility-icon" src={privateIcon} alt="" />
-                      <span>Private</span>
-                    </>
+                       <img id="visibility-icon" src={privateIcon} alt="" />
+                       <span>Private</span>
+                     </>
                 )}
                  />
                  <span className="visibility-msg">Project access must be granted explicitly to every user.</span>
@@ -224,9 +224,9 @@ where you perform data processing
                    control={<Radio />}
                    label={(
                      <>
-                      <img id="visibility-icon" src={publicIcon} alt="" />
-                      <span>Public</span>
-                    </>
+                       <img id="visibility-icon" src={publicIcon} alt="" />
+                       <span>Public</span>
+                     </>
                 )}
                  />
                  <span className="visibility-msg">The Project can be accessed without any authemtication.</span>
@@ -243,8 +243,8 @@ where you perform data processing
                />
                <span className="heading">Initialize the Repository with a README</span>
                <p className="readme-msg">
-Allows you to immediately clone this projects repository.
-Skip this if you want to push up an existing repository
+                 Allows you to immediately clone this projects repository.
+                 Skip this if you want to push up an existing repository
                </p>
              </div>
              <div className="form-controls mt-4">
@@ -253,14 +253,14 @@ Skip this if you want to push up an existing repository
                  className="btn btn-basic-dark"
                  onClick={this.cancelCreate}
                >
-                Cancel
+                 Cancel
                </button>
                <button
                  type="button"
                  className="btn btn-primary ml-auto"
                  onClick={this.handleSubmit}
                >
-                Create
+                 Create
                </button>
              </div>
            </form>

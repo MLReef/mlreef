@@ -15,7 +15,7 @@ import RepoFeatures from '../repoFeatures';
 import Navbar from '../navbar/navbar';
 import * as projectActions from '../../actions/projectInfoActions';
 import * as branchesActions from '../../actions/branchesActions';
-import '../../css/index.css';
+import './projectView.css';
 import commitsApi from '../../apis/CommitsApi';
 import { getTimeCreatedAgo } from '../../functions/dataParserHelpers';
 import * as usersActions from '../../actions/usersActions';
