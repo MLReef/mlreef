@@ -1,5 +1,5 @@
-import {API_GATEWAY, BUILD_TIMEOUT, GITLAB_PORT} from '../apiConfig';
-import {getCurrentToken} from './apiHelpers';
+import { API_GATEWAY, BUILD_TIMEOUT, GITLAB_PORT } from '../apiConfig';
+import { getCurrentToken, generateGetRequest } from './apiHelpers';
 
 const defaultProjectSettings = {
   ci_config_path: '.mlreef.yml',
@@ -49,20 +49,14 @@ export default class ProjectGeneralInfoApi {
     }
   }
 
-  static getProjectsList(params = {}) {
+  static async getProjectsList(params = {}) {
     const url = new URL(`${API_GATEWAY}:${GITLAB_PORT}/api/v4/projects`);
     // set query params
     Object.entries({ simple: true, ...params })
       .forEach((param) => url.searchParams.append(...param));
+    const respone = generateGetRequest(url.href);
 
-    const request = new Request(url, {
-      method: 'GET',
-      headers: new Headers({
-        'PRIVATE-TOKEN': getCurrentToken(),
-      }),
-    });
-
-    return fetch(request)
+    return respone
       .then((res) => res.json())
       .then((projects) => Array.isArray(projects) ? projects : Promise.reject(projects));
   }
@@ -98,5 +92,22 @@ export default class ProjectGeneralInfoApi {
         }),
       },
     ));
+  }
+
+  static async getRepositoryBlob(projectId) {
+    const url = `/projects/${projectId}/repository/blobs/master`;
+    const request = await generateGetRequest(url);
+
+    return request;
+  }
+
+  static async getProjectContributors(projectId) {
+    try {
+      const url = `${API_GATEWAY}:${GITLAB_PORT}/api/v4/projects/${projectId}/members`;
+      const response = await generateGetRequest(url);
+      return response;
+    } catch (err) {
+      return err;
+    }
   }
 }

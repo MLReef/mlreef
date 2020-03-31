@@ -1,0 +1,64 @@
+.m-checkbox {
+  border: none;
+  background: none;
+  display: flex;
+  align-items: center;
+  position: relative;
+  margin: 0.5rem 0;
+  padding-left: 1.8rem;
+  cursor: pointer;
+
+  p {
+    margin: 0;
+  }
+
+  input {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+    height: 0;
+    width: 0;
+  }
+  
+  /* Custom checkbox */
+  .checkmark {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 1.2rem;
+    width: 1.2rem;
+    background-color: white;
+    border: 2px solid;
+    border-radius: 0.2rem;
+
+    &:after {
+      content: "";
+      position: absolute;
+      display: none;
+      left: 0.4rem;
+      top: 0.15rem;
+      width: 0.25rem;
+      height: 0.6rem;
+      border: solid white;
+      border-width: 0 3px 3px 0;
+      -webkit-transform: rotate(45deg);
+      -ms-transform: rotate(45deg);
+      transform: rotate(45deg);
+    }
+  }
+
+  /* When the checkbox is checked, add a blue background */
+  input:checked ~ .checkmark {
+    background-color: var(--dark);
+  }
+
+  /* Show the checkmark when checked */
+  input:checked ~ .checkmark:after {
+    display: block;
+  }
+
+  &:focus {
+    outline: none;
+  }
+
+}

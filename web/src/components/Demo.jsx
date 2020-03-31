@@ -9,6 +9,7 @@ import { fireModal } from 'actions/actionModalActions';
 import icon from 'images/ml_reef_icon_01.svg';
 import MDropdown from 'components/ui/MDropdown';
 import MSelect from 'components/ui/MSelect';
+import MProjectCard from './ui/MProjectCard/MProjectCard';
 
 // this is a component for testing layout and should be removed after alpha
 const Demo = (props) => {
@@ -175,66 +176,7 @@ const Demo = (props) => {
              }}>
               {[1, 2, 3, 4].map((i) => (
                 /* card is here */
-                <div key={i} className="card">
-                  <div className="card-container">
-                    <div className="card-title">
-                      Predicting Length of Stay in Hospitals
-                    </div>
-                    <div className="card-content">
-                      <div className="d-flex">
-                        <div className="mr-2">
-                          <i className="fa fa-file t-success">
-                            <span className="label"> Text</span>
-                          </i>
-                        </div>
-                        <div className="mr-2">
-                          <i className="fa fa-volume-up t-info">
-                            <span className="label"> Audio</span>
-                          </i>
-                        </div>
-                        <div className="">
-                          <i className="fa fa-video t-danger">
-                            <span className="label"> Video</span>
-                          </i>
-                        </div>
-                      </div>
-
-                      <p>This solution enables a predictive model for Length of Stay for in-hospital admissions. Length of Stay (LOS) is defined in number of days from the initial admit date to the date that the patient is discharged from any …</p>
-
-                      <div className="d-flex t-secondary">
-                        <div className="mr-3">
-                          <i className="fa fa-star" >
-                            <span className="label"> 5.162</span>
-                           </i>
-                        </div>
-                        <div className="mr-3">
-                          <i className="fa fa-code-branch" >
-                            <span className="label"> 7.234</span>
-                           </i>
-                        </div>
-                        <div className="">
-                          <i className="fa fa-copy" >
-                            <span className="label"> 3.2 GB</span>
-                           </i>
-                        </div>
-                      </div>
-
-                    </div>
-                    <div className="card-actions">
-                      <div className="" style={{
-                          display: 'flex',
-                          marginRight: '-1rem',
-                        }}>
-                        <div className="avatar-container grouped  "></div>
-                        <div className="avatar-container grouped"></div>
-                        <div className="avatar-container "></div>
-                      </div>
-                      <button className="btn btn-outline-dark btn-sm ml-auto">
-                        More
-                      </button>
-                    </div>
-                  </div>
-                </div>
+                <MProjectCard />
               ))
               // end of card
             }

@@ -1,0 +1,49 @@
+/* ---------------- main-content-div ---------------- */
+
+#main-content-div {
+  display: flex;
+  margin-top: 2rem;
+
+  #cards-section {
+    display: flex; 
+    flex-wrap: wrap;
+    flex: 3;
+  }
+
+  #side-filters {
+    flex: 1;
+
+    #input-div {
+      border-bottom: 1px solid var(--secondary);
+      p {
+        color: var(--secondary);
+      }
+    }
+  }
+}
+
+/* ---------------- top buttons section ---------------- */
+
+#buttons-div {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 1rem;
+  
+  #filter-div {
+    flex: 3;
+    button {
+      margin-right: 1rem;
+    }
+  }
+  
+  #new-element-container {
+    flex: 1;
+  }
+}
+
+/* ---------------- data types deploy btn ---------------- */
+
+#data-types-deploy-btn {
+  display: flex;
+  justify-content: space-between;
+}

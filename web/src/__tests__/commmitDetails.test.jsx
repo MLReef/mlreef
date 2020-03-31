@@ -1,5 +1,6 @@
 /* eslint-disable no-undef */
 import React from 'react';
+import 'babel-polyfill';
 import Enzyme, { shallow } from 'enzyme';
 import Adapter from 'enzyme-adapter-react-16';
 import 'babel-polyfill';

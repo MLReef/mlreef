@@ -1,0 +1,13 @@
+#ml-projects, #models, #data-operations, #data-visualizations {
+  max-width: unset;
+}
+
+#no-proj-found-div {
+  width: 100%;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  p {
+    color: var(--secondary);   
+  }
+}

@@ -1,4 +1,5 @@
 import React from 'react';
+import 'babel-polyfill';
 import Enzyme, { shallow, mount } from 'enzyme';
 import { BrowserRouter as Router } from 'react-router-dom';
 import Adapter from 'enzyme-adapter-react-16';

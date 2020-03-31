@@ -114,7 +114,7 @@ Prefer styles in css / scss files over jsx files.
 ---
 * This is consequent with **Separation of Concerns** principle.
 * We are already sharing variables in css scope.
-* Of course there is exceptions, specially if styles are very dynamic.
+* Of course there are exceptions, specially if styles are very dynamic.
 
 > This is arguable, but we must decide to write styles in javascript throughout the project or not.  
 

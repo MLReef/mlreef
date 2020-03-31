@@ -1,11 +1,11 @@
 import React from 'react';
 import Enzyme, { shallow } from 'enzyme';
 import renderer from 'react-test-renderer';
+import MDropdown from 'components/ui/MDropdown';
 import { MemoryRouter } from 'react-router-dom';
 import Adapter from 'enzyme-adapter-react-16';
 import { RepoFeatures } from '../components/repoFeatures';
 import { projectsArrayMock, branchesMock } from '../testData';
-import MDropdown from 'components/ui/MDropdown';
 
 Enzyme.configure({ adapter: new Adapter() });
 

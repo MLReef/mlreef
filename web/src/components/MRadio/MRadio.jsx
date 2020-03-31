@@ -10,6 +10,7 @@ const MRadio = (props) => {
     value,
     footer,
     onChange,
+    direction,
   } = props;
 
   const handleChange = (e) => {
@@ -22,7 +23,7 @@ const MRadio = (props) => {
   return (
     <div className="m-radio">
       { label && <div className="m-radio_label">{ label }</div> }
-      <div className="m-radio_container">
+      <div className="m-radio_container" style={{ flexDirection: direction === 1 || undefined ? 'row' : 'column' }}>
         {
           (options || []).map((opt) => (
             <div className="m-radio_option" key={`rad-opt-${opt.value}`}>
