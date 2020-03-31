@@ -33,6 +33,12 @@ export function updateUserMeta(meta) {
     .then((success) => success && dispatch({ type: types.UPDATE_USER_META, meta }));
 }
 
+export function getUserInfo() {
+  return (dispatch) => UserApi
+    .getUserInfo()
+    .then((userInfo) => dispatch({ type: types.SET_USER_INFO, userInfo }));
+}
+
 export function updateUserInfo(info) {
   return (dispatch) => UserApi
     .updateUserInfo(info)

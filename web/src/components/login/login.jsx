@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { toastr } from 'react-redux-toastr';
 import { Link } from 'react-router-dom';
-import { login } from '../../actions/userActions';
+import { login, getUserInfo } from 'actions/userActions';
 import './login.css';
 import icon from '../../images/ml_reef_icon_01.svg';
 
@@ -68,6 +68,10 @@ class Login extends React.Component {
     actions.login(formData)
       .then(() => {
         toastr.success('Success:', 'Login successfully');
+        return actions.getUserInfo()
+          .catch(() => {
+            toastr.warning('Connection problem:', 'Failed to fetch user information.');
+          });
       })
       .catch((error) => {
         toastr.error('Error:', `Try Login with mlreef + password or get: ${error}`);
@@ -162,6 +166,7 @@ function mapDispatchToProps(dispatch) {
   return {
     actions: bindActionCreators({
       login,
+      getUserInfo,
     }, dispatch),
   };
 }

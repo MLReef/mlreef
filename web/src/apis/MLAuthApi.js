@@ -1,5 +1,11 @@
 import { API_GATEWAY } from '../apiConfig';
 
+/**
+ * core-js and regenerator-runtime imports are necessary to make tests run
+ */
+import 'core-js/stable';
+import 'regenerator-runtime/runtime';
+
 export default class MLRAuthApi {
   static buildAuthHeaders(token) {
     return new Headers({

@@ -20,6 +20,9 @@ export default {
     auth: false,
     role: null,
     type: null,
+    userInfo: {
+      avatar_url: '',
+    },
     meta: {
       closedInstructions: {
         EmptyDataVisualization: false,
