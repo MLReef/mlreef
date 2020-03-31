@@ -22,6 +22,12 @@ export default function userReducer(state = initialState.user, action) {
         type: null,
       };
 
+    case types.SET_USER_INFO:
+      return {
+        ...state,
+        userInfo: action.userInfo,
+      };
+
     case types.UPDATE_USER_INFO:
       return {
         ...state,

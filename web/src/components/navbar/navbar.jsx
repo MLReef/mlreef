@@ -57,7 +57,12 @@ class Navbar extends Component {
   }
 
   render() {
-    const { user } = this.props;
+    const {
+      user,
+      user: {
+        userInfo: { avatar_url: avatarUrl },
+      },
+    } = this.props;
 
     return (
       <div className="navbar">
@@ -115,7 +120,10 @@ class Navbar extends Component {
             className="ml-auto my-auto"
             buttonClasses="btn btn-dark d-flex p-2"
             label={(
-              <div className="profile-pic-circle" />
+              <div
+                style={{ backgroundImage: `url(${avatarUrl})` }}
+                className="avatar-circle bg-image bg-cover"
+              />
             )}
             component={(
               <div className="sign-box">
@@ -155,6 +163,9 @@ Navbar.propTypes = {
       auth: PropTypes.bool.isRequired,
       username: PropTypes.string.isRequired,
       email: PropTypes.string.isRequired,
+      userInfo: PropTypes.shape({
+        avatar_url: PropTypes.string,
+      }),
     })
     .isRequired,
 };
