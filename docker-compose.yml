@@ -1,0 +1,26 @@
+# original source: https://github.com/sameersbn/docker-gitlab/blob/master/docker-compose.yml
+version: '3.5'
+
+# please research https://docs.docker.com/compose/environment-variables/ for howto setup your environment
+services:
+
+  mlreef-postgres-dev:
+    container_name: mlreef-postgres-dev
+    restart: always
+    image: sameersbn/postgresql:10-2
+    ports:
+      - "7000:5432"
+    environment:
+      - DB_USER=mlreef
+      - DB_PASS=password                                             # secret, use ENV var
+      - DB_NAME=mlreef_backend_dev
+      - DB_EXTENSION=pg_trgm
+
+  backend-redis:
+    container_name: backend-redis
+    restart: always
+    image: sameersbn/redis:4.0.9-2
+    ports: ["7379:6379"]
+
+volumes:
+  sock:

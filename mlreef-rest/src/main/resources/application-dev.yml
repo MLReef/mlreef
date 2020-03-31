@@ -10,6 +10,10 @@ logging:
 spring:
   devtools:
     add-properties: true
+  datasource:
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:7000}/${DB_NAME:mlreef_backend_dev}
+    username: ${DB_USER:mlreef}
+    password: ${DB_PASSWORD:password}
   jpa:
     properties:
       hibernate:
@@ -17,6 +21,9 @@ spring:
         temp.use_jdbc_metadata_defaults: false
   flyway:
     enabled: true
+  redis:
+    host: ${REDIS_HOST:localhost}
+    port: ${REDIS_PORT:7379}
 
 mlreef:
   gitlab:
