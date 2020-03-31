@@ -191,6 +191,28 @@ export const dataPipeLines = [{
 
 export const experiments = [
   {
+    title: 'Dummy Pipeline',
+    username: 'Keras',
+    starCount: '243',
+    index: 1,
+    command: 'debug_dataprocessor',
+    description: 'debug_dataprocessor uses epochs=8 and batch_size=5 for debugging',
+    showDescription: false,
+    showAdvancedOptsDivDataPipeline: false,
+    dataType: 'Images',
+    params: {
+      standard: [
+        {
+          name: 'epochs', dataType: INT, required: true, commandName: 'epochs',
+        },
+        {
+          name: 'batch_size', dataType: INT, required: true, commandName: 'batch_size',
+        },
+      ],
+      advanced: [],
+    },
+  },
+  {
     title: 'Resnet 50',
     username: 'Keras',
     starCount: '243',
