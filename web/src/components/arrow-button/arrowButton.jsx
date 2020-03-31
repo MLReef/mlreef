@@ -7,7 +7,6 @@ const ArrowButton = ({
   placeholder,
   callback,
   params,
-  imgPlaceHolder,
   id,
 }) => {
   function handleDropDownClick(e) {
@@ -47,7 +46,7 @@ const ArrowButton = ({
 ArrowButton.propTypes = {
   placeholder: PropTypes.string,
   callback: PropTypes.func,
-  params: PropTypes.object,
+  params: PropTypes.shape({}),
   id: PropTypes.string,
 };
 

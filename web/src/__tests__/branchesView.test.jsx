@@ -1,4 +1,5 @@
 import React from 'react';
+import 'babel-polyfill';
 import Enzyme, { shallow } from 'enzyme';
 import Adapter from 'enzyme-adapter-react-16';
 import 'babel-polyfill';
@@ -36,17 +37,16 @@ describe('test the frontend features', () => {
   });
 });
 
-describe('test functionality',() => {
+describe('test functionality', () => {
   let wrapper;
   beforeEach(() => {
     wrapper = setup();
   });
   test('assert that branches are filtered after input value is changed', () => {
     const input = wrapper.find('#filter-input');
-    input.value = "master";
+    input.value = 'master';
     const event = { currentTarget: input };
     input.simulate('change', event);
     expect(wrapper.find('.branch-row')).toHaveLength(1);
   });
-})
-
+});

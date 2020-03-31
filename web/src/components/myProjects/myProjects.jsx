@@ -1,22 +1,35 @@
 import React from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import { CircularProgress } from '@material-ui/core';
 import { arrayOf, shape, func } from 'prop-types';
-import { Link } from 'react-router-dom';
+import MProjectClassification from 'components/ui/MProjectClassification/MProjectClassification';
+import MTabs from 'components/ui/MTabs';
 import { suscribeRT } from 'functions/apiCalls';
 import Navbar from '../navbar/navbar';
-import ProjectSet from '../projectSet';
-import './myProjects.css';
+import './myProjects.scss';
 import ProjectDeletionModal from '../project-deletion-modal/projectDeletionModal';
 import * as projectActions from '../../actions/projectInfoActions';
 // import AuthWrapper from 'components/AuthWrapper';
 
 class Myprojects extends React.Component {
+  projFilterBtnsList = ['own', 'starred', 'explore'];
+
+  tabsIds = [
+    'ml-projects',
+    'models',
+    'data-operations',
+    'data-visualizations',
+  ];
+
+  idsXColors = [
+    { id: this.tabsIds[0], color: '#91BD44' },
+    { id: this.tabsIds[1], color: '#E99444' },
+    { id: this.tabsIds[2], color: '#D2519D' },
+    { id: this.tabsIds[3], color: '#735DA8' },
+  ];
+
   constructor(props) {
     super(props);
-    this.handleShowModal = this.handleShowModal.bind(this);
-    this.hideModal = this.hideModal.bind(this);
     this.fetch = this.fetch.bind(this);
 
     this.state = {
@@ -25,6 +38,7 @@ class Myprojects extends React.Component {
       owner: '',
       isFetching: false,
       unsuscribeServices: null,
+      bandColor: null,
     };
   }
 
@@ -35,6 +49,9 @@ class Myprojects extends React.Component {
     const unsuscribeServices = suscribeRT({ timeout: 10000 })(this.fetch);
     // keep this for clear timeouts
     this.setState({ unsuscribeServices });
+
+    /* Add some event listeners */
+    this.addEventListeners();
   }
 
   componentWillUnmount() {
@@ -42,6 +59,18 @@ class Myprojects extends React.Component {
     const { unsuscribeServices } = this.state;
     if (unsuscribeServices) unsuscribeServices();
   }
+
+  addEventListeners = () => this.tabsIds.forEach((id) => {
+    document
+      .getElementById(`tab-${id}`)
+      .addEventListener('click', (e) => {
+        const node = e.target;
+        if (node.nodeName === 'BUTTON') {
+          const { color } = this.idsXColors.filter((idsColor) => `${idsColor.id}` === id)[0];
+          this.setState({ bandColor: color });
+        }
+      });
+  });
 
   fetch() {
     const { actions } = this.props;
@@ -52,41 +81,11 @@ class Myprojects extends React.Component {
       actions.getStarredProjects(),
       actions.getProjectsList(),
     ])
-      .catch((err) => {
-        // eslint-disable-next-line
-        console.warn('Myprojects error (prov)', err);
+      .catch(() => {
       })
       .finally(() => {
         this.setState({ isFetching: false });
       });
-  }
-
-  handleShowModal(projectName, owner) {
-    this.setState({
-      showModal: true,
-      projectName,
-      owner,
-    });
-  }
-
-  hideModal() {
-    this.setState({
-      showModal: false,
-    });
-  }
-
-  // this change tabs in projectSet
-  changeScreen = (screen) => {
-    const {
-      history: {
-        push,
-        location: {
-          pathname,
-        },
-      }
-    } = this.props;
-
-    push(`${pathname}${screen}`);
   }
 
   render() {
@@ -95,66 +94,71 @@ class Myprojects extends React.Component {
       showModal,
       projectName,
       owner,
+      bandColor,
     } = this.state;
 
     const {
       userProjects,
       starredProjects,
       allProjects,
-      history: {
-        location: {
-          hash: screen,
-        },
-      }
+      history,
     } = this.props;
 
     return (
-      <div>
+      <div style={{ backgroundColor: '#f2f2f2' }}>
         <ProjectDeletionModal
           isShowing={showModal}
           projectName={projectName}
           owner={owner}
-          hideModal={this.hideModal}
+          hideModal={() => {}}
           projectsList={userProjects}
         />
         <Navbar />
-        <div className="project-content">
-          <NewProject />
-          <hr />
-          {isFetching
-            ? (
-              <div className="project-content-loader">
-                <CircularProgress size={40} />
-              </div>
-            )
-            : (
-              <ProjectSet
-                screen={screen || '#personal'}
-                changeScreen={this.changeScreen}
-                allProjects={allProjects}
-                personalProjects={userProjects}
-                starredProjects={starredProjects}
-                handleShowModal={this.handleShowModal}
-              />
-            )}
-        </div>
+        {bandColor && <div style={{ height: '0.35rem', backgroundColor: bandColor }} />}
+        <br />
+        <br />
+        <br />
+        <MTabs>
+          <MTabs.Section defaultActive id={this.idsXColors[0].id} label="ML Projects" color={this.idsXColors[0].color}>
+            <MProjectClassification
+              classification="ml-projects"
+              isFetching={isFetching}
+              history={history}
+              userProjects={userProjects}
+              starredProjects={starredProjects}
+              allProjects={allProjects}
+            />
+          </MTabs.Section>
+          <MTabs.Section id={this.idsXColors[1].id} label="Models" color={this.idsXColors[1].color}>
+            <MProjectClassification
+              classification="models"
+              isFetching={false}
+              history={history}
+            />
+          </MTabs.Section>
+          <MTabs.Section
+            id={this.idsXColors[2].id}
+            label="Data Operations"
+            color={this.idsXColors[2].color}
+          >
+            <MProjectClassification
+              classification="data-operations"
+              isFetching={false}
+              history={history}
+            />
+          </MTabs.Section>
+          <MTabs.Section id={this.idsXColors[3].id} label="Data visualizations" color={this.idsXColors[3].color}>
+            <MProjectClassification
+              classification="data-visualizations"
+              isFetching={false}
+              history={history}
+            />
+          </MTabs.Section>
+        </MTabs>
       </div>
     );
   }
 }
-
-const NewProject = () => (
-  <div className="new-project">
-    <p id="title">Projects</p>
-      <Link
-        to="/new-project"
-        type="button"
-        className="btn btn-primary"
-      >
-          New Project
-      </Link>
-  </div>
-);
 
 function mapStateToProps(state) {
   return {

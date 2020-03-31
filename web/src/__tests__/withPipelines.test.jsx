@@ -1,10 +1,10 @@
 import React from 'react';
 import Enzyme, { shallow } from 'enzyme';
 import Adapter from 'enzyme-adapter-react-16';
-import { storeFactory } from '../functions/testUtils';
-import PipelineView from '../components/pipeline-view/pipelineView';
 import MCard from 'components/ui/MCard';
 import ExecutePipelineModal from 'components/execute-pipeline-modal/executePipeLineModal';
+import { storeFactory } from '../functions/testUtils';
+import PipelineView from '../components/pipeline-view/pipelineView';
 
 import {
   branchesMock,

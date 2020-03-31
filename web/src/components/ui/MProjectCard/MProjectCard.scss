@@ -1,0 +1,22 @@
+.project-card-container {
+  width: 15rem;
+  max-width: 300px;
+  border: 0.15rem solid var(--secondary);
+  .card-title {
+    font-size: 1.2rem;
+    margin: 0; 
+    padding: 0;
+  }
+  .card-content {
+    margin-top: 1rem;
+  }
+  span {
+    font-size: 0.9rem;
+    margin-right: 0.6rem;
+  }
+}
+
+.project-card-container:hover {
+  border: 0.15rem solid var(--info);
+  cursor: pointer;
+}

@@ -12,40 +12,55 @@ const MTabs = (props) => {
   const contentsRef = useRef(null);
   const tabsRef = useRef(null);
 
-  const showSection = (id, callback) => () => {
+  const showSection = (id, callback, color) => () => {
     const contents = contentsRef.current;
     const tabs = tabsRef.current;
     const tabId = `tab-${id}`;
-
-    contents.children.forEach((content) => {
+    Array.from(contents.children).forEach((content) => {
       if (content.id === id) content.classList.add('active');
       else content.classList.remove('active');
     });
 
-    tabs.children.forEach((tab) => {
-      if (tab.id === tabId) tab.classList.add('active');
-      else tab.classList.remove('active');
+    Array.from(tabs.children).forEach((tab) => {
+      if (tab.id === tabId) {
+        tab.classList.add('active');
+        tab.style.borderBottom = `4px solid ${color}`;
+      } else {
+        tab.classList.remove('active');
+        tab.style = '';
+      }
     });
+
 
     return callback && callback();
   };
 
-  const tabs = sections.map((el) => {
+  let finalSections = sections;
+
+  if (!finalSections) {
+    return <></>;
+  }
+
+  if (!Array.isArray(finalSections)) {
+    finalSections = [sections];
+  }
+
+  const tabs = finalSections.map((el) => {
     const {
       id,
       label,
       defaultActive,
       callback,
+      color,
     } = el.props;
-
     return {
       id,
       label,
       defaultActive,
       callback,
+      color,
     };
   });
-
   return (
     <div className={`m-tabs ${vertical ? 'vertical' : ''}`}>
       <div className="m-tabs_menu">
@@ -60,7 +75,7 @@ const MTabs = (props) => {
               <button
                 className="m-tabs_menu_tab_btn neutral"
                 type="button"
-                onClick={showSection(tab.id, tab.callback)}
+                onClick={showSection(tab.id, tab.callback, tab.color)}
               >
                 {tab.label}
               </button>
