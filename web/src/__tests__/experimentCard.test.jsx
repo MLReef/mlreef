@@ -1,14 +1,8 @@
 import 'babel-polyfill';
 import React from 'react';
-import Enzyme, { shallow } from 'enzyme';
+import { shallow } from 'enzyme';
 import ArrowButton from 'components/arrow-button/arrowButton';
-import EnzymeAdapter from 'enzyme-adapter-react-16';
 import SummarizedDataAndChartComp from '../components/experiments-overview/summarizedDataAndChartComp';
-
-Enzyme.configure({
-  adapter: new EnzymeAdapter(),
-  disableLifecycleMethods: true,
-});
 
 const params = {
   projectId: 12395599,

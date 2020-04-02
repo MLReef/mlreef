@@ -1,12 +1,9 @@
 import React from 'react';
-import Enzyme, { shallow } from 'enzyme';
-import Adapter from 'enzyme-adapter-react-16';
+import { shallow } from 'enzyme';
 import 'babel-polyfill';
 import JobLog from '../components/experiment-details/menu-options/jobLog';
 import { jobMock } from '../testData';
 import { getTimeCreatedAgo, parseDurationInSeconds } from '../functions/dataParserHelpers';
-
-Enzyme.configure({ adapter: new Adapter() });
 
 const setup = () => {
   const wrapper = shallow(

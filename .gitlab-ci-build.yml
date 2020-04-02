@@ -33,6 +33,7 @@ npm tests:
       # cache the node modules for the docker build
       - web/node_modules
       - web/node_modules_global
+      - web/coverage
 
 
 build frontend:

@@ -1,6 +1,5 @@
 import React from 'react';
-import Enzyme, { shallow } from 'enzyme';
-import Adapter from 'enzyme-adapter-react-16';
+import { shallow } from 'enzyme';
 import MCard from 'components/ui/MCard';
 import ExecutePipelineModal from 'components/execute-pipeline-modal/executePipeLineModal';
 import { storeFactory } from '../functions/testUtils';
@@ -11,8 +10,6 @@ import {
   projectsArrayMock,
 } from '../testData';
 import { dataPipeLines } from '../dataTypes';
-
-Enzyme.configure({ adapter: new Adapter() });
 
 const setup = () => {
   const store = storeFactory({

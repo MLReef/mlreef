@@ -1,10 +1,7 @@
 /* eslint-disable no-undef */
 import React from 'react';
-import Enzyme, { shallow } from 'enzyme';
-import Adapter from 'enzyme-adapter-react-16';
+import { shallow } from 'enzyme';
 import { Clonedropdown } from '../components/projectInfo';
-
-Enzyme.configure({ adapter: new Adapter() });
 
 const ssh = 'ssh://git@gitlab:10022/mlreef/walking-on-moon.git';
 const http = 'http://gitlab/mlreef/walking-on-moon.git';

@@ -1,14 +1,10 @@
 /* eslint-disable no-undef */
 import React from 'react';
-import 'babel-polyfill';
-import Enzyme, { shallow } from 'enzyme';
-import Adapter from 'enzyme-adapter-react-16';
+import { shallow } from 'enzyme';
 import 'babel-polyfill';
 import CommitDetails from '../components/commits-details/commitDetails';
 import { storeFactory } from '../functions/testUtils';
 import { projectsArrayMock, mockMatchDataCommitDet, imagesToRender } from '../testData';
-
-Enzyme.configure({ adapter: new Adapter() });
 
 const setup = () => {
   const store = storeFactory(projectsArrayMock);
