@@ -64,7 +64,6 @@
     "start": "react-scripts start",
     "build": "react-scripts build & jest --env=jsdom",
     "test": "jest --modulePaths=src --env=jsdom",
-    "add-version": "env REACT_APP_VERSION=$(date +%s)",
     "eject": "react-scripts eject"
   },
   "browserslist": {
