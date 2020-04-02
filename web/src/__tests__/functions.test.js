@@ -1,13 +1,6 @@
 import 'babel-polyfill';
-import { mlreefFileContent } from '../dataTypes';
-import {
-  parseMlreefConfigurationLines,
-  parseDecimal,
-} from '../functions/dataParserHelpers';
-import {
-  buildCommandLinesFromSelectedPipelines,
-  generateRealContentFromTemplate,
-} from '../functions/pipeLinesHelpers';
+import {parseDecimal, parseMlreefConfigurationLines,} from '../functions/dataParserHelpers';
+import {buildCommandLinesFromSelectedPipelines, generateRealContentFromTemplate,} from '../functions/pipeLinesHelpers';
 
 const testDataDocument = `
 ################################################################################
@@ -163,7 +156,7 @@ describe('Read mlreef file', () => {
 describe('Pipelines mlreef file generation', () => {
   test('assert that commands format is correct', () => {
     const expectedCommandsArr = [
-      '   - python /epf/pipelines/augment.py --images-path directory_1/ --iterations 2',
+        '    - python /epf/pipelines/augment.py --images-path directory_1/ --iterations 2',
     ];
     const generatedArrOfOperationCommands = buildCommandLinesFromSelectedPipelines(
       dataOperationsSelected,
@@ -178,7 +171,7 @@ describe('Pipelines mlreef file generation', () => {
 
   test('assert that content generated is replaced properly in the base mlreef file', () => {
     const expectedCommandsArr = [
-      '   - python /epf/pipelines/augment.py --images-path directory_1/ --iterations 2',
+        '    - python /epf/pipelines/augment.py --images-path directory_1/ --iterations 2',
     ];
     const httpUrlToRepo = 'http://gitlab.com/mlreef/mlreef-demo.git';
     const dataInstanceName = 'data-instance/019ead10';

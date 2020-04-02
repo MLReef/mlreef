@@ -20,70 +20,95 @@ export IMAGE_PATH=""
 export AWS_ACCESS_KEY_ID=""
 export AWS_SECRET_ACCESS_KEY=""
 export GITLAB_ADMIN_TOKEN=""
-export WORKAROUND_SLEEP="120"                               # This is a workaround variable used for deployment
+export WORKAROUND_SLEEP="120" # This is a workaround variable used for deployment
+# The Gitlab runner runtime defines how the runner manager deploys pipeline runs
+# docker: new pipeline runs are spawned as sister container to the runner manager
+# nvidia: like _docker_ with access and visibility of the GPU(s) enabled
+export RUNNER_RUNTIME="nvida"
 
-while [ -n "$1" ]; do
-  case "$1" in
-  -i | --instance) INSTANCE="$2"
-    echo "Connecting to ec2 instance $INSTANCE"            >> $LOG
-    shift ;;
-  -I | --image) IMAGE_PATH="$2"
-    echo "Using docker image: $IMAGE_PATH"                 >> $LOG
-    shift ;;
-  -p | --port) PORT="$2"
-    echo "Expecting gitlab at port $PORT"                  >> $LOG
-    shift ;;
-  -k | --key) AWS_ACCESS_KEY_ID="$2"
-    echo "Using AWS_ACCESS_KEY_ID $AWS_ACCESS_KEY_ID"      >> $LOG
-    shift ;;
-  -s | --secret) AWS_SECRET_ACCESS_KEY="$2"
-    echo "Using AWS_ACCESS_KEY_ID $AWS_SECRET_ACCESS_KEY"  >> $LOG
-    shift ;;
-  -n | --name) EC2_INSTANCE_NAME="$2"
-    echo "Using EC2_INSTANCE_NAME $EC2_INSTANCE_NAME"
-    shift ;;
-  -g | --gitlab-admin-token) GITLAB_ADMIN_TOKEN="$2"
-    echo "Using GITLAB_ADMIN_TOKEN $GITLAB_ADMIN_TOKEN"     >> $LOG
-    shift ;;
-  -w | --workaround) WORKAROUND_SLEEP="$2"
-    echo "Using WORKAROUND_SLEEP $WORKAROUND_SLEEP"          >> $LOG
-    shift ;;
-  *) echo "Option $1 not recognized" ;;
-  esac
-  shift
-done
+{
+  while [ -n "$1" ]; do
+    case "$1" in
+    -g | --gitlab-admin-token)
+      GITLAB_ADMIN_TOKEN="$2"
+      echo "Using GITLAB_ADMIN_TOKEN $GITLAB_ADMIN_TOKEN"
+      shift
+      ;;
+    -i | --instance)
+      INSTANCE="$2"
+      echo "Connecting to ec2 instance $INSTANCE"
+      shift
+      ;;
+    -I | --image)
+      IMAGE_PATH="$2"
+      echo "Using docker image: $IMAGE_PATH"
+      shift
+      ;;
+    -k | --key)
+      AWS_ACCESS_KEY_ID="$2"
+      echo "Using AWS_ACCESS_KEY_ID $AWS_ACCESS_KEY_ID"
+      shift
+      ;;
+    -p | --port)
+      PORT="$2"
+      echo "Expecting gitlab at port $PORT"
+      shift
+      ;;
+    -s | --secret)
+      AWS_SECRET_ACCESS_KEY="$2"
+      echo "Using AWS_ACCESS_KEY_ID $AWS_SECRET_ACCESS_KEY"
+      shift
+      ;;
+    -n | --name)
+      EC2_INSTANCE_NAME="$2"
+      echo "Using EC2_INSTANCE_NAME $EC2_INSTANCE_NAME"
+      shift
+      ;;
+    -r | --runtime)
+      RUNNER_RUNTIME="$2"
+      echo "Using gitlab RUNNER_RUNTIME $RUNNER_RUNTIME"
+      shift
+      ;;
+    -w | --workaround)
+      WORKAROUND_SLEEP="$2"
+      echo "Using WORKAROUND_SLEEP $WORKAROUND_SLEEP"
+      shift
+      ;;
+    *) echo "Option $1 not recognized" ;;
+    esac
+    shift
+  done
+} >>$LOG
 
 echo "Successfuly parsed parameters"
 
 if [ "$INSTANCE" = "" ]; then
-  echo "Missing instance url. Use the -i or --instance option" >> $LOG
+  echo "Missing instance url. Use the -i or --instance option" >>$LOG
   exit 1
 fi
 if [ "$IMAGE_PATH" = "" ]; then
-  echo "Missing docker image. Use the -I or --image option"    >> $LOG
+  echo "Missing docker image. Use the -I or --image option" >>$LOG
   exit 1
 fi
 if [ "$AWS_ACCESS_KEY_ID" = "" ]; then
-  echo "Missing AWS_ACCESS_KEY_ID. Use the -k or --key option" >> $LOG
+  echo "Missing AWS_ACCESS_KEY_ID. Use the -k or --key option" >>$LOG
   exit 1
 fi
 if [ "$AWS_SECRET_ACCESS_KEY" = "" ]; then
-  echo "Missing AWS_SECRET_ACCESS_KEY. Use the -s or --secret option" >> $LOG
+  echo "Missing AWS_SECRET_ACCESS_KEY. Use the -s or --secret option" >>$LOG
   exit 1
 fi
 if [ "$GITLAB_ADMIN_TOKEN" = "" ]; then
-  echo "Missing GITLAB_ADMIN_TOKEN. Use the -g or --gitlab-admin-token option" >> $LOG
+  echo "Missing GITLAB_ADMIN_TOKEN. Use the -g or --gitlab-admin-token option" >>$LOG
   exit 1
 fi
 export DISPATCHER_DESCRIPTION="Packaged Dispatcher on $CI_COMMIT_REF_SLUG-$INSTANCE"
 
-
-echo "Registering packaged runner to local Gitlab instance" >> $LOG
+echo "Registering packaged runner to local Gitlab instance" >>$LOG
 
 LINE=$(sudo cat $TOML | grep token)
-echo "The registration token is: $LINE"         >> $LOG
-rm -rf $TOML                                    >> $LOG
-
+echo "The registration token is: $LINE" >>$LOG
+rm -rf $TOML >>$LOG
 
 # Update the Runner configuration on the new instance.
 # https://docs.gitlab.com/runner/configuration/advanced-configuration.html#volumes-in-the-runnersdocker-section
@@ -101,6 +126,7 @@ $LINE
   executor = "docker"
   [runners.docker]
     image = "alpine:latest"
+    runtime = "$RUNNER_RUNTIME"
     tls_verify = false
     privileged = true
     disable_cache = false
@@ -114,7 +140,6 @@ $LINE
     BucketLocation = "eu-central-1"
 
 EOF
-
 
 # Just a copy of the multi runner configuration to be able to play with it
 echo | sudo tee "$TOML.multi-runner" <<EOF
@@ -176,11 +201,12 @@ if [ "$GITLAB_ADMIN_TOKEN" = "" ]; then
 fi
 
 echo "# generated by deploy.sh" > local.env
-echo GITLAB_SECRETS_SECRET_KEY_BASE=$GITLAB_SECRETS_SECRET_KEY_BASE >> local.env
-echo GITLAB_SECRETS_OTP_KEY_BASE=$GITLAB_SECRETS_OTP_KEY_BASE >> local.env
-echo GITLAB_SECRETS_DB_KEY_BASE=$GITLAB_SECRETS_DB_KEY_BASE >> local.env
-echo GITLAB_ADMIN_TOKEN=$GITLAB_ADMIN_TOKEN >> local.env
-
+{
+  echo GITLAB_SECRETS_SECRET_KEY_BASE=$GITLAB_SECRETS_SECRET_KEY_BASE
+  echo GITLAB_SECRETS_OTP_KEY_BASE=$GITLAB_SECRETS_OTP_KEY_BASE
+  echo GITLAB_SECRETS_DB_KEY_BASE=$GITLAB_SECRETS_DB_KEY_BASE
+  echo GITLAB_ADMIN_TOKEN=$GITLAB_ADMIN_TOKEN
+} >>local.env
 
 docker-compose stop
 
@@ -199,6 +225,5 @@ sleep "30"
 
 docker-compose stop backend
 sleep "30"
-
 
 docker-compose up --detach

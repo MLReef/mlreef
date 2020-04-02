@@ -21,6 +21,8 @@ npm tests:
     - npm test
     - cp -r /usr/local/lib/node_modules node_modules_global
   after_script:
+    - npm view react-scripts version
+    - npm view create-react-app version
     - ls -al web/
     - ls -al web/node_modules
     - ls -al web/node_modules_global
