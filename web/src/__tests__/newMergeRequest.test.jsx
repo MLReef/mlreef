@@ -1,12 +1,9 @@
 /* eslint-disable no-undef */
 import React from 'react';
-import Enzyme, { shallow } from 'enzyme';
-import Adapter from 'enzyme-adapter-react-16';
+import { shallow } from 'enzyme';
 import NewMergeRequest from '../components/new-merge-request/newMergeRequest';
 import { projectsArrayMock, imagesToRender } from '../testData';
 import { storeFactory } from '../functions/testUtils';
-
-Enzyme.configure({ adapter: new Adapter() });
 
 const match = {
   path: '/my-projects/:projectId/:branch/new-merge-request',

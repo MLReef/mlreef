@@ -1,13 +1,10 @@
 import React from 'react';
-import Enzyme, { shallow } from 'enzyme';
-import Adapter from 'enzyme-adapter-react-16';
+import { shallow } from 'enzyme';
 import 'babel-polyfill';
 
 import { storeFactory } from '../functions/testUtils';
 import { projectsArrayMock, mockMergeRequests } from '../testData';
 import MergeRequestOverview from '../components/new-merge-request/merge-request-overview';
-
-Enzyme.configure({ adapter: new Adapter() });
 
 const setup = () => {
   const store = storeFactory({

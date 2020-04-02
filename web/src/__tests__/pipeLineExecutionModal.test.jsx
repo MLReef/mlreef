@@ -1,10 +1,7 @@
 /* eslint-disable no-undef */
 import React from 'react';
-import Enzyme, { mount } from 'enzyme';
-import Adapter from 'enzyme-adapter-react-16';
+import { mount } from 'enzyme';
 import ExecutePipeLineModal from '../components/execute-pipeline-modal/executePipeLineModal';
-
-Enzyme.configure({ adapter: new Adapter() });
 
 const wrapper = mount(
   <ExecutePipeLineModal isShowing toggle={() => { }} amountFilesSelected={3} dataInstanceName="experiment-weird-exp" />,

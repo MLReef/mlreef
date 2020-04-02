@@ -1,15 +1,11 @@
 import React from 'react';
-import 'babel-polyfill';
-import Enzyme, { shallow, mount } from 'enzyme';
+import { shallow, mount } from 'enzyme';
 import { BrowserRouter as Router } from 'react-router-dom';
-import Adapter from 'enzyme-adapter-react-16';
 import 'babel-polyfill';
 import { Provider } from 'react-redux';
 import { storeFactory } from '../functions/testUtils';
 import DataInstanceOverview from '../components/data-instance/dataInstanceOverview';
 import { projectsArrayMock, branchesMock } from '../testData';
-
-Enzyme.configure({ adapter: new Adapter() });
 
 const store = storeFactory({
   projects: projectsArrayMock.projects,

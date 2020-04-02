@@ -1,13 +1,7 @@
 /* eslint-disable no-undef */
 import React from 'react';
-import Enzyme, { shallow } from 'enzyme';
-import EnzymeAdapter from 'enzyme-adapter-react-16';
+import { shallow } from 'enzyme';
 import DeleteFileModal from '../components/delete-file-modal/deleteFileModal';
-
-Enzyme.configure({
-  adapter: new EnzymeAdapter(),
-  disableLifecycleMethods: true,
-});
 
 const setup = (isModalVisible) => shallow(
   <DeleteFileModal
