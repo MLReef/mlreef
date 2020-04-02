@@ -25,34 +25,33 @@ variables:
 
 
 # The before_script handles everything git related and sets up the automatic committing
-before_script:
-  - git remote set-url origin http://$GIT_PUSH_USER:$GIT_PUSH_TOKEN@#repo-url
-  - git config --global user.email "$GIT_USER_EMAIL"
-  - git config --global user.name "$GIT_PUSH_USER"
-  - export GITLAB_API_TOKEN="$GIT_PUSH_TOKEN"
-  - export CI_COMMIT_REF_SLUG="\${CI_COMMIT_REF_SLUG}"
-  - export CI_PROJECT_ID="\${CI_PROJECT_ID}"
-  - export TARGET_BRANCH=$CI_COMMIT_REF_NAME
-  - git checkout $CI_COMMIT_REF_NAME
-  - background-push &
-  - echo \${CI_JOB_ID} >> data_pipeline.info
+#before_script:
+#  - git remote set-url origin http://$GIT_PUSH_USER:$GIT_PUSH_TOKEN@#repo-url
+#  - git config --global user.email "$GIT_USER_EMAIL"
+#  - git config --global user.name "$GIT_PUSH_USER"
+#  - export GITLAB_API_TOKEN="$GIT_PUSH_TOKEN"
+#  - export CI_COMMIT_REF_SLUG="\${CI_COMMIT_REF_SLUG}"
+#  - export CI_PROJECT_ID="\${CI_PROJECT_ID}"
+#  - export TARGET_BRANCH=$CI_COMMIT_REF_NAME
+#  - git checkout $CI_COMMIT_REF_NAME
+#  - background-push &
+#  - echo \${CI_JOB_ID} >> data_pipeline.info
 
-
-after_script:
-   - git add .
-   - git status
-   - git commit -m "Add pipeline results [skip ci]"
-   - git push --set-upstream origin $CI_COMMIT_REF_NAME
-   - git push
+#after_script:
+#   - git add .
+#   - git status
+#   - git commit -m "Add pipeline results [skip ci]"
+#   - git push --set-upstream origin $CI_COMMIT_REF_NAME
+#   - git push
 
 
 #pipeline-operation-script-name:
-  script:
-    #replace-here-the-lines
-    echo super-andres          >> amigo.txt
   artifacts:
     paths:
       - amigo.txt
+  script:
+    - echo "Uploading Artifacts Works" >> amigo.txt
+#pipeline-script
 `;
 
 export const colorsForCharts = [

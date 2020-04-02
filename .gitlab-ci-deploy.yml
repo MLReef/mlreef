@@ -53,11 +53,11 @@
       sudo docker login ${DOCKER_REGISTRY} -u \"${DOCKER_USER}\" -p \"${DOCKER_PASSWORD}\"
       "
 
-# Development deployment has been temporarily changed to 
-#develop deploy:
-#  extends: .deploy-base
-#  only:
-#    refs: [develop, master]
+deploy develop branch:
+  extends: .deploy-base
+  only:
+    refs: [develop, master]
+  #  Development deployment has been temporarily changed to the old style
 #  script: ssh -i $SSH_KEYFILE -o 'AddKeysToAgent yes' ubuntu@"${URL}" "
 #    export DOCKER_ENV="test.env"                                     &&
 #    echo GITLAB_ADMIN_TOKEN=$GITLAB_ADMIN_TOKEN >> $DOCKER_ENV       &&
@@ -65,9 +65,6 @@
 #    sudo docker-compose up --detach                                  &&
 #    sudo docker system prune --force
 #    "
-
-feature branch deploy:
-  extends: [".deploy-base", ".feature-branches-only"]
   script: ssh -i $SSH_KEYFILE -o 'AddKeysToAgent yes' ubuntu@"${URL}" "
     sudo $DEPLOY_SCRIPT
     --instance $URL
@@ -76,5 +73,24 @@ feature branch deploy:
     --key $AWS_ACCESS_KEY_ID
     --secret $AWS_SECRET_ACCESS_KEY
     --gitlab-admin-token $GITLAB_ADMIN_TOKEN
+    --runtime nvidia
+    --workaround 120
+    "
+
+deploy feature branch:
+  extends: [".deploy-base", ".feature-branches-only"]
+  except:
+    refs:
+      - develop
+      - master
+  script: ssh -i $SSH_KEYFILE -o 'AddKeysToAgent yes' ubuntu@"${URL}" "
+    sudo $DEPLOY_SCRIPT
+    --instance $URL
+    --image $FRONTEND_IMAGE_PATH
+    --port $GITLAB_PORT
+    --key $AWS_ACCESS_KEY_ID
+    --secret $AWS_SECRET_ACCESS_KEY
+    --gitlab-admin-token $GITLAB_ADMIN_TOKEN
+    --runtime docker
     --workaround 120
     "

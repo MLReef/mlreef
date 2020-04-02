@@ -1,19 +1,19 @@
-import { toastr } from 'react-redux-toastr';
+import {toastr} from 'react-redux-toastr';
 import {
   Adjectives,
   BOOL,
+  CANCELED,
+  EXPIRED,
+  FAILED,
   mlreefFileContent,
   Nouns,
-  RUNNING,
-  SUCCESS,
-  CANCELED,
-  FAILED,
   PENDING,
+  RUNNING,
   SKIPPED,
-  EXPIRED,
+  SUCCESS,
 } from '../dataTypes';
 import branchesApi from '../apis/BranchesApi';
-import { callToCommitApi } from './apiCalls';
+import {callToCommitApi} from './apiCalls';
 
 /**
  * @method addFilesSelectedInModal: This funtion is to add folders and files to the command
@@ -72,7 +72,7 @@ export const buildCommandLinesFromSelectedPipelines = (
   filesSelectedInModal,
   path,
 ) => dataOperationsSelected.map((dataOperation) => {
-  let line = `   - python ${path}/${dataOperation.command}.py --images-path#directoriesAndFiles`;
+  let line = `    - python ${path}/${dataOperation.command}.py --images-path#directoriesAndFiles`;
   dataOperation.inputValuesAndDataModels.forEach((input) => {
     line = line.concat(` --${input.inputDataModel.commandName} ${input.value}`);
   });
@@ -86,7 +86,7 @@ export const generateRealContentFromTemplate = (
   httpUrlToRepo,
   pipelineOpScriptName,
 ) => mlreefFileContent
-  .replace(/#replace-here-the-lines/g,
+  .replace(/#pipeline-script/g,
     pipeLineOperationCommands
       .toString()
       .replace(/,/g, '\n'))
