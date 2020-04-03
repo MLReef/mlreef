@@ -17,7 +17,7 @@ export class FileView extends React.Component {
   constructor(props) {
     super(props);
     const { projects } = this.props;
-    const { match: { params: { projectId, file, branch } } } = this.props;
+
     this.state = {
       project: projects && projects.selectedProject,
       committer: [],
@@ -26,6 +26,10 @@ export class FileView extends React.Component {
     };
 
     this.showDeleteModal = this.showDeleteModal.bind(this);
+  }
+
+  componentDidMount() {
+    const { match: { params: { projectId, file, branch } } } = this.props;
 
     filesApi.getFileData(
       projectId,
@@ -33,6 +37,12 @@ export class FileView extends React.Component {
       branch,
     ).then((res) => this.setState({ fileData: res }))
       .catch((err) => toastr.error('Error: ', err.message));
+  }
+
+  componentDidUpdate(_, { fileData }) {
+    const { fileData: currentFileData } = this.state;
+
+    if (currentFileData !== fileData) this.getCommit();
   }
 
   componentWillUnmount() {
@@ -79,7 +89,6 @@ export class FileView extends React.Component {
     }
 
     if (fileData) {
-      this.getCommit();
       fileName = fileData.file_name;
       fileSize = fileData.size;
       fileContent = Base64.decode(fileData.content).split('\n');
