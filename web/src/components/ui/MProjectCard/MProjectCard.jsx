@@ -11,6 +11,7 @@ const MProjectCard = ({
   branch,
   starCount,
   forkCount,
+  namespace,
 }) => {
   const [avatars, setAvatars] = useState([]);
   const mainDiv = React.useRef(false);
@@ -39,6 +40,15 @@ const MProjectCard = ({
           <p className="card-title">
             {title}
           </p>
+          <br />
+          {namespace && (
+            <div className="d-flex" style={{ alignItems: 'center' }}>
+              <div className="avatar-container" style={{ marginRight: '0.5rem' }}>
+                <img src={namespace.avatar_url} alt="" style={{ width: 'inherit' }}/>
+              </div>
+              <p style={{ margin: 0 }}>{namespace.name}</p>
+            </div>
+          )}
           <div className="card-content">
             <div className="d-flex">
               <div className="mr-2">

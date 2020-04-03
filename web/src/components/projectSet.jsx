@@ -46,6 +46,7 @@ class ProjectSet extends React.Component {
             description={proj.description}
             starCount={proj.star_count}
             forkCount={proj.forks_count}
+            namespace={proj.namespace}
             updatedAt={proj.last_activity_at}
             projects={allProjects}
             handleShowModal={handleShowModal}
