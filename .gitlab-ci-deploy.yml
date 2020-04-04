@@ -91,6 +91,5 @@ deploy feature branch:
     --key $AWS_ACCESS_KEY_ID
     --secret $AWS_SECRET_ACCESS_KEY
     --gitlab-admin-token $GITLAB_ADMIN_TOKEN
-    --runtime docker
     --workaround 120
     "

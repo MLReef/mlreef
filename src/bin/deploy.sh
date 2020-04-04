@@ -22,9 +22,9 @@ export AWS_SECRET_ACCESS_KEY=""
 export GITLAB_ADMIN_TOKEN=""
 export WORKAROUND_SLEEP="120" # This is a workaround variable used for deployment
 # The Gitlab runner runtime defines how the runner manager deploys pipeline runs
-# docker: new pipeline runs are spawned as sister container to the runner manager
-# nvidia: like _docker_ with access and visibility of the GPU(s) enabled
-export RUNNER_RUNTIME="nvida"
+# _empty_: the default mode; new pipeline runs are spawned normally as sister-container to the runner manager
+# nvidia: like default, additionally with visibility of and access to the GPU(s) enabled
+export RUNNER_RUNTIME=""
 
 {
   while [ -n "$1" ]; do
