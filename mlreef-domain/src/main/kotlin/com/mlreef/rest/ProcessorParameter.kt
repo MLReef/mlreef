@@ -1,6 +1,6 @@
 package com.mlreef.rest
 
-import java.util.UUID
+import java.util.*
 import javax.persistence.Column
 import javax.persistence.Entity
 import javax.persistence.EnumType
@@ -64,5 +64,15 @@ enum class ParameterType {
     TUPLE,
     DICTIONARY,
     OBJECT,
-    UNDEFINED
+    UNDEFINED;
+
+    companion object {
+        fun fromValue(value: String): ParameterType {
+            val list = values().filter { value.equals(it.name, ignoreCase = true) }
+            return when {
+                list.isEmpty() -> throw IllegalArgumentException("Value not found")
+                else -> list.first()
+            }
+        }
+    }
 }

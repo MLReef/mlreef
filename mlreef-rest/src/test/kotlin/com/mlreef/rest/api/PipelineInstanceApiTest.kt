@@ -21,7 +21,7 @@ import org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.*
 import org.springframework.restdocs.payload.FieldDescriptor
 import org.springframework.restdocs.payload.JsonFieldType
-import org.springframework.restdocs.payload.PayloadDocumentation
+import org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath
 import org.springframework.restdocs.payload.PayloadDocumentation.responseFields
 import org.springframework.test.annotation.Rollback
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
@@ -73,7 +73,7 @@ class PipelineInstanceApiTest : RestApiTest() {
             .andDo(document(
                 "pipelineinstance-retrieve-all",
                 responseFields(pipelineInstanceDtoResponseFields("[]."))
-                    .and(dataProcessorFields("[].data_operations[]."))))
+                    .and(dataProcessorInstanceFields("[].data_operations[]."))))
             .andReturn().let {
                 val constructCollectionType = objectMapper.typeFactory.constructCollectionType(List::class.java, PipelineInstanceDto::class.java)
                 objectMapper.readValue(it.response.contentAsByteArray, constructCollectionType)
@@ -109,14 +109,13 @@ class PipelineInstanceApiTest : RestApiTest() {
         val dataProcessorInstance = createDataProcessorInstance()
         val pipelineConfig = createPipelineConfig(dataProcessorInstance, dataProject.id, "slug1")
 
-
         val pipelineInstanceDto = this.mockMvc.perform(
             this.defaultAcceptContentAuth(post("$rootUrl/${pipelineConfig.id}/instances/")))
             .andExpect(status().isOk)
             .andDo(document(
                 "pipelineinstance-create-success",
                 responseFields(pipelineInstanceDtoResponseFields())
-                    .and(dataProcessorFields("data_operations[]."))))
+                    .and(dataProcessorInstanceFields("data_operations[]."))))
             .andReturn().let {
                 objectMapper.readValue(it.response.contentAsByteArray, PipelineInstanceDto::class.java)
             }
@@ -138,7 +137,7 @@ class PipelineInstanceApiTest : RestApiTest() {
             .andDo(document(
                 "pipelineinstance-retrieve-one",
                 responseFields(pipelineInstanceDtoResponseFields())
-                    .and(dataProcessorFields("data_operations[]."))))
+                    .and(dataProcessorInstanceFields("data_operations[]."))))
 
     }
 
@@ -157,7 +156,7 @@ class PipelineInstanceApiTest : RestApiTest() {
             .andDo(document(
                 "pipelineinstance-update-success",
                 responseFields(pipelineInstanceDtoResponseFields())
-                    .and(dataProcessorFields("data_operations[]."))))
+                    .and(dataProcessorInstanceFields("data_operations[]."))))
 
     }
 
@@ -196,21 +195,21 @@ class PipelineInstanceApiTest : RestApiTest() {
 
 internal fun pipelineInstanceDtoResponseFields(prefix: String = ""): List<FieldDescriptor> {
     return listOf(
-        PayloadDocumentation.fieldWithPath(prefix + "id").type(JsonFieldType.STRING).description("UUID"),
-        PayloadDocumentation.fieldWithPath(prefix + "pipeline_type").type(JsonFieldType.STRING).description("Type of this Pipeline, can be DATA or VISUALISATION"),
-        PayloadDocumentation.fieldWithPath(prefix + "slug").type(JsonFieldType.STRING).description("Unique slug of this PipelineConfig"),
-        PayloadDocumentation.fieldWithPath(prefix + "name").type(JsonFieldType.STRING).description("Name of this PipelineConfig"),
-        PayloadDocumentation.fieldWithPath(prefix + "input_files").type(JsonFieldType.ARRAY).optional().description("FileLocation used as input files"),
-        PayloadDocumentation.fieldWithPath(prefix + "input_files[].location").type(JsonFieldType.STRING).optional().description("FileLocation path or url"),
-        PayloadDocumentation.fieldWithPath(prefix + "input_files[].location_type").type(JsonFieldType.STRING).optional().description("FileLocationType: AWS, URL, or PATH (default)"),
-        PayloadDocumentation.fieldWithPath(prefix + "data_project_id").type(JsonFieldType.STRING).description("Id of DataProject"),
-        PayloadDocumentation.fieldWithPath(prefix + "pipeline_config_id").type(JsonFieldType.STRING).description("Id of PipelineConfig"),
-        PayloadDocumentation.fieldWithPath(prefix + "pipeline").optional().type(JsonFieldType.ARRAY).optional().description("An optional List of DataProcessors used during PreProcessing"),
-        PayloadDocumentation.fieldWithPath(prefix + "source_branch").type(JsonFieldType.STRING).description("Source branch name"),
-        PayloadDocumentation.fieldWithPath(prefix + "target_branch").type(JsonFieldType.STRING).description("Target branch name"),
-        PayloadDocumentation.fieldWithPath(prefix + "number").type(JsonFieldType.NUMBER).description("Local unique number of this Instance, represents the number of created instances"),
-        PayloadDocumentation.fieldWithPath(prefix + "commit").optional().type(JsonFieldType.STRING).description("Optional commit ref of first Pipeline commit (mlreef.yml)"),
-        PayloadDocumentation.fieldWithPath(prefix + "status").type(JsonFieldType.STRING).description("PipelineStatus of this PipelineInstance: CREATED, PENDING, RUNNING, SKIPPED, SUCCESS, FAILED, CANCELED, ARCHIVED ")
+        fieldWithPath(prefix + "id").type(JsonFieldType.STRING).description("UUID"),
+        fieldWithPath(prefix + "pipeline_type").type(JsonFieldType.STRING).description("Type of this Pipeline, can be DATA or VISUALISATION"),
+        fieldWithPath(prefix + "slug").type(JsonFieldType.STRING).description("Unique slug of this PipelineConfig"),
+        fieldWithPath(prefix + "name").type(JsonFieldType.STRING).description("Name of this PipelineConfig"),
+        fieldWithPath(prefix + "input_files").type(JsonFieldType.ARRAY).optional().description("FileLocation used as input files"),
+        fieldWithPath(prefix + "input_files[].location").type(JsonFieldType.STRING).optional().description("FileLocation path or url"),
+        fieldWithPath(prefix + "input_files[].location_type").type(JsonFieldType.STRING).optional().description("FileLocationType: AWS, URL, or PATH (default)"),
+        fieldWithPath(prefix + "data_project_id").type(JsonFieldType.STRING).description("Id of DataProject"),
+        fieldWithPath(prefix + "pipeline_config_id").type(JsonFieldType.STRING).description("Id of PipelineConfig"),
+        fieldWithPath(prefix + "pipeline").optional().type(JsonFieldType.ARRAY).optional().description("An optional List of DataProcessors used during PreProcessing"),
+        fieldWithPath(prefix + "source_branch").type(JsonFieldType.STRING).description("Source branch name"),
+        fieldWithPath(prefix + "target_branch").type(JsonFieldType.STRING).description("Target branch name"),
+        fieldWithPath(prefix + "number").type(JsonFieldType.NUMBER).description("Local unique number of this Instance, represents the number of created instances"),
+        fieldWithPath(prefix + "commit").optional().type(JsonFieldType.STRING).description("Optional commit ref of first Pipeline commit (mlreef.yml)"),
+        fieldWithPath(prefix + "status").type(JsonFieldType.STRING).description("PipelineStatus of this PipelineInstance: CREATED, PENDING, RUNNING, SKIPPED, SUCCESS, FAILED, CANCELED, ARCHIVED ")
     )
 }
 

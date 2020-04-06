@@ -8,6 +8,8 @@ import javax.persistence.CascadeType
 import javax.persistence.Column
 import javax.persistence.Embedded
 import javax.persistence.Entity
+import javax.persistence.EnumType
+import javax.persistence.Enumerated
 import javax.persistence.FetchType
 import javax.persistence.Id
 import javax.persistence.JoinColumn
@@ -35,6 +37,9 @@ data class DataProcessorInstance(
     val slug: String = dataProcessor.slug,
     val name: String = dataProcessor.name,
     val command: String = dataProcessor.command,
+    @Enumerated(EnumType.STRING)
+    @Column(name = "processor_type", updatable = false)
+    val type: DataProcessorType = dataProcessor.type,
     @Embedded
     @Column(name = "metric_schema_")
     val metricSchema: MetricSchema = dataProcessor.metricSchema,

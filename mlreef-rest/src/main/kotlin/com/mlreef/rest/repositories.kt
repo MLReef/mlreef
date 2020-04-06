@@ -56,6 +56,14 @@ interface CodeProjectRepository : KtCrudRepository<CodeProject, UUID> {
 @Repository
 interface DataProcessorRepository : KtCrudRepository<DataProcessor, UUID> {
     fun findBySlug(processorSlug: String): DataProcessor?
+    fun findOneByAuthorIdAndId(ownerId: UUID, id: UUID): DataProcessor?
+    fun findAllByTypeAndInputDataTypeAndOutputDataType(
+        type: DataProcessorType?,
+        inputDataType: DataType?,
+        outputDataType: DataType?): List<DataProcessor>
+
+    fun findAllByType(type: DataProcessorType): List<DataProcessor>
+    fun findAllByCodeProjectId(codeProjectId: UUID): List<DataProcessor>
 }
 
 @Repository interface DataOperationRepository : KtCrudRepository<DataOperation, UUID>

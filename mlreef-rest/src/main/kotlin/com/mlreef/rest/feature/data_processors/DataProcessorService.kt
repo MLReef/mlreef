@@ -1,15 +1,24 @@
 package com.mlreef.rest.feature.data_processors
 
 import com.mlreef.parsing.MLPython3Parser
+import com.mlreef.rest.DataAlgorithm
+import com.mlreef.rest.DataOperation
 import com.mlreef.rest.DataProcessor
 import com.mlreef.rest.DataProcessorRepository
+import com.mlreef.rest.DataProcessorType
+import com.mlreef.rest.DataProcessorType.*
+import com.mlreef.rest.DataType
+import com.mlreef.rest.DataVisualization
 import com.mlreef.rest.MetricSchema
 import com.mlreef.rest.MetricType
 import com.mlreef.rest.ProcessorParameter
+import com.mlreef.rest.Subject
+import com.mlreef.rest.VisibilityScope
 import lombok.RequiredArgsConstructor
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import java.net.URL
+import java.util.*
 
 @Service
 @RequiredArgsConstructor
@@ -57,5 +66,39 @@ class DataProcessorService(
         val dataProcessor = this.parsePythonFile(url)
             ?: throw IllegalArgumentException("Could not find a DataProcessor at this url")
         return dataProcessorRepository.save(dataProcessor)
+    }
+
+    fun createForCodeProject(
+        id: UUID,
+        codeProjectId: UUID,
+        slug: String,
+        name: String,
+        inputDataType: DataType,
+        outputDataType: DataType,
+        type: DataProcessorType,
+        visibilityScope: VisibilityScope = VisibilityScope.PUBLIC,
+        description: String = "",
+        command: String = "",
+        author: Subject?,
+        parameters: List<ProcessorParameter> = arrayListOf()
+    ): DataProcessor {
+
+        log.info("Creating new DataProcessors with slug $slug for $codeProjectId")
+        val findBySlug = dataProcessorRepository.findBySlug(slug)
+        if (findBySlug != null) {
+            if (findBySlug.codeProjectId != codeProjectId) {
+                log.warn("DataProcessors slug exists, but not in this CodeProject")
+            } else {
+                throw IllegalArgumentException("DataProcessors slug exists in this CodeProject")
+            }
+        }
+
+        val newProcessor = when (type) {
+            ALGORITHM -> DataAlgorithm(id, slug, name, command, inputDataType, outputDataType, visibilityScope, description, author, codeProjectId, parameters)
+            OPERATION -> DataOperation(id, slug, name, command, inputDataType, outputDataType, visibilityScope, description, author, codeProjectId, parameters)
+            VISUALISATION -> DataVisualization(id, slug, name, command, inputDataType, visibilityScope, description, author, codeProjectId, parameters)
+        }
+
+        return dataProcessorRepository.save(newProcessor)
     }
 }

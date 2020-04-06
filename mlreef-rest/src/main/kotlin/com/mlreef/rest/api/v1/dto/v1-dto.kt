@@ -3,15 +3,19 @@ package com.mlreef.rest.api.v1.dto
 import com.mlreef.rest.CodeProject
 import com.mlreef.rest.DataProcessor
 import com.mlreef.rest.DataProcessorInstance
+import com.mlreef.rest.DataProcessorType
 import com.mlreef.rest.DataProject
+import com.mlreef.rest.DataType
 import com.mlreef.rest.Experiment
 import com.mlreef.rest.FileLocation
 import com.mlreef.rest.I18N
+import com.mlreef.rest.MetricType
 import com.mlreef.rest.ParameterInstance
 import com.mlreef.rest.PerformanceMetrics
 import com.mlreef.rest.PipelineConfig
 import com.mlreef.rest.PipelineInstance
 import com.mlreef.rest.ProcessorParameter
+import com.mlreef.rest.VisibilityScope
 import com.mlreef.rest.config.censor
 import com.mlreef.rest.exceptions.RestException
 import com.mlreef.rest.exceptions.ValidationException
@@ -86,7 +90,11 @@ data class RegisterRequest(
 
 data class ParameterDto(
     @get:NotEmpty val name: String,
-    @get:NotEmpty val type: String
+    @get:NotEmpty val type: String,
+    @get:NotEmpty val required: Boolean = true,
+    val order: Int?,
+    val defaultValue: String = "",
+    val description: String? = null
 )
 
 data class ParameterInstanceDto(
@@ -98,7 +106,18 @@ data class ParameterInstanceDto(
 )
 
 data class DataProcessorDto(
-    @get:Valid val parameters: List<ParameterDto> = arrayListOf()
+    val id: UUID,
+    val slug: String,
+    val name: String? = null,
+    val inputDataType: DataType,
+    val outputDataType: DataType,
+    val type: DataProcessorType,
+    val visibilityScope: VisibilityScope,
+    val description: String,
+    val codeProjectId: UUID?,
+    val authorId: UUID?,
+    val metricType: MetricType,
+    val parameters: List<ParameterDto> = arrayListOf()
 )
 
 data class DataProcessorInstanceDto(
@@ -212,8 +231,8 @@ internal fun Experiment.toDto(): ExperimentDto =
         targetBranch = this.targetBranch,
         status = this.status.name,
         performanceMetrics = this.performanceMetrics.toDto(),
-        preProcessing = this.preProcessing.toDataProcessorInstanceDtoList(),
-        postProcessing = this.postProcessing.toDataProcessorInstanceDtoList(),
+        preProcessing = this.preProcessing.map(DataProcessorInstance::toDto),
+        postProcessing = this.postProcessing.map(DataProcessorInstance::toDto),
         processing = this.getProcessor()?.toDto()
     )
 
@@ -235,8 +254,8 @@ internal fun PipelineConfig.toDto(): PipelineConfigDto =
         dataProjectId = this.dataProjectId,
         sourceBranch = this.sourceBranch,
         targetBranchPattern = this.targetBranchPattern,
-        inputFiles = this.inputFiles.toFileLocationDtoList(),
-        dataOperations = this.dataOperations.toDataProcessorInstanceDtoList()
+        inputFiles = this.inputFiles.map(FileLocation::toDto),
+        dataOperations = this.dataOperations.map(DataProcessorInstance::toDto)
     )
 
 internal fun PipelineInstance.toDto(): PipelineInstanceDto =
@@ -249,8 +268,8 @@ internal fun PipelineInstance.toDto(): PipelineInstanceDto =
         pipelineType = this.pipelineType.name,
         sourceBranch = this.sourceBranch,
         targetBranch = this.targetBranch,
-        inputFiles = this.inputFiles.toFileLocationDtoList(),
-        dataOperations = this.dataOperations.toDataProcessorInstanceDtoList(),
+        inputFiles = this.inputFiles.map(FileLocation::toDto),
+        dataOperations = this.dataOperations.map(DataProcessorInstance::toDto),
         number = this.number,
         commit = this.commit,
         status = this.status.name
@@ -265,7 +284,7 @@ internal fun FileLocation.toDto(): FileLocationDto =
 internal fun DataProcessorInstance.toDto(): DataProcessorInstanceDto =
     DataProcessorInstanceDto(
         this.slug,
-        this.parameterInstances.toParameterInstanceDtoList(),
+        this.parameterInstances.map(ParameterInstance::toDto),
         this.name
     )
 
@@ -277,22 +296,30 @@ internal fun ParameterInstance.toDto(): ParameterInstanceDto =
     )
 
 internal fun DataProcessor.toDto(): DataProcessorDto =
-    DataProcessorDto(this.parameters.toProcessorParameterDtoList())
+    DataProcessorDto(
+        id = this.id,
+        slug = this.slug,
+        name = this.name,
+        description = this.description,
+        type = this.type,
+        metricType = metricSchema.metricType,
+        authorId = this.author?.id,
+        inputDataType = this.inputDataType,
+        outputDataType = this.outputDataType,
+        visibilityScope = this.visibilityScope,
+        codeProjectId = this.codeProjectId,
+        parameters = this.parameters.map(ProcessorParameter::toDto)
+    )
 
 
 internal fun ProcessorParameter.toDto(): ParameterDto =
-    ParameterDto(this.name, this.type.name)
+    ParameterDto(
+        name = this.name,
+        type = this.type.name,
+        required = this.required,
+        defaultValue = this.defaultValue,
+        order = this.order,
+        description = this.description
+    )
 
 
-internal fun List<Experiment>.toExperimentDtoList(): List<ExperimentDto> = this.map { it.toDto() }
-internal fun List<PipelineConfig>.toPipelineConfigDtoList(): List<PipelineConfigDto> = this.map { it.toDto() }
-internal fun List<PipelineInstance>.toPipelineInstanceDtoList(): List<PipelineInstanceDto> = this.map { it.toDto() }
-internal fun List<DataProject>.toDataProjectDtoList(): List<DataProjectDto> = this.map { it.toDto() }
-internal fun List<CodeProject>.toCodeProjectDtoList(): List<CodeProjectDto> = this.map { it.toDto() }
-internal fun List<ParameterInstance>.toParameterInstanceDtoList(): List<ParameterInstanceDto> = this.map { it.toDto() }
-internal fun Collection<ProcessorParameter>.toProcessorParameterDtoList(): List<ParameterDto> = this.map { it.toDto() }
-
-internal fun List<DataProcessor>.toDataProcessorDtoList(): List<DataProcessorDto> = this.map { it.toDto() }
-internal fun List<DataProcessorInstance>.toDataProcessorInstanceDtoList(): List<DataProcessorInstanceDto> = this.map { it.toDto() }
-
-internal fun List<FileLocation>.toFileLocationDtoList(): List<FileLocationDto> = this.map { it.toDto() }

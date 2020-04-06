@@ -78,6 +78,8 @@ abstract class DataProcessor(
     val inputDataType: DataType,
     @Enumerated(EnumType.STRING)
     val outputDataType: DataType,
+    @Enumerated(EnumType.STRING)
+    @Column(name = "PROCESSOR_TYPE", insertable = false, updatable = false)
     val type: DataProcessorType,
     @Enumerated(EnumType.STRING)
     val visibilityScope: VisibilityScope,

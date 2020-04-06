@@ -11,7 +11,6 @@ import com.mlreef.rest.api.v1.dto.DataProcessorInstanceDto
 import com.mlreef.rest.api.v1.dto.ExperimentDto
 import com.mlreef.rest.api.v1.dto.PerformanceMetricsDto
 import com.mlreef.rest.api.v1.dto.toDto
-import com.mlreef.rest.api.v1.dto.toExperimentDtoList
 import com.mlreef.rest.exceptions.ExperimentUpdateException
 import com.mlreef.rest.exceptions.NotFoundException
 import com.mlreef.rest.feature.experiment.ExperimentService
@@ -63,7 +62,7 @@ class ExperimentsController(
     fun getAllExperiments(@PathVariable dataProjectId: UUID): List<ExperimentDto> {
         beforeGetDataProject(dataProjectId)
         val experiments: List<Experiment> = experimentRepo.findAllByDataProjectId(dataProjectId).toList()
-        return experiments.toExperimentDtoList()
+        return experiments.map(Experiment::toDto)
     }
 
     @GetMapping("/{id}")

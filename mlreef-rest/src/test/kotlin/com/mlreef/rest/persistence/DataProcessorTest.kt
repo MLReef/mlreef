@@ -3,6 +3,7 @@ package com.mlreef.rest.persistence
 import com.mlreef.rest.DataOperation
 import com.mlreef.rest.DataProcessor
 import com.mlreef.rest.DataProcessorRepository
+import com.mlreef.rest.DataProcessorType
 import com.mlreef.rest.DataType
 import com.mlreef.rest.Person
 import com.mlreef.rest.VisibilityScope

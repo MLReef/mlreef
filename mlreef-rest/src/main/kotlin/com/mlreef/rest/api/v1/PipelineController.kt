@@ -3,13 +3,12 @@ package com.mlreef.rest.api.v1
 import com.mlreef.rest.DataProjectRepository
 import com.mlreef.rest.PipelineConfig
 import com.mlreef.rest.PipelineConfigRepository
+import com.mlreef.rest.PipelineInstance
 import com.mlreef.rest.PipelineInstanceRepository
 import com.mlreef.rest.api.CurrentUserService
 import com.mlreef.rest.api.v1.dto.PipelineConfigDto
 import com.mlreef.rest.api.v1.dto.PipelineInstanceDto
 import com.mlreef.rest.api.v1.dto.toDto
-import com.mlreef.rest.api.v1.dto.toPipelineConfigDtoList
-import com.mlreef.rest.api.v1.dto.toPipelineInstanceDtoList
 import com.mlreef.rest.exceptions.MethodNotAllowedException
 import com.mlreef.rest.exceptions.NotFoundException
 import com.mlreef.rest.feature.pipeline.PipelineService
@@ -43,7 +42,7 @@ class PipelineController(
     @GetMapping
     fun getAllPipelineConfigs(): List<PipelineConfigDto> {
         val list: List<PipelineConfig> = pipelineConfigRepository.findAll().toList()
-        return list.toPipelineConfigDtoList()
+        return list.map(PipelineConfig::toDto)
     }
 
     @GetMapping("/{id}")
@@ -56,7 +55,7 @@ class PipelineController(
     fun getAllPipelineInstancesFromConfig(@PathVariable pid: UUID): List<PipelineInstanceDto> {
         beforeGetPipelineConfig(pid)
         val instances = pipelineInstanceRepository.findAllByPipelineConfigId(pid)
-        return instances.toPipelineInstanceDtoList()
+        return instances.map(PipelineInstance::toDto)
     }
 
     @GetMapping("/{pid}/instances/{id}")
