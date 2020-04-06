@@ -5,6 +5,9 @@ import { arrayOf, shape, func } from 'prop-types';
 import MProjectClassification from 'components/ui/MProjectClassification/MProjectClassification';
 import MTabs from 'components/ui/MTabs';
 import { suscribeRT } from 'functions/apiCalls';
+import {
+  projectClassificationsProps,
+} from 'dataTypes';
 import Navbar from '../navbar/navbar';
 import './myProjects.scss';
 import ProjectDeletionModal from '../project-deletion-modal/projectDeletionModal';
@@ -13,20 +16,6 @@ import * as projectActions from '../../actions/projectInfoActions';
 
 class Myprojects extends React.Component {
   projFilterBtnsList = ['own', 'starred', 'explore'];
-
-  tabsIds = [
-    'ml-projects',
-    'models',
-    'data-operations',
-    'data-visualizations',
-  ];
-
-  idsXColors = [
-    { id: this.tabsIds[0], color: '#91BD44' },
-    { id: this.tabsIds[1], color: '#E99444' },
-    { id: this.tabsIds[2], color: '#D2519D' },
-    { id: this.tabsIds[3], color: '#735DA8' },
-  ];
 
   constructor(props) {
     super(props);
@@ -60,13 +49,13 @@ class Myprojects extends React.Component {
     if (unsuscribeServices) unsuscribeServices();
   }
 
-  addEventListeners = () => this.tabsIds.forEach((id) => {
+  addEventListeners = () => projectClassificationsProps.map((obj) => obj.classification).forEach((id) => {
     document
       .getElementById(`tab-${id}`)
       .addEventListener('click', (e) => {
         const node = e.target;
         if (node.nodeName === 'BUTTON') {
-          const { color } = this.idsXColors.filter((idsColor) => `${idsColor.id}` === id)[0];
+          const { color } = projectClassificationsProps.filter((idsColor) => `${idsColor.classification}` === id)[0];
           this.setState({ bandColor: color });
         }
       });
@@ -119,9 +108,9 @@ class Myprojects extends React.Component {
         <br />
         <br />
         <MTabs>
-          <MTabs.Section defaultActive id={this.idsXColors[0].id} label="ML Projects" color={this.idsXColors[0].color}>
+          <MTabs.Section defaultActive id={projectClassificationsProps[0].classification} label="ML Projects" color={projectClassificationsProps[0].color}>
             <MProjectClassification
-              classification="ml-projects"
+              classification={projectClassificationsProps[0].classification}
               isFetching={isFetching}
               history={history}
               userProjects={userProjects}
@@ -129,27 +118,27 @@ class Myprojects extends React.Component {
               allProjects={allProjects}
             />
           </MTabs.Section>
-          <MTabs.Section id={this.idsXColors[1].id} label="Models" color={this.idsXColors[1].color}>
+          <MTabs.Section id={projectClassificationsProps[1].classification} label="Models" color={projectClassificationsProps[1].color}>
             <MProjectClassification
-              classification="models"
+              classification={projectClassificationsProps[1].classification}
               isFetching={false}
               history={history}
             />
           </MTabs.Section>
           <MTabs.Section
-            id={this.idsXColors[2].id}
+            id={projectClassificationsProps[2].classification}
             label="Data Operations"
-            color={this.idsXColors[2].color}
+            color={projectClassificationsProps[2].color}
           >
             <MProjectClassification
-              classification="data-operations"
+              classification={projectClassificationsProps[2].classification}
               isFetching={false}
               history={history}
             />
           </MTabs.Section>
-          <MTabs.Section id={this.idsXColors[3].id} label="Data visualizations" color={this.idsXColors[3].color}>
+          <MTabs.Section id={projectClassificationsProps[3].classification} label="Data visualizations" color={projectClassificationsProps[3].color}>
             <MProjectClassification
-              classification="data-visualizations"
+              classification={projectClassificationsProps[3].classification}
               isFetching={false}
               history={history}
             />

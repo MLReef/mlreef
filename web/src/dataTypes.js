@@ -88,7 +88,7 @@ export const Adjectives = ['clever', 'active', 'alive', 'alert', 'amused', 'awak
   'powerful', 'precise', 'premium', 'pretty', 'pro', 'profound', 'proper', 'proud', 'pure', 'quick', 'quiet', 'rapid', 'rare', 'ready', 'real',
   'regular', 'related', 'relaxed', 'renweing', 'resolved', 'rich', 'romantic', 'sacred', 'sensible', 'shaky', 'sharp', 'simple', 'skilled', 'smart',
   'smiling', 'smooth', 'social', 'solid', 'sound', 'special', 'splendid', 'stable', 'steady', 'still', 'sunny', 'super', 'sweet', 'tender',
-  'thankful', 'tidy', 'tight', 'top', 'touched', 'well', 'vast', 'wanted', 'warm', 'willing', 'wired'];
+  'thankful', 'tidy', 'tight', 'top', 'touched', 'well', 'vast', 'wanted', 'warm', 'willing', 'wired', 'corona-virus-infected'];
 
 export const Nouns = ['dolphin', 'barracuda', 'starfish', 'scubadiver', 'plancton', 'ariel', 'nemo', 'anchovy', 'whale', 'shark', 'clownfish',
   'cod', 'coral', 'eel', 'seal', 'shrimp', 'flounder', 'squid', 'herring', 'jellyfish', 'dory', 'krill', 'lobster', 'ray', 'megalodon', 'manatee',
@@ -338,3 +338,20 @@ export const mrStates = [
   'closed',
   'merged',
 ];
+
+
+/* -------------------------- Project classifications -------------------------- */
+
+export const ML_PROJECT = 'ml-project';
+export const MODEL = 'model';
+export const DATA_OPERATION = 'data-operation';
+export const DATA_VISUALIZATION = 'data-visualization';
+
+export const projectClassificationsProps = [
+  { classification: ML_PROJECT, label: 'ML Project', color: '#91BD44' },
+  { classification: MODEL, label: 'Model', color: '#E99444' },
+  { classification: DATA_OPERATION, label: 'Data Operation', color: '#D2519D' },
+  { classification: DATA_VISUALIZATION, label: 'Data visualization', color: '#735DA8' },
+];
+
+/* -------------------------- ------------- -------------------------- */

@@ -116,3 +116,20 @@ textarea{
     padding-top: 0.4em !important;
     padding-bottom: 0.2em !important;
 }
+
+.data-types-sec {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.data-types-sec div {
+  padding: 0.1rem 1rem;
+  margin: 0.3rem;
+  background-color: var(--light);
+}
+
+.data-type-disabled {
+  margin: 0.5rem 0;
+  color: var(--secondary);
+}
