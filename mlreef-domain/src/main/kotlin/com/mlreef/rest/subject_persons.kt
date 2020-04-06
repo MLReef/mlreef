@@ -29,6 +29,8 @@ abstract class Subject(
 
 @Entity
 @Table(name = "membership")
+// This is a speculative Entity, based on early ideas.
+// It most probably needs to be refactored when implementing new features
 class Membership(
     @Id @Column(name = "id", length = 16, unique = true, nullable = false) val id: UUID,
     @Column(name = "person_id")

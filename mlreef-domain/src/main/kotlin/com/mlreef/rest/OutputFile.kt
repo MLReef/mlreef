@@ -11,7 +11,8 @@ import javax.persistence.Table
  *
  *
  */
-
+// This is a speculative Entity, based on early ideas.
+// It most probably needs to be refactored when implementing new features
 @Entity
 @Table(name = "output_file")
 class OutputFile(
