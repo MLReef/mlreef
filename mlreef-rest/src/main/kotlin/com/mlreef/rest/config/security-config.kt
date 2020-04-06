@@ -39,15 +39,20 @@ class BasicSecurity {
     @Bean
     fun corsFilter(): FilterRegistrationBean<CorsFilter> {
         val source = UrlBasedCorsConfigurationSource()
+        val config = corsConfiguration()
+        source.registerCorsConfiguration("/**", config)
+        val bean = FilterRegistrationBean(CorsFilter(source))
+        bean.order = 0
+        return bean
+    }
+
+    fun corsConfiguration(): CorsConfiguration {
         val config = CorsConfiguration()
         config.allowCredentials = true
         config.addAllowedOrigin("*")
         config.addAllowedHeader("*")
         config.addAllowedMethod("*")
-        source.registerCorsConfiguration("/**", config)
-        val bean = FilterRegistrationBean(CorsFilter(source))
-        bean.order = 0
-        return bean
+        return config
     }
 
 }
@@ -77,6 +82,7 @@ class SecurityConfiguration(private val provider: AuthenticationProvider) : WebS
             .anonymous().and()
             .authorizeRequests().antMatchers("/docs", "/docs/*", AUTH_URL, INFO_URL).permitAll().and()
             .authorizeRequests().anyRequest().fullyAuthenticated()
+//            .and().cors().co.configurationSource(BasicSecurity().corsConfiguration())
             .and().authenticationProvider(provider).addFilterBefore(authenticationFilter(), AnonymousAuthenticationFilter::class.java)
             .csrf().disable()
             .httpBasic().disable()

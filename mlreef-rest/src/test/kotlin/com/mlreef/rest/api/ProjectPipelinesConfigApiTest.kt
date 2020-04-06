@@ -76,7 +76,7 @@ class ProjectPipelinesConfigApiTest : RestApiTest() {
             .andDo(document(
                 "project-pipelineconfig-retrieve-all",
                 responseFields(pipelineConfigDtoResponseFields("[]."))
-                    .and(dataProcessorFields("[].data_operations[]."))))
+                    .and(dataProcessorInstanceFields("[].data_operations[]."))))
             .andReturn().let {
                 val constructCollectionType = objectMapper.typeFactory.constructCollectionType(List::class.java, PipelineConfigDto::class.java)
                 objectMapper.readValue(it.response.contentAsByteArray, constructCollectionType)
@@ -116,9 +116,9 @@ class ProjectPipelinesConfigApiTest : RestApiTest() {
             .andDo(document(
                 "project-pipelineconfig-create-success",
                 requestFields(pipelineConfigCreateRequestFields())
-                    .and(dataProcessorFields("data_operations[].")),
+                    .and(dataProcessorInstanceFields("data_operations[].")),
                 responseFields(pipelineConfigDtoResponseFields())
-                    .and(dataProcessorFields("data_operations[]."))
+                    .and(dataProcessorInstanceFields("data_operations[]."))
             ))
             .andReturn().let {
                 objectMapper.readValue(it.response.contentAsByteArray, PipelineConfigDto::class.java)
@@ -161,9 +161,9 @@ class ProjectPipelinesConfigApiTest : RestApiTest() {
             .andDo(document(
                 "project-pipelineconfig-update-success",
                 requestFields(pipelineConfigUpdateRequestFields())
-                    .and(dataProcessorFields("data_operations[].")),
+                    .and(dataProcessorInstanceFields("data_operations[].")),
                 responseFields(pipelineConfigDtoResponseFields())
-                    .and(dataProcessorFields("data_operations[]."))
+                    .and(dataProcessorInstanceFields("data_operations[]."))
             ))
             .andReturn().let {
                 objectMapper.readValue(it.response.contentAsByteArray, PipelineConfigDto::class.java)
@@ -213,7 +213,7 @@ class ProjectPipelinesConfigApiTest : RestApiTest() {
             .andExpect(status().isOk)
             .andDo(document("project-pipelineconfig-retrieve-one",
                 responseFields(pipelineConfigDtoResponseFields())
-                    .and(dataProcessorFields("data_operations[]."))))
+                    .and(dataProcessorInstanceFields("data_operations[]."))))
 
     }
 

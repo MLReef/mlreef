@@ -11,7 +11,6 @@ import com.mlreef.rest.api.v1.dto.DataProcessorInstanceDto
 import com.mlreef.rest.api.v1.dto.FileLocationDto
 import com.mlreef.rest.api.v1.dto.PipelineConfigDto
 import com.mlreef.rest.api.v1.dto.toDto
-import com.mlreef.rest.api.v1.dto.toPipelineConfigDtoList
 import com.mlreef.rest.exceptions.NotFoundException
 import com.mlreef.rest.feature.pipeline.PipelineService
 import org.springframework.data.repository.findByIdOrNull
@@ -54,7 +53,7 @@ class ProjectsPipelineConfigsController(
     fun getAllPipelineConfig(@PathVariable dataProjectId: UUID): List<PipelineConfigDto> {
         beforeGetDataProject(dataProjectId)
         val list: List<PipelineConfig> = pipelineConfigRepository.findAllByDataProjectId(dataProjectId).toList()
-        return list.toPipelineConfigDtoList()
+        return list.map(PipelineConfig::toDto)
     }
 
     @GetMapping("/{id}")

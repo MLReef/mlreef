@@ -92,13 +92,13 @@ class ExperimentsApiTest : RestApiTest() {
             .andDo(document(
                 "experiments-create-success",
                 requestFields(experimentCreateRequestFields())
-                    .and(dataProcessorFields("pre_processing[]."))
-                    .and(dataProcessorFields("post_processing[]."))
-                    .and(dataProcessorFields("processing.")),
+                    .and(dataProcessorInstanceFields("pre_processing[]."))
+                    .and(dataProcessorInstanceFields("post_processing[]."))
+                    .and(dataProcessorInstanceFields("processing.")),
                 responseFields(experimentDtoResponseFields())
-                    .and(dataProcessorFields("pre_processing[]."))
-                    .and(dataProcessorFields("post_processing[]."))
-                    .and(dataProcessorFields("processing."))
+                    .and(dataProcessorInstanceFields("pre_processing[]."))
+                    .and(dataProcessorInstanceFields("post_processing[]."))
+                    .and(dataProcessorInstanceFields("processing."))
             ))
             .andReturn().let {
                 objectMapper.readValue(it.response.contentAsByteArray, ExperimentDto::class.java)
@@ -121,9 +121,9 @@ class ExperimentsApiTest : RestApiTest() {
             .andDo(document(
                 "experiments-retrieve-all",
                 responseFields(experimentDtoResponseFields("[]."))
-                    .and(dataProcessorFields("[].pre_processing[]."))
-                    .and(dataProcessorFields("[].post_processing[]."))
-                    .and(dataProcessorFields("[].processing."))))
+                    .and(dataProcessorInstanceFields("[].pre_processing[]."))
+                    .and(dataProcessorInstanceFields("[].post_processing[]."))
+                    .and(dataProcessorInstanceFields("[].processing."))))
             .andReturn().let {
                 val constructCollectionType = objectMapper.typeFactory.constructCollectionType(List::class.java, ExperimentDto::class.java)
                 objectMapper.readValue(it.response.contentAsByteArray, constructCollectionType)
@@ -142,9 +142,9 @@ class ExperimentsApiTest : RestApiTest() {
             .andDo(document(
                 "experiments-retrieve-one",
                 responseFields(experimentDtoResponseFields())
-                    .and(dataProcessorFields("pre_processing[]."))
-                    .and(dataProcessorFields("post_processing[]."))
-                    .and(dataProcessorFields("processing."))))
+                    .and(dataProcessorInstanceFields("pre_processing[]."))
+                    .and(dataProcessorInstanceFields("post_processing[]."))
+                    .and(dataProcessorInstanceFields("processing."))))
 
     }
 

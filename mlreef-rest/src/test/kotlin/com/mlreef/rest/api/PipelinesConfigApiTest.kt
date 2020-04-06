@@ -39,7 +39,6 @@ class PipelinesConfigApiTest : RestApiTest() {
     @Autowired private lateinit var dataProcessorInstanceRepository: DataProcessorInstanceRepository
     @Autowired private lateinit var pipelineTestPreparationTrait: PipelineTestPreparationTrait
 
-
     @BeforeEach
     @AfterEach
     fun clearRepo() {
@@ -66,7 +65,7 @@ class PipelinesConfigApiTest : RestApiTest() {
             .andDo(document(
                 "pipelineconfig-retrieve-all",
                 responseFields(pipelineConfigDtoResponseFields("[]."))
-                    .and(dataProcessorFields("[].data_operations[]."))))
+                    .and(dataProcessorInstanceFields("[].data_operations[]."))))
             .andReturn().let {
                 val constructCollectionType = objectMapper.typeFactory.constructCollectionType(List::class.java, PipelineConfigDto::class.java)
                 objectMapper.readValue(it.response.contentAsByteArray, constructCollectionType)
@@ -87,21 +86,9 @@ class PipelinesConfigApiTest : RestApiTest() {
             .andDo(document(
                 "pipelineconfig-retrieve-one",
                 responseFields(pipelineConfigDtoResponseFields())
-                    .and(dataProcessorFields("data_operations[]."))))
+                    .and(dataProcessorInstanceFields("data_operations[]."))))
 
     }
-
-//    @Transactional
-//    @Rollback
-//    @Test
-//    fun `Cannot retrieve not-own PipelineConfig`() {
-//        val dataProcessorInstance = createDataProcessorInstance()
-//        val entity = createPipelineConfig(dataProcessorInstance, randomUUID(), "slug")
-//
-//        this.mockMvc.perform(
-//            this.defaultAcceptContentAuth(get("$rootUrl/${entity.id}")))
-//            .andExpect(status().isNotFound)
-//    }
 
     private fun createPipelineConfig(dataProcessorInstance: DataProcessorInstance, dataProjectId: UUID, slug: String): PipelineConfig {
         val entity = PipelineConfig(
