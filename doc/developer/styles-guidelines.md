@@ -1,6 +1,13 @@
 Style development guidelines
 ===
 
+Please check out:
+* [design guide proposal](doc/developer/design-guidelines.md)
+* [XD designs section](#xd-files)
+* [explore advantages of implementing improved css tools and techniques](https://gitlab.com/mlreef/frontend/-/issues/231)
+
+## Fundamentals
+
 * Develop using a css pre-processor (sass is preferred), React files can import .scss files
 * Choose a well known styles toolkit, if not, to build global components.
 * Prefer class selectors for styles.
@@ -21,10 +28,10 @@ Pre-processor allows us to carry out programming tasks:
 ```scss
 .my-class {
   width: 100%;
-  
+
   &-header {
     padding: 1rem;
-    
+
     &-title {
       color: #000;
     }
@@ -49,11 +56,11 @@ Pre-processor allows us to carry out programming tasks:
 this helps a lot when writing css.
 
 * Reuse code vie mixins. Mixins are like function that receive parameters and returns a bunch of styles.
-We might write a mixin for button style and when need to change the buttons' style 
+We might write a mixin for button style and when need to change the buttons' style
 just change the mixin.
 * Easy way to import and modularize files, because scss have some optimizations.
 * Better comment support. We can add comments that will throw out in the final css.
-  
+
 #### Sass
 * One of the most widely used pre-processors.
 * Vuetify is migrating from stylus to sass.
@@ -74,7 +81,7 @@ to our design. Also if we can destructure its components is a plus.
 * Developer experience: sometimes the learning curve is something that doesn't fit
 our schedule.
 
-For all of this Bootstrap4 is recommended, just with the handicap of JQuery dependency, 
+For all of this Bootstrap4 is recommended, just with the handicap of JQuery dependency,
 we can just ignore it and build our own javascript.
 
 
@@ -83,7 +90,7 @@ Prefer class selectors for styles
 * Class selectors allow to reuse the styles, whilst id selectors are unique and unpredictable for
 very common ids e.g. #name, #form, #title.
 * Class names can be chained in scss, so every class will be independent from the level,
-this `.header-title-icon` is strongly recommended over level selectors 
+this `.header-title-icon` is strongly recommended over level selectors
 `.header .title .icon` or `.header > .title > .icon`
 * Actions can be represented with classes e.g. show trigger open menu with `.menu.show`
 
@@ -92,7 +99,7 @@ Prefix with component's name
 * Very useful when debug, we can quickly identify which component we are when exploring
 the DOM.
 * It also works as namespace for scoping the styles, as long as two components should not
-have the same name. Many problems are caused by overwriting styles. 
+have the same name. Many problems are caused by overwriting styles.
 
 Design desktop first (mobile second).
 ---
@@ -133,7 +140,7 @@ Recommendations
 * Sadly we can set breakpoints as css variables, because media queries don't recognize them.
 
 ### Avoid to use fixed dimension parameters for objects
-When we set a height for a button we usually get padding issues. Height should be 
+When we set a height for a button we usually get padding issues. Height should be
 determined by font-size, padding-top and padding-bottom, as well width vary with the
 text's length.
 
@@ -152,8 +159,8 @@ depending on the case.
 
 3. [General components](examples/general-components.md)
 
-### XD file links
-These links show the initial design of each view in MLReef. 
+## <a name="xd-files"></a> XD file links
+These links show the initial design of each view in MLReef.
 
 **General**
 
