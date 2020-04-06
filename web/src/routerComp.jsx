@@ -39,7 +39,7 @@ const RouterComp = () => (
       <Route path="/register" exact component={RegisterView} />
       <Route path="/error-page" exact component={ErrorPage} />
       <PrivateRoute path="/my-projects" exact component={Projects} />
-      <PrivateRoute path="/new-project" exact component={NewProject} />
+      <PrivateRoute path="/new-project/classification/:classification" exact component={NewProject} />
       <PrivateRoute path="/my-projects/:projectId/:branch/commits/:pathParam?" exact component={Commits} />
       <PrivateRoute
         exact

@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { Redirect } from 'react-router-dom';
+import { shape, string } from 'prop-types';
 import { toastr } from 'react-redux-toastr';
 import Button from '@material-ui/core/Button';
 import RadioGroup from '@material-ui/core/RadioGroup';
@@ -10,12 +11,15 @@ import MenuItem from '@material-ui/core/MenuItem';
 import Select from '@material-ui/core/Select';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import FormControl from '@material-ui/core/FormControl';
-import Checkbox from '@material-ui/core/Checkbox';
 import Tooltip from '@material-ui/core/Tooltip';
+import {
+  projectClassificationsProps,
+} from 'dataTypes';
 import Navbar from '../navbar/navbar';
 import './newProject.css';
 import * as projectActions from '../../actions/projectInfoActions';
 import projectGeneraInfoApi from '../../apis/projectGeneralInfoApi';
+import MCheckBox from '../ui/MCheckBox/MCheckBox';
 
 const publicIcon = 'https://gitlab.com/mlreef/frontend/uploads/b93c33fb581d154b037294ccef81dadf/global-01.png';
 const privateIcon = 'https://gitlab.com/mlreef/frontend/uploads/83b8885be99f4176f1749924772411b3/lock-01.png';
@@ -23,16 +27,35 @@ const privateIcon = 'https://gitlab.com/mlreef/frontend/uploads/83b8885be99f4176
 const bannedCharacters = ['..', '~', '^', ':', '\\', '{', '}', '[', ']', '$', '#', '&', '%', '*', '+', '¨', '"', '!'];
 
 class NewProject extends Component {
+  dataTypes = [
+    [
+      { name: 'data-types Text', label: 'Text' },
+      { name: 'data-types Image', label: 'Image' },
+      { name: 'data-types Audio', label: 'Audio' },
+    ],
+    [
+      { name: 'data-types Video', label: 'Video' },
+      { name: 'data-types Tabular', label: 'Tabular' },
+      { name: 'data-types Sensor', label: 'Sensor' },
+    ],
+    [
+      { name: 'data-types Number', label: 'Number' },
+      { name: 'data-types Binary', label: 'Binary' },
+      { name: 'data-types Model', label: 'Model' },
+    ],
+  ];
+
   constructor(props) {
     super(props);
     this.state = {
       visibility: 'private',
-      input: '',
+      projectName: '',
       redirect: false,
       readme: false,
       user: '',
       description: '',
       newProject: {},
+      dataTypesSelected: [],
     };
     this.handleSubmit = this.handleSubmit.bind(this);
   }
@@ -42,14 +65,14 @@ class NewProject extends Component {
   }
 
   handleProjectName = (e) => {
-    this.setState({ input: e.target.value });
+    this.setState({ projectName: e.target.value });
   }
 
   handleUser = (e) => {
     this.setState({ user: e.target.value });
   }
 
-  checkReadme = (e) => {
+  checkReadme = () => {
     this.setState({ readme: !this.state.readme });
   }
 
@@ -74,26 +97,26 @@ class NewProject extends Component {
 
   handleSubmit = () => {
     const {
-      input,
+      projectName,
       readme,
       description,
       visibility,
     } = this.state;
 
-    const bannedName = this.validateProjectName(input);
+    const isAValidName = this.validateProjectName(projectName);
 
-    if (!bannedName) {
+    if (!isAValidName) {
       toastr.error('Error:', 'Name can contain only letters, digits, "_", ".", dash, space. It must start with letter, digit or "_".');
-      this.setState({ input: '' });
+      this.setState({ projectName: '' });
       return;
     }
-    if (input === null || input === '') {
+    if (projectName === null || projectName === '') {
       toastr.error('Error:', 'Enter a valid project name');
       return;
     }
 
     projectGeneraInfoApi.create({
-      name: input,
+      name: projectName,
       initialize_with_readme: readme,
       description,
       visibility,
@@ -112,7 +135,7 @@ class NewProject extends Component {
    this.props.history.push('/my-projects');
  }
 
- convertToSlug = (Text) => Text
+ convertToSlug = (rawName) => rawName
    .toLowerCase()
    .replace(/ /g, '-')
    .replace(/[-]+/g, '-')
@@ -121,21 +144,32 @@ class NewProject extends Component {
  render() {
    const {
      visibility,
-     input,
+     projectName,
      redirect,
-     readme,
      user,
      description,
      newProject,
+     dataTypesSelected: dtTypesSel,
    } = this.state;
+   const { match: { params: { classification } } } = this.props;
+   const classLabel = projectClassificationsProps.filter(
+     (classif) => classif.classification === classification,
+   )[0].label;
+   const isMaximumOfDataTypesSelected = dtTypesSel.length === 4;
+   const bandColor = projectClassificationsProps.filter((idsColor) => `${idsColor.classification}` === classification)[0].color;
    return redirect ? (
-     <Redirect to={`/my-projects/${newProject && newProject.id}/master`} />
+     <Redirect to={`/my-projects/${newProject.id}/master`} />
    ) : (
      <>
        <Navbar />
+       {bandColor && <div style={{ height: '0.35rem', backgroundColor: bandColor }} />}
        <div className="new-project main-div row mt-4">
          <div className="proj-description col-sm-12 col-lg-4 pr-3 ">
-           <span>New ML Project</span>
+           <span>
+             New
+             {' '}
+             {classLabel}
+           </span>
            <p>
              A Machine Learning (ML) project is where you house your data set (repository),
              where you perform data processing
@@ -147,7 +181,7 @@ class NewProject extends Component {
              <label className="label-name" htmlFor="projectTitle">
                <span className="heading">Project Name</span>
                <input
-                 value={input}
+                 value={projectName}
                  onChange={this.handleProjectName}
                  className="text-input"
                  id="projectTitle"
@@ -179,7 +213,7 @@ class NewProject extends Component {
                <label className="label-name flex-1" htmlFor="projectSlug">
                  <span className="heading">Project Slug</span>
                  <input
-                   value={this.convertToSlug(input)}
+                   value={this.convertToSlug(projectName)}
                    className="text-input"
                    id="projectSlug"
                    type="text"
@@ -202,7 +236,68 @@ class NewProject extends Component {
                  placeholder="Description Format"
                />
              </label>
-             {/* Code for various data types to be included in later stages. Hint: Use an array of data-types */}
+             {/* ------ Data-types radio buttons ------ */}
+             <label className="label-name" htmlFor="free-tags">
+               <span className="heading">Free tags (optional)</span>
+               <input
+                 className="text-input"
+                 id="free-tags"
+                 type="text"
+                 placeholder={'Enter free tags separated by ","'}
+               />
+             </label>
+             <span className="heading">Data types</span>
+             <br />
+             <br />
+             <div>
+               <span
+                 style={{ padding: 0, color: `var(--${isMaximumOfDataTypesSelected ? 'warning' : 'secondary'})` }}
+                 className="visibility-msg"
+               >
+                 {
+                  isMaximumOfDataTypesSelected
+                    ? 'You already selected a maximum of 4 data types for this project'
+                    : 'Select maximum 4 data types your ML project will be based on'
+                 }
+               </span>
+             </div>
+             <br />
+             <div className="d-flex">
+               {this.dataTypes.map((dtBl, index) => (
+                 <div key={`dtBl ${index.toString()}`} className="data-types-sec">
+                   {dtBl.map((dt) => {
+                     if (dtTypesSel.length === 4 && !dtTypesSel.includes(dt.label)) {
+                       return <div key={`div ${dt.name} disabled`}><p className="data-type-disabled">{dt.label}</p></div>;
+                     }
+                     return (
+                       <div key={`div ${dt.name}`}>
+                         <MCheckBox
+                           key={dt.name}
+                           name={dt.name}
+                           labelValue={dt.label}
+                           callback={(...args) => {
+                             const isChecked = args[2];
+                             const dtType = args[1];
+                             if (isChecked) {
+                               if (
+                                 !dtTypesSel.includes(dtType)
+                                   && dtTypesSel.length < 4
+                               ) {
+                                 dtTypesSel.push(dtType);
+                               }
+                             } else if (
+                               dtTypesSel.includes(dtType)
+                             ) dtTypesSel.splice(dtTypesSel.indexOf(dtType), 1);
+                             this.setState({ dataTypesSelected: dtTypesSel });
+                           }}
+                         />
+                       </div>
+                     );
+                   })}
+                 </div>
+               ))}
+             </div>
+             {/* ------ ------ ------ ------ ------ --- */}
              <div style={{ marginTop: '1em' }}>
                <span className="heading">Visibilty level</span>
                <RadioGroup aria-label="visibility" name="visibility" value={visibility} onChange={this.handleVisibility}>
@@ -215,7 +310,7 @@ class NewProject extends Component {
                        <img id="visibility-icon" src={privateIcon} alt="" />
                        <span>Private</span>
                      </>
-                )}
+                    )}
                  />
                  <span className="visibility-msg">Project access must be granted explicitly to every user.</span>
                  <FormControlLabel
@@ -227,21 +322,17 @@ class NewProject extends Component {
                        <img id="visibility-icon" src={publicIcon} alt="" />
                        <span>Public</span>
                      </>
-                )}
+                   )}
                  />
                  <span className="visibility-msg">The Project can be accessed without any authemtication.</span>
                </RadioGroup>
              </div>
              <div className="readME">
-               <Checkbox
-                 color="primary"
-                 value={readme}
-                 onChange={this.checkReadme}
-                 inputProps={{
-                   'aria-label': 'primary checkbox',
-                 }}
+               <MCheckBox
+                 name="read-me-checkbox"
+                 labelValue="Initialize the Repository with a README"
+                 callback={(...args) => this.setState({ readme: args[2] })}
                />
-               <span className="heading">Initialize the Repository with a README</span>
                <p className="readme-msg">
                  Allows you to immediately clone this projects repository.
                  Skip this if you want to push up an existing repository
@@ -249,7 +340,7 @@ class NewProject extends Component {
              </div>
              <div className="form-controls mt-4">
                <button
-                 type="reset"
+                 type="button"
                  className="btn btn-basic-dark"
                  onClick={this.cancelCreate}
                >
@@ -260,7 +351,9 @@ class NewProject extends Component {
                  className="btn btn-primary ml-auto"
                  onClick={this.handleSubmit}
                >
-                 Create
+                 Create new
+                 {' '}
+                 {classLabel}
                </button>
              </div>
            </form>
@@ -286,5 +379,21 @@ function mapDispatchToProps(dispatch) {
     }, dispatch),
   };
 }
+
+NewProject.propTypes = {
+  match: shape({
+    params: shape({
+      classification: string,
+    }),
+  }),
+};
+
+NewProject.defaultProps = {
+  match: {
+    params: {
+      classification: 'ml-project',
+    },
+  },
+};
 
 export default connect(mapStateToProps, mapDispatchToProps)(NewProject);

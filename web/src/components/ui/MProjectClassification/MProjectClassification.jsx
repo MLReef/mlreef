@@ -105,7 +105,7 @@ class MProjectClassification extends Component {
           </div>
           <div id="new-element-container">
             <Link
-              to="/new-project"
+              to={`/new-project/classification/${classification}`}
               type="button"
               className="btn btn-primary"
             >
