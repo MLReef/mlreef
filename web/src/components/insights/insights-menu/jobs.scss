@@ -1,0 +1,64 @@
+$light-grey: #e5e5e5;
+$dark-grey: #b5b5b5;
+.job-container{
+  display: flex;
+  flex-direction: column;
+  width: 80%;
+
+  &-title{
+    font-size: 18px; 
+  };
+}
+
+.job-table{
+  border-collapse: collapse;
+
+  &-head{
+    text-align: left;
+    .head-tr{
+      background-color: $light-grey;
+      border-radius: 4px; 
+    };
+
+    th{
+      padding: 1em;
+    };
+  };
+
+    &-body{
+      tr{
+        border-bottom: 1px solid $light-grey;
+        
+        td{
+          padding: 1em;
+          text-align: left;
+        };
+
+        .job-pipeline-number{
+          display: flex;
+          img{
+            border-radius: 10px;
+          };
+        };
+
+        .duration{
+            font-size: 12px;
+          };
+        }
+    }
+
+    &-empty{
+      height: 200px;
+      line-height: 200px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+
+      span{
+          color: $dark-grey;
+          line-height: normal;
+      }
+    }
+}
+

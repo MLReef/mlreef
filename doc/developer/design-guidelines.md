@@ -20,7 +20,7 @@ For highlight something important, e.g. execute button.
 For anything less relevant, e.g. see stats button, options inside a menu.
 
 #### Dark and light
-They are complement themselves to create layouts.
+They complement themselves to create layouts.
 
 #### Status pack
 Red, yellow, cyan work well with error, warning and info.
@@ -31,16 +31,16 @@ They must be constant in whole project, usually are related to design principles
 
 #### Border radius
 Should be rem, although fixed px units works well too. Relative units like percentage
-tend to be very unpredictable when when user change the window's width.
+tend to be very unpredictable when user change the window's width.
 
 ### Elements fluency
-When making a layout we use to do it for a fixed width (e.g. 1040px) but elements should
+When making a layout we used to do it for a fixed width (e.g. 1040px) but elements should
 flow and sort in a determined way, this is easily achieved with flexbox.
 
-#### Avoid to horizontal scrolls
+#### Avoid horizontal scrolls
 This is a tricky part of css, sometimes an element can create an overflow and force
 an horizontal scroll, other times we accidentaly set min-width for large divs. 
-It's important to watch out this issues.
+It's important to be watchful of these issues.
 
 ### Animation behavior
 Animations should be planed from the design, or in very early development stage.
@@ -48,12 +48,12 @@ Animations should be planed from the design, or in very early development stage.
 ### Icon package
 There are 2 kind of icons:
 * Brand icons: important to show MLReef presence.
-* Common icons: like the arrows, close icon, check sign. It should be chosen from
+* Common icons: like the arrows, close icon, check sign. They should be chosen from
 a public set like font awesome or glyph.
 
 ### layout responsive
 Depending on the number of b breakpoints we'll have a (b +1) layouts, and for every
-we have to customize the html and css. Due our potential customers will use a desktop
+we have to customize the html and css. Since our potential customers will use a desktop
 machine we should prioritize desktop layout, and set a breakpoint for the second
 most used width, probably a tablet (around 800px), then we have to keep in mind that we have to 
 complete the second tablet layout (in a further milestone) and this must fit a mobile screen as good as we 

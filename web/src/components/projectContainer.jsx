@@ -42,6 +42,9 @@ class ProjectContainer extends React.Component {
             >
               <p>Experiments</p>
             </Link>
+            <Link to={`/my-projects/${id}/insights`} className="feature" id="insights">
+              Insights
+            </Link>
           </div>
         </div>
       </div>

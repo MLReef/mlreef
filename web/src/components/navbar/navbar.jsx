@@ -57,12 +57,8 @@ class Navbar extends Component {
   }
 
   render() {
-    const {
-      user,
-      user: {
-        userInfo: { avatar_url: avatarUrl },
-      },
-    } = this.props;
+    const { user } = this.props;
+    const avatarUrl = user.userInfo && user.userInfo.avatar_url;
 
     return (
       <div className="navbar">
