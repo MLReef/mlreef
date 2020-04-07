@@ -28,8 +28,8 @@ variables:
   SSH_KEYFILE:          "src/terraform/development.pem"
   DEVICE_MAPPINGS:      "src/resources/feature-branch-block-device-mappings.json"
   NGINX_CONFIG:         "src/resources/nginx_proxy.conf"
-  STARTUP_SCRIPT:       "src/bin/startup.sh"
-  GITLAB_SETUP:         "src/bin/setup-gitlab.sh"
+  GITLAB_SETUP:         "src/bin/setup-gitlab.sh"          # obsolete script which is no longer used
+  STARTUP_SCRIPT:       "src/bin/startup.sh"               # used in .gitlab-ci-deploy.yml and docker-compose.yml
   DEPLOY_SCRIPT:        "src/bin/deploy.sh"
   BACKUP_SCRIPT:        "src/bin/backup.sh"
   RESTORE_SCRIPT:       "src/bin/restore.sh"
@@ -43,7 +43,7 @@ variables:
 .except-docu-branches:
   except:
     variables:
-      - $CI_COMMIT_REF_NAME =~ /^doc\//                   # match every branch "doc/**"
+      - $CI_COMMIT_REF_NAME =~ /^doc\//                    # match every branch "doc/**"
       - $CI_COMMIT_REF_NAME =~ /^docs\//                   # match every branch "docs/**"
       - $CI_COMMIT_REF_NAME =~ /^docu\//                   # match every branch "docu/**"
       - $CI_COMMIT_REF_NAME =~ /^documentation\//          # match every branch "documentation/**"

@@ -63,61 +63,27 @@ services:
   gitlab:
     container_name: gitlab
     restart: always
-    image: sameersbn/gitlab:12.4.0
-    depends_on:
-      - redis
-      - postgresql
+    image: gitlab/gitlab-ce:12.7.0-ce.0
     ports:
       - "10080:80"
       - "10022:22"
     volumes:
-      - gitlab-data:/home/git/data:Z                                 # this line gets rewritten by the CI/CD pipeline
-      #CI_REMOVE- /data/gitlab:/home/git/data:Z                      # this line gets activated by the CI/CD pipeline
+      - gitlab-data:/var/log/gitlab:Z                                # this line gets removed by the CI/CD pipeline
+      #CI_REMOVE- /data/gitlab:/etc/gitlab:Z                         # this line gets activated by the CI/CD pipeline
+      #CI_REMOVE- /data/gitlab-opt:/var/opt/gitlab:Z                 # this line gets activated by the CI/CD pipeline
+      #CI_REMOVE- /data/gitlab-log:/var/log/gitlab:Z                 # this line gets activated by the CI/CD pipeline
     env_file: local.env                                              # do not remove. contains secrets
     environment:
-      - DEBUG=false
-
-      - DB_ADAPTER=postgresql
-      - DB_HOST=postgresql
-      - DB_PORT=5432
-      - DB_USER=gitlab
-      - DB_PASS=password                                             #secret, use ENV var
-      - DB_NAME=gitlabhq_production
-
-      - REDIS_HOST=redis
-      - REDIS_PORT=6379
-
       - TZ=Austria/Vienna
       - GITLAB_TIMEZONE=Vienna
       - GITLAB_HTTPS=false
       - SSL_SELF_SIGNED=false
 
-      - GITLAB_HOST=gitlab                                           # this line gets rewritten by the CI/CD pipeline
-      - GITLAB_PORT=80                                               # this line gets rewritten by the CI/CD pipeline
       - GITLAB_SSH_PORT=10022
       - GITLAB_RELATIVE_URL_ROOT=
 
       - GITLAB_ROOT_PASSWORD=password
       - GITLAB_ROOT_EMAIL=
-    networks:
-      - mlreef-docker-network
-
-
-  postgresql:
-    container_name: postgresql
-    restart: always
-    image: sameersbn/postgresql:10-2
-    volumes:
-      - postgresql-data:/var/lib/postgresql:Z                        # this line gets rewritten by the CI/CD pipeline
-      #CI_REMOVE- /data/postgres:/var/lib/postgresql:Z               # this line gets activated by the CI/CD pipeline
-      - "./src/bin/setup-gitlab.sh:/usr/local/bin/setup-gitlab.sh"
-    ports: ["5432:5432"]
-    env_file: local.env
-    environment:
-      - DB_USER=gitlab
-      - DB_PASS=password                                             # secret, use ENV var
-      - DB_NAME=gitlabhq_production
-      - DB_EXTENSION=pg_trgm
     networks:
       - mlreef-docker-network
 
@@ -129,7 +95,7 @@ services:
     ports:
       - "6000:5432"
     volumes:
-      - mlreefsql-data:/var/lib/postgresql:Z                         # this line gets rewritten by the CI/CD pipeline
+      - mlreefsql-data:/var/lib/postgresql:Z                         # this line gets removed by the CI/CD pipeline
       #CI_REMOVE- /data/mlreefdb:/var/lib/postgresql:Z               # this line gets activated by the CI/CD pipeline
     environment:
       - DB_USER=mlreef
@@ -149,11 +115,11 @@ services:
       - mlreef-docker-network
 
 
-  gitlab-runner-dispatcher:
-    container_name: gitlab-runner-dispatcher
+  gitlab-runner:
+    container_name: gitlab-runner
     image: gitlab/gitlab-runner:alpine
     volumes:
-      #CI_REMOVE- /data/gitlab-runner-config:/etc/gitlab-runner/:Z   # this line gets activated by the CI/CD pipeline
+      #CI_REMOVE- /data/gitlab-runner:/etc/gitlab-runner/:Z          # this line gets activated by the CI/CD pipeline
       - /var/run/docker.sock:/var/run/docker.sock                    # needed for "docker in docker" to work
     networks:
       - mlreef-docker-network
@@ -161,10 +127,8 @@ services:
 
 volumes:
   sock:
-  postgresql-data:                                                   # this line gets removed by the CI/CD pipeline
   mlreefsql-data:                                                    # this line gets removed by the CI/CD pipeline
   gitlab-data:                                                       # this line gets removed by the CI/CD pipeline
-  gitlab-runner-config:                                              # this line gets removed by the CI/CD pipeline
 
 
 networks:
