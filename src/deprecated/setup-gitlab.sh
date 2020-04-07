@@ -1,4 +1,11 @@
 #!/bin/bash
+echo Starting
+
+while ! pg_isready -h localhost > /dev/null 2> /dev/null; do
+   echo -en 'Waiting for postgres is ready...\n';
+   sleep 5;
+done;
+
 echo "# Generating admin token digest"
 echo "   GITLAB_ADMIN_TOKEN: $GITLAB_ADMIN_TOKEN "
 echo "   GITLAB_SECRETS_DB_KEY_BASE: $GITLAB_SECRETS_DB_KEY_BASE"  #long-and-random-alphanumeric-string

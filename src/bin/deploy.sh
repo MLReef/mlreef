@@ -1,229 +1,288 @@
 #!/bin/sh
 set -e
-set -x
-LOG="/home/ubuntu/deploy.log"
-touch $LOG
 
-DATA_DIRECTORY="/data"
-TOML="$DATA_DIRECTORY/gitlab-runner-config/config.toml"
-PORT=10080
+INSTANCE="localhost"
+GITLAB_PORT=10080
 
-export TOML="/data/gitlab-runner-config/config.toml"
-export DISPATCHER_DESCRIPTION="Packaged Dispatcher on $CI_COMMIT_REF_SLUG-$INSTANCE"
-export AIOPS_RUNNER_EC2_INSTANCE_TYPE="p2.xlarge"
-# number of instances is limited by aws
-# https://eu-central-1.console.aws.amazon.com/ec2/v2/home?region=eu-central-1#Limits:
-export AIOPS_RUNNER_EC2_INSTANCE_LIMIT=1
+DOCKER_ENV="local.env"
 
-export INSTANCE=""
-export IMAGE_PATH=""
-export AWS_ACCESS_KEY_ID=""
-export AWS_SECRET_ACCESS_KEY=""
-export GITLAB_ADMIN_TOKEN=""
-export WORKAROUND_SLEEP="120" # This is a workaround variable used for deployment
+AWS_ACCESS_KEY_ID=""
+AWS_SECRET_ACCESS_KEY=""
+GITLAB_ADMIN_TOKEN=""
+CONTAINER_STARTUP_WAIT="45" # This is a workaround variable used for deployment
 # The Gitlab runner runtime defines how the runner manager deploys pipeline runs
-# _empty_: the default mode; new pipeline runs are spawned normally as sister-container to the runner manager
-# nvidia: like default, additionally with visibility of and access to the GPU(s) enabled
-export RUNNER_RUNTIME=""
+# docker: new pipeline runs are spawned as sister container to the runner manager
+# nvidia: like _docker_ with access and visibility of the GPU(s) enabled
+RUNNER_RUNTIME="nvida"
 
-{
-  while [ -n "$1" ]; do
-    case "$1" in
-    -g | --gitlab-admin-token)
-      GITLAB_ADMIN_TOKEN="$2"
-      echo "Using GITLAB_ADMIN_TOKEN $GITLAB_ADMIN_TOKEN"
-      shift
-      ;;
-    -i | --instance)
-      INSTANCE="$2"
-      echo "Connecting to ec2 instance $INSTANCE"
-      shift
-      ;;
-    -I | --image)
-      IMAGE_PATH="$2"
-      echo "Using docker image: $IMAGE_PATH"
-      shift
-      ;;
-    -k | --key)
-      AWS_ACCESS_KEY_ID="$2"
-      echo "Using AWS_ACCESS_KEY_ID $AWS_ACCESS_KEY_ID"
-      shift
-      ;;
-    -p | --port)
-      PORT="$2"
-      echo "Expecting gitlab at port $PORT"
-      shift
-      ;;
-    -s | --secret)
-      AWS_SECRET_ACCESS_KEY="$2"
-      echo "Using AWS_ACCESS_KEY_ID $AWS_SECRET_ACCESS_KEY"
-      shift
-      ;;
-    -n | --name)
-      EC2_INSTANCE_NAME="$2"
-      echo "Using EC2_INSTANCE_NAME $EC2_INSTANCE_NAME"
-      shift
-      ;;
-    -r | --runtime)
-      RUNNER_RUNTIME="$2"
-      echo "Using gitlab RUNNER_RUNTIME $RUNNER_RUNTIME"
-      shift
-      ;;
-    -w | --workaround)
-      WORKAROUND_SLEEP="$2"
-      echo "Using WORKAROUND_SLEEP $WORKAROUND_SLEEP"
-      shift
-      ;;
-    *) echo "Option $1 not recognized" ;;
-    esac
+while [ -n "$1" ]; do
+  case "$1" in
+  -e | --docker-environment-file)
+    DOCKER_ENV="$2"
+    echo "Using docker env file $DOCKER_ENV"
     shift
-  done
-} >>$LOG
+    ;;
+  -ga | --gitlab-admin-token)
+    GITLAB_ADMIN_TOKEN="$2"
+    echo "Using GITLAB_ADMIN_TOKEN $GITLAB_ADMIN_TOKEN"
+    shift
+    ;;
+  -gb | --gitlab-secrets-key-base)
+    GITLAB_SECRETS_SECRET_KEY_BASE="$2"
+    echo "Using GITLAB_ADMIN_TOKEN $GITLAB_SECRETS_SECRET_KEY_BASE"
+    shift
+    ;;
+  -go | --gitlab-opt-key-base)
+    GITLAB_SECRETS_OTP_KEY_BASE="$2"
+    echo "Using GITLAB_ADMIN_TOKEN $GITLAB_SECRETS_OTP_KEY_BASE"
+    shift
+    ;;
+  -gd | --gitlab-db-key-base)
+    GITLAB_SECRETS_DB_KEY_BASE="$2"
+    echo "Using GITLAB_ADMIN_TOKEN $GITLAB_SECRETS_DB_KEY_BASE"
+    shift
+    ;;
+  -i | --instance)
+    INSTANCE="$2"
+    echo "Connecting to ec2 instance $INSTANCE"
+    shift
+    ;;
+  -k | --key)
+    AWS_ACCESS_KEY_ID="$2"
+    echo "Using AWS_ACCESS_KEY_ID $AWS_ACCESS_KEY_ID"
+    shift
+    ;;
+  -n | --name)
+    EC2_INSTANCE_NAME="$2"
+    echo "Using EC2_INSTANCE_NAME $EC2_INSTANCE_NAME"
+    shift
+    ;;
+  -p | --port)
+    GITLAB_PORT="$2"
+    echo "Expecting gitlab at port $GITLAB_PORT"
+    shift
+    ;;
+  -r | --runtime)
+    RUNNER_RUNTIME="$2"
+    echo "Using gitlab RUNNER_RUNTIME $RUNNER_RUNTIME"
+    shift
+    ;;
+  -s | --secret)
+    AWS_SECRET_ACCESS_KEY="$2"
+    echo "Using AWS_ACCESS_KEY_ID $AWS_SECRET_ACCESS_KEY"
+    shift
+    ;;
+  -w | --container-wait)
+    CONTAINER_STARTUP_WAIT="$2"
+    echo "Using Container startup wait of: $CONTAINER_STARTUP_WAIT"
+    shift
+    ;;
+  *) echo "Option $1 not recognized"
+    exit 1
+    ;;
+  esac
+  shift
+done
 
-echo "Successfuly parsed parameters"
-
+#
+# Checking input parameters
+#
 if [ "$INSTANCE" = "" ]; then
-  echo "Missing instance url. Use the -i or --instance option" >>$LOG
-  exit 1
-fi
-if [ "$IMAGE_PATH" = "" ]; then
-  echo "Missing docker image. Use the -I or --image option" >>$LOG
-  exit 1
-fi
-if [ "$AWS_ACCESS_KEY_ID" = "" ]; then
-  echo "Missing AWS_ACCESS_KEY_ID. Use the -k or --key option" >>$LOG
-  exit 1
-fi
-if [ "$AWS_SECRET_ACCESS_KEY" = "" ]; then
-  echo "Missing AWS_SECRET_ACCESS_KEY. Use the -s or --secret option" >>$LOG
+  echo "Missing instance url. Use the -i or --instance option"
   exit 1
 fi
 if [ "$GITLAB_ADMIN_TOKEN" = "" ]; then
-  echo "Missing GITLAB_ADMIN_TOKEN. Use the -g or --gitlab-admin-token option" >>$LOG
+  echo "Missing GITLAB_ADMIN_TOKEN. Use the -ga or --gitlab-admin-token option"
   exit 1
 fi
-export DISPATCHER_DESCRIPTION="Packaged Dispatcher on $CI_COMMIT_REF_SLUG-$INSTANCE"
-
-echo "Registering packaged runner to local Gitlab instance" >>$LOG
-
-LINE=$(sudo cat $TOML | grep token)
-echo "The registration token is: $LINE" >>$LOG
-rm -rf $TOML >>$LOG
-
-# Update the Runner configuration on the new instance.
-# https://docs.gitlab.com/runner/configuration/advanced-configuration.html#volumes-in-the-runnersdocker-section
-# tee copies data from standard input to each FILE, and also to standard output.
-# runtime="nvidia"
-echo | sudo tee $TOML <<EOF
-concurrent = 12
-check_interval = 0
-
-[[runners]]
-  name = "${DISPATCHER_DESCRIPTION}"
-  limit = $AIOPS_RUNNER_EC2_INSTANCE_LIMIT
-  url = "http://$INSTANCE:$PORT/"
-$LINE
-  executor = "docker"
-  [runners.docker]
-    image = "alpine:latest"
-    runtime = "$RUNNER_RUNTIME"
-    tls_verify = false
-    privileged = true
-    disable_cache = false
-    volumes = ["/cache"]
-    shm_size = 0
-  [runners.cache]
-    ServerAddress = "s3.amazonaws.com"
-    AccessKey = "$AWS_ACCESS_KEY_ID"
-    SecretKey = "$AWS_SECRET_ACCESS_KEY"
-    BucketName = "mlreef-runner-cache"
-    BucketLocation = "eu-central-1"
-
-EOF
-
-# Just a copy of the multi runner configuration to be able to play with it
-echo | sudo tee "$TOML.multi-runner" <<EOF
-concurrent = 12
-check_interval = 0
-
-[[runners]]
-  name = "${DISPATCHER_DESCRIPTION}"
-  limit = $AIOPS_RUNNER_EC2_INSTANCE_LIMIT
-  url = "http://$INSTANCE:$PORT/"
-$LINE
-  executor = "docker+machine"
-  [runners.docker]
-    tls_verify = false
-    image = "alpine:latest"
-    privileged = true
-    disable_cache = false
-    volumes = ["/cache"]
-    shm_size = 0
-  [runners.cache]
-    ServerAddress = "s3.amazonaws.com"
-    AccessKey = "$AWS_ACCESS_KEY_ID"
-    SecretKey = "$AWS_SECRET_ACCESS_KEY"
-    BucketName = "mlreef-runner-cache"
-    BucketLocation = "eu-central-1"
-  [runners.machine]
-    IdleCount = 0
-    MachineDriver = "amazonec2"
-    MachineName = "mlreef-aiops-%s"
-    MachineOptions = [
-      "amazonec2-access-key=$AWS_ACCESS_KEY_ID",
-      "amazonec2-secret-key=$AWS_SECRET_ACCESS_KEY",
-      "amazonec2-ssh-user=ubuntu",
-      "amazonec2-region=eu-central-1",
-      "amazonec2-zone=b",
-      "amazonec2-instance-type=$AIOPS_RUNNER_EC2_INSTANCE_TYPE",
-      "amazonec2-ami=ami-050a22b7e0cf85dd0",
-    ]
-    IdleTime = 5
-    OffPeakTimezone = ""
-    OffPeakIdleCount = 0
-
-EOF
-
 if [ "$GITLAB_SECRETS_SECRET_KEY_BASE" = "" ]; then
-  export GITLAB_SECRETS_SECRET_KEY_BASE=secret11111111112222222222333333333344444444445555555555666666666612345
+  echo "Missing GITLAB_SECRETS_SECRET_KEY_BASE. Use the -gb or --gitlab-secrets-key-base"
+  exit 1
 fi
-
 if [ "$GITLAB_SECRETS_OTP_KEY_BASE" = "" ]; then
-  export GITLAB_SECRETS_OTP_KEY_BASE=secret11111111112222222222333333333344444444445555555555666666666612345
+  echo "Missing GITLAB_SECRETS_OTP_KEY_BASE. Use the -go or --gitlab-opt-key-base"
+  exit 1
 fi
-
 if [ "$GITLAB_SECRETS_DB_KEY_BASE" = "" ]; then
-  export GITLAB_SECRETS_DB_KEY_BASE=secret11111111112222222222333333333344444444445555555555666666666612345
+  echo "Missing GITLAB_SECRETS_DB_KEY_BASE. Use the -gd or --gitlab-db-key-base"
+  exit 1
 fi
 
-if [ "$GITLAB_ADMIN_TOKEN" = "" ]; then
-  export GITLAB_ADMIN_TOKEN=QVj_FkeHyuJURko2ggZT
+# If we are working locally, we do not want to interface with EC2
+if [ $INSTANCE != "localhost" ]; then
+  if [ "$AWS_ACCESS_KEY_ID" = "" ]; then
+    echo "Missing AWS_ACCESS_KEY_ID. Use the -k or --key option"
+    exit 1
+  fi
+  if [ "$AWS_SECRET_ACCESS_KEY" = "" ]; then
+    echo "Missing AWS_SECRET_ACCESS_KEY. Use the -s or --secret option"
+    exit 1
+  fi
+
 fi
 
-echo "# generated by deploy.sh" > local.env
+#
+# Starting
+#
+echo "Successfuly parsed command line parameters"
+
+echo "WRITING to local.env"
+touch $DOCKER_ENV
+echo "# Automatically added by the deploment pipeline .gitlab-ci-deploy.yml" >$DOCKER_ENV
 {
   echo GITLAB_SECRETS_SECRET_KEY_BASE=$GITLAB_SECRETS_SECRET_KEY_BASE
   echo GITLAB_SECRETS_OTP_KEY_BASE=$GITLAB_SECRETS_OTP_KEY_BASE
   echo GITLAB_SECRETS_DB_KEY_BASE=$GITLAB_SECRETS_DB_KEY_BASE
   echo GITLAB_ADMIN_TOKEN=$GITLAB_ADMIN_TOKEN
-} >>local.env
+  echo GITLAB_HOST=$INSTANCE
+  echo GITLAB_PORT=$GITLAB_PORT
+} >>$DOCKER_ENV
 
-docker-compose stop
+docker-compose down --remove-orphans
+#docker-compose pull
 
+####
+echo "### Starting Deployment"
+####
+echo "### MANDATORY ENV VARS:"
+cat $DOCKER_ENV
+
+echo "### 1. Start Gitlab Omnibus Preconfigured"
+docker-compose up --detach gitlab
+sleep "${CONTAINER_STARTUP_WAIT}"
+
+echo "### 2. Create Admin API token $GITLAB_ADMIN_TOKEN"
+# http://localhost:10080/help/administration/troubleshooting/gitlab_rails_cheat_sheet.md
+# Alternatively the token digest can be computed as follows:
+# salt=$(echo $GITLAB_SECRETS_DB_KEY_BASE | cut -c1-32)
+# token=$GITLAB_ADMIN_TOKEN$salt
+# token_digest=$(echo $token | openssl sha256 -binary | base64 -)
+#
+docker exec -t gitlab bash -c '
+  gitlab-rails runner -e production "User.find(1).personal_access_tokens.create(
+  name: '"'"'admin-api-token'"'"',
+  token_digest: Gitlab::CryptoHelper.sha256('"'"'$GITLAB_ADMIN_TOKEN'"'"'),
+  impersonation: false,
+  scopes: [:api,:sudo]
+)
+"
+'
+
+echo "### 3. Start Gitlab Runner Dispatcher"
+docker-compose up --detach gitlab-runner
+sleep "${CONTAINER_STARTUP_WAIT}"
+
+echo "### 4. Getting Gitlab runners registration token from Gitlab."
+TOKEN=$(docker exec -t gitlab bash -c 'gitlab-rails runner -e production "puts Gitlab::CurrentSettings.current_application_settings.runners_registration_token"' | tr -d '\r')
+echo TOKEN=$TOKEN
+
+echo "### 5. Configuring gitlab runner"
+export DISPATCHER_DESCRIPTION="Packaged Dispatcher on $CI_COMMIT_REF_SLUG-$INSTANCE"
+
+if [ $INSTANCE != "localhost" ]; then
+  # https://docs.gitlab.com/runner/configuration/advanced-configuration.html#volumes-in-the-runnersdocker-section
+  docker exec gitlab-runner gitlab-runner register                \
+    --non-interactive                                             \
+    --name="${DISPATCHER_DESCRIPTION}"                            \
+    --url="http://$INSTANCE:$GITLAB_PORT/"                        \
+    --registration-token="$TOKEN"                                 \
+    --request-concurrency="12"                                    \
+    --docker-network-mode="mlreef-docker-network"                 \
+    --executor "docker"                                           \
+    --docker-runtime="$RUNNER_RUNTIME"                            \
+    --docker-image="alpine:latest"                                \
+    --docker-volumes="/var/run/docker.sock:/var/run/docker.sock"  \
+    --tag-list="docker"                                           \
+    --run-untagged="true"                                         \
+    --locked="false"                                              \
+    --access-level="not_protected"                                \
+    --cache-s3-server-address="s3.amazonaws.com"                  \
+    --cache-s3-access-key="$AWS_ACCESS_KEY_ID"                    \
+    --cache-s3-secret-key="$AWS_SECRET_ACCESS_KEY"                \
+    --cache-s3-bucket-name="mlreef-runner-cache"                  \
+    --cache-s3-bucket-location="eu-central-1"
+else
+  # Register the runner on a local developers machine
+  # The main differences are the URL and,
+  # no caching on Amazon S3 buckets
+  docker exec gitlab-runner gitlab-runner register                \
+    --non-interactive                                             \
+    --url="http://gitlab/"                                        \
+    --docker-network-mode mlreef-docker-network                   \
+    --registration-token "$TOKEN"                                 \
+    --executor "docker"                                           \
+    --docker-image alpine:latest                                  \
+    --docker-volumes /var/run/docker.sock:/var/run/docker.sock    \
+    --description "local developer runner"                        \
+    --tag-list "docker"                                           \
+    --run-untagged="true"                                         \
+    --locked="false"                                              \
+    --access-level="not_protected"
+
+fi
+echo "### Debug log the configuration file to the console"
+docker exec gitlab-runner cat /etc/gitlab-runner/config.toml
+
+echo "### Runner was registered successfully"
+
+#
+#
+#
+echo "### 6. Start other services"
 docker-compose up --detach
-sleep "${WORKAROUND_SLEEP}"
 
-docker-compose stop backend
-sleep "${WORKAROUND_SLEEP}"
-
-# 1. Inject known admin token
-echo "Creating the admin token with GITLAB_ADMIN_TOKEN: ${GITLAB_ADMIN_TOKEN}"
-docker exec --tty postgresql setup-gitlab.sh
-
-docker-compose up --detach
-sleep "30"
-
-docker-compose stop backend
-sleep "30"
-
-docker-compose up --detach
+#
+#
+#
+#
+#AIOPS_RUNNER_EC2_INSTANCE_TYPE="p2.xlarge"
+# number of instances is limited by aws
+# https://eu-central-1.console.aws.amazon.com/ec2/v2/home?region=eu-central-1#Limits:
+#AIOPS_RUNNER_EC2_INSTANCE_LIMIT=1
+#
+# Just a copy of the multi runner configuration to be able to play with it
+#echo | sudo tee "$TOML.multi-runner" <<EOF
+#concurrent = 12
+#check_interval = 0
+#
+#[[runners]]
+#  name = "${DISPATCHER_DESCRIPTION}"
+#  limit = $AIOPS_RUNNER_EC2_INSTANCE_LIMIT
+#  url = "http://$INSTANCE:$GITLAB_PORT/"
+#  token = "$TOKEN"
+#  executor = "docker+machine"
+#  [runners.docker]
+#    tls_verify = false
+#    image = "alpine:latest"
+#    privileged = true
+#    disable_cache = false
+#    volumes = ["/cache"]
+#    shm_size = 0
+#  [runners.cache]
+#    ServerAddress = "s3.amazonaws.com"
+#    AccessKey = "$AWS_ACCESS_KEY_ID"
+#    SecretKey = "$AWS_SECRET_ACCESS_KEY"
+#    BucketName = "mlreef-runner-cache"
+#    BucketLocation = "eu-central-1"
+#  [runners.machine]
+#    IdleCount = 0
+#    MachineDriver = "amazonec2"
+#    MachineName = "mlreef-aiops-%s"
+#    MachineOptions = [
+#      "amazonec2-access-key=$AWS_ACCESS_KEY_ID",
+#      "amazonec2-secret-key=$AWS_SECRET_ACCESS_KEY",
+#      "amazonec2-ssh-user=ubuntu",
+#      "amazonec2-region=eu-central-1",
+#      "amazonec2-zone=b",
+#      "amazonec2-instance-type=$AIOPS_RUNNER_EC2_INSTANCE_TYPE",
+#      "amazonec2-ami=ami-050a22b7e0cf85dd0",
+#    ]
+#    IdleTime = 5
+#    OffPeakTimezone = ""
+#    OffPeakIdleCount = 0
+#
+#EOF
+#
+#echo Test connection for admin:
+#curl -f -I -X GET --header "Content-Type: application/json" --header "Accept: application/json" --header "PRIVATE-TOKEN: $GITLAB_ADMIN_TOKEN" "localhost:20080/api/v1"
+#curl -f -I -X GET --header "Content-Type: application/json" --header "Accept: application/json" --header "PRIVATE-TOKEN: $GITLAB_ADMIN_TOKEN" "localhost:10080/api/v4/users/1"

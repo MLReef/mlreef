@@ -28,26 +28,18 @@
     # reactivate deactivated lines
     - sed -i "s~#CI_REMOVE~~"                                                     $DOCKER_COMPOSE
     # remove local docker-compose lines
-    - sed -i "/gitlab-data:\/home\/git\/data:Z/d"                                 $DOCKER_COMPOSE
-    - sed -i "/postgresql-data:\/var\/lib\/postgresql:Z/d"                        $DOCKER_COMPOSE
+    - sed -i "/gitlab-data:/d"                                                    $DOCKER_COMPOSE
     - sed -i "/mlreefsql-data:\/var\/lib\/postgresql:Z/d"                         $DOCKER_COMPOSE
-    - sed -i "s/GITLAB_HOST=gitlab/GITLAB_HOST=$URL/"                             $DOCKER_COMPOSE
-    - sed -i "s/GITLAB_PORT=80/GITLAB_PORT=${GITLAB_PORT}/"                       $DOCKER_COMPOSE
+    - cat $DOCKER_COMPOSE
     - ssh-keyscan -H "$URL" >>~/.ssh/known_hosts
-    # rewrite .env file
-    - echo GITLAB_SECRETS_DB_KEY_BASE=secret1111111111122222222222333333333334444444444555555555566666666661234 >>     $DOCKER_ENV
-    - echo GITLAB_SECRETS_OTP_KEY_BASE=secret1111111111122222222222333333333334444444444555555555566666666661234 >>    $DOCKER_ENV
-    - echo GITLAB_SECRETS_SECRET_KEY_BASE=secret1111111111122222222222333333333334444444444555555555566666666661234 >> $DOCKER_ENV
     # upload modified docker-compose to ec2 instance
-    - scp -i $SSH_KEYFILE -o 'AddKeysToAgent yes' $DOCKER_COMPOSE ubuntu@${URL}:/home/ubuntu
-    - scp -i $SSH_KEYFILE -o 'AddKeysToAgent yes' $DOCKER_ENV     ubuntu@${URL}:/home/ubuntu
-    - ssh -i $SSH_KEYFILE -o 'AddKeysToAgent yes' ubuntu@"${URL}" "mkdir -p /home/ubuntu/bin"
-    - ssh -i $SSH_KEYFILE -o 'AddKeysToAgent yes' ubuntu@"${URL}" "mkdir -p /home/ubuntu/src/bin"
-    - scp -i $SSH_KEYFILE -o 'AddKeysToAgent yes' $DEPLOY_SCRIPT  ubuntu@${URL}:/home/ubuntu/$DEPLOY_SCRIPT
-    - scp -i $SSH_KEYFILE -o 'AddKeysToAgent yes' $GITLAB_SETUP   ubuntu@${URL}:/home/ubuntu/$GITLAB_SETUP
-    - ssh -i $SSH_KEYFILE -o 'AddKeysToAgent yes' ubuntu@"${URL}" "mkdir -p /home/ubuntu/src/resources"
-    - scp -i $SSH_KEYFILE -o 'AddKeysToAgent yes' $NGINX_CONFIG ubuntu@${URL}:/home/ubuntu/$NGINX_CONFIG
-    - echo "starting deploy script"
+    - ssh -i $SSH_KEYFILE -o 'AddKeysToAgent yes' ubuntu@"${URL}"       "mkdir -p /home/ubuntu/bin"
+    - ssh -i $SSH_KEYFILE -o 'AddKeysToAgent yes' ubuntu@"${URL}"       "mkdir -p /home/ubuntu/src/bin"
+    - ssh -i $SSH_KEYFILE -o 'AddKeysToAgent yes' ubuntu@"${URL}"       "mkdir -p /home/ubuntu/src/resources"
+    - scp -i $SSH_KEYFILE -o 'AddKeysToAgent yes' $DOCKER_COMPOSE       ubuntu@${URL}:/home/ubuntu/$DOCKER_COMPOSE
+    - scp -i $SSH_KEYFILE -o 'AddKeysToAgent yes' $DEPLOY_SCRIPT        ubuntu@${URL}:/home/ubuntu/$DEPLOY_SCRIPT
+    - scp -i $SSH_KEYFILE -o 'AddKeysToAgent yes' $NGINX_CONFIG         ubuntu@${URL}:/home/ubuntu/$NGINX_CONFIG
+    - echo "Starting deploy script"
     - echo "----------------------------------------"
     - ssh -i $SSH_KEYFILE -o 'AddKeysToAgent yes' ubuntu@"${URL}" "
       sudo docker login ${DOCKER_REGISTRY} -u \"${DOCKER_USER}\" -p \"${DOCKER_PASSWORD}\"
@@ -68,13 +60,14 @@ deploy develop branch:
   script: ssh -i $SSH_KEYFILE -o 'AddKeysToAgent yes' ubuntu@"${URL}" "
     sudo $DEPLOY_SCRIPT
     --instance $URL
-    --image $FRONTEND_IMAGE_PATH
     --port $GITLAB_PORT
     --key $AWS_ACCESS_KEY_ID
     --secret $AWS_SECRET_ACCESS_KEY
     --gitlab-admin-token $GITLAB_ADMIN_TOKEN
+    --gitlab-secrets-key-base secret1111111111122222222222333333333334444444444555555555566666666661234
+    --gitlab-opt-key-base secret1111111111122222222222333333333334444444444555555555566666666661234
+    --gitlab-db-key-base secret1111111111122222222222333333333334444444444555555555566666666661234
     --runtime nvidia
-    --workaround 120
     "
 
 deploy feature branch:
@@ -86,10 +79,13 @@ deploy feature branch:
   script: ssh -i $SSH_KEYFILE -o 'AddKeysToAgent yes' ubuntu@"${URL}" "
     sudo $DEPLOY_SCRIPT
     --instance $URL
-    --image $FRONTEND_IMAGE_PATH
     --port $GITLAB_PORT
     --key $AWS_ACCESS_KEY_ID
     --secret $AWS_SECRET_ACCESS_KEY
+    --docker-environment-file $DOCKER_ENV
     --gitlab-admin-token $GITLAB_ADMIN_TOKEN
-    --workaround 120
+    --gitlab-secrets-key-base secret1111111111122222222222333333333334444444444555555555566666666661234
+    --gitlab-opt-key-base secret1111111111122222222222333333333334444444444555555555566666666661234
+    --gitlab-db-key-base secret1111111111122222222222333333333334444444444555555555566666666661234
+    --runtime docker
     "
