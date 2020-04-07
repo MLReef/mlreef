@@ -87,7 +87,6 @@ export const InstanceCard = ({ ...props }) => {
     );
 
     const onPositive = () => {
-      console.log('yeah');
       return deletePipeline(name);
     };
 
@@ -242,7 +241,7 @@ class DataInstanceOverview extends Component {
       project = projects.selectedProject;
     }
     this.state = {
-      project,
+      project: {},
       all: [],
       isDeleteModalVisible: false,
       dataInstances: [],
@@ -340,6 +339,7 @@ class DataInstanceOverview extends Component {
 
   render() {
     const {
+      project,
       dataInstances,
       isDeleteModalVisible,
       typeOfMessage,
@@ -362,11 +362,13 @@ class DataInstanceOverview extends Component {
         />
         <div>
           <Navbar />
-          <ProjectContainer
-            project={selectedProject}
-            activeFeature="data"
-            folders={[groupName, name, 'Data', 'Instances']}
-          />
+          { project.id && (
+            <ProjectContainer
+              project={project}
+              activeFeature="data"
+              folders={[groupName, name, 'Data', 'Instances']}
+            />
+          )}
           <Instruction
             id="DataInstanceOverview"
             titleText="Handling Data instances:"
