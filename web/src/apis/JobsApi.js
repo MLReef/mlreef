@@ -3,7 +3,7 @@ import { API_GATEWAY, GITLAB_PORT } from '../apiConfig';
 
 export default class JobsApi {
   static async getPerProject(projectId) {
-    const url = `${API_GATEWAY}:${GITLAB_PORT}/api/v4/projects/${projectId}/jobs/`;
+    const url = `${API_GATEWAY}:${GITLAB_PORT}/api/v4/projects/${projectId}/jobs`;
     const jobsProm = await generateGetRequest(url);
 
     return jobsProm.json();

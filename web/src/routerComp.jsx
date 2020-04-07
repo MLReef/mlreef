@@ -25,6 +25,7 @@ import BranchesView from './components/branches-list-view/branchesView';
 import mergeRequestOverview from './components/new-merge-request/merge-request-overview';
 import BasicMergeRequestView from './components/mergeRequestDetailView/basicMergeRequestView';
 import DataVisualizationDetail from './components/data-visualization/dataVisualizationDetail';
+import Insights from './components/insights/insights';
 // this is component for testing layout and should be removed after alpha
 import Demo from './components/Demo';
 
@@ -41,6 +42,10 @@ const RouterComp = () => (
       <PrivateRoute path="/my-projects" exact component={Projects} />
       <PrivateRoute path="/new-project/classification/:classification" exact component={NewProject} />
       <PrivateRoute path="/my-projects/:projectId/:branch/commits/:pathParam?" exact component={Commits} />
+      <PrivateRoute
+        path="/my-projects/:projectId/insights"
+        component={Insights}
+      />
       <PrivateRoute
         exact
         path="/my-projects/:projectId"
