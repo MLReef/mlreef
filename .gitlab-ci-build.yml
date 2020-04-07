@@ -53,7 +53,8 @@ build frontend:
     - echo "REACT_APP_GITLAB_PORT=10080"                    >> web/.env
     - echo "REACT_APP_BUILD_TIMEOUT=18000"                  >> web/.env
     - echo "REACT_APP_POLL_TIMEOUT=10000"                   >> web/.env
-    - echo "REACT_APP_VERSION=$(date +%s)"                  >> web/.env
+    # Use Gitlab's internal unique job ID as build version. This way versions can be traced back to a specific build.
+    - echo "REACT_APP_VERSION=$CI_JOB_ID"                   >> web/.env
     - cat web/.env
   script:
     - cd web
