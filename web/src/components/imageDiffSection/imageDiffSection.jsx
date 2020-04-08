@@ -1,14 +1,15 @@
 import React, { useState } from 'react';
 import { any, shape, string } from 'prop-types';
+import { Link } from 'react-router-dom';
 import Base64ToArrayBuffer from 'base64-arraybuffer';
-import triangle01 from '../../images/triangle-01.png';
-import './imageDiffSection.css';
+import './ImageDiffSection.scss';
 
 const ImageDiffSection = ({ imageFile }) => {
   const [widthPreviousFile, setWidthPreviousFile] = useState(0);
   const [heightPreviousFile, setHeightPreviousFile] = useState(0);
   const [widthNextFile, setWidthNextFile] = useState(0);
   const [heightNextFile, setHeightNextFile] = useState(0);
+  const [collapsed, setCollapsed] = useState(false);
   const previousFile = new Image();
   previousFile.src = `data:image/png;base64,${Base64ToArrayBuffer.encode(imageFile.previousVersionFileParsed)}`;
   previousFile.onload = () => {
@@ -29,7 +30,11 @@ const ImageDiffSection = ({ imageFile }) => {
     maxHeight: '400px',
   };
   return (
-    <div id="image-div-section-container" key={imageFile.fileName}>
+    <div
+      className="image-diff-section"
+      id="image-div-section-container"
+      key={imageFile.fileName}
+    >
       <div className="commit-per-date">
         <div className="pipeline-modify-details">
           <div className="basic-information-image">
@@ -43,64 +48,58 @@ const ImageDiffSection = ({ imageFile }) => {
             </span>
           </div>
           <div className="filechange-info">
-            <div className="btn btn-background">
-              <a href="#foo">
-                <img className="dropdown-white" src={triangle01} alt="" />
-              </a>
-            </div>
-            <div className="btn btn-background">
-              <a href="#foo">
-                <b>Copy Path</b>
-              </a>
-            </div>
-            <div className="btn btn-background">
-              <a href="#foo">
-                <b>View Files</b>
-              </a>
-            </div>
+            <button
+              type="button"
+              className="btn btn-sm btn-basic-dark px-3 mr-2"
+              onClick={() => setCollapsed(!collapsed)}
+            >
+              <i className={`fa fa-chevron-${collapsed ? 'down' : 'up'}`} />
+            </button>
+            <button type="button" className="btn btn-sm btn-basic-dark mr-2">
+              Copy Path
+            </button>
+            <Link to="#foo" className="btn btn-sm btn-basic-dark">
+              View File
+            </Link>
           </div>
         </div>
-        <div className="image-display">
+        <div className={`image-display ${collapsed ? 'collapsed' : ''}`}>
           {imageFile.previousVersionFileParsed && (
-          <div className="image-container">
-            <span className="deleted">Deleted</span>
+          <div className="image-container m-3">
+            <span className="t-center t-bold">Source file</span>
             <img
               style={imageStyles}
               src={previousFile.src}
               alt="previousImage"
-              className="solid-border deleted"
+              className="solid-border deleted my-2"
             />
-            <p className="image-dimensions">
-              W:
-              {widthPreviousFile}
-              {' '}
-              |
-              {' '}
-              H:
-              {' '}
-              {heightPreviousFile}
-            </p>
+            <div className="image-dimensions">
+              <span className="t-secondary">
+                {`W: ${widthPreviousFile} px`}
+              </span>
+              <span className="t-secondary">
+                {`H: ${heightPreviousFile} px`}
+              </span>
+            </div>
           </div>
           )}
           {imageFile.nextVersionFileParsed && (
-          <div className="image-container">
-            <span className="addition">Added</span>
+          <div className="image-container m-3">
+            <span className="t-center t-bold t-success">Added</span>
             <img
               style={imageStyles}
               src={nextFile.src}
               alt="nextImage"
-              className="solid-border addition"
+              className="solid-border addition my-3"
             />
-            <p className="image-dimensions">
-              W:
-              {widthNextFile}
-              {' '}
-              |
-              {' '}
-              H:
-              {' '}
-              {heightNextFile}
-            </p>
+            <div className="image-dimensions">
+              <span className="t-secondary">
+                {`W: ${widthPreviousFile} px`}
+              </span>
+              <span className="t-secondary">
+                {`H: ${heightPreviousFile} px`}
+              </span>
+            </div>
           </div>
           )}
         </div>

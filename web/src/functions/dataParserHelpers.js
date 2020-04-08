@@ -220,3 +220,9 @@ export const getCurrentUserInformation = () => {
     userName: user.username,
   };
 };
+
+export const getCommentFromCommit = (message = '') => {
+  const [, ...comment] = message.split('\n\n');
+
+  return comment.join('\n\n');
+};
