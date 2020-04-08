@@ -36,6 +36,12 @@
     min-height: 3em
 }
 
+.commit-message pre {
+  margin: 0;
+  padding: 0;
+  border: none;
+}
+
 .stats{
     color: #1c2b40; 
     font-weight: 700
@@ -118,7 +124,6 @@
 .image-display{
     display: flex;
     justify-content: space-around;
-    margin: 5% 20%;
 }
 
 .image-display > div{
@@ -130,11 +135,6 @@
     background-color: #797a79; 
     width: 400px; 
     height: 300px;
-}
-
-.image-display span{
-    text-align: center;
-    font-weight: 700
 }
 
 .filechange-info{

@@ -7,13 +7,15 @@ import {
   shape,
   bool,
 } from 'prop-types';
+import { Link } from 'react-router-dom';
+import MDropdown from 'components/ui/MDropdown';
+import { getFileDifferences } from 'functions/apiCalls';
+import { getTimeCreatedAgo, getCommentFromCommit } from 'functions/dataParserHelpers';
 import Navbar from '../navbar/navbar';
 import ProjectContainer from '../projectContainer';
 import './commitDetails.css';
-import arrowBlue from '../../images/arrow_down_blue_01.svg';
 import CommitsApi from '../../apis/CommitsApi';
 import ImageDiffSection from '../imageDiffSection/imageDiffSection';
-import { getFileDifferences } from 'functions/apiCalls';
 
 const imageFormats = [
   '.png',
@@ -28,6 +30,7 @@ class CommitDetails extends Component {
       commits: {},
       users,
       imagesToRender: [],
+      files: [],
     };
     const { match } = this.props;
     const { projectId, commitId } = match.params;
@@ -36,9 +39,10 @@ class CommitDetails extends Component {
         this.setState({ commits: response });
         CommitsApi
           .getCommitDiff(projectId, commitId)
-          .then(
-            (res) => this.getDiffDetails(res),
-          )
+          .then((res) => {
+            this.setState({ files: res });
+            return this.getDiffDetails(res);
+          })
           .catch(
             (err) => err,
           );
@@ -78,6 +82,7 @@ class CommitDetails extends Component {
       commits,
       users,
       imagesToRender,
+      files,
     } = this.state;
     const commitId = commits.short_id;
     let avatar = 'https://assets.gitlab-static.net/uploads/-/system/user/avatar/3839940/avatar.png';
@@ -96,11 +101,9 @@ class CommitDetails extends Component {
           <div className="wrapper">
             <span className="commit-information">
               <span className="commit-authored">
-                Commit
-                {' '}
+                {'Commit '}
                 <b>{commitId}</b>
-                {' '}
-                authored 4 days ago by
+                {` authored ${getTimeCreatedAgo(commits.authored_date)}`}
               </span>
               <div className="committer-pic">
                 <img src={avatar} alt="avatar" />
@@ -108,34 +111,26 @@ class CommitDetails extends Component {
               <span className="author"><b>{commits.author_name}</b></span>
             </span>
             <div className="other-options">
-              <div className="btn">
-                <a href="#foo">
-                  <b>Browse Files</b>
-                </a>
-              </div>
-              <div className="btn">
-                <a href="#foo">
-                  <b>Options</b>
-                  <img className="dropdown-white" src={arrowBlue} alt="" />
-                </a>
-              </div>
+              <Link to="#foo" className="btn btn-outline-dark px-3 mr-2">
+                Browse Files
+              </Link>
+              <MDropdown
+                label="Options"
+              />
             </div>
           </div>
           <hr />
           <div className="commit-message">
-            <span><b>Commit message</b></span>
-            <div className="messages">
-              <span>{commits.message}</span>
-              <span>More info coming up</span>
-            </div>
+            <span><b>{commits.title}</b></span>
+            { getCommentFromCommit(commits.message) && (
+              <div className="messages">
+                <pre>{getCommentFromCommit(commits.message)}</pre>
+              </div>
+            )}
           </div>
           <hr />
           <p className="stats">
-            Showing
-            {' '}
-            {commits.stats ? commits.stats.total : 0}
-            {' '}
-            files changed with
+            {`Showing ${files.length} files changed with`}
             <span className="addition">
               {' '}
               {commits.stats ? commits.stats.additions : 0}

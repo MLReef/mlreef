@@ -1,0 +1,40 @@
+.t-bold {
+  font-weight: bold !important;
+}
+
+.image-diff-section {
+  & .image-display {
+    overflow-y: hidden;
+
+    &.collapsed {
+      height: 1px;
+    }
+  }
+
+  & .image-dimensions {
+    display: flex;
+    justify-content: space-around;
+    // margin-top: 0.5rem;
+  }
+
+  .solid-border {
+    border: 1px solid;
+  }
+
+  .image-dimensions {
+    text-align: center;
+  }
+
+  .basic-information-image {
+    flex: 1;
+    padding: 1em;
+  }
+
+  #image-div-section-container {
+    margin-top: 2em;
+  }
+
+  .image-container {
+    margin-right: 1em;
+  }
+}
