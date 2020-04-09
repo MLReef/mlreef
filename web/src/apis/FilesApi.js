@@ -11,7 +11,7 @@ export default class FilesApi {
           'PRIVATE-TOKEN': getCurrentToken(),
         }),
       }));
-      return response.json();
+      return response;
     } catch (err) {
       return err;
     }
