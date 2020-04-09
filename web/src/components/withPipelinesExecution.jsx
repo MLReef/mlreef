@@ -96,7 +96,7 @@ const withPipelineExecution = (
 
   drop = (e) => e.preventDefault();
 
-  createDivToContainOperationSelected = (index, e) => {
+  createDivToContainOperationSelected = (index) => {
     const array = this.state.dataOperationsSelected;
     const dataCardSelected = JSON.stringify(this.state.dataOperations[index]);
     if (array
