@@ -2,17 +2,20 @@
 
 #main-content-div {
   display: flex;
-  margin-top: 2rem;
+  margin: 1.5rem 1.5rem 0 0;
 
   #cards-section {
     display: flex; 
+    flex-direction: column;
+    align-content: baseline;
+    max-height: 800px;
     flex-wrap: wrap;
-    flex: 3;
+    flex: 4;
+    min-width: 768px;
   }
 
   #side-filters {
     flex: 1;
-
     #input-div {
       border-bottom: 1px solid var(--secondary);
       p {
@@ -30,14 +33,15 @@
   margin-top: 1rem;
   
   #filter-div {
-    flex: 3;
+    flex: 4;
+    min-width: 768px;
     button {
       margin-right: 1rem;
     }
   }
   
   #new-element-container {
-    flex: 1;
+    flex: 1.1;
   }
 }
 
@@ -46,4 +50,19 @@
 #data-types-deploy-btn {
   display: flex;
   justify-content: space-between;
+}
+
+@media (max-width: 768px) {
+  #cards-section, #filter-div {
+    max-height: unset !important;
+    flex: unset !important;
+    min-width: unset !important;
+  }
+  #side-filters {
+    flex: unset !important;
+  }
+  
+  #new-element-container {
+    flex: unset !important;
+  }
 }

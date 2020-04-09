@@ -21,6 +21,7 @@ class ProjectSet extends React.Component {
       starredProjects,
       handleShowModal,
       screen,
+      push,
     } = this.props;
     let finalProjectsArray = [];
     switch (screen) {
@@ -39,6 +40,7 @@ class ProjectSet extends React.Component {
         {finalProjectsArray.length > 0 ? finalProjectsArray.map((proj) => (
           <MProjectCard
             key={`proj-${screen}-key-${proj.name}`}
+            push={push}
             owner={proj.id}
             title={proj.name}
             projectId={proj.id}

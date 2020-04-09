@@ -16,7 +16,11 @@ const BlackBorderedButton = ({ id, textContent, onClickHandler, className }) => 
 BlackBorderedButton.propTypes = {
   id: string.isRequired,
   textContent: string.isRequired,
-  onClickHandler: func.isRequired,
+  onClickHandler: func,
+};
+
+BlackBorderedButton.defaultProps = {
+  onClickHandler: () => {},
 };
 
 export default BlackBorderedButton;
