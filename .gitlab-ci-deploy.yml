@@ -3,7 +3,6 @@
   stage: deploy
   image: registry.gitlab.com/systemkern/s5:latest
   variables:
-    KEY: "Authorization:"                                  # workaround to preserver the yaml structure
     GITLAB_PORT: 10080
   before_script:
     - echo "CI_COMMIT_REF_SLUG  is $CI_COMMIT_REF_SLUG"
@@ -25,11 +24,10 @@
     - sed -i "s/$FRONTEND_IMAGE_NAME:develop/$FRONTEND_IMAGE_NAME:$FRONTEND_TAG/" $DOCKER_COMPOSE
     # change the frontend docker image from develop branch to current branch
     - sed -i "s/$BACKEND_IMAGE_NAME:develop/$BACKEND_IMAGE_NAME:$BACKEND_TAG/"    $DOCKER_COMPOSE
-    # reactivate deactivated lines
-    - sed -i "s~#CI_REMOVE~~"                                                     $DOCKER_COMPOSE
-    # remove local docker-compose lines
-    - sed -i "/gitlab-data:/d"                                                    $DOCKER_COMPOSE
-    - sed -i "/mlreefsql-data:\/var\/lib\/postgresql:Z/d"                         $DOCKER_COMPOSE
+    # Activate (uncomment) specific lines in the docker-compose file
+    - sed -i "s~#CI_ACTIVATE~~"                                                   $DOCKER_COMPOSE
+    # remove tagged lines in the docker-compos file
+    - sed -i "/#CI_DELETE_LINE/d"                                                 $DOCKER_COMPOSE
     - cat $DOCKER_COMPOSE
     - ssh-keyscan -H "$URL" >>~/.ssh/known_hosts
     # upload modified docker-compose to ec2 instance

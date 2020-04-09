@@ -11,7 +11,7 @@ backup branch:
     - sed -i "s~AWS_ACCESS_KEY_ID=XXXXX~AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID~"                  $BACKUP_SCRIPT
     - sed -i "s~AWS_SECRET_ACCESS_KEY=XXXXX~AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY~"      $BACKUP_SCRIPT
   script:
-    - $BACKUP_SCRIPT --instance $URL --bucket $S3_DATA_BUCKET --file mlreef-data-$CI_COMMIT_REF_SLUG.zip
+    - $BACKUP_SCRIPT --instance $URL --bucket $S3_DATA_BUCKET --file mlreef-data-$CI_COMMIT_REF_SLUG.tar
 
 
 restore from develop:
@@ -23,11 +23,11 @@ restore from develop:
     - URL=$(cat $INSTANCE_INFO)
     - echo $URL                                            # debug output
     - chmod 400 $SSH_KEYFILE                               # prepare private key file
-    - chmod +x $BACKUP_SCRIPT
+    - chmod +x $RESTORE_SCRIPT
     - sed -i "s~AWS_ACCESS_KEY_ID=XXXXX~AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID~"                  $RESTORE_SCRIPT
     - sed -i "s~AWS_SECRET_ACCESS_KEY=XXXXX~AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY~"      $RESTORE_SCRIPT
   script:
-    - $RESTORE_SCRIPT $URL
+    - $RESTORE_SCRIPT --instance $URL --bucket $S3_DATA_BUCKET --file mlreef-data-develop.tar
   except:
     refs:
       - master
@@ -35,8 +35,7 @@ restore from develop:
 restore branch backup:
   extends: [.feature-branches-only, "restore from develop"]
   script:
-    - sed -i "s/INIT_ZIP=mlreef-data-develop.zip/INIT_ZIP=mlreef-data-$CI_COMMIT_REF_SLUG.zip/" $RESTORE_SCRIPT
-    - $RESTORE_SCRIPT $URL
+    - $RESTORE_SCRIPT --instance $URL --bucket $S3_DATA_BUCKET --file mlreef-data-$CI_COMMIT_REF_SLUG.tar
   except:
     refs:
       - develop

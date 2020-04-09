@@ -49,7 +49,6 @@ build frontend:
     - echo $URL                                             # debug output
     - ls -al web/src
     - echo "SKIP_PREFLIGHT_CHECK=true"                      >> web/.env
-    - echo "REACT_APP_API_GATEWAY=\"http://$URL\""          >> web/.env
     - echo "REACT_APP_GITLAB_PORT=10080"                    >> web/.env
     - echo "REACT_APP_BUILD_TIMEOUT=18000"                  >> web/.env
     - echo "REACT_APP_POLL_TIMEOUT=10000"                   >> web/.env

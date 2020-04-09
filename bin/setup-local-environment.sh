@@ -22,8 +22,10 @@ echo "### Cleaning local docker context"
 docker-compose rm --force --stop -v
 docker volume ls
 docker volume prune -f
-cp local.env local.env.bak
-rm local.env
+# backup local.env if it exits
+cp local.env local.env.bak 2>/dev/null || true
+# delete local.enc if it exists
+rm -f local.env 2>/dev/null || true
 
 if [ "$GITLAB_SECRETS_SECRET_KEY_BASE" = "" ]; then
   export GITLAB_SECRETS_SECRET_KEY_BASE=secret11111111112222222222333333333344444444445555555555666666666612345
@@ -41,7 +43,7 @@ if [ "$GITLAB_ADMIN_TOKEN" = "" ]; then
   export GITLAB_ADMIN_TOKEN=xzPdxQ-JzacYS6AWvVZJ
 fi
 
-src/bin/deploy.sh                           \
-  --gitlab-admin-token $GITLAB_ADMIN_TOKEN  \
-  --runtime docker                          \
-  --container-wait 60
+src/bin/deploy.sh \
+  --gitlab-admin-token $GITLAB_ADMIN_TOKEN \
+  --runtime docker \
+  --container-wait 100
