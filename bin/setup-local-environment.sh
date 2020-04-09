@@ -43,7 +43,7 @@ if [ "$GITLAB_ADMIN_TOKEN" = "" ]; then
   export GITLAB_ADMIN_TOKEN=xzPdxQ-JzacYS6AWvVZJ
 fi
 
-src/bin/deploy.sh \
-  --gitlab-admin-token $GITLAB_ADMIN_TOKEN \
-  --runtime docker \
-  --container-wait 100
+src/bin/deploy.sh                           \
+  --gitlab-admin-token $GITLAB_ADMIN_TOKEN  \
+  --runtime docker                          \
+  --container-wait 180
