@@ -58,6 +58,7 @@ class MProjectClassification extends Component {
       starredProjects,
       allProjects,
       history: {
+        push,
         location: {
           hash: screen,
         },
@@ -122,6 +123,7 @@ class MProjectClassification extends Component {
           : (
             <div id="main-content-div">
               <ProjectSet
+                push={push}
                 screen={screen || '#personal'}
                 changeScreen={this.changeScreen}
                 allProjects={allProjects}
