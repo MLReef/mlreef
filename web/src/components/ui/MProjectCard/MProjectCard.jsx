@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import projectGeneralInfoApi from 'apis/projectGeneralInfoApi';
 import { toastr } from 'react-redux-toastr';
 import './MProjectCard.scss';
-import { Link } from 'react-router-dom';
 
 const MProjectCard = ({
   projectId,
@@ -70,6 +69,11 @@ const MProjectCard = ({
             <div className="">
               <i className="fa fa-video t-danger">
                 <span className="label"> Video</span>
+              </i>
+            </div>
+            <div className="">
+              <i class="fas fa-grip-lines-vertical t-warning">
+                <span className="label"> Tabular</span>
               </i>
             </div>
           </div>

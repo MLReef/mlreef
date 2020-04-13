@@ -68,6 +68,7 @@ const MTabs = (props) => {
           {tabs.map((tab) => (
             <li
               className={`m-tabs_menu_tab ${tab.defaultActive ? 'active' : ''}`}
+              style={{ borderBottom: tab.defaultActive ? `4px solid ${tab.color}` : '' }}
               id={`tab-${tab.id}`}
               key={tab.label}
               href={`#${tab.id}`}

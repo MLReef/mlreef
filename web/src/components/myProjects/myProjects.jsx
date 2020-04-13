@@ -27,7 +27,7 @@ class Myprojects extends React.Component {
       owner: '',
       isFetching: false,
       unsuscribeServices: null,
-      bandColor: null,
+      bandColor: projectClassificationsProps[0].color,
     };
   }
 
@@ -49,17 +49,18 @@ class Myprojects extends React.Component {
     if (unsuscribeServices) unsuscribeServices();
   }
 
-  addEventListeners = () => projectClassificationsProps.map((obj) => obj.classification).forEach((id) => {
-    document
-      .getElementById(`tab-${id}`)
-      .addEventListener('click', (e) => {
-        const node = e.target;
-        if (node.nodeName === 'BUTTON') {
-          const { color } = projectClassificationsProps.filter((idsColor) => `${idsColor.classification}` === id)[0];
-          this.setState({ bandColor: color });
-        }
-      });
-  });
+  addEventListeners = () => projectClassificationsProps
+    .map((obj) => obj.classification).forEach((id) => {
+      document
+        .getElementById(`tab-${id}`)
+        .addEventListener('click', (e) => {
+          const node = e.target;
+          if (node.nodeName === 'BUTTON') {
+            const { color } = projectClassificationsProps.filter((idsColor) => `${idsColor.classification}` === id)[0];
+            this.setState({ bandColor: color });
+          }
+        });
+    });
 
   fetch() {
     const { actions } = this.props;
@@ -93,6 +94,7 @@ class Myprojects extends React.Component {
       history,
     } = this.props;
 
+    const isATabActiveByDefault = true;
     return (
       <div style={{ backgroundColor: '#f2f2f2' }}>
         <ProjectDeletionModal
@@ -103,7 +105,7 @@ class Myprojects extends React.Component {
           projectsList={userProjects}
         />
         <Navbar />
-        {bandColor && <div style={{ height: '0.35rem', backgroundColor: bandColor }} />}
+        {isATabActiveByDefault && <div style={{ height: '0.35rem', backgroundColor: bandColor }} />}
         <br />
         <br />
         <br />
