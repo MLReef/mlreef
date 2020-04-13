@@ -73,7 +73,7 @@ class MProjectClassification extends Component {
     ];
 
     return (
-      <div className="main-content">
+      <div id="market-place-container">
         <div id="buttons-div">
           <div id="filter-div">
             <button
@@ -121,7 +121,7 @@ class MProjectClassification extends Component {
             </div>
           )
           : (
-            <div id="main-content-div">
+            <div className="m-project-classification">
               <ProjectSet
                 push={push}
                 screen={screen || '#personal'}

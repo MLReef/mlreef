@@ -1,17 +1,16 @@
 /* ---------------- main-content-div ---------------- */
 
-#main-content-div {
+.m-project-classification {
   display: flex;
   margin: 1.5rem 1.5rem 0 0;
 
   #cards-section {
-    display: flex; 
-    flex-direction: column;
-    align-content: baseline;
-    max-height: 800px;
+    display: flex;
+    flex-direction: row;
     flex-wrap: wrap;
-    flex: 4;
+    flex: 4 1;
     min-width: 768px;
+    align-items: flex-start;
   }
 
   #side-filters {
@@ -52,17 +51,28 @@
   justify-content: space-between;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 1025px) {
   #cards-section, #filter-div {
     max-height: unset !important;
-    flex: unset !important;
     min-width: unset !important;
+    flex: unset;
   }
-  #side-filters {
-    flex: unset !important;
+}
+
+@media (max-width: 680px) {
+  #filter-div {
+    display: flex;
+    flex-direction: column;
+    button {
+      padding: 0.500rem 1.25rem;
+      width: max-content;
+      margin-top: 0.5rem;
+    }
   }
-  
+
   #new-element-container {
-    flex: unset !important;
+    a {
+      padding: 0.500rem 1.25rem;
+    }
   }
 }

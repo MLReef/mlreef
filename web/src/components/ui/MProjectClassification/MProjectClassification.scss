@@ -11,3 +11,14 @@
     color: var(--secondary);   
   }
 }
+
+#market-place-container {
+  margin: 0 10%;
+}
+
+
+@media (max-width: 1025px) {
+  #market-place-container {
+    margin: 0 !important;
+  }
+}
