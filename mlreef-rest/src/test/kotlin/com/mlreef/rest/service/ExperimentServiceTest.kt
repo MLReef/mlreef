@@ -15,7 +15,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.mockito.Mock
 import org.springframework.beans.factory.annotation.Autowired
-import java.util.*
+import java.util.UUID
 import java.util.UUID.randomUUID
 
 class ExperimentServiceTest : AbstractServiceTest() {
@@ -43,7 +43,7 @@ class ExperimentServiceTest : AbstractServiceTest() {
             gitlabRootUrl = "http://localhost:10080",
             gitlabRestClient = gitlabRestClient)
 
-        val subject = Person(ownerId, "new-person", "person's name")
+        val subject = Person(ownerId, "new-person", "person's name", 1L)
         val dataRepository = DataProject(dataRepositoryId, "new-repo", "url", "Test DataProject", subject.id, "mlreef", "project", "group/project", 0, arrayListOf())
 
         subjectRepository.save(subject)

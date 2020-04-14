@@ -8,6 +8,8 @@ import com.mlreef.rest.api.v1.DataProjectUpdateRequest
 import com.mlreef.rest.api.v1.dto.DataProjectDto
 import com.mlreef.rest.exceptions.ErrorCode
 import com.mlreef.rest.exceptions.GitlabBadRequestException
+import com.mlreef.rest.external_api.gitlab.GroupAccessLevel
+import com.mlreef.rest.feature.system.SessionsService
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
@@ -19,7 +21,9 @@ import org.springframework.restdocs.mockmvc.MockMvcRestDocumentation
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders
 import org.springframework.restdocs.payload.FieldDescriptor
 import org.springframework.restdocs.payload.JsonFieldType
-import org.springframework.restdocs.payload.PayloadDocumentation.*
+import org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath
+import org.springframework.restdocs.payload.PayloadDocumentation.requestFields
+import org.springframework.restdocs.payload.PayloadDocumentation.responseFields
 import org.springframework.test.annotation.Rollback
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
 import java.util.UUID.randomUUID
@@ -33,11 +37,17 @@ class DataProjectsApiTest : RestApiTest() {
     @Autowired private lateinit var accountSubjectPreparationTrait: AccountSubjectPreparationTrait
     @Autowired private lateinit var dataProjectRepository: DataProjectRepository
 
+    @Autowired
+    private lateinit var sessionService: SessionsService
+
     @BeforeEach
     @AfterEach
     fun setUp() {
         accountSubjectPreparationTrait.apply()
         subject = accountSubjectPreparationTrait.subject
+
+        // To update user permissions before each test
+        sessionService.killAllSessions("username0000")
     }
 
     @Transactional
@@ -127,6 +137,12 @@ class DataProjectsApiTest : RestApiTest() {
         dataProjectRepository.save(project2)
         dataProjectRepository.save(project3)
 
+        accountSubjectPreparationTrait.mockGitlabProjectsWithLevel(
+            restClient,
+            listOf(project1.gitlabId, project2.gitlabId, project3.gitlabId),
+            subject.gitlabId!!,
+            listOf(GroupAccessLevel.OWNER, GroupAccessLevel.OWNER, GroupAccessLevel.OWNER))
+
         val returnedResult: DataProjectDto = this.mockMvc.perform(
             this.defaultAcceptContentAuth(RestDocumentationRequestBuilders.get("$rootUrl/$id1")))
             .andExpect(MockMvcResultMatchers.status().isOk)
@@ -152,9 +168,17 @@ class DataProjectsApiTest : RestApiTest() {
         dataProjectRepository.save(project2)
         dataProjectRepository.save(project3)
 
+        accountSubjectPreparationTrait.mockGitlabProjectsWithLevel(
+            restClient,
+            listOf(project1.gitlabId, project2.gitlabId),
+            subject.gitlabId!!,
+            listOf(GroupAccessLevel.OWNER, GroupAccessLevel.OWNER, GroupAccessLevel.OWNER))
+
+        accountSubjectPreparationTrait.mockGitlabProjectsWithLevel(restClient, project3.gitlabId, 999L, GroupAccessLevel.OWNER)
+
         this.mockMvc.perform(
             this.defaultAcceptContentAuth(RestDocumentationRequestBuilders.get("$rootUrl/$id1")))
-            .andExpect(MockMvcResultMatchers.status().isNotFound)
+            .andExpect(MockMvcResultMatchers.status().isForbidden)
     }
 
     @Transactional
@@ -163,6 +187,8 @@ class DataProjectsApiTest : RestApiTest() {
         val id1 = randomUUID()
         val project1 = DataProject(id1, "slug-1", "www.url.com", "Test Project 1", subject.id, "mlreef", "project-1", "mlreef/project-1", 1, listOf())
         dataProjectRepository.save(project1)
+
+        accountSubjectPreparationTrait.mockGitlabProjectsWithLevel(restClient, project1.gitlabId, subject.gitlabId!!, GroupAccessLevel.OWNER)
 
         val request = DataProjectUpdateRequest("New Test project")
 
@@ -203,6 +229,8 @@ class DataProjectsApiTest : RestApiTest() {
         val project1 = DataProject(id1, "slug-1", "www.url.com", "Test Project 1", subject.id, "mlreef", "group1", "mlreef/project-1", 1, listOf())
         dataProjectRepository.save(project1)
 
+        accountSubjectPreparationTrait.mockGitlabProjectsWithLevel(restClient, project1.gitlabId, subject.gitlabId!!, GroupAccessLevel.OWNER)
+
         assertThat(dataProjectRepository.findByIdOrNull(id1)).isNotNull
 
         this.mockMvc.perform(
@@ -221,11 +249,14 @@ class DataProjectsApiTest : RestApiTest() {
         val project1 = DataProject(id1, "slug-1", "www.url.com", "Test Project 1", randomUUID(), "mlreef", "group1", "mlreef/project-1", 1, listOf())
         dataProjectRepository.save(project1)
 
+        accountSubjectPreparationTrait.mockGitlabProjectsWithLevel(restClient, project1.gitlabId, 456L, GroupAccessLevel.OWNER)
+        accountSubjectPreparationTrait.mockGitlabProjectsWithLevel(restClient, project1.gitlabId, subject.gitlabId!!, GroupAccessLevel.MAINTAINER)
+
         assertThat(dataProjectRepository.findByIdOrNull(id1)).isNotNull
 
         this.mockMvc.perform(
             this.defaultAcceptContentAuth(RestDocumentationRequestBuilders.delete("$rootUrl/$id1")))
-            .andExpect(MockMvcResultMatchers.status().isNotFound)
+            .andExpect(MockMvcResultMatchers.status().isForbidden)
     }
 
 

@@ -15,7 +15,8 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.repository.findByIdOrNull
-import java.util.*
+import java.util.UUID
+import java.util.UUID.randomUUID
 import javax.transaction.Transactional
 
 class ParameterInstanceTest : AbstractRepositoryTest() {
@@ -27,19 +28,19 @@ class ParameterInstanceTest : AbstractRepositoryTest() {
 
 
     private fun createEntity(): Pair<UUID, ParameterInstance> {
-        val id = UUID.randomUUID()
-        val codeProjectId = UUID.randomUUID()
-        val author = Person(UUID.randomUUID(), "slug", "name")
+        val id = randomUUID()
+        val codeProjectId = randomUUID()
+        val author = Person(randomUUID(), "slug", "name", 1L)
 //        val codeProject = CodeProject(id = codeProjectId, slug = "code-project-augment", ownerId = author.id, url = "url")
         val dataProcessor = DataOperation(
-            id = UUID.randomUUID(), slug = "commons-random-crop", name = "Random crop",
+            id = randomUUID(), slug = "commons-random-crop", name = "Random crop",
             command = "random_crop", inputDataType = DataType.IMAGE, outputDataType = DataType.IMAGE,
             visibilityScope = VisibilityScope.PUBLIC, author = author,
             description = "description",
             codeProjectId = codeProjectId)
 
-        val processorParameter = ProcessorParameter(UUID.randomUUID(), dataProcessor.id, "height", ParameterType.INTEGER, 1, "")
-        val dataProcessorInstance = DataProcessorInstance(id = UUID.randomUUID(), dataProcessor = dataProcessor)
+        val processorParameter = ProcessorParameter(randomUUID(), dataProcessor.id, "height", ParameterType.INTEGER, 1, "")
+        val dataProcessorInstance = DataProcessorInstance(id = randomUUID(), dataProcessor = dataProcessor)
         val entity = ParameterInstance(
             id = id, processorParameter = processorParameter,
             dataProcessorInstanceId = dataProcessorInstance.id, value = "value")

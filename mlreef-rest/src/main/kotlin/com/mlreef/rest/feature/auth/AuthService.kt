@@ -4,8 +4,6 @@ import com.mlreef.rest.Account
 import com.mlreef.rest.AccountRepository
 import com.mlreef.rest.AccountToken
 import com.mlreef.rest.AccountTokenRepository
-import com.mlreef.rest.Group
-import com.mlreef.rest.GroupRepository
 import com.mlreef.rest.I18N
 import com.mlreef.rest.Person
 import com.mlreef.rest.PersonRepository
@@ -13,7 +11,10 @@ import com.mlreef.rest.config.censor
 import com.mlreef.rest.exceptions.ErrorCode
 import com.mlreef.rest.exceptions.GitlabAlreadyExistingConflictException
 import com.mlreef.rest.exceptions.GitlabConnectException
+import com.mlreef.rest.exceptions.GitlabNoValidTokenException
+import com.mlreef.rest.exceptions.NotConsistentInternalDb
 import com.mlreef.rest.exceptions.RestException
+import com.mlreef.rest.exceptions.UnknownUserException
 import com.mlreef.rest.exceptions.UserAlreadyExistsException
 import com.mlreef.rest.external_api.gitlab.GitlabRestClient
 import com.mlreef.rest.external_api.gitlab.TokenDetails
@@ -22,6 +23,10 @@ import com.mlreef.rest.external_api.gitlab.dto.GitlabUser
 import com.mlreef.rest.external_api.gitlab.dto.GitlabUserInGroup
 import com.mlreef.rest.external_api.gitlab.dto.GitlabUserToken
 import com.mlreef.rest.external_api.gitlab.dto.GroupVariable
+import com.mlreef.rest.external_api.gitlab.dto.OAuthToken
+import com.mlreef.rest.feature.groups.GroupsService
+import com.mlreef.rest.feature.project.GitlabCodeProjectService
+import com.mlreef.rest.feature.project.GitlabDataProjectService
 import com.mlreef.rest.utils.RandomUtils
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
@@ -31,18 +36,20 @@ import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.web.client.ResourceAccessException
 import java.util.UUID.randomUUID
+import javax.security.auth.login.CredentialException
 import javax.transaction.Transactional
 
 
 interface AuthService {
     fun createTokenDetails(token: String, account: Account, gitlabUser: GitlabUser): TokenDetails
     fun findAccountByToken(token: String): Account
-    fun loginUser(plainPassword: String, username: String? = null, email: String? = null): Account
-    fun registerUser(plainPassword: String, username: String, email: String): Account
+    fun findAccountByGitlabId(gitlabId: Long): Account?
+    fun loginUser(plainPassword: String, username: String? = null, email: String? = null): Pair<Account, OAuthToken?>
+    fun registerUser(plainPassword: String, username: String, email: String): Pair<Account, OAuthToken?>
+    fun checkUserInGitlab(token: String): GitlabUser
     fun getBestToken(findAccount: Account?): AccountToken?
     fun findGitlabUserViaToken(token: String): GitlabUser
 }
-
 
 @Service("authService")
 class GitlabAuthService(
@@ -50,8 +57,10 @@ class GitlabAuthService(
     private val accountRepository: AccountRepository,
     private val personRepository: PersonRepository,
     private val accountTokenRepository: AccountTokenRepository,
-    private val groupRepository: GroupRepository,
-    private val passwordEncoder: PasswordEncoder
+    private val groupService: GroupsService,
+    private val passwordEncoder: PasswordEncoder,
+    private val dataProjectsService: GitlabDataProjectService,
+    private val codeProjectsService: GitlabCodeProjectService
 ) : AuthService {
 
     @Value("\${mlreef.bot-management.epf-bot-email-domain:\"\"}")
@@ -64,7 +73,7 @@ class GitlabAuthService(
 
     val log = LoggerFactory.getLogger(this::class.java)
 
-    override fun loginUser(plainPassword: String, username: String?, email: String?): Account {
+    override fun loginUser(plainPassword: String, username: String?, email: String?): Pair<Account, OAuthToken> {
         val byUsername: Account? = if (username != null) accountRepository.findOneByUsername(username) else null
         val byEmail: Account? = if (email != null) accountRepository.findOneByEmail(email) else null
 
@@ -81,8 +90,13 @@ class GitlabAuthService(
         // assert that user is found in gitlab
         findGitlabUserViaToken(accountToken.token)
 
+        val oauthToken = gitlabRestClient.userLoginOAuthToGitlab(account.username, plainPassword)
+
         val accountUpdate = account.copy(lastLogin = I18N.dateTime())
-        return accountRepository.save(accountUpdate)
+
+        val loggedAccount = accountRepository.save(accountUpdate)
+
+        return Pair(loggedAccount, oauthToken)
     }
 
     override fun getBestToken(findAccount: Account?): AccountToken? {
@@ -92,7 +106,7 @@ class GitlabAuthService(
     }
 
     @Transactional
-    override fun registerUser(plainPassword: String, username: String, email: String): Account {
+    override fun registerUser(plainPassword: String, username: String, email: String): Pair<Account, OAuthToken?> {
         val encryptedPassword = passwordEncoder.encode(plainPassword)
         val byUsername: Account? = accountRepository.findOneByUsername(username)
         val byEmail: Account? = accountRepository.findOneByEmail(email)
@@ -104,20 +118,20 @@ class GitlabAuthService(
         val newGitlabUser = createGitlabUser(username = username, email = email, password = plainPassword)
         val newGitlabToken = createGitlabToken(newGitlabUser)
 
+        val oauthToken = gitlabRestClient.userLoginOAuthToGitlab(username, plainPassword)
         val token = newGitlabToken.token
 
-        val person = Person(id = randomUUID(), slug = username, name = username)
-        val newUser = Account(id = randomUUID(), username = username, email = email, passwordEncrypted = encryptedPassword, person = person, gitlabId = newGitlabUser.id)
-        val newToken = AccountToken(id = randomUUID(), accountId = newUser.id, token = token, gitlabId = newGitlabToken.id)
+        val accountUuid = randomUUID()
 
-        personRepository.save(person)
+        val person = Person(id = randomUUID(), slug = username, name = username, gitlabId = newGitlabUser.id)
+        val newToken = AccountToken(id = randomUUID(), accountId = accountUuid, token = token, gitlabId = newGitlabToken.id)
+        val newUser = Account(id = accountUuid, username = username, email = email, passwordEncrypted = encryptedPassword, person = person, gitlabId = null, tokens = mutableListOf(newToken))
+
         accountRepository.save(newUser)
-        accountTokenRepository.save(newToken)
 
-        val newGitlabGroup = createGitlabGroup(token, username) //User is being added to group automatically
+        val groupName = "mlreef-group-$username"
 
-        val group = Group(id = randomUUID(), slug = newGitlabGroup.name, name = newGitlabGroup.name)
-        groupRepository.save(group)
+        val group = groupService.createGroupAsUser(token, groupName)
 
         //Create EPF-Bot and add it to user's group
         val botName = "$username-bot"
@@ -126,12 +140,24 @@ class GitlabAuthService(
         val newGitlabEPFBot = createGitlabUser(username = botName, email = botEmail, password = botPassword)
         val newGitlabEPFBotToken = createGitlabToken(newGitlabEPFBot)
 
-        addGitlabUserToGroup(newGitlabEPFBot, newGitlabGroup)
+        groupService.addEPFBotToGroup(group.id, newGitlabEPFBot.id)
 
         //Create variable in group with bot token
-        createGitlabVariable(token, newGitlabGroup.id, GITLAB_GROUP_VARIABLE_NAME_FOR_BOT_TOKEN, newGitlabEPFBotToken.token)
+        createGitlabVariable(token, group.gitlabId!!, GITLAB_GROUP_VARIABLE_NAME_FOR_BOT_TOKEN, newGitlabEPFBotToken.token)
 
-        return newUser
+        return Pair(newUser, oauthToken)
+    }
+
+    override fun checkUserInGitlab(token: String): GitlabUser {
+        if (token.length < 30) {
+            return gitlabRestClient.getUser(token)
+        } else {
+            val oauthTokenInfo = gitlabRestClient.userCheckOAuthTokenInGitlab(token)
+            val account = accountRepository.findAccountByGitlabId(oauthTokenInfo.resourceOwnerId)
+                ?: throw UnknownUserException()
+            return gitlabRestClient.getUser(account.bestToken?.token
+                ?: throw CredentialException("No valid token for user"))
+        }
     }
 
     override fun findGitlabUserViaToken(token: String): GitlabUser {
@@ -168,31 +194,67 @@ class GitlabAuthService(
         return gitlabRestClient.adminAddUserToGroup(groupId = groupId, userId = userId.toLong())
     }
 
-    private fun createGitlabGroup(token: String, groupName: String, path: String? = null): GitlabGroup {
-        val gitlabName = "mlreef-group-$groupName"
-        val gitlabPath = path ?: "$groupName-path"
-        return gitlabRestClient.userCreateGroup(token = token, groupName = gitlabName, path = gitlabPath)
-    }
-
-    private fun createGitlabVariable(token: String, groupId: Int, variableName: String, value: String): GroupVariable {
+    private fun createGitlabVariable(token: String, groupId: Long, variableName: String, value: String): GroupVariable {
         return gitlabRestClient.userCreateGroupVariable(token = token, groupId = groupId, name = variableName, value = value)
     }
 
     override fun createTokenDetails(token: String, account: Account, gitlabUser: GitlabUser): TokenDetails {
-        return TokenDetails(
-            token = token,
+        val tokenDetails = TokenDetails(
+            username = account.username,
+            permanentToken = account.bestToken?.token
+                ?: throw GitlabNoValidTokenException("No valid token found for user"),
+            accessToken = token,
             accountId = account.id,
             personId = account.person.id,
             gitlabUser = gitlabUser,
             valid = (true)
         )
+
+        tokenDetails.groups.putAll(groupService.getUserGroupsList(account.person.id).map { Pair(it.id, it.accessLevel) })
+        tokenDetails.projects.putAll(dataProjectsService.getUserProjectsList(account.id).map { Pair(it.id, it.accessLevel) })
+        tokenDetails.projects.putAll(codeProjectsService.getUserProjectsList(account.id).map { Pair(it.id, it.accessLevel) })
+
+        return tokenDetails
     }
 
     override fun findAccountByToken(token: String): Account {
-        val findOneByToken = accountTokenRepository.findOneByToken(token)
-            ?: throw BadCredentialsException("Token not found in Database")
+        val tokenInDb = accountTokenRepository.findOneByToken(token)
 
-        return accountRepository.findByIdOrNull(findOneByToken.accountId)
-            ?: throw BadCredentialsException("Token not attached to a Account in Database")
+        if (tokenInDb != null) {
+            return accountRepository.findByIdOrNull(tokenInDb.accountId)
+                ?: throw BadCredentialsException("Token not attached to a Account in Database")
+        } else {
+            return findUserInGitlabAndCreateInternally(token)
+        }
     }
+
+    override fun findAccountByGitlabId(gitlabId: Long): Account? {
+        return accountRepository.findAccountByGitlabId(gitlabId)
+    }
+
+    @Transactional
+    fun findUserInGitlabAndCreateInternally(permanentToken: String): Account {
+        val gitlabUser = findGitlabUserViaToken(permanentToken)
+        var person = personRepository.findByName(gitlabUser.username)
+        var accountToken = accountTokenRepository.findOneByToken(permanentToken)
+        var account = accountRepository.findOneByUsername(gitlabUser.username)
+            ?: accountRepository.findOneByEmail(gitlabUser.email)
+            ?: accountRepository.findAccountByGitlabId(gitlabUser.id)
+
+        if (person != null || accountToken != null || account != null)
+            throw NotConsistentInternalDb("Inconsistent state for Gitlab user[${gitlabUser.id}] ${gitlabUser.name} ${gitlabUser.email}. Possible it already exists locally")
+
+        val password = passwordEncoder.encode(RandomUtils.generateRandomPassword(botPasswordLength))
+
+        val accountUuid = randomUUID()
+
+        person = Person(id = randomUUID(), slug = gitlabUser.username, name = gitlabUser.username, gitlabId = gitlabUser.id)
+        accountToken = AccountToken(id = randomUUID(), accountId = accountUuid, token = permanentToken, gitlabId = null)
+        account = Account(id = accountUuid, username = gitlabUser.username, email = gitlabUser.email, passwordEncrypted = password, person = person, gitlabId = gitlabUser.id, tokens = mutableListOf(accountToken))
+
+        accountRepository.save(account)
+
+        return account
+    }
+
 }

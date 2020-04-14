@@ -6,7 +6,9 @@ import com.mlreef.rest.DataOperation
 import com.mlreef.rest.DataProcessor
 import com.mlreef.rest.DataProcessorRepository
 import com.mlreef.rest.DataProcessorType
-import com.mlreef.rest.DataProcessorType.*
+import com.mlreef.rest.DataProcessorType.ALGORITHM
+import com.mlreef.rest.DataProcessorType.OPERATION
+import com.mlreef.rest.DataProcessorType.VISUALISATION
 import com.mlreef.rest.DataType
 import com.mlreef.rest.DataVisualization
 import com.mlreef.rest.MetricSchema
@@ -18,7 +20,7 @@ import lombok.RequiredArgsConstructor
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import java.net.URL
-import java.util.*
+import java.util.UUID
 
 @Service
 @RequiredArgsConstructor

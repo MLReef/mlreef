@@ -3,7 +3,7 @@ package com.mlreef.rest
 import org.springframework.data.repository.CrudRepository
 import org.springframework.data.repository.NoRepositoryBean
 import java.io.Serializable
-import java.util.*
+import java.util.Optional
 
 /**
  * Copied from https://github.com/systemkern/kommons

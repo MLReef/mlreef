@@ -30,21 +30,36 @@ import org.junit.jupiter.api.assertThrows
 import org.mockito.Mock
 import org.mockito.Mockito
 import org.springframework.beans.factory.annotation.Autowired
-import java.util.*
+import java.util.UUID
 import java.util.UUID.randomUUID
 
 class PipelineServiceTest : AbstractServiceTest() {
 
     lateinit var service: PipelineService
 
-    @Autowired private lateinit var dataProjectRepository: DataProjectRepository
-    @Autowired private lateinit var pipelineConfigRepository: PipelineConfigRepository
-    @Autowired private lateinit var pipelineInstanceRepository: PipelineInstanceRepository
-    @Autowired private lateinit var subjectRepository: SubjectRepository
-    @Autowired private lateinit var personRepository: PersonRepository
-    @Autowired private lateinit var dataProcessorRepository: DataProcessorRepository
-    @Autowired private lateinit var codeProjectRepository: CodeProjectRepository
-    @Autowired private lateinit var processorParameterRepository: ProcessorParameterRepository
+    @Autowired
+    private lateinit var dataProjectRepository: DataProjectRepository
+
+    @Autowired
+    private lateinit var pipelineConfigRepository: PipelineConfigRepository
+
+    @Autowired
+    private lateinit var pipelineInstanceRepository: PipelineInstanceRepository
+
+    @Autowired
+    private lateinit var subjectRepository: SubjectRepository
+
+    @Autowired
+    private lateinit var personRepository: PersonRepository
+
+    @Autowired
+    private lateinit var dataProcessorRepository: DataProcessorRepository
+
+    @Autowired
+    private lateinit var codeProjectRepository: CodeProjectRepository
+
+    @Autowired
+    private lateinit var processorParameterRepository: ProcessorParameterRepository
 
     @Mock
     private lateinit var gitlabRestClient: GitlabRestClient
@@ -65,7 +80,7 @@ class PipelineServiceTest : AbstractServiceTest() {
             gitlabRootUrl = "http://localhost:10080",
             gitlabRestClient = gitlabRestClient)
 
-        val subject = Person(ownerId, "new-person", "person's name")
+        val subject = Person(ownerId, "new-person", "person's name", 1L)
         subjectRepository.save(subject)
         val dataRepository = DataProject(dataRepositoryId, "new-repo", "url", "Test DataProject", subject.id, "mlreef", "project", "group/project", 0, arrayListOf())
         dataProjectRepository.save(DataProject(dataRepositoryId2, "new-repo2", "url", "Test DataProject", subject.id, "mlreef", "project", "group/project", 0, arrayListOf()))
@@ -399,7 +414,7 @@ class PipelineServiceTest : AbstractServiceTest() {
     @Test
     fun `Can commit mlreef file to gitlab`() {
         val userToken = "userToken"
-        val projectId = 1
+        val projectId = 1L
         val targetBranch = "targetBranch"
         val fileContent = "fileContent"
         val sourceBranch = "master"
@@ -426,7 +441,7 @@ class PipelineServiceTest : AbstractServiceTest() {
     }
 
     private fun createFullMockData(targetBranchPattern: String = "", slug: String = "slug"): PipelineConfig {
-        val author = Person(randomUUID(), "person", "name")
+        val author = Person(randomUUID(), "person", "name", 1L)
         val codeProjectId = randomUUID()
 
         personRepository.save(author)

@@ -27,15 +27,30 @@ internal class GitlabCreateUserTokenRequest(
     val expiresAt: String? = null
 ) : Serializable
 
+// https://docs.gitlab.com/ee/api/users.html#get-an-impersonation-token-of-a-user
+internal class GitlabGetUserTokenRequest : Serializable
+
 //https://docs.gitlab.com/ee/api/groups.html#new-group
 internal class GitlabCreateGroupRequest(
     val name: String,
     val path: String
 ) : Serializable
 
+//https://docs.gitlab.com/ee/api/groups.html#update-group
+@JsonInclude(JsonInclude.Include.NON_NULL)
+internal class GitlabUpdateGroupRequest(
+    val name: String?,
+    val path: String?
+) : Serializable
 
 // https://docs.gitlab.com/ee/api/members.html#add-a-member-to-a-group-or-project
 internal class GitlabAddUserToGroupRequest(
+    val userId: Long,
+    val accessLevel: Int
+) : Serializable
+
+// https://docs.gitlab.com/ee/api/members.html#add-a-member-to-a-group-or-project
+internal class GitlabAddUserToProjectRequest(
     val userId: Long,
     val accessLevel: Int
 ) : Serializable
@@ -84,3 +99,14 @@ internal class GitlabUpdateProjectRequest(
     val description: String = "",
     val defaultBranch: String = ""
 ) : Serializable
+
+// https://docs.gitlab.com/ee/api/oauth2.html
+internal class GitlabLoginOAuthTokenRequest(
+    val grantType: String,
+    val username: String,
+    val password: String
+) : Serializable
+
+// https://docs.gitlab.com/ee/api/#oauth2-tokens
+internal class GitlabOAuthTokenInfoRequest : Serializable
+

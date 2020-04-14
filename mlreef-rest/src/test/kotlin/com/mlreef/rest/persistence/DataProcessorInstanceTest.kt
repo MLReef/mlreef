@@ -12,7 +12,8 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.repository.findByIdOrNull
-import java.util.*
+import java.util.UUID
+import java.util.UUID.randomUUID
 import javax.transaction.Transactional
 
 class DataProcessorInstanceTest : AbstractRepositoryTest() {
@@ -21,13 +22,13 @@ class DataProcessorInstanceTest : AbstractRepositoryTest() {
 
 
     private fun createEntity(): Pair<UUID, DataProcessorInstance> {
-        val codeProjectId = UUID.randomUUID()
-        val id = UUID.randomUUID()
-        val author = Person(UUID.randomUUID(), "slug", "name")
+        val codeProjectId = randomUUID()
+        val id = randomUUID()
+        val author = Person(randomUUID(), "slug", "name", 1L)
         CodeProject(id = codeProjectId, slug = "code-project-augment", name = "CodeProject Augment", ownerId = author.id, url = "url",
             gitlabGroup = "", gitlabId = 0, gitlabProject = "")
         val dataOp1 = DataOperation(
-            id = UUID.randomUUID(), slug = "commons-augment", name = "Augment",
+            id = randomUUID(), slug = "commons-augment", name = "Augment",
             command = "augment", inputDataType = DataType.IMAGE, outputDataType = DataType.IMAGE,
             visibilityScope = VisibilityScope.PUBLIC, author = author,
             description = "description",

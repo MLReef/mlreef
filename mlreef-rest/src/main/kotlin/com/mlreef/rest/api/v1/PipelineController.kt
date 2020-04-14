@@ -20,13 +20,13 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
-import java.util.*
+import java.util.UUID
 import java.util.logging.Logger
 
 @RestController
 @RequestMapping("/api/v1/pipelines")
 class PipelineController(
-    val service: PipelineService,
+    val pipelineService: PipelineService,
     val currentUserService: CurrentUserService,
     val dataProjectRepository: DataProjectRepository,
     val pipelineConfigRepository: PipelineConfigRepository,
@@ -91,10 +91,10 @@ class PipelineController(
         val account = currentUserService.account()
         val dataProject = dataProjectRepository.findByIdOrNull(pipelineConfig.dataProjectId)
             ?: throw NotFoundException("dataProject not found for this Pipeline")
-        val userToken = currentUserService.token()
+        val userToken = currentUserService.permanentToken()
         val adaptedInstance = when (action) {
-            "start" -> service.startInstance(account, userToken, dataProject.gitlabId, instance)
-            "archive" -> service.archiveInstance(instance)
+            "start" -> pipelineService.startInstance(account, userToken, dataProject.gitlabId, instance)
+            "archive" -> pipelineService.archiveInstance(instance)
             else -> throw MethodNotAllowedException("No valid action: '$action'")
         }
         return adaptedInstance.toDto()
@@ -113,8 +113,8 @@ class PipelineController(
         val dataProject = dataProjectRepository.findByIdOrNull(instance.dataProjectId)
             ?: throw NotFoundException("DataProject was not found")
 
-        val userToken = currentUserService.token()
-        service.deletePipelineInstance(userToken, dataProject.gitlabId, instance.targetBranch)
+        val userToken = currentUserService.permanentToken()
+        pipelineService.deletePipelineInstance(userToken, dataProject.gitlabId, instance.targetBranch)
         pipelineInstanceRepository.delete(instance)
     }
 }

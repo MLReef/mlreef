@@ -11,7 +11,7 @@ import java.io.Serializable
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 class GitlabUserInGroup(
-    val id: Int,
+    val id: Long,
     val webUrl: String,
     val name: String,
     val username: String,

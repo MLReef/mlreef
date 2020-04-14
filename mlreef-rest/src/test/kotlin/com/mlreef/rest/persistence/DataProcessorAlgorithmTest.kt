@@ -10,7 +10,8 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.repository.findByIdOrNull
-import java.util.*
+import java.util.UUID
+import java.util.UUID.randomUUID
 import javax.transaction.Transactional
 
 class DataProcessorAlgorithmTest : AbstractRepositoryTest() {
@@ -20,9 +21,9 @@ class DataProcessorAlgorithmTest : AbstractRepositoryTest() {
     private lateinit var repository: DataAlgorithmRepository
 
     private fun createEntity(): Pair<UUID, DataAlgorithm> {
-        val id = UUID.randomUUID()
-        val codeProjectId = UUID.randomUUID()
-        val author = Person(UUID.randomUUID(), "slug", "name")
+        val id = randomUUID()
+        val codeProjectId = randomUUID()
+        val author = Person(randomUUID(), "slug", "name", 1L)
 //        val codeProject = CodeProject(id = codeProjectId, slug = "code-project-augment", ownerId = author.id, url = "url")
         val entity = DataAlgorithm(
             id = id, slug = "commons-augment", name = "Augment",

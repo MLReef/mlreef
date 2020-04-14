@@ -9,6 +9,8 @@ import com.mlreef.rest.api.v1.CodeProjectUpdateRequest
 import com.mlreef.rest.api.v1.dto.CodeProjectDto
 import com.mlreef.rest.exceptions.ErrorCode
 import com.mlreef.rest.exceptions.GitlabBadRequestException
+import com.mlreef.rest.external_api.gitlab.GroupAccessLevel
+import com.mlreef.rest.feature.system.SessionsService
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
@@ -20,10 +22,12 @@ import org.springframework.restdocs.mockmvc.MockMvcRestDocumentation
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders
 import org.springframework.restdocs.payload.FieldDescriptor
 import org.springframework.restdocs.payload.JsonFieldType
-import org.springframework.restdocs.payload.PayloadDocumentation.*
+import org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath
+import org.springframework.restdocs.payload.PayloadDocumentation.requestFields
+import org.springframework.restdocs.payload.PayloadDocumentation.responseFields
 import org.springframework.test.annotation.Rollback
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
-import java.util.*
+import java.util.UUID.randomUUID
 import javax.transaction.Transactional
 
 class CodeProjectsApiTest : RestApiTest() {
@@ -32,10 +36,14 @@ class CodeProjectsApiTest : RestApiTest() {
     private lateinit var account: Account
     private lateinit var account2: Account
 
-    @Autowired private lateinit var accountSubjectPreparationTrait: AccountSubjectPreparationTrait
+    @Autowired
+    private lateinit var accountSubjectPreparationTrait: AccountSubjectPreparationTrait
 
     @Autowired
     private lateinit var codeProjectRepository: CodeProjectRepository
+
+    @Autowired
+    private lateinit var sessionService: SessionsService
 
     val rootUrl = "/api/v1/code-projects"
 
@@ -53,11 +61,15 @@ class CodeProjectsApiTest : RestApiTest() {
 
         account = accountSubjectPreparationTrait.account
         account2 = accountSubjectPreparationTrait.account2
+
+        // To update user permissions before each test
+        sessionService.killAllSessions("username0000")
     }
 
     @Transactional
     @Rollback
-    @Test fun `Can create CodeProject`() {
+    @Test
+    fun `Can create CodeProject`() {
         val request = CodeProjectCreateRequest("test-project", "mlreef", "Test project")
         val returnedResult = this.mockMvc.perform(
             this.defaultAcceptContentAuth(RestDocumentationRequestBuilders.post(rootUrl))
@@ -76,7 +88,8 @@ class CodeProjectsApiTest : RestApiTest() {
 
     @Transactional
     @Rollback
-    @Test fun `Cannot create duplicate CodeProject`() {
+    @Test
+    fun `Cannot create duplicate CodeProject`() {
         Mockito.`when`(restClient.createProject(
             Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), anyObject()
         )).then {
@@ -92,7 +105,8 @@ class CodeProjectsApiTest : RestApiTest() {
 
     @Transactional
     @Rollback
-    @Test fun `Cannot create CodeProject with invalid params`() {
+    @Test
+    fun `Cannot create CodeProject with invalid params`() {
         Mockito.`when`(restClient.createProject(
             Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), anyObject()
         )).then {
@@ -108,10 +122,11 @@ class CodeProjectsApiTest : RestApiTest() {
 
     @Transactional
     @Rollback
-    @Test fun `Can retrieve all own CodeProjects only`() {
-        val project1 = CodeProject(UUID.randomUUID(), "slug-1", "www.url.com", "Test Project 1", account.person.id, "group1", "project-1", "mlreef/project1", 1)
-        val project2 = CodeProject(UUID.randomUUID(), "slug-2", "www.url.net", "Test Project 2", account.person.id, "group2", "project-2", "mlreef/project2", 2)
-        val project3 = CodeProject(UUID.randomUUID(), "slug-3", "www.url.xyz", "Test Project 3", account2.person.id, "group3", "project-3", "mlreef/project3", 3)
+    @Test
+    fun `Can retrieve all own CodeProjects only`() {
+        val project1 = CodeProject(randomUUID(), "slug-1", "www.url.com", "Test Project 1", account.person.id, "group1", "project-1", "mlreef/project1", 1)
+        val project2 = CodeProject(randomUUID(), "slug-2", "www.url.net", "Test Project 2", account.person.id, "group2", "project-2", "mlreef/project2", 2)
+        val project3 = CodeProject(randomUUID(), "slug-3", "www.url.xyz", "Test Project 3", account2.person.id, "group3", "project-3", "mlreef/project3", 3)
         codeProjectRepository.save(project1)
         codeProjectRepository.save(project2)
         codeProjectRepository.save(project3)
@@ -132,14 +147,19 @@ class CodeProjectsApiTest : RestApiTest() {
 
     @Transactional
     @Rollback
-    @Test fun `Can retrieve specific own CodeProject`() {
-        val id1 = UUID.randomUUID()
+    @Test
+    fun `Can retrieve specific own CodeProject`() {
+        val id1 = randomUUID()
         val project1 = CodeProject(id1, "slug-1", "www.url.com", "Test Project 1", account.person.id, "group1", "project-1", "mlreef/project1", 1)
-        val project2 = CodeProject(UUID.randomUUID(), "slug-2", "www.url.net", "Test Project 2", account.person.id, "group2", "project-2", "mlreef/project2", 2)
-        val project3 = CodeProject(UUID.randomUUID(), "slug-3", "www.url.xyz", "Test Project 3", account2.person.id, "group3", "project-3", "mlreef/project3", 3)
+        val project2 = CodeProject(randomUUID(), "slug-2", "www.url.net", "Test Project 2", account.person.id, "group2", "project-2", "mlreef/project2", 2)
+        val project3 = CodeProject(randomUUID(), "slug-3", "www.url.xyz", "Test Project 3", account2.person.id, "group3", "project-3", "mlreef/project3", 3)
         codeProjectRepository.save(project1)
         codeProjectRepository.save(project2)
         codeProjectRepository.save(project3)
+
+        accountSubjectPreparationTrait.mockGitlabProjectsWithLevel(restClient, project2.gitlabId, account.person.gitlabId!!, GroupAccessLevel.OWNER)
+        accountSubjectPreparationTrait.mockGitlabProjectsWithLevel(restClient, project1.gitlabId, account.person.gitlabId!!, GroupAccessLevel.OWNER)
+        accountSubjectPreparationTrait.mockGitlabProjectsWithLevel(restClient, project3.gitlabId, account2.person.gitlabId!!, GroupAccessLevel.OWNER)
 
         val returnedResult: CodeProjectDto = this.mockMvc.perform(
             this.defaultAcceptContentAuth(RestDocumentationRequestBuilders.get("$rootUrl/$id1")))
@@ -157,26 +177,38 @@ class CodeProjectsApiTest : RestApiTest() {
 
     @Transactional
     @Rollback
-    @Test fun `Cannot retrieve specific not own CodeProject`() {
-        val id1 = UUID.randomUUID()
-        val project1 = CodeProject(UUID.randomUUID(), "slug-1", "www.url.com", "Test Project 1", account.person.id, "group1", "project-1", "mlreef/project1", 1)
-        val project2 = CodeProject(UUID.randomUUID(), "slug-2", "www.url.net", "Test Project 2", account.person.id, "group2", "project-2", "mlreef/project2", 2)
+    @Test
+    fun `Cannot retrieve specific not own CodeProject`() {
+        val id1 = randomUUID()
+        val project1 = CodeProject(randomUUID(), "slug-1", "www.url.com", "Test Project 1", account.person.id, "group1", "project-1", "mlreef/project1", 1)
+        val project2 = CodeProject(randomUUID(), "slug-2", "www.url.net", "Test Project 2", account.person.id, "group2", "project-2", "mlreef/project2", 2)
         val project3 = CodeProject(id1, "slug-3", "www.url.xyz", "Test Project 3", account2.person.id, "group3", "project-3", "mlreef/project3", 3)
         codeProjectRepository.save(project1)
         codeProjectRepository.save(project2)
         codeProjectRepository.save(project3)
 
+        accountSubjectPreparationTrait.mockGitlabProjectsWithLevel(
+            restClient,
+            listOf(project1.gitlabId, project2.gitlabId),
+            account.person.gitlabId!!,
+            listOf(GroupAccessLevel.OWNER, GroupAccessLevel.OWNER, GroupAccessLevel.OWNER))
+
+        accountSubjectPreparationTrait.mockGitlabProjectsWithLevel(restClient, project3.gitlabId, account2.person.gitlabId!!, GroupAccessLevel.OWNER)
+
         this.mockMvc.perform(
             this.defaultAcceptContentAuth(RestDocumentationRequestBuilders.get("$rootUrl/$id1")))
-            .andExpect(MockMvcResultMatchers.status().isNotFound)
+            .andExpect(MockMvcResultMatchers.status().isForbidden)
     }
 
     @Transactional
     @Rollback
-    @Test fun `Can update own CodeProject`() {
-        val id1 = UUID.randomUUID()
+    @Test
+    fun `Can update own CodeProject`() {
+        val id1 = randomUUID()
         val project1 = CodeProject(id1, "slug-1", "www.url.com", "Test Project 1", account.person.id, "group1", "project-1", "mlreef/project3", 1)
         codeProjectRepository.save(project1)
+
+        accountSubjectPreparationTrait.mockGitlabProjectsWithLevel(restClient, project1.gitlabId, account.person.gitlabId!!, GroupAccessLevel.OWNER)
 
         val request = CodeProjectUpdateRequest("New Test project")
 
@@ -198,8 +230,9 @@ class CodeProjectsApiTest : RestApiTest() {
 
     @Transactional
     @Rollback
-    @Test fun `Cannot update not-own CodeProject`() {
-        val id1 = UUID.randomUUID()
+    @Test
+    fun `Cannot update not-own CodeProject`() {
+        val id1 = randomUUID()
         val project1 = CodeProject(id1, "slug-1", "www.url.com", "Test Project 1", account2.person.id, "group1", "project-1", "mlreef/project1", 1)
         codeProjectRepository.save(project1)
 
@@ -213,10 +246,13 @@ class CodeProjectsApiTest : RestApiTest() {
 
     @Transactional
     @Rollback
-    @Test fun `Can delete own CodeProject`() {
-        val id1 = UUID.randomUUID()
+    @Test
+    fun `Can delete own CodeProject`() {
+        val id1 = randomUUID()
         val project1 = CodeProject(id1, "slug-1", "www.url.com", "Test Project 1", account.person.id, "group1", "project-1", "mlreef/project1", 1)
         codeProjectRepository.save(project1)
+
+        accountSubjectPreparationTrait.mockGitlabProjectsWithLevel(restClient, project1.gitlabId, account.person.gitlabId!!, GroupAccessLevel.OWNER)
 
         assertThat(codeProjectRepository.findByIdOrNull(id1)).isNotNull
 
@@ -231,16 +267,20 @@ class CodeProjectsApiTest : RestApiTest() {
 
     @Transactional
     @Rollback
-    @Test fun `Cannot delete not-own CodeProject`() {
-        val id1 = UUID.randomUUID()
+    @Test
+    fun `Cannot delete not-own CodeProject`() {
+        val id1 = randomUUID()
         val project1 = CodeProject(id1, "slug-1", "www.url.com", "Test Project 1", account2.person.id, "group1", "project-1", "mlreef/project1", 1)
         codeProjectRepository.save(project1)
+
+        accountSubjectPreparationTrait.mockGitlabProjectsWithLevel(restClient, project1.gitlabId, account2.person.gitlabId!!, GroupAccessLevel.OWNER)
+        accountSubjectPreparationTrait.mockGitlabProjectsWithLevel(restClient, project1.gitlabId, account.person.gitlabId!!, GroupAccessLevel.MAINTAINER)
 
         assertThat(codeProjectRepository.findByIdOrNull(id1)).isNotNull
 
         this.mockMvc.perform(
             this.defaultAcceptContentAuth(RestDocumentationRequestBuilders.delete("$rootUrl/$id1")))
-            .andExpect(MockMvcResultMatchers.status().isNotFound)
+            .andExpect(MockMvcResultMatchers.status().isForbidden)
     }
 
     private fun codeProjectResponseFields(prefix: String = ""): List<FieldDescriptor> {

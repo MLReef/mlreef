@@ -10,8 +10,10 @@ import com.mlreef.rest.exceptions.GitlabBadRequestException
 import com.mlreef.rest.exceptions.GitlabConflictException
 import com.mlreef.rest.exceptions.NotFoundException
 import com.mlreef.rest.exceptions.ProjectCreationException
+import com.mlreef.rest.exceptions.ProjectNotFoundException
 import com.mlreef.rest.feature.project.CodeProjectService
 import org.springframework.http.HttpStatus
+import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
@@ -21,7 +23,7 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
-import java.util.*
+import java.util.UUID
 import java.util.logging.Logger
 import javax.validation.Valid
 import javax.validation.constraints.NotEmpty
@@ -45,14 +47,16 @@ class CodeProjectsController(
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("isCurrentUserInProject(#id)")
     fun getCodeProjectById(@PathVariable id: UUID): CodeProjectDto {
-        val codeProject = assertFindExisting(id)
+        val codeProject = codeProjectService.getProjectById(id) ?: throw ProjectNotFoundException(projectId = id)
         return codeProject.toDto()
     }
 
     @PostMapping
+    @PreAuthorize("canCreateProject()")
     fun createCodeProject(@Valid @RequestBody codeProjectCreateRequest: CodeProjectCreateRequest): CodeProjectDto {
-        val userToken = currentUserService.token()
+        val userToken = currentUserService.permanentToken()
         val ownerId = currentUserService.person().id
         val projectSlug = codeProjectCreateRequest.slug
         try {
@@ -70,12 +74,12 @@ class CodeProjectsController(
         } catch (e: Exception) {
             throw ProjectCreationException(ErrorCode.GitlabProjectCreationFailed, "Cannot create Project $projectSlug: ${e.message}")
         }
-
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasAccessToProject(#id, 'MAINTAINER')")
     fun updateCodeProject(@PathVariable id: UUID, @Valid @RequestBody codeProjectCreateRequest: CodeProjectUpdateRequest): CodeProjectDto {
-        val userToken = currentUserService.token()
+        val userToken = currentUserService.permanentToken()
         val ownerId = currentUserService.person().id
         assertFindExisting(id)
         val codeProject = codeProjectService.updateProject(
@@ -89,8 +93,9 @@ class CodeProjectsController(
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @PreAuthorize("isProjectOwner(#id)")
     fun deleteCodeProject(@PathVariable id: UUID) {
-        val userToken = currentUserService.token()
+        val userToken = currentUserService.permanentToken()
         val ownerId = currentUserService.person().id
         codeProjectService.deleteProject(
             userToken = userToken,

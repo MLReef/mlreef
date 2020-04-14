@@ -26,7 +26,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
-import java.util.*
+import java.util.UUID
 import java.util.UUID.randomUUID
 
 @Service
@@ -92,7 +92,7 @@ class PipelineService(
         return YamlFileGenerator().generateYamlFile(author, dataProject, gitlabRootUrl, pipelineInstance.sourceBranch, pipelineInstance.targetBranch, pipelineInstance.dataOperations)
     }
 
-    fun commitYamlFile(userToken: String, projectId: Int, targetBranch: String, fileContent: String, sourceBranch: String = "master"): Commit {
+    fun commitYamlFile(userToken: String, projectId: Long, targetBranch: String, fileContent: String, sourceBranch: String = "master"): Commit {
         val commitMessage = "pipeline execution"
         val fileContents = mapOf(Pair(".mlreef.yml", fileContent))
         try {
@@ -113,7 +113,7 @@ class PipelineService(
         }
     }
 
-    fun deletePipelineInstance(userToken: String, gitlabProjectId: Int, targetBranch: String) {
+    fun deletePipelineInstance(userToken: String, gitlabProjectId: Long, targetBranch: String) {
         try {
             gitlabRestClient.deleteBranch(token = userToken, projectId = gitlabProjectId, targetBranch = targetBranch)
         } catch (e: RestException) {
@@ -122,7 +122,7 @@ class PipelineService(
         log.info("PipelineInstance deleted: $targetBranch")
     }
 
-    fun startInstance(author: Account, userToken: String, gitlabProjectId: Int, instance: PipelineInstance): PipelineInstance {
+    fun startInstance(author: Account, userToken: String, gitlabProjectId: Long, instance: PipelineInstance): PipelineInstance {
         val fileContent = createPipelineInstanceFile(author = author, pipelineInstance = instance)
 
         commitYamlFile(

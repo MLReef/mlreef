@@ -2,7 +2,7 @@ package com.mlreef.rest
 
 import org.hibernate.annotations.Fetch
 import org.hibernate.annotations.FetchMode
-import java.util.*
+import java.util.UUID
 import java.util.UUID.randomUUID
 import javax.persistence.CascadeType
 import javax.persistence.Column

@@ -13,6 +13,8 @@ mlreef:
   bot-management:
     epf-bot-email-domain: mlreef.com
     epf-bot-password-length: 20
+  security:
+    gitlab-oauth: false
 
 spring:
   devtools:

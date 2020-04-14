@@ -11,6 +11,7 @@ import com.mlreef.rest.external_api.gitlab.dto.GitlabProject
 import com.mlreef.rest.external_api.gitlab.dto.GitlabUser
 import com.mlreef.rest.external_api.gitlab.dto.GitlabUserInGroup
 import com.mlreef.rest.external_api.gitlab.dto.GitlabUserToken
+import com.mlreef.rest.external_api.gitlab.dto.OAuthToken
 import com.mlreef.rest.testcommons.TestPostgresContainer
 import com.mlreef.rest.testcommons.TestRedisContainer
 import org.junit.jupiter.api.BeforeEach
@@ -94,6 +95,12 @@ abstract class RestApiTest {
             )
             .build()
 
+        Mockito.`when`(restClient.userLoginOAuthToGitlab(
+            Mockito.anyString(), Mockito.anyString()
+        )).thenReturn(
+            OAuthToken("accesstoken12345", "refreshtoken1234567", "bearer", "api", 1585910424)
+        )
+
         val gitlabUser = GitlabUser(
             id = 1,
             name = "Mock Gitlab User",
@@ -118,7 +125,7 @@ abstract class RestApiTest {
             gitlabUser
         )
 
-        Mockito.`when`(restClient.adminCreateUserToken(Mockito.anyInt(), Mockito.anyString())).thenReturn(
+        Mockito.`when`(restClient.adminCreateUserToken(Mockito.anyLong(), Mockito.anyString())).thenReturn(
             GitlabUserToken(
                 id = 1,
                 revoked = false,
@@ -140,7 +147,7 @@ abstract class RestApiTest {
         )
 
         Mockito.`when`(restClient.adminAddUserToGroup(
-            Mockito.anyInt(), Mockito.anyLong(), anyObject()
+            Mockito.anyLong(), Mockito.anyLong(), anyObject()
         )).thenReturn(
             GitlabUserInGroup(
                 id = 1,
@@ -180,7 +187,7 @@ abstract class RestApiTest {
 
         Mockito.`when`(currentUserService.person()).then { personRepository.findAll().first() }
         Mockito.`when`(currentUserService.account()).then { accountRepository.findAll().first() }
-        Mockito.`when`(currentUserService.token()).then { testPrivateUserTokenMock }
+        Mockito.`when`(currentUserService.permanentToken()).then { testPrivateUserTokenMock }
     }
 
     protected fun defaultAcceptContentAuth(requestBuilder: MockHttpServletRequestBuilder): MockHttpServletRequestBuilder {

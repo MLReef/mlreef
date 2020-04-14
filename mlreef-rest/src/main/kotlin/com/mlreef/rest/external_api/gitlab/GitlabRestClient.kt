@@ -17,8 +17,11 @@ import com.mlreef.rest.external_api.gitlab.dto.GitlabNamespace
 import com.mlreef.rest.external_api.gitlab.dto.GitlabProject
 import com.mlreef.rest.external_api.gitlab.dto.GitlabUser
 import com.mlreef.rest.external_api.gitlab.dto.GitlabUserInGroup
+import com.mlreef.rest.external_api.gitlab.dto.GitlabUserInProject
 import com.mlreef.rest.external_api.gitlab.dto.GitlabUserToken
 import com.mlreef.rest.external_api.gitlab.dto.GroupVariable
+import com.mlreef.rest.external_api.gitlab.dto.OAuthToken
+import com.mlreef.rest.external_api.gitlab.dto.OAuthTokenInfo
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
@@ -51,6 +54,9 @@ class GitlabRestClient(
 
     @Suppress("LeakingThis")
     val gitlabServiceRootUrl = "$gitlabRootUrl/api/v4"
+
+    @Suppress("LeakingThis")
+    val gitlabOAuthUrl = "$gitlabRootUrl/oauth/"
 
     val log = LoggerFactory.getLogger(GitlabRestClient::class.java)
 
@@ -86,6 +92,117 @@ class GitlabRestClient(
             .body!!
     }
 
+    fun userGetProjectMembers(token: String, projectId: Long): List<GitlabUserInProject> {
+        return GitlabHttpEntity<String>("body", createUserHeaders(token))
+            .addErrorDescription(404, ErrorCode.GitlabProjectNotExists, "Cannot find project $projectId in gitlab")
+            .addErrorDescription(ErrorCode.GitlabCommonError, "Cannot get users for project $projectId")
+            .makeRequest {
+                val url = "$gitlabServiceRootUrl/projects/$projectId/members"
+                restTemplate(builder).exchange(url, HttpMethod.GET, it, typeRef<List<GitlabUserInProject>>())
+            }
+            .also { logGitlabCall(it) }
+            .body!!
+    }
+
+    fun adminGetProjectMembers(projectId: Long): List<GitlabUserInProject> {
+        return GitlabHttpEntity<String>("body", createAdminHeaders())
+            .addErrorDescription(404, ErrorCode.GitlabProjectNotExists, "Cannot find project $projectId in gitlab")
+            .addErrorDescription(ErrorCode.GitlabCommonError, "Cannot get users for project $projectId")
+            .makeRequest {
+                val url = "$gitlabServiceRootUrl/projects/$projectId/members"
+                restTemplate(builder).exchange(url, HttpMethod.GET, it, typeRef<List<GitlabUserInProject>>())
+            }
+            .also { logGitlabCall(it) }
+            .body!!
+    }
+
+    fun adminAddUserToProject(projectId: Long, userId: Long, accessLevel: GroupAccessLevel = GroupAccessLevel.DEVELOPER): GitlabUserInProject {
+        return GitlabAddUserToProjectRequest(userId, accessLevel.accessCode)
+            .let { GitlabHttpEntity(it, createAdminHeaders()) }
+            .addErrorDescription(404, ErrorCode.UserNotExisting, "Cannot add user to project. The project or user doesn't exist")
+            .addErrorDescription(409, ErrorCode.UserAlreadyExisting, "Cannot add user to project. User already is in the project")
+            .addErrorDescription(ErrorCode.GitlabUserAddingToGroupFailed, "Cannot add user to the project")
+            .makeRequest {
+                val url = "$gitlabServiceRootUrl/projects/$projectId/members"
+                restTemplate(builder).exchange(url, HttpMethod.POST, it, GitlabUserInProject::class.java)
+            }
+            .also { logGitlabCall(it) }
+            .body!!
+    }
+
+
+    fun userAddUserToProject(token: String, projectId: Long, userId: Long, accessLevel: GroupAccessLevel = GroupAccessLevel.DEVELOPER): GitlabUserInProject {
+        return GitlabAddUserToProjectRequest(userId, accessLevel.accessCode)
+            .let { GitlabHttpEntity(it, createUserHeaders(token)) }
+            .addErrorDescription(404, ErrorCode.UserNotExisting, "Cannot add user to project. The project or user doesn't exist")
+            .addErrorDescription(409, ErrorCode.UserAlreadyExisting, "Cannot add user to project. User already is in the project")
+            .addErrorDescription(ErrorCode.GitlabUserAddingToGroupFailed, "Cannot add user to the project")
+            .makeRequest {
+                val url = "$gitlabServiceRootUrl/projects/$projectId/members"
+                restTemplate(builder).exchange(url, HttpMethod.POST, it, GitlabUserInProject::class.java)
+            }
+            .also { logGitlabCall(it) }
+            .body!!
+    }
+
+    fun editUserInProject(token: String, projectId: Long, userId: Long, accessLevel: GroupAccessLevel = GroupAccessLevel.DEVELOPER): GitlabUserInProject {
+        return GitlabAddUserToProjectRequest(userId, accessLevel.accessCode)
+            .let { GitlabHttpEntity(it, createUserHeaders(token)) }
+            .addErrorDescription(404, ErrorCode.UserNotExisting, "Cannot add user to project. The project or user doesn't exist")
+            .addErrorDescription(409, ErrorCode.UserAlreadyExisting, "Cannot add user to project. User already is in the project")
+            .addErrorDescription(ErrorCode.GitlabUserAddingToGroupFailed, "Cannot add user to the project")
+            .makeRequest {
+                val url = "$gitlabServiceRootUrl/projects/$projectId/members/$userId"
+                restTemplate(builder).exchange(url, HttpMethod.PUT, it, GitlabUserInProject::class.java)
+            }
+            .also { logGitlabCall(it) }
+            .body!!
+    }
+
+    fun userDeleteUserFromProject(token: String, projectId: Long, userId: Long) {
+        GitlabHttpEntity(null, createUserHeaders(token))
+            .addErrorDescription(ErrorCode.GitlabMembershipDeleteFailed, "Cannot revoke user's membership from project $projectId")
+            .makeRequest {
+                val url = "$gitlabServiceRootUrl/projects/$projectId/members/$userId"
+                restTemplate(builder).exchange(url, HttpMethod.DELETE, it, Any::class.java)
+            }
+            .also { logGitlabCall(it) }
+    }
+
+    fun adminDeleteUserFromProject(projectId: Long, userId: Long) {
+        GitlabHttpEntity(null, createAdminHeaders())
+            .addErrorDescription(ErrorCode.GitlabMembershipDeleteFailed, "Cannot revoke user's membership from project $projectId")
+            .makeRequest {
+                val url = "$gitlabServiceRootUrl/projects/$projectId/members/$userId"
+                restTemplate(builder).exchange(url, HttpMethod.DELETE, it, Any::class.java)
+            }
+            .also { logGitlabCall(it) }
+    }
+
+    fun userGetUserInProject(token: String, projectId: Long, userId: Long): GitlabUserInProject {
+        return GitlabHttpEntity<String>("", createUserHeaders(token))
+            .addErrorDescription(404, ErrorCode.UserNotExisting, "Cannot find user in project. User or project does not exist")
+            .addErrorDescription(ErrorCode.GitlabCommonError, "Cannot find user in project. User or project does not exist")
+            .makeRequest {
+                val url = "$gitlabServiceRootUrl/projects/$projectId/members/$userId"
+                restTemplate(builder).exchange(url, HttpMethod.GET, it, GitlabUserInProject::class.java)
+            }
+            .also { logGitlabCall(it) }
+            .body!!
+    }
+
+    fun adminGetUserInProject(projectId: Long, userId: Long): GitlabUserInProject {
+        return GitlabHttpEntity<String>("", createAdminHeaders())
+            .addErrorDescription(404, ErrorCode.UserNotExisting, "Cannot find user in project. User or project does not exist")
+            .addErrorDescription(ErrorCode.GitlabCommonError, "Cannot find user in project. User or project does not exist")
+            .makeRequest {
+                val url = "$gitlabServiceRootUrl/projects/$projectId/members/$userId"
+                restTemplate(builder).exchange(url, HttpMethod.GET, it, GitlabUserInProject::class.java)
+            }
+            .also { logGitlabCall(it) }
+            .body!!
+    }
+
     fun updateProject(id: Long, token: String, name: String): GitlabProject {
         return GitlabUpdateProjectRequest(name = name)
             .let { GitlabHttpEntity(it, createUserHeaders(token)) }
@@ -109,7 +226,7 @@ class GitlabRestClient(
     }
 
 
-    fun createBranch(token: String, projectId: Int, targetBranch: String, sourceBranch: String = "master"): Branch {
+    fun createBranch(token: String, projectId: Long, targetBranch: String, sourceBranch: String = "master"): Branch {
         return GitlabCreateBranchRequest(branch = targetBranch, ref = sourceBranch)
             .let { GitlabHttpEntity(it, createUserHeaders(token)) }
             .addErrorDescription(409, ErrorCode.GitlabBranchCreationFailed, "Cannot create branch $targetBranch in project with id $projectId. Branch exists")
@@ -122,7 +239,7 @@ class GitlabRestClient(
             .body!!
     }
 
-    fun deleteBranch(token: String, projectId: Int, targetBranch: String) {
+    fun deleteBranch(token: String, projectId: Long, targetBranch: String) {
         GitlabHttpEntity(null, createUserHeaders(token))
             .addErrorDescription(ErrorCode.GitlabBranchDeletionFailed, "Cannot delete branch $targetBranch in project with id $projectId")
             .makeRequest {
@@ -132,7 +249,7 @@ class GitlabRestClient(
             .also { logGitlabCall(it) }
     }
 
-    fun commitFiles(token: String, projectId: Int, targetBranch: String, commitMessage: String, fileContents: Map<String, String>, action: String = "create"): Commit {
+    fun commitFiles(token: String, projectId: Long, targetBranch: String, commitMessage: String, fileContents: Map<String, String>, action: String = "create"): Commit {
         val actionList = fileContents.map { GitlabCreateCommitAction(filePath = it.key, content = it.value, action = action) }
         return GitlabCreateCommitRequest(branch = targetBranch, actions = actionList, commitMessage = commitMessage)
             .let { GitlabHttpEntity(it, createUserHeaders(token)) }
@@ -152,6 +269,19 @@ class GitlabRestClient(
             .makeRequest {
                 val url = "$gitlabServiceRootUrl/user"
                 restTemplate(builder).exchange(url, HttpMethod.GET, it, GitlabUser::class.java)
+            }
+            .also { logGitlabCall(it) }
+            .body!!
+    }
+
+    // https://docs.gitlab.com/ee/api/projects.html#list-user-projects
+    fun adminGetUserProjects(userId: Long): List<GitlabProject> {
+        return GitlabHttpEntity<String>("body", createAdminHeaders())
+            .addErrorDescription(404, ErrorCode.GitlabUserNotExisting, "Cannot find user by tid. User does not exist")
+            .addErrorDescription(ErrorCode.GitlabUserNotExisting, "Unable to get users projects")
+            .makeRequest {
+                val url = "$gitlabServiceRootUrl/users/$userId/projects"
+                restTemplate(builder).exchange(url, HttpMethod.GET, it, typeRef<List<GitlabProject>>())
             }
             .also { logGitlabCall(it) }
             .body!!
@@ -223,6 +353,44 @@ class GitlabRestClient(
         return null
     }
 
+    fun userLoginOAuthToGitlab(userName: String, password: String): OAuthToken {
+        return GitlabLoginOAuthTokenRequest(grantType = "password", username = userName, password = password)
+            .let { GitlabHttpEntity(it, createEmptyHeaders()) }
+            .addErrorDescription(401, ErrorCode.UserBadCredentials, "Username or password is incorrect")
+            .makeRequest {
+                val url = "$gitlabOAuthUrl/token"
+                restTemplate(builder).exchange(url, HttpMethod.POST, it, OAuthToken::class.java)
+            }
+            .also { logGitlabCall(it) }
+            .body!!
+    }
+
+    fun userCheckOAuthTokenInGitlab(accessToken: String): OAuthTokenInfo {
+        return GitlabOAuthTokenInfoRequest()
+            .let { GitlabHttpEntity(it, createOAuthHeaders(accessToken)) }
+            .addErrorDescription(401, ErrorCode.UserBadCredentials, "Token is incorrect")
+            .makeRequest {
+                val url = "$gitlabOAuthUrl/token/info"
+                restTemplate(builder).exchange(url, HttpMethod.GET, it, OAuthTokenInfo::class.java)
+            }
+            .also { logGitlabCall(it) }
+            .body!!
+    }
+
+
+    fun adminCreateGroup(groupName: String, path: String): GitlabGroup {
+        return GitlabCreateGroupRequest(name = groupName, path = path)
+            .let { GitlabHttpEntity(it, createAdminHeaders()) }
+            .addErrorDescription(409, ErrorCode.GitlabGroupCreationFailed, "Cannot create group $groupName in gitlab as admin. Group already exists")
+            .addErrorDescription(ErrorCode.GitlabGroupCreationFailed, "Cannot create group as admin")
+            .makeRequest {
+                val url = "$gitlabServiceRootUrl/groups"
+                restTemplate(builder).exchange(url, HttpMethod.POST, it, GitlabGroup::class.java)
+            }
+            .also { logGitlabCall(it) }
+            .body!!
+    }
+
     fun userCreateGroup(token: String, groupName: String, path: String): GitlabGroup {
         return GitlabCreateGroupRequest(name = groupName, path = path)
             .let { GitlabHttpEntity(it, createUserHeaders(token)) }
@@ -236,7 +404,31 @@ class GitlabRestClient(
             .body!!
     }
 
-    fun userCreateGroupVariable(token: String, groupId: Int, name: String, value: String): GroupVariable {
+    fun adminUpdateGroup(groupId: Long, groupName: String?, path: String?): GitlabGroup {
+        return GitlabUpdateGroupRequest(name = groupName, path = path)
+            .let { GitlabHttpEntity(it, createAdminHeaders()) }
+            .addErrorDescription(404, ErrorCode.GitlabGroupCreationFailed, "Cannot update group $groupName in gitlab. Group not exists")
+            .addErrorDescription(ErrorCode.GitlabGroupCreationFailed, "Cannot create group")
+            .makeRequest {
+                val url = "$gitlabServiceRootUrl/groups/$groupId"
+                restTemplate(builder).exchange(url, HttpMethod.PUT, it, GitlabGroup::class.java)
+            }
+            .also { logGitlabCall(it) }
+            .body!!
+    }
+
+    fun adminDeleteGroup(groupId: Long) {
+        GitlabHttpEntity(null, createAdminHeaders())
+            .addErrorDescription(ErrorCode.GitlabMembershipDeleteFailed, "Cannot remove group $groupId in Gitlab")
+            .makeRequest {
+                val url = "$gitlabServiceRootUrl/groups/$groupId"
+                restTemplate(builder).exchange(url, HttpMethod.DELETE, it, Any::class.java)
+            }
+            .also { logGitlabCall(it) }
+    }
+
+
+    fun userCreateGroupVariable(token: String, groupId: Long, name: String, value: String): GroupVariable {
         return GitlabCreateGroupVariableRequest(key = name, value = value)
             .let { GitlabHttpEntity(it, createUserHeaders(token)) }
             .addErrorDescription(409, ErrorCode.GitlabVariableCreationFailed, "Cannot create group variable as user. Variable already exists")
@@ -266,20 +458,22 @@ class GitlabRestClient(
     }
 
 
-    fun adminCreateGroup(groupName: String, path: String): GitlabGroup {
-        return GitlabCreateGroupRequest(name = groupName, path = path)
+    fun adminGetUserToken(gitlabUserId: Long, token: Int): GitlabUserToken {
+        return GitlabGetUserTokenRequest()
             .let { GitlabHttpEntity(it, createAdminHeaders()) }
-            .addErrorDescription(409, ErrorCode.GitlabGroupCreationFailed, "Cannot create group $groupName in gitlab as admin. Group already exists")
-            .addErrorDescription(ErrorCode.GitlabGroupCreationFailed, "Cannot create group as admin")
+            .addErrorDescription(ErrorCode.GitlabCommonError, "Cannot get token for user $gitlabUserId in gitlab")
             .makeRequest {
-                val url = "$gitlabServiceRootUrl/groups"
-                restTemplate(builder).exchange(url, HttpMethod.POST, it, GitlabGroup::class.java)
+                restTemplate(builder).exchange(
+                    "$gitlabServiceRootUrl/users/$gitlabUserId/impersonation_tokens/$token",
+                    HttpMethod.GET,
+                    it,
+                    GitlabUserToken::class.java)
             }
             .also { logGitlabCall(it) }
             .body!!
     }
 
-    fun adminCreateUserToken(gitlabUserId: Int, tokenName: String): GitlabUserToken {
+    fun adminCreateUserToken(gitlabUserId: Long, tokenName: String): GitlabUserToken {
         return GitlabCreateUserTokenRequest(name = tokenName)
             .let { GitlabHttpEntity(it, createAdminHeaders()) }
             .addErrorDescription(409, ErrorCode.GitlabUserTokenCreationFailed, "Cannot create token $tokenName for user in gitlab. Token with the name already exists")
@@ -295,8 +489,38 @@ class GitlabRestClient(
             .body!!
     }
 
-    fun adminAddUserToGroup(groupId: Int, userId: Long, accessLevel: GroupAccessLevel = GroupAccessLevel.DEVELOPER): GitlabUserInGroup {
-        return GitlabAddUserToGroupRequest(userId, accessLevel.accessCode)
+    /**
+     * Return user's group. To get user's group you need to make request with user's token
+     */
+    fun userGetUserGroups(token: String): List<GitlabGroup> {
+        return GitlabHttpEntity<String>("body", createUserHeaders(token))
+            .addErrorDescription(404, ErrorCode.GitlabUserNotExisting, "Cannot find user by id. User does not exist")
+            .addErrorDescription(ErrorCode.GitlabUserNotExisting, "Unable to get user's groups")
+            .makeRequest {
+                val url = "$gitlabServiceRootUrl/groups"
+                restTemplate(builder).exchange(url, HttpMethod.GET, it, typeRef<List<GitlabGroup>>())
+            }
+            .also { logGitlabCall(it) }
+            .body!!
+    }
+
+    /**
+     * Return group's users
+     */
+    fun adminGetGroupMembers(groupId: Long): List<GitlabUserInGroup> {
+        return GitlabHttpEntity<String>("body", createAdminHeaders())
+            .addErrorDescription(404, ErrorCode.GitlabUserNotExisting, "Cannot find group by id. The group does not exist")
+            .addErrorDescription(ErrorCode.GitlabUserNotExisting, "Unable to get users of group")
+            .makeRequest {
+                val url = "$gitlabServiceRootUrl/groups/$groupId/members"
+                restTemplate(builder).exchange(url, HttpMethod.GET, it, typeRef<List<GitlabUserInGroup>>())
+            }
+            .also { logGitlabCall(it) }
+            .body!!
+    }
+
+    fun adminAddUserToGroup(groupId: Long, userId: Long, accessLevel: GroupAccessLevel? = null): GitlabUserInGroup {
+        return GitlabAddUserToGroupRequest(userId, accessLevel?.accessCode ?: GroupAccessLevel.DEVELOPER.accessCode)
             .let { GitlabHttpEntity(it, createAdminHeaders()) }
             .addErrorDescription(404, ErrorCode.UserNotExisting, "Cannot add user to group. Group or user doesn't exist")
             .addErrorDescription(409, ErrorCode.UserAlreadyExisting, "Cannot add user to group. User already is in group")
@@ -308,6 +532,71 @@ class GitlabRestClient(
             }
             .also { logGitlabCall(it) }
             .body!!
+    }
+
+    fun userAddUserToGroup(token: String, groupId: Long, userId: Long, accessLevel: GroupAccessLevel? = null): GitlabUserInGroup {
+        return GitlabAddUserToGroupRequest(userId, accessLevel?.accessCode ?: GroupAccessLevel.DEVELOPER.accessCode)
+            .let { GitlabHttpEntity(it, createUserHeaders(token)) }
+            .addErrorDescription(404, ErrorCode.UserNotExisting, "Cannot add user to group. Group or user doesn't exist")
+            .addErrorDescription(409, ErrorCode.UserAlreadyExisting, "Cannot add user to group. User already is in group")
+            .addErrorDescription(ErrorCode.GitlabUserAddingToGroupFailed, "Cannot add user to group")
+            .makeRequest {
+                val url = "$gitlabServiceRootUrl/groups/$groupId/members"
+                restTemplate(builder).exchange(
+                    url, HttpMethod.POST, it, GitlabUserInGroup::class.java)
+            }
+            .also { logGitlabCall(it) }
+            .body!!
+    }
+
+    fun userEditUserInGroup(token: String, groupId: Long, userId: Long, accessLevel: GroupAccessLevel): GitlabUserInGroup {
+        return GitlabAddUserToGroupRequest(userId, accessLevel.accessCode)
+            .let { GitlabHttpEntity(it, createUserHeaders(token)) }
+            .addErrorDescription(404, ErrorCode.UserNotExisting, "Cannot add user to group. Group or user doesn't exist")
+            .addErrorDescription(409, ErrorCode.UserAlreadyExisting, "Cannot add user to group. User already is in group")
+            .addErrorDescription(ErrorCode.GitlabUserAddingToGroupFailed, "Cannot add user to group")
+            .makeRequest {
+                val url = "$gitlabServiceRootUrl/groups/$groupId/members/$userId"
+                restTemplate(builder).exchange(
+                    url, HttpMethod.PUT, it, GitlabUserInGroup::class.java)
+            }
+            .also { logGitlabCall(it) }
+            .body!!
+    }
+
+    fun adminEditUserInGroup(groupId: Long, userId: Long, accessLevel: GroupAccessLevel): GitlabUserInGroup {
+        return GitlabAddUserToGroupRequest(userId, accessLevel.accessCode)
+            .let { GitlabHttpEntity(it, createAdminHeaders()) }
+            .addErrorDescription(404, ErrorCode.UserNotExisting, "Cannot add user to group. Group or user doesn't exist")
+            .addErrorDescription(409, ErrorCode.UserAlreadyExisting, "Cannot add user to group. User already is in group")
+            .addErrorDescription(ErrorCode.GitlabUserAddingToGroupFailed, "Cannot add user to group")
+            .makeRequest {
+                val url = "$gitlabServiceRootUrl/groups/$groupId/members/$userId"
+                restTemplate(builder).exchange(
+                    url, HttpMethod.PUT, it, GitlabUserInGroup::class.java)
+            }
+            .also { logGitlabCall(it) }
+            .body!!
+    }
+
+    fun userDeleteUserFromGroup(token: String, groupId: Long, userId: Long) {
+        GitlabHttpEntity(null, createUserHeaders(token))
+            .addErrorDescription(ErrorCode.GitlabMembershipDeleteFailed, "Cannot revoke user's membership from group $groupId")
+            .makeRequest {
+                val url = "$gitlabServiceRootUrl/groups/$groupId/members/$userId"
+                restTemplate(builder).exchange(url, HttpMethod.DELETE, it, Any::class.java)
+            }
+            .also { logGitlabCall(it) }
+    }
+
+    fun adminDeleteUserFromGroup(groupId: Long, userId: Long) {
+        GitlabHttpEntity(null, createAdminHeaders())
+            .addErrorDescription(ErrorCode.GitlabMembershipDeleteFailed, "Cannot revoke user's membership from group $groupId")
+            .makeRequest {
+                val url = "$gitlabServiceRootUrl/groups/$groupId/members/$userId"
+                restTemplate(builder).exchange(url, HttpMethod.DELETE, it, Any::class.java)
+            }
+            .also { logGitlabCall(it) }
     }
 
     private fun logGitlabCall(it: ResponseEntity<out Any>) {
@@ -329,6 +618,12 @@ class GitlabRestClient(
 
     private fun createUserHeaders(token: String): HttpHeaders = HttpHeaders().apply {
         set("PRIVATE-TOKEN", token)
+    }
+
+    private fun createEmptyHeaders(): HttpHeaders = HttpHeaders()
+
+    private fun createOAuthHeaders(token: String): HttpHeaders = HttpHeaders().apply {
+        set("Authorization", "Bearer $token")
     }
 
     private inner class GitlabHttpEntity<T>(body: T?, headers: MultiValueMap<String, String>) : HttpEntity<T>(body, headers) {

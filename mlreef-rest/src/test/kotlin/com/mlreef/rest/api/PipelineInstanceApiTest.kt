@@ -18,14 +18,17 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document
-import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.*
+import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.delete
+import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get
+import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.post
+import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.put
 import org.springframework.restdocs.payload.FieldDescriptor
 import org.springframework.restdocs.payload.JsonFieldType
 import org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath
 import org.springframework.restdocs.payload.PayloadDocumentation.responseFields
 import org.springframework.test.annotation.Rollback
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
-import java.util.*
+import java.util.UUID
 import java.util.UUID.randomUUID
 import javax.transaction.Transactional
 
@@ -66,7 +69,6 @@ class PipelineInstanceApiTest : RestApiTest() {
         pipelineInstanceRepository.save(pipelineConfig.createInstance(2))
         createPipelineConfig(dataProcessorInstance, dataProject.id, "slug2")
 
-
         val returnedResult: List<PipelineInstanceDto> = this.mockMvc.perform(
             this.defaultAcceptContentAuth(get("$rootUrl/${pipelineConfig.id}/instances")))
             .andExpect(status().isOk)
@@ -90,7 +92,6 @@ class PipelineInstanceApiTest : RestApiTest() {
         val pipelineConfig = createPipelineConfig(dataProcessorInstance, dataProject.id, "slug1")
         pipelineInstanceRepository.save(pipelineConfig.createInstance(1))
         pipelineInstanceRepository.save(pipelineConfig.createInstance(2))
-
 
         val returnedResult: List<PipelineInstanceDto> = this.mockMvc.perform(
             this.defaultAcceptContentAuth(get("$rootUrl/${pipelineConfig.id}/instances")))

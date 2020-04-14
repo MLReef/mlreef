@@ -10,7 +10,8 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.repository.findByIdOrNull
-import java.util.*
+import java.util.UUID
+import java.util.UUID.randomUUID
 import javax.transaction.Transactional
 
 class DataProcessorVisualisationTest : AbstractRepositoryTest() {
@@ -18,9 +19,9 @@ class DataProcessorVisualisationTest : AbstractRepositoryTest() {
     private lateinit var repository: DataVisualizationRepository
 
     private fun createEntity(): Pair<UUID, DataVisualization> {
-        val id = UUID.randomUUID()
-        val codeProjectId = UUID.randomUUID()
-        val author = Person(UUID.randomUUID(), "slug", "name")
+        val id = randomUUID()
+        val codeProjectId = randomUUID()
+        val author = Person(randomUUID(), "slug", "name", 1L)
         val entity = DataVisualization(
             id = id, slug = "commons-augment", name = "Augment",
             command = "augment", inputDataType = DataType.IMAGE,

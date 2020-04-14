@@ -25,7 +25,7 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
-import java.util.*
+import java.util.UUID
 import java.util.UUID.randomUUID
 import java.util.logging.Logger
 import javax.validation.Valid
@@ -47,7 +47,6 @@ class DataProcessorsController(
     fun assertFindCodeProject(projectUUID: UUID) =
         codeProjectRepository.findOneByOwnerIdAndId(currentUserService.person().id, projectUUID)
             ?: throw NotFoundException("CodeProject not found")
-
 
     @GetMapping("data-processors")
     fun getAllProcessors(

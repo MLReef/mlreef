@@ -8,7 +8,8 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.repository.findByIdOrNull
-import java.util.*
+import java.util.UUID
+import java.util.UUID.randomUUID
 import javax.transaction.Transactional
 
 class DataProjectTest : AbstractRepositoryTest() {
@@ -16,8 +17,8 @@ class DataProjectTest : AbstractRepositoryTest() {
     private lateinit var repository: DataProjectRepository
 
     private fun createEntity(): Pair<UUID, DataProject> {
-        val id = UUID.randomUUID()
-        val author = Person(UUID.randomUUID(), "slug", "name")
+        val id = randomUUID()
+        val author = Person(randomUUID(), "slug", "name", 1L)
         val entity = DataProject(
             id = id, slug = "test-data-project", name = "CodeProject Augment", ownerId = author.id,
             url = "https://gitlab.com/mlreef/sign-language-classifier",

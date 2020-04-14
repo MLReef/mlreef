@@ -1,4 +1,3 @@
-.idea
 /.gradle/
 build
 /init-test-env-windows.bat

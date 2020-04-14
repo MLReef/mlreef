@@ -1,7 +1,8 @@
 package com.mlreef.rest
 
+import com.mlreef.rest.helpers.ProjectOfUser
 import java.time.ZonedDateTime
-import java.util.*
+import java.util.UUID
 import javax.persistence.Column
 import javax.persistence.Entity
 import javax.persistence.FetchType
@@ -35,7 +36,7 @@ class CodeProject(
     override val gitlabPathWithNamespace: String = "$gitlabGroup/$gitlabProject",
 
     @Column(name = "gitlab_id")
-    override val gitlabId: Int,
+    override val gitlabId: Long,
 
     @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "code_project_id")
@@ -53,7 +54,7 @@ class CodeProject(
         gitlabGroup: String? = null,
         gitlabPathWithNamespace: String? = null,
         gitlabProject: String? = null,
-        gitlabId: Int? = null,
+        gitlabId: Long? = null,
         dataProcessor: DataProcessor? = null,
         version: Long? = null,
         createdAt: ZonedDateTime? = null,
@@ -75,4 +76,10 @@ class CodeProject(
             updatedAt = updatedAt ?: this.updatedAt
         )
     }
+
+    fun toProjectOfUser(accessLevel: AccessLevel?) = ProjectOfUser(
+        id = this.id,
+        name = this.name,
+        accessLevel = accessLevel
+    )
 }
