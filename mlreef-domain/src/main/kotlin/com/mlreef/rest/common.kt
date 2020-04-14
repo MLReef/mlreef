@@ -1,8 +1,9 @@
 package com.mlreef.rest
 
+import com.mlreef.rest.helpers.ProjectOfUser
 import java.time.ZoneId
 import java.time.ZonedDateTime
-import java.util.*
+import java.util.UUID
 
 object I18N {
     fun dateTime() = ZonedDateTime.now(ZoneId.of("UTC"))
@@ -30,7 +31,7 @@ interface MLProject {
     val gitlabGroup: String
     val gitlabPathWithNamespace: String
     val gitlabProject: String
-    val gitlabId: Int
+    val gitlabId: Long
 }
 
 

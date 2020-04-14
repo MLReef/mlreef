@@ -9,7 +9,8 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.repository.findByIdOrNull
-import java.util.*
+import java.util.UUID
+import java.util.UUID.randomUUID
 import javax.transaction.Transactional
 
 
@@ -19,9 +20,9 @@ class AccountTest : AbstractRepositoryTest() {
     private lateinit var repository: AccountRepository
 
     private fun createEntity(): Pair<UUID, Account> {
-        val id = UUID.randomUUID()
-        val person = Person(UUID.randomUUID(), "slug", "name")
-        val token = AccountToken(UUID.randomUUID(), id, "token")
+        val id = randomUUID()
+        val person = Person(randomUUID(), "slug", "name", 1L)
+        val token = AccountToken(randomUUID(), id, "token")
         val entity = Account(
             id = id,
             username = "username", passwordEncrypted = "enc", person = person,
@@ -34,7 +35,6 @@ class AccountTest : AbstractRepositoryTest() {
     fun prepare() {
         truncateDbTables(listOf("account", "account_token"), cascade = true)
     }
-
 
     @Transactional
     @Test
@@ -56,7 +56,6 @@ class AccountTest : AbstractRepositoryTest() {
         checkAfterCreated(saved)
         Assertions.assertThat(repository.findByIdOrNull(id)).isNotNull()
     }
-
 
     @Transactional
     @Test

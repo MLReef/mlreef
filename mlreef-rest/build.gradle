@@ -21,6 +21,12 @@ dependencies {
     implementation "com.fasterxml.jackson.module:jackson-module-kotlin:2.9.10"
 
     implementation "org.springframework.boot:spring-boot-devtools"
+    implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
+    implementation "org.springframework.boot:spring-boot-starter-aop"
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    // think about that SOON
+//    implementation 'org.springframework:spring-webflux'
+//    implementation 'io.projectreactor.netty:reactor-netty'
 
     // Rest and HATEOAS
     implementation 'org.springframework.boot:spring-boot-starter-hateoas'

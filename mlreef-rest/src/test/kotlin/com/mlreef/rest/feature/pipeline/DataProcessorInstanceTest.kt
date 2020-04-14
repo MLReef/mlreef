@@ -20,7 +20,7 @@ class DataProcessorInstanceTest {
 
     @BeforeEach
     fun prepare() {
-        val author = Person(randomUUID(), "slug", "name")
+        val author = Person(randomUUID(), "slug", "name", 1L)
         val codeProjectId = randomUUID()
 
         CodeProject(id = codeProjectId, slug = "code-project-augment", name = "CodeProject Augment", ownerId = author.id, url = "url",

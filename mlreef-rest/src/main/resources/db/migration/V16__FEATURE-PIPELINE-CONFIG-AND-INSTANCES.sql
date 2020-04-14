@@ -54,6 +54,10 @@ ALTER TABLE public.pipeline_instance
 ALTER TABLE public."code_project"
     ADD COLUMN IF NOT EXISTS gitlab_path_with_namespace varchar(255)
 ;
+
+ALTER TABLE public.code_project
+    DROP CONSTRAINT IF EXISTS code_project_subject_id_fkey RESTRICT;
+
 ALTER TABLE public."code_project"
     ADD CONSTRAINT code_project_subject_id_fkey
         FOREIGN KEY (owner_id)
@@ -69,6 +73,13 @@ ALTER TABLE public."data_processor_instance"
     ADD COLUMN IF NOT EXISTS data_instance_id           uuid,
     ADD COLUMN IF NOT EXISTS pipeline_config_id         uuid;
 ;
+
+ALTER TABLE public.data_processor_instance
+    DROP CONSTRAINT IF EXISTS data_processor_instance_data_instance_id_fkey RESTRICT;
+
+ALTER TABLE public.data_processor_instance
+    DROP CONSTRAINT IF EXISTS data_processor_instance_pipeline_config_id_fkey RESTRICT;
+
 ALTER TABLE public."data_processor_instance"
     ADD CONSTRAINT data_processor_instance_data_instance_id_fkey
         FOREIGN KEY (data_instance_id)
@@ -96,6 +107,11 @@ CREATE TABLE IF NOT EXISTS public."file_location"
 ALTER TABLE public."file_location"
     OWNER TO mlreef;
 
+ALTER TABLE public.file_location
+    DROP CONSTRAINT IF EXISTS file_location_data_instance_id_fkey RESTRICT;
+
+ALTER TABLE public.file_location
+    DROP CONSTRAINT IF EXISTS file_location_pipeline_config_id_fkey RESTRICT;
 
 ALTER TABLE public."file_location"
     ADD CONSTRAINT file_location_data_instance_id_fkey

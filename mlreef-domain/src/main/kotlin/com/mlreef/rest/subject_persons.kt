@@ -1,11 +1,14 @@
 package com.mlreef.rest
 
+import com.mlreef.converters.AccessLevelConverter
+import com.mlreef.rest.helpers.GroupOfUser
 import org.hibernate.annotations.Fetch
 import org.hibernate.annotations.FetchMode
 import java.time.ZonedDateTime
 import java.util.UUID
 import javax.persistence.CascadeType
 import javax.persistence.Column
+import javax.persistence.Convert
 import javax.persistence.Entity
 import javax.persistence.FetchType
 import javax.persistence.Id
@@ -22,6 +25,8 @@ abstract class Subject(
     id: UUID,
     val slug: String,
     val name: String,
+    @Column(name = "gitlab_id")
+    val gitlabId: Long?,
     version: Long? = null,
     createdAt: ZonedDateTime? = null,
     updatedAt: ZonedDateTime? = null
@@ -36,14 +41,22 @@ class Membership(
     @Column(name = "person_id")
     val personId: UUID,
     @Column(name = "group_id")
-    val groupId: UUID
-)
+    val groupId: UUID,
+
+    @Column(name = "access_level")
+    @Convert(converter = AccessLevelConverter::class)
+    val accessLevel: AccessLevel?
+) {
+    fun copy(accessLevel: AccessLevel?): Membership =
+        Membership(this.id, this.personId, this.groupId, accessLevel)
+}
 
 @Entity
 class Person(
     id: UUID,
     override val slug: String,
     override val name: String,
+    override val gitlabId: Long?,
     @OneToMany(fetch = FetchType.EAGER, cascade = [CascadeType.REMOVE])
     @JoinColumn(name = "person_id")
     @Fetch(value = FetchMode.SUBSELECT)
@@ -52,7 +65,7 @@ class Person(
     version: Long? = null,
     createdAt: ZonedDateTime? = null,
     updatedAt: ZonedDateTime? = null
-) : Subject(id, slug, name, version, createdAt, updatedAt) {
+) : Subject(id, slug, name, gitlabId, version, createdAt, updatedAt) {
     fun copy(
         slug: String? = null,
         name: String? = null,
@@ -61,6 +74,7 @@ class Person(
         id = this.id,
         slug = slug ?: this.slug,
         name = name ?: this.name,
+        gitlabId = gitlabId,
         memberships = memberships ?: this.memberships,
         version = this.version,
         createdAt = this.createdAt,
@@ -73,6 +87,7 @@ class Group(
     id: UUID,
     override val slug: String,
     override val name: String,
+    override val gitlabId: Long?,
     @OneToMany(fetch = FetchType.EAGER, cascade = [CascadeType.REMOVE])
     @JoinColumn(name = "group_id")
     @Fetch(value = FetchMode.SUBSELECT)
@@ -81,7 +96,7 @@ class Group(
     version: Long? = null,
     createdAt: ZonedDateTime? = null,
     updatedAt: ZonedDateTime? = null
-) : Subject(id, slug, name, version, createdAt, updatedAt) {
+) : Subject(id, slug, name, gitlabId, version, createdAt, updatedAt) {
     fun copy(
         slug: String? = null,
         name: String? = null,
@@ -90,9 +105,17 @@ class Group(
         id = this.id,
         slug = slug ?: this.slug,
         name = name ?: this.name,
+        gitlabId = gitlabId,
         members = members ?: this.members,
         version = this.version,
         createdAt = this.createdAt,
         updatedAt = this.updatedAt
+    )
+
+
+    fun toGroupOfUser(accessLevel: AccessLevel?) = GroupOfUser(
+        this.id,
+        this.name,
+        accessLevel
     )
 }

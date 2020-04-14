@@ -14,7 +14,9 @@ interface CurrentUserService {
     fun authentication(): Authentication
     fun person(): Person
     fun account(): Account
-    fun token(): String
+    fun permanentToken(): String
+    fun accessToken(): String?
+    fun anyValidToken(): String
 }
 
 @Component
@@ -32,9 +34,18 @@ class SimpleCurrentUserService(
         return personRepository.findByIdOrNull(tokenDetails.personId)!!
     }
 
-    override fun token(): String {
+    override fun permanentToken(): String {
         val tokenDetails: TokenDetails = authentication().principal as TokenDetails
-        return tokenDetails.token
+        return tokenDetails.permanentToken
+    }
+
+    override fun accessToken(): String? {
+        val tokenDetails: TokenDetails = authentication().principal as TokenDetails
+        return tokenDetails.accessToken
+    }
+
+    override fun anyValidToken(): String {
+        return accessToken() ?: permanentToken()
     }
 
     override fun account(): Account {

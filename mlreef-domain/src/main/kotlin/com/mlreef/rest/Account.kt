@@ -1,5 +1,6 @@
 package com.mlreef.rest
 
+import com.mlreef.rest.helpers.UserInGroup
 import java.time.ZonedDateTime
 import java.util.UUID
 import javax.persistence.CascadeType
@@ -37,7 +38,8 @@ class Account(
     @JoinColumn(name = "account_id")
     val tokens: MutableList<AccountToken> = arrayListOf(),
     @Column(name = "gitlab_id")
-    val gitlabId: Int? = null,
+    @Deprecated("Use gitlabId in Person Entity")
+    val gitlabId: Long? = null,
     val lastLogin: ZonedDateTime? = null,
     // Auditing
     version: Long? = null,
@@ -51,7 +53,7 @@ class Account(
         passwordEncrypted: String? = null,
         person: Person? = null,
         tokens: MutableList<AccountToken>? = null,
-        gitlabId: Int? = null,
+        gitlabId: Long? = null,
         lastLogin: ZonedDateTime? = null
     ): Account = Account(
         id = this.id,
@@ -66,4 +68,19 @@ class Account(
         createdAt = this.createdAt,
         updatedAt = this.updatedAt
     )
+
+    val bestToken: AccountToken?
+        @javax.persistence.Transient
+        get() = this.tokens.filter { it.active && !it.revoked }
+            .sortedBy { it.expiresAt }
+            .getOrNull(0)
+
+    fun toUserInGroup(accessLevel: AccessLevel?) = UserInGroup(
+        id = this.id,
+        userName = this.username,
+        email = this.email,
+        gitlabId = this.person.gitlabId,
+        accessLevel = accessLevel
+    )
+
 }

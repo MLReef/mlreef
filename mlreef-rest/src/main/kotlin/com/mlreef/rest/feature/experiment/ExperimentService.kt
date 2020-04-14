@@ -18,7 +18,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
-import java.util.*
+import java.util.UUID
 import java.util.UUID.randomUUID
 
 @Service
@@ -31,7 +31,6 @@ class ExperimentService(
     private val processorParameterRepository: ProcessorParameterRepository,
     private val gitlabRestClient: GitlabRestClient,
     @Value("\${mlreef.gitlab.rootUrl}") val gitlabRootUrl: String
-
 ) {
 
     val log = LoggerFactory.getLogger(this::class.java)

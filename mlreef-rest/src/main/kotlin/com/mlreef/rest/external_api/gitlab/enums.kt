@@ -2,6 +2,7 @@ package com.mlreef.rest.external_api.gitlab
 
 import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonValue
+import com.mlreef.rest.AccessLevel
 
 
 enum class GroupAccessLevel(val accessCode: Int) {
@@ -18,6 +19,14 @@ enum class GroupAccessLevel(val accessCode: Int) {
             return values().firstOrNull { it.accessCode == code }
         }
     }
+}
+
+fun AccessLevel?.toGitlabAccessLevel(): GroupAccessLevel? {
+    return GroupAccessLevel.fromCode(this?.accessCode)
+}
+
+fun GroupAccessLevel?.toAccessLevel(): AccessLevel? {
+    return AccessLevel.fromCode(this?.accessCode)
 }
 
 enum class VariableType {

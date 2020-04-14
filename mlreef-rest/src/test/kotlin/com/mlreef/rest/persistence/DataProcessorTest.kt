@@ -3,7 +3,6 @@ package com.mlreef.rest.persistence
 import com.mlreef.rest.DataOperation
 import com.mlreef.rest.DataProcessor
 import com.mlreef.rest.DataProcessorRepository
-import com.mlreef.rest.DataProcessorType
 import com.mlreef.rest.DataType
 import com.mlreef.rest.Person
 import com.mlreef.rest.VisibilityScope
@@ -12,7 +11,8 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.repository.findByIdOrNull
-import java.util.*
+import java.util.UUID
+import java.util.UUID.randomUUID
 import javax.transaction.Transactional
 
 class DataProcessorTest : AbstractRepositoryTest() {
@@ -21,9 +21,9 @@ class DataProcessorTest : AbstractRepositoryTest() {
 
 
     private fun createEntity(): Pair<UUID, DataProcessor> {
-        val id = UUID.randomUUID()
-        val codeProjectId = UUID.randomUUID()
-        val author = Person(UUID.randomUUID(), "slug", "name")
+        val id = randomUUID()
+        val codeProjectId = randomUUID()
+        val author = Person(randomUUID(), "slug", "name", 1L)
         val entity = DataOperation(
             id = id, slug = "commons-augment", name = "Augment",
             command = "augment", inputDataType = DataType.IMAGE, outputDataType = DataType.IMAGE,

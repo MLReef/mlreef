@@ -1,11 +1,12 @@
 package com.mlreef.rest.api.v1
 
-import com.mlreef.rest.Account
 import com.mlreef.rest.api.CurrentUserService
-import com.mlreef.rest.api.v1.dto.UserDto
 import com.mlreef.rest.external_api.gitlab.GitlabRestClient
+import org.slf4j.LoggerFactory
+import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestMethod
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
@@ -14,6 +15,10 @@ class SystemController(
     val gitlabRestClient: GitlabRestClient,
     val currentUserService: CurrentUserService
 ) {
+
+    companion object {
+        private val log = LoggerFactory.getLogger(SystemController::class.java)
+    }
 
     @GetMapping("/status")
     fun status(): StatusDto {
@@ -35,14 +40,17 @@ class SystemController(
         }
     }
 
-    @GetMapping("/whoami")
-    fun whoami(): UserDto {
-        val account = currentUserService.account()
-        return buildUserDtoWithToken(account)
+    @RequestMapping(method = [RequestMethod.GET], value = ["/ping"])
+    fun ping(): String {
+        log.info("Ping service: Ok!")
+        return "pong"
     }
 
-    private fun buildUserDtoWithToken(newAccount: Account): UserDto {
-        return UserDto(newAccount.id, newAccount.username, newAccount.email, "censored")
+    @RequestMapping(value = ["/ping/protected"], method = [RequestMethod.GET])
+    @PreAuthorize("isAuthenticated()")
+    fun pingProtected(): String {
+        log.info("Protected Ping service: Ok!")
+        return "pong protected"
     }
 
     data class StatusDto(val info: String, val error: Exception? = null)

@@ -27,6 +27,12 @@ import com.mlreef.rest.PipelineInstanceRepository
 import com.mlreef.rest.ProcessorParameter
 import com.mlreef.rest.ProcessorParameterRepository
 import com.mlreef.rest.SubjectRepository
+import com.mlreef.rest.external_api.gitlab.GitlabRestClient
+import com.mlreef.rest.external_api.gitlab.GroupAccessLevel
+import com.mlreef.rest.external_api.gitlab.dto.GitlabProject
+import com.mlreef.rest.external_api.gitlab.dto.GitlabUser
+import com.mlreef.rest.external_api.gitlab.dto.toGitlabUserInProject
+import org.mockito.Mockito
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.restdocs.payload.FieldDescriptor
 import org.springframework.restdocs.payload.JsonFieldType
@@ -34,8 +40,11 @@ import org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Component
-import java.util.*
+import java.util.ArrayList
+import java.util.UUID
+import java.util.UUID.randomUUID
 import javax.transaction.Transactional
+import kotlin.random.Random
 
 
 internal fun dataProcessorInstanceFields(prefix: String = ""): List<FieldDescriptor> {
@@ -83,9 +92,14 @@ internal class AccountSubjectPreparationTrait {
     lateinit var account2: Account
     lateinit var subject: Person
 
-    @Autowired protected lateinit var accountTokenRepository: AccountTokenRepository
-    @Autowired protected lateinit var personRepository: PersonRepository
-    @Autowired protected lateinit var accountRepository: AccountRepository
+    @Autowired
+    protected lateinit var accountTokenRepository: AccountTokenRepository
+
+    @Autowired
+    protected lateinit var personRepository: PersonRepository
+
+    @Autowired
+    protected lateinit var accountRepository: AccountRepository
 
     private val passwordEncoder: PasswordEncoder = BCryptPasswordEncoder()
 
@@ -116,26 +130,84 @@ internal class AccountSubjectPreparationTrait {
             mockToken = "second-token-$userSuffix"
         }
         val passwordEncrypted = passwordEncoder.encode(plainPassword)
+        val accountId = UUID.fromString("aaaa0000-0002-0000-$userSuffix-aaaaaaaaaaaa")
+        val token = AccountToken(
+            id = UUID.fromString("aaaa0000-0003-0000-$userSuffix-bbbbbbbbbbbb"),
+            accountId = accountId,
+            token = mockToken,
+            gitlabId = 0)
         val person = Person(
             id = UUID.fromString("aaaa0000-0001-0000-$userSuffix-cccccccccccc"),
             slug = "person_slug$userSuffix",
-            name = "user name")
+            name = "user name",
+            gitlabId = Random.nextLong())
         val account = Account(
-            id = UUID.fromString("aaaa0000-0002-0000-$userSuffix-aaaaaaaaaaaa"),
+            id = accountId,
             username = "username$userSuffix",
             email = "email$userSuffix@example.com",
             passwordEncrypted = passwordEncrypted,
-            person = person)
-        val token = AccountToken(
-            id = UUID.fromString("aaaa0000-0003-0000-$userSuffix-bbbbbbbbbbbb"),
-            accountId = account.id,
-            token = mockToken,
-            gitlabId = 0)
+            person = person,
+            tokens = mutableListOf(token))
+
         personRepository.save(person)
         accountRepository.save(account)
         accountTokenRepository.save(token)
         return account
     }
+
+    fun mockGitlabProjectsWithLevel(mockedRestClient: GitlabRestClient, projectGitlabId: Long, ownerGitlabId: Long, accessLevel: GroupAccessLevel?) {
+        val gitlabMockUser = GitlabUser(ownerGitlabId, "testuser", "Test User", "test@example.com")
+
+        val gitlabMockMembership = gitlabMockUser.toGitlabUserInProject(accessLevel = accessLevel
+            ?: GroupAccessLevel.GUEST)
+
+        val gitlabMockProject = GitlabProject(projectGitlabId, "My own test Project 101", "mlreef/project100", "path", "/path/project", gitlabMockUser, ownerGitlabId)
+
+        Mockito.`when`(mockedRestClient.adminGetUserProjects(
+            Mockito.eq(ownerGitlabId)
+        )).thenReturn(
+            listOf(
+                gitlabMockProject
+            )
+        )
+
+        Mockito.`when`(mockedRestClient.adminGetProjectMembers(
+            Mockito.eq(gitlabMockProject.id)
+        )).thenReturn(
+            listOf(
+                if (accessLevel != null) gitlabMockMembership else null
+            ).filterNotNull()
+        )
+    }
+
+    fun mockGitlabProjectsWithLevel(mockedRestClient: GitlabRestClient, projectGitlabIds: List<Long>, ownerGitlabId: Long, accessLevels: List<GroupAccessLevel?>) {
+        val gitlabMockUser = GitlabUser(ownerGitlabId, "testuser", "Test User", "test@example.com")
+
+        val gitlabProjects = ArrayList<GitlabProject>()
+
+        projectGitlabIds.forEachIndexed { index, l ->
+            val project = GitlabProject(l, "My own test Project 101", "mlreef/project100", "path", "/path/project", gitlabMockUser, ownerGitlabId)
+            val member = gitlabMockUser.toGitlabUserInProject(accessLevel = accessLevels.getOrNull(index)
+                ?: GroupAccessLevel.GUEST)
+
+            Mockito.`when`(mockedRestClient.adminGetProjectMembers(
+                Mockito.eq(project.id)
+            )).thenReturn(
+                listOf(
+                    if (accessLevels.getOrNull(index) != null) member else null
+                ).filterNotNull()
+            )
+
+            gitlabProjects.add(project)
+        }
+
+        Mockito.`when`(mockedRestClient.adminGetUserProjects(
+            Mockito.eq(ownerGitlabId)
+        )).thenReturn(
+            gitlabProjects
+        )
+    }
+
 
 }
 
@@ -151,22 +223,53 @@ internal class PipelineTestPreparationTrait {
     lateinit var dataProject: DataProject
     lateinit var dataProject2: DataProject
 
-    @Autowired protected lateinit var accountTokenRepository: AccountTokenRepository
-    @Autowired protected lateinit var personRepository: PersonRepository
-    @Autowired protected lateinit var accountRepository: AccountRepository
-    @Autowired protected lateinit var subjectRepository: SubjectRepository
-    @Autowired private lateinit var pipelineConfigRepository: PipelineConfigRepository
-    @Autowired private lateinit var pipelineInstanceRepository: PipelineInstanceRepository
-    @Autowired private lateinit var experimentRepository: ExperimentRepository
-    @Autowired private lateinit var dataProjectRepository: DataProjectRepository
-    @Autowired private lateinit var codeProjectRepository: CodeProjectRepository
-    @Autowired private lateinit var dataProcessorInstanceRepository: DataProcessorInstanceRepository
-    @Autowired private lateinit var parameterInstanceRepository: ParameterInstanceRepository
-    @Autowired private lateinit var processorParameterRepository: ProcessorParameterRepository
-    @Autowired private lateinit var dataOperationRepository: DataOperationRepository
-    @Autowired private lateinit var dataAlgorithmRepository: DataAlgorithmRepository
-    @Autowired private lateinit var dataVisualizationRepository: DataVisualizationRepository
-    @Autowired private lateinit var dataProcessorRepository: DataProcessorRepository
+    @Autowired
+    protected lateinit var accountTokenRepository: AccountTokenRepository
+
+    @Autowired
+    protected lateinit var personRepository: PersonRepository
+
+    @Autowired
+    protected lateinit var accountRepository: AccountRepository
+
+    @Autowired
+    protected lateinit var subjectRepository: SubjectRepository
+
+    @Autowired
+    private lateinit var pipelineConfigRepository: PipelineConfigRepository
+
+    @Autowired
+    private lateinit var pipelineInstanceRepository: PipelineInstanceRepository
+
+    @Autowired
+    private lateinit var experimentRepository: ExperimentRepository
+
+    @Autowired
+    private lateinit var dataProjectRepository: DataProjectRepository
+
+    @Autowired
+    private lateinit var codeProjectRepository: CodeProjectRepository
+
+    @Autowired
+    private lateinit var dataProcessorInstanceRepository: DataProcessorInstanceRepository
+
+    @Autowired
+    private lateinit var parameterInstanceRepository: ParameterInstanceRepository
+
+    @Autowired
+    private lateinit var processorParameterRepository: ProcessorParameterRepository
+
+    @Autowired
+    private lateinit var dataOperationRepository: DataOperationRepository
+
+    @Autowired
+    private lateinit var dataAlgorithmRepository: DataAlgorithmRepository
+
+    @Autowired
+    private lateinit var dataVisualizationRepository: DataVisualizationRepository
+
+    @Autowired
+    private lateinit var dataProcessorRepository: DataProcessorRepository
     private val passwordEncoder: PasswordEncoder = BCryptPasswordEncoder()
 
     fun apply() {
@@ -182,23 +285,23 @@ internal class PipelineTestPreparationTrait {
             UUID.fromString("aaaa0001-0000-0000-0002-dbdbdbdbdbdb"), "slug2", "url", "Test DataProject",
             ownerId = account2.person.id, gitlabId = 2, gitlabGroup = "mlreef", gitlabProject = "project1")
         )
-        codeProjectRepository.save(CodeProject(UUID.randomUUID(), "slug", "url", "Test DataProject", ownerId = account.person.id,
+        codeProjectRepository.save(CodeProject(randomUUID(), "slug", "url", "Test DataProject", ownerId = account.person.id,
             gitlabGroup = "", gitlabId = 0, gitlabProject = ""))
 
-        dataOp1 = dataOperationRepository.save(DataOperation(UUID.randomUUID(), "commons-data-operation1", "name", "command", DataType.ANY, DataType.ANY))
-        dataOp2 = dataAlgorithmRepository.save(DataAlgorithm(UUID.randomUUID(), "commons-algorithm", "name", "command", DataType.ANY, DataType.ANY))
-        dataOp3 = dataVisualizationRepository.save(DataVisualization(UUID.randomUUID(), "commons-data-visualisation", "name", "command", DataType.ANY))
+        dataOp1 = dataOperationRepository.save(DataOperation(randomUUID(), "commons-data-operation1", "name", "command", DataType.ANY, DataType.ANY))
+        dataOp2 = dataAlgorithmRepository.save(DataAlgorithm(randomUUID(), "commons-algorithm", "name", "command", DataType.ANY, DataType.ANY))
+        dataOp3 = dataVisualizationRepository.save(DataVisualization(randomUUID(), "commons-data-visualisation", "name", "command", DataType.ANY))
 
-        processorParameterRepository.save(ProcessorParameter(UUID.randomUUID(), dataOp1.id, "stringParam", type = ParameterType.STRING, order = 0, defaultValue = ""))
-        processorParameterRepository.save(ProcessorParameter(UUID.randomUUID(), dataOp1.id, "floatParam", type = ParameterType.FLOAT, order = 1, defaultValue = ""))
-        processorParameterRepository.save(ProcessorParameter(UUID.randomUUID(), dataOp1.id, "integerParam", type = ParameterType.INTEGER, order = 2, defaultValue = ""))
-        processorParameterRepository.save(ProcessorParameter(UUID.randomUUID(), dataOp1.id, "stringList", type = ParameterType.LIST, order = 3, defaultValue = ""))
+        processorParameterRepository.save(ProcessorParameter(randomUUID(), dataOp1.id, "stringParam", type = ParameterType.STRING, order = 0, defaultValue = ""))
+        processorParameterRepository.save(ProcessorParameter(randomUUID(), dataOp1.id, "floatParam", type = ParameterType.FLOAT, order = 1, defaultValue = ""))
+        processorParameterRepository.save(ProcessorParameter(randomUUID(), dataOp1.id, "integerParam", type = ParameterType.INTEGER, order = 2, defaultValue = ""))
+        processorParameterRepository.save(ProcessorParameter(randomUUID(), dataOp1.id, "stringList", type = ParameterType.LIST, order = 3, defaultValue = ""))
 
-        processorParameterRepository.save(ProcessorParameter(UUID.randomUUID(), dataOp2.id, "booleanParam", type = ParameterType.BOOLEAN, order = 0, defaultValue = ""))
-        processorParameterRepository.save(ProcessorParameter(UUID.randomUUID(), dataOp2.id, "complexName", type = ParameterType.COMPLEX, order = 1, defaultValue = ""))
+        processorParameterRepository.save(ProcessorParameter(randomUUID(), dataOp2.id, "booleanParam", type = ParameterType.BOOLEAN, order = 0, defaultValue = ""))
+        processorParameterRepository.save(ProcessorParameter(randomUUID(), dataOp2.id, "complexName", type = ParameterType.COMPLEX, order = 1, defaultValue = ""))
 
-        processorParameterRepository.save(ProcessorParameter(UUID.randomUUID(), dataOp3.id, "tupleParam", type = ParameterType.TUPLE, order = 0, defaultValue = ""))
-        processorParameterRepository.save(ProcessorParameter(UUID.randomUUID(), dataOp3.id, "hashParam", type = ParameterType.DICTIONARY, order = 1, defaultValue = ""))
+        processorParameterRepository.save(ProcessorParameter(randomUUID(), dataOp3.id, "tupleParam", type = ParameterType.TUPLE, order = 0, defaultValue = ""))
+        processorParameterRepository.save(ProcessorParameter(randomUUID(), dataOp3.id, "hashParam", type = ParameterType.DICTIONARY, order = 1, defaultValue = ""))
 
     }
 
@@ -237,24 +340,30 @@ internal class PipelineTestPreparationTrait {
             mockToken = "second-token-$userSuffix"
         }
         val passwordEncrypted = passwordEncoder.encode(plainPassword)
+        val accountId = UUID.fromString("aaaa0000-0002-0000-$userSuffix-aaaaaaaaaaaa")
+        val token = AccountToken(
+            id = UUID.fromString("aaaa0000-0003-0000-$userSuffix-bbbbbbbbbbbb"),
+            accountId = accountId,
+            token = mockToken,
+            gitlabId = 0)
         val person = Person(
             id = UUID.fromString("aaaa0000-0001-0000-$userSuffix-cccccccccccc"),
             slug = "person_slug$userSuffix",
-            name = "user name")
+            name = "user name",
+            gitlabId = Random.nextLong())
         val account = Account(
-            id = UUID.fromString("aaaa0000-0002-0000-$userSuffix-aaaaaaaaaaaa"),
+            id = accountId,
             username = "username$userSuffix",
             email = "email$userSuffix@example.com",
             passwordEncrypted = passwordEncrypted,
-            person = person)
-        val token = AccountToken(
-            id = UUID.fromString("aaaa0000-0003-0000-$userSuffix-bbbbbbbbbbbb"),
-            accountId = account.id,
-            token = mockToken,
-            gitlabId = 0)
+            person = person,
+            tokens = mutableListOf(token))
+
         personRepository.save(person)
         accountRepository.save(account)
         accountTokenRepository.save(token)
         return account
     }
+
+
 }

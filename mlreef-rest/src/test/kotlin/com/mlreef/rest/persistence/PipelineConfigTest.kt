@@ -10,7 +10,7 @@ import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.repository.findByIdOrNull
-import java.util.*
+import java.util.UUID
 import java.util.UUID.randomUUID
 
 class PipelineConfigTest : AbstractRepositoryTest() {
@@ -23,7 +23,7 @@ class PipelineConfigTest : AbstractRepositoryTest() {
 
     private fun createEntity(): Pair<UUID, PipelineConfig> {
         val id = randomUUID()
-        val owner = Person(randomUUID(), "slug", "name")
+        val owner = Person(randomUUID(), "slug", "name", 1L)
         val dataProject = DataProject(randomUUID(), "slug", "url,", "CodeProject Augment", owner.id, "group", "project", "group/project", 0)
 
         dataProjectRepository.save(dataProject)

@@ -8,7 +8,8 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.repository.findByIdOrNull
-import java.util.*
+import java.util.UUID
+import java.util.UUID.randomUUID
 import javax.transaction.Transactional
 
 class SubjectTest : AbstractRepositoryTest() {
@@ -17,8 +18,8 @@ class SubjectTest : AbstractRepositoryTest() {
     private lateinit var repository: SubjectRepository
 
     private fun createEntity(): Pair<UUID, Subject> {
-        val id = UUID.randomUUID()
-        val entity = Person(id, "slug", "name")
+        val id = randomUUID()
+        val entity = Person(id, "slug", "name", 1L)
         return Pair(id, entity)
     }
 

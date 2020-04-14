@@ -10,7 +10,8 @@ import org.springframework.boot.CommandLineRunner
 import org.springframework.context.annotation.Profile
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Component
-import java.util.*
+import java.util.Arrays
+import java.util.UUID
 import javax.transaction.Transactional
 
 @Profile(value = ["!" + ApplicationProfiles.TEST])
@@ -61,8 +62,9 @@ internal class DataPopulator(
     fun init() {
         try {
             lateinit var createUserToken: AccountToken
+            lateinit var gitlabUser: GitlabUser
             executeLogged("1. Create Demo-User and Token in Gitlab") {
-                val gitlabUser = createUserAndTokenInGitlab()
+                gitlabUser = createUserAndTokenInGitlab()
                 executeLogged("1b. Create Token in Gitlab") {
                     createUserToken = createUserToken(gitlabUser)
                     log.info("Create user with token: ${gitlabUser.username} -> ${createUserToken.token}")
@@ -71,7 +73,7 @@ internal class DataPopulator(
 
             val token = createUserToken.token
 
-            val entity = Person(id = authorId, slug = "user-demo", name = "Author1")
+            val entity = Person(id = authorId, slug = "user-demo", name = "Author1", gitlabId = gitlabUser.id)
             val author = personRepository.findByIdOrNull(entity.id) ?: personRepository.save(entity)
 
             val (dataOp1,
@@ -146,7 +148,7 @@ internal class DataPopulator(
             gitlabProject = gitLabProject.path,
             gitlabPathWithNamespace = gitLabProject.pathWithNamespace,
             gitlabGroup = group,
-            gitlabId = gitLabProject.id.toInt()
+            gitlabId = gitLabProject.id
         )
 
         dataProjectRepository.findByIdOrNull(dataProject.id) ?: dataProjectRepository.save(dataProject)
@@ -183,7 +185,7 @@ internal class DataPopulator(
             gitlabProject = gitLabProject.path,
             gitlabPathWithNamespace = gitLabProject.pathWithNamespace,
             gitlabGroup = group,
-            gitlabId = gitLabProject.id.toInt()
+            gitlabId = gitLabProject.id
         )
 
         return codeProjectRepository.findByIdOrNull(codeProject.id) ?: codeProjectRepository.save(codeProject)
@@ -278,7 +280,7 @@ internal class DataPopulator(
             adminGetUsers.first { it.username == username }
         }
 
-        val person = Person(subjectId, username, username)
+        val person = Person(subjectId, username, username, gitlabUser.id)
         val account = Account(
             id = accountId, username = username, email = email,
             gitlabId = gitlabUser.id, person = person,

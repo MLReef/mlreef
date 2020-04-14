@@ -10,7 +10,8 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.repository.findByIdOrNull
-import java.util.*
+import java.util.UUID
+import java.util.UUID.randomUUID
 import javax.transaction.Transactional
 
 class ExperimentTest : AbstractRepositoryTest() {
@@ -18,9 +19,9 @@ class ExperimentTest : AbstractRepositoryTest() {
     private lateinit var repository: ExperimentRepository
 
     private fun createEntity(): Pair<UUID, Experiment> {
-        val id = UUID.randomUUID()
-        val owner = Person(UUID.randomUUID(), "slug", "name")
-        val dataProject = DataProject(UUID.randomUUID(), "slug", "url,", "CodeProject Augment", owner.id, "group", "project", "group/project", 0)
+        val id = randomUUID()
+        val owner = Person(randomUUID(), "slug", "name", 1L)
+        val dataProject = DataProject(randomUUID(), "slug", "url,", "CodeProject Augment", owner.id, "group", "project", "group/project", 0)
         val entity = Experiment(id, dataProject.id, "source", "target")
 
         return Pair(id, entity)
@@ -56,9 +57,9 @@ class ExperimentTest : AbstractRepositoryTest() {
     @Transactional
     @Test
     fun `update works`() {
-        val owner = Person(UUID.randomUUID(), "slug", "name")
-        val dataProject = DataProject(UUID.randomUUID(), "slug", "url,", "CodeProject Augment", owner.id, "group", "project", "group/project", 0)
-        val id = UUID.randomUUID()
+        val owner = Person(randomUUID(), "slug", "name", 1L)
+        val dataProject = DataProject(randomUUID(), "slug", "url,", "CodeProject Augment", owner.id, "group", "project", "group/project", 0)
+        val id = randomUUID()
         val item = Experiment(id, dataProject.id, "source", "target")
 
         val saved = repository.save(item)

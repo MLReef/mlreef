@@ -26,7 +26,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.mockito.Mock
 import org.springframework.beans.factory.annotation.Autowired
-import java.util.*
+import java.util.UUID
 import java.util.UUID.randomUUID
 
 class DataProcessorServiceTest : AbstractServiceTest() {
@@ -50,7 +50,7 @@ class DataProcessorServiceTest : AbstractServiceTest() {
     @BeforeEach
     fun prepare() {
         dataProcessorService = DataProcessorService(dataProcessorRepository = dataProcessorRepository)
-        val subject = subjectRepository.save(Person(ownerId, "new-person", "person's name"))
+        val subject = subjectRepository.save(Person(ownerId, "new-person", "person's name", 1L))
 
         codeProject = CodeProject(
             id = randomUUID(), slug = "slug", url = "orf.at", name = "name",
