@@ -8,6 +8,7 @@ import FilesTable from '../files-table/filesTable';
 import filesApi from '../../apis/FilesApi';
 import BranchesApi from '../../apis/BranchesApi';
 import './FilesContainer.css';
+import { toastr } from 'react-redux-toastr';
 
 class FilesContainer extends Component {
   constructor(props) {
@@ -74,8 +75,14 @@ class FilesContainer extends Component {
       path || '',
       false,
       branch,
-    ).then((res) => {
-      this.setState({ files: res });
+    ).then(async (res) => {
+      if(res.ok){
+        const files = await res.json();
+        this.setState({ files });
+      } else {
+        toastr.error("Error", "Something went wrong getting files");
+        Promise.reject(res);
+      }
     })
       .catch(
         () => {
