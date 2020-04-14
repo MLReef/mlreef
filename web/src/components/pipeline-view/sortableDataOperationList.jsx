@@ -1,6 +1,7 @@
 import React from 'react';
 import { SortableContainer, SortableElement } from 'react-sortable-hoc';
 import $ from 'jquery';
+import MTooltip from 'components/ui/MTooltip';
 import Input from '../input/input';
 import ArrowButton from '../arrow-button/arrowButton';
 import advice01 from '../../images/advice-01.png';
@@ -74,12 +75,18 @@ const SortableDataOperation = SortableElement(({ value }) => {
             <>
               <div style={{ display: 'flex' }}>
                 <p style={{ width: '14em' }}>
-                  {' '}
-                  {param.name}
-                  :
-                  {' '}
+                  {param.comment && (
+                    <MTooltip
+                      scale={120}
+                      className="mr-1"
+                      message={param.comment}
+                    />
+                  )}
+                  {`${param.name}: `}
                 </p>
-                <Input id={`param-${paramIndex}-item-data-operation-selected-form-${value.index}`} placeholder="" value={param.value} />
+                <div className="my-auto">
+                  <Input id={`param-${paramIndex}-item-data-operation-selected-form-${value.index}`} placeholder="" value={param.value} />
+                </div>
               </div>
               <div id={`error-div-for-param-${paramIndex}-item-data-operation-selected-form-${value.index}`} style={{ display: 'none' }}>
                 <img style={{ height: '15px' }} src={advice01} alt="" />
@@ -113,9 +120,14 @@ const SortableDataOperation = SortableElement(({ value }) => {
                     ? (
                       <div style={{ display: 'flex' }}>
                         <p style={{ width: '14em' }}>
-                          {advancedParam.name}
-                          :
-                          {' '}
+                          {advancedParam.comment && (
+                            <MTooltip
+                              scale={120}
+                              className="mr-1"
+                              message={advancedParam.comment}
+                            />
+                          )}
+                          {`${advancedParam.name}: `}
                         </p>
                         <div>
                           <input
@@ -183,9 +195,14 @@ const SortableDataOperation = SortableElement(({ value }) => {
                       <>
                         <div style={{ display: 'flex' }}>
                           <p style={{ width: '14em' }}>
-                            {advancedParam.name}
-                            :
-                            {' '}
+                            {advancedParam.comment && (
+                              <MTooltip
+                                scale={120}
+                                className="mr-1"
+                                message={advancedParam.comment}
+                              />
+                            )}
+                            {`${advancedParam.name}: `}
                           </p>
                           <Input
                             id={`ad-param-${advancedParamIndex}-item-data-operation-form-${value.index}`}

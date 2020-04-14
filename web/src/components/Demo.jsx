@@ -10,6 +10,7 @@ import icon from 'images/ml_reef_icon_01.svg';
 import MDropdown from 'components/ui/MDropdown';
 import MSelect from 'components/ui/MSelect';
 import MProjectCard from './ui/MProjectCard/MProjectCard';
+import MTooltip from 'components/ui/MTooltip';
 
 // this is a component for testing layout and should be removed after alpha
 const Demo = (props) => {
@@ -168,6 +169,32 @@ const Demo = (props) => {
     >
       <MTabs>
         <MTabs.Section defaultActive id="buttons" label="The buttons">
+          <br />
+          <br />
+          <br />
+          <br />
+          <br />
+          <div className="m-3">
+            This is a simple tooltip
+            <MTooltip
+              simple
+              className="ml-1"
+              message="probando ando la la la lal al la llal la la lal al lal ala lal de de de ded eded e de de d e de d edededede"
+            />
+            <br />
+            <br />
+            This is showing upside
+            <MTooltip className="ml-1" message="probando ando la la la lal al la llal la la lal al lal ala lal de de de ded eded e de de d e de d edededede" />
+            <br />
+            <br />
+            And this is showing aside
+            <MTooltip
+              className="ml-1"
+              position="right"
+              message="probando ando la la la lal al la llal la la lal al lal ala lal de de de ded eded e de de d e de d edededede"
+            />
+          </div>
+
           <div>
             <h3 className="w-100">Card</h3>
             <div className="" style={{
