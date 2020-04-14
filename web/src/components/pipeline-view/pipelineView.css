@@ -302,14 +302,6 @@
 
 /* ------------------------ data-operation-form -----------------------*/
 
-.data-operation-form > div:not(.advanced-opts-div) {
-    margin: 1% 0 0 3%;
-}
-
-.data-operation-form > div > p {
-    margin: 1% 2% 0 0;
-}
-
 .advanced-opt-drop-down {
     display: flex;
 }

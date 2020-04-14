@@ -107,30 +107,71 @@ export const dataPipeLines = [{
   showAdvancedOptsDivDataPipeline: false,
   dataType: 'Images',
   params: {
-    standard: [{
-      name: 'Number of augmented images', dataType: INT, required: true, commandName: 'iterations',
-    }],
-    advanced: [
+    standard:
+    [
       {
-        name: 'Rotation range', dataType: FLOAT, required: false, commandName: 'rotation-range', standardValue: '0',
+        name: 'Number of augmented images',
+        dataType: INT,
+        required: true,
+        commandName: 'iterations',
+        comment: 'The comment for Number of augmented images',
+      },
+    ],
+    advanced:
+    [
+      {
+        name: 'Rotation range',
+        dataType: FLOAT,
+        required: false,
+        commandName: 'rotation-range',
+        standardValue: '0',
+        comment: 'The comment for Rotation range',
       },
       {
-        name: 'Width shift range', dataType: FLOAT, required: false, commandName: 'width-shift-range', standardValue: '0',
+        name: 'Width shift range',
+        dataType: FLOAT,
+        required: false,
+        commandName: 'width-shift-range',
+        standardValue: '0',
       },
       {
-        name: 'Height shift range', dataType: FLOAT, required: false, commandName: 'height-shift-range', standardValue: '0',
+        name: 'Height shift range',
+        dataType: FLOAT,
+        required: false,
+        commandName: 'height-shift-range',
+        standardValue: '0',
+        comment: 'The comment for Height shift range',
       },
       {
-        name: 'Shear range', dataType: FLOAT, required: false, commandName: 'shear-range', standardValue: '0',
+        name: 'Shear range',
+        dataType: FLOAT,
+        required: false,
+        commandName: 'shear-range',
+        standardValue: '0',
+        comment: 'The comment for Shear range',
       },
       {
-        name: 'Zoom range', dataType: FLOAT, required: false, commandName: 'zoom-range', standardValue: '0',
+        name: 'Zoom range',
+        dataType: FLOAT,
+        required: false,
+        commandName: 'zoom-range',
+        standardValue: '0',
+        comment: 'The comment for Zoom range',
       },
       {
-        name: 'Horizontal flip', dataType: BOOL, required: false, commandName: 'horizontal-flip', standardValue: 'false',
+        name: 'Horizontal flip',
+        dataType: BOOL,
+        required: false,
+        commandName: 'horizontal-flip',
+        standardValue: 'false',
+        comment: 'The comment for Horizontal flip',
       },
       {
-        name: 'Vertical flip', dataType: BOOL, required: false, commandName: 'vertical-flip', standardValue: 'false',
+        name: 'Vertical flip',
+        dataType: BOOL,
+        required: false,
+        commandName: 'vertical-flip',
+        standardValue: 'false',
       },
     ],
   },
@@ -153,7 +194,11 @@ export const dataPipeLines = [{
         name: 'Height', dataType: INT, required: true, commandName: 'height',
       },
       {
-        name: 'Width', dataType: INT, required: true, commandName: 'width',
+        name: 'Width',
+        dataType: INT,
+        required: true,
+        commandName: 'width',
+        comment: 'The comment for Width.',
       },
       {
         name: 'Channels', dataType: INT, required: true, commandName: 'channels', standardValue: '3',
