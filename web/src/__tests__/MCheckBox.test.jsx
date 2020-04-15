@@ -1,9 +1,6 @@
 import React from 'react';
-import Enzyme, { shallow } from 'enzyme';
-import Adapter from 'enzyme-adapter-react-16';
+import { shallow } from 'enzyme';
 import MCheckBox from 'components/ui/MCheckBox/MCheckBox';
-
-Enzyme.configure({ adapter: new Adapter() });
 
 const setup = () => shallow(
   <MCheckBox name="test-group" labelValue="Option 1" callback={() => {}} />,

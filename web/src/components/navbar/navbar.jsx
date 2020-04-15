@@ -1,4 +1,4 @@
-import React, { Component, createRef } from 'react';
+import React, { Component } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
@@ -7,18 +7,12 @@ import MDropdown from 'components/ui/MDropdown';
 import { logout } from 'actions/userActions';
 import mlReefIcon01 from '../../images/MLReef_Logo_navbar.png';
 import helpWhite from '../../images/help_white.png';
-import './navbar.css';
+import './navbar.scss';
 
 class Navbar extends Component {
-  btnPicUser = createRef();
-
   constructor(props) {
     super(props);
     this.handleSignOut = this.handleSignOut.bind(this);
-  }
-
-  componentDidMount() {
-    this.btnPicUser.current.setAttribute('style', 'margin-left: 0px !important');
   }
 
   handleHelp = () => {
@@ -111,9 +105,8 @@ class Navbar extends Component {
             )}
           />
           <MDropdown
-            reference={this.btnPicUser}
             align="right"
-            className="ml-auto my-auto"
+            className="ml-0 my-auto"
             buttonClasses="btn btn-dark d-flex p-2"
             label={(
               <div

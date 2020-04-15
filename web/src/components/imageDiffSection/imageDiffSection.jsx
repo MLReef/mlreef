@@ -94,10 +94,10 @@ const ImageDiffSection = ({ imageFile }) => {
             />
             <div className="image-dimensions">
               <span className="t-secondary">
-                {`W: ${widthPreviousFile} px`}
+                {`W: ${widthNextFile} px`}
               </span>
               <span className="t-secondary">
-                {`H: ${heightPreviousFile} px`}
+                {`H: ${heightNextFile} px`}
               </span>
             </div>
           </div>
