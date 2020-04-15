@@ -44,14 +44,10 @@ build frontend:
   services:
     - docker:dind
   before_script:
-    - docker login ${DOCKER_REGISTRY} -u "${DOCKER_USER}" -p "${DOCKER_PASSWORD}"
+    - echo ${GITLAB_COM_API_TOKEN} | docker login registry.gitlab.com --username=${GITLAB_COM_API_USER} --password-stdin
     - URL=$(cat $INSTANCE_INFO)
     - echo $URL                                             # debug output
     - ls -al web/src
-    - echo "SKIP_PREFLIGHT_CHECK=true"                      >> web/.env
-    - echo "REACT_APP_GITLAB_PORT=10080"                    >> web/.env
-    - echo "REACT_APP_BUILD_TIMEOUT=18000"                  >> web/.env
-    - echo "REACT_APP_POLL_TIMEOUT=10000"                   >> web/.env
     # Use Gitlab's internal unique job ID as build version. This way versions can be traced back to a specific build.
     - echo "REACT_APP_VERSION=$CI_JOB_ID"                   >> web/.env
     - cat web/.env
