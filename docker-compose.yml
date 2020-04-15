@@ -28,7 +28,7 @@ services:
       - gitlab
       - backend
     ports:
-      - "3000:3000"
+      - "3001:3000"
     env_file: local.env
     networks:
       - mlreef-docker-network
@@ -48,7 +48,6 @@ services:
     env_file: local.env
     environment:
       - SPRING_PROFILES_ACTIVE=docker
-      - GITLAB_ROOT_URL=http://gitlab:80
       - DB_HOST=mlreef-postgres
       - DB_PORT=5432
       - DB_USER=mlreef
@@ -65,7 +64,8 @@ services:
     restart: always
     image: gitlab/gitlab-ce:12.7.0-ce.0
     ports:
-      - "10080:80"
+      - "10080:10080"
+      - "10081:80"
       - "10022:22"
     volumes:
       - gitlab-etc:/etc/gitlab:Z                                    #CI_DELETE_LINE: this line gets removed by the CI/CD pipeline
@@ -76,16 +76,16 @@ services:
       #CI_ACTIVATE- /data/gitlab-opt:/var/opt/gitlab:Z              # this line gets activated by the CI/CD pipeline
     env_file: local.env                                             # do not remove. contains secrets
     environment:
-      - TZ=Austria/Vienna
-      - GITLAB_TIMEZONE=Vienna
-      - GITLAB_HTTPS=false
-      - SSL_SELF_SIGNED=false
-
-      - GITLAB_SSH_PORT=10022
-      - GITLAB_RELATIVE_URL_ROOT=
-
+#      - GITLAB_SSH_PORT=10022                                      # TODO use correct environment parameter
+      - GITLAB_HTTPS=false                                          # TODO evaluate if this is the correct parameter
+#      - GITLAB_RELATIVE_URL_ROOT=
       - GITLAB_ROOT_PASSWORD=password
       - GITLAB_ROOT_EMAIL=
+
+      - TZ=Austria/Vienna                                           # TODO evaluate if this is the correct parameter
+      - GITLAB_TIMEZONE=Vienna                                      # TODO evaluate if this is the correct parameter
+      - SSL_SELF_SIGNED=false                                       # TODO evaluate if this is the correct parameter
+
     networks:
       - mlreef-docker-network
 

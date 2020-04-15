@@ -77,7 +77,8 @@ while [ -n "$1" ]; do
     echo "Using Container startup wait of: $CONTAINER_STARTUP_WAIT"
     shift
     ;;
-  *) echo "Option $1 not recognized"
+  *)
+    echo "Option $1 not recognized"
     exit 1
     ;;
   esac
@@ -131,12 +132,15 @@ touch $DOCKER_ENV
 echo "# Automatically added by the deploment pipeline .gitlab-ci-deploy.yml" >$DOCKER_ENV
 {
   echo "# The REACT_APP_API_GATEWAY is used by the frontend to direkt API calls"
+  echo "# The GITLAB_HOST is for gitlab to serve links correctly (see docker-compose.yml)"
   echo "REACT_APP_API_GATEWAY=http://$INSTANCE"
-  echo ""
-  echo "GITLAB_HOST='$INSTANCE'                   # GITLAB_HOST is for gitlab to serve links correctly"
   echo "# The gitlab server always serves port 80 locally. By setting the GITLAB_PORT variable,"
   echo "# we let gitlab know, that the container's port 80 is mapped differently from the outside."
   echo "GITLAB_PORT=$GITLAB_PORT"
+  echo "# The GITLAB_ROOT_URL is used by the backend to connect to gitlab"
+  echo "# The hostname 'gitlab' is created by the local docker network"
+  echo "GITLAB_ROOT_URL=http://gitlab:$GITLAB_PORT"
+  echo ""
   echo "# The GITLAB_ADMIN_TOKEN is shared between Gitlab and the Backend"
   echo "GITLAB_ADMIN_TOKEN=$GITLAB_ADMIN_TOKEN"
   echo ""
@@ -145,16 +149,8 @@ echo "# Automatically added by the deploment pipeline .gitlab-ci-deploy.yml" >$D
   echo GITLAB_SECRETS_SECRET_KEY_BASE=$GITLAB_SECRETS_SECRET_KEY_BASE
   echo GITLAB_SECRETS_OTP_KEY_BASE=$GITLAB_SECRETS_OTP_KEY_BASE
   echo GITLAB_SECRETS_DB_KEY_BASE=$GITLAB_SECRETS_DB_KEY_BASE
-  echo ""
-  echo "# In case the react build takes to much time"
-  echo "REACT_APP_BUILD_TIMEOUT=18000"
-  echo "# General timeout for api requests"
-  echo "REACT_APP_POLL_TIMEOUT=10000"
-  echo "# Build version of the REACT APP"
-  echo "REACT_APP_VERSION=$(date +%s)"
 
 } >>$DOCKER_ENV
-
 
 echo "### Executing: docker-compose down --remove-orphans"
 docker-compose down --remove-orphans
@@ -165,13 +161,27 @@ echo "### Starting Deployment"
 echo "### MANDATORY ENV VARS:"
 cat $DOCKER_ENV
 
-echo "### 2. Start Gitlab Omnibus Preconfigured"
+echo "### 1. Start Gitlab Omnibus Preconfigured"
 # the container startup wait is necessary to let gitlab initialise the database
 docker-compose down --remove-orphans
+echo "### Docker Compose Up"
 docker-compose up --detach gitlab gitlab-runner
+echo "### Sleep ${CONTAINER_STARTUP_WAIT}"
 sleep "${CONTAINER_STARTUP_WAIT}"
 
-echo "### 2. Creating Admin API token $GITLAB_ADMIN_TOKEN"
+
+echo '### 2. Configure Gitlab external_url http://$INSTANCE:$GITLAB_PORT'
+docker exec gitlab sh -c 'echo external_url \"$REACT_APP_API_GATEWAY:$GITLAB_PORT\" >> /etc/gitlab/gitlab.rb'
+docker exec gitlab sh -c 'cat /etc/gitlab/gitlab.rb | grep external_url'
+echo "### Reconfigure Gitlab"
+docker exec gitlab gitlab-ctl reconfigure > /dev/null
+echo "### Restart Gitlab"
+docker exec --detach gitlab gitlab-ctl restart
+echo "### Sleep ${CONTAINER_STARTUP_WAIT}"
+sleep "${CONTAINER_STARTUP_WAIT}"
+
+
+echo "### 3. Creating Admin API token $GITLAB_ADMIN_TOKEN"
 # http://localhost:10080/help/administration/troubleshooting/gitlab_rails_cheat_sheet.md
 # Alternatively the token digest can be computed as follows:
 # salt=$(echo $GITLAB_SECRETS_DB_KEY_BASE | cut -c1-32)
@@ -188,11 +198,12 @@ docker exec -t gitlab bash -c '
 "
 '
 
-echo "### 3. Getting Gitlab runners registration token from Gitlab."
+
+echo "### 4. Getting Gitlab runners registration token from Gitlab."
 TOKEN=$(docker exec -t gitlab bash -c 'gitlab-rails runner -e production "puts Gitlab::CurrentSettings.current_application_settings.runners_registration_token"' | tr -d '\r')
 echo TOKEN=$TOKEN
 
-echo "### 4. Configuring gitlab runner"
+echo "### 5. Configuring gitlab runner"
 export DISPATCHER_DESCRIPTION="Packaged Dispatcher on $CI_COMMIT_REF_SLUG-$INSTANCE"
 
 if [ $INSTANCE != "localhost" ]; then
@@ -223,7 +234,7 @@ else
   # no caching on Amazon S3 buckets
   docker exec gitlab-runner gitlab-runner register                \
     --non-interactive                                             \
-    --url="http://gitlab/"                                        \
+    --url="http://gitlab:$GITLAB_PORT/"                           \
     --docker-network-mode mlreef-docker-network                   \
     --registration-token "$TOKEN"                                 \
     --executor "docker"                                           \
@@ -240,7 +251,8 @@ fi
 echo "### Runner was registered successfully"
 
 #
-echo "### 5. Start other services"
+sleep 30 # Add an additional sleep in the end to improve user experience; So that Docker is started when the script ends
+echo "### 6. Start other services"
 docker-compose up --detach
 sleep 30 # Add an additional sleep in the end to improve user experience; So that Docker is started when the script ends
 
