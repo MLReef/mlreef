@@ -13,14 +13,14 @@ let wrapper;
 beforeEach(() => {
   wrapper = setup();
 });
-test('Assert that checkbox contain all the initial components', () => {
+test('assert that checkbox contains all the initial components', () => {
   expect(wrapper.find('button')).toHaveLength(1);
   expect(wrapper.find('p')).toHaveLength(1);
   expect(wrapper.find('input')).toHaveLength(1);
   expect(wrapper.find('span')).toHaveLength(1);
 });
 
-test('Assert that checked property changes after click event', () => {
+test('assert that checked property changes after click event', () => {
   const mockSetValue = jest.fn();
   React.useState = jest.fn(() => [false, mockSetValue]);
 

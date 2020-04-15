@@ -26,7 +26,7 @@ describe('test the frontend features', () => {
   beforeEach(() => {
     wrapper = setup();
   });
-  test('Assert that new project view contains the most basic components', () => {
+  test('assert that new project view contains basic components', () => {
     expect(wrapper.find('#projectTitle')).toHaveLength(1);
     expect(wrapper.find('#demo-simple-select-outlined')).toHaveLength(1);
     expect(wrapper.find('#projectSlug')).toHaveLength(1);

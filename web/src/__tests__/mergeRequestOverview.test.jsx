@@ -22,7 +22,7 @@ describe('test functionality', () => {
   beforeEach(() => {
     wrapper = setup();
   });
-  test('assert that create branch button is rendered when values are right', () => {
+  test('assert that create branch button is rendered when values pass validation', () => {
     wrapper.instance().setState({ btnSelected: 'closed-btn', mrsList: mockMergeRequests });
     expect(wrapper.find('#merge-requests-container-div').at(0).children()).toHaveLength(1);
   });

@@ -38,22 +38,22 @@ describe('frontend should contain initial html elements', () => {
   beforeEach(() => {
     wrapper = setup();
   });
-  test('assert that there exists a paragraph that contains branch selected name', () => {
+  test('assert that branch name is displayed', () => {
     expect(wrapper.find('#branch-selected-name').text().includes('master')).toBe(true);
   });
-  test('assert that there exists a select to pick the target branch', () => {
+  test('assert that target branch dropdown exists', () => {
     expect(wrapper.find('CustomizedSelect').length).toBe(1);
   });
-  test('assert that there exists an input to enter merge request name', () => {
+  test('assert that merge request name input exists', () => {
     expect(wrapper.find('#title-mr-input').length).toBe(1);
   });
-  test('assert that there exists a text area to enter description', () => {
+  test('assert that description text area exists', () => {
 
   });
-  test('assert that there exists a cancel button', () => {
+  test('assert that cancel merge request button exists', () => {
     expect(wrapper.find('#cancel-button').length).toBe(1);
   });
-  test('assert that there exists a button to submit merge request', () => {
+  test('assert that submit merge request button exists', () => {
     expect(wrapper.find('#submit-merge-request').length).toBe(1);
   });
 });
