@@ -7,12 +7,12 @@ const wrapper = mount(
   <ExecutePipeLineModal isShowing toggle={() => { }} amountFilesSelected={3} dataInstanceName="experiment-weird-exp" />,
 );
 
-test('There should be three buttons', () => {
+test('assert that three buttons', () => {
   const buttonsArr = wrapper.find('button');
   expect(buttonsArr).toHaveLength(3);
 });
 
-test('The machines list should be displayed when dropdown button is clicked', () => {
+test('assert that machines list is displayed after dropdown button click', () => {
   wrapper.find('#show-first-opt').simulate('click');
   expect(wrapper.find('#t-machine-selector')).toHaveLength(1);
 });

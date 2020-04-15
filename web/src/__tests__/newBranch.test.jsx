@@ -27,10 +27,10 @@ describe('test the frontend features', () => {
   beforeEach(() => {
     wrapper = setup();
   });
-  test('assert that there exists a select', () => {
+  test('assert that select exists', () => {
     expect(wrapper.find('CustomizedSelect')).toHaveLength(1);
   });
-  test('assert that there an input to enter branch name', () => {
+  test('assert that branch name input exists', () => {
     expect(wrapper.find('#new-branch-name')).toHaveLength(1);
   });
 });
@@ -39,7 +39,7 @@ describe('test functionality', () => {
   beforeEach(() => {
     wrapper = setup();
   });
-  test('assert that create branch button is rendered when values are right', () => {
+  test('assert that create branch button is rendered when input pass validation', () => {
     wrapper.instance().setState({ branchSelected: 'master', newBranchName: 'master_1' });
     expect(wrapper.find('#create-branch-btn')).toHaveLength(1);
   });

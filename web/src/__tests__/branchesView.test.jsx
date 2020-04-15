@@ -22,7 +22,7 @@ describe('test the frontend features', () => {
   beforeEach(() => {
     wrapper = setup();
   });
-  test('assert that branches list have the correct name', () => {
+  test('assert that branches list has correct name', () => {
     wrapper.find('.branch-title').forEach((branchTitle, index) => {
       expect(branchTitle.text().includes(branchesMock[index].name)).toBe(true);
     });

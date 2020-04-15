@@ -32,7 +32,7 @@ describe('test execute button event', () => {
       .simulate('click');
     expect(wrapper.dive().find(ExecutePipelineModal).dive().find('.modal.show')).toHaveLength(0);
   });
-  test('assert that execute modal does not render when no folder has been selected', () => {
+  test('assert that execute modal does not render when no folder is selected', () => {
     wrapper.instance().setState({ dataOperationsSelected: [dataPipeLines[0]] });
     wrapper.dive().find(MCard).first().dive()
       .find('#execute-button')
