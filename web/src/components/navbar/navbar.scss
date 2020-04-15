@@ -23,28 +23,29 @@
   width: 180px;
   height: auto;
   background: #fff;
-}
 
-.sign-box p {
-  padding: 0.75em;
-  font-family: "Roboto", sans-serif;
-  font-weight: 200;
-  transition: all 0.4s ease;
-}
+  & p {
+    padding: 0.75em;
+    font-family: "Roboto", sans-serif;
+    font-weight: 200;
+    transition: all 0.4s ease;
+  }
 
-.sign-box div {
-  font-family: "Roboto", sans-serif;
-  font-weight: 200;
-  margin: 0.75em;
-}
+  & div {
+    font-family: "Roboto", sans-serif;
+    font-weight: 200;
+    margin: 0.75em;
+  }
+  
+   & p:hover {
+    background: var(--secondary);
+    cursor: pointer;
+  }
 
-.sign-box p:hover {
-  background: #c5c5c5;
-  cursor: pointer;
 }
 
 .project-box {
-  box-shadow: 0 2px 4px rgb(0, 0, 0, 0.1);
+  box-shadow: 0 2px 4px var(--secondary)/* rgb(0, 0, 0, 0.1) */;
   padding-top: 0.5em;
   position: absolute;
   z-index: 2;
@@ -56,19 +57,17 @@
   left: 0;
   border-radius: 3px;
   top: 120%;
-}
 
-.project-box p {
-  padding: 0.75em;
-  color: #000;
-  font-family: "Roboto", sans-serif;
-  font-weight: 200;
-  transition: all 0.4s ease;
-}
-
-.project-box p:hover {
-  background: #c5c5c5;
-  cursor: pointer;
+  & p {
+    padding: 0.75em;
+    font-weight: 200;
+    transition: all 0.4s ease;
+  }
+  
+  & p:hover {
+    background: #c5c5c5;
+    cursor: pointer;
+  }
 }
 
 .user-projects {
@@ -94,28 +93,29 @@
   position: absolute;
   border-radius: 0.3vw;
   cursor: pointer;
-}
 
-.header-help:hover .sign-box {
-  visibility: visible; /* show it on hover */
-  opacity: 1;
-  transition-delay: 0.09s;
+  &:hover .sign-box {
+    visibility: visible; /* show it on hover */
+    opacity: 1;
+    transition-delay: 0.09s;
+  }
 }
 
 .help-box {
-  box-shadow: 0 0 5px #c5c5c5;
+  box-shadow: 0 0 5px var(--secondary);
   border-radius: 0.3vw;
   position: absolute;
   width: max-content;
   background: #fff;
-}
 
-.help-box div {
-  padding: 1rem 3.5rem 1rem 1rem;
-  transition: all 0.4s ease;
-}
+  & div {
+    padding: 1rem 3.5rem 1rem 1rem;
+    transition: all 0.4s ease;
 
-.help-box div:hover {
-  background: #c5c5c5;
-  cursor: pointer;
+    &:hover {
+      background: var(--secondary);
+      cursor: pointer;
+    }
+  }
+
 }

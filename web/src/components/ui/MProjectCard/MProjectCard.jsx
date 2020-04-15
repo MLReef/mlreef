@@ -72,7 +72,7 @@ const MProjectCard = ({
               </i>
             </div>
             <div className="">
-              <i class="fas fa-grip-lines-vertical t-warning">
+              <i className="fas fa-grip-lines-vertical t-warning">
                 <span className="label"> Tabular</span>
               </i>
             </div>

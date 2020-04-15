@@ -235,11 +235,6 @@ export const InstanceCard = ({ ...props }) => {
 class DataInstanceOverview extends Component {
   constructor(props) {
     super(props);
-    let project;
-    const { projects } = this.props;
-    if (projects) {
-      project = projects.selectedProject;
-    }
     this.state = {
       project: {},
       all: [],
