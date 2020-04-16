@@ -8,8 +8,8 @@ import com.mlreef.rest.api.v1.dto.UserInGroupDto
 import com.mlreef.rest.api.v1.dto.toDomain
 import com.mlreef.rest.api.v1.dto.toDto
 import com.mlreef.rest.external_api.gitlab.TokenDetails
-import com.mlreef.rest.helpers.GroupOfUser
 import com.mlreef.rest.feature.groups.GroupsService
+import com.mlreef.rest.helpers.GroupOfUser
 import com.mlreef.rest.helpers.UserInGroup
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus

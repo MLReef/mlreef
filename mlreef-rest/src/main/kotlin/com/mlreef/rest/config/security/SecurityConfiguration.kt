@@ -25,7 +25,6 @@ import org.springframework.session.Session
 
 @Configuration
 @EnableWebSecurity//(debug = true)
-//@EnableGlobalMethodSecurity(prePostEnabled = true)
 class SecurityConfiguration(private val provider: AuthenticationProvider) : WebSecurityConfigurerAdapter() {
 
     @Autowired
@@ -59,6 +58,7 @@ class SecurityConfiguration(private val provider: AuthenticationProvider) : WebS
             .csrf().disable()
             .httpBasic().disable()
             .logout().disable()
+
     }
 
     @Bean
