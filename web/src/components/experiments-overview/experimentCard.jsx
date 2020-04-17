@@ -6,7 +6,6 @@ import {
   number,
   func,
 } from 'prop-types';
-import '../../css/globalStyles.css';
 import './experimentsOverview.css';
 import {
   getTimeCreatedAgo,
@@ -46,7 +45,7 @@ const ExperimentCard = (props) => {
             key={`${experiment.timeCreatedAgo}-${experiment.descTitle}`}
             className="card-content"
           >
-            <div className="summary-data" style={{ width: '80%' }}>
+            <div className="summary-data" style={{ width: 'auto' }}>
               <div className="project-desc-experiment">
                 <button
                   type="button"

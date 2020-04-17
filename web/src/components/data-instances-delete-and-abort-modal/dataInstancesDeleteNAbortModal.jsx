@@ -1,6 +1,5 @@
 import React from 'react';
 import { string, bool, func } from 'prop-types';
-import '../../css/globalStyles.css';
 import '../../css/genericModal.css';
 
 const DataInstanteDeleteModal = (props) => {

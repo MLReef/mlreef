@@ -1,8 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import './MSelect.css';
+import './MSimpleSelect.css';
 
-const MSelect = (props) => {
+const MSimpleSelect = (props) => {
   const {
     options,
     label,
@@ -45,12 +45,12 @@ const MSelect = (props) => {
   );
 };
 
-MSelect.defaultProps = {
+MSimpleSelect.defaultProps = {
   label: null,
   footer: null,
 };
 
-MSelect.propTypes = {
+MSimpleSelect.propTypes = {
   label: PropTypes.string,
   options: PropTypes
     .arrayOf(PropTypes.shape({
@@ -68,4 +68,4 @@ MSelect.propTypes = {
   onChange: PropTypes.func.isRequired,
 };
 
-export default MSelect;
+export default MSimpleSelect;
