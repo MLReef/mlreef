@@ -4,9 +4,9 @@ import Checkbox from '@material-ui/core/Checkbox';
 import { toastr } from 'react-redux-toastr';
 import '../../css/genericModal.css';
 import './selectDataPipelineModal.css';
+import MDropdown from 'components/ui/MDropdown';
 import folderIcon from '../../images/folder_01.svg';
 import fileIcon from '../../images/file_01.svg';
-import ArrowButton from '../arrow-button/arrowButton';
 import filesApi from '../../apis/FilesApi';
 import '../files-table/filesTable.css';
 
@@ -35,12 +35,6 @@ class SelectDataPipelineModal extends Component {
   }
 
     static getDerivedStateFromProps = ({ show }) => ({ show });
-
-    handleBranch = (e) => {
-      e.target.focus();
-      const { isOpen } = this.state;
-      this.setState({ isOpen: !isOpen });
-    }
 
     selectFileFromGrid = (file) => {
       const { files } = this.state;
@@ -81,19 +75,14 @@ class SelectDataPipelineModal extends Component {
 
     getReturnOption = () => (
       <tr className="files-row">
-        <td style={{ paddingLeft: '3em' }} className="file-type">
+        <td className="file-type">
           <button
             type="button"
-            onClick={this.getBack}
-            style={{ padding: '0' }}
-          >
-            <img src={folderIcon} alt="" />
-          </button>
-          <button
-            type="button"
+            style={{ fontSize: '150%' }}
+            className="btn btn-hidden fa fa-folder p-3"
             onClick={this.getBack}
           >
-            ..
+            {' ..'}
           </button>
         </td>
         <td>&nbsp;</td>
@@ -152,7 +141,6 @@ class SelectDataPipelineModal extends Component {
       const {
         show,
         branchSelected,
-        isOpen,
         branches,
         files,
         showReturnOption,
@@ -176,6 +164,7 @@ class SelectDataPipelineModal extends Component {
             <div className="modal-container-close">
               <button
                 type="button"
+                label="close"
                 onClick={this.handleCloseButton}
                 className="btn btn-hidden fa fa-times"
               />
@@ -186,127 +175,115 @@ class SelectDataPipelineModal extends Component {
               </div>
             </div>
             <div id="buttons" className="modal-content d-flex flex-column p-3">
-              <div className="row mb-4">
+              <div className="row">
                 <div id="left-div" className="col-6 t-left">
-                  <div
-                    className="white-button round-border-black-color"
-                    onClick={this.handleBranch}
-                    style={{ cursor: 'pointer' }}
-                  >
-                    <ArrowButton
-                      placeholder={
-                        branchSelected || 'Select branch'
-                      }
-                    />
-                    {isOpen && (
-                    <div className="select-branch" style={{ top: '27%', left: '35px' }} onBlur={this.handleBlur}>
-                      <div className="switch-header">
-                        <p>Switch Branches</p>
-                      </div>
-                      <hr />
-                      <div className="search-branch">
-                        <input
-                          type="text"
-                          placeholder="Search branches or tags"
-                        />
-                        <div className="branches">
-                          <ul>
-                            <li className="branch-header">Branches</li>
-                            {branches.filter((branch) => !branch.name.startsWith('data-pipeline')
-                              && !branch.name.startsWith('experiment'))
-                              .map((branch, index) => (
-                                <li
-                                  tabIndex="0"
-                                  role="button"
-                                  key={index.toString()}
-                                  onClick={() => {
-                                    this.getFiles(branch.name);
-                                  }}
-                                  onKeyDown={() => {
-                                    this.getFiles(branch.name);
-                                  }}
-                                >
-                                  <p>{branch.name}</p>
-                                </li>
-                              ))}
-                          </ul>
+                  <MDropdown
+                    label={branchSelected || 'Select branch'}
+                    component={(
+                      <div className="select-branch" style={{ top: '27%', left: '35px' }} onBlur={this.handleBlur}>
+                        <div className="switch-header">
+                          <p>Switch Branches</p>
                         </div>
-                      </div>
-                      <hr />
-                      <div className="search-branch">
-                        <input
-                          type="text"
-                          placeholder="Search branches or tags"
-                        />
-                        <div className="branches">
-                          <ul>
-                            <li className="branch-header">Branches</li>
-                            {branches.filter((branch) => branch.name.startsWith('data-pipeline'))
-                              .map((branch) => {
-                                const pipelineName = branch.name;
-                                const uniqueName = pipelineName.split('/')[1];
-
-                                return (
+                        <hr />
+                        <div className="search-branch">
+                          <input
+                            type="text"
+                            placeholder="Search branches or tags"
+                          />
+                          <div className="branches">
+                            <ul>
+                              <li className="branch-header">Branches</li>
+                              {branches.filter((branch) => !branch.name.startsWith('data-pipeline')
+                                && !branch.name.startsWith('experiment'))
+                                .map((branch, index) => (
                                   <li
-                                    key={`b-${pipelineName}`}
-                                    onKeyDown={() => {
-                                      // we should filter which key
-                                      this.getFiles(pipelineName);
-                                    }}
+                                    tabIndex="0"
+                                    role="button"
+                                    key={index.toString()}
                                     onClick={() => {
-                                      this.getFiles(pipelineName);
+                                      this.getFiles(branch.name);
+                                    }}
+                                    onKeyDown={() => {
+                                      this.getFiles(branch.name);
                                     }}
                                   >
-                                    <p>
-                                      {`${uniqueName} - ${customTime(branch.commit.created_at)}`}
-                                    </p>
+                                    <p>{branch.name}</p>
                                   </li>
-                                );
-                              }).reverse()}
-                          </ul>
+                                ))}
+                            </ul>
+                          </div>
+                        </div>
+                        <hr />
+                        <div className="search-branch">
+                          <input
+                            type="text"
+                            placeholder="Search branches or tags"
+                          />
+                          <div className="branches">
+                            <ul>
+                              <li className="branch-header">Branches</li>
+                              {branches.filter((branch) => branch.name.startsWith('data-pipeline'))
+                                .map((branch) => {
+                                  const pipelineName = branch.name;
+                                  const uniqueName = pipelineName.split('/')[1];
+
+                                  return (
+                                    <li
+                                      key={`b-${pipelineName}`}
+                                      onKeyDown={() => {
+                                        // we should filter which key
+                                        this.getFiles(pipelineName);
+                                      }}
+                                      onClick={() => {
+                                        this.getFiles(pipelineName);
+                                      }}
+                                    >
+                                      <p>
+                                        {`${uniqueName} - ${customTime(branch.commit.created_at)}`}
+                                      </p>
+                                    </li>
+                                  );
+                                }).reverse()}
+                            </ul>
+                          </div>
                         </div>
                       </div>
-                    </div>
                     )}
-                  </div>
+                  />
                 </div>
                 <div id="right-div" className="col-6 t-right">
+                  {files && (
+                    <>
+                      <button
+                        type="button"
+                        className="btn btn-outline-dark btn-label-sm mr-2"
+                        onClick={() => this.changeCheckedToAll(true)}
+                      >
+                        Select All
+                      </button>
+                      <button
+                        type="button"
+                        className="btn btn-outline-dark btn-label-sm mr-2"
+                        onClick={() => this.changeCheckedToAll(false)}
+                      >
+                        Deselect All
+                      </button>
+                    </>
+                  )}
                   <button
                     type="button"
-                    className="btn btn-primary"
-                    onClick={(e) => {
-                      handleModalAccept(e, filesSelected, branchSelected);
-                    }}
+                    className="btn btn-primary btn-label-sm"
+                    onClick={(e) => { handleModalAccept(e, filesSelected, branchSelected); }}
                   >
                     Accept
                   </button>
-                  {files && (
-                  <>
-                    <button
-                      type="button"
-                      onClick={() => this.changeCheckedToAll(false)}
-                      className="white-button round-border-black-color"
-                    >
-                      {' '}
-                      <p> Deselect all </p>
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => this.changeCheckedToAll(true)}
-                      className="white-button round-border-black-color"
-                    >
-                      {' '}
-                      <p> Select all </p>
-                    </button>
-                  </>
-                  )}
                 </div>
-                <div style={{ paddingLeft: '1em' }}>
-                  <p style={{ fontSize: '15px' }}>
-                    {` ${project.name} / `}
-                    <b>{filePath}</b>
-                  </p>
-                </div>
+              </div>
+              <div className="row mb-3 ml-2">
+                <p>
+                  {`${project.name} / `}
+                  <b>{filePath}</b>
+                </p>
               </div>
               <div className="row flex-1 mb-3">
                 <div className="col-12">
@@ -352,7 +329,11 @@ class SelectDataPipelineModal extends Component {
                               <p>
                                 {file.type === 'tree'
                                   ? (
-                                    <button type="button" onClick={(e) => this.updateFiles(e, file.path)} className="file-name-link">
+                                    <button
+                                      type="button"
+                                      onClick={(e) => this.updateFiles(e, file.path)}
+                                      className="btn btn-hidden"
+                                    >
                                       {file.name}
                                     </button>
                                   ) : file.name}

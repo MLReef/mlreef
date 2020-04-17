@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import './executePipeLineModal.css';
-import '../../css/globalStyles.css';
 import '../../css/genericModal.css';
 import createPipelineInProject from '../../functions/pipeLinesHelpers';
 import MSelect from 'components/ui/MSelect';
