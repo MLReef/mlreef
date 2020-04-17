@@ -62,7 +62,7 @@ class RefreshUserTokenAspect(
                     }
             )
         } else {
-            usernames.add(currentUserService.account().username)
+            usernames.add(currentUserService.accountOrNull()?.username)
         }
 
         usernames.filterNotNull().forEach {

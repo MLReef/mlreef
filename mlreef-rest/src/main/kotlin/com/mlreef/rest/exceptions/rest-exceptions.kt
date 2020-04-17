@@ -18,6 +18,7 @@ enum class ErrorCode(val errorCode: Int, val errorName: String) {
     UserBadCredentials(2003, "Username or password is incorrect"),
     GroupNotExisting(2004, "Group does not exist"),
     ProjectNotExisting(2005, "Project does not exist"),
+    AccessTokenIsMissing(2006, "Access token is missing"),
     GitlabUserCreationFailed(2101, "Cannot create user in gitlab"),
     GitlabUserTokenCreationFailed(2102, "Cannot create user token in gitlab"),
     GitlabUserNotExisting(2103, "Cannot find user in gitlab via token"),
@@ -115,6 +116,8 @@ class PipelineCreateException(errorCode: ErrorCode, parameterName: String) : Res
 class PipelineStartException(message: String) : RestException(ErrorCode.CommitPipelineScriptFailed, message)
 
 class BadParametersException(message: String? = null) : RuntimeException(message ?: "Internal exception")
+
+class MissingAccessTokenForUser(accountId: UUID) : RestException(ErrorCode.AccessTokenIsMissing, "No valid/missing access token for account $accountId")
 
 @ResponseStatus(code = HttpStatus.INTERNAL_SERVER_ERROR, reason = "Gitlab is unavailable")
 open class GitlabCommonException(
