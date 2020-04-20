@@ -46,6 +46,6 @@
 
 /bin @rainerkern @flohin
 /src/bin @rainerkern
-/web @andres46
+/web/src/apiConfig.js @andres46
 .gitlab-ci*.yml @rainerkern @flohin
 docker-compose.yml @rainerkern @flohin
