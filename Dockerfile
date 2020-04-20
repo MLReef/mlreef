@@ -1,5 +1,3 @@
-##### Base on python 3.7 image
-#FROM python:3.7
 FROM tensorflow/tensorflow:2.1.0-gpu-py3
 MAINTAINER MLReef
 
