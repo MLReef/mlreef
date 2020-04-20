@@ -1,26 +1,3 @@
-body {
-  min-width: unset;
-}
-
-.m-link {
-  color: var(--info);
-}
-
-.m-link-bold {
-  font-weight: bold;
-}
-
-.m-title-lg {
-  color: var(--dark);
-  font-size: 2rem;
-  font-weight: normal;
-  text-align: center;
-}
-
-.m-text {
-  color: var(--dark);
-  text-align: center;
-}
 
 .register-view {
   background-color: var(--light);
@@ -112,16 +89,7 @@ body {
   margin-top: 1rem;
 }
 
-.register-view_submit .btn-submit {
-  background-color: var(--primary);
-  border: none;
-  border-radius: 5px;
-  padding: 0.5rem 2rem;
-  color: #fff;
-  height: unset;
-  width: 100%;
-  max-width: 14rem;
-}
+
 
 .register-view .form-group {
   padding: 1rem 0;

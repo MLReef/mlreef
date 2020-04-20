@@ -18,6 +18,10 @@
       background-color: darken($color, $color-modifier);
       border-color: darken($color, $color-modifier);
     }
+
+    &.waiting {
+      // border-color: lighten($color, $color-modifier);
+    }
   }
 }
 
@@ -213,5 +217,14 @@
         border-width: 1px;
       }
     }
+  }
+
+  &.waiting {
+    @include btn-spinner;
+    color: transparent;
+  }
+
+  &-link {
+    color: $info;
   }
 }

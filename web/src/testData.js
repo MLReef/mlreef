@@ -2,6 +2,8 @@ import {
   RUNNING,
   SUCCESS,
   EXPIRED,
+  CANCELED,
+  SKIPPED,
 } from './dataTypes';
 
 export const imagesToRender = [
@@ -340,6 +342,78 @@ export const mockDataInstancesList = [
       name: 'DI_Data_Pipeline_Name_3',
       creator: 'UserName',
       timeAgo: '',
+      completedPercentage: '---',
+      filesChanged: '---',
+    },
+    {
+      name: 'DI_Data_Pipeline_Name_4',
+      creator: 'UserName',
+      timeAgo: '',
+      completedPercentage: '---',
+      filesChanged: '---',
+    }],
+  },
+];
+
+// this is for mock experiments in web/src/components/experiments-overview/experimentsOverview.jsx
+// import and replace experiments and all in state.
+// Diego Viniegra
+export const mockExperiments = [
+  {
+    status: RUNNING,
+    values: [{
+      status: 'running',
+      name: 'DI_Data_Pipeline_Name_1',
+      authorName: 'UserName',
+      createdAt: '2020-04-02 12:00:00',
+      completedPercentage: '---',
+      filesChanged: '---',
+    }],
+  },
+  {
+    status: CANCELED,
+    values: [{
+      status: 'canceled',
+      name: 'DI_Data_Pipeline_Name_1',
+      authorName: 'UserName',
+      createdAt: '2020-04-02 12:00:00',
+      completedPercentage: '---',
+      filesChanged: '---',
+    }],
+  },
+  {
+    status: SUCCESS,
+    values: [{
+      status: 'success',
+      name: 'DI_Data_Pipeline_Name_2',
+      authorName: 'UserName',
+      createdAt: '2020-03-02 12:00:00',
+      completedPercentage: '---',
+      filesChanged: '---',
+      spaceUsed: '---',
+      expiresIn: '---',
+    }],
+  },
+  {
+    status: SKIPPED,
+    values: [{
+      status: 'skipped',
+      name: 'DI_Data_Pipeline_Name_2',
+      authorName: 'UserName',
+      createdAt: '2020-03-02 12:00:00',
+      completedPercentage: '---',
+      filesChanged: '---',
+      spaceUsed: '---',
+      expiresIn: '---',
+    }],
+  },
+  {
+    status: EXPIRED,
+    values: [{
+      status: 'expired',
+      name: 'DI_Data_Pipeline_Name_3',
+      authorName: 'UserName',
+      createdAt: '2020-04-01 12:00:00',
       completedPercentage: '---',
       filesChanged: '---',
     },
