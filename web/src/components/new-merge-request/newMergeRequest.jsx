@@ -170,7 +170,6 @@ export class NewMergeRequest extends Component {
         )}
         <Navbar />
         <ProjectContainer
-          project={selectedProject}
           activeFeature="data"
           folders={[groupName, selectedProject.name, 'Data', 'New merge request']}
         />

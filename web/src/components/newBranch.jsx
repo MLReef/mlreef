@@ -140,7 +140,6 @@ class NewBranch extends Component {
       <>
         <Navbar />
         <ProjectContainer
-          project={selectedProject}
           activeFeature="data"
           folders={[groupName, selectedProject.name, 'Data', 'New branch']}
         />

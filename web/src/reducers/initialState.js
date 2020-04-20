@@ -32,6 +32,7 @@ export default {
         PipeLineView: false,
       },
     },
+    globalColorMarker: null,
   },
   actionModal: {
     title: 'Modal title',

@@ -54,3 +54,7 @@ export function registerUser(data) {
       return user;
     });
 }
+
+export function setGlobalMarkerColor(color){
+  return (dispatch) => dispatch({ type: types.SET_GLOBAL_COLOR_MARKER, color, });
+}

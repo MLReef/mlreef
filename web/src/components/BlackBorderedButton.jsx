@@ -14,12 +14,13 @@ const BlackBorderedButton = ({ id, textContent, onClickHandler, className }) => 
 };
 
 BlackBorderedButton.propTypes = {
-  id: string.isRequired,
+  id: string,
   textContent: string.isRequired,
   onClickHandler: func,
 };
 
 BlackBorderedButton.defaultProps = {
+  id: 'black-bordered-button',
   onClickHandler: () => {},
 };
 

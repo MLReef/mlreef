@@ -15,19 +15,6 @@ class Navbar extends Component {
     this.handleSignOut = this.handleSignOut.bind(this);
   }
 
-  handleHelp = () => {
-    const { helpDialog } = this.state;
-    if (!helpDialog) {
-      document.addEventListener('click', this.handleOutsideClick, false);
-    } else {
-      document.removeEventListener('click', this.handleOutsideClick, false);
-    }
-
-    this.setState((prevState) => ({
-      helpDialog: !prevState.helpDialog,
-    }));
-  }
-
   handleProject(e) {
     const { projectDialog } = this.state;
     if (!e) {
@@ -55,6 +42,7 @@ class Navbar extends Component {
     const avatarUrl = user.userInfo && user.userInfo.avatar_url;
 
     return (
+      <>
       <div className="navbar">
         <div className="w-100 px-3 d-flex">
           <div className="my-auto">
@@ -137,6 +125,8 @@ class Navbar extends Component {
           />
         </div>
       </div>
+      {user.globalColorMarker && <div style={{ height: '0.35rem', backgroundColor: user.globalColorMarker }} />}
+      </>
     );
   }
 }

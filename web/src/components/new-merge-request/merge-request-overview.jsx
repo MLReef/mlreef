@@ -85,7 +85,6 @@ class MergeRequestOverview extends Component {
       <>
         <Navbar />
         <ProjectContainer
-          project={selectedProject}
           activeFeature="data"
           folders={[groupName, projectName, 'Data']}
         />

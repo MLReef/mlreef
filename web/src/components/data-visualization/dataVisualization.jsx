@@ -75,7 +75,7 @@ const EmptyDataVisualization = ({ ...props }) => {
         branchSelected={branchSelected}
       />
       <Navbar />
-      <ProjectContainer project={project} activeFeature="data" folders={[groupName, project.name, 'Data', 'Visualization']} />
+      <ProjectContainer activeFeature="data" folders={[groupName, project.name, 'Data', 'Visualization']} />
       <Instruction
         id="EmptyDataVisualization"
         titleText="How to create a data visualization:"

@@ -5,11 +5,17 @@ import {
 } from 'prop-types';
 import ProjectInfo from './projectInfo';
 import ProjectNav from './project-nav/projectNav';
+import { connect } from 'react-redux';
 
 class ProjectContainer extends React.Component {
   componentDidMount() {
-    const { activeFeature } = this.props;
-    if (document.getElementById(activeFeature)) document.getElementById(activeFeature).classList.add('active');
+    const { activeFeature, globalColorMarker, } = this.props;
+    const activeFeatureNode = document.getElementById(activeFeature);
+    if (activeFeatureNode) { 
+      activeFeatureNode.classList.add('active');
+      activeFeatureNode.style.borderBottom = `4px solid ${globalColorMarker}`;
+    };
+
   }
 
   render() {
@@ -52,10 +58,19 @@ class ProjectContainer extends React.Component {
   }
 }
 
+
+function mapStateToProps(state) {
+  const { user: { globalColorMarker }, projects: { selectedProject: project } } = state;
+  return {
+    globalColorMarker,
+    project,
+  };
+}
+
 ProjectContainer.propTypes = {
   project: objectOf(shape).isRequired,
   activeFeature: string.isRequired,
   folders: arrayOf(string).isRequired,
 };
 
-export default ProjectContainer;
+export default connect(mapStateToProps)(ProjectContainer);

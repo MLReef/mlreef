@@ -108,7 +108,6 @@ const BasicMergeRequestView = (props) => {
       {redirectMR && <Redirect to={`/my-projects/${id}/merge-requests/${iid}`} />}
       <Navbar />
       <ProjectContainer
-        project={selectedProject}
         activeFeature="data"
         folders={[groupName, projectName, 'Data', 'Merge requests', iid]}
       />

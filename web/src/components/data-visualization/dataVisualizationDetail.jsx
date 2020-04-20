@@ -41,7 +41,6 @@ const DataVisualizationDetails = ({ ...props }) => {
     <div id="experiments-overview-container">
       <Navbar />
       <ProjectContainer
-        project={project}
         activeFeature="data"
         folders={[groupName, project.name, 'Data', 'Instances']}
       />

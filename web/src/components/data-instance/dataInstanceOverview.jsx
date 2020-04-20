@@ -359,7 +359,6 @@ class DataInstanceOverview extends Component {
           <Navbar />
           { project.id && (
             <ProjectContainer
-              project={project}
               activeFeature="data"
               folders={[groupName, name, 'Data', 'Instances']}
             />

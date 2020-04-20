@@ -94,7 +94,7 @@ class CommitDetails extends Component {
     return (
       <div id="commits-view-container">
         <Navbar />
-        <ProjectContainer project={proj} activeFeature="data" folders={[groupName, proj.name, 'Data', 'Commits', commits.short_id]} />
+        <ProjectContainer activeFeature="data" folders={[groupName, proj.name, 'Data', 'Commits', commits.short_id]} />
         <br />
         <br />
         <div className="main-content">

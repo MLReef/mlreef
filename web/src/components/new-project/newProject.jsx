@@ -18,6 +18,7 @@ import {
 import Navbar from '../navbar/navbar';
 import './newProject.css';
 import * as projectActions from '../../actions/projectInfoActions';
+import * as userActions from '../../actions/userActions';
 import projectGeneraInfoApi from '../../apis/projectGeneralInfoApi';
 import MCheckBox from '../ui/MCheckBox/MCheckBox';
 
@@ -57,6 +58,9 @@ class NewProject extends Component {
       newProject: {},
       dataTypesSelected: [],
     };
+    const { actions, match: { params: { classification } } } = this.props;
+    const bandColor = projectClassificationsProps.filter((idsColor) => `${idsColor.classification}` === classification)[0].color;
+    actions.setGlobalMarkerColor(bandColor);
     this.handleSubmit = this.handleSubmit.bind(this);
   }
 
@@ -156,13 +160,11 @@ class NewProject extends Component {
      (classif) => classif.classification === classification,
    )[0].label;
    const isMaximumOfDataTypesSelected = dtTypesSel.length === 4;
-   const bandColor = projectClassificationsProps.filter((idsColor) => `${idsColor.classification}` === classification)[0].color;
    return redirect ? (
      <Redirect to={`/my-projects/${newProject.id}/master`} />
    ) : (
      <>
        <Navbar />
-       {bandColor && <div style={{ height: '0.35rem', backgroundColor: bandColor }} />}
        <div className="new-project main-div row mt-4">
          <div className="proj-description col-sm-12 col-lg-4 pr-3 ">
            <span>
@@ -369,6 +371,7 @@ function mapStateToProps(state) {
     projects: state.projects,
     users: state.users,
     branches: state.branches.map((branch) => branch.name),
+    user: state.user,
   };
 }
 
@@ -376,6 +379,7 @@ function mapDispatchToProps(dispatch) {
   return {
     actions: bindActionCreators({
       ...projectActions,
+      ...userActions,
     }, dispatch),
   };
 }

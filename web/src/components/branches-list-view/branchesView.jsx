@@ -123,7 +123,6 @@ class BranchesView extends Component {
         />
         <Navbar />
         <ProjectContainer
-          project={selectedProject}
           activeFeature="data"
           folders={['Group Name', projectName, 'Data', 'Branches']}
         />
