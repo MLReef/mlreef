@@ -72,7 +72,7 @@ const PipeLineView = ({
         branchSelected={branchSelected}
       />
       <Navbar />
-      <ProjectContainer project={project} activeFeature="data" folders={[groupName, project.name, 'Data', 'Pipeline']} />
+      <ProjectContainer activeFeature="data" folders={[groupName, project.name, 'Data', 'Pipeline']} />
       <Instruction
         id="PipeLineView"
         titleText="How to create a data processing pipeline:"

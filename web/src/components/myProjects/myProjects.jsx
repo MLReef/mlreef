@@ -12,6 +12,7 @@ import Navbar from '../navbar/navbar';
 import './myProjects.scss';
 import ProjectDeletionModal from '../project-deletion-modal/projectDeletionModal';
 import * as projectActions from '../../actions/projectInfoActions';
+import * as userActions from '../../actions/userActions';
 // import AuthWrapper from 'components/AuthWrapper';
 
 class Myprojects extends React.Component {
@@ -20,14 +21,14 @@ class Myprojects extends React.Component {
   constructor(props) {
     super(props);
     this.fetch = this.fetch.bind(this);
-
+    const { actions } = this.props;
+    actions.setGlobalMarkerColor(projectClassificationsProps[0].color);
     this.state = {
       showModal: false,
       projectName: '',
       owner: '',
       isFetching: false,
       unsuscribeServices: null,
-      bandColor: projectClassificationsProps[0].color,
     };
   }
 
@@ -54,9 +55,11 @@ class Myprojects extends React.Component {
       document
         .getElementById(`tab-${id}`)
         .addEventListener('click', (e) => {
+          const { actions } = this.props;
           const node = e.target;
           if (node.nodeName === 'BUTTON') {
             const { color } = projectClassificationsProps.filter((idsColor) => `${idsColor.classification}` === id)[0];
+            actions.setGlobalMarkerColor(color);
             this.setState({ bandColor: color });
           }
         });
@@ -84,7 +87,6 @@ class Myprojects extends React.Component {
       showModal,
       projectName,
       owner,
-      bandColor,
     } = this.state;
 
     const {
@@ -94,7 +96,6 @@ class Myprojects extends React.Component {
       history,
     } = this.props;
 
-    const isATabActiveByDefault = true;
     return (
       <div style={{ backgroundColor: '#f2f2f2' }}>
         <ProjectDeletionModal
@@ -105,7 +106,7 @@ class Myprojects extends React.Component {
           projectsList={userProjects}
         />
         <Navbar />
-        {isATabActiveByDefault && <div style={{ height: '0.35rem', backgroundColor: bandColor }} />}
+        {/* isATabActiveByDefault && <div style={{ height: '0.35rem', backgroundColor: bandColor }} /> */}
         <br />
         <br />
         <br />
@@ -163,6 +164,7 @@ function mapDispatchToProps(dispatch) {
   return {
     actions: bindActionCreators({
       ...projectActions,
+      ...userActions,
     }, dispatch),
   };
 }

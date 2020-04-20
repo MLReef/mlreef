@@ -81,7 +81,6 @@ const NewExperiment = ({
       />
       <Navbar />
       <ProjectContainer
-        project={project}
         activeFeature="experiments"
         folders={[groupName, project.name, 'Data', 'Experiments']}
       />

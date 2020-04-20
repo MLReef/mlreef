@@ -103,7 +103,6 @@ class ExperimentsOverview extends Component {
           <Navbar />
           <ProjectContainer
             forceShowExperimentList={this.forceShowExperimentList}
-            project={selectedProject}
             activeFeature="experiments"
             folders={[groupName, selectedProject.name, 'Data', 'Experiments']}
           />

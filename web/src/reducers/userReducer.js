@@ -55,6 +55,11 @@ export default function userReducer(state = initialState.user, action) {
         },
       };
 
+    case types.SET_GLOBAL_COLOR_MARKER:
+      return {
+        ...state,
+        globalColorMarker: action.color,
+      };
     default:
       return state;
   }

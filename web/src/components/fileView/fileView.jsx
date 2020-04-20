@@ -109,7 +109,6 @@ export class FileView extends React.Component {
         />
         <Navbar />
         <ProjectContainer
-          project={project}
           activeFeature="data"
           folders={[groupName, project && project.name, 'Data']}
         />

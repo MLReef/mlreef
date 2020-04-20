@@ -27,3 +27,5 @@ export const LOGOUT = 'LOGOUT';
 // actionModal
 export const ACTION_MODAL_SET_VALUES = 'ACTION_MODAL_SET_VALUES';
 export const ACTION_MODAL_RESET_STATE = 'ACTION_MODAL_RESET_STATE';
+// color marker
+export const SET_GLOBAL_COLOR_MARKER = 'SET_GLOBAL_COLOR_MARKER';

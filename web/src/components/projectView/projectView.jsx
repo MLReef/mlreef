@@ -156,7 +156,6 @@ class ProjectView extends React.Component {
         <div style={{ display: isForking ? 'none' : 'block' }}>
           <ProjectContainer
             setIsForking={this.setIsForking}
-            project={selectedProject}
             activeFeature="data"
             folders={[groupName, projectName, 'Data']}
           />
@@ -257,6 +256,7 @@ function mapStateToProps(state) {
   return {
     projects: state.projects,
     users: state.users,
+    user: state.user,
     branches: state.branches,
     mergeRequests: state.mergeRequests,
   };
