@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 
 docker-compose down --remove-orphans
 
@@ -46,4 +47,3 @@ fi
 src/bin/deploy.sh                           \
   --gitlab-admin-token $GITLAB_ADMIN_TOKEN  \
   --runtime docker                          \
-  --container-wait 180

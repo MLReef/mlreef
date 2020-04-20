@@ -15,7 +15,7 @@ Getting Started
 
 ### 1. Setup your developer environment
  1. Install latest Docker
-    * On OSX (and possibly Windows), configure docker with at least 4GB of RAM 
+    * On OSX and Windows (and possibly on Unix), configure docker with at least 4GB of RAM 
  2. on Windows: install Cygwin and please also see the extra steps below
  3  . Login to our private docker registry hosted on gitlab, with your gitlab credentials by executing `docker login registry.gitlab.com`
 
