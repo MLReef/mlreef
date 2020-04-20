@@ -18,37 +18,26 @@ const FilesSelector = (props) => {
           {instructions}
         </div>
       ) : (
-        <div className="px-3 d-flex">
-          <div className="mr-auto">
+        <div className="px-3">
+          <p className="">
             <b>
               {`Data: ${files.length} file(s) selected`}
             </b>
-          </div>
-          <button
-            type="button"
-            className="btn btn-hidden mr-0"
-            onClick={handleSelectData}
-          >
-            <b>
-              Select different files
-            </b>
-          </button>
+          </p>
         </div>
       )}
 
       <div className="data-button-container mt-3 d-flex">
-        {files.length === 0 && (
-          <button
-            type="button"
-            tabIndex="0"
-            id="select-data-btn"
-            className="btn btn-primary"
-            onClick={handleSelectData}
-            onKeyDown={handleSelectData}
-          >
-            {buttonLabel}
-          </button>
-        )}
+        <button
+          type="button"
+          tabIndex="0"
+          id="select-data-btn"
+          className="btn btn-primary"
+          onClick={handleSelectData}
+          onKeyDown={handleSelectData}
+        >
+          {buttonLabel}
+        </button>
       </div>
     </div>
   );

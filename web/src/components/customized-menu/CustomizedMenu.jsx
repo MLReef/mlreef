@@ -55,12 +55,11 @@ function CustomizedMenus({
   return (
     <div>
       <div style={{ display: 'flex' }}>
-        <button
-          type="button"
+        <Button
           id="customized-menu"
-          className="btn btn-outline-danger px-3"
           aria-controls="customized-menu"
           aria-haspopup="true"
+          variant="contained"
           onClick={handleClick}
           style={{
             border: '1px solid gray',
@@ -68,7 +67,7 @@ function CustomizedMenus({
         >
           {placeholder}
           <img style={{ marginLeft: '0.5em', width: '1em' }} src={arrowDown} alt="" />
-        </button>
+        </Button>
       </div>
       <StyledMenu
         id="customized-menu"

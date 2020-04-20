@@ -7,7 +7,7 @@ import ArrowButton from '../arrow-button/arrowButton';
 import advice01 from '../../images/advice-01.png';
 import { BOOL, errorMessages } from '../../dataTypes';
 
-const SortableDataOperation = SortableElement(({ value, prefix }) => {
+const SortableDataOperation = SortableElement(({ value }) => {
   const { index } = value;
   function handleSelectClick(advancedParamIndex, newBoolValue) {
     $(`#advanced-drop-down-${value.index}-param-${advancedParamIndex}`).click();
@@ -23,7 +23,7 @@ const SortableDataOperation = SortableElement(({ value, prefix }) => {
     <span key={`data-operations-item-selected-${index}`} style={{ height: 'auto', display: 'flex', alignItems: 'center' }}>
       <p style={{ marginRight: '15px' }}>
         <b>
-          {prefix || 'Op.'}
+          Op.
           {value.index}
           :
         </b>
@@ -45,18 +45,15 @@ const SortableDataOperation = SortableElement(({ value, prefix }) => {
             <div>
               <button
                 type="button"
-                label="close"
                 id={`delete-btn-item-${value.index}`}
                 onClick={value.deleteDataOperationEvent}
                 className="btn btn-icon btn-hidden p-1 mr-1 fa fa-times"
               />
             </div>
-            <div>
+            <div onClick={value.copyDataOperationEvent}>
               <button
                 type="button"
-                label="copy"
                 id={`copy-btn-item-${value.index}`}
-                onClick={value.copyDataOperationEvent}
                 className="btn btn-icon btn-hidden p-1 fa fa-copy mr-1"
               />
             </div>
@@ -75,7 +72,7 @@ const SortableDataOperation = SortableElement(({ value, prefix }) => {
         <div id={`data-operation-selected-form-${value.index}`} className="data-operation-form" style={{ display: 'none' }}>
           <br />
           {value.params.standard.map((param, paramIndex) => (
-            <div key={`std-${param.name}`}>
+            <>
               <div style={{ display: 'flex' }}>
                 <p style={{ width: '14em' }}>
                   {param.comment && (
@@ -95,7 +92,7 @@ const SortableDataOperation = SortableElement(({ value, prefix }) => {
                 <img style={{ height: '15px' }} src={advice01} alt="" />
                 <p style={{ margin: '0 0 0 5px' }}>{errorMessages[param.dataType]}</p>
               </div>
-            </div>
+            </>
           ))}
 
           {value.params.advanced
@@ -121,7 +118,7 @@ const SortableDataOperation = SortableElement(({ value, prefix }) => {
                 {value.params.advanced.map((advancedParam, advancedParamIndex) => (
                   advancedParam.dataType === BOOL
                     ? (
-                      <div key={`adv-${advancedParam.name}`} style={{ display: 'flex' }}>
+                      <div style={{ display: 'flex' }}>
                         <p style={{ width: '14em' }}>
                           {advancedParam.comment && (
                             <MTooltip
@@ -195,7 +192,7 @@ const SortableDataOperation = SortableElement(({ value, prefix }) => {
                       </div>
                     )
                     : (
-                      <div key={`adv-${advancedParam.name}`}>
+                      <>
                         <div style={{ display: 'flex' }}>
                           <p style={{ width: '14em' }}>
                             {advancedParam.comment && (
@@ -220,7 +217,7 @@ const SortableDataOperation = SortableElement(({ value, prefix }) => {
                           <img style={{ height: '15px' }} src={advice01} alt="" />
                           <p style={{ margin: '0 0 0 5px' }}>{errorMessages[advancedParam.dataType]}</p>
                         </div>
-                      </div>
+                      </>
                     )))}
               </div>
             </div>
@@ -232,12 +229,12 @@ const SortableDataOperation = SortableElement(({ value, prefix }) => {
 });
 
 
-const SortableDataOperationsList = SortableContainer(({ items, prefix }) => (
+const SortableDataOperationsList = SortableContainer(({ items }) => (
   <ul style={{ paddingLeft: '11px' }} id="data-operations-selected-container" key="data-operations-selected-container">
     {items.map((value, index) => {
       value.index = index + 1;
       return (
-        <SortableDataOperation key={`item-${index}`} value={value} index={index} prefix={prefix} />
+        <SortableDataOperation key={`item-${index}`} value={value} index={index} />
       );
     })}
   </ul>

@@ -41,7 +41,7 @@ export default class MLRAuthApi {
   }
 
   static register(data) {
-    const request = new Request(`${API_GATEWAY}/api/v1/auth/register`, {
+    const request = new Request('/api/v1/auth/register', {
       method: 'POST',
       headers: this.buildAnonHeaders(),
       body: JSON.stringify(data),

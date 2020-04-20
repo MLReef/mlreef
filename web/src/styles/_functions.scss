@@ -9,10 +9,3 @@
 @mixin card-shadown {
   box-shadow: 1px 1px 3px 1px var(--secondary);
 }
-
-@mixin btn-spinner {
-  background-image: url(/images/loading.gif);
-  background-repeat: no-repeat;
-  background-size: contain;
-  background-position: center;
-}

@@ -45,7 +45,7 @@ const RegisterView = (props) => {
 
               <footer className="register-view_form_footer">
                 {'Already have a Login and Password? '}
-                <Link to="/" className="btn-link"><b>Log in</b></Link>
+                <Link to="/" className="m-link m-link-bold">Log in</Link>
               </footer>
             </div>
           )

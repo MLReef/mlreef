@@ -3,8 +3,7 @@ import { withFormik } from 'formik';
 import { Link } from 'react-router-dom';
 import { toastr } from 'react-redux-toastr';
 import PropTypes from 'prop-types';
-import MButton from 'components/ui/MButton';
-import MInput from 'components/ui/MInput';
+import MInput from '../MInput';
 import { validationSchema, placeholders } from './formInformation';
 
 const RegisterForm = (props) => {
@@ -18,7 +17,7 @@ const RegisterForm = (props) => {
     handleSubmit,
     setFieldValue,
     // handleReset,
-    isSubmitting,
+    // isSubmitting,
   } = props;
 
   const handleChangeCheckbox = (field) => () => {
@@ -105,7 +104,7 @@ const RegisterForm = (props) => {
             />
             <label htmlFor="terms">
               {'I accept the '}
-              <Link className="btn-link" to="/">
+              <Link className="m-link" to="/">
                 Terms of Service and Privacy Policy
               </Link>
             </label>
@@ -131,9 +130,9 @@ const RegisterForm = (props) => {
         </div>
 
         <div className="register-view_submit">
-          <MButton type="submit" className="btn btn-primary" waiting={isSubmitting}>
+          <button type="submit" className="btn-submit">
             Register
-          </MButton>
+          </button>
         </div>
       </div>
     </form>
@@ -189,10 +188,6 @@ const validations = {
   displayName: 'ValidatedForm',
 };
 
-RegisterForm.defaultProps = {
-  isSubmitting: false,
-};
-
 RegisterForm.propTypes = {
   values: PropTypes
     .PropTypes.shape({
@@ -212,7 +207,6 @@ RegisterForm.propTypes = {
   handleBlur: PropTypes.func.isRequired,
   handleSubmit: PropTypes.func.isRequired,
   setFieldValue: PropTypes.func.isRequired,
-  isSubmitting: PropTypes.bool,
 };
 
 const RegisterFormWithValidations = withFormik(validations)(RegisterForm);
