@@ -34,7 +34,6 @@ class ExperimentsOverview extends Component {
 
     this.setSelectedExperiment = this.setSelectedExperiment.bind(this);
     this.displayEmptyLogo = this.displayEmptyLogo.bind(this);
-    this.handleButtonsClick = this.handleButtonsClick.bind(this);
   }
 
   componentDidMount() {
@@ -147,48 +146,48 @@ class ExperimentsOverview extends Component {
                       <button
                         id="all"
                         type="button"
-                        className="btn btn-switch"
-                        onClick={this.handleButtonsClick}
+                        className="non-active-black-border rounded-pipeline-btn"
+                        onClick={(e) => this.handleButtonsClick(e)}
                       >
                         All
                       </button>
                       <button
                         id="running"
                         type="button"
-                        className="btn btn-switch"
-                        onClick={this.handleButtonsClick}
+                        className="non-active-black-border rounded-pipeline-btn"
+                        onClick={(e) => this.handleButtonsClick(e)}
                       >
                         Running
                       </button>
                       <button
                         id="open"
                         type="button"
-                        className="btn btn-switch"
-                        onClick={this.handleButtonsClick}
+                        className="non-active-black-border rounded-pipeline-btn"
+                        onClick={(e) => this.handleButtonsClick(e)}
                       >
                         Open
                       </button>
                       <button
                         id="completed"
                         type="button"
-                        className="btn btn-switch"
-                        onClick={this.handleButtonsClick}
+                        className="non-active-black-border rounded-pipeline-btn"
+                        onClick={(e) => this.handleButtonsClick(e)}
                       >
                         Completed
                       </button>
                       <button
                         id="failed"
                         type="button"
-                        className="btn btn-switch"
-                        onClick={this.handleButtonsClick}
+                        className="non-active-black-border rounded-pipeline-btn"
+                        onClick={(e) => this.handleButtonsClick(e)}
                       >
                         Failed
                       </button>
                       <button
                         id="aborted"
                         type="button"
-                        className="btn btn-switch mr-auto"
-                        onClick={this.handleButtonsClick}
+                        className="non-active-black-border rounded-pipeline-btn"
+                        onClick={(e) => this.handleButtonsClick(e)}
                       >
                         Aborted
                       </button>
@@ -257,8 +256,8 @@ ExperimentsOverview.propTypes = {
   projects: shape({
     selectedProject: objectOf(shape).isRequired,
   }).isRequired,
-  jobs: arrayOf(shape({})).isRequired,
-  history: shape({}).isRequired,
+  jobs: arrayOf.isRequired,
+  history: objectOf.isRequired,
 };
 
 function mapStateToProps(state) {

@@ -198,6 +198,31 @@
   }
 }
 
+/* text helpers */
+.t {
+  &-uppercase {
+    text-transform: uppercase;
+  }
+
+  @each $color, $value in $theme-colors {
+    &-#{$color} {
+      color: $value !important;
+    }
+  }
+
+  &-left {
+    text-align: left !important;
+  }
+
+  &-right {
+    text-align: right !important;
+  }
+
+  &-center {
+    text-align: center !important;
+  }
+}
+
 /* background helpers */
 .bg {
   @each $color, $value in $theme-colors {

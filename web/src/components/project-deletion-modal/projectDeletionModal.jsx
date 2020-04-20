@@ -1,6 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
+import '../../css/globalStyles.css';
 import '../../css/genericModal.css';
 import './projectDeletionModal.css';
 import PropTypes from 'prop-types';

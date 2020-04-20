@@ -160,7 +160,7 @@ const SummarizedDataAndChartComp = ({ experiment, projectId, defaultBranch }) =>
         <button
           key={`deploy-${commitCode}`}
           type="button"
-          className="btn btn-primary"
+          className="btn btn-basic-primary"
         >
           Resume
         </button>,

@@ -2,7 +2,6 @@ import React, { useState, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 import './MDropdown.scss';
 
-// doc/developer/ui/MDropdown.md
 
 const MDropdown = (props) => {
   const {
