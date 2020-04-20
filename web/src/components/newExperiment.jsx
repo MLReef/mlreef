@@ -1,9 +1,12 @@
 import React from 'react';
 import { connect } from 'react-redux';
+import MCard from 'components/ui/MCard';
+import FilesSelector from 'components/layout/FilesSelector';
+import DataOperationFilters from 'components/layout/DataOperationFilters';
 import plus from '../images/plus_01.svg';
 import './pipeline-view/pipelineView.css';
 import Navbar from './navbar/navbar';
-import Input from './input/input';
+// import Input from './input/input';
 import ProjectContainer from './projectContainer';
 import SortableDataOperationsList from './pipeline-view/sortableDataOperationList';
 import SelectDataPipelineModal from './select-data-pipeline/selectDataPipelineModal';
@@ -86,151 +89,79 @@ const NewExperiment = ({
         id="NewExperiment"
         titleText="How to create a new experiment:"
         paragraph={
-                    `First, select your data you want to do your experiment on. Then select one or multiple algorithms from the right. 
+                    `First, select your data you want to do your experiment on. Then select one or multiple algorithms from the right.
                         If needed, you can adapt the parameters of your algorithm directly`
                 }
       />
-      <div className="pipe-line-execution-container px-3 flexible-div">
-        <div className="pipe-line-execution">
-          <div className="header flexible-div">
-            <div className="header-left-items flexible-div">
-              <div>
-                <p>Experiment</p>
-              </div>
-            </div>
+      <div className="pipe-line-execution-container flexible-div">
+        <MCard
+          className="pipe-line-execution"
+          title="Experiment"
+          buttons={[
+            <button key="pipeline-load" type="button" className="btn btn-basic-primary btn-sm">
+              Load
+            </button>,
+            <button key="pipeline-save" type="button" className="btn btn-basic-primary btn-sm">
+              Save
+            </button>,
             <button
               id="execute-button"
+              key="pipeline-execute"
+              type="button"
               onClick={handleExecuteBtn}
-              className="btn btn-primary ml-auto mr-3"
+              className="btn btn-primary btn-sm border-none"
             >
               Execute
-            </button>
-          </div>
-          {filesSelectedInModal.length === 0 && (
-          <div id="upload-files-options" className="upload-file">
-            <p className="instruction">
-              Start by selecting your data file(s) you want to include
-              {' '}
-              <br />
-              {' '}
-              in your experiments.
-            </p>
-            <p id="data">
-                            Data:
-            </p>
+            </button>,
+          ]}
+        >
+          <MCard.Section>
+            <FilesSelector
+              files={filesSelectedInModal}
+              handleSelectData={selectDataClick}
+              instructions={(
+                <p>
+                  Start by selecting your data file(s) you want to include
+                  <br />
+                  in your experiments.
+                </p>
+              )}
+            />
+          </MCard.Section>
 
-            <div className="data-button-container flexible-div">
-              <button
-                className="btn btn-primary"
-                id="select-data-btn"
-                onClick={selectDataClick}
+          <MCard.Section>
+            <SortableDataOperationsList items={items} onSortEnd={onSortEnd} prefix="Algo." />
+
+            <div id="drop-zone" onDrop={drop} onDragOver={allowDrop}>
+              <p style={{ marginLeft: '10px', fontWeight: 600 }}>
+                {`Algo.${operationsSelected}:`}
+              </p>
+              <img src={plus} alt="" style={{ height: '80px', marginLeft: '60px' }} />
+              <p style={{
+                margin: '0', padding: '0', width: '100%', textAlign: 'center',
+              }}
               >
-                Select data
-              </button>
-            </div>
-          </div>
-          )}
-
-          {filesSelectedInModal.length > 0 && (
-          <div id="text-after-files-selected" className="upload-file" style={{ display: 'flex' }}>
-            <div style={{ width: '50%' }}>
-              <p style={{ margin: '6% 0% 6% 2%' }}>
-                <b>
-                  Data:&nbsp;&nbsp;
-                  {filesSelectedInModal.length}
-                  {' '}
-                  file(s) selected
-                </b>
+                Drag and drop an algorithm from the right into your
+                <br />
+                experiment pipeline
+                {/* or
+                <b>create a new one</b> */}
               </p>
             </div>
-            <div style={{
-              width: '50%', display: 'flex', alignItems: 'center', justifyContent: 'right', marginRight: '2%',
-            }}
-            >
-              <button
-                type="button"
-                style={{ backgroundColor: 'white', border: 'none' }}
-                onClick={() => { selectDataClick(); }}
-              >
-                <b>
-                  select data
-                </b>
-              </button>
-            </div>
-          </div>
-          )}
+          </MCard.Section>
+        </MCard>
 
-          <SortableDataOperationsList items={items} onSortEnd={onSortEnd} />
-          <div id="drop-zone" onDrop={drop} onDragOver={allowDrop}>
-            <p style={{ marginLeft: '10px', fontWeight: 600 }}>{`Algo.${operationsSelected}:`}</p>
-            <img src={plus} alt="" style={{ height: '80px', marginLeft: '60px' }} />
-            <p style={{
-              margin: '0', padding: '0', width: '100%', textAlign: 'center',
-            }}
-            >
-              Drag and drop an algorithm from the right into your
-              <br />
-              experiment pipeline
-              {/* or
-              <b>create a new one</b> */}
-            </p>
-          </div>
-
-        </div>
-
-        <div className="pipe-line-execution tasks-list">
-          <div className="header">
-            <p>Select a model:</p>
-          </div>
-          <div className="content">
-            {/* <div className="filter-div flexible-div">
-              <Input name="selectDataOp" id="selectDataOp" placeholder="Search a data operation" />
-              <div className="search button pipe-line-active flexible-div" onClick={(e) => showFilters(e)}>
-                <img id="show-filters-button" src={plus} alt="" />
-              </div>
-            </div> */}
-
-            <div id="filters" className="invisible">
-
-              <select className="data-operations-select round-border-button">
-                <option>All data types</option>
-                <option>Images data</option>
-                <option>Text data</option>
-                <option>Tabular data</option>
-              </select>
-
-              <div className="checkbox-zone">
-                <label className="customized-checkbox">
-                  Only own algorithms
-                  <input
-                    type="checkbox"
-                    value={checkBoxOwnDataOperations}
-                    onChange={handleCheckMarkClick}
-                    id="checkBoxOwnDataOperations"
-                  />
-                  <span className="checkmark" />
-                </label>
-                <label className="customized-checkbox">
-                  Only starred algorithms
-                  <input
-                    type="checkbox"
-                    value={checkBoxStarredDataOperations}
-                    onChange={handleCheckMarkClick}
-                    id="checkBoxStarredDataOperations"
-                  />
-                  <span className="checkmark" />
-                </label>
-              </div>
-              <Input name="minOfStart" id="minOfStart" placeholder="Minimum of stars" />
-            </div>
+        <MCard className="pipe-line-execution tasks-list" title="Select a model:">
+          <MCard.Section>
+            <DataOperationFilters show={false} handleCheckMarkClick={handleCheckMarkClick} />
 
             <DataOperationsList
               handleDragStart={handleDragStart}
               whenDataCardArrowButtonIsPressed={whenDataCardArrowButtonIsPressed}
               dataOperations={dataOperations}
             />
-          </div>
-        </div>
+          </MCard.Section>
+        </MCard>
       </div>
     </div>
   );

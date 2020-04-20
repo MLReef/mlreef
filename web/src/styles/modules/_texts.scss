@@ -1,0 +1,38 @@
+/* text helpers */
+.t {
+  &-uppercase {
+    text-transform: uppercase;
+  }
+
+  @each $color, $value in $theme-colors {
+    &-#{$color} {
+      color: $value !important;
+    }
+  }
+
+  &-left {
+    text-align: left !important;
+  }
+
+  &-right {
+    text-align: right !important;
+  }
+
+  &-center {
+    text-align: center !important;
+  }
+}
+
+.title {
+  &-lg {
+    color: $dark;
+    font-size: 2rem;
+    font-weight: normal;
+    text-align: center;
+  }
+
+  &-subtitle {
+    color: $dark;
+    text-align: center;
+  }
+}

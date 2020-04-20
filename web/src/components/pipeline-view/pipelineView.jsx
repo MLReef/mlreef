@@ -3,6 +3,9 @@ import { connect } from 'react-redux';
 import {
   shape, arrayOf, func, string, bool, number,
 } from 'prop-types';
+import FilesSelector from 'components/layout/FilesSelector';
+import MCard from 'components/ui/MCard';
+import DataOperationFilters from 'components/layout/DataOperationFilters';
 import plus from '../../images/plus_01.svg';
 import './pipelineView.css';
 import Navbar from '../navbar/navbar';
@@ -15,9 +18,6 @@ import ExecutePipelineModal from '../execute-pipeline-modal/executePipeLineModal
 import withPipelineExecution from '../withPipelinesExecution';
 import { dataPipeLines } from '../../dataTypes';
 import { randomNameGenerator } from '../../functions/pipeLinesHelpers';
-import MCard from 'components/ui/MCard';
-import FilesSelector from 'components/layout/FilesSelector';
-import DataOperationFilters from 'components/layout/DataOperationFilters';
 
 const PipeLineView = ({
   project,
@@ -100,7 +100,7 @@ const PipeLineView = ({
               className="btn btn-primary btn-sm border-none"
             >
               Execute
-            </button>
+            </button>,
           ]}
         >
           <MCard.Section>

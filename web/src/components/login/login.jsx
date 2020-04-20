@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { toastr } from 'react-redux-toastr';
 import { Link } from 'react-router-dom';
+import MButton from 'components/ui/MButton';
 import { login, getUserInfo } from 'actions/userActions';
 import './login.css';
 import icon from '../../images/ml_reef_icon_01.svg';
@@ -14,6 +15,7 @@ class Login extends React.Component {
       hasErrors: false,
       email: '',
       password: '',
+      isFetching: false,
     };
 
     this.submit = this.submit.bind(this);
@@ -65,6 +67,8 @@ class Login extends React.Component {
       password,
     };
 
+    this.setState({ isFetching: true });
+
     actions.login(formData)
       .then(() => {
         toastr.success('Success:', 'Login successfully');
@@ -76,6 +80,9 @@ class Login extends React.Component {
       .catch((error) => {
         toastr.error('Error:', `Try Login with mlreef + password or get: ${error}`);
         this.setState({ hasErrors: true });
+      })
+      .finally(() => {
+        this.setState({ isFetching: false });
       });
   }
 
@@ -92,6 +99,7 @@ class Login extends React.Component {
       email,
       password,
       hasErrors,
+      isFetching,
     } = this.state;
 
     return (
@@ -135,9 +143,12 @@ class Login extends React.Component {
               </div>
 
               <div id="sign-in-btn" className="input-container">
-                <button type="submit" className="btn btn-primary">
-                  Sign in
-                </button>
+                <MButton
+                  type="submit"
+                  waiting={isFetching}
+                  label="Sign in"
+                  className="btn btn-primary"
+                />
               </div>
             </div>
           </form>
