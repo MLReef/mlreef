@@ -55,6 +55,12 @@ interface DataProjectRepository : KtCrudRepository<DataProject, UUID> {
     fun findOneByOwnerIdAndId(ownerId: UUID, id: UUID): DataProject?
     fun findOneByOwnerIdAndSlug(ownerId: UUID, slug: String): DataProject?
     fun findByGitlabId(gitlabId: Long): DataProject?
+    fun findByGitlabPathWithNamespace(pathWithNamespace: String): DataProject?
+    fun findBySlug(slug: String): List<DataProject>
+
+    @Query("SELECT p FROM DataProject p WHERE p.gitlabPathWithNamespace LIKE %:namespace%")
+    fun findByNamespace(namespace: String): List<DataProject>
+
 }
 
 @Repository
@@ -76,6 +82,11 @@ interface CodeProjectRepository : KtCrudRepository<CodeProject, UUID> {
     fun findAllByOwnerId(ownerId: UUID): List<CodeProject>
     fun findOneByOwnerIdAndId(ownerId: UUID, id: UUID): CodeProject?
     fun findByGitlabId(gitlabId: Long): CodeProject?
+    fun findByGitlabPathWithNamespace(pathWithNamespace: String): CodeProject?
+    fun findBySlug(slug: String): List<CodeProject>
+
+    @Query("SELECT p FROM CodeProject p WHERE p.gitlabPathWithNamespace LIKE %:namespace%")
+    fun findByNamespace(namespace: String): List<CodeProject>
 }
 
 @Repository

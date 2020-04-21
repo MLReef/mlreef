@@ -101,8 +101,8 @@ class UserNotFoundException(userId: UUID? = null, userName: String? = null, emai
 class GroupNotFoundException(groupId: UUID? = null, groupName: String? = null, subjectId: UUID? = null, gitlabId: Long? = null)
     : UnknownGroupException(if (groupId != null || groupName != null || subjectId != null || gitlabId != null) "Group not found with${if (groupId != null) " groupId $groupId" else ""}${if (groupName != null) " groupName $groupName" else ""}${if (subjectId != null) " subjectId $subjectId" else ""}${if (gitlabId != null) " gitlabId $gitlabId" else ""}" else null)
 
-class ProjectNotFoundException(projectId: UUID? = null, projectName: String? = null, gitlabId: Long? = null)
-    : UnknownGroupException(if (projectId != null || projectName != null || gitlabId != null) "Project not found with${if (projectId != null) " projectId $projectId" else ""}${if (projectName != null) " projectName $projectName" else ""}${if (gitlabId != null) " gitlabId $gitlabId" else ""}" else null)
+class ProjectNotFoundException(projectId: UUID? = null, projectName: String? = null, gitlabId: Long? = null, path: String? = null)
+    : UnknownGroupException(if (projectId != null || projectName != null || gitlabId != null || path !=null) "Project not found with${if (projectId != null) " projectId $projectId" else ""}${if (projectName != null) " projectName $projectName" else ""}${if (gitlabId != null) " gitlabId $gitlabId" else ""}${if (path != null) " namespace/slug $path" else ""}" else null)
 
 class ExperimentCreateException(errorCode: ErrorCode, parameterName: String) : RestException(errorCode, "Name/Slug: '$parameterName'")
 class ExperimentStartException(message: String) : RestException(ErrorCode.CommitPipelineScriptFailed, message)

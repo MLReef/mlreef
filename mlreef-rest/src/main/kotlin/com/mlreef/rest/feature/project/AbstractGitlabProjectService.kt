@@ -22,13 +22,20 @@ import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import java.util.UUID
 
+interface ProjectRequesterService<T: MLProject> {
+    fun getAllProjectsForUser(personId: UUID): List<T>
+    fun getProjectById(projectId: UUID): T?
+    fun getProjectByIdAndPersonId(projectId: UUID, personId: UUID): T?
+    fun getProjectsByNamespace(namespaceName: String): List<T>
+    fun getProjectsBySlug(slug: String): List<T>
+    fun getProjectsByNamespaceAndSlug(namespaceName: String, slug: String): T?
+    fun getUserProjectsList(userId: UUID? = null): List<ProjectOfUser>
+}
+
 interface ProjectService<T : MLProject> {
     fun createProject(userToken: String, ownerId: UUID, projectSlug: String, projectName: String, projectNamespace: String): T
     fun updateProject(userToken: String, ownerId: UUID, projectUUID: UUID, projectName: String): T
     fun deleteProject(userToken: String, ownerId: UUID, projectUUID: UUID)
-
-    fun getProjectById(projectId: UUID): T?
-    fun getUserProjectsList(userId: UUID? = null): List<ProjectOfUser>
 
     fun getUsersInProject(projectUUID: UUID): List<Account>
     fun addUserToProject(projectUUID: UUID, userId: UUID): Account
@@ -43,14 +50,12 @@ interface ProjectService<T : MLProject> {
 abstract class AbstractGitlabProjectService<T : MLProject>(
     protected val gitlabRestClient: GitlabRestClient,
     private val accountRepository: AccountRepository
-) : ProjectService<T> {
+) : ProjectService<T>, ProjectRequesterService<T> {
 
     internal abstract fun saveNewProject(mlProject: T): T
     internal abstract fun deleteExistingProject(mlProject: T)
     internal abstract fun updateSaveProject(mlProject: T, projectName: String?): T
     internal abstract fun createNewProject(ownerId: UUID, gitlabProject: GitlabProject): T
-    internal abstract fun assertFindExisting(ownerId: UUID, projectUUID: UUID): T
-    internal abstract fun findProject(projectUUID: UUID): T?
 
     val log = LoggerFactory.getLogger(this::class.java)
 
@@ -79,9 +84,9 @@ abstract class AbstractGitlabProjectService<T : MLProject>(
     }
 
     override fun updateProject(userToken: String, ownerId: UUID, projectUUID: UUID, projectName: String): T {
-        val codeProject = findProject(projectUUID) ?: throw ProjectNotFoundException(projectUUID)
+        val codeProject = this.getProjectById(projectUUID) ?: throw ProjectNotFoundException(projectUUID)
         try {
-            gitlabRestClient.updateProject(id = codeProject.gitlabId, token = userToken, name = projectName)
+            gitlabRestClient.userUpdateProject(id = codeProject.gitlabId, token = userToken, name = projectName)
             return updateSaveProject(codeProject, projectName = projectName)
         } catch (e: GitlabCommonException) {
             throw ProjectUpdateException(ErrorCode.GitlabProjectCreationFailed, "Cannot update Project $projectUUID: ${e.responseBodyAsString}")
@@ -91,7 +96,7 @@ abstract class AbstractGitlabProjectService<T : MLProject>(
 
     override fun deleteProject(userToken: String, ownerId: UUID, projectUUID: UUID) {
         try {
-            val codeProject = findProject(projectUUID) ?: throw ProjectNotFoundException(projectUUID)
+            val codeProject = this.getProjectById(projectUUID) ?: throw ProjectNotFoundException(projectUUID)
             gitlabRestClient.deleteProject(id = codeProject.gitlabId, token = userToken)
             deleteExistingProject(codeProject)
         } catch (e: GitlabCommonException) {
@@ -100,7 +105,7 @@ abstract class AbstractGitlabProjectService<T : MLProject>(
     }
 
     override fun getUsersInProject(projectUUID: UUID): List<Account> {
-        val codeProject = findProject(projectUUID) ?: throw ProjectNotFoundException(projectUUID)
+        val codeProject = this.getProjectById(projectUUID) ?: throw ProjectNotFoundException(projectUUID)
         return gitlabRestClient
             .adminGetProjectMembers(projectId = codeProject.gitlabId)
             .map { accountRepository.findOneByUsername(it.username) }
@@ -109,7 +114,7 @@ abstract class AbstractGitlabProjectService<T : MLProject>(
 
     @RefreshUserInformation(list = "#users")
     override fun addUsersToProject(projectUUID: UUID, users: List<UserInProject>): List<Account> {
-        val codeProject = findProject(projectUUID) ?: throw ProjectNotFoundException(projectUUID)
+        val codeProject = this.getProjectById(projectUUID) ?: throw ProjectNotFoundException(projectUUID)
 
         val usersIds = users.map {
 
@@ -134,12 +139,12 @@ abstract class AbstractGitlabProjectService<T : MLProject>(
 
     @RefreshUserInformation(userId = "#userId")
     override fun addUserToProject(projectUUID: UUID, userId: UUID): Account {
-        val codeProject = findProject(projectUUID) ?: throw ProjectNotFoundException(projectUUID)
+        val codeProject = this.getProjectById(projectUUID) ?: throw ProjectNotFoundException(projectUUID)
 
         val account = accountRepository.findByIdOrNull(userId) ?: throw UnknownUserException()
 
         gitlabRestClient
-            .adminAddUserToProject(projectId = codeProject.gitlabId, userId = account.gitlabId
+            .adminAddUserToProject(projectId = codeProject.gitlabId, userId = account.person.gitlabId
                 ?: throw UnknownUserException())
 
         return account
@@ -147,12 +152,12 @@ abstract class AbstractGitlabProjectService<T : MLProject>(
 
     @RefreshUserInformation(userId = "#userId")
     override fun deleteUserFromProject(projectUUID: UUID, userId: UUID): Account {
-        val codeProject = findProject(projectUUID) ?: throw ProjectNotFoundException(projectUUID)
+        val codeProject = this.getProjectById(projectUUID) ?: throw ProjectNotFoundException(projectUUID)
 
         val account = accountRepository.findByIdOrNull(userId) ?: throw UserNotExistsException(userId.toString(), "")
 
         gitlabRestClient
-            .adminDeleteUserFromProject(projectId = codeProject.gitlabId, userId = account.gitlabId
+            .adminDeleteUserFromProject(projectId = codeProject.gitlabId, userId = account.person.gitlabId
                 ?: throw UnknownUserException())
 
         return account
@@ -160,7 +165,7 @@ abstract class AbstractGitlabProjectService<T : MLProject>(
 
     @RefreshUserInformation(list = "#users")
     override fun deleteUsersFromProject(projectUUID: UUID, users: List<UserInProject>): List<Account> {
-        val codeProject = findProject(projectUUID) ?: throw ProjectNotFoundException(projectUUID)
+        val codeProject = this.getProjectById(projectUUID) ?: throw ProjectNotFoundException(projectUUID)
 
         val usersIds = users.map {
             try {
@@ -182,10 +187,11 @@ abstract class AbstractGitlabProjectService<T : MLProject>(
 
     override fun checkUserInProject(projectUUID: UUID, userId: UUID?, userName: String?, email: String?, userGitlabId: Long?): Boolean {
         try {
-            val codeProject = findProject(projectUUID) ?: throw ProjectNotFoundException(projectUUID)
+            val codeProject = this.getProjectById(projectUUID) ?: throw ProjectNotFoundException(projectUUID)
 
-            val gitlabId = userGitlabId ?: resolveAccount(userId = userId, userName = userName, email = email)?.gitlabId
-            ?: return false
+            val gitlabId = userGitlabId
+                ?: resolveAccount(userId = userId, userName = userName, email = email)?.person?.gitlabId
+                ?: return false
 
             gitlabRestClient.adminGetUserInProject(
                 projectId = codeProject.gitlabId,
@@ -199,7 +205,7 @@ abstract class AbstractGitlabProjectService<T : MLProject>(
     }
 
     override fun checkUsersInProject(projectUUID: UUID, users: List<UserInProject>): Map<UserInProject, Boolean> {
-        val codeProject = findProject(projectUUID)
+        val codeProject = this.getProjectById(projectUUID)
 
         return users.map {
             try {
@@ -207,7 +213,7 @@ abstract class AbstractGitlabProjectService<T : MLProject>(
                     Pair(it, false)
 
                 val id = it.gitlabId
-                    ?: resolveAccount(userName = it.userName, email = it.email)?.gitlabId
+                    ?: resolveAccount(userName = it.userName, email = it.email)?.person?.gitlabId
                     ?: throw UserNotFoundException(userName = it.userName, email = it.email)
 
                 gitlabRestClient.adminGetUserInProject(

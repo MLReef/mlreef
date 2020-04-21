@@ -3,7 +3,6 @@ package com.mlreef.rest.feature.project
 import com.mlreef.rest.AccountRepository
 import com.mlreef.rest.CodeProject
 import com.mlreef.rest.CodeProjectRepository
-import com.mlreef.rest.exceptions.NotFoundException
 import com.mlreef.rest.exceptions.ProjectNotFoundException
 import com.mlreef.rest.exceptions.UnknownUserException
 import com.mlreef.rest.exceptions.UserNotFoundException
@@ -16,7 +15,7 @@ import org.springframework.stereotype.Service
 import java.util.UUID
 import java.util.UUID.randomUUID
 
-interface CodeProjectService : ProjectService<CodeProject>
+interface CodeProjectService : ProjectService<CodeProject>, ProjectRequesterService<CodeProject>
 
 @Service
 class GitlabCodeProjectService(
@@ -25,8 +24,28 @@ class GitlabCodeProjectService(
     gitlabRestClient: GitlabRestClient
 ) : CodeProjectService, AbstractGitlabProjectService<CodeProject>(gitlabRestClient, accountRepository) {
 
+    override fun getAllProjectsForUser(personId: UUID): List<CodeProject> {
+        return codeProjectRepository.findAllByOwnerId(personId)
+    }
+
+    override fun getProjectByIdAndPersonId(projectId: UUID, personId: UUID): CodeProject? {
+        return codeProjectRepository.findOneByOwnerIdAndId(personId, projectId)
+    }
+
     override fun getProjectById(projectId: UUID): CodeProject? {
         return codeProjectRepository.findByIdOrNull(projectId)
+    }
+
+    override fun getProjectsByNamespace(namespaceName: String): List<CodeProject> {
+        return codeProjectRepository.findByNamespace("$namespaceName/")
+    }
+
+    override fun getProjectsBySlug(slug: String): List<CodeProject> {
+        return codeProjectRepository.findBySlug(slug)
+    }
+
+    override fun getProjectsByNamespaceAndSlug(namespaceName: String, slug: String): CodeProject? {
+        return codeProjectRepository.findByGitlabPathWithNamespace("$namespaceName/$slug")
     }
 
     override fun saveNewProject(mlProject: CodeProject): CodeProject {
@@ -54,12 +73,6 @@ class GitlabCodeProjectService(
         )
     }
 
-    override fun assertFindExisting(ownerId: UUID, projectUUID: UUID) =
-        codeProjectRepository.findOneByOwnerIdAndId(ownerId, projectUUID)
-            ?: throw NotFoundException("Data project not found")
-
-    override fun findProject(projectUUID: UUID) = codeProjectRepository.findByIdOrNull(projectUUID)
-
     override fun updateSaveProject(mlProject: CodeProject, projectName: String?): CodeProject {
         return codeProjectRepository.save(mlProject.copy(gitlabProject = projectName))
     }
@@ -71,7 +84,7 @@ class GitlabCodeProjectService(
         val userProjects = try {
             gitlabRestClient
                 .adminGetUserProjects(user.person.gitlabId
-                    ?: throw UnknownUserException("Person is not connected to gitlab and has not valid gitlab id"))
+                    ?: throw UnknownUserException("Person ${user.person.id} is not connected to gitlab"))
         } catch (ex: Exception) {
             log.error("Cannot request projects from gitlab for user ${user.id}. Exception: $ex.")
             listOf<GitlabProject>()
@@ -84,7 +97,7 @@ class GitlabCodeProjectService(
                     ?: throw ProjectNotFoundException(gitlabId = project.id)
                 projectInDb.toProjectOfUser(gitlabAccessLevel.toAccessLevel())
             } catch (ex: Exception) {
-                log.error("Unable to get user's project ${project.name} . Exception: $ex.")
+                log.error("Unable to get user's project ${project.name}. Exception: $ex.")
                 null
             }
         }.filterNotNull()

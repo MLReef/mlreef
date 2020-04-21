@@ -2,6 +2,7 @@ package com.mlreef.rest.security
 
 import com.mlreef.rest.AccessLevel
 import com.mlreef.rest.external_api.gitlab.TokenDetails
+import com.mlreef.rest.helpers.DataClassWithId
 import org.springframework.security.access.expression.SecurityExpressionRoot
 import org.springframework.security.access.expression.method.MethodSecurityExpressionOperations
 import org.springframework.security.core.Authentication
@@ -10,9 +11,9 @@ import java.util.UUID
 class MlReefSecurityExpressionRoot(authentication: Authentication)
     : SecurityExpressionRoot(authentication), MethodSecurityExpressionOperations {
 
-    private lateinit var returnObject: Any
-    private lateinit var filterObject: Any
-    private lateinit var target: Any
+    private var returnObject: Any? = null
+    private var filterObject: Any? = null
+    private var target: Any? = null
 
     fun isGitlabAdmin(): Boolean {
         return (this.principal as? TokenDetails)?.gitlabUser?.isAdmin ?: false
@@ -30,6 +31,11 @@ class MlReefSecurityExpressionRoot(authentication: Authentication)
 
     fun isCurrentUserInGroup(groupId: UUID): Boolean {
         return ((this.principal as? TokenDetails)?.groups?.containsKey(groupId) ?: false)
+    }
+
+    fun isCurrentUserInResultGroup(): Boolean {
+        val id = (returnObject as? DataClassWithId)?.id
+        return if (id!=null) isCurrentUserInGroup(id) else false
     }
 
     fun isUserInGroup(groupId: UUID, userId: UUID): Boolean {
@@ -54,12 +60,37 @@ class MlReefSecurityExpressionRoot(authentication: Authentication)
         return ((this.principal as? TokenDetails)?.projects?.containsKey(projectId) ?: false)
     }
 
+    fun isCurrentUserInResultProject(): Boolean {
+        val id = (returnObject as? DataClassWithId)?.id
+        return if (id!=null) isCurrentUserInProject(id) else false
+    }
+
     fun canCreateProject(): Boolean {
         return ((this.principal as? TokenDetails)?.gitlabUser?.canCreateProject ?: false)
     }
 
     fun canCreateGroup(): Boolean {
         return ((this.principal as? TokenDetails)?.gitlabUser?.canCreateGroup ?: false)
+    }
+
+    fun filterProjectByAccessLevel(minAccessLevel: String):Boolean {
+        val id = (filterObject as? DataClassWithId)?.id
+        return if (id!=null) hasAccessToProject(id, minAccessLevel) else false
+    }
+
+    fun filterProjectByUserInProject():Boolean {
+        val id = (filterObject as? DataClassWithId)?.id
+        return if (id!=null) isCurrentUserInProject(id) else false
+    }
+
+    fun filterGroupByAccessLevel(minAccessLevel: String):Boolean {
+        val id = (filterObject as? DataClassWithId)?.id
+        return if (id!=null) hasAccessToGroup(id, minAccessLevel) else false
+    }
+
+    fun filterGroupByUserInGroup():Boolean {
+        val id = (filterObject as? DataClassWithId)?.id
+        return if (id!=null) isCurrentUserInGroup(id) else false
     }
 
     override fun getReturnObject() = returnObject

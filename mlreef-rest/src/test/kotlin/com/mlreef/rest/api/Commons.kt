@@ -31,6 +31,7 @@ import com.mlreef.rest.external_api.gitlab.GitlabRestClient
 import com.mlreef.rest.external_api.gitlab.GroupAccessLevel
 import com.mlreef.rest.external_api.gitlab.dto.GitlabProject
 import com.mlreef.rest.external_api.gitlab.dto.GitlabUser
+import com.mlreef.rest.external_api.gitlab.dto.GitlabUserInProject
 import com.mlreef.rest.external_api.gitlab.dto.toGitlabUserInProject
 import org.mockito.Mockito
 import org.springframework.beans.factory.annotation.Autowired
@@ -40,7 +41,6 @@ import org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Component
-import java.util.ArrayList
 import java.util.UUID
 import java.util.UUID.randomUUID
 import javax.transaction.Transactional
@@ -84,13 +84,16 @@ internal fun dataProcessorFields(prefix: String = ""): List<FieldDescriptor> {
     )
 }
 
-
 @Component
 internal class AccountSubjectPreparationTrait {
 
     lateinit var account: Account
     lateinit var account2: Account
     lateinit var subject: Person
+    lateinit var subject2: Person
+
+    private val gitlabProjectMembers = HashMap<Long, MutableSet<GitlabUserInProject>>()
+    private val gitlabUsersProjects =  HashMap<Long, MutableSet<GitlabProject>>()
 
     @Autowired
     protected lateinit var accountTokenRepository: AccountTokenRepository
@@ -112,12 +115,15 @@ internal class AccountSubjectPreparationTrait {
         account = createMockUser()
         account2 = createMockUser(userOverrideSuffix = "0002")
         subject = account.person
+        subject2 = account2.person
     }
 
     private fun deleteAll() {
         accountTokenRepository.deleteAll()
         accountRepository.deleteAll()
         personRepository.deleteAll()
+        gitlabProjectMembers.clear()
+        gitlabUsersProjects.clear()
     }
 
     @Transactional
@@ -163,48 +169,50 @@ internal class AccountSubjectPreparationTrait {
 
         val gitlabMockProject = GitlabProject(projectGitlabId, "My own test Project 101", "mlreef/project100", "path", "/path/project", gitlabMockUser, ownerGitlabId)
 
+        val projectsList = gitlabUsersProjects.getOrPut(ownerGitlabId) { mutableSetOf() }
+        projectsList.add(gitlabMockProject)
+
+        val membersList = gitlabProjectMembers.getOrPut(gitlabMockProject.id) { mutableSetOf() }
+        membersList.add(gitlabMockMembership)
+
         Mockito.`when`(mockedRestClient.adminGetUserProjects(
             Mockito.eq(ownerGitlabId)
         )).thenReturn(
-            listOf(
-                gitlabMockProject
-            )
+            projectsList.toList()
         )
 
         Mockito.`when`(mockedRestClient.adminGetProjectMembers(
             Mockito.eq(gitlabMockProject.id)
         )).thenReturn(
-            listOf(
-                if (accessLevel != null) gitlabMockMembership else null
-            ).filterNotNull()
+            membersList.toList()
         )
     }
 
     fun mockGitlabProjectsWithLevel(mockedRestClient: GitlabRestClient, projectGitlabIds: List<Long>, ownerGitlabId: Long, accessLevels: List<GroupAccessLevel?>) {
         val gitlabMockUser = GitlabUser(ownerGitlabId, "testuser", "Test User", "test@example.com")
 
-        val gitlabProjects = ArrayList<GitlabProject>()
-
         projectGitlabIds.forEachIndexed { index, l ->
             val project = GitlabProject(l, "My own test Project 101", "mlreef/project100", "path", "/path/project", gitlabMockUser, ownerGitlabId)
             val member = gitlabMockUser.toGitlabUserInProject(accessLevel = accessLevels.getOrNull(index)
                 ?: GroupAccessLevel.GUEST)
 
+            val projectsList = gitlabUsersProjects.getOrPut(ownerGitlabId) { mutableSetOf() }
+            projectsList.add(project)
+
+            val membersList = gitlabProjectMembers.getOrPut(project.id) { mutableSetOf() }
+            membersList.add(member)
+
             Mockito.`when`(mockedRestClient.adminGetProjectMembers(
                 Mockito.eq(project.id)
             )).thenReturn(
-                listOf(
-                    if (accessLevels.getOrNull(index) != null) member else null
-                ).filterNotNull()
+                membersList.toList()
             )
-
-            gitlabProjects.add(project)
         }
 
         Mockito.`when`(mockedRestClient.adminGetUserProjects(
             Mockito.eq(ownerGitlabId)
         )).thenReturn(
-            gitlabProjects
+            gitlabUsersProjects.getOrDefault(ownerGitlabId, mutableSetOf()).toList()
         )
     }
 
