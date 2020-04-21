@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useRef } from 'react';
 import PropTypes from 'prop-types';
 import './MDropdown.scss';
 
@@ -18,26 +18,33 @@ const MDropdown = (props) => {
 
   const [isShown, setIsShown] = useState(false);
 
-  const ref = useRef();
+  const dropDownRef = useRef();
+
+  const handleBodyClick = (e) => {
+    const clickedElement = document.elementFromPoint(e.clientX, e.clientY);
+    if(!dropDownRef.current) return;
+    if (!dropDownRef.current.contains(clickedElement)) {
+      close();
+    }
+  }
 
   const toggleShow = () => {
-    setIsShown(!isShown);
+    const nextIsShown = !isShown;
+    const bodyTag = document.body;
+    if(nextIsShown){
+      bodyTag.addEventListener('click', handleBodyClick);
+    } else {
+      bodyTag.removeEventListener('click', handleBodyClick);
+    }
+    setIsShown(nextIsShown);
   };
 
   const close = () => setIsShown(false);
 
   const handleContainerClick = () => onClickClose && close();
 
-  useEffect(() => {
-    ref.current.addEventListener('focusout', (e) => {
-      if (!ref.current.contains(e.explicitOriginalTarget)) {
-        close();
-      }
-    });
-  }, []);
-
   return (
-    <div ref={ref} className={`m-dropdown ${isShown ? 'show' : ''} ${className}`}>
+    <div ref={dropDownRef} className={`m-dropdown ${isShown ? 'show' : ''} ${className}`}>
       <div className="m-dropdown-button">
         <button
           type="button"
