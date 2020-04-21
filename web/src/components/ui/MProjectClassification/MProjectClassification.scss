@@ -2,23 +2,12 @@
   max-width: unset;
 }
 
-#no-proj-found-div {
+.noelement-found-div {
   width: 100%;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   p {
     color: var(--secondary);   
-  }
-}
-
-#market-place-container {
-  margin: 0 10%;
-}
-
-
-@media (max-width: 1025px) {
-  #market-place-container {
-    margin: 0 !important;
   }
 }

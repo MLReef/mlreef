@@ -7,6 +7,8 @@ $success: aqua !default;
 $danger: red !default;
 $warning: yellow !default;
 $info: cyan !default;
+$almostWhite: #e5e5e5 !default;
+$lessWhite: #b2b2b2 !default;
 
 :root {
   --white: #fff;
@@ -19,6 +21,8 @@ $info: cyan !default;
   --danger: #{$danger};
   --warning: #{$warning};
   --info: #{$info};
+  --almostWhite: #{$almostWhite};
+  --lessWhite: #{$lessWhite};
 }
 
 $theme-colors: (

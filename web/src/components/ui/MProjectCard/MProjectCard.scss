@@ -1,21 +1,46 @@
-.project-card-container {
-  width: 250px;
-  border: 0.1rem solid var(--secondary);
-  .card-title {
-    font-size: 1.2rem;
-    margin: 0; 
-    padding: 0;
-  }
-  .card-content {
-    margin-top: 1rem;
-  }
-  span {
-    font-size: 0.9rem;
-    margin-right: 0.6rem;
-  }
-}
+.project-card {
+  &-container {
+    width: 250px;
+    border: 1px solid var(--lessWhite);
+    .card-title {
+      font-size: 1.2rem;
+      margin: 0;
+      padding: 0;
+      height: 3.5rem;
+      overflow: hidden;
+    }
 
-.project-card-container:hover {
-  border: 0.1rem solid var(--info);
-  cursor: pointer;
+    &-autor {
+      align-items: center;
+      p {
+        margin: 0; 
+        color: var(--secondary);
+      }
+    }
+    
+    .card-content {
+      margin-top: 0.8rem;
+    }
+
+    .card-content p {
+      height: 4.5rem;
+      overflow: hidden;
+    }
+    
+    span {
+      font-size: 0.9rem;
+      margin-right: 0.6rem;
+    }
+  }
+  
+  &-container:hover {
+    border: 0.1rem solid var(--info);
+    cursor: pointer;
+  }
+
+  &-avatar {
+    height: 100%;
+    width: 100%;
+    border-radius: 50%;
+  }
 }

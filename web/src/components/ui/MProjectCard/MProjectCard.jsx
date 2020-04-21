@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import projectGeneralInfoApi from 'apis/projectGeneralInfoApi';
 import { toastr } from 'react-redux-toastr';
 import './MProjectCard.scss';
+import iconGrey from 'images/icon_grey-01.png';
 
 const MProjectCard = ({
   projectId,
@@ -45,13 +46,9 @@ const MProjectCard = ({
         <p className="card-title">
           {title}
         </p>
-        <br />
         {namespace && (
-        <div className="d-flex" style={{ alignItems: 'center' }}>
-          <div className="avatar-container" style={{ marginRight: '0.5rem' }}>
-            <img src={namespace.avatar_url} alt="" style={{ width: 'inherit' }} />
-          </div>
-          <p style={{ margin: 0 }}>{namespace.name}</p>
+        <div className="project-card-container-autor d-flex ">
+          <p>{namespace.name}</p>
         </div>
         )}
         <div className="card-content">
@@ -77,20 +74,24 @@ const MProjectCard = ({
               </i>
             </div>
           </div>
-
-          <p>
-            {description}
-          </p>
-
+            {description.length === 0 ? (
+              <div className="d-flex noelement-found-div" style={{ marginTop: '1rem' }}>
+                <img src={iconGrey} alt="" style={{ maxHeight: '30px' }} />
+                <p style={{ height: 'unset' }}>No description</p>
+              </div> 
+            )
+            : (
+              <p>description</p>
+            )}
           <div className="d-flex t-secondary">
             <div className="mr-3">
               <i className="fa fa-star">
-                <span className="label">{starCount}</span>
+                <span className="label">{` ${starCount}`}</span>
               </i>
             </div>
             <div className="mr-3">
               <i className="fa fa-code-branch">
-                <span className="label">{forkCount}</span>
+                <span className="label">{` ${forkCount}`}</span>
               </i>
             </div>
           </div>
@@ -106,7 +107,7 @@ const MProjectCard = ({
           >
             {avatars.map((ava, index) => (
               <div key={`ava-cont-${ava.id}`} className={`avatar-container ${index === avatarsLength && 'grouped'}`}>
-                <img src={ava.url} alt="" style={{ width: 'inherit' }} />
+                <img src={ava.url} alt="" className="project-card-avatar"/>
               </div>
             ))}
           </div>
