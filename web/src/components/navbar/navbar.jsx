@@ -15,23 +15,6 @@ class Navbar extends Component {
     this.handleSignOut = this.handleSignOut.bind(this);
   }
 
-  handleProject(e) {
-    const { projectDialog } = this.state;
-    if (!e) {
-      return;
-    }
-
-    if (!projectDialog) {
-      document.addEventListener('click', this.handleOutsideClick, false);
-    } else {
-      document.removeEventListener('click', this.handleOutsideClick, false);
-    }
-    this.setState((prevState) => ({
-      projectDialog: !prevState.projectDialog,
-    }));
-  }
-
-
   handleSignOut() {
     const { actions } = this.props;
     actions.logout();

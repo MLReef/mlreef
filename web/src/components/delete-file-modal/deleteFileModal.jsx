@@ -3,12 +3,11 @@ import { Redirect } from 'react-router-dom';
 import {
   bool, string, arrayOf, func,
 } from 'prop-types';
-import { Checkbox, FormControlLabel, Button } from '@material-ui/core';
+import { Checkbox, FormControlLabel } from '@material-ui/core';
 import { toastr } from 'react-redux-toastr';
 import BlueBorderedInput from '../BlueBorderedInput';
 import '../../css/genericModal.css';
 import './deleteFileModal.css';
-import CustomizedButton from '../CustomizedButton';
 import CustomizedMenus from '../customized-menu/CustomizedMenu';
 import commitsApi from '../../apis/CommitsApi';
 import { DELETE } from '../../dataTypes';

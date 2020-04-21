@@ -2,7 +2,6 @@ import React from 'react';
 import { withStyles } from '@material-ui/core/styles';
 import { arrayOf, string, func } from 'prop-types';
 import { ListItem, List } from '@material-ui/core';
-import Button from '@material-ui/core/Button';
 import Menu from '@material-ui/core/Menu';
 import ListItemText from '@material-ui/core/ListItemText';
 import BlueBorderedInput from '../BlueBorderedInput';
