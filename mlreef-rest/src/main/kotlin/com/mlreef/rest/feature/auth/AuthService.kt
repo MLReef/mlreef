@@ -14,8 +14,8 @@ import com.mlreef.rest.exceptions.GitlabConnectException
 import com.mlreef.rest.exceptions.GitlabNoValidTokenException
 import com.mlreef.rest.exceptions.NotConsistentInternalDb
 import com.mlreef.rest.exceptions.RestException
-import com.mlreef.rest.exceptions.UnknownUserException
 import com.mlreef.rest.exceptions.UserAlreadyExistsException
+import com.mlreef.rest.exceptions.UserNotFoundException
 import com.mlreef.rest.external_api.gitlab.GitlabRestClient
 import com.mlreef.rest.external_api.gitlab.TokenDetails
 import com.mlreef.rest.external_api.gitlab.dto.GitlabGroup
@@ -154,7 +154,7 @@ class GitlabAuthService(
         } else {
             val oauthTokenInfo = gitlabRestClient.userCheckOAuthTokenInGitlab(token)
             val account = accountRepository.findAccountByGitlabId(oauthTokenInfo.resourceOwnerId)
-                ?: throw UnknownUserException()
+                ?: throw UserNotFoundException(gitlabId = oauthTokenInfo.resourceOwnerId)
             return gitlabRestClient.getUser(account.bestToken?.token
                 ?: throw CredentialException("No valid token for user"))
         }
