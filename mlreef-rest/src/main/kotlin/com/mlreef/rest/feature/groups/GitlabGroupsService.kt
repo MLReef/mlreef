@@ -91,7 +91,7 @@ interface GroupsService {
             accountRepository.findAccountByGitlabId(it.key)
         }.filterNotNull()
 
-        return accounts.map { it.toUserInGroup (gitlabUsersMap[it.person.gitlabId].toAccessLevel()) }
+        return accounts.map { it.toUserInGroup(gitlabUsersMap[it.person.gitlabId].toAccessLevel()) }
     }
 
     @Transactional
@@ -114,7 +114,7 @@ interface GroupsService {
 
     override fun updateGroup(groupId: UUID, groupName: String?, path: String?): Group {
         val group = groupsRepository.findByIdOrNull(groupId) ?: throw GroupNotFoundException(groupId = groupId)
-        val gitlabId = group.gitlabId ?: throw UnknownGroupException("Group is not linked to Gitlab")
+        val gitlabId = group.gitlabId ?: throw UnknownGroupException("Group $groupId is not connected to Gitlab")
 
         val gitlabGroup = gitlabRestClient.adminUpdateGroup(
             groupId = gitlabId,
@@ -130,7 +130,7 @@ interface GroupsService {
 
     override fun deleteGroup(groupId: UUID) {
         val group = groupsRepository.findByIdOrNull(groupId) ?: throw GroupNotFoundException(groupId = groupId)
-        val gitlabId = group.gitlabId ?: throw UnknownGroupException("Group is not linked to Gitlab")
+        val gitlabId = group.gitlabId ?: throw UnknownGroupException("Group $groupId is not connected to Gitlab")
 
         gitlabRestClient.adminDeleteGroup(groupId = gitlabId)
 
@@ -144,9 +144,9 @@ interface GroupsService {
 
         val gitlabClient = gitlabRestClient.adminAddUserToGroup(
             groupId = group.gitlabId
-                ?: throw UnknownGroupException("Group is not connected to gitlab and has not valid gitlab id"),
+                ?: throw UnknownGroupException("Group $groupId is not connected to Gitlab"),
             userId = user.person.gitlabId
-                ?: throw UnknownUserException("Person is not connected to gitlab and has not valid gitlab id"),
+                ?: throw UnknownUserException("Person ${user.person.id} is not connected to gitlab"),
             accessLevel = (accessLevel ?: AccessLevel.GUEST).toGitlabAccessLevel())
 
         return getUsersInGroup(groupId)
@@ -156,7 +156,7 @@ interface GroupsService {
         val group = groupsRepository.findByIdOrNull(groupId) ?: throw GroupNotFoundException(groupId = groupId)
 
         gitlabRestClient.adminAddUserToGroup(
-            groupId = group.gitlabId ?: throw UnknownGroupException(),
+            groupId = group.gitlabId ?: throw UnknownGroupException("Group $groupId is not connected to Gitlab"),
             userId = botGitlabId,
             accessLevel = GroupAccessLevel.MAINTAINER)
 
@@ -166,7 +166,7 @@ interface GroupsService {
     @RefreshUserInformation(list = "#users")
     override fun addUsersToGroup(groupId: UUID, users: List<UserInGroup>): List<UserInGroup> {
         val group = groupsRepository.findByIdOrNull(groupId) ?: throw GroupNotFoundException(groupId = groupId)
-        val gitlabGroupId = group.gitlabId ?: throw UnknownGroupException()
+        val gitlabGroupId = group.gitlabId ?: throw UnknownGroupException("Group $groupId is not connected to Gitlab")
 
         val usersIds = users.map {
             val account = resolveAccount(userId = it.id, email = it.userName, userName = it.userName, gitlabId = it.gitlabId)
@@ -202,9 +202,9 @@ interface GroupsService {
 
         gitlabRestClient.adminEditUserInGroup(
             groupId = group.gitlabId
-                ?: throw UnknownGroupException("Group is not connected to gitlab and has not valid gitlab id"),
+                ?: throw UnknownGroupException("Group $groupId is not connected to Gitlab"),
             userId = userToBeEdit.person.gitlabId
-                ?: throw UnknownUserException("Person is not connected to gitlab and has not valid gitlab id"),
+                ?: throw UnknownUserException("Person ${userToBeEdit.person.id} is not connected to gitlab"),
             accessLevel = accessLevel.toGitlabAccessLevel()!!)
 
         return getUsersInGroup(groupId)
@@ -217,8 +217,10 @@ interface GroupsService {
         val group = groupsRepository.findByIdOrNull(groupId) ?: throw GroupNotFoundException(groupId = groupId)
 
         gitlabRestClient.adminDeleteUserFromGroup(
-            groupId = group.gitlabId ?: throw UnknownGroupException(),
-            userId = userToBeDeleted.person.gitlabId ?: throw UnknownGroupException())
+            groupId = group.gitlabId ?: throw UnknownGroupException("Group $groupId is not connected to Gitlab"),
+            userId = userToBeDeleted.person.gitlabId
+                ?: throw UnknownUserException("Person ${userToBeDeleted.person.id} is not connected to gitlab")
+        )
 
         return getUsersInGroup(groupId)
     }
@@ -226,14 +228,14 @@ interface GroupsService {
     @RefreshUserInformation(list = "#users")
     override fun deleteUsersFromGroup(groupId: UUID, users: List<UserInGroup>): List<UserInGroup> {
         val group = groupsRepository.findByIdOrNull(groupId) ?: throw GroupNotFoundException(groupId = groupId)
-        val gitlabGroupId = group.gitlabId ?: throw UnknownGroupException("The group has no gitlab id")
+        val gitlabGroupId = group.gitlabId ?: throw UnknownGroupException("Group $groupId is not connected to Gitlab")
 
         val usersIds = users.map {
             try {
                 when {
                     it.gitlabId != null -> it.gitlabId
                     it.email != null -> accountRepository.findOneByEmail(it.email!!)?.person?.gitlabId
-                    it.userName != null -> accountRepository.findOneByUsername(it.userName?: "")?.person?.gitlabId
+                    it.userName != null -> accountRepository.findOneByUsername(it.userName ?: "")?.person?.gitlabId
                     else -> null
                 }
             } catch (ex: Exception) {

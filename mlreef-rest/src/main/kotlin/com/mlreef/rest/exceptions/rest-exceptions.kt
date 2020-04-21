@@ -84,7 +84,6 @@ class GitlabAlreadyExistingConflictException(errorCode: ErrorCode, message: Stri
 class NotConsistentInternalDb(message: String) : RestException(ErrorCode.Conflict, message)
 
 class UserAlreadyExistsException(username: String, email: String) : RestException(ErrorCode.UserAlreadyExisting, "User ($username/$email) already exists and cant be created")
-class UserNotExistsException(username: String, email: String) : RestException(ErrorCode.UserNotExisting, "User ($username/$email) does not exist")
 
 open class UnknownUserException(message: String? = null)
     : RestException(ErrorCode.UserNotExisting, message ?: "User is unknown and does not exist")
@@ -95,14 +94,14 @@ open class UnknownGroupException(message: String? = null)
 open class UnknownProjectException(message: String? = null)
     : RestException(ErrorCode.ProjectNotExisting, message ?: "Project is unknown and does not exist")
 
-class UserNotFoundException(userId: UUID? = null, userName: String? = null, email: String? = null, personId: UUID? = null, gitlabId: Long? = null)
-    : UnknownUserException(if (userId != null || userName != null || email != null || personId != null || gitlabId != null) "User not found with${if (userId != null) " userId $userId" else ""}${if (userName != null) " username $userName" else ""}${if (email != null) " email $email" else ""}${if (personId != null) " personId $personId" else ""}${if (gitlabId != null) " gitlabId $gitlabId" else ""}" else null)
+class UserNotFoundException(userId: UUID? = null, userName: String? = null, email: String? = null, personId: UUID? = null, gitlabId: Long? = null, subjectId: UUID? = null)
+    : UnknownUserException(generateUserNotFoundMessage(userId, userName, email, personId, gitlabId, subjectId))
 
-class GroupNotFoundException(groupId: UUID? = null, groupName: String? = null, subjectId: UUID? = null, gitlabId: Long? = null)
-    : UnknownGroupException(if (groupId != null || groupName != null || subjectId != null || gitlabId != null) "Group not found with${if (groupId != null) " groupId $groupId" else ""}${if (groupName != null) " groupName $groupName" else ""}${if (subjectId != null) " subjectId $subjectId" else ""}${if (gitlabId != null) " gitlabId $gitlabId" else ""}" else null)
+class GroupNotFoundException(groupId: UUID? = null, groupName: String? = null, subjectId: UUID? = null, gitlabId: Long? = null, path: String? = null)
+    : UnknownGroupException(generateGroupNotFoundMessage(groupId, groupName, subjectId, gitlabId, path))
 
 class ProjectNotFoundException(projectId: UUID? = null, projectName: String? = null, gitlabId: Long? = null, path: String? = null)
-    : UnknownGroupException(if (projectId != null || projectName != null || gitlabId != null || path !=null) "Project not found with${if (projectId != null) " projectId $projectId" else ""}${if (projectName != null) " projectName $projectName" else ""}${if (gitlabId != null) " gitlabId $gitlabId" else ""}${if (path != null) " namespace/slug $path" else ""}" else null)
+    : UnknownProjectException(generateProjectNotFoundMessage(projectId, projectName, gitlabId, path))
 
 class ExperimentCreateException(errorCode: ErrorCode, parameterName: String) : RestException(errorCode, "Name/Slug: '$parameterName'")
 class ExperimentStartException(message: String) : RestException(ErrorCode.CommitPipelineScriptFailed, message)
@@ -139,6 +138,49 @@ class GitlabNotFoundException(responseBodyAsString: String, error: ErrorCode, me
 
 @ResponseStatus(code = HttpStatus.INTERNAL_SERVER_ERROR, reason = "Gitlab authentication failed")
 class GitlabAuthenticationFailedException(statusCode: Int, responseBodyAsString: String, error: ErrorCode, message: String) : GitlabCommonException(statusCode, responseBodyAsString, error, message)
+
+private fun generateUserNotFoundMessage(userId: UUID?, userName: String?, email: String?,
+                                        personId: UUID?, gitlabId: Long?, subjectId: UUID?) = listOf(
+    "User id" to userId,
+    "Username" to userName,
+    "Email Address" to email,
+    "Person id" to personId,
+    "Gitlab id" to gitlabId,
+    "Subject id" to subjectId
+)
+    .filter { it.second != null }
+    .joinToString(prefix = "User not found by ", separator = " and ") {
+        "${it.first} = ${it.second}"
+    }
+
+
+private fun generateGroupNotFoundMessage(groupId: UUID?, groupName: String?,
+                                         subjectId: UUID?, gitlabId: Long?, path: String?) = listOf(
+    "Group id" to groupId,
+    "Group name" to groupName,
+    "Path" to path,
+    "Gitlab id" to gitlabId,
+    "Subject id" to subjectId
+)
+    .filter { it.second != null }
+    .joinToString(prefix = "Group not found by ", separator = " and ") {
+        "${it.first} = ${it.second}"
+    }
+
+
+private fun generateProjectNotFoundMessage(projectId: UUID?, projectName: String?,
+                                           gitlabId: Long?, path: String?) = listOf(
+    "Project id" to projectId,
+    "Project name" to projectName,
+    "Path" to path,
+    "Gitlab id" to gitlabId
+)
+    .filter { it.second != null }
+    .joinToString(prefix = "Project not found by ", separator = " and ") {
+        "${it.first} = ${it.second}"
+    }
+
+
 
 
 

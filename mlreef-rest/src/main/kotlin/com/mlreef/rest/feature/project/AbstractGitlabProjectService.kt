@@ -11,7 +11,6 @@ import com.mlreef.rest.exceptions.ProjectDeleteException
 import com.mlreef.rest.exceptions.ProjectNotFoundException
 import com.mlreef.rest.exceptions.ProjectUpdateException
 import com.mlreef.rest.exceptions.UnknownUserException
-import com.mlreef.rest.exceptions.UserNotExistsException
 import com.mlreef.rest.exceptions.UserNotFoundException
 import com.mlreef.rest.external_api.gitlab.GitlabRestClient
 import com.mlreef.rest.external_api.gitlab.dto.GitlabProject
@@ -141,11 +140,11 @@ abstract class AbstractGitlabProjectService<T : MLProject>(
     override fun addUserToProject(projectUUID: UUID, userId: UUID): Account {
         val codeProject = this.getProjectById(projectUUID) ?: throw ProjectNotFoundException(projectUUID)
 
-        val account = accountRepository.findByIdOrNull(userId) ?: throw UnknownUserException()
+        val account = accountRepository.findByIdOrNull(userId) ?: throw UserNotFoundException(userId = userId)
 
         gitlabRestClient
             .adminAddUserToProject(projectId = codeProject.gitlabId, userId = account.person.gitlabId
-                ?: throw UnknownUserException())
+                ?: throw UnknownUserException("Person is not connected to Gitlab and has no valid gitlabId"))
 
         return account
     }
@@ -154,11 +153,11 @@ abstract class AbstractGitlabProjectService<T : MLProject>(
     override fun deleteUserFromProject(projectUUID: UUID, userId: UUID): Account {
         val codeProject = this.getProjectById(projectUUID) ?: throw ProjectNotFoundException(projectUUID)
 
-        val account = accountRepository.findByIdOrNull(userId) ?: throw UserNotExistsException(userId.toString(), "")
+        val account = accountRepository.findByIdOrNull(userId) ?: throw UserNotFoundException(userId = userId)
 
         gitlabRestClient
             .adminDeleteUserFromProject(projectId = codeProject.gitlabId, userId = account.person.gitlabId
-                ?: throw UnknownUserException())
+                ?: throw UnknownUserException("Person is not connected to Gitlab and has no valid gitlabId"))
 
         return account
     }
