@@ -26,6 +26,7 @@ import org.springframework.restdocs.payload.PayloadDocumentation.requestFields
 import org.springframework.restdocs.payload.PayloadDocumentation.responseFields
 import org.springframework.test.annotation.Rollback
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
+import java.util.UUID
 import java.util.UUID.randomUUID
 import javax.transaction.Transactional
 
@@ -33,6 +34,7 @@ class DataProjectsApiTest : RestApiTest() {
 
     val rootUrl = "/api/v1/data-projects"
     private lateinit var subject: Person
+    private lateinit var subject2: Person
 
     @Autowired private lateinit var accountSubjectPreparationTrait: AccountSubjectPreparationTrait
     @Autowired private lateinit var dataProjectRepository: DataProjectRepository
@@ -45,6 +47,7 @@ class DataProjectsApiTest : RestApiTest() {
     fun setUp() {
         accountSubjectPreparationTrait.apply()
         subject = accountSubjectPreparationTrait.subject
+        subject2 = accountSubjectPreparationTrait.subject2
 
         // To update user permissions before each test
         sessionService.killAllSessions("username0000")
@@ -128,7 +131,7 @@ class DataProjectsApiTest : RestApiTest() {
 
     @Transactional
     @Rollback
-    @Test fun `Can retrieve specific own DataProject`() {
+    @Test fun `Can retrieve specific own DataProject by id`() {
         val id1 = randomUUID()
         val project1 = DataProject(id1, "slug-1", "www.url.com", "Test Project 1", subject.id, "mlreef", "project-1", "mlreef/project-1", 1, listOf())
         val project2 = DataProject(randomUUID(), "slug-2", "www.url.net", "Test Project 2", subject.id, "mlreef", "project-2", "mlreef/project-2", 2, listOf())
@@ -145,6 +148,159 @@ class DataProjectsApiTest : RestApiTest() {
 
         val returnedResult: DataProjectDto = this.mockMvc.perform(
             this.defaultAcceptContentAuth(RestDocumentationRequestBuilders.get("$rootUrl/$id1")))
+            .andExpect(MockMvcResultMatchers.status().isOk)
+            .andDo(MockMvcRestDocumentation.document(
+                "dataprojects-retrieve-one",
+                responseFields(dataProjectResponseFields())))
+            .andReturn().let {
+                objectMapper.readValue(it.response.contentAsByteArray, DataProjectDto::class.java)
+            }
+
+        assertThat(returnedResult.id).isEqualTo(id1)
+        assertThat(returnedResult.gitlabProject).isEqualTo("project-1")
+    }
+
+    @Transactional
+    @Rollback
+    @Test fun `Can retrieve specific own DataProject by slug`() {
+        val id1 = randomUUID()
+        val id2 = randomUUID()
+        val id3 = randomUUID()
+        val id4 = randomUUID()
+        val id5 = randomUUID()
+        val project1 = DataProject(id1, "slug-1", "www.url.com", "Test Project 1", subject.id, "mlreef", "project-1", "mlreef/project-1", 1, listOf())
+        val project2 = DataProject(id2, "slug-2", "www.url.net", "Test Project 2", subject.id, "mlreef", "project-2", "mlreef/project-2", 2, listOf())
+        val project3 = DataProject(id3, "slug-3", "www.url.xyz", "Test Project 3", subject2.id, "mlreef", "project-3", "mlreef/project-3", 3, listOf())
+        val project4 = DataProject(id4, "slug-1", "www.url.xyz", "Test Project 4", subject2.id, "mlreef", "project-4", "mlreef/project-4", 4, listOf())
+        val project5 = DataProject(id5, "slug-1", "www.url.xyz", "Test Project 5", subject2.id, "mlreef", "project-5", "mlreef/project-5", 5, listOf())
+        dataProjectRepository.save(project1)
+        dataProjectRepository.save(project2)
+        dataProjectRepository.save(project3)
+        dataProjectRepository.save(project4)
+        dataProjectRepository.save(project5)
+
+        accountSubjectPreparationTrait.mockGitlabProjectsWithLevel(
+            restClient,
+            listOf(project1.gitlabId, project2.gitlabId, project5.gitlabId),
+            subject.gitlabId!!,
+            listOf(GroupAccessLevel.OWNER, GroupAccessLevel.OWNER, GroupAccessLevel.GUEST))
+
+        accountSubjectPreparationTrait.mockGitlabProjectsWithLevel(
+            restClient,
+            listOf(project3.gitlabId, project4.gitlabId, project5.gitlabId),
+            subject2.gitlabId!!,
+            listOf(GroupAccessLevel.OWNER, GroupAccessLevel.OWNER, GroupAccessLevel.OWNER))
+
+        val returnedResult: List<DataProjectDto> = this.mockMvc.perform(
+            this.defaultAcceptContentAuth(RestDocumentationRequestBuilders.get("$rootUrl/slug/slug-1")))
+            .andExpect(MockMvcResultMatchers.status().isOk)
+            .andDo(MockMvcRestDocumentation.document(
+                "dataprojects-retrieve-all",
+                responseFields(dataProjectResponseFields("[]."))
+            ))
+            .andReturn().let {
+                val constructCollectionType = objectMapper.typeFactory.constructCollectionType(List::class.java, DataProjectDto::class.java)
+                objectMapper.readValue(it.response.contentAsByteArray, constructCollectionType)
+            }
+
+        assertThat(returnedResult.size).isEqualTo(2)
+
+        val setOfIds = setOf<UUID>(
+            returnedResult.get(0).id,
+            returnedResult.get(1).id
+        )
+
+        assertThat(setOfIds).containsExactlyInAnyOrder(id1, id5)
+        assertThat(returnedResult.get(0).id).isIn(id1, id5)
+        assertThat(returnedResult.get(0).gitlabProject).isIn("project-1", "project-5")
+        assertThat(returnedResult.get(1).id).isIn(id1, id5)
+        assertThat(returnedResult.get(1).gitlabProject).isIn("project-1", "project-5")
+    }
+
+    @Transactional
+    @Rollback
+    @Test fun `Can retrieve specific own and guest DataProjects by namespace`() {
+        val id1 = randomUUID()
+        val id2 = randomUUID()
+        val id3 = randomUUID()
+        val id4 = randomUUID()
+        val id5 = randomUUID()
+        val project1 = DataProject(id1, "slug-1", "www.url.com", "Test Project 1", subject.id, "mlreef", "project-1", "mlreef/project-1", 1, listOf())
+        val project2 = DataProject(id2, "slug-2", "www.url.net", "Test Project 2", subject.id, "mlreef", "project-2", "mlreef/project-2", 2, listOf())
+        val project3 = DataProject(id3, "slug-3", "www.url.xyz", "Test Project 3", subject2.id, "mlreef", "project-3", "mlreef/project-3", 3, listOf())
+        val project4 = DataProject(id4, "slug-4", "www.url.xyz", "Test Project 4", subject2.id, "mlreef", "project-4", "mlreef/project-4", 4, listOf())
+        val project5 = DataProject(id5, "slug-5", "www.url.xyz", "Test Project 5", subject2.id, "mlreef", "project-5", "mlreef/project-5", 5, listOf())
+        dataProjectRepository.save(project1)
+        dataProjectRepository.save(project2)
+        dataProjectRepository.save(project3)
+        dataProjectRepository.save(project4)
+        dataProjectRepository.save(project5)
+
+        accountSubjectPreparationTrait.mockGitlabProjectsWithLevel(
+            restClient,
+            listOf(project1.gitlabId, project2.gitlabId, project5.gitlabId),
+            subject.gitlabId!!,
+            listOf(GroupAccessLevel.OWNER, GroupAccessLevel.OWNER, GroupAccessLevel.GUEST))
+
+        accountSubjectPreparationTrait.mockGitlabProjectsWithLevel(
+            restClient,
+            listOf(project3.gitlabId, project4.gitlabId, project5.gitlabId),
+            subject2.gitlabId!!,
+            listOf(GroupAccessLevel.OWNER, GroupAccessLevel.OWNER, GroupAccessLevel.OWNER))
+
+        val returnedResult: List<DataProjectDto> = this.mockMvc.perform(
+            this.defaultAcceptContentAuth(RestDocumentationRequestBuilders.get("$rootUrl/namespace/mlreef")))
+            .andExpect(MockMvcResultMatchers.status().isOk)
+            .andDo(MockMvcRestDocumentation.document(
+                "dataprojects-retrieve-all",
+                responseFields(dataProjectResponseFields("[]."))
+            ))
+            .andReturn().let {
+                val constructCollectionType = objectMapper.typeFactory.constructCollectionType(List::class.java, DataProjectDto::class.java)
+                objectMapper.readValue(it.response.contentAsByteArray, constructCollectionType)
+            }
+
+        assertThat(returnedResult.size).isEqualTo(3)
+
+        val setOfIds = setOf<UUID>(
+            returnedResult.get(0).id,
+            returnedResult.get(1).id,
+            returnedResult.get(2).id
+        )
+
+        assertThat(setOfIds).containsExactlyInAnyOrder(id1, id2, id5)
+        assertThat(returnedResult.get(0).id).isIn(id1, id2, id5)
+        assertThat(returnedResult.get(0).gitlabProject).isIn("project-1", "project-2", "project-5")
+        assertThat(returnedResult.get(1).id).isIn(id1, id2, id5)
+        assertThat(returnedResult.get(1).gitlabProject).isIn("project-1", "project-2", "project-5")
+        assertThat(returnedResult.get(2).id).isIn(id1, id2, id5)
+        assertThat(returnedResult.get(2).gitlabProject).isIn("project-1", "project-2", "project-5")
+    }
+
+    @Transactional
+    @Rollback
+    @Test fun `Can retrieve specific own DataProject by namespace and slug`() {
+        val id1 = randomUUID()
+        val project1 = DataProject(id1, "slug-1", "www.url.com", "Test Project 1", subject.id, "mlreef", "project-1", "mlreef/project-1", 1, listOf())
+        val project2 = DataProject(randomUUID(), "slug-2", "www.url.net", "Test Project 2", subject.id, "mlreef", "project-2", "mlreef/project-2", 2, listOf())
+        val project3 = DataProject(randomUUID(), "slug-3", "www.url.xyz", "Test Project 3", subject2.id, "mlreef", "project-3", "mlreef/project-3", 3, listOf())
+        val project4 = DataProject(randomUUID(), "slug-1", "www.url.xyz", "Test Project 4", subject2.id, "mlreef", "project-4", "mlreef/project-4", 4, listOf())
+        dataProjectRepository.save(project1)
+        dataProjectRepository.save(project2)
+        dataProjectRepository.save(project3)
+        dataProjectRepository.save(project4)
+
+        accountSubjectPreparationTrait.mockGitlabProjectsWithLevel(
+            restClient,
+            listOf(project1.gitlabId, project2.gitlabId),
+            subject.gitlabId!!,
+            listOf(GroupAccessLevel.OWNER, GroupAccessLevel.OWNER))
+        accountSubjectPreparationTrait.mockGitlabProjectsWithLevel(restClient, project3.gitlabId, subject2.gitlabId!!, GroupAccessLevel.OWNER)
+        accountSubjectPreparationTrait.mockGitlabProjectsWithLevel(restClient, project4.gitlabId, subject2.gitlabId!!, GroupAccessLevel.OWNER)
+
+
+        val returnedResult: DataProjectDto = this.mockMvc.perform(
+            this.defaultAcceptContentAuth(RestDocumentationRequestBuilders.get("$rootUrl/mlreef/project-1")))
             .andExpect(MockMvcResultMatchers.status().isOk)
             .andDo(MockMvcRestDocumentation.document(
                 "dataprojects-retrieve-one",

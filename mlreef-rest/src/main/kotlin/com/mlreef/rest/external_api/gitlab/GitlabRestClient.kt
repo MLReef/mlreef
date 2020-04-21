@@ -68,10 +68,12 @@ class GitlabRestClient(
             path = slug,
             description = "auto created description",
             ciConfigPath = "mlreef.yml",
-            defaultBranch = defaultBranch
+            defaultBranch = defaultBranch,
+            namespace_id = nameSpaceId
         )
             .let { GitlabHttpEntity(it, createUserHeaders(token)) }
             .addErrorDescription(409, ErrorCode.GitlabProjectAlreadyExists, "Cannot create project $name in gitlab. Project already exists")
+            .addErrorDescription(400, ErrorCode.GitlabProjectAlreadyExists, "Cannot create project $name in gitlab. Possible project already exists")
             .addErrorDescription(ErrorCode.GitlabProjectCreationFailed, "Cannot create project $name in gitlab")
             .makeRequest {
                 val url = "$gitlabServiceRootUrl/projects"
@@ -203,9 +205,21 @@ class GitlabRestClient(
             .body!!
     }
 
-    fun updateProject(id: Long, token: String, name: String): GitlabProject {
+    fun userUpdateProject(id: Long, token: String, name: String): GitlabProject {
         return GitlabUpdateProjectRequest(name = name)
             .let { GitlabHttpEntity(it, createUserHeaders(token)) }
+            .addErrorDescription(ErrorCode.GitlabProjectUpdateFailed, "Cannot update project with $id in gitlab")
+            .makeRequest {
+                val url = "$gitlabServiceRootUrl/projects/$id"
+                restTemplate(builder).exchange(url, HttpMethod.PUT, it, GitlabProject::class.java)
+            }
+            .also { logGitlabCall(it) }
+            .body!!
+    }
+
+    fun adminUpdateProject(id: Long, name: String): GitlabProject {
+        return GitlabUpdateProjectRequest(name = name)
+            .let { GitlabHttpEntity(it, createAdminHeaders()) }
             .addErrorDescription(ErrorCode.GitlabProjectUpdateFailed, "Cannot update project with $id in gitlab")
             .makeRequest {
                 val url = "$gitlabServiceRootUrl/projects/$id"

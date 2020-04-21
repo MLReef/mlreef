@@ -14,6 +14,7 @@ import com.mlreef.rest.Experiment
 import com.mlreef.rest.FileLocation
 import com.mlreef.rest.Group
 import com.mlreef.rest.I18N
+import com.mlreef.rest.MLProject
 import com.mlreef.rest.MetricType
 import com.mlreef.rest.ParameterInstance
 import com.mlreef.rest.PerformanceMetrics
@@ -29,6 +30,7 @@ import com.mlreef.rest.helpers.GroupOfUser
 import com.mlreef.rest.helpers.ProjectOfUser
 import com.mlreef.rest.helpers.UserInGroup
 import com.mlreef.rest.helpers.UserInProject
+import org.springframework.data.domain.Persistable
 import org.springframework.validation.FieldError
 import java.time.LocalDateTime
 import java.time.ZonedDateTime
@@ -80,7 +82,6 @@ internal fun Group.toDto(): GroupDto =
         id = this.id,
         name = this.name
     )
-
 
 
 data class UserDto(
@@ -155,7 +156,6 @@ internal fun UserInGroup.toDto() = UserInGroupDto(
 )
 
 
-
 data class GroupDto(
     override val id: UUID,
     val name: String
@@ -180,7 +180,6 @@ internal fun GroupOfUser.toDto() = GroupOfUserDto(
     name = this.name,
     accessLevel = this.accessLevel
 )
-
 
 
 data class LoginRequest(
@@ -249,27 +248,36 @@ data class ProjectOfUserDto(
     val accessLevel: AccessLevel?
 ) : DataClassWithId
 
+abstract class MLProjectDto(
+    override val id: UUID?,
+    open val slug: String,
+    open val url: String,
+    open val ownerId: UUID,
+    open val gitlabGroup: String,
+    open val gitlabProject: String,
+    open val gitlabId: Long
+) : DataClassWithId
+
 data class DataProjectDto(
     override val id: UUID,
-    val slug: String,
-    val url: String,
-    val ownerId: UUID,
-    val gitlabGroup: String,
-    val gitlabProject: String,
-    val gitlabId: Long,
+    override val slug: String,
+    override val url: String,
+    override val ownerId: UUID,
+    override val gitlabGroup: String,
+    override val gitlabProject: String,
+    override val gitlabId: Long,
     val experiments: List<ExperimentDto> = listOf()
-) : DataClassWithId
+) : MLProjectDto(id, slug, url, ownerId, gitlabGroup, gitlabProject, gitlabId)
 
 data class CodeProjectDto(
     override val id: UUID,
-    val slug: String,
-    val url: String,
-    val ownerId: UUID,
-    val gitlabGroup: String,
-    val gitlabProject: String,
-    val gitlabId: Long
-) : DataClassWithId
-
+    override val slug: String,
+    override val url: String,
+    override val ownerId: UUID,
+    override val gitlabGroup: String,
+    override val gitlabProject: String,
+    override val gitlabId: Long
+) : MLProjectDto(id, slug, url, ownerId, gitlabGroup, gitlabProject, gitlabId)
 
 internal fun ProjectOfUserDto.toDomain() = ProjectOfUser(
     id = this.id,
@@ -321,6 +329,20 @@ data class FileLocationDto(
     val location: String,
     val locationType: String = "PATH"
 )
+
+@Suppress("UNCHECKED_CAST")
+fun MLProject.toDto(): MLProjectDto {
+    val id = (this as? Persistable<UUID>)?.id
+    return object : MLProjectDto(
+        id,
+        this.slug,
+        this.url,
+        this.ownerId,
+        this.gitlabGroup,
+        this.gitlabProject,
+        this.gitlabId
+    ) {}
+}
 
 internal fun DataProject.toDto() =
     DataProjectDto(

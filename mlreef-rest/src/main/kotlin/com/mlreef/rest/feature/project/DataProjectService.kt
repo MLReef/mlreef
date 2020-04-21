@@ -3,7 +3,6 @@ package com.mlreef.rest.feature.project
 import com.mlreef.rest.AccountRepository
 import com.mlreef.rest.DataProject
 import com.mlreef.rest.DataProjectRepository
-import com.mlreef.rest.exceptions.NotFoundException
 import com.mlreef.rest.exceptions.ProjectNotFoundException
 import com.mlreef.rest.exceptions.UnknownUserException
 import com.mlreef.rest.exceptions.UserNotFoundException
@@ -16,7 +15,7 @@ import org.springframework.stereotype.Service
 import java.util.UUID
 import java.util.UUID.randomUUID
 
-interface DataProjectService : ProjectService<DataProject>
+interface DataProjectService : ProjectService<DataProject>, ProjectRequesterService<DataProject>
 
 @Service
 class GitlabDataProjectService(
@@ -27,6 +26,26 @@ class GitlabDataProjectService(
 
     override fun getProjectById(projectId: UUID): DataProject? {
         return dataProjectRepository.findByIdOrNull(projectId)
+    }
+
+    override fun getAllProjectsForUser(personId: UUID): List<DataProject> {
+        return dataProjectRepository.findAllByOwnerId(personId)
+    }
+
+    override fun getProjectByIdAndPersonId(projectId: UUID, personId: UUID): DataProject? {
+        return dataProjectRepository.findOneByOwnerIdAndId(personId, projectId)
+    }
+
+    override fun getProjectsByNamespace(namespaceName: String): List<DataProject> {
+        return dataProjectRepository.findByNamespace("$namespaceName/")
+    }
+
+    override fun getProjectsBySlug(slug: String): List<DataProject> {
+        return dataProjectRepository.findBySlug(slug)
+    }
+
+    override fun getProjectsByNamespaceAndSlug(namespaceName: String, slug: String): DataProject? {
+        return dataProjectRepository.findByGitlabPathWithNamespace("$namespaceName/$slug")
     }
 
     override fun saveNewProject(mlProject: DataProject): DataProject {
@@ -53,12 +72,6 @@ class GitlabDataProjectService(
             gitlabId = gitlabProject.id
         )
     }
-
-    override fun assertFindExisting(ownerId: UUID, projectUUID: UUID) =
-        dataProjectRepository.findOneByOwnerIdAndId(ownerId, projectUUID)
-            ?: throw NotFoundException("Data project not found")
-
-    override fun findProject(projectUUID: UUID) = dataProjectRepository.findByIdOrNull(projectUUID)
 
     override fun updateSaveProject(mlProject: DataProject, projectName: String?): DataProject {
         return dataProjectRepository.save(mlProject.copy(gitlabProject = projectName))

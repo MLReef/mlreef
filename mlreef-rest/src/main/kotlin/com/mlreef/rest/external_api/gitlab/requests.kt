@@ -90,7 +90,7 @@ internal class GitlabCreateProjectRequest(
     val ciConfigPath: String = "mlreef.yml",
     val description: String = "",
     val defaultBranch: String = "",
-    val namespace_id: Int? = null
+    val namespace_id: Long? = null
 ) : Serializable
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
