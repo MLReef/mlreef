@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, createRef } from 'react';
 import { bool, shape, arrayOf, string } from 'prop-types';
 import { CircularProgress } from '@material-ui/core';
 import { Link } from 'react-router-dom';
@@ -10,11 +10,17 @@ import MCheckBox from '../MCheckBox/MCheckBox';
 class MProjectClassification extends Component {
   projFilterBtnsList = ['own', 'starred', 'explore'];
 
+  ownBtnRef = createRef();
+
   constructor(props) {
     super(props);
     this.state = {
       isDataTypesVisible: true,
     };
+  }
+
+  componentDidMount(){
+    this.ownBtnRef.current.click();
   }
 
   // this change tabs in projectSet
@@ -73,12 +79,13 @@ class MProjectClassification extends Component {
     ];
 
     return (
-      <div id="market-place-container">
+      <div style={{ display: 'flex', justifyContent: 'space-around' }}>
+      <div>
         <div id="buttons-div">
           <div id="filter-div">
             <button
               id={`${classification}-own-btn`}
-              key={this.ownBtn}
+              ref={this.ownBtnRef}
               onClick={(e) => this.handleProjectFilterBtn(e, '#personal')}
               type="button"
               className="btn btn-basic-dark"
@@ -87,7 +94,6 @@ class MProjectClassification extends Component {
             </button>
             <button
               id={`${classification}-starred-btn`}
-              key={this.starredBtn}
               onClick={(e) => this.handleProjectFilterBtn(e, '#starred')}
               type="button"
               className="btn btn-basic-dark"
@@ -96,7 +102,6 @@ class MProjectClassification extends Component {
             </button>
             <button
               id={`${classification}-explore-btn`}
-              key={this.exploreBtn}
               onClick={(e) => this.handleProjectFilterBtn(e, '#explore')}
               type="button"
               className="btn btn-basic-dark"
@@ -133,6 +138,7 @@ class MProjectClassification extends Component {
               <div id="side-filters">
                 <div id="input-div">
                   <p>Refine by</p>
+                  <button>Clear filters</button>
                 </div>
                 <br />
                 <div id="data-types-deploy-btn">
@@ -157,6 +163,7 @@ class MProjectClassification extends Component {
               </div>
             </div>
           )}
+      </div>
       </div>
     );
   }

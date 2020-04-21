@@ -54,7 +54,7 @@ class ProjectSet extends React.Component {
             handleShowModal={handleShowModal}
           />
         )) : (
-          <div className="d-flex" id="no-proj-found-div">
+          <div className="d-flex noelement-found-div">
             <img src={iconGrey} alt="" style={{ maxHeight: '100px' }} />
             <p>No projects found</p>
           </div>

@@ -1,23 +1,37 @@
+$min-width-cards-div: 910px;
+
 /* ---------------- main-content-div ---------------- */
 
 .m-project-classification {
   display: flex;
-  margin: 1.5rem 1.5rem 0 0;
+  margin: 1.5rem 0 0 0;
 
   #cards-section {
     display: flex;
-    flex-direction: row;
+    flex: 4;
     flex-wrap: wrap;
-    flex: 4 1;
-    min-width: 768px;
-    align-items: flex-start;
+    flex-direction: row;
+    align-content: flex-start;
+    min-width: $min-width-cards-div;
   }
 
-  #side-filters {
+  #side-filters {    
     flex: 1;
+    
     #input-div {
       border-bottom: 1px solid var(--secondary);
+      display: flex;
+      button {
+        background-color: transparent;
+        color: var(--info);
+        border: none;
+        padding: 0px;
+        margin-left: 0;
+        margin: 0 0 1rem 0;
+        cursor: pointer;
+      }
       p {
+        margin: 0 7rem 1rem 0;
         color: var(--secondary);
       }
     }
@@ -28,19 +42,13 @@
 
 #buttons-div {
   display: flex;
-  justify-content: space-between;
   margin-top: 1rem;
   
   #filter-div {
-    flex: 4;
-    min-width: 768px;
+    min-width: $min-width-cards-div;
     button {
       margin-right: 1rem;
     }
-  }
-  
-  #new-element-container {
-    flex: 1.1;
   }
 }
 
@@ -53,7 +61,8 @@
 
 @media (max-width: 1025px) {
   #cards-section, #filter-div {
-    max-height: unset !important;
+    height: unset !important;
+    width: unset !important;
     min-width: unset !important;
     flex: unset;
   }
