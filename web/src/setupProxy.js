@@ -3,10 +3,22 @@ const proxy = require('http-proxy-middleware');
 // then this middleware must proxy  develop frontend (npm start) to the backend
 // proxy 
 module.exports = function (app) {
+    /*
+    First of all ... yes this configuration is … unfortunate :)
+    But as long as MLReef's API version is below gitlab's API version this will work
+    **YAAY**
+     */
   app.use(
-    '/api',
+    '/api/v1',
     proxy({
       target: 'http://localhost:8080',
+      changeOrigin: true,
+    })
+  ),
+  app.use(
+    '/api/v4',
+    proxy({
+        target: 'http://localhost:10080',
       changeOrigin: true,
     })
   );

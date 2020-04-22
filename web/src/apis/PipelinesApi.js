@@ -1,4 +1,4 @@
-import { API_GATEWAY, GITLAB_PORT } from '../apiConfig';
+import { API_GATEWAY } from '../apiConfig';
 import { getCurrentToken } from './apiHelpers';
 
 export default class PipeLinesApi {
@@ -6,7 +6,7 @@ export default class PipeLinesApi {
     const body = JSON.stringify(payload);
     try {
       const response = await fetch(
-        `${API_GATEWAY}:${GITLAB_PORT}/api/v4/projects/${projectId}/pipeline?ref=${refBranch}`, {
+        `${API_GATEWAY}/api/v4/projects/${projectId}/pipeline?ref=${refBranch}`, {
           method: 'POST',
           headers: new Headers({
             'PRIVATE-TOKEN': getCurrentToken(),
@@ -24,7 +24,7 @@ export default class PipeLinesApi {
   static async getPipesByProjectId(projectId) {
     try {
       const response = await fetch(
-        `${API_GATEWAY}:${GITLAB_PORT}/api/v4/projects/${projectId}/pipelines/`, {
+        `${API_GATEWAY}/api/v4/projects/${projectId}/pipelines/`, {
           method: 'GET',
           headers: new Headers({
             'PRIVATE-TOKEN': getCurrentToken(),

@@ -1,11 +1,11 @@
-import { API_GATEWAY, GITLAB_PORT } from '../apiConfig';
+import { API_GATEWAY } from '../apiConfig';
 import { generateGetRequest, getCurrentToken } from './apiHelpers';
 
 export default class CommitsApi {
   static async performCommit(projectId, filePath, fileContent, branch, commitMss, action) {
     try {
       const response = await fetch(
-        `${API_GATEWAY}:${GITLAB_PORT}/api/v4/projects/${projectId}/repository/commits`, {
+        `${API_GATEWAY}/api/v4/projects/${projectId}/repository/commits`, {
           method: 'POST',
           headers: new Headers({
             'PRIVATE-TOKEN': getCurrentToken(),
@@ -32,7 +32,7 @@ export default class CommitsApi {
   }
 
   static async getCommits(projectId, refName = 'master', path = '', perPage = 20) {
-    const url = `${API_GATEWAY}:${GITLAB_PORT}/api/v4/projects/${projectId}/repository/commits?per_page=${perPage}&ref_name=${refName}&path=${path}`;
+    const url = `${API_GATEWAY}/api/v4/projects/${projectId}/repository/commits?per_page=${perPage}&ref_name=${refName}&path=${path}`;
     const response = await fetch(new Request(
       url, {
         method: 'GET',
@@ -45,7 +45,7 @@ export default class CommitsApi {
   }
 
   static async getCommitDetails(projectId, commitId) {
-    const url = `${API_GATEWAY}:${GITLAB_PORT}/api/v4/projects/${projectId}/repository/commits/${commitId}`;
+    const url = `${API_GATEWAY}/api/v4/projects/${projectId}/repository/commits/${commitId}`;
     const response = await fetch(new Request(
       url, {
         method: 'GET',
@@ -58,7 +58,7 @@ export default class CommitsApi {
   }
 
   static async getUsers(projectId) {
-    const url = `${API_GATEWAY}:${GITLAB_PORT}/api/v4/projects/${projectId}/users`;
+    const url = `${API_GATEWAY}/api/v4/projects/${projectId}/users`;
     const response = await fetch(new Request(
       url, {
         method: 'GET',
@@ -72,14 +72,14 @@ export default class CommitsApi {
   }
 
   static async getFileDataInCertainCommit(projectId, pathToFile, commitId) {
-    const url = `${API_GATEWAY}:${GITLAB_PORT}/api/v4/projects/${projectId}/repository/files/${pathToFile}/raw?ref=${commitId}`;
+    const url = `${API_GATEWAY}/api/v4/projects/${projectId}/repository/files/${pathToFile}/raw?ref=${commitId}`;
     const response = await generateGetRequest(url);
 
     return response.arrayBuffer();
   }
 
   static async getCommitDiff(projectId, commitId) {
-    const url = `${API_GATEWAY}:${GITLAB_PORT}/api/v4/projects/${projectId}/repository/commits/${commitId}/diff`;
+    const url = `${API_GATEWAY}/api/v4/projects/${projectId}/repository/commits/${commitId}/diff`;
     const response = await generateGetRequest(url);
 
     return response.json();
