@@ -17,7 +17,7 @@ import DataVisualizationOverview from './components/data-visualization/dataVisua
 import EmptyDataVisualization from './components/data-visualization/dataVisualization';
 import ErrorPage from './components/error-page/errorPage';
 import ExperimentDetails from './components/experiment-details/experimentDetails';
-import NewProject from './components/new-project/newProject';
+import CreateProject from './components/views/create-project/createProject';
 import NewMergeRequest from './components/new-merge-request/newMergeRequest';
 import NewBranch from './components/newBranch';
 import BranchesView from './components/branches-list-view/branchesView';
@@ -27,6 +27,7 @@ import DataVisualizationDetail from './components/data-visualization/dataVisuali
 import Insights from './components/insights/insights';
 // this is component for testing layout and should be removed after alpha
 import Demo from './components/Demo';
+import CreateGroup from './components/views/create-group/createGroup';
 
 const RouterComp = () => (
   <BrowserRouter>
@@ -39,7 +40,7 @@ const RouterComp = () => (
       <Route path="/register" exact component={RegisterView} />
       <Route path="/error-page" exact component={ErrorPage} />
       <PrivateRoute path="/my-projects" exact component={Projects} />
-      <PrivateRoute path="/new-project/classification/:classification" exact component={NewProject} />
+      <PrivateRoute path="/new-project/classification/:classification" exact component={CreateProject} />
       <PrivateRoute path="/my-projects/:projectId/:branch/commits/:pathParam?" exact component={Commits} />
       <PrivateRoute
         path="/my-projects/:projectId/insights"
@@ -96,6 +97,11 @@ const RouterComp = () => (
         exact
         path="/my-projects/:projectId/:branch/new-merge-request"
         component={NewMergeRequest}
+      />
+      <PrivateRoute
+        exact
+        path="/new-group"
+        component={CreateGroup}
       />
       <Route component={ErrorPage} />
     </Switch>

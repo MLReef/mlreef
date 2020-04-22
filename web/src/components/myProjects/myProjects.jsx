@@ -12,6 +12,7 @@ import Navbar from '../navbar/navbar';
 import './myProjects.scss';
 import ProjectDeletionModal from '../project-deletion-modal/projectDeletionModal';
 import * as projectActions from '../../actions/projectInfoActions';
+import * as groupsActions from '../../actions/groupsActions';
 import * as userActions from '../../actions/userActions';
 // import AuthWrapper from 'components/AuthWrapper';
 
@@ -73,6 +74,7 @@ class Myprojects extends React.Component {
       actions.getUserProjects(),
       actions.getStarredProjects(),
       actions.getProjectsList(),
+      actions.getGroupsList(),
     ])
       .catch(() => {
       })
@@ -157,6 +159,7 @@ function mapStateToProps(state) {
     allProjects: state.projects.all,
     userProjects: state.projects.userProjects,
     starredProjects: state.projects.starredProjects,
+    groups: state.groups,
   };
 }
 
@@ -164,6 +167,7 @@ function mapDispatchToProps(dispatch) {
   return {
     actions: bindActionCreators({
       ...projectActions,
+      ...groupsActions,
       ...userActions,
     }, dispatch),
   };
