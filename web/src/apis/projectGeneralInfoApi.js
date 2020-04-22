@@ -1,4 +1,4 @@
-import { API_GATEWAY, BUILD_TIMEOUT, GITLAB_PORT } from '../apiConfig';
+import { API_GATEWAY, BUILD_TIMEOUT } from '../apiConfig';
 import { getCurrentToken, generateGetRequest } from './apiHelpers';
 
 const defaultProjectSettings = {
@@ -8,7 +8,7 @@ const defaultProjectSettings = {
 
 export default class ProjectGeneralInfoApi {
   static async create(settings) {
-    const baseUrl = new URL(`${API_GATEWAY}:${GITLAB_PORT}/api/v4/projects`);
+    const baseUrl = new URL(`${API_GATEWAY}/api/v4/projects`);
     const params = {
       ...defaultProjectSettings,
       ...settings,
@@ -33,7 +33,7 @@ export default class ProjectGeneralInfoApi {
 
   static async getProjectInfoApi(projectId) {
     try {
-      const respone = await fetch(new Request(`${API_GATEWAY}:${GITLAB_PORT}/api/v4/projects/${projectId}`, {
+      const respone = await fetch(new Request(`${API_GATEWAY}/api/v4/projects/${projectId}`, {
         method: 'GET',
         headers: new Headers({
           'PRIVATE-TOKEN': getCurrentToken(),
@@ -50,7 +50,7 @@ export default class ProjectGeneralInfoApi {
   }
 
   static async getProjectsList(params = {}) {
-    const url = new URL(`${API_GATEWAY}:${GITLAB_PORT}/api/v4/projects`);
+    const url = new URL(`${API_GATEWAY}/api/v4/projects`);
     // set query params
     Object.entries({ simple: true, ...params })
       .forEach((param) => url.searchParams.append(...param));
@@ -67,7 +67,7 @@ export default class ProjectGeneralInfoApi {
    * @param {*} name: forked project name
    */
   static async forkProject(id, namespace, name) {
-    const url = `${API_GATEWAY}:${GITLAB_PORT}/api/v4/projects/${id}/fork`;
+    const url = `${API_GATEWAY}/api/v4/projects/${id}/fork`;
     return fetch(new Request(
       url, {
         method: 'POST',
@@ -83,7 +83,7 @@ export default class ProjectGeneralInfoApi {
   }
 
   static async removeProject(projectId) {
-    const url = `${API_GATEWAY}:${GITLAB_PORT}/api/v4/projects/${projectId}`;
+    const url = `${API_GATEWAY}/api/v4/projects/${projectId}`;
     return fetch(new Request(
       url, {
         method: 'DELETE',
@@ -103,7 +103,7 @@ export default class ProjectGeneralInfoApi {
 
   static async getProjectContributors(projectId) {
     try {
-      const url = `${API_GATEWAY}:${GITLAB_PORT}/api/v4/projects/${projectId}/members`;
+      const url = `${API_GATEWAY}/api/v4/projects/${projectId}/members`;
       const response = await generateGetRequest(url);
       return response;
     } catch (err) {

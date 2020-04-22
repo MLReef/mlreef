@@ -1,4 +1,4 @@
-import { API_GATEWAY, GITLAB_PORT } from '../apiConfig';
+import { API_GATEWAY } from '../apiConfig';
 import { generateGetRequest, getCurrentToken } from './apiHelpers';
 
 export default class MergeRequestAPI {
@@ -6,14 +6,14 @@ export default class MergeRequestAPI {
    * @param {projectId} is the id the project to get MR's to
    */
   static async getListByProject(projectId) {
-    const url = `${API_GATEWAY}:${GITLAB_PORT}/api/v4/projects/${projectId}/merge_requests`;
+    const url = `${API_GATEWAY}/api/v4/projects/${projectId}/merge_requests`;
     const jobsProm = await generateGetRequest(url);
 
     return jobsProm.json();
   }
 
   static async getSingleMR(id, iid) {
-    const url = `${API_GATEWAY}:${GITLAB_PORT}/api/v4/projects/${id}/merge_requests/${iid}`;
+    const url = `${API_GATEWAY}/api/v4/projects/${id}/merge_requests/${iid}`;
 
     const response = await fetch(new Request(
       url, {
@@ -27,7 +27,7 @@ export default class MergeRequestAPI {
   }
 
   static async submitMergeReq(id, sourceBranch, targetBranch, title, description = '') {
-    const url = `${API_GATEWAY}:${GITLAB_PORT}/api/v4/projects/${id}/merge_requests`;
+    const url = `${API_GATEWAY}/api/v4/projects/${id}/merge_requests`;
     try {
       const response = await fetch(
         url, {
@@ -35,7 +35,7 @@ export default class MergeRequestAPI {
           headers: new Headers({
             'PRIVATE-TOKEN': getCurrentToken(),
             'Content-Type': 'application/json',
-            'Access-Control-Allow-Origin': `${API_GATEWAY}:${GITLAB_PORT}`,
+            'Access-Control-Allow-Origin': `${API_GATEWAY}`,
           }),
           body: JSON.stringify({
             id,
@@ -54,7 +54,7 @@ export default class MergeRequestAPI {
   }
 
   static async acceptMergeRequest(id, iid, squash, removeSourceBranch) {
-    let baseUrl = `${API_GATEWAY}:${GITLAB_PORT}/api/v4/projects/${id}/merge_requests/${iid}/merge?squash=${squash}`;
+    let baseUrl = `${API_GATEWAY}/api/v4/projects/${id}/merge_requests/${iid}/merge?squash=${squash}`;
 
     if (removeSourceBranch) {
       baseUrl = `${baseUrl}&should_remove_source_branch=${removeSourceBranch}`;
@@ -66,7 +66,7 @@ export default class MergeRequestAPI {
         headers: new Headers({
           'PRIVATE-TOKEN': getCurrentToken(),
           'Content-Type': 'application/json',
-          'Access-Control-Allow-Origin': `${API_GATEWAY}:${GITLAB_PORT}`,
+          'Access-Control-Allow-Origin': `${API_GATEWAY}`,
         }),
       },
     ));
