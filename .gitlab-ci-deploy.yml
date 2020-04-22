@@ -2,8 +2,6 @@ deploy:
   extends: [".except-docu-branches"]
   stage: deploy
   image: registry.gitlab.com/systemkern/s5:latest
-  variables:
-    GITLAB_PORT: 10080
   before_script:
     - echo "CI_COMMIT_REF_SLUG  is $CI_COMMIT_REF_SLUG"
     - echo "FRONTEND_TAG        is $FRONTEND_TAG"
@@ -22,7 +20,7 @@ deploy:
     # rewrite docker compose file
     # change the frontend docker image from develop branch to current branch
     - sed -i "s/$FRONTEND_IMAGE_NAME:develop/$FRONTEND_IMAGE_NAME:$FRONTEND_TAG/" $DOCKER_COMPOSE
-    # change the frontend docker image from develop branch to current branch
+    # change the backend docker image from develop branch to current branch
     - sed -i "s/$BACKEND_IMAGE_NAME:develop/$BACKEND_IMAGE_NAME:$BACKEND_TAG/"    $DOCKER_COMPOSE
     # Activate (uncomment) specific lines in the docker-compose file
     - sed -i "s~#CI_ACTIVATE~~"                                                   $DOCKER_COMPOSE
@@ -49,7 +47,6 @@ deploy:
     sudo docker ps;
     sudo $DEPLOY_SCRIPT
     --instance $URL
-    --port $GITLAB_PORT
     --key $AWS_ACCESS_KEY_ID
     --secret $AWS_SECRET_ACCESS_KEY
     --docker-environment-file $DOCKER_ENV
