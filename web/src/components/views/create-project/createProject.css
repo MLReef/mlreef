@@ -101,7 +101,7 @@ textarea{
     box-shadow: 0 0 8px #99ddff;
 }
 
-.new-project .form-control {
+.create-project .form-control {
   border-left: solid 1px var(--secondary);
 }
 
@@ -111,7 +111,7 @@ textarea{
     margin-right: 4px;
 }
 
-#demo-simple-select-outlined{
+#nameSpace{
     min-width: 160px !important;
     padding-top: 0.4em !important;
     padding-bottom: 0.2em !important;

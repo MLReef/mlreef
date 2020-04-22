@@ -57,6 +57,32 @@ class Navbar extends Component {
               </div>
             )}
           />
+
+          <MDropdown
+            className="ml-3 my-auto"
+            buttonClasses="btn btn-dark px-1"
+            label="Groups"
+            component={(
+              <div className="project-box">
+                <div className="user-projects">
+                  <p>Your Groups</p>
+                  <p>Starred Groups</p>
+                  <p>Explore Groups</p>
+                  <p><Link to="/new-group">New Group</Link></p>
+                </div>
+                <div className="project-search">
+                  <input
+                    type="text"
+                    placeholder="Search your groups"
+                  />
+                  <div className="mt-3">
+                    <b>Frequently visited</b>
+                  </div>
+                </div>
+              </div>
+            )}
+          />
+
           <MDropdown
             align="right"
             className="m-dropdown ml-auto my-auto"

@@ -221,6 +221,13 @@ export const getCurrentUserInformation = () => {
   };
 };
 
+
+export const convertToSlug = (stringToConvert) => stringToConvert
+  .toLowerCase()
+  .replace(/ /g, '-')
+  .replace(/[-]+/g, '-')
+  .replace(/[^\w-]+/g, '');
+  
 export const getCommentFromCommit = (message = '') => {
   const [, ...comment] = message.split('\n\n');
 

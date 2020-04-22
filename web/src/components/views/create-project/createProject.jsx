@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, createRef } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { Redirect } from 'react-router-dom';
@@ -15,19 +15,18 @@ import Tooltip from '@material-ui/core/Tooltip';
 import {
   projectClassificationsProps,
 } from 'dataTypes';
-import Navbar from '../navbar/navbar';
-import './newProject.css';
-import * as projectActions from '../../actions/projectInfoActions';
-import * as userActions from '../../actions/userActions';
-import projectGeneraInfoApi from '../../apis/projectGeneralInfoApi';
-import MCheckBox from '../ui/MCheckBox/MCheckBox';
-
-const publicIcon = 'https://gitlab.com/mlreef/frontend/uploads/b93c33fb581d154b037294ccef81dadf/global-01.png';
-const privateIcon = 'https://gitlab.com/mlreef/frontend/uploads/83b8885be99f4176f1749924772411b3/lock-01.png';
-
-const bannedCharacters = ['..', '~', '^', ':', '\\', '{', '}', '[', ']', '$', '#', '&', '%', '*', '+', '¨', '"', '!'];
+import Navbar from '../../navbar/navbar';
+import './createProject.css';
+import * as projectActions from '../../../actions/projectInfoActions';
+import * as userActions from '../../../actions/userActions';
+import projectGeneraInfoApi from '../../../apis/projectGeneralInfoApi';
+import { convertToSlug } from '../../../functions/dataParserHelpers';
+import { bannedCharsArray } from '../../../dataTypes';
+import MCheckBox from '../../ui/MCheckBox/MCheckBox';
+import { privacyLevelsArr } from "dataTypes";
 
 class NewProject extends Component {
+  slugRef = createRef();
   dataTypes = [
     [
       { name: 'data-types Text', label: 'Text' },
@@ -53,7 +52,7 @@ class NewProject extends Component {
       projectName: '',
       redirect: false,
       readme: false,
-      user: '',
+      nameSpace: '',
       description: '',
       newProject: {},
       dataTypesSelected: [],
@@ -72,8 +71,8 @@ class NewProject extends Component {
     this.setState({ projectName: e.target.value });
   }
 
-  handleUser = (e) => {
-    this.setState({ user: e.target.value });
+  handleNamespace = (e) => {
+    this.setState({ nameSpace: e.target.value });
   }
 
   checkReadme = () => {
@@ -87,7 +86,7 @@ class NewProject extends Component {
   validateProjectName = (text) => {
     let bannedCharCount = 0;
 
-    bannedCharacters.forEach((char) => {
+    bannedCharsArray.forEach((char) => {
       if (text.startsWith(char) || text.startsWith('.') || text.startsWith('-') || text.startsWith(' ')) {
         return false;
       }
@@ -105,6 +104,7 @@ class NewProject extends Component {
       readme,
       description,
       visibility,
+      nameSpace,
     } = this.state;
 
     const isAValidName = this.validateProjectName(projectName);
@@ -118,44 +118,61 @@ class NewProject extends Component {
       toastr.error('Error:', 'Enter a valid project name');
       return;
     }
-
-    projectGeneraInfoApi.create({
+    const slug = this.slugRef.current.value;
+    const body = {
       name: projectName,
+      slug,
+      path: nameSpace,
       initialize_with_readme: readme,
       description,
       visibility,
-    })
+    }
+    projectGeneraInfoApi.create(body)
       .then(async (res) => {
         if (res.ok) {
           const pro = await res.json();
           this.props.actions.getProjectsList();
           this.setState({ redirect: true, newProject: pro });
+        } else {
+          toastr.error("Error", res.statusText);
         }
       })
-      .catch((err) => console.log(err));
+      .catch(() => toastr.error("Error", "Something went wrong"));
   }
 
  cancelCreate = () => {
    this.props.history.push('/my-projects');
  }
 
- convertToSlug = (rawName) => rawName
-   .toLowerCase()
-   .replace(/ /g, '-')
-   .replace(/[-]+/g, '-')
-   .replace(/[^\w-]+/g, '');
+ getIsPrivacyOptionDisabled = (privacyLevel, nameSpace) => {
+  const { user, groups } = this.props;
+  if(nameSpace === ''){
+    return false;
+  }
+  const isNamespaceAGroup = nameSpace !== user.username;
+  if(isNamespaceAGroup){
+    const currentGroup = groups.filter((grp) => grp.full_path === nameSpace)[0];
+    const isAPrivateGroup = currentGroup.visibility === privacyLevelsArr[0].value;
+
+    return isAPrivateGroup
+      ? !(privacyLevel === privacyLevelsArr[0].value)
+      : false;
+  }
+
+  return false; // line reached when namespace is the user, so all levels of privacy are allowed to choose
+ }
 
  render() {
    const {
      visibility,
      projectName,
      redirect,
-     user,
+     nameSpace,
      description,
      newProject,
      dataTypesSelected: dtTypesSel,
    } = this.state;
-   const { match: { params: { classification } } } = this.props;
+   const { match: { params: { classification } }, groups, user, } = this.props;
    const classLabel = projectClassificationsProps.filter(
      (classif) => classif.classification === classification,
    )[0].label;
@@ -175,7 +192,8 @@ class NewProject extends Component {
            <p>
              A Machine Learning (ML) project is where you house your data set (repository),
              where you perform data processing
-             (data pipeline), visualize your data set (data visualization) and where you create your experiments
+             (data pipeline), visualize your data set (data visualization) 
+             and where you create your experiments
            </p>
          </div>
          <div className="form-control col-sm-12 col-lg-8 pl-3">
@@ -201,13 +219,18 @@ class NewProject extends Component {
                    </Tooltip>
                    <FormControl id="projectURL" variant="outlined">
                      <Select
-                       labelId="demo-simple-select-outlined-label"
-                       id="demo-simple-select-outlined"
-                       value={user}
-                       onChange={this.handleUser}
+                       labelId="nameSpace-label"
+                       id="nameSpace"
+                       value={nameSpace}
+                       onChange={this.handleNamespace}
                      >
-                       <MenuItem value="mlreef">mlreef</MenuItem>
-                       <MenuItem value="SaathvikT">SaathvikT</MenuItem>
+                       <MenuItem key={"subtitle-1"} value="">Groups</MenuItem>
+                       {groups.map((grp) => (
+                          <MenuItem key={`group kay ${grp.id}`} value={grp.full_path}>{grp.name}</MenuItem>
+                       ))}
+                       <MenuItem key={"subtitle-2"} value="">Users</MenuItem>
+                       <MenuItem key={`user key ${user.id}`} value={user.username}>{user.username}</MenuItem>
+
                      </Select>
                    </FormControl>
                  </div>
@@ -215,7 +238,8 @@ class NewProject extends Component {
                <label className="label-name flex-1" htmlFor="projectSlug">
                  <span className="heading">Project Slug</span>
                  <input
-                   value={this.convertToSlug(projectName)}
+                   ref={this.slugRef}
+                   value={convertToSlug(projectName)}
                    className="text-input"
                    id="projectSlug"
                    type="text"
@@ -303,30 +327,22 @@ class NewProject extends Component {
              <div style={{ marginTop: '1em' }}>
                <span className="heading">Visibilty level</span>
                <RadioGroup aria-label="visibility" name="visibility" value={visibility} onChange={this.handleVisibility}>
-                 <FormControlLabel
-                   className="heading"
-                   value="private"
-                   control={<Radio />}
-                   label={(
-                     <>
-                       <img id="visibility-icon" src={privateIcon} alt="" />
-                       <span>Private</span>
-                     </>
-                    )}
-                 />
-                 <span className="visibility-msg">Project access must be granted explicitly to every user.</span>
-                 <FormControlLabel
-                   className="heading"
-                   value="public"
-                   control={<Radio />}
-                   label={(
-                     <>
-                       <img id="visibility-icon" src={publicIcon} alt="" />
-                       <span>Public</span>
-                     </>
-                   )}
-                 />
-                 <span className="visibility-msg">The Project can be accessed without any authemtication.</span>
+                 {privacyLevelsArr.map((lvl) => (
+                   <div key={`privacy lvl ${lvl.value}`} className="d-flex" style={{ flexDirection: 'column' }}>
+                    <FormControlLabel
+                      className="heading"
+                      value={lvl.value}
+                      control={<Radio disabled={this.getIsPrivacyOptionDisabled(lvl.value, nameSpace)} />}
+                      label={(
+                        <>
+                          <img id="visibility-icon" src={lvl.icon} alt="" />
+                          <span>{lvl.name}</span>
+                        </>
+                        )}
+                    />
+                    <span key={`privacy lvl mss ${lvl.value}`} className="visibility-msg">{lvl.message.replace("#protected-element", "project")}</span>
+                   </div>
+                 ))}
                </RadioGroup>
              </div>
              <div className="readME">
@@ -368,9 +384,7 @@ class NewProject extends Component {
 
 function mapStateToProps(state) {
   return {
-    projects: state.projects,
-    users: state.users,
-    branches: state.branches.map((branch) => branch.name),
+    groups: state.groups,
     user: state.user,
   };
 }

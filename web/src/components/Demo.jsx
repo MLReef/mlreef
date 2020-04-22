@@ -15,9 +15,6 @@ import MTooltip from 'components/ui/MTooltip';
 // this is a component for testing layout and should be removed after alpha
 const Demo = (props) => {
   //
-  const customAction = (e) => {
-    console.log('this is a custom action, e.g. if we need to change state component');
-  };
 
   const [visibility, setVisibility] = useState(null);
 

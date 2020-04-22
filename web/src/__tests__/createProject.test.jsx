@@ -2,7 +2,7 @@ import React from 'react';
 import Enzyme, { shallow } from 'enzyme';
 import Adapter from 'enzyme-adapter-react-16';
 import 'babel-polyfill';
-import NewProject from '../components/new-project/newProject';
+import CreateProject from '../components/views/create-project/createProject';
 import { storeFactory } from '../functions/testUtils';
 import { projectsArrayMock, branchesMock } from '../testData';
 
@@ -15,7 +15,7 @@ const setup = () => {
     users: projectsArrayMock.users,
   });
   const wrapper = shallow(
-    <NewProject store={store} />,
+    <CreateProject store={store} />,
   );
   const afterDive = wrapper.dive().dive();
   return afterDive;
@@ -28,7 +28,7 @@ describe('test the frontend features', () => {
   });
   test('assert that new project view contains basic components', () => {
     expect(wrapper.find('#projectTitle')).toHaveLength(1);
-    expect(wrapper.find('#demo-simple-select-outlined')).toHaveLength(1);
+    expect(wrapper.find('#nameSpace')).toHaveLength(1);
     expect(wrapper.find('#projectSlug')).toHaveLength(1);
     expect(wrapper.find('#projectDescription')).toHaveLength(1);
     expect(wrapper.find('#free-tags')).toHaveLength(1);

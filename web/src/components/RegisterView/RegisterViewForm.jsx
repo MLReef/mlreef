@@ -159,7 +159,6 @@ const validations = {
   }),
 
   handleSubmit: (payload, { setSubmitting, props }) => {
-    // console.log('sending', payload);
     const {
       submitForm,
       onSuccess,

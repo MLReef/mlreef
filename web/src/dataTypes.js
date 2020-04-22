@@ -1,3 +1,6 @@
+import lock from "images/lock-01.png";
+import global from "images/global-01.png";
+
 export const INT = 'INT';
 export const FLOAT = 'FLOAT';
 export const BOOL = 'Boolean';
@@ -385,6 +388,10 @@ export const mrStates = [
 ];
 
 
+/* the next array is to contain global characters banned for urls */
+
+export const bannedCharsArray = ['..', '~', '^', ':', '\\', '{', '}', '[', ']', '$', '#', '&', '%', '*', '+', '¨', '"', '!'];
+
 /* -------------------------- Project classifications -------------------------- */
 
 export const ML_PROJECT = 'ml-project';
@@ -400,3 +407,23 @@ export const projectClassificationsProps = [
 ];
 
 /* -------------------------- ------------- -------------------------- */
+
+
+/* -------------------------- The next are access levels implemented by Gitlab -------------------------- */
+
+export const privacyLevelsArr = [
+  { 
+    name: 'Private', 
+    value: 'private', 
+    message: 'The #protected-element access must be granted explicitly to every user.', 
+    icon: lock
+  },
+  { 
+    name: 'Public', 
+    value: 'public', 
+    message: 'The #protected-element can be accessed without any authentication.', 
+    icon: global
+  },
+]
+
+/* --------------------------  ----------------------------------------------- -------------------------- */

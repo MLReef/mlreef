@@ -40,7 +40,6 @@ export default {
     content: '',
     positiveLabel: 'Accept',
     onPositive: (val) => {
-      // console.log('this is a positive action', val);
       return Promise.resolve(val);
     },
     negativeLabel: 'Cancel',
@@ -49,4 +48,5 @@ export default {
     isShown: false,
     closable: true,
   },
+  groups: [],
 };
