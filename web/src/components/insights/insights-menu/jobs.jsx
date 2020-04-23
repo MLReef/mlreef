@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { toastr } from 'react-redux-toastr';
-import { arrayOf, shape, number } from 'prop-types';
+import { arrayOf, shape, number, string } from 'prop-types';
 import moment from 'moment';
 import greyLogo from 'images/icon_grey-01.png';
 import './jobs.scss';
@@ -9,8 +10,7 @@ import jobsApi from 'apis/JobsApi';
 import BlackBorderedButton from '../../BlackBorderedButton';
 import { getTimeCreatedAgo } from '../../../functions/dataParserHelpers';
 
-const Jobs = (props) => {
-  const { jobs, selectedProject: { id } } = props;
+const Jobs = ({ jobs, selectedProject: { id } }) => {
   const [jobList, setJobs] = useState(jobs);
 
   useEffect(() => {
@@ -20,9 +20,9 @@ const Jobs = (props) => {
   }, [id]);
 
   const sortJobs = (e) => {
-    let allJobs = props.jobs;
+    let allJobs = jobs;
     if (e.target.id !== 'all') {
-      allJobs = props.jobs.filter((job) => job.status === e.target.id);
+      allJobs = jobs.filter((job) => job.status === e.target.id);
     }
     setJobs(allJobs);
   };
@@ -84,13 +84,19 @@ const Jobs = (props) => {
                   return (
                     <tr className="p-3" key={index.toString()}>
                       <td className="job-status p-3">
-                        {jobStatus}
+                        <Link to={`/my-projects/${id}/insights/-/jobs/${job.id}`}>
+                          {jobStatus}
+                        </Link>
                       </td>
                       <td>
-                        {`#${job.id}`}
+                        <Link to={`/my-projects/${id}/insights/-/jobs/${job.id}`}>
+                          {`#${job.id}`}
+                        </Link>
                       </td>
                       <td>
-                        {job.name}
+                        <Link to={`/my-projects/${id}/insights/-/jobs/${job.id}`}>
+                          {job.name}
+                        </Link>
                       </td>
                       <td className="job-pipeline-number p-3">
                         {`#${job.pipeline.id} by `}
@@ -132,7 +138,17 @@ const Jobs = (props) => {
 };
 
 Jobs.propTypes = {
-  jobs: arrayOf.isRequired,
+  jobs: arrayOf(
+    shape({
+      id: number.isRequired,
+      name: string.isRequired,
+      status: string.isRequired,
+      duration: number.isRequired,
+      pipeline: {
+        id: number.isRequired,
+      }.isRequired
+    }).isRequired,
+  ).isRequired,
   selectedProject: shape({
     id: number.isRequired,
   }).isRequired,
