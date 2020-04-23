@@ -1,21 +1,33 @@
-import React, { useState } from 'react';
+import React from 'react';
+import { Route, Link, Switch } from 'react-router-dom';
 import $ from 'jquery';
 import { connect } from 'react-redux';
-import { shape } from 'prop-types';
+import { shape, number, string } from 'prop-types';
 import Navbar from '../navbar/navbar';
 import ProjectContainer from '../projectContainer';
 import './insights.scss';
 import Jobs from './insights-menu/jobs';
+import JobLogById from 'components/insights/insights-menu/jobLogById';
 
 const Insights = (props) => {
-  const { selectedProject, selectedProject: { name } } = props;
+  const { selectedProject, selectedProject: {id, name }, match: { params: { logId } } } = props;
   const groupName = selectedProject.namespace.name;
 
-  const sections = {
-    'jobs-btn': 0,
-  };
-
-  const [selectedSection, setSelectedSection] = useState(0);
+  // When creating any features in the future such 
+  // as Contributors, Resources etc. add a route
+  // into this array and attach the respective component
+  const routes = [
+    {
+      path: `/my-projects/${id}/insights/-/jobs`,
+      exact: true,  
+      main: () => <Jobs />
+    },
+    {
+      path: `/my-projects/${id}/insights/-/jobs/${logId}`,
+      exact: true,
+      main: () => <JobLogById projectId={id} logId={logId} />
+    },
+  ];
 
   function menuBtnHandler(e) {
     $('div.insights-menu')[0]
@@ -23,16 +35,6 @@ const Insights = (props) => {
         btnNode.classList.remove('active');
       });
     e.target.classList.add('active');
-    setSelectedSection(sections[e.target.id]);
-  }
-
-  function renderTheSelectedSection() {
-    switch (selectedSection) {
-      case 0:
-        return <Jobs />;
-      default:
-        return <Jobs />;
-    }
   }
 
   return (
@@ -43,18 +45,32 @@ const Insights = (props) => {
         activeFeature="insights"
         folders={[groupName, name, 'Insights']}
       />
-      <div className="main-content web-box">
-        <div className="insights-menu">
-          <button type="button" id="jobs-btn" onClick={menuBtnHandler} className="mbtn active">Jobs</button>
+        <div className="main-content web-box">
+          <div className="insights-menu">
+            <Link role="button" id="jobs-btn" onClick={menuBtnHandler} className="mbtn active" to={`/my-projects/${id}/insights/-/jobs`}>
+              Jobs
+            </Link>
+          </div>
+          <Switch>
+            {routes.map((route, index) => (
+                <Route
+                  key={index.toString()}
+                  path={route.path}
+                  exact={route.exact}
+                  component={route.main}
+                />
+              ))}
+          </Switch>
         </div>
-        {renderTheSelectedSection()}
-      </div>
     </>
   );
 };
 
 Insights.propTypes = {
-  selectedProject: shape.isRequired,
+  selectedProject: shape({
+    id: number.isRequired,
+    name: string.isRequired,
+  }).isRequired,
 };
 
 function mapStateToProps(state) {

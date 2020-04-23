@@ -14,7 +14,7 @@ $white: #ffffff;
         height: min-content;
         padding: 0px 2em; 
         
-        > button {
+        > a {
             margin: 0.8em 0px;  
         };
 
@@ -25,7 +25,9 @@ $white: #ffffff;
             border: 1px solid $navy-blue;
             border-radius: 0.3vw;
             cursor: pointer;
-            height: 3em;
+            height: 1.5em;
+            text-align: center;
+            text-decoration: none;
         };
         
         > .active {

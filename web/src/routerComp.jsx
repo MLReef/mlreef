@@ -43,7 +43,12 @@ const RouterComp = () => (
       <PrivateRoute path="/new-project/classification/:classification" exact component={CreateProject} />
       <PrivateRoute path="/my-projects/:projectId/:branch/commits/:pathParam?" exact component={Commits} />
       <PrivateRoute
-        path="/my-projects/:projectId/insights"
+        path="/my-projects/:projectId/insights/-/jobs/:logId"
+        component={Insights}
+      />
+      <PrivateRoute
+        path="/my-projects/:projectId/insights/-/jobs"
+        exact
         component={Insights}
       />
       <PrivateRoute

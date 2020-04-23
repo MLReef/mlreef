@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import { toastr } from 'react-redux-toastr';
 import { CircularProgress } from '@material-ui/core';
 import uuidv1 from 'uuid/v1';
-import { shape, objectOf, arrayOf } from 'prop-types';
+import { shape, objectOf, arrayOf, string } from 'prop-types';
 import CustomizedButton from 'components/CustomizedButton';
 import BranchesApi from '../../apis/BranchesApi';
 import Navbar from '../navbar/navbar';
@@ -256,7 +256,11 @@ ExperimentsOverview.propTypes = {
   projects: shape({
     selectedProject: objectOf(shape).isRequired,
   }).isRequired,
-  jobs: arrayOf(shape({})).isRequired,
+  jobs: arrayOf(
+    shape({
+      ref: string.isRequired,
+    }).isRequired,
+  ).isRequired,
   history: shape({}).isRequired,
 };
 
