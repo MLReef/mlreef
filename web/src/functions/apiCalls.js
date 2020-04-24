@@ -1,8 +1,8 @@
 import { toastr } from 'react-redux-toastr';
-import { POLL_TIMEOUT } from 'apiConfig.js';
+import { POLL_TIMEOUT } from 'apiConfig';
 import PipeLinesApi from 'apis/PipelinesApi';
-import filesApi from '../apis/FilesApi';
-import commitsApi from '../apis/CommitsApi';
+import filesApi from 'apis/FilesApi';
+import commitsApi from 'apis/CommitsApi';
 import { getCurrentUserInformation } from './dataParserHelpers';
 
 export const callToCommitApi = (
