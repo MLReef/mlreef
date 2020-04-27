@@ -1,0 +1,39 @@
+.content-menu {
+  background-color: var(--light);
+  color: var(--dark);
+  min-width: 25vw;
+  max-width: 350px;
+  width: max-content;
+  padding-top: 2rem;
+  padding-right: 1rem;
+  padding-left: 1rem;
+  overflow-y: auto;
+
+  &-container {
+
+  }
+
+  &-item {
+    &.bar {
+      border-left: solid 3px var(--info);
+    }
+
+    &-label {
+      display: flex;
+      padding: 0.5rem 0;
+      flex: 1;
+
+      & a {
+        text-decoration: none;
+      }
+    }
+
+    &-content {
+
+    }
+
+    & a {
+      color: var(--dark);
+    }
+  }
+}

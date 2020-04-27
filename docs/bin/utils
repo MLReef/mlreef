@@ -1,0 +1,35 @@
+#!/usr/bin/bash
+
+# Autor: Diego Viniegra <diego.viniegra@gmail.com>
+# Fecha: 2019-11-16
+
+dist_dir=./public
+built_file_name=dist.tar.gz
+
+stage_port=65002
+stage_user=u731448071
+stage_host=185.201.11.170
+stage_dir=/home/u731448071/domains/diegovinie.tech/public_html/mlreef
+
+# rutinas de deploy
+if [ "$1" = "deploy" ]
+then
+  #
+  echo "zipping public/..."
+  cd $dist_dir
+  if [ -f $built_file_name ]
+  then
+    rm $built_file_name
+  fi
+  tar -czf $built_file_name *
+  cd ..
+  echo "Done."
+  #
+  echo "Copying to host..."
+  scp -P $stage_port $dist_dir"/"$built_file_name $stage_user@$stage_host":"$stage_dir
+  echo "Done."
+  #
+  echo "Removing old and deflating news..."
+  ssh -p $stage_port $stage_user@$stage_host "cd $stage_dir && tar -xzf $built_file_name && rm $built_file_name"
+  echo "Done."
+fi

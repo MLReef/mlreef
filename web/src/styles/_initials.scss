@@ -21,8 +21,9 @@ $lessWhite: #b2b2b2 !default;
   --danger: #{$danger};
   --warning: #{$warning};
   --info: #{$info};
+  --light-info: #{lighten($info, 25)};
   --almostWhite: #{$almostWhite};
-  --lessWhite: #{$lessWhite};
+  --lessWhite: #{$lessWhite}
 }
 
 $theme-colors: (
