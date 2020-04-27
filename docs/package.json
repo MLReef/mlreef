@@ -1,0 +1,39 @@
+{
+  "name": "mlreef-docs",
+  "private": true,
+  "description": "User documentation of MLReef",
+  "version": "0.1.0",
+  "license": "MIT",
+  "scripts": {
+    "build": "gatsby build",
+    "develop": "gatsby develop",
+    "deploy": "sh bin/utils deploy",
+    "format": "prettier --write \"**/*.{js,jsx,json,md}\"",
+    "start": "npm run develop",
+    "serve": "gatsby serve",
+    "clean": "gatsby clean",
+    "test": "echo \"Write tests! -> https://gatsby.dev/unit-testing\" && exit 1"
+  },
+  "dependencies": {
+    "classnames": "^2.2.6",
+    "gatsby": "^2.20.12",
+    "gatsby-plugin-sass": "^2.2.1",
+    "gatsby-source-filesystem": "^2.2.2",
+    "gatsby-transformer-remark": "^2.7.1",
+    "github-markdown-css": "^4.0.0",
+    "node-sass": "^4.13.1",
+    "react": "^16.12.0",
+    "react-dom": "^16.12.0",
+    "react-sidebar": "^3.0.2"
+  },
+  "devDependencies": {
+    "prettier": "^1.19.1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/gatsbyjs/gatsby-starter-hello-world"
+  },
+  "bugs": {
+    "url": "https://github.com/gatsbyjs/gatsby/issues"
+  }
+}

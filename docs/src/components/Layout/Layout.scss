@@ -1,0 +1,37 @@
+* {
+  box-sizing: border-box;
+}
+
+html {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  min-height: 100%;
+  min-width: 100%;
+}
+
+#___gatsby #gatsby-focus-wrapper {
+  min-height: 100vh;
+  min-width: 100vw;
+}
+
+.layout-container {
+  height: 100vh;
+  min-width: 100vw;
+  display: flex;
+  flex-direction: column;
+  overflow-x: hidden;
+}
+
+.main-content {
+  border-left: solid 1px var(--secondary);
+  border-right: solid 1px var(--secondary);
+  overflow-y: auto;
+
+  &-container {
+    max-height: 92vh;
+  }
+}

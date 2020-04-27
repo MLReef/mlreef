@@ -38,15 +38,17 @@ variables:
   INSTANCE_INFO:        "instance.info"                    # file for transmitting VM information between stages
   S3_DATA_BUCKET:       "mlreef-application-data"          # see also ec2 startup script
   DATA_ARCHIVE:         "mlreef-data-develop.zip"
-
+  GATSBY_PATH_PREFIX:   "/frontend"                        # fix links for mlreef.gitlab.io/frontend
 
 .except-docu-branches:
   except:
     variables:
+      # $CI_COMMIT_REF_NAME is the complete branch name e.g. "feature/my-cool-new-branch"
       - $CI_COMMIT_REF_NAME =~ /^doc\//                    # match every branch "doc/**"
       - $CI_COMMIT_REF_NAME =~ /^docs\//                   # match every branch "docs/**"
       - $CI_COMMIT_REF_NAME =~ /^docu\//                   # match every branch "docu/**"
       - $CI_COMMIT_REF_NAME =~ /^documentation\//          # match every branch "documentation/**"
+      - $CI_COMMIT_REF_NAME =~ /^site\//                   # match every branch "site/**"
 
 .feature-branches-only:
   extends: [".except-docu-branches"]
@@ -55,6 +57,29 @@ variables:
 #      - develop
 #      - master
 
-render documentation:
-  stage: build
-  script: echo "Hello World"
+pages:
+  stage: deploy
+  image: node:10.19.0-alpine                                # https://hub.docker.com/_/node/
+  cache:
+    key: mlreef-documentation-npm-cache
+    paths:
+      - /usr/local/lib/node_modules
+      - docs/node_modules
+  script:
+    - ls -al /usr/local/lib/node_modules
+    - cd docs
+    - pwd && ls -al
+    - npm install .
+    - npm run build -- --prefix-paths
+    - cp -r public ../
+  after_script:
+    - ls -al public/
+    - ls -al docs/
+    - ls -al docs/node_modules
+  artifacts:
+    paths:
+      - public
+#  except:
+#    refs:
+#      - develop
+#      - master

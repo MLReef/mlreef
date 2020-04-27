@@ -1,0 +1,50 @@
+.side-menu {
+  background-color: var(--light);
+  color: var(--dark);
+  max-width: 300px;
+  width: max-content;
+  overflow-y: auto;
+
+  &-container {
+    // padding-right: 1rem;
+  }
+
+  &-item {
+    &.bar {
+      border-left: solid 3px var(--info);
+    }
+
+    &.active &-label {
+      text-decoration: underline;
+      // font-weight: bold !important;
+      background-color: var(--light-info);
+    }
+
+    &-label {
+      display: flex;
+      padding: 1rem 0;
+      padding-right: 1rem;
+      flex: 1;
+
+      &:hover {
+        background-color: var(--secondary);
+      }
+
+      & a {
+        text-decoration: none;
+      }
+    }
+
+    &-content {
+      overflow-y: hidden;
+
+      &.collapsed {
+        height: 0;
+      }
+    }
+
+    & a {
+      color: var(--dark);
+    }
+  }
+}

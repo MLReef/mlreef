@@ -1,0 +1,25 @@
+.header {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.5rem 1rem;
+  border-bottom: solid 1px var(--secondary);
+
+  &-section {
+    margin: auto;
+    flex: 0 1 33%;
+
+    &.center {
+      text-align: center;
+    }
+  }
+
+  &-brand {
+    height: 2rem;
+  }
+
+  @media screen and (min-width: 570px) {
+    &-brand {
+      height: 2.5rem;
+    }
+  }
+}
