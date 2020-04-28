@@ -4,11 +4,11 @@ import AuthWrapper from 'components/AuthWrapper';
 import {
   string, number, shape, func,
 } from 'prop-types';
+import { toastr } from 'react-redux-toastr';
 import FilesTable from '../files-table/filesTable';
 import filesApi from '../../apis/FilesApi';
 import BranchesApi from '../../apis/BranchesApi';
 import './FilesContainer.css';
-import { toastr } from 'react-redux-toastr';
 
 class FilesContainer extends Component {
   constructor(props) {
@@ -140,14 +140,14 @@ class FilesContainer extends Component {
                 {' '}
                 <b>&quot;master&quot;.</b>
               </p>
-              <AuthWrapper role={3}>
+              <AuthWrapper minRole={30}>
                 <Link
                   type="button"
                   className="btn btn-basic-dark"
                   to={`/my-projects/${projectId}/${currentBranch}/new-merge-request`}
                 >
-                Create merge request
-              </Link>
+                  Create merge request
+                </Link>
               </AuthWrapper>
             </div>
             )}

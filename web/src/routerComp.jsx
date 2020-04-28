@@ -24,6 +24,7 @@ import BranchesView from './components/branches-list-view/branchesView';
 import mergeRequestOverview from './components/new-merge-request/merge-request-overview';
 import BasicMergeRequestView from './components/mergeRequestDetailView/basicMergeRequestView';
 import DataVisualizationDetail from './components/data-visualization/dataVisualizationDetail';
+import ForkView from './components/ForkView';
 import Insights from './components/insights/insights';
 // this is component for testing layout and should be removed after alpha
 import Demo from './components/Demo';
@@ -39,6 +40,11 @@ const RouterComp = () => (
       <Route path="/index.html" exact component={Login} />
       <Route path="/register" exact component={RegisterView} />
       <Route path="/error-page" exact component={ErrorPage} />
+
+      <PrivateRoute path="/perms/owner" owneronly exact component={Projects} />
+      <PrivateRoute path="/perms/role" minRole={20} exact component={Projects} />
+      <PrivateRoute path="/perms/account" accountType={1} exact component={Projects} />
+
       <PrivateRoute path="/my-projects" exact component={Projects} />
       <PrivateRoute path="/new-project/classification/:classification" exact component={CreateProject} />
       <PrivateRoute path="/my-projects/:projectId/:branch/commits/:pathParam?" exact component={Commits} />
@@ -75,6 +81,7 @@ const RouterComp = () => (
       <PrivateRoute path="/my-projects/:projectId/:branch/data-instances/:di_name/path/:path" component={DataInstanceDetails} />
       <PrivateRoute path="/my-projects/:projectId/:branch/data-instances/:di_name" component={DataInstanceDetails} />
       <PrivateRoute path="/my-projects/:projectId/new-experiment" component={NewExperiment} />
+      <PrivateRoute path="/my-projects/:projectId/fork" component={ForkView} />
       <PrivateRoute
         path="/my-projects/:projectId/experiments-overview"
         exact

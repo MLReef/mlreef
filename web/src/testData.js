@@ -127,6 +127,14 @@ export const projectsArrayMock = {
         avatar_url: '/uploads/-/system/group/avatar/5351747/MLReef_Logo_POS_H_icon-01.png',
         web_url: 'https://gitlab.com/groups/mlreef',
       },
+      owner: {
+        username: 'mlreef',
+      },
+      permissions: {
+        project_access: {
+          access_level: 30,
+        },
+      },
     },
   },
   users: [
