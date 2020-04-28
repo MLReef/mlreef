@@ -4,9 +4,9 @@ version: '3.5'
 # please research https://docs.docker.com/compose/environment-variables/ for howto setup your environment
 services:
 
-  nginx-proxy:
+  gateway:
+    container_name: gateway
     image: nginx
-    container_name: nginx-proxy
     restart: always
     depends_on:
       - gitlab
@@ -21,8 +21,8 @@ services:
 
 
   frontend:
-    image: registry.gitlab.com/mlreef/frontend:develop
     container_name: frontend
+    image: registry.gitlab.com/mlreef/frontend:develop
     restart: always
     depends_on:
       - gitlab
@@ -44,7 +44,6 @@ services:
       - redis
     ports:
       - "8080:8080"
-      - "20080:8080"
     env_file: local.env
     environment:
       - SPRING_PROFILES_ACTIVE=docker

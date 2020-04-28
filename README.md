@@ -12,27 +12,50 @@ Please read the [Contribution Guidelines](CONTRIBUTE.md) carefully
 
 Getting Started
 --------------------
-
-### 1. Setup your developer environment
+### Run MLReef locally
  1. Install latest Docker
     * On OSX and Windows (and possibly on Unix), configure docker with at least 4GB of RAM 
  2. on Windows: install Cygwin and please also see the extra steps below
- 3  . Login to our private docker registry hosted on gitlab, with your gitlab credentials by executing `docker login registry.gitlab.com`
+ 3. Login to our private docker registry hosted on gitlab, with your gitlab credentials by executing `docker login registry.gitlab.com`
 
-### 2. Setup infrastructure
+### Setup infrastructure
 From the repositories _root_ folder execute:
 ```bash
 bin/setup-local-environment.sh
 ```
 
-This script creates a new `local.env` file with some important environment variables
+After the setup has finished you can connect to MLReef via: [http://localhost](http://localhost)
+
+
+### Setup your frontend developer environment
+ 1. Install Node (10.16.0 LTS)
+   * Windows [link](https://nodejs.org/en/download/)
+   * **OSX:**
+     ```shell script
+     # install homebrew
+     /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+     # use homebrew to install node
+     brew install node`
+     ```
+ 2. Install react scripts `npm install --global react-scripts`
+ 3. Install all frontend dependencies with via npm: `npm install`
+ 4. If you are running the backend on a different machine (e.g. a cloud instance)
+    look at the config file `web/.env` for further instructions on how to configure it properly 
+
+### Run the frontend locally Locally
+You can start the frontend separately with npm using the `npm start` command. 
+
+
+### Run the backend services locally
+The setup script (`bin/setup-local-environment.sh`) script creates a new `local.env` file
+with some important environment variables
 
 *Important*: docker needs a "local.env" to run the stack. 
 **Do not change the gitlab after the setup**, as everything encrypted (all tokens and passwords) would then be lost.
 
 After the initial setup you can start and stop your infrastructure by using 
 ```bash
-docker-compose stop         # "stop" keeps the storage intact
+docker-compose stop            # "stop" keeps the storage intact
 docker-compose up --detach
 ```
 
@@ -43,9 +66,6 @@ docker-compose rm --force --stop -v
 ```
 
 ### Troubleshooting
-
-**Error During Step 2**: If you get an error during _Step 2_ of `bin/setup-local-environment.sh`;
-increase the `--container-wait` time at the very end of the script (try 120 seconds)
 
 **Attention:** the `--force` option stops and removes all running docker containers
 
@@ -71,25 +91,14 @@ docker-compose up --detach
 ```
 
 
-### Start Frontend Development
-* Stop the frontend docker  `docker stop frontend`
-* and start locally with "npm start"
-
-For actually developing in the frontend, you might want to remove (or comment) the complete `frontend`
-section from the `docker-compose.yml` file.
-
-For further information on running locally, please refer to the web module's [README.md](web/README.md)
-
-
 ### Directly Connecting to different components 
 * The main entry point is the standard http port: 80
 * The gitlab instance can be reached directly at port: 10080
-* The backend can be reached directly at port.: 20080 
+* The backend can be reached directly at port.: 8080
 
 
 Styleguide
 --------------------
-
 In this [list](STYLEGUIDE.md) you will all used standard UI elements. 
 
 
