@@ -1,0 +1,18 @@
+
+/* -------------------------- Global marker -------------------------- */
+
+.global-marker {
+  display: flex;
+  justify-content: center;
+  height: 0.35rem;
+  background-color: transparent;
+  &-bar {
+    animation-name: loading;
+    width: 100%;
+  }
+}
+
+@keyframes loading {
+  from { width: 0; }
+  to { width: 100; }
+}

@@ -57,20 +57,6 @@ export default class CommitsApi {
     return response.json();
   }
 
-  static async getUsers(projectId) {
-    const url = `${API_GATEWAY}/api/v4/projects/${projectId}/users`;
-    const response = await fetch(new Request(
-      url, {
-        method: 'GET',
-        headers: new Headers({
-          'PRIVATE-TOKEN': getCurrentToken(),
-        }),
-      },
-    ));
-
-    return response.json();
-  }
-
   static async getFileDataInCertainCommit(projectId, pathToFile, commitId) {
     const url = `${API_GATEWAY}/api/v4/projects/${projectId}/repository/files/${pathToFile}/raw?ref=${commitId}`;
     const response = await generateGetRequest(url);
