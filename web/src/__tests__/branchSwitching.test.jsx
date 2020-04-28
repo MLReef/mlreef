@@ -1,10 +1,12 @@
 import React from 'react';
+import { Provider } from 'react-redux';
 import { shallow } from 'enzyme';
 import renderer from 'react-test-renderer';
 import MDropdown from 'components/ui/MDropdown';
 import { MemoryRouter } from 'react-router-dom';
 import { RepoFeatures } from '../components/repoFeatures';
 import { projectsArrayMock, branchesMock } from '../testData';
+import { storeFactory } from '../functions/testUtils';
 
 const setup = () => shallow(
   <RepoFeatures
@@ -53,18 +55,30 @@ describe('Dropdown appears on button click', () => {
 
 describe('The branches list should be displayed when dropdown button is clicked', () => {
   it('dropdown of branches appear', () => {
+    const store = storeFactory({
+      projects: projectsArrayMock.projects,
+      branches: branchesMock,
+      user: {
+        membership: 1,
+        username: 'mlreef',
+      },
+    });
+
     const component = renderer
       .create(
-        <MemoryRouter key="rerere">
-          <RepoFeatures
-            projects={projectsArrayMock.projects}
-            branch="master"
-            branches={branchesMock}
-            path=""
-            projectId={projectsArrayMock.projects.selectedProject.id}
-            updateLastCommit={() => {}}
-          />
-        </MemoryRouter>,
+        <Provider store={store}>
+          <MemoryRouter key="rerere">
+            <RepoFeatures
+              store={store}
+              projects={projectsArrayMock.projects}
+              branch="master"
+              branches={branchesMock}
+              path=""
+              projectId={projectsArrayMock.projects.selectedProject.id}
+              updateLastCommit={() => {}}
+            />
+          </MemoryRouter>
+        </Provider>,
       )
       .toJSON();
 

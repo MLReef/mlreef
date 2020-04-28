@@ -9,6 +9,7 @@ import {
   func,
   arrayOf,
 } from 'prop-types';
+import AuthWrapper from 'components/AuthWrapper';
 
 export class RepoFeatures extends Component {
   constructor(props) {
@@ -112,26 +113,39 @@ export class RepoFeatures extends Component {
           )}
         />
 
-        <Link
-          className="btn btn-dark px-3 mr-2 mt-3"
-          to={`/my-projects/${projectId}/empty-data-visualization`}
-        >
-          Data Visualisation
-        </Link>
+        <AuthWrapper minRole={30} className="mr-2 mt-3">
+          <Link
+            className="btn btn-dark px-3 mr-2 mt-3"
+            to={`/my-projects/${projectId}/pipe-line`}
+          >
+            Data Pipeline
+          </Link>
+        </AuthWrapper>
 
-        <Link
-          className="btn btn-dark px-3 mr-auto mt-3"
-          to={`/my-projects/${projectId}/pipe-line`}
+        <AuthWrapper
+          minRole={30}
+          className=""
         >
-          Data Pipeline
-        </Link>
+          <Link
+            className="btn btn-dark px-3 mr-auto mt-3"
+            to={`/my-projects/${projectId}/empty-data-visualization`}
+          >
+            Data Visualisation
+          </Link>
+        </AuthWrapper>
 
-        <Link
-          className="btn btn-outline-dark mt-3"
-          to={`/my-projects/${projectId}/${branch}/commits/${path}`}
+        <AuthWrapper
+          resource={{ type: 'project' }}
+          minRole={20}
+          accountType={1}
         >
-          History
-        </Link>
+          <Link
+            className="btn btn-outline-dark mt-3"
+            to={`/my-projects/${projectId}/${branch}/commits/${path}`}
+          >
+            History
+          </Link>
+        </AuthWrapper>
       </div>
     );
   }

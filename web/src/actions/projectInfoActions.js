@@ -32,17 +32,17 @@ export function getProjectsList() {
     });
 }
 
-export function setUserProjectsSuccessfully(projects){
+export function setUserProjectsSuccessfully(projects) {
   return { type: types.SET_USER_PROJECTS, projects };
 }
 
 export function getUserProjects() {
   return (dispatch) => projectGeneralInfoApi
     .getProjectsList({ owned: true, membership: true })
-    .then((projects) => projects &&  dispatch(setUserProjectsSuccessfully(projects)));
+    .then((projects) => projects && dispatch(setUserProjectsSuccessfully(projects)));
 }
 
-export function setStarredProjectsSuccessfully(projects){
+export function setStarredProjectsSuccessfully(projects) {
   return { type: types.SET_STARRED_PROJECTS, projects };
 }
 
@@ -68,4 +68,10 @@ export function setSelectedProject(projectSelected) {
 
 export function updateProjectsList(projects) {
   return (dispatch) => dispatch({ type: types.UPDATE_PROJECTS_LIST, projects });
+}
+
+export function getProjectDetails(id) {
+  return (dispatch) => projectGeneralInfoApi
+    .getProjectInfoApi(id)
+    .then((project) => dispatch({ type: types.SET_SELECTED_PROJECT, project }));
 }

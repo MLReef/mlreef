@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import {
   string, arrayOf, objectOf, shape,
 } from 'prop-types';
+import AuthWrapper from 'components/AuthWrapper';
 import ProjectInfo from './projectInfo';
 import ProjectNav from './project-nav/projectNav';
 import { connect } from 'react-redux';
@@ -11,7 +12,7 @@ class ProjectContainer extends React.Component {
   componentDidMount() {
     const { activeFeature, globalColorMarker, } = this.props;
     const activeFeatureNode = document.getElementById(activeFeature);
-    if (activeFeatureNode) { 
+    if (activeFeatureNode) {
       activeFeatureNode.classList.add('active');
       activeFeatureNode.style.borderBottom = `4px solid ${globalColorMarker}`;
     };
@@ -46,11 +47,25 @@ class ProjectContainer extends React.Component {
               className="feature"
               id="experiments"
             >
-              <p>Experiments</p>
+              Experiments
             </Link>
             <Link to={`/my-projects/${id}/insights/-/jobs`} className="feature" id="insights">
               Insights
             </Link>
+            <AuthWrapper
+              owneronly
+              norender
+              className="feature"
+            >
+              <Link
+                onClick={forceShowExperimentList}
+                to={`/my-projects/${id}/settings`}
+                className="feature"
+                id="settings"
+              >
+                Settings
+              </Link>
+            </AuthWrapper>
           </div>
         </div>
       </div>
