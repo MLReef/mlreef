@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
 import { Link } from 'react-router-dom';
 import MDropdown from 'components/ui/MDropdown';
 import {
@@ -10,8 +9,6 @@ import {
   func,
   arrayOf,
 } from 'prop-types';
-import * as branchesActions from '../actions/branchesActions';
-import * as fileActions from '../actions/fileActions';
 
 export class RepoFeatures extends Component {
   constructor(props) {
@@ -43,18 +40,6 @@ export class RepoFeatures extends Component {
 
   componentWillUnmount() {
     this.setState = (state) => (state);
-  }
-
-  handleClick = (e) => {
-    const { projectId } = this.state;
-    const { updateLastCommit, actions: { loadFiles } } = this.props;
-    updateLastCommit(e.currentTarget.id);
-    loadFiles(
-      null,
-      encodeURIComponent(e.currentTarget.id),
-      projectId,
-      true,
-    );
   }
 
   render() {
@@ -95,7 +80,6 @@ export class RepoFeatures extends Component {
                           <Link
                             id={branch.name}
                             to={`/my-projects/${projectId}/${encoded}`}
-                            onClick={this.handleClick}
                           >
                             <p>{branch.name}</p>
                           </Link>
@@ -163,17 +147,6 @@ RepoFeatures.propTypes = {
       name: string.isRequired,
     }),
   ).isRequired,
-  actions: shape({
-    loadFiles: func,
-    getBranchesList: func,
-  }),
-};
-
-RepoFeatures.defaultProps = {
-  actions: {
-    loadFiles: () => {},
-    getBranchesList: () => {},
-  },
 };
 
 function mapStateToProps(state) {
@@ -183,10 +156,4 @@ function mapStateToProps(state) {
   };
 }
 
-function mapDispatchToProps(dispatch) {
-  return {
-    actions: bindActionCreators({ ...branchesActions, ...fileActions }, dispatch),
-  };
-}
-
-export default connect(mapStateToProps, mapDispatchToProps)(RepoFeatures);
+export default connect(mapStateToProps)(RepoFeatures);

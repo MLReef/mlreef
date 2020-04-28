@@ -1,6 +1,4 @@
 export default {
-  files: [],
-  file: { pathToFile: '' },
   branches: [],
   jobs: [],
   projects: {
