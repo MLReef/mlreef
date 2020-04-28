@@ -32,16 +32,24 @@ export function getProjectsList() {
     });
 }
 
+export function setUserProjectsSuccessfully(projects){
+  return { type: types.SET_USER_PROJECTS, projects };
+}
+
 export function getUserProjects() {
   return (dispatch) => projectGeneralInfoApi
     .getProjectsList({ owned: true, membership: true })
-    .then((projects) => projects && dispatch({ type: types.SET_USER_PROJECTS, projects }));
+    .then((projects) => projects &&  dispatch(setUserProjectsSuccessfully(projects)));
+}
+
+export function setStarredProjectsSuccessfully(projects){
+  return { type: types.SET_STARRED_PROJECTS, projects };
 }
 
 export function getStarredProjects() {
   return (dispatch) => projectGeneralInfoApi
     .getProjectsList({ starred: true })
-    .then((projects) => projects && dispatch({ type: types.SET_STARRED_PROJECTS, projects }));
+    .then((projects) => projects && dispatch(setStarredProjectsSuccessfully(projects)));
 }
 
 export function setSelectedProjectSuccesfully(project) {
