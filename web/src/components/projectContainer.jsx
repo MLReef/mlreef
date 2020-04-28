@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import {
-  string, arrayOf, objectOf, shape,
+  string, objectOf, shape,
 } from 'prop-types';
 import AuthWrapper from 'components/AuthWrapper';
 import ProjectInfo from './projectInfo';
@@ -20,18 +20,21 @@ class ProjectContainer extends React.Component {
   }
 
   render() {
-    const { project, folders, forceShowExperimentList, setIsForking } = this.props;
-    let id; let description; let
-      defaultBranch;
+    const { project, forceShowExperimentList, setIsForking } = this.props;
+    let id, description, defaultBranch, groupName, projectName;
+    groupName = "--";
+    projectName = "--";
     if (project) {
       id = project.id;
       description = project.description;
       defaultBranch = project.default_branch;
+      groupName = project.namespace ? project.namespace.name : 'No group';
+      projectName = project.name;
     }
     return (
       <div className="project-container" style={{ backgroundColor: '#e5e5e5' }}>
         <div className="project-details main-content">
-          <ProjectNav key={`project-key-${id}`} projectId={id} folders={folders} />
+          <ProjectNav key={`project-key-${id}`} projectId={id} folders={[groupName, projectName, 'Data']} />
 
           <ProjectInfo project={project} setIsForking={setIsForking} />
           <p className="project-desc">
@@ -85,7 +88,6 @@ function mapStateToProps(state) {
 ProjectContainer.propTypes = {
   project: objectOf(shape).isRequired,
   activeFeature: string.isRequired,
-  folders: arrayOf(string).isRequired,
 };
 
 export default connect(mapStateToProps)(ProjectContainer);

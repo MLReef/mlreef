@@ -24,6 +24,7 @@ const user = {
     },
   },
   globalColorMarker: null,
+  isLoading: false,
 }
 
 describe('assert user info is updated when actions are triggered', () => {
@@ -88,5 +89,9 @@ describe('assert user info is updated when actions are triggered', () => {
   test('assert that color marker is updated', () => {
     store.dispatch(userActions.setGlobalMarkerColorSuccessfully('#91BD44'));
     expect(store.getState().user.globalColorMarker).toBe('#91BD44');
+  });
+  test('assert that color marker is updated', () => {
+    store.dispatch(userActions.setIsLoadingSuccessfully(true));
+    expect(store.getState().user.isLoading).toBe(true);
   });
 });

@@ -60,6 +60,11 @@ export default function userReducer(state = initialState.user, action) {
         ...state,
         globalColorMarker: action.color,
       };
+    case types.SET_IS_LOADING:
+      return {
+        ...state,
+        isLoading: action.isLoading,
+      };
     default:
       return state;
   }

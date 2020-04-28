@@ -8,6 +8,7 @@ import { logout } from 'actions/userActions';
 import mlReefIcon01 from '../../images/MLReef_Logo_navbar.png';
 import helpWhite from '../../images/help_white.png';
 import './navbar.scss';
+import MGlobalMarker from 'components/ui/MGlobalMarker/MGlobalMarker';
 
 class Navbar extends Component {
   constructor(props) {
@@ -134,7 +135,7 @@ class Navbar extends Component {
           />
         </div>
       </div>
-      {user.globalColorMarker && <div style={{ height: '0.35rem', backgroundColor: user.globalColorMarker }} />}
+      {user.globalColorMarker && <MGlobalMarker isLoading={user.isLoading} globalColorMarker={user.globalColorMarker} />}
       </>
     );
   }

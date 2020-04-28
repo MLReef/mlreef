@@ -24,6 +24,7 @@ class Myprojects extends React.Component {
     this.fetch = this.fetch.bind(this);
     const { actions } = this.props;
     actions.setGlobalMarkerColor(projectClassificationsProps[0].color);
+    actions.setIsLoading(false);
     this.state = {
       showModal: false,
       projectName: '',

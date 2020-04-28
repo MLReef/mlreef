@@ -31,6 +31,7 @@ export default {
       },
     },
     globalColorMarker: null,
+    isLoading: false,
   },
   actionModal: {
     title: 'Modal title',

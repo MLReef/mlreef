@@ -5,7 +5,6 @@ import {
   string, shape, func, arrayOf,
 } from 'prop-types';
 import { toastr } from 'react-redux-toastr';
-import { CircularProgress } from '@material-ui/core';
 import forkingImage from 'images/forking.png';
 import ReadMeComponent from '../readMe/readMe';
 import ProjectContainer from '../projectContainer';
@@ -18,7 +17,7 @@ import * as branchesActions from '../../actions/branchesActions';
 import './projectView.css';
 import commitsApi from '../../apis/CommitsApi';
 import { getTimeCreatedAgo } from '../../functions/dataParserHelpers';
-import * as usersActions from '../../actions/usersActions';
+import * as userActions from '../../actions/userActions';
 import * as jobsActions from '../../actions/jobsActions';
 import * as mergeActions from '../../actions/mergeActions';
 import ProjectGeneralInfoApi from '../../apis/projectGeneralInfoApi';
@@ -28,32 +27,11 @@ class ProjectView extends React.Component {
   constructor(props) {
     super(props);
     const {
-      actions,
       match:
       {
-        params:
-        { projectId, branch },
+        params: { branch },
       }, users,
     } = this.props;
-    actions.getUsersLit(projectId);
-    actions.getBranchesList(projectId);
-    actions.getJobsListPerProject(projectId);
-    actions.getMergeRequestsList(projectId);
-
-    ProjectGeneralInfoApi
-      .getProjectInfoApi(projectId)
-      .then((project) => {
-        this.setState({ selectedProject: project });
-        actions.setSelectedProject(project);
-        const lastCommitBr = this.isValidBranch(branch)
-          ? branch
-          : project.default_branch;
-        commitsApi.getCommits(projectId, lastCommitBr, '', 1)
-          .then(
-            (res) => this.setState({ lastCommit: res[0] }),
-          ).catch(() => toastr.error('Error setting project'));
-      })
-      .catch(() => this.props.history.push('/error-page'));
 
     const decodedBranch = decodeURIComponent(branch);
 
@@ -68,6 +46,36 @@ class ProjectView extends React.Component {
     };
     this.updateLastCommit = this.updateLastCommit.bind(this);
     this.setIsForking = this.setIsForking.bind(this);
+  }
+
+  componentDidMount(){
+    const {
+      actions,
+      match:
+      {
+        params: { projectId, branch },
+      },
+    } = this.props;
+    actions.getUsersLit(projectId);
+    actions.getBranchesList(projectId);
+    actions.getJobsListPerProject(projectId);
+    actions.getMergeRequestsList(projectId);
+    actions.setIsLoading(true);
+    ProjectGeneralInfoApi
+      .getProjectInfoApi(projectId)
+      .then((project) => {
+        this.setState({ selectedProject: project });
+        actions.setSelectedProject(project);
+        actions.setIsLoading(false);
+        const lastCommitBr = this.isValidBranch(branch)
+          ? branch
+          : project.default_branch;
+        commitsApi.getCommits(projectId, lastCommitBr, '', 1)
+          .then(
+            (res) => this.setState({ lastCommit: res[0] }),
+          ).catch(() => toastr.error('Error setting project'));
+      })
+      .catch(() => this.props.history.push('/error-page'));
   }
 
   static getDerivedStateFromProps(nextProps, prevState) {
@@ -114,23 +122,23 @@ class ProjectView extends React.Component {
       isForking,
     } = this.state;
 
-    if (!selectedProject) {
-      return <CircularProgress size={20} />;
+    let isEmptyProject, sshUrlToRepo, projectName, showReadMe, encodedBranch;
+    if (selectedProject) {
+      isEmptyProject = selectedProject.empty_repo;
+      sshUrlToRepo = selectedProject.ssh_url_to_repo;
+      projectName = selectedProject.name;
+      showReadMe = selectedProject.readme_url;
+      encodedBranch = branch.includes('%2F')
+        ? branch
+        : encodeURIComponent(branch);
+      encodedBranch = this.isValidBranch(encodedBranch)
+        ? encodedBranch
+        : selectedProject.default_branch;
     }
-    const isEmptyProject = selectedProject.empty_repo;
-    const sshUrlToRepo = selectedProject.ssh_url_to_repo;
+    const committer = lastCommit && users.filter((user) => user.name === lastCommit.author_name)[0];
     const today = new Date();
     const timediff = lastCommit && getTimeCreatedAgo(lastCommit.authored_date, today);
-    let encodedBranch = branch.includes('%2F')
-      ? branch
-      : encodeURIComponent(branch);
-    encodedBranch = this.isValidBranch(encodedBranch)
-      ? encodedBranch
-      : selectedProject.default_branch;
-    const projectName = selectedProject.name;
-    const groupName = selectedProject.namespace.name;
-    const showReadMe = selectedProject.readme_url;
-    const committer = lastCommit && users.filter((user) => user.name === lastCommit.author_name)[0];
+
     return (
       <div className="project-component">
         <Navbar />
@@ -157,8 +165,8 @@ class ProjectView extends React.Component {
           <ProjectContainer
             setIsForking={this.setIsForking}
             activeFeature="data"
-            folders={[groupName, projectName, 'Data']}
           />
+          {selectedProject && (
           <div className="main-content">
             {isEmptyProject ? (
               <EmptyProject sshUrlToRepo={sshUrlToRepo} />
@@ -216,14 +224,14 @@ class ProjectView extends React.Component {
                 />
                 {showReadMe && (
                 <ReadMeComponent
-                  projectName={selectedProject.name}
+                  projectName={projectName}
                   projectId={selectedProject.id}
                   branch={encodedBranch}
                 />
                 )}
               </>
             )}
-          </div>
+          </div>)}
         </div>
       </div>
     );
@@ -266,7 +274,7 @@ function mapDispatchToProps(dispatch) {
   return {
     actions: bindActionCreators({
       ...projectActions,
-      ...usersActions,
+      ...userActions,
       ...jobsActions,
       ...branchesActions,
       ...mergeActions,

@@ -91,3 +91,11 @@ export function setGlobalMarkerColorSuccessfully(color){
 export function setGlobalMarkerColor(color){
   return (dispatch) => dispatch(setGlobalMarkerColorSuccessfully(color));
 }
+
+export function setIsLoadingSuccessfully(isLoading){
+  return { type: types.SET_IS_LOADING, isLoading };
+}
+
+export function setIsLoading(isLoading){
+  return (dispatch) => dispatch(setIsLoadingSuccessfully(isLoading));
+}

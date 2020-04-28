@@ -1,5 +1,6 @@
 import { API_GATEWAY, BUILD_TIMEOUT } from '../apiConfig';
 import { getCurrentToken, generateGetRequest } from './apiHelpers';
+import { toastr } from 'react-redux-toastr';
 
 const defaultProjectSettings = {
   ci_config_path: '.mlreef.yml',
@@ -109,5 +110,14 @@ export default class ProjectGeneralInfoApi {
     } catch (err) {
       return err;
     }
+  }
+
+  static async getUsers(projectId) {
+    const url = `${API_GATEWAY}/api/v4/projects/${projectId}/users`;
+    const response = generateGetRequest(url);
+    return response
+      .then((projRes) => projRes.ok ? Promise.resolve(projRes) : Promise.reject(projRes))
+      .then((resolvedRes) => resolvedRes.json())
+      .catch(() => toastr.error("Error", "Something went wrong getting ussers"));
   }
 }

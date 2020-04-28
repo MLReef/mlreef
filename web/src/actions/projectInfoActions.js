@@ -1,5 +1,6 @@
 import projectGeneralInfoApi from '../apis/projectGeneralInfoApi';
 import * as types from './actionTypes';
+import { toastr } from 'react-redux-toastr';
 
 /**
  *
@@ -70,8 +71,37 @@ export function updateProjectsList(projects) {
   return (dispatch) => dispatch({ type: types.UPDATE_PROJECTS_LIST, projects });
 }
 
+/**
+ *
+ * @param {*} projects: load list for redux global state
+ */
+
+export function setProjUsersSuccessfully(users) {
+  return { type: types.SET_PROJECT_USERS, users };
+}
+
+/**
+ * get list of users associated with a project
+ */
+
+export function getUsersLit(projectId) {
+  return (dispatch) => projectGeneralInfoApi
+    .getUsers(projectId)
+    .then(async (users) => {
+      dispatch(
+        setProjUsersSuccessfully(
+          users,
+        )
+      )
+    },
+    ).catch((err) => {
+      toastr.error("Error", err);
+    });
+}
+
 export function getProjectDetails(id) {
   return (dispatch) => projectGeneralInfoApi
     .getProjectInfoApi(id)
     .then((project) => dispatch({ type: types.SET_SELECTED_PROJECT, project }));
 }
+
