@@ -18,7 +18,7 @@ import json
     output_type="IMAGE"
 )
 # Using epochs as number of iterations and batch_size as timer for duration of sleep
-@parameter(name="images_path", datatype="str", required=True, default_value="2", description="Number of epochs")
+@parameter(name="input_path", datatype="str", required=True, default_value=".", description="Input data path")
 @parameter(name="epochs", datatype="int", required=True, default_value=2, description="Number of epochs")
 @parameter(name="batch_size", datatype="int", required=True, default_value=10, description="Emulate batch size")
 def inject_variables():

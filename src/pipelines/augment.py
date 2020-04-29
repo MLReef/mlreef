@@ -15,20 +15,20 @@ def augment():
             horizontal_flip=horizontal_flip,
             fill_mode='nearest')
 
-    if os.path.isfile(string):
-        path = '/'.join(string.split('/')[0:-1])
-        image = imread(string)  # this is a PIL image
+    if os.path.isfile(input,output):
+        path = '/'.join(input.split('/')[0:-1])
+        image = imread(input)  # this is a PIL image
         image_array = img_to_array(image) 
         image_array = image_array.reshape((1,) + image_array.shape)  
 
         iterator = 0
-        for batch in datagen.flow(image_array, batch_size=1, save_to_dir=path, save_prefix='augment', save_format='png'):
+        for batch in datagen.flow(image_array, batch_size=1, save_to_dir = output, save_prefix='augment', save_format='png'):
             iterator += 1
             if iterator > iterations:
                 break  # otherwise the generator would loop indefinitely
 
-    if os.path.isdir(string):  
-        for subdir, dirs, files in os.walk(string):
+    if os.path.isdir(input,output):
+        for subdir, dirs, files in os.walk(input):
             for file in files:
                 try:
                     image = imread(os.path.join(subdir,file))
@@ -36,7 +36,7 @@ def augment():
                     image_array = image_array.reshape((1,) + image_array.shape) 
 
                     iterator = 0
-                    for batch in datagen.flow(image_array, batch_size=1, save_to_dir=subdir, save_prefix='augment', save_format='png'):
+                    for batch in datagen.flow(image_array, batch_size=1, save_to_dir=output, save_prefix='augment', save_format='png'):
                         iterator += 1
                         if iterator >= iterations:
                             break  # otherwise the generator would loop indefinitely
@@ -48,7 +48,7 @@ def augment():
 
 def process_arguments(args):
     parser = argparse.ArgumentParser(description='Pipeline: Augment')
-    parser.add_argument('--images-path', action='store', help='path to directory of images')
+    parser.add_argument('--input-path', action='store', help='path to directory of images')
     parser.add_argument('--output-path', action='store', default='.', help='path to output metrics ')
     parser.add_argument('--iterations', action='store', help='number of augmented images per image in dataset (int)')
     parser.add_argument('--rotation-range', action='store', default=0, help='degree range for random rotations (int)')
@@ -67,8 +67,8 @@ if __name__ == "__main__":
     print("Beginning execution of augment.py script ......... \n")    
     params = process_arguments(sys.argv[1:])
     print("Parameters input are: ",params)
-    string = params['images_path']
-    output_path = params['output_path']
+    input = params['input_path']
+    output= params['output_path']
     iterations = int(params['iterations'])
     rotation_range = int(params['rotation_range'])
     width_shift_range = int(params['width_shift_range'])
