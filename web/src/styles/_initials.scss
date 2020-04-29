@@ -1,3 +1,4 @@
+@import 'breakpoints';
 
 $dark: gray !default;
 $light: white !default;
@@ -40,7 +41,7 @@ $theme-colors: (
 
 $line-height: 1.15 !default;
 
-$sm: 570px !default;
+$sm: $bp-md;
 
 $color-modifier: 40% !default;
 

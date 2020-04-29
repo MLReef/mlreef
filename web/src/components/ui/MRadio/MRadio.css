@@ -27,7 +27,7 @@
   color: var(--secondary);
 }
 
-@media screen and (max-width: 570px) {
+@media screen and (max-width: 900px) {
   .m-radio_container {
     flex-wrap: wrap;
   }
