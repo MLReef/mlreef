@@ -1,4 +1,3 @@
-/* eslint-disable no-nested-ternary */
 import React from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
@@ -8,8 +7,11 @@ import {
 } from 'prop-types';
 
 const ProjectNav = (props) => {
-  const { selectedProject: { name }, folders, projectId } = props;
-
+  const { folders, projectId, selectedProject } = props;
+  let name = '--';
+  if(props.selectedProject){
+    name = selectedProject.name; 
+  }
   return (
     <div className="project-nav">
       {folders.map((folder, index) => (folder === name)
