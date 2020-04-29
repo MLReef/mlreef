@@ -95,7 +95,7 @@
   padding: 1rem 0;
 }
 
-@media screen and (max-width: 570px) {
+@media screen and (max-width: 900px) {
   .register-view_form_content .cols-2 {
     flex-wrap: wrap;
   }
