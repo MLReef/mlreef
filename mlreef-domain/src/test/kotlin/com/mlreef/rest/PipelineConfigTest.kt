@@ -26,7 +26,7 @@ class PipelineConfigTest {
         Assertions.assertThat(entity.inputFiles).isEmpty()
 
         entity.addInputFile(fileLocation = fileLocation)
-        Assertions.assertThat(entity.inputFiles).isNotEmpty
+        Assertions.assertThat(entity.inputFiles).isNotEmpty()
     }
 
     @Test

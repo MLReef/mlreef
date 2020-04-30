@@ -8,7 +8,7 @@ import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
 
 
-class SimpleCorsFilter: Filter {
+class SimpleCorsFilter : Filter {
     override fun doFilter(req: ServletRequest, res: ServletResponse, chain: FilterChain) {
         val request: HttpServletRequest = req as HttpServletRequest
         val response: HttpServletResponse = res as HttpServletResponse

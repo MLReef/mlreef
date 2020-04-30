@@ -33,7 +33,7 @@ import com.mlreef.rest.external_api.gitlab.dto.GitlabProject
 import com.mlreef.rest.external_api.gitlab.dto.GitlabUser
 import com.mlreef.rest.external_api.gitlab.dto.GitlabUserInProject
 import com.mlreef.rest.external_api.gitlab.dto.toGitlabUserInProject
-import org.mockito.Mockito
+import io.mockk.every
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.restdocs.payload.FieldDescriptor
 import org.springframework.restdocs.payload.JsonFieldType
@@ -93,7 +93,7 @@ internal class AccountSubjectPreparationTrait {
     lateinit var subject2: Person
 
     private val gitlabProjectMembers = HashMap<Long, MutableSet<GitlabUserInProject>>()
-    private val gitlabUsersProjects =  HashMap<Long, MutableSet<GitlabProject>>()
+    private val gitlabUsersProjects = HashMap<Long, MutableSet<GitlabProject>>()
 
     @Autowired
     protected lateinit var accountTokenRepository: AccountTokenRepository
@@ -175,17 +175,14 @@ internal class AccountSubjectPreparationTrait {
         val membersList = gitlabProjectMembers.getOrPut(gitlabMockProject.id) { mutableSetOf() }
         membersList.add(gitlabMockMembership)
 
-        Mockito.`when`(mockedRestClient.adminGetUserProjects(
-            Mockito.eq(ownerGitlabId)
-        )).thenReturn(
-            projectsList.toList()
-        )
+        every {
+            mockedRestClient.adminGetUserProjects(ownerGitlabId)
+        } returns projectsList.toList()
 
-        Mockito.`when`(mockedRestClient.adminGetProjectMembers(
-            Mockito.eq(gitlabMockProject.id)
-        )).thenReturn(
-            membersList.toList()
-        )
+        every {
+            mockedRestClient.adminGetProjectMembers(gitlabMockProject.id)
+        } returns membersList.toList()
+
     }
 
     fun mockGitlabProjectsWithLevel(mockedRestClient: GitlabRestClient, projectGitlabIds: List<Long>, ownerGitlabId: Long, accessLevels: List<GroupAccessLevel?>) {
@@ -202,18 +199,14 @@ internal class AccountSubjectPreparationTrait {
             val membersList = gitlabProjectMembers.getOrPut(project.id) { mutableSetOf() }
             membersList.add(member)
 
-            Mockito.`when`(mockedRestClient.adminGetProjectMembers(
-                Mockito.eq(project.id)
-            )).thenReturn(
-                membersList.toList()
-            )
+            every {
+                mockedRestClient.adminGetProjectMembers(project.id)
+            } returns membersList.toList()
         }
 
-        Mockito.`when`(mockedRestClient.adminGetUserProjects(
-            Mockito.eq(ownerGitlabId)
-        )).thenReturn(
-            gitlabUsersProjects.getOrDefault(ownerGitlabId, mutableSetOf()).toList()
-        )
+        every {
+            mockedRestClient.adminGetUserProjects(ownerGitlabId)
+        } returns gitlabUsersProjects.getOrDefault(ownerGitlabId, mutableSetOf()).toList()
     }
 
 
@@ -231,53 +224,23 @@ internal class PipelineTestPreparationTrait {
     lateinit var dataProject: DataProject
     lateinit var dataProject2: DataProject
 
-    @Autowired
-    protected lateinit var accountTokenRepository: AccountTokenRepository
+    @Autowired protected lateinit var accountTokenRepository: AccountTokenRepository
+    @Autowired protected lateinit var personRepository: PersonRepository
+    @Autowired protected lateinit var accountRepository: AccountRepository
+    @Autowired protected lateinit var subjectRepository: SubjectRepository
+    @Autowired private lateinit var pipelineConfigRepository: PipelineConfigRepository
+    @Autowired private lateinit var pipelineInstanceRepository: PipelineInstanceRepository
+    @Autowired private lateinit var experimentRepository: ExperimentRepository
+    @Autowired private lateinit var dataProjectRepository: DataProjectRepository
+    @Autowired private lateinit var codeProjectRepository: CodeProjectRepository
+    @Autowired private lateinit var dataProcessorInstanceRepository: DataProcessorInstanceRepository
+    @Autowired private lateinit var parameterInstanceRepository: ParameterInstanceRepository
+    @Autowired private lateinit var processorParameterRepository: ProcessorParameterRepository
+    @Autowired private lateinit var dataOperationRepository: DataOperationRepository
+    @Autowired private lateinit var dataAlgorithmRepository: DataAlgorithmRepository
+    @Autowired private lateinit var dataVisualizationRepository: DataVisualizationRepository
+    @Autowired private lateinit var dataProcessorRepository: DataProcessorRepository
 
-    @Autowired
-    protected lateinit var personRepository: PersonRepository
-
-    @Autowired
-    protected lateinit var accountRepository: AccountRepository
-
-    @Autowired
-    protected lateinit var subjectRepository: SubjectRepository
-
-    @Autowired
-    private lateinit var pipelineConfigRepository: PipelineConfigRepository
-
-    @Autowired
-    private lateinit var pipelineInstanceRepository: PipelineInstanceRepository
-
-    @Autowired
-    private lateinit var experimentRepository: ExperimentRepository
-
-    @Autowired
-    private lateinit var dataProjectRepository: DataProjectRepository
-
-    @Autowired
-    private lateinit var codeProjectRepository: CodeProjectRepository
-
-    @Autowired
-    private lateinit var dataProcessorInstanceRepository: DataProcessorInstanceRepository
-
-    @Autowired
-    private lateinit var parameterInstanceRepository: ParameterInstanceRepository
-
-    @Autowired
-    private lateinit var processorParameterRepository: ProcessorParameterRepository
-
-    @Autowired
-    private lateinit var dataOperationRepository: DataOperationRepository
-
-    @Autowired
-    private lateinit var dataAlgorithmRepository: DataAlgorithmRepository
-
-    @Autowired
-    private lateinit var dataVisualizationRepository: DataVisualizationRepository
-
-    @Autowired
-    private lateinit var dataProcessorRepository: DataProcessorRepository
     private val passwordEncoder: PasswordEncoder = BCryptPasswordEncoder()
 
     fun apply() {
@@ -322,12 +285,10 @@ internal class PipelineTestPreparationTrait {
     private fun deleteAll() {
         parameterInstanceRepository.deleteAll()
         dataProcessorInstanceRepository.deleteAll()
-
-        processorParameterRepository.deleteAll()
+        experimentRepository.deleteAll()
         pipelineInstanceRepository.deleteAll()
         pipelineConfigRepository.deleteAll()
-        experimentRepository.deleteAll()
-
+        processorParameterRepository.deleteAll()
         dataProcessorRepository.deleteAll()
 
         dataProjectRepository.deleteAll()

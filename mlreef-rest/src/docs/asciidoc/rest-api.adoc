@@ -255,7 +255,7 @@ operation::project-pipelineconfig-update-success[snippets='curl-request,request-
 == Experiments - /data-projects/:id/experiments
 
 Experiments are created once and cannot be modified.
-They are scoped to their parent DataProject But nevertheless, the PerformanceMetrics can be updated (creation happens automatically).
+They are scoped to their parent DataProject But nevertheless, the pipelineJobInfo can be updated (creation happens automatically).
 
 Every Subject can just retrieve own Experiments of own DataProjects.
 Currently, there is no rights management which allows for more granular access rules.
@@ -276,10 +276,6 @@ operation::experiments-create-success[snippets='curl-request,request-fields,http
 
 operation::experiments-retrieve-one-metrics[snippets='curl-request,response-body,response-fields']
 
-=== PUT .../experiments/:id/metrics
-
-operation::experiments-update-metrics[snippets='curl-request,http-response,response-fields']
-
 === GET .../experiments/:id/mlreef-file
 
 Exports the Experiment's metainformation and generate the mlreef.yml file
@@ -288,14 +284,38 @@ Output is the mlreef.yml file contents as text
 
 operation::experiments-retrieve-one-mlreef-file[snippets='curl-request']
 
-=== POST .../experiments/:id/mlreef-file
+=== POST .../experiments/:id/start
 
 Creates the target branch and commits the mlreef.yml.
 Cannot be repeated for the same Experiment
 
 Output is the mlreef.yml file contents as text
 
-operation::experiments-create-mlreef-file-commit[snippets='curl-request']
+operation::experiments-create-mlreef-file-commit[snippets='curl-request,response-body']
+
+[[epf-experiments]]
+== EPF Experiments
+
+This endpoint is for scripts and Bots which work under the scope of EPF.
+Therefore the permissions could be limited to certain, lightweight operations.
+
+=== PUT .../experiments/:id/epf/update
+
+A "json blob" is needed for request body.
+A json blob can be any arbitrary json data, but should be in the form of a parsable, not-nested hashmap
+
+This will ensure the Experiment Status is RUNNING, and fail, if the Status is already higher.
+
+operation::experiments-epf-update[snippets='curl-request,http-response,response-fields']
+
+=== PUT .../experiments/:id/epf/finish
+
+No request body payload needed.
+
+This endpoint will mark the Experiment as SUCCESS and update the finish time.
+This will ensure the Experiment Status is SUCCESS, and fail, if the Status is already higher.
+
+operation::experiments-epf-finish[snippets='curl-request,http-response,response-fields']
 
 [[pipelines]]
 = Pipelines - Configuration & Instances - /pipelines

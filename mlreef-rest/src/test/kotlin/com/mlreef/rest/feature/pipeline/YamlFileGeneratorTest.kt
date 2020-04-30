@@ -21,7 +21,7 @@ class YamlFileGeneratorTest {
     fun `template is found`() {
         val generator = YamlFileGenerator()
         generator.init()
-        assertThat(generator).isNotNull
+        assertThat(generator).isNotNull()
     }
 
     @Test

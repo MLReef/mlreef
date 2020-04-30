@@ -11,6 +11,7 @@ import javax.persistence.Column
 import javax.persistence.Convert
 import javax.persistence.Entity
 import javax.persistence.FetchType
+import javax.persistence.ForeignKey
 import javax.persistence.Id
 import javax.persistence.Inheritance
 import javax.persistence.InheritanceType
@@ -58,7 +59,10 @@ class Person(
     override val name: String,
     override val gitlabId: Long?,
     @OneToMany(fetch = FetchType.EAGER, cascade = [CascadeType.REMOVE])
-    @JoinColumn(name = "person_id")
+    @JoinColumn(
+        name = "person_id",
+        foreignKey = ForeignKey(name = "membership_person_person_id_fkey")
+    )
     @Fetch(value = FetchMode.SUBSELECT)
 //    @LazyCollection(LazyCollectionOption.FALSE)
     val memberships: List<Membership> = listOf(),
@@ -89,7 +93,10 @@ class Group(
     override val name: String,
     override val gitlabId: Long?,
     @OneToMany(fetch = FetchType.EAGER, cascade = [CascadeType.REMOVE])
-    @JoinColumn(name = "group_id")
+    @JoinColumn(
+        name = "group_id",
+        foreignKey = ForeignKey(name = "membership_group_group_id_fkey")
+    )
     @Fetch(value = FetchMode.SUBSELECT)
 //    @LazyCollection(LazyCollectionOption.FALSE)
     val members: List<Membership> = listOf(),

@@ -1,11 +1,13 @@
 package com.mlreef.rest
 
 import java.util.UUID
+import javax.persistence.CascadeType
 import javax.persistence.Column
 import javax.persistence.Entity
 import javax.persistence.EnumType
 import javax.persistence.Enumerated
 import javax.persistence.FetchType
+import javax.persistence.ForeignKey
 import javax.persistence.Id
 import javax.persistence.JoinColumn
 import javax.persistence.OneToOne
@@ -35,13 +37,15 @@ data class ProcessorParameter(
     val description: String? = null
 ) : EPFAnnotation
 
-
 @Entity
 @Table(name = "parameter_instance")
 data class ParameterInstance(
     @Id @Column(name = "id", length = 16, unique = true, nullable = false) val id: UUID,
-    @OneToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "parameter_id")
+    @OneToOne(fetch = FetchType.EAGER, cascade = [CascadeType.DETACH])
+    @JoinColumn(
+        name = "parameter_id",
+        foreignKey = ForeignKey(name = "parameterinstance_processorparameter_parameter_id_fkey")
+    )
     val processorParameter: ProcessorParameter,
     @Column(name = "data_processor_instance_id")
     val dataProcessorInstanceId: UUID,

@@ -14,6 +14,7 @@ class YamlFileGenerator {
 
     companion object {
         const val EPF_TAG = "%EPF_TAG%"
+        const val EPF_SECRET = "%EPF_SECRET%"
         const val GITLAB_ROOT_URL = "%GITLAB_ROOT_URL%"
         const val GITLAB_GROUP = "%GITLAB_GROUP%"
         const val GITLAB_PROJECT = "%GITLAB_PROJECT%"
@@ -72,14 +73,15 @@ class YamlFileGenerator {
         return this
     }
 
-    fun generateYamlFile(author: Account, dataProject: DataProject, gitlabRootUrl: String, sourceBranch: String, targetBranch: String, processors: List<DataProcessorInstance>): String {
+    fun generateYamlFile(author: Account, dataProject: DataProject, secret:String,gitlabRootUrl: String, sourceBranch: String, targetBranch: String, processors: List<DataProcessorInstance>): String {
         init()
         replaceAllSingleStrings(
             epfTag = "latest",
+            epfSecret = secret,
             confEmail = author.email,
             confName = author.username,
             gitlabGroup = dataProject.gitlabGroup,
-            gitlabRootUrl = gitlabRootUrl,
+            gitlabRootUrl = "http://gitlab:10080",
             gitlabProject = dataProject.gitlabProject,
             sourceBranch = sourceBranch,
             targetBranch = targetBranch
@@ -104,6 +106,7 @@ class YamlFileGenerator {
 
     fun replaceAllSingleStrings(
         epfTag: String = "",
+        epfSecret: String = "",
         gitlabRootUrl: String = "",
         gitlabGroup: String = "",
         gitlabProject: String = "",
@@ -115,6 +118,7 @@ class YamlFileGenerator {
     ): YamlFileGenerator {
         output = output
             .replace(EPF_TAG, epfTag)
+            .replace(EPF_SECRET, epfSecret)
             .replace(GITLAB_ROOT_URL, gitlabRootUrl.replace("https://", "").replace("http://", ""))
             .replace(GITLAB_GROUP, gitlabGroup)
             .replace(GITLAB_PROJECT, gitlabProject)

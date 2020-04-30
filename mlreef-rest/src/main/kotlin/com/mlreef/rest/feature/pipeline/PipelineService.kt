@@ -10,6 +10,7 @@ import com.mlreef.rest.PipelineConfig
 import com.mlreef.rest.PipelineConfigRepository
 import com.mlreef.rest.PipelineInstance
 import com.mlreef.rest.PipelineInstanceRepository
+import com.mlreef.rest.PipelineJobInfo
 import com.mlreef.rest.PipelineStatus
 import com.mlreef.rest.PipelineType
 import com.mlreef.rest.ProcessorParameterRepository
@@ -19,15 +20,22 @@ import com.mlreef.rest.exceptions.PipelineCreateException
 import com.mlreef.rest.exceptions.PipelineStartException
 import com.mlreef.rest.exceptions.RestException
 import com.mlreef.rest.external_api.gitlab.GitlabRestClient
+import com.mlreef.rest.external_api.gitlab.VariableType
 import com.mlreef.rest.external_api.gitlab.dto.Commit
+import com.mlreef.rest.external_api.gitlab.dto.GitlabPipeline
+import com.mlreef.rest.external_api.gitlab.dto.GitlabVariable
 import com.mlreef.utils.Slugs
 import lombok.RequiredArgsConstructor
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.data.repository.findByIdOrNull
+import org.springframework.security.crypto.bcrypt.BCrypt
 import org.springframework.stereotype.Service
+import org.springframework.util.DigestUtils
+import java.nio.charset.Charset
 import java.util.UUID
 import java.util.UUID.randomUUID
+
 
 @Service
 @RequiredArgsConstructor
@@ -85,15 +93,15 @@ class PipelineService(
         return processorInstance.addParameterInstances(processorParameter, value)
     }
 
-    fun createPipelineInstanceFile(author: Account, pipelineInstance: PipelineInstance): String {
+    fun createPipelineInstanceFile(author: Account, pipelineInstance: PipelineInstance, secret: String): String {
         val dataProject = dataProjectRepository.findByIdOrNull(pipelineInstance.dataProjectId)
             ?: throw IllegalArgumentException("DataProject is missing!")
 
-        return YamlFileGenerator().generateYamlFile(author, dataProject, gitlabRootUrl, pipelineInstance.sourceBranch, pipelineInstance.targetBranch, pipelineInstance.dataOperations)
+        return YamlFileGenerator().generateYamlFile(author, dataProject, secret, gitlabRootUrl, pipelineInstance.sourceBranch, pipelineInstance.targetBranch, pipelineInstance.dataOperations)
     }
 
     fun commitYamlFile(userToken: String, projectId: Long, targetBranch: String, fileContent: String, sourceBranch: String = "master"): Commit {
-        val commitMessage = "pipeline execution"
+        val commitMessage = "[skip ci] create .mlreef.yml"
         val fileContents = mapOf(Pair(".mlreef.yml", fileContent))
         try {
             gitlabRestClient.createBranch(
@@ -106,7 +114,8 @@ class PipelineService(
         return try {
             val commitFiles = gitlabRestClient.commitFiles(
                 token = userToken, projectId = projectId, targetBranch = targetBranch,
-                commitMessage = commitMessage, fileContents = fileContents)
+                commitMessage = commitMessage, fileContents = fileContents, action = "create")
+            log.info("Committed Yaml file in commit ${commitFiles.shortId}")
             commitFiles
         } catch (e: RestException) {
             throw PipelineStartException("Cannot commit mlreef file to branch $targetBranch for project $projectId")
@@ -122,20 +131,79 @@ class PipelineService(
         log.info("PipelineInstance deleted: $targetBranch")
     }
 
-    fun startInstance(author: Account, userToken: String, gitlabProjectId: Long, instance: PipelineInstance): PipelineInstance {
-        val fileContent = createPipelineInstanceFile(author = author, pipelineInstance = instance)
-
+    fun createStartGitlabPipeline(userToken: String, projectId: Long, targetBranch: String, fileContent: String, sourceBranch: String, secret: String): PipelineJobInfo {
         commitYamlFile(
+            userToken = userToken,
+            projectId = projectId,
+            sourceBranch = sourceBranch,
+            targetBranch = targetBranch,
+            fileContent = fileContent)
+
+        val variablesMap = hashMapOf(
+            "EPF_BOT_SECRET" to secret
+        )
+
+        val gitlabPipeline = createPipeline(
+            userToken = userToken,
+            projectId = projectId,
+            variables = variablesMap,
+            commitRef = targetBranch
+        )
+
+        val pipelineJobInfo = PipelineJobInfo(
+            gitlabId = gitlabPipeline.id,
+            ref = gitlabPipeline.ref,
+            secret = secret,
+            commitSha = gitlabPipeline.sha,
+            committedAt = gitlabPipeline.committedAt,
+            createdAt = gitlabPipeline.createdAt,
+            updatedAt = gitlabPipeline.updatedAt
+        )
+
+        log.info("Started pipeline for  with variables $variablesMap")
+        log.info("$gitlabPipeline")
+        return pipelineJobInfo
+    }
+
+    fun startInstance(author: Account, userToken: String, gitlabProjectId: Long, instance: PipelineInstance, secret: String): PipelineInstance {
+        val fileContent = createPipelineInstanceFile(author = author, pipelineInstance = instance, secret = secret)
+        val gitlabPipeline = createStartGitlabPipeline(
             userToken = userToken, projectId = gitlabProjectId,
             targetBranch = instance.targetBranch, sourceBranch = instance.sourceBranch,
-            fileContent = fileContent)
-        return instance.copy(status = PipelineStatus.RUNNING)
+            fileContent = fileContent, secret = secret)
+        return instance.copy(
+            status = PipelineStatus.PENDING,
+            pipelineJobInfo = gitlabPipeline
+        )
             .let { pipelineInstanceRepository.save(it) }
     }
 
     fun archiveInstance(instance: PipelineInstance): PipelineInstance {
         return instance.copy(status = PipelineStatus.ARCHIVED)
             .let { pipelineInstanceRepository.save(it) }
+    }
 
+    private fun createPipeline(userToken: String, projectId: Long, commitRef: String, variables: Map<String, String> = hashMapOf()): GitlabPipeline {
+        val toList = variables.map {
+            GitlabVariable(it.key, it.value, VariableType.ENV_VAR)
+        }.toList()
+        return try {
+            val pipeline = gitlabRestClient.createPipeline(userToken, projectId, commitRef, toList)
+            log.info("Created gitlab pipeline ${pipeline.id} with variables ${variables}")
+            try {
+                val pipelineVariables = gitlabRestClient.getPipelineVariables(userToken, projectId, pipelineId = pipeline.id)
+                log.info(pipelineVariables.toString())
+            } catch (e: Exception) {
+                log.warn("Error controlling variables")
+            }
+            pipeline
+        } catch (e: RestException) {
+            throw PipelineStartException("Cannot start pipeline for commit $commitRef for project $projectId")
+        }
+    }
+
+    fun createSecret(): String {
+        val md5Hex: String = DigestUtils.md5DigestAsHex(BCrypt.gensalt().toByteArray(Charset.defaultCharset()))
+        return md5Hex
     }
 }

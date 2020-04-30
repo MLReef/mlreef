@@ -3,6 +3,7 @@ package com.mlreef.rest.feature.project
 import com.mlreef.rest.Account
 import com.mlreef.rest.AccountRepository
 import com.mlreef.rest.MLProject
+import com.mlreef.rest.VisibilityScope
 import com.mlreef.rest.annotations.RefreshUserInformation
 import com.mlreef.rest.exceptions.BadParametersException
 import com.mlreef.rest.exceptions.ErrorCode
@@ -21,7 +22,7 @@ import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import java.util.UUID
 
-interface ProjectRequesterService<T: MLProject> {
+interface ProjectRequesterService<T : MLProject> {
     fun getAllProjectsForUser(personId: UUID): List<T>
     fun getProjectById(projectId: UUID): T?
     fun getProjectByIdAndPersonId(projectId: UUID, personId: UUID): T?
@@ -32,8 +33,8 @@ interface ProjectRequesterService<T: MLProject> {
 }
 
 interface ProjectService<T : MLProject> {
-    fun createProject(userToken: String, ownerId: UUID, projectSlug: String, projectName: String, projectNamespace: String): T
-    fun updateProject(userToken: String, ownerId: UUID, projectUUID: UUID, projectName: String): T
+    fun createProject(userToken: String, ownerId: UUID, projectSlug: String, projectName: String, projectNamespace: String, description: String, visibility: VisibilityScope = VisibilityScope.PUBLIC, initializeWithReadme: Boolean = false): T
+    fun updateProject(userToken: String, ownerId: UUID, projectUUID: UUID, projectName: String, description: String): T
     fun deleteProject(userToken: String, ownerId: UUID, projectUUID: UUID)
 
     fun getUsersInProject(projectUUID: UUID): List<Account>
@@ -62,7 +63,16 @@ abstract class AbstractGitlabProjectService<T : MLProject>(
      * Creates the Project in gitlab and saves a new DataProject/CodeProject in mlreef context
      */
     @RefreshUserInformation(userId = "#ownerId")
-    override fun createProject(userToken: String, ownerId: UUID, projectSlug: String, projectName: String, projectNamespace: String): T {
+    override fun createProject(
+        userToken: String,
+        ownerId: UUID,
+        projectSlug: String,
+        projectName: String,
+        projectNamespace: String,
+        description: String,
+        visibility: VisibilityScope,
+        initializeWithReadme: Boolean
+    ): T {
 
         val findNamespace = try {
             gitlabRestClient.findNamespace(userToken, projectNamespace)
@@ -70,28 +80,42 @@ abstract class AbstractGitlabProjectService<T : MLProject>(
             log.warn("Namespace cannot be found, will use default one of user")
             null
         }
+
+        val visibilityString = visibility.toGitlabString()
         val gitLabProject = gitlabRestClient.createProject(
             token = userToken,
             slug = projectSlug,
             name = projectName,
             defaultBranch = "master",
-            nameSpaceId = findNamespace?.id)
+            nameSpaceId = findNamespace?.id,
+            description = description,
+            visibility = visibilityString,
+            initializeWithReadme = initializeWithReadme)
         val codeProject = createNewProject(ownerId, gitLabProject)
-        val result = saveNewProject(codeProject)
-        return result
+        return saveNewProject(codeProject)
 
     }
 
-    override fun updateProject(userToken: String, ownerId: UUID, projectUUID: UUID, projectName: String): T {
+    override fun updateProject(
+        userToken: String,
+        ownerId: UUID,
+        projectUUID: UUID,
+        projectName: String,
+        description: String
+    ): T {
         val codeProject = this.getProjectById(projectUUID) ?: throw ProjectNotFoundException(projectUUID)
         try {
-            gitlabRestClient.userUpdateProject(id = codeProject.gitlabId, token = userToken, name = projectName)
+            gitlabRestClient.userUpdateProject(
+                id = codeProject.gitlabId,
+                token = userToken,
+                name = projectName,
+                description = description
+            )
             return updateSaveProject(codeProject, projectName = projectName)
         } catch (e: GitlabCommonException) {
             throw ProjectUpdateException(ErrorCode.GitlabProjectCreationFailed, "Cannot update Project $projectUUID: ${e.responseBodyAsString}")
         }
     }
-
 
     override fun deleteProject(userToken: String, ownerId: UUID, projectUUID: UUID) {
         try {

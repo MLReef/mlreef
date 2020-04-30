@@ -7,6 +7,7 @@ import javax.persistence.CascadeType
 import javax.persistence.Column
 import javax.persistence.Entity
 import javax.persistence.FetchType
+import javax.persistence.ForeignKey
 import javax.persistence.JoinColumn
 import javax.persistence.OneToMany
 import javax.persistence.Table
@@ -39,7 +40,9 @@ class DataProject(
     override val gitlabId: Long,
 
     @OneToMany(fetch = FetchType.LAZY, cascade = [CascadeType.ALL])
-    @JoinColumn(name = "data_project_id")
+    @JoinColumn(
+        name = "data_project_id",
+        foreignKey = ForeignKey(name = "experiment_dataproject_data_project_id_fkey"))
     val experiments: List<Experiment> = listOf(),
 
     version: Long? = null,

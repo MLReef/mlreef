@@ -127,4 +127,3 @@ ALTER TABLE public."file_location"
             ON UPDATE CASCADE
             NOT DEFERRABLE
 ;
-

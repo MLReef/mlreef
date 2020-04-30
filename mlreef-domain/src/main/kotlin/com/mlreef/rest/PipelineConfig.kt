@@ -10,6 +10,7 @@ import javax.persistence.Entity
 import javax.persistence.EnumType
 import javax.persistence.Enumerated
 import javax.persistence.FetchType
+import javax.persistence.ForeignKey
 import javax.persistence.Id
 import javax.persistence.JoinColumn
 import javax.persistence.OneToMany
@@ -44,7 +45,10 @@ data class PipelineConfig(
 
     @OneToMany(fetch = FetchType.EAGER, cascade = [CascadeType.ALL])
     @Fetch(value = FetchMode.SUBSELECT)
-    @JoinColumn(name = "pipeline_config_id")
+    @JoinColumn(
+        name = "pipeline_config_id",
+        foreignKey = ForeignKey(name = "filelocation_pipelineconfig_pipeline_config_id_fkey")
+    )
     val inputFiles: MutableList<FileLocation> = arrayListOf(),
 
     /**
@@ -53,7 +57,10 @@ data class PipelineConfig(
      */
     @OneToMany(fetch = FetchType.EAGER, cascade = [CascadeType.ALL])
     @Fetch(value = FetchMode.SUBSELECT)
-    @JoinColumn(name = "pipeline_config_id")
+    @JoinColumn(
+        name = "pipeline_config_id",
+        foreignKey = ForeignKey(name = "dataprocessorinstance_pipelineconfig_pipeline_config_id_fkey")
+    )
     val dataOperations: MutableList<DataProcessorInstance> = arrayListOf()
 
 ) {
@@ -107,11 +114,11 @@ data class PipelineConfig(
         val replace = targetBranchPattern
             .replace("\$PID", id.toString())
             .replace("\$ID", instanceId.toString())
-            .replace("\$NUM", number.toString())
+            .replace("\$NUMBER", number.toString())
             .replace("\$SLUG", slug)
 
         return if (replace.isBlank()) {
-            "datainstance-$id-$number"
+            "datainstance-$slug-$number"
         } else {
             replace
         }

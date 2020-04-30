@@ -86,7 +86,7 @@ class DataProcessorServiceTest : AbstractServiceTest() {
         assertThat(dataProcessor.visibilityScope).isEqualTo(VisibilityScope.PUBLIC)
         assertThat(dataProcessor.inputDataType).isEqualTo(DataType.IMAGE)
         assertThat(dataProcessor.outputDataType).isEqualTo(DataType.IMAGE)
-        assertThat(dataProcessor.parameters).isNotEmpty
+        assertThat(dataProcessor.parameters).isNotEmpty()
         val parameters = dataProcessor.parameters
         val parameter = parameters.first()
         assertThat(parameter.name).isEqualTo("images_path")

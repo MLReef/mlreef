@@ -22,5 +22,6 @@ services:
     image: sameersbn/redis:4.0.9-2
     ports: ["7379:6379"]
 
+
 volumes:
   sock:

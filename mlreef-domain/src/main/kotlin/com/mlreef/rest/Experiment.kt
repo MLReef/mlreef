@@ -2,6 +2,7 @@ package com.mlreef.rest
 
 import org.hibernate.annotations.Fetch
 import org.hibernate.annotations.FetchMode
+import org.slf4j.LoggerFactory
 import java.time.ZonedDateTime
 import java.util.UUID
 import javax.persistence.CascadeType
@@ -12,6 +13,7 @@ import javax.persistence.Entity
 import javax.persistence.EnumType
 import javax.persistence.Enumerated
 import javax.persistence.FetchType
+import javax.persistence.ForeignKey
 import javax.persistence.Id
 import javax.persistence.JoinColumn
 import javax.persistence.OneToMany
@@ -24,9 +26,17 @@ import javax.persistence.Table
 @Entity
 @Table(name = "experiment")
 data class Experiment(
-    @Id @Column(name = "id", length = 16, unique = true, nullable = false) val id: UUID,
+    @Id @Column(name = "id", length = 16, unique = true, nullable = false)
+    val id: UUID,
+
     @Column(name = "data_project_id")
     val dataProjectId: UUID,
+
+    @Column(name = "data_pipeline_instance_id")
+    val dataInstanceId: UUID?,
+
+    val slug: String,
+    val name: String,
 
     @Column(name = "source_branch")
     val sourceBranch: String,
@@ -34,45 +44,57 @@ data class Experiment(
     @Column(name = "target_branch")
     val targetBranch: String,
 
-    @Embedded
-    val performanceMetrics: PerformanceMetrics = PerformanceMetrics(),
-
-    @OneToMany(fetch = FetchType.EAGER)
-    @Fetch(value = FetchMode.SUBSELECT)
-    @JoinColumn(name = "experiment_id")
-    val outputFiles: List<OutputFile> = arrayListOf(),
-
     /**
-     * Has DataOps and DataVisuals
+     * Contains exactly 1 Algorithm (could be implement as DataExecutionInstance as well)
      */
-    @OneToMany(fetch = FetchType.EAGER, cascade = [CascadeType.ALL])
-    @Fetch(value = FetchMode.SUBSELECT)
-    @JoinColumn(name = "experimentPreProcessingId")
-    val preProcessing: MutableList<DataProcessorInstance> = arrayListOf(),
+    @OneToOne(fetch = FetchType.EAGER, cascade = [CascadeType.ALL])
+    @JoinColumn(
+        name = "experiment_processing_id",
+        foreignKey = ForeignKey(name = "dataprocessorinstance_experiment_processing_id_fkey")
+    )
+    protected var processing: DataProcessorInstance? = null,
+
     /**
      * Has DataOps and maybe DataVisuals
      */
     @OneToMany(fetch = FetchType.EAGER, cascade = [CascadeType.ALL])
     @Fetch(value = FetchMode.SUBSELECT)
-    @JoinColumn(name = "experimentPostProcessingId")
+    @JoinColumn(
+        name = "experiment_post_processing_id",
+        foreignKey = ForeignKey(name = "dataprocessorinstance_experiment_post_processing_id_fkey")
+    )
     val postProcessing: MutableList<DataProcessorInstance> = arrayListOf(),
-    /**
-     * Contains exactly 1 Algorithm (could be implement as DataExecutionInstance as well)
-     */
-    @OneToOne(fetch = FetchType.EAGER, cascade = [CascadeType.ALL])
-    @JoinColumn(name = "experimentProcessingId")
-    protected var processing: DataProcessorInstance? = null,
+
+    @OneToMany(fetch = FetchType.EAGER, cascade = [CascadeType.ALL])
+    @Fetch(value = FetchMode.SUBSELECT)
+    @JoinColumn(
+        name = "experiment_id",
+        foreignKey = ForeignKey(name = "filelocation_experiment_experiment_id_fkey")
+    )
+    val inputFiles: MutableList<FileLocation> = arrayListOf(),
+
+    @OneToMany(fetch = FetchType.EAGER)
+    @Fetch(value = FetchMode.SUBSELECT)
+    @JoinColumn(
+        name = "experiment_id",
+        foreignKey = ForeignKey(name = "outputfile_experiment_experiment_id_fkey")
+    )
+    val outputFiles: List<OutputFile> = arrayListOf(),
+
+    @Column(name = "json_blob")
+    var jsonBlob: String = "",
+
+    @Embedded
+    val pipelineJobInfo: PipelineJobInfo? = null,
 
     @Enumerated(EnumType.STRING)
     val status: ExperimentStatus = ExperimentStatus.CREATED
 
 ) {
 
-    fun addPreProcessor(processorInstance: DataProcessorInstance) {
-        preProcessing.add(processorInstance)
-        processorInstance.experimentPreProcessingId = this.id
+    companion object {
+        val log = LoggerFactory.getLogger(this::class.java)
     }
-
     fun addPostProcessor(processorInstance: DataProcessorInstance) {
         postProcessing.add(processorInstance)
         processorInstance.experimentPostProcessingId = this.id
@@ -85,29 +107,6 @@ data class Experiment(
 
     fun getProcessor() = this.processing
 
-    fun smartCopy(
-        sourceBranch: String? = null,
-        targetBranch: String? = null,
-        performanceMetrics: PerformanceMetrics? = null,
-        outputFiles: List<OutputFile>? = null,
-        preProcessing: MutableList<DataProcessorInstance>? = null,
-        postProcessing: MutableList<DataProcessorInstance>? = null,
-        processing: DataProcessorInstance? = null,
-        status: ExperimentStatus? = null
-    ): Experiment {
-        return Experiment(
-            id = id,
-            dataProjectId = dataProjectId,
-            sourceBranch = sourceBranch ?: this.sourceBranch,
-            targetBranch = targetBranch ?: this.targetBranch,
-            performanceMetrics = performanceMetrics ?: this.performanceMetrics,
-            outputFiles = outputFiles ?: this.outputFiles,
-            preProcessing = preProcessing ?: this.preProcessing,
-            postProcessing = postProcessing ?: this.postProcessing,
-            processing = processing ?: this.processing,
-            status = status ?: this.status
-        )
-    }
 }
 
 
@@ -130,14 +129,39 @@ enum class ExperimentStatus(private val stage: Int) {
     }
 }
 
+
+/**
+ * Stores the information of a Gitlab Pipeline.
+ * Dates are stored locally and most could be null.
+ *
+ * Has to store commit ref, branch, pipeline id (called job id here) and web url
+ */
 @Embeddable
-class PerformanceMetrics(
-    @Column(name = "job_started_at")
-    var jobStartedAt: ZonedDateTime? = null,
-    @Column(name = "job_updated_at")
-    var jobUpdatedAt: ZonedDateTime? = null,
-    @Column(name = "job_finished_at")
-    var jobFinishedAt: ZonedDateTime? = null,
-    @Column(name = "json_blob")
-    var jsonBlob: String = ""
+data class PipelineJobInfo(
+    @Column(name = "gitlab_id")
+    var gitlabId: Long,
+
+    @Column(name = "gitlab_commit_sha")
+    var commitSha: String,
+
+    @Column(name = "gitlab_ref")
+    var ref: String,
+
+    @Column(name = "gitlab_hash")
+    var secret: String,
+
+    @Column(name = "gitlab_created_at")
+    var createdAt: ZonedDateTime? = null,
+
+    @Column(name = "gitlab_updated_at")
+    var updatedAt: ZonedDateTime? = null,
+
+    @Column(name = "gitlab_started_at")
+    var startedAt: ZonedDateTime? = null,
+
+    @Column(name = "gitlab_committed_at")
+    var committedAt: ZonedDateTime? = null,
+
+    @Column(name = "gitlab_finished_at")
+    var finishedAt: ZonedDateTime? = null
 )

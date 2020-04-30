@@ -19,12 +19,13 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         temp.use_jdbc_metadata_defaults: false
+    hibernate:
+      ddl-auto: create-drop # USE for dev only
   flyway:
-    enabled: true
+    enabled: false # USE for dev only
   redis:
     host: ${REDIS_HOST:localhost}
     port: ${REDIS_PORT:7379}
-
 mlreef:
   gitlab:
     rootUrl: ${GITLAB_ROOT_URL:http://localhost:10080}

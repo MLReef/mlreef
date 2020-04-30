@@ -6,6 +6,7 @@ import java.util.UUID
 import javax.persistence.Column
 import javax.persistence.Entity
 import javax.persistence.FetchType
+import javax.persistence.ForeignKey
 import javax.persistence.JoinColumn
 import javax.persistence.OneToOne
 import javax.persistence.Table
@@ -39,7 +40,7 @@ class CodeProject(
     override val gitlabId: Long,
 
     @OneToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "code_project_id")
+    @JoinColumn(name = "code_project_id", foreignKey = ForeignKey(name = "codeproject_dataprocessor_code_project_id_fkey"))
     val dataProcessor: DataProcessor? = null,
 
     version: Long? = null,

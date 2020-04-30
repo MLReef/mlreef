@@ -17,9 +17,9 @@ import com.mlreef.rest.I18N
 import com.mlreef.rest.MLProject
 import com.mlreef.rest.MetricType
 import com.mlreef.rest.ParameterInstance
-import com.mlreef.rest.PerformanceMetrics
 import com.mlreef.rest.PipelineConfig
 import com.mlreef.rest.PipelineInstance
+import com.mlreef.rest.PipelineJobInfo
 import com.mlreef.rest.ProcessorParameter
 import com.mlreef.rest.VisibilityScope
 import com.mlreef.rest.config.censor
@@ -38,7 +38,6 @@ import java.util.UUID
 import javax.validation.Valid
 import javax.validation.constraints.Email
 import javax.validation.constraints.NotEmpty
-import javax.validation.constraints.PositiveOrZero
 
 data class RestExceptionDto(
     val errorCode: Int,
@@ -230,14 +229,21 @@ data class DataProcessorDto(
 data class DataProcessorInstanceDto(
     @get:NotEmpty val slug: String,
     @get:Valid val parameters: List<ParameterInstanceDto> = arrayListOf(),
+    val id: UUID? = null,
     val name: String? = null
 )
 
-data class PerformanceMetricsDto(
-    @get:PositiveOrZero val jobStartedAt: ZonedDateTime? = null,
-    @get:PositiveOrZero val jobUpdatedAt: ZonedDateTime? = null,
-    @get:PositiveOrZero val jobFinishedAt: ZonedDateTime? = null,
-    val jsonBlob: String = ""
+@JsonIgnoreProperties(ignoreUnknown = true)
+@JsonInclude(JsonInclude.Include.NON_NULL)
+data class PipelineJobInfoDto(
+    val id: Long,
+    val ref: String,
+    val commitSha: String,
+    val createdAt: ZonedDateTime? = null,
+    val committedAt: ZonedDateTime? = null,
+    val startedAt: ZonedDateTime? = null,
+    val updatedAt: ZonedDateTime? = null,
+    val finishedAt: ZonedDateTime? = null
 )
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -288,13 +294,16 @@ internal fun ProjectOfUserDto.toDomain() = ProjectOfUser(
 class ExperimentDto(
     override val id: UUID,
     val dataProjectId: UUID,
+    val dataInstanceId: UUID?,
+    val slug: String,
+    val name: String,
     @get:NotEmpty val sourceBranch: String,
     @get:NotEmpty val targetBranch: String,
     val status: String,
-    val performanceMetrics: PerformanceMetricsDto? = null,
-    @get:Valid val preProcessing: List<DataProcessorInstanceDto>? = arrayListOf(),
+    val pipelineJobInfo: PipelineJobInfoDto? = null,
     @get:Valid val postProcessing: List<DataProcessorInstanceDto>? = arrayListOf(),
-    @get:Valid val processing: DataProcessorInstanceDto? = null
+    @get:Valid val processing: DataProcessorInstanceDto? = null,
+    val jsonBlob: String = ""
 ) : DataClassWithId
 
 data class PipelineConfigDto(
@@ -353,7 +362,7 @@ internal fun DataProject.toDto() =
         gitlabGroup = this.gitlabGroup,
         gitlabProject = this.gitlabProject,
         gitlabId = this.gitlabId,
-        experiments = this.experiments.map { it.toDto() }
+        experiments = this.experiments.map(Experiment::toDto)
     )
 
 internal fun CodeProject.toDto() =
@@ -371,22 +380,29 @@ internal fun Experiment.toDto(): ExperimentDto =
     ExperimentDto(
         id = this.id,
         dataProjectId = this.dataProjectId,
+        dataInstanceId = this.dataInstanceId,
+        slug = this.slug,
+        name = this.name,
         sourceBranch = this.sourceBranch,
         targetBranch = this.targetBranch,
         status = this.status.name,
-        performanceMetrics = this.performanceMetrics.toDto(),
-        preProcessing = this.preProcessing.map(DataProcessorInstance::toDto),
+        jsonBlob = this.jsonBlob,
+        pipelineJobInfo = this.pipelineJobInfo?.toDto(),
         postProcessing = this.postProcessing.map(DataProcessorInstance::toDto),
         processing = this.getProcessor()?.toDto()
     )
 
 
-internal fun PerformanceMetrics.toDto(): PerformanceMetricsDto =
-    PerformanceMetricsDto(
-        this.jobStartedAt,
-        this.jobUpdatedAt,
-        this.jobFinishedAt,
-        this.jsonBlob
+internal fun PipelineJobInfo.toDto(): PipelineJobInfoDto =
+    PipelineJobInfoDto(
+        this.gitlabId,
+        this.ref,
+        this.commitSha,
+        this.committedAt,
+        this.createdAt,
+        this.updatedAt,
+        this.startedAt,
+        this.finishedAt
     )
 
 internal fun PipelineConfig.toDto(): PipelineConfigDto =
@@ -427,16 +443,19 @@ internal fun FileLocation.toDto(): FileLocationDto =
 
 internal fun DataProcessorInstance.toDto(): DataProcessorInstanceDto =
     DataProcessorInstanceDto(
-        this.slug,
-        this.parameterInstances.map(ParameterInstance::toDto),
-        this.name
+        id = this.id,
+        slug = this.slug,
+        name = this.name,
+        parameters = this.parameterInstances.map(ParameterInstance::toDto)
     )
 
 internal fun ParameterInstance.toDto(): ParameterInstanceDto =
     ParameterInstanceDto(
-        this.processorParameter.name,
-        this.value,
-        this.processorParameter.type.name
+        name = this.processorParameter.name,
+        value = this.value,
+        type = this.processorParameter.type.name,
+        description = this.processorParameter.description ?: "",
+        required = this.processorParameter.required
     )
 
 internal fun DataProcessor.toDto(): DataProcessorDto =

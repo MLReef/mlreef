@@ -6,11 +6,14 @@ import com.mlreef.rest.DataProcessorInstance
 import com.mlreef.rest.DataProcessorInstanceRepository
 import com.mlreef.rest.DataProject
 import com.mlreef.rest.DataVisualization
+import com.mlreef.rest.ParameterType
 import com.mlreef.rest.Person
 import com.mlreef.rest.PipelineConfig
 import com.mlreef.rest.PipelineConfigRepository
 import com.mlreef.rest.PipelineInstanceRepository
 import com.mlreef.rest.PipelineType
+import com.mlreef.rest.ProcessorParameter
+import com.mlreef.rest.ProcessorParameterRepository
 import com.mlreef.rest.api.v1.dto.PipelineInstanceDto
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
@@ -45,6 +48,7 @@ class PipelineInstanceApiTest : RestApiTest() {
     @Autowired private lateinit var pipelineConfigRepository: PipelineConfigRepository
     @Autowired private lateinit var pipelineInstanceRepository: PipelineInstanceRepository
     @Autowired private lateinit var dataProcessorInstanceRepository: DataProcessorInstanceRepository
+    @Autowired private lateinit var processorParameterRepository: ProcessorParameterRepository
     @Autowired private lateinit var pipelineTestPreparationTrait: PipelineTestPreparationTrait
 
     @BeforeEach
@@ -120,7 +124,7 @@ class PipelineInstanceApiTest : RestApiTest() {
             .andReturn().let {
                 objectMapper.readValue(it.response.contentAsByteArray, PipelineInstanceDto::class.java)
             }
-        assertThat(pipelineInstanceDto).isNotNull
+        assertThat(pipelineInstanceDto).isNotNull()
     }
 
     @Transactional
@@ -190,7 +194,16 @@ class PipelineInstanceApiTest : RestApiTest() {
     }
 
     private fun createDataProcessorInstance(): DataProcessorInstance {
-        return dataProcessorInstanceRepository.save(DataProcessorInstance(randomUUID(), dataOp1))
+        val dataProcessorInstance = DataProcessorInstance(randomUUID(), dataOp1)
+        val processorParameter = ProcessorParameter(
+            id = randomUUID(), dataProcessorId = dataProcessorInstance.dataProcessorId,
+            name = "param1", type = ParameterType.STRING,
+            defaultValue = "default", description = "not empty",
+            order = 1, required = true)
+        dataProcessorInstance.addParameterInstances(
+            processorParameter, "value")
+        processorParameterRepository.save(processorParameter)
+        return dataProcessorInstanceRepository.save(dataProcessorInstance)
     }
 }
 

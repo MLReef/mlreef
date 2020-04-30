@@ -1,6 +1,7 @@
 package com.mlreef.rest.external_api.gitlab
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.mlreef.rest.ApplicationProfiles
 import com.mlreef.rest.config.censor
 import com.mlreef.rest.exceptions.ErrorCode
 import com.mlreef.rest.exceptions.GitlabAuthenticationFailedException
@@ -14,11 +15,13 @@ import com.mlreef.rest.external_api.gitlab.dto.Branch
 import com.mlreef.rest.external_api.gitlab.dto.Commit
 import com.mlreef.rest.external_api.gitlab.dto.GitlabGroup
 import com.mlreef.rest.external_api.gitlab.dto.GitlabNamespace
+import com.mlreef.rest.external_api.gitlab.dto.GitlabPipeline
 import com.mlreef.rest.external_api.gitlab.dto.GitlabProject
 import com.mlreef.rest.external_api.gitlab.dto.GitlabUser
 import com.mlreef.rest.external_api.gitlab.dto.GitlabUserInGroup
 import com.mlreef.rest.external_api.gitlab.dto.GitlabUserInProject
 import com.mlreef.rest.external_api.gitlab.dto.GitlabUserToken
+import com.mlreef.rest.external_api.gitlab.dto.GitlabVariable
 import com.mlreef.rest.external_api.gitlab.dto.GroupVariable
 import com.mlreef.rest.external_api.gitlab.dto.OAuthToken
 import com.mlreef.rest.external_api.gitlab.dto.OAuthTokenInfo
@@ -26,6 +29,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.web.client.RestTemplateBuilder
+import org.springframework.context.annotation.Profile
 import org.springframework.core.ParameterizedTypeReference
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
@@ -42,6 +46,7 @@ import org.springframework.web.client.RestTemplate
 inline fun <reified T : Any> typeRef(): ParameterizedTypeReference<T> = object : ParameterizedTypeReference<T>() {}
 
 @Component
+@Profile(value = ["!" + ApplicationProfiles.TEST])
 class GitlabRestClient(
     private val builder: RestTemplateBuilder,
     @Value("\${mlreef.gitlab.rootUrl}")
@@ -62,14 +67,29 @@ class GitlabRestClient(
 
     fun restTemplate(builder: RestTemplateBuilder): RestTemplate = builder.build()
 
-    fun createProject(token: String, slug: String, name: String, defaultBranch: String, nameSpaceId: Long? = null): GitlabProject {
+    fun createProject(
+        token: String,
+        slug: String,
+        name: String,
+        description: String,
+        visibility: String,
+        defaultBranch: String,
+        nameSpaceId: Long? = null,
+        initializeWithReadme: Boolean = false,
+        autoDevopsEnabled: Boolean = false,
+        buildTimeout: Int = 18000
+    ): GitlabProject {
         return GitlabCreateProjectRequest(
             name = name,
             path = slug,
-            description = "auto created description",
-            ciConfigPath = "mlreef.yml",
+            description = description,
+            visibility = visibility,
+            namespaceId = nameSpaceId,
             defaultBranch = defaultBranch,
-            namespace_id = nameSpaceId
+            ciConfigPath = ".mlreef.yml",
+            initializeWithReadme = initializeWithReadme,
+            autoDevopsEnabled = autoDevopsEnabled,
+            buildTimeout = buildTimeout
         )
             .let { GitlabHttpEntity(it, createUserHeaders(token)) }
             .addErrorDescription(409, ErrorCode.GitlabProjectAlreadyExists, "Cannot create project $name in gitlab. Project already exists")
@@ -80,7 +100,7 @@ class GitlabRestClient(
                 restTemplate(builder).exchange(url, HttpMethod.POST, it, GitlabProject::class.java)
             }
             .also { logGitlabCall(it) }
-            .body!!
+            .body ?: throw Exception("GitlabRestClient.createProject($slug): Gitlab response does not contain a body.")
     }
 
     fun getProjects(token: String): List<GitlabProject> {
@@ -205,8 +225,8 @@ class GitlabRestClient(
             .body!!
     }
 
-    fun userUpdateProject(id: Long, token: String, name: String): GitlabProject {
-        return GitlabUpdateProjectRequest(name = name)
+    fun userUpdateProject(id: Long, token: String, name: String, description: String): GitlabProject {
+        return GitlabUpdateProjectRequest(name = name, description = description)
             .let { GitlabHttpEntity(it, createUserHeaders(token)) }
             .addErrorDescription(ErrorCode.GitlabProjectUpdateFailed, "Cannot update project with $id in gitlab")
             .makeRequest {
@@ -240,7 +260,7 @@ class GitlabRestClient(
     }
 
 
-    fun createBranch(token: String, projectId: Long, targetBranch: String, sourceBranch: String = "master"): Branch {
+    fun createBranch(token: String, projectId: Long, targetBranch: String, sourceBranch: String): Branch {
         return GitlabCreateBranchRequest(branch = targetBranch, ref = sourceBranch)
             .let { GitlabHttpEntity(it, createUserHeaders(token)) }
             .addErrorDescription(409, ErrorCode.GitlabBranchCreationFailed, "Cannot create branch $targetBranch in project with id $projectId. Branch exists")
@@ -263,14 +283,59 @@ class GitlabRestClient(
             .also { logGitlabCall(it) }
     }
 
-    fun commitFiles(token: String, projectId: Long, targetBranch: String, commitMessage: String, fileContents: Map<String, String>, action: String = "create"): Commit {
+    fun commitFiles(
+        token: String,
+        projectId: Long,
+        targetBranch: String,
+        commitMessage: String,
+        fileContents: Map<String, String>,
+        action: String
+    ): Commit {
         val actionList = fileContents.map { GitlabCreateCommitAction(filePath = it.key, content = it.value, action = action) }
         return GitlabCreateCommitRequest(branch = targetBranch, actions = actionList, commitMessage = commitMessage)
             .let { GitlabHttpEntity(it, createUserHeaders(token)) }
-            .addErrorDescription(ErrorCode.GitlabCommitFailed, "Cannot commit mlreef.yml in $targetBranch")
+            .addErrorDescription(ErrorCode.GitlabCommitFailed, "Cannot commit .mlreef.yml in $targetBranch")
             .makeRequest {
                 val url = "$gitlabServiceRootUrl/projects/$projectId/repository/commits"
                 restTemplate(builder).exchange(url, HttpMethod.POST, it, Commit::class.java)
+            }
+            .also { logGitlabCall(it) }
+            .body!!
+    }
+
+    fun createPipeline(token: String, projectId: Long, commitRef: String, variables: List<GitlabVariable>): GitlabPipeline {
+        return GitlabCreatePipelineRequest(
+            ref = commitRef,
+            variables = variables)
+            .let { GitlabHttpEntity(it, createUserHeaders(token)) }
+            .addErrorDescription(ErrorCode.GitlabCommitFailed, "Cannot start pipeline for commit  $commitRef")
+            .makeRequest {
+                val url = "$gitlabServiceRootUrl/projects/$projectId/pipeline"
+                restTemplate(builder).exchange(url, HttpMethod.POST, it, GitlabPipeline::class.java)
+            }
+            .also { logGitlabCall(it) }
+            .body!!
+    }
+
+    // GET /projects/:id/pipelines/:pipeline_id
+    fun getPipeline(token: String, projectId: Long, pipelineId: Long): GitlabPipeline {
+        return GitlabHttpEntity<String>("", createUserHeaders(token))
+            .let { GitlabHttpEntity(it, createUserHeaders(token)) }
+            .makeRequest {
+                val url = "$gitlabServiceRootUrl/projects/$projectId/pipelines/$pipelineId"
+                restTemplate(builder).exchange(url, HttpMethod.GET, it, GitlabPipeline::class.java)
+            }
+            .also { logGitlabCall(it) }
+            .body!!
+    }
+
+    // GET /projects/:id/pipelines/:pipeline_id/variables
+    fun getPipelineVariables(token: String, projectId: Long, pipelineId: Long): List<GitlabVariable> {
+        return GitlabHttpEntity<String>("", createUserHeaders(token))
+            .let { GitlabHttpEntity(it, createUserHeaders(token)) }
+            .makeRequest {
+                val url = "$gitlabServiceRootUrl/projects/$projectId/pipelines/$pipelineId/variables"
+                restTemplate(builder).exchange(url, HttpMethod.GET, it, typeRef<List<GitlabVariable>>())
             }
             .also { logGitlabCall(it) }
             .body!!

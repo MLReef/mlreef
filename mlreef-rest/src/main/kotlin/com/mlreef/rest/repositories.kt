@@ -46,6 +46,7 @@ interface MembershipRepository : KtCrudRepository<Membership, UUID> {
 @Repository
 interface ExperimentRepository : KtCrudRepository<Experiment, UUID> {
     fun findAllByDataProjectId(dataProjectId: UUID): List<Experiment>
+    fun findOneByDataProjectIdAndSlug(dataProjectId: UUID, slug: String): Experiment?
     fun findOneByDataProjectIdAndId(dataProjectId: UUID, id: UUID): Experiment?
 }
 

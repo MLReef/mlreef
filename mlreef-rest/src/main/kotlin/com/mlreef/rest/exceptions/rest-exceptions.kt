@@ -45,6 +45,7 @@ enum class ErrorCode(val errorCode: Int, val errorName: String) {
     ProcessorParameterNotUsable(3102, "ProcessorParameter cannot be used"),
     CommitPipelineScriptFailed(3103, "Could not commit mlreef file"),
     ExperimentCannotBeChanged(3104, "Could not change status of Experiment"),
+    ExperimentSlugAlreadyInUse(3105, "Could not change status of Experiment"),
 
     ProjectCreationFailed(3201, "Could not create project"),
 }
@@ -79,6 +80,9 @@ class GitlabNoValidTokenException(message: String) : RestException(ErrorCode.Val
 
 @ResponseStatus(code = HttpStatus.CONFLICT, reason = "Gitlab cannot create entity due to a duplicate conflict:")
 class GitlabAlreadyExistingConflictException(errorCode: ErrorCode, message: String) : RestException(errorCode, message)
+
+@ResponseStatus(code = HttpStatus.CONFLICT, reason = "Cannot create entity due to a duplicate conflict:")
+class ConflictException(errorCode: ErrorCode, message: String) : RestException(errorCode, message)
 
 @ResponseStatus(code = HttpStatus.CONFLICT, reason = "The state of internal db is inconsistent")
 class NotConsistentInternalDb(message: String) : RestException(ErrorCode.Conflict, message)
@@ -179,8 +183,6 @@ private fun generateProjectNotFoundMessage(projectId: UUID?, projectName: String
     .joinToString(prefix = "Project not found by ", separator = " and ") {
         "${it.first} = ${it.second}"
     }
-
-
 
 
 
