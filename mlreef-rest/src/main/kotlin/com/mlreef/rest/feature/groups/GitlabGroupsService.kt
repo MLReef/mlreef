@@ -245,8 +245,7 @@ interface GroupsService {
 
         usersIds.forEach {
             try {
-                gitlabRestClient
-                    .adminDeleteUserFromGroup(groupId = gitlabGroupId, userId = it)
+                gitlabRestClient              .adminDeleteUserFromGroup(groupId = gitlabGroupId, userId = it)
             } catch (ex: Exception) {
                 log.error("Unable to delete user $it from the group ${group.name}. Exception: $ex.")
             }

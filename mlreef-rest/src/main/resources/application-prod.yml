@@ -1,3 +1,12 @@
+logging:
+  level:
+    root: INFO
+    com.mlreef.rest: INFO
+    org.springframework.security: WARN
+    org.springframework.orm: WARN
+    org.hibernate: WARN
+
+
 mlreef:
   gitlab:
     rootUrl: ${GITLAB_ROOT_URL}

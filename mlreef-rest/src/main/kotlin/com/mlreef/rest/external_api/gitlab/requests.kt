@@ -1,6 +1,7 @@
 package com.mlreef.rest.external_api.gitlab
 
 import com.fasterxml.jackson.annotation.JsonInclude
+import com.mlreef.rest.external_api.gitlab.dto.GitlabVariable
 import java.io.Serializable
 
 
@@ -68,6 +69,12 @@ internal class GitlabCreateCommitRequest(
     val actions: List<GitlabCreateCommitAction>
 ) : Serializable
 
+// https://docs.gitlab.com/ee/api/pipelines.html#create-a-new-pipeline
+internal class GitlabCreatePipelineRequest(
+    val ref: String,
+    val variables: List<GitlabVariable>
+) : Serializable
+
 internal class GitlabCreateCommitAction(
     val filePath: String,
     val content: String,
@@ -87,10 +94,14 @@ internal class GitlabCreateGroupVariableRequest(
 internal class GitlabCreateProjectRequest(
     val name: String,
     val path: String,
-    val ciConfigPath: String = "mlreef.yml",
+    val ciConfigPath: String = ".mlreef.yml",
     val description: String = "",
     val defaultBranch: String = "",
-    val namespace_id: Long? = null
+    val visibility: String = "private",
+    val initializeWithReadme: Boolean = false,
+    val autoDevopsEnabled: Boolean = false,
+    val namespaceId: Long? = null,
+    val buildTimeout: Int = 18000
 ) : Serializable
 
 @JsonInclude(JsonInclude.Include.NON_NULL)

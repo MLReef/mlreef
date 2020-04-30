@@ -15,6 +15,7 @@ import javax.persistence.Entity
 import javax.persistence.EnumType
 import javax.persistence.Enumerated
 import javax.persistence.FetchType
+import javax.persistence.ForeignKey
 import javax.persistence.Inheritance
 import javax.persistence.InheritanceType
 import javax.persistence.JoinColumn
@@ -90,16 +91,16 @@ abstract class DataProcessor(
     val codeProjectId: UUID?,
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "author_id")
+    @JoinColumn(name = "author_id", foreignKey = ForeignKey(name = "dataprocessor_subject_author_id_fkey"))
     val author: Subject?,
 
     @OneToMany(fetch = FetchType.EAGER, cascade = [CascadeType.ALL])
-    @JoinColumn(name = "data_processor_id")
+    @JoinColumn(name = "data_processor_id", foreignKey = ForeignKey(name = "processorparameter_dataprocessor_data_processor_id_fkey"))
     @Fetch(value = FetchMode.SUBSELECT)
     val parameters: List<ProcessorParameter>,
 
     @OneToMany(fetch = FetchType.EAGER, cascade = [CascadeType.ALL])
-    @JoinColumn(name = "data_processor_id")
+    @JoinColumn(name = "data_processor_id", foreignKey = ForeignKey(name = "outputfiles_dataprocessor_data_processor_id_fkey"))
     @Fetch(value = FetchMode.SUBSELECT)
     @LazyCollection(LazyCollectionOption.FALSE)
     val outputFiles: List<OutputFile>,

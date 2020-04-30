@@ -1,6 +1,5 @@
 package com.mlreef.rest
 
-import com.mlreef.rest.helpers.ProjectOfUser
 import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.util.UUID
@@ -12,10 +11,14 @@ object I18N {
 enum class VisibilityScope {
     PRIVATE,
     PUBLIC,
-    TEAM;
+    INTERNAL;
+
+    fun toGitlabString(): String {
+        return this.name.toLowerCase()
+    }
 
     companion object {
-        fun default(): VisibilityScope = TEAM
+        fun default(): VisibilityScope = PUBLIC
     }
 }
 

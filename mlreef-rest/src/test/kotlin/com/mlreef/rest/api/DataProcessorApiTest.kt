@@ -251,7 +251,7 @@ class DataProcessorApiTest : RestApiTest() {
                 objectMapper.readValue(it.response.contentAsByteArray, DataProcessorDto::class.java)
             }
 
-        assertThat(returnedResult).isNotNull
+        assertThat(returnedResult).isNotNull()
     }
 
     @Transactional

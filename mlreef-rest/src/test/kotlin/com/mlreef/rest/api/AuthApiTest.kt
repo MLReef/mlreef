@@ -11,11 +11,11 @@ import com.mlreef.rest.api.v1.dto.UserDto
 import com.mlreef.rest.exceptions.ErrorCode
 import com.mlreef.rest.exceptions.GitlabAuthenticationFailedException
 import com.mlreef.rest.external_api.gitlab.dto.OAuthToken
+import io.mockk.every
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.mockito.Mockito
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.MediaType
 import org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document
@@ -58,11 +58,11 @@ class AuthApiTest : RestApiTest() {
     @Rollback
     @Test
     fun `Can register with new user`() {
-        Mockito.`when`(restClient.userLoginOAuthToGitlab(
-            Mockito.anyString(), Mockito.anyString()
-        )).thenReturn(
-            OAuthToken("accesstoken12345", "refreshtoken1234567", "bearer", "api", 1585910424)
-        )
+//        every {restClient.userLoginOAuthToGitlab(
+//            any(), any()
+//        )} returns (
+//            OAuthToken("accesstoken12345", "refreshtoken1234567", "bearer", "api", 1585910424)
+//        )
 
         val email = "email@example.org"
         val registerRequest = RegisterRequest("username", email, "a password", "name")
@@ -109,11 +109,12 @@ class AuthApiTest : RestApiTest() {
     @Rollback
     @Test
     fun `Can login with existing user`() {
-        Mockito.`when`(restClient.userLoginOAuthToGitlab(
-            Mockito.anyString(), Mockito.anyString()
-        )).thenReturn(
+        every {
+            restClient.userLoginOAuthToGitlab(
+                any(), any()
+            )
+        } returns
             OAuthToken("accesstoken12345", "refreshtoken1234567", "bearer", "api", 1585910424)
-        )
 
         val plainPassword = "password"
         val existingUser = createMockUser(plainPassword, "0000")
@@ -132,16 +133,16 @@ class AuthApiTest : RestApiTest() {
             .andReturn().let {
                 objectMapper.readValue(it.response.contentAsByteArray, UserDto::class.java).censor()
             }
-        assertThat(returnedResult).isNotNull
+        assertThat(returnedResult).isNotNull()
     }
 
     @Transactional
     @Rollback
     @Test
     fun `Cannot login with Gitlab is rejected credentials`() {
-        Mockito.`when`(restClient.userLoginOAuthToGitlab(
-            Mockito.anyString(), Mockito.anyString()
-        )).then {
+        every {
+            restClient.userLoginOAuthToGitlab(any(), any())
+        } answers {
             throw GitlabAuthenticationFailedException(403, "Incorrect user or password", ErrorCode.ValidationFailed, "Bad credentials")
         }
 

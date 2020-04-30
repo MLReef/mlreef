@@ -23,6 +23,7 @@ import org.springframework.security.web.util.matcher.NegatedRequestMatcher
 import org.springframework.session.FindByIndexNameSessionRepository
 import org.springframework.session.Session
 
+
 @Configuration
 @EnableWebSecurity//(debug = true)
 class SecurityConfiguration(private val provider: AuthenticationProvider) : WebSecurityConfigurerAdapter() {
@@ -41,7 +42,7 @@ class SecurityConfiguration(private val provider: AuthenticationProvider) : WebS
     override fun configure(webSecurity: WebSecurity) {
         webSecurity
             .ignoring()
-            .antMatchers("/docs", "/docs/*", AUTH_LOGIN_URL, AUTH_REGISTER_URL, INFO_URL)
+            .antMatchers("/docs", "/docs/*", AUTH_LOGIN_URL, AUTH_REGISTER_URL, EPF_BOT_URL, INFO_URL)
     }
 
     @Throws(Exception::class)
@@ -50,7 +51,7 @@ class SecurityConfiguration(private val provider: AuthenticationProvider) : WebS
             .exceptionHandling().and()
             .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
             .anonymous().and()
-            .authorizeRequests().antMatchers("/docs", "/docs/*", AUTH_LOGIN_URL, AUTH_REGISTER_URL, INFO_URL).permitAll()
+            .authorizeRequests().antMatchers("/docs", "/docs/*", AUTH_LOGIN_URL, AUTH_REGISTER_URL, EPF_BOT_URL, INFO_URL).permitAll()
             .and()
             .authorizeRequests().anyRequest().fullyAuthenticated()
             .and()
@@ -85,12 +86,18 @@ class SecurityConfiguration(private val provider: AuthenticationProvider) : WebS
         private const val PROTECTED_URL = "/api/v1/**"
         private const val AUTH_LOGIN_URL = "/api/v1/auth/login"
         private const val AUTH_REGISTER_URL = "/api/v1/auth/register"
+        private const val EPF_BOT_URL = "/api/v1/epf/**"
         private const val INFO_URL = "/api/v1/info/**"
         private const val PING_URL = "/api/v1/ping"
+
+        // FIXME: Do we still need this?
+        private val STRING_ANT_PATTERNS = listOf("/docs", "/docs/*", AUTH_LOGIN_URL, AUTH_REGISTER_URL, EPF_BOT_URL, INFO_URL).toTypedArray()
+
         private val PROTECTED_MATCHER = AndRequestMatcher(
             AntPathRequestMatcher(PROTECTED_URL),
             NegatedRequestMatcher(AntPathRequestMatcher(AUTH_LOGIN_URL)),
             NegatedRequestMatcher(AntPathRequestMatcher(AUTH_REGISTER_URL)),
+            NegatedRequestMatcher(AntPathRequestMatcher(EPF_BOT_URL)),
             NegatedRequestMatcher(AntPathRequestMatcher(INFO_URL)),
             NegatedRequestMatcher(AntPathRequestMatcher(PING_URL))
         )

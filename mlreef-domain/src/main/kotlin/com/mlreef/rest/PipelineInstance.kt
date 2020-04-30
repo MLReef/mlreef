@@ -6,10 +6,12 @@ import java.util.UUID
 import java.util.UUID.randomUUID
 import javax.persistence.CascadeType
 import javax.persistence.Column
+import javax.persistence.Embedded
 import javax.persistence.Entity
 import javax.persistence.EnumType
 import javax.persistence.Enumerated
 import javax.persistence.FetchType
+import javax.persistence.ForeignKey
 import javax.persistence.Id
 import javax.persistence.JoinColumn
 import javax.persistence.OneToMany
@@ -50,7 +52,10 @@ data class PipelineInstance(
 
     @OneToMany(fetch = FetchType.EAGER)
     @Fetch(value = FetchMode.SUBSELECT)
-    @JoinColumn(name = "data_instance_id")
+    @JoinColumn(
+        name = "data_instance_id",
+        foreignKey = ForeignKey(name = "filelocation_pipelineinstance_data_instance_id_fkey")
+    )
     val inputFiles: MutableList<FileLocation> = arrayListOf(),
 
     /**
@@ -59,11 +64,17 @@ data class PipelineInstance(
      */
     @OneToMany(fetch = FetchType.EAGER, cascade = [CascadeType.ALL])
     @Fetch(value = FetchMode.SUBSELECT)
-    @JoinColumn(name = "data_instance_id")
+    @JoinColumn(
+        name = "data_instance_id",
+        foreignKey = ForeignKey(name = "dataprocessorinstance_pipelineinstance_data_instance_id_fkey")
+    )
     val dataOperations: MutableList<DataProcessorInstance> = arrayListOf(),
 
     @Enumerated(EnumType.STRING)
-    val status: PipelineStatus = PipelineStatus.CREATED
+    val status: PipelineStatus = PipelineStatus.CREATED,
+
+    @Embedded
+    val pipelineJobInfo: PipelineJobInfo? = null
 
 ) : InstanceDescriptor {
 

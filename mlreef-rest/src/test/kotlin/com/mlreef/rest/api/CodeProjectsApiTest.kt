@@ -4,6 +4,7 @@ import com.mlreef.rest.Account
 import com.mlreef.rest.CodeProject
 import com.mlreef.rest.CodeProjectRepository
 import com.mlreef.rest.Person
+import com.mlreef.rest.VisibilityScope
 import com.mlreef.rest.api.v1.CodeProjectCreateRequest
 import com.mlreef.rest.api.v1.CodeProjectUpdateRequest
 import com.mlreef.rest.api.v1.dto.CodeProjectDto
@@ -11,11 +12,11 @@ import com.mlreef.rest.exceptions.ErrorCode
 import com.mlreef.rest.exceptions.GitlabBadRequestException
 import com.mlreef.rest.external_api.gitlab.GroupAccessLevel
 import com.mlreef.rest.feature.system.SessionsService
+import io.mockk.every
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.mockito.Mockito
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.restdocs.mockmvc.MockMvcRestDocumentation
@@ -67,13 +68,18 @@ class CodeProjectsApiTest : RestApiTest() {
         sessionService.killAllSessions("username0000")
     }
 
-
-
     @Transactional
     @Rollback
     @Test
     fun `Can create CodeProject`() {
-        val request = CodeProjectCreateRequest("test-project", "mlreef", "Test project")
+        val request = CodeProjectCreateRequest(
+            slug = "test-project",
+            namespace = "mlreef",
+            name = "Test project",
+            description = "Description of Test Project",
+            visibility = VisibilityScope.PUBLIC,
+            initializeWithReadme = true
+        )
         val returnedResult = this.mockMvc.perform(
             this.defaultAcceptContentAuth(RestDocumentationRequestBuilders.post(rootUrl))
                 .content(objectMapper.writeValueAsString(request)))
@@ -86,20 +92,29 @@ class CodeProjectsApiTest : RestApiTest() {
                 objectMapper.readValue(it.response.contentAsByteArray, CodeProjectDto::class.java)
             }
 
-        assertThat(returnedResult).isNotNull
+        assertThat(returnedResult).isNotNull()
     }
 
     @Transactional
     @Rollback
     @Test
     fun `Cannot create duplicate CodeProject`() {
-        Mockito.`when`(restClient.createProject(
-            Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), anyObject()
-        )).then {
+        every {
+            restClient.createProject(
+                any(), any(), any(), any(), any(), any(), any(), any(), any(), any()
+            )
+        } answers {
             throw GitlabBadRequestException("", ErrorCode.Conflict, "")
         }
 
-        val request = CodeProjectCreateRequest("test-project", "mlreef", "Test project")
+        val request = CodeProjectCreateRequest(
+            slug = "test-project",
+            namespace = "mlreef",
+            name = "Test project",
+            description = "Description of Test Project",
+            visibility = VisibilityScope.PUBLIC,
+            initializeWithReadme = true
+        )
         this.mockMvc.perform(
             this.defaultAcceptContentAuth(RestDocumentationRequestBuilders.post(rootUrl))
                 .content(objectMapper.writeValueAsString(request)))
@@ -110,13 +125,22 @@ class CodeProjectsApiTest : RestApiTest() {
     @Rollback
     @Test
     fun `Cannot create CodeProject with invalid params`() {
-        Mockito.`when`(restClient.createProject(
-            Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), anyObject()
-        )).then {
+        every {
+            restClient.createProject(
+                any(), any(), any(), any(), any(), any(), any(), any(), any(), any()
+            )
+        } answers {
             throw GitlabBadRequestException("", ErrorCode.Conflict, "")
         }
 
-        val request = CodeProjectCreateRequest("", "", "")
+        val request = CodeProjectCreateRequest(
+            slug = "",
+            namespace = "",
+            name = "",
+            description = "Description of Test Project",
+            visibility = VisibilityScope.PUBLIC,
+            initializeWithReadme = true
+        )
         this.mockMvc.perform(
             this.defaultAcceptContentAuth(RestDocumentationRequestBuilders.post(rootUrl))
                 .content(objectMapper.writeValueAsString(request)))
@@ -328,7 +352,6 @@ class CodeProjectsApiTest : RestApiTest() {
         assertThat(returnedResult.gitlabProject).isEqualTo("project-1")
     }
 
-
     @Transactional
     @Rollback
     @Test
@@ -364,7 +387,7 @@ class CodeProjectsApiTest : RestApiTest() {
 
         accountSubjectPreparationTrait.mockGitlabProjectsWithLevel(restClient, project1.gitlabId, account.person.gitlabId!!, GroupAccessLevel.OWNER)
 
-        val request = CodeProjectUpdateRequest("New Test project")
+        val request = CodeProjectUpdateRequest("New Test project", "new description")
 
         val returnedResult = this.mockMvc.perform(
             this.defaultAcceptContentAuth(RestDocumentationRequestBuilders.put("$rootUrl/$id1"))
@@ -390,8 +413,14 @@ class CodeProjectsApiTest : RestApiTest() {
         val project1 = CodeProject(id1, "slug-1", "www.url.com", "Test Project 1", account2.person.id, "group1", "project-1", "mlreef/project1", 1)
         codeProjectRepository.save(project1)
 
-        val request = CodeProjectCreateRequest("test-project", "mlreef", "New Test project")
-
+        val request = CodeProjectCreateRequest(
+            slug = "test-project",
+            namespace = "mlreef",
+            name = "New Test project",
+            description = "Description of Test Project",
+            visibility = VisibilityScope.PUBLIC,
+            initializeWithReadme = true
+        )
         this.mockMvc.perform(
             this.defaultAcceptContentAuth(RestDocumentationRequestBuilders.put("$rootUrl/$id1"))
                 .content(objectMapper.writeValueAsString(request)))
@@ -408,8 +437,7 @@ class CodeProjectsApiTest : RestApiTest() {
 
         accountSubjectPreparationTrait.mockGitlabProjectsWithLevel(restClient, project1.gitlabId, account.person.gitlabId!!, GroupAccessLevel.OWNER)
 
-        assertThat(codeProjectRepository.findByIdOrNull(id1)).isNotNull
-
+        assertThat(codeProjectRepository.findByIdOrNull(id1)).isNotNull()
         this.mockMvc.perform(
             this.defaultAcceptContentAuth(RestDocumentationRequestBuilders.delete("$rootUrl/$id1")))
             .andExpect(MockMvcResultMatchers.status().isNoContent)
@@ -430,14 +458,13 @@ class CodeProjectsApiTest : RestApiTest() {
         accountSubjectPreparationTrait.mockGitlabProjectsWithLevel(restClient, project1.gitlabId, account2.person.gitlabId!!, GroupAccessLevel.OWNER)
         accountSubjectPreparationTrait.mockGitlabProjectsWithLevel(restClient, project1.gitlabId, account.person.gitlabId!!, GroupAccessLevel.MAINTAINER)
 
-        assertThat(codeProjectRepository.findByIdOrNull(id1)).isNotNull
-
+        assertThat(codeProjectRepository.findByIdOrNull(id1)).isNotNull()
         this.mockMvc.perform(
             this.defaultAcceptContentAuth(RestDocumentationRequestBuilders.delete("$rootUrl/$id1")))
             .andExpect(MockMvcResultMatchers.status().isForbidden)
     }
 
-    private fun codeProjectResponseFields(prefix: String = ""): List<FieldDescriptor> {
+    fun codeProjectResponseFields(prefix: String = ""): List<FieldDescriptor> {
         return listOf(
             fieldWithPath(prefix + "id").type(JsonFieldType.STRING).description("Data project id"),
             fieldWithPath(prefix + "slug").type(JsonFieldType.STRING).description("Data project slug"),
@@ -449,18 +476,20 @@ class CodeProjectsApiTest : RestApiTest() {
         )
     }
 
-    private fun codeProjectCreateRequestFields(): List<FieldDescriptor> {
+    fun codeProjectCreateRequestFields(): List<FieldDescriptor> {
         return listOf(
             fieldWithPath("slug").type(JsonFieldType.STRING).description("Valid slug of Project (matches Gitlab)"),
             fieldWithPath("namespace").type(JsonFieldType.STRING).description("Gitlab group or user namespace"),
-            fieldWithPath("name").type(JsonFieldType.STRING).description("Name of Project")
+            fieldWithPath("name").type(JsonFieldType.STRING).description("Name of Project"),
+            fieldWithPath("description").type(JsonFieldType.STRING).description("Description of Project"),
+            fieldWithPath("initialize_with_readme").type(JsonFieldType.BOOLEAN).description("Boolean flag, if that Project should have an automatic commit for a README"),
+            fieldWithPath("visibility").type(JsonFieldType.STRING).description("Visibility, can be 'PUBLIC', 'INTERNAL', 'PRIVATE'")
         )
     }
 
-    private fun codeProjectUpdateRequestFields(): List<FieldDescriptor> {
+    fun codeProjectUpdateRequestFields(): List<FieldDescriptor> {
         return listOf(
-//            fieldWithPath("slug").type(JsonFieldType.STRING).description("Valid slug of Project (matches Gitlab)"),
-//            fieldWithPath("namespace").type(JsonFieldType.STRING).description("Gitlab group or user namespace"),
+            fieldWithPath("description").type(JsonFieldType.STRING).description("Description of Project"),
             fieldWithPath("name").type(JsonFieldType.STRING).description("Name of Project")
         )
     }

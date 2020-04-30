@@ -35,7 +35,7 @@ class MlReefSecurityExpressionRoot(authentication: Authentication)
 
     fun isCurrentUserInResultGroup(): Boolean {
         val id = (returnObject as? DataClassWithId)?.id
-        return if (id!=null) isCurrentUserInGroup(id) else false
+        return if (id != null) isCurrentUserInGroup(id) else false
     }
 
     fun isUserInGroup(groupId: UUID, userId: UUID): Boolean {
@@ -62,7 +62,7 @@ class MlReefSecurityExpressionRoot(authentication: Authentication)
 
     fun isCurrentUserInResultProject(): Boolean {
         val id = (returnObject as? DataClassWithId)?.id
-        return if (id!=null) isCurrentUserInProject(id) else false
+        return if (id != null) isCurrentUserInProject(id) else false
     }
 
     fun canCreateProject(): Boolean {
@@ -73,24 +73,24 @@ class MlReefSecurityExpressionRoot(authentication: Authentication)
         return ((this.principal as? TokenDetails)?.gitlabUser?.canCreateGroup ?: false)
     }
 
-    fun filterProjectByAccessLevel(minAccessLevel: String):Boolean {
+    fun filterProjectByAccessLevel(minAccessLevel: String): Boolean {
         val id = (filterObject as? DataClassWithId)?.id
-        return if (id!=null) hasAccessToProject(id, minAccessLevel) else false
+        return if (id != null) hasAccessToProject(id, minAccessLevel) else false
     }
 
-    fun filterProjectByUserInProject():Boolean {
+    fun filterProjectByUserInProject(): Boolean {
         val id = (filterObject as? DataClassWithId)?.id
-        return if (id!=null) isCurrentUserInProject(id) else false
+        return if (id != null) isCurrentUserInProject(id) else false
     }
 
-    fun filterGroupByAccessLevel(minAccessLevel: String):Boolean {
+    fun filterGroupByAccessLevel(minAccessLevel: String): Boolean {
         val id = (filterObject as? DataClassWithId)?.id
-        return if (id!=null) hasAccessToGroup(id, minAccessLevel) else false
+        return if (id != null) hasAccessToGroup(id, minAccessLevel) else false
     }
 
-    fun filterGroupByUserInGroup():Boolean {
+    fun filterGroupByUserInGroup(): Boolean {
         val id = (filterObject as? DataClassWithId)?.id
-        return if (id!=null) isCurrentUserInGroup(id) else false
+        return if (id != null) isCurrentUserInGroup(id) else false
     }
 
     override fun getReturnObject() = returnObject

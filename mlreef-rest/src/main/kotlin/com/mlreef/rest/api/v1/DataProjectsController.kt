@@ -2,6 +2,7 @@ package com.mlreef.rest.api.v1
 
 import com.mlreef.rest.DataProject
 import com.mlreef.rest.Person
+import com.mlreef.rest.VisibilityScope
 import com.mlreef.rest.api.v1.dto.DataProjectDto
 import com.mlreef.rest.api.v1.dto.UserInProjectDto
 import com.mlreef.rest.api.v1.dto.toDomain
@@ -63,7 +64,8 @@ class DataProjectsController(
     @GetMapping("/{namespace}/{slug}")
     @PostAuthorize("isCurrentUserInResultProject()")
     fun getCodeProjectsByNamespaceAndSlugInPath(@PathVariable namespace: String, @PathVariable slug: String): DataProjectDto {
-        val dataProject = dataProjectService.getProjectsByNamespaceAndSlug(namespace, slug) ?: throw ProjectNotFoundException(path = "$namespace/$slug")
+        val dataProject = dataProjectService.getProjectsByNamespaceAndSlug(namespace, slug)
+            ?: throw ProjectNotFoundException(path = "$namespace/$slug")
         return dataProject.toDto()
     }
 
@@ -77,7 +79,11 @@ class DataProjectsController(
             ownerId = person.id,
             projectSlug = dataProjectCreateRequest.slug,
             projectNamespace = dataProjectCreateRequest.namespace,
-            projectName = dataProjectCreateRequest.name)
+            projectName = dataProjectCreateRequest.name,
+            description = dataProjectCreateRequest.description,
+            initializeWithReadme = dataProjectCreateRequest.initializeWithReadme,
+            visibility = dataProjectCreateRequest.visibility
+        )
 
         return dataProject.toDto()
     }
@@ -92,7 +98,8 @@ class DataProjectsController(
             userToken = token.permanentToken,
             ownerId = person.id,
             projectUUID = id,
-            projectName = dataProjectUpdateRequest.name)
+            projectName = dataProjectUpdateRequest.name,
+            description = dataProjectUpdateRequest.description)
 
         return dataProject.toDto()
     }
@@ -163,11 +170,15 @@ class DataProjectsController(
 class DataProjectCreateRequest(
     @NotEmpty val slug: String,
     @NotEmpty val namespace: String,
-    @NotEmpty val name: String
+    @NotEmpty val name: String,
+    @NotEmpty val description: String,
+    @NotEmpty val initializeWithReadme: Boolean,
+    val visibility: VisibilityScope = VisibilityScope.PUBLIC
 )
 
 class DataProjectUpdateRequest(
-    @NotEmpty val name: String
+    @NotEmpty val name: String,
+    @NotEmpty val description: String
 )
 
 class UsersProjectRequest(

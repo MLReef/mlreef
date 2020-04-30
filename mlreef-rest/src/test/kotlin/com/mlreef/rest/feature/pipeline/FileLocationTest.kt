@@ -62,7 +62,7 @@ class FileLocationTest {
             pipelineConfigId = null,
             dataInstanceId = null
         ).validate()
-        Assertions.assertThat(validate).isNotNull
+        Assertions.assertThat(validate).isNotNull()
     }
 
     @Test
@@ -72,6 +72,6 @@ class FileLocationTest {
             pipelineConfigId = null,
             dataInstanceId = null
         ).validate()
-        Assertions.assertThat(validate).isNotNull
+        Assertions.assertThat(validate).isNotNull()
     }
 }

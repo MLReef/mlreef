@@ -11,6 +11,7 @@ import javax.persistence.Entity
 import javax.persistence.EnumType
 import javax.persistence.Enumerated
 import javax.persistence.FetchType
+import javax.persistence.ForeignKey
 import javax.persistence.Id
 import javax.persistence.JoinColumn
 import javax.persistence.OneToMany
@@ -27,7 +28,10 @@ data class DataProcessorInstance(
 
     @OneToOne(fetch = FetchType.EAGER)
     @Fetch(value = FetchMode.JOIN)
-    @JoinColumn(name = "data_processor_id", referencedColumnName = "id")
+    @JoinColumn(
+        name = "data_processor_id",
+        referencedColumnName = "id",
+        foreignKey = ForeignKey(name = "dataprocessorinstance_dataprocessor_data_processor_id_fkey"))
     val dataProcessor: DataProcessor,
 
     @Column(name = "data_processor_id", insertable = false, updatable = false)
@@ -45,20 +49,27 @@ data class DataProcessorInstance(
     val metricSchema: MetricSchema = dataProcessor.metricSchema,
 
     @OneToMany(fetch = FetchType.EAGER, cascade = [CascadeType.ALL])
-    @JoinColumn(name = "data_processor_instance_id")
+    @JoinColumn(
+        name = "data_processor_instance_id",
+        foreignKey = ForeignKey(name = "parameterinstances_data_processor_instance_id_fkey"))
     val parameterInstances: MutableList<ParameterInstance> = arrayListOf(),
 
     @Column(name = "parent_id")
     val parentId: UUID? = null,
 
     @OneToMany(fetch = FetchType.LAZY, cascade = [CascadeType.MERGE, CascadeType.PERSIST])
-    @JoinColumn(name = "parent_id")
+    @JoinColumn(
+        name = "parent_id",
+        foreignKey = ForeignKey(name = "dataprocessorinstance_dataprocessorinstance_parent_id_fkey"))
     val children: MutableList<DataProcessorInstance> = arrayListOf(),
 
+    @Column(name = "experiment_pre_processing_id")
     var experimentPreProcessingId: UUID? = null,
 
+    @Column(name = "experiment_post_processing_id")
     var experimentPostProcessingId: UUID? = null,
 
+    @Column(name = "experiment_processing_id")
     var experimentProcessingId: UUID? = null,
 
     @Column(name = "data_instance_id")

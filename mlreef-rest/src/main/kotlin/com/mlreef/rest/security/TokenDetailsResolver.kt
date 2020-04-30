@@ -9,7 +9,7 @@ import org.springframework.web.context.request.NativeWebRequest
 import org.springframework.web.method.support.HandlerMethodArgumentResolver
 import org.springframework.web.method.support.ModelAndViewContainer
 
-class TokenDetailsResolver: HandlerMethodArgumentResolver {
+class TokenDetailsResolver : HandlerMethodArgumentResolver {
     override fun supportsParameter(parameter: MethodParameter): Boolean {
         return parameter.parameterType.equals(TokenDetails::class.java)
     }

@@ -93,7 +93,7 @@ class PipelineController(
             ?: throw NotFoundException("dataProject not found for this Pipeline")
         val userToken = currentUserService.permanentToken()
         val adaptedInstance = when (action) {
-            "start" -> pipelineService.startInstance(account, userToken, dataProject.gitlabId, instance)
+            "start" -> pipelineService.startInstance(account, userToken, dataProject.gitlabId, instance, secret = pipelineService.createSecret())
             "archive" -> pipelineService.archiveInstance(instance)
             else -> throw MethodNotAllowedException("No valid action: '$action'")
         }

@@ -7,21 +7,11 @@ import javax.persistence.CascadeType
 import javax.persistence.Column
 import javax.persistence.Entity
 import javax.persistence.FetchType
+import javax.persistence.ForeignKey
 import javax.persistence.JoinColumn
 import javax.persistence.OneToMany
 import javax.persistence.OneToOne
 import javax.persistence.Table
-
-/**
-@Id @Column(name = "id", length = 16, unique = true, nullable = false) val@Id @Column(name = "id", length = 16, unique = true, nullable = false) val id: UUID,
-.... own properties
-// Auditing
-@Version val version: Long? = null,
-@CreatedDate @Column(name = "created_at", nullable = false, updatable = false)
-createdAt: ZonedDateTime = I18N.dateTime(),
-@LastModifiedDate @Column(name = "updated_at")
-val updatedAt: ZonedDateTime? = null
- */
 
 
 @Entity
@@ -32,10 +22,12 @@ class Account(
     val email: String,
     val passwordEncrypted: String,
     @OneToOne(fetch = FetchType.EAGER, cascade = [CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH])
-    @JoinColumn(name = "person_id")
+    @JoinColumn(name = "person_id", foreignKey = ForeignKey(name = "account_subject_person_id_fkey"))
     val person: Person,
     @OneToMany(fetch = FetchType.EAGER, cascade = [CascadeType.ALL])
-    @JoinColumn(name = "account_id")
+    @JoinColumn(
+        name = "account_id",
+        foreignKey = ForeignKey(name = "accounttoken_account_account_id_fkey"))
     val tokens: MutableList<AccountToken> = arrayListOf(),
     @Column(name = "gitlab_id")
     @Deprecated("Use gitlabId in Person Entity")

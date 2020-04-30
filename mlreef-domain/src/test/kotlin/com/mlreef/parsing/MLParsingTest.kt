@@ -9,7 +9,7 @@ class MLParsingTest {
     @Test
     fun `ProcessorParameter have incrementing order `() {
         val result = testResult("resnet_annotations_demo.py")
-        assertThat(result).isNotNull
+        assertThat(result).isNotNull()
         assertThat(result.countMLFunctionParameters).isEqualTo(13)
         assertThat(result.mlAnnotations.size).isEqualTo(15)
 
@@ -21,7 +21,7 @@ class MLParsingTest {
     @Test
     fun `RealTest - parse resnet_demo `() {
         val result = testResult("resnet_annotations_demo.py")
-        assertThat(result).isNotNull
+        assertThat(result).isNotNull()
         assertThat(result.countMLDataProcessor).isEqualTo(1)
         assertThat(result.countMLMetricSchema).isEqualTo(1)
         assertThat(result.countMLDecoratedFunctions).isEqualTo(2)
@@ -31,7 +31,7 @@ class MLParsingTest {
     @Test
     fun `RealTest - parse resnet_demo - ordered arguments`() {
         val result = testResult("resnet_annotations_demo_ordered.py")
-        assertThat(result).isNotNull
+        assertThat(result).isNotNull()
         assertThat(result.countMLDataProcessor).isEqualTo(1)
         assertThat(result.countMLDecoratedFunctions).isEqualTo(1)
         assertThat(result.countMLFunctionParameters).isEqualTo(12)
@@ -40,7 +40,7 @@ class MLParsingTest {
     @Test
     fun `RealTest - parse resnet_demo - named arguments`() {
         val result = testResult("resnet_annotations_demo_named.py")
-        assertThat(result).isNotNull
+        assertThat(result).isNotNull()
         assertThat(result.countMLDataProcessor).isEqualTo(1)
         assertThat(result.countMLDecoratedFunctions).isEqualTo(1)
         assertThat(result.countMLFunctionParameters).isEqualTo(12)
@@ -49,7 +49,7 @@ class MLParsingTest {
     @Test
     fun `RealTest - parse resnet_demo - named & ordered arguments`() {
         val result = testResult("resnet_annotations_demo_mixed.py")
-        assertThat(result).isNotNull
+        assertThat(result).isNotNull()
         assertThat(result.countMLDataProcessor).isEqualTo(1)
         assertThat(result.countMLMetricSchema).isEqualTo(1)
         assertThat(result.countMLDecoratedFunctions).isEqualTo(2)
@@ -59,7 +59,7 @@ class MLParsingTest {
     @Test
     fun `RealTest - parse decorators_example`() {
         val result = testResult("decorators_example.py")
-        assertThat(result).isNotNull
+        assertThat(result).isNotNull()
         assertThat(result.countMLDataProcessor).isEqualTo(1)
         assertThat(result.countMLDecoratedFunctions).isEqualTo(1)
         assertThat(result.countMLFunctionParameters).isEqualTo(2)
@@ -68,14 +68,14 @@ class MLParsingTest {
     @Test
     fun `empty python files return an empty, notnull result`() {
         val result = testResult("python_empty.py")
-        assertThat(result).isNotNull
+        assertThat(result).isNotNull()
         assertThat(result.countFunctions).isEqualTo(0)
     }
 
     @Test
     fun `python files with a statement return an empty, notnull result`() {
         val result = testResult("python_stmt.py")
-        assertThat(result).isNotNull
+        assertThat(result).isNotNull()
         assertThat(result.countFunctions).isEqualTo(0)
     }
 

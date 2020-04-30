@@ -2,6 +2,7 @@ package com.mlreef.rest.api.v1
 
 import com.mlreef.rest.CodeProject
 import com.mlreef.rest.Person
+import com.mlreef.rest.VisibilityScope
 import com.mlreef.rest.api.v1.dto.CodeProjectDto
 import com.mlreef.rest.api.v1.dto.UserInProjectDto
 import com.mlreef.rest.api.v1.dto.toDomain
@@ -60,7 +61,7 @@ class CodeProjectsController(
     @GetMapping("/slug/{slug}")
     @PostFilter("filterProjectByUserInProject()")
     fun getCodeProjectBySlug(@PathVariable slug: String): List<CodeProjectDto> {
-        val codeProjects = codeProjectService.getProjectsBySlug(slug) ?: throw ProjectNotFoundException(path = slug)
+        val codeProjects = codeProjectService.getProjectsBySlug(slug)
         return codeProjects.map(CodeProject::toDto)
     }
 
@@ -84,7 +85,11 @@ class CodeProjectsController(
                 ownerId = person.id,
                 projectSlug = projectSlug,
                 projectNamespace = codeProjectCreateRequest.namespace,
-                projectName = codeProjectCreateRequest.name)
+                projectName = codeProjectCreateRequest.name,
+                description = codeProjectCreateRequest.description,
+                initializeWithReadme = codeProjectCreateRequest.initializeWithReadme,
+                visibility = codeProjectCreateRequest.visibility
+            )
             return codeProject.toDto()
         } catch (e: GitlabConflictException) {
             throw e
@@ -98,14 +103,15 @@ class CodeProjectsController(
     @PutMapping("/{id}")
     @PreAuthorize("isProjectOwner(#id)")
     fun updateCodeProject(@PathVariable id: UUID,
-                          @Valid @RequestBody codeProjectCreateRequest: CodeProjectUpdateRequest,
+                          @Valid @RequestBody projectUpdateRequest: CodeProjectUpdateRequest,
                           token: TokenDetails,
                           person: Person): CodeProjectDto {
         val codeProject = codeProjectService.updateProject(
             userToken = token.permanentToken,
             ownerId = person.id,
             projectUUID = id,
-            projectName = codeProjectCreateRequest.name)
+            projectName = projectUpdateRequest.name,
+            description = projectUpdateRequest.description)
 
         return codeProject.toDto()
     }
@@ -176,9 +182,13 @@ class CodeProjectsController(
 class CodeProjectCreateRequest(
     @NotEmpty val slug: String,
     @NotEmpty val namespace: String,
-    @NotEmpty val name: String
+    @NotEmpty val name: String,
+    @NotEmpty val description: String,
+    @NotEmpty val initializeWithReadme: Boolean,
+    val visibility: VisibilityScope = VisibilityScope.PUBLIC
 )
 
 class CodeProjectUpdateRequest(
-    @NotEmpty val name: String
+    @NotEmpty val name: String,
+    @NotEmpty val description: String
 )

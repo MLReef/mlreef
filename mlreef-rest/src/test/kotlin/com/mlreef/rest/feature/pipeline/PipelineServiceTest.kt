@@ -23,12 +23,13 @@ import com.mlreef.rest.external_api.gitlab.GitlabRestClient
 import com.mlreef.rest.external_api.gitlab.dto.Branch
 import com.mlreef.rest.external_api.gitlab.dto.Commit
 import com.mlreef.rest.service.AbstractServiceTest
+import com.ninjasquad.springmockk.MockkBean
+import io.mockk.every
+import io.mockk.verify
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
-import org.mockito.Mock
-import org.mockito.Mockito
 import org.springframework.beans.factory.annotation.Autowired
 import java.util.UUID
 import java.util.UUID.randomUUID
@@ -61,8 +62,8 @@ class PipelineServiceTest : AbstractServiceTest() {
     @Autowired
     private lateinit var processorParameterRepository: ProcessorParameterRepository
 
-    @Mock
-    private lateinit var gitlabRestClient: GitlabRestClient
+    @MockkBean
+    private lateinit var restClient: GitlabRestClient
 
     private var ownerId: UUID = randomUUID()
     private var dataRepositoryId: UUID = randomUUID()
@@ -78,7 +79,7 @@ class PipelineServiceTest : AbstractServiceTest() {
             dataProcessorRepository = dataProcessorRepository,
             processorParameterRepository = processorParameterRepository,
             gitlabRootUrl = "http://localhost:10080",
-            gitlabRestClient = gitlabRestClient)
+            gitlabRestClient = restClient)
 
         val subject = Person(ownerId, "new-person", "person's name", 1L)
         subjectRepository.save(subject)
@@ -233,7 +234,7 @@ class PipelineServiceTest : AbstractServiceTest() {
             "sourcebranch",
             "pipeline-\$ID ", listOf(), listOf())
 
-        assertThat(createExperiment).isNotNull
+        assertThat(createExperiment).isNotNull()
     }
 
     @Test
@@ -256,7 +257,7 @@ class PipelineServiceTest : AbstractServiceTest() {
             "sourcebranch",
             "pipeline-\$ID ", listOf(), listOf())
 
-        assertThat(createExperiment).isNotNull
+        assertThat(createExperiment).isNotNull()
     }
 
     @Test
@@ -279,7 +280,7 @@ class PipelineServiceTest : AbstractServiceTest() {
             "sourcebranch",
             "pipeline-\$ID ", listOf(), listOf())
 
-        assertThat(createExperiment).isNotNull
+        assertThat(createExperiment).isNotNull()
     }
 
     @Test
@@ -293,7 +294,7 @@ class PipelineServiceTest : AbstractServiceTest() {
             "sourcebranch",
             "pipeline-\$ID ", listOf(), listOf())
 
-        assertThat(createExperiment).isNotNull
+        assertThat(createExperiment).isNotNull()
     }
 
     @Test
@@ -307,7 +308,7 @@ class PipelineServiceTest : AbstractServiceTest() {
             "sourcebranch",
             "pipeline-\$ID ", listOf(), listOf())
 
-        assertThat(createExperiment).isNotNull
+        assertThat(createExperiment).isNotNull()
     }
 
     @Test
@@ -321,7 +322,7 @@ class PipelineServiceTest : AbstractServiceTest() {
             "sourcebranch",
             "pipeline-\$ID ", listOf(), listOf())
 
-        assertThat(createExperiment).isNotNull
+        assertThat(createExperiment).isNotNull()
     }
 
     @Test
@@ -335,14 +336,14 @@ class PipelineServiceTest : AbstractServiceTest() {
             "sourcebranch",
             " ", listOf(), listOf())
 
-        assertThat(createExperiment).isNotNull
+        assertThat(createExperiment).isNotNull()
     }
 
     @Test
     fun `Can create PipelineConfig with DataProcessors`() {
         val pipelineConfig = createFullMockData()
 
-        assertThat(pipelineConfig).isNotNull
+        assertThat(pipelineConfig).isNotNull()
     }
 
     @Test
@@ -351,7 +352,7 @@ class PipelineServiceTest : AbstractServiceTest() {
 
         val createdInstance = pipelineConfig.createInstance(1)
 
-        assertThat(createdInstance).isNotNull
+        assertThat(createdInstance).isNotNull()
         assertThat(createdInstance.status).isEqualTo(PipelineStatus.CREATED)
     }
 
@@ -401,11 +402,11 @@ class PipelineServiceTest : AbstractServiceTest() {
     fun `Can create DataInstance from PipelineConfig with useful targetBranchPattern`() {
         val testId = randomUUID()
         val createFullMockData1 = createFullMockData(" ", "slug3")
-        val pid = createFullMockData1.id
-        assertThat(createFullMockData1.createTargetBranchName(testId, 1)).isEqualTo("datainstance-$pid-1")
+        val slug1 = createFullMockData1.slug
+        assertThat(createFullMockData1.createTargetBranchName(testId, 1)).isEqualTo("datainstance-$slug1-1")
         assertThat(createFullMockData("bla-ID", "slug1").createTargetBranchName(testId, 3)).isEqualTo("bla-ID")
-        assertThat(createFullMockData("bla-\$NUM", "slug2").createTargetBranchName(testId, 8)).isEqualTo("bla-8")
-        val createFullMockData = createFullMockData("\$SLUG-\$PID-\$NUM", "slug4")
+        assertThat(createFullMockData("bla-\$NUMBER", "slug2").createTargetBranchName(testId, 8)).isEqualTo("bla-8")
+        val createFullMockData = createFullMockData("\$SLUG-\$PID-\$NUMBER", "slug4")
         val pid2 = createFullMockData.id
         val slug = createFullMockData.slug
         assertThat(createFullMockData.createTargetBranchName(testId, 8)).isEqualTo("$slug-$pid2-8")
@@ -419,25 +420,25 @@ class PipelineServiceTest : AbstractServiceTest() {
         val fileContent = "fileContent"
         val sourceBranch = "master"
 
-        val assertCommitMessage = "pipeline execution"
 
         val fileContents: Map<String, String> = mapOf(Pair(".mlreef.yml", fileContent))
 
-        Mockito.`when`(
-            gitlabRestClient.createBranch(userToken, projectId, targetBranch, sourceBranch)
-        ).thenReturn(Branch(ref = sourceBranch, branch = targetBranch))
-        Mockito.`when`(
-            gitlabRestClient.commitFiles(
+        every {
+            restClient.createBranch(userToken, projectId, targetBranch, sourceBranch)
+        } returns (Branch(ref = sourceBranch, branch = targetBranch))
+        every {
+            restClient.commitFiles(
                 token = userToken, targetBranch = targetBranch,
-                fileContents = fileContents, projectId = projectId, commitMessage = assertCommitMessage)
-        ).thenReturn(Commit())
+                fileContents = fileContents, projectId = projectId, commitMessage = any(),
+                action = "create")
+        } returns (Commit())
 
         val commit = service.commitYamlFile(userToken, projectId, targetBranch, fileContent, sourceBranch)
 
-        Mockito.verify(gitlabRestClient).createBranch(userToken, projectId, targetBranch, sourceBranch)
-        Mockito.verify(gitlabRestClient).commitFiles(userToken, projectId, targetBranch, assertCommitMessage, fileContents)
+        verify { restClient.createBranch(userToken, projectId, targetBranch, sourceBranch) }
+        verify { restClient.commitFiles(userToken, projectId, targetBranch, any(), fileContents, action = "create") }
 
-        assertThat(commit).isNotNull
+        assertThat(commit).isNotNull()
     }
 
     private fun createFullMockData(targetBranchPattern: String = "", slug: String = "slug"): PipelineConfig {

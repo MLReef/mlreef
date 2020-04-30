@@ -16,7 +16,7 @@ data class AccountToken(
     @Id @Column(name = "id", length = 16, unique = true, nullable = false) val id: UUID,
     @Column(name = "account_id")
     val accountId: UUID,
-    @Column(unique = true)
+    @Column()
     val token: String,
     @Column(name = "gitlab_id")
     val gitlabId: Int? = null,

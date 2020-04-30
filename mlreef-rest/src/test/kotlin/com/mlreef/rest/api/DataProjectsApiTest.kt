@@ -3,6 +3,7 @@ package com.mlreef.rest.api
 import com.mlreef.rest.DataProject
 import com.mlreef.rest.DataProjectRepository
 import com.mlreef.rest.Person
+import com.mlreef.rest.VisibilityScope
 import com.mlreef.rest.api.v1.DataProjectCreateRequest
 import com.mlreef.rest.api.v1.DataProjectUpdateRequest
 import com.mlreef.rest.api.v1.dto.DataProjectDto
@@ -10,11 +11,11 @@ import com.mlreef.rest.exceptions.ErrorCode
 import com.mlreef.rest.exceptions.GitlabBadRequestException
 import com.mlreef.rest.external_api.gitlab.GroupAccessLevel
 import com.mlreef.rest.feature.system.SessionsService
+import io.mockk.every
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.mockito.Mockito
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.restdocs.mockmvc.MockMvcRestDocumentation
@@ -56,7 +57,7 @@ class DataProjectsApiTest : RestApiTest() {
     @Transactional
     @Rollback
     @Test fun `Can create DataProject`() {
-        val request = DataProjectCreateRequest("test-project", "mlreef", "Test project")
+        val request = DataProjectCreateRequest("test-project", "mlreef", "Test project", "description", true, VisibilityScope.PUBLIC)
         val returnedResult = this.mockMvc.perform(
             this.defaultAcceptContentAuth(RestDocumentationRequestBuilders.post(rootUrl))
                 .content(objectMapper.writeValueAsString(request)))
@@ -69,19 +70,21 @@ class DataProjectsApiTest : RestApiTest() {
                 objectMapper.readValue(it.response.contentAsByteArray, DataProjectDto::class.java)
             }
 
-        assertThat(returnedResult).isNotNull
+        assertThat(returnedResult).isNotNull()
     }
 
     @Transactional
     @Rollback
     @Test fun `Cannot create duplicate DataProject`() {
-        Mockito.`when`(restClient.createProject(
-            Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), anyObject()
-        )).then {
+        every {
+            restClient.createProject(
+                any(), any(), any(), any(), any(), any(), any(), any(), any(), any()
+            )
+        } answers {
             throw GitlabBadRequestException("", ErrorCode.Conflict, "")
         }
 
-        val request = DataProjectCreateRequest("test-project", "mlreef", "Test project")
+        val request = DataProjectCreateRequest("test-project", "mlreef", "Test project", "description", true, VisibilityScope.PUBLIC)
         this.mockMvc.perform(
             this.defaultAcceptContentAuth(RestDocumentationRequestBuilders.post(rootUrl))
                 .content(objectMapper.writeValueAsString(request)))
@@ -91,13 +94,15 @@ class DataProjectsApiTest : RestApiTest() {
     @Transactional
     @Rollback
     @Test fun `Cannot create DataProject with invalid params`() {
-        Mockito.`when`(restClient.createProject(
-            Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), anyObject()
-        )).then {
+        every {
+            restClient.createProject(
+                any(), any(), any(), any(), any(), any(), any(), any(), any(), any()
+            )
+        } answers {
             throw GitlabBadRequestException("", ErrorCode.GitlabCommonError, "")
         }
 
-        val request = DataProjectCreateRequest("", "", "")
+        val request = DataProjectCreateRequest("", "", "", "description", true, VisibilityScope.PUBLIC)
         this.mockMvc.perform(
             this.defaultAcceptContentAuth(RestDocumentationRequestBuilders.post(rootUrl))
                 .content(objectMapper.writeValueAsString(request)))
@@ -298,7 +303,6 @@ class DataProjectsApiTest : RestApiTest() {
         accountSubjectPreparationTrait.mockGitlabProjectsWithLevel(restClient, project3.gitlabId, subject2.gitlabId!!, GroupAccessLevel.OWNER)
         accountSubjectPreparationTrait.mockGitlabProjectsWithLevel(restClient, project4.gitlabId, subject2.gitlabId!!, GroupAccessLevel.OWNER)
 
-
         val returnedResult: DataProjectDto = this.mockMvc.perform(
             this.defaultAcceptContentAuth(RestDocumentationRequestBuilders.get("$rootUrl/mlreef/project-1")))
             .andExpect(MockMvcResultMatchers.status().isOk)
@@ -346,7 +350,7 @@ class DataProjectsApiTest : RestApiTest() {
 
         accountSubjectPreparationTrait.mockGitlabProjectsWithLevel(restClient, project1.gitlabId, subject.gitlabId!!, GroupAccessLevel.OWNER)
 
-        val request = DataProjectUpdateRequest("New Test project")
+        val request = DataProjectUpdateRequest("New Test project", "description")
 
         val returnedResult = this.mockMvc.perform(
             this.defaultAcceptContentAuth(RestDocumentationRequestBuilders.put("$rootUrl/$id1"))
@@ -370,7 +374,7 @@ class DataProjectsApiTest : RestApiTest() {
         val project1 = DataProject(id1, "slug-1", "www.url.com", "Test Project 1", subject.id, "mlreef", "group1", "mlreef/project-1", 1, listOf())
         dataProjectRepository.save(project1)
 
-        val request = DataProjectCreateRequest("test-project", "mlreef", "New Test project")
+        val request = DataProjectCreateRequest("test-project", "mlreef", "New Test project", "description", true, VisibilityScope.PUBLIC)
 
         this.mockMvc.perform(
             this.defaultAcceptContentAuth(RestDocumentationRequestBuilders.put("$rootUrl/$id1"))
@@ -387,8 +391,7 @@ class DataProjectsApiTest : RestApiTest() {
 
         accountSubjectPreparationTrait.mockGitlabProjectsWithLevel(restClient, project1.gitlabId, subject.gitlabId!!, GroupAccessLevel.OWNER)
 
-        assertThat(dataProjectRepository.findByIdOrNull(id1)).isNotNull
-
+        assertThat(dataProjectRepository.findByIdOrNull(id1)).isNotNull()
         this.mockMvc.perform(
             this.defaultAcceptContentAuth(RestDocumentationRequestBuilders.delete("$rootUrl/$id1")))
             .andExpect(MockMvcResultMatchers.status().isNoContent)
@@ -408,8 +411,7 @@ class DataProjectsApiTest : RestApiTest() {
         accountSubjectPreparationTrait.mockGitlabProjectsWithLevel(restClient, project1.gitlabId, 456L, GroupAccessLevel.OWNER)
         accountSubjectPreparationTrait.mockGitlabProjectsWithLevel(restClient, project1.gitlabId, subject.gitlabId!!, GroupAccessLevel.MAINTAINER)
 
-        assertThat(dataProjectRepository.findByIdOrNull(id1)).isNotNull
-
+        assertThat(dataProjectRepository.findByIdOrNull(id1)).isNotNull()
         this.mockMvc.perform(
             this.defaultAcceptContentAuth(RestDocumentationRequestBuilders.delete("$rootUrl/$id1")))
             .andExpect(MockMvcResultMatchers.status().isForbidden)
@@ -433,12 +435,16 @@ class DataProjectsApiTest : RestApiTest() {
         return listOf(
             fieldWithPath("slug").type(JsonFieldType.STRING).description("Valid slug of Project (matches Gitlab)"),
             fieldWithPath("namespace").type(JsonFieldType.STRING).description("Gitlab group or user namespace"),
-            fieldWithPath("name").type(JsonFieldType.STRING).description("Name of Project")
+            fieldWithPath("name").type(JsonFieldType.STRING).description("Name of Project"),
+            fieldWithPath("description").type(JsonFieldType.STRING).description("Description of Project"),
+            fieldWithPath("initialize_with_readme").type(JsonFieldType.BOOLEAN).description("Boolean flag, if that Project should have an automatic commit for a README"),
+            fieldWithPath("visibility").type(JsonFieldType.STRING).description("Visibility, can be 'PUBLIC', 'INTERNAL', 'PRIVATE'")
         )
     }
 
     private fun dataProjectUpdateRequestFields(): List<FieldDescriptor> {
         return listOf(
+            fieldWithPath("description").type(JsonFieldType.STRING).description("Description of Project"),
             fieldWithPath("name").type(JsonFieldType.STRING).description("Name of Project")
         )
     }

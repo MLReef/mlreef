@@ -6,22 +6,25 @@ import com.mlreef.rest.AccountTokenRepository
 import com.mlreef.rest.ApplicationProfiles
 import com.mlreef.rest.PersonRepository
 import com.mlreef.rest.external_api.gitlab.GitlabRestClient
+import com.mlreef.rest.external_api.gitlab.dto.Branch
+import com.mlreef.rest.external_api.gitlab.dto.Commit
 import com.mlreef.rest.external_api.gitlab.dto.GitlabGroup
 import com.mlreef.rest.external_api.gitlab.dto.GitlabProject
 import com.mlreef.rest.external_api.gitlab.dto.GitlabUser
 import com.mlreef.rest.external_api.gitlab.dto.GitlabUserInGroup
 import com.mlreef.rest.external_api.gitlab.dto.GitlabUserToken
 import com.mlreef.rest.external_api.gitlab.dto.OAuthToken
+import com.mlreef.rest.feature.pipeline.PipelineService
 import com.mlreef.rest.testcommons.TestPostgresContainer
 import com.mlreef.rest.testcommons.TestRedisContainer
+import com.ninjasquad.springmockk.MockkBean
+import io.mockk.every
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.extension.ExtendWith
-import org.mockito.Mockito
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.jdbc.EmbeddedDatabaseConnection
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.http.MediaType
 import org.springframework.restdocs.RestDocumentationContextProvider
 import org.springframework.restdocs.RestDocumentationExtension
@@ -58,6 +61,7 @@ abstract class RestApiTest {
     companion object {
         const val testPrivateUserTokenMock: String = "doesnotmatterat-all123"
         const val HEADER_PRIVATE_TOKEN = "PRIVATE-TOKEN"
+        const val EPF_HEADER = "EPF-BOT-USER"
     }
 
     @Autowired protected lateinit var objectMapper: ObjectMapper
@@ -66,10 +70,12 @@ abstract class RestApiTest {
     @Autowired protected lateinit var personRepository: PersonRepository
     @Autowired protected lateinit var accountRepository: AccountRepository
 
-    @MockBean
+    @Autowired protected lateinit var pipelineService: PipelineService
+
+    @MockkBean(relaxed = true, relaxUnitFun = true)
     protected lateinit var restClient: GitlabRestClient
 
-    @MockBean
+    @MockkBean(relaxed = true, relaxUnitFun = true)
     protected lateinit var currentUserService: CurrentUserService
 
     private val passwordEncoder: PasswordEncoder = BCryptPasswordEncoder()
@@ -95,11 +101,14 @@ abstract class RestApiTest {
             )
             .build()
 
-        Mockito.`when`(restClient.userLoginOAuthToGitlab(
-            Mockito.anyString(), Mockito.anyString()
-        )).thenReturn(
-            OAuthToken("accesstoken12345", "refreshtoken1234567", "bearer", "api", 1585910424)
-        )
+
+        every { restClient.userLoginOAuthToGitlab(any(), any()) } returns
+            OAuthToken(
+                "accesstoken12345",
+                "refreshtoken1234567",
+                "bearer",
+                "api",
+                1585910424)
 
         val gitlabUser = GitlabUser(
             id = 1,
@@ -109,7 +118,7 @@ abstract class RestApiTest {
             state = "active"
         )
 
-        Mockito.`when`(restClient.getUser(Mockito.anyString())).thenReturn(
+        every { restClient.getUser(any()) } returns
             GitlabUser(
                 id = 1,
                 name = "Mock Gitlab User",
@@ -117,15 +126,19 @@ abstract class RestApiTest {
                 email = "mock@example.com",
                 state = "active"
             )
-        )
 
-        Mockito.`when`(restClient.adminCreateUser(
-            Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()
-        )).thenReturn(
+
+        every {
+            restClient.adminCreateUser(
+                any(), any(), any(), any()
+            )
+        } returns
             gitlabUser
-        )
 
-        Mockito.`when`(restClient.adminCreateUserToken(Mockito.anyLong(), Mockito.anyString())).thenReturn(
+
+        every {
+            restClient.adminCreateUserToken(any(), any())
+        } returns
             GitlabUserToken(
                 id = 1,
                 revoked = false,
@@ -133,33 +146,31 @@ abstract class RestApiTest {
                 active = true,
                 name = "mlreef-token"
             )
-        )
 
-        Mockito.`when`(restClient.adminCreateGroup(
-            Mockito.anyString(), Mockito.anyString()
-        )).thenReturn(
+        every {
+            restClient.adminCreateGroup(any(), any())
+        } returns
             GitlabGroup(
                 id = 1,
                 webUrl = "http://127.0.0.1/",
                 name = "Mock Gitlab Group",
                 path = "mock-group"
             )
-        )
 
-        Mockito.`when`(restClient.adminAddUserToGroup(
-            Mockito.anyLong(), Mockito.anyLong(), anyObject()
-        )).thenReturn(
+
+        every {
+            restClient.adminAddUserToGroup(any(), any(), any())
+        } returns
             GitlabUserInGroup(
                 id = 1,
                 webUrl = "http://127.0.0.1/",
                 name = "Mock Gitlab Group",
                 username = "mock-group"
             )
-        )
 
-        Mockito.`when`(restClient.createProject(
-            Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), anyObject()
-        )).thenReturn(
+        every {
+            restClient.createProject(any(), any(), any(), any(), any(), any(), any(), any(), any(), any())
+        } returns
             GitlabProject(
                 id = 1,
                 name = "Mock Gitlab Project",
@@ -170,30 +181,50 @@ abstract class RestApiTest {
                 creatorId = 1L,
                 webUrl = "http://127.0.0.1/"
             )
-        )
 
-        Mockito.doNothing().`when`(restClient).deleteProject(
-            Mockito.anyLong(), Mockito.anyString()
-        )
 
-        Mockito.`when`(restClient.userCreateGroup(Mockito.anyString(), Mockito.anyString(), Mockito.anyString())).thenReturn(
-            GitlabGroup(
-                id = 1,
-                webUrl = "www.url.com",
-                name = "test-group",
-                path = "test-path"
-            )
-        )
+        every {
+            restClient.deleteProject(any(), any())
+        } returns Unit
 
-        Mockito.`when`(currentUserService.person()).then { personRepository.findAll().first() }
-        Mockito.`when`(currentUserService.account()).then { accountRepository.findAll().first() }
-        Mockito.`when`(currentUserService.permanentToken()).then { testPrivateUserTokenMock }
+
+        every {
+            restClient.userCreateGroup(any(), any(), any())
+        } returns GitlabGroup(
+            id = 1,
+            webUrl = "www.url.com",
+            name = "test-group",
+            path = "test-path"
+        )
+        every { restClient.userGetUserGroups(any()) } returns emptyList()
+        every { restClient.createBranch(any(), any(), any(), any()) } returns Branch("branch")
+        every { restClient.commitFiles(any(), any(), any(), any(), any(), any()) } returns Commit("branch")
+
+
+        every {
+            currentUserService.person()
+        } answers { personRepository.findAll().first() }
+
+        every {
+            currentUserService.account()
+        } answers { accountRepository.findAll().first() }
+
+        every {
+            currentUserService.permanentToken()
+        } answers { testPrivateUserTokenMock }
     }
 
     protected fun defaultAcceptContentAuth(requestBuilder: MockHttpServletRequestBuilder): MockHttpServletRequestBuilder {
         return requestBuilder
             .accept(MediaType.APPLICATION_JSON)
             .header(HEADER_PRIVATE_TOKEN, testPrivateUserTokenMock)
+            .contentType(MediaType.APPLICATION_JSON)
+    }
+
+    protected fun defaultAcceptContentEPFBot(token: String, requestBuilder: MockHttpServletRequestBuilder): MockHttpServletRequestBuilder {
+        return requestBuilder
+            .accept(MediaType.APPLICATION_JSON)
+            .header(EPF_HEADER, token)
             .contentType(MediaType.APPLICATION_JSON)
     }
 
@@ -206,8 +237,4 @@ abstract class RestApiTest {
         )
     }
 
-    //Workaround for Mockito to use Kotlin's default parameters in methods
-    protected fun <T> anyObject(): T {
-        return Mockito.any<T>()
-    }
 }

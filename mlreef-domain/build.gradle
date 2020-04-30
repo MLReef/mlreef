@@ -21,12 +21,12 @@ dependencies {
     implementation 'org.springframework.data:spring-data-jpa'
     implementation 'org.jetbrains.kotlin:kotlin-reflect'
 
-	// parsing python files with ANTLR
-	antlr 'org.antlr:antlr4:4.7.2'
-	implementation 'org.antlr:antlr4-runtime:4.7.2'
+    // parsing python files with ANTLR
+    antlr 'org.antlr:antlr4:4.7.2'
+    implementation 'org.antlr:antlr4-runtime:4.7.2'
 
-	// testing
-	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    // testing
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
 
     def jupiter = "5.4.0"
     def mockkVersion = "1.9.3"
@@ -69,9 +69,9 @@ compileTestKotlin {
     }
 }
 generateGrammarSource {
-	maxHeapSize = "64m"
-	arguments += ["-visitor"]
-	outputDirectory = file("build/generated-src/com/mlreef/antlr")
+    maxHeapSize = "64m"
+    arguments += ["-visitor"]
+    outputDirectory = file("build/generated-src/com/mlreef/antlr")
 }
 
 compileKotlin.dependsOn generateGrammarSource

@@ -24,7 +24,7 @@ class GenericProjectsController(
 
     @GetMapping
     fun getAllDataProjects(person: Person): List<MLProjectDto> {
-        return projectService.getAllProjectsForUser(person.id).map{it.toDto()}
+        return projectService.getAllProjectsForUser(person.id).map { it.toDto() }
     }
 
     @GetMapping("/{id}")

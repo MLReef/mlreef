@@ -13,7 +13,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
 class WebConfigurer(
     val accountRepository: AccountRepository,
     val personRepository: PersonRepository
-): WebMvcConfigurer {
+) : WebMvcConfigurer {
     override fun addArgumentResolvers(resolvers: MutableList<HandlerMethodArgumentResolver>) {
         resolvers.add(TokenDetailsResolver())
         resolvers.add(PersonResolver(personRepository))
