@@ -42,8 +42,17 @@ After the setup has finished you can connect to MLReef via: [http://localhost](h
  4. If you are running the backend on a different machine (e.g. a cloud instance)
     look at the config file `web/.env` for further instructions on how to configure it properly 
 
-### Run the frontend locally Locally
-You can start the frontend separately with npm using the `npm start` command. 
+
+### Install and Run the frontend locally Locally
+The following commands all have to be executed from the folder:
+
+To install all dependencies execute `npm install`
+
+You can start the frontend separately with npm running `npm start`
+
+To build the frontend's production docker image execute `docker build --tag frontend:local .` 
+
+To run the production image locally execute `docker run --rm --name frontend-prod-test -p 3000:3000 frontend:local`
 
 
 ### Run the backend services locally
