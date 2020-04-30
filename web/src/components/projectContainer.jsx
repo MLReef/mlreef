@@ -20,7 +20,13 @@ class ProjectContainer extends React.Component {
   }
 
   render() {
-    const { project, forceShowExperimentList, setIsForking } = this.props;
+    const {
+      project,
+      forceShowExperimentList,
+      setIsForking,
+      viewName,
+    } = this.props;
+
     let id, description, defaultBranch, groupName, projectName;
     groupName = "--";
     projectName = "--";
@@ -34,7 +40,15 @@ class ProjectContainer extends React.Component {
     return (
       <div className="project-container" style={{ backgroundColor: '#e5e5e5' }}>
         <div className="project-details main-content">
-          <ProjectNav key={`project-key-${id}`} projectId={id} folders={[groupName, projectName, 'Data']} />
+          <ProjectNav
+            key={`project-key-${id}`}
+            projectId={id}
+            folders={[
+              groupName,
+              projectName,
+              viewName,
+            ]}
+          />
 
           <ProjectInfo project={project} setIsForking={setIsForking} />
           <p className="project-desc">
@@ -84,10 +98,14 @@ function mapStateToProps(state) {
     project,
   };
 }
+ProjectContainer.defaultProps = {
+  viewName: 'Data',
+};
 
 ProjectContainer.propTypes = {
   project: objectOf(shape).isRequired,
   activeFeature: string.isRequired,
+  viewName: string,
 };
 
 export default connect(mapStateToProps)(ProjectContainer);

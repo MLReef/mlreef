@@ -43,7 +43,7 @@ const Insights = (props) => {
       <ProjectContainer
         project={selectedProject}
         activeFeature="insights"
-        folders={[groupName, name, 'Insights']}
+        viewName="Insights"
       />
         <div className="main-content web-box">
           <div className="insights-menu">
