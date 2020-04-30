@@ -1,50 +1,48 @@
 import React from 'react';
-import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
 import './projectNav.css';
-import {
-  string, shape, arrayOf, number,
-} from 'prop-types';
 
-const ProjectNav = (props) => {
-  const { folders, projectId, selectedProject } = props;
-  let name = '--';
-  if(props.selectedProject){
-    name = selectedProject.name; 
-  }
-  return (
-    <div className="project-nav">
-      {folders.map((folder, index) => (folder === name)
+const ProjectNav = (params) => (
+  <div className="project-nav">
+    {params.folders.map((folder, index) => ((index === (params.folders.length - 1))
+      ? folder === 'Data'
         ? (
-          <Link key={`project-nav-link-${index.toString()}`} to={`/my-projects/${projectId}/master`}>
+          <Link key={`project-nav-link-${index}`} to={`/my-projects/${params.projectId}/master`}>
+            {' '}
             <p>
-              {` ${folder} > `}
-              &nbsp;
+              {' '}
+              {folder}
+              {' '}
+&nbsp;
             </p>
           </Link>
         )
         : (
-          <p key={`project-nav-paragraph-${index.toString()}`}>
-            {index === (folders.length - 1) ? ` ${folder} ` : ` ${folder} > ` }
-            &nbsp;
+          <p key={`project-nav-paragraph-${index}`}>
+            {folder}
+&nbsp;
           </p>
-        ))}
-    </div>
-  );
-};
+        )
+      : folder === 'Data'
+        ? (
+          <Link key={`project-nav-link-${index}`} to={`/my-projects/${params.projectId}/master`}>
+            {' '}
+            <p>
+              {' '}
+              {folder}
+              {' '}
+&nbsp;> &nbsp;
+            </p>
+          </Link>
+        )
+        : (
+          <p key={`project-nav-paragraph-${index}`}>
+            {' '}
+            {folder}
+&nbsp;>&nbsp;
+          </p>
+        )))}
+  </div>
+);
 
-ProjectNav.propTypes = {
-  selectedProject: shape({
-    name: string.isRequired,
-  }).isRequired,
-  folders: arrayOf(string).isRequired,
-  projectId: number.isRequired,
-};
-
-function mapStateToProps(state) {
-  return {
-    selectedProject: state.projects.selectedProject,
-  };
-}
-
-export default connect(mapStateToProps)(ProjectNav);
+export default ProjectNav;

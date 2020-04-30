@@ -104,7 +104,7 @@ class ExperimentsOverview extends Component {
           <ProjectContainer
             forceShowExperimentList={this.forceShowExperimentList}
             activeFeature="experiments"
-            folders={[groupName, selectedProject.name, 'Experiments']}
+            folders={[groupName, selectedProject.name, 'Data', 'Experiments']}
           />
           {loading
             ? (
