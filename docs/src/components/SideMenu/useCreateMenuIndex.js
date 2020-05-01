@@ -112,8 +112,6 @@ export const useCreateMenuIndex = () => {
       `
   );
   const { allFile: { nodes } } = data;
-  // console.log(nodes);
   const tree = makeTree(nodes);
-  // console.log(tree);
   return mapMenuItem(tree);
 };

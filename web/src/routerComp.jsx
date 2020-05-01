@@ -23,6 +23,7 @@ import NewBranch from './components/newBranch';
 import BranchesView from './components/branches-list-view/branchesView';
 import mergeRequestOverview from './components/new-merge-request/merge-request-overview';
 import BasicMergeRequestView from './components/mergeRequestDetailView/basicMergeRequestView';
+import UploadFile from './components/views/uploadFile/uploadFile';
 import DataVisualizationDetail from './components/data-visualization/dataVisualizationDetail';
 import ForkView from './components/ForkView';
 import Insights from './components/insights/insights';
@@ -56,6 +57,16 @@ const RouterComp = () => (
         path="/my-projects/:projectId/insights/-/jobs"
         exact
         component={Insights}
+      />
+      <PrivateRoute
+        exact
+        path="/my-projects/:projectId/upload-file"
+        component={UploadFile}
+      />
+      <PrivateRoute
+        exact
+        path="/my-projects/:projectId/:branch/upload-file"
+        component={UploadFile}
       />
       <PrivateRoute
         exact

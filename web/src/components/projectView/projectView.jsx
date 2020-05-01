@@ -8,7 +8,7 @@ import { toastr } from 'react-redux-toastr';
 import forkingImage from 'images/forking.png';
 import ReadMeComponent from '../readMe/readMe';
 import ProjectContainer from '../projectContainer';
-import FilesContainer from '../FilesContainer';
+import FilesContainer from '../FilesContainer/FilesContainer';
 import RepoInfo from '../repoInfo';
 import RepoFeatures from '../repoFeatures';
 import Navbar from '../navbar/navbar';
@@ -78,18 +78,11 @@ class ProjectView extends React.Component {
       .catch(() => this.props.history.push('/error-page'));
   }
 
-  static getDerivedStateFromProps(nextProps, prevState) {
-    if (nextProps.mergeRequests.length > 0) {
-      return {
-        mergeRequests: nextProps.mergeRequests,
-      };
-    }
-    if (nextProps.match.params.branch !== prevState.branch) {
-      return {
-        branch: decodeURIComponent(nextProps.match.params.branch),
-      };
-    }
-    return prevState;
+  static getDerivedStateFromProps(nextProps) {
+    return {
+      mergeRequests: nextProps.mergeRequests,
+      branch: decodeURIComponent(nextProps.match.params.branch)
+    };
   }
 
   componentWillUnmount() {
@@ -111,7 +104,7 @@ class ProjectView extends React.Component {
   }
 
   render() {
-    const { match: { params: { path } }, branches, history } = this.props;
+    const { match: { params: { path, projectId } }, branches, history } = this.props;
     const {
       lastCommit,
       branch,
@@ -121,7 +114,7 @@ class ProjectView extends React.Component {
       mergeRequests,
       isForking,
     } = this.state;
-
+    console.log(branch);
     let isEmptyProject, sshUrlToRepo, projectName, showReadMe, encodedBranch;
     if (selectedProject) {
       isEmptyProject = selectedProject.empty_repo;
@@ -138,7 +131,7 @@ class ProjectView extends React.Component {
     const committer = lastCommit && users.filter((user) => user.name === lastCommit.author_name)[0];
     const today = new Date();
     const timediff = lastCommit && getTimeCreatedAgo(lastCommit.authored_date, today);
-
+    console.log(encodedBranch);
     return (
       <div className="project-component">
         <Navbar />
@@ -169,7 +162,7 @@ class ProjectView extends React.Component {
           {selectedProject && (
           <div className="main-content">
             {isEmptyProject ? (
-              <EmptyProject sshUrlToRepo={sshUrlToRepo} />
+              <EmptyProject sshUrlToRepo={sshUrlToRepo} projectId={projectId} />
             ) : (
               <>
                 <RepoInfo

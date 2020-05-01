@@ -9,20 +9,16 @@ import 'regenerator-runtime/runtime';
 
 export default class BranchesApi {
   static async create(projectId, branchName, refBranch) {
-    try {
-      const response = await fetch(
-        `${API_GATEWAY}/api/v4/projects/${projectId}/repository/branches?branch=${branchName}&ref=${refBranch}`, {
-          method: 'POST',
-          headers: new Headers({
-            'PRIVATE-TOKEN': getCurrentToken(),
-            'Content-Type': 'application/json',
-          }),
-        },
-      );
-      return response.json();
-    } catch (err) {
-      return err;
-    }
+    const response = await fetch(
+      `${API_GATEWAY}/api/v4/projects/${projectId}/repository/branches?branch=${branchName}&ref=${refBranch}`, {
+        method: 'POST',
+        headers: new Headers({
+          'PRIVATE-TOKEN': getCurrentToken(),
+          'Content-Type': 'application/json',
+        }),
+      },
+    );
+    return response.ok ? response.json(): Promise.reject(response);
   }
 
   static async getBranches(projectId) {

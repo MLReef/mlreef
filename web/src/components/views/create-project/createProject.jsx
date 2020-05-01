@@ -134,6 +134,8 @@ class NewProject extends Component {
           this.props.actions.getProjectsList();
           this.setState({ redirect: true, newProject: pro });
         } else {
+          const bodyResp = await res.json();
+          console.log(bodyResp);
           toastr.error("Error", res.statusText);
         }
       })

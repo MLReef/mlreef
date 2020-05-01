@@ -1,8 +1,9 @@
 import { API_GATEWAY } from '../apiConfig';
+import { toastr } from 'react-redux-toastr';
 import { generateGetRequest, getCurrentToken } from './apiHelpers';
 
 export default class CommitsApi {
-  static async performCommit(projectId, filePath, fileContent, branch, commitMss, action) {
+  static async performCommit(projectId, filePath, fileContent, branch, commitMss, action, encoding = 'text') {
     try {
       const response = await fetch(
         `${API_GATEWAY}/api/v4/projects/${projectId}/repository/commits`, {
@@ -19,15 +20,16 @@ export default class CommitsApi {
                 action,
                 file_path: filePath,
                 content: fileContent,
+                encoding,
               },
             ],
           }),
         },
       );
 
-      return response.json();
+      return response.ok ? response.json() : Promise.reject(response)
     } catch (err) {
-      return err;
+      toastr.error("Error", err.message);
     }
   }
 
@@ -46,15 +48,13 @@ export default class CommitsApi {
 
   static async getCommitDetails(projectId, commitId) {
     const url = `${API_GATEWAY}/api/v4/projects/${projectId}/repository/commits/${commitId}`;
-    const response = await fetch(new Request(
-      url, {
-        method: 'GET',
-        headers: new Headers({
-          'PRIVATE-TOKEN': getCurrentToken(),
-        }),
-      },
-    ));
-    return response.json();
+    const response = await generateGetRequest(url);
+    if(response.ok) {
+      return response.json();
+    } else {
+      Promise.reject(response)
+      toastr.error('Error: ', 'We could not retrieve commit details');
+    }
   }
 
   static async getFileDataInCertainCommit(projectId, pathToFile, commitId) {

@@ -2,8 +2,8 @@ import React from 'react';
 import { func, string } from 'prop-types';
 import './MCheckBox.scss';
 
-const MCheckBox = ({ name, labelValue, callback }) => {
-  const [value, setValue] = React.useState(false);
+const MCheckBox = ({ defaultChecked, name, labelValue, callback }) => {
+  const [value, setValue] = React.useState(defaultChecked ? true : false);
   function handleClick() {
     const newValue = !value;
     setValue(newValue);

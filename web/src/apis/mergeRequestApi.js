@@ -1,5 +1,6 @@
 import { API_GATEWAY } from '../apiConfig';
 import { generateGetRequest, getCurrentToken } from './apiHelpers';
+import { toastr } from 'react-redux-toastr';
 
 export default class MergeRequestAPI {
   /**
@@ -27,6 +28,14 @@ export default class MergeRequestAPI {
   }
 
   static async submitMergeReq(id, sourceBranch, targetBranch, title, description = '') {
+    const body = JSON.stringify({
+      id,
+      source_branch: sourceBranch,
+      target_branch: targetBranch,
+      title,
+      description,
+    });
+    console.log(body);
     const url = `${API_GATEWAY}/api/v4/projects/${id}/merge_requests`;
     try {
       const response = await fetch(
@@ -37,19 +46,14 @@ export default class MergeRequestAPI {
             'Content-Type': 'application/json',
             'Access-Control-Allow-Origin': `${API_GATEWAY}`,
           }),
-          body: JSON.stringify({
-            id,
-            source_branch: sourceBranch,
-            target_branch: targetBranch,
-            title,
-            description,
-          }),
+          body,
         },
       );
-
-      return response.json();
+      console.log(response);
+      return response.ok ? response.json() 
+        : Promise.reject(response);
     } catch (err) {
-      return err;
+      return toastr.error("Error", err.message);
     }
   }
 
