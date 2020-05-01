@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Link, Redirect } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import AuthWrapper from 'components/AuthWrapper';
 import {
   string, number, shape, func,
@@ -26,6 +26,10 @@ class FilesContainer extends Component {
     };
   }
 
+  componentDidMount(){
+    this.updateFilesArray();
+  }
+
   componentDidUpdate(prevProps) {
     const {
       path,
@@ -47,16 +51,16 @@ class FilesContainer extends Component {
       branch !== currentBranch
         || urlPath !== currentPath
     ) {
+      this.setState({
+        currentPath: urlPath,
+        currentBranch: branch,
+      });
       try {
         this.updateFilesArray();
         if (branch !== 'master') this.getBranchInfo();
       } catch (error) {
         return error;
       }
-      this.setState({
-        currentPath: urlPath,
-        currentBranch: branch,
-      });
     }
   }
 
@@ -81,14 +85,8 @@ class FilesContainer extends Component {
         this.setState({ files });
       } else {
         toastr.error("Error", "Something went wrong getting files");
-        Promise.reject(res);
       }
-    })
-      .catch(
-        () => {
-          this.setState({ redirect: true });
-        },
-      );
+    });
   }
 
   getBack = () => window.history.back();
@@ -103,7 +101,6 @@ class FilesContainer extends Component {
 
   render = () => {
     const {
-      redirect,
       files,
       ahead,
       behind,
@@ -111,67 +108,60 @@ class FilesContainer extends Component {
     } = this.state;
     const { projectId, branch, history } = this.props;
     return (
-      <>
-        {redirect
-          ? <Redirect to="/error-page" />
-          : null}
-        {files.length > 0 ? (
-          <div className={`files-container ${branch === 'master' ? 'files-container-master' : ''}`}>
-            {branch !== 'master' && (
-            <div className="commit-status px-3 py-2">
-              <p id="commitStatus">
-                This branch is
-                {' '}
-                <b>
-                  {ahead}
-                  {' '}
-                  commit(s)
-                </b>
-                {' '}
-                ahead and
-                {' '}
-                <b>
-                  {behind}
-                  {' '}
-                  commit(s)
-                </b>
-                {' '}
-                behind
-                {' '}
-                <b>&quot;master&quot;.</b>
-              </p>
-              <AuthWrapper minRole={30}>
-                <Link
-                  type="button"
-                  className="btn btn-basic-dark"
-                  to={`/my-projects/${projectId}/${currentBranch}/new-merge-request`}
-                >
-                  Create merge request
-                </Link>
-              </AuthWrapper>
-            </div>
-            )}
-            <FilesTable
-              files={files.map((f) => ({ id: f.id, name: f.name, type: f.type }))}
-              headers={['Name']}
-              onClick={(e) => {
-                const target = e.currentTarget;
-                const targetDataKey = target.getAttribute('data-key');
-                const targetId = target.id;
-                const file = files.filter((f) => f.id === targetId)[0];
-                let routeType;
-                if (targetDataKey === 'tree') {
-                  routeType = 'path';
-                } else {
-                  routeType = 'blob';
-                }
-                const link = `/my-projects/${projectId}/${branch}/${routeType}/${encodeURIComponent(file.path)}`;
-                history.push(link);
-              }}
-            />
-          </div>
-        ) : null }
-      </>
+      <div className={`files-container ${branch === 'master' ? 'files-container-master' : ''}`}>
+        {currentBranch !== 'master' && (
+        <div className="commit-status px-3 py-2">
+          <p id="commitStatus">
+            This branch is
+            {' '}
+            <b>
+              {ahead}
+              {' '}
+              commit(s)
+            </b>
+            {' '}
+            ahead and
+            {' '}
+            <b>
+              {behind}
+              {' '}
+              commit(s)
+            </b>
+            {' '}
+            behind
+            {' '}
+            <b>&quot;master&quot;.</b>
+          </p>
+          <AuthWrapper minRole={30}>
+            <Link
+              type="button"
+              className="btn btn-basic-dark"
+              to={`/my-projects/${projectId}/${currentBranch}/new-merge-request`}
+            >
+              Create merge request
+            </Link>
+          </AuthWrapper>
+        </div>
+        )}
+        <FilesTable
+          files={files.map((f) => ({ id: f.id, name: f.name, type: f.type }))}
+          headers={['Name']}
+          onClick={(e) => {
+            const target = e.currentTarget;
+            const targetDataKey = target.getAttribute('data-key');
+            const targetId = target.id;
+            const file = files.filter((f) => f.id === targetId)[0];
+            let routeType;
+            if (targetDataKey === 'tree') {
+              routeType = 'path';
+            } else {
+              routeType = 'blob';
+            }
+            const link = `/my-projects/${projectId}/${branch}/${routeType}/${encodeURIComponent(file.path)}`;
+            history.push(link);
+          }}
+        />
+      </div>
     );
   }
 }

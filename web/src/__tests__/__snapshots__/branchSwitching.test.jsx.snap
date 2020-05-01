@@ -144,6 +144,16 @@ exports[`The branches list should be displayed when dropdown button is clicked d
               New branch
             </a>
           </li>
+          <li
+            className="plus-option"
+          >
+            <a
+              href="/my-projects/12395599/master/upload-file"
+              onClick={[Function]}
+            >
+              Upload File
+            </a>
+          </li>
         </ul>
       </div>
     </div>

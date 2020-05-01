@@ -8,8 +8,6 @@ const SideMenu = props => {
   const { className } = props;
 
   const data = useCreateMenuIndex();
-  // console.log(data);
-
   return (
     <aside className={`side-menu ${className}`}>
       <nav className="side-menu-container">

@@ -17,10 +17,9 @@ export class FileView extends React.Component {
   constructor(props) {
     super(props);
     const { projects } = this.props;
-
     this.state = {
       project: projects && projects.selectedProject,
-      committer: [],
+      commitInfo: {},
       fileData: null,
       isdeleteModalVisible: false,
     };
@@ -30,33 +29,26 @@ export class FileView extends React.Component {
 
   componentDidMount() {
     const { match: { params: { projectId, file, branch } } } = this.props;
-
     filesApi.getFileData(
       projectId,
       file,
       branch,
-    ).then((res) => this.setState({ fileData: res }))
+    ).then((res) => {
+      const fileData = res;
+      this.setState({ fileData });
+      this.getCommit(projectId, fileData.last_commit_id);
+    })
       .catch((err) => toastr.error('Error: ', err.message));
-  }
-
-  componentDidUpdate(_, { fileData }) {
-    const { fileData: currentFileData } = this.state;
-
-    if (currentFileData !== fileData) this.getCommit();
   }
 
   componentWillUnmount() {
     this.setState = (state) => (state);
   }
 
-  getCommit() {
-    const propSet = this.props;
-    const { projectId } = propSet.match.params;
-    const { fileData } = this.state;
-    CommitsApi.getCommitDetails(projectId, fileData.last_commit_id)
-      .then((result) => this.setState({ committer: result }))
-      .catch((err) => toastr.error('Error: ', err.message));
-  }
+  getCommit = (projectId, lastCommitId) => CommitsApi
+    .getCommitDetails(projectId, lastCommitId)
+    .then((commitInfo) => this.setState({ commitInfo }))
+    .catch((err) => toastr.error('Error: ', err.message));
 
   showDeleteModal = () => this.setState((prevState) => (
     { isdeleteModalVisible: !prevState.isdeleteModalVisible }
@@ -66,7 +58,11 @@ export class FileView extends React.Component {
     const { users, branches, match: { params: { file, branch, projectId } } } = this.props;
     const {
       project,
-      committer,
+      commitInfo : {
+        author_name: authorName,
+        message,
+        short_id: commiterShortId,
+      },
       fileData,
       isdeleteModalVisible,
     } = this.state;
@@ -77,15 +73,15 @@ export class FileView extends React.Component {
     let fileContent = [];
     let filepath = [];
     let extension;
-
-    if (users) {
+    if (users && authorName) {
       users.forEach((contributor) => {
         const { name } = contributor;
         const avatarUrl = contributor.avatar_url;
-        if (name === committer.author_name) {
+        if (name === authorName) {
           avatar = avatarUrl;
         }
       });
+
     }
 
     if (fileData) {
@@ -176,14 +172,14 @@ export class FileView extends React.Component {
           <div className="file-container-header">
             <div className="commit-info">
               <div className="commit-pic-circle">
-                <img src={avatar} alt={committer.author_name} />
+                <img src={avatar} alt={authorName} />
               </div>
               <div className="commit-msg">
-                <p>{committer.message}</p>
+                <p>{message}</p>
                 <span>
                   by
                   {' '}
-                  <b>{committer.author_name}</b>
+                  <b>{authorName}</b>
                   {' '}
                   authored
                   {' '}
@@ -194,7 +190,7 @@ export class FileView extends React.Component {
               </div>
             </div>
             <div className="commit-code">
-              <span>{committer.short_id}</span>
+              <span>{commiterShortId}</span>
               <img className="file-icon" src={file01} alt="" />
             </div>
           </div>

@@ -1,18 +1,24 @@
 import React from 'react';
-// import { Link } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { string } from 'prop-types';
 import BlackBorderedButton from '../BlackBorderedButton';
 import './emptyProject.scss';
 
-const EmptyProject = ({ sshUrlToRepo }) => (
+const EmptyProject = ({ sshUrlToRepo, projectId }) => (
   <>
     <div id="empty-project">
       <h4 style={{ fontSize: '1.3125rem', color: '#2e2e2e', marginBottom: '0.5rem' }}>The repository for this project is empty</h4>
       <h3>Get started with the following options:</h3>
       <div style={{ display: 'flex' }}>
-        <button type="button" className="btn btn-primary mr-3">
-          Upload a file
-        </button>
+        <Link
+          type="button"
+          className="btn btn-primary mr-3"
+          to={{
+            pathname: `/my-projects/${projectId}/upload-file`,
+            state: { currentFilePath: ""}}}
+        >
+          Upload File
+        </Link>
         <BlackBorderedButton textContent="Create a file" />
       </div>
     </div>

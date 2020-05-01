@@ -1,0 +1,78 @@
+$dark-grey: #b5b5b5;
+$light-grey: #e5e5e5;
+$aqua: #14eefa;
+$submit-button: #F9F8F8;
+
+.draggable-container{
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    max-width: 100%;
+    height: 25em;
+    padding: 6px;
+    border-radius: 4px;
+    font-size: 14px;
+    position: relative;
+    overflow: hidden;
+}
+
+.file-browser-input{
+    position: absolute;
+    color: transparent;
+    opacity: 0;
+    cursor: pointer;
+    width: 100%;
+    height: 100%;
+}
+
+.choose-file {
+    color: $aqua;
+    background: none;
+    border: none;
+}
+
+.file-uploaded {
+    border: 1px solid $dark-grey;
+    border-radius: 4px;
+}
+
+.file-uploaded { 
+
+    > .remove-file-button {
+        margin-left: auto;
+        align-self: center;
+        background: none;
+        border: none;
+    };
+
+}
+
+.upload-commit-message{
+
+    > textarea {
+        margin-left: auto;
+        width: 83.33%;
+    }
+}
+
+.target-branch {
+        
+    > .target-input-box{
+        flex-direction: column;
+        margin-left: auto;
+        width: 85.5%;
+
+        > input {
+            border: 1px solid $light-grey;
+            padding: 8px 6px;
+        };
+  };
+  
+}
+
+.form-submit-buttons{
+    background-color: $submit-button;
+    border-top: 1px solid $dark-grey;
+    padding: 1em 2em;
+    justify-content: space-between;
+}

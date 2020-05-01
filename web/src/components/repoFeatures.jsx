@@ -15,14 +15,10 @@ export class RepoFeatures extends Component {
   constructor(props) {
     super(props);
     const {
-      branch,
       projectId,
     } = this.props;
 
     this.state = {
-      isOpen: false,
-      plusOpen: false,
-      branchSelected: decodeURIComponent(branch),
       projectId,
       branches: [],
     };
@@ -106,6 +102,11 @@ export class RepoFeatures extends Component {
                 <li className="plus-option">
                   <Link to={`/my-projects/${projectId}/new-branch`}>
                     New branch
+                  </Link>
+                </li>
+                <li className="plus-option">
+                  <Link to={{ pathname: `/my-projects/${projectId}/${branch}/upload-file`, state: {currentFilePath: path}}}>
+                    Upload File
                   </Link>
                 </li>
               </ul>
