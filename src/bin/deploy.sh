@@ -220,15 +220,16 @@ echo "### $(date) 3. Creating Admin API token $GITLAB_ADMIN_TOKEN. This might ta
 # salt=$(echo $GITLAB_SECRETS_DB_KEY_BASE | cut -c1-32)
 # token=$GITLAB_ADMIN_TOKEN$salt
 # token_digest=$(echo $token | openssl sha256 -binary | base64 -)
-docker exec -t gitlab bash -c '
+docker exec -t gitlab sh -c "$(cat << EOM
   gitlab-rails runner -e production "User.find(1).personal_access_tokens.create(
-  name: '"'"'admin-api-token'"'"',
-  token_digest: Gitlab::CryptoHelper.sha256('"'"'$GITLAB_ADMIN_TOKEN'"'"'),
-  impersonation: false,
-  scopes: [:api,:sudo]
-)
-"
-'
+    name: 'admin-api-token',
+    token_digest: Gitlab::CryptoHelper.sha256('$GITLAB_ADMIN_TOKEN'),
+    impersonation: false,
+    scopes: [:api,:sudo]
+  )"
+EOM
+)" #end of $(cat …)
+
 
 #
 #
@@ -236,8 +237,8 @@ docker exec -t gitlab bash -c '
 #
 #
 echo "### $(date) 4. Getting Gitlab runners registration token from Gitlab."
-TOKEN=$(docker exec -t gitlab bash -c 'gitlab-rails runner -e production "puts Gitlab::CurrentSettings.current_application_settings.runners_registration_token"' | tr -d '\r')
-echo TOKEN=$TOKEN
+RUNNER_REGISTRATION_TOKEN=$(docker exec -t gitlab bash -c 'gitlab-rails runner -e production "puts Gitlab::CurrentSettings.current_application_settings.runners_registration_token"' | tr -d '\r')
+echo "Gitlab RUNNER_REGISTRATION_TOKEN=$RUNNER_REGISTRATION_TOKEN"
 
 #
 #
@@ -252,7 +253,7 @@ if [ $INSTANCE != "localhost" ]; then
     --non-interactive                                             \
     --name="${DISPATCHER_DESCRIPTION}"                            \
     --url="http://$INSTANCE:$GITLAB_PORT/"                        \
-    --registration-token="$TOKEN"                                 \
+    --registration-token="$RUNNER_REGISTRATION_TOKEN"             \
     --request-concurrency="12"                                    \
     --docker-network-mode="mlreef-docker-network"                 \
     --executor "docker"                                           \
@@ -277,7 +278,7 @@ else
     --non-interactive                                             \
     --url="http://gitlab:$GITLAB_PORT/"                           \
     --docker-network-mode mlreef-docker-network                   \
-    --registration-token "$TOKEN"                                 \
+    --registration-token="$RUNNER_REGISTRATION_TOKEN"             \
     --executor "docker"                                           \
     --docker-image alpine:latest                                  \
     --docker-volumes /var/run/docker.sock:/var/run/docker.sock    \
