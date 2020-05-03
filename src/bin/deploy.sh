@@ -182,8 +182,14 @@ echo "### $(date) Expecting code 302; received: $(curl --silent --output /dev/nu
 # Step 2 Configure Gitlabs port and external URL
 #
 #
-echo "### $(date) 2. Configure Gitlab external_url "'http://$INSTANCE:$GITLAB_PORT'
-docker exec gitlab sh -c 'echo external_url \"$REACT_APP_API_GATEWAY:$GITLAB_PORT\" >> /etc/gitlab/gitlab.rb'
+if [ $INSTANCE != "localhost" ]; then
+  echo "### $(date) 2. Configure Gitlab external_url "'http://$INSTANCE:$GITLAB_PORT'
+  docker exec gitlab sh -c 'echo external_url \"$REACT_APP_API_GATEWAY:$GITLAB_PORT\" >> /etc/gitlab/gitlab.rb'
+else
+  echo "### $(date) 2. Configure Gitlab external_url "'http://gitlab:$GITLAB_PORT'
+  # When running locally in docker compose, this lets the runners access Gitlab via the Docker network
+  docker exec gitlab sh -c 'echo external_url \"http://gitlab:$GITLAB_PORT\" >> /etc/gitlab/gitlab.rb'
+fi
 docker exec gitlab sh -c 'cat /etc/gitlab/gitlab.rb | grep external_url\ \"'
 echo "### $(date) Reconfigure Gitlab"
 docker exec gitlab gitlab-ctl reconfigure > /dev/null
