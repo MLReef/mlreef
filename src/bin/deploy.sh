@@ -14,7 +14,7 @@ GITLAB_ADMIN_TOKEN=""
 # The Gitlab runner runtime defines how the runner manager deploys pipeline runs
 # docker: new pipeline runs are spawned as sister container to the runner manager
 # nvidia: like _docker_ with access and visibility of the GPU(s) enabled
-RUNNER_RUNTIME="nvida"
+RUNNER_RUNTIME=""
 
 while [ -n "$1" ]; do
   case "$1" in
