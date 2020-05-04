@@ -3,6 +3,10 @@
 
 set -e
 
+log() {
+  echo "### $(date +%Y-%m-%d\ %H:%M:%S) ### $1"
+}
+
 INSTANCE="localhost"
 GITLAB_PORT=10080
 
@@ -121,9 +125,9 @@ echo "Successfuly parsed command line parameters"
 
 #
 ####
-echo "### Starting Deployment"
+log "### Starting Deployment"
 ####
-echo "### 1. Writing Docker's env file: $DOCKER_ENV"
+log "### 1. Writing Docker's env file: $DOCKER_ENV"
 touch $DOCKER_ENV
 echo "# Automatically added by the deploment pipeline .gitlab-ci-deploy.yml" >$DOCKER_ENV
 {
@@ -148,13 +152,14 @@ echo "# Automatically added by the deploment pipeline .gitlab-ci-deploy.yml" >$D
 
 } >>$DOCKER_ENV
 
-echo "### Executing: docker-compose down --remove-orphans"
-docker-compose down --remove-orphans
-
 ####
 echo "### $(date) Starting Deployment"
+log "Stopping serviced gateway frontend backend mlreef-postgres"
+docker-compose stop gateway frontend backend mlreefdb
+log "Starting Deployment"
+
 ####
-echo "### $(date) MANDATORY ENV VARS:"
+log "MANDATORY ENV VARS:"
 cat $DOCKER_ENV
 
 
@@ -163,69 +168,98 @@ cat $DOCKER_ENV
 # Step 1 Startup Gitlab
 #
 #
-echo "### $(date) 1. Start Gitlab Omnibus Preconfigured"
+# Checks if gitlab is present at $INSTANCE:10081 which is mapped to "gitlab:80" with a _curl_ request
+# This is the default setting
+#
+# @returns: The HTTP code received by _curl_.
+# 302: means that Gitlab is up and running
+# 502: Gitlab is still starting or broken
+checkGitlab80() {
+  curl --silent --output /dev/null -w ''%{http_code}'' $INSTANCE:10081
+}
+checkGitlabPort() {
+  curl --silent --output /dev/null -w ''%{http_code}'' $INSTANCE:$GITLAB_PORT/$1
+}
+
+log "1. Starting Gitlab Omnibus"
 # the container startup wait is necessary to let gitlab initialise the database
-docker-compose down --remove-orphans
-echo "### $(date) Docker Compose Up"
+log "docker-compose up --detach gitlab gitlab-runner"
 docker-compose up --detach gitlab gitlab-runner
-echo "### $(date) Waiting for Gitlab to start"
+log "Waiting for Gitlab to start."
+log "Checking ports 80 and $GITLAB_PORT"
 # Port 10081 is the mappet to Gitlab's initial port (80) in the docker-compose.yml
-while [ "$(curl --silent --output /dev/null -w ''%{http_code}'' $INSTANCE:10081)" != "302" ]; do
+until [ "$(checkGitlab80)" = "302" ] || [ "$(checkGitlabPort)" = "302" ]; do
   printf '.'
   sleep 5;
 done
-echo ""
-echo "### $(date) Expecting code 302; received: $(curl --silent --output /dev/null -w ''%{http_code}'' $INSTANCE:10081)"
+log "Expecting code 302; port 80 returned: $(checkGitlab80) ||| port $GITLAB_PORT returned $(checkGitlabPort)"
 
 #
 #
 # Step 2 Configure Gitlabs port and external URL
 #
 #
-if [ $INSTANCE != "localhost" ]; then
-  echo "### $(date) 2. Configure Gitlab external_url "'http://$INSTANCE:$GITLAB_PORT'
-  docker exec gitlab sh -c 'echo external_url \"$REACT_APP_API_GATEWAY:$GITLAB_PORT\" >> /etc/gitlab/gitlab.rb'
-else
-  echo "### $(date) 2. Configure Gitlab external_url "'http://gitlab:$GITLAB_PORT'
-  # When running locally in docker compose, this lets the runners access Gitlab via the Docker network
-  docker exec gitlab sh -c 'echo external_url \"http://gitlab:$GITLAB_PORT\" >> /etc/gitlab/gitlab.rb'
+
+if [ "$(checkGitlabPort)" = "302" ]; then
+  log "2. Found Gitlab at expected port $GITLAB_PORT. Printing relevant parts of /etc/gitlab/gitlab.rb"
+  docker exec gitlab sh -c 'cat /etc/gitlab/gitlab.rb | grep external_url\ \"'
+elif [ "$(checkGitlab80)" = "302" ]; then
+  # Gitlab is still configured to port 80 and has to be reconfigured
+  if [ $INSTANCE != "localhost" ]; then
+    log "2. Configure Gitlab external_url "'http://$INSTANCE:$GITLAB_PORT'
+    docker exec gitlab sh -c 'echo external_url \"$REACT_APP_API_GATEWAY:$GITLAB_PORT\" >> /etc/gitlab/gitlab.rb'
+  else
+    log "2. Configure Gitlab external_url "'http://gitlab:$GITLAB_PORT'
+    # When running locally in docker compose, this lets the runners access Gitlab via the Docker network
+    docker exec gitlab sh -c 'echo external_url \"http://gitlab:$GITLAB_PORT\" >> /etc/gitlab/gitlab.rb'
+  fi
+  log "Reconfigure Gitlab"
+  docker exec gitlab gitlab-ctl reconfigure > /dev/null
+  docker exec gitlab sh -c 'cat /etc/gitlab/gitlab.rb | grep external_url\ \"'
+  log "Restart Gitlab"
+  docker exec --detach gitlab gitlab-ctl restart
+  sleep 30
+  log "Waiting for Gitlab to start"
+  until [ "$(checkGitlabPort)" = "302" ]; do
+    printf '.'
+    sleep 5;
+  done
+  log "Expecting code 302; received: $(checkGitlabPort)"
 fi
-docker exec gitlab sh -c 'cat /etc/gitlab/gitlab.rb | grep external_url\ \"'
-echo "### $(date) Reconfigure Gitlab"
-docker exec gitlab gitlab-ctl reconfigure > /dev/null
-echo "### $(date) Restart Gitlab"
-docker exec --detach gitlab gitlab-ctl restart
-sleep 30
-echo "### $(date) Waiting for Gitlab to start"
-while [ "$(curl --silent --output /dev/null -w ''%{http_code}'' $INSTANCE:$GITLAB_PORT)" != "302" ]; do
+
+log "Ensuring availability of the Gitlab API to start"
+until [ "$(curl --silent --output /dev/null -w ''%{http_code}'' $INSTANCE:${GITLAB_PORT}/api/v4/projects)" = "200" ]; do
   printf '.'
   sleep 5;
 done
-echo "\n### $(date) Expecting code 302; received: $(curl --silent --output /dev/null -w ''%{http_code}'' $INSTANCE:${GITLAB_PORT}/runners)"
-echo "### $(date) Ensuring availability of the Gitlab API to start"
-while [ "$(curl --silent --output /dev/null -w ''%{http_code}'' $INSTANCE:${GITLAB_PORT}/api/v4/projects)" != "200" ]; do
+log "Expecting code 200; received: $(curl --silent --output /dev/null -w ''%{http_code}'' $INSTANCE:${GITLAB_PORT}/api/v4/projects)"
+log "Waiting for Gitlab Runners API. The runners API is running in a separate process from the normal API"
+until [ "$(checkGitlabPort /runners)" = "302" ]; do
   printf '.'
   sleep 5;
 done
-echo "\n### $(date) Expecting code 200; received: $(curl --silent --output /dev/null -w ''%{http_code}'' $INSTANCE:${GITLAB_PORT}/api/v4/projects)"
-echo "### $(date) Waiting for Gitlab Runners API. The runners API is running in a separate process from the normal API"
-while [ "$(curl --silent --output /dev/null -w ''%{http_code}'' $INSTANCE:${GITLAB_PORT}/runners)" != "302" ]; do
-  printf '.'
-  sleep 5;
-done
-echo "\n### $(date) Expecting code 302; received: $(curl --silent --output /dev/null -w ''%{http_code}'' $INSTANCE:$GITLAB_PORT)"
+log "Expecting code 302; received: $(checkGitlabPort /runners)"
 
 #
 #
 # Step 3 Creating Gitlab Admin API token
 #
 #
-echo "### $(date) 3. Creating Admin API token $GITLAB_ADMIN_TOKEN. This might take up to 10 minutes"
-# http://localhost:10080/help/administration/troubleshooting/gitlab_rails_cheat_sheet.md
+log "3. Deleting all API tokens for root user (id=1)"
+# http://gitlab.com/help/administration/troubleshooting/gitlab_rails_cheat_sheet.md
 # Alternatively the token digest can be computed as follows:
 # salt=$(echo $GITLAB_SECRETS_DB_KEY_BASE | cut -c1-32)
 # token=$GITLAB_ADMIN_TOKEN$salt
 # token_digest=$(echo $token | openssl sha256 -binary | base64 -)
+docker exec -t gitlab sh -c "$(cat << EOM
+  gitlab-rails runner -e production "
+    User.find(1).personal_access_tokens.each do |cur|
+      cur.delete
+    end
+  "
+EOM
+)"
+log "3. Creating Admin API token $GITLAB_ADMIN_TOKEN. This might take up to 5 minutes"
 docker exec -t gitlab sh -c "$(cat << EOM
   gitlab-rails runner -e production "User.find(1).personal_access_tokens.create(
     name: 'admin-api-token',
@@ -242,7 +276,7 @@ EOM
 # Step 4 Get Gitlab Runner registration token
 #
 #
-echo "### $(date) 4. Getting Gitlab runners registration token from Gitlab."
+log "4. Getting Gitlab runners registration token from Gitlab."
 RUNNER_REGISTRATION_TOKEN=$(docker exec -t gitlab bash -c 'gitlab-rails runner -e production "puts Gitlab::CurrentSettings.current_application_settings.runners_registration_token"' | tr -d '\r')
 echo "Gitlab RUNNER_REGISTRATION_TOKEN=$RUNNER_REGISTRATION_TOKEN"
 
@@ -253,7 +287,7 @@ echo "Gitlab RUNNER_REGISTRATION_TOKEN=$RUNNER_REGISTRATION_TOKEN"
 #
 export DISPATCHER_DESCRIPTION="Packaged Dispatcher on $CI_COMMIT_REF_SLUG-$INSTANCE"
 if [ $INSTANCE != "localhost" ]; then
-  echo "### $(date) 5. Configuring Gitlab Runner for cloud environment"
+  log "5. Configuring Gitlab Runner for cloud environment"
   # https://docs.gitlab.com/runner/configuration/advanced-configuration.html#volumes-in-the-runnersdocker-section
   docker exec gitlab-runner gitlab-runner register                \
     --non-interactive                                             \
@@ -276,7 +310,7 @@ if [ $INSTANCE != "localhost" ]; then
     --cache-s3-bucket-name="mlreef-runner-cache"                  \
     --cache-s3-bucket-location="eu-central-1"
 else
-  echo "### $(date) 5. Configuring Gitlab Runner for local environment"
+  log "5. Configuring Gitlab Runner for local environment"
   # Register the runner on a local developers machine
   # The main differences are the URL and,
   # no caching on Amazon S3 buckets
@@ -294,21 +328,21 @@ else
     --locked="false"                                              \
     --access-level="not_protected"
 fi
-echo "### $(date) Runner was registered successfully"
+log "Runner was registered successfully"
 
 #
 #
 # Step 6 Start other Services
 #
 #
-echo "### $(date) Ensuring availability of the Gitlab API to start"
+log "Ensuring availability of the Gitlab API to start"
 while [ "$(curl --silent --output /dev/null -w ''%{http_code}'' $INSTANCE:${GITLAB_PORT}/api/v4/projects)" != "200" ]; do
   printf '.'
   sleep 5;
 done
-echo "### $(date) Expecting code 200; received: $(curl --silent --output /dev/null -w ''%{http_code}'' $INSTANCE:${GITLAB_PORT}/api/v4/projects)"
+log "Expecting code 200; received: $(curl --silent --output /dev/null -w ''%{http_code}'' $INSTANCE:${GITLAB_PORT}/api/v4/projects)"
 sleep 30 # Add an additional sleep in the end to improve user experience; So that Docker is started when the script ends
-echo "### $(date) 6. Start other services"
+log "6. Start other services"
 docker-compose up --detach
 sleep 30 # Add an additional sleep in the end to improve user experience; So that Docker is started when the script ends
 
@@ -316,7 +350,7 @@ sleep 30 # Add an additional sleep in the end to improve user experience; So tha
 echo "Debug Log: gitlab runner configuration"
 docker exec gitlab-runner cat /etc/gitlab-runner/config.toml
 
-echo "### $(date) Done - MLReef has been successfully installed. "
+log "Done - MLReef has been successfully installed. "
 #
 #
 #
