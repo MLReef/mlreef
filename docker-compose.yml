@@ -40,14 +40,14 @@ services:
     restart: always
     depends_on:
       - gitlab
-      - mlreef-postgres
+      - mlreefdb
       - redis
     ports:
       - "8080:8080"
     env_file: local.env
     environment:
       - SPRING_PROFILES_ACTIVE=docker
-      - DB_HOST=mlreef-postgres
+      - DB_HOST=mlreefdb
       - DB_PORT=5432
       - DB_USER=mlreef
       - DB_PASS=password                                             # secret, use ENV var
@@ -89,8 +89,8 @@ services:
       - mlreef-docker-network
 
 
-  mlreef-postgres:
-    container_name: mlreef-postgres
+  mlreefdb:
+    container_name: mlreefdb
     restart: always
     image: sameersbn/postgresql:10-2
     ports:
