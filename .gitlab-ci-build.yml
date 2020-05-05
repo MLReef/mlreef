@@ -1,41 +1,3 @@
-# This job runs already during the provisioning phase
-# to save a little bit of time for the overall pipeline
-npm tests:
-  extends: [".except-docu-branches"]
-  stage: provision
-  # The Node Version has to correspond with the node version of the web/Dockerfile
-  image: node:10.19.0-alpine                                # https://hub.docker.com/_/node/
-  cache:
-    key: mlreef-npm-cache
-    paths:
-      - /usr/local/lib/node_modules
-      - web/node_modules
-  script:
-    - ls -al /usr/local/lib/node_modules
-    - cd web
-    - pwd && ls -al
-    - npm install --global --silent react-scripts
-    - npm install --global --silent create-react-app@latest
-    - npm install --global --silent react-scripts@3.0.1
-    - npm install .
-    - npm test
-    - cp -r /usr/local/lib/node_modules node_modules_global
-  after_script:
-    - npm view react-scripts version
-    - npm view create-react-app version
-    - ls -al web/
-    - ls -al web/node_modules
-    - ls -al web/node_modules_global
-    - ls -al /usr/local/lib/node_modules
-  artifacts:
-    expire_in: 3 days
-    paths:
-      # cache the node modules for the docker build
-      - web/node_modules
-      - web/node_modules_global
-      - web/coverage
-
-
 build frontend:
   extends: [".except-docu-branches"]
   # This docker version should correspond with the on docker version in the EC2 deployment
@@ -53,6 +15,16 @@ build frontend:
     - cat web/.env
   script:
     - cd web
-    - echo "creating docker image ${IMAGE_NAME} for user ${DOCKER_USER}"
+    - echo "creating docker image ${FRONTEND_IMAGE_PATH} for user ${DOCKER_USER}"
     - docker build --pull --tag "$FRONTEND_IMAGE_PATH" -f Dockerfile .
     - docker push "${FRONTEND_IMAGE_PATH}"
+    
+    # Get Test coverage report from build image
+    - docker create -ti --name dummy ${FRONTEND_IMAGE_PATH} bash
+    - docker cp dummy:/app/coverage coverage
+    - docker rm -f dummy
+  artifacts:
+    expire_in: 3 days
+    paths:
+      - web/coverage    
+
