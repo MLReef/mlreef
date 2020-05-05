@@ -4,10 +4,11 @@
 
 
 ### Technical Solution
-> **Optional:** Add technical implementation details and the results of the ticket's discussion here.
+> Add technical implementation details and the results of the ticket's discussion here.
 
 
 ### Terminology
+[MLReef's Glossary](https://gitlab.com/mlreef/www-mlreef-com/-/tree/master/handbook/glossary.md)
 
 
 
