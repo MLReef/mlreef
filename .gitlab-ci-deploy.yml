@@ -1,20 +1,31 @@
 deploy:
   extends: [".except-docu-branches"]
   stage: deploy
+  when: delayed
+  start_in: 3 minutes                                      # This delay exists to give new environments enough time to boot
   image: registry.gitlab.com/systemkern/s5:latest
   before_script:
-    - echo "CI_COMMIT_REF_SLUG  is $CI_COMMIT_REF_SLUG"
-    - echo "FRONTEND_TAG        is $FRONTEND_TAG"
-    - echo "BACKEND_TAG         is $BACKEND_TAG"
-    - echo "FRONTEND_IMAGE_NAME is $FRONTEND_IMAGE_NAME"
-    - echo "BACKEND_IMAGE_NAME  is $BACKEND_IMAGE_NAME"
-    - echo "FRONTEND_IMAGE_PATH is $FRONTEND_IMAGE_PATH"
-    - echo "BACKEND_IMAGE_PATH  is $BACKEND_IMAGE_PATH"
-    - echo "DOCKER_ENV          is $DOCKER_ENV"
-    - echo "DOCKER_COMPOSE      is $DOCKER_COMPOSE"
-
     - URL=$(cat $INSTANCE_INFO)
-    - echo $URL                                            # debug output
+    - echo "URL  is $URL" # debug output
+    - if [ "$URL" = "" ]; then exit 1; fi
+    - echo "CI_COMMIT_REF_SLUG       is $CI_COMMIT_REF_SLUG"
+    - echo "FRONTEND_TAG             is $FRONTEND_TAG"
+    - if [ "$FRONTEND_TAG" = "" ];   then exit 1; fi
+    - echo "BACKEND_TAG              is $BACKEND_TAG"
+    - if [ "$BACKEND_TAG" = "" ];    then exit 1; fi
+    - echo "FRONTEND_IMAGE_NAME      is $FRONTEND_IMAGE_NAME"
+    - if [ "$FRONTEND_IMAGE_NAME" = "" ]; then exit 1; fi
+    - echo "BACKEND_IMAGE_NAME       is $BACKEND_IMAGE_NAME"
+    - if [ "$BACKEND_IMAGE_NAME" = "" ]; then exit 1; fi
+    - echo "FRONTEND_IMAGE_PATH      is $FRONTEND_IMAGE_PATH"
+    - if [ "$FRONTEND_IMAGE_PATH" = "" ]; then exit 1; fi
+    - echo "BACKEND_IMAGE_PATH       is $BACKEND_IMAGE_PATH"
+    - if [ "$BACKEND_IMAGE_PATH" = "" ]; then exit 1; fi
+    - echo "DOCKER_ENV               is $DOCKER_ENV"
+    - if [ "$DOCKER_ENV" = "" ];     then exit 1; fi
+    - echo "DOCKER_COMPOSE           is $DOCKER_COMPOSE"
+    - if [ "$DOCKER_COMPOSE" = "" ]; then exit 1; fi
+
     - chmod 400 $SSH_KEYFILE                               # prepare private key file
     - chmod +x src/bin/*
     # rewrite docker compose file
@@ -29,18 +40,17 @@ deploy:
     - cat $DOCKER_COMPOSE
     - ssh-keyscan -H "$URL" >>~/.ssh/known_hosts
     # upload modified docker-compose to ec2 instance
-    - ssh -i $SSH_KEYFILE -o 'AddKeysToAgent yes' ubuntu@"${URL}"       "mkdir -p /home/ubuntu/bin"
-    - ssh -i $SSH_KEYFILE -o 'AddKeysToAgent yes' ubuntu@"${URL}"       "mkdir -p /home/ubuntu/src/bin"
-    - ssh -i $SSH_KEYFILE -o 'AddKeysToAgent yes' ubuntu@"${URL}"       "mkdir -p /home/ubuntu/src/resources"
-    - scp -i $SSH_KEYFILE -o 'AddKeysToAgent yes' $DOCKER_COMPOSE       ubuntu@${URL}:/home/ubuntu/$DOCKER_COMPOSE
-    - scp -i $SSH_KEYFILE -o 'AddKeysToAgent yes' $DEPLOY_SCRIPT        ubuntu@${URL}:/home/ubuntu/$DEPLOY_SCRIPT
-    - scp -i $SSH_KEYFILE -o 'AddKeysToAgent yes' $NGINX_CONFIG         ubuntu@${URL}:/home/ubuntu/$NGINX_CONFIG
+    - ssh -i $SSH_KEYFILE -o 'AddKeysToAgent yes' ubuntu@"${URL}" "mkdir -p /home/ubuntu/bin"
+    - ssh -i $SSH_KEYFILE -o 'AddKeysToAgent yes' ubuntu@"${URL}" "mkdir -p /home/ubuntu/src/bin"
+    - ssh -i $SSH_KEYFILE -o 'AddKeysToAgent yes' ubuntu@"${URL}" "mkdir -p /home/ubuntu/src/resources"
+    - scp -i $SSH_KEYFILE -o 'AddKeysToAgent yes' $DOCKER_COMPOSE ubuntu@${URL}:/home/ubuntu/$DOCKER_COMPOSE
+    - scp -i $SSH_KEYFILE -o 'AddKeysToAgent yes' $DEPLOY_SCRIPT  ubuntu@${URL}:/home/ubuntu/$DEPLOY_SCRIPT
+    - scp -i $SSH_KEYFILE -o 'AddKeysToAgent yes' $NGINX_CONFIG   ubuntu@${URL}:/home/ubuntu/$NGINX_CONFIG
     - echo "Wait for the machine to actually install docker"
-    - sleep 180 # Wait for the machine to actually install docker
     - echo "Starting deploy script"
     - echo "----------------------------------------"
     - ssh -i $SSH_KEYFILE -o 'AddKeysToAgent yes' ubuntu@"${URL}" "
-      sudo docker login ${DOCKER_REGISTRY} -u \"${DOCKER_USER}\" -p \"${DOCKER_PASSWORD}\"
+        echo "${CI_REGISTRY_PASSWORD}" | sudo docker login ${CI_REGISTRY} --username=${CI_REGISTRY_USER} --password-stdin
       "
   script: ssh -i $SSH_KEYFILE -o 'AddKeysToAgent yes' ubuntu@"${URL}" "
     sudo docker images;
