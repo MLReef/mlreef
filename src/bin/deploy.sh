@@ -250,11 +250,11 @@ elif [ "$(checkGitlab80)" = "302" ]; then
 fi
 
 log "Ensuring availability of the Gitlab API to start"
-until [ "$(curl --silent --output /dev/null -w ''%{http_code}'' $INSTANCE:${GITLAB_PORT}/api/v4/projects)" = "200" ]; do
+until [ "$(checkGitlabPort /api/v4/projects)" = "200" ]; do
   printf '.'
   sleep 5;
 done
-log "Expecting code 200; received: $(curl --silent --output /dev/null -w ''%{http_code}'' $INSTANCE:${GITLAB_PORT}/api/v4/projects)"
+log "Expecting code 200; received: $(checkGitlabPort /api/v4/projects)"
 log "Waiting for Gitlab Runners API. The runners API is running in a separate process from the normal API"
 until [ "$(checkGitlabPort /runners)" = "302" ]; do
   printf '.'
@@ -358,12 +358,11 @@ log "Runner was registered successfully"
 #
 #
 log "Ensuring availability of the Gitlab API to start"
-while [ "$(curl --silent --output /dev/null -w ''%{http_code}'' $INSTANCE:${GITLAB_PORT}/api/v4/projects)" != "200" ]; do
+until [ "$(checkGitlabPort /api/v4/projects)" = "200" ]; do
   printf '.'
   sleep 5;
 done
-log "Expecting code 200; received: $(curl --silent --output /dev/null -w ''%{http_code}'' $INSTANCE:${GITLAB_PORT}/api/v4/projects)"
-sleep 30 # Add an additional sleep in the end to improve user experience; So that Docker is started when the script ends
+log "Expecting code 200; received: $(checkGitlabPort /api/v4/projects)"
 log "6. Start other services"
 docker-compose up --detach
 sleep 30 # Add an additional sleep in the end to improve user experience; So that Docker is started when the script ends
