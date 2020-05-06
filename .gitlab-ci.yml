@@ -8,6 +8,7 @@ stages:
   - provision
   - build
   - deploy
+  - smoke tests
   - maintenance
 
 # The deployment on aws depends on three main environment variables
