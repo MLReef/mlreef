@@ -8,9 +8,9 @@ log() {
 }
 
 INSTANCE="localhost"
+DOCKER_ENV="local.env"
 GITLAB_PORT=10080
 
-DOCKER_ENV="local.env"
 
 AWS_ACCESS_KEY_ID=""
 AWS_SECRET_ACCESS_KEY=""
@@ -18,8 +18,32 @@ GITLAB_ADMIN_TOKEN=""
 # The Gitlab runner runtime defines how the runner manager deploys pipeline runs
 # docker: new pipeline runs are spawned as sister container to the runner manager
 # nvidia: like _docker_ with access and visibility of the GPU(s) enabled
-RUNNER_RUNTIME=""
+# Autodetect nvidia runtime
+nvidia-smi >/dev/null 2>&1 && RUNNER_RUNTIME="nvida" || RUNTIME=""
+echo "# Using RUNNER_RUNTIME=$RUNNER_RUNTIME"
 
+# backup local.env if it exits
+cp local.env local.env.bak 2>/dev/null || true
+# delete local.enc if it exists
+rm -f local.env 2>/dev/null || true
+
+###############################################################################
+if [ "$(uname)" = "Darwin" ]; then
+  echo "Running on OSX"
+  set -e
+elif [ "$(expr substr "$(uname -s)" 1 5)" = "Linux" ]; then
+  echo "Running on LINUX"
+  set -e
+elif [ "$(uname)" = "CYGWIN_NT-10.0" ]; then
+  echo "Running on Windows 10 Cygwin"
+  set +e   # This was added after testing on Saathvik's machine
+else
+  echo "WARNING: Cannot identify operating system. This might be okay"
+  echo "You probably have to add you OS: '$(uname)' to the script"
+  sleep 10
+fi
+
+###############################################################################
 while [ -n "$1" ]; do
   case "$1" in
   -e | --docker-environment-file)
@@ -65,11 +89,6 @@ while [ -n "$1" ]; do
   -p | --port)
     GITLAB_PORT="$2"
     echo "Expecting gitlab at port $GITLAB_PORT"
-    shift
-    ;;
-  -r | --runtime)
-    RUNNER_RUNTIME="$2"
-    echo "Using gitlab RUNNER_RUNTIME $RUNNER_RUNTIME"
     shift
     ;;
   -s | --secret)
@@ -127,18 +146,21 @@ echo "Successfuly parsed command line parameters"
 ####
 log "### Starting Deployment"
 ####
-log "### 1. Writing Docker's env file: $DOCKER_ENV"
+log "Writing Docker's env file: $DOCKER_ENV"
 touch $DOCKER_ENV
 echo "# Automatically added by the deploment pipeline .gitlab-ci-deploy.yml" >$DOCKER_ENV
 {
-  echo "# The REACT_APP_API_GATEWAY is used by the frontend to direkt API calls"
-  echo "# The GITLAB_HOST is for gitlab to serve links correctly (see docker-compose.yml)"
+  echo "# The REACT_APP_API_GATEWAY is used by the frontend to direct API calls"
   echo "REACT_APP_API_GATEWAY=http://$INSTANCE"
+  echo ""
+  echo "# Only Used during deployment for gitlab configuration and runner configuration"
   echo "# The gitlab server always serves port 80 locally. By setting the GITLAB_PORT variable,"
   echo "# we let gitlab know, that the container's port 80 is mapped differently from the outside."
   echo "GITLAB_PORT=$GITLAB_PORT"
-  echo "# The GITLAB_ROOT_URL is used by the backend to connect to gitlab"
+  echo ""
+  echo "# Used by the backend to connect to gitlab"
   echo "# The hostname 'gitlab' is created by the local docker network"
+  echo "# The port used here must be the same as GITLAB_PORT"
   echo "GITLAB_ROOT_URL=http://gitlab:$GITLAB_PORT"
   echo ""
   echo "# The GITLAB_ADMIN_TOKEN is shared between Gitlab and the Backend"
