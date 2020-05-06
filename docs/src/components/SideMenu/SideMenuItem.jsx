@@ -55,7 +55,7 @@ const SideMenuItem = props => {
         className="side-menu-item-label"
         style={{
           paddingLeft: `${level}rem`,
-          fontWeight: `${items || level === 1 ? 'bold' : 'normal'}`
+          fontWeight: `${items ? 'bold' : 'normal'}`
         }}
       >
         {href ? (
@@ -77,9 +77,9 @@ const SideMenuItem = props => {
       </span>
       {items && (
         <div className={`side-menu-item-content ${collapsed ? 'collapsed' : ''}`}>
-          { items.map(item => (
+          { (items).map((item, index) => (
             <SideMenuItem
-              key={item.label}
+              key={`side-menu-${item.label}-${index}`}
               content={item}
               level={level + 1}
               onItemActivated={handleItemActivated}
