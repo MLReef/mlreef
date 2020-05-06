@@ -20,3 +20,38 @@
     }
   }
 }
+
+
+// this is the "pulse" spinner
+.waiting {
+  display: inline-block;
+  position: relative;
+
+  &:after {
+    position: absolute;
+    border: 2px solid #fff;
+    opacity: 1;
+    border-radius: 50%;
+    animation: lds-ripple 0.8s cubic-bezier(0, 0.2, 0.8, 1) infinite;
+    content: ""
+  }
+}
+
+@keyframes lds-ripple {
+  0% {
+    top: 1rem;
+    right: 1rem;
+
+    width: 0;
+    height: 0;
+    opacity: 1;
+  }
+  100% {
+    top: 0px;
+    right: 0px;
+    width: 2rem;
+    height: 2rem;
+    opacity: 0;
+  }
+}
+// end spinner
