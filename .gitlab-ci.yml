@@ -1,37 +1,19 @@
-# Variables provided by the repository
-# DOCKER_USER
-# DOCKER_PASSWORD
-variables:
-  DOCKER_REGISTRY: "registry.gitlab.com"
-  DOCKER_REGISTRY_REPOSITORY_ID: "676639"
-  DOCKER_ORGANISATION: "mlreef"
-  IMAGE_NAME: "epf"
-
 stages:
   - build
   - undeploy
 
 
 build-deploy:
-  image: docker:latest
   stage: build
-  before_script:
-    - export TAG="${CI_COMMIT_REF_SLUG}"
-    - if [ $TAG == "master" ]; then TAG="latest";  fi  # follow docker naming conventions
-    - export IMAGE_PATH="$DOCKER_REGISTRY/$DOCKER_ORGANISATION/$IMAGE_NAME:$TAG"
-    - echo "creating docker image ${IMAGE_NAME} for user ${DOCKER_USER}"
-    - docker login ${DOCKER_REGISTRY} -u "${DOCKER_USER}" -p "${DOCKER_PASSWORD}"
-  variables:
-    IMAGE_PATH: "$DOCKER_REGISTRY/$DOCKER_ORGANISATION/$IMAGE_NAME:$TAG"
-  # Workaround for Gitlab Bug https://gitlab.com/gitlab-org/gitlab-runner/issues/1809
-  #  variables:
-  #    TAG: $CI_COMMIT_REF_SLUG
-  #    IMAGE_PATH: "$DOCKER_REGISTRY/$DOCKER_ORGANISATION/$IMAGE_NAME:$TAG"
+  image: docker:latest
   services:
     - docker:dind
   script:
-    - docker build --tag "$IMAGE_PATH" -f Dockerfile .
-    - docker push "${IMAGE_PATH}"
+    - echo "${CI_REGISTRY_PASSWORD}" | docker login ${CI_REGISTRY} --username=${CI_REGISTRY_USER} --password-stdin
+    - export TAG="${CI_COMMIT_REF_SLUG}"
+    - if [ $CI_COMMIT_REF_SLUG == "master" ]; then TAG="latest";  fi          # follow docker naming conventions
+    - docker build --quiet --tag "$CI_REGISTRY_IMAGE:$TAG" -f Dockerfile .
+    - docker push "$CI_REGISTRY_IMAGE:$TAG"
   environment:
     name: $CI_COMMIT_REF_SLUG
     url: $CI_PROJECT_URL/container_registry#$CI_COMMIT_REF_SLUG   # This is the url of the bucket we saved before
@@ -40,15 +22,25 @@ build-deploy:
 
 undeploy:
   when: manual
-  image: pstauffer/curl:latest
   stage: undeploy
+  except:
+    refs:
+      - master
+  image: registry.gitlab.com/systemkern/s5:latest
   variables:
     GIT_STRATEGY: none
-    NAME: "PRIVATE-TOKEN:" # workaround to not break the yaml structure
+    COLON: ":" # workaround to preserve the yaml structure (because of the ":")
+  before_script:
+    # Require Gitlab API token or this job
+    - if [ "$GITLAB_COM_API_TOKEN" = "" ]; then exit 0; fi
   script:
-    - curl --request DELETE --header "$NAME $GITLAB_API_TOKEN" "https://gitlab.com/api/v4/projects/$CI_PROJECT_ID/registry/repositories/$DOCKER_REGISTRY_REPOSITORY_ID/tags/$CI_COMMIT_REF_SLUG"
+    # Get the registry repository ID from the Gitlab API
+    - CONTAINER_REPO_ID=$(curl --silent --header "PRIVATE-TOKEN$COLON $GITLAB_COM_API_TOKEN"
+      https://gitlab.com/api/v4/projects/$CI_PROJECT_ID/registry/repositories/
+      | jq -r .[0].id
+      )
+    - curl --request DELETE --header "PRIVATE-TOKEN$COLON $GITLAB_COM_API_TOKEN"
+      https://gitlab.com/api/v4/projects/$CI_PROJECT_ID/registry/repositories/$CONTAINER_REPO_ID/tags/$CI_COMMIT_REF_SLUG
   environment:
     name: $CI_COMMIT_REF_SLUG
     action: stop
-  except:
-    - master
