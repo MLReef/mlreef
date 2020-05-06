@@ -1,4 +1,4 @@
-.deploy-base:
+deploy:
   extends: [".except-docu-branches"]
   stage: deploy
   image: registry.gitlab.com/systemkern/s5:latest
@@ -37,43 +37,16 @@
     - scp -i $SSH_KEYFILE -o 'AddKeysToAgent yes' $DOCKER_COMPOSE       ubuntu@${URL}:/home/ubuntu/$DOCKER_COMPOSE
     - scp -i $SSH_KEYFILE -o 'AddKeysToAgent yes' $DEPLOY_SCRIPT        ubuntu@${URL}:/home/ubuntu/$DEPLOY_SCRIPT
     - scp -i $SSH_KEYFILE -o 'AddKeysToAgent yes' $NGINX_CONFIG         ubuntu@${URL}:/home/ubuntu/$NGINX_CONFIG
+    - echo "Wait for the machine to actually install docker"
+    - sleep 180 # Wait for the machine to actually install docker
     - echo "Starting deploy script"
     - echo "----------------------------------------"
     - ssh -i $SSH_KEYFILE -o 'AddKeysToAgent yes' ubuntu@"${URL}" "
       sudo docker login ${DOCKER_REGISTRY} -u \"${DOCKER_USER}\" -p \"${DOCKER_PASSWORD}\"
       "
-
-deploy develop branch:
-  extends: .deploy-base
-  only:
-    refs: [develop, master]
-  #  Development deployment has been temporarily changed to the old style
-#  script: ssh -i $SSH_KEYFILE -o 'AddKeysToAgent yes' ubuntu@"${URL}" "
-#    export DOCKER_ENV="test.env"                                     &&
-#    echo GITLAB_ADMIN_TOKEN=$GITLAB_ADMIN_TOKEN >> $DOCKER_ENV       &&
-#    sudo docker-compose pull                                         &&
-#    sudo docker-compose up --detach                                  &&
-#    sudo docker system prune --force
-#    "
   script: ssh -i $SSH_KEYFILE -o 'AddKeysToAgent yes' ubuntu@"${URL}" "
-    sudo $DEPLOY_SCRIPT
-    --instance $URL
-    --port $GITLAB_PORT
-    --key $AWS_ACCESS_KEY_ID
-    --secret $AWS_SECRET_ACCESS_KEY
-    --gitlab-admin-token $GITLAB_ADMIN_TOKEN
-    --gitlab-secrets-key-base secret1111111111122222222222333333333334444444444555555555566666666661234
-    --gitlab-opt-key-base secret1111111111122222222222333333333334444444444555555555566666666661234
-    --gitlab-db-key-base secret1111111111122222222222333333333334444444444555555555566666666661234
-    "
-
-deploy feature branch:
-  extends: [".deploy-base", ".feature-branches-only"]
-  except:
-    refs:
-      - develop
-      - master
-  script: ssh -i $SSH_KEYFILE -o 'AddKeysToAgent yes' ubuntu@"${URL}" "
+    sudo docker images;
+    sudo docker ps;
     sudo $DEPLOY_SCRIPT
     --instance $URL
     --port $GITLAB_PORT
