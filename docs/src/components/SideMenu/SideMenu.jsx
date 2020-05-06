@@ -12,7 +12,7 @@ const SideMenu = props => {
     <aside className={`side-menu ${className}`}>
       <nav className="side-menu-container">
         {
-          data.items.map(item => <SideMenuItem key={`${item.label}`} content={item} />)
+          (data.items).map(item => <SideMenuItem key={`${item.label}`} content={item} />)
         }
       </nav>
     </aside>

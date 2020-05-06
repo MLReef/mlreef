@@ -28,7 +28,7 @@ const reduceFile = (acc = {}, {node, dirs}) => {
   } else {
     return {
       ...acc,
-      _files: [...(acc.files || []), {_name: getLabel(node), _href: node.relativePath}]
+      _files: [...(acc._files || []), {_name: getLabel(node), _href: node.relativePath}]
     }
   }
 };
@@ -66,7 +66,7 @@ const mapMenuItem = tree => {
   return Object.entries(tree).reduce((acc, [k, v]) => {
     if (k === '_files') {
       v.forEach(file => {
-        if (file._name === 'README') {
+        if (/README/.test(file._href)) {
           acc.label = file._name;
           acc.href = file._href;
 
@@ -95,7 +95,7 @@ export const useCreateMenuIndex = () => {
       query fetchDocs {
         allFile(
           filter: {extension: {eq: "md"}},
-          sort: {fields: relativePath, order: ASC}
+          sort: {fields: relativePath, order: DESC}
         ) {
           nodes {
             relativeDirectory
