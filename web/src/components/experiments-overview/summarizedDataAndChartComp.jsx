@@ -4,6 +4,7 @@ import {
   arrayOf,
   shape,
   number,
+  instanceOf,
 } from 'prop-types';
 import { Base64 } from 'js-base64';
 import './experimentsOverview.css';
@@ -37,7 +38,7 @@ const DataCard = ({ title, linesOfContent }) => (
       <p><b>{title}</b></p>
     </div>
     <div>
-      {linesOfContent.map((line, lineIndex) => {
+      {linesOfContent && linesOfContent.map((line, lineIndex) => {
         const lineContent = line.startsWith('*')
           ? <b>{line.replace('*', '')}</b>
           : line;
@@ -52,7 +53,9 @@ DataCard.propTypes = {
   linesOfContent: arrayOf(string).isRequired,
 };
 
-const SummarizedDataAndChartComp = ({ experiment, projectId, defaultBranch }) => {
+const SummarizedDataAndChartComp = ({
+  experiment, projectId, defaultBranch, today, userParameters,
+}) => {
   const [showSummary, setShowSummary] = useState(false);
   const [dataToGraph, setDataToGraph] = useState({
     datasets: [],
@@ -68,7 +71,13 @@ const SummarizedDataAndChartComp = ({ experiment, projectId, defaultBranch }) =>
     currentState,
     userName,
     timeCreatedAgo,
+    experimentData,
   } = experiment;
+
+  const modelName = experimentData && experimentData.processing.name;
+  const trainingData = userParameters && userParameters.map((param) => (
+    `*P: ${param.name} = ${param.value}`
+  ));
 
   useEffect(() => {
     BranchesApi.compare(projectId, descTitle, defaultBranch)
@@ -231,30 +240,21 @@ const SummarizedDataAndChartComp = ({ experiment, projectId, defaultBranch }) =>
                 />
               )}
             <DataCard
-              title="Algorithm"
+              title="Model"
               linesOfContent={[
-                '*Resnet 50',
+                `*${modelName}`,
                 'from',
                 `*branch:${descTitle}`,
                 'authored by',
-                `*${userName}${' '}${getTimeCreatedAgo(timeCreatedAgo)}`,
+                `*${userName}${' '}${getTimeCreatedAgo(timeCreatedAgo, today)}`,
                 'being',
                 `*${ahead} commits ahead and ${behind} commits behind`,
                 `of its ${defaultBranch} branch`,
               ]}
             />
             <DataCard
-              title="Training"
-              linesOfContent={[
-                '*10 epochs trained',
-                'with',
-                '*P: learning_r = 0.002',
-                '*P: optimizer = adam',
-                '*P: lr_decay = 0.0005',
-                '*P: layers = 3',
-                '*P: dropout = 0.5',
-                '*P: alpha = 1',
-              ]}
+              title="Used Parameters"
+              linesOfContent={trainingData}
             />
           </div>
         </>
@@ -274,6 +274,10 @@ SummarizedDataAndChartComp.propTypes = {
   }).isRequired,
   projectId: number.isRequired,
   defaultBranch: string.isRequired,
+  today: instanceOf(Date).isRequired,
+  userParameters: arrayOf(
+    shape({}).isRequired,
+  ).isRequired,
 };
 
 export default SummarizedDataAndChartComp;

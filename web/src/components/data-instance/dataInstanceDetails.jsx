@@ -28,8 +28,11 @@ const DataInstanceDetails = ({ ...props }) => {
       path || '',
       false,
       diName,
-    ).then((res) => {
-      setFiles(res);
+    ).then(async (res) => {
+      if (res.ok) {
+        const filesPerProject = await res.json();
+        setFiles(filesPerProject);
+      }
     }).catch(() => {
       toastr.error('Error', 'Something went wrong getting your files');
     });

@@ -9,7 +9,7 @@ export const DataOperationsList = ({
   dataOperations,
 }) => (
   <div id="data-operations-list">
-    {dataOperations.map((dataOperation, index) => (
+    {dataOperations && dataOperations.map((dataOperation, index) => (
       <div
         draggable
         onDragStart={handleDragStart}
@@ -19,10 +19,10 @@ export const DataOperationsList = ({
       >
         <div className="header flexible-div">
           <div id="title-content">
-            <p className="bold-text">{dataOperation.title}</p>
+            <p className="bold-text">{dataOperation.name}</p>
             <p>
               Created by 
-              <span className="bold-text">{dataOperation.username}</span>
+              <span className="bold-text">Keras</span>
             </p>
           </div>
           <div id={`data-options-first-${index}`} className="data-oper-options flexible-div">
@@ -51,7 +51,7 @@ export const DataOperationsList = ({
           <div style={{ display: 'flex', justifyContent: 'space-between' }}>
             <p>
 Data type:
-              {dataOperation.dataType}
+              {dataOperation.input_data_type}
             </p>
             <p style={{ marginRight: '11px' }}><b>Source Code</b></p>
           </div>

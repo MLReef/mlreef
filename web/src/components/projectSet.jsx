@@ -42,9 +42,9 @@ class ProjectSet extends React.Component {
             key={`proj-${screen}-key-${proj.name}`}
             push={push}
             owner={proj.id}
-            title={proj.name}
-            projectId={proj.id}
-            branch={proj.default_branch}
+            title={proj.gitlab_project}
+            projectId={proj.gitlab_id}
+            branch={'master'}
             description={proj.description}
             starCount={proj.star_count}
             forkCount={proj.forks_count}

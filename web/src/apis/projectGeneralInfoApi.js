@@ -1,29 +1,22 @@
-import { API_GATEWAY, BUILD_TIMEOUT } from '../apiConfig';
+import { API_GATEWAY } from '../apiConfig';
 import { getCurrentToken, generateGetRequest } from './apiHelpers';
 import { toastr } from 'react-redux-toastr';
 
-const defaultProjectSettings = {
-  ci_config_path: '.mlreef.yml',
-  build_timeout: BUILD_TIMEOUT,
-};
-
 export default class ProjectGeneralInfoApi {
   static async create(settings) {
-    const baseUrl = new URL(`${API_GATEWAY}/api/v4/projects`);
-    const params = {
-      ...defaultProjectSettings,
-      ...settings,
-    };
-    Object.entries(params)
-      .forEach((param) => baseUrl.searchParams.append(...param));
+    const baseUrl = new URL(`${API_GATEWAY}/api/v1/data-projects`);
+    const data = {...settings};
     try {
       const response = await fetch(
         baseUrl, {
           method: 'POST',
           headers: new Headers({
             'PRIVATE-TOKEN': getCurrentToken(),
+            "Accept": 'application/json',
             'Content-Type': 'application/json',
+            Origin: 'http://localhost',
           }),
+          body: JSON.stringify(data),
         },
       );
       return response;
@@ -50,11 +43,8 @@ export default class ProjectGeneralInfoApi {
     }
   }
 
-  static async getProjectsList(params = {}) {
-    const url = new URL(`${API_GATEWAY}/api/v4/projects`);
-    // set query params
-    Object.entries({ simple: true, ...params })
-      .forEach((param) => url.searchParams.append(...param));
+  static async getProjectsList() {
+    const url = new URL(`${API_GATEWAY}/api/v1/data-projects`);
     const respone = generateGetRequest(url.href);
 
     return respone

@@ -57,6 +57,10 @@ export function setSelectedProjectSuccesfully(project) {
   return { type: types.SET_SELECTED_PROJECT, project };
 }
 
+export function setSelectedProjectUUIDSuccesfully(uuidProject) {
+  return { type: types.SET_SELECTED_PROJECT_UUID, uuidProject };
+}
+
 /**
  * Set the project selected by user in project state so it can be accessed anywhere
  */
@@ -64,6 +68,12 @@ export function setSelectedProjectSuccesfully(project) {
 export function setSelectedProject(projectSelected) {
   return (dispatch) => {
     dispatch(setSelectedProjectSuccesfully(projectSelected));
+  };
+}
+
+export function setSelectedProjectUUID(id) {
+  return (dispatch) => {
+    dispatch(setSelectedProjectUUIDSuccesfully(id));
   };
 }
 

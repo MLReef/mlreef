@@ -7,6 +7,7 @@ import mergeRequests from './mergeReducer';
 import user from './userReducer';
 import actionModal from './actionModalReducer';
 import groups from './groupsReducer';
+import processors from './processorReducer';
 
 const rootReducer = combineReducers({
   branches,
@@ -17,6 +18,7 @@ const rootReducer = combineReducers({
   user,
   actionModal,
   groups,
+  processors,
 });
 
 export default rootReducer;

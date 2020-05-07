@@ -10,6 +10,7 @@ import JobsApi from '../../../apis/JobsApi';
 const JobLog = ({
   projectId,
   job,
+  currentState,
 }) => {
   const [jobLog, setJobLog] = useState(null);
   const parsedDuration = parseDurationInSeconds(job.duration);
@@ -61,6 +62,30 @@ const JobLog = ({
       });
   }, [projectId, job.id]);
 
+  let jobStatus = (
+    <b style={{
+      color: (currentState === 'success')
+        ? '#38b797'
+        : 'red',
+    }}
+    >
+      {currentState}
+    </b>
+  );
+  if (currentState === 'running') {
+    jobStatus = (
+      <b style={{ color: '#2DB391' }}>
+        {currentState}
+      </b>
+    );
+  } else if (currentState === 'pending') {
+    jobStatus = (
+      <b style={{ color: '#E99444' }}>
+        {currentState}
+      </b>
+    );
+  }
+
   return (
     <div id="job-information-container">
       <div id="basic-information-container" className="flexible-div-basic-info-cont">
@@ -88,7 +113,7 @@ const JobLog = ({
             : 'red',
         }}
         >
-          <b>{job.status}</b>
+          <b>{jobStatus}</b>
         </p>
       </div>
       <div style={{
@@ -124,35 +149,38 @@ const JobLog = ({
         </div>
         )}
       </div>
-      <div style={{ width: '100%', backgroundColor: '#111111' }}>
-        <div id="top-job-log-div">
-          <p style={{ margin: 0 }} />
-        </div>
-        {jobLog
-          ? jobLog.map((line, index) => {
-            if (line.length === 0) {
-              return null;
-            }
-            return (
-              <div className="log-line" key={`${index.toString()} ${line}`}>
-                <div className="number-span-container">
-                  <span style={{ color: 'gray' }}>{index}</span>
+      {(job.status === 'failed' || job.status === 'success') ? (
+        <div style={{ width: '100%', backgroundColor: '#111111' }}>
+          <div id="top-job-log-div">
+            <p style={{ margin: 0 }} />
+          </div>
+          {jobLog
+            ? jobLog.map((line, index) => {
+              if (line.length === 0) {
+                return null;
+              }
+              return (
+                <div className="log-line" key={`${index.toString()} ${line}`}>
+                  <div className="number-span-container">
+                    <span style={{ color: 'gray' }}>{index}</span>
+                  </div>
+                  {parseLine(line)}
                 </div>
-                {parseLine(line)}
+              );
+            }) : (
+              <div style={{ paddingLeft: '2.5em' }}>
+                <CircularProgress size={30} />
               </div>
-            );
-          }) : (
-            <div style={{ paddingLeft: '2.5em' }}>
-              <CircularProgress size={30} />
-            </div>
-          )}
-      </div>
+            )}
+        </div>
+      ) : null}
     </div>
   );
 };
 
 JobLog.propTypes = {
   projectId: number.isRequired,
+  currentState: string.isRequired,
   job: shape({
     duration: number.isRequired,
     created_at: string.isRequired,

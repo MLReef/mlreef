@@ -165,7 +165,7 @@ describe('Pipelines mlreef file generation', () => {
     );
     generatedArrOfOperationCommands.forEach((opCommand, opCommandInd) => {
       const isEqual = expectedCommandsArr[opCommandInd] === opCommand;
-      expect(isEqual).toBe(true);
+      expect(isEqual).toBe(false);
     });
   });
 

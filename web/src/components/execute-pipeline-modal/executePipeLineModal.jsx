@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import './executePipeLineModal.css';
 import '../../css/genericModal.css';
-import createPipelineInProject from '../../functions/pipeLinesHelpers';
 import MSelect from 'components/ui/MSelect';
+import { ALGORITHM } from 'dataTypes';
+import createExperimentInProject, { createPipelineInProject } from '../../functions/pipeLinesHelpers';
 
 
 const fakeMachinesToShow = [
@@ -17,6 +19,7 @@ const fakeMachinesToShow = [
 ];
 
 const ExecutePipelineModal = ({
+  type,
   isShowing,
   toggle,
   amountFilesSelected,
@@ -24,6 +27,8 @@ const ExecutePipelineModal = ({
   filesSelectedInModal,
   http_url_to_repo,
   projectId,
+  projectUUID,
+  inputFormValues,
   branchName,
   dataInstanceName,
   jobName,
@@ -41,6 +46,39 @@ const ExecutePipelineModal = ({
     setSection(1);
     toggle();
     setSelectMachinesMess('Select a machine...');
+  }
+
+  const chooseExecutionType = () => {
+    if (section === 1) {
+      setSection(2);
+      if (type === ALGORITHM) {
+        createExperimentInProject(
+          dataOperationsSelected,
+          filesSelectedInModal,
+          http_url_to_repo,
+          projectId,
+          projectUUID,
+          jobName,
+          branchName,
+          dataInstanceName,
+          branchSelected,
+          inputFormValues,
+        );
+      } else {
+        createPipelineInProject(
+          dataOperationsSelected,
+          filesSelectedInModal,
+          http_url_to_repo,
+          projectId,
+          jobName,
+          branchName,
+          dataInstanceName,
+          branchSelected,
+        );
+      }
+    } else {
+      cleanForm();
+    }
   }
   return (
       <div  className={`modal modal-primary modal-lg dark-cover ${isShowing ? 'show' : ''}`}>
@@ -90,7 +128,7 @@ const ExecutePipelineModal = ({
                           value={selectMachinesMess}
                           onSelect={setSelectMachinesMess}
                         />
-                      {jobName === 'model-experiment' && (
+                        {jobName === 'model-experiment' && (
                         <MSelect
                           className="mt-2"
                           label="Select a hyperparameter tuning method:"
@@ -102,7 +140,7 @@ const ExecutePipelineModal = ({
                             { label: 'Bayesian', value: '3' },
                           ]}
                         />
-                      )}
+                        )}
                       </div>
                     </div>
                   )}
@@ -127,7 +165,8 @@ const ExecutePipelineModal = ({
                   >
                     <input type="radio" checked={isSecondOptSelected} onChange={() => {}} />
                     <p style={{ marginLeft: '1em' }} id="paragraph-op2">
-                      Launch Jupyter notebook on your web browser to execute the pipeline locally on your machine
+                      Launch Jupyter notebook on your web browser to execute the
+                      pipeline locally on your machine
                     </p>
                   </div>
                 </div>
@@ -185,38 +224,31 @@ const ExecutePipelineModal = ({
                 </button>
               </div>
               <div className="col-6 t-right" style={{ width: '50%', display: 'flex', justifyContent: 'flex-end' }}>
-                <button
-                  id="show-machines"
-                  type="button"
-                  onClick={() => {
-                    if (section === 1) {
-                      setSection(2);
-                      createPipelineInProject(
-                        dataOperationsSelected,
-                        filesSelectedInModal,
-                        http_url_to_repo,
-                        projectId,
-                        jobName,
-                        branchName,
-                        dataInstanceName,
-                        branchSelected,
-                      );
-                    } else {
-                      cleanForm();
-                    }
-                  }}
-                  className="btn btn-primary"
-                >
-                  {section === 1
-                    ? 'Execute'
-                    : 'Ok'}
-                </button>
+                {section === 1 ? (
+                  <button
+                    id="show-machines"
+                    type="button"
+                    onClick={chooseExecutionType}
+                    className="btn btn-primary"
+                  >
+                    Execute
+                  </button>
+                ) : (
+                  <Link to={type === ALGORITHM
+                    ? `/my-projects/${projectId}/-/experiments`
+                    : `/my-projects/${projectId}/-/data-pipelines`}
+                  >
+                    <button id="show-machines" type="button" className="btn btn-primary">
+                      Ok
+                    </button>
+                  </Link>
+                )}
               </div>
             </div>
           </div>
         </div>
       </div>
-    );
+  );
 };
 
 export default ExecutePipelineModal;

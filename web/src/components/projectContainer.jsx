@@ -60,7 +60,7 @@ class ProjectContainer extends React.Component {
             </Link>
             <Link
               onClick={forceShowExperimentList}
-              to={`/my-projects/${id}/experiments-overview`}
+              to={`/my-projects/${id}/-/experiments`}
               className="feature"
               id="experiments"
             >
