@@ -6,6 +6,7 @@ import {
 import FilesSelector from 'components/layout/FilesSelector';
 import MCard from 'components/ui/MCard';
 import DataOperationFilters from 'components/layout/DataOperationFilters';
+import { OPERATION } from 'dataTypes';
 import plus from '../../images/plus_01.svg';
 import './pipelineView.css';
 import Navbar from '../navbar/navbar';
@@ -16,7 +17,6 @@ import { DataOperationsList } from './dataOperationsList';
 import Instruction from '../instruction/instruction';
 import ExecutePipelineModal from '../execute-pipeline-modal/executePipeLineModal';
 import withPipelineExecution from '../withPipelinesExecution';
-import { dataPipeLines } from '../../dataTypes';
 import { randomNameGenerator } from '../../functions/pipeLinesHelpers';
 
 const PipeLineView = ({
@@ -41,7 +41,7 @@ const PipeLineView = ({
   setPreconfiguredOperations,
 }) => {
   const items = dataOperationsSelected;
-  setPreconfiguredOperations(dataPipeLines);
+  setPreconfiguredOperations(dataOperations);
   const uniqueName = randomNameGenerator();
   const branchName = `data-pipeline/${uniqueName}`;
   const dataInstanceName = `data-pipeline/${uniqueName}`;
@@ -59,6 +59,7 @@ const PipeLineView = ({
         handleModalAccept={handleModalAccept}
       />
       <ExecutePipelineModal
+        type={OPERATION}
         isShowing={isShowingExecutePipelineModal}
         amountFilesSelected={filesSelectedInModal.length}
         toggle={toggleExecutePipeLineModal}
@@ -160,6 +161,7 @@ function mapStateToProps(state) {
   return {
     selectedProject: state.projects.selectedProject,
     branches: state.branches,
+    processors: state.processors.operations,
   };
 }
 
@@ -196,4 +198,4 @@ PipeLineView.defaultProps = {
   filesSelectedInModal: [],
 };
 
-export default connect(mapStateToProps)(withPipelineExecution(PipeLineView, dataPipeLines));
+export default connect(mapStateToProps)(withPipelineExecution(PipeLineView));

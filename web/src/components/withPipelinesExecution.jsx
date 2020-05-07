@@ -9,27 +9,27 @@ import { showErrorsInTheOperationsSelected } from '../functions/pipeLinesHelpers
 
 const withPipelineExecution = (
   WrappedComponent,
-  operationsToExecute,
 ) => class extends Component {
   constructor(props) {
     super(props);
-    const { selectedProject, branches } = this.props;
+    const { selectedProject, selectedProjectUUID, branches, processors } = this.props;
     this.state = {
       branchSelected: null,
+      inputFormValues:[],
       project: selectedProject,
+      projectUUID: selectedProjectUUID,
       checkBoxOwnDataOperations: false,
       checkBoxStarredDataOperations: false,
       idCardSelected: null,
       showFilters: false,
       showForm: false,
       isShowingExecutePipelineModal: false,
-      dataOperations: operationsToExecute,
+      dataOperations: processors,
       showSelectFilesModal: false,
       dataOperationsSelected: [],
       filesSelectedInModal: [],
       branches,
     };
-
     this.handleCheckMarkClick = this.handleCheckMarkClick.bind(this);
     this.setPreconfiguredOperations = this.setPreconfiguredOperations.bind(this);
     this.drop = this.drop.bind(this);
@@ -264,22 +264,16 @@ const withPipelineExecution = (
     const dataOperationsSelectedUpdate = dataOperationsSelected.map((dataOperation, index) => {
       const dataOperationsHtmlElm = dataOperationsHtmlElms[index];
       const dataOpInputs = Array.prototype.slice.call(dataOperationsHtmlElm.getElementsByTagName('input'));
-      let advancedParamsCounter = 0;
       inputValuesAndDataModels = [];
       dataOpInputs.forEach((input, inputIndex) => {
         let inputDataModel = null;
-        if (input.id.startsWith('ad-')) {
-          inputDataModel = dataOperation.params.advanced[advancedParamsCounter];
-          advancedParamsCounter += 1;
-        } else {
-          inputDataModel = dataOperation.params.standard[inputIndex];
-        }
+        inputDataModel = dataOperation.parameters[inputIndex];
         if (validateInput(input.value, inputDataModel.dataType, inputDataModel.required)) {
           if (input.value !== '') {
+            const name = inputDataModel.name;
             inputValuesAndDataModels.push({
-              id: input.id,
+              name: name,
               value: input.value,
-              inputDataModel,
             });
           }
         } else {
@@ -297,11 +291,13 @@ const withPipelineExecution = (
     } else {
       toastr.error('Form', 'Data you have entered is invalid');
     }
+    this.setState({inputFormValues: inputValuesAndDataModels});
   }
 
   render = () => {
     const {
       project,
+      projectUUID,
       branches,
       branchSelected,
       dataOperationsSelected,
@@ -310,10 +306,12 @@ const withPipelineExecution = (
       showSelectFilesModal,
       isShowingExecutePipelineModal,
       inputValuesAndDataModels,
+      inputFormValues,
     } = this.state;
     return (
       <WrappedComponent
         project={project}
+        projectUUID={projectUUID}
         branches={branches}
         branchSelected={branchSelected}
         dataOperationsSelected={dataOperationsSelected}
@@ -322,6 +320,7 @@ const withPipelineExecution = (
         showSelectFilesModal={showSelectFilesModal}
         isShowingExecutePipelineModal={isShowingExecutePipelineModal}
         inputValuesAndDataModels={inputValuesAndDataModels}
+        inputFormValues={inputFormValues}
         onSortEnd={this.onSortEnd}
         handleCheckMarkClick={this.handleCheckMarkClick}
         drop={this.drop}

@@ -10,8 +10,7 @@ import Jobs from './insights-menu/jobs';
 import JobLogById from 'components/insights/insights-menu/jobLogById';
 
 const Insights = (props) => {
-  const { selectedProject, selectedProject: {id, name }, match: { params: { logId } } } = props;
-  const groupName = selectedProject.namespace.name;
+  const { selectedProject, selectedProject: { id }, match: { params: { logId } } } = props;
 
   // When creating any features in the future such 
   // as Contributors, Resources etc. add a route

@@ -121,6 +121,7 @@ img.dropdown-white {
 
 .pipeline-card > .header{
    display: flex;
+   padding: 0.5em;
    background-color:#e5e5e5;
 }
 

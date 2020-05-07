@@ -1,3 +1,4 @@
+import { INT, FLOAT, BOOL } from 'dataTypes';
 import {
   RUNNING,
   SUCCESS,
@@ -2079,3 +2080,142 @@ export const mockDataVisualizations = [
     artifacts_expire_at: null,
   },
 ];
+
+/* Data Pipelines mock data used for test cases only*/
+export const dataPipeLines = [{
+  title: 'Augment',
+  username: 'Vaibhav_M',
+  starCount: '243',
+  index: 1,
+  command: 'augment',
+  description:
+      'Data augmentation multiplies and tweakes the data by changing angle of rotation, flipping the images, zooming in, etc.',
+  showDescription: false,
+  showAdvancedOptsDivDataPipeline: false,
+  dataType: 'Images',
+  params: {
+    standard:
+    [
+      {
+        name: 'Number of augmented images',
+        dataType: INT,
+        required: true,
+        commandName: 'iterations',
+        comment: 'The comment for Number of augmented images',
+      },
+    ],
+    advanced:
+    [
+      {
+        name: 'Rotation range',
+        dataType: FLOAT,
+        required: false,
+        commandName: 'rotation-range',
+        standardValue: '0',
+        comment: 'The comment for Rotation range',
+      },
+      {
+        name: 'Width shift range',
+        dataType: FLOAT,
+        required: false,
+        commandName: 'width-shift-range',
+        standardValue: '0',
+      },
+      {
+        name: 'Height shift range',
+        dataType: FLOAT,
+        required: false,
+        commandName: 'height-shift-range',
+        standardValue: '0',
+        comment: 'The comment for Height shift range',
+      },
+      {
+        name: 'Shear range',
+        dataType: FLOAT,
+        required: false,
+        commandName: 'shear-range',
+        standardValue: '0',
+        comment: 'The comment for Shear range',
+      },
+      {
+        name: 'Zoom range',
+        dataType: FLOAT,
+        required: false,
+        commandName: 'zoom-range',
+        standardValue: '0',
+        comment: 'The comment for Zoom range',
+      },
+      {
+        name: 'Horizontal flip',
+        dataType: BOOL,
+        required: false,
+        commandName: 'horizontal-flip',
+        standardValue: 'false',
+        comment: 'The comment for Horizontal flip',
+      },
+      {
+        name: 'Vertical flip',
+        dataType: BOOL,
+        required: false,
+        commandName: 'vertical-flip',
+        standardValue: 'false',
+      },
+    ],
+  },
+},
+{
+  title: 'Random crop',
+  username: 'Vaibhav_M',
+  starCount: '201',
+  index: 2,
+  command: 'random_crop',
+  description:
+      `This pipeline operation randomly crops a NxM (height x width) portion of the given dataset. 
+      This is used to randomly extract parts of the image incase we need to remove bias present in image data.`,
+  showDescription: false,
+  showAdvancedOptsDivDataPipeline: false,
+  dataType: 'Text',
+  params: {
+    standard: [
+      {
+        name: 'Height', dataType: INT, required: true, commandName: 'height',
+      },
+      {
+        name: 'Width',
+        dataType: INT,
+        required: true,
+        commandName: 'width',
+        comment: 'The comment for Width.',
+      },
+      {
+        name: 'Channels', dataType: INT, required: true, commandName: 'channels', standardValue: '3',
+      },
+    ],
+    advanced: [
+      {
+        name: 'Random Seed', dataType: INT, required: false, commandName: 'seed', standardValue: 'None',
+      },
+    ],
+  },
+},
+{
+  title: 'Lee filter',
+  username: 'RK_ESA',
+  starCount: '126',
+  index: 4,
+  command: 'lee_filter',
+  description:
+      `The presence of speckle noise in Synthetic Aperture Radar (SAR) images makes the interpretation of the contents difficult, 
+      thereby degrading the quality of the image. Therefore an efficient speckle noise removal technique, the Lee Filter is used to 
+      smoothen the static-like noise present in these images`,
+  showDescription: false,
+  showAdvancedOptsDivDataPipeline: false,
+  dataType: 'Something Else',
+  params: {
+    standard: [
+      {
+        name: 'Intensity', dataType: INT, required: true, commandName: 'intensity',
+      },
+    ],
+  },
+}];

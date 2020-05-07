@@ -48,7 +48,7 @@ class NewProject extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      visibility: 'private',
+      visibility: 'PRIVATE',
       projectName: '',
       redirect: false,
       readme: false,
@@ -180,7 +180,7 @@ class NewProject extends Component {
    )[0].label;
    const isMaximumOfDataTypesSelected = dtTypesSel.length === 4;
    return redirect ? (
-     <Redirect to={`/my-projects/${newProject.id}/master`} />
+     <Redirect to={`/my-projects/${newProject.gitlab_id}/master`} />
    ) : (
      <>
        <Navbar />
@@ -194,7 +194,7 @@ class NewProject extends Component {
            <p>
              A Machine Learning (ML) project is where you house your data set (repository),
              where you perform data processing
-             (data pipeline), visualize your data set (data visualization) 
+             (data pipeline), visualize your data set (data visualization)
              and where you create your experiments
            </p>
          </div>

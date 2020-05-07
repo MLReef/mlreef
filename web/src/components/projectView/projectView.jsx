@@ -6,6 +6,7 @@ import {
 } from 'prop-types';
 import { toastr } from 'react-redux-toastr';
 import forkingImage from 'images/forking.png';
+import { OPERATION, ALGORITHM } from 'dataTypes';
 import ReadMeComponent from '../readMe/readMe';
 import ProjectContainer from '../projectContainer';
 import FilesContainer from '../FilesContainer/FilesContainer';
@@ -14,6 +15,7 @@ import RepoFeatures from '../repoFeatures';
 import Navbar from '../navbar/navbar';
 import * as projectActions from '../../actions/projectInfoActions';
 import * as branchesActions from '../../actions/branchesActions';
+import * as processorActions from '../../actions/processorActions';
 import './projectView.css';
 import commitsApi from '../../apis/CommitsApi';
 import { getTimeCreatedAgo } from '../../functions/dataParserHelpers';
@@ -51,6 +53,7 @@ class ProjectView extends React.Component {
   componentDidMount(){
     const {
       actions,
+      projects: { all },
       match:
       {
         params: { projectId, branch },
@@ -60,7 +63,13 @@ class ProjectView extends React.Component {
     actions.getBranchesList(projectId);
     actions.getJobsListPerProject(projectId);
     actions.getMergeRequestsList(projectId);
+    actions.getProcessors(OPERATION);
+    actions.getProcessors(ALGORITHM);
+
+    const backendProject = all.filter((proj) => proj.gitlab_id.toString() === projectId);
+    actions.setSelectedProjectUUID(backendProject[0]);
     actions.setIsLoading(true);
+
     ProjectGeneralInfoApi
       .getProjectInfoApi(projectId)
       .then((project) => {
@@ -114,7 +123,6 @@ class ProjectView extends React.Component {
       mergeRequests,
       isForking,
     } = this.state;
-    console.log(branch);
     let isEmptyProject, sshUrlToRepo, projectName, showReadMe, encodedBranch;
     if (selectedProject) {
       isEmptyProject = selectedProject.empty_repo;
@@ -131,7 +139,6 @@ class ProjectView extends React.Component {
     const committer = lastCommit && users.filter((user) => user.name === lastCommit.author_name)[0];
     const today = new Date();
     const timediff = lastCommit && getTimeCreatedAgo(lastCommit.authored_date, today);
-    console.log(encodedBranch);
     return (
       <div className="project-component">
         <Navbar />
@@ -249,6 +256,7 @@ ProjectView.propTypes = {
   ).isRequired,
   actions: shape({
     setSelectedProject: func.isRequired,
+    setSelectedProjectUUID: func.isRequired,
     getUsersLit: func.isRequired,
   }).isRequired,
 };
@@ -271,6 +279,7 @@ function mapDispatchToProps(dispatch) {
       ...jobsActions,
       ...branchesActions,
       ...mergeActions,
+      ...processorActions,
     }, dispatch),
   };
 }

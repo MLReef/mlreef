@@ -1,21 +1,20 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { toastr } from 'react-redux-toastr';
+import { bindActionCreators } from 'redux';
 import { CircularProgress } from '@material-ui/core';
 import uuidv1 from 'uuid/v1';
-import { shape, objectOf, arrayOf, string } from 'prop-types';
+import { shape, objectOf, arrayOf,string, func } from 'prop-types';
 import CustomizedButton from 'components/CustomizedButton';
+import ExperimentsApi from 'apis/experimentApi';
 import BranchesApi from '../../apis/BranchesApi';
 import Navbar from '../navbar/navbar';
 import ProjectContainer from '../projectContainer';
 import './experimentsOverview.css';
+import * as jobsActions from '../../actions/jobsActions';
 import pipelinesApi from '../../apis/PipelinesApi';
-import {
-  filesForExperimentsDetails,
-} from '../../dataTypes';
-import ExperimentDetails from '../experiment-details/experimentDetails';
 import ExperimentCard from './experimentCard';
-import { classifyPipeLines } from '../../functions/pipeLinesHelpers';
+import { classifyExperiments } from '../../functions/pipeLinesHelpers';
 import emptyLogo from '../../images/experiments_empty-01.png';
 
 class ExperimentsOverview extends Component {
@@ -32,35 +31,33 @@ class ExperimentsOverview extends Component {
       selectedExperiment: null,
     };
 
-    this.setSelectedExperiment = this.setSelectedExperiment.bind(this);
     this.displayEmptyLogo = this.displayEmptyLogo.bind(this);
     this.handleButtonsClick = this.handleButtonsClick.bind(this);
   }
 
   componentDidMount() {
-    const { projects: { selectedProject } } = this.props;
     setTimeout(() => {
       this.setState({ loading: false });
-    }, 500);
-    pipelinesApi.getPipesByProjectId(selectedProject.id).then((res) => {
-      BranchesApi.getBranches(selectedProject.id)
+    }, 1000);
+
+    const { projects: { selectedProject: { id }, selectedProjectUUID }, actions } = this.props;
+    let experiments;
+    actions.getJobsListPerProject(id);
+    ExperimentsApi.getExperiments(selectedProjectUUID.id)
+      .then((res) => {
+        experiments = res;
+      })
+      .catch(() => toastr.error('Error', 'Could not fetch the latest experiments'));
+    pipelinesApi.getPipesByProjectId(id).then((res) => {
+      BranchesApi.getBranches(id)
         .then((branches) => {
           const arrayOfBranches = branches.filter((branch) => branch.name.startsWith('experiment'));
-          const experimentsClassified = classifyPipeLines(res, arrayOfBranches);
+          const experimentsClassified = classifyExperiments(res, arrayOfBranches, experiments);
           this.setState({ experiments: experimentsClassified, all: experimentsClassified });
           this.displayEmptyLogo();
         })
-        .catch(() => toastr.error('Error', 'Something went wrong getting your experiments'));
+        .catch(() => toastr.error('Error', 'Something went wrong getting your experiments, Please refresh your page'));
     });
-  }
-
-  setSelectedExperiment(experiment) {
-    this.setState({ selectedExperiment: experiment });
-  }
-
-  // this is called when user clicks Experiments Tab forcing to shown the list
-  forceShowExperimentList = () => {
-    this.setState({ selectedExperiment: null });
   }
 
   displayEmptyLogo = () => {
@@ -89,20 +86,15 @@ class ExperimentsOverview extends Component {
   }
 
   render() {
-    const { selectedProject, selectedExperiment, experiments, empty, loading } = this.state;
-    const { jobs, history } = this.props;
-    let experimentJob;
-    const firstInd = 0;
-    if (selectedExperiment) {
-      experimentJob = jobs.filter((job) => job.ref === selectedExperiment.descTitle)[firstInd];
-    }
-    const groupName = selectedProject.namespace.name;
+    const {
+      selectedProject, selectedExperiment, experiments, empty, loading,
+    } = this.state;
+    const { history } = this.props;
     return (
       <div id="experiments-overview-container">
         <>
           <Navbar />
           <ProjectContainer
-            forceShowExperimentList={this.forceShowExperimentList}
             activeFeature="experiments"
             viewName="Experiments"
           />
@@ -209,10 +201,9 @@ class ExperimentsOverview extends Component {
                             currentState: experiment.status,
                             descTitle: experiment.name,
                             userName: experiment.authorName,
-                            percentProgress: '100',
-                            eta: '0',
-                            modelTitle: 'Resnet 50',
+                            modelTitle: experiment.experimentData.processing.name,
                             timeCreatedAgo: experiment.createdAt,
+                            experimentData: experiment.experimentData,
                           }),
                         );
 
@@ -225,21 +216,9 @@ class ExperimentsOverview extends Component {
                               currentState: experimentClassification.status,
                               experiments: expMapped,
                             }}
-                            setSelectedExperiment={this.setSelectedExperiment}
                           />
                         );
                       })}
-                    {selectedExperiment
-                      && (
-                      <ExperimentDetails
-                        key={uuidv1()}
-                        projectId={selectedProject.id}
-                        setNullExperiment={this.setSelectedExperiment}
-                        experiment={selectedExperiment}
-                        job={experimentJob}
-                        parameters={filesForExperimentsDetails}
-                      />
-                      )}
                   </div>
                 )}
                 <br />
@@ -255,20 +234,33 @@ class ExperimentsOverview extends Component {
 ExperimentsOverview.propTypes = {
   projects: shape({
     selectedProject: objectOf(shape).isRequired,
-  }).isRequired,
-  jobs: arrayOf(
-    shape({
-      ref: string.isRequired,
+    selectedProjectUUID: shape({
+      id: string.isRequired,
     }).isRequired,
-  ).isRequired,
-  history: shape({}).isRequired,
+    jobs: arrayOf(
+        shape({
+          ref: string.isRequired,
+        }).isRequired,
+    ).isRequired,
+    history: shape({}).isRequired,
+    actions: shape({
+      getJobsListPerProject: func.isRequired,
+    }).isRequired,
+  })
 };
 
 function mapStateToProps(state) {
   return {
-    jobs: state.jobs,
     projects: state.projects,
   };
 }
 
-export default connect(mapStateToProps)(ExperimentsOverview);
+function mapDispatchToProps(dispatch) {
+  return {
+    actions: bindActionCreators({
+      ...jobsActions,
+    }, dispatch),
+  };
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(ExperimentsOverview);

@@ -1,10 +1,11 @@
 import React from 'react';
+import { connect } from 'react-redux';
+import { Link } from 'react-router-dom';
 import {
   string,
   arrayOf,
   shape,
   number,
-  func,
 } from 'prop-types';
 import './experimentsOverview.css';
 import {
@@ -20,10 +21,9 @@ const ExperimentCard = (props) => {
       defaultBranch,
       projectId,
     },
-    setSelectedExperiment,
+    algorithms,
   } = props;
   const today = new Date();
-
   return experiments.length > 0 ? (
     <div className="pipeline-card" key={today}>
       <div className="header">
@@ -40,6 +40,12 @@ const ExperimentCard = (props) => {
       {experiments.map((experiment) => {
         const experimentName = experiment.descTitle;
         const uniqueName = experimentName.split('/')[1];
+        const allParameters = algorithms.filter((algo) => algo.name === experiment.modelTitle)[0].parameters;
+        const {
+          experimentData: { id, processing: { parameters },
+          data_project_id: dataProjectId,
+          pipeline_job_info: pipelineInfo
+        } } = experiment;
         return (
           <div
             key={`${experiment.timeCreatedAgo}-${experiment.descTitle}`}
@@ -47,10 +53,18 @@ const ExperimentCard = (props) => {
           >
             <div className="summary-data" style={{ width: 'auto' }}>
               <div className="project-desc-experiment">
-                <button
+                <Link
                   type="button"
-                  onClick={() => {
-                    setSelectedExperiment(experiment);
+                  to={{
+                    pathname: `/my-projects/${projectId}/-/experiments/${pipelineInfo.id}`,
+                    state: {
+                      uuid: dataProjectId,
+                      currentState,
+                      userParameters: parameters,
+                      pipelineInfo,
+                      experimentId: id,
+                      allParameters,
+                    },
                   }}
                   style={{
                     border: 'none',
@@ -60,12 +74,12 @@ const ExperimentCard = (props) => {
                   }}
                 >
                   <b>{uniqueName}</b>
-                </button>
-                <p id="time-created-ago">
+                </Link>
+                <p style={{ margin: '0' }} id="time-created-ago">
                   Created by
                   &nbsp;
                   <b>{experiment.userName}</b>
-                  <br />
+                  {' '}
                   {getTimeCreatedAgo(experiment.timeCreatedAgo, today)}
                     &nbsp;
                   ago
@@ -95,6 +109,8 @@ const ExperimentCard = (props) => {
               experiment={experiment}
               projectId={projectId}
               defaultBranch={defaultBranch}
+              today={today}
+              userParameters={parameters}
             />
           </div>
         );
@@ -121,7 +137,12 @@ ExperimentCard.propTypes = {
     ).isRequired,
     projectId: number.isRequired,
   }).isRequired,
-  setSelectedExperiment: func.isRequired,
 };
 
-export default ExperimentCard;
+function mapStateToProps(state) {
+  return {
+    algorithms: state.processors.algorithms,
+  };
+}
+
+export default connect(mapStateToProps)(ExperimentCard);

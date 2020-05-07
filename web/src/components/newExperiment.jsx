@@ -13,8 +13,8 @@ import SelectDataPipelineModal from './select-data-pipeline/selectDataPipelineMo
 import { DataOperationsList } from './pipeline-view/dataOperationsList';
 import Instruction from './instruction/instruction';
 import ExecutePipelineModal from './execute-pipeline-modal/executePipeLineModal';
+import { ALGORITHM, Adjectives, Nouns } from '../dataTypes';
 import withPipelineExecution from './withPipelinesExecution';
-import { experiments, Adjectives, Nouns } from '../dataTypes';
 
 const NewExperiment = ({
   project,
@@ -34,6 +34,8 @@ const NewExperiment = ({
   drop,
   allowDrop,
   showFilters,
+  inputFormValues,
+  projectUUID,
   checkBoxOwnDataOperations,
   handleCheckMarkClick,
   checkBoxStarredDataOperations,
@@ -48,9 +50,8 @@ const NewExperiment = ({
   const date = currentDate.getDate();
   const month = currentDate.getMonth();
   const year = currentDate.getFullYear();
-  const dateString = date + "" + (month + 1) + "" + year;
-  const uniqueName = Adjectives[randomFirstName] + "-" + Nouns[randomLastName] + "_" + dateString;
-
+  const dateString = `${date}${month + 1}${year}`;
+  const uniqueName = `${Adjectives[randomFirstName]}-${Nouns[randomLastName]}_${dateString}`;
   const branchName = `experiment/${uniqueName}`;
   const dataInstanceName = `experiment/${uniqueName}`;
   const jobName = 'model-experiment';
@@ -67,6 +68,7 @@ const NewExperiment = ({
         handleModalAccept={handleModalAccept}
       />
       <ExecutePipelineModal
+        type={ALGORITHM}
         isShowing={isShowingExecutePipelineModal}
         amountFilesSelected={filesSelectedInModal.length}
         toggle={toggleExecutePipeLineModal}
@@ -74,6 +76,8 @@ const NewExperiment = ({
         filesSelectedInModal={filesSelectedInModal}
         http_url_to_repo={project.http_url_to_repo}
         projectId={project.id}
+        projectUUID={projectUUID}
+        inputFormValues={inputFormValues}
         branchName={branchName}
         dataInstanceName={dataInstanceName}
         jobName={jobName}
@@ -169,8 +173,10 @@ const NewExperiment = ({
 function mapStateToProps(state) {
   return {
     selectedProject: state.projects.selectedProject,
+    selectedProjectUUID: state.projects.selectedProjectUUID,
     branches: state.branches,
+    processors: state.processors.algorithms,
   };
 }
 
-export default connect(mapStateToProps)(withPipelineExecution(NewExperiment, experiments));
+export default connect(mapStateToProps)(withPipelineExecution(NewExperiment));

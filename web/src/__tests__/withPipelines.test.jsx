@@ -6,10 +6,10 @@ import { storeFactory } from '../functions/testUtils';
 import PipelineView from '../components/pipeline-view/pipelineView';
 
 import {
+  dataPipeLines,
   branchesMock,
   projectsArrayMock,
 } from '../testData';
-import { dataPipeLines } from '../dataTypes';
 
 const setup = () => {
   const store = storeFactory({
