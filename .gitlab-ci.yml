@@ -8,8 +8,19 @@ variables:
   IMAGE_NAME: "epf"
 
 stages:
+  - test
   - build
   - undeploy
+
+test:
+  image: python:3.7
+  stage: test
+  script: 
+    - cd src/tests
+    - python3 -m pip install --upgrade pip
+    - pip3 install -r requirements.txt
+    - python3 -m unittest -v im_transformations_tests.Test
+    - echo "Test dataOps successful"
 
 
 build-deploy:
@@ -36,6 +47,7 @@ build-deploy:
     name: $CI_COMMIT_REF_SLUG
     url: $CI_PROJECT_URL/container_registry#$CI_COMMIT_REF_SLUG   # This is the url of the bucket we saved before
     on_stop: undeploy
+
 
 
 undeploy:

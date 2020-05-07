@@ -34,11 +34,12 @@ RUN echo "----------------------------------------------------------------------
     # source venv/bin/activate                                                      && \
     pip install 'keras==2.3.0'                                                      && \
     pip install sklearn                                                             && \
-    pip install Pillow                                                              && \
+    pip install pillow                                                              && \
     pip install scikit-learn                                                        && \
     pip install matplotlib                                                          && \
     pip install opencv-python                                                       && \
-    pip install pandas
+    pip install pandas                                                              && \
+    pip install scikit-image
 
 
 
