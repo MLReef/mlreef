@@ -25,7 +25,7 @@ import { bannedCharsArray } from '../../../dataTypes';
 import MCheckBox from '../../ui/MCheckBox/MCheckBox';
 import { privacyLevelsArr } from "dataTypes";
 
-class NewProject extends Component {
+class CreateProject extends Component {
   slugRef = createRef();
   dataTypes = [
     [
@@ -122,7 +122,7 @@ class NewProject extends Component {
     const body = {
       name: projectName,
       slug,
-      path: nameSpace,
+      namespace: nameSpace,
       initialize_with_readme: readme,
       description,
       visibility,
@@ -400,7 +400,7 @@ function mapDispatchToProps(dispatch) {
   };
 }
 
-NewProject.propTypes = {
+CreateProject.propTypes = {
   match: shape({
     params: shape({
       classification: string,
@@ -408,7 +408,7 @@ NewProject.propTypes = {
   }),
 };
 
-NewProject.defaultProps = {
+CreateProject.defaultProps = {
   match: {
     params: {
       classification: 'ml-project',
@@ -416,4 +416,4 @@ NewProject.defaultProps = {
   },
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(NewProject);
+export default connect(mapStateToProps, mapDispatchToProps)(CreateProject);
