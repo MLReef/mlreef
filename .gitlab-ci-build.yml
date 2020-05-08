@@ -1,30 +1,29 @@
 build frontend:
   extends: [".except-docu-branches"]
   # This docker version should correspond with the on docker version in the EC2 deployment
-  image: docker:19.03.5                                     # https://hub.docker.com/_/docker/
   stage: build
+  image: docker:19.03.5                                     # https://hub.docker.com/_/docker/
   services:
     - docker:dind
-  before_script:
-    - echo ${GITLAB_COM_API_TOKEN} | docker login registry.gitlab.com --username=${GITLAB_COM_API_USER} --password-stdin
-    - URL=$(cat $INSTANCE_INFO)
-    - echo $URL                                             # debug output
-    - ls -al web/src
-    # Use Gitlab's internal unique job ID as build version. This way versions can be traced back to a specific build.
-    - echo "REACT_APP_VERSION=$CI_JOB_ID"                   >> web/.env
-    - cat web/.env
   script:
     - cd web
-    - echo "creating docker image ${FRONTEND_IMAGE_PATH} for user ${DOCKER_USER}"
-    - docker build --pull --tag "$FRONTEND_IMAGE_PATH" -f Dockerfile .
-    - docker push "${FRONTEND_IMAGE_PATH}"
-    
+    # Use Gitlab's internal unique job ID as build version. This way versions can be traced back to a specific build.
+    - echo "REACT_APP_VERSION=$CI_JOB_ID"                   >> .env
+    - echo "REACT_APP_BUILD_NUMBER=$CI_JOB_ID"              >> .env
+    - echo "REACT_APP_BRANCH_NAME=$CI_COMMIT_REF_SLUG"      >> .env
+    - cat .env
+
+    - echo "${CI_REGISTRY_PASSWORD}" | docker login ${CI_REGISTRY} --username=${CI_REGISTRY_USER} --password-stdin
+    - export TAG="${CI_COMMIT_REF_SLUG}"
+    - if [ $CI_COMMIT_REF_SLUG == "master" ]; then TAG="latest";  fi          # follow docker naming conventions
+    - docker build --tag "$CI_REGISTRY_IMAGE:$TAG" -f Dockerfile .
+    - docker push "$CI_REGISTRY_IMAGE:$TAG"
+
     # Get Test coverage report from build image
-    - docker create -ti --name dummy ${FRONTEND_IMAGE_PATH} bash
+    - docker create -ti --name dummy "$CI_REGISTRY_IMAGE:$TAG" bash
     - docker cp dummy:/app/coverage coverage
     - docker rm -f dummy
   artifacts:
     expire_in: 3 days
     paths:
-      - web/coverage    
-
+      - web/coverage
