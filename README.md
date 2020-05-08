@@ -74,6 +74,7 @@ docker-compose down
 docker-compose rm --force --stop -v
 ```
 
+
 ### Troubleshooting
 
 **Attention:** the `--force` option stops and removes all running docker containers
