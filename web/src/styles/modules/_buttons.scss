@@ -219,11 +219,6 @@
     }
   }
 
-  &.waiting {
-    @include btn-spinner;
-    color: transparent;
-  }
-
   &-link {
     color: $info;
   }

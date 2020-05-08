@@ -10,6 +10,7 @@
   box-shadow: 1px 1px 3px 1px var(--almostWhite);
 }
 
+// not being used - candidate to deprecated
 @mixin btn-spinner {
   background-image: url(/images/loading.gif);
   background-repeat: no-repeat;
