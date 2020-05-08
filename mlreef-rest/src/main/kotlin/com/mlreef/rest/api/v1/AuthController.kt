@@ -1,8 +1,6 @@
 package com.mlreef.rest.api.v1
 
 import com.mlreef.rest.api.CurrentUserService
-import com.mlreef.rest.api.v1.dto.LoginRequest
-import com.mlreef.rest.api.v1.dto.RegisterRequest
 import com.mlreef.rest.api.v1.dto.UserDto
 import com.mlreef.rest.api.v1.dto.toUserDto
 import com.mlreef.rest.feature.auth.AuthService
@@ -11,6 +9,8 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
+import javax.validation.constraints.Email
+import javax.validation.constraints.NotEmpty
 
 @RestController
 @RequestMapping("/api/v1/auth", produces = ["application/json"], consumes = ["application/json"])
@@ -37,3 +37,16 @@ class AuthController(
         return account.toUserDto()
     }
 }
+
+data class LoginRequest(
+    val username: String?,
+    @get:Email val email: String?,
+    @get:NotEmpty val password: String
+)
+
+data class RegisterRequest(
+    @get:NotEmpty val username: String,
+    @get:Email @get:NotEmpty val email: String,
+    @get:NotEmpty val password: String,
+    @get:NotEmpty val name: String
+)

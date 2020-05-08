@@ -4,6 +4,7 @@ import com.mlreef.rest.exceptions.GitlabConflictException
 import com.mlreef.rest.external_api.gitlab.GitlabRestClient
 import com.mlreef.rest.external_api.gitlab.dto.GitlabProject
 import com.mlreef.rest.external_api.gitlab.dto.GitlabUser
+import com.mlreef.rest.feature.marketplace.MarketplaceService
 import com.mlreef.rest.feature.project.DataProjectService
 import org.slf4j.LoggerFactory
 import org.springframework.boot.CommandLineRunner
@@ -14,7 +15,7 @@ import java.util.Arrays
 import java.util.UUID
 import javax.transaction.Transactional
 
-@Profile(value = ["!" + ApplicationProfiles.TEST])
+@Profile(value = [ApplicationProfiles.DEV, ApplicationProfiles.DOCKER])
 @Component
 internal class CommandLineAppStartupRunner(
     val dataPopulator: DataPopulator
@@ -31,7 +32,7 @@ internal class CommandLineAppStartupRunner(
     }
 }
 
-@Profile(value = ["!" + ApplicationProfiles.TEST])
+@Profile(value = [ApplicationProfiles.DEV, ApplicationProfiles.DOCKER])
 @Component
 internal class DataPopulator(
     private val gitlabRestClient: GitlabRestClient,
@@ -44,7 +45,8 @@ internal class DataPopulator(
     val dataProcessorRepository: DataProcessorRepository,
     val dataAlgorithmRepository: DataAlgorithmRepository,
     val processorParameterRepository: ProcessorParameterRepository,
-    val experimentRepository: ExperimentRepository
+    val experimentRepository: ExperimentRepository,
+    val marketplaceService: MarketplaceService
 ) {
 
     val username = "mlreef"
@@ -81,6 +83,7 @@ internal class DataPopulator(
                 dataOp1processorParameter2) = executeLogged("2a. Create DataOperation: Augment") {
                 createDataOperation1(token, author)
             }
+
             val (dataOp2,
                 dataOp2processorParameter1,
                 dataOp2processorParameter2) = executeLogged("2b. Create DataOperation: Random crop") {

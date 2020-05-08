@@ -68,6 +68,9 @@ dependencies {
 test {
     systemProperty 'junit.jupiter.extensions.autodetection.enabled', 'true'
     useJUnitPlatform()
+    afterTest { descriptor, result ->
+        println "\n$descriptor.className [$descriptor.classDisplayName] > $descriptor.name [$descriptor.displayName]: $result.resultType"
+    }
 }
 
 compileKotlin {
@@ -161,3 +164,4 @@ task coverageReport() {
         printf "Coverage: Total %.0f%%%n", percentage
     }
 }
+

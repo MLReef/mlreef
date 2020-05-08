@@ -2,6 +2,7 @@ package com.mlreef.rest
 
 import com.mlreef.rest.api.RestApiTest
 import com.mlreef.rest.external_api.gitlab.dto.GitlabUser
+import com.mlreef.rest.feature.marketplace.MarketplaceService
 import com.mlreef.rest.feature.project.DataProjectService
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
@@ -32,6 +33,7 @@ class DataPopulatorTest : RestApiTest() {
     @Autowired private lateinit var processorInstanceRepository: DataProcessorInstanceRepository
     @Autowired private lateinit var parameterInstanceRepository: ParameterInstanceRepository
     @Autowired private lateinit var dataAlgorithmRepository: DataAlgorithmRepository
+    @Autowired private lateinit var marketplaceService: MarketplaceService
 //    @Mock private lateinit var restClient: GitlabRestClient
 
     private var ownerId: UUID = randomUUID()
@@ -50,7 +52,8 @@ class DataPopulatorTest : RestApiTest() {
             accountTokenRepository = accountTokenRepository,
             accountRepository = accountRepository,
             codeProjectRepository = codeProjectRepository,
-            dataAlgorithmRepository = dataAlgorithmRepository
+            dataAlgorithmRepository = dataAlgorithmRepository,
+            marketplaceService = marketplaceService
         )
 
         parameterInstanceRepository.deleteAll()

@@ -390,3 +390,37 @@ operation::pipelineinstance-update-success[snippets='curl-request,http-response,
 === DELETE /pipelines/:pid/instances/:id
 
 operation::pipelineinstance-delete-success[snippets='curl-request,http-response']
+
+[[marketplace]]
+= Marketplace
+
+The Marketplace is a place to find interesting DataProjects and DataProcessors which can be used by the user.
+Many entities are designed to be public, either as "official" MLReef content or provided by community.
+
+But also MarketplaceEntries can be found for Projects and Processors, which are not public per se, but the user has sufficient access rights
+
+== Marketplace-Entries  /explore/entries
+
+MarketplaceEntries are the public facade of DataProjects and DataProcessors, and have a link to their respective entity.
+
+* searchable_id: UUID of linked Searchable
+* searchable_type: DATA_PROJECT, ALGORITHM (model in UI), OPERATION and VISUALISATION
+
+=== GET /explore/entries
+
+operation::marketplace-entries-retrieve-all[snippets='curl-request,response-body,response-fields']
+
+=== GET /explore/entries/:global_slug
+
+operation::marketplace-entries-retrieve-one[snippets='curl-request,response-body,response-fields']
+
+== SearchableTags  /explore/tags
+
+SearchableTags can be provided via the System (pre-populated) or be created by Users.
+
+SearchableTags can be classified in certain types, for example for the usage of a certain Algorithm.
+DataTypes are *not* SearchableTags but their own enum
+
+=== GET /explore/tags
+
+operation::marketplace-tags-retrieve-all[snippets='curl-request,response-body,response-fields']

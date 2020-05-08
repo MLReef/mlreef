@@ -1,11 +1,14 @@
 package com.mlreef.rest
 
 import com.mlreef.rest.helpers.ProjectOfUser
+import com.mlreef.rest.marketplace.SearchableType
 import java.time.ZonedDateTime
 import java.util.UUID
 import javax.persistence.CascadeType
 import javax.persistence.Column
 import javax.persistence.Entity
+import javax.persistence.EnumType
+import javax.persistence.Enumerated
 import javax.persistence.FetchType
 import javax.persistence.ForeignKey
 import javax.persistence.JoinColumn
@@ -39,6 +42,9 @@ class DataProject(
     @Column(name = "gitlab_id")
     override val gitlabId: Long,
 
+    @Enumerated(EnumType.STRING)
+    override val visibilityScope: VisibilityScope = VisibilityScope.default(),
+
     @OneToMany(fetch = FetchType.LAZY, cascade = [CascadeType.ALL])
     @JoinColumn(
         name = "data_project_id",
@@ -48,7 +54,7 @@ class DataProject(
     version: Long? = null,
     createdAt: ZonedDateTime? = null,
     updatedAt: ZonedDateTime? = null
-) : AuditEntity(id, version, createdAt, updatedAt), MLProject {
+) : AuditEntity(id, version, createdAt, updatedAt), MLProject, Searchable {
 
     fun copy(
         id: UUID? = null,
@@ -74,7 +80,7 @@ class DataProject(
             gitlabPathWithNamespace = gitlabPathWithNamespace ?: this.gitlabPathWithNamespace,
             gitlabProject = gitlabProject ?: this.gitlabProject,
             gitlabId = gitlabId ?: this.gitlabId,
-            experiments = this.experiments,
+            experiments = experiments ?: this.experiments,
             version = version ?: this.version,
             createdAt = createdAt ?: this.createdAt,
             updatedAt = updatedAt ?: this.updatedAt
@@ -86,4 +92,12 @@ class DataProject(
         name = this.name,
         accessLevel = accessLevel
     )
+
+    override fun toString(): String {
+        return "[DataProject: id:$id slug:$slug name:$name ownerId:$ownerId gitlabId:${gitlabId} gitlabPathWithNamespace:$gitlabPathWithNamespace"
+    }
+
+    override fun getType(): SearchableType {
+        return SearchableType.DATA_PROJECT
+    }
 }

@@ -72,8 +72,8 @@ enum class DataType {
 @DiscriminatorColumn(name = "PROCESSOR_TYPE")
 abstract class DataProcessor(
     id: UUID,
-    val slug: String,
-    val name: String,
+    override val slug: String,
+    override val name: String,
     val command: String,
     @Enumerated(EnumType.STRING)
     val inputDataType: DataType,
@@ -83,7 +83,7 @@ abstract class DataProcessor(
     @Column(name = "PROCESSOR_TYPE", insertable = false, updatable = false)
     val type: DataProcessorType,
     @Enumerated(EnumType.STRING)
-    val visibilityScope: VisibilityScope,
+    override val visibilityScope: VisibilityScope,
     @Column(length = 1024)
     val description: String,
 
@@ -112,7 +112,7 @@ abstract class DataProcessor(
     version: Long? = null,
     createdAt: ZonedDateTime? = null,
     updatedAt: ZonedDateTime? = null
-) : AuditEntity(id, version, createdAt, updatedAt), EPFAnnotation {
+) : AuditEntity(id, version, createdAt, updatedAt), EPFAnnotation, Searchable {
 
     fun isChainable(): Boolean {
         return type != DataProcessorType.ALGORITHM

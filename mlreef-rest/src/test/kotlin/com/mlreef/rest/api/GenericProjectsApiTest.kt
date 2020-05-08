@@ -6,6 +6,7 @@ import com.mlreef.rest.CodeProjectRepository
 import com.mlreef.rest.DataProject
 import com.mlreef.rest.DataProjectRepository
 import com.mlreef.rest.Person
+import com.mlreef.rest.VisibilityScope
 import com.mlreef.rest.api.v1.dto.CodeProjectDto
 import com.mlreef.rest.api.v1.dto.DataProjectDto
 import com.mlreef.rest.external_api.gitlab.GroupAccessLevel
@@ -74,9 +75,10 @@ class GenericProjectsApiTest : RestApiTest() {
         val id5 = randomUUID()
         val id6 = randomUUID()
 
-        val project1 = DataProject(id1, "slug-1", "www.url.com", "Test Project 1", subject.id, "group1", "project-1", "mlreef/project-1", 1, listOf())
-        val project2 = DataProject(id2, "slug-2", "www.url.net", "Test Project 2", subject.id, "group2", "project-2", "mlreef/project-2", 2, listOf())
-        val project3 = DataProject(id3, "slug-3", "www.url.xyz", "Test Project 3", subject2.id, "group3", "project-3", "mlreef/project-3", 3, listOf())
+        //FIXME hard to maintain
+        val project1 = DataProject(id1, "slug-1", "www.url.com", "Test Project 1", subject.id, "group1", "project-1", "mlreef/project-1", 1, VisibilityScope.PUBLIC, listOf())
+        val project2 = DataProject(id2, "slug-2", "www.url.net", "Test Project 2", subject.id, "group2", "project-2", "mlreef/project-2", 2, VisibilityScope.PUBLIC, listOf())
+        val project3 = DataProject(id3, "slug-3", "www.url.xyz", "Test Project 3", subject2.id, "group3", "project-3", "mlreef/project-3", 3, VisibilityScope.PUBLIC, listOf())
         dataProjectRepository.save(project1)
         dataProjectRepository.save(project2)
         dataProjectRepository.save(project3)
@@ -124,9 +126,9 @@ class GenericProjectsApiTest : RestApiTest() {
     @Rollback
     @Test fun `Can retrieve specific own DataProject by id`() {
         val id1 = randomUUID()
-        val project1 = DataProject(id1, "slug-1", "www.url.com", "Test Data Project 1", subject.id, "mlreef", "project-1", "mlreef/project-1", 1, listOf())
-        val project2 = DataProject(randomUUID(), "slug-2", "www.url.net", "Test Data Project 2", subject.id, "mlreef", "project-2", "mlreef/project-2", 2, listOf())
-        val project3 = DataProject(randomUUID(), "slug-3", "www.url.xyz", "Test Data Project 3", subject2.id, "mlreef", "project-3", "mlreef/project-3", 3, listOf())
+        val project1 = DataProject(id1, "slug-1", "www.url.com", "Test Data Project 1", subject.id, "mlreef", "project-1", "mlreef/project-1", 1, VisibilityScope.PUBLIC, listOf())
+        val project2 = DataProject(randomUUID(), "slug-2", "www.url.net", "Test Data Project 2", subject.id, "mlreef", "project-2", "mlreef/project-2", 2, VisibilityScope.PUBLIC, listOf())
+        val project3 = DataProject(randomUUID(), "slug-3", "www.url.xyz", "Test Data Project 3", subject2.id, "mlreef", "project-3", "mlreef/project-3", 3, VisibilityScope.PUBLIC, listOf())
         dataProjectRepository.save(project1)
         dataProjectRepository.save(project2)
         dataProjectRepository.save(project3)
@@ -169,9 +171,9 @@ class GenericProjectsApiTest : RestApiTest() {
     @Test
     fun `Can retrieve specific own CodeProject by id`() {
         val id1 = randomUUID()
-        val project1 = DataProject(randomUUID(), "slug-1", "www.url.com", "Test Data Project 1", subject.id, "mlreef", "project-1", "mlreef/project-1", 1, listOf())
-        val project2 = DataProject(randomUUID(), "slug-2", "www.url.net", "Test Data Project 2", subject.id, "mlreef", "project-2", "mlreef/project-2", 2, listOf())
-        val project3 = DataProject(randomUUID(), "slug-3", "www.url.xyz", "Test Data Project 3", subject2.id, "mlreef", "project-3", "mlreef/project-3", 3, listOf())
+        val project1 = DataProject(randomUUID(), "slug-1", "www.url.com", "Test Data Project 1", subject.id, "mlreef", "project-1", "mlreef/project-1", 1, VisibilityScope.PUBLIC, listOf())
+        val project2 = DataProject(randomUUID(), "slug-2", "www.url.net", "Test Data Project 2", subject.id, "mlreef", "project-2", "mlreef/project-2", 2, VisibilityScope.PUBLIC, listOf())
+        val project3 = DataProject(randomUUID(), "slug-3", "www.url.xyz", "Test Data Project 3", subject2.id, "mlreef", "project-3", "mlreef/project-3", 3, VisibilityScope.PUBLIC, listOf())
         dataProjectRepository.save(project1)
         dataProjectRepository.save(project2)
         dataProjectRepository.save(project3)
@@ -214,9 +216,9 @@ class GenericProjectsApiTest : RestApiTest() {
     @Test fun `Can retrieve specific own DataProjects and CodeProjects by slug`() {
         val id1 = randomUUID()
         val id2 = randomUUID()
-        val project1 = DataProject(id1, "slug-1", "www.url.com", "Test Data Project 1", subject.id, "mlreef", "project-1", "mlreef/project-1", 1, listOf())
-        val project2 = DataProject(randomUUID(), "slug-2", "www.url.net", "Test Data Project 2", subject.id, "mlreef", "project-2", "mlreef/project-2", 2, listOf())
-        val project3 = DataProject(randomUUID(), "slug-3", "www.url.xyz", "Test Data Project 3", subject2.id, "mlreef", "project-3", "mlreef/project-3", 3, listOf())
+        val project1 = DataProject(id1, "slug-1", "www.url.com", "Test Data Project 1", subject.id, "mlreef", "project-1", "mlreef/project-1", 1, VisibilityScope.PUBLIC, listOf())
+        val project2 = DataProject(randomUUID(), "slug-2", "www.url.net", "Test Data Project 2", subject.id, "mlreef", "project-2", "mlreef/project-2", 2, VisibilityScope.PUBLIC, listOf())
+        val project3 = DataProject(randomUUID(), "slug-3", "www.url.xyz", "Test Data Project 3", subject2.id, "mlreef", "project-3", "mlreef/project-3", 3, VisibilityScope.PUBLIC, listOf())
         dataProjectRepository.save(project1)
         dataProjectRepository.save(project2)
         dataProjectRepository.save(project3)
@@ -277,9 +279,9 @@ class GenericProjectsApiTest : RestApiTest() {
         val id5 = randomUUID()
         val id6 = randomUUID()
 
-        val project1 = DataProject(id1, "slug-1", "www.url.com", "Test Project 1", subject.id, "group1", "project-1", "mlreef/project-1", 1, listOf())
-        val project2 = DataProject(id2, "slug-2", "www.url.net", "Test Project 2", subject.id, "group2", "project-2", "mlreef/project-2", 2, listOf())
-        val project3 = DataProject(id3, "slug-3", "www.url.xyz", "Test Project 3", subject2.id, "group3", "project-3", "mlreef/project-3", 3, listOf())
+        val project1 = DataProject(id1, "slug-1", "www.url.com", "Test Project 1", subject.id, "group1", "project-1", "mlreef/project-1", 1, VisibilityScope.PUBLIC, listOf())
+        val project2 = DataProject(id2, "slug-2", "www.url.net", "Test Project 2", subject.id, "group2", "project-2", "mlreef/project-2", 2, VisibilityScope.PUBLIC, listOf())
+        val project3 = DataProject(id3, "slug-3", "www.url.xyz", "Test Project 3", subject2.id, "group3", "project-3", "mlreef/project-3", 3, VisibilityScope.PUBLIC, listOf())
         dataProjectRepository.save(project1)
         dataProjectRepository.save(project2)
         dataProjectRepository.save(project3)
@@ -339,9 +341,9 @@ class GenericProjectsApiTest : RestApiTest() {
     @Rollback
     @Test fun `Can retrieve specific own DataProject by namespace and slug`() {
         val id1 = randomUUID()
-        val project1 = DataProject(id1, "slug-1", "www.url.com", "Test Data Project 1", subject.id, "mlreef", "project-1", "mlreef/project-1", 1, listOf())
-        val project2 = DataProject(randomUUID(), "slug-2", "www.url.net", "Test Data Project 2", subject.id, "mlreef", "project-2", "mlreef/project-2", 2, listOf())
-        val project3 = DataProject(randomUUID(), "slug-3", "www.url.xyz", "Test Data Project 3", subject2.id, "mlreef", "project-3", "mlreef/project-3", 3, listOf())
+        val project1 = DataProject(id1, "slug-1", "www.url.com", "Test Data Project 1", subject.id, "mlreef", "project-1", "mlreef/project-1", 1, VisibilityScope.PUBLIC, listOf())
+        val project2 = DataProject(randomUUID(), "slug-2", "www.url.net", "Test Data Project 2", subject.id, "mlreef", "project-2", "mlreef/project-2", 2, VisibilityScope.PUBLIC, listOf())
+        val project3 = DataProject(randomUUID(), "slug-3", "www.url.xyz", "Test Data Project 3", subject2.id, "mlreef", "project-3", "mlreef/project-3", 3, VisibilityScope.PUBLIC, listOf())
         dataProjectRepository.save(project1)
         dataProjectRepository.save(project2)
         dataProjectRepository.save(project3)
@@ -383,9 +385,9 @@ class GenericProjectsApiTest : RestApiTest() {
     @Rollback
     @Test fun `Can retrieve specific own CodeProject by namespace and slug`() {
         val id1 = randomUUID()
-        val project1 = DataProject(randomUUID(), "slug-1", "www.url.com", "Test Data Project 1", subject.id, "mlreef", "project-1", "mlreef/project-1", 1, listOf())
-        val project2 = DataProject(randomUUID(), "slug-2", "www.url.net", "Test Data Project 2", subject.id, "mlreef", "project-2", "mlreef/project-2", 2, listOf())
-        val project3 = DataProject(randomUUID(), "slug-3", "www.url.xyz", "Test Data Project 3", subject2.id, "mlreef", "project-3", "mlreef/project-3", 3, listOf())
+        val project1 = DataProject(randomUUID(), "slug-1", "www.url.com", "Test Data Project 1", subject.id, "mlreef", "project-1", "mlreef/project-1", 1, VisibilityScope.PUBLIC, listOf())
+        val project2 = DataProject(randomUUID(), "slug-2", "www.url.net", "Test Data Project 2", subject.id, "mlreef", "project-2", "mlreef/project-2", 2, VisibilityScope.PUBLIC, listOf())
+        val project3 = DataProject(randomUUID(), "slug-3", "www.url.xyz", "Test Data Project 3", subject2.id, "mlreef", "project-3", "mlreef/project-3", 3, VisibilityScope.PUBLIC, listOf())
         dataProjectRepository.save(project1)
         dataProjectRepository.save(project2)
         dataProjectRepository.save(project3)
@@ -427,9 +429,9 @@ class GenericProjectsApiTest : RestApiTest() {
     @Rollback
     @Test fun `Cannot retrieve specific not own Project`() {
         val id1 = randomUUID()
-        val project1 = DataProject(randomUUID(), "slug-1", "www.url.com", "Test Data Project 1", subject.id, "mlreef", "project-1", "mlreef/project-1", 1, listOf())
-        val project2 = DataProject(randomUUID(), "slug-2", "www.url.net", "Test Data Project 2", subject.id, "mlreef", "project-2", "mlreef/project-2", 2, listOf())
-        val project3 = DataProject(randomUUID(), "slug-3", "www.url.xyz", "Test Data Project 3", subject2.id, "mlreef", "project-3", "mlreef/project-3", 3, listOf())
+        val project1 = DataProject(randomUUID(), "slug-1", "www.url.com", "Test Data Project 1", subject.id, "mlreef", "project-1", "mlreef/project-1", 1, VisibilityScope.PUBLIC, listOf())
+        val project2 = DataProject(randomUUID(), "slug-2", "www.url.net", "Test Data Project 2", subject.id, "mlreef", "project-2", "mlreef/project-2", 2, VisibilityScope.PUBLIC, listOf())
+        val project3 = DataProject(randomUUID(), "slug-3", "www.url.xyz", "Test Data Project 3", subject2.id, "mlreef", "project-3", "mlreef/project-3", 3, VisibilityScope.PUBLIC, listOf())
         dataProjectRepository.save(project1)
         dataProjectRepository.save(project2)
         dataProjectRepository.save(project3)

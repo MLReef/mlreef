@@ -60,6 +60,10 @@ class MlReefSecurityExpressionRoot(authentication: Authentication)
         return ((this.principal as? TokenDetails)?.projects?.containsKey(projectId) ?: false)
     }
 
+//    fun hasAccessToExplorable(projectId: UUID, minAccessLevel: String) : Boolean {
+//
+//    }
+
     fun isCurrentUserInResultProject(): Boolean {
         val id = (returnObject as? DataClassWithId)?.id
         return if (id != null) isCurrentUserInProject(id) else false

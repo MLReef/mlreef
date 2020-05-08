@@ -12,5 +12,14 @@ enum class AccessLevel(val accessCode: Int) {
         fun fromCode(code: Int?): AccessLevel? {
             return values().firstOrNull { it.accessCode == code }
         }
+
+        @JvmStatic
+        fun isSufficientFor(instance: AccessLevel?, limit: AccessLevel?): Boolean {
+            if (limit == null) return true
+            if (instance == null) return false
+            return instance.accessCode >= limit.accessCode
+        }
     }
+
+    fun satisfies(limit: AccessLevel?) = isSufficientFor(this, limit)
 }
