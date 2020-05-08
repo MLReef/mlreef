@@ -16,9 +16,9 @@ import java.util.UUID.randomUUID
 import javax.transaction.Transactional
 
 class DataProcessorTest : AbstractRepositoryTest() {
+
     @Autowired
     private lateinit var repository: DataProcessorRepository
-
 
     private fun createEntity(): Pair<UUID, DataProcessor> {
         val id = randomUUID()

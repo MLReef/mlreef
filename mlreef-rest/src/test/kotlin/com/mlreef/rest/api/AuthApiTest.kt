@@ -5,8 +5,8 @@ import com.mlreef.rest.AccountToken
 import com.mlreef.rest.DataProjectRepository
 import com.mlreef.rest.ExperimentRepository
 import com.mlreef.rest.Person
-import com.mlreef.rest.api.v1.dto.LoginRequest
-import com.mlreef.rest.api.v1.dto.RegisterRequest
+import com.mlreef.rest.api.v1.LoginRequest
+import com.mlreef.rest.api.v1.RegisterRequest
 import com.mlreef.rest.api.v1.dto.UserDto
 import com.mlreef.rest.exceptions.ErrorCode
 import com.mlreef.rest.exceptions.GitlabAuthenticationFailedException

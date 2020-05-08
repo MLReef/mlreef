@@ -5,6 +5,8 @@ import java.time.ZonedDateTime
 import java.util.UUID
 import javax.persistence.Column
 import javax.persistence.Entity
+import javax.persistence.EnumType
+import javax.persistence.Enumerated
 import javax.persistence.FetchType
 import javax.persistence.ForeignKey
 import javax.persistence.JoinColumn
@@ -38,6 +40,9 @@ class CodeProject(
 
     @Column(name = "gitlab_id")
     override val gitlabId: Long,
+
+    @Enumerated(EnumType.STRING)
+    override val visibilityScope: VisibilityScope = VisibilityScope.default(),
 
     @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "code_project_id", foreignKey = ForeignKey(name = "codeproject_dataprocessor_code_project_id_fkey"))

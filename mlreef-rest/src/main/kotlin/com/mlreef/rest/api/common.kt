@@ -1,5 +1,6 @@
 package com.mlreef.rest.api
 
+import com.mlreef.rest.AccessLevel
 import com.mlreef.rest.Account
 import com.mlreef.rest.AccountRepository
 import com.mlreef.rest.Person
@@ -11,6 +12,7 @@ import org.springframework.data.repository.findByIdOrNull
 import org.springframework.security.core.Authentication
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.stereotype.Component
+import java.util.UUID
 
 interface CurrentUserService {
     fun authentication(): Authentication
@@ -24,6 +26,10 @@ interface CurrentUserService {
     fun accessToken(): String
     fun accessTokenOrNull(): String?
     fun anyValidToken(): String?
+    fun projectsMap(): Map<UUID, AccessLevel?>
+    fun projectsMap(minimumLevel: AccessLevel): Map<UUID, AccessLevel?>
+    fun groupsMap(): Map<UUID, AccessLevel?>
+    fun groupsMap(minimumLevel: AccessLevel): Map<UUID, AccessLevel?>
 }
 
 @Component
@@ -87,6 +93,25 @@ class SimpleCurrentUserService(
         val tokenDetails: TokenDetails? = authenticationOrNull()?.principal as? TokenDetails
         return tokenDetails?.let {
             accountRepository.findByIdOrNull(tokenDetails.accountId)
+        }
+    }
+
+    override fun projectsMap(): Map<UUID, AccessLevel?> {
+        val tokenDetails: TokenDetails = authentication().principal as TokenDetails
+        return tokenDetails.projects
+    }
+
+    override fun groupsMap(): Map<UUID, AccessLevel?> {
+        val tokenDetails: TokenDetails = authentication().principal as TokenDetails
+        return tokenDetails.groups
+    }
+
+    override fun projectsMap(minimumLevel: AccessLevel): Map<UUID, AccessLevel?> = filterMap(minimumLevel, projectsMap())
+    override fun groupsMap(minimumLevel: AccessLevel): Map<UUID, AccessLevel?> = filterMap(minimumLevel, groupsMap())
+
+    private fun filterMap(minimumLevel: AccessLevel, map: Map<UUID, AccessLevel?>): Map<UUID, AccessLevel?> {
+        return map.filterValues { accessLevel ->
+            AccessLevel.isSufficientFor(accessLevel, minimumLevel)
         }
     }
 }

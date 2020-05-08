@@ -11,7 +11,7 @@ import javax.persistence.UniqueConstraint
 @Entity
 @Table(
     name = "account_token",
-    uniqueConstraints = [UniqueConstraint(name = "unique-token", columnNames = ["token", "active"])])
+    uniqueConstraints = [UniqueConstraint(name = "unique_token", columnNames = ["token", "active"])])
 data class AccountToken(
     @Id @Column(name = "id", length = 16, unique = true, nullable = false) val id: UUID,
     @Column(name = "account_id")

@@ -1,5 +1,8 @@
 package com.mlreef.rest
 
+import com.mlreef.rest.marketplace.MarketplaceEntry
+import com.mlreef.rest.marketplace.SearchableTag
+import com.mlreef.rest.marketplace.SearchableType
 import org.springframework.data.jpa.repository.Query
 import org.springframework.stereotype.Repository
 import java.util.UUID
@@ -56,6 +59,8 @@ interface DataProjectRepository : KtCrudRepository<DataProject, UUID> {
     fun findOneByOwnerIdAndId(ownerId: UUID, id: UUID): DataProject?
     fun findOneByOwnerIdAndSlug(ownerId: UUID, slug: String): DataProject?
     fun findByGitlabId(gitlabId: Long): DataProject?
+
+    @Deprecated("Use findByNamespace instead")
     fun findByGitlabPathWithNamespace(pathWithNamespace: String): DataProject?
     fun findBySlug(slug: String): List<DataProject>
 
@@ -83,6 +88,8 @@ interface CodeProjectRepository : KtCrudRepository<CodeProject, UUID> {
     fun findAllByOwnerId(ownerId: UUID): List<CodeProject>
     fun findOneByOwnerIdAndId(ownerId: UUID, id: UUID): CodeProject?
     fun findByGitlabId(gitlabId: Long): CodeProject?
+
+    @Deprecated("Use findByNamespace instead")
     fun findByGitlabPathWithNamespace(pathWithNamespace: String): CodeProject?
     fun findBySlug(slug: String): List<CodeProject>
 
@@ -122,3 +129,29 @@ interface ParameterInstanceRepository : ReadOnlyRepository<ParameterInstance, UU
 
 @Repository
 interface DataProcessorInstanceRepository : KtCrudRepository<DataProcessorInstance, UUID>
+
+@Repository
+interface MarketplaceEntryRepository : KtCrudRepository<MarketplaceEntry, UUID> {
+    fun findBySearchableId(id: UUID): MarketplaceEntry?
+    fun findBySearchableType(searchableType: SearchableType): List<MarketplaceEntry>
+    fun findByGlobalSlugAndVisibilityScope(slug: String, visibilityScope: VisibilityScope): MarketplaceEntry?
+    fun findAllByVisibilityScope(visibilityScope: VisibilityScope): List<MarketplaceEntry>
+
+    @Query("select e from MarketplaceEntry e join DataProcessor dp on e.searchableId = dp.id join CodeProject cp on dp.codeProjectId = cp.id where cp.id IN :ids")
+    fun findAccessibleProcessors(ids: List<UUID>): List<MarketplaceEntry>
+
+    @Query("select e from MarketplaceEntry e join DataProject dp on e.searchableId = dp.id where dp.id IN :ids")
+    fun findAccessibleDataProjects(ids: List<UUID>): List<MarketplaceEntry>
+
+    @Query("select e from MarketplaceEntry e join DataProcessor dp on e.searchableId = dp.id join CodeProject cp on dp.codeProjectId = cp.id where cp.id IN :ids and e.globalSlug LIKE :slug")
+    fun findAccessibleProcessor(ids: List<UUID>, slug: String): MarketplaceEntry?
+
+    @Query("select e from MarketplaceEntry e join DataProject dp on e.searchableId = dp.id where dp.id IN :ids and e.globalSlug LIKE :slug")
+    fun findAccessibleDataProject(ids: List<UUID>, slug: String): MarketplaceEntry?
+
+}
+
+@Repository
+interface SearchableTagRepository : KtCrudRepository<SearchableTag, UUID> {
+    fun findAllByPublicTrueOrOwnerIdIn(ids: List<UUID>): List<SearchableTag>
+}

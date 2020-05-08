@@ -5,6 +5,10 @@ logging:
     org.springframework.security: WARN
     org.springframework.orm: WARN
     org.hibernate: WARN
+#    org:
+#      hibernate:
+#        persister:
+#          entity: DEBUG
 
 
 mlreef:

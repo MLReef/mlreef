@@ -25,15 +25,19 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.jdbc.EmbeddedDatabaseConnection
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.restdocs.RestDocumentationContextProvider
 import org.springframework.restdocs.RestDocumentationExtension
+import org.springframework.restdocs.mockmvc.MockMvcRestDocumentation
 import org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.documentationConfiguration
+import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders
 import org.springframework.restdocs.operation.preprocess.Preprocessors
 import org.springframework.restdocs.operation.preprocess.Preprocessors.removeHeaders
 import org.springframework.restdocs.payload.FieldDescriptor
 import org.springframework.restdocs.payload.JsonFieldType
 import org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath
+import org.springframework.restdocs.snippet.Snippet
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity
@@ -42,7 +46,9 @@ import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.context.TestPropertySource
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.test.web.servlet.MockMvc
+import org.springframework.test.web.servlet.ResultActions
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers
 import org.springframework.test.web.servlet.setup.DefaultMockMvcBuilder
 import org.springframework.test.web.servlet.setup.MockMvcBuilders
 import org.springframework.web.context.WebApplicationContext
@@ -221,6 +227,10 @@ abstract class RestApiTest {
             .contentType(MediaType.APPLICATION_JSON)
     }
 
+    protected fun performGet(url: String) =
+        this.mockMvc.perform(this.defaultAcceptContentAuth(RestDocumentationRequestBuilders.get(url)))
+
+
     protected fun defaultAcceptContentEPFBot(token: String, requestBuilder: MockHttpServletRequestBuilder): MockHttpServletRequestBuilder {
         return requestBuilder
             .accept(MediaType.APPLICATION_JSON)
@@ -237,4 +247,25 @@ abstract class RestApiTest {
         )
     }
 
+}
+
+fun ResultActions.checkStatus(status: HttpStatus): ResultActions {
+    return this.andExpect(MockMvcResultMatchers.status().`is`(status.value()))
+}
+
+fun ResultActions.document(name: String, vararg snippets: Snippet): ResultActions {
+    return this.andDo(MockMvcRestDocumentation.document(name, *snippets))
+}
+
+fun <T> ResultActions.returnsList(objectMapper: ObjectMapper, clazz: Class<T>): List<T> {
+    return this.andReturn().let {
+        val constructCollectionType = objectMapper.typeFactory.constructCollectionType(List::class.java, clazz)
+        objectMapper.readValue(it.response.contentAsByteArray, constructCollectionType)
+    }
+}
+
+fun <T> ResultActions.returns(objectMapper: ObjectMapper, clazz: Class<T>): T {
+    return this.andReturn().let {
+        objectMapper.readValue(it.response.contentAsByteArray, clazz)
+    }
 }

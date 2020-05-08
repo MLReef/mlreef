@@ -41,4 +41,3 @@ internal class AssertGitlabAppStartupRunner(private val restClient: GitlabRestCl
         }
     }
 }
-

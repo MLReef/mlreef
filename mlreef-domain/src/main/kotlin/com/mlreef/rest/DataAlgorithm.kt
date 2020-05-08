@@ -1,5 +1,6 @@
 package com.mlreef.rest
 
+import com.mlreef.rest.marketplace.SearchableType
 import java.time.ZonedDateTime
 import java.util.UUID
 import javax.persistence.DiscriminatorValue
@@ -63,10 +64,12 @@ class DataAlgorithm(
         updatedAt = this.updatedAt
     )
 
-
-    override fun withParameters(parameters: List<ProcessorParameter>,
-                                metricSchema: MetricSchema): DataAlgorithm {
+    override fun withParameters(
+        parameters: List<ProcessorParameter>,
+        metricSchema: MetricSchema): DataAlgorithm {
         return copy(parameters = parameters, metricSchema = metricSchema)
     }
+
+    override fun getType() = SearchableType.ALGORITHM
 
 }

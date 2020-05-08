@@ -1,5 +1,6 @@
 package com.mlreef.rest
 
+import com.mlreef.rest.marketplace.SearchableType
 import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.util.UUID
@@ -35,7 +36,16 @@ interface MLProject {
     val gitlabPathWithNamespace: String
     val gitlabProject: String
     val gitlabId: Long
+    val visibilityScope: VisibilityScope
 }
 
-
 interface EPFAnnotation
+
+interface Searchable {
+    fun getId(): UUID
+    fun getType(): SearchableType
+
+    val name: String
+    val visibilityScope: VisibilityScope
+    val slug: String
+}
