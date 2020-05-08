@@ -86,11 +86,6 @@ while [ -n "$1" ]; do
     echo "Using EC2_INSTANCE_NAME $EC2_INSTANCE_NAME"
     shift
     ;;
-  -p | --port)
-    GITLAB_PORT="$2"
-    echo "Expecting gitlab at port $GITLAB_PORT"
-    shift
-    ;;
   -s | --secret)
     AWS_SECRET_ACCESS_KEY="$2"
     echo "Using AWS_ACCESS_KEY_ID $AWS_SECRET_ACCESS_KEY"
