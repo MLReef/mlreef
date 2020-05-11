@@ -1,37 +1,25 @@
 stages:
   - build
-  - test
   - deploy
-  - premerge
   - teardown
-
-services:
-  - docker:19.03.0-dind
-
-
-variables:
-  DOCKER_HOST: "tcp://docker:2375"  # gitlab needs this to support docker testcontainers
-  DOCKER_DRIVER: overlay2           # gitlab needs this to support docker testcontainers
-  DOCKER_TLS_CERTDIR: ""            # "/certs" gitlab needs this to support docker testcontainers
-  IMAGE_NAME: "backend"
-  IMAGE_PATH: "$DOCKER_REGISTRY/$DOCKER_ORGANISATION/$IMAGE_NAME:$CI_COMMIT_REF_SLUG"
-  DOCKER_REGISTRY_REPOSITORY_ID: "753711"                        # https://gitlab.com/api/v4/projects/13830884/registry/repositories/
-  REDIS_HOST: "redis"
-  REDIS_PORT: 6379
-  POSTGRES_DB: $DB_NAME
-  POSTGRES_USER: $DB_USER
-  POSTGRES_PASSWORD: $DB_PASSWORD
-
 
 build and test:
   stage: build
+  services:
+    - docker:19.03.0-dind
   image: java:8
   variables:
     REDIS_HOST: "redis"
     REDIS_PORT: 6379
-  #    POSTGRES_DB: $DB_NAME
-  #    POSTGRES_USER: $DB_USER
-  #    POSTGRES_PASSWORD: $DB_PASSWORD
+    REDIS_HOST: "redis"
+    REDIS_PORT: 6379
+    POSTGRES_DB: $DB_NAME
+    POSTGRES_USER: $DB_USER
+    POSTGRES_PASSWORD: $DB_PASSWORD
+    DOCKER_HOST: "tcp://docker:2375"  # gitlab needs this to support docker testcontainers
+    DOCKER_DRIVER: overlay2           # gitlab needs this to support docker testcontainers
+    DOCKER_TLS_CERTDIR: ""            # "/certs" gitlab needs this to support docker testcontainers
+
   before_script:
     - export GRADLE_USER_HOME=`pwd`/.gradle
     - chmod +x ./gradlew
@@ -61,13 +49,16 @@ build and test:
 
 deploy:
   stage: deploy
+  services:
+    - docker:19.03.0-dind
   image: docker:19.03.1
   script:
-    - docker login ${DOCKER_REGISTRY} -u "${DOCKER_USER}" -p "${DOCKER_PASSWORD}"
-    - echo "IMAGE_PATH=${IMAGE_PATH}"
+    - export TAG="${CI_COMMIT_REF_SLUG}"
+    - if [ $CI_COMMIT_REF_SLUG == "master" ]; then TAG="latest";  fi          # follow docker naming conventions
+    - echo "${CI_REGISTRY_PASSWORD}" | docker login ${CI_REGISTRY} --username=${CI_REGISTRY_USER} --password-stdin
     - cd mlreef-rest
-    - docker build --pull --tag "$IMAGE_PATH" -f Dockerfile .
-    - docker push "${IMAGE_PATH}"
+    - docker build --pull --tag "$CI_REGISTRY_IMAGE:$TAG" -f Dockerfile .
+    - docker push "$CI_REGISTRY_IMAGE:$TAG"
 
 
 pages:
@@ -96,25 +87,33 @@ pages:
 decommission:
   when: manual
   stage: teardown
+  except:
+    refs:
+      - master
   image: registry.gitlab.com/systemkern/s5:latest-aws    # based on python:3-slim
   variables:
     GIT_STRATEGY: none
-    # Workaround for Gitlab Bug https://gitlab.com/gitlab-org/gitlab-runner/issues/1809
-    WORKAROUND: "PRIVATE-TOKEN:" # workaround to not break the yaml structure
+    COLON: ":" # workaround to preserve the yaml structure (because of the ":")
   cache:
     key: pages-public-cache
     paths:
       - public/
+  before_script:
+    # Require Gitlab API token or this job
+    - if [ "$GITLAB_COM_API_TOKEN" = "" ]; then exit 1; fi
   script:
-    - curl --request DELETE --header "$WORKAROUND $GITLAB_API_TOKEN"
-      https://gitlab.com/api/v4/projects/$CI_PROJECT_ID/registry/repositories/$DOCKER_REGISTRY_REPOSITORY_ID/tags/$CI_COMMIT_REF_SLUG
-    - rm public/$CI_COMMIT_BRANCH/* -R || echo "Still empty"
+    # Get the registry repository ID from the Gitlab API
+    - CONTAINER_REPO_ID=$(curl --silent --header "PRIVATE-TOKEN$COLON $GITLAB_COM_API_TOKEN"
+      https://gitlab.com/api/v4/projects/$CI_PROJECT_ID/registry/repositories/
+      | jq -r .[0].id
+      )
+
+    - curl --request DELETE --header "PRIVATE-TOKEN$COLON $GITLAB_COM_API_TOKEN"
+      https://gitlab.com/api/v4/projects/$CI_PROJECT_ID/registry/repositories/$CONTAINER_REPO_ID/tags/$CI_COMMIT_REF_SLUG
+    - rm public/$CI_COMMIT_BRANCH/* -R || echo "Gitlab page is already empty"
   artifacts:
     paths:
       - public
   environment:
     name: $CI_COMMIT_REF_SLUG
     action: stop
-  except:
-    refs:
-      - master
