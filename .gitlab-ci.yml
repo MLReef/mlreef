@@ -57,6 +57,10 @@ variables:
 
 pages:
   stage: deploy
+  only:
+    changes:
+      - doc/**/*
+      - docs/**/*
   image: node:10.19.0-alpine                                # https://hub.docker.com/_/node/
   cache:
     key: mlreef-documentation-npm-cache
