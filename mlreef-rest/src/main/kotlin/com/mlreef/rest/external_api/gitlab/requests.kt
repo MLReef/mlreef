@@ -108,7 +108,7 @@ internal class GitlabCreateProjectRequest(
 internal class GitlabUpdateProjectRequest(
     val name: String,
     val description: String = "",
-    val defaultBranch: String = ""
+    val defaultBranch: String? = null
 ) : Serializable
 
 // https://docs.gitlab.com/ee/api/oauth2.html

@@ -97,8 +97,7 @@ interface GroupsService {
     @Transactional
     @RefreshUserInformation(userId = "#ownerId")
     override fun createGroupAsUser(ownerToken: String, groupName: String, path: String?, ownerId: UUID?): Group {
-        val account = resolveAccount(userToken = ownerToken, userId = ownerId)
-            ?: throw UserNotFoundException(userId = ownerId)
+        resolveAccount(userToken = ownerToken, userId = ownerId) ?: throw UserNotFoundException(userId = ownerId)
 
         val gitlabGroup = gitlabRestClient.userCreateGroup(
             token = ownerToken,
@@ -122,7 +121,7 @@ interface GroupsService {
             path = path
         )
 
-        val newGroup = group.copy(name = groupName, slug = groupName)
+        val newGroup = group.copy(name = gitlabGroup.name, slug = gitlabGroup.name)
         groupsRepository.save(newGroup)
 
         return newGroup
@@ -142,7 +141,7 @@ interface GroupsService {
         val user = resolveAccount(userId = userId) ?: throw UserNotFoundException(userId = userId)
         val group = groupsRepository.findByIdOrNull(groupId) ?: throw GroupNotFoundException(groupId = groupId)
 
-        val gitlabClient = gitlabRestClient.adminAddUserToGroup(
+        gitlabRestClient.adminAddUserToGroup(
             groupId = group.gitlabId
                 ?: throw UnknownGroupException("Group $groupId is not connected to Gitlab"),
             userId = user.person.gitlabId
@@ -245,7 +244,7 @@ interface GroupsService {
 
         usersIds.forEach {
             try {
-                gitlabRestClient              .adminDeleteUserFromGroup(groupId = gitlabGroupId, userId = it)
+                gitlabRestClient.adminDeleteUserFromGroup(groupId = gitlabGroupId, userId = it)
             } catch (ex: Exception) {
                 log.error("Unable to delete user $it from the group ${group.name}. Exception: $ex.")
             }

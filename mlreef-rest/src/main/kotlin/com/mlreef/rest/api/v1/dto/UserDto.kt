@@ -14,19 +14,35 @@ data class UserDto(
     override val id: UUID,
     val username: String,
     val email: String,
-    val token: String?,
-    val accessToken: String?,
-    val refreshToken: String?
-) : DataClassWithId {
-    fun censor(): UserDto {
-        return this.copy(token = token?.censor())
-    }
-}
+    val gitlabId: Long?
+) : DataClassWithId
 
 fun Account.toUserDto(accessToken: String? = null, refreshToken: String? = null) = UserDto(
     this.id,
     this.username,
     this.email,
+    this.person.gitlabId
+)
+
+data class SecretUserDto(
+    override val id: UUID,
+    val username: String,
+    val email: String,
+    val gitlabId: Long?,
+    val token: String?,
+    val accessToken: String?,
+    val refreshToken: String?
+): DataClassWithId {
+    fun censor(): SecretUserDto {
+        return this.copy(token = token?.censor())
+    }
+}
+
+fun Account.toSecretUserDto(accessToken: String? = null, refreshToken: String? = null) = SecretUserDto(
+    this.id,
+    this.username,
+    this.email,
+    this.person.gitlabId,
     this.bestToken?.token,
     accessToken,
     refreshToken

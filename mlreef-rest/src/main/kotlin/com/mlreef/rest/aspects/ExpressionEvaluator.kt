@@ -24,7 +24,7 @@ class ExpressionEvaluator<T> : CachedExpressionEvaluator() {
      * on the specified method.
      */
     fun createEvaluationContext(obj: Any, targetClass: Class<*>, method: Method, args: Array<Any>): EvaluationContext {
-        val targetMethod: Method? = getTargetMethod(targetClass, method)
+        val targetMethod: Method = getTargetMethod(targetClass, method)
         val root = ExpressionRootObject(obj, args)
         return MethodBasedEvaluationContext(root, targetMethod, args, paramNameDiscoverer)
     }
@@ -32,15 +32,16 @@ class ExpressionEvaluator<T> : CachedExpressionEvaluator() {
     /**
      * Specify if the condition defined by the specified expression matches.
      */
-    fun condition(conditionExpression: String?, elementKey: AnnotatedElementKey?, evalContext: EvaluationContext?, clazz: Class<T>?): T {
+    fun condition(conditionExpression: String, elementKey: AnnotatedElementKey, evalContext: EvaluationContext, clazz: Class<T>?): T? {
         return getExpression(conditionCache, elementKey, conditionExpression).getValue(evalContext, clazz)
     }
 
-    fun condition(conditionExpression: String?, elementKey: AnnotatedElementKey?, evalContext: EvaluationContext?): T {
-        return getExpression(conditionCache, elementKey, conditionExpression).getValue(evalContext) as T
+    @Suppress("UNCHECKED_CAST")
+    fun condition(conditionExpression: String, elementKey: AnnotatedElementKey, evalContext: EvaluationContext): T? {
+        return getExpression(conditionCache, elementKey, conditionExpression).getValue(evalContext) as? T?
     }
 
-    private fun getTargetMethod(targetClass: Class<*>, method: Method): Method? {
+    private fun getTargetMethod(targetClass: Class<*>, method: Method): Method {
         val methodKey = AnnotatedElementKey(method, targetClass)
         var targetMethod: Method? = targetMethodCache[methodKey]
         if (targetMethod == null) {

@@ -18,6 +18,8 @@ import com.mlreef.rest.DataType
 import com.mlreef.rest.DataVisualization
 import com.mlreef.rest.DataVisualizationRepository
 import com.mlreef.rest.ExperimentRepository
+import com.mlreef.rest.Group
+import com.mlreef.rest.GroupRepository
 import com.mlreef.rest.ParameterInstanceRepository
 import com.mlreef.rest.ParameterType
 import com.mlreef.rest.Person
@@ -29,10 +31,13 @@ import com.mlreef.rest.ProcessorParameterRepository
 import com.mlreef.rest.SubjectRepository
 import com.mlreef.rest.external_api.gitlab.GitlabRestClient
 import com.mlreef.rest.external_api.gitlab.GroupAccessLevel
+import com.mlreef.rest.external_api.gitlab.dto.GitlabGroup
 import com.mlreef.rest.external_api.gitlab.dto.GitlabProject
 import com.mlreef.rest.external_api.gitlab.dto.GitlabUser
 import com.mlreef.rest.external_api.gitlab.dto.GitlabUserInProject
 import com.mlreef.rest.external_api.gitlab.dto.toGitlabUserInProject
+import com.mlreef.rest.utils.RandomUtils
+import com.ninjasquad.springmockk.SpykBean
 import io.mockk.every
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.restdocs.payload.FieldDescriptor
@@ -129,7 +134,7 @@ internal class AccountSubjectPreparationTrait {
     @Transactional
     protected fun createMockUser(plainPassword: String = "password", userOverrideSuffix: String? = null): Account {
 
-        var mockToken = RestApiTest.testPrivateUserTokenMock
+        var mockToken = RestApiTest.testPrivateUserTokenMock1
         var userSuffix = "0000"
         if (userOverrideSuffix != null) {
             userSuffix = userOverrideSuffix
@@ -176,7 +181,7 @@ internal class AccountSubjectPreparationTrait {
         membersList.add(gitlabMockMembership)
 
         every {
-            mockedRestClient.adminGetUserProjects(ownerGitlabId)
+            mockedRestClient.adminGetUserOwnProjects(ownerGitlabId)
         } returns projectsList.toList()
 
         every {
@@ -205,7 +210,7 @@ internal class AccountSubjectPreparationTrait {
         }
 
         every {
-            mockedRestClient.adminGetUserProjects(ownerGitlabId)
+            mockedRestClient.adminGetUserOwnProjects(ownerGitlabId)
         } returns gitlabUsersProjects.getOrDefault(ownerGitlabId, mutableSetOf()).toList()
     }
 
@@ -246,18 +251,18 @@ internal class PipelineTestPreparationTrait {
     fun apply() {
 
         deleteAll()
-        applyAccount()
-
-        dataProject = dataProjectRepository.save(DataProject(
-            UUID.fromString("aaaa0001-0000-0000-0000-dbdbdbdbdbdb"), "slug1", "url", "Test DataProject",
-            ownerId = account.person.id, gitlabId = 1, gitlabGroup = "mlreef", gitlabProject = "project1"
-        ))
-        dataProject2 = dataProjectRepository.save(DataProject(
-            UUID.fromString("aaaa0001-0000-0000-0002-dbdbdbdbdbdb"), "slug2", "url", "Test DataProject",
-            ownerId = account2.person.id, gitlabId = 2, gitlabGroup = "mlreef", gitlabProject = "project1")
-        )
-        codeProjectRepository.save(CodeProject(randomUUID(), "slug", "url", "Test DataProject", ownerId = account.person.id,
-            gitlabGroup = "", gitlabId = 0, gitlabProject = ""))
+//        applyAccount()
+//
+//        dataProject = dataProjectRepository.save(DataProject(
+//            UUID.fromString("aaaa0001-0000-0000-0000-dbdbdbdbdbdb"), "slug1", "url", "Test DataProject",
+//            ownerId = account.person.id, gitlabId = 1, gitlabGroup = "mlreef", gitlabProject = "project1"
+//        ))
+//        dataProject2 = dataProjectRepository.save(DataProject(
+//            UUID.fromString("aaaa0001-0000-0000-0002-dbdbdbdbdbdb"), "slug2", "url", "Test DataProject",
+//            ownerId = account2.person.id, gitlabId = 2, gitlabGroup = "mlreef", gitlabProject = "project1")
+//        )
+//        codeProjectRepository.save(CodeProject(randomUUID(), "slug", "url", "Test DataProject", ownerId = account.person.id,
+//            gitlabGroup = "", gitlabId = 0, gitlabProject = ""))
 
         dataOp1 = dataOperationRepository.save(DataOperation(randomUUID(), "commons-data-operation1", "name", "command", DataType.ANY, DataType.ANY))
         dataOp2 = dataAlgorithmRepository.save(DataAlgorithm(randomUUID(), "commons-algorithm", "name", "command", DataType.ANY, DataType.ANY))
@@ -302,7 +307,7 @@ internal class PipelineTestPreparationTrait {
     @Transactional
     protected fun createMockUser(plainPassword: String = "password", userOverrideSuffix: String? = null): Account {
 
-        var mockToken = RestApiTest.testPrivateUserTokenMock
+        var mockToken = RestApiTest.testPrivateUserTokenMock1
         var userSuffix = "0000"
         if (userOverrideSuffix != null) {
             userSuffix = userOverrideSuffix
@@ -336,3 +341,141 @@ internal class PipelineTestPreparationTrait {
 
 
 }
+
+@Component
+internal class GitlabHelper {
+    companion object {
+        val allCreatedUsersNames = mutableListOf<String>()
+        val allCreatedProjectsNames = mutableListOf<String>()
+    }
+
+    @SpykBean()
+    protected lateinit var restClient: GitlabRestClient
+
+    @Autowired
+    protected lateinit var accountRepository: AccountRepository
+
+    @SpykBean
+    lateinit var groupsRepository: GroupRepository
+
+    @Autowired
+    lateinit var codeProjectRepository: CodeProjectRepository
+
+    @Autowired
+    lateinit var dataProjectRepository: DataProjectRepository
+
+    private val passwordEncoder: PasswordEncoder = BCryptPasswordEncoder()
+
+    private val realCreatedUsersCache: MutableList<Triple<Account, String, GitlabUser>> = mutableListOf()
+
+    @Transactional
+    fun createRealUser(userName: String? = null, password: String? = null, index: Int = 0): Triple<Account, String, GitlabUser> {
+        if (realCreatedUsersCache.size < index)
+            return realCreatedUsersCache[index]
+
+        val accountId = UUID.randomUUID()
+        val username = userName ?: RandomUtils.generateRandomUserName(20)
+        val email = "$username@example.com"
+        val plainPassword = password ?: RandomUtils.generateRandomPassword(30, true)
+
+        val userInGitlab = restClient.adminCreateUser(email, username, "Existing user", plainPassword)
+        val tokenInGitlab = restClient.adminCreateUserToken(gitlabUserId = userInGitlab.id, tokenName = "TestTokenName")
+
+        val passwordEncrypted = passwordEncoder.encode(plainPassword)
+        val person = Person(UUID.randomUUID(), "person_slug", "user name", userInGitlab.id)
+        val token = AccountToken(UUID.randomUUID(), accountId, tokenInGitlab.token, tokenInGitlab.id)
+        val account = Account(accountId, username, email, passwordEncrypted, person, mutableListOf(token))
+
+        accountRepository.save(account)
+
+        val result = Triple(account, plainPassword, userInGitlab)
+        realCreatedUsersCache.add(result)
+
+        allCreatedUsersNames.add(username)
+
+        return result
+    }
+
+    fun createRealGroup(account: Account, name: String? = null): Pair<Group, GitlabGroup> {
+        val groupName = name ?: RandomUtils.generateRandomUserName(10)
+        val groupPath = "path-$groupName"
+        val groupInGitlab = restClient.userCreateGroup(account.bestToken?.token!!, groupName, groupPath)
+
+        var groupInDatabase = Group(randomUUID(), "slug-$groupName", groupName,groupInGitlab.id)
+
+        groupInDatabase = groupsRepository.save(groupInDatabase)
+
+        return Pair(groupInDatabase, groupInGitlab)
+    }
+
+    fun createRealProjectInGitlab(account: Account, name: String? = null, slug: String? = null, namespace: String? = null): GitlabProject {
+        val projectName = name ?: RandomUtils.generateRandomUserName(20)
+        val projectSlug = slug ?: "slug-$projectName"
+        val nameSpace = namespace ?: "mlreef/$projectName"
+
+        val findNamespace = try {
+            restClient.findNamespace(account.bestToken!!.token, nameSpace)
+        } catch (e: Exception) {
+            null
+        }
+
+        val result = restClient.createProject(
+            token = account.bestToken?.token!!,
+            slug = projectSlug,
+            name = projectName,
+            defaultBranch = "master",
+            nameSpaceId = findNamespace?.id,
+            description = "Test description $projectName",
+            visibility = "public",
+            initializeWithReadme = false)
+
+        allCreatedProjectsNames.add(projectName)
+
+        return result
+    }
+
+    fun createRealCodeProject(account: Account, name: String? = null, slug: String? = null, namespace: String? = null): Pair<CodeProject, GitlabProject> {
+        val gitLabProject = createRealProjectInGitlab(account, name, slug, namespace)
+
+        val group = gitLabProject.pathWithNamespace.split("/")[0]
+
+        var projectInDb = CodeProject(
+            id = UUID.randomUUID(),
+            slug = gitLabProject.path,
+            ownerId = account.person.id,
+            url = gitLabProject.webUrl,
+            name = gitLabProject.name,
+            gitlabProject = gitLabProject.path,
+            gitlabPathWithNamespace = gitLabProject.pathWithNamespace,
+            gitlabGroup = group,
+            gitlabId = gitLabProject.id
+        )
+
+        projectInDb = codeProjectRepository.save(projectInDb)
+
+        return Pair(projectInDb, gitLabProject)
+    }
+
+    fun createRealDataProject(account: Account, name: String? = null, slug: String? = null, namespace: String? = null): Pair<DataProject, GitlabProject> {
+        val gitLabProject = createRealProjectInGitlab(account, name, slug, namespace)
+
+        val group = gitLabProject.pathWithNamespace.split("/")[0]
+
+        var projectInDb = DataProject(
+            id = randomUUID(),
+            slug = gitLabProject.path,
+            ownerId = account.person.id,
+            url = gitLabProject.webUrl,
+            name = gitLabProject.name,
+            gitlabProject = gitLabProject.path,
+            gitlabPathWithNamespace = gitLabProject.pathWithNamespace,
+            gitlabGroup = group,
+            gitlabId = gitLabProject.id
+        )
+
+        projectInDb = dataProjectRepository.save(projectInDb)
+
+        return Pair(projectInDb, gitLabProject)
+    }
+}
+

@@ -1,5 +1,6 @@
 package com.mlreef.rest.api.v1
 
+import com.mlreef.rest.Account
 import com.mlreef.rest.CodeProject
 import com.mlreef.rest.Person
 import com.mlreef.rest.VisibilityScope
@@ -130,20 +131,25 @@ class CodeProjectsController(
 
     @GetMapping("/{id}/users")
     @PreAuthorize("hasAccessToProject(#id, 'DEVELOPER')")
-    fun getUsersInDataProjectById(@PathVariable id: UUID): List<UserInProjectDto> {
+    fun getUsersInCodeProjectById(@PathVariable id: UUID): List<UserInProjectDto> {
         val usersInProject = codeProjectService.getUsersInProject(id)
-        return usersInProject.map { UserInProjectDto(it.id, it.username, it.email, it.gitlabId) }
+        return usersInProject.map { UserInProjectDto(it.id, it.username, it.email, it.person.gitlabId) }
+    }
+
+    @GetMapping("/{id}/users/check")
+    fun checkCurrentUserInCodeProject(@PathVariable id: UUID, account: Account): Boolean {
+        return codeProjectService.checkUserInProject(projectUUID = id, userId = account.id)
     }
 
     @GetMapping("/{id}/users/check/{userId}")
     @PreAuthorize("hasAccessToProject(#id, 'DEVELOPER') || isUserItself(#userId)")
-    fun checkUserInDataProjectById(@PathVariable id: UUID, @PathVariable userId: UUID, person: Person): Boolean {
-        return codeProjectService.checkUserInProject(person.id, id)
+    fun checkUserInCodeProjectById(@PathVariable id: UUID, @PathVariable userId: UUID): Boolean {
+        return codeProjectService.checkUserInProject(projectUUID = id, userId = userId)
     }
 
     @PostMapping("/{id}/users/check")
     @PreAuthorize("hasAccessToProject(#id, 'DEVELOPER')")
-    fun checkUsersInDataProjectById(@PathVariable id: UUID, @RequestBody request: UsersProjectRequest): Map<String?, Boolean> {
+    fun checkUsersInCodeProjectById(@PathVariable id: UUID, @RequestBody request: UsersProjectRequest): Map<String?, Boolean> {
         return codeProjectService
             .checkUsersInProject(id, request.users.map(UserInProjectDto::toDomain))
             .map { Pair(it.key.userName ?: it.key.email ?: it.key.gitlabId.toString(), it.value) }
@@ -152,30 +158,30 @@ class CodeProjectsController(
 
     @PostMapping("/{id}/users")
     @PreAuthorize("hasAccessToProject(#id, 'MAINTAINER')")
-    fun addUsersToDataProjectById(@PathVariable id: UUID, @RequestBody request: UsersProjectRequest): List<UserInProjectDto> {
+    fun addUsersToCodeProjectById(@PathVariable id: UUID, @RequestBody request: UsersProjectRequest): List<UserInProjectDto> {
         codeProjectService.addUsersToProject(id, request.users.map(UserInProjectDto::toDomain))
-        return getUsersInDataProjectById(id)
+        return getUsersInCodeProjectById(id)
     }
 
     @PostMapping("/{id}/users/{userId}")
     @PreAuthorize("hasAccessToProject(#id, 'MAINTAINER')")
-    fun addUserToDataProjectById(@PathVariable id: UUID, @PathVariable userId: UUID): List<UserInProjectDto> {
+    fun addUserToCodeProjectById(@PathVariable id: UUID, @PathVariable userId: UUID): List<UserInProjectDto> {
         codeProjectService.addUserToProject(id, userId)
-        return getUsersInDataProjectById(id)
+        return getUsersInCodeProjectById(id)
     }
 
     @DeleteMapping("/{id}/users")
     @PreAuthorize("hasAccessToProject(#id, 'MAINTAINER')")
-    fun deleteUsersFromDataProjectById(@PathVariable id: UUID, @RequestBody request: UsersProjectRequest): List<UserInProjectDto> {
+    fun deleteUsersFromCodeProjectById(@PathVariable id: UUID, @RequestBody request: UsersProjectRequest): List<UserInProjectDto> {
         val usersInProject = codeProjectService.deleteUsersFromProject(id, request.users.map(UserInProjectDto::toDomain))
-        return usersInProject.map { UserInProjectDto(it.id, it.username, it.email, it.gitlabId) }
+        return usersInProject.map { UserInProjectDto(it.id, it.username, it.email, it.person.gitlabId) }
     }
 
     @DeleteMapping("/{id}/users/{userId}")
     @PreAuthorize("hasAccessToProject(#id, 'MAINTAINER') || isUserItself(#userId)")
-    fun deleteUserFromDataProjectById(@PathVariable id: UUID, @PathVariable userId: UUID): List<UserInProjectDto> {
+    fun deleteUserFromCodeProjectById(@PathVariable id: UUID, @PathVariable userId: UUID): List<UserInProjectDto> {
         codeProjectService.deleteUserFromProject(id, userId)
-        return getUsersInDataProjectById(id)
+        return getUsersInCodeProjectById(id)
     }
 }
 

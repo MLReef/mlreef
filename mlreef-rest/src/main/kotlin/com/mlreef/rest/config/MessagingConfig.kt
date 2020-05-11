@@ -33,13 +33,13 @@ class MessagingConfig(private val sessionService: SessionsService,
     }
 
     @Bean
-    fun userInformationMessageListenerAdapter(): MessageListenerAdapter? {
+    fun userInformationMessageListenerAdapter(): MessageListenerAdapter {
         return MessageListenerAdapter(sessionService)
     }
 
     @Bean
     @Qualifier("refreshUserInformation")
-    fun refreshUserTopic(): ChannelTopic? {
+    fun refreshUserTopic(): ChannelTopic {
         return ChannelTopic(REFRESH_USER_INFORMATION_TOPIC)
     }
 

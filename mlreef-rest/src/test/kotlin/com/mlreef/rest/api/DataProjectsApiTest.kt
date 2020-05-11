@@ -1,17 +1,12 @@
 package com.mlreef.rest.api
 
-import com.mlreef.rest.DataProject
 import com.mlreef.rest.DataProjectRepository
-import com.mlreef.rest.Person
 import com.mlreef.rest.VisibilityScope
 import com.mlreef.rest.api.v1.DataProjectCreateRequest
 import com.mlreef.rest.api.v1.DataProjectUpdateRequest
 import com.mlreef.rest.api.v1.dto.DataProjectDto
-import com.mlreef.rest.exceptions.ErrorCode
-import com.mlreef.rest.exceptions.GitlabBadRequestException
+import com.mlreef.rest.api.v1.dto.UserInProjectDto
 import com.mlreef.rest.external_api.gitlab.GroupAccessLevel
-import com.mlreef.rest.feature.system.SessionsService
-import io.mockk.every
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
@@ -28,38 +23,38 @@ import org.springframework.restdocs.payload.PayloadDocumentation.responseFields
 import org.springframework.test.annotation.Rollback
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
 import java.util.UUID
-import java.util.UUID.randomUUID
 import javax.transaction.Transactional
 
 class DataProjectsApiTest : RestApiTest() {
 
     val rootUrl = "/api/v1/data-projects"
-    private lateinit var subject: Person
-    private lateinit var subject2: Person
 
-    @Autowired private lateinit var accountSubjectPreparationTrait: AccountSubjectPreparationTrait
     @Autowired private lateinit var dataProjectRepository: DataProjectRepository
 
     @Autowired
-    private lateinit var sessionService: SessionsService
+    private lateinit var gitlabHelper: GitlabHelper
 
     @BeforeEach
     @AfterEach
     fun setUp() {
-        accountSubjectPreparationTrait.apply()
-        subject = accountSubjectPreparationTrait.subject
-        subject2 = accountSubjectPreparationTrait.subject2
-
-        // To update user permissions before each test
-        sessionService.killAllSessions("username0000")
     }
 
     @Transactional
     @Rollback
     @Test fun `Can create DataProject`() {
-        val request = DataProjectCreateRequest("test-project", "mlreef", "Test project", "description", true, VisibilityScope.PUBLIC)
+        val (account, _, _) = gitlabHelper.createRealUser()
+
+        val request = DataProjectCreateRequest(
+            "test-project",
+            "mlreef",
+            "Test project",
+            "description",
+            true,
+            VisibilityScope.PUBLIC
+        )
+
         val returnedResult = this.mockMvc.perform(
-            this.defaultAcceptContentAuth(RestDocumentationRequestBuilders.post(rootUrl))
+            this.acceptContentAuth(RestDocumentationRequestBuilders.post(rootUrl), account)
                 .content(objectMapper.writeValueAsString(request)))
             .andExpect(MockMvcResultMatchers.status().isOk)
             .andDo(MockMvcRestDocumentation.document(
@@ -76,17 +71,20 @@ class DataProjectsApiTest : RestApiTest() {
     @Transactional
     @Rollback
     @Test fun `Cannot create duplicate DataProject`() {
-        every {
-            restClient.createProject(
-                any(), any(), any(), any(), any(), any(), any(), any(), any(), any()
-            )
-        } answers {
-            throw GitlabBadRequestException("", ErrorCode.Conflict, "")
-        }
+        val (account, _, _) = gitlabHelper.createRealUser()
+        val (project, _) = gitlabHelper.createRealDataProject(account)
 
-        val request = DataProjectCreateRequest("test-project", "mlreef", "Test project", "description", true, VisibilityScope.PUBLIC)
+        val request = DataProjectCreateRequest(
+            slug = project.slug,
+            namespace = project.gitlabPathWithNamespace,
+            name = project.name,
+            description = "New description",
+            initializeWithReadme = true,
+            visibility = VisibilityScope.PUBLIC
+        )
+
         this.mockMvc.perform(
-            this.defaultAcceptContentAuth(RestDocumentationRequestBuilders.post(rootUrl))
+            this.acceptContentAuth(RestDocumentationRequestBuilders.post(rootUrl), account)
                 .content(objectMapper.writeValueAsString(request)))
             .andExpect(MockMvcResultMatchers.status().isBadRequest)
     }
@@ -94,17 +92,18 @@ class DataProjectsApiTest : RestApiTest() {
     @Transactional
     @Rollback
     @Test fun `Cannot create DataProject with invalid params`() {
-        every {
-            restClient.createProject(
-                any(), any(), any(), any(), any(), any(), any(), any(), any(), any()
-            )
-        } answers {
-            throw GitlabBadRequestException("", ErrorCode.GitlabCommonError, "")
-        }
+        val (account, _, _) = gitlabHelper.createRealUser()
 
-        val request = DataProjectCreateRequest("", "", "", "description", true, VisibilityScope.PUBLIC)
+        val request = DataProjectCreateRequest(
+            "",
+            "",
+            "",
+            "description",
+            true,
+            VisibilityScope.PUBLIC)
+
         this.mockMvc.perform(
-            this.defaultAcceptContentAuth(RestDocumentationRequestBuilders.post(rootUrl))
+            this.acceptContentAuth(RestDocumentationRequestBuilders.post(rootUrl), account)
                 .content(objectMapper.writeValueAsString(request)))
             .andExpect(MockMvcResultMatchers.status().isBadRequest)
     }
@@ -112,15 +111,17 @@ class DataProjectsApiTest : RestApiTest() {
     @Transactional
     @Rollback
     @Test fun `Can retrieve all own DataProjects only`() {
-        val project1 = DataProject(randomUUID(), "slug-1", "www.url.com", "Test Project 1", subject.id, "mlreef", "group1", "mlreef/project-1", 1, VisibilityScope.PUBLIC, listOf())
-        val project2 = DataProject(randomUUID(), "slug-2", "www.url.net", "Test Project 2", subject.id, "mlreef", "group2", "mlreef/project-2", 2, VisibilityScope.PUBLIC, listOf())
-        val project3 = DataProject(randomUUID(), "slug-3", "www.url.xyz", "Test Project 3", randomUUID(), "mlreef", "group3", "mlreef/project-3", 3, VisibilityScope.PUBLIC, listOf())
-        dataProjectRepository.save(project1)
-        dataProjectRepository.save(project2)
-        dataProjectRepository.save(project3)
+        val (account1, _, _) = gitlabHelper.createRealUser(index = -1)
+        val (project1, _) = gitlabHelper.createRealDataProject(account1)
+        val (project2, _) = gitlabHelper.createRealDataProject(account1)
+        val (project3, _) = gitlabHelper.createRealDataProject(account1)
+
+        val (account2, _, _) = gitlabHelper.createRealUser(index = -1)
+        val (project21, _) = gitlabHelper.createRealDataProject(account2)
+        val (project22, _) = gitlabHelper.createRealDataProject(account2)
 
         val returnedResult: List<DataProjectDto> = this.mockMvc.perform(
-            this.defaultAcceptContentAuth(RestDocumentationRequestBuilders.get(rootUrl)))
+            this.acceptContentAuth(RestDocumentationRequestBuilders.get(rootUrl), account1))
             .andExpect(MockMvcResultMatchers.status().isOk)
             .andDo(MockMvcRestDocumentation.document(
                 "dataprojects-retrieve-all",
@@ -131,28 +132,25 @@ class DataProjectsApiTest : RestApiTest() {
                 objectMapper.readValue(it.response.contentAsByteArray, constructCollectionType)
             }
 
-        assertThat(returnedResult.size).isEqualTo(2)
+        assertThat(returnedResult.size).isEqualTo(3)
+        assertThat(returnedResult.map(DataProjectDto::id).toSortedSet()).isEqualTo(listOf(project1.id, project2.id, project3.id).toSortedSet())
+        assertThat(returnedResult.map(DataProjectDto::gitlabProject).toSortedSet()).isEqualTo(listOf(project1.slug, project2.slug, project3.slug).toSortedSet()) //FIXME: Why is slug? Is it correct?
     }
 
     @Transactional
     @Rollback
     @Test fun `Can retrieve specific own DataProject by id`() {
-        val id1 = randomUUID()
-        val project1 = DataProject(id1, "slug-1", "www.url.com", "Test Project 1", subject.id, "mlreef", "project-1", "mlreef/project-1", 1, VisibilityScope.PUBLIC, listOf())
-        val project2 = DataProject(randomUUID(), "slug-2", "www.url.net", "Test Project 2", subject.id, "mlreef", "project-2", "mlreef/project-2", 2, VisibilityScope.PUBLIC, listOf())
-        val project3 = DataProject(randomUUID(), "slug-3", "www.url.xyz", "Test Project 3", subject.id, "mlreef", "project-3", "mlreef/project-3", 3, VisibilityScope.PUBLIC, listOf())
-        dataProjectRepository.save(project1)
-        dataProjectRepository.save(project2)
-        dataProjectRepository.save(project3)
+        val (account1, _, _) = gitlabHelper.createRealUser()
+        val (project1, _) = gitlabHelper.createRealDataProject(account1)
+        val (project2, _) = gitlabHelper.createRealDataProject(account1)
+        val (project3, _) = gitlabHelper.createRealDataProject(account1)
 
-        accountSubjectPreparationTrait.mockGitlabProjectsWithLevel(
-            restClient,
-            listOf(project1.gitlabId, project2.gitlabId, project3.gitlabId),
-            subject.gitlabId!!,
-            listOf(GroupAccessLevel.OWNER, GroupAccessLevel.OWNER, GroupAccessLevel.OWNER))
+        val (account2, _, _) = gitlabHelper.createRealUser(index = 1)
+        val (project21, _) = gitlabHelper.createRealDataProject(account2)
+        val (project22, _) = gitlabHelper.createRealDataProject(account2)
 
         val returnedResult: DataProjectDto = this.mockMvc.perform(
-            this.defaultAcceptContentAuth(RestDocumentationRequestBuilders.get("$rootUrl/$id1")))
+            this.acceptContentAuth(RestDocumentationRequestBuilders.get("$rootUrl/${project2.id}"), account1))
             .andExpect(MockMvcResultMatchers.status().isOk)
             .andDo(MockMvcRestDocumentation.document(
                 "dataprojects-retrieve-one",
@@ -161,43 +159,31 @@ class DataProjectsApiTest : RestApiTest() {
                 objectMapper.readValue(it.response.contentAsByteArray, DataProjectDto::class.java)
             }
 
-        assertThat(returnedResult.id).isEqualTo(id1)
-        assertThat(returnedResult.gitlabProject).isEqualTo("project-1")
+        assertThat(returnedResult.id).isEqualTo(project2.id)
+        assertThat(returnedResult.gitlabId).isEqualTo(project2.gitlabId)
+        assertThat(returnedResult.gitlabProject).isEqualTo(project2.slug) //FIXME: Why is slug? Is it correct?
     }
 
     @Transactional
     @Rollback
     @Test fun `Can retrieve specific own DataProject by slug`() {
-        val id1 = randomUUID()
-        val id2 = randomUUID()
-        val id3 = randomUUID()
-        val id4 = randomUUID()
-        val id5 = randomUUID()
-        val project1 = DataProject(id1, "slug-1", "www.url.com", "Test Project 1", subject.id, "mlreef", "project-1", "mlreef/project-1", 1, VisibilityScope.PUBLIC, listOf())
-        val project2 = DataProject(id2, "slug-2", "www.url.net", "Test Project 2", subject.id, "mlreef", "project-2", "mlreef/project-2", 2, VisibilityScope.PUBLIC, listOf())
-        val project3 = DataProject(id3, "slug-3", "www.url.xyz", "Test Project 3", subject2.id, "mlreef", "project-3", "mlreef/project-3", 3, VisibilityScope.PUBLIC, listOf())
-        val project4 = DataProject(id4, "slug-1", "www.url.xyz", "Test Project 4", subject2.id, "mlreef", "project-4", "mlreef/project-4", 4, VisibilityScope.PUBLIC, listOf())
-        val project5 = DataProject(id5, "slug-1", "www.url.xyz", "Test Project 5", subject2.id, "mlreef", "project-5", "mlreef/project-5", 5, VisibilityScope.PUBLIC, listOf())
-        dataProjectRepository.save(project1)
-        dataProjectRepository.save(project2)
-        dataProjectRepository.save(project3)
-        dataProjectRepository.save(project4)
-        dataProjectRepository.save(project5)
+        val (account1, _, _) = gitlabHelper.createRealUser(index = -1)
+        val (project1, _) = gitlabHelper.createRealDataProject(account1, slug = "slug-1")
+        val (project2, _) = gitlabHelper.createRealDataProject(account1)
+        val (project3, _) = gitlabHelper.createRealDataProject(account1)
 
-        accountSubjectPreparationTrait.mockGitlabProjectsWithLevel(
-            restClient,
-            listOf(project1.gitlabId, project2.gitlabId, project5.gitlabId),
-            subject.gitlabId!!,
-            listOf(GroupAccessLevel.OWNER, GroupAccessLevel.OWNER, GroupAccessLevel.GUEST))
+        val (account2, _, _) = gitlabHelper.createRealUser(index = -1)
+        val (project21, _) = gitlabHelper.createRealDataProject(account2, slug = "slug-1")
+        val (project22, _) = gitlabHelper.createRealDataProject(account2)
 
-        accountSubjectPreparationTrait.mockGitlabProjectsWithLevel(
-            restClient,
-            listOf(project3.gitlabId, project4.gitlabId, project5.gitlabId),
-            subject2.gitlabId!!,
-            listOf(GroupAccessLevel.OWNER, GroupAccessLevel.OWNER, GroupAccessLevel.OWNER))
+        val (account3, _, _) = gitlabHelper.createRealUser(index = -1)
+        val (project31, _) = gitlabHelper.createRealDataProject(account3, slug = "slug-1")
+        val (project32, _) = gitlabHelper.createRealDataProject(account3)
+
+        addRealUserToProject(project21.gitlabId, account1.person.gitlabId!!)
 
         val returnedResult: List<DataProjectDto> = this.mockMvc.perform(
-            this.defaultAcceptContentAuth(RestDocumentationRequestBuilders.get("$rootUrl/slug/slug-1")))
+            this.acceptContentAuth(RestDocumentationRequestBuilders.get("$rootUrl/slug/${project1.slug}"), account1))
             .andExpect(MockMvcResultMatchers.status().isOk)
             .andDo(MockMvcRestDocumentation.document(
                 "dataprojects-retrieve-all",
@@ -215,46 +201,30 @@ class DataProjectsApiTest : RestApiTest() {
             returnedResult.get(1).id
         )
 
-        assertThat(setOfIds).containsExactlyInAnyOrder(id1, id5)
-        assertThat(returnedResult.get(0).id).isIn(id1, id5)
-        assertThat(returnedResult.get(0).gitlabProject).isIn("project-1", "project-5")
-        assertThat(returnedResult.get(1).id).isIn(id1, id5)
-        assertThat(returnedResult.get(1).gitlabProject).isIn("project-1", "project-5")
+        assertThat(setOfIds).containsExactlyInAnyOrder(project1.id, project21.id)
+        assertThat(returnedResult.get(0).id).isIn(project1.id, project21.id)
+        assertThat(returnedResult.get(0).gitlabProject).isIn(project1.slug, project21.slug) //FIXME: Why is slug? Is it correct?
+        assertThat(returnedResult.get(1).id).isIn(project1.id, project21.id)
+        assertThat(returnedResult.get(1).gitlabProject).isIn(project1.slug, project21.slug)
     }
 
     @Transactional
     @Rollback
     @Test fun `Can retrieve specific own and guest DataProjects by namespace`() {
-        val id1 = randomUUID()
-        val id2 = randomUUID()
-        val id3 = randomUUID()
-        val id4 = randomUUID()
-        val id5 = randomUUID()
-        val project1 = DataProject(id1, "slug-1", "www.url.com", "Test Project 1", subject.id, "mlreef", "project-1", "mlreef/project-1", 1, VisibilityScope.PUBLIC, listOf())
-        val project2 = DataProject(id2, "slug-2", "www.url.net", "Test Project 2", subject.id, "mlreef", "project-2", "mlreef/project-2", 2, VisibilityScope.PUBLIC, listOf())
-        val project3 = DataProject(id3, "slug-3", "www.url.xyz", "Test Project 3", subject2.id, "mlreef", "project-3", "mlreef/project-3", 3, VisibilityScope.PUBLIC, listOf())
-        val project4 = DataProject(id4, "slug-4", "www.url.xyz", "Test Project 4", subject2.id, "mlreef", "project-4", "mlreef/project-4", 4, VisibilityScope.PUBLIC, listOf())
-        val project5 = DataProject(id5, "slug-5", "www.url.xyz", "Test Project 5", subject2.id, "mlreef", "project-5", "mlreef/project-5", 5, VisibilityScope.PUBLIC, listOf())
-        dataProjectRepository.save(project1)
-        dataProjectRepository.save(project2)
-        dataProjectRepository.save(project3)
-        dataProjectRepository.save(project4)
-        dataProjectRepository.save(project5)
+        val (account1, _, _) = gitlabHelper.createRealUser(index = -1)
+        val (account2, _, _) = gitlabHelper.createRealUser(index = -1)
 
-        accountSubjectPreparationTrait.mockGitlabProjectsWithLevel(
-            restClient,
-            listOf(project1.gitlabId, project2.gitlabId, project5.gitlabId),
-            subject.gitlabId!!,
-            listOf(GroupAccessLevel.OWNER, GroupAccessLevel.OWNER, GroupAccessLevel.GUEST))
+        val (project1, _) = gitlabHelper.createRealDataProject(account1)
+        val (project2, _) = gitlabHelper.createRealDataProject(account1)
+        val (project3, _) = gitlabHelper.createRealDataProject(account1)
 
-        accountSubjectPreparationTrait.mockGitlabProjectsWithLevel(
-            restClient,
-            listOf(project3.gitlabId, project4.gitlabId, project5.gitlabId),
-            subject2.gitlabId!!,
-            listOf(GroupAccessLevel.OWNER, GroupAccessLevel.OWNER, GroupAccessLevel.OWNER))
+        addRealUserToProject(project1.gitlabId, account2.person.gitlabId!!)
+
+        val (project21, _) = gitlabHelper.createRealDataProject(account2, namespace = project1.gitlabGroup)
+        val (project22, _) = gitlabHelper.createRealDataProject(account2)
 
         val returnedResult: List<DataProjectDto> = this.mockMvc.perform(
-            this.defaultAcceptContentAuth(RestDocumentationRequestBuilders.get("$rootUrl/namespace/mlreef")))
+            this.acceptContentAuth(RestDocumentationRequestBuilders.get("$rootUrl/namespace/${project1.gitlabGroup}"), account2))
             .andExpect(MockMvcResultMatchers.status().isOk)
             .andDo(MockMvcRestDocumentation.document(
                 "dataprojects-retrieve-all",
@@ -265,46 +235,34 @@ class DataProjectsApiTest : RestApiTest() {
                 objectMapper.readValue(it.response.contentAsByteArray, constructCollectionType)
             }
 
-        assertThat(returnedResult.size).isEqualTo(3)
+        assertThat(returnedResult.size).isEqualTo(1)
 
         val setOfIds = setOf<UUID>(
-            returnedResult.get(0).id,
-            returnedResult.get(1).id,
-            returnedResult.get(2).id
+            returnedResult.get(0).id
         )
 
-        assertThat(setOfIds).containsExactlyInAnyOrder(id1, id2, id5)
-        assertThat(returnedResult.get(0).id).isIn(id1, id2, id5)
-        assertThat(returnedResult.get(0).gitlabProject).isIn("project-1", "project-2", "project-5")
-        assertThat(returnedResult.get(1).id).isIn(id1, id2, id5)
-        assertThat(returnedResult.get(1).gitlabProject).isIn("project-1", "project-2", "project-5")
-        assertThat(returnedResult.get(2).id).isIn(id1, id2, id5)
-        assertThat(returnedResult.get(2).gitlabProject).isIn("project-1", "project-2", "project-5")
+        assertThat(setOfIds).containsExactlyInAnyOrder(project1.id)
+        assertThat(returnedResult.get(0).id).isIn(project1.id)
+        assertThat(returnedResult.get(0).gitlabProject).isIn(project1.slug) //FIXME: Why is slug? Is it correct?
     }
 
     @Transactional
     @Rollback
     @Test fun `Can retrieve specific own DataProject by namespace and slug`() {
-        val id1 = randomUUID()
-        val project1 = DataProject(id1, "slug-1", "www.url.com", "Test Project 1", subject.id, "mlreef", "project-1", "mlreef/project-1", 1, VisibilityScope.PUBLIC, listOf())
-        val project2 = DataProject(randomUUID(), "slug-2", "www.url.net", "Test Project 2", subject.id, "mlreef", "project-2", "mlreef/project-2", 2, VisibilityScope.PUBLIC, listOf())
-        val project3 = DataProject(randomUUID(), "slug-3", "www.url.xyz", "Test Project 3", subject2.id, "mlreef", "project-3", "mlreef/project-3", 3, VisibilityScope.PUBLIC, listOf())
-        val project4 = DataProject(randomUUID(), "slug-1", "www.url.xyz", "Test Project 4", subject2.id, "mlreef", "project-4", "mlreef/project-4", 4, VisibilityScope.PUBLIC, listOf())
-        dataProjectRepository.save(project1)
-        dataProjectRepository.save(project2)
-        dataProjectRepository.save(project3)
-        dataProjectRepository.save(project4)
+        val (account1, _, _) = gitlabHelper.createRealUser(index = -1)
+        val (account2, _, _) = gitlabHelper.createRealUser(index = -1)
 
-        accountSubjectPreparationTrait.mockGitlabProjectsWithLevel(
-            restClient,
-            listOf(project1.gitlabId, project2.gitlabId),
-            subject.gitlabId!!,
-            listOf(GroupAccessLevel.OWNER, GroupAccessLevel.OWNER))
-        accountSubjectPreparationTrait.mockGitlabProjectsWithLevel(restClient, project3.gitlabId, subject2.gitlabId!!, GroupAccessLevel.OWNER)
-        accountSubjectPreparationTrait.mockGitlabProjectsWithLevel(restClient, project4.gitlabId, subject2.gitlabId!!, GroupAccessLevel.OWNER)
+        val (project1, _) = gitlabHelper.createRealDataProject(account1)
+        val (project2, _) = gitlabHelper.createRealDataProject(account1)
+        val (project3, _) = gitlabHelper.createRealDataProject(account1)
+
+        addRealUserToProject(project1.gitlabId, account2.person.gitlabId!!)
+
+        val (project21, _) = gitlabHelper.createRealDataProject(account2, slug="slug-1", namespace = project1.gitlabGroup)
+        val (project22, _) = gitlabHelper.createRealDataProject(account2)
 
         val returnedResult: DataProjectDto = this.mockMvc.perform(
-            this.defaultAcceptContentAuth(RestDocumentationRequestBuilders.get("$rootUrl/mlreef/project-1")))
+            this.acceptContentAuth(RestDocumentationRequestBuilders.get("$rootUrl/${project1.gitlabGroup}/${project1.slug}"), account2))
             .andExpect(MockMvcResultMatchers.status().isOk)
             .andDo(MockMvcRestDocumentation.document(
                 "dataprojects-retrieve-one",
@@ -313,47 +271,39 @@ class DataProjectsApiTest : RestApiTest() {
                 objectMapper.readValue(it.response.contentAsByteArray, DataProjectDto::class.java)
             }
 
-        assertThat(returnedResult.id).isEqualTo(id1)
-        assertThat(returnedResult.gitlabProject).isEqualTo("project-1")
+        assertThat(returnedResult.id).isEqualTo(project1.id)
+        assertThat(returnedResult.gitlabProject).isEqualTo(project1.slug) //FIXME: Why is slug? Is it correct?
     }
 
     @Transactional
     @Rollback
     @Test fun `Cannot retrieve specific not own DataProject`() {
-        val id1 = randomUUID()
-        val project1 = DataProject(randomUUID(), "slug-1", "www.url.com", "Test Project 1", subject.id, "mlreef", "group1", "mlreef/project-1", 1, VisibilityScope.PUBLIC, listOf())
-        val project2 = DataProject(randomUUID(), "slug-2", "www.url.net", "Test Project 2", subject.id, "mlreef", "group2", "mlreef/project-2", 2, VisibilityScope.PUBLIC, listOf())
-        val project3 = DataProject(id1, "slug-3", "www.url.xyz", "Test Project 3", randomUUID(), "mlreef", "group3", "mlreef/project-3", 3, VisibilityScope.PUBLIC, listOf())
-        dataProjectRepository.save(project1)
-        dataProjectRepository.save(project2)
-        dataProjectRepository.save(project3)
+        val (account1, _, _) = gitlabHelper.createRealUser()
 
-        accountSubjectPreparationTrait.mockGitlabProjectsWithLevel(
-            restClient,
-            listOf(project1.gitlabId, project2.gitlabId),
-            subject.gitlabId!!,
-            listOf(GroupAccessLevel.OWNER, GroupAccessLevel.OWNER, GroupAccessLevel.OWNER))
-
-        accountSubjectPreparationTrait.mockGitlabProjectsWithLevel(restClient, project3.gitlabId, 999L, GroupAccessLevel.OWNER)
+        val (account2, _, _) = gitlabHelper.createRealUser(index = -1)
+        val (project21, _) = gitlabHelper.createRealDataProject(account2)
+        val (project22, _) = gitlabHelper.createRealDataProject(account2)
 
         this.mockMvc.perform(
-            this.defaultAcceptContentAuth(RestDocumentationRequestBuilders.get("$rootUrl/$id1")))
+            this.acceptContentAuth(RestDocumentationRequestBuilders.get("$rootUrl/${project21.id}"), account1))
             .andExpect(MockMvcResultMatchers.status().isForbidden)
     }
 
     @Transactional
     @Rollback
     @Test fun `Can update own DataProject`() {
-        val id1 = randomUUID()
-        val project1 = DataProject(id1, "slug-1", "www.url.com", "Test Project 1", subject.id, "mlreef", "project-1", "mlreef/project-1", 1, VisibilityScope.PUBLIC, listOf())
-        dataProjectRepository.save(project1)
+        val (account1, _, _) = gitlabHelper.createRealUser(index = -1)
+        val (project1, _) = gitlabHelper.createRealDataProject(account1)
 
-        accountSubjectPreparationTrait.mockGitlabProjectsWithLevel(restClient, project1.gitlabId, subject.gitlabId!!, GroupAccessLevel.OWNER)
+        val newProjectName = "New Test project"
+        val newDescription = "new description"
 
-        val request = DataProjectUpdateRequest("New Test project", "description")
+        assertThat(newProjectName).isNotEqualTo(project1.gitlabProject)
+
+        val request = DataProjectUpdateRequest(newProjectName, newDescription)
 
         val returnedResult = this.mockMvc.perform(
-            this.defaultAcceptContentAuth(RestDocumentationRequestBuilders.put("$rootUrl/$id1"))
+            this.acceptContentAuth(RestDocumentationRequestBuilders.put("$rootUrl/${project1.id}"), account1)
                 .content(objectMapper.writeValueAsString(request)))
             .andExpect(MockMvcResultMatchers.status().isOk)
             .andDo(MockMvcRestDocumentation.document(
@@ -364,58 +314,153 @@ class DataProjectsApiTest : RestApiTest() {
                 objectMapper.readValue(it.response.contentAsByteArray, DataProjectDto::class.java)
             }
 
-        assertThat(returnedResult.gitlabProject).isEqualTo("New Test project")
+        assertThat(returnedResult.gitlabProject).isEqualTo(newProjectName)
     }
 
     @Transactional
     @Rollback
     @Test fun `Cannot update not-own DataProject`() {
-        val id1 = randomUUID()
-        val project1 = DataProject(id1, "slug-1", "www.url.com", "Test Project 1", subject.id, "mlreef", "group1", "mlreef/project-1", 1, VisibilityScope.PUBLIC, listOf())
-        dataProjectRepository.save(project1)
+        val (account1, _, _) = gitlabHelper.createRealUser()
 
-        val request = DataProjectCreateRequest("test-project", "mlreef", "New Test project", "description", true, VisibilityScope.PUBLIC)
+        val (account2, _, _) = gitlabHelper.createRealUser(index = -1)
+        val (project21, _) = gitlabHelper.createRealDataProject(account2)
+        val (project22, _) = gitlabHelper.createRealDataProject(account2)
+
+        val newProjectName = "New Test project"
+        val newDescription = "new description"
+
+        val request = DataProjectUpdateRequest(newProjectName, newDescription)
 
         this.mockMvc.perform(
-            this.defaultAcceptContentAuth(RestDocumentationRequestBuilders.put("$rootUrl/$id1"))
+            this.acceptContentAuth(RestDocumentationRequestBuilders.put("$rootUrl/${project21.id}"), account1)
                 .content(objectMapper.writeValueAsString(request)))
-            .andExpect(MockMvcResultMatchers.status().isBadRequest)
+            .andExpect(MockMvcResultMatchers.status().is4xxClientError)
     }
 
     @Transactional
     @Rollback
     @Test fun `Can delete own DataProject`() {
-        val id1 = randomUUID()
-        val project1 = DataProject(id1, "slug-1", "www.url.com", "Test Project 1", subject.id, "mlreef", "group1", "mlreef/project-1", 1, VisibilityScope.PUBLIC, listOf())
-        dataProjectRepository.save(project1)
+        val (account, _, _) = gitlabHelper.createRealUser()
+        val (project, _) = gitlabHelper.createRealDataProject(account)
 
-        accountSubjectPreparationTrait.mockGitlabProjectsWithLevel(restClient, project1.gitlabId, subject.gitlabId!!, GroupAccessLevel.OWNER)
+        assertThat(dataProjectRepository.findByIdOrNull(project.id)).isNotNull()
 
-        assertThat(dataProjectRepository.findByIdOrNull(id1)).isNotNull()
         this.mockMvc.perform(
-            this.defaultAcceptContentAuth(RestDocumentationRequestBuilders.delete("$rootUrl/$id1")))
+            this.acceptContentAuth(RestDocumentationRequestBuilders.delete("$rootUrl/${project.id}"), account))
             .andExpect(MockMvcResultMatchers.status().isNoContent)
             .andDo(MockMvcRestDocumentation.document(
                 "dataprojects-delete"))
 
-        assertThat(dataProjectRepository.findByIdOrNull(id1)).isNull()
+        assertThat(dataProjectRepository.findByIdOrNull(project.id)).isNull()
     }
 
     @Transactional
     @Rollback
     @Test fun `Cannot delete not-own DataProject`() {
-        val id1 = randomUUID()
-        val project1 = DataProject(id1, "slug-1", "www.url.com", "Test Project 1", randomUUID(), "mlreef", "group1", "mlreef/project-1", 1, VisibilityScope.PUBLIC, listOf())
-        dataProjectRepository.save(project1)
+        val (account1, _, _) = gitlabHelper.createRealUser()
 
-        accountSubjectPreparationTrait.mockGitlabProjectsWithLevel(restClient, project1.gitlabId, 456L, GroupAccessLevel.OWNER)
-        accountSubjectPreparationTrait.mockGitlabProjectsWithLevel(restClient, project1.gitlabId, subject.gitlabId!!, GroupAccessLevel.MAINTAINER)
+        val (account2, _, _) = gitlabHelper.createRealUser(index = -1)
+        val (project21, _) = gitlabHelper.createRealDataProject(account2)
+        val (project22, _) = gitlabHelper.createRealDataProject(account2)
 
-        assertThat(dataProjectRepository.findByIdOrNull(id1)).isNotNull()
+        addRealUserToProject(project21.gitlabId, account1.person.gitlabId!!)
+
+        assertThat(dataProjectRepository.findByIdOrNull(project21.id)).isNotNull()
+
         this.mockMvc.perform(
-            this.defaultAcceptContentAuth(RestDocumentationRequestBuilders.delete("$rootUrl/$id1")))
+            this.acceptContentAuth(RestDocumentationRequestBuilders.delete("$rootUrl/${project21.id}"), account1))
             .andExpect(MockMvcResultMatchers.status().isForbidden)
+
+        assertThat(dataProjectRepository.findByIdOrNull(project21.id)).isNotNull()
     }
+
+    @Transactional
+    @Rollback
+    @Test
+    fun `Owner can get users list in project`() {
+        val (account1, _, _) = gitlabHelper.createRealUser()
+        val (account2, _, _) = gitlabHelper.createRealUser(index = 1)
+        val (account3, _, _) = gitlabHelper.createRealUser(index = 2)
+
+        val (project21, _) = gitlabHelper.createRealDataProject(account2)
+        val (project22, _) = gitlabHelper.createRealDataProject(account2)
+        val (project23, _) = gitlabHelper.createRealDataProject(account2)
+
+        addRealUserToProject(project21.gitlabId, account1.person.gitlabId!!)
+        addRealUserToProject(project23.gitlabId, account3.person.gitlabId!!)
+
+        val returnedResult1: List<UserInProjectDto> = this.mockMvc.perform(
+            this.acceptContentAuth(RestDocumentationRequestBuilders.get("$rootUrl/${project21.id}/users"), account2))
+            .andExpect(MockMvcResultMatchers.status().isOk)
+            .andDo(MockMvcRestDocumentation.document(
+                "users-in-codeproject-retrieve-all",
+                responseFields(usersInDataProjectResponseFields("[]."))))
+            .andReturn().let {
+                val constructCollectionType = objectMapper.typeFactory.constructCollectionType(List::class.java, UserInProjectDto::class.java)
+                objectMapper.readValue(it.response.contentAsByteArray, constructCollectionType)
+            }
+
+        assertThat(returnedResult1.size).isEqualTo(2)
+    }
+
+    @Transactional
+    @Rollback
+    @Test
+    fun `Developer can get users list in project`() {
+        val (account1, _, _) = gitlabHelper.createRealUser(index = -1)
+        val (account2, _, _) = gitlabHelper.createRealUser(index = -1)
+        val (account3, _, _) = gitlabHelper.createRealUser(index = -1)
+
+        val (project21, _) = gitlabHelper.createRealDataProject(account2)
+        val (project22, _) = gitlabHelper.createRealDataProject(account2)
+        val (project23, _) = gitlabHelper.createRealDataProject(account2)
+
+        addRealUserToProject(project21.gitlabId, account1.person.gitlabId!!, GroupAccessLevel.DEVELOPER)
+        addRealUserToProject(project21.gitlabId, account3.person.gitlabId!!, GroupAccessLevel.GUEST)
+
+        val returnedResult1: List<UserInProjectDto> = this.mockMvc.perform(
+            this.acceptContentAuth(RestDocumentationRequestBuilders.get("$rootUrl/${project21.id}/users"), account1))
+            .andExpect(MockMvcResultMatchers.status().isOk)
+            .andDo(MockMvcRestDocumentation.document(
+                "users-in-codeproject-retrieve-all",
+                responseFields(usersInDataProjectResponseFields("[]."))))
+            .andReturn().let {
+                val constructCollectionType = objectMapper.typeFactory.constructCollectionType(List::class.java, UserInProjectDto::class.java)
+                objectMapper.readValue(it.response.contentAsByteArray, constructCollectionType)
+            }
+
+        assertThat(returnedResult1.size).isEqualTo(3)
+    }
+
+    @Transactional
+    @Rollback
+    @Test
+    fun `Guest cannot get users list in project`() {
+        val (account1, _, _) = gitlabHelper.createRealUser(index = -1)
+        val (account2, _, _) = gitlabHelper.createRealUser(index = -1)
+        val (account3, _, _) = gitlabHelper.createRealUser(index = -1)
+
+        val (project21, _) = gitlabHelper.createRealDataProject(account2)
+        val (project22, _) = gitlabHelper.createRealDataProject(account2)
+        val (project23, _) = gitlabHelper.createRealDataProject(account2)
+
+        addRealUserToProject(project21.gitlabId, account1.person.gitlabId!!, GroupAccessLevel.DEVELOPER)
+        addRealUserToProject(project21.gitlabId, account3.person.gitlabId!!, GroupAccessLevel.GUEST)
+
+        val returnedResult: Boolean = this.mockMvc.perform(
+            this.acceptContentAuth(RestDocumentationRequestBuilders.get("$rootUrl/${project21.id}/users/check"), account1))
+            .andExpect(MockMvcResultMatchers.status().isOk)
+            .andReturn().let {
+                objectMapper.readValue(it.response.contentAsByteArray, Boolean::class.java)
+            }
+
+        assertThat(returnedResult).isTrue()
+
+        this.mockMvc.perform(
+            this.acceptContentAuth(RestDocumentationRequestBuilders.get("$rootUrl/${project21.id}/users"), account3))
+            .andExpect(MockMvcResultMatchers.status().is4xxClientError)
+    }
+
 
 
     private fun dataProjectResponseFields(prefix: String = ""): List<FieldDescriptor> {
@@ -446,6 +491,15 @@ class DataProjectsApiTest : RestApiTest() {
         return listOf(
             fieldWithPath("description").type(JsonFieldType.STRING).description("Description of Project"),
             fieldWithPath("name").type(JsonFieldType.STRING).description("Name of Project")
+        )
+    }
+
+    fun usersInDataProjectResponseFields(prefix: String = ""): List<FieldDescriptor> {
+        return listOf(
+            fieldWithPath(prefix + "id").type(JsonFieldType.STRING).description("Data project id"),
+            fieldWithPath(prefix + "user_name").type(JsonFieldType.STRING).description("User name"),
+            fieldWithPath(prefix + "email").type(JsonFieldType.STRING).description("User's email"),
+            fieldWithPath(prefix + "gitlab_id").type(JsonFieldType.NUMBER).description("Id in gitlab")
         )
     }
 }

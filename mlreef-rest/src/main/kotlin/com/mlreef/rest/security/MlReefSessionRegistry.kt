@@ -10,7 +10,6 @@ import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.session.FindByIndexNameSessionRepository
 import org.springframework.session.Session
 import org.springframework.session.data.redis.MlReefSessionsRepository.Companion.USERNAME_INDEX_NAME
-import org.springframework.session.data.redis.RedisOperationsSessionRepository
 import org.springframework.stereotype.Component
 import java.security.Principal
 
@@ -113,13 +112,6 @@ class MlReefSessionRegistry(
     override fun getSessionInformation(sessionId: String?): SessionInformation? {
         val session: Session = sessionRepository.findById(sessionId)
         return MlReefSessionInformation(session, sessionRepository)
-    }
-
-    private fun getSessionsIds(): List<String> {
-        //NOT READY AND IT'S UNKNOWN WHETHER IT IS NEED OR NOT
-        val redisRepository = sessionRepository as? RedisOperationsSessionRepository
-        val sessions = redisRepository?.sessionRedisOperations?.keys("$REDIS_SESSION_PREFIX*")
-        return listOf()
     }
 
     fun name(principal: Any?): String? {

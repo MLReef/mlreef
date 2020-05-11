@@ -1,30 +1,27 @@
 package com.mlreef.rest.api
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.mlreef.rest.Account
 import com.mlreef.rest.AccountRepository
 import com.mlreef.rest.AccountTokenRepository
 import com.mlreef.rest.ApplicationProfiles
 import com.mlreef.rest.PersonRepository
 import com.mlreef.rest.external_api.gitlab.GitlabRestClient
-import com.mlreef.rest.external_api.gitlab.dto.Branch
-import com.mlreef.rest.external_api.gitlab.dto.Commit
-import com.mlreef.rest.external_api.gitlab.dto.GitlabGroup
-import com.mlreef.rest.external_api.gitlab.dto.GitlabProject
+import com.mlreef.rest.external_api.gitlab.GroupAccessLevel
 import com.mlreef.rest.external_api.gitlab.dto.GitlabUser
-import com.mlreef.rest.external_api.gitlab.dto.GitlabUserInGroup
-import com.mlreef.rest.external_api.gitlab.dto.GitlabUserToken
-import com.mlreef.rest.external_api.gitlab.dto.OAuthToken
 import com.mlreef.rest.feature.pipeline.PipelineService
+import com.mlreef.rest.testcommons.TestGitlabContainer
 import com.mlreef.rest.testcommons.TestPostgresContainer
 import com.mlreef.rest.testcommons.TestRedisContainer
-import com.ninjasquad.springmockk.MockkBean
-import io.mockk.every
+import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.extension.ExtendWith
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.jdbc.EmbeddedDatabaseConnection
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.boot.web.client.RestTemplateBuilder
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.restdocs.RestDocumentationContextProvider
@@ -38,8 +35,6 @@ import org.springframework.restdocs.payload.FieldDescriptor
 import org.springframework.restdocs.payload.JsonFieldType
 import org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath
 import org.springframework.restdocs.snippet.Snippet
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
-import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.ContextConfiguration
@@ -59,15 +54,35 @@ import java.util.regex.Pattern
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles(ApplicationProfiles.TEST)
 @AutoConfigureTestDatabase(connection = EmbeddedDatabaseConnection.H2)
-@ContextConfiguration(initializers = [TestRedisContainer.Initializer::class, TestPostgresContainer.Initializer::class])
+@ContextConfiguration(initializers = [TestRedisContainer.Initializer::class, TestPostgresContainer.Initializer::class, TestGitlabContainer.Initializer::class])
 abstract class RestApiTest {
 
     lateinit var mockMvc: MockMvc
 
     companion object {
-        const val testPrivateUserTokenMock: String = "doesnotmatterat-all123"
+        private val log = LoggerFactory.getLogger(RestApiTest::class.java)
+
+        const val testPrivateUserTokenMock1: String = "doesnotmatterat-all-11111"
+        const val testPrivateUserTokenMock2: String = "doesnotmatterat-all-22222"
+        const val testPrivateAdminTokenMock: String = "doesnotmatterat-all-admin"
+        const val mockUserName1: String = "mockusername1"
+        const val mockUserName2: String = "mockusername2"
+        const val mockGroupName1: String = "mockgroupname1"
+        const val mockGroupName2: String = "mockgroupname2"
         const val HEADER_PRIVATE_TOKEN = "PRIVATE-TOKEN"
         const val EPF_HEADER = "EPF-BOT-USER"
+
+        lateinit var mockedGitlabUser1: GitlabUser
+        lateinit var mockedGitlabUser2: GitlabUser
+
+        @AfterAll
+        @JvmStatic
+        fun tearDownGlobal() {
+            val usersNamesLine = GitlabHelper.allCreatedUsersNames.joinToString(separator = System.lineSeparator(), prefix = "${System.lineSeparator()}USERS:${System.lineSeparator()}")
+            val projectsNamesLine = GitlabHelper.allCreatedProjectsNames.joinToString(separator = System.lineSeparator(), prefix = "${System.lineSeparator()}PROJECTS:${System.lineSeparator()}")
+            log.info(usersNamesLine)
+            log.info(projectsNamesLine)
+        }
     }
 
     @Autowired protected lateinit var objectMapper: ObjectMapper
@@ -78,20 +93,18 @@ abstract class RestApiTest {
 
     @Autowired protected lateinit var pipelineService: PipelineService
 
-    @MockkBean(relaxed = true, relaxUnitFun = true)
+    @Autowired
     protected lateinit var restClient: GitlabRestClient
 
-    @MockkBean(relaxed = true, relaxUnitFun = true)
-    protected lateinit var currentUserService: CurrentUserService
-
-    private val passwordEncoder: PasswordEncoder = BCryptPasswordEncoder()
+    @Autowired
+    private lateinit var builder: RestTemplateBuilder
 
     @BeforeEach
     fun setUp(
         webApplicationContext: WebApplicationContext,
         restDocumentation: RestDocumentationContextProvider
     ) {
-        val censoredSecretHash = testPrivateUserTokenMock.substring(0, 5) + "**********"
+        val censoredSecretHash = testPrivateUserTokenMock1.substring(0, 5) + "**********"
         this.mockMvc = MockMvcBuilders
             .webAppContextSetup(webApplicationContext)
             .apply<DefaultMockMvcBuilder>(springSecurity())
@@ -100,135 +113,28 @@ abstract class RestApiTest {
                 .withRequestDefaults(
                     removeHeaders(HEADER_PRIVATE_TOKEN),
                     Preprocessors.prettyPrint(),
-                    Preprocessors.replacePattern(Pattern.compile(testPrivateUserTokenMock), censoredSecretHash))
+                    Preprocessors.replacePattern(Pattern.compile(testPrivateUserTokenMock1), censoredSecretHash))
                 .withResponseDefaults(
                     Preprocessors.prettyPrint(),
-                    Preprocessors.replacePattern(Pattern.compile(testPrivateUserTokenMock), censoredSecretHash))
+                    Preprocessors.replacePattern(Pattern.compile(testPrivateUserTokenMock1), censoredSecretHash))
             )
             .build()
-
-
-        every { restClient.userLoginOAuthToGitlab(any(), any()) } returns
-            OAuthToken(
-                "accesstoken12345",
-                "refreshtoken1234567",
-                "bearer",
-                "api",
-                1585910424)
-
-        val gitlabUser = GitlabUser(
-            id = 1,
-            name = "Mock Gitlab User",
-            username = "mock_user",
-            email = "mock@example.com",
-            state = "active"
-        )
-
-        every { restClient.getUser(any()) } returns
-            GitlabUser(
-                id = 1,
-                name = "Mock Gitlab User",
-                username = "mock_user",
-                email = "mock@example.com",
-                state = "active"
-            )
-
-
-        every {
-            restClient.adminCreateUser(
-                any(), any(), any(), any()
-            )
-        } returns
-            gitlabUser
-
-
-        every {
-            restClient.adminCreateUserToken(any(), any())
-        } returns
-            GitlabUserToken(
-                id = 1,
-                revoked = false,
-                token = testPrivateUserTokenMock,
-                active = true,
-                name = "mlreef-token"
-            )
-
-        every {
-            restClient.adminCreateGroup(any(), any())
-        } returns
-            GitlabGroup(
-                id = 1,
-                webUrl = "http://127.0.0.1/",
-                name = "Mock Gitlab Group",
-                path = "mock-group"
-            )
-
-
-        every {
-            restClient.adminAddUserToGroup(any(), any(), any())
-        } returns
-            GitlabUserInGroup(
-                id = 1,
-                webUrl = "http://127.0.0.1/",
-                name = "Mock Gitlab Group",
-                username = "mock-group"
-            )
-
-        every {
-            restClient.createProject(any(), any(), any(), any(), any(), any(), any(), any(), any(), any())
-        } returns
-            GitlabProject(
-                id = 1,
-                name = "Mock Gitlab Project",
-                nameWithNamespace = "mlreef / Mock Gitlab Project",
-                path = "test-path",
-                pathWithNamespace = "mlreef/test-path",
-                owner = gitlabUser,
-                creatorId = 1L,
-                webUrl = "http://127.0.0.1/"
-            )
-
-
-        every {
-            restClient.deleteProject(any(), any())
-        } returns Unit
-
-
-        every {
-            restClient.userCreateGroup(any(), any(), any())
-        } returns GitlabGroup(
-            id = 1,
-            webUrl = "www.url.com",
-            name = "test-group",
-            path = "test-path"
-        )
-        every { restClient.userGetUserGroups(any()) } returns emptyList()
-        every { restClient.createBranch(any(), any(), any(), any()) } returns Branch("branch")
-        every { restClient.commitFiles(any(), any(), any(), any(), any(), any()) } returns Commit("branch")
-
-
-        every {
-            currentUserService.person()
-        } answers { personRepository.findAll().first() }
-
-        every {
-            currentUserService.account()
-        } answers { accountRepository.findAll().first() }
-
-        every {
-            currentUserService.permanentToken()
-        } answers { testPrivateUserTokenMock }
     }
 
-    protected fun defaultAcceptContentAuth(requestBuilder: MockHttpServletRequestBuilder): MockHttpServletRequestBuilder {
+    protected fun addRealUserToProject(projectId: Long, userId: Long, accessLevel: GroupAccessLevel? = null) {
+        restClient.adminAddUserToProject(projectId = projectId, userId = userId, accessLevel = accessLevel ?: GroupAccessLevel.DEVELOPER)
+    }
+
+    protected fun acceptContentAuth(requestBuilder: MockHttpServletRequestBuilder, account: Account? = null, token: String? = null): MockHttpServletRequestBuilder {
+        val finalToken = token ?: account?.bestToken?.token ?: throw RuntimeException("No valid token to execute Gitlab request")
         return requestBuilder
             .accept(MediaType.APPLICATION_JSON)
-            .header(HEADER_PRIVATE_TOKEN, testPrivateUserTokenMock)
+            .header(HEADER_PRIVATE_TOKEN, finalToken)
             .contentType(MediaType.APPLICATION_JSON)
     }
 
-    protected fun performGet(url: String) =
-        this.mockMvc.perform(this.defaultAcceptContentAuth(RestDocumentationRequestBuilders.get(url)))
+    protected fun performGet(url: String, account: Account) =
+        this.mockMvc.perform(this.acceptContentAuth(RestDocumentationRequestBuilders.get(url), account))
 
 
     protected fun defaultAcceptContentEPFBot(token: String, requestBuilder: MockHttpServletRequestBuilder): MockHttpServletRequestBuilder {

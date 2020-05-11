@@ -5,6 +5,8 @@ logging:
     org.springframework.security: INFO
     org.springframework.orm: INFO
     org.hibernate: INFO
+  pattern:
+    console: '%d{yyyy-MM-dd HH:mm:ss.SSS} %highlight(%-5level) %boldGreen([%thread]) %cyan(%logger{15}.%M [%line]) - %msg%n%throwable'
 
 spring:
   devtools:

@@ -1,10 +1,13 @@
 package com.mlreef.rest.external_api.gitlab.dto
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+import com.mlreef.rest.api.v1.dto.SecretUserDto
+import com.mlreef.rest.api.v1.dto.UserDto
 import com.mlreef.rest.external_api.gitlab.GitlabActivityState
 import com.mlreef.rest.external_api.gitlab.GroupAccessLevel
 import org.springframework.context.annotation.Scope
 import java.io.Serializable
+import java.util.UUID
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 @Scope("session")
@@ -31,3 +34,21 @@ fun GitlabUserInProject.toGitlabUser(): GitlabUser {
 fun GitlabUser.toGitlabUserInProject(accessLevel: GroupAccessLevel): GitlabUserInProject {
     return GitlabUserInProject(this.id, this.weburlUrl, this.name, this.username, GitlabActivityState.ACTIVE, this.avatarUrl, accessLevel)
 }
+
+fun GitlabUser.toSecretUserDto(id: UUID, token: String? = null, accessToken: String? = null, refreshToken: String? = null) = SecretUserDto(
+    id,
+    this.username,
+    this.email,
+    this.id,
+    token,
+    accessToken,
+    refreshToken
+)
+
+fun GitlabUser.toUserDto(id: UUID) = UserDto(
+    id,
+    this.username,
+    this.email,
+    this.id
+)
+

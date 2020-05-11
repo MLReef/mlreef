@@ -38,12 +38,20 @@ class MlReefSecurityExpressionRoot(authentication: Authentication)
         return if (id != null) isCurrentUserInGroup(id) else false
     }
 
-    fun isUserInGroup(groupId: UUID, userId: UUID): Boolean {
+    fun isUserInGroup(groupId: UUID): Boolean {
         return ((this.principal as? TokenDetails)?.groups?.containsKey(groupId) ?: false)
     }
 
-    fun isUserItself(userId: UUID): Boolean {
-        return ((this.principal as? TokenDetails)?.accountId == userId)
+    fun isUserItself(userId: UUID?): Boolean {
+        return if (userId!=null) ((this.principal as? TokenDetails)?.accountId == userId) else false
+    }
+
+    fun isUserItself(userGitlabId: Long?): Boolean {
+        return if (userGitlabId!=null) (this.principal as? TokenDetails)?.gitlabUser?.id == userGitlabId else false
+    }
+
+    fun isUserItself(userName: String?): Boolean {
+        return if (userName!=null) (this.principal as? TokenDetails)?.username == userName else false
     }
 
     fun isProjectOwner(projectId: UUID): Boolean {

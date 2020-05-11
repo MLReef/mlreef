@@ -152,7 +152,7 @@ class MarketplaceService(
         )
     }
 
-    fun findEntriesForProjects(projectsMap: Map<UUID, AccessLevel?>): MutableList<MarketplaceEntry> {
+    fun findEntriesForProjects(projectsMap: Map<UUID, AccessLevel?>): List<MarketplaceEntry> {
         val ids: List<UUID> = projectsMap.filterValues { AccessLevel.isSufficientFor(it, AccessLevel.GUEST) }.map { it.key }.toList()
 
         val findAllByVisibilityScope = marketplaceEntryRepository.findAllByVisibilityScope(VisibilityScope.PUBLIC)
@@ -162,10 +162,9 @@ class MarketplaceService(
         log.info("Found data projects: ${accessibleDataProjects.size}")
         log.info("Found processors: ${accessibleProcessor.size}")
 
-        val grouped = findAllByVisibilityScope.toMutableList().apply {
+        return findAllByVisibilityScope.toMutableSet().apply {
             addAll(accessibleDataProjects)
-        }
-        return grouped
+        }.toList()
     }
 
     fun findEntriesForProjectsBySlug(projectsMap: Map<UUID, AccessLevel?>, slug: String): MarketplaceEntry {
