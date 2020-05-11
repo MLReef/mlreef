@@ -1,11 +1,11 @@
 package com.mlreef.rest.api.v1
 
-import com.mlreef.rest.DataProject
+import com.mlreef.rest.Account
 import com.mlreef.rest.DataProjectRepository
 import com.mlreef.rest.Experiment
 import com.mlreef.rest.ExperimentRepository
 import com.mlreef.rest.ExperimentStatus
-import com.mlreef.rest.api.CurrentUserService
+import com.mlreef.rest.Person
 import com.mlreef.rest.api.v1.dto.DataProcessorInstanceDto
 import com.mlreef.rest.api.v1.dto.ExperimentDto
 import com.mlreef.rest.api.v1.dto.PipelineJobInfoDto
@@ -13,10 +13,15 @@ import com.mlreef.rest.api.v1.dto.toDto
 import com.mlreef.rest.exceptions.ConflictException
 import com.mlreef.rest.exceptions.ErrorCode
 import com.mlreef.rest.exceptions.NotFoundException
+import com.mlreef.rest.exceptions.ProjectNotFoundException
+import com.mlreef.rest.exceptions.UnknownProjectException
+import com.mlreef.rest.external_api.gitlab.TokenDetails
 import com.mlreef.rest.feature.experiment.ExperimentService
 import com.mlreef.rest.feature.pipeline.PipelineService
+import com.mlreef.rest.feature.project.DataProjectService
 import com.mlreef.utils.Slugs
 import org.springframework.data.repository.findByIdOrNull
+import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
@@ -32,87 +37,80 @@ import javax.validation.constraints.NotEmpty
 @RequestMapping("/api/v1/data-projects/{dataProjectId}/experiments")
 class ExperimentsController(
     val service: ExperimentService,
+    val dataProjectService: DataProjectService,
     val pipelineService: PipelineService,
-    val currentUserService: CurrentUserService,
     val dataProjectRepository: DataProjectRepository,
     val experimentRepository: ExperimentRepository
 ) {
     private val log: Logger = Logger.getLogger(ExperimentsController::class.simpleName)
-    private val dataProjectNotFound = "dataProject was not found"
-
-    private fun beforeGetDataProject(dataProjectId: UUID): DataProject {
-        val dataProject = (dataProjectRepository.findByIdOrNull(dataProjectId)
-            ?: throw NotFoundException(dataProjectNotFound))
-
-        val id = currentUserService.person().id
-        if (dataProject.ownerId != id) {
-            log.warning("User $id requested an DataProject of ${dataProject.ownerId}")
-            throw NotFoundException(dataProjectNotFound)
-        }
-        return dataProject
-    }
 
     private fun beforeGetExperiment(experimentId: UUID): Experiment {
         return experimentRepository.findByIdOrNull(experimentId)
-            ?: throw NotFoundException(dataProjectNotFound)
+            ?: throw UnknownProjectException("Experiment with id $experimentId not found")
     }
 
     @GetMapping
+    @PreAuthorize("isProjectOwner(#dataProjectId)")
     fun getAllExperiments(@PathVariable dataProjectId: UUID): List<ExperimentDto> {
-        beforeGetDataProject(dataProjectId)
         val experiments: List<Experiment> = experimentRepository.findAllByDataProjectId(dataProjectId).toList()
         return experiments.map(Experiment::toDto)
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("isProjectOwner(#dataProjectId)")
     fun getExperiment(@PathVariable dataProjectId: UUID, @PathVariable id: UUID): ExperimentDto {
-        beforeGetDataProject(dataProjectId)
         val findOneByDataProjectIdAndId = experimentRepository.findOneByDataProjectIdAndId(dataProjectId, id)
             ?: throw NotFoundException("Experiment not found")
         return findOneByDataProjectIdAndId.toDto()
     }
 
     @GetMapping("/{id}/metrics")
+    @PreAuthorize("isProjectOwner(#dataProjectId)")
     fun getExperimentMetrics(@PathVariable dataProjectId: UUID, @PathVariable id: UUID): PipelineJobInfoDto {
-        beforeGetDataProject(dataProjectId)
         val experiment = beforeGetExperiment(id)
         val pipelineJobInfo = experiment.pipelineJobInfo
         return pipelineJobInfo!!.toDto()
     }
 
     @GetMapping("/{id}/mlreef-file")
-    fun getExperimentYaml(@PathVariable dataProjectId: UUID, @PathVariable id: UUID): String {
-        beforeGetDataProject(dataProjectId)
+    @PreAuthorize("isProjectOwner(#dataProjectId)")
+    fun getExperimentYaml(@PathVariable dataProjectId: UUID, @PathVariable id: UUID, account: Account): String {
         val experiment = beforeGetExperiment(id)
 
-        val account = currentUserService.account()
         return service.createExperimentFile(experiment = experiment, author = account, secret = "deprecated")
     }
 
     @PostMapping("/{id}/start")
-    fun startExperiment(@PathVariable dataProjectId: UUID, @PathVariable id: UUID): PipelineJobInfoDto {
-        val dataProject = beforeGetDataProject(dataProjectId)
+    @PreAuthorize("isProjectOwner(#dataProjectId)")
+    fun startExperiment(@PathVariable dataProjectId: UUID,
+                        @PathVariable id: UUID,
+                        account: Account,
+                        userToken: TokenDetails): PipelineJobInfoDto {
+        val dataProject = dataProjectService.getProjectById(dataProjectId)
+            ?: throw ProjectNotFoundException(projectId = dataProjectId)
+
         val experiment = beforeGetExperiment(id)
 
         service.guardStatusChange(experiment, newStatus = ExperimentStatus.PENDING)
 
-        val account = currentUserService.account()
-        val userToken = currentUserService.permanentToken()
-
         val secret = pipelineService.createSecret()
-        val fileContent = service.createExperimentFile(experiment = experiment, author = account,secret = secret)
+        val fileContent = service.createExperimentFile(experiment = experiment, author = account, secret = secret)
 
-        val pipelineJobInfo = pipelineService.createStartGitlabPipeline(userToken = userToken, sourceBranch = experiment.sourceBranch,
-            targetBranch = experiment.targetBranch, projectId = dataProject.gitlabId, secret = secret,fileContent = fileContent)
+        val pipelineJobInfo = pipelineService.createStartGitlabPipeline(userToken = userToken.permanentToken, sourceBranch = experiment.sourceBranch,
+            targetBranch = experiment.targetBranch, projectId = dataProject.gitlabId, secret = secret, fileContent = fileContent)
 
         val experimentWithPipeline = service.savePipelineInfo(experiment, pipelineJobInfo)
         return experimentWithPipeline.pipelineJobInfo!!.toDto()
     }
 
     @PostMapping
-    fun createExperiment(@PathVariable dataProjectId: UUID, @Valid @RequestBody experimentCreateRequest: ExperimentCreateRequest): ExperimentDto {
-        val dataProject = beforeGetDataProject(dataProjectId)
-        val person = currentUserService.person()
+    @PreAuthorize("isProjectOwner(#dataProjectId)")
+    fun createExperiment(@PathVariable dataProjectId: UUID,
+                         @Valid @RequestBody experimentCreateRequest: ExperimentCreateRequest,
+                         person: Person): ExperimentDto {
+        val dataProject = dataProjectService.getProjectById(dataProjectId)
+            ?: throw ProjectNotFoundException(projectId = dataProjectId)
+
         log.info(experimentCreateRequest.toString())
 
         val slug = Slugs.toSlug(experimentCreateRequest.slug)

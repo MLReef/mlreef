@@ -1,17 +1,14 @@
 package com.mlreef.rest.api
 
-import com.mlreef.rest.Account
 import com.mlreef.rest.DataAlgorithm
 import com.mlreef.rest.DataOperation
 import com.mlreef.rest.DataProcessorInstance
 import com.mlreef.rest.DataProcessorInstanceRepository
-import com.mlreef.rest.DataProject
 import com.mlreef.rest.DataVisualization
 import com.mlreef.rest.Experiment
 import com.mlreef.rest.ExperimentRepository
 import com.mlreef.rest.I18N
 import com.mlreef.rest.ParameterType
-import com.mlreef.rest.Person
 import com.mlreef.rest.PipelineJobInfo
 import com.mlreef.rest.ProcessorParameter
 import com.mlreef.rest.ProcessorParameterRepository
@@ -19,11 +16,8 @@ import com.mlreef.rest.api.v1.ExperimentCreateRequest
 import com.mlreef.rest.api.v1.dto.DataProcessorInstanceDto
 import com.mlreef.rest.api.v1.dto.ExperimentDto
 import com.mlreef.rest.api.v1.dto.ParameterInstanceDto
-import com.mlreef.rest.external_api.gitlab.dto.Branch
-import com.mlreef.rest.external_api.gitlab.dto.Commit
 import com.mlreef.rest.external_api.gitlab.dto.GitlabPipeline
 import com.mlreef.rest.external_api.gitlab.dto.GitlabUser
-import io.mockk.MockKAnnotations
 import io.mockk.every
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
@@ -46,51 +40,38 @@ import javax.transaction.Transactional
 
 ///@RunWith(MockitoJUnitRunner::class)
 @Suppress("UsePropertyAccessSyntax") class ExperimentsApiTest : RestApiTest() {
-
-    private lateinit var account: Account
     private lateinit var dataOp1: DataOperation
     private lateinit var dataOp2: DataAlgorithm
     private lateinit var dataOp3: DataVisualization
-    private lateinit var subject: Person
-    private lateinit var dataProject: DataProject
-    private lateinit var dataProject2: DataProject
+
     val rootUrl = "/api/v1/data-projects"
     val epfUrl = "/api/v1/epf"
 
-    //    @Autowired private lateinit var subjectRepository: SubjectRepository
-//    @Autowired private lateinit var dataProjectRepository: DataProjectRepository
-//    @Autowired private lateinit var pipelineConfigRepository: PipelineConfigRepository
-//    @Autowired private lateinit var pipelineInstanceRepository: PipelineInstanceRepository
-//    @Autowired private lateinit var dataProcessorRepository: DataProcessorRepository
-//
     @Autowired private lateinit var experimentRepository: ExperimentRepository
     @Autowired private lateinit var dataProcessorInstanceRepository: DataProcessorInstanceRepository
     @Autowired private lateinit var processorParameterRepository: ProcessorParameterRepository
-//    @Autowired private lateinit var parameterInstanceRepository: ParameterInstanceRepository
 
     @Autowired private lateinit var pipelineTestPreparationTrait: PipelineTestPreparationTrait
+
+    @Autowired
+    private lateinit var gitlabHelper: GitlabHelper
 
     @BeforeEach
     @AfterEach
     @Transactional
     fun clearRepo() {
-//        MockitoAnnotations.initMocks(this)
-        MockKAnnotations.init(this, relaxUnitFun = true, relaxed = true)
         pipelineTestPreparationTrait.apply()
-        account = pipelineTestPreparationTrait.account
-        subject = pipelineTestPreparationTrait.subject
         dataOp1 = pipelineTestPreparationTrait.dataOp1
         dataOp2 = pipelineTestPreparationTrait.dataOp2
         dataOp3 = pipelineTestPreparationTrait.dataOp3
-        dataProject = pipelineTestPreparationTrait.dataProject
-        dataProject2 = pipelineTestPreparationTrait.dataProject2
-
-        mockGitlab("sourceBranch", "targetBranch")
     }
 
     @Transactional
     @Rollback
     @Test fun `Can create new Experiment`() {
+        val (account, _, _) = gitlabHelper.createRealUser()
+        val (project, _) = gitlabHelper.createRealDataProject(account)
+
         val request = ExperimentCreateRequest(
             slug = "experiment-slug",
             name = "Experiment Name",
@@ -106,9 +87,11 @@ import javax.transaction.Transactional
                     ParameterInstanceDto("tupleParam", type = ParameterType.TUPLE.name, value = "(\"asdf\", 1.0)"),
                     ParameterInstanceDto("hashParam", type = ParameterType.DICTIONARY.name, value = "{\"key\":\"value\"}")
                 ))))
-        val url = "$rootUrl/${dataProject.id}/experiments"
+
+        val url = "$rootUrl/${project.id}/experiments"
+
         val returnedResult: ExperimentDto = this.mockMvc.perform(
-            this.defaultAcceptContentAuth(post(url))
+            this.acceptContentAuth(post(url), account)
                 .content(objectMapper.writeValueAsString(request)))
             .andExpect(status().isOk)
             .andDo(document(
@@ -131,7 +114,11 @@ import javax.transaction.Transactional
     @Transactional
     @Rollback
     @Test fun `Can create second Experiment with different slug for same project`() {
-        createExperiment(dataProject.id, "first-experiment")
+        val (account, _, _) = gitlabHelper.createRealUser()
+        val (project, _) = gitlabHelper.createRealDataProject(account)
+
+        createExperiment(project.id, "first-experiment")
+
         val request = ExperimentCreateRequest(
             slug = "experiment-slug",
             name = "Experiment Name",
@@ -143,9 +130,11 @@ import javax.transaction.Transactional
                 ParameterInstanceDto("complexName", type = ParameterType.COMPLEX.name, value = "(1.0, 2.0)")
             ))
         )
-        val url = "$rootUrl/${dataProject.id}/experiments"
+
+        val url = "$rootUrl/${project.id}/experiments"
+
         val returnedResult: ExperimentDto = this.mockMvc.perform(
-            this.defaultAcceptContentAuth(post(url))
+            this.acceptContentAuth(post(url), account)
                 .content(objectMapper.writeValueAsString(request)))
             .andExpect(status().isOk)
             .andReturn().let {
@@ -158,7 +147,12 @@ import javax.transaction.Transactional
     @Transactional
     @Rollback
     @Test fun `Can create second Experiment with same slug for different project`() {
-        createExperiment(dataProject2.id, "experiment-slug")
+        val (account, _, _) = gitlabHelper.createRealUser()
+        val (project, _) = gitlabHelper.createRealDataProject(account)
+        val (project2, _) = gitlabHelper.createRealDataProject(account)
+
+        createExperiment(project.id, "experiment-slug")
+
         val request = ExperimentCreateRequest(
             slug = "experiment-slug",
             name = "Experiment Name",
@@ -170,9 +164,11 @@ import javax.transaction.Transactional
                 ParameterInstanceDto("complexName", type = ParameterType.COMPLEX.name, value = "(1.0, 2.0)")
             ))
         )
-        val url = "$rootUrl/${dataProject.id}/experiments"
+
+        val url = "$rootUrl/${project2.id}/experiments"
+
         val returnedResult: ExperimentDto = this.mockMvc.perform(
-            this.defaultAcceptContentAuth(post(url))
+            this.acceptContentAuth(post(url), account)
                 .content(objectMapper.writeValueAsString(request)))
             .andExpect(status().isOk)
             .andReturn().let {
@@ -185,8 +181,11 @@ import javax.transaction.Transactional
     @Transactional
     @Rollback
     @Test fun `Cannot create new Experiment with duplicate slug`() {
+        val (account, _, _) = gitlabHelper.createRealUser()
+        val (project, _) = gitlabHelper.createRealDataProject(account)
 
-        createExperiment(dataProject.id, "experiment-slug")
+        createExperiment(project.id, "experiment-slug")
+
         val request = ExperimentCreateRequest(
             slug = "experiment-slug",
             name = "Experiment Name",
@@ -198,9 +197,11 @@ import javax.transaction.Transactional
                 ParameterInstanceDto("complexName", type = ParameterType.COMPLEX.name, value = "(1.0, 2.0)")
             ))
         )
-        val url = "$rootUrl/${dataProject.id}/experiments"
+
+        val url = "$rootUrl/${project.id}/experiments"
+
         this.mockMvc.perform(
-            this.defaultAcceptContentAuth(post(url))
+            this.acceptContentAuth(post(url), account)
                 .content(objectMapper.writeValueAsString(request)))
             .andExpect(status().isBadRequest)
 
@@ -209,13 +210,16 @@ import javax.transaction.Transactional
     @Transactional
     @Rollback
     @Test fun `Can retrieve all own Experiments`() {
+        val (account, _, _) = gitlabHelper.createRealUser(index = -1)
+        val (project1, _) = gitlabHelper.createRealDataProject(account)
+        val (project2, _) = gitlabHelper.createRealDataProject(account)
 
-        createExperiment(dataProject.id, "experiment-1-slug")
-        createExperiment(dataProject.id, "experiment-2-slug")
-        createExperiment(dataProject2.id, "experiment-3-slug")
+        createExperiment(project1.id, "experiment-1-slug")
+        createExperiment(project1.id, "experiment-2-slug")
+        createExperiment(project2.id, "experiment-3-slug")
 
         val returnedResult: List<ExperimentDto> = this.mockMvc.perform(
-            this.defaultAcceptContentAuth(get("$rootUrl/${dataProject.id}/experiments")))
+            this.acceptContentAuth(get("$rootUrl/${project1.id}/experiments"), account))
             .andExpect(status().isOk)
             .andDo(document(
                 "experiments-retrieve-all",
@@ -234,9 +238,13 @@ import javax.transaction.Transactional
     @Transactional
     @Rollback
     @Test fun `Can retrieve specific own Experiment`() {
-        val experiment1 = createExperiment(dataProject.id)
+        val (account, _, _) = gitlabHelper.createRealUser()
+        val (project1, _) = gitlabHelper.createRealDataProject(account)
+
+        val experiment1 = createExperiment(project1.id)
+
         this.mockMvc.perform(
-            this.defaultAcceptContentAuth(get("$rootUrl/${dataProject.id}/experiments/${experiment1.id}")))
+            this.acceptContentAuth(get("$rootUrl/${project1.id}/experiments/${experiment1.id}"), account))
             .andExpect(status().isOk)
             .andDo(document(
                 "experiments-retrieve-one",
@@ -250,11 +258,15 @@ import javax.transaction.Transactional
     @Transactional
     @Rollback
     @Test fun `Cannot retrieve foreign Experiment`() {
-        val experiment1 = createExperiment(dataProject.id)
+        val (realAccount1, _, _) = gitlabHelper.createRealUser()
+        val (realAccount2, _, _) = gitlabHelper.createRealUser()
+        val (project1, _) = gitlabHelper.createRealDataProject(realAccount1)
+
+        val experiment1 = createExperiment(project1.id)
 
         this.mockMvc.perform(
-            this.defaultAcceptContentAuth(get("$rootUrl/${dataProject2.id}/experiments/${experiment1.id}")))
-            .andExpect(status().isNotFound)
+            this.acceptContentAuth(get("$rootUrl/${project1.id}/experiments/${experiment1.id}"), realAccount2))
+            .andExpect(status().isForbidden)
     }
 
 //    @Transactional
@@ -449,17 +461,14 @@ import javax.transaction.Transactional
 //            .andExpect(status().isBadRequest)
 //    }
 
-    private fun mockGitlab(sourceBranch: String, targetBranch: String) {
-
-        val commit = Commit(id = "12341234")
-        val branch = Branch(ref = sourceBranch, branch = targetBranch)
-        val gitlabPipeline = GitlabPipeline(
+    private fun createMockedPipeline(user: GitlabUser): GitlabPipeline {
+        val pipeline = GitlabPipeline(
             id = 32452345,
             coverage = "",
             sha = "sha",
             ref = "ref",
             beforeSha = "before_sha",
-            user = GitlabUser(id = 1000L),
+            user = user,
             status = "CREATED",
             committedAt = I18N.dateTime(),
             createdAt = I18N.dateTime(),
@@ -469,14 +478,10 @@ import javax.transaction.Transactional
         )
 
         every {
-            restClient.createBranch(any(), any(), any(), any())
-        } returns branch
-        every {
-            restClient.commitFiles(any(), any(), any(), any(), any(), any())
-        } returns commit
-        every {
             restClient.createPipeline(any(), any(), any(), any())
-        } returns gitlabPipeline
+        } returns pipeline
+
+        return pipeline
     }
 
     private fun createExperiment(dataProjectId: UUID, slug: String = "experiment-slug", dataInstanceId: UUID? = null): Experiment {

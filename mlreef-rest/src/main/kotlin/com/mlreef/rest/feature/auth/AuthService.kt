@@ -12,6 +12,7 @@ import com.mlreef.rest.exceptions.ConflictException
 import com.mlreef.rest.exceptions.ErrorCode
 import com.mlreef.rest.exceptions.GitlabConnectException
 import com.mlreef.rest.exceptions.GitlabNoValidTokenException
+import com.mlreef.rest.exceptions.IncorrectCredentialsException
 import com.mlreef.rest.exceptions.NotConsistentInternalDb
 import com.mlreef.rest.exceptions.RestException
 import com.mlreef.rest.exceptions.UserAlreadyExistsException
@@ -35,6 +36,7 @@ import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.web.client.ResourceAccessException
+import java.util.UUID
 import java.util.UUID.randomUUID
 import javax.security.auth.login.CredentialException
 import javax.transaction.Transactional
@@ -44,11 +46,14 @@ interface AuthService {
     fun createTokenDetails(token: String, account: Account, gitlabUser: GitlabUser): TokenDetails
     fun findAccountByToken(token: String): Account
     fun findAccountByGitlabId(gitlabId: Long): Account?
+    fun findAccountById(id: UUID): Account?
+    fun findAccountByUsername(username: String): Account?
     fun loginUser(plainPassword: String, username: String? = null, email: String? = null): Pair<Account, OAuthToken?>
     fun registerUser(plainPassword: String, username: String, email: String): Pair<Account, OAuthToken?>
     fun checkUserInGitlab(token: String): GitlabUser
     fun getBestToken(findAccount: Account?): AccountToken?
     fun findGitlabUserViaToken(token: String): GitlabUser
+    fun findGitlabUserViaGitlabId(id: Long): GitlabUser
 }
 
 @Service("authService")
@@ -82,10 +87,10 @@ class GitlabAuthService(
         }
 
         val account = found.getOrNull(0)
-            ?: throw BadCredentialsException("user not found")
+            ?: throw IncorrectCredentialsException("username or password is incorrect")
 
         val accountToken = getBestToken(account)
-            ?: throw BadCredentialsException("user token not found")
+            ?: throw GitlabNoValidTokenException("user token not found")
 
         // assert that user is found in gitlab
         findGitlabUserViaToken(accountToken.token)
@@ -171,6 +176,17 @@ class GitlabAuthService(
         }
     }
 
+    override fun findGitlabUserViaGitlabId(id: Long): GitlabUser {
+        return try {
+            gitlabRestClient.adminGetUserById(id)
+        } catch (e: ResourceAccessException) {
+            throw GitlabConnectException(e.message ?: "Cannot execute gitlabRestClient.getUser")
+        } catch (e: Exception) {
+            log.error(e.message, e)
+            throw UserNotFoundException(gitlabId = id)
+        }
+    }
+
     private fun createGitlabUser(username: String, email: String, password: String): GitlabUser {
         return try {
             val gitlabName = "mlreef-user-$username"
@@ -230,6 +246,14 @@ class GitlabAuthService(
 
     override fun findAccountByGitlabId(gitlabId: Long): Account? {
         return accountRepository.findAccountByGitlabId(gitlabId)
+    }
+
+    override fun findAccountById(id: UUID): Account? {
+        return accountRepository.findByIdOrNull(id)
+    }
+
+    override fun findAccountByUsername(username: String): Account? {
+        return accountRepository.findOneByUsername(username)
     }
 
     @Transactional

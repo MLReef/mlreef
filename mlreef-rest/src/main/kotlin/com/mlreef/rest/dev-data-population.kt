@@ -414,6 +414,7 @@ internal class DataPopulator(
             log.info("DataLoading: $message")
             val result = f.invoke()
             log.info("DataLoading: $message -> DONE")
+            log.info("Result: $result")
         } catch (e: Exception) {
             log.warn("DataLoading: $message -> FAIL (${e.message})")
         }

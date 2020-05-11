@@ -1,7 +1,6 @@
 package com.mlreef.rest.external_api.gitlab
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.mlreef.rest.ApplicationProfiles
 import com.mlreef.rest.config.censor
 import com.mlreef.rest.exceptions.ErrorCode
 import com.mlreef.rest.exceptions.GitlabAuthenticationFailedException
@@ -9,6 +8,7 @@ import com.mlreef.rest.exceptions.GitlabBadGatewayException
 import com.mlreef.rest.exceptions.GitlabBadRequestException
 import com.mlreef.rest.exceptions.GitlabCommonException
 import com.mlreef.rest.exceptions.GitlabConflictException
+import com.mlreef.rest.exceptions.GitlabConnectException
 import com.mlreef.rest.exceptions.GitlabNotFoundException
 import com.mlreef.rest.exceptions.RestException
 import com.mlreef.rest.external_api.gitlab.dto.Branch
@@ -29,7 +29,6 @@ import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.web.client.RestTemplateBuilder
-import org.springframework.context.annotation.Profile
 import org.springframework.core.ParameterizedTypeReference
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
@@ -37,22 +36,28 @@ import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Component
-import org.springframework.util.MultiValueMap
 import org.springframework.web.client.HttpClientErrorException
 import org.springframework.web.client.HttpServerErrorException
+import org.springframework.web.client.HttpStatusCodeException
 import org.springframework.web.client.ResourceAccessException
 import org.springframework.web.client.RestTemplate
+import java.util.concurrent.atomic.AtomicBoolean
+import java.util.concurrent.atomic.AtomicReference
 
 inline fun <reified T : Any> typeRef(): ParameterizedTypeReference<T> = object : ParameterizedTypeReference<T>() {}
 
 @Component
-@Profile(value = ["!" + ApplicationProfiles.TEST])
+//@Profile(value = ["!" + ApplicationProfiles.TEST])
 class GitlabRestClient(
     private val builder: RestTemplateBuilder,
     @Value("\${mlreef.gitlab.rootUrl}")
     val gitlabRootUrl: String,
-    @Value("\${mlreef.gitlab.adminUserToken}")
-    val gitlabAdminUserToken: String
+    @Value("\${mlreef.gitlab.adminUserToken:\"\"}")
+    val gitlabAdminUserToken: String,
+    @Value("\${mlreef.gitlab.adminUsername:\"\"}")
+    val adminUserName: String? = null,
+    @Value("\${mlreef.gitlab.adminPassword:\"\"}")
+    val adminPassword: String? = null
 ) {
     @Autowired
     private lateinit var objectMapper: ObjectMapper
@@ -63,7 +68,23 @@ class GitlabRestClient(
     @Suppress("LeakingThis")
     val gitlabOAuthUrl = "$gitlabRootUrl/oauth/"
 
-    val log = LoggerFactory.getLogger(GitlabRestClient::class.java)
+    val oAuthAdminToken: AtomicReference<Pair<Long, String>?> = AtomicReference(null)
+
+    private val isAdminTokenOAuth: AtomicBoolean = AtomicBoolean(false)
+
+    companion object {
+        val log = LoggerFactory.getLogger(GitlabRestClient::class.java)
+
+        private const val OAUTH_TOKEN_HEADER = "Authorization"
+        private const val PERMANENT_TOKEN_HEADER = "PRIVATE-TOKEN"
+        private const val OAUTH_TOKEN_VALUE_PREFIX = "Bearer "
+        private const val PERMANENT_TOKEN_VALUE_PREFIX = ""
+        private const val IS_ADMIN_INTERNAL_HEADER = "is-admin"
+
+        private const val REPEAT_REQUESTS_WHEN_GITLAB_UNAVAILABLE = 3
+        private const val PAUSE_BETWEEN_REPEAT_WHEN_GITLAB_UNAVAILABLE_MS = 1500L
+        private const val GITLAB_FAILED_LIMIT_REACHED_ERROR_MESSAGE = "limit_reached"
+    }
 
     fun restTemplate(builder: RestTemplateBuilder): RestTemplate = builder.build()
 
@@ -354,12 +375,24 @@ class GitlabRestClient(
     }
 
     // https://docs.gitlab.com/ee/api/projects.html#list-user-projects
-    fun adminGetUserProjects(userId: Long): List<GitlabProject> {
+    fun adminGetUserOwnProjects(userId: Long): List<GitlabProject> {
         return GitlabHttpEntity<String>("body", createAdminHeaders())
             .addErrorDescription(404, ErrorCode.GitlabUserNotExisting, "Cannot find user by tid. User does not exist")
             .addErrorDescription(ErrorCode.GitlabUserNotExisting, "Unable to get users projects")
             .makeRequest {
                 val url = "$gitlabServiceRootUrl/users/$userId/projects"
+                restTemplate(builder).exchange(url, HttpMethod.GET, it, typeRef<List<GitlabProject>>())
+            }
+            .also { logGitlabCall(it) }
+            .body!!
+    }
+
+    // https://docs.gitlab.com/ee/api/projects.html#list-all-projects
+    fun userGetUserAllProjects(token: String): List<GitlabProject> {
+        return GitlabHttpEntity<String>("body", createUserHeaders(token))
+            .addErrorDescription(ErrorCode.GitlabUserNotExisting, "Unable to get users projects")
+            .makeRequest {
+                val url = "$gitlabServiceRootUrl/projects?membership=true"
                 restTemplate(builder).exchange(url, HttpMethod.GET, it, typeRef<List<GitlabProject>>())
             }
             .also { logGitlabCall(it) }
@@ -385,6 +418,18 @@ class GitlabRestClient(
             .makeRequest {
                 val url = "$gitlabServiceRootUrl/users"
                 restTemplate(builder).exchange(url, HttpMethod.GET, it, typeRef<List<GitlabUser>>())
+            }
+            .also { logGitlabCall(it) }
+            .body!!
+    }
+
+    fun adminGetUserById(id: Long): GitlabUser {
+        return GitlabHttpEntity<String>("body", createAdminHeaders())
+            .addErrorDescription(404, ErrorCode.GitlabUserNotExisting, "Cannot find user by id as admin. User does not exist")
+            .addErrorDescription(ErrorCode.GitlabUserNotExisting, "Cannot find user by token as admin")
+            .makeRequest {
+                val url = "$gitlabServiceRootUrl/users/$id"
+                restTemplate(builder).exchange(url, HttpMethod.GET, it, GitlabUser::class.java)
             }
             .also { logGitlabCall(it) }
             .body!!
@@ -688,7 +733,46 @@ class GitlabRestClient(
     }
 
     private fun createAdminHeaders(): HttpHeaders = HttpHeaders().apply {
-        set("PRIVATE-TOKEN", gitlabAdminUserToken)
+        val token = resolveAdminToken()
+        if (isAdminTokenOAuth.get()) {
+            set(OAUTH_TOKEN_HEADER, "$OAUTH_TOKEN_VALUE_PREFIX$token")
+        } else {
+            set(PERMANENT_TOKEN_HEADER, "$PERMANENT_TOKEN_VALUE_PREFIX$token")
+        }
+
+        set(IS_ADMIN_INTERNAL_HEADER, "true")
+    }
+
+    private fun resolveAdminToken(): String {
+        if (!gitlabAdminUserToken.isBlank()) {
+            return gitlabAdminUserToken
+        } else {
+            val oauthToken = oAuthAdminToken.get()
+
+            if (oauthToken != null) return oauthToken.second
+
+            isAdminTokenOAuth.set(true)
+
+            return refreshAdminOAuthToken()
+        }
+    }
+
+    private fun refreshAdminOAuthToken(): String {
+        synchronized(this) {
+            if (oAuthAdminToken.get() != null) return oAuthAdminToken.get()!!.second
+
+            return forceRefreshAdminOAuthToken()
+        }
+    }
+
+    private fun forceRefreshAdminOAuthToken(): String {
+        synchronized(this) {
+            val tokenDto = this.userLoginOAuthToGitlab(adminUserName!!, adminPassword!!)
+
+            oAuthAdminToken.set(Pair(tokenDto.createdAt, tokenDto.accessToken))
+
+            return oAuthAdminToken.get()?.second ?: throw GitlabConnectException("Cannot get OAuth token from Gitlab")
+        }
     }
 
     private fun logFatal(e: Exception) {
@@ -696,17 +780,28 @@ class GitlabRestClient(
     }
 
     private fun createUserHeaders(token: String): HttpHeaders = HttpHeaders().apply {
-        set("PRIVATE-TOKEN", token)
+        if (token.length > 25) {
+            set(OAUTH_TOKEN_HEADER, "$OAUTH_TOKEN_VALUE_PREFIX$token")
+        } else {
+            set(PERMANENT_TOKEN_HEADER, "$PERMANENT_TOKEN_VALUE_PREFIX$token")
+        }
+
+        set(IS_ADMIN_INTERNAL_HEADER, "false")
     }
 
     private fun createEmptyHeaders(): HttpHeaders = HttpHeaders()
 
     private fun createOAuthHeaders(token: String): HttpHeaders = HttpHeaders().apply {
-        set("Authorization", "Bearer $token")
+        set(OAUTH_TOKEN_HEADER, "$OAUTH_TOKEN_VALUE_PREFIX$token")
     }
 
-    private inner class GitlabHttpEntity<T>(body: T?, headers: MultiValueMap<String, String>) : HttpEntity<T>(body, headers) {
+    private inner class GitlabHttpEntity<T>(body: T?, headers: HttpHeaders) : HttpEntity<T>(body, null) {
         private val errorsMap = HashMap<Int?, Pair<ErrorCode?, String?>>()
+        private val internalHeaders = HttpHeaders()
+
+        init {
+            internalHeaders.putAll(headers)
+        }
 
         fun addErrorDescription(error: ErrorCode?, message: String?): GitlabHttpEntity<T> {
             return addErrorDescription(null, error, message)
@@ -724,21 +819,66 @@ class GitlabRestClient(
         fun getMessage(code: Int?): String? {
             return errorsMap.get(code)?.second ?: errorsMap.get(null)?.second
         }
+
+        override fun getHeaders(): HttpHeaders {
+            return this.internalHeaders
+        }
     }
 
     private fun <T : GitlabHttpEntity<out Any>, R> T.makeRequest(block: (T) -> R): R {
         try {
             return block.invoke(this)
-        } catch (ex: HttpClientErrorException) {
-            throw handleException(
-                this.getError(ex.rawStatusCode),
-                this.getMessage(ex.rawStatusCode),
-                ex
-            )
+        } catch (ex: HttpStatusCodeException) {
+            try {
+                if (ex.statusCode == HttpStatus.UNAUTHORIZED || ex.statusCode == HttpStatus.FORBIDDEN) {
+                    return repeatUnauthorized(this, ex, block)
+                } else if (ex.statusCode == HttpStatus.BAD_GATEWAY || ex.statusCode == HttpStatus.INTERNAL_SERVER_ERROR) {
+                    return repeatBadGateway(this, ex, block)
+                } else if (ex.statusCode == HttpStatus.BAD_REQUEST && ex.responseBodyAsString.contains(GITLAB_FAILED_LIMIT_REACHED_ERROR_MESSAGE)) {
+                    return repeatBadGateway(this, ex, block)
+                } else throw ex
+            } catch (ex: HttpStatusCodeException) {
+                throw handleException(
+                    this.getError(ex.rawStatusCode),
+                    this.getMessage(ex.rawStatusCode),
+                    ex
+                )
+            }
         }
     }
 
-    private fun handleException(error: ErrorCode?, message: String?, response: HttpClientErrorException): RestException {
+    private fun <T : GitlabHttpEntity<out Any>, R> repeatUnauthorized(entity: T, ex: HttpStatusCodeException, block: (T) -> R): R {
+        val isAdmin = entity.headers.getFirst(IS_ADMIN_INTERNAL_HEADER)?.toBoolean() ?: false
+
+        if (isAdmin) {
+            forceRefreshAdminOAuthToken() //Possible that threads will enter this method twice or more, but it is ok
+            val newHeaders = createAdminHeaders()
+
+            if (newHeaders.containsKey(OAUTH_TOKEN_HEADER)) {
+                entity.headers.set(OAUTH_TOKEN_HEADER, newHeaders.getFirst(OAUTH_TOKEN_HEADER))
+            } else if (newHeaders.containsKey(PERMANENT_TOKEN_HEADER)) {
+                entity.headers.set(PERMANENT_TOKEN_HEADER, newHeaders.getFirst(PERMANENT_TOKEN_HEADER))
+            } else throw ex
+
+            return block.invoke(entity)
+
+        } else throw ex
+    }
+
+    private fun <T : GitlabHttpEntity<out Any>, R> repeatBadGateway(entity: T, ex: HttpStatusCodeException, block: (T) -> R, turn: Int = 0): R {
+        if (turn >= REPEAT_REQUESTS_WHEN_GITLAB_UNAVAILABLE)
+            throw ex
+
+        Thread.sleep(PAUSE_BETWEEN_REPEAT_WHEN_GITLAB_UNAVAILABLE_MS)
+
+        try {
+            return block.invoke(entity)
+        } catch (ex: HttpClientErrorException) {
+            return repeatBadGateway(entity, ex, block, turn + 1)
+        }
+    }
+
+    private fun handleException(error: ErrorCode?, message: String?, response: HttpStatusCodeException): RestException {
         log.error("Received error from gitlab: ${response.responseHeaders?.location} ${response.statusCode}")
         log.error(response.responseHeaders?.toString())
         val responseBodyAsString = response.responseBodyAsString

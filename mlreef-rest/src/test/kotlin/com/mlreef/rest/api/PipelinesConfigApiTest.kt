@@ -4,10 +4,8 @@ import com.mlreef.rest.DataAlgorithm
 import com.mlreef.rest.DataOperation
 import com.mlreef.rest.DataProcessorInstance
 import com.mlreef.rest.DataProcessorInstanceRepository
-import com.mlreef.rest.DataProject
 import com.mlreef.rest.DataVisualization
 import com.mlreef.rest.ParameterType
-import com.mlreef.rest.Person
 import com.mlreef.rest.PipelineConfig
 import com.mlreef.rest.PipelineConfigRepository
 import com.mlreef.rest.PipelineType
@@ -33,9 +31,7 @@ class PipelinesConfigApiTest : RestApiTest() {
     private lateinit var dataOp1: DataOperation
     private lateinit var dataOp2: DataAlgorithm
     private lateinit var dataOp3: DataVisualization
-    private lateinit var subject: Person
-    private lateinit var dataProject: DataProject
-    private lateinit var dataProject2: DataProject
+
     val rootUrl = "/api/v1/pipelines"
 
     @Autowired private lateinit var pipelineConfigRepository: PipelineConfigRepository
@@ -44,6 +40,9 @@ class PipelinesConfigApiTest : RestApiTest() {
 
     @Autowired private lateinit var pipelineTestPreparationTrait: PipelineTestPreparationTrait
 
+    @Autowired
+    private lateinit var gitlabHelper: GitlabHelper
+
     @BeforeEach
     @AfterEach
     fun clearRepo() {
@@ -51,21 +50,20 @@ class PipelinesConfigApiTest : RestApiTest() {
         dataOp1 = pipelineTestPreparationTrait.dataOp1
         dataOp2 = pipelineTestPreparationTrait.dataOp2
         dataOp3 = pipelineTestPreparationTrait.dataOp3
-        subject = pipelineTestPreparationTrait.subject
-        dataProject = pipelineTestPreparationTrait.dataProject
-        dataProject2 = pipelineTestPreparationTrait.dataProject2
     }
 
     @Transactional
     @Rollback
     @Test fun `Can retrieve all own Pipelines`() {
+        val (account, _, _) = gitlabHelper.createRealUser()
+        val (project, _) = gitlabHelper.createRealDataProject(account)
 
         val dataProcessorInstance = createDataProcessorInstance()
-        createPipelineConfig(dataProcessorInstance, dataProject.id, "slug1")
-        createPipelineConfig(dataProcessorInstance, dataProject.id, "slug2")
+        createPipelineConfig(dataProcessorInstance, project.id, "slug1")
+        createPipelineConfig(dataProcessorInstance, project.id, "slug2")
 
         val returnedResult: List<PipelineConfigDto> = this.mockMvc.perform(
-            this.defaultAcceptContentAuth(get(rootUrl)))
+            this.acceptContentAuth(get(rootUrl), account))
             .andExpect(status().isOk)
             .andDo(document(
                 "pipelineconfig-retrieve-all",
@@ -82,11 +80,14 @@ class PipelinesConfigApiTest : RestApiTest() {
     @Transactional
     @Rollback
     @Test fun `Can retrieve specific PipelineConfig`() {
+        val (account, _, _) = gitlabHelper.createRealUser()
+        val (project, _) = gitlabHelper.createRealDataProject(account)
+
         val dataProcessorInstance = createDataProcessorInstance()
-        val entity = createPipelineConfig(dataProcessorInstance, dataProject.id, "slug")
+        val entity = createPipelineConfig(dataProcessorInstance, project.id, "slug")
 
         this.mockMvc.perform(
-            this.defaultAcceptContentAuth(get("$rootUrl/${entity.id}")))
+            this.acceptContentAuth(get("$rootUrl/${entity.id}"), account))
             .andExpect(status().isOk)
             .andDo(document(
                 "pipelineconfig-retrieve-one",

@@ -61,7 +61,11 @@ open class RestException(
     constructor(errorCode: ErrorCode, msg: String) : this(errorCode.errorCode, errorCode.errorName, msg)
 }
 
+@ResponseStatus(code = HttpStatus.BAD_REQUEST, reason = "Operation cannot be executed due to malformed input or invalid states.")
 class ValidationException(val validationErrors: Array<FieldError?>) : RestException(ErrorCode.ValidationFailed, validationErrors.joinToString("\n") { it.toString() })
+
+@ResponseStatus(code = HttpStatus.FORBIDDEN, reason = "Bad credentials")
+class IncorrectCredentialsException(message: String? = null) : RestException(ErrorCode.AccessDenied, message ?: "Access denied")
 
 @ResponseStatus(code = HttpStatus.UNAUTHORIZED, reason = "Unauthorized for the request")
 class AccessDeniedException(message: String? = null) : RestException(ErrorCode.AccessDenied, message ?: "Access denied")
@@ -87,6 +91,7 @@ class ConflictException(errorCode: ErrorCode, message: String) : RestException(e
 @ResponseStatus(code = HttpStatus.CONFLICT, reason = "The state of internal db is inconsistent")
 class NotConsistentInternalDb(message: String) : RestException(ErrorCode.Conflict, message)
 
+@ResponseStatus(code = HttpStatus.CONFLICT, reason = "The state of internal db is inconsistent")
 class UserAlreadyExistsException(username: String, email: String) : RestException(ErrorCode.UserAlreadyExisting, "User ($username/$email) already exists and cant be created")
 
 open class UnknownUserException(message: String? = null)

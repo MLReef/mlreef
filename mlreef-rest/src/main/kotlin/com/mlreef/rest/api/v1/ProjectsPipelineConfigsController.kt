@@ -1,19 +1,19 @@
 package com.mlreef.rest.api.v1
 
 import com.mlreef.rest.DataProcessorInstance
-import com.mlreef.rest.DataProject
-import com.mlreef.rest.DataProjectRepository
 import com.mlreef.rest.FileLocation
+import com.mlreef.rest.Person
 import com.mlreef.rest.PipelineConfig
 import com.mlreef.rest.PipelineConfigRepository
-import com.mlreef.rest.api.CurrentUserService
 import com.mlreef.rest.api.v1.dto.DataProcessorInstanceDto
 import com.mlreef.rest.api.v1.dto.FileLocationDto
 import com.mlreef.rest.api.v1.dto.PipelineConfigDto
 import com.mlreef.rest.api.v1.dto.toDto
 import com.mlreef.rest.exceptions.NotFoundException
+import com.mlreef.rest.exceptions.ProjectNotFoundException
 import com.mlreef.rest.feature.pipeline.PipelineService
-import org.springframework.data.repository.findByIdOrNull
+import com.mlreef.rest.feature.project.DataProjectService
+import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
@@ -30,35 +30,21 @@ import javax.validation.constraints.NotEmpty
 @RequestMapping("/api/v1/data-projects/{dataProjectId}/pipelines")
 class ProjectsPipelineConfigsController(
     val service: PipelineService,
-    val currentUserService: CurrentUserService,
-    val dataProjectRepository: DataProjectRepository,
+    val dataProjectService: DataProjectService,
     val pipelineConfigRepository: PipelineConfigRepository
 ) {
-    private val log: Logger = Logger.getLogger(ExperimentsController::class.simpleName)
-    private val dataProjectNotFound = "dataProject was not found"
-
-    private fun beforeGetDataProject(dataProjectId: UUID): DataProject {
-        val dataProject = (dataProjectRepository.findByIdOrNull(dataProjectId)
-            ?: throw NotFoundException(dataProjectNotFound))
-
-        val id = currentUserService.person().id
-        if (dataProject.ownerId != id) {
-            log.warning("User $id requested an DataProject of ${dataProject.ownerId}")
-            throw NotFoundException(dataProjectNotFound)
-        }
-        return dataProject
-    }
+    private val log: Logger = Logger.getLogger(ProjectsPipelineConfigsController::class.simpleName)
 
     @GetMapping
+    @PreAuthorize("isProjectOwner(#dataProjectId)")
     fun getAllPipelineConfig(@PathVariable dataProjectId: UUID): List<PipelineConfigDto> {
-        beforeGetDataProject(dataProjectId)
         val list: List<PipelineConfig> = pipelineConfigRepository.findAllByDataProjectId(dataProjectId).toList()
         return list.map(PipelineConfig::toDto)
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("isProjectOwner(#dataProjectId)")
     fun getPipelineConfig(@PathVariable dataProjectId: UUID, @PathVariable id: UUID): PipelineConfigDto {
-        beforeGetDataProject(dataProjectId)
         val findOneByDataProjectIdAndId = pipelineConfigRepository.findOneByDataProjectIdAndId(dataProjectId, id)
             ?: throw NotFoundException("Experiment not found")
         return findOneByDataProjectIdAndId.toDto()
@@ -66,9 +52,10 @@ class ProjectsPipelineConfigsController(
 
     // TODO: maybe better just in scoped
     @PutMapping("/{id}")
-    fun updatePipelineConfig(@PathVariable dataProjectId: UUID, @PathVariable id: UUID, @Valid @RequestBody updateRequest: PipelineConfigUpdateRequest): PipelineConfigDto {
-        beforeGetDataProject(dataProjectId)
-        currentUserService.person()
+    @PreAuthorize("isProjectOwner(#dataProjectId)")
+    fun updatePipelineConfig(@PathVariable dataProjectId: UUID,
+                             @PathVariable id: UUID,
+                             @Valid @RequestBody updateRequest: PipelineConfigUpdateRequest): PipelineConfigDto {
         log.info(updateRequest.toString())
 
         val existingPipelineConfig = pipelineConfigRepository.findOneByDataProjectIdAndId(dataProjectId, id)
@@ -85,9 +72,13 @@ class ProjectsPipelineConfigsController(
     }
 
     @PostMapping
-    fun createPipelineConfig(@PathVariable dataProjectId: UUID, @Valid @RequestBody createRequest: PipelineConfigCreateRequest): PipelineConfigDto {
-        val dataProject = beforeGetDataProject(dataProjectId)
-        val person = currentUserService.person()
+    @PreAuthorize("isProjectOwner(#dataProjectId)")
+    fun createPipelineConfig(@PathVariable dataProjectId: UUID,
+                             @Valid @RequestBody createRequest: PipelineConfigCreateRequest,
+                             person: Person): PipelineConfigDto {
+        val dataProject = dataProjectService.getProjectById(dataProjectId)
+            ?: throw ProjectNotFoundException(projectId = dataProjectId)
+
         log.info(createRequest.toString())
 
         val newPipelineConfig = service.createPipelineConfig(

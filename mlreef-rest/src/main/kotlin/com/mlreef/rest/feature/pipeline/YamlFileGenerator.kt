@@ -73,7 +73,7 @@ class YamlFileGenerator {
         return this
     }
 
-    fun generateYamlFile(author: Account, dataProject: DataProject, secret:String,gitlabRootUrl: String, sourceBranch: String, targetBranch: String, processors: List<DataProcessorInstance>): String {
+    fun generateYamlFile(author: Account, dataProject: DataProject, secret: String, gitlabRootUrl: String, sourceBranch: String, targetBranch: String, processors: List<DataProcessorInstance>): String {
         init()
         replaceAllSingleStrings(
             epfTag = "latest",
@@ -81,7 +81,7 @@ class YamlFileGenerator {
             confEmail = author.email,
             confName = author.username,
             gitlabGroup = dataProject.gitlabGroup,
-            gitlabRootUrl = "http://gitlab:10080",
+            gitlabRootUrl = gitlabRootUrl,
             gitlabProject = dataProject.gitlabProject,
             sourceBranch = sourceBranch,
             targetBranch = targetBranch

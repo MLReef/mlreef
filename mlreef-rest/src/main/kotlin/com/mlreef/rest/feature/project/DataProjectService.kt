@@ -3,10 +3,11 @@ package com.mlreef.rest.feature.project
 import com.mlreef.rest.AccountRepository
 import com.mlreef.rest.DataProject
 import com.mlreef.rest.DataProjectRepository
+import com.mlreef.rest.exceptions.GitlabNoValidTokenException
 import com.mlreef.rest.exceptions.ProjectNotFoundException
-import com.mlreef.rest.exceptions.UnknownUserException
 import com.mlreef.rest.exceptions.UserNotFoundException
 import com.mlreef.rest.external_api.gitlab.GitlabRestClient
+import com.mlreef.rest.external_api.gitlab.GroupAccessLevel
 import com.mlreef.rest.external_api.gitlab.dto.GitlabProject
 import com.mlreef.rest.external_api.gitlab.toAccessLevel
 import com.mlreef.rest.helpers.ProjectOfUser
@@ -82,8 +83,9 @@ class GitlabDataProjectService(
             ?: throw UserNotFoundException(userId = userId)
 
         val userProjects = try {
-            gitlabRestClient.adminGetUserProjects(user.person.gitlabId
-                ?: throw UnknownUserException("Person is not connected to gitlab and has not valid gitlab id"))
+            gitlabRestClient
+                .userGetUserAllProjects(user.bestToken?.token
+                    ?: throw GitlabNoValidTokenException("User ${user.id} has no valid token"))
         } catch (ex: Exception) {
             log.error("Cannot request projects from gitlab for user ${user.id}. Exception: $ex.")
             listOf<GitlabProject>()
@@ -91,12 +93,16 @@ class GitlabDataProjectService(
 
         return userProjects.map { project ->
             try {
-                val gitlabAccessLevel = gitlabRestClient.adminGetProjectMembers(project.id).first { gitlabUser -> gitlabUser.id == user.person.gitlabId }.accessLevel
+                //Without this IF block Gitlab returns access level for user as a Maintainer even if he is the owner
+                val gitlabAccessLevel = if (project.owner.id.equals(user.person.gitlabId))
+                    GroupAccessLevel.OWNER
+                else
+                    gitlabRestClient.adminGetProjectMembers(project.id).first { gitlabUser -> gitlabUser.id == user.person.gitlabId }.accessLevel
+
                 val projectInDb = dataProjectRepository.findByGitlabId(project.id)
                     ?: throw ProjectNotFoundException(gitlabId = project.id)
                 projectInDb.toProjectOfUser(gitlabAccessLevel.toAccessLevel())
             } catch (ex: Exception) {
-                log.error("Unable to get user's project ${project.name} . Exception: $ex.")
                 null
             }
         }.filterNotNull()

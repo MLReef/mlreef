@@ -1,5 +1,6 @@
 package com.mlreef.rest.api.v1
 
+import com.mlreef.rest.Account
 import com.mlreef.rest.DataProject
 import com.mlreef.rest.Person
 import com.mlreef.rest.VisibilityScope
@@ -120,7 +121,12 @@ class DataProjectsController(
     @PreAuthorize("hasAccessToProject(#id, 'DEVELOPER')")
     fun getUsersInDataProjectById(@PathVariable id: UUID): List<UserInProjectDto> {
         val usersInProject = dataProjectService.getUsersInProject(id)
-        return usersInProject.map { UserInProjectDto(it.id, it.username, it.email, it.gitlabId) }
+        return usersInProject.map { UserInProjectDto(it.id, it.username, it.email, it.person.gitlabId) }
+    }
+
+    @GetMapping("/{id}/users/check")
+    fun checkCurrentUserInCodeProject(@PathVariable id: UUID, account: Account): Boolean {
+        return dataProjectService.checkUserInProject(projectUUID = id, userId = account.id)
     }
 
     @GetMapping("/{id}/users/check/{userId}")

@@ -9,6 +9,7 @@ import com.mlreef.rest.DataProcessorType
 import com.mlreef.rest.DataType
 import com.mlreef.rest.DataVisualizationRepository
 import com.mlreef.rest.ParameterType
+import com.mlreef.rest.Person
 import com.mlreef.rest.ProcessorParameter
 import com.mlreef.rest.VisibilityScope
 import com.mlreef.rest.api.CurrentUserService
@@ -17,7 +18,9 @@ import com.mlreef.rest.api.v1.dto.ParameterDto
 import com.mlreef.rest.api.v1.dto.toDto
 import com.mlreef.rest.exceptions.NotFoundException
 import com.mlreef.rest.feature.data_processors.DataProcessorService
+import com.mlreef.rest.feature.project.CodeProjectService
 import org.springframework.data.repository.findByIdOrNull
+import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
@@ -39,14 +42,11 @@ class DataProcessorsController(
     val dataOperationRepository: DataOperationRepository,
     val dataAlgorithmRepository: DataAlgorithmRepository,
     val dataVisualizationRepository: DataVisualizationRepository,
+    val codeProjectService: CodeProjectService,
     val dataProcessorService: DataProcessorService,
     val currentUserService: CurrentUserService
 ) {
     private val log: Logger = Logger.getLogger(DataProcessorsController::class.simpleName)
-
-    fun assertFindCodeProject(projectUUID: UUID) =
-        codeProjectRepository.findOneByOwnerIdAndId(currentUserService.person().id, projectUUID)
-            ?: throw NotFoundException("CodeProject not found")
 
     @GetMapping("data-processors")
     fun getAllProcessors(
@@ -86,22 +86,22 @@ class DataProcessorsController(
     }
 
     @GetMapping("code-projects/{codeProjectId}/processor")
+    @PreAuthorize("isProjectOwner(#codeProjectId)")
     fun getByCodeProjects(@PathVariable codeProjectId: UUID): DataProcessorDto {
-        assertFindCodeProject(codeProjectId)
         val dataProcessor = dataProcessorRepository.findAllByCodeProjectId(codeProjectId).firstOrNull()
             ?: throw NotFoundException("processor not found: $codeProjectId")
         return dataProcessor.toDto()
     }
 
     @PostMapping("code-projects/{codeProjectId}/processor")
+    @PreAuthorize("isProjectOwner(#codeProjectId)")
     fun createDataProcessor(
         @PathVariable codeProjectId: UUID,
-        @Valid @RequestBody createRequest: DataProcessorCreateRequest
+        @Valid @RequestBody createRequest: DataProcessorCreateRequest,
+        owner: Person
     ): DataProcessorDto {
-        assertFindCodeProject(codeProjectId)
-
-        val owner = currentUserService.person()
-        val codeProject = assertFindCodeProject(codeProjectId)
+        val codeProject = codeProjectService.getProjectById(codeProjectId)
+            ?: throw NotFoundException("Code project with id $codeProjectId not found")
         val dataProcessorId = randomUUID()
         val mapIndexed = createRequest.parameters.mapIndexed { index, it ->
             createParameterFromDto(it, dataProcessorId = dataProcessorId, order = index)

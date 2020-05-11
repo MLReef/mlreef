@@ -4,10 +4,8 @@ import com.mlreef.rest.DataAlgorithm
 import com.mlreef.rest.DataOperation
 import com.mlreef.rest.DataProcessorInstance
 import com.mlreef.rest.DataProcessorInstanceRepository
-import com.mlreef.rest.DataProject
 import com.mlreef.rest.DataVisualization
 import com.mlreef.rest.ParameterType
-import com.mlreef.rest.Person
 import com.mlreef.rest.PipelineConfig
 import com.mlreef.rest.PipelineConfigRepository
 import com.mlreef.rest.PipelineType
@@ -45,14 +43,14 @@ class ProjectPipelinesConfigApiTest : RestApiTest() {
     private lateinit var dataOp1: DataOperation
     private lateinit var dataOp2: DataAlgorithm
     private lateinit var dataOp3: DataVisualization
-    private lateinit var subject: Person
-    private lateinit var dataProject: DataProject
-    private lateinit var notOwn_dataProject: DataProject
 
     @Autowired private lateinit var pipelineConfigRepository: PipelineConfigRepository
     @Autowired private lateinit var processorParameterRepository: ProcessorParameterRepository
     @Autowired private lateinit var dataProcessorInstanceRepository: DataProcessorInstanceRepository
     @Autowired private lateinit var pipelineTestPreparationTrait: PipelineTestPreparationTrait
+
+    @Autowired
+    private lateinit var gitlabHelper: GitlabHelper
 
     @BeforeEach
     @AfterEach
@@ -61,22 +59,23 @@ class ProjectPipelinesConfigApiTest : RestApiTest() {
         dataOp1 = pipelineTestPreparationTrait.dataOp1
         dataOp2 = pipelineTestPreparationTrait.dataOp2
         dataOp3 = pipelineTestPreparationTrait.dataOp3
-        subject = pipelineTestPreparationTrait.subject
-        dataProject = pipelineTestPreparationTrait.dataProject
-        notOwn_dataProject = pipelineTestPreparationTrait.dataProject2
     }
 
     @Transactional
     @Rollback
     @Test fun `Can retrieve all Pipelines of own DataProject`() {
+        val (account1, _, _) = gitlabHelper.createRealUser()
+        val (account2, _, _) = gitlabHelper.createRealUser(index = 1)
+        val (project1, _) = gitlabHelper.createRealDataProject(account1)
+        val (project2, _) = gitlabHelper.createRealDataProject(account2)
 
         val dataProcessorInstance = createDataProcessorInstance()
-        createPipelineConfig(dataProcessorInstance, dataProject.id, "slug1")
-        createPipelineConfig(dataProcessorInstance, dataProject.id, "slug2")
-        createPipelineConfig(dataProcessorInstance, notOwn_dataProject.id, "slug1")
+        createPipelineConfig(dataProcessorInstance, project1.id, "slug1")
+        createPipelineConfig(dataProcessorInstance, project1.id, "slug2")
+        createPipelineConfig(dataProcessorInstance, project2.id, "slug1")
 
         val returnedResult: List<PipelineConfigDto> = this.mockMvc.perform(
-            this.defaultAcceptContentAuth(get("$rootUrl/${dataProject.id}/pipelines")))
+            this.acceptContentAuth(get("$rootUrl/${project1.id}/pipelines"), account1))
             .andExpect(status().isOk)
             .andDo(document(
                 "project-pipelineconfig-retrieve-all",
@@ -94,6 +93,9 @@ class ProjectPipelinesConfigApiTest : RestApiTest() {
     @Rollback
     @Test
     fun `Can create new PipelineConfig`() {
+        val (account, _, _) = gitlabHelper.createRealUser()
+        val (project, _) = gitlabHelper.createRealDataProject(account)
+
         val request = PipelineConfigCreateRequest(
             sourceBranch = "source",
             targetBranchPattern = "\$SLUG-\$ID",
@@ -113,9 +115,11 @@ class ProjectPipelinesConfigApiTest : RestApiTest() {
                     ParameterInstanceDto("stringList", type = ParameterType.LIST.name, value = "[\"asdf\",\"asdf\",\"asdf\"]")
                 )))
         )
-        val url = "$rootUrl/${dataProject.id}/pipelines"
+
+        val url = "$rootUrl/${project.id}/pipelines"
+
         val returnedResult: PipelineConfigDto = this.mockMvc.perform(
-            this.defaultAcceptContentAuth(post(url))
+            this.acceptContentAuth(post(url), account)
                 .content(objectMapper.writeValueAsString(request)))
             .andExpect(status().isOk)
             .andDo(document(
@@ -136,9 +140,11 @@ class ProjectPipelinesConfigApiTest : RestApiTest() {
     @Rollback
     @Test
     fun `Can update own PipelineConfig`() {
+        val (account, _, _) = gitlabHelper.createRealUser()
+        val (project, _) = gitlabHelper.createRealDataProject(account)
 
         val dataProcessorInstance = createDataProcessorInstance()
-        val pipelineConfig = createPipelineConfig(dataProcessorInstance, dataProject.id, "slug1")
+        val pipelineConfig = createPipelineConfig(dataProcessorInstance, project.id, "slug1")
 
         val request = PipelineConfigUpdateRequest(
             sourceBranch = "source",
@@ -158,9 +164,11 @@ class ProjectPipelinesConfigApiTest : RestApiTest() {
                     ParameterInstanceDto("stringList", type = ParameterType.LIST.name, value = "[\"asdf\",\"asdf\",\"asdf\"]")
                 )))
         )
-        val url = "$rootUrl/${dataProject.id}/pipelines/${pipelineConfig.id}"
+
+        val url = "$rootUrl/${project.id}/pipelines/${pipelineConfig.id}"
+
         val returnedResult: PipelineConfigDto = this.mockMvc.perform(
-            this.defaultAcceptContentAuth(put(url))
+            this.acceptContentAuth(put(url), account)
                 .content(objectMapper.writeValueAsString(request)))
             .andExpect(status().isOk)
             .andDo(document(
@@ -181,6 +189,11 @@ class ProjectPipelinesConfigApiTest : RestApiTest() {
     @Rollback
     @Test
     fun `Cannot create new PipelineConfig in not-own DataProject`() {
+        val (account1, _, _) = gitlabHelper.createRealUser()
+        val (account2, _, _) = gitlabHelper.createRealUser(index = 1)
+        val (project1, _) = gitlabHelper.createRealDataProject(account1)
+        val (project2, _) = gitlabHelper.createRealDataProject(account2)
+
         val request = PipelineConfigCreateRequest(
             sourceBranch = "source",
             targetBranchPattern = "\$SLUG-\$ID",
@@ -200,21 +213,24 @@ class ProjectPipelinesConfigApiTest : RestApiTest() {
                     ParameterInstanceDto("stringList", type = ParameterType.LIST.name, value = "[\"asdf\",\"asdf\",\"asdf\"]")
                 )))
         )
-        val url = "$rootUrl/${notOwn_dataProject.id}/pipelines"
+        val url = "$rootUrl/${project2.id}/pipelines"
         this.mockMvc.perform(
-            this.defaultAcceptContentAuth(post(url))
+            this.acceptContentAuth(post(url), account1)
                 .content(objectMapper.writeValueAsString(request)))
-            .andExpect(status().isNotFound)
+            .andExpect(status().isForbidden)
     }
 
     @Transactional
     @Rollback
     @Test fun `Can retrieve specific PipelineConfig of own DataProject`() {
+        val (account, _, _) = gitlabHelper.createRealUser()
+        val (project, _) = gitlabHelper.createRealDataProject(account)
+
         val dataProcessorInstance = createDataProcessorInstance()
-        val entity = createPipelineConfig(dataProcessorInstance, dataProject.id, "slug")
+        val entity = createPipelineConfig(dataProcessorInstance, project.id, "slug")
 
         this.mockMvc.perform(
-            this.defaultAcceptContentAuth(get("$rootUrl/${dataProject.id}/pipelines/${entity.id}")))
+            this.acceptContentAuth(get("$rootUrl/${project.id}/pipelines/${entity.id}"), account))
             .andExpect(status().isOk)
             .andDo(document("project-pipelineconfig-retrieve-one",
                 responseFields(pipelineConfigDtoResponseFields())
@@ -226,12 +242,17 @@ class ProjectPipelinesConfigApiTest : RestApiTest() {
     @Rollback
     @Test
     fun `Cannot retrieve PipelineConfigs of not-own DataProject`() {
+        val (account1, _, _) = gitlabHelper.createRealUser()
+        val (account2, _, _) = gitlabHelper.createRealUser(index = 1)
+        val (project1, _) = gitlabHelper.createRealDataProject(account1)
+        val (project2, _) = gitlabHelper.createRealDataProject(account2)
+
         val dataProcessorInstance = createDataProcessorInstance()
-        val entity2 = createPipelineConfig(dataProcessorInstance, notOwn_dataProject.id, "slug")
+        val entity2 = createPipelineConfig(dataProcessorInstance, project2.id, "slug")
 
         this.mockMvc.perform(
-            this.defaultAcceptContentAuth(get("$rootUrl/${notOwn_dataProject.id}/pipelines/${entity2.id}")))
-            .andExpect(status().isNotFound)
+            this.acceptContentAuth(get("$rootUrl/${project2.id}/pipelines/${entity2.id}"), account1))
+            .andExpect(status().isForbidden)
 
     }
 
