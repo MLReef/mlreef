@@ -9,6 +9,7 @@ import org.springframework.test.context.ActiveProfiles
 import org.testcontainers.containers.GenericContainer
 import org.testcontainers.containers.output.Slf4jLogConsumer
 import org.testcontainers.containers.wait.strategy.HttpWaitStrategy
+import org.testcontainers.containers.wait.strategy.LogMessageWaitStrategy
 import java.time.Duration
 
 @ActiveProfiles(ApplicationProfiles.TEST)
@@ -17,7 +18,9 @@ class TestGitlabContainer private constructor() : GenericContainer<TestGitlabCon
         val logger = LoggerFactory.getLogger(this::class.java)
 
         const val ROOT_PASSWORD = "password"
-        const val ADMIN_TOKEN = "TEST-ADMIN-TOKEN"
+
+        private const val GITLAB_START_LOG_FRAGMENT = "Running handlers complete"
+        private const val GITLAB_START_LOG_REGEX = "^.*$GITLAB_START_LOG_FRAGMENT.*\$"
 
         val instance by lazy {
             val waitStrategy = HttpWaitStrategy()
@@ -25,9 +28,15 @@ class TestGitlabContainer private constructor() : GenericContainer<TestGitlabCon
                 .forStatusCode(200)
                 .withStartupTimeout(Duration.ofSeconds(600))
 
+            val waitStrategyForLog = LogMessageWaitStrategy()
+                .withRegEx(GITLAB_START_LOG_REGEX)
+                .withTimes(1)
+                .withStartupTimeout(Duration.ofSeconds(600))
+
             val container = TestGitlabContainer().apply {
                 withExposedPorts(80)
                 setWaitStrategy(waitStrategy)
+                setWaitStrategy(waitStrategyForLog)
                 withLogConsumer(Slf4jLogConsumer(logger))
                 withEnv(createConfig())
             }
