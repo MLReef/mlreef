@@ -77,7 +77,7 @@ class MarketplaceApiTest : RestApiTest() {
             .document(
                 "marketplace-entries-retrieve-all",
                 responseFields(marketplaceEntriesResponseFields("[].")))
-            .returnsList(objectMapper, MarketplaceEntryDto::class.java)
+            .returnsList(MarketplaceEntryDto::class.java)
 
         assertThat(returnedResult.size).isEqualTo(3)
     }
@@ -99,7 +99,7 @@ class MarketplaceApiTest : RestApiTest() {
             .document(
                 "marketplace-entries-retrieve-one",
                 responseFields(marketplaceEntriesResponseFields("")))
-            .returns(objectMapper, MarketplaceEntryDto::class.java)
+            .returns(MarketplaceEntryDto::class.java)
 
         assertThat(returnedResult).isNotNull()
     }
@@ -121,7 +121,7 @@ class MarketplaceApiTest : RestApiTest() {
             .document(
                 "marketplace-tags-retrieve-all",
                 responseFields(searchableTags("[].")))
-            .returnsList(objectMapper, SearchableTagDto::class.java)
+            .returnsList(SearchableTagDto::class.java)
 
         assertThat(returnedResult.size).isEqualTo(3)
     }

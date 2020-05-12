@@ -272,9 +272,9 @@ operation::experiments-retrieve-one[snippets='curl-request,response-body,respons
 
 operation::experiments-create-success[snippets='curl-request,request-fields,http-response,response-fields']
 
-=== GET .../experiments/:id/metrics
+=== GET .../experiments/:id/info
 
-operation::experiments-retrieve-one-metrics[snippets='curl-request,response-body,response-fields']
+operation::experiments-retrieve-one-info[snippets='curl-request,response-body,response-fields']
 
 === GET .../experiments/:id/mlreef-file
 

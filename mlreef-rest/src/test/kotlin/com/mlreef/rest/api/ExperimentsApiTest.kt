@@ -7,26 +7,31 @@ import com.mlreef.rest.DataProcessorInstanceRepository
 import com.mlreef.rest.DataVisualization
 import com.mlreef.rest.Experiment
 import com.mlreef.rest.ExperimentRepository
+import com.mlreef.rest.FileLocation
+import com.mlreef.rest.FileLocationType
 import com.mlreef.rest.I18N
 import com.mlreef.rest.ParameterType
-import com.mlreef.rest.PipelineJobInfo
 import com.mlreef.rest.ProcessorParameter
 import com.mlreef.rest.ProcessorParameterRepository
 import com.mlreef.rest.api.v1.ExperimentCreateRequest
 import com.mlreef.rest.api.v1.dto.DataProcessorInstanceDto
 import com.mlreef.rest.api.v1.dto.ExperimentDto
 import com.mlreef.rest.api.v1.dto.ParameterInstanceDto
+import com.mlreef.rest.api.v1.dto.PipelineJobInfoDto
 import com.mlreef.rest.external_api.gitlab.dto.GitlabPipeline
 import com.mlreef.rest.external_api.gitlab.dto.GitlabUser
+import io.mockk.MockKAnnotations
 import io.mockk.every
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.data.repository.findByIdOrNull
 import org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document
-import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.post
+import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.put
 import org.springframework.restdocs.payload.FieldDescriptor
 import org.springframework.restdocs.payload.JsonFieldType
 import org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath
@@ -34,16 +39,18 @@ import org.springframework.restdocs.payload.PayloadDocumentation.requestFields
 import org.springframework.restdocs.payload.PayloadDocumentation.responseFields
 import org.springframework.test.annotation.Rollback
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
+import java.time.ZonedDateTime
 import java.util.UUID
 import java.util.UUID.randomUUID
 import javax.transaction.Transactional
 
 ///@RunWith(MockitoJUnitRunner::class)
-@Suppress("UsePropertyAccessSyntax") class ExperimentsApiTest : RestApiTest() {
+@Suppress("UsePropertyAccessSyntax")
+class ExperimentsApiTest : RestApiTest() {
+
     private lateinit var dataOp1: DataOperation
     private lateinit var dataOp2: DataAlgorithm
     private lateinit var dataOp3: DataVisualization
-
     val rootUrl = "/api/v1/data-projects"
     val epfUrl = "/api/v1/epf"
 
@@ -60,6 +67,7 @@ import javax.transaction.Transactional
     @AfterEach
     @Transactional
     fun clearRepo() {
+        MockKAnnotations.init(this, relaxUnitFun = true, relaxed = true)
         pipelineTestPreparationTrait.apply()
         dataOp1 = pipelineTestPreparationTrait.dataOp1
         dataOp2 = pipelineTestPreparationTrait.dataOp2
@@ -78,6 +86,7 @@ import javax.transaction.Transactional
             dataInstanceId = null,
             sourceBranch = "source",
             targetBranch = "target",
+            inputFiles = listOf("folder"),
             processing = DataProcessorInstanceDto("commons-algorithm", listOf(
                 ParameterInstanceDto("booleanParam", type = ParameterType.BOOLEAN.name, value = "true"),
                 ParameterInstanceDto("complexName", type = ParameterType.COMPLEX.name, value = "(1.0, 2.0)")
@@ -104,9 +113,7 @@ import javax.transaction.Transactional
                     .and(dataProcessorInstanceFields("post_processing[]."))
                     .and(dataProcessorInstanceFields("processing."))
             ))
-            .andReturn().let {
-                objectMapper.readValue(it.response.contentAsByteArray, ExperimentDto::class.java)
-            }
+            .returns(ExperimentDto::class.java)
 
         assertThat(returnedResult).isNotNull()
     }
@@ -125,6 +132,7 @@ import javax.transaction.Transactional
             dataInstanceId = null,
             sourceBranch = "source",
             targetBranch = "target",
+            inputFiles = listOf("folder"),
             processing = DataProcessorInstanceDto("commons-algorithm", listOf(
                 ParameterInstanceDto("booleanParam", type = ParameterType.BOOLEAN.name, value = "true"),
                 ParameterInstanceDto("complexName", type = ParameterType.COMPLEX.name, value = "(1.0, 2.0)")
@@ -133,13 +141,9 @@ import javax.transaction.Transactional
 
         val url = "$rootUrl/${project.id}/experiments"
 
-        val returnedResult: ExperimentDto = this.mockMvc.perform(
-            this.acceptContentAuth(post(url), account)
-                .content(objectMapper.writeValueAsString(request)))
+        val returnedResult: ExperimentDto = performPost(url, account, body = request)
             .andExpect(status().isOk)
-            .andReturn().let {
-                objectMapper.readValue(it.response.contentAsByteArray, ExperimentDto::class.java)
-            }
+            .returns(ExperimentDto::class.java)
 
         assertThat(returnedResult).isNotNull()
     }
@@ -159,6 +163,7 @@ import javax.transaction.Transactional
             dataInstanceId = null,
             sourceBranch = "source",
             targetBranch = "target",
+            inputFiles = listOf("folder"),
             processing = DataProcessorInstanceDto("commons-algorithm", listOf(
                 ParameterInstanceDto("booleanParam", type = ParameterType.BOOLEAN.name, value = "true"),
                 ParameterInstanceDto("complexName", type = ParameterType.COMPLEX.name, value = "(1.0, 2.0)")
@@ -171,9 +176,7 @@ import javax.transaction.Transactional
             this.acceptContentAuth(post(url), account)
                 .content(objectMapper.writeValueAsString(request)))
             .andExpect(status().isOk)
-            .andReturn().let {
-                objectMapper.readValue(it.response.contentAsByteArray, ExperimentDto::class.java)
-            }
+            .returns(ExperimentDto::class.java)
 
         assertThat(returnedResult).isNotNull()
     }
@@ -218,8 +221,7 @@ import javax.transaction.Transactional
         createExperiment(project1.id, "experiment-2-slug")
         createExperiment(project2.id, "experiment-3-slug")
 
-        val returnedResult: List<ExperimentDto> = this.mockMvc.perform(
-            this.acceptContentAuth(get("$rootUrl/${project1.id}/experiments"), account))
+        val returnedResult: List<ExperimentDto> = performGet("$rootUrl/${project1.id}/experiments", account)
             .andExpect(status().isOk)
             .andDo(document(
                 "experiments-retrieve-all",
@@ -227,10 +229,7 @@ import javax.transaction.Transactional
                     .and(experimentPipelineInfoDtoResponseFields("[].pipeline_job_info."))
                     .and(dataProcessorInstanceFields("[].post_processing[]."))
                     .and(dataProcessorInstanceFields("[].processing."))))
-            .andReturn().let {
-                val constructCollectionType = objectMapper.typeFactory.constructCollectionType(List::class.java, ExperimentDto::class.java)
-                objectMapper.readValue(it.response.contentAsByteArray, constructCollectionType)
-            }
+            .returnsList(ExperimentDto::class.java)
 
         assertThat(returnedResult.size).isEqualTo(2)
     }
@@ -243,15 +242,13 @@ import javax.transaction.Transactional
 
         val experiment1 = createExperiment(project1.id)
 
-        this.mockMvc.perform(
-            this.acceptContentAuth(get("$rootUrl/${project1.id}/experiments/${experiment1.id}"), account))
+        performGet("$rootUrl/${project1.id}/experiments/${experiment1.id}", account)
             .andExpect(status().isOk)
-            .andDo(document(
-                "experiments-retrieve-one",
+            .document("experiments-retrieve-one",
                 responseFields(experimentDtoResponseFields())
                     .and(experimentPipelineInfoDtoResponseFields("pipeline_job_info."))
                     .and(dataProcessorInstanceFields("post_processing[]."))
-                    .and(dataProcessorInstanceFields("processing."))))
+                    .and(dataProcessorInstanceFields("processing.")))
 
     }
 
@@ -264,202 +261,187 @@ import javax.transaction.Transactional
 
         val experiment1 = createExperiment(project1.id)
 
-        this.mockMvc.perform(
-            this.acceptContentAuth(get("$rootUrl/${project1.id}/experiments/${experiment1.id}"), realAccount2))
+        this.performGet("$rootUrl/${project1.id}/experiments/${experiment1.id}", realAccount2)
             .andExpect(status().isForbidden)
     }
 
-//    @Transactional
+    // Does not really work right now, lets wait frontend#523
+    @Disabled
+    @Transactional
+    @Rollback
+    @Test
+    fun `Can update own Experiment's pipelineJobInfo with arbitrary json hashmap blob`() {
+        val (realAccount1, _, _) = gitlabHelper.createRealUser()
+        val (project1, _) = gitlabHelper.createRealDataProject(realAccount1)
 
-//        val experiment1 = createExperiment(dataProject.id)
-//    @Test fun `Cannot manipulate Experiment in the wrong Order PENDING - SUCCESS - SUCCESS `() {
-//    @Rollback
-//    @Transactional
-//    @Rollback
-//    @Test fun `Can update own Experiment's pipelineJobInfo with arbitrary json hashmap blob`() {
-//        val experiment1 = createExperiment(dataProject.id)
-//
-//        val request: String = "" +
-//            """{"metric1": 20.0, "metrik2": 3, "string":"yes"}"""
-//
-//        val token = experimentRepository.findByIdOrNull(experiment1.id)!!.pipelineJobInfo!!.secret
-//
-//        val returnedResult = this.mockMvc.perform(
-//            this.defaultAcceptContentEPFBot(token, put("$epfUrl/experiments/${experiment1.id}/update"))                .content(request))
-//            .andExpect(status().isOk)
-//            .andDo(document(
-//                "experiments-epf-update",
-//                responseFields(experimentPipelineInfoDtoResponseFields())))
-//            .andReturn().let {
-//                objectMapper.readValue(it.response.contentAsByteArray, PipelineJobInfoDto::class.java)
-//            }
-//
-//        assertThat(returnedResult).isNotNull()
-//    }
-//
-//    @Transactional
-//    @Rollback
-//    @Test fun `Can finish own Experiment's pipelineJobInfo`() {
-//        val experiment1 = createExperiment(dataProject.id)
-//
-//        val beforeRequestTime = ZonedDateTime.now()
-//        val token = experimentRepository.findByIdOrNull(experiment1.id)!!.pipelineJobInfo!!.secret
-//
-//        val returnedResult = this.mockMvc.perform(
-//            this.defaultAcceptContentEPFBot(token, put("$epfUrl/experiments/${experiment1.id}/finish")))
-//            .andExpect(status().isOk)
-//            .andDo(document(
-//                "experiments-epf-finish",
-//                responseFields(experimentPipelineInfoDtoResponseFields())))
-//            .andReturn().let {
-//                objectMapper.readValue(it.response.contentAsByteArray, PipelineJobInfoDto::class.java)
-//            }
-//
-//        assertThat(returnedResult).isNotNull()
-//        assertThat(returnedResult.finishedAt).isNotNull()
-//        assertThat(returnedResult.finishedAt).isAfter(beforeRequestTime)
-//        assertThat(returnedResult.finishedAt).isBefore(ZonedDateTime.now())
-//    }
-//
-//    @Transactional
-//    @Rollback
-//    @Test fun `Can retrieve own Experiment's pipelineJobInfo`() {
-//        val experiment1 = createExperiment(dataProject.id)
-//
-//        this.mockMvc.perform(
-//            this.defaultAcceptContentAuth(get("$rootUrl/${dataProject.id}/experiments/${experiment1.id}/metrics")))
-//            .andExpect(status().isOk)
-//            .andDo(document(
-//                "experiments-retrieve-one-metrics",
-//                responseFields(experimentPipelineInfoDtoResponseFields())))
-//
-//    }
-//
-//    @Transactional
-//    @Rollback
-//    @Test fun `Can retrieve own Experiment's MLReef file`() {
-//        val experiment1 = createExperiment(dataProject.id)
-//
-//        val returnedResult = this.mockMvc.perform(
-//            this.defaultAcceptContentAuth(get("$rootUrl/${dataProject.id}/experiments/${experiment1.id}/mlreef-file")))
-//            .andExpect(status().isOk)
-//            .andDo(document("experiments-retrieve-one-mlreef-file"))
-//            .andReturn().response.contentAsString
-//
-//        assertThat(returnedResult).isNotEmpty()
-//        assertThat(returnedResult).contains("git checkout -b target")
-//    }
-//
-//    @Transactional
-//    @Rollback
-//    @Test fun `Can start own Experiment as gitlab pipeline`() {
-//        val experiment1 = createExperiment(dataProject.id)
-//
-//        val pipelineJobInfoDto = this.mockMvc.perform(
-//            this.defaultAcceptContentAuth(post("$rootUrl/${dataProject.id}/experiments/${experiment1.id}/start")))
-//            .andExpect(status().isOk)
-//            .andReturn().let {
-//                objectMapper.readValue(it.response.contentAsByteArray, PipelineJobInfoDto::class.java)
-//            }
-//
-//        assertThat(pipelineJobInfoDto.id).isNotNull()
-//        assertThat(pipelineJobInfoDto.commitSha).isNotNull()
-//        assertThat(pipelineJobInfoDto.committedAt).isNotNull()
-//        assertThat(pipelineJobInfoDto.updatedAt).isNull()
-//        assertThat(pipelineJobInfoDto.finishedAt).isNull()
-//    }
-//
-//    @Transactional
-//    @Rollback
-//    @Test fun `Can manipulate Experiment in the correct Order PENDING - RUNNING - SUCCESS`() {
-//        val experiment1 = createExperiment(dataProject.id)
-//
-//        mockGitlab(
-//            sourceBranch = experiment1.sourceBranch,
-//            targetBranch = experiment1.targetBranch
-//        )
-//        // Start experiment
-//        this.mockMvc.perform(
-//            this.defaultAcceptContentAuth(post("$rootUrl/${dataProject.id}/experiments/${experiment1.id}/start")))
-//            .andExpect(status().isOk)
-//
-//        val pipelineJobInfoDto = this.mockMvc.perform(
-//            this.defaultAcceptContentAuth(get("$rootUrl/${dataProject.id}/experiments/${experiment1.id}/metrics"))
-//        ).andExpect(status().isOk)
-//            .andReturn().let {
-//                objectMapper.readValue(it.response.contentAsByteArray, PipelineJobInfoDto::class.java)
-//            }
-//
-//        val token = experimentRepository.findByIdOrNull(experiment1.id)!!.pipelineJobInfo!!.secret
-//
-//        val update = this.mockMvc.perform( //experiment/{id}/{token}/update
-//            this.defaultAcceptContentEPFBot(token, put("$epfUrl/experiments/${experiment1.id}/update"))
-//                .content("{}"))
-//            .andReturn().let {
-//                objectMapper.readValue(it.response.contentAsByteArray, PipelineJobInfoDto::class.java)
-//            }
-//
-//        assertThat(update).isNotNull()
-//        val finish = this.mockMvc.perform(
-//            this.defaultAcceptContentEPFBot(token, put("$epfUrl/experiments/${experiment1.id}/finish")))
-//            .andReturn().let {
-//                objectMapper.readValue(it.response.contentAsByteArray, PipelineJobInfoDto::class.java)
-//            }
-//        assertThat(finish).isNotNull()
-//    }
-//
-//    @Transactional
-//    @Rollback
-//    @Test fun `Cannot manipulate Experiment in the wrong Order PENDING - SUCCESS - RUNNING `() {
-//        val experiment1 = createExperiment(dataProject.id)
-//
-//        mockGitlab(
-//            sourceBranch = experiment1.sourceBranch,
-//            targetBranch = experiment1.targetBranch
-//        )
-//        // PENDING
-//        this.mockMvc.perform(
-//            this.defaultAcceptContentAuth(post("$rootUrl/${dataProject.id}/experiments/${experiment1.id}/start")))
-//            .andExpect(status().isOk)
-//
-//        val token = experimentRepository.findByIdOrNull(experiment1.id)!!.pipelineJobInfo!!.secret
-//
-//        // SUCCESS
-//        this.mockMvc.perform(
-//            this.defaultAcceptContentEPFBot(token, put("$epfUrl/experiments/${experiment1.id}/finish")))
-//            .andExpect(status().isOk).andReturn().let {
-//                objectMapper.readValue(it.response.contentAsByteArray, PipelineJobInfoDto::class.java)
-//            }
-//
-//        // MUST fail after here
-//        // RUNNING
-//        this.mockMvc.perform(
-//            this.defaultAcceptContentEPFBot(token, put("$epfUrl/experiments/${experiment1.id}/update"))
-//                .content("{}"))
-//            .andExpect(status().isBadRequest)
-//    }
-//
-//
-//        // PENDING
-//        this.mockMvc.perform(
-//            this.defaultAcceptContentAuth(post("$rootUrl/${dataProject.id}/experiments/${experiment1.id}/start")))
-//            .andExpect(status().isOk)
-//
-//        val token = experimentRepository.findByIdOrNull(experiment1.id)!!.pipelineJobInfo!!.secret
-//
-//        // SUCCESS
-//        this.mockMvc.perform(
-//            this.defaultAcceptContentEPFBot(token, put("$epfUrl/experiments/${experiment1.id}/finish")))
-//            .andExpect(status().isOk).andReturn().let {
-//                objectMapper.readValue(it.response.contentAsByteArray, PipelineJobInfoDto::class.java)
-//            }
-//
-//        // MUST fail after here
-//        // SUCCESS
-//        this.mockMvc.perform(
-//            this.defaultAcceptContentEPFBot(token, put("$epfUrl/experiments/${experiment1.id}/finish")))
-//            .andExpect(status().isBadRequest)
-//    }
+        val experiment1 = createExperiment(project1.id)
+
+        val request: String = "" +
+            """{"metric1": 20.0, "metrik2": 3, "string":"yes"}"""
+
+        val token = experimentRepository.findByIdOrNull(experiment1.id)!!.pipelineJobInfo!!.secret
+
+        val returnedResult = this.mockMvc.perform(
+            this.defaultAcceptContentEPFBot(token, put("$epfUrl/experiments/${experiment1.id}/update")).content(request))
+            .andExpect(status().isOk)
+            .document("experiments-epf-update",
+                responseFields(experimentPipelineInfoDtoResponseFields()))
+            .returns(PipelineJobInfoDto::class.java)
+
+
+        assertThat(returnedResult).isNotNull()
+    }
+
+    // Does not really work right now, lets wait frontend#523
+    @Disabled
+    @Transactional
+    @Rollback
+    @Test
+    fun `Can finish own Experiment's pipelineJobInfo`() {
+        val (account, _, _) = gitlabHelper.createRealUser()
+        val (project1, _) = gitlabHelper.createRealDataProject(account)
+
+        val experiment1 = createExperiment(project1.id)
+
+        val beforeRequestTime = ZonedDateTime.now()
+        val token = experimentRepository.findByIdOrNull(experiment1.id)!!.pipelineJobInfo!!.secret
+
+        val returnedResult = this.mockMvc.perform(
+            this.defaultAcceptContentEPFBot(token, put("$epfUrl/experiments/${experiment1.id}/finish")))
+            .andExpect(status().isOk)
+            .andDo(document(
+                "experiments-epf-finish",
+                responseFields(experimentPipelineInfoDtoResponseFields())))
+            .returns(PipelineJobInfoDto::class.java)
+
+
+        assertThat(returnedResult).isNotNull()
+        assertThat(returnedResult.finishedAt).isNotNull()
+        assertThat(returnedResult.finishedAt).isAfter(beforeRequestTime)
+        assertThat(returnedResult.finishedAt).isBefore(ZonedDateTime.now())
+    }
+
+    // Does not really work right now, lets wait frontend#523
+    @Disabled
+    @Transactional
+    @Rollback
+    @Test
+    fun `Can retrieve own Experiment's pipelineJobInfo`() {
+        val (account, _, _) = gitlabHelper.createRealUser()
+        val (project1, _) = gitlabHelper.createRealDataProject(account)
+
+        val experiment1 = createExperiment(project1.id)
+
+        this.performGet("$rootUrl/${project1.id}/experiments/${experiment1.id}/info", account)
+            .andExpect(status().isOk)
+            .andDo(document(
+                "experiments-retrieve-one-info",
+                responseFields(experimentPipelineInfoDtoResponseFields())))
+
+    }
+
+    @Transactional
+    @Rollback
+    @Test fun `Can retrieve own Experiment's MLReef file`() {
+        val (account, _, _) = gitlabHelper.createRealUser()
+        val (project1, _) = gitlabHelper.createRealDataProject(account)
+
+        val experiment1 = createExperiment(project1.id)
+
+        val returnedResult = performGet("$rootUrl/${project1.id}/experiments/${experiment1.id}/mlreef-file", account)
+            .andExpect(status().isOk)
+            .andDo(document("experiments-retrieve-one-mlreef-file"))
+            .andReturn().response.contentAsString
+
+        assertThat(returnedResult).isNotEmpty()
+        assertThat(returnedResult).contains("git checkout -b target")
+    }
+
+    // Does not really work right now, lets wait frontend#523
+    @Disabled
+    @Transactional
+    @Rollback
+    @Test
+    fun `Can start own Experiment as gitlab pipeline`() {
+        val (account, _, _) = gitlabHelper.createRealUser()
+        val (project1, _) = gitlabHelper.createRealDataProject(account)
+
+        val experiment1 = createExperiment(project1.id)
+
+        val pipelineJobInfoDto = performPost("$rootUrl/${project1.id}/experiments/${experiment1.id}/start", account)
+            .andExpect(status().isOk)
+            .returns(PipelineJobInfoDto::class.java)
+
+        assertThat(pipelineJobInfoDto.id).isNotNull()
+        assertThat(pipelineJobInfoDto.commitSha).isNotNull()
+        assertThat(pipelineJobInfoDto.committedAt).isNotNull()
+        assertThat(pipelineJobInfoDto.updatedAt).isNull()
+        assertThat(pipelineJobInfoDto.finishedAt).isNull()
+    }
+
+    // Does not really work right now, lets wait frontend#523
+    @Disabled
+    @Transactional
+    @Rollback
+    @Test
+    fun `Can manipulate Experiment in the correct Order PENDING - RUNNING - SUCCESS`() {
+        val (account, _, _) = gitlabHelper.createRealUser()
+        val (project1, _) = gitlabHelper.createRealDataProject(account)
+
+        val experiment1 = createExperiment(project1.id)
+
+        // Start experiment
+        this.performPost("$rootUrl/${project1.id}/experiments/${experiment1.id}/start", account)
+            .andExpect(status().isOk)
+
+        this.performGet("$rootUrl/${project1.id}/experiments/${experiment1.id}/info", account)
+            .andExpect(status().isOk)
+            .returns(PipelineJobInfoDto::class.java)
+
+        val token = experimentRepository.findByIdOrNull(experiment1.id)!!.pipelineJobInfo!!.secret
+
+        val update = performEPFPut(token, "$epfUrl/experiments/${experiment1.id}/update", body = Object())
+            .returns(PipelineJobInfoDto::class.java)
+
+        assertThat(update).isNotNull()
+        val finish = performEPFPut(token, "$epfUrl/experiments/${experiment1.id}/finish")
+            .returns(PipelineJobInfoDto::class.java)
+        assertThat(finish).isNotNull()
+    }
+
+    // Does not really work right now, lets wait frontend#523
+    @Disabled
+    @Transactional
+    @Rollback
+    @Test
+    fun `Cannot manipulate Experiment in the wrong Order PENDING - SUCCESS - RUNNING `() {
+        val (account, _, _) = gitlabHelper.createRealUser()
+        val (project1, _) = gitlabHelper.createRealDataProject(account)
+
+        val experiment1 = createExperiment(project1.id)
+
+        // PENDING
+        this.mockMvc.perform(
+            this.acceptContentAuth(post("$rootUrl/${project1.id}/experiments/${experiment1.id}/start", account)))
+            .andExpect(status().isOk)
+
+        val token = experimentRepository.findByIdOrNull(experiment1.id)!!.pipelineJobInfo!!.secret
+
+        // SUCCESS
+        this.mockMvc.perform(
+            this.defaultAcceptContentEPFBot(token, put("$epfUrl/experiments/${experiment1.id}/finish")))
+            .andExpect(status().isOk).andReturn().let {
+                objectMapper.readValue(it.response.contentAsByteArray, PipelineJobInfoDto::class.java)
+            }
+
+        // MUST fail after here
+        // RUNNING
+        this.mockMvc.perform(
+            this.defaultAcceptContentEPFBot(token, put("$epfUrl/experiments/${experiment1.id}/update"))
+                .content("{}"))
+            .andExpect(status().isBadRequest)
+    }
+
 
     private fun createMockedPipeline(user: GitlabUser): GitlabPipeline {
         val pipeline = GitlabPipeline(
@@ -495,9 +477,8 @@ import javax.transaction.Transactional
             order = 1, required = true)
 
         processorInstance.addParameterInstances(processorParameter, "value")
-        val parameterInstances = processorInstance2.addParameterInstances(processorParameter.copy(dataProcessorId = processorInstance2.dataProcessorId), "value")
+        processorInstance2.addParameterInstances(processorParameter.copy(dataProcessorId = processorInstance2.dataProcessorId), "value")
         processorParameterRepository.save(processorParameter)
-//        parameterInstanceRepository.save(parameterInstances)
         dataProcessorInstanceRepository.save(processorInstance)
         dataProcessorInstanceRepository.save(processorInstance2)
         val experiment1 = Experiment(
@@ -506,18 +487,12 @@ import javax.transaction.Transactional
             dataInstanceId = dataInstanceId,
             id = randomUUID(),
             dataProjectId = dataProjectId,
-            sourceBranch = "source",
+            sourceBranch = "master",
             targetBranch = "target",
             postProcessing = arrayListOf(processorInstance2),
-            pipelineJobInfo = PipelineJobInfo(
-                gitlabId = 4,
-                createdAt = I18N.dateTime(),
-                commitSha = "sha",
-                ref = "branch",
-                committedAt = I18N.dateTime(),
-                secret = "secret"
-            ),
-            processing = processorInstance)
+            pipelineJobInfo = null,
+            processing = processorInstance,
+            inputFiles = listOf(FileLocation(randomUUID(), FileLocationType.PATH, "location1")))
         return experimentRepository.save(experiment1)
     }
 
@@ -556,6 +531,7 @@ import javax.transaction.Transactional
             fieldWithPath("data_instance_id").optional().type(JsonFieldType.STRING).description("An optional UUID of a optional DataInstance. Check that it matches the source_branch"),
             fieldWithPath("slug").type(JsonFieldType.STRING).description("A slug which is unique scoped to this DataProject"),
             fieldWithPath("name").type(JsonFieldType.STRING).description("A name for that Experiment. I does not have to be unique, but it should be."),
+            fieldWithPath("input_files").type(JsonFieldType.ARRAY).description("List of input files (folders) for processing"),
             fieldWithPath("source_branch").type(JsonFieldType.STRING).description("Branch name for initial checkout"),
             fieldWithPath("target_branch").type(JsonFieldType.STRING).description("Branch name for destination"),
             fieldWithPath("post_processing").type(JsonFieldType.ARRAY).optional().description("An optional List of DataProcessors used during PostProcessing"),

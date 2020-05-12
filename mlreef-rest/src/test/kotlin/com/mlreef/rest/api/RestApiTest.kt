@@ -48,13 +48,15 @@ import org.springframework.test.web.servlet.setup.DefaultMockMvcBuilder
 import org.springframework.test.web.servlet.setup.MockMvcBuilders
 import org.springframework.web.context.WebApplicationContext
 import java.util.regex.Pattern
-
 @TestPropertySource("classpath:application.yml")
 @ExtendWith(value = [RestDocumentationExtension::class, SpringExtension::class])
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles(ApplicationProfiles.TEST)
 @AutoConfigureTestDatabase(connection = EmbeddedDatabaseConnection.H2)
-@ContextConfiguration(initializers = [TestRedisContainer.Initializer::class, TestPostgresContainer.Initializer::class, TestGitlabContainer.Initializer::class])
+@ContextConfiguration(initializers = [
+    TestRedisContainer.Initializer::class,
+    TestPostgresContainer.Initializer::class,
+    TestGitlabContainer.Initializer::class])
 abstract class RestApiTest {
 
     lateinit var mockMvc: MockMvc
@@ -70,7 +72,7 @@ abstract class RestApiTest {
         const val mockGroupName1: String = "mockgroupname1"
         const val mockGroupName2: String = "mockgroupname2"
         const val HEADER_PRIVATE_TOKEN = "PRIVATE-TOKEN"
-        const val EPF_HEADER = "EPF-BOT-USER"
+        const val EPF_HEADER = "EPF-BOT-TOKEN"
 
         lateinit var mockedGitlabUser1: GitlabUser
         lateinit var mockedGitlabUser2: GitlabUser
@@ -122,20 +124,38 @@ abstract class RestApiTest {
     }
 
     protected fun addRealUserToProject(projectId: Long, userId: Long, accessLevel: GroupAccessLevel? = null) {
-        restClient.adminAddUserToProject(projectId = projectId, userId = userId, accessLevel = accessLevel ?: GroupAccessLevel.DEVELOPER)
+        restClient.adminAddUserToProject(projectId = projectId, userId = userId, accessLevel = accessLevel
+            ?: GroupAccessLevel.DEVELOPER)
     }
 
     protected fun acceptContentAuth(requestBuilder: MockHttpServletRequestBuilder, account: Account? = null, token: String? = null): MockHttpServletRequestBuilder {
-        val finalToken = token ?: account?.bestToken?.token ?: throw RuntimeException("No valid token to execute Gitlab request")
+        val finalToken = token ?: account?.bestToken?.token
+        ?: throw RuntimeException("No valid token to execute Gitlab request")
         return requestBuilder
             .accept(MediaType.APPLICATION_JSON)
             .header(HEADER_PRIVATE_TOKEN, finalToken)
             .contentType(MediaType.APPLICATION_JSON)
     }
 
-    protected fun performGet(url: String, account: Account) =
+    protected fun performPost(url: String, account: Account? = null, body: Any? = null) =
+        if (body != null) {
+            this.mockMvc.perform(
+                this.acceptContentAuth(RestDocumentationRequestBuilders.post(url), account)
+                    .content(objectMapper.writeValueAsString(body)))
+        } else {
+            this.mockMvc.perform(this.acceptContentAuth(RestDocumentationRequestBuilders.post(url), account))
+        }
+
+    protected fun performGet(url: String, account: Account? = null) =
         this.mockMvc.perform(this.acceptContentAuth(RestDocumentationRequestBuilders.get(url), account))
 
+    protected fun performEPFPut(token: String, url: String, body: Any? = null) =
+        if (body != null) {
+            this.mockMvc.perform(this.defaultAcceptContentEPFBot(token, RestDocumentationRequestBuilders.put(url))
+                .content(objectMapper.writeValueAsString(body)))
+        } else {
+            this.mockMvc.perform(this.defaultAcceptContentEPFBot(token, RestDocumentationRequestBuilders.put(url)))
+        }
 
     protected fun defaultAcceptContentEPFBot(token: String, requestBuilder: MockHttpServletRequestBuilder): MockHttpServletRequestBuilder {
         return requestBuilder
@@ -153,25 +173,27 @@ abstract class RestApiTest {
         )
     }
 
-}
+    fun ResultActions.checkStatus(status: HttpStatus): ResultActions {
+        return this.andExpect(MockMvcResultMatchers.status().`is`(status.value()))
+    }
 
-fun ResultActions.checkStatus(status: HttpStatus): ResultActions {
-    return this.andExpect(MockMvcResultMatchers.status().`is`(status.value()))
-}
+    fun ResultActions.document(name: String, vararg snippets: Snippet): ResultActions {
+        return this.andDo(MockMvcRestDocumentation.document(name, *snippets))
+    }
 
-fun ResultActions.document(name: String, vararg snippets: Snippet): ResultActions {
-    return this.andDo(MockMvcRestDocumentation.document(name, *snippets))
-}
+    fun <T> ResultActions.returnsList(clazz: Class<T>): List<T> {
+        return this.andReturn().let {
+            val constructCollectionType = objectMapper.typeFactory.constructCollectionType(List::class.java, clazz)
+            objectMapper.readValue(it.response.contentAsByteArray, constructCollectionType)
+        }
+    }
 
-fun <T> ResultActions.returnsList(objectMapper: ObjectMapper, clazz: Class<T>): List<T> {
-    return this.andReturn().let {
-        val constructCollectionType = objectMapper.typeFactory.constructCollectionType(List::class.java, clazz)
-        objectMapper.readValue(it.response.contentAsByteArray, constructCollectionType)
+    fun <T> ResultActions.returns(clazz: Class<T>): T {
+        return this.andReturn().let {
+            objectMapper.readValue(it.response.contentAsByteArray, clazz)
+        }
     }
 }
 
-fun <T> ResultActions.returns(objectMapper: ObjectMapper, clazz: Class<T>): T {
-    return this.andReturn().let {
-        objectMapper.readValue(it.response.contentAsByteArray, clazz)
-    }
-}
+
+

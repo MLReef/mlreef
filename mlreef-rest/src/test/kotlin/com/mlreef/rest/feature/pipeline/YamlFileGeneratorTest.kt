@@ -45,6 +45,7 @@ class YamlFileGeneratorTest {
         assertContains(generator.input, YamlFileGenerator.SOURCE_BRANCH)
         assertContains(generator.input, YamlFileGenerator.TARGET_BRANCH)
         assertContains(generator.input, YamlFileGenerator.PIPELINE_STRING)
+        assertContains(generator.input, YamlFileGenerator.INPUT_FILE_LIST)
     }
 
     @Test
@@ -59,6 +60,8 @@ class YamlFileGeneratorTest {
         assertContains(generator.output, YamlFileGenerator.GITLAB_PROJECT)
         assertContains(generator.output, YamlFileGenerator.SOURCE_BRANCH)
         assertContains(generator.output, YamlFileGenerator.TARGET_BRANCH)
+        assertContains(generator.output, YamlFileGenerator.INPUT_FILE_LIST)
+
         assertContains(generator.output, YamlFileGenerator.PIPELINE_STRING)
 
         generator.replaceAllSingleStrings()
@@ -71,6 +74,7 @@ class YamlFileGeneratorTest {
         assertMissing(generator.output, YamlFileGenerator.GITLAB_PROJECT)
         assertMissing(generator.output, YamlFileGenerator.SOURCE_BRANCH)
         assertMissing(generator.output, YamlFileGenerator.TARGET_BRANCH)
+        assertMissing(generator.output, YamlFileGenerator.INPUT_FILE_LIST)
     }
 
     @Test

@@ -7,9 +7,12 @@ logging:
     org.hibernate: WARN
 
 mlreef:
+  epf:
+    backend-url: ${EPF_BACKEND_URL:http://backend:8080}
+    image-tag: ${EPF_IMAGE_TAG:latest}
   gitlab:
-    rootUrl: ${GITLAB_ROOT_URL}
-    adminUserToken: ${GITLAB_ADMIN_TOKEN}
+    root-url: ${GITLAB_ROOT_URL}
+    admin-user-token: ${GITLAB_ADMIN_TOKEN}
   bot-management:
     epf-bot-email-domain: mlreef.com
     epf-bot-password-length: 20

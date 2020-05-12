@@ -20,12 +20,12 @@ data class PipelineJobInfoDto(
 
 internal fun PipelineJobInfo.toDto(): PipelineJobInfoDto =
     PipelineJobInfoDto(
-        this.gitlabId,
-        this.ref,
-        this.commitSha,
-        this.committedAt,
-        this.createdAt,
-        this.updatedAt,
-        this.startedAt,
-        this.finishedAt
+        id = this.gitlabId,
+        ref = this.ref,
+        commitSha = this.commitSha,
+        committedAt = this.committedAt,
+        createdAt = this.createdAt,
+        updatedAt = this.updatedAt,
+        startedAt = this.startedAt,
+        finishedAt = this.finishedAt
     )

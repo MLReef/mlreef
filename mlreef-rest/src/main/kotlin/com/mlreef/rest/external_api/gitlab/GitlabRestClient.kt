@@ -50,9 +50,9 @@ inline fun <reified T : Any> typeRef(): ParameterizedTypeReference<T> = object :
 //@Profile(value = ["!" + ApplicationProfiles.TEST])
 class GitlabRestClient(
     private val builder: RestTemplateBuilder,
-    @Value("\${mlreef.gitlab.rootUrl}")
+    @Value("\${mlreef.gitlab.root-url}")
     val gitlabRootUrl: String,
-    @Value("\${mlreef.gitlab.adminUserToken:\"\"}")
+    @Value("\${mlreef.gitlab.admin-user-token}")
     val gitlabAdminUserToken: String,
     @Value("\${mlreef.gitlab.adminUsername:\"\"}")
     val adminUserName: String? = null,

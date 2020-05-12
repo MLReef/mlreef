@@ -47,7 +47,9 @@ class PipelineService(
     private val dataProcessorRepository: DataProcessorRepository,
     private val processorParameterRepository: ProcessorParameterRepository,
     private val gitlabRestClient: GitlabRestClient,
-    @Value("\${mlreef.gitlab.rootUrl}") val gitlabRootUrl: String
+    @Value("\${mlreef.gitlab.root-url}") val gitlabRootUrl: String,
+    @Value("\${mlreef.epf.backend-url}") val epfBackendUrl: String,
+    @Value("\${mlreef.epf.image-tag}") val epfImageTag: String
 ) {
 
     val log = LoggerFactory.getLogger(this::class.java)
@@ -97,7 +99,22 @@ class PipelineService(
         val dataProject = dataProjectRepository.findByIdOrNull(pipelineInstance.dataProjectId)
             ?: throw IllegalArgumentException("DataProject is missing!")
 
-        return YamlFileGenerator().generateYamlFile(author, dataProject, secret, gitlabRootUrl, pipelineInstance.sourceBranch, pipelineInstance.targetBranch, pipelineInstance.dataOperations)
+        val fileLocation = pipelineInstance.inputFiles.first().location
+        val fileList = pipelineInstance.inputFiles.map(FileLocation::toYamlString)
+
+        val id = pipelineInstance.id
+        val epfPipelineUrl = "ID:$id"
+        return YamlFileGenerator(epfImageTag).generateYamlFile(
+            author,
+            dataProject,
+            secret,
+            epfPipelineUrl,
+            gitlabRootUrl,
+            pipelineInstance.sourceBranch,
+            pipelineInstance.targetBranch,
+            pipelineInstance.dataOperations,
+            fileList,
+            fileLocation)
     }
 
     fun commitYamlFile(userToken: String, projectId: Long, targetBranch: String, fileContent: String, sourceBranch: String = "master"): Commit {

@@ -7,6 +7,7 @@ import com.mlreef.rest.DataProject
 import com.mlreef.rest.DataProjectRepository
 import com.mlreef.rest.DataType
 import com.mlreef.rest.ExperimentRepository
+import com.mlreef.rest.FileLocation
 import com.mlreef.rest.Person
 import com.mlreef.rest.PipelineConfig
 import com.mlreef.rest.PipelineConfigRepository
@@ -58,9 +59,10 @@ class ExperimentServiceTest : AbstractServiceTest() {
             dataProcessorRepository = dataProcessorRepository,
             pipelineInstanceRepository = pipelineInstanceRepository,
             processorParameterRepository = processorParameterRepository,
-            gitlabRootUrl = "http://localhost:10080"
+            gitlabRootUrl = "http://localhost:10080",
+            epfBackendUrl = "epfBackendUrl.com",
+            epfImageTag = "latest"
         )
-
         val subject = Person(ownerId, "new-person", "person's name", 1L)
         val dataRepository = DataProject(dataRepositoryId, "new-repo", "url", "Test DataProject", subject.id, "mlreef", "project", "group/project", 0, VisibilityScope.PUBLIC, arrayListOf())
         val dataPipeline = PipelineConfig(dataPipelineConfigId, dataRepositoryId, PipelineType.DATA, "slug", "name", "source_branch", "target_branch/\$SLUG")
@@ -91,7 +93,8 @@ class ExperimentServiceTest : AbstractServiceTest() {
                 "source",
                 "target",
                 listOf(),
-                dataProcessorInstance)
+                inputFiles = listOf(),
+                processorInstance = dataProcessorInstance)
         }
     }
 
@@ -107,7 +110,8 @@ class ExperimentServiceTest : AbstractServiceTest() {
                 "source",
                 "target",
                 listOf(),
-                dataProcessorInstance)
+                inputFiles = listOf(),
+                processorInstance = dataProcessorInstance)
         }
     }
 
@@ -123,7 +127,8 @@ class ExperimentServiceTest : AbstractServiceTest() {
                 "source",
                 "target",
                 listOf(),
-                dataProcessorInstance)
+                inputFiles = listOf(),
+                processorInstance = dataProcessorInstance)
         }
     }
 
@@ -139,7 +144,8 @@ class ExperimentServiceTest : AbstractServiceTest() {
                 "",
                 "target",
                 listOf(),
-                dataProcessorInstance)
+                inputFiles = listOf(),
+                processorInstance = dataProcessorInstance)
         }
     }
 
@@ -157,7 +163,8 @@ class ExperimentServiceTest : AbstractServiceTest() {
             "source",
             "target",
             listOf(),
-            dataProcessorInstance)
+            inputFiles = listOf(FileLocation.fromPath("folder")),
+            processorInstance = dataProcessorInstance)
 
         assertThat(createExperiment).isNotNull()
     }
@@ -173,7 +180,8 @@ class ExperimentServiceTest : AbstractServiceTest() {
             "source",
             "target",
             listOf(),
-            dataProcessorInstance)
+            inputFiles = listOf(FileLocation.fromPath("folder")),
+            processorInstance = dataProcessorInstance)
 
         assertThat(createExperiment).isNotNull()
     }
@@ -190,7 +198,8 @@ class ExperimentServiceTest : AbstractServiceTest() {
                 "source",
                 "",
                 listOf(),
-                dataProcessorInstance)
+                inputFiles = listOf(),
+                processorInstance = dataProcessorInstance)
         }
     }
 }
