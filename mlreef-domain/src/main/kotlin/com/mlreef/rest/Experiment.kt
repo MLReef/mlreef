@@ -71,7 +71,7 @@ data class Experiment(
         name = "experiment_id",
         foreignKey = ForeignKey(name = "filelocation_experiment_experiment_id_fkey")
     )
-    val inputFiles: MutableList<FileLocation> = arrayListOf(),
+    val inputFiles: List<FileLocation> = arrayListOf(),
 
     @OneToMany(fetch = FetchType.EAGER)
     @Fetch(value = FetchMode.SUBSELECT)
@@ -106,7 +106,6 @@ data class Experiment(
     }
 
     fun getProcessor() = this.processing
-
 }
 
 
@@ -125,7 +124,7 @@ enum class ExperimentStatus(private val stage: Int) {
     }
 
     fun canUpdateTo(next: ExperimentStatus): Boolean {
-        return next.stage > this.stage
+        return next.stage >= this.stage
     }
 }
 

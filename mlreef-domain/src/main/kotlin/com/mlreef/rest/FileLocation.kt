@@ -44,8 +44,6 @@ data class FileLocation(
 
     val location: String,
 
-    // TODO: think about proper JPA generic relationships
-
     @Column(name = "experiment_id")
     val experimentId: UUID? = null,
 
@@ -62,6 +60,14 @@ data class FileLocation(
                 id = randomUUID(),
                 location = location,
                 locationType = FileLocationType.fromString(locationType)
+            )
+        }
+
+        fun fromPath(location: String): FileLocation {
+            return FileLocation(
+                id = randomUUID(),
+                location = location,
+                locationType = FileLocationType.PATH
             )
         }
     }
@@ -95,7 +101,9 @@ data class FileLocation(
         if (assigns <= 1) {
             return this
         } else {
-            throw IllegalStateException("Too many relationsships defined for FileLocation: $assigns")
+            throw IllegalStateException("Too many relationships defined for FileLocation: $assigns")
         }
     }
+
+    fun toYamlString() = "$locationType:$location"
 }

@@ -5,6 +5,7 @@ import com.mlreef.rest.DataProjectRepository
 import com.mlreef.rest.Experiment
 import com.mlreef.rest.ExperimentRepository
 import com.mlreef.rest.ExperimentStatus
+import com.mlreef.rest.FileLocation
 import com.mlreef.rest.Person
 import com.mlreef.rest.api.v1.dto.DataProcessorInstanceDto
 import com.mlreef.rest.api.v1.dto.ExperimentDto
@@ -64,12 +65,13 @@ class ExperimentsController(
         return findOneByDataProjectIdAndId.toDto()
     }
 
-    @GetMapping("/{id}/metrics")
+    @GetMapping("/{id}/info")
     @PreAuthorize("isProjectOwner(#dataProjectId)")
     fun getExperimentMetrics(@PathVariable dataProjectId: UUID, @PathVariable id: UUID): PipelineJobInfoDto {
         val experiment = beforeGetExperiment(id)
         val pipelineJobInfo = experiment.pipelineJobInfo
-        return pipelineJobInfo!!.toDto()
+            ?: throw NotFoundException("Experiment does not have a PipelineJobInfo (yet)")
+        return pipelineJobInfo.toDto()
     }
 
     @GetMapping("/{id}/mlreef-file")
@@ -100,6 +102,7 @@ class ExperimentsController(
             targetBranch = experiment.targetBranch, projectId = dataProject.gitlabId, secret = secret, fileContent = fileContent)
 
         val experimentWithPipeline = service.savePipelineInfo(experiment, pipelineJobInfo)
+
         return experimentWithPipeline.pipelineJobInfo!!.toDto()
     }
 
@@ -127,7 +130,7 @@ class ExperimentsController(
             }
         }
 
-        val processorInstance = experimentCreateRequest.processing?.let { processorInstanceDto ->
+        val processorInstance = experimentCreateRequest.processing.let { processorInstanceDto ->
             service.newDataProcessorInstance(processorInstanceDto.slug).apply {
                 processorInstanceDto.parameters.forEach { dto ->
                     service.addParameterInstance(this, dto.name, dto.value)
@@ -135,6 +138,7 @@ class ExperimentsController(
             }
         }
 
+        val inputFiles = experimentCreateRequest.inputFiles.map { FileLocation.fromPath(it) }
         val newExperiment = service.createExperiment(
             authorId = person.id,
             dataProjectId = dataProject.id,
@@ -144,6 +148,7 @@ class ExperimentsController(
             sourceBranch = experimentCreateRequest.sourceBranch,
             targetBranch = experimentCreateRequest.targetBranch,
             postProcessors = postProcessors,
+            inputFiles = inputFiles,
             processorInstance = processorInstance
         )
 
@@ -159,6 +164,7 @@ class ExperimentCreateRequest(
     @NotEmpty val name: String,
     @NotEmpty val sourceBranch: String,
     @NotEmpty val targetBranch: String = "",
-    @Valid val processing: DataProcessorInstanceDto? = null,
+    @NotEmpty val inputFiles: List<String> = listOf(),
+    @Valid val processing: DataProcessorInstanceDto,
     @Valid val postProcessing: List<DataProcessorInstanceDto> = arrayListOf()
 )

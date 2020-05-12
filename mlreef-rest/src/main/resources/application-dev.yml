@@ -26,7 +26,11 @@ spring:
   redis:
     host: ${REDIS_HOST:localhost}
     port: ${REDIS_PORT:7379}
+
 mlreef:
   gitlab:
-    rootUrl: ${GITLAB_ROOT_URL:http://localhost:10080}
-    adminUserToken: ${GITLAB_ADMIN_TOKEN}
+    root-url: ${GITLAB_ROOT_URL:http://localhost:10080}
+    admin-user-token: ${GITLAB_ADMIN_TOKEN}
+  epf:
+    backend-url: ${EPF_BACKEND_URL:http://172.22.0.1:8080}
+    image-tag: ${EPF_IMAGE_TAG:latest}

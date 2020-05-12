@@ -25,5 +25,5 @@ spring:
 
 mlreef:
   gitlab:
-    rootUrl: ${GITLAB_ROOT_URL:http://localhost:10080}
-    adminUserToken: ${GITLAB_ADMIN_TOKEN}
+    root-url: ${GITLAB_ROOT_URL:http://localhost:10080}
+    admin-user-token: ${GITLAB_ADMIN_TOKEN}

@@ -9,5 +9,5 @@ logging:
 
 mlreef:
   gitlab:
-    rootUrl: ${GITLAB_ROOT_URL}
-    adminUserToken: ${GITLAB_ADMIN_TOKEN}
+    root-url: ${GITLAB_ROOT_URL}
+    admin-user-token: ${GITLAB_ADMIN_TOKEN}

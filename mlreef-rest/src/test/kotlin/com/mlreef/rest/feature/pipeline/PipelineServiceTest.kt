@@ -79,7 +79,9 @@ class PipelineServiceTest : AbstractServiceTest() {
             dataProcessorRepository = dataProcessorRepository,
             processorParameterRepository = processorParameterRepository,
             gitlabRootUrl = "http://localhost:10080",
-            gitlabRestClient = restClient)
+            gitlabRestClient = restClient,
+            epfBackendUrl = "epfBackendUrl.com",
+            epfImageTag = "latest")
 
         val subject = Person(ownerId, "new-person", "person's name", 1L)
         subjectRepository.save(subject)
