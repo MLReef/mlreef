@@ -81,6 +81,7 @@ deploy:
 
 
 check login page:
+  extends: [.except-docu-branches]
   stage: smoke tests
   when: delayed
   start_in: 2 minutes
