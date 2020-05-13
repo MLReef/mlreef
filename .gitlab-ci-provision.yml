@@ -1,5 +1,6 @@
 # The provision job boots up the new ec2 instance for deploying MLReef
 provision:
+  extends: [".except-docu-branches"]
   stage: provision
 #  rules:
 #    # Only execute the provisioning if no environment URL is set
