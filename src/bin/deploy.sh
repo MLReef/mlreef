@@ -174,7 +174,8 @@ echo "# Automatically added by the deploment pipeline .gitlab-ci-deploy.yml" >$D
 } >>$DOCKER_ENV
 
 ####
-echo "### $(date) Starting Deployment"
+log "Starting Deployment"
+docker-compose pull
 log "Stopping serviced gateway frontend backend mlreef-postgres"
 docker-compose stop gateway frontend backend mlreefdb
 log "Starting Deployment"
