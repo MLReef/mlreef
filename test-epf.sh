@@ -1,5 +1,5 @@
-
-set IMAGE=registry.gitlab.com/mlreef/epf:feature-with-backend
+#!/bin/sh
+export IMAGE=registry.gitlab.com/mlreef/epf:feature-with-backend
 echo Using %IMAGE%
 docker pull %IMAGE%
 docker create --name epf --rm %IMAGE% 
