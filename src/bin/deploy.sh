@@ -306,7 +306,7 @@ echo "Gitlab RUNNER_REGISTRATION_TOKEN=$RUNNER_REGISTRATION_TOKEN"
 # Step 5 Register Gitlab Runner
 #
 #
-export DISPATCHER_DESCRIPTION="Packaged Dispatcher on $CI_COMMIT_REF_SLUG-$INSTANCE"
+export DISPATCHER_DESCRIPTION="Packaged Dispatcher on $INSTANCE"
 if [ $INSTANCE != "localhost" ]; then
   log "5. Configuring Gitlab Runner for cloud environment"
   # https://docs.gitlab.com/runner/configuration/advanced-configuration.html#volumes-in-the-runnersdocker-section
