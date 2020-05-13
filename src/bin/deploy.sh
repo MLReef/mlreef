@@ -208,14 +208,13 @@ log "1. Starting Gitlab Omnibus"
 log "docker-compose up --detach gitlab gitlab-runner"
 docker-compose up --detach gitlab gitlab-runner
 log "Waiting for Gitlab to start."
-log "Checking ports 80 and $GITLAB_PORT"
+log "Looking for Gitlab at ports 80 and $GITLAB_PORT"
 # Port 10081 is the mappet to Gitlab's initial port (80) in the docker-compose.yml
 until [ "$(checkGitlab80)" = "302" ] || [ "$(checkGitlabPort)" = "302" ]; do
   printf '.'
   sleep 5;
 done
-log "Expecting code 302; port 80 returned: $(checkGitlab80) ||| port $GITLAB_PORT returned $(checkGitlabPort)"
-
+echo ""
 #
 #
 # Step 2 Configure Gitlabs port and external URL
@@ -226,7 +225,7 @@ if [ "$(checkGitlabPort)" = "302" ]; then
   log "2. Found Gitlab at expected port $GITLAB_PORT. Printing relevant parts of /etc/gitlab/gitlab.rb"
   docker exec gitlab sh -c 'cat /etc/gitlab/gitlab.rb | grep external_url\ \"'
 elif [ "$(checkGitlab80)" = "302" ]; then
-  # Gitlab is still configured to port 80 and has to be reconfigured
+  log "Found Gitlab at port 80. Reconfiguring Gitlab for port $GITLAB_PORT"
   if [ $INSTANCE != "localhost" ]; then
     log "2. Configure Gitlab external_url "'http://$INSTANCE:$GITLAB_PORT'
     docker exec gitlab sh -c 'echo external_url \"$REACT_APP_API_GATEWAY:$GITLAB_PORT\" >> /etc/gitlab/gitlab.rb'
