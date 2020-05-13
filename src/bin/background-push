@@ -1,62 +1,20 @@
 #!/bin/sh
 
-
-# json with job's experiment model statistics
 STATISTIC_FILE="experiment.json"
-PROJECT_ID=$CI_PROJECT_ID
-EXPERIMENT_ID=$CI_COMMIT_REF_SLUG
-GITLAB_API=$CI_API_V4_URL
-echo "GITLAB_API is $GITLAB_API"
-echo "TARGET_BRANCH is $TARGET_BRANCH"
-echo "EXPERIMENT_ID is $EXPERIMENT_ID"
-echo "PROJECT_ID is $PROJECT_ID"
-echo "GITLAB_API_TOKEN is $( echo $GITLAB_API_TOKEN | cut -c1-5 )********"
+echo "EPF_PIPELINE_SECRET is $EPF_PIPELINE_SECRET"
+echo "EPF_PIPELINE_URL is $EPF_PIPELINE_URL"
 
-# create a Gitlab Snippet model with the experiment.json as payload for "code"
-build_json () {
-  local iteration=$1
-  jq -n \
-    --arg title "$EXPERIMENT_ID"    \
-    --arg file_name "$EXPERIMENT_ID-$STATISTIC_FILE"    \
-    --arg code "$( cat $STATISTIC_FILE)" \
-    --arg visibility "private" \
-    --arg description "Last updated with iteration $iteration on $( date )" \
-   '{title: $title, file_name: $file_name, code: $code, visibility: $visibility, description: $description}' 
+# send information to Backend's EPF API endpoint for "update" or "finish"
+request_epf_endpoint_update() {
+  url="$EPF_PIPELINE_URL/update"
+  echo $url
+  curl -sS --request PUT $url \
+    --header "EPF-BOT-TOKEN: $EPF_PIPELINE_SECRET" \
+    --header "Content-Type: application/json" \
+    -d @experiment.json
 }
-
-# creates a new snippet in project and returns the snippet_id
-perform_create_snippet () {
-  local iteration=$1
-  build_json $iteration > create-snippet.json
-  curl -sS --fail --request POST $GITLAB_API/projects/$PROJECT_ID/snippets \
-      --header "PRIVATE-TOKEN: $GITLAB_API_TOKEN" \
-      --header "Content-Type: application/json" \
-      -d @create-snippet.json | jq .id
-}
-
-# updates the snippet with the given id
-perform_update_snippet () {
-  local iteration=$1
-  local snippet_id=$2
-  build_json $iteration > update-snippet.json
-  echo "Refreshing realtime statistics: $GITLAB_API/projects/$PROJECT_ID/snippets/$snippet_id"
-  curl -sS --request PUT $GITLAB_API/projects/$PROJECT_ID/snippets/$snippet_id \
-     --header "PRIVATE-TOKEN: $GITLAB_API_TOKEN" \
-     --header "Content-Type: application/json" \
-     -d @update-snippet.json > /dev/null
-}
-
-perform_native_git_commit () {
-  git add experiment.json
-  git commit -m "Automatic commit [skip ci]"
-  git push origin $TARGET_BRANCH
-  echo ""
-}
-
-
 
 iteration=0
-last_id=-1
 while [ "$iteration" -lt 1000 ] # run 1_000 iterations max
 do
   echo "------------------------------------------------------------"
@@ -67,21 +25,11 @@ do
     iteration=`expr $iteration + 1` 
     continue
   fi
-  if [ "$last_id" -eq -1 ]; then
-    echo "Create Snippet for $STATISTIC_FILE"
-    last_id=$( perform_create_snippet $iteration )
-    if [ "$?" -gt 0 ]; then
-      echo "Could not write to backend"
-    fi
-  else
-    echo "Updated experiment.json"
-    perform_update_snippet $iteration $last_id
-  fi
 
-  # TODO: keep "git commit" for now, remove later.
-  perform_native_git_commit
-
-  sleep 6               # sleep for 1 second
+  echo "iteration: $iteration"
+  request_epf_endpoint_update
+  cat $STATISTIC_FILE
+  sleep 15                              # sleep for 1 second
   iteration=`expr $iteration + 1`       # increment running variable
 done
-# 6 seconds times 1_000 ==> 6_000 seconds => 100 minutes => 1 hour 40 minutes
+# 15 seconds times 1_000 ==> 15_000 seconds => 250 minutes => ~ 4 hours

@@ -14,6 +14,7 @@ RUN apt-get update                  && \
 WORKDIR /
 ADD src /epf
 ADD src/bin /bin
+RUN chmod +x /bin -R
 
 
 ###### Setup Python and vergeml
