@@ -50,7 +50,7 @@ class ProjectView extends React.Component {
     this.setIsForking = this.setIsForking.bind(this);
   }
 
-  componentDidMount(){
+  componentDidMount() {
     const {
       actions,
       projects: { all },
@@ -231,7 +231,8 @@ class ProjectView extends React.Component {
                 )}
               </>
             )}
-          </div>)}
+          </div>
+          )}
         </div>
       </div>
     );

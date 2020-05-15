@@ -1,3 +1,4 @@
+import { toastr } from 'react-redux-toastr';
 import { API_GATEWAY } from '../apiConfig';
 import { generateGetRequest, getCurrentToken } from './apiHelpers';
 
@@ -25,6 +26,10 @@ export default class BranchesApi {
     const url = `${API_GATEWAY}/api/v4/projects/${projectId}/repository/branches`;
     const response = await generateGetRequest(url);
 
+    if (!response.ok) {
+      Promise.reject(response);
+      toastr.error('Error', 'Something went wrong fetching the branches');
+    }
     return response.json();
   }
 
@@ -32,6 +37,10 @@ export default class BranchesApi {
     const url = `${API_GATEWAY}/api/v4/projects/${projectId}/repository/compare?from=${from}&to=${to}`;
     const response = await generateGetRequest(url);
 
+    if (!response.ok) {
+      Promise.reject(response);
+      toastr.error('Error', 'Could not fetch the differential details');
+    }
     return response.json();
   }
 

@@ -101,11 +101,10 @@ export function getUsersLit(projectId) {
       dispatch(
         setProjUsersSuccessfully(
           users,
-        )
-      )
-    },
-    ).catch((err) => {
-      toastr.error("Error", err);
+        ),
+      );
+    }).catch((err) => {
+      toastr.error('Error', err);
     });
 }
 
