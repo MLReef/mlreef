@@ -1,6 +1,6 @@
+import { toastr } from 'react-redux-toastr';
 import { API_GATEWAY } from '../apiConfig';
 import { generateGetRequest, getCurrentToken } from './apiHelpers';
-import { toastr } from 'react-redux-toastr';
 
 export default class MergeRequestAPI {
   /**
@@ -8,22 +8,23 @@ export default class MergeRequestAPI {
    */
   static async getListByProject(projectId) {
     const url = `${API_GATEWAY}/api/v4/projects/${projectId}/merge_requests`;
-    const jobsProm = await generateGetRequest(url);
+    const response = await generateGetRequest(url);
 
-    return jobsProm.json();
+    if (!response.ok) {
+      Promise.reject(response);
+      toastr.error('Error', 'Server error while fetching merge requests');
+    }
+    return response.json();
   }
 
   static async getSingleMR(id, iid) {
     const url = `${API_GATEWAY}/api/v4/projects/${id}/merge_requests/${iid}`;
 
-    const response = await fetch(new Request(
-      url, {
-        method: 'GET',
-        headers: new Headers({
-          'PRIVATE-TOKEN': getCurrentToken(),
-        }),
-      },
-    ));
+    const response = await generateGetRequest(url);
+    if (!response.ok) {
+      Promise.reject(response);
+      toastr.error('Error', 'Server error while fetching the merge request');
+    }
     return response.json();
   }
 
@@ -35,26 +36,24 @@ export default class MergeRequestAPI {
       title,
       description,
     });
-    console.log(body);
     const url = `${API_GATEWAY}/api/v4/projects/${id}/merge_requests`;
-    try {
-      const response = await fetch(
-        url, {
-          method: 'POST',
-          headers: new Headers({
-            'PRIVATE-TOKEN': getCurrentToken(),
-            'Content-Type': 'application/json',
-            'Access-Control-Allow-Origin': `${API_GATEWAY}`,
-          }),
-          body,
-        },
-      );
-      console.log(response);
-      return response.ok ? response.json() 
-        : Promise.reject(response);
-    } catch (err) {
-      return toastr.error("Error", err.message);
+    const response = await fetch(
+      url, {
+        method: 'POST',
+        headers: new Headers({
+          'PRIVATE-TOKEN': getCurrentToken(),
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': `${API_GATEWAY}`,
+        }),
+        body,
+      },
+    );
+    if (!response.ok) {
+      Promise.reject(response);
+      toastr.error('Error', response.err);
     }
+    return response.json();
+
   }
 
   static async acceptMergeRequest(id, iid, squash, removeSourceBranch) {
@@ -74,7 +73,10 @@ export default class MergeRequestAPI {
         }),
       },
     ));
+    if (!response.ok) {
+      Promise.reject(response);
+      toastr.error('Error', 'Server error while updating the merge request');
+    }
     return response.json();
   }
-
 }

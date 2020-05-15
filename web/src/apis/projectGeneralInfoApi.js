@@ -1,46 +1,38 @@
+import { toastr } from 'react-redux-toastr';
 import { API_GATEWAY } from '../apiConfig';
 import { getCurrentToken, generateGetRequest } from './apiHelpers';
-import { toastr } from 'react-redux-toastr';
 
 export default class ProjectGeneralInfoApi {
   static async create(settings) {
     const baseUrl = new URL(`${API_GATEWAY}/api/v1/data-projects`);
-    const data = {...settings};
-    try {
-      const response = await fetch(
-        baseUrl, {
-          method: 'POST',
-          headers: new Headers({
-            'PRIVATE-TOKEN': getCurrentToken(),
-            "Accept": 'application/json',
-            'Content-Type': 'application/json',
-            Origin: 'http://localhost',
-          }),
-          body: JSON.stringify(data),
-        },
-      );
-      return response;
-    } catch (err) {
-      return err;
+    const data = { ...settings };
+    const response = await fetch(
+      baseUrl, {
+        method: 'POST',
+        headers: new Headers({
+          'PRIVATE-TOKEN': getCurrentToken(),
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+          Origin: 'http://localhost',
+        }),
+        body: JSON.stringify(data),
+      },
+    );
+    if (!response.ok) {
+      Promise.reject(response);
+      toastr.error('Error', 'Server error while creating the project');
     }
+    return response;
   }
 
   static async getProjectInfoApi(projectId) {
-    try {
-      const respone = await fetch(new Request(`${API_GATEWAY}/api/v4/projects/${projectId}`, {
-        method: 'GET',
-        headers: new Headers({
-          'PRIVATE-TOKEN': getCurrentToken(),
-        }),
-      }));
-      if (!respone.ok) {
-        throw new Error();
-      }
-      return respone.json();
-    } catch (err) {
+    const url = `${API_GATEWAY}/api/v4/projects/${projectId}`;
+    const respone = await generateGetRequest(url);
+    if (!respone.ok) {
       window.history.replaceState({ errorCode: 500 }, 'Mlreef', '/error-page');
       window.location.reload();
     }
+    return respone.json();
   }
 
   static async getProjectsList() {
@@ -93,21 +85,23 @@ export default class ProjectGeneralInfoApi {
   }
 
   static async getProjectContributors(projectId) {
-    try {
-      const url = `${API_GATEWAY}/api/v4/projects/${projectId}/members`;
-      const response = await generateGetRequest(url);
-      return response;
-    } catch (err) {
-      return err;
+    const url = `${API_GATEWAY}/api/v4/projects/${projectId}/members`;
+    const response = await generateGetRequest(url);
+
+    if (!response.ok) {
+      Promise.reject(response);
+      toastr.error('Error', 'Something went wrong fetching the contributors');
     }
+    return response;
   }
 
   static async getUsers(projectId) {
     const url = `${API_GATEWAY}/api/v4/projects/${projectId}/users`;
-    const response = generateGetRequest(url);
-    return response
-      .then((projRes) => projRes.ok ? Promise.resolve(projRes) : Promise.reject(projRes))
-      .then((resolvedRes) => resolvedRes.json())
-      .catch(() => toastr.error("Error", "Something went wrong getting ussers"));
+    const response = await generateGetRequest(url);
+    if (!response.ok) {
+      Promise.reject(response);
+      toastr.error('Error', 'Something went wrong fetching users');
+    }
+    return response.json();
   }
 }

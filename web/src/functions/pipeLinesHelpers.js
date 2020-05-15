@@ -187,24 +187,24 @@ const createExperimentInProject = (
   ).then((res) => {
     if (res.commit) {
       toastr.info('Execution', 'The branch for pipeline was created');
-      ExperimentsApi.createExperiment(experimentBody)
-        .then((experiment) => {
-          toastr.success('Success', 'Experiment was generated');
-          ExperimentsApi.startExperiment(projectUUID.id, experiment.id)
-            .then(() => {
-              toastr.success('Success', 'Experiment was start');
-            }).catch(() => {
-              toastr.error('Error', 'Experiment start failed');
-            });
-        }).catch(() => {
-          toastr.error('Error', 'Experiment creation failed');
-        });
     } else {
       toastr.error('Execution', 'The branch for pipeline could not be created');
     }
-  }).catch(() => {
-    toastr.error('Error', 'Something went wrong, try again later');
-  });
+    ExperimentsApi.createExperiment(experimentBody)
+      .then((experiment) => {
+        toastr.success('Success', 'Experiment was generated');
+        return experiment;
+      })
+      .then((experiment) => {
+        ExperimentsApi.startExperiment(projectUUID.id, experiment.id)
+          .then(() => {
+            toastr.success('Success', 'Experiment was started');
+          });
+      });
+  })
+    .catch(() => {
+      toastr.error('Error', 'Something went wrong, try again later');
+    });
 };
 
 export default createExperimentInProject;
