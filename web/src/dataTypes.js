@@ -1,5 +1,5 @@
-import lock from "images/lock-01.png";
-import global from "images/global-01.png";
+import lock from 'images/lock-01.png';
+import global from 'images/global-01.png';
 
 export const INT = 'INT';
 export const FLOAT = 'FLOAT';
@@ -198,19 +198,19 @@ export const projectClassificationsProps = [
 /* -------------------------- The next are access levels implemented by Gitlab -------------------------- */
 
 export const privacyLevelsArr = [
-  { 
-    name: 'Private', 
-    value: 'private', 
-    message: 'The #protected-element access must be granted explicitly to every user.', 
-    icon: lock
+  {
+    name: 'Private',
+    value: 'private',
+    message: 'The #protected-element access must be granted explicitly to every user.',
+    icon: lock,
   },
-  { 
-    name: 'Public', 
-    value: 'public', 
-    message: 'The #protected-element can be accessed without any authentication.', 
-    icon: global
+  {
+    name: 'Public',
+    value: 'public',
+    message: 'The #protected-element can be accessed without any authentication.',
+    icon: global,
   },
-]
+];
 
 /* -------------------------- Types of Processors -------------------------- */
 export const OPERATION = 'OPERATION';

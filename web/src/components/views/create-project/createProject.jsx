@@ -14,6 +14,7 @@ import FormControl from '@material-ui/core/FormControl';
 import Tooltip from '@material-ui/core/Tooltip';
 import {
   projectClassificationsProps,
+  privacyLevelsArr,
 } from 'dataTypes';
 import Navbar from '../../navbar/navbar';
 import './createProject.css';
@@ -23,10 +24,10 @@ import projectGeneraInfoApi from '../../../apis/projectGeneralInfoApi';
 import { convertToSlug } from '../../../functions/dataParserHelpers';
 import { bannedCharsArray } from '../../../dataTypes';
 import MCheckBox from '../../ui/MCheckBox/MCheckBox';
-import { privacyLevelsArr } from "dataTypes";
 
 class CreateProject extends Component {
   slugRef = createRef();
+
   dataTypes = [
     [
       { name: 'data-types Text', label: 'Text' },
@@ -48,7 +49,7 @@ class CreateProject extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      visibility: 'PRIVATE',
+      visibility: privacyLevelsArr[0].value,
       projectName: '',
       redirect: false,
       readme: false,
@@ -126,7 +127,7 @@ class CreateProject extends Component {
       initialize_with_readme: readme,
       description,
       visibility,
-    }
+    };
     projectGeneraInfoApi.create(body)
       .then(async (res) => {
         if (res.ok) {
@@ -135,11 +136,10 @@ class CreateProject extends Component {
           this.setState({ redirect: true, newProject: pro });
         } else {
           const bodyResp = await res.json();
-          console.log(bodyResp);
-          toastr.error("Error", res.statusText);
+          toastr.error('Error', res.statusText);
         }
       })
-      .catch(() => toastr.error("Error", "Something went wrong"));
+      .catch(() => toastr.error('Error', 'Something went wrong'));
   }
 
  cancelCreate = () => {
@@ -147,21 +147,21 @@ class CreateProject extends Component {
  }
 
  getIsPrivacyOptionDisabled = (privacyLevel, nameSpace) => {
-  const { user, groups } = this.props;
-  if(nameSpace === ''){
-    return false;
-  }
-  const isNamespaceAGroup = nameSpace !== user.username;
-  if(isNamespaceAGroup){
-    const currentGroup = groups.filter((grp) => grp.full_path === nameSpace)[0];
-    const isAPrivateGroup = currentGroup.visibility === privacyLevelsArr[0].value;
+   const { user, groups } = this.props;
+   if (nameSpace === '') {
+     return false;
+   }
+   const isNamespaceAGroup = nameSpace !== user.username;
+   if (isNamespaceAGroup) {
+     const currentGroup = groups.filter((grp) => grp.full_path === nameSpace)[0];
+     const isAPrivateGroup = currentGroup.visibility === privacyLevelsArr[0].value;
 
-    return isAPrivateGroup
-      ? !(privacyLevel === privacyLevelsArr[0].value)
-      : false;
-  }
+     return isAPrivateGroup
+       ? !(privacyLevel === privacyLevelsArr[0].value)
+       : false;
+   }
 
-  return false; // line reached when namespace is the user, so all levels of privacy are allowed to choose
+   return false;
  }
 
  render() {
@@ -174,7 +174,7 @@ class CreateProject extends Component {
      newProject,
      dataTypesSelected: dtTypesSel,
    } = this.state;
-   const { match: { params: { classification } }, groups, user, } = this.props;
+   const { match: { params: { classification } }, groups, user } = this.props;
    const classLabel = projectClassificationsProps.filter(
      (classif) => classif.classification === classification,
    )[0].label;
@@ -226,11 +226,11 @@ class CreateProject extends Component {
                        value={nameSpace}
                        onChange={this.handleNamespace}
                      >
-                       <MenuItem key={"subtitle-1"} value="">Groups</MenuItem>
+                       <MenuItem key="subtitle-1" value="">Groups</MenuItem>
                        {groups.map((grp) => (
-                          <MenuItem key={`group kay ${grp.id}`} value={grp.full_path}>{grp.name}</MenuItem>
+                         <MenuItem key={`group kay ${grp.id}`} value={grp.full_path}>{grp.name}</MenuItem>
                        ))}
-                       <MenuItem key={"subtitle-2"} value="">Users</MenuItem>
+                       <MenuItem key="subtitle-2" value="">Users</MenuItem>
                        <MenuItem key={`user key ${user.id}`} value={user.username}>{user.username}</MenuItem>
 
                      </Select>
@@ -331,18 +331,18 @@ class CreateProject extends Component {
                <RadioGroup aria-label="visibility" name="visibility" value={visibility} onChange={this.handleVisibility}>
                  {privacyLevelsArr.map((lvl) => (
                    <div key={`privacy lvl ${lvl.value}`} className="d-flex" style={{ flexDirection: 'column' }}>
-                    <FormControlLabel
-                      className="heading"
-                      value={lvl.value}
-                      control={<Radio disabled={this.getIsPrivacyOptionDisabled(lvl.value, nameSpace)} />}
-                      label={(
-                        <>
-                          <img id="visibility-icon" src={lvl.icon} alt="" />
-                          <span>{lvl.name}</span>
-                        </>
+                     <FormControlLabel
+                       className="heading"
+                       value={lvl.value}
+                       control={<Radio disabled={this.getIsPrivacyOptionDisabled(lvl.value, nameSpace)} />}
+                       label={(
+                         <>
+                           <img id="visibility-icon" src={lvl.icon} alt="" />
+                           <span>{lvl.name}</span>
+                         </>
                         )}
-                    />
-                    <span key={`privacy lvl mss ${lvl.value}`} className="visibility-msg">{lvl.message.replace("#protected-element", "project")}</span>
+                     />
+                     <span key={`privacy lvl mss ${lvl.value}`} className="visibility-msg">{lvl.message.replace('#protected-element', 'project')}</span>
                    </div>
                  ))}
                </RadioGroup>
