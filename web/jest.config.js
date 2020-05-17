@@ -93,6 +93,9 @@ module.exports = {
     '\\.(jpg|jpeg|png|gif|eot|otf|webp|svg|css)$': '<rootDir>/src/__tests__/pipeLineExecutionModal.test.jsx',
   },
 
+  // An array of directory names that jest should skip
+  modulePathIgnorePatterns: ['cypress'],
+
   // An array of regexp pattern strings,
   // matched against all module paths before considered 'visible' to the module loader
   // modulePathIgnorePatterns: [],

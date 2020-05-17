@@ -11,6 +11,7 @@ import RouterComp from './routerComp';
 import ToastMessage from './components/toast/toast';
 import ErrorHandler from './ErrorHandler';
 import checkVersion from './functions/helpers';
+import 'whatwg-fetch';
 
 checkVersion();
 

@@ -38,6 +38,7 @@
     "redux-thunk": "^2.3.0",
     "regenerator-runtime": "^0.13.3",
     "uuid": "^3.4.0",
+    "whatwg-fetch": "^3.0.0",
     "yup": "^0.28.1"
   },
   "devDependencies": {
@@ -46,10 +47,12 @@
     "@testing-library/jest-dom": "^4.2.4",
     "@testing-library/react": "^9.1.4",
     "babel-jest": "^24.9.0",
+    "cypress": "^4.5.0",
     "enzyme": "^3.11.0",
     "enzyme-adapter-react-16": "^1.15.2",
     "eslint": "^5.16.0",
     "eslint-config-airbnb": "^18.0.1",
+    "eslint-plugin-cypress": "^2.10.3",
     "eslint-plugin-import": "^2.20.1",
     "eslint-plugin-jsx-a11y": "^6.2.3",
     "eslint-plugin-react": "^7.18.3",
@@ -64,6 +67,7 @@
     "start": "react-scripts start",
     "build": "react-scripts build & jest --env=jsdom",
     "test": "jest --modulePaths=src --env=jsdom",
+    "cypress": "cypress open",
     "eject": "react-scripts eject"
   },
   "browserslist": {
