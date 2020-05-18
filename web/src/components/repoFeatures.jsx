@@ -97,16 +97,16 @@ export class RepoFeatures extends Component {
             <div className="plus-dropdown">
               <ul className="plus-list">
                 <li>This directory</li>
+                <li className="plus-option">
+                  <Link to={{ pathname: `/my-projects/${projectId}/${branch}/upload-file`, state: { currentFilePath: path } }}>
+                    Upload File
+                  </Link>
+                </li>
                 <hr />
                 <li>This repository</li>
                 <li className="plus-option">
                   <Link to={`/my-projects/${projectId}/new-branch`}>
                     New branch
-                  </Link>
-                </li>
-                <li className="plus-option">
-                  <Link to={{ pathname: `/my-projects/${projectId}/${branch}/upload-file`, state: {currentFilePath: path}}}>
-                    Upload File
                   </Link>
                 </li>
               </ul>

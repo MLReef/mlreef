@@ -1,14 +1,20 @@
-/* eslint-disable no-nested-ternary */
 import React from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
 import './projectNav.css';
 import {
-  string, shape, arrayOf, number,
+  string, shape, arrayOf,
 } from 'prop-types';
 
 const ProjectNav = (props) => {
-  const { selectedProject: { name }, folders, projectId } = props;
+  const { selectedProject } = props;
+  if (!selectedProject) {
+    return (
+      <></>
+    );
+  }
+  const { folders } = props;
+  const { name, id } = selectedProject;
 
   return (
     <div className="project-nav">
@@ -16,7 +22,7 @@ const ProjectNav = (props) => {
         ? (
           <Link
             key={`project-nav-link-${index.toString()}`}
-            to={`/my-projects/${projectId}/master`}
+            to={`/my-projects/${id}/master`}
           >
             <p className="px-1">
               {` ${folder} > `}
@@ -37,7 +43,6 @@ ProjectNav.propTypes = {
     name: string.isRequired,
   }).isRequired,
   folders: arrayOf(string).isRequired,
-  projectId: number.isRequired,
 };
 
 function mapStateToProps(state) {
