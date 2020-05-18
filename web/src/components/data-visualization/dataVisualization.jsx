@@ -67,7 +67,7 @@ const EmptyDataVisualization = ({ ...props }) => {
         toggle={toggleExecutePipeLineModal}
         dataOperationsSelected={dataOperationsSelected}
         filesSelectedInModal={filesSelectedInModal}
-        http_url_to_repo={project.http_url_to_repo}
+        httpUrlToRepo={project.http_url_to_repo}
         projectId={project.id}
         branchName={branchName}
         dataInstanceName={dataInstanceName}

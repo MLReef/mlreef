@@ -12,31 +12,12 @@ export default class ExperimentsApi {
     });
   }
 
-  static async createExperiment(settings) {
-    const {
-      projectUUId,
-      sourceBranch,
-      targetBranch,
-      inputFormValues,
-      dataOperationsSlug,
-    } = settings;
-
-    const data = {
-      slug: targetBranch, // slug is NOT the branch name, it needs replacement
-      name: targetBranch,
-      source_branch: sourceBranch,
-      target_branch: targetBranch,
-      processing: {
-        slug: dataOperationsSlug.slug,
-        parameters: inputFormValues,
-      },
-    };
-
+  static async createExperiment(projectUUId, body) {
     const response = await fetch(
       `${API_GATEWAY}/api/v1/data-projects/${projectUUId}/experiments`, {
         method: 'POST',
         headers: this.buildPostHeaders(),
-        body: JSON.stringify(data),
+        body: JSON.stringify(body),
       },
     );
     if (!response.ok) {
@@ -55,7 +36,7 @@ export default class ExperimentsApi {
     );
     if (!response.ok) {
       Promise.reject(response);
-      toastr.error('Error', 'Server error while creating the experiment');
+      toastr.error('Error', 'Server error while starting the experiment');
     }
     return response;
   }
@@ -65,7 +46,7 @@ export default class ExperimentsApi {
     const response = await generateGetRequest(url);
     if (!response.ok) {
       Promise.reject(response);
-      toastr.error('Error', 'Server error while creating the experiment');
+      toastr.error('Error', 'Server error while fetching the experiment details');
     }
     return response.json();
   }
@@ -75,7 +56,7 @@ export default class ExperimentsApi {
     const response = await generateGetRequest(url);
     if (!response.ok) {
       Promise.reject(response);
-      return toastr.error('Error', 'Server error while creating the experiment');
+      return toastr.error('Error', 'Server error while fetching the experiments');
     }
     return response.json();
   }

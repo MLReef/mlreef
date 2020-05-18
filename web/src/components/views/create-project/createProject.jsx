@@ -135,7 +135,6 @@ class CreateProject extends Component {
           this.props.actions.getProjectsList();
           this.setState({ redirect: true, newProject: pro });
         } else {
-          const bodyResp = await res.json();
           toastr.error('Error', res.statusText);
         }
       })

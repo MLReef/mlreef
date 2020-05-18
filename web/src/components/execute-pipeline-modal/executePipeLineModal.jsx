@@ -5,6 +5,7 @@ import '../../css/genericModal.css';
 import MSelect from 'components/ui/MSelect';
 import { ALGORITHM } from 'dataTypes';
 import createExperimentInProject, { createPipelineInProject } from '../../functions/pipeLinesHelpers';
+import { arrayOf, shape, string } from 'prop-types';
 
 
 const fakeMachinesToShow = [
@@ -22,10 +23,9 @@ const ExecutePipelineModal = ({
   type,
   isShowing,
   toggle,
-  amountFilesSelected,
   dataOperationsSelected,
   filesSelectedInModal,
-  http_url_to_repo,
+  httpUrlToRepo,
   projectId,
   projectUUID,
   inputFormValues,
@@ -54,21 +54,18 @@ const ExecutePipelineModal = ({
       if (type === ALGORITHM) {
         createExperimentInProject(
           dataOperationsSelected,
-          filesSelectedInModal,
-          http_url_to_repo,
           projectId,
           projectUUID,
-          jobName,
           branchName,
-          dataInstanceName,
           branchSelected,
           inputFormValues,
+          filesSelectedInModal,
         );
       } else {
         createPipelineInProject(
           dataOperationsSelected,
           filesSelectedInModal,
-          http_url_to_repo,
+          httpUrlToRepo,
           projectId,
           jobName,
           branchName,
@@ -92,7 +89,7 @@ const ExecutePipelineModal = ({
               {section === 1
                 ? 'Select output method for your'
                   + `${isADataVisualizationPipe ? ' data visualization ' : ' set of data instances '}`
-                  + `with ${amountFilesSelected} data files selected`
+                  + `with ${filesSelectedInModal.length} data files selected`
                 : 'Your new set of data intances is being created'}
             </div>
           </div>
@@ -250,5 +247,14 @@ const ExecutePipelineModal = ({
       </div>
   );
 };
+
+ExecutePipelineModal.propTypes = {
+  httpUrlToRepo: string.isRequired,
+  filesSelectedInModal: arrayOf(shape({})),
+};
+
+ExecutePipelineModal.defaultProps = {
+  filesSelectedInModal: [],
+}
 
 export default ExecutePipelineModal;

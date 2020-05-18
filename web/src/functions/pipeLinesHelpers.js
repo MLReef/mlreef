@@ -146,65 +146,37 @@ export const createPipelineInProject = (
 
 const createExperimentInProject = (
   dataOperationsSelected,
-  filesSelectedInModal,
-  httpUrlToRepo,
   projectId,
   projectUUID,
-  pipelineOpScriptType,
   branchName,
-  dataInstanceName,
   branchSelected,
   inputFormValues,
+  inputFiles,
 ) => {
-  const pipeLineOperationCommands = buildCommandLinesFromSelectedPipelines(
-    dataOperationsSelected,
-    filesSelectedInModal,
-    getPathToPipiline(pipelineOpScriptType),
-  );
-  const finalContent = generateRealContentFromTemplate(
-    pipeLineOperationCommands,
-    dataInstanceName,
-    httpUrlToRepo,
-    pipelineOpScriptType,
-    branchSelected,
-  );
   const experimentBody = {
-    projectUUId: projectUUID.id,
-    sourceBranch: branchSelected,
-    targetBranch: branchName,
-    inputFormValues,
-    dataOperationsSlug: dataOperationsSelected[0]
-  }
-  /**
-   * @param {*} projectId: id of the project
-   * @param {*} branchName: name of the new branch being created
-   * @param {*} branchSelected: name of the reference branch from which new branch is created
-   */
-  branchesApi.create(
-    projectId,
-    branchName,
-    branchSelected || 'master',
-  ).then((res) => {
-    if (res.commit) {
-      toastr.info('Execution', 'The branch for pipeline was created');
-    } else {
-      toastr.error('Execution', 'The branch for pipeline could not be created');
-    }
-    ExperimentsApi.createExperiment(experimentBody)
-      .then((experiment) => {
-        toastr.success('Success', 'Experiment was generated');
-        return experiment;
-      })
-      .then((experiment) => {
-        ExperimentsApi.startExperiment(projectUUID.id, experiment.id)
-          .then(() => {
+    slug: branchName, // slug is NOT the branch name, it needs replacement
+    name: branchName,
+    source_branch: branchSelected,
+    target_branch: branchName,
+    input_files: inputFiles.map((file) => file.path),
+    processing: {
+      slug: dataOperationsSelected[0].slug,
+      parameters: inputFormValues,
+    },
+  };
+  ExperimentsApi.createExperiment(projectUUID.id, experimentBody)
+    .then((experiment) => {
+      toastr.success('Success', 'Experiment was generated');
+      ExperimentsApi.startExperiment(projectUUID.id, experiment.id)
+        .then((res) => {
+          if (res.ok) {
             toastr.success('Success', 'Experiment was started');
-          });
-      });
-  })
-    .catch(() => {
-      toastr.error('Error', 'Something went wrong, try again later');
-    });
+          } else {
+            Promise.reject(res);
+          }
+        });
+    })
+    .catch((err) => toastr('Error', err.message));
 };
 
 export default createExperimentInProject;
