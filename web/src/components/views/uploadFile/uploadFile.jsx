@@ -3,22 +3,19 @@ import { connect } from 'react-redux';
 import {
   string,
   shape,
-  arrayOf
+  func,
+  arrayOf,
 } from 'prop-types';
-import LinearProgress from '@material-ui/core/LinearProgress';
 import { toastr } from 'react-redux-toastr';
-import Navbar from '../../navbar/navbar';
-import ProjectNav from '../../project-nav/projectNav';
-import file01 from 'images/file_01.svg';
-import branchesApi from '../../../apis/BranchesApi';
 import './uploadFile.scss';
-import { Redirect, useHistory } from 'react-router';
-import Base64ToArrayBuffer from 'base64-arraybuffer';
-import { CREATE } from 'dataTypes';
+import { Redirect } from 'react-router';
 import CommitsApi from 'apis/CommitsApi';
 import MCheckBox from 'components/ui/MCheckBox/MCheckBox';
+import MergeRequestAPI from 'apis/mergeRequestApi';
+import { randomNameGenerator } from 'functions/pipeLinesHelpers';
+import MButton from 'components/ui/MButton';
 import {
-  SET_FILEUPLOAD,
+  SET_FILESUPLOAD,
   SET_CONTENT,
   SET_TARGET,
   SET_MSG,
@@ -26,157 +23,179 @@ import {
   SET_UPLOADBTN,
   SET_PROGRESS,
   SET_LOADING,
-} from './uploadFileActions';
-import reducer from './reducer';
-import MergeRequestAPI from 'apis/mergeRequestApi';
-import { randomNameGenerator } from 'functions/pipeLinesHelpers';
-
-const MAX_SIZE_FILE_PERMITTED = 500000;
+  initialState,
+  isFileExtensionForBase64Enc,
+  generateActionsForCommit,
+  REMOVE_FILE,
+  processFiles,
+  SET_SENDING_FILES,
+} from './uploadConstantsAndFunctions';
+import reducer from './uploadFileReducer';
+import ProjectNav from '../../project-nav/projectNav';
+import Navbar from '../../navbar/navbar';
+import FileToSend from './fileToSend';
 
 const UploadFile = (props) => {
-  const history = useHistory();
   const fileInput = useRef(null);
-  let fileReader;
   const {
-    projects: { selectedProject: { name, id: projectId, namespace: { name: groupName }, empty_repo } },
+    selectedProject: {
+      name,
+      id: projectId,
+      namespace: { name: groupName },
+      empty_repo: isEmptyRepo,
+      default_branch: defaultBranch,
+    },
+    branches,
+    history,
     match: { params: { branch: currentBranch } },
-    location: { state: { currentFilePath } },
+    location,
   } = props;
-  const initialState = {
-    fileUploaded: null,
-    fileContent: null,
-    targetBranch: currentBranch || 'master',
-    commitMsg: 'Upload New File',
-    startMR: true,
-    isAValidForm: false,
-    progress: 0,
-    isFileLoaded: false,
+  let currentFilePath = '';
+  if (location.state) {
+    currentFilePath = location.state.currentFilePath;
+  }
+
+  const getAValidTargetBranch = () => {
+    if (isEmptyRepo) {
+      return 'master';
+    }
+
+    if (currentBranch && branches.includes(currentBranch)) {
+      return currentBranch;
+    }
+
+    return defaultBranch;
   };
-  const [state, dispatch] = useReducer(reducer, initialState);
+
+  const [state, dispatch] = useReducer(
+    reducer, {
+      ...initialState,
+      targetBranch: getAValidTargetBranch(),
+    },
+  );
   const {
-    fileUploaded,
+    filesToUpload,
     fileContent,
     targetBranch,
     commitMsg,
     isAValidForm,
-    progress,
-    isFileLoaded,
+    areFilesLoaded,
     startMR,
+    isSendingFiles,
   } = state;
   const folders = [groupName, name, 'Data', 'Upload a file'];
-
-   useEffect(() => {
+  const areFilesLoading = filesToUpload.filter((file) => file.getProg() < 100).length > 0;
+  useEffect(() => {
     dispatch({
-      type: SET_UPLOADBTN, 
-      payload: fileUploaded && commitMsg.length > 0
+      type: SET_UPLOADBTN,
+      payload: filesToUpload.length > 0 && commitMsg.length > 0,
     });
-  }, [fileUploaded, fileContent, commitMsg]);
+  }, [filesToUpload, fileContent, commitMsg]);
 
-  const createFileInNewBranch = () => {
-    branchesApi.create(
-      projectId,
-      `branch-to-upload-files-${randomNameGenerator()}`,
-      currentBranch,
-    )
-      .then((res) => {
-        toastr.success('Success:', 'The branch was created');
-        dispatch({ type: SET_TARGET, payload: res.name });
-        createNewFile(res.name);
-      })
-      .catch(() => toastr.error("Error", "Error creating branch"));
-  };
+  const removeFiles = (fileId) => fileId
+    ? dispatch({ type: REMOVE_FILE, payload: { fileId } })
+    : dispatch({ type: SET_FILESUPLOAD, payload: [] });
 
-  const createNewFile = (branchForFile) => {
-    const { name: fileName, type } = fileUploaded;
-    let encoding = 'text';
-    let finalContent = fileContent;
-    if(type.includes('image')
-      || type.includes('doc')
-      || type.includes('pdf')
-      || type.includes('docx')){ // Just these formats are encoded as base 64
-      encoding = 'base64';
-      finalContent = Base64ToArrayBuffer.encode(fileContent);
+  const createNewFiles = (
+    branchForFile,
+    finalCommitMsg,
+    pathForFile,
+    finalArrayOfFilesToUpload,
+  ) => {
+    let newBranchName;
+    let body = {
+      branch: branchForFile,
+      commit_message: finalCommitMsg,
+      actions: generateActionsForCommit(pathForFile, finalArrayOfFilesToUpload),
+    };
+    if (startMR) {
+      newBranchName = randomNameGenerator();
+      body = { ...body, branch: newBranchName, start_branch: branchForFile };
     }
-    const filePath = currentFilePath !== '' ? `${decodeURIComponent(currentFilePath)}/${fileName}` : fileName;
-    CommitsApi.performCommit(
+    dispatch({ type: SET_SENDING_FILES, payload: true });
+    CommitsApi.performCommitForMultipleActions(
       projectId,
-      filePath,
-      finalContent,
-      branchForFile,
-      commitMsg,
-      CREATE,
-      encoding,
+      JSON.stringify(body),
     )
       .then(() => {
-        toastr.success('Success', 'File was uploaded successfully');
-        dispatch({ type: SET_LOADING, payload: true });
-        removeFile();
-        if(startMR && !empty_repo){
-          toastr.info("Info", "Creating your new MR");
+        removeFiles();
+        if (startMR && !isEmptyRepo) {
+          toastr.info('Info', 'Creating your new MR');
           MergeRequestAPI
-            .submitMergeReq(projectId, branchForFile, targetBranch || 'master', `Merge file to master`)
-            .then(() => {
-              toastr.success("Success", "MR was opened");
-            });
+            .submitMergeReq(projectId, newBranchName, targetBranch || defaultBranch, 'Merge file to main branch')
+            .then((bodyRes) => {
+              const { source_branch: mrSourceBranch } = bodyRes;
+              dispatch({ type: SET_TARGET, payload: mrSourceBranch });
+              dispatch({ type: SET_LOADING, payload: true });
+              toastr.success('Success', 'MR was opened');
+            }).catch(() => toastr.error('Error', 'Something failed opening the MR'));
+        } else {
+          toastr.success('Success', 'File was uploaded successfully');
+          dispatch({ type: SET_LOADING, payload: true });
         }
       })
-      .catch(() => toastr.error('Error', 'File could not be uploaded'));
-  }
-
-  const handleUploadFile = () => {
-    if(startMR && !empty_repo){
-      createFileInNewBranch();
-      return;
-    }
-
-    createNewFile(targetBranch);
+      .catch(() => toastr.error('Error', 'File could not be uploaded'))
+      .finally(() => dispatch({ type: SET_SENDING_FILES, payload: false }));
   };
 
-  const handleFileRead = () => {
-    const content = fileReader.result;
-    dispatch({ type: SET_CONTENT, payload: content });
-  };
+  const handleUploadFile = () => createNewFiles(
+    targetBranch,
+    commitMsg,
+    currentFilePath,
+    filesToUpload,
+  );
 
-  const handleFileChosen = (file) => {
-    if(file.size > MAX_SIZE_FILE_PERMITTED){
-      toastr.error("Error", "Max size permitted is 500KB");
+  const processAndSetStatus = (rawFiles) => {
+    const processedFiles = processFiles(rawFiles);
+    if (processedFiles === null) {
+      toastr.error('Error', 'The files selected is larger than size permitted(10MB)');
       return;
     }
-
-    dispatch({ type: SET_FILEUPLOAD, payload: file });
-    fileReader = new FileReader();
-    fileReader.addEventListener('progress', (event) => {
-      dispatch({ 
-        type: SET_PROGRESS, 
-        payload: Math.round((event.loaded / event.total) * 100),
+    dispatch({ type: SET_FILESUPLOAD, payload: processedFiles });
+    processedFiles.forEach((pf, pfIndex) => {
+      const f = rawFiles[pfIndex];
+      const fileReader = new FileReader();
+      fileReader.addEventListener('progress', (event) => {
+        dispatch({
+          type: SET_PROGRESS,
+          payload: {
+            fileId: pf.id,
+            progress: Math.round((event.loaded / event.total) * 100),
+          },
+        });
       });
+      fileReader.onloadend = () => {
+        const content = fileReader.result;
+        dispatch({ type: SET_CONTENT, payload: { fileId: pf.id, content } });
+        dispatch({
+          type: SET_PROGRESS,
+          payload: {
+            fileId: pf.id,
+            progress: 100,
+          },
+        });
+      };
+      if (isFileExtensionForBase64Enc(pf.type)) {
+        fileReader.readAsArrayBuffer(f);
+      } else {
+        fileReader.readAsText(f);
+      }
     });
-    fileReader.onloadend = handleFileRead;
-    if(file.type.includes('image')){
-      fileReader.readAsArrayBuffer(file);
-    } else {
-      fileReader.readAsText(file);
-    }
   };
+
+  const handleFileChosen = (rawFiles) => processAndSetStatus(rawFiles);
 
   const handleDrop = (e) => {
     e.stopPropagation();
-    fileReader = new FileReader();
-    fileReader.onloadend = handleFileRead;
-  };
-
-  const removeFile = () => {
-    dispatch({ type: SET_PROGRESS, payload: 0 });
-    dispatch({ type: SET_FILEUPLOAD, payload: null });
-    dispatch({ type: SET_CONTENT, payload: null });
+    processAndSetStatus(e.target.files);
   };
 
   return (
     <>
-      {isFileLoaded && <Redirect to={`/my-projects/${projectId}/${targetBranch}`} /> }
+      {areFilesLoaded && <Redirect to={`/my-projects/${projectId}/${targetBranch}`} /> }
       <Navbar />
       <div className="main-content">
-        <ProjectNav key="1" projectId="1" folders={folders} />
+        <ProjectNav projectId={projectId} folders={folders} />
         <div
           onDrop={(e) => handleDrop(e)}
           className="draggable-container d-flex"
@@ -185,8 +204,9 @@ const UploadFile = (props) => {
             className="file-browser-input"
             type="file"
             id="file"
-            accept=".*,image/*"
-            onChange={(e) => handleFileChosen(e.target.files[0])}
+            accept="*"
+            onChange={(e) => handleFileChosen(e.target.files)}
+            multiple
             ref={fileInput}
           />
           <div>
@@ -194,38 +214,27 @@ const UploadFile = (props) => {
             or
             {' '}
             <label htmlFor="file">
-              <span className="choose-file" tabIndex="0" aria-controls="filename" type="button">
+              <span id="file" className="choose-file" tabIndex="0" aria-controls="filename" type="button">
                 Choose your files
               </span>
             </label>
           </div>
         </div>
-        {fileUploaded && (
-          <>
-            <LinearProgress variant="determinate" value={progress} />
-            <div className="file-uploaded d-flex">
-              <img className="dropdown-white" src={file01} alt="File" />
-              <p>
-                Uploaded
-                {' '}
-                {fileUploaded.name}
-                {' '}
-              </p>
-              <button
-                className="remove-file-button"
-                onClick={removeFile}
-                type="button"
-              >
-                <b>X</b>
-              </button>
-            </div>
-          </>
-        )}
+        {filesToUpload.length > 0 && filesToUpload.map((ftU) => (
+          <FileToSend
+            key={`file sec for ${ftU.getId()}`}
+            fileId={ftU.getId()}
+            fileName={ftU.getName()}
+            progress={ftU.getProg()}
+            onRemove={removeFiles}
+          />
+        ))}
         <div className="upload-commit-message d-flex">
           <h3>Commit message</h3>
           <textarea
+            id="commitMss-text-area"
             value={commitMsg}
-            onChange={(e) => dispatch({ type: SET_MSG, payload: e.target.value})}
+            onChange={(e) => dispatch({ type: SET_MSG, payload: e.target.value })}
             rows="4"
             maxLength="250"
             spellCheck="false"
@@ -236,10 +245,11 @@ const UploadFile = (props) => {
           <h3>Target branch</h3>
           <div className="target-input-box d-flex">
             <input
+              id="target-branch"
               type="text"
               value={targetBranch}
-              onChange={(e) => dispatch({type: SET_TARGET, payload: e.target.value})}
-              readOnly={empty_repo && true}
+              onChange={(e) => dispatch({ type: SET_TARGET, payload: e.target.value })}
+              readOnly={isEmptyRepo && true}
             />
             <div>
               <MCheckBox
@@ -248,7 +258,7 @@ const UploadFile = (props) => {
                 name="isNewMr"
                 labelValue="Start a new merge request with these changes"
                 callback={(name, labelValue, newValue) => {
-                  dispatch({ type: SET_MR, payload: newValue })
+                  dispatch({ type: SET_MR, payload: newValue });
                 }}
               />
             </div>
@@ -257,19 +267,22 @@ const UploadFile = (props) => {
         <div className="form-submit-buttons mt-2 d-flex">
           <button
             id="cancel-button"
+            type="button"
             variant="contained"
             className="btn btn-switch"
-            onClick={() => history.push(`/my-projects/${projectId}/master`)}
+            onClick={() => history.push(`/my-projects/${projectId}/${currentBranch}`)}
           >
             Cancel
           </button>
-            <button
-              className={isAValidForm ? "btn btn-primary" : "btn btn-basic-primary"}
-              disabled={!isAValidForm}
-              onClick={handleUploadFile}
-            >
-              Upload file
-            </button>
+          <MButton
+            type="submit"
+            waiting={areFilesLoading || isSendingFiles}
+            label="Upload file"
+            className="btn btn-primary"
+            onClick={() => !isAValidForm || areFilesLoading || isSendingFiles
+              ? () => {}
+              : handleUploadFile()}
+          />
         </div>
       </div>
     </>
@@ -277,25 +290,39 @@ const UploadFile = (props) => {
 };
 
 UploadFile.propTypes = {
-  projects: shape({
-    selectedProject: shape({
+  selectedProject: shape({
+    name: string.isRequired,
+    namespace: shape({
       name: string.isRequired,
-      namespace: shape({
-        name: string.isRequired,
-      }),
-    }).isRequired,
+    }),
   }).isRequired,
+  branches: arrayOf(string).isRequired,
   match: shape({
     params: shape({
       branch: string.isRequired,
     }).isRequired,
   }).isRequired,
-  branches: arrayOf(string).isRequired,
+  history: shape({
+    push: func.isRequired,
+  }).isRequired,
+  location: shape({
+    state: shape({
+      currentFilePath: string,
+    }),
+  }),
+};
+
+UploadFile.defaultProps = {
+  location: {
+    state: {
+      currentFilePath: '',
+    },
+  },
 };
 
 function mapStateToProps(state) {
   return {
-    projects: state.projects,
+    selectedProject: state.projects.selectedProject,
     branches: state.branches.map((branch) => branch.name),
     username: state.user.username,
   };

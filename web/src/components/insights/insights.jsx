@@ -3,16 +3,16 @@ import { Route, Link, Switch } from 'react-router-dom';
 import $ from 'jquery';
 import { connect } from 'react-redux';
 import { shape, number, string } from 'prop-types';
+import JobLogById from 'components/insights/insights-menu/jobLogById';
 import Navbar from '../navbar/navbar';
 import ProjectContainer from '../projectContainer';
 import './insights.scss';
 import Jobs from './insights-menu/jobs';
-import JobLogById from 'components/insights/insights-menu/jobLogById';
 
 const Insights = (props) => {
   const { selectedProject, selectedProject: { id }, match: { params: { logId } } } = props;
 
-  // When creating any features in the future such 
+  // When creating any features in the future such
   // as Contributors, Resources etc. add a route
   // into this array and attach the respective component
   const routes = [

@@ -43,7 +43,6 @@ export default class MergeRequestAPI {
         headers: new Headers({
           'PRIVATE-TOKEN': getCurrentToken(),
           'Content-Type': 'application/json',
-          'Access-Control-Allow-Origin': `${API_GATEWAY}`,
         }),
         body,
       },
