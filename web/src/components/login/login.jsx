@@ -27,13 +27,13 @@ class Login extends React.Component {
   componentDidMount() {
     const { isAuth, history } = this.props;
 
-    if (isAuth) history.push('/my-projects');
+    if (isAuth) history.push('/');
   }
 
   componentDidUpdate() {
     const { isAuth, history } = this.props;
 
-    if (isAuth) history.push('/my-projects');
+    if (isAuth) history.push('/');
   }
 
   handleChange(event) {

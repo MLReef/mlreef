@@ -36,8 +36,8 @@ const RouterComp = () => (
     <Switch>
       {/* this is a route for testing layout and should be removed after alpha */}
       <Route path="/demo" exact component={Demo} />
-
-      <Route path="/" exact component={Login} />
+      <PrivateRoute path="/" exact component={Projects} />
+      <Route path="/login" exact component={Login} />
       <Route path="/index.html" exact component={Login} />
       <Route path="/register" exact component={RegisterView} />
       <Route path="/error-page" exact component={ErrorPage} />
