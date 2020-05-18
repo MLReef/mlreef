@@ -11,6 +11,7 @@ const MButton = (props) => {
     children,
     label,
     waiting,
+    noDisable,
     onClick,
   } = props;
 
@@ -29,9 +30,11 @@ const MButton = (props) => {
   );
 
   return (
+    // eslint-disable-next-line
     <button
       type={type}
       onClick={onClick}
+      disabled={!noDisable && waiting}
       className={computedClasses}
     >
       {label || children}
@@ -46,6 +49,7 @@ MButton.defaultProps = {
   onClick: () => {},
   children: '',
   waiting: false,
+  noDisable: false,
 };
 
 MButton.propTypes = {
@@ -53,6 +57,7 @@ MButton.propTypes = {
   label: PropTypes.string,
   className: PropTypes.string,
   waiting: PropTypes.bool,
+  noDisable: PropTypes.bool,
   onClick: PropTypes.func,
   children: PropTypes.oneOfType([
     PropTypes.node,

@@ -7,7 +7,7 @@
     border-style: solid;
     border-color: $color;
 
-    &:disabled {
+    &:disabled:not(.waiting) {
       color: $color;
     }
 
@@ -67,8 +67,11 @@
   &:disabled,
   &[disabled],
   &.disabled {
-    background-color: #{$light};
     cursor: auto;
+
+    &::not(.waiting) {
+      background-color: #{$light};
+    }
   }
 }
 
