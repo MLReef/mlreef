@@ -11,7 +11,7 @@ build frontend:
     - echo "REACT_APP_VERSION=$CI_JOB_ID"                   >> .env
     - echo "REACT_APP_BUILD_NUMBER=$CI_JOB_ID"              >> .env
     - echo "REACT_APP_BRANCH_NAME=$CI_COMMIT_REF_SLUG"      >> .env
-    - if [ "$CI_COMMIT_REF_SLUG" == "develop" ]; then 
+    - if [ "$CI_COMMIT_REF_SLUG" == "master" ]; then 
         echo "REACT_APP_NO_AUTH_REDIRECT=https://about.mlreef.com" >> .env;
         fi
     - cat .env
