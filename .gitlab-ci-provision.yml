@@ -2,27 +2,25 @@
 provision:
   extends: [".except-docu-branches"]
   stage: provision
-#  rules:
-#    # Only execute the provisioning if no environment URL is set
-#    - if: '$CI_ENVIRONMENT_URL == ""' # This rule will be evaluated
-#      when: always
+  except:
+    refs:
+      - master
   image: registry.gitlab.com/systemkern/s5:latest-aws
   variables:
     EC2_MACHINE_SIZE:     "t3a.medium"                       # https://aws.amazon.com/ec2/instance-types/
     EC2_MACHINE_SIZE_DEV: "p2.xlarge"                        # https://aws.amazon.com/ec2/instance-types/
-    #EC2_IMAGE_AMI:     "ami-061aaaac62de85935"              # Deep Learning AMI (Ubuntu 18.04) Version 28.1
-    EC2_IMAGE_AMI:      "ami-00c3243b989d3d9c9"              # Deep Learning AMI (Ubuntu 16.04) Version 28.1
+    #EC2_IMAGE_AMI:       "ami-061aaaac62de85935"            # Deep Learning AMI (Ubuntu 18.04) Version 28.1
+    EC2_IMAGE_AMI:        "ami-00c3243b989d3d9c9"            # Deep Learning AMI (Ubuntu 16.04) Version 28.1
     EC2_SECURITY_GRP:     "application-servers"
     EC2_INSTANCE_NAME:    "mlreef-$CI_COMMIT_REF_SLUG"       # environment name and url are set separately
     STARTUP_SCRIPT:       "src/bin/startup.sh"               # used in .gitlab-ci-deploy.yml and docker-compose.yml
   before_script:
-    - chmod 400 $SSH_KEYFILE                                # prepare private key file
+    - chmod 400 $SSH_KEYFILE                                 # prepare private key file
     - if [ "$CI_COMMIT_REF_SLUG" == "develop" ]; then EC2_MACHINE_SIZE=$EC2_MACHINE_SIZE_DEV; fi
     - echo "$EC2_INSTANCE_NAME"
     - echo "$EC2_MACHINE_SIZE"
     - echo "$CI_ENVIRONMENT_URL"
     - echo "$DYNAMIC_ENVIRONMENT_URL"
-
   script:
     - aws ec2 describe-instances --filters "Name=tag:Name,Values=$EC2_INSTANCE_NAME"
       | jq -r ".Reservations[].Instances[].NetworkInterfaces[].Association.PublicDnsName"
@@ -64,6 +62,26 @@ provision:
 
 
 
+get production ip:
+  stage: provision
+  only:
+    refs:
+      - master
+  image: registry.gitlab.com/systemkern/s5:latest-aws
+  variables:
+    TF_VAR_INSTANCE_NAME: "mlreef-production"              # Used by terraform and '.gitlab-ci-provision.yml'
+  script: echo "mlreef.com" > $INSTANCE_INFO               # pass instance url to deploy stage
+  after_script:
+    - cat $INSTANCE_INFO                                   # debug output
+  artifacts:
+    paths:
+      - "$INSTANCE_INFO"                                   # pass the file which contains our instance URL
+  environment:
+    name: mlreef.com
+    url: http://mlreef.com
+
+
+
 gitlab env config:
   extends: [".except-docu-branches"]
   image: registry.gitlab.com/systemkern/s5:latest
@@ -76,14 +94,14 @@ gitlab env config:
   script:
     # Get the ID of the gitlab environment we want to edit
     - ID=$(curl --fail
-      --header "$KEY Bearer $GITLAB_API_TOKEN"
+      --header "$KEY Bearer $GITLAB_COM_API_TOKEN"
       https://gitlab.com/api/v4/projects/$CI_PROJECT_ID/environments?name=$CI_COMMIT_REF_SLUG
       | jq -c '.[] | select(.name | contains("'$CI_REF_SLUG'")) | .id'
       )
-    - echo "ID is $ID"                                      # debug output
+    - echo "ID is $ID"                                     # debug output
     # configure the gitlab environment with the correct URL
     - curl --request PUT --fail
-      --header "$KEY Bearer $GITLAB_API_TOKEN"
+      --header "$KEY Bearer $GITLAB_COM_API_TOKEN"
       --data "name=$CI_COMMIT_REF_SLUG&external_url=http://$URL"
       https://gitlab.com/api/v4/projects/$CI_PROJECT_ID/environments/$ID
 
@@ -111,7 +129,7 @@ stop review:
 
     # remove the branch's frontend docker container
     - echo "Delete URL is https://gitlab.com/api/v4/projects/$CI_PROJECT_ID/registry/repositories/$DOCKER_REGISTRY_REPO/tags/$CI_COMMIT_REF_SLUG/"
-    - curl --request DELETE --header "$WORKAROUND $GITLAB_API_TOKEN" --fail
+    - curl --request DELETE --header "$WORKAROUND $GITLAB_COM_API_TOKEN" --fail
       https://gitlab.com/api/v4/projects/$CI_PROJECT_ID/registry/repositories/$DOCKER_REGISTRY_REPO/tags/$CI_COMMIT_REF_SLUG
   after_script:
     # remove the data backup from s3 (if it exists)

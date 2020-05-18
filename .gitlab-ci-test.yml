@@ -1,0 +1,39 @@
+.base-test:
+  extends: [.except-docu-branches]
+  stage: smoke tests
+  when: delayed
+  start_in: 4 minutes
+  image: registry.gitlab.com/systemkern/s5:latest
+  before_script:
+    - URL=$(cat $INSTANCE_INFO)
+    - echo $URL                                            # debug output
+
+call login page:
+  extends: .base-test
+  script: if [ $(curl --silent --output /dev/null -w ''%{http_code}'' $URL) != 200 ]; then
+      curl $URL
+      exit 1;
+    fi
+
+call gitlab login:
+  extends: .base-test
+  script: if [ $(curl --silent --output /dev/null -w ''%{http_code}'' $URL:10080) != 302 ]; then
+      curl $URL:10080
+      exit 1;
+    fi
+
+call gitlab api:
+  extends: .base-test
+  script: if [ $(curl --silent --output /dev/null -w ''%{http_code}'' $URL/api/v4/projects) != 200 ]; then
+      curl $URL:10080/api/v4
+      exit 1;
+    fi
+
+call gitlab runners api:
+  extends: .base-test
+  # Gitlab Runners are a separate process from Gitlab's API and Gitlab's frontend
+  script: if [ $(curl --silent --output /dev/null -w ''%{http_code}'' $URL:10080/runners) != 302 ]; then
+      curl $URL:10080/runners
+      exit 1;
+    fi
+
