@@ -8,6 +8,11 @@ import {
   useGetHasAccountType,
 } from 'customHooks/permissions';
 
+import { NO_AUTH_REDIRECT } from 'apiConfig';
+
+// if external we need to redirect with window.location
+const isExternal = /^https?/.test(NO_AUTH_REDIRECT);
+
 /**
  * PrivateRoute.
  *
@@ -58,7 +63,13 @@ const PrivateRoute = (routeProps) => {
 
   const redirectUrl = useMemo(
     () => {
-      if (!auth) return '/';
+      if (!auth) {
+        if (isExternal) {
+          window.location.assign(NO_AUTH_REDIRECT);
+          return '/login';
+        }
+        return NO_AUTH_REDIRECT;
+      }
       if (!permissions) return '/account/upgrade';
       return null;
     },
@@ -71,7 +82,7 @@ const PrivateRoute = (routeProps) => {
       exact
       render={(props) => (allowed
         ? <Component {...props} />
-        : <Redirect to={redirectUrl} />)}
+      : isExternal ? null : <Redirect to={redirectUrl} />)}
     />
   );
 };

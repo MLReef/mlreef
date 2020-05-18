@@ -13,3 +13,6 @@ export const BRANCH_NAME = process.env.REACT_APP_BRANCH_NAME || 'none';
 export const API_GATEWAY = process.env.REACT_APP_API_GATEWAY || 'http://localhost';
 export const BUILD_TIMEOUT = process.env.REACT_APP_BUILD_TIMEOUT || 18000;
 export const POLL_TIMEOUT = process.env.REACT_APP_POLL_TIMEOUT || 10000;
+
+// redirect non authenticated users
+export const NO_AUTH_REDIRECT = process.env.REACT_APP_NO_AUTH_REDIRECT || '/login';
