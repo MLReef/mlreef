@@ -1,15 +1,20 @@
 #!/bin/bash
+# shellcheck disable=SC2162 #read without '-r' will mangle backslashes
 
 while [ -n "$1" ]; do
   case "$1" in
   -f | --force)
-    echo "### Cleaning local docker context"
-    echo "### Stopping and removing _ALL_ docker containers"
-    docker stop $(docker ps -a -q)
-    docker rm $(docker ps -a -q)
+    echo "Cleaning local docker context"
+    echo "Stopping and removing MLreef's docker containers"
+    touch local.env
     docker-compose rm --force --stop -v
-    docker volume ls
-    docker volume prune -f
+    docker rm -f gateway       | true
+    docker rm -f frontend      | true
+    docker rm -f backend       | true
+    docker rm -f mlreefdb      | true
+    docker rm -f gitlab        | true
+    docker rm -f gitlab-runner | true
+    docker rm -f redis         | true
     ;;
   *)
     echo "Option $1 not recognized"
