@@ -26,14 +26,18 @@ provision:
   script:
     - aws ec2 describe-instances --filters "Name=tag:Name,Values=$EC2_INSTANCE_NAME"
       | jq -r ".Reservations[].Instances[].NetworkInterfaces[].Association.PublicDnsName"
-      | tr -d '\r' > $INSTANCE_INFO
-
+      | sed "/null/d"
+      | tr -d '\r' > tmp
+    - cat tmp                                              # Debug output
+    - head -n 1 tmp > $INSTANCE_INFO                       # Take only the first URL (which should be the newest one)
+    - cat $INSTANCE_INFO                                   # Debug output
     - if [ "$(cat $INSTANCE_INFO)" != "" ]; then
         echo "Found an existing environment which will be recycled";
+        cat $INSTANCE_INFO;
         exit 0;
         fi
-    - echo "Could not find an existing environment, provisioning a new one";
 
+    - echo "Could not find an existing environment, provisioning a new one";
     - sed -i "s~AWS_ACCESS_KEY_ID=XXXXX~AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID~"                 $STARTUP_SCRIPT
     - sed -i "s~AWS_SECRET_ACCESS_KEY=XXXXX~AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY~"     $STARTUP_SCRIPT
     # aws ec2 run instances documentation
