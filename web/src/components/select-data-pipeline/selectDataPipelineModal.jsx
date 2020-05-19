@@ -3,7 +3,7 @@ import PropTypes, { shape, number, func } from 'prop-types';
 import Checkbox from '@material-ui/core/Checkbox';
 import { toastr } from 'react-redux-toastr';
 import '../../css/genericModal.css';
-import './selectDataPipelineModal.css';
+import './selectDataPipelineModal.scss';
 import MDropdown from 'components/ui/MDropdown';
 import folderIcon from '../../images/folder_01.svg';
 import fileIcon from '../../images/file_01.svg';
@@ -288,7 +288,7 @@ class SelectDataPipelineModal extends Component {
               <div className="row flex-1 mb-3">
                 <div className="col-12">
                   {/* table begins */}
-                  <div id="table-container" className="h-100">
+                  <div id="table-container" className="h-100 mr-0 ml-0">
                     <table className="file-properties h-100" id="file-tree" style={{ Height: '15vw' }}>
                       <thead>
                         <tr className="title-row">
@@ -307,7 +307,7 @@ class SelectDataPipelineModal extends Component {
                         </tr>
                       </thead>
 
-                      <tbody>
+                      <tbody className="w-100">
                         {showReturnOption && this.getReturnOption()}
                         {files && files.map((file, index) => (
                           <tr key={index.toString()} id={`tr-file-${index}`} className="files-row" style={{ justifyContent: 'unset' }}>
