@@ -84,7 +84,7 @@ check login page:
   extends: [.except-docu-branches]
   stage: smoke tests
   when: delayed
-  start_in: 2 minutes
+  start_in: 4 minutes
   image: registry.gitlab.com/systemkern/s5:latest
   before_script:
     - URL=$(cat $INSTANCE_INFO)

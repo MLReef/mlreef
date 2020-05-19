@@ -19,11 +19,11 @@ GITLAB_ADMIN_TOKEN=""
 # docker: new pipeline runs are spawned as sister container to the runner manager
 # nvidia: like _docker_ with access and visibility of the GPU(s) enabled
 # Autodetect nvidia runtime
-nvidia-smi >/dev/null 2>&1 && RUNNER_RUNTIME="nvida" || RUNTIME=""
+nvidia-smi >/dev/null 2>&1 && RUNNER_RUNTIME="nvidia" || RUNTIME=""
 if [ "$RUNNER_RUNTIME" = "" ]; then
   log "Nvidia cuda drivers NOT found. Setting Gitlab runners to default CPU runtime."
 else
-  log "Found nvidia cuda drivers GPU. Setting Gitlab runners to use 'nvidia' runtime."
+  log "Found nvidia cuda drivers GPU. Setting Gitlab runners to use $RUNNER_RUNTIME runtime."
 fi
 
 # backup local.env if it exits
