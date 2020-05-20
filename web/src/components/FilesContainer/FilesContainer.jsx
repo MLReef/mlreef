@@ -22,11 +22,10 @@ class FilesContainer extends Component {
       files: files || [],
       behind: [],
       ahead: [],
-      redirect: false,
     };
   }
 
-  componentDidMount(){
+  componentDidMount() {
     this.updateFilesArray();
   }
 
@@ -80,11 +79,11 @@ class FilesContainer extends Component {
       false,
       branch,
     ).then(async (res) => {
-      if(res.ok){
+      if (res.ok) {
         const files = await res.json();
         this.setState({ files });
       } else {
-        toastr.error("Error", "Something went wrong getting files");
+        toastr.error('Error', 'Something went wrong getting files');
       }
     });
   }
@@ -105,6 +104,7 @@ class FilesContainer extends Component {
       ahead,
       behind,
       currentBranch,
+      currentPath,
     } = this.state;
     const { projectId, branch, history } = this.props;
     return (
@@ -144,6 +144,7 @@ class FilesContainer extends Component {
         </div>
         )}
         <FilesTable
+          isReturnOptVisible={currentPath}
           files={files.map((f) => ({ id: f.id, name: f.name, type: f.type }))}
           headers={['Name']}
           onClick={(e) => {

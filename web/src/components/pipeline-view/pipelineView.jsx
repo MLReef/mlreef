@@ -12,7 +12,7 @@ import './pipelineView.css';
 import Navbar from '../navbar/navbar';
 import ProjectContainer from '../projectContainer';
 import SortableDataOperationsList from './sortableDataOperationList';
-import SelectDataPipelineModal from '../select-data-pipeline/selectDataPipelineModal';
+import SelectDataPipelineModal from '../ui/MSelectDataPipeline/selectDataPipelineModal';
 import { DataOperationsList } from './dataOperationsList';
 import Instruction from '../instruction/instruction';
 import ExecutePipelineModal from '../execute-pipeline-modal/executePipeLineModal';

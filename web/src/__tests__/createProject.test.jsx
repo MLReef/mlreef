@@ -63,7 +63,7 @@ describe('test the frontend functionality', () => {
 
   test('assert that data types are added to state when selected', () => {
     wrapper.find('MCheckBox').forEach((comp) => {
-      comp.dive().find('button').simulate('click', {});
+      comp.dive().find('div').simulate('click', {});
     });
     expect(wrapper.state().dataTypesSelected.length).toBe(4);
   });

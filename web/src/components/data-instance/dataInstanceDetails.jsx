@@ -87,6 +87,7 @@ const DataInstanceDetails = ({ ...props }) => {
         </div>
         <br />
         <FilesTable
+          isReturnOptVisible={false}
           files={files.map((f) => ({ id: f.id, name: f.name, type: f.type }))}
           headers={[
             'Name',

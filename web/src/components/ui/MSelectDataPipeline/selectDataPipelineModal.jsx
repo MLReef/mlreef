@@ -1,14 +1,15 @@
 import React, { Component } from 'react';
-import PropTypes, { shape, number, func } from 'prop-types';
-import Checkbox from '@material-ui/core/Checkbox';
+import PropTypes, {
+  shape, number, func, string,
+} from 'prop-types';
 import { toastr } from 'react-redux-toastr';
-import '../../css/genericModal.css';
 import './selectDataPipelineModal.scss';
 import MDropdown from 'components/ui/MDropdown';
-import folderIcon from '../../images/folder_01.svg';
-import fileIcon from '../../images/file_01.svg';
-import filesApi from '../../apis/FilesApi';
-import '../files-table/filesTable.css';
+import ReturnLink from 'components/returnLink';
+import MCheckBox from 'components/ui/MCheckBox/MCheckBox';
+import folderIcon from 'images/folder_01.svg';
+import fileIcon from 'images/file_01.svg';
+import filesApi from 'apis/FilesApi';
 
 class SelectDataPipelineModal extends Component {
   constructor(props) {
@@ -16,6 +17,7 @@ class SelectDataPipelineModal extends Component {
     const {
       show,
       branches,
+      project: { default_branch: defaultBranch },
     } = this.props;
 
     this.state = {
@@ -24,17 +26,37 @@ class SelectDataPipelineModal extends Component {
       filePath: '',
       files: null,
       branches,
-      branchSelected: null,
+      branchSelected: defaultBranch,
     };
 
     this.handleCloseButton = this.handleCloseButton.bind(this);
+    this.onGetBackBtnClick = this.onGetBackBtnClick.bind(this);
   }
 
   componentDidMount() {
-    this.getFiles('master');
+    const { project: { id: projectId } } = this.props;
+    const { branchSelected } = this.state;
+    this.updateFiles(projectId, '', branchSelected);
   }
 
     static getDerivedStateFromProps = ({ show }) => ({ show });
+
+    onGetBackBtnClick(e) {
+      e.preventDefault();
+      this.getBack();
+    }
+
+    getBack() {
+      const { filePath, branchSelected } = this.state;
+      const { project: { id: projectId } } = this.props;
+      const path = filePath.substring(0, filePath.lastIndexOf('/'));
+      const newFilePath = !filePath.includes('/') ? '' : path;
+      this.updateFiles(projectId, newFilePath, branchSelected);
+      this.setState({
+        filePath: newFilePath,
+        showReturnOption: !(newFilePath === ''),
+      });
+    }
 
     selectFileFromGrid = (file) => {
       const { files } = this.state;
@@ -49,92 +71,30 @@ class SelectDataPipelineModal extends Component {
       files: prevState.files.map((f) => ({ ...f, checked: newCheckedValue })),
     }));
 
-    getFiles = (newBranchSelectedName) => {
-      const { project: { id } } = this.props;
-      filesApi
-        .getFilesPerProject(
-          id,
-          '',
-          false,
-          newBranchSelectedName,
-        )
-        .then(async (res) => {
-          let files = null;
-          if (res.ok) {
-            files = await res.json();
-          }
-          this.setState({
-            branchSelected: newBranchSelectedName,
-            files: [...files.map((file) => ({ ...file, checked: false }))],
-          });
-        })
-        .catch(
-          () => toastr.error('Error', 'Files could not be recovered'),
-        );
-    }
-
-    getReturnOption = () => (
-      <tr className="files-row">
-        <td className="file-type">
-          <button
-            type="button"
-            style={{ fontSize: '150%' }}
-            className="btn btn-hidden fa fa-folder p-3"
-            onClick={this.getBack}
-          >
-            {' ..'}
-          </button>
-        </td>
-        <td>&nbsp;</td>
-        <td>&nbsp;</td>
-      </tr>
-    );
-
-    getBack = (e) => {
-      const { filePath } = this.state;
-      const path = filePath.substring(0, filePath.lastIndexOf('/'));
-      if (!filePath.includes('/')) {
-        this.setState({ filePath: '' });
-        this.updateFiles(e, '');
-      } else {
-        this.setState({ filePath: path });
-        this.updateFiles(e, path);
+    updateFiles = (projectId, path, branch) => filesApi.getFilesPerProject(
+      projectId,
+      path,
+      false,
+      branch,
+    ).then((res) => {
+      if (res.ok) {
+        return res.json();
       }
-    };
-
-    updateFiles = (e, path) => {
-      e.preventDefault();
-      this.setState({
-        filePath: path,
-        showReturnOption: !(path === ''),
-      });
-      const {
-        branchSelected,
-      } = this.state;
-      const { project: { id } } = this.props;
-      filesApi.getFilesPerProject(
-        id,
-        path || '',
-        false,
-        branchSelected,
-      ).then(async (res) => {
-        let files = null;
-        if (res.ok) {
-          files = await res.json();
-        }
-        this.setState({ files: [...files.map((file) => ({ ...file, checked: false }))] });
-      })
-        .catch(
-          () => {
-            toastr.error('Error', 'Files could not be recovered');
-          },
-        );
-    }
+      return Promise.reject(res);
+    }).then((files) => this.setState({
+      files: [...files.map((file) => ({ ...file, checked: false }))],
+    }))
+      .catch(() => toastr.error('Error', 'Files could not be recovered'));
 
     handleCloseButton() {
       const { selectDataClick } = this.props;
       selectDataClick();
       document.getElementsByTagName('body').item(0).style.overflow = 'scroll';
+    }
+
+    updateFilesArrayOnBranchChange(projectId, branchSelected) {
+      this.setState({ showReturnOption: false, branchSelected });
+      this.updateFiles(projectId, '', branchSelected);
     }
 
     render() {
@@ -146,7 +106,7 @@ class SelectDataPipelineModal extends Component {
         showReturnOption,
         filePath,
       } = this.state;
-      const { handleModalAccept, project } = this.props;
+      const { handleModalAccept, project: { id: projectId, name: projectName } } = this.props;
       const customTime = (ISODate) => {
         const today = new Date(ISODate);
         const h = today.getHours();
@@ -158,7 +118,7 @@ class SelectDataPipelineModal extends Component {
       };
       const filesSelected = files ? files.filter((f) => f.checked) : 0;
       return (
-        <div className={`modal modal-primary modal-lg dark-cover ${show ? 'show' : ''}`}>
+        <div id="select-data-modal-div" className={`modal modal-primary modal-lg dark-cover ${show ? 'show' : ''}`}>
           <div className="modal-cover" onClick={this.handleCloseButton} />
           <div className="modal-container" style={{ minHeight: 450 }}>
             <div className="modal-container-close">
@@ -180,7 +140,7 @@ class SelectDataPipelineModal extends Component {
                   <MDropdown
                     label={branchSelected || 'Select branch'}
                     component={(
-                      <div className="select-branch" style={{ top: '27%', left: '35px' }} onBlur={this.handleBlur}>
+                      <div className="select-branch" style={{ top: '27%', left: '35px' }}>
                         <div className="switch-header">
                           <p>Switch Branches</p>
                         </div>
@@ -200,12 +160,14 @@ class SelectDataPipelineModal extends Component {
                                     tabIndex="0"
                                     role="button"
                                     key={index.toString()}
-                                    onClick={() => {
-                                      this.getFiles(branch.name);
-                                    }}
-                                    onKeyDown={() => {
-                                      this.getFiles(branch.name);
-                                    }}
+                                    onClick={() => this.updateFilesArrayOnBranchChange(
+                                      projectId,
+                                      branch.name,
+                                    )}
+                                    onKeyDown={() => this.updateFilesArrayOnBranchChange(
+                                      projectId,
+                                      branch.name,
+                                    )}
                                   >
                                     <p>{branch.name}</p>
                                   </li>
@@ -222,7 +184,7 @@ class SelectDataPipelineModal extends Component {
                           <div className="branches">
                             <ul>
                               <li className="branch-header">Branches</li>
-                              {branches.filter((branch) => branch.name.startsWith('data-pipeline'))
+                              {branches.filter((branch) => branch.name.startsWith('data-pipeline')).reverse()
                                 .map((branch) => {
                                   const pipelineName = branch.name;
                                   const uniqueName = pipelineName.split('/')[1];
@@ -230,20 +192,15 @@ class SelectDataPipelineModal extends Component {
                                   return (
                                     <li
                                       key={`b-${pipelineName}`}
-                                      onKeyDown={() => {
-                                        // we should filter which key
-                                        this.getFiles(pipelineName);
-                                      }}
-                                      onClick={() => {
-                                        this.getFiles(pipelineName);
-                                      }}
+                                      onKeyDown={() => this.updateFilesArrayOnBranchChange(projectId, pipelineName)}
+                                      onClick={() => this.updateFilesArrayOnBranchChange(projectId, pipelineName)}
                                     >
                                       <p>
                                         {`${uniqueName} - ${customTime(branch.commit.created_at)}`}
                                       </p>
                                     </li>
                                   );
-                                }).reverse()}
+                                })}
                             </ul>
                           </div>
                         </div>
@@ -255,6 +212,7 @@ class SelectDataPipelineModal extends Component {
                   {files && (
                     <>
                       <button
+                        id="select-all"
                         type="button"
                         className="btn btn-outline-dark btn-label-sm mr-2"
                         onClick={() => this.changeCheckedToAll(true)}
@@ -262,6 +220,7 @@ class SelectDataPipelineModal extends Component {
                         Select All
                       </button>
                       <button
+                        id="deselect-all"
                         type="button"
                         className="btn btn-outline-dark btn-label-sm mr-2"
                         onClick={() => this.changeCheckedToAll(false)}
@@ -271,9 +230,10 @@ class SelectDataPipelineModal extends Component {
                     </>
                   )}
                   <button
+                    id="accept"
                     type="button"
                     className="btn btn-primary btn-label-sm"
-                    onClick={(e) => { handleModalAccept(e, filesSelected, branchSelected); }}
+                    onClick={(e) => handleModalAccept(e, filesSelected, branchSelected)}
                   >
                     Accept
                   </button>
@@ -281,7 +241,7 @@ class SelectDataPipelineModal extends Component {
               </div>
               <div className="row mb-3 ml-2">
                 <p>
-                  {`${project.name} / `}
+                  {`${projectName} / `}
                   <b>{filePath}</b>
                 </p>
               </div>
@@ -308,18 +268,16 @@ class SelectDataPipelineModal extends Component {
                       </thead>
 
                       <tbody className="w-100">
-                        {showReturnOption && this.getReturnOption()}
+                        {showReturnOption && (
+                          <ReturnLink getBack={this.onGetBackBtnClick} />
+                        )}
                         {files && files.map((file, index) => (
                           <tr key={index.toString()} id={`tr-file-${index}`} className="files-row" style={{ justifyContent: 'unset' }}>
                             <td className="icon-container-column">
-                              <Checkbox
-                                id={`span-file-${index}`}
+                              <MCheckBox
+                                name={`span-file-${index}`}
                                 checked={file.checked}
-                                onChange={() => { this.selectFileFromGrid(file); }}
-                                color="primary"
-                                inputProps={{
-                                  'aria-label': 'primary checkbox',
-                                }}
+                                callback={() => { this.selectFileFromGrid(file); }}
                               />
                             </td>
                             <td className="icon-container-column">
@@ -330,8 +288,15 @@ class SelectDataPipelineModal extends Component {
                                 {file.type === 'tree'
                                   ? (
                                     <button
+                                      id={`button-for-${index}`}
                                       type="button"
-                                      onClick={(e) => this.updateFiles(e, file.path)}
+                                      onClick={() => {
+                                        this.setState({
+                                          filePath: file.path,
+                                          showReturnOption: true,
+                                        });
+                                        this.updateFiles(projectId, file.path, branchSelected);
+                                      }}
                                       className="btn btn-hidden"
                                     >
                                       {file.name}
@@ -358,6 +323,7 @@ SelectDataPipelineModal.propTypes = {
   show: PropTypes.bool,
   project: shape({
     id: number.isRequired,
+    default_branch: string.isRequired,
   }).isRequired,
   handleModalAccept: func.isRequired,
   selectDataClick: func.isRequired,

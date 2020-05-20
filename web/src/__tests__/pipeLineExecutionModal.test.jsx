@@ -3,7 +3,13 @@ import { mount } from 'enzyme';
 import ExecutePipeLineModal from '../components/execute-pipeline-modal/executePipeLineModal';
 
 const setup = () => mount(
-  <ExecutePipeLineModal isShowing toggle={() => { }} amountFilesSelected={3} dataInstanceName="experiment-weird-exp" />,
+  <ExecutePipeLineModal
+    isShowing
+    toggle={() => { }}
+    amountFilesSelected={3}
+    dataInstanceName="experiment-weird-exp"
+    httpUrlToRepo="http://some-project.com"
+  />,
 );
 
 describe('Check elements in the first render', () => {

@@ -4,7 +4,9 @@ import { toastr } from 'react-redux-toastr';
 import { bindActionCreators } from 'redux';
 import { CircularProgress } from '@material-ui/core';
 import uuidv1 from 'uuid/v1';
-import { shape, objectOf, arrayOf,string, func } from 'prop-types';
+import {
+  shape, objectOf, arrayOf, string, func,
+} from 'prop-types';
 import CustomizedButton from 'components/CustomizedButton';
 import ExperimentsApi from 'apis/experimentApi';
 import BranchesApi from '../../apis/BranchesApi';
@@ -238,15 +240,15 @@ ExperimentsOverview.propTypes = {
       id: string.isRequired,
     }).isRequired,
     jobs: arrayOf(
-        shape({
-          ref: string.isRequired,
-        }).isRequired,
+      shape({
+        ref: string.isRequired,
+      }).isRequired,
     ).isRequired,
     history: shape({}).isRequired,
     actions: shape({
       getJobsListPerProject: func.isRequired,
     }).isRequired,
-  })
+  }),
 };
 
 function mapStateToProps(state) {
