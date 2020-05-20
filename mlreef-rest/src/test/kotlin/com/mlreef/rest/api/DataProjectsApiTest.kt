@@ -65,7 +65,7 @@ class DataProjectsApiTest : RestApiTest() {
                 objectMapper.readValue(it.response.contentAsByteArray, DataProjectDto::class.java)
             }
 
-        assertThat(returnedResult).isNotNull()
+        assertThat(returnedResult).isNotNull
     }
 
     @Transactional
@@ -258,7 +258,7 @@ class DataProjectsApiTest : RestApiTest() {
 
         addRealUserToProject(project1.gitlabId, account2.person.gitlabId!!)
 
-        val (project21, _) = gitlabHelper.createRealDataProject(account2, slug="slug-1", namespace = project1.gitlabGroup)
+        val (project21, _) = gitlabHelper.createRealDataProject(account2, slug = "slug-1", namespace = project1.gitlabGroup)
         val (project22, _) = gitlabHelper.createRealDataProject(account2)
 
         val returnedResult: DataProjectDto = this.mockMvc.perform(
@@ -343,7 +343,7 @@ class DataProjectsApiTest : RestApiTest() {
         val (account, _, _) = gitlabHelper.createRealUser()
         val (project, _) = gitlabHelper.createRealDataProject(account)
 
-        assertThat(dataProjectRepository.findByIdOrNull(project.id)).isNotNull()
+        assertThat(dataProjectRepository.findByIdOrNull(project.id)).isNotNull
 
         this.mockMvc.perform(
             this.acceptContentAuth(RestDocumentationRequestBuilders.delete("$rootUrl/${project.id}"), account))
@@ -365,13 +365,13 @@ class DataProjectsApiTest : RestApiTest() {
 
         addRealUserToProject(project21.gitlabId, account1.person.gitlabId!!)
 
-        assertThat(dataProjectRepository.findByIdOrNull(project21.id)).isNotNull()
+        assertThat(dataProjectRepository.findByIdOrNull(project21.id)).isNotNull
 
         this.mockMvc.perform(
             this.acceptContentAuth(RestDocumentationRequestBuilders.delete("$rootUrl/${project21.id}"), account1))
             .andExpect(MockMvcResultMatchers.status().isForbidden)
 
-        assertThat(dataProjectRepository.findByIdOrNull(project21.id)).isNotNull()
+        assertThat(dataProjectRepository.findByIdOrNull(project21.id)).isNotNull
     }
 
     @Transactional
@@ -460,7 +460,6 @@ class DataProjectsApiTest : RestApiTest() {
             this.acceptContentAuth(RestDocumentationRequestBuilders.get("$rootUrl/${project21.id}/users"), account3))
             .andExpect(MockMvcResultMatchers.status().is4xxClientError)
     }
-
 
 
     private fun dataProjectResponseFields(prefix: String = ""): List<FieldDescriptor> {

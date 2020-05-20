@@ -2,7 +2,8 @@ package com.mlreef.parsing
 
 import com.mlreef.rest.ProcessorParameter
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.Test
+import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.api.Test
 
 class MLParsingTest {
 
@@ -124,9 +125,11 @@ class MLParsingTest {
         assertThat(result.countMLFunctionParameters).isEqualTo(3)
     }
 
-    @Test(expected = PythonParserException::class)
+    @Test
     fun `DataProcessor functions parameters must be valid in python and bash`() {
-        testResult("python_mlreef_dataoperation_bad_param_names.py")
+        Assertions.assertThrows(PythonParserException::class.java) {
+            testResult("python_mlreef_dataoperation_bad_param_names.py")
+        }
     }
 
     @Test

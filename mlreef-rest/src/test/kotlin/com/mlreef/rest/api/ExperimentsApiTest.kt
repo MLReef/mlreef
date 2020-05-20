@@ -354,7 +354,7 @@ class ExperimentsApiTest : RestApiTest() {
             .andReturn().response.contentAsString
 
         assertThat(returnedResult).isNotEmpty()
-        assertThat(returnedResult).contains("git checkout -b target")
+        assertThat(returnedResult).contains("- git checkout -b \$TARGET_BRANCH")
     }
 
     // Does not really work right now, lets wait frontend#523

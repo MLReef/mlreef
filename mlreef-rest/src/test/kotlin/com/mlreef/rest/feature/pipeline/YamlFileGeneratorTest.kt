@@ -116,26 +116,23 @@ class YamlFileGeneratorTest {
 
     @Test
     fun `Pipelines are indented correctly`() {
-        val generator = YamlFileGenerator()
-        generator.init()
-        assertContains(generator.output, YamlFileGenerator.PIPELINE_STRING)
+        val generator = YamlFileGenerator().apply { init() }
+        assertThat(generator.output).contains(YamlFileGenerator.PIPELINE_STRING)
 
-        val indexOf = generator.output.indexOf("git checkout -b %TARGET_BRANCH%")
-        val lineBegin = generator.output.indexOf("\n", indexOf)
-        val dash = generator.output.indexOf("-", lineBegin)
-        val indent = dash - lineBegin - 1
-
-        val list = listOf(
+        generator.replacePipeline(listOf(
             mockDataProcessorInstance("commons-data-operation1"),
-            mockDataProcessorInstance("commons-data-operation2"))
-        generator.replacePipeline(list)
+            mockDataProcessorInstance("commons-data-operation2")
+        ))
 
-        val slugBegin = generator.output.indexOf("python ")
-        val nextLineBegin = generator.output.indexOf("\n", slugBegin)
-        val testDash = generator.output.indexOf("-", nextLineBegin)
-        val testIndent = testDash - nextLineBegin - 1
-        assertThat(testIndent).isEqualTo(4)
-        assertThat(testIndent).isEqualTo(indent)
+        generator.output.lines()
+            .filter { it.contains("python") }
+            .forEach {
+                val indent = it.indexOf("-")
+                val expected = 4
+                assertThat(indent)
+                    .withFailMessage("Expected an indentation of $expected spaces for line: '$it'")
+                    .isEqualTo(expected)
+            }
     }
 
     private fun mockDataProcessorInstance(slug: String): DataProcessorInstance {
