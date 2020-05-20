@@ -29,13 +29,13 @@ use of HTTP verbs.
 
 | `PUT`
 | Used to update an existing resource as an idempotent call. May also create the resource in
-rare cases, e.g. if it a singleton resource. Will return 200 with Content of 204 without Content
+rare cases, e.g. if it a singleton resource. Will return 200 with Content, 204 without Content
 
 | `PATCH`
-| Used to update an existing resource, including partial updates. Will return 200 with Content of 204 without Content
+| Used to update an existing resource, including partial updates. Will return 200 with Content, 204 without Content
 
 | `DELETE`
-| Used to delete an existing resource
+| Used to delete an existing resource. Will return 204
 |===
 
 [[overview-http-status-codes]]
