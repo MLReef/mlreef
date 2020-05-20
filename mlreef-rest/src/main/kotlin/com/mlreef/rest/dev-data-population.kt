@@ -260,8 +260,10 @@ internal class DataPopulator(
                 id = dataOperationId, slug = "commons-random-crop", name = "Random crop",
                 command = "random_crop", inputDataType = DataType.IMAGE, outputDataType = DataType.IMAGE,
                 visibilityScope = VisibilityScope.PUBLIC, author = author,
-                description = "This pipeline operation randomly crops a NxM (height x width) portion of the given dataset. \n" +
-                    "      This is used to randomly extract parts of the image incase we need to remove bias present in image data.",
+                description = """
+                    This pipeline operation randomly crops a NxM (height x width) portion of the given dataset.
+                    This is used to randomly extract parts of the image incase we need to remove bias present in image data.
+                """.trimMargin(),
                 codeProjectId = codeProjectId))
 
         val parameter1 = addParam(processorParameter1Id, ProcessorParameter(processorParameter1Id, dataOp2.id, "height", ParameterType.INTEGER, 0, "35"))
@@ -315,25 +317,31 @@ internal class DataPopulator(
 
         val model = dataAlgorithmRepository.findByIdOrNull(dataOperationId)
             ?: dataAlgorithmRepository.save(DataAlgorithm(
-                id = dataOperationId, slug = "resnet50", name = "Resnet 50",
-                command = "resnet50", inputDataType = DataType.IMAGE, outputDataType = DataType.IMAGE,
-                visibilityScope = VisibilityScope.PUBLIC, author = author,
+                id = dataOperationId,
+                slug = "resnet50",
+                name = "Resnet 50",
+                command = "resnet50",
+                inputDataType = DataType.IMAGE,
+                outputDataType = DataType.IMAGE,
+                visibilityScope = VisibilityScope.PUBLIC,
+                author = author,
                 description = "ResNet50 is a 50 layer Residual Network.",
-                codeProjectId = codeProjectId))
+                codeProjectId = codeProjectId
+            ))
 
         //standard
-        addParam(id1, ProcessorParameter(id1, model.id, "output_path", ParameterType.STRING, 0, "", true))
-        addParam(id2, ProcessorParameter(id2, model.id, "input_height", ParameterType.INTEGER, 1, "", true))
-        addParam(id3, ProcessorParameter(id3, model.id, "input_width", ParameterType.INTEGER, 2, "", true))
+        addParam(id1, ProcessorParameter(id1, model.id, "output-path", ParameterType.STRING, 0, ".", true))
+        addParam(id2, ProcessorParameter(id2, model.id, "height", ParameterType.INTEGER, 1, "36", true))
+        addParam(id3, ProcessorParameter(id3, model.id, "width", ParameterType.INTEGER, 2, "36", true))
         addParam(id4, ProcessorParameter(id4, model.id, "epochs", ParameterType.FLOAT, 3, "35", true))
 
         //advanced
         addParam(id5, ProcessorParameter(id5, model.id, "channels", ParameterType.INTEGER, 4, "3", false))
-        addParam(id6, ProcessorParameter(id6, model.id, "use_pretrained", ParameterType.BOOLEAN, 5, "true", false))
-        addParam(id7, ProcessorParameter(id7, model.id, "batch_size", ParameterType.FLOAT, 6, "0.25", false))
-        addParam(id8, ProcessorParameter(id8, model.id, "validation_split", ParameterType.INTEGER, 7, "3", false))
+        addParam(id6, ProcessorParameter(id6, model.id, "use-pretrained", ParameterType.BOOLEAN, 5, "true", false))
+        addParam(id7, ProcessorParameter(id7, model.id, "batch-size", ParameterType.FLOAT, 6, "0.25", false))
+        addParam(id8, ProcessorParameter(id8, model.id, "validation-split", ParameterType.INTEGER, 7, "3", false))
         addParam(id9, ProcessorParameter(id9, model.id, "class_mode", ParameterType.STRING, 8, "categorical", false))
-        addParam(id10, ProcessorParameter(id10, model.id, "learning_rate", ParameterType.FLOAT, 9, "0.0001", false))
+        addParam(id10, ProcessorParameter(id10, model.id, "learning-rate", ParameterType.FLOAT, 9, "0.0001", false))
         addParam(id11, ProcessorParameter(id11, model.id, "loss", ParameterType.FLOAT, 10, "0.1", false))
     }
 
