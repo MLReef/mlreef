@@ -1,19 +1,23 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { useParams } from 'react-router-dom';
 import {
   arrayOf, shape, string, func,
 } from 'prop-types';
-import returnLink from '../returnLink';
+import ReturnLink from '../returnLink';
 import folderIcon from '../../images/folder_01.svg';
 import fileIcon from '../../images/file_01.svg';
 import './filesTable.css';
 
-const FilesTable = ({ files, headers, onClick }) => {
+const FilesTable = ({
+  files, headers, onClick, isReturnOptVisible,
+}) => {
   let tableColumnsWidth = 25;
   if (headers.length > 1) {
     tableColumnsWidth = 100 / headers.length;
   }
 
   const getBack = () => window.history.back();
+
   return (
     <table className="file-properties">
       <thead>
@@ -29,7 +33,7 @@ const FilesTable = ({ files, headers, onClick }) => {
         </tr>
       </thead>
       <tbody>
-        {returnLink(getBack)}
+        {isReturnOptVisible && <ReturnLink getBack={getBack} />}
         {files.map((file) => (
           <tr key={file.id} id={file.id} className="files-row clickable" data-key={file.type} onClick={onClick}>
             {Object.keys(file).filter((key) => key !== 'id' && key !== 'type').map((k, keyIndex) => (

@@ -45,6 +45,7 @@ const Files = ({ projectId, job }) => {
             </div>
           </div>
           <FilesTable
+            isReturnOptVisible={false}
             files={job.artifacts.map((art) => ({
               id: art.id,
               name: art.filename,

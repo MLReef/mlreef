@@ -11,7 +11,7 @@ import Navbar from '../navbar/navbar';
 import ProjectContainer from '../projectContainer';
 import { dataVisualizations } from '../../dataTypes';
 import SortableDataOperationsList from '../pipeline-view/sortableDataOperationList';
-import SelectDataPipelineModal from '../select-data-pipeline/selectDataPipelineModal';
+import SelectDataPipelineModal from '../ui/MSelectDataPipeline/selectDataPipelineModal';
 import { DataOperationsList } from '../pipeline-view/dataOperationsList';
 import Instruction from '../instruction/instruction';
 import withPipelinesExecution from '../withPipelinesExecution';
