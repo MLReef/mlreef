@@ -103,7 +103,7 @@ class ExperimentsApiTest : RestApiTest() {
             this.acceptContentAuth(post(url), account)
                 .content(objectMapper.writeValueAsString(request)))
             .andExpect(status().isOk)
-            .andDo(document(
+            .document(
                 "experiments-create-success",
                 requestFields(experimentCreateRequestFields())
                     .and(dataProcessorInstanceFields("post_processing[]."))
@@ -112,7 +112,8 @@ class ExperimentsApiTest : RestApiTest() {
                     .and(experimentPipelineInfoDtoResponseFields("pipeline_job_info."))
                     .and(dataProcessorInstanceFields("post_processing[]."))
                     .and(dataProcessorInstanceFields("processing."))
-            ))
+                    .and(fileLocationsFields("input_files[]."))
+            )
             .returns(ExperimentDto::class.java)
 
         assertThat(returnedResult).isNotNull()
@@ -228,6 +229,7 @@ class ExperimentsApiTest : RestApiTest() {
                 responseFields(experimentDtoResponseFields("[]."))
                     .and(experimentPipelineInfoDtoResponseFields("[].pipeline_job_info."))
                     .and(dataProcessorInstanceFields("[].post_processing[]."))
+                    .and(fileLocationsFields("[].input_files[]."))
                     .and(dataProcessorInstanceFields("[].processing."))))
             .returnsList(ExperimentDto::class.java)
 
@@ -248,6 +250,7 @@ class ExperimentsApiTest : RestApiTest() {
                 responseFields(experimentDtoResponseFields())
                     .and(experimentPipelineInfoDtoResponseFields("pipeline_job_info."))
                     .and(dataProcessorInstanceFields("post_processing[]."))
+                    .and(fileLocationsFields("input_files[]."))
                     .and(dataProcessorInstanceFields("processing.")))
 
     }
@@ -332,12 +335,13 @@ class ExperimentsApiTest : RestApiTest() {
 
         val experiment1 = createExperiment(project1.id)
 
-        this.performGet("$rootUrl/${project1.id}/experiments/${experiment1.id}/info", account)
+        val pipelineJobInfoDto = this.performGet("$rootUrl/${project1.id}/experiments/${experiment1.id}/info", account)
             .andExpect(status().isOk)
-            .andDo(document(
+            .document(
                 "experiments-retrieve-one-info",
-                responseFields(experimentPipelineInfoDtoResponseFields())))
-
+                responseFields(experimentPipelineInfoDtoResponseFields()))
+            .returns(PipelineJobInfoDto::class.java)
+        assertThat(pipelineJobInfoDto).isNotNull()
     }
 
     @Transactional

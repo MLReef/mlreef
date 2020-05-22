@@ -130,8 +130,11 @@ internal class DataPopulator(
             dataProjectId = dataProjectId,
             dataInstanceId = null,
             processing = processorInstance,
-            name = "Experiment Name", slug = "experiment-slug",
-            sourceBranch = "source", targetBranch = "target"
+            name = "Experiment Name",
+            slug = "experiment-slug",
+            sourceBranch = "source",
+            targetBranch = "target",
+            inputFiles = listOf(FileLocation.fromPath("folder"))
         )
         return experimentRepository.findByIdOrNull(experiment.id) ?: experimentRepository.save(experiment)
     }
