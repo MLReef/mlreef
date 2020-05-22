@@ -89,6 +89,13 @@ internal fun dataProcessorFields(prefix: String = ""): List<FieldDescriptor> {
     )
 }
 
+internal fun fileLocationsFields(prefix: String = ""): List<FieldDescriptor> {
+    return listOf(
+        fieldWithPath(prefix + "location").type(JsonFieldType.STRING).description("A URL, URI or simple path describing the location of a file/folder"),
+        fieldWithPath(prefix + "location_type").type(JsonFieldType.STRING).description("PATH, URL or AWS_ID ")
+    )
+}
+
 @Component
 internal class AccountSubjectPreparationTrait {
 

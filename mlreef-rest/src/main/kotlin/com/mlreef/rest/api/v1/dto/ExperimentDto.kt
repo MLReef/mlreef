@@ -2,6 +2,7 @@ package com.mlreef.rest.api.v1.dto
 
 import com.mlreef.rest.DataProcessorInstance
 import com.mlreef.rest.Experiment
+import com.mlreef.rest.FileLocation
 import com.mlreef.rest.helpers.DataClassWithId
 import java.util.UUID
 import javax.validation.Valid
@@ -17,6 +18,7 @@ class ExperimentDto(
     @get:NotEmpty val targetBranch: String,
     val status: String,
     val pipelineJobInfo: PipelineJobInfoDto? = null,
+    @get:Valid val inputFiles: List<FileLocationDto>? = arrayListOf(),
     @get:Valid val postProcessing: List<DataProcessorInstanceDto>? = arrayListOf(),
     @get:Valid val processing: DataProcessorInstanceDto? = null,
     val jsonBlob: String = ""
@@ -31,6 +33,7 @@ internal fun Experiment.toDto(): ExperimentDto =
         name = this.name,
         sourceBranch = this.sourceBranch,
         targetBranch = this.targetBranch,
+        inputFiles = this.inputFiles.map(FileLocation::toDto),
         status = this.status.name,
         jsonBlob = this.jsonBlob,
         pipelineJobInfo = this.pipelineJobInfo?.toDto(),
