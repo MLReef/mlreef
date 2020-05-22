@@ -2,9 +2,14 @@ build frontend:
   extends: [".except-docu-branches"]
   # This docker version should correspond with the on docker version in the EC2 deployment
   stage: build
+  only:
+    changes:
+      - web/**/*
+      - .gitlab-ci-build.yml
   image: docker:19.03.5                                     # https://hub.docker.com/_/docker/
   services:
     - docker:dind
+  variables:
   script:
     - cd web
     # Use Gitlab's internal unique job ID as build version. This way versions can be traced back to a specific build.
@@ -24,11 +29,12 @@ build frontend:
     - echo "${CI_REGISTRY_PASSWORD}" | docker login ${CI_REGISTRY} --username=${CI_REGISTRY_USER} --password-stdin
     - export TAG="${CI_COMMIT_REF_SLUG}"
     - if [ $CI_COMMIT_REF_SLUG == "master" ]; then TAG="latest";  fi          # follow docker naming conventions
-    - docker build --tag "$CI_REGISTRY_IMAGE:$TAG" -f Dockerfile .
-    - docker push "$CI_REGISTRY_IMAGE:$TAG"
+    - export IMAGE_PATH=$CI_REGISTRY_IMAGE/frontend:$TAG
+    - docker build --tag "$IMAGE_PATH" -f Dockerfile .
+    - docker push "$IMAGE_PATH"
 
     # Get Test coverage report from build image
-    - docker create -ti --name dummy "$CI_REGISTRY_IMAGE:$TAG" bash
+    - docker create -ti --name dummy "$IMAGE_PATH" bash
     - docker cp dummy:/app/coverage coverage
     - docker rm -f dummy
   artifacts:
