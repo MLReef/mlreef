@@ -20,5 +20,35 @@ module.exports = {
       }
     },
     'gatsby-transformer-remark',
+    {
+      resolve: 'gatsby-transformer-remark',
+      options: {
+        plugins: [
+          {
+            resolve: `gatsby-remark-copy-linked-files`,
+            options: {
+              // destinationDir: `path/to/dir`,
+              ignoreFileExtensions: [`bmp`, `tiff`],
+            },
+          },
+        ],
+      },
+      // options: {
+      //   plugins: [
+      //     {
+      //       resolve: "gatsby-remark-images",
+      //       options: {
+      //         maxWidth: 690
+      //       }
+      //     },
+      //     // {
+      //     //   resolve: "gatsby-remark-responsive-iframe"
+      //     // },
+      //     // "gatsby-remark-copy-linked-files",
+      //     // "gatsby-remark-autolink-headers",
+      //     // "gatsby-remark-prismjs"
+      //   ]
+      // }
+    },
   ]
 }

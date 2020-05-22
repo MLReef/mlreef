@@ -1,0 +1,202 @@
+
+# Useful Git commands
+
+Here are some useful Git commands collected by the MLReef team. You may not need to use often, but they can come in handy when needed.
+
+## Remotes
+
+### Add another URL to a remote, so both remotes get updated on each push
+
+```shell
+git remote set-url --add <remote_name> <remote_url>
+```
+
+## Staging and reverting changes
+
+### Remove last commit and leave the changes in unstaged
+
+```shell
+git reset --soft HEAD^
+```
+
+### Unstage a certain number of commits from HEAD
+
+To unstage 3 commits, for example, run:
+
+```shell
+git reset HEAD^3
+```
+
+### Unstage changes to a certain file from HEAD
+
+```shell
+git reset <filename>
+```
+
+### Revert a file to HEAD state and remove changes
+
+There are two options to revert changes to a file:
+
+- `git checkout <filename>`
+- `git reset --hard <filename>`
+
+### Undo a previous commit by creating a new replacement commit
+
+```shell
+git revert <commit-sha>
+```
+
+### Create a new message for last commit
+
+```shell
+git commit --amend
+```
+
+### Add a file to the last commit
+
+```shell
+git add <filename>
+git commit --amend
+```
+
+Append `--no-edit` to the `commit` command if you do not want to edit the commit
+message.
+
+## Stashing
+
+### Stash changes
+
+```shell
+git stash save
+```
+
+The default behavior of `stash` is to save, so you can also use just:
+
+```shell
+git stash
+```
+
+### Unstash your changes
+
+```shell
+git stash apply
+```
+
+### Discard your stashed changes
+
+```shell
+git stash drop
+```
+
+### Apply and drop your stashed changes
+
+```shell
+git stash pop
+```
+
+## Refs and Log
+
+### Use reflog to show the log of reference changes to HEAD
+
+```shell
+git reflog
+```
+
+### Check the Git history of a file
+
+The basic command to check the Git history of a file:
+
+```shell
+git log <file>
+```
+
+If you get this error message:
+
+```plaintext
+fatal: ambiguous argument <file_name>: unknown revision or path not in the working tree.
+Use '--' to separate paths from revisions, like this:
+```
+
+Use this to check the Git history of the file:
+
+```shell
+git log -- <file>
+```
+
+### Find the tags that contain a particular SHA
+
+```shell
+git tag --contains <sha>
+```
+
+### Check the content of each change to a file
+
+```shell
+gitk <file>
+```
+
+### Check the content of each change to a file, follows it past file renames
+
+```shell
+gitk --follow <file>
+```
+
+## Debugging
+
+### Use a custom SSH key for a Git command
+
+```shell
+GIT_SSH_COMMAND="ssh -i ~/.ssh/gitlabadmin" git <command>
+```
+
+### Debug cloning
+
+With SSH:
+
+```shell
+GIT_SSH_COMMAND="ssh -vvv" git clone <git@url>
+```
+
+With HTTPS:
+
+```shell
+GIT_TRACE_PACKET=1 GIT_TRACE=2 GIT_CURL_VERBOSE=1 git clone <url>
+```
+
+### Debugging with Git embedded traces
+
+Git includes a complete set of [traces for debugging Git commands](https://git-scm.com/book/en/v2/Git-Internals-Environment-Variables#_debugging), for example:
+
+- `GIT_TRACE_PERFORMANCE=1`: enables tracing of performance data, showing how long each particular `git` invocation takes.
+- `GIT_TRACE_SETUP=1`: enables tracing of what `git` is discovering about the repository and environment it’s interacting with.
+- `GIT_TRACE_PACKET=1`: enables packet-level tracing for network operations.
+
+## Rebasing
+
+### Rebase your branch onto master
+
+The -i flag stands for 'interactive':
+
+```shell
+git rebase -i master
+```
+
+### Continue the rebase if paused
+
+```shell
+git rebase --continue
+```
+
+### Use `git rerere`
+
+To _reuse_ recorded solutions to the same problems when repeated:
+
+```shell
+git rerere
+```
+
+To enable `rerere` functionality:
+
+```shell
+git config --global rerere.enabled true
+```

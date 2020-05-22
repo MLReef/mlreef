@@ -95,7 +95,7 @@ export const useCreateMenuIndex = () => {
       query fetchDocs {
         allFile(
           filter: {extension: {eq: "md"}},
-          sort: {fields: relativePath, order: DESC}
+          sort: {fields: relativePath, order: ASC}
         ) {
           nodes {
             relativeDirectory
