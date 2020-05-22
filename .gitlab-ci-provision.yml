@@ -15,7 +15,6 @@ provision:
     EC2_INSTANCE_NAME:    "mlreef-$CI_COMMIT_REF_SLUG"       # environment name and url are set separately
     STARTUP_SCRIPT:       "src/bin/startup.sh"               # used in .gitlab-ci-deploy.yml and docker-compose.yml
   before_script:
-    - chmod 400 $SSH_KEYFILE                                 # prepare private key file
     - if [ "$CI_COMMIT_REF_SLUG" == "develop" ]; then EC2_MACHINE_SIZE=$EC2_MACHINE_SIZE_DEV; fi
     - echo "$EC2_INSTANCE_NAME"
     - echo "$EC2_MACHINE_SIZE"
@@ -132,9 +131,9 @@ stop review:
       | xargs --no-run-if-empty aws ec2 terminate-instances --instance-id
 
     # remove the branch's frontend docker container
-    - echo "Delete URL is https://gitlab.com/api/v4/projects/$CI_PROJECT_ID/registry/repositories/$DOCKER_REGISTRY_REPO/tags/$CI_COMMIT_REF_SLUG/"
-    - curl --request DELETE --header "$WORKAROUND $GITLAB_COM_API_TOKEN" --fail
-      https://gitlab.com/api/v4/projects/$CI_PROJECT_ID/registry/repositories/$DOCKER_REGISTRY_REPO/tags/$CI_COMMIT_REF_SLUG
+    - IMAGE_URL="https://gitlab.com/api/v4/projects/$CI_PROJECT_ID/registry/repositories/$DOCKER_REGISTRY_REPO/frontend/tags/$CI_COMMIT_REF_SLUG"
+    - echo "Delete URL $IMAGE_URL"
+    - curl --request DELETE --header "$WORKAROUND $GITLAB_COM_API_TOKEN" --fail $IMAGE_URL
   after_script:
     # remove the data backup from s3 (if it exists)
     - aws s3 rm "s3://$S3_DATA_BUCKET/mlreef-data-$CI_COMMIT_REF_SLUG.zip"

@@ -22,7 +22,7 @@ services:
 
   frontend:
     container_name: frontend
-    image: registry.gitlab.com/mlreef/frontend:develop
+    image: registry.gitlab.com/mlreef/mlreef/frontend:latest
     restart: always
     depends_on:
       - gitlab
