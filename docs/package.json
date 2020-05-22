@@ -18,6 +18,8 @@
     "classnames": "^2.2.6",
     "gatsby": "^2.20.12",
     "gatsby-plugin-sass": "^2.2.1",
+    "gatsby-remark-copy-linked-files": "^2.3.3",
+    "gatsby-remark-images": "^3.3.7",
     "gatsby-source-filesystem": "^2.2.2",
     "gatsby-transformer-remark": "^2.7.1",
     "github-markdown-css": "^4.0.0",

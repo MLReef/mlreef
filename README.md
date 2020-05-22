@@ -6,6 +6,7 @@ Please read the [Contribution Guidelines](CONTRIBUTE.md) carefully
 
 ### Module Structure
 * **/bin**: contains scripts which help developers with their jobs  
+* **/docs**: contains documentation application 
 * **/src**: the root module contains terraform and infrastructure sources
 * **/web**: the npm based react frontend
 
@@ -14,7 +15,7 @@ Getting Started
 --------------------
 ### Run MLReef locally
  1. Install latest Docker
-    * On OSX and Windows (and possibly on Unix), configure docker with at least 4GB of RAM 
+    * On OSX and Windows (and possibly on Unix), configure docker with at least 4GB of RAM
  2. on Windows: install Cygwin and please also see the extra steps below
  3. Login to our private docker registry hosted on gitlab, with your gitlab credentials by executing `docker login registry.gitlab.com`
 
@@ -40,7 +41,7 @@ After the setup has finished you can connect to MLReef via: [http://localhost](h
  2. Install react scripts `npm install --global react-scripts`
  3. Install all frontend dependencies with via npm: `npm install`
  4. If you are running the backend on a different machine (e.g. a cloud instance)
-    look at the config file `web/.env` for further instructions on how to configure it properly 
+    look at the config file `web/.env` for further instructions on how to configure it properly
 
 
 ### Install and Run the frontend locally Locally
@@ -50,7 +51,7 @@ To install all dependencies execute `npm install`
 
 You can start the frontend separately with npm running `npm start`
 
-To build the frontend's production docker image execute `docker build --tag frontend:local .` 
+To build the frontend's production docker image execute `docker build --tag frontend:local .`
 
 To run the production image locally execute `docker run --rm --name frontend-prod-test -p 3000:3000 frontend:local`
 
@@ -59,10 +60,10 @@ To run the production image locally execute `docker run --rm --name frontend-pro
 The setup script (`bin/setup-local-environment.sh`) script creates a new `local.env` file
 with some important environment variables
 
-*Important*: docker needs a "local.env" to run the stack. 
+*Important*: docker needs a "local.env" to run the stack.
 **Do not change the gitlab after the setup**, as everything encrypted (all tokens and passwords) would then be lost.
 
-After the initial setup you can start and stop your infrastructure by using 
+After the initial setup you can start and stop your infrastructure by using
 ```bash
 docker-compose stop            # "stop" keeps the storage intact
 docker-compose up --detach
@@ -84,14 +85,14 @@ Your data will be lost, but afterwards you will have docker volumes.
 
 
 ### Windows - additional steps
-Ensure your git client is working correctly: 
+Ensure your git client is working correctly:
 * Linux scripts must be in LF! Ensure that you checkout them out as-is and NOT convert to CRLF
 * https://stackoverflow.com/questions/2517190/how-do-i-force-git-to-use-lf-instead-of-crlf-under-windows
 
 For starting and setting up your local docker environment run: `bin/setup-local-environment.bat force` and follow the instructions for setting up your local instance, but without gitlab runners.
 gitlab runners may not work yet under windows.
 
-  
+
 ### Upgrading to a new version
 To upgrade youe stack just run the following three commands
 ```bash
@@ -101,7 +102,7 @@ docker-compose up --detach
 ```
 
 
-### Directly Connecting to different components 
+### Directly Connecting to different components
 * The main entry point is the standard http port: 80
 * The gitlab instance can be reached directly at port: 10080
 * The backend can be reached directly at port.: 8080
@@ -109,7 +110,7 @@ docker-compose up --detach
 
 Styleguide
 --------------------
-In this [list](STYLEGUIDE.md) you will all used standard UI elements. 
+In this [list](STYLEGUIDE.md) you will all used standard UI elements.
 
 
 Infrastructure
@@ -323,7 +324,7 @@ More ENV vars can be used for local adaption, development and debugging:
   * currently "long-and-random-alphanumeric-string" is used for dev env
 * SPRING_PROFILES_ACTIVE (optional defined)
   * default "docker"
-  * provides useful defaults for GITLAB_ROOT_URL and logging output 
+  * provides useful defaults for GITLAB_ROOT_URL and logging output
   * provide "docker" for docker development env: less logging, recreates the database
   * provide "dev" for development env: much logging, recreates the database
   * provide "test" for testing: uses testcontainers instead of docker services for tests
@@ -381,16 +382,16 @@ This is not necessary now, as the backend creates a user when started in "dev" o
    ```
 ### Troubleshooting
 1. Gitlab shows 422 Error code in browser
- 
-This error was seen on the next PC configuration 
-* Firefox 71 
-* Windows 10 
+
+This error was seen on the next PC configuration
+* Firefox 71
+* Windows 10
 * Docker 19.03.8
 
 The point of this error that you are not able neither login nor create a user in browser after your all services are up and running
 At the moment when Firefox shows the error 422 (Unprocessible entity) Chrome works and allows to login.
 The problem is in Docker and running containers and that date in containers is incorrect. You need to check date executing command
-```docker exec -it postgresql sh```. It will open a window with terminal. Here in you need to type ```date``` and it'll show you 
-the date in this container. Most probably it will be incorrect. 
+```docker exec -it postgresql sh```. It will open a window with terminal. Here in you need to type ```date``` and it'll show you
+the date in this container. Most probably it will be incorrect.
 
 To fix it you just need to down all containers (not mandatory) and restart Docker service
