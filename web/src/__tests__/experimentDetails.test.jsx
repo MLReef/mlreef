@@ -7,7 +7,7 @@ import { getTimeCreatedAgo, parseDurationInSeconds } from '../functions/dataPars
 
 const setup = () => {
   const wrapper = shallow(
-    <JobLog projectId={14448940} job={jobMock} />,
+    <JobLog projectId={14448940} job={jobMock} currentState="" />,
   );
 
   return wrapper;

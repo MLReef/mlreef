@@ -22,6 +22,8 @@ const setup = () => shallow(
     experiment={params.experiment}
     projectId={params.projectId}
     defaultBranch="master"
+    userParameters={[]}
+    today={new Date()}
   />,
 );
 

@@ -39,7 +39,7 @@ class ProjectSet extends React.Component {
       <div id="cards-section">
         {finalProjectsArray.length > 0 ? finalProjectsArray.map((proj) => (
           <MProjectCard
-            key={`proj-${screen}-key-${proj.name}`}
+            key={`proj-${screen}-key-${proj.id}`}
             push={push}
             owner={proj.id}
             title={proj.gitlab_project}

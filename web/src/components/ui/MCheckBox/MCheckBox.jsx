@@ -2,16 +2,27 @@ import React, { useEffect } from 'react';
 import { func, string, bool } from 'prop-types';
 import './MCheckBox.scss';
 
-const MCheckBox = ({ defaultChecked, checked, name, labelValue, callback }) => {
+const MCheckBox = (props) => {
+  const {
+    defaultChecked,
+    checked,
+    name,
+    labelValue,
+    callback,
+  } = props;
+
   const [value, setValue] = React.useState(defaultChecked);
+
   useEffect(() => {
     setValue(checked);
   }, [checked]);
+
   function handleClick() {
     const newValue = !value;
     setValue(newValue);
     callback(name, labelValue, newValue);
   }
+
   return (
     <div
       role="button"
@@ -31,12 +42,14 @@ const MCheckBox = ({ defaultChecked, checked, name, labelValue, callback }) => {
 
 MCheckBox.propTypes = {
   name: string.isRequired,
+  defaultChecked: bool,
   checked: bool,
   labelValue: string,
   callback: func,
 };
 
 MCheckBox.defaultProps = {
+  defaultChecked: false,
   checked: false,
   labelValue: '',
   callback: () => {},

@@ -8,6 +8,8 @@ const setup = ({ show }) => shallow(
     project={projectsArrayMock.projects.selectedProject}
     branches={branchesMock}
     show={show}
+    handleModalAccept={() => {}}
+    selectDataClick={() => {}}
   />,
 );
 
@@ -26,7 +28,7 @@ describe('html elements presence', () => {
     wrapper.instance().setState({ files: filesMock });
   });
 
-  test('assert that wrapper contains and renders elements', () => {    
+  test('assert that wrapper contains and renders elements', () => {
     expect(wrapper.find('MDropdown')).toHaveLength(1);
     const selectAllBtn = wrapper.find('#select-all');
     const deselectAllBtn = wrapper.find('#deselect-all');
