@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
-import {
+import React from 'react';
+// import { useParams } from 'react-router-dom';
+import PropTypes, {
   arrayOf, shape, string, func,
 } from 'prop-types';
 import ReturnLink from '../returnLink';
@@ -8,9 +8,14 @@ import folderIcon from '../../images/folder_01.svg';
 import fileIcon from '../../images/file_01.svg';
 import './filesTable.css';
 
-const FilesTable = ({
-  files, headers, onClick, isReturnOptVisible,
-}) => {
+const FilesTable = (props) => {
+  const {
+    files,
+    headers,
+    onClick,
+    isReturnOptVisible,
+  } = props;
+
   let tableColumnsWidth = 25;
   if (headers.length > 1) {
     tableColumnsWidth = 100 / headers.length;
@@ -64,10 +69,12 @@ FilesTable.propTypes = {
     id: string.isRequired,
   })).isRequired,
   headers: arrayOf(string).isRequired,
+  isReturnOptVisible: PropTypes.bool,
   onClick: func,
 };
 
 FilesTable.defaultProps = {
+  isReturnOptVisible: false,
   onClick: () => {},
 };
 
