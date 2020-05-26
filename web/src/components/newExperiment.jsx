@@ -33,12 +33,8 @@ const NewExperiment = ({
   onSortEnd,
   drop,
   allowDrop,
-  showFilters,
-  inputFormValues,
   projectUUID,
-  checkBoxOwnDataOperations,
   handleCheckMarkClick,
-  checkBoxStarredDataOperations,
   handleDragStart,
   whenDataCardArrowButtonIsPressed,
 }) => {
@@ -77,7 +73,6 @@ const NewExperiment = ({
         httpUrlToRepo={project.http_url_to_repo}
         projectId={project.id}
         projectUUID={projectUUID}
-        inputFormValues={inputFormValues}
         branchName={branchName}
         dataInstanceName={dataInstanceName}
         jobName={jobName}

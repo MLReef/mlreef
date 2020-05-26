@@ -18,8 +18,11 @@ const SortableDataOperation = SortableElement(({ value, prefix }) => {
       )
       .value = newBoolValue;
   }
-
-  const filterOperation = (paramType) => value.parameters.filter((operation) => operation.required === paramType);
+  const sortedParameters = value
+    .parameters
+    .sort((paramA, paramB) => paramA.order - paramB.order);
+  const filterOperation = (paramType) => sortedParameters
+    .filter((operation) => operation.required === paramType);
 
   const standardParameters = filterOperation(true);
   const advancedParameters = filterOperation(false);

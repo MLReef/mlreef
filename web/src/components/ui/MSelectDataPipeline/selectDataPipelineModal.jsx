@@ -233,7 +233,7 @@ class SelectDataPipelineModal extends Component {
                     id="accept"
                     type="button"
                     className="btn btn-primary btn-label-sm"
-                    onClick={(e) => handleModalAccept(e, filesSelected, branchSelected)}
+                    onClick={() => handleModalAccept(filesSelected, branchSelected)}
                   >
                     Accept
                   </button>

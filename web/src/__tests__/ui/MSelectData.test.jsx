@@ -3,12 +3,12 @@ import { shallow } from 'enzyme';
 import SelectDataPipelineModal from 'components/ui/MSelectDataPipeline/selectDataPipelineModal';
 import { projectsArrayMock, branchesMock, filesMock } from 'testData';
 
-const setup = ({ show }) => shallow(
+const setup = ({ show, handleModalAccept }) => shallow(
   <SelectDataPipelineModal
     project={projectsArrayMock.projects.selectedProject}
     branches={branchesMock}
     show={show}
-    handleModalAccept={() => {}}
+    handleModalAccept={handleModalAccept}
     selectDataClick={() => {}}
   />,
 );
@@ -16,7 +16,7 @@ const setup = ({ show }) => shallow(
 
 describe('basic rendering', () => {
   test('Assert that comp has the show class', () => {
-    const wrapper = setup({ show: true });
+    const wrapper = setup({ show: true, handleModalAccept: () => {} });
     wrapper.find('div#select-data-modal-div').hasClass('show');
   });
 });
@@ -24,7 +24,7 @@ describe('basic rendering', () => {
 describe('html elements presence', () => {
   let wrapper;
   beforeEach(() => {
-    wrapper = setup({ show: true });
+    wrapper = setup({ show: true, handleModalAccept: () => {} });
     wrapper.instance().setState({ files: filesMock });
   });
 
@@ -45,8 +45,9 @@ describe('html elements presence', () => {
 
 describe('test events in files table', () => {
   let wrapper;
+  const mockedAcceptBtnClick = jest.fn();
   beforeEach(() => {
-    wrapper = setup({ show: true });
+    wrapper = setup({ show: true, handleModalAccept: mockedAcceptBtnClick });
     wrapper.instance().setState({ files: filesMock });
   });
   test('assert that clicking on a folder updates dom', () => {
@@ -59,5 +60,12 @@ describe('test events in files table', () => {
     const { branchSelected } = wrapper.state();
     const filePath = filesMock[0].path;
     expect(mockUpdateFiles).toHaveBeenCalledWith(projectId, filePath, branchSelected);
+  });
+  test('assert that handleAccept is called with the right arguments', () => {
+    const fileSelected = Array.of({ ...filesMock[0], checked: true });
+    const mockSelectedBranch = 'some-testing-branch';
+    wrapper.setState({ files: fileSelected, branchSelected: mockSelectedBranch });
+    wrapper.find('button#accept').simulate('click');
+    expect(mockedAcceptBtnClick).toHaveBeenCalledWith(fileSelected, mockSelectedBranch);
   });
 });

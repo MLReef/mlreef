@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
+import { arrayOf, shape, string } from 'prop-types';
 import { Link } from 'react-router-dom';
 import './executePipeLineModal.css';
 import '../../css/genericModal.css';
 import MSelect from 'components/ui/MSelect';
 import { ALGORITHM } from 'dataTypes';
 import createExperimentInProject, { createPipelineInProject } from '../../functions/pipeLinesHelpers';
-import { arrayOf, shape, string } from 'prop-types';
 
 
 const fakeMachinesToShow = [
@@ -28,7 +28,6 @@ const ExecutePipelineModal = ({
   httpUrlToRepo,
   projectId,
   projectUUID,
-  inputFormValues,
   branchName,
   dataInstanceName,
   jobName,
@@ -54,11 +53,9 @@ const ExecutePipelineModal = ({
       if (type === ALGORITHM) {
         createExperimentInProject(
           dataOperationsSelected,
-          projectId,
           projectUUID,
           branchName,
           branchSelected,
-          inputFormValues,
           filesSelectedInModal,
         );
       } else {

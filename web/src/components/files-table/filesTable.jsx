@@ -1,7 +1,7 @@
 import React from 'react';
 // import { useParams } from 'react-router-dom';
-import PropTypes, {
-  arrayOf, shape, string, func,
+import {
+  arrayOf, shape, string, func, bool, 
 } from 'prop-types';
 import ReturnLink from '../returnLink';
 import folderIcon from '../../images/folder_01.svg';
@@ -69,7 +69,7 @@ FilesTable.propTypes = {
     id: string.isRequired,
   })).isRequired,
   headers: arrayOf(string).isRequired,
-  isReturnOptVisible: PropTypes.bool,
+  isReturnOptVisible: bool,
   onClick: func,
 };
 

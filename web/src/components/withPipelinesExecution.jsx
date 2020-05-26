@@ -4,7 +4,7 @@ import { toastr } from 'react-redux-toastr';
 import arrayMove from 'array-move';
 import minus from '../images/minus.svg';
 import plus from '../images/plus_01.svg';
-import { validateInput } from '../functions/validations';
+import validateInput from '../functions/validations';
 import { showErrorsInTheOperationsSelected } from '../functions/pipeLinesHelpers';
 
 const withPipelineExecution = (
@@ -12,10 +12,11 @@ const withPipelineExecution = (
 ) => class extends Component {
   constructor(props) {
     super(props);
-    const { selectedProject, selectedProjectUUID, branches, processors } = this.props;
+    const {
+      selectedProject, selectedProjectUUID, branches, processors,
+    } = this.props;
     this.state = {
       branchSelected: null,
-      inputFormValues:[],
       project: selectedProject,
       projectUUID: selectedProjectUUID,
       checkBoxOwnDataOperations: false,
@@ -209,7 +210,7 @@ const withPipelineExecution = (
     this.setState({ newState });
   };
 
-  handleModalAccept = (e, filesSelected, branchSelected) => {
+  handleModalAccept = (filesSelected, branchSelected) => {
     const { showSelectFilesModal } = this.state;
     this.setState({
       branchSelected,
@@ -269,10 +270,10 @@ const withPipelineExecution = (
         let inputDataModel = null;
         inputDataModel = dataOperation.parameters[inputIndex];
         if (validateInput(input.value, inputDataModel.dataType, inputDataModel.required)) {
-          if (input.value !== '') {
-            const name = inputDataModel.name;
+          if (input.value !== '') { // fields can be valid but empty because not required...Do not delete
+            const { name } = inputDataModel;
             inputValuesAndDataModels.push({
-              name: name,
+              name,
               value: input.value,
             });
           }
@@ -291,7 +292,6 @@ const withPipelineExecution = (
     } else {
       toastr.error('Form', 'Data you have entered is invalid');
     }
-    this.setState({inputFormValues: inputValuesAndDataModels});
   }
 
   render = () => {
@@ -306,7 +306,6 @@ const withPipelineExecution = (
       showSelectFilesModal,
       isShowingExecutePipelineModal,
       inputValuesAndDataModels,
-      inputFormValues,
     } = this.state;
     return (
       <WrappedComponent
@@ -320,7 +319,6 @@ const withPipelineExecution = (
         showSelectFilesModal={showSelectFilesModal}
         isShowingExecutePipelineModal={isShowingExecutePipelineModal}
         inputValuesAndDataModels={inputValuesAndDataModels}
-        inputFormValues={inputFormValues}
         onSortEnd={this.onSortEnd}
         handleCheckMarkClick={this.handleCheckMarkClick}
         drop={this.drop}

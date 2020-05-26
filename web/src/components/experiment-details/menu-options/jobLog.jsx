@@ -149,31 +149,29 @@ const JobLog = ({
         </div>
         )}
       </div>
-      {(job.status === 'failed' || job.status === 'success') ? (
-        <div style={{ width: '100%', backgroundColor: '#111111' }}>
-          <div id="top-job-log-div">
-            <p style={{ margin: 0 }} />
-          </div>
-          {jobLog
-            ? jobLog.map((line, index) => {
-              if (line.length === 0) {
-                return null;
-              }
-              return (
-                <div className="log-line" key={`${index.toString()} ${line}`}>
-                  <div className="number-span-container">
-                    <span style={{ color: 'gray' }}>{index}</span>
-                  </div>
-                  {parseLine(line)}
-                </div>
-              );
-            }) : (
-              <div style={{ paddingLeft: '2.5em' }}>
-                <CircularProgress size={30} />
-              </div>
-            )}
+      <div style={{ width: '100%', backgroundColor: '#111111' }}>
+        <div id="top-job-log-div">
+          <p style={{ margin: 0 }} />
         </div>
-      ) : null}
+        {jobLog
+          ? jobLog.map((line, index) => {
+            if (line.length === 0) {
+              return null;
+            }
+            return (
+              <div className="log-line" key={`${index.toString()} ${line}`}>
+                <div className="number-span-container">
+                  <span style={{ color: 'gray' }}>{index}</span>
+                </div>
+                {parseLine(line)}
+              </div>
+            );
+          }) : (
+            <div style={{ paddingLeft: '2.5em' }}>
+              <CircularProgress size={30} />
+            </div>
+          )}
+      </div>
     </div>
   );
 };

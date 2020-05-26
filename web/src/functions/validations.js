@@ -2,8 +2,8 @@ import {
   INT, FLOAT, regExps, BOOL,
 } from '../dataTypes';
 
-export const validateInput = (value, dataType, required) => {
-  if (required && (typeof (value) === undefined || value.length === 0)) return false;
+export default (value, dataType, required) => {
+  if (required && (value === '' || (typeof (value) === 'undefined' || value.length === 0))) return false;
   if (value.length === 0) return true;
 
   switch (dataType) {

@@ -144,24 +144,26 @@ export const createPipelineInProject = (
   });
 };
 
+
+
 const createExperimentInProject = (
   dataOperationsSelected,
-  projectId,
   projectUUID,
   branchName,
   branchSelected,
-  inputFormValues,
-  inputFiles,
+  filesSelectedInModal,
 ) => {
+  const experimentData = dataOperationsSelected[0];
+  const { inputValuesAndDataModels: parameters, slug } = experimentData;
   const experimentBody = {
     slug: branchName, // slug is NOT the branch name, it needs replacement
     name: branchName,
     source_branch: branchSelected,
     target_branch: branchName,
-    input_files: inputFiles.map((file) => file.path),
+    input_files: filesSelectedInModal.map((file) => file.path),
     processing: {
-      slug: dataOperationsSelected[0].slug,
-      parameters: inputFormValues,
+      slug,
+      parameters,
     },
   };
   ExperimentsApi.createExperiment(projectUUID.id, experimentBody)
