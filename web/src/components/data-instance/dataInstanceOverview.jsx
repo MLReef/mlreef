@@ -365,10 +365,10 @@ class DataInstanceOverview extends Component {
           )}
           <Instruction
             id="DataInstanceOverview"
-            titleText="Handling Data instances:"
+            titleText="Handling datasets:"
             paragraph={
-              `A data instance is the result of an executed data pipeline. You can use this dataset directly as your source of data for an experiment (or another data pipeline). You can also merge the data instance to your master - thus making it the new master data set.
-                directly for training or to merge them into a data repository in order to permanently save the changes made.`
+              `A dataset is the result of an executed data pipeline. You can use this dataset directly as your source of data for an experiment
+               (or another data pipeline). You can also merge the dataset to your master branch in your repository.`
             }
           />
           <div className="main-content">

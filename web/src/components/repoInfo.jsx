@@ -36,7 +36,7 @@ const RepoInfo = ({
 
       <Link to={`/my-projects/${projectId}/-/data-pipelines`} className="repo-stat" replace>
         <p className="stat-no">{dataInstanesCount}</p>
-        <p className="stat-type">Data Instances</p>
+        <p className="stat-type">Datasets</p>
       </Link>
     </div>
   </>

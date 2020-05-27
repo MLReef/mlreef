@@ -90,7 +90,7 @@ class MProjectClassification extends Component {
               type="button"
               className="btn btn-basic-dark"
             >
-              Own
+              My projects
             </button>
             <button
               id={`${classification}-starred-btn`}
@@ -115,7 +115,7 @@ class MProjectClassification extends Component {
               type="button"
               className="btn btn-primary"
             >
-              New Project
+              New project
             </Link>
           </div>
         </div>

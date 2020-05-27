@@ -78,7 +78,7 @@ const PipeLineView = ({
         titleText="How to create a data processing pipeline:"
         paragraph={
           `First, select your data you want to process. Then select one or multiple data operations from the right.
-              The result of a data pipeline is a data instance, which you can use directly to train a model or merge it into a branch.`
+          The result of a data pipeline is a dataset, which you can use directly to train a model or merge it into an existing branch.`
         }
       />
       <div className="pipe-line-execution-container flexible-div">

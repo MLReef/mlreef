@@ -55,13 +55,13 @@ const DataInstanceDetails = ({ ...props }) => {
           </div>
           {selectedPipeline && (
           <div className="summary-data" style={{ display: 'flex' }}>
-            <div className="project-desc-experiment">
+            <div className="project-desc-experiment pt-1">
               <p><b>{pipelineName}</b></p>
               <p>
                 Created by
                 <b>{selectedPipeline[0].commit.author_name}</b>
                 <br />
-                --- ago
+                ---ago
               </p>
             </div>
             <div className="project-desc-experiment" style={{ visibility: 'inherit' }}>

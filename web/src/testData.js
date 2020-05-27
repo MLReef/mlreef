@@ -2205,7 +2205,7 @@ export const dataPipeLines = [{
   index: 4,
   command: 'lee_filter',
   description:
-      `The presence of speckle noise in Synthetic Aperture Radar (SAR) images makes the interpretation of the contents difficult, 
+      `The presence of speckle noise in images makes the interpretation of the contents difficult, 
       thereby degrading the quality of the image. Therefore an efficient speckle noise removal technique, the Lee Filter is used to 
       smoothen the static-like noise present in these images`,
   showDescription: false,

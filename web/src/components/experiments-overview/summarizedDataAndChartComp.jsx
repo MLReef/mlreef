@@ -243,13 +243,13 @@ const SummarizedDataAndChartComp = ({
               title="Model"
               linesOfContent={[
                 `*${modelName}`,
-                'from',
-                `*branch:${descTitle}`,
-                'authored by',
-                `*${userName}${' '}${getTimeCreatedAgo(timeCreatedAgo, today)}`,
-                'being',
-                `*${ahead} commits ahead and ${behind} commits behind`,
-                `of its ${defaultBranch} branch`,
+                //'from',
+                //`*branch:${descTitle}`,
+                //'authored by',
+                //`*${userName} ${getTimeCreatedAgo(timeCreatedAgo, today)}`,
+                //'being',
+                //`*${ahead} commits ahead and ${behind} commits behind`,
+                //`of its ${defaultBranch} branch`,
               ]}
             />
             <DataCard
