@@ -119,7 +119,7 @@ class Login extends React.Component {
           <div className="title">
             Sign in to
             {' '}
-            <b>MLreef</b>
+            MLReef
           </div>
           <form onSubmit={this.submit}>
             <div className="form-container">
@@ -155,7 +155,7 @@ class Login extends React.Component {
         </div>
         <div id="create-account-div" className="border-div paragraph">
           <p>
-            New to MLreef?
+            New to MLReef?
             {' '}
             <Link to="/register">
               <b>Create an account.</b>

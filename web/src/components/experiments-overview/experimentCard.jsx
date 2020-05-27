@@ -52,7 +52,7 @@ const ExperimentCard = (props) => {
             className="card-content"
           >
             <div className="summary-data" style={{ width: 'auto' }}>
-              <div className="project-desc-experiment">
+              <div className="project-desc-experiment pt-1">
                 <Link
                   type="button"
                   to={{
