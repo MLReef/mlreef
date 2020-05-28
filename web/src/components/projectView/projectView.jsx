@@ -2,7 +2,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import {
-  string, shape, func, arrayOf,
+  string, shape, func, arrayOf, number,
 } from 'prop-types';
 import { toastr } from 'react-redux-toastr';
 import forkingImage from 'images/forking.png';
@@ -53,7 +53,7 @@ class ProjectView extends React.Component {
   componentDidMount() {
     const {
       actions,
-      projects: { all },
+      projects: { all, selectedProjectUUID },
       match:
       {
         params: { projectId, branch },
@@ -66,8 +66,11 @@ class ProjectView extends React.Component {
     actions.getProcessors(OPERATION);
     actions.getProcessors(ALGORITHM);
 
-    const backendProject = all.filter((proj) => proj.gitlab_id.toString() === projectId);
-    actions.setSelectedProjectUUID(backendProject[0]);
+    // Modifies the data project initial state
+    if (selectedProjectUUID && selectedProjectUUID.gitlab_id.toString() !== projectId) {
+      const backendProject = all.filter((proj) => proj.gitlab_id.toString() === projectId);
+      actions.setSelectedProjectUUID(backendProject[0]);
+    }
     actions.setIsLoading(true);
 
     ProjectGeneralInfoApi
@@ -240,6 +243,12 @@ class ProjectView extends React.Component {
 }
 
 ProjectView.propTypes = {
+  projects: shape({
+    all: arrayOf.isRequired,
+    selectedProjectUUID: shape({
+      gitlab_id: number.isRequired,
+    }).isRequired,
+  }).isRequired,
   match: shape({
     params: shape({
       projectId: string.isRequired,

@@ -133,6 +133,7 @@ class CreateProject extends Component {
         if (res.ok) {
           const pro = await res.json();
           this.props.actions.getProjectsList();
+          this.props.actions.setSelectedProjectUUID(pro);
           this.setState({ redirect: true, newProject: pro });
         } else {
           toastr.error('Error', res.statusText);
