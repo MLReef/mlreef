@@ -56,7 +56,6 @@ export default class ExperimentsApi {
     const response = await generateGetRequest(url);
     if (!response.ok) {
       Promise.reject(response);
-      return toastr.error('Error', 'Server error while fetching the experiments');
     }
     return response.json();
   }

@@ -6,21 +6,14 @@ import {
   number,
   instanceOf,
 } from 'prop-types';
-import { Base64 } from 'js-base64';
 import './experimentsOverview.css';
 import { Line } from 'react-chartjs-2';
-import { toastr } from 'react-redux-toastr';
-import { CircularProgress } from '@material-ui/core';
-import FilesApi from '../../apis/FilesApi';
 import BranchesApi from '../../apis/BranchesApi';
 import traiangle01 from '../../images/triangle-01.png';
 import ArrowButton from '../arrow-button/arrowButton';
-import snippetApi from '../../apis/SnippetApi';
 import {
   getTimeCreatedAgo,
-  parseDataAndRefreshChart,
   parseDecimal,
-  parseMlreefConfigurationLines,
 } from '../../functions/dataParserHelpers';
 import {
   SKIPPED,
@@ -57,13 +50,11 @@ const SummarizedDataAndChartComp = ({
   experiment, projectId, defaultBranch, today, userParameters,
 }) => {
   const [showSummary, setShowSummary] = useState(false);
-  const [dataToGraph, setDataToGraph] = useState({
+  const [dataToGraph] = useState({
     datasets: [],
     labels: [],
   });
-  const [parametersForDataCard, setParametersForDataCard] = useState([]);
-  const [isFetchingParams, setIsFetchingParams] = useState(true);
-  const [averageParams, setAverageParams] = useState([]);
+  const [averageParams] = useState([]);
   const [ahead, setAhead] = useState(0);
   const [behind, setBehind] = useState(0);
   const {
@@ -74,6 +65,7 @@ const SummarizedDataAndChartComp = ({
     experimentData,
   } = experiment;
 
+  const sourceBranch = experimentData ? experimentData.source_branch : '';
   const modelName = experimentData && experimentData.processing.name;
   const trainingData = userParameters && userParameters.map((param) => (
     `*P: ${param.name} = ${param.value}`
@@ -86,51 +78,8 @@ const SummarizedDataAndChartComp = ({
       .then((res) => setAhead(res.commits.length)).catch((err) => err);
   }, [ahead, behind, projectId, descTitle, defaultBranch]);
 
-  function retrieveStatisticsFromApi() {
-    const branchName = descTitle.replace('/', '-');
-    snippetApi.getSnippetFile(
-      projectId,
-      branchName,
-      'experiment.json',
-    ).then((res) => {
-      const parsedData = parseDataAndRefreshChart(res);
-      setDataToGraph(parsedData.data);
-      setAverageParams(parsedData.averageParams);
-    }).catch(
-      () => {
-        setDataToGraph({
-          datasets: [],
-          labels: [],
-        });
-      },
-    );
-
-    FilesApi
-      .getFileData(
-        projectId,
-        '.mlreef.yml',
-        descTitle,
-      )
-      .then((fileData) => {
-        const dataParsedInLines = Base64.decode(fileData.content).split('\n');
-        const match = dataParsedInLines.filter((line) => line.startsWith('# source-branch-name'))[0];
-        const sourceBranch = match.split(':')[1];
-        const isSourceBranchDataInstance = sourceBranch.startsWith('data-instance');
-        const configuredOperations = parseMlreefConfigurationLines(dataParsedInLines);
-        const folder = configuredOperations[0].params.filter((param) => param.name === 'images-path')[0].value;
-
-        setParametersForDataCard({ folder, sourceBranch, isSourceBranchDataInstance });
-      })
-      .catch(() => {
-        toastr.error('Error', 'Something went wrong parsing your configuration');
-      }).finally(() => {
-        setIsFetchingParams(false);
-      });
-  }
-
   function handleArrowDownButtonClick() {
     setShowSummary(!showSummary);
-    retrieveStatisticsFromApi();
   }
 
   function getButtonsDiv(experimentState) {
@@ -223,22 +172,17 @@ const SummarizedDataAndChartComp = ({
           </div>
           <div style={{ flexBasis: '100%', height: 0 }} key={`${descTitle} ${currentState} division2`} />
           <div key={`${descTitle} ${currentState} card-results`} className="card-results">
-            {isFetchingParams ? (
-              <CircularProgress size={20} />
-            )
-              : (
-                <DataCard
-                  title="Data"
-                  linesOfContent={[
-                    'files selected from folder',
-                    `*${parametersForDataCard.folder}`,
-                    parametersForDataCard.isSourceBranchDataInstance
-                      ? 'sourcing from data instance'
-                      : 'sourcing from',
-                    `*${parametersForDataCard.sourceBranch}`,
-                  ]}
-                />
-              )}
+            <DataCard
+              title="Data"
+              linesOfContent={[
+                'files selected from folder',
+                '*folders',
+                sourceBranch.startsWith('data-instance')
+                  ? 'sourcing from data instance'
+                  : 'sourcing from',
+                `*${sourceBranch}`,
+              ]}
+            />
             <DataCard
               title="Model"
               linesOfContent={[

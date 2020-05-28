@@ -45,21 +45,27 @@ class ExperimentsOverview extends Component {
     const { projects: { selectedProject: { id }, selectedProjectUUID }, actions } = this.props;
     let experiments;
     actions.getJobsListPerProject(id);
-    ExperimentsApi.getExperiments(selectedProjectUUID.id)
-      .then((res) => {
-        experiments = res;
-      })
-      .catch(() => toastr.error('Error', 'Could not fetch the latest experiments'));
-    pipelinesApi.getPipesByProjectId(id).then((res) => {
-      BranchesApi.getBranches(id)
-        .then((branches) => {
-          const arrayOfBranches = branches.filter((branch) => branch.name.startsWith('experiment'));
-          const experimentsClassified = classifyExperiments(res, arrayOfBranches, experiments);
-          this.setState({ experiments: experimentsClassified, all: experimentsClassified });
-          this.displayEmptyLogo();
+
+    if (selectedProjectUUID && selectedProjectUUID !== undefined) {
+      ExperimentsApi.getExperiments(selectedProjectUUID.id)
+        .then((res) => {
+          experiments = res;
         })
-        .catch(() => toastr.error('Error', 'Something went wrong getting your experiments, Please refresh your page'));
-    });
+        .then(() => {
+          pipelinesApi.getPipesByProjectId(id)
+            .then((res) => res)
+            .then((res) => {
+              BranchesApi.getBranches(id)
+                .then((branches) => {
+                  const arrayOfBranches = branches.filter((branch) => branch.name.startsWith('experiment'));
+                  const experimentsClassified = classifyExperiments(res, arrayOfBranches, experiments);
+                  this.setState({ experiments: experimentsClassified, all: experimentsClassified });
+                  this.displayEmptyLogo();
+                });
+            });
+        })
+        .catch(() => toastr.error('Error', 'Could not fetch the latest experiments'));
+    }
   }
 
   displayEmptyLogo = () => {
