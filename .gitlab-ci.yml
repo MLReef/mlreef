@@ -1,6 +1,7 @@
 stages:
   - build
   - deploy
+  - integration
   - teardown
 
 build and test:
@@ -9,8 +10,6 @@ build and test:
     - docker:19.03.0-dind
   image: java:8
   variables:
-    REDIS_HOST: "redis"
-    REDIS_PORT: 6379
     REDIS_HOST: "redis"
     REDIS_PORT: 6379
     POSTGRES_DB: $DB_NAME
@@ -83,6 +82,27 @@ pages:
     url: $CI_PAGES_URL/$CI_COMMIT_BRANCH
     on_stop: decommission
 
+integration-test:
+  stage: deploy
+  services:
+    - docker:19.03.0-dind
+  image: java:8
+  allow_failure: true
+  variables:
+    DOCKER_HOST: "tcp://docker:2375"  # gitlab needs this to support docker testcontainers
+    DOCKER_DRIVER: overlay2           # gitlab needs this to support docker testcontainers
+    DOCKER_TLS_CERTDIR: ""            # "/certs" gitlab needs this to support docker testcontainers
+  before_script:
+    - export GRADLE_USER_HOME=`pwd`/.gradle
+    - chmod +x ./gradlew
+    - echo "Use DB $DB_NAME with $DB_USER"
+  cache:
+    key: "$CI_COMMIT_REF_SLUG"
+    paths:
+      - .gradle/wrapper
+      - .gradle/caches
+  script:
+    - ./gradlew integrationTest
 
 decommission:
   when: manual

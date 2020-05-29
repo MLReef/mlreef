@@ -1,45 +1,51 @@
 @file:Suppress("UsePropertyAccessSyntax")
 
-package com.mlreef.rest.api
+package com.mlreef.rest.integration
 
-import com.mlreef.rest.AccessLevel
 import com.mlreef.rest.Account
 import com.mlreef.rest.DataProjectRepository
 import com.mlreef.rest.MarketplaceEntryRepository
 import com.mlreef.rest.Person
 import com.mlreef.rest.SearchableTagRepository
+import com.mlreef.rest.api.AccountSubjectPreparationTrait
+import com.mlreef.rest.api.RestApiTest
 import com.mlreef.rest.api.v1.dto.MarketplaceEntryDto
 import com.mlreef.rest.api.v1.dto.SearchableTagDto
-import com.mlreef.rest.feature.system.SessionsService
 import com.mlreef.rest.testcommons.EntityMocks
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Tag
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.restdocs.payload.FieldDescriptor
 import org.springframework.restdocs.payload.JsonFieldType
 import org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath
-import org.springframework.restdocs.payload.PayloadDocumentation.responseFields
 import org.springframework.test.annotation.Rollback
 import javax.transaction.Transactional
 
-class MarketplaceApiTest : RestApiTest() {
+class MarketplaceIntegrationTest : RestApiTest() {
 
     val rootUrl = "/api/v1/explore"
     private lateinit var account2: Account
     private lateinit var subject: Person
     private lateinit var subject2: Person
 
-    @Autowired private lateinit var marketplaceEntryRepository: MarketplaceEntryRepository
-    @Autowired private lateinit var dataProjectRepository: DataProjectRepository
-    @Autowired private lateinit var marketplaceTagRepository: SearchableTagRepository
-    @Autowired private lateinit var accountSubjectPreparationTrait: AccountSubjectPreparationTrait
+    @Autowired
+    private lateinit var marketplaceEntryRepository: MarketplaceEntryRepository
 
     @Autowired
-    private lateinit var sessionService: SessionsService
+    private lateinit var dataProjectRepository: DataProjectRepository
+
+    @Autowired
+    private lateinit var marketplaceTagRepository: SearchableTagRepository
+
+    @Autowired
+    private lateinit var accountSubjectPreparationTrait: AccountSubjectPreparationTrait
+
+    @Autowired
+    private lateinit var gitlabHelper: GitlabHelper
 
     @BeforeEach
     @AfterEach
@@ -58,33 +64,25 @@ class MarketplaceApiTest : RestApiTest() {
 
         subject = accountSubjectPreparationTrait.subject
         subject2 = accountSubjectPreparationTrait.subject2
-
-        mockGetUserProjectsList(account)
     }
 
     @Transactional
     @Rollback
-    @Test
-    @Tag(TestTags.RESTDOC)
-    fun `Can retrieve all public MarketplaceEntries`() {
+    @Disabled
+    @Test fun `Can retrieve all public MarketplaceEntries`() {
+        val (account, _, _) = gitlabHelper.createRealUser(index = -1)
+        val (dataProject1, _) = gitlabHelper.createRealDataProject(account, slug = "slug1")
+        val (dataProject2, _) = gitlabHelper.createRealDataProject(account, slug = "slug2")
+        val (dataProject3, _) = gitlabHelper.createRealDataProject(account, slug = "slug3")
 
-        val dataProject1 = EntityMocks.dataProject(slug = "slug1")
-        val dataProject2 = EntityMocks.dataProject(slug = "slug2")
-        val dataProject3 = EntityMocks.dataProject(slug = "slug3")
+        val marketplaceEntry1 = EntityMocks.marketplaceEntry(owner = account.person, searchable = dataProject1)
+        val marketplaceEntry2 = EntityMocks.marketplaceEntry(owner = account.person, searchable = dataProject2)
+        val marketplaceEntry3 = EntityMocks.marketplaceEntry(owner = account.person, searchable = dataProject3)
 
-        val marketplaceEntry1 = EntityMocks.marketplaceEntry(searchable = dataProject1)
-        val marketplaceEntry2 = EntityMocks.marketplaceEntry(searchable = dataProject2)
-        val marketplaceEntry3 = EntityMocks.marketplaceEntry(searchable = dataProject3)
-
-        this.mockGetUserProjectsList(listOf(dataProject1.id, dataProject2.id, dataProject3.id), account, AccessLevel.GUEST)
-
-        personRepository.saveAll(listOf(EntityMocks.author))
-        dataProjectRepository.saveAll(listOf(dataProject1, dataProject2, dataProject3))
         marketplaceEntryRepository.saveAll(listOf(marketplaceEntry1, marketplaceEntry2, marketplaceEntry3))
 
         val returnedResult = this.performGet("$rootUrl/entries", account)
             .checkStatus(HttpStatus.OK)
-            .document("marketplace-entries-retrieve-all", responseFields(marketplaceEntriesResponseFields("[].")))
             .returnsList(MarketplaceEntryDto::class.java)
 
         assertThat(returnedResult.size).isEqualTo(3)
@@ -92,21 +90,19 @@ class MarketplaceApiTest : RestApiTest() {
 
     @Transactional
     @Rollback
-    @Test
-    @Tag(TestTags.RESTDOC)
-    fun `Can retrieve MarketplaceEntries per Slug`() {
-        val dataProject1 = EntityMocks.dataProject(slug = "slug1")
+    @Disabled
+    @Test fun `Can retrieve MarketplaceEntries per Slug`() {
+        val (account, _, _) = gitlabHelper.createRealUser(index = -1)
+        val (dataProject1, _) = gitlabHelper.createRealDataProject(account, slug = "slug1")
+
         val marketplaceEntry1 = EntityMocks.marketplaceEntry(searchable = dataProject1)
 
         personRepository.saveAll(listOf(EntityMocks.author))
         dataProjectRepository.saveAll(listOf(dataProject1))
         marketplaceEntryRepository.saveAll(listOf(marketplaceEntry1))
 
-        // shoud not be necessary:       this.mockGetUserProjectsList(listOf(dataProject1.id), account, AccessLevel.GUEST)
-
         val returnedResult = this.performGet("$rootUrl/entries/${marketplaceEntry1.globalSlug}", account)
             .checkStatus(HttpStatus.OK)
-            .document("marketplace-entries-retrieve-one", responseFields(marketplaceEntriesResponseFields("")))
             .returns(MarketplaceEntryDto::class.java)
 
         assertThat(returnedResult).isNotNull()
@@ -114,9 +110,10 @@ class MarketplaceApiTest : RestApiTest() {
 
     @Transactional
     @Rollback
-    @Test
-    @Tag(TestTags.RESTDOC)
-    fun `Can retrieve all public SearchableTags`() {
+    @Disabled
+    @Test fun `Can retrieve all public SearchableTags`() {
+        val (account, _, _) = gitlabHelper.createRealUser(index = -1)
+
         val searchableTag1 = EntityMocks.searchableTag(name = "TAG1")
         val searchableTag2 = EntityMocks.searchableTag(name = "TAG2")
         val searchableTag3 = EntityMocks.searchableTag(name = "TAG3")
@@ -126,7 +123,6 @@ class MarketplaceApiTest : RestApiTest() {
 
         val returnedResult = this.performGet("$rootUrl/tags", account)
             .checkStatus(HttpStatus.OK)
-            .document("marketplace-tags-retrieve-all", responseFields(searchableTags("[].")))
             .returnsList(SearchableTagDto::class.java)
 
         assertThat(returnedResult.size).isEqualTo(3)

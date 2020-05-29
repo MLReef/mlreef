@@ -1,6 +1,6 @@
 logging:
   level:
-    root: DEBUG
+    root: INFO
     com.mlreef.rest: DEBUG
     org.springframework.security: INFO
     org.springframework.orm: INFO

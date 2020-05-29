@@ -1,25 +1,24 @@
-package com.mlreef.rest.api
+package com.mlreef.rest.integration
 
-import com.mlreef.rest.AccessLevel
 import com.mlreef.rest.DataAlgorithm
 import com.mlreef.rest.DataOperation
 import com.mlreef.rest.DataProcessorInstance
 import com.mlreef.rest.DataProcessorInstanceRepository
-import com.mlreef.rest.DataProject
 import com.mlreef.rest.DataVisualization
 import com.mlreef.rest.ParameterType
-import com.mlreef.rest.Person
 import com.mlreef.rest.PipelineConfig
 import com.mlreef.rest.PipelineConfigRepository
 import com.mlreef.rest.PipelineInstanceRepository
 import com.mlreef.rest.PipelineType
 import com.mlreef.rest.ProcessorParameter
 import com.mlreef.rest.ProcessorParameterRepository
+import com.mlreef.rest.api.PipelineTestPreparationTrait
+import com.mlreef.rest.api.RestApiTest
 import com.mlreef.rest.api.v1.dto.PipelineInstanceDto
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Tag
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.delete
@@ -29,21 +28,19 @@ import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.put
 import org.springframework.restdocs.payload.FieldDescriptor
 import org.springframework.restdocs.payload.JsonFieldType
 import org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath
-import org.springframework.restdocs.payload.PayloadDocumentation.responseFields
 import org.springframework.test.annotation.Rollback
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import java.util.UUID
 import java.util.UUID.randomUUID
 import javax.transaction.Transactional
 
+@Disabled
 class PipelineInstanceApiTest : RestApiTest() {
 
     private lateinit var dataOp1: DataOperation
     private lateinit var dataOp2: DataAlgorithm
     private lateinit var dataOp3: DataVisualization
-    private lateinit var subject: Person
-    private lateinit var dataProject: DataProject
-    private lateinit var dataProject2: DataProject
+
     val rootUrl = "/api/v1/pipelines"
 
     @Autowired private lateinit var pipelineConfigRepository: PipelineConfigRepository
@@ -52,137 +49,133 @@ class PipelineInstanceApiTest : RestApiTest() {
     @Autowired private lateinit var processorParameterRepository: ProcessorParameterRepository
     @Autowired private lateinit var pipelineTestPreparationTrait: PipelineTestPreparationTrait
 
+    @Autowired
+    private lateinit var gitlabHelper: GitlabHelper
+
     @BeforeEach
     @AfterEach
     fun clearRepo() {
         pipelineTestPreparationTrait.apply()
-        account = pipelineTestPreparationTrait.account
         dataOp1 = pipelineTestPreparationTrait.dataOp1
         dataOp2 = pipelineTestPreparationTrait.dataOp2
         dataOp3 = pipelineTestPreparationTrait.dataOp3
-        subject = pipelineTestPreparationTrait.subject
-        dataProject = pipelineTestPreparationTrait.dataProject
-        dataProject2 = pipelineTestPreparationTrait.dataProject2
-        this.mockGetUserProjectsList(listOf(dataProject.id), account, AccessLevel.MAINTAINER)
-
     }
 
     @Transactional
     @Rollback
-    @Test
-    @Tag(TestTags.RESTDOC)
-    fun `Can retrieve all DataInstances of viewable PipelineConfig`() {
+    @Test fun `Can retrieve all DataInstances of viewable PipelineConfig`() {
+        val (account, _, _) = gitlabHelper.createRealUser()
+        val (project, _) = gitlabHelper.createRealDataProject(account)
 
         val dataProcessorInstance = createDataProcessorInstance()
-        val pipelineConfig = createPipelineConfig(dataProcessorInstance, dataProject.id, "slug1")
+        val pipelineConfig = createPipelineConfig(dataProcessorInstance, project.id, "slug1")
         pipelineInstanceRepository.save(pipelineConfig.createInstance(1))
         pipelineInstanceRepository.save(pipelineConfig.createInstance(2))
-        createPipelineConfig(dataProcessorInstance, dataProject.id, "slug2")
+        createPipelineConfig(dataProcessorInstance, project.id, "slug2")
 
         val returnedResult: List<PipelineInstanceDto> = this.mockMvc.perform(
-            this.defaultAcceptContentAuth(get("$rootUrl/${pipelineConfig.id}/instances")))
+            this.acceptContentAuth(get("$rootUrl/${pipelineConfig.id}/instances"), account))
             .andExpect(status().isOk)
-            .document("pipelineinstance-retrieve-all",
-                responseFields(pipelineInstanceDtoResponseFields("[]."))
-                    .and(dataProcessorInstanceFields("[].data_operations[].")))
-            .returnsList(PipelineInstanceDto::class.java)
+            .andReturn().let {
+                val constructCollectionType = objectMapper.typeFactory.constructCollectionType(List::class.java, PipelineInstanceDto::class.java)
+                objectMapper.readValue(it.response.contentAsByteArray, constructCollectionType)
+            }
 
         assertThat(returnedResult.size).isEqualTo(2)
     }
 
     @Transactional
     @Rollback
-    @Test
-    fun `Cannot retrieve DataInstances of not-viewable PipelineConfig`() {
+    @Test fun `Cannot retrieve DataInstances of not-viewable PipelineConfig`() {
+        val (account, _, _) = gitlabHelper.createRealUser()
+        val (project, _) = gitlabHelper.createRealDataProject(account)
 
         val dataProcessorInstance = createDataProcessorInstance()
-        val pipelineConfig = createPipelineConfig(dataProcessorInstance, dataProject.id, "slug1")
+        val pipelineConfig = createPipelineConfig(dataProcessorInstance, project.id, "slug1")
         pipelineInstanceRepository.save(pipelineConfig.createInstance(1))
         pipelineInstanceRepository.save(pipelineConfig.createInstance(2))
 
         val returnedResult: List<PipelineInstanceDto> = this.mockMvc.perform(
-            this.defaultAcceptContentAuth(get("$rootUrl/${pipelineConfig.id}/instances")))
+            this.acceptContentAuth(get("$rootUrl/${pipelineConfig.id}/instances"), account))
             .andExpect(status().isOk)
-            .returnsList(PipelineInstanceDto::class.java)
+            .andReturn().let {
+                val constructCollectionType = objectMapper.typeFactory.constructCollectionType(List::class.java, PipelineInstanceDto::class.java)
+                objectMapper.readValue(it.response.contentAsByteArray, constructCollectionType)
+            }
 
         assertThat(returnedResult.size).isEqualTo(2)
     }
 
     @Transactional
     @Rollback
-    @Test
-    @Tag(TestTags.RESTDOC)
-    fun `Can create new DataInstance of viewable PipelineConfig`() {
+    @Test fun `Can create new DataInstance of viewable PipelineConfig`() {
+        val (account, _, _) = gitlabHelper.createRealUser()
+        val (project, _) = gitlabHelper.createRealDataProject(account)
+
         val dataProcessorInstance = createDataProcessorInstance()
-        val pipelineConfig = createPipelineConfig(dataProcessorInstance, dataProject.id, "slug1")
+        val pipelineConfig = createPipelineConfig(dataProcessorInstance, project.id, "slug1")
 
         val pipelineInstanceDto = this.mockMvc.perform(
-            this.defaultAcceptContentAuth(post("$rootUrl/${pipelineConfig.id}/instances/")))
+            this.acceptContentAuth(post("$rootUrl/${pipelineConfig.id}/instances/"), account))
             .andExpect(status().isOk)
-            .document("pipelineinstance-create-success",
-                responseFields(pipelineInstanceDtoResponseFields())
-                    .and(dataProcessorInstanceFields("data_operations[].")))
-            .returns(PipelineInstanceDto::class.java)
+            .andReturn().let {
+                objectMapper.readValue(it.response.contentAsByteArray, PipelineInstanceDto::class.java)
+            }
         assertThat(pipelineInstanceDto).isNotNull()
     }
 
     @Transactional
     @Rollback
-    @Test
-    @Tag(TestTags.RESTDOC)
-    fun `Can retrieve specific DataInstance of viewable PipelineConfig`() {
+    @Test fun `Can retrieve specific DataInstance of viewable PipelineConfig`() {
+        val (account, _, _) = gitlabHelper.createRealUser()
+        val (project, _) = gitlabHelper.createRealDataProject(account)
+
         val dataProcessorInstance = createDataProcessorInstance()
-        val pipelineConfig = createPipelineConfig(dataProcessorInstance, dataProject.id, "slug1")
+        val pipelineConfig = createPipelineConfig(dataProcessorInstance, project.id, "slug1")
         val entity = pipelineConfig.createInstance(1)
 
         pipelineInstanceRepository.save(entity)
 
         this.mockMvc.perform(
-            this.defaultAcceptContentAuth(get("$rootUrl/${pipelineConfig.id}/instances/${entity.id}")))
+            this.acceptContentAuth(get("$rootUrl/${pipelineConfig.id}/instances/${entity.id}"), account))
             .andExpect(status().isOk)
-            .document(
-                "pipelineinstance-retrieve-one",
-                responseFields(pipelineInstanceDtoResponseFields())
-                    .and(dataProcessorInstanceFields("data_operations[].")))
 
     }
 
     @Transactional
     @Rollback
-    @Test
-    @Tag(TestTags.RESTDOC)
-    fun `Can update specific DataInstance of viewable PipelineConfig`() {
+    @Disabled
+    @Test fun `Can update specific DataInstance of viewable PipelineConfig`() {
+        val (account, _, _) = gitlabHelper.createRealUser()
+        val (project, _) = gitlabHelper.createRealDataProject(account)
+
         val dataProcessorInstance = createDataProcessorInstance()
-        val pipelineConfig = createPipelineConfig(dataProcessorInstance, dataProject.id, "slug1")
+        val pipelineConfig = createPipelineConfig(dataProcessorInstance, project.id, "slug1")
         val entity = pipelineConfig.createInstance(1)
 
         pipelineInstanceRepository.save(entity)
 
         this.mockMvc.perform(
-            this.defaultAcceptContentAuth(put("$rootUrl/${pipelineConfig.id}/instances/${entity.id}/archive")))
+            this.acceptContentAuth(put("$rootUrl/${pipelineConfig.id}/instances/${entity.id}/archive"), account))
             .andExpect(status().isOk)
-            .document("pipelineinstance-update-success",
-                responseFields(pipelineInstanceDtoResponseFields())
-                    .and(dataProcessorInstanceFields("data_operations[].")))
 
     }
 
     @Transactional
     @Rollback
-    @Test
-    @Tag(TestTags.RESTDOC)
-    fun `Can delete specific DataInstance of viewable PipelineConfig`() {
+    @Test fun `Can delete specific DataInstance of viewable PipelineConfig`() {
+        val (account, _, _) = gitlabHelper.createRealUser()
+        val (project, _) = gitlabHelper.createRealDataProject(account)
+
         val dataProcessorInstance = createDataProcessorInstance()
-        val pipelineConfig = createPipelineConfig(dataProcessorInstance, dataProject.id, "slug1")
+        val pipelineConfig = createPipelineConfig(dataProcessorInstance, project.id, "slug1")
         val entity = pipelineConfig.createInstance(1)
 
         pipelineInstanceRepository.save(entity)
 
         this.mockMvc.perform(
-            this.defaultAcceptContentAuth(delete("$rootUrl/${pipelineConfig.id}/instances/${entity.id}")))
+            this.acceptContentAuth(delete("$rootUrl/${pipelineConfig.id}/instances/${entity.id}"), account))
             .andExpect(status().isOk)
-            .document("pipelineinstance-delete-success")
-
     }
 
 
@@ -204,7 +197,8 @@ class PipelineInstanceApiTest : RestApiTest() {
             name = "param1", type = ParameterType.STRING,
             defaultValue = "default", description = "not empty",
             order = 1, required = true)
-        dataProcessorInstance.addParameterInstances(processorParameter, "value")
+        dataProcessorInstance.addParameterInstances(
+            processorParameter, "value")
         processorParameterRepository.save(processorParameter)
         return dataProcessorInstanceRepository.save(dataProcessorInstance)
     }

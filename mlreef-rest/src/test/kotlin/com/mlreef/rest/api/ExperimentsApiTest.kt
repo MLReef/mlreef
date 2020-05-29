@@ -1,9 +1,11 @@
 package com.mlreef.rest.api
 
+import com.mlreef.rest.AccessLevel
 import com.mlreef.rest.DataAlgorithm
 import com.mlreef.rest.DataOperation
 import com.mlreef.rest.DataProcessorInstance
 import com.mlreef.rest.DataProcessorInstanceRepository
+import com.mlreef.rest.DataProject
 import com.mlreef.rest.DataVisualization
 import com.mlreef.rest.Experiment
 import com.mlreef.rest.ExperimentRepository
@@ -11,6 +13,8 @@ import com.mlreef.rest.FileLocation
 import com.mlreef.rest.FileLocationType
 import com.mlreef.rest.I18N
 import com.mlreef.rest.ParameterType
+import com.mlreef.rest.Person
+import com.mlreef.rest.PipelineJobInfo
 import com.mlreef.rest.ProcessorParameter
 import com.mlreef.rest.ProcessorParameterRepository
 import com.mlreef.rest.api.v1.ExperimentCreateRequest
@@ -18,6 +22,8 @@ import com.mlreef.rest.api.v1.dto.DataProcessorInstanceDto
 import com.mlreef.rest.api.v1.dto.ExperimentDto
 import com.mlreef.rest.api.v1.dto.ParameterInstanceDto
 import com.mlreef.rest.api.v1.dto.PipelineJobInfoDto
+import com.mlreef.rest.external_api.gitlab.dto.Branch
+import com.mlreef.rest.external_api.gitlab.dto.Commit
 import com.mlreef.rest.external_api.gitlab.dto.GitlabPipeline
 import com.mlreef.rest.external_api.gitlab.dto.GitlabUser
 import io.mockk.MockKAnnotations
@@ -26,12 +32,10 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Disabled
+import org.junit.jupiter.api.Tag
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.repository.findByIdOrNull
-import org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document
-import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.post
-import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.put
 import org.springframework.restdocs.payload.FieldDescriptor
 import org.springframework.restdocs.payload.JsonFieldType
 import org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath
@@ -51,6 +55,9 @@ class ExperimentsApiTest : RestApiTest() {
     private lateinit var dataOp1: DataOperation
     private lateinit var dataOp2: DataAlgorithm
     private lateinit var dataOp3: DataVisualization
+    private lateinit var subject: Person
+    private lateinit var dataProject: DataProject
+    private lateinit var dataProject2: DataProject
     val rootUrl = "/api/v1/data-projects"
     val epfUrl = "/api/v1/epf"
 
@@ -60,28 +67,31 @@ class ExperimentsApiTest : RestApiTest() {
 
     @Autowired private lateinit var pipelineTestPreparationTrait: PipelineTestPreparationTrait
 
-    @Autowired
-    private lateinit var gitlabHelper: GitlabHelper
-
     @BeforeEach
     @AfterEach
     @Transactional
     fun clearRepo() {
         MockKAnnotations.init(this, relaxUnitFun = true, relaxed = true)
         pipelineTestPreparationTrait.apply()
+        account = pipelineTestPreparationTrait.account
+        subject = pipelineTestPreparationTrait.subject
         dataOp1 = pipelineTestPreparationTrait.dataOp1
         dataOp2 = pipelineTestPreparationTrait.dataOp2
         dataOp3 = pipelineTestPreparationTrait.dataOp3
+        dataProject = pipelineTestPreparationTrait.dataProject
+        dataProject2 = pipelineTestPreparationTrait.dataProject2
+
+        mockGitlab("sourceBranch", "targetBranch")
+        this.mockGetUserProjectsList(listOf(dataProject.id), account, AccessLevel.OWNER)
     }
 
     @Transactional
     @Rollback
-    @Test fun `Can create new Experiment`() {
-        val (account, _, _) = gitlabHelper.createRealUser()
-        val (project, _) = gitlabHelper.createRealDataProject(account)
-
+    @Test
+    @Tag(TestTags.RESTDOC)
+    fun `Can create new Experiment`() {
         val request = ExperimentCreateRequest(
-            slug = "experiment-slug",
+            slug = "experiment-slug-2",
             name = "Experiment Name",
             dataInstanceId = null,
             sourceBranch = "source",
@@ -97,14 +107,12 @@ class ExperimentsApiTest : RestApiTest() {
                     ParameterInstanceDto("hashParam", type = ParameterType.DICTIONARY.name, value = "{\"key\":\"value\"}")
                 ))))
 
-        val url = "$rootUrl/${project.id}/experiments"
+        this.mockGetUserProjectsList(listOf(dataProject.id), account, AccessLevel.OWNER)
 
-        val returnedResult: ExperimentDto = this.mockMvc.perform(
-            this.acceptContentAuth(post(url), account)
-                .content(objectMapper.writeValueAsString(request)))
+        val url = "$rootUrl/${dataProject.id}/experiments"
+        val returnedResult: ExperimentDto = this.performPost(url, account, request)
             .andExpect(status().isOk)
-            .document(
-                "experiments-create-success",
+            .document("experiments-create-success",
                 requestFields(experimentCreateRequestFields())
                     .and(dataProcessorInstanceFields("post_processing[]."))
                     .and(dataProcessorInstanceFields("processing.")),
@@ -121,12 +129,9 @@ class ExperimentsApiTest : RestApiTest() {
 
     @Transactional
     @Rollback
-    @Test fun `Can create second Experiment with different slug for same project`() {
-        val (account, _, _) = gitlabHelper.createRealUser()
-        val (project, _) = gitlabHelper.createRealDataProject(account)
-
-        createExperiment(project.id, "first-experiment")
-
+    @Test
+    fun `Can create second Experiment with different slug for same project`() {
+        createExperiment(dataProject.id, "first-experiment")
         val request = ExperimentCreateRequest(
             slug = "experiment-slug",
             name = "Experiment Name",
@@ -139,9 +144,7 @@ class ExperimentsApiTest : RestApiTest() {
                 ParameterInstanceDto("complexName", type = ParameterType.COMPLEX.name, value = "(1.0, 2.0)")
             ))
         )
-
-        val url = "$rootUrl/${project.id}/experiments"
-
+        val url = "$rootUrl/${dataProject.id}/experiments"
         val returnedResult: ExperimentDto = performPost(url, account, body = request)
             .andExpect(status().isOk)
             .returns(ExperimentDto::class.java)
@@ -151,13 +154,9 @@ class ExperimentsApiTest : RestApiTest() {
 
     @Transactional
     @Rollback
-    @Test fun `Can create second Experiment with same slug for different project`() {
-        val (account, _, _) = gitlabHelper.createRealUser()
-        val (project, _) = gitlabHelper.createRealDataProject(account)
-        val (project2, _) = gitlabHelper.createRealDataProject(account)
-
-        createExperiment(project.id, "experiment-slug")
-
+    @Test
+    fun `Can create second Experiment with same slug for different project`() {
+        createExperiment(dataProject.id, "experiment-slug")
         val request = ExperimentCreateRequest(
             slug = "experiment-slug",
             name = "Experiment Name",
@@ -171,11 +170,11 @@ class ExperimentsApiTest : RestApiTest() {
             ))
         )
 
-        val url = "$rootUrl/${project2.id}/experiments"
+        this.mockGetUserProjectsList(listOf(dataProject.id, dataProject2.id), account, AccessLevel.OWNER)
 
-        val returnedResult: ExperimentDto = this.mockMvc.perform(
-            this.acceptContentAuth(post(url), account)
-                .content(objectMapper.writeValueAsString(request)))
+        val url = "$rootUrl/${dataProject2.id}/experiments"
+
+        val returnedResult: ExperimentDto = this.performPost(url, account, body = request)
             .andExpect(status().isOk)
             .returns(ExperimentDto::class.java)
 
@@ -184,67 +183,55 @@ class ExperimentsApiTest : RestApiTest() {
 
     @Transactional
     @Rollback
-    @Test fun `Cannot create new Experiment with duplicate slug`() {
-        val (account, _, _) = gitlabHelper.createRealUser()
-        val (project, _) = gitlabHelper.createRealDataProject(account)
+    @Test
+    fun `Cannot create new Experiment with duplicate slug`() {
 
-        createExperiment(project.id, "experiment-slug")
-
+        createExperiment(dataProject.id, "experiment-slug")
         val request = ExperimentCreateRequest(
             slug = "experiment-slug",
             name = "Experiment Name",
             dataInstanceId = null,
             sourceBranch = "source",
             targetBranch = "target",
+            inputFiles = listOf("folder"),
             processing = DataProcessorInstanceDto("commons-algorithm", listOf(
                 ParameterInstanceDto("booleanParam", type = ParameterType.BOOLEAN.name, value = "true"),
                 ParameterInstanceDto("complexName", type = ParameterType.COMPLEX.name, value = "(1.0, 2.0)")
             ))
         )
-
-        val url = "$rootUrl/${project.id}/experiments"
-
-        this.mockMvc.perform(
-            this.acceptContentAuth(post(url), account)
-                .content(objectMapper.writeValueAsString(request)))
-            .andExpect(status().isBadRequest)
-
+        val url = "$rootUrl/${dataProject.id}/experiments"
+        this.performPost(url, account, request).andExpect(status().isBadRequest)
     }
 
     @Transactional
     @Rollback
-    @Test fun `Can retrieve all own Experiments`() {
-        val (account, _, _) = gitlabHelper.createRealUser(index = -1)
-        val (project1, _) = gitlabHelper.createRealDataProject(account)
-        val (project2, _) = gitlabHelper.createRealDataProject(account)
+    @Test
+    @Tag(TestTags.RESTDOC)
+    fun `Can retrieve all own Experiments`() {
 
-        createExperiment(project1.id, "experiment-1-slug")
-        createExperiment(project1.id, "experiment-2-slug")
-        createExperiment(project2.id, "experiment-3-slug")
+        createExperiment(dataProject.id, "experiment-1-slug")
+        createExperiment(dataProject.id, "experiment-2-slug")
+        createExperiment(dataProject2.id, "experiment-3-slug")
 
-        val returnedResult: List<ExperimentDto> = performGet("$rootUrl/${project1.id}/experiments", account)
+        val returnedResult: List<ExperimentDto> = performGet("$rootUrl/${dataProject.id}/experiments", account)
             .andExpect(status().isOk)
-            .andDo(document(
-                "experiments-retrieve-all",
+            .document("experiments-retrieve-all",
                 responseFields(experimentDtoResponseFields("[]."))
                     .and(experimentPipelineInfoDtoResponseFields("[].pipeline_job_info."))
                     .and(dataProcessorInstanceFields("[].post_processing[]."))
                     .and(fileLocationsFields("[].input_files[]."))
-                    .and(dataProcessorInstanceFields("[].processing."))))
+                    .and(dataProcessorInstanceFields("[].processing.")))
             .returnsList(ExperimentDto::class.java)
-
         assertThat(returnedResult.size).isEqualTo(2)
     }
 
     @Transactional
     @Rollback
-    @Test fun `Can retrieve specific own Experiment`() {
-        val (account, _, _) = gitlabHelper.createRealUser()
-        val (project1, _) = gitlabHelper.createRealDataProject(account)
-
-        val experiment1 = createExperiment(project1.id)
-
-        performGet("$rootUrl/${project1.id}/experiments/${experiment1.id}", account)
+    @Test
+    @Tag(TestTags.RESTDOC)
+    fun `Can retrieve specific own Experiment`() {
+        val experiment1 = createExperiment(dataProject.id)
+        performGet("$rootUrl/${dataProject.id}/experiments/${experiment1.id}", account)
             .andExpect(status().isOk)
             .document("experiments-retrieve-one",
                 responseFields(experimentDtoResponseFields())
@@ -257,66 +244,29 @@ class ExperimentsApiTest : RestApiTest() {
 
     @Transactional
     @Rollback
-    @Test fun `Cannot retrieve foreign Experiment`() {
-        val (realAccount1, _, _) = gitlabHelper.createRealUser()
-        val (realAccount2, _, _) = gitlabHelper.createRealUser()
-        val (project1, _) = gitlabHelper.createRealDataProject(realAccount1)
+    @Test
+    fun `Cannot retrieve foreign Experiment`() {
+        val experiment1 = createExperiment(dataProject2.id)
 
-        val experiment1 = createExperiment(project1.id)
-
-        this.performGet("$rootUrl/${project1.id}/experiments/${experiment1.id}", realAccount2)
+        this.performGet("$rootUrl/${dataProject2.id}/experiments/${experiment1.id}", account)
             .andExpect(status().isForbidden)
     }
 
-    // Does not really work right now, lets wait frontend#523
-    @Disabled
     @Transactional
     @Rollback
     @Test
-    fun `Can update own Experiment's pipelineJobInfo with arbitrary json hashmap blob`() {
-        val (realAccount1, _, _) = gitlabHelper.createRealUser()
-        val (project1, _) = gitlabHelper.createRealDataProject(realAccount1)
-
-        val experiment1 = createExperiment(project1.id)
-
-        val request: String = "" +
-            """{"metric1": 20.0, "metrik2": 3, "string":"yes"}"""
-
-        val token = experimentRepository.findByIdOrNull(experiment1.id)!!.pipelineJobInfo!!.secret
-
-        val returnedResult = this.mockMvc.perform(
-            this.defaultAcceptContentEPFBot(token, put("$epfUrl/experiments/${experiment1.id}/update")).content(request))
-            .andExpect(status().isOk)
-            .document("experiments-epf-update",
-                responseFields(experimentPipelineInfoDtoResponseFields()))
-            .returns(PipelineJobInfoDto::class.java)
-
-
-        assertThat(returnedResult).isNotNull()
-    }
-
-    // Does not really work right now, lets wait frontend#523
-    @Disabled
-    @Transactional
-    @Rollback
-    @Test
+    @Tag(TestTags.RESTDOC)
     fun `Can finish own Experiment's pipelineJobInfo`() {
-        val (account, _, _) = gitlabHelper.createRealUser()
-        val (project1, _) = gitlabHelper.createRealDataProject(account)
-
-        val experiment1 = createExperiment(project1.id)
+        val experiment1 = createExperiment(dataProject.id)
 
         val beforeRequestTime = ZonedDateTime.now()
         val token = experimentRepository.findByIdOrNull(experiment1.id)!!.pipelineJobInfo!!.secret
 
-        val returnedResult = this.mockMvc.perform(
-            this.defaultAcceptContentEPFBot(token, put("$epfUrl/experiments/${experiment1.id}/finish")))
+        val returnedResult = this.performEPFPut(token, "$epfUrl/experiments/${experiment1.id}/finish")
             .andExpect(status().isOk)
-            .andDo(document(
-                "experiments-epf-finish",
-                responseFields(experimentPipelineInfoDtoResponseFields())))
+            .document("experiments-epf-finish",
+                responseFields(experimentPipelineInfoDtoResponseFields()))
             .returns(PipelineJobInfoDto::class.java)
-
 
         assertThat(returnedResult).isNotNull()
         assertThat(returnedResult.finishedAt).isNotNull()
@@ -324,55 +274,43 @@ class ExperimentsApiTest : RestApiTest() {
         assertThat(returnedResult.finishedAt).isBefore(ZonedDateTime.now())
     }
 
-    // Does not really work right now, lets wait frontend#523
-    @Disabled
     @Transactional
     @Rollback
     @Test
+    @Tag(TestTags.RESTDOC)
     fun `Can retrieve own Experiment's pipelineJobInfo`() {
-        val (account, _, _) = gitlabHelper.createRealUser()
-        val (project1, _) = gitlabHelper.createRealDataProject(account)
+        val experiment1 = createExperiment(dataProject.id)
 
-        val experiment1 = createExperiment(project1.id)
-
-        val pipelineJobInfoDto = this.performGet("$rootUrl/${project1.id}/experiments/${experiment1.id}/info", account)
+        this.performGet("$rootUrl/${dataProject.id}/experiments/${experiment1.id}/info", account)
             .andExpect(status().isOk)
             .document(
                 "experiments-retrieve-one-info",
                 responseFields(experimentPipelineInfoDtoResponseFields()))
-            .returns(PipelineJobInfoDto::class.java)
-        assertThat(pipelineJobInfoDto).isNotNull()
     }
 
     @Transactional
     @Rollback
-    @Test fun `Can retrieve own Experiment's MLReef file`() {
-        val (account, _, _) = gitlabHelper.createRealUser()
-        val (project1, _) = gitlabHelper.createRealDataProject(account)
+    @Test
+    @Tag(TestTags.RESTDOC)
+    fun `Can retrieve own Experiment's MLReef file`() {
+        val experiment1 = createExperiment(dataProject.id)
 
-        val experiment1 = createExperiment(project1.id)
-
-        val returnedResult = performGet("$rootUrl/${project1.id}/experiments/${experiment1.id}/mlreef-file", account)
+        val returnedResult = performGet("$rootUrl/${dataProject.id}/experiments/${experiment1.id}/mlreef-file", account)
             .andExpect(status().isOk)
-            .andDo(document("experiments-retrieve-one-mlreef-file"))
+            .document("experiments-retrieve-one-mlreef-file")
             .andReturn().response.contentAsString
 
         assertThat(returnedResult).isNotEmpty()
-        assertThat(returnedResult).contains("- git checkout -b \$TARGET_BRANCH")
+        assertThat(returnedResult).contains("git checkout -b \$TARGET_BRANCH")
     }
 
-    // Does not really work right now, lets wait frontend#523
-    @Disabled
     @Transactional
     @Rollback
     @Test
     fun `Can start own Experiment as gitlab pipeline`() {
-        val (account, _, _) = gitlabHelper.createRealUser()
-        val (project1, _) = gitlabHelper.createRealDataProject(account)
+        val experiment1 = createExperiment(dataProject.id)
 
-        val experiment1 = createExperiment(project1.id)
-
-        val pipelineJobInfoDto = performPost("$rootUrl/${project1.id}/experiments/${experiment1.id}/start", account)
+        val pipelineJobInfoDto = performPost("$rootUrl/${dataProject.id}/experiments/${experiment1.id}/start", account)
             .andExpect(status().isOk)
             .returns(PipelineJobInfoDto::class.java)
 
@@ -383,22 +321,23 @@ class ExperimentsApiTest : RestApiTest() {
         assertThat(pipelineJobInfoDto.finishedAt).isNull()
     }
 
-    // Does not really work right now, lets wait frontend#523
     @Disabled
+    @Deprecated("See IntegrationTest")
     @Transactional
     @Rollback
     @Test
     fun `Can manipulate Experiment in the correct Order PENDING - RUNNING - SUCCESS`() {
-        val (account, _, _) = gitlabHelper.createRealUser()
-        val (project1, _) = gitlabHelper.createRealDataProject(account)
+        val experiment1 = createExperiment(dataProject.id)
 
-        val experiment1 = createExperiment(project1.id)
-
+        mockGitlab(
+            sourceBranch = experiment1.sourceBranch,
+            targetBranch = experiment1.targetBranch
+        )
         // Start experiment
-        this.performPost("$rootUrl/${project1.id}/experiments/${experiment1.id}/start", account)
+        this.performPost("$rootUrl/${dataProject.id}/experiments/${experiment1.id}/start", account)
             .andExpect(status().isOk)
 
-        this.performGet("$rootUrl/${project1.id}/experiments/${experiment1.id}/info", account)
+        this.performGet("$rootUrl/${dataProject.id}/experiments/${experiment1.id}/info", account)
             .andExpect(status().isOk)
             .returns(PipelineJobInfoDto::class.java)
 
@@ -413,48 +352,18 @@ class ExperimentsApiTest : RestApiTest() {
         assertThat(finish).isNotNull()
     }
 
-    // Does not really work right now, lets wait frontend#523
-    @Disabled
-    @Transactional
-    @Rollback
-    @Test
-    fun `Cannot manipulate Experiment in the wrong Order PENDING - SUCCESS - RUNNING `() {
-        val (account, _, _) = gitlabHelper.createRealUser()
-        val (project1, _) = gitlabHelper.createRealDataProject(account)
 
-        val experiment1 = createExperiment(project1.id)
+    private fun mockGitlab(sourceBranch: String, targetBranch: String) {
 
-        // PENDING
-        this.mockMvc.perform(
-            this.acceptContentAuth(post("$rootUrl/${project1.id}/experiments/${experiment1.id}/start", account)))
-            .andExpect(status().isOk)
-
-        val token = experimentRepository.findByIdOrNull(experiment1.id)!!.pipelineJobInfo!!.secret
-
-        // SUCCESS
-        this.mockMvc.perform(
-            this.defaultAcceptContentEPFBot(token, put("$epfUrl/experiments/${experiment1.id}/finish")))
-            .andExpect(status().isOk).andReturn().let {
-                objectMapper.readValue(it.response.contentAsByteArray, PipelineJobInfoDto::class.java)
-            }
-
-        // MUST fail after here
-        // RUNNING
-        this.mockMvc.perform(
-            this.defaultAcceptContentEPFBot(token, put("$epfUrl/experiments/${experiment1.id}/update"))
-                .content("{}"))
-            .andExpect(status().isBadRequest)
-    }
-
-
-    private fun createMockedPipeline(user: GitlabUser): GitlabPipeline {
-        val pipeline = GitlabPipeline(
+        val commit = Commit(id = "12341234")
+        val branch = Branch(ref = sourceBranch, branch = targetBranch)
+        val gitlabPipeline = GitlabPipeline(
             id = 32452345,
             coverage = "",
             sha = "sha",
             ref = "ref",
             beforeSha = "before_sha",
-            user = user,
+            user = GitlabUser(id = 1000L),
             status = "CREATED",
             committedAt = I18N.dateTime(),
             createdAt = I18N.dateTime(),
@@ -464,10 +373,14 @@ class ExperimentsApiTest : RestApiTest() {
         )
 
         every {
+            restClient.createBranch(any(), any(), any(), any())
+        } returns branch
+        every {
+            restClient.commitFiles(any(), any(), any(), any(), any(), any())
+        } returns commit
+        every {
             restClient.createPipeline(any(), any(), any(), any())
-        } returns pipeline
-
-        return pipeline
+        } returns gitlabPipeline
     }
 
     private fun createExperiment(dataProjectId: UUID, slug: String = "experiment-slug", dataInstanceId: UUID? = null): Experiment {
@@ -491,12 +404,20 @@ class ExperimentsApiTest : RestApiTest() {
             dataInstanceId = dataInstanceId,
             id = randomUUID(),
             dataProjectId = dataProjectId,
-            sourceBranch = "master",
+            sourceBranch = "source",
             targetBranch = "target",
             postProcessing = arrayListOf(processorInstance2),
-            pipelineJobInfo = null,
+            pipelineJobInfo = PipelineJobInfo(
+                gitlabId = 4,
+                createdAt = I18N.dateTime(),
+                commitSha = "sha",
+                ref = "branch",
+                committedAt = I18N.dateTime(),
+                secret = "secret"
+            ),
             processing = processorInstance,
             inputFiles = listOf(FileLocation(randomUUID(), FileLocationType.PATH, "location1")))
+
         return experimentRepository.save(experiment1)
     }
 
@@ -542,6 +463,4 @@ class ExperimentsApiTest : RestApiTest() {
             fieldWithPath("processing").type(JsonFieldType.OBJECT).optional().description("An optional DataAlgorithm")
         )
     }
-
-
 }

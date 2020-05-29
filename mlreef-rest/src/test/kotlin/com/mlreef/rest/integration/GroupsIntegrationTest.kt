@@ -1,17 +1,16 @@
-package com.mlreef.rest.api
+package com.mlreef.rest.integration
 
 import com.mlreef.rest.api.v1.dto.GroupOfUserDto
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.restdocs.mockmvc.MockMvcRestDocumentation
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders
 import org.springframework.restdocs.payload.FieldDescriptor
 import org.springframework.restdocs.payload.JsonFieldType
 import org.springframework.restdocs.payload.PayloadDocumentation
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
 
-class GroupsApiTest : RestApiTest() {
+class GroupsIntegrationTest : IntegrationRestApiTest() {
     val rootUrl = "/api/v1/groups"
 
     @Autowired
@@ -29,10 +28,6 @@ class GroupsApiTest : RestApiTest() {
         val returnedResult: List<GroupOfUserDto> = this.mockMvc.perform(
             this.acceptContentAuth(RestDocumentationRequestBuilders.get(rootUrl), account))
             .andExpect(MockMvcResultMatchers.status().isOk)
-            .andDo(MockMvcRestDocumentation.document(
-                "groups-retrieve-all",
-                PayloadDocumentation.responseFields(genericGroupOfUserResponseFields("[]."))
-            ))
             .andReturn().let {
                 val constructCollectionType = objectMapper.typeFactory.constructCollectionType(List::class.java, GroupOfUserDto::class.java)
                 objectMapper.readValue(it.response.contentAsByteArray, constructCollectionType)

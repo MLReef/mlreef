@@ -86,19 +86,15 @@ class GitlabAuthService(
             passwordEncoder.matches(plainPassword, account.passwordEncrypted)
         }
 
-        val account = found.getOrNull(0)
-            ?: throw IncorrectCredentialsException("username or password is incorrect")
+        val account = found.getOrNull(0) ?: throw IncorrectCredentialsException("username or password is incorrect")
 
-        val accountToken = getBestToken(account)
-            ?: throw GitlabNoValidTokenException("user token not found")
+        val accountToken = getBestToken(account) ?: throw GitlabNoValidTokenException("user token not found")
 
         // assert that user is found in gitlab
         findGitlabUserViaToken(accountToken.token)
 
         val oauthToken = gitlabRestClient.userLoginOAuthToGitlab(account.username, plainPassword)
-
         val accountUpdate = account.copy(lastLogin = I18N.dateTime())
-
         val loggedAccount = accountRepository.save(accountUpdate)
 
         return Pair(loggedAccount, oauthToken)
@@ -204,10 +200,11 @@ class GitlabAuthService(
         return gitlabRestClient.adminCreateUserToken(gitlabUserId = gitlabUserId, tokenName = tokenName)
     }
 
+    @Deprecated("unused?")
     private fun addGitlabUserToGroup(user: GitlabUser, group: GitlabGroup): GitlabUserInGroup {
         val userId = user.id
         val groupId = group.id
-        return gitlabRestClient.adminAddUserToGroup(groupId = groupId, userId = userId.toLong())
+        return gitlabRestClient.adminAddUserToGroup(groupId = groupId, userId = userId)
     }
 
     private fun createGitlabVariable(token: String, groupId: Long, variableName: String, value: String): GroupVariable {
@@ -215,7 +212,7 @@ class GitlabAuthService(
     }
 
     override fun createTokenDetails(token: String, account: Account, gitlabUser: GitlabUser): TokenDetails {
-        val tokenDetails = TokenDetails(
+        var tokenDetails = TokenDetails(
             username = account.username,
             permanentToken = account.bestToken?.token
                 ?: throw GitlabNoValidTokenException("No valid token found for user"),
@@ -223,13 +220,18 @@ class GitlabAuthService(
             accountId = account.id,
             personId = account.person.id,
             gitlabUser = gitlabUser,
-            valid = (true)
+            valid = true
         )
 
+        tokenDetails = injectGitlabInfoIntoTokenDetails(tokenDetails, account)
+
+        return tokenDetails
+    }
+
+    private fun injectGitlabInfoIntoTokenDetails(tokenDetails: TokenDetails, account: Account): TokenDetails {
         tokenDetails.groups.putAll(groupService.getUserGroupsList(account.person.id).map { Pair(it.id, it.accessLevel) })
         tokenDetails.projects.putAll(dataProjectsService.getUserProjectsList(account.id).map { Pair(it.id, it.accessLevel) })
         tokenDetails.projects.putAll(codeProjectsService.getUserProjectsList(account.id).map { Pair(it.id, it.accessLevel) })
-
         return tokenDetails
     }
 

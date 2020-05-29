@@ -96,11 +96,23 @@ ext {
 test {
     outputs.dir snippetsDir
     finalizedBy jacocoTestReport
-}
-
-test {
     testLogging {
         exceptionFormat = 'full'
+    }
+    useJUnitPlatform{
+        excludeTags 'slow'
+    }
+}
+
+task allTests(type: Test) {
+    useJUnitPlatform {
+        includeTags 'any() | all()'
+    }
+}
+
+task integrationTest(type: Test) {
+    useJUnitPlatform {
+        includeTags 'integration'
     }
 }
 
