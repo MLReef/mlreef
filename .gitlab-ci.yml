@@ -30,7 +30,7 @@ variables:
   INSTANCE_INFO:        "instance.info"                    # file for transmitting VM information between stages
   S3_DATA_BUCKET:       "mlreef-application-data"          # see also ec2 startup script
   DATA_ARCHIVE:         "mlreef-data-develop.zip"
-  GATSBY_PATH_PREFIX:   "/frontend"                        # fix links for mlreef.gitlab.io/frontend
+  # GATSBY_PATH_PREFIX:   "/frontend"                        # fix links for mlreef.gitlab.io/frontend
 
 .except-docu-branches:
   except:
