@@ -1,50 +1,36 @@
-package com.mlreef.rest.api
+package com.mlreef.rest.integration
 
-import com.mlreef.rest.AccessLevel
+import com.mlreef.rest.Account
 import com.mlreef.rest.CodeProject
 import com.mlreef.rest.CodeProjectRepository
-import com.mlreef.rest.DataAlgorithm
-import com.mlreef.rest.DataOperation
 import com.mlreef.rest.DataProcessor
 import com.mlreef.rest.DataProcessorRepository
 import com.mlreef.rest.DataProcessorType
 import com.mlreef.rest.DataType
-import com.mlreef.rest.DataVisualization
 import com.mlreef.rest.ParameterType
-import com.mlreef.rest.Person
 import com.mlreef.rest.VisibilityScope
+import com.mlreef.rest.api.PipelineTestPreparationTrait
 import com.mlreef.rest.api.v1.DataProcessorCreateRequest
 import com.mlreef.rest.api.v1.dto.DataProcessorDto
 import com.mlreef.rest.api.v1.dto.ParameterDto
 import com.mlreef.rest.feature.data_processors.DataProcessorService
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Tag
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get
+import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.post
 import org.springframework.restdocs.payload.FieldDescriptor
 import org.springframework.restdocs.payload.JsonFieldType
 import org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath
-import org.springframework.restdocs.payload.PayloadDocumentation.requestFields
-import org.springframework.restdocs.payload.PayloadDocumentation.responseFields
-import org.springframework.restdocs.request.RequestDocumentation.parameterWithName
-import org.springframework.restdocs.request.RequestDocumentation.requestParameters
 import org.springframework.test.annotation.Rollback
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import java.util.UUID
 import java.util.UUID.randomUUID
 import javax.transaction.Transactional
 
-class DataProcessorApiTest : RestApiTest() {
-
-    private lateinit var dataOp1: DataOperation
-    private lateinit var dataOp2: DataAlgorithm
-    private lateinit var dataOp3: DataVisualization
-    private lateinit var subject: Person
-    private lateinit var codeProject: CodeProject
-    private lateinit var codeProject2: CodeProject
-
+class DataProcessorIntegrationTest : IntegrationRestApiTest() {
     val rootUrl = "/api/v1/data-processors"
     val rootUrl2 = "/api/v1/code-projects"
 
@@ -53,62 +39,52 @@ class DataProcessorApiTest : RestApiTest() {
     @Autowired private lateinit var codeProjectRepository: CodeProjectRepository
     @Autowired private lateinit var pipelineTestPreparationTrait: PipelineTestPreparationTrait
 
+    @Autowired
+    private lateinit var gitlabHelper: GitlabHelper
+
     @BeforeEach
+    @AfterEach
     fun clearRepo() {
-        pipelineTestPreparationTrait.apply()
-        account = pipelineTestPreparationTrait.account
-        subject = pipelineTestPreparationTrait.subject
-        dataOp1 = pipelineTestPreparationTrait.dataOp1
-        dataOp2 = pipelineTestPreparationTrait.dataOp2
-        dataOp3 = pipelineTestPreparationTrait.dataOp3
-
-        codeProject = codeProjectRepository.save(CodeProject(
-            randomUUID(), "slug1", "url", "Test DataProject",
-            ownerId = account.person.id, gitlabGroup = "", gitlabId = 0, gitlabProject = ""))
-
-        codeProject2 = codeProjectRepository.save(CodeProject(
-            randomUUID(), "slug2", "url", "Test DataProject",
-            ownerId = account.person.id, gitlabGroup = "", gitlabId = 0, gitlabProject = ""))
-
-        this.mockGetUserProjectsList(listOf(codeProject.id), account, AccessLevel.OWNER)
     }
 
     @Transactional
     @Rollback
-    @Test
-    @Tag(TestTags.RESTDOC)
-    fun `Can retrieve all DataProcessors`() {
+    @Test fun `Can retrieve all DataProcessors`() {
+        val (account, _, _) = gitlabHelper.createRealUser()
+        val (codeProject, _) = gitlabHelper.createRealCodeProject(account)
+        val (codeProject2, _) = gitlabHelper.createRealCodeProject(account)
 
         createDataProcessor(DataProcessorType.OPERATION, codeProject.id, DataType.IMAGE)
         createDataProcessor(DataProcessorType.OPERATION, codeProject.id, DataType.IMAGE)
         createDataProcessor(DataProcessorType.OPERATION, codeProject2.id, DataType.IMAGE)
 
-        val returnedResult: List<DataProcessorDto> = this.performGet(rootUrl, account)
+        val returnedResult: List<DataProcessorDto> = this.mockMvc.perform(
+            this.acceptContentAuth(get(rootUrl), account))
             .andExpect(status().isOk)
-            .document("data-processors-retrieve-all", responseFields(dataProcessorFields("[].")))
-            .returnsList(DataProcessorDto::class.java)
+            .andReturn().let {
+                val constructCollectionType = objectMapper.typeFactory.constructCollectionType(List::class.java, DataProcessorDto::class.java)
+                objectMapper.readValue(it.response.contentAsByteArray, constructCollectionType)
+            }
 
-        assertThat(returnedResult.size).isEqualTo(4)
+        assertThat(returnedResult.size).isEqualTo(3)
     }
 
     @Transactional
     @Rollback
-    @Test
-    @Tag(TestTags.RESTDOC)
-    fun `Can retrieve all DataProcessors filtered`() {
-        createManyMocks()
+    @Test fun `Can retrieve all DataProcessors filtered`() {
+        val (account, _, _) = gitlabHelper.createRealUser()
+        val (codeProject, _) = gitlabHelper.createRealCodeProject(account)
+        val (codeProject2, _) = gitlabHelper.createRealCodeProject(account)
+
+        createManyMocks(codeProject, codeProject2)
         val url = "$rootUrl?type=OPERATION&input_data_type=IMAGE&output_data_type=VIDEO"
-        val returnedResult: List<DataProcessorDto> = this.performGet(url, account)
+        val returnedResult: List<DataProcessorDto> = this.mockMvc.perform(
+            this.acceptContentAuth(get(url), account))
             .andExpect(status().isOk)
-            .document("data-processors-retrieve-all-filter",
-                requestParameters(
-                    parameterWithName("type").description("DataProcessor Type"),
-                    parameterWithName("input_data_type").description("inputDataType of DataProcessor"),
-                    parameterWithName("output_data_type").description("outputDataType of DataProcessor")
-                ),
-                responseFields(dataProcessorFields("[]."))
-            )
-            .returnsList(DataProcessorDto::class.java)
+            .andReturn().let {
+                val constructCollectionType = objectMapper.typeFactory.constructCollectionType(List::class.java, DataProcessorDto::class.java)
+                objectMapper.readValue(it.response.contentAsByteArray, constructCollectionType)
+            }
 
         returnedResult.forEach {
             assertThat(it.type).isEqualTo(DataProcessorType.OPERATION)
@@ -119,11 +95,15 @@ class DataProcessorApiTest : RestApiTest() {
 
     @Transactional
     @Rollback
-    @Test
-    fun `Can retrieve all DataProcessors filters combined 1`() {
-        createManyMocks()
+    @Test fun `Can retrieve all DataProcessors filters combined 1`() {
+        val (account, _, _) = gitlabHelper.createRealUser()
+        val (codeProject, _) = gitlabHelper.createRealCodeProject(account)
+        val (codeProject2, _) = gitlabHelper.createRealCodeProject(account)
+
+        createManyMocks(codeProject, codeProject2)
+
         val url = "$rootUrl?type=OPERATION&input_data_type=VIDEO"
-        val returnedResult = performFilterRequest(url)
+        val returnedResult = performFilterRequest(url, account)
 
         returnedResult.forEach {
             assertThat(it.type).isEqualTo(DataProcessorType.OPERATION)
@@ -133,11 +113,15 @@ class DataProcessorApiTest : RestApiTest() {
 
     @Transactional
     @Rollback
-    @Test
-    fun `Can retrieve all DataProcessors filters combined 2`() {
-        createManyMocks()
+    @Test fun `Can retrieve all DataProcessors filters combined 2`() {
+        val (account, _, _) = gitlabHelper.createRealUser()
+        val (codeProject, _) = gitlabHelper.createRealCodeProject(account)
+        val (codeProject2, _) = gitlabHelper.createRealCodeProject(account)
+
+        createManyMocks(codeProject, codeProject2)
+
         val url = "$rootUrl?type=VISUALISATION&output_data_type=IMAGE"
-        val returnedResult = performFilterRequest(url)
+        val returnedResult = performFilterRequest(url, account)
 
         returnedResult.forEach {
             assertThat(it.type).isEqualTo(DataProcessorType.VISUALISATION)
@@ -147,11 +131,15 @@ class DataProcessorApiTest : RestApiTest() {
 
     @Transactional
     @Rollback
-    @Test
-    fun `Can retrieve all DataProcessors filters input DataType`() {
-        createManyMocks()
+    @Test fun `Can retrieve all DataProcessors filters input DataType`() {
+        val (account, _, _) = gitlabHelper.createRealUser()
+        val (codeProject, _) = gitlabHelper.createRealCodeProject(account)
+        val (codeProject2, _) = gitlabHelper.createRealCodeProject(account)
+
+        createManyMocks(codeProject, codeProject2)
+
         val url = "$rootUrl?input_data_type=VIDEO"
-        val returnedResult = performFilterRequest(url)
+        val returnedResult = performFilterRequest(url, account)
         returnedResult.forEach {
             assertThat(it.inputDataType).isEqualTo(DataType.VIDEO)
         }
@@ -159,11 +147,15 @@ class DataProcessorApiTest : RestApiTest() {
 
     @Transactional
     @Rollback
-    @Test
-    fun `Can retrieve all DataProcessors filters output DataType`() {
-        createManyMocks()
+    @Test fun `Can retrieve all DataProcessors filters output DataType`() {
+        val (account, _, _) = gitlabHelper.createRealUser()
+        val (codeProject, _) = gitlabHelper.createRealCodeProject(account)
+        val (codeProject2, _) = gitlabHelper.createRealCodeProject(account)
+
+        createManyMocks(codeProject, codeProject2)
+
         val url = "$rootUrl?output_data_type=IMAGE"
-        val returnedResult = performFilterRequest(url)
+        val returnedResult = performFilterRequest(url, account)
         returnedResult.forEach {
             assertThat(it.outputDataType).isEqualTo(DataType.IMAGE)
         }
@@ -171,11 +163,15 @@ class DataProcessorApiTest : RestApiTest() {
 
     @Transactional
     @Rollback
-    @Test
-    fun `Can retrieve all DataProcessors filters OPERATION`() {
-        createManyMocks()
+    @Test fun `Can retrieve all DataProcessors filters OPERATION`() {
+        val (account, _, _) = gitlabHelper.createRealUser()
+        val (codeProject, _) = gitlabHelper.createRealCodeProject(account)
+        val (codeProject2, _) = gitlabHelper.createRealCodeProject(account)
+
+        createManyMocks(codeProject, codeProject2)
+
         val url = "$rootUrl?type=OPERATION"
-        val returnedResult = performFilterRequest(url)
+        val returnedResult = performFilterRequest(url, account)
         returnedResult.forEach {
             assertThat(it.type).isEqualTo(DataProcessorType.OPERATION)
         }
@@ -183,11 +179,15 @@ class DataProcessorApiTest : RestApiTest() {
 
     @Transactional
     @Rollback
-    @Test
-    fun `Can retrieve all DataProcessors filters VISUALISATION`() {
-        createManyMocks()
+    @Test fun `Can retrieve all DataProcessors filters VISUALISATION`() {
+        val (account, _, _) = gitlabHelper.createRealUser()
+        val (codeProject, _) = gitlabHelper.createRealCodeProject(account)
+        val (codeProject2, _) = gitlabHelper.createRealCodeProject(account)
+
+        createManyMocks(codeProject, codeProject2)
+
         val url = "$rootUrl?type=VISUALISATION"
-        val returnedResult = performFilterRequest(url)
+        val returnedResult = performFilterRequest(url, account)
         returnedResult.forEach {
             assertThat(it.type).isEqualTo(DataProcessorType.VISUALISATION)
         }
@@ -195,11 +195,16 @@ class DataProcessorApiTest : RestApiTest() {
 
     @Transactional
     @Rollback
-    @Test
-    fun `Can retrieve all DataProcessors filters ALGORITHM`() {
-        createManyMocks()
+    @Test fun `Can retrieve all DataProcessors filters ALGORITHM`() {
+        val (account, _, _) = gitlabHelper.createRealUser()
+        val (codeProject, _) = gitlabHelper.createRealCodeProject(account)
+        val (codeProject2, _) = gitlabHelper.createRealCodeProject(account)
+
+        createManyMocks(codeProject, codeProject2)
+
         val url = "$rootUrl?type=ALGORITHM"
-        val returnedResult = performFilterRequest(url)
+        val returnedResult = performFilterRequest(url, account)
+
         returnedResult.forEach {
             assertThat(it.type).isEqualTo(DataProcessorType.ALGORITHM)
         }
@@ -207,20 +212,26 @@ class DataProcessorApiTest : RestApiTest() {
 
     @Transactional
     @Rollback
-    @Test
-    fun `Cannot retrieve foreign DataProcessor`() {
+    @Test fun `Cannot retrieve foreign DataProcessor`() {
+        val (account, _, _) = gitlabHelper.createRealUser()
+        val (account2, _, _) = gitlabHelper.createRealUser()
+
+        val (codeProject, _) = gitlabHelper.createRealCodeProject(account)
+        val (codeProject2, _) = gitlabHelper.createRealCodeProject(account2)
+
         createDataProcessor(DataProcessorType.OPERATION, codeProject.id)
 
         this.mockMvc.perform(
-            this.defaultAcceptContentAuth(get("$rootUrl/${codeProject2.id}/processor")))
+            this.acceptContentAuth(get("$rootUrl/${codeProject2.id}/processor"), account))
             .andExpect(status().isNotFound)
     }
 
     @Transactional
     @Rollback
-    @Test
-    @Tag(TestTags.RESTDOC)
-    fun `Can create new DataProcessor`() {
+    @Test fun `Can create new DataProcessor`() {
+        val (account, _, _) = gitlabHelper.createRealUser()
+        val (project, _) = gitlabHelper.createRealCodeProject(account)
+
         val request = DataProcessorCreateRequest(
             slug = "slug",
             name = "New Processor",
@@ -236,34 +247,35 @@ class DataProcessorApiTest : RestApiTest() {
                 ParameterDto("stringList", type = ParameterType.LIST.name, defaultValue = "[]", order = 1, required = false)
             )
         )
-        val url = "$rootUrl2/${codeProject.id}/processor"
-        val returnedResult: DataProcessorDto = this.performPost(url, account, body = request)
+
+        val url = "$rootUrl2/${project.id}/processor"
+
+        val returnedResult: DataProcessorDto = this.mockMvc.perform(
+            this.acceptContentAuth(post(url), account)
+                .content(objectMapper.writeValueAsString(request)))
             .andExpect(status().isOk)
-            .document("data-processors-codeproject-create-success",
-                requestFields(dataProcessorCreateRequestFields()),
-                responseFields(dataProcessorFields())
-            )
-            .returns(DataProcessorDto::class.java)
+            .andReturn().let {
+                objectMapper.readValue(it.response.contentAsByteArray, DataProcessorDto::class.java)
+            }
 
         assertThat(returnedResult).isNotNull()
     }
 
     @Transactional
     @Rollback
-    @Test
-    @Tag(TestTags.RESTDOC)
-    fun `Can retrieve specific own DataProcessor`() {
-        createDataProcessor(DataProcessorType.OPERATION, codeProject.id)
+    @Test fun `Can retrieve specific own DataProcessor`() {
+        val (account, _, _) = gitlabHelper.createRealUser()
+        val (project, _) = gitlabHelper.createRealCodeProject(account)
 
-        mockGetUserProjectsList(listOf(codeProject.id), account, AccessLevel.OWNER)
+        createDataProcessor(DataProcessorType.OPERATION, project.id)
 
-        this.performGet("$rootUrl2/${codeProject.id}/processor", account)
+        this.mockMvc.perform(
+            this.acceptContentAuth(get("$rootUrl2/${project.id}/processor"), account))
             .andExpect(status().isOk)
-            .document("data-processors-codeproject-retrieve-one",
-                responseFields(dataProcessorFields()))
+
     }
 
-    private fun createManyMocks() {
+    private fun createManyMocks(codeProject: CodeProject, codeProject2: CodeProject) {
         createDataProcessor(DataProcessorType.OPERATION, codeProject.id, DataType.IMAGE, DataType.VIDEO)
         createDataProcessor(DataProcessorType.ALGORITHM, codeProject.id, DataType.IMAGE, DataType.IMAGE)
         createDataProcessor(DataProcessorType.ALGORITHM, codeProject.id, DataType.TEXT, DataType.VIDEO)
@@ -278,9 +290,9 @@ class DataProcessorApiTest : RestApiTest() {
         createDataProcessor(DataProcessorType.VISUALISATION, codeProject2.id, DataType.VIDEO, DataType.IMAGE)
     }
 
-    private fun performFilterRequest(url: String): List<DataProcessorDto> {
+    private fun performFilterRequest(url: String, account: Account): List<DataProcessorDto> {
         val returnedResult: List<DataProcessorDto> = this.mockMvc.perform(
-            this.defaultAcceptContentAuth(get(url)))
+            this.acceptContentAuth(get(url), account))
             .andExpect(status().isOk)
             .andReturn().let {
                 val constructCollectionType = objectMapper.typeFactory.constructCollectionType(List::class.java, DataProcessorDto::class.java)

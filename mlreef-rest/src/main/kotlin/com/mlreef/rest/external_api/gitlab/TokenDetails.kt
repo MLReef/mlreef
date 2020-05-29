@@ -12,7 +12,7 @@ class TokenDetails(
     val accessToken: String?,
     val accountId: UUID,
     val personId: UUID,
-    val valid: Boolean = false,
+    val valid: Boolean = true,
     val edition: Int = 0,
     val groups: MutableMap<UUID, AccessLevel?> = mutableMapOf(),
     val projects: MutableMap<UUID, AccessLevel?> = mutableMapOf(),

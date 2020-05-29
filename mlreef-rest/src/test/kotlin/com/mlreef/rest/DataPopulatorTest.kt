@@ -33,6 +33,7 @@ class DataPopulatorTest : RestApiTest() {
     @Autowired private lateinit var processorInstanceRepository: DataProcessorInstanceRepository
     @Autowired private lateinit var parameterInstanceRepository: ParameterInstanceRepository
     @Autowired private lateinit var dataAlgorithmRepository: DataAlgorithmRepository
+    @Autowired private lateinit var searchableTagRepository: SearchableTagRepository
     @Autowired private lateinit var marketplaceService: MarketplaceService
 //    @Mock private lateinit var restClient: GitlabRestClient
 
@@ -54,6 +55,7 @@ class DataPopulatorTest : RestApiTest() {
             codeProjectRepository = codeProjectRepository,
             dataAlgorithmRepository = dataAlgorithmRepository,
             marketplaceService = marketplaceService
+
         )
 
         parameterInstanceRepository.deleteAll()

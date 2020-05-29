@@ -83,9 +83,8 @@ class GitlabCodeProjectService(
             ?: throw UserNotFoundException(userId = userId)
 
         val userProjects = try {
-            gitlabRestClient
-                .userGetUserAllProjects(user.bestToken?.token
-                    ?: throw GitlabNoValidTokenException("User ${user.id} has no valid token"))
+            gitlabRestClient.userGetUserAllProjects(user.bestToken?.token
+                ?: throw GitlabNoValidTokenException("User ${user.id} has no valid token"))
         } catch (ex: Exception) {
             log.error("Cannot request projects from gitlab for user ${user.id}. Exception: $ex.")
             listOf<GitlabProject>()

@@ -32,6 +32,10 @@ interface ProjectRequesterService<T : MLProject> {
     fun getUserProjectsList(userId: UUID? = null): List<ProjectOfUser>
 }
 
+interface ProjectAuthService<T : MLProject> {
+    fun getUserProjectsList(userId: UUID? = null): List<ProjectOfUser>
+}
+
 interface ProjectService<T : MLProject> {
     fun createProject(userToken: String, ownerId: UUID, projectSlug: String, projectName: String, projectNamespace: String, description: String, visibility: VisibilityScope = VisibilityScope.PUBLIC, initializeWithReadme: Boolean = false): T
     fun updateProject(userToken: String, ownerId: UUID, projectUUID: UUID, projectName: String, description: String): T

@@ -1,6 +1,7 @@
 package com.mlreef.rest
 
 enum class AccessLevel(val accessCode: Int) {
+    NONE(0),
     GUEST(10),
     REPORTER(20),
     DEVELOPER(30),

@@ -43,20 +43,22 @@ class MlReefSecurityExpressionRoot(authentication: Authentication)
     }
 
     fun isUserItself(userId: UUID?): Boolean {
-        return if (userId!=null) ((this.principal as? TokenDetails)?.accountId == userId) else false
+        return if (userId != null) ((this.principal as? TokenDetails)?.accountId == userId) else false
     }
 
     fun isUserItself(userGitlabId: Long?): Boolean {
-        return if (userGitlabId!=null) (this.principal as? TokenDetails)?.gitlabUser?.id == userGitlabId else false
+        return if (userGitlabId != null) (this.principal as? TokenDetails)?.gitlabUser?.id == userGitlabId else false
     }
 
     fun isUserItself(userName: String?): Boolean {
-        return if (userName!=null) (this.principal as? TokenDetails)?.username == userName else false
+        return if (userName != null) (this.principal as? TokenDetails)?.username == userName else false
     }
 
     fun isProjectOwner(projectId: UUID): Boolean {
-        return ((this.principal as? TokenDetails)?.projects?.get(projectId)?.accessCode
-            ?: 0) == AccessLevel.OWNER.accessCode
+        val tokenDetails = this.principal as? TokenDetails
+        val projects = tokenDetails?.projects
+        val accessLevel = projects?.get(projectId)
+        return (accessLevel?.accessCode ?: 0) == AccessLevel.OWNER.accessCode
     }
 
     fun hasAccessToProject(projectId: UUID, minAccessLevel: String): Boolean {
