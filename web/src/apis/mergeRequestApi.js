@@ -1,5 +1,4 @@
 import { toastr } from 'react-redux-toastr';
-import { API_GATEWAY } from '../apiConfig';
 import { generateGetRequest, getCurrentToken } from './apiHelpers';
 
 export default class MergeRequestAPI {
@@ -7,7 +6,7 @@ export default class MergeRequestAPI {
    * @param {projectId} is the id the project to get MR's to
    */
   static async getListByProject(projectId) {
-    const url = `${API_GATEWAY}/api/v4/projects/${projectId}/merge_requests`;
+    const url = `/api/v4/projects/${projectId}/merge_requests`;
     const response = await generateGetRequest(url);
 
     if (!response.ok) {
@@ -18,7 +17,7 @@ export default class MergeRequestAPI {
   }
 
   static async getSingleMR(id, iid) {
-    const url = `${API_GATEWAY}/api/v4/projects/${id}/merge_requests/${iid}`;
+    const url = `/api/v4/projects/${id}/merge_requests/${iid}`;
 
     const response = await generateGetRequest(url);
     if (!response.ok) {
@@ -36,7 +35,7 @@ export default class MergeRequestAPI {
       title,
       description,
     });
-    const url = `${API_GATEWAY}/api/v4/projects/${id}/merge_requests`;
+    const url = `/api/v4/projects/${id}/merge_requests`;
     const response = await fetch(
       url, {
         method: 'POST',
@@ -56,7 +55,7 @@ export default class MergeRequestAPI {
   }
 
   static async acceptMergeRequest(id, iid, squash, removeSourceBranch) {
-    let baseUrl = `${API_GATEWAY}/api/v4/projects/${id}/merge_requests/${iid}/merge?squash=${squash}`;
+    let baseUrl = `/api/v4/projects/${id}/merge_requests/${iid}/merge?squash=${squash}`;
 
     if (removeSourceBranch) {
       baseUrl = `${baseUrl}&should_remove_source_branch=${removeSourceBranch}`;
@@ -67,8 +66,7 @@ export default class MergeRequestAPI {
         method: 'PUT',
         headers: new Headers({
           'PRIVATE-TOKEN': getCurrentToken(),
-          'Content-Type': 'application/json',
-          'Access-Control-Allow-Origin': `${API_GATEWAY}`,
+          'Content-Type': 'application/json'
         }),
       },
     ));

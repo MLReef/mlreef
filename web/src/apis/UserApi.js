@@ -1,4 +1,3 @@
-import { API_GATEWAY } from '../apiConfig';
 import { getCurrentToken } from './apiHelpers';
 
 export default class UserApi {
@@ -10,7 +9,7 @@ export default class UserApi {
   }
 
   static getUserInfo() {
-    const url = `${API_GATEWAY}/api/v4/user`;
+    const url = '/api/v4/user';
 
     const request = new Request(url, {
       method: 'GET',

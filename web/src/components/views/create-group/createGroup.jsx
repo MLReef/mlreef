@@ -8,7 +8,7 @@ import { convertToSlug } from 'functions/dataParserHelpers';
 import { bannedCharsArray } from '../../../dataTypes';
 import Navbar from '../../navbar/navbar';
 import './createGroup.scss';
-import { API_GATEWAY } from 'apiConfig';
+import { EXTERNAL_URL } from 'apiConfig';
 import GroupsApi from 'apis/groupApi';
 import * as groupsActions from "actions/groupsActions";
 import { privacyLevelsArr } from "dataTypes";
@@ -138,7 +138,7 @@ export class UnconnectedNewGroup extends Component {
                 <span className="heading">Group link</span>
                 <div className="d-flex" id="group-link-div" style={{ alignItems: 'center' }}>
                   <p style={{ margin: 0 }}>
-                    {`${API_GATEWAY}/`}
+                    {`${EXTERNAL_URL}/`}
                   </p>
                   <input
                     style={{ margin: '0.4rem' }}

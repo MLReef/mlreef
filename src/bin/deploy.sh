@@ -149,9 +149,6 @@ log "Writing Docker's env file: $DOCKER_ENV"
 touch $DOCKER_ENV
 echo "# Automatically added by the deploment pipeline .gitlab-ci-deploy.yml" >$DOCKER_ENV
 {
-  echo "# The REACT_APP_API_GATEWAY is used by the frontend to direct API calls"
-  echo "REACT_APP_API_GATEWAY=http://$INSTANCE"
-  echo ""
   echo "# Only Used during deployment for gitlab configuration and runner configuration"
   echo "# The gitlab server always serves port 80 locally. By setting the GITLAB_PORT variable,"
   echo "# we let gitlab know, that the container's port 80 is mapped differently from the outside."
@@ -228,7 +225,7 @@ elif [ "$(checkGitlab80)" = "302" ]; then
   log "Found Gitlab at port 80. Reconfiguring Gitlab for port $GITLAB_PORT"
   if [ $INSTANCE != "localhost" ]; then
     log "2. Configure Gitlab external_url "'http://$INSTANCE:$GITLAB_PORT'
-    docker exec gitlab sh -c 'echo external_url \"$REACT_APP_API_GATEWAY:$GITLAB_PORT\" >> /etc/gitlab/gitlab.rb'
+    docker exec gitlab sh -c 'echo external_url \"http://$INSTANCE:$GITLAB_PORT\" >> /etc/gitlab/gitlab.rb'
   else
     log "2. Configure Gitlab external_url "'http://gitlab:$GITLAB_PORT'
     # When running locally in docker compose, this lets the runners access Gitlab via the Docker network

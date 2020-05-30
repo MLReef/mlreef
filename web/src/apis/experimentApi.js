@@ -1,5 +1,4 @@
 import { toastr } from 'react-redux-toastr';
-import { API_GATEWAY } from '../apiConfig';
 import { getCurrentToken, generateGetRequest } from './apiHelpers';
 
 export default class ExperimentsApi {
@@ -14,7 +13,7 @@ export default class ExperimentsApi {
 
   static async createExperiment(projectUUId, body) {
     const response = await fetch(
-      `${API_GATEWAY}/api/v1/data-projects/${projectUUId}/experiments`, {
+      `/api/v1/data-projects/${projectUUId}/experiments`, {
         method: 'POST',
         headers: this.buildPostHeaders(),
         body: JSON.stringify(body),
@@ -29,7 +28,7 @@ export default class ExperimentsApi {
 
   static async startExperiment(dataProjectId, experimentId) {
     const response = await fetch(
-      `${API_GATEWAY}/api/v1/data-projects/${dataProjectId}/experiments/${experimentId}/start`, {
+      `/api/v1/data-projects/${dataProjectId}/experiments/${experimentId}/start`, {
         method: 'POST',
         headers: this.buildPostHeaders(),
       },
@@ -42,7 +41,7 @@ export default class ExperimentsApi {
   }
 
   static async getExperimentDetails(projectUUID, experimentID) {
-    const url = `${API_GATEWAY}/api/v1/data-projects/${projectUUID}/experiments/${experimentID}`;
+    const url = `/api/v1/data-projects/${projectUUID}/experiments/${experimentID}`;
     const response = await generateGetRequest(url);
     if (!response.ok) {
       Promise.reject(response);
@@ -52,7 +51,7 @@ export default class ExperimentsApi {
   }
 
   static async getExperiments(projectUUID) {
-    const url = `${API_GATEWAY}/api/v1/data-projects/${projectUUID}/experiments`;
+    const url = `/api/v1/data-projects/${projectUUID}/experiments`;
     const response = await generateGetRequest(url);
     if (!response.ok) {
       Promise.reject(response);

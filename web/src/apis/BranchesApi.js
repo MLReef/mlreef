@@ -1,5 +1,4 @@
 import { toastr } from 'react-redux-toastr';
-import { API_GATEWAY } from '../apiConfig';
 import { generateGetRequest, getCurrentToken } from './apiHelpers';
 
 /**
@@ -11,7 +10,7 @@ import 'regenerator-runtime/runtime';
 export default class BranchesApi {
   static async create(projectId, branchName, refBranch) {
     const response = await fetch(
-      `${API_GATEWAY}/api/v4/projects/${projectId}/repository/branches?branch=${branchName}&ref=${refBranch}`, {
+      `/api/v4/projects/${projectId}/repository/branches?branch=${branchName}&ref=${refBranch}`, {
         method: 'POST',
         headers: new Headers({
           'PRIVATE-TOKEN': getCurrentToken(),
@@ -23,7 +22,7 @@ export default class BranchesApi {
   }
 
   static async getBranches(projectId) {
-    const url = `${API_GATEWAY}/api/v4/projects/${projectId}/repository/branches`;
+    const url = `/api/v4/projects/${projectId}/repository/branches`;
     const response = await generateGetRequest(url);
 
     if (!response.ok) {
@@ -34,7 +33,7 @@ export default class BranchesApi {
   }
 
   static async compare(projectId, from, to) {
-    const url = `${API_GATEWAY}/api/v4/projects/${projectId}/repository/compare?from=${from}&to=${to}`;
+    const url = `/api/v4/projects/${projectId}/repository/compare?from=${from}&to=${to}`;
     const response = await generateGetRequest(url);
 
     if (!response.ok) {
@@ -46,7 +45,7 @@ export default class BranchesApi {
 
   static async delete(projectId, branch) {
     const branchName = encodeURIComponent(branch);
-    const url = `${API_GATEWAY}/api/v4/projects/${projectId}/repository/branches/${branchName}`;
+    const url = `/api/v4/projects/${projectId}/repository/branches/${branchName}`;
     const method = 'DELETE';
     const headers = new Headers({
       'PRIVATE-TOKEN': getCurrentToken(),

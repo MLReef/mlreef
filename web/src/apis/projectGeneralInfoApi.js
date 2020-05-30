@@ -1,21 +1,17 @@
 import { toastr } from 'react-redux-toastr';
-import { API_GATEWAY } from '../apiConfig';
 import { getCurrentToken, generateGetRequest } from './apiHelpers';
 
 export default class ProjectGeneralInfoApi {
   static async create(settings) {
-    const baseUrl = new URL(`${API_GATEWAY}/api/v1/data-projects`);
-    const data = { ...settings };
     const response = await fetch(
-      baseUrl, {
+      '/api/v1/data-projects', {
         method: 'POST',
         headers: new Headers({
           'PRIVATE-TOKEN': getCurrentToken(),
           Accept: 'application/json',
           'Content-Type': 'application/json',
-          Origin: 'http://localhost',
         }),
-        body: JSON.stringify(data),
+        body: JSON.stringify({ ...settings }),
       },
     );
     if (!response.ok) {
@@ -26,7 +22,7 @@ export default class ProjectGeneralInfoApi {
   }
 
   static async getProjectInfoApi(projectId) {
-    const url = `${API_GATEWAY}/api/v4/projects/${projectId}`;
+    const url = `/api/v4/projects/${projectId}`;
     const respone = await generateGetRequest(url);
     if (!respone.ok) {
       window.history.replaceState({ errorCode: 500 }, 'Mlreef', '/error-page');
@@ -36,10 +32,7 @@ export default class ProjectGeneralInfoApi {
   }
 
   static async getProjectsList() {
-    const url = new URL(`${API_GATEWAY}/api/v1/data-projects`);
-    const respone = generateGetRequest(url.href);
-
-    return respone
+    return generateGetRequest('/api/v1/data-projects')
       .then((res) => res.json())
       .then((projects) => Array.isArray(projects) ? projects : Promise.reject(projects));
   }
@@ -50,7 +43,7 @@ export default class ProjectGeneralInfoApi {
    * @param {*} name: forked project name
    */
   static async forkProject(id, namespace, name) {
-    const url = `${API_GATEWAY}/api/v4/projects/${id}/fork`;
+    const url = `/api/v4/projects/${id}/fork`;
     return fetch(new Request(
       url, {
         method: 'POST',
@@ -66,7 +59,7 @@ export default class ProjectGeneralInfoApi {
   }
 
   static async removeProject(projectId) {
-    const url = `${API_GATEWAY}/api/v4/projects/${projectId}`;
+    const url = `/api/v4/projects/${projectId}`;
     return fetch(new Request(
       url, {
         method: 'DELETE',
@@ -85,7 +78,7 @@ export default class ProjectGeneralInfoApi {
   }
 
   static async getProjectContributors(projectId) {
-    const url = `${API_GATEWAY}/api/v4/projects/${projectId}/members`;
+    const url = `/api/v4/projects/${projectId}/members`;
     const response = await generateGetRequest(url);
 
     if (!response.ok) {
@@ -96,7 +89,7 @@ export default class ProjectGeneralInfoApi {
   }
 
   static async getUsers(projectId) {
-    const url = `${API_GATEWAY}/api/v4/projects/${projectId}/users`;
+    const url = `/api/v4/projects/${projectId}/users`;
     const response = await generateGetRequest(url);
     if (!response.ok) {
       Promise.reject(response);
