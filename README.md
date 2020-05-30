@@ -124,10 +124,9 @@ Currently, the following steps are performed automatically during deployment.
 1. Build docker image for the frontend NodeJS App
 2. Provision a new ec2 instance with docker pre-installed
 3. Docker's `.env` file is created which contains the URL of the new instance
-4. The Frontend's `web/.env` file is updated which contains the URL of the new instance
-5. Start the MLReef service stack - based on our `docker-compose.yml` - on the ec2 instance
+4. Start the MLReef service stack - based on our `docker-compose.yml` - on the ec2 instance
    The service stack consists of postgres, redis, gitlab, gitlab runner, micro services, NodeJS Frontend
-6. Configure the gitlab-runner-dispatcher
+5. Configure the gitlab-runner-dispatcher
    (This has to be done after gitlab has successfully started)
    The Gitlab runner dispatcher boots new ec2 instances for running gitlab pipelines
 
@@ -135,9 +134,12 @@ After a branch is merged/deleted the Gitlab pipeline is used to delete the ec2 i
 
 
 ### Networking
-All the services defined in the _docker-compose.yml_ run as separate containers inside the docker network. This means that they can talk to each other using local ULRS. The backend for example can access the local Gitlab instance **internally** via http://gitlab:80.
+All the services defined in the _docker-compose.yml_ run as separate containers inside the docker network.
+This means that they can talk to each other using local ULRS. The backend for example can access the local Gitlab instance **internally** via http://gitlab:80.
 
-From the **outside** the adresses and ports are mapped a little bit differnetly. The Gitlab instance is reachable direclty at `http://ec-123-123-123-123..eu-central-1.compute.amazonaws.com:10080` (note the port number). Please look at the _docker-compose.yml_ for the correct port numbers of the ther services
+From the **outside** the addresses and ports are mapped a little bit differently.
+The Gitlab instance is reachable directly at `http://ec-123-123-123-123..eu-central-1.compute.amazonaws.com:10080` (note the port number).
+Please look at the _docker-compose.yml_ for the correct port numbers of the ther services
 
 
 ### HTTP Reverse Proxy

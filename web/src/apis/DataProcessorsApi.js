@@ -1,5 +1,4 @@
 import { toastr } from 'react-redux-toastr';
-import { API_GATEWAY } from '../apiConfig';
 import { generateGetRequest } from './apiHelpers';
 
 export default class DataProcessorsApi {
@@ -10,7 +9,7 @@ export default class DataProcessorsApi {
    * @returns {Promise<any>}
    */
   static async filterDataProcessorsByTypeAndDataTypes(type, inputDataType, outputDataType) {
-    const url = `${API_GATEWAY}/api/v1/data-processors?type=${type}&input_data_type=${inputDataType}&output_data_type=${outputDataType}`;
+    const url = `/api/v1/data-processors?type=${type}&input_data_type=${inputDataType}&output_data_type=${outputDataType}`;
     const response = await generateGetRequest(url);
 
     if (!response.ok) {
@@ -25,7 +24,7 @@ export default class DataProcessorsApi {
    * @returns {Promise<any>}
    */
   static async filterDataProcessorsByType(type) {
-    const url = `${API_GATEWAY}/api/v1/data-processors?type=${type}`;
+    const url = `/api/v1/data-processors?type=${type}`;
     const response = await generateGetRequest(url);
     if (!response.ok) {
       Promise.reject(response);

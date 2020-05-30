@@ -1,5 +1,4 @@
 import { toastr } from 'react-redux-toastr';
-import { API_GATEWAY } from '../apiConfig';
 import { getCurrentToken, generateGetRequest } from './apiHelpers';
 
 export default class PipeLinesApi {
@@ -7,7 +6,7 @@ export default class PipeLinesApi {
     const body = JSON.stringify(payload);
     try {
       const response = await fetch(
-        `${API_GATEWAY}/api/v4/projects/${projectId}/pipeline?ref=${refBranch}`, {
+        `/api/v4/projects/${projectId}/pipeline?ref=${refBranch}`, {
           method: 'POST',
           headers: new Headers({
             'PRIVATE-TOKEN': getCurrentToken(),
@@ -25,7 +24,7 @@ export default class PipeLinesApi {
   static async getPipesByProjectId(projectId) {
     try {
       const response = await fetch(
-        `${API_GATEWAY}/api/v4/projects/${projectId}/pipelines/`, {
+        `/api/v4/projects/${projectId}/pipelines/`, {
           method: 'GET',
           headers: new Headers({
             'PRIVATE-TOKEN': getCurrentToken(),
@@ -40,7 +39,7 @@ export default class PipeLinesApi {
 
   static async getPipesById(projectId, pipeId) {
     try {
-      const url = `${API_GATEWAY}/api/v4/projects/${projectId}/pipelines/${pipeId}`;
+      const url = `/api/v4/projects/${projectId}/pipelines/${pipeId}`;
       const response = await generateGetRequest(url);
       if (response.ok) {
         return response.json();

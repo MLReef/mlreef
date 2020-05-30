@@ -1,12 +1,11 @@
 import { toastr } from 'react-redux-toastr';
-import { API_GATEWAY } from '../apiConfig';
 import { generateGetRequest, getCurrentToken } from './apiHelpers';
 
 export default class CommitsApi {
   static async performCommit(projectId, filePath, fileContent, branch, commitMss, action, encoding = 'text') {
     try {
       const response = await fetch(
-        `${API_GATEWAY}/api/v4/projects/${projectId}/repository/commits`, {
+        `/api/v4/projects/${projectId}/repository/commits`, {
           method: 'POST',
           headers: new Headers({
             'PRIVATE-TOKEN': getCurrentToken(),
@@ -39,7 +38,7 @@ export default class CommitsApi {
   ) {
     try {
       const response = await fetch(
-        `${API_GATEWAY}/api/v4/projects/${projectId}/repository/commits`, {
+        `/api/v4/projects/${projectId}/repository/commits`, {
           method: 'POST',
           headers: new Headers({
             'PRIVATE-TOKEN': getCurrentToken(),
@@ -55,7 +54,7 @@ export default class CommitsApi {
   }
 
   static async getCommits(projectId, refName = 'master', path = '', perPage = 20) {
-    const url = `${API_GATEWAY}/api/v4/projects/${projectId}/repository/commits?per_page=${perPage}&ref_name=${refName}&path=${path}`;
+    const url = `/api/v4/projects/${projectId}/repository/commits?per_page=${perPage}&ref_name=${refName}&path=${path}`;
     const response = await fetch(new Request(
       url, {
         method: 'GET',
@@ -68,7 +67,7 @@ export default class CommitsApi {
   }
 
   static async getCommitDetails(projectId, commitId) {
-    const url = `${API_GATEWAY}/api/v4/projects/${projectId}/repository/commits/${commitId}`;
+    const url = `/api/v4/projects/${projectId}/repository/commits/${commitId}`;
     const response = await generateGetRequest(url);
     if (response.ok) {
       return response.json();
@@ -78,14 +77,14 @@ export default class CommitsApi {
   }
 
   static async getFileDataInCertainCommit(projectId, pathToFile, commitId) {
-    const url = `${API_GATEWAY}/api/v4/projects/${projectId}/repository/files/${pathToFile}/raw?ref=${commitId}`;
+    const url = `/api/v4/projects/${projectId}/repository/files/${pathToFile}/raw?ref=${commitId}`;
     const response = await generateGetRequest(url);
 
     return response.arrayBuffer();
   }
 
   static async getCommitDiff(projectId, commitId) {
-    const url = `${API_GATEWAY}/api/v4/projects/${projectId}/repository/commits/${commitId}/diff`;
+    const url = `/api/v4/projects/${projectId}/repository/commits/${commitId}/diff`;
     const response = await generateGetRequest(url);
 
     return response.json();

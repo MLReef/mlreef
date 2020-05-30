@@ -81,7 +81,7 @@ get production ip:
       - "$INSTANCE_INFO"                                   # pass the file which contains our instance URL
   environment:
     name: mlreef.com
-    url: http://mlreef.com
+    url: https://mlreef.com
 
 
 
