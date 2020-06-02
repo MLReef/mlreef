@@ -43,9 +43,10 @@ const ExperimentCard = (props) => {
         const allParameters = algorithms.filter((algo) => algo.name === experiment.modelTitle)[0].parameters;
         const {
           experimentData: { id, processing: { parameters },
-          data_project_id: dataProjectId,
-          pipeline_job_info: pipelineInfo
-        } } = experiment;
+            data_project_id: dataProjectId,
+            pipeline_job_info: pipelineInfo,
+          },
+        } = experiment;
         return (
           <div
             key={`${experiment.timeCreatedAgo}-${experiment.descTitle}`}
@@ -109,7 +110,6 @@ const ExperimentCard = (props) => {
               experiment={experiment}
               projectId={projectId}
               defaultBranch={defaultBranch}
-              today={today}
               userParameters={parameters}
             />
           </div>

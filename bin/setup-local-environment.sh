@@ -2,8 +2,7 @@
 # shellcheck disable=SC2162 #read without '-r' will mangle backslashes
 
 while [ -n "$1" ]; do
-  case "$1" in
-  -f | --force)
+  case "$1" in -f | --force)
     echo "Cleaning local docker context"
     echo "Stopping and removing MLreef's docker containers"
     touch local.env

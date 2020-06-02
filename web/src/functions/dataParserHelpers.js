@@ -1,7 +1,4 @@
 import store from '../store';
-import {
-  colorsForCharts,
-} from '../dataTypes';
 
 const imageFormats = [
   '.png',
@@ -48,82 +45,11 @@ export const parseDurationInSeconds = (duration) => {
   return `${minutesStr}m ${secondsFloat}s`;
 };
 
-export const generateSummarizedInfo = (epochObjects) => {
-  /**
-     * Next loop is to get all the epoc keys like acc, val_acc, loss, val_loss.
-     */
-  const resultData = Object.keys(epochObjects[0]).map((key) => {
-    const pipeLineEpochValue = {};
-    pipeLineEpochValue[key] = [];
-
-    return pipeLineEpochValue;
-  });
-
-  Object.keys(epochObjects).forEach((obj) => {
-    Object.keys(epochObjects[obj]).forEach((objKey, index) => {
-      resultData[index][objKey].push(epochObjects[obj][objKey]);
-    });
-  });
-
-  /**
-     * Get average data per epoch value
-     */
-  resultData.forEach((epochValue) => {
-    const epochNameValue = Object.keys(epochValue)[0];
-    resultData[`avg_${epochNameValue}`] = (
-      epochValue[epochNameValue]
-        .reduce((a, b) => a + b)
-                    / epochValue[epochNameValue].length
-    );
-  });
-  return resultData;
-};
 
 export const getFilesInFolder = (folder, files) => files.filter(
   (file) => file.path.includes(folder.name)
         && file.id !== folder.id,
 );
-
-export function mapSummarizedInfoToDatasets(summarizedInfo) {
-  return summarizedInfo.map(
-    (epochObjectVal, index) => {
-      const currentValueName = Object.keys(epochObjectVal)[0];
-      const dataSet = {};
-
-      dataSet.label = currentValueName;
-      dataSet.fill = false;
-      dataSet.backgroundColor = colorsForCharts[index];
-      dataSet.borderColor = colorsForCharts[index];
-      dataSet.lineTension = 0;
-      dataSet.data = epochObjectVal[currentValueName];
-
-      return dataSet;
-    },
-  );
-}
-
-export function parseDataAndRefreshChart(rawJsonData) {
-  /* set information to show in the chart */
-  const summarizedInfo = generateSummarizedInfo(rawJsonData);
-  const datasets = mapSummarizedInfoToDatasets(summarizedInfo);
-  const labels = Object.keys(datasets[0].data);
-
-  /* set average values to show beside chart */
-  const averageParams = Object.keys(summarizedInfo)
-    .filter((sInfoItem) => sInfoItem.startsWith('avg_'))
-    .map((sInfoItem) => ({
-      name: sInfoItem.substring(4, sInfoItem.length),
-      value: summarizedInfo[sInfoItem],
-    }));
-  const data = {
-    labels,
-    datasets,
-  };
-  return {
-    data,
-    averageParams,
-  };
-}
 
 /**
  * @param {linesOfContent} mlreef yml broken into lines that will be analyzed to extract information

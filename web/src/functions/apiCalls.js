@@ -1,7 +1,6 @@
 import { toastr } from 'react-redux-toastr';
 import { POLL_TIMEOUT } from 'apiConfig';
 import PipeLinesApi from 'apis/PipelinesApi';
-import filesApi from 'apis/FilesApi';
 import commitsApi from 'apis/CommitsApi';
 import { getCurrentUserInformation } from './dataParserHelpers';
 
@@ -32,15 +31,6 @@ export const callToCommitApi = (
       .then(() => toastr.success('Success', 'Pipeline was generated'))
       .catch(() => toastr.error('Error', 'Pipeline creation failed'));
   })
-  .catch((err) => err);
-
-export const callToGetFilesInFolder = (
-  path,
-  branch,
-  projectId,
-  recursive,
-) => filesApi
-  .getFilesPerProject(projectId, path || '', recursive, branch)
   .catch((err) => err);
 
 export const getFileDifferences = async (projectId, diff, previousCommitId, lastCommitId) => {

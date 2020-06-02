@@ -14,6 +14,7 @@ const params = {
     eta: '0',
     modelTitle: 'Resnet 50',
     timeCreatedAgo: '2019-10-30T09:15:57.000+00:00',
+    experimentData: { json_blob: '{}', processing: { name: 'someName' }, source_branch: 'master' },
   },
 };
 

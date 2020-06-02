@@ -38,7 +38,7 @@ class Myprojects extends React.Component {
     this.setState({ isFetching: true });
 
     // polling every 10 seconds (it is the default value, it's just for demostration)
-    const unsuscribeServices = suscribeRT({ timeout: 10000 })(this.fetch);
+    const unsuscribeServices = suscribeRT({ timeout: 200000 })(this.fetch);
     // keep this for clear timeouts
     this.setState({ unsuscribeServices });
 
