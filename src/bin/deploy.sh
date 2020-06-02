@@ -77,7 +77,7 @@ while [ -n "$1" ]; do
     ;;
   -i | --instance)
     INSTANCE="$2"
-    echo "Connecting to ec2 instance $INSTANCE"
+    echo "Connecting to instance $INSTANCE"
     shift
     ;;
   -k | --key)
@@ -224,16 +224,17 @@ if [ "$(checkGitlabPort)" = "302" ]; then
 elif [ "$(checkGitlab80)" = "302" ]; then
   log "Found Gitlab at port 80. Reconfiguring Gitlab for port $GITLAB_PORT"
   if [ $INSTANCE != "localhost" ]; then
-    log "2. Configure Gitlab external_url "'http://$INSTANCE:$GITLAB_PORT'
-    docker exec gitlab sh -c 'echo external_url \"http://$INSTANCE:$GITLAB_PORT\" >> /etc/gitlab/gitlab.rb'
+    log "2. Configure Gitlab external_url 'http://$INSTANCE:$GITLAB_PORT'"
+    echo "external_url \"http://${INSTANCE}:${GITLAB_PORT}\"" | docker exec -i gitlab sh -c "cat >> /etc/gitlab/gitlab.rb"
   else
-    log "2. Configure Gitlab external_url "'http://gitlab:$GITLAB_PORT'
+    log "2. Configure Gitlab external_url 'http://gitlab:$GITLAB_PORT'"
     # When running locally in docker compose, this lets the runners access Gitlab via the Docker network
-    docker exec gitlab sh -c 'echo external_url \"http://gitlab:$GITLAB_PORT\" >> /etc/gitlab/gitlab.rb'
+    echo "external_url \"http://gitlab:${GITLAB_PORT}\"" | docker exec -i gitlab sh -c "cat >> /etc/gitlab/gitlab.rb"
   fi
+  log "Printing new Gitalb external_url configuration"
+  docker exec gitlab sh -c 'tail -1 /etc/gitlab/gitlab.rb'
   log "Reconfigure Gitlab"
   docker exec gitlab gitlab-ctl reconfigure > /dev/null
-  docker exec gitlab sh -c 'cat /etc/gitlab/gitlab.rb | grep external_url\ \"'
   log "Restart Gitlab"
   docker exec --detach gitlab gitlab-ctl restart
   sleep 30
