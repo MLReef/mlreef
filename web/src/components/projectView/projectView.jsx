@@ -53,7 +53,7 @@ class ProjectView extends React.Component {
   componentDidMount() {
     const {
       actions,
-      projects: { all, selectedProjectUUID },
+      projects: { all },
       match:
       {
         params: { projectId, branch },
@@ -65,12 +65,8 @@ class ProjectView extends React.Component {
     actions.getMergeRequestsList(projectId);
     actions.getProcessors(OPERATION);
     actions.getProcessors(ALGORITHM);
-
-    // Modifies the data project initial state
-    if (selectedProjectUUID && selectedProjectUUID.gitlab_id.toString() !== projectId) {
-      const backendProject = all.filter((proj) => proj.gitlab_id.toString() === projectId);
-      actions.setSelectedProjectUUID(backendProject[0]);
-    }
+    const backendProject = all.filter((proj) => proj.gitlab_id.toString() === projectId);
+    actions.setSelectedProjectUUID(backendProject[0]);
     actions.setIsLoading(true);
 
     ProjectGeneralInfoApi

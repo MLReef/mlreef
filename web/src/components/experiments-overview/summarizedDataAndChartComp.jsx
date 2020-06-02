@@ -4,15 +4,15 @@ import {
   arrayOf,
   shape,
   number,
-  instanceOf,
 } from 'prop-types';
+import { toastr } from 'react-redux-toastr';
 import './experimentsOverview.css';
 import { Line } from 'react-chartjs-2';
+import Experiment from 'domain/experiments/Experiment';
 import BranchesApi from '../../apis/BranchesApi';
 import traiangle01 from '../../images/triangle-01.png';
 import ArrowButton from '../arrow-button/arrowButton';
 import {
-  getTimeCreatedAgo,
   parseDecimal,
 } from '../../functions/dataParserHelpers';
 import {
@@ -23,7 +23,6 @@ import {
   FAILED,
   PENDING,
 } from '../../dataTypes';
-
 
 const DataCard = ({ title, linesOfContent }) => (
   <div className="data-card">
@@ -47,30 +46,27 @@ DataCard.propTypes = {
 };
 
 const SummarizedDataAndChartComp = ({
-  experiment, projectId, defaultBranch, today, userParameters,
+  experiment, projectId, defaultBranch, userParameters,
 }) => {
+  const experimentInstance = new Experiment();
   const [showSummary, setShowSummary] = useState(false);
-  const [dataToGraph] = useState({
+  const [dataToGraph, setDataToGraph] = useState({
     datasets: [],
     labels: [],
   });
-  const [averageParams] = useState([]);
+  const [averageParams, setAverageParams] = useState([]);
   const [ahead, setAhead] = useState(0);
   const [behind, setBehind] = useState(0);
   const {
     descTitle,
     currentState,
-    userName,
-    timeCreatedAgo,
     experimentData,
   } = experiment;
-
   const sourceBranch = experimentData ? experimentData.source_branch : '';
   const modelName = experimentData && experimentData.processing.name;
   const trainingData = userParameters && userParameters.map((param) => (
     `*P: ${param.name} = ${param.value}`
   ));
-
   useEffect(() => {
     BranchesApi.compare(projectId, descTitle, defaultBranch)
       .then((res) => setBehind(res.commits.length)).catch((err) => err);
@@ -80,6 +76,16 @@ const SummarizedDataAndChartComp = ({
 
   function handleArrowDownButtonClick() {
     setShowSummary(!showSummary);
+    try {
+      experimentInstance.fromBlobToEpochs(experimentData.json_blob);
+      setAverageParams(experimentInstance.generateAverageInformation());
+      setDataToGraph({
+        labels: Object.keys(experimentInstance.epochs),
+        datasets: experimentInstance.generateChartInformation(),
+      });
+    } catch (error) {
+      toastr.info('Experiment', error.message);
+    }
   }
 
   function getButtonsDiv(experimentState) {
@@ -88,7 +94,7 @@ const SummarizedDataAndChartComp = ({
     const arrowBtn = (
       <ArrowButton
         imgPlaceHolder={traiangle01}
-        callback={() => handleArrowDownButtonClick()}
+        callback={() => showSummary ? () => {} : handleArrowDownButtonClick()}
         params={{}}
         id={`ArrowButton-${commitCode}`}
         key={`ArrowButton-${commitCode}`}
@@ -160,10 +166,10 @@ const SummarizedDataAndChartComp = ({
             <div className="content">
               <p><b>Performace achieved from last epoch:</b></p>
               {
-                averageParams.map((opt) => (
-                  <p key={`${opt.name}-${opt.value}`}>
+                averageParams.map(({ name, value }) => (
+                  <p key={`${name}-${value}`}>
                     {' '}
-                    {`${opt.name}: ${parseDecimal(opt.value)}`}
+                    {`${name}: ${parseDecimal(value)}`}
                     {' '}
                   </p>
                 ))
@@ -218,7 +224,6 @@ SummarizedDataAndChartComp.propTypes = {
   }).isRequired,
   projectId: number.isRequired,
   defaultBranch: string.isRequired,
-  today: instanceOf(Date).isRequired,
   userParameters: arrayOf(
     shape({}).isRequired,
   ).isRequired,
