@@ -60,6 +60,7 @@ class ExperimentServiceTest : AbstractServiceTest() {
             pipelineInstanceRepository = pipelineInstanceRepository,
             processorParameterRepository = processorParameterRepository,
             gitlabRootUrl = "http://localhost:10080",
+            epfGitlabUrl = "http://backend:10080",
             epfBackendUrl = "epfBackendUrl.com",
             epfImageTag = "latest"
         )

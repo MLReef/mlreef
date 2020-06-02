@@ -142,8 +142,6 @@ class ProjectPipelinesConfigApiTest : RestApiTest() {
 
         val request = PipelineConfigUpdateRequest(
             sourceBranch = "source",
-            targetBranchPattern = "\$SLUG-\$ID",
-            slug = "data-pipeline",
             name = "DataPipeline",
             inputFiles = listOf(
                 FileLocationDto("."),
@@ -296,13 +294,11 @@ internal fun pipelineConfigCreateRequestFields(): List<FieldDescriptor> {
 
 internal fun pipelineConfigUpdateRequestFields(): List<FieldDescriptor> {
     return listOf(
-        PayloadDocumentation.fieldWithPath("slug").type(JsonFieldType.STRING).description("Unique slug of this PipelineConfig"),
         PayloadDocumentation.fieldWithPath("name").type(JsonFieldType.STRING).description("Name of this PipelineConfig"),
         PayloadDocumentation.fieldWithPath("input_files").type(JsonFieldType.ARRAY).optional().description("FileLocation used as input files"),
         PayloadDocumentation.fieldWithPath("input_files[].location").type(JsonFieldType.STRING).optional().description("FileLocation path or url"),
         PayloadDocumentation.fieldWithPath("input_files[].location_type").type(JsonFieldType.STRING).optional().description("FileLocationType: AWS, URL, or PATH (default)"),
         PayloadDocumentation.fieldWithPath("source_branch").type(JsonFieldType.STRING).description("Branch name for initial checkout"),
-        PayloadDocumentation.fieldWithPath("target_branch_pattern").type(JsonFieldType.STRING).description("Branch name for destination"),
         PayloadDocumentation.fieldWithPath("data_operations").type(JsonFieldType.ARRAY).optional().description("An optional List of DataProcessors used during PreProcessing")
     )
 }

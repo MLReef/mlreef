@@ -27,6 +27,13 @@ Common prefixes are:
 
 ### Environment Variables
 
+Provide ENV vars for testing (backend <-> EPF communication <-> Gitlab)
+
+* GITLAB_ADMIN_TOKEN=local-api-token;
+* EPF_BACKEND_URL=http://172.18.0.1:8080;
+* EPF_IMAGE_TAG=feature-hotfix-stuff;
+* EPF_GITLAB_URL=http://172.18.0.1:10080
+
 * **GITLAB_ROOT_URL** 
   * root url of gitlab service to be used by backend, 
   * default: "http://localhost:10080"

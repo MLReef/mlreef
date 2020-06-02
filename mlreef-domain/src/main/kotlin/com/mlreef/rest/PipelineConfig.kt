@@ -13,6 +13,7 @@ import javax.persistence.FetchType
 import javax.persistence.ForeignKey
 import javax.persistence.Id
 import javax.persistence.JoinColumn
+import javax.persistence.JoinTable
 import javax.persistence.OneToMany
 import javax.persistence.Table
 
@@ -45,9 +46,18 @@ data class PipelineConfig(
 
     @OneToMany(fetch = FetchType.EAGER, cascade = [CascadeType.ALL])
     @Fetch(value = FetchMode.SUBSELECT)
-    @JoinColumn(
-        name = "pipeline_config_id",
-        foreignKey = ForeignKey(name = "filelocation_pipelineconfig_pipeline_config_id_fkey")
+    @JoinTable(
+        name = "pipeline_config_input_files",
+        joinColumns = [JoinColumn(
+            name = "pipeline_config_id",
+            referencedColumnName = "id",
+            foreignKey = ForeignKey(name = "filelocation_pipelineconfig_pipeline_config_id_fkey")
+        )],
+        inverseJoinColumns = [JoinColumn(
+            name = "file_location_id",
+            referencedColumnName = "id",
+            foreignKey = ForeignKey(name = "filelocation_pipelineconfig_file_location_id_fkey")
+        )]
     )
     val inputFiles: MutableList<FileLocation> = arrayListOf(),
 
@@ -76,7 +86,7 @@ data class PipelineConfig(
     }
 
     fun addInputFile(fileLocation: FileLocation): FileLocation {
-        val element = fileLocation.copy(pipelineConfigId = this.id)
+        val element = fileLocation.copy()
         inputFiles.add(element)
         return element
     }
@@ -117,16 +127,13 @@ data class PipelineConfig(
             .replace("\$NUMBER", number.toString())
             .replace("\$SLUG", slug)
 
-        return if (replace.isBlank()) {
-            "datainstance-$slug-$number"
-        } else {
-            replace
-        }
+        return replace
     }
 }
 
 enum class PipelineType {
     DATA,
+    EXPERIMENT,
     VISUALISATION;
 
     companion object {
@@ -138,6 +145,16 @@ enum class PipelineType {
                 else -> throw IllegalArgumentException("Not a valid PipelineType: $value")
             }
         }
+
+        fun toPrefix(value: PipelineType): String {
+            return when (value) {
+                DATA -> "data-pipeline"
+                EXPERIMENT -> "experiment"
+                VISUALISATION -> "data-visualization"
+            }
+        }
     }
+
+    fun prefix(): String = Companion.toPrefix(this)
 
 }

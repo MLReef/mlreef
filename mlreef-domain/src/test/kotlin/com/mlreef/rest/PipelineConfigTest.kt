@@ -15,7 +15,8 @@ class PipelineConfigTest {
             id = randomUUID(),
             pipelineType = PipelineType.DATA, slug = "slug", name = "name",
             dataProjectId = randomUUID(),
-            sourceBranch = "source", targetBranchPattern = "target",
+            sourceBranch = "source",
+            targetBranchPattern = "target",
             dataOperations = arrayListOf())
     }
 
@@ -33,14 +34,8 @@ class PipelineConfigTest {
     fun `added inputFile has a set pipelineConfigId`() {
         val fileLocation = FileLocation(randomUUID(), FileLocationType.PATH, "path")
 
-        Assertions.assertThat(fileLocation.pipelineConfigId).isEqualTo(null)
-
-        fileLocation.validate()
-
         val inputFile = entity.addInputFile(fileLocation = fileLocation)
-        Assertions.assertThat(inputFile.pipelineConfigId).isEqualTo(entity.id)
         Assertions.assertThat(inputFile.id).isEqualTo(fileLocation.id)
-        fileLocation.validate()
     }
 
     @Test
@@ -48,14 +43,10 @@ class PipelineConfigTest {
         val fileLocation = FileLocation(randomUUID(), FileLocationType.PATH, "path")
 
         val inputFile = entity.addInputFile(fileLocation = fileLocation)
-        Assertions.assertThat(inputFile.pipelineConfigId).isEqualTo(entity.id)
-        Assertions.assertThat(inputFile.pipelineConfigId).isNotEqualTo(fileLocation.pipelineConfigId)
 
         // no changes
         Assertions.assertThat(inputFile.id).isEqualTo(fileLocation.id)
         Assertions.assertThat(inputFile.locationType).isEqualTo(fileLocation.locationType)
         Assertions.assertThat(inputFile.location).isEqualTo(fileLocation.location)
-        Assertions.assertThat(inputFile.experimentId).isEqualTo(fileLocation.experimentId)
-        Assertions.assertThat(inputFile.dataInstanceId).isEqualTo(fileLocation.dataInstanceId)
     }
 }

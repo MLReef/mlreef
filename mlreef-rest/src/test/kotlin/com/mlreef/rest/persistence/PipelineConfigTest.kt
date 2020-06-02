@@ -29,7 +29,6 @@ class PipelineConfigTest : AbstractRepositoryTest() {
         private var gitlabIdCount: Long = 0
     }
 
-
     private fun createEntity(): Pair<UUID, PipelineConfig> {
         val id = randomUUID()
         val owner = Person(randomUUID(), "slug", "name", ++gitlabIdCount)
