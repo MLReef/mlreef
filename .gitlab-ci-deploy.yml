@@ -27,7 +27,7 @@ deploy:
     # 1113714 is the id of the "frontend's" sub-repository
     - DOCKER_BRANCH_IMAGE_URL=https://gitlab.com/api/v4/projects/$CI_PROJECT_ID/registry/repositories/1113714/tags/$TAG/
     - echo "DOCKER_BRANCH_IMAGE_URL is $DOCKER_BRANCH_IMAGE_URL"
-    - CURL_RESPONSE=$(curl --silent --header "PRIVATE-TOKEN$COLON $GITLAB_API_TOKEN" --output /dev/null -w ''%{http_code}'' $DOCKER_BRANCH_IMAGE_URL)
+    - CURL_RESPONSE=$(curl --silent --header "PRIVATE-TOKEN$COLON $GITLAB_COM_API_TOKEN" --output /dev/null -w ''%{http_code}'' $DOCKER_BRANCH_IMAGE_URL)
     - if [ "$CURL_RESPONSE" = "200" ]; then sed -i "s/frontend:latest/frontend:$TAG/" $DOCKER_COMPOSE; fi
 
     # rewrite docker compose file:

@@ -20,10 +20,10 @@ GITLAB_ADMIN_TOKEN=""
 # nvidia: like _docker_ with access and visibility of the GPU(s) enabled
 # Autodetect nvidia runtime
 nvidia-smi >/dev/null 2>&1 && RUNNER_RUNTIME="nvidia" || RUNTIME=""
-if [ "$RUNNER_RUNTIME" = "" ]; then
-  log "Nvidia cuda drivers NOT found. Setting Gitlab runners to default CPU runtime."
+if [ "$RUNNER_RUNTIME" = "nvidia" ]; then
+  log "Found Nvidia Cuda drivers GPU. Setting Gitlab runners to use $RUNNER_RUNTIME runtime."
 else
-  log "Found nvidia cuda drivers GPU. Setting Gitlab runners to use $RUNNER_RUNTIME runtime."
+  log "Nvidia cuda drivers NOT found. Setting Gitlab runners to default CPU runtime."
 fi
 
 # backup local.env if it exits
@@ -173,7 +173,7 @@ echo "# Automatically added by the deploment pipeline .gitlab-ci-deploy.yml" >$D
 ####
 log "Starting Deployment"
 docker-compose pull
-log "Stopping serviced gateway frontend backend mlreef-postgres"
+log "Stopping serviced gateway frontend backend mlreefdb"
 docker-compose stop gateway frontend backend mlreefdb
 log "Starting Deployment"
 
