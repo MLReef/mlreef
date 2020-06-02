@@ -45,10 +45,12 @@ class ValidationFailureDto(
 }
 
 
-data class FileLocationDto(
+class FileLocationDto(
     val location: String,
     val locationType: String = "PATH"
-)
+) {
+    constructor(location: String) : this(location, "PATH")
+}
 
 internal fun FileLocation.toDto(): FileLocationDto =
     FileLocationDto(

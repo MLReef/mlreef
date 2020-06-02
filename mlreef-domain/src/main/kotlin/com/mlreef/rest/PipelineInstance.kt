@@ -14,6 +14,7 @@ import javax.persistence.FetchType
 import javax.persistence.ForeignKey
 import javax.persistence.Id
 import javax.persistence.JoinColumn
+import javax.persistence.JoinTable
 import javax.persistence.OneToMany
 import javax.persistence.Table
 
@@ -50,11 +51,20 @@ data class PipelineInstance(
 
     val commit: String? = null,
 
-    @OneToMany(fetch = FetchType.EAGER)
+    @OneToMany(fetch = FetchType.EAGER, cascade = [CascadeType.ALL])
     @Fetch(value = FetchMode.SUBSELECT)
-    @JoinColumn(
-        name = "data_instance_id",
-        foreignKey = ForeignKey(name = "filelocation_pipelineinstance_data_instance_id_fkey")
+    @JoinTable(
+        name = "pipeline_instance_input_files",
+        joinColumns = [JoinColumn(
+            name = "data_instance_id",
+            referencedColumnName = "id",
+            foreignKey = ForeignKey(name = "filelocation_pipelineinstance_data_instance_id_fkey")
+        )],
+        inverseJoinColumns = [JoinColumn(
+            name = "file_location_id",
+            referencedColumnName = "id",
+            foreignKey = ForeignKey(name = "filelocation_pipelineinstance_file_location_id_fkey")
+        )]
     )
     val inputFiles: MutableList<FileLocation> = arrayListOf(),
 

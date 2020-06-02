@@ -42,16 +42,8 @@ data class FileLocation(
     @Column(name = "location_type")
     val locationType: FileLocationType,
 
-    val location: String,
+    val location: String
 
-    @Column(name = "experiment_id")
-    val experimentId: UUID? = null,
-
-    @Column(name = "data_instance_id")
-    val dataInstanceId: UUID? = null,
-
-    @Column(name = "pipeline_config_id")
-    val pipelineConfigId: UUID? = null
 ) {
 
     companion object {
@@ -72,9 +64,6 @@ data class FileLocation(
         }
     }
 
-    init {
-        validate()
-    }
 
     /**
      * Clone for a new Entity and set ONE of experimentId, dataInstanceId OR pipelineConfigId
@@ -86,24 +75,8 @@ data class FileLocation(
     ) = FileLocation(
         id = randomUUID(),
         locationType = this.locationType,
-        location = this.location,
-        experimentId = experimentId,
-        dataInstanceId = dataInstanceId,
-        pipelineConfigId = pipelineConfigId
-
+        location = this.location
     )
-
-    final fun validate(): FileLocation {
-        var assigns = 0
-        this.experimentId?.let { assigns++ }
-        this.dataInstanceId?.let { assigns++ }
-        this.pipelineConfigId?.let { assigns++ }
-        if (assigns <= 1) {
-            return this
-        } else {
-            throw IllegalStateException("Too many relationships defined for FileLocation: $assigns")
-        }
-    }
 
     fun toYamlString() = "$locationType:$location"
 }

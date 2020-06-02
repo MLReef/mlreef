@@ -9,6 +9,7 @@ logging:
 mlreef:
   epf:
     backend-url: ${EPF_BACKEND_URL:http://backend:8080}
+    gitlab-url: ${EPF_GITLAB_URL:http://gitlab:10080}
     image-tag: ${EPF_IMAGE_TAG:latest}
   gitlab:
     root-url: ${GITLAB_ROOT_URL}

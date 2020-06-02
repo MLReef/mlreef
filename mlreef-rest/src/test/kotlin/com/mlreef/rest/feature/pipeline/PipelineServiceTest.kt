@@ -81,6 +81,7 @@ class PipelineServiceTest : AbstractServiceTest() {
             gitlabRootUrl = "http://localhost:10080",
             gitlabRestClient = restClient,
             epfBackendUrl = "epfBackendUrl.com",
+            epfGitlabUrl = "gitlab:10080",
             epfImageTag = "latest")
 
         val subject = Person(ownerId, "new-person", "person's name", 1L)
@@ -98,10 +99,9 @@ class PipelineServiceTest : AbstractServiceTest() {
                 randomUUID(),
                 dataRepositoryId,
                 "DATA",
-                "slug",
                 "name",
                 "sourcebranch",
-                "pipeline-\$ID ", listOf(), listOf())
+                listOf(), listOf())
         }
     }
 
@@ -112,10 +112,9 @@ class PipelineServiceTest : AbstractServiceTest() {
                 ownerId,
                 randomUUID(),
                 "DATA",
-                "slug",
                 "name",
                 "sourcebranch",
-                "pipeline-\$ID ", listOf(), listOf())
+                listOf(), listOf())
         }
     }
 
@@ -126,10 +125,9 @@ class PipelineServiceTest : AbstractServiceTest() {
                 ownerId,
                 dataRepositoryId,
                 "DATA",
-                "slug",
                 "name",
                 "",
-                "pipeline-\$ID ", listOf(), listOf())
+                listOf(), listOf())
         }
     }
 
@@ -140,10 +138,9 @@ class PipelineServiceTest : AbstractServiceTest() {
                 ownerId,
                 dataRepositoryId,
                 "DATA",
-                "",
                 "name",
                 "",
-                "pipeline-\$ID ", listOf(), listOf())
+                listOf(), listOf())
         }
     }
 
@@ -154,10 +151,10 @@ class PipelineServiceTest : AbstractServiceTest() {
                 ownerId,
                 dataRepositoryId,
                 "",
-                "slug",
+
                 "name",
                 "sourcebranch",
-                "pipeline-\$ID ", listOf(), listOf())
+                listOf(), listOf())
         }
     }
 
@@ -168,10 +165,9 @@ class PipelineServiceTest : AbstractServiceTest() {
                 ownerId,
                 dataRepositoryId,
                 "DATEN",
-                "slug",
                 "name",
                 "sourcebranch",
-                "pipeline-\$ID ", listOf(), listOf())
+                listOf(), listOf())
         }
     }
 
@@ -181,47 +177,17 @@ class PipelineServiceTest : AbstractServiceTest() {
             ownerId,
             dataRepositoryId,
             "DATA",
-            "unique",
             "name",
             "source",
-            "pipeline-\$ID ", listOf(), listOf())
+            listOf(), listOf())
         assertThrows<IllegalArgumentException> {
             service.createPipelineConfig(
                 ownerId,
                 dataRepositoryId,
                 "DATA",
-                "unique",
                 "name",
                 "source",
-                "pipeline-\$ID ", listOf(), listOf())
-        }
-    }
-
-    @Test
-    fun `Cannot create PipelineConfig for missing name`() {
-        assertThrows<IllegalArgumentException> {
-            service.createPipelineConfig(
-                ownerId,
-                dataRepositoryId,
-                "DATA",
-                "slug",
-                "",
-                "source",
-                "pipeline-\$ID ", listOf(), listOf())
-        }
-    }
-
-    @Test
-    fun `Cannot create PipelineConfig for invalid slug`() {
-        assertThrows<IllegalArgumentException> {
-            service.createPipelineConfig(
-                ownerId,
-                dataRepositoryId,
-                "DATA",
-                "slug is INVALID",
-                "",
-                "source",
-                "pipeline-\$ID ", listOf(), listOf())
+                listOf(), listOf())
         }
     }
 
@@ -231,10 +197,9 @@ class PipelineServiceTest : AbstractServiceTest() {
             ownerId,
             dataRepositoryId,
             "DATA",
-            "slug",
             "name",
             "sourcebranch",
-            "pipeline-\$ID ", listOf(), listOf())
+            listOf(), listOf())
 
         assertThat(createExperiment).isNotNull()
     }
@@ -245,19 +210,17 @@ class PipelineServiceTest : AbstractServiceTest() {
             ownerId,
             dataRepositoryId,
             "DATA",
-            "slug",
             "name",
             "sourcebranch",
-            "pipeline-\$ID ", listOf(), listOf())
+            listOf(), listOf())
 
         val createExperiment = service.createPipelineConfig(
             ownerId,
             dataRepositoryId2,
             "DATA",
-            "slug",
             "name",
             "sourcebranch",
-            "pipeline-\$ID ", listOf(), listOf())
+            listOf(), listOf())
 
         assertThat(createExperiment).isNotNull()
     }
@@ -268,19 +231,17 @@ class PipelineServiceTest : AbstractServiceTest() {
             ownerId,
             dataRepositoryId,
             "DATA",
-            "slug",
             "name",
             "sourcebranch",
-            "pipeline-\$ID ", listOf(), listOf())
+            listOf(), listOf())
 
         val createExperiment = service.createPipelineConfig(
             ownerId,
             dataRepositoryId,
             "DATA",
-            "another-slug",
-            "name",
+            "another-name",
             "sourcebranch",
-            "pipeline-\$ID ", listOf(), listOf())
+            listOf(), listOf())
 
         assertThat(createExperiment).isNotNull()
     }
@@ -291,12 +252,25 @@ class PipelineServiceTest : AbstractServiceTest() {
             ownerId,
             dataRepositoryId,
             "DATA",
-            "slug",
             "name",
             "sourcebranch",
-            "pipeline-\$ID ", listOf(), listOf())
+            listOf(), listOf())
 
         assertThat(createExperiment).isNotNull()
+    }
+
+    @Test
+    fun `Can create PipelineConfig with nullable and therefore generated name`() {
+        val createExperiment = service.createPipelineConfig(
+            ownerId,
+            dataRepositoryId,
+            "DATA",
+            "",
+            "sourcebranch",
+            listOf(), listOf())
+
+        assertThat(createExperiment).isNotNull()
+        assertThat(createExperiment.name).isNotEmpty()
     }
 
     @Test
@@ -305,10 +279,9 @@ class PipelineServiceTest : AbstractServiceTest() {
             ownerId,
             dataRepositoryId,
             "VISUAL",
-            "slug",
             "name",
             "sourcebranch",
-            "pipeline-\$ID ", listOf(), listOf())
+            listOf(), listOf())
 
         assertThat(createExperiment).isNotNull()
     }
@@ -319,10 +292,9 @@ class PipelineServiceTest : AbstractServiceTest() {
             ownerId,
             dataRepositoryId,
             "VISUALISATION",
-            "slug",
             "name",
             "sourcebranch",
-            "pipeline-\$ID ", listOf(), listOf())
+            listOf(), listOf())
 
         assertThat(createExperiment).isNotNull()
     }
@@ -333,10 +305,9 @@ class PipelineServiceTest : AbstractServiceTest() {
             ownerId,
             dataRepositoryId,
             "DATA",
-            "slug",
             "name",
             "sourcebranch",
-            " ", listOf(), listOf())
+            listOf(), listOf())
 
         assertThat(createExperiment).isNotNull()
     }
@@ -389,12 +360,7 @@ class PipelineServiceTest : AbstractServiceTest() {
 
         createdInstance.inputFiles.forEachIndexed { index, newInstance ->
             val oldInstance = pipelineConfig.inputFiles[index]
-            assertThat(newInstance.pipelineConfigId).isEqualTo(null)
-            assertThat(oldInstance.pipelineConfigId).isEqualTo(pipelineConfig.id)
-            assertThat(newInstance.dataInstanceId).isEqualTo(createdInstance.id)
-            assertThat(oldInstance.dataInstanceId).isEqualTo(null)
-            assertThat(oldInstance.experimentId).isEqualTo(null)
-            assertThat(newInstance.experimentId).isEqualTo(null)
+
             assertThat(newInstance.location).isEqualTo(oldInstance.location)
             assertThat(newInstance.locationType).isEqualTo(oldInstance.locationType)
         }
@@ -403,15 +369,10 @@ class PipelineServiceTest : AbstractServiceTest() {
     @Test
     fun `Can create DataInstance from PipelineConfig with useful targetBranchPattern`() {
         val testId = randomUUID()
-        val createFullMockData1 = createFullMockData(" ", "slug3")
-        val slug1 = createFullMockData1.slug
-        assertThat(createFullMockData1.createTargetBranchName(testId, 1)).isEqualTo("datainstance-$slug1-1")
-        assertThat(createFullMockData("bla-ID", "slug1").createTargetBranchName(testId, 3)).isEqualTo("bla-ID")
-        assertThat(createFullMockData("bla-\$NUMBER", "slug2").createTargetBranchName(testId, 8)).isEqualTo("bla-8")
-        val createFullMockData = createFullMockData("\$SLUG-\$PID-\$NUMBER", "slug4")
-        val pid2 = createFullMockData.id
-        val slug = createFullMockData.slug
-        assertThat(createFullMockData.createTargetBranchName(testId, 8)).isEqualTo("$slug-$pid2-8")
+        val createFullMockData1 = createFullMockData("slug1")
+        assertThat(createFullMockData1.createTargetBranchName(testId, 1)).isEqualTo("data-pipeline/slug1-1")
+        assertThat(createFullMockData("slug2").createTargetBranchName(testId, 3)).isEqualTo("data-pipeline/slug2-3")
+        assertThat(createFullMockData("slug3").createTargetBranchName(testId, 8)).isEqualTo("data-pipeline/slug3-8")
     }
 
     @Test
@@ -421,7 +382,6 @@ class PipelineServiceTest : AbstractServiceTest() {
         val targetBranch = "targetBranch"
         val fileContent = "fileContent"
         val sourceBranch = "master"
-
 
         val fileContents: Map<String, String> = mapOf(Pair(".mlreef.yml", fileContent))
 
@@ -443,7 +403,7 @@ class PipelineServiceTest : AbstractServiceTest() {
         assertThat(commit).isNotNull()
     }
 
-    private fun createFullMockData(targetBranchPattern: String = "", slug: String = "slug"): PipelineConfig {
+    private fun createFullMockData(name: String = "name"): PipelineConfig {
         val author = Person(randomUUID(), "person", "name", 1L)
         val codeProjectId = randomUUID()
 
@@ -462,10 +422,9 @@ class PipelineServiceTest : AbstractServiceTest() {
             ownerId,
             dataRepositoryId,
             "DATA",
-            slug,
-            "name",
+            name,
             "sourcebranch",
-            targetBranchPattern, listOf(), listOf()
+            listOf(), listOf()
         )
         createPipelineConfig.addProcessor(DataProcessorInstance(id = randomUUID(), dataProcessor = dataOp1))
         createPipelineConfig.addInputFile(FileLocation(randomUUID(), FileLocationType.PATH, "/path"))

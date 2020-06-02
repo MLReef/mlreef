@@ -137,8 +137,6 @@ class ProjectPipelinesConfigApiTest : IntegrationRestApiTest() {
 
         val request = PipelineConfigUpdateRequest(
             sourceBranch = "source",
-            targetBranchPattern = "\$SLUG-\$ID",
-            slug = "data-pipeline",
             name = "DataPipeline",
             inputFiles = listOf(
                 FileLocationDto("."),

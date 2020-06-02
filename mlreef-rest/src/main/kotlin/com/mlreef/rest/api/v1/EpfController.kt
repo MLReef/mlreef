@@ -43,7 +43,7 @@ class EpfController(
                 throw NotFoundException(dataProjectNotFound)
             }
             (findByIdOrNull.pipelineJobInfo!!.secret != token) -> {
-                log.warning("Experiment and  PipelineJobInfo exist, but a wrong token is provided!")
+                log.warning("Experiment and PipelineJobInfo exist, but a wrong token is provided!")
                 throw NotFoundException(dataProjectNotFound)
             }
             else -> findByIdOrNull

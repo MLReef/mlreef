@@ -16,6 +16,7 @@ import javax.persistence.FetchType
 import javax.persistence.ForeignKey
 import javax.persistence.Id
 import javax.persistence.JoinColumn
+import javax.persistence.JoinTable
 import javax.persistence.OneToMany
 import javax.persistence.OneToOne
 import javax.persistence.Table
@@ -67,9 +68,19 @@ data class Experiment(
 
     @OneToMany(fetch = FetchType.EAGER, cascade = [CascadeType.ALL])
     @Fetch(value = FetchMode.SUBSELECT)
-    @JoinColumn(
-        name = "experiment_id",
-        foreignKey = ForeignKey(name = "filelocation_experiment_experiment_id_fkey")
+    @JoinTable(
+        name = "experiment_input_files",
+        joinColumns = [JoinColumn(
+            name = "experiment_id",
+            referencedColumnName = "id",
+            foreignKey = ForeignKey(name = "filelocation_experiment_experiment_id_fkey")
+        )],
+        inverseJoinColumns = [JoinColumn(
+            name = "file_location_id",
+            referencedColumnName = "id",
+            foreignKey = ForeignKey(name = "filelocation_experiment_file_location_id_fkey")
+
+        )]
     )
     val inputFiles: List<FileLocation> = arrayListOf(),
 
@@ -95,6 +106,7 @@ data class Experiment(
     companion object {
         val log = LoggerFactory.getLogger(this::class.java)
     }
+
     fun addPostProcessor(processorInstance: DataProcessorInstance) {
         postProcessing.add(processorInstance)
         processorInstance.experimentPostProcessingId = this.id
@@ -127,7 +139,6 @@ enum class ExperimentStatus(private val stage: Int) {
         return next.stage >= this.stage
     }
 }
-
 
 /**
  * Stores the information of a Gitlab Pipeline.

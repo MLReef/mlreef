@@ -81,6 +81,7 @@ class YamlFileGenerator(val epfImageTag: String = "latest") {
         dataProject: DataProject,
         epfPipelineSecret: String,
         epfPipelineUrl: String,
+        epfGitlabUrl: String,
         gitlabRootUrl: String,
         sourceBranch: String,
         targetBranch: String,
@@ -95,6 +96,7 @@ class YamlFileGenerator(val epfImageTag: String = "latest") {
             epfTag = epfImageTag,
             epfPipelineSecret = epfPipelineSecret,
             epfPipelineUrl = epfPipelineUrl,
+            epfGitlabUrl = epfGitlabUrl,
             confEmail = author.email,
             confName = author.username,
             gitlabGroup = dataProject.gitlabGroup,
@@ -126,6 +128,7 @@ class YamlFileGenerator(val epfImageTag: String = "latest") {
         epfTag: String = "",
         epfPipelineSecret: String = "",
         epfPipelineUrl: String = "",
+        epfGitlabUrl: String = "",
         gitlabRootUrl: String = "",
         gitlabGroup: String = "",
         gitlabProject: String = "",
@@ -140,7 +143,7 @@ class YamlFileGenerator(val epfImageTag: String = "latest") {
             .replace(EPF_TAG, epfTag)
             .replace(EPF_PIPELINE_SECRET, epfPipelineSecret)
             .replace(EPF_PIPELINE_URL, epfPipelineUrl)
-            .replace(GITLAB_ROOT_URL, gitlabRootUrl.replace("https://", "").replace("http://", ""))
+            .replace(GITLAB_ROOT_URL, epfGitlabUrl.replace("http://", "").replace("http://", ""))
             .replace(GITLAB_GROUP, gitlabGroup)
             .replace(GITLAB_PROJECT, gitlabProject)
             .replace(CONF_EMAIL, confEmail)

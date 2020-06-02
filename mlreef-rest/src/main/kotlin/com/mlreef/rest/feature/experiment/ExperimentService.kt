@@ -37,6 +37,7 @@ class ExperimentService(
     private val processorParameterRepository: ProcessorParameterRepository,
     @Value("\${mlreef.gitlab.root-url}") val gitlabRootUrl: String,
     @Value("\${mlreef.epf.backend-url}") val epfBackendUrl: String,
+    @Value("\${mlreef.epf.gitlab-url}") val epfGitlabUrl: String,
     @Value("\${mlreef.epf.image-tag}") val epfImageTag: String
 ) {
 
@@ -120,6 +121,7 @@ class ExperimentService(
             dataProject = dataProject,
             epfPipelineSecret = secret,
             epfPipelineUrl = epfPipelineUrl,
+            epfGitlabUrl = epfGitlabUrl,
             gitlabRootUrl = gitlabRootUrl,
             sourceBranch = experiment.sourceBranch,
             targetBranch = experiment.targetBranch,
