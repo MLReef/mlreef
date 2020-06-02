@@ -51,12 +51,9 @@ services:
       - "10022:22"
       - "10081:80"                                                  # needed for initial startup in bin/src/deploy.sh
     volumes:
-      - gitlab-etc:/etc/gitlab:Z                                    #CI_DELETE_LINE: this line gets removed by the CI/CD pipeline
-      - gitlab-log:/var/log/gitlab:Z                                #CI_DELETE_LINE: this line gets removed by the CI/CD pipeline:Z
-      - gitlab-opt:/var/opt/gitlab:Z                                #CI_DELETE_LINE: this line gets removed by the CI/CD pipeline
-      #CI_ACTIVATE- /data/gitlab-etc:/etc/gitlab:Z                  # this line gets activated by the CI/CD pipeline
-      #CI_ACTIVATE- /data/gitlab-log:/var/log/gitlab:Z              # this line gets activated by the CI/CD pipeline
-      #CI_ACTIVATE- /data/gitlab-opt:/var/opt/gitlab:Z              # this line gets activated by the CI/CD pipeline
+      - /data/gitlab-etc:/etc/gitlab:Z                  # this line gets activated by the CI/CD pipeline
+      - /data/gitlab-log:/var/log/gitlab:Z              # this line gets activated by the CI/CD pipeline
+      - /data/gitlab-opt:/var/opt/gitlab:Z              # this line gets activated by the CI/CD pipeline
     env_file: local.env                                             # do not remove. contains secrets
     environment:
 #      - GITLAB_SSH_PORT=10022                                      # TODO use correct environment parameter
@@ -80,8 +77,7 @@ services:
     ports:
       - "6000:5432"
     volumes:
-      - mlreef-opt:/var/lib/postgresql:Z                            #CI_DELETE_LINE: this line gets removed by the CI/CD pipeline
-      #CI_ACTIVATE- /data/mlreef-opt:/var/lib/postgresql:Z          # this line gets activated by the CI/CD pipeline
+      - /data/mlreef-opt:/var/lib/postgresql:Z          # this line gets activated by the CI/CD pipeline
     environment:
       - DB_USER=mlreef
       - DB_PASS=password                                            # secret, use ENV var
@@ -104,17 +100,13 @@ services:
     container_name: gitlab-runner
     image: gitlab/gitlab-runner:alpine
     volumes:
-      #CI_ACTIVATE- /data/gitlab-runner:/etc/gitlab-runner/:Z       # this line gets activated by the CI/CD pipeline
+      - /data/gitlab-runner:/etc/gitlab-runner/:Z       # this line gets activated by the CI/CD pipeline
       - /var/run/docker.sock:/var/run/docker.sock                   # needed for "docker in docker" to work
     networks:
       - mlreef-docker-network
 
 volumes:
   sock:
-  gitlab-etc:  #CI_DELETE_LINE: this line gets removed by the CI/CD pipeline (.gitlab-ci-deploy.yml)
-  gitlab-log:  #CI_DELETE_LINE: this line gets removed by the CI/CD pipeline (.gitlab-ci-deploy.yml)
-  gitlab-opt:  #CI_DELETE_LINE: this line gets removed by the CI/CD pipeline (.gitlab-ci-deploy.yml)
-  mlreef-opt:  #CI_DELETE_LINE: this line gets removed by the CI/CD pipeline (.gitlab-ci-deploy.yml)
 
 networks:
   mlreef-docker-network:

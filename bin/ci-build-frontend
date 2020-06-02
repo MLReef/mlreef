@@ -1,0 +1,62 @@
+#!/bin/sh
+# shellcheck disable=SC2039
+
+set -x    # output all commands
+set -e    # exit on immediately on every error
+set -u    # error on usage of undefined variables
+
+# change directory to the script folder
+cd "$(dirname "$0")"/..
+. bin/includes/ci-environment
+
+# change directory to the frontend folder
+cd web
+
+# ensure that there is a package json present
+if [ -e package.json ]; then
+    echo "found package.json"
+else
+    echo "could not find package.json … exiting"
+    exit 1
+fi
+
+
+# Use Gitlab's internal unique job ID as build version. This way versions can be traced back to a specific build.
+{
+  echo "REACT_APP_VERSION=$CI_PIPELINE_ID"
+  echo "REACT_APP_BUILD_NUMBER=$CI_PIPELINE_ID"
+  echo "REACT_APP_BRANCH_NAME=$CI_COMMIT_REF_SLUG"
+  if [ "$CI_COMMIT_REF_SLUG" = "master" ]; then
+    echo "REACT_APP_NO_AUTH_REDIRECT=https://about.mlreef.com"
+  fi
+} > .env
+echo "### .env ###"
+cat .env
+echo "### .env ###"
+
+
+{
+  echo "Gitlab Pipeline $CI_PIPELINE_ID built on $(date +%Y-%m-%d\ %H:%M:%S)"
+  echo "build branch was $CI_COMMIT_REF_SLUG"
+  echo "$CI_PIPELINE_URL"
+} > build.info
+echo "### build.info ###"
+cat build.info
+echo "### build.info ###"
+
+
+export TAG="${CI_COMMIT_REF_SLUG}"
+if [ $CI_COMMIT_REF_SLUG = "master" ]; then TAG="latest";  fi          # follow docker naming conventions
+export IMAGE_PATH=$CI_REGISTRY_IMAGE/gateway:$TAG
+docker build --tag "$IMAGE_PATH" -f Dockerfile .
+
+# push image to docker registry if registry credentials are available
+if [[ -n ${CI_REGISTRY+x} && -n ${CI_REGISTRY_USER+x} && -n ${CI_REGISTRY_PASSWORD+x} ]]; then
+  echo "${CI_REGISTRY_PASSWORD}" | docker login ${CI_REGISTRY} --username=${CI_REGISTRY_USER} --password-stdin
+  docker push "$IMAGE_PATH"
+fi
+
+# Get Test coverage report from build image
+docker create -ti --name dummy "$IMAGE_PATH" bash
+docker cp dummy:/usr/share/coverage coverage
+docker rm -f dummy

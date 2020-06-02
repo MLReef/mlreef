@@ -1,0 +1,17 @@
+#!/bin/sh
+
+# The Gitlab runner runtime defines how the runner manager deploys pipeline runs
+# docker: new pipeline runs are spawned as sister container to the runner manager
+# nvidia: like _docker_ with access and visibility of the GPU(s) enabled
+# Autodetect nvidia runtime
+nvidia-smi >/dev/null 2>&1 && export DOCKER_NVIDIA_RUNTIME="nvidia"
+
+if [ "$DOCKER_NVIDIA_RUNTIME" = "nvidia" ]; then
+  echo "Found Nvidia Cuda drivers GPU. Setting Gitlab runners to use $DOCKER_NVIDIA_RUNTIME runtime."
+fi
+
+if [ -z ${DOCKER_NVIDIA_RUNTIME+x} ]; then
+  echo "Nvidia cuda drivers NOT found. Setting Gitlab runners to default CPU runtime."
+  export DOCKER_NVIDIA_RUNTIME=""
+fi
+
