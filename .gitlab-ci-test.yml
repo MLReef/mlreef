@@ -3,37 +3,38 @@
   stage: smoke tests
   when: delayed
   start_in: 4 minutes
-  image: registry.gitlab.com/systemkern/s5:latest
   before_script:
     - URL=$(cat $INSTANCE_INFO)
     - echo $URL                                            # debug output
 
-call login page:
+.base-curl-test:
   extends: .base-test
-  script: if [ $(curl --silent --output /dev/null -w ''%{http_code}'' $URL) != 200 ]; then
-      curl $URL
-      exit 1;
-    fi
+  image: registry.gitlab.com/systemkern/s5:latest
 
-call gitlab login:
+
+# Runs a postman test suite
+# docker run --rm --tty -v ${PWD}/src/test:/src/test registry.gitlab.com/systemkern/s5:newman newman run /src/test/mlreef-integration-tests.postman_collection.json --environment /src/test/postman_environment.json
+postman test suite:
   extends: .base-test
-  script: if [ $(curl --silent --output /dev/null -w ''%{http_code}'' $URL:10080) != 302 ]; then
-      curl $URL:10080
-      exit 1;
-    fi
+  image: registry.gitlab.com/systemkern/s5:latest-newman
+  cache:
+    key: newman
+    paths:
+      - node_modules/.bin/
+  variables:
+    NEWMAN_ENV: "src/test/environment.json"
+  script:
+    # replace base url in postman environment file
+    - sed -i "s/mlreef.com/$URL/" $NEWMAN_ENV
+    - cat $NEWMAN_ENV
+    - newman run src/test/smoke-tests.postman_collection.json --environment $NEWMAN_ENV
+
 
 call gitlab api:
-  extends: .base-test
-  script: if [ $(curl --silent --output /dev/null -w ''%{http_code}'' $URL/api/v4/projects) != 200 ]; then
-      curl $URL:10080/api/v4
-      exit 1;
-    fi
-
-call gitlab runners api:
-  extends: .base-test
+  extends: .base-curl-test
   # Gitlab Runners are a separate process from Gitlab's API and Gitlab's frontend
-  script: if [ $(curl --silent --output /dev/null -w ''%{http_code}'' $URL:10080/runners) != 302 ]; then
-      curl $URL:10080/runners
+  script: if [ $(curl --silent --output /dev/null -w ''%{http_code}'' $URL/api/v4/projects) != 200 ]; then
+      curl $URL/api/v4/projects
       exit 1;
     fi
 
