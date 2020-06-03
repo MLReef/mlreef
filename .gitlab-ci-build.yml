@@ -1,15 +1,14 @@
 build frontend:
   extends: [".except-docu-branches"]
-  # This docker version should correspond with the on docker version in the EC2 deployment
   stage: build
   only:
     changes:
       - web/**/*
       - .gitlab-ci-build.yml
+  # This docker version should correspond with the on docker version in the EC2 deployment
   image: docker:19.03.5                                     # https://hub.docker.com/_/docker/
   services:
     - docker:dind
-  variables:
   script:
     - cd web
     # Use Gitlab's internal unique job ID as build version. This way versions can be traced back to a specific build.

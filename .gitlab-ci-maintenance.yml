@@ -1,3 +1,7 @@
+variables:
+  BACKUP_SCRIPT:        "src/bin/backup.sh"
+  RESTORE_SCRIPT:       "src/bin/restore.sh"
+
 backup branch:
   extends: [.feature-branches-only]
   stage: maintenance
