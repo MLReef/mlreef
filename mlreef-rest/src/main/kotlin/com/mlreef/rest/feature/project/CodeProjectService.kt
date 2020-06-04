@@ -10,7 +10,11 @@ import com.mlreef.rest.external_api.gitlab.GitlabRestClient
 import com.mlreef.rest.external_api.gitlab.GroupAccessLevel
 import com.mlreef.rest.external_api.gitlab.dto.GitlabProject
 import com.mlreef.rest.external_api.gitlab.toAccessLevel
+import com.mlreef.rest.feature.caches.PublicProjectsCacheService
 import com.mlreef.rest.helpers.ProjectOfUser
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.PageImpl
+import org.springframework.data.domain.Pageable
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import java.util.UUID
@@ -22,8 +26,28 @@ interface CodeProjectService : ProjectService<CodeProject>, ProjectRequesterServ
 class GitlabCodeProjectService(
     private val codeProjectRepository: CodeProjectRepository,
     private val accountRepository: AccountRepository,
+    private val publicProjectsCacheService: PublicProjectsCacheService,
     gitlabRestClient: GitlabRestClient
 ) : CodeProjectService, AbstractGitlabProjectService<CodeProject>(gitlabRestClient, accountRepository) {
+
+    override fun getAllPublicProjects(): List<CodeProject> {
+        val projectsIds = publicProjectsCacheService.getPublicProjectsIdsList()
+        return codeProjectRepository.findAllById(projectsIds).toList()
+    }
+
+    override fun getAllPublicProjects(pageable: Pageable): Page<CodeProject> {
+        val projectsIds = publicProjectsCacheService.getPublicProjectsIdsList(pageable)
+        val projects = codeProjectRepository.findAllById(projectsIds)
+        return PageImpl(projects.toList(), projectsIds.pageable, projectsIds.totalElements)
+    }
+
+    override fun getAllProjectsByIds(ids: Iterable<UUID>): List<CodeProject> {
+        return codeProjectRepository.findAllById(ids).toList()
+    }
+
+    override fun getAllProjectsByIds(ids: Iterable<UUID>, pageable: Pageable): Page<CodeProject> {
+        return codeProjectRepository.findAllById(ids, pageable)
+    }
 
     override fun getAllProjectsForUser(personId: UUID): List<CodeProject> {
         return codeProjectRepository.findAllByOwnerId(personId)

@@ -10,7 +10,11 @@ import com.mlreef.rest.external_api.gitlab.GitlabRestClient
 import com.mlreef.rest.external_api.gitlab.GroupAccessLevel
 import com.mlreef.rest.external_api.gitlab.dto.GitlabProject
 import com.mlreef.rest.external_api.gitlab.toAccessLevel
+import com.mlreef.rest.feature.caches.PublicProjectsCacheService
 import com.mlreef.rest.helpers.ProjectOfUser
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.PageImpl
+import org.springframework.data.domain.Pageable
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import java.util.UUID
@@ -22,8 +26,28 @@ interface DataProjectService : ProjectService<DataProject>, ProjectRequesterServ
 class GitlabDataProjectService(
     private val dataProjectRepository: DataProjectRepository,
     private val accountRepository: AccountRepository,
+    private val publicProjectsCacheService: PublicProjectsCacheService,
     gitlabRestClient: GitlabRestClient
 ) : DataProjectService, AbstractGitlabProjectService<DataProject>(gitlabRestClient, accountRepository) {
+
+    override fun getAllPublicProjects(): List<DataProject> {
+        val projectsIds = publicProjectsCacheService.getPublicProjectsIdsList()
+        return dataProjectRepository.findAllById(projectsIds).toList()
+    }
+
+    override fun getAllPublicProjects(pageable: Pageable): Page<DataProject> {
+        val projectsIds = publicProjectsCacheService.getPublicProjectsIdsList(pageable)
+        val projects = dataProjectRepository.findAllById(projectsIds)
+        return PageImpl(projects.toList(), projectsIds.pageable, projectsIds.totalElements)
+    }
+
+    override fun getAllProjectsByIds(ids: Iterable<UUID>): List<DataProject> {
+        return dataProjectRepository.findAllById(ids).toList()
+    }
+
+    override fun getAllProjectsByIds(ids: Iterable<UUID>, pageable: Pageable): Page<DataProject> {
+        return dataProjectRepository.findAllById(ids, pageable)
+    }
 
     override fun getProjectById(projectId: UUID): DataProject? {
         return dataProjectRepository.findByIdOrNull(projectId)

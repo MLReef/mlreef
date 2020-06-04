@@ -5,6 +5,8 @@ import com.mlreef.rest.api.v1.dto.MLProjectDto
 import com.mlreef.rest.api.v1.dto.toDto
 import com.mlreef.rest.exceptions.ProjectNotFoundException
 import com.mlreef.rest.feature.project.GenericProjectService
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
 import org.springframework.security.access.prepost.PostAuthorize
 import org.springframework.security.access.prepost.PostFilter
 import org.springframework.security.access.prepost.PreAuthorize
@@ -25,6 +27,11 @@ class GenericProjectsController(
     @GetMapping
     fun getAllDataProjects(person: Person): List<MLProjectDto> {
         return projectService.getAllProjectsForUser(person.id).map { it.toDto() }
+    }
+
+    @GetMapping("/public")
+    fun getPublicDataProjects(pageable: Pageable): Page<MLProjectDto> {
+        return projectService.getAllPublicProjects(pageable).map { it.toDto() }
     }
 
     @GetMapping("/{id}")

@@ -1,5 +1,7 @@
 package com.mlreef.rest
 
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
 import org.springframework.data.repository.CrudRepository
 import org.springframework.data.repository.NoRepositoryBean
 import java.io.Serializable
@@ -15,7 +17,11 @@ interface KtCrudRepository<T, ID : Serializable> : CrudRepository<T, ID> {
 
     override fun findAll(): Iterable<T>
 
+    fun findAll(pageable: Pageable): Page<T>
+
     override fun findAllById(ids: Iterable<ID>): Iterable<T>
+
+    fun findAllById(ids: Iterable<ID>, pageable: Pageable): Page<T>
 
     override fun <S : T> save(entity: S): S
 

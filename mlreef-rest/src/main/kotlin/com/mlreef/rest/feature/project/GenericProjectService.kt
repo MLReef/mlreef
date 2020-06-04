@@ -1,7 +1,13 @@
 package com.mlreef.rest.feature.project
 
+import com.mlreef.rest.DataProject
 import com.mlreef.rest.MLProject
+import com.mlreef.rest.feature.caches.PublicProjectsCacheService
 import com.mlreef.rest.helpers.ProjectOfUser
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.PageImpl
+import org.springframework.data.domain.PageRequest
+import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 import java.util.UUID
 
@@ -10,8 +16,51 @@ interface GenericProjectService : ProjectRequesterService<MLProject>
 @Service
 class GitlabGenericProjectService(
     private val codeProjectService: CodeProjectService,
-    private val dataProjectService: DataProjectService
+    private val dataProjectService: DataProjectService,
+    private val publicProjectsCacheService: PublicProjectsCacheService
+
 ) : GenericProjectService {
+
+    override fun getAllPublicProjects(): List<MLProject> {
+        val result = mutableListOf<MLProject>()
+        return result
+            .also { it.addAll(codeProjectService.getAllPublicProjects()) }
+            .also { it.addAll(dataProjectService.getAllPublicProjects()) }
+    }
+
+    override fun getAllPublicProjects(pageable: Pageable): Page<MLProject> {
+        val publicProjectsList = publicProjectsCacheService.getPublicProjectsIdsList(pageable)
+        val allProjectsForUser = getAllProjectsByIds(publicProjectsList)
+        return PageImpl(allProjectsForUser, publicProjectsList.pageable, publicProjectsList.totalElements)
+    }
+
+    override fun getAllProjectsByIds(ids: Iterable<UUID>): List<MLProject> {
+        val result = mutableListOf<MLProject>()
+        return result
+            .also { it.addAll(codeProjectService.getAllProjectsByIds(ids)) }
+            .also { it.addAll(dataProjectService.getAllProjectsByIds(ids)) }
+    }
+
+    override fun getAllProjectsByIds(ids: Iterable<UUID>, pageable: Pageable): Page<MLProject> {
+
+        val codeProjects = codeProjectService.getAllProjectsByIds(ids, pageable)
+
+        val dataProjects = if (codeProjects.numberOfElements>=pageable.pageSize) {
+            Page.empty<DataProject>()
+        } else {
+            val newPageable = PageRequest.of(pageable.pageNumber, pageable.pageSize - codeProjects.numberOfElements, pageable.sort)
+            dataProjectService.getAllProjectsByIds(ids, newPageable)
+        }
+
+        val allProjectsList = mutableListOf<MLProject>()
+            .apply {
+                addAll(codeProjects)
+                addAll(dataProjects)
+            }
+
+        return PageImpl(allProjectsList, pageable, codeProjects.totalElements + dataProjects.totalElements)
+    }
+
     override fun getAllProjectsForUser(personId: UUID): List<MLProject> {
         val result = mutableListOf<MLProject>()
         return result

@@ -10,14 +10,12 @@ import com.mlreef.rest.external_api.gitlab.GitlabVisibility
 import com.mlreef.rest.external_api.gitlab.MergeMethod
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-class GitlabProject(
+open class GitlabProjectSimplified(
     val id: Long,
     val name: String,
     val nameWithNamespace: String?,
     val path: String,
     val pathWithNamespace: String,
-    val owner: GitlabUser,
-    val creatorId: Long,
     val createdAt: String = "",
     val description: String? = null,
     val defaultBranch: String? = null,
@@ -29,7 +27,30 @@ class GitlabProject(
     val avatarUrl: String? = null,
     val starCount: Long = 0,
     val forksCount: Long = 0,
-    val lastActivityAt: String? = null,
+    val lastActivityAt: String? = null
+)
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+class GitlabProject(
+    id: Long,
+    name: String,
+    nameWithNamespace: String?,
+    path: String,
+    pathWithNamespace: String,
+    val owner: GitlabUser,
+    val creatorId: Long,
+    createdAt: String = "",
+    description: String? = null,
+    defaultBranch: String? = null,
+    tagList: List<String> = listOf(),
+    sshUrlToRepo: String = "",
+    httpUrlToRepo: String = "",
+    webUrl: String = "",
+    readmeUrl: String? = null,
+    avatarUrl: String? = null,
+    starCount: Long = 0,
+    forksCount: Long = 0,
+    lastActivityAt: String? = null,
     val namespace: GitlabNamespace? = null,
     @JsonProperty("_links")
     val links: Map<String, String> = mapOf(),
@@ -70,4 +91,4 @@ class GitlabProject(
     val mergeMethod: MergeMethod = MergeMethod.MERGE,
     val autoDevopsEnabled: Boolean = true,
     val autoDevopsDeployStrategy: DeployStrategy = DeployStrategy.CONTINUOUS
-)
+): GitlabProjectSimplified(id, name, nameWithNamespace, path, pathWithNamespace, createdAt, description, defaultBranch, tagList, sshUrlToRepo, httpUrlToRepo, webUrl, readmeUrl, avatarUrl, starCount, forksCount, lastActivityAt)

@@ -17,6 +17,7 @@ import com.mlreef.rest.external_api.gitlab.dto.GitlabGroup
 import com.mlreef.rest.external_api.gitlab.dto.GitlabNamespace
 import com.mlreef.rest.external_api.gitlab.dto.GitlabPipeline
 import com.mlreef.rest.external_api.gitlab.dto.GitlabProject
+import com.mlreef.rest.external_api.gitlab.dto.GitlabProjectSimplified
 import com.mlreef.rest.external_api.gitlab.dto.GitlabUser
 import com.mlreef.rest.external_api.gitlab.dto.GitlabUserInGroup
 import com.mlreef.rest.external_api.gitlab.dto.GitlabUserInProject
@@ -124,12 +125,25 @@ class GitlabRestClient(
             .body ?: throw Exception("GitlabRestClient.createProject($slug): Gitlab response does not contain a body.")
     }
 
+    //FIXME: It seems to be incorrect. It uses admin headers but runs under user token
     fun getProjects(token: String): List<GitlabProject> {
         return GitlabHttpEntity<String>("body", createAdminHeaders())
             .addErrorDescription(ErrorCode.NotFound, "Cannot find projects")
             .makeRequest {
                 val url = "$gitlabServiceRootUrl/projects"
                 restTemplate(builder).exchange(url, HttpMethod.GET, it, typeRef<List<GitlabProject>>())
+            }
+            .also { logGitlabCall(it) }
+            .body!!
+    }
+
+    fun adminGetProject(projectId: Long): GitlabProject {
+        return GitlabHttpEntity<String>("body", createAdminHeaders())
+            .addErrorDescription(404, ErrorCode.GitlabProjectNotExists, "Cannot find project $projectId in gitlab")
+            .addErrorDescription(ErrorCode.GitlabCommonError, "Cannot find project $projectId")
+            .makeRequest {
+                val url = "$gitlabServiceRootUrl/projects/$projectId"
+                restTemplate(builder).exchange(url, HttpMethod.GET, it, GitlabProject::class.java)
             }
             .also { logGitlabCall(it) }
             .body!!
@@ -394,6 +408,18 @@ class GitlabRestClient(
             .makeRequest {
                 val url = "$gitlabServiceRootUrl/projects?membership=true"
                 restTemplate(builder).exchange(url, HttpMethod.GET, it, typeRef<List<GitlabProject>>())
+            }
+            .also { logGitlabCall(it) }
+            .body!!
+    }
+
+    // https://docs.gitlab.com/ee/api/projects.html#list-all-projects
+    fun unauthenticatedGetAllPublicProjects(): List<GitlabProjectSimplified> {
+        return GitlabHttpEntity<String>("body", createEmptyHeaders())
+            .addErrorDescription(ErrorCode.GitlabCommonError, "Unable to get projects list")
+            .makeRequest {
+                val url = "$gitlabServiceRootUrl/projects?simple=true"
+                restTemplate(builder).exchange(url, HttpMethod.GET, it, typeRef<List<GitlabProjectSimplified>>())
             }
             .also { logGitlabCall(it) }
             .body!!
