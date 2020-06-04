@@ -72,12 +72,15 @@ const CommitsList = ({
               </p>
             </div>
             {commits.map((item) => {
-              let avatar = 'https://assets.gitlab-static.net/uploads/-/system/user/avatar/3839940/avatar.png';
+              let avatarImage = 'https://assets.gitlab-static.net/uploads/-/system/user/avatar/3839940/avatar.png';
+              let userName = '';
               if (users) {
                 users.forEach((user) => {
-                  const { name, avatar_url } = user;
+                  const { name } = user;
+                  const avatarUrl = user.avatar_url;
                   if (name === item.author_name) {
-                    avatar = avatar_url;
+                    avatarImage = avatarUrl;
+                    userName = name;
                   }
                 });
               }
@@ -92,7 +95,8 @@ const CommitsList = ({
                       name={item.author_name}
                       id={item.short_id}
                       time={item.committed_date}
-                      avatarName={avatar}
+                      avatarImage={avatarImage}
+                      userName={userName}
                     />
                   )
                   : ''

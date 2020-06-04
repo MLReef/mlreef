@@ -107,7 +107,7 @@ const MProjectCard = ({
           >
             {avatars.map((ava, index) => (
               <div key={`ava-cont-${ava.id}`} className={`avatar-container ${index === avatarsLength && 'grouped'}`}>
-                <img src={ava.url} alt="" className="project-card-avatar"/>
+                <img src={ava.url} alt="" className="project-card-avatar" />
               </div>
             ))}
           </div>

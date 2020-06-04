@@ -1,0 +1,26 @@
+$light-grey: #fafafa;
+
+.layout-page {
+  
+  background-color: $light-grey;
+  width: 100%;
+  height: 100%;
+  position: fixed;
+
+  > .content-wrapper{
+    width: 100%;
+
+    > .user-profile {
+      text-align: center;
+      background-color: $light-grey;
+      padding: 24px 0 0;
+      position: relative;
+
+      > img {
+        border-radius: 50%;
+        width: 10%; 
+      };
+      
+    };
+  };
+}

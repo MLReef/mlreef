@@ -136,6 +136,8 @@ class ProjectView extends React.Component {
         : selectedProject.default_branch;
     }
     const committer = lastCommit && users.filter((user) => user.name === lastCommit.author_name)[0];
+    const avatarUrl = committer ? committer.avatar_url : '';
+    const avatarName = committer && committer.name;
     const today = new Date();
     const timediff = lastCommit && getTimeCreatedAgo(lastCommit.authored_date, today);
     return (
@@ -187,16 +189,22 @@ class ProjectView extends React.Component {
                 {lastCommit && (
                 <div className="last-commit-info">
                   <div className="last-commit-details">
-                    <div className="commit-pic-circle" style={{ margin: 0 }}>
-                      <img src={committer ? committer.avatar_url : ''} alt="" />
-                    </div>
+                    <a href={committer && `/${avatarName}`}>
+                      <span style={{ position: 'relative' }}>
+                        <img className="avatar-circle mt-2" width="32" height="32" src={avatarUrl} alt="" />
+                      </span>
+                    </a>
                     <div className="last-commit-name">
                       <p>
                         {lastCommit.message}
                         <br />
                         by
                         {' '}
-                        <b>{lastCommit.author_name}</b>
+                        <b>
+                          <a href={committer && `/${avatarName}`}>
+                            {lastCommit.author_name}
+                          </a>
+                        </b>
                         {' '}
                         authored
                         {' '}

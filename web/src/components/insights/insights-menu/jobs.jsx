@@ -100,7 +100,9 @@ const Jobs = ({ jobs, selectedProject: { id } }) => {
                       </td>
                       <td className="job-pipeline-number p-3">
                         {`#${job.pipeline.id} by `}
-                        <img className="ml-2" width="20" src={job.user.avatar_url} alt="avatar" />
+                        <a href={`/${job.user.name}`}>
+                          <img className="ml-2" width="20" src={job.user.avatar_url} alt="avatar" />
+                        </a>
                       </td>
                       <td className="duration">
                         <p className="p-0 m-0">

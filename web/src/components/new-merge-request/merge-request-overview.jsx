@@ -150,7 +150,11 @@ const MergeRequestCard = ({ mergeRequestsList }) => (
             {' '}
             Opened by
             {' '}
-            <b>{mr.author.username}</b>
+            <b>
+              <a href={`/${mr.author.username}`}>
+                {mr.author.username}
+              </a>
+            </b>
             {' '}
             {getTimeCreatedAgo(mr.updated_at, new Date())}
             {' '}

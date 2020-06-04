@@ -143,13 +143,15 @@ class CommitsView extends Component {
                 </p>
               </div>
               {commits.map((item) => {
-                let avatar = 'https://assets.gitlab-static.net/uploads/-/system/user/avatar/3839940/avatar.png';
+                let avatarImage = 'https://assets.gitlab-static.net/uploads/-/system/user/avatar/3839940/avatar.png';
+                let userName = '';
                 if (users) {
                   users.forEach((user) => {
                     const { name } = user;
                     const avatarUrl = user.avatar_url;
                     if (name === item.author_name) {
-                      avatar = avatarUrl;
+                      avatarImage = avatarUrl;
+                      userName = name;
                     }
                   });
                 }
@@ -164,7 +166,8 @@ class CommitsView extends Component {
                         name={item.author_name}
                         id={item.short_id}
                         time={item.committed_date}
-                        avatarName={avatar}
+                        avatarImage={avatarImage}
+                        userName={userName}
                       />
                     )
                     : ''
@@ -186,7 +189,8 @@ export function CommitDiv(props) {
     title,
     commitid,
     projectId,
-    avatarName,
+    avatarImage,
+    userName,
   } = props;
   const spanRef = useRef();
   const today = new Date();
@@ -195,13 +199,17 @@ export function CommitDiv(props) {
   return (
     <div className="commits" key={id}>
       <div className="commit-list">
-        <div className="commit-pic-circle">
-          <img src={avatarName} alt="avatar" />
-        </div>
+        <a href={`/${userName}`}>
+          <span style={{ position: 'relative' }}>
+            <img width="32" height="32" className="avatar-circle mt-3 ml-1" src={avatarImage} alt="avatar" />
+          </span>
+        </a>
         <div className="commit-data">
           <Link to={`/my-projects/${projectId}/commit/${commitid}`}>{title}</Link>
           <span>
-            {name}
+            <a href={`/${userName}`}>
+              {name}
+            </a>
             {' '}
             authored
             {' '}
@@ -239,7 +247,8 @@ CommitDiv.propTypes = {
   title: string.isRequired,
   commitid: string.isRequired,
   projectId: number.isRequired,
-  avatarName: string.isRequired,
+  avatarImage: string.isRequired,
+  userName: string.isRequired,
 };
 
 CommitsView.defaultProps = {

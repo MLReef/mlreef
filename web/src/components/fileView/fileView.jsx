@@ -171,15 +171,21 @@ export class FileView extends React.Component {
         <div className="commit-container">
           <div className="file-container-header">
             <div className="commit-info">
-              <div className="commit-pic-circle">
-                <img src={avatar} alt={authorName} />
-              </div>
+              <a href={`/${authorName}`}>
+                <span style={{ position: 'relative' }}>
+                  <img width="32" height="32" className="avatar-circle mt-3 ml-3" src={avatar} alt={authorName} />
+                </span>
+              </a>
               <div className="commit-msg">
                 <p>{message}</p>
                 <span>
                   by
                   {' '}
-                  <b>{authorName}</b>
+                  <a href={`/${authorName}`}>
+                    <b>
+                      {authorName}
+                    </b>
+                  </a>
                   {' '}
                   authored
                   {' '}

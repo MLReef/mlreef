@@ -102,10 +102,10 @@ const JobLog = ({
             {' '}
             ago by
           </p>
-          <div className="commit-pic-circle" style={{ margin: '0 0.5em 0 0' }}>
-            <img src={user.avatar_url} alt={user.name} />
-          </div>
-          <p>{user.name}</p>
+          <a className="d-flex" href={`/${user.name}`}>
+            <img width="32" height="32" className="avatar-circle mr-1 mt-2" src={user.avatar_url} alt={user.name} />
+            <p><b>{user.name}</b></p>
+          </a>
         </div>
         <p style={{
           color: (job.status === 'success' || job.status === 'running')

@@ -85,10 +85,12 @@ class CommitDetails extends Component {
       files,
     } = this.state;
     const commitId = commits.short_id;
-    let avatar = 'https://assets.gitlab-static.net/uploads/-/system/user/avatar/3839940/avatar.png';
+    let avatarUrl = 'https://assets.gitlab-static.net/uploads/-/system/user/avatar/3839940/avatar.png';
+    let avatarName = '';
     users.forEach((contributor) => {
       if (contributor.name === commits.author_name) {
-        avatar = contributor.avatar_url;
+        avatarUrl = contributor.avatar_url;
+        avatarName = contributor.name;
       }
     });
     return (
@@ -103,12 +105,20 @@ class CommitDetails extends Component {
               <span className="commit-authored">
                 {'Commit '}
                 <b>{commitId}</b>
-                {` authored ${getTimeCreatedAgo(commits.authored_date)}`}
+                {` authored ${getTimeCreatedAgo(commits.authored_date, new Date())}`}
               </span>
-              <div className="committer-pic">
-                <img src={avatar} alt="avatar" />
-              </div>
-              <span className="author"><b>{commits.author_name}</b></span>
+              <a href={`/${avatarName}`}>
+                <span style={{ position: 'relative' }}>
+                  <img className="avatar-circle m-0" width="25" height="25" src={avatarUrl} alt="avatar" />
+                </span>
+              </a>
+              <span className="author">
+                <b>
+                  <a href={`/${avatarName}`}>
+                    {commits.author_name}
+                  </a>
+                </b>
+              </span>
             </span>
             <div className="other-options">
               <Link to="#foo" className="btn btn-outline-dark px-3 mr-2">
