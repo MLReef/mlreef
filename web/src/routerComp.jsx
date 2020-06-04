@@ -23,6 +23,7 @@ import NewBranch from './components/newBranch';
 import BranchesView from './components/branches-list-view/branchesView';
 import mergeRequestOverview from './components/new-merge-request/merge-request-overview';
 import BasicMergeRequestView from './components/mergeRequestDetailView/basicMergeRequestView';
+import UserProfile from './components/userProfile/userProfile';
 import UploadFile from './components/views/uploadFile/uploadFile';
 import DataVisualizationDetail from './components/data-visualization/dataVisualizationDetail';
 import ForkView from './components/ForkView';
@@ -47,6 +48,7 @@ const RouterComp = () => (
       <PrivateRoute path="/perms/account" accountType={1} exact component={Projects} />
 
       <PrivateRoute path="/my-projects" exact component={Projects} />
+      <PrivateRoute path="/:user" exact component={UserProfile} />
       <PrivateRoute path="/new-project/classification/:classification" exact component={CreateProject} />
       <PrivateRoute path="/my-projects/:projectId/:branch/commits/:pathParam?" exact component={Commits} />
       <PrivateRoute

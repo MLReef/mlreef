@@ -127,8 +127,14 @@ const BasicMergeRequestView = (props) => {
                 ago by
                 {' '}
               </p>
-              <img className="avatar-style ml-2 mr-1 my-auto" width="24" src={avatarUrl} alt="avatar" />
-              <span className="my-auto"><b>{name}</b></span>
+              <a className="my-auto d-flex" href={`/${name}`}>
+                <img className="avatar-circle ml-2 mr-1" width="24" src={avatarUrl} alt="avatar" />
+                <span className="my-auto">
+                  <b>
+                    {name}
+                  </b>
+                </span>
+              </a>
             </div>
           </div>
           <div style={{ height: 'max-content' }} className="modify-MR mr-0">

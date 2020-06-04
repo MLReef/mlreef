@@ -197,7 +197,11 @@ export const InstanceCard = ({ ...props }) => {
                   <p>
                     Created by
                     {' '}
-                    <b>{instance.userName}</b>
+                    <a href={`/${instance.userName}`}>
+                      <b>
+                        {instance.userName}
+                      </b>
+                    </a>
                     <br />
                     {instance.timeCreatedAgo}
                     {' '}

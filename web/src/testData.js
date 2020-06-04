@@ -2220,6 +2220,8 @@ export const dataPipeLines = [{
   },
 }];
 
+/* Image source to test the rendering of an avatar */
+export const avatarUrl = 'https://assets.gitlab-static.net/uploads/-/system/user/avatar/3839940/avatar.png';
 
 export const filesMock = [
   {

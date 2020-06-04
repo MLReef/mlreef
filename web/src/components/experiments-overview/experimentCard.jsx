@@ -42,7 +42,8 @@ const ExperimentCard = (props) => {
         const uniqueName = experimentName.split('/')[1];
         const allParameters = algorithms.filter((algo) => algo.name === experiment.modelTitle)[0].parameters;
         const {
-          experimentData: { id, processing: { parameters },
+          experimentData: {
+            id, processing: { parameters },
             data_project_id: dataProjectId,
             pipeline_job_info: pipelineInfo,
           },
@@ -79,7 +80,11 @@ const ExperimentCard = (props) => {
                 <p style={{ margin: '0' }} id="time-created-ago">
                   Created by
                   &nbsp;
-                  <b>{experiment.userName}</b>
+                  <b>
+                    <a href={`/${experiment.userName}`}>
+                      {experiment.userName}
+                    </a>
+                  </b>
                   {' '}
                   {getTimeCreatedAgo(experiment.timeCreatedAgo, today)}
                     &nbsp;
