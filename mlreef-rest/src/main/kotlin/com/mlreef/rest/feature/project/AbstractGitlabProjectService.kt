@@ -4,6 +4,7 @@ import com.mlreef.rest.Account
 import com.mlreef.rest.AccountRepository
 import com.mlreef.rest.MLProject
 import com.mlreef.rest.VisibilityScope
+import com.mlreef.rest.annotations.RefreshProject
 import com.mlreef.rest.annotations.RefreshUserInformation
 import com.mlreef.rest.exceptions.BadParametersException
 import com.mlreef.rest.exceptions.ErrorCode
@@ -18,11 +19,17 @@ import com.mlreef.rest.external_api.gitlab.dto.GitlabProject
 import com.mlreef.rest.helpers.ProjectOfUser
 import com.mlreef.rest.helpers.UserInProject
 import org.slf4j.LoggerFactory
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import java.util.UUID
 
 interface ProjectRequesterService<T : MLProject> {
+    fun getAllPublicProjects(): List<T>
+    fun getAllPublicProjects(pageable: Pageable): Page<T>
+    fun getAllProjectsByIds(ids: Iterable<UUID>): List<T>
+    fun getAllProjectsByIds(ids: Iterable<UUID>, pageable: Pageable): Page<T>
     fun getAllProjectsForUser(personId: UUID): List<T>
     fun getProjectById(projectId: UUID): T?
     fun getProjectByIdAndPersonId(projectId: UUID, personId: UUID): T?
@@ -67,6 +74,7 @@ abstract class AbstractGitlabProjectService<T : MLProject>(
      * Creates the Project in gitlab and saves a new DataProject/CodeProject in mlreef context
      */
     @RefreshUserInformation(userId = "#ownerId")
+    @RefreshProject
     override fun createProject(
         userToken: String,
         ownerId: UUID,
@@ -100,6 +108,7 @@ abstract class AbstractGitlabProjectService<T : MLProject>(
 
     }
 
+    @RefreshProject(projectId = "#projectUUID")
     override fun updateProject(
         userToken: String,
         ownerId: UUID,
@@ -121,6 +130,7 @@ abstract class AbstractGitlabProjectService<T : MLProject>(
         }
     }
 
+    @RefreshProject(projectId = "#projectUUID")
     override fun deleteProject(userToken: String, ownerId: UUID, projectUUID: UUID) {
         try {
             val codeProject = this.getProjectById(projectUUID) ?: throw ProjectNotFoundException(projectUUID)
