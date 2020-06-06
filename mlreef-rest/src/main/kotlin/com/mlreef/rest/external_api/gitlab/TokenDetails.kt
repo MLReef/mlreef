@@ -16,7 +16,8 @@ class TokenDetails(
     val edition: Int = 0,
     val groups: MutableMap<UUID, AccessLevel?> = mutableMapOf(),
     val projects: MutableMap<UUID, AccessLevel?> = mutableMapOf(),
-    val gitlabUser: GitlabUser? = null
+    val gitlabUser: GitlabUser? = null,
+    val isVisitor: Boolean = false
 ) : UserDetails {
 
     override fun getAuthorities(): MutableCollection<out GrantedAuthority> {

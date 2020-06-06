@@ -1,10 +1,13 @@
 package com.mlreef.rest.config.security
 
+import com.mlreef.rest.external_api.gitlab.TokenDetails
 import org.slf4j.LoggerFactory
+import org.springframework.security.authentication.AnonymousAuthenticationToken
 import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.Authentication
 import org.springframework.security.core.AuthenticationException
+import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.core.context.SecurityContext
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter
@@ -32,9 +35,16 @@ class GitlabTokenAuthenticationFilter(requestMatcher: RequestMatcher) : Abstract
         if (!authentication.isAuthenticated) {
             throw BadCredentialsException("Not authenticated")
         }
+
+        val isVisitor = (authentication.principal as? TokenDetails)?.isVisitor ?: true
+
+        val finalAuthentication = if (isVisitor) {
+            AnonymousAuthenticationToken("Visitor", authentication.principal, listOf(SimpleGrantedAuthority("VISITOR")))
+        } else authentication
+
         // set freshly valid authenticated info into context
-        securityContext.authentication = authentication
-        return authentication
+        securityContext.authentication = finalAuthentication
+        return finalAuthentication
     }
 
     override fun successfulAuthentication(request: HttpServletRequest?, response: HttpServletResponse?, chain: FilterChain?, authResult: Authentication?) {

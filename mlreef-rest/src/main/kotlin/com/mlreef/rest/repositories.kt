@@ -3,6 +3,8 @@ package com.mlreef.rest
 import com.mlreef.rest.marketplace.MarketplaceEntry
 import com.mlreef.rest.marketplace.SearchableTag
 import com.mlreef.rest.marketplace.SearchableType
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.Query
 import org.springframework.stereotype.Repository
 import java.util.UUID
@@ -136,6 +138,7 @@ interface MarketplaceEntryRepository : KtCrudRepository<MarketplaceEntry, UUID> 
     fun findBySearchableType(searchableType: SearchableType): List<MarketplaceEntry>
     fun findByGlobalSlugAndVisibilityScope(slug: String, visibilityScope: VisibilityScope): MarketplaceEntry?
     fun findAllByVisibilityScope(visibilityScope: VisibilityScope): List<MarketplaceEntry>
+    fun findAllByVisibilityScope(visibilityScope: VisibilityScope, pageable: Pageable): Page<MarketplaceEntry>
 
     @Query("select e from MarketplaceEntry e join DataProcessor dp on e.searchableId = dp.id join CodeProject cp on dp.codeProjectId = cp.id where cp.id IN :ids")
     fun findAccessibleProcessors(ids: List<UUID>): List<MarketplaceEntry>
