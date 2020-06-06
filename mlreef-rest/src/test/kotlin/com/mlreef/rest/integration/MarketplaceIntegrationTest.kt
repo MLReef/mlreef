@@ -2,32 +2,32 @@
 
 package com.mlreef.rest.integration
 
+import com.fasterxml.jackson.core.type.TypeReference
 import com.mlreef.rest.Account
 import com.mlreef.rest.DataProjectRepository
 import com.mlreef.rest.MarketplaceEntryRepository
 import com.mlreef.rest.Person
 import com.mlreef.rest.SearchableTagRepository
 import com.mlreef.rest.api.AccountSubjectPreparationTrait
-import com.mlreef.rest.api.RestApiTest
 import com.mlreef.rest.api.v1.dto.MarketplaceEntryDto
 import com.mlreef.rest.api.v1.dto.SearchableTagDto
 import com.mlreef.rest.testcommons.EntityMocks
+import com.mlreef.rest.testcommons.RestResponsePage
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
-import org.springframework.restdocs.payload.FieldDescriptor
-import org.springframework.restdocs.payload.JsonFieldType
-import org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath
 import org.springframework.test.annotation.Rollback
 import javax.transaction.Transactional
 
-class MarketplaceIntegrationTest : RestApiTest() {
+class MarketplaceIntegrationTest : IntegrationRestApiTest() {
 
     val rootUrl = "/api/v1/explore"
+    private lateinit var account: Account
     private lateinit var account2: Account
     private lateinit var subject: Person
     private lateinit var subject2: Person
@@ -43,6 +43,10 @@ class MarketplaceIntegrationTest : RestApiTest() {
 
     @Autowired
     private lateinit var accountSubjectPreparationTrait: AccountSubjectPreparationTrait
+
+    companion object {
+        private val log = LoggerFactory.getLogger(this::class.java)
+    }
 
     @Autowired
     private lateinit var gitlabHelper: GitlabHelper
@@ -128,32 +132,43 @@ class MarketplaceIntegrationTest : RestApiTest() {
         assertThat(returnedResult.size).isEqualTo(3)
     }
 
-    private fun marketplaceEntriesResponseFields(prefix: String = ""): List<FieldDescriptor> {
-        return listOf(
-            fieldWithPath(prefix + "id").type(JsonFieldType.STRING).description("Generic MarketplaceEntry Id"),
-            fieldWithPath(prefix + "global_slug").type(JsonFieldType.STRING).description("Global Slug must be unique for the whole platform"),
-            fieldWithPath(prefix + "visibility_scope").type(JsonFieldType.STRING).description("Visibility scope"),
-            fieldWithPath(prefix + "name").type(JsonFieldType.STRING).description("A Name which is unique per scope (owner's domain)"),
-            fieldWithPath(prefix + "description").type(JsonFieldType.STRING).description("Text for description"),
-            fieldWithPath(prefix + "tags").type(JsonFieldType.ARRAY).description("All Tags for this Entry"),
-            fieldWithPath(prefix + "owner_id").type(JsonFieldType.STRING).description("UUID of Subject"),
-            fieldWithPath(prefix + "owner_name").type(JsonFieldType.STRING).description("Name of Owner"),
-            fieldWithPath(prefix + "stars_count").type(JsonFieldType.NUMBER).description("Number of Stars"),
-            fieldWithPath(prefix + "input_data_types").type(JsonFieldType.ARRAY).description("List of DataTypes used for Input"),
-            fieldWithPath(prefix + "output_data_types").type(JsonFieldType.ARRAY).description("List of DataTypes used for Output"),
-            fieldWithPath(prefix + "searchable_id").type(JsonFieldType.STRING).description("UUID of connected Searchable Entity"),
-            fieldWithPath(prefix + "searchable_type").type(JsonFieldType.STRING).description("Type of connected Searchable Entity")
-        ).apply {
-            searchableTags(prefix + "tags[].")
-        }
+    @Transactional
+    @Rollback
+    @Test fun `Can retrieve all public MarketplaceEntries as Visitor`() {
+        val (account, _, _) = gitlabHelper.createRealUser(index = -1)
+        val (dataProject1, _) = gitlabHelper.createRealDataProject(account, slug = "slug1")
+        val (dataProject2, _) = gitlabHelper.createRealDataProject(account, slug = "slug2")
+        val (dataProject3, _) = gitlabHelper.createRealDataProject(account, slug = "slug3")
+
+        val marketplaceEntry1 = EntityMocks.marketplaceEntry(owner = account.person, searchable = dataProject1)
+        val marketplaceEntry2 = EntityMocks.marketplaceEntry(owner = account.person, searchable = dataProject2)
+        val marketplaceEntry3 = EntityMocks.marketplaceEntry(owner = account.person, searchable = dataProject3)
+
+        marketplaceEntryRepository.saveAll(listOf(marketplaceEntry1, marketplaceEntry2, marketplaceEntry3))
+
+        val returnedResult = this.performGet("$rootUrl/entries/public", anonymously = true)
+            .checkStatus(HttpStatus.OK)
+            .andDo { log.info(it.response.contentAsString) }
+            .returns(object : TypeReference<RestResponsePage<MarketplaceEntryDto>>() {})
+
+        assertThat(returnedResult.numberOfElements).isEqualTo(3)
     }
 
-    internal fun searchableTags(prefix: String = ""): List<FieldDescriptor> {
-        return listOf(
-            fieldWithPath(prefix + "id").type(JsonFieldType.STRING).optional().description("Unique UUID"),
-            fieldWithPath(prefix + "name").optional().type(JsonFieldType.STRING).optional().description("Name of Tag, unique, useful and readable"),
-            fieldWithPath(prefix + "type").type(JsonFieldType.STRING).optional().description("Type or Family of this Tag"),
-            fieldWithPath(prefix + "public").type(JsonFieldType.BOOLEAN).optional().description("Flag indicating whether this is public or not")
-        )
+    @Transactional
+    @Rollback
+    @Test fun `Cannot retrieve users' MarketplaceEntries as Visitor`() {
+        val (account, _, _) = gitlabHelper.createRealUser(index = -1)
+        val (dataProject1, _) = gitlabHelper.createRealDataProject(account, slug = "slug1")
+        val (dataProject2, _) = gitlabHelper.createRealDataProject(account, slug = "slug2")
+        val (dataProject3, _) = gitlabHelper.createRealDataProject(account, slug = "slug3")
+
+        val marketplaceEntry1 = EntityMocks.marketplaceEntry(owner = account.person, searchable = dataProject1)
+        val marketplaceEntry2 = EntityMocks.marketplaceEntry(owner = account.person, searchable = dataProject2)
+        val marketplaceEntry3 = EntityMocks.marketplaceEntry(owner = account.person, searchable = dataProject3)
+
+        marketplaceEntryRepository.saveAll(listOf(marketplaceEntry1, marketplaceEntry2, marketplaceEntry3))
+
+        this.performGet("$rootUrl/entries", anonymously = true)
+            .checkStatus(HttpStatus.FORBIDDEN)
     }
 }

@@ -51,7 +51,7 @@ class SecurityConfiguration(private val provider: AuthenticationProvider) : WebS
             .exceptionHandling().and()
             .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
             .anonymous().and()
-            .authorizeRequests().antMatchers("/docs", "/docs/*", AUTH_LOGIN_URL, AUTH_REGISTER_URL, EPF_BOT_URL, INFO_URL).permitAll()
+            .authorizeRequests().antMatchers("/docs", "/docs/*", AUTH_LOGIN_URL, AUTH_REGISTER_URL, EPF_BOT_URL, INFO_URL, *visitorsUrls).permitAll()
             .and()
             .authorizeRequests().anyRequest().fullyAuthenticated()
             .and()
@@ -59,7 +59,6 @@ class SecurityConfiguration(private val provider: AuthenticationProvider) : WebS
             .csrf().disable()
             .httpBasic().disable()
             .logout().disable()
-
     }
 
     @Bean
@@ -83,6 +82,7 @@ class SecurityConfiguration(private val provider: AuthenticationProvider) : WebS
     companion object {
         private val log = LoggerFactory.getLogger(SecurityConfiguration::class.java)
 
+        //Access without any security check
         private const val PROTECTED_URL = "/api/v1/**"
         private const val AUTH_LOGIN_URL = "/api/v1/auth/login"
         private const val AUTH_REGISTER_URL = "/api/v1/auth/register"
@@ -90,8 +90,18 @@ class SecurityConfiguration(private val provider: AuthenticationProvider) : WebS
         private const val INFO_URL = "/api/v1/info/**"
         private const val PING_URL = "/api/v1/ping"
 
-        // FIXME: Do we still need this?
-        private val STRING_ANT_PATTERNS = listOf("/docs", "/docs/*", AUTH_LOGIN_URL, AUTH_REGISTER_URL, EPF_BOT_URL, INFO_URL).toTypedArray()
+        //Access with anonymous check (for visitors)
+        private const val GENERIC_PROJECTS_PUBLIC_URL = "/api/v1/projects/public"
+        private const val CODE_PROJECTS_PUBLIC_URL = "/api/v1/code-projects/public"
+        private const val DATA_PROJECTS_PUBLIC_URL = "/api/v1/data-projects/public"
+        private const val MARKETPLACE_PUBLIC_URL = "/api/v1/explore/entries/public"
+
+        private val visitorsUrls = arrayOf(
+            MARKETPLACE_PUBLIC_URL,
+            GENERIC_PROJECTS_PUBLIC_URL,
+            CODE_PROJECTS_PUBLIC_URL,
+            DATA_PROJECTS_PUBLIC_URL
+        )
 
         private val PROTECTED_MATCHER = AndRequestMatcher(
             AntPathRequestMatcher(PROTECTED_URL),

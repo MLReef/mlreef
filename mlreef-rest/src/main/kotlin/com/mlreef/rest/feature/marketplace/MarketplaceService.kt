@@ -17,8 +17,9 @@ import com.mlreef.rest.marketplace.MarketplaceEntry
 import com.mlreef.rest.marketplace.SearchableTag
 import com.mlreef.rest.marketplace.SearchableType
 import com.mlreef.utils.Slugs
-import lombok.RequiredArgsConstructor
 import org.slf4j.LoggerFactory
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 import java.util.UUID
 
@@ -27,12 +28,13 @@ import java.util.UUID
  * All Operations which are not only scoped into a single Entry are handled by this Service
  */
 @Service
-@RequiredArgsConstructor
 class MarketplaceService(
     private val marketplaceEntryRepository: MarketplaceEntryRepository,
     private val searchableTagRepository: SearchableTagRepository
 ) {
-    val log = LoggerFactory.getLogger(this::class.java)
+    companion object {
+        val log = LoggerFactory.getLogger(this::class.java)
+    }
 
     /**
      * Creates a new Entry for a Searchable with a Subject as owner/author.
@@ -175,5 +177,9 @@ class MarketplaceService(
         val findPublic = marketplaceEntryRepository.findByGlobalSlugAndVisibilityScope(slug, VisibilityScope.PUBLIC)
 
         return findPublic ?: accessibleDataProject ?: accessibleProcessor ?: throw NotFoundException("Not found")
+    }
+
+    fun findPublicEntriesPageable(page: Pageable): Page<MarketplaceEntry> {
+        return marketplaceEntryRepository.findAllByVisibilityScope(VisibilityScope.PUBLIC, page)
     }
 }

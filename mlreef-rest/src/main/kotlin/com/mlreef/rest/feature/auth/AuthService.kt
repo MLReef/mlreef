@@ -19,9 +19,7 @@ import com.mlreef.rest.exceptions.UserAlreadyExistsException
 import com.mlreef.rest.exceptions.UserNotFoundException
 import com.mlreef.rest.external_api.gitlab.GitlabRestClient
 import com.mlreef.rest.external_api.gitlab.TokenDetails
-import com.mlreef.rest.external_api.gitlab.dto.GitlabGroup
 import com.mlreef.rest.external_api.gitlab.dto.GitlabUser
-import com.mlreef.rest.external_api.gitlab.dto.GitlabUserInGroup
 import com.mlreef.rest.external_api.gitlab.dto.GitlabUserToken
 import com.mlreef.rest.external_api.gitlab.dto.GroupVariable
 import com.mlreef.rest.external_api.gitlab.dto.OAuthToken
@@ -44,6 +42,7 @@ import javax.transaction.Transactional
 
 interface AuthService {
     fun createTokenDetails(token: String, account: Account, gitlabUser: GitlabUser): TokenDetails
+    fun createGuestDetails(): TokenDetails
     fun findAccountByToken(token: String): Account
     fun findAccountByGitlabId(gitlabId: Long): Account?
     fun findAccountById(id: UUID): Account?
@@ -76,7 +75,25 @@ class GitlabAuthService(
 
     private val GITLAB_GROUP_VARIABLE_NAME_FOR_BOT_TOKEN = "EPF_BOT_TOKEN"
 
-    val log = LoggerFactory.getLogger(this::class.java)
+    companion object {
+        val log = LoggerFactory.getLogger(this::class.java)
+
+        private val GUEST_ACCOUNT_ID = UUID(0L, 0L)
+        private val GUEST_PERSON_ID = UUID(0L, 0L)
+
+        private val guestTokenDetails: TokenDetails by lazy {
+            TokenDetails(
+                username = "",
+                permanentToken = "",
+                accessToken = null,
+                accountId = GUEST_ACCOUNT_ID,
+                personId = GUEST_PERSON_ID,
+                gitlabUser = null,
+                valid = (true),
+                isVisitor = true
+            )
+        }
+    }
 
     override fun loginUser(plainPassword: String, username: String?, email: String?): Pair<Account, OAuthToken> {
         val byUsername: Account? = if (username != null) accountRepository.findOneByUsername(username) else null
@@ -200,13 +217,6 @@ class GitlabAuthService(
         return gitlabRestClient.adminCreateUserToken(gitlabUserId = gitlabUserId, tokenName = tokenName)
     }
 
-    @Deprecated("unused?")
-    private fun addGitlabUserToGroup(user: GitlabUser, group: GitlabGroup): GitlabUserInGroup {
-        val userId = user.id
-        val groupId = group.id
-        return gitlabRestClient.adminAddUserToGroup(groupId = groupId, userId = userId)
-    }
-
     private fun createGitlabVariable(token: String, groupId: Long, variableName: String, value: String): GroupVariable {
         return gitlabRestClient.userCreateGroupVariable(token = token, groupId = groupId, name = variableName, value = value)
     }
@@ -220,7 +230,8 @@ class GitlabAuthService(
             accountId = account.id,
             personId = account.person.id,
             gitlabUser = gitlabUser,
-            valid = true
+            valid = true,
+            isVisitor = false
         )
 
         tokenDetails = injectGitlabInfoIntoTokenDetails(tokenDetails, account)
@@ -233,6 +244,10 @@ class GitlabAuthService(
         tokenDetails.projects.putAll(dataProjectsService.getUserProjectsList(account.id).map { Pair(it.id, it.accessLevel) })
         tokenDetails.projects.putAll(codeProjectsService.getUserProjectsList(account.id).map { Pair(it.id, it.accessLevel) })
         return tokenDetails
+    }
+
+    override fun createGuestDetails(): TokenDetails {
+        return guestTokenDetails
     }
 
     override fun findAccountByToken(token: String): Account {

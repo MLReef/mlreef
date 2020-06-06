@@ -1,5 +1,6 @@
 package com.mlreef.rest.api
 
+import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.mlreef.rest.Account
 import com.mlreef.rest.AccountRepository
@@ -71,6 +72,19 @@ abstract class AbstractRestApiTest {
             .contentType(MediaType.APPLICATION_JSON)
     }
 
+    protected fun acceptAnonymousAuth(requestBuilder: MockHttpServletRequestBuilder): MockHttpServletRequestBuilder {
+        return requestBuilder
+            .accept(MediaType.APPLICATION_JSON)
+            .contentType(MediaType.APPLICATION_JSON)
+    }
+
+    protected fun defaultAcceptContentEPFBot(token: String, requestBuilder: MockHttpServletRequestBuilder): MockHttpServletRequestBuilder {
+        return requestBuilder
+            .accept(MediaType.APPLICATION_JSON)
+            .header(EPF_HEADER, token)
+            .contentType(MediaType.APPLICATION_JSON)
+    }
+
     protected fun performPost(url: String, account: Account? = null, body: Any? = null) =
         if (body != null) {
             this.mockMvc.perform(
@@ -92,6 +106,14 @@ abstract class AbstractRestApiTest {
     protected fun performGet(url: String, account: Account? = null) =
         this.mockMvc.perform(this.acceptContentAuth(RestDocumentationRequestBuilders.get(url), account))
 
+    protected fun performGet(url: String, account: Account? = null, anonymously: Boolean = false): ResultActions {
+        return if (anonymously) {
+            this.mockMvc.perform(this.acceptAnonymousAuth(RestDocumentationRequestBuilders.get(url)))
+        } else {
+            this.mockMvc.perform(this.acceptContentAuth(RestDocumentationRequestBuilders.get(url), account))
+        }
+    }
+
     protected fun performDelete(url: String, account: Account? = null) =
         this.mockMvc.perform(this.acceptContentAuth(RestDocumentationRequestBuilders.delete(url), account))
 
@@ -103,12 +125,7 @@ abstract class AbstractRestApiTest {
             this.mockMvc.perform(this.defaultAcceptContentEPFBot(token, RestDocumentationRequestBuilders.put(url)))
         }
 
-    protected fun defaultAcceptContentEPFBot(token: String, requestBuilder: MockHttpServletRequestBuilder): MockHttpServletRequestBuilder {
-        return requestBuilder
-            .accept(MediaType.APPLICATION_JSON)
-            .header(EPF_HEADER, token)
-            .contentType(MediaType.APPLICATION_JSON)
-    }
+
 
     protected fun errorResponseFields(): List<FieldDescriptor> {
         return listOf(
@@ -137,6 +154,12 @@ abstract class AbstractRestApiTest {
     fun <T> ResultActions.returns(clazz: Class<T>): T {
         return this.andReturn().let {
             objectMapper.readValue(it.response.contentAsByteArray, clazz)
+        }
+    }
+
+    fun <T> ResultActions.returns(valueTypeRef: TypeReference<T>): T {
+        return this.andReturn().let {
+            objectMapper.readValue(it.response.contentAsByteArray, valueTypeRef)
         }
     }
 }
