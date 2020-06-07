@@ -182,7 +182,7 @@ class MultiModel:
     def __init__(self, params):
         # Top level data directory. Here we assume the format of the directory conforms
         #  to the ImageFolder structure
-        self.input_dir = '/home/erika/FashionStyle14_v1'
+        self.input_dir = params['input_path']
         self.output_dir = params['output_path']
         # create folder if does not exists
         if not os.path.exists(self.output_dir):
