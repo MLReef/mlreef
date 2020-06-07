@@ -36,8 +36,6 @@ class Rotate:
         return 1
 
 
-
-
 def process_arguments(args):
     parser = argparse.ArgumentParser(description='Pipeline: Rotate')
     parser.add_argument('--input-path', action='store', help='path to directory of images')
