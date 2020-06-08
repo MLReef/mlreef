@@ -49,13 +49,15 @@ class ExperimentsOverview extends Component {
                 .then((branches) => {
                   const arrayOfBranches = branches.filter((branch) => branch.name.startsWith('experiment'));
                   const experimentsClassified = classifyExperiments(res, arrayOfBranches, experiments);
-                  actions.setIsLoading(false);
                   this.setState({ experiments: experimentsClassified, all: experimentsClassified });
                   this.displayEmptyLogo();
                 });
             });
         })
-        .catch(() => toastr.error('Error', 'Could not fetch the latest experiments'));
+        .catch(() => toastr.error('Error', 'Could not fetch the latest experiments'))
+        .finally(() => {
+          actions.setIsLoading(false);
+        });
     }
   }
 
