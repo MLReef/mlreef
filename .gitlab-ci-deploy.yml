@@ -26,11 +26,12 @@ deploy:
     # If a frontend image exists for the current branch, rewrite the docker compose file
     # change the frontend docker image from "latest" to the current branch's $CI_COMMIT_REF_SLUG
     # As can be seen in .gitlab-ci-build.yml there is no image with tag "master", because it will be named "latest"
-    # 1113714 is the id of the "frontend's" sub-repository id
-    - DOCKER_BRANCH_IMAGE_URL=https://gitlab.com/api/v4/projects/$CI_PROJECT_ID/registry/repositories/1113714/tags/$TAG/
+    # 1117031 is the id of the "gateway's" sub-repository id
+    - DOCKER_BRANCH_IMAGE_URL=https://gitlab.com/api/v4/projects/$CI_PROJECT_ID/registry/repositories/1117031/tags/$TAG/
     - echo "DOCKER_BRANCH_IMAGE_URL is $DOCKER_BRANCH_IMAGE_URL"
     - CURL_RESPONSE=$(curl --silent --header "PRIVATE-TOKEN$COLON $GITLAB_COM_API_TOKEN" --output /dev/null -w ''%{http_code}'' $DOCKER_BRANCH_IMAGE_URL)
-    - if [ "$CURL_RESPONSE" = "200" ]; then sed -i "s/frontend:latest/frontend:$TAG/" $DOCKER_COMPOSE; fi
+    - echo $CURL_RESPONSE
+    - if [ "$CURL_RESPONSE" = "200" ]; then sed -i "s/gateway:latest/gateway:$TAG/" $DOCKER_COMPOSE; fi
 
     # rewrite docker compose file:
     # Activate (uncomment) specific lines in the docker-compose file
@@ -44,6 +45,9 @@ deploy:
     - echo $URL                                                       # debug output
     - chmod 400 $SSH_KEYFILE                                          # prepare private key file
     - chmod +x src/bin/*
+    - chmod +x web/*
+    - ls -l
+    - ls -l web/
     - while ! ssh-keyscan -H "$URL" >>~/.ssh/known_hosts; do echo "Trying again..."; sleep 5; done
     ### upload modified docker-compose to ec2 instance
     - ssh -i $SSH_KEYFILE -o 'AddKeysToAgent yes' ubuntu@"${URL}"     "mkdir -p /home/ubuntu/bin"
@@ -51,7 +55,6 @@ deploy:
     - ssh -i $SSH_KEYFILE -o 'AddKeysToAgent yes' ubuntu@"${URL}"     "mkdir -p /home/ubuntu/src/resources"
     - scp -i $SSH_KEYFILE -o 'AddKeysToAgent yes' $DOCKER_COMPOSE     ubuntu@${URL}:/home/ubuntu/$DOCKER_COMPOSE
     - scp -i $SSH_KEYFILE -o 'AddKeysToAgent yes' $DEPLOY_SCRIPT      ubuntu@${URL}:/home/ubuntu/$DEPLOY_SCRIPT
-    - scp -i $SSH_KEYFILE -o 'AddKeysToAgent yes' $NGINX_CONFIG       ubuntu@${URL}:/home/ubuntu/$NGINX_CONFIG
     - echo "Wait for the machine to actually install docker"
     - echo "Starting deploy script"
     - echo "----------------------------------------"

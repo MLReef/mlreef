@@ -28,13 +28,13 @@ build frontend:
     - echo "${CI_REGISTRY_PASSWORD}" | docker login ${CI_REGISTRY} --username=${CI_REGISTRY_USER} --password-stdin
     - export TAG="${CI_COMMIT_REF_SLUG}"
     - if [ $CI_COMMIT_REF_SLUG == "master" ]; then TAG="latest";  fi          # follow docker naming conventions
-    - export IMAGE_PATH=$CI_REGISTRY_IMAGE/frontend:$TAG
+    - export IMAGE_PATH=$CI_REGISTRY_IMAGE/gateway:$TAG
     - docker build --tag "$IMAGE_PATH" -f Dockerfile .
     - docker push "$IMAGE_PATH"
 
     # Get Test coverage report from build image
     - docker create -ti --name dummy "$IMAGE_PATH" bash
-    - docker cp dummy:/app/coverage coverage
+    - docker cp dummy:/usr/share/coverage coverage
     - docker rm -f dummy
   artifacts:
     expire_in: 3 days

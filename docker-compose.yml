@@ -6,33 +6,16 @@ services:
 
   gateway:
     container_name: gateway
-    image: nginx
+    image: registry.gitlab.com/mlreef/mlreef/gateway:latest
     restart: always
     depends_on:
       - gitlab
       - backend
-      - frontend
     ports:
       - "80:80"
-    volumes:
-      - "./src/resources/nginx_proxy.conf:/etc/nginx/conf.d/default.conf"
-    networks:
-      - mlreef-docker-network
-
-
-  frontend:
-    container_name: frontend
-    image: registry.gitlab.com/mlreef/mlreef/frontend:latest
-    restart: always
-    depends_on:
-      - gitlab
-      - backend
-    ports:
-      - "3001:3000"
     env_file: local.env
     networks:
       - mlreef-docker-network
-
 
   backend:
     container_name: backend
