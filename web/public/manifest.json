@@ -1,6 +1,6 @@
 {
   "short_name": "MLReef",
-  "name": "Create React App Sample",
+  "name": "Provides you and your team the environment to manage your data",
   "start_url": "./index.html",
   "display": "standalone",
   "theme_color": "#000000",

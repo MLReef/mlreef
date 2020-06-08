@@ -53,7 +53,7 @@ You can start the frontend separately with npm running `npm start`
 
 To build the frontend's production docker image execute `docker build --tag frontend:local .`
 
-To run the production image locally execute `docker run --rm --name frontend-prod-test -p 3000:3000 frontend:local`
+To run the production image locally execute `docker run --rm --name frontend-prod-test --publish 80:80 frontend:local`
 
 
 ### Run the backend services locally
@@ -348,6 +348,7 @@ docker-compose up -d backend
 # restart the frontend
 docker-compose up -d frontend  nginx-proxy
 ```
+
 
 #### Attention: 2nd Proxy for local dev environment
 
