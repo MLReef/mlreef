@@ -54,7 +54,7 @@ export default class ExperimentsApi {
     const url = `/api/v1/data-projects/${projectUUID}/experiments`;
     const response = await generateGetRequest(url);
     if (!response.ok) {
-      Promise.reject(response);
+      return Promise.reject(response);
     }
     return response.json();
   }
