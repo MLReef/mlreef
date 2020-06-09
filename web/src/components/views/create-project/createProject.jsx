@@ -137,7 +137,6 @@ class CreateProject extends Component {
           .then(() => this.setState({ redirect: true, gitlabId: pro.gitlab_id }))
       })
       .catch((err) => {
-        console.log(err);
         toastr.error('Error', err || 'Something went wrong')
       });
   }

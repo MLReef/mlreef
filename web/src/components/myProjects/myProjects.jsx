@@ -187,8 +187,8 @@ Myprojects.propTypes = {
 
   actions: shape({
     getProjectsList: func.isRequired,
-    getUserProjects: func.isRequired,
-    getStarredProjects: func.isRequired,
+    /* getUserProjects: func.isRequired, */
+    /* getStarredProjects: func.isRequired, */
   }).isRequired,
 };
 

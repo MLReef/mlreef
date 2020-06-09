@@ -42,13 +42,12 @@ export default class ProjectGeneralInfoApi extends ApiDirector {
           return Promise.reject(res);
         }
         const projectsList = await res.json();
-        const dataProjects = plainToClass(DataProject, parseToCamelCase(projectsList.map((backPro: any) => {
+        const dataProjects = plainToClass(DataProject, projectsList.map((p: any) => parseToCamelCase(p)).map((backPro: any) => {
           const newPro = { ...backPro, backendId: backPro.id };
-          newPro.experiments = parseToCamelCase(backPro.experiments).map((exp: any) => plainToClass(Experiment, exp));
+          newPro.experiments = backPro.experiments.map((exp: any) => plainToClass(Experiment, parseToCamelCase(exp)));
           delete newPro.id;
           return newPro;
-        })));
-        console.log(dataProjects);
+        }));
         return dataProjects;
       })
   }

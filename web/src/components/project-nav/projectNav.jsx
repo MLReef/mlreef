@@ -13,12 +13,13 @@ const ProjectNav = (props) => {
       <></>
     );
   }
+  console.log(selectedProject);
   const { folders } = props;
-  const { name, id } = selectedProject;
+  const { gitlabName, id } = selectedProject;
 
   return (
     <div className="project-nav">
-      {folders.map((folder, index) => (folder === name)
+      {folders.map((folder, index) => (folder === gitlabName)
         ? (
           <Link
             key={`project-nav-link-${index.toString()}`}
@@ -40,7 +41,7 @@ const ProjectNav = (props) => {
 
 ProjectNav.propTypes = {
   selectedProject: shape({
-    name: string.isRequired,
+    gitlabName: string.isRequired,
   }).isRequired,
   folders: arrayOf(string).isRequired,
 };

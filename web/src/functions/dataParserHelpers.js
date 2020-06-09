@@ -160,8 +160,8 @@ export const getCommentFromCommit = (message = '') => {
   return comment.join('\n\n');
 };
 
-export const parseToCamelCase = (arrayOfObjects) => arrayOfObjects.map((obj) => {
-  const keys = Object.keys(obj);
+export const parseToCamelCase = (objectToParse) => {
+  const keys = Object.keys(objectToParse);
   const newObj = { };
   keys.forEach((key) => {
     const splittedKey = key.toString().split('');
@@ -174,7 +174,7 @@ export const parseToCamelCase = (arrayOfObjects) => arrayOfObjects.map((obj) => 
       }
       newKey = `${newKey}${newChar}`.replace('_', '');
     });
-    newObj[newKey] = obj[key];
+    newObj[newKey] = objectToParse[key];
   });
   return newObj;
-});
+};
