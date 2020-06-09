@@ -105,7 +105,7 @@ gitlab env config:
     # configure the gitlab environment with the correct URL
     - curl --request PUT --fail
       --header "$KEY Bearer $GITLAB_COM_API_TOKEN"
-      --data "name=$CI_COMMIT_REF_SLUG&external_url=http://$URL"
+      --data "name=$CI_COMMIT_REF_SLUG&external_url=http://$URL/login"
       https://gitlab.com/api/v4/projects/$CI_PROJECT_ID/environments/$ID
 
 
