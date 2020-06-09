@@ -96,7 +96,6 @@ abstract class IntegrationRestApiTest : AbstractRestApiTest() {
         restClient.adminAddUserToProject(projectId = projectId, userId = userId, accessLevel = accessLevel
             ?: GroupAccessLevel.DEVELOPER)
     }
-
 }
 
 
