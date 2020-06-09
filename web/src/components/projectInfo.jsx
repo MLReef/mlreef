@@ -14,22 +14,20 @@ import * as projectActions from '../actions/projectInfoActions';
 const ProjectInfo = (props) => {
   const {
     project,
+    project: {
+      id,
+      iconUrl,
+      defaultBranch,
+      gitlabName: name,
+      starCount: stars,
+      forksCount: forks,
+      httpUrlToRepo,
+      sshUrlToRepo
+    },
     actions,
     userNamespace,
     setIsForking,
   } = props;
-  let id, iconUrl, default_branch, name, stars, forks, http_url_to_repo, ssh_url_to_repo;
-
-  if(project) {
-    iconUrl = project.avatarUrl;
-    default_branch = project.defaultBranch;
-    id = project.id;
-    name = project.gitlabName;
-    stars = project.starCount;
-    forks = project.forksCount;
-    http_url_to_repo = project.httpUrlToRepo;
-    ssh_url_to_repo = project.sshUrlToRepo;
-  }
   const [redirect, setRedirect] = React.useState(false);
 
   function handleFork() {
@@ -57,13 +55,13 @@ const ProjectInfo = (props) => {
   return (
     <div className="project-info">
       <div className="project-id">
-        <Link to={`/my-projects/${id}/${default_branch}`}>
+        <Link to={`/my-projects/${id}/${defaultBranch}`}>
           <div className="project-pic">
             <img style={{ minWidth: '100%' }} src={iconUrl} alt="" />
           </div>
         </Link>
         <div className="project-name">
-          <Link to={`/my-projects/${id}/${default_branch}`} id="projectName">{name}</Link>
+          <Link to={`/my-projects/${id}/${defaultBranch}`} id="projectName">{name}</Link>
           <p id="projectId">
             Project ID:
             {id}
@@ -93,7 +91,7 @@ const ProjectInfo = (props) => {
           </div>
         </div>
 
-        {default_branch !== null && (
+        {defaultBranch !== null && (
         <div className="options d-flex mr-2">
           <button
             type="button"
@@ -114,7 +112,7 @@ const ProjectInfo = (props) => {
             <img className="mr-0 mr-lg-1" id="option-image" src={clone01} alt="" />
             <span className="my-auto d-none d-lg-block">Clone</span>
           </div>
-          <Clonedropdown className="border-rounded-right h-100" http={http_url_to_repo} ssh={ssh_url_to_repo} />
+          <Clonedropdown className="border-rounded-right h-100" http={httpUrlToRepo} ssh={sshUrlToRepo} />
         </div>
       </div>
     </div>
@@ -252,7 +250,7 @@ ProjectInfo.propTypes = {
   project: shape({
     avatarUrl: string,
     forksCount: number.isRequired,
-    name: string.isRequired,
+    gitlabName: string.isRequired,
     id: number.isRequired,
     defaultBranch: string,
     starCount: number.isRequired,

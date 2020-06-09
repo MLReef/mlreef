@@ -19,7 +19,7 @@ import * as branchesActions from '../../actions/branchesActions';
 import * as processorActions from '../../actions/processorActions';
 import './projectView.css';
 import commitsApi from '../../apis/CommitsApi';
-import { getTimeCreatedAgo } from '../../functions/dataParserHelpers';
+import { getTimeCreatedAgo, parseToCamelCase } from '../../functions/dataParserHelpers';
 import * as userActions from '../../actions/userActions';
 import * as jobsActions from '../../actions/jobsActions';
 import * as mergeActions from '../../actions/mergeActions';
@@ -70,7 +70,8 @@ class ProjectView extends React.Component {
     
     const projectGeneralInfoApi = new ProjectGeneralInfoApi();
     projectGeneralInfoApi.getProjectInfoApi(projectId)
-      .then((gitlabProjectInfo) => {
+      .then((rawGitlabProjectInfo) => {
+        const gitlabProjectInfo = parseToCamelCase(rawGitlabProjectInfo);
         const backendProjectInformation = all.filter((proj) => proj.gitlabId.toString() === projectId)[0];
         const dp = new DataProject(
           backendProjectInformation.backendId,
@@ -80,14 +81,15 @@ class ProjectView extends React.Component {
           backendProjectInformation.gitlabGroup,
           backendProjectInformation.experiments,
         );
-        dp.avatarUrl = gitlabProjectInfo.avatar_url;
-        dp.defaultBranch = gitlabProjectInfo.default_branch;
+        dp.avatarUrl = gitlabProjectInfo.avatarUrl;
+        dp.defaultBranch = gitlabProjectInfo.defaultBranch;
         dp.description = gitlabProjectInfo.description;
-        dp.emptyRepo = gitlabProjectInfo.empty_repo;
-        dp.forksCount = gitlabProjectInfo.forks_count;
-        dp.starCount = gitlabProjectInfo.star_count;
-        dp.httpUrlToRepo = gitlabProjectInfo.http_url_to_tepo;
-        dp.readmeUrl = gitlabProjectInfo.readme_url;
+        dp.emptyRepo = gitlabProjectInfo.emptyRepo;
+        dp.forksCount = gitlabProjectInfo.forksCount;
+        dp.starCount = gitlabProjectInfo.starCount;
+        dp.httpUrlToRepo = gitlabProjectInfo.httpUrlToRepo;
+        dp.sshUrlToRepo = gitlabProjectInfo.sshUrlToRepo;
+        dp.readmeUrl = gitlabProjectInfo.readmeUrl;
         dp.namespace = gitlabProjectInfo.namespace;
         dp.gitlabName = gitlabProjectInfo.name;
         dp.id = gitlabProjectInfo.id;
