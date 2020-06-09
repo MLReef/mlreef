@@ -74,7 +74,7 @@ get production ip:
   image: registry.gitlab.com/systemkern/s5:latest-aws
   variables:
     TF_VAR_INSTANCE_NAME: "mlreef-production"              # Used by terraform and '.gitlab-ci-provision.yml'
-  script: echo "mlreef.com" > $INSTANCE_INFO               # pass instance url to deploy stage
+  script: echo "ec2-3-126-88-77.eu-central-1.compute.amazonaws.com" > $INSTANCE_INFO               # pass instance url to deploy stage
   after_script:
     - cat $INSTANCE_INFO                                   # debug output
   artifacts:
