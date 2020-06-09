@@ -17,7 +17,6 @@ import com.mlreef.rest.persistence.AbstractRepositoryTest
 import com.mlreef.rest.testcommons.EntityMocks
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.repository.findByIdOrNull
@@ -64,12 +63,9 @@ class MarketplaceServiceTest : AbstractRepositoryTest() {
         service = MarketplaceService(repository, tagRepository)
     }
 
-    @Transactional
-    @Test
-    @Disabled
-        /**
-         * Fails sometimes?
-         */
+//    @Transactional
+//    @Test
+//    @Disabled - Ignores the annotation and try to run the test
     fun `createEntry persists Entry`() {
         val createEntry = service.createEntry(dataOperation, author)
 

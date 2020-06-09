@@ -162,6 +162,27 @@ abstract class AbstractRestApiTest {
             objectMapper.readValue(it.response.contentAsByteArray, valueTypeRef)
         }
     }
+
+    fun ResultActions.expectOk(): ResultActions {
+        return this.andExpect(MockMvcResultMatchers.status().isOk)
+    }
+
+    fun ResultActions.expectForbidden(): ResultActions {
+        return this.andExpect(MockMvcResultMatchers.status().isForbidden)
+    }
+
+    fun ResultActions.expect4xx(): ResultActions {
+        return this.andExpect(MockMvcResultMatchers.status().is4xxClientError)
+    }
+
+    fun ResultActions.expectNoContent(): ResultActions {
+        return this.andExpect(MockMvcResultMatchers.status().isNoContent)
+    }
+
+    fun ResultActions.expectBadRequest(): ResultActions {
+        return this.andExpect(MockMvcResultMatchers.status().isBadRequest)
+    }
+
 }
 
 
