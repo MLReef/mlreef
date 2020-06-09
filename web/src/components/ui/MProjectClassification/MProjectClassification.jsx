@@ -1,5 +1,7 @@
 import React, { Component, createRef } from 'react';
-import { bool, shape, arrayOf, string } from 'prop-types';
+import {
+  bool, shape, arrayOf, string,
+} from 'prop-types';
 import { CircularProgress } from '@material-ui/core';
 import { Link } from 'react-router-dom';
 import ArrowButton from 'components/arrow-button/arrowButton';
@@ -19,7 +21,7 @@ class MProjectClassification extends Component {
     };
   }
 
-  componentDidMount(){
+  componentDidMount() {
     this.ownBtnRef.current.click();
   }
 
@@ -77,77 +79,76 @@ class MProjectClassification extends Component {
       { name: `${classification} data-types`, label: 'Video' },
       { name: `${classification} data-types`, label: 'Tabular' },
     ];
-
     return (
       <div style={{ display: 'flex', justifyContent: 'space-around' }}>
-      <div>
-        <div id="buttons-div">
-          <div id="filter-div">
-            <button
-              id={`${classification}-own-btn`}
-              ref={this.ownBtnRef}
-              onClick={(e) => this.handleProjectFilterBtn(e, '#personal')}
-              type="button"
-              className="btn btn-basic-dark"
-            >
-              My projects
-            </button>
-            <button
-              id={`${classification}-starred-btn`}
-              onClick={(e) => this.handleProjectFilterBtn(e, '#starred')}
-              type="button"
-              className="btn btn-basic-dark"
-            >
-              Starred
-            </button>
-            <button
-              id={`${classification}-explore-btn`}
-              onClick={(e) => this.handleProjectFilterBtn(e, '#explore')}
-              type="button"
-              className="btn btn-basic-dark"
-            >
-              Explore
-            </button>
-          </div>
-          <div id="new-element-container">
-            <Link
-              to={`/new-project/classification/${classification}`}
-              type="button"
-              className="btn btn-primary"
-            >
-              New project
-            </Link>
-          </div>
-        </div>
-        {isFetching
-          ? (
-            <div className="project-content-loader">
-              <CircularProgress size={40} />
+        <div>
+          <div id="buttons-div">
+            <div id="filter-div">
+              <button
+                id={`${classification}-own-btn`}
+                ref={this.ownBtnRef}
+                onClick={(e) => this.handleProjectFilterBtn(e, '#personal')}
+                type="button"
+                className="btn btn-basic-dark"
+              >
+                My projects
+              </button>
+              <button
+                id={`${classification}-starred-btn`}
+                onClick={(e) => this.handleProjectFilterBtn(e, '#starred')}
+                type="button"
+                className="btn btn-basic-dark"
+              >
+                Starred
+              </button>
+              <button
+                id={`${classification}-explore-btn`}
+                onClick={(e) => this.handleProjectFilterBtn(e, '#explore')}
+                type="button"
+                className="btn btn-basic-dark"
+              >
+                Explore
+              </button>
             </div>
-          )
-          : (
-            <div className="m-project-classification">
-              <ProjectSet
-                push={push}
-                screen={screen || '#personal'}
-                changeScreen={this.changeScreen}
-                allProjects={allProjects}
-                personalProjects={userProjects}
-                starredProjects={starredProjects}
-              />
-              <div id="side-filters">
-                <div id="input-div">
-                  <p>Refine by</p>
-                  <button>Clear filters</button>
-                </div>
-                <br />
-                <div id="data-types-deploy-btn">
-                  <p>
-                    Data types
-                  </p>
-                  <ArrowButton callback={this.handleClickDataTypesButton} />
-                </div>
-                {isDataTypesVisible
+            <div id="new-element-container">
+              <Link
+                to={`/new-project/classification/${classification}`}
+                type="button"
+                className="btn btn-primary"
+              >
+                New project
+              </Link>
+            </div>
+          </div>
+          {isFetching
+            ? (
+              <div className="project-content-loader">
+                <CircularProgress size={40} />
+              </div>
+            )
+            : (
+              <div className="m-project-classification">
+                <ProjectSet
+                  push={push}
+                  screen={screen || '#personal'}
+                  changeScreen={this.changeScreen}
+                  allProjects={allProjects}
+                  personalProjects={userProjects}
+                  starredProjects={starredProjects}
+                />
+                <div id="side-filters">
+                  <div id="input-div">
+                    <p>Refine by</p>
+                    <button>Clear filters</button>
+                  </div>
+                  <br />
+                  <div id="data-types-deploy-btn">
+                    <p>
+                      Data types
+                    </p>
+                    <ArrowButton callback={this.handleClickDataTypesButton} />
+                  </div>
+                  {isDataTypesVisible
                 && (
                   dataTypes.map((dtype) => (
                     <MCheckBox
@@ -155,15 +156,15 @@ class MProjectClassification extends Component {
                       name={dtype.name}
                       labelValue={dtype.label}
                       callback={(name, labelValue, newValue) => {
-                        
+
                       }}
                     />
                   ))
                 )}
+                </div>
               </div>
-            </div>
-          )}
-      </div>
+            )}
+        </div>
       </div>
     );
   }

@@ -153,9 +153,28 @@ export const convertToSlug = (stringToConvert) => stringToConvert
   .replace(/ /g, '-')
   .replace(/[-]+/g, '-')
   .replace(/[^\w-]+/g, '');
-  
+
 export const getCommentFromCommit = (message = '') => {
   const [, ...comment] = message.split('\n\n');
 
   return comment.join('\n\n');
 };
+
+export const parseToCamelCase = (arrayOfObjects) => arrayOfObjects.map((obj) => {
+  const keys = Object.keys(obj);
+  const newObj = { };
+  keys.forEach((key) => {
+    const splittedKey = key.toString().split('');
+    let newKey = '';
+    let newChar = '';
+    splittedKey.forEach((char, indexOfChar) => {
+      newChar = char;
+      if (splittedKey[indexOfChar - 1] === '_') {
+        newChar = char.toUpperCase();
+      }
+      newKey = `${newKey}${newChar}`.replace('_', '');
+    });
+    newObj[newKey] = obj[key];
+  });
+  return newObj;
+});

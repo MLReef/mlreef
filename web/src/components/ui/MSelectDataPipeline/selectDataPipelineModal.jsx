@@ -17,7 +17,7 @@ class SelectDataPipelineModal extends Component {
     const {
       show,
       branches,
-      project: { default_branch: defaultBranch },
+      project: { defaultBranch },
     } = this.props;
 
     this.state = {
@@ -323,7 +323,7 @@ SelectDataPipelineModal.propTypes = {
   show: PropTypes.bool,
   project: shape({
     id: number.isRequired,
-    default_branch: string.isRequired,
+    defaultBranch: string.isRequired,
   }).isRequired,
   handleModalAccept: func.isRequired,
   selectDataClick: func.isRequired,

@@ -8,7 +8,7 @@ import {
 import star01 from '../images/star_01.svg';
 import fork01 from '../images/fork_01.svg';
 import clone01 from '../images/clone_01.svg';
-import projectGeneralInfoApi from '../apis/projectGeneralInfoApi';
+import ProjectGeneralInfoApi from '../apis/projectGeneralInfoApi.ts';
 import * as projectActions from '../actions/projectInfoActions';
 
 const ProjectInfo = (props) => {
@@ -18,18 +18,17 @@ const ProjectInfo = (props) => {
     userNamespace,
     setIsForking,
   } = props;
-
   let id, iconUrl, default_branch, name, stars, forks, http_url_to_repo, ssh_url_to_repo;
 
   if(project) {
-    iconUrl = project.avatar_url;
-    default_branch = project.default_branch;
+    iconUrl = project.avatarUrl;
+    default_branch = project.defaultBranch;
     id = project.id;
-    name = project.name;
-    stars = project.star_count;
-    forks = project.forks_count;
-    http_url_to_repo = project.http_url_to_repo;
-    ssh_url_to_repo = project.ssh_url_to_repo;
+    name = project.gitlabName;
+    stars = project.starCount;
+    forks = project.forksCount;
+    http_url_to_repo = project.httpUrlToRepo;
+    ssh_url_to_repo = project.sshUrlToRepo;
   }
   const [redirect, setRedirect] = React.useState(false);
 
@@ -42,7 +41,7 @@ const ProjectInfo = (props) => {
     }
 
     setIsForking(true);
-
+    const projectGeneralInfoApi = new ProjectGeneralInfoApi();
     projectGeneralInfoApi.forkProject(Id, userNamespace, projectName)
       .then(
         () => {
@@ -251,14 +250,14 @@ ProjectInfo.defaultProps = {
 
 ProjectInfo.propTypes = {
   project: shape({
-    avatar_url: string,
-    forks_count: number.isRequired,
+    avatarUrl: string,
+    forksCount: number.isRequired,
     name: string.isRequired,
     id: number.isRequired,
-    default_branch: string,
-    star_count: number.isRequired,
-    http_url_to_repo: string.isRequired,
-    ssh_url_to_repo: string.isRequired,
+    defaultBranch: string,
+    starCount: number.isRequired,
+    httpUrlToRepo: string.isRequired,
+    sshUrlToRepo: string.isRequired,
   }).isRequired,
   actions: shape({
     getProjectsList: func.isRequired,

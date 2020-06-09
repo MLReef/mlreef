@@ -15,7 +15,7 @@ const store = storeFactory({
     email: 'user@mlreef.com',
     auth: true,
     userInfo: {
-      avatar_url: 'https://dummy.url',
+      avatarUrl: 'https://dummy.url',
     },
     meta: {
       closedInstructions: {},

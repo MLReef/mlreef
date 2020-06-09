@@ -4,19 +4,18 @@ import {
   string, objectOf, shape,
 } from 'prop-types';
 import AuthWrapper from 'components/AuthWrapper';
+import { connect } from 'react-redux';
 import ProjectInfo from './projectInfo';
 import ProjectNav from './project-nav/projectNav';
-import { connect } from 'react-redux';
 
 class ProjectContainer extends React.Component {
   componentDidMount() {
-    const { activeFeature, globalColorMarker, } = this.props;
+    const { activeFeature, globalColorMarker } = this.props;
     const activeFeatureNode = document.getElementById(activeFeature);
     if (activeFeatureNode) {
       activeFeatureNode.classList.add('active');
       activeFeatureNode.style.borderBottom = `4px solid ${globalColorMarker}`;
-    };
-
+    }
   }
 
   render() {
@@ -27,15 +26,16 @@ class ProjectContainer extends React.Component {
       viewName,
     } = this.props;
 
-    let id, description, defaultBranch, groupName, projectName;
-    groupName = "--";
-    projectName = "--";
+    let id; let description; let defaultBranch; let groupName; 
+    let projectName;
+    groupName = '--';
+    projectName = '--';
     if (project) {
       id = project.id;
       description = project.description;
-      defaultBranch = project.default_branch;
+      defaultBranch = project.defaultBranch;
       groupName = project.namespace ? project.namespace.name : 'No group';
-      projectName = project.name;
+      projectName = project.gitlabName;
     }
     return (
       <div className="project-container" style={{ backgroundColor: '#e5e5e5' }}>

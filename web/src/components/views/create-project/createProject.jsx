@@ -20,7 +20,7 @@ import Navbar from '../../navbar/navbar';
 import './createProject.css';
 import * as projectActions from '../../../actions/projectInfoActions';
 import * as userActions from '../../../actions/userActions';
-import projectGeneraInfoApi from '../../../apis/projectGeneralInfoApi';
+import ProjectGeneraInfoApi from '../../../apis/projectGeneralInfoApi.ts';
 import { convertToSlug } from '../../../functions/dataParserHelpers';
 import { bannedCharsArray } from '../../../dataTypes';
 import MCheckBox from '../../ui/MCheckBox/MCheckBox';
@@ -55,7 +55,7 @@ class CreateProject extends Component {
       readme: false,
       nameSpace: '',
       description: '',
-      newProject: {},
+      gitlabId: null,
       dataTypesSelected: [],
     };
     const { actions, match: { params: { classification } } } = this.props;
@@ -128,18 +128,18 @@ class CreateProject extends Component {
       description,
       visibility,
     };
+    const projectGeneraInfoApi = new ProjectGeneraInfoApi();
     projectGeneraInfoApi.create(body)
-      .then(async (res) => {
-        if (res.ok) {
-          const pro = await res.json();
-          this.props.actions.getProjectsList();
-          this.props.actions.setSelectedProjectUUID(pro);
-          this.setState({ redirect: true, newProject: pro });
-        } else {
-          toastr.error('Error', res.statusText);
-        }
+      .then((res) => res.json())
+      .then((pro) => {
+        this.props.actions
+          .getProjectsList()
+          .then(() => this.setState({ redirect: true, gitlabId: pro.gitlab_id }))
       })
-      .catch(() => toastr.error('Error', 'Something went wrong'));
+      .catch((err) => {
+        console.log(err);
+        toastr.error('Error', err || 'Something went wrong')
+      });
   }
 
  cancelCreate = () => {
@@ -171,7 +171,7 @@ class CreateProject extends Component {
      redirect,
      nameSpace,
      description,
-     newProject,
+     gitlabId,
      dataTypesSelected: dtTypesSel,
    } = this.state;
    const { match: { params: { classification } }, groups, user } = this.props;
@@ -180,7 +180,7 @@ class CreateProject extends Component {
    )[0].label;
    const isMaximumOfDataTypesSelected = dtTypesSel.length === 4;
    return redirect ? (
-     <Redirect to={`/my-projects/${newProject.gitlab_id}/master`} />
+     <Redirect to={`/my-projects/${gitlabId}/null`} />
    ) : (
      <>
        <Navbar />

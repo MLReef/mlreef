@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import projectGeneralInfoApi from 'apis/projectGeneralInfoApi';
+import ProjectGeneralInfoApi from 'apis/projectGeneralInfoApi';
 import { toastr } from 'react-redux-toastr';
 import './MProjectCard.scss';
 import iconGrey from 'images/icon_grey-01.png';
@@ -17,8 +17,8 @@ const MProjectCard = ({
   const [avatars, setAvatars] = useState([]);
   const mainDiv = React.useRef(false);
   useEffect(() => {
-    projectGeneralInfoApi
-      .getProjectContributors(projectId)
+    const projApi = new ProjectGeneralInfoApi();
+    projApi.getProjectContributors(projectId)
       .then(async (res) => {
         if (!res.ok) {
           Promise.reject(res);

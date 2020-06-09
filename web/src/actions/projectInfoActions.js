@@ -1,6 +1,6 @@
-import projectGeneralInfoApi from '../apis/projectGeneralInfoApi';
-import * as types from './actionTypes';
 import { toastr } from 'react-redux-toastr';
+import ProjectGeneralInfoApi from 'apis/projectGeneralInfoApi';
+import * as types from './actionTypes';
 
 /**
  *
@@ -16,49 +16,50 @@ export function getProjectsInfoSuccessfully(projects) {
  */
 
 export function getProjectsList() {
-  return (dispatch) => projectGeneralInfoApi
-    .getProjectsList()
-    .then(
-      (projects) => {
-        if (projects) {
-          dispatch(
-            getProjectsInfoSuccessfully(
-              projects,
-            ),
-          );
-        }
-      },
-    ).catch((err) => {
-      throw err;
-    });
+  return (dispatch) => {
+    const projectApi = new ProjectGeneralInfoApi();
+    return projectApi.getProjectsList()
+      .then(
+        (projects) => {
+          if (projects) {
+            dispatch(
+              getProjectsInfoSuccessfully(
+                projects,
+              ),
+            );
+          }
+        },
+      ).catch((err) => {
+        throw err;
+      });
+  };
 }
 
 export function setUserProjectsSuccessfully(projects) {
   return { type: types.SET_USER_PROJECTS, projects };
 }
 
-export function getUserProjects() {
-  return (dispatch) => projectGeneralInfoApi
-    .getProjectsList({ owned: true, membership: true })
-    .then((projects) => projects && dispatch(setUserProjectsSuccessfully(projects)));
-}
+/* export function getUserProjects() {
+  return (dispatch) => {
+    const projectApi = new ProjectGeneralInfoApi();
+    projectApi
+      .getProjectsList({ owned: true, membership: true })
+      .then((projects) => projects && dispatch(setUserProjectsSuccessfully(projects)));
+  };
+} */
 
 export function setStarredProjectsSuccessfully(projects) {
   return { type: types.SET_STARRED_PROJECTS, projects };
 }
-
+/*
 export function getStarredProjects() {
-  return (dispatch) => projectGeneralInfoApi
+  return (dispatch) => new ProjectGeneralInfoApi()
     .getProjectsList({ starred: true })
     .then((projects) => projects && dispatch(setStarredProjectsSuccessfully(projects)));
-}
+} */
 
 export function setSelectedProjectSuccesfully(project) {
   return { type: types.SET_SELECTED_PROJECT, project };
-}
-
-export function setSelectedProjectUUIDSuccesfully(uuidProject) {
-  return { type: types.SET_SELECTED_PROJECT_UUID, uuidProject };
 }
 
 /**
@@ -71,11 +72,6 @@ export function setSelectedProject(projectSelected) {
   };
 }
 
-export function setSelectedProjectUUID(id) {
-  return (dispatch) => {
-    dispatch(setSelectedProjectUUIDSuccesfully(id));
-  };
-}
 
 export function updateProjectsList(projects) {
   return (dispatch) => dispatch({ type: types.UPDATE_PROJECTS_LIST, projects });
@@ -95,22 +91,23 @@ export function setProjUsersSuccessfully(users) {
  */
 
 export function getUsersLit(projectId) {
-  return (dispatch) => projectGeneralInfoApi
-    .getUsers(projectId)
-    .then(async (users) => {
-      dispatch(
-        setProjUsersSuccessfully(
-          users,
-        ),
-      );
-    }).catch((err) => {
-      toastr.error('Error', err);
-    });
+  return (dispatch) => {
+    const projectApi = new ProjectGeneralInfoApi();
+    projectApi.getUsers(projectId)
+      .then(async (users) => {
+        dispatch(
+          setProjUsersSuccessfully(
+            users,
+          ),
+        );
+      }).catch((err) => {
+        toastr.error('Error', err);
+      });
+  };
 }
 
 export function getProjectDetails(id) {
-  return (dispatch) => projectGeneralInfoApi
+  return (dispatch) => ProjectGeneralInfoApi()
     .getProjectInfoApi(id)
     .then((project) => dispatch({ type: types.SET_SELECTED_PROJECT, project }));
 }
-

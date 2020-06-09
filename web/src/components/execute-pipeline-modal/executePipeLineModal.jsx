@@ -27,7 +27,7 @@ const ExecutePipelineModal = ({
   filesSelectedInModal,
   httpUrlToRepo,
   projectId,
-  projectUUID,
+  backendId,
   branchName,
   dataInstanceName,
   jobName,
@@ -53,7 +53,7 @@ const ExecutePipelineModal = ({
       if (type === ALGORITHM) {
         createExperimentInProject(
           dataOperationsSelected,
-          projectUUID,
+          backendId,
           branchName,
           branchSelected,
           filesSelectedInModal,

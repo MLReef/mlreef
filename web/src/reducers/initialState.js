@@ -6,7 +6,6 @@ export default {
     userProjects: [],
     starredProjects: [],
     selectedProject: {},
-    selectedProjectUUID: null,
   },
   users: [],
   processors: {

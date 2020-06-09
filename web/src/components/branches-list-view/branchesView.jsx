@@ -16,7 +16,7 @@ import { getTimeCreatedAgo } from '../../functions/dataParserHelpers';
 import './branchesView.css';
 import DeleteBranchModal from './deleteBranchModal';
 import * as branchesActions from '../../actions/branchesActions';
-import BranchesApi from '../../apis/BranchesApi';
+import BranchesApi from '../../apis/BranchesApi.ts';
 
 class BranchesView extends Component {
   constructor(props) {
@@ -39,13 +39,14 @@ class BranchesView extends Component {
     } = this.props;
     const defaultBranch = branches.filter((branch) => branch.default === true)[0];
     const currentBranchesUpdated = branches;
+    const branchesApi = new BranchesApi();
     branches.forEach(async (branch, index) => {
       if (!branch.default) {
         try {
-          const behind = await BranchesApi.compare(
+          const behind = await branchesApi.compare(
             id, branch.name, defaultBranch.name,
           );
-          const ahead = await BranchesApi.compare(
+          const ahead = await branchesApi.compare(
             id, defaultBranch.name, branch.name,
           );
           branch.ahead = ahead.commits.length;

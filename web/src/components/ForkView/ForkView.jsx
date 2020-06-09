@@ -5,7 +5,7 @@ import PropTypes from 'prop-types';
 import { toastr } from 'react-redux-toastr';
 import './ForkView.scss';
 import forkingImage from 'images/forking.png';
-import projectGeneralInfoApi from 'apis/projectGeneralInfoApi';
+import ProjectGeneralInfoApi from 'apis/projectGeneralInfoApi';
 import { getProjectDetails } from 'actions/projectInfoActions';
 import Navbar from '../navbar/navbar';
 
@@ -25,10 +25,11 @@ const ForkView = (props) => {
 
   const handleFork = () => {
     dispatch(getProjectDetails(projectId))
+      .then(() => Promise.reject())
       .then(() => {
-        return Promise.reject();
+        const projApi = new ProjectGeneralInfoApi();
+        return projApi.forkProject(projectInfo.id, username, projectInfo.name);
       })
-      .then(() => projectGeneralInfoApi.forkProject(projectInfo.id, username, projectInfo.name))
       .then(() => {
         setTimeout(() => {
           history.push('/my-projects/');

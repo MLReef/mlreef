@@ -1,9 +1,51 @@
+import PipelineJobInfo from "../project/PipelineJobInfo"
+import DataProcessorInstance from "../project/DataProcessorInstance";
 import { colorsForCharts } from "../../dataTypes";
 
 export default class Experiment {
+  private id: string;
+  private dataProjectId: string;
+  private dataInstanceId: string | null | undefined;
+  private slug: string;
+  private name: string;
+  private sourceBranch: string;
+  private targetBranch: string;
+  private status: string;
+  private pipelineJobInfo?: any;
+  private postProcessing: Array<any>;
+  private processing?: any;
   private epochs?: Array<any>;
   private jsonBlob: string = ""; // structure: {"1": {"acc": 0.198, "val_acc": 0.098, "loss": 2.802, "val_loss": 2.802}};
   private paramNames: Array<string> = [];
+
+  constructor(
+    id: string,
+    dataProjectId: string,
+    dataInstanceId: string,
+    slug: string,
+    name: string,
+    sourceBranch: string,
+    targetBranch: string,
+    status: string,
+    pipelineJobInfo: PipelineJobInfo,
+    postProcessing: Array<DataProcessorInstance>,
+    processing: DataProcessorInstance,
+    jsonBlob: string,
+  ) {
+    this.id = id;
+    this.dataProjectId = dataProjectId;
+    this.dataInstanceId = dataInstanceId;
+    this.slug = slug;
+    this.name = name;
+    this.sourceBranch = sourceBranch;
+    this.targetBranch = targetBranch;
+    this.status = status;
+    this.pipelineJobInfo = pipelineJobInfo;
+    this.postProcessing = postProcessing;
+    this.processing = processing;
+    this.jsonBlob = jsonBlob;
+
+  }
 
   public fromBlobToEpochs(jsonBlob: string) {
     if(jsonBlob === ""){
@@ -18,7 +60,8 @@ export default class Experiment {
     if(this.epochs){
       Object.keys(this.epochs[0]).forEach((key: string) => {
         this.paramNames.push(key);
-      });}
+      });
+    }
   }
 
   public generateAverageInformation(): any {
@@ -58,4 +101,5 @@ export default class Experiment {
   public getEpochs() : Array<any> | undefined {
     return this.epochs;
   }
+
 }

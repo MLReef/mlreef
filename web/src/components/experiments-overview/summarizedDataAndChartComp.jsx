@@ -9,7 +9,7 @@ import { toastr } from 'react-redux-toastr';
 import './experimentsOverview.css';
 import { Line } from 'react-chartjs-2';
 import Experiment from 'domain/experiments/Experiment';
-import BranchesApi from '../../apis/BranchesApi';
+import BranchesApi from '../../apis/BranchesApi.ts';
 import traiangle01 from '../../images/triangle-01.png';
 import ArrowButton from '../arrow-button/arrowButton';
 import {
@@ -68,9 +68,10 @@ const SummarizedDataAndChartComp = ({
     `*P: ${param.name} = ${param.value}`
   ));
   useEffect(() => {
-    BranchesApi.compare(projectId, descTitle, defaultBranch)
+    const brApi = new BranchesApi();
+    brApi.compare(projectId, descTitle, defaultBranch)
       .then((res) => setBehind(res.commits.length)).catch((err) => err);
-    BranchesApi.compare(projectId, defaultBranch, descTitle)
+    brApi.compare(projectId, defaultBranch, descTitle)
       .then((res) => setAhead(res.commits.length)).catch((err) => err);
   }, [ahead, behind, projectId, descTitle, defaultBranch]);
 

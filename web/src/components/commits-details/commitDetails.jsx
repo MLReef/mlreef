@@ -178,9 +178,9 @@ const project = shape(
     id: number,
     description: string,
     name: string,
-    avatar_url: string,
-    star_count: number,
-    forks_count: number,
+    avatarUrl: string,
+    starCount: number,
+    forksCount: number,
   },
 );
 

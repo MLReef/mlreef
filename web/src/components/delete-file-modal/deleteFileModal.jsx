@@ -11,7 +11,7 @@ import './deleteFileModal.css';
 import CustomizedMenus from '../customized-menu/CustomizedMenu';
 import commitsApi from '../../apis/CommitsApi';
 import { DELETE } from '../../dataTypes';
-import branchesApi from '../../apis/BranchesApi';
+import BranchesApi from '../../apis/BranchesApi.ts';
 
 const DeleteFileModal = ({
   isModalVisible,
@@ -53,7 +53,8 @@ const DeleteFileModal = ({
   }
 
   function createBranchAndCommit(redirectUrl, newBranch) {
-    branchesApi.create(
+    const brancheApi = new BranchesApi();
+    brancheApi.create(
       projectId,
       newBranch,
       branchSelected,
