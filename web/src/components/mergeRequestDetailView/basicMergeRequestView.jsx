@@ -10,7 +10,7 @@ import ChangesMrSection from 'components/changes-mr-section/ChangesMrSection';
 import Navbar from '../navbar/navbar';
 import CommitsList from '../commitsList';
 import mergeRequestAPI from '../../apis/mergeRequestApi';
-import BranchesApi from '../../apis/BranchesApi';
+import BranchesApi from '../../apis/BranchesApi.ts';
 import { getTimeCreatedAgo } from '../../functions/dataParserHelpers';
 import ProjectContainer from '../projectContainer';
 import BlackBorderedButton from '../BlackBorderedButton';
@@ -93,10 +93,10 @@ const BasicMergeRequestView = (props) => {
         setMRInfo(res);
       })
       .catch((err) => err);
-
-    BranchesApi.compare(id, sourceBranch, targetBranch)
+    const brApi = new BranchesApi();
+    brApi.compare(id, sourceBranch, targetBranch)
       .then((res) => setBehind(res.commits)).catch((err) => err);
-    BranchesApi.compare(id, targetBranch, sourceBranch)
+    brApi.compare(id, targetBranch, sourceBranch)
       .then((res) => {
         setAheadCommits(res.commits);
         setDiffs(res.diffs);

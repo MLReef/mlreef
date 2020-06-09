@@ -13,7 +13,7 @@ import {
   SKIPPED,
   SUCCESS,
 } from '../dataTypes';
-import branchesApi from '../apis/BranchesApi';
+import BranchesApi from '../apis/BranchesApi.ts';
 import { callToCommitApi } from './apiCalls';
 
 /**
@@ -128,7 +128,8 @@ export const createPipelineInProject = (
     pipelineOpScriptType,
     branchSelected,
   );
-  branchesApi.create(
+  const brApi = new BranchesApi();
+  brApi.create(
     projectId,
     branchName,
     branchSelected || 'master',
@@ -148,7 +149,7 @@ export const createPipelineInProject = (
 
 const createExperimentInProject = (
   dataOperationsSelected,
-  projectUUID,
+  backendId,
   branchName,
   branchSelected,
   filesSelectedInModal,
@@ -166,10 +167,10 @@ const createExperimentInProject = (
       parameters,
     },
   };
-  ExperimentsApi.createExperiment(projectUUID.id, experimentBody)
+  ExperimentsApi.createExperiment(backendId, experimentBody)
     .then((experiment) => {
       toastr.success('Success', 'Experiment was generated');
-      ExperimentsApi.startExperiment(projectUUID.id, experiment.id)
+      ExperimentsApi.startExperiment(backendId, experiment.id)
         .then((res) => {
           if (res.ok) {
             toastr.success('Success', 'Experiment was started');
@@ -178,7 +179,7 @@ const createExperimentInProject = (
           }
         });
     })
-    .catch((err) => toastr('Error', err.message));
+    .catch((err) => toastr('Error', err));
 };
 
 export default createExperimentInProject;

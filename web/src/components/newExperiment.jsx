@@ -33,7 +33,6 @@ const NewExperiment = ({
   onSortEnd,
   drop,
   allowDrop,
-  projectUUID,
   handleCheckMarkClick,
   handleDragStart,
   whenDataCardArrowButtonIsPressed,
@@ -72,7 +71,7 @@ const NewExperiment = ({
         filesSelectedInModal={filesSelectedInModal}
         httpUrlToRepo={project.http_url_to_repo}
         projectId={project.id}
-        projectUUID={projectUUID}
+        backendId={project.backendId}
         branchName={branchName}
         dataInstanceName={dataInstanceName}
         jobName={jobName}
@@ -168,7 +167,6 @@ const NewExperiment = ({
 function mapStateToProps(state) {
   return {
     selectedProject: state.projects.selectedProject,
-    selectedProjectUUID: state.projects.selectedProjectUUID,
     branches: state.branches,
     processors: state.processors.algorithms,
   };

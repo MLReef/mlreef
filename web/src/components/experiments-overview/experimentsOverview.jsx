@@ -8,7 +8,7 @@ import {
 } from 'prop-types';
 import CustomizedButton from 'components/CustomizedButton';
 import ExperimentsApi from 'apis/experimentApi';
-import BranchesApi from '../../apis/BranchesApi';
+import BranchesApi from '../../apis/BranchesApi.ts';
 import Navbar from '../navbar/navbar';
 import ProjectContainer from '../projectContainer';
 import './experimentsOverview.css';
@@ -37,28 +37,27 @@ class ExperimentsOverview extends Component {
   }
 
   componentDidMount() {
-    const { projects: { selectedProject: { id }, selectedProjectUUID }, actions } = this.props;
+    const { projects: { selectedProject: { id, backendId } }, actions } = this.props;
     actions.getJobsListPerProject(id);
     actions.setIsLoading(true);
-    if (selectedProjectUUID && selectedProjectUUID !== undefined) {
-      ExperimentsApi.getExperiments(selectedProjectUUID.id)
-        .then((experiments) => {
-          pipelinesApi.getPipesByProjectId(id)
-            .then((res) => {
-              BranchesApi.getBranches(id)
-                .then((branches) => {
-                  const arrayOfBranches = branches.filter((branch) => branch.name.startsWith('experiment'));
-                  const experimentsClassified = classifyExperiments(res, arrayOfBranches, experiments);
-                  this.setState({ experiments: experimentsClassified, all: experimentsClassified });
-                  this.displayEmptyLogo();
-                });
+    ExperimentsApi.getExperiments(backendId)
+      .then((experiments) => {
+        pipelinesApi.getPipesByProjectId(id)
+          .then((res) => {
+            const brApi = new BranchesApi();
+            brApi.getBranches(id).then((branches) => {
+              const arrayOfBranches = branches.filter((branch) => branch.name.startsWith('experiment'));
+              const experimentsClassified = classifyExperiments(res, arrayOfBranches, experiments);
+              actions.setIsLoading(false);
+              this.setState({ experiments: experimentsClassified, all: experimentsClassified });
+              this.displayEmptyLogo();
             });
-        })
-        .catch(() => toastr.error('Error', 'Could not fetch the latest experiments'))
+          });
+      })
+      .catch(() => toastr.error('Error', 'Could not fetch the latest experiments'))
         .finally(() => {
           actions.setIsLoading(false);
         });
-    }
   }
 
   displayEmptyLogo = () => {
@@ -205,7 +204,7 @@ class ExperimentsOverview extends Component {
                       key={uuidv1()}
                       params={{
                         projectId: selectedProject.id,
-                        defaultBranch: selectedProject.default_branch,
+                        defaultBranch: selectedProject.defaultBranch,
                         currentState: experimentClassification.status,
                         experiments: expMapped,
                       }}
@@ -226,9 +225,6 @@ class ExperimentsOverview extends Component {
 ExperimentsOverview.propTypes = {
   projects: shape({
     selectedProject: objectOf(shape).isRequired,
-    selectedProjectUUID: shape({
-      id: string.isRequired,
-    }).isRequired,
     jobs: arrayOf(
       shape({
         ref: string.isRequired,

@@ -1,24 +1,28 @@
 import React, { Component } from 'react';
-import ErrorPage from "./components/error-page/errorPage";
+import ErrorPage from './components/error-page/errorPage';
 
 class ErrorHandler extends Component {
-  constructor(props){
+  constructor(props) {
     super(props);
     this.state = {
       hasError: false,
-    }
+    };
   }
-  static getDerivedStateFromError() {
-    return { hasError: true };
+
+  componentDidCatch(error, info) {    
+    this.setState({ hasError: true });
+    console.log(error);
+    console.log(info);
   }
-  
-  render(){
+
+  render() {
     const { hasError } = this.state;
-    if(hasError){
-      return <ErrorPage errorCode={500} errorMessage={"Internal error"}/>
+    const { children } = this.props;
+    if (hasError) {
+      return <ErrorPage errorCode={500} errorMessage="Internal error" />;
     }
-    
-    return this.props.children;
+
+    return children;
   }
 }
 

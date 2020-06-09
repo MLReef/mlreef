@@ -9,9 +9,6 @@ export default function projectReducer(state = initialState.projects, action) {
     case types.SET_SELECTED_PROJECT:
       state.selectedProject = action.project;
       return { ...state };
-    case types.SET_SELECTED_PROJECT_UUID:
-      state.selectedProjectUUID = action.uuidProject;
-      return { ...state };
     case types.UPDATE_PROJECTS_LIST:
       state.all = action.projects;
       return { ...state };

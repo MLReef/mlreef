@@ -13,12 +13,11 @@ const withPipelineExecution = (
   constructor(props) {
     super(props);
     const {
-      selectedProject, selectedProjectUUID, branches, processors,
+      selectedProject, branches, processors,
     } = this.props;
     this.state = {
       branchSelected: null,
       project: selectedProject,
-      projectUUID: selectedProjectUUID,
       checkBoxOwnDataOperations: false,
       checkBoxStarredDataOperations: false,
       idCardSelected: null,
@@ -297,7 +296,6 @@ const withPipelineExecution = (
   render = () => {
     const {
       project,
-      projectUUID,
       branches,
       branchSelected,
       dataOperationsSelected,
@@ -310,7 +308,6 @@ const withPipelineExecution = (
     return (
       <WrappedComponent
         project={project}
-        projectUUID={projectUUID}
         branches={branches}
         branchSelected={branchSelected}
         dataOperationsSelected={dataOperationsSelected}

@@ -1,11 +1,11 @@
-import React from 'react';
+import React, { Component } from 'react';
 import {
   arrayOf, shape, string,
 } from 'prop-types';
 import MProjectCard from './ui/MProjectCard';
 import iconGrey from '../images/icon_grey-01.png';
 
-class ProjectSet extends React.Component {
+class ProjectSet extends Component {
   handleScreen = (screen) => () => {
     const {
       changeScreen,
@@ -39,17 +39,17 @@ class ProjectSet extends React.Component {
       <div id="cards-section">
         {finalProjectsArray.length > 0 ? finalProjectsArray.map((proj) => (
           <MProjectCard
-            key={`proj-${screen}-key-${proj.id}`}
+            key={`proj-${screen}-key-${proj.gitlabProject}`}
             push={push}
             owner={proj.id}
-            title={proj.gitlab_project}
-            projectId={proj.gitlab_id}
-            branch={'master'}
+            title={proj.gitlabProject}
+            projectId={proj.gitlabId}
+            branch="master" // TODO: refactor this, spreading master is an exception expecting to be thrown
             description={proj.description}
-            starCount={proj.star_count}
-            forkCount={proj.forks_count}
+            starCount={proj.starCount || 0}
+            forkCount={proj.forksCount || 0}
             namespace={proj.namespace}
-            updatedAt={proj.last_activity_at}
+            updatedAt={proj.lastActivityat}
             projects={allProjects}
             handleShowModal={handleShowModal}
           />

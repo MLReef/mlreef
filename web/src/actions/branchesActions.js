@@ -1,5 +1,5 @@
 import * as types from './actionTypes';
-import branchesApi from '../apis/BranchesApi';
+import BranchesApi from '../apis/BranchesApi.ts';
 
 /**
  *
@@ -16,11 +16,14 @@ export function setBranchesSuccessfully(branches) {
  */
 
 export const getBranchesList = (projectId) => async (dispatch) => {
-  const branches = await branchesApi.getBranches(projectId);
+  const brApi = new BranchesApi();
+  const branches = await (brApi).getBranches(projectId);
   dispatch(setBranchesSuccessfully(
     branches,
   ));
 };
 
-export const deleteBranch = (projectId, branch) => () => branchesApi
-  .delete(projectId, branch);
+export const deleteBranch = (projectId, branch) => () => {
+  const brApi = new BranchesApi();
+  return brApi.delete(projectId, branch);
+};

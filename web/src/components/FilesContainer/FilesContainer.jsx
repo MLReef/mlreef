@@ -7,7 +7,7 @@ import {
 import { toastr } from 'react-redux-toastr';
 import FilesTable from '../files-table/filesTable';
 import filesApi from '../../apis/FilesApi';
-import BranchesApi from '../../apis/BranchesApi';
+import BranchesApi from '../../apis/BranchesApi.ts';
 import './FilesContainer.css';
 
 class FilesContainer extends Component {
@@ -92,9 +92,10 @@ class FilesContainer extends Component {
 
   getBranchInfo = () => {
     const { projectId, branch } = this.props;
-    BranchesApi.compare(projectId, branch, 'master')
+    const brApi = new BranchesApi();
+    brApi.compare(projectId, branch, 'master')
       .then((res) => this.setState({ behind: res.commits.length })).catch((err) => err);
-    BranchesApi.compare(projectId, 'master', branch)
+    brApi.compare(projectId, 'master', branch)
       .then((res) => this.setState({ ahead: res.commits.length })).catch((err) => err);
   }
 

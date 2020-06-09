@@ -11,17 +11,16 @@ export default class ExperimentsApi {
     });
   }
 
-  static async createExperiment(projectUUId, body) {
+  static async createExperiment(backendId, body) {
     const response = await fetch(
-      `/api/v1/data-projects/${projectUUId}/experiments`, {
+      `/api/v1/data-projects/${backendId}/experiments`, {
         method: 'POST',
         headers: this.buildPostHeaders(),
         body: JSON.stringify(body),
       },
     );
     if (!response.ok) {
-      Promise.reject(response);
-      toastr.error('Error', 'Server error while creating the experiment');
+      return Promise.reject(response);      
     }
     return response.json();
   }
@@ -40,8 +39,8 @@ export default class ExperimentsApi {
     return response;
   }
 
-  static async getExperimentDetails(projectUUID, experimentID) {
-    const url = `/api/v1/data-projects/${projectUUID}/experiments/${experimentID}`;
+  static async getExperimentDetails(backendId, experimentID) {
+    const url = `/api/v1/data-projects/${backendId}/experiments/${experimentID}`;
     const response = await generateGetRequest(url);
     if (!response.ok) {
       Promise.reject(response);
@@ -50,8 +49,8 @@ export default class ExperimentsApi {
     return response.json();
   }
 
-  static async getExperiments(projectUUID) {
-    const url = `/api/v1/data-projects/${projectUUID}/experiments`;
+  static async getExperiments(backendId) {
+    const url = `/api/v1/data-projects/${backendId}/experiments`;
     const response = await generateGetRequest(url);
     if (!response.ok) {
       return Promise.reject(response);

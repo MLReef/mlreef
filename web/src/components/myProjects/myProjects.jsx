@@ -62,7 +62,6 @@ class Myprojects extends React.Component {
           if (node.nodeName === 'BUTTON') {
             const { color } = projectClassificationsProps.filter((idsColor) => `${idsColor.classification}` === id)[0];
             actions.setGlobalMarkerColor(color);
-            this.setState({ bandColor: color });
           }
         });
     });
@@ -72,8 +71,8 @@ class Myprojects extends React.Component {
 
     // fetch 3 list of projects using a fetching flag
     return Promise.all([
-      actions.getUserProjects(),
-      actions.getStarredProjects(),
+      /* actions.getUserProjects(), */
+      /* actions.getStarredProjects(), */
       actions.getProjectsList(),
       actions.getGroupsList(),
     ])
@@ -109,7 +108,6 @@ class Myprojects extends React.Component {
           projectsList={userProjects}
         />
         <Navbar />
-        {/* isATabActiveByDefault && <div style={{ height: '0.35rem', backgroundColor: bandColor }} /> */}
         <br />
         <br />
         <br />

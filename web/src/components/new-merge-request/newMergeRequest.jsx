@@ -10,7 +10,7 @@ import Navbar from '../navbar/navbar';
 import CustomizedSelect from '../CustomizedSelect';
 import BlueBorderedInput from '../BlueBorderedInput';
 import './newMergeRequest.css';
-import branchesApi from '../../apis/BranchesApi';
+import BranchesApi from '../../apis/BranchesApi.ts';
 import mergeRequestAPI from '../../apis/mergeRequestApi';
 import ImageDiffSection from '../imageDiffSection/imageDiffSection';
 import CommitsList from '../commitsList';
@@ -52,8 +52,8 @@ export class NewMergeRequest extends Component {
         },
       },
     } = this.props;
-    branchesApi
-      .compare(selectedProject.id, branchSelected, branch)
+    const brApi = new BranchesApi();
+    brApi.compare(selectedProject.id, branchSelected, branch)
       .then((res) => {
         this.setState({
           lastCommit: res.commit,

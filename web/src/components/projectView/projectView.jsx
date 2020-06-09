@@ -2,11 +2,12 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import {
-  string, shape, func, arrayOf, number,
+  string, shape, func, arrayOf,
 } from 'prop-types';
 import { toastr } from 'react-redux-toastr';
 import forkingImage from 'images/forking.png';
 import { OPERATION, ALGORITHM } from 'dataTypes';
+import ProjectGeneralInfoApi from 'apis/projectGeneralInfoApi';
 import ReadMeComponent from '../readMe/readMe';
 import ProjectContainer from '../projectContainer';
 import FilesContainer from '../FilesContainer/FilesContainer';
@@ -22,8 +23,8 @@ import { getTimeCreatedAgo } from '../../functions/dataParserHelpers';
 import * as userActions from '../../actions/userActions';
 import * as jobsActions from '../../actions/jobsActions';
 import * as mergeActions from '../../actions/mergeActions';
-import ProjectGeneralInfoApi from '../../apis/projectGeneralInfoApi';
 import EmptyProject from './emptyProject';
+import DataProject from 'domain/project/DataProject';
 
 class ProjectView extends React.Component {
   constructor(props) {
@@ -65,19 +66,37 @@ class ProjectView extends React.Component {
     actions.getMergeRequestsList(projectId);
     actions.getProcessors(OPERATION);
     actions.getProcessors(ALGORITHM);
-    const backendProject = all.filter((proj) => proj.gitlab_id.toString() === projectId);
-    actions.setSelectedProjectUUID(backendProject[0]);
     actions.setIsLoading(true);
-
-    ProjectGeneralInfoApi
-      .getProjectInfoApi(projectId)
-      .then((project) => {
-        this.setState({ selectedProject: project });
-        actions.setSelectedProject(project);
+    
+    const projectGeneralInfoApi = new ProjectGeneralInfoApi();
+    projectGeneralInfoApi.getProjectInfoApi(projectId)
+      .then((gitlabProjectInfo) => {
+        const backendProjectInformation = all.filter((proj) => proj.gitlabId.toString() === projectId)[0];
+        const dp = new DataProject(
+          backendProjectInformation.backendId,
+          backendProjectInformation.slug,
+          backendProjectInformation.url,
+          backendProjectInformation.ownerId,
+          backendProjectInformation.gitlabGroup,
+          backendProjectInformation.experiments,
+        );
+        dp.avatarUrl = gitlabProjectInfo.avatar_url;
+        dp.defaultBranch = gitlabProjectInfo.default_branch;
+        dp.description = gitlabProjectInfo.description;
+        dp.emptyRepo = gitlabProjectInfo.empty_repo;
+        dp.forksCount = gitlabProjectInfo.forks_count;
+        dp.starCount = gitlabProjectInfo.star_count;
+        dp.httpUrlToRepo = gitlabProjectInfo.http_url_to_tepo;
+        dp.readmeUrl = gitlabProjectInfo.readme_url;
+        dp.namespace = gitlabProjectInfo.namespace;
+        dp.gitlabName = gitlabProjectInfo.name;
+        dp.id = gitlabProjectInfo.id;
+        this.setState({ selectedProject: dp });
+        actions.setSelectedProject(dp);
         actions.setIsLoading(false);
         const lastCommitBr = this.isValidBranch(branch)
           ? branch
-          : project.default_branch;
+          : dp.defaultBranch;
         commitsApi.getCommits(projectId, lastCommitBr, '', 1)
           .then(
             (res) => this.setState({ lastCommit: res[0] }),
@@ -124,16 +143,16 @@ class ProjectView extends React.Component {
     } = this.state;
     let isEmptyProject, sshUrlToRepo, projectName, showReadMe, encodedBranch;
     if (selectedProject) {
-      isEmptyProject = selectedProject.empty_repo;
-      sshUrlToRepo = selectedProject.ssh_url_to_repo;
-      projectName = selectedProject.name;
-      showReadMe = selectedProject.readme_url;
+      isEmptyProject = selectedProject.emptyRepo;
+      sshUrlToRepo = selectedProject.sshUrlToTepo;
+      projectName = selectedProject.gitlabName;
+      showReadMe = selectedProject.readmeUrl;
       encodedBranch = branch.includes('%2F')
         ? branch
         : encodeURIComponent(branch);
       encodedBranch = this.isValidBranch(encodedBranch)
         ? encodedBranch
-        : selectedProject.default_branch;
+        : selectedProject.defaultBranch;
     }
     const committer = lastCommit && users.filter((user) => user.name === lastCommit.author_name)[0];
     const avatarUrl = committer ? committer.avatar_url : '';
@@ -249,9 +268,6 @@ class ProjectView extends React.Component {
 ProjectView.propTypes = {
   projects: shape({
     all: arrayOf.isRequired,
-    selectedProjectUUID: shape({
-      gitlab_id: number.isRequired,
-    }).isRequired,
   }).isRequired,
   match: shape({
     params: shape({
@@ -270,7 +286,6 @@ ProjectView.propTypes = {
   ).isRequired,
   actions: shape({
     setSelectedProject: func.isRequired,
-    setSelectedProjectUUID: func.isRequired,
     getUsersLit: func.isRequired,
   }).isRequired,
 };

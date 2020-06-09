@@ -12,11 +12,11 @@ import InputLabel from '@material-ui/core/InputLabel';
 import FormControl from '@material-ui/core/FormControl';
 import ProjectContainer from './projectContainer';
 import Navbar from './navbar/navbar';
-import branchesApi from '../apis/BranchesApi';
+import BranchesApi from '../apis/BranchesApi.ts';
 import BorderedInput from './BlueBorderedInput';
 import CustomizedSelect from './CustomizedSelect';
 
-const cuztomizedStyles = makeStyles((theme) => ({
+const cuztomizedStyles = makeStyles(() => ({
   formControl: {
     minWidth: 120,
     width: '100%',
@@ -47,7 +47,6 @@ class NewBranch extends Component {
       branchSelected: null,
       newBranchName: '',
       redirect: false,
-      loading: false,
     };
     this.handleCreateBranchEv = this.handleCreateBranchEv.bind(this);
   }
@@ -103,19 +102,18 @@ class NewBranch extends Component {
       toastr.error('Error:', 'Type please a branch name');
       return;
     }
-
-    branchesApi.create(
+    const brApi = new BranchesApi();
+    brApi.create(
       id,
       newBranchName,
       branchSelected,
     )
       .then(() => {
-        this.setState({ redirect: true, loading: false });
+        this.setState({ redirect: true });
         toastr.success('Success:', 'The branch was created');
       })
       .catch(
         () => {
-          this.setState({ loading: false });
           toastr.error('Error:', 'An error has ocurred, try later please');
         },
       );

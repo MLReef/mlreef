@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { bool, func, number, string } from 'prop-types';
 import { toastr } from 'react-redux-toastr';
-import branchesApi from '../../apis/BranchesApi';
+import BranchesApi from '../../apis/BranchesApi.ts';
 
 const DeleteBranchModal = ({
   isModalVisible,
@@ -11,7 +11,8 @@ const DeleteBranchModal = ({
 }) => {
   const [isDeleteButtonDisabled, setIsDeleteButtonDisabled] = useState(false);
   function callDeleteBranchApi() {
-    branchesApi.delete(
+    const brApi = new BranchesApi();
+    brApi.delete(
       projectId,
       branchName,
     )
