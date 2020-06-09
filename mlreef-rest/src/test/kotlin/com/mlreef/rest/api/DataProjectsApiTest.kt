@@ -1,6 +1,8 @@
 package com.mlreef.rest.api
 
+import com.fasterxml.jackson.core.type.TypeReference
 import com.mlreef.rest.AccessLevel
+import com.mlreef.rest.Account
 import com.mlreef.rest.DataProject
 import com.mlreef.rest.DataProjectRepository
 import com.mlreef.rest.Person
@@ -8,9 +10,12 @@ import com.mlreef.rest.VisibilityScope
 import com.mlreef.rest.api.v1.DataProjectCreateRequest
 import com.mlreef.rest.api.v1.DataProjectUpdateRequest
 import com.mlreef.rest.api.v1.dto.DataProjectDto
+import com.mlreef.rest.api.v1.dto.UserInProjectDto
 import com.mlreef.rest.exceptions.ErrorCode
 import com.mlreef.rest.exceptions.GitlabBadRequestException
+import com.mlreef.rest.feature.project.DataProjectService
 import com.mlreef.rest.feature.system.SessionsService
+import com.ninjasquad.springmockk.SpykBean
 import io.mockk.every
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
@@ -37,6 +42,7 @@ class DataProjectsApiTest : RestApiTest() {
     val rootUrl = "/api/v1/data-projects"
     private lateinit var subject: Person
     private lateinit var subject2: Person
+    private lateinit var account2: Account
 
     @Autowired private lateinit var accountSubjectPreparationTrait: AccountSubjectPreparationTrait
     @Autowired private lateinit var dataProjectRepository: DataProjectRepository
@@ -44,11 +50,15 @@ class DataProjectsApiTest : RestApiTest() {
     @Autowired
     private lateinit var sessionService: SessionsService
 
+    @SpykBean
+    private lateinit var dataProjectService: DataProjectService
+
     @BeforeEach
     @AfterEach
     fun setUp() {
         accountSubjectPreparationTrait.apply()
         account = accountSubjectPreparationTrait.account
+        account2 = accountSubjectPreparationTrait.account2
         subject = accountSubjectPreparationTrait.subject
         subject2 = accountSubjectPreparationTrait.subject2
 
@@ -376,6 +386,76 @@ class DataProjectsApiTest : RestApiTest() {
             .andExpect(MockMvcResultMatchers.status().isForbidden)
     }
 
+    @Transactional
+    @Rollback
+    @Test
+    fun `Can retrieve users list in DataProject`() {
+        val id1 = randomUUID()
+        val project1 = DataProject(id1, "slug-1", "www.url.com", "Test Project 1", randomUUID(), "mlreef", "group1", "mlreef/project-1", 1, VisibilityScope.PUBLIC, listOf())
+        dataProjectRepository.save(project1)
+
+        every { dataProjectService.getUsersInProject(any()) } answers {
+            listOf(account, account2)
+        }
+
+        this.mockGetUserProjectsList(listOf(project1.id), account, AccessLevel.OWNER)
+        this.mockGetUserProjectsList(listOf(project1.id), account2, AccessLevel.DEVELOPER)
+
+        val returnedResult: List<UserInProjectDto> = this.mockMvc.perform(
+            this.defaultAcceptContentAuth(RestDocumentationRequestBuilders.get("$rootUrl/${project1.id}/users")))
+            .andExpect(MockMvcResultMatchers.status().isOk)
+            .document("dataprojects-retrieve-users-list", responseFields(usersInDataProjectResponseFields("[].")))
+            .returns(object: TypeReference<List<UserInProjectDto>>() {})
+
+        assertThat(returnedResult.size).isEqualTo(2)
+    }
+
+    @Transactional
+    @Rollback
+    @Test
+    fun `Can add user to DataProject`() {
+        val id1 = randomUUID()
+        val project1 = DataProject(id1, "slug-1", "www.url.com", "Test Project 1", randomUUID(), "mlreef", "group1", "mlreef/project-1", 1, VisibilityScope.PUBLIC, listOf())
+        dataProjectRepository.save(project1)
+
+        every { dataProjectService.getUsersInProject(any()) } answers {
+            listOf(account, account2)
+        }
+
+        this.mockGetUserProjectsList(listOf(project1.id), account, AccessLevel.OWNER)
+
+        val returnedResult: List<UserInProjectDto> = this.mockMvc.perform(
+            this.defaultAcceptContentAuth(RestDocumentationRequestBuilders.post("$rootUrl/${project1.id}/users/${account2.id}")))
+            .andExpect(MockMvcResultMatchers.status().isOk)
+            .document("dataprojects-add-user", responseFields(usersInDataProjectResponseFields("[].")))
+            .returns(object: TypeReference<List<UserInProjectDto>>() {})
+
+        assertThat(returnedResult.size).isEqualTo(2)
+    }
+
+    @Transactional
+    @Rollback
+    @Test
+    fun `Can delete user from DataProject`() {
+        val id1 = randomUUID()
+        val project1 = DataProject(id1, "slug-1", "www.url.com", "Test Project 1", randomUUID(), "mlreef", "group1", "mlreef/project-1", 1, VisibilityScope.PUBLIC, listOf())
+        dataProjectRepository.save(project1)
+
+        every { dataProjectService.getUsersInProject(any()) } answers {
+            listOf(account)
+        }
+
+        this.mockGetUserProjectsList(listOf(project1.id), account, AccessLevel.OWNER)
+
+        val returnedResult: List<UserInProjectDto> = this.mockMvc.perform(
+            this.defaultAcceptContentAuth(RestDocumentationRequestBuilders.delete("$rootUrl/${project1.id}/users/${account2.id}")))
+            .andExpect(MockMvcResultMatchers.status().isOk)
+            .document("dataprojects-delete-user", responseFields(usersInDataProjectResponseFields("[].")))
+            .returns(object: TypeReference<List<UserInProjectDto>>() {})
+
+        assertThat(returnedResult.size).isEqualTo(1)
+    }
+
     private fun dataProjectResponseFields(prefix: String = ""): List<FieldDescriptor> {
         return listOf(
             fieldWithPath(prefix + "id").type(JsonFieldType.STRING).description("Data project id"),
@@ -404,6 +484,15 @@ class DataProjectsApiTest : RestApiTest() {
         return listOf(
             fieldWithPath("description").type(JsonFieldType.STRING).description("Description of Project"),
             fieldWithPath("name").type(JsonFieldType.STRING).description("Name of Project")
+        )
+    }
+
+    fun usersInDataProjectResponseFields(prefix: String = ""): List<FieldDescriptor> {
+        return listOf(
+            fieldWithPath(prefix + "id").type(JsonFieldType.STRING).description("Data project id"),
+            fieldWithPath(prefix + "user_name").type(JsonFieldType.STRING).description("User name"),
+            fieldWithPath(prefix + "email").type(JsonFieldType.STRING).description("User's email"),
+            fieldWithPath(prefix + "gitlab_id").type(JsonFieldType.NUMBER).description("Id in gitlab")
         )
     }
 }

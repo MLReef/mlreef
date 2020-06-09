@@ -1,5 +1,6 @@
 package com.mlreef.rest.api
 
+import com.fasterxml.jackson.core.type.TypeReference
 import com.mlreef.rest.AccessLevel
 import com.mlreef.rest.Account
 import com.mlreef.rest.CodeProject
@@ -9,9 +10,12 @@ import com.mlreef.rest.VisibilityScope
 import com.mlreef.rest.api.v1.CodeProjectCreateRequest
 import com.mlreef.rest.api.v1.CodeProjectUpdateRequest
 import com.mlreef.rest.api.v1.dto.CodeProjectDto
+import com.mlreef.rest.api.v1.dto.UserInProjectDto
 import com.mlreef.rest.exceptions.ErrorCode
 import com.mlreef.rest.exceptions.GitlabBadRequestException
+import com.mlreef.rest.feature.project.CodeProjectService
 import com.mlreef.rest.feature.system.SessionsService
+import com.ninjasquad.springmockk.SpykBean
 import io.mockk.every
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
@@ -46,6 +50,9 @@ class CodeProjectsApiTest : RestApiTest() {
 
     @Autowired
     private lateinit var sessionService: SessionsService
+
+    @SpykBean
+    private lateinit var codeProjectService: CodeProjectService
 
     val rootUrl = "/api/v1/code-projects"
 
@@ -408,6 +415,77 @@ class CodeProjectsApiTest : RestApiTest() {
             .andExpect(MockMvcResultMatchers.status().isForbidden)
     }
 
+    @Transactional
+    @Rollback
+    @Test
+    fun `Can retrieve users list in CodeProject`() {
+        val id1 = randomUUID()
+        val project1 = CodeProject(id1, "slug-1", "www.url.com", "Test Project 1", account2.person.id, "group1", "project-1", "mlreef/project1", 1)
+        codeProjectRepository.save(project1)
+
+        every { codeProjectService.getUsersInProject(any()) } answers {
+            listOf(account, account2)
+        }
+
+        this.mockGetUserProjectsList(listOf(project1.id), account, AccessLevel.OWNER)
+        this.mockGetUserProjectsList(listOf(project1.id), account2, AccessLevel.DEVELOPER)
+
+        val returnedResult: List<UserInProjectDto> = this.mockMvc.perform(
+            this.defaultAcceptContentAuth(RestDocumentationRequestBuilders.get("$rootUrl/${project1.id}/users")))
+            .andExpect(MockMvcResultMatchers.status().isOk)
+            .document("codeprojects-retrieve-users-list", responseFields(usersInCodeProjectResponseFields("[].")))
+            .returns(object:TypeReference<List<UserInProjectDto>>() {})
+
+        assertThat(returnedResult.size).isEqualTo(2)
+    }
+
+    @Transactional
+    @Rollback
+    @Test
+    fun `Can add user to CodeProject`() {
+        val id1 = randomUUID()
+        val project1 = CodeProject(id1, "slug-1", "www.url.com", "Test Project 1", account2.person.id, "group1", "project-1", "mlreef/project1", 1)
+        codeProjectRepository.save(project1)
+
+        every { codeProjectService.getUsersInProject(any()) } answers {
+            listOf(account, account2)
+        }
+
+        this.mockGetUserProjectsList(listOf(project1.id), account, AccessLevel.OWNER)
+
+        val returnedResult: List<UserInProjectDto> = this.mockMvc.perform(
+            this.defaultAcceptContentAuth(RestDocumentationRequestBuilders.post("$rootUrl/${project1.id}/users/${account2.id}")))
+            .andExpect(MockMvcResultMatchers.status().isOk)
+            .document("codeprojects-add-user", responseFields(usersInCodeProjectResponseFields("[].")))
+            .returns(object:TypeReference<List<UserInProjectDto>>() {})
+
+        assertThat(returnedResult.size).isEqualTo(2)
+    }
+
+    @Transactional
+    @Rollback
+    @Test
+    fun `Can delete user from CodeProject`() {
+        val id1 = randomUUID()
+        val project1 = CodeProject(id1, "slug-1", "www.url.com", "Test Project 1", account2.person.id, "group1", "project-1", "mlreef/project1", 1)
+        codeProjectRepository.save(project1)
+
+        every { codeProjectService.getUsersInProject(any()) } answers {
+            listOf(account)
+        }
+
+        this.mockGetUserProjectsList(listOf(project1.id), account, AccessLevel.OWNER)
+
+        val returnedResult: List<UserInProjectDto> = this.mockMvc.perform(
+            this.defaultAcceptContentAuth(RestDocumentationRequestBuilders.delete("$rootUrl/${project1.id}/users/${account2.id}")))
+            .andExpect(MockMvcResultMatchers.status().isOk)
+            .document("codeprojects-delete-user", responseFields(usersInCodeProjectResponseFields("[].")))
+            .returns(object:TypeReference<List<UserInProjectDto>>() {})
+
+        assertThat(returnedResult.size).isEqualTo(1)
+    }
+
+
     fun codeProjectResponseFields(prefix: String = ""): List<FieldDescriptor> {
         return listOf(
             fieldWithPath(prefix + "id").type(JsonFieldType.STRING).description("Data project id"),
@@ -435,6 +513,15 @@ class CodeProjectsApiTest : RestApiTest() {
         return listOf(
             fieldWithPath("description").type(JsonFieldType.STRING).description("Description of Project"),
             fieldWithPath("name").type(JsonFieldType.STRING).description("Name of Project")
+        )
+    }
+
+    fun usersInCodeProjectResponseFields(prefix: String = ""): List<FieldDescriptor> {
+        return listOf(
+            fieldWithPath(prefix + "id").type(JsonFieldType.STRING).description("Code project id"),
+            fieldWithPath(prefix + "user_name").type(JsonFieldType.STRING).description("User name"),
+            fieldWithPath(prefix + "email").type(JsonFieldType.STRING).description("User's email"),
+            fieldWithPath(prefix + "gitlab_id").type(JsonFieldType.NUMBER).description("Id in gitlab")
         )
     }
 }
