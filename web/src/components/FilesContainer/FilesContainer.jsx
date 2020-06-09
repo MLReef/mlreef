@@ -146,13 +146,17 @@ class FilesContainer extends Component {
         )}
         <FilesTable
           isReturnOptVisible={currentPath}
-          files={files.map((f) => ({ id: f.id, name: f.name, type: f.type }))}
+          files={files.map((f) => ({ id: `${f.id} ${f.name}`, name: f.name, type: f.type }))}
           headers={['Name']}
           onClick={(e) => {
             const target = e.currentTarget;
             const targetDataKey = target.getAttribute('data-key');
             const targetId = target.id;
-            const file = files.filter((f) => f.id === targetId)[0];
+            const file = files.filter((f) => `${f.id} ${f.name}` === targetId)[0];
+            if(!file){
+              toastr.error('Error', 'Something wrong browsing app');
+              return;
+            }
             let routeType;
             if (targetDataKey === 'tree') {
               routeType = 'path';
