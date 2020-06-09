@@ -4,7 +4,6 @@ import com.mlreef.rest.DataProjectRepository
 import com.mlreef.rest.VisibilityScope
 import com.mlreef.rest.api.v1.DataProjectCreateRequest
 import com.mlreef.rest.api.v1.DataProjectUpdateRequest
-import com.mlreef.rest.api.v1.dto.CodeProjectDto
 import com.mlreef.rest.api.v1.dto.DataProjectDto
 import com.mlreef.rest.api.v1.dto.UserInProjectDto
 import com.mlreef.rest.external_api.gitlab.GroupAccessLevel
@@ -124,7 +123,7 @@ class DataProjectsIntegrationTest : IntegrationRestApiTest() {
 
         val result = this.performGet(url, account1)
             .expectOk()
-            .returns(CodeProjectDto::class.java)
+            .returns(DataProjectDto::class.java)
 
         assertThat(result.id).isEqualTo(project2.id)
         assertThat(result.gitlabId).isEqualTo(project2.gitlabId)
@@ -153,7 +152,7 @@ class DataProjectsIntegrationTest : IntegrationRestApiTest() {
 
         val result = this.performGet(url, account1)
             .expectOk()
-            .returnsList(CodeProjectDto::class.java)
+            .returnsList(DataProjectDto::class.java)
 
         assertThat(result.size).isEqualTo(2)
 
@@ -188,7 +187,7 @@ class DataProjectsIntegrationTest : IntegrationRestApiTest() {
 
         val result = this.performGet(url, account2)
             .expectOk()
-            .returnsList(CodeProjectDto::class.java)
+            .returnsList(DataProjectDto::class.java)
 
         assertThat(result.size).isEqualTo(1)
 
@@ -220,7 +219,7 @@ class DataProjectsIntegrationTest : IntegrationRestApiTest() {
 
         val result = this.performGet(url, account2)
             .expectOk()
-            .returns(CodeProjectDto::class.java)
+            .returns(DataProjectDto::class.java)
 
         assertThat(result.id).isEqualTo(project1.id)
         assertThat(result.gitlabProject).isEqualTo(project1.slug) //FIXME: Why is slug? Is it correct?
@@ -257,7 +256,7 @@ class DataProjectsIntegrationTest : IntegrationRestApiTest() {
 
         val result = this.performPut(url, account1, request)
             .expectOk()
-            .returns(CodeProjectDto::class.java)
+            .returns(DataProjectDto::class.java)
 
         assertThat(result.gitlabProject).isEqualTo(newProjectName)
     }
