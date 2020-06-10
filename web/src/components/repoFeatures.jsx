@@ -45,14 +45,14 @@ export class RepoFeatures extends Component {
       branches,
     } = this.state;
 
-    const { branch, path } = this.props;
+    const { branch: currentBranch, path } = this.props;
 
-    return branch && (
+    return currentBranch && (
       <div id="repo-features">
 
         <MDropdown
           className="mr-2 mt-3"
-          label="Master"
+          label={decodeURIComponent(currentBranch)}
           component={(
             <div id="branches-list" className="select-branch">
               <div
@@ -98,7 +98,7 @@ export class RepoFeatures extends Component {
               <ul className="plus-list">
                 <li>This directory</li>
                 <li className="plus-option">
-                  <Link to={{ pathname: `/my-projects/${projectId}/${branch}/upload-file`, state: { currentFilePath: path } }}>
+                  <Link to={{ pathname: `/my-projects/${projectId}/${currentBranch}/upload-file`, state: { currentFilePath: path } }}>
                     Upload File
                   </Link>
                 </li>
@@ -142,7 +142,7 @@ export class RepoFeatures extends Component {
         >
           <Link
             className="btn btn-outline-dark mt-3"
-            to={`/my-projects/${projectId}/${branch}/commits/${path}`}
+            to={`/my-projects/${projectId}/${currentBranch}/commits/${path}`}
           >
             History
           </Link>
