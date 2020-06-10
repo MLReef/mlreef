@@ -15,7 +15,7 @@ exports[`The branches list should be displayed when dropdown button is clicked d
         onClick={[Function]}
         type="button"
       >
-        Master
+        master
         <i
           className="fa fa-chevron-down ml-2 my-auto"
         />
