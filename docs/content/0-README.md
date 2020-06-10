@@ -1,8 +1,8 @@
 # MLReef Docs
 
-Welcome to [MLReef](https://mlreef.com) documentation. 
+Welcome to [MLReef](https://mlreef.com) documentation.
 
-> MLReef is currently on **closed alpha** and therefore, this documentation is subject to change. 
+> MLReef is currently on **closed alpha** and therefore, this documentation is subject to change.
 
 For all early access user we suggest starting with this [**early access documentation**](2-early_access_guide.md). It will give you a fast introduction to the basic concepts and features of MLReef and guide you savely on your pioneering voyage.
 
@@ -11,7 +11,7 @@ For all early access user we suggest starting with this [**early access document
 
 ## Overview
 
-No matter how you use MLReef, we have the documentation for you: 
+No matter how you use MLReef, we have the documentation for you:
 
 | Essential Documentation  | Essential Documentation  |
 |---|---|
@@ -32,12 +32,12 @@ Take a look at some of our most popular documentation resources:
 
 ## The entire MLOps cycle
 
-MLReef aims to be the first single application for the entire value chain when creating Machine Learning (ML) projects. 
-MLReef builds on the experience gathered in [Concurrent DevOps](https://en.wikipedia.org/wiki/DevOps) and ML specific operations that will enable you to work faster, more transparent and use the power of the entire MLReef community to create best Machine Learning. 
+MLReef aims to be the first single application for the entire value chain when creating Machine Learning (ML) projects.
+MLReef builds on the experience gathered in [Concurrent DevOps](https://en.wikipedia.org/wiki/DevOps) and ML specific operations that will enable you to work faster, more transparent and use the power of the entire MLReef community to create best Machine Learning.
 
-MLReef provides solutions for [all the stages in MLOps](0-general/0-concepts/mlops/0-README.md)
+MLReef provides solutions for [all the stages in MLOps](0-general/0-concepts/0-mlops/0-README.md)
 
-The following links provide documentation for each MLOps stage: 
+The following links provide documentation for each MLOps stage:
 
 | MLOps stage  | Documentation for  |
 |---|---|
@@ -48,7 +48,7 @@ The following links provide documentation for each MLOps stage:
 
 ## <a name="new_to_git"></a> New to GIT and MLReef
 
-Working with new systems can be daunting. 
+Working with new systems can be daunting.
 
 We have the following documentation to get you started with MLReef:
 
@@ -60,13 +60,9 @@ We have the following documentation to get you started with MLReef:
 
 ## <a name="user_account"></a> User account
 
-Lear more about user management in MLReef. 
+Lear more about user management in MLReef.
 
 | Topic  | Documentation for  |
 |---|---|
 | [User account](3-settings/1-users.md)  | 	Manage your account. |
 | [Group account](3-settings/2-groups.md)  | Manage your groups. |
-
-
-
-
