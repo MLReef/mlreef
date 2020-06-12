@@ -2,7 +2,7 @@ import MLProject from "./MLProject";
 import Experiment from "../experiments/Experiment";
 import { GitlabProject } from "./GitlabProject";
 
-export default class DataProject implements MLProject, GitlabProject  {
+export default class DataProject extends GitlabProject implements MLProject {
   backendId?: string;
   slug: string;
   url: string;
@@ -36,6 +36,7 @@ export default class DataProject implements MLProject, GitlabProject  {
     gitlabGroup: string,
     experiments: Array<Experiment>,
   ) {
+    super();
     this.backendId = id;
     this.slug = slug;
     this.url = url;

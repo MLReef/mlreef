@@ -21,7 +21,7 @@ export default class ProjectGeneralInfoApi extends ApiDirector {
   }
 
   async getProjectInfoApi(projectId: number) {
-    const url = `/api/v4/projects/${projectId}`;
+    const url = `/api/v4/projects/${projectId}?statistics=true`;
     const builder = new BLApiRequestCallBuilder(METHODS.GET, this.buildBasicHeaders(), url);
     const response = await fetch(builder.build());
     

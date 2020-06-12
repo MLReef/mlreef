@@ -223,60 +223,37 @@ export const classifyPipeLines = (pipelinesToClassify, arrayOfBranches) => {
   ];
 };
 
-export const classifyExperiments = (pipelinesToClassify, arrayOfBranches, experiments) => {
-  const pipes = pipelinesToClassify.filter((pipe) => pipe.status !== SKIPPED);
-  const infoPipelinesComplemented = arrayOfBranches.map((branch) => {
-    const pipeBranch = pipes.filter((pipe) => pipe.ref === branch.name)[0];
-    let experimentData;
-    experiments.forEach((experiment) => {
-      if (pipeBranch && experiment.name === pipeBranch.ref) {
-        experimentData = experiment;
-      }
-    });
-    if (pipeBranch) {
-      return {
-        status: pipeBranch.status,
-        name: branch.name,
-        authorName: branch.commit.author_name,
-        createdAt: branch.commit.created_at,
-        commit: branch.commit,
-        experimentData,
-      };
-    }
+const sortingByDateFunc = (a, b) => new Date(b.pipelineJobInfo.createdAt) - new Date(a.pipelineJobInfo.createdAt);
 
-    return null;
-  }).filter((pipeline) => pipeline !== null);
-  return [
-    {
-      status: RUNNING,
-      values: infoPipelinesComplemented
-        .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-        .filter((exp) => exp.status === RUNNING
-      || exp.status === PENDING),
-    },
-    {
-      status: SUCCESS,
-      values: infoPipelinesComplemented
-        .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-        .filter((exp) => exp.status === SUCCESS),
-    },
-    {
-      status: CANCELED,
-      values: infoPipelinesComplemented
-        .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-        .filter((exp) => exp.status === CANCELED),
-    },
-    {
-      status: FAILED,
-      values: infoPipelinesComplemented
-        .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-        .filter((exp) => exp.status === FAILED),
-    },
-    {
-      status: EXPIRED,
-      values: infoPipelinesComplemented
-        .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-        .filter((exp) => exp.status === EXPIRED),
-    },
-  ];
-};
+export const classifyExperiments = (experiments) => [
+  {
+    status: RUNNING,
+    values: experiments
+      .sort(sortingByDateFunc)
+      .filter((exp) => exp.status === RUNNING || exp.status === PENDING),
+  },
+  {
+    status: SUCCESS,
+    values: experiments
+      .sort(sortingByDateFunc)
+      .filter((exp) => exp.status === SUCCESS),
+  },
+  {
+    status: CANCELED,
+    values: experiments
+      .sort(sortingByDateFunc)
+      .filter((exp) => exp.status === CANCELED),
+  },
+  {
+    status: FAILED,
+    values: experiments
+      .sort(sortingByDateFunc)
+      .filter((exp) => exp.status === FAILED),
+  },
+  {
+    status: EXPIRED,
+    values: experiments
+      .sort(sortingByDateFunc)
+      .filter((exp) => exp.status === EXPIRED),
+  },
+];

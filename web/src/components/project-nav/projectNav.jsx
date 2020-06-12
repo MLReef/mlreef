@@ -13,7 +13,6 @@ const ProjectNav = (props) => {
       <></>
     );
   }
-  console.log(selectedProject);
   const { folders } = props;
   const { gitlabName, id } = selectedProject;
 

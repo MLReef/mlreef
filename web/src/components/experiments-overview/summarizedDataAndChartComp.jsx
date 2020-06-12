@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   string,
   arrayOf,
@@ -8,8 +8,6 @@ import {
 import { toastr } from 'react-redux-toastr';
 import './experimentsOverview.css';
 import { Line } from 'react-chartjs-2';
-import Experiment from 'domain/experiments/Experiment';
-import BranchesApi from '../../apis/BranchesApi.ts';
 import traiangle01 from '../../images/triangle-01.png';
 import ArrowButton from '../arrow-button/arrowButton';
 import {
@@ -46,39 +44,30 @@ DataCard.propTypes = {
 };
 
 const SummarizedDataAndChartComp = ({
-  experiment, projectId, defaultBranch, userParameters,
+  experiment,
 }) => {
-  const experimentInstance = new Experiment();
+  const experimentInstance = experiment;
   const [showSummary, setShowSummary] = useState(false);
   const [dataToGraph, setDataToGraph] = useState({
     datasets: [],
     labels: [],
   });
   const [averageParams, setAverageParams] = useState([]);
-  const [ahead, setAhead] = useState(0);
-  const [behind, setBehind] = useState(0);
-  const {
-    descTitle,
-    currentState,
-    experimentData,
-  } = experiment;
-  const sourceBranch = experimentData ? experimentData.source_branch : '';
-  const modelName = experimentData && experimentData.processing.name;
-  const trainingData = userParameters && userParameters.map((param) => (
+  const sourceBranch = experimentInstance ? experimentInstance.sourceBranch : '';
+  const { processing } = experimentInstance;
+  const modelName = processing ? processing.name : '';
+  const trainingData = processing.parameters ? processing.parameters.map((param) => (
     `*P: ${param.name} = ${param.value}`
-  ));
-  useEffect(() => {
-    const brApi = new BranchesApi();
-    brApi.compare(projectId, descTitle, defaultBranch)
-      .then((res) => setBehind(res.commits.length)).catch((err) => err);
-    brApi.compare(projectId, defaultBranch, descTitle)
-      .then((res) => setAhead(res.commits.length)).catch((err) => err);
-  }, [ahead, behind, projectId, descTitle, defaultBranch]);
+  )) : [];
 
   function handleArrowDownButtonClick() {
-    setShowSummary(!showSummary);
+    const newIsShowingSum = !showSummary;
+    setShowSummary(newIsShowingSum);
+    if(!newIsShowingSum){
+      return;
+    }
     try {
-      experimentInstance.fromBlobToEpochs(experimentData.json_blob);
+      experimentInstance.fromBlobToEpochs(experimentInstance.jsonBlob);
       setAverageParams(experimentInstance.generateAverageInformation());
       setDataToGraph({
         labels: Object.keys(experimentInstance.epochs),
@@ -89,23 +78,22 @@ const SummarizedDataAndChartComp = ({
     }
   }
 
-  function getButtonsDiv(experimentState) {
+  function getButtonsDiv() {
     let buttons;
-    const commitCode = descTitle.split('/')[1];
+    const { slug: expName, status: experimentState  } = experiment;
     const arrowBtn = (
       <ArrowButton
         imgPlaceHolder={traiangle01}
-        callback={() => showSummary ? () => {} : handleArrowDownButtonClick()}
-        params={{}}
-        id={`ArrowButton-${commitCode}`}
-        key={`ArrowButton-${commitCode}`}
+        callback={() => handleArrowDownButtonClick()}
+        id={`ArrowButton-${expName}`}
+        key={`ArrowButton-${expName}`}
       />
     );
     if (experimentState === RUNNING || experimentState === PENDING) {
       buttons = [
         arrowBtn,
         <button
-          key={`dangerous-red-${commitCode}`}
+          key={`dangerous-red-${expName}`}
           type="button"
           className="btn btn-danger"
           style={{ width: 'max-content' }}
@@ -117,13 +105,13 @@ const SummarizedDataAndChartComp = ({
       buttons = [
         arrowBtn,
         <button
-          key={`dangerous-red-${commitCode}`}
+          key={`dangerous-red-${expName}`}
           type="button"
           label="close"
           className="btn btn-icon btn-danger fa fa-times"
         />,
         <button
-          key={`deploy-${commitCode}`}
+          key={`deploy-${expName}`}
           type="button"
           className="btn btn-primary"
         >
@@ -134,7 +122,7 @@ const SummarizedDataAndChartComp = ({
       buttons = [
         arrowBtn,
         <button
-          key={`dangerous-red-${commitCode}`}
+          key={`dangerous-red-${expName}`}
           type="button"
           label="close"
           className="btn btn-icon btn-danger fa fa-times"
@@ -144,7 +132,7 @@ const SummarizedDataAndChartComp = ({
       buttons = [
         arrowBtn,
         <button
-          key={`dangerous-red-${commitCode}`}
+          key={`dangerous-red-${expName}`}
           type="button"
           label="close"
           className="btn btn-icon btn-danger fa fa-times"
@@ -157,10 +145,10 @@ const SummarizedDataAndChartComp = ({
   }
   return (
     <>
-      {getButtonsDiv(currentState)}
+      {getButtonsDiv()}
       {showSummary && (
         <>
-          <div key={`${descTitle} ${currentState} data-summary`} className="data-summary">
+          <div key={`${experimentInstance.name} ${experimentInstance.status} data-summary`} className="data-summary">
             <div style={{ width: '100%', minWidth: 700, maxWidth: 750 }}>
               <Line data={dataToGraph} height={50} />
             </div>
@@ -177,13 +165,13 @@ const SummarizedDataAndChartComp = ({
               }
             </div>
           </div>
-          <div style={{ flexBasis: '100%', height: 0 }} key={`${descTitle} ${currentState} division2`} />
-          <div key={`${descTitle} ${currentState} card-results`} className="card-results">
+          <div style={{ flexBasis: '100%', height: 0 }} key={`${experimentInstance.name} ${experimentInstance.status} division2`} />
+          <div key={`${experimentInstance.name} ${experimentInstance.status} card-results`} className="card-results">
             <DataCard
               title="Data"
               linesOfContent={[
                 'files selected from folder',
-                '*folders',
+                `*${experiment.inputFiles.map((file) => `${file.location}`).toString()}`,
                 sourceBranch.startsWith('data-instance')
                   ? 'sourcing from data instance'
                   : 'sourcing from',
@@ -195,7 +183,7 @@ const SummarizedDataAndChartComp = ({
               linesOfContent={[
                 `*${modelName}`,
                 //'from',
-                //`*branch:${descTitle}`,
+                //`*branch:${experimentInstance.name}`,
                 //'authored by',
                 //`*${userName} ${getTimeCreatedAgo(timeCreatedAgo, today)}`,
                 //'being',
@@ -215,19 +203,21 @@ const SummarizedDataAndChartComp = ({
 };
 
 SummarizedDataAndChartComp.propTypes = {
-  experiment: shape({
-    currentState: string,
-    descTitle: string,
-    userName: string,
-    percentProgress: string,
-    eta: string,
-    timeCreatedAgo: string,
-  }).isRequired,
   projectId: number.isRequired,
   defaultBranch: string.isRequired,
-  userParameters: arrayOf(
-    shape({}).isRequired,
-  ).isRequired,
+  experiments: shape({
+    processing: shape({
+      parameters: shape({
+        name: string.isRequired,
+        value: string.isRequired,
+      }),
+    }),
+    name: string.isRequired,
+    authorName: string.isRequired,
+    pipelineJobInfo: shape({
+      createdAt: string.isRequired
+    }),
+  }),
 };
 
 export default SummarizedDataAndChartComp;
