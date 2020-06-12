@@ -1,26 +1,19 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
-import {
-  string,
-  arrayOf,
-  shape,
-  number,
-} from 'prop-types';
 import './experimentsOverview.css';
 import {
   getTimeCreatedAgo,
 } from '../../functions/dataParserHelpers';
 import SummarizedDataAndChartComp from './summarizedDataAndChartComp';
+import { string, number, arrayOf, shape } from 'prop-types';
 
 const ExperimentCard = (props) => {
   const {
-    params: {
-      experiments,
-      currentState,
-      defaultBranch,
-      projectId,
-    },
+    experiments,
+    currentState,
+    defaultBranch,
+    projectId,
     algorithms,
   } = props;
   const today = new Date();
@@ -38,19 +31,18 @@ const ExperimentCard = (props) => {
       </div>
 
       {experiments.map((experiment) => {
-        const experimentName = experiment.descTitle;
-        const uniqueName = experimentName.split('/')[1];
-        const allParameters = algorithms.filter((algo) => algo.name === experiment.modelTitle)[0].parameters;
+        const modelTitle = experiment.processing.name;
+        const allParameters = algorithms.filter((algo) => algo.name === modelTitle)[0].parameters;
         const {
-          experimentData: {
-            id, processing: { parameters },
-            data_project_id: dataProjectId,
-            pipeline_job_info: pipelineInfo,
-          },
+          id, processing: { parameters },
+          dataProjectId,
+          pipelineJobInfo: pipelineInfo,
+          slug,
         } = experiment;
+        const shortSlug = slug ? slug.slice(11, slug.length) : "";
         return (
           <div
-            key={`${experiment.timeCreatedAgo}-${experiment.descTitle}`}
+            key={experiment.name}
             className="card-content"
           >
             <div className="summary-data" style={{ width: 'auto' }}>
@@ -75,47 +67,34 @@ const ExperimentCard = (props) => {
                     padding: 0,
                   }}
                 >
-                  <b>{uniqueName}</b>
+                  <b>{shortSlug}</b>
                 </Link>
                 <p style={{ margin: '0' }} id="time-created-ago">
                   Created by
                   &nbsp;
                   <b>
-                    <a href={`/${experiment.userName}`}>
-                      {experiment.userName}
+                    <a href={`/${experiment.authorName}`}>
+                      {experiment.authorName}
                     </a>
                   </b>
                   {' '}
-                  {getTimeCreatedAgo(experiment.timeCreatedAgo, today)}
+                  {getTimeCreatedAgo(experiment.pipelineJobInfo.createdAt, today)}
                     &nbsp;
                   ago
                 </p>
               </div>
-              {!experiment.modelTitle && (
-                <div className="project-desc-experiment">
-                  <p>
-                    <b>
-                      {experiment.percentProgress}
-                      % completed
-                    </b>
-                  </p>
-                </div>
-              )}
-              {!experiment.percentProgress && (
-                <div className="project-desc-experiment">
-                  <p>
-                    Model:
-                    {' '}
-                    <b>{experiment.modelTitle}</b>
-                  </p>
-                </div>
-              )}
+              <div className="project-desc-experiment">
+                <p>
+                  Model:
+                  {' '}
+                  <b>{modelTitle}</b>
+                </p>
+              </div>
             </div>
             <SummarizedDataAndChartComp
               experiment={experiment}
               projectId={projectId}
               defaultBranch={defaultBranch}
-              userParameters={parameters}
             />
           </div>
         );
@@ -127,21 +106,25 @@ const ExperimentCard = (props) => {
 };
 
 ExperimentCard.propTypes = {
-  params: shape({
-    currentState: string.isRequired,
-    experiments: arrayOf(
-      shape({
-        currentState: string,
-        descTitle: string,
-        userName: string,
-        percentProgress: string,
-        eta: string,
-        modelTitle: string,
-        timeCreatedAgo: string,
-      }),
-    ).isRequired,
-    projectId: number.isRequired,
-  }).isRequired,
+  experiments: arrayOf(shape({
+    name: string.isRequired,
+    authorName: string.isRequired,
+    pipelineJobInfo: shape({
+      createdAt: string.isRequired
+    }),
+    processing: shape({
+      parameters: arrayOf(shape({
+        name: string.isRequired,
+        value: string.isRequired,
+      })),
+    }),
+  })),
+  currentState: string.isRequired,
+  defaultBranch: string.isRequired,
+  projectId: number.isRequired,
+  algorithms: arrayOf(shape({
+    name: string.isRequired,
+  })),
 };
 
 function mapStateToProps(state) {

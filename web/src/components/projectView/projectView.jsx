@@ -4,7 +4,6 @@ import { bindActionCreators } from 'redux';
 import {
   string, shape, func, arrayOf,
 } from 'prop-types';
-import { toastr } from 'react-redux-toastr';
 import forkingImage from 'images/forking.png';
 import { OPERATION, ALGORITHM } from 'dataTypes';
 import ProjectGeneralInfoApi from 'apis/projectGeneralInfoApi';
@@ -93,16 +92,15 @@ class ProjectView extends React.Component {
         dp.namespace = gitlabProjectInfo.namespace;
         dp.gitlabName = gitlabProjectInfo.name;
         dp.id = gitlabProjectInfo.id;
-        this.setState({ selectedProject: dp });
-        actions.setSelectedProject(dp);
-        actions.setIsLoading(false);
+        const statistics = gitlabProjectInfo.statistics ? parseToCamelCase(gitlabProjectInfo.statistics) : {};
+        dp.repositorySize = statistics.repositorySize || 0;
         const lastCommitBr = this.isValidBranch(branch)
           ? branch
           : dp.defaultBranch;
-        commitsApi.getCommits(projectId, lastCommitBr, '', 1)
-          .then(
-            (res) => this.setState({ lastCommit: res[0] }),
-          ).catch(() => toastr.error('Error setting project'));
+        this.updateLastCommit(dp.id, lastCommitBr);
+        this.setState({ selectedProject: dp });
+        actions.setSelectedProject(dp);
+        actions.setIsLoading(false);
       })
       .catch(() => this.props.history.push('/error-page'));
   }
@@ -112,6 +110,14 @@ class ProjectView extends React.Component {
       mergeRequests: nextProps.mergeRequests,
       branch: decodeURIComponent(nextProps.match.params.branch)
     };
+  }
+
+  componentDidUpdate(prevProps){
+    const {
+      branch,
+      selectedProject,
+    } = this.state;
+    if(selectedProject && branch !== prevProps.match.params.branch) this.updateLastCommit(selectedProject.id, branch);
   }
 
   componentWillUnmount() {
@@ -124,9 +130,8 @@ class ProjectView extends React.Component {
 
   isValidBranch = (branch) => branch !== 'null' && branch !== null && branch !== undefined
 
-  updateLastCommit(newBranch) {
-    const { selectedProject } = this.state;
-    commitsApi.getCommits(selectedProject.id, newBranch, '', 1)
+  updateLastCommit(projectId, newBranch) {
+    commitsApi.getCommits(projectId, newBranch, '', 1)
       .then(
         (res) => this.setState({ lastCommit: res[0] }),
       ).catch((err) => err);
@@ -242,7 +247,6 @@ class ProjectView extends React.Component {
                   projectId={selectedProject.id}
                   branch={encodedBranch}
                   path={path || ''}
-                  updateLastCommit={this.updateLastCommit}
                 />
                 <FilesContainer
                   projectId={selectedProject.id}

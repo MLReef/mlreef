@@ -1,5 +1,3 @@
-import PipelineJobInfo from "../project/PipelineJobInfo"
-import DataProcessorInstance from "../project/DataProcessorInstance";
 import { colorsForCharts } from "../../dataTypes";
 
 export default class Experiment {
@@ -17,6 +15,7 @@ export default class Experiment {
   private epochs?: Array<any>;
   private jsonBlob: string = ""; // structure: {"1": {"acc": 0.198, "val_acc": 0.098, "loss": 2.802, "val_loss": 2.802}};
   private paramNames: Array<string> = [];
+  private authorName?: string;
 
   constructor(
     id: string,
@@ -27,9 +26,9 @@ export default class Experiment {
     sourceBranch: string,
     targetBranch: string,
     status: string,
-    pipelineJobInfo: PipelineJobInfo,
-    postProcessing: Array<DataProcessorInstance>,
-    processing: DataProcessorInstance,
+    pipelineJobInfo: any,
+    postProcessing: any,
+    processing: any,
     jsonBlob: string,
   ) {
     this.id = id;
@@ -58,9 +57,7 @@ export default class Experiment {
 
   generateParamsFromEpochs(){
     if(this.epochs){
-      Object.keys(this.epochs[0]).forEach((key: string) => {
-        this.paramNames.push(key);
-      });
+      this.paramNames = Object.keys(this.epochs[0]).map((key: string) => key);
     }
   }
 
@@ -71,17 +68,15 @@ export default class Experiment {
     }
     return this.paramNames.map((param: string) => {
       const result = this.extractSpecificParamValueFromEpochs(param);
-      if(!result){
-        return {
-          name: `avg - ${param}`, 
-          value: 0
-        }
+      const resultObj = {
+        name: param, 
+        value: 0
       }
-      return {
-        name: `avg - ${param}`, 
-        value: result.reduce((valA: number, valB: number) => valA + valB)
-            / epLength
-      }
+
+      if(!result) return resultObj;
+      
+      resultObj.value = result.reduce((valA: number, valB: number) => valA + valB) / epLength;
+      return resultObj;
     })
   }
 
@@ -89,6 +84,7 @@ export default class Experiment {
     return this.paramNames.map((param, index) => ({
       label: param,
       fill: false,
+      pointRadius: 0,
       backgroundColor: colorsForCharts[index],
       borderColor: colorsForCharts[index],
       lineTension: 0,

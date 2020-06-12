@@ -4,20 +4,21 @@ import { toastr } from 'react-redux-toastr';
 import { bindActionCreators } from 'redux';
 import uuidv1 from 'uuid/v1';
 import {
-  shape, objectOf, arrayOf, string, func,
+  shape,
 } from 'prop-types';
 import CustomizedButton from 'components/CustomizedButton';
 import ExperimentsApi from 'apis/experimentApi';
-import BranchesApi from '../../apis/BranchesApi.ts';
 import Navbar from '../navbar/navbar';
 import ProjectContainer from '../projectContainer';
 import './experimentsOverview.css';
-import * as jobsActions from '../../actions/jobsActions';
 import * as userActions from '../../actions/userActions';
-import pipelinesApi from '../../apis/PipelinesApi';
 import ExperimentCard from './experimentCard';
 import { classifyExperiments } from '../../functions/pipeLinesHelpers';
 import emptyLogo from '../../images/experiments_empty-01.png';
+import { parseToCamelCase } from 'functions/dataParserHelpers';
+import { plainToClass } from 'class-transformer';
+import Experiment from 'domain/experiments/Experiment';
+import CommitsApi from 'apis/CommitsApi';
 
 class ExperimentsOverview extends Component {
   constructor(props) {
@@ -38,26 +39,30 @@ class ExperimentsOverview extends Component {
 
   componentDidMount() {
     const { projects: { selectedProject: { id, backendId } }, actions } = this.props;
-    actions.getJobsListPerProject(id);
     actions.setIsLoading(true);
     ExperimentsApi.getExperiments(backendId)
-      .then((experiments) => {
-        pipelinesApi.getPipesByProjectId(id)
-          .then((res) => {
-            const brApi = new BranchesApi();
-            brApi.getBranches(id).then((branches) => {
-              const arrayOfBranches = branches.filter((branch) => branch.name.startsWith('experiment'));
-              const experimentsClassified = classifyExperiments(res, arrayOfBranches, experiments);
-              actions.setIsLoading(false);
-              this.setState({ experiments: experimentsClassified, all: experimentsClassified });
-              this.displayEmptyLogo();
-            });
-          });
+      .then((rawExperiments) => rawExperiments.map((exp) => {
+        const parsedExp = parseToCamelCase(exp);
+        const classExp = plainToClass(Experiment, parseToCamelCase(exp));
+        classExp.pipelineJobInfo = parseToCamelCase(parsedExp.pipelineJobInfo);
+
+        return classExp;
+      }))
+      .then((exps) => exps.map(async (exp) => {
+        const commitInfo = await CommitsApi.getCommitDetails(id, exp.pipelineJobInfo?.commitSha);
+        exp.authorName = commitInfo.author_name;
+        return exp;
+      }))
+      .then(async (promises) => {
+        const experiments = await Promise.all(promises);
+        const experimentsClassified = classifyExperiments(experiments);
+        this.setState({ experiments: experimentsClassified, all: experimentsClassified });
       })
       .catch(() => toastr.error('Error', 'Could not fetch the latest experiments'))
-        .finally(() => {
-          actions.setIsLoading(false);
-        });
+      .finally(() => {
+        this.displayEmptyLogo();
+        actions.setIsLoading(false);
+      });
   }
 
   displayEmptyLogo = () => {
@@ -186,31 +191,15 @@ class ExperimentsOverview extends Component {
 
               </div>
               )}
-              {selectedExperiment === null
-                && experiments.map((experimentClassification) => {
-                  const expMapped = experimentClassification.values.map(
-                    (experiment) => ({
-                      currentState: experiment.status,
-                      descTitle: experiment.name,
-                      userName: experiment.authorName,
-                      modelTitle: experiment.experimentData.processing.name,
-                      timeCreatedAgo: experiment.createdAt,
-                      experimentData: experiment.experimentData,
-                    }),
-                  );
-
-                  return (
-                    <ExperimentCard
-                      key={uuidv1()}
-                      params={{
-                        projectId: selectedProject.id,
-                        defaultBranch: selectedProject.defaultBranch,
-                        currentState: experimentClassification.status,
-                        experiments: expMapped,
-                      }}
-                    />
-                  );
-                })}
+              {selectedExperiment === null && experiments.map((experimentClassification) => (
+                <ExperimentCard
+                  key={uuidv1()}
+                  projectId={selectedProject.id}
+                  defaultBranch={selectedProject.defaultBranch}
+                  currentState={experimentClassification.status}
+                  experiments={experimentClassification.values}
+                />
+              ))}
             </div>
           )}
           <br />
@@ -224,17 +213,9 @@ class ExperimentsOverview extends Component {
 
 ExperimentsOverview.propTypes = {
   projects: shape({
-    selectedProject: objectOf(shape).isRequired,
-    jobs: arrayOf(
-      shape({
-        ref: string.isRequired,
-      }).isRequired,
-    ).isRequired,
+    selectedProject: shape({}).isRequired,
   }).isRequired,
   history: shape({}).isRequired,
-  actions: shape({
-    getJobsListPerProject: func.isRequired,
-  }).isRequired,
 };
 
 function mapStateToProps(state) {
@@ -246,7 +227,6 @@ function mapStateToProps(state) {
 function mapDispatchToProps(dispatch) {
   return {
     actions: bindActionCreators({
-      ...jobsActions,
       ...userActions,
     }, dispatch),
   };

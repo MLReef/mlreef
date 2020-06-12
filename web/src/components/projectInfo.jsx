@@ -10,32 +10,25 @@ import fork01 from '../images/fork_01.svg';
 import clone01 from '../images/clone_01.svg';
 import ProjectGeneralInfoApi from '../apis/projectGeneralInfoApi.ts';
 import * as projectActions from '../actions/projectInfoActions';
+import { plainToClass } from 'class-transformer';
+import DataProject from 'domain/project/DataProject';
 
 const ProjectInfo = (props) => {
   const {
     project,
-    project: {
-      id,
-      iconUrl,
-      defaultBranch,
-      gitlabName: name,
-      starCount: stars,
-      forksCount: forks,
-      httpUrlToRepo,
-      sshUrlToRepo
-    },
     actions,
     userNamespace,
     setIsForking,
   } = props;
+  const classProject = plainToClass(DataProject, project);
   const [redirect, setRedirect] = React.useState(false);
 
   function handleFork() {
     let Id;
     let projectName;
-    if (project) {
-      Id = project.id;
-      projectName = project.name;
+    if (classProject) {
+      Id = classProject.id;
+      projectName = classProject.name;
     }
 
     setIsForking(true);
@@ -55,18 +48,18 @@ const ProjectInfo = (props) => {
   return (
     <div className="project-info">
       <div className="project-id">
-        <Link to={`/my-projects/${id}/${defaultBranch}`}>
+        <Link to={`/my-projects/${classProject.id}/${classProject.defaultBranch}`}>
           <div className="project-pic">
-            <img style={{ minWidth: '100%' }} src={iconUrl} alt="" />
+            <img style={{ minWidth: '100%' }} src={classProject.avatarUrl} alt="" />
           </div>
         </Link>
         <div className="project-name">
-          <Link to={`/my-projects/${id}/${defaultBranch}`} id="projectName">{name}</Link>
+          <Link to={`/my-projects/${classProject.id}/${classProject.defaultBranch}`} id="projectName">{classProject.gitlabName}</Link>
           <p id="projectId">
             Project ID:
-            {id}
+            {classProject.id}
             {' '}
-            | 526MB used
+            | {classProject.getRepositorySize()} used
           </p>
         </div>
       </div>
@@ -87,11 +80,11 @@ const ProjectInfo = (props) => {
           </button>
 
           <div className="counter border-rounded-right h-100">
-            <span>{stars}</span>
+            <span>{classProject.starCount}</span>
           </div>
         </div>
 
-        {defaultBranch !== null && (
+        {classProject.defaultBranch !== null && (
         <div className="options d-flex mr-2">
           <button
             type="button"
@@ -103,7 +96,7 @@ const ProjectInfo = (props) => {
           </button>
 
           <div className="counter border-rounded-right h-100">
-            <span>{forks}</span>
+            <span>{classProject.forksCount}</span>
           </div>
         </div>
         )}
@@ -112,7 +105,7 @@ const ProjectInfo = (props) => {
             <img className="mr-0 mr-lg-1" id="option-image" src={clone01} alt="" />
             <span className="my-auto d-none d-lg-block">Clone</span>
           </div>
-          <Clonedropdown className="border-rounded-right h-100" http={httpUrlToRepo} ssh={sshUrlToRepo} />
+          <Clonedropdown className="border-rounded-right h-100" http={classProject.httpUrlToRepo} ssh={classProject.sshUrlToRepo} />
         </div>
       </div>
     </div>

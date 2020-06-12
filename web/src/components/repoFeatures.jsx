@@ -6,7 +6,6 @@ import {
   string,
   shape,
   number,
-  func,
   arrayOf,
 } from 'prop-types';
 import AuthWrapper from 'components/AuthWrapper';
@@ -156,7 +155,6 @@ RepoFeatures.propTypes = {
   branch: string.isRequired,
   path: string.isRequired,
   projectId: number.isRequired,
-  updateLastCommit: func.isRequired,
   branches: arrayOf(
     shape({
       name: string.isRequired,
