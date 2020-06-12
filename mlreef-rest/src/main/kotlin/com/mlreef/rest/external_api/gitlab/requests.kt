@@ -104,11 +104,13 @@ internal class GitlabCreateProjectRequest(
     val buildTimeout: Int = 18000
 ) : Serializable
 
+//https://docs.gitlab.com/ee/api/projects.html#edit-project
 @JsonInclude(JsonInclude.Include.NON_NULL)
 internal class GitlabUpdateProjectRequest(
-    val name: String,
-    val description: String = "",
-    val defaultBranch: String? = null
+    val name: String? = null,
+    val description: String? = null,
+    val defaultBranch: String? = null,
+    val visibility: String? = null
 ) : Serializable
 
 // https://docs.gitlab.com/ee/api/oauth2.html

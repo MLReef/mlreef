@@ -14,6 +14,10 @@ enum class AccessLevel(val accessCode: Int) {
             return values().firstOrNull { it.accessCode == code }
         }
 
+        fun parse(name: String): AccessLevel = parseOrNull(name) ?: throw EnumConstantNotPresentException(AccessLevel::class.java, name)
+
+        fun parseOrNull(name: String?): AccessLevel? = values().firstOrNull { it.name.equals(name?.trim(), true) }
+
         @JvmStatic
         fun isSufficientFor(instance: AccessLevel?, limit: AccessLevel?): Boolean {
             if (limit == null) return true

@@ -6,6 +6,8 @@ import com.mlreef.rest.api.TestTags
 import com.mlreef.rest.external_api.gitlab.GitlabRestClient
 import com.mlreef.rest.external_api.gitlab.GroupAccessLevel
 import com.mlreef.rest.external_api.gitlab.dto.GitlabUser
+import com.mlreef.rest.feature.caches.PublicProjectsCacheService
+import com.mlreef.rest.feature.caches.repositories.PublicProjectsRepository
 import com.mlreef.rest.testcommons.TestGitlabContainer
 import com.mlreef.rest.testcommons.TestPostgresContainer
 import com.mlreef.rest.testcommons.TestRedisContainer
@@ -69,6 +71,13 @@ abstract class IntegrationRestApiTest : AbstractRestApiTest() {
 
     @Autowired
     private lateinit var builder: RestTemplateBuilder
+
+    @SpykBean
+    protected lateinit var publicProjectRepository: PublicProjectsRepository
+
+    @SpykBean
+    protected lateinit var publicProjectsCacheService: PublicProjectsCacheService
+
 
     @BeforeEach
     fun setUp(

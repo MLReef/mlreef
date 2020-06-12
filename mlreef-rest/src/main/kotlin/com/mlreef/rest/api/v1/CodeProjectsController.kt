@@ -1,10 +1,12 @@
 package com.mlreef.rest.api.v1
 
+import com.mlreef.rest.AccessLevel
 import com.mlreef.rest.Account
 import com.mlreef.rest.CodeProject
 import com.mlreef.rest.Person
 import com.mlreef.rest.VisibilityScope
 import com.mlreef.rest.api.v1.dto.CodeProjectDto
+import com.mlreef.rest.api.v1.dto.MLProjectDto
 import com.mlreef.rest.api.v1.dto.UserInProjectDto
 import com.mlreef.rest.api.v1.dto.toDomain
 import com.mlreef.rest.api.v1.dto.toDto
@@ -15,6 +17,8 @@ import com.mlreef.rest.exceptions.ProjectCreationException
 import com.mlreef.rest.exceptions.ProjectNotFoundException
 import com.mlreef.rest.external_api.gitlab.TokenDetails
 import com.mlreef.rest.feature.project.CodeProjectService
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
 import org.springframework.http.HttpStatus
 import org.springframework.security.access.prepost.PostAuthorize
 import org.springframework.security.access.prepost.PostFilter
@@ -26,6 +30,7 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
 import java.util.UUID
@@ -45,29 +50,34 @@ class CodeProjectsController(
         return codeProjectService.getAllProjectsForUser(person.id).map(CodeProject::toDto)
     }
 
+    @GetMapping("/public")
+    fun getPublicDataProjects(pageable: Pageable): Page<MLProjectDto> {
+        return codeProjectService.getAllPublicProjects(pageable).map { it.toDto() }
+    }
+
     @GetMapping("/{id}")
-    @PreAuthorize("isCurrentUserInProject(#id)")
+    @PreAuthorize("userInProject(#id) || projectIsPublic(#id)")
     fun getCodeProjectById(@PathVariable id: UUID): CodeProjectDto {
         val codeProject = codeProjectService.getProjectById(id) ?: throw ProjectNotFoundException(projectId = id)
         return codeProject.toDto()
     }
 
     @GetMapping("/namespace/{namespace}")
-    @PostFilter("filterProjectByUserInProject()")
+    @PostFilter("userInProject() || projectIsPublic()")
     fun getCodeProjectsByNamespace(@PathVariable namespace: String): List<CodeProjectDto> {
         val codeProjects = codeProjectService.getProjectsByNamespace(namespace)
         return codeProjects.map(CodeProject::toDto)
     }
 
     @GetMapping("/slug/{slug}")
-    @PostFilter("filterProjectByUserInProject()")
+    @PostFilter("userInProject() || projectIsPublic()")
     fun getCodeProjectBySlug(@PathVariable slug: String): List<CodeProjectDto> {
         val codeProjects = codeProjectService.getProjectsBySlug(slug)
         return codeProjects.map(CodeProject::toDto)
     }
 
     @GetMapping("/{namespace}/{slug}")
-    @PostAuthorize("isCurrentUserInResultProject()")
+    @PostAuthorize("userInProject() || projectIsPublic()")
     fun getCodeProjectsByNamespaceAndSlugInPath(@PathVariable namespace: String, @PathVariable slug: String): CodeProjectDto {
         val codeProjects = codeProjectService.getProjectsByNamespaceAndSlug(namespace, slug)
             ?: throw ProjectNotFoundException(path = "$namespace/$slug")
@@ -137,14 +147,24 @@ class CodeProjectsController(
     }
 
     @GetMapping("/{id}/users/check")
-    fun checkCurrentUserInCodeProject(@PathVariable id: UUID, account: Account): Boolean {
-        return codeProjectService.checkUserInProject(projectUUID = id, userId = account.id)
+    fun checkCurrentUserInCodeProject(@PathVariable id: UUID,
+                                      @RequestParam(required = false) level: String?,
+                                      @RequestParam(required = false, name = "min_level") minLevel: String?,
+                                      account: Account): Boolean {
+        val checkLevel = if (level!=null) AccessLevel.parse(level) else null
+        val checkMinLevel = if (minLevel!=null) AccessLevel.parse(minLevel) else null
+        return codeProjectService.checkUserInProject(projectUUID = id, userId = account.id, level = checkLevel, minlevel = checkMinLevel)
     }
 
     @GetMapping("/{id}/users/check/{userId}")
     @PreAuthorize("hasAccessToProject(#id, 'DEVELOPER') || isUserItself(#userId)")
-    fun checkUserInCodeProjectById(@PathVariable id: UUID, @PathVariable userId: UUID): Boolean {
-        return codeProjectService.checkUserInProject(projectUUID = id, userId = userId)
+    fun checkUserInCodeProjectById(@PathVariable id: UUID,
+                                   @PathVariable userId: UUID,
+                                   @RequestParam(required = false) level: String?,
+                                   @RequestParam(required = false, name = "min_level") minLevel: String?): Boolean {
+        val checkLevel = if (level!=null) AccessLevel.parse(level) else null
+        val checkMinLevel = if (minLevel!=null) AccessLevel.parse(minLevel) else null
+        return codeProjectService.checkUserInProject(projectUUID = id, userId = userId, level = checkLevel, minlevel = checkMinLevel)
     }
 
     @PostMapping("/{id}/users/check")

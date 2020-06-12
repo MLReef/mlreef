@@ -10,10 +10,13 @@ import com.mlreef.rest.DataProjectRepository
 import com.mlreef.rest.Group
 import com.mlreef.rest.GroupRepository
 import com.mlreef.rest.Person
+import com.mlreef.rest.VisibilityScope
 import com.mlreef.rest.external_api.gitlab.GitlabRestClient
 import com.mlreef.rest.external_api.gitlab.dto.GitlabGroup
 import com.mlreef.rest.external_api.gitlab.dto.GitlabProject
 import com.mlreef.rest.external_api.gitlab.dto.GitlabUser
+import com.mlreef.rest.feature.caches.domain.PublicProjectHash
+import com.mlreef.rest.feature.caches.repositories.PublicProjectsRepository
 import com.mlreef.rest.utils.RandomUtils
 import com.ninjasquad.springmockk.SpykBean
 import org.springframework.beans.factory.annotation.Autowired
@@ -44,6 +47,10 @@ internal class GitlabHelper {
 
     @Autowired
     lateinit var dataProjectRepository: DataProjectRepository
+
+    @Autowired
+    protected lateinit var publicProjectRepository: PublicProjectsRepository
+
 
     private val passwordEncoder: PasswordEncoder = BCryptPasswordEncoder()
 
@@ -82,14 +89,14 @@ internal class GitlabHelper {
         val groupPath = "path-$groupName"
         val groupInGitlab = restClient.userCreateGroup(account.bestToken?.token!!, groupName, groupPath)
 
-        var groupInDatabase = Group(UUID.randomUUID(), "slug-$groupName", groupName, groupInGitlab.id)
+        var groupInDatabase = Group(UUID.randomUUID(), "slug-$groupName", groupName,groupInGitlab.id)
 
         groupInDatabase = groupsRepository.save(groupInDatabase)
 
         return Pair(groupInDatabase, groupInGitlab)
     }
 
-    fun createRealProjectInGitlab(account: Account, name: String? = null, slug: String? = null, namespace: String? = null): GitlabProject {
+    fun createRealProjectInGitlab(account: Account, name: String? = null, slug: String? = null, namespace: String? = null, public: Boolean = true): GitlabProject {
         val projectName = name ?: RandomUtils.generateRandomUserName(20)
         val projectSlug = slug ?: "slug-$projectName"
         val nameSpace = namespace ?: "mlreef/$projectName"
@@ -107,7 +114,7 @@ internal class GitlabHelper {
             defaultBranch = "master",
             nameSpaceId = findNamespace?.id,
             description = "Test description $projectName",
-            visibility = "public",
+            visibility = if (public) "public" else "private",
             initializeWithReadme = false)
 
         allCreatedProjectsNames.add(projectName)
@@ -115,8 +122,8 @@ internal class GitlabHelper {
         return result
     }
 
-    fun createRealCodeProject(account: Account, name: String? = null, slug: String? = null, namespace: String? = null): Pair<CodeProject, GitlabProject> {
-        val gitLabProject = createRealProjectInGitlab(account, name, slug, namespace)
+    fun createRealCodeProject(account: Account, name: String? = null, slug: String? = null, namespace: String? = null, public: Boolean = true): Pair<CodeProject, GitlabProject> {
+        val gitLabProject = createRealProjectInGitlab(account, name, slug, namespace, public)
 
         val group = gitLabProject.pathWithNamespace.split("/")[0]
 
@@ -129,16 +136,19 @@ internal class GitlabHelper {
             gitlabProject = gitLabProject.path,
             gitlabPathWithNamespace = gitLabProject.pathWithNamespace,
             gitlabGroup = group,
-            gitlabId = gitLabProject.id
+            gitlabId = gitLabProject.id,
+            visibilityScope = VisibilityScope.valueOf(gitLabProject.visibility.name)
         )
 
         projectInDb = codeProjectRepository.save(projectInDb)
 
+        if (public) publicProjectRepository.save(PublicProjectHash(gitLabProject.id, projectInDb.id))
+
         return Pair(projectInDb, gitLabProject)
     }
 
-    fun createRealDataProject(account: Account, name: String? = null, slug: String? = null, namespace: String? = null): Pair<DataProject, GitlabProject> {
-        val gitLabProject = createRealProjectInGitlab(account, name, slug, namespace)
+    fun createRealDataProject(account: Account, name: String? = null, slug: String? = null, namespace: String? = null, public: Boolean = true): Pair<DataProject, GitlabProject> {
+        val gitLabProject = createRealProjectInGitlab(account, name, slug, namespace, public)
 
         val group = gitLabProject.pathWithNamespace.split("/")[0]
 
@@ -151,10 +161,13 @@ internal class GitlabHelper {
             gitlabProject = gitLabProject.path,
             gitlabPathWithNamespace = gitLabProject.pathWithNamespace,
             gitlabGroup = group,
-            gitlabId = gitLabProject.id
+            gitlabId = gitLabProject.id,
+            visibilityScope = VisibilityScope.valueOf(gitLabProject.visibility.name)
         )
 
         projectInDb = dataProjectRepository.save(projectInDb)
+
+        if (public) publicProjectRepository.save(PublicProjectHash(gitLabProject.id, projectInDb.id))
 
         return Pair(projectInDb, gitLabProject)
     }

@@ -18,7 +18,6 @@ class GitlabGenericProjectService(
     private val codeProjectService: CodeProjectService,
     private val dataProjectService: DataProjectService,
     private val publicProjectsCacheService: PublicProjectsCacheService
-
 ) : GenericProjectService {
 
     override fun getAllPublicProjects(): List<MLProject> {

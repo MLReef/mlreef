@@ -345,6 +345,8 @@ class CodeProjectsApiTest : RestApiTest() {
         codeProjectRepository.save(project1)
 
         mockGetUserProjectsList(listOf(project1.id), account, AccessLevel.OWNER)
+        mockGitlabUpdateProject()
+
         val request = CodeProjectUpdateRequest("New Test project", "new description")
 
         val returnedResult = this.performPut("$rootUrl/$id1", account, body = request)
@@ -355,7 +357,7 @@ class CodeProjectsApiTest : RestApiTest() {
             )
             .returns(CodeProjectDto::class.java)
 
-        assertThat(returnedResult.gitlabProject).isEqualTo("New Test project")
+        assertThat(returnedResult.name).isEqualTo("New Test project")
     }
 
     @Transactional
@@ -492,8 +494,9 @@ class CodeProjectsApiTest : RestApiTest() {
             fieldWithPath(prefix + "slug").type(JsonFieldType.STRING).description("Data project slug"),
             fieldWithPath(prefix + "url").type(JsonFieldType.STRING).description("URL in Gitlab domain"),
             fieldWithPath(prefix + "owner_id").type(JsonFieldType.STRING).description("Onwer id of the data project"),
+            fieldWithPath(prefix + "name").type(JsonFieldType.STRING).description("Project name"),
             fieldWithPath(prefix + "gitlab_group").type(JsonFieldType.STRING).description("The group where the project is in"),
-            fieldWithPath(prefix + "gitlab_project").type(JsonFieldType.STRING).description("Project name"),
+            fieldWithPath(prefix + "gitlab_project").type(JsonFieldType.STRING).description("Project path"),
             fieldWithPath(prefix + "gitlab_id").type(JsonFieldType.NUMBER).description("Id in gitlab")
         )
     }

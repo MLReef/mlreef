@@ -10,6 +10,7 @@ import com.mlreef.rest.external_api.gitlab.GitlabRestClient
 import com.mlreef.rest.external_api.gitlab.GroupAccessLevel
 import com.mlreef.rest.external_api.gitlab.dto.GitlabProject
 import com.mlreef.rest.external_api.gitlab.toAccessLevel
+import com.mlreef.rest.external_api.gitlab.toVisibilityScope
 import com.mlreef.rest.feature.caches.PublicProjectsCacheService
 import com.mlreef.rest.helpers.ProjectOfUser
 import org.springframework.data.domain.Page
@@ -94,12 +95,19 @@ class GitlabCodeProjectService(
             gitlabProject = gitlabProject.path,
             gitlabPathWithNamespace = gitlabProject.pathWithNamespace,
             gitlabGroup = group,
-            gitlabId = gitlabProject.id
+            gitlabId = gitlabProject.id,
+            visibilityScope = gitlabProject.visibility.toVisibilityScope()
         )
     }
 
-    override fun updateSaveProject(mlProject: CodeProject, projectName: String?): CodeProject {
-        return codeProjectRepository.save(mlProject.copy(gitlabProject = projectName))
+    override fun updateSaveProject(mlProject: CodeProject, gitlabProject: GitlabProject): CodeProject {
+        return codeProjectRepository.save(
+            mlProject.copy(
+                name = gitlabProject.name,
+                gitlabProject = gitlabProject.path,
+                visibilityScope = gitlabProject.visibility.toVisibilityScope()
+            )
+        )
     }
 
     override fun getUserProjectsList(userId: UUID?): List<ProjectOfUser> {

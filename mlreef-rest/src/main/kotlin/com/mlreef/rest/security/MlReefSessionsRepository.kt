@@ -1,6 +1,5 @@
 package org.springframework.session.data.redis
 
-import com.mlreef.rest.security.MlReefSessionInformation
 import org.slf4j.LoggerFactory
 import org.springframework.session.FindByIndexNameSessionRepository
 import org.springframework.session.Session
@@ -11,7 +10,7 @@ class MlReefSessionsRepository<T : Session>(
 ) : FindByIndexNameSessionRepository<T> by repository {
 
     companion object {
-        private val log = LoggerFactory.getLogger(MlReefSessionInformation::class.java)
+        private val log = LoggerFactory.getLogger(MlReefSessionsRepository::class.java)
         const val USERNAME_INDEX_NAME = "username"
     }
 
