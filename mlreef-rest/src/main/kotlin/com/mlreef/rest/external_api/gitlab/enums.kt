@@ -3,6 +3,7 @@ package com.mlreef.rest.external_api.gitlab
 import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonValue
 import com.mlreef.rest.AccessLevel
+import com.mlreef.rest.VisibilityScope
 
 
 enum class GroupAccessLevel(val accessCode: Int) {
@@ -18,7 +19,15 @@ enum class GroupAccessLevel(val accessCode: Int) {
         fun fromCode(code: Int?): GroupAccessLevel? {
             return values().firstOrNull { it.accessCode == code }
         }
+
+        fun isSufficientFor(instance: GroupAccessLevel?, limit: GroupAccessLevel?): Boolean {
+            if (limit == null) return true
+            if (instance == null) return false
+            return instance.accessCode >= limit.accessCode
+        }
     }
+
+    fun satisfies(limit: GroupAccessLevel?) = GroupAccessLevel.isSufficientFor(this, limit)
 }
 
 fun AccessLevel?.toGitlabAccessLevel(): GroupAccessLevel? {
@@ -43,6 +52,14 @@ enum class GitlabVisibility {
     PRIVATE,
     INTERNAL,
     PUBLIC
+}
+
+fun VisibilityScope.toGitlabVisibility(): GitlabVisibility {
+    return GitlabVisibility.valueOf(this.name.toUpperCase())
+}
+
+fun GitlabVisibility.toVisibilityScope(): VisibilityScope {
+    return VisibilityScope.valueOf(this.name.toUpperCase())
 }
 
 enum class ProjectCreationLevel {

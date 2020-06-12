@@ -34,7 +34,7 @@ class AuthenticationProvider(val authService: AuthService,
      * Will be called during EACH Request to load or reload Authentication via Service or from Session
      */
     override fun retrieveUser(accessToken: String?, authentication: UsernamePasswordAuthenticationToken?): UserDetails {
-        if (accessToken == null || accessToken==EMPTY_TOKEN_NAME) {
+        if (accessToken == null || accessToken == EMPTY_TOKEN_NAME) {
             return authService.createGuestDetails()
         }
         if (authentication == null) {

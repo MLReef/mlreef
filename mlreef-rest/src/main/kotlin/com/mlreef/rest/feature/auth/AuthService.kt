@@ -246,9 +246,7 @@ class GitlabAuthService(
         return tokenDetails
     }
 
-    override fun createGuestDetails(): TokenDetails {
-        return guestTokenDetails
-    }
+    override fun createGuestDetails() = guestTokenDetails
 
     override fun findAccountByToken(token: String): Account {
         val tokenInDb = accountTokenRepository.findOneByToken(token)

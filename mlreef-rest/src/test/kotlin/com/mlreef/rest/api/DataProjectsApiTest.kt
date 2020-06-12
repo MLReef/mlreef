@@ -319,6 +319,7 @@ class DataProjectsApiTest : RestApiTest() {
         dataProjectRepository.save(project1)
 
         this.mockGetUserProjectsList(listOf(project1.id), account, AccessLevel.OWNER)
+        this.mockGitlabUpdateProject()
 
         val request = DataProjectUpdateRequest("New Test project", "description")
 
@@ -331,7 +332,7 @@ class DataProjectsApiTest : RestApiTest() {
                 responseFields(dataProjectResponseFields()))
             .returns(DataProjectDto::class.java)
 
-        assertThat(returnedResult.gitlabProject).isEqualTo("New Test project")
+        assertThat(returnedResult.name).isEqualTo("New Test project")
     }
 
     @Transactional
@@ -462,8 +463,9 @@ class DataProjectsApiTest : RestApiTest() {
             fieldWithPath(prefix + "slug").type(JsonFieldType.STRING).description("Data project slug"),
             fieldWithPath(prefix + "url").type(JsonFieldType.STRING).description("URL in Gitlab domain"),
             fieldWithPath(prefix + "owner_id").type(JsonFieldType.STRING).description("Owner id of the data project"),
+            fieldWithPath(prefix + "name").type(JsonFieldType.STRING).description("Project name"),
             fieldWithPath(prefix + "gitlab_group").type(JsonFieldType.STRING).description("The group where the project is in"),
-            fieldWithPath(prefix + "gitlab_project").type(JsonFieldType.STRING).description("Project name"),
+            fieldWithPath(prefix + "gitlab_project").type(JsonFieldType.STRING).description("Project path"),
             fieldWithPath(prefix + "gitlab_id").type(JsonFieldType.NUMBER).description("Id in gitlab"),
             fieldWithPath(prefix + "experiments").type(JsonFieldType.ARRAY).optional().description("List of experiments inside the project (empty on creation)")
         )

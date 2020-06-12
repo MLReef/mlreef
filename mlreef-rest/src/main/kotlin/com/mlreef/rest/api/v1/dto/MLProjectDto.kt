@@ -12,11 +12,12 @@ import com.mlreef.rest.helpers.ProjectOfUser
 import org.springframework.data.domain.Persistable
 import java.util.UUID
 
-abstract class MLProjectDto(
+open class MLProjectDto(
     override val id: UUID?,
     open val slug: String,
     open val url: String,
     open val ownerId: UUID,
+    open val name: String,
     open val gitlabGroup: String,
     open val gitlabProject: String,
     open val gitlabId: Long
@@ -35,21 +36,23 @@ data class DataProjectDto(
     override val slug: String,
     override val url: String,
     override val ownerId: UUID,
+    override val name: String,
     override val gitlabGroup: String,
     override val gitlabProject: String,
     override val gitlabId: Long,
     val experiments: List<ExperimentDto> = listOf()
-) : MLProjectDto(id, slug, url, ownerId, gitlabGroup, gitlabProject, gitlabId)
+) : MLProjectDto(id, slug, url, ownerId, name, gitlabGroup, gitlabProject, gitlabId)
 
 data class CodeProjectDto(
     override val id: UUID,
     override val slug: String,
     override val url: String,
     override val ownerId: UUID,
+    override val name: String,
     override val gitlabGroup: String,
     override val gitlabProject: String,
     override val gitlabId: Long
-) : MLProjectDto(id, slug, url, ownerId, gitlabGroup, gitlabProject, gitlabId)
+) : MLProjectDto(id, slug, url, ownerId, name, gitlabGroup, gitlabProject, gitlabId)
 
 internal fun ProjectOfUserDto.toDomain() = ProjectOfUser(
     id = this.id,
@@ -65,6 +68,7 @@ fun MLProject.toDto(): MLProjectDto {
         this.slug,
         this.url,
         this.ownerId,
+        this.name,
         this.gitlabGroup,
         this.gitlabProject,
         this.gitlabId
@@ -77,6 +81,7 @@ internal fun DataProject.toDto(): DataProjectDto {
         slug = this.slug,
         url = this.url,
         ownerId = this.ownerId,
+        name = this.name,
         gitlabGroup = this.gitlabGroup,
         gitlabProject = this.gitlabProject,
         gitlabId = this.gitlabId,
@@ -90,6 +95,7 @@ internal fun CodeProject.toDto() =
         slug = this.slug,
         url = this.url,
         ownerId = this.ownerId,
+        name = this.name,
         gitlabGroup = this.gitlabGroup,
         gitlabProject = this.gitlabProject,
         gitlabId = this.gitlabId

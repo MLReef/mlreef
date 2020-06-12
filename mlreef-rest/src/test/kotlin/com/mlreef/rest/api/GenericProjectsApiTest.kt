@@ -400,8 +400,9 @@ class GenericProjectsApiTest : RestApiTest() {
             fieldWithPath(prefix + "slug").type(JsonFieldType.STRING).description("Generic project slug"),
             fieldWithPath(prefix + "url").type(JsonFieldType.STRING).description("URL in Gitlab domain"),
             fieldWithPath(prefix + "owner_id").type(JsonFieldType.STRING).description("Owner id of the generic project"),
+            fieldWithPath(prefix + "name").type(JsonFieldType.STRING).description("Project name"),
             fieldWithPath(prefix + "gitlab_group").type(JsonFieldType.STRING).description("The group where the project is in"),
-            fieldWithPath(prefix + "gitlab_project").type(JsonFieldType.STRING).description("Project name"),
+            fieldWithPath(prefix + "gitlab_project").type(JsonFieldType.STRING).description("Project path"),
             fieldWithPath(prefix + "gitlab_id").type(JsonFieldType.NUMBER).description("Id in gitlab")
         )
     }

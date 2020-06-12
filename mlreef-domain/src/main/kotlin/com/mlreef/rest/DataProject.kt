@@ -68,7 +68,8 @@ class DataProject(
         experiments: List<Experiment>? = null,
         version: Long? = null,
         createdAt: ZonedDateTime? = null,
-        updatedAt: ZonedDateTime? = null
+        updatedAt: ZonedDateTime? = null,
+        visibilityScope: VisibilityScope? = null
     ): DataProject {
         return DataProject(
             id = id ?: this.id,
@@ -83,7 +84,8 @@ class DataProject(
             experiments = experiments ?: this.experiments,
             version = version ?: this.version,
             createdAt = createdAt ?: this.createdAt,
-            updatedAt = updatedAt ?: this.updatedAt
+            updatedAt = updatedAt ?: this.updatedAt,
+            visibilityScope = visibilityScope ?: this.visibilityScope
         )
     }
 

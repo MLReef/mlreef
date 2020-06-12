@@ -113,8 +113,6 @@ class GroupsController(
         groupsService.deleteUserFromGroup(groupId, userId)
         return getUsersInGroupById(groupId)
     }
-
-
 }
 
 

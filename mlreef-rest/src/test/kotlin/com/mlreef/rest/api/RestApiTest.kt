@@ -4,6 +4,7 @@ import com.mlreef.rest.AccessLevel
 import com.mlreef.rest.Account
 import com.mlreef.rest.ApplicationProfiles
 import com.mlreef.rest.external_api.gitlab.GitlabRestClient
+import com.mlreef.rest.external_api.gitlab.GitlabVisibility
 import com.mlreef.rest.external_api.gitlab.TokenDetails
 import com.mlreef.rest.external_api.gitlab.dto.Branch
 import com.mlreef.rest.external_api.gitlab.dto.Commit
@@ -17,6 +18,7 @@ import com.mlreef.rest.security.MlReefSessionRegistry
 import com.mlreef.rest.testcommons.TestRedisContainer
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
+import io.mockk.mockk
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.extension.ExtendWith
 import org.slf4j.LoggerFactory
@@ -28,6 +30,13 @@ import org.springframework.restdocs.RestDocumentationExtension
 import org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.documentationConfiguration
 import org.springframework.restdocs.operation.preprocess.Preprocessors
 import org.springframework.restdocs.operation.preprocess.Preprocessors.removeHeaders
+import org.springframework.restdocs.payload.FieldDescriptor
+import org.springframework.restdocs.payload.JsonFieldType
+import org.springframework.restdocs.payload.PayloadDocumentation
+import org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath
+import org.springframework.security.core.Authentication
+import org.springframework.security.core.context.SecurityContext
+import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity
@@ -41,6 +50,8 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders
 import org.springframework.web.context.WebApplicationContext
 import java.util.UUID
 import java.util.regex.Pattern
+import kotlin.math.absoluteValue
+import kotlin.random.Random
 
 @TestPropertySource("classpath:application.yml")
 @ExtendWith(value = [RestDocumentationExtension::class, SpringExtension::class])
@@ -61,9 +72,6 @@ abstract class RestApiTest : AbstractRestApiTest() {
 
     @MockkBean(relaxed = true, relaxUnitFun = true)
     protected lateinit var currentUserService: CurrentUserService
-
-//    @MockkBean(relaxed = true, relaxUnitFun = true)
-//    protected lateinit var authService: AuthService
 
     @MockkBean(relaxed = true, relaxUnitFun = true)
     protected lateinit var sessionRegistry: MlReefSessionRegistry
@@ -172,6 +180,24 @@ abstract class RestApiTest : AbstractRestApiTest() {
         every { currentUserService.permanentToken() } answers { testPrivateUserTokenMock1 }
     }
 
+    fun mockSecurityContextHolder(token: TokenDetails? = null) {
+        val finalToken = token ?: TokenDetails(
+            "testusername",
+            "test-token",
+            "test-access-token",
+            UUID.randomUUID(),
+            UUID.randomUUID()
+        )
+
+        val secContext = mockk<SecurityContext>()
+        val authentication = mockk<Authentication>()
+
+        every { authentication.principal } answers { finalToken }
+        every { secContext.authentication } answers { authentication }
+
+        SecurityContextHolder.setContext(secContext)
+    }
+
     fun mockGetUserProjectsList(projectIds: List<UUID>, returnAccount: Account? = null, level: AccessLevel = AccessLevel.MAINTAINER) {
         val toMutableMap = projectIds.map { Pair<UUID, AccessLevel?>(it, level) }.toMap().toMutableMap()
         return mockGetUserProjectsList1(toMutableMap, returnAccount)
@@ -198,6 +224,28 @@ abstract class RestApiTest : AbstractRestApiTest() {
         }
     }
 
+    fun mockGitlabUpdateProject() {
+        every {
+            restClient.userUpdateProject(
+                id = any(),
+                token = any(),
+                name = any(),
+                description = any(),
+                visibility = any()
+            )
+        } answers {
+            GitlabProject(Random.nextLong().absoluteValue,
+                "New Test project",
+                "test-name-withnamespace",
+                "test-slug",
+                "tes-path-with-namespace",
+                GitlabUser(Random.nextLong().absoluteValue, "testusername", "testuser"),
+                1L,
+                visibility = GitlabVisibility.PUBLIC
+            )
+        }
+    }
+
     private fun tokenDetails(actualAccount: Account, token: String, projectIdLevelMap: MutableMap<UUID, AccessLevel?>): TokenDetails {
         return TokenDetails(
             username = actualAccount.username,
@@ -210,4 +258,51 @@ abstract class RestApiTest : AbstractRestApiTest() {
             projects = projectIdLevelMap
         )
     }
+
+    fun wrapToPage(content: List<FieldDescriptor>): List<FieldDescriptor> {
+        return mutableListOf(
+            fieldWithPath("last").type(JsonFieldType.BOOLEAN).description("Is the last page"),
+            fieldWithPath("total_pages").type(JsonFieldType.NUMBER).description("Total pages count"),
+            fieldWithPath("total_elements").type(JsonFieldType.NUMBER).description("Total elements count ([pages count] x [page size])"),
+            fieldWithPath("size").type(JsonFieldType.NUMBER).description("Requested elements count per page. Request parameter 'size'. Default 20"),
+            fieldWithPath("number").type(JsonFieldType.NUMBER).description("Current page number"),
+            fieldWithPath("number_of_elements").type(JsonFieldType.NUMBER).description("Elements count in current page"),
+            fieldWithPath("first").type(JsonFieldType.BOOLEAN).description("Is the first page"),
+            fieldWithPath("empty").type(JsonFieldType.BOOLEAN).description("Is the current page empty")
+        ).apply {
+            addAll(content.map { it.copy("content[].${it.path}") })
+            addAll(pageableFields())
+            addAll(sortFields())
+        }
+    }
+
+    private fun pageableFields(): List<FieldDescriptor> {
+        val prefix = "pageable."
+        return mutableListOf(
+            fieldWithPath(prefix + "offset").type(JsonFieldType.NUMBER).description("Current offset (starting from 0). Request parameter 'page' or 'offset'"),
+            fieldWithPath(prefix + "page_size").type(JsonFieldType.NUMBER).description("Requested elements count per page. Request parameter 'size'. Default 20"),
+            fieldWithPath(prefix + "page_number").type(JsonFieldType.NUMBER).description("Current page number"),
+            fieldWithPath(prefix + "unpaged").type(JsonFieldType.BOOLEAN).description("Is the result unpaged"),
+            fieldWithPath(prefix + "paged").type(JsonFieldType.BOOLEAN).description("Is the result paged")
+        ).apply {
+            addAll(sortFields(prefix))
+        }
+    }
+
+    private fun sortFields(prefix: String = ""): List<FieldDescriptor> {
+        return listOf(
+            fieldWithPath(prefix + "sort.sorted").type(JsonFieldType.BOOLEAN).description("Is the result sorted. Request parameter 'sort', values '=field,direction(asc,desc)'"),
+            fieldWithPath(prefix + "sort.unsorted").type(JsonFieldType.BOOLEAN).description("Is the result unsorted"),
+            fieldWithPath(prefix + "sort.empty").type(JsonFieldType.BOOLEAN).description("Is the sort empty")
+        )
+    }
+}
+
+fun FieldDescriptor.copy(path: String? = null): FieldDescriptor {
+    return PayloadDocumentation.fieldWithPath(path ?: this.path)
+        .type(this.type)
+        .description(this.description)
+        .also {
+            if (this.isOptional) it.optional()
+        }
 }

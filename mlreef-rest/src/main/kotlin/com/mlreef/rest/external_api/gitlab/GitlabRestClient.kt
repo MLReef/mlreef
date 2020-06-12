@@ -260,8 +260,8 @@ class GitlabRestClient(
             .body!!
     }
 
-    fun userUpdateProject(id: Long, token: String, name: String, description: String): GitlabProject {
-        return GitlabUpdateProjectRequest(name = name, description = description)
+    fun userUpdateProject(id: Long, token: String, name: String? = null, description: String? = null, visibility: String? = null): GitlabProject {
+        return GitlabUpdateProjectRequest(name = name, description = description, visibility = visibility)
             .let { GitlabHttpEntity(it, createUserHeaders(token)) }
             .addErrorDescription(ErrorCode.GitlabProjectUpdateFailed, "Cannot update project with $id in gitlab")
             .makeRequest {
@@ -272,7 +272,7 @@ class GitlabRestClient(
             .body!!
     }
 
-    fun adminUpdateProject(id: Long, name: String): GitlabProject {
+    fun adminUpdateProject(id: Long, name: String, description: String, visibility: String): GitlabProject {
         return GitlabUpdateProjectRequest(name = name)
             .let { GitlabHttpEntity(it, createAdminHeaders()) }
             .addErrorDescription(ErrorCode.GitlabProjectUpdateFailed, "Cannot update project with $id in gitlab")

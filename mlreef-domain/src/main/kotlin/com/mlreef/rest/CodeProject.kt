@@ -64,7 +64,8 @@ class CodeProject(
         dataProcessor: DataProcessor? = null,
         version: Long? = null,
         createdAt: ZonedDateTime? = null,
-        updatedAt: ZonedDateTime? = null
+        updatedAt: ZonedDateTime? = null,
+        visibilityScope: VisibilityScope? = null
     ): CodeProject {
         return CodeProject(
             id = this.id,
@@ -79,7 +80,8 @@ class CodeProject(
             dataProcessor = dataProcessor ?: this.dataProcessor,
             version = version ?: this.version,
             createdAt = createdAt ?: this.createdAt,
-            updatedAt = updatedAt ?: this.updatedAt
+            updatedAt = updatedAt ?: this.updatedAt,
+            visibilityScope = visibilityScope ?: this.visibilityScope
         )
     }
 
