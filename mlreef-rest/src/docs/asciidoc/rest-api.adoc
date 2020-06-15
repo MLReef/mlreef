@@ -186,11 +186,30 @@ Add a user by id (:userId) to the project by id (:id)
 
 operation::codeprojects-add-user[snippets='curl-request,response-body,response-fields']
 
+=== POST /code-projects/:id/users?
+
+Add a user by with parameters user_id or gitlab_id to the project by id (:id)
+
+* gitlab_id
+* user_id
+
+operation::codeprojects-add-user-by-params[snippets='curl-request,request-parameters,response-body,response-fields']
+
 === DELETE /code-projects/:id/users/:userId
 
 Delete a user by id (:userId) from the project by id (:id). Returns a list with users left in the project
 
 operation::codeprojects-delete-user[snippets='curl-request,response-body,response-fields']
+
+=== DELETE /code-projects/:id/users?
+
+Delete a user with parameters by user_id or gitlab_id from the project by id (:id). Returns a list with users left in the project.
+
+* gitlab_id
+* user_id
+
+operation::codeprojects-delete-user-by-params[snippets='curl-request,request-parameters,response-body,response-fields']
+
 
 [[data-projects]]
 == Data Projects - /data-projects
@@ -232,11 +251,30 @@ Add a user by id (:userId) to the project by id (:id)
 
 operation::dataprojects-add-user[snippets='curl-request,response-body,response-fields']
 
+=== POST /data-projects/:id/users?
+
+Add a user by with parameters user_id or gitlab_id to the project by id (:id)
+
+* gitlab_id
+* user_id
+
+operation::dataprojects-add-user-by-params[snippets='curl-request,request-parameters,response-body,response-fields']
+
 === DELETE /data-projects/:id/users/:userId
 
 Delete a user by id (:userId) from the project by id (:id). Returns a list with users left in the project.
 
 operation::dataprojects-delete-user[snippets='curl-request,response-body,response-fields']
+
+=== DELETE /data-projects/:id/users?
+
+Delete a user with parameters by user_id or gitlab_id from the project by id (:id). Returns a list with users left in the project.
+
+* gitlab_id
+* user_id
+
+operation::dataprojects-delete-user-by-params[snippets='curl-request,request-parameters,response-body,response-fields']
+
 
 
 [[data-processors]]

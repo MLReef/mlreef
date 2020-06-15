@@ -8,7 +8,6 @@ import com.mlreef.rest.VisibilityScope
 import com.mlreef.rest.api.v1.dto.DataProjectDto
 import com.mlreef.rest.api.v1.dto.MLProjectDto
 import com.mlreef.rest.api.v1.dto.UserInProjectDto
-import com.mlreef.rest.api.v1.dto.toDomain
 import com.mlreef.rest.api.v1.dto.toDto
 import com.mlreef.rest.exceptions.ProjectNotFoundException
 import com.mlreef.rest.external_api.gitlab.TokenDetails
@@ -134,14 +133,9 @@ class DataProjectsController(
         return usersInProject.map { UserInProjectDto(it.id, it.username, it.email, it.person.gitlabId) }
     }
 
-    @GetMapping("/{id}/users/check")
-    fun checkCurrentUserInDataProject(@PathVariable id: UUID,
-                                      @RequestParam(required = false) level: String?,
-                                      @RequestParam(required = false, name = "min_level") minLevel: String?,
-                                      account: Account): Boolean {
-        val checkLevel = if (level!=null) AccessLevel.parse(level) else null
-        val checkMinLevel = if (minLevel!=null) AccessLevel.parse(minLevel) else null
-        return dataProjectService.checkUserInProject(projectUUID = id, userId = account.id, level = checkLevel, minlevel = checkMinLevel)
+    @GetMapping("/{id}/users/check/myself")
+    fun checkCurrentUserInCodeProject(@PathVariable id: UUID, account: Account): Boolean {
+        return dataProjectService.checkUserInProject(projectUUID = id, userId = account.id)
     }
 
     @GetMapping("/{id}/users/check/{userId}")
@@ -155,19 +149,22 @@ class DataProjectsController(
         return dataProjectService.checkUserInProject(projectUUID = id, userId = userId, level = checkLevel, minlevel = checkMinLevel)
     }
 
-    @PostMapping("/{id}/users/check")
+    @GetMapping("/{id}/users/check")
     @PreAuthorize("hasAccessToProject(#id, 'DEVELOPER')")
-    fun checkUsersInDataProjectById(@PathVariable id: UUID, @RequestBody request: UsersProjectRequest): Map<String?, Boolean> {
-        return dataProjectService
-            .checkUsersInProject(id, request.users.map(UserInProjectDto::toDomain))
-            .map { Pair(it.key.userName ?: it.key.email ?: it.key.gitlabId.toString(), it.value) }
-            .toMap()
+    fun checkUsersInDataProjectById(
+        @PathVariable id: UUID,
+        @RequestParam(value = "user_id", required = false) userId: UUID?,
+        @RequestParam(value = "gitlab_id", required = false) gitlabId: Long?): Boolean {
+        return dataProjectService.checkUserInProject(projectUUID = id, userId = userId, userGitlabId = gitlabId)
     }
 
     @PostMapping("/{id}/users")
     @PreAuthorize("hasAccessToProject(#id, 'MAINTAINER')")
-    fun addUsersToDataProjectById(@PathVariable id: UUID, @RequestBody request: UsersProjectRequest): List<UserInProjectDto> {
-        dataProjectService.addUsersToProject(id, request.users.map(UserInProjectDto::toDomain))
+    fun addUsersToDataProjectById(
+        @PathVariable id: UUID,
+        @RequestParam(value = "user_id", required = false) userId: UUID?,
+        @RequestParam(value = "gitlab_id", required = false) gitlabId: Long?): List<UserInProjectDto> {
+        dataProjectService.addUserToProject(projectUUID = id, userId = userId, userGitlabId = gitlabId)
         return getUsersInDataProjectById(id)
     }
 
@@ -180,9 +177,12 @@ class DataProjectsController(
 
     @DeleteMapping("/{id}/users")
     @PreAuthorize("hasAccessToProject(#id, 'MAINTAINER')")
-    fun deleteUsersFromDataProjectById(@PathVariable id: UUID, @RequestBody request: UsersProjectRequest): List<UserInProjectDto> {
-        val usersInProject = dataProjectService.deleteUsersFromProject(id, request.users.map(UserInProjectDto::toDomain))
-        return usersInProject.map { UserInProjectDto(it.id, it.username, it.email, it.gitlabId) }
+    fun deleteUsersFromDataProjectById(
+        @PathVariable id: UUID,
+        @RequestParam(value = "user_id", required = false) userId: UUID?,
+        @RequestParam(value = "gitlab_id", required = false) gitlabId: Long?): List<UserInProjectDto> {
+        dataProjectService.deleteUserFromProject(projectUUID = id, userId = userId, userGitlabId = gitlabId)
+        return getUsersInDataProjectById(id)
     }
 
     @DeleteMapping("/{id}/users/{userId}")
@@ -207,7 +207,4 @@ class DataProjectUpdateRequest(
     @NotEmpty val description: String
 )
 
-class UsersProjectRequest(
-    @NotEmpty val users: List<UserInProjectDto>
-)
 

@@ -51,10 +51,10 @@ interface ProjectService<T : MLProject> {
     fun deleteProject(userToken: String, ownerId: UUID, projectUUID: UUID)
 
     fun getUsersInProject(projectUUID: UUID): List<Account>
-    fun addUserToProject(projectUUID: UUID, userId: UUID): Account
+    fun addUserToProject(projectUUID: UUID, userId: UUID? = null, userGitlabId: Long? = null): Account
     fun addUsersToProject(projectUUID: UUID, users: List<UserInProject>): List<Account>
     fun deleteUsersFromProject(projectUUID: UUID, users: List<UserInProject>): List<Account>
-    fun deleteUserFromProject(projectUUID: UUID, userId: UUID): Account
+    fun deleteUserFromProject(projectUUID: UUID, userId: UUID? = null, userGitlabId: Long? = null): Account
     fun checkUserInProject(projectUUID: UUID, userId: UUID? = null, userName: String? = null, email: String? = null, userGitlabId: Long? = null, level: AccessLevel? = null, minlevel: AccessLevel? = null): Boolean
     fun checkUsersInProject(projectUUID: UUID, users: List<UserInProject>): Map<UserInProject, Boolean>
 }
@@ -179,10 +179,14 @@ abstract class AbstractGitlabProjectService<T : MLProject>(
     }
 
     @RefreshUserInformation(userId = "#userId")
-    override fun addUserToProject(projectUUID: UUID, userId: UUID): Account {
+    override fun addUserToProject(projectUUID: UUID, userId: UUID?, userGitlabId: Long?): Account {
         val codeProject = this.getProjectById(projectUUID) ?: throw ProjectNotFoundException(projectUUID)
 
-        val account = accountRepository.findByIdOrNull(userId) ?: throw UserNotFoundException(userId = userId)
+        val account = when {
+            userId != null -> accountRepository.findByIdOrNull(userId)
+            userGitlabId != null -> accountRepository.findAccountByGitlabId(userGitlabId)
+            else -> throw BadParametersException("Either userid or gitlab id should be presented")
+        } ?: throw UserNotFoundException(userId = userId, gitlabId = userGitlabId)
 
         gitlabRestClient
             .adminAddUserToProject(projectId = codeProject.gitlabId, userId = account.person.gitlabId
@@ -192,10 +196,14 @@ abstract class AbstractGitlabProjectService<T : MLProject>(
     }
 
     @RefreshUserInformation(userId = "#userId")
-    override fun deleteUserFromProject(projectUUID: UUID, userId: UUID): Account {
+    override fun deleteUserFromProject(projectUUID: UUID, userId: UUID?, userGitlabId: Long?): Account {
         val codeProject = this.getProjectById(projectUUID) ?: throw ProjectNotFoundException(projectUUID)
 
-        val account = accountRepository.findByIdOrNull(userId) ?: throw UserNotFoundException(userId = userId)
+        val account = when {
+            userId != null -> accountRepository.findByIdOrNull(userId)
+            userGitlabId != null -> accountRepository.findAccountByGitlabId(userGitlabId)
+            else -> throw BadParametersException("Either userid or gitlab id should be presented")
+        } ?: throw UserNotFoundException(userId = userId, gitlabId = userGitlabId)
 
         gitlabRestClient
             .adminDeleteUserFromProject(projectId = codeProject.gitlabId, userId = account.person.gitlabId
