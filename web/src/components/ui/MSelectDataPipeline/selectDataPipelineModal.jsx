@@ -7,9 +7,10 @@ import './selectDataPipelineModal.scss';
 import MDropdown from 'components/ui/MDropdown';
 import ReturnLink from 'components/returnLink';
 import MCheckBox from 'components/ui/MCheckBox/MCheckBox';
-import folderIcon from 'images/folder_01.svg';
-import fileIcon from 'images/file_01.svg';
 import filesApi from 'apis/FilesApi';
+
+const folderIcon = '/images/svg/folder_01.svg';
+const fileIcon = '/images/svg/file_01.svg';
 
 class SelectDataPipelineModal extends Component {
   constructor(props) {
@@ -273,8 +274,9 @@ class SelectDataPipelineModal extends Component {
                         )}
                         {files && files.map((file, index) => (
                           <tr key={index.toString()} id={`tr-file-${index}`} className="files-row" style={{ justifyContent: 'unset' }}>
-                            <td className="icon-container-column">
+                            <td className="icon-container-column" style={{ width: '2rem' }}>
                               <MCheckBox
+                                className="d-block ml-2"
                                 name={`span-file-${index}`}
                                 checked={file.checked}
                                 callback={() => { this.selectFileFromGrid(file); }}

@@ -1,12 +1,13 @@
 import React from 'react';
 // import { useParams } from 'react-router-dom';
 import {
-  arrayOf, shape, string, func, bool, 
+  arrayOf, shape, string, func, bool,
 } from 'prop-types';
 import ReturnLink from '../returnLink';
-import folderIcon from '../../images/folder_01.svg';
-import fileIcon from '../../images/file_01.svg';
 import './filesTable.css';
+
+const folderIcon = '/images/svg/folder_01.svg';
+const fileIcon = '/images/svg/file_01.svg';
 
 const FilesTable = (props) => {
   const {

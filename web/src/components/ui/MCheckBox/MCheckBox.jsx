@@ -9,6 +9,7 @@ const MCheckBox = (props) => {
     name,
     labelValue,
     callback,
+    className,
   } = props;
 
   const [value, setValue] = React.useState(defaultChecked);
@@ -29,7 +30,7 @@ const MCheckBox = (props) => {
       tabIndex={0}
       key={`${name} ${labelValue}`}
       htmlFor={`${name} ${labelValue}`}
-      className="m-checkbox"
+      className={`m-checkbox ${className}`}
       onClick={handleClick}
       onKeyPress={() => {}}
     >
@@ -46,6 +47,7 @@ MCheckBox.propTypes = {
   checked: bool,
   labelValue: string,
   callback: func,
+  className: string,
 };
 
 MCheckBox.defaultProps = {
@@ -53,6 +55,7 @@ MCheckBox.defaultProps = {
   checked: false,
   labelValue: '',
   callback: () => {},
+  className: '',
 };
 
 export default MCheckBox;

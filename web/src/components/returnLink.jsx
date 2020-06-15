@@ -1,5 +1,6 @@
 import React from 'react';
-import folderIcon from '../images/folder_01.svg';
+
+const folderIcon = '/images/svg/folder_01.svg';
 
 export default ({ getBack }) => (
   <tr className="files-row">

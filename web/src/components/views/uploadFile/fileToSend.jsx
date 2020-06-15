@@ -1,7 +1,8 @@
 import React from 'react';
 import { string, number, func } from 'prop-types';
 import LinearProgress from '@material-ui/core/LinearProgress';
-import file01 from 'images/file_01.svg';
+
+const file01 = '/images/svg/file_01.svg';
 
 const FileToSend = ({
   fileId, fileName, progress, onRemove,
