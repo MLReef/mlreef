@@ -27,6 +27,7 @@ RUN rm -rf /var/lib/apt/lists/
 RUN echo "------------------------------------------------------------------------" && \
     echo "                       MLREEF EPF: Setting Up"                            && \
     echo "------------------------------------------------------------------------" && \
+    apt-get install libsm6 libxrender1 libfontconfig1                               && \
     python --version                                                                && \
     python -m pip install --upgrade --force pip                                     && \
     pip install virtualenv                                                          && \
