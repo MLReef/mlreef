@@ -27,28 +27,44 @@ class GitlabUser(
     val privateProfile: Boolean = true
 ) : Serializable
 
-fun GitlabUserInProject.toGitlabUser(): GitlabUser {
-    return GitlabUser(this.id, this.username, this.name, "", "", this.state.name, this.avatarUrl, this.webUrl, false)
-}
+fun GitlabUserInProject.toGitlabUser(): GitlabUser =
+    GitlabUser(
+        id = this.id,
+        username = this.username,
+        name = this.name,
+        state = this.state.name,
+        avatarUrl = this.avatarUrl,
+        weburlUrl = this.webUrl,
+        isAdmin = false
+    )
 
-fun GitlabUser.toGitlabUserInProject(accessLevel: GroupAccessLevel): GitlabUserInProject {
-    return GitlabUserInProject(this.id, this.weburlUrl, this.name, this.username, GitlabActivityState.ACTIVE, this.avatarUrl, accessLevel)
-}
+fun GitlabUser.toGitlabUserInProject(accessLevel: GroupAccessLevel): GitlabUserInProject =
+    GitlabUserInProject(
+        id = this.id,
+        webUrl = this.weburlUrl,
+        name = this.name,
+        username = this.username,
+        state = GitlabActivityState.ACTIVE,
+        avatarUrl = this.avatarUrl,
+        accessLevel = accessLevel
+    )
 
-fun GitlabUser.toSecretUserDto(id: UUID, token: String? = null, accessToken: String? = null, refreshToken: String? = null) = SecretUserDto(
-    id,
-    this.username,
-    this.email,
-    this.id,
-    token,
-    accessToken,
-    refreshToken
-)
+fun GitlabUser.toSecretUserDto(id: UUID, token: String? = null, accessToken: String? = null, refreshToken: String? = null) =
+    SecretUserDto(
+        id = id,
+        username = this.username,
+        email = this.email,
+        gitlabId = this.id,
+        token = token,
+        accessToken = accessToken,
+        refreshToken = refreshToken
+    )
 
-fun GitlabUser.toUserDto(id: UUID) = UserDto(
-    id,
-    this.username,
-    this.email,
-    this.id
-)
+fun GitlabUser.toUserDto(id: UUID) =
+    UserDto(
+        id = id,
+        username = this.username,
+        email = this.email,
+        gitlabId = this.id
+    )
 
