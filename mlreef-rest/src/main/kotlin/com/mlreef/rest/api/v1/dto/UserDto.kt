@@ -17,11 +17,11 @@ data class UserDto(
     val gitlabId: Long?
 ) : DataClassWithId
 
-fun Account.toUserDto(accessToken: String? = null, refreshToken: String? = null) = UserDto(
-    this.id,
-    this.username,
-    this.email,
-    this.person.gitlabId
+fun Account.toUserDto() = UserDto(
+    id = this.id,
+    username = this.username,
+    email = this.email,
+    gitlabId = this.person.gitlabId
 )
 
 data class SecretUserDto(
@@ -29,23 +29,22 @@ data class SecretUserDto(
     val username: String,
     val email: String,
     val gitlabId: Long?,
-    val token: String?,
-    val accessToken: String?,
-    val refreshToken: String?
+    @Deprecated("This shall be removed in favour of the Oauth Token")
+    val token: String? = null,
+    val accessToken: String? = null,
+    val refreshToken: String? = null
 ): DataClassWithId {
-    fun censor(): SecretUserDto {
-        return this.copy(token = token?.censor())
-    }
+    fun censor(): SecretUserDto = this.copy(token = token?.censor())
 }
 
 fun Account.toSecretUserDto(accessToken: String? = null, refreshToken: String? = null) = SecretUserDto(
-    this.id,
-    this.username,
-    this.email,
-    this.person.gitlabId,
-    this.bestToken?.token,
-    accessToken,
-    refreshToken
+    id = this.id,
+    username = this.username,
+    email = this.email,
+    gitlabId = this.person.gitlabId,
+    token = this.bestToken?.token,
+    accessToken = accessToken,
+    refreshToken = refreshToken
 )
 
 @JsonIgnoreProperties(ignoreUnknown = true)

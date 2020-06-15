@@ -40,23 +40,8 @@ import javax.security.auth.login.CredentialException
 import javax.transaction.Transactional
 
 
-interface AuthService {
-    fun createTokenDetails(token: String, account: Account, gitlabUser: GitlabUser): TokenDetails
-    fun createGuestDetails(): TokenDetails
-    fun findAccountByToken(token: String): Account
-    fun findAccountByGitlabId(gitlabId: Long): Account?
-    fun findAccountById(id: UUID): Account?
-    fun findAccountByUsername(username: String): Account?
-    fun loginUser(plainPassword: String, username: String? = null, email: String? = null): Pair<Account, OAuthToken?>
-    fun registerUser(plainPassword: String, username: String, email: String): Pair<Account, OAuthToken?>
-    fun checkUserInGitlab(token: String): GitlabUser
-    fun getBestToken(findAccount: Account?): AccountToken?
-    fun findGitlabUserViaToken(token: String): GitlabUser
-    fun findGitlabUserViaGitlabId(id: Long): GitlabUser
-}
-
 @Service("authService")
-class GitlabAuthService(
+class AuthService(
     private val gitlabRestClient: GitlabRestClient,
     private val accountRepository: AccountRepository,
     private val personRepository: PersonRepository,
@@ -65,7 +50,7 @@ class GitlabAuthService(
     private val passwordEncoder: PasswordEncoder,
     private val dataProjectsService: GitlabDataProjectService,
     private val codeProjectsService: GitlabCodeProjectService
-) : AuthService {
+) {
 
     @Value("\${mlreef.bot-management.epf-bot-email-domain:\"\"}")
     private val botEmailDomain: String = ""
@@ -95,7 +80,7 @@ class GitlabAuthService(
         }
     }
 
-    override fun loginUser(plainPassword: String, username: String?, email: String?): Pair<Account, OAuthToken> {
+    fun loginUser(plainPassword: String, username: String?, email: String?): Pair<Account, OAuthToken> {
         val byUsername: Account? = if (username != null) accountRepository.findOneByUsername(username) else null
         val byEmail: Account? = if (email != null) accountRepository.findOneByEmail(email) else null
 
@@ -117,14 +102,14 @@ class GitlabAuthService(
         return Pair(loggedAccount, oauthToken)
     }
 
-    override fun getBestToken(findAccount: Account?): AccountToken? {
+    fun getBestToken(findAccount: Account?): AccountToken? {
         val findAllByUserId = accountTokenRepository.findAllByAccountId(findAccount!!.id)
         val sortedBy = findAllByUserId.filter { it.active && !it.revoked }.sortedBy { it.expiresAt }
         return sortedBy.getOrNull(0)
     }
 
     @Transactional
-    override fun registerUser(plainPassword: String, username: String, email: String): Pair<Account, OAuthToken?> {
+    fun registerUser(plainPassword: String, username: String, email: String): Pair<Account, OAuthToken?> {
         val encryptedPassword = passwordEncoder.encode(plainPassword)
         val byUsername: Account? = accountRepository.findOneByUsername(username)
         val byEmail: Account? = accountRepository.findOneByEmail(email)
@@ -166,7 +151,7 @@ class GitlabAuthService(
         return Pair(newUser, oauthToken)
     }
 
-    override fun checkUserInGitlab(token: String): GitlabUser {
+    fun checkUserInGitlab(token: String): GitlabUser {
         if (token.length < 30) {
             return gitlabRestClient.getUser(token)
         } else {
@@ -178,7 +163,7 @@ class GitlabAuthService(
         }
     }
 
-    override fun findGitlabUserViaToken(token: String): GitlabUser {
+    fun findGitlabUserViaToken(token: String): GitlabUser {
         return try {
             gitlabRestClient.getUser(token)
         } catch (e: ResourceAccessException) {
@@ -189,7 +174,7 @@ class GitlabAuthService(
         }
     }
 
-    override fun findGitlabUserViaGitlabId(id: Long): GitlabUser {
+    fun findGitlabUserViaGitlabId(id: Long): GitlabUser {
         return try {
             gitlabRestClient.adminGetUserById(id)
         } catch (e: ResourceAccessException) {
@@ -221,7 +206,7 @@ class GitlabAuthService(
         return gitlabRestClient.userCreateGroupVariable(token = token, groupId = groupId, name = variableName, value = value)
     }
 
-    override fun createTokenDetails(token: String, account: Account, gitlabUser: GitlabUser): TokenDetails {
+    fun createTokenDetails(token: String, account: Account, gitlabUser: GitlabUser): TokenDetails {
         var tokenDetails = TokenDetails(
             username = account.username,
             permanentToken = account.bestToken?.token
@@ -246,9 +231,9 @@ class GitlabAuthService(
         return tokenDetails
     }
 
-    override fun createGuestDetails() = guestTokenDetails
+    fun createGuestDetails() = guestTokenDetails
 
-    override fun findAccountByToken(token: String): Account {
+    fun findAccountByToken(token: String): Account {
         val tokenInDb = accountTokenRepository.findOneByToken(token)
 
         if (tokenInDb != null) {
@@ -259,15 +244,15 @@ class GitlabAuthService(
         }
     }
 
-    override fun findAccountByGitlabId(gitlabId: Long): Account? {
+    fun findAccountByGitlabId(gitlabId: Long): Account? {
         return accountRepository.findAccountByGitlabId(gitlabId)
     }
 
-    override fun findAccountById(id: UUID): Account? {
+    fun findAccountById(id: UUID): Account? {
         return accountRepository.findByIdOrNull(id)
     }
 
-    override fun findAccountByUsername(username: String): Account? {
+    fun findAccountByUsername(username: String): Account? {
         return accountRepository.findOneByUsername(username)
     }
 

@@ -8,6 +8,7 @@ import com.mlreef.rest.api.v1.dto.toSecretUserDto
 import com.mlreef.rest.api.v1.dto.toUserDto
 import com.mlreef.rest.exceptions.GitlabNoValidTokenException
 import com.mlreef.rest.external_api.gitlab.TokenDetails
+import com.mlreef.rest.external_api.gitlab.dto.OAuthToken
 import com.mlreef.rest.external_api.gitlab.dto.toUserDto
 import com.mlreef.rest.feature.auth.AuthService
 import org.springframework.web.bind.annotation.GetMapping
@@ -26,30 +27,41 @@ class AuthController(
 ) {
 
     @PostMapping("/login")
-    fun login(@RequestBody loginRequest: LoginRequest): SecretUserDto {
-        val (findUser, oauthToken) = authService.loginUser(loginRequest.password, loginRequest.username, loginRequest.email)
-        return findUser.toSecretUserDto(oauthToken?.accessToken, oauthToken?.refreshToken)
-    }
+    fun login(@RequestBody loginRequest: LoginRequest): SecretUserDto = authService
+        .loginUser(
+            plainPassword = loginRequest.password,
+            username = loginRequest.username,
+            email = loginRequest.email
+        )
+        .let { (findUser: Account, oauthToken) ->
+            findUser.toSecretUserDto(
+                accessToken = oauthToken?.accessToken,
+                refreshToken = oauthToken?.refreshToken
+            )
+        }
 
     @PostMapping("/register")
-    fun register(@RequestBody registerRequest: RegisterRequest): SecretUserDto {
-        val (newUser, oauthToken) = authService.registerUser(registerRequest.password, registerRequest.username, registerRequest.email)
-        return newUser.toSecretUserDto(oauthToken?.accessToken, oauthToken?.refreshToken)
-    }
+    fun register(@RequestBody registerRequest: RegisterRequest): SecretUserDto = authService
+        .registerUser(
+            plainPassword = registerRequest.password,
+            username = registerRequest.username,
+            email = registerRequest.email
+        )
+        .let { (newUser: Account, oauthToken: OAuthToken?) ->
+            newUser.toSecretUserDto(
+                accessToken = oauthToken?.accessToken,
+                refreshToken = oauthToken?.refreshToken
+            )
+        }
 
     @GetMapping("/whoami")
-    fun whoami(): UserDto {
-        val account = currentUserService.account()
-        return account.toUserDto()
-    }
+    fun whoami(): UserDto = currentUserService.account().toUserDto()
 
     @GetMapping("/check/token")
-    fun checkToken(account: Account, token: TokenDetails): UserDto {
-        val userInGitlab = authService.checkUserInGitlab(token.accessToken ?: throw GitlabNoValidTokenException("No valid token for user"))
-        return userInGitlab.toUserDto(account.id)
-    }
-
-
+    fun checkToken(account: Account, token: TokenDetails): UserDto =
+        token.accessToken
+            ?.let { authService.checkUserInGitlab(token = it).toUserDto(account.id) }
+            ?: throw GitlabNoValidTokenException("No valid token for user")
 }
 
 data class LoginRequest(
