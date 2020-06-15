@@ -5,9 +5,6 @@ import { bindActionCreators } from 'redux';
 import {
   func, shape, string, number,
 } from 'prop-types';
-import star01 from '../images/star_01.svg';
-import fork01 from '../images/fork_01.svg';
-import clone01 from '../images/clone_01.svg';
 import ProjectGeneralInfoApi from '../apis/projectGeneralInfoApi.ts';
 import * as projectActions from '../actions/projectInfoActions';
 import { plainToClass } from 'class-transformer';
@@ -73,7 +70,7 @@ const ProjectInfo = (props) => {
             <img
               className="mr-0 mr-lg-1"
               id="option-image"
-              src={star01}
+              src="/images/svg/star_01.svg"
               alt=""
             />
             <span className="my-auto d-none d-lg-block">Star</span>
@@ -91,7 +88,7 @@ const ProjectInfo = (props) => {
             className="option-name btn btn-hidden border-rounded-left py-2 px-3 my-0"
             onClick={handleFork}
           >
-            <img className="mr-0 mr-lg-1" id="option-image" src={fork01} alt="" />
+            <img className="mr-0 mr-lg-1" id="option-image" src="/images/svg/fork_01.svg" alt="" />
             <span className="my-auto d-none d-lg-block">Fork</span>
           </button>
 
@@ -102,7 +99,7 @@ const ProjectInfo = (props) => {
         )}
         <div className="options d-flex">
           <div className="option-name border-rounded-left py-2 px-3 my-0">
-            <img className="mr-0 mr-lg-1" id="option-image" src={clone01} alt="" />
+            <img className="mr-0 mr-lg-1" id="option-image" src="/images/svg/clone_01.svg" alt="" />
             <span className="my-auto d-none d-lg-block">Clone</span>
           </div>
           <Clonedropdown className="border-rounded-right h-100" http={classProject.httpUrlToRepo} ssh={classProject.sshUrlToRepo} />
@@ -189,7 +186,7 @@ export function Clonedropdown(props) {
               <img
                 onClick={handleCopySsh}
                 className="clone-icon ssh"
-                src={clone01}
+                src="/images/svg/clone_01.svg"
                 alt="copy-icon" />
             </div>
           </div>
@@ -207,7 +204,7 @@ export function Clonedropdown(props) {
               <img
                 onClick={handleCopyHttp}
                 className="clone-icon http"
-                src={clone01}
+                src="/images/svg/clone_01.svg"
                 alt="copy-icon" />
             </div>
           </div>

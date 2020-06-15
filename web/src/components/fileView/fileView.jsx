@@ -9,9 +9,10 @@ import MDropdown from 'components/ui/MDropdown';
 import ProjectContainer from '../projectContainer';
 import CommitsApi from '../../apis/CommitsApi';
 import Navbar from '../navbar/navbar';
-import file01 from '../../images/file_01.svg';
 import filesApi from '../../apis/FilesApi';
 import DeleteFileModal from '../delete-file-modal/deleteFileModal';
+
+const file01 = '/images/svg/file_01.svg';
 
 export class FileView extends React.Component {
   constructor(props) {

@@ -5,8 +5,9 @@ import { ListItem, List } from '@material-ui/core';
 import Menu from '@material-ui/core/Menu';
 import ListItemText from '@material-ui/core/ListItemText';
 import BlueBorderedInput from '../BlueBorderedInput';
-import arrowDown from '../../images/arrow_down_blue_01.svg';
 import './CustomizedMenu.css';
+
+const arrowDown = '/images/svg/arrow_down_blue_01.svg';
 
 const StyledMenu = withStyles({
   paper: {
