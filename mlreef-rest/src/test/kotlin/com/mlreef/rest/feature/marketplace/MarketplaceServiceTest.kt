@@ -65,7 +65,7 @@ class MarketplaceServiceTest : AbstractRepositoryTest() {
 
 //    @Transactional
 //    @Test
-//    @Disabled - Ignores the annotation and try to run the test
+//    @Disabled - Ignores the annotation and tries to run the test
     fun `createEntry persists Entry`() {
         val createEntry = service.createEntry(dataOperation, author)
 

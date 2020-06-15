@@ -31,6 +31,8 @@ import org.springframework.restdocs.payload.JsonFieldType
 import org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath
 import org.springframework.restdocs.payload.PayloadDocumentation.requestFields
 import org.springframework.restdocs.payload.PayloadDocumentation.responseFields
+import org.springframework.restdocs.request.RequestDocumentation.parameterWithName
+import org.springframework.restdocs.request.RequestDocumentation.requestParameters
 import org.springframework.test.annotation.Rollback
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
 import java.util.UUID
@@ -444,7 +446,7 @@ class CodeProjectsApiTest : RestApiTest() {
     @Transactional
     @Rollback
     @Test
-    fun `Can add user to CodeProject`() {
+    fun `Can add user to CodeProject by userId in path`() {
         val id1 = randomUUID()
         val project1 = CodeProject(id1, "slug-1", "www.url.com", "Test Project 1", account2.person.id, "group1", "project-1", "mlreef/project1", 1)
         codeProjectRepository.save(project1)
@@ -467,7 +469,36 @@ class CodeProjectsApiTest : RestApiTest() {
     @Transactional
     @Rollback
     @Test
-    fun `Can delete user from CodeProject`() {
+    fun `Can add user to CodeProject by gitlabId in params`() {
+        val id1 = randomUUID()
+        val project1 = CodeProject(id1, "slug-1", "www.url.com", "Test Project 1", account2.person.id, "group1", "project-1", "mlreef/project1", 1)
+        codeProjectRepository.save(project1)
+
+        every { codeProjectService.getUsersInProject(any()) } answers {
+            listOf(account, account2)
+        }
+
+        this.mockGetUserProjectsList(listOf(project1.id), account, AccessLevel.OWNER)
+
+        val returnedResult: List<UserInProjectDto> = this.mockMvc.perform(
+            this.defaultAcceptContentAuth(RestDocumentationRequestBuilders.post("$rootUrl/${project1.id}/users?gitlab_id=${account2.person.gitlabId}")))
+            .andExpect(MockMvcResultMatchers.status().isOk)
+            .document("codeprojects-add-user-by-params",
+                requestParameters(
+                    parameterWithName("user_id").optional().description("Internal User id - UUID"),
+                    parameterWithName("gitlab_id").optional().description("Gitlab user id - Number")
+                ),
+                responseFields(usersInCodeProjectResponseFields("[].")))
+            .returns(object:TypeReference<List<UserInProjectDto>>() {})
+
+        assertThat(returnedResult.size).isEqualTo(2)
+    }
+
+
+    @Transactional
+    @Rollback
+    @Test
+    fun `Can delete user from CodeProject by userId in path`() {
         val id1 = randomUUID()
         val project1 = CodeProject(id1, "slug-1", "www.url.com", "Test Project 1", account2.person.id, "group1", "project-1", "mlreef/project1", 1)
         codeProjectRepository.save(project1)
@@ -487,6 +518,33 @@ class CodeProjectsApiTest : RestApiTest() {
         assertThat(returnedResult.size).isEqualTo(1)
     }
 
+    @Transactional
+    @Rollback
+    @Test
+    fun `Can delete user from CodeProject by gitlabId in param`() {
+        val id1 = randomUUID()
+        val project1 = CodeProject(id1, "slug-1", "www.url.com", "Test Project 1", account2.person.id, "group1", "project-1", "mlreef/project1", 1)
+        codeProjectRepository.save(project1)
+
+        every { codeProjectService.getUsersInProject(any()) } answers {
+            listOf(account)
+        }
+
+        this.mockGetUserProjectsList(listOf(project1.id), account, AccessLevel.OWNER)
+
+        val returnedResult: List<UserInProjectDto> = this.mockMvc.perform(
+            this.defaultAcceptContentAuth(RestDocumentationRequestBuilders.delete("$rootUrl/${project1.id}/users?gitlab_id=${account2.person.gitlabId}")))
+            .andExpect(MockMvcResultMatchers.status().isOk)
+            .document("codeprojects-delete-user-by-params",
+                requestParameters(
+                    parameterWithName("user_id").optional().description("Internal User id - UUID"),
+                    parameterWithName("gitlab_id").optional().description("Gitlab user id - Number")
+                ),
+                responseFields(usersInCodeProjectResponseFields("[].")))
+            .returns(object:TypeReference<List<UserInProjectDto>>() {})
+
+        assertThat(returnedResult.size).isEqualTo(1)
+    }
 
     fun codeProjectResponseFields(prefix: String = ""): List<FieldDescriptor> {
         return listOf(

@@ -47,7 +47,7 @@ class GitlabCodeProjectService(
     }
 
     override fun getAllProjectsByIds(ids: Iterable<UUID>, pageable: Pageable): Page<CodeProject> {
-        return codeProjectRepository.findAllById(ids, pageable)
+        return codeProjectRepository.findAllByIdIn(ids, pageable)
     }
 
     override fun getAllProjectsForUser(personId: UUID): List<CodeProject> {

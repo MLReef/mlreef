@@ -608,7 +608,7 @@ class CodeProjectsIntegrationTest : IntegrationRestApiTest() {
         addRealUserToProject(project21.gitlabId, account1.person.gitlabId!!, GroupAccessLevel.DEVELOPER)
         addRealUserToProject(project21.gitlabId, account3.person.gitlabId!!, GroupAccessLevel.GUEST)
 
-        val userInProjectUrl = "$rootUrl/${project21.id}/users/check"
+        val userInProjectUrl = "$rootUrl/${project21.id}/users/check/myself"
         val getUsersUrl = "$rootUrl/${project21.id}/users"
 
         val userInProject = this.performGet(userInProjectUrl, account3)
@@ -767,7 +767,7 @@ class CodeProjectsIntegrationTest : IntegrationRestApiTest() {
     }
 
     private fun isUserInProject(project: CodeProject, account: Account, withLevel: AccessLevel? = null): Boolean {
-        val url = "$rootUrl/${project.id}/users/check" + if (withLevel != null) "?level=${withLevel.name.toLowerCase()}" else ""
+        val url = "$rootUrl/${project.id}/users/check/myself" + if (withLevel != null) "?level=${withLevel.name.toLowerCase()}" else ""
 
         return this.performGet(url, account).expectOk().returns(Boolean::class.java)
     }

@@ -8,7 +8,6 @@ import com.mlreef.rest.VisibilityScope
 import com.mlreef.rest.api.v1.dto.CodeProjectDto
 import com.mlreef.rest.api.v1.dto.MLProjectDto
 import com.mlreef.rest.api.v1.dto.UserInProjectDto
-import com.mlreef.rest.api.v1.dto.toDomain
 import com.mlreef.rest.api.v1.dto.toDto
 import com.mlreef.rest.exceptions.ErrorCode
 import com.mlreef.rest.exceptions.GitlabBadRequestException
@@ -146,14 +145,9 @@ class CodeProjectsController(
         return usersInProject.map { UserInProjectDto(it.id, it.username, it.email, it.person.gitlabId) }
     }
 
-    @GetMapping("/{id}/users/check")
-    fun checkCurrentUserInCodeProject(@PathVariable id: UUID,
-                                      @RequestParam(required = false) level: String?,
-                                      @RequestParam(required = false, name = "min_level") minLevel: String?,
-                                      account: Account): Boolean {
-        val checkLevel = if (level!=null) AccessLevel.parse(level) else null
-        val checkMinLevel = if (minLevel!=null) AccessLevel.parse(minLevel) else null
-        return codeProjectService.checkUserInProject(projectUUID = id, userId = account.id, level = checkLevel, minlevel = checkMinLevel)
+    @GetMapping("/{id}/users/check/myself")
+    fun checkCurrentUserInCodeProject(@PathVariable id: UUID, account: Account): Boolean {
+        return codeProjectService.checkUserInProject(projectUUID = id, userId = account.id)
     }
 
     @GetMapping("/{id}/users/check/{userId}")
@@ -167,19 +161,22 @@ class CodeProjectsController(
         return codeProjectService.checkUserInProject(projectUUID = id, userId = userId, level = checkLevel, minlevel = checkMinLevel)
     }
 
-    @PostMapping("/{id}/users/check")
+    @GetMapping("/{id}/users/check")
     @PreAuthorize("hasAccessToProject(#id, 'DEVELOPER')")
-    fun checkUsersInCodeProjectById(@PathVariable id: UUID, @RequestBody request: UsersProjectRequest): Map<String?, Boolean> {
-        return codeProjectService
-            .checkUsersInProject(id, request.users.map(UserInProjectDto::toDomain))
-            .map { Pair(it.key.userName ?: it.key.email ?: it.key.gitlabId.toString(), it.value) }
-            .toMap()
+    fun checkUsersInCodeProjectById(
+        @PathVariable id: UUID,
+        @RequestParam(value = "user_id", required = false) userId: UUID?,
+        @RequestParam(value = "gitlab_id", required = false) gitlabId: Long?): Boolean {
+        return codeProjectService.checkUserInProject(projectUUID = id, userId = userId, userGitlabId = gitlabId)
     }
 
     @PostMapping("/{id}/users")
     @PreAuthorize("hasAccessToProject(#id, 'MAINTAINER')")
-    fun addUsersToCodeProjectById(@PathVariable id: UUID, @RequestBody request: UsersProjectRequest): List<UserInProjectDto> {
-        codeProjectService.addUsersToProject(id, request.users.map(UserInProjectDto::toDomain))
+    fun addUsersToCodeProjectById(
+        @PathVariable id: UUID,
+        @RequestParam(value = "user_id", required = false) userId: UUID?,
+        @RequestParam(value = "gitlab_id", required = false) gitlabId: Long?): List<UserInProjectDto> {
+        codeProjectService.addUserToProject(projectUUID = id, userId = userId, userGitlabId = gitlabId)
         return getUsersInCodeProjectById(id)
     }
 
@@ -192,9 +189,12 @@ class CodeProjectsController(
 
     @DeleteMapping("/{id}/users")
     @PreAuthorize("hasAccessToProject(#id, 'MAINTAINER')")
-    fun deleteUsersFromCodeProjectById(@PathVariable id: UUID, @RequestBody request: UsersProjectRequest): List<UserInProjectDto> {
-        val usersInProject = codeProjectService.deleteUsersFromProject(id, request.users.map(UserInProjectDto::toDomain))
-        return usersInProject.map { UserInProjectDto(it.id, it.username, it.email, it.person.gitlabId) }
+    fun deleteUsersFromDataProjectById(
+        @PathVariable id: UUID,
+        @RequestParam(value = "user_id", required = false) userId: UUID?,
+        @RequestParam(value = "gitlab_id", required = false) gitlabId: Long?): List<UserInProjectDto> {
+        codeProjectService.deleteUserFromProject(projectUUID = id, userId = userId, userGitlabId = gitlabId)
+        return getUsersInCodeProjectById(id)
     }
 
     @DeleteMapping("/{id}/users/{userId}")

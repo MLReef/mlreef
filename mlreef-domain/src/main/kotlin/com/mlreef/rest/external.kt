@@ -21,7 +21,7 @@ interface KtCrudRepository<T, ID : Serializable> : CrudRepository<T, ID> {
 
     override fun findAllById(ids: Iterable<ID>): Iterable<T>
 
-    fun findAllById(ids: Iterable<ID>, pageable: Pageable): Page<T>
+    fun findAllByIdIn(ids: Iterable<ID>, pageable: Pageable): Page<T>
 
     override fun <S : T> save(entity: S): S
 

@@ -31,6 +31,7 @@ import org.springframework.restdocs.payload.JsonFieldType
 import org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath
 import org.springframework.restdocs.payload.PayloadDocumentation.requestFields
 import org.springframework.restdocs.payload.PayloadDocumentation.responseFields
+import org.springframework.restdocs.request.RequestDocumentation
 import org.springframework.test.annotation.Rollback
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
 import java.util.UUID
@@ -414,7 +415,7 @@ class DataProjectsApiTest : RestApiTest() {
     @Transactional
     @Rollback
     @Test
-    fun `Can add user to DataProject`() {
+    fun `Can add user to DataProject by userId in path`() {
         val id1 = randomUUID()
         val project1 = DataProject(id1, "slug-1", "www.url.com", "Test Project 1", randomUUID(), "mlreef", "group1", "mlreef/project-1", 1, VisibilityScope.PUBLIC, listOf())
         dataProjectRepository.save(project1)
@@ -437,7 +438,36 @@ class DataProjectsApiTest : RestApiTest() {
     @Transactional
     @Rollback
     @Test
-    fun `Can delete user from DataProject`() {
+    fun `Can add user to DataProject by gitlabId in param`() {
+        val id1 = randomUUID()
+        val project1 = DataProject(id1, "slug-1", "www.url.com", "Test Project 1", randomUUID(), "mlreef", "group1", "mlreef/project-1", 1, VisibilityScope.PUBLIC, listOf())
+        dataProjectRepository.save(project1)
+
+        every { dataProjectService.getUsersInProject(any()) } answers {
+            listOf(account, account2)
+        }
+
+        this.mockGetUserProjectsList(listOf(project1.id), account, AccessLevel.OWNER)
+
+        val returnedResult: List<UserInProjectDto> = this.mockMvc.perform(
+            this.defaultAcceptContentAuth(RestDocumentationRequestBuilders.post("$rootUrl/${project1.id}/users?gitlab_id=${account2.person.gitlabId}")))
+            .andExpect(MockMvcResultMatchers.status().isOk)
+            .document("dataprojects-add-user-by-params",
+                RequestDocumentation.requestParameters(
+                    RequestDocumentation.parameterWithName("user_id").optional().description("Internal User id - UUID"),
+                    RequestDocumentation.parameterWithName("gitlab_id").optional().description("Gitlab user id - Number")
+                ),
+                responseFields(usersInDataProjectResponseFields("[].")))
+            .returns(object: TypeReference<List<UserInProjectDto>>() {})
+
+        assertThat(returnedResult.size).isEqualTo(2)
+    }
+
+
+    @Transactional
+    @Rollback
+    @Test
+    fun `Can delete user from DataProject by userId in path`() {
         val id1 = randomUUID()
         val project1 = DataProject(id1, "slug-1", "www.url.com", "Test Project 1", randomUUID(), "mlreef", "group1", "mlreef/project-1", 1, VisibilityScope.PUBLIC, listOf())
         dataProjectRepository.save(project1)
@@ -452,6 +482,34 @@ class DataProjectsApiTest : RestApiTest() {
             this.defaultAcceptContentAuth(RestDocumentationRequestBuilders.delete("$rootUrl/${project1.id}/users/${account2.id}")))
             .andExpect(MockMvcResultMatchers.status().isOk)
             .document("dataprojects-delete-user", responseFields(usersInDataProjectResponseFields("[].")))
+            .returns(object: TypeReference<List<UserInProjectDto>>() {})
+
+        assertThat(returnedResult.size).isEqualTo(1)
+    }
+
+    @Transactional
+    @Rollback
+    @Test
+    fun `Can delete user from DataProject by gitlabId in param`() {
+        val id1 = randomUUID()
+        val project1 = DataProject(id1, "slug-1", "www.url.com", "Test Project 1", randomUUID(), "mlreef", "group1", "mlreef/project-1", 1, VisibilityScope.PUBLIC, listOf())
+        dataProjectRepository.save(project1)
+
+        every { dataProjectService.getUsersInProject(any()) } answers {
+            listOf(account)
+        }
+
+        this.mockGetUserProjectsList(listOf(project1.id), account, AccessLevel.OWNER)
+
+        val returnedResult: List<UserInProjectDto> = this.mockMvc.perform(
+            this.defaultAcceptContentAuth(RestDocumentationRequestBuilders.delete("$rootUrl/${project1.id}/users?gitlab_id=${account2.person.gitlabId}")))
+            .andExpect(MockMvcResultMatchers.status().isOk)
+            .document("dataprojects-delete-user-by-params",
+                RequestDocumentation.requestParameters(
+                    RequestDocumentation.parameterWithName("user_id").optional().description("Internal User id - UUID"),
+                    RequestDocumentation.parameterWithName("gitlab_id").optional().description("Gitlab user id - Number")
+                ),
+                responseFields(usersInDataProjectResponseFields("[].")))
             .returns(object: TypeReference<List<UserInProjectDto>>() {})
 
         assertThat(returnedResult.size).isEqualTo(1)
