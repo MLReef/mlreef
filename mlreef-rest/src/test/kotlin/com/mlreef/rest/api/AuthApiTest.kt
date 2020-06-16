@@ -33,7 +33,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import java.util.UUID.randomUUID
 import javax.transaction.Transactional
 
-class AuthApiTest : RestApiTest() {
+class AuthApiTest : AbstractRestApiTest() {
 
     val authUrl = "/api/v1/auth"
 

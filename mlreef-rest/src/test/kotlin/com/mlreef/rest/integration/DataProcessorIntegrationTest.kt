@@ -21,16 +21,13 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.post
-import org.springframework.restdocs.payload.FieldDescriptor
-import org.springframework.restdocs.payload.JsonFieldType
-import org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath
 import org.springframework.test.annotation.Rollback
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import java.util.UUID
 import java.util.UUID.randomUUID
 import javax.transaction.Transactional
 
-class DataProcessorIntegrationTest : IntegrationRestApiTest() {
+class DataProcessorIntegrationTest : AbstractIntegrationTest() {
     val rootUrl = "/api/v1/data-processors"
     val rootUrl2 = "/api/v1/code-projects"
 
@@ -40,7 +37,7 @@ class DataProcessorIntegrationTest : IntegrationRestApiTest() {
     @Autowired private lateinit var pipelineTestPreparationTrait: PipelineTestPreparationTrait
 
     @Autowired
-    private lateinit var gitlabHelper: GitlabHelper
+    private lateinit var integrationTestsHelper: IntegrationTestsHelper
 
     @BeforeEach
     @AfterEach
@@ -50,9 +47,9 @@ class DataProcessorIntegrationTest : IntegrationRestApiTest() {
     @Transactional
     @Rollback
     @Test fun `Can retrieve all DataProcessors`() {
-        val (account, _, _) = gitlabHelper.createRealUser()
-        val (codeProject, _) = gitlabHelper.createRealCodeProject(account)
-        val (codeProject2, _) = gitlabHelper.createRealCodeProject(account)
+        val (account, _, _) = integrationTestsHelper.createRealUser()
+        val (codeProject, _) = integrationTestsHelper.createRealCodeProject(account)
+        val (codeProject2, _) = integrationTestsHelper.createRealCodeProject(account)
 
         createDataProcessor(DataProcessorType.OPERATION, codeProject.id, DataType.IMAGE)
         createDataProcessor(DataProcessorType.OPERATION, codeProject.id, DataType.IMAGE)
@@ -72,9 +69,9 @@ class DataProcessorIntegrationTest : IntegrationRestApiTest() {
     @Transactional
     @Rollback
     @Test fun `Can retrieve all DataProcessors filtered`() {
-        val (account, _, _) = gitlabHelper.createRealUser()
-        val (codeProject, _) = gitlabHelper.createRealCodeProject(account)
-        val (codeProject2, _) = gitlabHelper.createRealCodeProject(account)
+        val (account, _, _) = integrationTestsHelper.createRealUser()
+        val (codeProject, _) = integrationTestsHelper.createRealCodeProject(account)
+        val (codeProject2, _) = integrationTestsHelper.createRealCodeProject(account)
 
         createManyMocks(codeProject, codeProject2)
         val url = "$rootUrl?type=OPERATION&input_data_type=IMAGE&output_data_type=VIDEO"
@@ -96,9 +93,9 @@ class DataProcessorIntegrationTest : IntegrationRestApiTest() {
     @Transactional
     @Rollback
     @Test fun `Can retrieve all DataProcessors filters combined 1`() {
-        val (account, _, _) = gitlabHelper.createRealUser()
-        val (codeProject, _) = gitlabHelper.createRealCodeProject(account)
-        val (codeProject2, _) = gitlabHelper.createRealCodeProject(account)
+        val (account, _, _) = integrationTestsHelper.createRealUser()
+        val (codeProject, _) = integrationTestsHelper.createRealCodeProject(account)
+        val (codeProject2, _) = integrationTestsHelper.createRealCodeProject(account)
 
         createManyMocks(codeProject, codeProject2)
 
@@ -114,9 +111,9 @@ class DataProcessorIntegrationTest : IntegrationRestApiTest() {
     @Transactional
     @Rollback
     @Test fun `Can retrieve all DataProcessors filters combined 2`() {
-        val (account, _, _) = gitlabHelper.createRealUser()
-        val (codeProject, _) = gitlabHelper.createRealCodeProject(account)
-        val (codeProject2, _) = gitlabHelper.createRealCodeProject(account)
+        val (account, _, _) = integrationTestsHelper.createRealUser()
+        val (codeProject, _) = integrationTestsHelper.createRealCodeProject(account)
+        val (codeProject2, _) = integrationTestsHelper.createRealCodeProject(account)
 
         createManyMocks(codeProject, codeProject2)
 
@@ -132,9 +129,9 @@ class DataProcessorIntegrationTest : IntegrationRestApiTest() {
     @Transactional
     @Rollback
     @Test fun `Can retrieve all DataProcessors filters input DataType`() {
-        val (account, _, _) = gitlabHelper.createRealUser()
-        val (codeProject, _) = gitlabHelper.createRealCodeProject(account)
-        val (codeProject2, _) = gitlabHelper.createRealCodeProject(account)
+        val (account, _, _) = integrationTestsHelper.createRealUser()
+        val (codeProject, _) = integrationTestsHelper.createRealCodeProject(account)
+        val (codeProject2, _) = integrationTestsHelper.createRealCodeProject(account)
 
         createManyMocks(codeProject, codeProject2)
 
@@ -148,9 +145,9 @@ class DataProcessorIntegrationTest : IntegrationRestApiTest() {
     @Transactional
     @Rollback
     @Test fun `Can retrieve all DataProcessors filters output DataType`() {
-        val (account, _, _) = gitlabHelper.createRealUser()
-        val (codeProject, _) = gitlabHelper.createRealCodeProject(account)
-        val (codeProject2, _) = gitlabHelper.createRealCodeProject(account)
+        val (account, _, _) = integrationTestsHelper.createRealUser()
+        val (codeProject, _) = integrationTestsHelper.createRealCodeProject(account)
+        val (codeProject2, _) = integrationTestsHelper.createRealCodeProject(account)
 
         createManyMocks(codeProject, codeProject2)
 
@@ -164,9 +161,9 @@ class DataProcessorIntegrationTest : IntegrationRestApiTest() {
     @Transactional
     @Rollback
     @Test fun `Can retrieve all DataProcessors filters OPERATION`() {
-        val (account, _, _) = gitlabHelper.createRealUser()
-        val (codeProject, _) = gitlabHelper.createRealCodeProject(account)
-        val (codeProject2, _) = gitlabHelper.createRealCodeProject(account)
+        val (account, _, _) = integrationTestsHelper.createRealUser()
+        val (codeProject, _) = integrationTestsHelper.createRealCodeProject(account)
+        val (codeProject2, _) = integrationTestsHelper.createRealCodeProject(account)
 
         createManyMocks(codeProject, codeProject2)
 
@@ -180,9 +177,9 @@ class DataProcessorIntegrationTest : IntegrationRestApiTest() {
     @Transactional
     @Rollback
     @Test fun `Can retrieve all DataProcessors filters VISUALISATION`() {
-        val (account, _, _) = gitlabHelper.createRealUser()
-        val (codeProject, _) = gitlabHelper.createRealCodeProject(account)
-        val (codeProject2, _) = gitlabHelper.createRealCodeProject(account)
+        val (account, _, _) = integrationTestsHelper.createRealUser()
+        val (codeProject, _) = integrationTestsHelper.createRealCodeProject(account)
+        val (codeProject2, _) = integrationTestsHelper.createRealCodeProject(account)
 
         createManyMocks(codeProject, codeProject2)
 
@@ -196,9 +193,9 @@ class DataProcessorIntegrationTest : IntegrationRestApiTest() {
     @Transactional
     @Rollback
     @Test fun `Can retrieve all DataProcessors filters ALGORITHM`() {
-        val (account, _, _) = gitlabHelper.createRealUser()
-        val (codeProject, _) = gitlabHelper.createRealCodeProject(account)
-        val (codeProject2, _) = gitlabHelper.createRealCodeProject(account)
+        val (account, _, _) = integrationTestsHelper.createRealUser()
+        val (codeProject, _) = integrationTestsHelper.createRealCodeProject(account)
+        val (codeProject2, _) = integrationTestsHelper.createRealCodeProject(account)
 
         createManyMocks(codeProject, codeProject2)
 
@@ -213,11 +210,11 @@ class DataProcessorIntegrationTest : IntegrationRestApiTest() {
     @Transactional
     @Rollback
     @Test fun `Cannot retrieve foreign DataProcessor`() {
-        val (account, _, _) = gitlabHelper.createRealUser()
-        val (account2, _, _) = gitlabHelper.createRealUser()
+        val (account, _, _) = integrationTestsHelper.createRealUser()
+        val (account2, _, _) = integrationTestsHelper.createRealUser()
 
-        val (codeProject, _) = gitlabHelper.createRealCodeProject(account)
-        val (codeProject2, _) = gitlabHelper.createRealCodeProject(account2)
+        val (codeProject, _) = integrationTestsHelper.createRealCodeProject(account)
+        val (codeProject2, _) = integrationTestsHelper.createRealCodeProject(account2)
 
         createDataProcessor(DataProcessorType.OPERATION, codeProject.id)
 
@@ -229,8 +226,8 @@ class DataProcessorIntegrationTest : IntegrationRestApiTest() {
     @Transactional
     @Rollback
     @Test fun `Can create new DataProcessor`() {
-        val (account, _, _) = gitlabHelper.createRealUser()
-        val (project, _) = gitlabHelper.createRealCodeProject(account)
+        val (account, _, _) = integrationTestsHelper.createRealUser()
+        val (project, _) = integrationTestsHelper.createRealCodeProject(account)
 
         val request = DataProcessorCreateRequest(
             slug = "slug",
@@ -264,8 +261,8 @@ class DataProcessorIntegrationTest : IntegrationRestApiTest() {
     @Transactional
     @Rollback
     @Test fun `Can retrieve specific own DataProcessor`() {
-        val (account, _, _) = gitlabHelper.createRealUser()
-        val (project, _) = gitlabHelper.createRealCodeProject(account)
+        val (account, _, _) = integrationTestsHelper.createRealUser()
+        val (project, _) = integrationTestsHelper.createRealCodeProject(account)
 
         createDataProcessor(DataProcessorType.OPERATION, project.id)
 
@@ -316,25 +313,4 @@ class DataProcessorIntegrationTest : IntegrationRestApiTest() {
         )
         return entity
     }
-
-    private fun dataProcessorCreateRequestFields(): List<FieldDescriptor> {
-        return listOf(
-            fieldWithPath("slug").type(JsonFieldType.STRING).description("Branch name for initial checkout"),
-            fieldWithPath("name").type(JsonFieldType.STRING).description("Branch name for destination"),
-            fieldWithPath("input_data_type").type(JsonFieldType.STRING).optional().description("An optional List of DataProcessors used during PreProcessing"),
-            fieldWithPath("output_data_type").type(JsonFieldType.STRING).optional().description("An optional List of DataProcessors used during PostProcessing"),
-            fieldWithPath("type").type(JsonFieldType.STRING).optional().description("An optional DataAlgorithm"),
-            fieldWithPath("visibility_scope").type(JsonFieldType.STRING).optional().description("An optional DataAlgorithm"),
-            fieldWithPath("code_project_id").type(JsonFieldType.STRING).optional().description("An optional DataAlgorithm"),
-            fieldWithPath("description").type(JsonFieldType.STRING).optional().description("An optional DataAlgorithm"),
-            fieldWithPath("parameters").type(JsonFieldType.ARRAY).optional().description("Name of Parameter"),
-            fieldWithPath("parameters[].name").type(JsonFieldType.STRING).optional().description("Name of Parameter"),
-            fieldWithPath("parameters[].type").type(JsonFieldType.STRING).optional().description("Provided ParameterType of this Parameter"),
-            fieldWithPath("parameters[].order").type(JsonFieldType.NUMBER).optional().description("Provided ParameterType of this Parameter"),
-            fieldWithPath("parameters[].default_value").type(JsonFieldType.STRING).optional().description("Provided value (as parsable String) of Parameter "),
-            fieldWithPath("parameters[].required").type(JsonFieldType.BOOLEAN).optional().description("Parameter required?"),
-            fieldWithPath("parameters[].description").type(JsonFieldType.STRING).optional().description("Textual description of this Parameter")
-        )
-    }
-
 }

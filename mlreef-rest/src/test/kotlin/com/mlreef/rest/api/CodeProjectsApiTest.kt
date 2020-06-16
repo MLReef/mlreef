@@ -39,7 +39,7 @@ import java.util.UUID
 import java.util.UUID.randomUUID
 import javax.transaction.Transactional
 
-class CodeProjectsApiTest : RestApiTest() {
+class CodeProjectsApiTest : AbstractRestApiTest() {
 
     private lateinit var subject: Person
     private lateinit var account2: Account

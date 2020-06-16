@@ -47,7 +47,8 @@ class SessionsController(
     }
 
     @DeleteMapping("/kill")
-    fun killSessionsByUsername(
+    @PreAuthorize("isGitlabAdmin() || isUserItself(#userName) || isUserItselfByToken(#token)")
+    fun killSessions(
         @RequestParam(value = "user_name", required = false) userName: String?,
         @RequestParam(value = "token", required = false) token: String?
     ): String {

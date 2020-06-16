@@ -1,23 +1,25 @@
 package com.mlreef.rest.integration
 
+import com.mlreef.rest.api.v1.LoginRequest
+import com.mlreef.rest.api.v1.RegisterRequest
+import com.mlreef.rest.api.v1.dto.SecretUserDto
 import com.mlreef.rest.api.v1.dto.UserDto
+import com.mlreef.rest.utils.RandomUtils
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.http.MediaType
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get
-import org.springframework.restdocs.payload.FieldDescriptor
-import org.springframework.restdocs.payload.JsonFieldType
-import org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath
+import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.post
+import org.springframework.test.annotation.Rollback
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
+import javax.transaction.Transactional
 
-class AuthIntegrationTest : IntegrationRestApiTest() {
+class AuthIntegrationTest : AbstractIntegrationTest() {
 
+    val authUrl = "/api/v1/auth"
     val sessionsUrl = "/api/v1/sessions"
-
-    @Autowired
-    private lateinit var gitlabHelper: GitlabHelper
 
     @BeforeEach
     @AfterEach
@@ -27,9 +29,91 @@ class AuthIntegrationTest : IntegrationRestApiTest() {
         personRepository.deleteAll()
     }
 
+    @Transactional
+    @Rollback
+    @Test
+    fun `Can register with new user`() {
+        val randomUserName = RandomUtils.generateRandomUserName(10)
+        val randomPassword = RandomUtils.generateRandomPassword(30, true)
+        val email = "$randomUserName@example.com"
+        val registerRequest = RegisterRequest(randomUserName, email, randomPassword, "name")
+
+        val returnedResult: SecretUserDto = this.mockMvc.perform(
+            post("$authUrl/register")
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(registerRequest)))
+            .andExpect(status().isOk)
+            .andReturn().let {
+                objectMapper.readValue(it.response.contentAsByteArray, SecretUserDto::class.java)
+            }
+
+        with(accountRepository.findOneByEmail(email)!!) {
+            assertThat(id).isEqualTo(returnedResult.id)
+        }
+    }
+
+    @Transactional
+    @Rollback
+    @Test
+    fun `Cannot register with existing user`() {
+        val (existingUser, _, _) = testsHelper.createRealUser()
+        val registerRequest = RegisterRequest(existingUser.username, existingUser.email, "any other password", "name")
+
+        this.mockMvc.perform(
+            post("$authUrl/register")
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(registerRequest)))
+            .andExpect(status().is4xxClientError)
+    }
+
+    @Transactional
+    @Rollback
+    @Test
+    fun `Can login with existing user`() {
+        val (account, plainPassword, _) = testsHelper.createRealUser()
+
+        val loginRequest = LoginRequest(account.username, account.email, plainPassword)
+
+        val returnedResult: SecretUserDto = this.mockMvc.perform(
+            post("$authUrl/login")
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(loginRequest)))
+            .andExpect(status().isOk)
+            .andReturn().let {
+                objectMapper.readValue(it.response.contentAsByteArray, SecretUserDto::class.java).censor()
+            }
+
+        assertThat(returnedResult).isNotNull()
+        assertThat(returnedResult.username).isEqualTo(account.username)
+        assertThat(returnedResult.email).isEqualTo(account.email)
+        assertThat(returnedResult.token!!.substring(0, 3)).isEqualTo(account.bestToken?.token?.substring(0, 3))
+    }
+
+    @Transactional
+    @Rollback
+    @Test
+    fun `Cannot login with Gitlab is rejected credentials`() {
+        val notRealPassword = "password"
+        val (existingUser, realPassword, _) = testsHelper.createRealUser()
+
+        assertThat(realPassword).isNotEqualTo(notRealPassword)
+
+        val loginRequest = LoginRequest(existingUser.username, existingUser.email, notRealPassword)
+
+        this.mockMvc.perform(
+            post("$authUrl/login")
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(loginRequest)))
+            .andExpect(status().is4xxClientError)
+    }
+
     @Test
     fun `Admin expiration OAuth token test`() {
-        val (account, realPassword, _) = gitlabHelper.createRealUser()
+        val (account, _, _) = testsHelper.createRealUser()
 
         assertThat(restClient.oAuthAdminToken.get()).isNotNull
 
@@ -43,7 +127,7 @@ class AuthIntegrationTest : IntegrationRestApiTest() {
         assertThat(returnedResult.id).isEqualTo(account.id)
         assertThat(returnedResult.username).isEqualTo(account.username)
 
-        val (expired, token) = restClient.oAuthAdminToken.get()!!
+        val (expired, _) = restClient.oAuthAdminToken.get()!!
 
         //Make token invalidated to GitlabRestClient obtain a new one
         restClient.oAuthAdminToken.set(Pair(expired, "123"))
@@ -61,43 +145,5 @@ class AuthIntegrationTest : IntegrationRestApiTest() {
         assertThat(returnedResult2.username).isEqualTo(account.username)
 
         assertThat(restClient.oAuthAdminToken.get()!!.second).isNotEqualTo("123")
-    }
-
-    private fun userDtoResponseFields(): List<FieldDescriptor> {
-        return listOf(
-            fieldWithPath("id").type(JsonFieldType.STRING).description("UUID"),
-            fieldWithPath("username").type(JsonFieldType.STRING).description("An unique username"),
-            fieldWithPath("email").type(JsonFieldType.STRING).description("An valid email"),
-            fieldWithPath("gitlab_id").type(JsonFieldType.NUMBER).description("A gitlab id")
-        )
-    }
-
-    private fun userSecretDtoResponseFields(): List<FieldDescriptor> {
-        return listOf(
-            fieldWithPath("id").type(JsonFieldType.STRING).description("UUID"),
-            fieldWithPath("username").type(JsonFieldType.STRING).description("An unique username"),
-            fieldWithPath("email").type(JsonFieldType.STRING).description("An valid email"),
-            fieldWithPath("gitlab_id").type(JsonFieldType.NUMBER).description("A gitlab id"),
-            fieldWithPath("token").type(JsonFieldType.STRING).optional().description("The permanent (with long-lifetime) token to authenticate in gitlab and mlreef. Can be used in PRIVATE-TOKEN"),
-            fieldWithPath("access_token").type(JsonFieldType.STRING).optional().description("The OAuth (with short-lifetime) access token to authenticate in gitlab and mlreef. Can be used in PRIVATE-TOKEN"),
-            fieldWithPath("refresh_token").type(JsonFieldType.STRING).optional().description("The OAuth refresh token to authenticate in gitlab and mlreef. an be used in PRIVATE-TOKEN")
-        )
-    }
-
-    private fun registerRequestFields(): List<FieldDescriptor> {
-        return listOf(
-            fieldWithPath("password").type(JsonFieldType.STRING).description("A plain text password"),
-            fieldWithPath("username").type(JsonFieldType.STRING).description("A valid, not-yet-existing username"),
-            fieldWithPath("email").type(JsonFieldType.STRING).description("A valid email"),
-            fieldWithPath("name").type(JsonFieldType.STRING).description("The fullname of the user")
-        )
-    }
-
-    private fun loginRequestFields(): List<FieldDescriptor> {
-        return listOf(
-            fieldWithPath("password").type(JsonFieldType.STRING).description("The plain text password"),
-            fieldWithPath("username").type(JsonFieldType.STRING).optional().description("At least username or email has to be provided"),
-            fieldWithPath("email").type(JsonFieldType.STRING).optional().description("At least username or email has to be provided")
-        )
     }
 }

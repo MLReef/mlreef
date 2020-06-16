@@ -22,6 +22,7 @@ import com.mlreef.rest.api.v1.dto.DataProcessorInstanceDto
 import com.mlreef.rest.api.v1.dto.ExperimentDto
 import com.mlreef.rest.api.v1.dto.ParameterInstanceDto
 import com.mlreef.rest.api.v1.dto.PipelineJobInfoDto
+import com.mlreef.rest.external_api.gitlab.TokenDetails
 import com.mlreef.rest.external_api.gitlab.dto.Branch
 import com.mlreef.rest.external_api.gitlab.dto.Commit
 import com.mlreef.rest.external_api.gitlab.dto.GitlabPipeline
@@ -48,9 +49,8 @@ import java.util.UUID
 import java.util.UUID.randomUUID
 import javax.transaction.Transactional
 
-///@RunWith(MockitoJUnitRunner::class)
 @Suppress("UsePropertyAccessSyntax")
-class ExperimentsApiTest : RestApiTest() {
+class ExperimentsApiTest : AbstractRestApiTest() {
 
     private lateinit var dataOp1: DataOperation
     private lateinit var dataOp2: DataAlgorithm
@@ -261,6 +261,17 @@ class ExperimentsApiTest : RestApiTest() {
 
         val beforeRequestTime = ZonedDateTime.now()
         val token = experimentRepository.findByIdOrNull(experiment1.id)!!.pipelineJobInfo!!.secret
+
+        val tokenDetails = TokenDetails(
+            "testusername",
+            "test-token",
+            "test-access-token",
+            randomUUID(),
+            randomUUID(),
+            projects = mutableMapOf(dataProject.id to AccessLevel.DEVELOPER)
+        )
+
+        mockSecurityContextHolder(tokenDetails)
 
         val returnedResult = this.performEPFPut(token, "$epfUrl/experiments/${experiment1.id}/finish")
             .andExpect(status().isOk)

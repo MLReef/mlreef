@@ -51,14 +51,14 @@ class ExperimentsController(
     }
 
     @GetMapping
-    @PreAuthorize("isProjectOwner(#dataProjectId)")
+    @PreAuthorize("userInProject(#dataProjectId) || projectIsPublic(#dataProjectId)")
     fun getAllExperiments(@PathVariable dataProjectId: UUID): List<ExperimentDto> {
         val experiments: List<Experiment> = experimentRepository.findAllByDataProjectId(dataProjectId).toList()
         return experiments.map(Experiment::toDto)
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("isProjectOwner(#dataProjectId)")
+    @PreAuthorize("userInProject(#dataProjectId) || projectIsPublic(#dataProjectId)")
     fun getExperiment(@PathVariable dataProjectId: UUID, @PathVariable id: UUID): ExperimentDto {
         val findOneByDataProjectIdAndId = experimentRepository.findOneByDataProjectIdAndId(dataProjectId, id)
             ?: throw NotFoundException("Experiment not found")
@@ -66,7 +66,7 @@ class ExperimentsController(
     }
 
     @GetMapping("/{id}/info")
-    @PreAuthorize("isProjectOwner(#dataProjectId)")
+    @PreAuthorize("userInProject(#dataProjectId) || projectIsPublic(#dataProjectId)")
     fun getExperimentMetrics(@PathVariable dataProjectId: UUID, @PathVariable id: UUID): PipelineJobInfoDto {
         val experiment = beforeGetExperiment(id)
         val pipelineJobInfo = experiment.pipelineJobInfo
@@ -75,7 +75,7 @@ class ExperimentsController(
     }
 
     @GetMapping("/{id}/mlreef-file")
-    @PreAuthorize("isProjectOwner(#dataProjectId)")
+    @PreAuthorize("userInProject(#dataProjectId) || projectIsPublic(#dataProjectId)")
     fun getExperimentYaml(@PathVariable dataProjectId: UUID, @PathVariable id: UUID, account: Account): String {
         val experiment = beforeGetExperiment(id)
 
@@ -83,7 +83,7 @@ class ExperimentsController(
     }
 
     @PostMapping("/{id}/start")
-    @PreAuthorize("isProjectOwner(#dataProjectId)")
+    @PreAuthorize("hasAccessToProject(#dataProjectId, 'DEVELOPER')")
     fun startExperiment(@PathVariable dataProjectId: UUID,
                         @PathVariable id: UUID,
                         account: Account,
@@ -109,7 +109,7 @@ class ExperimentsController(
     }
 
     @PostMapping
-    @PreAuthorize("isProjectOwner(#dataProjectId)")
+    @PreAuthorize("hasAccessToProject(#dataProjectId, 'DEVELOPER')")
     fun createExperiment(@PathVariable dataProjectId: UUID,
                          @Valid @RequestBody experimentCreateRequest: ExperimentCreateRequest,
                          person: Person): ExperimentDto {

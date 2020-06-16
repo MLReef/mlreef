@@ -26,7 +26,7 @@ import org.springframework.restdocs.payload.PayloadDocumentation.responseFields
 import org.springframework.test.annotation.Rollback
 import javax.transaction.Transactional
 
-class MarketplaceApiTest : RestApiTest() {
+class MarketplaceApiTest : AbstractRestApiTest() {
 
     val rootUrl = "/api/v1/explore"
     private lateinit var account2: Account
@@ -131,6 +131,32 @@ class MarketplaceApiTest : RestApiTest() {
 
         assertThat(returnedResult.size).isEqualTo(3)
     }
+
+//    @Transactional
+//    @Rollback
+//    @Test fun `Can retrieve all public MarketplaceEntries as Visitor`() {
+//        val (account, _, _) = gitlabHelper.createRealUser(index = -1)
+//        val (dataProject1, _) = gitlabHelper.createRealDataProject(account, slug = "slug1")
+//        val (dataProject2, _) = gitlabHelper.createRealDataProject(account, slug = "slug2")
+//        val (dataProject3, _) = gitlabHelper.createRealDataProject(account, slug = "slug3")
+//
+//        val marketplaceEntry1 = EntityMocks.marketplaceEntry(owner = account.person, searchable = dataProject1)
+//        val marketplaceEntry2 = EntityMocks.marketplaceEntry(owner = account.person, searchable = dataProject2)
+//        val marketplaceEntry3 = EntityMocks.marketplaceEntry(owner = account.person, searchable = dataProject3)
+//
+//        marketplaceEntryRepository.saveAll(listOf(marketplaceEntry1, marketplaceEntry2, marketplaceEntry3))
+//
+//        val returnedResult = this.performGet("$rootUrl/entries/public", anonymously = true)
+//            .checkStatus(HttpStatus.OK)
+//            .document(
+//                "marketplace-entries-retrieve-all",
+//                responseFields(wrapToPage(marketplaceEntriesResponseFields()))
+//            )
+//            .andDo { MarketplaceIntegrationTest.log.info(it.response.contentAsString) }
+//            .returns(objectMapper, object : TypeReference<RestResponsePage<MarketplaceEntryDto>>() {})
+//
+//        assertThat(returnedResult.numberOfElements).isEqualTo(3)
+//    }
 
     private fun marketplaceEntriesResponseFields(prefix: String = ""): List<FieldDescriptor> {
         return listOf(

@@ -1,18 +1,22 @@
 package com.mlreef.rest.api.v1
 
+import com.mlreef.rest.Account
 import com.mlreef.rest.DataProjectRepository
 import com.mlreef.rest.PipelineConfig
 import com.mlreef.rest.PipelineConfigRepository
 import com.mlreef.rest.PipelineInstance
 import com.mlreef.rest.PipelineInstanceRepository
-import com.mlreef.rest.api.CurrentUserService
 import com.mlreef.rest.api.v1.dto.PipelineConfigDto
 import com.mlreef.rest.api.v1.dto.PipelineInstanceDto
 import com.mlreef.rest.api.v1.dto.toDto
 import com.mlreef.rest.exceptions.MethodNotAllowedException
 import com.mlreef.rest.exceptions.NotFoundException
+import com.mlreef.rest.external_api.gitlab.TokenDetails
 import com.mlreef.rest.feature.pipeline.PipelineService
 import org.springframework.data.repository.findByIdOrNull
+import org.springframework.security.access.prepost.PostAuthorize
+import org.springframework.security.access.prepost.PostFilter
+import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
@@ -27,7 +31,6 @@ import java.util.logging.Logger
 @RequestMapping("/api/v1/pipelines")
 class PipelineController(
     val pipelineService: PipelineService,
-    val currentUserService: CurrentUserService,
     val dataProjectRepository: DataProjectRepository,
     val pipelineConfigRepository: PipelineConfigRepository,
     val pipelineInstanceRepository: PipelineInstanceRepository
@@ -40,18 +43,21 @@ class PipelineController(
     }
 
     @GetMapping
+    @PostFilter("userInPipeline() || pipelineIsPublic()")
     fun getAllPipelineConfigs(): List<PipelineConfigDto> {
         val list: List<PipelineConfig> = pipelineConfigRepository.findAll().toList()
         return list.map(PipelineConfig::toDto)
     }
 
     @GetMapping("/{id}")
+    @PostAuthorize("userInPipeline(#id) || pipelineIsPublic(#id)")
     fun getPipelineConfig(@PathVariable id: UUID): PipelineConfigDto {
         val findOneByDataProjectIdAndId = beforeGetPipelineConfig(id)
         return findOneByDataProjectIdAndId.toDto()
     }
 
     @GetMapping("/{pid}/instances")
+    @PreAuthorize("userInPipeline(#pid) || pipelineIsPublic(#pid)")
     fun getAllPipelineInstancesFromConfig(@PathVariable pid: UUID): List<PipelineInstanceDto> {
         beforeGetPipelineConfig(pid)
         val instances = pipelineInstanceRepository.findAllByPipelineConfigId(pid)
@@ -59,6 +65,7 @@ class PipelineController(
     }
 
     @GetMapping("/{pid}/instances/{id}")
+    @PreAuthorize("userInPipeline(#pid) || pipelineIsPublic(#pid)")
     fun getOnePipelineInstanceFromConfig(@PathVariable pid: UUID, @PathVariable id: UUID): PipelineInstanceDto {
         beforeGetPipelineConfig(pid)
         val instance = beforeGetPipelineInstance(pid, id)
@@ -67,6 +74,7 @@ class PipelineController(
     }
 
     @PostMapping("/{pid}/instances")
+    @PreAuthorize("hasAccessToPipeline(#pid,'DEVELOPER')")
     fun createPipelineInstanceForConfig(@PathVariable pid: UUID): PipelineInstanceDto {
         val pipelineConfig = beforeGetPipelineConfig(pid)
         val instances = pipelineInstanceRepository.findAllByPipelineConfigId(pid)
@@ -84,19 +92,24 @@ class PipelineController(
     }
 
     @PutMapping("/{pid}/instances/{id}/{action}")
-    fun updatePipelineInstanceFromConfig(@PathVariable pid: UUID, @PathVariable id: UUID, @PathVariable action: String): PipelineInstanceDto {
+    @PreAuthorize("hasAccessToPipeline(#pid,'DEVELOPER')")
+    fun updatePipelineInstanceFromConfig(@PathVariable pid: UUID,
+                                         @PathVariable id: UUID,
+                                         @PathVariable action: String,
+                                         tokenDetails: TokenDetails,
+                                         account: Account): PipelineInstanceDto {
         val pipelineConfig = beforeGetPipelineConfig(pid)
         val instance = beforeGetPipelineInstance(pid, id)
 
-        val account = currentUserService.account()
         val dataProject = dataProjectRepository.findByIdOrNull(pipelineConfig.dataProjectId)
             ?: throw NotFoundException("dataProject not found for this Pipeline")
-        val userToken = currentUserService.permanentToken()
+
         val adaptedInstance = when (action) {
-            "start" -> pipelineService.startInstance(account, userToken, dataProject.gitlabId, instance, secret = pipelineService.createSecret())
+            "start" -> pipelineService.startInstance(account, tokenDetails.permanentToken, dataProject.gitlabId, instance, secret = pipelineService.createSecret())
             "archive" -> pipelineService.archiveInstance(instance)
             else -> throw MethodNotAllowedException("No valid action: '$action'")
         }
+
         return adaptedInstance.toDto()
     }
 
@@ -105,7 +118,10 @@ class PipelineController(
             ?: throw NotFoundException("PipelineInstance was not found"))
 
     @DeleteMapping("/{pid}/instances/{id}")
-    fun deletePipelineInstanceFromConfig(@PathVariable pid: UUID, @PathVariable id: UUID) {
+    @PreAuthorize("hasAccessToPipeline(#pid,'DEVELOPER')")
+    fun deletePipelineInstanceFromConfig(@PathVariable pid: UUID,
+                                         @PathVariable id: UUID,
+                                         tokenDetails: TokenDetails) {
         beforeGetPipelineConfig(pid)
 
         val instance = beforeGetPipelineInstance(pid, id)
@@ -113,8 +129,7 @@ class PipelineController(
         val dataProject = dataProjectRepository.findByIdOrNull(instance.dataProjectId)
             ?: throw NotFoundException("DataProject was not found")
 
-        val userToken = currentUserService.permanentToken()
-        pipelineService.deletePipelineInstance(userToken, dataProject.gitlabId, instance.targetBranch)
+        pipelineService.deletePipelineInstance(tokenDetails.permanentToken, dataProject.gitlabId, instance.targetBranch)
         pipelineInstanceRepository.delete(instance)
     }
 }

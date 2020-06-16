@@ -36,7 +36,7 @@ import java.util.UUID
 import java.util.UUID.randomUUID
 import javax.transaction.Transactional
 
-class DataProcessorApiTest : RestApiTest() {
+class DataProcessorApiTest : AbstractRestApiTest() {
 
     private lateinit var dataOp1: DataOperation
     private lateinit var dataOp2: DataAlgorithm
@@ -88,7 +88,7 @@ class DataProcessorApiTest : RestApiTest() {
             .document("data-processors-retrieve-all", responseFields(dataProcessorFields("[].")))
             .returnsList(DataProcessorDto::class.java)
 
-        assertThat(returnedResult.size).isEqualTo(4)
+        assertThat(returnedResult.size).isEqualTo(2)
     }
 
     @Transactional

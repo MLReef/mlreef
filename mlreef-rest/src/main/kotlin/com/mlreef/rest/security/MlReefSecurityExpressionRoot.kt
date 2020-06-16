@@ -139,7 +139,7 @@ class MlReefSecurityExpressionRoot(authentication: Authentication,
     }
 
     fun hasAccessToPipeline(pipelineId: UUID, minAccessLevel: String): Boolean {
-        val config = getPipelineConfigFromContext()
+        val config = getPipelineConfigFromContext(pipelineId)
         return if (config != null) hasAccessToProject(config.dataProjectId, minAccessLevel) else false
     }
 

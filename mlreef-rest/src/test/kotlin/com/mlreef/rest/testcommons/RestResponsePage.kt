@@ -9,8 +9,7 @@ import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
 import java.util.ArrayList
 
-@JsonIgnoreProperties(ignoreUnknown = true)
-internal class RestResponsePage<T> : PageImpl<T> {
+@JsonIgnoreProperties(ignoreUnknown = true) class RestResponsePage<T> : PageImpl<T> {
     companion object {
         private const val serialVersionUID = 3248189030448292002L
     }
