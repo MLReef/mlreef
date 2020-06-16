@@ -1,0 +1,46 @@
+logging:
+  level:
+    root: DEBUG
+    com.mlreef.rest: DEBUG
+    org.springframework.security: INFO
+    org.springframework.orm: INFO
+    org.springframework.beans: INFO
+    org.springframework.core: INFO
+    org.springframework.context: INFO
+    org.springframework.data: INFO
+    org.springframework.aop: INFO
+    org.springframework.web: INFO
+    org.springframework.boot.context: INFO
+    org.springframework.boot.autoconfigure: INFO
+    org.hibernate: INFO
+    org.apache: INFO
+  pattern:
+    console: '%d{yyyy-MM-dd HH:mm:ss.SSS} %highlight(%-5level) %boldGreen([%thread]) %cyan(%logger{85}.%M [%line]) - %msg%n%throwable'
+
+spring:
+  devtools:
+    add-properties: true
+  datasource:
+    url: jdbc:h2:mem:db;DB_CLOSE_DELAY=-1
+    username: sa
+    password: sa
+  jpa:
+    show-sql: true # true for debugging
+    generate-ddl: true
+    properties:
+      hibernate:
+        show_sql: true
+        temp.use_jdbc_metadata_defaults: true
+        format_sql: true
+    hibernate:
+      ddl-auto: create-drop
+    database-platform: org.hibernate.dialect.H2Dialect
+  flyway:
+    enabled: false
+  redis:
+    host: localhost
+    port: 36379
+mlreef:
+  gitlab:
+    root-url: ${GITLAB_ROOT_URL:http://localhost:10080}
+    admin-user-token: ${GITLAB_ADMIN_TOKEN}

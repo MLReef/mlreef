@@ -2,7 +2,6 @@
 
 package com.mlreef.rest.integration
 
-import com.fasterxml.jackson.core.type.TypeReference
 import com.mlreef.rest.Account
 import com.mlreef.rest.DataProjectRepository
 import com.mlreef.rest.MarketplaceEntryRepository
@@ -24,7 +23,7 @@ import org.springframework.http.HttpStatus
 import org.springframework.test.annotation.Rollback
 import javax.transaction.Transactional
 
-class MarketplaceIntegrationTest : IntegrationRestApiTest() {
+class MarketplaceIntegrationTest : AbstractIntegrationTest() {
 
     val rootUrl = "/api/v1/explore"
     private lateinit var account: Account
@@ -32,24 +31,14 @@ class MarketplaceIntegrationTest : IntegrationRestApiTest() {
     private lateinit var subject: Person
     private lateinit var subject2: Person
 
-    @Autowired
-    private lateinit var marketplaceEntryRepository: MarketplaceEntryRepository
-
-    @Autowired
-    private lateinit var dataProjectRepository: DataProjectRepository
-
-    @Autowired
-    private lateinit var marketplaceTagRepository: SearchableTagRepository
-
-    @Autowired
-    private lateinit var accountSubjectPreparationTrait: AccountSubjectPreparationTrait
+    @Autowired private lateinit var marketplaceEntryRepository: MarketplaceEntryRepository
+    @Autowired private lateinit var dataProjectRepository: DataProjectRepository
+    @Autowired private lateinit var marketplaceTagRepository: SearchableTagRepository
+    @Autowired private lateinit var accountSubjectPreparationTrait: AccountSubjectPreparationTrait
 
     companion object {
         private val log = LoggerFactory.getLogger(this::class.java)
     }
-
-    @Autowired
-    private lateinit var gitlabHelper: GitlabHelper
 
     @BeforeEach
     @AfterEach
@@ -74,10 +63,10 @@ class MarketplaceIntegrationTest : IntegrationRestApiTest() {
     @Rollback
     @Disabled
     @Test fun `Can retrieve all public MarketplaceEntries`() {
-        val (account, _, _) = gitlabHelper.createRealUser(index = -1)
-        val (dataProject1, _) = gitlabHelper.createRealDataProject(account, slug = "slug1")
-        val (dataProject2, _) = gitlabHelper.createRealDataProject(account, slug = "slug2")
-        val (dataProject3, _) = gitlabHelper.createRealDataProject(account, slug = "slug3")
+        val (account, _, _) = testsHelper.createRealUser(index = -1)
+        val (dataProject1, _) = testsHelper.createRealDataProject(account, slug = "slug1")
+        val (dataProject2, _) = testsHelper.createRealDataProject(account, slug = "slug2")
+        val (dataProject3, _) = testsHelper.createRealDataProject(account, slug = "slug3")
 
         val marketplaceEntry1 = EntityMocks.marketplaceEntry(owner = account.person, searchable = dataProject1)
         val marketplaceEntry2 = EntityMocks.marketplaceEntry(owner = account.person, searchable = dataProject2)
@@ -96,8 +85,8 @@ class MarketplaceIntegrationTest : IntegrationRestApiTest() {
     @Rollback
     @Disabled
     @Test fun `Can retrieve MarketplaceEntries per Slug`() {
-        val (account, _, _) = gitlabHelper.createRealUser(index = -1)
-        val (dataProject1, _) = gitlabHelper.createRealDataProject(account, slug = "slug1")
+        val (account, _, _) = testsHelper.createRealUser(index = -1)
+        val (dataProject1, _) = testsHelper.createRealDataProject(account, slug = "slug1")
 
         val marketplaceEntry1 = EntityMocks.marketplaceEntry(searchable = dataProject1)
 
@@ -116,7 +105,7 @@ class MarketplaceIntegrationTest : IntegrationRestApiTest() {
     @Rollback
     @Disabled
     @Test fun `Can retrieve all public SearchableTags`() {
-        val (account, _, _) = gitlabHelper.createRealUser(index = -1)
+        val (account, _, _) = testsHelper.createRealUser(index = -1)
 
         val searchableTag1 = EntityMocks.searchableTag(name = "TAG1")
         val searchableTag2 = EntityMocks.searchableTag(name = "TAG2")
@@ -135,10 +124,10 @@ class MarketplaceIntegrationTest : IntegrationRestApiTest() {
     @Transactional
     @Rollback
     @Test fun `Can retrieve all public MarketplaceEntries as Visitor`() {
-        val (account, _, _) = gitlabHelper.createRealUser(index = -1)
-        val (dataProject1, _) = gitlabHelper.createRealDataProject(account, slug = "slug1")
-        val (dataProject2, _) = gitlabHelper.createRealDataProject(account, slug = "slug2")
-        val (dataProject3, _) = gitlabHelper.createRealDataProject(account, slug = "slug3")
+        val (account, _, _) = testsHelper.createRealUser(index = -1)
+        val (dataProject1, _) = testsHelper.createRealDataProject(account, slug = "slug1")
+        val (dataProject2, _) = testsHelper.createRealDataProject(account, slug = "slug2")
+        val (dataProject3, _) = testsHelper.createRealDataProject(account, slug = "slug3")
 
         val marketplaceEntry1 = EntityMocks.marketplaceEntry(owner = account.person, searchable = dataProject1)
         val marketplaceEntry2 = EntityMocks.marketplaceEntry(owner = account.person, searchable = dataProject2)
@@ -146,10 +135,10 @@ class MarketplaceIntegrationTest : IntegrationRestApiTest() {
 
         marketplaceEntryRepository.saveAll(listOf(marketplaceEntry1, marketplaceEntry2, marketplaceEntry3))
 
-        val returnedResult = this.performGet("$rootUrl/entries/public", anonymously = true)
-            .checkStatus(HttpStatus.OK)
+        val returnedResult: RestResponsePage<MarketplaceEntryDto> = this.performGet("$rootUrl/entries/public")
+            .expectOk()
             .andDo { log.info(it.response.contentAsString) }
-            .returns(object : TypeReference<RestResponsePage<MarketplaceEntryDto>>() {})
+            .returns()
 
         assertThat(returnedResult.numberOfElements).isEqualTo(3)
     }
@@ -157,10 +146,10 @@ class MarketplaceIntegrationTest : IntegrationRestApiTest() {
     @Transactional
     @Rollback
     @Test fun `Cannot retrieve users' MarketplaceEntries as Visitor`() {
-        val (account, _, _) = gitlabHelper.createRealUser(index = -1)
-        val (dataProject1, _) = gitlabHelper.createRealDataProject(account, slug = "slug1")
-        val (dataProject2, _) = gitlabHelper.createRealDataProject(account, slug = "slug2")
-        val (dataProject3, _) = gitlabHelper.createRealDataProject(account, slug = "slug3")
+        val (account, _, _) = testsHelper.createRealUser(index = -1)
+        val (dataProject1, _) = testsHelper.createRealDataProject(account, slug = "slug1")
+        val (dataProject2, _) = testsHelper.createRealDataProject(account, slug = "slug2")
+        val (dataProject3, _) = testsHelper.createRealDataProject(account, slug = "slug3")
 
         val marketplaceEntry1 = EntityMocks.marketplaceEntry(owner = account.person, searchable = dataProject1)
         val marketplaceEntry2 = EntityMocks.marketplaceEntry(owner = account.person, searchable = dataProject2)
@@ -168,7 +157,7 @@ class MarketplaceIntegrationTest : IntegrationRestApiTest() {
 
         marketplaceEntryRepository.saveAll(listOf(marketplaceEntry1, marketplaceEntry2, marketplaceEntry3))
 
-        this.performGet("$rootUrl/entries", anonymously = true)
-            .checkStatus(HttpStatus.FORBIDDEN)
+        this.performGet("$rootUrl/entries")
+            .expectForbidden()
     }
 }

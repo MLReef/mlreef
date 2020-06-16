@@ -12,8 +12,8 @@ import com.mlreef.rest.PipelineInstanceRepository
 import com.mlreef.rest.PipelineType
 import com.mlreef.rest.ProcessorParameter
 import com.mlreef.rest.ProcessorParameterRepository
+import com.mlreef.rest.api.AbstractRestApiTest
 import com.mlreef.rest.api.PipelineTestPreparationTrait
-import com.mlreef.rest.api.RestApiTest
 import com.mlreef.rest.api.v1.dto.PipelineInstanceDto
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
@@ -25,9 +25,6 @@ import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.del
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.post
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.put
-import org.springframework.restdocs.payload.FieldDescriptor
-import org.springframework.restdocs.payload.JsonFieldType
-import org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath
 import org.springframework.test.annotation.Rollback
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import java.util.UUID
@@ -35,7 +32,7 @@ import java.util.UUID.randomUUID
 import javax.transaction.Transactional
 
 @Disabled
-class PipelineInstanceApiTest : RestApiTest() {
+class PipelineInstanceApiTest : AbstractRestApiTest() {
 
     private lateinit var dataOp1: DataOperation
     private lateinit var dataOp2: DataAlgorithm
@@ -50,7 +47,7 @@ class PipelineInstanceApiTest : RestApiTest() {
     @Autowired private lateinit var pipelineTestPreparationTrait: PipelineTestPreparationTrait
 
     @Autowired
-    private lateinit var gitlabHelper: GitlabHelper
+    private lateinit var integrationTestsHelper: IntegrationTestsHelper
 
     @BeforeEach
     @AfterEach
@@ -64,8 +61,8 @@ class PipelineInstanceApiTest : RestApiTest() {
     @Transactional
     @Rollback
     @Test fun `Can retrieve all DataInstances of viewable PipelineConfig`() {
-        val (account, _, _) = gitlabHelper.createRealUser()
-        val (project, _) = gitlabHelper.createRealDataProject(account)
+        val (account, _, _) = integrationTestsHelper.createRealUser()
+        val (project, _) = integrationTestsHelper.createRealDataProject(account)
 
         val dataProcessorInstance = createDataProcessorInstance()
         val pipelineConfig = createPipelineConfig(dataProcessorInstance, project.id, "slug1")
@@ -87,8 +84,8 @@ class PipelineInstanceApiTest : RestApiTest() {
     @Transactional
     @Rollback
     @Test fun `Cannot retrieve DataInstances of not-viewable PipelineConfig`() {
-        val (account, _, _) = gitlabHelper.createRealUser()
-        val (project, _) = gitlabHelper.createRealDataProject(account)
+        val (account, _, _) = integrationTestsHelper.createRealUser()
+        val (project, _) = integrationTestsHelper.createRealDataProject(account)
 
         val dataProcessorInstance = createDataProcessorInstance()
         val pipelineConfig = createPipelineConfig(dataProcessorInstance, project.id, "slug1")
@@ -109,8 +106,8 @@ class PipelineInstanceApiTest : RestApiTest() {
     @Transactional
     @Rollback
     @Test fun `Can create new DataInstance of viewable PipelineConfig`() {
-        val (account, _, _) = gitlabHelper.createRealUser()
-        val (project, _) = gitlabHelper.createRealDataProject(account)
+        val (account, _, _) = integrationTestsHelper.createRealUser()
+        val (project, _) = integrationTestsHelper.createRealDataProject(account)
 
         val dataProcessorInstance = createDataProcessorInstance()
         val pipelineConfig = createPipelineConfig(dataProcessorInstance, project.id, "slug1")
@@ -127,8 +124,8 @@ class PipelineInstanceApiTest : RestApiTest() {
     @Transactional
     @Rollback
     @Test fun `Can retrieve specific DataInstance of viewable PipelineConfig`() {
-        val (account, _, _) = gitlabHelper.createRealUser()
-        val (project, _) = gitlabHelper.createRealDataProject(account)
+        val (account, _, _) = integrationTestsHelper.createRealUser()
+        val (project, _) = integrationTestsHelper.createRealDataProject(account)
 
         val dataProcessorInstance = createDataProcessorInstance()
         val pipelineConfig = createPipelineConfig(dataProcessorInstance, project.id, "slug1")
@@ -146,8 +143,8 @@ class PipelineInstanceApiTest : RestApiTest() {
     @Rollback
     @Disabled
     @Test fun `Can update specific DataInstance of viewable PipelineConfig`() {
-        val (account, _, _) = gitlabHelper.createRealUser()
-        val (project, _) = gitlabHelper.createRealDataProject(account)
+        val (account, _, _) = integrationTestsHelper.createRealUser()
+        val (project, _) = integrationTestsHelper.createRealDataProject(account)
 
         val dataProcessorInstance = createDataProcessorInstance()
         val pipelineConfig = createPipelineConfig(dataProcessorInstance, project.id, "slug1")
@@ -164,8 +161,8 @@ class PipelineInstanceApiTest : RestApiTest() {
     @Transactional
     @Rollback
     @Test fun `Can delete specific DataInstance of viewable PipelineConfig`() {
-        val (account, _, _) = gitlabHelper.createRealUser()
-        val (project, _) = gitlabHelper.createRealDataProject(account)
+        val (account, _, _) = integrationTestsHelper.createRealUser()
+        val (project, _) = integrationTestsHelper.createRealDataProject(account)
 
         val dataProcessorInstance = createDataProcessorInstance()
         val pipelineConfig = createPipelineConfig(dataProcessorInstance, project.id, "slug1")
@@ -203,24 +200,3 @@ class PipelineInstanceApiTest : RestApiTest() {
         return dataProcessorInstanceRepository.save(dataProcessorInstance)
     }
 }
-
-internal fun pipelineInstanceDtoResponseFields(prefix: String = ""): List<FieldDescriptor> {
-    return listOf(
-        fieldWithPath(prefix + "id").type(JsonFieldType.STRING).description("UUID"),
-        fieldWithPath(prefix + "pipeline_type").type(JsonFieldType.STRING).description("Type of this Pipeline, can be DATA or VISUALISATION"),
-        fieldWithPath(prefix + "slug").type(JsonFieldType.STRING).description("Unique slug of this PipelineConfig"),
-        fieldWithPath(prefix + "name").type(JsonFieldType.STRING).description("Name of this PipelineConfig"),
-        fieldWithPath(prefix + "input_files").type(JsonFieldType.ARRAY).optional().description("FileLocation used as input files"),
-        fieldWithPath(prefix + "input_files[].location").type(JsonFieldType.STRING).optional().description("FileLocation path or url"),
-        fieldWithPath(prefix + "input_files[].location_type").type(JsonFieldType.STRING).optional().description("FileLocationType: AWS, URL, or PATH (default)"),
-        fieldWithPath(prefix + "data_project_id").type(JsonFieldType.STRING).description("Id of DataProject"),
-        fieldWithPath(prefix + "pipeline_config_id").type(JsonFieldType.STRING).description("Id of PipelineConfig"),
-        fieldWithPath(prefix + "pipeline").optional().type(JsonFieldType.ARRAY).optional().description("An optional List of DataProcessors used during PreProcessing"),
-        fieldWithPath(prefix + "source_branch").type(JsonFieldType.STRING).description("Source branch name"),
-        fieldWithPath(prefix + "target_branch").type(JsonFieldType.STRING).description("Target branch name"),
-        fieldWithPath(prefix + "number").type(JsonFieldType.NUMBER).description("Local unique number of this Instance, represents the number of created instances"),
-        fieldWithPath(prefix + "commit").optional().type(JsonFieldType.STRING).description("Optional commit ref of first Pipeline commit (mlreef.yml)"),
-        fieldWithPath(prefix + "status").type(JsonFieldType.STRING).description("PipelineStatus of this PipelineInstance: CREATED, PENDING, RUNNING, SKIPPED, SUCCESS, FAILED, CANCELED, ARCHIVED ")
-    )
-}
-

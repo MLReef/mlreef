@@ -1,10 +1,7 @@
 package com.mlreef.rest.integration
 
-import com.mlreef.rest.DataAlgorithm
-import com.mlreef.rest.DataOperation
 import com.mlreef.rest.DataProcessorInstance
 import com.mlreef.rest.DataProcessorInstanceRepository
-import com.mlreef.rest.DataVisualization
 import com.mlreef.rest.ParameterType
 import com.mlreef.rest.PipelineConfig
 import com.mlreef.rest.PipelineConfigRepository
@@ -25,11 +22,7 @@ import java.util.UUID
 import java.util.UUID.randomUUID
 import javax.transaction.Transactional
 
-class PipelinesConfigIntegrationTest : IntegrationRestApiTest() {
-
-    private lateinit var dataOp1: DataOperation
-    private lateinit var dataOp2: DataAlgorithm
-    private lateinit var dataOp3: DataVisualization
+class PipelinesConfigIntegrationTest : AbstractIntegrationTest() {
 
     val rootUrl = "/api/v1/pipelines"
 
@@ -39,23 +32,23 @@ class PipelinesConfigIntegrationTest : IntegrationRestApiTest() {
 
     @Autowired private lateinit var pipelineTestPreparationTrait: PipelineTestPreparationTrait
 
-    @Autowired
-    private lateinit var gitlabHelper: GitlabHelper
-
     @BeforeEach
+    @Transactional
+    fun fillRepo() {
+        testsHelper.generateProcessorsInDatabase()
+    }
+
     @AfterEach
+    @Transactional
     fun clearRepo() {
-        pipelineTestPreparationTrait.apply()
-        dataOp1 = pipelineTestPreparationTrait.dataOp1
-        dataOp2 = pipelineTestPreparationTrait.dataOp2
-        dataOp3 = pipelineTestPreparationTrait.dataOp3
+        testsHelper.cleanProcessorsInDatabase()
     }
 
     @Transactional
     @Rollback
     @Test fun `Can retrieve all own Pipelines`() {
-        val (account, _, _) = gitlabHelper.createRealUser()
-        val (project, _) = gitlabHelper.createRealDataProject(account)
+        val (account, _, _) = testsHelper.createRealUser()
+        val (project, _) = testsHelper.createRealDataProject(account)
 
         val dataProcessorInstance = createDataProcessorInstance()
         createPipelineConfig(dataProcessorInstance, project.id, "slug1")
@@ -75,8 +68,8 @@ class PipelinesConfigIntegrationTest : IntegrationRestApiTest() {
     @Transactional
     @Rollback
     @Test fun `Can retrieve specific PipelineConfig`() {
-        val (account, _, _) = gitlabHelper.createRealUser()
-        val (project, _) = gitlabHelper.createRealDataProject(account)
+        val (account, _, _) = testsHelper.createRealUser()
+        val (project, _) = testsHelper.createRealDataProject(account)
 
         val dataProcessorInstance = createDataProcessorInstance()
         val entity = createPipelineConfig(dataProcessorInstance, project.id, "slug")
@@ -99,7 +92,7 @@ class PipelinesConfigIntegrationTest : IntegrationRestApiTest() {
     }
 
     private fun createDataProcessorInstance(): DataProcessorInstance {
-        val dataProcessorInstance = DataProcessorInstance(randomUUID(), dataOp1)
+        val dataProcessorInstance = DataProcessorInstance(randomUUID(), testsHelper.dataOp1!!)
         val processorParameter = ProcessorParameter(
             id = randomUUID(), dataProcessorId = dataProcessorInstance.dataProcessorId,
             name = "param1", type = ParameterType.STRING,

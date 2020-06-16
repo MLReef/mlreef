@@ -1,6 +1,6 @@
 package com.mlreef.rest
 
-import com.mlreef.rest.api.RestApiTest
+import com.mlreef.rest.api.AbstractRestApiTest
 import com.mlreef.rest.external_api.gitlab.dto.GitlabUser
 import com.mlreef.rest.feature.marketplace.MarketplaceService
 import com.mlreef.rest.feature.project.DataProjectService
@@ -16,7 +16,7 @@ import javax.transaction.Transactional
 /**
  * Should actually be an integrationtest against a real Gitlab instance
  */
-class DataPopulatorTest : RestApiTest() {
+class DataPopulatorTest : AbstractRestApiTest() {
 
     private val userToken: String = "ysfd"
     private lateinit var author: Person

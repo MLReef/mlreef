@@ -23,24 +23,22 @@ import org.springframework.test.annotation.Rollback
 import java.util.UUID
 import javax.transaction.Transactional
 
-class DataProjectsIntegrationTest : IntegrationRestApiTest() {
+class DataProjectsIntegrationTest : AbstractIntegrationTest() {
 
     val rootUrl = "/api/v1/data-projects"
 
     @Autowired private lateinit var dataProjectRepository: DataProjectRepository
 
-    @Autowired
-    private lateinit var gitlabHelper: GitlabHelper
-
     @BeforeEach
     @AfterEach
     fun setUp() {
+
     }
 
     @Transactional
     @Rollback
     @Test fun `Can create DataProject`() {
-        val (account, _, _) = gitlabHelper.createRealUser()
+        val (account, _, _) = testsHelper.createRealUser()
 
         val request = DataProjectCreateRequest(
             "test-project",
@@ -61,8 +59,8 @@ class DataProjectsIntegrationTest : IntegrationRestApiTest() {
     @Transactional
     @Rollback
     @Test fun `Cannot create duplicate DataProject`() {
-        val (account, _, _) = gitlabHelper.createRealUser()
-        val (project, _) = gitlabHelper.createRealDataProject(account)
+        val (account, _, _) = testsHelper.createRealUser()
+        val (project, _) = testsHelper.createRealDataProject(account)
 
         val request = DataProjectCreateRequest(
             slug = project.slug,
@@ -79,7 +77,7 @@ class DataProjectsIntegrationTest : IntegrationRestApiTest() {
     @Transactional
     @Rollback
     @Test fun `Cannot create DataProject with invalid params`() {
-        val (account, _, _) = gitlabHelper.createRealUser()
+        val (account, _, _) = testsHelper.createRealUser()
 
         val request = DataProjectCreateRequest(
             "",
@@ -95,14 +93,14 @@ class DataProjectsIntegrationTest : IntegrationRestApiTest() {
     @Transactional
     @Rollback
     @Test fun `Can retrieve all own DataProjects only`() {
-        val (account1, _, _) = gitlabHelper.createRealUser(index = -1)
-        val (project1, _) = gitlabHelper.createRealDataProject(account1)
-        val (project2, _) = gitlabHelper.createRealDataProject(account1)
-        val (project3, _) = gitlabHelper.createRealDataProject(account1)
+        val (account1, _, _) = testsHelper.createRealUser(index = -1)
+        val (project1, _) = testsHelper.createRealDataProject(account1)
+        val (project2, _) = testsHelper.createRealDataProject(account1)
+        val (project3, _) = testsHelper.createRealDataProject(account1)
 
-        val (account2, _, _) = gitlabHelper.createRealUser(index = -1)
-        val (project21, _) = gitlabHelper.createRealDataProject(account2)
-        val (project22, _) = gitlabHelper.createRealDataProject(account2)
+        val (account2, _, _) = testsHelper.createRealUser(index = -1)
+        val (project21, _) = testsHelper.createRealDataProject(account2)
+        val (project22, _) = testsHelper.createRealDataProject(account2)
 
         val result = this.performGet(rootUrl, account1)
             .expectOk()
@@ -138,14 +136,14 @@ class DataProjectsIntegrationTest : IntegrationRestApiTest() {
     @Transactional
     @Rollback
     @Test fun `Can retrieve own DataProject by id`() {
-        val (account1, _, _) = gitlabHelper.createRealUser()
-        val (_, _) = gitlabHelper.createRealDataProject(account1)
-        val (project2, _) = gitlabHelper.createRealDataProject(account1)
-        val (_, _) = gitlabHelper.createRealDataProject(account1)
+        val (account1, _, _) = testsHelper.createRealUser()
+        val (_, _) = testsHelper.createRealDataProject(account1)
+        val (project2, _) = testsHelper.createRealDataProject(account1)
+        val (_, _) = testsHelper.createRealDataProject(account1)
 
-        val (account2, _, _) = gitlabHelper.createRealUser(index = 1)
-        val (_, _) = gitlabHelper.createRealDataProject(account2)
-        val (_, _) = gitlabHelper.createRealDataProject(account2)
+        val (account2, _, _) = testsHelper.createRealUser(index = 1)
+        val (_, _) = testsHelper.createRealDataProject(account2)
+        val (_, _) = testsHelper.createRealDataProject(account2)
 
         val url = "$rootUrl/${project2.id}"
 
@@ -161,20 +159,20 @@ class DataProjectsIntegrationTest : IntegrationRestApiTest() {
     @Transactional
     @Rollback
     @Test fun `Can retrieve own and not own but member private DataProject by slug`() {
-        val (account1, _, _) = gitlabHelper.createRealUser(index = -1)
-        val (project1, _) = gitlabHelper.createRealDataProject(account1, slug = "slug-1", public = false)
-        val (_, _) = gitlabHelper.createRealDataProject(account1, public = false)
-        val (_, _) = gitlabHelper.createRealDataProject(account1, public = false)
+        val (account1, _, _) = testsHelper.createRealUser(index = -1)
+        val (project1, _) = testsHelper.createRealDataProject(account1, slug = "slug-1", public = false)
+        val (_, _) = testsHelper.createRealDataProject(account1, public = false)
+        val (_, _) = testsHelper.createRealDataProject(account1, public = false)
 
-        val (account2, _, _) = gitlabHelper.createRealUser(index = -1)
-        val (project21, _) = gitlabHelper.createRealDataProject(account2, slug = "slug-1", public = false)
-        val (_, _) = gitlabHelper.createRealDataProject(account2, public = false)
+        val (account2, _, _) = testsHelper.createRealUser(index = -1)
+        val (project21, _) = testsHelper.createRealDataProject(account2, slug = "slug-1", public = false)
+        val (_, _) = testsHelper.createRealDataProject(account2, public = false)
 
-        val (account3, _, _) = gitlabHelper.createRealUser(index = -1)
-        val (_, _) = gitlabHelper.createRealDataProject(account3, slug = "slug-1", public = false)
-        val (_, _) = gitlabHelper.createRealDataProject(account3, public = false)
+        val (account3, _, _) = testsHelper.createRealUser(index = -1)
+        val (_, _) = testsHelper.createRealDataProject(account3, slug = "slug-1", public = false)
+        val (_, _) = testsHelper.createRealDataProject(account3, public = false)
 
-        addRealUserToProject(project21.gitlabId, account1.person.gitlabId!!)
+        testsHelper.addRealUserToProject(project21.gitlabId, account1.person.gitlabId!!)
 
         val url = "$rootUrl/slug/${project1.slug}"
 
@@ -206,19 +204,19 @@ class DataProjectsIntegrationTest : IntegrationRestApiTest() {
     @Transactional
     @Rollback
     @Test fun `Can retrieve own and not own not member but public DataProject by slug`() {
-        val (account1, _, _) = gitlabHelper.createRealUser(index = -1)
+        val (account1, _, _) = testsHelper.createRealUser(index = -1)
 
-        val (project1, _) = gitlabHelper.createRealDataProject(account1, slug = "slug-1", public = false)
-        val (_, _) = gitlabHelper.createRealDataProject(account1)
-        val (_, _) = gitlabHelper.createRealDataProject(account1)
+        val (project1, _) = testsHelper.createRealDataProject(account1, slug = "slug-1", public = false)
+        val (_, _) = testsHelper.createRealDataProject(account1)
+        val (_, _) = testsHelper.createRealDataProject(account1)
 
-        val (account2, _, _) = gitlabHelper.createRealUser(index = -1)
-        val (project21, _) = gitlabHelper.createRealDataProject(account2, slug = "slug-1", public = true)
-        val (project22, _) = gitlabHelper.createRealDataProject(account2)
+        val (account2, _, _) = testsHelper.createRealUser(index = -1)
+        val (project21, _) = testsHelper.createRealDataProject(account2, slug = "slug-1", public = true)
+        val (_, _) = testsHelper.createRealDataProject(account2)
 
-        val (account3, _, _) = gitlabHelper.createRealUser(index = -1)
-        val (project31, _) = gitlabHelper.createRealDataProject(account3, slug = "slug-1", public = false)
-        val (project32, _) = gitlabHelper.createRealDataProject(account3)
+        val (account3, _, _) = testsHelper.createRealUser(index = -1)
+        val (_, _) = testsHelper.createRealDataProject(account3, slug = "slug-1", public = false)
+        val (_, _) = testsHelper.createRealDataProject(account3)
 
         val url = "$rootUrl/slug/${project1.slug}"
 
@@ -253,17 +251,17 @@ class DataProjectsIntegrationTest : IntegrationRestApiTest() {
     @Transactional
     @Rollback
     @Test fun `Can retrieve not own but member private DataProjects by namespace`() {
-        val (account1, _, _) = gitlabHelper.createRealUser(index = -1)
-        val (account2, _, _) = gitlabHelper.createRealUser(index = -1)
+        val (account1, _, _) = testsHelper.createRealUser(index = -1)
+        val (account2, _, _) = testsHelper.createRealUser(index = -1)
 
-        val (project1, _) = gitlabHelper.createRealDataProject(account1, public = false)
-        val (project2, _) = gitlabHelper.createRealDataProject(account1, public = false)
-        val (project3, _) = gitlabHelper.createRealDataProject(account1, public = false)
+        val (project1, _) = testsHelper.createRealDataProject(account1, public = false)
+        val (project2, _) = testsHelper.createRealDataProject(account1, public = false)
+        val (project3, _) = testsHelper.createRealDataProject(account1, public = false)
 
-        addRealUserToProject(project1.gitlabId, account2.person.gitlabId!!)
+        testsHelper.addRealUserToProject(project1.gitlabId, account2.person.gitlabId!!)
 
-        val (project21, _) = gitlabHelper.createRealDataProject(account2, namespace = project1.gitlabGroup)
-        val (project22, _) = gitlabHelper.createRealDataProject(account2)
+        val (project21, _) = testsHelper.createRealDataProject(account2, namespace = project1.gitlabGroup)
+        val (project22, _) = testsHelper.createRealDataProject(account2)
 
         val url = "$rootUrl/namespace/${project1.gitlabGroup}"
 
@@ -297,17 +295,17 @@ class DataProjectsIntegrationTest : IntegrationRestApiTest() {
     @Transactional
     @Rollback
     @Test fun `Can retrieve not own not member but public DataProjects by namespace`() {
-        val (account1, _, _) = gitlabHelper.createRealUser(index = -1)
-        val (account2, _, _) = gitlabHelper.createRealUser(index = -1)
+        val (account1, _, _) = testsHelper.createRealUser(index = -1)
+        val (account2, _, _) = testsHelper.createRealUser(index = -1)
 
-        val (project1, _) = gitlabHelper.createRealDataProject(account1, public = true)
-        val (project2, _) = gitlabHelper.createRealDataProject(account1, public = true)
-        val (project3, _) = gitlabHelper.createRealDataProject(account1, public = false)
-        val (project4, _) = gitlabHelper.createRealDataProject(account1, public = true)
-        val (project5, _) = gitlabHelper.createRealDataProject(account1, public = false)
+        val (project1, _) = testsHelper.createRealDataProject(account1, public = true)
+        val (project2, _) = testsHelper.createRealDataProject(account1, public = true)
+        val (project3, _) = testsHelper.createRealDataProject(account1, public = false)
+        val (project4, _) = testsHelper.createRealDataProject(account1, public = true)
+        val (project5, _) = testsHelper.createRealDataProject(account1, public = false)
 
-        val (project21, _) = gitlabHelper.createRealDataProject(account2, namespace = project1.gitlabGroup)
-        val (project22, _) = gitlabHelper.createRealDataProject(account2)
+        val (project21, _) = testsHelper.createRealDataProject(account2, namespace = project1.gitlabGroup)
+        val (project22, _) = testsHelper.createRealDataProject(account2)
 
         val url = "$rootUrl/namespace/${project1.gitlabGroup}"
 
@@ -331,7 +329,6 @@ class DataProjectsIntegrationTest : IntegrationRestApiTest() {
             project4.id
         )
 
-
         val initialSetOfSlug = setOf<String>(
             project1.slug,
             project2.slug,
@@ -352,17 +349,17 @@ class DataProjectsIntegrationTest : IntegrationRestApiTest() {
     @Transactional
     @Rollback
     @Test fun `Can retrieve not own but member private DataProject by namespace and slug`() {
-        val (account1, _, _) = gitlabHelper.createRealUser(index = -1)
-        val (account2, _, _) = gitlabHelper.createRealUser(index = -1)
+        val (account1, _, _) = testsHelper.createRealUser(index = -1)
+        val (account2, _, _) = testsHelper.createRealUser(index = -1)
 
-        val (project1, _) = gitlabHelper.createRealDataProject(account1, public = false)
-        val (project2, _) = gitlabHelper.createRealDataProject(account1, public = false)
-        val (project3, _) = gitlabHelper.createRealDataProject(account1, public = false)
+        val (project1, _) = testsHelper.createRealDataProject(account1, public = false)
+        val (_, _) = testsHelper.createRealDataProject(account1, public = false)
+        val (_, _) = testsHelper.createRealDataProject(account1, public = false)
 
-        addRealUserToProject(project1.gitlabId, account2.person.gitlabId!!)
+        testsHelper.addRealUserToProject(project1.gitlabId, account2.person.gitlabId!!)
 
-        val (project21, _) = gitlabHelper.createRealDataProject(account2, slug = "slug-1", namespace = project1.gitlabGroup)
-        val (project22, _) = gitlabHelper.createRealDataProject(account2)
+        val (_, _) = testsHelper.createRealDataProject(account2, slug = "slug-1", namespace = project1.gitlabGroup)
+        val (_, _) = testsHelper.createRealDataProject(account2)
 
         val url = "$rootUrl/${project1.gitlabGroup}/${project1.slug}"
 
@@ -378,15 +375,15 @@ class DataProjectsIntegrationTest : IntegrationRestApiTest() {
     @Transactional
     @Rollback
     @Test fun `Can retrieve not own not member but public DataProject by namespace and slug`() {
-        val (account1, _, _) = gitlabHelper.createRealUser(index = -1)
-        val (account2, _, _) = gitlabHelper.createRealUser(index = -1)
+        val (account1, _, _) = testsHelper.createRealUser(index = -1)
+        val (account2, _, _) = testsHelper.createRealUser(index = -1)
 
-        val (project1, _) = gitlabHelper.createRealDataProject(account1, public = true)
-        val (_, _) = gitlabHelper.createRealDataProject(account1, public = true)
-        val (_, _) = gitlabHelper.createRealDataProject(account1, public = true)
+        val (project1, _) = testsHelper.createRealDataProject(account1, public = true)
+        val (_, _) = testsHelper.createRealDataProject(account1, public = true)
+        val (_, _) = testsHelper.createRealDataProject(account1, public = true)
 
-        val (_, _) = gitlabHelper.createRealDataProject(account2, slug = "slug-1", namespace = project1.gitlabGroup)
-        val (_, _) = gitlabHelper.createRealDataProject(account2)
+        val (_, _) = testsHelper.createRealDataProject(account2, slug = "slug-1", namespace = project1.gitlabGroup)
+        val (_, _) = testsHelper.createRealDataProject(account2)
 
         val url = "$rootUrl/${project1.gitlabGroup}/${project1.slug}"
 
@@ -402,10 +399,10 @@ class DataProjectsIntegrationTest : IntegrationRestApiTest() {
     @Transactional
     @Rollback
     @Test fun `Cannot retrieve not own not public DataProject`() {
-        val (account1, _, _) = gitlabHelper.createRealUser()
+        val (account1, _, _) = testsHelper.createRealUser()
 
-        val (account2, _, _) = gitlabHelper.createRealUser(index = -1)
-        val (project21, _) = gitlabHelper.createRealDataProject(account2, public = false)
+        val (account2, _, _) = testsHelper.createRealUser(index = -1)
+        val (project21, _) = testsHelper.createRealDataProject(account2, public = false)
 
         val url = "$rootUrl/${project21.id}"
 
@@ -417,10 +414,10 @@ class DataProjectsIntegrationTest : IntegrationRestApiTest() {
     @Transactional
     @Rollback
     @Test fun `Can retrieve not own but public DataProject`() {
-        val (account1, _, _) = gitlabHelper.createRealUser()
+        val (account1, _, _) = testsHelper.createRealUser()
 
-        val (account2, _, _) = gitlabHelper.createRealUser(index = -1)
-        val (project21, _) = gitlabHelper.createRealDataProject(account2, public = true)
+        val (account2, _, _) = testsHelper.createRealUser(index = -1)
+        val (project21, _) = testsHelper.createRealDataProject(account2, public = true)
 
         val url = "$rootUrl/${project21.id}"
 
@@ -431,10 +428,9 @@ class DataProjectsIntegrationTest : IntegrationRestApiTest() {
     }
 
     @Transactional
-    @Rollback
     @Test fun `Can update own DataProject`() {
-        val (account1, _, _) = gitlabHelper.createRealUser(index = -1)
-        val (project1, _) = gitlabHelper.createRealDataProject(account1)
+        val (account1, _, _) = testsHelper.createRealUser(index = -1)
+        val (project1, _) = testsHelper.createRealDataProject(account1)
 
         val newProjectName = "New Test project"
         val newDescription = "new description"
@@ -462,14 +458,13 @@ class DataProjectsIntegrationTest : IntegrationRestApiTest() {
     }
 
     @Transactional
-    @Rollback
     @Test fun `Cannot update not-own DataProject`() {
-        val (account1, _, _) = gitlabHelper.createRealUser()
+        val (account1, _, _) = testsHelper.createRealUser()
 
-        val (account2, _, _) = gitlabHelper.createRealUser(index = -1)
-        val (project21, gitlabProject21) = gitlabHelper.createRealDataProject(account2)
+        val (account2, _, _) = testsHelper.createRealUser(index = -1)
+        val (project21, gitlabProject21) = testsHelper.createRealDataProject(account2)
 
-        addRealUserToProject(project21.gitlabId, account1.person.gitlabId!!)
+        testsHelper.addRealUserToProject(project21.gitlabId, account1.person.gitlabId!!)
 
         val newProjectName = "New Test project"
         val newDescription = "new description"
@@ -491,10 +486,9 @@ class DataProjectsIntegrationTest : IntegrationRestApiTest() {
     }
 
     @Transactional
-    @Rollback
     @Test fun `Can delete own DataProject`() {
-        val (account, _, _) = gitlabHelper.createRealUser()
-        val (project, gitlabProject) = gitlabHelper.createRealDataProject(account)
+        val (account, _, _) = testsHelper.createRealUser()
+        val (project, gitlabProject) = testsHelper.createRealDataProject(account)
 
         assertThat(dataProjectRepository.findByIdOrNull(project.id)).isNotNull()
 
@@ -507,7 +501,11 @@ class DataProjectsIntegrationTest : IntegrationRestApiTest() {
         assertThat(dataProjectRepository.findByIdOrNull(project.id)).isNull()
 
         //Ensure that public project cache was updated
-        verify(exactly = 1, timeout = ASYNC_UPDATE_OPERATIONS_WAIT_COMPLETION_TIMEOUT) {
+        //The code below can not work. There are no any possibility to clear internal state (eg. calls number) of spyk objects
+        //(publicProjectRepository is spyk object in this case)
+        //Until it is not fixed on SpringMockk library the code will possible fail with exception "No call was recorded with matcher....".
+        //The verifier unexpected reads the previous call that was in other tests before, but not provided in current one.
+        verify(atLeast = 1, timeout = ASYNC_UPDATE_OPERATIONS_WAIT_COMPLETION_TIMEOUT) {
             publicProjectRepository.delete(
                 eq(PublicProjectHash(gitlabProject.id, project.id))
             )
@@ -515,15 +513,14 @@ class DataProjectsIntegrationTest : IntegrationRestApiTest() {
     }
 
     @Transactional
-    @Rollback
     @Test fun `Cannot delete not-own DataProject`() {
-        val (account1, _, _) = gitlabHelper.createRealUser()
+        val (account1, _, _) = testsHelper.createRealUser()
 
-        val (account2, _, _) = gitlabHelper.createRealUser(index = -1)
-        val (project21, gitlabProject21) = gitlabHelper.createRealDataProject(account2)
-        val (_, _) = gitlabHelper.createRealDataProject(account2)
+        val (account2, _, _) = testsHelper.createRealUser(index = -1)
+        val (project21, gitlabProject21) = testsHelper.createRealDataProject(account2)
+        val (_, _) = testsHelper.createRealDataProject(account2)
 
-        addRealUserToProject(project21.gitlabId, account1.person.gitlabId!!)
+        testsHelper.addRealUserToProject(project21.gitlabId, account1.person.gitlabId!!)
 
         assertThat(dataProjectRepository.findByIdOrNull(project21.id)).isNotNull()
 
@@ -546,16 +543,16 @@ class DataProjectsIntegrationTest : IntegrationRestApiTest() {
     @Rollback
     @Test
     fun `Owner can get users list in project`() {
-        val (account1, _, _) = gitlabHelper.createRealUser()
-        val (account2, _, _) = gitlabHelper.createRealUser(index = 1)
-        val (account3, _, _) = gitlabHelper.createRealUser(index = 2)
+        val (account1, _, _) = testsHelper.createRealUser()
+        val (account2, _, _) = testsHelper.createRealUser(index = 1)
+        val (account3, _, _) = testsHelper.createRealUser(index = 2)
 
-        val (project21, _) = gitlabHelper.createRealDataProject(account2)
-        val (_, _) = gitlabHelper.createRealDataProject(account2)
-        val (project23, _) = gitlabHelper.createRealDataProject(account2)
+        val (project21, _) = testsHelper.createRealDataProject(account2)
+        val (_, _) = testsHelper.createRealDataProject(account2)
+        val (project23, _) = testsHelper.createRealDataProject(account2)
 
-        addRealUserToProject(project21.gitlabId, account1.person.gitlabId!!)
-        addRealUserToProject(project23.gitlabId, account3.person.gitlabId!!)
+        testsHelper.addRealUserToProject(project21.gitlabId, account1.person.gitlabId!!)
+        testsHelper.addRealUserToProject(project23.gitlabId, account3.person.gitlabId!!)
 
         val getUsersUrl = "$rootUrl/${project21.id}/users"
 
@@ -572,14 +569,14 @@ class DataProjectsIntegrationTest : IntegrationRestApiTest() {
     @Rollback
     @Test
     fun `Developer can get users list in project`() {
-        val (account1, _, _) = gitlabHelper.createRealUser(index = -1)
-        val (account2, _, _) = gitlabHelper.createRealUser(index = -1)
-        val (account3, _, _) = gitlabHelper.createRealUser(index = -1)
+        val (account1, _, _) = testsHelper.createRealUser(index = -1)
+        val (account2, _, _) = testsHelper.createRealUser(index = -1)
+        val (account3, _, _) = testsHelper.createRealUser(index = -1)
 
-        val (project21, _) = gitlabHelper.createRealDataProject(account2)
+        val (project21, _) = testsHelper.createRealDataProject(account2)
 
-        addRealUserToProject(project21.gitlabId, account1.person.gitlabId!!, GroupAccessLevel.DEVELOPER)
-        addRealUserToProject(project21.gitlabId, account3.person.gitlabId!!, GroupAccessLevel.GUEST)
+        testsHelper.addRealUserToProject(project21.gitlabId, account1.person.gitlabId!!, GroupAccessLevel.DEVELOPER)
+        testsHelper.addRealUserToProject(project21.gitlabId, account3.person.gitlabId!!, GroupAccessLevel.GUEST)
 
         val getUsersUrl = "$rootUrl/${project21.id}/users"
 
@@ -596,14 +593,14 @@ class DataProjectsIntegrationTest : IntegrationRestApiTest() {
     @Rollback
     @Test
     fun `Visitor cannot get users list in project`() {
-        val (account1, _, _) = gitlabHelper.createRealUser(index = -1)
-        val (account2, _, _) = gitlabHelper.createRealUser(index = -1)
-        val (account3, _, _) = gitlabHelper.createRealUser(index = -1)
+        val (account1, _, _) = testsHelper.createRealUser(index = -1)
+        val (account2, _, _) = testsHelper.createRealUser(index = -1)
+        val (account3, _, _) = testsHelper.createRealUser(index = -1)
 
-        val (project21, _) = gitlabHelper.createRealDataProject(account2)
+        val (project21, _) = testsHelper.createRealDataProject(account2)
 
-        addRealUserToProject(project21.gitlabId, account1.person.gitlabId!!, GroupAccessLevel.DEVELOPER)
-        addRealUserToProject(project21.gitlabId, account3.person.gitlabId!!, GroupAccessLevel.GUEST)
+        testsHelper.addRealUserToProject(project21.gitlabId, account1.person.gitlabId!!, GroupAccessLevel.DEVELOPER)
+        testsHelper.addRealUserToProject(project21.gitlabId, account3.person.gitlabId!!, GroupAccessLevel.GUEST)
 
         val userInProjectUrl = "$rootUrl/${project21.id}/users/check/myself"
         val getUsersUrl = "$rootUrl/${project21.id}/users"
@@ -624,13 +621,13 @@ class DataProjectsIntegrationTest : IntegrationRestApiTest() {
     @Rollback
     @Test
     fun `Owner can add a user to project`() {
-        val (account1, _, _) = gitlabHelper.createRealUser()
-        val (account2, _, _) = gitlabHelper.createRealUser(index = 1)
-        val (account3, _, _) = gitlabHelper.createRealUser(index = 2)
+        val (account1, _, _) = testsHelper.createRealUser()
+        val (account2, _, _) = testsHelper.createRealUser(index = 1)
+        val (account3, _, _) = testsHelper.createRealUser(index = 2)
 
-        val (project21, _) = gitlabHelper.createRealDataProject(account2)
+        val (project21, _) = testsHelper.createRealDataProject(account2)
 
-        addRealUserToProject(project21.gitlabId, account1.person.gitlabId!!)
+        testsHelper.addRealUserToProject(project21.gitlabId, account1.person.gitlabId!!)
 
         val getUserUrl = "$rootUrl/${project21.id}/users"
         val addUserUrl = "$rootUrl/${project21.id}/users/${account3.id}"
@@ -652,13 +649,13 @@ class DataProjectsIntegrationTest : IntegrationRestApiTest() {
     @Rollback
     @Test
     fun `Maintainer can add a user to project`() {
-        val (account1, _, _) = gitlabHelper.createRealUser()
-        val (account2, _, _) = gitlabHelper.createRealUser(index = 1)
-        val (account3, _, _) = gitlabHelper.createRealUser(index = 2)
+        val (account1, _, _) = testsHelper.createRealUser()
+        val (account2, _, _) = testsHelper.createRealUser(index = 1)
+        val (account3, _, _) = testsHelper.createRealUser(index = 2)
 
-        val (project21, _) = gitlabHelper.createRealDataProject(account2)
+        val (project21, _) = testsHelper.createRealDataProject(account2)
 
-        addRealUserToProject(project21.gitlabId, account1.person.gitlabId!!, GroupAccessLevel.MAINTAINER)
+        testsHelper.addRealUserToProject(project21.gitlabId, account1.person.gitlabId!!, GroupAccessLevel.MAINTAINER)
 
         val getUserUrl = "$rootUrl/${project21.id}/users"
         val addUserUrl = "$rootUrl/${project21.id}/users/${account3.id}"
@@ -680,13 +677,13 @@ class DataProjectsIntegrationTest : IntegrationRestApiTest() {
     @Rollback
     @Test
     fun `Developer cannot add a user to project`() {
-        val (account1, _, _) = gitlabHelper.createRealUser()
-        val (account2, _, _) = gitlabHelper.createRealUser(index = 1)
-        val (account3, _, _) = gitlabHelper.createRealUser(index = 2)
+        val (account1, _, _) = testsHelper.createRealUser()
+        val (account2, _, _) = testsHelper.createRealUser(index = 1)
+        val (account3, _, _) = testsHelper.createRealUser(index = 2)
 
-        val (project21, _) = gitlabHelper.createRealDataProject(account2)
+        val (project21, _) = testsHelper.createRealDataProject(account2)
 
-        addRealUserToProject(project21.gitlabId, account1.person.gitlabId!!, GroupAccessLevel.DEVELOPER)
+        testsHelper.addRealUserToProject(project21.gitlabId, account1.person.gitlabId!!, GroupAccessLevel.DEVELOPER)
 
         val getUserUrl = "$rootUrl/${project21.id}/users"
         val addUserUrl = "$rootUrl/${project21.id}/users/${account3.id}"
@@ -710,14 +707,14 @@ class DataProjectsIntegrationTest : IntegrationRestApiTest() {
     @Rollback
     @Test
     fun `Owner can delete a user from project`() {
-        val (account1, _, _) = gitlabHelper.createRealUser()
-        val (account2, _, _) = gitlabHelper.createRealUser(index = 1)
-        val (account3, _, _) = gitlabHelper.createRealUser(index = 2)
+        val (account1, _, _) = testsHelper.createRealUser()
+        val (account2, _, _) = testsHelper.createRealUser(index = 1)
+        val (account3, _, _) = testsHelper.createRealUser(index = 2)
 
-        val (project21, _) = gitlabHelper.createRealDataProject(account2)
+        val (project21, _) = testsHelper.createRealDataProject(account2)
 
-        addRealUserToProject(project21.gitlabId, account1.person.gitlabId!!)
-        addRealUserToProject(project21.gitlabId, account3.person.gitlabId!!)
+        testsHelper.addRealUserToProject(project21.gitlabId, account1.person.gitlabId!!)
+        testsHelper.addRealUserToProject(project21.gitlabId, account3.person.gitlabId!!)
 
         val getUserUrl = "$rootUrl/${project21.id}/users"
         val deleteUserUrl = "$rootUrl/${project21.id}/users/${account3.id}"
@@ -739,14 +736,14 @@ class DataProjectsIntegrationTest : IntegrationRestApiTest() {
     @Rollback
     @Test
     fun `Developer cannot delete a user from project`() {
-        val (account1, _, _) = gitlabHelper.createRealUser()
-        val (account2, _, _) = gitlabHelper.createRealUser(index = 1)
-        val (account3, _, _) = gitlabHelper.createRealUser(index = 2)
+        val (account1, _, _) = testsHelper.createRealUser()
+        val (account2, _, _) = testsHelper.createRealUser(index = 1)
+        val (account3, _, _) = testsHelper.createRealUser(index = 2)
 
-        val (project21, _) = gitlabHelper.createRealDataProject(account2)
+        val (project21, _) = testsHelper.createRealDataProject(account2)
 
-        addRealUserToProject(project21.gitlabId, account1.person.gitlabId!!, GroupAccessLevel.DEVELOPER)
-        addRealUserToProject(project21.gitlabId, account3.person.gitlabId!!, GroupAccessLevel.DEVELOPER)
+        testsHelper.addRealUserToProject(project21.gitlabId, account1.person.gitlabId!!, GroupAccessLevel.DEVELOPER)
+        testsHelper.addRealUserToProject(project21.gitlabId, account3.person.gitlabId!!, GroupAccessLevel.DEVELOPER)
 
         val getUserUrl = "$rootUrl/${project21.id}/users"
         val deleteUserUrl = "$rootUrl/${project21.id}/users/${account3.id}"

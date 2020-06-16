@@ -38,6 +38,7 @@ import org.springframework.stereotype.Component
 import java.util.UUID
 import java.util.UUID.randomUUID
 import javax.transaction.Transactional
+import kotlin.math.absoluteValue
 import kotlin.random.Random
 
 object TestTags {
@@ -201,14 +202,14 @@ internal class PipelineTestPreparationTrait : AccountSubjectPreparationTrait() {
 
         dataProject = dataProjectRepository.save(DataProject(
             UUID.fromString("aaaa0001-0000-0000-0000-dbdbdbdbdbdb"), "slug1", "url", "Test DataProject",
-            ownerId = account.person.id, gitlabId = 1, gitlabGroup = "mlreef", gitlabProject = "project1"
+            ownerId = account.person.id, gitlabId = Random.nextInt().toLong().absoluteValue, gitlabGroup = "mlreef", gitlabProject = "project1"
         ))
         dataProject2 = dataProjectRepository.save(DataProject(
             UUID.fromString("aaaa0001-0000-0000-0002-dbdbdbdbdbdb"), "slug2", "url", "Test DataProject",
-            ownerId = account2.person.id, gitlabId = 2, gitlabGroup = "mlreef", gitlabProject = "project1")
+            ownerId = account2.person.id, gitlabId = Random.nextInt().toLong().absoluteValue, gitlabGroup = "mlreef", gitlabProject = "project1")
         )
         codeProjectRepository.save(CodeProject(randomUUID(), "slug", "url", "Test DataProject", ownerId = account.person.id,
-            gitlabGroup = "", gitlabId = 0, gitlabProject = ""))
+            gitlabGroup = "", gitlabId = Random.nextInt().toLong().absoluteValue, gitlabProject = ""))
 
         dataOp1 = dataOperationRepository.save(DataOperation(randomUUID(), "commons-data-operation1", "name", "command", DataType.ANY, DataType.ANY))
         dataOp2 = dataAlgorithmRepository.save(DataAlgorithm(randomUUID(), "commons-algorithm", "name", "command", DataType.ANY, DataType.ANY))

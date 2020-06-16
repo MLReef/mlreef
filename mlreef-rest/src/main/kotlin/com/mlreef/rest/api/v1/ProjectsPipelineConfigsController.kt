@@ -43,14 +43,14 @@ class ProjectsPipelineConfigsController(
     private val log: Logger = Logger.getLogger(ProjectsPipelineConfigsController::class.simpleName)
 
     @GetMapping
-    @PreAuthorize("isProjectOwner(#dataProjectId)")
+    @PreAuthorize("userInProject(#dataProjectId)  || projectIsPublic(#dataProjectId)")
     fun getAllPipelineConfig(@PathVariable dataProjectId: UUID): List<PipelineConfigDto> {
         val list: List<PipelineConfig> = pipelineConfigRepository.findAllByDataProjectId(dataProjectId).toList()
         return list.map(PipelineConfig::toDto)
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("isProjectOwner(#dataProjectId)")
+    @PreAuthorize("userInProject(#dataProjectId)  || projectIsPublic(#dataProjectId)")
     fun getPipelineConfig(@PathVariable dataProjectId: UUID, @PathVariable id: UUID): PipelineConfigDto {
         val findOneByDataProjectIdAndId = pipelineConfigRepository.findOneByDataProjectIdAndId(dataProjectId, id)
             ?: throw NotFoundException("Experiment not found")
@@ -58,7 +58,7 @@ class ProjectsPipelineConfigsController(
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("isProjectOwner(#dataProjectId)")
+    @PreAuthorize("hasAccessToProject(#dataProjectId, 'DEVELOPER')")
     fun updatePipelineConfig(
         @PathVariable dataProjectId: UUID,
         @PathVariable id: UUID,
@@ -80,7 +80,7 @@ class ProjectsPipelineConfigsController(
     }
 
     @PostMapping
-    @PreAuthorize("isProjectOwner(#dataProjectId)")
+    @PreAuthorize("hasAccessToProject(#dataProjectId, 'DEVELOPER')")
     fun createPipelineConfig(
         @PathVariable dataProjectId: UUID,
         @Valid @RequestBody createRequest: PipelineConfigCreateRequest,

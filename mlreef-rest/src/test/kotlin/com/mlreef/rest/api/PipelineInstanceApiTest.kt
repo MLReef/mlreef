@@ -36,7 +36,7 @@ import java.util.UUID
 import java.util.UUID.randomUUID
 import javax.transaction.Transactional
 
-class PipelineInstanceApiTest : RestApiTest() {
+class PipelineInstanceApiTest : AbstractRestApiTest() {
 
     private lateinit var dataOp1: DataOperation
     private lateinit var dataOp2: DataAlgorithm
@@ -151,7 +151,7 @@ class PipelineInstanceApiTest : RestApiTest() {
     @Rollback
     @Test
     @Tag(TestTags.RESTDOC)
-    fun `Can update specific DataInstance of viewable PipelineConfig`() {
+    fun `Can update DataInstance of viewable PipelineConfig`() {
         val dataProcessorInstance = createDataProcessorInstance()
         val pipelineConfig = createPipelineConfig(dataProcessorInstance, dataProject.id, "slug1")
         val entity = pipelineConfig.createInstance(1)
@@ -171,7 +171,7 @@ class PipelineInstanceApiTest : RestApiTest() {
     @Rollback
     @Test
     @Tag(TestTags.RESTDOC)
-    fun `Can delete specific DataInstance of viewable PipelineConfig`() {
+    fun `Can delete DataInstance of viewable PipelineConfig`() {
         val dataProcessorInstance = createDataProcessorInstance()
         val pipelineConfig = createPipelineConfig(dataProcessorInstance, dataProject.id, "slug1")
         val entity = pipelineConfig.createInstance(1)

@@ -46,10 +46,11 @@ class EntityMocks {
             description = "description",
             codeProjectId = codeProjectId)
 
-        fun dataProject(ownerId: UUID = authorId, slug: String = "test-data-project") = DataProject(
+        fun dataProject(ownerId: UUID = authorId, slug: String = "test-data-project", visibilityScope: VisibilityScope? = null) = DataProject(
             id = randomUUID(), slug = slug, name = "CodeProject Augment", ownerId = ownerId,
             url = "https://gitlab.com/mlreef/sign-language-classifier",
-            gitlabProject = "sign-language-classifier", gitlabGroup = "mlreef", gitlabId = lastGitlabId++)
+            gitlabProject = "sign-language-classifier", gitlabGroup = "mlreef", gitlabId = lastGitlabId++,
+            visibilityScope = visibilityScope ?: VisibilityScope.default())
 
         fun codeProject(ownerId: UUID = authorId, id: UUID = codeProjectId) = CodeProject(
             id = id, slug = "test-data-project", name = "CodeProject Augment", ownerId = ownerId,

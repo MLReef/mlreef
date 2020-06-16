@@ -71,7 +71,7 @@ class RedisPublicProjectsCacheService(
         }
     }
 
-    override fun isProjectPublic(projectId: UUID) = initializedProjectsRepository.findByProjectId(projectId) != null
+    override fun isProjectPublic(projectId: UUID) =  initializedProjectsRepository.findByProjectId(projectId) != null
 
     override fun isProjectPublic(gitlabId: Long) = initializedProjectsRepository.findByIdOrNull(gitlabId) != null
 
@@ -115,7 +115,7 @@ class RedisPublicProjectsCacheService(
 
         if (projectAny == null) {
             val projectHash = initializedProjectsRepository.findByProjectId(projectId)
-            if (projectHash != null) initializedProjectsRepository.delete(projectHash)
+            if (projectHash != null) deleteProjectFromCache(projectHash)
             return
         }
 
@@ -133,11 +133,20 @@ class RedisPublicProjectsCacheService(
         if (projectInGitlab == null || projectInGitlab.visibility != GitlabVisibility.PUBLIC) {
             val projectHash = initializedProjectsRepository.findByIdOrNull(projectInDb.gitlabId)
             if (projectHash != null)
-                initializedProjectsRepository.delete(projectHash)
+                deleteProjectFromCache(projectHash)
         } else {
             val projectHash = initializedProjectsRepository.findByIdOrNull(projectInDb.gitlabId)
                 ?: PublicProjectHash(projectInDb.gitlabId, projectWithId.id)
-            initializedProjectsRepository.save(projectHash)
+            saveProjectToCache(projectHash)
         }
     }
+
+    private fun saveProjectToCache(hash: PublicProjectHash) {
+        initializedProjectsRepository.save(hash)
+    }
+
+    private fun deleteProjectFromCache(hash: PublicProjectHash) {
+        initializedProjectsRepository.delete(hash)
+    }
+
 }

@@ -5,13 +5,25 @@ import com.mlreef.rest.AccountRepository
 import com.mlreef.rest.AccountToken
 import com.mlreef.rest.CodeProject
 import com.mlreef.rest.CodeProjectRepository
+import com.mlreef.rest.DataAlgorithm
+import com.mlreef.rest.DataAlgorithmRepository
+import com.mlreef.rest.DataOperation
+import com.mlreef.rest.DataOperationRepository
+import com.mlreef.rest.DataProcessor
 import com.mlreef.rest.DataProject
 import com.mlreef.rest.DataProjectRepository
+import com.mlreef.rest.DataType
+import com.mlreef.rest.DataVisualization
+import com.mlreef.rest.DataVisualizationRepository
 import com.mlreef.rest.Group
 import com.mlreef.rest.GroupRepository
+import com.mlreef.rest.ParameterType
 import com.mlreef.rest.Person
+import com.mlreef.rest.ProcessorParameter
+import com.mlreef.rest.ProcessorParameterRepository
 import com.mlreef.rest.VisibilityScope
 import com.mlreef.rest.external_api.gitlab.GitlabRestClient
+import com.mlreef.rest.external_api.gitlab.GroupAccessLevel
 import com.mlreef.rest.external_api.gitlab.dto.GitlabGroup
 import com.mlreef.rest.external_api.gitlab.dto.GitlabProject
 import com.mlreef.rest.external_api.gitlab.dto.GitlabUser
@@ -26,8 +38,7 @@ import org.springframework.stereotype.Component
 import java.util.UUID
 import javax.transaction.Transactional
 
-@Component
-internal class GitlabHelper {
+@Component class IntegrationTestsHelper {
     companion object {
         val allCreatedUsersNames = mutableListOf<String>()
         val allCreatedProjectsNames = mutableListOf<String>()
@@ -49,8 +60,25 @@ internal class GitlabHelper {
     lateinit var dataProjectRepository: DataProjectRepository
 
     @Autowired
+    private lateinit var dataOperationRepository: DataOperationRepository
+
+    @Autowired
+    private lateinit var dataAlgorithmRepository: DataAlgorithmRepository
+
+    @Autowired
+    private lateinit var dataVisualizationRepository: DataVisualizationRepository
+
+    @Autowired
+    private lateinit var processorParameterRepository: ProcessorParameterRepository
+
+    @Autowired
     protected lateinit var publicProjectRepository: PublicProjectsRepository
 
+    var dataOp1: DataOperation? = null
+    var dataOp2: DataAlgorithm? = null
+    var dataOp3: DataVisualization? = null
+
+    private val processorParametersCache = mutableListOf<ProcessorParameter>()
 
     private val passwordEncoder: PasswordEncoder = BCryptPasswordEncoder()
 
@@ -89,7 +117,7 @@ internal class GitlabHelper {
         val groupPath = "path-$groupName"
         val groupInGitlab = restClient.userCreateGroup(account.bestToken?.token!!, groupName, groupPath)
 
-        var groupInDatabase = Group(UUID.randomUUID(), "slug-$groupName", groupName,groupInGitlab.id)
+        var groupInDatabase = Group(UUID.randomUUID(), "slug-$groupName", groupName, groupInGitlab.id)
 
         groupInDatabase = groupsRepository.save(groupInDatabase)
 
@@ -170,5 +198,89 @@ internal class GitlabHelper {
         if (public) publicProjectRepository.save(PublicProjectHash(gitLabProject.id, projectInDb.id))
 
         return Pair(projectInDb, gitLabProject)
+    }
+
+    fun addRealUserToProject(projectId: Long, userId: Long, accessLevel: GroupAccessLevel? = null) {
+        restClient.adminAddUserToProject(projectId = projectId, userId = userId, accessLevel = accessLevel
+            ?: GroupAccessLevel.DEVELOPER)
+    }
+
+    fun generateProcessorsInDatabase() {
+        dataOp1 = createDataOperation()
+        dataOp2 = createDataAlgorithm()
+        dataOp3 = createDataVisualization()
+
+        processorParametersCache.add(createProcessorParameter(dataOp1!!, "stringParam", ParameterType.STRING, 0))
+        processorParametersCache.add(createProcessorParameter(dataOp1!!, "floatParam", ParameterType.FLOAT, 1))
+        processorParametersCache.add(createProcessorParameter(dataOp1!!, "integerParam", ParameterType.INTEGER, 2))
+        processorParametersCache.add(createProcessorParameter(dataOp1!!, "stringList", ParameterType.LIST, 3))
+
+        processorParametersCache.add(createProcessorParameter(dataOp2!!, "booleanParam", ParameterType.BOOLEAN, 0))
+        processorParametersCache.add(createProcessorParameter(dataOp2!!, "complexName", ParameterType.COMPLEX, 1))
+
+        processorParametersCache.add(createProcessorParameter(dataOp3!!, "tupleParam", ParameterType.TUPLE, 0))
+        processorParametersCache.add(createProcessorParameter(dataOp3!!, "hashParam", ParameterType.DICTIONARY, 1))
+    }
+
+    fun cleanProcessorsInDatabase() {
+        processorParametersCache.forEach {
+            processorParameterRepository.deleteById(it.id)
+        }
+        processorParametersCache.clear()
+
+        dataOperationRepository.delete(dataOp1!!)
+        dataAlgorithmRepository.delete(dataOp2!!)
+        dataVisualizationRepository.delete(dataOp3!!)
+
+        dataOp1 = null
+        dataOp2 = null
+        dataOp3 = null
+    }
+
+    fun createDataOperation(slug: String? = null, name: String? = null, command: String? = null): DataOperation {
+        return dataOperationRepository.save(
+            DataOperation(
+                UUID.randomUUID(),
+                slug ?: "commons-data-operation",
+                name ?: "name",
+                command ?: "command",
+                DataType.ANY,
+                DataType.ANY)
+        )
+    }
+
+    fun createDataAlgorithm(slug: String? = null, name: String? = null, command: String? = null): DataAlgorithm {
+        return dataAlgorithmRepository.save(
+            DataAlgorithm(
+                UUID.randomUUID(),
+                slug ?: "commons-algorithm",
+                name ?: "name",
+                command ?: "command",
+                DataType.ANY,
+                DataType.ANY)
+        )
+    }
+
+    fun createDataVisualization(slug: String? = null, name: String? = null, command: String? = null): DataVisualization {
+        return dataVisualizationRepository.save(
+            DataVisualization(
+                UUID.randomUUID(),
+                slug ?: "commons-data-visualisation",
+                name ?: "name",
+                command ?: "command",
+                DataType.ANY)
+        )
+    }
+
+    fun createProcessorParameter(processor: DataProcessor, name: String? = null, type: ParameterType = ParameterType.STRING, order: Int = 0): ProcessorParameter {
+        return processorParameterRepository.save(
+            ProcessorParameter(
+                UUID.randomUUID(),
+                processor.id,
+                name ?: "stringParam",
+                type = type,
+                order = order,
+                defaultValue = "")
+        )
     }
 }

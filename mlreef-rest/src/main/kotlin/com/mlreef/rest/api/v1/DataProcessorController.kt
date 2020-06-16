@@ -20,6 +20,8 @@ import com.mlreef.rest.exceptions.NotFoundException
 import com.mlreef.rest.feature.data_processors.DataProcessorService
 import com.mlreef.rest.feature.project.CodeProjectService
 import org.springframework.data.repository.findByIdOrNull
+import org.springframework.security.access.prepost.PostAuthorize
+import org.springframework.security.access.prepost.PostFilter
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
@@ -49,6 +51,7 @@ class DataProcessorsController(
     private val log: Logger = Logger.getLogger(DataProcessorsController::class.simpleName)
 
     @GetMapping("data-processors")
+    @PostFilter("userInDataProcessor() || dataProcessorIsPublic()")
     fun getAllProcessors(
         @RequestParam("type", required = false) type: DataProcessorType?,
         @RequestParam("input_data_type", required = false) inputDataType: DataType?,
@@ -71,22 +74,24 @@ class DataProcessorsController(
         return list.map(DataProcessor::toDto)
     }
 
-    @GetMapping("data-processors/{id}")
+    @GetMapping("data-processors/id/{id}")
+    @PostAuthorize("userInDataProcessor() || dataProcessorIsPublic()")
     fun getDataProcessorById(@PathVariable id: UUID): DataProcessorDto {
         val dataProcessor = dataProcessorRepository.findByIdOrNull(id)
-            ?: throw NotFoundException("Slug not found: $id")
+            ?: throw NotFoundException("Data processor not found by id: $id")
         return dataProcessor.toDto()
     }
 
-    @GetMapping("data-processors/{slug}")
+    @GetMapping("data-processors/slug/{slug}")
+    @PostAuthorize("userInDataProcessor() || dataProcessorIsPublic()")
     fun getDataProcessorBySlug(@PathVariable slug: String): DataProcessorDto {
         val dataProcessor = dataProcessorRepository.findBySlug(slug)
-            ?: throw NotFoundException("Slug not found: $slug")
+            ?: throw NotFoundException("Data processor not found by slug: $slug")
         return dataProcessor.toDto()
     }
 
     @GetMapping("code-projects/{codeProjectId}/processor")
-    @PreAuthorize("isProjectOwner(#codeProjectId)")
+    @PreAuthorize("userInProject(#codeProjectId) || projectIsPublic(#codeProjectId)")
     fun getByCodeProjects(@PathVariable codeProjectId: UUID): DataProcessorDto {
         val dataProcessor = dataProcessorRepository.findAllByCodeProjectId(codeProjectId).firstOrNull()
             ?: throw NotFoundException("processor not found: $codeProjectId")

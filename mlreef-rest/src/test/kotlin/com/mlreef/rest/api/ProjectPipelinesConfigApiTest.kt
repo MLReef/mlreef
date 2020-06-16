@@ -37,7 +37,7 @@ import java.util.UUID
 import java.util.UUID.randomUUID
 import javax.transaction.Transactional
 
-class ProjectPipelinesConfigApiTest : RestApiTest() {
+class ProjectPipelinesConfigApiTest : AbstractRestApiTest() {
 
     val rootUrl = "/api/v1/data-projects"
     private lateinit var dataOp1: DataOperation

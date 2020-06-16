@@ -29,7 +29,7 @@ import java.util.UUID
 import java.util.UUID.randomUUID
 import javax.transaction.Transactional
 
-class GenericProjectsApiTest : RestApiTest() {
+class GenericProjectsApiTest : AbstractRestApiTest() {
 
     val rootUrl = "/api/v1/projects"
     private lateinit var account2: Account

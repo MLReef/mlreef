@@ -26,12 +26,9 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers
 import java.util.UUID
 import javax.transaction.Transactional
 
-class CodeProjectsIntegrationTest : IntegrationRestApiTest() {
+class CodeProjectsIntegrationTest : AbstractIntegrationTest() {
     @Autowired
     private lateinit var codeProjectRepository: CodeProjectRepository
-
-    @Autowired
-    private lateinit var gitlabHelper: GitlabHelper
 
     val rootUrl = "/api/v1/code-projects"
 
@@ -44,7 +41,7 @@ class CodeProjectsIntegrationTest : IntegrationRestApiTest() {
     @Rollback
     @Test
     fun `Can create CodeProject`() {
-        val (account, _, _) = gitlabHelper.createRealUser()
+        val (account, _, _) = testsHelper.createRealUser()
 
         val request = CodeProjectCreateRequest(
             slug = "test-project",
@@ -66,8 +63,8 @@ class CodeProjectsIntegrationTest : IntegrationRestApiTest() {
     @Rollback
     @Test
     fun `Cannot create duplicate CodeProject`() {
-        val (account, _, _) = gitlabHelper.createRealUser()
-        val (existingProjectInDb, _) = gitlabHelper.createRealCodeProject(account)
+        val (account, _, _) = testsHelper.createRealUser()
+        val (existingProjectInDb, _) = testsHelper.createRealCodeProject(account)
 
         val request = CodeProjectCreateRequest(
             slug = existingProjectInDb.slug,
@@ -85,7 +82,7 @@ class CodeProjectsIntegrationTest : IntegrationRestApiTest() {
     @Rollback
     @Test
     fun `Cannot create CodeProject with invalid params`() {
-        val (account, _, _) = gitlabHelper.createRealUser()
+        val (account, _, _) = testsHelper.createRealUser()
 
         val request = CodeProjectCreateRequest(
             slug = "",
@@ -103,14 +100,14 @@ class CodeProjectsIntegrationTest : IntegrationRestApiTest() {
     @Rollback
     @Test
     fun `Can retrieve all own CodeProjects only`() {
-        val (account1, _, _) = gitlabHelper.createRealUser(index = -1)
-        val (project1, _) = gitlabHelper.createRealCodeProject(account1)
-        val (project2, _) = gitlabHelper.createRealCodeProject(account1)
-        val (project3, _) = gitlabHelper.createRealCodeProject(account1)
+        val (account1, _, _) = testsHelper.createRealUser(index = -1)
+        val (project1, _) = testsHelper.createRealCodeProject(account1)
+        val (project2, _) = testsHelper.createRealCodeProject(account1)
+        val (project3, _) = testsHelper.createRealCodeProject(account1)
 
-        val (account2, _, _) = gitlabHelper.createRealUser(index = -1)
-        val (_, _) = gitlabHelper.createRealCodeProject(account2)
-        val (_, _) = gitlabHelper.createRealCodeProject(account2)
+        val (account2, _, _) = testsHelper.createRealUser(index = -1)
+        val (_, _) = testsHelper.createRealCodeProject(account2)
+        val (_, _) = testsHelper.createRealCodeProject(account2)
 
         val result = this.performGet(rootUrl, account1)
             .expectOk()
@@ -141,14 +138,14 @@ class CodeProjectsIntegrationTest : IntegrationRestApiTest() {
     @Rollback
     @Test
     fun `Can retrieve own CodeProject by id`() {
-        val (account1, _, _) = gitlabHelper.createRealUser()
-        val (_, _) = gitlabHelper.createRealCodeProject(account1)
-        val (project2, _) = gitlabHelper.createRealCodeProject(account1)
-        val (_, _) = gitlabHelper.createRealCodeProject(account1)
+        val (account1, _, _) = testsHelper.createRealUser()
+        val (_, _) = testsHelper.createRealCodeProject(account1)
+        val (project2, _) = testsHelper.createRealCodeProject(account1)
+        val (_, _) = testsHelper.createRealCodeProject(account1)
 
-        val (account2, _, _) = gitlabHelper.createRealUser(index = 1)
-        val (_, _) = gitlabHelper.createRealCodeProject(account2)
-        val (_, _) = gitlabHelper.createRealCodeProject(account2)
+        val (account2, _, _) = testsHelper.createRealUser(index = 1)
+        val (_, _) = testsHelper.createRealCodeProject(account2)
+        val (_, _) = testsHelper.createRealCodeProject(account2)
 
         val url = "$rootUrl/${project2.id}"
 
@@ -165,20 +162,21 @@ class CodeProjectsIntegrationTest : IntegrationRestApiTest() {
     @Rollback
     @Test
     fun `Can retrieve own and not own but member private CodeProject by slug`() {
-        val (account1, _, _) = gitlabHelper.createRealUser(index = -1)
-        val (project1, _) = gitlabHelper.createRealCodeProject(account1, slug = "slug-1", public = false)
-        val (_, _) = gitlabHelper.createRealCodeProject(account1, public = false)
-        val (_, _) = gitlabHelper.createRealCodeProject(account1, public = false)
+        val (account1, _, _) = testsHelper.createRealUser(index = -1)
+        val (project1, _) = testsHelper.createRealCodeProject(account1, slug = "slug-1", public = false)
+        val (_, _) = testsHelper.createRealCodeProject(account1, public = false)
+        val (_, _) = testsHelper.createRealCodeProject(account1, public = false)
 
-        val (account2, _, _) = gitlabHelper.createRealUser(index = -1)
-        val (project21, _) = gitlabHelper.createRealCodeProject(account2, slug = "slug-1", public = false)
-        val (_, _) = gitlabHelper.createRealCodeProject(account2, public = false)
+        val (account2, _, _) = testsHelper.createRealUser(index = -1)
+        val (project21, _) = testsHelper.createRealCodeProject(account2, slug = "slug-1", public = false)
+        val (_, _) = testsHelper.createRealCodeProject(account2, public = false)
 
-        val (account3, _, _) = gitlabHelper.createRealUser(index = -1)
-        val (_, _) = gitlabHelper.createRealCodeProject(account3, slug = "slug-1", public = false)
-        val (_, _) = gitlabHelper.createRealCodeProject(account3, public = false)
+        val (account3, _, _) = testsHelper.createRealUser(index = -1)
 
-        addRealUserToProject(project21.gitlabId, account1.person.gitlabId!!)
+        val (_, _) = testsHelper.createRealCodeProject(account3, slug = "slug-1", public = false)
+        val (_, _) = testsHelper.createRealCodeProject(account3, public = false)
+
+        testsHelper.addRealUserToProject(project21.gitlabId, account1.person.gitlabId!!)
 
         val url = "$rootUrl/slug/${project1.slug}"
 
@@ -211,18 +209,18 @@ class CodeProjectsIntegrationTest : IntegrationRestApiTest() {
     @Rollback
     @Test
     fun `Can retrieve own and not own not member but public CodeProject by slug`() {
-        val (account1, _, _) = gitlabHelper.createRealUser(index = -1)
-        val (project1, _) = gitlabHelper.createRealCodeProject(account1, slug = "slug-1", public = false)
-        val (project2, _) = gitlabHelper.createRealCodeProject(account1)
-        val (project3, _) = gitlabHelper.createRealCodeProject(account1)
+        val (account1, _, _) = testsHelper.createRealUser(index = -1)
+        val (project1, _) = testsHelper.createRealCodeProject(account1, slug = "slug-1", public = false)
+        val (project2, _) = testsHelper.createRealCodeProject(account1)
+        val (project3, _) = testsHelper.createRealCodeProject(account1)
 
-        val (account2, _, _) = gitlabHelper.createRealUser(index = -1)
-        val (project21, _) = gitlabHelper.createRealCodeProject(account2, slug = "slug-1", public = true)
-        val (project22, _) = gitlabHelper.createRealCodeProject(account2)
+        val (account2, _, _) = testsHelper.createRealUser(index = -1)
+        val (project21, _) = testsHelper.createRealCodeProject(account2, slug = "slug-1", public = true)
+        val (project22, _) = testsHelper.createRealCodeProject(account2)
 
-        val (account3, _, _) = gitlabHelper.createRealUser(index = -1)
-        val (project31, _) = gitlabHelper.createRealCodeProject(account3, slug = "slug-1", public = false)
-        val (project32, _) = gitlabHelper.createRealCodeProject(account3)
+        val (account3, _, _) = testsHelper.createRealUser(index = -1)
+        val (project31, _) = testsHelper.createRealCodeProject(account3, slug = "slug-1", public = false)
+        val (project32, _) = testsHelper.createRealCodeProject(account3)
 
         val url = "$rootUrl/slug/${project1.slug}"
 
@@ -263,17 +261,17 @@ class CodeProjectsIntegrationTest : IntegrationRestApiTest() {
     @Rollback
     @Test
     fun `Can retrieve not own but member private CodeProject by namespace`() {
-        val (account1, _, _) = gitlabHelper.createRealUser(index = -1)
-        val (account2, _, _) = gitlabHelper.createRealUser(index = -1)
+        val (account1, _, _) = testsHelper.createRealUser(index = -1)
+        val (account2, _, _) = testsHelper.createRealUser(index = -1)
 
-        val (project1, _) = gitlabHelper.createRealCodeProject(account1, public = false)
-        val (project2, _) = gitlabHelper.createRealCodeProject(account1, public = false)
-        val (project3, _) = gitlabHelper.createRealCodeProject(account1, public = false)
+        val (project1, _) = testsHelper.createRealCodeProject(account1, public = false)
+        val (project2, _) = testsHelper.createRealCodeProject(account1, public = false)
+        val (project3, _) = testsHelper.createRealCodeProject(account1, public = false)
 
-        addRealUserToProject(project1.gitlabId, account2.person.gitlabId!!)
+        testsHelper.addRealUserToProject(project1.gitlabId, account2.person.gitlabId!!)
 
-        val (project21, _) = gitlabHelper.createRealCodeProject(account2, namespace = project1.gitlabGroup) //Pay attention that the namespace is not being taken. It's inaccessible to another user
-        val (project22, _) = gitlabHelper.createRealCodeProject(account2)
+        val (project21, _) = testsHelper.createRealCodeProject(account2, namespace = project1.gitlabGroup) //Pay attention that the namespace is not being taken. It's inaccessible to another user
+        val (project22, _) = testsHelper.createRealCodeProject(account2)
 
         val url = "$rootUrl/namespace/${project1.gitlabGroup}"
 
@@ -314,17 +312,17 @@ class CodeProjectsIntegrationTest : IntegrationRestApiTest() {
     @Rollback
     @Test
     fun `Can retrieve not own not member but public CodeProject by namespace`() {
-        val (account1, _, _) = gitlabHelper.createRealUser(index = -1)
-        val (account2, _, _) = gitlabHelper.createRealUser(index = -1)
+        val (account1, _, _) = testsHelper.createRealUser(index = -1)
+        val (account2, _, _) = testsHelper.createRealUser(index = -1)
 
-        val (project1, _) = gitlabHelper.createRealCodeProject(account1, public = true)
-        val (project2, _) = gitlabHelper.createRealCodeProject(account1, public = true)
-        val (project3, _) = gitlabHelper.createRealCodeProject(account1, public = false)
-        val (project4, _) = gitlabHelper.createRealCodeProject(account1, public = true)
-        val (project5, _) = gitlabHelper.createRealCodeProject(account1, public = false)
+        val (project1, _) = testsHelper.createRealCodeProject(account1, public = true)
+        val (project2, _) = testsHelper.createRealCodeProject(account1, public = true)
+        val (project3, _) = testsHelper.createRealCodeProject(account1, public = false)
+        val (project4, _) = testsHelper.createRealCodeProject(account1, public = true)
+        val (project5, _) = testsHelper.createRealCodeProject(account1, public = false)
 
-        val (project21, _) = gitlabHelper.createRealCodeProject(account2, namespace = project1.gitlabGroup) //Pay attention that the namespace is not being taken. It's inaccessible to another user
-        val (project22, _) = gitlabHelper.createRealCodeProject(account2)
+        val (project21, _) = testsHelper.createRealCodeProject(account2, namespace = project1.gitlabGroup) //Pay attention that the namespace is not being taken. It's inaccessible to another user
+        val (project22, _) = testsHelper.createRealCodeProject(account2)
 
         val returnedResult: List<CodeProjectDto> = this.mockMvc.perform(
             this.acceptContentAuth(RestDocumentationRequestBuilders.get("$rootUrl/namespace/${project1.gitlabGroup}"), account2))
@@ -379,17 +377,17 @@ class CodeProjectsIntegrationTest : IntegrationRestApiTest() {
     @Rollback
     @Test
     fun `Can retrieve not own not member but public CodeProject by namespace and slug`() {
-        val (account1, _, _) = gitlabHelper.createRealUser(index = -1)
-        val (account2, _, _) = gitlabHelper.createRealUser(index = -1)
+        val (account1, _, _) = testsHelper.createRealUser(index = -1)
+        val (account2, _, _) = testsHelper.createRealUser(index = -1)
 
-        val (project1, _) = gitlabHelper.createRealCodeProject(account1)
-        val (_, _) = gitlabHelper.createRealCodeProject(account1)
-        val (_, _) = gitlabHelper.createRealCodeProject(account1)
+        val (project1, _) = testsHelper.createRealCodeProject(account1)
+        val (_, _) = testsHelper.createRealCodeProject(account1)
+        val (_, _) = testsHelper.createRealCodeProject(account1)
 
-        addRealUserToProject(project1.gitlabId, account2.person.gitlabId!!)
+        testsHelper.addRealUserToProject(project1.gitlabId, account2.person.gitlabId!!)
 
-        val (_, _) = gitlabHelper.createRealCodeProject(account2, slug = "slug-1", namespace = project1.gitlabGroup)
-        val (_, _) = gitlabHelper.createRealCodeProject(account2)
+        val (_, _) = testsHelper.createRealCodeProject(account2, slug = "slug-1", namespace = project1.gitlabGroup)
+        val (_, _) = testsHelper.createRealCodeProject(account2)
 
         val url = "$rootUrl/${project1.gitlabGroup}/${project1.slug}"
 
@@ -405,10 +403,10 @@ class CodeProjectsIntegrationTest : IntegrationRestApiTest() {
     @Rollback
     @Test
     fun `Cannot retrieve not own not public CodeProject`() {
-        val (account1, _, _) = gitlabHelper.createRealUser()
+        val (account1, _, _) = testsHelper.createRealUser()
 
-        val (account2, _, _) = gitlabHelper.createRealUser(index = -1)
-        val (project21, _) = gitlabHelper.createRealCodeProject(account2, public = false)
+        val (account2, _, _) = testsHelper.createRealUser(index = -1)
+        val (project21, _) = testsHelper.createRealCodeProject(account2, public = false)
 
         val url = "$rootUrl/${project21.id}"
 
@@ -421,10 +419,10 @@ class CodeProjectsIntegrationTest : IntegrationRestApiTest() {
     @Rollback
     @Test
     fun `Can retrieve not own but public CodeProject`() {
-        val (account1, _, _) = gitlabHelper.createRealUser()
+        val (account1, _, _) = testsHelper.createRealUser()
 
-        val (account2, _, _) = gitlabHelper.createRealUser(index = -1)
-        val (project21, _) = gitlabHelper.createRealCodeProject(account2, public = true)
+        val (account2, _, _) = testsHelper.createRealUser(index = -1)
+        val (project21, _) = testsHelper.createRealCodeProject(account2, public = true)
 
         val url = "$rootUrl/${project21.id}"
 
@@ -440,8 +438,8 @@ class CodeProjectsIntegrationTest : IntegrationRestApiTest() {
     @Rollback
     @Test
     fun `Can update own CodeProject`() {
-        val (account1, _, _) = gitlabHelper.createRealUser(index = -1)
-        val (project1, _) = gitlabHelper.createRealCodeProject(account1)
+        val (account1, _, _) = testsHelper.createRealUser(index = -1)
+        val (project1, _) = testsHelper.createRealCodeProject(account1)
 
         val newProjectName = "New Test project"
         val newDescription = "new description"
@@ -469,13 +467,13 @@ class CodeProjectsIntegrationTest : IntegrationRestApiTest() {
     }
 
     @Transactional
-    @Rollback
+//    @Rollback
     @Test
     fun `Cannot update not-own CodeProject`() {
-        val (account1, _, _) = gitlabHelper.createRealUser()
+        val (account1, _, _) = testsHelper.createRealUser()
 
-        val (account2, _, _) = gitlabHelper.createRealUser(index = -1)
-        val (project21, gitlabProject21) = gitlabHelper.createRealCodeProject(account2)
+        val (account2, _, _) = testsHelper.createRealUser(index = -1)
+        val (project21, gitlabProject21) = testsHelper.createRealCodeProject(account2)
 
         val newProjectName = "New Test project"
         val newDescription = "new description"
@@ -500,8 +498,8 @@ class CodeProjectsIntegrationTest : IntegrationRestApiTest() {
     @Rollback
     @Test
     fun `Can delete own CodeProject`() {
-        val (account, _, _) = gitlabHelper.createRealUser()
-        val (project, gitlabProject) = gitlabHelper.createRealCodeProject(account)
+        val (account, _, _) = testsHelper.createRealUser()
+        val (project, gitlabProject) = testsHelper.createRealCodeProject(account)
 
         assertThat(codeProjectRepository.findByIdOrNull(project.id)).isNotNull()
 
@@ -525,12 +523,12 @@ class CodeProjectsIntegrationTest : IntegrationRestApiTest() {
     @Rollback
     @Test
     fun `Cannot delete not-own CodeProject`() {
-        val (account1, _, _) = gitlabHelper.createRealUser()
+        val (account1, _, _) = testsHelper.createRealUser()
 
-        val (account2, _, _) = gitlabHelper.createRealUser(index = -1)
-        val (project21, gitlabProject21) = gitlabHelper.createRealCodeProject(account2)
+        val (account2, _, _) = testsHelper.createRealUser(index = -1)
+        val (project21, gitlabProject21) = testsHelper.createRealCodeProject(account2)
 
-        addRealUserToProject(project21.gitlabId, account1.person.gitlabId!!)
+        testsHelper.addRealUserToProject(project21.gitlabId, account1.person.gitlabId!!)
 
         assertThat(codeProjectRepository.findByIdOrNull(project21.id)).isNotNull()
 
@@ -553,14 +551,14 @@ class CodeProjectsIntegrationTest : IntegrationRestApiTest() {
     @Rollback
     @Test
     fun `Owner can get users list in project`() {
-        val (account1, _, _) = gitlabHelper.createRealUser()
-        val (account2, _, _) = gitlabHelper.createRealUser(index = 1)
-        val (account3, _, _) = gitlabHelper.createRealUser(index = 2)
+        val (account1, _, _) = testsHelper.createRealUser()
+        val (account2, _, _) = testsHelper.createRealUser(index = 1)
+        val (account3, _, _) = testsHelper.createRealUser(index = 2)
 
-        val (project21, _) = gitlabHelper.createRealCodeProject(account2)
+        val (project21, _) = testsHelper.createRealCodeProject(account2)
 
-        addRealUserToProject(project21.gitlabId, account1.person.gitlabId!!)
-        addRealUserToProject(project21.gitlabId, account3.person.gitlabId!!)
+        testsHelper.addRealUserToProject(project21.gitlabId, account1.person.gitlabId!!)
+        testsHelper.addRealUserToProject(project21.gitlabId, account3.person.gitlabId!!)
 
         val getUsersUrl = "$rootUrl/${project21.id}/users"
 
@@ -577,14 +575,14 @@ class CodeProjectsIntegrationTest : IntegrationRestApiTest() {
     @Rollback
     @Test
     fun `Developer can get users list in project`() {
-        val (account1, _, _) = gitlabHelper.createRealUser(index = -1)
-        val (account2, _, _) = gitlabHelper.createRealUser(index = -1)
-        val (account3, _, _) = gitlabHelper.createRealUser(index = -1)
+        val (account1, _, _) = testsHelper.createRealUser(index = -1)
+        val (account2, _, _) = testsHelper.createRealUser(index = -1)
+        val (account3, _, _) = testsHelper.createRealUser(index = -1)
 
-        val (project21, _) = gitlabHelper.createRealCodeProject(account2)
+        val (project21, _) = testsHelper.createRealCodeProject(account2)
 
-        addRealUserToProject(project21.gitlabId, account1.person.gitlabId!!, GroupAccessLevel.DEVELOPER)
-        addRealUserToProject(project21.gitlabId, account3.person.gitlabId!!, GroupAccessLevel.GUEST)
+        testsHelper.addRealUserToProject(project21.gitlabId, account1.person.gitlabId!!, GroupAccessLevel.DEVELOPER)
+        testsHelper.addRealUserToProject(project21.gitlabId, account3.person.gitlabId!!, GroupAccessLevel.GUEST)
 
         val getUsersUrl = "$rootUrl/${project21.id}/users"
 
@@ -599,14 +597,14 @@ class CodeProjectsIntegrationTest : IntegrationRestApiTest() {
     @Rollback
     @Test
     fun `Visitor cannot get users list in project`() {
-        val (account1, _, _) = gitlabHelper.createRealUser(index = -1)
-        val (account2, _, _) = gitlabHelper.createRealUser(index = -1)
-        val (account3, _, _) = gitlabHelper.createRealUser(index = -1)
+        val (account1, _, _) = testsHelper.createRealUser(index = -1)
+        val (account2, _, _) = testsHelper.createRealUser(index = -1)
+        val (account3, _, _) = testsHelper.createRealUser(index = -1)
 
-        val (project21, _) = gitlabHelper.createRealCodeProject(account2)
+        val (project21, _) = testsHelper.createRealCodeProject(account2)
 
-        addRealUserToProject(project21.gitlabId, account1.person.gitlabId!!, GroupAccessLevel.DEVELOPER)
-        addRealUserToProject(project21.gitlabId, account3.person.gitlabId!!, GroupAccessLevel.GUEST)
+        testsHelper.addRealUserToProject(project21.gitlabId, account1.person.gitlabId!!, GroupAccessLevel.DEVELOPER)
+        testsHelper.addRealUserToProject(project21.gitlabId, account3.person.gitlabId!!, GroupAccessLevel.GUEST)
 
         val userInProjectUrl = "$rootUrl/${project21.id}/users/check/myself"
         val getUsersUrl = "$rootUrl/${project21.id}/users"
@@ -624,13 +622,13 @@ class CodeProjectsIntegrationTest : IntegrationRestApiTest() {
     @Rollback
     @Test
     fun `Owner can add a user to project`() {
-        val (account1, _, _) = gitlabHelper.createRealUser()
-        val (account2, _, _) = gitlabHelper.createRealUser(index = 1)
-        val (account3, _, _) = gitlabHelper.createRealUser(index = 2)
+        val (account1, _, _) = testsHelper.createRealUser()
+        val (account2, _, _) = testsHelper.createRealUser(index = 1)
+        val (account3, _, _) = testsHelper.createRealUser(index = 2)
 
-        val (project21, _) = gitlabHelper.createRealCodeProject(account2)
+        val (project21, _) = testsHelper.createRealCodeProject(account2)
 
-        addRealUserToProject(project21.gitlabId, account1.person.gitlabId!!)
+        testsHelper.addRealUserToProject(project21.gitlabId, account1.person.gitlabId!!)
 
         val getUserUrl = "$rootUrl/${project21.id}/users"
         val addUserUrl = "$rootUrl/${project21.id}/users/${account3.id}"
@@ -652,13 +650,13 @@ class CodeProjectsIntegrationTest : IntegrationRestApiTest() {
     @Rollback
     @Test
     fun `Maintainer can add a user to project`() {
-        val (account1, _, _) = gitlabHelper.createRealUser()
-        val (account2, _, _) = gitlabHelper.createRealUser(index = 1)
-        val (account3, _, _) = gitlabHelper.createRealUser(index = 2)
+        val (account1, _, _) = testsHelper.createRealUser()
+        val (account2, _, _) = testsHelper.createRealUser(index = 1)
+        val (account3, _, _) = testsHelper.createRealUser(index = 2)
 
-        val (project21, _) = gitlabHelper.createRealCodeProject(account2)
+        val (project21, _) = testsHelper.createRealCodeProject(account2)
 
-        addRealUserToProject(project21.gitlabId, account1.person.gitlabId!!, GroupAccessLevel.MAINTAINER)
+        testsHelper.addRealUserToProject(project21.gitlabId, account1.person.gitlabId!!, GroupAccessLevel.MAINTAINER)
 
         val getUserUrl = "$rootUrl/${project21.id}/users"
         val addUserUrl = "$rootUrl/${project21.id}/users/${account3.id}"
@@ -680,13 +678,13 @@ class CodeProjectsIntegrationTest : IntegrationRestApiTest() {
     @Rollback
     @Test
     fun `Developer cannot add a user to project`() {
-        val (account1, _, _) = gitlabHelper.createRealUser()
-        val (account2, _, _) = gitlabHelper.createRealUser(index = 1)
-        val (account3, _, _) = gitlabHelper.createRealUser(index = 2)
+        val (account1, _, _) = testsHelper.createRealUser()
+        val (account2, _, _) = testsHelper.createRealUser(index = 1)
+        val (account3, _, _) = testsHelper.createRealUser(index = 2)
 
-        val (project21, _) = gitlabHelper.createRealCodeProject(account2)
+        val (project21, _) = testsHelper.createRealCodeProject(account2)
 
-        addRealUserToProject(project21.gitlabId, account1.person.gitlabId!!, GroupAccessLevel.DEVELOPER)
+        testsHelper.addRealUserToProject(project21.gitlabId, account1.person.gitlabId!!, GroupAccessLevel.DEVELOPER)
 
         val getUserUrl = "$rootUrl/${project21.id}/users"
         val addUserUrl = "$rootUrl/${project21.id}/users/${account3.id}"
@@ -710,14 +708,14 @@ class CodeProjectsIntegrationTest : IntegrationRestApiTest() {
     @Rollback
     @Test
     fun `Owner can delete a user from project`() {
-        val (account1, _, _) = gitlabHelper.createRealUser()
-        val (account2, _, _) = gitlabHelper.createRealUser(index = 1)
-        val (account3, _, _) = gitlabHelper.createRealUser(index = 2)
+        val (account1, _, _) = testsHelper.createRealUser()
+        val (account2, _, _) = testsHelper.createRealUser(index = 1)
+        val (account3, _, _) = testsHelper.createRealUser(index = 2)
 
-        val (project21, _) = gitlabHelper.createRealCodeProject(account2)
+        val (project21, _) = testsHelper.createRealCodeProject(account2)
 
-        addRealUserToProject(project21.gitlabId, account1.person.gitlabId!!)
-        addRealUserToProject(project21.gitlabId, account3.person.gitlabId!!)
+        testsHelper.addRealUserToProject(project21.gitlabId, account1.person.gitlabId!!)
+        testsHelper.addRealUserToProject(project21.gitlabId, account3.person.gitlabId!!)
 
         val getUserUrl = "$rootUrl/${project21.id}/users"
         val deleteUserUrl = "$rootUrl/${project21.id}/users/${account3.id}"
@@ -739,14 +737,14 @@ class CodeProjectsIntegrationTest : IntegrationRestApiTest() {
     @Rollback
     @Test
     fun `Developer cannot delete a user from project`() {
-        val (account1, _, _) = gitlabHelper.createRealUser()
-        val (account2, _, _) = gitlabHelper.createRealUser(index = 1)
-        val (account3, _, _) = gitlabHelper.createRealUser(index = 2)
+        val (account1, _, _) = testsHelper.createRealUser()
+        val (account2, _, _) = testsHelper.createRealUser(index = 1)
+        val (account3, _, _) = testsHelper.createRealUser(index = 2)
 
-        val (project21, _) = gitlabHelper.createRealCodeProject(account2)
+        val (project21, _) = testsHelper.createRealCodeProject(account2)
 
-        addRealUserToProject(project21.gitlabId, account1.person.gitlabId!!, GroupAccessLevel.DEVELOPER)
-        addRealUserToProject(project21.gitlabId, account3.person.gitlabId!!, GroupAccessLevel.DEVELOPER)
+        testsHelper.addRealUserToProject(project21.gitlabId, account1.person.gitlabId!!, GroupAccessLevel.DEVELOPER)
+        testsHelper.addRealUserToProject(project21.gitlabId, account3.person.gitlabId!!, GroupAccessLevel.DEVELOPER)
 
         val getUserUrl = "$rootUrl/${project21.id}/users"
         val deleteUserUrl = "$rootUrl/${project21.id}/users/${account3.id}"
