@@ -29,6 +29,7 @@ class GenericProjectsController(
         return projectService.getAllProjectsForUser(person.id).map { it.toDto() }
     }
 
+    // FIXME: Coverage says: missing tests
     @GetMapping("/public")
     fun getPublicDataProjects(pageable: Pageable): Page<MLProjectDto> {
         return projectService.getAllPublicProjects(pageable).map { it.toDto() }

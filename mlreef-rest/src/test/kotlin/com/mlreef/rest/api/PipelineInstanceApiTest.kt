@@ -7,6 +7,7 @@ import com.mlreef.rest.DataProcessorInstance
 import com.mlreef.rest.DataProcessorInstanceRepository
 import com.mlreef.rest.DataProject
 import com.mlreef.rest.DataVisualization
+import com.mlreef.rest.FileLocation
 import com.mlreef.rest.ParameterType
 import com.mlreef.rest.Person
 import com.mlreef.rest.PipelineConfig
@@ -64,6 +65,7 @@ class PipelineInstanceApiTest : AbstractRestApiTest() {
         dataProject = pipelineTestPreparationTrait.dataProject
         dataProject2 = pipelineTestPreparationTrait.dataProject2
         this.mockGetUserProjectsList(listOf(dataProject.id), account, AccessLevel.MAINTAINER)
+        mockGitlabPipelineWithBranch("sourceBranch", "targetBranch")
 
     }
 
@@ -74,10 +76,10 @@ class PipelineInstanceApiTest : AbstractRestApiTest() {
     fun `Can retrieve all DataInstances of viewable PipelineConfig`() {
 
         val dataProcessorInstance = createDataProcessorInstance()
-        val pipelineConfig = createPipelineConfig(dataProcessorInstance, dataProject.id, "slug1")
+        val pipelineConfig = createPipelineConfig(dataProcessorInstance, dataProject.id, "slug1", arrayListOf())
         pipelineInstanceRepository.save(pipelineConfig.createInstance(1))
         pipelineInstanceRepository.save(pipelineConfig.createInstance(2))
-        createPipelineConfig(dataProcessorInstance, dataProject.id, "slug2")
+        createPipelineConfig(dataProcessorInstance, dataProject.id, "slug2", arrayListOf())
 
         val returnedResult: List<PipelineInstanceDto> = this.mockMvc.perform(
             this.defaultAcceptContentAuth(get("$rootUrl/${pipelineConfig.id}/instances")))
@@ -96,7 +98,7 @@ class PipelineInstanceApiTest : AbstractRestApiTest() {
     fun `Cannot retrieve DataInstances of not-viewable PipelineConfig`() {
 
         val dataProcessorInstance = createDataProcessorInstance()
-        val pipelineConfig = createPipelineConfig(dataProcessorInstance, dataProject.id, "slug1")
+        val pipelineConfig = createPipelineConfig(dataProcessorInstance, dataProject.id, "slug1", arrayListOf())
         pipelineInstanceRepository.save(pipelineConfig.createInstance(1))
         pipelineInstanceRepository.save(pipelineConfig.createInstance(2))
 
@@ -114,7 +116,7 @@ class PipelineInstanceApiTest : AbstractRestApiTest() {
     @Tag(TestTags.RESTDOC)
     fun `Can create new DataInstance of viewable PipelineConfig`() {
         val dataProcessorInstance = createDataProcessorInstance()
-        val pipelineConfig = createPipelineConfig(dataProcessorInstance, dataProject.id, "slug1")
+        val pipelineConfig = createPipelineConfig(dataProcessorInstance, dataProject.id, "slug1", arrayListOf())
 
         val pipelineInstanceDto = this.mockMvc.perform(
             this.defaultAcceptContentAuth(post("$rootUrl/${pipelineConfig.id}/instances/")))
@@ -132,7 +134,7 @@ class PipelineInstanceApiTest : AbstractRestApiTest() {
     @Tag(TestTags.RESTDOC)
     fun `Can retrieve specific DataInstance of viewable PipelineConfig`() {
         val dataProcessorInstance = createDataProcessorInstance()
-        val pipelineConfig = createPipelineConfig(dataProcessorInstance, dataProject.id, "slug1")
+        val pipelineConfig = createPipelineConfig(dataProcessorInstance, dataProject.id, "slug1", arrayListOf())
         val entity = pipelineConfig.createInstance(1)
 
         pipelineInstanceRepository.save(entity)
@@ -153,7 +155,7 @@ class PipelineInstanceApiTest : AbstractRestApiTest() {
     @Tag(TestTags.RESTDOC)
     fun `Can update DataInstance of viewable PipelineConfig`() {
         val dataProcessorInstance = createDataProcessorInstance()
-        val pipelineConfig = createPipelineConfig(dataProcessorInstance, dataProject.id, "slug1")
+        val pipelineConfig = createPipelineConfig(dataProcessorInstance, dataProject.id, "slug1", arrayListOf())
         val entity = pipelineConfig.createInstance(1)
 
         pipelineInstanceRepository.save(entity)
@@ -171,9 +173,31 @@ class PipelineInstanceApiTest : AbstractRestApiTest() {
     @Rollback
     @Test
     @Tag(TestTags.RESTDOC)
+    fun `Can start specific DataInstance of viewable PipelineConfig`() {
+        val dataProcessorInstance = createDataProcessorInstance()
+        val files = arrayListOf(FileLocation.fromPath("folder"))
+        val pipelineConfig = createPipelineConfig(dataProcessorInstance, dataProject.id, "slug1", files)
+        val entity = pipelineConfig.createInstance(1)
+
+        pipelineInstanceRepository.save(entity)
+
+        this.mockMvc.perform(
+            this.defaultAcceptContentAuth(put("$rootUrl/${pipelineConfig.id}/instances/${entity.id}/start")))
+            .andExpect(status().isOk)
+            .document("pipelineinstance-start-success",
+                responseFields(pipelineInstanceDtoResponseFields())
+                    .and(dataProcessorInstanceFields("data_operations[]."))
+                    .and(pipelineInfoDtoResponseFields("pipeline_job_info.")))
+
+    }
+
+    @Transactional
+    @Rollback
+    @Test
+    @Tag(TestTags.RESTDOC)
     fun `Can delete DataInstance of viewable PipelineConfig`() {
         val dataProcessorInstance = createDataProcessorInstance()
-        val pipelineConfig = createPipelineConfig(dataProcessorInstance, dataProject.id, "slug1")
+        val pipelineConfig = createPipelineConfig(dataProcessorInstance, dataProject.id, "slug1", arrayListOf())
         val entity = pipelineConfig.createInstance(1)
 
         pipelineInstanceRepository.save(entity)
@@ -186,13 +210,16 @@ class PipelineInstanceApiTest : AbstractRestApiTest() {
     }
 
 
-    private fun createPipelineConfig(dataProcessorInstance: DataProcessorInstance, dataProjectId: UUID, slug: String): PipelineConfig {
+    private fun createPipelineConfig(dataProcessorInstance: DataProcessorInstance, dataProjectId: UUID, slug: String, inputFiles: MutableList<FileLocation>): PipelineConfig {
         val entity = PipelineConfig(
             id = randomUUID(),
-            pipelineType = PipelineType.DATA, slug = slug, name = "name",
+            pipelineType = PipelineType.DATA,
+            slug = slug, name = "name",
             dataProjectId = dataProjectId,
-            sourceBranch = "source", targetBranchPattern = "target",
-            dataOperations = arrayListOf(dataProcessorInstance))
+            sourceBranch = "sourceBranch",
+            targetBranchPattern = "targetBranch",
+            dataOperations = arrayListOf(dataProcessorInstance),
+            inputFiles = inputFiles)
         pipelineConfigRepository.save(entity)
         return entity
     }
@@ -222,6 +249,7 @@ internal fun pipelineInstanceDtoResponseFields(prefix: String = ""): List<FieldD
         fieldWithPath(prefix + "data_project_id").type(JsonFieldType.STRING).description("Id of DataProject"),
         fieldWithPath(prefix + "pipeline_config_id").type(JsonFieldType.STRING).description("Id of PipelineConfig"),
         fieldWithPath(prefix + "pipeline").optional().type(JsonFieldType.ARRAY).optional().description("An optional List of DataProcessors used during PreProcessing"),
+        fieldWithPath(prefix + "pipeline_job_info").type(JsonFieldType.OBJECT).optional().description("An optional PipelineInfo describing the gitlab pipeline info"),
         fieldWithPath(prefix + "source_branch").type(JsonFieldType.STRING).description("Source branch name"),
         fieldWithPath(prefix + "target_branch").type(JsonFieldType.STRING).description("Target branch name"),
         fieldWithPath(prefix + "number").type(JsonFieldType.NUMBER).description("Local unique number of this Instance, represents the number of created instances"),

@@ -322,6 +322,17 @@ operation::project-pipelineconfig-retrieve-one[snippets='curl-request,response-b
 
 operation::project-pipelineconfig-create-success[snippets='curl-request,request-fields,http-response,response-fields']
 
+=== POST .../pipelines/create-start-instance
+
+Use this method for doing 3 steps at once:
+1. create a new PipelineConfig
+2. create its first PipelineInstance
+3. start that instance
+
+Note: Do not use for restarting the same Pipeline, that wont make any sense, as a new Config will be created.
+
+operation::project-pipelineconfig-create-start-instance-success[snippets='curl-request,request-fields,http-response,response-fields']
+
 === PUT .../pipelines
 
 operation::project-pipelineconfig-update-success[snippets='curl-request,request-fields,http-response,response-fields']

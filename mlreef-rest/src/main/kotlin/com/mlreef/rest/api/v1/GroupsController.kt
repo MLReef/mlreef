@@ -42,6 +42,7 @@ class GroupsController(
         return groupsService.getUserGroupsList(person.id).map(GroupOfUser::toDto)
     }
 
+    // FIXME: Coverage says: missing tests
     @PostMapping
     @PreAuthorize("canCreateGroup()")
     fun createGroup(@Valid @RequestBody groupCreateRequest: GroupCreateRequest, token: TokenDetails): GroupDto {
@@ -53,6 +54,7 @@ class GroupsController(
         return GroupDto(group.id, group.name)
     }
 
+    // FIXME: Coverage says: missing tests
     @PutMapping("/{id}")
     @PreAuthorize("hasAccessToGroup(#id, 'MAINTAINER')")
     fun updateGroup(@PathVariable id: UUID, @Valid @RequestBody groupUpdateRequest: GroupUpdateRequest): GroupDto {
@@ -64,6 +66,7 @@ class GroupsController(
         return dataProject.toDto()
     }
 
+    // FIXME: Coverage says: missing tests
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @PreAuthorize("isGroupOwner(#id)")
@@ -71,12 +74,14 @@ class GroupsController(
         groupsService.deleteGroup(id)
     }
 
+    // FIXME: Coverage says: missing tests
     @GetMapping("/{groupId}/users")
     @PreAuthorize("hasAccessToGroup(#groupId, 'DEVELOPER')")
     fun getUsersInGroupById(@PathVariable groupId: UUID): List<UserInGroupDto> {
         return groupsService.getUsersInGroup(groupId).map(UserInGroup::toDto)
     }
 
+    // FIXME: Coverage says: missing tests
     @PostMapping("/{groupId}/users")
     @PreAuthorize("hasAccessToGroup(#groupId, 'MAINTAINER')")
     fun addUsersToGroupById(@PathVariable groupId: UUID, @RequestBody request: UsersGroupRequest): List<UserInGroupDto> {
@@ -84,6 +89,7 @@ class GroupsController(
         return getUsersInGroupById(groupId)
     }
 
+    // FIXME: Coverage says: missing tests
     @PostMapping("/{groupId}/users/{userId}")
     @PreAuthorize("hasAccessToGroup(#groupId, 'MAINTAINER')")
     fun addUserToGroupById(@PathVariable groupId: UUID, @PathVariable userId: UUID, @RequestParam(value = "access_level", required = false) accessLevel: String?): List<UserInGroupDto> {
@@ -92,6 +98,7 @@ class GroupsController(
         return getUsersInGroupById(groupId)
     }
 
+    // FIXME: Coverage says: missing tests
     @PutMapping("/{groupId}/users/{userId}")
     @PreAuthorize("hasAccessToGroup(#groupId, 'MAINTAINER')")
     fun editUserInGroupById(@PathVariable groupId: UUID, @PathVariable userId: UUID, @RequestParam(value = "access_level", required = true) accessLevel: String): List<UserInGroupDto> {
@@ -100,6 +107,7 @@ class GroupsController(
         return getUsersInGroupById(groupId)
     }
 
+    // FIXME: Coverage says: missing tests
     @DeleteMapping("/{groupId}/users")
     @PreAuthorize("hasAccessToGroup(#groupId, 'MAINTAINER')")
     fun deleteUsersFromGroupById(@PathVariable groupId: UUID, @RequestBody request: UsersGroupRequest): List<UserInGroupDto> {
@@ -107,6 +115,7 @@ class GroupsController(
         return getUsersInGroupById(groupId)
     }
 
+    // FIXME: Coverage says: missing tests
     @DeleteMapping("/{groupId}/users/{userId}")
     @PreAuthorize("hasAccessToGroup(#groupId, 'MAINTAINER') || isUserItself(#userId)")
     fun deleteUserFromGroupById(@PathVariable groupId: UUID, @PathVariable userId: UUID): List<UserInGroupDto> {

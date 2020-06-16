@@ -45,6 +45,7 @@ class DataProjectsController(
         return dataProjectService.getAllProjectsForUser(person.id).map(DataProject::toDto)
     }
 
+    // FIXME: Coverage says: missing tests
     @GetMapping("/public")
     fun getPublicDataProjects(pageable: Pageable): Page<MLProjectDto> {
         return dataProjectService.getAllPublicProjects(pageable).map { it.toDto() }
@@ -133,11 +134,13 @@ class DataProjectsController(
         return usersInProject.map { UserInProjectDto(it.id, it.username, it.email, it.person.gitlabId) }
     }
 
+    // FIXME: Coverage says: missing tests
     @GetMapping("/{id}/users/check/myself")
     fun checkCurrentUserInCodeProject(@PathVariable id: UUID, account: Account): Boolean {
         return dataProjectService.checkUserInProject(projectUUID = id, userId = account.id)
     }
 
+    // FIXME: Coverage says: missing tests
     @GetMapping("/{id}/users/check/{userId}")
     @PreAuthorize("hasAccessToProject(#id, 'DEVELOPER') || isUserItself(#userId)")
     fun checkUserInDataProjectById(@PathVariable id: UUID,
@@ -149,6 +152,7 @@ class DataProjectsController(
         return dataProjectService.checkUserInProject(projectUUID = id, userId = userId, level = checkLevel, minlevel = checkMinLevel)
     }
 
+    // FIXME: Coverage says: missing tests
     @GetMapping("/{id}/users/check")
     @PreAuthorize("hasAccessToProject(#id, 'DEVELOPER')")
     fun checkUsersInDataProjectById(

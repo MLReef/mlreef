@@ -46,8 +46,19 @@ enum class ErrorCode(val errorCode: Int, val errorName: String) {
     CommitPipelineScriptFailed(3103, "Could not commit mlreef file"),
     ExperimentCannotBeChanged(3104, "Could not change status of Experiment"),
     ExperimentSlugAlreadyInUse(3105, "Could not change status of Experiment"),
+    ExperimentCreationOwnerMissing(3106, "Owner is not provided"),
+    ExperimentCreationProjectMissing(3107, "DataProject is not provided"),
+    ExperimentCreationDataInstanceMissing(3108, "DataInstance is not provided"),
+    ExperimentCreationInvalid(3109, "Could not create Experiment"),
 
-    ProjectCreationFailed(3201, "Could not create project"),
+    // Creating Pipelines 32xx
+    PipelineSlugAlreadyInUse(3201, "Could not change status"),
+    PipelineCreationOwnerMissing(3202, "Owner is not provided"),
+    PipelineCreationProjectMissing(3203, "DataProject is not provided"),
+    PipelineCreationFilesMissing(3204, "Needs at least 1 Path"),
+    PipelineCreationInvalid(3205, "Pipeline could not be created"),
+
+    ProjectCreationFailed(3301, "Could not create project"),
 }
 
 @ResponseStatus(code = HttpStatus.BAD_REQUEST, reason = "Operation cannot be executed due to malformed input or invalid states.")
@@ -65,7 +76,8 @@ open class RestException(
 class ValidationException(val validationErrors: Array<FieldError?>) : RestException(ErrorCode.ValidationFailed, validationErrors.joinToString("\n") { it.toString() })
 
 @ResponseStatus(code = HttpStatus.FORBIDDEN, reason = "Bad credentials")
-class IncorrectCredentialsException(message: String? = null) : RestException(ErrorCode.AccessDenied, message ?: "Access denied")
+class IncorrectCredentialsException(message: String? = null) : RestException(ErrorCode.AccessDenied, message
+    ?: "Access denied")
 
 @ResponseStatus(code = HttpStatus.UNAUTHORIZED, reason = "Unauthorized for the request")
 class AccessDeniedException(message: String? = null) : RestException(ErrorCode.AccessDenied, message ?: "Access denied")
@@ -112,7 +124,7 @@ class GroupNotFoundException(groupId: UUID? = null, groupName: String? = null, s
 class ProjectNotFoundException(projectId: UUID? = null, projectName: String? = null, gitlabId: Long? = null, path: String? = null)
     : UnknownProjectException(generateProjectNotFoundMessage(projectId, projectName, gitlabId, path))
 
-class ExperimentCreateException(errorCode: ErrorCode, parameterName: String) : RestException(errorCode, "Name/Slug: '$parameterName'")
+class ExperimentCreateException(errorCode: ErrorCode, message: String) : RestException(errorCode, message)
 class ExperimentStartException(message: String) : RestException(ErrorCode.CommitPipelineScriptFailed, message)
 class ExperimentUpdateException(message: String) : RestException(ErrorCode.ExperimentCannotBeChanged, message)
 class ProjectCreationException(errorCode: ErrorCode, message: String) : RestException(errorCode, message)
@@ -120,7 +132,7 @@ class ProjectCreationException(errorCode: ErrorCode, message: String) : RestExce
 class ProjectUpdateException(errorCode: ErrorCode, message: String) : RestException(errorCode, message)
 class ProjectDeleteException(errorCode: ErrorCode, message: String) : RestException(errorCode, message)
 
-class PipelineCreateException(errorCode: ErrorCode, parameterName: String) : RestException(errorCode, "Name/Slug: '$parameterName'")
+class PipelineCreateException(errorCode: ErrorCode, message: String? = "") : RestException(errorCode, message ?: "")
 class PipelineStartException(message: String) : RestException(ErrorCode.CommitPipelineScriptFailed, message)
 
 class BadParametersException(message: String? = null) : RuntimeException(message ?: "Internal exception")

@@ -25,6 +25,7 @@ data class RestExceptionDto(
     )
 }
 
+// FIXME: Coverage says: missing tests
 class ValidationFailureDto(
     val errorCode: Int,
     val errorName: String,

@@ -137,12 +137,12 @@ enum class PipelineType {
     VISUALISATION;
 
     companion object {
-        fun fromString(value: String): PipelineType {
+        fun fromString(value: String): PipelineType? {
             return when (value.toUpperCase()) {
                 DATA.name -> DATA
                 VISUALISATION.name -> VISUALISATION
                 "VISUAL" -> VISUALISATION
-                else -> throw IllegalArgumentException("Not a valid PipelineType: $value")
+                else -> null
             }
         }
 

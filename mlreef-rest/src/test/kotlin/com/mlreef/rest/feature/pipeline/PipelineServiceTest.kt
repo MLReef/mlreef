@@ -19,6 +19,7 @@ import com.mlreef.rest.PipelineStatus
 import com.mlreef.rest.ProcessorParameterRepository
 import com.mlreef.rest.SubjectRepository
 import com.mlreef.rest.VisibilityScope
+import com.mlreef.rest.exceptions.PipelineCreateException
 import com.mlreef.rest.external_api.gitlab.GitlabRestClient
 import com.mlreef.rest.external_api.gitlab.dto.Branch
 import com.mlreef.rest.external_api.gitlab.dto.Commit
@@ -94,7 +95,7 @@ class PipelineServiceTest : AbstractServiceTest() {
 
     @Test
     fun `Cannot create PipelineConfig for missing Owner`() {
-        assertThrows<IllegalArgumentException> {
+        assertThrows<PipelineCreateException> {
             service.createPipelineConfig(
                 randomUUID(),
                 dataRepositoryId,
@@ -107,7 +108,7 @@ class PipelineServiceTest : AbstractServiceTest() {
 
     @Test
     fun `Cannot create PipelineConfig for missing DataProject`() {
-        assertThrows<IllegalArgumentException> {
+        assertThrows<PipelineCreateException> {
             service.createPipelineConfig(
                 ownerId,
                 randomUUID(),
@@ -120,7 +121,7 @@ class PipelineServiceTest : AbstractServiceTest() {
 
     @Test
     fun `Cannot create PipelineConfig for missing branch name`() {
-        assertThrows<IllegalArgumentException> {
+        assertThrows<PipelineCreateException> {
             service.createPipelineConfig(
                 ownerId,
                 dataRepositoryId,
@@ -133,7 +134,7 @@ class PipelineServiceTest : AbstractServiceTest() {
 
     @Test
     fun `Cannot create PipelineConfig for missing slug`() {
-        assertThrows<IllegalArgumentException> {
+        assertThrows<PipelineCreateException> {
             service.createPipelineConfig(
                 ownerId,
                 dataRepositoryId,
@@ -146,7 +147,7 @@ class PipelineServiceTest : AbstractServiceTest() {
 
     @Test
     fun `Cannot create PipelineConfig for missing pipelineType`() {
-        assertThrows<IllegalArgumentException> {
+        assertThrows<PipelineCreateException> {
             service.createPipelineConfig(
                 ownerId,
                 dataRepositoryId,
@@ -160,7 +161,7 @@ class PipelineServiceTest : AbstractServiceTest() {
 
     @Test
     fun `Cannot create PipelineConfig for invalid pipelineType`() {
-        assertThrows<IllegalArgumentException> {
+        assertThrows<PipelineCreateException> {
             service.createPipelineConfig(
                 ownerId,
                 dataRepositoryId,
@@ -180,7 +181,7 @@ class PipelineServiceTest : AbstractServiceTest() {
             "name",
             "source",
             listOf(), listOf())
-        assertThrows<IllegalArgumentException> {
+        assertThrows<PipelineCreateException> {
             service.createPipelineConfig(
                 ownerId,
                 dataRepositoryId,

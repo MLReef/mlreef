@@ -21,7 +21,8 @@ data class PipelineInstanceDto(
     @get:Valid val inputFiles: List<FileLocationDto>? = arrayListOf(),
     val number: Int,
     val commit: String? = null,
-    val status: String
+    val status: String,
+    val pipelineJobInfo: PipelineJobInfoDto? = null
 ) : DataClassWithId
 
 internal fun PipelineInstance.toDto(): PipelineInstanceDto =
@@ -38,5 +39,6 @@ internal fun PipelineInstance.toDto(): PipelineInstanceDto =
         dataOperations = this.dataOperations.map(DataProcessorInstance::toDto),
         number = this.number,
         commit = this.commit,
-        status = this.status.name
+        status = this.status.name,
+        pipelineJobInfo = this.pipelineJobInfo?.toDto()
     )

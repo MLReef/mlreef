@@ -23,6 +23,7 @@ open class MLProjectDto(
     open val gitlabId: Long
 ) : DataClassWithId
 
+// FIXME: Coverage says: missing tests
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 data class ProjectOfUserDto(

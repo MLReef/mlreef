@@ -25,6 +25,7 @@ class SystemController(
         return StatusDto("Hello.")
     }
 
+    // FIXME: Coverage says: missing tests
     @GetMapping("/health")
     fun health(): StatusDto {
         return try {
@@ -40,12 +41,14 @@ class SystemController(
         }
     }
 
+    // FIXME: Coverage says: missing tests
     @RequestMapping(method = [RequestMethod.GET], value = ["/ping"])
     fun ping(): String {
         log.info("Ping service: Ok!")
         return "pong"
     }
 
+    // FIXME: Coverage says: missing tests
     @RequestMapping(value = ["/ping/protected"], method = [RequestMethod.GET])
     @PreAuthorize("isAuthenticated()")
     fun pingProtected(): String {

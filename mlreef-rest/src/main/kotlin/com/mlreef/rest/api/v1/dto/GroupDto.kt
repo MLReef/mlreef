@@ -8,6 +8,7 @@ import com.mlreef.rest.helpers.DataClassWithId
 import com.mlreef.rest.helpers.GroupOfUser
 import java.util.UUID
 
+// FIXME: Coverage says: missing tests
 data class GroupDto(
     override val id: UUID,
     val name: String
@@ -20,6 +21,7 @@ internal fun Group.toDto(): GroupDto =
         name = this.name
     )
 
+// FIXME: Coverage says: missing tests
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 data class GroupOfUserDto(

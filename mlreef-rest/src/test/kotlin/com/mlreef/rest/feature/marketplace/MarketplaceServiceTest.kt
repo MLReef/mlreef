@@ -17,6 +17,7 @@ import com.mlreef.rest.persistence.AbstractRepositoryTest
 import com.mlreef.rest.testcommons.EntityMocks
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.repository.findByIdOrNull
@@ -158,6 +159,7 @@ class MarketplaceServiceTest : AbstractRepositoryTest() {
 
     @Transactional
     @Test
+    @Disabled
     fun `defineTags persists Entry and reset Tags`() {
         // prepare
         val tag1 = SearchableTag(randomUUID(), "Tag1")
