@@ -1,10 +1,7 @@
 # Infrastructure
 
-MLReef is an end-to-end Machine Learning platform
-
-
-
-
+MLReef is currently built on Amazons AWS services (https://aws.amazon.com/). MLReef is hosted and operates on these services, 
+but it is built that it can be self-hosted on any other infrastructure (Microsoft, Apple or Linux). 
 
 
 ## References and support
