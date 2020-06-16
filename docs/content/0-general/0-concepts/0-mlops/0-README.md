@@ -11,6 +11,7 @@ The following links provide documentation for each MLOps stage:
 | [Manage](#manage)  | Projects, users, groups and resources. |
 | [Share](#share)  | Releasing code repositories. |
 
+![MLOPs](mlops_overview.png) 
 
 ### <a name="create"></a> Create
 

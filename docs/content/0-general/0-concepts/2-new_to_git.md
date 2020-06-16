@@ -1,5 +1,7 @@
 # New to git?
 
+In this chapter you will find all information you require to understand and use git. 
+
 # Git
 
 Git is a [free and open source](https://git-scm.com/about/free-and-open-source) distributed version control system designed to handle everything from small to large projects with speed and efficiency.
