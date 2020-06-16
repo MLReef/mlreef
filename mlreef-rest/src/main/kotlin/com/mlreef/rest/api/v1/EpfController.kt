@@ -38,6 +38,7 @@ class EpfController(
 
     private val dataProjectNotFound = "Experiment with UUID was not found or visible"
 
+    // FIXME: Coverage says: exception path missing
     private fun beforeGetExperiment(experimentId: UUID, token: String, tokenDetails: TokenDetails): Experiment {
         val experiment = experimentRepository.findByIdOrNull(experimentId)
             ?: throw NotFoundException(dataProjectNotFound)
@@ -59,6 +60,7 @@ class EpfController(
         }
     }
 
+    // FIXME: Coverage says: missing tests
     @PutMapping("/experiments/{id}/update")
     fun epfUpdateExperiment(@PathVariable id: UUID,
                             @RequestHeader(EPF_HEADER) token: String,

@@ -57,6 +57,7 @@ class AuthController(
     @GetMapping("/whoami")
     fun whoami(): UserDto = currentUserService.account().toUserDto()
 
+    // FIXME: Coverage says: missing tests
     @GetMapping("/check/token")
     fun checkToken(account: Account, token: TokenDetails): UserDto =
         token.accessToken

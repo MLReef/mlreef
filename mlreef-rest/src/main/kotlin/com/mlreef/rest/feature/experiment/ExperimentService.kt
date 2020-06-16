@@ -62,12 +62,14 @@ class ExperimentService(
         processorInstance: DataProcessorInstance
     ): Experiment {
 
-        subjectRepository.findByIdOrNull(authorId) ?: throw IllegalArgumentException("Owner is missing!")
-        dataProjectRepository.findByIdOrNull(dataProjectId) ?: throw IllegalArgumentException("DataProject is missing!")
+        subjectRepository.findByIdOrNull(authorId)
+            ?: throw ExperimentCreateException(ErrorCode.ExperimentCreationOwnerMissing, "Owner is missing!")
+        dataProjectRepository.findByIdOrNull(dataProjectId)
+            ?: throw ExperimentCreateException(ErrorCode.ExperimentCreationProjectMissing, "DataProject is missing!")
 
         dataInstanceId?.let {
             pipelineInstanceRepository.findByIdOrNull(dataInstanceId)
-                ?: throw IllegalArgumentException("DataPipelineInstance with that Id is missing!")
+                ?: throw ExperimentCreateException(ErrorCode.ExperimentCreationDataInstanceMissing, "DataPipelineInstance with that Id is missing:$dataInstanceId")
         }
 
         require(!name.isBlank()) { "name is missing!" }
@@ -102,9 +104,16 @@ class ExperimentService(
         return experimentRepository.save(experiment)
     }
 
+    private inline fun require(value: Boolean, lazyMessage: () -> Any): Unit {
+        if (!value) {
+            val message = lazyMessage()
+            throw ExperimentCreateException(ErrorCode.ExperimentSlugAlreadyInUse, message.toString())
+        }
+    }
+
     fun createExperimentFile(author: Account, experiment: Experiment, secret: String): String {
         val dataProject = dataProjectRepository.findByIdOrNull(experiment.dataProjectId)
-            ?: throw IllegalArgumentException("DataProject is missing!")
+            ?: throw ExperimentCreateException(ErrorCode.ExperimentCreationProjectMissing, "DataProject is missing!")
 
         val processors: MutableList<DataProcessorInstance> = arrayListOf()
         experiment.getProcessor()?.let { processors.add(it) }

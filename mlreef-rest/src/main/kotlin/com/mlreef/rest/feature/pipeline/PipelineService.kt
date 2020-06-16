@@ -64,11 +64,14 @@ class PipelineService(
         dataOperations: List<DataProcessorInstance>,
         inputFiles: List<FileLocation>
     ): PipelineConfig {
-        subjectRepository.findByIdOrNull(authorId) ?: throw IllegalArgumentException("Owner is missing!")
-        dataProjectRepository.findByIdOrNull(dataProjectId) ?: throw IllegalArgumentException("DataProject is missing!")
+        subjectRepository.findByIdOrNull(authorId)
+            ?: throw PipelineCreateException(ErrorCode.PipelineCreationOwnerMissing, "Owner is missing!")
+        dataProjectRepository.findByIdOrNull(dataProjectId)
+            ?: throw PipelineCreateException(ErrorCode.PipelineCreationProjectMissing, "DataProject is missing!")
 
         require(!pipelineType.isBlank()) { "pipelineType is missing!" }
         val type = PipelineType.fromString(pipelineType)
+            ?: throw PipelineCreateException(ErrorCode.PipelineCreationInvalid, "Not a valid PipelineType: $pipelineType")
 
         val finalName = if (name.isNullOrEmpty()) NameGenerator.getRandomNameWithDate() else name
         val finalSlug = Slugs.toSlug(finalName)
@@ -87,7 +90,7 @@ class PipelineService(
         require(!finalName.isBlank()) { "name is missing!" }
 
         pipelineConfigRepository.findOneByDataProjectIdAndSlug(dataProjectId, finalSlugPrefixed)
-            ?.let { throw IllegalArgumentException("Slug is already used in DataProject!") }
+            ?.let { throw PipelineCreateException(ErrorCode.PipelineSlugAlreadyInUse, "Slug is already used in DataProject!") }
 
         val pipelineConfig = PipelineConfig(
             id = randomUUID(),
@@ -101,6 +104,13 @@ class PipelineService(
             inputFiles = inputFiles.toMutableList()
         )
         return pipelineConfigRepository.save(pipelineConfig)
+    }
+
+    private inline fun require(value: Boolean, lazyMessage: () -> Any): Unit {
+        if (!value) {
+            val message = lazyMessage()
+            throw PipelineCreateException(ErrorCode.PipelineCreationInvalid, message.toString())
+        }
     }
 
     fun newDataProcessorInstance(processorSlug: String): DataProcessorInstance {
@@ -119,8 +129,11 @@ class PipelineService(
 
     fun createPipelineInstanceFile(author: Account, pipelineInstance: PipelineInstance, secret: String): String {
         val dataProject = dataProjectRepository.findByIdOrNull(pipelineInstance.dataProjectId)
-            ?: throw IllegalArgumentException("DataProject is missing!")
+            ?: throw PipelineCreateException(ErrorCode.PipelineCreationProjectMissing, "DataProject is missing!")
 
+        if (pipelineInstance.inputFiles.isEmpty()) {
+            throw PipelineCreateException(ErrorCode.PipelineCreationFilesMissing)
+        }
         val fileLocation = pipelineInstance.inputFiles.first().location
         val fileList = pipelineInstance.inputFiles.map(FileLocation::toYamlString)
 

@@ -20,6 +20,7 @@ import com.mlreef.rest.api.v1.dto.DataProcessorInstanceDto
 import com.mlreef.rest.api.v1.dto.FileLocationDto
 import com.mlreef.rest.api.v1.dto.ParameterInstanceDto
 import com.mlreef.rest.api.v1.dto.PipelineConfigDto
+import com.mlreef.rest.api.v1.dto.PipelineInstanceDto
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
@@ -64,6 +65,8 @@ class ProjectPipelinesConfigApiTest : AbstractRestApiTest() {
         dataProject = pipelineTestPreparationTrait.dataProject
         notOwn_dataProject = pipelineTestPreparationTrait.dataProject2
 
+        mockGitlabPipelineWithBranch("sourceBranch", "targetBranch")
+
     }
 
     @Transactional
@@ -96,7 +99,7 @@ class ProjectPipelinesConfigApiTest : AbstractRestApiTest() {
     @Tag(TestTags.RESTDOC)
     fun `Can create new PipelineConfig`() {
         val request = PipelineConfigCreateRequest(
-            sourceBranch = "source",
+            sourceBranch = "sourceBranch",
             targetBranchPattern = "\$SLUG-\$ID",
             pipelineType = "DATA",
             slug = "data-pipeline",
@@ -127,6 +130,48 @@ class ProjectPipelinesConfigApiTest : AbstractRestApiTest() {
                     .and(dataProcessorInstanceFields("data_operations[]."))
             )
             .returns(PipelineConfigDto::class.java)
+
+        assertThat(returnedResult).isNotNull()
+    }
+
+    @Transactional
+    @Rollback
+    @Test
+    @Tag(TestTags.RESTDOC)
+    fun `Can create-start new PipelineConfig and Instance`() {
+        val request = PipelineConfigCreateRequest(
+            sourceBranch = "sourceBranch",
+            targetBranchPattern = "\$SLUG-\$ID",
+            pipelineType = "DATA",
+            slug = "data-pipeline",
+            name = "DataPipeline",
+            inputFiles = listOf(
+                FileLocationDto("."),
+                FileLocationDto("image.png"),
+                FileLocationDto("http://orf.at", "URL")
+            ),
+            dataOperations = listOf(
+                DataProcessorInstanceDto("commons-data-operation1", listOf(
+                    ParameterInstanceDto("stringParam", type = ParameterType.STRING.name, value = "string value"),
+                    ParameterInstanceDto("floatParam", type = ParameterType.FLOAT.name, value = "0.01"),
+                    ParameterInstanceDto("integerParam", type = ParameterType.INTEGER.name, value = "10"),
+                    ParameterInstanceDto("stringList", type = ParameterType.LIST.name, value = "[\"asdf\",\"asdf\",\"asdf\"]")
+                )))
+        )
+
+        this.mockGetUserProjectsList(listOf(dataProject.id), account, AccessLevel.OWNER)
+
+        val url = "$rootUrl/${dataProject.id}/pipelines/create-start-instance"
+        val returnedResult: PipelineInstanceDto = performPost(url, account, body = request)
+            .andExpect(status().isOk)
+            .document("project-pipelineconfig-create-start-instance-success",
+                requestFields(pipelineConfigCreateRequestFields())
+                    .and(dataProcessorInstanceFields("data_operations[].")),
+                responseFields(pipelineInstanceDtoResponseFields())
+                    .and(dataProcessorInstanceFields("data_operations[]."))
+                    .and(pipelineInfoDtoResponseFields("pipeline_job_info."))
+            )
+            .returns(PipelineInstanceDto::class.java)
 
         assertThat(returnedResult).isNotNull()
     }

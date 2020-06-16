@@ -5,6 +5,7 @@ import com.mlreef.rest.Account
 import com.mlreef.rest.AccountRepository
 import com.mlreef.rest.AccountTokenRepository
 import com.mlreef.rest.ApplicationProfiles
+import com.mlreef.rest.I18N
 import com.mlreef.rest.PersonRepository
 import com.mlreef.rest.external_api.gitlab.GitlabRestClient
 import com.mlreef.rest.external_api.gitlab.GitlabVisibility
@@ -12,6 +13,7 @@ import com.mlreef.rest.external_api.gitlab.TokenDetails
 import com.mlreef.rest.external_api.gitlab.dto.Branch
 import com.mlreef.rest.external_api.gitlab.dto.Commit
 import com.mlreef.rest.external_api.gitlab.dto.GitlabGroup
+import com.mlreef.rest.external_api.gitlab.dto.GitlabPipeline
 import com.mlreef.rest.external_api.gitlab.dto.GitlabProject
 import com.mlreef.rest.external_api.gitlab.dto.GitlabUser
 import com.mlreef.rest.external_api.gitlab.dto.GitlabUserInGroup
@@ -202,6 +204,37 @@ abstract class AbstractRestApiTest : AbstractRestTest() {
         every { currentUserService.account() } answers { accountRepository.findAll().first() }
         every { currentUserService.permanentToken() } answers { testPrivateUserTokenMock1 }
     }
+
+    protected fun mockGitlabPipelineWithBranch(sourceBranch: String, targetBranch: String) {
+
+        val commit = Commit(id = "12341234")
+        val branch = Branch(ref = sourceBranch, branch = targetBranch)
+        val gitlabPipeline = GitlabPipeline(
+            id = 32452345,
+            coverage = "",
+            sha = "sha",
+            ref = "ref",
+            beforeSha = "before_sha",
+            user = GitlabUser(id = 1000L),
+            status = "CREATED",
+            committedAt = I18N.dateTime(),
+            createdAt = I18N.dateTime(),
+            startedAt = null,
+            updatedAt = null,
+            finishedAt = null
+        )
+
+        every {
+            restClient.createBranch(any(), any(), any(), any())
+        } returns branch
+        every {
+            restClient.commitFiles(any(), any(), any(), any(), any(), any())
+        } returns commit
+        every {
+            restClient.createPipeline(any(), any(), any(), any())
+        } returns gitlabPipeline
+    }
+
 
     fun mockSecurityContextHolder(token: TokenDetails? = null) {
         val finalToken = token ?: TokenDetails(

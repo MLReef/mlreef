@@ -29,6 +29,7 @@ class MarketplaceController(
         private val log = LoggerFactory.getLogger(this::class.java)
     }
 
+    // FIXME: Coverage says: missing tests
     @GetMapping("/entries/public")
     fun getAllPublicEntries(page: Pageable): Page<MarketplaceEntryDto> {
         val forProjects = marketplaceService.findPublicEntriesPageable(page)

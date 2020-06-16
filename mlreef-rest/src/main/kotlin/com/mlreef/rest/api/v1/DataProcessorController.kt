@@ -74,6 +74,7 @@ class DataProcessorsController(
         return list.map(DataProcessor::toDto)
     }
 
+    // FIXME: Coverage says: missing tests
     @GetMapping("data-processors/id/{id}")
     @PostAuthorize("userInDataProcessor() || dataProcessorIsPublic()")
     fun getDataProcessorById(@PathVariable id: UUID): DataProcessorDto {
@@ -82,6 +83,7 @@ class DataProcessorsController(
         return dataProcessor.toDto()
     }
 
+    // FIXME: Coverage says: missing tests
     @GetMapping("data-processors/slug/{slug}")
     @PostAuthorize("userInDataProcessor() || dataProcessorIsPublic()")
     fun getDataProcessorBySlug(@PathVariable slug: String): DataProcessorDto {

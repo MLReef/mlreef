@@ -49,6 +49,7 @@ class CodeProjectsController(
         return codeProjectService.getAllProjectsForUser(person.id).map(CodeProject::toDto)
     }
 
+    // FIXME: Coverage says: missing tests
     @GetMapping("/public")
     fun getPublicDataProjects(pageable: Pageable): Page<MLProjectDto> {
         return codeProjectService.getAllPublicProjects(pageable).map { it.toDto() }
@@ -145,11 +146,13 @@ class CodeProjectsController(
         return usersInProject.map { UserInProjectDto(it.id, it.username, it.email, it.person.gitlabId) }
     }
 
+    // FIXME: Coverage says: missing tests
     @GetMapping("/{id}/users/check/myself")
     fun checkCurrentUserInCodeProject(@PathVariable id: UUID, account: Account): Boolean {
         return codeProjectService.checkUserInProject(projectUUID = id, userId = account.id)
     }
 
+    // FIXME: Coverage says: missing tests
     @GetMapping("/{id}/users/check/{userId}")
     @PreAuthorize("hasAccessToProject(#id, 'DEVELOPER') || isUserItself(#userId)")
     fun checkUserInCodeProjectById(@PathVariable id: UUID,
@@ -161,6 +164,7 @@ class CodeProjectsController(
         return codeProjectService.checkUserInProject(projectUUID = id, userId = userId, level = checkLevel, minlevel = checkMinLevel)
     }
 
+    // FIXME: Coverage says: missing tests
     @GetMapping("/{id}/users/check")
     @PreAuthorize("hasAccessToProject(#id, 'DEVELOPER')")
     fun checkUsersInCodeProjectById(

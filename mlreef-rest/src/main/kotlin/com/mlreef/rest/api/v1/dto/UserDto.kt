@@ -10,6 +10,7 @@ import com.mlreef.rest.helpers.UserInGroup
 import com.mlreef.rest.helpers.UserInProject
 import java.util.UUID
 
+// FIXME: Coverage says: missing tests
 data class UserDto(
     override val id: UUID,
     val username: String,
@@ -70,6 +71,7 @@ internal fun UserInProject.toDto() = UserInProjectDto(
     email = this.email
 )
 
+// FIXME: Coverage says: missing tests
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 data class UserInGroupDto(

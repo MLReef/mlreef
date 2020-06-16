@@ -28,7 +28,6 @@ import com.mlreef.rest.external_api.gitlab.dto.Commit
 import com.mlreef.rest.external_api.gitlab.dto.GitlabPipeline
 import com.mlreef.rest.external_api.gitlab.dto.GitlabUser
 import io.mockk.MockKAnnotations
-import io.mockk.every
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
@@ -81,7 +80,7 @@ class ExperimentsApiTest : AbstractRestApiTest() {
         dataProject = pipelineTestPreparationTrait.dataProject
         dataProject2 = pipelineTestPreparationTrait.dataProject2
 
-        mockGitlab("sourceBranch", "targetBranch")
+        mockGitlabPipelineWithBranch("sourceBranch", "targetBranch")
         this.mockGetUserProjectsList(listOf(dataProject.id), account, AccessLevel.OWNER)
     }
 
@@ -117,7 +116,7 @@ class ExperimentsApiTest : AbstractRestApiTest() {
                     .and(dataProcessorInstanceFields("post_processing[]."))
                     .and(dataProcessorInstanceFields("processing.")),
                 responseFields(experimentDtoResponseFields())
-                    .and(experimentPipelineInfoDtoResponseFields("pipeline_job_info."))
+                    .and(pipelineInfoDtoResponseFields("pipeline_job_info."))
                     .and(dataProcessorInstanceFields("post_processing[]."))
                     .and(dataProcessorInstanceFields("processing."))
                     .and(fileLocationsFields("input_files[]."))
@@ -217,7 +216,7 @@ class ExperimentsApiTest : AbstractRestApiTest() {
             .andExpect(status().isOk)
             .document("experiments-retrieve-all",
                 responseFields(experimentDtoResponseFields("[]."))
-                    .and(experimentPipelineInfoDtoResponseFields("[].pipeline_job_info."))
+                    .and(pipelineInfoDtoResponseFields("[].pipeline_job_info."))
                     .and(dataProcessorInstanceFields("[].post_processing[]."))
                     .and(fileLocationsFields("[].input_files[]."))
                     .and(dataProcessorInstanceFields("[].processing.")))
@@ -235,7 +234,7 @@ class ExperimentsApiTest : AbstractRestApiTest() {
             .andExpect(status().isOk)
             .document("experiments-retrieve-one",
                 responseFields(experimentDtoResponseFields())
-                    .and(experimentPipelineInfoDtoResponseFields("pipeline_job_info."))
+                    .and(pipelineInfoDtoResponseFields("pipeline_job_info."))
                     .and(dataProcessorInstanceFields("post_processing[]."))
                     .and(fileLocationsFields("input_files[]."))
                     .and(dataProcessorInstanceFields("processing.")))
@@ -276,7 +275,7 @@ class ExperimentsApiTest : AbstractRestApiTest() {
         val returnedResult = this.performEPFPut(token, "$epfUrl/experiments/${experiment1.id}/finish")
             .andExpect(status().isOk)
             .document("experiments-epf-finish",
-                responseFields(experimentPipelineInfoDtoResponseFields()))
+                responseFields(pipelineInfoDtoResponseFields()))
             .returns(PipelineJobInfoDto::class.java)
 
         assertThat(returnedResult).isNotNull()
@@ -296,7 +295,7 @@ class ExperimentsApiTest : AbstractRestApiTest() {
             .andExpect(status().isOk)
             .document(
                 "experiments-retrieve-one-info",
-                responseFields(experimentPipelineInfoDtoResponseFields()))
+                responseFields(pipelineInfoDtoResponseFields()))
     }
 
     @Transactional
@@ -332,15 +331,15 @@ class ExperimentsApiTest : AbstractRestApiTest() {
         assertThat(pipelineJobInfoDto.finishedAt).isNull()
     }
 
-    @Disabled
     @Deprecated("See IntegrationTest")
     @Transactional
     @Rollback
     @Test
+    @Disabled
     fun `Can manipulate Experiment in the correct Order PENDING - RUNNING - SUCCESS`() {
         val experiment1 = createExperiment(dataProject.id)
 
-        mockGitlab(
+        mockGitlabPipelineWithBranch(
             sourceBranch = experiment1.sourceBranch,
             targetBranch = experiment1.targetBranch
         )
@@ -364,35 +363,6 @@ class ExperimentsApiTest : AbstractRestApiTest() {
     }
 
 
-    private fun mockGitlab(sourceBranch: String, targetBranch: String) {
-
-        val commit = Commit(id = "12341234")
-        val branch = Branch(ref = sourceBranch, branch = targetBranch)
-        val gitlabPipeline = GitlabPipeline(
-            id = 32452345,
-            coverage = "",
-            sha = "sha",
-            ref = "ref",
-            beforeSha = "before_sha",
-            user = GitlabUser(id = 1000L),
-            status = "CREATED",
-            committedAt = I18N.dateTime(),
-            createdAt = I18N.dateTime(),
-            startedAt = null,
-            updatedAt = null,
-            finishedAt = null
-        )
-
-        every {
-            restClient.createBranch(any(), any(), any(), any())
-        } returns branch
-        every {
-            restClient.commitFiles(any(), any(), any(), any(), any(), any())
-        } returns commit
-        every {
-            restClient.createPipeline(any(), any(), any(), any())
-        } returns gitlabPipeline
-    }
 
     private fun createExperiment(dataProjectId: UUID, slug: String = "experiment-slug", dataInstanceId: UUID? = null): Experiment {
         val processorInstance = DataProcessorInstance(randomUUID(), dataOp1)
@@ -439,7 +409,7 @@ class ExperimentsApiTest : AbstractRestApiTest() {
             fieldWithPath(prefix + "data_instance_id").optional().type(JsonFieldType.STRING).description("Id of DataPipelineInstance"),
             fieldWithPath(prefix + "slug").type(JsonFieldType.STRING).description("Local slug scoped to DataProject"),
             fieldWithPath(prefix + "name").type(JsonFieldType.STRING).description("Name of that Experiment"),
-            fieldWithPath(prefix + "pipeline_job_info").type(JsonFieldType.OBJECT).optional().description("An optional PipelineInfo describing the pipeline info"),
+            fieldWithPath(prefix + "pipeline_job_info").type(JsonFieldType.OBJECT).optional().description("An optional PipelineInfo describing the gitlab pipeline info"),
             fieldWithPath(prefix + "json_blob").type(JsonFieldType.STRING).optional().description("Json object describing experiments epochs statistics"),
             fieldWithPath(prefix + "post_processing").optional().type(JsonFieldType.ARRAY).optional().description("An optional List of DataProcessors used during PostProcessing"),
             fieldWithPath(prefix + "processing").optional().type(JsonFieldType.OBJECT).optional().description("An optional DataAlgorithm"),
@@ -449,18 +419,6 @@ class ExperimentsApiTest : AbstractRestApiTest() {
         )
     }
 
-    private fun experimentPipelineInfoDtoResponseFields(prefix: String = ""): List<FieldDescriptor> {
-        return listOf(
-            fieldWithPath(prefix + "id").type(JsonFieldType.NUMBER).optional().description("Json object describing specific metrics"),
-            fieldWithPath(prefix + "commit_sha").type(JsonFieldType.STRING).optional().description("Json object describing specific metrics"),
-            fieldWithPath(prefix + "ref").type(JsonFieldType.STRING).optional().description("Json object describing specific metrics"),
-            fieldWithPath(prefix + "committed_at").type(JsonFieldType.STRING).optional().description("Timestamp when the gitlab pipeline was committed"),
-            fieldWithPath(prefix + "created_at").type(JsonFieldType.STRING).optional().description("Timestamp when the gitlab pipeline was created"),
-            fieldWithPath(prefix + "started_at").type(JsonFieldType.STRING).optional().description("Timestamp when the gitlab pipeline was started"),
-            fieldWithPath(prefix + "updated_at").type(JsonFieldType.STRING).optional().description("Timestamp when the gitlab pipeline was updated"),
-            fieldWithPath(prefix + "finished_at").type(JsonFieldType.STRING).optional().description("Timestamp when the gitlab pipeline was finished")
-        )
-    }
 
     private fun experimentCreateRequestFields(): List<FieldDescriptor> {
         return listOf(

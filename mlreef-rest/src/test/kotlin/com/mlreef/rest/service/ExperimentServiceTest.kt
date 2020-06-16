@@ -17,6 +17,7 @@ import com.mlreef.rest.PipelineType
 import com.mlreef.rest.ProcessorParameterRepository
 import com.mlreef.rest.SubjectRepository
 import com.mlreef.rest.VisibilityScope
+import com.mlreef.rest.exceptions.ExperimentCreateException
 import com.mlreef.rest.external_api.gitlab.GitlabRestClient
 import com.mlreef.rest.feature.experiment.ExperimentService
 import org.assertj.core.api.Assertions.assertThat
@@ -84,7 +85,7 @@ class ExperimentServiceTest : AbstractServiceTest() {
 
     @Test
     fun `Cannot create for missing Owner`() {
-        assertThrows<IllegalArgumentException> {
+        assertThrows<ExperimentCreateException> {
             experimentService.createExperiment(
                 randomUUID(),
                 dataRepositoryId,
@@ -101,7 +102,7 @@ class ExperimentServiceTest : AbstractServiceTest() {
 
     @Test
     fun `Cannot create for missing DataProject`() {
-        assertThrows<IllegalArgumentException> {
+        assertThrows<ExperimentCreateException> {
             experimentService.createExperiment(
                 ownerId,
                 randomUUID(),
@@ -118,7 +119,7 @@ class ExperimentServiceTest : AbstractServiceTest() {
 
     @Test
     fun `Cannot create for missing name`() {
-        assertThrows<IllegalArgumentException> {
+        assertThrows<ExperimentCreateException> {
             experimentService.createExperiment(
                 ownerId,
                 dataRepositoryId,
@@ -135,7 +136,7 @@ class ExperimentServiceTest : AbstractServiceTest() {
 
     @Test
     fun `Cannot create for missing source branch name`() {
-        assertThrows<IllegalArgumentException> {
+        assertThrows<ExperimentCreateException> {
             experimentService.createExperiment(
                 ownerId,
                 dataRepositoryId,
@@ -189,7 +190,7 @@ class ExperimentServiceTest : AbstractServiceTest() {
 
     @Test
     fun `Cannot create if pipelineInstance is set but does not exist`() {
-        assertThrows<IllegalArgumentException> {
+        assertThrows<ExperimentCreateException> {
             experimentService.createExperiment(
                 ownerId,
                 dataRepositoryId,

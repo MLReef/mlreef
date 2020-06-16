@@ -85,6 +85,19 @@ internal fun dataProcessorFields(prefix: String = ""): List<FieldDescriptor> {
     )
 }
 
+internal fun pipelineInfoDtoResponseFields(prefix: String = ""): List<FieldDescriptor> {
+    return listOf(
+        fieldWithPath(prefix + "id").type(JsonFieldType.NUMBER).optional().description("Json object describing specific metrics"),
+        fieldWithPath(prefix + "commit_sha").type(JsonFieldType.STRING).optional().description("Json object describing specific metrics"),
+        fieldWithPath(prefix + "ref").type(JsonFieldType.STRING).optional().description("Json object describing specific metrics"),
+        fieldWithPath(prefix + "committed_at").type(JsonFieldType.STRING).optional().description("Timestamp when the gitlab pipeline was committed"),
+        fieldWithPath(prefix + "created_at").type(JsonFieldType.STRING).optional().description("Timestamp when the gitlab pipeline was created"),
+        fieldWithPath(prefix + "started_at").type(JsonFieldType.STRING).optional().description("Timestamp when the gitlab pipeline was started"),
+        fieldWithPath(prefix + "updated_at").type(JsonFieldType.STRING).optional().description("Timestamp when the gitlab pipeline was updated"),
+        fieldWithPath(prefix + "finished_at").type(JsonFieldType.STRING).optional().description("Timestamp when the gitlab pipeline was finished")
+    )
+}
+
 internal fun fileLocationsFields(prefix: String = ""): List<FieldDescriptor> {
     return listOf(
         fieldWithPath(prefix + "location").type(JsonFieldType.STRING).description("A URL, URI or simple path describing the location of a file/folder"),
@@ -192,12 +205,10 @@ internal class PipelineTestPreparationTrait : AccountSubjectPreparationTrait() {
     @Autowired private lateinit var dataVisualizationRepository: DataVisualizationRepository
     @Autowired private lateinit var dataProcessorRepository: DataProcessorRepository
 
-    private val passwordEncoder: PasswordEncoder = BCryptPasswordEncoder()
-
     override fun apply() {
 
-        super.deleteAll()
         deleteAll()
+        super.deleteAll()
         applyAccount()
 
         dataProject = dataProjectRepository.save(DataProject(

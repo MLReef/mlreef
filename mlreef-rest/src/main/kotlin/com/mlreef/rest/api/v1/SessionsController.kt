@@ -30,6 +30,7 @@ class SessionsController(
         private val log = LoggerFactory.getLogger(SessionsController::class.java)
     }
 
+    // FIXME: Coverage says: missing tests
     @GetMapping("/user")
     @PreAuthorize("isGitlabAdmin()")
     fun getSessionsListForUser(
@@ -46,6 +47,7 @@ class SessionsController(
         return sessionsService.getSessionsList(username, token)
     }
 
+    // FIXME: Coverage says: missing tests
     @DeleteMapping("/kill")
     @PreAuthorize("isGitlabAdmin() || isUserItself(#userName) || isUserItselfByToken(#token)")
     fun killSessions(
@@ -64,6 +66,7 @@ class SessionsController(
         return "Sessions killed: $sessionKilled"
     }
 
+    // FIXME: Coverage says: missing tests
     @GetMapping("/find/user")
     @PreAuthorize("isGitlabAdmin() || isUserItself(#userId) || isUserItself(#gitlabId) || isUserItself(#userName)")
     fun findUser(@RequestParam(value = "user_name", required = false) userName: String?,

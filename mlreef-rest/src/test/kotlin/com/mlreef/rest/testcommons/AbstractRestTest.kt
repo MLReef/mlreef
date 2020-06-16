@@ -96,9 +96,15 @@ abstract class AbstractRestTest {
             else -> throw RuntimeException("Method not implemented")
         }
 
-        if (body != null) builder.content(objectMapper.writeValueAsString(body))
+        if (body != null) {
+            builder.content(objectMapper.writeValueAsString(body))
+        }
 
-        return if (account == null) acceptAnonymousAuth(builder) else acceptContentAuth(builder, account)
+        return if (account == null) {
+            acceptAnonymousAuth(builder)
+        } else {
+            acceptContentAuth(builder, account)
+        }
     }
 
     fun ResultActions.checkStatus(status: HttpStatus): ResultActions {
@@ -114,8 +120,7 @@ abstract class AbstractRestTest {
 
     final inline fun <reified T : Any> ResultActions.returns(): T {
         return this.andReturn().let {
-            `access$objectMapper`.readValue(
-                it.response.contentAsByteArray)
+            `access$objectMapper`.readValue(it.response.contentAsByteArray)
         }
     }
 

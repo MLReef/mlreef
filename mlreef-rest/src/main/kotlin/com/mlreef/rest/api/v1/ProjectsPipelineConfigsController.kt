@@ -13,7 +13,9 @@ import com.mlreef.rest.api.v1.dto.FileLocationDto
 import com.mlreef.rest.api.v1.dto.PipelineConfigDto
 import com.mlreef.rest.api.v1.dto.PipelineInstanceDto
 import com.mlreef.rest.api.v1.dto.toDto
+import com.mlreef.rest.exceptions.ErrorCode
 import com.mlreef.rest.exceptions.NotFoundException
+import com.mlreef.rest.exceptions.PipelineCreateException
 import com.mlreef.rest.exceptions.ProjectNotFoundException
 import com.mlreef.rest.feature.pipeline.PipelineService
 import com.mlreef.rest.feature.project.DataProjectService
@@ -97,6 +99,7 @@ class ProjectsPipelineConfigsController(
         return persisted.toDto()
     }
 
+    // FIXME: Coverage says: missing tests
     @PostMapping("/create-start-instance")
     @PreAuthorize("isProjectOwner(#dataProjectId)")
     @Transactional
@@ -125,13 +128,17 @@ class ProjectsPipelineConfigsController(
 
     private fun createNewPipelineConfig(dataProject: DataProject, createRequest: PipelineConfigCreateRequest, person: Person): PipelineConfig {
         log.info(createRequest.toString())
-        return service.createPipelineConfig(
-            authorId = person.id,
-            dataProjectId = dataProject.id,
-            pipelineType = createRequest.pipelineType,
-            name = createRequest.name,
-            sourceBranch = createRequest.sourceBranch,
-            dataOperations = listOf(), inputFiles = listOf())
+        return try {
+            service.createPipelineConfig(
+                authorId = person.id,
+                dataProjectId = dataProject.id,
+                pipelineType = createRequest.pipelineType,
+                name = createRequest.name,
+                sourceBranch = createRequest.sourceBranch,
+                dataOperations = listOf(), inputFiles = listOf())
+        } catch (validationError: IllegalArgumentException) {
+            throw PipelineCreateException(ErrorCode.PipelineCreationFilesMissing, validationError.message)
+        }
     }
 
     private fun appendProcessorsAndFiles(dataOperations: List<DataProcessorInstanceDto>, inputFiles: List<FileLocationDto>, pipelineConfig: PipelineConfig) {
