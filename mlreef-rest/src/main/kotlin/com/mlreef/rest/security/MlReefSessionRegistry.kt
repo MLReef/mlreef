@@ -1,7 +1,6 @@
 package com.mlreef.rest.security
 
 import com.mlreef.rest.config.censor
-import com.mlreef.rest.config.security.AuthenticationProvider
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.security.core.session.SessionInformation
@@ -19,7 +18,7 @@ class MlReefSessionRegistry(
     @Qualifier("mlreefSessionRepository") private val sessionRepository: FindByIndexNameSessionRepository<out Session>
 ) : SessionRegistry {
     companion object {
-        private val log = LoggerFactory.getLogger(AuthenticationProvider::class.java)
+        private val log = LoggerFactory.getLogger(MlReefSessionRegistry::class.java)
     }
 
     private val REDIS_SESSION_PREFIX = "spring:session:sessions:"
