@@ -2,6 +2,7 @@
 #
 # Stage 1: build the React app in production mode
 #
+# The image must correspond with the image used in bin/npm
 FROM node:10.19.0-alpine AS BUILDER
 
 # add npm binaries to shell path
