@@ -15,7 +15,7 @@ class MlReefSessionsRepository<T : Session>(
     }
 
     override fun save(session: T) {
-        if (repository is RedisOperationsSessionRepository) {
+        if (repository is RedisIndexedSessionRepository) {
             repository.save(session)
             val principalName = session.getAttribute<String>(USERNAME_INDEX_NAME)
             val principalRedisKey: String = getOriginalPrincipalKey(principalName)
@@ -27,7 +27,7 @@ class MlReefSessionsRepository<T : Session>(
     }
 
     override fun deleteById(id: String?) {
-        if (repository is RedisOperationsSessionRepository) {
+        if (repository is RedisIndexedSessionRepository) {
             val session = repository.findById(id) as Session?
             repository.deleteById(id)
 
@@ -45,7 +45,7 @@ class MlReefSessionsRepository<T : Session>(
 
     @Suppress("UNCHECKED_CAST")
     override fun findByPrincipalName(principalName: String): Map<String, T> {
-        if (repository is RedisOperationsSessionRepository) {
+        if (repository is RedisIndexedSessionRepository) {
             val principalKey: String = this.getOriginalPrincipalKey(principalName)
             val sessionIds: Set<Any>? = repository.sessionRedisOperations.boundSetOps(principalKey).members()
             val sessions: MutableMap<String, T> = HashMap(sessionIds?.size ?: 0)
@@ -62,7 +62,7 @@ class MlReefSessionsRepository<T : Session>(
     }
 
     private fun getOriginalPrincipalKey(principalName: String): String {
-        if (repository is RedisOperationsSessionRepository) {
+        if (repository is RedisIndexedSessionRepository) {
             return "spring:session:index:$USERNAME_INDEX_NAME:$principalName"
         } else
             return principalName
