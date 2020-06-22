@@ -1,8 +1,5 @@
 package com.mlreef.rest.api
 
-import com.mlreef.rest.Account
-import com.mlreef.rest.AccountToken
-import com.mlreef.rest.Person
 import com.mlreef.rest.api.v1.LoginRequest
 import com.mlreef.rest.api.v1.RegisterRequest
 import com.mlreef.rest.api.v1.dto.SecretUserDto
@@ -19,8 +16,6 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Tag
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.http.MediaType
-import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.post
 import org.springframework.restdocs.payload.FieldDescriptor
 import org.springframework.restdocs.payload.JsonFieldType
 import org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath
@@ -29,8 +24,6 @@ import org.springframework.restdocs.payload.PayloadDocumentation.responseFields
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.test.annotation.Rollback
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
-import java.util.UUID.randomUUID
 import javax.transaction.Transactional
 
 class AuthApiTest : AbstractRestApiTest() {
@@ -63,19 +56,17 @@ class AuthApiTest : AbstractRestApiTest() {
         val email = "$randomUserName@example.com"
         val registerRequest = RegisterRequest(randomUserName, email, randomPassword, "name")
 
-        val returnedResult: SecretUserDto = this.mockMvc.perform(
-            post("$authUrl/register")
-                .accept(MediaType.APPLICATION_JSON)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(registerRequest)))
-            .andExpect(status().isOk)
+        val url = "$authUrl/register"
+
+        val result = this.performPost(url, body = registerRequest)
+            .expectOk()
             .document("register-success",
                 requestFields(registerRequestFields()),
                 responseFields(userSecretDtoResponseFields()))
             .returns(SecretUserDto::class.java)
 
         with(accountRepository.findOneByEmail(email)!!) {
-            assertThat(id).isEqualTo(returnedResult.id)
+            assertThat(id).isEqualTo(result.id)
         }
     }
 
@@ -87,12 +78,10 @@ class AuthApiTest : AbstractRestApiTest() {
         val existingUser = createMockUser()
         val registerRequest = RegisterRequest(existingUser.username, existingUser.email, "any other password", "name")
 
-        this.mockMvc.perform(
-            post("$authUrl/register")
-                .accept(MediaType.APPLICATION_JSON)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(registerRequest)))
-            .andExpect(status().is4xxClientError)
+        val url = "$authUrl/register"
+
+        this.performPost(url, body = registerRequest)
+            .expect4xx()
             .document("register-fail",
                 responseFields(errorResponseFields()))
     }
@@ -113,21 +102,19 @@ class AuthApiTest : AbstractRestApiTest() {
         val existingUser = createMockUser(plainPassword, "0000")
         val loginRequest = LoginRequest(existingUser.username, existingUser.email, plainPassword)
 
-        val returnedResult: SecretUserDto = this.mockMvc.perform(
-            post("$authUrl/login")
-                .accept(MediaType.APPLICATION_JSON)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(loginRequest)))
-            .andExpect(status().isOk)
+        val url = "$authUrl/login"
+
+        val result = this.performPost(url, body = loginRequest)
+            .expectOk()
             .document("login-success",
                 requestFields(loginRequestFields()),
                 responseFields(userSecretDtoResponseFields()))
             .returns(SecretUserDto::class.java).censor()
 
-        assertThat(returnedResult).isNotNull()
-        assertThat(returnedResult.username).isEqualTo(existingUser.username)
-        assertThat(returnedResult.email).isEqualTo(existingUser.email)
-        assertThat(returnedResult.token!!.substring(0, 3)).isEqualTo(existingUser.bestToken?.token?.substring(0, 3))
+        assertThat(result).isNotNull()
+        assertThat(result.username).isEqualTo(existingUser.username)
+        assertThat(result.email).isEqualTo(existingUser.email)
+        assertThat(result.token!!.substring(0, 3)).isEqualTo(existingUser.bestToken?.token?.substring(0, 3))
     }
 
     @Transactional
@@ -145,12 +132,10 @@ class AuthApiTest : AbstractRestApiTest() {
         val existingUser = createMockUser(plainPassword, "0000")
         val loginRequest = LoginRequest(existingUser.username, existingUser.email, plainPassword)
 
-        this.mockMvc.perform(
-            post("$authUrl/login")
-                .accept(MediaType.APPLICATION_JSON)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(loginRequest)))
-            .andExpect(status().is4xxClientError)
+        val url = "$authUrl/login"
+
+        this.performPost(url, body = loginRequest)
+            .expect4xx()
             .document("login-fail",
                 responseFields(errorResponseFields()))
     }
@@ -182,18 +167,5 @@ class AuthApiTest : AbstractRestApiTest() {
             fieldWithPath("username").type(JsonFieldType.STRING).optional().description("At least username or email has to be provided"),
             fieldWithPath("email").type(JsonFieldType.STRING).optional().description("At least username or email has to be provided")
         )
-    }
-
-    @Transactional
-    fun createMockUser(plainPassword: String = "password", userOverrideSuffix: String? = null): Account {
-        val accountId = randomUUID()
-        val passwordEncrypted = passwordEncoder.encode(plainPassword)
-        val person = Person(randomUUID(), "person_slug", "user name", 1L)
-        val token = AccountToken(randomUUID(), accountId, "secret_token", 0)
-        val account = Account(accountId, "username", "email@example.com", passwordEncrypted, person, mutableListOf(token))
-
-        personRepository.save(person)
-        accountRepository.save(account)
-        return account
     }
 }

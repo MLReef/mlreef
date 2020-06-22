@@ -607,6 +607,19 @@ class GitlabRestClient(
             .body!!
     }
 
+    fun adminResetUserPassword(gitlabUserId: Long, password: String): GitlabUser {
+        return GitlabModifyUserRequest(password = password)
+            .let { GitlabHttpEntity(it, createAdminHeaders()) }
+            .addErrorDescription(404, ErrorCode.GitlabUserNotExisting, "User with id $gitlabUserId not found")
+            .addErrorDescription(ErrorCode.GitlabUserModificationFailed, "Cannot modify user with id $gitlabUserId in gitlab")
+            .makeRequest {
+                val url = "$gitlabServiceRootUrl/users/$gitlabUserId"
+                restTemplate(builder).exchange(url, HttpMethod.PUT, it, GitlabUser::class.java)
+            }
+            .also { logGitlabCall(it) }
+            .body!!
+    }
+
 
     fun adminGetUserToken(gitlabUserId: Long, token: Int): GitlabUserToken {
         return GitlabGetUserTokenRequest()

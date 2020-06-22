@@ -3,9 +3,11 @@ package com.mlreef.rest.api
 import com.mlreef.rest.AccessLevel
 import com.mlreef.rest.Account
 import com.mlreef.rest.AccountRepository
+import com.mlreef.rest.AccountToken
 import com.mlreef.rest.AccountTokenRepository
 import com.mlreef.rest.ApplicationProfiles
 import com.mlreef.rest.I18N
+import com.mlreef.rest.Person
 import com.mlreef.rest.PersonRepository
 import com.mlreef.rest.external_api.gitlab.GitlabRestClient
 import com.mlreef.rest.external_api.gitlab.GitlabVisibility
@@ -61,6 +63,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders
 import org.springframework.web.context.WebApplicationContext
 import java.util.UUID
 import java.util.regex.Pattern
+import javax.transaction.Transactional
 import kotlin.math.absoluteValue
 import kotlin.random.Random
 
@@ -284,7 +287,6 @@ abstract class AbstractRestApiTest : AbstractRestTest() {
                                groupIdLevelMap: MutableMap<UUID, AccessLevel?> = mutableMapOf(),
                                returnAccount: Account? = null) {
         val actualAccount = returnAccount ?: account
-//        every { accountRepository.findAccountByGitlabId(any()) } answers { actualAccount }
         every { sessionRegistry.retrieveFromSession(any()) } answers {
             val token = this.args[0] as String
             tokenDetails(actualAccount, token, projectIdLevelMap, groupIdLevelMap)
@@ -311,6 +313,19 @@ abstract class AbstractRestApiTest : AbstractRestTest() {
                 visibility = GitlabVisibility.PUBLIC
             )
         }
+    }
+
+    @Transactional
+    fun createMockUser(plainPassword: String = "password", userOverrideSuffix: String? = null): Account {
+        val accountId = UUID.randomUUID()
+        val passwordEncrypted = passwordEncoder.encode(plainPassword)
+        val person = Person(UUID.randomUUID(), "person_slug", "user name", 1L)
+        val token = AccountToken(UUID.randomUUID(), accountId, "secret_token", 0)
+        val account = Account(accountId, "username", "email@example.com", passwordEncrypted, person, mutableListOf(token))
+
+        personRepository.save(person)
+        accountRepository.save(account)
+        return account
     }
 
     private fun tokenDetails(actualAccount: Account,

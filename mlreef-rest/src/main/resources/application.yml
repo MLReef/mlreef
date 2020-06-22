@@ -19,6 +19,16 @@ mlreef:
     epf-bot-password-length: 20
   security:
     gitlab-oauth: false
+  scheduler:
+    pool-size: 100
+  email:
+    send-attempts-on-fail: 5
+    pause-between-failed-attempts-sec: 60
+  password-management:
+    reset-password-send-email-interval-sec: 300
+    reset-password-token-valid-sec: 600
+    password-reset-url: https://mlreef.com/login/password-reset
+    password-reset-confirm-url: https://mlreef.com/api/v1/password/confirm
 
 spring:
   devtools:
@@ -51,4 +61,15 @@ spring:
     redis:
       flush-mode: on_save
       namespace: spring:session
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${NOREPLY_EMAIL}
+    password: ${NOREPLY_EMAIL_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
 
