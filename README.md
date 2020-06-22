@@ -19,37 +19,26 @@ Getting Started
  2. on Windows: install Cygwin and please also see the extra steps below
  3. Login to our private docker registry hosted on gitlab, with your gitlab credentials by executing `docker login registry.gitlab.com`
 
-### Setup infrastructure
-From the repositories _root_ folder execute:
-```bash
-bin/setup-local-environment.sh
-```
+### Setup Infrastructure
+From the repositories _root_ folder execute: `bin/setup-local-environment.sh`
 
 After the setup has finished you can connect to MLReef via: [http://localhost](http://localhost)
 
 
 ### Setup your frontend developer environment
- 1. Install Node (10.16.0 LTS)
-   * Windows [link](https://nodejs.org/en/download/)
-   * **OSX:**
-     ```shell script
-     # install homebrew
-     /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
-     # use homebrew to install node
-     brew install node`
-     ```
- 2. Install react scripts `npm install --global react-scripts`
- 3. Install all frontend dependencies with via npm: `npm install`
- 4. If you are running the backend on a different machine (e.g. a cloud instance)
+From the `web` folder 
+ 1. Install react-scripts with: `bin/npm install react-scripts` 
+ 2. Install all frontend dependencies with `bin/npm install` 
+ 3. If you are running the backend on a different machine (e.g. a cloud instance)
     look at the config file `web/.env` for further instructions on how to configure it properly
 
+### Run the frontend in development mode
+The following commands all have to be executed from the `web` folder:
 
-### Install and Run the frontend locally Locally
-The following commands all have to be executed from the folder:
+You can start the frontend separately with npm running `bin/npm start`
 
-To install all dependencies execute `npm install`
-
-You can start the frontend separately with npm running `npm start`
+### Run the frontend in production mode
+The following commands all have to be executed from the `web` folder:
 
 To build the frontend's production docker image execute `docker build --tag frontend:local .`
 
@@ -271,7 +260,9 @@ Those docker containers have different startup and waiting times, which can vary
 * postgres: ~5 seconds
 * redis: ~2 seconds
 
-The backend starts and checks for an available gitlab. If it cannot work due to persistant misconfiguration, a crash will inform you about bad credentials (GITLAB_ADMIN_TOKEN) or a invalid GITLAB_ROOT_URL. In case of temporary communication failures, the backend assumes the configuration would be working.
+The backend starts and checks for an available gitlab. If it cannot work due to persistent misconfiguration,
+a crash will inform you about bad credentials (GITLAB_ADMIN_TOKEN) or a invalid GITLAB_ROOT_URL. In case of temporary communication failures,
+the backend assumes the configuration would be working.
 
 You can ask the backend how it feels:
 
@@ -312,8 +303,8 @@ This step is actually not needed for working, but useful as it creates a demo us
 * data population is started when you run backend in "dev" or "docker" environment
 * this will be changed and refactored soon; it was just meant to have a demo user now
 
-### Explanation of ENV variables
 
+### Explanation of ENV variables
 As we are in development for pre-alpha: Set GITLAB_ADMIN_TOKEN is sufficent.
 
 More ENV vars can be used for local adaption, development and debugging:
@@ -332,26 +323,14 @@ More ENV vars can be used for local adaption, development and debugging:
   * provide "test" for testing: uses testcontainers instead of docker services for tests
   * provide "prod" for testing: less logging  
 
-TODO: Refactor this in the frontend:
-
-* BACKEND_INSTANCE_URL (optional)
-  * may default to "http://localhost:20080" but must be provided for the frontend connection
-* GITLAB_ROOT_URL (optional)
-  * may default to "http://gitlab:80" but should be provided anyway in the backend
 
 ```bash
-docker ps
-
-# you may need to restart backend or gitlab after the setup-gitlab
-docker-compose up -d backend
-
 # restart the frontend
-docker-compose up -d frontend  nginx-proxy
+docker-compose up -d gateway
 ```
 
 
 #### Attention: 2nd Proxy for local dev environment
-
 There is a middleware proxy in setupProxy.js to proxy during development (does not need nginx-proxy)
 
 This is meant as a helper for frontend developers and a work-in-progress.
