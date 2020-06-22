@@ -14,6 +14,7 @@ import java.util.UUID
 interface AccountRepository : KtCrudRepository<Account, UUID> {
     fun findOneByUsername(username: String): Account?
     fun findOneByEmail(email: String): Account?
+    fun findByChangeAccountToken(token: String): Account?
 
     @Query("SELECT a FROM Account a WHERE a.person.gitlabId = :gitlabId")
     fun findAccountByGitlabId(gitlabId: Long): Account?
@@ -158,3 +159,6 @@ interface MarketplaceEntryRepository : KtCrudRepository<MarketplaceEntry, UUID> 
 interface SearchableTagRepository : KtCrudRepository<SearchableTag, UUID> {
     fun findAllByPublicTrueOrOwnerIdIn(ids: List<UUID>): List<SearchableTag>
 }
+
+@Repository
+interface EmailRepository : KtCrudRepository<Email, UUID>

@@ -15,6 +15,11 @@ internal class GitlabCreateUserRequest(
     val skipConfirmation: Boolean = true
 ) : Serializable
 
+//https://docs.gitlab.com/ee/api/users.html#user-modification
+internal class GitlabModifyUserRequest(
+    val password: String? = null
+) : Serializable
+
 // https://docs.gitlab.com/ee/api/users.html#get-all-impersonation-tokens-of-a-user
 internal class GitlabGetUserTokensRequest(
     val userId: Int,

@@ -45,6 +45,10 @@ dependencies {
     runtimeOnly 'redis.clients:jedis:3.3.0'
     runtimeOnly 'com.h2database:h2'
 
+    //Email
+    implementation 'org.springframework.boot:spring-boot-starter-mail'
+    implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+
     def jupiter = "5.4.0"
     def mockkVersion = "1.10.0"
     testImplementation "org.junit.jupiter:junit-jupiter:$jupiter"

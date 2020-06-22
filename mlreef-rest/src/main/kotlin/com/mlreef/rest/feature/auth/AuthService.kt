@@ -15,6 +15,7 @@ import com.mlreef.rest.exceptions.GitlabNoValidTokenException
 import com.mlreef.rest.exceptions.IncorrectCredentialsException
 import com.mlreef.rest.exceptions.NotConsistentInternalDb
 import com.mlreef.rest.exceptions.RestException
+import com.mlreef.rest.exceptions.UnknownUserException
 import com.mlreef.rest.exceptions.UserAlreadyExistsException
 import com.mlreef.rest.exceptions.UserNotFoundException
 import com.mlreef.rest.external_api.gitlab.GitlabRestClient
@@ -161,6 +162,21 @@ class AuthService(
             return gitlabRestClient.getUser(account.bestToken?.token
                 ?: throw CredentialException("No valid token for user"))
         }
+    }
+
+    @Transactional
+    fun changePasswordForUser(account: Account, newPassword: String): Boolean {
+        gitlabRestClient.adminResetUserPassword(
+            account.person.gitlabId ?: throw UnknownUserException("User is not connected to Gitlab"),
+            newPassword)
+
+        val passwordEncrypted = passwordEncoder.encode(newPassword)
+
+        accountRepository.save(
+            account.copy(passwordEncrypted = passwordEncrypted)
+        )
+
+        return true
     }
 
     fun findGitlabUserViaToken(token: String): GitlabUser {

@@ -33,6 +33,11 @@ class Account(
     @Deprecated("Use gitlabId in Person Entity")
     val gitlabId: Long? = null,
     val lastLogin: ZonedDateTime? = null,
+
+    // Token for changing account (change password, etc)
+    val changeAccountToken: String? = null,
+    val changeAccountTokenCreatedAt: ZonedDateTime? = null,
+
     // Auditing
     version: Long? = null,
     createdAt: ZonedDateTime? = null,
@@ -58,7 +63,28 @@ class Account(
         tokens = tokens ?: this.tokens,
         version = this.version,
         createdAt = this.createdAt,
-        updatedAt = this.updatedAt
+        updatedAt = this.updatedAt,
+        changeAccountToken = this.changeAccountToken,
+        changeAccountTokenCreatedAt = this.changeAccountTokenCreatedAt
+    )
+
+    fun copyWithToken(
+        changeAccountToken: String?,
+        changeAccountTokenCreatedAt: ZonedDateTime?
+    ): Account = Account(
+        id = this.id,
+        username = this.username,
+        email = this.email,
+        passwordEncrypted = this.passwordEncrypted,
+        person = this.person,
+        gitlabId = this.gitlabId,
+        lastLogin = this.lastLogin,
+        tokens = this.tokens,
+        version = this.version,
+        createdAt = this.createdAt,
+        updatedAt = this.updatedAt,
+        changeAccountToken = changeAccountToken,
+        changeAccountTokenCreatedAt = changeAccountTokenCreatedAt
     )
 
     val bestToken: AccountToken?

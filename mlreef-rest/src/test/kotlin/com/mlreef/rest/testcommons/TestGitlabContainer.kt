@@ -19,8 +19,10 @@ class TestGitlabContainer private constructor() : GenericContainer<TestGitlabCon
 
         const val ROOT_PASSWORD = "password"
 
-        private const val GITLAB_START_LOG_FRAGMENT = "Running handlers complete"
+        private const val GITLAB_START_LOG_FRAGMENT = "database system is ready to accept connections"
         private const val GITLAB_START_LOG_REGEX = "^.*$GITLAB_START_LOG_FRAGMENT.*\$"
+
+        private const val WAIT_FOR_COMPLETE_CONTAINER_UP_MS = 10000L
 
         val instance by lazy {
             val waitStrategy = HttpWaitStrategy()
@@ -35,7 +37,7 @@ class TestGitlabContainer private constructor() : GenericContainer<TestGitlabCon
 
             val container = TestGitlabContainer().apply {
                 withExposedPorts(80)
-                setWaitStrategy(waitStrategy)
+//                setWaitStrategy(waitStrategy)
                 setWaitStrategy(waitStrategyForLog)
                 withLogConsumer(Slf4jLogConsumer(logger))
                 withEnv(createConfig())
@@ -61,6 +63,7 @@ class TestGitlabContainer private constructor() : GenericContainer<TestGitlabCon
         override fun initialize(applicationContext: ConfigurableApplicationContext) {
             val container = instance
             container.start()
+            Thread.sleep(WAIT_FOR_COMPLETE_CONTAINER_UP_MS)
             val port = container.firstMappedPort
             val host = container.containerIpAddress
             val gitlabRootUrl = "http://$host:$port"
