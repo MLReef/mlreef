@@ -31,7 +31,7 @@ interface GroupsService {
     fun getUserGroupsList(personId: UUID? = null, userId: UUID? = null): List<GroupOfUser>
     fun getGroupById(groupId: UUID): Group?
     fun getUsersInGroup(groupId: UUID): List<UserInGroup>
-    fun createGroupAsUser(ownerToken: String, groupName: String, path: String? = null, ownerId: UUID? = null): Group
+    fun createGroup(ownerToken: String, groupName: String, path: String? = null, ownerId: UUID? = null): Group
     fun updateGroup(groupId: UUID, groupName: String? = null, path: String? = null): Group
     fun deleteGroup(groupId: UUID)
     fun addUserToGroup(groupId: UUID, userId: UUID, accessLevel: AccessLevel? = AccessLevel.GUEST): List<UserInGroup>
@@ -96,7 +96,7 @@ interface GroupsService {
 
     @Transactional
     @RefreshUserInformation(userId = "#ownerId")
-    override fun createGroupAsUser(ownerToken: String, groupName: String, path: String?, ownerId: UUID?): Group {
+    override fun createGroup(ownerToken: String, groupName: String, path: String?, ownerId: UUID?): Group {
         resolveAccount(userToken = ownerToken, userId = ownerId) ?: throw UserNotFoundException(userId = ownerId)
 
         val gitlabGroup = gitlabRestClient.userCreateGroup(
