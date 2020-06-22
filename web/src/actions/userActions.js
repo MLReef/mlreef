@@ -2,6 +2,8 @@ import UserApi from 'apis/UserApi';
 import MLAuthApi from 'apis/MLAuthApi';
 import * as types from './actionTypes';
 
+const userApi = new UserApi();
+
 export function setLoginInfo(user) {
   return { type: types.LOGIN, user };
 }
@@ -34,13 +36,10 @@ export function updateUserInstructionsSuccessfully(closedInstructions) {
 }
 
 export function updateUserClosedInstructions(closedInstructions) {
-  return (dispatch) => {
-    const userApi = new UserApi();
-    userApi
-      .updateMeta({ closedInstructions })
-      .then((success) => success
-        && dispatch(updateUserInstructionsSuccessfully(closedInstructions)));
-  };
+  return (dispatch) => userApi
+    .updateMeta({ closedInstructions })
+    .then((success) => success
+      && dispatch(updateUserInstructionsSuccessfully(closedInstructions)));
 }
 
 export function updateUserMetaSuccessfully(meta) {
@@ -48,12 +47,9 @@ export function updateUserMetaSuccessfully(meta) {
 }
 
 export function updateUserMeta(meta) {
-  return (dispatch) => {
-    const userApi = new UserApi();
-    userApi
-      .updateMeta(meta)
-      .then((success) => success && dispatch(updateUserMetaSuccessfully(meta)));
-  };
+  return (dispatch) => userApi
+    .updateMeta(meta)
+    .then((success) => success && dispatch(updateUserMetaSuccessfully(meta)));
 }
 
 export function setUserInfo(userInfo) {
@@ -61,12 +57,9 @@ export function setUserInfo(userInfo) {
 }
 
 export function getUserInfo() {
-  return (dispatch) => {
-    const userApi = new UserApi();
-    userApi
-      .getUserInfo()
-      .then((userInfo) => dispatch(setUserInfo(userInfo)));
-  };
+  return (dispatch) => userApi
+    .getUserInfo()
+    .then((userInfo) => dispatch(setUserInfo(userInfo)));
 }
 
 export function updateUserInfoSuccessfully(info) {
@@ -74,12 +67,9 @@ export function updateUserInfoSuccessfully(info) {
 }
 
 export function updateUserInfo(info) {
-  return (dispatch) => {
-    const userApi = new UserApi();
-    userApi
-      .updateUserInfo(info)
-      .then(() => dispatch(updateUserInfoSuccessfully(info)));
-  };
+  return (dispatch) => userApi
+    .updateUserInfo(info)
+    .then(() => dispatch(updateUserInfoSuccessfully(info)));
 }
 
 export function registerUserSuccessfully(user) {
