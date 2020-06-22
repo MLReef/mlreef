@@ -205,6 +205,12 @@ import javax.transaction.Transactional
             ?: GroupAccessLevel.DEVELOPER)
     }
 
+    fun addRealUserToGroup(groupId: Long, userId: Long, accessLevel: GroupAccessLevel? = null) {
+        restClient.adminAddUserToGroup(groupId = groupId, userId = userId, accessLevel = accessLevel
+            ?: GroupAccessLevel.DEVELOPER)
+    }
+
+
     fun generateProcessorsInDatabase() {
         dataOp1 = createDataOperation()
         dataOp2 = createDataAlgorithm()

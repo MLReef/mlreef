@@ -133,8 +133,8 @@ internal class AccountSubjectPreparationTrait {
     }
 
     private fun applyAccount() {
-        account = createMockUser()
-        account2 = createMockUser(userOverrideSuffix = "0002")
+        account = createMockUser(personGitlabId = 1L)
+        account2 = createMockUser(userOverrideSuffix = "0002", personGitlabId = 2L)
         subject = account.person
         subject2 = account2.person
     }
@@ -148,7 +148,7 @@ internal class AccountSubjectPreparationTrait {
     }
 
     @Transactional
-    protected fun createMockUser(plainPassword: String = "password", userOverrideSuffix: String? = null): Account {
+    protected fun createMockUser(plainPassword: String = "password", userOverrideSuffix: String? = null, personGitlabId: Long? = null): Account {
 
         var mockToken = AbstractRestApiTest.testPrivateUserTokenMock1
         var userSuffix = "0000"
@@ -167,7 +167,7 @@ internal class AccountSubjectPreparationTrait {
             id = UUID.fromString("aaaa0000-0001-0000-$userSuffix-cccccccccccc"),
             slug = "person_slug$userSuffix",
             name = "user name",
-            gitlabId = Random.nextLong())
+            gitlabId = personGitlabId ?: Random.nextLong().absoluteValue)
         val account = Account(
             id = accountId,
             username = "username$userSuffix",

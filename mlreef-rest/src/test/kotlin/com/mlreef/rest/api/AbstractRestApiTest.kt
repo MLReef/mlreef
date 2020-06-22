@@ -276,7 +276,18 @@ abstract class AbstractRestApiTest : AbstractRestTest() {
 //        }
         every { sessionRegistry.retrieveFromSession(any()) } answers {
             val token = this.args[0] as String
-            tokenDetails(actualAccount, token, projectIdLevelMap)
+            tokenDetails(actualAccount, token, projectIdLevelMap, mutableMapOf())
+        }
+    }
+
+    fun mockUserAuthentication(projectIdLevelMap: MutableMap<UUID, AccessLevel?> = mutableMapOf(),
+                               groupIdLevelMap: MutableMap<UUID, AccessLevel?> = mutableMapOf(),
+                               returnAccount: Account? = null) {
+        val actualAccount = returnAccount ?: account
+//        every { accountRepository.findAccountByGitlabId(any()) } answers { actualAccount }
+        every { sessionRegistry.retrieveFromSession(any()) } answers {
+            val token = this.args[0] as String
+            tokenDetails(actualAccount, token, projectIdLevelMap, groupIdLevelMap)
         }
     }
 
@@ -302,7 +313,10 @@ abstract class AbstractRestApiTest : AbstractRestTest() {
         }
     }
 
-    private fun tokenDetails(actualAccount: Account, token: String, projectIdLevelMap: MutableMap<UUID, AccessLevel?>): TokenDetails {
+    private fun tokenDetails(actualAccount: Account,
+                             token: String,
+                             projectIdLevelMap: MutableMap<UUID, AccessLevel?>,
+                             groupIdLevelMap: MutableMap<UUID, AccessLevel?>): TokenDetails {
         return TokenDetails(
             username = actualAccount.username,
             permanentToken = actualAccount.bestToken?.token ?: throw RuntimeException("Could not setup mock"),
@@ -311,7 +325,8 @@ abstract class AbstractRestApiTest : AbstractRestTest() {
             personId = actualAccount.person.id,
             gitlabUser = GitlabUser(account.person.gitlabId!!, "testuser", "Test User", "test@example.com"),
             valid = true,
-            projects = projectIdLevelMap
+            projects = projectIdLevelMap,
+            groups = groupIdLevelMap
         )
     }
 

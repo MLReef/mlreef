@@ -134,7 +134,7 @@ class AuthService(
 
         val groupName = "mlreef-group-$username"
 
-        val group = groupService.createGroupAsUser(token, groupName)
+        val group = groupService.createGroup(token, groupName)
 
         //Create EPF-Bot and add it to user's group
         val botName = "$username-bot"

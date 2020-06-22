@@ -46,7 +46,7 @@ class GroupsController(
     @PostMapping
     @PreAuthorize("canCreateGroup()")
     fun createGroup(@Valid @RequestBody groupCreateRequest: GroupCreateRequest, token: TokenDetails): GroupDto {
-        val group = groupsService.createGroupAsUser(
+        val group = groupsService.createGroup(
             ownerToken = token.permanentToken,
             groupName = groupCreateRequest.name,
             path = groupCreateRequest.path)

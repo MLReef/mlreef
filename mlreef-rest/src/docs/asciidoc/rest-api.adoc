@@ -276,6 +276,51 @@ Delete a user with parameters by user_id or gitlab_id from the project by id (:i
 operation::dataprojects-delete-user-by-params[snippets='curl-request,request-parameters,response-body,response-fields']
 
 
+[[groups]]
+== Groups - /groups
+
+Group is an entity that unites accounts to a single class/batch
+
+=== GET /groups
+
+operation::user-groups-list[snippets='curl-request,response-body,response-fields']
+
+=== POST /groups
+
+operation::group-create[snippets='curl-request,response-body,response-fields']
+
+=== PUT /groups/:id
+
+operation::group-update[snippets='curl-request,response-body,response-fields']
+
+=== DELETE /groups/:id
+
+operation::group-delete[snippets='curl-request']
+
+=== GET /groups/:id/users
+
+Get users list that are participate in the group by id (:id)
+
+operation::group-retrieve-users[snippets='curl-request,response-body,response-fields']
+
+=== POST /groups/:id/users/:userId
+
+Add a user by id (:userId) to the group by id (:id)
+
+operation::group-add-user[snippets='curl-request,response-body,response-fields']
+
+=== PUT /groups/:id/users/:userId
+
+Edit a user by id (:userId) in the group by id (:id). Access level change is supported currently
+
+operation::group-edit-user[snippets='curl-request,request-parameters,response-body,response-fields']
+
+=== DELETE /groups/:id/users/:userId
+
+Delete a user by id (:userId) from the group by id (:id). Returns a list with users left in the project.
+
+operation::group-delete-user[snippets='curl-request,response-body,response-fields']
+
 
 [[data-processors]]
 == Data Processors
