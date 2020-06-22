@@ -1,0 +1,16 @@
+.breadCrumbs {
+  margin: 0 18%;
+
+  &-list {
+    display: flex;
+    width: 100%;
+    position: relative;
+    align-items: center;
+  }
+
+  &-link {
+    flex: 1;
+    min-width: 0;
+    align-self: center;
+  }
+}

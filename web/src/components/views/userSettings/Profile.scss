@@ -1,0 +1,49 @@
+@import '../../../styles/breakpoints';
+
+.user-form {
+  border-left: 1px solid #e5e5e5;
+
+  > .row {
+    flex-wrap: wrap;
+    margin: 0 -15px;
+  }
+
+  .right-row {
+    position: relative;
+    width: 100%;
+  }
+  
+  .left-row {
+    position: relative;
+    width: 100%;
+  }
+
+  @media (min-width: $bp-sm) {
+    .responsiveAvatar {
+      float: left;
+      margin-bottom: 0;
+    }
+  }
+
+  @media (min-width: $bp-md) {
+    .right-row {
+      flex: 0 0 66.66667%;
+      max-width: 66.66667%;
+    }
+
+    .left-row {
+      max-width: 33.33%;
+      flex: 0 0 33.33%;
+    }
+
+    .right-col {
+      flex: 0 0 25%;
+      max-width: 25%;
+    }
+
+    .left-col {
+      flex: 0 0 75%;
+      max-width: 75%;
+    }
+  }
+}

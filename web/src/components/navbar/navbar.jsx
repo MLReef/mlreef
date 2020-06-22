@@ -5,10 +5,10 @@ import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import MDropdown from 'components/ui/MDropdown';
 import { logout } from 'actions/userActions';
+import MGlobalMarker from 'components/ui/MGlobalMarker/MGlobalMarker';
 import mlReefIcon01 from '../../images/MLReef_Logo_navbar.png';
 import helpWhite from '../../images/help_white.png';
 import './navbar.scss';
-import MGlobalMarker from 'components/ui/MGlobalMarker/MGlobalMarker';
 
 class Navbar extends Component {
   constructor(props) {
@@ -123,6 +123,9 @@ class Navbar extends Component {
                     {user.email}
                   </i>
                 </div>
+                <p>
+                  <Link to="/profile">Settings</Link>
+                </p>
                 <hr />
                 <p
                   onClick={this.handleSignOut}
