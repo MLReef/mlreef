@@ -1,8 +1,8 @@
+import UserApi from 'apis/UserApi';
+import MLAuthApi from 'apis/MLAuthApi';
 import * as types from './actionTypes';
-import UserApi from '../apis/UserApi';
-import MLAuthApi from '../apis/MLAuthApi';
 
-export function setLoginInfo(user){
+export function setLoginInfo(user) {
   return { type: types.LOGIN, user };
 }
 
@@ -18,7 +18,7 @@ export function login(formData) {
 }
 
 
-export function logoutSuccessfully(){
+export function logoutSuccessfully() {
   return { type: types.LOGOUT };
 }
 
@@ -34,43 +34,55 @@ export function updateUserInstructionsSuccessfully(closedInstructions) {
 }
 
 export function updateUserClosedInstructions(closedInstructions) {
-  return (dispatch) => UserApi
-    .updateMeta({ closedInstructions })
-    .then((success) => success
-      && dispatch(updateUserInstructionsSuccessfully(closedInstructions)));
+  return (dispatch) => {
+    const userApi = new UserApi();
+    userApi
+      .updateMeta({ closedInstructions })
+      .then((success) => success
+        && dispatch(updateUserInstructionsSuccessfully(closedInstructions)));
+  };
 }
 
-export function updateUserMetaSuccessfully(meta){
+export function updateUserMetaSuccessfully(meta) {
   return { type: types.UPDATE_USER_META, meta };
 }
 
 export function updateUserMeta(meta) {
-  return (dispatch) => UserApi
-    .updateMeta(meta)
-    .then((success) => success && dispatch(updateUserMetaSuccessfully(meta)));
+  return (dispatch) => {
+    const userApi = new UserApi();
+    userApi
+      .updateMeta(meta)
+      .then((success) => success && dispatch(updateUserMetaSuccessfully(meta)));
+  };
 }
 
-export function setUserInfo(userInfo){
+export function setUserInfo(userInfo) {
   return { type: types.SET_USER_INFO, userInfo };
 }
 
 export function getUserInfo() {
-  return (dispatch) => UserApi
-    .getUserInfo()
-    .then((userInfo) => dispatch(setUserInfo(userInfo)));
+  return (dispatch) => {
+    const userApi = new UserApi();
+    userApi
+      .getUserInfo()
+      .then((userInfo) => dispatch(setUserInfo(userInfo)));
+  };
 }
 
-export function updateUserInfoSuccessfully(info){
+export function updateUserInfoSuccessfully(info) {
   return { type: types.UPDATE_USER_INFO, info };
 }
 
 export function updateUserInfo(info) {
-  return (dispatch) => UserApi
-    .updateUserInfo(info)
-    .then(() => dispatch(updateUserInfoSuccessfully(info)));
+  return (dispatch) => {
+    const userApi = new UserApi();
+    userApi
+      .updateUserInfo(info)
+      .then(() => dispatch(updateUserInfoSuccessfully(info)));
+  };
 }
 
-export function registerUserSuccessfully(user){
+export function registerUserSuccessfully(user) {
   return { type: types.LOGIN, user };
 }
 
@@ -84,18 +96,18 @@ export function registerUser(data) {
     });
 }
 
-export function setGlobalMarkerColorSuccessfully(color){
+export function setGlobalMarkerColorSuccessfully(color) {
   return { type: types.SET_GLOBAL_COLOR_MARKER, color };
 }
 
-export function setGlobalMarkerColor(color){
+export function setGlobalMarkerColor(color) {
   return (dispatch) => dispatch(setGlobalMarkerColorSuccessfully(color));
 }
 
-export function setIsLoadingSuccessfully(isLoading){
+export function setIsLoadingSuccessfully(isLoading) {
   return { type: types.SET_IS_LOADING, isLoading };
 }
 
-export function setIsLoading(isLoading){
+export function setIsLoading(isLoading) {
   return (dispatch) => dispatch(setIsLoadingSuccessfully(isLoading));
 }

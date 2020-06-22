@@ -1,5 +1,7 @@
 import React from 'react';
 import { BrowserRouter, Route, Switch } from 'react-router-dom';
+import UserAccount from 'components/views/userSettings/UserAccount';
+import CreateGroup from 'components/views/create-group/createGroup';
 import FileView from './components/fileView/fileView';
 import Login from './components/login/login';
 import RegisterView from './components/RegisterView';
@@ -30,7 +32,6 @@ import ForkView from './components/ForkView';
 import Insights from './components/insights/insights';
 // this is component for testing layout and should be removed after alpha
 import Demo from './components/Demo';
-import CreateGroup from './components/views/create-group/createGroup';
 
 const RouterComp = () => (
   <BrowserRouter>
@@ -48,6 +49,8 @@ const RouterComp = () => (
       <PrivateRoute path="/perms/account" accountType={1} exact component={Projects} />
 
       <PrivateRoute path="/my-projects" exact component={Projects} />
+      <PrivateRoute exact path="/new-group" component={CreateGroup} />
+      <PrivateRoute exact path="/profile" component={UserAccount} />
       <PrivateRoute path="/:user" exact component={UserProfile} />
       <PrivateRoute path="/new-project/classification/:classification" exact component={CreateProject} />
       <PrivateRoute path="/my-projects/:projectId/:branch/commits/:pathParam?" exact component={Commits} />
@@ -122,11 +125,6 @@ const RouterComp = () => (
         exact
         path="/my-projects/:projectId/:branch/new-merge-request"
         component={NewMergeRequest}
-      />
-      <PrivateRoute
-        exact
-        path="/new-group"
-        component={CreateGroup}
       />
       <Route component={ErrorPage} />
     </Switch>

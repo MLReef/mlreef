@@ -1,0 +1,24 @@
+// global input text
+input:not([type="select"]):not([type="radio"]):not([type="checkbox"]) {
+  box-sizing: border-box;
+  width: 100%;
+  border: solid 1px var(--secondary);
+  border-radius: 5px;
+  padding: 0.5rem 1rem;
+  font-size: 1rem;
+  line-height: 1.15;
+  height: auto;
+
+  &::placeholder {
+    color: var(--secondary);
+  }
+
+  &:focus {
+    outline: none;
+    border-color: var(--info);
+  }
+
+  &.custom-class {
+    // insert here your code
+  }
+}

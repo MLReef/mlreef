@@ -1,6 +1,5 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { Route, Link, Switch } from 'react-router-dom';
-import $ from 'jquery';
 import { connect } from 'react-redux';
 import { shape, number, string } from 'prop-types';
 import JobLogById from 'components/insights/insights-menu/jobLogById';
@@ -11,6 +10,7 @@ import Jobs from './insights-menu/jobs';
 
 const Insights = (props) => {
   const { selectedProject, selectedProject: { id }, match: { params: { logId } } } = props;
+  const tabs = useRef(null);
 
   // When creating any features in the future such
   // as Contributors, Resources etc. add a route
@@ -29,8 +29,8 @@ const Insights = (props) => {
   ];
 
   function menuBtnHandler(e) {
-    $('div.insights-menu')[0]
-      .childNodes.forEach((btnNode) => {
+    tabs.current.childNodes
+      .forEach((btnNode) => {
         btnNode.classList.remove('active');
       });
     e.target.classList.add('active');
@@ -45,7 +45,7 @@ const Insights = (props) => {
         viewName="Insights"
       />
         <div className="main-content web-box">
-          <div className="insights-menu">
+          <div ref={tabs} className="insights-menu">
             <Link role="button" id="jobs-btn" onClick={menuBtnHandler} className="mbtn active" to={`/my-projects/${id}/insights/-/jobs`}>
               Jobs
             </Link>

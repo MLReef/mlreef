@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { toastr } from 'react-redux-toastr';
@@ -8,7 +8,6 @@ import {
   string,
 } from 'prop-types';
 import './experimentDetails.css';
-import $ from 'jquery';
 import ExperimentsApi from 'apis/experimentApi';
 import Navbar from '../navbar/navbar';
 import ProjectContainer from '../projectContainer';
@@ -29,6 +28,7 @@ const sections = {
 const ExperimentDetails = (props) => {
   const [selectedSection, setSelectedSection] = useState(0);
   const [experiment, setExperiment] = useState({});
+  const tabSwitch = useRef(null);
   const {
     selectedProject,
     jobs,
@@ -67,8 +67,8 @@ const ExperimentDetails = (props) => {
   }, [uuid, experimentId]);
 
   function menuBtnHandler(e) {
-    $('div.experiment-details-menu')[0]
-      .childNodes.forEach((btnNode) => {
+    tabSwitch.current.childNodes
+      .forEach((btnNode) => {
         btnNode.classList.remove('active');
       });
     e.target.classList.add('active');
@@ -140,7 +140,7 @@ const ExperimentDetails = (props) => {
           </p>
         </div>
         <div style={{ display: 'flex' }}>
-          <div className="experiment-details-menu">
+          <div ref={tabSwitch} className="experiment-details-menu">
             <button type="button" id="details-btn" onClick={menuBtnHandler} className="menu-button active">Details</button>
             <button type="button" id="training-btn" onClick={menuBtnHandler} className="menu-button">Training</button>
             <button type="button" id="files-btn" onClick={menuBtnHandler} className="menu-button">Files</button>

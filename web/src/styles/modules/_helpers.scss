@@ -124,6 +124,10 @@
     margin-right: auto;
   }
 
+  &-auto {
+    width: auto !important;
+  }
+
   &-100 {
     width: 100% !important;
   }
@@ -143,6 +147,10 @@
 
 /* height helpers */
 .h {
+  &-auto {
+    height: auto !important;
+  }
+
   &-100 {
     height: 100% !important;
   }
