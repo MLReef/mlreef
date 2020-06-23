@@ -28,7 +28,7 @@ RUN echo "----------------------------------------------------------------------
     echo "                       MLREEF EPF: Setting Up"                            && \
     echo "------------------------------------------------------------------------" && \
     apt-get update                                                                  && \
-    apt-get install -y libsm6                                                       && \
+    apt-get install -y libsm6  libfontconfig1 libxrender1                           && \
     python --version                                                                && \
     python -m pip install --upgrade --force pip                                     && \
     pip install virtualenv                                                          && \
