@@ -1,0 +1,45 @@
+.settings-view-members {
+  & .panel {
+    &-header {
+      background-color: var(--secondary);
+      color: var(--white);
+      padding: 1rem 2rem;
+    }
+
+    &-content {
+      &-item {
+        display: flex;
+        padding: 1rem;
+        border: solid 1px var(--light);
+
+        & .avatar {
+          border: solid 1px var(--secondary);
+          border-radius: 50%;
+          height: 2.5rem;
+          width: 2.5rem;
+          margin-top: auto;
+          margin-bottom: auto;
+          margin-right: 1rem;
+        }
+
+        & .info {
+          flex: 1;
+          display: flex;
+          flex-direction: column;
+
+          &-title {
+            margin-bottom: 0.5rem;
+          }
+
+          &-subtitle {
+            color: var(--secondary);
+          }
+        }
+
+        & .actions {
+          display: flex;
+        }
+      }
+    }
+  }
+}

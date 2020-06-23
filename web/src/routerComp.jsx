@@ -2,6 +2,7 @@ import React from 'react';
 import { BrowserRouter, Route, Switch } from 'react-router-dom';
 import UserAccount from 'components/views/userSettings/UserAccount';
 import CreateGroup from 'components/views/create-group/createGroup';
+import SettingsView from 'components/views/SettingsView';
 import FileView from './components/fileView/fileView';
 import Login from './components/login/login';
 import RegisterView from './components/RegisterView';
@@ -48,6 +49,7 @@ const RouterComp = () => (
       <PrivateRoute path="/perms/role" minRole={20} exact component={Projects} />
       <PrivateRoute path="/perms/account" accountType={1} exact component={Projects} />
 
+      <PrivateRoute path="/my-projects/:projectId/settings" exact component={SettingsView} />
       <PrivateRoute path="/my-projects" exact component={Projects} />
       <PrivateRoute exact path="/new-group" component={CreateGroup} />
       <PrivateRoute exact path="/profile" component={UserAccount} />

@@ -1,0 +1,101 @@
+.simple-tabs {
+
+  &-container {
+    &.border {
+      border: solid 1px var(--light);
+    }
+
+    &.vertical {
+      display: flex;
+
+      & > ul {
+        padding-right: 1rem;
+        border-right: solid 1px var(--light);
+      }
+
+      & > section {
+        flex: 1;
+      }
+    }
+  }
+
+  &-menu {
+    display: flex;
+    list-style: none;
+    padding-left: 0;
+    margin-top: 0;
+    margin-bottom: 0;
+    height: fit-content;
+
+    &-tab {
+      flex: 1;
+      display: flex;
+
+      &.border {
+        border: solid 1px var(--light);
+        border-bottom: none;
+      }
+
+      &-btn {
+        margin: auto;
+        width: 100%;
+        padding: 1rem 2rem;
+        border: none;
+        cursor: pointer;
+        background-color: var(--light);
+        color: var(--secondary);
+
+        &.active {
+          background-color: var(--white);
+          color: var(--dark);
+        }
+
+        &.border {
+          border-bottom: solid 2px transparent;
+
+          &.active {
+            border-color: var(--primary);
+          }
+        }
+
+        &:disabled {
+          cursor: auto;
+        }
+
+        &:focus {
+          outline: none;
+        }
+      }
+
+      &.pills {
+        & > button {
+          border-radius: 5px;
+          background-color: transparent;
+          padding: 0.5rem 2rem;
+
+          &.active {
+            background-color: var(--primary);
+            color: var(--white);
+
+          }
+        }
+      }
+    }
+
+    &.vertical {
+      flex-direction: column;
+    }
+  }
+
+  &-content {
+    padding: 1rem;
+
+    &-section {
+      display: none;
+
+      &.active {
+        display: block;
+      }
+    }
+  }
+}

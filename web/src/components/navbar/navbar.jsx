@@ -115,9 +115,8 @@ class Navbar extends Component {
             component={(
               <div className="sign-box">
                 <div>
-                  Signed in as
-                  {' '}
-                  <b>{user.username}</b>
+                  {'Signed in as '}
+                  <b id="cy-username">{user.username}</b>
                   <i>
                     {' '}
                     {user.email}
