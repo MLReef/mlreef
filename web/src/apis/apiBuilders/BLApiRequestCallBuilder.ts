@@ -19,7 +19,8 @@ export default class BodyLessApiRequestCallBuilder extends BasicImplFunctions im
   }
   
   buildUrlWithParams = () => Array.from(
-    this.urlParams.keys())
+    this.urlParams.keys()
+  )
     .forEach((key, indexKey) => {
       const value = this.urlParams.get(key);
       const urlKey = indexKey === 0 ? '?' : '&';

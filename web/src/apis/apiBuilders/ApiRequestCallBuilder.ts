@@ -16,11 +16,11 @@ export default class ApiRequestCallBuilder extends BasicImplFunctions implements
   };
 
   build = () => new Request(
-      this.url , {
-        method: this.method,
-        headers: new Headers(this.parseMapsToJson(this.headers)),
-        body: this.body,
-      },
-    )
+    this.url , {
+      method: this.method,
+      headers: new Headers(this.parseMapsToJson(this.headers)),
+      body: this.body,
+    },
+  )
   
 }

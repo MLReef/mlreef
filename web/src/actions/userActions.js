@@ -10,9 +10,9 @@ export function setLoginInfo(user) {
 
 export function login(formData) {
   const { username, email, password } = formData;
-
-  return (dispatch) => MLAuthApi
-    .login(username, email, password)
+  const authApi = new MLAuthApi();
+  return (dispatch) => 
+    authApi.login(username, email, password)
     .then((user) => {
       dispatch(setLoginInfo(user));
       return Promise.resolve(user);
@@ -39,8 +39,8 @@ export function updateUserClosedInstructions(closedInstructions) {
   return (dispatch) => userApi
     .updateMeta({ closedInstructions })
     .then((success) => success
-      && dispatch(updateUserInstructionsSuccessfully(closedInstructions)));
-}
+      && dispatch(updateUserInstructionsSuccessfully(closedInstructions)))
+  };
 
 export function updateUserMetaSuccessfully(meta) {
   return { type: types.UPDATE_USER_META, meta };
@@ -49,8 +49,9 @@ export function updateUserMetaSuccessfully(meta) {
 export function updateUserMeta(meta) {
   return (dispatch) => userApi
     .updateMeta(meta)
-    .then((success) => success && dispatch(updateUserMetaSuccessfully(meta)));
-}
+    .then((success) => success && dispatch(updateUserMetaSuccessfully(meta)))
+  };
+
 
 export function setUserInfo(userInfo) {
   return { type: types.SET_USER_INFO, userInfo };
@@ -59,8 +60,9 @@ export function setUserInfo(userInfo) {
 export function getUserInfo() {
   return (dispatch) => userApi
     .getUserInfo()
-    .then((userInfo) => dispatch(setUserInfo(userInfo)));
-}
+    .then((userInfo) => dispatch(setUserInfo(userInfo)))
+  };
+
 
 export function updateUserInfoSuccessfully(info) {
   return { type: types.UPDATE_USER_INFO, info };
@@ -69,8 +71,8 @@ export function updateUserInfoSuccessfully(info) {
 export function updateUserInfo(info) {
   return (dispatch) => userApi
     .updateUserInfo(info)
-    .then(() => dispatch(updateUserInfoSuccessfully(info)));
-}
+    .then(() => dispatch(updateUserInfoSuccessfully(info)))
+  };
 
 export function registerUserSuccessfully(user) {
   return { type: types.LOGIN, user };

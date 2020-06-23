@@ -1,5 +1,5 @@
 import ApiDirector from './ApiDirector';
-import { METHODS } from './apiBuilders/requestMethodsEnum';
+import { METHODS, validServicesToCall } from './apiBuilders/requestEnums';
 import BLApiRequestCallBuilder from './apiBuilders/BLApiRequestCallBuilder';
 import 'babel-polyfill';
 
@@ -15,7 +15,7 @@ export default class UserApi extends ApiDirector {
 
   async getUserInfo() {
     const url = '/api/v4/user';
-    const builder = new BLApiRequestCallBuilder(METHODS.GET, this.buildBasicHeaders(), url);
+    const builder = new BLApiRequestCallBuilder(METHODS.GET, this.buildBasicHeaders(validServicesToCall.GITLAB), url);
     const response = await fetch(builder.build());
     
     if (!response.ok) {
@@ -27,14 +27,14 @@ export default class UserApi extends ApiDirector {
 
   getUserStatus(username: string) {
     const url = `/api/v4/users/${username}/status`;
-    const builder = new BLApiRequestCallBuilder(METHODS.GET, this.buildBasicHeaders(), url);
+    const builder = new BLApiRequestCallBuilder(METHODS.GET, this.buildBasicHeaders(validServicesToCall.GITLAB), url);
     return fetch(builder.build())
       .then(handleResponse);
   }
 
   async updateUserStatus(message: string) {
     const url = `/api/v4/user/status?message=${message}`;
-    const builder = new BLApiRequestCallBuilder(METHODS.PUT, this.buildBasicHeaders(), url);
+    const builder = new BLApiRequestCallBuilder(METHODS.PUT, this.buildBasicHeaders(validServicesToCall.GITLAB), url);
 
     return fetch(builder.build())
       .then(handleResponse);
