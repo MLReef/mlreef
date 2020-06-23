@@ -1,0 +1,67 @@
+.settings-view {
+  &-content {
+    padding: 1rem 0;
+  }
+
+  &-search {
+    &:focus-within &-results {
+      display: block;
+    }
+
+    &-input {
+
+    }
+
+    &-results {
+      display: none;
+      position: relative;
+
+      &:hover {
+        display: block;
+      }
+
+      & .search-list {
+        border: solid 1px var(--light);
+        position: absolute;
+        padding: 0;
+        margin: 0;
+        right: 0;
+        left: 0;
+        background-color: var(--white);
+
+        &-item {
+          display: flex;
+          padding: 1rem;
+          border-bottom: solid 1px var(--light);
+          cursor: pointer;
+
+          &:hover {
+            background-color: var(--info);
+          }
+
+          & .user {
+            &-avatar {
+              margin-right: 1rem;
+
+              & > img {
+                height: 2rem;
+                width: 2rem;
+                display: block;
+                margin: auto;
+              }
+            }
+
+            &-info {
+              flex: 1;
+              color: var(--dark);
+
+              &-name {
+                font-weight: bold;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

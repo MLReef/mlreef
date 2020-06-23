@@ -7,6 +7,9 @@ import { plainToClass } from "class-transformer";
 import { parseToCamelCase } from 'functions/dataParserHelpers';
 import Experiment from 'domain/experiments/Experiment';
 
+// this returns an error if code is bigger than 400
+const handleResponse = (res: Response) => res.ok ? res.json() : Promise.reject(res);
+
 export default class ProjectGeneralInfoApi extends ApiDirector {
   async create(settings: any) {
     const baseUrl = '/api/v1/data-projects';
@@ -24,7 +27,7 @@ export default class ProjectGeneralInfoApi extends ApiDirector {
     const url = `/api/v4/projects/${projectId}?statistics=true`;
     const builder = new BLApiRequestCallBuilder(METHODS.GET, this.buildBasicHeaders(), url);
     const response = await fetch(builder.build());
-    
+
     if (!response.ok) {
       window.history.replaceState({ errorCode: 500 }, 'Mlreef', '/error-page');
       window.location.reload();
@@ -52,6 +55,33 @@ export default class ProjectGeneralInfoApi extends ApiDirector {
       })
   }
 
+  getMembers(projectId: string) {
+    const url = `/api/v1/data-projects/${projectId}/users`;
+    const headers = this.buildBasicHeaders()
+    const builder = new BLApiRequestCallBuilder(METHODS.GET, headers, url);
+
+    return fetch(builder.build())
+      .then(handleResponse);
+  }
+
+  addMember(projectId: string, userId: number) {
+    const url = `/api/v1/data-projects/${projectId}/users?gitlab_id=${userId}`;
+    const headers = this.buildBasicHeaders()
+    const builder = new BLApiRequestCallBuilder(METHODS.POST, headers, url);
+
+    return fetch(builder.build())
+      .then(handleResponse);
+  }
+
+  removeMember(projectId: number, userUuid: string) {
+    const url = `/api/v1/data-projects/${projectId}/users/${userUuid}`;
+    const headers = this.buildBasicHeaders()
+    const builder = new BLApiRequestCallBuilder(METHODS.DELETE, headers, url);
+
+    return fetch(builder.build())
+      .then(handleResponse);
+  }
+
   /**
    * @param {*} id: project which will be forked
    * @param {*} namespace: space to fork project to
@@ -70,11 +100,11 @@ export default class ProjectGeneralInfoApi extends ApiDirector {
 
   removeProject = async (projectId: number) => fetch(
     new BLApiRequestCallBuilder(
-      METHODS.DELETE, 
-      this.buildBasicHeaders(), 
+      METHODS.DELETE,
+      this.buildBasicHeaders(),
       `/api/v4/projects/${projectId}`).build()
     );
-  
+
   async getProjectContributors(projectId: number) {
     const url = `/api/v4/projects/${projectId}/members`;
     const builder = new BLApiRequestCallBuilder(METHODS.GET, this.buildBasicHeaders(), url);

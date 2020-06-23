@@ -1,8 +1,9 @@
 /// <reference types="Cypress" />
 
-Cypress.on('window:before:load', (win) => {
-  win.fetch = null;
-});
+// it seems we don't need this since we truthfully log against an API
+// Cypress.on('window:before:load', (win) => {
+//   win.fetch = null;
+// });
 
 context('Test the user login flow', () => {
   beforeEach(() => {
@@ -22,7 +23,7 @@ context('Test the user login flow', () => {
       cy.get('#email').type('mlreef');
       cy.get('#password').type('password');
       cy.get('form').submit();
-      cy.url().should('include', '/my-projects#personal');
+      cy.get('#cy-username').should('match', /\w+/);
     });
   });
 });

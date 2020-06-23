@@ -12,10 +12,11 @@ const MInput = (props) => {
     label,
     type,
     placeholder,
+    className,
   } = props;
 
   return (
-    <div className="m-input">
+    <div className={`m-input ${className}`}>
       <div className="m-input_container">
         <label htmlFor={id}>{ label }</label>
         <input
@@ -44,6 +45,8 @@ MInput.defaultProps = {
   label: '',
   type: 'text',
   placeholder: null,
+  className: '',
+  onBlur: () => {},
 };
 
 MInput.propTypes = {
@@ -55,11 +58,12 @@ MInput.propTypes = {
     ])
     .isRequired,
   onChange: PropTypes.func.isRequired,
-  onBlur: PropTypes.func.isRequired,
+  onBlur: PropTypes.func,
   error: PropTypes.string,
   type: PropTypes.string,
   placeholder: PropTypes.string,
   label: PropTypes.string,
+  className: PropTypes.string,
 };
 
 export default MInput;
