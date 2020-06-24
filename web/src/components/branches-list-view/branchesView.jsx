@@ -105,7 +105,7 @@ class BranchesView extends Component {
     } = this.state;
 
     const {
-      name: projectName,
+      gitlabName: projectName,
       id: projectId,
     } = selectedProject;
 
@@ -257,7 +257,7 @@ function mapDispatchToProps(dispatch) {
 BranchesView.propTypes = {
   selectedProject: shape({
     id: number.isRequired,
-    name: string.isRequired,
+    gitlabName: string.isRequired,
   }).isRequired,
   branches: arrayOf(shape({
     name: string.isRequired,

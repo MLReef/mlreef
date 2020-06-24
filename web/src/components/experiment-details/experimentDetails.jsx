@@ -32,7 +32,7 @@ const ExperimentDetails = (props) => {
   const {
     selectedProject,
     jobs,
-    selectedProject: { name },
+    selectedProject: { gitlabName: name },
     match: { params: { projectId } },
     location: {
       state: {
@@ -154,7 +154,7 @@ const ExperimentDetails = (props) => {
 
 ExperimentDetails.propTypes = {
   selectedProject: shape({
-    name: string.isRequired,
+    gitlabName: string.isRequired,
   }).isRequired,
   location: shape({
     state: shape({
