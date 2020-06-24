@@ -10,11 +10,16 @@ import JobsApi from '../../../apis/JobsApi';
 const JobLog = ({
   projectId,
   job,
-  currentState,
 }) => {
   const [jobLog, setJobLog] = useState(null);
   const parsedDuration = parseDurationInSeconds(job.duration);
-  const { created_at: createdAt, user, runner } = job;
+  const {
+    created_at: createdAt,
+    user,
+    runner,
+    status: currentState,
+  } = job;
+
   const jobTimeCreatedAgo = getTimeCreatedAgo(createdAt, new Date());
 
   function parseLine(line) {
@@ -178,7 +183,6 @@ const JobLog = ({
 
 JobLog.propTypes = {
   projectId: number.isRequired,
-  currentState: string.isRequired,
   job: shape({
     duration: number.isRequired,
     created_at: string.isRequired,

@@ -145,7 +145,7 @@ class FilesContainer extends Component {
         </div>
         )}
         <FilesTable
-          isReturnOptVisible={currentPath}
+          isReturnOptVisible={!!currentPath}
           files={files.map((f) => ({ id: `${f.id} ${f.name}`, name: f.name, type: f.type }))}
           headers={['Name']}
           onClick={(e) => {

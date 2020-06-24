@@ -190,7 +190,7 @@ DetailsSummary.propTypes = {
     shape({
       name: string.isRequired,
       type: string.isRequired,
-      value: string.isRequired,
+      value: string,
     }).isRequired,
   ).isRequired,
   pipelineInfo: shape(arrayOf).isRequired,

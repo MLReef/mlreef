@@ -1,4 +1,5 @@
 import React from 'react';
+import * as PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { toastr } from 'react-redux-toastr';
@@ -22,15 +23,14 @@ class Login extends React.Component {
     this.reset = this.reset.bind(this);
     this.validateForm = this.validateForm.bind(this);
     this.handleChange = this.handleChange.bind(this);
+    this.redirectIfAuthenticated = this.redirectIfAuthenticated.bind(this);
   }
 
   componentDidMount() {
-    const { isAuth, history } = this.props;
-
-    if (isAuth) history.push('/');
+    this.redirectIfAuthenticated();
   }
 
-  componentDidUpdate() {
+  redirectIfAuthenticated() {
     const { isAuth, history } = this.props;
 
     if (isAuth) history.push('/');
@@ -83,6 +83,8 @@ class Login extends React.Component {
       })
       .finally(() => {
         this.setState({ isFetching: false });
+
+        this.redirectIfAuthenticated();
       });
   }
 
@@ -107,7 +109,7 @@ class Login extends React.Component {
         <div id="icon-div">
           <img className="mx-auto mb-2" src={icon} alt="" />
         </div>
-        <div id="errorDiv" className={`${!hasErrors? 'invisible' : ''} error border-div d-flex py-2`}>
+        <div id="errorDiv" className={`${!hasErrors ? 'invisible' : ''} error border-div d-flex py-2`}>
           <p className="my-auto flex-1">Incorrect username or password</p>
           <div className="flex-0">
             <button className="btn btn-basic-dark btn-sm my-auto" type="button" onClick={this.reset}>
@@ -166,6 +168,17 @@ class Login extends React.Component {
     );
   }
 }
+
+Login.propTypes = {
+  isAuth: PropTypes.bool.isRequired,
+  actions: PropTypes.shape({
+    login: PropTypes.func.isRequired,
+    getUserInfo: PropTypes.func.isRequired,
+  }).isRequired,
+  history: PropTypes.shape({
+    push: PropTypes.func.isRequired,
+  }).isRequired,
+};
 
 function mapStateToProps(state) {
   return {

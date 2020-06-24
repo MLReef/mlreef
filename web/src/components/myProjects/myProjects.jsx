@@ -22,9 +22,10 @@ class Myprojects extends React.Component {
   constructor(props) {
     super(props);
     this.fetch = this.fetch.bind(this);
-    const { actions } = this.props;
-    actions.setGlobalMarkerColor(projectClassificationsProps[0].color);
-    actions.setIsLoading(false);
+
+    // the constructor is not the place for actions and state update
+    // that leads to memory leaks and console warnings.
+
     this.state = {
       showModal: false,
       projectName: '',
@@ -35,7 +36,10 @@ class Myprojects extends React.Component {
   }
 
   componentDidMount() {
-    this.setState({ isFetching: true });
+    const { actions } = this.props;
+
+    actions.setGlobalMarkerColor(projectClassificationsProps[0].color);
+    actions.setIsLoading(false);
 
     // polling every 10 seconds (it is the default value, it's just for demostration)
     const unsuscribeServices = suscribeRT({ timeout: 200000 })(this.fetch);
@@ -68,6 +72,8 @@ class Myprojects extends React.Component {
 
   fetch() {
     const { actions } = this.props;
+
+    this.setState({ isFetching: true });
 
     // fetch 3 list of projects using a fetching flag
     return Promise.all([
