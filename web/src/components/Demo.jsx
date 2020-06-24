@@ -88,6 +88,17 @@ const Demo = (props) => {
     { label: 'light', classes: 'disabled btn btn-basic-light' },
   ];
 
+  const btnDisabledClasses = [
+    { label: 'primary', classes: 'disabled btn btn-primary' },
+    { label: 'secondary', classes: 'disabled btn btn-secondary' },
+    { label: 'success', classes: 'disabled btn btn-success' },
+    { label: 'info', classes: 'disabled btn btn-info' },
+    { label: 'warning', classes: 'disabled btn btn-warning' },
+    { label: 'danger', classes: 'disabled btn btn-danger' },
+    { label: 'dark', classes: 'disabled btn btn-dark' },
+    { label: 'light', classes: 'disabled btn btn-light' },
+  ];
+
   const btnBasicLgClasses = [
     { label: 'primary', classes: 'btn btn-lg btn-basic-primary' },
     { label: 'secondary', classes: 'btn btn-lg btn-basic-secondary' },
@@ -300,6 +311,23 @@ const Demo = (props) => {
             <h3 className="w-100">Standard</h3>
             <div className="demo-buttons">
               {btnClasses.map(renderBtn)}
+            </div>
+            <hr/>
+          </div>
+
+          <div>
+            <h3 className="w-100">Standard disabled</h3>
+            <div className="demo-buttons">
+              {btnDisabledClasses.map((i, index) => (
+                <div key={`${i.classes}-${i.label}-${index}`}>
+                  <button className={i.classes} disabled>
+                    {i.label && i.label}
+                  </button>
+                  <div className="mx-auto t-secondary t-center mt-1">
+                    {i.classes}
+                  </div>
+                </div>
+              ))}
             </div>
             <hr/>
           </div>

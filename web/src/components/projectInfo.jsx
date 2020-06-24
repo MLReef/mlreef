@@ -46,7 +46,7 @@ const ProjectInfo = (props) => {
     <div className="project-info">
       <div className="project-id">
         <Link to={`/my-projects/${classProject.id}/${classProject.defaultBranch}`}>
-          <div className="project-pic">
+          <div className="project-pic overflow-hidden">
             <img style={{ minWidth: '100%' }} src={classProject.avatarUrl} alt="" />
           </div>
         </Link>

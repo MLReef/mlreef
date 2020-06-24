@@ -69,7 +69,7 @@
   &.disabled {
     cursor: auto;
 
-    &::not(.waiting) {
+    &:not(.waiting) {
       background-color: #{$light};
     }
   }

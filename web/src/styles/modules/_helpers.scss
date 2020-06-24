@@ -240,3 +240,21 @@
     border-radius: 50%;
   }
 }
+
+.overflow {
+  &-hidden {
+    overflow: hidden !important;
+  }
+
+  &-x {
+    &-hidden {
+      overflow-x: hidden !important;
+    }
+  }
+
+  &-y {
+    &-hidden {
+      overflow-y: hidden !important;
+    }
+  }
+}
