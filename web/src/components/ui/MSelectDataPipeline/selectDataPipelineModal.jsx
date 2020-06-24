@@ -107,7 +107,7 @@ class SelectDataPipelineModal extends Component {
         showReturnOption,
         filePath,
       } = this.state;
-      const { handleModalAccept, project: { id: projectId, name: projectName } } = this.props;
+      const { handleModalAccept, project: { id: projectId, gitlabName: projectName } } = this.props;
       const customTime = (ISODate) => {
         const today = new Date(ISODate);
         const h = today.getHours();
@@ -242,7 +242,7 @@ class SelectDataPipelineModal extends Component {
               </div>
               <div className="row mb-3 ml-2">
                 <p>
-                  {`${projectName} / `}
+                  {`${projectName}/`}
                   <b>{filePath}</b>
                 </p>
               </div>
@@ -276,7 +276,7 @@ class SelectDataPipelineModal extends Component {
                           <tr key={index.toString()} id={`tr-file-${index}`} className="files-row" style={{ justifyContent: 'unset' }}>
                             <td className="icon-container-column" style={{ width: '2rem' }}>
                               <MCheckBox
-                                className="d-block ml-2"
+                                className="d-block ml-2 pb-2"
                                 name={`span-file-${index}`}
                                 checked={file.checked}
                                 callback={() => { this.selectFileFromGrid(file); }}

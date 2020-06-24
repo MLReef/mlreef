@@ -92,10 +92,7 @@ export class DataVisualizationOverview extends Component {
         />
 
         <div className="main-content">
-          <br />
-          <div id="line" />
-          <br />
-          <div id="buttons-container">
+          <div id="buttons-container" className="left">
             <button
               id="all"
               type="button"

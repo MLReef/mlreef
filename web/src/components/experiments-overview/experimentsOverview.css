@@ -1,7 +1,7 @@
 .pipeline-card > .card-content {
     display: flex;
     flex-wrap: wrap;
-    margin-bottom: 1em;
+    border-bottom: solid 1px var(--light);
 }
 
 .pipeline-card > .card-content > .summary-data {

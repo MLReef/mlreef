@@ -16,16 +16,13 @@ const DetailsSummary = ({
   if (pipelineDetails.finished_at) {
     finishedAt = pipelineDetails.finished_at.split('.')[0];
   }
+
   let experimentStatus = (
-    <b style={{
-      color: (currentState === 'success')
-        ? '#38b797'
-        : 'red',
-    }}
-    >
+    <b className={`m-auto ${currentState.toLowerCase() === 'success' ? 't-primary' : 't-danger'}`}>
       {currentState}
     </b>
   );
+
   if (currentState === 'running') {
     experimentStatus = (
       <b style={{ color: '#2DB391' }}>
@@ -87,7 +84,7 @@ const DetailsSummary = ({
             </div>
             <div style={{ display: 'flex' }}>
               <p style={{ width: '10em' }}>Status: </p>
-              <p style={{ margin: 0 }}>
+              <p className="d-flex m-0">
                 {experimentStatus}
               </p>
             </div>

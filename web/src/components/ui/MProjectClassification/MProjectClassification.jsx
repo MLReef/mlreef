@@ -110,7 +110,7 @@ class MProjectClassification extends Component {
                 Explore
               </button>
             </div>
-            <div id="new-element-container">
+            <div id="new-element-container" className="ml-auto">
               <Link
                 to={`/new-project/classification/${classification}`}
                 type="button"

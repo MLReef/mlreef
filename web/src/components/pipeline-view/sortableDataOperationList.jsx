@@ -80,31 +80,33 @@ const SortableDataOperation = SortableElement(({ value, prefix }) => {
             </div>
           </div>
         </div>
-        <div id={`data-operation-selected-form-${value.index}`} className="data-operation-form" style={{ display: 'none' }}>
+        <div id={`data-operation-selected-form-${value.index}`} className="data-operation-form">
           <br />
-          {standardParameters.map((param, paramIndex) => (
-            <div key={`std-${param.name}`}>
-              <div style={{ display: 'flex' }}>
-                <p style={{ width: '14em' }}>
-                  {param.comment && (
-                    <MTooltip
-                      scale={120}
-                      className="mr-1"
-                      message={param.comment}
-                    />
-                  )}
-                  {`${param.name}: `}
-                </p>
-                <div className="my-auto">
-                  <Input id={`param-${paramIndex}-item-data-operation-selected-form-${value.index}`} placeholder="" value={param.value} />
+          <div style={{ width: 'min-content', margin: 'auto', marginLeft: '1rem' }}>
+            {standardParameters.map((param, paramIndex) => (
+              <div key={`std-${param.name}`}>
+                <div className="d-flex mb-3">
+                  <span className="mr-4" style={{ alignSelf: 'center', flex: 1 }}>
+                    {param.comment && (
+                      <MTooltip
+                        scale={120}
+                        className="mr-1"
+                        message={param.comment}
+                      />
+                    )}
+                    {`${param.name}: `}
+                  </span>
+                  <div className="my-auto">
+                    <Input id={`param-${paramIndex}-item-data-operation-selected-form-${value.index}`} placeholder="" value={param.value} />
+                  </div>
+                </div>
+                <div id={`error-div-for-param-${paramIndex}-item-data-operation-selected-form-${value.index}`} style={{ display: 'none' }}>
+                  <img style={{ height: '15px' }} src={advice01} alt="" />
+                  <p style={{ margin: '0 0 0 5px' }}>{errorMessages[param.dataType]}</p>
                 </div>
               </div>
-              <div id={`error-div-for-param-${paramIndex}-item-data-operation-selected-form-${value.index}`} style={{ display: 'none' }}>
-                <img style={{ height: '15px' }} src={advice01} alt="" />
-                <p style={{ margin: '0 0 0 5px' }}>{errorMessages[param.dataType]}</p>
-              </div>
-            </div>
-          ))}
+            ))}
+          </div>
 
           {advancedParameters
             && (
@@ -125,14 +127,14 @@ const SortableDataOperation = SortableElement(({ value, prefix }) => {
                   <p><b>Source code</b></p>
                 </div>
               </div>
-              <div id={`advanced-opts-div-${value.index}`} className="advanced-opts-div" style={{ display: 'none' }}>
+              <div id={`advanced-opts-div-${value.index}`} className="advanced-opts-div" style={{ width: 'min-content', margin: 'auto', marginLeft: '1rem' }}>
                 {advancedParameters.map((advancedParam, advancedParamIndex) => {
                   const defaultValue = advancedParam.default_value;
                   return (
                     advancedParam.dataType === BOOL
                       ? (
-                        <div key={`adv-${advancedParam.name}`} style={{ display: 'flex' }}>
-                          <p style={{ width: '14em' }}>
+                        <div key={`adv-${advancedParam.name}`} className="d-flex mb-3">
+                          <span className="mr-4" style={{ alignSelf: 'center', flex: 1 }}>
                             {advancedParam.comment && (
                               <MTooltip
                                 scale={120}
@@ -141,7 +143,7 @@ const SortableDataOperation = SortableElement(({ value, prefix }) => {
                               />
                             )}
                             {`${advancedParam.name}: `}
-                          </p>
+                          </span>
                           <div>
                             <input
                               id={`ad-hidden-input-advanced-drop-down-${value.index}-param-${advancedParamIndex}`}
@@ -206,8 +208,8 @@ const SortableDataOperation = SortableElement(({ value, prefix }) => {
                       )
                       : (
                         <div key={`adv-${advancedParam.name}`}>
-                          <div style={{ display: 'flex' }}>
-                            <p style={{ width: '14em' }}>
+                          <div className="d-flex mb-3">
+                            <span className="mr-4" style={{ alignSelf: 'center', flex: 1 }}>
                               {advancedParam.comment && (
                                 <MTooltip
                                   scale={120}
@@ -216,7 +218,7 @@ const SortableDataOperation = SortableElement(({ value, prefix }) => {
                                 />
                               )}
                               {`${advancedParam.name}: `}
-                            </p>
+                            </span>
                             <Input
                               id={`ad-param-${advancedParamIndex}-item-data-operation-form-${value.index}`}
                               placeholder={String(defaultValue)}

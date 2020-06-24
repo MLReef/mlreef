@@ -140,7 +140,7 @@ const SummarizedDataAndChartComp = ({
       ];
     }
     return (
-      <div className="buttons-div">{buttons}</div>
+      <div className="buttons-div my-auto">{buttons}</div>
     );
   }
   return (

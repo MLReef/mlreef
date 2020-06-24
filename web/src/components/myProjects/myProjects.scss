@@ -16,9 +16,9 @@ $min-width-cards-div: 910px;
     min-width: $min-width-cards-div;
   }
 
-  #side-filters {    
+  #side-filters {
     flex: 1;
-    
+
     #input-div {
       border-bottom: 1px solid var(--secondary);
       display: flex;
@@ -44,9 +44,10 @@ $min-width-cards-div: 910px;
 #buttons-div {
   display: flex;
   margin-top: 1rem;
-  
+
   #filter-div {
-    min-width: $min-width-cards-div;
+    // min-width: $min-width-cards-div;
+    width: max-content;
     button {
       margin-right: 1rem;
     }
@@ -72,7 +73,7 @@ $min-width-cards-div: 910px;
 @media (max-width: $bp-md) {
   #filter-div {
     display: flex;
-    flex-direction: column;
+    // flex-direction: column;
     button {
       padding: 0.500rem 1.25rem;
       width: max-content;

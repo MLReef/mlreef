@@ -19,7 +19,7 @@ const ExperimentCard = (props) => {
   const today = new Date();
   return experiments.length > 0 ? (
     <div className="pipeline-card" key={today}>
-      <div className="header">
+      <div className="header mb-1">
         <div className="title-div">
           <p><b>{currentState}</b></p>
         </div>
@@ -43,7 +43,7 @@ const ExperimentCard = (props) => {
         return (
           <div
             key={experiment.name}
-            className="card-content"
+            className="card-content py-2"
           >
             <div className="summary-data" style={{ width: 'auto' }}>
               <div className="project-desc-experiment pt-1">

@@ -2,9 +2,6 @@ import React from 'react';
 import {
   number, shape, string, arrayOf,
 } from 'prop-types';
-import {
-  Button,
-} from '@material-ui/core';
 import FileSaver from 'file-saver';
 import { toastr } from 'react-redux-toastr';
 import iconGrey from 'images/icon_grey-01.png';
@@ -40,8 +37,18 @@ const Files = ({ projectId, job }) => {
               <p style={{ color: '#1d2b40', fontSize: '1.2em', fontWeight: '700' }}>Files</p>
             </div>
             <div>
-              <Button onClick={downloadArtifacts} variant="outlined">Download</Button>
-              <button type="button" style={{ marginLeft: '1em' }} className="dangerous-red">X</button>
+              <button
+                type="button"
+                className="btn btn-outline-dark"
+                onClick={downloadArtifacts}
+              >
+                Download
+              </button>
+              <button
+                type="button"
+                label="close"
+                className="btn btn-icon btn-danger fa fa-times my-auto ml-3"
+              />
             </div>
           </div>
           <FilesTable
