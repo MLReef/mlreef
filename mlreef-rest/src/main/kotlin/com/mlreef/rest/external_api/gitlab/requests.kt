@@ -58,7 +58,8 @@ internal class GitlabAddUserToGroupRequest(
 // https://docs.gitlab.com/ee/api/members.html#add-a-member-to-a-group-or-project
 internal class GitlabAddUserToProjectRequest(
     val userId: Long,
-    val accessLevel: Int
+    val accessLevel: Int,
+    val expiresAt: String? = null
 ) : Serializable
 
 // https://docs.gitlab.com/ee/api/branches.html#create-repository-branch

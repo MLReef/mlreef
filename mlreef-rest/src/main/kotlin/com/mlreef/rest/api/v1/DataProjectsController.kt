@@ -28,6 +28,7 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
+import java.time.Instant
 import java.util.UUID
 import java.util.logging.Logger
 import javax.validation.Valid
@@ -131,7 +132,7 @@ class DataProjectsController(
     @PreAuthorize("hasAccessToProject(#id, 'DEVELOPER')")
     fun getUsersInDataProjectById(@PathVariable id: UUID): List<UserInProjectDto> {
         val usersInProject = dataProjectService.getUsersInProject(id)
-        return usersInProject.map { UserInProjectDto(it.id, it.username, it.email, it.person.gitlabId) }
+        return usersInProject.map { it.toDto() }
     }
 
     // FIXME: Coverage says: missing tests
@@ -166,9 +167,26 @@ class DataProjectsController(
     @PreAuthorize("hasAccessToProject(#id, 'MAINTAINER')")
     fun addUsersToDataProjectById(
         @PathVariable id: UUID,
+        @RequestBody(required = false) body: DataProjectUserMembershipRequest? = null,
         @RequestParam(value = "user_id", required = false) userId: UUID?,
-        @RequestParam(value = "gitlab_id", required = false) gitlabId: Long?): List<UserInProjectDto> {
-        dataProjectService.addUserToProject(projectUUID = id, userId = userId, userGitlabId = gitlabId)
+        @RequestParam(value = "gitlab_id", required = false) gitlabId: Long?,
+        @RequestParam(value = "level", required = false) level: String?,
+        @RequestParam(value = "expires_at", required = false) expiresAt: Instant?): List<UserInProjectDto> {
+
+        val accessLevelStr = body?.level ?: level
+        val accessLevel = if (accessLevelStr!=null) AccessLevel.parse(accessLevelStr) else null
+        val currentUserId = body?.userId ?: userId
+        val currentGitlabId = body?.gitlabId ?: gitlabId
+        val currentExpiration = body?.expiresAt ?: expiresAt
+
+        dataProjectService.addUserToProject(
+            projectUUID = id,
+            userId = currentUserId,
+            userGitlabId = currentGitlabId,
+            accessLevel = accessLevel,
+            accessTill = currentExpiration
+        )
+
         return getUsersInDataProjectById(id)
     }
 
@@ -211,4 +229,10 @@ class DataProjectUpdateRequest(
     @NotEmpty val description: String
 )
 
+class DataProjectUserMembershipRequest(
+    val userId: UUID? = null,
+    val gitlabId: Long? = null,
+    val level: String? = null,
+    val expiresAt: Instant? = null
+)
 

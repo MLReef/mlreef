@@ -7,6 +7,7 @@ import com.mlreef.rest.DataProjectRepository
 import com.mlreef.rest.VisibilityScope
 import com.mlreef.rest.api.v1.DataProjectCreateRequest
 import com.mlreef.rest.api.v1.DataProjectUpdateRequest
+import com.mlreef.rest.api.v1.DataProjectUserMembershipRequest
 import com.mlreef.rest.api.v1.dto.DataProjectDto
 import com.mlreef.rest.api.v1.dto.UserInProjectDto
 import com.mlreef.rest.external_api.gitlab.GroupAccessLevel
@@ -20,6 +21,8 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.test.annotation.Rollback
+import java.time.Instant
+import java.time.Period
 import java.util.UUID
 import javax.transaction.Transactional
 
@@ -643,6 +646,44 @@ class DataProjectsIntegrationTest : AbstractIntegrationTest() {
             .returnsList(UserInProjectDto::class.java)
 
         assertThat(returnedResult.size).isEqualTo(3)
+    }
+
+    @Transactional
+    @Rollback
+    @Test
+    fun `Owner add a user to project with role and expiration in params`() {
+        val (account1, _, _) = testsHelper.createRealUser()
+        val (account2, _, _) = testsHelper.createRealUser(index = 1)
+
+        val (project1, _) = testsHelper.createRealDataProject(account1)
+
+        val url = "$rootUrl/${project1.id}/users?user_id=${account2.id}&level=REPORTER&expires_at=2099-12-31T10:15:20Z"
+
+        val result = this.performPost(url, account1)
+            .expectOk()
+            .returnsList(UserInProjectDto::class.java)
+
+        assertThat(result.size).isEqualTo(2)
+    }
+
+    @Transactional
+    @Rollback
+    @Test
+    fun `Owner add a user to project with role and expiration in body`() {
+        val (account1, _, _) = testsHelper.createRealUser()
+        val (account2, _, _) = testsHelper.createRealUser(index = 2)
+
+        val (project1, _) = testsHelper.createRealDataProject(account1)
+
+        val url = "$rootUrl/${project1.id}/users"
+
+        val request = DataProjectUserMembershipRequest(userId = account2.id, level = "REPORTER", expiresAt = Instant.now().plus(Period.ofDays(1)))
+
+        val result = this.performPost(url, account1, request)
+            .expectOk()
+            .returnsList(UserInProjectDto::class.java)
+
+        assertThat(result.size).isEqualTo(2)
     }
 
     @Transactional

@@ -188,12 +188,21 @@ operation::codeprojects-add-user[snippets='curl-request,response-body,response-f
 
 === POST /code-projects/:id/users?
 
-Add a user by with parameters user_id or gitlab_id to the project by id (:id)
+Add a user by parameters user_id or gitlab_id to the project by id (:id)
 
 * gitlab_id
 * user_id
+* level
+* expires_at
 
 operation::codeprojects-add-user-by-params[snippets='curl-request,request-parameters,response-body,response-fields']
+
+=== POST /code-projects/:id/users
+
+Add a user in request body
+
+operation::codeprojects-add-user-by-body[snippets='curl-request,response-body,response-fields']
+
 
 === DELETE /code-projects/:id/users/:userId
 
@@ -259,6 +268,13 @@ Add a user by with parameters user_id or gitlab_id to the project by id (:id)
 * user_id
 
 operation::dataprojects-add-user-by-params[snippets='curl-request,request-parameters,response-body,response-fields']
+
+=== POST /data-projects/:id/users
+
+Add a user in request body
+
+operation::dataprojects-add-user-by-body[snippets='curl-request,response-body,response-fields']
+
 
 === DELETE /data-projects/:id/users/:userId
 

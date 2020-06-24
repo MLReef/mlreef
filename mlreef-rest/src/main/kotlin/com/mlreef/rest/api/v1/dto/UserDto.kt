@@ -8,6 +8,7 @@ import com.mlreef.rest.config.censor
 import com.mlreef.rest.helpers.DataClassWithId
 import com.mlreef.rest.helpers.UserInGroup
 import com.mlreef.rest.helpers.UserInProject
+import java.time.Instant
 import java.util.UUID
 
 // FIXME: Coverage says: missing tests
@@ -54,21 +55,27 @@ data class UserInProjectDto(
     override val id: UUID?,
     val userName: String?,
     val email: String?,
-    val gitlabId: Long?
+    val gitlabId: Long?,
+    val accessLevel: AccessLevel?,
+    val expiredAt: Instant?
 ) : DataClassWithId
 
 internal fun UserInProjectDto.toDomain() = UserInProject(
     id = this.id,
     userName = this.userName,
     gitlabId = this.gitlabId,
-    email = this.email
+    email = this.email,
+    accessLevel = this.accessLevel,
+    expiredAt = this.expiredAt
 )
 
 internal fun UserInProject.toDto() = UserInProjectDto(
     id = this.id,
     userName = this.userName,
     gitlabId = this.gitlabId,
-    email = this.email
+    email = this.email,
+    accessLevel = this.accessLevel,
+    expiredAt = this.expiredAt
 )
 
 // FIXME: Coverage says: missing tests

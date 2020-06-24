@@ -9,6 +9,7 @@ import com.mlreef.rest.Person
 import com.mlreef.rest.VisibilityScope
 import com.mlreef.rest.api.v1.CodeProjectCreateRequest
 import com.mlreef.rest.api.v1.CodeProjectUpdateRequest
+import com.mlreef.rest.api.v1.CodeProjectUserMembershipRequest
 import com.mlreef.rest.api.v1.dto.CodeProjectDto
 import com.mlreef.rest.api.v1.dto.UserInProjectDto
 import com.mlreef.rest.exceptions.ErrorCode
@@ -35,6 +36,8 @@ import org.springframework.restdocs.request.RequestDocumentation.parameterWithNa
 import org.springframework.restdocs.request.RequestDocumentation.requestParameters
 import org.springframework.test.annotation.Rollback
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
+import java.time.Instant
+import java.time.Period
 import java.util.UUID
 import java.util.UUID.randomUUID
 import javax.transaction.Transactional
@@ -428,7 +431,7 @@ class CodeProjectsApiTest : AbstractRestApiTest() {
         codeProjectRepository.save(project1)
 
         every { codeProjectService.getUsersInProject(any()) } answers {
-            listOf(account, account2)
+            listOf(account, account2).map { accountToUserInProject(it) }
         }
 
         this.mockGetUserProjectsList(listOf(project1.id), account, AccessLevel.OWNER)
@@ -452,7 +455,7 @@ class CodeProjectsApiTest : AbstractRestApiTest() {
         codeProjectRepository.save(project1)
 
         every { codeProjectService.getUsersInProject(any()) } answers {
-            listOf(account, account2)
+            listOf(account, account2).map { accountToUserInProject(it) }
         }
 
         this.mockGetUserProjectsList(listOf(project1.id), account, AccessLevel.OWNER)
@@ -475,21 +478,51 @@ class CodeProjectsApiTest : AbstractRestApiTest() {
         codeProjectRepository.save(project1)
 
         every { codeProjectService.getUsersInProject(any()) } answers {
-            listOf(account, account2)
+            listOf(account, account2).map { accountToUserInProject(it) }
         }
 
         this.mockGetUserProjectsList(listOf(project1.id), account, AccessLevel.OWNER)
 
         val returnedResult: List<UserInProjectDto> = this.mockMvc.perform(
-            this.defaultAcceptContentAuth(RestDocumentationRequestBuilders.post("$rootUrl/${project1.id}/users?gitlab_id=${account2.person.gitlabId}")))
+            this.defaultAcceptContentAuth(RestDocumentationRequestBuilders.post("$rootUrl/${project1.id}/users?gitlab_id=${account2.person.gitlabId}&level=DEVELOPER&expires_at=2099-12-31T10:15:20Z")))
             .andExpect(MockMvcResultMatchers.status().isOk)
             .document("codeprojects-add-user-by-params",
                 requestParameters(
                     parameterWithName("user_id").optional().description("Internal User id - UUID"),
-                    parameterWithName("gitlab_id").optional().description("Gitlab user id - Number")
+                    parameterWithName("gitlab_id").optional().description("Gitlab user id - Number"),
+                    parameterWithName("level").optional().description("Level/role of user in project"),
+                    parameterWithName("expires_at").optional().description("Date of access expiration in ISO format (not passed value means unlimited access)")
                 ),
                 responseFields(usersInCodeProjectResponseFields("[].")))
             .returns(object:TypeReference<List<UserInProjectDto>>() {})
+
+        assertThat(returnedResult.size).isEqualTo(2)
+    }
+
+    @Transactional
+    @Rollback
+    @Test
+    fun `Can add user to CodeProject by gitlabId in body`() {
+        val id1 = randomUUID()
+        val project1 = CodeProject(id1, "slug-1", "www.url.com", "Test Project 1", account2.person.id, "group1", "project-1", "mlreef/project1", 1)
+        codeProjectRepository.save(project1)
+
+        every { codeProjectService.getUsersInProject(any()) } answers {
+            listOf(account, account2).map { accountToUserInProject(it) }
+        }
+
+        this.mockGetUserProjectsList(listOf(project1.id), account, AccessLevel.OWNER)
+
+        val request = CodeProjectUserMembershipRequest(userId = account2.id, gitlabId = 10, level = "REPORTER", expiresAt = Instant.now().plus(Period.ofDays(1)))
+
+        val url = "$rootUrl/${project1.id}/users"
+
+        val returnedResult: List<UserInProjectDto> = this.performPost(url, account, request)
+            .expectOk()
+            .document("codeprojects-add-user-by-body",
+                requestFields(codeProjectAddEditUserRequestFields()),
+                responseFields(usersInCodeProjectResponseFields("[].")))
+            .returnsList(UserInProjectDto::class.java)
 
         assertThat(returnedResult.size).isEqualTo(2)
     }
@@ -504,7 +537,7 @@ class CodeProjectsApiTest : AbstractRestApiTest() {
         codeProjectRepository.save(project1)
 
         every { codeProjectService.getUsersInProject(any()) } answers {
-            listOf(account)
+            listOf(account).map { accountToUserInProject(it) }
         }
 
         this.mockGetUserProjectsList(listOf(project1.id), account, AccessLevel.OWNER)
@@ -527,7 +560,7 @@ class CodeProjectsApiTest : AbstractRestApiTest() {
         codeProjectRepository.save(project1)
 
         every { codeProjectService.getUsersInProject(any()) } answers {
-            listOf(account)
+            listOf(account).map { accountToUserInProject(it) }
         }
 
         this.mockGetUserProjectsList(listOf(project1.id), account, AccessLevel.OWNER)
@@ -577,12 +610,23 @@ class CodeProjectsApiTest : AbstractRestApiTest() {
         )
     }
 
+    fun codeProjectAddEditUserRequestFields(): List<FieldDescriptor> {
+        return listOf(
+            fieldWithPath("user_id").type(JsonFieldType.STRING).optional().description("User id"),
+            fieldWithPath("gitlab_id").type(JsonFieldType.NUMBER).optional().description("Gitlab user id"),
+            fieldWithPath("level").type(JsonFieldType.STRING).optional().description("Role/Level of user in project"),
+            fieldWithPath("expires_at").type(JsonFieldType.STRING).optional().description("Expiration date")
+        )
+    }
+
     fun usersInCodeProjectResponseFields(prefix: String = ""): List<FieldDescriptor> {
         return listOf(
             fieldWithPath(prefix + "id").type(JsonFieldType.STRING).description("Code project id"),
             fieldWithPath(prefix + "user_name").type(JsonFieldType.STRING).description("User name"),
             fieldWithPath(prefix + "email").type(JsonFieldType.STRING).description("User's email"),
-            fieldWithPath(prefix + "gitlab_id").type(JsonFieldType.NUMBER).description("Id in gitlab")
+            fieldWithPath(prefix + "gitlab_id").type(JsonFieldType.NUMBER).description("Id in gitlab"),
+            fieldWithPath(prefix + "access_level").type(JsonFieldType.STRING).description("Role"),
+            fieldWithPath(prefix + "expired_at").type(JsonFieldType.STRING).optional().description("Access expires at")
         )
     }
 }

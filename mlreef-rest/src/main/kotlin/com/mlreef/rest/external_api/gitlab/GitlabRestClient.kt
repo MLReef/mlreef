@@ -42,13 +42,15 @@ import org.springframework.web.client.HttpServerErrorException
 import org.springframework.web.client.HttpStatusCodeException
 import org.springframework.web.client.ResourceAccessException
 import org.springframework.web.client.RestTemplate
+import java.time.Instant
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicReference
 
 inline fun <reified T : Any> typeRef(): ParameterizedTypeReference<T> = object : ParameterizedTypeReference<T>() {}
 
 @Component
-//@Profile(value = ["!" + ApplicationProfiles.TEST])
 class GitlabRestClient(
     private val builder: RestTemplateBuilder,
     @Value("\${mlreef.gitlab.root-url}")
@@ -68,6 +70,8 @@ class GitlabRestClient(
 
     @Suppress("LeakingThis")
     val gitlabOAuthUrl = "$gitlabRootUrl/oauth/"
+
+    val gitlabDateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd").withZone(ZoneId.systemDefault())
 
     val oAuthAdminToken: AtomicReference<Pair<Long, String>?> = AtomicReference(null)
 
@@ -173,8 +177,21 @@ class GitlabRestClient(
             .body!!
     }
 
-    fun adminAddUserToProject(projectId: Long, userId: Long, accessLevel: GroupAccessLevel = GroupAccessLevel.DEVELOPER): GitlabUserInProject {
-        return GitlabAddUserToProjectRequest(userId, accessLevel.accessCode)
+    fun adminGetProjectMember(projectId: Long, userId: Long): GitlabUserInProject {
+        return GitlabHttpEntity<String>("body", createAdminHeaders())
+            .addErrorDescription(404, ErrorCode.GitlabProjectNotExists, "Cannot find project $projectId in gitlab")
+            .addErrorDescription(ErrorCode.GitlabCommonError, "Cannot get users for project $projectId")
+            .makeRequest {
+                val url = "$gitlabServiceRootUrl/projects/$projectId/members/$userId"
+                restTemplate(builder).exchange(url, HttpMethod.GET, it, GitlabUserInProject::class.java)
+            }
+            .also { logGitlabCall(it) }
+            .body!!
+    }
+
+    fun adminAddUserToProject(projectId: Long, userId: Long, accessLevel: GroupAccessLevel = GroupAccessLevel.DEVELOPER, expiresAt: Instant? = null): GitlabUserInProject {
+        val expiresDate = if (expiresAt!=null) gitlabDateTimeFormatter.format(expiresAt) else null
+        return GitlabAddUserToProjectRequest(userId, accessLevel.accessCode, expiresDate)
             .let { GitlabHttpEntity(it, createAdminHeaders()) }
             .addErrorDescription(404, ErrorCode.UserNotExisting, "Cannot add user to project. The project or user doesn't exist")
             .addErrorDescription(409, ErrorCode.UserAlreadyExisting, "Cannot add user to project. User already is in the project")
@@ -202,7 +219,22 @@ class GitlabRestClient(
             .body!!
     }
 
-    fun editUserInProject(token: String, projectId: Long, userId: Long, accessLevel: GroupAccessLevel = GroupAccessLevel.DEVELOPER): GitlabUserInProject {
+    fun adminEditUserInProject(projectId: Long, userId: Long, accessLevel: GroupAccessLevel = GroupAccessLevel.DEVELOPER, expiresAt: Instant? = null): GitlabUserInProject {
+        val expiresDate = if (expiresAt!=null) gitlabDateTimeFormatter.format(expiresAt) else null
+        return GitlabAddUserToProjectRequest(userId, accessLevel.accessCode, expiresDate)
+            .let { GitlabHttpEntity(it, createAdminHeaders()) }
+            .addErrorDescription(404, ErrorCode.UserNotExisting, "Cannot add user to project. The project or user doesn't exist")
+            .addErrorDescription(409, ErrorCode.UserAlreadyExisting, "Cannot add user to project. User already is in the project")
+            .addErrorDescription(ErrorCode.GitlabUserAddingToGroupFailed, "Cannot add user to the project")
+            .makeRequest {
+                val url = "$gitlabServiceRootUrl/projects/$projectId/members/$userId"
+                restTemplate(builder).exchange(url, HttpMethod.PUT, it, GitlabUserInProject::class.java)
+            }
+            .also { logGitlabCall(it) }
+            .body!!
+    }
+
+    fun userEditUserInProject(token: String, projectId: Long, userId: Long, accessLevel: GroupAccessLevel = GroupAccessLevel.DEVELOPER): GitlabUserInProject {
         return GitlabAddUserToProjectRequest(userId, accessLevel.accessCode)
             .let { GitlabHttpEntity(it, createUserHeaders(token)) }
             .addErrorDescription(404, ErrorCode.UserNotExisting, "Cannot add user to project. The project or user doesn't exist")

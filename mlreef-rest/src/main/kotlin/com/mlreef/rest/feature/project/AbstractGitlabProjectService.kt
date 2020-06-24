@@ -17,6 +17,7 @@ import com.mlreef.rest.exceptions.UnknownUserException
 import com.mlreef.rest.exceptions.UserNotFoundException
 import com.mlreef.rest.external_api.gitlab.GitlabRestClient
 import com.mlreef.rest.external_api.gitlab.dto.GitlabProject
+import com.mlreef.rest.external_api.gitlab.toAccessLevel
 import com.mlreef.rest.external_api.gitlab.toGitlabAccessLevel
 import com.mlreef.rest.helpers.ProjectOfUser
 import com.mlreef.rest.helpers.UserInProject
@@ -25,7 +26,15 @@ import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
+import java.time.Instant
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.LocalTime
+import java.time.ZoneId
+import java.time.ZonedDateTime
+import java.time.format.DateTimeFormatter
 import java.util.UUID
+
 
 interface ProjectRequesterService<T : MLProject> {
     fun getAllPublicProjects(): List<T>
@@ -50,9 +59,24 @@ interface ProjectService<T : MLProject> {
     fun updateProject(userToken: String, ownerId: UUID, projectUUID: UUID, projectName: String? = null, description: String? = null, visibility: VisibilityScope? = null): T
     fun deleteProject(userToken: String, ownerId: UUID, projectUUID: UUID)
 
-    fun getUsersInProject(projectUUID: UUID): List<Account>
-    fun addUserToProject(projectUUID: UUID, userId: UUID? = null, userGitlabId: Long? = null): Account
-    fun addUsersToProject(projectUUID: UUID, users: List<UserInProject>): List<Account>
+    fun getUsersInProject(projectUUID: UUID): List<UserInProject>
+
+    fun addUserToProject(
+        projectUUID: UUID,
+        userId: UUID? = null,
+        userGitlabId: Long? = null,
+        accessLevel: AccessLevel? = null,
+        accessTill: Instant? = null
+    ): Account
+
+    fun editUserInProject(
+        projectUUID: UUID,
+        userId: UUID? = null,
+        userGitlabId: Long? = null,
+        accessLevel: AccessLevel? = null,
+        accessTill: Instant? = null
+    ): Account
+
     fun deleteUsersFromProject(projectUUID: UUID, users: List<UserInProject>): List<Account>
     fun deleteUserFromProject(projectUUID: UUID, userId: UUID? = null, userGitlabId: Long? = null): Account
     fun checkUserInProject(projectUUID: UUID, userId: UUID? = null, userName: String? = null, email: String? = null, userGitlabId: Long? = null, level: AccessLevel? = null, minlevel: AccessLevel? = null): Boolean
@@ -73,6 +97,8 @@ abstract class AbstractGitlabProjectService<T : MLProject>(
     internal abstract fun deleteExistingProject(mlProject: T)
     internal abstract fun updateSaveProject(mlProject: T, gitlabProject: GitlabProject): T
     internal abstract fun createNewProject(ownerId: UUID, gitlabProject: GitlabProject): T
+
+    private val gitlabDateTimeFormatter = DateTimeFormatter.ISO_DATE_TIME
 
     /**
      * Creates the Project in gitlab and saves a new DataProject/CodeProject in mlreef context
@@ -146,41 +172,31 @@ abstract class AbstractGitlabProjectService<T : MLProject>(
         }
     }
 
-    override fun getUsersInProject(projectUUID: UUID): List<Account> {
+    override fun getUsersInProject(projectUUID: UUID): List<UserInProject> {
         val project = this.getProjectById(projectUUID) ?: throw ProjectNotFoundException(projectUUID)
         return gitlabRestClient
             .adminGetProjectMembers(projectId = project.gitlabId)
-            .map { accountRepository.findOneByUsername(it.username) }
-            .filterNotNull()
-    }
-
-    @RefreshUserInformation(list = "#users")
-    override fun addUsersToProject(projectUUID: UUID, users: List<UserInProject>): List<Account> {
-        val codeProject = this.getProjectById(projectUUID) ?: throw ProjectNotFoundException(projectUUID)
-
-        val usersIds = users.map {
-            try {
-                it.gitlabId ?: resolveAccount(email = it.email, userName = it.userName)?.person?.gitlabId
-            } catch (ex: Exception) {
-                null
+            .map {
+                val account = accountRepository.findAccountByGitlabId(it.id) ?: throw UserNotFoundException(gitlabId = it.id)
+                val expiration = if (it.expiresAt!=null) {
+                    val localDate = LocalDate.from(gitlabRestClient.gitlabDateTimeFormatter.parse(it.expiresAt))
+                    val zonedDateTime = ZonedDateTime.of(LocalDateTime.of(localDate, LocalTime.MIN), ZoneId.systemDefault())
+                    Instant.from(zonedDateTime)
+                } else null
+                UserInProject(account.id, it.username, account.email, it.id, it.accessLevel.toAccessLevel(), expiration)
             }
-        }.filterNotNull()
-
-        return usersIds.map {
-            try {
-                val gitlabUserInProject = gitlabRestClient
-                    .adminAddUserToProject(projectId = codeProject.gitlabId, userId = it)
-                accountRepository.findAccountByGitlabId(gitlabUserInProject.id)
-            } catch (ex: Exception) {
-                log.error("Unable to add user to the project ${codeProject.name}. Exception: $ex.")
-                null
-            }
-        }.filterNotNull()
     }
 
     @RefreshUserInformation(userId = "#userId")
-    override fun addUserToProject(projectUUID: UUID, userId: UUID?, userGitlabId: Long?): Account {
+    override fun addUserToProject(
+        projectUUID: UUID,
+        userId: UUID?,
+        userGitlabId: Long?,
+        accessLevel: AccessLevel?,
+        accessTill: Instant?
+    ): Account {
         val codeProject = this.getProjectById(projectUUID) ?: throw ProjectNotFoundException(projectUUID)
+        val level = accessLevel ?: AccessLevel.GUEST
 
         val account = when {
             userId != null -> accountRepository.findByIdOrNull(userId)
@@ -189,8 +205,43 @@ abstract class AbstractGitlabProjectService<T : MLProject>(
         } ?: throw UserNotFoundException(userId = userId, gitlabId = userGitlabId)
 
         gitlabRestClient
-            .adminAddUserToProject(projectId = codeProject.gitlabId, userId = account.person.gitlabId
-                ?: throw UnknownUserException("Person is not connected to Gitlab and has no valid gitlabId"))
+            .adminAddUserToProject(
+                projectId = codeProject.gitlabId,
+                userId = account.person.gitlabId ?: throw UnknownUserException("Person is not connected to Gitlab and has no valid gitlabId"),
+                accessLevel = level.toGitlabAccessLevel()!!,
+                expiresAt = accessTill
+            )
+
+        return account
+    }
+
+    @RefreshUserInformation(userId = "#userId")
+    override fun editUserInProject(
+        projectUUID: UUID,
+        userId: UUID?,
+        userGitlabId: Long?,
+        accessLevel: AccessLevel?,
+        accessTill: Instant?
+    ): Account {
+        val codeProject = this.getProjectById(projectUUID) ?: throw ProjectNotFoundException(projectUUID)
+
+        val account = when {
+            userId != null -> accountRepository.findByIdOrNull(userId)
+            userGitlabId != null -> accountRepository.findAccountByGitlabId(userGitlabId)
+            else -> throw BadParametersException("Either userid or gitlab id should be presented")
+        } ?: throw UserNotFoundException(userId = userId, gitlabId = userGitlabId)
+
+        val gitlabUserId = account.person.gitlabId ?: throw UnknownUserException("Person is not connected to Gitlab and has no valid gitlabId")
+
+        val gitlabUserInProject = gitlabRestClient.adminGetUserInProject(codeProject.gitlabId, gitlabUserId)
+
+        gitlabRestClient
+            .adminAddUserToProject(
+                projectId = codeProject.gitlabId,
+                userId = gitlabUserId,
+                accessLevel = accessLevel.toGitlabAccessLevel() ?: gitlabUserInProject.accessLevel,
+                expiresAt = accessTill
+            )
 
         return account
     }

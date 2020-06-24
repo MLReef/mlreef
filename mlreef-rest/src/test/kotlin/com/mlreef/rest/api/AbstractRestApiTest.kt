@@ -22,6 +22,7 @@ import com.mlreef.rest.external_api.gitlab.dto.GitlabUserInGroup
 import com.mlreef.rest.external_api.gitlab.dto.GitlabUserToken
 import com.mlreef.rest.external_api.gitlab.dto.OAuthToken
 import com.mlreef.rest.feature.pipeline.PipelineService
+import com.mlreef.rest.helpers.UserInProject
 import com.mlreef.rest.security.MlReefSessionRegistry
 import com.mlreef.rest.testcommons.AbstractRestTest
 import com.mlreef.rest.testcommons.TestRedisContainer
@@ -61,6 +62,7 @@ import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilde
 import org.springframework.test.web.servlet.setup.DefaultMockMvcBuilder
 import org.springframework.test.web.servlet.setup.MockMvcBuilders
 import org.springframework.web.context.WebApplicationContext
+import java.time.Instant
 import java.util.UUID
 import java.util.regex.Pattern
 import javax.transaction.Transactional
@@ -344,6 +346,9 @@ abstract class AbstractRestApiTest : AbstractRestTest() {
             groups = groupIdLevelMap
         )
     }
+
+    protected fun accountToUserInProject(account: Account, level: AccessLevel = AccessLevel.DEVELOPER, expiredAt: Instant? = null) =
+        UserInProject(account.id, account.username, account.email, account.person.gitlabId, level, expiredAt)
 
     fun ResultActions.document(name: String, vararg snippets: Snippet): ResultActions {
         return this.andDo(MockMvcRestDocumentation.document(name, *snippets))
