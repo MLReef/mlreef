@@ -1,9 +1,7 @@
 package com.mlreef.rest
 
-import com.mlreef.rest.marketplace.MarketplaceEntry
 import com.mlreef.rest.marketplace.SearchableTag
 import com.mlreef.rest.marketplace.SearchableType
-import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.Query
 import org.springframework.stereotype.Repository
@@ -133,31 +131,61 @@ interface ParameterInstanceRepository : ReadOnlyRepository<ParameterInstance, UU
 @Repository
 interface DataProcessorInstanceRepository : KtCrudRepository<DataProcessorInstance, UUID>
 
+interface ProjectRepositoryCustom {
+    fun <T : Project> findAccessible(
+        clazz: Class<T>,
+        pageable: Pageable,
+        ids: List<UUID>?,
+        slugs: List<String>? = null,
+        searchableType: SearchableType,
+        inputDataTypes: List<DataType>? = null,
+        outputDataTypes: List<DataType>? = null,
+        tags: List<SearchableTag>? = null
+    ): List<Project>
+}
+
 @Repository
-interface MarketplaceEntryRepository : KtCrudRepository<MarketplaceEntry, UUID> {
-    fun findBySearchableId(id: UUID): MarketplaceEntry?
-    fun findBySearchableType(searchableType: SearchableType): List<MarketplaceEntry>
-    fun findByGlobalSlugAndVisibilityScope(slug: String, visibilityScope: VisibilityScope): MarketplaceEntry?
-    fun findAllByVisibilityScope(visibilityScope: VisibilityScope): List<MarketplaceEntry>
-    fun findAllByVisibilityScope(visibilityScope: VisibilityScope, pageable: Pageable): Page<MarketplaceEntry>
+interface ProjectRepository : KtCrudRepository<Project, UUID>, ProjectRepositoryCustom {
+    fun findByGlobalSlugAndVisibilityScope(slug: String, visibilityScope: VisibilityScope): Project?
 
-    @Query("select e from MarketplaceEntry e join DataProcessor dp on e.searchableId = dp.id join CodeProject cp on dp.codeProjectId = cp.id where cp.id IN :ids")
-    fun findAccessibleProcessors(ids: List<UUID>): List<MarketplaceEntry>
+    fun findAllByVisibilityScope(visibilityScope: VisibilityScope, pageable: Pageable): List<Project>
 
-    @Query("select e from MarketplaceEntry e join DataProject dp on e.searchableId = dp.id where dp.id IN :ids")
-    fun findAccessibleDataProjects(ids: List<UUID>): List<MarketplaceEntry>
+//    @Query("select e from Project e join DataProcessor dp on e.id = dp.codeProjectId join CodeProject cp on dp.codeProjectId = cp.id where cp.id IN :ids")
+//    fun findAccessibleProcessors(ids: List<UUID>, pageable: Pageable): List<Project>
 
-    @Query("select e from MarketplaceEntry e join DataProcessor dp on e.searchableId = dp.id join CodeProject cp on dp.codeProjectId = cp.id where cp.id IN :ids and e.globalSlug LIKE :slug")
-    fun findAccessibleProcessor(ids: List<UUID>, slug: String): MarketplaceEntry?
+    @Query("select e from Project e where e.id IN :ids")
+    fun findAccessibleProjects(ids: List<UUID>, pageable: Pageable): List<Project>
 
-    @Query("select e from MarketplaceEntry e join DataProject dp on e.searchableId = dp.id where dp.id IN :ids and e.globalSlug LIKE :slug")
-    fun findAccessibleDataProject(ids: List<UUID>, slug: String): MarketplaceEntry?
+//    @Query("select e from Project e join DataProcessor dp on e.id = dp.codeProjectId join CodeProject cp on dp.codeProjectId = cp.id where cp.id IN :ids and e.globalSlug LIKE :slug")
+//    fun findAccessibleProcessor(ids: List<UUID>, slug: String): Project?
 
+    @Query("select e from Project e  where e.id IN :ids and e.globalSlug LIKE :slug")
+    fun findAccessibleProject(ids: List<UUID>, slug: String): Project?
+
+//    @Modifying()
+//    @Query("UPDATE mlreef_project SET document = to_tsvector(name || '. ' || description) WHERE id = :id", nativeQuery = true)
+//    fun updateFulltext(id: UUID)
+
+    /**
+     * Requires the "update_fts_document" PSQL TRIGGER and "project_fts_index" gin index
+     *
+     * Currently Fulltext search is implemented via psql and _relies_ on that, be aware of that when you change DB!
+     */
+    @Query(value = "SELECT CAST(id as TEXT) as id, CAST(ts_rank(document, to_tsquery('english', :query)) as FLOAT) as rank FROM marketplace_entry WHERE id in :ids ORDER BY rank DESC", nativeQuery = true)
+    fun fulltextSearch(query: String, ids: Set<UUID>): List<IdRankInterface>
+
+    interface IdRankInterface {
+        val id: String
+        val rank: Double
+    }
 }
 
 @Repository
 interface SearchableTagRepository : KtCrudRepository<SearchableTag, UUID> {
     fun findAllByPublicTrueOrOwnerIdIn(ids: List<UUID>): List<SearchableTag>
+
+    //    fun findAllByPublicTrueAndNameEquals(name: String): List<SearchableTag>
+    fun findAllByPublicTrueAndNameIsIn(names: List<String>): List<SearchableTag>
 }
 
 @Repository

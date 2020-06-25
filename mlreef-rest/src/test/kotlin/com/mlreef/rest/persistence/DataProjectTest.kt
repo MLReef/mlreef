@@ -22,7 +22,7 @@ class DataProjectTest : AbstractRepositoryTest() {
         val entity = DataProject(
             id = id, slug = "test-data-project", name = "CodeProject Augment", ownerId = author.id,
             url = "https://gitlab.com/mlreef/sign-language-classifier",
-            gitlabProject = "sign-language-classifier", gitlabGroup = "mlreef", gitlabId = 1)
+            gitlabPath = "sign-language-classifier", gitlabNamespace = "mlreef", gitlabId = 1, description = "")
 
         return Pair(id, entity)
     }

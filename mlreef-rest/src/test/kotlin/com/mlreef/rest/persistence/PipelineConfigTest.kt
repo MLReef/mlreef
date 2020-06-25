@@ -32,7 +32,7 @@ class PipelineConfigTest : AbstractRepositoryTest() {
     private fun createEntity(): Pair<UUID, PipelineConfig> {
         val id = randomUUID()
         val owner = Person(randomUUID(), "slug", "name", ++gitlabIdCount)
-        val dataProject = DataProject(randomUUID(), "slug", "url,", "CodeProject Augment", owner.id, "group", "project", "group/project", ++gitlabIdCount)
+        val dataProject = DataProject(randomUUID(), "slug", "url,", "CodeProject Augment", "", owner.id, "group", "project", "group/project", ++gitlabIdCount)
 
         personRepository.save(owner)
         dataProjectRepository.save(dataProject)

@@ -1,71 +1,78 @@
 package com.mlreef.rest
 
-import com.mlreef.rest.helpers.ProjectOfUser
+import com.mlreef.rest.marketplace.Searchable
+import com.mlreef.rest.marketplace.SearchableTag
 import com.mlreef.rest.marketplace.SearchableType
+import com.mlreef.rest.marketplace.Star
 import java.time.ZonedDateTime
 import java.util.UUID
 import javax.persistence.CascadeType
-import javax.persistence.Column
+import javax.persistence.DiscriminatorValue
 import javax.persistence.Entity
-import javax.persistence.EnumType
-import javax.persistence.Enumerated
 import javax.persistence.FetchType
 import javax.persistence.ForeignKey
 import javax.persistence.JoinColumn
 import javax.persistence.OneToMany
-import javax.persistence.Table
 
 /**
  * A Machine Learning Repository Project describes the association of data and experiments.
  * A repo can also be described with an DataType, for example a MLDataRepository using Images a data set
  */
 @Entity
-@Table(name = "data_project")
+@DiscriminatorValue("DATA_PROJECT")
 class DataProject(
     id: UUID,
-    override val slug: String,
-    override val url: String,
-    override val name: String,
-
-    @Column(name = "owner_id")
-    override val ownerId: UUID,
-
-    @Column(name = "gitlab_group")
-    override val gitlabGroup: String,
-
-    @Column(name = "gitlab_project")
-    override val gitlabProject: String,
-
-    @Column(name = "gitlab_path_with_namespace")
-    override val gitlabPathWithNamespace: String = "$gitlabGroup/$gitlabProject",
-
-    @Column(name = "gitlab_id")
-    override val gitlabId: Long,
-
-    @Enumerated(EnumType.STRING)
-    override val visibilityScope: VisibilityScope = VisibilityScope.default(),
+    slug: String,
+    url: String,
+    name: String,
+    description: String,
+    ownerId: UUID,
+    gitlabNamespace: String,
+    gitlabPath: String,
+    gitlabPathWithNamespace: String = "$gitlabNamespace/$gitlabPath",
+    gitlabId: Long,
+    visibilityScope: VisibilityScope = VisibilityScope.default(),
 
     @OneToMany(fetch = FetchType.LAZY, cascade = [CascadeType.ALL])
     @JoinColumn(
         name = "data_project_id",
         foreignKey = ForeignKey(name = "experiment_dataproject_data_project_id_fkey"))
     val experiments: List<Experiment> = listOf(),
-
+    forksCount: Int = 0,
+    inputDataTypes: Set<DataType> = hashSetOf(),
+    outputDataTypes: Set<DataType> = hashSetOf(),
+    //searchable
+    globalSlug: String? = null,
+    tags: Set<SearchableTag> = hashSetOf(),
+    starsCount: Int = 0,
+    stars: List<Star> = arrayListOf(),
+    //Auditing
     version: Long? = null,
     createdAt: ZonedDateTime? = null,
     updatedAt: ZonedDateTime? = null
-) : AuditEntity(id, version, createdAt, updatedAt), MLProject, Searchable {
+) : Project(id, ProjectType.DATA_PROJECT, slug, url, name, description, ownerId,
+    gitlabNamespace, gitlabPath, gitlabPathWithNamespace, gitlabId,
+    visibilityScope, null, forksCount, inputDataTypes, outputDataTypes,
+    //searchable
+    globalSlug, tags, starsCount, stars,
+    version, createdAt, updatedAt) {
 
     fun copy(
         id: UUID? = null,
         url: String? = null,
         slug: String? = null,
         name: String? = null,
-        gitlabGroup: String? = null,
-        gitlabProject: String? = null,
+        description: String? = null,
+        gitlabNamespace: String? = null,
+        gitlabPath: String? = null,
         gitlabPathWithNamespace: String? = null,
         gitlabId: Long? = null,
         experiments: List<Experiment>? = null,
+        globalSlug: String? = null,
+        stars: List<Star>? = null,
+        inputDataTypes: Set<DataType>? = null,
+        outputDataTypes: Set<DataType>? = null,
+        tags: Set<SearchableTag>? = null,
         version: Long? = null,
         createdAt: ZonedDateTime? = null,
         updatedAt: ZonedDateTime? = null,
@@ -76,30 +83,51 @@ class DataProject(
             slug = slug ?: this.slug,
             url = url ?: this.url,
             name = name ?: this.name,
+            description = description ?: this.description,
             ownerId = this.ownerId,
-            gitlabGroup = gitlabGroup ?: this.gitlabGroup,
+            gitlabNamespace = gitlabNamespace ?: this.gitlabNamespace,
             gitlabPathWithNamespace = gitlabPathWithNamespace ?: this.gitlabPathWithNamespace,
-            gitlabProject = gitlabProject ?: this.gitlabProject,
+            gitlabPath = gitlabPath ?: this.gitlabPath,
             gitlabId = gitlabId ?: this.gitlabId,
             experiments = experiments ?: this.experiments,
             version = version ?: this.version,
             createdAt = createdAt ?: this.createdAt,
             updatedAt = updatedAt ?: this.updatedAt,
-            visibilityScope = visibilityScope ?: this.visibilityScope
+            visibilityScope = visibilityScope ?: this.visibilityScope,
+            globalSlug = globalSlug ?: this.globalSlug,
+            stars = stars ?: this.stars,
+            starsCount = stars?.size ?: this.stars.size,
+            tags = tags ?: this.tags,
+            inputDataTypes = inputDataTypes ?: this.inputDataTypes,
+            outputDataTypes = outputDataTypes ?: this.outputDataTypes
         )
     }
-
-    fun toProjectOfUser(accessLevel: AccessLevel?) = ProjectOfUser(
-        id = this.id,
-        name = this.name,
-        accessLevel = accessLevel
-    )
 
     override fun toString(): String {
         return "[DataProject: id:$id slug:$slug name:$name ownerId:$ownerId gitlabId:${gitlabId} gitlabPathWithNamespace:$gitlabPathWithNamespace"
     }
 
-    override fun getType(): SearchableType {
-        return SearchableType.DATA_PROJECT
+    override fun clone(name: String?,
+                       description: String?,
+                       visibilityScope: VisibilityScope?,
+                       stars: List<Star>?,
+                       outputDataTypes: MutableSet<DataType>?,
+                       inputDataTypes: MutableSet<DataType>?,
+                       tags: MutableSet<SearchableTag>?
+    ): Searchable {
+        return this.copy(
+            name = name,
+            description = description,
+            visibilityScope = visibilityScope,
+            stars = stars,
+            outputDataTypes = outputDataTypes,
+            inputDataTypes = inputDataTypes,
+            tags = tags
+        )
     }
+
+    override val searchableType: SearchableType
+        get() = SearchableType.DATA_PROJECT
+
+
 }

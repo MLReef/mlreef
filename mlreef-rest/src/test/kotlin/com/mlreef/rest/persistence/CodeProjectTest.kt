@@ -22,7 +22,7 @@ class CodeProjectTest : AbstractRepositoryTest() {
         val id = randomUUID()
         val person = Person(randomUUID(), "slug", "name", 1L)
         val entity = CodeProject(id = id, slug = "code-project-augment", name = "CodeProject Augment", ownerId = person.id, url = "url",
-            gitlabGroup = "", gitlabId = 0, gitlabProject = "")
+            gitlabNamespace = "", gitlabId = 0, gitlabPath = "", description = "")
         return Pair(id, entity)
     }
 

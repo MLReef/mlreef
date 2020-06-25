@@ -506,7 +506,7 @@ operation::pipelineinstance-retrieve-one[snippets='curl-request,response-body,re
 Creation of PipelineInstance is special as it does not need any parameters.
 Creation is actually an Instantiation of a PipelineConfig, which copies all the needed information and starts a new Pipeline.
 
-operation::pipelineinstance-create-success[snippets='curl-request,http-response,response-fields']
+operation::pipelineinstance-create-success[snippets='curl-request,request-fields,http-response,response-fields']
 
 === PUT /pipelines/:pid/instances/:id
 
@@ -556,6 +556,57 @@ MarketplaceEntries are the public facade of DataProjects and DataProcessors, and
 === GET /explore/entries
 
 operation::marketplace-entries-retrieve-all[snippets='curl-request,response-body,response-fields']
+
+=== GET /explore/entries/search
+
+* Can be used by Visitors (unauthenticated users) and regular Users
+* Visitors will just find public data, Users will see accessbible data as well
+
+==== Request
+
+Request supports a Filter, paging info and sorting info
+
+The minimal FilterRequest contains the SearchableType:
+
+* DATA_PROJECT
+* CODE_PROJECT (ALL Processors)
+* OPERATION
+* VISUALISATION
+* ALGORITHM
+
+DATA_PROJECT will find DataProjects, CODE_PROJECT will find all CodeProjects connected with their CodeProcessors.
+If you want to filter for an explicit CODE_PROJECT type, use OPERATION, VISUALISATION or ALGORITHM.
+
+operation::marketplace-explore-search[snippets='request-fields']
+
+===== Paging
+
+operation::marketplace-explore-search-params[snippets='request-parameters']
+
+===== Minimal Request
+
+operation::marketplace-explore-search-minimal[snippets='curl-request']
+
+===== Request with all filters
+
+operation::marketplace-explore-search-maximal[snippets='curl-request']
+
+==== Result
+
+The Result is a List of SearchableResults packed in a pageable result.
+
+===== Fulltext search
+
+After the search filtering will be performed and pages are built, the current page will be sorted per relevance for the fulltext search query (fts query).
+Probability will be defined, and can be used for sorting in frontend code:
+A higher prob is more relevant regarind the fts search.
+You can use "query_and" true/false to use AND or OR operation to harden or broaden your result space "probability" : 0.7662
+
+If no "query" is send, fulltext search relevance is not applied, and all SearchResults will have a probability of 1.0 :
+
+ "probability" : 1.0
+
+operation::marketplace-explore-search[snippets='response-body,response-fields']
 
 === GET /explore/entries/:global_slug
 

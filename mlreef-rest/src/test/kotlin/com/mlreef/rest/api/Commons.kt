@@ -48,6 +48,31 @@ object TestTags {
     const val RESTDOC = "restdoc"
 }
 
+internal fun projectResponseFields(prefix: String = ""): List<FieldDescriptor> {
+    return listOf(
+        fieldWithPath(prefix + "global_slug").optional().type(JsonFieldType.STRING).description("Global Slug must be unique for the whole platform"),
+        fieldWithPath(prefix + "visibility_scope").type(JsonFieldType.STRING).description("Visibility scope"),
+        fieldWithPath(prefix + "name").type(JsonFieldType.STRING).description("A Name which is unique per scope (owner's domain)"),
+        fieldWithPath(prefix + "description").type(JsonFieldType.STRING).description("Text for description"),
+        fieldWithPath(prefix + "tags").type(JsonFieldType.ARRAY).description("All Tags for this Project"),
+        fieldWithPath(prefix + "owner_id").type(JsonFieldType.STRING).description("UUID of Subject who owns this Project"),
+        fieldWithPath(prefix + "stars_count").type(JsonFieldType.NUMBER).description("Number of Stars"),
+        fieldWithPath(prefix + "forks_count").type(JsonFieldType.NUMBER).description("Number of Forks"),
+        fieldWithPath(prefix + "input_data_types").type(JsonFieldType.ARRAY).description("List of DataTypes used for Input"),
+        fieldWithPath(prefix + "output_data_types").type(JsonFieldType.ARRAY).description("List of DataTypes used for Output"),
+        fieldWithPath(prefix + "searchable_type").type(JsonFieldType.STRING).description("Type of searchable Entity"),
+        fieldWithPath(prefix + "id").type(JsonFieldType.STRING).description("Data project id"),
+        fieldWithPath(prefix + "slug").type(JsonFieldType.STRING).description("Data project slug"),
+        fieldWithPath(prefix + "url").type(JsonFieldType.STRING).description("URL in Gitlab domain"),
+        fieldWithPath(prefix + "owner_id").type(JsonFieldType.STRING).description("Onwer id of the data project"),
+        fieldWithPath(prefix + "name").type(JsonFieldType.STRING).description("Project name"),
+        fieldWithPath(prefix + "gitlab_namespace").type(JsonFieldType.STRING).description("The group/namespace where the project is in"),
+        fieldWithPath(prefix + "gitlab_path").type(JsonFieldType.STRING).description("Project path"),
+        fieldWithPath(prefix + "gitlab_id").type(JsonFieldType.NUMBER).description("Id in gitlab")
+    )
+}
+
+
 internal fun dataProcessorInstanceFields(prefix: String = ""): List<FieldDescriptor> {
     return listOf(
         fieldWithPath(prefix + "id").type(JsonFieldType.STRING).optional().description("Unique UUID of this DataProcessor"),
@@ -59,6 +84,33 @@ internal fun dataProcessorInstanceFields(prefix: String = ""): List<FieldDescrip
         fieldWithPath(prefix + "parameters[].required").type(JsonFieldType.BOOLEAN).optional().description("Parameter required?"),
         fieldWithPath(prefix + "parameters[].description").type(JsonFieldType.STRING).optional().description("Textual description of this Parameter"),
         fieldWithPath(prefix + "parameters[].value").type(JsonFieldType.STRING).optional().description("Provided value (as parsable String) of Parameter ")
+    )
+}
+
+internal fun pageable(prefix: String = ""): List<FieldDescriptor> {
+    return listOf(
+        fieldWithPath(prefix + "content").type(JsonFieldType.ARRAY).optional().description(""),
+        fieldWithPath(prefix + "pageable.sort").type(JsonFieldType.OBJECT).optional().description(""),
+        fieldWithPath(prefix + "pageable.sort.unsorted").type(JsonFieldType.BOOLEAN).optional().description(""),
+        fieldWithPath(prefix + "pageable.sort.sorted").type(JsonFieldType.BOOLEAN).optional().description(""),
+        fieldWithPath(prefix + "pageable.sort.empty").type(JsonFieldType.BOOLEAN).optional().description(""),
+        fieldWithPath(prefix + "pageable.page_size").type(JsonFieldType.NUMBER).optional().description(""),
+        fieldWithPath(prefix + "pageable.page_number").type(JsonFieldType.NUMBER).optional().description(""),
+        fieldWithPath(prefix + "pageable.offset").type(JsonFieldType.NUMBER).optional().description(""),
+        fieldWithPath(prefix + "pageable.paged").type(JsonFieldType.BOOLEAN).optional().description(""),
+        fieldWithPath(prefix + "pageable.unpaged").type(JsonFieldType.BOOLEAN).optional().description(""),
+        fieldWithPath(prefix + "total_elements").type(JsonFieldType.NUMBER).optional().description(""),
+        fieldWithPath(prefix + "total_pages").type(JsonFieldType.NUMBER).optional().description(""),
+        fieldWithPath(prefix + "last").type(JsonFieldType.BOOLEAN).optional().description(""),
+        fieldWithPath(prefix + "first").type(JsonFieldType.BOOLEAN).optional().description(""),
+        fieldWithPath(prefix + "number_of_elements").type(JsonFieldType.NUMBER).optional().description(""),
+        fieldWithPath(prefix + "sort").type(JsonFieldType.OBJECT).optional().description(""),
+        fieldWithPath(prefix + "sort.unsorted").type(JsonFieldType.BOOLEAN).optional().description(""),
+        fieldWithPath(prefix + "sort.sorted").type(JsonFieldType.BOOLEAN).optional().description(""),
+        fieldWithPath(prefix + "sort.empty").type(JsonFieldType.BOOLEAN).optional().description(""),
+        fieldWithPath(prefix + "size").type(JsonFieldType.NUMBER).optional().description(""),
+        fieldWithPath(prefix + "number").type(JsonFieldType.NUMBER).optional().description(""),
+        fieldWithPath(prefix + "empty").type(JsonFieldType.BOOLEAN).optional().description("")
     )
 }
 
@@ -213,14 +265,14 @@ internal class PipelineTestPreparationTrait : AccountSubjectPreparationTrait() {
 
         dataProject = dataProjectRepository.save(DataProject(
             UUID.fromString("aaaa0001-0000-0000-0000-dbdbdbdbdbdb"), "slug1", "url", "Test DataProject",
-            ownerId = account.person.id, gitlabId = Random.nextInt().toLong().absoluteValue, gitlabGroup = "mlreef", gitlabProject = "project1"
+            "", ownerId = account.person.id, gitlabId = Random.nextInt().toLong().absoluteValue, gitlabNamespace = "mlreef", gitlabPath = "project1"
         ))
         dataProject2 = dataProjectRepository.save(DataProject(
             UUID.fromString("aaaa0001-0000-0000-0002-dbdbdbdbdbdb"), "slug2", "url", "Test DataProject",
-            ownerId = account2.person.id, gitlabId = Random.nextInt().toLong().absoluteValue, gitlabGroup = "mlreef", gitlabProject = "project1")
+            "", ownerId = account2.person.id, gitlabId = Random.nextInt().toLong().absoluteValue, gitlabNamespace = "mlreef", gitlabPath = "project1")
         )
-        codeProjectRepository.save(CodeProject(randomUUID(), "slug", "url", "Test DataProject", ownerId = account.person.id,
-            gitlabGroup = "", gitlabId = Random.nextInt().toLong().absoluteValue, gitlabProject = ""))
+        codeProjectRepository.save(CodeProject(randomUUID(), "slug", "url", "Test DataProject", "", ownerId = account.person.id,
+            gitlabNamespace = "", gitlabId = Random.nextInt().toLong().absoluteValue, gitlabPath = ""))
 
         dataOp1 = dataOperationRepository.save(DataOperation(randomUUID(), "commons-data-operation1", "name", "command", DataType.ANY, DataType.ANY))
         dataOp2 = dataAlgorithmRepository.save(DataAlgorithm(randomUUID(), "commons-algorithm", "name", "command", DataType.ANY, DataType.ANY))

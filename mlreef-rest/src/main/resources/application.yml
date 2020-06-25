@@ -1,10 +1,11 @@
 logging:
   level:
     root: INFO
-    com.mlreef.rest: INFO
+    com.mlreef.rest: DEBUG
     org.springframework.security: WARN
     org.springframework.orm: WARN
     org.hibernate: WARN
+    org.springframework.boot.autoconfigure: ERROR
 
 mlreef:
   epf:

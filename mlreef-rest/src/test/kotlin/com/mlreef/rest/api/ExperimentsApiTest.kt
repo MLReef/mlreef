@@ -63,7 +63,6 @@ class ExperimentsApiTest : AbstractRestApiTest() {
     @Autowired private lateinit var experimentRepository: ExperimentRepository
     @Autowired private lateinit var dataProcessorInstanceRepository: DataProcessorInstanceRepository
     @Autowired private lateinit var processorParameterRepository: ProcessorParameterRepository
-
     @Autowired private lateinit var pipelineTestPreparationTrait: PipelineTestPreparationTrait
 
     @BeforeEach

@@ -40,7 +40,10 @@ data class ProcessorParameter(
 @Entity
 @Table(name = "parameter_instance")
 data class ParameterInstance(
-    @Id @Column(name = "id", length = 16, unique = true, nullable = false) val id: UUID,
+    @Id
+    @Column(name = "id", length = 16, unique = true, nullable = false)
+    val id: UUID,
+
     @OneToOne(fetch = FetchType.EAGER, cascade = [CascadeType.DETACH])
     @JoinColumn(
         name = "parameter_id",

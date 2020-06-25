@@ -6,7 +6,7 @@ import com.mlreef.rest.CodeProject
 import com.mlreef.rest.Person
 import com.mlreef.rest.VisibilityScope
 import com.mlreef.rest.api.v1.dto.CodeProjectDto
-import com.mlreef.rest.api.v1.dto.MLProjectDto
+import com.mlreef.rest.api.v1.dto.ProjectDto
 import com.mlreef.rest.api.v1.dto.UserInProjectDto
 import com.mlreef.rest.api.v1.dto.toDto
 import com.mlreef.rest.exceptions.ErrorCode
@@ -52,7 +52,7 @@ class CodeProjectsController(
 
     // FIXME: Coverage says: missing tests
     @GetMapping("/public")
-    fun getPublicDataProjects(pageable: Pageable): Page<MLProjectDto> {
+    fun getPublicDataProjects(pageable: Pageable): Page<ProjectDto> {
         return codeProjectService.getAllPublicProjects(pageable).map { it.toDto() }
     }
 

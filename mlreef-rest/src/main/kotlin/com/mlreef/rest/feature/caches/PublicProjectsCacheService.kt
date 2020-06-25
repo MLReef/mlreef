@@ -3,7 +3,7 @@ package com.mlreef.rest.feature.caches
 import com.mlreef.rest.AuditEntity
 import com.mlreef.rest.CodeProjectRepository
 import com.mlreef.rest.DataProjectRepository
-import com.mlreef.rest.MLProject
+import com.mlreef.rest.Project
 import com.mlreef.rest.exceptions.GitlabNotFoundException
 import com.mlreef.rest.external_api.gitlab.GitlabRestClient
 import com.mlreef.rest.external_api.gitlab.GitlabVisibility
@@ -119,7 +119,7 @@ class RedisPublicProjectsCacheService(
             return
         }
 
-        val projectInDb = projectAny as MLProject
+        val projectInDb = projectAny as Project
         val projectWithId = projectAny as AuditEntity
 
         var projectInGitlab: GitlabProject?

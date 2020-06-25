@@ -25,8 +25,8 @@ class DataProcessorInstanceTest : AbstractRepositoryTest() {
         val codeProjectId = randomUUID()
         val id = randomUUID()
         val author = Person(randomUUID(), "slug", "name", 1L)
-        CodeProject(id = codeProjectId, slug = "code-project-augment", name = "CodeProject Augment", ownerId = author.id, url = "url",
-            gitlabGroup = "", gitlabId = 0, gitlabProject = "")
+        CodeProject(id = codeProjectId, slug = "code-project-augment", name = "CodeProject Augment", description = "", ownerId = author.id, url = "url",
+            gitlabNamespace = "", gitlabId = 0, gitlabPath = "")
         val dataOp1 = DataOperation(
             id = randomUUID(), slug = "commons-augment", name = "Augment",
             command = "augment", inputDataType = DataType.IMAGE, outputDataType = DataType.IMAGE,

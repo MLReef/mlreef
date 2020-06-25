@@ -99,7 +99,7 @@ class CodeProjectsApiTest : AbstractRestApiTest() {
             .andExpect(MockMvcResultMatchers.status().isOk)
             .document("codeprojects-create",
                 requestFields(codeProjectCreateRequestFields()),
-                responseFields(codeProjectResponseFields()))
+                responseFields(projectResponseFields()))
             .returns(CodeProjectDto::class.java)
 
         assertThat(returnedResult).isNotNull()
@@ -160,9 +160,9 @@ class CodeProjectsApiTest : AbstractRestApiTest() {
     @Test
     @Tag(TestTags.RESTDOC)
     fun `Can retrieve all own CodeProjects only`() {
-        val project1 = CodeProject(randomUUID(), "slug-1", "www.url.com", "Test Project 1", account.person.id, "group1", "project-1", "mlreef/project1", 1)
-        val project2 = CodeProject(randomUUID(), "slug-2", "www.url.net", "Test Project 2", account.person.id, "group2", "project-2", "mlreef/project2", 2)
-        val project3 = CodeProject(randomUUID(), "slug-3", "www.url.xyz", "Test Project 3", account2.person.id, "group3", "project-3", "mlreef/project3", 3)
+        val project1 = CodeProject(randomUUID(), "slug-1", "www.url.com", "Test Project 1", "description", account.person.id, "group1", "project-1", "mlreef/project1", 1)
+        val project2 = CodeProject(randomUUID(), "slug-2", "www.url.net", "Test Project 2", "description", account.person.id, "group2", "project-2", "mlreef/project2", 2)
+        val project3 = CodeProject(randomUUID(), "slug-3", "www.url.xyz", "Test Project 3", "description", account2.person.id, "group3", "project-3", "mlreef/project3", 3)
         codeProjectRepository.save(project1)
         codeProjectRepository.save(project2)
         codeProjectRepository.save(project3)
@@ -173,7 +173,7 @@ class CodeProjectsApiTest : AbstractRestApiTest() {
         val returnedResult: List<CodeProjectDto> = this.mockMvc.perform(
             this.defaultAcceptContentAuth(RestDocumentationRequestBuilders.get(rootUrl)))
             .andExpect(MockMvcResultMatchers.status().isOk)
-            .document("codeprojects-retrieve-all", responseFields(codeProjectResponseFields("[].")))
+            .document("codeprojects-retrieve-all", responseFields(projectResponseFields("[].")))
             .returnsList(CodeProjectDto::class.java)
 
         assertThat(returnedResult.size).isEqualTo(2)
@@ -185,9 +185,9 @@ class CodeProjectsApiTest : AbstractRestApiTest() {
     @Tag(TestTags.RESTDOC)
     fun `Can retrieve specific own CodeProject by id`() {
         val id1 = randomUUID()
-        val project1 = CodeProject(id1, "slug-1", "www.url.com", "Test Project 1", account.person.id, "group1", "project-1", "mlreef/project1", 1)
-        val project2 = CodeProject(randomUUID(), "slug-2", "www.url.net", "Test Project 2", account.person.id, "group2", "project-2", "mlreef/project2", 2)
-        val project3 = CodeProject(randomUUID(), "slug-3", "www.url.xyz", "Test Project 3", account2.person.id, "group3", "project-3", "mlreef/project3", 3)
+        val project1 = CodeProject(id1, "slug-1", "www.url.com", "Test Project 1", "description", account.person.id, "group1", "project-1", "mlreef/project1", 1)
+        val project2 = CodeProject(randomUUID(), "slug-2", "www.url.net", "Test Project 2", "description", account.person.id, "group2", "project-2", "mlreef/project2", 2)
+        val project3 = CodeProject(randomUUID(), "slug-3", "www.url.xyz", "Test Project 3", "description", account2.person.id, "group3", "project-3", "mlreef/project3", 3)
         codeProjectRepository.save(project1)
         codeProjectRepository.save(project2)
         codeProjectRepository.save(project3)
@@ -197,11 +197,11 @@ class CodeProjectsApiTest : AbstractRestApiTest() {
         val returnedResult: CodeProjectDto = this.mockMvc.perform(
             this.defaultAcceptContentAuth(RestDocumentationRequestBuilders.get("$rootUrl/$id1")))
             .andExpect(MockMvcResultMatchers.status().isOk)
-            .document("codeprojects-retrieve-one", responseFields(codeProjectResponseFields()))
+            .document("codeprojects-retrieve-one", responseFields(projectResponseFields()))
             .returns(CodeProjectDto::class.java)
 
         assertThat(returnedResult.id).isEqualTo(id1)
-        assertThat(returnedResult.gitlabProject).isEqualTo("project-1")
+        assertThat(returnedResult.gitlabPath).isEqualTo("project-1")
     }
 
     @Transactional
@@ -214,11 +214,11 @@ class CodeProjectsApiTest : AbstractRestApiTest() {
         val id3 = randomUUID()
         val id4 = randomUUID()
         val id5 = randomUUID()
-        val project1 = CodeProject(id1, "slug-1", "www.url.com", "Test Project 1", account.person.id, "group1", "project-1", "mlreef/project1", 1)
-        val project2 = CodeProject(id2, "slug-2", "www.url.net", "Test Project 2", account.person.id, "group2", "project-2", "mlreef/project2", 2)
-        val project3 = CodeProject(id3, "slug-3", "www.url.xyz", "Test Project 3", account2.person.id, "group3", "project-3", "mlreef/project3", 3)
-        val project4 = CodeProject(id4, "slug-1", "www.url.xyz", "Test Project 4", account2.person.id, "group4", "project-4", "mlreef/project4", 4)
-        val project5 = CodeProject(id5, "slug-1", "www.url.xyz", "Test Project 5", account2.person.id, "group5", "project-5", "mlreef/project5", 5)
+        val project1 = CodeProject(id1, "slug-1", "www.url.com", "Test Project 1", "description", account.person.id, "group1", "project-1", "mlreef/project1", 1)
+        val project2 = CodeProject(id2, "slug-2", "www.url.net", "Test Project 2", "description", account.person.id, "group2", "project-2", "mlreef/project2", 2)
+        val project3 = CodeProject(id3, "slug-3", "www.url.xyz", "Test Project 3", "description", account2.person.id, "group3", "project-3", "mlreef/project3", 3)
+        val project4 = CodeProject(id4, "slug-1", "www.url.xyz", "Test Project 4", "description", account2.person.id, "group4", "project-4", "mlreef/project4", 4)
+        val project5 = CodeProject(id5, "slug-1", "www.url.xyz", "Test Project 5", "description", account2.person.id, "group5", "project-5", "mlreef/project5", 5)
         codeProjectRepository.save(project1)
         codeProjectRepository.save(project2)
         codeProjectRepository.save(project3)
@@ -230,7 +230,7 @@ class CodeProjectsApiTest : AbstractRestApiTest() {
         val returnedResult: List<CodeProjectDto> = this.mockMvc.perform(
             this.defaultAcceptContentAuth(RestDocumentationRequestBuilders.get("$rootUrl/slug/slug-1")))
             .andExpect(MockMvcResultMatchers.status().isOk)
-            .document("codeprojects-retrieve-all", responseFields(codeProjectResponseFields("[].")))
+            .document("codeprojects-retrieve-all", responseFields(projectResponseFields("[].")))
             .returnsList(CodeProjectDto::class.java)
 
         assertThat(returnedResult.size).isEqualTo(2)
@@ -242,9 +242,9 @@ class CodeProjectsApiTest : AbstractRestApiTest() {
 
         assertThat(setOfIds).containsExactlyInAnyOrder(id1, id5)
         assertThat(returnedResult.get(0).id).isIn(id1, id5)
-        assertThat(returnedResult.get(0).gitlabProject).isIn("project-1", "project-5")
+        assertThat(returnedResult.get(0).gitlabPath).isIn("project-1", "project-5")
         assertThat(returnedResult.get(1).id).isIn(id1, id5)
-        assertThat(returnedResult.get(1).gitlabProject).isIn("project-1", "project-5")
+        assertThat(returnedResult.get(1).gitlabPath).isIn("project-1", "project-5")
     }
 
     @Transactional
@@ -257,11 +257,11 @@ class CodeProjectsApiTest : AbstractRestApiTest() {
         val id3 = randomUUID()
         val id4 = randomUUID()
         val id5 = randomUUID()
-        val project1 = CodeProject(id1, "slug-1", "www.url.com", "Test Project 1", account.person.id, "group1", "project-1", "mlreef/project1", 1)
-        val project2 = CodeProject(id2, "slug-2", "www.url.net", "Test Project 2", account.person.id, "group2", "project-2", "mlreef/project2", 2)
-        val project3 = CodeProject(id3, "slug-3", "www.url.xyz", "Test Project 3", account2.person.id, "group3", "project-3", "mlreef/project3", 3)
-        val project4 = CodeProject(id4, "slug-4", "www.url.abc", "Test Project 4", account2.person.id, "group4", "project-4", "mlreef/project4", 4)
-        val project5 = CodeProject(id5, "slug-5", "www.url.org", "Test Project 5", account2.person.id, "group5", "project-5", "mlreef/project5", 5)
+        val project1 = CodeProject(id1, "slug-1", "www.url.com", "Test Project 1", "description", account.person.id, "group1", "project-1", "mlreef/project1", 1)
+        val project2 = CodeProject(id2, "slug-2", "www.url.net", "Test Project 2", "description", account.person.id, "group2", "project-2", "mlreef/project2", 2)
+        val project3 = CodeProject(id3, "slug-3", "www.url.xyz", "Test Project 3", "description", account2.person.id, "group3", "project-3", "mlreef/project3", 3)
+        val project4 = CodeProject(id4, "slug-4", "www.url.abc", "Test Project 4", "description", account2.person.id, "group4", "project-4", "mlreef/project4", 4)
+        val project5 = CodeProject(id5, "slug-5", "www.url.org", "Test Project 5", "description", account2.person.id, "group5", "project-5", "mlreef/project5", 5)
         codeProjectRepository.save(project1)
         codeProjectRepository.save(project2)
         codeProjectRepository.save(project3)
@@ -273,7 +273,7 @@ class CodeProjectsApiTest : AbstractRestApiTest() {
         val returnedResult: List<CodeProjectDto> = this.mockMvc.perform(
             this.defaultAcceptContentAuth(RestDocumentationRequestBuilders.get("$rootUrl/namespace/mlreef")))
             .andExpect(MockMvcResultMatchers.status().isOk)
-            .document("codeprojects-retrieve-all", responseFields(codeProjectResponseFields("[].")))
+            .document("codeprojects-retrieve-all", responseFields(projectResponseFields("[].")))
             .returnsList(CodeProjectDto::class.java)
 
         assertThat(returnedResult.size).isEqualTo(3)
@@ -286,11 +286,11 @@ class CodeProjectsApiTest : AbstractRestApiTest() {
 
         assertThat(setOfIds).containsExactlyInAnyOrder(id1, id2, id5)
         assertThat(returnedResult.get(0).id).isIn(id1, id2, id5)
-        assertThat(returnedResult.get(0).gitlabProject).isIn("project-1", "project-2", "project-5")
+        assertThat(returnedResult.get(0).gitlabPath).isIn("project-1", "project-2", "project-5")
         assertThat(returnedResult.get(1).id).isIn(id1, id2, id5)
-        assertThat(returnedResult.get(1).gitlabProject).isIn("project-1", "project-2", "project-5")
+        assertThat(returnedResult.get(1).gitlabPath).isIn("project-1", "project-2", "project-5")
         assertThat(returnedResult.get(2).id).isIn(id1, id2, id5)
-        assertThat(returnedResult.get(2).gitlabProject).isIn("project-1", "project-2", "project-5")
+        assertThat(returnedResult.get(2).gitlabPath).isIn("project-1", "project-2", "project-5")
     }
 
     @Transactional
@@ -299,10 +299,10 @@ class CodeProjectsApiTest : AbstractRestApiTest() {
     @Tag(TestTags.RESTDOC)
     fun `Can retrieve specific own CodeProject by namespace and slug`() {
         val id1 = randomUUID()
-        val project1 = CodeProject(id1, "slug-1", "www.url.com", "Test Project 1", account.person.id, "group1", "project-1", "mlreef/project1", 1)
-        val project2 = CodeProject(randomUUID(), "slug-2", "www.url.net", "Test Project 2", account.person.id, "group2", "project-2", "mlreef/project2", 2)
-        val project3 = CodeProject(randomUUID(), "slug-3", "www.url.xyz", "Test Project 3", account2.person.id, "group3", "project-3", "mlreef/project3", 3)
-        val project4 = CodeProject(randomUUID(), "slug-1", "www.url.xyz", "Test Project 4", account2.person.id, "group4", "project-4", "mlreef/project4", 4)
+        val project1 = CodeProject(id1, "slug-1", "www.url.com", "Test Project 1", "description", account.person.id, "group1", "project-1", "mlreef/project1", 1)
+        val project2 = CodeProject(randomUUID(), "slug-2", "www.url.net", "Test Project 2", "description", account.person.id, "group2", "project-2", "mlreef/project2", 2)
+        val project3 = CodeProject(randomUUID(), "slug-3", "www.url.xyz", "Test Project 3", "description", account2.person.id, "group3", "project-3", "mlreef/project3", 3)
+        val project4 = CodeProject(randomUUID(), "slug-1", "www.url.xyz", "Test Project 4", "description", account2.person.id, "group4", "project-4", "mlreef/project4", 4)
         codeProjectRepository.save(project1)
         codeProjectRepository.save(project2)
         codeProjectRepository.save(project3)
@@ -313,12 +313,12 @@ class CodeProjectsApiTest : AbstractRestApiTest() {
         val returnedResult: CodeProjectDto = this.mockMvc.perform(
             this.defaultAcceptContentAuth(RestDocumentationRequestBuilders.get("$rootUrl/mlreef/project1")))
             .andExpect(MockMvcResultMatchers.status().isOk)
-            .document("codeprojects-retrieve-one", responseFields(codeProjectResponseFields()))
+            .document("codeprojects-retrieve-one", responseFields(projectResponseFields()))
             .returns(CodeProjectDto::class.java)
 
 
         assertThat(returnedResult.id).isEqualTo(id1)
-        assertThat(returnedResult.gitlabProject).isEqualTo("project-1")
+        assertThat(returnedResult.gitlabPath).isEqualTo("project-1")
     }
 
     @Transactional
@@ -326,9 +326,9 @@ class CodeProjectsApiTest : AbstractRestApiTest() {
     @Test
     fun `Cannot retrieve specific not own CodeProject`() {
         val id1 = randomUUID()
-        val project1 = CodeProject(randomUUID(), "slug-1", "www.url.com", "Test Project 1", account.person.id, "group1", "project-1", "mlreef/project1", 1)
-        val project2 = CodeProject(randomUUID(), "slug-2", "www.url.net", "Test Project 2", account.person.id, "group2", "project-2", "mlreef/project2", 2)
-        val project3 = CodeProject(id1, "slug-3", "www.url.xyz", "Test Project 3", account2.person.id, "group3", "project-3", "mlreef/project3", 3)
+        val project1 = CodeProject(randomUUID(), "slug-1", "www.url.com", "Test Project 1", "description", account.person.id, "group1", "project-1", "mlreef/project1", 1)
+        val project2 = CodeProject(randomUUID(), "slug-2", "www.url.net", "Test Project 2", "description", account.person.id, "group2", "project-2", "mlreef/project2", 2)
+        val project3 = CodeProject(id1, "slug-3", "www.url.xyz", "Test Project 3", "description", account2.person.id, "group3", "project-3", "mlreef/project3", 3)
         codeProjectRepository.save(project1)
         codeProjectRepository.save(project2)
         codeProjectRepository.save(project3)
@@ -346,7 +346,7 @@ class CodeProjectsApiTest : AbstractRestApiTest() {
     @Tag(TestTags.RESTDOC)
     fun `Can update own CodeProject`() {
         val id1 = randomUUID()
-        val project1 = CodeProject(id1, "slug-1", "www.url.com", "Test Project 1", account.person.id, "group1", "project-1", "mlreef/project3", 1)
+        val project1 = CodeProject(id1, "slug-1", "www.url.com", "Test Project 1", "description", account.person.id, "group1", "project-1", "mlreef/project3", 1)
         codeProjectRepository.save(project1)
 
         mockGetUserProjectsList(listOf(project1.id), account, AccessLevel.OWNER)
@@ -358,7 +358,7 @@ class CodeProjectsApiTest : AbstractRestApiTest() {
             .andExpect(MockMvcResultMatchers.status().isOk)
             .document("codeprojects-update",
                 requestFields(codeProjectUpdateRequestFields()),
-                responseFields(codeProjectResponseFields())
+                responseFields(projectResponseFields())
             )
             .returns(CodeProjectDto::class.java)
 
@@ -370,7 +370,7 @@ class CodeProjectsApiTest : AbstractRestApiTest() {
     @Test
     fun `Cannot update not-own CodeProject`() {
         val id1 = randomUUID()
-        val project1 = CodeProject(id1, "slug-1", "www.url.com", "Test Project 1", account2.person.id, "group1", "project-1", "mlreef/project1", 1)
+        val project1 = CodeProject(id1, "slug-1", "www.url.com", "Test Project 1", "description", account2.person.id, "group1", "project-1", "mlreef/project1", 1)
         codeProjectRepository.save(project1)
 
         val request = CodeProjectCreateRequest(
@@ -393,7 +393,7 @@ class CodeProjectsApiTest : AbstractRestApiTest() {
     @Tag(TestTags.RESTDOC)
     fun `Can delete own CodeProject`() {
         val id1 = randomUUID()
-        val project1 = CodeProject(id1, "slug-1", "www.url.com", "Test Project 1", account.person.id, "group1", "project-1", "mlreef/project1", 1)
+        val project1 = CodeProject(id1, "slug-1", "www.url.com", "Test Project 1", "description", account.person.id, "group1", "project-1", "mlreef/project1", 1)
         codeProjectRepository.save(project1)
 
         mockGetUserProjectsList(listOf(project1.id), account, AccessLevel.OWNER)
@@ -411,7 +411,7 @@ class CodeProjectsApiTest : AbstractRestApiTest() {
     @Test
     fun `Cannot delete not-own CodeProject`() {
         val id1 = randomUUID()
-        val project1 = CodeProject(id1, "slug-1", "www.url.com", "Test Project 1", account2.person.id, "group1", "project-1", "mlreef/project1", 1)
+        val project1 = CodeProject(id1, "slug-1", "www.url.com", "Test Project 1", "description", account2.person.id, "group1", "project-1", "mlreef/project1", 1)
         codeProjectRepository.save(project1)
 
         this.mockGetUserProjectsList(listOf(project1.id), account, AccessLevel.GUEST)
@@ -427,7 +427,7 @@ class CodeProjectsApiTest : AbstractRestApiTest() {
     @Test
     fun `Can retrieve users list in CodeProject`() {
         val id1 = randomUUID()
-        val project1 = CodeProject(id1, "slug-1", "www.url.com", "Test Project 1", account2.person.id, "group1", "project-1", "mlreef/project1", 1)
+        val project1 = CodeProject(id1, "slug-1", "www.url.com", "Test Project 1", "", account2.person.id, "group1", "project-1", "mlreef/project1", 1)
         codeProjectRepository.save(project1)
 
         every { codeProjectService.getUsersInProject(any()) } answers {
@@ -441,7 +441,7 @@ class CodeProjectsApiTest : AbstractRestApiTest() {
             this.defaultAcceptContentAuth(RestDocumentationRequestBuilders.get("$rootUrl/${project1.id}/users")))
             .andExpect(MockMvcResultMatchers.status().isOk)
             .document("codeprojects-retrieve-users-list", responseFields(usersInCodeProjectResponseFields("[].")))
-            .returns(object:TypeReference<List<UserInProjectDto>>() {})
+            .returns(object : TypeReference<List<UserInProjectDto>>() {})
 
         assertThat(returnedResult.size).isEqualTo(2)
     }
@@ -451,7 +451,7 @@ class CodeProjectsApiTest : AbstractRestApiTest() {
     @Test
     fun `Can add user to CodeProject by userId in path`() {
         val id1 = randomUUID()
-        val project1 = CodeProject(id1, "slug-1", "www.url.com", "Test Project 1", account2.person.id, "group1", "project-1", "mlreef/project1", 1)
+        val project1 = CodeProject(id1, "slug-1", "www.url.com", "Test Project 1", "", account2.person.id, "group1", "project-1", "mlreef/project1", 1)
         codeProjectRepository.save(project1)
 
         every { codeProjectService.getUsersInProject(any()) } answers {
@@ -464,7 +464,7 @@ class CodeProjectsApiTest : AbstractRestApiTest() {
             this.defaultAcceptContentAuth(RestDocumentationRequestBuilders.post("$rootUrl/${project1.id}/users/${account2.id}")))
             .andExpect(MockMvcResultMatchers.status().isOk)
             .document("codeprojects-add-user", responseFields(usersInCodeProjectResponseFields("[].")))
-            .returns(object:TypeReference<List<UserInProjectDto>>() {})
+            .returns(object : TypeReference<List<UserInProjectDto>>() {})
 
         assertThat(returnedResult.size).isEqualTo(2)
     }
@@ -474,7 +474,7 @@ class CodeProjectsApiTest : AbstractRestApiTest() {
     @Test
     fun `Can add user to CodeProject by gitlabId in params`() {
         val id1 = randomUUID()
-        val project1 = CodeProject(id1, "slug-1", "www.url.com", "Test Project 1", account2.person.id, "group1", "project-1", "mlreef/project1", 1)
+        val project1 = CodeProject(id1, "slug-1", "www.url.com", "Test Project 1", "", account2.person.id, "group1", "project-1", "mlreef/project1", 1)
         codeProjectRepository.save(project1)
 
         every { codeProjectService.getUsersInProject(any()) } answers {
@@ -494,7 +494,7 @@ class CodeProjectsApiTest : AbstractRestApiTest() {
                     parameterWithName("expires_at").optional().description("Date of access expiration in ISO format (not passed value means unlimited access)")
                 ),
                 responseFields(usersInCodeProjectResponseFields("[].")))
-            .returns(object:TypeReference<List<UserInProjectDto>>() {})
+            .returns(object : TypeReference<List<UserInProjectDto>>() {})
 
         assertThat(returnedResult.size).isEqualTo(2)
     }
@@ -504,7 +504,7 @@ class CodeProjectsApiTest : AbstractRestApiTest() {
     @Test
     fun `Can add user to CodeProject by gitlabId in body`() {
         val id1 = randomUUID()
-        val project1 = CodeProject(id1, "slug-1", "www.url.com", "Test Project 1", account2.person.id, "group1", "project-1", "mlreef/project1", 1)
+        val project1 = CodeProject(id1, "slug-1", "www.url.com", "Test Project 1", "", account2.person.id, "group1", "project-1", "mlreef/project1", 1)
         codeProjectRepository.save(project1)
 
         every { codeProjectService.getUsersInProject(any()) } answers {
@@ -533,7 +533,7 @@ class CodeProjectsApiTest : AbstractRestApiTest() {
     @Test
     fun `Can delete user from CodeProject by userId in path`() {
         val id1 = randomUUID()
-        val project1 = CodeProject(id1, "slug-1", "www.url.com", "Test Project 1", account2.person.id, "group1", "project-1", "mlreef/project1", 1)
+        val project1 = CodeProject(id1, "slug-1", "www.url.com", "Test Project 1", "", account2.person.id, "group1", "project-1", "mlreef/project1", 1)
         codeProjectRepository.save(project1)
 
         every { codeProjectService.getUsersInProject(any()) } answers {
@@ -545,8 +545,9 @@ class CodeProjectsApiTest : AbstractRestApiTest() {
         val returnedResult: List<UserInProjectDto> = this.mockMvc.perform(
             this.defaultAcceptContentAuth(RestDocumentationRequestBuilders.delete("$rootUrl/${project1.id}/users/${account2.id}")))
             .andExpect(MockMvcResultMatchers.status().isOk)
-            .document("codeprojects-delete-user", responseFields(usersInCodeProjectResponseFields("[].")))
-            .returns(object:TypeReference<List<UserInProjectDto>>() {})
+            .document("codeprojects-delete-user",
+                responseFields(usersInCodeProjectResponseFields("[].")))
+            .returnsList(UserInProjectDto::class.java)
 
         assertThat(returnedResult.size).isEqualTo(1)
     }
@@ -556,7 +557,7 @@ class CodeProjectsApiTest : AbstractRestApiTest() {
     @Test
     fun `Can delete user from CodeProject by gitlabId in param`() {
         val id1 = randomUUID()
-        val project1 = CodeProject(id1, "slug-1", "www.url.com", "Test Project 1", account2.person.id, "group1", "project-1", "mlreef/project1", 1)
+        val project1 = CodeProject(id1, "slug-1", "www.url.com", "Test Project 1", "", account2.person.id, "group1", "project-1", "mlreef/project1", 1)
         codeProjectRepository.save(project1)
 
         every { codeProjectService.getUsersInProject(any()) } answers {
@@ -574,23 +575,11 @@ class CodeProjectsApiTest : AbstractRestApiTest() {
                     parameterWithName("gitlab_id").optional().description("Gitlab user id - Number")
                 ),
                 responseFields(usersInCodeProjectResponseFields("[].")))
-            .returns(object:TypeReference<List<UserInProjectDto>>() {})
+            .returns(object : TypeReference<List<UserInProjectDto>>() {})
 
         assertThat(returnedResult.size).isEqualTo(1)
     }
 
-    fun codeProjectResponseFields(prefix: String = ""): List<FieldDescriptor> {
-        return listOf(
-            fieldWithPath(prefix + "id").type(JsonFieldType.STRING).description("Data project id"),
-            fieldWithPath(prefix + "slug").type(JsonFieldType.STRING).description("Data project slug"),
-            fieldWithPath(prefix + "url").type(JsonFieldType.STRING).description("URL in Gitlab domain"),
-            fieldWithPath(prefix + "owner_id").type(JsonFieldType.STRING).description("Onwer id of the data project"),
-            fieldWithPath(prefix + "name").type(JsonFieldType.STRING).description("Project name"),
-            fieldWithPath(prefix + "gitlab_group").type(JsonFieldType.STRING).description("The group where the project is in"),
-            fieldWithPath(prefix + "gitlab_project").type(JsonFieldType.STRING).description("Project path"),
-            fieldWithPath(prefix + "gitlab_id").type(JsonFieldType.NUMBER).description("Id in gitlab")
-        )
-    }
 
     fun codeProjectCreateRequestFields(): List<FieldDescriptor> {
         return listOf(

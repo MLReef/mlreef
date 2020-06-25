@@ -1,6 +1,6 @@
 package com.mlreef.rest.integration
 
-import com.mlreef.rest.api.v1.dto.MLProjectDto
+import com.mlreef.rest.api.v1.dto.ProjectDto
 import com.mlreef.rest.testcommons.RestResponsePage
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
@@ -39,7 +39,7 @@ class GenericProjectsIntegrationTest : AbstractIntegrationTest() {
 
         val result = this.performGet(rootUrl, account1)
             .expectOk()
-            .returnsList(MLProjectDto::class.java)
+            .returnsList(ProjectDto::class.java)
 
         assertThat(result.size).isEqualTo(5)
 
@@ -59,17 +59,17 @@ class GenericProjectsIntegrationTest : AbstractIntegrationTest() {
             dataProject2.slug
         )
 
-        val resultSetOfIds = result.map(MLProjectDto::id).toSet()
+        val resultSetOfIds = result.map(ProjectDto::id).toSet()
 
         assertThat(resultSetOfIds).containsExactlyInAnyOrder(*initialSetOfIds.toTypedArray())
         assertThat(result.get(0).id).isIn(initialSetOfIds)
-        assertThat(result.get(0).gitlabProject).isIn(initialSetOfSlug)
+        assertThat(result.get(0).gitlabPath).isIn(initialSetOfSlug)
         assertThat(result.get(1).id).isIn(initialSetOfIds)
-        assertThat(result.get(1).gitlabProject).isIn(initialSetOfSlug)
+        assertThat(result.get(1).gitlabPath).isIn(initialSetOfSlug)
         assertThat(result.get(2).id).isIn(initialSetOfIds)
-        assertThat(result.get(2).gitlabProject).isIn(initialSetOfSlug)
+        assertThat(result.get(2).gitlabPath).isIn(initialSetOfSlug)
         assertThat(result.get(3).id).isIn(initialSetOfIds)
-        assertThat(result.get(3).gitlabProject).isIn(initialSetOfSlug)
+        assertThat(result.get(3).gitlabPath).isIn(initialSetOfSlug)
     }
 
     @Transactional
@@ -87,10 +87,10 @@ class GenericProjectsIntegrationTest : AbstractIntegrationTest() {
 
         val result = this.performGet(url, account1)
             .expectOk()
-            .returns(MLProjectDto::class.java)
+            .returns(ProjectDto::class.java)
 
         assertThat(result.id).isEqualTo(dataProject1.id)
-        assertThat(result.gitlabProject).isEqualTo(dataProject1.slug)
+        assertThat(result.gitlabPath).isEqualTo(dataProject1.slug)
     }
 
     @Transactional
@@ -109,10 +109,10 @@ class GenericProjectsIntegrationTest : AbstractIntegrationTest() {
 
         val result = this.performGet(url, account1)
             .expectOk()
-            .returns(MLProjectDto::class.java)
+            .returns(ProjectDto::class.java)
 
         assertThat(result.id).isEqualTo(codeProject1.id)
-        assertThat(result.gitlabProject).isEqualTo(codeProject1.slug)
+        assertThat(result.gitlabPath).isEqualTo(codeProject1.slug)
     }
 
     @Transactional
@@ -137,7 +137,7 @@ class GenericProjectsIntegrationTest : AbstractIntegrationTest() {
 
         val result = this.performGet(url, account1)
             .expectOk()
-            .returnsList(MLProjectDto::class.java)
+            .returnsList(ProjectDto::class.java)
 
         assertThat(result.size).isEqualTo(2)
 
@@ -151,14 +151,14 @@ class GenericProjectsIntegrationTest : AbstractIntegrationTest() {
             codeProject21.slug
         )
 
-        val resultSetOfIds = result.map(MLProjectDto::id).toSet()
+        val resultSetOfIds = result.map(ProjectDto::id).toSet()
 
         assertThat(resultSetOfIds).containsExactlyInAnyOrder(*initialSetOfIds.toTypedArray())
 
         assertThat(result.get(0).id).isIn(initialSetOfIds)
-        assertThat(result.get(0).gitlabProject).isIn(initialSetOfSlug)
+        assertThat(result.get(0).gitlabPath).isIn(initialSetOfSlug)
         assertThat(result.get(1).id).isIn(initialSetOfIds)
-        assertThat(result.get(1).gitlabProject).isIn(initialSetOfSlug)
+        assertThat(result.get(1).gitlabPath).isIn(initialSetOfSlug)
     }
 
     @Transactional
@@ -173,14 +173,14 @@ class GenericProjectsIntegrationTest : AbstractIntegrationTest() {
 
         testsHelper.addRealUserToProject(dataProject1.gitlabId, account2.person.gitlabId!!)
 
-        val (_, _) = testsHelper.createRealDataProject(account2, namespace = dataProject1.gitlabGroup, public = false)
-        val (_, _) = testsHelper.createRealCodeProject(account2, namespace = dataProject1.gitlabGroup, public = false)
+        val (_, _) = testsHelper.createRealDataProject(account2, namespace = dataProject1.gitlabNamespace, public = false)
+        val (_, _) = testsHelper.createRealCodeProject(account2, namespace = dataProject1.gitlabNamespace, public = false)
 
-        val url = "$rootUrl/namespace/${dataProject1.gitlabGroup}"
+        val url = "$rootUrl/namespace/${dataProject1.gitlabNamespace}"
 
         val result = this.performGet(url, account2)
             .expectOk()
-            .returnsList(MLProjectDto::class.java)
+            .returnsList(ProjectDto::class.java)
 
         assertThat(result.size).isEqualTo(1)
 
@@ -192,11 +192,11 @@ class GenericProjectsIntegrationTest : AbstractIntegrationTest() {
             dataProject1.slug
         )
 
-        val resultSetOfIds = result.map(MLProjectDto::id).toSet()
+        val resultSetOfIds = result.map(ProjectDto::id).toSet()
 
         assertThat(resultSetOfIds).containsExactlyInAnyOrder(*resultSetOfIds.toTypedArray())
         assertThat(result.get(0).id).isIn(initialSetOfIds)
-        assertThat(result.get(0).gitlabProject).isIn(initialSetOfSlug)
+        assertThat(result.get(0).gitlabPath).isIn(initialSetOfSlug)
     }
 
     @Transactional
@@ -211,14 +211,14 @@ class GenericProjectsIntegrationTest : AbstractIntegrationTest() {
         val (dataProject4, _) = testsHelper.createRealDataProject(account1, public = true)
         val (codeProject5, _) = testsHelper.createRealCodeProject(account1, public = false)
 
-        val (_, _) = testsHelper.createRealDataProject(account2, namespace = dataProject1.gitlabGroup, public = false) //Pay attention that the namespace is not being taken. It's inaccessible to another user
-        val (_, _) = testsHelper.createRealCodeProject(account2, namespace = dataProject1.gitlabGroup, public = false)
+        val (_, _) = testsHelper.createRealDataProject(account2, namespace = dataProject1.gitlabNamespace, public = false) //Pay attention that the namespace is not being taken. It's inaccessible to another user
+        val (_, _) = testsHelper.createRealCodeProject(account2, namespace = dataProject1.gitlabNamespace, public = false)
 
-        val url = "$rootUrl/namespace/${dataProject1.gitlabGroup}"
+        val url = "$rootUrl/namespace/${dataProject1.gitlabNamespace}"
 
         val result = this.performGet(url, account2)
             .expectOk()
-            .returnsList(MLProjectDto::class.java)
+            .returnsList(ProjectDto::class.java)
 
         assertThat(result.size).isEqualTo(3)
 
@@ -239,16 +239,16 @@ class GenericProjectsIntegrationTest : AbstractIntegrationTest() {
             dataProject4.slug
         )
 
-        val resultSetOfIds = result.map(MLProjectDto::id).toSet()
+        val resultSetOfIds = result.map(ProjectDto::id).toSet()
 
         assertThat(resultSetOfIds).isEqualTo(resultSetOfIds)
         assertThat(resultSetOfIds).doesNotContain(*notReturnedSetOfIds.toTypedArray())
         assertThat(result.get(0).id).isIn(initialSetOfIds)
-        assertThat(result.get(0).gitlabProject).isIn(initialSetOfSlug)
+        assertThat(result.get(0).gitlabPath).isIn(initialSetOfSlug)
         assertThat(result.get(1).id).isIn(initialSetOfIds)
-        assertThat(result.get(1).gitlabProject).isIn(initialSetOfSlug)
+        assertThat(result.get(1).gitlabPath).isIn(initialSetOfSlug)
         assertThat(result.get(2).id).isIn(initialSetOfIds)
-        assertThat(result.get(2).gitlabProject).isIn(initialSetOfSlug)
+        assertThat(result.get(2).gitlabPath).isIn(initialSetOfSlug)
     }
 
     @Transactional
@@ -263,17 +263,17 @@ class GenericProjectsIntegrationTest : AbstractIntegrationTest() {
 
         testsHelper.addRealUserToProject(project1.gitlabId, account2.person.gitlabId!!)
 
-        val (_, _) = testsHelper.createRealDataProject(account2, slug = "slug-1", namespace = project1.gitlabGroup)
+        val (_, _) = testsHelper.createRealDataProject(account2, slug = "slug-1", namespace = project1.gitlabNamespace)
         val (_, _) = testsHelper.createRealDataProject(account2)
 
-        val url = "$rootUrl/${project1.gitlabGroup}/${project1.slug}"
+        val url = "$rootUrl/${project1.gitlabNamespace}/${project1.slug}"
 
         val result = this.performGet(url, account2)
             .expectOk()
-            .returns(MLProjectDto::class.java)
+            .returns(ProjectDto::class.java)
 
         assertThat(result.id).isEqualTo(project1.id)
-        assertThat(result.gitlabProject).isEqualTo(project1.slug) //FIXME: Why is slug? Is it correct?
+        assertThat(result.gitlabPath).isEqualTo(project1.slug) //FIXME: Why is slug? Is it correct?
     }
 
     @Transactional
@@ -288,17 +288,17 @@ class GenericProjectsIntegrationTest : AbstractIntegrationTest() {
 
         testsHelper.addRealUserToProject(project1.gitlabId, account2.person.gitlabId!!)
 
-        val (_, _) = testsHelper.createRealCodeProject(account2, slug = "slug-1", namespace = project1.gitlabGroup)
+        val (_, _) = testsHelper.createRealCodeProject(account2, slug = "slug-1", namespace = project1.gitlabNamespace)
         val (_, _) = testsHelper.createRealCodeProject(account2)
 
-        val url = "$rootUrl/${project1.gitlabGroup}/${project1.slug}"
+        val url = "$rootUrl/${project1.gitlabNamespace}/${project1.slug}"
 
         val result = this.performGet(url, account2)
             .expectOk()
-            .returns(MLProjectDto::class.java)
+            .returns(ProjectDto::class.java)
 
         assertThat(result.id).isEqualTo(project1.id)
-        assertThat(result.gitlabProject).isEqualTo(project1.slug) //FIXME: Why is slug? Is it correct?
+        assertThat(result.gitlabPath).isEqualTo(project1.slug) //FIXME: Why is slug? Is it correct?
     }
 
     @Transactional
@@ -327,7 +327,7 @@ class GenericProjectsIntegrationTest : AbstractIntegrationTest() {
 
         val result = this.performGet(url, account2)
             .expectOk()
-            .returns(MLProjectDto::class.java)
+            .returns(ProjectDto::class.java)
 
         assertThat(result.id).isEqualTo(project21.id)
     }
@@ -343,7 +343,7 @@ class GenericProjectsIntegrationTest : AbstractIntegrationTest() {
         val (_, _) = testsHelper.createRealDataProject(account, slug = "slug4", public = false)
         val (dataProject5, _) = testsHelper.createRealDataProject(account, slug = "slug5")
 
-        val result: RestResponsePage<MLProjectDto> = this.performGet("$rootUrl/public?size=1000")
+        val result: RestResponsePage<ProjectDto> = this.performGet("$rootUrl/public?size=1000")
             .expectOk()
             .returns()
 
@@ -353,7 +353,7 @@ class GenericProjectsIntegrationTest : AbstractIntegrationTest() {
             dataProject5.id
         )
 
-        val resultSetOfIds = result.content.map(MLProjectDto::id).toSet()
+        val resultSetOfIds = result.content.map(ProjectDto::id).toSet()
 
         assertThat(result.numberOfElements).isEqualTo(3)
         assertThat(resultSetOfIds).isEqualTo(initialSetOfIds)

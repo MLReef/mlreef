@@ -22,4 +22,6 @@ object RandomUtils {
             .toLowerCase()
     }
 
+    fun randomGitlabId() = kotlin.random.Random.nextInt(1, 10000000).toLong()
+
 }

@@ -87,8 +87,8 @@ class PipelineServiceTest : AbstractServiceTest() {
 
         val subject = Person(ownerId, "new-person", "person's name", 1L)
         subjectRepository.save(subject)
-        val dataRepository = DataProject(dataRepositoryId, "new-repo", "url", "Test DataProject", subject.id, "mlreef", "project", "group/project", 0, VisibilityScope.PUBLIC, arrayListOf())
-        dataProjectRepository.save(DataProject(dataRepositoryId2, "new-repo2", "url", "Test DataProject", subject.id, "mlreef", "project", "group/project", 0, VisibilityScope.PUBLIC, arrayListOf()))
+        val dataRepository = DataProject(dataRepositoryId, "new-repo", "url", "Test DataProject", "description", subject.id, "mlreef", "project", "group/project", 0, VisibilityScope.PUBLIC, arrayListOf())
+        dataProjectRepository.save(DataProject(dataRepositoryId2, "new-repo2", "url", "Test DataProject", "description", subject.id, "mlreef", "project", "group/project", 0, VisibilityScope.PUBLIC, arrayListOf()))
 
         dataProjectRepository.save(dataRepository)
     }
@@ -410,7 +410,7 @@ class PipelineServiceTest : AbstractServiceTest() {
 
         personRepository.save(author)
         codeProjectRepository.save(CodeProject(id = codeProjectId, slug = "code-project-augment", name = "CodeProject Augment", ownerId = author.id, url = "url",
-            gitlabGroup = "", gitlabId = 0, gitlabProject = ""))
+            description = "description", gitlabNamespace = "", gitlabId = 0, gitlabPath = ""))
 
         val dataOp1 = DataOperation(
             id = randomUUID(), slug = "commons-augment", name = "Augment",
