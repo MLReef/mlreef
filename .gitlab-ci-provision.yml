@@ -11,11 +11,11 @@ provision:
   image: registry.gitlab.com/systemkern/s5:latest-aws
   variables:
     EC2_MACHINE_SIZE:     "t3a.xlarge"                       # https://aws.amazon.com/ec2/instance-types/
-    EC2_MACHINE_SIZE_DEV: "p2.xlarge"                        # https://aws.amazon.com/ec2/instance-types/
-    #EC2_IMAGE_AMI:       "ami-061aaaac62de85935"            # Deep Learning AMI (Ubuntu 18.04) Version 28.1
-    EC2_IMAGE_AMI:        "ami-00c3243b989d3d9c9"            # Deep Learning AMI (Ubuntu 16.04) Version 28.1
+    EC2_MACHINE_SIZE_DEV: "t3.2xlarge"
+    EC2_IMAGE_AMI:        "ami-061aaaac62de85935"            # Deep Learning AMI (Ubuntu 18.04) Version 28.1
     EC2_SECURITY_GRP:     "application-servers"
-    STARTUP_SCRIPT:       "src/bin/startup.sh"               # used in .gitlab-ci-deploy.yml and docker-compose.yml
+    DEVICE_MAPPINGS:      "src/main/resources/feature-branch-block-device-mappings.json"
+    STARTUP_SCRIPT:       "src/main/bin/startup.sh"          # used in .gitlab-ci-deploy.yml and docker-compose.yml
   before_script:
     - if [ "$CI_COMMIT_REF_SLUG" == "develop" ]; then EC2_MACHINE_SIZE=$EC2_MACHINE_SIZE_DEV; fi
     - echo "$EC2_INSTANCE_NAME"

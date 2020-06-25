@@ -4,38 +4,13 @@ build frontend:
   only:
     changes:
       - web/**/*
+      - bin/ci-build-frontend
       - .gitlab-ci-build.yml
   # This docker version should correspond with the on docker version in the EC2 deployment
   image: docker:19.03.5                                     # https://hub.docker.com/_/docker/
   services:
     - docker:dind
-  script:
-    - cd web
-    # Use Gitlab's internal unique job ID as build version. This way versions can be traced back to a specific build.
-    - echo "REACT_APP_VERSION=$CI_PIPELINE_ID"              >> .env
-    - echo "REACT_APP_BUILD_NUMBER=$CI_PIPELINE_ID"         >> .env
-    - echo "REACT_APP_BRANCH_NAME=$CI_COMMIT_REF_SLUG"      >> .env
-    - if [ "$CI_COMMIT_REF_SLUG" == "master" ]; then 
-        echo "REACT_APP_NO_AUTH_REDIRECT=https://about.mlreef.com" >> .env;
-        fi
-    - cat .env
-
-    - echo "Gitlab Pipeline $CI_PIPELINE_ID built on $(date +%Y-%m-%d\ %H:%M:%S)" >> build.info
-    - echo "build branch was $CI_COMMIT_REF_SLUG"                                 >> build.info
-    - echo "$CI_PIPELINE_URL"                                                     >> build.info
-    - cat build.info
-
-    - echo "${CI_REGISTRY_PASSWORD}" | docker login ${CI_REGISTRY} --username=${CI_REGISTRY_USER} --password-stdin
-    - export TAG="${CI_COMMIT_REF_SLUG}"
-    - if [ $CI_COMMIT_REF_SLUG == "master" ]; then TAG="latest";  fi          # follow docker naming conventions
-    - export IMAGE_PATH=$CI_REGISTRY_IMAGE/gateway:$TAG
-    - docker build --tag "$IMAGE_PATH" -f Dockerfile .
-    - docker push "$IMAGE_PATH"
-
-    # Get Test coverage report from build image
-    - docker create -ti --name dummy "$IMAGE_PATH" bash
-    - docker cp dummy:/usr/share/coverage coverage
-    - docker rm -f dummy
+  script: bin/ci-build-frontend
   artifacts:
     expire_in: 3 days
     paths:

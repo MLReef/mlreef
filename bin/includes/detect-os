@@ -1,0 +1,35 @@
+#!/bin/sh
+
+randomString() {
+  LENGTH="${1:-30}"
+  if [ "$OS" = "OSX" ]; then
+    docker run --rm alpine:latest sh -c "head /dev/urandom | tr -dc A-Za-z0-9 | head -c$LENGTH"
+  else
+    head /dev/urandom | tr -dc A-Za-z0-9 | head -c$LENGTH
+  fi
+}
+
+configureOSX() {
+  alias sed="docker run -it --rm --volume \$(pwd):/workdir --workdir /workdir alpine:latest sed"
+}
+
+OS=""
+if [ "$(uname)" = "Darwin" ]; then
+  echo "INFO: Running on OSX; setting -e to exit on all errors."
+  set -e
+  configureOSX
+  OS="OSX"
+elif [ "$(expr substr "$(uname -s)" 1 5)" = "Linux" ]; then
+  echo "INFO: Running on LINUX; setting -e to exit on all errors."
+  set -e
+elif [ "$(uname)" = "CYGWIN_NT-10.0" ]; then
+  echo "WARN: Running on Windows 10 Cygwin; setting +e because of compatibility issues"
+  set +e   # This was added after testing on Saathvik's machine
+else
+  echo "WARNING: Cannot identify operating system. This might be okay"
+  echo "You probably have to add you OS: '$(uname)' to this script"
+  sleep 10
+fi
+
+
+

@@ -1,6 +1,6 @@
 variables:
-  BACKUP_SCRIPT:        "src/bin/backup.sh"
-  RESTORE_SCRIPT:       "src/bin/restore.sh"
+  BACKUP_SCRIPT:        "src/main/bin/backup.sh"
+  RESTORE_SCRIPT:       "src/main/bin/restore.sh"
 
 backup branch:
   extends: [.feature-branches-only]

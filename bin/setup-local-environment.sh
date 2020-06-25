@@ -40,4 +40,6 @@ if [ "$GITLAB_ADMIN_TOKEN" = "" ]; then
   export GITLAB_ADMIN_TOKEN=local-api-token
 fi
 
-src/bin/deploy.sh --gitlab-admin-token $GITLAB_ADMIN_TOKEN
+cd "$(dirname "$0")" || exit 1
+
+exec install --gitlab-admin-token $GITLAB_ADMIN_TOKEN

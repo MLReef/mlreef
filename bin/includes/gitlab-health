@@ -1,0 +1,26 @@
+#!/bin/sh
+
+# Checks if gitlab is present at $INSTANCE:10081 which is mapped to "gitlab:80" with a _curl_ request
+# This is the default setting
+#
+# @returns: The HTTP code received by _curl_.
+# 302: means that Gitlab is up and running
+# 502: Gitlab is still starting or broken
+checkGitlab80() {
+  curl --silent --output /dev/null -w ''%{http_code}'' $INSTANCE:10081
+}
+
+checkGitlabPort() {
+  curl --silent --output /dev/null -w ''%{http_code}'' $INSTANCE:$GITLAB_PORT/$1
+}
+
+waitUntilGitlabAvailable() {
+  log "Waiting for Gitlab to start."
+  log "Looking for Gitlab at ports 80 and $GITLAB_PORT"
+  # Port 10081 is the mapped to Gitlab's initial port (80) in the docker-compose.yml
+  until [ "$(checkGitlab80)" = "302" ] || [ "$(checkGitlabPort)" = "302" ]; do
+    printf '.'
+    sleep 5;
+  done
+  echo ""
+}

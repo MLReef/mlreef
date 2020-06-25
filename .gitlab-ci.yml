@@ -19,7 +19,6 @@ stages:
 # GITLAB_API_TOKEN        for creating and deleting environments on gitlab.com
 variables:
   BACKEND_IMAGE_PATH:   "$DOCKER_REGISTRY/$DOCKER_ORGANISATION/$BACKEND_IMAGE_NAME:$BACKEND_TAG"
-  DEVICE_MAPPINGS:      "src/resources/feature-branch-block-device-mappings.json"
   INSTANCE_INFO:        "instance.info"                    # file for transmitting VM information between stages
   S3_DATA_BUCKET:       "mlreef-application-data"          # see also ec2 startup script
   DATA_ARCHIVE:         "mlreef-data-develop.zip"
