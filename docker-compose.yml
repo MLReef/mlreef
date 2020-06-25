@@ -76,25 +76,24 @@ services:
   mlreefdb:
     container_name: mlreefdb
     restart: always
-    image: sameersbn/postgresql:10-2
+    image: postgres:11.7
     ports:
       - "6000:5432"
     volumes:
       - mlreef-opt:/var/lib/postgresql:Z                            #CI_DELETE_LINE: this line gets removed by the CI/CD pipeline
       #CI_ACTIVATE- /data/mlreef-opt:/var/lib/postgresql:Z          # this line gets activated by the CI/CD pipeline
     environment:
-      - DB_USER=mlreef
-      - DB_PASS=password                                            # secret, use ENV var
-      - DB_NAME=mlreef_backend
+      - POSTGRES_USER=mlreef
+      - POSTGRES_PASSWORD=password                                            # secret, use ENV var
+      - POSTGRES_DB=mlreef_backend
       - DB_EXTENSION=pg_trgm
     networks:
       - mlreef-docker-network
 
-
   redis:
     container_name: redis
     restart: always
-    image: sameersbn/redis:4.0.9-2
+    image: redis:6.0.0-alpine
     ports: ["6379:6379"]
     networks:
       - mlreef-docker-network
