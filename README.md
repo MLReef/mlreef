@@ -106,8 +106,9 @@ Infrastructure
 --------------------
 
 ### Per-Branch Cloud Deployment
-MLReef's infrastructure is deployed to the AWS cloud automatically. One separate fresh environment for every branch
-(feature-branch or other) deployed freshly for every developer push.
+MLReef's infrastructure is deployed to the AWS cloud automatically. Once a new branch is pushed,
+a fresh environment is created and MLReef is deployed there.
+
 
 Currently, the following steps are performed automatically during deployment.
 1. Build docker image for the frontend NodeJS App
@@ -120,6 +121,16 @@ Currently, the following steps are performed automatically during deployment.
    The Gitlab runner dispatcher boots new ec2 instances for running gitlab pipelines
 
 After a branch is merged/deleted the Gitlab pipeline is used to delete the ec2 instance.
+
+
+### Changing the machine size
+Machines are recycled for the whole lifespan of a branch. Therefore, changing the machine the size
+in the file `.gitlab-provision.yml`  does NOT automatically change the running machine.
+
+WORKAROUND: In order to provision a different machine size,
+the first push of a branch MUST already contain the desired ec2instance type.
+If you have already worked on your branch, and need to upgrade during development,
+currently, you need to change the name of your branch and push again.
 
 
 ### Networking

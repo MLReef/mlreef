@@ -10,6 +10,7 @@ provision:
       - master
   image: registry.gitlab.com/systemkern/s5:latest-aws
   variables:
+    # For changing the machine size please see the README.md
     EC2_MACHINE_SIZE:     "t3a.xlarge"                       # https://aws.amazon.com/ec2/instance-types/
     EC2_MACHINE_SIZE_DEV: "t3.2xlarge"
     EC2_IMAGE_AMI:        "ami-061aaaac62de85935"            # Deep Learning AMI (Ubuntu 18.04) Version 28.1
