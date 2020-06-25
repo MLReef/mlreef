@@ -9,6 +9,7 @@ import com.mlreef.rest.Person
 import com.mlreef.rest.VisibilityScope
 import com.mlreef.rest.api.v1.DataProjectCreateRequest
 import com.mlreef.rest.api.v1.DataProjectUpdateRequest
+import com.mlreef.rest.api.v1.DataProjectUserMembershipRequest
 import com.mlreef.rest.api.v1.dto.DataProjectDto
 import com.mlreef.rest.api.v1.dto.UserInProjectDto
 import com.mlreef.rest.exceptions.ErrorCode
@@ -34,6 +35,8 @@ import org.springframework.restdocs.payload.PayloadDocumentation.responseFields
 import org.springframework.restdocs.request.RequestDocumentation
 import org.springframework.test.annotation.Rollback
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
+import java.time.Instant
+import java.time.Period
 import java.util.UUID
 import java.util.UUID.randomUUID
 import javax.transaction.Transactional
@@ -397,7 +400,7 @@ class DataProjectsApiTest : AbstractRestApiTest() {
         dataProjectRepository.save(project1)
 
         every { dataProjectService.getUsersInProject(any()) } answers {
-            listOf(account, account2)
+            listOf(account, account2).map { accountToUserInProject(it) }
         }
 
         this.mockGetUserProjectsList(listOf(project1.id), account, AccessLevel.OWNER)
@@ -421,7 +424,7 @@ class DataProjectsApiTest : AbstractRestApiTest() {
         dataProjectRepository.save(project1)
 
         every { dataProjectService.getUsersInProject(any()) } answers {
-            listOf(account, account2)
+            listOf(account, account2).map { accountToUserInProject(it) }
         }
 
         this.mockGetUserProjectsList(listOf(project1.id), account, AccessLevel.OWNER)
@@ -444,7 +447,7 @@ class DataProjectsApiTest : AbstractRestApiTest() {
         dataProjectRepository.save(project1)
 
         every { dataProjectService.getUsersInProject(any()) } answers {
-            listOf(account, account2)
+            listOf(account, account2).map { accountToUserInProject(it) }
         }
 
         this.mockGetUserProjectsList(listOf(project1.id), account, AccessLevel.OWNER)
@@ -463,6 +466,34 @@ class DataProjectsApiTest : AbstractRestApiTest() {
         assertThat(returnedResult.size).isEqualTo(2)
     }
 
+    @Transactional
+    @Rollback
+    @Test
+    fun `Can add user to DataProject by gitlabId in body`() {
+        val id1 = randomUUID()
+        val project1 = DataProject(id1, "slug-1", "www.url.com", "Test Project 1", account2.person.id, "group1", "project-1", "mlreef/project1", 1)
+        dataProjectRepository.save(project1)
+
+        every { dataProjectService.getUsersInProject(any()) } answers {
+            listOf(account, account2).map { accountToUserInProject(it) }
+        }
+
+        this.mockGetUserProjectsList(listOf(project1.id), account, AccessLevel.OWNER)
+
+        val request = DataProjectUserMembershipRequest(userId = account2.id, gitlabId = 10, level = "REPORTER", expiresAt = Instant.now().plus(Period.ofDays(1)))
+
+        val url = "$rootUrl/${project1.id}/users"
+
+        val returnedResult: List<UserInProjectDto> = this.performPost(url, account, request)
+            .expectOk()
+            .document("dataprojects-add-user-by-body",
+                requestFields(dataProjectAddEditUserRequestFields()),
+                responseFields(usersInDataProjectResponseFields("[].")))
+            .returnsList(UserInProjectDto::class.java)
+
+        assertThat(returnedResult.size).isEqualTo(2)
+    }
+
 
     @Transactional
     @Rollback
@@ -473,7 +504,7 @@ class DataProjectsApiTest : AbstractRestApiTest() {
         dataProjectRepository.save(project1)
 
         every { dataProjectService.getUsersInProject(any()) } answers {
-            listOf(account)
+            listOf(account).map { accountToUserInProject(it) }
         }
 
         this.mockGetUserProjectsList(listOf(project1.id), account, AccessLevel.OWNER)
@@ -496,7 +527,7 @@ class DataProjectsApiTest : AbstractRestApiTest() {
         dataProjectRepository.save(project1)
 
         every { dataProjectService.getUsersInProject(any()) } answers {
-            listOf(account)
+            listOf(account).map { accountToUserInProject(it) }
         }
 
         this.mockGetUserProjectsList(listOf(project1.id), account, AccessLevel.OWNER)
@@ -540,6 +571,16 @@ class DataProjectsApiTest : AbstractRestApiTest() {
         )
     }
 
+    fun dataProjectAddEditUserRequestFields(): List<FieldDescriptor> {
+        return listOf(
+            fieldWithPath("user_id").type(JsonFieldType.STRING).optional().description("User id"),
+            fieldWithPath("gitlab_id").type(JsonFieldType.NUMBER).optional().description("Gitlab user id"),
+            fieldWithPath("level").type(JsonFieldType.STRING).optional().description("Role/Level of user in project"),
+            fieldWithPath("expires_at").type(JsonFieldType.STRING).optional().description("Expiration date")
+        )
+    }
+
+
     private fun dataProjectUpdateRequestFields(): List<FieldDescriptor> {
         return listOf(
             fieldWithPath("description").type(JsonFieldType.STRING).description("Description of Project"),
@@ -552,7 +593,9 @@ class DataProjectsApiTest : AbstractRestApiTest() {
             fieldWithPath(prefix + "id").type(JsonFieldType.STRING).description("Data project id"),
             fieldWithPath(prefix + "user_name").type(JsonFieldType.STRING).description("User name"),
             fieldWithPath(prefix + "email").type(JsonFieldType.STRING).description("User's email"),
-            fieldWithPath(prefix + "gitlab_id").type(JsonFieldType.NUMBER).description("Id in gitlab")
+            fieldWithPath(prefix + "gitlab_id").type(JsonFieldType.NUMBER).description("Id in gitlab"),
+            fieldWithPath(prefix + "access_level").type(JsonFieldType.STRING).description("Role"),
+            fieldWithPath(prefix + "expired_at").type(JsonFieldType.STRING).optional().description("Access expires at")
         )
     }
 }

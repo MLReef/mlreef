@@ -7,6 +7,7 @@ import com.mlreef.rest.CodeProjectRepository
 import com.mlreef.rest.VisibilityScope
 import com.mlreef.rest.api.v1.CodeProjectCreateRequest
 import com.mlreef.rest.api.v1.CodeProjectUpdateRequest
+import com.mlreef.rest.api.v1.CodeProjectUserMembershipRequest
 import com.mlreef.rest.api.v1.dto.CodeProjectDto
 import com.mlreef.rest.api.v1.dto.MLProjectDto
 import com.mlreef.rest.api.v1.dto.UserInProjectDto
@@ -23,6 +24,8 @@ import org.springframework.data.repository.findByIdOrNull
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders
 import org.springframework.test.annotation.Rollback
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
+import java.time.Instant
+import java.time.Period
 import java.util.UUID
 import javax.transaction.Transactional
 
@@ -467,7 +470,6 @@ class CodeProjectsIntegrationTest : AbstractIntegrationTest() {
     }
 
     @Transactional
-//    @Rollback
     @Test
     fun `Cannot update not-own CodeProject`() {
         val (account1, _, _) = testsHelper.createRealUser()
@@ -644,6 +646,44 @@ class CodeProjectsIntegrationTest : AbstractIntegrationTest() {
             .returnsList(UserInProjectDto::class.java)
 
         assertThat(returnedResult.size).isEqualTo(3)
+    }
+
+    @Transactional
+    @Rollback
+    @Test
+    fun `Owner add a user to project with role and expiration in params`() {
+        val (account1, _, _) = testsHelper.createRealUser()
+        val (account2, _, _) = testsHelper.createRealUser(index = 1)
+
+        val (project1, _) = testsHelper.createRealCodeProject(account1)
+
+        val url = "$rootUrl/${project1.id}/users?user_id=${account2.id}&level=REPORTER&expires_at=2099-12-31T10:15:20Z"
+
+        val result = this.performPost(url, account1)
+            .expectOk()
+            .returnsList(UserInProjectDto::class.java)
+
+        assertThat(result.size).isEqualTo(2)
+    }
+
+    @Transactional
+    @Rollback
+    @Test
+    fun `Owner add a user to project with role and expiration in body`() {
+        val (account1, _, _) = testsHelper.createRealUser()
+        val (account2, _, _) = testsHelper.createRealUser(index = 1)
+
+        val (project1, _) = testsHelper.createRealCodeProject(account1)
+
+        val url = "$rootUrl/${project1.id}/users"
+
+        val request = CodeProjectUserMembershipRequest(userId = account2.id, level = "REPORTER", expiresAt = Instant.now().plus(Period.ofDays(1)))
+
+        val result = this.performPost(url, account1, request)
+            .expectOk()
+            .returnsList(UserInProjectDto::class.java)
+
+        assertThat(result.size).isEqualTo(2)
     }
 
     @Transactional
