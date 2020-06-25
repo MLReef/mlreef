@@ -7,10 +7,8 @@ import com.mlreef.rest.DataProject
 import com.mlreef.rest.DataType
 import com.mlreef.rest.DataVisualization
 import com.mlreef.rest.Person
-import com.mlreef.rest.Searchable
 import com.mlreef.rest.Subject
 import com.mlreef.rest.VisibilityScope
-import com.mlreef.rest.marketplace.MarketplaceEntry
 import com.mlreef.rest.marketplace.SearchableTag
 import com.mlreef.rest.marketplace.SearchableTagType
 import java.util.UUID
@@ -25,8 +23,8 @@ class EntityMocks {
 
         fun person(id: UUID = randomUUID(), slug: String = "slug" + randomUUID()) = Person(id, slug, "name", lastGitlabId++)
 
-        fun dataOperation(author: Subject = person(id = authorId)) = DataOperation(
-            id = randomUUID(), slug = "commons-augment", name = "Operations",
+        fun dataOperation(author: Subject = person(id = authorId), slug: String = "commons-augment") = DataOperation(
+            id = randomUUID(), slug = slug, name = "Operations",
             command = "augment", inputDataType = DataType.IMAGE, outputDataType = DataType.IMAGE,
             visibilityScope = VisibilityScope.PUBLIC, author = author,
             description = "description",
@@ -46,32 +44,21 @@ class EntityMocks {
             description = "description",
             codeProjectId = codeProjectId)
 
-        fun dataProject(ownerId: UUID = authorId, slug: String = "test-data-project", visibilityScope: VisibilityScope? = null) = DataProject(
-            id = randomUUID(), slug = slug, name = "CodeProject Augment", ownerId = ownerId,
-            url = "https://gitlab.com/mlreef/sign-language-classifier",
-            gitlabProject = "sign-language-classifier", gitlabGroup = "mlreef", gitlabId = lastGitlabId++,
+        fun dataProject(ownerId: UUID = authorId, slug: String = "test-data-project", visibilityScope: VisibilityScope? = null, id: UUID = randomUUID()) = DataProject(
+            id = id, slug = slug, name = "CodeProject Augment", ownerId = ownerId,
+            url = "https://gitlab.com/mlreef/sign-language-classifier", description = "",
+            gitlabPath = "sign-language-classifier", gitlabNamespace = "mlreef", gitlabId = lastGitlabId++,
             visibilityScope = visibilityScope ?: VisibilityScope.default())
 
-        fun codeProject(ownerId: UUID = authorId, id: UUID = codeProjectId) = CodeProject(
-            id = id, slug = "test-data-project", name = "CodeProject Augment", ownerId = ownerId,
-            url = "https://gitlab.com/mlreef/sign-language-classifier",
-            gitlabProject = "sign-language-classifier", gitlabGroup = "mlreef", gitlabId = lastGitlabId++)
-
-        fun marketplaceEntry(owner: Subject = author,
-                             id: UUID = randomUUID(),
-                             visibilityScope: VisibilityScope = VisibilityScope.PUBLIC,
-                             searchable: Searchable,
-                             globalSlug: String = "${searchable.getType()}-${searchable.slug}",
-                             name: String = "Name ${searchable.getType()}-${searchable.slug}"
-        ) = MarketplaceEntry(
-            id = id,
-            globalSlug = globalSlug,
-            visibilityScope = visibilityScope,
-            name = name,
-            description = "description",
-            owner = owner,
-            searchableType = searchable.getType(),
-            searchableId = searchable.getId())
+        fun codeProject(
+            ownerId: UUID = authorId,
+            slug: String = "test-data-project",
+            id: UUID = randomUUID(),
+            name: String = "CodeProject Augment"
+        ) = CodeProject(
+            id = id, slug = slug, name = name, ownerId = ownerId,
+            url = "https://gitlab.com/mlreef/sign-language-classifier", description = "",
+            gitlabPath = "sign-language-classifier", gitlabNamespace = "mlreef", gitlabId = lastGitlabId++)
 
         fun searchableTag(
             name: String,

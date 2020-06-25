@@ -161,9 +161,10 @@ import javax.transaction.Transactional
             ownerId = account.person.id,
             url = gitLabProject.webUrl,
             name = gitLabProject.name,
-            gitlabProject = gitLabProject.path,
+            description = gitLabProject.description ?: "",
+            gitlabPath = gitLabProject.path,
             gitlabPathWithNamespace = gitLabProject.pathWithNamespace,
-            gitlabGroup = group,
+            gitlabNamespace = group,
             gitlabId = gitLabProject.id,
             visibilityScope = VisibilityScope.valueOf(gitLabProject.visibility.name)
         )
@@ -186,9 +187,10 @@ import javax.transaction.Transactional
             ownerId = account.person.id,
             url = gitLabProject.webUrl,
             name = gitLabProject.name,
-            gitlabProject = gitLabProject.path,
+            description = gitLabProject.description ?: "",
+            gitlabPath = gitLabProject.path,
             gitlabPathWithNamespace = gitLabProject.pathWithNamespace,
-            gitlabGroup = group,
+            gitlabNamespace = group,
             gitlabId = gitLabProject.id,
             visibilityScope = VisibilityScope.valueOf(gitLabProject.visibility.name)
         )

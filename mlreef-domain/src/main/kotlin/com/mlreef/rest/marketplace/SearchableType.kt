@@ -8,6 +8,7 @@ import com.mlreef.rest.DataVisualization
 
 enum class SearchableType {
     DATA_PROJECT,
+    CODE_PROJECT,
     OPERATION,
     VISUALISATION,
     ALGORITHM;

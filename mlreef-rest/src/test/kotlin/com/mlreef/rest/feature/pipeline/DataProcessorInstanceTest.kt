@@ -23,8 +23,8 @@ class DataProcessorInstanceTest {
         val author = Person(randomUUID(), "slug", "name", 1L)
         val codeProjectId = randomUUID()
 
-        CodeProject(id = codeProjectId, slug = "code-project-augment", name = "CodeProject Augment", ownerId = author.id, url = "url",
-            gitlabGroup = "", gitlabId = 0, gitlabProject = "")
+        CodeProject(id = codeProjectId, slug = "code-project-augment", name = "CodeProject Augment", description = "", ownerId = author.id, url = "url",
+            gitlabNamespace = "", gitlabId = 0, gitlabPath = "")
 
         val dataOp1 = DataOperation(
             id = randomUUID(), slug = "commons-augment", name = "Augment",

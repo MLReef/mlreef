@@ -66,7 +66,7 @@ class ExperimentServiceTest : AbstractServiceTest() {
             epfImageTag = "latest"
         )
         val subject = Person(ownerId, "new-person", "person's name", 1L)
-        val dataRepository = DataProject(dataRepositoryId, "new-repo", "url", "Test DataProject", subject.id, "mlreef", "project", "group/project", 0, VisibilityScope.PUBLIC, arrayListOf())
+        val dataRepository = DataProject(dataRepositoryId, "new-repo", "url", "Test DataProject", "", subject.id, "mlreef", "project", "group/project", 0, VisibilityScope.PUBLIC, arrayListOf())
         val dataPipeline = PipelineConfig(dataPipelineConfigId, dataRepositoryId, PipelineType.DATA, "slug", "name", "source_branch", "target_branch/\$SLUG")
         val entity = DataAlgorithm(
             id = dataAlgorithmId, slug = "commons-augment", name = "Augment",

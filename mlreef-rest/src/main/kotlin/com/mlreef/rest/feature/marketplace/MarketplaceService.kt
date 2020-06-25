@@ -1,26 +1,26 @@
 package com.mlreef.rest.feature.marketplace
 
 import com.mlreef.rest.AccessLevel
-import com.mlreef.rest.DataProcessor
+import com.mlreef.rest.CodeProject
+import com.mlreef.rest.CodeProjectRepository
 import com.mlreef.rest.DataProject
-import com.mlreef.rest.DataType
-import com.mlreef.rest.MarketplaceEntryRepository
+import com.mlreef.rest.DataProjectRepository
 import com.mlreef.rest.Person
-import com.mlreef.rest.Searchable
+import com.mlreef.rest.Project
+import com.mlreef.rest.ProjectRepository
 import com.mlreef.rest.SearchableTagRepository
 import com.mlreef.rest.Subject
 import com.mlreef.rest.VisibilityScope
-import com.mlreef.rest.exceptions.ConflictException
-import com.mlreef.rest.exceptions.ErrorCode
+import com.mlreef.rest.api.v1.FilterRequest
 import com.mlreef.rest.exceptions.NotFoundException
-import com.mlreef.rest.marketplace.MarketplaceEntry
+import com.mlreef.rest.marketplace.Searchable
 import com.mlreef.rest.marketplace.SearchableTag
 import com.mlreef.rest.marketplace.SearchableType
-import com.mlreef.utils.Slugs
 import org.slf4j.LoggerFactory
-import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
+import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 import java.util.UUID
 
 /**
@@ -29,7 +29,9 @@ import java.util.UUID
  */
 @Service
 class MarketplaceService(
-    private val marketplaceEntryRepository: MarketplaceEntryRepository,
+    private val searchableRepository: ProjectRepository,
+    private val dataProjectRepository: DataProjectRepository,
+    private val codeProjectRepository: CodeProjectRepository,
     private val searchableTagRepository: SearchableTagRepository
 ) {
     companion object {
@@ -41,145 +43,231 @@ class MarketplaceService(
      * Searchable can be a DataProject or a DataProcessorr
      *
      */
-    fun createEntry(searchable: Searchable, owner: Subject): MarketplaceEntry {
-        val existing = marketplaceEntryRepository.findBySearchableId(searchable.getId())
-        existing?.let { throw ConflictException(ErrorCode.Conflict, "This Entity already has a MarketplaceEntry") }
-
-        val marketplaceEntry = when (searchable) {
-            is DataProject -> createEntryForDataProject(searchable, owner)
-            is DataProcessor -> createEntryForDataProcessor(searchable, owner)
+    @Transactional
+    fun prepareEntry(searchable: Searchable, owner: Subject): Searchable {
+        val afterSave = when (searchable) {
+            is DataProject -> updateDataProject(searchable, owner)
+            is CodeProject -> updateCodeProject(searchable, owner)
             else -> throw NotImplementedError("Searchable does not support that type")
         }
 
-        marketplaceEntryRepository.save(marketplaceEntry)
-        log.info("Create new MarketplaceEntry for searchable id ${searchable.getId()} and owner $owner")
-        return marketplaceEntry
+        log.info("Create new Searchable for searchable id ${searchable.getId()} and owner $owner")
+        return save(afterSave)
     }
 
-    fun updateEntry(
-        marketplaceEntry: MarketplaceEntry,
-        title: String? = null,
-        description: String? = null,
-        visibilityScope: VisibilityScope? = null,
-        outputDataTypes: List<DataType> = emptyList(),
-        inputDataTypes: List<DataType> = emptyList()
-    ): MarketplaceEntry {
+    /**
+     * Creates a new Entry for a Searchable with a Subject as owner/author.
+     * Searchable can be a DataProject or a DataProcessorr
+     *
+     */
+    fun assertEntry(searchable: Searchable, owner: Subject): Searchable {
+        val existing = searchableRepository.findByIdOrNull(searchable.getId())
+        existing?.let { return@let existing }
+        return prepareEntry(searchable, owner)
+    }
 
-        marketplaceEntry.outputDataTypes
-        val update = marketplaceEntry.copy(
-            name = title ?: marketplaceEntry.name,
-            description = description ?: marketplaceEntry.description,
-            visibilityScope = visibilityScope ?: marketplaceEntry.visibilityScope
-        )
-
-        val afterDataTypes = update
-            .addInputDataTypes(inputDataTypes)
-            .addOutputDataTypes(outputDataTypes)
-
-        return marketplaceEntryRepository.save(afterDataTypes)
+    @Transactional
+    fun save(searchable: Searchable): Searchable {
+        return when (searchable) {
+            is DataProject -> dataProjectRepository.save(searchable)
+            is CodeProject -> codeProjectRepository.save(searchable)
+            is Project -> searchableRepository.save(searchable)
+            else -> throw IllegalStateException("Not possible ")
+        }
     }
 
     /**
      * Adds a star from one Person
      */
-    fun addStar(marketplaceEntry: MarketplaceEntry, person: Person): MarketplaceEntry {
-        val adapted = marketplaceEntry.addStar(person)
-        return marketplaceEntryRepository.save(adapted)
+    fun addStar(searchable: Searchable, person: Person): Searchable {
+        val adapted = searchable.addStar(person)
+        return save(adapted)
     }
 
     /**
      * Adds a preexisting Tag to this Entry, Tags are stored just once per Entry
      */
-    fun addTags(marketplaceEntry: MarketplaceEntry, tags: List<SearchableTag>): MarketplaceEntry {
-        val adapted = marketplaceEntry
-            .addTags(tags)
-        return marketplaceEntryRepository.save(adapted)
+    @Transactional
+    fun addTags(searchable: Searchable, tags: List<SearchableTag>): Searchable {
+        val adapted = searchable.addTags(tags)
+        return save(adapted)
     }
 
     /**
      * Sets the Tags of this Entry, similar to removing all Tags and adding new ones
      */
-    fun defineTags(marketplaceEntry: MarketplaceEntry, tags: List<SearchableTag>): MarketplaceEntry {
-        val adapted = marketplaceEntry
-            .copy(tags = setOf())
+    fun defineTags(searchable: Searchable, tags: List<SearchableTag>): Searchable {
+        val adapted = searchable
+            .clone(tags = hashSetOf())
             .addTags(tags)
-        return marketplaceEntryRepository.save(adapted)
+        return save(adapted)
     }
 
-    fun removeStar(marketplaceEntry: MarketplaceEntry, person: Person): MarketplaceEntry {
-        val adapted = marketplaceEntry.removeStar(person)
-        log.info("User $person put a star on $marketplaceEntry")
-        return marketplaceEntryRepository.save(adapted)
+    fun removeStar(searchable: Searchable, person: Person): Searchable {
+        val adapted = searchable.removeStar(person)
+        log.info("User $person put a star on $Searchable")
+        return save(adapted)
     }
 
-    fun deleteEntry(marketplaceEntry: MarketplaceEntry) {
-        marketplaceEntryRepository.delete(marketplaceEntry)
-        log.info("Deleted marketplaceEntry $marketplaceEntry")
-    }
-
-    private fun createEntryForDataProject(
+    private fun updateDataProject(
         dataProject: DataProject,
         owner: Subject,
-        title: String = "",
+        name: String = dataProject.name,
         description: String = "",
-        visibilityScope: VisibilityScope = VisibilityScope.PUBLIC
-    ): MarketplaceEntry {
-        return MarketplaceEntry(
-            globalSlug = "project-${dataProject.slug}",
-            name = title,
+        visibilityScope: VisibilityScope = dataProject.visibilityScope
+    ): Searchable {
+        return dataProject.copy(
+            name = name,
             description = description,
-            owner = owner,
             visibilityScope = visibilityScope,
-            searchableType = SearchableType.typeFor(dataProject),
-            searchableId = dataProject.id
+            globalSlug = "data-project-${dataProject.slug}"
         )
     }
 
-    private fun createEntryForDataProcessor(
-        dataProcessor: DataProcessor,
+    private fun updateCodeProject(
+        codeProject: CodeProject,
         owner: Subject,
-        title: String = "",
+        name: String = codeProject.name,
         description: String = "",
-        visibilityScope: VisibilityScope = VisibilityScope.PUBLIC
-    ): MarketplaceEntry {
-        val globalSlug = Slugs.toSlug(dataProcessor.type.name.toString() + "-" + dataProcessor.slug)
-        return MarketplaceEntry(
-            globalSlug = globalSlug,
-            name = title,
+        visibilityScope: VisibilityScope = codeProject.visibilityScope
+    ): Searchable {
+        return codeProject.copy(
+            name = name,
             description = description,
-            owner = owner,
             visibilityScope = visibilityScope,
-            searchableType = SearchableType.typeFor(dataProcessor),
-            searchableId = dataProcessor.id
+            globalSlug = "code-project-${codeProject.slug}"
         )
     }
 
-    fun findEntriesForProjects(projectsMap: Map<UUID, AccessLevel?>): List<MarketplaceEntry> {
+
+    fun findEntriesForProjects(pageable: Pageable, projectsMap: Map<UUID, AccessLevel?>): List<Project> {
         val ids: List<UUID> = projectsMap.filterValues { AccessLevel.isSufficientFor(it, AccessLevel.GUEST) }.map { it.key }.toList()
 
-        val findAllByVisibilityScope = marketplaceEntryRepository.findAllByVisibilityScope(VisibilityScope.PUBLIC)
-        val accessibleDataProjects = marketplaceEntryRepository.findAccessibleDataProjects(ids)
-        val accessibleProcessor = marketplaceEntryRepository.findAccessibleProcessors(ids)
-
-        log.info("Found data projects: ${accessibleDataProjects.size}")
-        log.info("Found processors: ${accessibleProcessor.size}")
-
+        val findAllByVisibilityScope = searchableRepository.findAllByVisibilityScope(VisibilityScope.PUBLIC, pageable)
+        val projects = searchableRepository.findAccessibleProjects(ids, pageable)
         return findAllByVisibilityScope.toMutableSet().apply {
-            addAll(accessibleDataProjects)
+            addAll(projects)
         }.toList()
     }
 
-    fun findEntriesForProjectsBySlug(projectsMap: Map<UUID, AccessLevel?>, slug: String): MarketplaceEntry {
+
+    fun findEntriesForProjectsBySlug(projectsMap: Map<UUID, AccessLevel?>, slug: String): Project {
         val ids: List<UUID> = projectsMap.filterValues { AccessLevel.isSufficientFor(it, AccessLevel.GUEST) }.map { it.key }.toList()
 
-        val accessibleDataProject = marketplaceEntryRepository.findAccessibleDataProject(ids, slug)
-        val accessibleProcessor = marketplaceEntryRepository.findAccessibleProcessor(ids, slug)
-        val findPublic = marketplaceEntryRepository.findByGlobalSlugAndVisibilityScope(slug, VisibilityScope.PUBLIC)
-
-        return findPublic ?: accessibleDataProject ?: accessibleProcessor ?: throw NotFoundException("Not found")
+        val project = searchableRepository.findAccessibleProject(ids, slug)
+        val findPublic = searchableRepository.findByGlobalSlugAndVisibilityScope(slug, VisibilityScope.PUBLIC)
+        return findPublic ?: project ?: throw NotFoundException("Not found")
     }
 
-    fun findPublicEntriesPageable(page: Pageable): Page<MarketplaceEntry> {
-        return marketplaceEntryRepository.findAllByVisibilityScope(VisibilityScope.PUBLIC, page)
+    /**
+     * This method must perform the search in a complex way:
+     * - Paging is supported
+     * - Filtering is possible
+     * - Ordering is supported by Spring Paging support (except rank)
+     * - If a searchQuery is applied, the result is sorted by rank DESC (scoped in the current page)
+     * - If no full text search is applied, the SearchResult will have "1.0" as idempotent rank
+     *
+     * Due to performance reasons, and limited development resources, text search ranking is just scoped to the current page!
+     * So currently we cannot order per rank and afterwards apply paging, but just offer normal paging and sorting, and then sort the page results per rank.
+     *
+     * *Hint*: If you need a "global order by rank" just use a page size of over 9000 which should result in one page which is ordered per rank
+     */
+    fun performSearch(pageable: Pageable, filter: FilterRequest, projectsMap: Map<UUID, AccessLevel?>? = null): List<SearchResult> {
+
+        log.debug("Start MarketplaceSearch for filterRequest ${filter} and paging ${pageable}")
+        val time = System.currentTimeMillis()
+
+        val ids: List<UUID>? = projectsMap?.filterValues { AccessLevel.isSufficientFor(it, AccessLevel.GUEST) }?.map { it.key }?.toList()
+        val existingTags = filter.tags?.let { findTagsForStrings(it) }
+
+        val typeClazz = if (filter.searchableType == SearchableType.DATA_PROJECT) {
+            DataProject::class.java
+        } else {
+            CodeProject::class.java
+        }
+        val findAccessible = searchableRepository.findAccessible(
+            typeClazz,
+            pageable,
+            ids,
+            null,
+            filter.searchableType,
+            filter.inputDataTypes,
+            filter.outputDataTypes,
+            existingTags
+        )
+        val accessibleEntriesMap = findAccessible.associateBy { it.id }
+
+        log.debug("Found ${findAccessible.size} findAccessible")
+        log.info("Marketplace Search found ${findAccessible.size} normal results within ${System.currentTimeMillis() - time} ms")
+
+        if (findAccessible.isEmpty()) {
+            return emptyList()
+        }
+
+        if (filter.query.isNotBlank()) {
+            val ftsQueryPart = buildFTSCondition(filter.query, queryAnd = filter.queryAnd)
+
+            /**
+             * Requires the "update_fts_document" PSQL TRIGGER and "project_fts_index" gin index
+             * Currently Fulltext search is implemented via psql and _relies_ on that, be aware of that when you change DB!
+             */
+            val rankedResults = searchableRepository
+                .fulltextSearch(ftsQueryPart, accessibleEntriesMap.keys)
+                .map { UUIDRank(UUID.fromString(it.id), it.rank) }
+
+            log.debug("Found ${rankedResults.size} fulltext search results with query ranking")
+
+            // step 1: reduce all ranks to ranks with Id in current page
+            val filteredRanks = rankedResults.filter { it.id in accessibleEntriesMap }
+
+            // step 2: order baselist with currentRanks probability
+            val finalPageRankedEntries = filteredRanks.mapNotNull {
+                accessibleEntriesMap[it.id]
+            }
+            val searchResults = finalPageRankedEntries.zip(rankedResults).map {
+                SearchResult(it.first, SearchResultProperties(rank = it.second.rank.toFloat()))
+            }
+            log.info("Marketplace fulltext search found ${searchResults.size} fts results within ${System.currentTimeMillis() - time} ms")
+            return searchResults
+        } else {
+            return findAccessible.map {
+                SearchResult(it, null)
+            }
+        }
+
+    }
+
+    private fun findTagsForStrings(tagNames: List<String>): List<SearchableTag> {
+        return searchableTagRepository.findAllByPublicTrueAndNameIsIn(tagNames.map(String::toLowerCase))
+    }
+
+    /**
+     * Requires the "update_fts_document" PSQL TRIGGER and "project_fts_index" gin index
+     *
+     * Currently Fulltext search is implemented via psql and _relies_ on that, be aware of that when you change DB!
+     */
+    private fun buildFTSCondition(query: String, queryAnd: Boolean): String {
+
+        val safeQuery = query.replace("\"", "").replace("\'", "")
+        val list = safeQuery.split(" ")
+        return if (queryAnd) {
+            list.joinToString(" & ")
+        } else {
+            list.joinToString(" | ")
+        }
     }
 }
+
+data class SearchResultProperties(
+    val rank: Float
+)
+
+data class SearchResult(
+    val project: Project,
+    val properties: SearchResultProperties?
+)
+
+data class UUIDRank(
+    val id: UUID,
+    val rank: Double
+)

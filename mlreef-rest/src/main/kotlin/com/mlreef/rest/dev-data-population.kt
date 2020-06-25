@@ -6,14 +6,15 @@ import com.mlreef.rest.external_api.gitlab.dto.GitlabProject
 import com.mlreef.rest.external_api.gitlab.dto.GitlabUser
 import com.mlreef.rest.feature.marketplace.MarketplaceService
 import com.mlreef.rest.feature.project.DataProjectService
+import com.mlreef.rest.marketplace.SearchableTag
 import org.slf4j.LoggerFactory
 import org.springframework.boot.CommandLineRunner
 import org.springframework.context.annotation.Profile
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Component
+import org.springframework.transaction.annotation.Transactional
 import java.util.Arrays
 import java.util.UUID
-import javax.transaction.Transactional
 
 @Profile(value = [ApplicationProfiles.DEV, ApplicationProfiles.DOCKER])
 @Component
@@ -46,6 +47,7 @@ internal class DataPopulator(
     val dataAlgorithmRepository: DataAlgorithmRepository,
     val processorParameterRepository: ProcessorParameterRepository,
     val experimentRepository: ExperimentRepository,
+    val searchableTagRepository: SearchableTagRepository,
     val marketplaceService: MarketplaceService
 ) {
 
@@ -58,6 +60,11 @@ internal class DataPopulator(
 
     val dataProjectId = UUID.fromString("5d005488-afb6-4a0c-852a-f471153a04b5")
     val experimentId = UUID.fromString("77481b71-8d40-4a48-9117-8d0c5129d6ec")
+
+    val tag1 = SearchableTag(UUID.fromString("cccc0000-0101-0000-1000-cccccccccccc"), "tag1")
+    val tag2 = SearchableTag(UUID.fromString("cccc0000-0101-0000-2000-cccccccccccc"), "tag2")
+    val tag3 = SearchableTag(UUID.fromString("cccc0000-0101-0000-3000-cccccccccccc"), "tag3")
+    val tag4 = SearchableTag(UUID.fromString("cccc0000-0101-0000-4000-cccccccccccc"), "tag4")
 
     val log = LoggerFactory.getLogger(this::class.java)
 
@@ -78,6 +85,9 @@ internal class DataPopulator(
             val entity = Person(id = subjectId, slug = "user-demo", name = "Author1", gitlabId = gitlabUser.id)
             val author = personRepository.findByIdOrNull(entity.id) ?: personRepository.save(entity)
 
+            executeLogged("1c. Create some marketplace Tags") {
+                createTags()
+            }
             val (dataOp1,
                 dataOp1processorParameter1,
                 dataOp1processorParameter2) = executeLogged("2a. Create DataOperation: Augment") {
@@ -116,6 +126,14 @@ internal class DataPopulator(
     }
 
     @Transactional
+    fun createTags() {
+        searchableTagRepository.findByIdOrNull(tag1.id) ?: searchableTagRepository.save(tag1)
+        searchableTagRepository.findByIdOrNull(tag2.id) ?: searchableTagRepository.save(tag2)
+        searchableTagRepository.findByIdOrNull(tag3.id) ?: searchableTagRepository.save(tag3)
+        searchableTagRepository.findByIdOrNull(tag4.id) ?: searchableTagRepository.save(tag4)
+    }
+
+    @Transactional
     fun createExperiment(dataOp1: DataOperation, dataOp1processorParameter1: ProcessorParameter, dataOp1processorParameter2: ProcessorParameter, dataOp2: DataOperation, dataOp2processorParameter1: ProcessorParameter, dataOp2processorParameter2: ProcessorParameter): Experiment {
         val processorInstance = DataProcessorInstance(id = UUID.fromString("5d005488-afb6-4a0c-0031-f471153a04b5"), dataProcessor = dataOp1)
         processorInstance.addParameterInstances(dataOp1processorParameter1, "value")
@@ -139,6 +157,7 @@ internal class DataPopulator(
         return experimentRepository.findByIdOrNull(experiment.id) ?: experimentRepository.save(experiment)
     }
 
+    @Transactional
     fun createDataProject(userToken: String) {
         val projectSlug = "sign-language-classifier"
         val gitLabProject: GitlabProject = try {
@@ -167,15 +186,17 @@ internal class DataPopulator(
             ownerId = subjectId,
             url = gitLabProject.webUrl,
             name = gitLabProject.name,
-            gitlabProject = gitLabProject.path,
+            description = gitLabProject.description ?: "",
+            gitlabPath = gitLabProject.path,
             gitlabPathWithNamespace = gitLabProject.pathWithNamespace,
-            gitlabGroup = group,
+            gitlabNamespace = group,
             gitlabId = gitLabProject.id
         )
 
         dataProjectRepository.findByIdOrNull(dataProject.id) ?: dataProjectRepository.save(dataProject)
     }
 
+    @Transactional
     fun createCodeProject(userToken: String, codeProjectId: UUID, projectSlug: String, name: String, gitlabId: Int): CodeProject? {
         val findByIdOrNull = codeProjectRepository.findByIdOrNull(codeProjectId)
 
@@ -214,9 +235,10 @@ internal class DataPopulator(
                 ownerId = subjectId,
                 url = gitLabProject.webUrl,
                 name = gitLabProject.name,
-                gitlabProject = gitLabProject.path,
+                description = gitLabProject.description ?: "",
+                gitlabPath = gitLabProject.path,
                 gitlabPathWithNamespace = gitLabProject.pathWithNamespace,
-                gitlabGroup = group,
+                gitlabNamespace = group,
                 gitlabId = gitLabProject.id
             )
             codeProjectRepository.findByIdOrNull(codeProjectId) ?: codeProjectRepository.save(codeProject)
@@ -226,13 +248,14 @@ internal class DataPopulator(
 
     }
 
+    @Transactional
     fun createDataOperation1(userToken: String, author: Subject): Triple<DataOperation, ProcessorParameter, ProcessorParameter> {
         val codeProjectId = UUID.fromString("1000000-0000-0001-0001-000000000000")
         val dataOperationId = UUID.fromString("1000000-0000-0001-0002-000000000000")
         val processorParameter1Id = UUID.fromString("1000000-0000-0001-0011-000000000000")
         val processorParameter2Id = UUID.fromString("1000000-0000-0001-0012-000000000000")
 
-        createCodeProject(userToken, codeProjectId, "code-project-augment", "Test DataProject 2", 0)
+        val createCodeProject = createCodeProject(userToken, codeProjectId, "code-project-augment", "Test DataProject 2", 0)
 
         val dataOp1 = dataProcessorRepository.findByIdOrNull(dataOperationId)
             ?: dataProcessorRepository.save(DataOperation(
@@ -244,10 +267,12 @@ internal class DataPopulator(
 
         val parameter1 = addParam(processorParameter1Id, ProcessorParameter(processorParameter1Id, dataOp1.id, "stringParam", ParameterType.STRING, 0, ""))
         val parameter2 = addParam(processorParameter2Id, ProcessorParameter(processorParameter2Id, dataOp1.id, "floatParam", ParameterType.FLOAT, 1, "0.1"))
+        createMarketplaceEntry(createCodeProject, dataOp1, listOf(tag1, tag2))
 
         return Triple(dataOp1 as DataOperation, parameter1, parameter2)
     }
 
+    @Transactional
     fun createDataOperation2(userToken: String, author: Subject): Triple<DataOperation, ProcessorParameter, ProcessorParameter> {
         val codeProjectId = UUID.fromString("1000000-0000-0002-0001-000000000000")
         val dataOperationId = UUID.fromString("1000000-0000-0002-0002-000000000000")
@@ -256,7 +281,7 @@ internal class DataPopulator(
         val processorParameter3Id = UUID.fromString("1000000-0000-0002-0013-000000000000")
         val processorParameter4Id = UUID.fromString("1000000-0000-0002-0014-000000000000")
 
-        createCodeProject(userToken, codeProjectId, "code-project-random-crop", "Test DataProject", 0)
+        val createCodeProject = createCodeProject(userToken, codeProjectId, "code-project-random-crop", "Test DataProject", 0)
 
         val dataOp2 = dataProcessorRepository.findByIdOrNull(dataOperationId)
             ?: dataProcessorRepository.save(DataOperation(
@@ -274,7 +299,19 @@ internal class DataPopulator(
         addParam(processorParameter3Id, ProcessorParameter(processorParameter3Id, dataOp2.id, "channels", ParameterType.INTEGER, 0, "3", false))
         addParam(processorParameter4Id, ProcessorParameter(processorParameter4Id, dataOp2.id, "seed", ParameterType.INTEGER, 1, "3", false, "advanced"))
 
+        createMarketplaceEntry(createCodeProject, dataOp2, listOf(tag2, tag4))
         return Triple(dataOp2 as DataOperation, parameter1, parameter2)
+    }
+
+    @Transactional
+    fun createMarketplaceEntry(codeProject: CodeProject?, dataProcessor: DataProcessor, tags: List<SearchableTag>) {
+        if (codeProject != null) {
+            val marketplaceEntry = marketplaceService.assertEntry(codeProject, dataProcessor.author!!)
+            marketplaceService.save(marketplaceEntry
+                .addTags(tags)
+                .addInputDataTypes(listOf(dataProcessor.inputDataType))
+                .addOutputDataTypes(listOf(dataProcessor.outputDataType)))
+        }
     }
 
     fun createDataOperation3(userToken: String, author: Subject): Triple<DataOperation, ProcessorParameter, ProcessorParameter> {
@@ -283,7 +320,7 @@ internal class DataPopulator(
         val processorParameter1Id = UUID.fromString("1000000-0000-0003-0011-000000000000")
         val processorParameter2Id = UUID.fromString("1000000-0000-0003-0012-000000000000")
 
-        createCodeProject(userToken, codeProjectId, "code-project-visualisation", "Test DataProject", 0)
+        val createCodeProject = createCodeProject(userToken, codeProjectId, "code-project-visualisation", "Test DataProject", 0)
 
         val dataOp3 = dataProcessorRepository.findByIdOrNull(dataOperationId)
             ?: dataProcessorRepository.save(DataOperation(
@@ -294,6 +331,7 @@ internal class DataPopulator(
                     "thereby degrading the quality of the image. Therefore an efficient speckle noise removal technique, the Lee Filter is used to \n" +
                     "smoothen the static-like noise present in these images",
                 codeProjectId = codeProjectId))
+        createMarketplaceEntry(createCodeProject, dataOp3, listOf(tag2, tag3))
 
         val dataOp1processorParameter1 = addParam(processorParameter1Id, ProcessorParameter(processorParameter1Id, dataOp3.id, "tupleParam", ParameterType.TUPLE, 0, "(1,2)"))
         val dataOp1processorParameter2 = addParam(processorParameter2Id, ProcessorParameter(processorParameter2Id, dataOp3.id, "hashParam", ParameterType.DICTIONARY, 1, "{a:b}"))
@@ -316,7 +354,7 @@ internal class DataPopulator(
         val id10 = UUID.fromString("1000000-1000-0003-0020-000000000000")
         val id11 = UUID.fromString("1000000-1000-0003-0021-000000000000")
 
-        createCodeProject(userToken, codeProjectId, "code-project-resnet-50", "Resnet 50", 10)
+        val createCodeProject = createCodeProject(userToken, codeProjectId, "code-project-resnet-50", "Resnet 50", 10)
 
         val model = dataAlgorithmRepository.findByIdOrNull(dataOperationId)
             ?: dataAlgorithmRepository.save(DataAlgorithm(
@@ -331,6 +369,8 @@ internal class DataPopulator(
                 description = "ResNet50 is a 50 layer Residual Network.",
                 codeProjectId = codeProjectId
             ))
+
+        createMarketplaceEntry(createCodeProject, model, listOf(tag3, tag4))
 
         //standard
         addParam(id1, ProcessorParameter(id1, model.id, "output-path", ParameterType.STRING, 0, ".", true))
@@ -363,7 +403,7 @@ internal class DataPopulator(
         val id1 = UUID.fromString("1000000-2000-0003-0011-000000000000")
         val id2 = UUID.fromString("1000000-2000-0003-0012-000000000000")
 
-        createCodeProject(userToken, codeProjectId, "code-project-dummy", "Dummy Pipeline Project", 11)
+        val createCodeProject = createCodeProject(userToken, codeProjectId, "code-project-dummy", "Dummy Pipeline Project", 11)
 
         val model = dataAlgorithmRepository.findByIdOrNull(dataOperationId)
             ?: dataAlgorithmRepository.save(DataAlgorithm(
@@ -372,6 +412,7 @@ internal class DataPopulator(
                 visibilityScope = VisibilityScope.PUBLIC, author = author,
                 description = "Dummy Pipeline.",
                 codeProjectId = codeProjectId))
+        createMarketplaceEntry(createCodeProject!!, model, listOf(tag1, tag4))
 
         addParam(id1, ProcessorParameter(id1, model.id, "epochs", ParameterType.INTEGER, 1, "10"))
         addParam(id2, ProcessorParameter(id2, model.id, "batch_size", ParameterType.INTEGER, 2, "10"))

@@ -42,7 +42,7 @@ class SecurityConfiguration(private val provider: AuthenticationProvider) : WebS
     override fun configure(webSecurity: WebSecurity) {
         webSecurity
             .ignoring()
-            .antMatchers("/docs", "/docs/*", AUTH_LOGIN_URL, AUTH_REGISTER_URL, EPF_BOT_URL, INFO_URL)
+            .antMatchers("/docs", "/docs/*", AUTH_LOGIN_URL, AUTH_REGISTER_URL, EPF_BOT_URL, INFO_URL, EXPLORE_URL)
     }
 
     @Throws(Exception::class)
@@ -89,6 +89,7 @@ class SecurityConfiguration(private val provider: AuthenticationProvider) : WebS
         private const val EPF_BOT_URL = "/api/v1/epf/**"
         private const val INFO_URL = "/api/v1/info/**"
         private const val PING_URL = "/api/v1/ping"
+        private const val EXPLORE_URL = "/api/v1/explore/**"
 
         //Access with anonymous check (for visitors)
         private const val GENERIC_PROJECTS_PUBLIC_URL = "/api/v1/projects/public"
@@ -111,6 +112,7 @@ class SecurityConfiguration(private val provider: AuthenticationProvider) : WebS
             NegatedRequestMatcher(AntPathRequestMatcher(AUTH_REGISTER_URL)),
             NegatedRequestMatcher(AntPathRequestMatcher(EPF_BOT_URL)),
             NegatedRequestMatcher(AntPathRequestMatcher(INFO_URL)),
+            NegatedRequestMatcher(AntPathRequestMatcher(EXPLORE_URL)),
             NegatedRequestMatcher(AntPathRequestMatcher(PING_URL))
         )
     }

@@ -3,8 +3,8 @@ logging:
     root: INFO
     com.mlreef.rest: DEBUG
     org.springframework.security: INFO
-    org.springframework.orm: INFO
-    org.hibernate: INFO
+    org.springframework.orm: DEBUG
+    org.hibernate: DEBUG
 
 
 mlreef:

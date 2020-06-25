@@ -92,9 +92,10 @@ class GitlabCodeProjectService(
             ownerId = ownerId,
             url = gitlabProject.webUrl,
             name = gitlabProject.name,
-            gitlabProject = gitlabProject.path,
+            description = gitlabProject.description ?: "",
+            gitlabPath = gitlabProject.path,
             gitlabPathWithNamespace = gitlabProject.pathWithNamespace,
-            gitlabGroup = group,
+            gitlabNamespace = group,
             gitlabId = gitlabProject.id,
             visibilityScope = gitlabProject.visibility.toVisibilityScope()
         )
@@ -104,7 +105,7 @@ class GitlabCodeProjectService(
         return codeProjectRepository.save(
             mlProject.copy(
                 name = gitlabProject.name,
-                gitlabProject = gitlabProject.path,
+                gitlabPath = gitlabProject.path,
                 visibilityScope = gitlabProject.visibility.toVisibilityScope()
             )
         )

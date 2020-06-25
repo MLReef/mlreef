@@ -9,7 +9,7 @@ import com.mlreef.rest.api.v1.CodeProjectCreateRequest
 import com.mlreef.rest.api.v1.CodeProjectUpdateRequest
 import com.mlreef.rest.api.v1.CodeProjectUserMembershipRequest
 import com.mlreef.rest.api.v1.dto.CodeProjectDto
-import com.mlreef.rest.api.v1.dto.MLProjectDto
+import com.mlreef.rest.api.v1.dto.ProjectDto
 import com.mlreef.rest.api.v1.dto.UserInProjectDto
 import com.mlreef.rest.external_api.gitlab.GroupAccessLevel
 import com.mlreef.rest.feature.caches.domain.PublicProjectHash
@@ -158,7 +158,7 @@ class CodeProjectsIntegrationTest : AbstractIntegrationTest() {
 
         assertThat(result.id).isEqualTo(project2.id)
         assertThat(result.gitlabId).isEqualTo(project2.gitlabId)
-        assertThat(result.gitlabProject).isEqualTo(project2.slug) //FIXME: Why is slug? Is it correct?
+        assertThat(result.gitlabPath).isEqualTo(project2.slug) //FIXME: Why is slug? Is it correct?
     }
 
     @Transactional
@@ -199,13 +199,13 @@ class CodeProjectsIntegrationTest : AbstractIntegrationTest() {
             project21.slug
         )
 
-        val resultSetOfIds = result.map(MLProjectDto::id).toSet()
+        val resultSetOfIds = result.map(ProjectDto::id).toSet()
 
         assertThat(resultSetOfIds).isEqualTo(initialSetOfIds)
         assertThat(result.get(0).id).isIn(initialSetOfIds)
-        assertThat(result.get(0).gitlabProject).isIn(initialSetOfSlug) //FIXME: Why is slug? Is it correct?
+        assertThat(result.get(0).gitlabPath).isIn(initialSetOfSlug) //FIXME: Why is slug? Is it correct?
         assertThat(result.get(1).id).isIn(initialSetOfIds)
-        assertThat(result.get(1).gitlabProject).isIn(initialSetOfSlug)
+        assertThat(result.get(1).gitlabPath).isIn(initialSetOfSlug)
     }
 
     @Transactional
@@ -251,13 +251,13 @@ class CodeProjectsIntegrationTest : AbstractIntegrationTest() {
             project21.slug
         )
 
-        val resultSetOfIds = result.map(MLProjectDto::id).toSet()
+        val resultSetOfIds = result.map(ProjectDto::id).toSet()
 
         assertThat(resultSetOfIds).isEqualTo(initialSetOfIds)
         assertThat(result.get(0).id).isIn(initialSetOfIds)
-        assertThat(result.get(0).gitlabProject).isIn(initialSetOfSlug) //FIXME: Why is slug? Is it correct?
+        assertThat(result.get(0).gitlabPath).isIn(initialSetOfSlug) //FIXME: Why is slug? Is it correct?
         assertThat(result.get(1).id).isIn(initialSetOfIds)
-        assertThat(result.get(1).gitlabProject).isIn(initialSetOfSlug)
+        assertThat(result.get(1).gitlabPath).isIn(initialSetOfSlug)
     }
 
     @Transactional
@@ -273,10 +273,10 @@ class CodeProjectsIntegrationTest : AbstractIntegrationTest() {
 
         testsHelper.addRealUserToProject(project1.gitlabId, account2.person.gitlabId!!)
 
-        val (project21, _) = testsHelper.createRealCodeProject(account2, namespace = project1.gitlabGroup) //Pay attention that the namespace is not being taken. It's inaccessible to another user
+        val (project21, _) = testsHelper.createRealCodeProject(account2, namespace = project1.gitlabNamespace) //Pay attention that the namespace is not being taken. It's inaccessible to another user
         val (project22, _) = testsHelper.createRealCodeProject(account2)
 
-        val url = "$rootUrl/namespace/${project1.gitlabGroup}"
+        val url = "$rootUrl/namespace/${project1.gitlabNamespace}"
 
         val result = this.performGet(url, account2)
             .expectOk()
@@ -308,7 +308,7 @@ class CodeProjectsIntegrationTest : AbstractIntegrationTest() {
         assertThat(resultSetOfIds).isEqualTo(initialSetOfIds)
         assertThat(resultSetOfIds).doesNotContain(*notReturnedSetOfIds.toTypedArray())
         assertThat(result.get(0).id).isIn(initialSetOfIds)
-        assertThat(result.get(0).gitlabProject).isIn(initialSetOfSlug) //FIXME: Why is slug? Is it correct?
+        assertThat(result.get(0).gitlabPath).isIn(initialSetOfSlug) //FIXME: Why is slug? Is it correct?
     }
 
     @Transactional
@@ -324,11 +324,11 @@ class CodeProjectsIntegrationTest : AbstractIntegrationTest() {
         val (project4, _) = testsHelper.createRealCodeProject(account1, public = true)
         val (project5, _) = testsHelper.createRealCodeProject(account1, public = false)
 
-        val (project21, _) = testsHelper.createRealCodeProject(account2, namespace = project1.gitlabGroup) //Pay attention that the namespace is not being taken. It's inaccessible to another user
+        val (project21, _) = testsHelper.createRealCodeProject(account2, namespace = project1.gitlabNamespace) //Pay attention that the namespace is not being taken. It's inaccessible to another user
         val (project22, _) = testsHelper.createRealCodeProject(account2)
 
         val returnedResult: List<CodeProjectDto> = this.mockMvc.perform(
-            this.acceptContentAuth(RestDocumentationRequestBuilders.get("$rootUrl/namespace/${project1.gitlabGroup}"), account2))
+            this.acceptContentAuth(RestDocumentationRequestBuilders.get("$rootUrl/namespace/${project1.gitlabNamespace}"), account2))
             .andExpect(MockMvcResultMatchers.status().isOk)
             .andReturn().let {
                 val constructCollectionType = objectMapper.typeFactory.constructCollectionType(List::class.java, CodeProjectDto::class.java)
@@ -369,11 +369,11 @@ class CodeProjectsIntegrationTest : AbstractIntegrationTest() {
         assertThat(resultSetOfIds).isEqualTo(initialSetOfIds)
         assertThat(resultSetOfIds).doesNotContain(*notReturnedSetOfIds.toTypedArray())
         assertThat(returnedResult.get(0).id).isIn(initialSetOfIds)
-        assertThat(returnedResult.get(0).gitlabProject).isIn(initialSetOfSlug) //FIXME: Why is slug? Is it correct?
+        assertThat(returnedResult.get(0).gitlabPath).isIn(initialSetOfSlug) //FIXME: Why is slug? Is it correct?
         assertThat(returnedResult.get(1).id).isIn(initialSetOfIds)
-        assertThat(returnedResult.get(1).gitlabProject).isIn(initialSetOfSlug)
+        assertThat(returnedResult.get(1).gitlabPath).isIn(initialSetOfSlug)
         assertThat(returnedResult.get(2).id).isIn(initialSetOfIds)
-        assertThat(returnedResult.get(2).gitlabProject).isIn(initialSetOfSlug)
+        assertThat(returnedResult.get(2).gitlabPath).isIn(initialSetOfSlug)
     }
 
     @Transactional
@@ -389,17 +389,17 @@ class CodeProjectsIntegrationTest : AbstractIntegrationTest() {
 
         testsHelper.addRealUserToProject(project1.gitlabId, account2.person.gitlabId!!)
 
-        val (_, _) = testsHelper.createRealCodeProject(account2, slug = "slug-1", namespace = project1.gitlabGroup)
+        val (_, _) = testsHelper.createRealCodeProject(account2, slug = "slug-1", namespace = project1.gitlabNamespace)
         val (_, _) = testsHelper.createRealCodeProject(account2)
 
-        val url = "$rootUrl/${project1.gitlabGroup}/${project1.slug}"
+        val url = "$rootUrl/${project1.gitlabNamespace}/${project1.slug}"
 
         val result = this.performGet(url, account2)
             .expectOk()
             .returns(CodeProjectDto::class.java)
 
         assertThat(result.id).isEqualTo(project1.id)
-        assertThat(result.gitlabProject).isEqualTo(project1.slug) //FIXME: Why is slug? Is it correct?
+        assertThat(result.gitlabPath).isEqualTo(project1.slug) //FIXME: Why is slug? Is it correct?
     }
 
     @Transactional
@@ -447,7 +447,7 @@ class CodeProjectsIntegrationTest : AbstractIntegrationTest() {
         val newProjectName = "New Test project"
         val newDescription = "new description"
 
-        assertThat(newProjectName).isNotEqualTo(project1.gitlabProject)
+        assertThat(newProjectName).isNotEqualTo(project1.gitlabPath)
 
         assertThat(isUserInProject(project1, account1, AccessLevel.OWNER)).isTrue()
 

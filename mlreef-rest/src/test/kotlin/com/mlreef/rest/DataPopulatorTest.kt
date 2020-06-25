@@ -1,9 +1,10 @@
 package com.mlreef.rest
 
-import com.mlreef.rest.api.AbstractRestApiTest
 import com.mlreef.rest.external_api.gitlab.dto.GitlabUser
 import com.mlreef.rest.feature.marketplace.MarketplaceService
 import com.mlreef.rest.feature.project.DataProjectService
+import com.mlreef.rest.integration.AbstractIntegrationTest
+import com.mlreef.rest.utils.RandomUtils
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -16,7 +17,7 @@ import javax.transaction.Transactional
 /**
  * Should actually be an integrationtest against a real Gitlab instance
  */
-class DataPopulatorTest : AbstractRestApiTest() {
+class DataPopulatorTest : AbstractIntegrationTest() {
 
     private val userToken: String = "ysfd"
     private lateinit var author: Person
@@ -54,10 +55,11 @@ class DataPopulatorTest : AbstractRestApiTest() {
             accountRepository = accountRepository,
             codeProjectRepository = codeProjectRepository,
             dataAlgorithmRepository = dataAlgorithmRepository,
-            marketplaceService = marketplaceService
-
+            marketplaceService = marketplaceService,
+            searchableTagRepository = searchableTagRepository
         )
 
+        searchableTagRepository.deleteAll()
         parameterInstanceRepository.deleteAll()
         experimentRepository.deleteAll()
         processorInstanceRepository.deleteAll()
@@ -70,7 +72,7 @@ class DataPopulatorTest : AbstractRestApiTest() {
         accountTokenRepository.deleteAll()
         accountRepository.deleteAll()
         personRepository.deleteAll()
-        author = personRepository.save(Person(id = randomUUID(), slug = "user-demo", name = "Author1", gitlabId = 1L))
+        author = personRepository.save(Person(id = randomUUID(), slug = "user-demo", name = "Author1", gitlabId = RandomUtils.randomGitlabId()))
     }
 
     @Test
@@ -105,7 +107,7 @@ class DataPopulatorTest : AbstractRestApiTest() {
         val accountId = UUID.fromString("aaaa0000-0002-0000-0000-aaaaaaaaaaaa")
 
         accountRepository.save(Account(
-            id = accountId, gitlabId = 0, email = "",
+            id = accountId, gitlabId = RandomUtils.randomGitlabId(), email = "",
             username = "", passwordEncrypted = "", person = author
         ))
 
@@ -116,13 +118,14 @@ class DataPopulatorTest : AbstractRestApiTest() {
     }
 
     @Test
+    @Transactional
+    @Rollback
     fun `create createDataOperation1`() {
 
         assertThat(dataProcessorRepository.findAll().toList()).isEmpty()
         assertThat(processorParameterRepository.findAll().toList()).isEmpty()
 
-        val (dataOp, param1, param2) =
-            dataPopulator.createDataOperation1(userToken, author)
+        val (dataOp, param1, param2) = dataPopulator.createDataOperation1(userToken, author)
         assertThat(dataOp).isNotNull()
         assertThat(param1).isNotNull()
         assertThat(param2).isNotNull()
@@ -134,12 +137,13 @@ class DataPopulatorTest : AbstractRestApiTest() {
     }
 
     @Test
+    @Transactional
+    @Rollback
     fun `create createDataOperation2`() {
         assertThat(dataProcessorRepository.findAll().toList()).isEmpty()
         assertThat(processorParameterRepository.findAll().toList()).isEmpty()
 
-        val (dataOp, param1, param2) =
-            dataPopulator.createDataOperation2(userToken, author)
+        val (dataOp, param1, param2) = dataPopulator.createDataOperation2(userToken, author)
         assertThat(dataOp).isNotNull()
         assertThat(param1).isNotNull()
         assertThat(param2).isNotNull()
@@ -151,12 +155,13 @@ class DataPopulatorTest : AbstractRestApiTest() {
     }
 
     @Test
+    @Transactional
+    @Rollback
     fun `create createDataOperation3`() {
         assertThat(dataProcessorRepository.findAll().toList()).isEmpty()
         assertThat(processorParameterRepository.findAll().toList()).isEmpty()
 
-        val (dataOp, param1, param2) =
-            dataPopulator.createDataOperation3(userToken, author)
+        val (dataOp, param1, param2) = dataPopulator.createDataOperation3(userToken, author)
         assertThat(dataOp).isNotNull()
         assertThat(param1).isNotNull()
         assertThat(param2).isNotNull()
@@ -179,6 +184,8 @@ class DataPopulatorTest : AbstractRestApiTest() {
     }
 
     @Test
+    @Transactional
+    @Rollback
     fun `create experiment with dataOperations`() {
         val createUserAndTokenInGitlab = dataPopulator.createUserAndTokenInGitlab()
         val createUserToken = dataPopulator.createUserToken(createUserAndTokenInGitlab)
@@ -188,11 +195,9 @@ class DataPopulatorTest : AbstractRestApiTest() {
         assertThat(processorParameterRepository.findAll().toList()).isEmpty()
 
 
-        val (dataOp1, param11, param12) =
-            dataPopulator.createDataOperation1(userToken, author)
+        val (dataOp1, param11, param12) = dataPopulator.createDataOperation1(userToken, author)
 
-        val (dataOp2, param21, param22) =
-            dataPopulator.createDataOperation2(userToken, author)
+        val (dataOp2, param21, param22) = dataPopulator.createDataOperation2(userToken, author)
 
         val experiment = dataPopulator.createExperiment(
             dataOp1, param11, param12,

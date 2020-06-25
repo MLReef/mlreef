@@ -3,7 +3,7 @@ package com.mlreef.rest.feature.project
 import com.mlreef.rest.AccessLevel
 import com.mlreef.rest.Account
 import com.mlreef.rest.AccountRepository
-import com.mlreef.rest.MLProject
+import com.mlreef.rest.Project
 import com.mlreef.rest.VisibilityScope
 import com.mlreef.rest.annotations.RefreshProject
 import com.mlreef.rest.annotations.RefreshUserInformation
@@ -35,8 +35,7 @@ import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.util.UUID
 
-
-interface ProjectRequesterService<T : MLProject> {
+interface ProjectRequesterService<T : Project> {
     fun getAllPublicProjects(): List<T>
     fun getAllPublicProjects(pageable: Pageable): Page<T>
     fun getAllProjectsByIds(ids: Iterable<UUID>): List<T>
@@ -50,11 +49,11 @@ interface ProjectRequesterService<T : MLProject> {
     fun getUserProjectsList(userId: UUID? = null): List<ProjectOfUser>
 }
 
-interface ProjectAuthService<T : MLProject> {
+interface ProjectAuthService<T : Project> {
     fun getUserProjectsList(userId: UUID? = null): List<ProjectOfUser>
 }
 
-interface ProjectService<T : MLProject> {
+interface ProjectService<T : Project> {
     fun createProject(userToken: String, ownerId: UUID, projectSlug: String, projectName: String, projectNamespace: String, description: String, visibility: VisibilityScope = VisibilityScope.PUBLIC, initializeWithReadme: Boolean = false): T
     fun updateProject(userToken: String, ownerId: UUID, projectUUID: UUID, projectName: String? = null, description: String? = null, visibility: VisibilityScope? = null): T
     fun deleteProject(userToken: String, ownerId: UUID, projectUUID: UUID)
@@ -84,7 +83,7 @@ interface ProjectService<T : MLProject> {
 }
 
 @Service
-abstract class AbstractGitlabProjectService<T : MLProject>(
+abstract class AbstractGitlabProjectService<T : Project>(
     protected val gitlabRestClient: GitlabRestClient,
     private val accountRepository: AccountRepository
 ) : ProjectService<T>, ProjectRequesterService<T> {

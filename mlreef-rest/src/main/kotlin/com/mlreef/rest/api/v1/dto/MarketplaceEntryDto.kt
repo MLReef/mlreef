@@ -1,43 +1,35 @@
 package com.mlreef.rest.api.v1.dto
 
-import com.mlreef.rest.DataType
-import com.mlreef.rest.VisibilityScope
+import com.mlreef.rest.feature.marketplace.SearchResult
 import com.mlreef.rest.helpers.DataClassWithId
-import com.mlreef.rest.marketplace.MarketplaceEntry
 import com.mlreef.rest.marketplace.SearchableTag
-import com.mlreef.rest.marketplace.SearchableType
+import com.mlreef.rest.marketplace.SearchableTagType
 import java.util.UUID
 
-data class MarketplaceEntryDto(
+data class SearchResultDto(
+    val project: ProjectDto,
+    val probability: Float = 0.0F
+)
+
+
+internal fun SearchResult.toDto(): SearchResultDto =
+    SearchResultDto(
+        project = this.project.toDto(),
+        probability = this.properties?.rank ?: 1.0F
+    )
+
+data class SearchableTagDto(
     override val id: UUID,
-    val globalSlug: String,
-    val visibilityScope: VisibilityScope,
     val name: String,
-    val description: String,
-    val tags: List<SearchableTagDto>,
-    val ownerId: UUID,
-    val ownerName: String,
-    val starsCount: Int,
-    val inputDataTypes: List<DataType>,
-    val outputDataTypes: List<DataType>,
-    val searchableId: UUID?,
-    val searchableType: SearchableType?
+    val public: Boolean,
+    val type: SearchableTagType
 ) : DataClassWithId
 
 
-internal fun MarketplaceEntry.toDto(): MarketplaceEntryDto =
-    MarketplaceEntryDto(
+internal fun SearchableTag.toDto(): SearchableTagDto =
+    SearchableTagDto(
         id = this.id,
-        globalSlug = this.globalSlug,
-        visibilityScope = this.visibilityScope,
         name = this.name,
-        description = this.description,
-        tags = this.tags.map(SearchableTag::toDto),
-        ownerId = this.owner.id,
-        ownerName = this.owner.name,
-        starsCount = this.starsCount,
-        inputDataTypes = this.inputDataTypes.toList(),
-        outputDataTypes = this.outputDataTypes.toList(),
-        searchableId = this.searchableId,
-        searchableType = this.searchableType
+        public = this.public,
+        type = this.type
     )

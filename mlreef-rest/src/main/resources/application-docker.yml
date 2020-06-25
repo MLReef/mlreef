@@ -1,15 +1,10 @@
 logging:
   level:
     root: INFO
-    com.mlreef.rest: INFO
-    org.springframework.security: WARN
-    org.springframework.orm: WARN
-    org.hibernate: WARN
-#    org:
-#      hibernate:
-#        persister:
-#          entity: DEBUG
-
+    com.mlreef.rest: DEBUG
+    org.springframework.security: INFO
+    org.springframework.orm: INFO
+    org.hibernate: INFO
 
 mlreef:
   gitlab:

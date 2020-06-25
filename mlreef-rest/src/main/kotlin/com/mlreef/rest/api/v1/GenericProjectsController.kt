@@ -1,7 +1,7 @@
 package com.mlreef.rest.api.v1
 
 import com.mlreef.rest.Person
-import com.mlreef.rest.api.v1.dto.MLProjectDto
+import com.mlreef.rest.api.v1.dto.ProjectDto
 import com.mlreef.rest.api.v1.dto.toDto
 import com.mlreef.rest.exceptions.ProjectNotFoundException
 import com.mlreef.rest.feature.project.GenericProjectService
@@ -25,40 +25,40 @@ class GenericProjectsController(
     private val log: Logger = Logger.getLogger(GenericProjectsController::class.simpleName)
 
     @GetMapping
-    fun getAllDataProjects(person: Person): List<MLProjectDto> {
+    fun getAllDataProjects(person: Person): List<ProjectDto> {
         return projectService.getAllProjectsForUser(person.id).map { it.toDto() }
     }
 
     // FIXME: Coverage says: missing tests
     @GetMapping("/public")
-    fun getPublicDataProjects(pageable: Pageable): Page<MLProjectDto> {
+    fun getPublicDataProjects(pageable: Pageable): Page<ProjectDto> {
         return projectService.getAllPublicProjects(pageable).map { it.toDto() }
     }
 
     @GetMapping("/{id}")
     @PreAuthorize("userInProject(#id) || projectIsPublic(#id)")
-    fun getDataProjectById(@PathVariable id: UUID): MLProjectDto {
+    fun getDataProjectById(@PathVariable id: UUID): ProjectDto {
         val project = projectService.getProjectById(id) ?: throw ProjectNotFoundException(projectId = id)
         return project.toDto()
     }
 
     @GetMapping("/namespace/{namespace}")
     @PostFilter("userInProject() || projectIsPublic()")
-    fun getCodeProjectsByNamespace(@PathVariable namespace: String): List<MLProjectDto> {
+    fun getCodeProjectsByNamespace(@PathVariable namespace: String): List<ProjectDto> {
         val projects = projectService.getProjectsByNamespace(namespace)
         return projects.map { it.toDto() }
     }
 
     @GetMapping("/slug/{slug}")
     @PostFilter("userInProject() || projectIsPublic()")
-    fun getCodeProjectBySlug(@PathVariable slug: String): List<MLProjectDto> {
+    fun getCodeProjectBySlug(@PathVariable slug: String): List<ProjectDto> {
         val dataProjects = projectService.getProjectsBySlug(slug)
         return dataProjects.map { it.toDto() }
     }
 
     @GetMapping("/{namespace}/{slug}")
     @PostAuthorize("userInProject() || projectIsPublic()")
-    fun getCodeProjectsByNamespaceAndSlugInPath(@PathVariable namespace: String, @PathVariable slug: String): MLProjectDto {
+    fun getCodeProjectsByNamespaceAndSlugInPath(@PathVariable namespace: String, @PathVariable slug: String): ProjectDto {
         val dataProject = projectService.getProjectsByNamespaceAndSlug(namespace, slug)
             ?: throw ProjectNotFoundException(path = "$namespace/$slug")
         return dataProject.toDto()

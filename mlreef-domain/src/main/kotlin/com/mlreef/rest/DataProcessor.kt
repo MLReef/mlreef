@@ -1,5 +1,6 @@
 package com.mlreef.rest
 
+import com.mlreef.rest.marketplace.SearchableType
 import org.hibernate.annotations.Fetch
 import org.hibernate.annotations.FetchMode
 import org.hibernate.annotations.LazyCollection
@@ -26,7 +27,19 @@ import javax.persistence.Table
 enum class DataProcessorType {
     ALGORITHM,
     OPERATION,
-    VISUALISATION
+    VISUALISATION;
+
+    companion object {
+        fun from(type: SearchableType): DataProcessorType? {
+            return when (type) {
+                SearchableType.OPERATION -> DataProcessorType.OPERATION
+                SearchableType.VISUALISATION -> DataProcessorType.VISUALISATION
+                SearchableType.ALGORITHM -> DataProcessorType.ALGORITHM
+                else -> null
+            }
+        }
+    }
+
 }
 
 enum class MetricType {
@@ -72,8 +85,8 @@ enum class DataType {
 @DiscriminatorColumn(name = "PROCESSOR_TYPE")
 abstract class DataProcessor(
     id: UUID,
-    override val slug: String,
-    override val name: String,
+    val slug: String,
+    val name: String,
     val command: String,
     @Enumerated(EnumType.STRING)
     val inputDataType: DataType,
@@ -83,7 +96,7 @@ abstract class DataProcessor(
     @Column(name = "PROCESSOR_TYPE", insertable = false, updatable = false)
     val type: DataProcessorType,
     @Enumerated(EnumType.STRING)
-    override val visibilityScope: VisibilityScope,
+    val visibilityScope: VisibilityScope,
     @Column(length = 1024)
     val description: String,
 
@@ -112,7 +125,7 @@ abstract class DataProcessor(
     version: Long? = null,
     createdAt: ZonedDateTime? = null,
     updatedAt: ZonedDateTime? = null
-) : AuditEntity(id, version, createdAt, updatedAt), EPFAnnotation, Searchable {
+) : AuditEntity(id, version, createdAt, updatedAt), EPFAnnotation {
 
     fun isChainable(): Boolean {
         return type != DataProcessorType.ALGORITHM

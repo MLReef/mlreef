@@ -156,7 +156,7 @@ class DataProjectsIntegrationTest : AbstractIntegrationTest() {
 
         assertThat(result.id).isEqualTo(project2.id)
         assertThat(result.gitlabId).isEqualTo(project2.gitlabId)
-        assertThat(result.gitlabProject).isEqualTo(project2.slug) //FIXME: Why is slug? Is it correct?
+        assertThat(result.gitlabPath).isEqualTo(project2.slug) //FIXME: Why is slug? Is it correct?
     }
 
     @Transactional
@@ -199,9 +199,9 @@ class DataProjectsIntegrationTest : AbstractIntegrationTest() {
 
         assertThat(resultSetOfIds).isEqualTo(initialSetOfIds)
         assertThat(result.get(0).id).isIn(initialSetOfIds)
-        assertThat(result.get(0).gitlabProject).isIn(initialSetOfSlug) //FIXME: Why is slug? Is it correct?
+        assertThat(result.get(0).gitlabPath).isIn(initialSetOfSlug) //FIXME: Why is slug? Is it correct?
         assertThat(result.get(1).id).isIn(initialSetOfIds)
-        assertThat(result.get(1).gitlabProject).isIn(initialSetOfSlug)
+        assertThat(result.get(1).gitlabPath).isIn(initialSetOfSlug)
     }
 
     @Transactional
@@ -246,9 +246,9 @@ class DataProjectsIntegrationTest : AbstractIntegrationTest() {
 
         assertThat(resultSetOfIds).isEqualTo(initialSetOfIds)
         assertThat(result.get(0).id).isIn(initialSetOfIds)
-        assertThat(result.get(0).gitlabProject).isIn(initialSetOfSlug) //FIXME: Why is slug? Is it correct?
+        assertThat(result.get(0).gitlabPath).isIn(initialSetOfSlug) //FIXME: Why is slug? Is it correct?
         assertThat(result.get(1).id).isIn(initialSetOfIds)
-        assertThat(result.get(1).gitlabProject).isIn(initialSetOfSlug)
+        assertThat(result.get(1).gitlabPath).isIn(initialSetOfSlug)
     }
 
     @Transactional
@@ -263,10 +263,10 @@ class DataProjectsIntegrationTest : AbstractIntegrationTest() {
 
         testsHelper.addRealUserToProject(project1.gitlabId, account2.person.gitlabId!!)
 
-        val (project21, _) = testsHelper.createRealDataProject(account2, namespace = project1.gitlabGroup)
+        val (project21, _) = testsHelper.createRealDataProject(account2, namespace = project1.gitlabNamespace)
         val (project22, _) = testsHelper.createRealDataProject(account2)
 
-        val url = "$rootUrl/namespace/${project1.gitlabGroup}"
+        val url = "$rootUrl/namespace/${project1.gitlabNamespace}"
 
         val result = this.performGet(url, account2)
             .expectOk()
@@ -292,7 +292,7 @@ class DataProjectsIntegrationTest : AbstractIntegrationTest() {
 
         assertThat(resultSetOfIds).isEqualTo(initialSetOfIds)
         assertThat(result.get(0).id).isIn(initialSetOfIds)
-        assertThat(result.get(0).gitlabProject).isIn(initialSetOfSlug) //FIXME: Why is slug? Is it correct?
+        assertThat(result.get(0).gitlabPath).isIn(initialSetOfSlug) //FIXME: Why is slug? Is it correct?
     }
 
     @Transactional
@@ -307,10 +307,10 @@ class DataProjectsIntegrationTest : AbstractIntegrationTest() {
         val (project4, _) = testsHelper.createRealDataProject(account1, public = true)
         val (project5, _) = testsHelper.createRealDataProject(account1, public = false)
 
-        val (project21, _) = testsHelper.createRealDataProject(account2, namespace = project1.gitlabGroup)
+        val (project21, _) = testsHelper.createRealDataProject(account2, namespace = project1.gitlabNamespace)
         val (project22, _) = testsHelper.createRealDataProject(account2)
 
-        val url = "$rootUrl/namespace/${project1.gitlabGroup}"
+        val url = "$rootUrl/namespace/${project1.gitlabNamespace}"
 
         val result = this.performGet(url, account2)
             .expectOk()
@@ -342,11 +342,11 @@ class DataProjectsIntegrationTest : AbstractIntegrationTest() {
 
         assertThat(resultSetOfIds).isEqualTo(initialSetOfIds)
         assertThat(result.get(0).id).isIn(initialSetOfIds)
-        assertThat(result.get(0).gitlabProject).isIn(initialSetOfSlug) //FIXME: Why is slug? Is it correct?
+        assertThat(result.get(0).gitlabPath).isIn(initialSetOfSlug) //FIXME: Why is slug? Is it correct?
         assertThat(result.get(1).id).isIn(initialSetOfIds)
-        assertThat(result.get(1).gitlabProject).isIn(initialSetOfSlug)
+        assertThat(result.get(1).gitlabPath).isIn(initialSetOfSlug)
         assertThat(result.get(2).id).isIn(initialSetOfIds)
-        assertThat(result.get(2).gitlabProject).isIn(initialSetOfSlug)
+        assertThat(result.get(2).gitlabPath).isIn(initialSetOfSlug)
     }
 
     @Transactional
@@ -361,17 +361,17 @@ class DataProjectsIntegrationTest : AbstractIntegrationTest() {
 
         testsHelper.addRealUserToProject(project1.gitlabId, account2.person.gitlabId!!)
 
-        val (_, _) = testsHelper.createRealDataProject(account2, slug = "slug-1", namespace = project1.gitlabGroup)
+        val (_, _) = testsHelper.createRealDataProject(account2, slug = "slug-1", namespace = project1.gitlabNamespace)
         val (_, _) = testsHelper.createRealDataProject(account2)
 
-        val url = "$rootUrl/${project1.gitlabGroup}/${project1.slug}"
+        val url = "$rootUrl/${project1.gitlabNamespace}/${project1.slug}"
 
         val result = this.performGet(url, account2)
             .expectOk()
             .returns(DataProjectDto::class.java)
 
         assertThat(result.id).isEqualTo(project1.id)
-        assertThat(result.gitlabProject).isEqualTo(project1.slug) //FIXME: Why is slug? Is it correct?
+        assertThat(result.gitlabPath).isEqualTo(project1.slug) //FIXME: Why is slug? Is it correct?
         assertThat(isUserInProject(project1, account2)).isTrue()
     }
 
@@ -385,17 +385,17 @@ class DataProjectsIntegrationTest : AbstractIntegrationTest() {
         val (_, _) = testsHelper.createRealDataProject(account1, public = true)
         val (_, _) = testsHelper.createRealDataProject(account1, public = true)
 
-        val (_, _) = testsHelper.createRealDataProject(account2, slug = "slug-1", namespace = project1.gitlabGroup)
+        val (_, _) = testsHelper.createRealDataProject(account2, slug = "slug-1", namespace = project1.gitlabNamespace)
         val (_, _) = testsHelper.createRealDataProject(account2)
 
-        val url = "$rootUrl/${project1.gitlabGroup}/${project1.slug}"
+        val url = "$rootUrl/${project1.gitlabNamespace}/${project1.slug}"
 
         val result = this.performGet(url, account2)
             .expectOk()
             .returns(DataProjectDto::class.java)
 
         assertThat(result.id).isEqualTo(project1.id)
-        assertThat(result.gitlabProject).isEqualTo(project1.slug) //FIXME: Why is slug? Is it correct?
+        assertThat(result.gitlabPath).isEqualTo(project1.slug) //FIXME: Why is slug? Is it correct?
         assertThat(isUserInProject(project1, account2)).isFalse()
     }
 
@@ -438,7 +438,7 @@ class DataProjectsIntegrationTest : AbstractIntegrationTest() {
         val newProjectName = "New Test project"
         val newDescription = "new description"
 
-        assertThat(newProjectName).isNotEqualTo(project1.gitlabProject)
+        assertThat(newProjectName).isNotEqualTo(project1.gitlabPath)
 
         assertThat(isUserInProject(project1, account1, AccessLevel.OWNER)).isTrue()
 

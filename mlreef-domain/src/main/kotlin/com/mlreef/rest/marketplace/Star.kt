@@ -16,7 +16,7 @@ import javax.persistence.Table
 data class Star(
 
     @Id
-    val entryId: UUID ,
+    val projectId: UUID,
 
     @Id
     val subjectId: UUID
@@ -24,17 +24,16 @@ data class Star(
 ) {
     @Embeddable
     data class StarId(
-
         @Column(name = "subject_id", updatable = false)
         val subjectId: UUID,
 
-        @Column(name = "entry_id", updatable = false)
-        val entryId: UUID
+        @Column(name = "project_id", updatable = false)
+        val projectId: UUID
     ) : Serializable
 
     override fun equals(other: Any?): Boolean {
         return if (other is Star) {
-            other.entryId == this.entryId && other.subjectId == subjectId
+            other.projectId == this.projectId && other.subjectId == subjectId
         } else {
             false
         }

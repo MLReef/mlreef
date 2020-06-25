@@ -17,7 +17,11 @@ object ApplicationProfiles {
     const val PROD = "prod"
 }
 
-@SpringBootApplication(scanBasePackages = ["com.mlreef", "com.mlreef.rest"])
+@SpringBootApplication(scanBasePackages = [
+    "com.mlreef",
+    "com.mlreef.rest",
+    "com.mlreef.rest.marketplace"
+])
 class RestApplication
 
 fun main(args: Array<String>) {

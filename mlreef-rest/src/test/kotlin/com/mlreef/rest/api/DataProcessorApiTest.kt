@@ -63,12 +63,12 @@ class DataProcessorApiTest : AbstractRestApiTest() {
         dataOp3 = pipelineTestPreparationTrait.dataOp3
 
         codeProject = codeProjectRepository.save(CodeProject(
-            randomUUID(), "slug1", "url", "Test DataProject",
-            ownerId = account.person.id, gitlabGroup = "", gitlabId = 0, gitlabProject = ""))
+            randomUUID(), "slug1", "url", "Test DataProject", "",
+            ownerId = account.person.id, gitlabNamespace = "", gitlabId = 0, gitlabPath = ""))
 
         codeProject2 = codeProjectRepository.save(CodeProject(
-            randomUUID(), "slug2", "url", "Test DataProject",
-            ownerId = account.person.id, gitlabGroup = "", gitlabId = 0, gitlabProject = ""))
+            randomUUID(), "slug2", "url", "Test DataProject", "",
+            ownerId = account.person.id, gitlabNamespace = "", gitlabId = 0, gitlabPath = ""))
 
         this.mockGetUserProjectsList(listOf(codeProject.id), account, AccessLevel.OWNER)
     }

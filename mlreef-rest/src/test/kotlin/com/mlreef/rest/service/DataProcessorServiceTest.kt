@@ -53,15 +53,15 @@ class DataProcessorServiceTest : AbstractServiceTest() {
         val subject = subjectRepository.save(Person(ownerId, "new-person", "person's name", 1L))
 
         codeProject = CodeProject(
-            id = randomUUID(), slug = "slug", url = "orf.at", name = "name",
+            id = randomUUID(), slug = "slug", url = "orf.at", name = "name", description = "",
             gitlabPathWithNamespace = "mlreef/slug", dataProcessor = null,
-            gitlabId = 3, ownerId = subject.id, gitlabProject = "slug",
-            gitlabGroup = "mlreef")
+            gitlabId = 3, ownerId = subject.id, gitlabPath = "slug",
+            gitlabNamespace = "mlreef")
         codeProject2 = CodeProject(
-            id = randomUUID(), slug = "slug2", url = "orf.at", name = "name",
+            id = randomUUID(), slug = "slug2", url = "orf.at", name = "name", description = "",
             gitlabPathWithNamespace = "mlreef/slug", dataProcessor = null,
-            gitlabId = 3, ownerId = subject.id, gitlabProject = "slug2",
-            gitlabGroup = "mlreef")
+            gitlabId = 3, ownerId = subject.id, gitlabPath = "slug2",
+            gitlabNamespace = "mlreef")
 
         codeProjectRepository.save(codeProject)
         codeProjectRepository.save(codeProject2)
