@@ -27,9 +27,15 @@ fi
 # 1117031 is the id of the "gateway's" sub-repository id
 DOCKER_BRANCH_IMAGE_URL=https://gitlab.com/api/v4/projects/$CI_PROJECT_ID/registry/repositories/1117031/tags/$TAG/
 echo "DOCKER_BRANCH_IMAGE_URL  is $DOCKER_BRANCH_IMAGE_URL"
-CURL_RESPONSE=$(curl --silent --header --output /dev/null -w ''%{http_code}'' $DOCKER_BRANCH_IMAGE_URL)
+CURL_RESPONSE=$(curl --silent --header "Authorization:Bearer $GITLAB_COM_API_TOKEN" --output /dev/null -w ''%{http_code}'' $DOCKER_BRANCH_IMAGE_URL)
 echo $CURL_RESPONSE
-if [ "$CURL_RESPONSE" = "200" ]; then sed -i "s/gateway:latest/gateway:$TAG/" docker-compose.yml; fi
+if [ "$CURL_RESPONSE" = "200" ]; then
+  echo "Found branch specific docker image"
+  sed -i "s/gateway:latest/gateway:$TAG/" docker-compose.yml;
+  exit 42
+else
+  echo "Could not find specific docker image for $TAG in docker registry"
+fi
 
 # rewrite docker compose file:
 # Activate (uncomment) specific lines in the docker-compose file
