@@ -39,10 +39,10 @@ class ProjectSet extends Component {
       <div id="cards-section">
         {finalProjectsArray.length > 0 ? finalProjectsArray.map((proj) => (
           <MProjectCard
-            key={`proj-${screen}-key-${proj.gitlabProject}`}
+            key={`proj-${screen}-key-${proj.gitlabPath}`}
             push={push}
             owner={proj.id}
-            title={proj.gitlabProject}
+            title={proj.gitlabPath}
             projectId={proj.gitlabId}
             branch="master" // TODO: refactor this, spreading master is an exception expecting to be thrown
             description={proj.description}
