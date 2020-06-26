@@ -1,0 +1,67 @@
+#!/bin/sh
+# shellcheck disable=SC2039
+
+set -x    # output all commands
+set -e    # exit on immediately on every error
+set -u    # error on usage of undefined variables
+
+# change directory to the script folder
+cd "$(dirname "$0")"/..
+. bin/includes/detect-os
+. bin/includes/ci-environment
+########################################
+
+
+export   EC2_MACHINE_SIZE="t3a.xlarge"                       # https://aws.amazon.com/ec2/instance-types/
+echo "   EC2_MACHINE_SIZE= $EC2_MACHINE_SIZE"
+export EC2_MACHINE_SIZE_DEV="t3.2xlarge"
+echo " EC2_MACHINE_SIZE_DEV= $EC2_MACHINE_SIZE_DEV"
+export      EC2_IMAGE_AMI="ami-061aaaac62de85935"            # Deep Learning AMI (Ubuntu 18.04) Version 28.1
+echo "      EC2_IMAGE_AMI= $EC2_IMAGE_AMI"
+export   EC2_SECURITY_GRP="application-servers"
+echo "   EC2_SECURITY_GRP= $EC2_SECURITY_GRP"
+export    DEVICE_MAPPINGS="src/main/resources/feature-branch-block-device-mappings.json"
+echo "    DEVICE_MAPPINGS= $DEVICE_MAPPINGS"
+export     STARTUP_SCRIPT="src/main/bin/startup.sh"          # used in .gitlab-ci-deploy.yml and docker-compose.yml
+echo "     STARTUP_SCRIPT= $STARTUP_SCRIPT"
+
+if [ "$CI_COMMIT_REF_SLUG" == "develop" ]; then
+  EC2_MACHINE_SIZE=$EC2_MACHINE_SIZE_DEV;
+fi
+echo "$EC2_INSTANCE_NAME"
+echo "$EC2_MACHINE_SIZE"
+
+aws ec2 describe-instances --filters "Name=tag:Name,Values=$EC2_INSTANCE_NAME"        \
+  | jq -r ".Reservations[].Instances[].NetworkInterfaces[].Association.PublicDnsName" \
+  | sed "/null/d"                                                                     \
+  | tr -d '\r' > tmp
+cat tmp                                              # Debug output
+head -n 1 tmp > $INSTANCE_INFO                       # Take only the first URL (which should be the newest one)
+cat $INSTANCE_INFO                                   # Debug output
+if [ "$(cat $INSTANCE_INFO)" != "" ]; then
+  echo "Found an existing environment which will be recycled";
+  cat $INSTANCE_INFO;
+  exit 0;
+fi
+
+echo "Could not find an existing environment, provisioning a new one";
+sed -i "s~AWS_ACCESS_KEY_ID=XXXXX~AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID~"                 $STARTUP_SCRIPT
+sed -i "s~AWS_SECRET_ACCESS_KEY=XXXXX~AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY~"     $STARTUP_SCRIPT
+# aws ec2 run instances documentation
+# https://docs.aws.amazon.com/cli/latest/reference/ec2/run-instances.html
+#   --credit-specification CpuCredits=standard
+aws ec2 run-instances --count 1                   \
+  --region ${AWS_DEFAULT_REGION}                  \
+  --image-id ${EC2_IMAGE_AMI}                     \
+  --instance-type ${EC2_MACHINE_SIZE}             \
+  --security-groups ${EC2_SECURITY_GRP}           \
+  --key-name development                          \
+  --user-data file://"${STARTUP_SCRIPT}"          \
+  --block-device-mappings file://$DEVICE_MAPPINGS \
+  --tag-specifications "ResourceType=instance,Tags=[{Key=Name,Value=$EC2_INSTANCE_NAME}]" \
+  | jq -r ".Instances[].InstanceId"                                                       \
+  | xargs --no-run-if-empty -I {} aws ec2 describe-instances --filters "Name=instance-id,Values={}"\
+  | jq -r ".Reservations[].Instances[].NetworkInterfaces[].Association.PublicDnsName"     \
+  | tr -d '\r' > $INSTANCE_INFO                   # pass instance url to deploy stage
+
+cat $INSTANCE_INFO                                # debug output

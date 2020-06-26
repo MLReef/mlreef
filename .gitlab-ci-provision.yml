@@ -1,7 +1,7 @@
 variables:
   EC2_INSTANCE_NAME:    "mlreef-$CI_COMMIT_REF_SLUG"       # environment name and url are set separately
 
-# The provision job boots up the new ec2 instance for deploying MLReef
+# provision boots up the new ec2 instance for deploying MLReef
 provision:
   extends: [".except-docu-branches"]
   stage: provision
@@ -9,58 +9,10 @@ provision:
     refs:
       - master
   image: registry.gitlab.com/systemkern/s5:latest-aws
-  variables:
-    # For changing the machine size please see the README.md
-    EC2_MACHINE_SIZE:     "t3a.xlarge"                       # https://aws.amazon.com/ec2/instance-types/
-    EC2_MACHINE_SIZE_DEV: "t3.2xlarge"
-    EC2_IMAGE_AMI:        "ami-061aaaac62de85935"            # Deep Learning AMI (Ubuntu 18.04) Version 28.1
-    EC2_SECURITY_GRP:     "application-servers"
-    DEVICE_MAPPINGS:      "src/main/resources/feature-branch-block-device-mappings.json"
-    STARTUP_SCRIPT:       "src/main/bin/startup.sh"          # used in .gitlab-ci-deploy.yml and docker-compose.yml
-  before_script:
-    - if [ "$CI_COMMIT_REF_SLUG" == "develop" ]; then EC2_MACHINE_SIZE=$EC2_MACHINE_SIZE_DEV; fi
-    - echo "$EC2_INSTANCE_NAME"
-    - echo "$EC2_MACHINE_SIZE"
-    - echo "$CI_ENVIRONMENT_URL"
-    - echo "$DYNAMIC_ENVIRONMENT_URL"
-  script:
-    - aws ec2 describe-instances --filters "Name=tag:Name,Values=$EC2_INSTANCE_NAME"
-      | jq -r ".Reservations[].Instances[].NetworkInterfaces[].Association.PublicDnsName"
-      | sed "/null/d"
-      | tr -d '\r' > tmp
-    - cat tmp                                              # Debug output
-    - head -n 1 tmp > $INSTANCE_INFO                       # Take only the first URL (which should be the newest one)
-    - cat $INSTANCE_INFO                                   # Debug output
-    - if [ "$(cat $INSTANCE_INFO)" != "" ]; then
-        echo "Found an existing environment which will be recycled";
-        cat $INSTANCE_INFO;
-        exit 0;
-        fi
-
-    - echo "Could not find an existing environment, provisioning a new one";
-    - sed -i "s~AWS_ACCESS_KEY_ID=XXXXX~AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID~"                 $STARTUP_SCRIPT
-    - sed -i "s~AWS_SECRET_ACCESS_KEY=XXXXX~AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY~"     $STARTUP_SCRIPT
-    # aws ec2 run instances documentation
-    # https://docs.aws.amazon.com/cli/latest/reference/ec2/run-instances.html
-    #   --credit-specification CpuCredits=standard
-    - aws ec2 run-instances --count 1
-      --region ${AWS_DEFAULT_REGION}
-      --image-id ${EC2_IMAGE_AMI}
-      --instance-type ${EC2_MACHINE_SIZE}
-      --security-groups ${EC2_SECURITY_GRP}
-      --key-name development
-      --user-data file://"${STARTUP_SCRIPT}"
-      --block-device-mappings file://$DEVICE_MAPPINGS
-      --tag-specifications "ResourceType=instance,Tags=[{Key=Name,Value=$EC2_INSTANCE_NAME}]"
-      | jq -r ".Instances[].InstanceId"
-      | xargs --no-run-if-empty -I {} aws ec2 describe-instances --filters "Name=instance-id,Values={}"
-      | jq -r ".Reservations[].Instances[].NetworkInterfaces[].Association.PublicDnsName"
-      | tr -d '\r' > $INSTANCE_INFO                        # pass instance url to deploy stage
-  after_script:
-    - cat $INSTANCE_INFO                                   # debug output
+  script: bin/ci-provision
   artifacts:
     paths:
-      - $INSTANCE_INFO                                     # Pass the dotenv file to later stages
+      - $INSTANCE_INFO                                     # pass instance url to later stages
   environment:
     name: $CI_COMMIT_REF_SLUG
     url: $CI_PIPELINE_URL

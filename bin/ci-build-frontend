@@ -5,9 +5,12 @@ set -x    # output all commands
 set -e    # exit on immediately on every error
 set -u    # error on usage of undefined variables
 
-# change directory to the script folder
-cd "$(dirname "$0")"/..
+# change to the repository root folder via the scripts location
+ cd "$(dirname "$0")"/..
+. bin/includes/detect-os
 . bin/includes/ci-environment
+########################################
+
 
 # change directory to the frontend folder
 cd web

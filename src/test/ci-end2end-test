@@ -1,0 +1,57 @@
+#!/bin/sh
+# Welcome to the End2End Integration Test of the Continuous Integration Pipeline
+#
+# This test employs - as far as possible - the same technologies and docker images
+# as does the real CI pipeline running on Gitlab.
+#
+# The test depends on some secrets set as environemnt variables, due to the fact
+# that docker images are uploaded to the registry and ec2 machines are created.
+#
+
+set -x    # output all commands
+set -e    # exit on immediately on every error
+set -u    # error on usage of undefined variables
+
+# change to the repository root folder via the scripts location
+cd "$(dirname "$0")"/../..
+########################################
+
+
+if [ -z ${AWS_DEFAULT_REGION+x} ]; then
+  echo "Missing environment variable AWS_DEFAULT_REGION"
+  exit 1
+fi
+if [ -z ${AWS_ACCESS_KEY_ID+x} ]; then
+  echo "Missing environment variable AWS_ACCESS_KEY_ID"
+  exit 2
+fi
+if [ -z ${AWS_SECRET_ACCESS_KEY+x} ]; then
+  echo "Missing environment variable AWS_SECRET_ACCESS_KEY"
+  exit 3
+fi
+if [ -z ${CI_REGISTRY_USER+x} ]; then
+  echo "Missing environment variable CI_REGISTRY_USER"
+  exit 4
+fi
+if [ -z ${CI_REGISTRY_PASSWORD+x} ]; then
+  echo "Missing environment variable CI_REGISTRY_PASSWORD"
+  exit 5
+fi
+
+alias ci-exec="docker run --name=ci-test --rm --tty   \
+  --env AWS_DEFAULT_REGION=\$AWS_DEFAULT_REGION       \
+  --env AWS_ACCESS_KEY_ID=\$AWS_ACCESS_KEY_ID         \
+  --env AWS_SECRET_ACCESS_KEY=\$AWS_SECRET_ACCESS_KEY \
+  --env CI_REGISTRY_USER=\$CI_REGISTRY_USER           \
+  --env CI_REGISTRY_PASSWORD=\$CI_REGISTRY_PASSWORD   \
+  --volume \$HOME:/root                               \
+  --volume \$PWD:/workdir                             \
+  --workdir /workdir                                  \
+  registry.gitlab.com/systemkern/s5:latest-aws        \
+"
+
+export CI_COMMIT_REF_SLUG="local-ci-end2end-test"
+
+ci-exec bin/ci-provision
+
+ci-exec bin/ci-deploy

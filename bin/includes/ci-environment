@@ -1,10 +1,12 @@
 #!/bin/sh
 # shellcheck disable=SC2039  # [[]] is undefined in POSIX
-# shellcheck disable=SC2155  # declare and assign varibales in one command might hide return values
+# shellcheck disable=SC2155  # declare and assign variables in one command might hide return values
 
 #
 # https://www.gnu.org/software/bash/manual/html_node/Shell-Parameter-Expansion.html}
 # https://stackoverflow.com/a/13864829/638225
+
+
 
 # "${VAR:-default}" evaluates to either $VAR or the default value "default"
 export      CI_PROJECT_ID="${CI_PROJECT_ID:-12894267}" #gitlab.com/mlreef/mlreef
@@ -22,6 +24,9 @@ echo "  CI_REGISTRY_IMAGE= $CI_REGISTRY_IMAGE"
 
 export GITLAB_ADMIN_TOKEN=${GITLAB_ADMIN_TOKEN:-$(randomString 30)}
 echo  "GITLAB_ADMIN_TOKEN= $GITLAB_ADMIN_TOKEN"
+
+export  EC2_INSTANCE_NAME="mlreef-$CI_COMMIT_REF_SLUG"       # environment name and url are set separately
+echo  " EC2_INSTANCE_NAME= $EC2_INSTANCE_NAME"
 
 export        SSH_KEYFILE="${SSH_KEYFILE:-bin/resources/development.pem}"
 echo  "       SSH_KEYFILE= $SSH_KEYFILE"

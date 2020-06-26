@@ -27,7 +27,7 @@ elif [ "$(uname)" = "CYGWIN_NT-10.0" ]; then
   set +e   # This was added after testing on Saathvik's machine
 else
   echo "WARNING: Cannot identify operating system. This might be okay"
-  echo "You probably have to add you OS: '$(uname)' to this script"
+  echo "You probably have to add you OS: '$(uname)' to this script (./bin/includes/detect-os)"
   sleep 10
 fi
 
