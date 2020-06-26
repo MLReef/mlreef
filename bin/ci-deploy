@@ -42,7 +42,7 @@ cat docker-compose.yml
 ### Prepare ssh connection
 while ! ssh-keyscan -H "$URL" >>~/.ssh/known_hosts; do echo "Trying again..."; sleep 5; done
 
-ssh -i $SSH_KEYFILE -o 'AddKeysToAgent yes' ubuntu@"${URL}" "sudo rm $SSH_KEYFILE"
+ssh -i $SSH_KEYFILE -o 'AddKeysToAgent yes' ubuntu@"${URL}" "if [ -e ${SSH_KEYFILE} ]; then sudo rm $SSH_KEYFILE; fi"
 scp -rpi $SSH_KEYFILE -o 'AddKeysToAgent yes' bin                 ubuntu@${URL}:/home/ubuntu/
 scp -rpi $SSH_KEYFILE -o 'AddKeysToAgent yes' docker-compose.yml  ubuntu@${URL}:/home/ubuntu/
 
