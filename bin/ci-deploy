@@ -32,7 +32,6 @@ echo $CURL_RESPONSE
 if [ "$CURL_RESPONSE" = "200" ]; then
   echo "Found branch specific docker image"
   sed -i "s/gateway:latest/gateway:$TAG/" docker-compose.yml;
-  exit 42
 else
   echo "Could not find specific docker image for $TAG in docker registry"
 fi
