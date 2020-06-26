@@ -136,12 +136,12 @@ internal class DataPopulator(
     @Transactional
     fun createExperiment(dataOp1: DataOperation, dataOp1processorParameter1: ProcessorParameter, dataOp1processorParameter2: ProcessorParameter, dataOp2: DataOperation, dataOp2processorParameter1: ProcessorParameter, dataOp2processorParameter2: ProcessorParameter): Experiment {
         val processorInstance = DataProcessorInstance(id = UUID.fromString("5d005488-afb6-4a0c-0031-f471153a04b5"), dataProcessor = dataOp1)
-        processorInstance.addParameterInstances(dataOp1processorParameter1, "value")
-        processorInstance.addParameterInstances(dataOp1processorParameter2, "0.2")
+        processorInstance.addParameterInstances(dataOp1processorParameter1, ".")
+        processorInstance.addParameterInstances(dataOp1processorParameter2, ".")
 
         val processorInstance2 = DataProcessorInstance(id = UUID.fromString("5d005488-afb6-4a0c-0032-f471153a04b5"), dataProcessor = dataOp2)
-        processorInstance2.addParameterInstances(dataOp2processorParameter1, "value")
-        processorInstance2.addParameterInstances(dataOp2processorParameter2, "0.2")
+        processorInstance2.addParameterInstances(dataOp2processorParameter1, ".")
+        processorInstance2.addParameterInstances(dataOp2processorParameter2, ".")
 
         val experiment = Experiment(
             id = experimentId,
@@ -254,6 +254,14 @@ internal class DataPopulator(
         val dataOperationId = UUID.fromString("1000000-0000-0001-0002-000000000000")
         val processorParameter1Id = UUID.fromString("1000000-0000-0001-0011-000000000000")
         val processorParameter2Id = UUID.fromString("1000000-0000-0001-0012-000000000000")
+        val processorParameter3Id = UUID.fromString("1000000-0000-0001-0013-000000000000")
+        val processorParameter4Id = UUID.fromString("1000000-0000-0001-0014-000000000000")
+        val processorParameter5Id = UUID.fromString("1000000-0000-0001-0015-000000000000")
+        val processorParameter6Id = UUID.fromString("1000000-0000-0001-0016-000000000000")
+        val processorParameter7Id = UUID.fromString("1000000-0000-0001-0017-000000000000")
+        val processorParameter8Id = UUID.fromString("1000000-0000-0001-0018-000000000000")
+        val processorParameter9Id = UUID.fromString("1000000-0000-0001-0019-000000000000")
+        val processorParameter10Id = UUID.fromString("1000000-0000-0001-0020-000000000000")
 
         val createCodeProject = createCodeProject(userToken, codeProjectId, "code-project-augment", "Test DataProject 2", 0)
 
@@ -264,9 +272,66 @@ internal class DataPopulator(
                 visibilityScope = VisibilityScope.PUBLIC, author = author,
                 description = "Data augmentation multiplies and tweakes the data by changing angle of rotation, flipping the images, zooming in, etc.",
                 codeProjectId = codeProjectId))
-
-        val parameter1 = addParam(processorParameter1Id, ProcessorParameter(processorParameter1Id, dataOp1.id, "stringParam", ParameterType.STRING, 0, ""))
-        val parameter2 = addParam(processorParameter2Id, ProcessorParameter(processorParameter2Id, dataOp1.id, "floatParam", ParameterType.FLOAT, 1, "0.1"))
+        val parameter1 = addParam(
+            processorParameter1Id,
+            ProcessorParameter(
+                processorParameter1Id, dataOp1.id, "input-path", ParameterType.STRING, 0, ".", true
+            )
+        )
+        val parameter2 = addParam(
+            processorParameter2Id,
+            ProcessorParameter(
+                processorParameter2Id, dataOp1.id, "output-path", ParameterType.STRING, 1, "./output", true
+            )
+        )
+        addParam(
+            processorParameter1Id,
+            ProcessorParameter(
+                processorParameter3Id, dataOp1.id, "iterations", ParameterType.INTEGER, 2, "5", true
+            )
+        )
+        addParam(
+            processorParameter1Id,
+            ProcessorParameter(
+                processorParameter4Id, dataOp1.id, "rotation-range", ParameterType.INTEGER, 3, "15", true
+            )
+        )
+        addParam(
+            processorParameter1Id,
+            ProcessorParameter(
+                processorParameter5Id, dataOp1.id, "width-shift-range", ParameterType.INTEGER, 4, "0", true
+            )
+        )
+        addParam(
+            processorParameter1Id,
+            ProcessorParameter(
+                processorParameter6Id, dataOp1.id, "height-shift-range", ParameterType.INTEGER, 5, "0", true
+            )
+        )
+        addParam(
+            processorParameter1Id,
+            ProcessorParameter(
+                processorParameter7Id, dataOp1.id, "shear-range", ParameterType.FLOAT, 6, "0", true
+            )
+        )
+        addParam(
+            processorParameter1Id,
+            ProcessorParameter(
+                processorParameter8Id, dataOp1.id, "zoom-range", ParameterType.FLOAT, 7, "0", true
+            )
+        )
+        addParam(
+            processorParameter1Id,
+            ProcessorParameter(
+                processorParameter9Id, dataOp1.id, "horizontal-flip", ParameterType.BOOLEAN, 8, "TRUE", true
+            )
+        )
+        addParam(
+            processorParameter1Id,
+            ProcessorParameter(
+                processorParameter10Id, dataOp1.id, "vertical-flip", ParameterType.BOOLEAN, 9, "TRUE", true
+            )
+        )
         createMarketplaceEntry(createCodeProject, dataOp1, listOf(tag1, tag2))
 
         return Triple(dataOp1 as DataOperation, parameter1, parameter2)
