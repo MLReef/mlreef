@@ -5,6 +5,7 @@ import java.util.UUID
 
 data class GroupOfUser(
     override val id: UUID,
+    val gitlabId: Long?,
     val name: String,
     val accessLevel: AccessLevel?
 ) : DataClassWithId

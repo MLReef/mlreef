@@ -67,8 +67,8 @@ class GroupsApiTest : AbstractRestApiTest() {
         groupsRepository.save(group3)
 
         val gitlabGroup1 = GitlabGroup(101L,"url","group-name-1","path-1")
-        val gitlabGroup2 = GitlabGroup(101L,"url","group-name-1","path-1")
-        val gitlabGroup3 = GitlabGroup(101L,"url","group-name-1","path-1")
+        val gitlabGroup2 = GitlabGroup(102L,"url","group-name-1","path-1")
+        val gitlabGroup3 = GitlabGroup(103L,"url","group-name-1","path-1")
 
         val gitlabUserInGroup = GitlabUserInGroup(1L, "url", "test-user", "username")
 
@@ -86,7 +86,9 @@ class GroupsApiTest : AbstractRestApiTest() {
             group3.id to AccessLevel.OWNER)
         )
 
-        val result = this.performGet(rootUrl, account)
+        val url = "$rootUrl/my"
+
+        val result = this.performGet(url, account)
             .expectOk()
             .document("user-groups-list",
                 responseFields(groupsOfUserResponseFields("[].")))
@@ -291,6 +293,7 @@ class GroupsApiTest : AbstractRestApiTest() {
     fun groupResponseFields(prefix: String = ""): List<FieldDescriptor> {
         return listOf(
             PayloadDocumentation.fieldWithPath(prefix + "id").type(JsonFieldType.STRING).description("Group id"),
+            PayloadDocumentation.fieldWithPath(prefix + "gitlab_id").type(JsonFieldType.NUMBER).description("Gitlab group id"),
             PayloadDocumentation.fieldWithPath(prefix + "name").type(JsonFieldType.STRING).description("Group name")
         )
     }
@@ -298,6 +301,7 @@ class GroupsApiTest : AbstractRestApiTest() {
     private fun groupsOfUserResponseFields(prefix: String = ""): List<FieldDescriptor> {
         return listOf(
             PayloadDocumentation.fieldWithPath(prefix + "id").type(JsonFieldType.STRING).description("Group id"),
+            PayloadDocumentation.fieldWithPath(prefix + "gitlab_id").type(JsonFieldType.NUMBER).description("Gitlab group id"),
             PayloadDocumentation.fieldWithPath(prefix + "name").type(JsonFieldType.STRING).description("Group name"),
             PayloadDocumentation.fieldWithPath(prefix + "access_level").type(JsonFieldType.STRING).description("Access level")
         )

@@ -6,5 +6,6 @@ class SharedGroup(
     val groupId: Long,
     val groupName: String,
     val groupFullPath: String? = null,
-    val groupAccessLevel: GroupAccessLevel = GroupAccessLevel.DEVELOPER
+    val groupAccessLevel: GroupAccessLevel = GroupAccessLevel.DEVELOPER,
+    val expiresAt: String? = null
 )
