@@ -3,7 +3,7 @@ export default interface MLProject {
   slug: string;
   url: string;
   ownerId: string;
-  gitlabGroup?: string;
-  gitlabProject?: String,
+  gitlabNamespace?: string;
+  gitlabPath?: string,
   gitlabId?: number;
 }
