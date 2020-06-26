@@ -1,6 +1,9 @@
 #!/bin/bash
 # shellcheck disable=SC2162 #read without '-r' will mangle backslashes
 
+# change to the repository root folder via the scripts known location
+cd "$(dirname "$0")"/..
+
 while [ -n "$1" ]; do
   case "$1" in -f | --force)
     echo "Cleaning local docker context"
@@ -40,6 +43,4 @@ if [ "$GITLAB_ADMIN_TOKEN" = "" ]; then
   export GITLAB_ADMIN_TOKEN=local-api-token
 fi
 
-cd "$(dirname "$0")" || exit 1
-
-exec install --gitlab-admin-token $GITLAB_ADMIN_TOKEN
+exec ./bin/install --gitlab-admin-token $GITLAB_ADMIN_TOKEN --instance localhost

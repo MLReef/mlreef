@@ -7,10 +7,9 @@ set -u    # error on usage of undefined variables
 
 # change to the repository root folder via the scripts location
 cd "$(dirname "$0")"/..
-source bin/includes/detect-os
-source bin/includes/ci-environment
-
-
+. bin/includes/detect-os
+. bin/includes/ci-environment
+########################################
 
 
 echo "GITLAB_ADMIN_TOKEN       is $GITLAB_ADMIN_TOKEN"
