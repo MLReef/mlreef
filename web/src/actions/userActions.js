@@ -3,6 +3,7 @@ import MLAuthApi from 'apis/MLAuthApi';
 import * as types from './actionTypes';
 
 const userApi = new UserApi();
+const authApi = new MLAuthApi();
 
 export function setLoginInfo(user) {
   return { type: types.LOGIN, user };
@@ -10,9 +11,9 @@ export function setLoginInfo(user) {
 
 export function login(formData) {
   const { username, email, password } = formData;
-  const authApi = new MLAuthApi();
-  return (dispatch) => 
-    authApi.login(username, email, password)
+
+  return (dispatch) => authApi
+    .login(username, email, password)
     .then((user) => {
       dispatch(setLoginInfo(user));
       return Promise.resolve(user);
@@ -39,8 +40,8 @@ export function updateUserClosedInstructions(closedInstructions) {
   return (dispatch) => userApi
     .updateMeta({ closedInstructions })
     .then((success) => success
-      && dispatch(updateUserInstructionsSuccessfully(closedInstructions)))
-  };
+      && dispatch(updateUserInstructionsSuccessfully(closedInstructions)));
+}
 
 export function updateUserMetaSuccessfully(meta) {
   return { type: types.UPDATE_USER_META, meta };
@@ -49,8 +50,8 @@ export function updateUserMetaSuccessfully(meta) {
 export function updateUserMeta(meta) {
   return (dispatch) => userApi
     .updateMeta(meta)
-    .then((success) => success && dispatch(updateUserMetaSuccessfully(meta)))
-  };
+    .then((success) => success && dispatch(updateUserMetaSuccessfully(meta)));
+}
 
 
 export function setUserInfo(userInfo) {
@@ -60,8 +61,8 @@ export function setUserInfo(userInfo) {
 export function getUserInfo() {
   return (dispatch) => userApi
     .getUserInfo()
-    .then((userInfo) => dispatch(setUserInfo(userInfo)))
-  };
+    .then((userInfo) => dispatch(setUserInfo(userInfo)));
+}
 
 
 export function updateUserInfoSuccessfully(info) {
@@ -71,15 +72,15 @@ export function updateUserInfoSuccessfully(info) {
 export function updateUserInfo(info) {
   return (dispatch) => userApi
     .updateUserInfo(info)
-    .then(() => dispatch(updateUserInfoSuccessfully(info)))
-  };
+    .then(() => dispatch(updateUserInfoSuccessfully(info)));
+}
 
 export function registerUserSuccessfully(user) {
   return { type: types.LOGIN, user };
 }
 
 export function registerUser(data) {
-  return (dispatch) => MLAuthApi
+  return (dispatch) => authApi
     .register(data)
     .then((user) => {
       // if success login and continue

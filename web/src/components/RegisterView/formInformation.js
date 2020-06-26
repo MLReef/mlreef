@@ -16,7 +16,7 @@ export const placeholders = {
   lastName: 'Your last name',
   email: 'Your email',
   username: 'The name you will be known',
-  password: 'Write a strong password',
+  password: 'Write a strong password with more than 8 characters',
   confirm: 'Repeat your password',
 };
 
@@ -37,7 +37,7 @@ export const validationSchema = Yup.object().shape({
     .required('Username is required.'),
 
   password: Yup.string()
-    .min(4, 'At least 4 characters.')
+    .min(8, 'At least 8 characters.')
     .matches(/[\w]/, 'At least one letter.')
     // .matches(/[\d]/, 'At least one number.')
     .required('Password is required.'),
