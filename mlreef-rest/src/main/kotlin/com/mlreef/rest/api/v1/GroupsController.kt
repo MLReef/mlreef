@@ -37,7 +37,7 @@ class GroupsController(
         private val log = LoggerFactory.getLogger(this::class.java)
     }
 
-    @GetMapping
+    @GetMapping("/my")
     fun getAllUsersGroups(person: Person): List<GroupOfUserDto> {
         return groupsService.getUserGroupsList(person.id).map(GroupOfUser::toDto)
     }
@@ -51,7 +51,7 @@ class GroupsController(
             groupName = groupCreateRequest.name,
             path = groupCreateRequest.path)
 
-        return GroupDto(group.id, group.name)
+        return GroupDto(group.id, group.name, group.gitlabId)
     }
 
     // FIXME: Coverage says: missing tests

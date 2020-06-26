@@ -23,7 +23,9 @@ class GroupsIntegrationTest : AbstractIntegrationTest() {
         val (group3, _) = testsHelper.createRealGroup(account)
 
         //when
-        val result = this.performGet(rootUrl, account)
+        val url = "$rootUrl/my"
+
+        val result = this.performGet(url, account)
             .expectOk()
             .returnsList(GroupOfUserDto::class.java)
 

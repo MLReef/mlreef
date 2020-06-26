@@ -122,6 +122,7 @@ class Group(
 
     fun toGroupOfUser(accessLevel: AccessLevel?) = GroupOfUser(
         this.id,
+        this.gitlabId,
         this.name,
         accessLevel
     )

@@ -297,7 +297,9 @@ operation::dataprojects-delete-user-by-params[snippets='curl-request,request-par
 
 Group is an entity that unites accounts to a single class/batch
 
-=== GET /groups
+=== GET /groups/my
+
+Returns current user's groups where the user has membership
 
 operation::user-groups-list[snippets='curl-request,response-body,response-fields']
 
