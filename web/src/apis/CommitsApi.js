@@ -63,6 +63,9 @@ export default class CommitsApi {
         }),
       },
     ));
+    if(!response.ok){
+      return Promise.reject(response);
+    }
     return response.json();
   }
 

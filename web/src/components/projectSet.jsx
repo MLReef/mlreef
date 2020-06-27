@@ -44,7 +44,6 @@ class ProjectSet extends Component {
             owner={proj.id}
             title={proj.gitlabPath}
             projectId={proj.gitlabId}
-            branch="master" // TODO: refactor this, spreading master is an exception expecting to be thrown
             description={proj.description}
             starCount={proj.starCount || 0}
             forkCount={proj.forksCount || 0}

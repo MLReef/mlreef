@@ -1,69 +1,40 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { toastr } from 'react-redux-toastr';
 import { string, number } from 'prop-types';
 import ReactMarkdown from 'react-markdown';
 import './readme.css';
 import { Base64 } from 'js-base64';
-import filesApi from '../../apis/FilesApi';
+import FilesApi from '../../apis/FilesApi.ts';
 
-class ReadMeComponent extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      fileData: null,
-    };
-  }
-
-  componentDidUpdate(prevProps, prevState) {
-    const { projectId, branch } = prevProps;
-    const { fileData } = prevState;
-    if (projectId !== undefined && fileData === null) {
-      filesApi.getFileData(
-        projectId,
-        'README.md',
-        branch,
-      )
-        .then(
-          (res) => this.setState({ fileData: res }),
-        ).catch(() => {
-          toastr.error('Error', 'An error occurred recovering your readme');
-        });
-    }
-  }
-
-  componentWillUnmount() {
-    this.setState = (state) => (state);
-  }
-
-  render() {
-    const { projectName } = this.props;
-    const { fileData } = this.state;
-    let textContent;
-    if (!fileData) {
-      return null;
-    }
-
-    if (fileData.content) {
-      textContent = Base64.decode(fileData.content);
-    }
-    return (
-      <div className="readme-container">
-        <div className="readme-titlebar">
-          <div className="readme-profile-pic" />
-          <div className="readme-name">
-            <p id="readmeName"><b>README.md</b></p>
-          </div>
-        </div>
-
-        <div className="readme-content-container readme-style">
-          <div className="readme-content">
-            <p id="project-name-readme">{projectName}</p>
-            <ReactMarkdown id="project-content-readme" source={textContent && textContent} />
-          </div>
+const ReadMeComponent = ({ projectId, projectName, branch }) => {
+  const [textContent, setTextContent] = useState('');
+  useEffect(() => {
+    const filesApi = new FilesApi();
+    filesApi.getFileData(
+      projectId,
+      'README.md',
+      branch,
+    )
+      .then((res) => setTextContent(Base64.decode(res.content)))
+      .catch(() => toastr.error('Error', 'An error occurred recovering your readme'));
+  }, [projectId, branch]);
+  return (
+    <div className="readme-container">
+      <div className="readme-titlebar">
+        <div className="readme-profile-pic" />
+        <div className="readme-name">
+          <p id="readmeName"><b>README.md</b></p>
         </div>
       </div>
-    );
-  }
+
+      <div className="readme-content-container readme-style">
+        <div className="readme-content">
+          <p id="project-name-readme">{projectName}</p>
+          <ReactMarkdown id="project-content-readme" source={textContent} />
+        </div>
+      </div>
+    </div>
+  );
 }
 
 ReadMeComponent.propTypes = {

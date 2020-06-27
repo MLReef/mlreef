@@ -18,7 +18,8 @@ export abstract class GitlabProject {
   forksCount?: number;
   starCount?: number;
   emptyRepo?: boolean;
-  repositorySize?: number;  
+  repositorySize?: number;
+  commitCount?: number;
   getRepositorySize(): string {
     if(!this.repositorySize)
       return '0';

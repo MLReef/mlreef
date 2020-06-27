@@ -12,12 +12,14 @@ COPY . /app
 # all following commands will be executed in /app
 WORKDIR /app
 
+# install all NPM packages and compile the react app
 RUN npm install --global --silent react-scripts             && \
     npm install --global --silent create-react-app@latest   && \
     npm install --global --silent react-scripts@3.0.1
 RUN npm install .
 
-# install all NPM packages and compile the react app
+# execute tests first, so there should be a halt when compiling if tests fail
+RUN npm test
 RUN npm run build
 RUN ls -a
 

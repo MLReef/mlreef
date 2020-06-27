@@ -15,6 +15,7 @@ import Tooltip from '@material-ui/core/Tooltip';
 import {
   projectClassificationsProps,
   privacyLevelsArr,
+  ML_PROJECT,
 } from 'dataTypes';
 import Navbar from '../../navbar/navbar';
 import './createProject.css';
@@ -24,6 +25,7 @@ import ProjectGeneraInfoApi from '../../../apis/projectGeneralInfoApi.ts';
 import { convertToSlug } from '../../../functions/dataParserHelpers';
 import { bannedCharsArray } from '../../../dataTypes';
 import MCheckBox from '../../ui/MCheckBox/MCheckBox';
+import { PROJECT_TYPES } from 'domain/project/projectTypes';
 
 class CreateProject extends Component {
   slugRef = createRef();
@@ -107,7 +109,11 @@ class CreateProject extends Component {
       visibility,
       nameSpace,
     } = this.state;
-
+    const { match: { params: { classification } } } = this.props;
+    const projectType = classification && classification !== '' && classification !== ML_PROJECT
+      ? PROJECT_TYPES.CODE_PROJ
+      : PROJECT_TYPES.DATA_PROJ;
+    
     const isAValidName = this.validateProjectName(projectName);
 
     if (!isAValidName) {
@@ -129,21 +135,18 @@ class CreateProject extends Component {
       visibility,
     };
     const projectGeneraInfoApi = new ProjectGeneraInfoApi();
-    projectGeneraInfoApi.create(body)
+    projectGeneraInfoApi.create(body, projectType)
       .then((res) => res.json())
-      .then((pro) => {
-        this.props.actions
-          .getProjectsList()
-          .then(() => this.setState({ redirect: true, gitlabId: pro.gitlab_id }))
-      })
+      .then((pro) => this.props.actions
+        .getProjectsList(projectType)
+        .then(() => this.setState({ redirect: true, gitlabId: pro.gitlab_id }))
+      )
       .catch((err) => {
         toastr.error('Error', err || 'Something went wrong')
       });
   }
 
- cancelCreate = () => {
-   this.props.history.push('/my-projects');
- }
+ cancelCreate = () => this.props.history.push('/my-projects');
 
  getIsPrivacyOptionDisabled = (privacyLevel, nameSpace) => {
    const { user, groups } = this.props;
@@ -174,9 +177,9 @@ class CreateProject extends Component {
      dataTypesSelected: dtTypesSel,
    } = this.state;
    const { match: { params: { classification } }, groups, user } = this.props;
-   const classLabel = projectClassificationsProps.filter(
-     (classif) => classif.classification === classification,
-   )[0].label;
+   const specificType = projectClassificationsProps.filter((classif) => classif.classification === classification)[0];
+   const classLabel = specificType.label;
+   const newProjectInstructions = specificType.description;
    const isMaximumOfDataTypesSelected = dtTypesSel.length === 4;
    return redirect ? (
      <Redirect to={`/my-projects/${gitlabId}/null`} />
@@ -190,12 +193,7 @@ class CreateProject extends Component {
              {' '}
              {classLabel}
            </span>
-           <p>
-             A Machine Learning (ML) project is where you house your data set (repository),
-             where you perform data processing
-             (data pipeline), visualize your data set (data visualization)
-             and where you create your experiments
-           </p>
+           <p>{newProjectInstructions}</p>
          </div>
          <div className="form-control col-sm-12 col-lg-8 pl-3">
            <form>

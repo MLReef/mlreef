@@ -18,7 +18,7 @@ import {
   FAILED,
   PENDING,
 } from '../../dataTypes';
-import filesApi from '../../apis/FilesApi';
+import FilesApi from '../../apis/FilesApi.ts';
 import { deleteBranch, getBranchesList } from '../../actions/branchesActions';
 import { fireModal } from '../../actions/actionModalActions';
 import { classifyPipeLines } from '../../functions/pipeLinesHelpers';
@@ -56,6 +56,7 @@ export const InstanceCard = ({ ...props }) => {
   function goToPipelineView(e) {
     const pId = props.params.instances[0].projId;
     const branch = e.currentTarget.parentNode.parentNode.getAttribute('data-key');
+    const filesApi = new FilesApi();
     filesApi
       .getFileData(
         pId,

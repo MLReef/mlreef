@@ -9,6 +9,7 @@ import {
   arrayOf,
 } from 'prop-types';
 import AuthWrapper from 'components/AuthWrapper';
+import { PROJECT_TYPES } from 'domain/project/projectTypes';
 
 export class RepoFeatures extends Component {
   constructor(props) {
@@ -44,9 +45,9 @@ export class RepoFeatures extends Component {
       branches,
     } = this.state;
 
-    const { branch: currentBranch, path } = this.props;
+    const { branch: currentBranch, path, projectType } = this.props;
 
-    return currentBranch && (
+    return (
       <div id="repo-features">
 
         <MDropdown
@@ -115,7 +116,7 @@ export class RepoFeatures extends Component {
 
         <AuthWrapper minRole={30} className="mr-2 mt-3">
           <Link
-            className="btn btn-dark px-3 mr-auto mt-3"
+            className={`btn btn-dark px-3 ${projectType === PROJECT_TYPES.CODE_PROJ ? '' : 'mr-auto'} mt-3`}
             to={`/my-projects/${projectId}/pipe-line`}
           >
             Data Pipeline
@@ -134,6 +135,11 @@ export class RepoFeatures extends Component {
           </Link>
         </AuthWrapper> */}
 
+        {projectType === PROJECT_TYPES.CODE_PROJ && (
+          <button className="btn px-3 ml-2 mr-auto mt-3" style={{ backgroundColor: 'rgb(233, 148, 68)', color: 'white'}}>
+            Publish
+          </button>
+        )}
         <AuthWrapper
           resource={{ type: 'project' }}
           minRole={20}
@@ -147,8 +153,7 @@ export class RepoFeatures extends Component {
           </Link>
         </AuthWrapper>
       </div>
-    );
-  }
+    )}
 }
 
 RepoFeatures.propTypes = {
@@ -160,6 +165,7 @@ RepoFeatures.propTypes = {
       name: string.isRequired,
     }),
   ).isRequired,
+  projectType: string.isRequired,
 };
 
 function mapStateToProps(state) {

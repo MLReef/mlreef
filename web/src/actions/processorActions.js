@@ -1,6 +1,8 @@
 import { SET_OPERATIONS, SET_ALGORITHMS } from './actionTypes';
 import { OPERATION } from 'dataTypes';
 import DataProcessorsApi from '../apis/DataProcessorsApi';
+
+const dataProcApi = new DataProcessorsApi();
 /**
  *
  * @param {*} operations: load list of backend operations
@@ -20,8 +22,10 @@ export function setAlgorithmsSuccessfully(algorithms) {
    */
 
 export function getProcessors(type) {
-  return (dispatch) => DataProcessorsApi
-    .filterDataProcessorsByType(type)
+  const params = new Map();
+  params.set('type', type);
+  return (dispatch) => dataProcApi
+  .filterByParams(params)
     .then(
       (processors) => {
         if(type === OPERATION) {

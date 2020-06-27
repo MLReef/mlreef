@@ -36,6 +36,11 @@ $min-width-cards-div: 910px;
         color: var(--secondary);
       }
     }
+
+    .name-filter-section {
+      display: flex;
+      justify-content: space-between;
+    }
   }
 }
 
@@ -56,10 +61,6 @@ $min-width-cards-div: 910px;
 
 /* ---------------- data types deploy btn ---------------- */
 
-#data-types-deploy-btn {
-  display: flex;
-  justify-content: space-between;
-}
 
 @media (max-width: $bp-lg) {
   #cards-section, #filter-div {

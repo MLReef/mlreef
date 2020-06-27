@@ -10,16 +10,17 @@ const ArrowButton = ({
   id,
 }) => {
   function handleDropDownClick(e) {
-    $(e.currentTarget).attr('tabindex', 1).focus();
-    $(e.currentTarget).toggleClass('active');
-    $(e.currentTarget).find('.dropdown-menu').slideToggle(300);
-
-    if (e.currentTarget.classList.contains('background-rotate')) {
-      $(e.currentTarget).removeClass('background-rotate');
-    } else {
-      $(e.currentTarget).addClass('background-rotate');
+    if(e.currentTarget){
+      $(e.currentTarget).attr('tabindex', 1).focus();
+      $(e.currentTarget).toggleClass('active');
+      $(e.currentTarget).find('.dropdown-menu').slideToggle(300);
+      
+      if (e.currentTarget.classList.contains('background-rotate')) {
+        $(e.currentTarget).removeClass('background-rotate');
+      } else {
+        $(e.currentTarget).addClass('background-rotate');
+      }
     }
-
 
     if (callback && typeof callback === 'function') {
       callback(e, params);

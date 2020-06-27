@@ -7,6 +7,7 @@ import AuthWrapper from 'components/AuthWrapper';
 import { connect } from 'react-redux';
 import ProjectInfo from './projectInfo';
 import ProjectNav from './project-nav/projectNav';
+import { PROJECT_TYPES } from 'domain/project/projectTypes';
 
 class ProjectContainer extends React.Component {
   componentDidMount() {
@@ -58,14 +59,17 @@ class ProjectContainer extends React.Component {
             <Link to={`/my-projects/${id}/${defaultBranch}`} className="feature" id="data">
               Data
             </Link>
-            <Link
-              onClick={forceShowExperimentList}
-              to={`/my-projects/${id}/-/experiments`}
-              className="feature"
-              id="experiments"
-            >
-              Experiments
-            </Link>
+            
+            {project.projectType === PROJECT_TYPES.DATA_PROJ && (
+              <Link
+                onClick={forceShowExperimentList}
+                to={`/my-projects/${id}/-/experiments`}
+                className="feature"
+                id="experiments"
+              >
+                Experiments
+              </Link>
+            )}
             <Link to={`/my-projects/${id}/insights/-/jobs`} className="feature" id="insights">
               Insights
             </Link>

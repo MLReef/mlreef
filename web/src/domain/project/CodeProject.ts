@@ -1,17 +1,17 @@
 import MLProject from "./MLProject";
-import Experiment from "../experiments/Experiment";
 import { GitlabProject } from "./GitlabProject";
 import { PROJECT_TYPES } from "./projectTypes";
 
-export default class DataProject extends GitlabProject implements MLProject {
+export default class CodeProject extends GitlabProject implements MLProject {
   backendId?: string;
   slug: string;
   url: string;
   ownerId: string;
-  gitlabGroup: string;
-  gitlabProject?:string
+  gitlabGroup?: string;
+  gitlabProject?: string
+  gitlabId?: number
+
   id?: number;
-  experiments: Array<Experiment>
   description?: string;
   defaultBranch?: string;
   visibility?: string;
@@ -28,22 +28,25 @@ export default class DataProject extends GitlabProject implements MLProject {
   forksCount?: number;
   starCount?: number;
   emptyRepo?: boolean;
-  projectType: string = PROJECT_TYPES.DATA_PROJ;
-  
+  repositorySize?: number;  
+  projectType: string = PROJECT_TYPES.CODE_PROJ;
+
   constructor(
-    id: string,
+    backendId: string,
     slug: string,
     url: string,
     ownerId: string,
     gitlabGroup: string,
-    experiments: Array<Experiment>,
+    gitlabProject: string,
+    gitlabId: number
   ) {
     super();
-    this.backendId = id;
+    this.backendId = backendId;
     this.slug = slug;
     this.url = url;
     this.ownerId = ownerId;
     this.gitlabGroup = gitlabGroup;
-    this.experiments = experiments;
+    this.gitlabProject = gitlabProject;
+    this.gitlabId = gitlabId;
   }
 }

@@ -1,7 +1,12 @@
 import { toastr } from 'react-redux-toastr';
 import ProjectGeneralInfoApi from 'apis/projectGeneralInfoApi';
 import * as types from './actionTypes';
+import DataProcessorsApi from 'apis/DataProcessorsApi.ts';
+import { PROJECT_TYPES } from 'domain/project/projectTypes';
+import { parseToCamelCase } from 'functions/dataParserHelpers';
 
+const dataProcApi = new DataProcessorsApi();
+const projectApi = new ProjectGeneralInfoApi();
 /**
  *
  * @param {*} projects: load list for redux global state
@@ -15,23 +20,14 @@ export function getProjectsInfoSuccessfully(projects) {
  * get list of projects associated with authenticated user
  */
 
-export function getProjectsList() {
-  return (dispatch) => {
-    const projectApi = new ProjectGeneralInfoApi();
-    return projectApi.getProjectsList()
-      .then(
-        (projects) => {
-          if (projects) {
-            dispatch(
-              getProjectsInfoSuccessfully(
-                projects,
-              ),
-            );
-          }
-        },
-      ).catch((err) => {
-        throw err;
-      });
+export function getProjectsList(projectsType) {
+  return async (dispatch) => {
+    try {
+      const projects = await projectApi.getProjectsList(projectsType);
+      dispatch(getProjectsInfoSuccessfully(projects));
+    } catch (err) {
+      throw err;
+    }
   };
 }
 
@@ -92,7 +88,6 @@ export function setProjUsersSuccessfully(users) {
 
 export function getUsersLit(projectId) {
   return (dispatch) => {
-    const projectApi = new ProjectGeneralInfoApi();
     projectApi.getUsers(projectId)
       .then(async (users) => {
         dispatch(
@@ -107,7 +102,29 @@ export function getUsersLit(projectId) {
 }
 
 export function getProjectDetails(id) {
-  return (dispatch) => ProjectGeneralInfoApi()
-    .getProjectInfoApi(id)
+  return (dispatch) => 
+    projectApi.getProjectInfoApi(id)
     .then((project) => dispatch({ type: types.SET_SELECTED_PROJECT, project }));
+}
+
+/**
+ * 
+ * This API call fetches code repos corresponding with data processors
+ */
+
+export function getDataProcessorsAndCorrespondingProjects(dataOperation) {
+  const params = new Map();
+  params.set('type', dataOperation);
+  return (dispatch) => Promise.all([
+    projectApi.getProjectsList(PROJECT_TYPES.CODE_PROJ), 
+    dataProcApi.filterByParams(params),
+  ]).then((response) => {
+    console.log(response);
+    const projects = response[0];
+    const dataProcessors = response[1].map((dp) => parseToCamelCase(dp));
+    const finalProjects = dataProcessors.filter((dp) => projects.filter((pro) => dp.codeProjectId === pro.id)[0]);
+    dispatch(getProjectsInfoSuccessfully(finalProjects));
+  }).catch((err) => {
+    return Promise.reject(err);
+  })
 }

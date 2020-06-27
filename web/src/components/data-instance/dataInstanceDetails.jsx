@@ -5,7 +5,7 @@ import FilesTable from '../files-table/filesTable';
 import Navbar from '../navbar/navbar';
 import ProjectContainer from '../projectContainer';
 import './dataInstanceDetails.css';
-import filesApi from '../../apis/FilesApi';
+import FilesApi from '../../apis/FilesApi.ts';
 
 const DataInstanceDetails = ({ ...props }) => {
   const {
@@ -23,17 +23,14 @@ const DataInstanceDetails = ({ ...props }) => {
   const [files, setFiles] = useState([]);
 
   useEffect(() => {
+    const filesApi = new FilesApi();
     filesApi.getFilesPerProject(
       projectId,
       path || '',
       false,
       diName,
-    ).then(async (res) => {
-      if (res.ok) {
-        const filesPerProject = await res.json();
-        setFiles(filesPerProject);
-      }
-    }).catch(() => {
+    ).then((filesPerProject) => setFiles(filesPerProject))
+    .catch(() => {
       toastr.error('Error', 'Something went wrong getting your files');
     });
   }, [diName, projectId, path]);

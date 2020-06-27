@@ -206,6 +206,14 @@ export const projectsArrayMock = {
   ],
 };
 
+export const usersArrayMock = [{
+  "id":2,
+  "name":"mlreef",
+  "username":"mlreef",
+  "state":"active",
+  "avatar_url":"https://www.gravatar.com/avatar/d64636c9c4cf15dd5c9e1ed6ab529100?s=80&d=identicon",
+  "web_url":"http://ec2-52-57-196-223.eu-central-1.compute.amazonaws.com:10080/mlreef"
+}];
 
 export const branchesMock = [
   {

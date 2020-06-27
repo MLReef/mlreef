@@ -5,7 +5,7 @@ import {
   shape, string, arrayOf, func,
 } from 'prop-types';
 import FilesTable from '../files-table/filesTable';
-import FilesApi from '../../apis/FilesApi';
+import FilesApi from '../../apis/FilesApi.ts';
 import './dataVisualizationDetail.css';
 import Navbar from '../navbar/navbar';
 import ProjectContainer from '../projectContainer';
@@ -26,7 +26,8 @@ const DataVisualizationDetails = ({ ...props }) => {
   const visNameDecoded = decodeURIComponent(visName);
   const visualizationSelected = branches.filter((br) => br.name === visNameDecoded)[0];
   useEffect(() => {
-    FilesApi.getFilesPerProject(
+    const filesApi = new FilesApi();
+    filesApi.getFilesPerProject(
       projectId,
       path || '',
       false,

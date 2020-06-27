@@ -9,6 +9,8 @@ import ProjectGeneralInfoApi from '../apis/projectGeneralInfoApi.ts';
 import * as projectActions from '../actions/projectInfoActions';
 import { plainToClass } from 'class-transformer';
 import DataProject from 'domain/project/DataProject';
+import { PROJECT_TYPES } from 'domain/project/projectTypes';
+import CodeProject from 'domain/project/CodeProject';
 
 const ProjectInfo = (props) => {
   const {
@@ -17,7 +19,9 @@ const ProjectInfo = (props) => {
     userNamespace,
     setIsForking,
   } = props;
-  const classProject = plainToClass(DataProject, project);
+  const classProject = project.projectType === PROJECT_TYPES.DATA_PROJ
+    ? plainToClass(DataProject, project)
+    : plainToClass(CodeProject, project);
   const [redirect, setRedirect] = React.useState(false);
 
   function handleFork() {

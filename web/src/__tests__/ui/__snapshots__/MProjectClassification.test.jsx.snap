@@ -1,0 +1,627 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`test html elements 1`] = `
+<div
+  style={
+    Object {
+      "display": "flex",
+      "justifyContent": "space-around",
+    }
+  }
+>
+  <div>
+    <div
+      id="buttons-div"
+    >
+      <div
+        id="filter-div"
+      >
+        <button
+          className="btn btn-basic-dark"
+          id="ml-project-personal-btn"
+          onClick={[Function]}
+          type="button"
+        >
+          My projects
+        </button>
+        <button
+          className="btn btn-basic-dark"
+          id="ml-project-starred-btn"
+          onClick={[Function]}
+          type="button"
+        >
+          Starred
+        </button>
+        <button
+          className="btn btn-basic-dark"
+          id="ml-project-explore-btn"
+          onClick={[Function]}
+          type="button"
+        >
+          Explore
+        </button>
+      </div>
+      <div
+        className="ml-auto"
+        id="new-element-container"
+      >
+        <a
+          className="btn btn-primary"
+          href="/new-project/classification/ml-project"
+          onClick={[Function]}
+          type="button"
+        >
+          New project
+        </a>
+      </div>
+    </div>
+    <div
+      className="m-project-classification"
+    >
+      <div
+        id="cards-section"
+      >
+        <div
+          className="card"
+        >
+          <div
+            className="card-container project-card-container"
+            onClick={[Function]}
+            onKeyPress={[Function]}
+            role="button"
+            tabIndex="0"
+          >
+            <p
+              className="card-title"
+            />
+            <div
+              className="project-card-container-autor d-flex "
+            >
+              <p>
+                MLReef
+              </p>
+            </div>
+            <div
+              className="card-content"
+            >
+              <div
+                className="d-flex"
+              >
+                <div
+                  className="mr-2"
+                >
+                  <i
+                    className="fa fa-file t-success"
+                  >
+                    <span
+                      className="label"
+                    >
+                       Text
+                    </span>
+                  </i>
+                </div>
+                <div
+                  className="mr-2"
+                >
+                  <i
+                    className="fa fa-volume-up t-info"
+                  >
+                    <span
+                      className="label"
+                    >
+                       Audio
+                    </span>
+                  </i>
+                </div>
+                <div
+                  className=""
+                >
+                  <i
+                    className="fa fa-video t-danger"
+                  >
+                    <span
+                      className="label"
+                    >
+                       Video
+                    </span>
+                  </i>
+                </div>
+                <div
+                  className=""
+                >
+                  <i
+                    className="fas fa-grip-lines-vertical t-warning"
+                  >
+                    <span
+                      className="label"
+                    >
+                       Tabular
+                    </span>
+                  </i>
+                </div>
+              </div>
+              <p>
+                Categorical Classification of alphabets in the American Sign Language
+              </p>
+              <div
+                className="d-flex t-secondary"
+              >
+                <div
+                  className="mr-3"
+                >
+                  <i
+                    className="fa fa-star"
+                  >
+                    <span
+                      className="label"
+                    >
+                       0
+                    </span>
+                  </i>
+                </div>
+                <div
+                  className="mr-3"
+                >
+                  <i
+                    className="fa fa-code-branch"
+                  >
+                    <span
+                      className="label"
+                    >
+                       0
+                    </span>
+                  </i>
+                </div>
+              </div>
+            </div>
+            <div
+              className="card-actions"
+            >
+              <div
+                className=""
+                style={
+                  Object {
+                    "display": "flex",
+                    "marginRight": "-1rem",
+                  }
+                }
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+      <div
+        id="side-filters"
+      >
+        <div
+          id="input-div"
+        >
+          <p>
+            Refine by
+          </p>
+          <button>
+            Clear filters
+          </button>
+        </div>
+        <br />
+        <div
+          className="name-filter-section"
+        >
+          <p>
+            Data types
+          </p>
+          <div
+            className="dropdown-btn-container-div"
+          >
+            <button
+              aria-label="dropdown-btn"
+              className="btn btn-icon btn-hidden fa fa-chevron-down p-1"
+              id=""
+              onClick={[Function]}
+              type="button"
+            />
+            
+          </div>
+        </div>
+        <div
+          className="m-checkbox "
+          htmlFor="ml-project dataTypes Text"
+          onClick={[Function]}
+          onKeyPress={[Function]}
+          role="button"
+          tabIndex={0}
+        >
+          <p>
+            Text
+          </p>
+          <input
+            checked={false}
+            onChange={[Function]}
+            type="checkbox"
+          />
+          <span
+            className="checkmark"
+          />
+        </div>
+        <div
+          className="m-checkbox "
+          htmlFor="ml-project dataTypes Image"
+          onClick={[Function]}
+          onKeyPress={[Function]}
+          role="button"
+          tabIndex={0}
+        >
+          <p>
+            Image
+          </p>
+          <input
+            checked={false}
+            onChange={[Function]}
+            type="checkbox"
+          />
+          <span
+            className="checkmark"
+          />
+        </div>
+        <div
+          className="m-checkbox "
+          htmlFor="ml-project dataTypes Audio"
+          onClick={[Function]}
+          onKeyPress={[Function]}
+          role="button"
+          tabIndex={0}
+        >
+          <p>
+            Audio
+          </p>
+          <input
+            checked={false}
+            onChange={[Function]}
+            type="checkbox"
+          />
+          <span
+            className="checkmark"
+          />
+        </div>
+        <div
+          className="m-checkbox "
+          htmlFor="ml-project dataTypes Video"
+          onClick={[Function]}
+          onKeyPress={[Function]}
+          role="button"
+          tabIndex={0}
+        >
+          <p>
+            Video
+          </p>
+          <input
+            checked={false}
+            onChange={[Function]}
+            type="checkbox"
+          />
+          <span
+            className="checkmark"
+          />
+        </div>
+        <div
+          className="m-checkbox "
+          htmlFor="ml-project dataTypes Tabular"
+          onClick={[Function]}
+          onKeyPress={[Function]}
+          role="button"
+          tabIndex={0}
+        >
+          <p>
+            Tabular
+          </p>
+          <input
+            checked={false}
+            onChange={[Function]}
+            type="checkbox"
+          />
+          <span
+            className="checkmark"
+          />
+        </div>
+        <div
+          className="name-filter-section"
+        >
+          <p>
+            Framework
+          </p>
+          <div
+            className="dropdown-btn-container-div"
+          >
+            <button
+              aria-label="dropdown-btn"
+              className="btn btn-icon btn-hidden fa fa-chevron-down p-1"
+              id=""
+              onClick={[Function]}
+              type="button"
+            />
+            
+          </div>
+        </div>
+        <div
+          className="m-checkbox "
+          htmlFor="ml-project framework TensorFlow"
+          onClick={[Function]}
+          onKeyPress={[Function]}
+          role="button"
+          tabIndex={0}
+        >
+          <p>
+            TensorFlow
+          </p>
+          <input
+            checked={false}
+            onChange={[Function]}
+            type="checkbox"
+          />
+          <span
+            className="checkmark"
+          />
+        </div>
+        <div
+          className="m-checkbox "
+          htmlFor="ml-project framework Pytorch"
+          onClick={[Function]}
+          onKeyPress={[Function]}
+          role="button"
+          tabIndex={0}
+        >
+          <p>
+            Pytorch
+          </p>
+          <input
+            checked={false}
+            onChange={[Function]}
+            type="checkbox"
+          />
+          <span
+            className="checkmark"
+          />
+        </div>
+        <div
+          className="m-checkbox "
+          htmlFor="ml-project framework Keras"
+          onClick={[Function]}
+          onKeyPress={[Function]}
+          role="button"
+          tabIndex={0}
+        >
+          <p>
+            Keras
+          </p>
+          <input
+            checked={false}
+            onChange={[Function]}
+            type="checkbox"
+          />
+          <span
+            className="checkmark"
+          />
+        </div>
+        <div
+          className="m-checkbox "
+          htmlFor="ml-project framework Scikit Learn"
+          onClick={[Function]}
+          onKeyPress={[Function]}
+          role="button"
+          tabIndex={0}
+        >
+          <p>
+            Scikit Learn
+          </p>
+          <input
+            checked={false}
+            onChange={[Function]}
+            type="checkbox"
+          />
+          <span
+            className="checkmark"
+          />
+        </div>
+        <div
+          className="name-filter-section"
+        >
+          <p>
+            Model Type
+          </p>
+          <div
+            className="dropdown-btn-container-div"
+          >
+            <button
+              aria-label="dropdown-btn"
+              className="btn btn-icon btn-hidden fa fa-chevron-down p-1"
+              id=""
+              onClick={[Function]}
+              type="button"
+            />
+            
+          </div>
+        </div>
+        <div
+          className="m-checkbox "
+          htmlFor="ml-project modelTypes CNN"
+          onClick={[Function]}
+          onKeyPress={[Function]}
+          role="button"
+          tabIndex={0}
+        >
+          <p>
+            CNN
+          </p>
+          <input
+            checked={false}
+            onChange={[Function]}
+            type="checkbox"
+          />
+          <span
+            className="checkmark"
+          />
+        </div>
+        <div
+          className="m-checkbox "
+          htmlFor="ml-project modelTypes Clustering"
+          onClick={[Function]}
+          onKeyPress={[Function]}
+          role="button"
+          tabIndex={0}
+        >
+          <p>
+            Clustering
+          </p>
+          <input
+            checked={false}
+            onChange={[Function]}
+            type="checkbox"
+          />
+          <span
+            className="checkmark"
+          />
+        </div>
+        <div
+          className="m-checkbox "
+          htmlFor="ml-project modelTypes Trees"
+          onClick={[Function]}
+          onKeyPress={[Function]}
+          role="button"
+          tabIndex={0}
+        >
+          <p>
+            Trees
+          </p>
+          <input
+            checked={false}
+            onChange={[Function]}
+            type="checkbox"
+          />
+          <span
+            className="checkmark"
+          />
+        </div>
+        <div
+          className="m-checkbox "
+          htmlFor="ml-project modelTypes Regression"
+          onClick={[Function]}
+          onKeyPress={[Function]}
+          role="button"
+          tabIndex={0}
+        >
+          <p>
+            Regression
+          </p>
+          <input
+            checked={false}
+            onChange={[Function]}
+            type="checkbox"
+          />
+          <span
+            className="checkmark"
+          />
+        </div>
+        <div
+          className="name-filter-section"
+        >
+          <p>
+            ML categories
+          </p>
+          <div
+            className="dropdown-btn-container-div"
+          >
+            <button
+              aria-label="dropdown-btn"
+              className="btn btn-icon btn-hidden fa fa-chevron-down p-1"
+              id=""
+              onClick={[Function]}
+              type="button"
+            />
+            
+          </div>
+        </div>
+        <div
+          className="m-checkbox "
+          htmlFor="ml-project mlCategories Regression"
+          onClick={[Function]}
+          onKeyPress={[Function]}
+          role="button"
+          tabIndex={0}
+        >
+          <p>
+            Regression
+          </p>
+          <input
+            checked={false}
+            onChange={[Function]}
+            type="checkbox"
+          />
+          <span
+            className="checkmark"
+          />
+        </div>
+        <div
+          className="m-checkbox "
+          htmlFor="ml-project mlCategories Prediction"
+          onClick={[Function]}
+          onKeyPress={[Function]}
+          role="button"
+          tabIndex={0}
+        >
+          <p>
+            Prediction
+          </p>
+          <input
+            checked={false}
+            onChange={[Function]}
+            type="checkbox"
+          />
+          <span
+            className="checkmark"
+          />
+        </div>
+        <div
+          className="m-checkbox "
+          htmlFor="ml-project mlCategories Classification"
+          onClick={[Function]}
+          onKeyPress={[Function]}
+          role="button"
+          tabIndex={0}
+        >
+          <p>
+            Classification
+          </p>
+          <input
+            checked={false}
+            onChange={[Function]}
+            type="checkbox"
+          />
+          <span
+            className="checkmark"
+          />
+        </div>
+        <div
+          className="m-checkbox "
+          htmlFor="ml-project mlCategories Dimensionality reduction"
+          onClick={[Function]}
+          onKeyPress={[Function]}
+          role="button"
+          tabIndex={0}
+        >
+          <p>
+            Dimensionality reduction
+          </p>
+          <input
+            checked={false}
+            onChange={[Function]}
+            type="checkbox"
+          />
+          <span
+            className="checkmark"
+          />
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+`;

@@ -1,12 +1,12 @@
 import React from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
+import { toastr } from 'react-redux-toastr';
 import { arrayOf, shape, func } from 'prop-types';
 import MProjectClassification from 'components/ui/MProjectClassification/MProjectClassification';
 import MTabs from 'components/ui/MTabs';
-import { suscribeRT } from 'functions/apiCalls';
 import {
-  projectClassificationsProps,
+  projectClassificationsProps, OPERATION, VISUALISATION,
 } from 'dataTypes';
 import Navbar from '../navbar/navbar';
 import './myProjects.scss';
@@ -14,7 +14,8 @@ import ProjectDeletionModal from '../project-deletion-modal/projectDeletionModal
 import * as projectActions from '../../actions/projectInfoActions';
 import * as groupsActions from '../../actions/groupsActions';
 import * as userActions from '../../actions/userActions';
-// import AuthWrapper from 'components/AuthWrapper';
+import { PROJECT_TYPES } from 'domain/project/projectTypes';
+import * as processorActions from 'actions/processorActions';
 
 class Myprojects extends React.Component {
   projFilterBtnsList = ['own', 'starred', 'explore'];
@@ -30,30 +31,40 @@ class Myprojects extends React.Component {
       showModal: false,
       projectName: '',
       owner: '',
-      isFetching: false,
-      unsuscribeServices: null,
+      /* unsuscribeServices: null, */
+      allProjects: [],
+      userProjects: [],
+      starredProjects: [],
     };
   }
 
   componentDidMount() {
     const { actions } = this.props;
-
+    actions.setIsLoading(true);
     actions.setGlobalMarkerColor(projectClassificationsProps[0].color);
-    actions.setIsLoading(false);
-
+    this.fetch();
     // polling every 10 seconds (it is the default value, it's just for demostration)
-    const unsuscribeServices = suscribeRT({ timeout: 200000 })(this.fetch);
+    // const unsuscribeServices = suscribeRT({ timeout: 200000 })(this.fetch);
     // keep this for clear timeouts
-    this.setState({ unsuscribeServices });
+    // this.setState({ unsuscribeServices });
 
     /* Add some event listeners */
     this.addEventListeners();
   }
 
-  componentWillUnmount() {
-    // clean timeouts
-    const { unsuscribeServices } = this.state;
-    if (unsuscribeServices) unsuscribeServices();
+  static getDerivedStateFromProps(nextProps){
+    const {
+      allProjects,
+      userProjects,
+      starredProjects
+    } = nextProps;
+    const {actions} = nextProps;
+    actions.setIsLoading(false);
+    return {
+      allProjects,
+      userProjects,
+      starredProjects
+    }
   }
 
   addEventListeners = () => projectClassificationsProps
@@ -72,36 +83,31 @@ class Myprojects extends React.Component {
 
   fetch() {
     const { actions } = this.props;
-
-    this.setState({ isFetching: true });
-
-    // fetch 3 list of projects using a fetching flag
     return Promise.all([
       /* actions.getUserProjects(), */
       /* actions.getStarredProjects(), */
-      actions.getProjectsList(),
+      actions.getProjectsList(PROJECT_TYPES.DATA_PROJ),
       actions.getGroupsList(),
     ])
       .catch(() => {
       })
       .finally(() => {
-        this.setState({ isFetching: false });
+        actions.setIsLoading(false);
       });
   }
 
   render() {
     const {
-      isFetching,
       showModal,
       projectName,
       owner,
-    } = this.state;
-
-    const {
+      allProjects,
       userProjects,
       starredProjects,
-      allProjects,
+    } = this.state;
+    const {
       history,
+      actions,
     } = this.props;
 
     return (
@@ -118,39 +124,89 @@ class Myprojects extends React.Component {
         <br />
         <br />
         <MTabs>
-          <MTabs.Section defaultActive id={projectClassificationsProps[0].classification} label="ML Projects" color={projectClassificationsProps[0].color}>
+          <MTabs.Section 
+            defaultActive 
+            id={projectClassificationsProps[0].classification}
+            label="ML Projects"
+            color={projectClassificationsProps[0].color}
+            callback={() => {
+              try {
+                actions.setIsLoading(true);
+                actions.getProjectsList(PROJECT_TYPES.DATA_PROJ);  
+              } catch (error) {
+                toastr.error('Error', error);
+              }
+            }}
+          >
             <MProjectClassification
               classification={projectClassificationsProps[0].classification}
-              isFetching={isFetching}
               history={history}
               userProjects={userProjects}
               starredProjects={starredProjects}
               allProjects={allProjects}
             />
           </MTabs.Section>
-          <MTabs.Section id={projectClassificationsProps[1].classification} label="Models" color={projectClassificationsProps[1].color}>
+          <MTabs.Section
+            id={projectClassificationsProps[1].classification}
+            label="Models"
+            color={projectClassificationsProps[1].color}
+            callback={() => {
+              try {
+                actions.setIsLoading(true);
+                actions.getProjectsList(PROJECT_TYPES.CODE_PROJ)
+              } catch (error) {
+                toastr.error('Error', error);
+              }
+            }}
+          >
             <MProjectClassification
               classification={projectClassificationsProps[1].classification}
-              isFetching={false}
               history={history}
+              userProjects={userProjects}
+              starredProjects={starredProjects}
+              allProjects={allProjects}
             />
           </MTabs.Section>
           <MTabs.Section
             id={projectClassificationsProps[2].classification}
             label="Data Operations"
             color={projectClassificationsProps[2].color}
+            callback={() => {
+              try {
+                actions.setIsLoading(true);
+                actions.getDataProcessorsAndCorrespondingProjects(OPERATION);
+              } catch (error) {
+                toastr.error('Error', error);
+              }
+            }}
           >
             <MProjectClassification
               classification={projectClassificationsProps[2].classification}
-              isFetching={false}
               history={history}
+              userProjects={userProjects}
+              starredProjects={starredProjects}
+              allProjects={allProjects}
             />
           </MTabs.Section>
-          <MTabs.Section id={projectClassificationsProps[3].classification} label="Data visualizations" color={projectClassificationsProps[3].color}>
+          <MTabs.Section 
+            id={projectClassificationsProps[3].classification} 
+            label="Data visualizations" 
+            color={projectClassificationsProps[3].color}
+            callback={() => {
+              try {
+                actions.setIsLoading(true);
+                actions.getDataProcessorsAndCorrespondingProjects(VISUALISATION);
+              } catch (error) {
+                toastr.error('Error', error);
+              }
+            }}
+          >
             <MProjectClassification
               classification={projectClassificationsProps[3].classification}
-              isFetching={false}
               history={history}
+              userProjects={userProjects}
+              starredProjects={starredProjects}
+              allProjects={allProjects}
             />
           </MTabs.Section>
         </MTabs>
@@ -174,6 +230,7 @@ function mapDispatchToProps(dispatch) {
       ...projectActions,
       ...groupsActions,
       ...userActions,
+      ...processorActions,
     }, dispatch),
   };
 }

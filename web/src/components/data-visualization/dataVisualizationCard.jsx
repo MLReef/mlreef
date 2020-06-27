@@ -7,7 +7,9 @@ import { Base64 } from 'js-base64';
 import { toastr } from 'react-redux-toastr';
 import { getTimeCreatedAgo, parseMlreefConfigurationLines } from '../../functions/dataParserHelpers';
 import './dataVisualizationCard.css';
-import filesApi from '../../apis/FilesApi';
+import FilesApi from '../../apis/FilesApi.ts';
+
+const filesApi = new FilesApi();
 
 const DataVisualizationCard = ({ classification, projectId }) => {
   const today = new Date();
