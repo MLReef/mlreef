@@ -1,8 +1,7 @@
 import React, { Component, createRef } from 'react';
 import {
-  bool, shape, arrayOf, string,
+  shape, arrayOf, string,
 } from 'prop-types';
-import { CircularProgress } from '@material-ui/core';
 import { Link } from 'react-router-dom';
 import ArrowButton from 'components/arrow-button/arrowButton';
 import ProjectSet from '../../projectSet';
@@ -10,19 +9,42 @@ import './MProjectClassification.scss';
 import MCheckBox from '../MCheckBox/MCheckBox';
 
 class MProjectClassification extends Component {
-  projFilterBtnsList = ['own', 'starred', 'explore'];
+  projFilterBtnsList = ['personal', 'starred', 'explore'];
 
-  ownBtnRef = createRef();
+  personalBtnRef = createRef();
 
   constructor(props) {
     super(props);
     this.state = {
       isDataTypesVisible: true,
+      isFrameworksVisible: true,
+      isModelTypesVisible: true,
+      isMlCategoriesVisible: true,
     };
+    this.handleClickDataTypesButton.bind(this);
+    this.handleClickFrameworkButton.bind(this);
+    this.handleClickModelTypeButton.bind(this);
+    this.handleClickMlCategoriesButton.bind(this);
   }
 
   componentDidMount() {
-    this.ownBtnRef.current.click();
+    this.updateActiveButtons();
+  }
+
+  componentDidUpdate(){
+   this.updateActiveButtons();
+  }
+
+  updateActiveButtons(){
+    const { classification, history: { location: { hash } } } = this.props;
+    const buttonType = hash ? hash.substring(1, hash.length) : this.projFilterBtnsList[0];
+    let elementBtn;
+    this.projFilterBtnsList.forEach((btnId) => {
+      elementBtn = document.getElementById(`${classification}-${btnId}-btn`);
+      if(elementBtn) elementBtn.classList.replace('btn-basic-info', 'btn-basic-dark');
+    });
+    elementBtn = document.getElementById(`${classification}-${buttonType}-btn`);
+    if(elementBtn) elementBtn.classList.replace('btn-basic-dark', 'btn-basic-info');
   }
 
   // this change tabs in projectSet
@@ -39,11 +61,21 @@ class MProjectClassification extends Component {
     push(`${pathname}${screen}`);
   }
 
-  handleClickDataTypesButton = () => this.setState(
-    (prevState) => ({
-      isDataTypesVisible: !prevState.isDataTypesVisible,
-    }),
-  );
+  handleClickDataTypesButton = () => this.setState((prevState) => ({
+    isDataTypesVisible: !prevState.isDataTypesVisible,
+  }));
+ 
+  handleClickFrameworkButton = () => this.setState((prevState) => ({
+    isFrameworksVisible: !prevState.isFrameworksVisible,
+  }));
+  
+  handleClickModelTypeButton = () => this.setState((prevState) => ({
+    isModelTypesVisible: !prevState.isModelTypesVisible,
+  }));
+  
+  handleClickMlCategoriesButton = () => this.setState((prevState) => ({
+    isMlCategoriesVisible: !prevState.isMlCategoriesVisible,
+  }));
 
   handleProjectFilterBtn(e, screen) {
     this.changeScreen(screen);
@@ -57,11 +89,13 @@ class MProjectClassification extends Component {
   render() {
     const {
       isDataTypesVisible,
+      isFrameworksVisible,
+      isMlCategoriesVisible,
+      isModelTypesVisible,
     } = this.state;
 
     const {
       classification,
-      isFetching,
       userProjects,
       starredProjects,
       allProjects,
@@ -73,20 +107,40 @@ class MProjectClassification extends Component {
       },
     } = this.props;
     const dataTypes = [
-      { name: `${classification} data-types`, label: 'Text' },
-      { name: `${classification} data-types`, label: 'Image' },
-      { name: `${classification} data-types`, label: 'Audio' },
-      { name: `${classification} data-types`, label: 'Video' },
-      { name: `${classification} data-types`, label: 'Tabular' },
-    ];
+      { label: 'Text' },
+      { label: 'Image' },
+      { label: 'Audio' },
+      { label: 'Video' },
+      { label: 'Tabular' },
+    ].map((dT) => ({ ...dT, name: `${classification} dataTypes` }));
+    const frameworks = [
+      { label: 'TensorFlow' },
+      { label: 'Pytorch' },
+      { label: 'Keras' },
+      { label: 'Scikit Learn' },
+    ].map((dT) => ({ ...dT, name: `${classification} framework` }));
+
+    const modelTypes = [
+      { label: 'CNN' },
+      { label: 'Clustering' },
+      { label: 'Trees' },
+      { label: 'Regression' },
+    ].map((dT) => ({ ...dT, name: `${classification} modelTypes` }));
+
+    const mlCategories = [
+      { label: 'Regression' },
+      { label: 'Prediction' },
+      { label: 'Classification' },
+      { label: 'Dimensionality reduction' },
+    ].map((dT) => ({ ...dT, name: `${classification} mlCategories` }));
+    
     return (
       <div style={{ display: 'flex', justifyContent: 'space-around' }}>
         <div>
           <div id="buttons-div">
             <div id="filter-div">
               <button
-                id={`${classification}-own-btn`}
-                ref={this.ownBtnRef}
+                id={`${classification}-personal-btn`}
                 onClick={(e) => this.handleProjectFilterBtn(e, '#personal')}
                 type="button"
                 className="btn btn-basic-dark"
@@ -120,36 +174,29 @@ class MProjectClassification extends Component {
               </Link>
             </div>
           </div>
-          {isFetching
-            ? (
-              <div className="project-content-loader">
-                <CircularProgress size={40} />
+          <div className="m-project-classification">
+            <ProjectSet
+              push={push}
+              screen={screen || '#personal'}
+              changeScreen={this.changeScreen}
+              allProjects={allProjects}
+              personalProjects={userProjects}
+              starredProjects={starredProjects}
+            />
+            <div id="side-filters">
+              <div id="input-div">
+                <p>Refine by</p>
+                <button>Clear filters</button>
               </div>
-            )
-            : (
-              <div className="m-project-classification">
-                <ProjectSet
-                  push={push}
-                  screen={screen || '#personal'}
-                  changeScreen={this.changeScreen}
-                  allProjects={allProjects}
-                  personalProjects={userProjects}
-                  starredProjects={starredProjects}
-                />
-                <div id="side-filters">
-                  <div id="input-div">
-                    <p>Refine by</p>
-                    <button>Clear filters</button>
-                  </div>
-                  <br />
-                  <div id="data-types-deploy-btn">
-                    <p>
-                      Data types
-                    </p>
-                    <ArrowButton callback={this.handleClickDataTypesButton} />
-                  </div>
-                  {isDataTypesVisible
-                && (
+              <br />
+              <>
+                <div className="name-filter-section">
+                  <p>
+                    Data types
+                  </p>
+                  <ArrowButton callback={this.handleClickDataTypesButton} />
+                </div>
+                {isDataTypesVisible && (
                   dataTypes.map((dtype) => (
                     <MCheckBox
                       key={`${dtype.name} ${dtype.label} comp`}
@@ -161,9 +208,69 @@ class MProjectClassification extends Component {
                     />
                   ))
                 )}
+              </>
+              <>
+                <div className="name-filter-section">
+                  <p>
+                    Framework
+                  </p>
+                  <ArrowButton callback={this.handleClickFrameworkButton} />
                 </div>
-              </div>
-            )}
+                {isFrameworksVisible && (
+                  frameworks.map((dtype) => (
+                    <MCheckBox
+                      key={`${dtype.name} ${dtype.label} comp`}
+                      name={dtype.name}
+                      labelValue={dtype.label}
+                      callback={(name, labelValue, newValue) => {
+
+                      }}
+                    />
+                  ))
+                )}
+              </>
+              <>
+                <div className="name-filter-section">
+                  <p>
+                    Model Type
+                  </p>
+                  <ArrowButton callback={this.handleClickModelTypeButton} />
+                </div>
+                {isModelTypesVisible && (
+                  modelTypes.map((dtype) => (
+                    <MCheckBox
+                      key={`${dtype.name} ${dtype.label} comp`}
+                      name={dtype.name}
+                      labelValue={dtype.label}
+                      callback={(name, labelValue, newValue) => {
+
+                      }}
+                    />
+                  ))
+                )}
+              </>
+              <>
+                <div className="name-filter-section">
+                  <p>
+                    ML categories
+                  </p>
+                  <ArrowButton callback={this.handleClickMlCategoriesButton} />
+                </div>
+                {isMlCategoriesVisible && (
+                  mlCategories.map((dtype) => (
+                    <MCheckBox
+                      key={`${dtype.name} ${dtype.label} comp`}
+                      name={dtype.name}
+                      labelValue={dtype.label}
+                      callback={(name, labelValue, newValue) => {
+
+                      }}
+                    />
+                  ))
+                )}
+              </>
+            </div>
+          </div>
         </div>
       </div>
     );
@@ -172,7 +279,6 @@ class MProjectClassification extends Component {
 
 MProjectClassification.propTypes = {
   classification: string.isRequired,
-  isFetching: bool.isRequired,
   userProjects: arrayOf(shape({})),
   starredProjects: arrayOf(shape({})),
   allProjects: arrayOf(shape({})),

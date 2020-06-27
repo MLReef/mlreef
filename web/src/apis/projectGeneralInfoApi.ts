@@ -6,15 +6,16 @@ import DataProject from 'domain/project/DataProject';
 import { plainToClass } from "class-transformer";
 import { parseToCamelCase } from 'functions/dataParserHelpers';
 import Experiment from 'domain/experiments/Experiment';
+import CodeProject from 'domain/project/CodeProject';
+import { PROJECT_TYPES } from 'domain/project/projectTypes';
 
 // this returns an error if code is bigger than 400
 const handleResponse = (res: Response) => res.ok ? res.json() : Promise.reject(res);
 
 export default class ProjectGeneralInfoApi extends ApiDirector {
-  async create(settings: any) {
-    const baseUrl = '/api/v1/data-projects';
-    const data = { ...settings };
-    const apiReqBuilder = new ApiRequestCallBuilder(METHODS.POST, this.buildBasicHeaders(validServicesToCall.BACKEND), baseUrl, JSON.stringify(data));
+  async create(body: any, projectType: string) {
+    const baseUrl = `/api/v1/${projectType}s`;
+    const apiReqBuilder = new ApiRequestCallBuilder(METHODS.POST, this.buildBasicHeaders(validServicesToCall.BACKEND), baseUrl, JSON.stringify(body));
     const response = await fetch(apiReqBuilder.build());
     if (!response.ok) {
       const body = await response.json();
@@ -29,30 +30,36 @@ export default class ProjectGeneralInfoApi extends ApiDirector {
     const response = await fetch(builder.build());
 
     if (!response.ok) {
-      window.history.replaceState({ errorCode: 500 }, 'Mlreef', '/error-page');
-      window.location.reload();
+      return Promise.reject(response);
     }
     return response.json();
   }
 
-  async getProjectsList() {
-    const url = '/api/v1/data-projects';
+  async getProjectsList(projectsType: string) {
+    const url = `/api/v1/${projectsType}s`;
     const builder = new BLApiRequestCallBuilder(METHODS.GET, this.buildBasicHeaders(validServicesToCall.BACKEND), url);
     const response = fetch(builder.build());
-    return response
-      .then(async (res) => {
-        if(!res.ok){
-          return Promise.reject(res);
-        }
-        const projectsList = await res.json();
-        const dataProjects = plainToClass(DataProject, projectsList.map((p: any) => parseToCamelCase(p)).map((backPro: any) => {
+    return response.then(async (res) => {
+      if(!res.ok){
+        return Promise.reject(res);
+      }
+      const projectsList = await res.json();
+      if(projectsType === PROJECT_TYPES.CODE_PROJ){
+        return plainToClass(CodeProject, projectsList.map((p: any) => parseToCamelCase(p)).map((backPro: any) => {
           const newPro = { ...backPro, backendId: backPro.id };
-          newPro.experiments = backPro.experiments.map((exp: any) => plainToClass(Experiment, parseToCamelCase(exp)));
+          newPro.projectType = projectsType;
           delete newPro.id;
           return newPro;
-        }));
-        return dataProjects;
-      })
+        }))
+      }
+      return plainToClass(DataProject, projectsList.map((p: any) => parseToCamelCase(p)).map((backPro: any) => {
+        const newPro = { ...backPro, backendId: backPro.id };
+        newPro.experiments = backPro.experiments.map((exp: any) => plainToClass(Experiment, parseToCamelCase(exp)));
+        newPro.projectType = projectsType;
+        delete newPro.id;
+        return newPro;
+      }));
+    })
   }
 
   getMembers(projectId: string) {

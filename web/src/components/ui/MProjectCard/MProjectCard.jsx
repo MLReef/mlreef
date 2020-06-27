@@ -8,7 +8,6 @@ const MProjectCard = ({
   projectId,
   title,
   description,
-  branch,
   starCount,
   forkCount,
   namespace,
@@ -40,8 +39,8 @@ const MProjectCard = ({
         role="button"
         tabIndex="0"
         className="card-container project-card-container"
-        onClick={() => push(`/my-projects/${projectId}/${branch}`)}
-        onKeyPress={() => push(`/my-projects/${projectId}/${branch}`)}
+        onClick={() => push(`/my-projects/${projectId}/null`)}
+        onKeyPress={() => push(`/my-projects/${projectId}/null`)}
       >
         <p className="card-title">
           {title}
@@ -74,14 +73,14 @@ const MProjectCard = ({
               </i>
             </div>
           </div>
-            {description?.length === 0 ? (
+            {description ? (
+              <p>{description}</p>
+            ) : (
               <div className="d-flex noelement-found-div" style={{ marginTop: '1rem' }}>
                 <img src={iconGrey} alt="" style={{ maxHeight: '30px' }} />
                 <p style={{ height: 'unset' }}>No description</p>
               </div> 
-            )
-            : (
-              <p>description</p>
+              
             )}
           <div className="d-flex t-secondary">
             <div className="mr-3">

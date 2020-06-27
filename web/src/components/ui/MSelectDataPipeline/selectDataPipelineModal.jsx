@@ -7,7 +7,7 @@ import './selectDataPipelineModal.scss';
 import MDropdown from 'components/ui/MDropdown';
 import ReturnLink from 'components/returnLink';
 import MCheckBox from 'components/ui/MCheckBox/MCheckBox';
-import filesApi from 'apis/FilesApi';
+import FilesApi from 'apis/FilesApi';
 
 const folderIcon = '/images/svg/folder_01.svg';
 const fileIcon = '/images/svg/file_01.svg';
@@ -72,20 +72,18 @@ class SelectDataPipelineModal extends Component {
       files: prevState.files.map((f) => ({ ...f, checked: newCheckedValue })),
     }));
 
-    updateFiles = (projectId, path, branch) => filesApi.getFilesPerProject(
+    updateFiles(projectId, path, branch) { 
+      const filesApi = new FilesApi();
+      filesApi.getFilesPerProject(
       projectId,
       path,
       false,
       branch,
-    ).then((res) => {
-      if (res.ok) {
-        return res.json();
-      }
-      return Promise.reject(res);
-    }).then((files) => this.setState({
+    ).then((files) => this.setState({
       files: [...files.map((file) => ({ ...file, checked: false }))],
     }))
       .catch(() => toastr.error('Error', 'Files could not be recovered'));
+    }
 
     handleCloseButton() {
       const { selectDataClick } = this.props;

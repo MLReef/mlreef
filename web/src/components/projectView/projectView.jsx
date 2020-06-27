@@ -9,7 +9,6 @@ import { OPERATION, ALGORITHM } from 'dataTypes';
 import ProjectGeneralInfoApi from 'apis/projectGeneralInfoApi';
 import ReadMeComponent from '../readMe/readMe';
 import ProjectContainer from '../projectContainer';
-import FilesContainer from '../FilesContainer/FilesContainer';
 import RepoInfo from '../repoInfo';
 import RepoFeatures from '../repoFeatures';
 import Navbar from '../navbar/navbar';
@@ -17,13 +16,16 @@ import * as projectActions from '../../actions/projectInfoActions';
 import * as branchesActions from '../../actions/branchesActions';
 import * as processorActions from '../../actions/processorActions';
 import './projectView.css';
-import commitsApi from '../../apis/CommitsApi';
-import { getTimeCreatedAgo, parseToCamelCase } from '../../functions/dataParserHelpers';
+import { parseToCamelCase } from '../../functions/dataParserHelpers';
 import * as userActions from '../../actions/userActions';
 import * as jobsActions from '../../actions/jobsActions';
 import * as mergeActions from '../../actions/mergeActions';
 import EmptyProject from './emptyProject';
-import DataProject from 'domain/project/DataProject';
+import ProjectLastCommitSect from './projectLastCommitSect';
+import { toastr } from 'react-redux-toastr';
+import FilesContainer from 'components/FilesContainer';
+
+const isValidBranch = (branch) => branch !== 'null' && branch !== null && branch !== undefined;
 
 class ProjectView extends React.Component {
   constructor(props) {
@@ -36,17 +38,14 @@ class ProjectView extends React.Component {
     } = this.props;
 
     const decodedBranch = decodeURIComponent(branch);
-
     this.state = {
       selectedProject: null,
       mergeRequests: [],
       branch: decodedBranch,
       contributors: [],
-      lastCommit: null,
       users,
       isForking: false,
     };
-    this.updateLastCommit = this.updateLastCommit.bind(this);
     this.setIsForking = this.setIsForking.bind(this);
   }
 
@@ -56,7 +55,7 @@ class ProjectView extends React.Component {
       projects: { all },
       match:
       {
-        params: { projectId, branch },
+        params: { projectId },
       },
     } = this.props;
     actions.getUsersLit(projectId);
@@ -72,52 +71,36 @@ class ProjectView extends React.Component {
       .then((rawGitlabProjectInfo) => {
         const gitlabProjectInfo = parseToCamelCase(rawGitlabProjectInfo);
         const backendProjectInformation = all.filter((proj) => proj.gitlabId.toString() === projectId)[0];
-        const dp = new DataProject(
-          backendProjectInformation.backendId,
-          backendProjectInformation.slug,
-          backendProjectInformation.url,
-          backendProjectInformation.ownerId,
-          backendProjectInformation.gitlabGroup,
-          backendProjectInformation.experiments,
-        );
-        dp.avatarUrl = gitlabProjectInfo.avatarUrl;
-        dp.defaultBranch = gitlabProjectInfo.defaultBranch;
-        dp.description = gitlabProjectInfo.description;
-        dp.emptyRepo = gitlabProjectInfo.emptyRepo;
-        dp.forksCount = gitlabProjectInfo.forksCount;
-        dp.starCount = gitlabProjectInfo.starCount;
-        dp.httpUrlToRepo = gitlabProjectInfo.httpUrlToRepo;
-        dp.sshUrlToRepo = gitlabProjectInfo.sshUrlToRepo;
-        dp.readmeUrl = gitlabProjectInfo.readmeUrl;
-        dp.namespace = gitlabProjectInfo.namespace;
-        dp.gitlabName = gitlabProjectInfo.name;
-        dp.id = gitlabProjectInfo.id;
+        const fullProject = { ...backendProjectInformation };
+        fullProject.avatarUrl = gitlabProjectInfo.avatarUrl;
+        fullProject.defaultBranch = gitlabProjectInfo.defaultBranch;
+        fullProject.description = gitlabProjectInfo.description;
+        fullProject.emptyRepo = gitlabProjectInfo.emptyRepo;
+        fullProject.forksCount = gitlabProjectInfo.forksCount;
+        fullProject.starCount = gitlabProjectInfo.starCount;
+        fullProject.httpUrlToRepo = gitlabProjectInfo.httpUrlToRepo;
+        fullProject.sshUrlToRepo = gitlabProjectInfo.sshUrlToRepo;
+        fullProject.readmeUrl = gitlabProjectInfo.readmeUrl;
+        fullProject.namespace = gitlabProjectInfo.namespace;
+        fullProject.gitlabName = gitlabProjectInfo.name;
+        fullProject.id = gitlabProjectInfo.id;
         const statistics = gitlabProjectInfo.statistics ? parseToCamelCase(gitlabProjectInfo.statistics) : {};
-        dp.repositorySize = statistics.repositorySize || 0;
-        const lastCommitBr = this.isValidBranch(branch)
-          ? branch
-          : dp.defaultBranch;
-        this.updateLastCommit(dp.id, lastCommitBr);
-        this.setState({ selectedProject: dp });
-        actions.setSelectedProject(dp);
-        actions.setIsLoading(false);
+        fullProject.repositorySize = statistics.repositorySize || 0;
+        fullProject.commitCount = statistics.commitCount || 0;
+        actions.setSelectedProject(fullProject);
       })
-      .catch(() => this.props.history.push('/error-page'));
+      .catch(() => toastr.error('Error', 'Error fetching project'))
+      .finally(() => actions.setIsLoading(false));
   }
 
   static getDerivedStateFromProps(nextProps) {
+    const { mergeRequests, match: { params: { branch } }, projects: { selectedProject } } = nextProps;
+    const isValidBr = isValidBranch(branch);
     return {
-      mergeRequests: nextProps.mergeRequests,
-      branch: decodeURIComponent(nextProps.match.params.branch)
-    };
-  }
-
-  componentDidUpdate(prevProps){
-    const {
-      branch,
       selectedProject,
-    } = this.state;
-    if(selectedProject && branch !== prevProps.match.params.branch) this.updateLastCommit(selectedProject.id, branch);
+      mergeRequests,
+      branch: isValidBr ? decodeURIComponent(branch): selectedProject.defaultBranch
+    };
   }
 
   componentWillUnmount() {
@@ -128,19 +111,9 @@ class ProjectView extends React.Component {
     this.setState({ isForking: status });
   }
 
-  isValidBranch = (branch) => branch !== 'null' && branch !== null && branch !== undefined
-
-  updateLastCommit(projectId, newBranch) {
-    commitsApi.getCommits(projectId, newBranch, '', 1)
-      .then(
-        (res) => this.setState({ lastCommit: res[0] }),
-      ).catch((err) => err);
-  }
-
   render() {
-    const { match: { params: { path, projectId } }, branches, history } = this.props;
+    const { match: { params: { path, projectId, branch: urlBranch } }, branches } = this.props;
     const {
-      lastCommit,
       branch,
       selectedProject,
       users,
@@ -154,18 +127,15 @@ class ProjectView extends React.Component {
       sshUrlToRepo = selectedProject.sshUrlToTepo;
       projectName = selectedProject.gitlabName;
       showReadMe = selectedProject.readmeUrl;
-      encodedBranch = branch.includes('%2F')
-        ? branch
-        : encodeURIComponent(branch);
-      encodedBranch = this.isValidBranch(encodedBranch)
-        ? encodedBranch
-        : selectedProject.defaultBranch;
+
+      if(isValidBranch(branch)){
+        encodedBranch = branch.includes('%2F')
+          ? branch 
+          : encodeURIComponent(branch);
+      } else {
+        encodedBranch = selectedProject.defaultBranch;
+      }
     }
-    const committer = lastCommit && users.filter((user) => user.name === lastCommit.author_name)[0];
-    const avatarUrl = committer ? committer.avatar_url : '';
-    const avatarName = committer && committer.name;
-    const today = new Date();
-    const timediff = lastCommit && getTimeCreatedAgo(lastCommit.authored_date, today);
     return (
       <div className="project-component">
         <Navbar />
@@ -200,8 +170,8 @@ class ProjectView extends React.Component {
             ) : (
               <>
                 <RepoInfo
+                  project={selectedProject}
                   mergeRequests={mergeRequests}
-                  projectId={selectedProject.id}
                   currentBranch={encodedBranch}
                   numberOfContributors={contributors.length}
                   branchesCount={branches.length}
@@ -212,47 +182,23 @@ class ProjectView extends React.Component {
                       ).length
                   }
                 />
-                {lastCommit && (
-                <div className="last-commit-info">
-                  <div className="last-commit-details">
-                    <a href={committer && `/${avatarName}`}>
-                      <span style={{ position: 'relative' }}>
-                        <img className="avatar-circle mt-2" width="32" height="32" src={avatarUrl} alt="" />
-                      </span>
-                    </a>
-                    <div className="last-commit-name">
-                      <p>
-                        {lastCommit.message}
-                        <br />
-                        by
-                        {' '}
-                        <b>
-                          <a href={committer && `/${avatarName}`}>
-                            {lastCommit.author_name}
-                          </a>
-                        </b>
-                        {' '}
-                        authored
-                        {' '}
-                        <b>{timediff}</b>
-                      </p>
-                    </div>
-                  </div>
-                  <div className="last-commit-id">
-                    <p>{lastCommit.short_id}</p>
-                  </div>
-                </div>
-                )}
+                <ProjectLastCommitSect 
+                  projectId={selectedProject.id}
+                  branch={urlBranch}
+                  projectDefaultBranch={selectedProject.defaultBranch}
+                  users={users}
+                />
                 <RepoFeatures
                   projectId={selectedProject.id}
                   branch={encodedBranch}
                   path={path || ''}
+                  projectType={selectedProject.projectType}
                 />
                 <FilesContainer
                   projectId={selectedProject.id}
                   path={path}
-                  branch={encodedBranch}
-                  history={history}
+                  urlBranch={urlBranch}
+                  defaultBranch={selectedProject.defaultBranch}
                 />
                 {showReadMe && (
                 <ReadMeComponent

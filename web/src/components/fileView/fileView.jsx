@@ -9,7 +9,7 @@ import MDropdown from 'components/ui/MDropdown';
 import ProjectContainer from '../projectContainer';
 import CommitsApi from '../../apis/CommitsApi';
 import Navbar from '../navbar/navbar';
-import filesApi from '../../apis/FilesApi';
+import FilesApi from '../../apis/FilesApi.ts';
 import DeleteFileModal from '../delete-file-modal/deleteFileModal';
 
 const file01 = '/images/svg/file_01.svg';
@@ -30,6 +30,7 @@ export class FileView extends React.Component {
 
   componentDidMount() {
     const { match: { params: { projectId, file, branch } } } = this.props;
+    const filesApi = new FilesApi();
     filesApi.getFileData(
       projectId,
       file,

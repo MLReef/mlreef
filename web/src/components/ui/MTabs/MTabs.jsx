@@ -32,7 +32,7 @@ const MTabs = (props) => {
     });
 
 
-    return callback && callback();
+    callback && callback();
   };
 
   let finalSections = sections;
