@@ -5,7 +5,7 @@ import './executePipeLineModal.css';
 import '../../css/genericModal.css';
 import MSelect from 'components/ui/MSelect';
 import { ALGORITHM } from 'dataTypes';
-import createExperimentInProject, { createPipelineInProject } from '../../functions/pipeLinesHelpers';
+import createExperimentInProject from '../../functions/pipeLinesHelpers';
 
 
 const fakeMachinesToShow = [
@@ -25,7 +25,6 @@ const ExecutePipelineModal = ({
   toggle,
   dataOperationsSelected,
   filesSelectedInModal,
-  httpUrlToRepo,
   projectId,
   backendId,
   branchName,
@@ -58,18 +57,7 @@ const ExecutePipelineModal = ({
           branchSelected,
           filesSelectedInModal,
         );
-      } else {
-        createPipelineInProject(
-          dataOperationsSelected,
-          filesSelectedInModal,
-          httpUrlToRepo,
-          projectId,
-          jobName,
-          branchName,
-          dataInstanceName,
-          branchSelected,
-        );
-      }
+      } 
     } else {
       cleanForm();
     }
