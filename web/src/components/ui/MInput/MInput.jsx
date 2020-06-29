@@ -12,6 +12,7 @@ const MInput = (props) => {
     label,
     type,
     placeholder,
+    min,
     className,
   } = props;
 
@@ -27,6 +28,7 @@ const MInput = (props) => {
           placeholder={placeholder}
           onChange={onChange}
           onBlur={onBlur}
+          min={min}
         />
         <div className="m-input_errors">
           {error && (
@@ -45,6 +47,7 @@ MInput.defaultProps = {
   label: '',
   type: 'text',
   placeholder: null,
+  min: undefined,
   className: '',
   onBlur: () => {},
 };
@@ -62,7 +65,16 @@ MInput.propTypes = {
   error: PropTypes.string,
   type: PropTypes.string,
   placeholder: PropTypes.string,
-  label: PropTypes.string,
+  label: PropTypes
+    .oneOfType([
+      PropTypes.string,
+      PropTypes.node,
+    ]),
+  min: PropTypes
+    .oneOfType([
+      PropTypes.string,
+      PropTypes.number,
+    ]),
   className: PropTypes.string,
 };
 

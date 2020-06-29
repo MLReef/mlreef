@@ -21,12 +21,12 @@ const MSelect = (props) => {
   const [optionsShown, setOptionsShown] = useState(false);
 
   const toggleShowOptions = () => {
-      setOptionsShown(!optionsShown)
+    setOptionsShown(!optionsShown);
   };
 
-  const handleSelect = (value) => () => {
+  const handleSelect = (val) => () => {
     setOptionsShown(false);
-    return onSelect(value);
+    return onSelect(val);
   };
 
   return (
@@ -45,6 +45,7 @@ const MSelect = (props) => {
       <div className="m-select-list-container container-shadow border-rounded m-dropdown-list-container">
         <ul className="m-select-list m-dropdown-list">
           {options.map((opt) => (
+            // eslint-disable-next-line
             <li
               key={`${opt.label}-{${opt.value}}`}
               className="m-select-list-item m-dropdown-list-item"

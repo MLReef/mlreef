@@ -164,3 +164,18 @@ export const parseToCamelCase = (objectToParse) => {
   });
   return newObj;
 };
+
+/**
+ * Returns "YYY-MM-DD" date.
+ *
+ * @param {Date} date it's a date instance.
+ * @return {String}
+ */
+export const parseDate = (date) => {
+  const padNumber = (num) => num.toString().padStart(2, '0');
+  const d = date.getDate();
+  const m = date.getMonth() + 1;
+  const y = date.getFullYear();
+
+  return `${y}-${padNumber(m)}-${padNumber(d)}`;
+};
