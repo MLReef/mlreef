@@ -71,10 +71,15 @@ export default class ProjectGeneralInfoApi extends ApiDirector {
       .then(handleResponse);
   }
 
-  addMember(projectId: string, userId: number) {
-    const url = `/api/v1/data-projects/${projectId}/users?gitlab_id=${userId}`;
+  addMember(projectId: string, formData: any) {
+    const url = `/api/v1/data-projects/${projectId}/users`;
     const headers = this.buildBasicHeaders(validServicesToCall.BACKEND)
-    const builder = new BLApiRequestCallBuilder(METHODS.POST, headers, url);
+    const builder = new ApiRequestCallBuilder(
+      METHODS.POST,
+      headers,
+      url,
+      JSON.stringify(formData)
+    );
 
     return fetch(builder.build())
       .then(handleResponse);
@@ -108,12 +113,12 @@ export default class ProjectGeneralInfoApi extends ApiDirector {
 
   removeProject = async (projectId: number) => {
     const bl = new BLApiRequestCallBuilder(
-      METHODS.DELETE, 
+      METHODS.DELETE,
       this.buildBasicHeaders(validServicesToCall.GITLAB),
       `/api/v4/projects/${projectId}`)
     return fetch(bl.build())
   };
-  
+
   async getProjectContributors(projectId: number) {
     const url = `/api/v4/projects/${projectId}/members`;
     const builder = new BLApiRequestCallBuilder(METHODS.GET, this.buildBasicHeaders(validServicesToCall.GITLAB), url);

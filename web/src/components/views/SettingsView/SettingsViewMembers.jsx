@@ -1,18 +1,27 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import PropTypes from 'prop-types';
-// import { connect } from 'react-redux';
-// import { bindActionCreators } from 'redux';
+import { Link } from 'react-router-dom';
+import { toastr } from 'react-redux-toastr';
 import MSimpleTabs from 'components/ui/MSimpleTabs';
 import './SettingsViewMembers.scss';
+import MDropdown from 'components/ui/MDropdown';
 import MInput from 'components/ui/MInput';
 import MSimpleSelect from 'components/ui/MSimpleSelect';
 import MButton from 'components/ui/MButton';
 import SearchApi from 'apis/SearchApi';
 import ProjectGeneralInfoApi from 'apis/projectGeneralInfoApi';
+import { parseDate } from 'functions/dataParserHelpers';
 
 // const logAndGo = (payload) => console.log(payload) || payload;
 
 const projectApi = new ProjectGeneralInfoApi();
+const today = parseDate(new Date());
+const roleList = [
+  { label: 'Guest', value: 'GUEST' },
+  { label: 'Reporter', value: 'REPORTER' },
+  { label: 'Developer', value: 'DEVELOPER' },
+  { label: 'Maintainer', value: 'MAINTAINER' },
+];
 
 const SettingsViewMembers = (props) => {
   const {
@@ -24,6 +33,8 @@ const SettingsViewMembers = (props) => {
   const [userSearchResults, setUserSearchResults] = useState([]);
   const [members, setMembers] = useState([]);
   const [selectedUser, setSelectedUser] = useState({});
+  const [role, setRole] = useState('GUEST');
+  const [expiration, setExpiration] = useState('');
   const [waiting, setWaiting] = useState(false);
 
   // filter from search results
@@ -39,12 +50,25 @@ const SettingsViewMembers = (props) => {
   const addSelectedUser = () => {
     setWaiting(true);
 
-    return projectApi.addMember(projectId, selectedUser.id)
+    const formData = {
+      gitlab_id: selectedUser.id,
+      level: role,
+      expires_at: new Date(expiration),
+    };
+
+    return projectApi.addMember(projectId, formData)
       .then(populateMembers)
       .then(() => {
         setQueryUser('');
         setSelectedUser({});
+        setRole('GUEST');
+        setExpiration('');
       })
+      .catch((res) => res.json()
+        .then((err) => {
+          // console.log(err);
+          toastr.error('Failed adding member', err.error_name);
+        }))
       .finally(() => setWaiting(false));
   };
 
@@ -64,11 +88,23 @@ const SettingsViewMembers = (props) => {
     setQueryUser(result.username);
   };
 
+  const handleSetExpiration = (e) => {
+    setExpiration(e.target.value);
+  };
+
   // handle button
   const handleAddUser = () => addSelectedUser();
 
   // handle button
   const handleRemoveUser = (user) => () => removeUser(user);
+
+  // TODO once API update es ready
+  // const handleUpdateRole = (id, newRole) => () => {
+  // };
+
+  const handleUpdateExpiration = () => () => {
+    // TODO once API update es ready, id => e => api-request
+  };
 
   useEffect(
     () => { populateMembers(); },
@@ -99,7 +135,7 @@ const SettingsViewMembers = (props) => {
                     id="settings-view-search-input search-users"
                     className="mt-2"
                     value={queryUser}
-                    label="MLReef member or email address"
+                    label={(<b>MLReef member or email address</b>)}
                     placeholder="Search for members to update or invite"
                     onChange={handleSetQueryUser}
                   />
@@ -128,6 +164,27 @@ const SettingsViewMembers = (props) => {
                     </ul>
                   </div>
                 </div>
+
+                <MSimpleSelect
+                  onChange={setRole}
+                  footer="Read more about role permissions"
+                  label="Choose a role permission"
+                  options={roleList}
+                  value={role}
+                />
+
+                <MInput
+                  id="exp-date-users"
+                  className="mt-3"
+                  value={expiration}
+                  type="date"
+                  label={(<b>Access expiration date</b>)}
+                  placeholder="Expiration date"
+                  onChange={handleSetExpiration}
+                  onBlur={() => {}}
+                  min={today}
+                />
+
                 <MButton
                   className="btn btn-outline-primary"
                   onClick={handleAddUser}
@@ -187,13 +244,32 @@ const SettingsViewMembers = (props) => {
               <div className="avatar" />
               <div className="info">
                 <div className="info-title">
-                  <b>{`@${member.user_name}`}</b>
+                  <Link to={`/${member.user_name}`}>
+                    <b>{`@${member.user_name}`}</b>
+                  </Link>
                 </div>
                 <div className="info-subtitle">
                   {member.email}
                 </div>
               </div>
               <div className="actions">
+                {member.expired_at && (
+                  <div className="date mr-2 border-rounded">
+                    Until
+                    <input
+                      type="date"
+                      min={today}
+                      readOnly
+                      value={parseDate(new Date())}
+                      onChange={handleUpdateExpiration(member.id)}
+                    />
+                  </div>
+                )}
+                <MDropdown
+                  className="mr-2"
+                  label={member.access_level}
+                  items={[]}
+                />
                 {ownerId !== member.id && (
                   <button
                     type="button"
@@ -215,5 +291,15 @@ SettingsViewMembers.propTypes = {
   projectId: PropTypes.string.isRequired,
   ownerId: PropTypes.string.isRequired,
 };
+
+// fragment for later use
+// roleList.map((r) => ({
+//   content: (
+//     // eslint-disable-next-line
+//     <div onClick={handleUpdateRole(member.id, r.value)}>
+//       {r.label}
+//     </div>
+//   ),
+// }))
 
 export default SettingsViewMembers;

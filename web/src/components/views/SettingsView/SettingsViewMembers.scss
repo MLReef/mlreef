@@ -38,6 +38,23 @@
 
         & .actions {
           display: flex;
+
+          & > .date {
+            overflow: hidden;
+            border: solid 2px var(--dark);
+            display: flex;
+            align-items: center;
+            padding-left: 1rem;
+
+            & input {
+              border: none;
+              padding: 0 1rem;
+              margin: auto;
+              box-sizing: border-box;
+              height: 100%;
+              max-width: 12rem;
+            }
+          }
         }
       }
     }
