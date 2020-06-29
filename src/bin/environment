@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 # shellcheck disable=SC2155  # declare and assign variables in one command might hide return values
 
 #set -x    # output all commands
