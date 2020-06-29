@@ -1,5 +1,3 @@
-import store from '../store';
-
 const imageFormats = [
   '.png',
   '.jpg',
@@ -135,18 +133,6 @@ export const isImageFormat = (fileName) => {
   });
   return imageFormatCounter > 0;
 };
-
-export const getCurrentUserInformation = () => {
-  const { user } = store.getState();
-
-  return {
-    token: user.token,
-    userEmail: user.email,
-    userId: user.id,
-    userName: user.username,
-  };
-};
-
 
 export const convertToSlug = (stringToConvert) => stringToConvert
   .toLowerCase()

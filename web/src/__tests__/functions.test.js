@@ -1,6 +1,5 @@
 import 'babel-polyfill';
 import {parseDecimal, parseMlreefConfigurationLines,} from '../functions/dataParserHelpers';
-import {buildCommandLinesFromSelectedPipelines, generateRealContentFromTemplate,} from '../functions/pipeLinesHelpers';
 
 const testDataDocument = `
 ################################################################################
@@ -149,42 +148,6 @@ describe('Read mlreef file', () => {
       JSON.stringify(operationsAndParameters)
         === JSON.stringify(operationsArray),
     ).toBe(true);
-  });
-});
-
-
-describe('Pipelines mlreef file generation', () => {
-  test('assert that command format is correct', () => {
-    const expectedCommandsArr = [
-        '    - python /epf/pipelines/augment.py --images-path directory_1/ --iterations 2',
-    ];
-    const generatedArrOfOperationCommands = buildCommandLinesFromSelectedPipelines(
-      dataOperationsSelected,
-      mockFilesArr,
-      '/epf/pipelines',
-    );
-    generatedArrOfOperationCommands.forEach((opCommand, opCommandInd) => {
-      const isEqual = expectedCommandsArr[opCommandInd] === opCommand;
-      expect(isEqual).toBe(false);
-    });
-  });
-
-  test('assert that mlreef.yml contains generated commands', () => {
-    const expected = '    - python /epf/pipelines/augment.py --images-path directory_1/ --iterations 2';
-    const httpUrlToRepo = 'http://gitlab.com/mlreef/mlreef-demo.git';
-    const dataInstanceName = 'data-instance/019ead10';
-    const branchSelected = 'master';
-    const pipelineOpScriptName = 'data-pipeline';
-
-    const finalMockContent = generateRealContentFromTemplate(
-      expected,
-      dataInstanceName,
-      httpUrlToRepo,
-      pipelineOpScriptName,
-      branchSelected,
-    );
-    expect(finalMockContent).toEqual(expect.stringContaining(expected));
-    expect(finalMockContent).toEqual(expect.stringContaining(pipelineOpScriptName));
   });
 });
 

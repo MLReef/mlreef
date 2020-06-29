@@ -6,38 +6,12 @@ import {
   CANCELED,
   EXPIRED,
   FAILED,
-  mlreefFileContent,
   Nouns,
   PENDING,
   RUNNING,
   SKIPPED,
   SUCCESS,
 } from '../dataTypes';
-import BranchesApi from '../apis/BranchesApi.ts';
-import { callToCommitApi } from './apiCalls';
-
-/**
- * @method addFilesSelectedInModal: This funtion is to add folders and files to the command
- * @param {lineWithOutFolderAndFiles}: This is the line without directories or files
- */
-const addFilesSelectedInModal = (
-  lineWithOutFoldersAndFiles,
-  filesSelectedInModal,
-) => {
-  if (filesSelectedInModal.length === 0) {
-    toastr.error('Execution failed', 'Check please that you have selected files to be used in the pipeline');
-    return undefined;
-  }
-  let filesLine = '';
-  const file = filesSelectedInModal[0];
-  filesLine = `${filesLine} ${file.path}`;
-
-  if (file.type === 'tree') {
-    filesLine = filesLine.concat('/');
-  }
-
-  return lineWithOutFoldersAndFiles.replace('#directoriesAndFiles', filesLine);
-};
 
 /**
  * @param {input}: input html element which must be highlited to the user as wrong
@@ -68,85 +42,16 @@ export const showErrorsInTheOperationsSelected = (input, inputDataModel, dataOpe
   }
 };
 
-export const buildCommandLinesFromSelectedPipelines = (
-  dataOperationsSelected,
-  filesSelectedInModal,
-  path,
-) => dataOperationsSelected.map((dataOperation) => {
-  let line = `    - python ${path}/${dataOperation.command}.py --images-path#directoriesAndFiles`;
-  dataOperation.inputValuesAndDataModels.forEach((input) => {
-    line = line.concat(` --${input.name} ${input.value}`);
-  });
+/* ----------------------------  ----------------------------------  -------------------------------*/
 
-  return addFilesSelectedInModal(line, filesSelectedInModal);
-});
-
-export const generateRealContentFromTemplate = (
-  pipeLineOperationCommands,
-  dataInstanceName,
-  httpUrlToRepo,
-  pipelineOpScriptName,
-) => mlreefFileContent
-  .replace(/#pipeline-script/g,
-    pipeLineOperationCommands
-      .toString()
-      .replace(/,/g, '\n'))
-  .replace(/#target-branch/g, dataInstanceName)
-  .replace(/#pipeline-operation-script-name/g, pipelineOpScriptName)
-  .replace(/#repo-url/g, httpUrlToRepo.replace(/^(http?:|)\/\//, '')); // remove http://, https:// protocols
-
-const getPathToPipiline = (pipelineType) => {
-  switch (pipelineType) {
-    case 'data-pipeline':
-      return '/epf/pipelines';
-    case 'model-experiment':
-      return '/epf/model';
-    default:
-      return '/src/visualisation/';
-  }
-};
-
-export const createPipelineInProject = (
-  dataOperationsSelected,
-  filesSelectedInModal,
-  httpUrlToRepo,
-  projectId,
-  pipelineOpScriptType,
-  branchName,
-  dataInstanceName,
-  branchSelected,
-) => {
-  const pipeLineOperationCommands = buildCommandLinesFromSelectedPipelines(
-    dataOperationsSelected,
-    filesSelectedInModal,
-    getPathToPipiline(pipelineOpScriptType),
-  );
-  const finalContent = generateRealContentFromTemplate(
-    pipeLineOperationCommands,
-    dataInstanceName,
-    httpUrlToRepo,
-    pipelineOpScriptType,
-    branchSelected,
-  );
-  const brApi = new BranchesApi();
-  brApi.create(
-    projectId,
-    branchName,
-    branchSelected || 'master',
-  ).then((res) => {
-    if (res.commit) {
-      toastr.info('Execution', 'The branch for pipeline was created');
-      callToCommitApi(projectId, branchName, 'create', finalContent);
-    } else {
-      toastr.error('Execution', 'The branch for pipeline could not be created');
-    }
-  }).catch(() => {
-    toastr.error('Error', 'Something went wrong, try again later please');
-  });
-};
-
-
-
+/**
+ * 
+ * @param {*} dataOperationsSelected: opeartions selected by user to  be executed on data
+ * @param {*} backendId: backend project id is the id that backend assign to a gitlab project
+ * @param {*} branchName: new branch name that will contain the output
+ * @param {*} branchSelected: gitlab branch in which files will be read
+ * @param {*} filesSelectedInModal: files that will be used as input for models or operations
+ */
 const createExperimentInProject = (
   dataOperationsSelected,
   backendId,
@@ -184,6 +89,12 @@ const createExperimentInProject = (
 
 export default createExperimentInProject;
 
+/* ----------------------------  ----------------------------------  -------------------------------*/
+
+
+/**
+ * Utility to generate names for branches principally
+ */
 export const randomNameGenerator = () => {
   const randomFirstName = Math.floor(Math.random() * Adjectives.length);
   const randomLastName = Math.floor(Math.random() * Nouns.length);
@@ -195,6 +106,13 @@ export const randomNameGenerator = () => {
   return `${Adjectives[randomFirstName]}-${Nouns[randomLastName]}_${dateString}`;
 };
 
+/* ----------------------------  ----------------------------------  -------------------------------*/
+
+/**
+ * 
+ * @param {*} pipelinesToClassify: unsorted pipelines
+ * @param {*} arrayOfBranches: branches in which pipelines were executed
+ */
 export const classifyPipeLines = (pipelinesToClassify, arrayOfBranches) => {
   const pipes = pipelinesToClassify.filter((pipe) => pipe.status !== SKIPPED);
   const infoPipelinesComplemented = arrayOfBranches.map((branch) => {
@@ -223,8 +141,14 @@ export const classifyPipeLines = (pipelinesToClassify, arrayOfBranches) => {
   ];
 };
 
+/* ----------------------------  ----------------------------------  -------------------------------*/
+
 const sortingByDateFunc = (a, b) => new Date(b.pipelineJobInfo.createdAt) - new Date(a.pipelineJobInfo.createdAt);
 
+/**
+ * 
+ * @param {*}  experiments: unsorted experiments
+ */
 export const classifyExperiments = (experiments) => [
   {
     status: RUNNING,
@@ -257,3 +181,5 @@ export const classifyExperiments = (experiments) => [
       .filter((exp) => exp.status === EXPIRED),
   },
 ];
+
+/* ----------------------------  ----------------------------------  -------------------------------*/
