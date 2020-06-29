@@ -1,0 +1,58 @@
+#!/bin/sh
+# shellcheck disable=SC2155  # declare and assign variables in one command might hide return values
+
+#set -x    # output all commands
+set -e    # exit on immediately on every error
+set -u    # error on usage of undefined variables
+########################################
+
+echo "CI_SERVER_URL is $CI_SERVER_URL"
+
+# extract the CI_PROTOCOL
+export CI_PROTOCOL="$(echo $CI_SERVER_URL | grep :// | sed -e's,^\(.*://\).*,\1,g')"
+# remove the CI_PROTOCOLcol
+export CI_URL="$(echo ${CI_SERVER_URL/$CI_PROTOCOL/})"
+# extract the user (if any)
+export CI_USER="$(echo $CI_URL | grep @ | cut -d@ -f1)"
+# extract the host and port
+export CI_HOSTPORT="$(echo ${CI_URL/$CI_USER@/} | cut -d/ -f1)"
+# by request host without port
+export CI_HOST="$(echo $CI_HOSTPORT | sed -e 's,:.*,,g')"
+# by request - try to extract the port
+export CI_PORT="$(echo $CI_HOSTPORT | sed -e 's,^.*:,:,g' -e 's,.*:\([0-9]*\).*,\1,g' -e 's,[^0-9],,g')"
+# extract the path (if any)
+export CI_PATH="$(echo $CI_URL | grep / | cut -d/ -f2-)"
+
+echo "CI_PROTOCOL:$CI_PROTOCOL"
+echo "CI_URL:$CI_URL"
+echo "CI_USER:$CI_USER"
+echo "CI_HOST:$CI_HOST"
+echo "CI_PORT:$CI_PORT"
+echo "CI_PATH:$CI_PATH"
+
+echo "EPF_PIPELINE_URL is $EPF_PIPELINE_URL"
+
+# extract the EPF_PROTOCOL
+export EPF_PROTOCOL="$(echo $EPF_PIPELINE_URL | grep :// | sed -e's,^\(.*://\).*,\1,g')"
+# remove the EPF_PROTOCOLcol
+export EPF_URL="$(echo ${EPF_PIPELINE_URL/$EPF_PROTOCOL/})"
+# extract the user (if any)
+export EPF_USER="$(echo $EPF_URL | grep @ | cut -d@ -f1)"
+# extract the host and port
+export EPF_HOSTPORT="$(echo ${EPF_URL/$EPF_USER@/} | cut -d/ -f1)"
+# by request host without port
+export EPF_HOST="$(echo $EPF_HOSTPORT | sed -e 's,:.*,,g')"
+# by request - try to extract the port
+export EPF_PORT="$(echo $EPF_HOSTPORT | sed -e 's,^.*:,:,g' -e 's,.*:\([0-9]*\).*,\1,g' -e 's,[^0-9],,g')"
+# extract the path (if any)
+export EPF_PATH="$(echo $EPF_URL | grep / | cut -d/ -f2-)"
+
+echo "EPF_PROTOCOL:$EPF_PROTOCOL"
+echo "EPF_URL:$EPF_URL"
+echo "EPF_USER:$EPF_USER"
+echo "EPF_HOST:$EPF_HOST"
+echo "EPF_PORT:$EPF_PORT"
+echo "EPF_PATH:$EPF_PATH"
+
+export EPF_PIPELINE_URL="${EPF_PROTOCOL}${CI_HOST}:${EPF_PORT}/${EPF_PATH}"
+echo "New EPF_PIPELINE_URL is $EPF_PIPELINE_URL"
