@@ -4,11 +4,11 @@ module.exports = {
     es6: true,
     jest: true,
   },
+  workingDirectories: ['web'],
   extends: [
     'airbnb',
-    "plugin:cypress/recommended",
   ],
-  parser: "babel-eslint",
+  parser: 'babel-eslint',
   globals: {
     Atomics: 'readonly',
     SharedArrayBuffer: 'readonly',
@@ -22,9 +22,10 @@ module.exports = {
   },
   plugins: [
     'react',
+    'cypress',
   ],
   rules: {
     'no-confusing-arrow': 0,
-    'import/no-unresolved': 0
+    'import/no-unresolved': 0,
   },
 };

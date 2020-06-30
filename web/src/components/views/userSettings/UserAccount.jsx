@@ -41,10 +41,9 @@ const UserAccount = (props) => {
                 <a href={`/${name}`}>
                   {name}
                   {' '}
-                  >
                 </a>
               </li>
-              <li>Settings ></li>
+              <li>Settings</li>
               <li>Profile</li>
             </ul>
           </div>
