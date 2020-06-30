@@ -4,7 +4,6 @@ module.exports = {
     es6: true,
     jest: true,
   },
-  workingDirectories: ['web'],
   extends: [
     'airbnb',
   ],
