@@ -26,6 +26,7 @@ fi
 
 # Use Gitlab's internal unique job ID as build version. This way versions can be traced back to a specific build.
 {
+  echo "SKIP_PREFLIGHT_CHECK=true"
   echo "REACT_APP_VERSION=$CI_PIPELINE_ID"
   echo "REACT_APP_BUILD_NUMBER=$CI_PIPELINE_ID"
   echo "REACT_APP_BRANCH_NAME=$CI_COMMIT_REF_SLUG"
