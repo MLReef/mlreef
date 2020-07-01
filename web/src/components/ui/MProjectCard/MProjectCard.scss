@@ -1,46 +1,77 @@
-.project-card {
-  &-container {
-    width: 250px;
-    border: 1px solid transparent;
-    .card-title {
-      font-size: 1.2rem;
+$font-family: "Roboto", sans-serif;
+
+.project-card-container {
+  width: 250px;
+  border: 1px solid transparent;
+
+  .card-title {
+    font-size: 1.2rem;
+    margin: 0;
+    padding: 0;
+    height: 3.5rem;
+    overflow: hidden;
+  }
+
+  &-autor {
+    align-items: center;
+    p {
       margin: 0;
-      padding: 0;
-      height: 3.5rem;
-      overflow: hidden;
+      color: var(--secondary);
     }
+  }
 
-    &-autor {
-      align-items: center;
-      p {
-        margin: 0; 
-        color: var(--secondary);
-      }
-    }
-    
-    .card-content {
-      margin-top: 0.8rem;
-    }
+  .card-content {
+    // margin-top: 1rem;
 
-    .card-content p {
+    & p {
       height: 4.5rem;
       overflow: hidden;
     }
-    
-    span {
-      font-size: 0.9rem;
-      margin-right: 0.6rem;
-    }
   }
 
-  &-container:hover {
-    border: 1px solid var(--info);
-    cursor: pointer;
+  span {
+    font-size: 0.9rem;
+    margin-right: 0.6rem;
   }
 
-  &-avatar {
-    height: 100%;
-    width: 100%;
-    border-radius: 50%;
+  & .label {
+    font-family: $font-family;
+    font-weight: normal;
+  }
+}
+
+.project-card-avatar {
+  height: inherit;
+}
+
+.project-card-container:hover {
+  border: 1px solid var(--info);
+  cursor: pointer;
+}
+
+.avatars-reversed {
+  display: flex;
+  flex-direction: row-reverse;
+  margin-left: 1rem;
+}
+
+.avatar-container {
+  background-color: var(--light);
+  border: solid 1px var(--light);
+  margin-left: -18px;
+  overflow: hidden;
+  transition: ease 0.3s;
+
+  &:not(:last-child):hover {
+    margin-left: 0;
+  }
+}
+
+.project-card-types {
+  margin-bottom: 0.5rem;
+
+  &-icon {
+    margin-right: 0.5rem;
+    color: var(--dark);
   }
 }

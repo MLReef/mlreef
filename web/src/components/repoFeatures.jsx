@@ -45,7 +45,7 @@ export class RepoFeatures extends Component {
       branches,
     } = this.state;
 
-    const { branch: currentBranch, path, projectType } = this.props;
+    const { branch: currentBranch, path, searchableType } = this.props;
 
     return (
       <div id="repo-features">
@@ -116,7 +116,7 @@ export class RepoFeatures extends Component {
 
         <AuthWrapper minRole={30} className="mr-2 mt-3">
           <Link
-            className={`btn btn-dark px-3 ${projectType === PROJECT_TYPES.CODE_PROJ ? '' : 'mr-auto'} mt-3`}
+            className={`btn btn-dark px-3 ${searchableType === PROJECT_TYPES.CODE_PROJ ? '' : 'mr-auto'} mt-3`}
             to={`/my-projects/${projectId}/pipe-line`}
           >
             Data Pipeline
@@ -135,7 +135,7 @@ export class RepoFeatures extends Component {
           </Link>
         </AuthWrapper> */}
 
-        {projectType === PROJECT_TYPES.CODE_PROJ && (
+        {searchableType === PROJECT_TYPES.CODE_PROJ && (
           <button className="btn px-3 ml-2 mr-auto mt-3" style={{ backgroundColor: 'rgb(233, 148, 68)', color: 'white'}}>
             Publish
           </button>
@@ -165,7 +165,7 @@ RepoFeatures.propTypes = {
       name: string.isRequired,
     }),
   ).isRequired,
-  projectType: string.isRequired,
+  searchableType: string.isRequired,
 };
 
 function mapStateToProps(state) {
