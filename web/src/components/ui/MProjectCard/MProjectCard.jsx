@@ -45,7 +45,7 @@ const MProjectCard = (props) => {
           <MProjectCardTypes input types={inputDataTypes} />
           <MProjectCardTypes output types={outputDataTypes} />
 
-          {description && description.length === 0 ? (
+          {!description ? (
             <div className="d-flex noelement-found-div" style={{ marginTop: '1rem' }}>
               <img src={iconGrey} alt="" style={{ maxHeight: '30px' }} />
               <p style={{ height: 'unset' }}>No description</p>
