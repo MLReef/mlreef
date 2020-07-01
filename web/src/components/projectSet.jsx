@@ -39,21 +39,18 @@ class ProjectSet extends Component {
       <div id="cards-section">
         {finalProjectsArray.length > 0 ? finalProjectsArray.map((proj) => (
           <MProjectCard
-            key={`proj-${proj.gitlabNamespace}-${proj.slug}`}
+            key={`proj-${screen}-key-${proj.gitlabPath}`}
             push={push}
             owner={proj.id}
-            title={proj.name}
+            title={proj.gitlabPath}
             projectId={proj.gitlabId}
             description={proj.description}
             starCount={proj.starCount || 0}
             forkCount={proj.forksCount || 0}
-            namespace={proj.gitlabNamespace}
+            namespace={proj.namespace}
             updatedAt={proj.lastActivityat}
             projects={allProjects}
-            inputDataTypes={proj.inputDataTypes}
-            outputDataTypes={proj.inputDataTypes}
             handleShowModal={handleShowModal}
-            users={proj.members}
           />
         )) : (
           <div className="d-flex noelement-found-div">

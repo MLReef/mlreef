@@ -2,7 +2,7 @@ import React, { Component, createRef } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { Redirect } from 'react-router-dom';
-import * as PropTypes from 'prop-types';
+import { shape, string } from 'prop-types';
 import { toastr } from 'react-redux-toastr';
 import Button from '@material-ui/core/Button';
 import RadioGroup from '@material-ui/core/RadioGroup';
@@ -32,25 +32,24 @@ class CreateProject extends Component {
 
   dataTypes = [
     [
-      { name: 'data-types Text', label: 'TEXT' },
-      { name: 'data-types Image', label: 'IMAGE' },
-      { name: 'data-types Audio', label: 'AUDIO' },
+      { name: 'data-types Text', label: 'Text' },
+      { name: 'data-types Image', label: 'Image' },
+      { name: 'data-types Audio', label: 'Audio' },
     ],
     [
-      { name: 'data-types Video', label: 'VIDEO' },
-      { name: 'data-types Tabular', label: 'TABULAR' },
-      { name: 'data-types Sensor', label: 'SENSOR' },
+      { name: 'data-types Video', label: 'Video' },
+      { name: 'data-types Tabular', label: 'Tabular' },
+      { name: 'data-types Sensor', label: 'Sensor' },
     ],
     [
-      { name: 'data-types Number', label: 'NUMBER' },
-      { name: 'data-types Binary', label: 'BINARY' },
-      { name: 'data-types Model', label: 'MODEL' },
+      { name: 'data-types Number', label: 'Number' },
+      { name: 'data-types Binary', label: 'Binary' },
+      { name: 'data-types Model', label: 'Model' },
     ],
   ];
 
   constructor(props) {
     super(props);
-
     this.state = {
       visibility: privacyLevelsArr[0].value,
       projectName: '',
@@ -61,19 +60,8 @@ class CreateProject extends Component {
       gitlabId: null,
       dataTypesSelected: [],
     };
-
-    this.handleDTCallback = this.handleDTCallback.bind(this);
-  }
-
-  componentDidMount() {
-    const {
-      actions,
-      match: { params: { classification } },
-    } = this.props;
-
-    const bandColor = projectClassificationsProps
-      .filter((idsColor) => `${idsColor.classification}` === classification)[0].color;
-
+    const { actions, match: { params: { classification } } } = this.props;
+    const bandColor = projectClassificationsProps.filter((idsColor) => `${idsColor.classification}` === classification)[0].color;
     actions.setGlobalMarkerColor(bandColor);
     this.handleSubmit = this.handleSubmit.bind(this);
   }
@@ -120,13 +108,12 @@ class CreateProject extends Component {
       description,
       visibility,
       nameSpace,
-      // dataTypesSelected,
     } = this.state;
     const { match: { params: { classification } } } = this.props;
     const projectType = classification && classification !== '' && classification !== ML_PROJECT
       ? PROJECT_TYPES.CODE_PROJ
       : PROJECT_TYPES.DATA_PROJ;
-
+    
     const isAValidName = this.validateProjectName(projectName);
 
     if (!isAValidName) {
@@ -146,7 +133,6 @@ class CreateProject extends Component {
       initialize_with_readme: readme,
       description,
       visibility,
-      // input_data_types: dataTypesSelected,
     };
     const projectGeneraInfoApi = new ProjectGeneraInfoApi();
     projectGeneraInfoApi.create(body, projectType)
@@ -179,23 +165,6 @@ class CreateProject extends Component {
 
    return false;
  }
-
- handleDTCallback(...args) {
-   const { dataTypesSelected: dts } = this.state;
-   const isChecked = args[2];
-   const dataType = args[1];
-
-   if (isChecked) {
-     if (!dts.includes(dataType) && dts.length < 4) {
-       dts.push(dataType);
-     }
-   } else if (dts.includes(dataType)) {
-     dts.splice(dts.indexOf(dataType), 1);
-   }
-
-   this.setState({ dataTypesSelected: dts });
- }
-
 
  render() {
    const {
@@ -323,11 +292,7 @@ class CreateProject extends Component {
                  <div key={`dtBl ${index.toString()}`} className="data-types-sec">
                    {dtBl.map((dt) => {
                      if (dtTypesSel.length === 4 && !dtTypesSel.includes(dt.label)) {
-                       return (
-                         <div key={`div ${dt.name} disabled`}>
-                           <p className="data-type-disabled">{dt.label}</p>
-                         </div>
-                       );
+                       return <div key={`div ${dt.name} disabled`}><p className="data-type-disabled">{dt.label}</p></div>;
                      }
                      return (
                        <div key={`div ${dt.name}`}>
@@ -335,7 +300,21 @@ class CreateProject extends Component {
                            key={dt.name}
                            name={dt.name}
                            labelValue={dt.label}
-                           callback={this.handleDTCallback}
+                           callback={(...args) => {
+                             const isChecked = args[2];
+                             const dtType = args[1];
+                             if (isChecked) {
+                               if (
+                                 !dtTypesSel.includes(dtType)
+                                   && dtTypesSel.length < 4
+                               ) {
+                                 dtTypesSel.push(dtType);
+                               }
+                             } else if (
+                               dtTypesSel.includes(dtType)
+                             ) dtTypesSel.splice(dtTypesSel.indexOf(dtType), 1);
+                             this.setState({ dataTypesSelected: dtTypesSel });
+                           }}
                          />
                        </div>
                      );
@@ -419,12 +398,9 @@ function mapDispatchToProps(dispatch) {
 }
 
 CreateProject.propTypes = {
-  actions: PropTypes.shape({
-    setGlobalMarkerColor: PropTypes.func.isRequired,
-  }).isRequired,
-  match: PropTypes.shape({
-    params: PropTypes.shape({
-      classification: PropTypes.string,
+  match: shape({
+    params: shape({
+      classification: string,
     }),
   }),
 };

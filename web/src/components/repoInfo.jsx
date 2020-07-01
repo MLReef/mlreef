@@ -30,7 +30,7 @@ const RepoInfo = ({
         <p className="stat-type">Merge requests</p>
       </Link>
 
-      {project.searchableType === PROJECT_TYPES.DATA_PROJ ? (
+      {project.projectType === PROJECT_TYPES.DATA_PROJ ? (
         <>
           <Link className="repo-stat" to={`/my-projects/${project.gitlabId}/visualizations`} >
             <p className="stat-no" />
@@ -54,7 +54,7 @@ const RepoInfo = ({
 RepoInfo.propTypes = {
   project: shape({
     gitlabId: number.isRequired,
-    searchableType: string.isRequired,
+    projectType: string.isRequired,
     commitCount: number.isRequired,
   }),
   numberOfContributors: number.isRequired,

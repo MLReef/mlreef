@@ -58,8 +58,8 @@ class Myprojects extends React.Component {
       userProjects,
       starredProjects
     } = nextProps;
-    // const {actions} = nextProps;
-    // actions.setIsLoading(false);
+    const {actions} = nextProps;
+    actions.setIsLoading(false);
     return {
       allProjects,
       userProjects,
@@ -124,15 +124,15 @@ class Myprojects extends React.Component {
         <br />
         <br />
         <MTabs>
-          <MTabs.Section
-            defaultActive
+          <MTabs.Section 
+            defaultActive 
             id={projectClassificationsProps[0].classification}
             label="ML Projects"
             color={projectClassificationsProps[0].color}
             callback={() => {
               try {
                 actions.setIsLoading(true);
-                actions.getProjectsList(PROJECT_TYPES.DATA_PROJ);
+                actions.getProjectsList(PROJECT_TYPES.DATA_PROJ);  
               } catch (error) {
                 toastr.error('Error', error);
               }
@@ -188,9 +188,9 @@ class Myprojects extends React.Component {
               allProjects={allProjects}
             />
           </MTabs.Section>
-          <MTabs.Section
-            id={projectClassificationsProps[3].classification}
-            label="Data visualizations"
+          <MTabs.Section 
+            id={projectClassificationsProps[3].classification} 
+            label="Data visualizations" 
             color={projectClassificationsProps[3].color}
             callback={() => {
               try {
