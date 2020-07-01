@@ -62,6 +62,13 @@ export default class ProjectGeneralInfoApi extends ApiDirector {
     })
   }
 
+  listPublicProjects() {
+    const url = '/api/v1/projects/public';
+
+    return fetch(url)
+      .then(handleResponse);
+  }
+
   getMembers(projectId: string) {
     const url = `/api/v1/data-projects/${projectId}/users`;
     const headers = this.buildBasicHeaders(validServicesToCall.BACKEND);

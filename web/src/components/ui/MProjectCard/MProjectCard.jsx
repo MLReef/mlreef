@@ -1,119 +1,129 @@
-import React, { useState, useEffect } from 'react';
-import ProjectGeneralInfoApi from 'apis/projectGeneralInfoApi';
-import { toastr } from 'react-redux-toastr';
-import './MProjectCard.scss';
+import React from 'react';
+import PropTypes from 'prop-types';
+import { Link } from 'react-router-dom';
 import iconGrey from 'images/icon_grey-01.png';
+import MProjectCardTypes from './MProjectCardTypes';
+import './MProjectCard.scss';
 
-const MProjectCard = ({
-  projectId,
-  title,
-  description,
-  starCount,
-  forkCount,
-  namespace,
-  push,
-}) => {
-  const [avatars, setAvatars] = useState([]);
-  const mainDiv = React.useRef(false);
-  useEffect(() => {
-    const projApi = new ProjectGeneralInfoApi();
-    projApi.getProjectContributors(projectId)
-      .then(async (res) => {
-        if (!res.ok) {
-          Promise.reject(res);
-        } else {
-          const contributors = await res.json();
-          if (mainDiv.current) {
-            setAvatars(contributors.map((cont) => ({ id: cont.id, url: cont.avatar_url })));
-          }
-        }
-      }).catch(() => toastr.error('Error', 'Something went wrong fetching contributors'));
-  }, [projectId]);
-  const avatarsLength = avatars.length;
+const MProjectCard = (props) => {
+  const {
+    projectId,
+    title,
+    description,
+    branch,
+    starCount,
+    forkCount,
+    namespace,
+    inputDataTypes,
+    outputDataTypes,
+    push,
+    users,
+  } = props;
+
   return (
-    <div
-      className="card"
-      ref={mainDiv}
-    >
+    <div className="card">
       <div
         role="button"
         tabIndex="0"
         className="card-container project-card-container"
-        onClick={() => push(`/my-projects/${projectId}/null`)}
-        onKeyPress={() => push(`/my-projects/${projectId}/null`)}
+        onClick={() => push(`/my-projects/${projectId}/${branch}`)}
+        onKeyPress={() => push(`/my-projects/${projectId}/${branch}`)}
       >
         <p className="card-title">
           {title}
         </p>
+
         {namespace && (
-        <div className="project-card-container-autor d-flex ">
-          <p>{namespace.name}</p>
-        </div>
-        )}
-        <div className="card-content">
-          <div className="d-flex">
-            <div className="mr-2">
-              <i className="fa fa-file t-success">
-                <span className="label"> Text</span>
-              </i>
-            </div>
-            <div className="mr-2">
-              <i className="fa fa-volume-up t-info">
-                <span className="label"> Audio</span>
-              </i>
-            </div>
-            <div className="">
-              <i className="fa fa-video t-danger">
-                <span className="label"> Video</span>
-              </i>
-            </div>
-            <div className="">
-              <i className="fas fa-grip-lines-vertical t-warning">
-                <span className="label"> Tabular</span>
-              </i>
-            </div>
+          <div
+            className="project-card-container-autor pb-3 mt-2"
+          >
+            <p>{namespace}</p>
           </div>
-            {description ? (
-              <p>{description}</p>
-            ) : (
-              <div className="d-flex noelement-found-div" style={{ marginTop: '1rem' }}>
-                <img src={iconGrey} alt="" style={{ maxHeight: '30px' }} />
-                <p style={{ height: 'unset' }}>No description</p>
-              </div> 
-              
-            )}
+        )}
+
+        <div className="card-content">
+          <MProjectCardTypes input types={inputDataTypes} />
+          <MProjectCardTypes output types={outputDataTypes} />
+
+          {description && description.length === 0 ? (
+            <div className="d-flex noelement-found-div" style={{ marginTop: '1rem' }}>
+              <img src={iconGrey} alt="" style={{ maxHeight: '30px' }} />
+              <p style={{ height: 'unset' }}>No description</p>
+            </div>
+          ) : (
+            <p className="t-dark">{description}</p>
+          )}
+
           <div className="d-flex t-secondary">
             <div className="mr-3">
-              <i className="fa fa-star">
-                <span className="label">{` ${starCount}`}</span>
-              </i>
+              {!!starCount && (
+                <i className="fa fa-star">
+                  <span className="label">{` ${starCount}`}</span>
+                </i>
+              )}
             </div>
             <div className="mr-3">
-              <i className="fa fa-code-branch">
-                <span className="label">{` ${forkCount}`}</span>
-              </i>
+              {!!forkCount && (
+                <i className="fa fa-code-branch">
+                  <span className="label">{` ${forkCount}`}</span>
+                </i>
+              )}
             </div>
           </div>
-
         </div>
+
         <div className="card-actions">
-          <div
-            className=""
-            style={{
-              display: 'flex',
-              marginRight: '-1rem',
-            }}
-          >
-            {avatars.map((ava, index) => (
-              <div key={`ava-cont-${ava.id}`} className={`avatar-container ${index === avatarsLength && 'grouped'}`}>
-                <img src={ava.url} alt="" className="project-card-avatar" />
-              </div>
-            ))}
-          </div>
+          {users && (
+            <div className="avatars-reversed">
+              {[...users].reverse().map((ava) => (
+                <Link
+                  key={`ava-cont-${ava.id}`}
+                  to={`/${ava.username}`}
+                  className="avatar-container"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <img
+                    src={ava.avatar_url}
+                    title={ava.username}
+                    alt={ava.username}
+                    className="project-card-avatar"
+                  />
+                </Link>
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </div>
   );
+};
+
+MProjectCard.defaultProps = {
+  branch: 'master',
+  description: null,
+  starCount: null,
+  forkCount: null,
+  users: [],
+  inputDataTypes: [],
+  outputDataTypes: [],
+};
+
+MProjectCard.propTypes = {
+  projectId: PropTypes.number.isRequired,
+  title: PropTypes.string.isRequired,
+  description: PropTypes.string,
+  branch: PropTypes.string,
+  starCount: PropTypes.number,
+  forkCount: PropTypes.number,
+  namespace: PropTypes.string.isRequired,
+  push: PropTypes.func.isRequired,
+  users: PropTypes.arrayOf(PropTypes.shape({
+    id: PropTypes.number,
+    username: PropTypes.string,
+    avatar_id: PropTypes.string,
+  })),
+  inputDataTypes: PropTypes.arrayOf(PropTypes.string),
+  outputDataTypes: PropTypes.arrayOf(PropTypes.string),
 };
 
 export default MProjectCard;

@@ -192,7 +192,7 @@ class ProjectView extends React.Component {
                   projectId={selectedProject.id}
                   branch={encodedBranch}
                   path={path || ''}
-                  projectType={selectedProject.projectType}
+                  searchableType={selectedProject.searchableType}
                 />
                 <FilesContainer
                   projectId={selectedProject.id}

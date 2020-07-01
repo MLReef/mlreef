@@ -7,6 +7,16 @@ import { parseToCamelCase } from 'functions/dataParserHelpers';
 
 const dataProcApi = new DataProcessorsApi();
 const projectApi = new ProjectGeneralInfoApi();
+
+const handlePagination = ({ content }) => ([...content]);
+
+// fetch complementary member list from gitlab api, so far it's not possible
+// to get them within each project
+const mergeGitlabResource = (projects) => Promise.all(
+  projects.map((project) => projectApi.getUsers(project.gitlabId)
+    .then((members) => ({ ...project, members }))),
+);
+
 /**
  *
  * @param {*} projects: load list for redux global state
@@ -20,14 +30,14 @@ export function getProjectsInfoSuccessfully(projects) {
  * get list of projects associated with authenticated user
  */
 
-export function getProjectsList(projectsType) {
+export function getProjectsList() {
   return async (dispatch) => {
-    try {
-      const projects = await projectApi.getProjectsList(projectsType);
-      dispatch(getProjectsInfoSuccessfully(projects));
-    } catch (err) {
-      throw err;
-    }
+    const projects = await projectApi.listPublicProjects()
+      .then(handlePagination)
+      .then((projs) => projs.map(parseToCamelCase))
+      .then(mergeGitlabResource);
+
+    if (projects) dispatch(getProjectsInfoSuccessfully(projects));
   };
 }
 
@@ -47,10 +57,12 @@ export function setUserProjectsSuccessfully(projects) {
 export function setStarredProjectsSuccessfully(projects) {
   return { type: types.SET_STARRED_PROJECTS, projects };
 }
+
 /*
 export function getStarredProjects() {
   return (dispatch) => new ProjectGeneralInfoApi()
     .getProjectsList({ starred: true })
+    .then(mergeGitlabResource)
     .then((projects) => projects && dispatch(setStarredProjectsSuccessfully(projects)));
 } */
 
@@ -102,13 +114,13 @@ export function getUsersLit(projectId) {
 }
 
 export function getProjectDetails(id) {
-  return (dispatch) => 
+  return (dispatch) =>
     projectApi.getProjectInfoApi(id)
     .then((project) => dispatch({ type: types.SET_SELECTED_PROJECT, project }));
 }
 
 /**
- * 
+ *
  * This API call fetches code repos corresponding with data processors
  */
 
@@ -116,7 +128,7 @@ export function getDataProcessorsAndCorrespondingProjects(dataOperation) {
   const params = new Map();
   params.set('type', dataOperation);
   return (dispatch) => Promise.all([
-    projectApi.getProjectsList(PROJECT_TYPES.CODE_PROJ), 
+    projectApi.getProjectsList(PROJECT_TYPES.CODE_PROJ),
     dataProcApi.filterByParams(params),
   ]).then((response) => {
     console.log(response);
