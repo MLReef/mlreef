@@ -16,11 +16,12 @@ import org.springframework.security.access.expression.method.MethodSecurityExpre
 import org.springframework.security.core.Authentication
 import java.util.UUID
 
-class MlReefSecurityExpressionRoot(authentication: Authentication,
-                                   private val publicProjectsCache: PublicProjectsCacheService,
-                                   private val dataProcessorRepository: DataProcessorRepository,
-                                   private val pipelineConfigRepository: PipelineConfigRepository,
-                                   private val pipelineInstanceRepository: PipelineInstanceRepository)
+class MlReefSecurityExpressionRoot(
+    authentication: Authentication,
+    private val publicProjectsCache: PublicProjectsCacheService,
+    private val dataProcessorRepository: DataProcessorRepository,
+    private val pipelineConfigRepository: PipelineConfigRepository,
+    private val pipelineInstanceRepository: PipelineInstanceRepository)
     : SecurityExpressionRoot(authentication), MethodSecurityExpressionOperations {
 
     private var returnObject: Any? = null
@@ -78,12 +79,16 @@ class MlReefSecurityExpressionRoot(authentication: Authentication,
         return ((this.principal as? TokenDetails)?.projects?.get(projectId)?.accessCode ?: 0) >= level.accessCode
     }
 
+    fun canViewProject() = userInProject() || userInProject()
+    fun canViewProject(projectId: UUID) = userInProject(projectId) || userInProject(projectId)
+
     fun userInProject(): Boolean {
         val id = getIdFromContext()
         return if (id != null) userInProject(id) else false
     }
 
-    fun userInProject(projectId: UUID): Boolean = ((this.principal as? TokenDetails)?.projects?.containsKey(projectId) ?: false)
+    fun userInProject(projectId: UUID): Boolean = ((this.principal as? TokenDetails)?.projects?.containsKey(projectId)
+        ?: false)
 
     fun projectIsPublic(): Boolean {
         val id = getIdFromContext()

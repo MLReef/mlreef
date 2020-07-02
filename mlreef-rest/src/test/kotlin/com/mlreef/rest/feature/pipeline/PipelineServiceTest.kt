@@ -87,8 +87,8 @@ class PipelineServiceTest : AbstractServiceTest() {
 
         val subject = Person(ownerId, "new-person", "person's name", 1L)
         subjectRepository.save(subject)
-        val dataRepository = DataProject(dataRepositoryId, "new-repo", "url", "Test DataProject", "description", subject.id, "mlreef", "project", "group/project", 0, VisibilityScope.PUBLIC, arrayListOf())
-        dataProjectRepository.save(DataProject(dataRepositoryId2, "new-repo2", "url", "Test DataProject", "description", subject.id, "mlreef", "project", "group/project", 0, VisibilityScope.PUBLIC, arrayListOf()))
+        val dataRepository = DataProject(dataRepositoryId, "new-repo", "url", "Test DataProject", "description", subject.id, "mlreef", "project", 0, VisibilityScope.PUBLIC, arrayListOf())
+        dataProjectRepository.save(DataProject(dataRepositoryId2, "new-repo2", "url", "Test DataProject", "description", subject.id, "mlreef", "project", 0, VisibilityScope.PUBLIC, arrayListOf()))
 
         dataProjectRepository.save(dataRepository)
     }

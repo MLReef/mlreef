@@ -2,8 +2,10 @@ package com.mlreef.rest
 
 import com.mlreef.rest.marketplace.SearchableTag
 import com.mlreef.rest.marketplace.SearchableType
+import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.Query
+import org.springframework.data.repository.CrudRepository
 import org.springframework.stereotype.Repository
 import java.util.UUID
 
@@ -55,22 +57,6 @@ interface ExperimentRepository : KtCrudRepository<Experiment, UUID> {
 }
 
 @Repository
-interface DataProjectRepository : KtCrudRepository<DataProject, UUID> {
-    fun findAllByOwnerId(ownerId: UUID): List<DataProject>
-    fun findOneByOwnerIdAndId(ownerId: UUID, id: UUID): DataProject?
-    fun findOneByOwnerIdAndSlug(ownerId: UUID, slug: String): DataProject?
-    fun findByGitlabId(gitlabId: Long): DataProject?
-
-    @Deprecated("Use findByNamespace instead")
-    fun findByGitlabPathWithNamespace(pathWithNamespace: String): DataProject?
-    fun findBySlug(slug: String): List<DataProject>
-
-    @Query("SELECT p FROM DataProject p WHERE p.gitlabPathWithNamespace LIKE %:namespace%")
-    fun findByNamespace(namespace: String): List<DataProject>
-
-}
-
-@Repository
 interface PipelineConfigRepository : KtCrudRepository<PipelineConfig, UUID> {
     fun findAllByDataProjectId(dataProjectId: UUID): List<PipelineConfig>
     fun findOneByDataProjectIdAndId(dataProjectId: UUID, id: UUID): PipelineConfig?
@@ -82,20 +68,6 @@ interface PipelineInstanceRepository : KtCrudRepository<PipelineInstance, UUID> 
     fun findAllByPipelineConfigId(dataProjectId: UUID): List<PipelineInstance>
     fun findOneByPipelineConfigIdAndId(dataProjectId: UUID, id: UUID): PipelineInstance?
     fun findOneByPipelineConfigIdAndSlug(dataProjectId: UUID, slug: String): PipelineInstance?
-}
-
-@Repository
-interface CodeProjectRepository : KtCrudRepository<CodeProject, UUID> {
-    fun findAllByOwnerId(ownerId: UUID): List<CodeProject>
-    fun findOneByOwnerIdAndId(ownerId: UUID, id: UUID): CodeProject?
-    fun findByGitlabId(gitlabId: Long): CodeProject?
-
-    @Deprecated("Use findByNamespace instead")
-    fun findByGitlabPathWithNamespace(pathWithNamespace: String): CodeProject?
-    fun findBySlug(slug: String): List<CodeProject>
-
-    @Query("SELECT p FROM CodeProject p WHERE p.gitlabPathWithNamespace LIKE %:namespace%")
-    fun findByNamespace(namespace: String): List<CodeProject>
 }
 
 @Repository
@@ -145,39 +117,74 @@ interface ProjectRepositoryCustom {
 }
 
 @Repository
-interface ProjectRepository : KtCrudRepository<Project, UUID>, ProjectRepositoryCustom {
-    fun findByGlobalSlugAndVisibilityScope(slug: String, visibilityScope: VisibilityScope): Project?
+interface ProjectBaseRepository<T : Project> : CrudRepository<T, UUID> {
+    fun findByGlobalSlugAndVisibilityScope(slug: String, visibilityScope: VisibilityScope): T?
+    fun findAllByVisibilityScope(visibilityScope: VisibilityScope, pageable: Pageable): List<T>
+    fun findAllByOwnerId(ownerId: UUID): List<T>
+    fun findOneByOwnerIdAndId(ownerId: UUID, id: UUID): T?
+    fun findOneByOwnerIdAndSlug(ownerId: UUID, slug: String): T?
+    fun findByGitlabId(gitlabId: Long): T?
 
-    fun findAllByVisibilityScope(visibilityScope: VisibilityScope, pageable: Pageable): List<Project>
+    @Query("SELECT p FROM Project p WHERE p.gitlabPathWithNamespace LIKE %:namespace%")
+    fun findByNamespace(namespace: String): List<T>
 
-//    @Query("select e from Project e join DataProcessor dp on e.id = dp.codeProjectId join CodeProject cp on dp.codeProjectId = cp.id where cp.id IN :ids")
-//    fun findAccessibleProcessors(ids: List<UUID>, pageable: Pageable): List<Project>
+    @Query("SELECT p FROM Project p WHERE p.gitlabNamespace LIKE %:namespace% AND (p.gitlabPath LIKE %:path% OR p.slug LIKE %:path%)")
+    fun findByNamespaceAndPath(namespace: String, path: String): T?
+    fun findBySlug(slug: String): List<T>
+    fun findAllByIdIn(ids: Iterable<UUID>, pageable: Pageable): Page<T>
+}
+
+@Repository
+interface ProjectRepository : ProjectBaseRepository<Project>, ProjectRepositoryCustom {
 
     @Query("select e from Project e where e.id IN :ids")
     fun findAccessibleProjects(ids: List<UUID>, pageable: Pageable): List<Project>
 
-//    @Query("select e from Project e join DataProcessor dp on e.id = dp.codeProjectId join CodeProject cp on dp.codeProjectId = cp.id where cp.id IN :ids and e.globalSlug LIKE :slug")
-//    fun findAccessibleProcessor(ids: List<UUID>, slug: String): Project?
-
     @Query("select e from Project e  where e.id IN :ids and e.globalSlug LIKE :slug")
     fun findAccessibleProject(ids: List<UUID>, slug: String): Project?
 
-//    @Modifying()
-//    @Query("UPDATE mlreef_project SET document = to_tsvector(name || '. ' || description) WHERE id = :id", nativeQuery = true)
-//    fun updateFulltext(id: UUID)
+    @Query("SELECT p FROM Project p WHERE p.gitlabPathWithNamespace LIKE %:namespace%")
+    override fun findByNamespace(namespace: String): List<Project>
+
+    @Query("SELECT p FROM Project p WHERE p.gitlabNamespace LIKE %:namespace% AND (p.gitlabPath LIKE %:path% OR p.slug LIKE %:path%)")
+    override fun findByNamespaceAndPath(namespace: String, path: String): Project?
 
     /**
      * Requires the "update_fts_document" PSQL TRIGGER and "project_fts_index" gin index
      *
      * Currently Fulltext search is implemented via psql and _relies_ on that, be aware of that when you change DB!
      */
-    @Query(value = "SELECT CAST(id as TEXT) as id, CAST(ts_rank(document, to_tsquery('english', :query)) as FLOAT) as rank FROM marketplace_entry WHERE id in :ids ORDER BY rank DESC", nativeQuery = true)
+    @Query(value = "SELECT CAST(id as TEXT) as id, CAST(ts_rank(document, to_tsquery('english', :query)) as FLOAT) as rank FROM mlreef_project WHERE id in :ids ORDER BY rank DESC", nativeQuery = true)
     fun fulltextSearch(query: String, ids: Set<UUID>): List<IdRankInterface>
 
     interface IdRankInterface {
         val id: String
         val rank: Double
     }
+}
+
+@Repository
+interface DataProjectRepository : ProjectBaseRepository<DataProject> {
+    @Deprecated("Use findByNamespace instead")
+    fun findByGitlabPathWithNamespace(pathWithNamespace: String): DataProject?
+
+    @Query("SELECT p FROM DataProject p WHERE p.gitlabPathWithNamespace LIKE %:namespace%")
+    override fun findByNamespace(namespace: String): List<DataProject>
+
+    @Query("SELECT p FROM DataProject p WHERE p.gitlabNamespace LIKE %:namespace% AND (p.gitlabPath LIKE %:path% OR p.slug LIKE %:path%)")
+    override fun findByNamespaceAndPath(namespace: String, path: String): DataProject?
+}
+
+@Repository
+interface CodeProjectRepository : ProjectBaseRepository<CodeProject> {
+    @Deprecated("Use findByNamespace instead")
+    fun findByGitlabPathWithNamespace(pathWithNamespace: String): CodeProject?
+
+    @Query("SELECT p FROM CodeProject p WHERE p.gitlabPathWithNamespace LIKE %:namespace%")
+    override fun findByNamespace(namespace: String): List<CodeProject>
+
+    @Query("SELECT p FROM CodeProject p WHERE p.gitlabNamespace LIKE %:namespace% AND (p.gitlabPath LIKE %:path% OR p.slug LIKE %:path%)")
+    override fun findByNamespaceAndPath(namespace: String, path: String): CodeProject?
 }
 
 @Repository

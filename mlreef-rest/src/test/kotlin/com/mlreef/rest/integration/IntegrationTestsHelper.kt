@@ -30,6 +30,7 @@ import com.mlreef.rest.external_api.gitlab.dto.GitlabUser
 import com.mlreef.rest.feature.caches.domain.PublicProjectHash
 import com.mlreef.rest.feature.caches.repositories.PublicProjectsRepository
 import com.mlreef.rest.utils.RandomUtils
+import com.mlreef.utils.Slugs
 import com.ninjasquad.springmockk.SpykBean
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
@@ -124,13 +125,19 @@ import javax.transaction.Transactional
         return Pair(groupInDatabase, groupInGitlab)
     }
 
-    fun createRealProjectInGitlab(account: Account, name: String? = null, slug: String? = null, namespace: String? = null, public: Boolean = true): GitlabProject {
+    fun createRealProjectInGitlab(
+        account: Account,
+        name: String? = null,
+        slug: String? = null,
+        namespace: String? = null,
+        public: Boolean = true
+    ): GitlabProject {
         val projectName = name ?: RandomUtils.generateRandomUserName(20)
-        val projectSlug = slug ?: "slug-$projectName"
-        val nameSpace = namespace ?: "mlreef/$projectName"
+        val projectSlug = Slugs.toSlug(slug ?: "slug-$projectName")
+        val projectNamespace = namespace ?: "mlreef"
 
         val findNamespace = try {
-            restClient.findNamespace(account.bestToken!!.token, nameSpace)
+            restClient.findNamespace(account.bestToken!!.token, projectNamespace)
         } catch (e: Exception) {
             null
         }
@@ -150,7 +157,13 @@ import javax.transaction.Transactional
         return result
     }
 
-    fun createRealCodeProject(account: Account, name: String? = null, slug: String? = null, namespace: String? = null, public: Boolean = true): Pair<CodeProject, GitlabProject> {
+    fun createRealCodeProject(
+        account: Account,
+        name: String? = null,
+        slug: String? = null,
+        namespace: String? = null,
+        public: Boolean = true
+    ): Pair<CodeProject, GitlabProject> {
         val gitLabProject = createRealProjectInGitlab(account, name, slug, namespace, public)
 
         val group = gitLabProject.pathWithNamespace.split("/")[0]
@@ -176,7 +189,13 @@ import javax.transaction.Transactional
         return Pair(projectInDb, gitLabProject)
     }
 
-    fun createRealDataProject(account: Account, name: String? = null, slug: String? = null, namespace: String? = null, public: Boolean = true): Pair<DataProject, GitlabProject> {
+    fun createRealDataProject(
+        account: Account,
+        name: String? = null,
+        slug: String? = null,
+        namespace: String? = null,
+        public: Boolean = true
+    ): Pair<DataProject, GitlabProject> {
         val gitLabProject = createRealProjectInGitlab(account, name, slug, namespace, public)
 
         val group = gitLabProject.pathWithNamespace.split("/")[0]

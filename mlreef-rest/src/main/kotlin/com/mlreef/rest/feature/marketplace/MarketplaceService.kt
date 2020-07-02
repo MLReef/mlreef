@@ -29,7 +29,7 @@ import java.util.UUID
  */
 @Service
 class MarketplaceService(
-    private val searchableRepository: ProjectRepository,
+    private val projectRepository: ProjectRepository,
     private val dataProjectRepository: DataProjectRepository,
     private val codeProjectRepository: CodeProjectRepository,
     private val searchableTagRepository: SearchableTagRepository
@@ -61,7 +61,7 @@ class MarketplaceService(
      *
      */
     fun assertEntry(searchable: Searchable, owner: Subject): Searchable {
-        val existing = searchableRepository.findByIdOrNull(searchable.getId())
+        val existing = projectRepository.findByIdOrNull(searchable.getId())
         existing?.let { return@let existing }
         return prepareEntry(searchable, owner)
     }
@@ -71,7 +71,7 @@ class MarketplaceService(
         return when (searchable) {
             is DataProject -> dataProjectRepository.save(searchable)
             is CodeProject -> codeProjectRepository.save(searchable)
-            is Project -> searchableRepository.save(searchable)
+            is Project -> projectRepository.save(searchable)
             else -> throw IllegalStateException("Not possible ")
         }
     }
@@ -143,8 +143,8 @@ class MarketplaceService(
     fun findEntriesForProjects(pageable: Pageable, projectsMap: Map<UUID, AccessLevel?>): List<Project> {
         val ids: List<UUID> = projectsMap.filterValues { AccessLevel.isSufficientFor(it, AccessLevel.GUEST) }.map { it.key }.toList()
 
-        val findAllByVisibilityScope = searchableRepository.findAllByVisibilityScope(VisibilityScope.PUBLIC, pageable)
-        val projects = searchableRepository.findAccessibleProjects(ids, pageable)
+        val findAllByVisibilityScope = projectRepository.findAllByVisibilityScope(VisibilityScope.PUBLIC, pageable)
+        val projects = projectRepository.findAccessibleProjects(ids, pageable)
         return findAllByVisibilityScope.toMutableSet().apply {
             addAll(projects)
         }.toList()
@@ -154,8 +154,8 @@ class MarketplaceService(
     fun findEntriesForProjectsBySlug(projectsMap: Map<UUID, AccessLevel?>, slug: String): Project {
         val ids: List<UUID> = projectsMap.filterValues { AccessLevel.isSufficientFor(it, AccessLevel.GUEST) }.map { it.key }.toList()
 
-        val project = searchableRepository.findAccessibleProject(ids, slug)
-        val findPublic = searchableRepository.findByGlobalSlugAndVisibilityScope(slug, VisibilityScope.PUBLIC)
+        val project = projectRepository.findAccessibleProject(ids, slug)
+        val findPublic = projectRepository.findByGlobalSlugAndVisibilityScope(slug, VisibilityScope.PUBLIC)
         return findPublic ?: project ?: throw NotFoundException("Not found")
     }
 
@@ -185,7 +185,7 @@ class MarketplaceService(
         } else {
             CodeProject::class.java
         }
-        val findAccessible = searchableRepository.findAccessible(
+        val findAccessible = projectRepository.findAccessible(
             typeClazz,
             pageable,
             ids,
@@ -211,7 +211,7 @@ class MarketplaceService(
              * Requires the "update_fts_document" PSQL TRIGGER and "project_fts_index" gin index
              * Currently Fulltext search is implemented via psql and _relies_ on that, be aware of that when you change DB!
              */
-            val rankedResults = searchableRepository
+            val rankedResults = projectRepository
                 .fulltextSearch(ftsQueryPart, accessibleEntriesMap.keys)
                 .map { UUIDRank(UUID.fromString(it.id), it.rank) }
 

@@ -102,7 +102,7 @@ class MarketplaceApiTest : AbstractRestApiTest() {
 
         val returnedResult = this.performGet("$rootUrl/entries", account)
             .checkStatus(HttpStatus.OK)
-            .document("marketplace-entries-retrieve-all", responseFields(exploreProjectsFields("[].")))
+            .document("marketplace-entries-retrieve-all", responseFields(projectResponseFields("[].")))
             .returnsList(ProjectDto::class.java)
 
         assertThat(returnedResult.size).isEqualTo(3)
@@ -123,7 +123,7 @@ class MarketplaceApiTest : AbstractRestApiTest() {
 
         val returnedResult = this.performGet("$rootUrl/entries/${dataProject1.globalSlug}", account)
             .checkStatus(HttpStatus.OK)
-            .document("marketplace-entries-retrieve-one", responseFields(exploreProjectsFields("")))
+            .document("marketplace-entries-retrieve-one", responseFields(projectResponseFields("")))
             .returns(ProjectDto::class.java)
 
         assertThat(returnedResult).isNotNull()
@@ -372,7 +372,7 @@ class MarketplaceApiTest : AbstractRestApiTest() {
     }
 
     internal fun searchResultFields(prefix: String = ""): List<FieldDescriptor> {
-        return exploreProjectsFields(prefix + "content[].project.").toMutableList().apply {
+        return projectResponseFields(prefix + "content[].project.").apply {
             this.add(fieldWithPath(prefix + "content[].probability").type(JsonFieldType.NUMBER).description("DataProcessor"))
             this.addAll(pageable())
         }
@@ -391,20 +391,12 @@ class MarketplaceApiTest : AbstractRestApiTest() {
         )
     }
 
-    internal fun exploreProjectsFields(prefix: String = ""): List<FieldDescriptor> {
-        return projectResponseFields(prefix).toMutableList().apply {
-            this.add(fieldWithPath(prefix + "data_processor").optional().type(JsonFieldType.OBJECT).description("DataProcessor"))
-            this.addAll(dataProcessorFields(prefix + "data_processor."))
-            this.addAll(searchableTags(prefix + "tags[]."))
-        }
-    }
+//    internal fun projectResponseFields(prefix: String = ""): MutableList<FieldDescriptor> {
+//        return projectResponseFields(prefix).apply {
+//            this.add(fieldWithPath(prefix + "data_processor").optional().type(JsonFieldType.OBJECT).description("DataProcessor"))
+//            this.addAll(dataProcessorFields(prefix + "data_processor."))
+//            this.addAll(searchableTags(prefix + "tags[]."))
+//        }
+//    }
 
-    internal fun searchableTags(prefix: String = ""): List<FieldDescriptor> {
-        return listOf(
-            fieldWithPath(prefix + "id").type(JsonFieldType.STRING).optional().description("Unique UUID"),
-            fieldWithPath(prefix + "name").optional().type(JsonFieldType.STRING).optional().description("Name of Tag, unique, useful and readable"),
-            fieldWithPath(prefix + "type").type(JsonFieldType.STRING).optional().description("Type or Family of this Tag"),
-            fieldWithPath(prefix + "public").type(JsonFieldType.BOOLEAN).optional().description("Flag indicating whether this is public or not")
-        )
-    }
 }

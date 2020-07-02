@@ -13,12 +13,11 @@ import com.mlreef.rest.helpers.DataClassWithId
 import com.mlreef.rest.helpers.ProjectOfUser
 import com.mlreef.rest.marketplace.SearchableTag
 import com.mlreef.rest.marketplace.SearchableType
-import org.springframework.data.domain.Persistable
 import java.util.UUID
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 open class ProjectDto(
-    override val id: UUID?,
+    override val id: UUID,
     open val slug: String,
     open val url: String,
     open val ownerId: UUID,
@@ -112,8 +111,7 @@ internal fun ProjectOfUserDto.toDomain() = ProjectOfUser(
 
 @Suppress("UNCHECKED_CAST")
 fun Project.toDto(): ProjectDto {
-    val id = (this as? Persistable<UUID>)?.id
-    return object : ProjectDto(
+    return ProjectDto(
         id,
         this.slug,
         this.url,
@@ -132,7 +130,7 @@ fun Project.toDto(): ProjectDto {
         this.outputDataTypes.toList(),
         searchableType,
         this.dataProcessor?.toDto()
-    ) {}
+    )
 }
 
 internal fun DataProject.toDto(): DataProjectDto {

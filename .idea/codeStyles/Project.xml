@@ -29,9 +29,6 @@
       <option name="EXTENDS_LIST_WRAP" value="0" />
       <option name="METHOD_CALL_CHAIN_WRAP" value="0" />
       <option name="ASSIGNMENT_WRAP" value="0" />
-      <option name="METHOD_ANNOTATION_WRAP" value="1" />
-      <option name="CLASS_ANNOTATION_WRAP" value="1" />
-      <option name="FIELD_ANNOTATION_WRAP" value="1" />
       <indentOptions>
         <option name="CONTINUATION_INDENT_SIZE" value="4" />
       </indentOptions>
