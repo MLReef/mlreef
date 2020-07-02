@@ -3,6 +3,7 @@ package com.mlreef.rest.feature.project
 import com.mlreef.rest.AccountRepository
 import com.mlreef.rest.DataProject
 import com.mlreef.rest.DataProjectRepository
+import com.mlreef.rest.DataType
 import com.mlreef.rest.exceptions.GitlabNoValidTokenException
 import com.mlreef.rest.exceptions.ProjectNotFoundException
 import com.mlreef.rest.exceptions.UserNotFoundException
@@ -13,66 +14,24 @@ import com.mlreef.rest.external_api.gitlab.toAccessLevel
 import com.mlreef.rest.external_api.gitlab.toVisibilityScope
 import com.mlreef.rest.feature.caches.PublicProjectsCacheService
 import com.mlreef.rest.helpers.ProjectOfUser
-import org.springframework.data.domain.Page
-import org.springframework.data.domain.PageImpl
-import org.springframework.data.domain.Pageable
-import org.springframework.data.repository.findByIdOrNull
+import com.mlreef.rest.marketplace.SearchableTag
 import org.springframework.stereotype.Service
 import java.util.UUID
 import java.util.UUID.randomUUID
 
-interface DataProjectService : ProjectService<DataProject>, ProjectRequesterService<DataProject>
+interface DataProjectService : ManipulatingProjectService<DataProject>, RetrievingProjectService<DataProject>
 
 @Service
 class GitlabDataProjectService(
     private val dataProjectRepository: DataProjectRepository,
-    private val accountRepository: AccountRepository,
-    private val publicProjectsCacheService: PublicProjectsCacheService,
+    accountRepository: AccountRepository,
+    publicProjectsCacheService: PublicProjectsCacheService,
     gitlabRestClient: GitlabRestClient
-) : DataProjectService, AbstractGitlabProjectService<DataProject>(gitlabRestClient, accountRepository) {
-
-    override fun getAllPublicProjects(): List<DataProject> {
-        val projectsIds = publicProjectsCacheService.getPublicProjectsIdsList()
-        return dataProjectRepository.findAllById(projectsIds).toList()
-    }
-
-    override fun getAllPublicProjects(pageable: Pageable): Page<DataProject> {
-        val projectsIds = publicProjectsCacheService.getPublicProjectsIdsList(pageable)
-        val projects = dataProjectRepository.findAllById(projectsIds)
-        return PageImpl(projects.toList(), projectsIds.pageable, projectsIds.totalElements)
-    }
-
-    override fun getAllProjectsByIds(ids: Iterable<UUID>): List<DataProject> {
-        return dataProjectRepository.findAllById(ids).toList()
-    }
-
-    override fun getAllProjectsByIds(ids: Iterable<UUID>, pageable: Pageable): Page<DataProject> {
-        return dataProjectRepository.findAllByIdIn(ids, pageable)
-    }
-
-    override fun getProjectById(projectId: UUID): DataProject? {
-        return dataProjectRepository.findByIdOrNull(projectId)
-    }
-
-    override fun getAllProjectsForUser(personId: UUID): List<DataProject> {
-        return dataProjectRepository.findAllByOwnerId(personId)
-    }
-
-    override fun getProjectByIdAndPersonId(projectId: UUID, personId: UUID): DataProject? {
-        return dataProjectRepository.findOneByOwnerIdAndId(personId, projectId)
-    }
-
-    override fun getProjectsByNamespace(namespaceName: String): List<DataProject> {
-        return dataProjectRepository.findByNamespace("$namespaceName/")
-    }
-
-    override fun getProjectsBySlug(slug: String): List<DataProject> {
-        return dataProjectRepository.findBySlug(slug)
-    }
-
-    override fun getProjectsByNamespaceAndSlug(namespaceName: String, slug: String): DataProject? {
-        return dataProjectRepository.findByGitlabPathWithNamespace("$namespaceName/$slug")
-    }
+) : DataProjectService, AbstractGitlabProjectService<DataProject>(
+    gitlabRestClient,
+    dataProjectRepository,
+    accountRepository,
+    publicProjectsCacheService) {
 
     override fun saveNewProject(mlProject: DataProject): DataProject {
         return dataProjectRepository.save(mlProject)
@@ -101,12 +60,23 @@ class GitlabDataProjectService(
         )
     }
 
-    override fun updateSaveProject(mlProject: DataProject, gitlabProject: GitlabProject) =
+    override fun updateSaveProject(
+        mlProject: DataProject,
+        gitlabProject: GitlabProject,
+        inputDataTypes: List<DataType>?,
+        outputDataTypes: List<DataType>?,
+        tags: List<SearchableTag>?
+    ) = dataProjectRepository.save(
         mlProject.copy(
             name = gitlabProject.name,
+            description = gitlabProject.description,
             gitlabPath = gitlabProject.path,
-            visibilityScope = gitlabProject.visibility.toVisibilityScope()
-        ).let { dataProjectRepository.save(it) }
+            visibilityScope = gitlabProject.visibility.toVisibilityScope(),
+            inputDataTypes = inputDataTypes?.toSet() ?: mlProject.inputDataTypes,
+            outputDataTypes = outputDataTypes?.toSet() ?: mlProject.outputDataTypes,
+            tags = tags?.toSet() ?: mlProject.tags
+        )
+    )
 
     override fun getUserProjectsList(userId: UUID?): List<ProjectOfUser> {
         val user = resolveAccount(userId = userId)

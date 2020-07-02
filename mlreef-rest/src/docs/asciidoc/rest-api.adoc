@@ -122,9 +122,9 @@ include::{snippets}/register-fail/http-response.adoc[]
 [[authentication]]
 == Authentication - /auth
 
-Almost every endpoint has to be authenticated. Exceptions are those endpoints under /api/v1/auth/ and /docs.
+Almost every endpoint has to be authenticated.Exceptions are those endpoints under /api/v1/auth/ and /docs.
 
-Authentication is possible by setting the PRIVATE-TOKEN in the header. This uses the same strategy like gitlab,
+Authentication is possible by setting the PRIVATE-TOKEN in the header.This uses the same strategy like gitlab,
 therefore clients can use the same header to communicate with the gitlab backend as to the MLReef backend.
 
 To obtain this token, a login is necessary with valid credentials.
@@ -147,6 +147,36 @@ operation::login-success[snippets='curl-request,request-fields,http-response,res
 [[resources]]
 = Resources
 
+[[projects]]
+== Projects - /projects
+
+Projects are abstract entities with the subtypes DataProject and CodeProject.
+For many requests, Projects can be used, but create or update operations, you must use the specific /data-project and /code-project endpoints
+
+=== GET /projects
+
+operation::genericprojects-retrieve-all[snippets='curl-request,response-body,response-fields']
+
+=== GET /projects/public
+
+operation::genericprojects-retrieve-public[snippets='curl-request,response-body,response-fields']
+
+=== GET /projects/:id
+
+operation::genericprojects-retrieve-one[snippets='curl-request,response-body,response-fields']
+
+=== GET /projects/slug/:slug
+
+operation::genericprojects-retrieve-by-slug[snippets='curl-request,response-body,response-fields']
+
+=== GET /projects/namespace/:namespace
+
+operation::genericprojects-retrieve-by-namespace[snippets='curl-request,response-body,response-fields']
+
+=== GET /projects/:namespace/:slug
+
+operation::genericprojects-retrieve-by-namespace-slug[snippets='curl-request,response-body,response-fields']
+
 [[code-projects]]
 == CodeProjects - /code-projects
 
@@ -157,6 +187,10 @@ Currently users can only retrieve and manipulate their own CodeProjects
 === GET /code-projects
 
 operation::codeprojects-retrieve-all[snippets='curl-request,response-body,response-fields']
+
+=== GET /data-projects/public
+
+operation::codeprojects-retrieve-public[snippets='curl-request,response-body']
 
 === GET /code-projects/:id
 
@@ -212,13 +246,12 @@ operation::codeprojects-delete-user[snippets='curl-request,response-body,respons
 
 === DELETE /code-projects/:id/users?
 
-Delete a user with parameters by user_id or gitlab_id from the project by id (:id). Returns a list with users left in the project.
+Delete a user with parameters by user_id or gitlab_id from the project by id (:id).Returns a list with users left in the project.
 
 * gitlab_id
 * user_id
 
 operation::codeprojects-delete-user-by-params[snippets='curl-request,request-parameters,response-body,response-fields']
-
 
 [[data-projects]]
 == Data Projects - /data-projects
@@ -230,7 +263,11 @@ Currently users can only retrieve and manipulate their own DataProjects
 
 === GET /data-projects
 
-operation::dataprojects-retrieve-all[snippets='curl-request,response-body,response-fields']
+operation::dataprojects-retrieve-all[snippets='curl-request,response-body']
+
+=== GET /data-projects/public
+
+operation::dataprojects-retrieve-public[snippets='curl-request,response-body,response-fields']
 
 === GET /data-projects/:id
 

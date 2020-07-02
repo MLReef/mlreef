@@ -9,8 +9,6 @@ import javax.persistence.Id
 import javax.persistence.Table
 
 enum class SearchableTagType {
-    USAGE,
-    STUFF,
     UNDEFINED
 }
 

@@ -29,7 +29,6 @@ class DataProject(
     ownerId: UUID,
     gitlabNamespace: String,
     gitlabPath: String,
-    gitlabPathWithNamespace: String = "$gitlabNamespace/$gitlabPath",
     gitlabId: Long,
     visibilityScope: VisibilityScope = VisibilityScope.default(),
 
@@ -38,6 +37,8 @@ class DataProject(
         name = "data_project_id",
         foreignKey = ForeignKey(name = "experiment_dataproject_data_project_id_fkey"))
     val experiments: List<Experiment> = listOf(),
+    gitlabPathWithNamespace: String = "$gitlabNamespace/$gitlabPath",
+
     forksCount: Int = 0,
     inputDataTypes: Set<DataType> = hashSetOf(),
     outputDataTypes: Set<DataType> = hashSetOf(),

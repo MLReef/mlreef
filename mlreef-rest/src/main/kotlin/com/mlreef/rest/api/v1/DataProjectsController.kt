@@ -6,13 +6,13 @@ import com.mlreef.rest.DataProject
 import com.mlreef.rest.Person
 import com.mlreef.rest.VisibilityScope
 import com.mlreef.rest.api.v1.dto.DataProjectDto
-import com.mlreef.rest.api.v1.dto.ProjectDto
 import com.mlreef.rest.api.v1.dto.UserInProjectDto
 import com.mlreef.rest.api.v1.dto.toDto
 import com.mlreef.rest.exceptions.ProjectNotFoundException
 import com.mlreef.rest.external_api.gitlab.TokenDetails
 import com.mlreef.rest.feature.project.DataProjectService
 import org.springframework.data.domain.Page
+import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.Pageable
 import org.springframework.http.HttpStatus
 import org.springframework.security.access.prepost.PostAuthorize
@@ -46,37 +46,37 @@ class DataProjectsController(
         return dataProjectService.getAllProjectsForUser(person.id).map(DataProject::toDto)
     }
 
-    // FIXME: Coverage says: missing tests
     @GetMapping("/public")
-    fun getPublicDataProjects(pageable: Pageable): Page<ProjectDto> {
-        return dataProjectService.getAllPublicProjects(pageable).map { it.toDto() }
+    fun getPublicDataProjects(pageable: Pageable): Page<DataProjectDto> {
+        val list = dataProjectService.getAllPublicProjects(pageable).map { it.toDto() }
+        return PageImpl(list, pageable, list.size.toLong())
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("userInProject(#id) || projectIsPublic(#id)")
+    @PreAuthorize("canViewProject(#id)")
     fun getDataProjectById(@PathVariable id: UUID): DataProjectDto {
         val dataProject = dataProjectService.getProjectById(id) ?: throw ProjectNotFoundException(projectId = id)
         return dataProject.toDto()
     }
 
     @GetMapping("/namespace/{namespace}")
-    @PostFilter("userInProject() || projectIsPublic()")
+    @PostFilter("canViewProject()")
     fun getCodeProjectsByNamespace(@PathVariable namespace: String): List<DataProjectDto> {
         val dataProjects = dataProjectService.getProjectsByNamespace(namespace)
         return dataProjects.map(DataProject::toDto)
     }
 
     @GetMapping("/slug/{slug}")
-    @PostFilter("userInProject() || projectIsPublic()")
+    @PostFilter("canViewProject()")
     fun getCodeProjectBySlug(@PathVariable slug: String): List<DataProjectDto> {
         val dataProjects = dataProjectService.getProjectsBySlug(slug)
         return dataProjects.map(DataProject::toDto)
     }
 
     @GetMapping("/{namespace}/{slug}")
-    @PostAuthorize("userInProject() || projectIsPublic()")
+    @PostAuthorize("canViewProject()")
     fun getCodeProjectsByNamespaceAndSlugInPath(@PathVariable namespace: String, @PathVariable slug: String): DataProjectDto {
-        val dataProject = dataProjectService.getProjectsByNamespaceAndSlug(namespace, slug)
+        val dataProject = dataProjectService.getProjectsByNamespaceAndPath(namespace, slug)
             ?: throw ProjectNotFoundException(path = "$namespace/$slug")
         return dataProject.toDto()
     }
@@ -103,16 +103,20 @@ class DataProjectsController(
     @PutMapping("/{id}")
     @PreAuthorize("isProjectOwner(#id)")
     fun updateDataProject(@PathVariable id: UUID,
-                          @Valid @RequestBody dataProjectUpdateRequest: DataProjectUpdateRequest,
+                          @Valid @RequestBody projectUpdateRequest: ProjectUpdateRequest,
                           token: TokenDetails,
                           person: Person): DataProjectDto {
         val dataProject = dataProjectService.updateProject(
             userToken = token.permanentToken,
             ownerId = person.id,
             projectUUID = id,
-            projectName = dataProjectUpdateRequest.name,
-            description = dataProjectUpdateRequest.description)
-
+            projectName = projectUpdateRequest.name,
+            description = projectUpdateRequest.description,
+            visibility = projectUpdateRequest.visibility,
+            inputDataTypes = projectUpdateRequest.inputDataTypes,
+            outputDataTypes = projectUpdateRequest.outputDataTypes,
+            tags = projectUpdateRequest.tags
+        )
         return dataProject.toDto()
     }
 
@@ -148,8 +152,8 @@ class DataProjectsController(
                                    @PathVariable userId: UUID,
                                    @RequestParam(required = false) level: String?,
                                    @RequestParam(required = false, name = "min_level") minLevel: String?): Boolean {
-        val checkLevel = if (level!=null) AccessLevel.parse(level) else null
-        val checkMinLevel = if (minLevel!=null) AccessLevel.parse(minLevel) else null
+        val checkLevel = if (level != null) AccessLevel.parse(level) else null
+        val checkMinLevel = if (minLevel != null) AccessLevel.parse(minLevel) else null
         return dataProjectService.checkUserInProject(projectUUID = id, userId = userId, level = checkLevel, minlevel = checkMinLevel)
     }
 
@@ -174,7 +178,7 @@ class DataProjectsController(
         @RequestParam(value = "expires_at", required = false) expiresAt: Instant?): List<UserInProjectDto> {
 
         val accessLevelStr = body?.level ?: level
-        val accessLevel = if (accessLevelStr!=null) AccessLevel.parse(accessLevelStr) else null
+        val accessLevel = if (accessLevelStr != null) AccessLevel.parse(accessLevelStr) else null
         val currentUserId = body?.userId ?: userId
         val currentGitlabId = body?.gitlabId ?: gitlabId
         val currentExpiration = body?.expiresAt ?: expiresAt
@@ -222,11 +226,6 @@ class DataProjectCreateRequest(
     @NotEmpty val description: String,
     @NotEmpty val initializeWithReadme: Boolean,
     val visibility: VisibilityScope = VisibilityScope.PUBLIC
-)
-
-class DataProjectUpdateRequest(
-    @NotEmpty val name: String,
-    @NotEmpty val description: String
 )
 
 class DataProjectUserMembershipRequest(

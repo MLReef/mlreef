@@ -48,8 +48,8 @@ object TestTags {
     const val RESTDOC = "restdoc"
 }
 
-internal fun projectResponseFields(prefix: String = ""): List<FieldDescriptor> {
-    return listOf(
+internal fun projectResponseFields(prefix: String = ""): MutableList<FieldDescriptor> {
+    return arrayListOf(
         fieldWithPath(prefix + "global_slug").optional().type(JsonFieldType.STRING).description("Global Slug must be unique for the whole platform"),
         fieldWithPath(prefix + "visibility_scope").type(JsonFieldType.STRING).description("Visibility scope"),
         fieldWithPath(prefix + "name").type(JsonFieldType.STRING).description("A Name which is unique per scope (owner's domain)"),
@@ -69,12 +69,47 @@ internal fun projectResponseFields(prefix: String = ""): List<FieldDescriptor> {
         fieldWithPath(prefix + "gitlab_namespace").type(JsonFieldType.STRING).description("The group/namespace where the project is in"),
         fieldWithPath(prefix + "gitlab_path").type(JsonFieldType.STRING).description("Project path"),
         fieldWithPath(prefix + "gitlab_id").type(JsonFieldType.NUMBER).description("Id in gitlab")
+    ).apply {
+        this.add(fieldWithPath(prefix + "data_processor").optional().type(JsonFieldType.OBJECT).description("DataProcessor"))
+        this.addAll(dataProcessorFields(prefix + "data_processor."))
+        this.addAll(searchableTags(prefix + "tags[]."))
+    }
+}
+
+internal fun searchableTags(prefix: String = ""): MutableList<FieldDescriptor> {
+    return arrayListOf(
+        fieldWithPath(prefix + "id").type(JsonFieldType.STRING).optional().description("Unique UUID"),
+        fieldWithPath(prefix + "name").optional().type(JsonFieldType.STRING).optional().description("Name of Tag, unique, useful and readable"),
+        fieldWithPath(prefix + "type").type(JsonFieldType.STRING).optional().description("Type or Family of this Tag"),
+        fieldWithPath(prefix + "public").type(JsonFieldType.BOOLEAN).optional().description("Flag indicating whether this is public or not")
     )
 }
 
+internal fun searchableTagsRequestFields(prefix: String = ""): MutableList<FieldDescriptor> {
+    return arrayListOf(
+        fieldWithPath(prefix + "id").type(JsonFieldType.STRING).optional().description("Unique UUID"),
+        fieldWithPath(prefix + "owner_id").optional().type(JsonFieldType.STRING).optional().description("Nullable owner_id"),
+        fieldWithPath(prefix + "name").optional().type(JsonFieldType.STRING).optional().description("Name of Tag, unique, useful and readable"),
+        fieldWithPath(prefix + "type").type(JsonFieldType.STRING).optional().description("Type or Family of this Tag"),
+        fieldWithPath(prefix + "public").type(JsonFieldType.BOOLEAN).optional().description("Flag indicating whether this is public or not")
+    )
+}
 
-internal fun dataProcessorInstanceFields(prefix: String = ""): List<FieldDescriptor> {
-    return listOf(
+internal fun projectUpdateRequestFields(): List<FieldDescriptor> {
+    return arrayListOf(
+        fieldWithPath("description").type(JsonFieldType.STRING).optional().description("Description of Project"),
+        fieldWithPath("name").type(JsonFieldType.STRING).optional().description("Name of Project"),
+        fieldWithPath("visibility").type(JsonFieldType.STRING).optional().description("Visibility of Project"),
+        fieldWithPath("input_data_types").type(JsonFieldType.ARRAY).optional().description("List of DataTypes for input"),
+        fieldWithPath("output_data_types").type(JsonFieldType.ARRAY).optional().description("List of DataTypes for output"),
+        fieldWithPath("tags").type(JsonFieldType.ARRAY).optional().description("List of Tags")
+    ).apply {
+        addAll(searchableTagsRequestFields("tags[]."))
+    }
+}
+
+internal fun dataProcessorInstanceFields(prefix: String = ""): MutableList<FieldDescriptor> {
+    return arrayListOf(
         fieldWithPath(prefix + "id").type(JsonFieldType.STRING).optional().description("Unique UUID of this DataProcessor"),
         fieldWithPath(prefix + "slug").type(JsonFieldType.STRING).optional().description("Unique slug of this DataProcessor"),
         fieldWithPath(prefix + "name").optional().type(JsonFieldType.STRING).optional().description("Optional Name of this DataProcessor ( not needed in Inputs)"),
@@ -87,8 +122,8 @@ internal fun dataProcessorInstanceFields(prefix: String = ""): List<FieldDescrip
     )
 }
 
-internal fun pageable(prefix: String = ""): List<FieldDescriptor> {
-    return listOf(
+internal fun pageable(prefix: String = ""): MutableList<FieldDescriptor> {
+    return arrayListOf(
         fieldWithPath(prefix + "content").type(JsonFieldType.ARRAY).optional().description(""),
         fieldWithPath(prefix + "pageable.sort").type(JsonFieldType.OBJECT).optional().description(""),
         fieldWithPath(prefix + "pageable.sort.unsorted").type(JsonFieldType.BOOLEAN).optional().description(""),
@@ -114,8 +149,8 @@ internal fun pageable(prefix: String = ""): List<FieldDescriptor> {
     )
 }
 
-internal fun dataProcessorFields(prefix: String = ""): List<FieldDescriptor> {
-    return listOf(
+internal fun dataProcessorFields(prefix: String = ""): MutableList<FieldDescriptor> {
+    return arrayListOf(
         fieldWithPath(prefix + "id").type(JsonFieldType.STRING).description("Unique UUID of this DataProcessor"),
         fieldWithPath(prefix + "slug").type(JsonFieldType.STRING).description("Unique slug of this DataProcessor"),
         fieldWithPath(prefix + "name").optional().type(JsonFieldType.STRING).description("Optional Name of this DataProcessor ( not needed in Inputs)"),
@@ -137,8 +172,8 @@ internal fun dataProcessorFields(prefix: String = ""): List<FieldDescriptor> {
     )
 }
 
-internal fun pipelineInfoDtoResponseFields(prefix: String = ""): List<FieldDescriptor> {
-    return listOf(
+internal fun pipelineInfoDtoResponseFields(prefix: String = ""): MutableList<FieldDescriptor> {
+    return arrayListOf(
         fieldWithPath(prefix + "id").type(JsonFieldType.NUMBER).optional().description("Json object describing specific metrics"),
         fieldWithPath(prefix + "commit_sha").type(JsonFieldType.STRING).optional().description("Json object describing specific metrics"),
         fieldWithPath(prefix + "ref").type(JsonFieldType.STRING).optional().description("Json object describing specific metrics"),
@@ -150,8 +185,8 @@ internal fun pipelineInfoDtoResponseFields(prefix: String = ""): List<FieldDescr
     )
 }
 
-internal fun fileLocationsFields(prefix: String = ""): List<FieldDescriptor> {
-    return listOf(
+internal fun fileLocationsFields(prefix: String = ""): MutableList<FieldDescriptor> {
+    return arrayListOf(
         fieldWithPath(prefix + "location").type(JsonFieldType.STRING).description("A URL, URI or simple path describing the location of a file/folder"),
         fieldWithPath(prefix + "location_type").type(JsonFieldType.STRING).description("PATH, URL or AWS_ID ")
     )
@@ -244,18 +279,41 @@ internal class PipelineTestPreparationTrait : AccountSubjectPreparationTrait() {
     lateinit var dataProject: DataProject
     lateinit var dataProject2: DataProject
 
-    @Autowired private lateinit var pipelineConfigRepository: PipelineConfigRepository
-    @Autowired private lateinit var pipelineInstanceRepository: PipelineInstanceRepository
-    @Autowired private lateinit var experimentRepository: ExperimentRepository
-    @Autowired private lateinit var dataProjectRepository: DataProjectRepository
-    @Autowired private lateinit var codeProjectRepository: CodeProjectRepository
-    @Autowired private lateinit var dataProcessorInstanceRepository: DataProcessorInstanceRepository
-    @Autowired private lateinit var parameterInstanceRepository: ParameterInstanceRepository
-    @Autowired private lateinit var processorParameterRepository: ProcessorParameterRepository
-    @Autowired private lateinit var dataOperationRepository: DataOperationRepository
-    @Autowired private lateinit var dataAlgorithmRepository: DataAlgorithmRepository
-    @Autowired private lateinit var dataVisualizationRepository: DataVisualizationRepository
-    @Autowired private lateinit var dataProcessorRepository: DataProcessorRepository
+    @Autowired
+    private lateinit var pipelineConfigRepository: PipelineConfigRepository
+
+    @Autowired
+    private lateinit var pipelineInstanceRepository: PipelineInstanceRepository
+
+    @Autowired
+    private lateinit var experimentRepository: ExperimentRepository
+
+    @Autowired
+    private lateinit var dataProjectRepository: DataProjectRepository
+
+    @Autowired
+    private lateinit var codeProjectRepository: CodeProjectRepository
+
+    @Autowired
+    private lateinit var dataProcessorInstanceRepository: DataProcessorInstanceRepository
+
+    @Autowired
+    private lateinit var parameterInstanceRepository: ParameterInstanceRepository
+
+    @Autowired
+    private lateinit var processorParameterRepository: ProcessorParameterRepository
+
+    @Autowired
+    private lateinit var dataOperationRepository: DataOperationRepository
+
+    @Autowired
+    private lateinit var dataAlgorithmRepository: DataAlgorithmRepository
+
+    @Autowired
+    private lateinit var dataVisualizationRepository: DataVisualizationRepository
+
+    @Autowired
+    private lateinit var dataProcessorRepository: DataProcessorRepository
 
     override fun apply() {
 

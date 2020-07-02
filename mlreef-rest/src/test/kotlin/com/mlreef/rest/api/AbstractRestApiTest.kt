@@ -9,6 +9,7 @@ import com.mlreef.rest.ApplicationProfiles
 import com.mlreef.rest.I18N
 import com.mlreef.rest.Person
 import com.mlreef.rest.PersonRepository
+import com.mlreef.rest.Project
 import com.mlreef.rest.external_api.gitlab.GitlabRestClient
 import com.mlreef.rest.external_api.gitlab.GitlabVisibility
 import com.mlreef.rest.external_api.gitlab.TokenDetails
@@ -17,10 +18,12 @@ import com.mlreef.rest.external_api.gitlab.dto.Commit
 import com.mlreef.rest.external_api.gitlab.dto.GitlabGroup
 import com.mlreef.rest.external_api.gitlab.dto.GitlabPipeline
 import com.mlreef.rest.external_api.gitlab.dto.GitlabProject
+import com.mlreef.rest.external_api.gitlab.dto.GitlabProjectSimplified
 import com.mlreef.rest.external_api.gitlab.dto.GitlabUser
 import com.mlreef.rest.external_api.gitlab.dto.GitlabUserInGroup
 import com.mlreef.rest.external_api.gitlab.dto.GitlabUserToken
 import com.mlreef.rest.external_api.gitlab.dto.OAuthToken
+import com.mlreef.rest.feature.caches.PublicProjectsCacheService
 import com.mlreef.rest.feature.pipeline.PipelineService
 import com.mlreef.rest.helpers.UserInProject
 import com.mlreef.rest.security.MlReefSessionRegistry
@@ -36,6 +39,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.jdbc.EmbeddedDatabaseConnection
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.data.domain.PageImpl
 import org.springframework.restdocs.RestDocumentationContextProvider
 import org.springframework.restdocs.RestDocumentationExtension
 import org.springframework.restdocs.mockmvc.MockMvcRestDocumentation
@@ -93,6 +97,9 @@ abstract class AbstractRestApiTest : AbstractRestTest() {
 
     @MockkBean(relaxed = true, relaxUnitFun = true)
     protected lateinit var sessionRegistry: MlReefSessionRegistry
+
+    @MockkBean(relaxed = true, relaxUnitFun = true)
+    protected lateinit var publicProjectsCacheService: PublicProjectsCacheService
 
     @Autowired
     protected lateinit var accountTokenRepository: AccountTokenRepository
@@ -283,6 +290,27 @@ abstract class AbstractRestApiTest : AbstractRestTest() {
             val token = this.args[0] as String
             tokenDetails(actualAccount, token, projectIdLevelMap, mutableMapOf())
         }
+    }
+
+    fun mockGitlabPublicProjects(vararg projects: Project) {
+        every {
+            restClient.unauthenticatedGetAllPublicProjects()
+        } returns listOf(*projects).map {
+            GitlabProjectSimplified(
+                id = it.gitlabId,
+                name = it.name,
+                nameWithNamespace = null,
+                path = it.gitlabPath,
+                pathWithNamespace = it.gitlabPathWithNamespace
+            )
+        }
+
+        every {
+            publicProjectsCacheService.getPublicProjectsIdsList(any())
+        } returns listOf(*projects)
+            .map { it.id }
+            .let { PageImpl(it) }
+
     }
 
     fun mockUserAuthentication(projectIdLevelMap: MutableMap<UUID, AccessLevel?> = mutableMapOf(),

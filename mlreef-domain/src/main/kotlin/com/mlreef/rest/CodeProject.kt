@@ -26,9 +26,9 @@ class CodeProject(
     ownerId: UUID,
     gitlabNamespace: String,
     gitlabPath: String,
-    gitlabPathWithNamespace: String = "$gitlabNamespace/$gitlabPath",
     gitlabId: Long,
     visibilityScope: VisibilityScope = VisibilityScope.default(),
+    gitlabPathWithNamespace: String = "$gitlabNamespace/$gitlabPath",
     dataProcessor: DataProcessor? = null,
     forksCount: Int = 0,
     inputDataTypes: Set<DataType> = hashSetOf(),
@@ -91,7 +91,6 @@ class CodeProject(
             tags = tags ?: this.tags,
             inputDataTypes = inputDataTypes ?: this.inputDataTypes,
             outputDataTypes = outputDataTypes ?: this.outputDataTypes
-
         )
     }
 

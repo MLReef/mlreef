@@ -3,10 +3,10 @@ package com.mlreef.rest.api.v1
 import com.mlreef.rest.AccessLevel
 import com.mlreef.rest.Account
 import com.mlreef.rest.CodeProject
+import com.mlreef.rest.DataType
 import com.mlreef.rest.Person
 import com.mlreef.rest.VisibilityScope
 import com.mlreef.rest.api.v1.dto.CodeProjectDto
-import com.mlreef.rest.api.v1.dto.ProjectDto
 import com.mlreef.rest.api.v1.dto.UserInProjectDto
 import com.mlreef.rest.api.v1.dto.toDto
 import com.mlreef.rest.exceptions.ErrorCode
@@ -16,7 +16,9 @@ import com.mlreef.rest.exceptions.ProjectCreationException
 import com.mlreef.rest.exceptions.ProjectNotFoundException
 import com.mlreef.rest.external_api.gitlab.TokenDetails
 import com.mlreef.rest.feature.project.CodeProjectService
+import com.mlreef.rest.marketplace.SearchableTag
 import org.springframework.data.domain.Page
+import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.Pageable
 import org.springframework.http.HttpStatus
 import org.springframework.security.access.prepost.PostAuthorize
@@ -50,38 +52,38 @@ class CodeProjectsController(
         return codeProjectService.getAllProjectsForUser(person.id).map(CodeProject::toDto)
     }
 
-    // FIXME: Coverage says: missing tests
     @GetMapping("/public")
-    fun getPublicDataProjects(pageable: Pageable): Page<ProjectDto> {
-        return codeProjectService.getAllPublicProjects(pageable).map { it.toDto() }
+    fun getPublicDataProjects(pageable: Pageable): Page<CodeProjectDto> {
+        val list = codeProjectService.getAllPublicProjects(pageable).map { it.toDto() }
+        return PageImpl(list, pageable, list.size.toLong())
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("userInProject(#id) || projectIsPublic(#id)")
+    @PreAuthorize("canViewProject(#id)")
     fun getCodeProjectById(@PathVariable id: UUID): CodeProjectDto {
         val codeProject = codeProjectService.getProjectById(id) ?: throw ProjectNotFoundException(projectId = id)
         return codeProject.toDto()
     }
 
     @GetMapping("/namespace/{namespace}")
-    @PostFilter("userInProject() || projectIsPublic()")
+    @PostFilter("canViewProject()")
     fun getCodeProjectsByNamespace(@PathVariable namespace: String): List<CodeProjectDto> {
         val codeProjects = codeProjectService.getProjectsByNamespace(namespace)
         return codeProjects.map(CodeProject::toDto)
     }
 
     @GetMapping("/slug/{slug}")
-    @PostFilter("userInProject() || projectIsPublic()")
+    @PostFilter("canViewProject()")
     fun getCodeProjectBySlug(@PathVariable slug: String): List<CodeProjectDto> {
         val codeProjects = codeProjectService.getProjectsBySlug(slug)
         return codeProjects.map(CodeProject::toDto)
     }
 
-    @GetMapping("/{namespace}/{slug}")
-    @PostAuthorize("userInProject() || projectIsPublic()")
-    fun getCodeProjectsByNamespaceAndSlugInPath(@PathVariable namespace: String, @PathVariable slug: String): CodeProjectDto {
-        val codeProjects = codeProjectService.getProjectsByNamespaceAndSlug(namespace, slug)
-            ?: throw ProjectNotFoundException(path = "$namespace/$slug")
+    @GetMapping("/{namespace}/{path}")
+    @PostAuthorize("canViewProject()")
+    fun getCodeProjectsByNamespaceAndSlugInPath(@PathVariable namespace: String, @PathVariable path: String): CodeProjectDto {
+        val codeProjects = codeProjectService.getProjectsByNamespaceAndPath(namespace, path)
+            ?: throw ProjectNotFoundException(path = "$namespace/$path")
         return codeProjects.toDto()
     }
 
@@ -115,7 +117,7 @@ class CodeProjectsController(
     @PutMapping("/{id}")
     @PreAuthorize("isProjectOwner(#id)")
     fun updateCodeProject(@PathVariable id: UUID,
-                          @Valid @RequestBody projectUpdateRequest: CodeProjectUpdateRequest,
+                          @Valid @RequestBody projectUpdateRequest: ProjectUpdateRequest,
                           token: TokenDetails,
                           person: Person): CodeProjectDto {
         val codeProject = codeProjectService.updateProject(
@@ -123,7 +125,12 @@ class CodeProjectsController(
             ownerId = person.id,
             projectUUID = id,
             projectName = projectUpdateRequest.name,
-            description = projectUpdateRequest.description)
+            description = projectUpdateRequest.description,
+            visibility = projectUpdateRequest.visibility,
+            inputDataTypes = projectUpdateRequest.inputDataTypes,
+            outputDataTypes = projectUpdateRequest.outputDataTypes,
+            tags = projectUpdateRequest.tags
+        )
 
         return codeProject.toDto()
     }
@@ -160,8 +167,8 @@ class CodeProjectsController(
                                    @PathVariable userId: UUID,
                                    @RequestParam(required = false) level: String?,
                                    @RequestParam(required = false, name = "min_level") minLevel: String?): Boolean {
-        val checkLevel = if (level!=null) AccessLevel.parse(level) else null
-        val checkMinLevel = if (minLevel!=null) AccessLevel.parse(minLevel) else null
+        val checkLevel = if (level != null) AccessLevel.parse(level) else null
+        val checkMinLevel = if (minLevel != null) AccessLevel.parse(minLevel) else null
         return codeProjectService.checkUserInProject(projectUUID = id, userId = userId, level = checkLevel, minlevel = checkMinLevel)
     }
 
@@ -186,7 +193,7 @@ class CodeProjectsController(
         @RequestParam(value = "expires_at", required = false) expiresAt: Instant?): List<UserInProjectDto> {
 
         val accessLevelStr = body?.level ?: level
-        val accessLevel = if (accessLevelStr!=null) AccessLevel.parse(accessLevelStr) else null
+        val accessLevel = if (accessLevelStr != null) AccessLevel.parse(accessLevelStr) else null
         val currentUserId = body?.userId ?: userId
         val currentGitlabId = body?.gitlabId ?: gitlabId
         val currentExpiration = body?.expiresAt ?: expiresAt
@@ -236,11 +243,16 @@ class CodeProjectCreateRequest(
     val visibility: VisibilityScope = VisibilityScope.PUBLIC
 )
 
-class CodeProjectUpdateRequest(
+class ProjectUpdateRequest(
     @NotEmpty val name: String,
-    @NotEmpty val description: String
+    @NotEmpty val description: String,
+    val visibility: VisibilityScope? = null,
+    val inputDataTypes: List<DataType>? = null,
+    val outputDataTypes: List<DataType>? = null,
+    val tags: List<SearchableTag>? = null
 )
 
+@Deprecated("Not limited to CodeProjects")
 class CodeProjectUserMembershipRequest(
     val userId: UUID? = null,
     val gitlabId: Long? = null,

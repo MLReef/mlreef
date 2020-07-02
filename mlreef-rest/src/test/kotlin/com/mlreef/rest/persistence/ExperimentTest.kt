@@ -21,7 +21,7 @@ class ExperimentTest : AbstractRepositoryTest() {
     private fun createEntity(): Pair<UUID, Experiment> {
         val id = randomUUID()
         val owner = Person(randomUUID(), "slug", "name", 1L)
-        val dataProject = DataProject(randomUUID(), "slug", "url,", "CodeProject Augment", "", owner.id, "group", "project", "group/project", 0)
+        val dataProject = DataProject(randomUUID(), "slug", "url,", "CodeProject Augment", "", owner.id, "group", "project", 0)
         val entity = Experiment(id, dataProject.id, null, "slug", "name", "source", "target")
 
         return Pair(id, entity)
@@ -58,7 +58,7 @@ class ExperimentTest : AbstractRepositoryTest() {
     @Test
     fun `update works`() {
         val owner = Person(randomUUID(), "slug", "name", 1L)
-        val dataProject = DataProject(randomUUID(), "slug", "url,", "CodeProject Augment", "", owner.id, "group", "project", "group/project", 0)
+        val dataProject = DataProject(randomUUID(), "slug", "url,", "CodeProject Augment", "", owner.id, "group", "project", 0)
         val id = randomUUID()
         val item = Experiment(id, dataProject.id, null, "slug", "name", "source", "target")
 
