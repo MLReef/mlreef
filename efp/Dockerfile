@@ -45,6 +45,13 @@ RUN echo "----------------------------------------------------------------------
     pip install scikit-image
 
 
+##### Run Tests
+RUN cd /epf/tests                                                                   && \
+    python3 -m pip install --upgrade pip                                            && \
+    pip3 install -r requirements.txt                                                && \
+    python3 -m unittest -v im_transformations_tests.Test                            && \
+    echo "Tests successful"
+
 
 ##### Add container startup script
 CMD echo "------------------------------------"                                     && \
