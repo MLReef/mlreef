@@ -4,6 +4,7 @@ import com.mlreef.rest.AccountRepository
 import com.mlreef.rest.DataProject
 import com.mlreef.rest.DataProjectRepository
 import com.mlreef.rest.DataType
+import com.mlreef.rest.GroupRepository
 import com.mlreef.rest.exceptions.GitlabNoValidTokenException
 import com.mlreef.rest.exceptions.ProjectNotFoundException
 import com.mlreef.rest.exceptions.UserNotFoundException
@@ -25,13 +26,10 @@ interface DataProjectService : ManipulatingProjectService<DataProject>, Retrievi
 class GitlabDataProjectService(
     private val dataProjectRepository: DataProjectRepository,
     accountRepository: AccountRepository,
+    groupRepository: GroupRepository,
     publicProjectsCacheService: PublicProjectsCacheService,
     gitlabRestClient: GitlabRestClient
-) : DataProjectService, AbstractGitlabProjectService<DataProject>(
-    gitlabRestClient,
-    dataProjectRepository,
-    accountRepository,
-    publicProjectsCacheService) {
+) : DataProjectService, AbstractGitlabProjectService<DataProject>(gitlabRestClient, accountRepository, groupRepository, dataProjectRepository, publicProjectsCacheService) {
 
     override fun saveNewProject(mlProject: DataProject): DataProject {
         return dataProjectRepository.save(mlProject)

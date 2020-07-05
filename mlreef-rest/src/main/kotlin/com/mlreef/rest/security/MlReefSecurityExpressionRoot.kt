@@ -79,8 +79,8 @@ class MlReefSecurityExpressionRoot(
         return ((this.principal as? TokenDetails)?.projects?.get(projectId)?.accessCode ?: 0) >= level.accessCode
     }
 
-    fun canViewProject() = userInProject() || userInProject()
-    fun canViewProject(projectId: UUID) = userInProject(projectId) || userInProject(projectId)
+    fun canViewProject() = userInProject() || projectIsPublic()
+    fun canViewProject(projectId: UUID) = userInProject(projectId) || projectIsPublic(projectId)
 
     fun userInProject(): Boolean {
         val id = getIdFromContext()

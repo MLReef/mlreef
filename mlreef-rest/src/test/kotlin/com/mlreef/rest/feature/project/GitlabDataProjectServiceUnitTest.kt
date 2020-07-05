@@ -3,6 +3,7 @@ package com.mlreef.rest.feature.project
 import com.mlreef.rest.AccountRepository
 import com.mlreef.rest.DataProject
 import com.mlreef.rest.DataProjectRepository
+import com.mlreef.rest.GroupRepository
 import com.mlreef.rest.VisibilityScope
 import com.mlreef.rest.external_api.gitlab.GitlabRestClient
 import com.mlreef.rest.external_api.gitlab.dto.GitlabProject
@@ -33,11 +34,14 @@ internal class GitlabDataProjectServiceUnitTest {
     @MockK
     private lateinit var gitlabRestClient: GitlabRestClient
 
+    @MockK
+    private lateinit var groupRepository: GroupRepository
+
     private lateinit var service: GitlabDataProjectService
 
     @BeforeEach
     fun setUp() {
-        service = GitlabDataProjectService(dataProjectRepository, accountRepository, publicProjectsCacheService, gitlabRestClient)
+        service = GitlabDataProjectService(dataProjectRepository, accountRepository, groupRepository, publicProjectsCacheService, gitlabRestClient)
     }
 
     @Test

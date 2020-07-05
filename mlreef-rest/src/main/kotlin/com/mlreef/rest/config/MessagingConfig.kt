@@ -19,6 +19,7 @@ class MessagingConfig(private val sessionService: SessionsService,
     companion object {
         private val log = LoggerFactory.getLogger(MessagingConfig::class.java)
         const val REFRESH_USER_INFORMATION_TOPIC = "pubsub:queue:mlreef:userupdate"
+        const val REFRESH_GROUP_INFORMATION_TOPIC = "pubsub:queue:mlreef:groupupdate"
         const val REFRESH_PROJECT_TOPIC = "pubsub:queue:mlreef:projectupdate"
     }
 
@@ -44,6 +45,12 @@ class MessagingConfig(private val sessionService: SessionsService,
     }
 
     @Bean
+    @Qualifier("refreshGroupInformation")
+    fun refreshGroupTopic(): ChannelTopic {
+        return ChannelTopic(REFRESH_GROUP_INFORMATION_TOPIC)
+    }
+
+    @Bean
     @Qualifier("refreshProject")
     fun refreshProjectTopic(): ChannelTopic {
         return ChannelTopic(REFRESH_PROJECT_TOPIC)
@@ -54,6 +61,7 @@ class MessagingConfig(private val sessionService: SessionsService,
         val container = RedisMessageListenerContainer()
         container.connectionFactory = connectionFactory
         container.addMessageListener(userInformationMessageListenerAdapter(), refreshUserTopic())
+        container.addMessageListener(userInformationMessageListenerAdapter(), refreshGroupTopic())
         container.addMessageListener(projectMessageListenerAdapter(), refreshProjectTopic())
         return container
     }

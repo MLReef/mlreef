@@ -4,18 +4,23 @@ import com.mlreef.rest.AccessLevel
 import com.mlreef.rest.Account
 import com.mlreef.rest.AccountRepository
 import com.mlreef.rest.DataType
+import com.mlreef.rest.Group
+import com.mlreef.rest.GroupRepository
 import com.mlreef.rest.Project
 import com.mlreef.rest.ProjectBaseRepository
 import com.mlreef.rest.VisibilityScope
+import com.mlreef.rest.annotations.RefreshGroupInformation
 import com.mlreef.rest.annotations.RefreshProject
 import com.mlreef.rest.annotations.RefreshUserInformation
 import com.mlreef.rest.exceptions.BadParametersException
 import com.mlreef.rest.exceptions.ErrorCode
 import com.mlreef.rest.exceptions.GitlabCommonException
 import com.mlreef.rest.exceptions.GitlabNoValidTokenException
+import com.mlreef.rest.exceptions.GroupNotFoundException
 import com.mlreef.rest.exceptions.ProjectDeleteException
 import com.mlreef.rest.exceptions.ProjectNotFoundException
 import com.mlreef.rest.exceptions.ProjectUpdateException
+import com.mlreef.rest.exceptions.UnknownGroupException
 import com.mlreef.rest.exceptions.UnknownUserException
 import com.mlreef.rest.exceptions.UserNotFoundException
 import com.mlreef.rest.external_api.gitlab.GitlabRestClient
@@ -81,6 +86,14 @@ interface ManipulatingProjectService<T : Project> : RetrievingProjectService<T> 
         accessTill: Instant? = null
     ): Account
 
+    fun addGroupToProject(
+        projectUUID: UUID,
+        groupId: UUID? = null,
+        groupGitlabId: Long? = null,
+        accessLevel: AccessLevel? = null,
+        accessTill: Instant? = null
+    ): Group
+
     fun editUserInProject(
         projectUUID: UUID,
         userId: UUID? = null,
@@ -89,9 +102,18 @@ interface ManipulatingProjectService<T : Project> : RetrievingProjectService<T> 
         accessTill: Instant? = null
     ): Account
 
+    fun editGroupInProject(
+        projectUUID: UUID,
+        groupId: UUID? = null,
+        groupGitlabId: Long? = null,
+        accessLevel: AccessLevel? = null,
+        accessTill: Instant? = null
+    ): Group
+
     fun getUserProjectsList(userId: UUID? = null): List<ProjectOfUser>
-    fun deleteUsersFromProject(projectUUID: UUID, users: List<UserInProject>): List<Account>
     fun deleteUserFromProject(projectUUID: UUID, userId: UUID? = null, userGitlabId: Long? = null): Account
+    fun deleteGroupFromProject(projectUUID: UUID, groupId: UUID? = null, groupGitlabId: Long? = null): Group
+
     fun checkUserInProject(projectUUID: UUID, userId: UUID? = null, userName: String? = null, email: String? = null, userGitlabId: Long? = null, level: AccessLevel? = null, minlevel: AccessLevel? = null): Boolean
     fun checkUsersInProject(projectUUID: UUID, users: List<UserInProject>): Map<UserInProject, Boolean>
 }
@@ -99,8 +121,9 @@ interface ManipulatingProjectService<T : Project> : RetrievingProjectService<T> 
 @Service
 abstract class AbstractGitlabProjectService<T : Project>(
     protected val gitlabRestClient: GitlabRestClient,
+    protected val accountRepository: AccountRepository,
+    protected val groupRepository: GroupRepository,
     protected val projectRepository: ProjectBaseRepository<T>,
-    private val accountRepository: AccountRepository,
     protected val publicProjectsCacheService: PublicProjectsCacheService
 ) : ManipulatingProjectService<T>, RetrievingProjectService<T> {
 
@@ -196,17 +219,18 @@ abstract class AbstractGitlabProjectService<T : Project>(
             .adminGetProjectMembers(projectId = project.gitlabId)
             .map {
                 val account = accountRepository.findAccountByGitlabId(it.id)
-                    ?: throw UserNotFoundException(gitlabId = it.id)
-                val expiration = if (it.expiresAt != null) {
-                    val localDate = LocalDate.from(gitlabRestClient.gitlabDateTimeFormatter.parse(it.expiresAt))
-                    val zonedDateTime = ZonedDateTime.of(LocalDateTime.of(localDate, LocalTime.MIN), ZoneId.systemDefault())
-                    Instant.from(zonedDateTime)
-                } else null
-                UserInProject(account.id, it.username, account.email, it.id, it.accessLevel.toAccessLevel(), expiration)
-            }
+                if (account != null) {
+                    val expiration = if (it.expiresAt != null) {
+                        val localDate = LocalDate.from(gitlabRestClient.gitlabDateTimeFormatter.parse(it.expiresAt))
+                        val zonedDateTime = ZonedDateTime.of(LocalDateTime.of(localDate, LocalTime.MIN), ZoneId.systemDefault())
+                        Instant.from(zonedDateTime)
+                    } else null
+                    UserInProject(account.id, it.username, account.email, it.id, it.accessLevel.toAccessLevel(), expiration)
+                } else null //possible it is a bot or admin
+            }.filterNotNull()
     }
 
-    @RefreshUserInformation(userId = "#userId")
+    @RefreshUserInformation(userId = "#userId", gitlabId = "#userGitlabId")
     override fun addUserToProject(
         projectUUID: UUID,
         userId: UUID?,
@@ -220,7 +244,7 @@ abstract class AbstractGitlabProjectService<T : Project>(
         val account = when {
             userId != null -> accountRepository.findByIdOrNull(userId)
             userGitlabId != null -> accountRepository.findAccountByGitlabId(userGitlabId)
-            else -> throw BadParametersException("Either userid or gitlab id should be presented")
+            else -> throw BadParametersException("Either userid or gitlab id must be presented")
         } ?: throw UserNotFoundException(userId = userId, gitlabId = userGitlabId)
 
         gitlabRestClient
@@ -235,7 +259,34 @@ abstract class AbstractGitlabProjectService<T : Project>(
         return account
     }
 
-    @RefreshUserInformation(userId = "#userId")
+    @RefreshGroupInformation(groupId = "#groupId", gitlabId = "#groupGitlabId")
+    override fun addGroupToProject(
+        projectUUID: UUID,
+        groupId: UUID?,
+        groupGitlabId: Long?,
+        accessLevel: AccessLevel?,
+        accessTill: Instant?
+    ): Group {
+        val project = this.getProjectById(projectUUID) ?: throw ProjectNotFoundException(projectUUID)
+        val level = accessLevel ?: AccessLevel.GUEST
+
+        val group = when {
+            groupId != null -> groupRepository.findByIdOrNull(groupId)
+            groupGitlabId != null -> groupRepository.findByGitlabId(groupGitlabId)
+            else -> throw BadParametersException("Either group id or gitlab id must be presented")
+        } ?: throw GroupNotFoundException(groupId = groupId, gitlabId = groupGitlabId)
+
+        gitlabRestClient.adminAddGroupToProject(
+            projectId = project.gitlabId,
+            groupId = group.gitlabId ?: throw UnknownGroupException("Group has not connected to Gitlab"),
+            accessLevel = level.toGitlabAccessLevel()!!,
+            expiresAt = accessTill
+        )
+
+        return group
+    }
+
+    @RefreshUserInformation(userId = "#userId", gitlabId = "#userGitlabId")
     override fun editUserInProject(
         projectUUID: UUID,
         userId: UUID?,
@@ -267,7 +318,19 @@ abstract class AbstractGitlabProjectService<T : Project>(
         return account
     }
 
-    @RefreshUserInformation(userId = "#userId")
+    @RefreshGroupInformation(groupId = "#groupId", gitlabId = "#groupGitlabId")
+    override fun editGroupInProject(
+        projectUUID: UUID,
+        groupId: UUID?,
+        groupGitlabId: Long?,
+        accessLevel: AccessLevel?,
+        accessTill: Instant?
+    ): Group {
+        this.deleteGroupFromProject(projectUUID, groupId, groupGitlabId)
+        return this.addGroupToProject(projectUUID, groupId, groupGitlabId, accessLevel, accessTill)
+    }
+
+    @RefreshUserInformation(userId = "#userId", gitlabId = "#userGitlabId")
     override fun deleteUserFromProject(projectUUID: UUID, userId: UUID?, userGitlabId: Long?): Account {
         val codeProject = this.getProjectById(projectUUID) ?: throw ProjectNotFoundException(projectUUID)
 
@@ -284,26 +347,21 @@ abstract class AbstractGitlabProjectService<T : Project>(
         return account
     }
 
-    @RefreshUserInformation(list = "#users")
-    override fun deleteUsersFromProject(projectUUID: UUID, users: List<UserInProject>): List<Account> {
-        val codeProject = this.getProjectById(projectUUID) ?: throw ProjectNotFoundException(projectUUID)
+    @RefreshGroupInformation(groupId = "#groupId", gitlabId = "#groupGitlabId")
+    override fun deleteGroupFromProject(projectUUID: UUID, groupId: UUID?, groupGitlabId: Long?): Group {
+        val project = this.getProjectById(projectUUID) ?: throw ProjectNotFoundException(projectUUID)
 
-        val usersIds = users.map {
-            try {
-                it.gitlabId ?: resolveAccount(email = it.email, userName = it.userName)?.person?.gitlabId
-            } catch (ex: Exception) {
-                null
-            }
-        }.filterNotNull()
+        val group = when {
+            groupId != null -> groupRepository.findByIdOrNull(groupId)
+            groupGitlabId != null -> groupRepository.findByGitlabId(groupGitlabId)
+            else -> throw BadParametersException("Either group id or gitlab id must be presented")
+        } ?: throw GroupNotFoundException(groupId = groupId, gitlabId = groupGitlabId)
 
-        return usersIds.map {
-            try {
-                gitlabRestClient.adminDeleteUserFromProject(projectId = codeProject.gitlabId, userId = it)
-                accountRepository.findAccountByGitlabId(it)
-            } catch (ex: Exception) {
-                null
-            }
-        }.filterNotNull()
+        gitlabRestClient
+            .adminDeleteGroupFromProject(projectId = project.gitlabId, groupId = group.gitlabId
+                ?: throw UnknownUserException("Group is not connected to Gitlab"))
+
+        return group
     }
 
     override fun getUserProjectsList(userId: UUID?): List<ProjectOfUser> {
@@ -361,7 +419,7 @@ abstract class AbstractGitlabProjectService<T : Project>(
                 }
             }
         } catch (ex: Exception) {
-            AbstractGitlabProjectService.log.error("Cannot check user in project: Exception: $ex")
+            log.error("Cannot check user in project: Exception: $ex")
             return false
         }
     }
