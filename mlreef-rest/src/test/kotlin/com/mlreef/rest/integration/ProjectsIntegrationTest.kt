@@ -240,7 +240,7 @@ class ProjectsIntegrationTest : AbstractIntegrationTest() {
         assertThat(isUserInProject(project1, account1)).isTrue()
         assertThat(isUserInProject(project21, account1)).isFalse()
 
-        assertThat(result.size).isEqualTo(1)
+        assertThat(result.size).isEqualTo(2)
 
         val initialSetOfIds = setOf<UUID>(
             project1.id,
@@ -740,6 +740,36 @@ class ProjectsIntegrationTest : AbstractIntegrationTest() {
             .returnsList(UserInProjectDto::class.java)
 
         assertThat(returnedResult.size).isEqualTo(3)
+    }
+
+    @Transactional
+    @Rollback
+    @Test
+    fun `Maintainer can add a group to project by gitlab id`() {
+        val (account1, _, _) = testsHelper.createRealUser()
+        val (account2, _, _) = testsHelper.createRealUser(index = 1)
+        val (account3, _, _) = testsHelper.createRealUser(index = 2)
+
+        val (project21, _) = testsHelper.createRealDataProject(account2)
+
+        val (group1, _) = testsHelper.createRealGroup(account3)
+
+        testsHelper.addRealUserToProject(project21.gitlabId, account1.person.gitlabId!!, GroupAccessLevel.MAINTAINER)
+
+        val getUsersInProjectUrl = "$rootUrl/${project21.id}/users"
+        val addGroupUrl = "$rootUrl/${project21.id}/groups?gitlab_id=${group1.gitlabId}"
+
+        var result: List<UserInProjectDto> = this.performGet(getUsersInProjectUrl, account2)
+            .expectOk()
+            .returnsList(UserInProjectDto::class.java)
+
+        assertThat(result.size).isEqualTo(2)
+
+        result = this.performPost(addGroupUrl, account1)
+            .expectOk()
+            .returnsList(UserInProjectDto::class.java)
+
+        assertThat(result.size).isEqualTo(3)
     }
 
     @Transactional

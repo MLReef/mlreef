@@ -62,6 +62,13 @@ internal class GitlabAddUserToProjectRequest(
     val expiresAt: String? = null
 ) : Serializable
 
+//https://docs.gitlab.com/ee/api/projects.html#share-project-with-group
+internal class GitlabAddGroupToProjectRequest(
+    val groupId: Long,
+    val groupAccess: Int,
+    val expiresAt: String? = null
+) : Serializable
+
 // https://docs.gitlab.com/ee/api/branches.html#create-repository-branch
 internal class GitlabCreateBranchRequest(
     val branch: String,

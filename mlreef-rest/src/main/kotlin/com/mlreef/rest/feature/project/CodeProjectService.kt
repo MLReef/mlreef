@@ -4,6 +4,7 @@ import com.mlreef.rest.AccountRepository
 import com.mlreef.rest.CodeProject
 import com.mlreef.rest.CodeProjectRepository
 import com.mlreef.rest.DataType
+import com.mlreef.rest.GroupRepository
 import com.mlreef.rest.external_api.gitlab.GitlabRestClient
 import com.mlreef.rest.external_api.gitlab.dto.GitlabProject
 import com.mlreef.rest.external_api.gitlab.toVisibilityScope
@@ -18,13 +19,15 @@ interface CodeProjectService : ManipulatingProjectService<CodeProject>, Retrievi
 @Service
 class GitlabCodeProjectService(
     private val codeProjectRepository: CodeProjectRepository,
+    groupRepository: GroupRepository,
     accountRepository: AccountRepository,
     publicProjectsCacheService: PublicProjectsCacheService,
     gitlabRestClient: GitlabRestClient
 ) : CodeProjectService, AbstractGitlabProjectService<CodeProject>(
     gitlabRestClient,
-    codeProjectRepository,
     accountRepository,
+    groupRepository,
+    codeProjectRepository,
     publicProjectsCacheService) {
 
     override fun saveNewProject(mlProject: CodeProject): CodeProject {

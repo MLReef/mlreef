@@ -209,6 +209,34 @@ class CodeProjectsController(
         return getUsersInCodeProjectById(id)
     }
 
+    @PostMapping("/{id}/groups")
+    @PreAuthorize("hasAccessToProject(#id, 'MAINTAINER')")
+    fun addGroupsToCodeProjectById(
+        @PathVariable id: UUID,
+        @RequestBody(required = false) body: CodeProjectGroupMembershipRequest? = null,
+        @RequestParam(value = "group_id", required = false) groupId: UUID?,
+        @RequestParam(value = "gitlab_id", required = false) gitlabId: Long?,
+        @RequestParam(value = "level", required = false) level: String?,
+        @RequestParam(value = "expires_at", required = false) expiresAt: Instant?
+    ): List<UserInProjectDto> {
+
+        val accessLevelStr = body?.level ?: level
+        val accessLevel = if (accessLevelStr != null) AccessLevel.parse(accessLevelStr) else null
+        val currentGroupId = body?.groupId ?: groupId
+        val currentGitlabId = body?.gitlabId ?: gitlabId
+        val currentExpiration = body?.expiresAt ?: expiresAt
+
+        codeProjectService.addGroupToProject(
+            projectUUID = id,
+            groupId = currentGroupId,
+            groupGitlabId = currentGitlabId,
+            accessLevel = accessLevel,
+            accessTill = currentExpiration
+        )
+
+        return getUsersInCodeProjectById(id)
+    }
+
     @PostMapping("/{id}/users/{userId}")
     @PreAuthorize("hasAccessToProject(#id, 'MAINTAINER')")
     fun addUserToCodeProjectById(@PathVariable id: UUID, @PathVariable userId: UUID): List<UserInProjectDto> {
@@ -218,11 +246,21 @@ class CodeProjectsController(
 
     @DeleteMapping("/{id}/users")
     @PreAuthorize("hasAccessToProject(#id, 'MAINTAINER')")
-    fun deleteUsersFromDataProjectById(
+    fun deleteUserFromCodeProjectById(
         @PathVariable id: UUID,
         @RequestParam(value = "user_id", required = false) userId: UUID?,
         @RequestParam(value = "gitlab_id", required = false) gitlabId: Long?): List<UserInProjectDto> {
         codeProjectService.deleteUserFromProject(projectUUID = id, userId = userId, userGitlabId = gitlabId)
+        return getUsersInCodeProjectById(id)
+    }
+
+    @DeleteMapping("/{id}/groups")
+    @PreAuthorize("hasAccessToProject(#id, 'MAINTAINER')")
+    fun deleteGroupFromCodeProjectById(
+        @PathVariable id: UUID,
+        @RequestParam(value = "group_id", required = false) groupId: UUID?,
+        @RequestParam(value = "gitlab_id", required = false) gitlabId: Long?): List<UserInProjectDto> {
+        codeProjectService.deleteGroupFromProject(projectUUID = id, groupId = groupId, groupGitlabId = gitlabId)
         return getUsersInCodeProjectById(id)
     }
 
@@ -259,4 +297,12 @@ class CodeProjectUserMembershipRequest(
     val level: String? = null,
     val expiresAt: Instant? = null
 )
+
+class CodeProjectGroupMembershipRequest(
+    val groupId: UUID? = null,
+    val gitlabId: Long? = null,
+    val level: String? = null,
+    val expiresAt: Instant? = null
+)
+
 

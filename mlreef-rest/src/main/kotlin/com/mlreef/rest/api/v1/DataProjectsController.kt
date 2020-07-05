@@ -194,6 +194,33 @@ class DataProjectsController(
         return getUsersInDataProjectById(id)
     }
 
+    @PostMapping("/{id}/groups")
+    @PreAuthorize("hasAccessToProject(#id, 'MAINTAINER')")
+    fun addGroupsToDataProjectById(
+        @PathVariable id: UUID,
+        @RequestBody(required = false) body: DataProjectGroupMembershipRequest? = null,
+        @RequestParam(value = "group_id", required = false) groupId: UUID?,
+        @RequestParam(value = "gitlab_id", required = false) gitlabId: Long?,
+        @RequestParam(value = "level", required = false) level: String?,
+        @RequestParam(value = "expires_at", required = false) expiresAt: Instant?): List<UserInProjectDto> {
+
+        val accessLevelStr = body?.level ?: level
+        val accessLevel = if (accessLevelStr != null) AccessLevel.parse(accessLevelStr) else null
+        val currentGroupId = body?.groupId ?: groupId
+        val currentGitlabId = body?.gitlabId ?: gitlabId
+        val currentExpiration = body?.expiresAt ?: expiresAt
+
+        dataProjectService.addGroupToProject(
+            projectUUID = id,
+            groupId = currentGroupId,
+            groupGitlabId = currentGitlabId,
+            accessLevel = accessLevel,
+            accessTill = currentExpiration
+        )
+
+        return getUsersInDataProjectById(id)
+    }
+
     @PostMapping("/{id}/users/{userId}")
     @PreAuthorize("hasAccessToProject(#id, 'MAINTAINER')")
     fun addUserToDataProjectById(@PathVariable id: UUID, @PathVariable userId: UUID): List<UserInProjectDto> {
@@ -217,6 +244,16 @@ class DataProjectsController(
         dataProjectService.deleteUserFromProject(id, userId)
         return getUsersInDataProjectById(id)
     }
+
+    @DeleteMapping("/{id}/groups")
+    @PreAuthorize("hasAccessToProject(#id, 'MAINTAINER')")
+    fun deleteGroupFromDataProjectById(
+        @PathVariable id: UUID,
+        @RequestParam(value = "group_id", required = false) groupId: UUID?,
+        @RequestParam(value = "gitlab_id", required = false) gitlabId: Long?): List<UserInProjectDto> {
+        dataProjectService.deleteGroupFromProject(projectUUID = id, groupId = groupId, groupGitlabId = gitlabId)
+        return getUsersInDataProjectById(id)
+    }
 }
 
 class DataProjectCreateRequest(
@@ -234,4 +271,12 @@ class DataProjectUserMembershipRequest(
     val level: String? = null,
     val expiresAt: Instant? = null
 )
+
+class DataProjectGroupMembershipRequest(
+    val groupId: UUID? = null,
+    val gitlabId: Long? = null,
+    val level: String? = null,
+    val expiresAt: Instant? = null
+)
+
 
