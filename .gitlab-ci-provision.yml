@@ -37,6 +37,7 @@ get production ip:
     name: mlreef.com
     url: https://mlreef.com
 
+
 gitlab env config:
   extends: [".except-docu-branches"]
   image: registry.gitlab.com/systemkern/s5:latest
@@ -66,7 +67,11 @@ gitlab env config:
 # https://docs.gitlab.com/ee/ci/environments.html#automatically-stopping-an-environment
 decommission:
   extends: [".feature-branches-only"]
-  stage: maintenance                                        # The decommission job must be in the same stage as the feature branch provisionjob in order for the environment to automatically stop
+  stage: maintenance
+  except:
+    refs:
+      - master
+      - develop
   when: manual
   image: registry.gitlab.com/systemkern/s5:latest-aws
   variables:
@@ -81,9 +86,15 @@ decommission:
       | xargs --no-run-if-empty aws ec2 terminate-instances --instance-id
 
     # remove the branch's frontend docker container
-    # 1113714 is the id of the "frontend's" sub-repository id
-    - curl --request DELETE --header "PRIVATE-TOKEN:$GITLAB_COM_API_TOKEN" --fail
-      https://gitlab.com/api/v4/projects/$CI_PROJECT_ID/registry/repositories/1113714/frontend/tags/$CI_COMMIT_REF_SLUG
+    # 1117031 is the id of the "gateway's" sub-repository id
+    - curl --request DELETE --header "PRIVATE-TOKEN:$GITLAB_COM_API_TOKEN"
+      https://gitlab.com/api/v4/projects/$CI_PROJECT_ID/registry/repositories/1117031/tags/$CI_COMMIT_REF_SLUG
+    # 1151242 is the id of the "backend's" sub-repository id
+    - curl --request DELETE --header "PRIVATE-TOKEN:$GITLAB_COM_API_TOKEN"
+      https://gitlab.com/api/v4/projects/$CI_PROJECT_ID/registry/repositories/1151242/tags/$CI_COMMIT_REF_SLUG
+    # 1196730 is the id of the "epf's" sub-repository id
+    - curl --request DELETE --header "PRIVATE-TOKEN:$GITLAB_COM_API_TOKEN"
+      https://gitlab.com/api/v4/projects/$CI_PROJECT_ID/registry/repositories/1196730/tags/$CI_COMMIT_REF_SLUG
   after_script:
     # remove the data backup from s3 (if it exists)
     - aws s3 rm "s3://$S3_DATA_BUCKET/mlreef-data-$CI_COMMIT_REF_SLUG.zip"
