@@ -6,6 +6,7 @@ import Input from '../input/input';
 import ArrowButton from '../arrow-button/arrowButton';
 import advice01 from '../../images/advice-01.png';
 import { BOOL, errorMessages } from '../../dataTypes';
+import './SortableDataOperationList.scss';
 
 const SortableDataOperation = SortableElement(({ value, prefix }) => {
   const { index } = value;
@@ -28,7 +29,10 @@ const SortableDataOperation = SortableElement(({ value, prefix }) => {
   const advancedParameters = filterOperation(false);
 
   return (
-    <span key={`data-operations-item-selected-${index}`} style={{ height: 'auto', display: 'flex', alignItems: 'center' }}>
+    <span
+      key={`data-operations-item-selected-${index}`}
+      className="sortable-data-operation-list-item"
+    >
       <p style={{ marginRight: '15px' }}>
         <b>
           {prefix || 'Op.'}
@@ -241,6 +245,8 @@ const SortableDataOperation = SortableElement(({ value, prefix }) => {
             )}
         </div>
       </div>
+      <span className="sortable-data-operation-list-item-arrow" />
+      <span className="sortable-data-operation-list-item-separator" />
     </span>
   );
 });
@@ -251,7 +257,7 @@ const SortableDataOperationsList = SortableContainer(({ items, prefix }) => (
     {items.map((value, index) => {
       value.index = index + 1;
       return (
-        <SortableDataOperation key={`item-${value}`} value={value} index={index} prefix={prefix} />
+        <SortableDataOperation key={`item-${value.id}`} value={value} index={index} prefix={prefix} />
       );
     })}
   </ul>

@@ -77,7 +77,6 @@
 .pipe-line-execution{
     width: 65%;
     min-height: 700px;
-    border: 1px solid #e5e5e5;
     border-radius: 0.3vw;
 }
 
@@ -247,7 +246,6 @@
 #drop-zone{
     display: flex;
     min-height: 100px;
-    border-bottom: 1px solid #e5e5e5;
     align-items: center;
 
 }

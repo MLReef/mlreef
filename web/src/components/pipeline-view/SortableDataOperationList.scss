@@ -1,0 +1,74 @@
+.sortable-data-operation {
+  &-list {
+    &-item {
+      position: relative;
+      display: flex;
+      align-items: center;
+      height: auto;
+      padding-bottom: 0.5rem;
+      padding-top: 0.5rem;
+
+      &:not(:first-child) {
+        &::after {
+          position: absolute;
+          top: 0;
+          left: 1rem;
+          content: "";
+          height: 40%;
+          border-right: solid 1px var(--light);
+        }
+      }
+
+      &:not(:last-child) {
+        &::before {
+          position: absolute;
+          bottom: 0;
+          left: 1rem;
+          content: "";
+          height: 40%;
+          border-right: solid 1px var(--light);
+        }
+      }
+
+      &-arrow {
+        display: none;
+      }
+
+      &:not(:last-child) &-arrow {
+        display: block;
+        position: absolute;
+        z-index: 1;
+        bottom: -1rem;
+        width: 1rem;
+        left: 0.5rem;
+        height: 1rem;
+        background-image: url(/images/triangle-01.png);
+        background-size: contain;
+        background-repeat: no-repeat;
+        background-position: center;
+
+        &::after {
+          position: absolute;
+          content: "";
+          bottom: -0.5rem;
+          right: 0;
+          width: calc(100% - 3.5rem);
+          border-bottom: solid 1px var(--light);
+        }
+      }
+
+      &-separator {
+        display: none;
+      }
+
+      &:not(:last-child) &-separator {
+        display: block;
+        width: calc(100% - 3.5rem);
+        position: absolute;
+        bottom: -0.5rem;
+        right: 0;
+        border-bottom: solid 1px var(--light);
+      }
+    }
+  }
+}

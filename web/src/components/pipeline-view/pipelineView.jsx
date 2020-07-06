@@ -166,7 +166,7 @@ function mapStateToProps(state) {
 
 PipeLineView.propTypes = {
   project: shape({
-    http_url_to_repo: string.isRequired,
+    httpUrlToRepo: string.isRequired,
     id: number.isRequired,
     name: string.isRequired,
   }).isRequired,
