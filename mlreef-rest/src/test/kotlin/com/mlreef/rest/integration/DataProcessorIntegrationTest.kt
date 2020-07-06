@@ -275,7 +275,7 @@ class DataProcessorIntegrationTest : AbstractIntegrationTest() {
     private fun createManyMocks(codeProject: CodeProject, codeProject2: CodeProject) {
         createDataProcessor(DataProcessorType.OPERATION, codeProject.id, DataType.IMAGE, DataType.VIDEO)
         createDataProcessor(DataProcessorType.ALGORITHM, codeProject.id, DataType.IMAGE, DataType.IMAGE)
-        createDataProcessor(DataProcessorType.ALGORITHM, codeProject.id, DataType.TEXT, DataType.VIDEO)
+        createDataProcessor(DataProcessorType.ALGORITHM, codeProject.id, DataType.VOICE, DataType.VIDEO)
         createDataProcessor(DataProcessorType.VISUALISATION, codeProject2.id, DataType.IMAGE, DataType.IMAGE)
         createDataProcessor(DataProcessorType.OPERATION, codeProject2.id, DataType.VIDEO, DataType.VIDEO)
         createDataProcessor(DataProcessorType.VISUALISATION, codeProject2.id, DataType.VIDEO, DataType.VIDEO)

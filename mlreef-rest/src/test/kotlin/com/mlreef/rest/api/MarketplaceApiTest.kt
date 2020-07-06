@@ -271,18 +271,18 @@ class MarketplaceApiTest : AbstractRestApiTest() {
         val project1 = EntityMocks.codeProject(slug = "entry1", name = "AA Project")
             .copy(dataProcessor = dataProcessor1,
                 inputDataTypes = setOf(DataType.IMAGE, DataType.TABULAR),
-                outputDataTypes = setOf(DataType.MODEL, DataType.NUMBER),
+                outputDataTypes = setOf(DataType.MODEL, DataType.TIME_SERIES),
                 tags = setOf(tag1, tag2)
             )
         val project2 = EntityMocks.codeProject(slug = "entry2", name = "BB Project")
             .copy(dataProcessor = dataProcessor2,
                 inputDataTypes = setOf(DataType.IMAGE, DataType.TABULAR),
-                outputDataTypes = setOf(DataType.MODEL, DataType.NUMBER),
+                outputDataTypes = setOf(DataType.MODEL, DataType.TIME_SERIES),
                 tags = setOf(tag1, tag2))
 
         val project3 = EntityMocks.codeProject(slug = "entry2", name = "ZZ Project")
             .copy(inputDataTypes = setOf(DataType.IMAGE, DataType.TABULAR),
-                outputDataTypes = setOf(DataType.MODEL, DataType.NUMBER),
+                outputDataTypes = setOf(DataType.MODEL, DataType.TIME_SERIES),
                 tags = setOf(tag1, tag2))
 
 
