@@ -1,0 +1,5 @@
+#!/bin/sh
+
+if [ -n "${CI_REGISTRY+x}" ] && [ -n "${CI_REGISTRY_USER+x}" ] && [ -n "${CI_REGISTRY_PASSWORD+x}" ]; then
+  echo "$CI_REGISTRY_PASSWORD" | docker login "$CI_REGISTRY" --username="$CI_REGISTRY_USER" --password-stdin
+fi

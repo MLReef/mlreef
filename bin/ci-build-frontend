@@ -1,14 +1,13 @@
 #!/bin/sh
-# shellcheck disable=SC2039
-
-set -x    # output all commands
-set -e    # exit on immediately on every error
-set -u    # error on usage of undefined variables
-
 # change to the repository root folder via the scripts location
  cd "$(dirname "$0")"/..
 . bin/includes/detect-os
 . bin/includes/ci-environment
+. bin/includes/docker-registry-login
+########################################
+set -x    # output all commands
+set -e    # exit on immediately on every error
+set -u    # error on usage of undefined variables
 ########################################
 
 
@@ -49,18 +48,9 @@ cat build.info
 echo "### build.info ###"
 
 
-export TAG="${CI_COMMIT_REF_SLUG}"
-if [ $CI_COMMIT_REF_SLUG = "master" ]; then TAG="latest";  fi          # follow docker naming conventions
-export IMAGE_PATH=$CI_REGISTRY_IMAGE/gateway:$TAG
-docker build --tag "$IMAGE_PATH" -f Dockerfile .
-
-# push image to docker registry if registry credentials are available
-if [[ -n ${CI_REGISTRY+x} && -n ${CI_REGISTRY_USER+x} && -n ${CI_REGISTRY_PASSWORD+x} ]]; then
-  echo "${CI_REGISTRY_PASSWORD}" | docker login ${CI_REGISTRY} --username=${CI_REGISTRY_USER} --password-stdin
-  docker push "$IMAGE_PATH"
-fi
+docker build --tag "$GATEWAY_IMAGE_PATH" -f Dockerfile .
 
 # Get Test coverage report from build image
-docker create -ti --name dummy "$IMAGE_PATH" bash
+docker create -ti --name dummy "$GATEWAY_IMAGE_PATH" bash
 docker cp dummy:/usr/share/coverage coverage
 docker rm -f dummy

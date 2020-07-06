@@ -1,0 +1,20 @@
+#!/bin/sh
+# change to the repository root folder via the scripts location
+cd "$(dirname "$0")"/..
+. bin/includes/detect-os
+. bin/includes/ci-environment
+. bin/includes/ci-test-base
+########################################
+set -x    # output all commands
+set -e    # exit on immediately on every error
+set -u    # error on usage of undefined variables
+########################################
+
+
+bin/tests/test-create-user-and-project
+
+bin/tests/test-start-experiment
+
+bin/tests/test-verify-mlreef-yml
+
+### bin/tests/test-delete-project

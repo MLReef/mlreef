@@ -1,5 +1,4 @@
 #!/bin/sh
-# shellcheck disable=SC2039   # In Posix source instead of '.' is undefined
 
 #set -x    # output all commands
 set -e    # exit on immediately on every error
@@ -10,7 +9,7 @@ cd "$(dirname "$0")"/..
 . bin/includes/detect-os
 . bin/includes/detect-docker-runtime
 . bin/includes/gitlab-health
-
+########################################
 
 log "###### DOCKER_NVIDIA_RUNTIME $DOCKER_NVIDIA_RUNTIME"
 
@@ -277,10 +276,10 @@ if [ $INSTANCE != "localhost" ]; then
 #EOM
 #  )" #end of $(cat …)
 
-  CONFIG_TEMPLATE="/etc/gitlab-runner/config.template.toml"
-  docker cp bin/resources/config.template.toml gitlab-runner:etc/gitlab-runner/
-  docker cp bin/resources/development.pem      gitlab-runner:etc/gitlab-runner/
-  docker cp bin/resources/development.pem.pub  gitlab-runner:etc/gitlab-runner/
+  CONFIG_TEMPLATE="/etc/gitlab-runner/runner-config.template.toml"
+  docker cp bin/resources/runner-config.template.toml gitlab-runner:etc/gitlab-runner/
+  docker cp bin/resources/development.pem             gitlab-runner:etc/gitlab-runner/
+  docker cp bin/resources/development.pem.pub         gitlab-runner:etc/gitlab-runner/
   #openssl rsa -pubout -in bin/resources/development.pem  > bin/resources/development.pem.pub
   docker exec gitlab-runner sed -i "s/###AWS_ACCESS_KEY###/$AWS_ACCESS_KEY_ID/"        $CONFIG_TEMPLATE
   docker exec gitlab-runner sed -i "s~###AWS_ACCESS_SECRET###~$AWS_SECRET_ACCESS_KEY~" $CONFIG_TEMPLATE
@@ -294,7 +293,7 @@ if [ $INSTANCE != "localhost" ]; then
   # https://docs.gitlab.com/runner/configuration/advanced-configuration.html#volumes-in-the-runnersdocker-section
   docker exec gitlab-runner gitlab-runner register                \
     --non-interactive                                             \
-    --template-config="/etc/gitlab-runner/config.template.toml"   \
+    --template-config="$CONFIG_TEMPLATE"                          \
     --name="Multi runner dispatcher on $INSTANCE"                 \
     --url="http://$INSTANCE:$GITLAB_PORT/"                        \
     --registration-token="$RUNNER_REGISTRATION_TOKEN"             \

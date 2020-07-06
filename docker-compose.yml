@@ -6,7 +6,7 @@ services:
 
   gateway:
     container_name: gateway
-    image: registry.gitlab.com/mlreef/mlreef/gateway:latest
+    image: registry.gitlab.com/mlreef/mlreef/gateway:develop
     restart: always
     depends_on:
       - gitlab
@@ -18,7 +18,7 @@ services:
 
   backend:
     container_name: backend
-    image: registry.gitlab.com/mlreef/backend:develop
+    image: registry.gitlab.com/mlreef/mlreef/backend:develop
     restart: always
     depends_on:
       - gitlab
@@ -87,6 +87,7 @@ services:
     networks:
       - mlreef-docker-network
 
+
   redis:
     container_name: redis
     restart: always
@@ -104,6 +105,7 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock                   # needed for "docker in docker" to work
     networks:
       - mlreef-docker-network
+
 
 volumes:
   sock:

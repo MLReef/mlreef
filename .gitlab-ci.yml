@@ -6,10 +6,10 @@ include:
   - local: .gitlab-ci-maintenance.yml
 
 stages:
-  - provision
-  - build
+  - stage1
+  - stage2
   - deploy
-  - smoke tests
+  - test
   - maintenance
 
 # The deployment on aws depends on three main environment variables
@@ -19,10 +19,10 @@ stages:
 # GITLAB_API_TOKEN        for creating and deleting environments on gitlab.com
 variables:
   BACKEND_IMAGE_PATH:   "$DOCKER_REGISTRY/$DOCKER_ORGANISATION/$BACKEND_IMAGE_NAME:$BACKEND_TAG"
-  INSTANCE_INFO:        "instance.info"                    # file for transmitting VM information between stages
+  INSTANCE_INFO:        "out/instance.info"                # file for transmitting VM information between stages
   S3_DATA_BUCKET:       "mlreef-application-data"          # see also ec2 startup script
   DATA_ARCHIVE:         "mlreef-data-develop.zip"
-  # GATSBY_PATH_PREFIX:   "/frontend"                        # fix links for mlreef.gitlab.io/frontend
+  # GATSBY_PATH_PREFIX:   "/frontend"                      # fix links for mlreef.gitlab.io/frontend
 
 .except-docu-branches:
   except:
@@ -40,6 +40,12 @@ variables:
     refs:
       - develop
       - master
+  except:
+    changes:
+      - "*.md"                                         # skip the pipeline for documentation changes
+      - "*.txt"
+
+
 
 pages:
   stage: deploy
@@ -53,17 +59,28 @@ pages:
     paths:
       - /usr/local/lib/node_modules
       - docs/node_modules
-  script:
-    - ls -al /usr/local/lib/node_modules
-    - cd docs
-    - pwd && ls -al
-    - npm install .
-    - npm run build -- --prefix-paths
-    - cp -r public ../
-  after_script:
-    - ls -al public/
-    - ls -al docs/
-    - ls -al docs/node_modules
+  script: bin/ci-pages
   artifacts:
     paths:
       - public
+
+
+smoke test suite:
+  extends: [.except-docu-branches]
+  stage: test
+  when: delayed
+  start_in: 4 minutes
+  image: registry.gitlab.com/systemkern/s5:latest-newman
+  cache:
+    key: newman
+    paths:
+      - node_modules/.bin/
+  script: bin/ci-smoke-tests
+
+experiment test suite:
+  extends: [.except-docu-branches]
+  when: delayed
+  stage: test
+  start_in: 4 minutes
+  image: registry.gitlab.com/systemkern/s5:latest
+  script: bin/ci-test-end2end-experiment

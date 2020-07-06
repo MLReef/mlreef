@@ -7,9 +7,7 @@
 IMAGE="node:10.19.0-alpine"
 COMMAND="npm"
 
-if [ -t 0 ] ; then
-    DOCKER_OPTS="$DOCKER_OPTS -it"
-fi
+export DOCKER_OPTS="${DOCKER_OPTS--it}"
 
 exec docker run --rm $DOCKER_OPTS                       \
     --network bridge                                    \

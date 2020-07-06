@@ -1,0 +1,44 @@
+#!/bin/sh
+
+# change to the repository root folder via the scripts location
+cd "$(dirname "$0")"/../..
+. bin/includes/log
+. bin/includes/detect-os
+. bin/includes/ci-environment
+. bin/includes/test-environment
+########################################
+set -x    # output all commands
+set -e    # exit on immediately on every error
+set -u    # error on usage of undefined variables
+########################################
+
+
+if [ -z ${TOKEN+x} ]; then
+  echo "ERROR: The test 'start-pipeline-in-gitlab' needs the environment variable TOKEN."
+  exit 1
+fi
+
+if [ -z ${GITLAB_PROJECT_ID+x} ]; then
+  echo "ERROR: The test 'start-pipeline-in-gitlab' needs the environment variable GITLAB_PROJECT_ID."
+  exit 1
+fi
+
+if [ -z ${COMMAND+x} ]; then
+  export COMMAND="nvidia-smi"
+fi
+echo "Using pipeline command $COMMAND"
+
+#Create MLReef.yml
+curl "http://$URL/api/v4/projects/$GITLAB_PROJECT_ID/repository/files/.mlreef.yml" \
+  --request POST --fail                         \
+  --header "PRIVATE-TOKEN: $TOKEN"              \
+  --header "Content-Type: application/json"     \
+  --header "Accept: application/json"           \
+  --data '{
+      "branch": "master",
+      "content": "job:\n  image: alpine:latest\n  script: '$COMMAND'",
+      "commit_message": "run smoke test pipeline"
+    }
+    '                                           \
+    | jq                                        \
+    | tee out/test/create-gitlab-pipeline.response.tmp

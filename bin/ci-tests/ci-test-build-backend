@@ -1,0 +1,14 @@
+#!/bin/sh
+# shellcheck disable=SC2039
+# shellcheck disable=SC2155  #declare and assign variables separately
+
+set -x    # output all commands
+set -e    # exit on immediately on every error
+set -u    # error on usage of undefined variables
+
+# change to the repository root folder via the scripts location
+cd "$(dirname "$0")"/../..
+. bin/includes/ci-test-base
+########################################
+
+ci-exec-java bin/ci-build-test-backend

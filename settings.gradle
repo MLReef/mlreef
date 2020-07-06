@@ -1,0 +1,4 @@
+rootProject.name = "backend"
+
+include "mlreef-domain"
+include "mlreef-rest"

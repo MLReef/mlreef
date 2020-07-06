@@ -1,7 +1,22 @@
+/backend/mlreef-domain/build/
+/backend/mlreef-domain/out/
+/backend/mlreef-rest/build/
+/backend/mlreef-rest/out/
+**/.idea/
+!**/.idea/codeStyles/codeStyleConfig.xml
+!**/.idea/codeStyles/Project.xml
+.editorconfig
+*.iml
+*.ipr
+
 # This file is used by React (CRA) to override locally the public .env
-web/.env.local
+web/.env.
+local
 local.env
 local.env.bak
+
+
+
 
 # Created by https://www.gitignore.io/api/osx,java,sass,unity,xcode,macos,maven,linux,matlab,gradle,kotlin,ionic3,android,angular,windows,eclipse,java-web,intellij,reactnative,androidstudio,xcodeinjection
 # Edit at https://www.gitignore.io/?templates=osx,java,sass,unity,xcode,macos,maven,linux,matlab,gradle,kotlin,ionic3,android,angular,windows,eclipse,java-web,intellij,reactnative,androidstudio,xcodeinjection

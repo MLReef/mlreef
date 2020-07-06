@@ -1,0 +1,63 @@
+#!/bin/sh
+# shellcheck disable=SC2155   # Declare and assign separately to avoid masking return values. See SC2155.
+
+# change to the repository root folder via the scripts location
+cd "$(dirname "$0")"/../..
+. bin/includes/log
+. bin/includes/detect-os
+. bin/includes/ci-environment
+. bin/includes/test-environment
+########################################
+set -x    # output all commands
+set -e    # exit on immediately on every error
+set -u    # error on usage of undefined variables
+########################################
+
+echo "URL is $URL"
+mkdir -p out/test/
+export USER="SMOKE-TEST-$(randomString 3)"
+export PASSWORD="password"
+log "Username is $USER with password "
+export TOKEN #declare separately to be able to gather return value
+curl "http://$URL/api/v1/auth/register" -X POST \
+    --silent --fail                             \
+    --header 'Content-Type: application/json'   \
+    --header 'Accept: application/json'         \
+    --data '{
+      "username" : "'$USER'",
+      "email" : "'$USER'@example.com",
+      "password" : "'$PASSWORD'",
+      "name" : "Smoke Test User '$USER'"
+      }'                                        \
+      | jq                                      \
+      | tee out/test/register.response.tmp
+
+jq -r ".token" < out/test/register.response.tmp > out/test/token.tmp
+export TOKEN="$(cat out/test/token.tmp)"
+
+log "Registering exited with $? and produced token $TOKEN"
+
+curl "http://$URL/api/v1/data-projects" -X POST \
+    --silent --fail                             \
+    --header "PRIVATE-TOKEN: $TOKEN"            \
+    --header "Content-Type: application/json"   \
+    --header "Accept: application/json"         \
+    --data '{
+      "slug" : "test-project",
+      "namespace" : "'$USER'",
+      "name" : "Test project '$USER'",
+      "description" : "description",
+      "initialize_with_readme" : true,
+      "visibility" : "PUBLIC"
+    }'                                          \
+    | jq                                        \
+    | tee out/test/create-data-project.response.tmp
+
+jq < out/test/create-data-project.response.tmp
+
+jq -r ".id" < out/test/create-data-project.response.tmp > out/test/project-id.tmp
+export PROJECT_ID=$(cat out/test/project-id.tmp)
+echo "Project_ID=$PROJECT_ID"
+
+jq -r ".gitlab_id" < out/test/create-data-project.response.tmp > out/test/gitlab-project-id.tmp
+export GITLAB_PROJECT_ID=$(cat out/test/gitlab-project-id.tmp)

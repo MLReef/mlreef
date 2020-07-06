@@ -1,4 +1,5 @@
 #!/bin/sh
+# shellcheck disable=SC2120  # function references arguments, but none are ever passed. See SC2120.
 
 # Checks if gitlab is present at $INSTANCE:10081 which is mapped to "gitlab:80" with a _curl_ request
 # This is the default setting
@@ -20,7 +21,7 @@ waitUntilGitlabAvailable() {
   # Port 10081 is the mapped to Gitlab's initial port (80) in the docker-compose.yml
   until [ "$(checkGitlab80)" = "302" ] || [ "$(checkGitlabPort)" = "302" ]; do
     printf '.'
-    sleep 5;
+    sleep 5
   done
   echo ""
 }

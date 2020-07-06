@@ -1,0 +1,55 @@
+#!/bin/sh
+# shellcheck disable=SC2155   # Declare and assign separately to avoid masking return values. See SC2155.
+
+# change to the repository root folder via the scripts location
+cd "$(dirname "$0")"/../..
+. bin/includes/log
+. bin/includes/detect-os
+. bin/includes/ci-environment
+. bin/includes/test-environment
+########################################
+set -x    # output all commands
+set -e    # exit on immediately on every error
+set -u    # error on usage of undefined variables
+########################################
+
+
+if [ -z ${TOKEN+x} ]; then
+  echo "ERROR: The test 'verify-mlreef' needs the environment variable TOKEN."
+  exit 1
+fi
+
+if [ -z ${GITLAB_PROJECT_ID+x} ]; then
+  echo "ERROR: The test 'verify-mlreef' needs the environment variable GITLAB_PROJECT_ID."
+  exit 1
+fi
+
+if [ -z ${EXPERIMENT_BRANCH+x} ]; then
+  export EXPERIMENT_BRANCH=$(cat out/test/experiment-branch.tmp)
+fi
+echo "Targeting download branch $EXPERIMENT_BRANCH"
+
+
+curl "http://$URL/api/v4/projects/$GITLAB_PROJECT_ID/repository/files/.mlreef.yml?ref=$EXPERIMENT_BRANCH" \
+  --request GET --fail                          \
+  | jq > out/test/download-mlreef-yml.response.tmp
+
+
+jq -r ".content" < out/test/download-mlreef-yml.response.tmp \
+  | base64 -d    > out/test/download-mlreef.yml
+
+
+### Verify contents of created mlreef.yml
+###
+### mlreef.yml contains instance $URL
+TEST="api/v1/epf/experiments/"
+if grep -q "$TEST" out/test/download-mlreef.yml; then
+  echo "SUCCESS: found $TEST in mlreef.yml"
+else
+  echo "FAIL: could not find $TEST in mlreef.yml"
+  cat out/test/download-mlreef-yml.response.tmp
+  cat out/test/download-mlreef.yml
+  exit 1
+fi
+
+

@@ -1,13 +1,17 @@
 #!/bin/sh
-# shellcheck disable=SC2039  # [[]] is undefined in POSIX
 # shellcheck disable=SC2155  # declare and assign variables in one command might hide return values
 
+
+# The ci-environment script acts as the basis to all ci scripts.
+# It ensures the existence of the necessary environment variables.
+# Since Gitlab's environment variables are created by Gitlab, this script
 #
+# In order to support local exeuction, necessary Gitlab CI variables are mocked
+#
+
+
 # https://www.gnu.org/software/bash/manual/html_node/Shell-Parameter-Expansion.html}
 # https://stackoverflow.com/a/13864829/638225
-
-
-
 # "${VAR:-default}" evaluates to either $VAR or the default value "default"
 export      CI_PROJECT_ID="${CI_PROJECT_ID:-12894267}" #gitlab.com/mlreef/mlreef
 echo "      CI_PROJECT_ID= $CI_PROJECT_ID"
@@ -19,7 +23,7 @@ export CI_COMMIT_REF_SLUG="${CI_COMMIT_REF_SLUG:-local}"
 echo " CI_COMMIT_REF_SLUG= $CI_COMMIT_REF_SLUG"
 export        CI_REGISTRY="${CI_REGISTRY:-registry.gitlab.com}"
 echo "        CI_REGISTRY= $CI_REGISTRY"
-export  CI_REGISTRY_IMAGE="${CI_REGISTRY_IMAGE:-registry.gitlab.com/mlreef/gateway}"
+export  CI_REGISTRY_IMAGE="${CI_REGISTRY_IMAGE:-registry.gitlab.com/mlreef}"
 echo "  CI_REGISTRY_IMAGE= $CI_REGISTRY_IMAGE"
 
 export GITLAB_ADMIN_TOKEN=${GITLAB_ADMIN_TOKEN:-$(randomString 30)}
@@ -34,12 +38,12 @@ chmod 400    $SSH_KEYFILE # ensure correct permissions on the keyfile
 
 
 export TAG="${CI_COMMIT_REF_SLUG}"
-if [ $CI_COMMIT_REF_SLUG == "master" ]; then TAG="latest";  fi  # follow docker naming conventions
+if [ $CI_COMMIT_REF_SLUG = "master" ]; then TAG="latest";  fi  # follow docker naming conventions
 echo "   docker image TAG= $TAG"
 
 
 # The text file which saves the environment URL
-export      INSTANCE_INFO=${INSTANCE_INFO:-instance.info}
+export      INSTANCE_INFO=${INSTANCE_INFO:-out/instance.info}
 echo "      INSTANCE_INFO= $INSTANCE_INFO"
 echo ""
 if [ -e "${INSTANCE_INFO}" ]; then
@@ -58,6 +62,7 @@ else
   echo "Target instance URL=$URL"
 fi
 
+
 if [ -z ${CI_REGISTRY_USER+x} ]; then
   echo "INFO: In order for docker push to work, you have to set the environment variable CI_REGISTRY_USER to your Gitlab user" >&2
 fi
@@ -65,3 +70,10 @@ fi
 if [ -z ${CI_REGISTRY_PASSWORD+x} ]; then
   echo "INFO: In order for docker push to work, you have to set the environment variable CI_REGISTRY_PASSWORD to your Gitlab access token" >&2
 fi
+
+export TAG="${CI_COMMIT_REF_SLUG}"
+if [ $CI_COMMIT_REF_SLUG = "master" ]; then export TAG="latest";  fi          # follow docker naming conventions
+
+export GATEWAY_IMAGE_PATH=$CI_REGISTRY_IMAGE/gateway:$TAG
+export BACKEND_IMAGE_PATH=$CI_REGISTRY_IMAGE/backend:$TAG
+export     EPF_IMAGE_PATH=$CI_REGISTRY_IMAGE/epf:$TAG

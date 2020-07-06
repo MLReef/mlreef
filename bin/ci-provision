@@ -1,14 +1,12 @@
 #!/bin/sh
-# shellcheck disable=SC2039
-
-set -x    # output all commands
-set -e    # exit on immediately on every error
-set -u    # error on usage of undefined variables
-
 # change directory to the script folder
 cd "$(dirname "$0")"/..
 . bin/includes/detect-os
 . bin/includes/ci-environment
+########################################
+set -x    # output all commands
+set -e    # exit on immediately on every error
+set -u    # error on usage of undefined variables
 ########################################
 
 
@@ -25,7 +23,7 @@ echo "    DEVICE_MAPPINGS= $DEVICE_MAPPINGS"
 export     STARTUP_SCRIPT="src/main/bin/startup.sh"          # used in .gitlab-ci-deploy.yml and docker-compose.yml
 echo "     STARTUP_SCRIPT= $STARTUP_SCRIPT"
 
-if [ "$CI_COMMIT_REF_SLUG" == "develop" ]; then
+if [ "$CI_COMMIT_REF_SLUG" = "develop" ]; then
   EC2_MACHINE_SIZE=$EC2_MACHINE_SIZE_DEV;
 fi
 echo "$EC2_INSTANCE_NAME"

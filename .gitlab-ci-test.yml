@@ -1,40 +1,57 @@
-.base-test:
+call gitlab api:
   extends: [.except-docu-branches]
-  stage: smoke tests
+  stage: test
   when: delayed
   start_in: 4 minutes
-  before_script:
-    - URL=$(cat $INSTANCE_INFO)
-    - echo $URL                                            # debug output
-
-.base-curl-test:
-  extends: .base-test
   image: registry.gitlab.com/systemkern/s5:latest
+  # Gitlab Runners are a separate process from Gitlab's API and Gitlab's frontend
+  script: |
+    URL=$(cat $INSTANCE_INFO)
+    echo $URL                                            # debug output
+    if [ $(curl --silent --output /dev/null -w ''%{http_code}'' $URL/api/v4/projects) != 200 ]; then
+      curl $URL/api/v4/projects
+      exit 1;
+    fi
 
 
 # Runs a postman test suite
 # docker run --rm --tty -v ${PWD}/src/test:/src/test registry.gitlab.com/systemkern/s5:newman newman run /src/test/mlreef-integration-tests.postman_collection.json --environment /src/test/postman_environment.json
 postman test suite:
-  extends: .base-test
+  extends: [.except-docu-branches]
+  stage: test
+  when: delayed
+  start_in: 4 minutes
   image: registry.gitlab.com/systemkern/s5:latest-newman
   cache:
     key: newman
     paths:
-      - node_modules/.bin/
+    - node_modules/.bin/
+  script: bin/ci-smoke-tests
+
+
+backend integration test:
+  allow_failure: true
+  stage: test
+  only:
+    changes:
+      - backend/**/*
+      - .gitlab-ci-build.yml
+      - .gitlab-ci-test.yml
+  image: java:8
+  services:
+    - docker:19.03.0-dind
+  cache:
+    key: "$CI_COMMIT_REF_SLUG"
+    paths:
+      - .gradle/wrapper
+      - .gradle/caches
   variables:
-    NEWMAN_ENV: "src/test/environment.json"
+    DOCKER_HOST: "tcp://docker:2375"  # gitlab needs this to support docker testcontainers
+    DOCKER_DRIVER: overlay2           # gitlab needs this to support docker testcontainers
+    DOCKER_TLS_CERTDIR: ""            # "/certs" gitlab needs this to support docker testcontainers
   script:
-    # replace base url in postman environment file
-    - sed -i "s/mlreef.com/$URL/" $NEWMAN_ENV
-    - cat $NEWMAN_ENV
-    - newman run src/test/smoke-tests.postman_collection.json --environment $NEWMAN_ENV
-
-
-call gitlab api:
-  extends: .base-curl-test
-  # Gitlab Runners are a separate process from Gitlab's API and Gitlab's frontend
-  script: if [ $(curl --silent --output /dev/null -w ''%{http_code}'' $URL/api/v4/projects) != 200 ]; then
-      curl $URL/api/v4/projects
-      exit 1;
-    fi
-
+    - cd backend
+    - export GRADLE_USER_HOME=`pwd`/.gradle
+    - echo "Use DB $DB_NAME with $DB_USER"
+    - ls -al
+    - ./gradlew integrationTest

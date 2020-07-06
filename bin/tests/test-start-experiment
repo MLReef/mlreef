@@ -1,0 +1,77 @@
+#!/bin/sh
+# shellcheck disable=SC2155   # Declare and assign separately to avoid masking return values. See SC2155.
+
+# change to the repository root folder via the scripts location
+cd "$(dirname "$0")"/../..
+. bin/includes/log
+. bin/includes/detect-os
+. bin/includes/ci-environment
+. bin/includes/test-environment
+########################################
+set -x    # output all commands
+set -e    # exit on immediately on every error
+set -u    # error on usage of undefined variables
+########################################
+
+
+if [ -z ${TOKEN+x} ]; then
+  echo "ERROR: The test 'start-experiment' needs the environment variable TOKEN."
+  exit 1
+fi
+
+if [ -z ${PROJECT_ID+x} ]; then
+  echo "ERROR: The test 'start-experiment' needs the environment variable PROJECT_ID."
+  exit 1
+fi
+
+echo "Using PRIVATE-TOKEN: $TOKEN"
+
+#Create Experiment via MLReef API
+curl "http://$URL/api/v1/data-projects/$PROJECT_ID/experiments"  \
+  --request POST --fail                         \
+  --header "PRIVATE-TOKEN: $TOKEN"              \
+  --header "Content-Type: application/json"     \
+  --header "Accept: application/json"           \
+  --data '{
+      "data_instance_id" : null,
+      "name" : "experiment/happy-jellyfish_2962020",
+      "source_branch" : "master",
+      "target_branch" : "experiment/happy-jellyfish_2962020",
+      "input_files": ["README.md"],
+      "processing" : {
+        "slug" : "resnet50",
+        "parameters" : [ {
+          "name" : "epochs",
+          "value" : "2"
+        },{
+          "name" : "output-path",
+          "value" : "."
+        }, {
+          "name" : "height",
+          "value" : "36"
+        } , {
+          "name" : "width",
+          "value" : "36"
+        } ]
+      }
+    }'                                          \
+    | jq                                        \
+    | tee out/test/create-experiment.response.tmp
+
+jq < out/test/create-experiment.response.tmp
+
+jq -r ".id" < out/test/create-experiment.response.tmp > out/test/experiment-id.tmp
+export EXPERIMENT_ID=$(cat out/test/experiment-id.tmp)
+
+jq -r ".target_branch" < out/test/create-experiment.response.tmp > out/test/experiment-branch.tmp
+export EXPERIMENT_BRANCH=$(cat out/test/experiment-branch.tmp)
+
+#Start Experiment via MLReef API
+curl "http://$URL/api/v1/data-projects/$PROJECT_ID/experiments/$EXPERIMENT_ID/start"  \
+  --request POST --fail                         \
+  --header "PRIVATE-TOKEN: $TOKEN"              \
+  --header "Content-Type: application/json"     \
+  --header "Accept: application/json"           \
+    | jq                                        \
+    | tee out/test/start-experiment.response.tmp
+

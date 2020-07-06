@@ -1,0 +1,28 @@
+#!/bin/sh
+# shellcheck disable=SC2155   # Declare and assign separately to avoid masking return values. See SC2155.
+
+
+if [ -e out/test/token.tmp ]; then
+  echo "INFO: TOKEN set from file: out/test/token.tmp"
+  export TOKEN="$(cat out/test/token.tmp)"
+fi
+
+if [ -e out/test/project-id.tmp ]; then
+  echo "INFO: PROJECT_ID set from file: out/test/project-id.tmp"
+  export PROJECT_ID=$(cat out/test/project-id.tmp)
+fi
+
+if [ -e out/test/gitlab-project-id.tmp ]; then
+  echo "INFO: GITLAB_PROJECT_ID set from file: out/test/gitlab-project-id.tmp"
+  export GITLAB_PROJECT_ID=$(cat out/test/gitlab-project-id.tmp)
+fi
+
+if [ -e out/test/experiment-branch.tmp ]; then
+  echo "INFO: EXPERIMENT_BRANCH set from file: out/test/experiment-branch.tmp"
+  export EXPERIMENT_BRANCH=$(cat out/test/experiment-branch.tmp)
+fi
+
+if [ -e out/test/experiment-id.tmp ]; then
+  echo "INFO: EXPERIMENT_ID set from file: out/test/experiment-id.tmp"
+  export EXPERIMENT_ID=$(cat out/test/experiment-id.tmp)
+fi

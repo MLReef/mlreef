@@ -1,0 +1,30 @@
+#!/bin/sh
+
+# change to the repository root folder via the scripts location
+cd "$(dirname "$0")"/../..
+. bin/includes/log
+. bin/includes/detect-os
+. bin/includes/ci-environment
+. bin/includes/test-environment
+########################################
+set -x    # output all commands
+set -e    # exit on immediately on every error
+set -u    # error on usage of undefined variables
+########################################
+
+
+if [ -z ${TOKEN+x} ]; then
+  echo "ERROR: The test 'delete-project' needs the environment variable TOKEN."
+  exit 1
+fi
+
+if [ -z ${GITLAB_PROJECT_ID+x} ]; then
+  echo "ERROR: The test 'delete-project' needs the environment variable GITLAB_PROJECT_ID."
+  exit 1
+fi
+
+#delete project
+curl "http://$URL/api/v4/projects/$GITLAB_PROJECT_ID"  \
+  --request DELETE --fail                       \
+  --header "PRIVATE-TOKEN: $TOKEN"              \
+  | jq

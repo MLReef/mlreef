@@ -1,14 +1,13 @@
 #!/bin/sh
-# shellcheck disable=SC2039
-
-set -x    # output all commands
-set -e    # exit on immediately on every error
-set -u    # error on usage of undefined variables
-
+# shellcheck disable=SC2087    # Quote 'EOF' to make here document expansions happen on the server side rather than on the client. See SC2087.
 # change to the repository root folder via the scripts location
 cd "$(dirname "$0")"/..
 . bin/includes/detect-os
 . bin/includes/ci-environment
+########################################
+set -x    # output all commands
+set -e    # exit on immediately on every error
+set -u    # error on usage of undefined variables
 ########################################
 
 
@@ -16,25 +15,31 @@ echo "GITLAB_ADMIN_TOKEN       is $GITLAB_ADMIN_TOKEN"
 if [ -z ${GITLAB_ADMIN_TOKEN+x} ]; then exit 17; fi
 chmod +x src/main/bin/*
 
-if [[ "$URL" = "localhost" || "$URL" = "127.0.0.1" ]]; then
+if [ "$URL" = "localhost" ]; then
   echo "cannot deploy to localhost, exiting"
   exit 18;
 fi
 
-# If a frontend image exists for the current branch, rewrite the docker compose file
-# change the frontend docker image from "latest" to the current branch's $CI_COMMIT_REF_SLUG
-# As can be seen in .gitlab-ci-build.yml there is no image with tag "master", because it will be named "latest"
+rewriteDockerImage() {
+  # If a gateway image exists for the current branch, rewrite the docker compose file
+  # change the frontend docker image from "latest" to the current branch's $CI_COMMIT_REF_SLUG
+  # As can be seen in .gitlab-ci-build.yml there is no image with tag "master", because it will be named "latest"
+  DOCKER_BRANCH_IMAGE_URL=https://gitlab.com/api/v4/projects/$CI_PROJECT_ID/registry/repositories/$1/tags/$TAG/
+  echo "DOCKER_BRANCH_IMAGE_URL  is $DOCKER_BRANCH_IMAGE_URL"
+  CURL_RESPONSE=$(curl --silent --header "Authorization:Bearer $GITLAB_COM_API_TOKEN" --output /dev/null -w ''%{http_code}'' $DOCKER_BRANCH_IMAGE_URL)
+  echo $CURL_RESPONSE
+  if [ "$CURL_RESPONSE" = "200" ]; then
+    echo "Found branch specific docker image for $2"
+    sed -i "s/$2:develop/$2:$TAG/" docker-compose.yml;
+  else
+    echo "Could not find specific docker image for $2:$TAG in docker registry"
+  fi
+}
 # 1117031 is the id of the "gateway's" sub-repository id
-DOCKER_BRANCH_IMAGE_URL=https://gitlab.com/api/v4/projects/$CI_PROJECT_ID/registry/repositories/1117031/tags/$TAG/
-echo "DOCKER_BRANCH_IMAGE_URL  is $DOCKER_BRANCH_IMAGE_URL"
-CURL_RESPONSE=$(curl --silent --header "Authorization:Bearer $GITLAB_COM_API_TOKEN" --output /dev/null -w ''%{http_code}'' $DOCKER_BRANCH_IMAGE_URL)
-echo $CURL_RESPONSE
-if [ "$CURL_RESPONSE" = "200" ]; then
-  echo "Found branch specific docker image"
-  sed -i "s/gateway:latest/gateway:$TAG/" docker-compose.yml;
-else
-  echo "Could not find specific docker image for $TAG in docker registry"
-fi
+rewriteDockerImage 1117031 "gateway"
+# 1151242 is the id of the "backend's" sub-repository id
+rewriteDockerImage 1151242 "backend"
+
 
 # rewrite docker compose file:
 # Activate (uncomment) specific lines in the docker-compose file

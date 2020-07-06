@@ -64,7 +64,7 @@
 
   [runners.docker]
     tls_verify = false
-    runtime = "nvidia"
+    runtime = "nvidia"                      # set to nvidia only if the amazonec2-instance-type features a GPU
     privileged = true
     disable_entrypoint_overwrite = false
     disable_cache = false
@@ -92,7 +92,7 @@
       "amazonec2-access-key=###AWS_ACCESS_KEY###",
       "amazonec2-secret-key=###AWS_ACCESS_SECRET###",
       "amazonec2-retries=2",
-      # "amazonec2-private-address-only",
+      # "amazonec2-private-address-only",       #experimental for MLReef, activating leads to a fail during runner boot
       # If ssh access to the runners is needed, a specific public/private keypair can be selected here
       # "amazonec2-ssh-port=22",
       # "amazonec2-ssh-user=ubuntu",
