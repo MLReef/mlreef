@@ -317,7 +317,7 @@ class MarketplaceServiceTest : AbstractRepositoryTest() {
         // NUMBER of ALGORITHM overides TABULAR of CODE_PROJECT
         val performSearch2 = service.performSearch(page(), FilterRequest(
             searchableType = SearchableType.ALGORITHM,
-            inputDataTypes = listOf(DataType.NUMBER),
+            inputDataTypes = listOf(DataType.TIME_SERIES),
             maxStars = 100,
             minStars = 0
         ), hashMapOf())
@@ -325,7 +325,7 @@ class MarketplaceServiceTest : AbstractRepositoryTest() {
         // But number for ALL CODE_PROJECT is not found, join would be necessary
         val performSearch3 = service.performSearch(page(), FilterRequest(
             searchableType = SearchableType.CODE_PROJECT,
-            inputDataTypes = listOf(DataType.NUMBER),
+            inputDataTypes = listOf(DataType.TIME_SERIES),
             maxStars = 100,
             minStars = 0
         ), hashMapOf())
@@ -598,9 +598,9 @@ class MarketplaceServiceTest : AbstractRepositoryTest() {
             var dataProcessor3 = EntityMocks.dataOperation(slug = "op2", author = author)
             var dataProcessor4 = EntityMocks.dataVisualization(author = author)
             if (faulty) {
-                dataProcessor1 = dataProcessor1.copy(inputDataType = DataType.NUMBER)
+                dataProcessor1 = dataProcessor1.copy(inputDataType = DataType.TIME_SERIES)
                 dataProcessor2 = dataProcessor2.copy(inputDataType = DataType.IMAGE)
-                dataProcessor3 = dataProcessor3.copy(inputDataType = DataType.BINARY, outputDataType = DataType.MODEL)
+                dataProcessor3 = dataProcessor3.copy(inputDataType = DataType.VIDEO, outputDataType = DataType.MODEL)
                 dataProcessor4 = dataProcessor4.copy(inputDataType = DataType.IMAGE)
             }
             dataProcessorRepository.saveAll(listOf(dataProcessor1, dataProcessor2, dataProcessor3, dataProcessor4))
@@ -609,13 +609,13 @@ class MarketplaceServiceTest : AbstractRepositoryTest() {
             project3 = EntityMocks.codeProject(slug = "entry3").copy(dataProcessor = dataProcessor3)
             project4 = EntityMocks.codeProject(slug = "entry4").copy(dataProcessor = dataProcessor4)
         }
-        project1 = project1.clone(inputDataTypes = hashSetOf(DataType.BINARY, DataType.TABULAR)
+        project1 = project1.clone(inputDataTypes = hashSetOf(DataType.VIDEO, DataType.TABULAR)
         ).addTags(listOf(tag1))
 
         project2 = project2.clone(inputDataTypes = hashSetOf(DataType.IMAGE))
             .addTags(listOf(tag2))
 
-        project3 = project3.clone(inputDataTypes = hashSetOf(DataType.BINARY, DataType.MODEL),
+        project3 = project3.clone(inputDataTypes = hashSetOf(DataType.VIDEO, DataType.MODEL),
             outputDataTypes = hashSetOf(DataType.MODEL))
             .addTags(listOf())
 

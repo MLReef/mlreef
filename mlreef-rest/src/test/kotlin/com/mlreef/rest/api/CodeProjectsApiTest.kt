@@ -396,7 +396,7 @@ class CodeProjectsApiTest : AbstractRestApiTest() {
         val request = ProjectUpdateRequest(
             "New Test project",
             "new description",
-            inputDataTypes = listOf(DataType.IMAGE, DataType.NUMBER),
+            inputDataTypes = listOf(DataType.IMAGE, DataType.TIME_SERIES),
             outputDataTypes = listOf(DataType.MODEL),
             tags = listOf(tag))
 
@@ -408,7 +408,7 @@ class CodeProjectsApiTest : AbstractRestApiTest() {
             .returns(CodeProjectDto::class.java)
 
         assertThat(returnedResult.name).isEqualTo("New Test project")
-        assertThat(returnedResult.inputDataTypes).containsAll(listOf(DataType.IMAGE, DataType.NUMBER))
+        assertThat(returnedResult.inputDataTypes).containsAll(listOf(DataType.IMAGE, DataType.TIME_SERIES))
         assertThat(returnedResult.outputDataTypes).containsAll(listOf(DataType.MODEL))
         assertThat(returnedResult.tags[0].name).isEqualTo("TAG")
     }
