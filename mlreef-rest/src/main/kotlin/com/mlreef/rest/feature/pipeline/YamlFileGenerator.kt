@@ -43,8 +43,7 @@ class YamlFileGenerator(val epfImageTag: String = "latest") {
                     DataProcessorType.OPERATION -> "/epf/pipelines/"
                     DataProcessorType.VISUALISATION -> "/epf/visualisation/"
                 }
-                val imagesPathInputHack = "--images-path $inputFile"
-                "python $path${instance.dataProcessor.command}.py " + writeParameters(instance.parameterInstances) + " " + imagesPathInputHack
+                "python $path${instance.dataProcessor.command}.py " + writeParameters(instance.parameterInstances)
             } catch (e: Exception) {
                 "# could not parse dataprocessor: ${e.message}"
             }

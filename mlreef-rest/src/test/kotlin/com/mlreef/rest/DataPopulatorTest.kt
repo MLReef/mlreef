@@ -125,7 +125,7 @@ class DataPopulatorTest : AbstractIntegrationTest() {
         assertThat(dataProcessorRepository.findAll().toList()).isEmpty()
         assertThat(processorParameterRepository.findAll().toList()).isEmpty()
 
-        val (dataOp, param1, param2) = dataPopulator.createDataOperation1(userToken, author)
+        val (dataOp, param1, param2) = dataPopulator.createDataOperation_augment(userToken, author)
         assertThat(dataOp).isNotNull()
         assertThat(param1).isNotNull()
         assertThat(param2).isNotNull()
@@ -195,7 +195,7 @@ class DataPopulatorTest : AbstractIntegrationTest() {
         assertThat(processorParameterRepository.findAll().toList()).isEmpty()
 
 
-        val (dataOp1, param11, param12) = dataPopulator.createDataOperation1(userToken, author)
+        val (dataOp1, param11, param12) = dataPopulator.createDataOperation_augment(userToken, author)
 
         val (dataOp2, param21, param22) = dataPopulator.createDataOperation2(userToken, author)
 

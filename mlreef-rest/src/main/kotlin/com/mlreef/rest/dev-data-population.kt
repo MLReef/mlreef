@@ -91,7 +91,7 @@ internal class DataPopulator(
             val (dataOp1,
                 dataOp1processorParameter1,
                 dataOp1processorParameter2) = executeLogged("2a. Create DataOperation: Augment") {
-                createDataOperation1(token, author)
+                createDataOperation_augment(token, author)
             }
 
             val (dataOp2,
@@ -249,19 +249,9 @@ internal class DataPopulator(
     }
 
     @Transactional
-    fun createDataOperation1(userToken: String, author: Subject): Triple<DataOperation, ProcessorParameter, ProcessorParameter> {
+    fun createDataOperation_augment(userToken: String, author: Subject): Triple<DataOperation, ProcessorParameter, ProcessorParameter> {
         val codeProjectId = UUID.fromString("1000000-0000-0001-0001-000000000000")
         val dataOperationId = UUID.fromString("1000000-0000-0001-0002-000000000000")
-        val processorParameter1Id = UUID.fromString("1000000-0000-0001-0011-000000000000")
-        val processorParameter2Id = UUID.fromString("1000000-0000-0001-0012-000000000000")
-        val processorParameter3Id = UUID.fromString("1000000-0000-0001-0013-000000000000")
-        val processorParameter4Id = UUID.fromString("1000000-0000-0001-0014-000000000000")
-        val processorParameter5Id = UUID.fromString("1000000-0000-0001-0015-000000000000")
-        val processorParameter6Id = UUID.fromString("1000000-0000-0001-0016-000000000000")
-        val processorParameter7Id = UUID.fromString("1000000-0000-0001-0017-000000000000")
-        val processorParameter8Id = UUID.fromString("1000000-0000-0001-0018-000000000000")
-        val processorParameter9Id = UUID.fromString("1000000-0000-0001-0019-000000000000")
-        val processorParameter10Id = UUID.fromString("1000000-0000-0001-0020-000000000000")
 
         val createCodeProject = createCodeProject(userToken, codeProjectId, "code-project-augment", "Test DataProject 2", 0)
 
@@ -272,66 +262,46 @@ internal class DataPopulator(
                 visibilityScope = VisibilityScope.PUBLIC, author = author,
                 description = "Data augmentation multiplies and tweakes the data by changing angle of rotation, flipping the images, zooming in, etc.",
                 codeProjectId = codeProjectId))
-        val parameter1 = addParam(
-            processorParameter1Id,
-            ProcessorParameter(
-                processorParameter1Id, dataOp1.id, "input-path", ParameterType.STRING, 0, ".", true
-            )
-        )
-        val parameter2 = addParam(
-            processorParameter2Id,
-            ProcessorParameter(
-                processorParameter2Id, dataOp1.id, "output-path", ParameterType.STRING, 1, "./output", true
-            )
-        )
-        addParam(
-            processorParameter1Id,
-            ProcessorParameter(
-                processorParameter3Id, dataOp1.id, "iterations", ParameterType.INTEGER, 2, "5", true
-            )
-        )
-        addParam(
-            processorParameter1Id,
-            ProcessorParameter(
-                processorParameter4Id, dataOp1.id, "rotation-range", ParameterType.INTEGER, 3, "15", true
-            )
-        )
-        addParam(
-            processorParameter1Id,
-            ProcessorParameter(
-                processorParameter5Id, dataOp1.id, "width-shift-range", ParameterType.INTEGER, 4, "0", true
-            )
-        )
-        addParam(
-            processorParameter1Id,
-            ProcessorParameter(
-                processorParameter6Id, dataOp1.id, "height-shift-range", ParameterType.INTEGER, 5, "0", true
-            )
-        )
-        addParam(
-            processorParameter1Id,
-            ProcessorParameter(
-                processorParameter7Id, dataOp1.id, "shear-range", ParameterType.FLOAT, 6, "0", true
-            )
-        )
-        addParam(
-            processorParameter1Id,
-            ProcessorParameter(
-                processorParameter8Id, dataOp1.id, "zoom-range", ParameterType.FLOAT, 7, "0", true
-            )
-        )
-        addParam(
-            processorParameter1Id,
-            ProcessorParameter(
-                processorParameter9Id, dataOp1.id, "horizontal-flip", ParameterType.BOOLEAN, 8, "TRUE", true
-            )
-        )
-        addParam(
-            processorParameter1Id,
-            ProcessorParameter(
-                processorParameter10Id, dataOp1.id, "vertical-flip", ParameterType.BOOLEAN, 9, "TRUE", true
-            )
-        )
+        val parameter1 = addParam(ProcessorParameter(
+            UUID.fromString("1000000-0000-0001-0011-000000000000"), dataOp1.id,
+            "input-path", ParameterType.STRING, 0, ".", true
+        ))
+        val parameter2 = addParam(ProcessorParameter(
+            UUID.fromString("1000000-0000-0001-0012-000000000000"), dataOp1.id,
+            "output-path", ParameterType.STRING, 1, "./output", true
+        ))
+        addParam(ProcessorParameter(
+            UUID.fromString("1000000-0000-0001-0013-000000000000"), dataOp1.id,
+            "iterations", ParameterType.INTEGER, 2, "5", true
+        ))
+        addParam(ProcessorParameter(
+            UUID.fromString("1000000-0000-0001-0014-000000000000"), dataOp1.id,
+            "rotation-range", ParameterType.INTEGER, 3, "15", true
+        ))
+        addParam(ProcessorParameter(
+            UUID.fromString("1000000-0000-0001-0015-000000000000"), dataOp1.id,
+            "width-shift-range", ParameterType.INTEGER, 4, "0", true
+        ))
+        addParam(ProcessorParameter(
+            UUID.fromString("1000000-0000-0001-0016-000000000000"), dataOp1.id,
+            "height-shift-range", ParameterType.INTEGER, 5, "0", true
+        ))
+        addParam(ProcessorParameter(
+            UUID.fromString("1000000-0000-0001-0017-000000000000"), dataOp1.id,
+            "shear-range", ParameterType.FLOAT, 6, "0", true
+        ))
+        addParam(ProcessorParameter(
+            UUID.fromString("1000000-0000-0001-0018-000000000000"), dataOp1.id,
+            "zoom-range", ParameterType.FLOAT, 7, "0", true
+        ))
+        addParam(ProcessorParameter(
+            UUID.fromString("1000000-0000-0001-0019-000000000000"), dataOp1.id,
+            "horizontal-flip", ParameterType.BOOLEAN, 8, "TRUE", true
+        ))
+        addParam(ProcessorParameter(
+            UUID.fromString("1000000-0000-0001-0020-000000000000"), dataOp1.id,
+            "vertical-flip", ParameterType.BOOLEAN, 9, "TRUE", true
+        ))
         createMarketplaceEntry(createCodeProject, dataOp1, listOf(tag1, tag2))
 
         return Triple(dataOp1 as DataOperation, parameter1, parameter2)
@@ -455,6 +425,15 @@ internal class DataPopulator(
 
     private fun addParam(id4: UUID, processorParameter: ProcessorParameter): ProcessorParameter {
         val findByIdOrNull = processorParameterRepository.findByIdOrNull(id4)
+        return if (findByIdOrNull == null) {
+            processorParameterRepository.save(processorParameter)
+        } else {
+            processorParameterRepository.save(processorParameter)
+        }
+    }
+
+    private fun addParam(processorParameter: ProcessorParameter): ProcessorParameter {
+        val findByIdOrNull = processorParameterRepository.findByIdOrNull(processorParameter.id)
         return if (findByIdOrNull == null) {
             processorParameterRepository.save(processorParameter)
         } else {
