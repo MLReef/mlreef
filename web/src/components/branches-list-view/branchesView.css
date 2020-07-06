@@ -3,10 +3,6 @@
   justify-content: flex-end;
 }
 
-#filter-input {
-  height: 0em;
-}
-
 #branches-container > #title {
   border-top-left-radius: 0.3em;
   border-top-right-radius: 0.3em;

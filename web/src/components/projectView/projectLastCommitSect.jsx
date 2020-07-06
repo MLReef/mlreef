@@ -26,7 +26,7 @@ const ProjectLastCommitSect = ({
   if(!lastCommit && !testCommitData) return null; // testCommitData is just for testing purposes, never and ever pass it for real functionality 
   const finalCommitInfo = lastCommit || testCommitData;
   const committer = finalCommitInfo && users.filter((user) => user.name === finalCommitInfo.authorName)[0];
-  const avatarUrl = committer ? committer.avatarUrl : '';
+  const avatarUrl = committer ? (committer.avatarUrl || committer.avatar_url) : ''; // avatarUrl not found
   const avatarName = committer && committer.name;
   const today = new Date();
   const timediff = finalCommitInfo && getTimeCreatedAgo(finalCommitInfo.authoredDate, today);

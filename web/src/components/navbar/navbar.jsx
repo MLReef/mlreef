@@ -94,7 +94,7 @@ class Navbar extends Component {
             component={(
               <div className="help-box">
                 <div>
-                  <a target="_blank" rel="noopener noreferrer" href="https://gitlab.com/mlreef/frontend/-/blob/develop/doc/README.md">Documentation</a>
+                  <a target="_blank" rel="noopener noreferrer" href="https://doc.mlreef.com">Documentation</a>
                 </div>
                 <div>
                   <a target="_blank" rel="noopener noreferrer" href="https://mlreefcommunity.slack.com">Slack Community</a>
