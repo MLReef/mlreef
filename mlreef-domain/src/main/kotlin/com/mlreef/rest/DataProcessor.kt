@@ -24,22 +24,21 @@ import javax.persistence.ManyToOne
 import javax.persistence.OneToMany
 import javax.persistence.Table
 
+object DataProcessorTypeConverter {
+    fun from(type: SearchableType): DataProcessorType? {
+        return when (type) {
+            SearchableType.OPERATION -> DataProcessorType.OPERATION
+            SearchableType.VISUALISATION -> DataProcessorType.VISUALISATION
+            SearchableType.ALGORITHM -> DataProcessorType.ALGORITHM
+            else -> null
+        }
+    }
+}
+
 enum class DataProcessorType {
     ALGORITHM,
     OPERATION,
     VISUALISATION;
-
-    companion object {
-        fun from(type: SearchableType): DataProcessorType? {
-            return when (type) {
-                SearchableType.OPERATION -> DataProcessorType.OPERATION
-                SearchableType.VISUALISATION -> DataProcessorType.VISUALISATION
-                SearchableType.ALGORITHM -> DataProcessorType.ALGORITHM
-                else -> null
-            }
-        }
-    }
-
 }
 
 enum class MetricType {

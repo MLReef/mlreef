@@ -97,13 +97,13 @@ class SimpleCurrentUserService(
     }
 
     override fun projectsMap(): Map<UUID, AccessLevel?> {
-        val tokenDetails: TokenDetails = authentication().principal as TokenDetails
-        return tokenDetails.projects
+        val tokenDetails: TokenDetails? = authenticationOrNull()?.principal as TokenDetails?
+        return tokenDetails?.projects ?: emptyMap()
     }
 
     override fun groupsMap(): Map<UUID, AccessLevel?> {
-        val tokenDetails: TokenDetails = authentication().principal as TokenDetails
-        return tokenDetails.groups
+        val tokenDetails: TokenDetails? = authenticationOrNull()?.principal as TokenDetails?
+        return tokenDetails?.groups ?: emptyMap()
     }
 
     override fun projectsMap(minimumLevel: AccessLevel): Map<UUID, AccessLevel?> = filterMap(minimumLevel, projectsMap())

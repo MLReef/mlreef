@@ -211,8 +211,10 @@ class MarketplaceService(
              * Requires the "update_fts_document" PSQL TRIGGER and "project_fts_index" gin index
              * Currently Fulltext search is implemented via psql and _relies_ on that, be aware of that when you change DB!
              */
-            val rankedResults = projectRepository
+
+            val fulltextSearch = projectRepository
                 .fulltextSearch(ftsQueryPart, accessibleEntriesMap.keys)
+            val rankedResults = fulltextSearch
                 .map { UUIDRank(UUID.fromString(it.id), it.rank) }
 
             log.debug("Found ${rankedResults.size} fulltext search results with query ranking")

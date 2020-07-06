@@ -90,7 +90,7 @@ class ProjectRepositoryCustomImpl() : ProjectRepositoryCustom {
 
             // in case of CodeProject, join with DataProcessors
             val join = root.join<CodeProject, DataProcessor>("dataProcessor", JoinType.LEFT)
-            DataProcessorType.from(searchableType)?.let {
+            DataProcessorTypeConverter.from(searchableType)?.let {
                 joinPredicatesOverride = true
                 predicates.add(builder.equal(join.get<DataProcessorType>("type"), it))
                 val dataInputTypes = addEqClauses(inputDataTypes, builder, join.get("inputDataType"))

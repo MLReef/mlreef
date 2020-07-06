@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import java.util.UUID
 
@@ -37,14 +38,43 @@ class MarketplaceController(
     }
 
     @PostMapping("/entries/search")
-    fun searchEntries(@RequestBody filter: FilterRequest, pageable: Pageable): Page<SearchResultDto> {
+    fun searchEntries(
+        @RequestBody filter: FilterRequest?,
+        @RequestParam("searchable_type") searchableType: SearchableType?,
+        @RequestParam("query") query: String? = "",
+        @RequestParam("query_and") queryAnd: Boolean? = false,
+        @RequestParam("input_data_types") inputDataTypes: List<DataType>? = null,
+        @RequestParam("output_data_types") outputDataTypes: List<DataType>? = null,
+        @RequestParam("tags") tags: List<String>? = null,
+        @RequestParam("max_stars") maxStars: Int? = null,
+        @RequestParam("min_stars") minStars: Int? = null,
+        pageable: Pageable): Page<SearchResultDto> {
 
+        val finalFilter = filter?.copy(
+            searchableType = searchableType ?: filter.searchableType,
+            query = query ?: filter.query,
+            queryAnd = queryAnd ?: filter.queryAnd,
+            inputDataTypes = inputDataTypes ?: filter.inputDataTypes,
+            outputDataTypes = outputDataTypes ?: filter.outputDataTypes,
+            tags = tags ?: filter.tags,
+            maxStars = maxStars ?: filter.maxStars,
+            minStars = minStars ?: filter.minStars
+        ) ?: FilterRequest(
+            searchableType = searchableType ?: SearchableType.CODE_PROJECT,
+            query = query ?: "",
+            queryAnd = queryAnd ?: false,
+            inputDataTypes = inputDataTypes,
+            outputDataTypes = outputDataTypes,
+            tags = tags,
+            maxStars = maxStars,
+            minStars = minStars
+        )
         val accountOrNull = currentUserService.accountOrNull()
         val results = if (accountOrNull != null) {
             val projectsMap = currentUserService.projectsMap(AccessLevel.GUEST)
-            marketplaceService.performSearch(pageable, filter, projectsMap)
+            marketplaceService.performSearch(pageable, finalFilter, projectsMap)
         } else {
-            marketplaceService.performSearch(pageable, filter, null)
+            marketplaceService.performSearch(pageable, finalFilter, null)
         }
         val dtos = results.map(SearchResult::toDto)
         return PageImpl(dtos, pageable, dtos.size.toLong())
@@ -78,7 +108,7 @@ class MarketplaceController(
 }
 
 data class FilterRequest(
-    val searchableType: SearchableType,
+    val searchableType: SearchableType = SearchableType.CODE_PROJECT,
     val query: String = "",
     val queryAnd: Boolean = false,
     val inputDataTypes: List<DataType>? = null,
