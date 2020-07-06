@@ -154,7 +154,7 @@ interface ProjectRepository : ProjectBaseRepository<Project>, ProjectRepositoryC
      *
      * Currently Fulltext search is implemented via psql and _relies_ on that, be aware of that when you change DB!
      */
-    @Query(value = "SELECT CAST(id as TEXT) as id, CAST(ts_rank(document, to_tsquery('english', :query)) as FLOAT) as rank FROM mlreef_project WHERE id in :ids ORDER BY rank DESC", nativeQuery = true)
+    @Query(value = "SELECT CAST(id as TEXT) as id, CAST(coalesce(ts_rank(document, to_tsquery('english', :query)),0.0) as FLOAT) as rank FROM mlreef_project WHERE id in :ids ORDER BY rank DESC", nativeQuery = true)
     fun fulltextSearch(query: String, ids: Set<UUID>): List<IdRankInterface>
 
     interface IdRankInterface {
