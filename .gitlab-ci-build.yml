@@ -15,3 +15,11 @@ build frontend:
     expire_in: 3 days
     paths:
       - web/coverage
+
+
+build epf:
+  stage: build
+  image: docker:latest
+  services:
+    - docker:dind
+  script: bin/ci-build-epf

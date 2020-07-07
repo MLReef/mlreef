@@ -1,0 +1,55 @@
+version: "3.0"
+services:
+  repository:
+    image: gitlab/gitlab-ce:latest
+    restart: always
+    hostname: 'localhost'
+    ports:
+      - 22:22
+      - 80:80
+      - 433:433
+      - 8080:8080
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+
+  gitlab-runner-config:
+    image: gitlab/gitlab-runner:lates
+    restart: always
+
+  gitlab-runner:
+    image: gitlab/gitlab-runner:alpine
+    restart: always
+
+version: '2.3'
+services:
+  object_detection:
+    build:
+      context: object_detection/
+    ports:
+      - "8000:8000"
+    runtime: nvidia
+    volumes:
+      - ./object_detection:/object_detection
+      - /usr/local/cuda:/usr/local/cuda
+    links:
+      - fluent-bit
+      - redis
+      - nginx
+    restart: on-failure
+
+  client:
+    build:
+      context: .
+      dockerfile: ./client/Dockerfile
+  #    args:
+  #      CORS_ORIGINS: "http://localhost:8080,https://localhost:8080"
+  #      D_USR: "postgres"
+  #      D_PW: "postgres"
+  #      D_CONSTRING: "jdbc:postgresql://database:5432/postgres"
+  #      D_DRV: org.postgresql.Driver
+  #  ports:
+  #    - 8084:8084
+    depends_on:
+      - repository
+  #    - machine-learning-service

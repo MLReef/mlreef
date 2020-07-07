@@ -1,0 +1,35 @@
+#!/bin/sh
+
+STATISTIC_FILE="experiment.json"
+echo "EPF_PIPELINE_SECRET is $EPF_PIPELINE_SECRET"
+echo "EPF_PIPELINE_URL is $EPF_PIPELINE_URL"
+
+# send information to Backend's EPF API endpoint for "update" or "finish"
+request_epf_endpoint_update() {
+  url="$EPF_PIPELINE_URL/update"
+  echo $url
+  curl -sS --request PUT $url \
+    --header "EPF-BOT-TOKEN: $EPF_PIPELINE_SECRET" \
+    --header "Content-Type: application/json" \
+    -d @experiment.json
+}
+
+iteration=0
+while [ "$iteration" -lt 1000 ] # run 1_000 iterations max
+do
+  echo "------------------------------------------------------------"
+  echo "Background Commit Iteration $iteration"
+  if [ ! -f "$STATISTIC_FILE" ]; then
+    echo "$STATISTIC_FILE does not exist yet, waiting for experiment to start.."
+    sleep 10
+    iteration=`expr $iteration + 1` 
+    continue
+  fi
+
+  echo "iteration: $iteration"
+  request_epf_endpoint_update
+  cat $STATISTIC_FILE
+  sleep 15                              # sleep for 1 second
+  iteration=`expr $iteration + 1`       # increment running variable
+done
+# 15 seconds times 1_000 ==> 15_000 seconds => 250 minutes => ~ 4 hours

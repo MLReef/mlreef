@@ -1,0 +1,306 @@
+### Multimodel mlreef: resnet, alexnet, vgg, squeezenet, densenet, inception
+from __future__ import print_function
+from __future__ import division
+import torch
+import torch.nn as nn
+import torch.optim as optim
+import torchvision
+from torchvision import datasets, models, transforms
+import time
+import os
+import copy
+import argparse
+import datetime
+import sys
+
+print("PyTorch Version: ", torch.__version__)
+print("Torchvision Version: ", torchvision.__version__)
+
+# Detect if we have a GPU available
+device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+
+
+def initialize_model(model_name, num_classes, feature_extract, use_pretrained=True):
+    # Initialize these variables which will be set in this if statement. Each of these
+    #   variables is model specific.
+    model_ft = None
+    input_size = 0
+
+    if model_name == "resnet":
+        """ Resnet50
+        """
+        model_ft = models.resnet50(pretrained=use_pretrained)
+        set_parameter_requires_grad(model_ft, feature_extract)
+        num_ftrs = model_ft.fc.in_features
+        model_ft.fc = nn.Linear(num_ftrs, num_classes)
+        input_size = 224
+
+    elif model_name == "alexnet":
+        """ Alexnet
+        """
+        model_ft = models.alexnet(pretrained=use_pretrained)
+        set_parameter_requires_grad(model_ft, feature_extract)
+        num_ftrs = model_ft.classifier[6].in_features
+        model_ft.classifier[6] = nn.Linear(num_ftrs, num_classes)
+        input_size = 224
+
+    elif model_name == "vgg":
+        """ VGG11_bn
+        """
+        model_ft = models.vgg11_bn(pretrained=use_pretrained)
+        set_parameter_requires_grad(model_ft, feature_extract)
+        num_ftrs = model_ft.classifier[6].in_features
+        model_ft.classifier[6] = nn.Linear(num_ftrs, num_classes)
+        input_size = 224
+
+    elif model_name == "squeezenet":
+        """ Squeezenet
+        """
+        model_ft = models.squeezenet1_0(pretrained=use_pretrained)
+        set_parameter_requires_grad(model_ft, feature_extract)
+        model_ft.classifier[1] = nn.Conv2d(512, num_classes, kernel_size=(1, 1), stride=(1, 1))
+        model_ft.num_classes = num_classes
+        input_size = 224
+
+    elif model_name == "densenet":
+        """ Densenet
+        """
+        model_ft = models.densenet121(pretrained=use_pretrained)
+        set_parameter_requires_grad(model_ft, feature_extract)
+        num_ftrs = model_ft.classifier.in_features
+        model_ft.classifier = nn.Linear(num_ftrs, num_classes)
+        input_size = 224
+
+    elif model_name == "inception":
+        """ Inception v3
+        Be careful, expects (299,299) sized images and has auxiliary output
+        """
+        model_ft = models.inception_v3(pretrained=use_pretrained)
+        set_parameter_requires_grad(model_ft, feature_extract)
+        # Handle the auxilary net
+        num_ftrs = model_ft.AuxLogits.fc.in_features
+        model_ft.AuxLogits.fc = nn.Linear(num_ftrs, num_classes)
+        # Handle the primary net
+        num_ftrs = model_ft.fc.in_features
+        model_ft.fc = nn.Linear(num_ftrs, num_classes)
+        input_size = 299
+
+    else:
+        print("Invalid model name, exiting...")
+        exit()
+
+    return model_ft, input_size
+
+
+def train_model(model, dataloaders, criterion, optimizer, num_epochs=25, is_inception=False):
+    since = time.time()
+    val_acc_history = []
+    best_model_wts = copy.deepcopy(model.state_dict())
+    best_acc = 0.0
+
+    for epoch in range(num_epochs):
+        print('Epoch {}/{}'.format(epoch, num_epochs - 1))
+        print('-' * 10)
+
+        # Each epoch has a training and validation phase
+        for phase in ['train', 'val']:
+            if phase == 'train':
+                model.train()  # Set model to training mode
+            else:
+                model.eval()  # Set model to evaluate mode
+
+            running_loss = 0.0
+            running_corrects = 0
+
+            # Iterate over data.
+            for inputs, labels in dataloaders[phase]:
+                inputs = inputs.to(device)
+                labels = labels.to(device)
+
+                # zero the parameter gradients
+                optimizer.zero_grad()
+
+                # forward
+                # track history if only in train
+                with torch.set_grad_enabled(phase == 'train'):
+                    # Get model outputs and calculate loss
+                    # Special case for inception because in training it has an auxiliary output. In train
+                    #   mode we calculate the loss by summing the final output and the auxiliary output
+                    #   but in testing we only consider the final output.
+                    if is_inception and phase == 'train':
+                        # From https://discuss.pytorch.org/t/how-to-optimize-inception-model-with-auxiliary-classifiers/7958
+                        outputs, aux_outputs = model(inputs)
+                        loss1 = criterion(outputs, labels)
+                        loss2 = criterion(aux_outputs, labels)
+                        loss = loss1 + 0.4 * loss2
+                    else:
+                        outputs = model(inputs)
+                        loss = criterion(outputs, labels)
+
+                    _, preds = torch.max(outputs, 1)
+
+                    # backward + optimize only if in training phase
+                    if phase == 'train':
+                        loss.backward()
+                        optimizer.step()
+
+                # statistics
+                running_loss += loss.item() * inputs.size(0)
+                running_corrects += torch.sum(preds == labels.data)
+
+            epoch_loss = running_loss / len(dataloaders[phase].dataset)
+            epoch_acc = running_corrects.double() / len(dataloaders[phase].dataset)
+
+            print('{} Loss: {:.4f} Acc: {:.4f}'.format(phase, epoch_loss, epoch_acc))
+            print(datetime.datetime.now())
+
+            # deep copy the model
+            if phase == 'val' and epoch_acc > best_acc:
+                best_acc = epoch_acc
+                best_model_wts = copy.deepcopy(model.state_dict())
+            if phase == 'val':
+                val_acc_history.append(epoch_acc)
+
+        print()
+
+    time_elapsed = time.time() - since
+    print('Training complete in {:.0f}m {:.0f}s'.format(time_elapsed // 60, time_elapsed % 60))
+    print('Best val Acc: {:4f}'.format(best_acc))
+
+    # load best model weights
+    model.load_state_dict(best_model_wts)
+    return model, val_acc_history
+
+
+def set_parameter_requires_grad(model, feature_extracting):
+    if feature_extracting:
+        for param in model.parameters():
+            param.requires_grad = False
+
+
+class MultiModel:
+    def __init__(self, params):
+        # Top level data directory. Here we assume the format of the directory conforms
+        #  to the ImageFolder structure
+        self.input_dir = params['input_path']
+        self.output_dir = params['output_path']
+        # create folder if does not exists
+        if not os.path.exists(self.output_dir):
+            os.makedirs(self.output_dir)
+        # Batch size for training (change depending on how much memory you have)
+        self.batch_size = int(params['batch_size'])
+        self.epochs = int(params['epochs'])
+        # Models to choose from [resnet, alexnet, vgg, squeezenet, densenet, inception]
+        self.model_name = params['model_name']
+        # Flag for feature extracting. When False, we fine tune the whole model,
+        #  when True we only update the reshaped layer params
+        self.feature_extract = bool(params['feature_extract'])
+        # Number of classes in the dataset
+        self.num_classes = 11
+
+        # Initialize the model for this run
+        self.model_ft, input_size = initialize_model(self.model_name, self.num_classes, self.feature_extract)
+        # Send the model to GPU
+        self.model_ft = self.model_ft.to(device)
+        print("Initializing Datasets and Dataloaders...")
+        # Data augmentation and normalization for training
+        # Just normalization for validation
+        data_transforms = {
+            'train': transforms.Compose([
+                transforms.RandomResizedCrop(input_size),
+                transforms.RandomHorizontalFlip(),
+                transforms.RandomRotation((-10, 10), resample=False, expand=False, center=None, fill=None),
+                transforms.ToTensor(),
+                transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225]),
+                transforms.RandomErasing(p=0.1),
+            ]),
+            'val': transforms.Compose([
+                transforms.Resize(input_size),
+                transforms.CenterCrop(input_size),
+                transforms.ToTensor(),
+                transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
+            ]),
+            'test': transforms.Compose([
+                transforms.Resize(input_size),
+                transforms.CenterCrop(input_size),
+                transforms.ToTensor(),
+                transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
+            ])
+        }
+
+        # Create training and validation datasets
+        image_datasets = {x: datasets.ImageFolder(os.path.join(self.input_dir, x), data_transforms[x]) for x in
+                          ['train', 'val', 'test']}
+        # Create training and validation dataloaders
+        self.dataloaders_dict = {
+            x: torch.utils.data.DataLoader(image_datasets[x], batch_size=self.batch_size, shuffle=True, num_workers=4)
+            for x in ['train', 'val']}
+
+
+    def train(self):
+        # Gather the parameters to be optimized/updated in this run. If we are
+        #  finetuning we will be updating all parameters. However, if we are
+        #  doing feature extract method, we will only update the parameters
+        #  that we have just initialized, i.e. the parameters with requires_grad
+        #  is True.
+        params_to_update = self.model_ft.parameters()
+        import datetime
+        print(datetime.datetime.now())
+        print("Params to learn:")
+        if self.feature_extract:
+            params_to_update = []
+            for name, param in self.model_ft.named_parameters():
+                if param.requires_grad:
+                    params_to_update.append(param)
+                    print("\t", name)
+        else:
+            for name, param in self.model_ft.named_parameters():
+                if param.requires_grad:
+                    print("\t", name)
+
+        # Observe that all parameters are being optimized
+        optimizer_ft = optim.SGD(params_to_update, lr=0.0001, momentum=0.9)
+
+        #  Gather the parameters to be optimized/updated in this run. If we are
+        #  fine-tuning we will be updating all parameters. However, if we are
+        #  doing feature extract method, we will only update the parameters
+        #  that we have just initialized, i.e. the parameters with requires_grad
+        #  is True.
+        # Setup the loss fxn
+        criterion = nn.CrossEntropyLoss()
+
+        # Train and evaluate
+        model_ft, hist = train_model(self.model_ft, self.dataloaders_dict, criterion, optimizer_ft, num_epochs=self.epochs,
+                                     is_inception=(self.model_name == "inception"))
+
+        torch.save(model_ft, self.output_dir+'/model_style11.pth')
+
+
+def process_arguments(args):
+    parser = argparse.ArgumentParser(description='Pipeline: Text ops')
+    parser.add_argument('--input-path', type=str, action='store', help='path to directory of images')
+    parser.add_argument('--output-path', default='.', type=str, action='store', help='output path to save images')
+    parser.add_argument('--batch-size', default=24, type=int, action='store', help='batch size')
+    parser.add_argument('--epochs', default=100, type=int, action='store', help='epochs')
+    parser.add_argument('--model-name', default='vgg', type=str, action='store', help='model name to '
+                                                                                         'choose:resnet, alexnet, '
+                                                                                         'vgg, squeezenet, densenet, '
+                                                                                         'inception')
+    parser.add_argument('--feature-extract', default='True', type=bool, action='store', help='select true if you want '
+                                                                                             'to extract features '
+                                                                                             'false for '
+                                                                                             'classification')
+    params = vars(parser.parse_args(args))
+    return params
+
+
+if __name__ == "__main__":
+    print("Beginning execution of multimodel.py script ......... \n")
+    params = process_arguments(sys.argv[1:])
+    op = MultiModel(params)
+    print("input path:", op.input_dir)
+    print("output path:", op.output_dir)
+    print("batch size:", op.batch_size)
+    print("epochs:", op.epochs)
+    print("model name:", op.model_name)
+    op.train()

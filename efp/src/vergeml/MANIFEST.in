@@ -1,0 +1,3 @@
+include vergeml/other/css/*.css
+include vergeml/other/img/*.png
+include vergeml/other/js/*.js
