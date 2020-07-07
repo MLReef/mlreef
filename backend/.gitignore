@@ -1,0 +1,14 @@
+**/.gradle/
+/build
+/mlreef-domain/build/
+/mlreef-domain/out/
+/mlreef-rest/build/
+/mlreef-rest/out/
+
+**/.idea/
+!**/.idea/codeStyles/codeStyleConfig.xml
+!**/.idea/codeStyles/Project.xml
+.editorconfig
+*.iml
+*.ipr
+

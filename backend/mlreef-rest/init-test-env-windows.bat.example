@@ -1,0 +1,12 @@
+# you will need a script to setup the (secret) ENV vars to run the backend
+# Gitlab CI will inject the following secret ENV variables, you must do as well
+#
+#
+# create a script which has the following prepared:
+set GITLAB_ADMIN_TOKEN=secret_admin_api_token
+set GITLAB_ROOT_URL=http://localhost:10080
+set DB_HOST=localhost
+set DB_PORT=6000
+set DB_NAME=mlreef_backend
+set DB_USER=mlreef
+set DB_PASSWORD=password

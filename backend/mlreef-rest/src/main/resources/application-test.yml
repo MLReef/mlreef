@@ -1,0 +1,34 @@
+logging:
+  level:
+    root: INFO
+    com.mlreef.rest: DEBUG
+    org.springframework.security: INFO
+    org.springframework.orm: DEBUG
+    org.hibernate: DEBUG
+  pattern:
+    console: '%d{yyyy-MM-dd HH:mm:ss.SSS} %highlight(%-5level) %boldGreen([%thread]) %cyan(%logger{15}.%M [%line]) - %msg%n%throwable'
+
+spring:
+  devtools:
+    add-properties: true
+  jpa:
+    show-sql: true # true for debugging
+    generate-ddl: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        temp.use_jdbc_metadata_defaults: false
+    hibernate:
+      ddl-auto: create-drop
+  flyway:
+    enabled: false
+  datasource:
+    driver-class-name: org.h2.Driver
+    url: jdbc:h2:mem:db;DB_CLOSE_DELAY=-1
+    username: sa
+    password: sa
+
+mlreef:
+  gitlab:
+    root-url: ${GITLAB_ROOT_URL:http://localhost:10080}
+    admin-user-token: ${GITLAB_ADMIN_TOKEN:test-token}

@@ -1,0 +1,44 @@
+################################################################################
+# This is the MLReef configuration file.                                       #
+# It contains the current configuration of your model-experiment (training)    #
+# as well as the temporary configurations executed data pipelines              #
+################################################################################
+
+# This is the docker image your model training will be executed in
+image: registry.gitlab.com/mlreef/epf:%EPF_TAG%
+
+variables:
+  # Change pip's cache directory to be inside the project directory since we can only cache local items.
+  PIP_CACHE_DIR:       "$CI_PROJECT_DIR/.cache/pip"
+  EPF_PIPELINE_URL:    "%EPF_PIPELINE_URL%"
+  EPF_PIPELINE_SECRET: "%EPF_PIPELINE_SECRET%"
+  INPUT_FILE_LIST:     "%INPUT_FILE_LIST%"
+  TARGET_BRANCH:       "%TARGET_BRANCH%"
+
+# The before_script handles everything git related and sets up the automatic committing
+before_script:
+  #- it just aint working!
+  - git remote set-url origin http://${GIT_PUSH_USER}:${GIT_PUSH_TOKEN}@%GITLAB_ROOT_URL%/%GITLAB_GROUP%/%GITLAB_PROJECT%.git
+  - git config --global user.email "%CONF_EMAIL%"
+  - git config --global user.name "%CONF_NAME%"
+  # TODO this can maybe be deleted
+  #- git checkout %SOURCE_BRANCH%
+  # TODO this can maybe be deleted
+  #- export GITLAB_API_TOKEN="${GIT_PUSH_TOKEN}"
+  - echo $TARGET_BRANCH
+  - background-push &
+
+after_script:
+  - epf-finish
+
+
+data-pipeline:
+  script:
+    - git checkout -b $TARGET_BRANCH
+    - echo ${CI_JOB_ID} >> data_pipeline.info
+%PIPELINE_STRING%
+    - git add .
+    - git status
+    - git commit -m "Add pipeline results [skip ci]"
+    - git push --set-upstream origin $TARGET_BRANCH
+    - git push

@@ -1,0 +1,663 @@
+= MLReef API v1 Rest Docs
+Florian Hintermeier;
+:doctype: book
+:icons: font
+:source-highlighter: highlightjs
+:toc: left
+:toclevels: 2
+:sectlinks:
+:operation-curl-request-title: Example request
+:operation-http-response-title: Example response
+
+[[overview]]
+= Overview
+
+[[overview-http-verbs]]
+== HTTP verbs
+
+RESTful notes tries to adhere as closely as possible to standard HTTP and REST conventions in its
+use of HTTP verbs.
+
+|===
+| Verb | Usage
+
+| `GET`
+| Used to retrieve a resource. Will return 200.
+
+| `POST`
+| Used to create a new resource. Will return 201 for success.
+
+| `PUT`
+| Used to update an existing resource as an idempotent call. May also create the resource in
+rare cases, e.g. if it a singleton resource. Will return 200 with Content, 204 without Content
+
+| `PATCH`
+| Used to update an existing resource, including partial updates. Will return 200 with Content, 204 without Content
+
+| `DELETE`
+| Used to delete an existing resource. Will return 204
+|===
+
+[[overview-http-status-codes]]
+== HTTP status codes
+
+RESTful notes tries to adhere as closely as possible to standard HTTP and REST conventions in its
+use of HTTP status codes.
+
+|===
+| Status code | Usage
+
+| `200 OK`
+|  * The request completed successfully
+* An update to an existing resource has been applied successfully
+
+| `201 Created`
+| A new resource has been created successfully. The resource's URI is available from the response's
+`Location` header
+
+| `204 No Content`
+| An update to an existing resource has been applied successfully
+
+| `400 Bad Request`
+| The request was malformed. The response body will include an error providing further information.
+
+
+| `401 Unauthorized`
+| User is not logged in and Authorization is necessary
+
+| `403 Forbidden`
+| User is authenticated but Authorization is not given on this resource
+
+| `404 Not Found`
+| The requested resource did not exist, the URL describes nothing
+
+| `405 Method not allowed`
+| The requested path does not support this operation
+
+| `409 Conflict`
+| Another similar resource already exist, Creation is not possible
+
+| `415 Unsupported Media Type`
+| Only json is supported
+
+|===
+
+[[overview-headers]]
+== Headers
+
+=== Requests
+
+Every authenticated request needs following header(s):
+
+[source]
+----
+Content-Type: application/json
+Accept: application/json
+PRIVATE-TOKEN: $SECRET_PRIVATE_TOKEN
+----
+
+The Private Token can be obtained during authentication
+
+=== Response
+
+[source]
+----
+Content-Type: application/json;charset=UTF-8
+Content-Length: $NUMBER
+----
+
+[[overview-errors]]
+== Errors
+
+Whenever an error response (status code >= 400) is returned, the body will contain a JSON object
+that describes the problem. The error object has the following structure:
+
+include::{snippets}/register-fail/response-fields.adoc[]
+
+For example, a request that attempts to register a user with a existing username
+`400 Bad Request` response:
+
+include::{snippets}/register-fail/http-response.adoc[]
+
+[[authentication]]
+== Authentication - /auth
+
+Almost every endpoint has to be authenticated.Exceptions are those endpoints under /api/v1/auth/ and /docs.
+
+Authentication is possible by setting the PRIVATE-TOKEN in the header.This uses the same strategy like gitlab,
+therefore clients can use the same header to communicate with the gitlab backend as to the MLReef backend.
+
+To obtain this token, a login is necessary with valid credentials.
+
+[[authentication-register]]
+=== POST /auth/register
+
+Registering creates a new MLReef user which has a new gitlab user and Person.
+
+
+operation::register-success[snippets='curl-request,request-fields,http-response,response-fields']
+
+[[authentication-login]]
+=== POST /auth/login
+
+Login can be executed with the username or the email.
+
+operation::login-success[snippets='curl-request,request-fields,http-response,response-fields']
+
+[[resources]]
+= Resources
+
+[[projects]]
+== Projects - /projects
+
+Projects are abstract entities with the subtypes DataProject and CodeProject.
+For many requests, Projects can be used, but create or update operations, you must use the specific /data-project and /code-project endpoints
+
+=== GET /projects
+
+operation::genericprojects-retrieve-all[snippets='curl-request,response-body,response-fields']
+
+=== GET /projects/public
+
+operation::genericprojects-retrieve-public[snippets='curl-request,response-body,response-fields']
+
+=== GET /projects/:id
+
+operation::genericprojects-retrieve-one[snippets='curl-request,response-body,response-fields']
+
+=== GET /projects/slug/:slug
+
+operation::genericprojects-retrieve-by-slug[snippets='curl-request,response-body,response-fields']
+
+=== GET /projects/namespace/:namespace
+
+operation::genericprojects-retrieve-by-namespace[snippets='curl-request,response-body,response-fields']
+
+=== GET /projects/:namespace/:slug
+
+operation::genericprojects-retrieve-by-namespace-slug[snippets='curl-request,response-body,response-fields']
+
+[[code-projects]]
+== CodeProjects - /code-projects
+
+CodeProjects are the semantic equivalent of a gitlab project which acts as a place for DataProcessors
+
+Currently users can only retrieve and manipulate their own CodeProjects
+
+=== GET /code-projects
+
+operation::codeprojects-retrieve-all[snippets='curl-request,response-body,response-fields']
+
+=== GET /data-projects/public
+
+operation::codeprojects-retrieve-public[snippets='curl-request,response-body']
+
+=== GET /code-projects/:id
+
+operation::codeprojects-retrieve-one[snippets='curl-request,response-body,response-fields']
+
+=== POST /code-projects
+
+operation::codeprojects-create[snippets='curl-request,response-body,response-fields']
+
+=== PUT /code-projects/:id
+
+operation::codeprojects-update[snippets='curl-request,response-body,response-fields']
+
+=== DELETE /code-projects/:id
+
+operation::codeprojects-delete[snippets='curl-request']
+
+=== GET /code-projects/:id/users
+
+Get users list that are participate in the project by id (:id)
+
+operation::codeprojects-retrieve-users-list[snippets='curl-request,response-body,response-fields']
+
+=== POST /code-projects/:id/users/:userId
+
+Add a user by id (:userId) to the project by id (:id)
+
+operation::codeprojects-add-user[snippets='curl-request,response-body,response-fields']
+
+=== POST /code-projects/:id/users?
+
+Add a user by parameters user_id or gitlab_id to the project by id (:id)
+
+* gitlab_id
+* user_id
+* level
+* expires_at
+
+operation::codeprojects-add-user-by-params[snippets='curl-request,request-parameters,response-body,response-fields']
+
+=== POST /code-projects/:id/users
+
+Add a user in request body
+
+operation::codeprojects-add-user-by-body[snippets='curl-request,response-body,response-fields']
+
+
+=== DELETE /code-projects/:id/users/:userId
+
+Delete a user by id (:userId) from the project by id (:id). Returns a list with users left in the project
+
+operation::codeprojects-delete-user[snippets='curl-request,response-body,response-fields']
+
+=== DELETE /code-projects/:id/users?
+
+Delete a user with parameters by user_id or gitlab_id from the project by id (:id).Returns a list with users left in the project.
+
+* gitlab_id
+* user_id
+
+operation::codeprojects-delete-user-by-params[snippets='curl-request,request-parameters,response-body,response-fields']
+
+[[data-projects]]
+== Data Projects - /data-projects
+
+Data Projects are the semantic equivalent of a gitlab project which holds data used for machine learning and model creation.
+Those DataProjects are the parent of holder of many Experiments and DataSets.
+
+Currently users can only retrieve and manipulate their own DataProjects
+
+=== GET /data-projects
+
+operation::dataprojects-retrieve-all[snippets='curl-request,response-body']
+
+=== GET /data-projects/public
+
+operation::dataprojects-retrieve-public[snippets='curl-request,response-body,response-fields']
+
+=== GET /data-projects/:id
+
+operation::dataprojects-retrieve-one[snippets='curl-request,response-body,response-fields']
+
+=== POST /data-projects
+
+operation::dataprojects-create[snippets='curl-request,response-body,response-fields']
+
+=== PUT /data-projects/:id
+
+operation::dataprojects-update[snippets='curl-request,response-body,response-fields']
+
+=== DELETE /data-projects/:id
+
+operation::dataprojects-delete[snippets='curl-request']
+
+=== GET /data-projects/:id/users
+
+Get users list that are participate in the project by id (:id)
+
+operation::dataprojects-retrieve-users-list[snippets='curl-request,response-body,response-fields']
+
+=== POST /data-projects/:id/users/:userId
+
+Add a user by id (:userId) to the project by id (:id)
+
+operation::dataprojects-add-user[snippets='curl-request,response-body,response-fields']
+
+=== POST /data-projects/:id/users?
+
+Add a user by with parameters user_id or gitlab_id to the project by id (:id)
+
+* gitlab_id
+* user_id
+
+operation::dataprojects-add-user-by-params[snippets='curl-request,request-parameters,response-body,response-fields']
+
+=== POST /data-projects/:id/users
+
+Add a user in request body
+
+operation::dataprojects-add-user-by-body[snippets='curl-request,response-body,response-fields']
+
+
+=== DELETE /data-projects/:id/users/:userId
+
+Delete a user by id (:userId) from the project by id (:id). Returns a list with users left in the project.
+
+operation::dataprojects-delete-user[snippets='curl-request,response-body,response-fields']
+
+=== DELETE /data-projects/:id/users?
+
+Delete a user with parameters by user_id or gitlab_id from the project by id (:id). Returns a list with users left in the project.
+
+* gitlab_id
+* user_id
+
+operation::dataprojects-delete-user-by-params[snippets='curl-request,request-parameters,response-body,response-fields']
+
+
+[[groups]]
+== Groups - /groups
+
+Group is an entity that unites accounts to a single class/batch
+
+=== GET /groups/my
+
+Returns current user's groups where the user has membership
+
+operation::user-groups-list[snippets='curl-request,response-body,response-fields']
+
+=== POST /groups
+
+operation::group-create[snippets='curl-request,response-body,response-fields']
+
+=== PUT /groups/:id
+
+operation::group-update[snippets='curl-request,response-body,response-fields']
+
+=== DELETE /groups/:id
+
+operation::group-delete[snippets='curl-request']
+
+=== GET /groups/:id/users
+
+Get users list that are participate in the group by id (:id)
+
+operation::group-retrieve-users[snippets='curl-request,response-body,response-fields']
+
+=== POST /groups/:id/users/:userId
+
+Add a user by id (:userId) to the group by id (:id)
+
+operation::group-add-user[snippets='curl-request,response-body,response-fields']
+
+=== PUT /groups/:id/users/:userId
+
+Edit a user by id (:userId) in the group by id (:id). Access level change is supported currently
+
+operation::group-edit-user[snippets='curl-request,request-parameters,response-body,response-fields']
+
+=== DELETE /groups/:id/users/:userId
+
+Delete a user by id (:userId) from the group by id (:id). Returns a list with users left in the project.
+
+operation::group-delete-user[snippets='curl-request,response-body,response-fields']
+
+
+[[data-processors]]
+== Data Processors
+
+=== GET /data-processors
+
+operation::data-processors-retrieve-all[snippets='curl-request,response-body,response-fields']
+
+=== GET filter /data-processors?
+
+The endpoint can be filtered on
+
+* type: ALGORITHM, OPERATION, VISUALISATION
+* input_data_type: DataType of input for DataProcessor
+* output_data_type: DataType of output for DataProcessor
+
+operation::data-processors-retrieve-all-filter[snippets='curl-request,request-parameters,response-body,response-fields']
+
+=== POST /code-project/:id/processor
+
+operation::data-processors-codeproject-create-success[snippets='curl-request,response-body,response-fields']
+
+=== GET /code-project/:id/processor
+
+operation::data-processors-codeproject-retrieve-one[snippets='curl-request,response-body,response-fields']
+
+[[project-pipelineconfig]]
+== Pipelines of Project  - /data-projects/:id/pipelines
+
+Pipelines can be accessed in two manners: scoped to a DataProject or standalone.
+For creation, a DataProject and therefore a nested call is necessary.
+
+See link:#pipelines[Pipelines] for the introduction
+
+=== GET .../pipelines
+
+operation::project-pipelineconfig-retrieve-all[snippets='curl-request,response-body,response-fields']
+
+=== GET .../pipelines/:id
+
+operation::project-pipelineconfig-retrieve-one[snippets='curl-request,response-body,response-fields']
+
+=== POST .../pipelines
+
+operation::project-pipelineconfig-create-success[snippets='curl-request,request-fields,http-response,response-fields']
+
+=== POST .../pipelines/create-start-instance
+
+Use this method for doing 3 steps at once:
+1. create a new PipelineConfig
+2. create its first PipelineInstance
+3. start that instance
+
+Note: Do not use for restarting the same Pipeline, that wont make any sense, as a new Config will be created.
+
+operation::project-pipelineconfig-create-start-instance-success[snippets='curl-request,request-fields,http-response,response-fields']
+
+=== PUT .../pipelines
+
+operation::project-pipelineconfig-update-success[snippets='curl-request,request-fields,http-response,response-fields']
+
+[[experiments]]
+== Experiments - /data-projects/:id/experiments
+
+Experiments are created once and cannot be modified.
+They are scoped to their parent DataProject But nevertheless, the pipelineJobInfo can be updated (creation happens automatically).
+
+Every Subject can just retrieve own Experiments of own DataProjects.
+Currently, there is no rights management which allows for more granular access rules.
+
+=== GET .../experiments
+
+operation::experiments-retrieve-all[snippets='curl-request,response-body,response-fields']
+
+=== GET .../experiments/:id
+
+operation::experiments-retrieve-one[snippets='curl-request,response-body,response-fields']
+
+=== POST .../experiments
+
+operation::experiments-create-success[snippets='curl-request,request-fields,http-response,response-fields']
+
+=== GET .../experiments/:id/info
+
+operation::experiments-retrieve-one-info[snippets='curl-request,response-body,response-fields']
+
+=== GET .../experiments/:id/mlreef-file
+
+Exports the Experiment's metainformation and generate the mlreef.yml file
+
+Output is the mlreef.yml file contents as text
+
+operation::experiments-retrieve-one-mlreef-file[snippets='curl-request']
+
+=== POST .../experiments/:id/start
+
+Creates the target branch and commits the mlreef.yml.
+Cannot be repeated for the same Experiment
+
+Output is the mlreef.yml file contents as text
+
+operation::experiments-create-mlreef-file-commit[snippets='curl-request,response-body']
+
+[[epf-experiments]]
+== EPF Experiments
+
+This endpoint is for scripts and Bots which work under the scope of EPF.
+Therefore the permissions could be limited to certain, lightweight operations.
+
+=== PUT .../experiments/:id/epf/update
+
+A "json blob" is needed for request body.
+A json blob can be any arbitrary json data, but should be in the form of a parsable, not-nested hashmap
+
+This will ensure the Experiment Status is RUNNING, and fail, if the Status is already higher.
+
+operation::experiments-epf-update[snippets='curl-request,http-response,response-fields']
+
+=== PUT .../experiments/:id/epf/finish
+
+No request body payload needed.
+
+This endpoint will mark the Experiment as SUCCESS and update the finish time.
+This will ensure the Experiment Status is SUCCESS, and fail, if the Status is already higher.
+
+operation::experiments-epf-finish[snippets='curl-request,http-response,response-fields']
+
+[[pipelines]]
+= Pipelines - Configuration & Instances - /pipelines
+
+Pipelines can be accessed in two manners: scoped to a DataProject or standalone.
+For creation, a DataProject and therefore a nested call is necessary.
+
+All other actions, like DataInstance creation and Pipeline execution will be handled of the global endpoint
+
+GET on the scoped endpoint delivers just PipelineConfigs of this DataProject.
+GET on the global endpoint delivers every PipelineConfig that the user is allowed to see (viewable).
+
+Therefore use /data-project/:id/pipelines for CREATE and RETRIEVE of scoped pipelines, and /pipelines/ for every other general action, like RETRIEVE, UPDATE and DELETE and the CRUD operations of PipelineInstances
+
+Pipelines can be understood as the abstract configuration PipelineConfig and the specific runtime which resulted in a new branch (PipelineInstance)
+
+[[pipelineconfig]]
+== Pipelines - Configuration /pipelines
+
+=== GET /pipelines
+
+operation::pipelineconfig-retrieve-all[snippets='curl-request,response-body,response-fields']
+
+=== GET /pipelines/:id
+
+operation::pipelineconfig-retrieve-one[snippets='curl-request,response-body,response-fields']
+
+[[pipelineinstances]]
+== Pipelines - PipelineInstances //pipelines/:pid/instances
+
+=== GET /pipelines/:pid/instances
+
+operation::pipelineinstance-retrieve-all[snippets='curl-request,response-body,response-fields']
+
+=== GET /pipelines/:pid/instances/:id
+
+operation::pipelineinstance-retrieve-one[snippets='curl-request,response-body,response-fields']
+
+=== POST /pipelines/:pid/instances/
+
+Creation of PipelineInstance is special as it does not need any parameters.
+Creation is actually an Instantiation of a PipelineConfig, which copies all the needed information and starts a new Pipeline.
+
+operation::pipelineinstance-create-success[snippets='curl-request,request-fields,http-response,response-fields']
+
+=== PUT /pipelines/:pid/instances/:id
+
+A PipelineInstance cannot be "updated" in terms of an entity, but certain actions can be executed:
+
+* start
+* cancel
+* archive
+
+Provide the action as a QueryParam "action", further actions will be implemented.
+
+PipelineInstance's Status:
+
+[source]
+----
+    CREATED
+    PENDING
+    RUNNING
+    SKIPPED
+    SUCCESS
+    FAILED
+    CANCELED
+    ARCHIVED
+----
+
+operation::pipelineinstance-update-success[snippets='curl-request,http-response,response-fields']
+
+=== DELETE /pipelines/:pid/instances/:id
+
+operation::pipelineinstance-delete-success[snippets='curl-request,http-response']
+
+[[marketplace]]
+= Marketplace
+
+The Marketplace is a place to find interesting DataProjects and DataProcessors which can be used by the user.
+Many entities are designed to be public, either as "official" MLReef content or provided by community.
+
+But also MarketplaceEntries can be found for Projects and Processors, which are not public per se, but the user has sufficient access rights
+
+== Marketplace-Entries  /explore/entries
+
+MarketplaceEntries are the public facade of DataProjects and DataProcessors, and have a link to their respective entity.
+
+* searchable_id: UUID of linked Searchable
+* searchable_type: DATA_PROJECT, ALGORITHM (model in UI), OPERATION and VISUALISATION
+
+=== GET /explore/entries
+
+operation::marketplace-entries-retrieve-all[snippets='curl-request,response-body,response-fields']
+
+=== GET /explore/entries/search
+
+* Can be used by Visitors (unauthenticated users) and regular Users
+* Visitors will just find public data, Users will see accessbible data as well
+
+==== Request
+
+Request supports a Filter, paging info and sorting info
+
+The minimal FilterRequest contains the SearchableType:
+
+* DATA_PROJECT
+* CODE_PROJECT (ALL Processors)
+* OPERATION
+* VISUALISATION
+* ALGORITHM
+
+DATA_PROJECT will find DataProjects, CODE_PROJECT will find all CodeProjects connected with their CodeProcessors.
+If you want to filter for an explicit CODE_PROJECT type, use OPERATION, VISUALISATION or ALGORITHM.
+
+operation::marketplace-explore-search[snippets='request-fields']
+
+===== Paging
+
+operation::marketplace-explore-search-params[snippets='request-parameters']
+
+===== Minimal Request
+
+operation::marketplace-explore-search-minimal[snippets='curl-request']
+
+===== Request with all filters
+
+operation::marketplace-explore-search-maximal[snippets='curl-request']
+
+==== Result
+
+The Result is a List of SearchableResults packed in a pageable result.
+
+===== Fulltext search
+
+After the search filtering will be performed and pages are built, the current page will be sorted per relevance for the fulltext search query (fts query).
+Probability will be defined, and can be used for sorting in frontend code:
+A higher prob is more relevant regarind the fts search.
+You can use "query_and" true/false to use AND or OR operation to harden or broaden your result space "probability" : 0.7662
+
+If no "query" is send, fulltext search relevance is not applied, and all SearchResults will have a probability of 1.0 :
+
+ "probability" : 1.0
+
+operation::marketplace-explore-search[snippets='response-body,response-fields']
+
+=== GET /explore/entries/:global_slug
+
+operation::marketplace-entries-retrieve-one[snippets='curl-request,response-body,response-fields']
+
+== SearchableTags  /explore/tags
+
+SearchableTags can be provided via the System (pre-populated) or be created by Users.
+
+SearchableTags can be classified in certain types, for example for the usage of a certain Algorithm.
+DataTypes are *not* SearchableTags but their own enum
+
+=== GET /explore/tags
+
+operation::marketplace-tags-retrieve-all[snippets='curl-request,response-body,response-fields']

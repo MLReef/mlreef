@@ -1,0 +1,188 @@
+plugins {
+    id 'org.springframework.boot' version '2.3.1.RELEASE'
+    id 'io.spring.dependency-management' version '1.0.9.RELEASE'
+    id 'org.jetbrains.kotlin.jvm'
+    id 'kotlin-spring'
+    id 'kotlin-jpa'
+    id 'kotlin-allopen'
+    id 'org.asciidoctor.convert' version "1.5.9.2"
+    id 'jacoco'
+}
+
+group = 'com.mlreef'
+version = '0.0.1-SNAPSHOT'
+
+
+dependencies {
+    implementation project(path: ':mlreef-domain', configuration:'default')
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
+    implementation 'org.jetbrains.kotlin:kotlin-reflect'
+    implementation "org.projectlombok:lombok"
+    implementation "com.fasterxml.jackson.module:jackson-module-kotlin:2.9.10"
+
+    implementation "org.springframework.boot:spring-boot-devtools"
+    implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
+    implementation "org.springframework.boot:spring-boot-starter-aop"
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+
+    // think about that SOON
+//    implementation 'org.springframework:spring-webflux'
+//    implementation 'io.projectreactor.netty:reactor-netty'
+
+    // Rest and HATEOAS
+    implementation 'org.springframework.boot:spring-boot-starter-hateoas'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+
+    // Security
+    implementation "org.springframework.boot:spring-boot-starter-security"
+    implementation "org.springframework.session:spring-session-data-redis"
+
+    // spring data, JPA, Repositories and DB migration
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation "org.flywaydb:flyway-core"
+    runtimeOnly 'org.postgresql:postgresql'
+    runtimeOnly 'redis.clients:jedis:3.3.0'
+    runtimeOnly 'com.h2database:h2'
+
+    //Email
+    implementation 'org.springframework.boot:spring-boot-starter-mail'
+    implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+
+    def jupiter = "5.4.0"
+    def mockkVersion = "1.10.0"
+    testImplementation "org.junit.jupiter:junit-jupiter:$jupiter"
+    // DO NOT USE:   testImplementation "org.junit.jupiter:junit-jupiter-api:$jupiter"
+    // DO NOT USE:   testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:$jupiter"
+    testImplementation('org.springframework.boot:spring-boot-starter-test') {
+        exclude group: 'junit', module: 'junit' //by both name and group
+        exclude group: 'mockito', module: 'mockito-core' //by both name and group
+    }
+    testImplementation "org.springframework.security:spring-security-test"
+    testImplementation "org.springframework.restdocs:spring-restdocs-mockmvc"
+    testImplementation "io.mockk:mockk:${mockkVersion}"
+    testImplementation "com.ninja-squad:springmockk:2.0.1"
+    asciidoctor 'org.springframework.restdocs:spring-restdocs-asciidoctor'
+
+    // testcontainers
+    testImplementation "org.testcontainers:testcontainers:1.12.5"
+    testImplementation "org.testcontainers:postgresql:1.12.5"
+
+    //ebedded servers
+    testImplementation "com.github.kstyrc:embedded-redis:0.6"
+
+}
+
+
+test {
+    systemProperty 'junit.jupiter.extensions.autodetection.enabled', 'true'
+    useJUnitPlatform()
+    afterTest { descriptor, result ->
+        println "\n$descriptor.className [$descriptor.classDisplayName] > $descriptor.name [$descriptor.displayName]: $result.resultType"
+    }
+}
+
+compileKotlin {
+    kotlinOptions {
+        jvmTarget = "1.8"
+    }
+}
+compileTestKotlin {
+    kotlinOptions {
+        jvmTarget = "1.8"
+    }
+}
+
+noArg {
+    annotation("com.mlreef.rest.api.Dto")
+    annotation("com.mlreef.rest.api.DtoRequest")
+}
+
+ext {
+    snippetsDir = file('build/generated-snippets')
+}
+
+test {
+    outputs.dir snippetsDir
+    finalizedBy jacocoTestReport
+    testLogging {
+        exceptionFormat = 'full'
+    }
+    useJUnitPlatform{
+        excludeTags 'slow'
+    }
+}
+
+task allTests(type: Test) {
+    useJUnitPlatform {
+        includeTags 'any() | all()'
+    }
+}
+
+task integrationTest(type: Test) {
+    useJUnitPlatform {
+        includeTags 'integration'
+    }
+}
+
+asciidoctor {
+    inputs.dir snippetsDir
+    dependsOn test
+}
+
+bootJar {
+    dependsOn asciidoctor
+    from("${asciidoctor.outputDir}/html5") {
+        into 'static/docs'
+    }
+}
+
+jacocoTestReport {
+    reports {
+        xml.enabled true
+        csv.enabled true
+    }
+}
+
+task explodeJar(type: Copy) {
+    dependsOn ":mlreef-rest:bootJar"
+    mustRunAfter ":mlreef-rest:bootJar"
+    from(zipTree(tasks.bootJar.outputs.files.singleFile))
+    into("build/dependency")
+}
+
+task prepareDocker {
+    dependsOn ":mlreef-rest:bootJar"
+    dependsOn ":mlreef-rest:explodeJar"
+    mustRunAfter ":mlreef-rest:explodeJar"
+    doLast {
+       print("Explode Jar for docker")
+    }
+}
+
+task coverageReport() {
+    dependsOn jacocoTestReport
+
+    def reportFile = project.file("build/reports/jacoco/test/jacocoTestReport.xml")
+    inputs.file(reportFile)
+
+    doLast {
+        def slurper = new XmlSlurper()
+        slurper.setFeature("http://apache.org/xml/features/disallow-doctype-decl", false)
+        slurper.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false)
+        def xml = slurper.parse(reportFile)
+        def counter = xml.counter.find {
+            node -> node.@type == 'BRANCH'
+        }
+        def missed = counter.@missed.toDouble()
+        def covered = counter.@covered.toDouble()
+        def total = missed + covered
+        def percentage = covered / total * 100
+
+        printf "Coverage: Missed %.0f branches%n", missed
+        printf "Covered %.0f branches%n", covered
+        printf "Total %.0f%%%n", percentage
+        printf "Coverage: Total %.0f%%%n", percentage
+    }
+}
+
