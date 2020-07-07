@@ -15,7 +15,7 @@ def augment():
             horizontal_flip=horizontal_flip,
             fill_mode='nearest')
 
-    if os.path.isfile(input,output):
+    if os.path.isfile(input):
         path = '/'.join(input.split('/')[0:-1])
         image = imread(input)  # this is a PIL image
         image_array = img_to_array(image) 
@@ -27,7 +27,7 @@ def augment():
             if iterator > iterations:
                 break  # otherwise the generator would loop indefinitely
 
-    if os.path.isdir(input,output):
+    if os.path.isdir(input):
         for subdir, dirs, files in os.walk(input):
             for file in files:
                 try:
