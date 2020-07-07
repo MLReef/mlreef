@@ -1,5 +1,6 @@
 import { toastr } from 'react-redux-toastr';
 import ExperimentsApi from 'apis/experimentApi';
+import DataPipelineApi from 'apis/DataPipelineApi';
 import {
   Adjectives,
   BOOL,
@@ -42,7 +43,75 @@ export const showErrorsInTheOperationsSelected = (input, inputDataModel, dataOpe
   }
 };
 
-/* ----------------------------  ----------------------------------  -------------------------------*/
+// export const buildCommandLinesFromSelectedPipelines = (
+//   dataOperationsSelected,
+//   filesSelectedInModal,
+//   path,
+// ) => dataOperationsSelected.map((dataOperation) => {
+//   let line = `    - python ${path}/${dataOperation.command}.py --images-path#directoriesAndFiles`;
+//   dataOperation.inputValuesAndDataModels.forEach((input) => {
+//     line = line.concat(` --${input.name} ${input.value}`);
+//   });
+
+//   return addFilesSelectedInModal(line, filesSelectedInModal);
+// });
+
+// export const generateRealContentFromTemplate = (
+//   pipeLineOperationCommands,
+//   dataInstanceName,
+//   httpUrlToRepo,
+//   pipelineOpScriptName,
+// ) => mlreefFileContent
+//   .replace(/#pipeline-script/g,
+//     pipeLineOperationCommands
+//       .toString()
+//       .replace(/,/g, '\n'))
+//   .replace(/#target-branch/g, dataInstanceName)
+//   .replace(/#pipeline-operation-script-name/g, pipelineOpScriptName)
+//   .replace(/#repo-url/g, httpUrlToRepo.replace(/^(http?:|)\/\//, '')); // remove http://, https:// protocols
+
+// const getPathToPipiline = (pipelineType) => {
+//   switch (pipelineType) {
+//     case 'data-pipeline':
+//       return '/epf/pipelines';
+//     case 'model-experiment':
+//       return '/epf/model';
+//     default:
+//       return '/src/visualisation/';
+//   }
+// };
+
+export const createPipelineInProject = (
+  backendId,
+  branchName,
+  pipelineType,
+  filesSelectedInModal,
+  dataOperationsSelected,
+) => {
+  const datOperationSlug = dataOperationsSelected[0].slug;
+  const dataOperationParameters = dataOperationsSelected[0].inputValuesAndDataModels.map((param) => {
+    const filterValues = { name: param.name, value: (param.value || param.default_value) };
+    return filterValues;
+  });
+
+  const pipelineBody = {
+    source_branch: branchName,
+    pipeline_type: pipelineType,
+    input_files: filesSelectedInModal.map((file) => ({
+      location: file.path,
+    })),
+    data_operations: [{
+      slug: datOperationSlug,
+      parameters: dataOperationParameters,
+    }],
+  };
+
+  const dataPipelineApi = new DataPipelineApi();
+  dataPipelineApi.create(
+    backendId,
+    pipelineBody,
+  ).then(() => toastr.success('Success', 'The pipeline has started'));
+};
 
 /**
  * 
@@ -106,24 +175,25 @@ export const randomNameGenerator = () => {
   return `${Adjectives[randomFirstName]}-${Nouns[randomLastName]}_${dateString}`;
 };
 
-/* ----------------------------  ----------------------------------  -------------------------------*/
-
-/**
- * 
- * @param {*} pipelinesToClassify: unsorted pipelines
- * @param {*} arrayOfBranches: branches in which pipelines were executed
- */
-export const classifyPipeLines = (pipelinesToClassify, arrayOfBranches) => {
-  const pipes = pipelinesToClassify.filter((pipe) => pipe.status !== SKIPPED);
+export const classifyPipeLines = (pipelinesToClassify, arrayOfBranches, dataPipelines) => {
+  const pipes = pipelinesToClassify.filter((pipe) => pipe.status !== SKIPPED.toLowerCase());
   const infoPipelinesComplemented = arrayOfBranches.map((branch) => {
     const pipeBranch = pipes.filter((pipe) => pipe.ref === branch.name)[0];
+    let backendPipeline;
+    dataPipelines.forEach((pipe) => {
+      if (pipeBranch && pipeBranch.ref.includes(pipe.name)) {
+        backendPipeline = pipe;
+      }
+    });
     if (pipeBranch) {
       return {
+        id: pipeBranch.id,
         status: pipeBranch.status,
         name: branch.name,
         authorName: branch.commit.author_name,
         createdAt: branch.commit.created_at,
         commit: branch.commit,
+        backendPipeline,
       };
     }
 
@@ -132,12 +202,34 @@ export const classifyPipeLines = (pipelinesToClassify, arrayOfBranches) => {
   return [
     {
       status: RUNNING,
-      values: infoPipelinesComplemented.filter((exp) => exp.status === RUNNING || exp.status === PENDING),
+      values: infoPipelinesComplemented
+        .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+        .filter((exp) => exp.status === RUNNING.toLowerCase() || exp.status === PENDING.toLowerCase()),
     },
-    { status: SUCCESS, values: infoPipelinesComplemented.filter((exp) => exp.status === SUCCESS) },
-    { status: CANCELED, values: infoPipelinesComplemented.filter((exp) => exp.status === CANCELED) },
-    { status: FAILED, values: infoPipelinesComplemented.filter((exp) => exp.status === FAILED) },
-    { status: EXPIRED, values: infoPipelinesComplemented.filter((exp) => exp.status === EXPIRED) },
+    {
+      status: SUCCESS,
+      values: infoPipelinesComplemented
+        .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+        .filter((exp) => exp.status === SUCCESS.toLowerCase()),
+    },
+    {
+      status: CANCELED,
+      values: infoPipelinesComplemented
+        .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+        .filter((exp) => exp.status === CANCELED.toLowerCase()),
+    },
+    {
+      status: FAILED,
+      values: infoPipelinesComplemented
+        .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+        .filter((exp) => exp.status === FAILED.toLowerCase()),
+    },
+    {
+      status: EXPIRED,
+      values: infoPipelinesComplemented
+        .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+        .filter((exp) => exp.status === EXPIRED.toLowerCase()),
+    },
   ];
 };
 

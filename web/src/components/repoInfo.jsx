@@ -32,11 +32,11 @@ const RepoInfo = ({
 
       {project.projectType === PROJECT_TYPES.DATA_PROJ ? (
         <>
-          <Link className="repo-stat" to={`/my-projects/${project.gitlabId}/visualizations`} >
+          <Link className="repo-stat" to={`/my-projects/${project.gitlabId}/visualizations`}>
             <p className="stat-no" />
             <p className="stat-type">Visualizations</p>
           </Link>
-          <Link to={`/my-projects/${project.gitlabId}/-/data-pipelines`} className="repo-stat" replace>
+          <Link to={`/my-projects/${project.gitlabId}/-/datasets`} className="repo-stat" replace>
             <p className="stat-no">{dataInstanesCount}</p>
             <p className="stat-type">Datasets</p>
           </Link>

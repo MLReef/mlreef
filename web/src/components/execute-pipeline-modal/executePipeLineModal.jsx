@@ -4,8 +4,8 @@ import { Link } from 'react-router-dom';
 import './executePipeLineModal.css';
 import '../../css/genericModal.css';
 import MSelect from 'components/ui/MSelect';
-import { ALGORITHM } from 'dataTypes';
-import createExperimentInProject from '../../functions/pipeLinesHelpers';
+import { ALGORITHM, OPERATION, VISUALIZATION } from 'dataTypes';
+import createExperimentInProject, { createPipelineInProject } from '../../functions/pipeLinesHelpers';
 
 
 const fakeMachinesToShow = [
@@ -37,7 +37,6 @@ const ExecutePipelineModal = ({
   const [isSecondOptSelected, setIsSecondOptSelected] = useState(false);
   const [selectMachinesMess, setSelectMachinesMess] = useState(null);
   const [tuningMethod, setTuningMethod] = useState(null);
-  const isADataVisualizationPipe = dataInstanceName.includes('data-visualization');
   function cleanForm() {
     setIsFirstOptSelected(false);
     setIsSecondOptSelected(false);
@@ -45,7 +44,7 @@ const ExecutePipelineModal = ({
     toggle();
     setSelectMachinesMess('Select a machine...');
   }
-
+  const pipelineType = type === OPERATION ? 'DATA' : 'VISUALISATION';
   const chooseExecutionType = () => {
     if (section === 1) {
       setSection(2);
@@ -57,11 +56,19 @@ const ExecutePipelineModal = ({
           branchSelected,
           filesSelectedInModal,
         );
-      } 
+      } else {
+        createPipelineInProject(
+          backendId,
+          branchSelected,
+          pipelineType,
+          filesSelectedInModal,
+          dataOperationsSelected,
+        );
+      }
     } else {
       cleanForm();
     }
-  }
+  };
   return (
       <div  className={`modal modal-primary modal-lg dark-cover ${isShowing ? 'show' : ''}`}>
         <div className="modal-cover" onClick={() => cleanForm()}></div>
@@ -73,7 +80,7 @@ const ExecutePipelineModal = ({
             <div>
               {section === 1
                 ? 'Select output method for your'
-                  + `${isADataVisualizationPipe ? ' data visualization ' : ' set of data instances '}`
+                  + `${pipelineType === 'DATA' ? ' set of data instances ' : ' data visualization '}`
                   + `with ${filesSelectedInModal.length} data files selected`
                 : 'Your new set of data intances is being created'}
             </div>
@@ -97,7 +104,9 @@ const ExecutePipelineModal = ({
                   >
                     <input type="radio" checked={isFirstOptSelected} id="show-first-opt" onChange={() => {}} />
                     <p style={{ marginLeft: '1em' }} id="paragraph-op1">
-                      {`Create a new ${isADataVisualizationPipe ? 'data visualization ' : ' set of data instances '} in your data repository`}
+                      {`Create a new ${pipelineType === 'DATA'
+                        ? ' set of data instances '
+                        : ' data visualization '} in your data repository`}
                     </p>
                   </div>
 
@@ -157,8 +166,9 @@ const ExecutePipelineModal = ({
             {section === 2 && (
               <div style={{ padding: '1em 0 1em 3em', cursor: 'pointer', height: '70%' }}>
                 <p>
-                  {isADataVisualizationPipe ? 'Data visualization: ' : 'Data instance: '}
-                  <b>{dataInstanceName}</b>
+                  {type === VISUALIZATION
+                    ? 'Data visualization '
+                    : ' Data instance '}
                 </p>
                 <div style={{
                   backgroundColor: 'white',
@@ -218,7 +228,7 @@ const ExecutePipelineModal = ({
                 ) : (
                   <Link to={type === ALGORITHM
                     ? `/my-projects/${projectId}/-/experiments`
-                    : `/my-projects/${projectId}/-/data-pipelines`}
+                    : `/my-projects/${projectId}/-/datasets`}
                   >
                     <button id="show-machines" type="button" className="btn btn-primary">
                       Ok

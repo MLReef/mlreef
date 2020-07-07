@@ -5,7 +5,7 @@ import {
   string, shape, func, arrayOf,
 } from 'prop-types';
 import forkingImage from 'images/forking.png';
-import { OPERATION, ALGORITHM } from 'dataTypes';
+import { OPERATION, ALGORITHM, VISUALIZATION } from 'dataTypes';
 import ProjectGeneralInfoApi from 'apis/projectGeneralInfoApi';
 import ReadMeComponent from '../readMe/readMe';
 import ProjectContainer from '../projectContainer';
@@ -64,6 +64,7 @@ class ProjectView extends React.Component {
     actions.getMergeRequestsList(projectId);
     actions.getProcessors(OPERATION);
     actions.getProcessors(ALGORITHM);
+    actions.getProcessors(VISUALIZATION);
     actions.setIsLoading(true);
     
     const projectGeneralInfoApi = new ProjectGeneralInfoApi();

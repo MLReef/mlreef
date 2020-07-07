@@ -11,6 +11,7 @@ export default {
   processors: {
     operations: [],
     algorithms: [],
+    visualizations: [],
   },
   mergeRequests: [],
   user: {

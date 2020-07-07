@@ -31,7 +31,7 @@ const EmptyDataVisualization = ({ ...props }) => {
     handleModalAccept,
     isShowingExecutePipelineModal,
     toggleExecutePipeLineModal,
-    branchSelected,
+    targetBranch,
     handleExecuteBtn,
     onSortEnd,
     drop,
@@ -47,7 +47,7 @@ const EmptyDataVisualization = ({ ...props }) => {
   const groupName = project.namespace.name;
   operationsSelected += 1;
   const uniqueName = randomNameGenerator();
-  const branchName = `data-visualization/${uniqueName}`;
+  const sourceBranch = `data-visualization/${uniqueName}`;
   const dataInstanceName = `data-visualization/${uniqueName}`;
   const jobName = 'data-visualization';
 
@@ -69,10 +69,10 @@ const EmptyDataVisualization = ({ ...props }) => {
         filesSelectedInModal={filesSelectedInModal}
         httpUrlToRepo={project.http_url_to_repo}
         projectId={project.id}
-        branchName={branchName}
+        sourceBranch={sourceBranch}
         dataInstanceName={dataInstanceName}
         jobName={jobName}
-        branchSelected={branchSelected}
+        targetBranch={targetBranch}
       />
       <Navbar />
       <ProjectContainer activeFeature="data" folders={[groupName, project.name, 'Data', 'Visualization']} />
@@ -201,11 +201,12 @@ function mapStateToProps(state) {
   return {
     selectedProject: state.projects.selectedProject,
     branches: state.branches,
+    processors: state.processors.visualizations,
   };
 }
 
 export default connect(
   mapStateToProps,
 )(
-  withPipelinesExecution(EmptyDataVisualization, dataVisualizations),
+  withPipelinesExecution(EmptyDataVisualization),
 );

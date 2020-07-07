@@ -183,6 +183,7 @@ export const privacyLevelsArr = [
 /* -------------------------- Types of Processors -------------------------- */
 export const OPERATION = 'OPERATION';
 export const ALGORITHM = 'ALGORITHM';
+export const VISUALIZATION = 'VISUALISATION';
 export const VISUALISATION = 'VISUALISATION';
 
 /* --------------------------  ----------------------------------------------- -------------------------- */

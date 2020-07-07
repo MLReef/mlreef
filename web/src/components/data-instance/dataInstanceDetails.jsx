@@ -13,9 +13,15 @@ const DataInstanceDetails = ({ ...props }) => {
     branches,
     match: {
       params: {
-        projectId, path, di_name: diName, branch,
+        projectId, path, dataId, branch,
       },
     },
+    location: {
+      state: {
+        di_name: diName,
+        timeCreatedAgo,
+      }
+    }
   } = props;
   const pipelineName = decodeURIComponent(diName);
   const selectedPipeline = branches.filter((item) => item.name === pipelineName);
@@ -58,18 +64,16 @@ const DataInstanceDetails = ({ ...props }) => {
                 Created by
                 <b>{selectedPipeline[0].commit.author_name}</b>
                 <br />
-                ---ago
+                {timeCreatedAgo}
               </p>
             </div>
             <div className="project-desc-experiment" style={{ visibility: 'inherit' }}>
               <p><b>Usage: ---</b></p>
-              <p>Expires in: ---</p>
             </div>
             <div className="project-desc-experiment" style={{ visibility: 'inherit' }}>
-              <p><b>--- files changed</b></p>
               <p>
                 Id:
-                {selectedPipeline[0].commit.short_id}
+                {dataId}
               </p>
             </div>
             <button

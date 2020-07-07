@@ -159,11 +159,18 @@ exports[`The branches list should be displayed when dropdown button is clicked d
     </div>
   </div>
   <a
-    className="btn btn-dark px-3 mr-auto mt-3"
+    className="btn btn-dark px-3 mr-2 mt-3"
     href="/my-projects/12395599/pipe-line"
     onClick={[Function]}
   >
     Data Pipeline
+  </a>
+  <a
+    className="btn btn-dark px-3 mr-auto mt-3"
+    href="/my-projects/12395599/empty-data-visualization"
+    onClick={[Function]}
+  >
+    Data Visualisation
   </a>
   <a
     className="btn btn-outline-dark mt-3"
