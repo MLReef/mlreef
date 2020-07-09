@@ -1,0 +1,24 @@
+#!/bin/sh
+# change to the repository root folder via the scripts location
+ cd "$(dirname "$0")"/..
+. bin/includes/detect-os
+. bin/includes/ci-environment
+. bin/includes/docker-registry-login
+########################################
+set -x    # output all commands
+set -e    # exit on immediately on every error
+set -u    # error on usage of undefined variables
+########################################
+
+
+ls -al backend/mlreef-rest/build/asciidoc/**
+ls -al backend/mlreef-rest/build/libs/*
+ls -al backend/mlreef-rest/build/dependency/*
+ls -al backend/mlreef-rest/build/reports/jacoco/test
+ls -al backend/mlreef-rest/build/reports/tests/
+
+
+# change directory to the epf folder
+cd backend/mlreef-rest
+
+docker build --tag "$BACKEND_IMAGE_PATH" -f Dockerfile .

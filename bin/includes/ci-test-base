@@ -36,5 +36,5 @@ alias ci-exec-java="docker run --rm \$DOCKER_OPTS     \
   --volume \$HOME:/root                               \
   --volume \$PWD:\$PWD                                \
   --workdir \$PWD                                     \
-  java:8                                              \
+  openjdk:8-jdk-alpine                                \
 "

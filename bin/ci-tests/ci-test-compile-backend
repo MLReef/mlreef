@@ -11,4 +11,4 @@ cd "$(dirname "$0")"/../..
 . bin/includes/ci-test-base
 ########################################
 
-ci-exec-java bin/ci-build-test-backend
+ci-exec-java bin/ci-compile-backend

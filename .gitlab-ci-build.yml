@@ -1,10 +1,10 @@
-compile test backend:
+compile backend:
   stage: stage1
   image: java:8
   only:
     changes:
       - backend/**/*
-      - bin/ci-compile-test-backend
+      - bin/ci-compile-backend
       - .gitlab-ci-build.yml
   services:
     - docker:19.03.0-dind
@@ -13,7 +13,7 @@ compile test backend:
     paths:
       - backend/.gradle/wrapper
       - backend/.gradle/caches
-  script: bin/ci-compile-test-backend
+  script: bin/ci-compile-backend
   artifacts:
     paths:
       - backend/mlreef-rest/build/asciidoc/html5/rest-api.html
