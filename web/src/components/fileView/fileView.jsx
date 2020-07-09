@@ -5,12 +5,16 @@ import { toastr } from 'react-redux-toastr';
 import { Base64 } from 'js-base64';
 import { Link } from 'react-router-dom';
 import { string, shape, arrayOf } from 'prop-types';
+import dayjs from 'dayjs';
+import relativeTime from 'dayjs/plugin/relativeTime';
 import MDropdown from 'components/ui/MDropdown';
 import ProjectContainer from '../projectContainer';
 import CommitsApi from '../../apis/CommitsApi';
 import Navbar from '../navbar/navbar';
 import FilesApi from '../../apis/FilesApi.ts';
 import DeleteFileModal from '../delete-file-modal/deleteFileModal';
+
+dayjs.extend(relativeTime);
 
 const file01 = '/images/svg/file_01.svg';
 
@@ -23,6 +27,7 @@ export class FileView extends React.Component {
       commitInfo: {},
       fileData: null,
       isdeleteModalVisible: false,
+      contributors: [],
     };
 
     this.showDeleteModal = this.showDeleteModal.bind(this);
@@ -41,6 +46,9 @@ export class FileView extends React.Component {
       this.getCommit(projectId, fileData.last_commit_id);
     })
       .catch((err) => toastr.error('Error: ', err.message));
+
+    filesApi.getContributors(projectId)
+      .then((contributors) => { this.setState({ contributors }); });
   }
 
   componentWillUnmount() {
@@ -60,14 +68,19 @@ export class FileView extends React.Component {
     const { users, branches, match: { params: { file, branch, projectId } } } = this.props;
     const {
       project,
-      commitInfo : {
+      commitInfo: {
         author_name: authorName,
         message,
         short_id: commiterShortId,
+        created_at: createdAt,
       },
       fileData,
       isdeleteModalVisible,
+      contributors,
     } = this.state;
+
+    const numContribs = contributors.length;
+
     const groupName = project.namespace.name;
     let fileName = null;
     let fileSize = null;
@@ -173,27 +186,22 @@ export class FileView extends React.Component {
         <div className="commit-container">
           <div className="file-container-header">
             <div className="commit-info">
-              <a href={`/${authorName}`}>
-                <span style={{ position: 'relative' }}>
-                  <img width="32" height="32" className="avatar-circle mt-3 ml-3" src={avatar} alt={authorName} />
-                </span>
-              </a>
+              <div className="d-flex">
+                <Link to={`/${authorName}`} className="m-auto">
+                  <img className="avatar-circle ml-3 mr-2" src={avatar} alt={authorName} />
+                </Link>
+              </div>
               <div className="commit-msg">
-                <p>{message}</p>
+                <div className="title">{message}</div>
                 <span>
-                  by
-                  {' '}
-                  <a href={`/${authorName}`}>
+                  {'by '}
+                  <Link to={`/${authorName}`}>
                     <b>
                       {authorName}
                     </b>
-                  </a>
-                  {' '}
-                  authored
-                  {' '}
-                  <b>4</b>
-                  {' '}
-                  days ago
+                  </Link>
+                  {' authored '}
+                  <b>{dayjs(createdAt).fromNow()}</b>
                 </span>
               </div>
             </div>
@@ -203,9 +211,9 @@ export class FileView extends React.Component {
             </div>
           </div>
           <div className="contributors">
-            <p>
-              <b>3 Contributors</b>
-            </p>
+            <div>
+              <b>{`${numContribs} contributor${numContribs !== 1 ? 's' : ''}`}</b>
+            </div>
             <div className="contributor-list">
               <div className="commit-pic-circle" />
               <div className="commit-pic-circle" />
