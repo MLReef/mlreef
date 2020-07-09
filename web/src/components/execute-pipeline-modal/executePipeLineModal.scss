@@ -1,3 +1,14 @@
+.execute-pipeline-modal {
+  &-section2 {
+    padding: 1em 3em;
+    cursor: pointer;
+    height: 70%;
+
+    &-header {
+    }
+  }
+}
+
 .blue-border-on-hover:hover {
     border: 1px solid #32AFC3;
 }
@@ -16,6 +27,6 @@
     padding: 5px 1px;
     overflow: hidden;
     height: 1em;
-    white-space: nowrap; 
+    white-space: nowrap;
     text-overflow: ellipsis;
 }
