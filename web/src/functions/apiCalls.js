@@ -53,3 +53,9 @@ export const suscribeRT = (options = {}) => (action, args) => {
     clearTimeout(timeoutId);
   };
 };
+
+// this returns an error if code is bigger than 400
+export const handleResponse = (res) => res.ok ? res.json() : Promise.reject(res);
+
+// eslint-disable-next-line
+export const inspect = (res) => console.info(res) || res;

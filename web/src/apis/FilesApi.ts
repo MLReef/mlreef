@@ -1,6 +1,7 @@
 import ApiDirector from './ApiDirector';
 import BodyLessApiRequestCallBuilder from './apiBuilders/BLApiRequestCallBuilder';
 import { METHODS, validServicesToCall } from './apiBuilders/requestEnums';
+import { handleResponse } from 'functions/apiCalls';
 
 export default class FilesApi extends ApiDirector {
   async getFilesPerProject(projectId: number, path: string, recursive = false, branch: string) {
@@ -28,5 +29,14 @@ export default class FilesApi extends ApiDirector {
       return Promise.reject(response);
     }
     return response.json();
+  }
+
+  getContributors(projectId: number) {
+    const url = `/api/v4/projects/${projectId}/repository/contributors`;
+    const headers = this.buildBasicHeaders(validServicesToCall.GITLAB);
+    const builder = new BodyLessApiRequestCallBuilder(METHODS.GET, headers, url);
+
+    return fetch(builder.build())
+      .then(handleResponse);
   }
 }

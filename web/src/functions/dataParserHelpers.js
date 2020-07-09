@@ -9,7 +9,7 @@ const imageFormats = [
   '.bmp',
 ];
 
-export const getTimeCreatedAgo = (timeAgoCreatedAt, today) => {
+export const getTimeCreatedAgo = (timeAgoCreatedAt, today = new Date()) => {
   const timeAgoCreatedAtDate = new Date(timeAgoCreatedAt);
   const diff = today - timeAgoCreatedAtDate;
   let timediff;

@@ -8,9 +8,7 @@ import { parseToCamelCase } from 'functions/dataParserHelpers';
 import Experiment from 'domain/experiments/Experiment';
 import CodeProject from 'domain/project/CodeProject';
 import { PROJECT_TYPES } from 'domain/project/projectTypes';
-
-// this returns an error if code is bigger than 400
-const handleResponse = (res: Response) => res.ok ? res.json() : Promise.reject(res);
+import { handleResponse } from 'functions/apiCalls';
 
 export default class ProjectGeneralInfoApi extends ApiDirector {
   async create(body: any, projectType: string) {
