@@ -1,0 +1,49 @@
+.m-progress-bar {
+  width: 100%;
+
+
+  &-container {
+
+  }
+
+  &-box {
+    background-color: var(--light);
+    height: 0.5rem;
+    position: relative;
+    overflow: hidden;
+    border-radius: 2px;
+
+    &-filled {
+      position: absolute;
+      left: 0%;
+      background-color: var(--secondary);
+      height: 100%;
+      // width: 25%;
+      width: auto;
+      animation: m-progress-bar-indeterminated 2.1s cubic-bezier(0.65, 0.815, 0.735, 0.395) infinite;
+    }
+
+    // &.primary &-filled {
+    //   background-color: var(--primary);
+    // }
+    //
+    // &.primary &-filled {
+    //   background-color: var(--primary);
+    // }
+  }
+}
+
+@keyframes m-progress-bar-indeterminated {
+  0% {
+    left: -35%;
+    right: 100%;
+  }
+  60% {
+    left: 100%;
+    right: -90%;
+  }
+  100% {
+    left: 100%;
+    right: -90%;
+  }
+}

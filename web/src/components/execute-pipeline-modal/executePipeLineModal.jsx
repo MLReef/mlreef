@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import { arrayOf, shape, string } from 'prop-types';
 import { Link } from 'react-router-dom';
-import './executePipeLineModal.css';
+import './executePipeLineModal.scss';
 import '../../css/genericModal.css';
 import MSelect from 'components/ui/MSelect';
+import MProgressBar from 'components/ui/MProgressBar';
 import { ALGORITHM, OPERATION, VISUALIZATION } from 'dataTypes';
 import createExperimentInProject, { createPipelineInProject } from '../../functions/pipeLinesHelpers';
-
 
 const fakeMachinesToShow = [
   {
@@ -164,42 +164,25 @@ const ExecutePipelineModal = ({
               </>
             )}
             {section === 2 && (
-              <div style={{ padding: '1em 0 1em 3em', cursor: 'pointer', height: '70%' }}>
+              <div className="execute-pipeline-modal-section2">
                 <p>
                   {type === VISUALIZATION
                     ? 'Data visualization '
                     : ' Data instance '}
                 </p>
-                <div style={{
-                  backgroundColor: 'white',
-                  width: '96%',
-                  height: '2em',
-                  borderRadius: '0.5em',
-                  border: '0.4px solid #32AFC3',
-                }}
-                >
-                  <div
-                    id="progress-bar"
-                    style={{
-                      backgroundColor: '#32afc3',
-                      height: '100%',
-                      width: '40%',
-                      borderRadius: 'inherit',
-                    }}
-                  />
+                <div className="execute-pipeline-modal-section2-status mt-4">
+                  <MProgressBar color="info" />
                 </div>
-                <div style={{ display: 'flex' }}>
-                  <div style={{ width: '50%', display: 'inherit', alignContent: '' }}>
-                    <p style={{ fontSize: '0.8em', width: '100%', textAlign: 'start' }}>Loading files...</p>
-                  </div>
-                  <div style={{ width: '50%', display: 'inherit', alignContent: '' }}>
-                    <p style={{ fontSize: '0.8em', width: '90%', textAlign: 'end' }}>ETA: 12min 45sec</p>
-                  </div>
+                <div className="mt-4">
+                  <p className="t-center">
+                    You can close this window, your task will run on the background under
+                    <b> “Insights/Tasks”</b>
+                  </p>
+                  <p className="t-center">
+                    or jump directly to your newly created data instance
+                    <b> data_instance_name.</b>
+                  </p>
                 </div>
-                <p>
-                  You can close this window, your task will run on the background.
-                </p>
-
               </div>
             )}
 
