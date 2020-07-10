@@ -66,7 +66,6 @@ const SettingsViewMembers = (props) => {
       })
       .catch((res) => res.json()
         .then((err) => {
-          // console.log(err);
           toastr.error('Failed adding member', err.error_name);
         }))
       .finally(() => setWaiting(false));

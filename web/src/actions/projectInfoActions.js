@@ -119,7 +119,6 @@ export function getDataProcessorsAndCorrespondingProjects(dataOperation) {
     projectApi.getProjectsList(PROJECT_TYPES.CODE_PROJ), 
     dataProcApi.filterByParams(params),
   ]).then((response) => {
-    console.log(response);
     const projects = response[0];
     const dataProcessors = response[1].map((dp) => parseToCamelCase(dp));
     const finalProjects = dataProcessors.filter((dp) => projects.filter((pro) => dp.codeProjectId === pro.id)[0]);

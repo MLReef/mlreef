@@ -153,7 +153,9 @@ const createExperimentInProject = (
           }
         });
     })
-    .catch((err) => toastr('Error', err));
+    .catch(async (err) => {
+      toastr.error('Error', err);
+    });
 };
 
 export default createExperimentInProject;

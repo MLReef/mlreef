@@ -1,6 +1,6 @@
 import React from 'react';
 import { shallow } from 'enzyme';
-import SelectDataPipelineModal from 'components/ui/MSelectDataPipeline/selectDataPipelineModal';
+import SelectDataPipelineModal from 'components/views/PipelinesExecutionView/SelectDataPipelineModal';
 import { projectsArrayMock, branchesMock, filesMock } from 'testData';
 
 const setup = ({ show, handleModalAccept }) => shallow(

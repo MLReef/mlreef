@@ -3,7 +3,7 @@ import PropTypes, {
   shape, number, func, string,
 } from 'prop-types';
 import { toastr } from 'react-redux-toastr';
-import './selectDataPipelineModal.scss';
+import './SelectDataPipelineModal.scss';
 import MDropdown from 'components/ui/MDropdown';
 import ReturnLink from 'components/returnLink';
 import MCheckBox from 'components/ui/MCheckBox/MCheckBox';
@@ -11,6 +11,7 @@ import FilesApi from 'apis/FilesApi';
 
 const folderIcon = '/images/svg/folder_01.svg';
 const fileIcon = '/images/svg/file_01.svg';
+const filesApi = new FilesApi();
 
 class SelectDataPipelineModal extends Component {
   constructor(props) {
@@ -59,6 +60,17 @@ class SelectDataPipelineModal extends Component {
       });
     }
 
+    /**
+     * Sometimes a pipeline is rebuilt so the files provided as input should be shown as selected
+     * @param {*} file: file which was used as file input when a pipeline was executed
+     */
+    getIsFileChecked(file) {
+      const { initialFiles } = this.props;
+      if (!initialFiles) return false;
+
+      return initialFiles.filter((f) => f.location === file.path).length > 0;
+    }
+
     selectFileFromGrid = (file) => {
       const { files } = this.state;
       const newArray = [...files];
@@ -72,17 +84,16 @@ class SelectDataPipelineModal extends Component {
       files: prevState.files.map((f) => ({ ...f, checked: newCheckedValue })),
     }));
 
-    updateFiles(projectId, path, branch) { 
-      const filesApi = new FilesApi();
+    updateFiles(projectId, path, branch) {
       filesApi.getFilesPerProject(
-      projectId,
-      path,
-      false,
-      branch,
-    ).then((files) => this.setState({
-      files: [...files.map((file) => ({ ...file, checked: false }))],
-    }))
-      .catch(() => toastr.error('Error', 'Files could not be recovered'));
+        projectId,
+        path,
+        false,
+        branch,
+      ).then((files) => this.setState({
+        files: [...files.map((file) => ({ ...file, checked: this.getIsFileChecked(file) }))],
+      }))
+        .catch(() => toastr.error('Error', 'Files could not be recovered'));
     }
 
     handleCloseButton() {

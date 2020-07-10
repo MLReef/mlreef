@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import { Base64 } from 'js-base64';
 import { toastr } from 'react-redux-toastr';
 import { shape, objectOf, func } from 'prop-types';
 import DataPipelineApi from 'apis/DataPipelineApi';
@@ -11,7 +10,7 @@ import Navbar from '../navbar/navbar';
 import ProjectContainer from '../projectContainer';
 import './dataInstanceOverview.css';
 import Instruction from '../instruction/instruction';
-import { getTimeCreatedAgo, parseMlreefConfigurationLines } from '../../functions/dataParserHelpers';
+import { getTimeCreatedAgo, parseToCamelCase } from '../../functions/dataParserHelpers';
 import DataInstancesDeleteModal from '../data-instances-delete-and-abort-modal/dataInstancesDeleteNAbortModal';
 import pipelinesApi from '../../apis/PipelinesApi';
 import {
@@ -21,7 +20,6 @@ import {
   FAILED,
   PENDING,
 } from '../../dataTypes';
-import FilesApi from '../../apis/FilesApi.ts';
 import { deleteBranch, getBranchesList } from '../../actions/branchesActions';
 import { fireModal } from '../../actions/actionModalActions';
 import { classifyPipeLines } from '../../functions/pipeLinesHelpers';
@@ -50,26 +48,16 @@ const getStatusForDataInstance = (status) => {
 
 export const InstanceCard = ({ ...props }) => {
   const { params, history, name, deletePipeline } = props;
-
-  function goToPipelineView(e) {
+  function goToPipelineView(e, id) {
     const pId = params.instances[0].projId;
-    const branch = e.currentTarget.parentNode.parentNode.getAttribute('data-key');
-    const filesApi = new FilesApi();
-    filesApi
-      .getFileData(
-        pId,
-        '.mlreef.yml',
-        branch,
-      )
-      .then((fileData) => {
-        const dataParsedInLines = Base64.decode(fileData.content).split('\n');
-        const configuredOperation = parseMlreefConfigurationLines(dataParsedInLines);
-        sessionStorage.setItem('configuredOperations', JSON.stringify(configuredOperation));
-        history.push(`/my-projects/${pId}/pipe-line`);
-      })
-      .catch(() => {
-
-      });
+    const instance = params.instances.filter((ins) => ins.id === id)[0];
+    const configuredOperations = {
+      dataOperatorsExecuted: instance.dataOperations,
+      inputFiles: instance.inputFiles,
+      pipelineBackendId: instance.pipelineBackendId,
+    };
+    sessionStorage.setItem('configuredOperations', JSON.stringify(configuredOperations));
+    history.push(`/my-projects/${pId}/pipeline-execution/new-data-pipeline`);
   }
 
   // returns a function that receives the name (or id) of the pipeline and deletes it
@@ -99,9 +87,9 @@ export const InstanceCard = ({ ...props }) => {
     });
   }
 
-  function getButtonsDiv(experimentState) {
+  function getButtonsDiv(instanceStatus, id) {
     let buttons;
-    if (experimentState === RUNNING || experimentState === PENDING) {
+    if (instanceStatus === RUNNING || instanceStatus === PENDING) {
       buttons = [
         <button
           type="button"
@@ -113,14 +101,14 @@ export const InstanceCard = ({ ...props }) => {
         </button>,
       ];
     } else if (
-      experimentState === SUCCESS
+      instanceStatus === SUCCESS
     ) {
       buttons = [
         <button
           type="button"
           key="experiment-button"
           className="btn btn-outline-dark my-auto"
-          onClick={(e) => goToPipelineView(e)}
+          onClick={(e) => goToPipelineView(e, id)}
         >
           View Pipeline
         </button>,
@@ -135,14 +123,14 @@ export const InstanceCard = ({ ...props }) => {
           <i className="fa fa-times" />
         </button>,
       ];
-    } else if (experimentState === FAILED
-      || experimentState === CANCELED) {
+    } else if (instanceStatus === FAILED
+      || instanceStatus === CANCELED) {
       buttons = [
         <button
           type="button"
           key="experiment-button"
           className="btn btn-outline-dark my-auto"
-          onClick={(e) => goToPipelineView(e)}
+          onClick={(e) => goToPipelineView(e, id)}
         >
           View Pipeline
         </button>,
@@ -214,7 +202,7 @@ export const InstanceCard = ({ ...props }) => {
                   {instance.id}
                 </p>
               </div>
-              { getButtonsDiv(instance.currentState.toUpperCase()) }
+              { getButtonsDiv(instance.currentState.toUpperCase(), instance.id) }
             </div>
           </div>
         );
@@ -407,17 +395,19 @@ class DataInstanceOverview extends Component {
               .map((dataInstanceClassification) => {
                 const instances = dataInstanceClassification.values.map((val) => {
                   const timediff = getTimeCreatedAgo(val.commit.created_at, new Date());
+                  const bpipeline = parseToCamelCase(val.backendPipeline);
                   return {
                     id: val.id,
                     currentState: val.status,
-                    di_id: val.commit.short_id,
                     descTitle: val.name,
                     userName: val.commit.author_name,
                     timeCreatedAgo: timediff,
                     projId: selectedProject.id,
+                    dataOperations: bpipeline.dataOperations,
+                    pipelineBackendId: bpipeline.id,
+                    inputFiles: bpipeline.inputFiles,
                   };
                 });
-
                 const firstValue = dataInstanceClassification.values[0];
                 const InstanceName = firstValue && firstValue.name;
 

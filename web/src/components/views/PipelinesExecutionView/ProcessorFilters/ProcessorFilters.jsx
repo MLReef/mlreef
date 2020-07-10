@@ -1,15 +1,14 @@
-import React from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
-import './DataOperationFilters.scss';
 import Input from 'components/input/input';
 
 const DataOperationFilters = (props) => {
   const {
     className,
     show,
-    handleCheckMarkClick,
   } = props;
-
+  const [isOwnDataOpsChecked, setIsOwnDataOpsChecked] = useState(false);
+  const [isStarredDataOpsChecked, setIsStarredDataOpsChecked] = useState(false);
   return (
     <div id="filters" className={`${className} data-operation-filters ${!show ? 'd-none' : ''}`}>
       <select className="data-operations-select round-border-button">
@@ -24,7 +23,8 @@ const DataOperationFilters = (props) => {
           Only own data operations
           <input
             type="checkbox"
-            onChange={handleCheckMarkClick}
+            value={isOwnDataOpsChecked}
+            onClick={() => setIsOwnDataOpsChecked(!isOwnDataOpsChecked)}
             id="checkBoxOwnDataOperations"
           />
           <span className="checkmark" />
@@ -33,7 +33,8 @@ const DataOperationFilters = (props) => {
           Only starred data operations
           <input
             type="checkbox"
-            onChange={handleCheckMarkClick}
+            value={isStarredDataOpsChecked}
+            onClick={() => setIsStarredDataOpsChecked(!isStarredDataOpsChecked)}
             id="checkBoxStarredDataOperations"
           />
           <span className="checkmark" />
@@ -52,7 +53,6 @@ DataOperationFilters.defaultProps = {
 DataOperationFilters.propTypes = {
   className: PropTypes.string,
   show: PropTypes.bool,
-  handleCheckMarkClick: PropTypes.func.isRequired,
 };
 
 export default DataOperationFilters;

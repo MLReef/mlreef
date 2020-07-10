@@ -28,7 +28,6 @@ const FilesContainer = ({ projectId, path, urlBranch, defaultBranch }) => {
         finalBranch,
       ).then((files) => setFiles(files))
       .catch((err) => {
-        console.log(err);
         toastr.error('Error', 'Something went wrong getting files')
       });
     }

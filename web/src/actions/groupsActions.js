@@ -1,6 +1,6 @@
+import { toastr } from 'react-redux-toastr';
 import * as types from './actionTypes';
 import groupsApi from '../apis/groupApi';
-import { toastr } from 'react-redux-toastr';
 
 /**
  *

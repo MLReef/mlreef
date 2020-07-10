@@ -117,7 +117,7 @@ export class RepoFeatures extends Component {
         <AuthWrapper minRole={30} className="mr-2 mt-3">
           <Link
             className={`btn btn-dark px-3 ${projectType === PROJECT_TYPES.CODE_PROJ ? '' : 'mr-2'} mt-3`}
-            to={`/my-projects/${projectId}/pipe-line`}
+            to={`/my-projects/${projectId}/pipeline-execution/new-data-pipeline`}
           >
             Data Pipeline
           </Link>
@@ -129,7 +129,7 @@ export class RepoFeatures extends Component {
         >
           <Link
             className="btn btn-dark px-3 mr-auto mt-3"
-            to={`/my-projects/${projectId}/empty-data-visualization`}
+            to={`/my-projects/${projectId}/pipeline-execution/new-data-visualisation`}
           >
             Data Visualisation
           </Link>

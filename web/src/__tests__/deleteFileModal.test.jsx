@@ -1,7 +1,7 @@
-/* eslint-disable no-undef */
 import React from 'react';
 import { shallow } from 'enzyme';
 import DeleteFileModal from '../components/delete-file-modal/deleteFileModal';
+import 'babel-polyfill';
 
 const setup = (isModalVisible) => shallow(
   <DeleteFileModal
