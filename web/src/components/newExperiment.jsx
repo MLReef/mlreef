@@ -95,10 +95,10 @@ const NewExperiment = ({
           className="pipe-line-execution"
           title="Experiment"
           buttons={[
-            <button key="pipeline-load" type="button" className="btn btn-basic-primary btn-sm">
+            <button key="pipeline-load" type="button" className="btn btn-basic-primary btn-sm d-none">
               Load
             </button>,
-            <button key="pipeline-save" type="button" className="btn btn-basic-primary btn-sm">
+            <button key="pipeline-save" type="button" className="btn btn-basic-primary btn-sm d-none">
               Save
             </button>,
             <button
