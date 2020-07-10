@@ -86,16 +86,16 @@ const SortableDataOperation = SortableElement(({ value, prefix }) => {
         </div>
         <div id={`data-operation-selected-form-${value.index}`} className="data-operation-form">
           <br />
-          <div style={{ width: 'min-content', margin: 'auto', marginLeft: '1rem' }}>
+          <div style={{ width: 'max-content', margin: 'auto', marginLeft: '1rem' }}>
             {standardParameters.map((param, paramIndex) => (
               <div key={`std-${param.name}`}>
                 <div className="d-flex mb-3">
                   <span className="mr-4" style={{ alignSelf: 'center', flex: 1 }}>
-                    {param.comment && (
+                    {param.description && (
                       <MTooltip
                         scale={120}
                         className="mr-1"
-                        message={param.comment}
+                        message={param.description}
                       />
                     )}
                     {`${param.name}: `}
@@ -131,7 +131,7 @@ const SortableDataOperation = SortableElement(({ value, prefix }) => {
                   <p><b>Source code</b></p>
                 </div>
               </div>
-              <div id={`advanced-opts-div-${value.index}`} className="advanced-opts-div" style={{ width: 'min-content', margin: 'auto', marginLeft: '1rem' }}>
+              <div id={`advanced-opts-div-${value.index}`} className="advanced-opts-div" style={{ width: 'max-content', margin: 'auto', marginLeft: '1rem' }}>
                 {advancedParameters.map((advancedParam, advancedParamIndex) => {
                   const defaultValue = advancedParam.default_value;
                   return (
@@ -139,11 +139,11 @@ const SortableDataOperation = SortableElement(({ value, prefix }) => {
                       ? (
                         <div key={`adv-${advancedParam.name}`} className="d-flex mb-3">
                           <span className="mr-4" style={{ alignSelf: 'center', flex: 1 }}>
-                            {advancedParam.comment && (
+                            {advancedParam.description && (
                               <MTooltip
                                 scale={120}
                                 className="mr-1"
-                                message={advancedParam.comment}
+                                message={advancedParam.description}
                               />
                             )}
                             {`${advancedParam.name}: `}
@@ -214,11 +214,11 @@ const SortableDataOperation = SortableElement(({ value, prefix }) => {
                         <div key={`adv-${advancedParam.name}`}>
                           <div className="d-flex mb-3">
                             <span className="mr-4" style={{ alignSelf: 'center', flex: 1 }}>
-                              {advancedParam.comment && (
+                              {advancedParam.description && (
                                 <MTooltip
                                   scale={120}
                                   className="mr-1"
-                                  message={advancedParam.comment}
+                                  message={advancedParam.description}
                                 />
                               )}
                               {`${advancedParam.name}: `}
