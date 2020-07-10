@@ -1,10 +1,7 @@
-import { INT, FLOAT, BOOL } from 'dataTypes';
 import {
   RUNNING,
   SUCCESS,
   EXPIRED,
-  CANCELED,
-  SKIPPED,
 } from './dataTypes';
 
 export const imagesToRender = [
@@ -160,20 +157,20 @@ export const projectsArrayMock = {
       id: 12395599,
       description: 'This is MLReef´s demo repository.',
       name: 'demo',
-      name_with_namespace: 'MLReef / demo',
+      nameWithNamespace: 'MLReef / demo',
       path: 'mlreef-demo',
-      path_with_namespace: 'mlreef/mlreef-demo',
-      created_at: '2019-05-18T09:34:29.346Z',
-      default_branch: 'master',
-      tag_list: [],
-      ssh_url_to_repo: 'git@gitlab.com:mlreef/mlreef-demo.git',
-      http_url_to_repo: 'https://gitlab.com/mlreef/mlreef-demo.git',
-      web_url: 'https://gitlab.com/mlreef/mlreef-demo',
-      readme_url: 'https://gitlab.com/mlreef/mlreef-demo/blob/master/README.md',
-      avatar_url: 'https://gitlab.com/uploads/-/system/project/avatar/12395599/shutterstock_129655604-Converted-copy-text.png',
-      star_count: 2,
-      forks_count: 1,
-      last_activity_at: '2019-11-11T10:36:06.189Z',
+      pathWithNamespace: 'mlreef/mlreef-demo',
+      createdAt: '2019-05-18T09:34:29.346Z',
+      defaultBranch: 'master',
+      tagList: [],
+      sshUrlToRepo: 'git@gitlab.com:mlreef/mlreef-demo.git',
+      httpUrlToRepo: 'https://gitlab.com/mlreef/mlreef-demo.git',
+      webUrl: 'https://gitlab.com/mlreef/mlreef-demo',
+      readmeUrl: 'https://gitlab.com/mlreef/mlreef-demo/blob/master/README.md',
+      avatarUrl: 'https://gitlab.com/uploads/-/system/project/avatar/12395599/shutterstock_129655604-Converted-copy-text.png',
+      starCount: 2,
+      forksCount: 1,
+      lastActivityAt: '2019-11-11T10:36:06.189Z',
       namespace: {
         id: 5351747,
         name: 'MLReef',
@@ -207,12 +204,12 @@ export const projectsArrayMock = {
 };
 
 export const usersArrayMock = [{
-  "id":2,
-  "name":"mlreef",
-  "username":"mlreef",
-  "state":"active",
-  "avatar_url":"https://www.gravatar.com/avatar/d64636c9c4cf15dd5c9e1ed6ab529100?s=80&d=identicon",
-  "web_url":"http://ec2-52-57-196-223.eu-central-1.compute.amazonaws.com:10080/mlreef"
+  id: 2,
+  name: 'mlreef',
+  username: 'mlreef',
+  state: 'active',
+  avatar_url: 'https://www.gravatar.com/avatar/d64636c9c4cf15dd5c9e1ed6ab529100?s=80&d=identicon',
+  web_url: 'http://ec2-52-57-196-223.eu-central-1.compute.amazonaws.com:10080/mlreef',
 }];
 
 export const branchesMock = [
@@ -726,7 +723,6 @@ export const mockMergeRequests = [
     length: 0,
   },
 ];
-
 
 export const mockDataVisualizations = [
   {
@@ -2073,144 +2069,185 @@ export const mockDataVisualizations = [
   },
 ];
 
-/* Data Pipelines mock data used for test cases only*/
-export const dataPipeLines = [{
-  title: 'Augment',
-  username: 'Vaibhav_M',
-  starCount: '243',
-  index: 1,
-  command: 'augment',
-  description:
-      'Data augmentation multiplies and tweakes the data by changing angle of rotation, flipping the images, zooming in, etc.',
-  showDescription: false,
-  showAdvancedOptsDivDataPipeline: false,
-  dataType: 'Images',
-  params: {
-    standard:
-    [
+/* Data Pipelines mock data used for test cases only */
+export const dataPipeLines = [
+  {
+    id: '01000000-0000-0001-0002-000000000000',
+    slug: 'commons-augment',
+    name: 'Augment',
+    inputDataType: 'IMAGE',
+    outputDataType: 'IMAGE',
+    type: 'OPERATION',
+    visibilityScope: 'PUBLIC',
+    description: 'Data augmentation multiplies and tweakes the data by changing angle of rotation, flipping the images, zooming in, etc.',
+    codeProjectId: '01000000-0000-0001-0001-000000000000',
+    authorId: 'aaaa0000-0001-0000-0000-cccccccccccc',
+    metricType: 'UNDEFINED',
+    parameters: [
       {
-        name: 'Number of augmented images',
-        dataType: INT,
+        name: 'input-path',
+        type: 'STRING',
         required: true,
-        commandName: 'iterations',
-        comment: 'The comment for Number of augmented images',
-      },
-    ],
-    advanced:
-    [
-      {
-        name: 'Rotation range',
-        dataType: FLOAT,
-        required: false,
-        commandName: 'rotation-range',
-        standardValue: '0',
-        comment: 'The comment for Rotation range',
+        order: 0,
+        default_value: '.',
+        description: null,
       },
       {
-        name: 'Width shift range',
-        dataType: FLOAT,
-        required: false,
-        commandName: 'width-shift-range',
-        standardValue: '0',
-      },
-      {
-        name: 'Height shift range',
-        dataType: FLOAT,
-        required: false,
-        commandName: 'height-shift-range',
-        standardValue: '0',
-        comment: 'The comment for Height shift range',
-      },
-      {
-        name: 'Shear range',
-        dataType: FLOAT,
-        required: false,
-        commandName: 'shear-range',
-        standardValue: '0',
-        comment: 'The comment for Shear range',
-      },
-      {
-        name: 'Zoom range',
-        dataType: FLOAT,
-        required: false,
-        commandName: 'zoom-range',
-        standardValue: '0',
-        comment: 'The comment for Zoom range',
-      },
-      {
-        name: 'Horizontal flip',
-        dataType: BOOL,
-        required: false,
-        commandName: 'horizontal-flip',
-        standardValue: 'false',
-        comment: 'The comment for Horizontal flip',
-      },
-      {
-        name: 'Vertical flip',
-        dataType: BOOL,
-        required: false,
-        commandName: 'vertical-flip',
-        standardValue: 'false',
-      },
-    ],
-  },
-},
-{
-  title: 'Random crop',
-  username: 'Vaibhav_M',
-  starCount: '201',
-  index: 2,
-  command: 'random_crop',
-  description:
-      `This pipeline operation randomly crops a NxM (height x width) portion of the given dataset. 
-      This is used to randomly extract parts of the image incase we need to remove bias present in image data.`,
-  showDescription: false,
-  showAdvancedOptsDivDataPipeline: false,
-  dataType: 'Text',
-  params: {
-    standard: [
-      {
-        name: 'Height', dataType: INT, required: true, commandName: 'height',
-      },
-      {
-        name: 'Width',
-        dataType: INT,
+        name: 'output-path',
+        type: 'STRING',
         required: true,
-        commandName: 'width',
-        comment: 'The comment for Width.',
+        order: 1,
+        default_value: './output',
+        description: null,
       },
       {
-        name: 'Channels', dataType: INT, required: true, commandName: 'channels', standardValue: '3',
+        name: 'iterations',
+        type: 'INTEGER',
+        required: true,
+        order: 2,
+        default_value: '5',
+        description: null,
       },
-    ],
-    advanced: [
       {
-        name: 'Random Seed', dataType: INT, required: false, commandName: 'seed', standardValue: 'None',
+        name: 'rotation-range',
+        type: 'INTEGER',
+        required: true,
+        order: 3,
+        default_value: '15',
+        description: null,
+      },
+      {
+        name: 'width-shift-range',
+        type: 'INTEGER',
+        required: true,
+        order: 4,
+        default_value: '0',
+        description: null,
+      },
+      {
+        name: 'height-shift-range',
+        type: 'INTEGER',
+        required: true,
+        order: 5,
+        default_value: '0',
+        description: null,
+      },
+      {
+        name: 'shear-range',
+        type: 'FLOAT',
+        required: true,
+        order: 6,
+        default_value: '0',
+        description: null,
+      },
+      {
+        name: 'zoom-range',
+        type: 'FLOAT',
+        required: true,
+        order: 7,
+        default_value: '0',
+        description: null,
+      },
+      {
+        name: 'horizontal-flip',
+        type: 'BOOLEAN',
+        required: true,
+        order: 8,
+        default_value: 'TRUE',
+        description: null,
+      },
+      {
+        name: 'vertical-flip',
+        type: 'BOOLEAN',
+        required: true,
+        order: 9,
+        default_value: 'TRUE',
+        description: null,
       },
     ],
+    internalProcessorId: '597e1670-bbbd-11ea-859c-85d2ab5837c3',
   },
-},
-{
-  title: 'Lee filter',
-  username: 'RK_ESA',
-  starCount: '126',
-  index: 4,
-  command: 'lee_filter',
-  description:
-      `The presence of speckle noise in images makes the interpretation of the contents difficult, 
-      thereby degrading the quality of the image. Therefore an efficient speckle noise removal technique, the Lee Filter is used to 
-      smoothen the static-like noise present in these images`,
-  showDescription: false,
-  showAdvancedOptsDivDataPipeline: false,
-  dataType: 'Something Else',
-  params: {
-    standard: [
+  {
+    id: '01000000-0000-0002-0002-000000000000',
+    slug: 'commons-random-crop',
+    name: 'Random crop',
+    inputDataType: 'IMAGE',
+    outputDataType: 'IMAGE',
+    type: 'OPERATION',
+    visibilityScope: 'PUBLIC',
+    description: ' This pipeline operation randomly crops a NxM (height x width) portion of the given dataset.\n This is used to randomly extract parts of the image incase we need to remove bias present in image data.',
+    codeProjectId: '01000000-0000-0002-0001-000000000000',
+    authorId: 'aaaa0000-0001-0000-0000-cccccccccccc',
+    metricType: 'UNDEFINED',
+    parameters: [
       {
-        name: 'Intensity', dataType: INT, required: true, commandName: 'intensity',
+        name: 'height',
+        type: 'INTEGER',
+        required: false,
+        order: 0,
+        default_value: '35',
+        description: null,
+      },
+      {
+        name: 'width',
+        type: 'INTEGER',
+        required: false,
+        order: 1,
+        default_value: '35',
+        description: null,
+      },
+      {
+        name: 'channels',
+        type: 'INTEGER',
+        required: false,
+        order: 0,
+        default_value: '3',
+        description: null,
+      },
+      {
+        name: 'seed',
+        type: 'INTEGER',
+        required: false,
+        order: 1,
+        default_value: '3',
+        description: null,
       },
     ],
+    internalProcessorId: '597e1671-bbbd-11ea-859c-85d2ab5837c3',
   },
-}];
+  {
+    id: '01000000-0000-0003-0002-000000000000',
+    slug: 'commons-lee-filter',
+    name: 'Lee filter',
+    inputDataType: 'IMAGE',
+    outputDataType: 'IMAGE',
+    type: 'OPERATION',
+    visibilityScope: 'PUBLIC',
+    description: 'The presence of speckle noise in Synthetic Aperture Radar (SAR) images makes the interpretation of the contents difficult, \nthereby degrading the quality of the image. Therefore an efficient speckle noise removal technique, the Lee Filter is used to \nsmoothen the static-like noise present in these images',
+    codeProjectId: '01000000-0000-0003-0001-000000000000',
+    authorId: 'aaaa0000-0001-0000-0000-cccccccccccc',
+    metricType: 'UNDEFINED',
+    parameters: [
+      {
+        name: 'tupleParam',
+        type: 'TUPLE',
+        required: false,
+        order: 0,
+        default_value: '(1,2)',
+        description: null,
+      },
+      {
+        name: 'hashParam',
+        type: 'DICTIONARY',
+        required: false,
+        order: 1,
+        default_value: '{a:b}',
+        description: null,
+      },
+    ],
+    internalProcessorId: '597e1672-bbbd-11ea-859c-85d2ab5837c3',
+  },
+];
 
 /* Image source to test the rendering of an avatar */
 export const avatarUrl = 'https://assets.gitlab-static.net/uploads/-/system/user/avatar/3839940/avatar.png';
@@ -2239,15 +2276,27 @@ export const filesMock = [
   },
 ];
 
-
 // --------- new mock data which emulates backend response --------- //
 
 export const experimentMock = {
   dataInstanceId: null,
   dataProjectId: '5345bb52-5256-4cda-820a-15f3bcc5ad05',
   id: '3fbdcf9e-8c2c-45cf-889d-5704e8843489',
-  inputFiles: [{location: 'data', location_type: 'PATH'}],
-  jsonBlob: {'0': {'acc': null, 'val_acc': null, 'loss': 3.5322117805480957, 'val_loss': 687.5565185546875}, '1': {'acc': null, 'val_acc': null, 'loss': 3.386892080307007, 'val_loss': 52.79811096191406}, '2': {'acc': null, 'val_acc': null, 'loss': 2.0041089057922363, 'val_loss': 271.48876953125}, '3': {'acc': null, 'val_acc': null, 'loss': 6.353485107421875, 'val_loss': 247.885009765625}},
+  inputFiles: [{ location: 'data', location_type: 'PATH' }],
+  jsonBlob: {
+    0: {
+      acc: null, val_acc: null, loss: 3.5322117805480957, val_loss: 687.5565185546875,
+    },
+    1: {
+      acc: null, val_acc: null, loss: 3.386892080307007, val_loss: 52.79811096191406,
+    },
+    2: {
+      acc: null, val_acc: null, loss: 2.0041089057922363, val_loss: 271.48876953125,
+    },
+    3: {
+      acc: null, val_acc: null, loss: 6.353485107421875, val_loss: 247.885009765625,
+    },
+  },
   name: 'experiment/kind-kraken_1062020',
   pipelineJobInfo: {
     commitSha: 'abd778adfa9b53f02d903c6c03fbd7ba03e113c1',
@@ -2261,7 +2310,9 @@ export const experimentMock = {
   processing: {
     slug: 'resnet50',
     name: 'Resnet 50',
-    parameters: [{name: 'output-path', value: '.', type: 'STRING', required: true, description: ''}]
+    parameters: [{
+      name: 'output-path', value: '.', type: 'STRING', required: true, description: '',
+    }],
   },
   slug: 'experiment-kind-kraken-1062020',
   sourceBranch: 'master',

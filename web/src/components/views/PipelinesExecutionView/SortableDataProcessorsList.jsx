@@ -1,21 +1,29 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { SortableContainer, SortableElement } from 'react-sortable-hoc';
 import $ from 'jquery';
+import { BOOL, errorMessages } from 'dataTypes';
 import MTooltip from 'components/ui/MTooltip';
-import Input from '../input/input';
-import ArrowButton from '../arrow-button/arrowButton';
-import advice01 from '../../images/advice-01.png';
-import { BOOL, errorMessages } from '../../dataTypes';
-import './SortableDataOperationList.scss';
+import advice01 from 'images/advice-01.png';
+import Input from '../../input/input';
+import ArrowButton from '../../arrow-button/arrowButton';
+import './SortableDataProcessorList.scss';
 
-const SortableDataOperation = SortableElement(({ value, prefix }) => {
-  const { index } = value;
+const SortableProcessor = SortableElement(({
+  props: {
+    value,
+    prefix,
+    copyProcessor,
+    deleteProcessor,
+    index,
+  },
+}) => {
+  const [isFormdivVisible, setIsFormdivVisible] = useState(true);
   function handleSelectClick(advancedParamIndex, newBoolValue) {
-    $(`#advanced-drop-down-${value.index}-param-${advancedParamIndex}`).click();
-    $(`#paragraph-op-${value.index}-value-${advancedParamIndex}`).text(newBoolValue ? 'Yes' : 'No');
+    $(`#advanced-drop-down-${value.internalProcessorId}-param-${advancedParamIndex}`).click();
+    $(`#paragraph-op-${value.internalProcessorId}-value-${advancedParamIndex}`).text(newBoolValue ? 'Yes' : 'No');
     document
       .getElementById(
-        `ad-hidden-input-advanced-drop-down-${value.index}-param-${advancedParamIndex}`,
+        `ad-hidden-input-advanced-drop-down-${value.internalProcessorId}-param-${advancedParamIndex}`,
       )
       .value = newBoolValue;
   }
@@ -29,37 +37,37 @@ const SortableDataOperation = SortableElement(({ value, prefix }) => {
   const advancedParameters = filterOperation(false);
 
   return (
-    <span
-      key={`data-operations-item-selected-${index}`}
+    <span 
+      key={`data-operations-item-selected-${value.internalProcessorId}`} 
       className="sortable-data-operation-list-item"
     >
       <p style={{ marginRight: '15px' }}>
         <b>
           {prefix || 'Op.'}
-          {value.index}
+          {index + 1}
           :
         </b>
       </p>
       <div
         className="data-operations-item round-border-button shadowed-element"
-        id={`data-operations-item-selected-${value.index}`}
-        key={`data-operations-item-selected-${value.index}`}
+        id={`data-operations-item-selected-${value.internalProcessorId}`}
+        key={`data-operations-item-selected-${value.internalProcessorId}`}
       >
         <div className="header flexible-div">
-          <div id="title-content">
+          <div className="processor-title">
             <p className="bold-text">{value.name}</p>
             <p>
               Created by
               <span className="bold-text"> Keras</span>
             </p>
           </div>
-          <div id={`data-options-second-${value.index}`} className="data-oper-options flexible-div ">
+          <div id={`data-options-second-${value.internalProcessorId}`} className="data-oper-options flexible-div ">
             <div>
               <button
                 type="button"
                 label="close"
-                id={`delete-btn-item-${value.index}`}
-                onClick={value.deleteDataOperationEvent}
+                id={`delete-btn-item-${value.internalProcessorId}`}
+                onClick={() => deleteProcessor(index)}
                 className="btn btn-icon btn-hidden p-1 mr-1 fa fa-times"
               />
             </div>
@@ -67,24 +75,18 @@ const SortableDataOperation = SortableElement(({ value, prefix }) => {
               <button
                 type="button"
                 label="copy"
-                id={`copy-btn-item-${value.index}`}
-                onClick={value.copyDataOperationEvent}
+                id={`copy-btn-item-${value.internalProcessorId}`}
+                onClick={() => copyProcessor(index)}
                 className="btn btn-icon btn-hidden p-1 fa fa-copy mr-1"
               />
             </div>
             <div>
-              <ArrowButton
-                placeholder=""
-                params={{ index: value.index }}
-                callback={() => {
-                  const formDiv = document.getElementById(`data-operation-selected-form-${value.index}`);
-                  formDiv.style.display = formDiv.style.display === 'none' ? 'unset' : 'none';
-                }}
-              />
+              <ArrowButton callback={() => setIsFormdivVisible(!isFormdivVisible)} />
             </div>
           </div>
         </div>
-        <div id={`data-operation-selected-form-${value.index}`} className="data-operation-form">
+        {isFormdivVisible && (
+        <div className="data-operation-form">
           <br />
           <div style={{ width: 'max-content', margin: 'auto', marginLeft: '1rem' }}>
             {standardParameters.map((param, paramIndex) => (
@@ -101,10 +103,10 @@ const SortableDataOperation = SortableElement(({ value, prefix }) => {
                     {`${param.name}: `}
                   </span>
                   <div className="my-auto">
-                    <Input id={`param-${paramIndex}-item-data-operation-selected-form-${value.index}`} placeholder="" value={param.value} />
+                    <Input id={`param-${paramIndex}-item-data-operation-selected-form-${value.internalProcessorId}`} placeholder="" value={param.value} />
                   </div>
                 </div>
-                <div id={`error-div-for-param-${paramIndex}-item-data-operation-selected-form-${value.index}`} style={{ display: 'none' }}>
+                <div id={`error-div-for-param-${paramIndex}-item-data-operation-selected-form-${value.internalProcessorId}`} style={{ display: 'none' }}>
                   <img style={{ height: '15px' }} src={advice01} alt="" />
                   <p style={{ margin: '0 0 0 5px' }}>{errorMessages[param.dataType]}</p>
                 </div>
@@ -119,10 +121,8 @@ const SortableDataOperation = SortableElement(({ value, prefix }) => {
                 <div className="drop-down">
                   <p className="mr-2"><b>Advanced</b></p>
                   <ArrowButton
-                    placeholder=""
-                    params={{ index: value.index }}
                     callback={() => {
-                      const formDiv = document.getElementById(`advanced-opts-div-${value.index}`);
+                      const formDiv = document.getElementById(`advanced-opts-div-${value.internalProcessorId}`);
                       formDiv.style.display = formDiv.style.display === 'none' ? 'unset' : 'none';
                     }}
                   />
@@ -131,7 +131,7 @@ const SortableDataOperation = SortableElement(({ value, prefix }) => {
                   <p><b>Source code</b></p>
                 </div>
               </div>
-              <div id={`advanced-opts-div-${value.index}`} className="advanced-opts-div" style={{ width: 'max-content', margin: 'auto', marginLeft: '1rem' }}>
+              <div id={`advanced-opts-div-${value.internalProcessorId}`} className="advanced-opts-div" style={{ width: 'max-content', margin: 'auto', marginLeft: '1rem' }}>
                 {advancedParameters.map((advancedParam, advancedParamIndex) => {
                   const defaultValue = advancedParam.default_value;
                   return (
@@ -150,17 +150,16 @@ const SortableDataOperation = SortableElement(({ value, prefix }) => {
                           </span>
                           <div>
                             <input
-                              id={`ad-hidden-input-advanced-drop-down-${value.index}-param-${advancedParamIndex}`}
+                              id={`ad-hidden-input-advanced-drop-down-${value.internalProcessorId}-param-${advancedParamIndex}`}
                               style={{ display: 'none' }}
                               onChange={() => { }}
                               value={advancedParam.value}
                             />
                             <div style={{ display: 'flex' }}>
                               <ArrowButton
-                                id={`advanced-drop-down-${value.index}-param-${advancedParamIndex}`}
-                                params={{ index: value.index }}
+                                id={`advanced-drop-down-${value.internalProcessorId}-param-${advancedParamIndex}`}
                                 callback={() => {
-                                  const el = document.getElementById(`options-for-bool-select-${advancedParamIndex}`);
+                                  const el = document.getElementById(`options-for-bool-select-${value.internalProcessorId}-ad-param-${advancedParamIndex}`);
 
                                   el.style.display = el.style.display === 'none'
                                     ? 'unset'
@@ -168,12 +167,12 @@ const SortableDataOperation = SortableElement(({ value, prefix }) => {
                                 }}
                               />
                               <p
-                                id={`paragraph-op-${value.index}-value-${advancedParamIndex}`}
+                                id={`paragraph-op-${value.internalProcessorId}-value-${advancedParamIndex}`}
                               >
                                 {advancedParam.value === 'true' ? 'Yes' : 'No'}
                               </p>
                             </div>
-                            <div style={{ display: 'none' }} id={`options-for-bool-select-${advancedParamIndex}`}>
+                            <div style={{ display: 'none' }} id={`options-for-bool-select-${value.internalProcessorId}-ad-param-${advancedParamIndex}`}>
                               <ul style={{
                                 boxShadow: '0 2px 4px rgb(0, 0, 0, 0.3)',
                                 display: 'block !important',
@@ -224,13 +223,12 @@ const SortableDataOperation = SortableElement(({ value, prefix }) => {
                               {`${advancedParam.name}: `}
                             </span>
                             <Input
-                              id={`ad-param-${advancedParamIndex}-item-data-operation-form-${value.index}`}
+                              id={`ad-param-${advancedParamIndex}-item-data-operation-form-${value.internalProcessorId}`}
                               placeholder={String(defaultValue)}
                               value={advancedParam.value}
                             />
                           </div>
                           <div
-                            id={`error-div-for-ad-param-${advancedParamIndex}-item-data-operation-form-${value.index}`}
                             style={{ display: 'none' }}
                           >
                             <img style={{ height: '15px' }} src={advice01} alt="" />
@@ -244,6 +242,7 @@ const SortableDataOperation = SortableElement(({ value, prefix }) => {
             </div>
             )}
         </div>
+        )}
       </div>
       <span className="sortable-data-operation-list-item-arrow" />
       <span className="sortable-data-operation-list-item-separator" />
@@ -251,17 +250,27 @@ const SortableDataOperation = SortableElement(({ value, prefix }) => {
   );
 });
 
-
-const SortableDataOperationsList = SortableContainer(({ items, prefix }) => (
+const SortableProcessorsList = SortableContainer(({
+  items, prefix, copyProcessor, deleteProcessor,
+}) => (
   <ul style={{ paddingLeft: '11px' }} id="data-operations-selected-container" key="data-operations-selected-container">
     {items.map((value, index) => {
-      value.index = index + 1;
+      const props = {
+        value,
+        index,
+        prefix,
+        copyProcessor,
+        deleteProcessor,
+      };
       return (
-        <SortableDataOperation key={`item-${value.id}`} value={value} index={index} prefix={prefix} />
+        <SortableProcessor
+          index={index}
+          key={`item-${value.internalProcessorId}`}
+          props={props}
+        />
       );
     })}
   </ul>
 ));
 
-// this pressDelay avoid conflics with onClick events
-export default (props) => <SortableDataOperationsList pressDelay={500} {...props} />;
+export default SortableProcessorsList;

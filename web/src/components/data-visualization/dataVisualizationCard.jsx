@@ -3,45 +3,30 @@ import {
   func, number, string, arrayOf, shape,
 } from 'prop-types';
 import { Redirect, Link } from 'react-router-dom';
-import { Base64 } from 'js-base64';
-import { toastr } from 'react-redux-toastr';
-import { getTimeCreatedAgo, parseMlreefConfigurationLines } from '../../functions/dataParserHelpers';
+import { getTimeCreatedAgo } from '../../functions/dataParserHelpers';
 import './dataVisualizationCard.css';
-import FilesApi from '../../apis/FilesApi.ts';
-
-const filesApi = new FilesApi();
 
 const DataVisualizationCard = ({ classification, projectId }) => {
   const today = new Date();
   const [redirect, setRedirect] = useState(false);
-  function goToPipelineView(e) {
-    const branch = e.currentTarget.parentNode.parentNode.getAttribute('data-key');
-    filesApi
-      .getFileData(
-        projectId,
-        '.mlreef.yml',
-        branch,
-      )
-      .then((fileData) => {
-        const dataParsedInLines = Base64.decode(fileData.content).split('\n');
-        const configuredOperation = parseMlreefConfigurationLines(dataParsedInLines);
-        sessionStorage.setItem('configuredOperations', JSON.stringify(configuredOperation));
-
-        setRedirect(true);
-      })
-      .catch(() => {
-        toastr.error('Error:', 'An error occurred while parsing your configuration');
-      });
+  function goToPipelineView(e, val) {
+    const configuredOperations = {
+      dataOperatorsExecuted: val.dataOperations,
+      inputFiles: val.inputFiles,
+      pipelineBackendId: val.pipelineBackendId,
+    };
+    sessionStorage.setItem('configuredOperations', JSON.stringify(configuredOperations));
+    setRedirect(true);
   }
 
-  function getButtonsDiv(dataVisualizationState) {
+  function getButtonsDiv(dataVisualizationState, val) {
     let buttons;
     const viewPipeLineBtn = (
       <button
         type="button"
         key="experiment-button"
         className="non-active-black-border rounded-pipeline-btn"
-        onClick={goToPipelineView}
+        onClick={() => goToPipelineView(val)}
       >
         View Pipeline
       </button>
@@ -85,7 +70,7 @@ const DataVisualizationCard = ({ classification, projectId }) => {
   }
 
   if (redirect) {
-    return <Redirect to={`/my-projects/${projectId}/empty-data-visualization`} />;
+    return <Redirect to={`/my-projects/${projectId}/pipeline-execution/new-data-visualization`} />;
   }
 
   return (
@@ -146,7 +131,7 @@ const DataVisualizationCard = ({ classification, projectId }) => {
             </p>
             <p>dl_code</p>
           </div>
-          {getButtonsDiv(classification.status)}
+          {getButtonsDiv(classification.status, val)}
         </div>
       ))}
     </div>

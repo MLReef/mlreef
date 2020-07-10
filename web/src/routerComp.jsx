@@ -3,21 +3,19 @@ import { BrowserRouter, Route, Switch } from 'react-router-dom';
 import UserAccount from 'components/views/userSettings/UserAccount';
 import CreateGroup from 'components/views/create-group/createGroup';
 import SettingsView from 'components/views/SettingsView';
+import PipelinesExecutionView from 'components/views/PipelinesExecutionView';
 import FileView from './components/fileView/fileView';
 import Login from './components/login/login';
 import RegisterView from './components/RegisterView';
 import projectView from './components/projectView/projectView';
-import PipeLineView from './components/pipeline-view/pipelineView';
 import PrivateRoute from './privateRoute';
 import ExperimentsOverview from './components/experiments-overview/experimentsOverview';
 import Projects from './components/myProjects/myProjects';
 import Commits from './components/commits-view/commitsView';
 import CommitDetails from './components/commits-details/commitDetails';
-import NewExperiment from './components/newExperiment';
 import DataInstanceOverview from './components/data-instance/dataInstanceOverview';
 import DataInstanceDetails from './components/data-instance/dataInstanceDetails';
 import DataVisualizationOverview from './components/data-visualization/dataVisualizationOverview';
-import EmptyDataVisualization from './components/data-visualization/dataVisualization';
 import ErrorPage from './components/error-page/errorPage';
 import ExperimentDetails from './components/experiment-details/experimentDetails';
 import CreateProject from './components/views/create-project/createProject';
@@ -90,15 +88,13 @@ const RouterComp = () => (
         path="/my-projects/:projectId/branches"
         component={BranchesView}
       />
-      <PrivateRoute exact path="/my-projects/:projectId/pipe-line" component={PipeLineView} />
-      <PrivateRoute path="/my-projects/:projectId/empty-data-visualization" component={EmptyDataVisualization} />
+      <PrivateRoute exact path="/my-projects/:projectId/pipeline-execution/:typePipelines" component={PipelinesExecutionView} />
       <PrivateRoute path="/my-projects/:projectId/visualizations/:visName/path/:path" component={DataVisualizationDetail} />
       <PrivateRoute path="/my-projects/:projectId/visualizations/:visName" component={DataVisualizationDetail} />
       <PrivateRoute path="/my-projects/:projectId/visualizations" component={DataVisualizationOverview} />
       <PrivateRoute exact path="/my-projects/:projectId/-/datasets" component={DataInstanceOverview} />
       <PrivateRoute path="/my-projects/:projectId/:branch/-/datasets/:dataId/path/:path" component={DataInstanceDetails} />
       <PrivateRoute path="/my-projects/:projectId/:branch/-/datasets/:dataId" component={DataInstanceDetails} />
-      <PrivateRoute path="/my-projects/:projectId/new-experiment" component={NewExperiment} />
       <PrivateRoute path="/my-projects/:projectId/fork" component={ForkView} />
       <PrivateRoute
         path="/my-projects/:projectId/-/experiments"

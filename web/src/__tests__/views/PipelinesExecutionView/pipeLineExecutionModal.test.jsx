@@ -1,6 +1,6 @@
 import React from 'react';
 import { mount } from 'enzyme';
-import ExecutePipeLineModal from '../components/execute-pipeline-modal/executePipeLineModal';
+import ExecutePipeLineModal from '../../../components/views/PipelinesExecutionView/ExecutePipelineModal/ExecutePipeLineModal';
 
 const setup = () => mount(
   <ExecutePipeLineModal

@@ -50,42 +50,6 @@ export const getFilesInFolder = (folder, files) => files.filter(
 );
 
 /**
- * @param {linesOfContent} mlreef yml broken into lines that will be analyzed to extract information
- */
-export const parseMlreefConfigurationLines = (linesOfContent) => linesOfContent
-  .filter((lineToFilter) => lineToFilter.includes('python')).map((line) => {
-    let lineParams = [];
-    const operationName = line.match(/[/][a-zA-z]+.py/g) || line.match(/[/][a-zA-z/\d/g]+.py/g);
-    let parametersWithBooleanPat = line.match(/--[a-zA-z]+-+[a-zA-z]+\s+[a-zA-z]+\S/g);
-    // some parametters are so rare that sometimes match returns null which raises an exception
-    if (parametersWithBooleanPat === null) {
-      parametersWithBooleanPat = [];
-    }
-    const match = line.match(/--[a-zA-z]+\s+[0-9]{1,5}/g);
-    lineParams = [
-      ...lineParams,
-      ...(match || []),
-      ...parametersWithBooleanPat,
-    ];
-    const rawParams = lineParams
-      .filter((param) => param.name !== '')
-      .map((param) => param.substring(2, param.length))
-      .map((paramsAndValues) => {
-        const dividedParam = paramsAndValues.split(' ');
-        return {
-          name: dividedParam[0],
-          value: dividedParam[1],
-        };
-      });
-    return {
-      name: operationName
-        ? operationName[0].substring(1, operationName[0].length).split('.')[0]
-        : '',
-      params: rawParams,
-    };
-  });
-
-/**
  * Return a number with desired format.
  *
  * 5 significant digits preferred, max 5 fractional digits, keep integer part.

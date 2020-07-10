@@ -268,7 +268,7 @@
 
 /* ---------------------- Data operations styles --------------------- */
 
-#title-content{
+.processor-title {
     width: 90%;
 }
 
@@ -292,7 +292,7 @@
 }
 
 .copy-btn-item {
-    background: url('../../images/file-01.png');
+    background: url('../../../images/file-01.png');
     background-position: center;
     background-size: cover;
     min-width: 2em;
