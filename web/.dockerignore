@@ -4,3 +4,6 @@ node_modules/
 
 # Ignore the Development proxy from docker builds
 src/setupProxy.js
+
+build.info
+.env
