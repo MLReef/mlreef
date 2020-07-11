@@ -17,15 +17,15 @@ import {
   privacyLevelsArr,
   ML_PROJECT,
 } from 'dataTypes';
+import { validateProjectName } from 'functions/validations';
+import { PROJECT_TYPES } from 'domain/project/projectTypes';
 import Navbar from '../../navbar/navbar';
 import './createProject.css';
 import * as projectActions from '../../../actions/projectInfoActions';
 import * as userActions from '../../../actions/userActions';
 import ProjectGeneraInfoApi from '../../../apis/projectGeneralInfoApi.ts';
 import { convertToSlug } from '../../../functions/dataParserHelpers';
-import { bannedCharsArray } from '../../../dataTypes';
 import MCheckBox from '../../ui/MCheckBox/MCheckBox';
-import { PROJECT_TYPES } from 'domain/project/projectTypes';
 
 class CreateProject extends Component {
   slugRef = createRef();
@@ -86,21 +86,6 @@ class CreateProject extends Component {
     this.setState({ description: e.target.value });
   }
 
-  validateProjectName = (text) => {
-    let bannedCharCount = 0;
-
-    bannedCharsArray.forEach((char) => {
-      if (text.startsWith(char) || text.startsWith('.') || text.startsWith('-') || text.startsWith(' ')) {
-        return false;
-      }
-      if (text.includes(char)) {
-        bannedCharCount += 1;
-      }
-    });
-
-    return bannedCharCount === 0;
-  }
-
   handleSubmit = () => {
     const {
       projectName,
@@ -114,7 +99,7 @@ class CreateProject extends Component {
       ? PROJECT_TYPES.CODE_PROJ
       : PROJECT_TYPES.DATA_PROJ;
     
-    const isAValidName = this.validateProjectName(projectName);
+    const isAValidName = validateProjectName(projectName);
 
     if (!isAValidName) {
       toastr.error('Error:', 'Name can contain only letters, digits, "_", ".", dash, space. It must start with letter, digit or "_".');
@@ -252,7 +237,7 @@ class CreateProject extends Component {
                <span className="heading">Project Description (optional)</span>
                <textarea
                  value={description}
-                 className="area-focus"
+                 className="proj-desc-textarea"
                  onChange={this.handleDescription}
                  id="projectDescription"
                  rows="4"

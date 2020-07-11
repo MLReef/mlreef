@@ -92,6 +92,25 @@ export default class ProjectGeneralInfoApi extends ApiDirector {
       .then(handleResponse);
   }
 
+  updateProjectDetails(projectId: number, body: Object) {
+    const url = `/api/v1/data-projects/${projectId}`;
+    const data = {...body}
+    const headers = this.buildBasicHeaders(validServicesToCall.BACKEND)
+    const builder = new ApiRequestCallBuilder(METHODS.PUT, headers, url, JSON.stringify(data));
+
+    return fetch(builder.build())
+      .then(handleResponse);
+  }
+
+  // updateProjectAvatar(projectId: number, payload: FormData) {
+  //   const url = `/api/v4/projects/${projectId}`;
+  //   const headers = this.buildBasicHeaders(validServicesToCall.GITLAB);
+  //   const builder = new ApiRequestCallBuilder(METHODS.PUT, headers, url, payload);
+
+  //   return fetch(builder.build())
+  //     .then(handleResponse);
+  // }
+
   /**
    * @param {*} id: project which will be forked
    * @param {*} namespace: space to fork project to

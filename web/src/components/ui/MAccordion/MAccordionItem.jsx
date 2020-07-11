@@ -7,6 +7,7 @@ const MAccordionItem = (props) => {
     children,
     title,
     subtitle,
+    referenceId,
     defaultExpanded,
   } = props;
 
@@ -31,6 +32,7 @@ const MAccordionItem = (props) => {
           <button
             className={`btn btn-outline-dark btn-label-sm btn-sm ${!collapsed ? 'active' : ''}`}
             type="button"
+            id={referenceId}
             onClick={toggleCollapse}
           >
             {collapsed ? 'Expand' : 'Collapse'}
@@ -51,7 +53,7 @@ MAccordionItem.defaultProps = {
 
 MAccordionItem.propTypes = {
   title: PropTypes.string.isRequired,
-  // subtitle: PropTypes.string,
+  referenceId: PropTypes.string.isRequired,
   subtitle: PropTypes.oneOfType([
     PropTypes.string,
     PropTypes.element,

@@ -5,10 +5,11 @@ import { bindActionCreators } from 'redux';
 import {
   func, shape, string, number,
 } from 'prop-types';
-import ProjectGeneralInfoApi from '../apis/projectGeneralInfoApi.ts';
-import * as projectActions from '../actions/projectInfoActions';
 import { plainToClass } from 'class-transformer';
 import DataProject from 'domain/project/DataProject';
+import MEmptyAvatar from 'components/ui/MEmptyAvatar/MEmptyAvatar';
+import ProjectGeneralInfoApi from '../apis/projectGeneralInfoApi.ts';
+import * as projectActions from '../actions/projectInfoActions';
 import { PROJECT_TYPES } from 'domain/project/projectTypes';
 import CodeProject from 'domain/project/CodeProject';
 
@@ -49,11 +50,19 @@ const ProjectInfo = (props) => {
   return (
     <div className="project-info">
       <div className="project-id">
-        <Link to={`/my-projects/${classProject.id}/${classProject.defaultBranch}`}>
-          <div className="project-pic overflow-hidden">
-            <img style={{ minWidth: '100%' }} src={classProject.avatarUrl} alt="" />
-          </div>
-        </Link>
+        {classProject.avatarUrl === null
+          ? (
+            <div>
+              <MEmptyAvatar projectName={classProject.gitlabName} styleClass="avatar-sm" />
+            </div>
+          )
+          : (
+            <Link to={`/my-projects/${classProject.id}/${classProject.defaultBranch}`}>
+              <div className="project-pic overflow-hidden">
+                <img style={{ minWidth: '100%' }} src={classProject.avatarUrl} alt="" />
+              </div>
+            </Link>
+          )}
         <div className="project-name">
           <Link to={`/my-projects/${classProject.id}/${classProject.defaultBranch}`} id="projectName">{classProject.gitlabName}</Link>
           <p id="projectId">

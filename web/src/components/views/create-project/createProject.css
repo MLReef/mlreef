@@ -85,7 +85,7 @@
     box-shadow: 0 0 8px #99ddff;
 }
 
-textarea{ 
+.proj-desc-textarea{
     overflow: auto;
     margin: 1em 0;
     padding: 6px 10px;
@@ -96,7 +96,7 @@ textarea{
     background-clip: padding-box;
 }
 
-.area-focus:focus{
+.proj-desc-textarea:focus{
     -webkit-box-shadow: 0 0 10px #99ddff;
     box-shadow: 0 0 8px #99ddff;
 }

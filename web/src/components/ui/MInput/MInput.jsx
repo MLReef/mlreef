@@ -14,6 +14,8 @@ const MInput = (props) => {
     placeholder,
     min,
     className,
+    readOnly,
+    styleClass,
   } = props;
 
   return (
@@ -22,21 +24,22 @@ const MInput = (props) => {
         <label htmlFor={id}>{ label }</label>
         <input
           id={id}
-          className="m-input_input"
+          className={`m-input_input ${styleClass}`}
           type={type}
           value={value}
           placeholder={placeholder}
           onChange={onChange}
           onBlur={onBlur}
+          readOnly={readOnly}
           min={min}
         />
-        <div className="m-input_errors">
-          {error && (
+        {error && (
+          <div className="m-input_errors">
             <div className="m-error">
               { error }
             </div>
-          )}
-        </div>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -50,6 +53,9 @@ MInput.defaultProps = {
   min: undefined,
   className: '',
   onBlur: () => {},
+  onChange: () => {},
+  readOnly: false,
+  styleClass: '',
 };
 
 MInput.propTypes = {
@@ -60,7 +66,7 @@ MInput.propTypes = {
       PropTypes.number,
     ])
     .isRequired,
-  onChange: PropTypes.func.isRequired,
+  onChange: PropTypes.func,
   onBlur: PropTypes.func,
   error: PropTypes.string,
   type: PropTypes.string,
@@ -76,6 +82,8 @@ MInput.propTypes = {
       PropTypes.number,
     ]),
   className: PropTypes.string,
+  readOnly: PropTypes.bool,
+  styleClass: PropTypes.string,
 };
 
 export default MInput;

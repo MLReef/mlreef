@@ -44,11 +44,6 @@ describe('test the frontend functionality', () => {
     wrapper = setup();
   });
 
-  test('assert that function validates properly', () => {
-    expect(wrapper.instance().validateProjectName('[wrong-name:project]')).toBe(false);
-    expect(wrapper.instance().validateProjectName('right-project-name')).toBe(true);
-  });
-
   test('assert that project name changes in the state', () => {
     const mockProjectName = 'new-project-name';
     const projectNameInput = wrapper.find('#projectTitle');

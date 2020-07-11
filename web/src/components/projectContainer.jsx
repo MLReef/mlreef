@@ -51,10 +51,14 @@ class ProjectContainer extends React.Component {
             ]}
           />
 
-          <ProjectInfo project={project} setIsForking={setIsForking} />
-          <p className="project-desc">
-            {description || 'No description'}
-          </p>
+          {viewName !== 'Settings' && (
+            <>
+              <ProjectInfo project={project} setIsForking={setIsForking} />
+              <p className="project-desc">
+                {description || 'No description'}
+              </p>
+            </>
+          )}
           <div className="feature-list">
             <Link to={`/my-projects/${id}/${defaultBranch}`} className="feature" id="data">
               Data
