@@ -1,5 +1,5 @@
 import {
-  INT, FLOAT, regExps, BOOL,
+  INT, FLOAT, regExps, BOOL, bannedCharsArray
 } from '../dataTypes';
 
 export default (value, dataType, required) => {
@@ -16,4 +16,19 @@ export default (value, dataType, required) => {
     default:
       return true;
   }
+};
+
+export const validateProjectName = (text) => {
+  let bannedCharCount = 0;
+
+  bannedCharsArray.forEach((char) => {
+    if (text.startsWith(char) || text.startsWith('.') || text.startsWith('-') || text.startsWith(' ')) {
+      return false;
+    }
+    if (text.includes(char)) {
+      bannedCharCount += 1;
+    }
+  });
+
+  return bannedCharCount === 0;
 };

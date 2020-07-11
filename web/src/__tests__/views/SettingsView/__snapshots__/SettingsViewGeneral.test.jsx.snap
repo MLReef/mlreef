@@ -1,0 +1,229 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`presence of basic user elements assert that snapshot matches 1`] = `
+<div
+  className="settings-view-general"
+>
+  <div
+    className="m-accordion"
+  >
+    <div
+      className="m-accordion_container"
+    >
+      <div
+        className="m-accordion-item"
+      >
+        <div
+          className="m-accordion-item_header"
+        >
+          <div
+            className="m-accordion-item_header_label"
+          >
+            <div
+              className="title"
+            >
+              Naming, topics, avatar
+            </div>
+            <div
+              className="sub-title"
+            >
+              Update your project name, topics and avatar
+            </div>
+          </div>
+          <div
+            className="m-accordion-item_header_action"
+          >
+            <button
+              className="btn btn-outline-dark btn-label-sm btn-sm active"
+              id="names-topics"
+              onClick={[Function]}
+              type="button"
+            >
+              Collapse
+            </button>
+          </div>
+        </div>
+        <div
+          className="m-accordion-item_content "
+        >
+          <form>
+            <div
+              className="row ml-0 mr-0 mb-3"
+            >
+              <div
+                className="m-input mt-2 pr-4 pl-3 pt-2 pb-2"
+              >
+                <div
+                  className="m-input_container"
+                >
+                  <label
+                    htmlFor="project-undefined"
+                  >
+                    Project name
+                  </label>
+                  <input
+                    className="m-input_input "
+                    id="project-undefined"
+                    onBlur={[Function]}
+                    onChange={[Function]}
+                    placeholder={null}
+                    readOnly={false}
+                    type="text"
+                  />
+                </div>
+              </div>
+              <div
+                className="m-input mt-2 pr-2 pl-3 pt-2 pb-2"
+              >
+                <div
+                  className="m-input_container"
+                >
+                  <label
+                    htmlFor="project-undefined"
+                  >
+                    Project ID
+                  </label>
+                  <input
+                    className="m-input_input bg-light"
+                    id="project-undefined"
+                    onBlur={[Function]}
+                    onChange={[Function]}
+                    placeholder={null}
+                    readOnly={true}
+                    type="text"
+                  />
+                </div>
+              </div>
+            </div>
+            <div
+              className="row ml-0 mr-0 mb-3"
+            >
+              <div
+                className="col-md-9 pb-2"
+              >
+                <div
+                  className="m-input mt-2 pt-2 pb-2 pr-3 pl-3"
+                >
+                  <div
+                    className="m-input_container"
+                  >
+                    <label
+                      htmlFor="tag"
+                    >
+                      Tags (optional)
+                    </label>
+                    <input
+                      className="m-input_input "
+                      id="tag"
+                      onBlur={[Function]}
+                      onChange={[Function]}
+                      placeholder={null}
+                      readOnly={false}
+                      type="text"
+                      value=""
+                    />
+                  </div>
+                </div>
+                <span
+                  className="mt-2 pt-2 pb-2 pr-3 pl-3 t-secondary"
+                >
+                  Separate tags with commas
+                </span>
+              </div>
+            </div>
+            <div
+              className="row ml-0 mr-0 mb-3"
+            >
+              <div
+                className="mt-2 pl-3 col-md-9"
+              >
+                <label
+                  htmlFor="proj-description"
+                >
+                  Project description (optional)
+                  <textarea
+                    id="proj-description"
+                    maxLength="250"
+                    name=""
+                    onChange={[Function]}
+                    rows="4"
+                  />
+                </label>
+              </div>
+            </div>
+            <div
+              className="ml-0 mr-0 mb-3"
+            >
+              <div
+                className="mb-0 pl-3"
+                style={
+                  Object {
+                    "float": "left",
+                  }
+                }
+              >
+                <div
+                  className="avatar-md"
+                >
+                  <div
+                    className="mr-3 bg-light emptyAvatar avatar-md"
+                  />
+                </div>
+              </div>
+              <h5
+                className="mt-0"
+              >
+                Project avatar
+              </h5>
+              <label
+                htmlFor="image-file"
+              >
+                <div
+                  className="mt-1 mb-2"
+                >
+                  <button
+                    className="btn btn-outline-dark"
+                    disabled={true}
+                    onClick={[Function]}
+                    type="button"
+                  >
+                    Choose File
+                  </button>
+                  <span
+                    className="ml-2"
+                  >
+                    No file chosen
+                  </span>
+                  <input
+                    accept=".*,image/*"
+                    className="d-none invisible"
+                    id="image-file"
+                    onChange={[Function]}
+                    type="file"
+                  />
+                </div>
+                <span
+                  className="mb-0 mt-3 t-secondary"
+                >
+                  The maximum file size allowed is 200Kb
+                </span>
+              </label>
+            </div>
+            <div
+              className="pl-3 mt-4 mb-4"
+            >
+              <button
+                className="btn disabled"
+                onClick={[Function]}
+                type="button"
+              >
+                Update Project Settings
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+`;

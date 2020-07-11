@@ -1,4 +1,5 @@
 import 'babel-polyfill';
+import { validateProjectName } from 'functions/validations';
 import { parseDecimal } from '../functions/dataParserHelpers';
 
 describe('Parse decimal numbers', () => {
@@ -27,5 +28,12 @@ describe('Parse decimal numbers', () => {
       .every((r) => r === true);
 
     expect(res).toBe(true);
+  });
+});
+
+describe('Validate project names', () => {
+  test('assert that function validates properly', () => {
+    expect(validateProjectName('[wrong-name:project]')).toBe(false);
+    expect(validateProjectName('right-project-name')).toBe(true);
   });
 });

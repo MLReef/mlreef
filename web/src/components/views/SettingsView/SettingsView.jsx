@@ -7,16 +7,17 @@ import ProjectContainer from 'components/projectContainer';
 import Navbar from 'components/navbar/navbar';
 import MSimpleTabs from 'components/ui/MSimpleTabs';
 import SettingsViewMembers from './SettingsViewMembers';
+import SettingsViewGeneral from './SettingsViewGeneral';
 
 const SettingsView = (props) => {
-  const { project } = props;
-
+  const { project, history } = props;
   return (
     <div>
       <Navbar />
       <ProjectContainer
         setIsForking={() => {}}
         activeFeature="settings"
+        viewName="Settings"
       />
       <div className="settings-view main-content">
         <div className="settings-view-content">
@@ -30,7 +31,19 @@ const SettingsView = (props) => {
             sections={[
               {
                 label: 'General',
-                content: (<div>TODO general</div>),
+                content: (
+                  <SettingsViewGeneral
+                    id={project.id}
+                    branch={project.defaultBranch}
+                    projectName={project.gitlabName}
+                    description={project.description}
+                    avatar={project.avatarUrl}
+                    ownerId={project.ownerId}
+                    projectId={project.backendId}
+                    history={history}
+                  />
+                ),
+                defaultActive: true,
               },
               {
                 label: 'Members',
@@ -40,7 +53,6 @@ const SettingsView = (props) => {
                     projectId={project.backendId}
                   />
                 ),
-                defaultActive: true,
               },
               {
                 label: 'Storage',
@@ -65,7 +77,11 @@ SettingsView.propTypes = {
   project: PropTypes.shape({
     backendId: PropTypes.string.isRequired,
     ownerId: PropTypes.string.isRequired,
+    avatarUrl: PropTypes.string,
+    gitlabName: PropTypes.string.isRequired,
+    description: PropTypes.string,
   }).isRequired,
+  history: PropTypes.shape({}).isRequired,
 };
 
 const mapStateToProps = (state) => ({

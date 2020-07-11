@@ -1,6 +1,6 @@
 @mixin collapsable {
   overflow-y: hidden;
-  max-height: 500px;
+  max-height: none;
   transition: max-height 0.25s ease-in;
 
   &.collapsed {
@@ -22,7 +22,7 @@
 }
 
 .m-accordion-item {
-  border-bottom: solid 1px var(--light);
+  border-bottom: solid 1px var(--almostWhite);
 
   &_header {
     display: flex;
@@ -30,14 +30,17 @@
 
     &_label {
       flex: 1;
+      padding-top: 0.5rem;
+      padding-bottom: 0.5rem;
 
       & .title {
         font-size: 110%;
         font-weight: bold;
         color: var(--dark);
+        margin-bottom: 0.5rem;
       }
 
-      & .subtitle {
+      & .sub-title {
         color: var(--dark);
       }
     }
