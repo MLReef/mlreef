@@ -22,3 +22,12 @@ export const buildHeaders = () => new Headers({
   Accept: 'application/json',
   Origin: 'http://localhost',
 });
+
+// return a remote defined route, or the current host.
+export const getDomain = () => {
+  const domain = process.env.REACT_APP_BACKEND_REROUTE;
+  const protocol = window?.location?.protocol;
+  const hostname = window?.location?.hostname;
+
+  return domain || `${protocol}//${hostname}`;
+}
