@@ -20,14 +20,12 @@ class YamlFileGeneratorTest {
     @Test
     fun `template is found`() {
         val generator = YamlFileGenerator()
-        generator.init()
         assertThat(generator).isNotNull()
     }
 
     @Test
     fun `input and output is not empty`() {
         val generator = YamlFileGenerator()
-        generator.init()
         assertThat(generator.input).isNotEmpty()
         assertThat(generator.output).isNotEmpty()
     }
@@ -35,11 +33,10 @@ class YamlFileGeneratorTest {
     @Test
     fun `template contains all necessary constants`() {
         val generator = YamlFileGenerator()
-        generator.init()
         assertContains(generator.input, YamlFileGenerator.EPF_TAG)
         assertContains(generator.input, YamlFileGenerator.CONF_EMAIL)
         assertContains(generator.input, YamlFileGenerator.CONF_NAME)
-        assertContains(generator.input, YamlFileGenerator.GITLAB_ROOT_URL)
+        //assertContains(generator.input, YamlFileGenerator.GITLAB_ROOT_URL)
         assertContains(generator.input, YamlFileGenerator.GITLAB_GROUP)
         assertContains(generator.input, YamlFileGenerator.GITLAB_PROJECT)
         assertContains(generator.input, YamlFileGenerator.SOURCE_BRANCH)
@@ -51,11 +48,10 @@ class YamlFileGeneratorTest {
     @Test
     fun `single strings get replaced`() {
         val generator = YamlFileGenerator()
-        generator.init()
         assertContains(generator.output, YamlFileGenerator.EPF_TAG)
         assertContains(generator.output, YamlFileGenerator.CONF_EMAIL)
         assertContains(generator.output, YamlFileGenerator.CONF_NAME)
-        assertContains(generator.output, YamlFileGenerator.GITLAB_ROOT_URL)
+        //assertContains(generator.output, YamlFileGenerator.GITLAB_ROOT_URL)
         assertContains(generator.output, YamlFileGenerator.GITLAB_GROUP)
         assertContains(generator.output, YamlFileGenerator.GITLAB_PROJECT)
         assertContains(generator.output, YamlFileGenerator.SOURCE_BRANCH)
@@ -80,7 +76,6 @@ class YamlFileGeneratorTest {
     @Test
     fun `PIPELINE_STRING is not replaced implicitly`() {
         val generator = YamlFileGenerator()
-        generator.init()
         assertContains(generator.output, YamlFileGenerator.PIPELINE_STRING)
         generator.replaceAllSingleStrings()
         assertContains(generator.output, YamlFileGenerator.PIPELINE_STRING)
@@ -89,16 +84,14 @@ class YamlFileGeneratorTest {
     @Test
     fun `PIPELINE_STRING is replaced explicitly`() {
         val generator = YamlFileGenerator()
-        generator.init()
         assertContains(generator.output, YamlFileGenerator.PIPELINE_STRING)
-        generator.replacePipeline(listOf())
+        generator.replacePipeline()
         assertMissing(generator.output, YamlFileGenerator.PIPELINE_STRING)
     }
 
     @Test
     fun `Pipelines are multiline`() {
         val generator = YamlFileGenerator()
-        generator.init()
         assertContains(generator.output, YamlFileGenerator.PIPELINE_STRING)
 
         val countLinesBefore = generator.output.count { it == '\n' }
@@ -116,7 +109,7 @@ class YamlFileGeneratorTest {
 
     @Test
     fun `Pipelines are indented correctly`() {
-        val generator = YamlFileGenerator().apply { init() }
+        val generator = YamlFileGenerator()
         assertThat(generator.output).contains(YamlFileGenerator.PIPELINE_STRING)
 
         generator.replacePipeline(listOf(
