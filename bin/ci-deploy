@@ -51,25 +51,26 @@ cat docker-compose.yml
 ### Prepare ssh connection
 while ! ssh-keyscan -H "$URL" >>~/.ssh/known_hosts; do echo "Trying again..."; sleep 5; done
 
-ssh -i $SSH_KEYFILE -o 'AddKeysToAgent yes' ubuntu@"${URL}" "if [ -e ${SSH_KEYFILE} ]; then sudo rm $SSH_KEYFILE; fi"
-scp -rpi $SSH_KEYFILE -o 'AddKeysToAgent yes' bin                 ubuntu@${URL}:/home/ubuntu/
-scp -rpi $SSH_KEYFILE -o 'AddKeysToAgent yes' docker-compose.yml  ubuntu@${URL}:/home/ubuntu/
+ssh -i   "$SSH_KEYFILE" -o 'AddKeysToAgent yes' ubuntu@"${URL}" "if [ -e ${SSH_KEYFILE} ]; then sudo rm $SSH_KEYFILE; fi"
+scp -rpi "$SSH_KEYFILE" -o 'AddKeysToAgent yes' bin                 ubuntu@"${URL}":/home/ubuntu/
+scp -rpi "$SSH_KEYFILE" -o 'AddKeysToAgent yes' docker-compose.yml  ubuntu@"${URL}":/home/ubuntu/
 
 echo "Wait for the machine to actually install docker"
 echo "Starting deploy script"
 echo "----------------------------------------"
-ssh -i $SSH_KEYFILE -o 'AddKeysToAgent yes' ubuntu@"${URL}" "
+ssh -i "$SSH_KEYFILE" -o 'AddKeysToAgent yes' ubuntu@"${URL}" "
   echo ${CI_REGISTRY_PASSWORD} | sudo docker login ${CI_REGISTRY} --username=${CI_REGISTRY_USER} --password-stdin
 "
 
 if [ "$GITLAB_ADMIN_TOKEN" = "" ]; then exit 19; fi
 
 ### Execute the actual deployment ###
-ssh -i $SSH_KEYFILE -o 'AddKeysToAgent yes' ubuntu@"${URL}" <<EOF
+ssh -i "$SSH_KEYFILE" -o 'AddKeysToAgent yes' ubuntu@"${URL}" <<EOF
   sudo docker images;
   sudo docker ps;
   sudo bin/install                                              \
     --instance $URL                                             \
+    --version $CI_COMMIT_REF_SLUG                               \
     --key $AWS_ACCESS_KEY_ID                                    \
     --secret $AWS_SECRET_ACCESS_KEY                             \
     --gitlab-admin-token $GITLAB_ADMIN_TOKEN                    \
