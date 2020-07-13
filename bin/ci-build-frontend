@@ -22,33 +22,10 @@ else
     exit 1
 fi
 
+docker build --tag "$GATEWAY_IMAGE_PATH" -f Dockerfile .  \
+ --build-arg CI_COMMIT_REF_SLUG="$CI_COMMIT_REF_SLUG"     \
+ --build-arg CI_PIPELINE_ID="$CI_PIPELINE_ID"             \
 
-# Use Gitlab's internal unique job ID as build version. This way versions can be traced back to a specific build.
-{
-  echo "SKIP_PREFLIGHT_CHECK=true"
-  echo "REACT_APP_VERSION=$CI_PIPELINE_ID"
-  echo "REACT_APP_BUILD_NUMBER=$CI_PIPELINE_ID"
-  echo "REACT_APP_BRANCH_NAME=$CI_COMMIT_REF_SLUG"
-  if [ "$CI_COMMIT_REF_SLUG" = "master" ]; then
-    echo "REACT_APP_NO_AUTH_REDIRECT=https://about.mlreef.com"
-  fi
-} > .env
-echo "### .env ###"
-cat .env
-echo "### .env ###"
-
-
-{
-  echo "Gitlab Pipeline $CI_PIPELINE_ID built on $(date +%Y-%m-%d\ %H:%M:%S)"
-  echo "build branch was $CI_COMMIT_REF_SLUG"
-  echo "$CI_PIPELINE_URL"
-} > build.info
-echo "### build.info ###"
-cat build.info
-echo "### build.info ###"
-
-
-docker build --tag "$GATEWAY_IMAGE_PATH" -f Dockerfile .
 
 # Get Test coverage report from build image
 docker create -ti --name dummy "$GATEWAY_IMAGE_PATH" bash
