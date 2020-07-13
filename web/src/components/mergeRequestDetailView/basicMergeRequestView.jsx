@@ -3,20 +3,36 @@ import { connect } from 'react-redux';
 import {
   number, shape, string, arrayOf,
 } from 'prop-types';
+import { toastr } from 'react-redux-toastr';
 import Checkbox from '@material-ui/core/Checkbox';
-import { Redirect } from 'react-router';
-
+import { Link, useHistory } from 'react-router-dom';
+import dayjs from 'dayjs';
+import relativeTime from 'dayjs/plugin/relativeTime';
+import { pluralize as plu } from 'functions/dataParserHelpers';
+import MSimpleTabs from 'components/ui/MSimpleTabs';
+import MParagraph from 'components/ui/MParagraph';
+import MButton from 'components/ui/MButton';
 import ChangesMrSection from 'components/changes-mr-section/ChangesMrSection';
 import Navbar from '../navbar/navbar';
 import CommitsList from '../commitsList';
 import mergeRequestAPI from '../../apis/mergeRequestApi';
 import BranchesApi from '../../apis/BranchesApi.ts';
-import { getTimeCreatedAgo } from '../../functions/dataParserHelpers';
 import ProjectContainer from '../projectContainer';
 import BlackBorderedButton from '../BlackBorderedButton';
 import './basicMR.css';
 
+dayjs.extend(relativeTime);
+
+const brApi = new BranchesApi();
+
 const BasicMergeRequestView = (props) => {
+  const {
+    selectedProject,
+    selectedProject: { id },
+    match: { params: { iid } },
+    users,
+  } = props;
+
   let status;
   let mergerName;
   let mergerAvatar;
@@ -24,20 +40,17 @@ const BasicMergeRequestView = (props) => {
   let closeName;
   let closeAvatar;
   let closedAt;
-  let editMR;
+
+  const history = useHistory();
 
   const [mrInfo, setMRInfo] = useState({});
   const [behind, setBehind] = useState(0);
   const [aheadCommits, setAheadCommits] = useState([]);
   const [diffs, setDiffs] = useState([]);
-  const [areChangesRequired, setAreChangesRequired] = useState(false);
   const [squash, setSquash] = useState(false);
   const [removeBranch, setRemoveBranch] = useState(false);
-  const [redirectMR, setRedirect] = useState(false);
+  const [waiting, setWaiting] = useState(false);
 
-  const {
-    selectedProject, selectedProject: { id }, match: { params: { iid } }, users,
-  } = props;
   const { title, description, state } = mrInfo;
 
   const projectName = selectedProject.name;
@@ -64,22 +77,26 @@ const BasicMergeRequestView = (props) => {
   };
 
   const acceptMergeRequest = () => {
+    setWaiting(true);
+
     mergeRequestAPI.acceptMergeRequest(id, iid, squash, removeBranch)
       .then(() => {
-        setRedirect(true);
+        toastr.success('Merged successfully:');
+        history.push(`/my-projects/${id}/merge-requests`);
       })
-      .catch((err) => err);
+      .catch((err) => {
+        toastr.error('Unable to merge', err.message);
+      })
+      .finally(() => { setWaiting(false); });
   };
 
   if (state === 'opened') {
     status = <span className="state-config opened">OPEN</span>;
-    editMR = <BlackBorderedButton className="left-margin" id="close-mr-btn" onClickHandler={handleButton} textContent="Close Merge Request" />;
   } else if (state === 'closed') {
     closeName = mrInfo.closed_by.name;
     closeAvatar = mrInfo.closed_by.avatar_url;
     closedAt = mrInfo.closed_at;
     status = <span className="state-config closed">CLOSED</span>;
-    editMR = <BlackBorderedButton className="left-margin" id="reopen-mr-btn" onClickHandler={handleButton} textContent="Reopen Merge Request" />;
   } else if (state === 'merged') {
     mergerName = mrInfo.merged_by.name;
     mergerAvatar = mrInfo.merged_by.avatar_url;
@@ -87,31 +104,77 @@ const BasicMergeRequestView = (props) => {
     status = <span className="state-config merged">MERGED</span>;
   }
 
+  // fetch merge request info
+  useEffect(
+    () => {
+      mergeRequestAPI.getSingleMR(id, iid)
+        .then(setMRInfo);
+    },
+    [id, iid],
+  );
+
+  // fetch changes
   useEffect(() => {
-    mergeRequestAPI.getSingleMR(id, iid)
-      .then((res) => {
-        setMRInfo(res);
-      })
-      .catch((err) => err);
-    const brApi = new BranchesApi();
-    brApi.compare(id, sourceBranch, targetBranch)
-      .then((res) => setBehind(res.commits)).catch((err) => err);
-    brApi.compare(id, targetBranch, sourceBranch)
-      .then((res) => {
-        setAheadCommits(res.commits);
-        setDiffs(res.diffs);
-      }).catch((err) => err);
-  }, [id, iid, targetBranch, sourceBranch, areChangesRequired]);
+    if (sourceBranch && targetBranch) {
+      brApi.compare(id, sourceBranch, targetBranch)
+        .then((res) => setBehind(res.commits));
+
+      brApi.compare(id, targetBranch, sourceBranch)
+        .then((res) => {
+          setAheadCommits(res.commits);
+          setDiffs(res.diffs);
+        });
+    }
+  }, [id, iid, sourceBranch, targetBranch]);
+
+  const actionButtons = (
+    <div style={{ height: 'max-content' }} className="modify-MR mr-0">
+      {state === 'opened' && (
+        <>
+          <button
+            type="button"
+            id="edit-btn"
+            disabled
+            className="btn btn-outline-dark"
+            onClick={() => history.push(`/my-projects/${id}/${sourceBranch}/new-merge-request`)}
+          >
+            Edit
+          </button>
+
+          <button
+            type="button"
+            id="close-mr-btn"
+            disabled
+            className="btn btn-outline-danger ml-3"
+            onClick={handleButton}
+          >
+            Close Merge Request
+          </button>
+        </>
+      )}
+
+      {state === 'closed' && (
+        <button
+          type="button"
+          id="reopen-mr-btn"
+          disabled
+          className="btn btn-outline-warning ml-3"
+          onClick={handleButton}
+        >
+          Reopen Merge Request
+        </button>
+      )}
+    </div>
+  );
 
   return (
     <>
-      {redirectMR && <Redirect to={`/my-projects/${id}/merge-requests/${iid}`} />}
       <Navbar />
       <ProjectContainer
         activeFeature="data"
         folders={[groupName, projectName, 'Data', 'Merge requests', iid]}
       />
-      <div className="main-content">
+      <div className="basic-merge-request-view-content main-content">
         <div style={{ display: 'flex', marginTop: '1em' }}>
           <div style={{ flex: '1' }}>
             <p style={{ marginBottom: '0' }}>
@@ -120,250 +183,190 @@ const BasicMergeRequestView = (props) => {
             </p>
             <div style={{ display: 'flex' }}>
               <p>
-                Opened
-                {' '}
-                {getTimeCreatedAgo(createdAt, new Date())}
-                {' '}
-                ago by
-                {' '}
+                {`Opened ${dayjs(createdAt).fromNow()} by`}
               </p>
-              <a className="my-auto d-flex" href={`/${name}`}>
+              <Link className="my-auto d-flex" to={`/${name}`}>
                 <img className="avatar-circle ml-2 mr-1" width="24" src={avatarUrl} alt="avatar" />
                 <span className="my-auto">
-                  <b>
-                    {name}
-                  </b>
+                  <b>{name}</b>
                 </span>
-              </a>
+              </Link>
             </div>
           </div>
-          <div style={{ height: 'max-content' }} className="modify-MR mr-0">
-            <BlackBorderedButton
-              id="edit-btn"
-              className="left-margin"
-              onClickHandler={() => <Redirect to={`/my-projects/${id}/${sourceBranch}/new-merge-request`} />}
-              textContent="Edit"
-            />
-            {editMR}
-          </div>
+
+          {actionButtons}
+
         </div>
         <br />
-        <div className="tabset">
-          <input
-            type="radio"
-            name="tabset"
-            id="tab1"
-            aria-controls="overview"
-            defaultChecked
-          />
-          <label htmlFor="tab1">Overview</label>
-
-          <input
-            type="radio"
-            name="tabset"
-            id="tab2"
-            aria-controls="commits"
-          />
-          <label htmlFor="tab2">
-            {aheadCommits.length}
-            {' '}
-            Commits
-          </label>
-
-          <input
-            id="tab3"
-            type="radio"
-            name="tabset"
-            aria-controls="changes"
-            onClick={() => {
-              if (!areChangesRequired) {
-                setAreChangesRequired(!areChangesRequired);
-              }
-            }}
-          />
-          <label htmlFor="tab3">Changes</label>
-
-          <div className="tab-panels">
-            <section id="overview" className="tab-panel">
-              {description && (
-              <div style={{ padding: '1em 2em' }}>
-                {description}
-                <p className="faded-style">
-                  Edited
-                  {' '}
-                  {getTimeCreatedAgo(updatedAt, new Date())}
-                  {' '}
-                  ago
-                </p>
-              </div>
-              )}
-              <div className="request-to-merge">
-                <b>Request to merge</b>
-                {'  '}
-                {sourceBranch}
-                {'  '}
-                <b>into </b>
-                {'  '}
-                {targetBranch}
-                {state === 'opened' && (
-                <p>
-                  The source branch is
-                  {' '}
-                  <b className="addition">
-                    {aheadCommits.length}
-                    {' '}
-                    commits ahead
-                  </b>
-                  {' '}
-                  and
-                  <b className="deleted">
-                    {' '}
-                    {behind.length}
-                    {' '}
-                    commits behind
-                    {' '}
-                  </b>
-                   target branch.
-                </p>
-                )}
-              </div>
-              <div className="vertical" />
-              <div className="state-box">
-
-                {state === 'merged'
-                  && (
-                  <div>
-                    <h4 style={{ display: 'flex' }}>
-                      <b>
-                        Merged by
-                      </b>
-                      <div style={{ margin: '0 4px 0 2px' }}>
-                        <img className="avatar-style" width="16" src={mergerAvatar} alt="avatar" />
-                      </div>
-                      {mergerName}
-                      {' '}
-                      {getTimeCreatedAgo(mergedAt, new Date())}
-                      {' '}
-                      ago
-                      <button className="revert-merge" type="button">Revert</button>
-                    </h4>
-                    <section>
-                      <p>
-                          The changes were not merged into
-                        {' '}
-                        {targetBranch}
-                      </p>
-                      <p>
-                        {(mrInfo.force_remove_source_branch || mrInfo.should_remove_source_branch)
-                      && (
-                        <span>The source branch has been deleted</span>
-                      ) }
-                      </p>
-                    </section>
+        <MSimpleTabs
+          className="basic-merge-request-view-tabs"
+          border
+          sections={[
+            {
+              label: 'Overview',
+              content: (
+                <>
+                  {description && (
+                  <div style={{ padding: '1em 2em' }}>
+                    <MParagraph text={description} />
+                    <p className="faded-style">
+                      {`Edited ${dayjs(updatedAt).fromNow()}`}
+                    </p>
                   </div>
                   )}
-
-                {state === 'closed'
-                  && (
-                    <div>
-                      <h4 style={{ display: 'flex' }}>
-                        Closed by
-                        <div style={{ margin: '0 4px 0 2px' }}>
-                          <img className="avatar-style" width="16" src={closeAvatar} alt="avatar" />
-                        </div>
-                        {closeName}
-                        {' '}
-                        {getTimeCreatedAgo(closedAt, new Date())}
-                        {' '}
-                        ago
-                      </h4>
-                      <section>
-                        <p>
-                          The changes were not merged into
-                          {' '}
-                          {targetBranch}
-                        </p>
-                      </section>
-                    </div>
-                  )}
-
-                {state === 'opened'
-                    && (
-                      <>
-                        <div style={{ display: 'flex' }}>
-                          <button 
-                            className="merge-action btn btn-primary" 
-                            type="button" 
-                            disabled={hasConflicts} 
-                            onClick={acceptMergeRequest}>
-                            Merge
-                          </button>
-                          {!hasConflicts ? (
-                            <>
-                              <div style={{ marginLeft: '1em' }}>
-                                <Checkbox
-                                  id="delete"
-                                  color="primary"
-                                  inputProps={{
-                                    'aria-label': 'primary checkbox',
-                                  }}
-                                  checked={removeBranch}
-                                  onChange={removeSourceBranch}
-                                />
-                                <span>Delete source branch </span>
-                              </div>
-                              <div style={{ marginLeft: '1em' }}>
-                                <Checkbox
-                                  id="delete"
-                                  color="primary"
-                                  inputProps={{
-                                    'aria-label': 'primary checkbox',
-                                  }}
-                                  checked={squash}
-                                  onChange={squashCommits}
-                                />
-                                <span> Squash Commits </span>
-                              </div>
-                            </>
-                          )
-                            : (
-                              <section>
-                                <p>
-                                  There are merge conflicts&nbsp;
-                                  <BlackBorderedButton id="resolve-btn" onClickHandler={handleButton} textContent="Resolve Conflicts" />
-                                </p>
-                              </section>
-                            )}
-                        </div>
-                        {squash && (
-                        <div>
-                          <p>
-                            {aheadCommits.length}
-                            commits and 1 merge commit will be added into
-                            {' '}
-                            {targetBranch}
-                          </p>
-                        </div>
-                        )}
-                      </>
+                  <div className="request-to-merge">
+                    <b>Request to merge </b>
+                    {decodeURIComponent(sourceBranch)}
+                    <b> into </b>
+                    {` ${targetBranch}`}
+                    {state === 'opened' && (
+                    <p>
+                      {'The source branch is '}
+                      <b className="addition">
+                        {`${aheadCommits.length} commit${plu(aheadCommits.length)} ahead`}
+                      </b>
+                      {' and'}
+                      <b className="deleted">
+                        {` ${behind.length} commit${plu(behind.lengt)} behind`}
+                      </b>
+                      {' target branch.'}
+                    </p>
                     )}
-              </div>
-            </section>
-            <section id="commits" className="tab-panel">
-              {aheadCommits.length > 0 && (
+                  </div>
+                  <div className="vertical" />
+                  <div className="state-box">
+
+                    {state === 'merged'
+                      && (
+                      <div>
+                        <h4 style={{ display: 'flex' }}>
+                          <b>
+                            Merged by
+                          </b>
+                          <div style={{ margin: '0 4px 0 2px' }}>
+                            <img className="avatar-style" width="16" src={mergerAvatar} alt="avatar" />
+                          </div>
+                          {`${mergerName} ${dayjs(mergedAt).fromNow()}`}
+                          <button className="revert-merge" type="button">
+                            Revert
+                          </button>
+                        </h4>
+                        <section>
+                          <p>
+                            {'The changes were merged into '}
+                            <b>{targetBranch}</b>
+                          </p>
+                          <p>
+                            {(mrInfo.force_remove_source_branch || mrInfo.should_remove_source_branch)
+                          && (
+                            <span>The source branch has been deleted</span>
+                          ) }
+                          </p>
+                        </section>
+                      </div>
+                      )}
+
+                    {state === 'closed'
+                      && (
+                        <div>
+                          <h4 style={{ display: 'flex' }}>
+                            Closed by
+                            <div style={{ margin: '0 4px 0 2px' }}>
+                              <img className="avatar-style" width="16" src={closeAvatar} alt="avatar" />
+                            </div>
+                            {`${closeName} ${dayjs(closedAt).fromNow()}`}
+                          </h4>
+                          <section>
+                            <p>
+                              {'The changes were not merged into '}
+                              <b>{targetBranch}</b>
+                            </p>
+                          </section>
+                        </div>
+                      )}
+
+                    {state === 'opened'
+                        && (
+                          <>
+                            <div style={{ display: 'flex' }}>
+                              <MButton
+                                className="merge-action btn btn-primary my-auto mr-3"
+                                disabled={hasConflicts}
+                                onClick={acceptMergeRequest}
+                                waiting={waiting}
+                                label="Merge"
+                              />
+                              {!hasConflicts ? (
+                                <>
+                                  <div className="labeled-checkbox">
+                                    <Checkbox
+                                      id="delete"
+                                      color="primary"
+                                      inputProps={{
+                                        'aria-label': 'primary checkbox',
+                                      }}
+                                      checked={removeBranch}
+                                      onChange={removeSourceBranch}
+                                    />
+                                    <span>Delete source branch </span>
+                                  </div>
+                                  <div className="labeled-checkbox">
+                                    <Checkbox
+                                      id="delete"
+                                      color="primary"
+                                      inputProps={{
+                                        'aria-label': 'primary checkbox',
+                                      }}
+                                      checked={squash}
+                                      onChange={squashCommits}
+                                    />
+                                    <span> Squash Commits </span>
+                                  </div>
+                                </>
+                              )
+                                : (
+                                  <section>
+                                    <p>
+                                      There are merge conflicts&nbsp;
+                                      <BlackBorderedButton id="resolve-btn" onClickHandler={handleButton} textContent="Resolve Conflicts" />
+                                    </p>
+                                  </section>
+                                )}
+                            </div>
+                            {!hasConflicts && (
+                              <div>
+                                <p>
+                                  {squash ? '1 commit' : `${aheadCommits.length} commit${plu(aheadCommits.length)}`}
+                                  {' and 1 merge commit will be added into '}
+                                  <b>{targetBranch}</b>
+                                </p>
+                              </div>
+                            )}
+                          </>
+                        )}
+                  </div>
+                </>
+              ),
+            },
+            {
+              label: `${aheadCommits.length} Commit${plu(aheadCommits.length)}`,
+              content: aheadCommits.length > 0 && (
                 <CommitsList
                   commits={aheadCommits}
                   users={users}
                   projectId={selectedProject.id}
                   changesNumber={diffs.length}
                 />
-              )}
-            </section>
-            <section id="changes" className="tab-panel">
-              {areChangesRequired && <ChangesMrSection projectId={id} aheadCommits={aheadCommits} />}
-            </section>
-          </div>
-        </div>
+              ),
+            },
+            {
+              label: `${diffs.length} Change${plu(diffs.length)}`,
+              content: (
+                <ChangesMrSection projectId={id} aheadCommits={aheadCommits} />
+              ),
+            },
+          ]}
+        />
       </div>
     </>
   );

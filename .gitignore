@@ -11,7 +11,8 @@
 ### Terraform ###
 **/.terraform/
 # This file is used by React (CRA) to override locally the public .env
-web/.env.
+web/.env.local
+
 docker-compose.local.yml
 local.env
 local.env.bak

@@ -1,71 +1,77 @@
-import React, { Component, createRef } from 'react';
-import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
+import React from 'react';
+import * as PropTypes from 'prop-types';
+// monaco-editor is needed to language highlighting
+import 'monaco-editor';
+import { MonacoDiffEditor } from 'react-monaco-editor';
+import { getLanguageByExt } from 'functions/dataParserHelpers';
 import './codeDiffSection.css';
-import { shape, string } from 'prop-types';
 
-class CodeDiffSection extends Component {
-  containerRef = createRef();
+const CodeDiffSection = (props) => {
+  const {
+    fileInfo: {
+      fileName,
+      sizeDeleted,
+      sizeAdded,
+    },
+    original,
+    modified,
+    onReset,
+  } = props;
 
-  componentDidMount() {
-    this.createDiffEditor();
-  }
+  const options = {
+    readOnly: true,
+  };
 
-  createDiffEditor() {
-    const { fileToRender } = this.props;
-    // TODO: replace text/plain by the real language
-    const originalModel = monaco.editor.createModel(
-      fileToRender.previousVersionFileParsed || '', 'text/plain',
-    );
-    const modifiedModel = monaco.editor.createModel(fileToRender.nextVersionFileParsed || '', 'text/plain');
+  const ext = fileName.split('.').pop();
 
-    const diffEditor = monaco.editor.createDiffEditor(
-      this.containerRef.current,
-      { readOnly: true },
-    );
-    diffEditor.setModel({
-      original: originalModel,
-      modified: modifiedModel,
-    });
-  }
+  const checkIntegrity = ({ editor }) => {
+    const models = editor.getModels();
 
-  render() {
-    const {
-      fileToRender: {
-        fileName,
-        sizeDeleted,
-        sizeAdded,
-      },
-    } = this.props;
-    return (
-      <div className="diff-container">
-        <div className="file-name-section">
-          <span>{fileName}</span>
-          <span>
-            {'-'}
-            {Math.floor(sizeDeleted)}
-            bytes
-          </span>
-          <span>
-            {'+'}
-            {Math.floor(sizeAdded)}
-            bytes
-          </span>
-        </div>
-        <div
-          className="diff-section"
-          ref={this.containerRef}
-        />
+    if (!models.length) {
+      setTimeout(() => {
+        onReset();
+      }, 1000);
+    }
+  };
+
+  return (
+    <div className="diff-container">
+      <div className="file-name-section">
+        <span>{fileName}</span>
+        <span>
+          {`- ${Math.floor(sizeDeleted)} bytes`}
+        </span>
+        <span>
+          {`+ ${Math.floor(sizeAdded)} bytes`}
+        </span>
       </div>
-    );
-  }
-}
+      <MonacoDiffEditor
+        height="600"
+        language={getLanguageByExt(ext)}
+        original={original}
+        value={modified}
+        editorWillMount={checkIntegrity}
+        options={options}
+      />
+    </div>
+  );
+};
+
+CodeDiffSection.defaultProps = {
+  original: '',
+  modified: '',
+  onReset: () => {},
+};
 
 CodeDiffSection.propTypes = {
-  fileToRender: shape({
-    fileName: string.isRequired,
-    previousVersionFileParsed: string,
-    nextVersionFileParsed: string,
+  fileInfo: PropTypes.shape({
+    fileName: PropTypes.string.isRequired,
+    sizeDeleted: PropTypes.number.isRequired,
+    sizeAdded: PropTypes.number.isRequired,
   }).isRequired,
+  original: PropTypes.string,
+  modified: PropTypes.string,
+  onReset: PropTypes.func,
 };
 
 export default CodeDiffSection;

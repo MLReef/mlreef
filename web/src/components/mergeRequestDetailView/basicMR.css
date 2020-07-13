@@ -8,26 +8,24 @@
     margin-right: 0.5em;
 }
 
+.basic-merge-request-view-tabs {
+  min-height: 50vh;
+}
 
-.tabset > input[type="radio"] {
-    position: absolute;
-    left: -200vw;
-  }
-  
-  .tabset .tab-panel {
-    display: none;
-  }
-  
-  .tabset > input:first-child:checked ~ .tab-panels > .tab-panel:first-child,
-  .tabset > input:nth-child(3):checked ~ .tab-panels > .tab-panel:nth-child(2),
-  .tabset > input:nth-child(5):checked ~ .tab-panels > .tab-panel:nth-child(3){
-    display: block;
-  }
-  
+.basic-merge-request-view-tabs .simple-tabs-container {
+  min-height: inherit;
+}
+
+.basic-merge-request-view-content .labeled-checkbox {
+  display: flex;
+  align-items: center;
+  margin-left: 1rem;
+}
+
   /*
    Styling
   */
-  
+
   .tabset > label {
     position: relative;
     display: inline-block;
@@ -37,13 +35,13 @@
     cursor: pointer;
     font-weight: 600;
   }
-  
+
   .tabset > input:checked + label {
     border-color: #ccc;
     border-bottom: 1px solid #fff;
     margin-bottom: -1px;
   }
-  
+
   .tab-panel {
     padding: 30px 0;
     border-top: 1px solid #ccc;
@@ -66,20 +64,20 @@
   }
 
   .state-box{
-    border: 1px solid #e5e5e5; 
-    padding: 1em 2em; 
+    border: 1px solid #e5e5e5;
+    padding: 1em 2em;
     height: auto;
   }
 
   .request-to-merge{
-    border: 1px solid #e5e5e5; 
-    padding: 1em 2em; 
+    border: 1px solid #e5e5e5;
+    padding: 1em 2em;
     height: auto;
   }
 
   .state-config{
-    font-weight: 600; 
-    font-size: 14px; 
+    font-weight: 600;
+    font-size: 14px;
     margin-right: 1em;
   }
 
@@ -89,16 +87,16 @@
   }
 
   .avatar-style{
-    border-radius: 50%; 
-    border: 1px solid #f5f5f5; 
+    border-radius: 50%;
+    border: 1px solid #f5f5f5;
     border-color: rgba(0,0,0,0.1);
   }
 
   .revert-merge{
-    right: 0; 
-    border-radius: 4px; 
-    margin: 0 4em; 
-    border: 1px solid #fc9403; 
-    color: #de7e00; 
-    background-color: #fff; 
+    right: 0;
+    border-radius: 4px;
+    margin: 0 4em;
+    border: 1px solid #fc9403;
+    color: #de7e00;
+    background-color: #fff;
   }
