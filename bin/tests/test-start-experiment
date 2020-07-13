@@ -15,12 +15,12 @@ set -u    # error on usage of undefined variables
 
 
 if [ -z ${TOKEN+x} ]; then
-  echo "ERROR: The test 'start-experiment' needs the environment variable TOKEN."
+  echo >&2 "ERROR: The test 'start-experiment' needs the environment variable TOKEN."
   exit 1
 fi
 
 if [ -z ${PROJECT_ID+x} ]; then
-  echo "ERROR: The test 'start-experiment' needs the environment variable PROJECT_ID."
+  echo >&2 "ERROR: The test 'start-experiment' needs the environment variable PROJECT_ID."
   exit 1
 fi
 
@@ -28,7 +28,7 @@ echo "Using PRIVATE-TOKEN: $TOKEN"
 
 #Create Experiment via MLReef API
 curl "http://$URL/api/v1/data-projects/$PROJECT_ID/experiments"  \
-  --request POST --fail                         \
+  --request POST --fail --show-error            \
   --header "PRIVATE-TOKEN: $TOKEN"              \
   --header "Content-Type: application/json"     \
   --header "Accept: application/json"           \
@@ -56,22 +56,35 @@ curl "http://$URL/api/v1/data-projects/$PROJECT_ID/experiments"  \
       }
     }'                                          \
     | jq                                        \
-    | tee out/test/create-experiment.response.tmp
+    | tee out/test/create-experiment.response.json
 
-jq < out/test/create-experiment.response.tmp
+jq < out/test/create-experiment.response.json
 
-jq -r ".id" < out/test/create-experiment.response.tmp > out/test/experiment-id.tmp
+jq -r ".id" < out/test/create-experiment.response.json > out/test/experiment-id.tmp
 export EXPERIMENT_ID=$(cat out/test/experiment-id.tmp)
+if [ "$EXPERIMENT_ID" = "" ]; then
+  echo >&2 "ERROR: EXPERIMENT_ID is empty."
+  cat out/test/out/test/create-experiment.response.json
+  cat out/test/experiment-id.tmp
+  exit 1
+fi
 
-jq -r ".target_branch" < out/test/create-experiment.response.tmp > out/test/experiment-branch.tmp
+
+jq -r ".target_branch" < out/test/create-experiment.response.json > out/test/experiment-branch.tmp
 export EXPERIMENT_BRANCH=$(cat out/test/experiment-branch.tmp)
+if [ "$EXPERIMENT_BRANCH" = "" ]; then
+  echo >&2 "ERROR: EXPERIMENT_BRANCH is empty."
+  cat out/test/out/test/create-experiment.response.json
+  cat out/test/experiment-branch.tmp
+  exit 1
+fi
+
 
 #Start Experiment via MLReef API
 curl "http://$URL/api/v1/data-projects/$PROJECT_ID/experiments/$EXPERIMENT_ID/start"  \
-  --request POST --fail                         \
+  --request POST --fail --show-error            \
   --header "PRIVATE-TOKEN: $TOKEN"              \
   --header "Content-Type: application/json"     \
   --header "Accept: application/json"           \
     | jq                                        \
-    | tee out/test/start-experiment.response.tmp
-
+    | tee out/test/start-experiment.response.json

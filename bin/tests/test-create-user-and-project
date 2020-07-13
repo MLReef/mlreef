@@ -20,17 +20,17 @@ export PASSWORD="password"
 log "Username is $USER with password "
 export TOKEN #declare separately to be able to gather return value
 curl "http://$URL/api/v1/auth/register" -X POST \
-    --silent --fail                             \
-    --header 'Content-Type: application/json'   \
-    --header 'Accept: application/json'         \
-    --data '{
-      "username" : "'$USER'",
-      "email" : "'$USER'@example.com",
-      "password" : "'$PASSWORD'",
-      "name" : "Smoke Test User '$USER'"
-      }'                                        \
-      | jq                                      \
-      | tee out/test/register.response.tmp
+  --request POST --fail --show-error            \
+  --header 'Content-Type: application/json'   \
+  --header 'Accept: application/json'         \
+  --data '{
+    "username" : "'$USER'",
+    "email" : "'$USER'@example.com",
+    "password" : "'$PASSWORD'",
+    "name" : "Smoke Test User '$USER'"
+    }'                                        \
+    | jq                                      \
+    | tee out/test/register.response.tmp
 
 jq -r ".token" < out/test/register.response.tmp > out/test/token.tmp
 export TOKEN="$(cat out/test/token.tmp)"
@@ -38,26 +38,39 @@ export TOKEN="$(cat out/test/token.tmp)"
 log "Registering exited with $? and produced token $TOKEN"
 
 curl "http://$URL/api/v1/data-projects" -X POST \
-    --silent --fail                             \
-    --header "PRIVATE-TOKEN: $TOKEN"            \
-    --header "Content-Type: application/json"   \
-    --header "Accept: application/json"         \
-    --data '{
-      "slug" : "test-project",
-      "namespace" : "'$USER'",
-      "name" : "Test project '$USER'",
-      "description" : "description",
-      "initialize_with_readme" : true,
-      "visibility" : "PUBLIC"
-    }'                                          \
-    | jq                                        \
-    | tee out/test/create-data-project.response.tmp
+  --request POST --fail --show-error            \
+  --header "PRIVATE-TOKEN: $TOKEN"            \
+  --header "Content-Type: application/json"   \
+  --header "Accept: application/json"         \
+  --data '{
+    "slug" : "test-project",
+    "namespace" : "'$USER'",
+    "name" : "Test project '$USER'",
+    "description" : "description",
+    "initialize_with_readme" : true,
+    "visibility" : "PUBLIC"
+  }'                                          \
+  | jq                                        \
+  | tee out/test/create-data-project.response.json
 
-jq < out/test/create-data-project.response.tmp
+jq < out/test/create-data-project.response.json
 
-jq -r ".id" < out/test/create-data-project.response.tmp > out/test/project-id.tmp
+jq -r ".id" < out/test/create-data-project.response.json > out/test/project-id.tmp
 export PROJECT_ID=$(cat out/test/project-id.tmp)
 echo "Project_ID=$PROJECT_ID"
+if [ "$PROJECT_ID" = "" ]; then
+  echo >&2 "ERROR: PROJECT_ID is empty."
+  cat out/test/create-data-project.response.json
+  cat out/test/project-id.tmp
+  exit 1
+fi
 
-jq -r ".gitlab_id" < out/test/create-data-project.response.tmp > out/test/gitlab-project-id.tmp
+
+jq -r ".gitlab_id" < out/test/create-data-project.response.json > out/test/gitlab-project-id.tmp
 export GITLAB_PROJECT_ID=$(cat out/test/gitlab-project-id.tmp)
+if [ "$GITLAB_PROJECT_ID" = "" ]; then
+  echo >&2 "ERROR: GITLAB_PROJECT_ID is empty."
+  cat out/test/create-data-project.response.json
+  cat out/test/gitlab-project-id.tmp
+  exit 1
+fi
