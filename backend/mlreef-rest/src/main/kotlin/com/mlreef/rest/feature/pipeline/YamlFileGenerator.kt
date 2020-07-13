@@ -10,10 +10,9 @@ import java.io.BufferedReader
 import java.io.InputStreamReader
 import java.util.stream.Collectors
 
-class YamlFileGenerator(val epfImageTag: String = "latest") {
-
-    var input: String = ""
-    var output: String = ""
+internal class YamlFileGenerator(
+    private val epfImageTag: String = "latest"
+) {
 
     companion object {
         const val EPF_TAG = "%EPF_TAG%"
@@ -34,7 +33,7 @@ class YamlFileGenerator(val epfImageTag: String = "latest") {
             return list.map { writeInstance(it, inputFile) }
         }
 
-        fun writeInstance(instance: DataProcessorInstance, inputFile: String): String {
+        private fun writeInstance(instance: DataProcessorInstance, inputFile: String): String {
             // /epf/pipelines
             //  let line = `- python ${path}/${dataOperation.command}.py --images-path#directoriesAndFiles`;
             return try {
@@ -49,17 +48,19 @@ class YamlFileGenerator(val epfImageTag: String = "latest") {
             }
         }
 
-        fun writeParameters(parameterInstances: List<ParameterInstance>): String {
+        private fun writeParameters(parameterInstances: List<ParameterInstance>): String {
             return parameterInstances.joinToString(" ") { writeParameter(it) }
         }
 
-        fun writeParameter(it: ParameterInstance): String {
+        private fun writeParameter(it: ParameterInstance): String {
             return "--${it.name} ${it.value}"
         }
     }
 
-    fun init(): YamlFileGenerator {
-        input = ""
+    val input: String
+    var output: String
+
+    init {
         output = ""
 
         val classPathResource = ClassPathResource("mlreef-file-template.yml")
@@ -70,9 +71,9 @@ class YamlFileGenerator(val epfImageTag: String = "latest") {
             input = lines.collect(Collectors.joining(NEWLINE))
         } catch (e: Exception) {
             e.printStackTrace()
+            throw e
         }
         output = input
-        return this
     }
 
     fun generateYamlFile(
@@ -88,8 +89,6 @@ class YamlFileGenerator(val epfImageTag: String = "latest") {
         inputFileList: List<String>,
         inputFile: String
     ): String {
-        init()
-
         val inputFileListString = inputFileList.joinToString(",")
         replaceAllSingleStrings(
             epfTag = epfImageTag,
@@ -110,7 +109,7 @@ class YamlFileGenerator(val epfImageTag: String = "latest") {
         return output
     }
 
-    fun replacePipeline(list: List<DataProcessorInstance>, inputFile: String = ""): YamlFileGenerator {
+    fun replacePipeline(list: List<DataProcessorInstance> = listOf(), inputFile: String = ""): YamlFileGenerator {
         val pipelineStrings = writeInstances(list, inputFile)
         val indexOf = input.indexOf("- git add .")
         val lineBegin = input.indexOf(NEWLINE, indexOf)

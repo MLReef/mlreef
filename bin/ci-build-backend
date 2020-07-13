@@ -11,13 +11,6 @@ set -u    # error on usage of undefined variables
 ########################################
 
 
-ls -al backend/mlreef-rest/build/asciidoc/**
-ls -al backend/mlreef-rest/build/libs/*
-ls -al backend/mlreef-rest/build/dependency/*
-ls -al backend/mlreef-rest/build/reports/jacoco/test
-ls -al backend/mlreef-rest/build/reports/tests/
-
-
 # change directory to the epf folder
 cd backend/mlreef-rest
 
