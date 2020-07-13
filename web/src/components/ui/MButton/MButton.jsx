@@ -11,6 +11,7 @@ const MButton = (props) => {
     children,
     label,
     waiting,
+    disabled,
     noDisable,
     onClick,
   } = props;
@@ -34,7 +35,7 @@ const MButton = (props) => {
     <button
       type={type}
       onClick={onClick}
-      disabled={!noDisable && waiting}
+      disabled={disabled || (!noDisable && waiting)}
       className={computedClasses}
     >
       {label || children}
@@ -49,6 +50,7 @@ MButton.defaultProps = {
   onClick: () => {},
   children: '',
   waiting: false,
+  disabled: false,
   noDisable: false,
 };
 
@@ -57,6 +59,7 @@ MButton.propTypes = {
   label: PropTypes.string,
   className: PropTypes.string,
   waiting: PropTypes.bool,
+  disabled: PropTypes.bool,
   noDisable: PropTypes.bool,
   onClick: PropTypes.func,
   children: PropTypes.oneOfType([

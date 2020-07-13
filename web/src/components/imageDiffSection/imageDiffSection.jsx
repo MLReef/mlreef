@@ -1,29 +1,29 @@
 import React, { useState } from 'react';
-import { any, shape, string } from 'prop-types';
+import { shape, string } from 'prop-types';
 import { Link } from 'react-router-dom';
 import Base64ToArrayBuffer from 'base64-arraybuffer';
 import './ImageDiffSection.scss';
 
-const ImageDiffSection = ({ imageFile }) => {
+const ImageDiffSection = ({ fileInfo, original, modified }) => {
   const [widthPreviousFile, setWidthPreviousFile] = useState(0);
   const [heightPreviousFile, setHeightPreviousFile] = useState(0);
   const [widthNextFile, setWidthNextFile] = useState(0);
   const [heightNextFile, setHeightNextFile] = useState(0);
   const [collapsed, setCollapsed] = useState(false);
   const previousFile = new Image();
-  previousFile.src = `data:image/png;base64,${Base64ToArrayBuffer.encode(imageFile.previousVersionFileParsed)}`;
+  previousFile.src = `data:image/png;base64,${Base64ToArrayBuffer.encode(original)}`;
   previousFile.onload = () => {
     setWidthPreviousFile(previousFile.width);
     setHeightPreviousFile(previousFile.height);
   };
   const nextFile = new Image();
-  nextFile.src = `data:image/png;base64,${Base64ToArrayBuffer.encode(imageFile.nextVersionFileParsed)}`;
+  nextFile.src = `data:image/png;base64,${Base64ToArrayBuffer.encode(modified)}`;
   nextFile.onload = () => {
     setWidthNextFile(nextFile.width);
     setHeightNextFile(nextFile.height);
   };
-  const areBothVersionsTruty = imageFile.nextVersionFileParsed
-    && imageFile.previousVersionFileParsed;
+  const areBothVersionsTruty = modified
+    && original;
   const maxWidth = areBothVersionsTruty ? '420px' : '800px';
   const imageStyles = {
     maxWidth,
@@ -33,17 +33,17 @@ const ImageDiffSection = ({ imageFile }) => {
     <div
       className="image-diff-section"
       id="image-div-section-container"
-      key={imageFile.fileName}
+      key={fileInfo.fileName}
     >
       <div className="commit-per-date">
         <div className="pipeline-modify-details">
           <div className="basic-information-image">
-            <span id="image-modified-name">{imageFile.fileName}</span>
+            <span id="image-modified-name">{fileInfo.fileName}</span>
             <span>
-              {imageFile.nextVersionFileParsed ? '+' : '-'}
-              {Math.floor((imageFile.nextVersionFileParsed
-                ? imageFile.nextVersionFileParsed.byteLength
-                : imageFile.previousVersionFileParsed.byteLength) / 1000000)}
+              {modified ? '+' : '-'}
+              {Math.floor((modified
+                ? modified.byteLength
+                : original.byteLength) / 1000000)}
               MB
             </span>
           </div>
@@ -64,7 +64,7 @@ const ImageDiffSection = ({ imageFile }) => {
           </div>
         </div>
         <div className={`image-display ${collapsed ? 'collapsed' : ''}`}>
-          {imageFile.previousVersionFileParsed && (
+          {original && (
           <div className="image-container m-3">
             <span className="t-center t-bold">Source file</span>
             <img
@@ -83,7 +83,7 @@ const ImageDiffSection = ({ imageFile }) => {
             </div>
           </div>
           )}
-          {imageFile.nextVersionFileParsed && (
+          {modified && (
           <div className="image-container m-3">
             <span className="t-center t-bold t-success">Added</span>
             <img
@@ -108,12 +108,17 @@ const ImageDiffSection = ({ imageFile }) => {
   );
 };
 
+ImageDiffSection.defaultProps = {
+  original: '',
+  modified: '',
+};
+
 ImageDiffSection.propTypes = {
-  imageFile: shape({
+  fileInfo: shape({
     fileName: string.isRequired,
-    nextVersionFileParsed: any,
-    previousVersionFileParsed: any,
   }).isRequired,
+  original: string,
+  modified: string,
 };
 
 export default ImageDiffSection;

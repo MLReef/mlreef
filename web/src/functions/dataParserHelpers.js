@@ -143,3 +143,23 @@ export const parseDate = (date) => {
 
   return `${y}-${padNumber(m)}-${padNumber(d)}`;
 };
+
+export const pluralize = (num) => num !== 1 ? 's' : '';
+
+export const compareArrayBy = (key) => (originals, items) => {
+  if (originals.length !== items.length) return false;
+
+  const mappedOriginals = originals.map((item) => item[key]);
+  const mappedItems = items.map((item) => item[key]);
+
+  return !mappedItems.some((item, i) => item !== mappedOriginals[i]);
+};
+
+export const getLanguageByExt = (ext) => {
+  if (ext === 'yml' || ext === 'yaml') return 'yaml';
+  if (ext === 'json') return 'json';
+  if (ext === 'js') return 'javascript';
+  if (ext === 'py' || ext === 'pyc') return 'python';
+
+  return 'text';
+};

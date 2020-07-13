@@ -1,23 +1,65 @@
 import React, { Component } from 'react';
 import { Base64 } from 'js-base64';
+import * as PropTypes from 'prop-types';
 import Base64ToArrayBuffer from 'base64-arraybuffer';
-import { isImageFormat } from 'functions/dataParserHelpers';
+import { isImageFormat, compareArrayBy } from 'functions/dataParserHelpers';
 import ImageDiffSection from 'components/imageDiffSection/imageDiffSection';
 import CodeDiffSection from '../code-diff-section/codeDiffSection';
 import { getFileDifferences } from '../../functions/apiCalls';
 import CommitsApi from '../../apis/CommitsApi';
 
 class ChangesMrSection extends Component {
+  mounted = false // to avoid setState when component is not mounted.
+
+  reseted = false // set true when hover. It's important for avoid issue.
+
   constructor(props) {
     super(props);
 
     this.state = {
       filesToRender: [],
+      reseting: false,
     };
+
+    this.fetchDiffs = this.fetchDiffs.bind(this);
+    this.resetCodeDiff = this.resetCodeDiff.bind(this);
+    this.resetOnce = this.resetOnce.bind(this);
+    this.mounted = true;
   }
 
   componentDidMount() {
+    this.fetchDiffs(this.props);
+  }
+
+  componentDidUpdate(prevProps) {
     const { aheadCommits, projectId } = this.props;
+
+    // fetch if props changed
+    if (!compareArrayBy('id')(aheadCommits, prevProps.aheadCommits)) {
+      this.fetchDiffs({ aheadCommits, projectId });
+    }
+  }
+
+  componentWillUnmount() {
+    this.mounted = false;
+  }
+
+  resetCodeDiff() {
+    setTimeout(() => {
+      this.setState({ reseting: false });
+    });
+    this.setState({ reseting: true });
+  }
+
+  // fired one time on mouse hover
+  resetOnce() {
+    if (!this.reseted) {
+      this.reseted = true;
+      this.resetCodeDiff();
+    }
+  }
+
+  fetchDiffs({ projectId, aheadCommits }) {
     aheadCommits.forEach(async (commit, index) => {
       const { id: commitId } = commit;
       const commitDiffs = await CommitsApi.getCommitDiff(projectId, commitId);
@@ -58,27 +100,53 @@ class ChangesMrSection extends Component {
 
       const { filesToRender: filesInState } = this.state;
       const finalArrayOfFiles = [...filesInState, file[0]];
-      this.setState({ filesToRender: finalArrayOfFiles });
+
+      if (this.mounted) {
+        this.setState((s) => ({ ...s, filesToRender: finalArrayOfFiles }));
+      }
     });
   }
 
   render() {
-    const { filesToRender } = this.state;
+    const { filesToRender, reseting } = this.state;
+
     return (
-      <>
-        {filesToRender.map((fileToRender) => {
+      <div onMouseEnter={this.resetOnce} className="changes-mr-section">
+        <button
+          type="button"
+          label="reload"
+          className="d-block ml-auto btn btn-icon btn-basic-secondary fa fa-redo-alt"
+          onClick={this.resetCodeDiff}
+        />
+        {filesToRender.length > 0 && filesToRender.map((fileToRender) => {
           if (isImageFormat(fileToRender.fileName)) {
             return (
-              <ImageDiffSection imageFile={fileToRender} key={filesToRender.id} />
+              <ImageDiffSection
+                key={`i-${fileToRender.id}`}
+                fileInfo={fileToRender}
+                original={fileToRender.previousVersionFileParsed}
+                modified={fileToRender.nextVersionFileParsed}
+              />
             );
           }
-          return (
-            <CodeDiffSection fileToRender={fileToRender} key={filesToRender.id} />
+          return !reseting && (
+            <CodeDiffSection
+              key={`c-${fileToRender.id}`}
+              fileInfo={fileToRender}
+              original={fileToRender.previousVersionFileParsed}
+              modified={fileToRender.nextVersionFileParsed}
+              onReset={this.handle}
+            />
           );
         })}
-      </>
+      </div>
     );
   }
 }
+
+ChangesMrSection.propTypes = {
+  aheadCommits: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
+  projectId: PropTypes.number.isRequired,
+};
 
 export default ChangesMrSection;

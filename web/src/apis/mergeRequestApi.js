@@ -71,8 +71,7 @@ export default class MergeRequestAPI {
       },
     ));
     if (!response.ok) {
-      Promise.reject(response);
-      toastr.error('Error', 'Server error while updating the merge request');
+      return Promise.reject(await response.json());
     }
     return response.json();
   }

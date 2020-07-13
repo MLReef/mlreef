@@ -2,6 +2,7 @@ import React from 'react';
 import {
   arrayOf, number, shape, string,
 } from 'prop-types';
+import { pluralize } from 'functions/dataParserHelpers';
 import { CommitDiv } from './commits-view/commitsView';
 
 const CommitsList = ({
@@ -41,23 +42,17 @@ const CommitsList = ({
       >
         <p>
           <b>
-            {commits.length}
-            {' '}
-            commit(s)
+            {`${commits.length} commit${pluralize(commits.length)}`}
           </b>
         </p>
         <p>
           <b>
-            {changesNumber}
-            {' '}
-            file(s) changed
+            {`${changesNumber} file${pluralize(changesNumber)} changed`}
           </b>
         </p>
         <p>
           <b>
-            {extractColaborators(commits)}
-            {' '}
-            contributors
+            {`${extractColaborators(commits)} contributor${pluralize(extractColaborators(commits))}`}
           </b>
         </p>
       </div>
@@ -66,9 +61,7 @@ const CommitsList = ({
           <div key={index.toString()} className="commit-per-date">
             <div className="commit-header">
               <p>
-                  Commits on
-                {' '}
-                {commit}
+                {` Commits on ${commit}`}
               </p>
             </div>
             {commits.map((item) => {

@@ -56,14 +56,17 @@ const SettingsView = (props) => {
               },
               {
                 label: 'Storage',
+                disabled: true,
                 content: (<div>TODO storage</div>),
               },
               {
                 label: 'Resources',
+                disabled: true,
                 content: (<div>TODO Resources</div>),
               },
               {
                 label: 'Audit Events',
+                disabled: true,
                 content: (<div>TODO Audit Events</div>),
               },
             ]}
