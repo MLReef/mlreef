@@ -15,12 +15,12 @@ set -u    # error on usage of undefined variables
 
 
 if [ -z ${TOKEN+x} ]; then
-  echo "ERROR: The test 'verify-mlreef' needs the environment variable TOKEN."
+  echo >&2 "ERROR: The test 'verify-mlreef' needs the environment variable TOKEN."
   exit 1
 fi
 
 if [ -z ${GITLAB_PROJECT_ID+x} ]; then
-  echo "ERROR: The test 'verify-mlreef' needs the environment variable GITLAB_PROJECT_ID."
+  echo >&2 "ERROR: The test 'verify-mlreef' needs the environment variable GITLAB_PROJECT_ID."
   exit 1
 fi
 
@@ -32,10 +32,10 @@ echo "Targeting download branch $EXPERIMENT_BRANCH"
 
 curl "http://$URL/api/v4/projects/$GITLAB_PROJECT_ID/repository/files/.mlreef.yml?ref=$EXPERIMENT_BRANCH" \
   --request GET --fail                          \
-  | jq > out/test/download-mlreef-yml.response.tmp
+  | jq > out/test/download-mlreef-yml.response.json
 
 
-jq -r ".content" < out/test/download-mlreef-yml.response.tmp \
+jq -r ".content" < out/test/download-mlreef-yml.response.json \
   | base64 -d    > out/test/download-mlreef.yml
 
 
@@ -57,18 +57,22 @@ TEST="api/v1/epf/experiments/"
 if grep -q "$TEST" out/test/download-mlreef.yml; then
   echo "SUCCESS: found $TEST in mlreef.yml"
 else
-  echo "FAIL: could not find $TEST in mlreef.yml"
+  echo >&2 "FAIL: could not find $TEST in mlreef.yml"
   FAIL="true"
 fi
 
-cat out/test/download-mlreef.yml
-cat out/test/download-mlreef-yml.response.tmp
 
 if [ $FAIL = "true" ]; then
+  echo ""
+  echo ""
+  cat out/test/download-mlreef.yml
+  echo ""
+  cat out/test/download-mlreef-yml.response.json
+  echo ""
   echo "FAIL: See above for details"
   exit 1
 fi
 
 
-echo "SUCESS: All Tests Succeeded"
+echo "SUCCESS: All Tests Succeeded"
 

@@ -15,11 +15,13 @@ set -u    # error on usage of undefined variables
 
 if [ -z ${TOKEN+x} ]; then
   echo "ERROR: The test 'start-pipeline-in-gitlab' needs the environment variable TOKEN."
+  echo "You might need to run the test: create-user-and-project"
   exit 1
 fi
 
 if [ -z ${GITLAB_PROJECT_ID+x} ]; then
   echo "ERROR: The test 'start-pipeline-in-gitlab' needs the environment variable GITLAB_PROJECT_ID."
+  echo "You might need to run the test: create-user-and-project"
   exit 1
 fi
 
@@ -41,4 +43,4 @@ curl "http://$URL/api/v4/projects/$GITLAB_PROJECT_ID/repository/files/.mlreef.ym
     }
     '                                           \
     | jq                                        \
-    | tee out/test/create-gitlab-pipeline.response.tmp
+    | tee out/test/create-gitlab-pipeline.response.json
