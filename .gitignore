@@ -6,16 +6,15 @@
 !**/.idea/codeStyles/codeStyleConfig.xml
 !**/.idea/codeStyles/Project.xml
 .editorconfig
-*.iml
 *.ipr
 
+### Terraform ###
+**/.terraform/
 # This file is used by React (CRA) to override locally the public .env
 web/.env.
-local
+docker-compose.local.yml
 local.env
 local.env.bak
-
-
 
 
 # Created by https://www.gitignore.io/api/osx,java,sass,unity,xcode,macos,maven,linux,matlab,gradle,kotlin,ionic3,android,angular,windows,eclipse,java-web,intellij,reactnative,androidstudio,xcodeinjection
@@ -706,9 +705,3 @@ iOSInjectionProject/
 /gradle/wrapper/gradle-wrapper.properties
 /gradlew
 /gradlew.bat
-
-### Terraform ###
-**/.terraform/
-/local.env
-last-runner-registration-token.txt
-local.env.bak

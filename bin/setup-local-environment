@@ -1,0 +1,90 @@
+#!/bin/bash
+# change to the repository root folder via the scripts known location
+cd "$(dirname "$0")"/..
+. bin/includes/ci-environment
+########################################
+set -x    # output all commands
+set -e    # exit on immediately on every error
+set -u    # error on usage of undefined variables
+########################################
+
+
+while [ -n "${1:+x}" ]; do
+  case "$1" in --force)
+    echo "Cleaning local docker context"
+    echo "Stopping and removing MLreef's docker containers"
+    touch local.env
+    docker-compose rm --force --stop -v
+    docker rm -f gateway       || true
+    docker rm -f frontend      || true
+    docker rm -f backend       || true
+    docker rm -f mlreefdb      || true
+    docker rm -f gitlab        || true
+    docker rm -f gitlab-runner || true
+    docker rm -f redis         || true
+    ;;
+  --skip-frontend-build)
+    FRONTEND_BUILD=false
+    echo "Skipping fontend build"
+    ;;
+  --skip-backend-build)
+    BACKEND_BUILD=false
+    echo "Skipping backend build"
+    ;;
+  --skip-tests)
+    TEST=false
+    ;;
+  --version)
+    VERSION=$2
+    shift
+    ;;
+  *)
+    echo >&2 "ERROR: Option $1 not recognized"
+    echo "Use -f or --force to stop and remove _ALL_ docker containers"
+    exit 1
+    ;;
+  esac
+  shift
+done
+
+if [ -z "${GITLAB_SECRETS_SECRET_KEY_BASE:+x}" ]; then
+  export GITLAB_SECRETS_SECRET_KEY_BASE=secret11111111112222222222333333333344444444445555555555666666666612345
+fi
+
+if [ -z "${GITLAB_SECRETS_OTP_KEY_BASE:+x}" ]; then
+  export GITLAB_SECRETS_OTP_KEY_BASE=secret11111111112222222222333333333344444444445555555555666666666612345
+fi
+
+if [ -z "${GITLAB_SECRETS_DB_KEY_BASE:+x}" ]; then
+  export GITLAB_SECRETS_DB_KEY_BASE=secret11111111112222222222333333333344444444445555555555666666666612345
+fi
+
+if [ "$GITLAB_ADMIN_TOKEN" = "" ]; then
+  export GITLAB_ADMIN_TOKEN=local-api-token
+fi
+
+VERSION=${VERSION:-$CI_COMMIT_REF_SLUG} # If No Version is set Default to $CI_COMMIT_REF_SLUG as version
+
+q
+
+if [ "${FRONTEND_BUILD:-true}" = "true" ]; then
+    bin/ci-build-frontend
+fi
+if [ "${BACKEND_BUILD:-true}" = "true" ]; then
+    bin/ci-compile-backend
+    bin/ci-build-backend
+fi
+if [ "${EPF_BUILD:-true}" = "true" ]; then
+    bin/ci-build-epf
+fi
+
+
+bin/install                                 \
+  --gitlab-admin-token $GITLAB_ADMIN_TOKEN  \
+  --instance localhost                      \
+  --version "${VERSION:-develop}"
+
+
+if [ "${TEST:-true}" = "true" ]; then
+  bin/ci-test-end2end-experiment
+fi

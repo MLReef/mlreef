@@ -71,6 +71,11 @@ while [ -n "$1" ]; do
     echo "Using AWS_ACCESS_KEY_ID $AWS_SECRET_ACCESS_KEY"
     shift
     ;;
+  -v | --version)
+    VERSION="$2"
+    echo "Using AWS_ACCESS_KEY_ID $AWS_SECRET_ACCESS_KEY"
+    shift
+    ;;
   *)
     echo "Option $1 not recognized"
     exit 1
@@ -83,28 +88,32 @@ done
 # Checking input parameters
 #
 if [ "$INSTANCE" = "" ]; then
-  echo "Missing instance url. Use the -i or --instance option"
+  echo "Missing instance url. Use the option -i or --instance option"
   exit 1
 fi
 if [ "$GITLAB_ADMIN_TOKEN" = "" ]; then
-  echo "Missing GITLAB_ADMIN_TOKEN. Use the -ga or --gitlab-admin-token option"
+  echo "Missing GITLAB_ADMIN_TOKEN. Use the option -ga or --gitlab-admin-token option"
   exit 1
 fi
 if [ "$GITLAB_SECRETS_SECRET_KEY_BASE" = "" ]; then
-  echo "Missing GITLAB_SECRETS_SECRET_KEY_BASE. Use the -gb or --gitlab-secrets-key-base"
+  echo "Missing GITLAB_SECRETS_SECRET_KEY_BASE. Use the option -gb or --gitlab-secrets-key-base"
   exit 1
 fi
 if [ "$GITLAB_SECRETS_OTP_KEY_BASE" = "" ]; then
-  echo "Missing GITLAB_SECRETS_OTP_KEY_BASE. Use the -go or --gitlab-opt-key-base"
+  echo "Missing GITLAB_SECRETS_OTP_KEY_BASE. Use the option -go or --gitlab-opt-key-base"
   exit 1
 fi
 if [ "$GITLAB_SECRETS_DB_KEY_BASE" = "" ]; then
-  echo "Missing GITLAB_SECRETS_DB_KEY_BASE. Use the -gd or --gitlab-db-key-base"
+  echo "Missing GITLAB_SECRETS_DB_KEY_BASE. Use the option -gd or --gitlab-db-key-base"
+  exit 1
+fi
+if [ "$VERSION" = "" ]; then
+  echo "Missing VERSION. Use the option -v or --version"
   exit 1
 fi
 
 # If we are working locally, we do not want to interface with EC2
-if [ $INSTANCE != "localhost" ]; then
+if [ "$INSTANCE" != "localhost" ]; then
   if [ "$AWS_ACCESS_KEY_ID" = "" ]; then
     echo "Missing AWS_ACCESS_KEY_ID. Use the -k or --key option"
     exit 1
@@ -113,7 +122,6 @@ if [ $INSTANCE != "localhost" ]; then
     echo "Missing AWS_SECRET_ACCESS_KEY. Use the -s or --secret option"
     exit 1
   fi
-
 fi
 echo "Successfully parsed command line parameters"
 
@@ -123,34 +131,59 @@ log "### Starting Deployment"
 ####
 log "Writing Docker's env file: local.env"
 touch local.env
-{
-  echo "# Automatically added by the deployment pipeline .gitlab-ci-deploy.yml"
-  echo "# Only Used during deployment for gitlab configuration and runner configuration"
-  echo "# The gitlab server always serves port 80 locally. By setting the GITLAB_PORT variable,"
-  echo "# we let gitlab know, that the container's port 80 is mapped differently from the outside."
-  echo "GITLAB_PORT=$GITLAB_PORT"
-  echo ""
-  echo "# Used by the backend to connect to gitlab"
-  echo "# The hostname 'gitlab' is created by the local docker network"
-  echo "# The port used here must be the same as GITLAB_PORT"
-  echo "GITLAB_ROOT_URL=http://gitlab:$GITLAB_PORT"
-  echo ""
-  echo "# The GITLAB_ADMIN_TOKEN is shared between Gitlab and the Backend"
-  echo "GITLAB_ADMIN_TOKEN=$GITLAB_ADMIN_TOKEN"
-  echo ""
-  echo "# These secrets are used by Gitlab to encrypt passwords and tokens"
-  echo "# Changing them will invalidate the GITLAB_ADMIN_TOKEN as well as all other tokens"
-  echo GITLAB_SECRETS_SECRET_KEY_BASE=$GITLAB_SECRETS_SECRET_KEY_BASE
-  echo GITLAB_SECRETS_OTP_KEY_BASE=$GITLAB_SECRETS_OTP_KEY_BASE
-  echo GITLAB_SECRETS_DB_KEY_BASE=$GITLAB_SECRETS_DB_KEY_BASE
+cat > local.env << HEREDOC
+##################################################
+# Welcome to the MLReef Docker Environment File
+# This configuration file contains environment variables
+# for the proper functioning of MLReef
+##################################################
 
-} >local.env
+# The INSTANCE variable represents the full URL to the EC2 instance MLReef is running on
+# e.g: 'ec2-3-126-88-77.eu-central-1.compute.amazonaws.com'
+# This Information is necessary so that e.g. the runners know where to find the backend
+INSTANCE=$INSTANCE
+
+# Only Used during deployment for gitlab configuration and runner configuration
+# The gitlab server always serves port 80 locally. By setting the GITLAB_PORT variable,
+# we let gitlab know, that the container's port 80 is mapped differently from the outside.
+GITLAB_PORT=$GITLAB_PORT
+
+# Used by the backend to connect to gitlab
+# The hostname 'gitlab' is created by the local docker network
+# The port used here must be the same as GITLAB_PORT
+GITLAB_ROOT_URL=http://gitlab:$GITLAB_PORT
+
+# The GITLAB_ADMIN_TOKEN is shared between Gitlab and the Backend
+GITLAB_ADMIN_TOKEN=$GITLAB_ADMIN_TOKEN
+
+# These secrets are used by Gitlab to encrypt passwords and tokens
+# Changing them will invalidate the GITLAB_ADMIN_TOKEN as well as all other tokens
+GITLAB_SECRETS_SECRET_KEY_BASE=$GITLAB_SECRETS_SECRET_KEY_BASE
+GITLAB_SECRETS_OTP_KEY_BASE=$GITLAB_SECRETS_OTP_KEY_BASE
+GITLAB_SECRETS_DB_KEY_BASE=$GITLAB_SECRETS_DB_KEY_BASE
+
+EPF_IMAGE_TAG=$VERSION
+
+HEREDOC
+
+
+# rewrite docker compose file:
+sed "s/:develop/:$VERSION/" < docker-compose.yml > docker-compose.local.yml
+# Activate (uncomment) specific lines in the docker-compose file
+sed -i "s~#CI_ACTIVATE~~"                                       docker-compose.local.yml
+# remove tagged lines in the docker-compose file
+sed -i "/#CI_DELETE_LINE/d"                                     docker-compose.local.yml
+cat docker-compose.local.yml
+
+
 
 ####
 log "Starting Deployment"
-docker-compose pull
+if [ "$INSTANCE" != "localhost" ]; then
+  docker-compose -f docker-compose.local.yml pull
+fi
 log "Stopping service gateway backend mlreefdb"
-docker-compose stop gateway backend mlreefdb
+docker-compose -f docker-compose.local.yml stop gateway backend mlreefdb
 log "Starting Deployment"
 
 ####
@@ -165,21 +198,21 @@ cat local.env
 #
 log "1. Starting Gitlab Omnibus"
 # the container startup wait is necessary to let gitlab initialise the database
-log "docker-compose up --detach gitlab gitlab-runner"
-docker-compose up --detach gitlab gitlab-runner
+log "docker-compose up -f docker-compose.local.yml --detach gitlab gitlab-runner"
+docker-compose -f docker-compose.local.yml up --detach gitlab gitlab-runner
 waitUntilGitlabAvailable
-#
-#
-# Step 2 Configure Gitlabs port and external URL
-#
-#
 
+#
+#
+# Step 2 Configure Gitlab's port and external URL
+#
+#
 if [ "$(checkGitlabPort)" = "302" ]; then
   log "2. Found Gitlab at expected port $GITLAB_PORT. Printing relevant parts of /etc/gitlab/gitlab.rb"
   docker exec gitlab sh -c 'cat /etc/gitlab/gitlab.rb | grep external_url\ \"'
 elif [ "$(checkGitlab80)" = "302" ]; then
   log "Found Gitlab at port 80. Reconfiguring Gitlab for port $GITLAB_PORT"
-  if [ $INSTANCE != "localhost" ]; then
+  if [ "$INSTANCE" != "localhost" ]; then
     log "2. Configure Gitlab external_url 'http://$INSTANCE:$GITLAB_PORT'"
     echo "external_url \"http://${INSTANCE}:${GITLAB_PORT}\"" | docker exec -i gitlab sh -c "cat >> /etc/gitlab/gitlab.rb"
   else
@@ -260,9 +293,9 @@ echo "Gitlab RUNNER_REGISTRATION_TOKEN=$RUNNER_REGISTRATION_TOKEN"
 # Step 5 Register Gitlab Runner
 #
 #
-if [ $INSTANCE != "localhost" ]; then
+if [ "$INSTANCE" != "localhost" ]; then
   log "5. Configuring Gitlab Runner for cloud environment"
-  log "1. unregister current runners"
+#  log "5.1 unregister current runners"
 #  docker exec -t gitlab-runner sh -c "$(cat << EOM
 #    cat /etc/gitlab-runner/config.toml            \
 #      | grep "token ="                            \
@@ -340,7 +373,7 @@ until [ "$(checkGitlabPort /api/v4/projects)" = "200" ]; do
 done
 log "Expecting code 200; received: $(checkGitlabPort /api/v4/projects)"
 log "6. Start other services"
-docker-compose up --detach
+docker-compose -f docker-compose.local.yml up --detach
 sleep 30 # Add an additional sleep in the end to improve user experience; So that Docker is started when the script ends
 
 #

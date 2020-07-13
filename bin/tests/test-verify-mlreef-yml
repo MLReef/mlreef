@@ -41,15 +41,34 @@ jq -r ".content" < out/test/download-mlreef-yml.response.tmp \
 
 ### Verify contents of created mlreef.yml
 ###
+FAIL="false"
+
+### mlreef.yml contains correct docker image
+TEST="registry.gitlab.com/mlreef/mlreef/epf:$CI_COMMIT_REF_SLUG"
+if grep -q "$TEST" out/test/download-mlreef.yml; then
+  echo "SUCCESS: found $TEST in mlreef.yml"
+else
+  echo "FAIL: could not find $TEST in mlreef.yml"
+  FAIL="true"
+fi
+
 ### mlreef.yml contains instance $URL
 TEST="api/v1/epf/experiments/"
 if grep -q "$TEST" out/test/download-mlreef.yml; then
   echo "SUCCESS: found $TEST in mlreef.yml"
 else
   echo "FAIL: could not find $TEST in mlreef.yml"
-  cat out/test/download-mlreef-yml.response.tmp
-  cat out/test/download-mlreef.yml
+  FAIL="true"
+fi
+
+cat out/test/download-mlreef.yml
+cat out/test/download-mlreef-yml.response.tmp
+
+if [ $FAIL = "true" ]; then
+  echo "FAIL: See above for details"
   exit 1
 fi
 
+
+echo "SUCESS: All Tests Succeeded"
 

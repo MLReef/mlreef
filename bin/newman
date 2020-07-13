@@ -3,16 +3,16 @@
 # Thereby creating a predictable environment for development, building, and debugging
 
 # This image must correspond with the base image in web/Dockerfile
-IMAGE="node:10.19.0-alpine"
-COMMAND="npm"
+IMAGE="registry.gitlab.com/systemkern/s5:latest-newman"
+COMMAND="newman"
 
 export DOCKER_OPTS="${DOCKER_OPTS--it}"
 
-exec docker run --rm $DOCKER_OPTS                     \
+docker run --rm \$DOCKER_OPTS   \
   --network bridge                                    \
   --volume  /var/run/docker.sock:/var/run/docker.sock \
   --volume  \$HOME:/root                              \
   --volume  \$PWD:\$PWD                               \
   --workdir \$PWD                                     \
-  --publish 3000:3000                                 \
   "$IMAGE" "$COMMAND" "$@"
+

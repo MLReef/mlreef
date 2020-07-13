@@ -15,11 +15,6 @@ alias ci-exec-s5="docker run --rm \$DOCKER_OPTS       \
 "
 
 alias ci-exec-newman="docker run --rm \$DOCKER_OPTS   \
-  --env AWS_DEFAULT_REGION=\$AWS_DEFAULT_REGION       \
-  --env AWS_ACCESS_KEY_ID=\$AWS_ACCESS_KEY_ID         \
-  --env AWS_SECRET_ACCESS_KEY=\$AWS_SECRET_ACCESS_KEY \
-  --env CI_REGISTRY_USER=\$CI_REGISTRY_USER           \
-  --env CI_REGISTRY_PASSWORD=\$CI_REGISTRY_PASSWORD   \
   --volume \$HOME:/root                               \
   --volume \$PWD:/workdir                             \
   --workdir /workdir                                  \
@@ -27,11 +22,6 @@ alias ci-exec-newman="docker run --rm \$DOCKER_OPTS   \
 "
 
 alias ci-exec-java="docker run --rm \$DOCKER_OPTS     \
-  --env AWS_DEFAULT_REGION=\$AWS_DEFAULT_REGION       \
-  --env AWS_ACCESS_KEY_ID=\$AWS_ACCESS_KEY_ID         \
-  --env AWS_SECRET_ACCESS_KEY=\$AWS_SECRET_ACCESS_KEY \
-  --env CI_REGISTRY_USER=\$CI_REGISTRY_USER           \
-  --env CI_REGISTRY_PASSWORD=\$CI_REGISTRY_PASSWORD   \
   --volume /var/run/docker.sock:/var/run/docker.sock  \
   --volume \$HOME:/root                               \
   --volume \$PWD:\$PWD                                \
