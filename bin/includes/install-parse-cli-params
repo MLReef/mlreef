@@ -1,0 +1,105 @@
+#!/bin/sh
+
+while [ -n "$1" ]; do
+  case "$1" in
+  -ga | --gitlab-admin-token)
+    export GITLAB_ADMIN_TOKEN="$2"
+    echo "Using GITLAB_ADMIN_TOKEN $GITLAB_ADMIN_TOKEN"
+    shift
+    ;;
+  -gb | --gitlab-secrets-key-base)
+    export GITLAB_SECRETS_SECRET_KEY_BASE="$2"
+    echo "Using GITLAB_ADMIN_TOKEN $GITLAB_SECRETS_SECRET_KEY_BASE"
+    shift
+    ;;
+  -go | --gitlab-opt-key-base)
+    export GITLAB_SECRETS_OTP_KEY_BASE="$2"
+    echo "Using GITLAB_ADMIN_TOKEN $GITLAB_SECRETS_OTP_KEY_BASE"
+    shift
+    ;;
+  -gd | --gitlab-db-key-base)
+    export GITLAB_SECRETS_DB_KEY_BASE="$2"
+    echo "Using GITLAB_ADMIN_TOKEN $GITLAB_SECRETS_DB_KEY_BASE"
+    shift
+    ;;
+  -i | --instance)
+    export INSTANCE="$2"
+    echo "Connecting to instance $INSTANCE"
+    shift
+    ;;
+  -k | --key)
+    export AWS_ACCESS_KEY_ID="$2"
+    echo "Using AWS_ACCESS_KEY_ID $AWS_ACCESS_KEY_ID"
+    shift
+    ;;
+  -n | --name)
+    export EC2_INSTANCE_NAME="$2"
+    echo "Using EC2_INSTANCE_NAME $EC2_INSTANCE_NAME"
+    shift
+    ;;
+  -s | --secret)
+    export AWS_SECRET_ACCESS_KEY="$2"
+    echo "Using AWS_ACCESS_KEY_ID $AWS_SECRET_ACCESS_KEY"
+    shift
+    ;;
+  --skip-backend-deployment)
+    export SKIP_BACKEND_DEPLOYMENT="true"
+    echo "Skipping Backend deployment in docker-compose up"
+  ;;
+  --skip-gateway-deployment)
+    export SKIP_GATEWAY_DEPLOYMENT="true"
+    echo "Skipping Backend gateway (nginx+frontend) in docker-compose up"
+  ;;
+  -v | --version)
+    export VERSION="$2"
+    echo "Using AWS_ACCESS_KEY_ID $AWS_SECRET_ACCESS_KEY"
+    shift
+    ;;
+  *)
+    echo "Option $1 not recognized"
+    exit 1
+    ;;
+  esac
+  shift
+done
+
+#
+# Checking input parameters
+#
+if [ "$INSTANCE" = "" ]; then
+  echo "Missing instance url. Use the option -i or --instance option"
+  exit 1
+fi
+if [ "$GITLAB_ADMIN_TOKEN" = "" ]; then
+  echo "Missing GITLAB_ADMIN_TOKEN. Use the option -ga or --gitlab-admin-token option"
+  exit 1
+fi
+if [ "$GITLAB_SECRETS_SECRET_KEY_BASE" = "" ]; then
+  echo "Missing GITLAB_SECRETS_SECRET_KEY_BASE. Use the option -gb or --gitlab-secrets-key-base"
+  exit 1
+fi
+if [ "$GITLAB_SECRETS_OTP_KEY_BASE" = "" ]; then
+  echo "Missing GITLAB_SECRETS_OTP_KEY_BASE. Use the option -go or --gitlab-opt-key-base"
+  exit 1
+fi
+if [ "$GITLAB_SECRETS_DB_KEY_BASE" = "" ]; then
+  echo "Missing GITLAB_SECRETS_DB_KEY_BASE. Use the option -gd or --gitlab-db-key-base"
+  exit 1
+fi
+if [ "$VERSION" = "" ]; then
+  echo "Missing VERSION. Use the option -v or --version"
+  exit 1
+fi
+
+# If we are working locally, we do not want to interface with EC2
+if [ "$INSTANCE" != "localhost" ]; then
+  if [ "$AWS_ACCESS_KEY_ID" = "" ]; then
+    echo "Missing AWS_ACCESS_KEY_ID. Use the -k or --key option"
+    exit 1
+  fi
+  if [ "$AWS_SECRET_ACCESS_KEY" = "" ]; then
+    echo "Missing AWS_SECRET_ACCESS_KEY. Use the -s or --secret option"
+    exit 1
+  fi
+fi
+echo "Successfully parsed command line parameters"

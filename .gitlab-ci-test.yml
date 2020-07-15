@@ -29,7 +29,7 @@ postman test suite:
   script: bin/ci-smoke-tests
 
 
-backend integration test:
+backend integration tests:
   allow_failure: true
   stage: test
   only:

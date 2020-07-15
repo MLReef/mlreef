@@ -1,0 +1,16 @@
+#!/bin/bash
+# change to the repository root folder via the scripts known location
+cd "$(dirname "$0")"/..
+########################################
+set -x    # output all commands
+set -e    # exit on immediately on every error
+set -u    # error on usage of undefined variables
+########################################
+
+
+exec bin/setup-local-environment  \
+  --skip-frontend-build           \
+  --skip-backend-build            \
+  --skip-backend-deployment       \
+  --skip-gateway-deployment       \
+  --skip-tests                    \

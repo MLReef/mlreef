@@ -11,7 +11,4 @@ set -u    # error on usage of undefined variables
 ########################################
 
 
-# change directory to the epf folder
-cd epf
-
-docker build --tag "$EPF_IMAGE_PATH" -f Dockerfile .
+docker build --tag "$EPF_IMAGE_PATH" -f epf/Dockerfile epf

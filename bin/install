@@ -24,156 +24,14 @@ export GITLAB_ADMIN_TOKEN=""
 cp local.env local.env.bak 2>/dev/null || true
 # delete local.enc if it exists
 rm -f local.env 2>/dev/null || true
-
 ###############################################################################
 
 
-###############################################################################
-while [ -n "$1" ]; do
-  case "$1" in
-  -ga | --gitlab-admin-token)
-    GITLAB_ADMIN_TOKEN="$2"
-    echo "Using GITLAB_ADMIN_TOKEN $GITLAB_ADMIN_TOKEN"
-    shift
-    ;;
-  -gb | --gitlab-secrets-key-base)
-    GITLAB_SECRETS_SECRET_KEY_BASE="$2"
-    echo "Using GITLAB_ADMIN_TOKEN $GITLAB_SECRETS_SECRET_KEY_BASE"
-    shift
-    ;;
-  -go | --gitlab-opt-key-base)
-    GITLAB_SECRETS_OTP_KEY_BASE="$2"
-    echo "Using GITLAB_ADMIN_TOKEN $GITLAB_SECRETS_OTP_KEY_BASE"
-    shift
-    ;;
-  -gd | --gitlab-db-key-base)
-    GITLAB_SECRETS_DB_KEY_BASE="$2"
-    echo "Using GITLAB_ADMIN_TOKEN $GITLAB_SECRETS_DB_KEY_BASE"
-    shift
-    ;;
-  -i | --instance)
-    INSTANCE="$2"
-    echo "Connecting to instance $INSTANCE"
-    shift
-    ;;
-  -k | --key)
-    AWS_ACCESS_KEY_ID="$2"
-    echo "Using AWS_ACCESS_KEY_ID $AWS_ACCESS_KEY_ID"
-    shift
-    ;;
-  -n | --name)
-    EC2_INSTANCE_NAME="$2"
-    echo "Using EC2_INSTANCE_NAME $EC2_INSTANCE_NAME"
-    shift
-    ;;
-  -s | --secret)
-    AWS_SECRET_ACCESS_KEY="$2"
-    echo "Using AWS_ACCESS_KEY_ID $AWS_SECRET_ACCESS_KEY"
-    shift
-    ;;
-  -v | --version)
-    VERSION="$2"
-    echo "Using AWS_ACCESS_KEY_ID $AWS_SECRET_ACCESS_KEY"
-    shift
-    ;;
-  *)
-    echo "Option $1 not recognized"
-    exit 1
-    ;;
-  esac
-  shift
-done
+. bin/includes/install-parse-cli-params
 
-#
-# Checking input parameters
-#
-if [ "$INSTANCE" = "" ]; then
-  echo "Missing instance url. Use the option -i or --instance option"
-  exit 1
-fi
-if [ "$GITLAB_ADMIN_TOKEN" = "" ]; then
-  echo "Missing GITLAB_ADMIN_TOKEN. Use the option -ga or --gitlab-admin-token option"
-  exit 1
-fi
-if [ "$GITLAB_SECRETS_SECRET_KEY_BASE" = "" ]; then
-  echo "Missing GITLAB_SECRETS_SECRET_KEY_BASE. Use the option -gb or --gitlab-secrets-key-base"
-  exit 1
-fi
-if [ "$GITLAB_SECRETS_OTP_KEY_BASE" = "" ]; then
-  echo "Missing GITLAB_SECRETS_OTP_KEY_BASE. Use the option -go or --gitlab-opt-key-base"
-  exit 1
-fi
-if [ "$GITLAB_SECRETS_DB_KEY_BASE" = "" ]; then
-  echo "Missing GITLAB_SECRETS_DB_KEY_BASE. Use the option -gd or --gitlab-db-key-base"
-  exit 1
-fi
-if [ "$VERSION" = "" ]; then
-  echo "Missing VERSION. Use the option -v or --version"
-  exit 1
-fi
+. bin/includes/install-render-local-env
 
-# If we are working locally, we do not want to interface with EC2
-if [ "$INSTANCE" != "localhost" ]; then
-  if [ "$AWS_ACCESS_KEY_ID" = "" ]; then
-    echo "Missing AWS_ACCESS_KEY_ID. Use the -k or --key option"
-    exit 1
-  fi
-  if [ "$AWS_SECRET_ACCESS_KEY" = "" ]; then
-    echo "Missing AWS_SECRET_ACCESS_KEY. Use the -s or --secret option"
-    exit 1
-  fi
-fi
-echo "Successfully parsed command line parameters"
-
-#
-####
-log "### Starting Deployment"
-####
-log "Writing Docker's env file: local.env"
-touch local.env
-cat > local.env << HEREDOC
-##################################################
-# Welcome to the MLReef Docker Environment File
-# This configuration file contains environment variables
-# for the proper functioning of MLReef
-##################################################
-
-# The INSTANCE variable represents the full URL to the EC2 instance MLReef is running on
-# e.g: 'ec2-3-126-88-77.eu-central-1.compute.amazonaws.com'
-# This Information is necessary so that e.g. the runners know where to find the backend
-INSTANCE=$INSTANCE
-
-# Only Used during deployment for gitlab configuration and runner configuration
-# The gitlab server always serves port 80 locally. By setting the GITLAB_PORT variable,
-# we let gitlab know, that the container's port 80 is mapped differently from the outside.
-GITLAB_PORT=$GITLAB_PORT
-
-# Used by the backend to connect to gitlab
-# The hostname 'gitlab' is created by the local docker network
-# The port used here must be the same as GITLAB_PORT
-GITLAB_ROOT_URL=http://gitlab:$GITLAB_PORT
-
-# The GITLAB_ADMIN_TOKEN is shared between Gitlab and the Backend
-GITLAB_ADMIN_TOKEN=$GITLAB_ADMIN_TOKEN
-
-# These secrets are used by Gitlab to encrypt passwords and tokens
-# Changing them will invalidate the GITLAB_ADMIN_TOKEN as well as all other tokens
-GITLAB_SECRETS_SECRET_KEY_BASE=$GITLAB_SECRETS_SECRET_KEY_BASE
-GITLAB_SECRETS_OTP_KEY_BASE=$GITLAB_SECRETS_OTP_KEY_BASE
-GITLAB_SECRETS_DB_KEY_BASE=$GITLAB_SECRETS_DB_KEY_BASE
-
-EPF_IMAGE_TAG=$VERSION
-
-HEREDOC
-
-
-# rewrite docker compose file:
-sed "s/:develop/:$VERSION/" < docker-compose.yml > docker-compose.local.yml
-# Activate (uncomment) specific lines in the docker-compose file
-sed -i "s~#CI_ACTIVATE~~"                                       docker-compose.local.yml
-# remove tagged lines in the docker-compose file
-sed -i "/#CI_DELETE_LINE/d"                                     docker-compose.local.yml
-cat docker-compose.local.yml
+. bin/includes/install-render-docker-compose
 
 
 
@@ -372,8 +230,15 @@ until [ "$(checkGitlabPort /api/v4/projects)" = "200" ]; do
   sleep 5;
 done
 log "Expecting code 200; received: $(checkGitlabPort /api/v4/projects)"
+
 log "6. Start other services"
-docker-compose -f docker-compose.local.yml up --detach
+docker-compose -f docker-compose.local.yml up --detach redis mlreefdb
+if [ "${SKIP_BACKEND_DEPLOYMENT:-false}" != "true" ]; then
+  docker-compose -f docker-compose.local.yml up --detach backend
+fi
+if [ "${SKIP_GATEWAY_DEPLOYMENT:-false}" != "true" ]; then
+  docker-compose -f docker-compose.local.yml up --detach gateway
+fi
 sleep 30 # Add an additional sleep in the end to improve user experience; So that Docker is started when the script ends
 
 #

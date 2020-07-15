@@ -30,7 +30,7 @@ fi
 echo "Targeting download branch $EXPERIMENT_BRANCH"
 
 
-curl "http://$URL/api/v4/projects/$GITLAB_PROJECT_ID/repository/files/.mlreef.yml?ref=$EXPERIMENT_BRANCH" \
+curl "http://$URL:10080/api/v4/projects/$GITLAB_PROJECT_ID/repository/files/.mlreef.yml?ref=$EXPERIMENT_BRANCH" \
   --request GET --fail                          \
   | jq > out/test/download-mlreef-yml.response.json
 
@@ -75,4 +75,3 @@ fi
 
 
 echo "SUCCESS: All Tests Succeeded"
-

@@ -1,5 +1,5 @@
-compile backend:
-  stage: stage1
+unit test backend:
+  stage: build
   image: java:8
   only:
     changes:
@@ -26,7 +26,7 @@ compile backend:
 
 build backend:
   extends: [".except-docu-branches"]
-  stage: stage2
+  stage: build
   only:
     changes:
       - backend/**/*
@@ -48,7 +48,7 @@ build backend:
 
 build frontend:
   extends: [".except-docu-branches"]
-  stage: stage1
+  stage: build
   only:
     changes:
       - web/**/*
@@ -75,7 +75,7 @@ build frontend:
 
 build epf:
   extends: [".except-docu-branches"]
-  stage: stage1
+  stage: build
   only:
     changes:
       - epf/**/*
