@@ -61,12 +61,28 @@ export const validationSchema = Yup.object().shape({
 
 export const roles = [
   {
-    label: 'Data Scientists',
+    label: 'Data Scientist',
     value: 1,
   },
   {
-    label: 'Student',
+    label: 'Developer',
     value: 2,
+  },
+  {
+    label: 'ML enginner',
+    value: 3,
+  },
+  {
+    label: 'Researcher',
+    value: 4,
+  },
+  {
+    label: 'Student',
+    value: 5,
+  },
+  {
+    label: 'Team lead',
+    value: 6,
   },
 ];
 

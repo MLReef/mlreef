@@ -48,6 +48,19 @@ const RegisterViewRoleForm = (props) => {
           In order to personalize your experience with MLReef we would like to know more about you
         </p>
       </div>
+      <div className="register-view_info">
+        <h2 style={{ color: 'var(--warning)' }} className="title-lg">
+          Early Access warning
+        </h2>
+        <p className="title-subtitle">
+          Dear early fish! You are about to embark into uncharted waters, full of surprises, challanges and change.
+          Be aware that your data might get lost or that you are persued by the error-shark.
+        </p>
+        <p className="title-subtitle">
+          If you need help, you can always reach out to us:
+          <a href="mailto:help@mlreef.com" target="_top" style={{ color: 'var(--info)' }}> help@mlreef.com</a>
+        </p>
+      </div>
       <form onSubmit={handleSubmit} className="register-view_form">
         <div className="register-view_form_content">
           <div className="form-group">

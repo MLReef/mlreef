@@ -3,7 +3,7 @@ import { bindActionCreators } from 'redux';
 import { connect, useSelector, useDispatch } from 'react-redux';
 import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
-import './RegisterView.css';
+import './RegisterView.scss';
 import { registerUser, updateUserInfo, logout } from '../../actions/userActions';
 import { initialFields } from './formInformation';
 import icon from '../../images/ml_reef_icon_01.svg';
