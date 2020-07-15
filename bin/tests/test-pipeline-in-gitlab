@@ -31,7 +31,7 @@ fi
 echo "Using pipeline command $COMMAND"
 
 #Create MLReef.yml
-curl "http://$URL/api/v4/projects/$GITLAB_PROJECT_ID/repository/files/.mlreef.yml" \
+curl "http://$URL:10080/api/v4/projects/$GITLAB_PROJECT_ID/repository/files/.mlreef.yml" \
   --request POST --fail                         \
   --header "PRIVATE-TOKEN: $TOKEN"              \
   --header "Content-Type: application/json"     \

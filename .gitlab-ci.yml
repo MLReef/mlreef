@@ -6,8 +6,7 @@ include:
   - local: .gitlab-ci-maintenance.yml
 
 stages:
-  - stage1
-  - stage2
+  - build
   - deploy
   - test
   - maintenance
@@ -40,10 +39,10 @@ variables:
     refs:
       - develop
       - master
-  except:
-    changes:
-      - "*.md"                                         # skip the pipeline for documentation changes
-      - "*.txt"
+#  except:
+#    changes:
+#      - "*.md"                                         # skip the pipeline for documentation changes
+#      - "*.txt"
 
 
 

@@ -12,7 +12,7 @@ set -u    # error on usage of undefined variables
 while [ -n "${1:+x}" ]; do
   case "$1" in --force)
     echo "Cleaning local docker context"
-    echo "Stopping and removing MLreef's docker containers"
+    echo "Stopping and removing MLReef's docker containers"
     touch local.env
     docker-compose rm --force --stop -v
     docker rm -f gateway       || true
@@ -31,8 +31,18 @@ while [ -n "${1:+x}" ]; do
     BACKEND_BUILD=false
     echo "Skipping backend build"
     ;;
+  --skip-epf-build)
+    EPF_BUILD=false
+    echo "Skipping EPF build"
+    ;;
   --skip-tests)
     TEST=false
+    ;;
+  --skip-gateway-deployment)
+    SKIP_GATEWAY_DEPLOYMENT_OPTION="--skip-gateway-deployment"
+    ;;
+  --skip-backend-deployment)
+    SKIP_BACKEND_DEPLOYMENT_OPTION="--skip-backend-deployment"
     ;;
   --version)
     VERSION=$2
@@ -63,15 +73,15 @@ if [ "$GITLAB_ADMIN_TOKEN" = "" ]; then
   export GITLAB_ADMIN_TOKEN=local-api-token
 fi
 
+# Branch Name: feature/123-my-awesome-feature
+# CI_COMMIT_REF_SLUG: feature-123-my-awesome-feature
 VERSION=${VERSION:-$CI_COMMIT_REF_SLUG} # If No Version is set Default to $CI_COMMIT_REF_SLUG as version
 
-q
 
 if [ "${FRONTEND_BUILD:-true}" = "true" ]; then
     bin/ci-build-frontend
 fi
 if [ "${BACKEND_BUILD:-true}" = "true" ]; then
-    bin/ci-compile-backend
     bin/ci-build-backend
 fi
 if [ "${EPF_BUILD:-true}" = "true" ]; then
@@ -82,7 +92,9 @@ fi
 bin/install                                 \
   --gitlab-admin-token $GITLAB_ADMIN_TOKEN  \
   --instance localhost                      \
-  --version "${VERSION:-develop}"
+  --version "${VERSION:-develop}"           \
+  ${SKIP_BACKEND_DEPLOYMENT_OPTION:-}       \
+  ${SKIP_GATEWAY_DEPLOYMENT_OPTION:-}       \
 
 
 if [ "${TEST:-true}" = "true" ]; then

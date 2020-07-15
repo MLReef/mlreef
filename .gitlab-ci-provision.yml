@@ -4,7 +4,7 @@ variables:
 # provision boots up the new ec2 instance for deploying MLReef
 provision:
   extends: [".except-docu-branches"]
-  stage: stage1
+  stage: build
   except:
     refs:
       - master
@@ -20,7 +20,7 @@ provision:
 
 
 get production ip:
-  stage: stage1
+  stage: build
   only:
     refs:
       - master

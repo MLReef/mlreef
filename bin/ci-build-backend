@@ -11,7 +11,4 @@ set -u    # error on usage of undefined variables
 ########################################
 
 
-# change directory to the epf folder
-cd backend/mlreef-rest
-
-docker build --tag "$BACKEND_IMAGE_PATH" -f Dockerfile .
+docker build --tag "$BACKEND_IMAGE_PATH" -f backend/Dockerfile backend

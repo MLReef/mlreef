@@ -39,9 +39,8 @@ export DOCKER_TLS_CERTDIR=""            # "/certs" gitlab needs this to support 
 
 export GRADLE_USER_HOME=$(pwd)/.gradle
 echo "Use DB $DB_NAME with $DB_USER"
-./gradlew build
+./gradlew build :mlreef-rest:bootJar :mlreef-rest:prepareDocker
+
 mkdir mlreef-rest/build/test-results/test/mlreef-domain
 cp mlreef-domain/build/test-results/test/TEST-*.xml mlreef-rest/build/test-results/test/mlreef-domain/
 ./gradlew jacocoTestReport coverageReport
-./gradlew :mlreef-rest:bootJar
-./gradlew :mlreef-rest:prepareDocker

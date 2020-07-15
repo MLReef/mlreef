@@ -27,7 +27,7 @@ fi
 echo "Using PRIVATE-TOKEN: $TOKEN"
 
 #Create Experiment via MLReef API
-curl "http://$URL/api/v1/data-projects/$PROJECT_ID/experiments"  \
+curl "http://$URL:8080/api/v1/data-projects/$PROJECT_ID/experiments"  \
   --request POST --fail --show-error            \
   --header "PRIVATE-TOKEN: $TOKEN"              \
   --header "Content-Type: application/json"     \
@@ -64,7 +64,7 @@ jq -r ".id" < out/test/create-experiment.response.json > out/test/experiment-id.
 export EXPERIMENT_ID=$(cat out/test/experiment-id.tmp)
 if [ "$EXPERIMENT_ID" = "" ]; then
   echo >&2 "ERROR: EXPERIMENT_ID is empty."
-  cat out/test/out/test/create-experiment.response.json
+  cat out/test/create-experiment.response.json
   cat out/test/experiment-id.tmp
   exit 1
 fi
@@ -74,14 +74,14 @@ jq -r ".target_branch" < out/test/create-experiment.response.json > out/test/exp
 export EXPERIMENT_BRANCH=$(cat out/test/experiment-branch.tmp)
 if [ "$EXPERIMENT_BRANCH" = "" ]; then
   echo >&2 "ERROR: EXPERIMENT_BRANCH is empty."
-  cat out/test/out/test/create-experiment.response.json
+  cat out/test/create-experiment.response.json
   cat out/test/experiment-branch.tmp
   exit 1
 fi
 
 
 #Start Experiment via MLReef API
-curl "http://$URL/api/v1/data-projects/$PROJECT_ID/experiments/$EXPERIMENT_ID/start"  \
+curl "http://$URL:8080/api/v1/data-projects/$PROJECT_ID/experiments/$EXPERIMENT_ID/start"  \
   --request POST --fail --show-error            \
   --header "PRIVATE-TOKEN: $TOKEN"              \
   --header "Content-Type: application/json"     \

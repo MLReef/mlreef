@@ -1,0 +1,46 @@
+#!/bin/sh
+
+log "### Starting Deployment"
+log "Writing Docker's env file: local.env"
+touch local.env
+cat > local.env << HEREDOC
+##################################################
+# Welcome to the MLReef Docker Environment File
+# This configuration file contains environment variables
+# for the proper functioning of MLReef
+##################################################
+
+# The INSTANCE variable represents the full URL to the EC2 instance MLReef is running on
+# e.g: 'ec2-3-126-88-77.eu-central-1.compute.amazonaws.com'
+# This Information is necessary so that e.g. the runners know where to find the backend
+INSTANCE=$INSTANCE
+
+# Only Used during deployment for gitlab configuration and runner configuration
+# The gitlab server always serves port 80 locally. By setting the GITLAB_PORT variable,
+# we let gitlab know, that the container's port 80 is mapped differently from the outside.
+GITLAB_PORT=$GITLAB_PORT
+
+# Used by the backend to connect to gitlab
+# The hostname 'gitlab' is created by the local docker network
+# The port used here must be the same as GITLAB_PORT
+GITLAB_ROOT_URL=http://gitlab:$GITLAB_PORT
+
+# The GITLAB_ADMIN_TOKEN is shared between Gitlab and the Backend
+GITLAB_ADMIN_TOKEN=$GITLAB_ADMIN_TOKEN
+
+# These secrets are used by Gitlab to encrypt passwords and tokens
+# Changing them will invalidate the GITLAB_ADMIN_TOKEN as well as all other tokens
+GITLAB_SECRETS_SECRET_KEY_BASE=$GITLAB_SECRETS_SECRET_KEY_BASE
+GITLAB_SECRETS_OTP_KEY_BASE=$GITLAB_SECRETS_OTP_KEY_BASE
+GITLAB_SECRETS_DB_KEY_BASE=$GITLAB_SECRETS_DB_KEY_BASE
+
+
+# This is the docker tag that will be used for starting EPF pipelines
+EPF_IMAGE_TAG=$VERSION
+
+# THe internal connection URL for the EPF runners to connect to the backend
+EPF_BACKEND_URL=$INSTANCE
+# THe internal connection URL for the EPF runners to connect to the gitlab
+EPF_GITLAB_URL=$INSTANCE
+
+HEREDOC

@@ -11,6 +11,7 @@
 
 
 GIT_BRANCH=$(git rev-parse --abbrev-ref HEAD) || echo "no-git-inside-docker-container"
+#This sed replaces slash "/" in branch names with dash "-"
 LOCAL_CI_COMMIT_REF_SLUG=$(echo "$GIT_BRANCH" | sed "s~/~-~")
 
 # https://www.gnu.org/software/bash/manual/html_node/Shell-Parameter-Expansion.html}
@@ -75,7 +76,7 @@ if [ -z ${CI_REGISTRY_PASSWORD+x} ]; then
 fi
 
 export TAG="${CI_COMMIT_REF_SLUG}"
-if [ $CI_COMMIT_REF_SLUG = "master" ]; then export TAG="latest";  fi          # follow docker naming conventions
+if [ "$CI_COMMIT_REF_SLUG" = "master" ]; then export TAG="latest";  fi          # follow docker naming conventions
 
 export GATEWAY_IMAGE_PATH=$CI_REGISTRY_IMAGE/gateway:$TAG
 export BACKEND_IMAGE_PATH=$CI_REGISTRY_IMAGE/backend:$TAG

@@ -19,7 +19,7 @@ export USER="SMOKE-TEST-$(randomString 3)"
 export PASSWORD="password"
 log "Username is $USER with password "
 export TOKEN #declare separately to be able to gather return value
-curl "http://$URL/api/v1/auth/register" -X POST \
+curl "http://$URL:8080/api/v1/auth/register" -X POST \
   --request POST --fail --show-error            \
   --header 'Content-Type: application/json'   \
   --header 'Accept: application/json'         \
@@ -34,10 +34,16 @@ curl "http://$URL/api/v1/auth/register" -X POST \
 
 jq -r ".token" < out/test/register.response.tmp > out/test/token.tmp
 export TOKEN="$(cat out/test/token.tmp)"
+if [ "$TOKEN" = "" ]; then
+  echo >&2 "ERROR: TOKEN is empty."
+  cat out/test/token.tmp
+  cat out/test/register.response.tmp
+  exit 1
+fi
 
 log "Registering exited with $? and produced token $TOKEN"
 
-curl "http://$URL/api/v1/data-projects" -X POST \
+curl "http://$URL:8080/api/v1/data-projects" -X POST \
   --request POST --fail --show-error            \
   --header "PRIVATE-TOKEN: $TOKEN"            \
   --header "Content-Type: application/json"   \
