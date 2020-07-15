@@ -1,0 +1,113 @@
+@import '../../styles/breakpoints';
+
+.register-view {
+  background-color: var(--light);
+  width: 100%;
+  min-height: 100vh;
+
+  &_container {
+    padding-top: 5rem;
+    padding: 1rem;
+  };
+
+  &_welcome-title {
+    width: 400px;
+    margin: auto;
+  };
+
+  &_brand {
+    margin: auto;
+
+    & .brand {
+      margin: auto;
+      width: 80px;
+      height: 80px;
+      padding: 0.5rem;
+    };
+  };
+
+  &_form {
+    box-sizing: content-box;
+    border: solid 1px var(--secondary);
+    border-radius: 5px;
+    height: 100%;
+    background-color: #fff;
+    margin-bottom: 0.25rem;
+  };
+
+  &_form_content {
+    margin: 1rem 1.5rem;
+
+    > .form-group {
+      padding: 1rem 0;
+    };
+
+    & .cols-2 {
+      display: flex;
+      margin: 0 -0.5rem;
+
+      & > * {
+        width: 100%;
+        padding: 0 0.5rem;
+      };
+
+      @media screen and (max-width: $bp-md) {
+        flex-wrap: wrap;
+      }
+    };
+  };
+
+  &_form_container {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width: 850px;
+    margin: auto;
+    align-items: center;
+  };
+
+  &_form_header {
+    box-sizing: content-box;
+    border: solid 1px var(--secondary);
+    border-radius: 5px;
+    border: none;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+    background-color: var(--dark);
+    color: #fff;
+    font-size: 1.25rem;
+    text-align: center;
+    padding: 0.5rem 1rem;
+  };
+
+  &_form_footer {
+    box-sizing: content-box;
+    border: solid 1px var(--secondary);
+    border-radius: 5px;
+    background-color: var(--light);
+    width: 100%;
+    padding: 1rem 0;
+    margin: auto;
+    margin-bottom: 2rem;
+    text-align: center;
+  }
+
+  &_info {
+    display: flex;
+    height: auto;
+    flex-direction: column;
+    margin: 2rem auto;
+    border: 2px solid var(--warning);
+    border-radius: 4px;
+    background-color: var(--white);
+
+    @media screen and (max-width: $bp-md) {
+      width: 90%;
+    }
+  };
+
+  &_submit {
+    text-align: center;
+    margin-top: 1rem;
+  };
+}

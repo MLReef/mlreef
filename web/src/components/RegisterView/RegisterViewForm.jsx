@@ -175,7 +175,7 @@ const validations = {
 
     return submitForm(userData)
       .then((res) => {
-        toastr.success('Success:', 'Thank you for registry!');
+        toastr.success('Welcome to MLReef!', 'Your registration was successful');
         return res;
       })
       .then(onSuccess)
