@@ -27,7 +27,7 @@ rewriteDockerImage() {
   DOCKER_BRANCH_IMAGE_URL=https://gitlab.com/api/v4/projects/$CI_PROJECT_ID/registry/repositories/$1/tags/$TAG/
   echo "DOCKER_BRANCH_IMAGE_URL  is $DOCKER_BRANCH_IMAGE_URL"
   CURL_RESPONSE=$(curl --silent --header "Authorization:Bearer $GITLAB_COM_API_TOKEN" --output /dev/null -w ''%{http_code}'' $DOCKER_BRANCH_IMAGE_URL)
-  echo $CURL_RESPONSE
+  echo "$CURL_RESPONSE"
   if [ "$CURL_RESPONSE" = "200" ]; then
     echo "Found branch specific docker image for $2"
     sed -i "s/$2:develop/$2:$TAG/" docker-compose.yml;
