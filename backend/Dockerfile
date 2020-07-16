@@ -3,26 +3,6 @@ FROM gradle:6.5-jdk8 AS BUILDER
 # provide a tmp/cache dir
 VOLUME /tmp
 
-ENV DB_HOST=postgres
-ENV DB_NAME=mlreef_backend
-ENV DB_PASSWORD=password
-ENV DB_PORT=25432
-ENV DB_USER=postgres
-
-ENV REDIS_HOST="redis"
-ENV REDIS_PORT=26379
-ENV POSTGRES_DB=$DB_NAME
-ENV POSTGRES_USER=$DB_USER
-ENV POSTGRES_PASSWORD=$DB_PASSWORD
-# gitlab needs this to support docker testcontainers
-ENV DOCKER_HOST="tcp://docker:2375"
-# gitlab needs this to support docker testcontainers
-ENV DOCKER_DRIVER=overlay2
-# "/certs" gitlab needs this to support docker testcontainers
-ENV DOCKER_TLS_CERTDIR=""
-
-RUN echo "Use DB $DB_NAME with $DB_USER"
-
 WORKDIR /workdir
 ADD . /workdir
 RUN gradle build -x test :mlreef-rest:bootJar :mlreef-rest:prepareDocker -x :mlreef-rest:asciidoctor
