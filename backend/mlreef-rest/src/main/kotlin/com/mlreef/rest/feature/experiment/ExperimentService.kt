@@ -2,7 +2,6 @@ package com.mlreef.rest.feature.experiment
 
 import com.mlreef.rest.Account
 import com.mlreef.rest.DataProcessorInstance
-import com.mlreef.rest.DataProcessorRepository
 import com.mlreef.rest.DataProjectRepository
 import com.mlreef.rest.Experiment
 import com.mlreef.rest.ExperimentRepository
@@ -12,6 +11,7 @@ import com.mlreef.rest.ParameterInstance
 import com.mlreef.rest.PipelineInstanceRepository
 import com.mlreef.rest.PipelineJobInfo
 import com.mlreef.rest.ProcessorParameterRepository
+import com.mlreef.rest.ProcessorVersionRepository
 import com.mlreef.rest.SubjectRepository
 import com.mlreef.rest.exceptions.ErrorCode
 import com.mlreef.rest.exceptions.ExperimentCreateException
@@ -21,6 +21,7 @@ import com.mlreef.utils.Slugs
 import lombok.RequiredArgsConstructor
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.data.domain.PageRequest
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import java.util.UUID
@@ -32,7 +33,7 @@ class ExperimentService(
     private val experimentRepository: ExperimentRepository,
     private val subjectRepository: SubjectRepository,
     private val dataProjectRepository: DataProjectRepository,
-    private val dataProcessorRepository: DataProcessorRepository,
+    private val processorVersionRepository: ProcessorVersionRepository,
     private val pipelineInstanceRepository: PipelineInstanceRepository,
     private val processorParameterRepository: ProcessorParameterRepository,
     @Value("\${mlreef.gitlab.root-url}") val gitlabRootUrl: String,
@@ -150,13 +151,13 @@ class ExperimentService(
     }
 
     fun newDataProcessorInstance(processorSlug: String): DataProcessorInstance {
-        val findBySlug = dataProcessorRepository.findBySlug(processorSlug)
+        val findBySlug = processorVersionRepository.findAllBySlug(processorSlug, PageRequest.of(0, 1)).firstOrNull()
             ?: throw ExperimentCreateException(ErrorCode.DataProcessorNotUsable, processorSlug)
         return DataProcessorInstance(randomUUID(), findBySlug, parameterInstances = arrayListOf())
     }
 
     fun addParameterInstance(processorInstance: DataProcessorInstance, name: String, value: String): ParameterInstance {
-        val processorParameter = processorParameterRepository.findByDataProcessorIdAndName(processorInstance.dataProcessor.id, name)
+        val processorParameter = processorParameterRepository.findByProcessorVersionIdAndName(processorInstance.processorVersion.id, name)
             ?: throw ExperimentCreateException(ErrorCode.ProcessorParameterNotUsable, name)
         return processorInstance.addParameterInstances(processorParameter, value)
     }

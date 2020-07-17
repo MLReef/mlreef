@@ -11,10 +11,13 @@ import com.mlreef.rest.DataVisualizationRepository
 import com.mlreef.rest.ParameterType
 import com.mlreef.rest.Person
 import com.mlreef.rest.ProcessorParameter
+import com.mlreef.rest.ProcessorVersion
+import com.mlreef.rest.ProcessorVersionRepository
 import com.mlreef.rest.VisibilityScope
 import com.mlreef.rest.api.CurrentUserService
 import com.mlreef.rest.api.v1.dto.DataProcessorDto
 import com.mlreef.rest.api.v1.dto.ParameterDto
+import com.mlreef.rest.api.v1.dto.ProcessorVersionDto
 import com.mlreef.rest.api.v1.dto.toDto
 import com.mlreef.rest.exceptions.NotFoundException
 import com.mlreef.rest.feature.data_processors.DataProcessorService
@@ -41,6 +44,7 @@ import javax.validation.constraints.NotEmpty
 class DataProcessorsController(
     val codeProjectRepository: CodeProjectRepository,
     val dataProcessorRepository: DataProcessorRepository,
+    val processorVersionRepository: ProcessorVersionRepository,
     val dataOperationRepository: DataOperationRepository,
     val dataAlgorithmRepository: DataAlgorithmRepository,
     val dataVisualizationRepository: DataVisualizationRepository,
@@ -51,7 +55,7 @@ class DataProcessorsController(
     private val log: Logger = Logger.getLogger(DataProcessorsController::class.simpleName)
 
     @GetMapping("data-processors")
-    @PostFilter("userInDataProcessor() || dataProcessorIsPublic()")
+    @PostFilter("postCanViewProcessor()")
     fun getAllProcessors(
         @RequestParam("type", required = false) type: DataProcessorType?,
         @RequestParam("input_data_type", required = false) inputDataType: DataType?,
@@ -76,16 +80,26 @@ class DataProcessorsController(
 
     // FIXME: Coverage says: missing tests
     @GetMapping("data-processors/id/{id}")
-    @PostAuthorize("userInDataProcessor() || dataProcessorIsPublic()")
+    @PostAuthorize("postCanViewProcessor()")
     fun getDataProcessorById(@PathVariable id: UUID): DataProcessorDto {
         val dataProcessor = dataProcessorRepository.findByIdOrNull(id)
             ?: throw NotFoundException("Data processor not found by id: $id")
         return dataProcessor.toDto()
     }
 
+    @GetMapping("data-processors/id/{id}/versions")
+    @PreAuthorize("canViewProcessor(#id)")
+    fun getDataProcessorByIdVersions(@PathVariable id: UUID): List<ProcessorVersionDto> {
+        val dataProcessor = dataProcessorRepository.findByIdOrNull(id)
+            ?: throw NotFoundException("Data processor not found by id: $id")
+        val versions = processorVersionRepository.findAllByDataProcessorId(id)
+
+        return versions.map(ProcessorVersion::toDto)
+    }
+
     // FIXME: Coverage says: missing tests
     @GetMapping("data-processors/slug/{slug}")
-    @PostAuthorize("userInDataProcessor() || dataProcessorIsPublic()")
+    @PostAuthorize("postCanViewProcessor()")
     fun getDataProcessorBySlug(@PathVariable slug: String): DataProcessorDto {
         val dataProcessor = dataProcessorRepository.findBySlug(slug)
             ?: throw NotFoundException("Data processor not found by slug: $slug")
@@ -93,7 +107,7 @@ class DataProcessorsController(
     }
 
     @GetMapping("code-projects/{codeProjectId}/processor")
-    @PreAuthorize("userInProject(#codeProjectId) || projectIsPublic(#codeProjectId)")
+    @PreAuthorize("canViewProject(#codeProjectId)")
     fun getByCodeProjects(@PathVariable codeProjectId: UUID): DataProcessorDto {
         val dataProcessor = dataProcessorRepository.findAllByCodeProjectId(codeProjectId).firstOrNull()
             ?: throw NotFoundException("processor not found: $codeProjectId")
@@ -138,7 +152,7 @@ class DataProcessorsController(
             order = order,
             description = parameterDto.description,
             id = randomUUID(),
-            dataProcessorId = dataProcessorId
+            processorVersionId = dataProcessorId
         )
 }
 

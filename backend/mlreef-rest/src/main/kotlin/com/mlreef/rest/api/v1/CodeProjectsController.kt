@@ -66,21 +66,21 @@ class CodeProjectsController(
     }
 
     @GetMapping("/namespace/{namespace}")
-    @PostFilter("canViewProject()")
+    @PostFilter("postCanViewProject()")
     fun getCodeProjectsByNamespace(@PathVariable namespace: String): List<CodeProjectDto> {
         val codeProjects = codeProjectService.getProjectsByNamespace(namespace)
         return codeProjects.map(CodeProject::toDto)
     }
 
     @GetMapping("/slug/{slug}")
-    @PostFilter("canViewProject()")
+    @PostFilter("postCanViewProject()")
     fun getCodeProjectBySlug(@PathVariable slug: String): List<CodeProjectDto> {
         val codeProjects = codeProjectService.getProjectsBySlug(slug)
         return codeProjects.map(CodeProject::toDto)
     }
 
     @GetMapping("/{namespace}/{path}")
-    @PostAuthorize("canViewProject()")
+    @PostAuthorize("postCanViewProject()")
     fun getCodeProjectsByNamespaceAndSlugInPath(@PathVariable namespace: String, @PathVariable path: String): CodeProjectDto {
         val codeProjects = codeProjectService.getProjectsByNamespaceAndPath(namespace, path)
             ?: throw ProjectNotFoundException(path = "$namespace/$path")

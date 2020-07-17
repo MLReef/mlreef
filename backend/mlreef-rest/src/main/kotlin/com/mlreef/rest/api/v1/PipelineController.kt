@@ -43,21 +43,21 @@ class PipelineController(
     }
 
     @GetMapping
-    @PostFilter("userInPipeline() || pipelineIsPublic()")
+    @PostFilter("postCanViewPipeline()")
     fun getAllPipelineConfigs(): List<PipelineConfigDto> {
         val list: List<PipelineConfig> = pipelineConfigRepository.findAll().toList()
         return list.map(PipelineConfig::toDto)
     }
 
     @GetMapping("/{id}")
-    @PostAuthorize("userInPipeline(#id) || pipelineIsPublic(#id)")
+    @PreAuthorize("canViewPipeline(#id)")
     fun getPipelineConfig(@PathVariable id: UUID): PipelineConfigDto {
         val findOneByDataProjectIdAndId = beforeGetPipelineConfig(id)
         return findOneByDataProjectIdAndId.toDto()
     }
 
     @GetMapping("/{pid}/instances")
-    @PreAuthorize("userInPipeline(#pid) || pipelineIsPublic(#pid)")
+    @PreAuthorize("canViewPipeline(#pid)")
     fun getAllPipelineInstancesFromConfig(@PathVariable pid: UUID): List<PipelineInstanceDto> {
         beforeGetPipelineConfig(pid)
         val instances = pipelineInstanceRepository.findAllByPipelineConfigId(pid)
@@ -65,7 +65,7 @@ class PipelineController(
     }
 
     @GetMapping("/{pid}/instances/{id}")
-    @PreAuthorize("userInPipeline(#pid) || pipelineIsPublic(#pid)")
+    @PreAuthorize("canViewPipeline(#pid)")
     fun getOnePipelineInstanceFromConfig(@PathVariable pid: UUID, @PathVariable id: UUID): PipelineInstanceDto {
         beforeGetPipelineConfig(pid)
         val instance = beforeGetPipelineInstance(pid, id)

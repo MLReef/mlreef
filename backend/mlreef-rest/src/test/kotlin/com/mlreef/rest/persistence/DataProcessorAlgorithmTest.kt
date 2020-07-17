@@ -27,7 +27,7 @@ class DataProcessorAlgorithmTest : AbstractRepositoryTest() {
 //        val codeProject = CodeProject(id = codeProjectId, slug = "code-project-augment", ownerId = author.id, url = "url")
         val entity = DataAlgorithm(
             id = id, slug = "commons-augment", name = "Augment",
-            command = "augment", inputDataType = DataType.IMAGE, outputDataType = DataType.IMAGE,
+            inputDataType = DataType.IMAGE, outputDataType = DataType.IMAGE,
             visibilityScope = VisibilityScope.PUBLIC, author = author,
             description = "description",
             codeProjectId = codeProjectId)

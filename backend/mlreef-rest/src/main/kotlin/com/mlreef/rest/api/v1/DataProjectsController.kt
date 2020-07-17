@@ -60,21 +60,21 @@ class DataProjectsController(
     }
 
     @GetMapping("/namespace/{namespace}")
-    @PostFilter("canViewProject()")
+    @PostFilter("postCanViewProject()")
     fun getCodeProjectsByNamespace(@PathVariable namespace: String): List<DataProjectDto> {
         val dataProjects = dataProjectService.getProjectsByNamespace(namespace)
         return dataProjects.map(DataProject::toDto)
     }
 
     @GetMapping("/slug/{slug}")
-    @PostFilter("canViewProject()")
+    @PostFilter("postCanViewProject()")
     fun getCodeProjectBySlug(@PathVariable slug: String): List<DataProjectDto> {
         val dataProjects = dataProjectService.getProjectsBySlug(slug)
         return dataProjects.map(DataProject::toDto)
     }
 
     @GetMapping("/{namespace}/{slug}")
-    @PostAuthorize("canViewProject()")
+    @PostAuthorize("postCanViewProject()")
     fun getCodeProjectsByNamespaceAndSlugInPath(@PathVariable namespace: String, @PathVariable slug: String): DataProjectDto {
         val dataProject = dataProjectService.getProjectsByNamespaceAndPath(namespace, slug)
             ?: throw ProjectNotFoundException(path = "$namespace/$slug")

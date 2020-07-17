@@ -213,7 +213,8 @@ class ExperimentsIntegrationTest : AbstractIntegrationTest() {
 
     @Transactional
     @Rollback
-    @Test fun `Can retrieve not own not member but public Experiment`() {
+    @Test
+    fun `Can retrieve foreign public Experiment`() {
         val (realAccount1, _, _) = testsHelper.createRealUser()
         val (realAccount2, _, _) = testsHelper.createRealUser()
         val (project1, _) = testsHelper.createRealDataProject(realAccount1, public = true)
@@ -226,7 +227,8 @@ class ExperimentsIntegrationTest : AbstractIntegrationTest() {
 
     @Transactional
     @Rollback
-    @Test fun `Can retrieve not own not public but member Experiment`() {
+    @Test
+    fun `Can retrieve foreign member Experiment`() {
         val (account1, _, _) = testsHelper.createRealUser()
         val (account2, _, _) = testsHelper.createRealUser()
         val (project, _) = testsHelper.createRealDataProject(account1, public = false)
@@ -241,7 +243,8 @@ class ExperimentsIntegrationTest : AbstractIntegrationTest() {
 
     @Transactional
     @Rollback
-    @Test fun `Cannot retrieve not own not member not public Experiment`() {
+    @Test
+    fun `Cannot retrieve foreign public Experiment`() {
         val (realAccount1, _, _) = testsHelper.createRealUser()
         val (realAccount2, _, _) = testsHelper.createRealUser()
         val (project1, _) = testsHelper.createRealDataProject(realAccount1, public = false)
@@ -320,7 +323,8 @@ class ExperimentsIntegrationTest : AbstractIntegrationTest() {
 
     @Transactional
     @Rollback
-    @Test fun `Can retrieve own Experiment's MLReef file`() {
+    @Test
+    fun `Can retrieve own Experiment's MLReef file`() {
         val (account, _, _) = testsHelper.createRealUser()
         val (project1, _) = testsHelper.createRealDataProject(account)
 
@@ -450,13 +454,13 @@ class ExperimentsIntegrationTest : AbstractIntegrationTest() {
         val processorInstance2 = DataProcessorInstance(randomUUID(), testsHelper.dataOp1!!)
 
         val processorParameter = ProcessorParameter(
-            id = randomUUID(), dataProcessorId = processorInstance.dataProcessorId,
+            id = randomUUID(), processorVersionId = processorInstance.processorVersionId,
             name = "param1", type = ParameterType.STRING,
             defaultValue = "default", description = "not empty",
             order = 1, required = true)
 
         processorInstance.addParameterInstances(processorParameter, "value")
-        processorInstance2.addParameterInstances(processorParameter.copy(dataProcessorId = processorInstance2.dataProcessorId), "value")
+        processorInstance2.addParameterInstances(processorParameter.copy(processorVersionId = processorInstance2.processorVersionId), "value")
         processorParameterRepository.save(processorParameter)
         dataProcessorInstanceRepository.save(processorInstance)
         dataProcessorInstanceRepository.save(processorInstance2)

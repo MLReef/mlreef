@@ -1,5 +1,6 @@
 package com.mlreef.rest.service
 
+import com.mlreef.rest.BaseEnvironment
 import com.mlreef.rest.DataAlgorithm
 import com.mlreef.rest.DataProcessorInstance
 import com.mlreef.rest.DataProcessorRepository
@@ -15,6 +16,8 @@ import com.mlreef.rest.PipelineInstance
 import com.mlreef.rest.PipelineInstanceRepository
 import com.mlreef.rest.PipelineType
 import com.mlreef.rest.ProcessorParameterRepository
+import com.mlreef.rest.ProcessorVersion
+import com.mlreef.rest.ProcessorVersionRepository
 import com.mlreef.rest.SubjectRepository
 import com.mlreef.rest.VisibilityScope
 import com.mlreef.rest.exceptions.ExperimentCreateException
@@ -36,14 +39,27 @@ class ExperimentServiceTest : AbstractServiceTest() {
     private lateinit var pipelineInstance: PipelineInstance
     private lateinit var experimentService: ExperimentService
 
-    @Autowired private lateinit var dataProjectRepository: DataProjectRepository
-    @Autowired private lateinit var subjectRepository: SubjectRepository
-    @Autowired private lateinit var experimentRepository: ExperimentRepository
-    @Autowired private lateinit var dataProcessorRepository: DataProcessorRepository
-    @Autowired private lateinit var pipelineConfigRepository: PipelineConfigRepository
-    @Autowired private lateinit var pipelineInstanceRepository: PipelineInstanceRepository
-    @Autowired private lateinit var processorParameterRepository: ProcessorParameterRepository
-    @Mock private lateinit var gitlabRestClient: GitlabRestClient
+    @Autowired
+    private lateinit var dataProjectRepository: DataProjectRepository
+    @Autowired
+    private lateinit var subjectRepository: SubjectRepository
+    @Autowired
+    private lateinit var experimentRepository: ExperimentRepository
+    @Autowired
+    private lateinit var dataProcessorRepository: DataProcessorRepository
+    @Autowired
+    private lateinit var pipelineConfigRepository: PipelineConfigRepository
+
+    @Autowired
+    private lateinit var pipelineInstanceRepository: PipelineInstanceRepository
+
+    @Autowired
+    private lateinit var processorVersionRepository: ProcessorVersionRepository
+
+    @Autowired
+    private lateinit var processorParameterRepository: ProcessorParameterRepository
+    @Mock
+    private lateinit var gitlabRestClient: GitlabRestClient
 
     private var ownerId: UUID = randomUUID()
     private var dataAlgorithmId: UUID = randomUUID()
@@ -57,8 +73,8 @@ class ExperimentServiceTest : AbstractServiceTest() {
             experimentRepository = experimentRepository,
             subjectRepository = subjectRepository,
             dataProjectRepository = dataProjectRepository,
-            dataProcessorRepository = dataProcessorRepository,
             pipelineInstanceRepository = pipelineInstanceRepository,
+            processorVersionRepository = processorVersionRepository,
             processorParameterRepository = processorParameterRepository,
             gitlabRootUrl = "http://localhost:10080",
             epfGitlabUrl = "http://backend:10080",
@@ -70,11 +86,17 @@ class ExperimentServiceTest : AbstractServiceTest() {
         val dataPipeline = PipelineConfig(dataPipelineConfigId, dataRepositoryId, PipelineType.DATA, "slug", "name", "source_branch", "target_branch/\$SLUG")
         val entity = DataAlgorithm(
             id = dataAlgorithmId, slug = "commons-augment", name = "Augment",
-            command = "augment", inputDataType = DataType.IMAGE, outputDataType = DataType.IMAGE,
+            inputDataType = DataType.IMAGE, outputDataType = DataType.IMAGE,
             visibilityScope = VisibilityScope.PUBLIC, author = subject,
             description = "description",
             codeProjectId = codeProjectId)
-        val dataProcessor = dataProcessorRepository.save(entity)
+        val _dataProcessor = dataProcessorRepository.save(entity)
+
+        val dataProcessor = ProcessorVersion(
+            id = _dataProcessor.id, dataProcessor = _dataProcessor, publisher = subject,
+            command = "augment", number = 1, baseEnvironment = BaseEnvironment.default())
+        processorVersionRepository.save(dataProcessor)
+
         dataProcessorInstance = DataProcessorInstance(randomUUID(), dataProcessor, parameterInstances = arrayListOf())
         pipelineInstance = dataPipeline.createInstance(0)
         pipelineConfigRepository.save(dataPipeline)
@@ -154,7 +176,13 @@ class ExperimentServiceTest : AbstractServiceTest() {
     @Test
     fun `Can create if Owner and DataProject exist`() {
 
-        val dataProcessor = dataProcessorRepository.findByIdOrNull(dataAlgorithmId)!!
+        val _dataProcessor = dataProcessorRepository.findByIdOrNull(dataAlgorithmId)!!
+
+        val dataProcessor = ProcessorVersion(
+            id = _dataProcessor.id, dataProcessor = _dataProcessor, publisher = _dataProcessor.author,
+            command = "augment", number = 1, baseEnvironment = BaseEnvironment.default())
+        processorVersionRepository.save(dataProcessor)
+
         val dataProcessorInstance = DataProcessorInstance(randomUUID(), dataProcessor, parameterInstances = arrayListOf())
         val createExperiment = experimentService.createExperiment(
             ownerId,

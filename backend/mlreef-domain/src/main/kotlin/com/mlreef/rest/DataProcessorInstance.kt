@@ -29,24 +29,36 @@ data class DataProcessorInstance(
     @OneToOne(fetch = FetchType.EAGER)
     @Fetch(value = FetchMode.JOIN)
     @JoinColumn(
+        name = "processor_version_id",
+        referencedColumnName = "id",
+        foreignKey = ForeignKey(name = "dataprocessorinstance_processorversion_processor_version_id_fkey"))
+    val processorVersion: ProcessorVersion,
+
+    @Column(name = "processor_version_id", insertable = false, updatable = false)
+    val processorVersionId: UUID = processorVersion.id,
+
+    @OneToOne(fetch = FetchType.EAGER)
+    @Fetch(value = FetchMode.JOIN)
+    @JoinColumn(
         name = "data_processor_id",
         referencedColumnName = "id",
         foreignKey = ForeignKey(name = "dataprocessorinstance_dataprocessor_data_processor_id_fkey"))
-    val dataProcessor: DataProcessor,
+    val dataProcessor: DataProcessor = processorVersion.dataProcessor,
 
     @Column(name = "data_processor_id", insertable = false, updatable = false)
     val dataProcessorId: UUID = dataProcessor.id,
+
     @Column(name = "data_processor_version", insertable = false, updatable = false)
     val dataProcessorVersion: Long? = dataProcessor.version,
     val slug: String = dataProcessor.slug,
     val name: String = dataProcessor.name,
-    val command: String = dataProcessor.command,
+    val command: String = processorVersion.command,
     @Enumerated(EnumType.STRING)
     @Column(name = "processor_type", updatable = false)
     val type: DataProcessorType = dataProcessor.type,
     @Embedded
     @Column(name = "metric_schema_")
-    val metricSchema: MetricSchema = dataProcessor.metricSchema,
+    val metricSchema: MetricSchema = processorVersion.metricSchema,
 
     @OneToMany(fetch = FetchType.EAGER, cascade = [CascadeType.ALL])
     @JoinColumn(
@@ -106,6 +118,8 @@ data class DataProcessorInstance(
             id = newId,
             dataProcessor = this.dataProcessor,
             dataProcessorId = this.dataProcessorId,
+            processorVersion = this.processorVersion,
+            processorVersionId = this.processorVersionId,
             dataProcessorVersion = this.dataProcessorVersion,
             slug = this.slug,
             name = this.name,

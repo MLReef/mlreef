@@ -14,6 +14,7 @@ import com.mlreef.rest.DataVisualization
 import com.mlreef.rest.DataVisualizationRepository
 import com.mlreef.rest.ParameterType
 import com.mlreef.rest.Person
+import com.mlreef.rest.ProcessorVersionRepository
 import com.mlreef.rest.SubjectRepository
 import com.mlreef.rest.VisibilityScope
 import com.mlreef.rest.external_api.gitlab.GitlabRestClient
@@ -33,14 +34,19 @@ class DataProcessorServiceTest : AbstractServiceTest() {
 
     private lateinit var dataProcessorService: DataProcessorService
 
-    @Autowired private lateinit var subjectRepository: SubjectRepository
-    @Autowired private lateinit var codeProjectRepository: CodeProjectRepository
-    @Autowired private lateinit var dataProcessorRepository: DataProcessorRepository
-    @Autowired private lateinit var dataOperationRepository: DataOperationRepository
-    @Autowired private lateinit var dataAlgorithmRepository: DataAlgorithmRepository
-    @Autowired private lateinit var dataVisualizationRepository: DataVisualizationRepository
+    @Autowired
+    private lateinit var subjectRepository: SubjectRepository
+    @Autowired
+    private lateinit var codeProjectRepository: CodeProjectRepository
 
-    @Mock private lateinit var gitlabRestClient: GitlabRestClient
+    @Autowired
+    private lateinit var dataProcessorRepository: DataProcessorRepository
+
+    @Autowired
+    private lateinit var processorVersionRepository: ProcessorVersionRepository
+
+    @Mock
+    private lateinit var gitlabRestClient: GitlabRestClient
     private lateinit var codeProject: CodeProject
     private lateinit var codeProject2: CodeProject
 
@@ -49,7 +55,10 @@ class DataProcessorServiceTest : AbstractServiceTest() {
 
     @BeforeEach
     fun prepare() {
-        dataProcessorService = DataProcessorService(dataProcessorRepository = dataProcessorRepository)
+        dataProcessorService = DataProcessorService(
+            dataProcessorRepository = dataProcessorRepository,
+            processorVersionRepository = processorVersionRepository
+        )
         val subject = subjectRepository.save(Person(ownerId, "new-person", "person's name", 1L))
 
         codeProject = CodeProject(
@@ -79,15 +88,15 @@ class DataProcessorServiceTest : AbstractServiceTest() {
     fun `Can save parsed DataProcessors`() {
         val filename = "resnet_annotations_demo.py"
         val resource = javaClass.classLoader.getResource(filename)!!
-        val dataProcessor = dataProcessorService.parseAndSave(resource)
+        val processorVersion = dataProcessorService.parseAndSave(resource)
+        val dataProcessor = processorVersion.dataProcessor
         assertNotNull(dataProcessor)
         assertThat(dataProcessor.name).isEqualTo("Resnet 2.0 Filter")
         assertThat(dataProcessor.description).isEqualTo("Transforms images with lots of magic")
         assertThat(dataProcessor.visibilityScope).isEqualTo(VisibilityScope.PUBLIC)
         assertThat(dataProcessor.inputDataType).isEqualTo(DataType.IMAGE)
         assertThat(dataProcessor.outputDataType).isEqualTo(DataType.IMAGE)
-        assertThat(dataProcessor.parameters).isNotEmpty()
-        val parameters = dataProcessor.parameters
+        val parameters = processorVersion.parameters
         val parameter = parameters.first()
         assertThat(parameter.name).isEqualTo("images_path")
         assertThat(parameter.type).isEqualTo(ParameterType.STRING)

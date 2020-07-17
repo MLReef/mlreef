@@ -1,3 +1,5 @@
+@file:Suppress("SqlResolve")
+
 package com.mlreef.rest
 
 import com.mlreef.rest.marketplace.SearchableTag
@@ -84,6 +86,22 @@ interface DataProcessorRepository : KtCrudRepository<DataProcessor, UUID> {
 }
 
 @Repository
+interface ProcessorVersionRepository : KtCrudRepository<ProcessorVersion, UUID> {
+    @Query("SELECT v FROM ProcessorVersion v WHERE v.dataProcessor.slug LIKE %:processorSlug% ORDER BY v.number DESC ")
+    fun findAllBySlug(processorSlug: String): List<ProcessorVersion>
+
+    @Query("SELECT v FROM ProcessorVersion v WHERE v.dataProcessor.id = :id ORDER BY v.number DESC ")
+    fun findAllByDataProcessorId(id: UUID): List<ProcessorVersion>
+
+    @Query("SELECT v FROM ProcessorVersion v WHERE v.dataProcessor.slug LIKE %:processorSlug% ORDER BY v.number DESC ")
+    fun findAllBySlug(processorSlug: String, pageable: Pageable): List<ProcessorVersion>
+
+    @Query("SELECT v FROM ProcessorVersion v WHERE v.dataProcessor.slug LIKE %:processorSlug% AND v.branch LIKE %:branch% ORDER BY v.number DESC nulls first ")
+    fun findBySlugAndBranch(processorSlug: String, branch: String, pageable: Pageable): List<ProcessorVersion>
+
+}
+
+@Repository
 interface DataOperationRepository : KtCrudRepository<DataOperation, UUID>
 
 @Repository
@@ -94,7 +112,7 @@ interface DataAlgorithmRepository : KtCrudRepository<DataAlgorithm, UUID>
 
 @Repository
 interface ProcessorParameterRepository : ReadOnlyRepository<ProcessorParameter, UUID> {
-    fun findByDataProcessorIdAndName(id: UUID, name: String): ProcessorParameter?
+    fun findByProcessorVersionIdAndName(id: UUID, name: String): ProcessorParameter?
 }
 
 @Repository

@@ -3,6 +3,7 @@ package com.mlreef.rest.integration
 import com.mlreef.rest.Account
 import com.mlreef.rest.AccountRepository
 import com.mlreef.rest.AccountToken
+import com.mlreef.rest.BaseEnvironment
 import com.mlreef.rest.CodeProject
 import com.mlreef.rest.CodeProjectRepository
 import com.mlreef.rest.DataAlgorithm
@@ -10,6 +11,7 @@ import com.mlreef.rest.DataAlgorithmRepository
 import com.mlreef.rest.DataOperation
 import com.mlreef.rest.DataOperationRepository
 import com.mlreef.rest.DataProcessor
+import com.mlreef.rest.DataProcessorRepository
 import com.mlreef.rest.DataProject
 import com.mlreef.rest.DataProjectRepository
 import com.mlreef.rest.DataType
@@ -19,8 +21,12 @@ import com.mlreef.rest.Group
 import com.mlreef.rest.GroupRepository
 import com.mlreef.rest.ParameterType
 import com.mlreef.rest.Person
+import com.mlreef.rest.PersonRepository
 import com.mlreef.rest.ProcessorParameter
 import com.mlreef.rest.ProcessorParameterRepository
+import com.mlreef.rest.ProcessorVersion
+import com.mlreef.rest.ProcessorVersionRepository
+import com.mlreef.rest.Subject
 import com.mlreef.rest.VisibilityScope
 import com.mlreef.rest.external_api.gitlab.GitlabRestClient
 import com.mlreef.rest.external_api.gitlab.GroupAccessLevel
@@ -39,7 +45,8 @@ import org.springframework.stereotype.Component
 import java.util.UUID
 import javax.transaction.Transactional
 
-@Component class IntegrationTestsHelper {
+@Component
+class IntegrationTestsHelper {
     companion object {
         val allCreatedUsersNames = mutableListOf<String>()
         val allCreatedProjectsNames = mutableListOf<String>()
@@ -58,6 +65,12 @@ import javax.transaction.Transactional
     lateinit var codeProjectRepository: CodeProjectRepository
 
     @Autowired
+    lateinit var personRepository: PersonRepository
+
+    @Autowired
+    lateinit var processorVersionRepository: ProcessorVersionRepository
+
+    @Autowired
     lateinit var dataProjectRepository: DataProjectRepository
 
     @Autowired
@@ -65,6 +78,9 @@ import javax.transaction.Transactional
 
     @Autowired
     private lateinit var dataAlgorithmRepository: DataAlgorithmRepository
+
+    @Autowired
+    private lateinit var dataProcessorRepository: DataProcessorRepository
 
     @Autowired
     private lateinit var dataVisualizationRepository: DataVisualizationRepository
@@ -75,9 +91,9 @@ import javax.transaction.Transactional
     @Autowired
     protected lateinit var publicProjectRepository: PublicProjectsRepository
 
-    var dataOp1: DataOperation? = null
-    var dataOp2: DataAlgorithm? = null
-    var dataOp3: DataVisualization? = null
+    var dataOp1: ProcessorVersion? = null
+    var dataOp2: ProcessorVersion? = null
+    var dataOp3: ProcessorVersion? = null
 
     private val processorParametersCache = mutableListOf<ProcessorParameter>()
 
@@ -233,9 +249,16 @@ import javax.transaction.Transactional
 
 
     fun generateProcessorsInDatabase() {
-        dataOp1 = createDataOperation()
-        dataOp2 = createDataAlgorithm()
-        dataOp3 = createDataVisualization()
+        val _dataOp1 = createDataOperation()
+        val _dataOp2 = createDataAlgorithm()
+        val _dataOp3 = createDataVisualization()
+
+        val publisher = Person(UUID.randomUUID(), "subject", "name", 1)
+        personRepository.save(publisher)
+
+        dataOp1 = createProcessorVersion(_dataOp1, publisher)
+        dataOp2 = createProcessorVersion(_dataOp2, publisher)
+        dataOp3 = createProcessorVersion(_dataOp3, publisher)
 
         processorParametersCache.add(createProcessorParameter(dataOp1!!, "stringParam", ParameterType.STRING, 0))
         processorParametersCache.add(createProcessorParameter(dataOp1!!, "floatParam", ParameterType.FLOAT, 1))
@@ -255,9 +278,9 @@ import javax.transaction.Transactional
         }
         processorParametersCache.clear()
 
-        dataOperationRepository.delete(dataOp1!!)
-        dataAlgorithmRepository.delete(dataOp2!!)
-        dataVisualizationRepository.delete(dataOp3!!)
+        dataProcessorRepository.delete(dataOp1!!.dataProcessor)
+        dataProcessorRepository.delete(dataOp2!!.dataProcessor)
+        dataProcessorRepository.delete(dataOp3!!.dataProcessor)
 
         dataOp1 = null
         dataOp2 = null
@@ -270,7 +293,6 @@ import javax.transaction.Transactional
                 UUID.randomUUID(),
                 slug ?: "commons-data-operation",
                 name ?: "name",
-                command ?: "command",
                 DataType.ANY,
                 DataType.ANY)
         )
@@ -282,10 +304,22 @@ import javax.transaction.Transactional
                 UUID.randomUUID(),
                 slug ?: "commons-algorithm",
                 name ?: "name",
-                command ?: "command",
                 DataType.ANY,
                 DataType.ANY)
         )
+    }
+
+    fun createProcessorVersion(dataOp1: DataProcessor, publisher: Subject, command: String = "command"): ProcessorVersion {
+        return processorVersionRepository.save(ProcessorVersion(
+            id = dataOp1.id, dataProcessor = dataOp1, publisher = publisher,
+            command = command, number = 1, baseEnvironment = BaseEnvironment.default()))
+
+    }
+
+    fun adaptProcessorVersion(version: ProcessorVersion, publisher: Subject, command: String = "command"): ProcessorVersion {
+        return processorVersionRepository.save(version.copy(
+            publisher = publisher
+        ))
     }
 
     fun createDataVisualization(slug: String? = null, name: String? = null, command: String? = null): DataVisualization {
@@ -294,12 +328,11 @@ import javax.transaction.Transactional
                 UUID.randomUUID(),
                 slug ?: "commons-data-visualisation",
                 name ?: "name",
-                command ?: "command",
                 DataType.ANY)
         )
     }
 
-    fun createProcessorParameter(processor: DataProcessor, name: String? = null, type: ParameterType = ParameterType.STRING, order: Int = 0): ProcessorParameter {
+    fun createProcessorParameter(processor: ProcessorVersion, name: String? = null, type: ParameterType = ParameterType.STRING, order: Int = 0): ProcessorParameter {
         return processorParameterRepository.save(
             ProcessorParameter(
                 UUID.randomUUID(),

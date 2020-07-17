@@ -2,7 +2,6 @@ package com.mlreef.rest.feature.pipeline
 
 import com.mlreef.rest.Account
 import com.mlreef.rest.DataProcessorInstance
-import com.mlreef.rest.DataProcessorRepository
 import com.mlreef.rest.DataProjectRepository
 import com.mlreef.rest.FileLocation
 import com.mlreef.rest.ParameterInstance
@@ -14,6 +13,7 @@ import com.mlreef.rest.PipelineJobInfo
 import com.mlreef.rest.PipelineStatus
 import com.mlreef.rest.PipelineType
 import com.mlreef.rest.ProcessorParameterRepository
+import com.mlreef.rest.ProcessorVersionRepository
 import com.mlreef.rest.SubjectRepository
 import com.mlreef.rest.exceptions.ErrorCode
 import com.mlreef.rest.exceptions.PipelineCreateException
@@ -28,6 +28,7 @@ import com.mlreef.utils.Slugs
 import lombok.RequiredArgsConstructor
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.data.domain.PageRequest
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.security.crypto.bcrypt.BCrypt
 import org.springframework.stereotype.Service
@@ -44,7 +45,7 @@ class PipelineService(
     private val dataProjectRepository: DataProjectRepository,
     private val pipelineConfigRepository: PipelineConfigRepository,
     private val pipelineInstanceRepository: PipelineInstanceRepository,
-    private val dataProcessorRepository: DataProcessorRepository,
+    private val processorVersionRepository: ProcessorVersionRepository,
     private val processorParameterRepository: ProcessorParameterRepository,
     private val gitlabRestClient: GitlabRestClient,
     @Value("\${mlreef.gitlab.root-url}") val gitlabRootUrl: String,
@@ -114,14 +115,14 @@ class PipelineService(
     }
 
     fun newDataProcessorInstance(processorSlug: String): DataProcessorInstance {
-        val findBySlug = dataProcessorRepository.findBySlug(processorSlug)
+        val findBySlug = processorVersionRepository.findAllBySlug(processorSlug, PageRequest.of(0, 1)).firstOrNull()
             ?: throw PipelineCreateException(ErrorCode.DataProcessorNotUsable, processorSlug)
 
         return DataProcessorInstance(randomUUID(), findBySlug, parameterInstances = arrayListOf())
     }
 
     fun addParameterInstance(processorInstance: DataProcessorInstance, name: String, value: String): ParameterInstance {
-        val processorParameter = processorParameterRepository.findByDataProcessorIdAndName(processorInstance.dataProcessor.id, name)
+        val processorParameter = processorParameterRepository.findByProcessorVersionIdAndName(processorInstance.processorVersion.id, name)
             ?: throw PipelineCreateException(ErrorCode.ProcessorParameterNotUsable, name)
 
         return processorInstance.addParameterInstances(processorParameter, value)

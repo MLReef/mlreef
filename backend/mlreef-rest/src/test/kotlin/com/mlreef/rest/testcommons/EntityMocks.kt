@@ -25,21 +25,21 @@ class EntityMocks {
 
         fun dataOperation(author: Subject = person(id = authorId), slug: String = "commons-augment") = DataOperation(
             id = randomUUID(), slug = slug, name = "Operations",
-            command = "augment", inputDataType = DataType.IMAGE, outputDataType = DataType.IMAGE,
+            inputDataType = DataType.IMAGE, outputDataType = DataType.IMAGE,
             visibilityScope = VisibilityScope.PUBLIC, author = author,
             description = "description",
             codeProjectId = codeProjectId)
 
         fun dataAlgorithm(author: Subject = person(id = authorId)) = DataAlgorithm(
             id = randomUUID(), slug = "commons-algorithm", name = "Algorithm",
-            command = "augment", inputDataType = DataType.IMAGE, outputDataType = DataType.IMAGE,
+            inputDataType = DataType.IMAGE, outputDataType = DataType.IMAGE,
             visibilityScope = VisibilityScope.PUBLIC, author = author,
             description = "description",
             codeProjectId = codeProjectId)
 
         fun dataVisualization(author: Subject = person(id = authorId)) = DataVisualization(
             id = randomUUID(), slug = "commons-vis", name = "Algorithm",
-            command = "augment", inputDataType = DataType.IMAGE,
+            inputDataType = DataType.IMAGE,
             visibilityScope = VisibilityScope.PUBLIC, author = author,
             description = "description",
             codeProjectId = codeProjectId)

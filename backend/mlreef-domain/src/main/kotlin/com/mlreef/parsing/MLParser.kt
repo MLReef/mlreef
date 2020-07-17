@@ -2,6 +2,7 @@ package com.mlreef.parsing
 
 import com.mlreef.rest.DataAlgorithm
 import com.mlreef.rest.DataOperation
+import com.mlreef.rest.DataProcessor
 import com.mlreef.rest.DataProcessorType
 import com.mlreef.rest.DataType
 import com.mlreef.rest.DataVisualization
@@ -44,11 +45,12 @@ object ModelExtractor {
         val outputDataType = DataType.valueOf(enumOrFail(values, "output_type"))
         val visibilityScope = VisibilityScope.valueOf(enumOrFail(values, "visibility"))
 
-        return when (processorType) {
+        val processor: DataProcessor = when (processorType) {
             DataProcessorType.VISUALISATION -> createDataVisualisation(name, slug, command, description, inputDataType, visibilityScope)
             DataProcessorType.OPERATION -> createDataOperation(name, slug, command, description, inputDataType, outputDataType, visibilityScope)
             DataProcessorType.ALGORITHM -> createDataAlgorithm(name, slug, command, description, inputDataType, outputDataType, visibilityScope)
         }
+        return processor
     }
 
     private fun createDataOperation(name: String?, slug: String?, command: String, description: String?, inputDataType: DataType, outputDataType: DataType, visibilityScope: VisibilityScope): DataOperation {
@@ -56,7 +58,6 @@ object ModelExtractor {
             id = randomUUID(),
             name = name!!,
             slug = slug!!,
-            command = command,
             author = null,
             description = description ?: "",
             inputDataType = inputDataType,
@@ -70,7 +71,6 @@ object ModelExtractor {
             id = randomUUID(),
             name = name!!,
             slug = slug!!,
-            command = command,
             author = null,
             description = description ?: "",
             inputDataType = inputDataType,
@@ -82,7 +82,6 @@ object ModelExtractor {
             id = randomUUID(),
             name = name!!,
             slug = slug!!,
-            command = command,
             author = null,
             description = description ?: "",
             inputDataType = inputDataType,
@@ -120,7 +119,7 @@ object ModelExtractor {
         val dataProcessor = context.dataProcessor!!
 
         return ProcessorParameter(
-            id = randomUUID(), dataProcessorId = dataProcessor.id,
+            id = randomUUID(), processorVersionId = dataProcessor.id,
             name = name, type = parameterType, required = required,
             defaultValue = defaultValue, order = order, description = description)
     }

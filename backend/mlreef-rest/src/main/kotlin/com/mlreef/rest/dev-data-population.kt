@@ -44,6 +44,7 @@ internal class DataPopulator(
     val accountRepository: AccountRepository,
     val codeProjectRepository: CodeProjectRepository,
     val dataProcessorRepository: DataProcessorRepository,
+    val processorVersionRepository: ProcessorVersionRepository,
     val dataAlgorithmRepository: DataAlgorithmRepository,
     val processorParameterRepository: ProcessorParameterRepository,
     val experimentRepository: ExperimentRepository,
@@ -116,7 +117,9 @@ internal class DataPopulator(
             }
 
             executeLoggedOptional("5. Create example Experiment") {
-                createExperiment(dataOp1, dataOp1processorParameter1, dataOp1processorParameter2, dataOp2, dataOp2processorParameter1, dataOp2processorParameter2)
+                createExperiment(
+                    dataOp1, dataOp1processorParameter1, dataOp1processorParameter2,
+                    dataOp2, dataOp2processorParameter1, dataOp2processorParameter2)
             }
         } catch (e: Exception) {
             log.error("####################################################")
@@ -134,12 +137,13 @@ internal class DataPopulator(
     }
 
     @Transactional
-    fun createExperiment(dataOp1: DataOperation, dataOp1processorParameter1: ProcessorParameter, dataOp1processorParameter2: ProcessorParameter, dataOp2: DataOperation, dataOp2processorParameter1: ProcessorParameter, dataOp2processorParameter2: ProcessorParameter): Experiment {
-        val processorInstance = DataProcessorInstance(id = UUID.fromString("5d005488-afb6-4a0c-0031-f471153a04b5"), dataProcessor = dataOp1)
+    fun createExperiment(dataOp1: ProcessorVersion, dataOp1processorParameter1: ProcessorParameter, dataOp1processorParameter2: ProcessorParameter,
+                         dataOp2: ProcessorVersion, dataOp2processorParameter1: ProcessorParameter, dataOp2processorParameter2: ProcessorParameter): Experiment {
+        val processorInstance = DataProcessorInstance(id = UUID.fromString("5d005488-afb6-4a0c-0031-f471153a04b5"), processorVersion = dataOp1)
         processorInstance.addParameterInstances(dataOp1processorParameter1, ".")
         processorInstance.addParameterInstances(dataOp1processorParameter2, ".")
 
-        val processorInstance2 = DataProcessorInstance(id = UUID.fromString("5d005488-afb6-4a0c-0032-f471153a04b5"), dataProcessor = dataOp2)
+        val processorInstance2 = DataProcessorInstance(id = UUID.fromString("5d005488-afb6-4a0c-0032-f471153a04b5"), processorVersion = dataOp2)
         processorInstance2.addParameterInstances(dataOp2processorParameter1, ".")
         processorInstance2.addParameterInstances(dataOp2processorParameter2, ".")
 
@@ -249,19 +253,25 @@ internal class DataPopulator(
     }
 
     @Transactional
-    fun createDataOperation_augment(userToken: String, author: Subject): Triple<DataOperation, ProcessorParameter, ProcessorParameter> {
+    fun createDataOperation_augment(userToken: String, author: Subject): Triple<ProcessorVersion, ProcessorParameter, ProcessorParameter> {
         val codeProjectId = UUID.fromString("1000000-0000-0001-0001-000000000000")
         val dataOperationId = UUID.fromString("1000000-0000-0001-0002-000000000000")
 
         val createCodeProject = createCodeProject(userToken, codeProjectId, "code-project-augment", "Test DataProject 2", 0)
 
-        val dataOp1 = dataProcessorRepository.findByIdOrNull(dataOperationId)
+        val _dataOp1 = dataProcessorRepository.findByIdOrNull(dataOperationId)
             ?: dataProcessorRepository.save(DataOperation(
                 id = dataOperationId, slug = "commons-augment", name = "Augment",
-                command = "augment", inputDataType = DataType.IMAGE, outputDataType = DataType.IMAGE,
+                inputDataType = DataType.IMAGE, outputDataType = DataType.IMAGE,
                 visibilityScope = VisibilityScope.PUBLIC, author = author,
                 description = "Data augmentation multiplies and tweakes the data by changing angle of rotation, flipping the images, zooming in, etc.",
                 codeProjectId = codeProjectId))
+
+        val dataOp1 = processorVersionRepository.findByIdOrNull(dataOperationId)
+            ?: processorVersionRepository.save(ProcessorVersion(
+                id = dataOperationId, dataProcessor = _dataOp1, publisher = author,
+                command = "augment", number = 1, baseEnvironment = BaseEnvironment.default()))
+
         val parameter1 = addParam(ProcessorParameter(
             UUID.fromString("1000000-0000-0001-0011-000000000000"), dataOp1.id,
             "input-path", ParameterType.STRING, 0, ".", true
@@ -304,11 +314,11 @@ internal class DataPopulator(
         ))
         createMarketplaceEntry(createCodeProject, dataOp1, listOf(tag1, tag2))
 
-        return Triple(dataOp1 as DataOperation, parameter1, parameter2)
+        return Triple(dataOp1 as ProcessorVersion, parameter1, parameter2)
     }
 
     @Transactional
-    fun createDataOperation2(userToken: String, author: Subject): Triple<DataOperation, ProcessorParameter, ProcessorParameter> {
+    fun createDataOperation2(userToken: String, author: Subject): Triple<ProcessorVersion, ProcessorParameter, ProcessorParameter> {
         val codeProjectId = UUID.fromString("1000000-0000-0002-0001-000000000000")
         val dataOperationId = UUID.fromString("1000000-0000-0002-0002-000000000000")
         val processorParameter1Id = UUID.fromString("1000000-0000-0002-0011-000000000000")
@@ -318,10 +328,10 @@ internal class DataPopulator(
 
         val createCodeProject = createCodeProject(userToken, codeProjectId, "code-project-random-crop", "Test DataProject", 0)
 
-        val dataOp2 = dataProcessorRepository.findByIdOrNull(dataOperationId)
+        val _dataOp2 = dataProcessorRepository.findByIdOrNull(dataOperationId)
             ?: dataProcessorRepository.save(DataOperation(
                 id = dataOperationId, slug = "commons-random-crop", name = "Random crop",
-                command = "random_crop", inputDataType = DataType.IMAGE, outputDataType = DataType.IMAGE,
+                inputDataType = DataType.IMAGE, outputDataType = DataType.IMAGE,
                 visibilityScope = VisibilityScope.PUBLIC, author = author,
                 description = """
                     This pipeline operation randomly crops a NxM (height x width) portion of the given dataset.
@@ -329,27 +339,32 @@ internal class DataPopulator(
                 """.trimMargin(),
                 codeProjectId = codeProjectId))
 
+        val dataOp2 = processorVersionRepository.findByIdOrNull(dataOperationId)
+            ?: processorVersionRepository.save(ProcessorVersion(
+                id = dataOperationId, dataProcessor = _dataOp2, publisher = author,
+                command = "random_crop", number = 1, baseEnvironment = BaseEnvironment.default()))
+
         val parameter1 = addParam(processorParameter1Id, ProcessorParameter(processorParameter1Id, dataOp2.id, "height", ParameterType.INTEGER, 0, "35"))
         val parameter2 = addParam(processorParameter2Id, ProcessorParameter(processorParameter2Id, dataOp2.id, "width", ParameterType.INTEGER, 1, "35"))
         addParam(processorParameter3Id, ProcessorParameter(processorParameter3Id, dataOp2.id, "channels", ParameterType.INTEGER, 0, "3", false))
         addParam(processorParameter4Id, ProcessorParameter(processorParameter4Id, dataOp2.id, "seed", ParameterType.INTEGER, 1, "3", false, "advanced"))
 
         createMarketplaceEntry(createCodeProject, dataOp2, listOf(tag2, tag4))
-        return Triple(dataOp2 as DataOperation, parameter1, parameter2)
+        return Triple(dataOp2, parameter1, parameter2)
     }
 
     @Transactional
-    fun createMarketplaceEntry(codeProject: CodeProject?, dataProcessor: DataProcessor, tags: List<SearchableTag>) {
+    fun createMarketplaceEntry(codeProject: CodeProject?, processor: ProcessorVersion, tags: List<SearchableTag>) {
         if (codeProject != null) {
-            val marketplaceEntry = marketplaceService.assertEntry(codeProject, dataProcessor.author!!)
+            val marketplaceEntry = marketplaceService.assertEntry(codeProject, processor.dataProcessor.author!!)
             marketplaceService.save(marketplaceEntry
                 .addTags(tags)
-                .addInputDataTypes(listOf(dataProcessor.inputDataType))
-                .addOutputDataTypes(listOf(dataProcessor.outputDataType)))
+                .addInputDataTypes(listOf(processor.dataProcessor.inputDataType))
+                .addOutputDataTypes(listOf(processor.dataProcessor.outputDataType)))
         }
     }
 
-    fun createDataOperation3(userToken: String, author: Subject): Triple<DataOperation, ProcessorParameter, ProcessorParameter> {
+    fun createDataOperation3(userToken: String, author: Subject): Triple<ProcessorVersion, ProcessorParameter, ProcessorParameter> {
         val codeProjectId = UUID.fromString("1000000-0000-0003-0001-000000000000")
         val dataOperationId = UUID.fromString("1000000-0000-0003-0002-000000000000")
         val processorParameter1Id = UUID.fromString("1000000-0000-0003-0011-000000000000")
@@ -357,20 +372,27 @@ internal class DataPopulator(
 
         val createCodeProject = createCodeProject(userToken, codeProjectId, "code-project-visualisation", "Test DataProject", 0)
 
-        val dataOp3 = dataProcessorRepository.findByIdOrNull(dataOperationId)
+        val _dataOp = dataProcessorRepository.findByIdOrNull(dataOperationId)
             ?: dataProcessorRepository.save(DataOperation(
                 id = dataOperationId, slug = "commons-lee-filter", name = "Lee filter",
-                command = "lee_filter", inputDataType = DataType.IMAGE, outputDataType = DataType.IMAGE,
+                inputDataType = DataType.IMAGE, outputDataType = DataType.IMAGE,
                 visibilityScope = VisibilityScope.PUBLIC, author = author,
                 description = "The presence of speckle noise in Synthetic Aperture Radar (SAR) images makes the interpretation of the contents difficult, \n" +
                     "thereby degrading the quality of the image. Therefore an efficient speckle noise removal technique, the Lee Filter is used to \n" +
                     "smoothen the static-like noise present in these images",
                 codeProjectId = codeProjectId))
-        createMarketplaceEntry(createCodeProject, dataOp3, listOf(tag2, tag3))
 
-        val dataOp1processorParameter1 = addParam(processorParameter1Id, ProcessorParameter(processorParameter1Id, dataOp3.id, "tupleParam", ParameterType.TUPLE, 0, "(1,2)"))
-        val dataOp1processorParameter2 = addParam(processorParameter2Id, ProcessorParameter(processorParameter2Id, dataOp3.id, "hashParam", ParameterType.DICTIONARY, 1, "{a:b}"))
-        return Triple(dataOp3 as DataOperation, dataOp1processorParameter1, dataOp1processorParameter2)
+        val dataOp = processorVersionRepository.findByIdOrNull(dataOperationId)
+            ?: processorVersionRepository.save(ProcessorVersion(
+                id = dataOperationId, dataProcessor = _dataOp, publisher = author,
+                command = "lee_filter", number = 1, baseEnvironment = BaseEnvironment.default()))
+
+
+        createMarketplaceEntry(createCodeProject, dataOp, listOf(tag2, tag3))
+
+        val dataOp1processorParameter1 = addParam(processorParameter1Id, ProcessorParameter(processorParameter1Id, dataOp.id, "tupleParam", ParameterType.TUPLE, 0, "(1,2)"))
+        val dataOp1processorParameter2 = addParam(processorParameter2Id, ProcessorParameter(processorParameter2Id, dataOp.id, "hashParam", ParameterType.DICTIONARY, 1, "{a:b}"))
+        return Triple(dataOp, dataOp1processorParameter1, dataOp1processorParameter2)
     }
 
     @Transactional
@@ -391,12 +413,11 @@ internal class DataPopulator(
 
         val createCodeProject = createCodeProject(userToken, codeProjectId, "code-project-resnet-50", "Resnet 50", 10)
 
-        val model = dataAlgorithmRepository.findByIdOrNull(dataOperationId)
+        val _dataOp = dataAlgorithmRepository.findByIdOrNull(dataOperationId)
             ?: dataAlgorithmRepository.save(DataAlgorithm(
                 id = dataOperationId,
                 slug = "resnet50",
                 name = "Resnet 50",
-                command = "resnet50",
                 inputDataType = DataType.IMAGE,
                 outputDataType = DataType.IMAGE,
                 visibilityScope = VisibilityScope.PUBLIC,
@@ -404,6 +425,11 @@ internal class DataPopulator(
                 description = "ResNet50 is a 50 layer Residual Network.",
                 codeProjectId = codeProjectId
             ))
+
+        val model = processorVersionRepository.findByIdOrNull(dataOperationId)
+            ?: processorVersionRepository.save(ProcessorVersion(
+                id = dataOperationId, dataProcessor = _dataOp, publisher = author,
+                command = "resnet50", number = 1, baseEnvironment = BaseEnvironment.default()))
 
         createMarketplaceEntry(createCodeProject, model, listOf(tag3, tag4))
 
@@ -449,13 +475,19 @@ internal class DataPopulator(
 
         val createCodeProject = createCodeProject(userToken, codeProjectId, "code-project-dummy", "Dummy Pipeline Project", 11)
 
-        val model = dataAlgorithmRepository.findByIdOrNull(dataOperationId)
+        val _model = dataAlgorithmRepository.findByIdOrNull(dataOperationId)
             ?: dataAlgorithmRepository.save(DataAlgorithm(
                 id = dataOperationId, slug = "debug-dataprocessor", name = "Dummy debug_dataprocessor",
-                command = "debug_dataprocessor", inputDataType = DataType.IMAGE, outputDataType = DataType.IMAGE,
+                inputDataType = DataType.IMAGE, outputDataType = DataType.IMAGE,
                 visibilityScope = VisibilityScope.PUBLIC, author = author,
                 description = "Dummy Pipeline.",
                 codeProjectId = codeProjectId))
+
+        val model = processorVersionRepository.findByIdOrNull(dataOperationId)
+            ?: processorVersionRepository.save(ProcessorVersion(
+                id = dataOperationId, dataProcessor = _model, publisher = author,
+                command = "debug_dataprocessor", number = 1, baseEnvironment = BaseEnvironment.default()))
+
         createMarketplaceEntry(createCodeProject!!, model, listOf(tag1, tag4))
 
         addParam(id1, ProcessorParameter(id1, model.id, "epochs", ParameterType.INTEGER, 1, "10"))

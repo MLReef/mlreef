@@ -42,7 +42,7 @@ internal class YamlFileGenerator(
                     DataProcessorType.OPERATION -> "/epf/pipelines/"
                     DataProcessorType.VISUALISATION -> "/epf/visualisation/"
                 }
-                "python $path${instance.dataProcessor.command}.py " + writeParameters(instance.parameterInstances)
+                "python $path${instance.processorVersion.command}.py " + writeParameters(instance.parameterInstances)
             } catch (e: Exception) {
                 "# could not parse dataprocessor: ${e.message}"
             }

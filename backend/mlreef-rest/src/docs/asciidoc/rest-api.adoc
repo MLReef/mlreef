@@ -402,6 +402,10 @@ operation::data-processors-codeproject-create-success[snippets='curl-request,res
 
 operation::data-processors-codeproject-retrieve-one[snippets='curl-request,response-body,response-fields']
 
+=== GET /code-project/:id/processor/versions
+
+operation::processor-versions-retrieve-all[snippets='curl-request,response-body,response-fields']
+
 [[project-pipelineconfig]]
 == Pipelines of Project  - /data-projects/:id/pipelines
 

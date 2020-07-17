@@ -17,16 +17,13 @@ import com.mlreef.rest.Person
 import com.mlreef.rest.PipelineJobInfo
 import com.mlreef.rest.ProcessorParameter
 import com.mlreef.rest.ProcessorParameterRepository
+import com.mlreef.rest.ProcessorVersion
 import com.mlreef.rest.api.v1.ExperimentCreateRequest
 import com.mlreef.rest.api.v1.dto.DataProcessorInstanceDto
 import com.mlreef.rest.api.v1.dto.ExperimentDto
 import com.mlreef.rest.api.v1.dto.ParameterInstanceDto
 import com.mlreef.rest.api.v1.dto.PipelineJobInfoDto
 import com.mlreef.rest.external_api.gitlab.TokenDetails
-import com.mlreef.rest.external_api.gitlab.dto.Branch
-import com.mlreef.rest.external_api.gitlab.dto.Commit
-import com.mlreef.rest.external_api.gitlab.dto.GitlabPipeline
-import com.mlreef.rest.external_api.gitlab.dto.GitlabUser
 import io.mockk.MockKAnnotations
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
@@ -51,19 +48,26 @@ import javax.transaction.Transactional
 @Suppress("UsePropertyAccessSyntax")
 class ExperimentsApiTest : AbstractRestApiTest() {
 
-    private lateinit var dataOp1: DataOperation
-    private lateinit var dataOp2: DataAlgorithm
-    private lateinit var dataOp3: DataVisualization
+    private lateinit var dataOp1: ProcessorVersion
+    private lateinit var dataOp2: ProcessorVersion
+    private lateinit var dataOp3: ProcessorVersion
     private lateinit var subject: Person
     private lateinit var dataProject: DataProject
     private lateinit var dataProject2: DataProject
     val rootUrl = "/api/v1/data-projects"
     val epfUrl = "/api/v1/epf"
 
-    @Autowired private lateinit var experimentRepository: ExperimentRepository
-    @Autowired private lateinit var dataProcessorInstanceRepository: DataProcessorInstanceRepository
-    @Autowired private lateinit var processorParameterRepository: ProcessorParameterRepository
-    @Autowired private lateinit var pipelineTestPreparationTrait: PipelineTestPreparationTrait
+    @Autowired
+    private lateinit var experimentRepository: ExperimentRepository
+
+    @Autowired
+    private lateinit var dataProcessorInstanceRepository: DataProcessorInstanceRepository
+
+    @Autowired
+    private lateinit var processorParameterRepository: ProcessorParameterRepository
+
+    @Autowired
+    private lateinit var pipelineTestPreparationTrait: PipelineTestPreparationTrait
 
     @BeforeEach
     @AfterEach
@@ -368,13 +372,13 @@ class ExperimentsApiTest : AbstractRestApiTest() {
         val processorInstance2 = DataProcessorInstance(randomUUID(), dataOp1)
 
         val processorParameter = ProcessorParameter(
-            id = randomUUID(), dataProcessorId = processorInstance.dataProcessorId,
+            id = randomUUID(), processorVersionId = processorInstance.dataProcessorId,
             name = "param1", type = ParameterType.STRING,
             defaultValue = "default", description = "not empty",
             order = 1, required = true)
 
         processorInstance.addParameterInstances(processorParameter, "value")
-        processorInstance2.addParameterInstances(processorParameter.copy(dataProcessorId = processorInstance2.dataProcessorId), "value")
+        processorInstance2.addParameterInstances(processorParameter.copy(processorVersionId = processorInstance2.dataProcessorId), "value")
         processorParameterRepository.save(processorParameter)
         dataProcessorInstanceRepository.save(processorInstance)
         dataProcessorInstanceRepository.save(processorInstance2)

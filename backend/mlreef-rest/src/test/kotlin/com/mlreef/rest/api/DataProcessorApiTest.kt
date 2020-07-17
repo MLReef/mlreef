@@ -1,21 +1,23 @@
 package com.mlreef.rest.api
 
 import com.mlreef.rest.AccessLevel
+import com.mlreef.rest.BaseEnvironment
 import com.mlreef.rest.CodeProject
 import com.mlreef.rest.CodeProjectRepository
-import com.mlreef.rest.DataAlgorithm
-import com.mlreef.rest.DataOperation
 import com.mlreef.rest.DataProcessor
 import com.mlreef.rest.DataProcessorRepository
 import com.mlreef.rest.DataProcessorType
 import com.mlreef.rest.DataType
-import com.mlreef.rest.DataVisualization
 import com.mlreef.rest.ParameterType
 import com.mlreef.rest.Person
+import com.mlreef.rest.ProcessorParameter
+import com.mlreef.rest.ProcessorVersion
+import com.mlreef.rest.ProcessorVersionRepository
 import com.mlreef.rest.VisibilityScope
 import com.mlreef.rest.api.v1.DataProcessorCreateRequest
 import com.mlreef.rest.api.v1.dto.DataProcessorDto
 import com.mlreef.rest.api.v1.dto.ParameterDto
+import com.mlreef.rest.api.v1.dto.ProcessorVersionDto
 import com.mlreef.rest.feature.data_processors.DataProcessorService
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
@@ -38,9 +40,9 @@ import javax.transaction.Transactional
 
 class DataProcessorApiTest : AbstractRestApiTest() {
 
-    private lateinit var dataOp1: DataOperation
-    private lateinit var dataOp2: DataAlgorithm
-    private lateinit var dataOp3: DataVisualization
+    private lateinit var dataOp1: ProcessorVersion
+    private lateinit var dataOp2: ProcessorVersion
+    private lateinit var dataOp3: ProcessorVersion
     private lateinit var subject: Person
     private lateinit var codeProject: CodeProject
     private lateinit var codeProject2: CodeProject
@@ -48,10 +50,20 @@ class DataProcessorApiTest : AbstractRestApiTest() {
     val rootUrl = "/api/v1/data-processors"
     val rootUrl2 = "/api/v1/code-projects"
 
-    @Autowired private lateinit var dataProcessorRepository: DataProcessorRepository
-    @Autowired private lateinit var dataProcessorService: DataProcessorService
-    @Autowired private lateinit var codeProjectRepository: CodeProjectRepository
-    @Autowired private lateinit var pipelineTestPreparationTrait: PipelineTestPreparationTrait
+    @Autowired
+    private lateinit var dataProcessorRepository: DataProcessorRepository
+
+    @Autowired
+    private lateinit var processorVersionRepository: ProcessorVersionRepository
+
+    @Autowired
+    private lateinit var dataProcessorService: DataProcessorService
+
+    @Autowired
+    private lateinit var codeProjectRepository: CodeProjectRepository
+
+    @Autowired
+    private lateinit var pipelineTestPreparationTrait: PipelineTestPreparationTrait
 
     @BeforeEach
     fun clearRepo() {
@@ -89,6 +101,35 @@ class DataProcessorApiTest : AbstractRestApiTest() {
             .returnsList(DataProcessorDto::class.java)
 
         assertThat(returnedResult.size).isEqualTo(2)
+    }
+
+    @Transactional
+    @Rollback
+    @Test
+    @Tag(TestTags.RESTDOC)
+    fun `Can retrieve all DataProcessor's Versions`() {
+        val processor = createDataProcessor(DataProcessorType.OPERATION, codeProject.id)
+
+        createProcessorVersion(processor, "master", 1, "command")
+        createProcessorVersion(processor, "master", 2, "command")
+        createProcessorVersion(processor, "develop", 3, "command")
+
+        val returnedResult: List<ProcessorVersionDto> = this.performGet("$rootUrl/id/${processor.id}/versions", account)
+            .andExpect(status().isOk)
+            .document("processor-versions-retrieve-all", responseFields(processorVersionFields("[].")))
+            .returnsList(ProcessorVersionDto::class.java)
+
+        assertThat(returnedResult.size).isEqualTo(3)
+    }
+
+    private fun createProcessorVersion(processor: DataProcessor, branch: String, number: Long,
+                                       command: String, parameters: List<ProcessorParameter> = listOf()
+    ): ProcessorVersion {
+        val processorVersion = ProcessorVersion(
+            id = randomUUID(), dataProcessor = processor, publisher = processor.author,
+            command = command, branch = branch, number = number, baseEnvironment = BaseEnvironment.default(),
+            parameters = parameters)
+        return processorVersionRepository.save(processorVersion)
     }
 
     @Transactional

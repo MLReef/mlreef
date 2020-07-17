@@ -1,5 +1,6 @@
 package com.mlreef.rest.feature.pipeline
 
+import com.mlreef.rest.BaseEnvironment
 import com.mlreef.rest.CodeProject
 import com.mlreef.rest.CodeProjectRepository
 import com.mlreef.rest.DataOperation
@@ -17,6 +18,8 @@ import com.mlreef.rest.PipelineConfigRepository
 import com.mlreef.rest.PipelineInstanceRepository
 import com.mlreef.rest.PipelineStatus
 import com.mlreef.rest.ProcessorParameterRepository
+import com.mlreef.rest.ProcessorVersion
+import com.mlreef.rest.ProcessorVersionRepository
 import com.mlreef.rest.SubjectRepository
 import com.mlreef.rest.VisibilityScope
 import com.mlreef.rest.exceptions.PipelineCreateException
@@ -32,6 +35,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.data.repository.findByIdOrNull
 import java.util.UUID
 import java.util.UUID.randomUUID
 
@@ -58,6 +62,9 @@ class PipelineServiceTest : AbstractServiceTest() {
     private lateinit var dataProcessorRepository: DataProcessorRepository
 
     @Autowired
+    private lateinit var processorVersionRepository: ProcessorVersionRepository
+
+    @Autowired
     private lateinit var codeProjectRepository: CodeProjectRepository
 
     @Autowired
@@ -77,7 +84,7 @@ class PipelineServiceTest : AbstractServiceTest() {
             pipelineInstanceRepository = pipelineInstanceRepository,
             subjectRepository = subjectRepository,
             dataProjectRepository = dataProjectRepository,
-            dataProcessorRepository = dataProcessorRepository,
+            processorVersionRepository = processorVersionRepository,
             processorParameterRepository = processorParameterRepository,
             gitlabRootUrl = "http://localhost:10080",
             gitlabRestClient = restClient,
@@ -412,13 +419,19 @@ class PipelineServiceTest : AbstractServiceTest() {
         codeProjectRepository.save(CodeProject(id = codeProjectId, slug = "code-project-augment", name = "CodeProject Augment", ownerId = author.id, url = "url",
             description = "description", gitlabNamespace = "", gitlabId = 0, gitlabPath = ""))
 
-        val dataOp1 = DataOperation(
+        val _dataOp1 = DataOperation(
             id = randomUUID(), slug = "commons-augment", name = "Augment",
-            command = "augment", inputDataType = DataType.IMAGE, outputDataType = DataType.IMAGE,
+            inputDataType = DataType.IMAGE, outputDataType = DataType.IMAGE,
             visibilityScope = VisibilityScope.PUBLIC, author = author,
             description = "description",
             codeProjectId = codeProjectId)
-        dataProcessorRepository.save(dataOp1)
+
+        dataProcessorRepository.save(_dataOp1)
+
+        val dataOp1 = processorVersionRepository.save(ProcessorVersion(
+            id = _dataOp1.id, dataProcessor = _dataOp1, publisher = author,
+            command = "augment", number = 1, baseEnvironment = BaseEnvironment.default()))
+
         val createPipelineConfig = service.createPipelineConfig(
             ownerId,
             dataRepositoryId,
@@ -427,7 +440,8 @@ class PipelineServiceTest : AbstractServiceTest() {
             "sourcebranch",
             listOf(), listOf()
         )
-        createPipelineConfig.addProcessor(DataProcessorInstance(id = randomUUID(), dataProcessor = dataOp1))
+
+        createPipelineConfig.addProcessor(DataProcessorInstance(id = randomUUID(), processorVersion = dataOp1))
         createPipelineConfig.addInputFile(FileLocation(randomUUID(), FileLocationType.PATH, "/path"))
         createPipelineConfig.addInputFile(FileLocation(randomUUID(), FileLocationType.PATH, "/path2"))
         return pipelineConfigRepository.save(createPipelineConfig)

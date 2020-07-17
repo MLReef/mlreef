@@ -40,7 +40,7 @@ backend integration tests:
   services:
     - docker:19.03.0-dind
   cache:
-    key: "$CI_COMMIT_REF_SLUG"
+    key: "$CI_COMMIT_BRANCH"
     paths:
       - .gradle/wrapper
       - .gradle/caches

@@ -1,17 +1,11 @@
 package com.mlreef.rest
 
 import com.mlreef.rest.marketplace.SearchableType
-import org.hibernate.annotations.Fetch
-import org.hibernate.annotations.FetchMode
-import org.hibernate.annotations.LazyCollection
-import org.hibernate.annotations.LazyCollectionOption
 import java.time.ZonedDateTime
 import java.util.UUID
-import javax.persistence.CascadeType
 import javax.persistence.Column
 import javax.persistence.DiscriminatorColumn
 import javax.persistence.Embeddable
-import javax.persistence.Embedded
 import javax.persistence.Entity
 import javax.persistence.EnumType
 import javax.persistence.Enumerated
@@ -21,7 +15,6 @@ import javax.persistence.Inheritance
 import javax.persistence.InheritanceType
 import javax.persistence.JoinColumn
 import javax.persistence.ManyToOne
-import javax.persistence.OneToMany
 import javax.persistence.Table
 
 object DataProcessorTypeConverter {
@@ -84,7 +77,8 @@ abstract class DataProcessor(
     id: UUID,
     val slug: String,
     val name: String,
-    val command: String,
+//    @Deprecated("See ProcessorVersion")
+//    val command: String,
     @Enumerated(EnumType.STRING)
     val inputDataType: DataType,
     @Enumerated(EnumType.STRING)
@@ -104,20 +98,34 @@ abstract class DataProcessor(
     @JoinColumn(name = "author_id", foreignKey = ForeignKey(name = "dataprocessor_subject_author_id_fkey"))
     val author: Subject?,
 
-    @OneToMany(fetch = FetchType.EAGER, cascade = [CascadeType.ALL])
-    @JoinColumn(name = "data_processor_id", foreignKey = ForeignKey(name = "processorparameter_dataprocessor_data_processor_id_fkey"))
-    @Fetch(value = FetchMode.SUBSELECT)
-    val parameters: List<ProcessorParameter>,
+//    @OneToMany(fetch = FetchType.EAGER, cascade = [CascadeType.ALL])
+//    @JoinColumn(name = "data_processor_id", foreignKey = ForeignKey(name = "processorparameter_dataprocessor_data_processor_id_fkey"))
+//    @Fetch(value = FetchMode.SUBSELECT)
+//    @Deprecated("See ProcessorVersion")
+//    val parameters: List<ProcessorParameter>,
 
-    @OneToMany(fetch = FetchType.EAGER, cascade = [CascadeType.ALL])
-    @JoinColumn(name = "data_processor_id", foreignKey = ForeignKey(name = "outputfiles_dataprocessor_data_processor_id_fkey"))
-    @Fetch(value = FetchMode.SUBSELECT)
-    @LazyCollection(LazyCollectionOption.FALSE)
-    val outputFiles: List<OutputFile>,
+//    @OneToMany(fetch = FetchType.EAGER, cascade = [CascadeType.ALL])
+//    @JoinColumn(name = "data_processor_id", foreignKey = ForeignKey(name = "outputfiles_dataprocessor_data_processor_id_fkey"))
+//    @Fetch(value = FetchMode.SUBSELECT)
+//    @LazyCollection(LazyCollectionOption.FALSE)
+//    @Deprecated("Unused, but someone ordered them")
+//    val outputFiles: List<OutputFile>,
 
-    @Embedded
-    @Column(name = "metric_schema_")
-    val metricSchema: MetricSchema,
+//    @Embedded
+//    @Column(name = "metric_schema_")
+//    @Deprecated("See ProcessorVersion")
+//    val metricSchema: MetricSchema,
+
+    @Column(name = "terms_accepted_by_id")
+    val termsAcceptedById: UUID?,
+    @Column(name = "terms_accepted_at")
+    val termsAcceptedAt: ZonedDateTime?,
+    @Column(name = "licence_name")
+    val licenceName: String?,
+    @Column(name = "licence_text")
+    val licenceText: String?,
+    @Column(name = "last_published_at")
+    val lastPublishedAt: ZonedDateTime?,
 
     version: Long? = null,
     createdAt: ZonedDateTime? = null,
@@ -128,14 +136,12 @@ abstract class DataProcessor(
         return type != DataProcessorType.ALGORITHM
     }
 
-    abstract fun withParameters(
-        parameters: List<ProcessorParameter>,
-        metricSchema: MetricSchema): DataProcessor
 }
 
 @Embeddable
 class MetricSchema(
     @Column(name = "metric_schema_type")
+    @Enumerated(EnumType.STRING)
     var metricType: MetricType,
     @Column(name = "metric_schema_ground_truth")
     var groundTruth: String = "",
@@ -143,4 +149,10 @@ class MetricSchema(
     var prediction: String = "",
     @Column(name = "metric_schema_json_blob")
     var jsonBlob: String = ""
-) : EPFAnnotation
+) : EPFAnnotation {
+
+    companion object {
+        fun default() = MetricSchema(MetricType.UNDEFINED)
+        fun undefined() = MetricSchema(MetricType.UNDEFINED)
+    }
+}

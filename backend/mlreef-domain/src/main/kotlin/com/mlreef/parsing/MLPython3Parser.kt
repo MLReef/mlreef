@@ -3,10 +3,7 @@ package com.mlreef.parsing
 import com.mlreef.antlr.Python3BaseVisitor
 import com.mlreef.antlr.Python3Lexer
 import com.mlreef.antlr.Python3Parser
-import com.mlreef.rest.DataAlgorithm
-import com.mlreef.rest.DataOperation
 import com.mlreef.rest.DataProcessor
-import com.mlreef.rest.DataVisualization
 import com.mlreef.rest.EPFAnnotation
 import com.mlreef.rest.MetricSchema
 import com.mlreef.rest.ProcessorParameter
@@ -59,7 +56,8 @@ object MLPython3AnnotationFactory {
     }
 }
 
-class ParsingContext {
+class ParsingContext() {
+    var metricSchema: MetricSchema? = null
     var dataProcessor: DataProcessor? = null
     var countParameters: Int = 0
 }
@@ -125,21 +123,9 @@ class MLPython3Parser : MLParser {
                             context.dataProcessor = mlAnnotation
                         } else if (mlAnnotation is MetricSchema) {
                             result.countMLMetricSchema += 1
-                            val dataProcessor = context.dataProcessor
-                            context.dataProcessor = when (dataProcessor) {
-                                is DataOperation -> {
-                                    dataProcessor.copy(metricSchema = mlAnnotation)
-                                }
-                                is DataAlgorithm -> {
-                                    dataProcessor.copy(metricSchema = mlAnnotation)
-                                }
-                                is DataVisualization -> {
-                                    dataProcessor.copy(metricSchema = mlAnnotation)
-                                }
-                                else -> {
-                                    dataProcessor
-                                }
-                            }
+                            context.metricSchema = mlAnnotation
+                        } else {
+                            logger.warning("Could not handle:$mlAnnotation")
                         }
                     } catch (error: Exception) {
                         logger.warning(error.message)
