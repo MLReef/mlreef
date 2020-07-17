@@ -45,14 +45,14 @@ class ProjectsPipelineConfigsController(
     private val log: Logger = Logger.getLogger(ProjectsPipelineConfigsController::class.simpleName)
 
     @GetMapping
-    @PreAuthorize("userInProject(#dataProjectId)  || projectIsPublic(#dataProjectId)")
+    @PreAuthorize("canViewProject(#dataProjectId)")
     fun getAllPipelineConfig(@PathVariable dataProjectId: UUID): List<PipelineConfigDto> {
         val list: List<PipelineConfig> = pipelineConfigRepository.findAllByDataProjectId(dataProjectId).toList()
         return list.map(PipelineConfig::toDto)
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("userInProject(#dataProjectId)  || projectIsPublic(#dataProjectId)")
+    @PreAuthorize("canViewProject(#dataProjectId)")
     fun getPipelineConfig(@PathVariable dataProjectId: UUID, @PathVariable id: UUID): PipelineConfigDto {
         val findOneByDataProjectIdAndId = pipelineConfigRepository.findOneByDataProjectIdAndId(dataProjectId, id)
             ?: throw NotFoundException("Experiment not found")

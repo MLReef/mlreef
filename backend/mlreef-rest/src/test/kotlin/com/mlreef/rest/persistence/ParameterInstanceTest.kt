@@ -1,5 +1,6 @@
 package com.mlreef.rest.persistence
 
+import com.mlreef.rest.BaseEnvironment
 import com.mlreef.rest.DataOperation
 import com.mlreef.rest.DataProcessorInstance
 import com.mlreef.rest.DataType
@@ -9,6 +10,7 @@ import com.mlreef.rest.ParameterType
 import com.mlreef.rest.Person
 import com.mlreef.rest.ProcessorParameter
 import com.mlreef.rest.ProcessorParameterRepository
+import com.mlreef.rest.ProcessorVersion
 import com.mlreef.rest.VisibilityScope
 import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.BeforeEach
@@ -32,15 +34,19 @@ class ParameterInstanceTest : AbstractRepositoryTest() {
         val codeProjectId = randomUUID()
         val author = Person(randomUUID(), "slug", "name", 1L)
 //        val codeProject = CodeProject(id = codeProjectId, slug = "code-project-augment", ownerId = author.id, url = "url")
-        val dataProcessor = DataOperation(
+        val _dataProcessor = DataOperation(
             id = randomUUID(), slug = "commons-random-crop", name = "Random crop",
-            command = "random_crop", inputDataType = DataType.IMAGE, outputDataType = DataType.IMAGE,
+            inputDataType = DataType.IMAGE, outputDataType = DataType.IMAGE,
             visibilityScope = VisibilityScope.PUBLIC, author = author,
             description = "description",
             codeProjectId = codeProjectId)
 
+        val dataProcessor = ProcessorVersion(
+            id = _dataProcessor.id, dataProcessor = _dataProcessor, publisher = author,
+            command = "random_crop", number = 1, baseEnvironment = BaseEnvironment.default())
+
         val processorParameter = ProcessorParameter(randomUUID(), dataProcessor.id, "height", ParameterType.INTEGER, 1, "")
-        val dataProcessorInstance = DataProcessorInstance(id = randomUUID(), dataProcessor = dataProcessor)
+        val dataProcessorInstance = DataProcessorInstance(id = randomUUID(), processorVersion = dataProcessor)
         val entity = ParameterInstance(
             id = id, processorParameter = processorParameter,
             dataProcessorInstanceId = dataProcessorInstance.id, value = "value")

@@ -511,12 +511,11 @@ class MarketplaceServiceTest : AbstractRepositoryTest() {
         val (_, _, _, entry4) = mockMarkeplaceEntries(ProjectType.DATA_PROJECT)
         val performSearch = service.performSearch(page(), FilterRequest(
             searchableType = SearchableType.DATA_PROJECT,
-
             outputDataTypes = listOf(DataType.TABULAR),
             maxStars = 100,
             minStars = 0
         ), hashMapOf())
-        val ids = performSearch.map { it.project.getId() }
+        val ids = performSearch.map { it.project.id }
         assertThat(performSearch).hasSize(1)
         assertThat(ids).containsAll(listOf(entry4).map(Searchable::getId))
     }

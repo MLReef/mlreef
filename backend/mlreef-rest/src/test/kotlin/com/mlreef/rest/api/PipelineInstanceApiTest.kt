@@ -16,6 +16,7 @@ import com.mlreef.rest.PipelineInstanceRepository
 import com.mlreef.rest.PipelineType
 import com.mlreef.rest.ProcessorParameter
 import com.mlreef.rest.ProcessorParameterRepository
+import com.mlreef.rest.ProcessorVersion
 import com.mlreef.rest.api.v1.dto.PipelineInstanceDto
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
@@ -39,19 +40,28 @@ import javax.transaction.Transactional
 
 class PipelineInstanceApiTest : AbstractRestApiTest() {
 
-    private lateinit var dataOp1: DataOperation
-    private lateinit var dataOp2: DataAlgorithm
-    private lateinit var dataOp3: DataVisualization
+    private lateinit var dataOp1: ProcessorVersion
+    private lateinit var dataOp2: ProcessorVersion
+    private lateinit var dataOp3: ProcessorVersion
     private lateinit var subject: Person
     private lateinit var dataProject: DataProject
     private lateinit var dataProject2: DataProject
     val rootUrl = "/api/v1/pipelines"
 
-    @Autowired private lateinit var pipelineConfigRepository: PipelineConfigRepository
-    @Autowired private lateinit var pipelineInstanceRepository: PipelineInstanceRepository
-    @Autowired private lateinit var dataProcessorInstanceRepository: DataProcessorInstanceRepository
-    @Autowired private lateinit var processorParameterRepository: ProcessorParameterRepository
-    @Autowired private lateinit var pipelineTestPreparationTrait: PipelineTestPreparationTrait
+    @Autowired
+    private lateinit var pipelineConfigRepository: PipelineConfigRepository
+
+    @Autowired
+    private lateinit var pipelineInstanceRepository: PipelineInstanceRepository
+
+    @Autowired
+    private lateinit var dataProcessorInstanceRepository: DataProcessorInstanceRepository
+
+    @Autowired
+    private lateinit var processorParameterRepository: ProcessorParameterRepository
+
+    @Autowired
+    private lateinit var pipelineTestPreparationTrait: PipelineTestPreparationTrait
 
     @BeforeEach
     @AfterEach
@@ -227,7 +237,7 @@ class PipelineInstanceApiTest : AbstractRestApiTest() {
     private fun createDataProcessorInstance(): DataProcessorInstance {
         val dataProcessorInstance = DataProcessorInstance(randomUUID(), dataOp1)
         val processorParameter = ProcessorParameter(
-            id = randomUUID(), dataProcessorId = dataProcessorInstance.dataProcessorId,
+            id = randomUUID(), processorVersionId = dataProcessorInstance.dataProcessorId,
             name = "param1", type = ParameterType.STRING,
             defaultValue = "default", description = "not empty",
             order = 1, required = true)

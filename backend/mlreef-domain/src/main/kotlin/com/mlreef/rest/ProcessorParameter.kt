@@ -20,9 +20,11 @@ import javax.persistence.Table
 @Entity
 @Table(name = "processor_parameter")
 data class ProcessorParameter(
-    @Id @Column(name = "id", length = 16, unique = true, nullable = false) val id: UUID,
-    @Column(name = "data_processor_id")
-    val dataProcessorId: UUID,
+    @Id
+    @Column(name = "id", length = 16, unique = true, nullable = false)
+    val id: UUID,
+    @Column(name = "processor_version_id")
+    val processorVersionId: UUID,
     val name: String,
     @Enumerated(EnumType.STRING)
     val type: ParameterType,
@@ -35,6 +37,8 @@ data class ProcessorParameter(
     val group: String = "",
     @Column(length = 1024)
     val description: String? = null
+
+
 ) : EPFAnnotation
 
 @Entity

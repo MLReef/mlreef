@@ -44,21 +44,21 @@ class GenericProjectsController(
     }
 
     @GetMapping("/namespace/{namespace}")
-    @PostFilter("canViewProject()")
+    @PostFilter("postCanViewProject()")
     fun getProjectsByNamespace(@PathVariable namespace: String): List<ProjectDto> {
         val projects = projectService.getProjectsByNamespace(namespace)
         return projects.map { it.toDto() }
     }
 
     @GetMapping("/slug/{slug}")
-    @PostFilter("canViewProject()")
+    @PostFilter("postCanViewProject()")
     fun getProjectBySlug(@PathVariable slug: String): List<ProjectDto> {
         val dataProjects = projectService.getProjectsBySlug(slug)
         return dataProjects.map { it.toDto() }
     }
 
     @GetMapping("/{namespace}/{slug}")
-    @PostAuthorize("canViewProject()")
+    @PostAuthorize("postCanViewProject()")
     fun getProjectsByNamespaceAndSlugInPath(@PathVariable namespace: String, @PathVariable slug: String): ProjectDto {
         val dataProject = projectService.getProjectsByNamespaceAndPath(namespace, slug)
             ?: throw ProjectNotFoundException(path = "$namespace/$slug")

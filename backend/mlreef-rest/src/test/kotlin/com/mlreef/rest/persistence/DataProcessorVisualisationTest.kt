@@ -24,7 +24,7 @@ class DataProcessorVisualisationTest : AbstractRepositoryTest() {
         val author = Person(randomUUID(), "slug", "name", 1L)
         val entity = DataVisualization(
             id = id, slug = "commons-augment", name = "Augment",
-            command = "augment", inputDataType = DataType.IMAGE,
+            inputDataType = DataType.IMAGE,
             visibilityScope = VisibilityScope.PUBLIC, author = author,
             description = "description",
             codeProjectId = codeProjectId)

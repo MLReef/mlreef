@@ -4,6 +4,7 @@ import com.mlreef.rest.Account
 import com.mlreef.rest.AccountRepository
 import com.mlreef.rest.AccountToken
 import com.mlreef.rest.AccountTokenRepository
+import com.mlreef.rest.BaseEnvironment
 import com.mlreef.rest.CodeProject
 import com.mlreef.rest.CodeProjectRepository
 import com.mlreef.rest.DataAlgorithm
@@ -26,6 +27,8 @@ import com.mlreef.rest.PipelineConfigRepository
 import com.mlreef.rest.PipelineInstanceRepository
 import com.mlreef.rest.ProcessorParameter
 import com.mlreef.rest.ProcessorParameterRepository
+import com.mlreef.rest.ProcessorVersion
+import com.mlreef.rest.ProcessorVersionRepository
 import com.mlreef.rest.external_api.gitlab.dto.GitlabProject
 import com.mlreef.rest.external_api.gitlab.dto.GitlabUserInProject
 import org.springframework.beans.factory.annotation.Autowired
@@ -160,7 +163,29 @@ internal fun dataProcessorFields(prefix: String = ""): MutableList<FieldDescript
         fieldWithPath(prefix + "visibility_scope").type(JsonFieldType.STRING).optional().description("PUBLIC or PRIVATE"),
         fieldWithPath(prefix + "description").optional().type(JsonFieldType.STRING).description("Description"),
         fieldWithPath(prefix + "code_project_id").type(JsonFieldType.STRING).optional().description("CodeProject this Processor belongs to"),
+        fieldWithPath(prefix + "author_id").optional().type(JsonFieldType.STRING).optional().description("Author who created this")
+    )
+}
+
+internal fun processorVersionFields(prefix: String = ""): MutableList<FieldDescriptor> {
+    return arrayListOf(
+        fieldWithPath(prefix + "id").type(JsonFieldType.STRING).description("Unique UUID of this DataProcessorVersion"),
+        fieldWithPath(prefix + "data_processor_id").type(JsonFieldType.STRING).description("Unique UUID of this DataProcessor"),
+        fieldWithPath(prefix + "slug").type(JsonFieldType.STRING).description("Unique slug of this DataProcessor"),
+        fieldWithPath(prefix + "name").optional().type(JsonFieldType.STRING).description("Optional Name of this DataProcessor ( not needed in Inputs)"),
+        fieldWithPath(prefix + "number").optional().type(JsonFieldType.NUMBER).description("Relative number of this DataProcessor Version"),
+        fieldWithPath(prefix + "branch").optional().type(JsonFieldType.STRING).description("Branch this Version was built on"),
+        fieldWithPath(prefix + "command").optional().type(JsonFieldType.STRING).description("Python command to execute"),
+        fieldWithPath(prefix + "base_environment").optional().type(JsonFieldType.STRING).description("Identifier of BaseEnvironment"),
+        fieldWithPath(prefix + "published_at").optional().type(JsonFieldType.STRING).description("Timestamp of publication"),
+        fieldWithPath(prefix + "input_data_type").type(JsonFieldType.STRING).description("DataType for input data"),
+        fieldWithPath(prefix + "output_data_type").type(JsonFieldType.STRING).description("DataType for output data"),
+        fieldWithPath(prefix + "type").type(JsonFieldType.STRING).description("ALGORITHM, OPERATION or VISUALISATION"),
+        fieldWithPath(prefix + "visibility_scope").type(JsonFieldType.STRING).optional().description("PUBLIC or PRIVATE"),
+        fieldWithPath(prefix + "description").optional().type(JsonFieldType.STRING).description("Description"),
+        fieldWithPath(prefix + "code_project_id").type(JsonFieldType.STRING).optional().description("CodeProject this Processor belongs to"),
         fieldWithPath(prefix + "author_id").optional().type(JsonFieldType.STRING).optional().description("Author who created this"),
+        fieldWithPath(prefix + "publisher_id").optional().type(JsonFieldType.STRING).optional().description("Author who created this"),
         fieldWithPath(prefix + "metric_type").type(JsonFieldType.STRING).description("Type of Metric"),
         fieldWithPath(prefix + "parameters").type(JsonFieldType.ARRAY).optional().description("Name of Parameter"),
         fieldWithPath(prefix + "parameters[].name").type(JsonFieldType.STRING).optional().description("Name of Parameter"),
@@ -168,8 +193,11 @@ internal fun dataProcessorFields(prefix: String = ""): MutableList<FieldDescript
         fieldWithPath(prefix + "parameters[].order").type(JsonFieldType.NUMBER).optional().description("Provided ParameterType of this Parameter"),
         fieldWithPath(prefix + "parameters[].default_value").type(JsonFieldType.STRING).optional().description("Provided value (as parsable String) of Parameter "),
         fieldWithPath(prefix + "parameters[].required").type(JsonFieldType.BOOLEAN).optional().description("Parameter required?"),
-        fieldWithPath(prefix + "parameters[].description").type(JsonFieldType.STRING).optional().description("Textual description of this Parameter")
-    )
+        fieldWithPath(prefix + "parameters[].description").type(JsonFieldType.STRING).optional().description("Textual description of this Parameter"),
+        fieldWithPath(prefix + "pipeline_job_info").optional().type(JsonFieldType.OBJECT).optional().description("Gitlab Pipeline information")
+    ).apply {
+        addAll(pipelineInfoDtoResponseFields(prefix + "pipeline_job_info."))
+    }
 }
 
 internal fun pipelineInfoDtoResponseFields(prefix: String = ""): MutableList<FieldDescriptor> {
@@ -273,9 +301,9 @@ internal class AccountSubjectPreparationTrait {
 @Component
 internal class PipelineTestPreparationTrait : AccountSubjectPreparationTrait() {
 
-    lateinit var dataOp1: DataOperation
-    lateinit var dataOp2: DataAlgorithm
-    lateinit var dataOp3: DataVisualization
+    lateinit var dataOp1: ProcessorVersion
+    lateinit var dataOp2: ProcessorVersion
+    lateinit var dataOp3: ProcessorVersion
     lateinit var dataProject: DataProject
     lateinit var dataProject2: DataProject
 
@@ -315,6 +343,9 @@ internal class PipelineTestPreparationTrait : AccountSubjectPreparationTrait() {
     @Autowired
     private lateinit var dataProcessorRepository: DataProcessorRepository
 
+    @Autowired
+    private lateinit var processorVersionRepository: ProcessorVersionRepository
+
     override fun apply() {
 
         deleteAll()
@@ -332,9 +363,21 @@ internal class PipelineTestPreparationTrait : AccountSubjectPreparationTrait() {
         codeProjectRepository.save(CodeProject(randomUUID(), "slug", "url", "Test DataProject", "", ownerId = account.person.id,
             gitlabNamespace = "", gitlabId = Random.nextInt().toLong().absoluteValue, gitlabPath = ""))
 
-        dataOp1 = dataOperationRepository.save(DataOperation(randomUUID(), "commons-data-operation1", "name", "command", DataType.ANY, DataType.ANY))
-        dataOp2 = dataAlgorithmRepository.save(DataAlgorithm(randomUUID(), "commons-algorithm", "name", "command", DataType.ANY, DataType.ANY))
-        dataOp3 = dataVisualizationRepository.save(DataVisualization(randomUUID(), "commons-data-visualisation", "name", "command", DataType.ANY))
+        val _dataOp1 = dataOperationRepository.save(DataOperation(randomUUID(), "commons-data-operation1", "name", DataType.ANY, DataType.ANY))
+        val _dataOp2 = dataAlgorithmRepository.save(DataAlgorithm(randomUUID(), "commons-algorithm", "name", DataType.ANY, DataType.ANY))
+        val _dataOp3 = dataVisualizationRepository.save(DataVisualization(randomUUID(), "commons-data-visualisation", "name", DataType.ANY))
+
+        dataOp1 = processorVersionRepository.save(ProcessorVersion(
+            id = _dataOp1.id, dataProcessor = _dataOp1, publisher = account.person,
+            command = "command", number = 1, baseEnvironment = BaseEnvironment.default()))
+
+        dataOp2 = processorVersionRepository.save(ProcessorVersion(
+            id = _dataOp2.id, dataProcessor = _dataOp2, publisher = account.person,
+            command = "command", number = 1, baseEnvironment = BaseEnvironment.default()))
+
+        dataOp3 = processorVersionRepository.save(ProcessorVersion(
+            id = _dataOp3.id, dataProcessor = _dataOp3, publisher = account.person,
+            command = "command", number = 1, baseEnvironment = BaseEnvironment.default()))
 
         processorParameterRepository.save(ProcessorParameter(randomUUID(), dataOp1.id, "stringParam", type = ParameterType.STRING, order = 0, defaultValue = ""))
         processorParameterRepository.save(ProcessorParameter(randomUUID(), dataOp1.id, "floatParam", type = ParameterType.FLOAT, order = 1, defaultValue = ""))
@@ -362,6 +405,7 @@ internal class PipelineTestPreparationTrait : AccountSubjectPreparationTrait() {
         pipelineInstanceRepository.deleteAll()
         pipelineConfigRepository.deleteAll()
         processorParameterRepository.deleteAll()
+        processorVersionRepository.deleteAll()
         dataProcessorRepository.deleteAll()
 
         dataProjectRepository.deleteAll()

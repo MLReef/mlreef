@@ -94,7 +94,7 @@ class PipelinesConfigIntegrationTest : AbstractIntegrationTest() {
     private fun createDataProcessorInstance(): DataProcessorInstance {
         val dataProcessorInstance = DataProcessorInstance(randomUUID(), testsHelper.dataOp1!!)
         val processorParameter = ProcessorParameter(
-            id = randomUUID(), dataProcessorId = dataProcessorInstance.dataProcessorId,
+            id = randomUUID(), processorVersionId = dataProcessorInstance.dataProcessorId,
             name = "param1", type = ParameterType.STRING,
             defaultValue = "default", description = "not empty",
             order = 1, required = true)

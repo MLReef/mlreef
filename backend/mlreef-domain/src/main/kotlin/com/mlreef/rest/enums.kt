@@ -2,6 +2,7 @@ package com.mlreef.rest
 
 enum class AccessLevel(val accessCode: Int) {
     NONE(0),
+    VISITOR(5), // Use VISITOR for PUBLIC projects as pseudo role
     GUEST(10),
     REPORTER(20),
     DEVELOPER(30),

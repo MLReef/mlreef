@@ -1,11 +1,15 @@
 package com.mlreef.rest.feature.pipeline
 
 import com.mlreef.rest.ApplicationProfiles
+import com.mlreef.rest.BaseEnvironment
 import com.mlreef.rest.DataOperation
 import com.mlreef.rest.DataProcessorInstance
 import com.mlreef.rest.DataType
 import com.mlreef.rest.ParameterType
+import com.mlreef.rest.Person
 import com.mlreef.rest.ProcessorParameter
+import com.mlreef.rest.ProcessorVersion
+import com.mlreef.rest.Subject
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.springframework.boot.test.context.ConfigFileApplicationContextInitializer
@@ -129,7 +133,11 @@ class YamlFileGeneratorTest {
     }
 
     private fun mockDataProcessorInstance(slug: String): DataProcessorInstance {
-        val dataOp1 = DataOperation(randomUUID(), slug, "name", "command", DataType.ANY, DataType.ANY)
+        val _dataOp1 = DataOperation(randomUUID(), slug, "name", DataType.ANY, DataType.ANY)
+        val dataOp1 = ProcessorVersion(
+            id = _dataOp1.id, dataProcessor = _dataOp1, publisher = Person(randomUUID(), "subject", "name", 1),
+            command = "augment", number = 1, baseEnvironment = BaseEnvironment.default())
+
         val processorParameter1 = ProcessorParameter(randomUUID(), dataOp1.id, "stringParam", ParameterType.STRING, 0, "")
         val processorParameter2 = ProcessorParameter(randomUUID(), dataOp1.id, "floatParam", ParameterType.FLOAT, 1, "0.1")
         val dataProcessorInstance = DataProcessorInstance(randomUUID(), dataOp1)

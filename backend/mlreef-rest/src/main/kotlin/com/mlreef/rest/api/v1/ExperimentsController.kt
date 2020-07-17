@@ -51,14 +51,14 @@ class ExperimentsController(
     }
 
     @GetMapping
-    @PreAuthorize("userInProject(#dataProjectId) || projectIsPublic(#dataProjectId)")
+    @PreAuthorize("canViewProject(#dataProjectId)")
     fun getAllExperiments(@PathVariable dataProjectId: UUID): List<ExperimentDto> {
         val experiments: List<Experiment> = experimentRepository.findAllByDataProjectId(dataProjectId).toList()
         return experiments.map(Experiment::toDto)
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("userInProject(#dataProjectId) || projectIsPublic(#dataProjectId)")
+    @PreAuthorize("canViewProject(#dataProjectId)")
     fun getExperiment(@PathVariable dataProjectId: UUID, @PathVariable id: UUID): ExperimentDto {
         val findOneByDataProjectIdAndId = experimentRepository.findOneByDataProjectIdAndId(dataProjectId, id)
             ?: throw NotFoundException("Experiment not found")
@@ -66,7 +66,7 @@ class ExperimentsController(
     }
 
     @GetMapping("/{id}/info")
-    @PreAuthorize("userInProject(#dataProjectId) || projectIsPublic(#dataProjectId)")
+    @PreAuthorize("canViewProject(#dataProjectId)")
     fun getExperimentMetrics(@PathVariable dataProjectId: UUID, @PathVariable id: UUID): PipelineJobInfoDto {
         val experiment = beforeGetExperiment(id)
         val pipelineJobInfo = experiment.pipelineJobInfo
@@ -75,7 +75,7 @@ class ExperimentsController(
     }
 
     @GetMapping("/{id}/mlreef-file")
-    @PreAuthorize("userInProject(#dataProjectId) || projectIsPublic(#dataProjectId)")
+    @PreAuthorize("canViewProject(#dataProjectId)")
     fun getExperimentYaml(@PathVariable dataProjectId: UUID, @PathVariable id: UUID, account: Account): String {
         val experiment = beforeGetExperiment(id)
 

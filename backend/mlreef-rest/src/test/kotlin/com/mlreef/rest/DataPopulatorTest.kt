@@ -23,19 +23,37 @@ class DataPopulatorTest : AbstractIntegrationTest() {
     private lateinit var author: Person
     private lateinit var dataPopulator: DataPopulator
 
-    @Autowired private lateinit var dataProjectRepository: DataProjectRepository
-    @Autowired private lateinit var codeProjectRepository: CodeProjectRepository
-    @Autowired private lateinit var experimentRepository: ExperimentRepository
-    @Autowired private lateinit var dataProcessorRepository: DataProcessorRepository
-    @Autowired private lateinit var pipelineInstanceRepository: PipelineInstanceRepository
-    @Autowired private lateinit var pipelineConfigRepository: PipelineConfigRepository
-    @Autowired private lateinit var dataProjectService: DataProjectService
-    @Autowired private lateinit var processorParameterRepository: ProcessorParameterRepository
-    @Autowired private lateinit var processorInstanceRepository: DataProcessorInstanceRepository
-    @Autowired private lateinit var parameterInstanceRepository: ParameterInstanceRepository
-    @Autowired private lateinit var dataAlgorithmRepository: DataAlgorithmRepository
-    @Autowired private lateinit var searchableTagRepository: SearchableTagRepository
-    @Autowired private lateinit var marketplaceService: MarketplaceService
+    @Autowired
+    private lateinit var dataProjectRepository: DataProjectRepository
+    @Autowired
+    private lateinit var codeProjectRepository: CodeProjectRepository
+    @Autowired
+    private lateinit var experimentRepository: ExperimentRepository
+    @Autowired
+    private lateinit var dataProcessorRepository: DataProcessorRepository
+    @Autowired
+    private lateinit var pipelineInstanceRepository: PipelineInstanceRepository
+    @Autowired
+    private lateinit var pipelineConfigRepository: PipelineConfigRepository
+    @Autowired
+    private lateinit var dataProjectService: DataProjectService
+
+    @Autowired
+    private lateinit var processorParameterRepository: ProcessorParameterRepository
+
+    @Autowired
+    private lateinit var processorVersionRepository: ProcessorVersionRepository
+
+    @Autowired
+    private lateinit var processorInstanceRepository: DataProcessorInstanceRepository
+    @Autowired
+    private lateinit var parameterInstanceRepository: ParameterInstanceRepository
+    @Autowired
+    private lateinit var dataAlgorithmRepository: DataAlgorithmRepository
+    @Autowired
+    private lateinit var searchableTagRepository: SearchableTagRepository
+    @Autowired
+    private lateinit var marketplaceService: MarketplaceService
 //    @Mock private lateinit var restClient: GitlabRestClient
 
     private var ownerId: UUID = randomUUID()
@@ -56,7 +74,8 @@ class DataPopulatorTest : AbstractIntegrationTest() {
             codeProjectRepository = codeProjectRepository,
             dataAlgorithmRepository = dataAlgorithmRepository,
             marketplaceService = marketplaceService,
-            searchableTagRepository = searchableTagRepository
+            searchableTagRepository = searchableTagRepository,
+            processorVersionRepository = processorVersionRepository
         )
 
         searchableTagRepository.deleteAll()
@@ -129,8 +148,8 @@ class DataPopulatorTest : AbstractIntegrationTest() {
         assertThat(dataOp).isNotNull()
         assertThat(param1).isNotNull()
         assertThat(param2).isNotNull()
-        assertThat(param1.dataProcessorId).isEqualTo(dataOp.id)
-        assertThat(param2.dataProcessorId).isEqualTo(dataOp.id)
+        assertThat(param1.processorVersionId).isEqualTo(dataOp.id)
+        assertThat(param2.processorVersionId).isEqualTo(dataOp.id)
 
         assertThat(dataProcessorRepository.findAll().toList()).isNotEmpty()
         assertThat(processorParameterRepository.findAll().toList()).isNotEmpty()
@@ -147,8 +166,8 @@ class DataPopulatorTest : AbstractIntegrationTest() {
         assertThat(dataOp).isNotNull()
         assertThat(param1).isNotNull()
         assertThat(param2).isNotNull()
-        assertThat(param1.dataProcessorId).isEqualTo(dataOp.id)
-        assertThat(param2.dataProcessorId).isEqualTo(dataOp.id)
+        assertThat(param1.processorVersionId).isEqualTo(dataOp.id)
+        assertThat(param2.processorVersionId).isEqualTo(dataOp.id)
 
         assertThat(dataProcessorRepository.findAll().toList()).isNotEmpty()
         assertThat(processorParameterRepository.findAll().toList()).isNotEmpty()
@@ -165,8 +184,8 @@ class DataPopulatorTest : AbstractIntegrationTest() {
         assertThat(dataOp).isNotNull()
         assertThat(param1).isNotNull()
         assertThat(param2).isNotNull()
-        assertThat(param1.dataProcessorId).isEqualTo(dataOp.id)
-        assertThat(param2.dataProcessorId).isEqualTo(dataOp.id)
+        assertThat(param1.processorVersionId).isEqualTo(dataOp.id)
+        assertThat(param2.processorVersionId).isEqualTo(dataOp.id)
 
         assertThat(dataProcessorRepository.findAll().toList()).isNotEmpty()
         assertThat(processorParameterRepository.findAll().toList()).isNotEmpty()

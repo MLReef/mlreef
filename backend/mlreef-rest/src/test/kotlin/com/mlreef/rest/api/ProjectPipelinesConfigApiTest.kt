@@ -14,6 +14,7 @@ import com.mlreef.rest.PipelineConfigRepository
 import com.mlreef.rest.PipelineType
 import com.mlreef.rest.ProcessorParameter
 import com.mlreef.rest.ProcessorParameterRepository
+import com.mlreef.rest.ProcessorVersion
 import com.mlreef.rest.api.v1.PipelineConfigCreateRequest
 import com.mlreef.rest.api.v1.PipelineConfigUpdateRequest
 import com.mlreef.rest.api.v1.dto.DataProcessorInstanceDto
@@ -41,17 +42,24 @@ import javax.transaction.Transactional
 class ProjectPipelinesConfigApiTest : AbstractRestApiTest() {
 
     val rootUrl = "/api/v1/data-projects"
-    private lateinit var dataOp1: DataOperation
-    private lateinit var dataOp2: DataAlgorithm
-    private lateinit var dataOp3: DataVisualization
+    private lateinit var dataOp1: ProcessorVersion
+    private lateinit var dataOp2: ProcessorVersion
+    private lateinit var dataOp3: ProcessorVersion
     private lateinit var subject: Person
     private lateinit var dataProject: DataProject
     private lateinit var notOwn_dataProject: DataProject
 
-    @Autowired private lateinit var pipelineConfigRepository: PipelineConfigRepository
-    @Autowired private lateinit var processorParameterRepository: ProcessorParameterRepository
-    @Autowired private lateinit var dataProcessorInstanceRepository: DataProcessorInstanceRepository
-    @Autowired private lateinit var pipelineTestPreparationTrait: PipelineTestPreparationTrait
+    @Autowired
+    private lateinit var pipelineConfigRepository: PipelineConfigRepository
+
+    @Autowired
+    private lateinit var processorParameterRepository: ProcessorParameterRepository
+
+    @Autowired
+    private lateinit var dataProcessorInstanceRepository: DataProcessorInstanceRepository
+
+    @Autowired
+    private lateinit var pipelineTestPreparationTrait: PipelineTestPreparationTrait
 
     @BeforeEach
     @AfterEach
@@ -294,7 +302,7 @@ class ProjectPipelinesConfigApiTest : AbstractRestApiTest() {
     private fun createDataProcessorInstance(): DataProcessorInstance {
         val dataProcessorInstance = DataProcessorInstance(randomUUID(), dataOp1)
         val processorParameter = ProcessorParameter(
-            id = randomUUID(), dataProcessorId = dataProcessorInstance.dataProcessorId,
+            id = randomUUID(), processorVersionId = dataProcessorInstance.dataProcessorId,
             name = "param1", type = ParameterType.STRING,
             defaultValue = "default", description = "not empty",
             order = 1, required = true)

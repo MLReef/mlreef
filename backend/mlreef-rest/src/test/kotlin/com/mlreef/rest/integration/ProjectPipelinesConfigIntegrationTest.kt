@@ -8,6 +8,7 @@ import com.mlreef.rest.PipelineConfigRepository
 import com.mlreef.rest.PipelineType
 import com.mlreef.rest.ProcessorParameter
 import com.mlreef.rest.ProcessorParameterRepository
+import com.mlreef.rest.Subject
 import com.mlreef.rest.api.PipelineTestPreparationTrait
 import com.mlreef.rest.api.v1.PipelineConfigCreateRequest
 import com.mlreef.rest.api.v1.PipelineConfigUpdateRequest
@@ -34,10 +35,17 @@ class ProjectPipelinesConfigIntegrationTest : AbstractIntegrationTest() {
 
     val rootUrl = "/api/v1/data-projects"
 
-    @Autowired private lateinit var pipelineConfigRepository: PipelineConfigRepository
-    @Autowired private lateinit var processorParameterRepository: ProcessorParameterRepository
-    @Autowired private lateinit var dataProcessorInstanceRepository: DataProcessorInstanceRepository
-    @Autowired private lateinit var pipelineTestPreparationTrait: PipelineTestPreparationTrait
+    @Autowired
+    private lateinit var pipelineConfigRepository: PipelineConfigRepository
+
+    @Autowired
+    private lateinit var processorParameterRepository: ProcessorParameterRepository
+
+    @Autowired
+    private lateinit var dataProcessorInstanceRepository: DataProcessorInstanceRepository
+
+    @Autowired
+    private lateinit var pipelineTestPreparationTrait: PipelineTestPreparationTrait
 
     @BeforeEach
     @Transactional
@@ -53,7 +61,8 @@ class ProjectPipelinesConfigIntegrationTest : AbstractIntegrationTest() {
 
     @Transactional
     @Rollback
-    @Test fun `Can retrieve all Pipelines of own DataProject`() {
+    @Test
+    fun `Can retrieve all Pipelines of own DataProject`() {
         val (account1, _, _) = testsHelper.createRealUser()
         val (account2, _, _) = testsHelper.createRealUser(index = 1)
         val (project1, _) = testsHelper.createRealDataProject(account1)
@@ -190,7 +199,8 @@ class ProjectPipelinesConfigIntegrationTest : AbstractIntegrationTest() {
     @Disabled
     @Transactional
     @Rollback
-    @Test fun `Can retrieve specific PipelineConfig of own DataProject`() {
+    @Test
+    fun `Can retrieve specific PipelineConfig of own DataProject`() {
         val (account, _, _) = testsHelper.createRealUser()
         val (project, _) = testsHelper.createRealDataProject(account)
 
@@ -206,13 +216,13 @@ class ProjectPipelinesConfigIntegrationTest : AbstractIntegrationTest() {
     @Transactional
     @Rollback
     @Test
-    fun `Can retrieve PipelineConfigs of not-own not member but public DataProject`() {
+    fun `Can retrieve PipelineConfigs of foreign public DataProject`() {
         val (account1, _, _) = testsHelper.createRealUser()
         val (account2, _, _) = testsHelper.createRealUser(index = 1)
         val (_, _) = testsHelper.createRealDataProject(account1)
         val (project2, _) = testsHelper.createRealDataProject(account2, public = true)
 
-        val dataProcessorInstance = createDataProcessorInstance()
+        val dataProcessorInstance = createDataProcessorInstance(account2.person)
         val entity2 = createPipelineConfig(dataProcessorInstance, project2.id, "slug")
 
         this.mockMvc.perform(
@@ -232,7 +242,7 @@ class ProjectPipelinesConfigIntegrationTest : AbstractIntegrationTest() {
 
         testsHelper.addRealUserToProject(project.gitlabId, account1.person.gitlabId!!)
 
-        val dataProcessorInstance = createDataProcessorInstance()
+        val dataProcessorInstance = createDataProcessorInstance(owner = account2.person)
         val entity2 = createPipelineConfig(dataProcessorInstance, project.id, "slug")
 
         this.mockMvc.perform(
@@ -244,7 +254,7 @@ class ProjectPipelinesConfigIntegrationTest : AbstractIntegrationTest() {
     @Transactional
     @Rollback
     @Test
-    fun `Cannot retrieve PipelineConfigs of not-own not member not public DataProject`() {
+    fun `Cannot retrieve PipelineConfigs of foreign not public DataProject`() {
         val (account1, _, _) = testsHelper.createRealUser()
         val (account2, _, _) = testsHelper.createRealUser(index = 1)
         val (_, _) = testsHelper.createRealDataProject(account1)
@@ -271,10 +281,15 @@ class ProjectPipelinesConfigIntegrationTest : AbstractIntegrationTest() {
         return entity
     }
 
-    private fun createDataProcessorInstance(): DataProcessorInstance {
+    private fun createDataProcessorInstance(owner: Subject? = null): DataProcessorInstance {
         val dataProcessorInstance = DataProcessorInstance(randomUUID(), testsHelper.dataOp1!!)
+
+        if (owner != null) {
+            testsHelper.dataOp1 = testsHelper.adaptProcessorVersion(testsHelper.dataOp1!!, publisher = owner)
+        }
+
         val processorParameter = ProcessorParameter(
-            id = randomUUID(), dataProcessorId = dataProcessorInstance.dataProcessorId,
+            id = randomUUID(), processorVersionId = dataProcessorInstance.processorVersionId,
             name = "param1", type = ParameterType.STRING,
             defaultValue = "default", description = "not empty",
             order = 1, required = true)

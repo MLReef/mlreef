@@ -1,6 +1,7 @@
 package com.mlreef.rest.feature.data_processors
 
 import com.mlreef.parsing.MLPython3Parser
+import com.mlreef.rest.BaseEnvironment
 import com.mlreef.rest.DataAlgorithm
 import com.mlreef.rest.DataOperation
 import com.mlreef.rest.DataProcessor
@@ -14,24 +15,28 @@ import com.mlreef.rest.DataVisualization
 import com.mlreef.rest.MetricSchema
 import com.mlreef.rest.MetricType
 import com.mlreef.rest.ProcessorParameter
+import com.mlreef.rest.ProcessorVersion
+import com.mlreef.rest.ProcessorVersionRepository
 import com.mlreef.rest.Subject
 import com.mlreef.rest.VisibilityScope
 import lombok.RequiredArgsConstructor
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import java.net.URL
+import java.time.ZonedDateTime
 import java.util.UUID
 
 @Service
 @RequiredArgsConstructor
 class DataProcessorService(
-    private val dataProcessorRepository: DataProcessorRepository
+    private val dataProcessorRepository: DataProcessorRepository,
+    private val processorVersionRepository: ProcessorVersionRepository
 ) {
 
     val parser = MLPython3Parser()
     val log = LoggerFactory.getLogger(this::class.java)
 
-    fun parsePythonFile(url: URL): DataProcessor? {
+    fun parsePythonFile(url: URL): ProcessorVersion? {
         log.info("Parsing url $url for DataProcessors and annotations")
         val stream = url.openStream()
         val parse = parser.parse(stream)
@@ -58,16 +63,27 @@ class DataProcessorService(
             throw IllegalArgumentException("Only one DataProcessor per file is allowed! Found: ${dataProcessors.size}")
         }
         val dataProcessor = dataProcessors.first()
-        // check parameters for correct id
-        val ownParameters = parameters.filter { it.dataProcessorId == dataProcessor.id }
-        val withParameters = dataProcessor.withParameters(ownParameters, metricSchema)
-        return withParameters
+        val ownParameters = parameters.filter { it.processorVersionId == dataProcessor.id }
+        val processorVersion = ProcessorVersion(
+            id = dataProcessor.id,
+            dataProcessor = dataProcessor,
+            branch = "master",
+            baseEnvironment = BaseEnvironment.UNDEFINED,
+            number = 1,
+            publisher = null,
+            publishedAt = ZonedDateTime.now(),
+            command = "",
+            parameters = ownParameters,
+            metricSchema = metricSchema
+        )
+        return processorVersion
     }
 
-    fun parseAndSave(url: URL): DataProcessor {
+    fun parseAndSave(url: URL): ProcessorVersion {
         val dataProcessor = this.parsePythonFile(url)
             ?: throw IllegalArgumentException("Could not find a DataProcessor at this url")
-        return dataProcessorRepository.save(dataProcessor)
+        dataProcessorRepository.save(dataProcessor.dataProcessor)
+        return processorVersionRepository.save(dataProcessor)
     }
 
     fun createForCodeProject(
@@ -96,9 +112,9 @@ class DataProcessorService(
         }
 
         val newProcessor = when (type) {
-            ALGORITHM -> DataAlgorithm(id, slug, name, command, inputDataType, outputDataType, visibilityScope, description, author, codeProjectId, parameters)
-            OPERATION -> DataOperation(id, slug, name, command, inputDataType, outputDataType, visibilityScope, description, author, codeProjectId, parameters)
-            VISUALISATION -> DataVisualization(id, slug, name, command, inputDataType, visibilityScope, description, author, codeProjectId, parameters)
+            ALGORITHM -> DataAlgorithm(id, slug, name, inputDataType, outputDataType, visibilityScope, description, author, codeProjectId)
+            OPERATION -> DataOperation(id, slug, name, inputDataType, outputDataType, visibilityScope, description, author, codeProjectId)
+            VISUALISATION -> DataVisualization(id, slug, name, inputDataType, visibilityScope, description, author, codeProjectId)
         }
 
         return dataProcessorRepository.save(newProcessor)
