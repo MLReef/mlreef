@@ -30,7 +30,7 @@ We like to call them data repositories because
 
 You can create or access existing ML projects (=data repositories) through the [marketplace](#marketplace).
 
-![marketplace](marketplace.png)
+![marketplace](/marketplace.png)
 
 >The goal within data repositories is to cover the actual value added steps in creating and deploying a ML model. 
 

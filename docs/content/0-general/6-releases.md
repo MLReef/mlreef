@@ -12,7 +12,7 @@ This will guide you through the most significant changes in MLReef. We will try 
 In this release we included: 
 
 * Create ML projects
-* Use basic repository functions, such as creating branches, merging and reviewing mr. 
+* Use basic repository functions, such as creating branches, merging and reviewing MR. 
 * Upload data into your ML project
 * Create basic experiments
   *  You can only use one experiment at the time. Currently only ResNet 50 Model (images) and a dummy model are included.
