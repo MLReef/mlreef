@@ -5,7 +5,7 @@ can be used for example to predict or classify learned patterns.
 
 In MLReef you have a built-in experiment pipeline. 
 
-## Ho to create a new Experiment
+## How to create a new Experiment
 
 1. Navigate to your repository, to Experiments and click the button `New Experiment`
 2. Click the folder `Data` and select the correct data folder for your experiment

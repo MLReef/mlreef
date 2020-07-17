@@ -20,8 +20,8 @@ train/
     ...
     class n/
 
-This way, the model understands that the subdirectory (e.g. class1/) is the first lable. For simplicity, its always easy to rename
-the subdirectories to your lable class. 
+This way, the model understands that the subdirectory (e.g. class1/) is the first label. For simplicity, its always easy to rename
+the subdirectories to your label class.
 
 #### Cats and dogs
 

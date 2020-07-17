@@ -132,7 +132,7 @@ You can access the data visualization pipeline within your `data tab` in your ML
 
 MLReef has a built-in experiment environment accessed through the `experiment tab` in your ML project repository. In here, you can create new ML experiments with full reproducibility on the underlying data and model.
 
-> Currently, one one model for image classification is available, see [FristDive: "Cats 'n dogs" classification using Resnet50](3-use_cases/1-catsanddogs.md) for a detailed demo on how to use this model.
+> Currently, one model for image classification is available, see [FirstDive: "Cats 'n dogs" classification using Resnet50](3-use_cases/1-catsanddogs.md) for a detailed demo on how to use this model.
 
 You can access the experiment pipeline within your `experiment tab` in your ML project repository. To create a data visualization, follow these steps:
 
@@ -178,9 +178,9 @@ Here you can find a list of major features and known problems. This list will co
 
 You can contribute by:
 
-1.  Sending an email to help@mlreef.com - This will automatically create a ticket in our service desk.
-2.  Raising a [ticket](https://gitlab.com/mlreef/frontend/issues) manually.
-3.  Ask the community through our slack channel: mlreefcommunity.slack.com
+1.  Sending an email to mailto:help@mlreef.com - This will automatically create a ticket in our service desk.
+2.  Raising a [ticket](https://gitlab.com/mlreef/mlreef/issues) manually.
+3.  Ask the community through our slack channel: https://mlreefcommunity.slack.com
 4.  Answer our [Early Access Evaluation](https://mlreef.typeform.com/to/X0QUt2)
 
 Thank you from the entire MLReef team!

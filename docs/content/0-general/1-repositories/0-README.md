@@ -6,7 +6,7 @@ MLReef is based on Git repositories for ML projects, Models, DataOps and Data Vi
 
 There are 4 types of repositories in MLReef accessible via the project overview. 
 
-![repositories](repositories.png)
+![repositories](/repositories.png)
 
 ### ML Projects 
 
