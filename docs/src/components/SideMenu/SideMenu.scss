@@ -4,9 +4,16 @@
   max-width: 300px;
   width: max-content;
   overflow-y: auto;
+  display: flex;
+  flex-direction: column;
 
   &-container {
     // padding-right: 1rem;
+    flex: 1;
+
+    &.hidden {
+      display: none;
+    }
   }
 
   &-item {
