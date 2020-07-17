@@ -1,5 +1,4 @@
 import React, { useMemo } from 'react'
-import { Link } from 'gatsby';
 
 const ContentMenuItem = props => {
   const {
@@ -9,7 +8,9 @@ const ContentMenuItem = props => {
   const label = useMemo(() => value.replace(/^<a.*<\/a> ?(.*)$/, '$1'), [value]);
 
   const href = useMemo(
-    () => /^<a/.test(value) ? value.replace(/^<a.*name="(.*)".*$/, '#$1') : null,
+    () => {
+      return /^<a/.test(value) ? value.replace(/^<a.*name="(.*)".*$/, '#$1') : null;
+    },
     [value]
   );
 
@@ -22,13 +23,13 @@ const ContentMenuItem = props => {
         }}
       >
         {href ? (
-          <Link className="nav-link flex-1" to={href}>
+          <a className="nav-link flex-1" href={href}>
             <span
               style={{ textDecoration: 'underline' }}
               className="mr-2">
               {`> ${label}`}
             </span>
-          </Link>
+          </a>
         ) : (
           <span className="mr-2">{`> ${label}`}</span>
         )}
