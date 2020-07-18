@@ -22,6 +22,8 @@ const imageFormats = [
   '.jpg',
 ];
 
+const commitsApi = new CommitsApi();
+
 class CommitDetails extends Component {
   constructor(props) {
     super(props);
@@ -34,7 +36,7 @@ class CommitDetails extends Component {
     };
     const { match } = this.props;
     const { projectId, commitId } = match.params;
-    CommitsApi.getCommitDetails(projectId, commitId)
+    commitsApi.getCommitDetails(projectId, commitId)
       .then((response) => {
         this.setState({ commits: response });
         CommitsApi

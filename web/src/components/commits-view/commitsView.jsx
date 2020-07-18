@@ -161,7 +161,7 @@ class CommitsView extends Component {
                     ? (
                       <CommitDiv
                         key={item.short_id}
-                        projectId={project.id}
+                        projectId={project.gitlabId}
                         commitid={item.id}
                         title={item.title}
                         name={item.author_name}

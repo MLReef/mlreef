@@ -10,7 +10,7 @@ import Jobs from './insights-menu/jobs';
 
 const Insights = (props) => {
   const {
-    selectedProject, selectedProject: { id },
+    selectedProject, selectedProject: { gid },
     match: { params: { logId } },
   } = props;
 
@@ -21,14 +21,14 @@ const Insights = (props) => {
   // into this array and attach the respective component
   const routes = [
     {
-      path: `/my-projects/${id}/insights/-/jobs`,
+      path: `/my-projects/${gid}/insights/-/jobs`,
       exact: true,
       main: () => <Jobs />,
     },
     {
-      path: `/my-projects/${id}/insights/-/jobs/${logId}`,
+      path: `/my-projects/${gid}/insights/-/jobs/${logId}`,
       exact: true,
-      main: () => <JobLogById projectId={id} logId={logId} />,
+      main: () => <JobLogById projectId={gid} logId={logId} />,
     },
   ];
 
@@ -50,7 +50,7 @@ const Insights = (props) => {
       />
       <div className="main-content web-box">
         <div ref={tabs} className="insights-menu">
-          <Link role="button" id="jobs-btn" onClick={menuBtnHandler} className="mbtn active" to={`/my-projects/${id}/insights/-/jobs`}>
+          <Link role="button" id="jobs-btn" onClick={menuBtnHandler} className="mbtn active" to={`/my-projects/${gid}/insights/-/jobs`}>
             Jobs
           </Link>
         </div>
@@ -71,7 +71,7 @@ const Insights = (props) => {
 
 Insights.propTypes = {
   selectedProject: shape({
-    id: number.isRequired,
+    gid: number.isRequired,
     gitlabName: string.isRequired,
   }).isRequired,
   match: shape({

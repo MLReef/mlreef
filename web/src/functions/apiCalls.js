@@ -1,5 +1,6 @@
 import { POLL_TIMEOUT } from 'apiConfig';
 import commitsApi from 'apis/CommitsApi';
+import { PROJECT_TYPES } from 'domain/project/projectTypes';
 
 export const getFileDifferences = async (projectId, diff, previousCommitId, lastCommitId) => {
   let previousVersionFile;
@@ -59,3 +60,12 @@ export const handleResponse = (res) => res.ok ? res.json() : Promise.reject(res)
 
 // eslint-disable-next-line
 export const inspect = (res) => console.info(res) || res;
+
+
+export const onlyDataProject = (project) =>
+  project.searchableType === PROJECT_TYPES.DATA;
+
+export const onlyCodeProject = (project) =>
+  project.searchableType === PROJECT_TYPES.CODE;
+
+export const handlePagination = ({ content }) => ([...content]);

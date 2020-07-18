@@ -1,4 +1,4 @@
-import store from "store";
+import store from 'store';
 import { commonHeaderNames, headerDataTypes, validServicesToCall } from "./apiBuilders/requestEnums";
 
 export default class ApiDirector {   
@@ -6,7 +6,13 @@ export default class ApiDirector {
     const { user } = store.getState();
     return user && `Bearer ${user.access_token}`;
   }
-  
+
+  private getAuth(): boolean {
+    const { user } = store.getState();
+
+    return !!user?.auth;
+  }
+
   buildAnonHeaders() {
     const contentHeaders = new Map<string, string>();
     contentHeaders.set(commonHeaderNames.CONTENT_TYPE, headerDataTypes.JSON);
@@ -26,7 +32,13 @@ export default class ApiDirector {
     }
   }
 
-  buildBasicHeaders = (serviceToCall: string) : Map<string, string> =>
-    this.buildAnonHeaders()
-    .set(this.resolveTokenName(serviceToCall), this.getCurrentToken())
+  buildBasicHeaders = (serviceToCall: string) : Map<string, string> => {
+    const headers = this.buildAnonHeaders();
+
+    if (this.getAuth()) {
+      return headers.set(this.resolveTokenName(serviceToCall), this.getCurrentToken());
+    }
+
+    return headers;
+  }
 }

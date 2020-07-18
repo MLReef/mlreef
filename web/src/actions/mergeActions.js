@@ -1,5 +1,7 @@
-import mergeRequestApi from '../apis/mergeRequestApi';
+import MergeRequestAPI from '../apis/mergeRequestApi';
 import * as types from './actionTypes';
+
+const instance = new MergeRequestAPI();
 
 /**
  *
@@ -15,7 +17,7 @@ export function getMergeRequestsSuccessfully(mrs) {
  */
 
 export function getMergeRequestsList(projectId) {
-  return (dispatch) => mergeRequestApi
+  return (dispatch) => instance
     .getListByProject(projectId)
     .then(
       (mrs) => dispatch(

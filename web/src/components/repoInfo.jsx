@@ -5,11 +5,14 @@ import { PROJECT_TYPES } from 'domain/project/projectTypes';
 
 const RepoInfo = ({
   project,
-  mergeRequests,  
+  mergeRequests,
   currentBranch,
   branchesCount,
   dataInstanesCount,
 }) => {
+  const isDataProject = project.searchableType === PROJECT_TYPES.DATA_PROJ
+    || project.searchableType === PROJECT_TYPES.DATA;
+
   return (
   <>
     <div className="repo-info">
@@ -30,7 +33,7 @@ const RepoInfo = ({
         <p className="stat-type">Merge requests</p>
       </Link>
 
-      {project.projectType === PROJECT_TYPES.DATA_PROJ ? (
+      {isDataProject ? (
         <>
           <Link className="repo-stat" to={`/my-projects/${project.gitlabId}/visualizations`}>
             <p className="stat-no" />
@@ -54,7 +57,7 @@ const RepoInfo = ({
 RepoInfo.propTypes = {
   project: shape({
     gitlabId: number.isRequired,
-    projectType: string.isRequired,
+    searchableType: string.isRequired,
     commitCount: number.isRequired,
   }),
   numberOfContributors: number.isRequired,

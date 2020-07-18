@@ -61,7 +61,7 @@ exports[`The branches list should be displayed when dropdown button is clicked d
               </li>
               <li>
                 <a
-                  href="/my-projects/12395599/data-instance%2F664e1c60"
+                  href="/my-namespace/the-project-name/-/tree/data-instance%2F664e1c60"
                   id="data-instance/664e1c60"
                   onClick={[Function]}
                 >
@@ -72,7 +72,7 @@ exports[`The branches list should be displayed when dropdown button is clicked d
               </li>
               <li>
                 <a
-                  href="/my-projects/12395599/data-instance%2F9ae9c8c0"
+                  href="/my-namespace/the-project-name/-/tree/data-instance%2F9ae9c8c0"
                   id="data-instance/9ae9c8c0"
                   onClick={[Function]}
                 >
@@ -83,7 +83,7 @@ exports[`The branches list should be displayed when dropdown button is clicked d
               </li>
               <li>
                 <a
-                  href="/my-projects/12395599/master"
+                  href="/my-namespace/the-project-name/-/tree/master"
                   id="master"
                   onClick={[Function]}
                 >
@@ -159,8 +159,8 @@ exports[`The branches list should be displayed when dropdown button is clicked d
     </div>
   </div>
   <a
-    className="btn btn-dark px-3 mr-2 mt-3"
-    href="/my-projects/12395599/pipeline-execution/new-data-pipeline"
+    className="btn btn-dark px-3 mr-auto mt-3"
+    href="/my-projects/12395599/pipe-line"
     onClick={[Function]}
   >
     Data Pipeline

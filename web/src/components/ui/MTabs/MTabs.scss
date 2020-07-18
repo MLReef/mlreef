@@ -48,6 +48,28 @@ $border-radius: 0.25rem !default;
         color: var(--dark);
         font-weight: bold;
       }
+
+      &.pills {
+        white-space: nowrap;
+        text-align: center;
+        padding: 0;
+        margin-left: 1rem;
+
+        & button {
+          padding: 0.5rem 2rem;
+          border: solid 2px transparent;
+        }
+
+        &.active {
+          @include round-bottom;
+          color: #fff;
+
+           & button {
+             border-color: var(--info);
+             color:  var(--info);
+           }
+        }
+      }
     }
   }
 

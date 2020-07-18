@@ -14,7 +14,7 @@ const ProjectNav = (props) => {
     );
   }
   const { folders } = props;
-  const { gitlabName, id } = selectedProject;
+  const { gitlabName, namespace, slug } = selectedProject;
 
   return (
     <div className="project-nav">
@@ -22,7 +22,7 @@ const ProjectNav = (props) => {
         ? (
           <Link
             key={`project-nav-link-${index.toString()}`}
-            to={`/my-projects/${id}/master`}
+            to={`/${namespace}/${slug}`}
           >
             <p className="px-1">
               {` ${folder} > `}

@@ -64,15 +64,15 @@ class MProjectClassification extends Component {
   handleClickDataTypesButton = () => this.setState((prevState) => ({
     isDataTypesVisible: !prevState.isDataTypesVisible,
   }));
- 
+
   handleClickFrameworkButton = () => this.setState((prevState) => ({
     isFrameworksVisible: !prevState.isFrameworksVisible,
   }));
-  
+
   handleClickModelTypeButton = () => this.setState((prevState) => ({
     isModelTypesVisible: !prevState.isModelTypesVisible,
   }));
-  
+
   handleClickMlCategoriesButton = () => this.setState((prevState) => ({
     isMlCategoriesVisible: !prevState.isMlCategoriesVisible,
   }));
@@ -100,7 +100,6 @@ class MProjectClassification extends Component {
       starredProjects,
       allProjects,
       history: {
-        push,
         location: {
           hash: screen,
         },
@@ -133,7 +132,7 @@ class MProjectClassification extends Component {
       { label: 'Classification' },
       { label: 'Dimensionality reduction' },
     ].map((dT) => ({ ...dT, name: `${classification} mlCategories` }));
-    
+
     return (
       <div style={{ display: 'flex', justifyContent: 'space-around' }}>
         <div>
@@ -176,7 +175,6 @@ class MProjectClassification extends Component {
           </div>
           <div className="m-project-classification">
             <ProjectSet
-              push={push}
               screen={screen || '#personal'}
               changeScreen={this.changeScreen}
               allProjects={allProjects}

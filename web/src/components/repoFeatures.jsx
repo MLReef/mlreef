@@ -41,11 +41,23 @@ export class RepoFeatures extends Component {
 
   render() {
     const {
+      projects: {
+        selectedProject: {
+          namespace,
+          slug,
+        },
+      },
+    } = this.props;
+
+    const {
       projectId,
       branches,
     } = this.state;
 
-    const { branch: currentBranch, path, projectType } = this.props;
+    const { branch: currentBranch, path, searchableType } = this.props;
+
+    const isCodeProject = searchableType === PROJECT_TYPES.CODE_PROJ
+      || searchableType === PROJECT_TYPES.CODE;
 
     return (
       <div id="repo-features">
@@ -76,7 +88,7 @@ export class RepoFeatures extends Component {
                         <li key={encoded}>
                           <Link
                             id={branch.name}
-                            to={`/my-projects/${projectId}/${encoded}`}
+                            to={`/${namespace}/${slug}/-/tree/${encoded}`}
                           >
                             <p>{branch.name}</p>
                           </Link>
@@ -98,7 +110,10 @@ export class RepoFeatures extends Component {
               <ul className="plus-list">
                 <li>This directory</li>
                 <li className="plus-option">
-                  <Link to={{ pathname: `/my-projects/${projectId}/${currentBranch}/upload-file`, state: { currentFilePath: path } }}>
+                  <Link to={{
+                    pathname: `/my-projects/${projectId}/${currentBranch}/upload-file`,
+                    state: { currentFilePath: path }
+                  }}>
                     Upload File
                   </Link>
                 </li>
@@ -116,8 +131,8 @@ export class RepoFeatures extends Component {
 
         <AuthWrapper minRole={30} className="mr-2 mt-3">
           <Link
-            className={`btn btn-dark px-3 ${projectType === PROJECT_TYPES.CODE_PROJ ? '' : 'mr-2'} mt-3`}
-            to={`/my-projects/${projectId}/pipeline-execution/new-data-pipeline`}
+            className={`btn btn-dark px-3 ${isCodeProject ? '' : 'mr-auto'} mt-3`}
+            to={`/my-projects/${projectId}/pipe-line`}
           >
             Data Pipeline
           </Link>
@@ -135,7 +150,7 @@ export class RepoFeatures extends Component {
           </Link>
         </AuthWrapper>
 
-        {projectType === PROJECT_TYPES.CODE_PROJ && (
+        {isCodeProject && (
           <button className="btn px-3 ml-2 mr-auto mt-3" style={{ backgroundColor: 'rgb(233, 148, 68)', color: 'white'}}>
             Publish
           </button>
@@ -165,7 +180,7 @@ RepoFeatures.propTypes = {
       name: string.isRequired,
     }),
   ).isRequired,
-  projectType: string.isRequired,
+  searchableType: string.isRequired,
 };
 
 function mapStateToProps(state) {

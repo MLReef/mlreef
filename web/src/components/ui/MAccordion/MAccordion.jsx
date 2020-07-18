@@ -18,7 +18,10 @@ const MAccordion = (props) => {
 MAccordion.Item = MAccordionItem;
 
 MAccordion.propTypes = {
-  children: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
+  children: PropTypes.oneOfType([
+    PropTypes.arrayOf(PropTypes.shape({})),
+    PropTypes.node,
+  ]),
 };
 
 export default MAccordion;

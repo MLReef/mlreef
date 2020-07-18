@@ -50,7 +50,7 @@ export const useGetHasRole = (role, resource = {}) => {
  * if owneronly is false then return true.
  *
  * @param {Boolean} owneronly if the ownership has to be checked.
-  * @param {Object[type, id]} resource is the resource to be checked, mainly projects.
+ * @param {Object[type, id]} resource is the resource to be checked, mainly projects.
  *
  * @return {Boolean} if fullfilled.
  */
@@ -70,12 +70,12 @@ export const useGetOwned = (owneronly, resource = {}) => {
 
       // in simple project info there is not 'owner' key, so we need a workaround
       // with namespace
-      const ownerInfo = project && project.owner;
-      const nsInfo = project && project.namespace;
+      const ownerInfo = project?.gitlab?.owner;
+      const nsInfo = project?.namespace;
 
       const projectUsername = ownerInfo
         ? ownerInfo.username
-        : nsInfo && nsInfo.path;
+        : nsInfo?.path;
 
       const { username } = user;
 

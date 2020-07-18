@@ -1,7 +1,11 @@
 import { toastr } from 'react-redux-toastr';
+import ApiDirector from './ApiDirector';
+import { METHODS, validServicesToCall } from './apiBuilders/requestEnums';
+import BLApiRequestCallBuilder from './apiBuilders/BLApiRequestCallBuilder';
 import { generateGetRequest, getCurrentToken } from './apiHelpers';
+import { handleResponse } from 'functions/apiCalls';
 
-export default class CommitsApi {
+export default class CommitsApi extends ApiDirector {
   static async performCommit(projectId, filePath, fileContent, branch, commitMss, action, encoding = 'text') {
     try {
       const response = await fetch(
@@ -53,30 +57,22 @@ export default class CommitsApi {
     }
   }
 
-  static async getCommits(projectId, refName = 'master', path = '', perPage = 20) {
+  getCommits(projectId, refName = 'master', path = '', perPage = 20) {
     const url = `/api/v4/projects/${projectId}/repository/commits?per_page=${perPage}&ref_name=${refName}&path=${path}`;
-    const response = await fetch(new Request(
-      url, {
-        method: 'GET',
-        headers: new Headers({
-          'PRIVATE-TOKEN': getCurrentToken(),
-        }),
-      },
-    ));
-    if(!response.ok){
-      return Promise.reject(response);
-    }
-    return response.json();
+    const headers = this.buildBasicHeaders(validServicesToCall.GITLAB);
+    const builder = new BLApiRequestCallBuilder(METHODS.GET, headers, url);
+
+    return fetch(builder.build())
+      .then(handleResponse);
   }
 
-  static async getCommitDetails(projectId, commitId) {
+  getCommitDetails(projectId, commitId) {
     const url = `/api/v4/projects/${projectId}/repository/commits/${commitId}`;
-    const response = await generateGetRequest(url);
-    if (response.ok) {
-      return response.json();
-    }
-    Promise.reject(response);
-    toastr.error('Error: ', 'We could not retrieve commit details');
+    const headers = this.buildBasicHeaders(validServicesToCall.GITLAB);
+    const builder = new BLApiRequestCallBuilder(METHODS.GET, headers, url);
+
+    return fetch(builder.build())
+      .then(handleResponse);
   }
 
   static async getFileDataInCertainCommit(projectId, pathToFile, commitId) {

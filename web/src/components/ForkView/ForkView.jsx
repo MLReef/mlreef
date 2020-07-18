@@ -32,7 +32,7 @@ const ForkView = (props) => {
       })
       .then(() => {
         setTimeout(() => {
-          history.push('/my-projects/');
+          history.push('/');
         }, 2000);
       })
       .catch((err) => {

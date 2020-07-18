@@ -6,7 +6,6 @@ import {
 } from 'prop-types';
 import forkingImage from 'images/forking.png';
 import { OPERATION, ALGORITHM, VISUALIZATION } from 'dataTypes';
-import ProjectGeneralInfoApi from 'apis/projectGeneralInfoApi';
 import ReadMeComponent from '../readMe/readMe';
 import ProjectContainer from '../projectContainer';
 import RepoInfo from '../repoInfo';
@@ -16,7 +15,6 @@ import * as projectActions from '../../actions/projectInfoActions';
 import * as branchesActions from '../../actions/branchesActions';
 import * as processorActions from '../../actions/processorActions';
 import './projectView.css';
-import { parseToCamelCase } from '../../functions/dataParserHelpers';
 import * as userActions from '../../actions/userActions';
 import * as jobsActions from '../../actions/jobsActions';
 import * as mergeActions from '../../actions/mergeActions';
@@ -28,84 +26,88 @@ import FilesContainer from 'components/FilesContainer';
 const isValidBranch = (branch) => branch !== 'null' && branch !== null && branch !== undefined;
 
 class ProjectView extends React.Component {
+  state = {
+    contributors: [], // disconnected
+    users: [], // disconnected
+    isForking: false,
+  }
+
   constructor(props) {
     super(props);
-    const {
-      match:
-      {
-        params: { branch },
-      }, users,
-    } = this.props;
 
-    const decodedBranch = decodeURIComponent(branch);
-    this.state = {
-      selectedProject: null,
-      mergeRequests: [],
-      branch: decodedBranch,
-      contributors: [],
-      users,
-      isForking: false,
-    };
     this.setIsForking = this.setIsForking.bind(this);
+    this.fetchIfAuthenticated = this.fetchIfAuthenticated.bind(this);
+    this.fetchVisitor = this.fetchVisitor.bind(this);
   }
 
   componentDidMount() {
     const {
       actions,
-      projects: { all },
-      match:
-      {
-        params: { projectId },
+      user: { auth },
+    } = this.props;
+
+    const fetch = auth ? this.fetchIfAuthenticated : this.fetchVisitor;
+
+    actions.setIsLoading(true);
+
+    fetch().finally(() => actions.setIsLoading(false));
+  }
+
+  fetchIfAuthenticated() {
+    const {
+      actions,
+      match: {
+        params: {
+          namespace,
+          slug,
+        },
       },
     } = this.props;
-    actions.getUsersLit(projectId);
-    actions.getBranchesList(projectId);
-    actions.getJobsListPerProject(projectId);
-    actions.getMergeRequestsList(projectId);
-    actions.getProcessors(OPERATION);
-    actions.getProcessors(ALGORITHM);
-    actions.getProcessors(VISUALIZATION);
-    actions.setIsLoading(true);
-    
-    const projectGeneralInfoApi = new ProjectGeneralInfoApi();
-    projectGeneralInfoApi.getProjectInfoApi(projectId)
-      .then((rawGitlabProjectInfo) => {
-        const gitlabProjectInfo = parseToCamelCase(rawGitlabProjectInfo);
-        const backendProjectInformation = all.filter((proj) => proj.gitlabId.toString() === projectId)[0];
-        const fullProject = { ...backendProjectInformation };
-        fullProject.avatarUrl = gitlabProjectInfo.avatarUrl;
-        fullProject.defaultBranch = gitlabProjectInfo.defaultBranch;
-        fullProject.description = gitlabProjectInfo.description;
-        fullProject.emptyRepo = gitlabProjectInfo.emptyRepo;
-        fullProject.forksCount = gitlabProjectInfo.forksCount;
-        fullProject.starCount = gitlabProjectInfo.starCount;
-        fullProject.httpUrlToRepo = gitlabProjectInfo.httpUrlToRepo;
-        fullProject.sshUrlToRepo = gitlabProjectInfo.sshUrlToRepo;
-        fullProject.readmeUrl = gitlabProjectInfo.readmeUrl;
-        fullProject.namespace = gitlabProjectInfo.namespace;
-        fullProject.gitlabName = gitlabProjectInfo.name;
-        fullProject.id = gitlabProjectInfo.id;
-        const statistics = gitlabProjectInfo.statistics ? parseToCamelCase(gitlabProjectInfo.statistics) : {};
-        fullProject.repositorySize = statistics.repositorySize || 0;
-        fullProject.commitCount = statistics.commitCount || 0;
-        actions.setSelectedProject(fullProject);
+
+    return actions.getProjectDetailsBySlug(namespace, slug)
+      .then(({ project }) => {
+        const gid = project.gitlabId || project.gitlab?.id;
+
+        actions.getProcessors(OPERATION);
+        actions.getProcessors(ALGORITHM);
+        actions.getProcessors(VISUALIZATION);
+
+        return Promise.all([
+          actions.getBranchesList(gid),
+          actions.getMergeRequestsList(gid),
+          actions.getUsersLit(gid),
+          actions.getJobsListPerProject(gid),
+        ])
       })
-      .catch(() => toastr.error('Error', 'Error fetching project'))
-      .finally(() => actions.setIsLoading(false));
+        .catch(() => toastr.error('Error', 'Error fetching project'));
   }
 
-  static getDerivedStateFromProps(nextProps) {
-    const { mergeRequests, match: { params: { branch } }, projects: { selectedProject } } = nextProps;
-    const isValidBr = isValidBranch(branch);
-    return {
-      selectedProject,
-      mergeRequests,
-      branch: isValidBr ? decodeURIComponent(branch): selectedProject.defaultBranch
-    };
-  }
+  fetchVisitor() {
+    const {
+      actions,
+      match: {
+        params: {
+          namespace,
+          slug,
+        },
+      },
+    } = this.props;
 
-  componentWillUnmount() {
-    this.setState = (state) => (state);
+    return actions.getProjectDetailsBySlug(namespace, slug, { visitor: true })
+      .then(({ project }) => {
+        const gid = project.gitlabId || project.gitlab?.id;
+
+        // actions.getProcessors(OPERATION);
+        // actions.getProcessors(ALGORITHM);
+        // actions.getProcessors(VISUALIZATION);
+
+        return Promise.all([
+          actions.getBranchesList(gid),
+          actions.getMergeRequestsList(gid),
+          actions.getUsersLit(gid),
+        ])
+      })
+        .catch(() => toastr.error('Error', 'Error fetching project'));
   }
 
   setIsForking(status) {
@@ -113,30 +115,35 @@ class ProjectView extends React.Component {
   }
 
   render() {
-    const { match: { params: { path, projectId, branch: urlBranch } }, branches } = this.props;
     const {
-      branch,
-      selectedProject,
+      project,
+      project: {
+        gid,
+        sshUrlToRepo,
+        name: projectName,
+        readmeUrl: showReadMe,
+      },
+      match: {
+        params: {
+          namespace,
+          slug,
+          path,
+          branch,
+        },
+      },
+      mergeRequests,
+      branches,
+    } = this.props;
+
+    const {
       users,
       contributors,
-      mergeRequests,
       isForking,
     } = this.state;
-    let isEmptyProject, sshUrlToRepo, projectName, showReadMe, encodedBranch;
-    if (selectedProject) {
-      isEmptyProject = selectedProject.emptyRepo;
-      sshUrlToRepo = selectedProject.sshUrlToTepo;
-      projectName = selectedProject.gitlabName;
-      showReadMe = selectedProject.readmeUrl;
 
-      if(isValidBranch(branch)){
-        encodedBranch = branch.includes('%2F')
-          ? branch 
-          : encodeURIComponent(branch);
-      } else {
-        encodedBranch = selectedProject.defaultBranch;
-      }
-    }
+    const currentBranch = isValidBranch(branch) ? branch : project.defaultBranch;
+    const decodedBranch = decodeURIComponent(currentBranch);
+
     return (
       <div className="project-component">
         <Navbar />
@@ -160,20 +167,22 @@ class ProjectView extends React.Component {
           </div>
         )}
         <div style={{ display: isForking ? 'none' : 'block' }}>
-          <ProjectContainer
-            setIsForking={this.setIsForking}
-            activeFeature="data"
-          />
-          {selectedProject && (
+          {gid && (
+            <ProjectContainer
+              setIsForking={this.setIsForking}
+              activeFeature="data"
+            />
+          )}
+          {gid && (
           <div className="main-content">
-            {isEmptyProject ? (
-              <EmptyProject sshUrlToRepo={sshUrlToRepo} projectId={projectId} />
+            {project.emptyRepo ? (
+              <EmptyProject sshUrlToRepo={sshUrlToRepo} projectId={gid} />
             ) : (
               <>
                 <RepoInfo
-                  project={selectedProject}
+                  project={project}
                   mergeRequests={mergeRequests}
-                  currentBranch={encodedBranch}
+                  currentBranch={decodedBranch}
                   numberOfContributors={contributors.length}
                   branchesCount={branches.length}
                   dataInstanesCount={
@@ -183,29 +192,31 @@ class ProjectView extends React.Component {
                       ).length
                   }
                 />
-                <ProjectLastCommitSect 
-                  projectId={selectedProject.id}
-                  branch={urlBranch}
-                  projectDefaultBranch={selectedProject.defaultBranch}
+                <ProjectLastCommitSect
+                  projectId={gid}
+                  branch={currentBranch}
+                  projectDefaultBranch={project.defaultBranch}
                   users={users}
                 />
                 <RepoFeatures
-                  projectId={selectedProject.id}
-                  branch={encodedBranch}
+                  projectId={gid}
+                  branch={decodedBranch}
                   path={path || ''}
-                  projectType={selectedProject.projectType}
+                  searchableType={project.searchableType}
                 />
                 <FilesContainer
-                  projectId={selectedProject.id}
+                  projectId={gid}
+                  namespace={namespace}
+                  slug={slug}
                   path={path}
-                  urlBranch={urlBranch}
-                  defaultBranch={selectedProject.defaultBranch}
+                  urlBranch={currentBranch}
+                  defaultBranch={project.defaultBranch}
                 />
                 {showReadMe && (
                 <ReadMeComponent
                   projectName={projectName}
-                  projectId={selectedProject.id}
-                  branch={encodedBranch}
+                  projectId={gid}
+                  branch={decodedBranch}
                 />
                 )}
               </>
@@ -218,15 +229,22 @@ class ProjectView extends React.Component {
   }
 }
 
+ProjectView.defaultProps = {
+  mergeRequests: [],
+};
+
 ProjectView.propTypes = {
+  project: shape({}).isRequired,
+  mergeRequests: arrayOf(shape({})),
   projects: shape({
     all: arrayOf.isRequired,
   }).isRequired,
   match: shape({
     params: shape({
-      projectId: string.isRequired,
+      namespace: string.isRequired,
+      slug: string.isRequired,
       file: string,
-      branch: string.isRequired,
+      branch: string,
       path: string,
     }),
   }).isRequired,
@@ -250,6 +268,7 @@ function mapStateToProps(state) {
     user: state.user,
     branches: state.branches,
     mergeRequests: state.mergeRequests,
+    project: state.projects.selectedProject,
   };
 }
 

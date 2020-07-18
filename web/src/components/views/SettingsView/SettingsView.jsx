@@ -33,13 +33,13 @@ const SettingsView = (props) => {
                 label: 'General',
                 content: (
                   <SettingsViewGeneral
-                    id={project.id}
+                    gid={project.gid}
                     branch={project.defaultBranch}
                     projectName={project.gitlabName}
                     description={project.description}
                     avatar={project.avatarUrl}
                     ownerId={project.ownerId}
-                    projectId={project.backendId}
+                    projectId={project.id}
                     history={history}
                   />
                 ),
@@ -50,7 +50,7 @@ const SettingsView = (props) => {
                 content: (
                   <SettingsViewMembers
                     ownerId={project.ownerId}
-                    projectId={project.backendId}
+                    projectId={project.id}
                   />
                 ),
               },
@@ -78,7 +78,7 @@ const SettingsView = (props) => {
 };
 SettingsView.propTypes = {
   project: PropTypes.shape({
-    backendId: PropTypes.string.isRequired,
+    id: PropTypes.string.isRequired,
     ownerId: PropTypes.string.isRequired,
     avatarUrl: PropTypes.string,
     gitlabName: PropTypes.string.isRequired,

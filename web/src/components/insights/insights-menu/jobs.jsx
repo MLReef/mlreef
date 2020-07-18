@@ -10,7 +10,7 @@ import jobsApi from 'apis/JobsApi';
 import BlackBorderedButton from '../../BlackBorderedButton';
 import { getTimeCreatedAgo } from '../../../functions/dataParserHelpers';
 
-const Jobs = ({ jobs, selectedProject: { id } }) => {
+const Jobs = ({ jobs, selectedProject: { gid: id } }) => {
   const [jobList, setJobs] = useState(jobs);
 
   useEffect(() => {
@@ -152,7 +152,7 @@ Jobs.propTypes = {
     }).isRequired,
   ).isRequired,
   selectedProject: shape({
-    id: number.isRequired,
+    gid: number.isRequired,
   }).isRequired,
 };
 

@@ -16,9 +16,9 @@ const SettingsViewGeneral = (props) => {
   const fileMaxSize = 200;
   const imageInput = useRef();
   const {
-    id, branch, avatar, projectId, projectName, description, history,
+    gid, branch, avatar, projectId, projectName, description, history,
   } = props;
-  const [imgBase] = useState(avatar);
+
   const [name, setProjectName] = useState(projectName);
   const [newDescription, changeDescription] = useState(description);
   const [file, setImageFile] = useState('No file chosen');
@@ -47,7 +47,7 @@ const SettingsViewGeneral = (props) => {
 
     projectApi.updateProjectDetails(projectId, body)
       .then(() => {
-        history.push(`/my-projects/${id}/${branch}`);
+        history.push(`/my-projects/${gid}/${branch}`);
         toastr.success('Success', 'Project was successfully updated');
       })
       .catch((err) => toastr.error('Error', err.json()));
@@ -122,11 +122,11 @@ const SettingsViewGeneral = (props) => {
             </div>
             <div className="ml-0 mr-0 mb-3">
               <div className="mb-0 pl-3" style={{ float: 'left' }}>
-                {imgBase === null
+                {avatar === null
                   ? <MEmptyAvatar projectName={projectName} styleClass="avatar-md" />
                   : (
                     <MAvatar
-                      image={imgBase}
+                      imgBase={avatar}
                       projectName={projectName}
                       width="140"
                       height="140"
@@ -179,7 +179,7 @@ SettingsViewGeneral.defaultProps = {
 };
 
 SettingsViewGeneral.propTypes = {
-  id: PropTypes.number.isRequired,
+  gid: PropTypes.number.isRequired,
   branch: PropTypes.string.isRequired,
   avatar: PropTypes.string,
   projectName: PropTypes.string.isRequired,

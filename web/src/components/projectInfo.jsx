@@ -20,22 +20,26 @@ const ProjectInfo = (props) => {
     userNamespace,
     setIsForking,
   } = props;
-  const classProject = project.projectType === PROJECT_TYPES.DATA_PROJ
+
+  const isDataProject = project.projectType === PROJECT_TYPES.DATA_PROJ
+    || project.projectType === PROJECT_TYPES.DATA;
+
+  const classProject = isDataProject
     ? plainToClass(DataProject, project)
     : plainToClass(CodeProject, project);
   const [redirect, setRedirect] = React.useState(false);
 
   function handleFork() {
-    let Id;
+    let gid;
     let projectName;
     if (classProject) {
-      Id = classProject.id;
+      gid = classProject.gid;
       projectName = classProject.name;
     }
 
     setIsForking(true);
     const projectGeneralInfoApi = new ProjectGeneralInfoApi();
-    projectGeneralInfoApi.forkProject(Id, userNamespace, projectName)
+    projectGeneralInfoApi.forkProject(gid, userNamespace, projectName)
       .then(
         () => {
           actions.getProjectsList();
@@ -57,14 +61,16 @@ const ProjectInfo = (props) => {
             </div>
           )
           : (
-            <Link to={`/my-projects/${classProject.id}/${classProject.defaultBranch}`}>
+            <Link to={`/${project.namespace}/${project.slug}`}>
               <div className="project-pic overflow-hidden">
                 <img style={{ minWidth: '100%' }} src={classProject.avatarUrl} alt="" />
               </div>
             </Link>
           )}
         <div className="project-name">
-          <Link to={`/my-projects/${classProject.id}/${classProject.defaultBranch}`} id="projectName">{classProject.gitlabName}</Link>
+          <Link to={`/${project.namespace}/${project.slug}`} id="projectName">
+            {classProject.gitlabName}
+          </Link>
           <p id="projectId">
             Project ID:
             {classProject.id}
@@ -73,7 +79,7 @@ const ProjectInfo = (props) => {
           </p>
         </div>
       </div>
-      {redirect ? <Redirect to="/my-projects" /> : null}
+      {redirect ? <Redirect to="/" /> : null}
       <div className="project-options">
         <div className="options d-flex mr-2">
           <button
@@ -90,7 +96,7 @@ const ProjectInfo = (props) => {
           </button>
 
           <div className="counter border-rounded-right h-100">
-            <span>{classProject.starCount}</span>
+            <span>{classProject.starsCount}</span>
           </div>
         </div>
 
@@ -254,9 +260,9 @@ ProjectInfo.propTypes = {
     avatarUrl: string,
     forksCount: number.isRequired,
     gitlabName: string.isRequired,
-    id: number.isRequired,
+    gid: number.isRequired,
     defaultBranch: string,
-    starCount: number.isRequired,
+    starsCount: number.isRequired,
     httpUrlToRepo: string.isRequired,
     sshUrlToRepo: string.isRequired,
   }).isRequired,

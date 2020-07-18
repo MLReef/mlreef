@@ -8,9 +8,16 @@ import { parseToCamelCase } from 'functions/dataParserHelpers';
 import Experiment from 'domain/experiments/Experiment';
 import CodeProject from 'domain/project/CodeProject';
 import { PROJECT_TYPES } from 'domain/project/projectTypes';
-import { handleResponse } from 'functions/apiCalls';
+import { handleResponse, handlePagination, inspect } from 'functions/apiCalls';
 
 export default class ProjectGeneralInfoApi extends ApiDirector {
+  constructor() {
+    super();
+
+    this.listPublicProjects = this.listPublicProjects.bind(this);
+    this.getProjectDetails = this.getProjectDetails.bind(this);
+    this.getProjectDetailsNoAuth = this.getProjectDetailsNoAuth.bind(this);
+  }
   async create(body: any, projectType: string) {
     const baseUrl = `/api/v1/${projectType}s`;
     const apiReqBuilder = new ApiRequestCallBuilder(METHODS.POST, this.buildBasicHeaders(validServicesToCall.BACKEND), baseUrl, JSON.stringify(body));
@@ -25,6 +32,7 @@ export default class ProjectGeneralInfoApi extends ApiDirector {
   async getProjectInfoApi(projectId: number) {
     const url = `/api/v4/projects/${projectId}?statistics=true`;
     const builder = new BLApiRequestCallBuilder(METHODS.GET, this.buildBasicHeaders(validServicesToCall.GITLAB), url);
+
     const response = await fetch(builder.build());
 
     if (!response.ok) {
@@ -58,6 +66,13 @@ export default class ProjectGeneralInfoApi extends ApiDirector {
         return newPro;
       }));
     })
+  }
+
+  listPublicProjects() {
+    const url = '/api/v1/projects/public';
+
+    return fetch(url)
+      .then(handleResponse);
   }
 
   getMembers(projectId: string) {
@@ -149,11 +164,31 @@ export default class ProjectGeneralInfoApi extends ApiDirector {
 
   async getUsers(projectId: number) {
     const url = `/api/v4/projects/${projectId}/users`;
-    const builder = new BLApiRequestCallBuilder(METHODS.GET, this.buildBasicHeaders(validServicesToCall.GITLAB), url);
-    const response = await fetch(builder.build());
+    // this request must not include authentication
+    const response = await fetch(url);
     if (!response.ok) {
       return Promise.reject(response);
     }
     return response.json();
+  }
+
+  getProjectDetails(namespace: string, slug: string) {
+    const url = `/api/v1/projects/slug/${slug}`;
+    const headers = this.buildBasicHeaders(validServicesToCall.BACKEND)
+    const builder = new BLApiRequestCallBuilder(METHODS.GET, headers, url);
+
+    return fetch(builder.build())
+      .then(handleResponse)
+      .then((results) => results.find((res: any) => res.gitlab_namespace === namespace));
+  }
+
+  getProjectDetailsNoAuth(namespace: string, slug: string) {
+    return this.listPublicProjects()
+      .then(handlePagination)
+      .then(inspect)
+      .then((results) => results
+        .filter((res: any) => res.gitlab_namespace === namespace)
+        .find((res: any) => res.slug === slug)
+      );
   }
 }
