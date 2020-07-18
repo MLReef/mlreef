@@ -1,12 +1,29 @@
+import store from '../store';
 import { toastr } from 'react-redux-toastr';
 import ProjectGeneralInfoApi from 'apis/projectGeneralInfoApi';
 import * as types from './actionTypes';
 import DataProcessorsApi from 'apis/DataProcessorsApi.ts';
 import { PROJECT_TYPES } from 'domain/project/projectTypes';
-import { parseToCamelCase } from 'functions/dataParserHelpers';
-
+import { parseToCamelCase, adaptProjectModel } from 'functions/dataParserHelpers';
+import { handlePagination } from 'functions/apiCalls';
 const dataProcApi = new DataProcessorsApi();
 const projectApi = new ProjectGeneralInfoApi();
+
+// This will fetch gitlab project and add it to the mlreef project
+const mergeWithGitlabProject = (project) => projectApi.getProjectInfoApi(project.gitlab_id)
+  .then(parseToCamelCase)
+  .then((gitlab) => ({ ...project, gitlab }))
+  .catch(() => project);
+
+// fetch complementary member list from gitlab api, so far it's not possible
+// to get them within each project
+const mergeGitlabResource = (projects) => Promise.all(
+  projects.map((project) => projectApi.getUsers(project.gitlabId)
+    .then((members) => ({ ...project, members }))
+    .catch(() => project)
+  ),
+);
+
 /**
  *
  * @param {*} projects: load list for redux global state
@@ -20,13 +37,22 @@ export function getProjectsInfoSuccessfully(projects) {
  * get list of projects associated with authenticated user
  */
 
-export function getProjectsList(projectsType) {
+export function getProjectsList() {
   return async (dispatch) => {
-    try {
-      const projects = await projectApi.getProjectsList(projectsType);
+    const projects = await projectApi.listPublicProjects()
+      .then(handlePagination)
+      .then((projs) => projs.map(parseToCamelCase))
+      .then(mergeGitlabResource)
+
+    if (projects) {
+      const { user: { username } } = store.getState();
+
+      const memberProjects = projects.filter((project) =>
+        project.members?.some((m) => m.username === username)
+      );
+
       dispatch(getProjectsInfoSuccessfully(projects));
-    } catch (err) {
-      throw err;
+      dispatch(setUserProjectsSuccessfully(memberProjects));
     }
   };
 }
@@ -102,13 +128,25 @@ export function getUsersLit(projectId) {
 }
 
 export function getProjectDetails(id) {
-  return (dispatch) => 
+  return (dispatch) =>
     projectApi.getProjectInfoApi(id)
     .then((project) => dispatch({ type: types.SET_SELECTED_PROJECT, project }));
 }
 
+export function getProjectDetailsBySlug(namespace, slug, options = {}) {
+  const requestFn = options.visitor
+    ? projectApi.getProjectDetailsNoAuth
+    : projectApi.getProjectDetails;
+
+  return (dispatch) => requestFn(namespace, slug)
+    .then(mergeWithGitlabProject)
+    .then(parseToCamelCase)
+    .then(adaptProjectModel)
+    .then((project) => dispatch(setSelectedProjectSuccesfully(project)));
+}
+
 /**
- * 
+ *
  * This API call fetches code repos corresponding with data processors
  */
 
@@ -116,7 +154,7 @@ export function getDataProcessorsAndCorrespondingProjects(dataOperation) {
   const params = new Map();
   params.set('type', dataOperation);
   return (dispatch) => Promise.all([
-    projectApi.getProjectsList(PROJECT_TYPES.CODE_PROJ), 
+    projectApi.getProjectsList(PROJECT_TYPES.CODE_PROJ),
     dataProcApi.filterByParams(params),
   ]).then((response) => {
     const projects = response[0];

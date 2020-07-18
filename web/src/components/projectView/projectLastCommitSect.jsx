@@ -2,8 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { toastr } from 'react-redux-toastr';
 import CommitsApi from 'apis/CommitsApi';
 import { parseToCamelCase, getTimeCreatedAgo } from 'functions/dataParserHelpers';
-
 import { string, number, shape, arrayOf } from 'prop-types';
+
+const commitsApi = new CommitsApi();
 
 const ProjectLastCommitSect = ({
   projectId,
@@ -18,7 +19,7 @@ const ProjectLastCommitSect = ({
       const commitBranch = urlBranch && urlBranch !== '' &&  urlBranch !== 'null' 
       ? urlBranch 
       : projectDefaultBranch;
-      CommitsApi.getCommits(projectId, commitBranch, '', 1)
+    commitsApi.getCommits(projectId, commitBranch, '', 1)
       .then((res) => setLastCommit(parseToCamelCase(res[0])))
       .catch(() => toastr.error('Error', 'Error fetching last commit'));
     }

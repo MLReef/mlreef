@@ -21,7 +21,6 @@ class ProjectSet extends Component {
       starredProjects,
       handleShowModal,
       screen,
-      push,
     } = this.props;
     let finalProjectsArray = [];
     switch (screen) {
@@ -39,18 +38,21 @@ class ProjectSet extends Component {
       <div id="cards-section">
         {finalProjectsArray.length > 0 ? finalProjectsArray.map((proj) => (
           <MProjectCard
-            key={`proj-${screen}-key-${proj.gitlabPath}`}
-            push={push}
+            key={`proj-${proj.gitlabNamespace}-${proj.slug}`}
+            slug={proj.slug}
             owner={proj.id}
-            title={proj.gitlabPath}
+            title={proj.name}
             projectId={proj.gitlabId}
             description={proj.description}
             starCount={proj.starCount || 0}
             forkCount={proj.forksCount || 0}
-            namespace={proj.namespace}
+            namespace={proj.gitlabNamespace}
             updatedAt={proj.lastActivityat}
             projects={allProjects}
+            inputDataTypes={proj.inputDataTypes}
+            outputDataTypes={proj.inputDataTypes}
             handleShowModal={handleShowModal}
+            users={proj.members}
           />
         )) : (
           <div className="d-flex noelement-found-div">

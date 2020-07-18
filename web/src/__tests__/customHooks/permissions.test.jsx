@@ -38,26 +38,34 @@ const mockedProjects = {
   all: [
     {
       id: 21,
-      namespace: {
-        path: 'mlreef',
+      gitlab: {
+        owner: {
+          username: 'mlreef',
+        },
       },
     },
     {
       id: 22,
-      owner: {
-        username: 'mlreef',
+      gitlab: {
+        owner: {
+          username: 'mlreef',
+        },
       },
     },
     {
       id: 23,
-      owner: {
-        username: 'other',
+      gitlab: {
+        owner: {
+          username: 'other',
+        },
       },
     },
   ],
   selectedProject: {
-    owner: {
-      username: 'mlreef',
+    gitlab: {
+      owner: {
+        username: 'mlreef',
+      },
     },
   },
 };

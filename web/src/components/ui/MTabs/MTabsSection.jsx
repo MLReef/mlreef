@@ -9,6 +9,8 @@ const MTabsSection = (props) => {
     defaultActive,
     children,
     color,
+    className,
+    wide,
   } = props;
 
   return (
@@ -16,9 +18,10 @@ const MTabsSection = (props) => {
       label={label}
       id={id}
       color={color}
+      style={{ maxWidth: wide ? '950px' : undefined }}
       className={`m-tabs_content_section ${defaultActive ? 'active' : ''}`}
     >
-      <div className="m-tabs_content_section_container">
+      <div className={`m-tabs_content_section_container ${className}`}>
         {children}
       </div>
     </div>
@@ -27,18 +30,22 @@ const MTabsSection = (props) => {
 
 MTabsSection.defaultProps = {
   defaultActive: false,
+  wide: false,
   color: 'transparent',
+  className: '',
 };
 
 MTabsSection.propTypes = {
   label: PropTypes.string.isRequired,
   id: PropTypes.string.isRequired,
   defaultActive: PropTypes.bool,
+  wide: PropTypes.bool,
   color: PropTypes.string,
   children: PropTypes.oneOfType([
     PropTypes.arrayOf(PropTypes.node),
     PropTypes.node,
   ]).isRequired,
+  className: PropTypes.string,
 };
 
 export default MTabsSection;

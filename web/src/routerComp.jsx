@@ -9,6 +9,7 @@ import Login from './components/login/login';
 import RegisterView from './components/RegisterView';
 import projectView from './components/projectView/projectView';
 import PrivateRoute from './privateRoute';
+import Explore from 'components/views/Explore';
 import ExperimentsOverview from './components/experiments-overview/experimentsOverview';
 import Projects from './components/myProjects/myProjects';
 import Commits from './components/commits-view/commitsView';
@@ -37,12 +38,13 @@ const RouterComp = () => (
     <Switch>
       {/* this is a route for testing layout and should be removed after alpha */}
       <Route path="/demo" exact component={Demo} />
-      <PrivateRoute path="/" exact component={Projects} />
       <Route path="/login" exact component={Login} />
       <Route path="/index.html" exact component={Login} />
       <Route path="/register" exact component={RegisterView} />
       <Route path="/error-page" exact component={ErrorPage} />
+      <Route path="/explore" exact component={Explore} />
 
+      <PrivateRoute path="/" exact component={Projects} />
       <PrivateRoute path="/perms/owner" owneronly exact component={Projects} />
       <PrivateRoute path="/perms/role" minRole={20} exact component={Projects} />
       <PrivateRoute path="/perms/account" accountType={1} exact component={Projects} />
@@ -73,11 +75,11 @@ const RouterComp = () => (
         path="/my-projects/:projectId/:branch/upload-file"
         component={UploadFile}
       />
-      <PrivateRoute
-        exact
-        path="/my-projects/:projectId"
-        component={projectView}
-      />
+      <Route path="/:namespace/:slug" component={projectView} exact />
+      <Route path="/:namespace/:slug/-/tree/:branch/:path(.+)" component={projectView} />
+      <Route path="/:namespace/:slug/-/tree/:branch" component={projectView} />
+      <Route path="/:namespace/:slug/-/blob/:branch/:file(.+)" component={FileView} />
+
       <PrivateRoute
         exact
         path="/my-projects/:projectId/new-branch"
@@ -102,7 +104,6 @@ const RouterComp = () => (
         component={ExperimentsOverview}
       />
       <PrivateRoute path="/my-projects/:projectId/-/experiments/:experimentId" exact component={ExperimentDetails} />
-      <PrivateRoute path="/my-projects/:projectId/:branch" exact component={projectView} />
       <PrivateRoute
         path="/my-projects/:projectId/:branch/blob/:file"
         component={FileView}

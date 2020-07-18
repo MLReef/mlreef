@@ -22,20 +22,22 @@ class ProjectContainer extends React.Component {
   render() {
     const {
       project,
+      project: { namespace, slug },
       forceShowExperimentList,
       setIsForking,
       viewName,
     } = this.props;
 
-    let id; let description; let defaultBranch; let groupName; 
+    const isDataProject = project.projectType === PROJECT_TYPES.DATA_PROJ
+      || project.projectType === PROJECT_TYPES.DATA;
+
+    let id; let description;
     let projectName;
-    groupName = '--';
+
     projectName = '--';
     if (project) {
-      id = project.id;
+      id = project.gid;
       description = project.description;
-      defaultBranch = project.defaultBranch;
-      groupName = project.namespace ? project.namespace.name : 'No group';
       projectName = project.gitlabName;
     }
     return (
@@ -43,9 +45,8 @@ class ProjectContainer extends React.Component {
         <div className="project-details main-content">
           <ProjectNav
             key={`project-key-${id}`}
-            projectId={id}
             folders={[
-              groupName,
+              namespace,
               projectName,
               viewName,
             ]}
@@ -60,11 +61,11 @@ class ProjectContainer extends React.Component {
             </>
           )}
           <div className="feature-list">
-            <Link to={`/my-projects/${id}/${defaultBranch}`} className="feature" id="data">
+            <Link to={`/${namespace}/${slug}`} className="feature" id="data">
               Data
             </Link>
-            
-            {project.projectType === PROJECT_TYPES.DATA_PROJ && (
+
+            {isDataProject && (
               <Link
                 onClick={forceShowExperimentList}
                 to={`/my-projects/${id}/-/experiments`}

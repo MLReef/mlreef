@@ -16,6 +16,7 @@ import * as groupsActions from '../../actions/groupsActions';
 import * as userActions from '../../actions/userActions';
 import { PROJECT_TYPES } from 'domain/project/projectTypes';
 import * as processorActions from 'actions/processorActions';
+import {onlyDataProject, onlyCodeProject} from 'functions/apiCalls';
 
 class Myprojects extends React.Component {
   projFilterBtnsList = ['own', 'starred', 'explore'];
@@ -58,8 +59,8 @@ class Myprojects extends React.Component {
       userProjects,
       starredProjects
     } = nextProps;
-    const {actions} = nextProps;
-    actions.setIsLoading(false);
+    // const {actions} = nextProps;
+    // actions.setIsLoading(false);
     return {
       allProjects,
       userProjects,
@@ -129,42 +130,26 @@ class Myprojects extends React.Component {
             id={projectClassificationsProps[0].classification}
             label="ML Projects"
             color={projectClassificationsProps[0].color}
-            callback={() => {
-              try {
-                actions.setIsLoading(true);
-                actions.getProjectsList(PROJECT_TYPES.DATA_PROJ);  
-              } catch (error) {
-                toastr.error('Error', error);
-              }
-            }}
           >
             <MProjectClassification
               classification={projectClassificationsProps[0].classification}
               history={history}
-              userProjects={userProjects}
-              starredProjects={starredProjects}
-              allProjects={allProjects}
+              userProjects={userProjects.filter(onlyDataProject)}
+              starredProjects={starredProjects.filter(onlyDataProject)}
+              allProjects={allProjects.filter(onlyDataProject)}
             />
           </MTabs.Section>
           <MTabs.Section
             id={projectClassificationsProps[1].classification}
             label="Models"
             color={projectClassificationsProps[1].color}
-            callback={() => {
-              try {
-                actions.setIsLoading(true);
-                actions.getProjectsList(PROJECT_TYPES.CODE_PROJ)
-              } catch (error) {
-                toastr.error('Error', error);
-              }
-            }}
           >
             <MProjectClassification
               classification={projectClassificationsProps[1].classification}
               history={history}
-              userProjects={userProjects}
-              starredProjects={starredProjects}
-              allProjects={allProjects}
+              userProjects={userProjects.filter(onlyCodeProject)}
+              starredProjects={starredProjects.filter(onlyCodeProject)}
+              allProjects={allProjects.filter(onlyCodeProject)}
             />
           </MTabs.Section>
           <MTabs.Section

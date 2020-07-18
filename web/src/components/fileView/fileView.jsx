@@ -1,6 +1,7 @@
 import React from 'react';
 import './fileView.css';
 import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
 import { toastr } from 'react-redux-toastr';
 import { Base64 } from 'js-base64';
 import { Link } from 'react-router-dom';
@@ -8,6 +9,7 @@ import { string, shape, arrayOf } from 'prop-types';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import MDropdown from 'components/ui/MDropdown';
+import { getProjectDetailsBySlug } from 'actions/projectInfoActions';
 import ProjectContainer from '../projectContainer';
 import CommitsApi from '../../apis/CommitsApi';
 import Navbar from '../navbar/navbar';
@@ -17,6 +19,9 @@ import DeleteFileModal from '../delete-file-modal/deleteFileModal';
 dayjs.extend(relativeTime);
 
 const file01 = '/images/svg/file_01.svg';
+
+const filesApi = new FilesApi();
+const commitsApi = new CommitsApi();
 
 export class FileView extends React.Component {
   constructor(props) {
@@ -33,21 +38,33 @@ export class FileView extends React.Component {
     this.showDeleteModal = this.showDeleteModal.bind(this);
   }
 
-  componentDidMount() {
-    const { match: { params: { projectId, file, branch } } } = this.props;
-    const filesApi = new FilesApi();
-    filesApi.getFileData(
+  async componentDidMount() {
+    const {
+      actions,
       projectId,
-      file,
-      branch,
-    ).then((res) => {
-      const fileData = res;
-      this.setState({ fileData });
-      this.getCommit(projectId, fileData.last_commit_id);
-    })
+      match: {
+        params: { file, branch, namespace, slug }
+      }
+    } = this.props;
+
+    let gid;
+
+    if (projectId) {
+      gid = projectId;
+    } else {
+      const res = await actions.getProjectDetailsBySlug(namespace, slug);
+      gid = res?.project?.gid;
+    }
+
+    filesApi.getFileData(gid, encodeURIComponent(file), branch)
+      .then((res) => {
+        const fileData = res;
+        this.setState({ fileData });
+        this.getCommit(gid, fileData.last_commit_id);
+      })
       .catch((err) => toastr.error('Error: ', err.message));
 
-    filesApi.getContributors(projectId)
+    filesApi.getContributors(gid)
       .then((contributors) => { this.setState({ contributors }); });
   }
 
@@ -55,7 +72,7 @@ export class FileView extends React.Component {
     this.setState = (state) => (state);
   }
 
-  getCommit = (projectId, lastCommitId) => CommitsApi
+  getCommit = (projectId, lastCommitId) => commitsApi
     .getCommitDetails(projectId, lastCommitId)
     .then((commitInfo) => this.setState({ commitInfo }))
     .catch((err) => toastr.error('Error: ', err.message));
@@ -65,7 +82,12 @@ export class FileView extends React.Component {
   ));
 
   render() {
-    const { users, branches, match: { params: { file, branch, projectId } } } = this.props;
+    const {
+      users,
+      branches,
+      projectId,
+      match: { params: { file, branch, namespace, slug } }
+    } = this.props;
     const {
       project,
       commitInfo: {
@@ -81,7 +103,7 @@ export class FileView extends React.Component {
 
     const numContribs = contributors.length;
 
-    const groupName = project.namespace.name;
+    const groupName = project.namespace;
     let fileName = null;
     let fileSize = null;
     let avatar = 'https://assets.gitlab-static.net/uploads/-/system/user/avatar/3839940/avatar.png';
@@ -108,21 +130,25 @@ export class FileView extends React.Component {
     }
 
     return (
-      <div>
-        <DeleteFileModal
-          projectId={projectId}
-          filepath={file}
-          isModalVisible={isdeleteModalVisible}
-          fileName={fileName}
-          branches={branches.map((branchObj) => branchObj.name)}
-          showDeleteModal={this.showDeleteModal}
-          branchSelected={branch}
-        />
+      <div className="file-view">
+        {projectId && (
+          <DeleteFileModal
+            projectId={projectId}
+            filepath={encodeURIComponent(file)}
+            isModalVisible={isdeleteModalVisible}
+            fileName={fileName}
+            branches={branches.map((branchObj) => branchObj.name)}
+            showDeleteModal={this.showDeleteModal}
+            branchSelected={branch}
+          />
+        )}
         <Navbar />
-        <ProjectContainer
-          activeFeature="data"
-          folders={[groupName, project && project.name, 'Data']}
-        />
+        {projectId && (
+          <ProjectContainer
+            activeFeature="data"
+            folders={[groupName, project && project.name, 'Data']}
+          />
+        )}
         <div className="branch-path">
           <MDropdown
             label={decodeURIComponent(branch)}
@@ -149,7 +175,7 @@ export class FileView extends React.Component {
                           <li key={encoded}>
                             <Link
                               id={branch.name}
-                              to={`/my-projects/${project.id}/${encoded}`}
+                              to={`/${namespace}/${slug}/-/tree/${encoded}`}
                               onClick={this.handleClick}
                             >
                               <p>{branch.name}</p>
@@ -301,7 +327,8 @@ FileView.defaultProps = {
 FileView.propTypes = {
   match: shape({
     params: shape({
-      projectId: string.isRequired,
+      namespace: string.isRequired,
+      slug: string.isRequired,
       file: string.isRequired,
       branch: string.isRequired,
     }),
@@ -325,11 +352,18 @@ FileView.propTypes = {
 function mapStateToProps(state) {
   return {
     projects: state.projects,
+    projectId: state?.projects?.selectedProject?.gid,
     branches: state.branches,
     users: state.users,
   };
 }
 
-export default connect(
-  mapStateToProps,
-)(FileView);
+function mapDispatchToProps(dispatch) {
+  return {
+    actions: bindActionCreators({
+      getProjectDetailsBySlug,
+    }, dispatch),
+  };
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(FileView);

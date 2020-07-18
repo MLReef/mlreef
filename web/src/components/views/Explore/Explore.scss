@@ -1,0 +1,31 @@
+.explore-view {
+  background-color: var(--light);
+  min-height: 100vh;
+
+  &-content {
+    padding-top: 3rem;
+    // display: flex;
+    // justify-content: center;
+
+    &-container {
+      max-width: 1000px;
+      min-width: 50vw;
+      width: 100%;
+      padding: 1rem;
+      min-height: 70vh;
+      display: flex;
+
+      &:first-child {
+        flex: 1;
+        margin-left: 2rem;
+      }
+    }
+
+    & .project-list {
+      display: flex;
+      flex-wrap: wrap;
+      width: max-content;
+      flex: 1;
+    }
+  }
+}

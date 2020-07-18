@@ -7,6 +7,9 @@ const MTabs = (props) => {
   const {
     children: sections,
     vertical,
+    pills,
+    left,
+    className,
   } = props;
 
   const contentsRef = useRef(null);
@@ -62,19 +65,19 @@ const MTabs = (props) => {
     };
   });
   return (
-    <div className={`m-tabs ${vertical ? 'vertical' : ''}`}>
-      <div className="m-tabs_menu">
-        <ul className="m-tabs_menu_container" ref={tabsRef}>
+    <div className={`m-tabs ${className} ${vertical ? 'vertical' : ''}`}>
+      <div className={`m-tabs_menu ${left ? 'ml-0' : ''}`}>
+        <ul className={`m-tabs_menu_container`} ref={tabsRef}>
           {tabs.map((tab) => (
             <li
-              className={`m-tabs_menu_tab ${tab.defaultActive ? 'active' : ''}`}
+              className={`m-tabs_menu_tab ${tab.defaultActive ? 'active' : ''} ${pills ? 'pills' : ''}`}
               style={{ borderBottom: tab.defaultActive ? `4px solid ${tab.color}` : '' }}
               id={`tab-${tab.id}`}
               key={tab.label}
               href={`#${tab.id}`}
             >
               <button
-                className="m-tabs_menu_tab_btn neutral"
+                className={`m-tabs_menu_tab_btn neutral ${pills ? 'border-rounded' : ''}`}
                 type="button"
                 onClick={showSection(tab.id, tab.callback, tab.color)}
               >
@@ -93,14 +96,19 @@ const MTabs = (props) => {
 
 MTabs.defaultProps = {
   vertical: false,
+  left: false,
   children: undefined,
+  pills: false,
+  className: '',
 };
 
 MTabs.propTypes = {
   vertical: PropTypes.bool,
+  left: PropTypes.bool,
   children: PropTypes.arrayOf(PropTypes.shape({
     sections: PropTypes.any,
   })),
+  pills: PropTypes.bool,
 };
 
 MTabs.Section = MTabsSection;

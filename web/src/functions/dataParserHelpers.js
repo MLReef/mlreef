@@ -163,3 +163,21 @@ export const getLanguageByExt = (ext) => {
 
   return 'text';
 };
+
+export const adaptProjectModel = (project) => ({
+  ...project,
+  gid: project.gitlabId,
+  projectType: project.searchableType,
+  gitlabName: project.name,
+  namespace: project.gitlabNamespace,
+  emptyRepo: project?.gitlab?.emptyRepo,
+  readmeUrl: project?.gitlab?.readmeUrl,
+  avatarUrl: project?.gitlab?.avatarUrl,
+  defaultBranch: project?.gitlab?.defaultBranch,
+  httpUrlToRepo: project?.gitlab?.httpUrlToRepo,
+  sshUrlToRepo: project?.gitlab?.sshUrlToRepo,
+  statistics: project?.gitlab?.statistics,
+  repositorySize: project?.gitlab?.statistics?.repository_size,
+  commitCount: project?.gitlab?.statistics?.commit_count || 0,
+
+});

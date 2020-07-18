@@ -1,0 +1,9 @@
+.m-data-filters {
+  min-width: 180px;
+  margin-left: auto;
+  background-color: var(--white);
+
+  &-actions {
+    display: flex;
+  }
+}

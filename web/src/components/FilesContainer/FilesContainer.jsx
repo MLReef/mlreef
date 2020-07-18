@@ -9,7 +9,7 @@ import FilesTable from '../files-table/filesTable';
 import FilesApi from '../../apis/FilesApi.ts';
 import BranchesApi from '../../apis/BranchesApi.ts';
 
-const FilesContainer = ({ projectId, path, urlBranch, defaultBranch }) => {
+const FilesContainer = ({ projectId, path, urlBranch, defaultBranch, namespace, slug }) => {
   const history = useHistory();
   const [ahead, setAhead] = useState(0);
   const [behind, setBehind] = useState(0);
@@ -94,11 +94,11 @@ const FilesContainer = ({ projectId, path, urlBranch, defaultBranch }) => {
         }
         let routeType;
         if (targetDataKey === 'tree') {
-          routeType = 'path';
+          routeType = 'tree';
         } else {
           routeType = 'blob';
         }
-        const link = `/my-projects/${projectId}/${finalBranch}/${routeType}/${encodeURIComponent(file.path)}`;
+        const link = `/${namespace}/${slug}/-/${routeType}/${finalBranch}/${file.path}`;
         history.push(link);
       }}
     />

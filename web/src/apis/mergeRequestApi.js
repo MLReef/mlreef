@@ -1,19 +1,21 @@
 import { toastr } from 'react-redux-toastr';
+import ApiDirector from './ApiDirector';
+import { METHODS, validServicesToCall } from './apiBuilders/requestEnums';
+import BLApiRequestCallBuilder from './apiBuilders/BLApiRequestCallBuilder';
+import { handleResponse } from 'functions/apiCalls';
 import { generateGetRequest, getCurrentToken } from './apiHelpers';
 
-export default class MergeRequestAPI {
+export class MergeRequestAPI extends ApiDirector {
   /**
    * @param {projectId} is the id the project to get MR's to
    */
-  static async getListByProject(projectId) {
+  getListByProject(projectId) {
     const url = `/api/v4/projects/${projectId}/merge_requests`;
-    const response = await generateGetRequest(url);
+    const headers = this.buildBasicHeaders(validServicesToCall.GITLAB);
+    const builder = new BLApiRequestCallBuilder(METHODS.GET, headers, url);
 
-    if (!response.ok) {
-      Promise.reject(response);
-      toastr.error('Error', 'Server error while fetching merge requests');
-    }
-    return response.json();
+    return fetch(builder.build())
+      .then(handleResponse);
   }
 
   static async getSingleMR(id, iid) {
@@ -76,3 +78,5 @@ export default class MergeRequestAPI {
     return response.json();
   }
 }
+
+export default MergeRequestAPI;
