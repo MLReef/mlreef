@@ -56,7 +56,7 @@ describe('test events in files table', () => {
     wrapper.find('#button-for-0').simulate('click');
     expect(wrapper.state().filePath).toBe('directory_1');
     expect(wrapper.state().showReturnOption).toBe(true);
-    const projectId = projectsArrayMock.projects.selectedProject.id;
+    const projectId = projectsArrayMock.projects.selectedProject.gid;
     const { branchSelected } = wrapper.state();
     const filePath = filesMock[0].path;
     expect(mockUpdateFiles).toHaveBeenCalledWith(projectId, filePath, branchSelected);

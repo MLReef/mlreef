@@ -28,7 +28,7 @@ const brApi = new BranchesApi();
 const BasicMergeRequestView = (props) => {
   const {
     selectedProject,
-    selectedProject: { id },
+    selectedProject: { gid },
     match: { params: { iid } },
     users,
   } = props;
@@ -54,7 +54,7 @@ const BasicMergeRequestView = (props) => {
   const { title, description, state } = mrInfo;
 
   const projectName = selectedProject.name;
-  const groupName = selectedProject.namespace.name;
+  const groupName = selectedProject.namespace;
 
   const sourceBranch = mrInfo.source_branch;
   const targetBranch = mrInfo.target_branch;
@@ -79,10 +79,10 @@ const BasicMergeRequestView = (props) => {
   const acceptMergeRequest = () => {
     setWaiting(true);
 
-    mergeRequestAPI.acceptMergeRequest(id, iid, squash, removeBranch)
+    mergeRequestAPI.acceptMergeRequest(gid, iid, squash, removeBranch)
       .then(() => {
         toastr.success('Merged successfully:');
-        history.push(`/my-projects/${id}/merge-requests`);
+        history.push(`/my-projects/${gid}/merge-requests`);
       })
       .catch((err) => {
         toastr.error('Unable to merge', err.message);
@@ -107,25 +107,25 @@ const BasicMergeRequestView = (props) => {
   // fetch merge request info
   useEffect(
     () => {
-      mergeRequestAPI.getSingleMR(id, iid)
+      mergeRequestAPI.getSingleMR(gid, iid)
         .then(setMRInfo);
     },
-    [id, iid],
+    [gid, iid],
   );
 
   // fetch changes
   useEffect(() => {
     if (sourceBranch && targetBranch) {
-      brApi.compare(id, sourceBranch, targetBranch)
+      brApi.compare(gid, sourceBranch, targetBranch)
         .then((res) => setBehind(res.commits));
 
-      brApi.compare(id, targetBranch, sourceBranch)
+      brApi.compare(gid, targetBranch, sourceBranch)
         .then((res) => {
           setAheadCommits(res.commits);
           setDiffs(res.diffs);
         });
     }
-  }, [id, iid, sourceBranch, targetBranch]);
+  }, [gid, iid, sourceBranch, targetBranch]);
 
   const actionButtons = (
     <div style={{ height: 'max-content' }} className="modify-MR mr-0">
@@ -136,7 +136,7 @@ const BasicMergeRequestView = (props) => {
             id="edit-btn"
             disabled
             className="btn btn-outline-dark"
-            onClick={() => history.push(`/my-projects/${id}/${sourceBranch}/new-merge-request`)}
+            onClick={() => history.push(`/my-projects/${gid}/${sourceBranch}/new-merge-request`)}
           >
             Edit
           </button>
@@ -354,7 +354,7 @@ const BasicMergeRequestView = (props) => {
                 <CommitsList
                   commits={aheadCommits}
                   users={users}
-                  projectId={selectedProject.id}
+                  projectId={selectedProject.gid}
                   changesNumber={diffs.length}
                 />
               ),
@@ -362,7 +362,7 @@ const BasicMergeRequestView = (props) => {
             {
               label: `${diffs.length} Change${plu(diffs.length)}`,
               content: (
-                <ChangesMrSection projectId={id} aheadCommits={aheadCommits} />
+                <ChangesMrSection projectId={gid} aheadCommits={aheadCommits} />
               ),
             },
           ]}
@@ -392,11 +392,9 @@ BasicMergeRequestView.propTypes = {
     }),
   }),
   selectedProject: shape({
-    id: number.isRequired,
+    gid: number.isRequired,
     name: string.isRequired,
-    namespace: shape({
-      name: string.isRequired,
-    }).isRequired,
+    namespace: string.isRequired,
   }).isRequired,
   users: arrayOf(shape({})).isRequired,
 };
