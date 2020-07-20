@@ -36,9 +36,9 @@ class SelectDataPipelineModal extends Component {
   }
 
   componentDidMount() {
-    const { project: { id: projectId } } = this.props;
+    const { project: { gid } } = this.props;
     const { branchSelected } = this.state;
-    this.updateFiles(projectId, '', branchSelected);
+    this.updateFiles(gid, '', branchSelected);
   }
 
     static getDerivedStateFromProps = ({ show }) => ({ show });
@@ -50,10 +50,10 @@ class SelectDataPipelineModal extends Component {
 
     getBack() {
       const { filePath, branchSelected } = this.state;
-      const { project: { id: projectId } } = this.props;
+      const { project: { gid } } = this.props;
       const path = filePath.substring(0, filePath.lastIndexOf('/'));
       const newFilePath = !filePath.includes('/') ? '' : path;
-      this.updateFiles(projectId, newFilePath, branchSelected);
+      this.updateFiles(gid, newFilePath, branchSelected);
       this.setState({
         filePath: newFilePath,
         showReturnOption: !(newFilePath === ''),
@@ -84,9 +84,9 @@ class SelectDataPipelineModal extends Component {
       files: prevState.files.map((f) => ({ ...f, checked: newCheckedValue })),
     }));
 
-    updateFiles(projectId, path, branch) {
+    updateFiles(gid, path, branch) {
       filesApi.getFilesPerProject(
-        projectId,
+        gid,
         path,
         false,
         branch,
@@ -102,9 +102,9 @@ class SelectDataPipelineModal extends Component {
       document.getElementsByTagName('body').item(0).style.overflow = 'scroll';
     }
 
-    updateFilesArrayOnBranchChange(projectId, branchSelected) {
+    updateFilesArrayOnBranchChange(gid, branchSelected) {
       this.setState({ showReturnOption: false, branchSelected });
-      this.updateFiles(projectId, '', branchSelected);
+      this.updateFiles(gid, '', branchSelected);
     }
 
     render() {
@@ -116,7 +116,7 @@ class SelectDataPipelineModal extends Component {
         showReturnOption,
         filePath,
       } = this.state;
-      const { handleModalAccept, project: { id: projectId, gitlabName: projectName } } = this.props;
+      const { handleModalAccept, project: { gid, gitlabName: projectName } } = this.props;
       const customTime = (ISODate) => {
         const today = new Date(ISODate);
         const h = today.getHours();
@@ -171,11 +171,11 @@ class SelectDataPipelineModal extends Component {
                                     role="button"
                                     key={index.toString()}
                                     onClick={() => this.updateFilesArrayOnBranchChange(
-                                      projectId,
+                                      gid,
                                       branch.name,
                                     )}
                                     onKeyDown={() => this.updateFilesArrayOnBranchChange(
-                                      projectId,
+                                      gid,
                                       branch.name,
                                     )}
                                   >
@@ -202,8 +202,8 @@ class SelectDataPipelineModal extends Component {
                                   return (
                                     <li
                                       key={`b-${pipelineName}`}
-                                      onKeyDown={() => this.updateFilesArrayOnBranchChange(projectId, pipelineName)}
-                                      onClick={() => this.updateFilesArrayOnBranchChange(projectId, pipelineName)}
+                                      onKeyDown={() => this.updateFilesArrayOnBranchChange(gid, pipelineName)}
+                                      onClick={() => this.updateFilesArrayOnBranchChange(gid, pipelineName)}
                                     >
                                       <p>
                                         {`${uniqueName} - ${customTime(branch.commit.created_at)}`}
@@ -306,7 +306,7 @@ class SelectDataPipelineModal extends Component {
                                           filePath: file.path,
                                           showReturnOption: true,
                                         });
-                                        this.updateFiles(projectId, file.path, branchSelected);
+                                        this.updateFiles(gid, file.path, branchSelected);
                                       }}
                                       className="btn btn-hidden"
                                     >
@@ -333,7 +333,7 @@ class SelectDataPipelineModal extends Component {
 SelectDataPipelineModal.propTypes = {
   show: PropTypes.bool,
   project: shape({
-    id: number.isRequired,
+    gid: number.isRequired,
     defaultBranch: string.isRequired,
   }).isRequired,
   handleModalAccept: func.isRequired,

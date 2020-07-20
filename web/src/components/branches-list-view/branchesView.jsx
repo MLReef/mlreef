@@ -35,7 +35,7 @@ class BranchesView extends Component {
   componentDidMount() {
     const {
       branches,
-      selectedProject: { id },
+      selectedProject: { gid },
     } = this.props;
     const defaultBranch = branches.filter((branch) => branch.default === true)[0];
     const currentBranchesUpdated = branches;
@@ -44,10 +44,10 @@ class BranchesView extends Component {
       if (!branch.default) {
         try {
           const behind = await branchesApi.compare(
-            id, branch.name, defaultBranch.name,
+            gid, branch.name, defaultBranch.name,
           );
           const ahead = await branchesApi.compare(
-            id, defaultBranch.name, branch.name,
+            gid, defaultBranch.name, branch.name,
           );
           branch.ahead = ahead.commits.length;
           branch.behind = behind.commits.length;
@@ -88,8 +88,8 @@ class BranchesView extends Component {
   }
 
   updateBranchesArr() {
-    const { actions, selectedProject: { id } } = this.props;
-    actions.getBranchesList(id);
+    const { actions, selectedProject: { gid } } = this.props;
+    actions.getBranchesList(gid);
   }
 
   render() {
@@ -106,7 +106,9 @@ class BranchesView extends Component {
 
     const {
       gitlabName: projectName,
-      id: projectId,
+      gid,
+      namespace,
+      slug,
     } = selectedProject;
 
     const today = new Date();
@@ -119,7 +121,7 @@ class BranchesView extends Component {
         <DeleteBranchModal
           isModalVisible={isModalVisible}
           toggleIsModalVisible={this.toggleModalAndUpdateList}
-          projectId={selectedProject.id}
+          projectId={selectedProject.gid}
           branchName={branchName}
         />
         <Navbar />
@@ -152,7 +154,7 @@ class BranchesView extends Component {
               loading={false}
               onClickHandler={() => {
                 this.setState({
-                  urlToRedirect: `/my-projects/${selectedProject.id}/new-branch`,
+                  urlToRedirect: `/my-projects/${selectedProject.gid}/new-branch`,
                 });
               }}
             />
@@ -163,7 +165,7 @@ class BranchesView extends Component {
               <div key={`key-for-${branch.name}`} className="branch-row">
                 <div className="info">
                   <div style={{ display: 'flex' }}>
-                    <Link to={`/my-projects/${projectId}/${encodeURIComponent(branch.name)}`}>
+                    <Link to={`/${namespace}/${slug}/-/tree/${encodeURIComponent(branch.name)}`}>
                       <p className="branch-title t-dark">{branch.name}</p>
                     </Link>
                     {branch.protected && (
@@ -177,7 +179,7 @@ class BranchesView extends Component {
                     <p className="commit-code">
                       <Link
                         className="t-info"
-                        to={`/my-projects/${projectId}/commit/${branch.commitInfo.id}`}
+                        to={`/my-projects/${gid}/commit/${branch.commitInfo.id}`}
                       >
                         {branch.commitInfo.id.slice(commitShortIdLowerLimit, commitShortIdUpperLimit)}
                       </Link>
@@ -256,7 +258,7 @@ function mapDispatchToProps(dispatch) {
 
 BranchesView.propTypes = {
   selectedProject: shape({
-    id: number.isRequired,
+    gid: number.isRequired,
     gitlabName: string.isRequired,
   }).isRequired,
   branches: arrayOf(shape({

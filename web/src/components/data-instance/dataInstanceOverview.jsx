@@ -229,8 +229,8 @@ class DataInstanceOverview extends Component {
   }
 
   componentDidMount() {
-    const { getBranches, projects: { selectedProject: { id } } } = this.props;
-    getBranches(id);
+    const { getBranches, projects: { selectedProject: { gid } } } = this.props;
+    getBranches(gid);
     this.fetchPipelines();
   }
 
@@ -251,23 +251,23 @@ class DataInstanceOverview extends Component {
   fetchPipelines() {
     let project;
     let filteredbranches = [];
-    let id;
+    let gid;
 
     const brApi = new BranchesApi();
-    const { projects, projects: { selectedProject: { backendId } } } = this.props;
+    const { projects, projects: { selectedProject: { id } } } = this.props;
     const dataPipelineApi = new DataPipelineApi();
 
     if (projects) {
       project = projects.selectedProject;
-      id = project.id;
+      gid = project.gid;
     }
 
-    dataPipelineApi.getProjectPipelines(backendId)
+    dataPipelineApi.getProjectPipelines(id)
       .then((backendPipelines) => {
         const dataPipelines = backendPipelines.filter((pipe) => pipe.pipeline_type === 'DATA');
-        brApi.getBranches(id).then((branches) => {
+        brApi.getBranches(gid).then((branches) => {
           filteredbranches = branches.filter((branch) => branch.name.startsWith('data-pipeline'));
-          pipelinesApi.getPipesByProjectId(id)
+          pipelinesApi.getPipesByProjectId(gid)
             .then((res) => {
               const dataInstancesClassified = classifyPipeLines(res, filteredbranches, dataPipelines);
               this.setState({
@@ -283,11 +283,11 @@ class DataInstanceOverview extends Component {
 
   deletePipeline(name) {
     // lookup the pipeline in every group's values
-    const { project: { id } } = this.state;
+    const { project: { gid } } = this.state;
     const { deleteBranch, getBranches } = this.props;
 
-    deleteBranch(id, name)
-      .then(() => getBranches(id))
+    deleteBranch(gid, name)
+      .then(() => getBranches(gid))
       .then(this.fetchPipelines)
       .catch((err) => {
         const message = (err && err.statusText) || err;
@@ -342,7 +342,7 @@ class DataInstanceOverview extends Component {
         />
         <div>
           <Navbar />
-          { project.id && (
+          { project.gid && (
             <ProjectContainer
               activeFeature="data"
               folders={[groupName, name, 'Data', 'Instances']}
@@ -402,7 +402,7 @@ class DataInstanceOverview extends Component {
                     descTitle: val.name,
                     userName: val.commit.author_name,
                     timeCreatedAgo: timediff,
-                    projId: selectedProject.id,
+                    projId: selectedProject.gid,
                     dataOperations: bpipeline.dataOperations,
                     pipelineBackendId: bpipeline.id,
                     inputFiles: bpipeline.inputFiles,

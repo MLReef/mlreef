@@ -53,7 +53,7 @@ export class NewMergeRequest extends Component {
       },
     } = this.props;
     const brApi = new BranchesApi();
-    brApi.compare(selectedProject.id, branchSelected, branch)
+    brApi.compare(selectedProject.gid, branchSelected, branch)
       .then((res) => {
         this.setState({
           lastCommit: res.commit,
@@ -121,7 +121,7 @@ export class NewMergeRequest extends Component {
     } = this.state;
     const {
       projects: {
-        selectedProject: { id },
+        selectedProject: { gid },
       },
       match: {
         params: {
@@ -130,7 +130,7 @@ export class NewMergeRequest extends Component {
       },
     } = this.props;
     mergeRequestAPI
-      .submitMergeReq(id, branch, branchToMergeInto, title, description)
+      .submitMergeReq(gid, branch, branchToMergeInto, title, description)
       .then(() => {
         this.setState({ loading: false, redirect: true });
       }).catch((err) => {
@@ -163,10 +163,13 @@ export class NewMergeRequest extends Component {
       },
     } = this.props;
     const groupName = selectedProject.namespace.name;
+
+    const { namespace, slug } = selectedProject;
+
     return (
       <>
         {redirect && (
-          <Redirect to={`/my-projects/${selectedProject.id}/master`} />
+          <Redirect to={`/${namespace}/${slug}`} />
         )}
         <Navbar />
         <ProjectContainer
@@ -187,7 +190,7 @@ export class NewMergeRequest extends Component {
           >
             <p id="branch-selected-name" variant="h6" component="h5" style={{ color: '#1A2B3F', fontSize: '1.1em' }}>
               from&nbsp;
-              <Link to={`/my-projects/${selectedProject.id}/${branch}`}>
+              <Link to={`/${namespace}/${slug}/-/tree/${branch}`}>
                 <b>{decodeURIComponent(branch)}</b>
               </Link>
               &nbsp;into
@@ -264,7 +267,7 @@ export class NewMergeRequest extends Component {
             <CommitsList
               commits={commits}
               users={users}
-              projectId={selectedProject.id}
+              projectId={selectedProject.gid}
               changesNumber={diffs.length}
             />
           )}
@@ -280,7 +283,7 @@ export class NewMergeRequest extends Component {
 NewMergeRequest.propTypes = {
   projects: shape({
     selectedProject: shape({
-      id: number.isRequired,
+      gid: number.isRequired,
     }).isRequired,
   }).isRequired,
   match: shape({

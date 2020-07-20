@@ -80,7 +80,7 @@ class MergeRequestOverview extends Component {
     const mergedMrs = this.filterStateAndCount(2);
 
     const projectName = selectedProject.name;
-    const groupName = selectedProject.namespace.name;
+    const groupName = selectedProject.namespace;
     return (
       <>
         <Navbar />
@@ -105,7 +105,7 @@ class MergeRequestOverview extends Component {
                     id="new-mr-link"
                     loading={false}
                     onClickHandler={() => {
-                      history.push(`/my-projects/${selectedProject.id}/master/new-merge-request`);
+                      history.push(`/my-projects/${selectedProject.gid}/master/new-merge-request`);
                     }}
                     buttonLabel="New merge request"
                   />
@@ -188,11 +188,9 @@ function mapStateToProps(state) {
 
 MergeRequestOverview.propTypes = {
   selectedProject: shape({
-    id: number.isRequired,
+    gid: number.isRequired,
     name: string.isRequired,
-    namespace: shape({
-      name: string.isRequired,
-    }).isRequired,
+    namespace: string.isRequired,
   }).isRequired,
 };
 

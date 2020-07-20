@@ -3,9 +3,7 @@ import { connect } from 'react-redux';
 import { toastr } from 'react-redux-toastr';
 import { bindActionCreators } from 'redux';
 import uuidv1 from 'uuid/v1';
-import {
-  shape,
-} from 'prop-types';
+import * as PropTypes from 'prop-types';
 import CustomizedButton from 'components/CustomizedButton';
 import ExperimentsApi from 'apis/experimentApi';
 import Navbar from '../navbar/navbar';
@@ -38,9 +36,9 @@ class ExperimentsOverview extends Component {
   }
 
   componentDidMount() {
-    const { projects: { selectedProject: { id, backendId } }, actions } = this.props;
+    const { projects: { selectedProject: { gid, id } }, actions } = this.props;
     actions.setIsLoading(true);
-    ExperimentsApi.getExperiments(backendId)
+    ExperimentsApi.getExperiments(id)
       .then((rawExperiments) => rawExperiments.map((exp) => {
         const parsedExp = parseToCamelCase(exp);
         const classExp = plainToClass(Experiment, parseToCamelCase(exp));
@@ -49,7 +47,7 @@ class ExperimentsOverview extends Component {
         return classExp;
       }))
       .then((exps) => exps.map(async (exp) => {
-        const commitInfo = await CommitsApi.getCommitDetails(id, exp.pipelineJobInfo?.commitSha);
+        const commitInfo = await CommitsApi.getCommitDetails(gid, exp.pipelineJobInfo?.commitSha);
         exp.authorName = commitInfo.author_name;
         return exp;
       }))
@@ -115,7 +113,7 @@ class ExperimentsOverview extends Component {
                   id="new-experiment"
                   loading={false}
                   onClickHandler={() => {
-                    history.push(`/my-projects/${selectedProject.id}/pipeline-execution/new-experiment`);
+                    history.push(`/my-projects/${selectedProject.gid}/pipeline-execution/new-experiment`);
                   }}
                   buttonLabel="Start an experiment"
                 />
@@ -184,7 +182,7 @@ class ExperimentsOverview extends Component {
                   id="new-experiment"
                   loading={false}
                   onClickHandler={() => {
-                    history.push(`/my-projects/${selectedProject.id}/pipeline-execution/new-experiment`);
+                    history.push(`/my-projects/${selectedProject.gid}/pipeline-execution/new-experiment`);
                   }}
                   buttonLabel="New experiment"
                 />
@@ -194,7 +192,7 @@ class ExperimentsOverview extends Component {
               {selectedExperiment === null && experiments.map((experimentClassification) => (
                 <ExperimentCard
                   key={uuidv1()}
-                  projectId={selectedProject.id}
+                  projectId={selectedProject.gid}
                   defaultBranch={selectedProject.defaultBranch}
                   currentState={experimentClassification.status}
                   experiments={experimentClassification.values}
@@ -212,10 +210,13 @@ class ExperimentsOverview extends Component {
 }
 
 ExperimentsOverview.propTypes = {
-  projects: shape({
-    selectedProject: shape({}).isRequired,
+  projects: PropTypes.shape({
+    selectedProject: PropTypes.shape({
+      id: PropTypes.string.isRequired, // mlreef id
+      gid: PropTypes.number.isRequired, // gitlab id
+    }).isRequired,
   }).isRequired,
-  history: shape({}).isRequired,
+  history: PropTypes.shape({}).isRequired,
 };
 
 function mapStateToProps(state) {
