@@ -112,6 +112,8 @@
   height: unset;
   cursor: pointer;
   text-decoration: none;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   transition: background $btn-transition-time,
               border $btn-transition-time,
               color $btn-transition-time;
