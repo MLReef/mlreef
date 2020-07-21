@@ -1,3 +1,9 @@
+mlreef:
+  epf:
+    image-tag: ${EPF_IMAGE_TAG:latest}
+    backend-url: ${EPF_BACKEND_URL:http://localhost:8080}
+    gitlab-url: ${GITLAB_ROOT_URL:http://localhost:10080}
+
 logging:
   level:
     root: DEBUG
@@ -40,7 +46,3 @@ spring:
   redis:
     host: localhost
     port: 36379
-mlreef:
-  gitlab:
-    root-url: ${GITLAB_ROOT_URL:http://localhost:10080}
-    admin-user-token: ${GITLAB_ADMIN_TOKEN}

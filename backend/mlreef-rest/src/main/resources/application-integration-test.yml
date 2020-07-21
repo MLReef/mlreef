@@ -6,15 +6,6 @@ logging:
     org.springframework.orm: DEBUG
     org.hibernate: DEBUG
 
-
-mlreef:
-  gitlab:
-    root-url: ${GITLAB_ROOT_URL:http://ec2-35-158-125-20.eu-central-1.compute.amazonaws.com:10080}
-    admin-user-token: ${GITLAB_ADMIN_TOKEN:QVj_FkeHyuJURko2ggZT}
-  bot-management:
-    epf-bot-email-domain: mlreef.com
-    epf-bot-password-length: 20
-
 spring:
   devtools:
     add-properties: false

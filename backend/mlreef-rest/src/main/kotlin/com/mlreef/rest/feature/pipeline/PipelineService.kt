@@ -1,6 +1,7 @@
 package com.mlreef.rest.feature.pipeline
 
 import com.mlreef.rest.Account
+import com.mlreef.rest.ApplicationConfiguration
 import com.mlreef.rest.DataProcessorInstance
 import com.mlreef.rest.DataProjectRepository
 import com.mlreef.rest.FileLocation
@@ -26,6 +27,7 @@ import com.mlreef.rest.external_api.gitlab.dto.GitlabPipeline
 import com.mlreef.rest.external_api.gitlab.dto.GitlabVariable
 import com.mlreef.utils.Slugs
 import lombok.RequiredArgsConstructor
+import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.data.domain.PageRequest
@@ -41,20 +43,17 @@ import java.util.UUID.randomUUID
 @Service
 @RequiredArgsConstructor
 class PipelineService(
+    private val conf: ApplicationConfiguration,
     private val subjectRepository: SubjectRepository,
     private val dataProjectRepository: DataProjectRepository,
     private val pipelineConfigRepository: PipelineConfigRepository,
     private val pipelineInstanceRepository: PipelineInstanceRepository,
     private val processorVersionRepository: ProcessorVersionRepository,
     private val processorParameterRepository: ProcessorParameterRepository,
-    private val gitlabRestClient: GitlabRestClient,
-    @Value("\${mlreef.gitlab.root-url}") val gitlabRootUrl: String,
-    @Value("\${mlreef.epf.backend-url}") val epfBackendUrl: String,
-    @Value("\${mlreef.epf.gitlab-url}") val epfGitlabUrl: String,
-    @Value("\${mlreef.epf.image-tag}") val epfImageTag: String
+    private val gitlabRestClient: GitlabRestClient
 ) {
 
-    val log = LoggerFactory.getLogger(this::class.java)
+    val log: Logger = LoggerFactory.getLogger(this::class.java)
 
     fun createPipelineConfig(
         authorId: UUID,
@@ -107,7 +106,7 @@ class PipelineService(
         return pipelineConfigRepository.save(pipelineConfig)
     }
 
-    private inline fun require(value: Boolean, lazyMessage: () -> Any): Unit {
+    private inline fun require(value: Boolean, lazyMessage: () -> Any) {
         if (!value) {
             val message = lazyMessage()
             throw PipelineCreateException(ErrorCode.PipelineCreationInvalid, message.toString())
@@ -128,31 +127,24 @@ class PipelineService(
         return processorInstance.addParameterInstances(processorParameter, value)
     }
 
-    fun createPipelineInstanceFile(author: Account, pipelineInstance: PipelineInstance, secret: String): String {
-        val dataProject = dataProjectRepository.findByIdOrNull(pipelineInstance.dataProjectId)
-            ?: throw PipelineCreateException(ErrorCode.PipelineCreationProjectMissing, "DataProject is missing!")
-
-        if (pipelineInstance.inputFiles.isEmpty()) {
+    fun createPipelineInstanceFile(author: Account, pipelineInstance: PipelineInstance, secret: String): String =
+        if (pipelineInstance.inputFiles.isEmpty())
             throw PipelineCreateException(ErrorCode.PipelineCreationFilesMissing)
-        }
-        val fileLocation = pipelineInstance.inputFiles.first().location
-        val fileList = pipelineInstance.inputFiles.map(FileLocation::toYamlString)
-
-        val id = pipelineInstance.id
-        val epfPipelineUrl = "ID:$id"
-        return YamlFileGenerator(epfImageTag).generateYamlFile(
-            author = author,
-            dataProject = dataProject,
-            epfPipelineSecret = secret,
-            epfPipelineUrl = epfPipelineUrl,
-            epfGitlabUrl = epfGitlabUrl,
-            gitlabRootUrl = gitlabRootUrl,
-            sourceBranch = pipelineInstance.sourceBranch,
-            targetBranch = pipelineInstance.targetBranch,
-            processors = pipelineInstance.dataOperations,
-            inputFileList = fileList,
-            inputFile = fileLocation)
-    }
+        else dataProjectRepository.findByIdOrNull(pipelineInstance.dataProjectId)
+            ?.let { dataProject ->
+                YamlFileGenerator(conf.epf.imageTag).generateYamlFile(
+                    author = author,
+                    dataProject = dataProject,
+                    epfPipelineSecret = secret,
+                    epfPipelineUrl = "ID:${pipelineInstance.id}",
+                    epfGitlabUrl = conf.epf.gitlabUrl,
+                    sourceBranch = pipelineInstance.sourceBranch,
+                    targetBranch = pipelineInstance.targetBranch,
+                    processors = pipelineInstance.dataOperations,
+                    inputFileList = pipelineInstance.inputFiles.map { it.toYamlString() }
+                )
+            }
+            ?: throw PipelineCreateException(ErrorCode.PipelineCreationProjectMissing, "DataProject is missing!")
 
     fun commitYamlFile(userToken: String, projectId: Long, targetBranch: String, fileContent: String, sourceBranch: String = "master"): Commit {
         val commitMessage = "[skip ci] create .mlreef.yml"
@@ -281,8 +273,5 @@ class PipelineService(
         }
     }
 
-    fun createSecret(): String {
-        val md5Hex: String = DigestUtils.md5DigestAsHex(BCrypt.gensalt().toByteArray(Charset.defaultCharset()))
-        return md5Hex
-    }
+    fun createSecret(): String = DigestUtils.md5DigestAsHex(BCrypt.gensalt().toByteArray(Charset.defaultCharset()))
 }

@@ -27,6 +27,10 @@ fi
 if [ -z ${EXPERIMENT_BRANCH+x} ]; then
   export EXPERIMENT_BRANCH=$(cat out/test/experiment-branch.tmp)
 fi
+if [ "$EXPERIMENT_BRANCH" = "" ]; then
+  echo >&2 "ERROR: EXPERIMENT_BRANCH is empty"
+  exit 1
+fi;
 echo "Targeting download branch $EXPERIMENT_BRANCH"
 
 

@@ -1,6 +1,7 @@
 package com.mlreef.rest.feature.experiment
 
 import com.mlreef.rest.Account
+import com.mlreef.rest.ApplicationConfiguration
 import com.mlreef.rest.DataProcessorInstance
 import com.mlreef.rest.DataProjectRepository
 import com.mlreef.rest.Experiment
@@ -19,8 +20,8 @@ import com.mlreef.rest.exceptions.ExperimentUpdateException
 import com.mlreef.rest.feature.pipeline.YamlFileGenerator
 import com.mlreef.utils.Slugs
 import lombok.RequiredArgsConstructor
+import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
@@ -30,25 +31,20 @@ import java.util.UUID.randomUUID
 @Service
 @RequiredArgsConstructor
 class ExperimentService(
+    private val conf: ApplicationConfiguration,
     private val experimentRepository: ExperimentRepository,
     private val subjectRepository: SubjectRepository,
     private val dataProjectRepository: DataProjectRepository,
     private val processorVersionRepository: ProcessorVersionRepository,
     private val pipelineInstanceRepository: PipelineInstanceRepository,
-    private val processorParameterRepository: ProcessorParameterRepository,
-    @Value("\${mlreef.gitlab.root-url}") val gitlabRootUrl: String,
-    @Value("\${mlreef.epf.backend-url}") val epfBackendUrl: String,
-    @Value("\${mlreef.epf.gitlab-url}") val epfGitlabUrl: String,
-    @Value("\${mlreef.epf.image-tag}") val epfImageTag: String
+    private val processorParameterRepository: ProcessorParameterRepository
 ) {
 
-    val log = LoggerFactory.getLogger(this::class.java)
+    val log: Logger = LoggerFactory.getLogger(this::class.java)
 
     /**
      * Creates an Experiment with the given Parameters in MLReef domain.
-     *
      * If a dataInstanceId is provided, the dataInstance must exist!
-     *
      */
     fun createExperiment(
         authorId: UUID,
@@ -81,7 +77,7 @@ class ExperimentService(
 
         require(!validSlug.isBlank() && Slugs.isValid(validSlug)) { "slug name is not valid!" }
 
-//        require(!targetBranch.isBlank()) { "targetBranch is missing!" }
+        //require(targetBranch.isNotBlank()) { "targetBranch is missing!" }
 
         val id = randomUUID()
         val experiment = Experiment(
@@ -98,9 +94,7 @@ class ExperimentService(
         postProcessors.forEach {
             experiment.addPostProcessor(it)
         }
-        processorInstance.let {
-            experiment.setProcessor(it)
-        }
+        experiment.setProcessor(processorInstance)
 
         return experimentRepository.save(experiment)
     }
@@ -120,23 +114,19 @@ class ExperimentService(
         experiment.getProcessor()?.let { processors.add(it) }
         processors.addAll(experiment.postProcessing)
 
-        val epfPipelineUrl = "$epfBackendUrl/api/v1/epf/experiments/${experiment.id}"
         require(experiment.inputFiles.isNotEmpty()) { "Experiment must have at least 1 input file before yaml can be created" }
         require(processors.isNotEmpty()) { "Experiment must have at least 1 DataProcessor before yaml can be created" }
 
-        val fileLocation = experiment.inputFiles.first().location
         val fileList = experiment.inputFiles.map(FileLocation::toYamlString)
-        return YamlFileGenerator(epfImageTag).generateYamlFile(
+        return YamlFileGenerator(conf.epf.imageTag).generateYamlFile(
             author = author,
             dataProject = dataProject,
             epfPipelineSecret = secret,
-            epfPipelineUrl = epfPipelineUrl,
-            epfGitlabUrl = epfGitlabUrl,
-            gitlabRootUrl = gitlabRootUrl,
+            epfPipelineUrl = "${conf.epf.backendUrl}/api/v1/epf/experiments/${experiment.id}",
+            epfGitlabUrl = conf.epf.gitlabUrl,
             sourceBranch = experiment.sourceBranch,
             targetBranch = experiment.targetBranch,
             processors = processors,
-            inputFile = fileLocation,
             inputFileList = fileList
         )
     }
@@ -150,22 +140,24 @@ class ExperimentService(
         }
     }
 
-    fun newDataProcessorInstance(processorSlug: String): DataProcessorInstance {
-        val findBySlug = processorVersionRepository.findAllBySlug(processorSlug, PageRequest.of(0, 1)).firstOrNull()
+    fun newDataProcessorInstance(processorSlug: String): DataProcessorInstance =
+        processorVersionRepository.findAllBySlug(processorSlug, PageRequest.of(0, 1))
+            .firstOrNull()
+            ?.let { DataProcessorInstance(randomUUID(), it) }
             ?: throw ExperimentCreateException(ErrorCode.DataProcessorNotUsable, processorSlug)
-        return DataProcessorInstance(randomUUID(), findBySlug, parameterInstances = arrayListOf())
-    }
 
-    fun addParameterInstance(processorInstance: DataProcessorInstance, name: String, value: String): ParameterInstance {
-        val processorParameter = processorParameterRepository.findByProcessorVersionIdAndName(processorInstance.processorVersion.id, name)
+
+    fun addParameterInstance(processorInstance: DataProcessorInstance, name: String, value: String): ParameterInstance =
+        processorParameterRepository
+            .findByProcessorVersionIdAndName(processorInstance.processorVersion.id, name)
+            ?.let { processorInstance.addParameterInstances(it, value) }
             ?: throw ExperimentCreateException(ErrorCode.ProcessorParameterNotUsable, name)
-        return processorInstance.addParameterInstances(processorParameter, value)
-    }
 
-    fun savePipelineInfo(experiment: Experiment, pipelineJobInfo: PipelineJobInfo): Experiment {
-        return experimentRepository.save(experiment.copy(
+
+    fun savePipelineInfo(experiment: Experiment, pipelineJobInfo: PipelineJobInfo): Experiment =
+        experimentRepository.save(experiment.copy(
             status = ExperimentStatus.PENDING,
             pipelineJobInfo = pipelineJobInfo
         ))
-    }
+
 }

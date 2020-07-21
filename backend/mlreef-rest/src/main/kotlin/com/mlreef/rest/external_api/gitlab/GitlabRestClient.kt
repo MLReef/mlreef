@@ -1,6 +1,7 @@
 package com.mlreef.rest.external_api.gitlab
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.mlreef.rest.ApplicationConfiguration
 import com.mlreef.rest.config.censor
 import com.mlreef.rest.exceptions.ErrorCode
 import com.mlreef.rest.exceptions.GitlabAuthenticationFailedException
@@ -29,7 +30,6 @@ import com.mlreef.rest.external_api.gitlab.dto.OAuthToken
 import com.mlreef.rest.external_api.gitlab.dto.OAuthTokenInfo
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.web.client.RestTemplateBuilder
 import org.springframework.core.ParameterizedTypeReference
 import org.springframework.http.HttpEntity
@@ -43,6 +43,7 @@ import org.springframework.web.client.HttpServerErrorException
 import org.springframework.web.client.HttpStatusCodeException
 import org.springframework.web.client.ResourceAccessException
 import org.springframework.web.client.RestTemplate
+import java.lang.NullPointerException
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
@@ -53,24 +54,17 @@ inline fun <reified T : Any> typeRef(): ParameterizedTypeReference<T> = object :
 
 @Component
 class GitlabRestClient(
-    private val builder: RestTemplateBuilder,
-    @Value("\${mlreef.gitlab.root-url}")
-    val gitlabRootUrl: String,
-    @Value("\${mlreef.gitlab.admin-user-token}")
-    val gitlabAdminUserToken: String,
-    @Value("\${mlreef.gitlab.adminUsername:\"\"}")
-    val adminUserName: String? = null,
-    @Value("\${mlreef.gitlab.adminPassword:\"\"}")
-    val adminPassword: String? = null
+    private val conf: ApplicationConfiguration,
+    private val builder: RestTemplateBuilder
 ) {
     @Autowired
     private lateinit var objectMapper: ObjectMapper
 
     @Suppress("LeakingThis")
-    val gitlabServiceRootUrl = "$gitlabRootUrl/api/v4"
+    val gitlabServiceRootUrl = "${conf.gitlab.rootUrl}/api/v4"
 
     @Suppress("LeakingThis")
-    val gitlabOAuthUrl = "$gitlabRootUrl/oauth/"
+    val gitlabOAuthUrl = "${conf.gitlab.rootUrl}/oauth/"
 
     val gitlabDateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd").withZone(ZoneId.systemDefault())
 
@@ -191,7 +185,7 @@ class GitlabRestClient(
     }
 
     fun adminAddUserToProject(projectId: Long, userId: Long, accessLevel: GroupAccessLevel = GroupAccessLevel.DEVELOPER, expiresAt: Instant? = null): GitlabUserInProject {
-        val expiresDate = if (expiresAt!=null) gitlabDateTimeFormatter.format(expiresAt) else null
+        val expiresDate = if (expiresAt != null) gitlabDateTimeFormatter.format(expiresAt) else null
         return GitlabAddUserToProjectRequest(userId, accessLevel.accessCode, expiresDate)
             .let { GitlabHttpEntity(it, createAdminHeaders()) }
             .addErrorDescription(404, ErrorCode.UserNotExisting, "Cannot add user to project. The project or user doesn't exist")
@@ -206,7 +200,7 @@ class GitlabRestClient(
     }
 
     fun adminAddGroupToProject(projectId: Long, groupId: Long, accessLevel: GroupAccessLevel = GroupAccessLevel.GUEST, expiresAt: Instant? = null): GitlabGroupInProject {
-        val expiresDate = if (expiresAt!=null) gitlabDateTimeFormatter.format(expiresAt) else null
+        val expiresDate = if (expiresAt != null) gitlabDateTimeFormatter.format(expiresAt) else null
         return GitlabAddGroupToProjectRequest(groupId, accessLevel.accessCode, expiresDate)
             .let { GitlabHttpEntity(it, createAdminHeaders()) }
             .addErrorDescription(404, ErrorCode.UserNotExisting, "Cannot add group to project. The project or user doesn't exist")
@@ -235,7 +229,7 @@ class GitlabRestClient(
     }
 
     fun adminEditUserInProject(projectId: Long, userId: Long, accessLevel: GroupAccessLevel = GroupAccessLevel.DEVELOPER, expiresAt: Instant? = null): GitlabUserInProject {
-        val expiresDate = if (expiresAt!=null) gitlabDateTimeFormatter.format(expiresAt) else null
+        val expiresDate = if (expiresAt != null) gitlabDateTimeFormatter.format(expiresAt) else null
         return GitlabAddUserToProjectRequest(userId, accessLevel.accessCode, expiresDate)
             .let { GitlabHttpEntity(it, createAdminHeaders()) }
             .addErrorDescription(404, ErrorCode.UserNotExisting, "Cannot add user to project. The project or user doesn't exist")
@@ -520,13 +514,13 @@ class GitlabRestClient(
     }
 
     fun assertConnection(): String? {
-        log.info("HEALTH-CHECK: GITLAB_ROOT_URL is set to ${gitlabRootUrl.censor()}")
-        log.info("HEALTH-CHECK: GITLAB_ADMIN_TOKEN is set to ${gitlabAdminUserToken.censor()}")
-        if (gitlabRootUrl.isBlank()) {
-            throw Error("FATAL: GITLAB_ROOT_URL is empty: $gitlabRootUrl")
+        log.info("HEALTH-CHECK: GITLAB_ROOT_URL is set to ${conf.gitlab.rootUrl.censor()}")
+        log.info("HEALTH-CHECK: GITLAB_ADMIN_TOKEN is set to ${conf.gitlab.adminUserToken.censor()}")
+        if (conf.gitlab.rootUrl.isBlank()) {
+            throw Error("FATAL: GITLAB_ROOT_URL is empty: ${conf.gitlab.rootUrl}")
         }
-        if (gitlabAdminUserToken.isBlank()) {
-            throw Error("FATAL: GITLAB_ADMIN_TOKEN is empty: $gitlabAdminUserToken")
+        if (conf.gitlab.adminUserToken.isBlank()) {
+            throw Error("FATAL: GITLAB_ADMIN_TOKEN is empty: $conf.gitlab.adminUserToken")
         }
         try {
             val adminGetUsers = adminGetUsers()
@@ -541,13 +535,8 @@ class GitlabRestClient(
         } catch (e: GitlabCommonException) {
             logFatal(e)
             if (e.statusCode == 403) {
-                throw Error("FATAL: Provided GITLAB_ADMIN_TOKEN is not allowed: ${gitlabAdminUserToken.censor()}", e)
+                throw Error("FATAL: Provided GITLAB_ADMIN_TOKEN is not allowed: ${conf.gitlab.adminUserToken.censor()}", e)
             }
-//        } catch (e: HttpClientErrorException) {
-//            logFatal(e)
-//            if (e.statusCode.is4xxClientError && e.statusCode.value() == 403) {
-//                throw Error("FATAL: Provided GITLAB_ADMIN_TOKEN is not allowed: ${gitlabAdminUserToken.censor()}", e)
-//            }
         } catch (e: HttpServerErrorException) {
             logFatal(e)
             val returnInfo = "WARNING: Gitlab is not working correctly, fix this: ${e.message}"
@@ -841,8 +830,8 @@ class GitlabRestClient(
     }
 
     private fun resolveAdminToken(): String {
-        if (!gitlabAdminUserToken.isBlank()) {
-            return gitlabAdminUserToken
+        if (!conf.gitlab.adminUserToken.isBlank()) {
+            return conf.gitlab.adminUserToken
         } else {
             val oauthToken = oAuthAdminToken.get()
 
@@ -864,11 +853,10 @@ class GitlabRestClient(
 
     private fun forceRefreshAdminOAuthToken(): String {
         synchronized(this) {
-            val tokenDto = this.userLoginOAuthToGitlab(adminUserName!!, adminPassword!!)
-
-            oAuthAdminToken.set(Pair(tokenDto.createdAt, tokenDto.accessToken))
-
-            return oAuthAdminToken.get()?.second ?: throw GitlabConnectException("Cannot get OAuth token from Gitlab")
+            this.userLoginOAuthToGitlab(conf.gitlab.adminUsername, conf.gitlab.adminPassword)
+                .let { oAuthAdminToken.set(Pair(it.createdAt, it.accessToken)) }
+            return oAuthAdminToken.get()?.second
+                ?: throw GitlabConnectException("Cannot get OAuth token from Gitlab")
         }
     }
 
@@ -900,26 +888,21 @@ class GitlabRestClient(
             internalHeaders.putAll(headers)
         }
 
-        fun addErrorDescription(error: ErrorCode?, message: String?): GitlabHttpEntity<T> {
-            return addErrorDescription(null, error, message)
-        }
+        fun addErrorDescription(error: ErrorCode?, message: String?): GitlabHttpEntity<T> =
+            addErrorDescription(null, error, message)
 
         fun addErrorDescription(code: Int?, error: ErrorCode?, message: String?): GitlabHttpEntity<T> {
-            errorsMap.put(code, Pair(error, message))
+            errorsMap[code] = Pair(error, message)
             return this
         }
 
-        fun getError(code: Int?): ErrorCode? {
-            return errorsMap.get(code)?.first ?: errorsMap.get(null)?.first
-        }
+        fun getError(code: Int?): ErrorCode? =
+            errorsMap[code]?.first ?: errorsMap.get(null)?.first
 
-        fun getMessage(code: Int?): String? {
-            return errorsMap.get(code)?.second ?: errorsMap.get(null)?.second
-        }
+        fun getMessage(code: Int?): String? =
+            errorsMap[code]?.second ?: errorsMap.get(null)?.second
 
-        override fun getHeaders(): HttpHeaders {
-            return this.internalHeaders
-        }
+        override fun getHeaders(): HttpHeaders = this.internalHeaders
     }
 
     private fun <T : GitlabHttpEntity<out Any>, R> T.makeRequest(block: (T) -> R): R {
