@@ -70,16 +70,13 @@ class ExperimentServiceTest : AbstractServiceTest() {
     @BeforeEach
     fun prepare() {
         experimentService = ExperimentService(
+            conf = config,
             experimentRepository = experimentRepository,
             subjectRepository = subjectRepository,
             dataProjectRepository = dataProjectRepository,
             pipelineInstanceRepository = pipelineInstanceRepository,
             processorVersionRepository = processorVersionRepository,
-            processorParameterRepository = processorParameterRepository,
-            gitlabRootUrl = "http://localhost:10080",
-            epfGitlabUrl = "http://backend:10080",
-            epfBackendUrl = "epfBackendUrl.com",
-            epfImageTag = "latest"
+            processorParameterRepository = processorParameterRepository
         )
         val subject = Person(ownerId, "new-person", "person's name", 1L)
         val dataRepository = DataProject(dataRepositoryId, "new-repo", "url", "Test DataProject", "", subject.id, "mlreef", "project", 0, VisibilityScope.PUBLIC, arrayListOf())
@@ -175,7 +172,6 @@ class ExperimentServiceTest : AbstractServiceTest() {
 
     @Test
     fun `Can create if Owner and DataProject exist`() {
-
         val _dataProcessor = dataProcessorRepository.findByIdOrNull(dataAlgorithmId)!!
 
         val dataProcessor = ProcessorVersion(

@@ -8,6 +8,7 @@ logging:
   pattern:
     console: '%d{yyyy-MM-dd HH:mm:ss.SSS} %highlight(%-5level) %boldGreen([%thread]) %cyan(%logger{15}.%M [%line]) - %msg%n%throwable'
 
+
 spring:
   devtools:
     add-properties: true
@@ -28,7 +29,3 @@ spring:
     username: sa
     password: sa
 
-mlreef:
-  gitlab:
-    root-url: ${GITLAB_ROOT_URL:http://localhost:10080}
-    admin-user-token: ${GITLAB_ADMIN_TOKEN:test-token}

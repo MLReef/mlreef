@@ -5,23 +5,17 @@ randomString() {
   if [ "$OS" = "OSX" ]; then
     docker run --rm alpine:latest sh -c "head /dev/urandom | tr -dc A-Za-z0-9 | head -c$LENGTH"
   else
-    head /dev/urandom | tr -dc A-Za-z0-9 | head -c$LENGTH
+    head /dev/urandom | tr -dc A-Za-z0-9 | head -c"$LENGTH"
   fi
-}
-
-configureOSX() {
-  alias sed="docker run -it --rm --volume \$(pwd):/workdir --workdir /workdir alpine:latest sed"
 }
 
 OS=""
 if [ "$(uname)" = "Darwin" ]; then
-  echo "INFO: Running on OSX; setting -e to exit on all errors."
-  set -e
-  configureOSX
+  echo "INFO: Running on OSX. Aliasing 'sed' command to use alpine based 'sed'"
+  alias sed="docker run -it --rm --volume \$(pwd):/workdir --workdir /workdir alpine:latest sed"
   OS="OSX"
 elif [ "$(expr substr "$(uname -s)" 1 5)" = "Linux" ]; then
-  echo "INFO: Running on LINUX; setting -e to exit on all errors."
-  set -e
+  echo "INFO: Running on LINUX."
 elif [ "$(uname)" = "CYGWIN_NT-10.0" ]; then
   echo "WARN: Running on Windows 10 Cygwin; setting +e because of compatibility issues"
   set +e   # This was added after testing on Saathvik's machine

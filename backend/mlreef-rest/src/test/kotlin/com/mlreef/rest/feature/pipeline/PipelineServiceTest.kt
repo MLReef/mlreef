@@ -80,17 +80,15 @@ class PipelineServiceTest : AbstractServiceTest() {
     @BeforeEach
     fun prepare() {
         service = PipelineService(
+            conf = config,
             pipelineConfigRepository = pipelineConfigRepository,
             pipelineInstanceRepository = pipelineInstanceRepository,
             subjectRepository = subjectRepository,
             dataProjectRepository = dataProjectRepository,
             processorVersionRepository = processorVersionRepository,
             processorParameterRepository = processorParameterRepository,
-            gitlabRootUrl = "http://localhost:10080",
-            gitlabRestClient = restClient,
-            epfBackendUrl = "epfBackendUrl.com",
-            epfGitlabUrl = "gitlab:10080",
-            epfImageTag = "latest")
+            gitlabRestClient = restClient
+        )
 
         val subject = Person(ownerId, "new-person", "person's name", 1L)
         subjectRepository.save(subject)

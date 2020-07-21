@@ -1,16 +1,4 @@
-logging:
-  level:
-    root: INFO
-    com.mlreef.rest: DEBUG
-    org.springframework.security: INFO
-    org.springframework.orm: INFO
-    org.hibernate: INFO
-
 mlreef:
-  gitlab:
-    root-url: ${GITLAB_ROOT_URL:http://gitlab:10080}
-    admin-user-token: ${GITLAB_ADMIN_TOKEN}
   epf:
     backend-url: ${EPF_BACKEND_URL:http://backend:8080}
     gitlab-url: ${EPF_GITLAB_URL:http://gitlab:10080}
-    image-tag: ${EPF_IMAGE_TAG:latest}

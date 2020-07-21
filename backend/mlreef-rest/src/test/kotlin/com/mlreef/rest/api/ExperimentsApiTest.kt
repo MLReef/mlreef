@@ -308,13 +308,15 @@ class ExperimentsApiTest : AbstractRestApiTest() {
     fun `Can retrieve own Experiment's MLReef file`() {
         val experiment1 = createExperiment(dataProject.id)
 
-        val returnedResult = performGet("$rootUrl/${dataProject.id}/experiments/${experiment1.id}/mlreef-file", account)
+        val result = performGet("$rootUrl/${dataProject.id}/experiments/${experiment1.id}/mlreef-file", account)
             .andExpect(status().isOk)
             .document("experiments-retrieve-one-mlreef-file")
-            .andReturn().response.contentAsString
+            .andReturn()
+            .response
+            .contentAsString
 
-        assertThat(returnedResult).isNotEmpty()
-        assertThat(returnedResult).contains("git checkout -b \$TARGET_BRANCH")
+        assertThat(result).isNotEmpty()
+        assertThat(result).contains("image: registry.gitlab.com/mlreef/mlreef/epf:")
     }
 
     @Transactional
@@ -375,7 +377,8 @@ class ExperimentsApiTest : AbstractRestApiTest() {
             id = randomUUID(), processorVersionId = processorInstance.dataProcessorId,
             name = "param1", type = ParameterType.STRING,
             defaultValue = "default", description = "not empty",
-            order = 1, required = true)
+            order = 1, required = true
+        )
 
         processorInstance.addParameterInstances(processorParameter, "value")
         processorInstance2.addParameterInstances(processorParameter.copy(processorVersionId = processorInstance2.dataProcessorId), "value")

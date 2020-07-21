@@ -1,3 +1,15 @@
+mlreef:
+  gitlab:
+    root-url: ${GITLAB_ROOT_URL:http://localhost:10080}
+    admin-user-token: ${GITLAB_ADMIN_TOKEN:local-api-token}     # GITLAB_ADMIN_TOKEN needs to correspond with local.env
+  epf:
+    # When running in docker on a single machine, the EPF will access
+    # the Backend via the docker internal hostname backend:8080
+    # and Gitlab via the docker hostname gitlab:10080
+    backend-url: ${EPF_BACKEND_URL:http://localhost:8080}
+    gitlab-url: ${EPF_GITLAB_URL:http://gitlab:10080}
+
+
 logging:
   level:
     root: INFO
@@ -6,6 +18,7 @@ logging:
     org.springframework.orm: INFO
     org.hibernate: INFO
     web: DEBUG
+
 
 spring:
   devtools:
@@ -26,12 +39,3 @@ spring:
   redis:
     host: ${REDIS_HOST:localhost}
     port: ${REDIS_PORT:7379}
-
-mlreef:
-  gitlab:
-    root-url: ${GITLAB_ROOT_URL:http://localhost:10080}
-    admin-user-token: ${GITLAB_ADMIN_TOKEN}
-  epf:
-    backend-url: ${EPF_BACKEND_URL:http://172.18.0.1:8080}
-    gitlab-url: ${EPF_GITLAB_URL:http://172.18.0.1:10080}
-    image-tag: ${EPF_IMAGE_TAG:latest}

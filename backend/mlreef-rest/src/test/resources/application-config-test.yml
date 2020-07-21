@@ -1,0 +1,10 @@
+mlreef:
+  epf:
+    image-tag: test-latest
+    backend-url: epf-backend-test-url
+    gitlab-url: epf-gitlab-test-url
+  gitlab:
+    root-url: gitlab-external-test-url
+    admin-username: admin
+    admin-password: password
+    admin-user-token: test-token

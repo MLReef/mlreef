@@ -1,9 +1,12 @@
 package com.mlreef.rest
 
 import com.mlreef.rest.external_api.gitlab.GitlabRestClient
+import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.boot.CommandLineRunner
 import org.springframework.boot.autoconfigure.SpringBootApplication
+import org.springframework.boot.context.properties.ConfigurationProperties
+import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.boot.runApplication
 import org.springframework.context.annotation.Profile
 import org.springframework.stereotype.Component
@@ -22,17 +25,22 @@ object ApplicationProfiles {
     "com.mlreef.rest",
     "com.mlreef.rest.marketplace"
 ])
+@EnableConfigurationProperties(
+    ApplicationConfiguration::class,
+    EpfConfiguration::class,
+    GitlabConfiguration::class
+)
 class RestApplication
 
 fun main(args: Array<String>) {
     runApplication<RestApplication>(*args)
 }
 
-@Profile(value = [ApplicationProfiles.DEV, ApplicationProfiles.PROD, ApplicationProfiles.DOCKER])
 @Component
+@Profile(ApplicationProfiles.DEV, ApplicationProfiles.PROD, ApplicationProfiles.DOCKER)
 internal class AssertGitlabAppStartupRunner(private val restClient: GitlabRestClient) : CommandLineRunner {
 
-    val log = LoggerFactory.getLogger(GitlabRestClient::class.java)
+    val log = LoggerFactory.getLogger(GitlabRestClient::class.java) as Logger
 
     @Throws(Exception::class)
     override fun run(vararg args: String) {
@@ -45,4 +53,26 @@ internal class AssertGitlabAppStartupRunner(private val restClient: GitlabRestCl
             throw e
         }
     }
+}
+
+
+@ConfigurationProperties(prefix = "mlreef")
+class ApplicationConfiguration(
+    val epf: EpfConfiguration,
+    val gitlab: GitlabConfiguration
+)
+
+@ConfigurationProperties(prefix = "mlreef.gitlab")
+class GitlabConfiguration {
+    lateinit var rootUrl: String
+    lateinit var adminUsername: String
+    lateinit var adminPassword: String
+    lateinit var adminUserToken: String
+}
+
+@ConfigurationProperties(prefix = "mlreef.epf")
+class EpfConfiguration {
+    lateinit var imageTag: String
+    lateinit var gitlabUrl: String
+    lateinit var backendUrl: String
 }
