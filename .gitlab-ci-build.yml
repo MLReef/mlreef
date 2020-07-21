@@ -35,6 +35,11 @@ build backend:
   image: docker:19.03.1
   services:
     - docker:19.03.0-dind
+  cache:
+    key: "mlreef-node-cache"
+    paths:
+      - /usr/local/lib/node_modules
+      - web/node_modules
   before_script:
     - export TAG="${CI_COMMIT_REF_SLUG}"
     - if [ $CI_COMMIT_REF_SLUG = "master" ]; then export TAG="latest";  fi          # follow docker naming conventions

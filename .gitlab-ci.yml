@@ -17,11 +17,10 @@ stages:
 # AWS_DEFAULT_REGION      default:eu-central-1
 # GITLAB_API_TOKEN        for creating and deleting environments on gitlab.com
 variables:
-  BACKEND_IMAGE_PATH:   "$DOCKER_REGISTRY/$DOCKER_ORGANISATION/$BACKEND_IMAGE_NAME:$BACKEND_TAG"
   INSTANCE_INFO:        "out/instance.info"                # file for transmitting VM information between stages
   S3_DATA_BUCKET:       "mlreef-application-data"          # see also ec2 startup script
   DATA_ARCHIVE:         "mlreef-data-develop.zip"
-  # GATSBY_PATH_PREFIX:   "/frontend"                      # fix links for mlreef.gitlab.io/frontend
+
 
 .except-docu-branches:
   except:
@@ -39,11 +38,6 @@ variables:
     refs:
       - develop
       - master
-#  except:
-#    changes:
-#      - "*.md"                                         # skip the pipeline for documentation changes
-#      - "*.txt"
-
 
 
 pages:
@@ -54,7 +48,7 @@ pages:
       - README.md
   image: node:10.19.0-alpine                                # https://hub.docker.com/_/node/
   cache:
-    key: mlreef-documentation-npm-cache
+    key: "mlreef-docs-node-cache"
     paths:
       - /usr/local/lib/node_modules
       - docs/node_modules

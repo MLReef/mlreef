@@ -11,23 +11,33 @@ set -u    # error on usage of undefined variables
 ########################################
 
 
-# change directory to the frontend folder
-cd web
-
 # ensure that there is a package json present
-if [ -e package.json ]; then
+if [ -e web/package.json ]; then
     echo "found package.json"
 else
     echo "could not find package.json … exiting"
     exit 1
 fi
 
-docker build --tag "$GATEWAY_IMAGE_PATH" -f Dockerfile .  \
- --build-arg CI_COMMIT_REF_SLUG="$CI_COMMIT_REF_SLUG"     \
- --build-arg CI_PIPELINE_ID="$CI_PIPELINE_ID"             \
+echo "LOG_TIME: $(date +%Y-%m-%d\ %H:%M:%S)"
+docker build --target BUILDER --tag "${GATEWAY_IMAGE_PATH}-builder" -f web/Dockerfile web \
+  --build-arg CI_COMMIT_REF_SLUG="$CI_COMMIT_REF_SLUG"          \
+  --build-arg CI_PIPELINE_ID="$CI_PIPELINE_ID"                  \
 
 
-# Get Test coverage report from build image
-docker create -ti --name dummy "$GATEWAY_IMAGE_PATH" bash
-docker cp dummy:/usr/share/coverage coverage
-docker rm -f dummy
+echo "LOG_TIME: $(date +%Y-%m-%d\ %H:%M:%S)"
+# Build Second Stage -- Docker will skip the BUILDER steps since they were just completed
+docker build --target PROD --tag "$GATEWAY_IMAGE_PATH" -f web/Dockerfile web  \
+  --build-arg CI_COMMIT_REF_SLUG="$CI_COMMIT_REF_SLUG"          \
+  --build-arg CI_PIPELINE_ID="$CI_PIPELINE_ID"                  \
+
+echo "LOG_TIME: $(date +%Y-%m-%d\ %H:%M:%S)"
+rm -rf web/node_modules
+
+# Get Test node_modules and coverage report from build image
+docker create -ti --name builder "${GATEWAY_IMAGE_PATH}-builder" bash
+docker cp builder:/app/node_modules web/node_modules
+docker cp builder:/app/coverage coverage
+docker rm -f builder
+
+echo "LOG_TIME: $(date +%Y-%m-%d\ %H:%M:%S)"
