@@ -1,9 +1,2 @@
-# Ignore local node_modules because they could be incompatible
-# with the Image used for the Dockerfile
-node_modules/
-
 # Ignore the Development proxy from docker builds
 src/setupProxy.js
-
-build.info
-.env
