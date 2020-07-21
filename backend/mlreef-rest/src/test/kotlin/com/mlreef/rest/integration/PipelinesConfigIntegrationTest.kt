@@ -1,5 +1,6 @@
 package com.mlreef.rest.integration
 
+import com.mlreef.rest.Account
 import com.mlreef.rest.DataProcessorInstance
 import com.mlreef.rest.DataProcessorInstanceRepository
 import com.mlreef.rest.ParameterType
@@ -26,16 +27,25 @@ class PipelinesConfigIntegrationTest : AbstractIntegrationTest() {
 
     val rootUrl = "/api/v1/pipelines"
 
-    @Autowired private lateinit var pipelineConfigRepository: PipelineConfigRepository
-    @Autowired private lateinit var dataProcessorInstanceRepository: DataProcessorInstanceRepository
-    @Autowired private lateinit var processorParameterRepository: ProcessorParameterRepository
+    @Autowired
+    private lateinit var pipelineConfigRepository: PipelineConfigRepository
 
-    @Autowired private lateinit var pipelineTestPreparationTrait: PipelineTestPreparationTrait
+    @Autowired
+    private lateinit var dataProcessorInstanceRepository: DataProcessorInstanceRepository
+
+    @Autowired
+    private lateinit var processorParameterRepository: ProcessorParameterRepository
+
+    @Autowired
+    private lateinit var pipelineTestPreparationTrait: PipelineTestPreparationTrait
+
+    private lateinit var account: Account;
 
     @BeforeEach
     @Transactional
     fun fillRepo() {
-        testsHelper.generateProcessorsInDatabase()
+        account = testsHelper.createRealUser(index = -1).first
+        testsHelper.generateProcessorsInDatabase(account.person)
     }
 
     @AfterEach
@@ -46,8 +56,8 @@ class PipelinesConfigIntegrationTest : AbstractIntegrationTest() {
 
     @Transactional
     @Rollback
-    @Test fun `Can retrieve all own Pipelines`() {
-        val (account, _, _) = testsHelper.createRealUser()
+    @Test
+    fun `Can retrieve all own Pipelines`() {
         val (project, _) = testsHelper.createRealDataProject(account)
 
         val dataProcessorInstance = createDataProcessorInstance()
@@ -67,8 +77,8 @@ class PipelinesConfigIntegrationTest : AbstractIntegrationTest() {
 
     @Transactional
     @Rollback
-    @Test fun `Can retrieve specific PipelineConfig`() {
-        val (account, _, _) = testsHelper.createRealUser()
+    @Test
+    fun `Can retrieve specific PipelineConfig`() {
         val (project, _) = testsHelper.createRealDataProject(account)
 
         val dataProcessorInstance = createDataProcessorInstance()

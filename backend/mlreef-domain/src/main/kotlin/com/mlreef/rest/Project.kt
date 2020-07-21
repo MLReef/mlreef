@@ -126,4 +126,23 @@ abstract class Project(
         accessLevel = accessLevel
     )
 
+    abstract fun <T : Project> copy(
+        url: String? = null,
+        slug: String? = null,
+        name: String? = null,
+        description: String? = null,
+        gitlabNamespace: String? = null,
+        gitlabPathWithNamespace: String? = null,
+        gitlabPath: String? = null,
+        gitlabId: Long? = null,
+        globalSlug: String? = null,
+        stars: List<Star>? = null,
+        inputDataTypes: Set<DataType>? = null,
+        outputDataTypes: Set<DataType>? = null,
+        tags: Set<SearchableTag>? = null,
+        version: Long? = null,
+        createdAt: ZonedDateTime? = null,
+        updatedAt: ZonedDateTime? = null,
+        visibilityScope: VisibilityScope? = null
+    ): T
 }

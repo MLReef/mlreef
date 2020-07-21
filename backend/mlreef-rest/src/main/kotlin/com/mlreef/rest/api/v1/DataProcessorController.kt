@@ -1,5 +1,6 @@
 package com.mlreef.rest.api.v1
 
+import com.mlreef.rest.CodeProject
 import com.mlreef.rest.CodeProjectRepository
 import com.mlreef.rest.DataAlgorithmRepository
 import com.mlreef.rest.DataOperationRepository
@@ -21,7 +22,7 @@ import com.mlreef.rest.api.v1.dto.ProcessorVersionDto
 import com.mlreef.rest.api.v1.dto.toDto
 import com.mlreef.rest.exceptions.NotFoundException
 import com.mlreef.rest.feature.data_processors.DataProcessorService
-import com.mlreef.rest.feature.project.CodeProjectService
+import com.mlreef.rest.feature.project.ProjectService
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.security.access.prepost.PostAuthorize
 import org.springframework.security.access.prepost.PostFilter
@@ -48,7 +49,7 @@ class DataProcessorsController(
     val dataOperationRepository: DataOperationRepository,
     val dataAlgorithmRepository: DataAlgorithmRepository,
     val dataVisualizationRepository: DataVisualizationRepository,
-    val codeProjectService: CodeProjectService,
+    val codeProjectService: ProjectService<CodeProject>,
     val dataProcessorService: DataProcessorService,
     val currentUserService: CurrentUserService
 ) {

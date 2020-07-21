@@ -18,7 +18,7 @@ import com.mlreef.rest.exceptions.NotFoundException
 import com.mlreef.rest.exceptions.PipelineCreateException
 import com.mlreef.rest.exceptions.ProjectNotFoundException
 import com.mlreef.rest.feature.pipeline.PipelineService
-import com.mlreef.rest.feature.project.DataProjectService
+import com.mlreef.rest.feature.project.ProjectService
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
@@ -37,7 +37,7 @@ import javax.validation.constraints.NotEmpty
 @RequestMapping("/api/v1/data-projects/{dataProjectId}/pipelines")
 class ProjectsPipelineConfigsController(
     val service: PipelineService,
-    val dataProjectService: DataProjectService,
+    val dataProjectService: ProjectService<DataProject>,
     val pipelineConfigRepository: PipelineConfigRepository,
     val currentUserService: CurrentUserService,
     val pipelineInstanceRepository: PipelineInstanceRepository

@@ -2,7 +2,7 @@ package com.mlreef.rest
 
 import com.mlreef.rest.external_api.gitlab.dto.GitlabUser
 import com.mlreef.rest.feature.marketplace.MarketplaceService
-import com.mlreef.rest.feature.project.DataProjectService
+import com.mlreef.rest.feature.project.ProjectService
 import com.mlreef.rest.integration.AbstractIntegrationTest
 import com.mlreef.rest.utils.RandomUtils
 import org.assertj.core.api.Assertions.assertThat
@@ -36,7 +36,7 @@ class DataPopulatorTest : AbstractIntegrationTest() {
     @Autowired
     private lateinit var pipelineConfigRepository: PipelineConfigRepository
     @Autowired
-    private lateinit var dataProjectService: DataProjectService
+    private lateinit var dataProjectService: ProjectService<DataProject>
 
     @Autowired
     private lateinit var processorParameterRepository: ProcessorParameterRepository

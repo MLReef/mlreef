@@ -5,7 +5,7 @@ import com.mlreef.rest.external_api.gitlab.GitlabRestClient
 import com.mlreef.rest.external_api.gitlab.dto.GitlabProject
 import com.mlreef.rest.external_api.gitlab.dto.GitlabUser
 import com.mlreef.rest.feature.marketplace.MarketplaceService
-import com.mlreef.rest.feature.project.DataProjectService
+import com.mlreef.rest.feature.project.ProjectService
 import com.mlreef.rest.marketplace.SearchableTag
 import org.slf4j.LoggerFactory
 import org.springframework.boot.CommandLineRunner
@@ -38,7 +38,7 @@ internal class CommandLineAppStartupRunner(
 internal class DataPopulator(
     private val gitlabRestClient: GitlabRestClient,
     val dataProjectRepository: DataProjectRepository,
-    val dataProjectService: DataProjectService,
+    val dataProjectService: ProjectService<DataProject>,
     val personRepository: PersonRepository,
     val accountTokenRepository: AccountTokenRepository,
     val accountRepository: AccountRepository,

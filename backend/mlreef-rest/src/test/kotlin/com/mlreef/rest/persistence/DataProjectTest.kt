@@ -59,7 +59,7 @@ class DataProjectTest : AbstractRepositoryTest() {
         val (_, entity) = createEntity()
         val saved = repository.save(entity)
         val newValue = "newname"
-        val copy = saved.copy(slug = newValue)
+        val copy = saved.copy<DataProject>(slug = newValue)
         val updated = repository.save(copy)
         Assertions.assertThat(updated).isNotNull()
 //        checkAfterUpdated(updated)

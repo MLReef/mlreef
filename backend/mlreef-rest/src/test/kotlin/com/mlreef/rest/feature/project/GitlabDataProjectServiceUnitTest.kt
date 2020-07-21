@@ -37,11 +37,11 @@ internal class GitlabDataProjectServiceUnitTest {
     @MockK
     private lateinit var groupRepository: GroupRepository
 
-    private lateinit var service: GitlabDataProjectService
+    private lateinit var service: ProjectService<DataProject>
 
     @BeforeEach
     fun setUp() {
-        service = GitlabDataProjectService(dataProjectRepository, accountRepository, groupRepository, publicProjectsCacheService, gitlabRestClient)
+        service = ProjectServiceImpl(DataProject::class.java, dataProjectRepository, publicProjectsCacheService, gitlabRestClient, accountRepository, groupRepository)
     }
 
     @Test

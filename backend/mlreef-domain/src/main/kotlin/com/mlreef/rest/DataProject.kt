@@ -58,6 +58,51 @@ class DataProject(
     globalSlug, tags, starsCount, stars,
     version, createdAt, updatedAt) {
 
+    @Suppress("UNCHECKED_CAST")
+    override fun <T : Project> copy(
+        url: String?,
+        slug: String?,
+        name: String?,
+        description: String?,
+        gitlabNamespace: String?,
+        gitlabPathWithNamespace: String?,
+        gitlabPath: String?,
+        gitlabId: Long?,
+        globalSlug: String?,
+        stars: List<Star>?,
+        inputDataTypes: Set<DataType>?,
+        outputDataTypes: Set<DataType>?,
+        tags: Set<SearchableTag>?,
+        version: Long?,
+        createdAt: ZonedDateTime?,
+        updatedAt: ZonedDateTime?,
+        visibilityScope: VisibilityScope?
+    ): T {
+        return DataProject(
+            id = this.id,
+            slug = slug ?: this.slug,
+            url = url ?: this.url,
+            name = name ?: this.name,
+            description = description ?: this.description,
+            ownerId = this.ownerId,
+            gitlabNamespace = gitlabNamespace ?: this.gitlabNamespace,
+            gitlabPathWithNamespace = gitlabPathWithNamespace ?: this.gitlabPathWithNamespace,
+            gitlabPath = gitlabPath ?: this.gitlabPath,
+            gitlabId = gitlabId ?: this.gitlabId,
+            experiments = this.experiments,
+            version = version ?: this.version,
+            createdAt = createdAt ?: this.createdAt,
+            updatedAt = updatedAt ?: this.updatedAt,
+            visibilityScope = visibilityScope ?: this.visibilityScope,
+            globalSlug = globalSlug ?: this.globalSlug,
+            stars = stars ?: this.stars,
+            starsCount = stars?.size ?: this.stars.size,
+            tags = tags ?: this.tags,
+            inputDataTypes = inputDataTypes ?: this.inputDataTypes,
+            outputDataTypes = outputDataTypes ?: this.outputDataTypes
+        ) as T
+    }
+
     fun copy(
         id: UUID? = null,
         url: String? = null,

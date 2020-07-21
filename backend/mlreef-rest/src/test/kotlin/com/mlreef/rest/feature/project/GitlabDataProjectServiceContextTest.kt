@@ -1,5 +1,6 @@
 package com.mlreef.rest.feature.project
 
+import com.mlreef.rest.DataProject
 import com.mlreef.rest.VisibilityScope
 import com.mlreef.rest.external_api.gitlab.GitlabVisibility
 import com.mlreef.rest.external_api.gitlab.dto.GitlabProject
@@ -23,7 +24,7 @@ import kotlin.random.Random
 
 class GitlabDataProjectServiceContextTest : AbstractContextTest() {
     @SpykBean
-    private lateinit var service: GitlabDataProjectService
+    private lateinit var service: ProjectService<DataProject>
 
     @Test
     fun `test create project`() {
