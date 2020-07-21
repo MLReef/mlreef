@@ -76,6 +76,8 @@ internal fun projectResponseFields(prefix: String = ""): MutableList<FieldDescri
         this.add(fieldWithPath(prefix + "data_processor").optional().type(JsonFieldType.OBJECT).description("DataProcessor"))
         this.addAll(dataProcessorFields(prefix + "data_processor."))
         this.addAll(searchableTags(prefix + "tags[]."))
+    }.apply {
+        this.add(fieldWithPath(prefix + "experiments").optional().type(JsonFieldType.ARRAY).description("Experiments"))
     }
 }
 

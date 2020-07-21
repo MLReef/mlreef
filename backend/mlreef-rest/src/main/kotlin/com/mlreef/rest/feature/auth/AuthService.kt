@@ -4,6 +4,8 @@ import com.mlreef.rest.Account
 import com.mlreef.rest.AccountRepository
 import com.mlreef.rest.AccountToken
 import com.mlreef.rest.AccountTokenRepository
+import com.mlreef.rest.CodeProject
+import com.mlreef.rest.DataProject
 import com.mlreef.rest.I18N
 import com.mlreef.rest.Person
 import com.mlreef.rest.PersonRepository
@@ -25,8 +27,7 @@ import com.mlreef.rest.external_api.gitlab.dto.GitlabUserToken
 import com.mlreef.rest.external_api.gitlab.dto.GroupVariable
 import com.mlreef.rest.external_api.gitlab.dto.OAuthToken
 import com.mlreef.rest.feature.groups.GroupsService
-import com.mlreef.rest.feature.project.GitlabCodeProjectService
-import com.mlreef.rest.feature.project.GitlabDataProjectService
+import com.mlreef.rest.feature.project.ProjectService
 import com.mlreef.rest.utils.RandomUtils
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
@@ -49,8 +50,8 @@ class AuthService(
     private val accountTokenRepository: AccountTokenRepository,
     private val groupService: GroupsService,
     private val passwordEncoder: PasswordEncoder,
-    private val dataProjectsService: GitlabDataProjectService,
-    private val codeProjectsService: GitlabCodeProjectService
+    private val dataProjectsService: ProjectService<DataProject>,
+    private val codeProjectsService: ProjectService<CodeProject>
 ) {
 
     @Value("\${mlreef.bot-management.epf-bot-email-domain:\"\"}")

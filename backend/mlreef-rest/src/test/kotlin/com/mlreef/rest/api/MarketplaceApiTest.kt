@@ -4,6 +4,7 @@ package com.mlreef.rest.api
 
 import com.mlreef.rest.AccessLevel
 import com.mlreef.rest.Account
+import com.mlreef.rest.CodeProject
 import com.mlreef.rest.CodeProjectRepository
 import com.mlreef.rest.DataProcessorRepository
 import com.mlreef.rest.DataProjectRepository
@@ -281,7 +282,7 @@ class MarketplaceApiTest : AbstractRestApiTest() {
                 tags = setOf(tag1, tag2))
 
         val project3 = EntityMocks.codeProject(slug = "entry2", name = "ZZ Project")
-            .copy(inputDataTypes = setOf(DataType.IMAGE, DataType.TABULAR),
+            .copy<CodeProject>(inputDataTypes = setOf(DataType.IMAGE, DataType.TABULAR),
                 outputDataTypes = setOf(DataType.MODEL, DataType.TIME_SERIES),
                 tags = setOf(tag1, tag2))
 

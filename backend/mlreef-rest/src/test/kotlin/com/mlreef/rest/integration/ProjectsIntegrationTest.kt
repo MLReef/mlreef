@@ -2,13 +2,16 @@ package com.mlreef.rest.integration
 
 import com.mlreef.rest.AccessLevel
 import com.mlreef.rest.Account
-import com.mlreef.rest.DataProject
+import com.mlreef.rest.CodeProjectRepository
 import com.mlreef.rest.DataProjectRepository
+import com.mlreef.rest.Project
 import com.mlreef.rest.VisibilityScope
-import com.mlreef.rest.api.v1.DataProjectCreateRequest
-import com.mlreef.rest.api.v1.DataProjectUserMembershipRequest
+import com.mlreef.rest.api.v1.ProjectCreateRequest
 import com.mlreef.rest.api.v1.ProjectUpdateRequest
+import com.mlreef.rest.api.v1.ProjectUserMembershipRequest
+import com.mlreef.rest.api.v1.dto.CodeProjectDto
 import com.mlreef.rest.api.v1.dto.DataProjectDto
+import com.mlreef.rest.api.v1.dto.ProjectDto
 import com.mlreef.rest.api.v1.dto.UserInProjectDto
 import com.mlreef.rest.external_api.gitlab.GroupAccessLevel
 import com.mlreef.rest.feature.caches.domain.PublicProjectHash
@@ -30,10 +33,15 @@ import javax.transaction.Transactional
 
 class ProjectsIntegrationTest : AbstractIntegrationTest() {
 
-    val rootUrl = "/api/v1/data-projects"
+    val rootUrl = "/api/v1/projects"
+    val dataProjectRootUrl = "/api/v1/data-projects"
+    val codeProjectRootUrl = "/api/v1/code-projects"
 
     @Autowired
     private lateinit var dataProjectRepository: DataProjectRepository
+
+    @Autowired
+    private lateinit var codeProjectRepository: CodeProjectRepository
 
     @BeforeEach
     @AfterEach
@@ -44,100 +52,41 @@ class ProjectsIntegrationTest : AbstractIntegrationTest() {
     @Transactional
     @Rollback
     @Test
-    fun `Can create DataProject`() {
-        val (account, _, _) = testsHelper.createRealUser()
-
-        val request = DataProjectCreateRequest(
-            "test-project",
-            "mlreef",
-            "Test project",
-            "description",
-            true,
-            VisibilityScope.PUBLIC
-        )
-
-        val result = this.performPost(rootUrl, account, request)
-            .expectOk()
-            .returns(DataProjectDto::class.java)
-
-        assertThat(result).isNotNull()
-    }
-
-    @Transactional
-    @Rollback
-    @Test
-    fun `Cannot create duplicate DataProject`() {
-        val (account, _, _) = testsHelper.createRealUser()
-        val (project, _) = testsHelper.createRealDataProject(account)
-
-        val request = DataProjectCreateRequest(
-            slug = project.slug,
-            namespace = project.gitlabPathWithNamespace,
-            name = project.name,
-            description = "New description",
-            initializeWithReadme = true,
-            visibility = VisibilityScope.PUBLIC
-        )
-
-        this.performPost(rootUrl, account, request).expect4xx()
-    }
-
-    @Transactional
-    @Rollback
-    @Test
-    fun `Cannot create DataProject with invalid params`() {
-        val (account, _, _) = testsHelper.createRealUser()
-
-        val request = DataProjectCreateRequest(
-            "",
-            "",
-            "",
-            "description",
-            true,
-            VisibilityScope.PUBLIC)
-
-        this.performPost(rootUrl, account, request).expectBadRequest()
-    }
-
-    @Transactional
-    @Rollback
-    @Test
-    fun `Can retrieve all own DataProjects only`() {
+    fun `Can retrieve all own CodeProjects and DataProjects only`() {
         val (account1, _, _) = testsHelper.createRealUser(index = -1)
         val (project1, _) = testsHelper.createRealDataProject(account1)
         val (project2, _) = testsHelper.createRealDataProject(account1)
-        val (project3, _) = testsHelper.createRealDataProject(account1)
+        val (project3, _) = testsHelper.createRealCodeProject(account1)
+        val (project4, _) = testsHelper.createRealCodeProject(account1)
 
         val (account2, _, _) = testsHelper.createRealUser(index = -1)
-        val (project21, _) = testsHelper.createRealDataProject(account2)
-        val (project22, _) = testsHelper.createRealDataProject(account2)
+        val (_, _) = testsHelper.createRealDataProject(account2)
+        val (_, _) = testsHelper.createRealDataProject(account2)
+        val (_, _) = testsHelper.createRealCodeProject(account2)
+        val (_, _) = testsHelper.createRealCodeProject(account2)
 
         val result = this.performGet(rootUrl, account1)
             .expectOk()
             .returnsList(DataProjectDto::class.java)
 
-        assertThat(isUserInProject(project1, account1)).isTrue()
-        assertThat(isUserInProject(project2, account1)).isTrue()
-        assertThat(isUserInProject(project3, account1)).isTrue()
-        assertThat(isUserInProject(project21, account1)).isFalse()
-        assertThat(isUserInProject(project22, account1)).isFalse()
-
         val initialSetOfIds = setOf<UUID>(
             project1.id,
             project2.id,
-            project3.id
+            project3.id,
+            project4.id
         )
 
         val initialSetOfSlug = setOf<String>(
             project1.slug,
             project2.slug,
-            project3.slug
+            project3.slug,
+            project4.slug
         )
 
         val resultSetOfIds = result.map(DataProjectDto::id).toSet()
         val resultSetOfSlugs = result.map(DataProjectDto::slug).toSet()
 
-        assertThat(result.size).isEqualTo(3)
+        assertThat(result.size).isEqualTo(4)
 
         assertThat(resultSetOfIds).isEqualTo(initialSetOfIds)
         assertThat(resultSetOfSlugs).isEqualTo(initialSetOfSlug) //FIXME: Why is slug? Is it correct?
@@ -161,6 +110,30 @@ class ProjectsIntegrationTest : AbstractIntegrationTest() {
         val result = this.performGet(url, account1)
             .expectOk()
             .returns(DataProjectDto::class.java)
+
+        assertThat(result.id).isEqualTo(project2.id)
+        assertThat(result.gitlabId).isEqualTo(project2.gitlabId)
+        assertThat(result.gitlabPath).isEqualTo(project2.slug) //FIXME: Why is slug? Is it correct?
+    }
+
+    @Transactional
+    @Rollback
+    @Test
+    fun `Can retrieve own CodeProject by id`() {
+        val (account1, _, _) = testsHelper.createRealUser()
+        val (_, _) = testsHelper.createRealCodeProject(account1)
+        val (project2, _) = testsHelper.createRealCodeProject(account1)
+        val (_, _) = testsHelper.createRealCodeProject(account1)
+
+        val (account2, _, _) = testsHelper.createRealUser(index = 1)
+        val (_, _) = testsHelper.createRealCodeProject(account2)
+        val (_, _) = testsHelper.createRealCodeProject(account2)
+
+        val url = "$rootUrl/${project2.id}"
+
+        val result = this.performGet(url, account1)
+            .expectOk()
+            .returns(CodeProjectDto::class.java)
 
         assertThat(result.id).isEqualTo(project2.id)
         assertThat(result.gitlabId).isEqualTo(project2.gitlabId)
@@ -205,6 +178,53 @@ class ProjectsIntegrationTest : AbstractIntegrationTest() {
         )
 
         val resultSetOfIds = result.map(DataProjectDto::id).toSet()
+
+        assertThat(resultSetOfIds).isEqualTo(initialSetOfIds)
+        assertThat(result.get(0).id).isIn(initialSetOfIds)
+        assertThat(result.get(0).gitlabPath).isIn(initialSetOfSlug) //FIXME: Why is slug? Is it correct?
+        assertThat(result.get(1).id).isIn(initialSetOfIds)
+        assertThat(result.get(1).gitlabPath).isIn(initialSetOfSlug)
+    }
+
+    @Transactional
+    @Rollback
+    @Test
+    fun `Can retrieve own and not own but member private CodeProject by slug`() {
+        val (account1, _, _) = testsHelper.createRealUser(index = -1)
+        val (project1, _) = testsHelper.createRealCodeProject(account1, slug = "slug-1", public = false)
+        val (_, _) = testsHelper.createRealCodeProject(account1, public = false)
+        val (_, _) = testsHelper.createRealCodeProject(account1, public = false)
+
+        val (account2, _, _) = testsHelper.createRealUser(index = -1)
+        val (project21, _) = testsHelper.createRealCodeProject(account2, slug = "slug-1", public = false)
+        val (_, _) = testsHelper.createRealCodeProject(account2, public = false)
+
+        val (account3, _, _) = testsHelper.createRealUser(index = -1)
+
+        val (_, _) = testsHelper.createRealCodeProject(account3, slug = "slug-1", public = false)
+        val (_, _) = testsHelper.createRealCodeProject(account3, public = false)
+
+        testsHelper.addRealUserToProject(project21.gitlabId, account1.person.gitlabId!!)
+
+        val url = "$rootUrl/slug/${project1.slug}"
+
+        val result = this.performGet(url, account1)
+            .expectOk()
+            .returnsList(CodeProjectDto::class.java)
+
+        assertThat(result.size).isEqualTo(2)
+
+        val initialSetOfIds = setOf<UUID>(
+            project1.id,
+            project21.id
+        )
+
+        val initialSetOfSlug = setOf<String>(
+            project1.slug,
+            project21.slug
+        )
+
+        val resultSetOfIds = result.map(ProjectDto::id).toSet()
 
         assertThat(resultSetOfIds).isEqualTo(initialSetOfIds)
         assertThat(result.get(0).id).isIn(initialSetOfIds)
@@ -264,18 +284,64 @@ class ProjectsIntegrationTest : AbstractIntegrationTest() {
     @Transactional
     @Rollback
     @Test
-    fun `Can retrieve not own but member private DataProjects by namespace`() {
+    fun `Can retrieve own and not own not member but public CodeProject by slug`() {
+        val (account1, _, _) = testsHelper.createRealUser(index = -1)
+        val (project1, _) = testsHelper.createRealCodeProject(account1, slug = "slug-1", public = false)
+        val (_, _) = testsHelper.createRealCodeProject(account1)
+        val (_, _) = testsHelper.createRealCodeProject(account1)
+
+        val (account2, _, _) = testsHelper.createRealUser(index = -1)
+        val (project21, _) = testsHelper.createRealCodeProject(account2, slug = "slug-1", public = true)
+        val (_, _) = testsHelper.createRealCodeProject(account2)
+
+        val (account3, _, _) = testsHelper.createRealUser(index = -1)
+        val (_, _) = testsHelper.createRealCodeProject(account3, slug = "slug-1", public = false)
+        val (_, _) = testsHelper.createRealCodeProject(account3)
+
+        val url = "$rootUrl/slug/${project1.slug}"
+
+        val result = this.performGet(url, account1)
+            .expectOk()
+            .returnsList(CodeProjectDto::class.java)
+
+        assertThat(result.size).isEqualTo(2)
+
+        val initialSetOfIds = setOf(
+            project1.id,
+            project21.id
+        )
+
+        val initialSetOfSlug = setOf(
+            project1.slug,
+            project21.slug
+        )
+
+        val resultSetOfIds = result.map(ProjectDto::id).toSet()
+
+        assertThat(resultSetOfIds).isEqualTo(initialSetOfIds)
+        assertThat(result.get(0).id).isIn(initialSetOfIds)
+        assertThat(result.get(0).gitlabPath).isIn(initialSetOfSlug) //FIXME: Why is slug? Is it correct?
+        assertThat(result.get(1).id).isIn(initialSetOfIds)
+        assertThat(result.get(1).gitlabPath).isIn(initialSetOfSlug)
+    }
+
+    @Transactional
+    @Rollback
+    @Test
+    fun `Can retrieve not own but member private Projects by namespace`() {
         val (account1, _, _) = testsHelper.createRealUser(index = -1)
         val (account2, _, _) = testsHelper.createRealUser(index = -1)
 
         val (project1, _) = testsHelper.createRealDataProject(account1, public = false)
-        val (project2, _) = testsHelper.createRealDataProject(account1, public = false)
-        val (project3, _) = testsHelper.createRealDataProject(account1, public = false)
+        val (_, _) = testsHelper.createRealDataProject(account1, public = false)
+        val (_, _) = testsHelper.createRealDataProject(account1, public = false)
+        val (project4, _) = testsHelper.createRealCodeProject(account1, public = false)
 
         testsHelper.addRealUserToProject(project1.gitlabId, account2.person.gitlabId!!)
+        testsHelper.addRealUserToProject(project4.gitlabId, account2.person.gitlabId!!)
 
-        val (project21, _) = testsHelper.createRealDataProject(account2, namespace = project1.gitlabNamespace)
-        val (project22, _) = testsHelper.createRealDataProject(account2)
+        val (_, _) = testsHelper.createRealDataProject(account2, namespace = project1.gitlabNamespace)
+        val (_, _) = testsHelper.createRealDataProject(account2)
 
         val url = "$rootUrl/namespace/${project1.gitlabNamespace}"
 
@@ -283,23 +349,19 @@ class ProjectsIntegrationTest : AbstractIntegrationTest() {
             .expectOk()
             .returnsList(DataProjectDto::class.java)
 
-        assertThat(result.size).isEqualTo(1)
+        assertThat(result.size).isEqualTo(2)
 
-        assertThat(isUserInProject(project1, account2)).isTrue()
-        assertThat(isUserInProject(project2, account2)).isFalse()
-        assertThat(isUserInProject(project3, account2)).isFalse()
-        assertThat(isUserInProject(project21, account2)).isTrue()
-        assertThat(isUserInProject(project22, account2)).isTrue()
-
-        val initialSetOfIds = setOf<UUID>(
-            project1.id
+        val initialSetOfIds = setOf(
+            project1.id,
+            project4.id
         )
 
-        val initialSetOfSlug = setOf<String>(
-            project1.slug
+        val initialSetOfSlug = setOf(
+            project1.slug,
+            project4.slug
         )
 
-        val resultSetOfIds = result.map(DataProjectDto::id).toSet()
+        val resultSetOfIds = result.map(ProjectDto::id).toSet()
 
         assertThat(resultSetOfIds).isEqualTo(initialSetOfIds)
         assertThat(result.get(0).id).isIn(initialSetOfIds)
@@ -310,15 +372,20 @@ class ProjectsIntegrationTest : AbstractIntegrationTest() {
     @Rollback
     @Test
     @Disabled
-    fun `Can retrieve not own not member but public DataProjects by namespace`() {
+    fun `Can retrieve not own not member but public Projects by namespace`() {
         val (account1, _, _) = testsHelper.createRealUser(index = -1)
         val (account2, _, _) = testsHelper.createRealUser(index = -1)
 
         val (project1, _) = testsHelper.createRealDataProject(account1, public = true)
         val (project2, _) = testsHelper.createRealDataProject(account1, public = true)
-        val (project3, _) = testsHelper.createRealDataProject(account1, public = false)
+        val (_, _) = testsHelper.createRealDataProject(account1, public = false)
         val (project4, _) = testsHelper.createRealDataProject(account1, public = true)
-        val (project5, _) = testsHelper.createRealDataProject(account1, public = false)
+        val (_, _) = testsHelper.createRealDataProject(account1, public = false)
+        val (project11, _) = testsHelper.createRealCodeProject(account1, public = true)
+        val (project12, _) = testsHelper.createRealCodeProject(account1, public = true)
+        val (_, _) = testsHelper.createRealCodeProject(account1, public = false)
+        val (project14, _) = testsHelper.createRealCodeProject(account1, public = true)
+        val (_, _) = testsHelper.createRealCodeProject(account1, public = false)
 
         val (project21, _) = testsHelper.createRealDataProject(account2, namespace = project1.gitlabNamespace)
         val (project22, _) = testsHelper.createRealDataProject(account2)
@@ -329,26 +396,24 @@ class ProjectsIntegrationTest : AbstractIntegrationTest() {
             .expectOk()
             .returnsList(DataProjectDto::class.java)
 
-        assertThat(isUserInProject(project1, account2)).isFalse()
-        assertThat(isUserInProject(project2, account2)).isFalse()
-        assertThat(isUserInProject(project3, account2)).isFalse()
-        assertThat(isUserInProject(project4, account2)).isFalse()
-        assertThat(isUserInProject(project5, account2)).isFalse()
-        assertThat(isUserInProject(project21, account2)).isTrue()
-        assertThat(isUserInProject(project22, account2)).isTrue()
-
         assertThat(result.size).isEqualTo(3)
 
         val initialSetOfIds = setOf<UUID>(
             project1.id,
             project2.id,
-            project4.id
+            project4.id,
+            project11.id,
+            project12.id,
+            project14.id
         )
 
         val initialSetOfSlug = setOf<String>(
             project1.slug,
             project2.slug,
-            project4.slug
+            project4.slug,
+            project11.slug,
+            project12.slug,
+            project14.slug
         )
 
         val resultSetOfIds = result.map(DataProjectDto::id).toSet()
@@ -360,6 +425,12 @@ class ProjectsIntegrationTest : AbstractIntegrationTest() {
         assertThat(result.get(1).gitlabPath).isIn(initialSetOfSlug)
         assertThat(result.get(2).id).isIn(initialSetOfIds)
         assertThat(result.get(2).gitlabPath).isIn(initialSetOfSlug)
+        assertThat(result.get(3).id).isIn(initialSetOfIds)
+        assertThat(result.get(3).gitlabPath).isIn(initialSetOfSlug)
+        assertThat(result.get(4).id).isIn(initialSetOfIds)
+        assertThat(result.get(4).gitlabPath).isIn(initialSetOfSlug)
+        assertThat(result.get(5).id).isIn(initialSetOfIds)
+        assertThat(result.get(5).gitlabPath).isIn(initialSetOfSlug)
     }
 
     @Transactional
@@ -387,6 +458,32 @@ class ProjectsIntegrationTest : AbstractIntegrationTest() {
         assertThat(result.id).isEqualTo(project1.id)
         assertThat(result.gitlabPath).isEqualTo(project1.slug) //FIXME: Why is slug? Is it correct?
         assertThat(isUserInProject(project1, account2)).isTrue()
+    }
+
+    @Transactional
+    @Rollback
+    @Test
+    fun `Can retrieve not own not member but public CodeProject by namespace and slug`() {
+        val (account1, _, _) = testsHelper.createRealUser(index = -1)
+        val (account2, _, _) = testsHelper.createRealUser(index = -1)
+
+        val (project1, _) = testsHelper.createRealCodeProject(account1)
+        val (_, _) = testsHelper.createRealCodeProject(account1)
+        val (_, _) = testsHelper.createRealCodeProject(account1)
+
+        testsHelper.addRealUserToProject(project1.gitlabId, account2.person.gitlabId!!)
+
+        val (_, _) = testsHelper.createRealCodeProject(account2, slug = "slug-1", namespace = project1.gitlabNamespace)
+        val (_, _) = testsHelper.createRealCodeProject(account2)
+
+        val url = "$rootUrl/${project1.gitlabNamespace}/${project1.slug}"
+
+        val result = this.performGet(url, account2)
+            .expectOk()
+            .returns(CodeProjectDto::class.java)
+
+        assertThat(result.id).isEqualTo(project1.id)
+        assertThat(result.gitlabPath).isEqualTo(project1.slug) //FIXME: Why is slug? Is it correct?
     }
 
     @Transactional
@@ -453,6 +550,130 @@ class ProjectsIntegrationTest : AbstractIntegrationTest() {
     }
 
     @Transactional
+    @Rollback
+    @Test
+    fun `Can create DataProject`() {
+        val (account, _, _) = testsHelper.createRealUser()
+
+        val request = ProjectCreateRequest(
+            "test-project",
+            "mlreef",
+            "Test project",
+            "description",
+            true,
+            VisibilityScope.PUBLIC
+        )
+
+        val result = this.performPost("$rootUrl/data", account, request)
+            .expectOk()
+            .returns(DataProjectDto::class.java)
+
+        assertThat(result).isNotNull()
+    }
+
+    @Transactional
+    @Rollback
+    @Test
+    fun `Can create DataProject in data-project path`() {
+        val (account, _, _) = testsHelper.createRealUser()
+
+        val request = ProjectCreateRequest(
+            "test-project",
+            "mlreef",
+            "Test project",
+            "description",
+            true,
+            VisibilityScope.PUBLIC
+        )
+
+        val result = this.performPost(dataProjectRootUrl, account, request)
+            .expectOk()
+            .returns(DataProjectDto::class.java)
+
+        assertThat(result).isNotNull()
+    }
+
+    @Transactional
+    @Rollback
+    @Test
+    fun `Can create CodeProject`() {
+        val (account, _, _) = testsHelper.createRealUser()
+
+        val request = ProjectCreateRequest(
+            slug = "test-project",
+            namespace = "mlreef",
+            name = "Test project",
+            description = "Description of Test Project",
+            visibility = VisibilityScope.PUBLIC,
+            initializeWithReadme = true
+        )
+
+        val result = this.performPost("$rootUrl/code", account, request)
+            .expectOk()
+            .returns(CodeProjectDto::class.java)
+
+        assertThat(result).isNotNull()
+    }
+
+    @Transactional
+    @Rollback
+    @Test
+    fun `Can create CodeProject in code-project path`() {
+        val (account, _, _) = testsHelper.createRealUser()
+
+        val request = ProjectCreateRequest(
+            slug = "test-project",
+            namespace = "mlreef",
+            name = "Test project",
+            description = "Description of Test Project",
+            visibility = VisibilityScope.PUBLIC,
+            initializeWithReadme = true
+        )
+
+        val result = this.performPost(codeProjectRootUrl, account, request)
+            .expectOk()
+            .returns(CodeProjectDto::class.java)
+
+        assertThat(result).isNotNull()
+    }
+
+    @Transactional
+    @Rollback
+    @Test
+    fun `Cannot create duplicate DataProject`() {
+        val (account, _, _) = testsHelper.createRealUser()
+        val (project, _) = testsHelper.createRealDataProject(account)
+
+        val request = ProjectCreateRequest(
+            slug = project.slug,
+            namespace = project.gitlabPathWithNamespace,
+            name = project.name,
+            description = "New description",
+            initializeWithReadme = true,
+            visibility = VisibilityScope.PUBLIC
+        )
+
+        this.performPost("$rootUrl/data", account, request).expect4xx()
+    }
+
+    @Transactional
+    @Rollback
+    @Test
+    fun `Cannot create Project with invalid params`() {
+        val (account, _, _) = testsHelper.createRealUser()
+
+        val request = ProjectCreateRequest(
+            "",
+            "",
+            "",
+            "description",
+            true,
+            VisibilityScope.PUBLIC)
+
+        this.performPost("$rootUrl/data", account, request).expectBadRequest()
+    }
+
+    @Transactional
     @Test
     fun `Can update own DataProject`() {
         val (account1, _, _) = testsHelper.createRealUser(index = -1)
@@ -472,6 +693,38 @@ class ProjectsIntegrationTest : AbstractIntegrationTest() {
         val result = this.performPut(url, account1, request)
             .expectOk()
             .returns(DataProjectDto::class.java)
+
+        assertThat(result.name).isEqualTo(newProjectName)
+
+        //Ensure that public project cache was updated
+        verify(exactly = 1, timeout = ASYNC_UPDATE_OPERATIONS_WAIT_COMPLETION_TIMEOUT) {
+            publicProjectRepository.save(
+                eq(PublicProjectHash(result.gitlabId, result.id))
+            )
+        }
+    }
+
+    @Transactional
+    @Rollback
+    @Test
+    fun `Can update own CodeProject`() {
+        val (account1, _, _) = testsHelper.createRealUser(index = -1)
+        val (project1, _) = testsHelper.createRealCodeProject(account1)
+
+        val newProjectName = "New Test project"
+        val newDescription = "new description"
+
+        assertThat(newProjectName).isNotEqualTo(project1.gitlabPath)
+
+        assertThat(isUserInProject(project1, account1, AccessLevel.OWNER)).isTrue()
+
+        val request = ProjectUpdateRequest(newProjectName, newDescription)
+
+        val url = "$rootUrl/${project1.id}"
+
+        val result = this.performPut(url, account1, request)
+            .expectOk()
+            .returns(CodeProjectDto::class.java)
 
         assertThat(result.name).isEqualTo(newProjectName)
 
@@ -514,6 +767,33 @@ class ProjectsIntegrationTest : AbstractIntegrationTest() {
 
     @Transactional
     @Test
+    fun `Cannot update not-own CodeProject`() {
+        val (account1, _, _) = testsHelper.createRealUser()
+
+        val (account2, _, _) = testsHelper.createRealUser(index = -1)
+        val (project21, gitlabProject21) = testsHelper.createRealCodeProject(account2)
+
+        val newProjectName = "New Test project"
+        val newDescription = "new description"
+
+        val request = ProjectUpdateRequest(newProjectName, newDescription)
+
+        val url = "$rootUrl/${project21.id}"
+
+        this.performPut(url, account1, request).expect4xx()
+
+        assertThat(isUserInProject(project21, account1)).isFalse()
+
+        //One call during cache update. The correct case - no second call
+        verify(exactly = 1, timeout = ASYNC_UPDATE_OPERATIONS_WAIT_COMPLETION_TIMEOUT) {
+            publicProjectRepository.save(
+                eq(PublicProjectHash(gitlabProject21.id, project21.id))
+            )
+        }
+    }
+
+    @Transactional
+    @Test
     fun `Can delete own DataProject`() {
         val (account, _, _) = testsHelper.createRealUser()
         val (project, gitlabProject) = testsHelper.createRealDataProject(account)
@@ -541,6 +821,31 @@ class ProjectsIntegrationTest : AbstractIntegrationTest() {
     }
 
     @Transactional
+    @Rollback
+    @Test
+    fun `Can delete own CodeProject`() {
+        val (account, _, _) = testsHelper.createRealUser()
+        val (project, gitlabProject) = testsHelper.createRealCodeProject(account)
+
+        assertThat(codeProjectRepository.findByIdOrNull(project.id)).isNotNull()
+
+        assertThat(isUserInProject(project, account, AccessLevel.OWNER)).isTrue()
+
+        val url = "$rootUrl/${project.id}"
+
+        this.performDelete(url, account).expectNoContent()
+
+        assertThat(codeProjectRepository.findByIdOrNull(project.id)).isNull()
+
+        //Ensure that public project cache was updated
+        verify(exactly = 1, timeout = ASYNC_UPDATE_OPERATIONS_WAIT_COMPLETION_TIMEOUT) {
+            publicProjectRepository.delete(
+                eq(PublicProjectHash(gitlabProject.id, project.id))
+            )
+        }
+    }
+
+    @Transactional
     @Test
     @Disabled
     fun `Cannot delete not-own DataProject`() {
@@ -559,6 +864,34 @@ class ProjectsIntegrationTest : AbstractIntegrationTest() {
         this.performDelete(url, account1).expectForbidden()
 
         assertThat(dataProjectRepository.findByIdOrNull(project21.id)).isNotNull()
+
+        assertThat(isUserInProject(project21, account1, AccessLevel.DEVELOPER)).isTrue()
+
+        verify(exactly = 0, timeout = ASYNC_UPDATE_OPERATIONS_WAIT_COMPLETION_TIMEOUT) {
+            publicProjectRepository.delete(
+                eq(PublicProjectHash(gitlabProject21.id, project21.id))
+            )
+        }
+    }
+
+    @Transactional
+    @Rollback
+    @Test
+    fun `Cannot delete not-own CodeProject`() {
+        val (account1, _, _) = testsHelper.createRealUser()
+
+        val (account2, _, _) = testsHelper.createRealUser(index = -1)
+        val (project21, gitlabProject21) = testsHelper.createRealCodeProject(account2)
+
+        testsHelper.addRealUserToProject(project21.gitlabId, account1.person.gitlabId!!)
+
+        assertThat(codeProjectRepository.findByIdOrNull(project21.id)).isNotNull()
+
+        val url = "$rootUrl/${project21.id}"
+
+        this.performDelete(url, account1).expectForbidden()
+
+        assertThat(codeProjectRepository.findByIdOrNull(project21.id)).isNotNull()
 
         assertThat(isUserInProject(project21, account1, AccessLevel.DEVELOPER)).isTrue()
 
@@ -651,12 +984,40 @@ class ProjectsIntegrationTest : AbstractIntegrationTest() {
     @Transactional
     @Rollback
     @Test
-    fun `Owner can add a user to project`() {
+    fun `Owner can add a user to DataProject`() {
         val (account1, _, _) = testsHelper.createRealUser()
         val (account2, _, _) = testsHelper.createRealUser(index = 1)
         val (account3, _, _) = testsHelper.createRealUser(index = 2)
 
         val (project21, _) = testsHelper.createRealDataProject(account2)
+
+        testsHelper.addRealUserToProject(project21.gitlabId, account1.person.gitlabId!!)
+
+        val getUserUrl = "$rootUrl/${project21.id}/users"
+        val addUserUrl = "$rootUrl/${project21.id}/users/${account3.id}"
+
+        var returnedResult: List<UserInProjectDto> = this.performGet(getUserUrl, account2)
+            .expectOk()
+            .returnsList(UserInProjectDto::class.java)
+
+        assertThat(returnedResult.size).isEqualTo(2)
+
+        returnedResult = this.performPost(addUserUrl, account2)
+            .expectOk()
+            .returnsList(UserInProjectDto::class.java)
+
+        assertThat(returnedResult.size).isEqualTo(3)
+    }
+
+    @Transactional
+    @Rollback
+    @Test
+    fun `Owner can add a user to CodeProject`() {
+        val (account1, _, _) = testsHelper.createRealUser()
+        val (account2, _, _) = testsHelper.createRealUser(index = 1)
+        val (account3, _, _) = testsHelper.createRealUser(index = 2)
+
+        val (project21, _) = testsHelper.createRealCodeProject(account2)
 
         testsHelper.addRealUserToProject(project21.gitlabId, account1.person.gitlabId!!)
 
@@ -705,7 +1066,7 @@ class ProjectsIntegrationTest : AbstractIntegrationTest() {
 
         val url = "$rootUrl/${project1.id}/users"
 
-        val request = DataProjectUserMembershipRequest(userId = account2.id, level = "REPORTER", expiresAt = Instant.now().plus(Period.ofDays(1)))
+        val request = ProjectUserMembershipRequest(userId = account2.id, level = "REPORTER", expiresAt = Instant.now().plus(Period.ofDays(1)))
 
         val result = this.performPost(url, account1, request)
             .expectOk()
@@ -862,7 +1223,7 @@ class ProjectsIntegrationTest : AbstractIntegrationTest() {
         assertThat(result.size).isEqualTo(3)
     }
 
-    private fun isUserInProject(project: DataProject, account: Account, withLevel: AccessLevel? = null): Boolean {
+    private fun isUserInProject(project: Project, account: Account, withLevel: AccessLevel? = null): Boolean {
         val url = "$rootUrl/${project.id}/users/check/myself" + if (withLevel != null) "?level=${withLevel.name.toLowerCase()}" else ""
 
         return this.performGet(url, account).expectOk().returns(Boolean::class.java)

@@ -248,13 +248,12 @@ class IntegrationTestsHelper {
     }
 
 
-    fun generateProcessorsInDatabase() {
+    fun generateProcessorsInDatabase(person: Person? = null) {
         val _dataOp1 = createDataOperation()
         val _dataOp2 = createDataAlgorithm()
         val _dataOp3 = createDataVisualization()
 
-        val publisher = Person(UUID.randomUUID(), "subject", "name", 1)
-        personRepository.save(publisher)
+        val publisher = person ?: personRepository.save(Person(UUID.randomUUID(), "subject", "name", 1))
 
         dataOp1 = createProcessorVersion(_dataOp1, publisher)
         dataOp2 = createProcessorVersion(_dataOp2, publisher)

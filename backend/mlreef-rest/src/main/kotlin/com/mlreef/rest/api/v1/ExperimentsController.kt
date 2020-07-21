@@ -1,6 +1,7 @@
 package com.mlreef.rest.api.v1
 
 import com.mlreef.rest.Account
+import com.mlreef.rest.DataProject
 import com.mlreef.rest.DataProjectRepository
 import com.mlreef.rest.Experiment
 import com.mlreef.rest.ExperimentRepository
@@ -19,7 +20,7 @@ import com.mlreef.rest.exceptions.UnknownProjectException
 import com.mlreef.rest.external_api.gitlab.TokenDetails
 import com.mlreef.rest.feature.experiment.ExperimentService
 import com.mlreef.rest.feature.pipeline.PipelineService
-import com.mlreef.rest.feature.project.DataProjectService
+import com.mlreef.rest.feature.project.ProjectService
 import com.mlreef.utils.Slugs
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.security.access.prepost.PreAuthorize
@@ -38,7 +39,7 @@ import javax.validation.constraints.NotEmpty
 @RequestMapping("/api/v1/data-projects/{dataProjectId}/experiments")
 class ExperimentsController(
     val service: ExperimentService,
-    val dataProjectService: DataProjectService,
+    val dataProjectService: ProjectService<DataProject>,
     val pipelineService: PipelineService,
     val dataProjectRepository: DataProjectRepository,
     val experimentRepository: ExperimentRepository
