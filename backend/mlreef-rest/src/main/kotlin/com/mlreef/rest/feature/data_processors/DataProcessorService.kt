@@ -36,6 +36,10 @@ class DataProcessorService(
     val parser = MLPython3Parser()
     val log = LoggerFactory.getLogger(this::class.java)
 
+    fun getProcessorByProjectId(projectId: UUID): DataProcessor? {
+        return dataProcessorRepository.findAllByCodeProjectId(projectId).firstOrNull()
+    }
+
     fun parsePythonFile(url: URL): ProcessorVersion? {
         log.info("Parsing url $url for DataProcessors and annotations")
         val stream = url.openStream()

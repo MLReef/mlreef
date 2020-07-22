@@ -42,6 +42,14 @@ class ExperimentService(
 
     val log: Logger = LoggerFactory.getLogger(this::class.java)
 
+    fun getExperimentsForProject(projectId: UUID): List<Experiment> {
+        return experimentRepository.findAllByDataProjectId(projectId)
+    }
+
+    fun getExperimentById(projectId: UUID, experimentId: UUID): Experiment? {
+        return experimentRepository.findOneByDataProjectIdAndId(projectId, experimentId)
+    }
+
     /**
      * Creates an Experiment with the given Parameters in MLReef domain.
      * If a dataInstanceId is provided, the dataInstance must exist!

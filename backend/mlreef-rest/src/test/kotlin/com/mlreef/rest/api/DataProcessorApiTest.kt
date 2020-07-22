@@ -4,6 +4,8 @@ import com.mlreef.rest.AccessLevel
 import com.mlreef.rest.BaseEnvironment
 import com.mlreef.rest.CodeProject
 import com.mlreef.rest.CodeProjectRepository
+import com.mlreef.rest.DataAlgorithm
+import com.mlreef.rest.DataOperation
 import com.mlreef.rest.DataProcessor
 import com.mlreef.rest.DataProcessorRepository
 import com.mlreef.rest.DataProcessorType
@@ -34,7 +36,6 @@ import org.springframework.restdocs.request.RequestDocumentation.parameterWithNa
 import org.springframework.restdocs.request.RequestDocumentation.requestParameters
 import org.springframework.test.annotation.Rollback
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
-import java.util.UUID
 import java.util.UUID.randomUUID
 import javax.transaction.Transactional
 
@@ -50,20 +51,10 @@ class DataProcessorApiTest : AbstractRestApiTest() {
     val rootUrl = "/api/v1/data-processors"
     val rootUrl2 = "/api/v1/code-projects"
 
-    @Autowired
-    private lateinit var dataProcessorRepository: DataProcessorRepository
-
-    @Autowired
-    private lateinit var processorVersionRepository: ProcessorVersionRepository
-
-    @Autowired
-    private lateinit var dataProcessorService: DataProcessorService
-
-    @Autowired
-    private lateinit var codeProjectRepository: CodeProjectRepository
-
-    @Autowired
-    private lateinit var pipelineTestPreparationTrait: PipelineTestPreparationTrait
+    @Autowired private lateinit var dataProcessorRepository: DataProcessorRepository
+    @Autowired private lateinit var processorVersionRepository: ProcessorVersionRepository
+    @Autowired private lateinit var codeProjectRepository: CodeProjectRepository
+    @Autowired private lateinit var pipelineTestPreparationTrait: PipelineTestPreparationTrait
 
     @BeforeEach
     fun clearRepo() {
@@ -328,22 +319,6 @@ class DataProcessorApiTest : AbstractRestApiTest() {
                 objectMapper.readValue(it.response.contentAsByteArray, constructCollectionType)
             }
         return returnedResult
-    }
-
-
-    private fun createDataProcessor(type: DataProcessorType = DataProcessorType.OPERATION, codeProjectId: UUID, inputDataType: DataType = DataType.IMAGE, outputDataType: DataType = DataType.IMAGE): DataProcessor {
-        val id = randomUUID()
-        val entity = dataProcessorService.createForCodeProject(
-            id = id, name = "name",
-            slug = "slug-$id", parameters = listOf(),
-            author = null, description = "description", visibilityScope = VisibilityScope.PUBLIC,
-            outputDataType = outputDataType,
-            inputDataType = inputDataType,
-            codeProjectId = codeProjectId,
-            command = "command1",
-            type = type
-        )
-        return entity
     }
 
     private fun dataProcessorCreateRequestFields(): List<FieldDescriptor> {

@@ -6,10 +6,28 @@ import com.mlreef.rest.AccountRepository
 import com.mlreef.rest.AccountToken
 import com.mlreef.rest.AccountTokenRepository
 import com.mlreef.rest.ApplicationProfiles
+import com.mlreef.rest.DataProcessor
+import com.mlreef.rest.DataProcessorInstance
+import com.mlreef.rest.DataProcessorInstanceRepository
+import com.mlreef.rest.DataProcessorType
+import com.mlreef.rest.DataType
+import com.mlreef.rest.Experiment
+import com.mlreef.rest.ExperimentRepository
+import com.mlreef.rest.FileLocation
+import com.mlreef.rest.FileLocationType
 import com.mlreef.rest.I18N
+import com.mlreef.rest.ParameterType
 import com.mlreef.rest.Person
 import com.mlreef.rest.PersonRepository
+import com.mlreef.rest.PipelineConfig
+import com.mlreef.rest.PipelineConfigRepository
+import com.mlreef.rest.PipelineJobInfo
+import com.mlreef.rest.PipelineType
+import com.mlreef.rest.ProcessorParameter
+import com.mlreef.rest.ProcessorParameterRepository
+import com.mlreef.rest.ProcessorVersion
 import com.mlreef.rest.Project
+import com.mlreef.rest.VisibilityScope
 import com.mlreef.rest.external_api.gitlab.GitlabRestClient
 import com.mlreef.rest.external_api.gitlab.GitlabVisibility
 import com.mlreef.rest.external_api.gitlab.TokenDetails
@@ -24,6 +42,7 @@ import com.mlreef.rest.external_api.gitlab.dto.GitlabUserInGroup
 import com.mlreef.rest.external_api.gitlab.dto.GitlabUserToken
 import com.mlreef.rest.external_api.gitlab.dto.OAuthToken
 import com.mlreef.rest.feature.caches.PublicProjectsCacheService
+import com.mlreef.rest.feature.data_processors.DataProcessorService
 import com.mlreef.rest.feature.pipeline.PipelineService
 import com.mlreef.rest.helpers.UserInProject
 import com.mlreef.rest.security.MlReefSessionRegistry
@@ -112,6 +131,22 @@ abstract class AbstractRestApiTest : AbstractRestTest() {
 
     @Autowired
     protected lateinit var pipelineService: PipelineService
+
+    @Autowired
+    private lateinit var dataProcessorInstanceRepository: DataProcessorInstanceRepository
+
+    @Autowired
+    private lateinit var processorParameterRepository: ProcessorParameterRepository
+
+    @Autowired
+    protected lateinit var experimentRepository: ExperimentRepository
+
+    @Autowired
+    protected lateinit var pipelineConfigRepository: PipelineConfigRepository
+
+    @Autowired
+    private lateinit var dataProcessorService: DataProcessorService
+
 
     private val passwordEncoder: PasswordEncoder = BCryptPasswordEncoder()
 
@@ -281,11 +316,6 @@ abstract class AbstractRestApiTest : AbstractRestTest() {
 
     fun mockGetUserProjectsList1(projectIdLevelMap: MutableMap<UUID, AccessLevel?>, returnAccount: Account? = null) {
         val actualAccount = returnAccount ?: account
-//        every { authService.findAccountByGitlabId(any()) } answers { actualAccount }
-//        every { authService.createTokenDetails(any(), any(), any()) } answers {
-//            val token = this.args[0] as String
-//            tokenDetails(actualAccount, token, projectIdLevelMap)
-//        }
         every { sessionRegistry.retrieveFromSession(any()) } answers {
             val token = this.args[0] as String
             tokenDetails(actualAccount, token, projectIdLevelMap, mutableMapOf())
@@ -358,6 +388,83 @@ abstract class AbstractRestApiTest : AbstractRestTest() {
         return account
     }
 
+    protected fun createExperiment(dataProjectId: UUID, dataOp: ProcessorVersion, slug: String = "experiment-slug", dataInstanceId: UUID? = null): Experiment {
+        val processorInstance = DataProcessorInstance(UUID.randomUUID(), dataOp)
+        val processorInstance2 = DataProcessorInstance(UUID.randomUUID(), dataOp)
+
+        val processorParameter = ProcessorParameter(
+            id = UUID.randomUUID(), processorVersionId = processorInstance.dataProcessorId,
+            name = "param1", type = ParameterType.STRING,
+            defaultValue = "default", description = "not empty",
+            order = 1, required = true)
+
+        processorInstance.addParameterInstances(processorParameter, "value")
+        processorInstance2.addParameterInstances(processorParameter.copy(processorVersionId = processorInstance2.dataProcessorId), "value")
+        processorParameterRepository.save(processorParameter)
+        dataProcessorInstanceRepository.save(processorInstance)
+        dataProcessorInstanceRepository.save(processorInstance2)
+        val experiment1 = Experiment(
+            slug = slug,
+            name = "Experiment Name",
+            dataInstanceId = dataInstanceId,
+            id = UUID.randomUUID(),
+            dataProjectId = dataProjectId,
+            sourceBranch = "source",
+            targetBranch = "target",
+            postProcessing = arrayListOf(processorInstance2),
+            pipelineJobInfo = PipelineJobInfo(
+                gitlabId = 4,
+                createdAt = I18N.dateTime(),
+                commitSha = "sha",
+                ref = "branch",
+                committedAt = I18N.dateTime(),
+                secret = "secret"
+            ),
+            processing = processorInstance,
+            inputFiles = listOf(FileLocation(UUID.randomUUID(), FileLocationType.PATH, "location1")))
+
+        return experimentRepository.save(experiment1)
+    }
+
+    protected fun createPipelineConfig(dataProcessorInstance: DataProcessorInstance, dataProjectId: UUID, slug: String): PipelineConfig {
+        val entity = PipelineConfig(
+            id = UUID.randomUUID(),
+            pipelineType = PipelineType.DATA, slug = slug, name = "name",
+            dataProjectId = dataProjectId,
+            sourceBranch = "source", targetBranchPattern = "target",
+            dataOperations = arrayListOf(dataProcessorInstance))
+        pipelineConfigRepository.save(entity)
+        return entity
+    }
+
+    protected fun createDataProcessor(type: DataProcessorType = DataProcessorType.OPERATION, codeProjectId: UUID, inputDataType: DataType = DataType.IMAGE, outputDataType: DataType = DataType.IMAGE): DataProcessor {
+        val id = UUID.randomUUID()
+        val entity = dataProcessorService.createForCodeProject(
+            id = id, name = "name",
+            slug = "slug-$id", parameters = listOf(),
+            author = null, description = "description", visibilityScope = VisibilityScope.PUBLIC,
+            outputDataType = outputDataType,
+            inputDataType = inputDataType,
+            codeProjectId = codeProjectId,
+            command = "command1",
+            type = type
+        )
+        return entity
+    }
+
+    protected fun createDataProcessorInstance(dataOp: ProcessorVersion): DataProcessorInstance {
+        val dataProcessorInstance = DataProcessorInstance(UUID.randomUUID(), dataOp)
+        val processorParameter = ProcessorParameter(
+            id = UUID.randomUUID(), processorVersionId = dataProcessorInstance.dataProcessorId,
+            name = "param1", type = ParameterType.STRING,
+            defaultValue = "default", description = "not empty",
+            order = 1, required = true)
+        dataProcessorInstance.addParameterInstances(
+            processorParameter, "value")
+        processorParameterRepository.save(processorParameter)
+        return dataProcessorInstanceRepository.save(dataProcessorInstance)
+    }
+
     private fun tokenDetails(actualAccount: Account,
                              token: String,
                              projectIdLevelMap: MutableMap<UUID, AccessLevel?>,
@@ -426,6 +533,23 @@ abstract class AbstractRestApiTest : AbstractRestTest() {
             fieldWithPath(prefix + "sort.sorted").type(JsonFieldType.BOOLEAN).description("Is the result sorted. Request parameter 'sort', values '=field,direction(asc,desc)'"),
             fieldWithPath(prefix + "sort.unsorted").type(JsonFieldType.BOOLEAN).description("Is the result unsorted"),
             fieldWithPath(prefix + "sort.empty").type(JsonFieldType.BOOLEAN).description("Is the sort empty")
+        )
+    }
+
+    protected fun experimentDtoResponseFields(prefix: String = ""): List<FieldDescriptor> {
+        return listOf(
+            fieldWithPath(prefix + "id").type(JsonFieldType.STRING).description("UUID"),
+            fieldWithPath(prefix + "data_project_id").type(JsonFieldType.STRING).description("Id of DataProject"),
+            fieldWithPath(prefix + "data_instance_id").optional().type(JsonFieldType.STRING).description("Id of DataPipelineInstance"),
+            fieldWithPath(prefix + "slug").type(JsonFieldType.STRING).description("Local slug scoped to DataProject"),
+            fieldWithPath(prefix + "name").type(JsonFieldType.STRING).description("Name of that Experiment"),
+            fieldWithPath(prefix + "pipeline_job_info").type(JsonFieldType.OBJECT).optional().description("An optional PipelineInfo describing the gitlab pipeline info"),
+            fieldWithPath(prefix + "json_blob").type(JsonFieldType.STRING).optional().description("Json object describing experiments epochs statistics"),
+            fieldWithPath(prefix + "post_processing").optional().type(JsonFieldType.ARRAY).optional().description("An optional List of DataProcessors used during PostProcessing"),
+            fieldWithPath(prefix + "processing").optional().type(JsonFieldType.OBJECT).optional().description("An optional DataAlgorithm"),
+            fieldWithPath(prefix + "status").type(JsonFieldType.STRING).description("Status of experiment"),
+            fieldWithPath(prefix + "source_branch").type(JsonFieldType.STRING).description("Branch name"),
+            fieldWithPath(prefix + "target_branch").type(JsonFieldType.STRING).description("Branch name")
         )
     }
 }

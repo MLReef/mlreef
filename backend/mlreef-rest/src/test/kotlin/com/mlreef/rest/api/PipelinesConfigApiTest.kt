@@ -1,18 +1,9 @@
 package com.mlreef.rest.api
 
 import com.mlreef.rest.AccessLevel
-import com.mlreef.rest.DataAlgorithm
-import com.mlreef.rest.DataOperation
-import com.mlreef.rest.DataProcessorInstance
 import com.mlreef.rest.DataProcessorInstanceRepository
 import com.mlreef.rest.DataProject
-import com.mlreef.rest.DataVisualization
-import com.mlreef.rest.ParameterType
 import com.mlreef.rest.Person
-import com.mlreef.rest.PipelineConfig
-import com.mlreef.rest.PipelineConfigRepository
-import com.mlreef.rest.PipelineType
-import com.mlreef.rest.ProcessorParameter
 import com.mlreef.rest.ProcessorParameterRepository
 import com.mlreef.rest.ProcessorVersion
 import com.mlreef.rest.api.v1.dto.PipelineConfigDto
@@ -29,8 +20,6 @@ import org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath
 import org.springframework.restdocs.payload.PayloadDocumentation.responseFields
 import org.springframework.test.annotation.Rollback
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
-import java.util.UUID
-import java.util.UUID.randomUUID
 import javax.transaction.Transactional
 
 class PipelinesConfigApiTest : AbstractRestApiTest() {
@@ -42,9 +31,6 @@ class PipelinesConfigApiTest : AbstractRestApiTest() {
     private lateinit var dataProject: DataProject
     private lateinit var dataProject2: DataProject
     val rootUrl = "/api/v1/pipelines"
-
-    @Autowired
-    private lateinit var pipelineConfigRepository: PipelineConfigRepository
 
     @Autowired
     private lateinit var dataProcessorInstanceRepository: DataProcessorInstanceRepository
@@ -76,7 +62,7 @@ class PipelinesConfigApiTest : AbstractRestApiTest() {
     @Tag(TestTags.RESTDOC)
     fun `Can retrieve all own Pipelines`() {
 
-        val dataProcessorInstance = createDataProcessorInstance()
+        val dataProcessorInstance = createDataProcessorInstance(dataOp1)
         createPipelineConfig(dataProcessorInstance, dataProject.id, "slug1")
         createPipelineConfig(dataProcessorInstance, dataProject.id, "slug2")
 
@@ -96,7 +82,7 @@ class PipelinesConfigApiTest : AbstractRestApiTest() {
     @Test
     @Tag(TestTags.RESTDOC)
     fun `Can retrieve specific PipelineConfig`() {
-        val dataProcessorInstance = createDataProcessorInstance()
+        val dataProcessorInstance = createDataProcessorInstance(dataOp1)
         val entity = createPipelineConfig(dataProcessorInstance, dataProject.id, "slug")
 
         this.mockMvc.perform(
@@ -106,30 +92,6 @@ class PipelinesConfigApiTest : AbstractRestApiTest() {
                 responseFields(pipelineConfigDtoResponseFields())
                     .and(dataProcessorInstanceFields("data_operations[].")))
 
-    }
-
-    private fun createPipelineConfig(dataProcessorInstance: DataProcessorInstance, dataProjectId: UUID, slug: String): PipelineConfig {
-        val entity = PipelineConfig(
-            id = randomUUID(),
-            pipelineType = PipelineType.DATA, slug = slug, name = "name",
-            dataProjectId = dataProjectId,
-            sourceBranch = "source", targetBranchPattern = "target",
-            dataOperations = arrayListOf(dataProcessorInstance))
-        pipelineConfigRepository.save(entity)
-        return entity
-    }
-
-    private fun createDataProcessorInstance(): DataProcessorInstance {
-        val dataProcessorInstance = DataProcessorInstance(randomUUID(), dataOp1)
-        val processorParameter = ProcessorParameter(
-            id = randomUUID(), processorVersionId = dataProcessorInstance.dataProcessorId,
-            name = "param1", type = ParameterType.STRING,
-            defaultValue = "default", description = "not empty",
-            order = 1, required = true)
-        dataProcessorInstance.addParameterInstances(
-            processorParameter, "value")
-        processorParameterRepository.save(processorParameter)
-        return dataProcessorInstanceRepository.save(dataProcessorInstance)
     }
 
     private fun pipelineConfigDtoResponseFields(prefix: String = ""): List<FieldDescriptor> {

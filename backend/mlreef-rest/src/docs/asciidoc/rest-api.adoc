@@ -175,7 +175,31 @@ operation::genericprojects-retrieve-by-namespace[snippets='curl-request,response
 
 === GET /projects/:namespace/:slug
 
-operation::genericprojects-retrieve-by-namespace-slug[snippets='curl-request,response-body,response-fields']
+operation::project-retrieve-one-by-namespace-slug[snippets='curl-request,response-body,response-fields']
+
+=== GET /projects/:namespace/:slug/users
+
+operation::project-retrieve-users-list-by-namespace-slug[snippets='curl-request,response-body,response-fields']
+
+=== GET /projects/:namespace/:slug/experiments
+
+operation::experiments-retrieve-all-by-namespace-slug[snippets='curl-request,response-body,response-fields']
+
+=== GET /projects/:namespace/:slug/experiments/:experimentId
+
+operation::experiments-retrieve-one-by-namespace-slug[snippets='curl-request,response-body,response-fields']
+
+=== GET /projects/:namespace/:slug/pipelines
+
+operation::project-pipelineconfig-retrieve-all-by-namespace-slug[snippets='curl-request,response-body,response-fields']
+
+=== GET /projects/:namespace/:slug/pipelines/:pipelineId
+
+operation::project-pipelineconfig-retrieve-one-by-namespace-slug[snippets='curl-request,response-body,response-fields']
+
+=== GET /projects/:namespace/:slug/processor
+
+operation::data-processors-codeproject-retrieve-one-by-namespace-slug[snippets='curl-request,response-body,response-fields']
 
 [[code-projects]]
 == CodeProjects - /code-projects

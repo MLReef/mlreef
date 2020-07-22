@@ -3,7 +3,9 @@ package com.mlreef.rest.config.security
 import com.mlreef.rest.DataProcessorRepository
 import com.mlreef.rest.PipelineConfigRepository
 import com.mlreef.rest.PipelineInstanceRepository
+import com.mlreef.rest.Project
 import com.mlreef.rest.feature.caches.PublicProjectsCacheService
+import com.mlreef.rest.feature.project.ProjectService
 import com.mlreef.rest.security.MlReefMethodSecurityExpressionHandler
 import com.mlreef.rest.security.MlReefPermissionEvaluator
 import org.springframework.context.annotation.Configuration
@@ -18,6 +20,7 @@ class MethodSecurityConfig(
     private val publicProjectsCache: PublicProjectsCacheService,
     private val dataProcessorRepository: DataProcessorRepository,
     private val pipelineConfigRepository: PipelineConfigRepository,
+    private val projectService: ProjectService<Project>,
     private val pipelineInstanceRepository: PipelineInstanceRepository
 ) : GlobalMethodSecurityConfiguration() {
     override fun createExpressionHandler(): MethodSecurityExpressionHandler {
@@ -25,6 +28,7 @@ class MethodSecurityConfig(
             publicProjectsCache,
             dataProcessorRepository,
             pipelineConfigRepository,
+            projectService,
             pipelineInstanceRepository
         )
         expressionHandler.setPermissionEvaluator(MlReefPermissionEvaluator())

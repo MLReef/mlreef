@@ -7,6 +7,7 @@ import com.mlreef.rest.CodeProjectRepository
 import com.mlreef.rest.DataProject
 import com.mlreef.rest.DataProjectRepository
 import com.mlreef.rest.Person
+import com.mlreef.rest.ProcessorVersion
 import com.mlreef.rest.Project
 import com.mlreef.rest.VisibilityScope
 import com.mlreef.rest.api.v1.ProjectCreateRequest
@@ -53,6 +54,9 @@ class ProjectsApiTest : AbstractRestApiTest() {
     private lateinit var accountSubjectPreparationTrait: AccountSubjectPreparationTrait
 
     @Autowired
+    private lateinit var pipelineTestPreparationTrait: PipelineTestPreparationTrait
+
+    @Autowired
     private lateinit var dataProjectRepository: DataProjectRepository
 
     @Autowired
@@ -67,6 +71,7 @@ class ProjectsApiTest : AbstractRestApiTest() {
     @BeforeEach
     @AfterEach
     fun setUp() {
+        experimentRepository.deleteAll()
         codeProjectRepository.deleteAll()
         dataProjectRepository.deleteAll()
 
@@ -85,6 +90,11 @@ class ProjectsApiTest : AbstractRestApiTest() {
         // To update user permissions before each test
         sessionService.killAllSessions("username0000")
 //        this.mockGetUserProjectsList(listOf(codeProject.id), account, AccessLevel.OWNER)
+    }
+
+    private fun generatePipelines(): Pair<ProcessorVersion, DataProject> {
+        pipelineTestPreparationTrait.apply()
+        return Pair(pipelineTestPreparationTrait.dataOp1, pipelineTestPreparationTrait.dataProject)
     }
 
     @Transactional
