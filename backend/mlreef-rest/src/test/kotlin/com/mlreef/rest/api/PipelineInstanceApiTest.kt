@@ -1,17 +1,13 @@
 package com.mlreef.rest.api
 
 import com.mlreef.rest.AccessLevel
-import com.mlreef.rest.DataAlgorithm
-import com.mlreef.rest.DataOperation
 import com.mlreef.rest.DataProcessorInstance
 import com.mlreef.rest.DataProcessorInstanceRepository
 import com.mlreef.rest.DataProject
-import com.mlreef.rest.DataVisualization
 import com.mlreef.rest.FileLocation
 import com.mlreef.rest.ParameterType
 import com.mlreef.rest.Person
 import com.mlreef.rest.PipelineConfig
-import com.mlreef.rest.PipelineConfigRepository
 import com.mlreef.rest.PipelineInstanceRepository
 import com.mlreef.rest.PipelineType
 import com.mlreef.rest.ProcessorParameter
@@ -47,9 +43,6 @@ class PipelineInstanceApiTest : AbstractRestApiTest() {
     private lateinit var dataProject: DataProject
     private lateinit var dataProject2: DataProject
     val rootUrl = "/api/v1/pipelines"
-
-    @Autowired
-    private lateinit var pipelineConfigRepository: PipelineConfigRepository
 
     @Autowired
     private lateinit var pipelineInstanceRepository: PipelineInstanceRepository

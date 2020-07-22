@@ -97,13 +97,15 @@ class SecurityConfiguration(private val provider: AuthenticationProvider) : WebS
         private const val DATA_PROJECTS_PUBLIC_URL = "/api/v1/data-projects/public"
         private const val MARKETPLACE_PUBLIC_URL = "/api/v1/explore/entries/public"
         private const val PASSWORDS_URL = "/api/v1/password/**"
+        private const val PROJECTS_URL = "/api/v1/projects/**"
 
         private val visitorsUrls = arrayOf(
             MARKETPLACE_PUBLIC_URL,
             GENERIC_PROJECTS_PUBLIC_URL,
             CODE_PROJECTS_PUBLIC_URL,
             DATA_PROJECTS_PUBLIC_URL,
-            PASSWORDS_URL
+            PASSWORDS_URL,
+            PROJECTS_URL
         )
 
         private val PROTECTED_MATCHER = AndRequestMatcher(

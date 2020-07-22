@@ -55,6 +55,15 @@ class PipelineService(
 
     val log: Logger = LoggerFactory.getLogger(this::class.java)
 
+    fun getPipelinesForProject(projectId: UUID): List<PipelineConfig> {
+        return pipelineConfigRepository.findAllByDataProjectId(projectId)
+    }
+
+    fun getPipelineById(projectId: UUID, pipelineId: UUID): PipelineConfig? {
+        return pipelineConfigRepository.findOneByDataProjectIdAndId(projectId, pipelineId)
+    }
+
+
     fun createPipelineConfig(
         authorId: UUID,
         dataProjectId: UUID,

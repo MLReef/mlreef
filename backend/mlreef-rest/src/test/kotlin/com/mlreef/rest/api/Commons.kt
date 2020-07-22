@@ -400,7 +400,7 @@ internal class PipelineTestPreparationTrait : AccountSubjectPreparationTrait() {
         subject = account.person
     }
 
-    override fun deleteAll() {
+    public override fun deleteAll() {
         parameterInstanceRepository.deleteAll()
         dataProcessorInstanceRepository.deleteAll()
         experimentRepository.deleteAll()

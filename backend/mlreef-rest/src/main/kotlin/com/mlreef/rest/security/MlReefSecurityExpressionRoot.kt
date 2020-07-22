@@ -4,11 +4,13 @@ import com.mlreef.rest.AccessLevel
 import com.mlreef.rest.DataProcessorRepository
 import com.mlreef.rest.PipelineConfigRepository
 import com.mlreef.rest.PipelineInstanceRepository
+import com.mlreef.rest.Project
 import com.mlreef.rest.api.v1.dto.DataProcessorDto
 import com.mlreef.rest.api.v1.dto.PipelineConfigDto
 import com.mlreef.rest.api.v1.dto.toDto
 import com.mlreef.rest.external_api.gitlab.TokenDetails
 import com.mlreef.rest.feature.caches.PublicProjectsCacheService
+import com.mlreef.rest.feature.project.ProjectService
 import com.mlreef.rest.helpers.DataClassWithId
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.security.access.expression.SecurityExpressionRoot
@@ -21,6 +23,7 @@ class MlReefSecurityExpressionRoot(
     private val publicProjectsCache: PublicProjectsCacheService,
     private val dataProcessorRepository: DataProcessorRepository,
     private val pipelineConfigRepository: PipelineConfigRepository,
+    private val projectService: ProjectService<Project>,
     private val pipelineInstanceRepository: PipelineInstanceRepository)
     : SecurityExpressionRoot(authentication), MethodSecurityExpressionOperations {
 
@@ -48,12 +51,19 @@ class MlReefSecurityExpressionRoot(
         return ((this.principal as? TokenDetails)?.projects?.get(projectId)?.accessCode ?: 0) >= level.accessCode
     }
 
+    fun hasAccessToProject(namespace: String, slug: String, minAccessLevel: String): Boolean {
+        val projectId = projectService.getProjectsByNamespaceAndPath(namespace, slug)?.id
+            ?: return false
+        return hasAccessToProject(projectId, minAccessLevel)
+    }
+
     fun postHasAccessToProject(minAccessLevel: String): Boolean {
         val id = getIdFromContext()
         return if (id != null) hasAccessToProject(id, minAccessLevel) else false
     }
 
     fun canViewProject(projectId: UUID) = hasAccessToProject(projectId, AccessLevel.VISITOR.name)
+    fun canViewProject(namespace: String, slug: String) = hasAccessToProject(namespace, slug, AccessLevel.VISITOR.name)
     fun postCanViewProject() = postHasAccessToProject(AccessLevel.VISITOR.name)
 
     fun hasAccessToPipeline(pipelineId: UUID, minAccessLevel: String): Boolean {
@@ -92,8 +102,20 @@ class MlReefSecurityExpressionRoot(
     fun userInProject(projectId: UUID): Boolean = ((this.principal as? TokenDetails)?.projects?.containsKey(projectId)
         ?: false)
 
+    fun userInProject(namespace: String, slug: String): Boolean {
+        val projectId = projectService.getProjectsByNamespaceAndPath(namespace, slug)?.id
+            ?: return false
+        return userInProject(projectId)
+    }
+
     private fun projectIsPublic(projectId: UUID): Boolean {
         return publicProjectsCache.isProjectPublic(projectId)
+    }
+
+    fun projectIsPublic(namespace: String, slug: String): Boolean {
+        val projectId = projectService.getProjectsByNamespaceAndPath(namespace, slug)?.id
+            ?: return false
+        return projectIsPublic(projectId)
     }
 
     @Deprecated("why not accesslevel maintainer?")
