@@ -1,0 +1,28 @@
+build frontend:
+  extends: [".except-docu-branches"]
+  stage: build
+  only:
+    changes:
+      - web/**/*
+  # This docker version should correspond with the on docker version in the EC2 deployment
+  image: docker:19.03.5                                     # https://hub.docker.com/_/docker/
+  services:
+    - docker:dind
+  cache:
+    key: "mlreef-node-cache"
+    paths:
+      - /usr/local/lib/node_modules
+      - web/node_modules
+  before_script:
+    - export TAG="${CI_COMMIT_REF_SLUG}"
+    - if [ $CI_COMMIT_REF_SLUG = "master" ]; then export TAG="latest";  fi          # follow docker naming conventions
+    - export GATEWAY_IMAGE_PATH=$CI_REGISTRY_IMAGE/gateway:$TAG
+    - export BACKEND_IMAGE_PATH=$CI_REGISTRY_IMAGE/backend:$TAG
+    - export     EPF_IMAGE_PATH=$CI_REGISTRY_IMAGE/epf:$TAG
+  script: |
+    web/bin/ci-build-frontend
+    docker push "$GATEWAY_IMAGE_PATH"
+  artifacts:
+    expire_in: 3 days
+    paths:
+      - web/coverage

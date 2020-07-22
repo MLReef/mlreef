@@ -29,10 +29,10 @@ curl "http://$URL:8080/api/v1/auth/register" -X POST \
     "password" : "'$PASSWORD'",
     "name" : "Smoke Test User '$USER'"
     }'                                        \
-    | jq                                      \
+    | bin/jq                                      \
     | tee out/test/register.response.tmp
 
-jq -r ".token" < out/test/register.response.tmp > out/test/token.tmp
+bin/jq -r ".token" < out/test/register.response.tmp > out/test/token.tmp
 export TOKEN="$(cat out/test/token.tmp)"
 if [ "$TOKEN" = "" ]; then
   echo >&2 "ERROR: TOKEN is empty."
@@ -56,12 +56,12 @@ curl "http://$URL:8080/api/v1/data-projects" -X POST \
     "initialize_with_readme" : true,
     "visibility" : "PUBLIC"
   }'                                          \
-  | jq                                        \
+  | bin/jq                                        \
   | tee out/test/create-data-project.response.json
 
-jq < out/test/create-data-project.response.json
+bin/jq < out/test/create-data-project.response.json
 
-jq -r ".id" < out/test/create-data-project.response.json > out/test/project-id.tmp
+bin/jq -r ".id" < out/test/create-data-project.response.json > out/test/project-id.tmp
 export PROJECT_ID=$(cat out/test/project-id.tmp)
 echo "Project_ID=$PROJECT_ID"
 if [ "$PROJECT_ID" = "" ]; then
@@ -72,7 +72,7 @@ if [ "$PROJECT_ID" = "" ]; then
 fi
 
 
-jq -r ".gitlab_id" < out/test/create-data-project.response.json > out/test/gitlab-project-id.tmp
+bin/jq -r ".gitlab_id" < out/test/create-data-project.response.json > out/test/gitlab-project-id.tmp
 export GITLAB_PROJECT_ID=$(cat out/test/gitlab-project-id.tmp)
 if [ "$GITLAB_PROJECT_ID" = "" ]; then
   echo >&2 "ERROR: GITLAB_PROJECT_ID is empty."

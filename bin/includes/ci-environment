@@ -31,14 +31,14 @@ export  CI_REGISTRY_IMAGE="${CI_REGISTRY_IMAGE:-registry.gitlab.com/mlreef/mlree
 echo "  CI_REGISTRY_IMAGE= $CI_REGISTRY_IMAGE"
 
 export GITLAB_ADMIN_TOKEN=${GITLAB_ADMIN_TOKEN:-$(randomString 30)}
-echo  "GITLAB_ADMIN_TOKEN= $GITLAB_ADMIN_TOKEN"
+echo " GITLAB_ADMIN_TOKEN= $GITLAB_ADMIN_TOKEN"
 
 export  EC2_INSTANCE_NAME="mlreef-$CI_COMMIT_REF_SLUG"       # environment name and url are set separately
-echo  " EC2_INSTANCE_NAME= $EC2_INSTANCE_NAME"
+echo "  EC2_INSTANCE_NAME= $EC2_INSTANCE_NAME"
 
 export        SSH_KEYFILE="${SSH_KEYFILE:-bin/resources/development.pem}"
-echo  "       SSH_KEYFILE= $SSH_KEYFILE"
-chmod 400    $SSH_KEYFILE # ensure correct permissions on the keyfile
+echo "        SSH_KEYFILE= $SSH_KEYFILE"
+chmod 400   "$SSH_KEYFILE" # ensure correct permissions on the keyfile
 
 
 export TAG="${CI_COMMIT_REF_SLUG}"

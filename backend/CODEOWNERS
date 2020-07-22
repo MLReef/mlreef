@@ -1,7 +1,0 @@
-CODEOWNERS @flohin
-/mlreef-rest/src/ @flohin
-/mlreef-domain/src/ @flohin
-/mlreef-rest/src/main/kotlin/com/mlreef/rest/external_api/gitlab/ @si-ge-st
-rest-api.adoc @andres46 @flohin @si-ge-st
-.gitlab-ci*.yml @flohin
-

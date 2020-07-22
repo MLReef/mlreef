@@ -9,22 +9,22 @@ alias ci-exec-s5="docker run --rm \$DOCKER_OPTS       \
   --env CI_REGISTRY_USER=\$CI_REGISTRY_USER           \
   --env CI_REGISTRY_PASSWORD=\$CI_REGISTRY_PASSWORD   \
   --volume \$HOME:/root                               \
-  --volume \$PWD:/workdir                             \
-  --workdir /workdir                                  \
+  --volume  \$(pwd):\$(pwd)                           \
+  --workdir \$(pwd)                                   \
   registry.gitlab.com/systemkern/s5:latest-aws        \
 "
 
 alias ci-exec-newman="docker run --rm \$DOCKER_OPTS   \
   --volume \$HOME:/root                               \
-  --volume \$PWD:/workdir                             \
-  --workdir /workdir                                  \
+  --volume  \$(pwd):\$(pwd)                           \
+  --workdir \$(pwd)                                   \
   registry.gitlab.com/systemkern/s5:latest-newman     \
 "
 
 alias ci-exec-java="docker run --rm \$DOCKER_OPTS     \
-  --volume /var/run/docker.sock:/var/run/docker.sock  \
-  --volume \$HOME:/root                               \
-  --volume \$PWD:\$PWD                                \
-  --workdir \$PWD                                     \
+  --volume  /var/run/docker.sock:/var/run/docker.sock \
+  --volume  \$HOME:/root                              \
+  --volume  \$(pwd):\$(pwd)                           \
+  --workdir \$(pwd)                                   \
   openjdk:8-jdk-alpine                                \
 "

@@ -1,7 +1,0 @@
-deploy:
-  extends: [".except-docu-branches"]
-  stage: deploy
-  when: delayed
-  start_in: 3 minutes                                                 # This delay exists to give new environments enough time to boot
-  image: registry.gitlab.com/systemkern/s5:latest
-  script: bin/ci-deploy

@@ -1,6 +1,6 @@
 #!/bin/sh
 # change to the repository root folder via the scripts location
- cd "$(dirname "$0")"/..
+ cd "$(dirname "$0")"/../..
 . bin/includes/detect-os
 . bin/includes/ci-environment
 . bin/includes/docker-registry-login
@@ -11,4 +11,4 @@ set -u    # error on usage of undefined variables
 ########################################
 
 
-docker build --tag "$BACKEND_IMAGE_PATH" -f backend/Dockerfile backend
+docker build --tag "$EPF_IMAGE_PATH" -f epf/Dockerfile epf

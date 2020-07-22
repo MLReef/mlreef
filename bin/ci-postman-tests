@@ -14,10 +14,10 @@ export NEWMAN_ENV_TEMPLATE="${NEWMAN_ENV:-bin/resources/newman-smoke-test-enviro
 export NEWMAN_ENV="$NEWMAN_ENV_TEMPLATE.pipeline"
 
 # replace base url in postman environment file
-cp $NEWMAN_ENV_TEMPLATE $NEWMAN_ENV
-sed -i "s/mlreef.com/$URL/" $NEWMAN_ENV
-cat $NEWMAN_ENV
-newman run bin/resources/smoke-tests.postman_collection.json --environment $NEWMAN_ENV
+cp "$NEWMAN_ENV_TEMPLATE" "$NEWMAN_ENV"
+sed -i "s/mlreef.com/$URL/" "$NEWMAN_ENV"
+cat "$NEWMAN_ENV"
+newman run bin/resources/smoke-tests.postman_collection.json --environment "$NEWMAN_ENV"
 
 # Cleanup
-if [ -e $NEWMAN_ENV ]; then rm $NEWMAN_ENV; fi
+if [ -e "$NEWMAN_ENV" ]; then rm "$NEWMAN_ENV"; fi

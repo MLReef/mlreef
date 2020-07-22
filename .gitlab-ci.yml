@@ -1,9 +1,9 @@
 include:
-  - local: .gitlab-ci-provision.yml
-  - local: .gitlab-ci-build.yml
-  - local: .gitlab-ci-deploy.yml
-  - local: .gitlab-ci-test.yml
-  - local: .gitlab-ci-maintenance.yml
+  - local: backend/.gitlab-ci.yml
+  - local: docs/.gitlab-ci.yml
+  - local: epf/.gitlab-ci.yml
+  - local: web/.gitlab-ci.yml
+
 
 stages:
   - build
@@ -11,13 +11,8 @@ stages:
   - test
   - maintenance
 
-# The deployment on aws depends on three main environment variables
-# AWS_ACCESS_KEY_ID       create at https://console.aws.amazon.com/iam/
-# AWS_SECRET_ACCESS_KEY   create at https://console.aws.amazon.com/iam/
-# AWS_DEFAULT_REGION      default:eu-central-1
-# GITLAB_API_TOKEN        for creating and deleting environments on gitlab.com
+
 variables:
-  INSTANCE_INFO:        "out/instance.info"                # file for transmitting VM information between stages
   S3_DATA_BUCKET:       "mlreef-application-data"          # see also ec2 startup script
   DATA_ARCHIVE:         "mlreef-data-develop.zip"
 
@@ -40,27 +35,96 @@ variables:
       - master
 
 
-pages:
-  stage: deploy
-  only:
-    changes:
-      - docs/**/*
-      - README.md
-  image: node:10.19.0-alpine                                # https://hub.docker.com/_/node/
-  cache:
-    key: "mlreef-docs-node-cache"
-    paths:
-      - /usr/local/lib/node_modules
-      - docs/node_modules
-  script: bin/ci-pages
+# provision boots up the new ec2 instance for deploying MLReef
+provision:
+  extends: [".except-docu-branches"]
+  stage: build
+  except:
+    refs:
+      - master
+  image: registry.gitlab.com/systemkern/s5:latest-aws
+  script: bin/ci-provision
   artifacts:
     paths:
-      - public
+      - out/instance.info                                  # pass instance url to later stages (see bin/includes/ci-environment)
+  environment:
+    name: $CI_COMMIT_REF_SLUG
+    url: $CI_PIPELINE_URL
+    on_stop: decommission                                  # clean up after branch merge
 
 
-smoke test suite:
+get production ip:
+  stage: build
+  only:
+    refs:
+      - master
+  image: registry.gitlab.com/systemkern/s5:latest-aws
+  variables:
+    TF_VAR_INSTANCE_NAME: "mlreef-production"              # Used by terraform and '.gitlab-ci-provision.yml'
+  script: echo "ec2-3-126-88-77.eu-central-1.compute.amazonaws.com" > out/instance.info              # pass instance url to deploy stage
+  artifacts:
+    paths:
+      - out/instance.info                                  # pass instance url to later stages (see bin/includes/ci-environment)
+  environment:
+    name: mlreef.com
+    url: https://mlreef.com
+
+
+gitlab env config:
+  extends: [".except-docu-branches"]
+  image: registry.gitlab.com/systemkern/s5:latest
+  stage: deploy
+  variables:
+    KEY: "Authorization:"                                  # workaround to preserver the yaml structure
+  before_script:
+    - URL=$(cat out/instance.info)
+    - echo $URL                                            # debug output
+  script:
+    # Get the ID of the gitlab environment we want to edit
+    - ID=$(curl --fail
+      --header "$KEY Bearer $GITLAB_COM_API_TOKEN"
+      https://gitlab.com/api/v4/projects/$CI_PROJECT_ID/environments?name=$CI_COMMIT_REF_SLUG
+      | jq -c '.[] | select(.name | contains("'$CI_REF_SLUG'")) | .id'
+      )
+    - echo "ID is $ID"                                     # debug output
+    # configure the gitlab environment with the correct URL
+    - curl --request PUT --fail
+      --header "$KEY Bearer $GITLAB_COM_API_TOKEN"
+      --data "name=$CI_COMMIT_REF_SLUG&external_url=http://$URL/login"
+      https://gitlab.com/api/v4/projects/$CI_PROJECT_ID/environments/$ID
+
+
+deploy:
+  extends: [".except-docu-branches"]
+  stage: deploy
+  when: delayed
+  start_in: 3 minutes                                                 # This delay exists to give new environments enough time to boot
+  image: registry.gitlab.com/systemkern/s5:latest
+  script: bin/ci-deploy
+
+
+gitlab api smoke test:
   extends: [.except-docu-branches]
   stage: test
+  when: delayed
+  start_in: 4 minutes
+  image: registry.gitlab.com/systemkern/s5:latest
+  # Gitlab Runners are a separate process from Gitlab's API and Gitlab's frontend
+  script: |
+    URL=$(cat out/instance.info)
+    echo $URL                                            # debug output
+    if [ $(curl --silent --output /dev/null -w ''%{http_code}'' $URL/api/v4/projects) != 200 ]; then
+      curl $URL/api/v4/projects
+      exit 1;
+    fi
+
+
+postman test suite:
+  extends: [.except-docu-branches]
+  stage: test
+  only:
+    changes:
+      - backend/**/*
   when: delayed
   start_in: 4 minutes
   image: registry.gitlab.com/systemkern/s5:latest-newman
@@ -68,13 +132,96 @@ smoke test suite:
     key: newman
     paths:
       - node_modules/.bin/
-  script: bin/ci-smoke-tests
+  script: bin/ci-postman-tests
 
-experiment test suite:
+
+e2e test experiment:
   allow_failure: true
   extends: [.except-docu-branches]
-  when: delayed
   stage: test
+  only:
+    changes:
+      - backend/**/*
+  when: delayed
   start_in: 4 minutes
   image: registry.gitlab.com/systemkern/s5:latest
   script: bin/ci-test-end2end-experiment
+
+
+
+# The decommission job is configured by the provision's job `on_stop` command.
+# The execution of decommission is triggered by merging or deleting a branch.
+# https://docs.gitlab.com/ee/ci/environments.html#automatically-stopping-an-environment
+decommission:
+  extends: [".feature-branches-only"]
+  stage: maintenance
+  when: manual
+  image: registry.gitlab.com/systemkern/s5:latest-aws
+  variables:
+    GIT_STRATEGY: "none"                                    # because branches are deleted on merge, we must not access the git repo
+  script: |
+    EC2_INSTANCE_NAME="mlreef-$CI_COMMIT_REF_SLUG"
+
+    # decommission the current environment
+    # use the aws-cli to retrieve the description (json) for our machine
+    # parse the json with jq to get the instance id
+    # the xargs command submits the termination command to AWS
+    aws ec2 describe-instances --filters "Name=tag:Name,Values=$EC2_INSTANCE_NAME"
+      | jq -r ".Reservations[].Instances[].InstanceId"
+      | xargs --no-run-if-empty aws ec2 terminate-instances --instance-id
+
+    # remove the branch's frontend docker container
+    # 1117031 is the id of the "gateway's" sub-repository id
+    curl --request DELETE --header "PRIVATE-TOKEN:$GITLAB_COM_API_TOKEN"
+      https://gitlab.com/api/v4/projects/$CI_PROJECT_ID/registry/repositories/1117031/tags/$CI_COMMIT_REF_SLUG
+    # 1151242 is the id of the "backend's" sub-repository id
+    curl --request DELETE --header "PRIVATE-TOKEN:$GITLAB_COM_API_TOKEN"
+      https://gitlab.com/api/v4/projects/$CI_PROJECT_ID/registry/repositories/1151242/tags/$CI_COMMIT_REF_SLUG
+    # 1196730 is the id of the "epf's" sub-repository id
+    curl --request DELETE --header "PRIVATE-TOKEN:$GITLAB_COM_API_TOKEN"
+      https://gitlab.com/api/v4/projects/$CI_PROJECT_ID/registry/repositories/1196730/tags/$CI_COMMIT_REF_SLUG
+  after_script:
+    # remove the data backup from s3 (if it exists)
+    - aws s3 rm "s3://$S3_DATA_BUCKET/mlreef-data-$CI_COMMIT_REF_SLUG.zip"
+  environment:
+    name: $CI_COMMIT_REF_SLUG
+    action: stop
+
+
+backup branch:
+  extends: [.feature-branches-only]
+  stage: maintenance
+  when: manual
+  image: registry.gitlab.com/systemkern/s5:latest-aws
+  before_script:
+    - URL=$(cat out/instance.info)
+    - echo $URL                                            # debug output
+    - chmod 400 $SSH_KEYFILE                               # prepare private key file
+    - chmod +x $BACKUP_SCRIPT
+    - sed -i "s~AWS_ACCESS_KEY_ID=XXXXX~AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID~"                  $BACKUP_SCRIPT
+    - sed -i "s~AWS_SECRET_ACCESS_KEY=XXXXX~AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY~"      $BACKUP_SCRIPT
+  script:
+    - bin/ci-backup --instance $URL --bucket $S3_DATA_BUCKET --file mlreef-data-$CI_COMMIT_REF_SLUG.tar
+
+
+restore from develop:
+  extends: [.feature-branches-only]
+  stage: maintenance
+  when: manual
+  image: registry.gitlab.com/systemkern/s5:latest-aws
+  before_script:
+    - URL=$(cat out/instance.info)
+    - echo $URL                                            # debug output
+    - chmod 400 $SSH_KEYFILE                               # prepare private key file
+    - chmod +x $RESTORE_SCRIPT
+    - sed -i "s~AWS_ACCESS_KEY_ID=XXXXX~AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID~"                  $RESTORE_SCRIPT
+    - sed -i "s~AWS_SECRET_ACCESS_KEY=XXXXX~AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY~"      $RESTORE_SCRIPT
+  script: ci-restore --instance $URL --bucket $S3_DATA_BUCKET --file mlreef-data-develop.tar
+  except:
+    refs:
+      - master
+
+
+restore branch backup:
+  extends: [.feature-branches-only, "restore from develop"]
+  script: ci-restore --instance $URL --bucket $S3_DATA_BUCKET --file mlreef-data-$CI_COMMIT_REF_SLUG.tar
