@@ -1,9 +1,16 @@
 #!/bin/sh
-set -e
-set -x
+# change to the repository root folder via the scripts location
+cd "$(dirname "$0")"/..
+. bin/includes/detect-os
+. bin/includes/ci-environment
+########################################
+set -x    # output all commands
+set -e    # exit on immediately on every error
+set -u    # error on usage of undefined variables
+########################################
 
-INIT_ARCHIVE=mlreef-data-develop.tar         # see startup.sh
-S3_BUCKET_NAME="mlreef-application-data"     # see startup.sh
+INIT_ARCHIVE=mlreef-data-develop.tar         # see ec2-startup
+S3_BUCKET_NAME="mlreef-application-data"     # see ec2-startup
 
 alias remote-ec2="ssh -i $SSH_KEYFILE -o 'AddKeysToAgent yes' ubuntu@\${INSTANCE} "
 
@@ -35,12 +42,14 @@ if [ "$INSTANCE" = "" ]; then
 fi
 
 
-echo "starting restore script"
+echo "starting backup script"
 echo "----------------------------------------"
 echo "The EC2 instance is: $INSTANCE"
 ssh-keyscan -H "$INSTANCE" >>~/.ssh/known_hosts
 
 remote-ec2 "sudo docker-compose stop"
+remote-ec2 "sudo rm /root/$INIT_ARCHIVE || true"
+remote-ec2 "sudo tar czf /root/$INIT_ARCHIVE -C /data gitlab-etc gitlab-log gitlab-opt gitlab-runner mlreef-opt"
 remote-ec2 "sudo docker run --name=systemkern-s5-shell-alias-container --rm --tty \
   --volume ${HOME}:/root                         \
   --volume ${PWD}:/app                           \
@@ -48,10 +57,6 @@ remote-ec2 "sudo docker run --name=systemkern-s5-shell-alias-container --rm --tt
   -e AWS_SECRET_ACCESS_KEY=XXXXX                 \
   -e AWS_DEFAULT_REGION=eu-central-1             \
   registry.gitlab.com/systemkern/s5:latest-aws   \
-  aws s3 cp s3://$S3_BUCKET_NAME/$INIT_ARCHIVE /root/$INIT_ARCHIVE"
+  aws s3 cp /root/$INIT_ARCHIVE s3://$S3_BUCKET_NAME/$INIT_ARCHIVE"
 
-remote-ec2 "sudo rm -rf /data/gitlab-etc /data/gitlab-log /data/gitlab-opt /data/gitlab-runner /data/mlreef-opt"
-remote-ec2 "ls -al /data"
-remote-ec2 "sudo tar xzf /root/$INIT_ARCHIVE --directory /data"
-remote-ec2 "ls -al /data"
 remote-ec2 "sudo docker-compose up --detach"

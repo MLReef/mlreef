@@ -1,6 +1,6 @@
 #!/bin/sh
 # change to the repository root folder via the scripts location
-cd "$(dirname "$0")"/..
+cd "$(dirname "$0")"/../..
 . bin/includes/detect-os
 . bin/includes/ci-environment
 ########################################
@@ -9,16 +9,12 @@ set -e    # exit on immediately on every error
 set -u    # error on usage of undefined variables
 ########################################
 
-# change directory to the frontend folder
+
 cd backend
 
-# ensure that there is a package json present
-if [ -e build.gradle ]; then
-    echo "found build.gradle"
-else
-    echo "could not find build.gradle … exiting"
-    exit 1
-fi
+# ensure that there exists a gradle configuration
+if [ ! -e build.gradle ]; then exit 1; fi
+
 
 
 export DB_HOST=postgres

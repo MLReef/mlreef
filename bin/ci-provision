@@ -1,5 +1,5 @@
 #!/bin/sh
-# change directory to the script folder
+# change to the repository root folder via the scripts location
 cd "$(dirname "$0")"/..
 . bin/includes/detect-os
 . bin/includes/ci-environment
@@ -18,9 +18,9 @@ export      EC2_IMAGE_AMI="ami-061aaaac62de85935"            # Deep Learning AMI
 echo "      EC2_IMAGE_AMI= $EC2_IMAGE_AMI"
 export   EC2_SECURITY_GRP="application-servers"
 echo "   EC2_SECURITY_GRP= $EC2_SECURITY_GRP"
-export    DEVICE_MAPPINGS="src/main/resources/feature-branch-block-device-mappings.json"
+export    DEVICE_MAPPINGS="bin/resources/feature-branch-block-device-mappings.json"
 echo "    DEVICE_MAPPINGS= $DEVICE_MAPPINGS"
-export     STARTUP_SCRIPT="src/main/bin/startup.sh"          # used in .gitlab-ci-deploy.yml and docker-compose.yml
+export     STARTUP_SCRIPT="bin/resources/ec-startup"          # used in .gitlab-ci.yml
 echo "     STARTUP_SCRIPT= $STARTUP_SCRIPT"
 
 if [ "$CI_COMMIT_REF_SLUG" = "develop" ]; then
@@ -34,11 +34,11 @@ aws ec2 describe-instances --filters "Name=tag:Name,Values=$EC2_INSTANCE_NAME"  
   | sed "/null/d"                                                                     \
   | tr -d '\r' > tmp
 cat tmp                                              # Debug output
-head -n 1 tmp > $INSTANCE_INFO                       # Take only the first URL (which should be the newest one)
-cat $INSTANCE_INFO                                   # Debug output
-if [ "$(cat $INSTANCE_INFO)" != "" ]; then
+head -n 1 tmp > "$INSTANCE_INFO"                       # Take only the first URL (which should be the newest one)
+cat "$INSTANCE_INFO"                                   # Debug output
+if [ "$(cat "$INSTANCE_INFO")" != "" ]; then
   echo "Found an existing environment which will be recycled";
-  cat $INSTANCE_INFO;
+  cat "$INSTANCE_INFO";
   exit 0;
 fi
 
@@ -48,18 +48,18 @@ sed -i "s~AWS_SECRET_ACCESS_KEY=XXXXX~AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_K
 # aws ec2 run instances documentation
 # https://docs.aws.amazon.com/cli/latest/reference/ec2/run-instances.html
 #   --credit-specification CpuCredits=standard
-aws ec2 run-instances --count 1                   \
-  --region ${AWS_DEFAULT_REGION}                  \
-  --image-id ${EC2_IMAGE_AMI}                     \
-  --instance-type ${EC2_MACHINE_SIZE}             \
-  --security-groups ${EC2_SECURITY_GRP}           \
-  --key-name development                          \
-  --user-data file://"${STARTUP_SCRIPT}"          \
-  --block-device-mappings file://$DEVICE_MAPPINGS \
+aws ec2 run-instances --count 1                     \
+  --region "$AWS_DEFAULT_REGION"                    \
+  --image-id "$EC2_IMAGE_AMI"                       \
+  --instance-type "$EC2_MACHINE_SIZE"               \
+  --security-groups "$EC2_SECURITY_GRP"             \
+  --key-name development                            \
+  --user-data file://"$STARTUP_SCRIPT"              \
+  --block-device-mappings file://"$DEVICE_MAPPINGS" \
   --tag-specifications "ResourceType=instance,Tags=[{Key=Name,Value=$EC2_INSTANCE_NAME}]" \
   | jq -r ".Instances[].InstanceId"                                                       \
   | xargs --no-run-if-empty -I {} aws ec2 describe-instances --filters "Name=instance-id,Values={}"\
   | jq -r ".Reservations[].Instances[].NetworkInterfaces[].Association.PublicDnsName"     \
-  | tr -d '\r' > $INSTANCE_INFO                   # pass instance url to deploy stage
+  | tr -d '\r' > "$INSTANCE_INFO"                   # pass instance url to deploy stage
 
-cat $INSTANCE_INFO                                # debug output
+cat "$INSTANCE_INFO"                                # debug output

@@ -82,10 +82,10 @@ if [ "${FRONTEND_BUILD:-true}" = "true" ]; then
     bin/ci-build-frontend
 fi
 if [ "${BACKEND_BUILD:-true}" = "true" ]; then
-    bin/ci-build-backend
+    bakend/bin/ci-build-backend
 fi
 if [ "${EPF_BUILD:-true}" = "true" ]; then
-    bin/ci-build-epf
+    epf/bin/ci-build-epf
 fi
 
 

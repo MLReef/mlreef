@@ -55,12 +55,12 @@ curl "http://$URL:8080/api/v1/data-projects/$PROJECT_ID/experiments"  \
         } ]
       }
     }'                                          \
-    | jq                                        \
+    | bin/jq                                        \
     | tee out/test/create-experiment.response.json
 
-jq < out/test/create-experiment.response.json
+bin/jq < out/test/create-experiment.response.json
 
-jq -r ".id" < out/test/create-experiment.response.json > out/test/experiment-id.tmp
+bin/jq -r ".id" < out/test/create-experiment.response.json > out/test/experiment-id.tmp
 export EXPERIMENT_ID=$(cat out/test/experiment-id.tmp)
 if [ "$EXPERIMENT_ID" = "" ]; then
   echo >&2 "ERROR: EXPERIMENT_ID is empty."
@@ -70,7 +70,7 @@ if [ "$EXPERIMENT_ID" = "" ]; then
 fi
 
 
-jq -r ".target_branch" < out/test/create-experiment.response.json > out/test/experiment-branch.tmp
+bin/jq -r ".target_branch" < out/test/create-experiment.response.json > out/test/experiment-branch.tmp
 export EXPERIMENT_BRANCH=$(cat out/test/experiment-branch.tmp)
 if [ "$EXPERIMENT_BRANCH" = "" ]; then
   echo >&2 "ERROR: EXPERIMENT_BRANCH is empty."
@@ -86,5 +86,5 @@ curl "http://$URL:8080/api/v1/data-projects/$PROJECT_ID/experiments/$EXPERIMENT_
   --header "PRIVATE-TOKEN: $TOKEN"              \
   --header "Content-Type: application/json"     \
   --header "Accept: application/json"           \
-    | jq                                        \
+    | bin/jq                                        \
     | tee out/test/start-experiment.response.json

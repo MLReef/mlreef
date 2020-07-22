@@ -55,7 +55,7 @@ cat local.env
 #
 #
 log "1. Starting Gitlab Omnibus"
-# the container startup wait is necessary to let gitlab initialise the database
+# the container ec2-startup wait is necessary to let gitlab initialise the database
 log "docker-compose up -f docker-compose.local.yml --detach gitlab gitlab-runner"
 docker-compose -f docker-compose.local.yml up --detach gitlab gitlab-runner
 waitUntilGitlabAvailable

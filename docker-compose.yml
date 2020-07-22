@@ -45,9 +45,9 @@ services:
     restart: always
     image: gitlab/gitlab-ce:12.7.0-ce.0
     ports:
-      - "10080:10080"                                               # if changed, also change in in bin/src/deploy.sh
+      - "10080:10080"                                               # if changed, also change in in bin/install
       - "10022:22"
-      - "10081:80"                                                  # needed for initial startup in bin/src/deploy.sh
+      - "10081:80"                                                  # needed for initial startup in bin/install
     volumes:
       - gitlab-etc:/etc/gitlab:Z                                    #CI_DELETE_LINE: this line gets removed by the CI/CD pipeline
       - gitlab-log:/var/log/gitlab:Z                                #CI_DELETE_LINE: this line gets removed by the CI/CD pipeline:Z

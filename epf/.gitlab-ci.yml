@@ -1,0 +1,18 @@
+build epf:
+  extends: [".except-docu-branches"]
+  stage: build
+  only:
+    changes:
+      - epf/**/*
+  image: docker:latest
+  services:
+    - docker:dind
+  before_script:
+    - export TAG="${CI_COMMIT_REF_SLUG}"
+    - if [ $CI_COMMIT_REF_SLUG = "master" ]; then export TAG="latest";  fi          # follow docker naming conventions
+    - export GATEWAY_IMAGE_PATH=$CI_REGISTRY_IMAGE/gateway:$TAG
+    - export BACKEND_IMAGE_PATH=$CI_REGISTRY_IMAGE/backend:$TAG
+    - export     EPF_IMAGE_PATH=$CI_REGISTRY_IMAGE/epf:$TAG
+  script: |
+    epf/bin/ci-build-epf
+    docker push "$EPF_IMAGE_PATH"

@@ -1,6 +1,6 @@
 #!/bin/sh
 # change to the repository root folder via the scripts location
-cd "$(dirname "$0")"/..
+cd "$(dirname "$0")"/../..
 . bin/includes/detect-os
 . bin/includes/ci-environment
 ##########################################
@@ -15,9 +15,10 @@ cd docs
 pwd && ls -al
 npm install .
 npm run build -- --prefix-paths
-cp -r public ../
 
 cd ..
+cp -r docs/public .
+
 ls -al public/
 ls -al docs/
 ls -al docs/node_modules

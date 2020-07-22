@@ -2,8 +2,8 @@
 
 LOG="/root/startup.log"
 LOCK="/root/installation.lock"
-INIT_ZIP="mlreef-data-develop.zip"       # see backup.sh
-S3_BUCKET_NAME="mlreef-application-data" # see backup.sh
+INIT_ZIP="mlreef-data-develop.zip"       # see ci-backup
+S3_BUCKET_NAME="mlreef-application-data" # see ci-backup
 
 touch $LOG
 chmod 777 $LOG

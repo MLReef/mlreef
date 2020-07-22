@@ -1,0 +1,65 @@
+unit test backend:
+  stage: build
+  only:
+    changes:
+    - backend/**/*
+  image: java:8
+  services:
+    - docker:19.03.0-dind
+  cache:
+    key: "$CI_COMMIT_REF_SLUG"
+    paths:
+    - backend/.gradle/wrapper
+    - backend/.gradle/caches
+  script: backend/bin/ci-unit-test-backend
+  artifacts:
+    paths:
+      - backend/mlreef-rest/build/asciidoc/html5/rest-api.html
+      - backend/mlreef-rest/build/libs/*
+      - backend/mlreef-rest/build/dependency/*
+      - backend/mlreef-rest/build/reports/jacoco/test
+      - backend/mlreef-rest/build/reports/tests/
+    reports:
+      junit: backend/mlreef-rest/build/test-results/test/**/TEST-*.xml
+
+
+build backend:
+  extends: [".except-docu-branches"]
+  stage: build
+  only:
+    changes:
+      - backend/**/*
+  image: docker:19.03.1
+  services:
+    - docker:19.03.0-dind
+  before_script:
+    - export TAG="${CI_COMMIT_REF_SLUG}"
+    - if [ $CI_COMMIT_REF_SLUG = "master" ]; then export TAG="latest";  fi          # follow docker naming conventions
+    - export GATEWAY_IMAGE_PATH=$CI_REGISTRY_IMAGE/gateway:$TAG
+    - export BACKEND_IMAGE_PATH=$CI_REGISTRY_IMAGE/backend:$TAG
+    - export     EPF_IMAGE_PATH=$CI_REGISTRY_IMAGE/epf:$TAG
+  script: |
+    backend/bin/ci-build-backend
+    docker push "$BACKEND_IMAGE_PATH"
+
+
+backend integration tests:
+  allow_failure: true
+  stage: test
+  only:
+    changes:
+      - backend/**/*
+  image: java:8
+  services:
+    - docker:19.03.0-dind
+  cache:
+    key: "$CI_COMMIT_BRANCH"
+    paths:
+      - .gradle/wrapper
+      - .gradle/caches
+  variables:
+    DOCKER_HOST: "tcp://docker:2375"  # gitlab needs this to support docker testcontainers
+    DOCKER_DRIVER: overlay2           # gitlab needs this to support docker testcontainers
+    DOCKER_TLS_CERTDIR: ""            # "/certs" gitlab needs this to support docker testcontainers
+  script: backend/bin/ci-integration-test-backend
+

@@ -48,18 +48,16 @@
 CODEOWNERS @cpmlreef @rainerkern
 LICENSE @cpmlreef @rainerkern 
 
+
 #
 # Code Ownership for Devops
 #
 /bin/ @mlreef/devops
-/src/bin/ @mlreef/devops
-# Test CODEOWNERS configuration
-.gitlab-ci.yml @rainerkern @flohin @si-ge-st
-.gitlab-ci*.yml @mlreef/devops
-docker-compose.yml @mlreef/devops
+/backend/
+
 
 #
 # Code ownership for frontend
 #
-/frontend/ @mlreef/frontend-group
+/web/ @mlreef/frontend-group
 /web/src/apiConfig.js @andres46 @mlreef/devops

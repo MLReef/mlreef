@@ -8,11 +8,11 @@ COMMAND="npm"
 
 export DOCKER_OPTS="${DOCKER_OPTS--it}"
 
-exec docker run --rm $DOCKER_OPTS                     \
+exec docker run --rm "$DOCKER_OPTS"                   \
   --network bridge                                    \
   --volume  /var/run/docker.sock:/var/run/docker.sock \
-  --volume  \$HOME:/root                              \
-  --volume  \$PWD:\$PWD                               \
-  --workdir \$PWD                                     \
+  --volume  "$HOME":/root                             \
+  --volume  "$(pwd)":"$(pwd)"                         \
+  --workdir "$(pwd)"                                  \
   --publish 3000:3000                                 \
   "$IMAGE" "$COMMAND" "$@"
