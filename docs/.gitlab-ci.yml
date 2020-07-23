@@ -10,7 +10,7 @@ pages:
     paths:
       - /usr/local/lib/node_modules
       - docs/node_modules
-  script: bin/ci-pages
+  script: docs/bin/ci-pages
   artifacts:
     paths:
       - public
