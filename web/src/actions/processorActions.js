@@ -1,6 +1,6 @@
 import { OPERATION, ALGORITHM } from 'dataTypes';
 import { SET_OPERATIONS, SET_ALGORITHMS, SET_VISUALIZATIONS } from './actionTypes';
-import DataProcessorsApi from '../apis/DataProcessorsApi';
+import DataProcessorsApi from '../apis/DataProcessorsApi.ts';
 
 const dataProcApi = new DataProcessorsApi();
 /**
@@ -29,30 +29,36 @@ export function getProcessors(type) {
   const params = new Map();
   params.set('type', type);
   return (dispatch) => dataProcApi
-  .filterByParams(params)
-    .then(
-      (processors) => {
-        if (type === OPERATION) {
+    .filterByParams(params)
+    .then((dataProcessors) => Promise.all(
+      dataProcessors.map((dataProcessor) => dataProcApi.getParamDetails(dataProcessor.id)),
+    ))
+    .then((dataProcessorsVersionsArr) => dataProcessorsVersionsArr
+      .map((versionsArr) => versionsArr.filter((version) => version.branch === 'master'))
+      .map((versionsFiltered) => versionsFiltered[0]))
+    .then((processors) => {
+      switch (type) {
+        case OPERATION:
           dispatch(
             setOperationsSuccessfully(
               processors,
             ),
           );
-        } else if (type === ALGORITHM) {
+          break;
+        case ALGORITHM:
           dispatch(
             setAlgorithmsSuccessfully(
               processors,
             ),
           );
-        } else {
+          break;
+        default:
           dispatch(
             setVisualizationsSuccessfully(
               processors,
             ),
           );
-        }
-      },
-    ).catch((err) => {
-      throw err;
+          break;
+      }
     });
 }

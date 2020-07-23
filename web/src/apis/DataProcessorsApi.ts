@@ -18,4 +18,17 @@ export default class DataProcessorsApi extends ApiDirector {
     }
     return response.json();
   }
+
+  async getParamDetails(id: string): Promise<any> {
+    const bl = new BodyLessApiRequestCallBuilder(
+      METHODS.GET, 
+      this.buildBasicHeaders(validServicesToCall.BACKEND), 
+      `${this.baseUrl}/id/${id}/versions`
+    );
+    const response = await fetch(bl.build());
+    if (!response.ok) {
+      return Promise.reject(response);
+    }
+    return response.json();
+  }
 }
