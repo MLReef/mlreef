@@ -20,7 +20,7 @@ export   EC2_SECURITY_GRP="application-servers"
 echo "   EC2_SECURITY_GRP= $EC2_SECURITY_GRP"
 export    DEVICE_MAPPINGS="bin/resources/feature-branch-block-device-mappings.json"
 echo "    DEVICE_MAPPINGS= $DEVICE_MAPPINGS"
-export     STARTUP_SCRIPT="bin/resources/ec-startup"          # used in .gitlab-ci.yml
+export     STARTUP_SCRIPT="bin/resources/ec2-startup"          # used in .gitlab-ci.yml
 echo "     STARTUP_SCRIPT= $STARTUP_SCRIPT"
 
 if [ "$CI_COMMIT_REF_SLUG" = "develop" ]; then
