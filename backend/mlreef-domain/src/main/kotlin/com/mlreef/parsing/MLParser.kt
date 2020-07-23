@@ -46,7 +46,7 @@ object ModelExtractor {
         val visibilityScope = VisibilityScope.valueOf(enumOrFail(values, "visibility"))
 
         val processor: DataProcessor = when (processorType) {
-            DataProcessorType.VISUALISATION -> createDataVisualisation(name, slug, command, description, inputDataType, visibilityScope)
+            DataProcessorType.VISUALIZATION -> createDataVisualisation(name, slug, command, description, inputDataType, visibilityScope)
             DataProcessorType.OPERATION -> createDataOperation(name, slug, command, description, inputDataType, outputDataType, visibilityScope)
             DataProcessorType.ALGORITHM -> createDataAlgorithm(name, slug, command, description, inputDataType, outputDataType, visibilityScope)
         }

@@ -297,7 +297,7 @@ class PipelineServiceTest : AbstractServiceTest() {
         val createExperiment = service.createPipelineConfig(
             ownerId,
             dataRepositoryId,
-            "VISUALISATION",
+            "VISUALIZATION",
             "name",
             "sourcebranch",
             listOf(), listOf())

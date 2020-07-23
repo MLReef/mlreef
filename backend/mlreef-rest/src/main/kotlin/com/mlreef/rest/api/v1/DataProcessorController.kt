@@ -130,7 +130,7 @@ class DataProcessorsController(
         }
         val dataProcessor = dataProcessorService.createForCodeProject(
             id = dataProcessorId,
-            codeProjectId = codeProject.id,
+            codeProject = codeProject,
             slug = createRequest.slug,
             name = createRequest.name,
             description = createRequest.description,

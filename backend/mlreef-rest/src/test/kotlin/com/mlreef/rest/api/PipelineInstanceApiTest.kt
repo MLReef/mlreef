@@ -243,7 +243,7 @@ class PipelineInstanceApiTest : AbstractRestApiTest() {
 internal fun pipelineInstanceDtoResponseFields(prefix: String = ""): List<FieldDescriptor> {
     return listOf(
         fieldWithPath(prefix + "id").type(JsonFieldType.STRING).description("UUID"),
-        fieldWithPath(prefix + "pipeline_type").type(JsonFieldType.STRING).description("Type of this Pipeline, can be DATA or VISUALISATION"),
+        fieldWithPath(prefix + "pipeline_type").type(JsonFieldType.STRING).description("Type of this Pipeline, can be DATA or VISUALIZATION"),
         fieldWithPath(prefix + "slug").type(JsonFieldType.STRING).description("Unique slug of this PipelineConfig"),
         fieldWithPath(prefix + "name").type(JsonFieldType.STRING).description("Name of this PipelineConfig"),
         fieldWithPath(prefix + "input_files").type(JsonFieldType.ARRAY).optional().description("FileLocation used as input files"),

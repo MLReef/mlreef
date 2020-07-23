@@ -5,6 +5,7 @@ import com.mlreef.rest.DataVisualization
 import com.mlreef.rest.DataVisualizationRepository
 import com.mlreef.rest.Person
 import com.mlreef.rest.VisibilityScope
+import com.mlreef.rest.testcommons.EntityMocks
 import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -20,14 +21,14 @@ class DataProcessorVisualisationTest : AbstractRepositoryTest() {
 
     private fun createEntity(): Pair<UUID, DataVisualization> {
         val id = randomUUID()
-        val codeProjectId = randomUUID()
+        val codeProject = EntityMocks.codeProject
         val author = Person(randomUUID(), "slug", "name", 1L)
         val entity = DataVisualization(
             id = id, slug = "commons-augment", name = "Augment",
             inputDataType = DataType.IMAGE,
             visibilityScope = VisibilityScope.PUBLIC, author = author,
             description = "description",
-            codeProjectId = codeProjectId)
+            codeProject = codeProject)
         return Pair(id, entity)
     }
 

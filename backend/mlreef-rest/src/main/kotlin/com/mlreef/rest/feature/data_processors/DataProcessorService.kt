@@ -2,6 +2,7 @@ package com.mlreef.rest.feature.data_processors
 
 import com.mlreef.parsing.MLPython3Parser
 import com.mlreef.rest.BaseEnvironment
+import com.mlreef.rest.CodeProject
 import com.mlreef.rest.DataAlgorithm
 import com.mlreef.rest.DataOperation
 import com.mlreef.rest.DataProcessor
@@ -9,7 +10,7 @@ import com.mlreef.rest.DataProcessorRepository
 import com.mlreef.rest.DataProcessorType
 import com.mlreef.rest.DataProcessorType.ALGORITHM
 import com.mlreef.rest.DataProcessorType.OPERATION
-import com.mlreef.rest.DataProcessorType.VISUALISATION
+import com.mlreef.rest.DataProcessorType.VISUALIZATION
 import com.mlreef.rest.DataType
 import com.mlreef.rest.DataVisualization
 import com.mlreef.rest.MetricSchema
@@ -92,7 +93,7 @@ class DataProcessorService(
 
     fun createForCodeProject(
         id: UUID,
-        codeProjectId: UUID,
+        codeProject: CodeProject,
         slug: String,
         name: String,
         inputDataType: DataType,
@@ -105,6 +106,7 @@ class DataProcessorService(
         parameters: List<ProcessorParameter> = arrayListOf()
     ): DataProcessor {
 
+        val codeProjectId = codeProject.id
         log.info("Creating new DataProcessors with slug $slug for $codeProjectId")
         val findBySlug = dataProcessorRepository.findBySlug(slug)
         if (findBySlug != null) {
@@ -116,9 +118,9 @@ class DataProcessorService(
         }
 
         val newProcessor = when (type) {
-            ALGORITHM -> DataAlgorithm(id, slug, name, inputDataType, outputDataType, visibilityScope, description, author, codeProjectId)
-            OPERATION -> DataOperation(id, slug, name, inputDataType, outputDataType, visibilityScope, description, author, codeProjectId)
-            VISUALISATION -> DataVisualization(id, slug, name, inputDataType, visibilityScope, description, author, codeProjectId)
+            ALGORITHM -> DataAlgorithm(id, slug, name, inputDataType, outputDataType, visibilityScope, description, author, codeProject)
+            OPERATION -> DataOperation(id, slug, name, inputDataType, outputDataType, visibilityScope, description, author, codeProject)
+            VISUALIZATION -> DataVisualization(id, slug, name, inputDataType, visibilityScope, description, author, codeProject)
         }
 
         return dataProcessorRepository.save(newProcessor)

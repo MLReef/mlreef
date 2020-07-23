@@ -3,6 +3,7 @@ package com.mlreef.rest
 import com.mlreef.rest.marketplace.SearchableType
 import java.time.ZonedDateTime
 import java.util.UUID
+import javax.persistence.CascadeType
 import javax.persistence.Column
 import javax.persistence.DiscriminatorColumn
 import javax.persistence.Embeddable
@@ -15,13 +16,14 @@ import javax.persistence.Inheritance
 import javax.persistence.InheritanceType
 import javax.persistence.JoinColumn
 import javax.persistence.ManyToOne
+import javax.persistence.OneToOne
 import javax.persistence.Table
 
 object DataProcessorTypeConverter {
     fun from(type: SearchableType): DataProcessorType? {
         return when (type) {
             SearchableType.OPERATION -> DataProcessorType.OPERATION
-            SearchableType.VISUALISATION -> DataProcessorType.VISUALISATION
+            SearchableType.VISUALIZATION -> DataProcessorType.VISUALIZATION
             SearchableType.ALGORITHM -> DataProcessorType.ALGORITHM
             else -> null
         }
@@ -31,7 +33,7 @@ object DataProcessorTypeConverter {
 enum class DataProcessorType {
     ALGORITHM,
     OPERATION,
-    VISUALISATION;
+    VISUALIZATION;
 }
 
 enum class MetricType {
@@ -91,30 +93,16 @@ abstract class DataProcessor(
     @Column(length = 1024)
     val description: String,
 
-    @Column(name = "code_project_id")
-    val codeProjectId: UUID?,
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "code_project_id", foreignKey = ForeignKey(name = "codeproject_dataprocessor_code_project_id_fkey"))
+    val codeProject: CodeProject? = null,
+
+    @Column(name = "code_project_id", updatable = false, insertable = false)
+    val codeProjectId: UUID? = codeProject?.id,
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "author_id", foreignKey = ForeignKey(name = "dataprocessor_subject_author_id_fkey"))
     val author: Subject?,
-
-//    @OneToMany(fetch = FetchType.EAGER, cascade = [CascadeType.ALL])
-//    @JoinColumn(name = "data_processor_id", foreignKey = ForeignKey(name = "processorparameter_dataprocessor_data_processor_id_fkey"))
-//    @Fetch(value = FetchMode.SUBSELECT)
-//    @Deprecated("See ProcessorVersion")
-//    val parameters: List<ProcessorParameter>,
-
-//    @OneToMany(fetch = FetchType.EAGER, cascade = [CascadeType.ALL])
-//    @JoinColumn(name = "data_processor_id", foreignKey = ForeignKey(name = "outputfiles_dataprocessor_data_processor_id_fkey"))
-//    @Fetch(value = FetchMode.SUBSELECT)
-//    @LazyCollection(LazyCollectionOption.FALSE)
-//    @Deprecated("Unused, but someone ordered them")
-//    val outputFiles: List<OutputFile>,
-
-//    @Embedded
-//    @Column(name = "metric_schema_")
-//    @Deprecated("See ProcessorVersion")
-//    val metricSchema: MetricSchema,
 
     @Column(name = "terms_accepted_by_id")
     val termsAcceptedById: UUID?,

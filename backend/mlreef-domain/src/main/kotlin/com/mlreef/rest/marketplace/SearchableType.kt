@@ -10,7 +10,7 @@ enum class SearchableType {
     DATA_PROJECT,
     CODE_PROJECT,
     OPERATION,
-    VISUALISATION,
+    VISUALIZATION,
     ALGORITHM;
 
     fun isDataProcessor(): Boolean {
@@ -24,7 +24,7 @@ enum class SearchableType {
         fun typeFor(dataProcessor: DataProcessor): SearchableType {
             return when (dataProcessor) {
                 is DataOperation -> OPERATION
-                is DataVisualization -> VISUALISATION
+                is DataVisualization -> VISUALIZATION
                 is DataAlgorithm -> ALGORITHM
                 else -> throw IllegalArgumentException("Has no correct subtype of $dataProcessor")
             }

@@ -6,6 +6,7 @@ import com.mlreef.rest.AccountRepository
 import com.mlreef.rest.AccountToken
 import com.mlreef.rest.AccountTokenRepository
 import com.mlreef.rest.ApplicationProfiles
+import com.mlreef.rest.CodeProject
 import com.mlreef.rest.DataProcessor
 import com.mlreef.rest.DataProcessorInstance
 import com.mlreef.rest.DataProcessorInstanceRepository
@@ -145,8 +146,7 @@ abstract class AbstractRestApiTest : AbstractRestTest() {
     protected lateinit var pipelineConfigRepository: PipelineConfigRepository
 
     @Autowired
-    private lateinit var dataProcessorService: DataProcessorService
-
+    protected lateinit var dataProcessorService: DataProcessorService
 
     private val passwordEncoder: PasswordEncoder = BCryptPasswordEncoder()
 
@@ -437,19 +437,21 @@ abstract class AbstractRestApiTest : AbstractRestTest() {
         return entity
     }
 
-    protected fun createDataProcessor(type: DataProcessorType = DataProcessorType.OPERATION, codeProjectId: UUID, inputDataType: DataType = DataType.IMAGE, outputDataType: DataType = DataType.IMAGE): DataProcessor {
+    protected fun createDataProcessor(type: DataProcessorType = DataProcessorType.OPERATION,
+                                      codeProject: CodeProject,
+                                      inputDataType: DataType = DataType.IMAGE,
+                                      outputDataType: DataType = DataType.IMAGE): DataProcessor {
         val id = UUID.randomUUID()
-        val entity = dataProcessorService.createForCodeProject(
+        return dataProcessorService.createForCodeProject(
             id = id, name = "name",
+            codeProject = codeProject,
             slug = "slug-$id", parameters = listOf(),
             author = null, description = "description", visibilityScope = VisibilityScope.PUBLIC,
             outputDataType = outputDataType,
             inputDataType = inputDataType,
-            codeProjectId = codeProjectId,
             command = "command1",
             type = type
         )
-        return entity
     }
 
     protected fun createDataProcessorInstance(dataOp: ProcessorVersion): DataProcessorInstance {

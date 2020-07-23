@@ -51,9 +51,9 @@ class DataProcessorIntegrationTest : AbstractIntegrationTest() {
         val (codeProject, _) = integrationTestsHelper.createRealCodeProject(account)
         val (codeProject2, _) = integrationTestsHelper.createRealCodeProject(account)
 
-        createDataProcessor(DataProcessorType.OPERATION, codeProject.id, DataType.IMAGE)
-        createDataProcessor(DataProcessorType.OPERATION, codeProject.id, DataType.IMAGE)
-        createDataProcessor(DataProcessorType.OPERATION, codeProject2.id, DataType.IMAGE)
+        createDataProcessor(DataProcessorType.OPERATION, codeProject, DataType.IMAGE)
+        createDataProcessor(DataProcessorType.OPERATION, codeProject, DataType.IMAGE)
+        createDataProcessor(DataProcessorType.OPERATION, codeProject2, DataType.IMAGE)
 
         val returnedResult: List<DataProcessorDto> = this.mockMvc.perform(
             this.acceptContentAuth(get(rootUrl), account))
@@ -117,11 +117,11 @@ class DataProcessorIntegrationTest : AbstractIntegrationTest() {
 
         createManyMocks(codeProject, codeProject2)
 
-        val url = "$rootUrl?type=VISUALISATION&output_data_type=IMAGE"
+        val url = "$rootUrl?type=VISUALIZATION&output_data_type=IMAGE"
         val returnedResult = performFilterRequest(url, account)
 
         returnedResult.forEach {
-            assertThat(it.type).isEqualTo(DataProcessorType.VISUALISATION)
+            assertThat(it.type).isEqualTo(DataProcessorType.VISUALIZATION)
             assertThat(it.outputDataType).isEqualTo(DataType.IMAGE)
         }
     }
@@ -176,17 +176,18 @@ class DataProcessorIntegrationTest : AbstractIntegrationTest() {
 
     @Transactional
     @Rollback
-    @Test fun `Can retrieve all DataProcessors filters VISUALISATION`() {
+    @Test
+    fun `Can retrieve all DataProcessors filters VISUALIZATION`() {
         val (account, _, _) = integrationTestsHelper.createRealUser()
         val (codeProject, _) = integrationTestsHelper.createRealCodeProject(account)
         val (codeProject2, _) = integrationTestsHelper.createRealCodeProject(account)
 
         createManyMocks(codeProject, codeProject2)
 
-        val url = "$rootUrl?type=VISUALISATION"
+        val url = "$rootUrl?type=VISUALIZATION"
         val returnedResult = performFilterRequest(url, account)
         returnedResult.forEach {
-            assertThat(it.type).isEqualTo(DataProcessorType.VISUALISATION)
+            assertThat(it.type).isEqualTo(DataProcessorType.VISUALIZATION)
         }
     }
 
@@ -216,7 +217,7 @@ class DataProcessorIntegrationTest : AbstractIntegrationTest() {
         val (codeProject, _) = integrationTestsHelper.createRealCodeProject(account)
         val (codeProject2, _) = integrationTestsHelper.createRealCodeProject(account2)
 
-        createDataProcessor(DataProcessorType.OPERATION, codeProject.id)
+        createDataProcessor(DataProcessorType.OPERATION, codeProject)
 
         this.mockMvc.perform(
             this.acceptContentAuth(get("$rootUrl/${codeProject2.id}/processor"), account))
@@ -264,7 +265,7 @@ class DataProcessorIntegrationTest : AbstractIntegrationTest() {
         val (account, _, _) = integrationTestsHelper.createRealUser()
         val (project, _) = integrationTestsHelper.createRealCodeProject(account)
 
-        createDataProcessor(DataProcessorType.OPERATION, project.id)
+        createDataProcessor(DataProcessorType.OPERATION, project)
 
         this.mockMvc.perform(
             this.acceptContentAuth(get("$rootUrl2/${project.id}/processor"), account))
@@ -273,18 +274,18 @@ class DataProcessorIntegrationTest : AbstractIntegrationTest() {
     }
 
     private fun createManyMocks(codeProject: CodeProject, codeProject2: CodeProject) {
-        createDataProcessor(DataProcessorType.OPERATION, codeProject.id, DataType.IMAGE, DataType.VIDEO)
-        createDataProcessor(DataProcessorType.ALGORITHM, codeProject.id, DataType.IMAGE, DataType.IMAGE)
-        createDataProcessor(DataProcessorType.ALGORITHM, codeProject.id, DataType.VOICE, DataType.VIDEO)
-        createDataProcessor(DataProcessorType.VISUALISATION, codeProject2.id, DataType.IMAGE, DataType.IMAGE)
-        createDataProcessor(DataProcessorType.OPERATION, codeProject2.id, DataType.VIDEO, DataType.VIDEO)
-        createDataProcessor(DataProcessorType.VISUALISATION, codeProject2.id, DataType.VIDEO, DataType.VIDEO)
-        createDataProcessor(DataProcessorType.OPERATION, codeProject.id, DataType.VIDEO, DataType.IMAGE)
-        createDataProcessor(DataProcessorType.ALGORITHM, codeProject.id, DataType.VIDEO, DataType.VIDEO)
-        createDataProcessor(DataProcessorType.ALGORITHM, codeProject.id, DataType.VIDEO, DataType.IMAGE)
-        createDataProcessor(DataProcessorType.VISUALISATION, codeProject2.id, DataType.IMAGE, DataType.VIDEO)
-        createDataProcessor(DataProcessorType.OPERATION, codeProject2.id, DataType.VIDEO, DataType.IMAGE)
-        createDataProcessor(DataProcessorType.VISUALISATION, codeProject2.id, DataType.VIDEO, DataType.IMAGE)
+        createDataProcessor(DataProcessorType.OPERATION, codeProject, DataType.IMAGE, DataType.VIDEO)
+        createDataProcessor(DataProcessorType.ALGORITHM, codeProject, DataType.IMAGE, DataType.IMAGE)
+        createDataProcessor(DataProcessorType.ALGORITHM, codeProject, DataType.VOICE, DataType.VIDEO)
+        createDataProcessor(DataProcessorType.VISUALIZATION, codeProject2, DataType.IMAGE, DataType.IMAGE)
+        createDataProcessor(DataProcessorType.OPERATION, codeProject2, DataType.VIDEO, DataType.VIDEO)
+        createDataProcessor(DataProcessorType.VISUALIZATION, codeProject2, DataType.VIDEO, DataType.VIDEO)
+        createDataProcessor(DataProcessorType.OPERATION, codeProject, DataType.VIDEO, DataType.IMAGE)
+        createDataProcessor(DataProcessorType.ALGORITHM, codeProject, DataType.VIDEO, DataType.VIDEO)
+        createDataProcessor(DataProcessorType.ALGORITHM, codeProject, DataType.VIDEO, DataType.IMAGE)
+        createDataProcessor(DataProcessorType.VISUALIZATION, codeProject2, DataType.IMAGE, DataType.VIDEO)
+        createDataProcessor(DataProcessorType.OPERATION, codeProject2, DataType.VIDEO, DataType.IMAGE)
+        createDataProcessor(DataProcessorType.VISUALIZATION, codeProject2, DataType.VIDEO, DataType.IMAGE)
     }
 
     private fun performFilterRequest(url: String, account: Account): List<DataProcessorDto> {
@@ -299,7 +300,7 @@ class DataProcessorIntegrationTest : AbstractIntegrationTest() {
     }
 
 
-    private fun createDataProcessor(type: DataProcessorType = DataProcessorType.OPERATION, codeProjectId: UUID, inputDataType: DataType = DataType.IMAGE, outputDataType: DataType = DataType.IMAGE): DataProcessor {
+    private fun createDataProcessor(type: DataProcessorType = DataProcessorType.OPERATION, codeProject: CodeProject, inputDataType: DataType = DataType.IMAGE, outputDataType: DataType = DataType.IMAGE): DataProcessor {
         val id = randomUUID()
         val entity = dataProcessorService.createForCodeProject(
             id = id, name = "name",
@@ -307,7 +308,7 @@ class DataProcessorIntegrationTest : AbstractIntegrationTest() {
             author = null, description = "description", visibilityScope = VisibilityScope.PUBLIC,
             outputDataType = outputDataType,
             inputDataType = inputDataType,
-            codeProjectId = codeProjectId,
+            codeProject = codeProject,
             command = "command1",
             type = type
         )

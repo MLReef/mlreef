@@ -110,7 +110,7 @@ class DataProcessorServiceTest : AbstractServiceTest() {
         val dataProcessor = testCreateDataProcessor(
             slug = "slug",
             codeProject = codeProject,
-            type = DataProcessorType.VISUALISATION
+            type = DataProcessorType.VISUALIZATION
         )
         assertNotNull(dataProcessor)
         assertThat(dataProcessor.isNew).isFalse()
@@ -136,7 +136,7 @@ class DataProcessorServiceTest : AbstractServiceTest() {
         val dataProcessor3 = testCreateDataProcessor(
             slug = "slug3",
             codeProject = codeProject,
-            type = DataProcessorType.VISUALISATION
+            type = DataProcessorType.VISUALIZATION
         )
         assertTrue(dataProcessor3 is DataVisualization)
     }
@@ -146,12 +146,12 @@ class DataProcessorServiceTest : AbstractServiceTest() {
         testCreateDataProcessor(
             slug = "slug1",
             codeProject = codeProject,
-            type = DataProcessorType.VISUALISATION
+            type = DataProcessorType.VISUALIZATION
         )
         val dataProcessor = testCreateDataProcessor(
             slug = "slug2",
             codeProject = codeProject,
-            type = DataProcessorType.VISUALISATION
+            type = DataProcessorType.VISUALIZATION
         )
         assertNotNull(dataProcessor)
     }
@@ -161,12 +161,12 @@ class DataProcessorServiceTest : AbstractServiceTest() {
         testCreateDataProcessor(
             slug = "slug",
             codeProject = codeProject,
-            type = DataProcessorType.VISUALISATION
+            type = DataProcessorType.VISUALIZATION
         )
         val dataProcessor = testCreateDataProcessor(
             slug = "slug",
             codeProject = codeProject2,
-            type = DataProcessorType.VISUALISATION
+            type = DataProcessorType.VISUALIZATION
         )
         assertNotNull(dataProcessor)
     }
@@ -176,7 +176,7 @@ class DataProcessorServiceTest : AbstractServiceTest() {
         val dataProcessor = testCreateDataProcessor(
             slug = "slug",
             codeProject = codeProject,
-            type = DataProcessorType.VISUALISATION
+            type = DataProcessorType.VISUALIZATION
         )
         assertNotNull(dataProcessor)
 
@@ -184,7 +184,7 @@ class DataProcessorServiceTest : AbstractServiceTest() {
             testCreateDataProcessor(
                 slug = "slug",
                 codeProject = codeProject,
-                type = DataProcessorType.VISUALISATION
+                type = DataProcessorType.VISUALIZATION
             )
         }
     }
@@ -192,7 +192,7 @@ class DataProcessorServiceTest : AbstractServiceTest() {
     private fun testCreateDataProcessor(codeProject: CodeProject, type: DataProcessorType, slug: String): DataProcessor {
         return dataProcessorService.createForCodeProject(
             id = randomUUID(),
-            codeProjectId = codeProject.id,
+            codeProject = codeProject,
             slug = slug,
             name = "name",
             inputDataType = DataType.IMAGE,

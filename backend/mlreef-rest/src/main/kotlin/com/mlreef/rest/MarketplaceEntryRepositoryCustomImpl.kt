@@ -72,7 +72,6 @@ class ProjectRepositoryCustomImpl() : ProjectRepositoryCustom {
     private fun createPredicates(
         builder: CriteriaBuilder,
         root: Root<out Project>,
-//        joinDataProject: Join<CodeProject, DataProcessor>,
         slugs: List<String>?,
         searchableType: SearchableType,
         inputDataTypes: List<DataType>?,
@@ -89,7 +88,7 @@ class ProjectRepositoryCustomImpl() : ProjectRepositoryCustom {
             predicates.add(builder.equal(root.get<ProjectType>("type"), ProjectType.CODE_PROJECT))
 
             // in case of CodeProject, join with DataProcessors
-            val join = root.join<CodeProject, DataProcessor>("dataProcessor", JoinType.LEFT)
+            val join = root.join<DataProcessor, CodeProject>("dataProcessor", JoinType.LEFT)
             DataProcessorTypeConverter.from(searchableType)?.let {
                 joinPredicatesOverride = true
                 predicates.add(builder.equal(join.get<DataProcessorType>("type"), it))

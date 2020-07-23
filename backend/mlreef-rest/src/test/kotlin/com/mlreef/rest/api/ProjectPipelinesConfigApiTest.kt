@@ -280,7 +280,7 @@ class ProjectPipelinesConfigApiTest : AbstractRestApiTest() {
 internal fun pipelineConfigDtoResponseFields(prefix: String = ""): List<FieldDescriptor> {
     return listOf(
         PayloadDocumentation.fieldWithPath(prefix + "id").type(JsonFieldType.STRING).description("UUID"),
-        PayloadDocumentation.fieldWithPath(prefix + "pipeline_type").type(JsonFieldType.STRING).description("Type of this Pipeline, can be DATA or VISUALISATION"),
+        PayloadDocumentation.fieldWithPath(prefix + "pipeline_type").type(JsonFieldType.STRING).description("Type of this Pipeline, can be DATA or VISUALIZATION"),
         PayloadDocumentation.fieldWithPath(prefix + "slug").type(JsonFieldType.STRING).description("Unique slug of this PipelineConfig"),
         PayloadDocumentation.fieldWithPath(prefix + "name").type(JsonFieldType.STRING).description("Name of this PipelineConfig"),
         PayloadDocumentation.fieldWithPath(prefix + "input_files").type(JsonFieldType.ARRAY).optional().description("FileLocation used as input files"),
@@ -295,7 +295,7 @@ internal fun pipelineConfigDtoResponseFields(prefix: String = ""): List<FieldDes
 
 internal fun pipelineConfigCreateRequestFields(): List<FieldDescriptor> {
     return listOf(
-        PayloadDocumentation.fieldWithPath("pipeline_type").type(JsonFieldType.STRING).description("Type of this Pipeline, can be DATA or VISUALISATION"),
+        PayloadDocumentation.fieldWithPath("pipeline_type").type(JsonFieldType.STRING).description("Type of this Pipeline, can be DATA or VISUALIZATION"),
         PayloadDocumentation.fieldWithPath("slug").type(JsonFieldType.STRING).description("Unique slug of this PipelineConfig"),
         PayloadDocumentation.fieldWithPath("name").type(JsonFieldType.STRING).description("Name of this PipelineConfig"),
         PayloadDocumentation.fieldWithPath("input_files").type(JsonFieldType.ARRAY).optional().description("FileLocation used as input files"),

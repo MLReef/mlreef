@@ -16,33 +16,33 @@ import java.util.UUID.randomUUID
 
 class EntityMocks {
     companion object {
-        val codeProjectId = randomUUID()
         val authorId = randomUUID()
         val author = person(id = authorId, slug = "slug_author")
+        val codeProject = codeProject()
         var lastGitlabId = 10L
 
         fun person(id: UUID = randomUUID(), slug: String = "slug" + randomUUID()) = Person(id, slug, "name", lastGitlabId++)
 
-        fun dataOperation(author: Subject = person(id = authorId), slug: String = "commons-augment") = DataOperation(
+        fun dataOperation(codeProject: CodeProject = this.codeProject, author: Subject = person(id = authorId), slug: String = "commons-augment") = DataOperation(
             id = randomUUID(), slug = slug, name = "Operations",
             inputDataType = DataType.IMAGE, outputDataType = DataType.IMAGE,
             visibilityScope = VisibilityScope.PUBLIC, author = author,
             description = "description",
-            codeProjectId = codeProjectId)
+            codeProject = codeProject)
 
-        fun dataAlgorithm(author: Subject = person(id = authorId)) = DataAlgorithm(
+        fun dataAlgorithm(codeProject: CodeProject = this.codeProject, author: Subject = person(id = authorId)) = DataAlgorithm(
             id = randomUUID(), slug = "commons-algorithm", name = "Algorithm",
             inputDataType = DataType.IMAGE, outputDataType = DataType.IMAGE,
             visibilityScope = VisibilityScope.PUBLIC, author = author,
             description = "description",
-            codeProjectId = codeProjectId)
+            codeProject = codeProject)
 
-        fun dataVisualization(author: Subject = person(id = authorId)) = DataVisualization(
+        fun dataVisualization(codeProject: CodeProject = this.codeProject, author: Subject = person(id = authorId)) = DataVisualization(
             id = randomUUID(), slug = "commons-vis", name = "Algorithm",
             inputDataType = DataType.IMAGE,
             visibilityScope = VisibilityScope.PUBLIC, author = author,
             description = "description",
-            codeProjectId = codeProjectId)
+            codeProject = codeProject)
 
         fun dataProject(ownerId: UUID = authorId, slug: String = "test-data-project", visibilityScope: VisibilityScope? = null, id: UUID = randomUUID()) = DataProject(
             id = id, slug = slug, name = "CodeProject Augment", ownerId = ownerId,

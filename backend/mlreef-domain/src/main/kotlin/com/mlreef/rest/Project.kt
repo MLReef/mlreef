@@ -66,8 +66,7 @@ abstract class Project(
     @Enumerated(EnumType.STRING)
     override val visibilityScope: VisibilityScope = VisibilityScope.default(),
 
-    @OneToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "code_project_id", foreignKey = ForeignKey(name = "codeproject_dataprocessor_code_project_id_fkey"))
+    @OneToOne(fetch = FetchType.EAGER, mappedBy = "codeProject", optional = true)
     val dataProcessor: DataProcessor? = null,
 
     @Column(name = "forks_count")
@@ -145,4 +144,76 @@ abstract class Project(
         updatedAt: ZonedDateTime? = null,
         visibilityScope: VisibilityScope? = null
     ): T
+
+    fun addStar(subject: Person): Project {
+        val existing = stars.find { it.subjectId == subject.id }
+        return if (existing != null) {
+            Searchable.log.info("Skipped: Marketplace already has a star for subject: $subject.id")
+            this
+        } else {
+            val newStars: List<Star> = this.stars.toMutableList().apply {
+                add(Star(
+                    subjectId = subject.id,
+                    projectId = this@Project.id
+                ))
+            }
+            this.clone(
+                stars = newStars
+            )
+        }
+    }
+
+    fun removeStar(subject: Person): Project {
+        val existing = stars.find { it.subjectId == subject.id }
+        return if (existing != null) {
+            val newStars = this.stars.toMutableList().filter { it.subjectId != subject.id }
+            this.clone(
+                stars = newStars
+            )
+        } else {
+            Searchable.log.info("Skipped: Marketplace does not have a star for subject: $subject.id")
+            this
+        }
+    }
+
+    fun addTags(tags: List<SearchableTag>): Project {
+        return this.clone(
+            tags = this.tags.toMutableSet().apply { addAll(tags) }
+        )
+    }
+
+    fun addInputDataTypes(dataTypes: List<DataType>): Project {
+        return this.clone(
+            inputDataTypes = this.inputDataTypes.toMutableSet().apply { addAll(dataTypes) }
+        )
+    }
+
+    fun addOutputDataTypes(dataTypes: List<DataType>): Project {
+        return this.clone(
+            outputDataTypes = this.outputDataTypes.toMutableSet().apply { addAll(dataTypes) }
+        )
+    }
+
+    fun removeInputDataTypes(dataTypes: List<DataType>): Project {
+        return this.clone(
+            inputDataTypes = this.inputDataTypes.toMutableSet().apply { removeAll(dataTypes) }
+        )
+    }
+
+    fun removeOutputDataTypes(dataTypes: List<DataType>): Project {
+        return this.clone(
+            outputDataTypes = this.outputDataTypes.toMutableSet().apply { removeAll(dataTypes) }
+        )
+    }
+
+    abstract fun clone(
+        name: String? = null,
+        description: String? = null,
+        visibilityScope: VisibilityScope? = null,
+        stars: List<Star>? = null,
+        outputDataTypes: MutableSet<DataType>? = null,
+        inputDataTypes: MutableSet<DataType>? = null,
+        tags: MutableSet<SearchableTag>? = null
+    ): Project
+
 }

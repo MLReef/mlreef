@@ -1,5 +1,6 @@
 package com.mlreef.rest.feature.caches
 
+import com.mlreef.rest.AccessLevel
 import com.mlreef.rest.AuditEntity
 import com.mlreef.rest.CodeProjectRepository
 import com.mlreef.rest.DataProjectRepository
@@ -26,6 +27,7 @@ interface PublicProjectsCacheService : MessageListener {
     fun isProjectPublic(projectId: UUID): Boolean
     fun isProjectPublic(gitlabId: Long): Boolean
     fun getPublicProjectsIdsList(): List<UUID>
+    fun getPublicProjectsIdsMap(): Map<UUID, AccessLevel>
     fun getPublicProjectsGitlabIdsList(): List<Long>
     fun getPublicProjectsIdsList(page: Pageable): Page<UUID>
     fun getPublicProjectsGitlabIdsList(page: Pageable): Page<Long>
@@ -71,7 +73,7 @@ class RedisPublicProjectsCacheService(
         }
     }
 
-    override fun isProjectPublic(projectId: UUID) =  initializedProjectsRepository.findByProjectId(projectId) != null
+    override fun isProjectPublic(projectId: UUID) = initializedProjectsRepository.findByProjectId(projectId) != null
 
     override fun isProjectPublic(gitlabId: Long) = initializedProjectsRepository.findByIdOrNull(gitlabId) != null
 
@@ -93,6 +95,9 @@ class RedisPublicProjectsCacheService(
     override fun getPublicProjectsIdsList(page: Pageable): Page<UUID> {
         return getProjectList(page).map { it.projectId }
     }
+
+    override fun getPublicProjectsIdsMap(): Map<UUID, AccessLevel> =
+        getPublicProjectsIdsList().map { it to AccessLevel.VISITOR }.toMap()
 
     override fun getPublicProjectsGitlabIdsList(page: Pageable): Page<Long> {
         return getProjectList(page).map { it.gitlabId }

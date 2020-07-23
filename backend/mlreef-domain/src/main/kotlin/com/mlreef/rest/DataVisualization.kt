@@ -6,7 +6,7 @@ import javax.persistence.DiscriminatorValue
 import javax.persistence.Entity
 
 @Entity
-@DiscriminatorValue("VISUALISATION")
+@DiscriminatorValue("VISUALIZATION")
 class DataVisualization(
     id: UUID,
     slug: String,
@@ -15,7 +15,7 @@ class DataVisualization(
     visibilityScope: VisibilityScope = VisibilityScope.default(),
     description: String = "",
     author: Subject? = null,
-    codeProjectId: UUID? = null,
+    codeProject: CodeProject? = null,
     termsAcceptedById: UUID? = null,
     termsAcceptedAt: ZonedDateTime? = null,
     licenceName: String? = null,
@@ -24,8 +24,8 @@ class DataVisualization(
     version: Long? = null,
     createdAt: ZonedDateTime? = null,
     updatedAt: ZonedDateTime? = null
-) : DataProcessor(id, slug, name, inputDataType, DataType.NONE, DataProcessorType.VISUALISATION,
-    visibilityScope, description, codeProjectId, author,
+) : DataProcessor(id, slug, name, inputDataType, DataType.NONE, DataProcessorType.VISUALIZATION,
+    visibilityScope, description, codeProject, codeProject?.id, author,
     termsAcceptedById, termsAcceptedAt, licenceName, licenceText, lastPublishedAt,
     version, createdAt, updatedAt) {
     override fun isChainable(): Boolean = true
@@ -38,6 +38,8 @@ class DataVisualization(
         visibilityScope: VisibilityScope? = null,
         description: String? = null,
         author: Subject? = null,
+        codeProject: CodeProject? = null,
+        codeProjectId: UUID? = codeProject?.id,
         termsAcceptedById: UUID? = null,
         termsAcceptedAt: ZonedDateTime? = null,
         licenceName: String? = null,
@@ -51,7 +53,7 @@ class DataVisualization(
         description = description ?: this.description,
         author = author ?: this.author,
         id = id,
-        codeProjectId = codeProjectId ?: this.codeProjectId,
+        codeProject = codeProject ?: this.codeProject,
         termsAcceptedById = termsAcceptedById ?: this.termsAcceptedById,
         termsAcceptedAt = termsAcceptedAt ?: this.termsAcceptedAt,
         licenceName = licenceName ?: this.licenceName,

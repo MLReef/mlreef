@@ -40,7 +40,7 @@ internal class YamlFileGenerator(
                 val path = when (instance.dataProcessor.type) {
                     DataProcessorType.ALGORITHM -> "/epf/model/"
                     DataProcessorType.OPERATION -> "/epf/pipelines/"
-                    DataProcessorType.VISUALISATION -> "/epf/visualisation/"
+                    DataProcessorType.VISUALIZATION -> "/epf/visualisation/"
                 }
                 "python $path${instance.processorVersion.command}.py " + writeParameters(instance.parameterInstances)
             } catch (e: Exception) {

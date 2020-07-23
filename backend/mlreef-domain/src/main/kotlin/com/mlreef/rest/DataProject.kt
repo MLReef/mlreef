@@ -160,7 +160,7 @@ class DataProject(
                        outputDataTypes: MutableSet<DataType>?,
                        inputDataTypes: MutableSet<DataType>?,
                        tags: MutableSet<SearchableTag>?
-    ): Searchable {
+    ): Project {
         return this.copy(
             name = name,
             description = description,

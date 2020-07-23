@@ -271,7 +271,7 @@ class ProjectNamespaceSlugEndpointsApiTest : AbstractRestApiTest() {
         val project = CodeProject(randomUUID(), "slug-4", "www.url.com", "Test Code Project 4", "description", subject.id, "group4", "project-4", 4)
         codeProjectRepository.save(project)
 
-        createDataProcessor(DataProcessorType.OPERATION, project.id)
+        createDataProcessor(DataProcessorType.OPERATION, project)
 
         mockGetUserProjectsList(listOf(project.id), account, AccessLevel.OWNER)
 
