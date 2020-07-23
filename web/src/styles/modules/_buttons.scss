@@ -68,9 +68,8 @@
   &[disabled],
   &.disabled {
     cursor: auto;
-    color: #{$lessWhite};
-    border: 1px solid #{$secondary};
-    background-color: transparent;
+    border-color: $secondary;
+    border-style: solid;
 
     &:not(.waiting) {
       background-color: #{$light};
