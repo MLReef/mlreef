@@ -134,14 +134,14 @@ data class PipelineConfig(
 enum class PipelineType {
     DATA,
     EXPERIMENT,
-    VISUALISATION;
+    VISUALIZATION;
 
     companion object {
         fun fromString(value: String): PipelineType? {
             return when (value.toUpperCase()) {
                 DATA.name -> DATA
-                VISUALISATION.name -> VISUALISATION
-                "VISUAL" -> VISUALISATION
+                VISUALIZATION.name -> VISUALIZATION
+                "VISUAL" -> VISUALIZATION
                 else -> null
             }
         }
@@ -150,7 +150,7 @@ enum class PipelineType {
             return when (value) {
                 DATA -> "data-pipeline"
                 EXPERIMENT -> "experiment"
-                VISUALISATION -> "data-visualization"
+                VISUALIZATION -> "data-visualization"
             }
         }
     }

@@ -4,8 +4,6 @@ import com.mlreef.rest.AccessLevel
 import com.mlreef.rest.BaseEnvironment
 import com.mlreef.rest.CodeProject
 import com.mlreef.rest.CodeProjectRepository
-import com.mlreef.rest.DataAlgorithm
-import com.mlreef.rest.DataOperation
 import com.mlreef.rest.DataProcessor
 import com.mlreef.rest.DataProcessorRepository
 import com.mlreef.rest.DataProcessorType
@@ -20,7 +18,6 @@ import com.mlreef.rest.api.v1.DataProcessorCreateRequest
 import com.mlreef.rest.api.v1.dto.DataProcessorDto
 import com.mlreef.rest.api.v1.dto.ParameterDto
 import com.mlreef.rest.api.v1.dto.ProcessorVersionDto
-import com.mlreef.rest.feature.data_processors.DataProcessorService
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Tag
@@ -82,9 +79,9 @@ class DataProcessorApiTest : AbstractRestApiTest() {
     @Tag(TestTags.RESTDOC)
     fun `Can retrieve all DataProcessors`() {
 
-        createDataProcessor(DataProcessorType.OPERATION, codeProject.id, DataType.IMAGE)
-        createDataProcessor(DataProcessorType.OPERATION, codeProject.id, DataType.IMAGE)
-        createDataProcessor(DataProcessorType.OPERATION, codeProject2.id, DataType.IMAGE)
+        createDataProcessor(DataProcessorType.OPERATION, codeProject, DataType.IMAGE)
+        createDataProcessor(DataProcessorType.OPERATION, codeProject, DataType.IMAGE)
+        createDataProcessor(DataProcessorType.OPERATION, codeProject2, DataType.IMAGE)
 
         val returnedResult: List<DataProcessorDto> = this.performGet(rootUrl, account)
             .andExpect(status().isOk)
@@ -99,7 +96,7 @@ class DataProcessorApiTest : AbstractRestApiTest() {
     @Test
     @Tag(TestTags.RESTDOC)
     fun `Can retrieve all DataProcessor's Versions`() {
-        val processor = createDataProcessor(DataProcessorType.OPERATION, codeProject.id)
+        val processor = createDataProcessor(DataProcessorType.OPERATION, codeProject)
 
         createProcessorVersion(processor, "master", 1, "command")
         createProcessorVersion(processor, "master", 2, "command")
@@ -168,11 +165,11 @@ class DataProcessorApiTest : AbstractRestApiTest() {
     @Test
     fun `Can retrieve all DataProcessors filters combined 2`() {
         createManyMocks()
-        val url = "$rootUrl?type=VISUALISATION&output_data_type=IMAGE"
+        val url = "$rootUrl?type=VISUALIZATION&output_data_type=IMAGE"
         val returnedResult = performFilterRequest(url)
 
         returnedResult.forEach {
-            assertThat(it.type).isEqualTo(DataProcessorType.VISUALISATION)
+            assertThat(it.type).isEqualTo(DataProcessorType.VISUALIZATION)
             assertThat(it.outputDataType).isEqualTo(DataType.IMAGE)
         }
     }
@@ -216,12 +213,12 @@ class DataProcessorApiTest : AbstractRestApiTest() {
     @Transactional
     @Rollback
     @Test
-    fun `Can retrieve all DataProcessors filters VISUALISATION`() {
+    fun `Can retrieve all DataProcessors filters VISUALIZATION`() {
         createManyMocks()
-        val url = "$rootUrl?type=VISUALISATION"
+        val url = "$rootUrl?type=VISUALIZATION"
         val returnedResult = performFilterRequest(url)
         returnedResult.forEach {
-            assertThat(it.type).isEqualTo(DataProcessorType.VISUALISATION)
+            assertThat(it.type).isEqualTo(DataProcessorType.VISUALIZATION)
         }
     }
 
@@ -241,7 +238,7 @@ class DataProcessorApiTest : AbstractRestApiTest() {
     @Rollback
     @Test
     fun `Cannot retrieve foreign DataProcessor`() {
-        createDataProcessor(DataProcessorType.OPERATION, codeProject.id)
+        createDataProcessor(DataProcessorType.OPERATION, codeProject)
 
         this.mockMvc.perform(
             this.defaultAcceptContentAuth(get("$rootUrl/${codeProject2.id}/processor")))
@@ -285,7 +282,7 @@ class DataProcessorApiTest : AbstractRestApiTest() {
     @Test
     @Tag(TestTags.RESTDOC)
     fun `Can retrieve specific own DataProcessor`() {
-        createDataProcessor(DataProcessorType.OPERATION, codeProject.id)
+        createDataProcessor(DataProcessorType.OPERATION, codeProject)
 
         mockGetUserProjectsList(listOf(codeProject.id), account, AccessLevel.OWNER)
 
@@ -296,29 +293,25 @@ class DataProcessorApiTest : AbstractRestApiTest() {
     }
 
     private fun createManyMocks() {
-        createDataProcessor(DataProcessorType.OPERATION, codeProject.id, DataType.IMAGE, DataType.VIDEO)
-        createDataProcessor(DataProcessorType.ALGORITHM, codeProject.id, DataType.IMAGE, DataType.IMAGE)
-        createDataProcessor(DataProcessorType.ALGORITHM, codeProject.id, DataType.VOICE, DataType.VIDEO)
-        createDataProcessor(DataProcessorType.VISUALISATION, codeProject2.id, DataType.IMAGE, DataType.IMAGE)
-        createDataProcessor(DataProcessorType.OPERATION, codeProject2.id, DataType.VIDEO, DataType.VIDEO)
-        createDataProcessor(DataProcessorType.VISUALISATION, codeProject2.id, DataType.VIDEO, DataType.VIDEO)
-        createDataProcessor(DataProcessorType.OPERATION, codeProject.id, DataType.VIDEO, DataType.IMAGE)
-        createDataProcessor(DataProcessorType.ALGORITHM, codeProject.id, DataType.VIDEO, DataType.VIDEO)
-        createDataProcessor(DataProcessorType.ALGORITHM, codeProject.id, DataType.VIDEO, DataType.IMAGE)
-        createDataProcessor(DataProcessorType.VISUALISATION, codeProject2.id, DataType.IMAGE, DataType.VIDEO)
-        createDataProcessor(DataProcessorType.OPERATION, codeProject2.id, DataType.VIDEO, DataType.IMAGE)
-        createDataProcessor(DataProcessorType.VISUALISATION, codeProject2.id, DataType.VIDEO, DataType.IMAGE)
+        createDataProcessor(DataProcessorType.OPERATION, codeProject, DataType.IMAGE, DataType.VIDEO)
+        createDataProcessor(DataProcessorType.ALGORITHM, codeProject, DataType.IMAGE, DataType.IMAGE)
+        createDataProcessor(DataProcessorType.ALGORITHM, codeProject, DataType.VOICE, DataType.VIDEO)
+        createDataProcessor(DataProcessorType.VISUALIZATION, codeProject2, DataType.IMAGE, DataType.IMAGE)
+        createDataProcessor(DataProcessorType.OPERATION, codeProject2, DataType.VIDEO, DataType.VIDEO)
+        createDataProcessor(DataProcessorType.VISUALIZATION, codeProject2, DataType.VIDEO, DataType.VIDEO)
+        createDataProcessor(DataProcessorType.OPERATION, codeProject, DataType.VIDEO, DataType.IMAGE)
+        createDataProcessor(DataProcessorType.ALGORITHM, codeProject, DataType.VIDEO, DataType.VIDEO)
+        createDataProcessor(DataProcessorType.ALGORITHM, codeProject, DataType.VIDEO, DataType.IMAGE)
+        createDataProcessor(DataProcessorType.VISUALIZATION, codeProject2, DataType.IMAGE, DataType.VIDEO)
+        createDataProcessor(DataProcessorType.OPERATION, codeProject2, DataType.VIDEO, DataType.IMAGE)
+        createDataProcessor(DataProcessorType.VISUALIZATION, codeProject2, DataType.VIDEO, DataType.IMAGE)
     }
 
     private fun performFilterRequest(url: String): List<DataProcessorDto> {
-        val returnedResult: List<DataProcessorDto> = this.mockMvc.perform(
-            this.defaultAcceptContentAuth(get(url)))
+        return mockMvc.perform(
+            defaultAcceptContentAuth(get(url)))
             .andExpect(status().isOk)
-            .andReturn().let {
-                val constructCollectionType = objectMapper.typeFactory.constructCollectionType(List::class.java, DataProcessorDto::class.java)
-                objectMapper.readValue(it.response.contentAsByteArray, constructCollectionType)
-            }
-        return returnedResult
+            .returnsList(DataProcessorDto::class.java)
     }
 
     private fun dataProcessorCreateRequestFields(): List<FieldDescriptor> {

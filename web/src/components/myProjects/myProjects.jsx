@@ -6,7 +6,7 @@ import { arrayOf, shape, func } from 'prop-types';
 import MProjectClassification from 'components/ui/MProjectClassification/MProjectClassification';
 import MTabs from 'components/ui/MTabs';
 import {
-  projectClassificationsProps, OPERATION, VISUALISATION,
+  projectClassificationsProps
 } from 'dataTypes';
 import Navbar from '../navbar/navbar';
 import './myProjects.scss';
@@ -17,6 +17,9 @@ import * as userActions from '../../actions/userActions';
 import { PROJECT_TYPES } from 'domain/project/projectTypes';
 import * as processorActions from 'actions/processorActions';
 import {onlyDataProject, onlyCodeProject} from 'functions/apiCalls';
+import MLSearchApi from 'apis/MLSearchApi.ts';
+
+const mlSearchApi = new MLSearchApi();
 
 class Myprojects extends React.Component {
   projFilterBtnsList = ['own', 'starred', 'explore'];
@@ -59,8 +62,8 @@ class Myprojects extends React.Component {
       userProjects,
       starredProjects
     } = nextProps;
-    // const {actions} = nextProps;
-    // actions.setIsLoading(false);
+    const {actions} = nextProps;
+    actions.setIsLoading(false);
     return {
       allProjects,
       userProjects,
@@ -130,6 +133,14 @@ class Myprojects extends React.Component {
             id={projectClassificationsProps[0].classification}
             label="ML Projects"
             color={projectClassificationsProps[0].color}
+            callback={() => {
+              try {
+                actions.setIsLoading(true);
+                actions.getProjectsList();
+              } catch (error) {
+                toastr.error('Error', error);
+              }
+            }}
           >
             <MProjectClassification
               classification={projectClassificationsProps[0].classification}
@@ -143,6 +154,14 @@ class Myprojects extends React.Component {
             id={projectClassificationsProps[1].classification}
             label="Models"
             color={projectClassificationsProps[1].color}
+            callback={() => {
+              try {
+                actions.setIsLoading(true);
+                actions.getDataProcessorsAndCorrespondingProjects(PROJECT_TYPES.ALGORITHM);
+              } catch (error) {
+                toastr.error('Error', error);
+              }
+            }}
           >
             <MProjectClassification
               classification={projectClassificationsProps[1].classification}
@@ -159,7 +178,7 @@ class Myprojects extends React.Component {
             callback={() => {
               try {
                 actions.setIsLoading(true);
-                actions.getDataProcessorsAndCorrespondingProjects(OPERATION);
+                actions.getDataProcessorsAndCorrespondingProjects(PROJECT_TYPES.OPERATION);
               } catch (error) {
                 toastr.error('Error', error);
               }
@@ -180,7 +199,7 @@ class Myprojects extends React.Component {
             callback={() => {
               try {
                 actions.setIsLoading(true);
-                actions.getDataProcessorsAndCorrespondingProjects(VISUALISATION);
+                actions.getDataProcessorsAndCorrespondingProjects(PROJECT_TYPES.VISUALIZATION);
               } catch (error) {
                 toastr.error('Error', error);
               }

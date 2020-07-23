@@ -7,7 +7,7 @@ import { toastr } from 'react-redux-toastr';
 import arrayMove from 'array-move';
 import UUIDV1 from 'uuid/v1';
 import plus from 'images/plus_01.svg';
-import { OPERATION, ALGORITHM, VISUALISATION } from 'dataTypes';
+import { OPERATION, ALGORITHM, VISUALIZATION } from 'dataTypes';
 import SortableProcessorsList from 'components/views/PipelinesExecutionView/SortableDataProcessorsList';
 import { parseToCamelCase } from 'functions/dataParserHelpers';
 import SelectDataPipelineModal from './SelectDataPipelineModal';
@@ -241,7 +241,7 @@ class PipelinesExecutionView extends Component {
       activeFeature = 'data';
       instructionDataModel = dataVisualizationInstuctionData;
       pipelinesTypeExecutionTitle = 'Data visualization';
-      operationTypeToExecute = VISUALISATION;
+      operationTypeToExecute = VISUALIZATION;
       operatorsTitle = 'Select a data visualization';
     }
     return (

@@ -9,6 +9,7 @@ import com.mlreef.rest.api.v1.dto.ProjectDto
 import com.mlreef.rest.api.v1.dto.SearchResultDto
 import com.mlreef.rest.api.v1.dto.SearchableTagDto
 import com.mlreef.rest.api.v1.dto.toDto
+import com.mlreef.rest.feature.caches.PublicProjectsCacheService
 import com.mlreef.rest.feature.marketplace.MarketplaceService
 import com.mlreef.rest.feature.marketplace.SearchResult
 import com.mlreef.rest.marketplace.SearchableTag
@@ -31,7 +32,8 @@ import java.util.UUID
 class MarketplaceController(
     val marketplaceService: MarketplaceService,
     val searchableTagRepository: SearchableTagRepository,
-    val currentUserService: CurrentUserService
+    val currentUserService: CurrentUserService,
+    val publicProjectsCacheService: PublicProjectsCacheService
 ) {
     companion object {
         private val log = LoggerFactory.getLogger(this::class.java)
@@ -70,11 +72,13 @@ class MarketplaceController(
             minStars = minStars
         )
         val accountOrNull = currentUserService.accountOrNull()
+        val publicProjectMap = publicProjectsCacheService.getPublicProjectsIdsMap()
+
         val results = if (accountOrNull != null) {
-            val projectsMap = currentUserService.projectsMap(AccessLevel.GUEST)
+            val projectsMap = publicProjectMap.plus(currentUserService.projectsMap(AccessLevel.GUEST))
             marketplaceService.performSearch(pageable, finalFilter, projectsMap)
         } else {
-            marketplaceService.performSearch(pageable, finalFilter, null)
+            marketplaceService.performSearch(pageable, finalFilter, publicProjectMap)
         }
         val dtos = results.map(SearchResult::toDto)
         return PageImpl(dtos, pageable, dtos.size.toLong())

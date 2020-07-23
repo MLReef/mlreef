@@ -42,78 +42,7 @@ interface Searchable {
         val log = LoggerFactory.getLogger(this::class.java)
     }
 
-    fun addStar(subject: Person): Searchable {
-        val existing = stars.find { it.subjectId == subject.id }
-        return if (existing != null) {
-            log.info("Skipped: Marketplace already has a star for subject: $subject.id")
-            this
-        } else {
-            val newStars: List<Star> = this.stars.toMutableList().apply {
-                add(Star(
-                    subjectId = subject.id,
-                    projectId = this@Searchable.getId()
-                ))
-            }
-            this.clone(
-                stars = newStars
-            )
-        }
-    }
 
-
-    fun removeStar(subject: Person): Searchable {
-        val existing = stars.find { it.subjectId == subject.id }
-        return if (existing != null) {
-            val newStars = this.stars.toMutableList().filter { it.subjectId != subject.id }
-            this.clone(
-                stars = newStars
-            )
-        } else {
-            log.info("Skipped: Marketplace does not have a star for subject: $subject.id")
-            this
-        }
-    }
-
-
-    fun addTags(tags: List<SearchableTag>): Searchable {
-        return this.clone(
-            tags = this.tags.toMutableSet().apply { addAll(tags) }
-        )
-    }
-
-    fun addInputDataTypes(dataTypes: List<DataType>): Searchable {
-        return this.clone(
-            inputDataTypes = this.inputDataTypes.toMutableSet().apply { addAll(dataTypes) }
-        )
-    }
-
-    fun addOutputDataTypes(dataTypes: List<DataType>): Searchable {
-        return this.clone(
-            outputDataTypes = this.outputDataTypes.toMutableSet().apply { addAll(dataTypes) }
-        )
-    }
-
-    fun removeInputDataTypes(dataTypes: List<DataType>): Searchable {
-        return this.clone(
-            inputDataTypes = this.inputDataTypes.toMutableSet().apply { removeAll(dataTypes) }
-        )
-    }
-
-    fun removeOutputDataTypes(dataTypes: List<DataType>): Searchable {
-        return this.clone(
-            outputDataTypes = this.outputDataTypes.toMutableSet().apply { removeAll(dataTypes) }
-        )
-    }
-
-    fun clone(
-        name: String? = null,
-        description: String? = null,
-        visibilityScope: VisibilityScope? = null,
-        stars: List<Star>? = null,
-        outputDataTypes: MutableSet<DataType>? = null,
-        inputDataTypes: MutableSet<DataType>? = null,
-        tags: MutableSet<SearchableTag>? = null
-    ): Searchable
 
 }
 

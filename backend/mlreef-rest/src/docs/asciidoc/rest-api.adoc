@@ -396,7 +396,7 @@ operation::group-edit-user[snippets='curl-request,request-parameters,response-bo
 
 === DELETE /groups/:id/users/:userId
 
-Delete a user by id (:userId) from the group by id (:id). Returns a list with users left in the project.
+Delete a user by id (:userId) from the group by id (:id).Returns a list with users left in the project.
 
 operation::group-delete-user[snippets='curl-request,response-body,response-fields']
 
@@ -412,7 +412,7 @@ operation::data-processors-retrieve-all[snippets='curl-request,response-body,res
 
 The endpoint can be filtered on
 
-* type: ALGORITHM, OPERATION, VISUALISATION
+* type: ALGORITHM, OPERATION, VISUALIZATION
 * input_data_type: DataType of input for DataProcessor
 * output_data_type: DataType of output for DataProcessor
 
@@ -618,7 +618,7 @@ But also MarketplaceEntries can be found for Projects and Processors, which are 
 MarketplaceEntries are the public facade of DataProjects and DataProcessors, and have a link to their respective entity.
 
 * searchable_id: UUID of linked Searchable
-* searchable_type: DATA_PROJECT, ALGORITHM (model in UI), OPERATION and VISUALISATION
+* searchable_type: DATA_PROJECT, ALGORITHM (model in UI), OPERATION and VISUALIZATION
 
 === GET /explore/entries
 
@@ -638,11 +638,11 @@ The minimal FilterRequest contains the SearchableType:
 * DATA_PROJECT
 * CODE_PROJECT (ALL Processors)
 * OPERATION
-* VISUALISATION
+* VISUALIZATION
 * ALGORITHM
 
 DATA_PROJECT will find DataProjects, CODE_PROJECT will find all CodeProjects connected with their CodeProcessors.
-If you want to filter for an explicit CODE_PROJECT type, use OPERATION, VISUALISATION or ALGORITHM.
+If you want to filter for an explicit CODE_PROJECT type, use OPERATION, VISUALIZATION or ALGORITHM.
 
 operation::marketplace-explore-search[snippets='request-fields']
 

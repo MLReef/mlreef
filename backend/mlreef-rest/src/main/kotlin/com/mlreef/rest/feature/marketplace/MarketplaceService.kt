@@ -44,7 +44,7 @@ class MarketplaceService(
      *
      */
     @Transactional
-    fun prepareEntry(searchable: Searchable, owner: Subject): Searchable {
+    fun prepareEntry(searchable: Searchable, owner: Subject): Project {
         val afterSave = when (searchable) {
             is DataProject -> updateDataProject(searchable, owner)
             is CodeProject -> updateCodeProject(searchable, owner)
@@ -60,14 +60,14 @@ class MarketplaceService(
      * Searchable can be a DataProject or a DataProcessorr
      *
      */
-    fun assertEntry(searchable: Searchable, owner: Subject): Searchable {
+    fun assertEntry(searchable: Searchable, owner: Subject): Project {
         val existing = projectRepository.findByIdOrNull(searchable.getId())
         existing?.let { return@let existing }
         return prepareEntry(searchable, owner)
     }
 
     @Transactional
-    fun save(searchable: Searchable): Searchable {
+    fun save(searchable: Searchable): Project {
         return when (searchable) {
             is DataProject -> dataProjectRepository.save(searchable)
             is CodeProject -> codeProjectRepository.save(searchable)
@@ -79,7 +79,7 @@ class MarketplaceService(
     /**
      * Adds a star from one Person
      */
-    fun addStar(searchable: Searchable, person: Person): Searchable {
+    fun addStar(searchable: Project, person: Person): Project {
         val adapted = searchable.addStar(person)
         return save(adapted)
     }
@@ -88,7 +88,7 @@ class MarketplaceService(
      * Adds a preexisting Tag to this Entry, Tags are stored just once per Entry
      */
     @Transactional
-    fun addTags(searchable: Searchable, tags: List<SearchableTag>): Searchable {
+    fun addTags(searchable: Project, tags: List<SearchableTag>): Project {
         val adapted = searchable.addTags(tags)
         return save(adapted)
     }
@@ -96,14 +96,14 @@ class MarketplaceService(
     /**
      * Sets the Tags of this Entry, similar to removing all Tags and adding new ones
      */
-    fun defineTags(searchable: Searchable, tags: List<SearchableTag>): Searchable {
+    fun defineTags(searchable: Project, tags: List<SearchableTag>): Project {
         val adapted = searchable
             .clone(tags = hashSetOf())
             .addTags(tags)
         return save(adapted)
     }
 
-    fun removeStar(searchable: Searchable, person: Person): Searchable {
+    fun removeStar(searchable: Project, person: Person): Project {
         val adapted = searchable.removeStar(person)
         log.info("User $person put a star on $Searchable")
         return save(adapted)
@@ -177,7 +177,7 @@ class MarketplaceService(
         log.debug("Start MarketplaceSearch for filterRequest ${filter} and paging ${pageable}")
         val time = System.currentTimeMillis()
 
-        val ids: List<UUID>? = projectsMap?.filterValues { AccessLevel.isSufficientFor(it, AccessLevel.GUEST) }?.map { it.key }?.toList()
+        val ids: List<UUID>? = projectsMap?.filterValues { AccessLevel.isSufficientFor(it, AccessLevel.VISITOR) }?.map { it.key }?.toList()
         val existingTags = filter.tags?.let { findTagsForStrings(it) }
 
         val typeClazz = if (filter.searchableType == SearchableType.DATA_PROJECT) {

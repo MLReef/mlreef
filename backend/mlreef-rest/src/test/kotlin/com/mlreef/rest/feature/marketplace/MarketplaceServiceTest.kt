@@ -50,6 +50,9 @@ class MarketplaceServiceTest : AbstractRepositoryTest() {
     private lateinit var dataProcessorRepository: DataProcessorRepository
 
     @Autowired
+    private lateinit var projectRepository: ProjectRepository
+
+    @Autowired
     private lateinit var codeProjectRepository: CodeProjectRepository
 
     private lateinit var service: MarketplaceService
@@ -191,18 +194,12 @@ class MarketplaceServiceTest : AbstractRepositoryTest() {
             .addStar(person2)
 
         withinTransaction {
-            repository.save(adapted as Project)
+            repository.save(adapted)
         }
 
         withinTransaction {
             service.removeStar(adapted, person1)
         }
-//        val afterRemove = withinTransaction {
-//            val beforeRemove = adapted
-//                .removeStar(person1)
-//                .removeStar(person1)
-//            repository.save(beforeRemove as Project)
-//        }
 
         val fromRepo = repository.findByIdOrNull(entity.getId())
 
@@ -259,10 +256,10 @@ class MarketplaceServiceTest : AbstractRepositoryTest() {
 
     @Transactional
     @Test
-    fun `filter for searchableType VISUALISATION finds specified CODE_PROJECT`() {
+    fun `filter for searchableType VISUALIZATION finds specified CODE_PROJECT`() {
         val (_, _, _, entry4) = mockMarkeplaceEntries(ProjectType.CODE_PROJECT)
         val performSearch = service.performSearch(page(), FilterRequest(
-            searchableType = SearchableType.VISUALISATION,
+            searchableType = SearchableType.VISUALIZATION,
             maxStars = 100,
             minStars = 0
         ), hashMapOf())
@@ -291,7 +288,7 @@ class MarketplaceServiceTest : AbstractRepositoryTest() {
     fun `filter CODE_PROJECT for inputDataTypes WITH specific DATAPROCESSOR checks inputDataTypes of DataProcessor`() {
         val (_, _, _, entry4) = mockMarkeplaceEntries(ProjectType.CODE_PROJECT, faulty = true)
         val performSearch = service.performSearch(page(), FilterRequest(
-            searchableType = SearchableType.VISUALISATION,
+            searchableType = SearchableType.VISUALIZATION,
             inputDataTypes = listOf(DataType.IMAGE),
             maxStars = 100,
             minStars = 0
@@ -379,7 +376,7 @@ class MarketplaceServiceTest : AbstractRepositoryTest() {
 
         // also, when joining, JUST the dataprocessors explicitly are found with the stated DataType
         val performSearch4 = service.performSearch(page(), FilterRequest(
-            searchableType = SearchableType.VISUALISATION,
+            searchableType = SearchableType.VISUALIZATION,
             outputDataTypes = listOf(DataType.MODEL),
             maxStars = 100,
             minStars = 0
@@ -485,7 +482,7 @@ class MarketplaceServiceTest : AbstractRepositoryTest() {
             maxStars = 100,
             minStars = 0
         ), hashMapOf())
-        val ids = performSearch.map { it.project.getId() }
+        val ids = performSearch.map { it.project.id }
         assertThat(performSearch).hasSize(1)
         assertThat(ids).containsAll(listOf(entry4).map(Searchable::getId))
     }
@@ -568,34 +565,46 @@ class MarketplaceServiceTest : AbstractRepositoryTest() {
 
     private fun page() = PageRequest.of(0, 100)
 
-    private fun saveProjects(projects: List<Searchable>) {
-        projects.forEach {
-            if (it is DataProject) {
-                dataProjectRepository.save(it)
-            } else if (it is CodeProject) {
-                codeProjectRepository.save(it)
-            }
-        }
-    }
-
-    private fun mockMarkeplaceEntries(type: ProjectType, faulty: Boolean = false): List<Searchable> {
+    private fun mockMarkeplaceEntries(type: ProjectType, faulty: Boolean = false): List<Project> {
         val tag1 = SearchableTag(randomUUID(), "tag1")
         val tag2 = SearchableTag(randomUUID(), "tag2")
 
-        var project1: Searchable?
-        var project2: Searchable?
-        var project3: Searchable?
-        var project4: Searchable?
+        var project1: Project?
+        var project2: Project?
+        var project3: Project?
+        var project4: Project?
         if (type == ProjectType.DATA_PROJECT) {
             project1 = EntityMocks.dataProject(slug = "entry1")
             project2 = EntityMocks.dataProject(slug = "entry2")
             project3 = EntityMocks.dataProject(slug = "entry3")
             project4 = EntityMocks.dataProject(slug = "entry4")
         } else {
-            var dataProcessor1 = EntityMocks.dataAlgorithm(author = author)
-            var dataProcessor2 = EntityMocks.dataOperation(slug = "op1", author = author)
-            var dataProcessor3 = EntityMocks.dataOperation(slug = "op2", author = author)
-            var dataProcessor4 = EntityMocks.dataVisualization(author = author)
+            project1 = EntityMocks.codeProject(slug = "entry1")
+            project2 = EntityMocks.codeProject(slug = "entry2")
+            project3 = EntityMocks.codeProject(slug = "entry3")
+            project4 = EntityMocks.codeProject(slug = "entry4")
+        }
+        project1 = projectRepository.save(project1.clone(inputDataTypes = hashSetOf(DataType.VIDEO, DataType.TABULAR)).addTags(listOf(tag1)))
+
+        project2 = projectRepository.save(project2.clone(inputDataTypes = hashSetOf(DataType.IMAGE)).addTags(listOf(tag2)))
+
+        project3 = projectRepository.save(project3
+            .clone(
+                inputDataTypes = hashSetOf(DataType.VIDEO, DataType.MODEL),
+                outputDataTypes = hashSetOf(DataType.MODEL))
+            .addTags(listOf()))
+
+        project4 = projectRepository.save(project4
+            .clone(
+                inputDataTypes = hashSetOf(DataType.IMAGE),
+                outputDataTypes = hashSetOf(DataType.MODEL, DataType.TABULAR))
+            .addTags(listOf(tag1, tag2)))
+
+        if (type != ProjectType.DATA_PROJECT) {
+            var dataProcessor1 = EntityMocks.dataAlgorithm(codeProject = project1 as CodeProject, author = author)
+            var dataProcessor2 = EntityMocks.dataOperation(codeProject = project2 as CodeProject, author = author, slug = "op1")
+            var dataProcessor3 = EntityMocks.dataOperation(codeProject = project3 as CodeProject, author = author, slug = "op2")
+            var dataProcessor4 = EntityMocks.dataVisualization(codeProject = project4 as CodeProject, author = author)
             if (faulty) {
                 dataProcessor1 = dataProcessor1.copy(inputDataType = DataType.TIME_SERIES)
                 dataProcessor2 = dataProcessor2.copy(inputDataType = DataType.IMAGE)
@@ -603,27 +612,7 @@ class MarketplaceServiceTest : AbstractRepositoryTest() {
                 dataProcessor4 = dataProcessor4.copy(inputDataType = DataType.IMAGE)
             }
             dataProcessorRepository.saveAll(listOf(dataProcessor1, dataProcessor2, dataProcessor3, dataProcessor4))
-            project1 = EntityMocks.codeProject(slug = "entry1").copy(dataProcessor = dataProcessor1)
-            project2 = EntityMocks.codeProject(slug = "entry2").copy(dataProcessor = dataProcessor2)
-            project3 = EntityMocks.codeProject(slug = "entry3").copy(dataProcessor = dataProcessor3)
-            project4 = EntityMocks.codeProject(slug = "entry4").copy(dataProcessor = dataProcessor4)
         }
-        project1 = project1.clone(inputDataTypes = hashSetOf(DataType.VIDEO, DataType.TABULAR)
-        ).addTags(listOf(tag1))
-
-        project2 = project2.clone(inputDataTypes = hashSetOf(DataType.IMAGE))
-            .addTags(listOf(tag2))
-
-        project3 = project3.clone(inputDataTypes = hashSetOf(DataType.VIDEO, DataType.MODEL),
-            outputDataTypes = hashSetOf(DataType.MODEL))
-            .addTags(listOf())
-
-        project4 = project4.clone(inputDataTypes = hashSetOf(DataType.IMAGE),
-            outputDataTypes = hashSetOf(DataType.MODEL, DataType.TABULAR)
-        ).addTags(listOf(tag1, tag2))
-
-        val listOf: List<Searchable> = listOf(project1, project2, project3, project4)
-        saveProjects(listOf)
-        return listOf
+        return projectRepository.findAll().toList()
     }
 }

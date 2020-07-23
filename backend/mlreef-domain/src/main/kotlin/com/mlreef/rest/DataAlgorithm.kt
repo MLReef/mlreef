@@ -19,7 +19,8 @@ class DataAlgorithm(
     visibilityScope: VisibilityScope = VisibilityScope.default(),
     description: String = "",
     author: Subject? = null,
-    codeProjectId: UUID? = null,
+    codeProject: CodeProject? = null,
+    codeProjectId: UUID? = codeProject?.id,
     termsAcceptedById: UUID? = null,
     termsAcceptedAt: ZonedDateTime? = null,
     licenceName: String? = null,
@@ -29,7 +30,7 @@ class DataAlgorithm(
     createdAt: ZonedDateTime? = null,
     updatedAt: ZonedDateTime? = null
 ) : DataProcessor(id, slug, name, inputDataType, outputDataType, DataProcessorType.ALGORITHM,
-    visibilityScope, description, codeProjectId, author,
+    visibilityScope, description, codeProject, codeProject?.id, author,
     termsAcceptedById, termsAcceptedAt, licenceName, licenceText, lastPublishedAt,
     version, createdAt, updatedAt) {
 
@@ -43,6 +44,7 @@ class DataAlgorithm(
         visibilityScope: VisibilityScope? = null,
         description: String? = null,
         author: Subject? = null,
+        codeProject: CodeProject? = null,
         termsAcceptedById: UUID? = null,
         termsAcceptedAt: ZonedDateTime? = null,
         licenceName: String? = null,
@@ -57,7 +59,7 @@ class DataAlgorithm(
         description = description ?: this.description,
         author = author ?: this.author,
         id = id,
-        codeProjectId = codeProjectId ?: this.codeProjectId,
+        codeProject = codeProject ?: this.codeProject,
         termsAcceptedById = termsAcceptedById ?: this.termsAcceptedById,
         termsAcceptedAt = termsAcceptedAt ?: this.termsAcceptedAt,
         licenceName = licenceName ?: this.licenceName,
@@ -67,7 +69,6 @@ class DataAlgorithm(
         createdAt = this.createdAt,
         updatedAt = this.updatedAt
     )
-
 
 
 }

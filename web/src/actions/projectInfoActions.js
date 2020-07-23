@@ -1,28 +1,33 @@
 import store from '../store';
-import { toastr } from 'react-redux-toastr';
+import {toastr} from 'react-redux-toastr';
 import ProjectGeneralInfoApi from 'apis/projectGeneralInfoApi';
 import * as types from './actionTypes';
-import DataProcessorsApi from 'apis/DataProcessorsApi.ts';
-import { PROJECT_TYPES } from 'domain/project/projectTypes';
 import { parseToCamelCase, adaptProjectModel } from 'functions/dataParserHelpers';
 import { handlePagination } from 'functions/apiCalls';
+import MLSearchApi from "../apis/MLSearchApi";
+import DataProcessorsApi from "../apis/DataProcessorsApi";
+
+
 const dataProcApi = new DataProcessorsApi();
 const projectApi = new ProjectGeneralInfoApi();
+const mlSearchApi = new MLSearchApi();
+
 
 // This will fetch gitlab project and add it to the mlreef project
 const mergeWithGitlabProject = (project) => projectApi.getProjectInfoApi(project.gitlab_id)
-  .then(parseToCamelCase)
-  .then((gitlab) => ({ ...project, gitlab }))
-  .catch(() => project);
+    .then(parseToCamelCase)
+    .then((gitlab) => ({ ...project, gitlab }))
+    .catch(() => project);
 
 // fetch complementary member list from gitlab api, so far it's not possible
 // to get them within each project
 const mergeGitlabResource = (projects) => Promise.all(
-  projects.map((project) => projectApi.getUsers(project.gitlabId)
-    .then((members) => ({ ...project, members }))
-    .catch(() => project)
-  ),
+    projects.map((project) => projectApi.getUsers(project.gitlabId)
+        .then((members) => ({ ...project, members }))
+        .catch(() => project)
+    ),
 );
+
 
 /**
  *
@@ -31,6 +36,10 @@ const mergeGitlabResource = (projects) => Promise.all(
 
 export function getProjectsInfoSuccessfully(projects) {
   return { type: types.GET_LIST_OF_PROJECTS, projects };
+}
+
+export function setUserProjectsSuccessfully(projects) {
+  return { type: types.SET_USER_PROJECTS, projects };
 }
 
 /**
@@ -57,29 +66,6 @@ export function getProjectsList() {
   };
 }
 
-export function setUserProjectsSuccessfully(projects) {
-  return { type: types.SET_USER_PROJECTS, projects };
-}
-
-/* export function getUserProjects() {
-  return (dispatch) => {
-    const projectApi = new ProjectGeneralInfoApi();
-    projectApi
-      .getProjectsList({ owned: true, membership: true })
-      .then((projects) => projects && dispatch(setUserProjectsSuccessfully(projects)));
-  };
-} */
-
-export function setStarredProjectsSuccessfully(projects) {
-  return { type: types.SET_STARRED_PROJECTS, projects };
-}
-/*
-export function getStarredProjects() {
-  return (dispatch) => new ProjectGeneralInfoApi()
-    .getProjectsList({ starred: true })
-    .then((projects) => projects && dispatch(setStarredProjectsSuccessfully(projects)));
-} */
-
 export function setSelectedProjectSuccesfully(project) {
   return { type: types.SET_SELECTED_PROJECT, project };
 }
@@ -93,7 +79,6 @@ export function setSelectedProject(projectSelected) {
     dispatch(setSelectedProjectSuccesfully(projectSelected));
   };
 }
-
 
 export function updateProjectsList(projects) {
   return (dispatch) => dispatch({ type: types.UPDATE_PROJECTS_LIST, projects });
@@ -150,18 +135,22 @@ export function getProjectDetailsBySlug(namespace, slug, options = {}) {
  * This API call fetches code repos corresponding with data processors
  */
 
-export function getDataProcessorsAndCorrespondingProjects(dataOperation) {
-  const params = new Map();
-  params.set('type', dataOperation);
-  return (dispatch) => Promise.all([
-    projectApi.getProjectsList(PROJECT_TYPES.CODE_PROJ),
-    dataProcApi.filterByParams(params),
-  ]).then((response) => {
-    const projects = response[0];
-    const dataProcessors = response[1].map((dp) => parseToCamelCase(dp));
-    const finalProjects = dataProcessors.filter((dp) => projects.filter((pro) => dp.codeProjectId === pro.id)[0]);
-    dispatch(getProjectsInfoSuccessfully(finalProjects));
-  }).catch((err) => {
-    return Promise.reject(err);
-  })
+export function getDataProcessorsAndCorrespondingProjects(searchableType, body = {}) {
+  return (dispatch) => mlSearchApi
+    .search(searchableType, body)
+    .then((payload) => payload?.content?.map((contentItem) => contentItem.project))
+    .then((projs) => projs.map(parseToCamelCase))
+    .then(mergeGitlabResource)
+    .then((projects) => {
+      if (projects) {
+        const { user: { username } } = store.getState();
+
+        const memberProjects = projects.filter((project) =>
+          project.members?.some((m) => m.username === username)
+        );
+
+        dispatch(getProjectsInfoSuccessfully(projects));
+        dispatch(setUserProjectsSuccessfully(memberProjects));
+      }
+    });
 }
