@@ -146,6 +146,9 @@ e2e test experiment:
   start_in: 4 minutes
   image: registry.gitlab.com/systemkern/s5:latest
   script: bin/ci-test-end2end-experiment
+  artifacts:
+    paths:
+      - out/test
 
 
 
@@ -159,26 +162,26 @@ decommission:
   image: registry.gitlab.com/systemkern/s5:latest-aws
   variables:
     GIT_STRATEGY: "none"                                    # because branches are deleted on merge, we must not access the git repo
-  script: |
-    EC2_INSTANCE_NAME="mlreef-$CI_COMMIT_REF_SLUG"
+  script:
+    - EC2_INSTANCE_NAME="mlreef-$CI_COMMIT_REF_SLUG"
 
     # decommission the current environment
     # use the aws-cli to retrieve the description (json) for our machine
     # parse the json with jq to get the instance id
     # the xargs command submits the termination command to AWS
-    aws ec2 describe-instances --filters "Name=tag:Name,Values=$EC2_INSTANCE_NAME"
+    - aws ec2 describe-instances --filters "Name=tag:Name,Values=$EC2_INSTANCE_NAME"
       | jq -r ".Reservations[].Instances[].InstanceId"
       | xargs --no-run-if-empty aws ec2 terminate-instances --instance-id
 
     # remove the branch's frontend docker container
     # 1117031 is the id of the "gateway's" sub-repository id
-    curl --request DELETE --header "PRIVATE-TOKEN:$GITLAB_COM_API_TOKEN"
+    - curl --request DELETE --header "PRIVATE-TOKEN:$GITLAB_COM_API_TOKEN"
       https://gitlab.com/api/v4/projects/$CI_PROJECT_ID/registry/repositories/1117031/tags/$CI_COMMIT_REF_SLUG
     # 1151242 is the id of the "backend's" sub-repository id
-    curl --request DELETE --header "PRIVATE-TOKEN:$GITLAB_COM_API_TOKEN"
+    - curl --request DELETE --header "PRIVATE-TOKEN:$GITLAB_COM_API_TOKEN"
       https://gitlab.com/api/v4/projects/$CI_PROJECT_ID/registry/repositories/1151242/tags/$CI_COMMIT_REF_SLUG
     # 1196730 is the id of the "epf's" sub-repository id
-    curl --request DELETE --header "PRIVATE-TOKEN:$GITLAB_COM_API_TOKEN"
+    - curl --request DELETE --header "PRIVATE-TOKEN:$GITLAB_COM_API_TOKEN"
       https://gitlab.com/api/v4/projects/$CI_PROJECT_ID/registry/repositories/1196730/tags/$CI_COMMIT_REF_SLUG
   after_script:
     # remove the data backup from s3 (if it exists)

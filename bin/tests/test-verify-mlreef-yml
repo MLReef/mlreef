@@ -15,22 +15,23 @@ set -u    # error on usage of undefined variables
 
 
 if [ -z ${TOKEN+x} ]; then
-  echo >&2 "ERROR: The test 'verify-mlreef' needs the environment variable TOKEN."
+  echo >&2 "ERROR 'verify-mlreef': Missing environment variable TOKEN."
   exit 1
 fi
 
 if [ -z ${GITLAB_PROJECT_ID+x} ]; then
-  echo >&2 "ERROR: The test 'verify-mlreef' needs the environment variable GITLAB_PROJECT_ID."
+  echo >&2 "ERROR 'verify-mlreef': Missing environment variable GITLAB_PROJECT_ID."
   exit 1
 fi
 
-if [ -z ${EXPERIMENT_BRANCH+x} ]; then
+if [ -z ${EXPERIMENT_BRANCH+x} ] && [ -f out/test/experiment-branch.tmp ]; then
   export EXPERIMENT_BRANCH=$(cat out/test/experiment-branch.tmp)
 fi
 if [ "$EXPERIMENT_BRANCH" = "" ]; then
-  echo >&2 "ERROR: EXPERIMENT_BRANCH is empty"
+  echo >&2 "ERROR 'verify-mlreef': Missing environment variable EXPERIMENT_BRANCH. Fallback parsing from file 'out/test/experiment-branch.tmp' also failed:"
+  cat out/test/experiment-branch.tmp
   exit 1
-fi;
+fi
 echo "Targeting download branch $EXPERIMENT_BRANCH"
 
 
