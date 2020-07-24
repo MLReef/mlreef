@@ -263,7 +263,7 @@ class PipelinesExecutionView extends Component {
           filesSelectedInModal={filesSelectedInModal}
           httpUrlToRepo={project.httpUrlToRepo}
           projectId={project.gitlabId}
-          backendId={project.backendId}
+          backendId={project.id}
           branchSelected={branchSelected}
         />
         <Navbar />

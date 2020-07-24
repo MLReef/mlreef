@@ -3,7 +3,9 @@ import { connect } from 'react-redux';
 import { toastr } from 'react-redux-toastr';
 import { bindActionCreators } from 'redux';
 import uuidv1 from 'uuid/v1';
-import * as PropTypes from 'prop-types';
+import {
+  shape, string, number,
+} from 'prop-types';
 import CustomizedButton from 'components/CustomizedButton';
 import ExperimentsApi from 'apis/experimentApi';
 import Navbar from '../navbar/navbar';
@@ -38,14 +40,17 @@ class ExperimentsOverview extends Component {
   componentDidMount() {
     const { projects: { selectedProject: { gid, id } }, actions } = this.props;
     actions.setIsLoading(true);
-    ExperimentsApi.getExperiments(id)
-      .then((rawExperiments) => rawExperiments.map((exp) => {
-        const parsedExp = parseToCamelCase(exp);
-        const classExp = plainToClass(Experiment, parseToCamelCase(exp));
-        classExp.pipelineJobInfo = parseToCamelCase(parsedExp.pipelineJobInfo);
+    const expApi = new ExperimentsApi();
+    expApi.getExperiments(id)
+      .then((exps) => exps.map((exp) => parseToCamelCase(exp)))
+      .then((rawExperiments) => rawExperiments
+        .filter((exp) => exp.pipelineJobInfo !== null)
+        .map((exp) => {
+          const classExp = plainToClass(Experiment, parseToCamelCase(exp));
+          classExp.pipelineJobInfo = parseToCamelCase(exp.pipelineJobInfo);
 
-        return classExp;
-      }))
+          return classExp;
+        }))
       .then((exps) => exps.map(async (exp) => {
         const commitInfo = await CommitsApi.getCommitDetails(gid, exp.pipelineJobInfo?.commitSha);
         exp.authorName = commitInfo.author_name;
@@ -210,13 +215,13 @@ class ExperimentsOverview extends Component {
 }
 
 ExperimentsOverview.propTypes = {
-  projects: PropTypes.shape({
-    selectedProject: PropTypes.shape({
-      id: PropTypes.string.isRequired, // mlreef id
-      gid: PropTypes.number.isRequired, // gitlab id
+  projects: shape({
+    selectedProject: shape({
+      id: string.isRequired, // mlreef id
+      gid: number.isRequired, // gitlab id
     }).isRequired,
   }).isRequired,
-  history: PropTypes.shape({}).isRequired,
+  history: shape({}).isRequired,
 };
 
 function mapStateToProps(state) {

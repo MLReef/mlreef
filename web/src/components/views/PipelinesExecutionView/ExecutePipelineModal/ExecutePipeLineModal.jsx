@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
+import MProgressBar from 'components/ui/MProgressBar';
 import { arrayOf, shape } from 'prop-types';
 import { Link } from 'react-router-dom';
 import './executePipeLineModal.scss';
 import MSelect from 'components/ui/MSelect';
 import { ALGORITHM, OPERATION } from 'dataTypes';
 import createExperimentInProject, { randomNameGenerator, createPipelineInProject } from '../../../../functions/pipeLinesHelpers';
-import MProgressBar from 'components/ui/MProgressBar';
 
 const fakeMachinesToShow = [
   {
