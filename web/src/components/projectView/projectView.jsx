@@ -6,6 +6,8 @@ import {
 } from 'prop-types';
 import forkingImage from 'images/forking.png';
 import { OPERATION, ALGORITHM, VISUALIZATION } from 'dataTypes';
+import { toastr } from 'react-redux-toastr';
+import FilesContainer from 'components/FilesContainer';
 import ReadMeComponent from '../readMe/readMe';
 import ProjectContainer from '../projectContainer';
 import RepoInfo from '../repoInfo';
@@ -20,21 +22,18 @@ import * as jobsActions from '../../actions/jobsActions';
 import * as mergeActions from '../../actions/mergeActions';
 import EmptyProject from './emptyProject';
 import ProjectLastCommitSect from './projectLastCommitSect';
-import { toastr } from 'react-redux-toastr';
-import FilesContainer from 'components/FilesContainer';
 
 const isValidBranch = (branch) => branch !== 'null' && branch !== null && branch !== undefined;
 
 class ProjectView extends React.Component {
-  state = {
-    contributors: [], // disconnected
-    users: [], // disconnected
-    isForking: false,
-  }
-
   constructor(props) {
     super(props);
-
+    // esLint does not like state out of constructor
+    this.state = {
+      contributors: [], // disconnected
+      users: [], // disconnected
+      isForking: false,
+    };
     this.setIsForking = this.setIsForking.bind(this);
     this.fetchIfAuthenticated = this.fetchIfAuthenticated.bind(this);
     this.fetchVisitor = this.fetchVisitor.bind(this);
@@ -51,6 +50,33 @@ class ProjectView extends React.Component {
     actions.setIsLoading(true);
 
     fetch().finally(() => actions.setIsLoading(false));
+  }
+
+  setIsForking(status) {
+    this.setState({ isForking: status });
+  }
+
+  fetchVisitor() {
+    const {
+      actions,
+      match: {
+        params: {
+          namespace,
+          slug,
+        },
+      },
+    } = this.props;
+
+    return actions.getProjectDetailsBySlug(namespace, slug, { visitor: true })
+      .then(({ project }) => {
+        const gid = project.gitlabId || project.gitlab?.id;
+        return Promise.all([
+          actions.getBranchesList(gid),
+          actions.getMergeRequestsList(gid),
+          actions.getUsersLit(gid),
+        ]);
+      })
+      .catch(() => toastr.error('Error', 'Error fetching project'));
   }
 
   fetchIfAuthenticated() {
@@ -77,41 +103,9 @@ class ProjectView extends React.Component {
           actions.getMergeRequestsList(gid),
           actions.getUsersLit(gid),
           actions.getJobsListPerProject(gid),
-        ])
+        ]);
       })
-        .catch(() => toastr.error('Error', 'Error fetching project'));
-  }
-
-  fetchVisitor() {
-    const {
-      actions,
-      match: {
-        params: {
-          namespace,
-          slug,
-        },
-      },
-    } = this.props;
-
-    return actions.getProjectDetailsBySlug(namespace, slug, { visitor: true })
-      .then(({ project }) => {
-        const gid = project.gitlabId || project.gitlab?.id;
-
-        // actions.getProcessors(OPERATION);
-        // actions.getProcessors(ALGORITHM);
-        // actions.getProcessors(VISUALIZATION);
-
-        return Promise.all([
-          actions.getBranchesList(gid),
-          actions.getMergeRequestsList(gid),
-          actions.getUsersLit(gid),
-        ])
-      })
-        .catch(() => toastr.error('Error', 'Error fetching project'));
-  }
-
-  setIsForking(status) {
-    this.setState({ isForking: status });
+      .catch(() => toastr.error('Error', 'Error fetching project'));
   }
 
   render() {
@@ -153,7 +147,7 @@ class ProjectView extends React.Component {
             style={{ maxWidth: '250px' }}
           >
             <div>
-              <h2 className="t-dark">Froking in process</h2>
+              <h2 className="t-dark">Forking in progress</h2>
               <p className="t-secondary">You may wait while we import the repository for you. You may refresh at will.</p>
             </div>
             <div

@@ -8,18 +8,15 @@ import MTabs from 'components/ui/MTabs';
 import {
   projectClassificationsProps
 } from 'dataTypes';
+import { PROJECT_TYPES } from 'domain/project/projectTypes';
+import * as processorActions from 'actions/processorActions';
+import { onlyDataProject } from 'functions/apiCalls';
 import Navbar from '../navbar/navbar';
 import './myProjects.scss';
 import ProjectDeletionModal from '../project-deletion-modal/projectDeletionModal';
 import * as projectActions from '../../actions/projectInfoActions';
 import * as groupsActions from '../../actions/groupsActions';
 import * as userActions from '../../actions/userActions';
-import { PROJECT_TYPES } from 'domain/project/projectTypes';
-import * as processorActions from 'actions/processorActions';
-import {onlyDataProject, onlyCodeProject} from 'functions/apiCalls';
-import MLSearchApi from 'apis/MLSearchApi.ts';
-
-const mlSearchApi = new MLSearchApi();
 
 class Myprojects extends React.Component {
   projFilterBtnsList = ['own', 'starred', 'explore'];
@@ -166,9 +163,9 @@ class Myprojects extends React.Component {
             <MProjectClassification
               classification={projectClassificationsProps[1].classification}
               history={history}
-              userProjects={userProjects.filter(onlyCodeProject)}
-              starredProjects={starredProjects.filter(onlyCodeProject)}
-              allProjects={allProjects.filter(onlyCodeProject)}
+              userProjects={userProjects}
+              starredProjects={starredProjects}
+              allProjects={allProjects}
             />
           </MTabs.Section>
           <MTabs.Section

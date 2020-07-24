@@ -2,7 +2,6 @@ import 'core-js/stable';
 import 'regenerator-runtime/runtime';
 import ApiDirector from './ApiDirector';
 import ApiRequestCallBuilder from './apiBuilders/ApiRequestCallBuilder';
-import BLApiRequestCallBuilder from './apiBuilders/BLApiRequestCallBuilder';
 import { METHODS, validServicesToCall } from './apiBuilders/requestEnums';
 
 export default class MLSearchApi extends ApiDirector {

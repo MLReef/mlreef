@@ -1,14 +1,11 @@
-import store from '../store';
-import {toastr} from 'react-redux-toastr';
+import { toastr } from 'react-redux-toastr';
 import ProjectGeneralInfoApi from 'apis/projectGeneralInfoApi';
-import * as types from './actionTypes';
 import { parseToCamelCase, adaptProjectModel } from 'functions/dataParserHelpers';
 import { handlePagination } from 'functions/apiCalls';
-import MLSearchApi from "../apis/MLSearchApi";
-import DataProcessorsApi from "../apis/DataProcessorsApi";
+import store from '../store';
+import * as types from './actionTypes';
+import MLSearchApi from '../apis/MLSearchApi.ts';
 
-
-const dataProcApi = new DataProcessorsApi();
 const projectApi = new ProjectGeneralInfoApi();
 const mlSearchApi = new MLSearchApi();
 
