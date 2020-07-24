@@ -180,6 +180,20 @@ const Demo = (props) => {
           <br />
           <br />
           <br />
+          <div>
+            <button title="normal" className="btn btn-primary mr-2">
+              Send
+            </button>
+            <button title="disabled" disabled className="btn btn-primary mr-2">
+              Send
+            </button>
+            <button title="waiting" className="btn btn-primary waiting mr-2">
+              Send
+            </button>
+            <button title="disabled while waiting" disabled className="btn btn-primary waiting mr-2">
+              Send
+            </button>
+          </div>
           <br />
           <br />
           <div className="m-3">
