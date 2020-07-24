@@ -53,11 +53,11 @@ LICENSE @cpmlreef @rainerkern
 # Code Ownership for Devops
 #
 /bin/ @mlreef/devops
-/backend/
+/backend/build.gradle @mlreef/devops
 
 
 #
 # Code ownership for frontend
 #
-/web/ @mlreef/frontend-group
+#/web/ @mlreef/frontend-group
 /web/src/apiConfig.js @andres46 @mlreef/devops
