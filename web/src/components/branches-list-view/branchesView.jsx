@@ -95,6 +95,7 @@ class BranchesView extends Component {
   render() {
     const {
       selectedProject,
+      location: { pathname },
     } = this.props;
 
     const {
@@ -154,7 +155,7 @@ class BranchesView extends Component {
               loading={false}
               onClickHandler={() => {
                 this.setState({
-                  urlToRedirect: `/my-projects/${selectedProject.gid}/new-branch`,
+                  urlToRedirect: `${pathname}/new`,
                 });
               }}
             />

@@ -15,8 +15,14 @@ const setup = () => {
     projects: projectsArrayMock.projects,
     branches,
   });
+  const match = {
+    params: {
+      namespace: 'my-namespace',
+      slug: 'the-project-name',
+    },
+  };
   const wrapper = shallow(
-    <NewBranch store={store} />,
+    <NewBranch match={match} store={store} />,
   );
   const afterDive = wrapper.dive().dive();
   return afterDive;

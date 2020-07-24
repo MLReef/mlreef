@@ -22,7 +22,7 @@ const RepoInfo = ({
         <p className="stat-no">{project.commitCount}</p>
         <p className="stat-type">Commits</p>
       </Link>
-      <Link to={`/my-projects/${project.gitlabId}/branches`} className="repo-stat">
+      <Link to={`/${project.namespace}/${project.slug}/-/branches`} className="repo-stat">
         <p className="stat-no">{branchesCount}</p>
         <p className="stat-type">Branches</p>
       </Link>

@@ -85,7 +85,7 @@ class NewBranch extends Component {
     this.setState({ loading: true });
     const {
       projects: {
-        selectedProject: { id },
+        selectedProject: { gid },
       },
     } = this.props;
     const {
@@ -104,7 +104,7 @@ class NewBranch extends Component {
     }
     const brApi = new BranchesApi();
     brApi.create(
-      id,
+      gid,
       newBranchName,
       branchSelected,
     )
@@ -120,7 +120,16 @@ class NewBranch extends Component {
   }
 
   render() {
-    const { projects: { selectedProject }, branches } = this.props;
+    const {
+      projects: { selectedProject },
+      branches,
+      match: {
+        params: {
+          namespace,
+          slug,
+        }
+      }
+    } = this.props;
     const groupName = selectedProject.namespace.name;
     const {
       branchSelected,
@@ -133,7 +142,7 @@ class NewBranch extends Component {
     const isEnabledCreateBranchButton = ((branchSelected !== null && branchSelected !== '') && isValidBranchName);
 
     return redirect ? (
-      <Redirect to={`/my-projects/${selectedProject.id}/${encodeURIComponent(newBranchName)}`} />
+      <Redirect to={`/${namespace}/${slug}/-/tree/${encodeURIComponent(newBranchName)}`} />
     ) : (
       <>
         <Navbar />
@@ -174,7 +183,6 @@ class NewBranch extends Component {
             <button
               className="btn btn-basic-dark"
               onClick={this.handleCancel}
-              href={`/my-projects/${selectedProject.id}/master`}
             >
               Cancel
             </button>
@@ -196,11 +204,17 @@ class NewBranch extends Component {
 }
 
 const project = shape({
-  id: number,
+  gid: number,
   name: string,
 });
 
 NewBranch.propTypes = {
+  match: shape({
+    params: shape({
+      namespace: string.isRequired,
+      slug: string.isRequired,
+    }).isRequired,
+  }).isRequired,
   projects: shape({
     all: arrayOf(project),
     selectedProject: project,

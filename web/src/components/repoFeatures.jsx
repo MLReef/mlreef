@@ -120,7 +120,7 @@ export class RepoFeatures extends Component {
                 <hr />
                 <li>This repository</li>
                 <li className="plus-option">
-                  <Link to={`/my-projects/${projectId}/new-branch`}>
+                  <Link to={`/${namespace}/${slug}/-/branches/new`}>
                     New branch
                   </Link>
                 </li>
