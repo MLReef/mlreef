@@ -9,13 +9,17 @@ import com.mlreef.rest.external_api.gitlab.dto.OAuthToken
 import com.mlreef.rest.feature.auth.AuthService
 import com.mlreef.rest.utils.RandomUtils
 import com.ninjasquad.springmockk.SpykBean
+import io.mockk.Runs
 import io.mockk.every
+import io.mockk.just
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Tag
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.mail.SimpleMailMessage
+import org.springframework.mail.javamail.JavaMailSender
 import org.springframework.restdocs.payload.FieldDescriptor
 import org.springframework.restdocs.payload.JsonFieldType
 import org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath
@@ -24,6 +28,7 @@ import org.springframework.restdocs.payload.PayloadDocumentation.responseFields
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.test.annotation.Rollback
+import javax.mail.internet.MimeMessage
 import javax.transaction.Transactional
 
 class AuthApiTest : AbstractRestApiTest() {
@@ -32,6 +37,9 @@ class AuthApiTest : AbstractRestApiTest() {
 
     @SpykBean
     lateinit var authService: AuthService
+
+    @SpykBean
+    lateinit var mailSender: JavaMailSender
 
     private val passwordEncoder: PasswordEncoder = BCryptPasswordEncoder()
 
@@ -44,6 +52,9 @@ class AuthApiTest : AbstractRestApiTest() {
         accountTokenRepository.deleteAll()
         accountRepository.deleteAll()
         personRepository.deleteAll()
+
+        every { mailSender.send(ofType(SimpleMailMessage::class)) } just Runs
+        every { mailSender.send(ofType(MimeMessage::class)) } just Runs
     }
 
     @Transactional

@@ -144,6 +144,16 @@ Login can be executed with the username or the email.
 
 operation::login-success[snippets='curl-request,request-fields,http-response,response-fields']
 
+[[password-management]]
+= Passwords management - /password
+== Password reset request - POST /password/reset
+
+operation::password-reset-successful[snippets='curl-request,request-parameters,response-body']
+
+== Password reset confirmation - POST /password/reset/confirm
+
+operation::password-reset-confirmation[snippets='curl-request,request-body,response-body']
+
 [[resources]]
 = Resources
 

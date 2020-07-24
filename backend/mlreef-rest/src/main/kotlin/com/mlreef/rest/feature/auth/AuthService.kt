@@ -26,6 +26,10 @@ import com.mlreef.rest.external_api.gitlab.dto.GitlabUser
 import com.mlreef.rest.external_api.gitlab.dto.GitlabUserToken
 import com.mlreef.rest.external_api.gitlab.dto.GroupVariable
 import com.mlreef.rest.external_api.gitlab.dto.OAuthToken
+import com.mlreef.rest.feature.email.EmailMessageType
+import com.mlreef.rest.feature.email.EmailService
+import com.mlreef.rest.feature.email.EmailVariables
+import com.mlreef.rest.feature.email.TemplateType
 import com.mlreef.rest.feature.groups.GroupsService
 import com.mlreef.rest.feature.project.ProjectService
 import com.mlreef.rest.utils.RandomUtils
@@ -51,7 +55,8 @@ class AuthService(
     private val groupService: GroupsService,
     private val passwordEncoder: PasswordEncoder,
     private val dataProjectsService: ProjectService<DataProject>,
-    private val codeProjectsService: ProjectService<CodeProject>
+    private val codeProjectsService: ProjectService<CodeProject>,
+    private val emailService: EmailService
 ) {
 
     @Value("\${mlreef.bot-management.epf-bot-email-domain:\"\"}")
@@ -67,6 +72,8 @@ class AuthService(
 
         private val GUEST_ACCOUNT_ID = UUID(0L, 0L)
         private val GUEST_PERSON_ID = UUID(0L, 0L)
+
+        private const val WELCOME_MESSAGE_SUBJECT = "Welcome to MlReef"
 
         private val guestTokenDetails: TokenDetails by lazy {
             TokenDetails(
@@ -150,7 +157,18 @@ class AuthService(
         //Create variable in group with bot token
         createGitlabVariable(token, group.gitlabId!!, GITLAB_GROUP_VARIABLE_NAME_FOR_BOT_TOKEN, newGitlabEPFBotToken.token)
 
+        sendWelcomeMessage(newUser)
+
         return Pair(newUser, oauthToken)
+    }
+
+    private fun sendWelcomeMessage(account: Account) {
+        val variables = mapOf(
+            EmailVariables.USER_NAME to account.username,
+            EmailVariables.RECIPIENT_EMAIL to account.email,
+            EmailVariables.SUBJECT to WELCOME_MESSAGE_SUBJECT
+        )
+        emailService.sendAsync(account.id, EmailMessageType.HTML, TemplateType.PASSWORD_RESET_TEMPLATE, variables)
     }
 
     fun checkUserInGitlab(token: String): GitlabUser {

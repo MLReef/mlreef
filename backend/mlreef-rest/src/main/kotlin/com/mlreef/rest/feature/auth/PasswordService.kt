@@ -36,6 +36,7 @@ class MlReefPasswordService(
     companion object {
         private val log = LoggerFactory.getLogger(this::class.java)
         private const val RESET_PASSWORD_SUBJECT = "Password reset"
+
     }
 
     override fun resetPasswordStart(email: String?, userName: String?, userId: UUID?) {
