@@ -125,6 +125,8 @@ export const projectsArrayMock = {
     all: [
       {
         id: 14448940,
+        slug: 'some-slug',
+        gitlabNamespace: 'Some namespace',
         description: 'Categorical Classification of alphabets in the American Sign Language',
         name: 'Sign Language Classifier',
         name_with_namespace: 'MLReef / Sign Language Classifier',
@@ -141,16 +143,7 @@ export const projectsArrayMock = {
         star_count: 0,
         forks_count: 0,
         last_activity_at: '2019-11-10T15:14:17.804Z',
-        namespace: {
-          id: 5351747,
-          name: 'MLReef',
-          path: 'mlreef',
-          kind: 'group',
-          full_path: 'mlreef',
-          parent_id: null,
-          avatar_url: '/uploads/-/system/group/avatar/5351747/MLReef_Logo_POS_H_icon-01.png',
-          web_url: 'https://gitlab.com/groups/mlreef',
-        },
+        namespace: 'some-namespace',
       },
     ],
     selectedProject: {

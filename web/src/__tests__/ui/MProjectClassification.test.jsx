@@ -19,8 +19,7 @@ const setup = () => shallow(
   />,
 );
 
-// skipped because this resource is constantly changing
-test.skip('test html elements', () => {
+test('test html elements', () => {
   const tree = renderer.create(
     <MemoryRouter>
       <MProjectClassification
@@ -28,7 +27,7 @@ test.skip('test html elements', () => {
         userProjects={[]}
         starredProjects={[]}
         allProjects={projectsArrayMock.projects.all.map((p) => parseToCamelCase(p))}
-        history={{ push: () => {}, location: { hash: '#Personal'}}}
+        history={{ push: () => {}, location: { hash: '#Personal' }}}
       />
     </MemoryRouter>
   )

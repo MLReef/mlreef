@@ -5,7 +5,7 @@ import { bindActionCreators } from 'redux';
 import { toastr } from 'react-redux-toastr';
 import { Base64 } from 'js-base64';
 import { Link } from 'react-router-dom';
-import { string, shape, arrayOf } from 'prop-types';
+import { string, shape, arrayOf, func } from 'prop-types';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import MDropdown from 'components/ui/MDropdown';
@@ -52,8 +52,12 @@ export class FileView extends React.Component {
     if (projectId) {
       gid = projectId;
     } else {
-      const res = await actions.getProjectDetailsBySlug(namespace, slug);
-      gid = res?.project?.gid;
+      try {
+        const res = await actions.getProjectDetailsBySlug(namespace, slug);
+        gid = res?.project?.gid;
+      } catch (err) {
+        toastr.error('Error', 'Fetching faile info failed');
+      }
     }
 
     filesApi.getFileData(gid, encodeURIComponent(file), branch)
@@ -346,6 +350,9 @@ FileView.propTypes = {
     selectedProject: shape({
 
     }),
+  }).isRequired,
+  actions: shape({
+    getProjectDetailsBySlug: func.isRequired,
   }).isRequired,
 };
 

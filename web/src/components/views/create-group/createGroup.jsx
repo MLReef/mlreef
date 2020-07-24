@@ -9,11 +9,12 @@ import { bannedCharsArray } from '../../../dataTypes';
 import Navbar from '../../navbar/navbar';
 import './createGroup.scss';
 import { EXTERNAL_URL } from 'apiConfig';
-import GroupsApi from 'apis/groupApi';
+import GroupsApi from 'apis/GroupApi.ts';
 import * as groupsActions from "actions/groupsActions";
 import { privacyLevelsArr } from "dataTypes";
 
 const MAX_ALLOWED_FILE_SIZE = 500000;
+const groupsApi = new GroupsApi();
 
 export class UnconnectedNewGroup extends Component {
   descriptionTextAreaRef = createRef();
@@ -26,7 +27,7 @@ export class UnconnectedNewGroup extends Component {
       groupName: '',
       groupUrl: '',
       fileSelected: null,
-      visibility: null,
+      visibility: 'private',
     };
     this.handleGroupNameChange = this.handleGroupNameChange.bind(this);
     this.handleOnClickCreateGroup = this.handleOnClickCreateGroup.bind(this);
@@ -54,24 +55,13 @@ export class UnconnectedNewGroup extends Component {
       groupName: name, groupUrl: path, visibility, fileSelected: avatar,
     } = this.state;
     const description = this.descriptionTextAreaRef.current.value;
-    const payload = {
-      name,
-      path,
-      description,
-    };
-
-    if (visibility && typeof visibility !== 'undefined') {
-      payload.visibility = visibility;
-    }
-
     if (avatar && typeof avatar !== 'undefined') {
       const reader = avatar.stream().getReader();
       reader.read().then((content) => {
-        payload.avatar = Base64ToArrayBuffer.encode(content.value);
-        this.create(payload);
+        this.create(name, path, description, visibility, Base64ToArrayBuffer.encode(content.value));
       });
     } else {
-      this.create(payload);
+      this.create(name, path, description, visibility, null);
     }
   }
 
@@ -80,21 +70,16 @@ export class UnconnectedNewGroup extends Component {
     && !bannedCharsArray.map((char) => groupUrl.includes(char))
       .includes(true);
 
-  create(payload) {
-    GroupsApi.create(payload)
-      .then(async (res) => {
-        if (res.ok) {
-          const { history, actions } = this.props;
-          actions.getGroupsList();
-          toastr.success('Success', res.statusText);
-          history.push("/");
-        } else {
-          toastr.error('Error', res.statusText);
-          Promise.reject(res);
-        }
-      })
-      .catch(() => toastr.error('Error', 'Something went wrong on group creation'));
-  }
+  create = (name, path, description, visibility, avatar) => groupsApi
+    .create(name, path, description, visibility, avatar)
+    .then(() => {
+      const { history } = this.props;
+      toastr.success('Success', 'The group was created!');
+      history.push('/groups');
+    })
+    .catch(() => {
+      toastr.error('Error', 'Something went wrong on group creation')
+    });
 
   render() {
     const {
@@ -138,7 +123,7 @@ export class UnconnectedNewGroup extends Component {
                 <span className="heading">Group link</span>
                 <div className="d-flex" id="group-link-div" style={{ alignItems: 'center' }}>
                   <p style={{ margin: 0 }}>
-                    {`${EXTERNAL_URL}/`}
+                    {`${EXTERNAL_URL}/groups`}
                   </p>
                   <input
                     style={{ margin: '0.4rem' }}
@@ -195,7 +180,7 @@ export class UnconnectedNewGroup extends Component {
                 <span className="heading">Visibilty level</span>
                 <RadioGroup aria-label="visibility" name="visibility" onChange={this.handleOnChangeVisibility}>
                   {privacyLevelsArr.map((option, index) => (
-                    <div key={`div visibility opt ${option.name}`} className="d-flex" style={{ flexDirection: "column" }}>
+                    <div key={`div visibility opt ${option.name}`} className="d-flex" style={{ flexDirection: 'column' }}>
                       <FormControlLabel
                         key={`radiobutton element ${option.name} ${index.toString()}`}
                         className="heading"
@@ -208,7 +193,7 @@ export class UnconnectedNewGroup extends Component {
                           </>
                       )}
                       />
-                      <span className="visibility-msg">{option.message.replace("#protected-element", 'group')}</span>
+                      <span className="visibility-msg">{option.message.replace('#protected-element', 'group')}</span>
                     </div>
                   ))}
                 </RadioGroup>

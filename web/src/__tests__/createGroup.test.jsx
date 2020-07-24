@@ -85,16 +85,18 @@ describe('assert components behavior', () => {
         value: 'new group',
       },
     };
-    const projectDesc = "some description";
+    const projectDesc = 'some description';
     wrapper.find('input#group-name').simulate('change', changeGroupNameEv);
     wrapper.instance().descriptionTextAreaRef = { current: { value: projectDesc } };
     wrapper.instance().create = jest.fn();
     wrapper.find('button#create-group').simulate('click');
 
-    expect(wrapper.instance().create).toHaveBeenCalledWith({
-      description: projectDesc,
-      name: changeGroupNameEv.currentTarget.value,
-      path: convertToSlug(changeGroupNameEv.currentTarget.value),
-    });
+    expect(wrapper.instance().create).toHaveBeenCalledWith(
+      changeGroupNameEv.currentTarget.value,
+      convertToSlug(changeGroupNameEv.currentTarget.value),
+      projectDesc,
+      'private',
+      null,
+    );
   });
 });
