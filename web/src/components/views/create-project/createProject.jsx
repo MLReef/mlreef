@@ -54,11 +54,10 @@ class CreateProject extends Component {
     this.state = {
       visibility: privacyLevelsArr[0].value,
       projectName: '',
-      redirect: false,
+      redirect: null,
       readme: false,
       nameSpace: '',
       description: '',
-      gitlabId: null,
       dataTypesSelected: [],
     };
 
@@ -136,10 +135,9 @@ class CreateProject extends Component {
     const projectGeneraInfoApi = new ProjectGeneraInfoApi();
     projectGeneraInfoApi.create(body, projectType)
       .then((res) => res.json())
-      .then((pro) => this.props.actions
-        .getProjectsList(projectType)
-        .then(() => this.setState({ redirect: true, gitlabId: pro.gitlab_id }))
-      )
+      .then((proj) => {
+        this.setState({ redirect: `/${proj.gitlab_namespace}/${proj.slug}` })
+      })
       .catch((err) => {
         toastr.error('Error', err || 'Something went wrong')
       });
@@ -189,7 +187,6 @@ class CreateProject extends Component {
      redirect,
      nameSpace,
      description,
-     gitlabId,
      dataTypesSelected: dtTypesSel,
    } = this.state;
    const { match: { params: { classification } }, groups, user } = this.props;
@@ -198,7 +195,7 @@ class CreateProject extends Component {
    const newProjectInstructions = specificType.description;
    const isMaximumOfDataTypesSelected = dtTypesSel.length === 4;
    return redirect ? (
-     <Redirect to={`/my-projects/${gitlabId}/null`} />
+     <Redirect to={redirect} />
    ) : (
      <>
        <Navbar />

@@ -79,17 +79,9 @@ const RouterComp = () => (
       <Route path="/:namespace/:slug/-/tree/:branch/:path(.+)" component={projectView} />
       <Route path="/:namespace/:slug/-/tree/:branch" component={projectView} />
       <Route path="/:namespace/:slug/-/blob/:branch/:file(.+)" component={FileView} />
+      <Route path="/:namespace/:slug/-/branches" component={BranchesView} exact />
+      <Route path="/:namespace/:slug/-/branches/new" component={NewBranch} />
 
-      <PrivateRoute
-        exact
-        path="/my-projects/:projectId/new-branch"
-        component={NewBranch}
-      />
-      <PrivateRoute
-        exact
-        path="/my-projects/:projectId/branches"
-        component={BranchesView}
-      />
       <PrivateRoute exact path="/my-projects/:projectId/pipeline-execution/:typePipelines" component={PipelinesExecutionView} />
       <PrivateRoute path="/my-projects/:projectId/visualizations/:visName/path/:path" component={DataVisualizationDetail} />
       <PrivateRoute path="/my-projects/:projectId/visualizations/:visName" component={DataVisualizationDetail} />

@@ -40,8 +40,9 @@ const UploadFile = (props) => {
   const {
     selectedProject: {
       name,
-      id: projectId,
-      namespace: { name: groupName },
+      gid,
+      slug,
+      namespace: groupName,
       emptyRepo: isEmptyRepo,
       defaultBranch,
     },
@@ -114,7 +115,7 @@ const UploadFile = (props) => {
     }
     dispatch({ type: SET_SENDING_FILES, payload: true });
     CommitsApi.performCommitForMultipleActions(
-      projectId,
+      gid,
       JSON.stringify(body),
     )
       .then(() => {
@@ -122,7 +123,7 @@ const UploadFile = (props) => {
         if (startMR && !isEmptyRepo) {
           toastr.info('Info', 'Creating your new MR');
           MergeRequestAPI
-            .submitMergeReq(projectId, newBranchName, targetBranch || defaultBranch, 'Merge file to main branch')
+            .submitMergeReq(gid, newBranchName, targetBranch || defaultBranch, 'Merge file to main branch')
             .then((bodyRes) => {
               const { source_branch: mrSourceBranch } = bodyRes;
               dispatch({ type: SET_TARGET, payload: mrSourceBranch });
@@ -192,10 +193,10 @@ const UploadFile = (props) => {
 
   return (
     <>
-      {areFilesLoaded && <Redirect to={`/my-projects/${projectId}/${targetBranch}`} /> }
+      {areFilesLoaded && <Redirect to={`/${groupName}/${slug}/-/tree/${targetBranch}`} /> }
       <Navbar />
       <div className="main-content">
-        <ProjectNav projectId={projectId} folders={folders} />
+        <ProjectNav projectId={gid} folders={folders} />
         <div
           onDrop={(e) => handleDrop(e)}
           className="draggable-container d-flex"
@@ -270,7 +271,7 @@ const UploadFile = (props) => {
             type="button"
             variant="contained"
             className="btn btn-switch"
-            onClick={() => history.push(`/my-projects/${projectId}/${currentBranch}`)}
+            onClick={() => history.goBack() }
           >
             Cancel
           </button>
@@ -292,9 +293,8 @@ const UploadFile = (props) => {
 UploadFile.propTypes = {
   selectedProject: shape({
     name: string.isRequired,
-    namespace: shape({
-      name: string.isRequired,
-    }),
+    namespace: string.isRequired,
+    slug: string.isRequired,
   }).isRequired,
   branches: arrayOf(string).isRequired,
   match: shape({

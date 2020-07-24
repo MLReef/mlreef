@@ -148,7 +148,7 @@ exports[`The branches list should be displayed when dropdown button is clicked d
             className="plus-option"
           >
             <a
-              href="/my-projects/12395599/new-branch"
+              href="/my-namespace/the-project-name/-/branches/new"
               onClick={[Function]}
             >
               New branch

@@ -10,8 +10,9 @@ const setup = () => {
     projects: projectsArrayMock.projects,
     branches: branchesMock,
   });
+  const location = { pathname: '/my-namespace/the-project-name/-/branches' };
   const wrapper = shallow(
-    <BranchesView store={store} />,
+    <BranchesView location={location} store={store} />,
   );
   const afterDive = wrapper.dive().dive();
   return afterDive;
