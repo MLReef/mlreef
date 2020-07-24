@@ -1,15 +1,16 @@
-import 'babel-polyfill';
 import React from 'react';
 import { shallow } from 'enzyme';
 import ArrowButton from 'components/arrow-button/arrowButton';
-import SummarizedDataAndChartComp from '../components/experiments-overview/summarizedDataAndChartComp';
 import Experiment from 'domain/experiments/Experiment';
 import { plainToClass } from 'class-transformer';
 import { experimentMock } from 'testData';
+import ExperimentSummary from '../../../components/experiments-overview/ExperimentSummary';
 
 const setup = () => shallow(
-  <SummarizedDataAndChartComp
+  <ExperimentSummary
     experiment={plainToClass(Experiment, experimentMock)}
+    projectId={123456}
+    defaultBranch="master"
   />,
 );
 

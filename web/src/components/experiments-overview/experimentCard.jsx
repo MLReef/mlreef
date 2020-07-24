@@ -5,7 +5,7 @@ import './experimentsOverview.css';
 import {
   getTimeCreatedAgo,
 } from '../../functions/dataParserHelpers';
-import SummarizedDataAndChartComp from './summarizedDataAndChartComp';
+import ExperimentSummary from './ExperimentSummary';
 import { string, number, arrayOf, shape } from 'prop-types';
 
 const ExperimentCard = (props) => {
@@ -91,9 +91,10 @@ const ExperimentCard = (props) => {
                 </p>
               </div>
             </div>
-            <SummarizedDataAndChartComp
+            <ExperimentSummary
               experiment={experiment}
               projectId={projectId}
+              dataProjectId={dataProjectId}
               defaultBranch={defaultBranch}
             />
           </div>
@@ -110,7 +111,7 @@ ExperimentCard.propTypes = {
     name: string.isRequired,
     authorName: string.isRequired,
     pipelineJobInfo: shape({
-      createdAt: string.isRequired
+      createdAt: string.isRequired,
     }),
     processing: shape({
       parameters: arrayOf(shape({
@@ -124,8 +125,12 @@ ExperimentCard.propTypes = {
   projectId: number.isRequired,
   algorithms: arrayOf(shape({
     name: string.isRequired,
-  })),
+  })).isRequired,
 };
+
+ExperimentCard.defaultProps = {
+  experiments: [],
+}
 
 function mapStateToProps(state) {
   return {

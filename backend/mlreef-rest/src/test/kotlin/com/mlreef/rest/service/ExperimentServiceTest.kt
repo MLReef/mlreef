@@ -180,7 +180,7 @@ class ExperimentServiceTest : AbstractServiceTest() {
         processorVersionRepository.save(dataProcessor)
 
         val dataProcessorInstance = DataProcessorInstance(randomUUID(), dataProcessor, parameterInstances = arrayListOf())
-        val createExperiment = experimentService.createExperiment(
+        val experiment = experimentService.createExperiment(
             ownerId,
             dataRepositoryId,
             pipelineInstance.id,
@@ -190,9 +190,10 @@ class ExperimentServiceTest : AbstractServiceTest() {
             "target",
             listOf(),
             inputFiles = listOf(FileLocation.fromPath("folder")),
-            processorInstance = dataProcessorInstance)
+            processorInstance = dataProcessorInstance
+        )
 
-        assertThat(createExperiment).isNotNull()
+        assertThat(experiment).isNotNull
     }
 
     @Test

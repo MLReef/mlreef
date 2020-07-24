@@ -128,6 +128,7 @@ const createExperimentInProject = (
   branchSelected,
   filesSelectedInModal,
 ) => {
+  const expApi = new ExperimentsApi();
   const experimentData = dataOperationsSelected[0];
   const { inputValuesAndDataModels: parameters, slug } = experimentData;
   const experimentBody = {
@@ -141,15 +142,15 @@ const createExperimentInProject = (
       parameters,
     },
   };
-  ExperimentsApi.createExperiment(backendId, experimentBody)
+  expApi.createExperiment(backendId, experimentBody)
     .then((experiment) => {
       toastr.success('Success', 'Experiment was generated');
-      ExperimentsApi.startExperiment(backendId, experiment.id)
+      expApi.startExperiment(backendId, experiment.id)
         .then((res) => {
           if (res.ok) {
             toastr.success('Success', 'Experiment was started');
           } else {
-            Promise.reject(res);
+            return Promise.reject(res);
           }
         });
     })

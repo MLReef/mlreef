@@ -8,6 +8,8 @@ import {
 import { toastr } from 'react-redux-toastr';
 import './experimentsOverview.css';
 import { Line } from 'react-chartjs-2';
+import MModal from 'components/ui/MModal';
+import GitlabPipelinesApi from 'apis/GitlabPipelinesApi';
 import traiangle01 from '../../images/triangle-01.png';
 import ArrowButton from '../arrow-button/arrowButton';
 import {
@@ -21,6 +23,11 @@ import {
   FAILED,
   PENDING,
 } from '../../dataTypes';
+import ExperimentCancellationModal from './cancellationModal';
+import ExperimentsApi from 'apis/experimentApi';
+
+const gitlabApi = new GitlabPipelinesApi();
+const experimentApi = new ExperimentsApi();
 
 const DataCard = ({ title, linesOfContent }) => (
   <div className="data-card">
@@ -43,7 +50,9 @@ DataCard.propTypes = {
   linesOfContent: arrayOf(string).isRequired,
 };
 
-const SummarizedDataAndChartComp = ({
+const ExperimentSummary = ({
+  projectId,
+  dataProjectId,
   experiment,
 }) => {
   const experimentInstance = experiment;
@@ -53,6 +62,7 @@ const SummarizedDataAndChartComp = ({
     labels: [],
   });
   const [averageParams, setAverageParams] = useState([]);
+  const [shouldAbortModalRender, setShouldAbortModalRender] = useState(false);
   const sourceBranch = experimentInstance ? experimentInstance.sourceBranch : '';
   const { processing } = experimentInstance;
   const modelName = processing ? processing.name : '';
@@ -60,10 +70,23 @@ const SummarizedDataAndChartComp = ({
     `*P: ${param.name} = ${param.value}`
   )) : [];
 
+  const closeModal = () => setShouldAbortModalRender(false);
+
+  function abortClickHandler(pipelineId) {
+    gitlabApi.abortGitlabPipelines(
+      projectId,
+      pipelineId,
+    )
+      .then(() => experimentApi.cancelExperiment(dataProjectId, experiment.id))
+      .then(() => toastr.success('Success', 'Pipeline aborted'))
+      .catch(() => toastr.error('Error', 'Error aborting pipeline'))
+      .finally(() => closeModal());
+  }
+
   function handleArrowDownButtonClick() {
     const newIsShowingSum = !showSummary;
     setShowSummary(newIsShowingSum);
-    if(!newIsShowingSum){
+    if (!newIsShowingSum) {
       return;
     }
     try {
@@ -80,7 +103,7 @@ const SummarizedDataAndChartComp = ({
 
   function getButtonsDiv() {
     let buttons;
-    const { slug: expName, status: experimentState  } = experiment;
+    const { slug: expName, status: experimentState } = experiment;
     const arrowBtn = (
       <ArrowButton
         imgPlaceHolder={traiangle01}
@@ -97,6 +120,7 @@ const SummarizedDataAndChartComp = ({
           type="button"
           className="btn btn-danger"
           style={{ width: 'max-content' }}
+          onClick={() => setShouldAbortModalRender(true)}
         >
           Abort
         </button>,
@@ -146,6 +170,14 @@ const SummarizedDataAndChartComp = ({
   return (
     <>
       {getButtonsDiv()}
+      <MModal>
+        <ExperimentCancellationModal
+          experimentToAbort={experiment}
+          shouldComponentRender={shouldAbortModalRender}
+          abortClickHandler={abortClickHandler}
+          closeModal={closeModal}
+        />
+      </MModal>
       {showSummary && (
         <>
           <div key={`${experimentInstance.name} ${experimentInstance.status} data-summary`} className="data-summary">
@@ -182,13 +214,13 @@ const SummarizedDataAndChartComp = ({
               title="Model"
               linesOfContent={[
                 `*${modelName}`,
-                //'from',
-                //`*branch:${experimentInstance.name}`,
-                //'authored by',
-                //`*${userName} ${getTimeCreatedAgo(timeCreatedAgo, today)}`,
-                //'being',
-                //`*${ahead} commits ahead and ${behind} commits behind`,
-                //`of its ${defaultBranch} branch`,
+                // 'from',
+                // `*branch:${experimentInstance.name}`,
+                // 'authored by',
+                // `*${userName} ${getTimeCreatedAgo(timeCreatedAgo, today)}`,
+                // 'being',
+                // `*${ahead} commits ahead and ${behind} commits behind`,
+                // `of its ${defaultBranch} branch`,
               ]}
             />
             <DataCard
@@ -202,7 +234,7 @@ const SummarizedDataAndChartComp = ({
   );
 };
 
-SummarizedDataAndChartComp.propTypes = {
+ExperimentSummary.propTypes = {
   projectId: number.isRequired,
   defaultBranch: string.isRequired,
   experiments: shape({
@@ -215,9 +247,9 @@ SummarizedDataAndChartComp.propTypes = {
     name: string.isRequired,
     authorName: string.isRequired,
     pipelineJobInfo: shape({
-      createdAt: string.isRequired
+      createdAt: string.isRequired,
     }),
   }),
 };
 
-export default SummarizedDataAndChartComp;
+export default ExperimentSummary;

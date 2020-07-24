@@ -28,10 +28,10 @@ const SortableProcessor = SortableElement(({
       .value = newBoolValue;
   }
   const sortedParameters = value
-    .parameters
-    .sort((paramA, paramB) => paramA.order - paramB.order);
-  const filterOperation = (paramType) => sortedParameters
-    .filter((operation) => operation.required === paramType);
+    .parameters?.sort((paramA, paramB) => paramA.order - paramB.order);
+  const filterOperation = (paramType) => sortedParameters?.filter(
+    (operation) => operation.required === paramType
+  );
 
   const standardParameters = filterOperation(true);
   const advancedParameters = filterOperation(false);
@@ -89,7 +89,7 @@ const SortableProcessor = SortableElement(({
         <div className="data-operation-form">
           <br />
           <div style={{ width: 'max-content', margin: 'auto', marginLeft: '1rem' }}>
-            {standardParameters.map((param, paramIndex) => (
+            {standardParameters && standardParameters.map((param, paramIndex) => (
               <div key={`std-${param.name}`}>
                 <div className="d-flex mb-3">
                   <span className="mr-4" style={{ alignSelf: 'center', flex: 1 }}>
@@ -114,8 +114,7 @@ const SortableProcessor = SortableElement(({
             ))}
           </div>
 
-          {advancedParameters
-            && (
+          {advancedParameters && (
             <div>
               <div className="advanced-opt-drop-down">
                 <div className="drop-down">

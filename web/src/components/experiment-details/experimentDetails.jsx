@@ -61,7 +61,8 @@ const ExperimentDetails = (props) => {
   }, set);
 
   useEffect(() => {
-    ExperimentsApi.getExperimentDetails(uuid, experimentId)
+    const expApi = new ExperimentsApi();
+    expApi.getExperimentDetails(uuid, experimentId)
       .then((res) => setExperiment(res))
       .catch(() => toastr.error('Error', 'Could not fetch the experiment'));
   }, [uuid, experimentId]);

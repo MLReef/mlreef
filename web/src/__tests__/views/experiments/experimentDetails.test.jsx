@@ -1,9 +1,9 @@
 import React from 'react';
 import { shallow } from 'enzyme';
 import 'babel-polyfill';
-import JobLog from '../components/experiment-details/menu-options/jobLog';
-import { jobMock } from '../testData';
-import { getTimeCreatedAgo, parseDurationInSeconds } from '../functions/dataParserHelpers';
+import JobLog from '../../../components/experiment-details/menu-options/jobLog';
+import { jobMock } from '../../../testData';
+import { getTimeCreatedAgo, parseDurationInSeconds } from '../../../functions/dataParserHelpers';
 
 const setup = () => {
   const wrapper = shallow(

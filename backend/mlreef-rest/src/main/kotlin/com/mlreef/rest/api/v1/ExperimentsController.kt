@@ -46,53 +46,52 @@ class ExperimentsController(
 ) {
     private val log: Logger = Logger.getLogger(ExperimentsController::class.simpleName)
 
-    private fun beforeGetExperiment(experimentId: UUID): Experiment {
-        return experimentRepository.findByIdOrNull(experimentId)
-            ?: throw UnknownProjectException("Experiment with id $experimentId not found")
-    }
-
     @GetMapping
     @PreAuthorize("canViewProject(#dataProjectId)")
-    fun getAllExperiments(@PathVariable dataProjectId: UUID): List<ExperimentDto> {
-        val experiments: List<Experiment> = experimentRepository.findAllByDataProjectId(dataProjectId).toList()
-        return experiments.map(Experiment::toDto)
-    }
+    fun getAllExperiments(@PathVariable dataProjectId: UUID): List<ExperimentDto> =
+        experimentRepository.findAllByDataProjectId(dataProjectId)
+            .map(Experiment::toDto)
+
 
     @GetMapping("/{id}")
     @PreAuthorize("canViewProject(#dataProjectId)")
-    fun getExperiment(@PathVariable dataProjectId: UUID, @PathVariable id: UUID): ExperimentDto {
-        val findOneByDataProjectIdAndId = experimentRepository.findOneByDataProjectIdAndId(dataProjectId, id)
-            ?: throw NotFoundException("Experiment not found")
-        return findOneByDataProjectIdAndId.toDto()
-    }
+    fun getExperiment(@PathVariable dataProjectId: UUID, @PathVariable id: UUID): ExperimentDto =
+        experimentRepository.findOneByDataProjectIdAndId(dataProjectId, id)
+            ?.toDto()
+            ?: throw NotFoundException("Experiment not found by dataProject: $dataProjectId and experiment id: $id")
+
 
     @GetMapping("/{id}/info")
     @PreAuthorize("canViewProject(#dataProjectId)")
-    fun getExperimentMetrics(@PathVariable dataProjectId: UUID, @PathVariable id: UUID): PipelineJobInfoDto {
-        val experiment = beforeGetExperiment(id)
-        val pipelineJobInfo = experiment.pipelineJobInfo
+    fun getExperimentMetrics(@PathVariable dataProjectId: UUID, @PathVariable id: UUID): PipelineJobInfoDto =
+        (experimentRepository.findByIdOrNull(id)
+            ?: throw UnknownProjectException("Experiment with id $id not found"))
+            .pipelineJobInfo
+            ?.toDto()
             ?: throw NotFoundException("Experiment does not have a PipelineJobInfo (yet)")
-        return pipelineJobInfo.toDto()
-    }
+
 
     @GetMapping("/{id}/mlreef-file")
     @PreAuthorize("canViewProject(#dataProjectId)")
-    fun getExperimentYaml(@PathVariable dataProjectId: UUID, @PathVariable id: UUID, account: Account): String {
-        val experiment = beforeGetExperiment(id)
+    fun getExperimentYaml(@PathVariable dataProjectId: UUID, @PathVariable id: UUID, account: Account): String =
+        (experimentRepository.findByIdOrNull(id)
+            ?: throw UnknownProjectException("Experiment with id $id not found"))
+            .let { service.createExperimentFile(experiment = it, author = account, secret = "deprecated") }
 
-        return service.createExperimentFile(experiment = experiment, author = account, secret = "deprecated")
-    }
 
     @PostMapping("/{id}/start")
     @PreAuthorize("hasAccessToProject(#dataProjectId, 'DEVELOPER')")
-    fun startExperiment(@PathVariable dataProjectId: UUID,
-                        @PathVariable id: UUID,
-                        account: Account,
-                        userToken: TokenDetails): PipelineJobInfoDto {
+    fun startExperiment(
+        @PathVariable dataProjectId: UUID,
+        @PathVariable id: UUID,
+        account: Account,
+        userToken: TokenDetails
+    ): PipelineJobInfoDto {
         val dataProject = dataProjectService.getProjectById(dataProjectId)
             ?: throw ProjectNotFoundException(projectId = dataProjectId)
 
-        val experiment = beforeGetExperiment(id)
+        val experiment = experimentRepository.findByIdOrNull(id)
+            ?: throw UnknownProjectException("Experiment with id $id not found")
 
         service.guardStatusChange(experiment, newStatus = ExperimentStatus.PENDING)
 
@@ -111,9 +110,11 @@ class ExperimentsController(
 
     @PostMapping
     @PreAuthorize("hasAccessToProject(#dataProjectId, 'DEVELOPER')")
-    fun createExperiment(@PathVariable dataProjectId: UUID,
-                         @Valid @RequestBody experimentCreateRequest: ExperimentCreateRequest,
-                         person: Person): ExperimentDto {
+    fun createExperiment(
+        @PathVariable dataProjectId: UUID,
+        @Valid @RequestBody experimentCreateRequest: ExperimentCreateRequest,
+        person: Person
+    ): ExperimentDto {
         val dataProject = dataProjectService.getProjectById(dataProjectId)
             ?: throw ProjectNotFoundException(projectId = dataProjectId)
 
@@ -156,10 +157,21 @@ class ExperimentsController(
         )
 
         val persisted = experimentRepository.findOneByDataProjectIdAndId(dataProjectId, newExperiment.id)!!
-        val toDto = persisted.toDto()
-        return toDto
+        return persisted.toDto()
     }
+
+
+    @Deprecated("This is a workaround solution and should be removed ASAP ") //TODO
+    @PostMapping("/{id}/cancel")
+    @PreAuthorize("hasAccessToProject(#dataProjectId, 'DEVELOPER')")
+    fun updateExperimentStatus(
+        @PathVariable dataProjectId: UUID,
+        @PathVariable id: UUID
+    ) = (experimentRepository.findByIdOrNull(id) ?: throw UnknownProjectException("Experiment with id $id not found"))
+        .copy(status = ExperimentStatus.CANCELED)
+        .let { experimentRepository.save(it) }
 }
+
 
 class ExperimentCreateRequest(
     val dataInstanceId: UUID?,
