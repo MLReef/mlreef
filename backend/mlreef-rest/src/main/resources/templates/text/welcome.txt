@@ -1,0 +1,15 @@
+Hello #{#USER_NAME}
+
+Happy to have you on board!
+
+MLReef is your platform for the entire Machine Learning life cycle.
+
+Here, a few tips to get started:
+
+* Explore other projects in the project library: https://mlreef.com/explore/mlprojects
+* Sign up for our community slack channel: https://mlreefcommunity.slack.com/#/
+* Read the MLReef docs: https://doc.mlreef.com/
+
+Please note, that MLReef is currently in early alpha, wich means that everything is subject to change. You are an adventurer on new waters where things might get lost, forever!
+
+Your MLReef team!

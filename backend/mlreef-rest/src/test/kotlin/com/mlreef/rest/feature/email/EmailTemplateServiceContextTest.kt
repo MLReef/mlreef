@@ -23,7 +23,7 @@ class EmailTemplateServiceContextTest : AbstractContextTest() {
         val html = service.createPasswordResetTemplateHtml(params)
 
         assertThat(html).isNotNull()
-        assertThat(html).contains("Dear Test user")
+        assertThat(html).contains("Hello Test user")
     }
 
     @Test
@@ -37,4 +37,27 @@ class EmailTemplateServiceContextTest : AbstractContextTest() {
         assertThat(html).isNotNull()
         assertThat(html).contains("Dear Test user")
     }
+
+    @Test
+    fun `welcome message html template generates message`() {
+        val params = mapOf(
+            EmailVariables.USER_NAME to "Test user"
+        )
+        val html = service.createWelcomeMessageTemplateHtml(params)
+
+        assertThat(html).isNotNull()
+        assertThat(html).contains("Hello Test user")
+    }
+
+    @Test
+    fun `welcome message text template generates message`() {
+        val params = mapOf(
+            EmailVariables.USER_NAME to "Test user"
+        )
+        val html = service.createWelcomeMessageTemplateText(params)
+
+        assertThat(html).isNotNull()
+        assertThat(html).contains("Hello Test user")
+    }
+
 }

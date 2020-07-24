@@ -19,6 +19,8 @@ import kotlin.streams.toList
 interface TemplateService {
     fun createPasswordResetTemplateHtml(variables: Map<EmailVariables, Any>): String
     fun createPasswordResetTemplateText(variables: Map<EmailVariables, Any>): String
+    fun createWelcomeMessageTemplateHtml(variables: Map<EmailVariables, Any>): String
+    fun createWelcomeMessageTemplateText(variables: Map<EmailVariables, Any>): String
 }
 
 @Service
@@ -31,6 +33,9 @@ class EmailTemplateService(
 
         private const val PASSWORD_RESET_TEMPLATE_NAME_HTML = "html/password_reset.html"
         private const val PASSWORD_RESET_TEMPLATE_NAME_TEXT = "text/password_reset.txt"
+
+        private const val WELCOME_MESSAGE_TEMPLATE_NAME_HTML = "html/welcome.html"
+        private const val WELCOME_MESSAGE_TEMPLATE_NAME_TEXT = "text/welcome.txt"
     }
 
     @PostConstruct
@@ -39,6 +44,22 @@ class EmailTemplateService(
     }
 
     override fun createPasswordResetTemplateHtml(variables: Map<EmailVariables, Any>): String {
+        return generateHtmlTemplate(PASSWORD_RESET_TEMPLATE_NAME_HTML, variables)
+    }
+
+    override fun createPasswordResetTemplateText(variables: Map<EmailVariables, Any>): String {
+        return generateTextTemplate(PASSWORD_RESET_TEMPLATE_NAME_TEXT, variables)
+    }
+
+    override fun createWelcomeMessageTemplateHtml(variables: Map<EmailVariables, Any>): String {
+        return generateHtmlTemplate(WELCOME_MESSAGE_TEMPLATE_NAME_HTML, variables)
+    }
+
+    override fun createWelcomeMessageTemplateText(variables: Map<EmailVariables, Any>): String {
+        return generateTextTemplate(WELCOME_MESSAGE_TEMPLATE_NAME_TEXT, variables)
+    }
+
+    private fun generateHtmlTemplate(templatePath: String, variables: Map<EmailVariables, Any>): String {
         val context = Context()
 
         context.setVariable(EmailVariables.SUBJECT.name, variables[EmailVariables.SUBJECT])
@@ -46,10 +67,6 @@ class EmailTemplateService(
         context.setVariable(EmailVariables.REDIRECT_URL.name, variables[EmailVariables.REDIRECT_URL])
 
         return templateEngine.process(PASSWORD_RESET_TEMPLATE_NAME_HTML, context)
-    }
-
-    override fun createPasswordResetTemplateText(variables: Map<EmailVariables, Any>): String {
-        return generateTextTemplate(PASSWORD_RESET_TEMPLATE_NAME_TEXT, variables)
     }
 
     private fun generateTextTemplate(templatePath: String, params: Map<EmailVariables, Any>): String {

@@ -6,6 +6,8 @@ import com.mlreef.rest.AccountRepository
 import com.mlreef.rest.AccountToken
 import com.mlreef.rest.AccountTokenRepository
 import com.mlreef.rest.ApplicationProfiles
+import com.mlreef.rest.Email
+import com.mlreef.rest.EmailRepository
 import com.mlreef.rest.CodeProject
 import com.mlreef.rest.DataProcessor
 import com.mlreef.rest.DataProcessorInstance
@@ -52,6 +54,7 @@ import com.mlreef.rest.testcommons.TestRedisContainer
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.slot
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.extension.ExtendWith
 import org.slf4j.LoggerFactory
@@ -120,6 +123,9 @@ abstract class AbstractRestApiTest : AbstractRestTest() {
 
     @MockkBean(relaxed = true, relaxUnitFun = true)
     protected lateinit var publicProjectsCacheService: PublicProjectsCacheService
+
+    @MockkBean(relaxed = true, relaxUnitFun = true)
+    protected lateinit var emailRepository: EmailRepository
 
     @Autowired
     protected lateinit var accountTokenRepository: AccountTokenRepository
@@ -244,6 +250,11 @@ abstract class AbstractRestApiTest : AbstractRestTest() {
             name = "test-group",
             path = "test-path"
         )
+
+        val emailSlot = slot<Email>()
+
+        every { emailRepository.save(capture(emailSlot)) } answers { emailSlot.captured }
+
         every { restClient.userGetUserGroups(any()) } returns emptyList()
         every { restClient.createBranch(any(), any(), any(), any()) } returns Branch("branch")
         every { restClient.commitFiles(any(), any(), any(), any(), any(), any()) } returns Commit("branch")
