@@ -1,0 +1,120 @@
+.noelement-found-div {
+  width: 100%;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  p {
+    color: var(--secondary);   
+  }
+}
+
+.group-card {
+  border: 1px solid transparent;
+  &:hover {
+    border: 1px solid var(--info);
+    cursor: pointer;
+  }
+  max-width: 300px !important;
+  padding: 0px !important;
+  .header {
+    padding: 1rem 0 0 1rem;
+    .card-title {
+      height: 1rem;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      p {
+        margin: 0;
+      }
+    }
+    .avatar-container {
+      background-color: transparent;
+    }
+  }
+  .content {
+    .description {
+      padding: 0 1rem;
+      max-height: 6rem;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .projects-section {
+      .drop-down-button {
+        justify-content: space-between;
+        padding: 3px 5px 3px 5px;
+        p {
+          margin: 0;
+        }
+
+        p.open {
+          color: white;
+        }
+
+        p.close {
+          color: black;
+        }
+      }
+
+      .drop-down-button.open {
+        background-color: var(--info);
+      }
+
+      .drop-down-button.close {
+        background-color: var(--light);
+      }
+
+      .projects-list {
+        .project-details {
+          display: flex;
+          justify-content: space-between;
+          padding: 0 6px 0 6px;
+          p {
+            margin: 0;
+            padding: 3px 6px;
+          }
+          .project-details-name {
+            max-width: 150px;
+            overflow: hidden; 
+            max-height: 1.4rem; 
+            text-overflow: ellipsis
+          }
+
+        }
+        .project-details:hover {
+          background-color: var(--light-info);
+        }
+      }
+    }
+
+    .projects-section.open {
+      box-shadow: 0.5px 1.2px 2px var(--info);
+    }
+    
+    .projects-section.close {
+      box-shadow: none
+    }
+
+    .members {
+      div.members-content {
+        margin: 1.5rem 1rem;
+        display: flex;
+        justify-content: space-between;
+        div.avatar-container { 
+          .member-card-avatar, .group-card-avatar {
+            height: 100%;
+            width: 100%;
+            border-radius: 50%;
+          } 
+        }
+        .members-number {
+          display: flex;
+          align-items: center;
+          p { margin: 0 5px 0 0; }
+          img {
+            height: 20px;
+          }
+        }
+      }
+    }
+  }
+}
+

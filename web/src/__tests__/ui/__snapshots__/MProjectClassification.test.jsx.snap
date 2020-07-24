@@ -73,74 +73,28 @@ exports[`test html elements 1`] = `
           >
             <p
               className="card-title"
-            />
+            >
+              Sign Language Classifier
+            </p>
             <div
-              className="project-card-container-autor d-flex "
+              className="project-card-container-autor pb-3 mt-2"
             >
               <p>
-                MLReef
+                Some namespace
               </p>
             </div>
             <div
               className="card-content"
             >
               <div
-                className="d-flex"
+                className="project-card-types d-flex"
+              />
+              <div
+                className="project-card-types d-flex"
+              />
+              <p
+                className="t-dark"
               >
-                <div
-                  className="mr-2"
-                >
-                  <i
-                    className="fa fa-file t-success"
-                  >
-                    <span
-                      className="label"
-                    >
-                       Text
-                    </span>
-                  </i>
-                </div>
-                <div
-                  className="mr-2"
-                >
-                  <i
-                    className="fa fa-volume-up t-info"
-                  >
-                    <span
-                      className="label"
-                    >
-                       Audio
-                    </span>
-                  </i>
-                </div>
-                <div
-                  className=""
-                >
-                  <i
-                    className="fa fa-video t-danger"
-                  >
-                    <span
-                      className="label"
-                    >
-                       Video
-                    </span>
-                  </i>
-                </div>
-                <div
-                  className=""
-                >
-                  <i
-                    className="fas fa-grip-lines-vertical t-warning"
-                  >
-                    <span
-                      className="label"
-                    >
-                       Tabular
-                    </span>
-                  </i>
-                </div>
-              </div>
-              <p>
                 Categorical Classification of alphabets in the American Sign Language
               </p>
               <div
@@ -178,13 +132,7 @@ exports[`test html elements 1`] = `
               className="card-actions"
             >
               <div
-                className=""
-                style={
-                  Object {
-                    "display": "flex",
-                    "marginRight": "-1rem",
-                  }
-                }
+                className="avatars-reversed"
               />
             </div>
           </div>

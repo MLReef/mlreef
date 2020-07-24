@@ -88,7 +88,6 @@ class Myprojects extends React.Component {
       /* actions.getUserProjects(), */
       /* actions.getStarredProjects(), */
       actions.getProjectsList(PROJECT_TYPES.DATA_PROJ),
-      actions.getGroupsList(),
     ])
       .catch(() => {
       })

@@ -38,7 +38,7 @@ class ProjectSet extends Component {
       <div id="cards-section">
         {finalProjectsArray.length > 0 ? finalProjectsArray.map((proj) => (
           <MProjectCard
-            key={`proj-${proj.gitlabNamespace}-${proj.slug}`}
+            key={`proj-${proj.gitlabNamespace}-${proj.slug}-${proj.id}`}
             slug={proj.slug}
             owner={proj.id}
             title={proj.name}

@@ -78,8 +78,8 @@ class Navbar extends Component {
                     <div className="user-projects">
                       <p>Your Groups</p>
                       <p>Starred Groups</p>
-                      <p>Explore Groups</p>
-                      <p><Link to="/new-group">New Group</Link></p>
+                      <p><Link to="/groups">Explore Groups</Link></p>
+                      <p><Link to="/groups/new">New Group</Link></p>
                     </div>
 
                   ) : (

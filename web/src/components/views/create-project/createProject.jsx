@@ -123,6 +123,8 @@ class CreateProject extends Component {
       return;
     }
     const slug = this.slugRef.current.value;
+    const { user } = this.props;
+    const isNamespaceAGroup = nameSpace !== '' && nameSpace !== user.username;
     const body = {
       name: projectName,
       slug,
@@ -133,8 +135,7 @@ class CreateProject extends Component {
       // input_data_types: dataTypesSelected,
     };
     const projectGeneraInfoApi = new ProjectGeneraInfoApi();
-    projectGeneraInfoApi.create(body, projectType)
-      .then((res) => res.json())
+    projectGeneraInfoApi.create(body, projectType, isNamespaceAGroup)
       .then((proj) => {
         this.setState({ redirect: `/${proj.gitlab_namespace}/${proj.slug}` })
       })
@@ -146,7 +147,7 @@ class CreateProject extends Component {
  cancelCreate = () => this.props.history.push('/my-projects');
 
  getIsPrivacyOptionDisabled = (privacyLevel, nameSpace) => {
-   const { user, groups } = this.props;
+  const { user, groups } = this.props;
    if (nameSpace === '') {
      return false;
    }

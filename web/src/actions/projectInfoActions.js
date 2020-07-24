@@ -1,10 +1,10 @@
 import { toastr } from 'react-redux-toastr';
 import ProjectGeneralInfoApi from 'apis/projectGeneralInfoApi';
 import { parseToCamelCase, adaptProjectModel } from 'functions/dataParserHelpers';
+import MLSearchApi from 'apis/MLSearchApi';
 import { handlePagination } from 'functions/apiCalls';
 import store from '../store';
 import * as types from './actionTypes';
-import MLSearchApi from '../apis/MLSearchApi.ts';
 
 const projectApi = new ProjectGeneralInfoApi();
 const mlSearchApi = new MLSearchApi();
@@ -12,17 +12,16 @@ const mlSearchApi = new MLSearchApi();
 
 // This will fetch gitlab project and add it to the mlreef project
 const mergeWithGitlabProject = (project) => projectApi.getProjectInfoApi(project.gitlab_id)
-    .then(parseToCamelCase)
-    .then((gitlab) => ({ ...project, gitlab }))
-    .catch(() => project);
+  .then(parseToCamelCase)
+  .then((gitlab) => ({ ...project, gitlab }))
+  .catch(() => project);
 
 // fetch complementary member list from gitlab api, so far it's not possible
 // to get them within each project
-const mergeGitlabResource = (projects) => Promise.all(
-    projects.map((project) => projectApi.getUsers(project.gitlabId)
-        .then((members) => ({ ...project, members }))
-        .catch(() => project)
-    ),
+const mergeGitlabResource = (projects, auth) => Promise.all(
+  projects.map((project) => projectApi.getUsers(project.gitlabId, auth)
+    .then((members) => ({ ...project, members }))
+    .catch(() => project)),
 );
 
 
@@ -45,19 +44,24 @@ export function setUserProjectsSuccessfully(projects) {
 
 export function getProjectsList() {
   return async (dispatch) => {
-    const projects = await projectApi.listPublicProjects()
-      .then(handlePagination)
-      .then((projs) => projs.map(parseToCamelCase))
-      .then(mergeGitlabResource)
+    const { user: { username, auth } } = store.getState();
+    let allProjects = [];
+    let publicProjects = [];
+    if (auth) {
+      allProjects = await projectApi.getProjectsList()
+        .then((projs) => projs.map(parseToCamelCase))
+        .then((projects) => mergeGitlabResource(projects, auth));
+    } else {
+      publicProjects = await projectApi.listPublicProjects()
+        .then(handlePagination)
+        .then((projs) => projs.map(parseToCamelCase))
+        .then((projects) => mergeGitlabResource(projects, auth));
+    }
+    const finalArray = [...publicProjects, ...allProjects];
+    if (finalArray) {
+      const memberProjects = finalArray.filter((project) => project.members?.some((m) => m.username === username));
 
-    if (projects) {
-      const { user: { username } } = store.getState();
-
-      const memberProjects = projects.filter((project) =>
-        project.members?.some((m) => m.username === username)
-      );
-
-      dispatch(getProjectsInfoSuccessfully(projects));
+      dispatch(getProjectsInfoSuccessfully(finalArray));
       dispatch(setUserProjectsSuccessfully(memberProjects));
     }
   };
@@ -110,8 +114,7 @@ export function getUsersLit(projectId) {
 }
 
 export function getProjectDetails(id) {
-  return (dispatch) =>
-    projectApi.getProjectInfoApi(id)
+  return (dispatch) => projectApi.getProjectInfoApi(id)
     .then((project) => dispatch({ type: types.SET_SELECTED_PROJECT, project }));
 }
 

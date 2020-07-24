@@ -2,12 +2,6 @@ import ApiDirector from './ApiDirector';
 import ApiRequestCallBuilder from './apiBuilders/ApiRequestCallBuilder';
 import BLApiRequestCallBuilder from './apiBuilders/BLApiRequestCallBuilder';
 import { METHODS, validServicesToCall } from './apiBuilders/requestEnums';
-import DataProject from 'domain/project/DataProject';
-import { plainToClass } from "class-transformer";
-import { parseToCamelCase } from 'functions/dataParserHelpers';
-import Experiment from 'domain/experiments/Experiment';
-import CodeProject from 'domain/project/CodeProject';
-import { PROJECT_TYPES } from 'domain/project/projectTypes';
 import { handleResponse, handlePagination, inspect } from 'functions/apiCalls';
 
 export default class ProjectGeneralInfoApi extends ApiDirector {
@@ -18,7 +12,7 @@ export default class ProjectGeneralInfoApi extends ApiDirector {
     this.getProjectDetails = this.getProjectDetails.bind(this);
     this.getProjectDetailsNoAuth = this.getProjectDetailsNoAuth.bind(this);
   }
-  async create(body: any, projectType: string) {
+  async create(body: any, projectType: string, isNamespaceAGroup: boolean) {
     const baseUrl = `/api/v1/${projectType}s`;
     const apiReqBuilder = new ApiRequestCallBuilder(METHODS.POST, this.buildBasicHeaders(validServicesToCall.BACKEND), baseUrl, JSON.stringify(body));
     const response = await fetch(apiReqBuilder.build());
@@ -26,7 +20,27 @@ export default class ProjectGeneralInfoApi extends ApiDirector {
       const body = await response.json();
       return Promise.reject(body.error_message);
     }
-    return response;
+    if(!isNamespaceAGroup){
+      return response.json();
+    }
+    const projectPayload = await response.json();
+    return this.transferProjectToNamespace(projectPayload.gitlab_id, body.namespace)
+  }
+
+  async transferProjectToNamespace(projectId: number, namespace: string){
+    const baseUrl = `/api/v4/projects/${projectId}/transfer`;
+    const body = {
+      namespace,
+    };
+    const apiReqBuilder = new ApiRequestCallBuilder(METHODS.PUT, this.buildBasicHeaders(validServicesToCall.GITLAB), baseUrl, JSON.stringify(body));
+    const response = await fetch(apiReqBuilder.build());
+
+    if (!response.ok) {
+      const body = await response.json();
+      return Promise.reject(body.error_message);
+    }
+
+    return response.json();
   }
 
   async getProjectInfoApi(projectId: number) {
@@ -41,31 +55,12 @@ export default class ProjectGeneralInfoApi extends ApiDirector {
     return response.json();
   }
 
-  async getProjectsList(projectsType: string) {
-    const url = `/api/v1/${projectsType}s`;
+  async getProjectsList() {
+    const url = '/api/v1/projects';
     const builder = new BLApiRequestCallBuilder(METHODS.GET, this.buildBasicHeaders(validServicesToCall.BACKEND), url);
-    const response = fetch(builder.build());
-    return response.then(async (res) => {
-      if(!res.ok){
-        return Promise.reject(res);
-      }
-      const projectsList = await res.json();
-      if(projectsType === PROJECT_TYPES.CODE_PROJ){
-        return plainToClass(CodeProject, projectsList.map((p: any) => parseToCamelCase(p)).map((backPro: any) => {
-          const newPro = { ...backPro, backendId: backPro.id };
-          newPro.projectType = projectsType;
-          delete newPro.id;
-          return newPro;
-        }))
-      }
-      return plainToClass(DataProject, projectsList.map((p: any) => parseToCamelCase(p)).map((backPro: any) => {
-        const newPro = { ...backPro, backendId: backPro.id };
-        newPro.experiments = backPro.experiments.map((exp: any) => plainToClass(Experiment, parseToCamelCase(exp)));
-        newPro.projectType = projectsType;
-        delete newPro.id;
-        return newPro;
-      }));
-    })
+        
+    return fetch(builder.build())
+      .then(handleResponse)
   }
 
   listPublicProjects() {
@@ -151,21 +146,11 @@ export default class ProjectGeneralInfoApi extends ApiDirector {
     return fetch(bl.build())
   };
 
-  async getProjectContributors(projectId: number) {
-    const url = `/api/v4/projects/${projectId}/members`;
-    const builder = new BLApiRequestCallBuilder(METHODS.GET, this.buildBasicHeaders(validServicesToCall.GITLAB), url);
-    const response = await fetch(builder.build());
-
-    if (!response.ok) {
-      return Promise.reject(response);
-    }
-    return response;
-  }
-
-  async getUsers(projectId: number) {
+  async getUsers(projectId: number, auth: boolean) {
     const url = `/api/v4/projects/${projectId}/users`;
-    // this request must not include authentication
-    const response = await fetch(url);
+    const builder = new BLApiRequestCallBuilder(METHODS.GET, this.buildBasicHeaders(validServicesToCall.GITLAB), url);
+    
+    const response = await fetch(auth ? builder.build() : url);
     if (!response.ok) {
       return Promise.reject(response);
     }
