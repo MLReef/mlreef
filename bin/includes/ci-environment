@@ -1,13 +1,11 @@
 #!/bin/sh
-# shellcheck disable=SC2155  # declare and assign variables in one command might hide return values
-
+# shellcheck disable=SC2155  ### declare and assign variables in one command might hide return values
 
 # The ci-environment script acts as the basis to all ci scripts.
 # It ensures the existence of the necessary environment variables.
 # Since Gitlab's environment variables are created by Gitlab, this script
 #
-# In order to support local exeuction, necessary Gitlab CI variables are mocked
-#
+# In order to support local execution, necessary Gitlab CI variables are mocked
 
 
 GIT_BRANCH=$(git rev-parse --abbrev-ref HEAD) || echo "no-git-inside-docker-container"
@@ -36,9 +34,25 @@ echo " GITLAB_ADMIN_TOKEN= $GITLAB_ADMIN_TOKEN"
 export  EC2_INSTANCE_NAME="mlreef-$CI_COMMIT_REF_SLUG"       # environment name and url are set separately
 echo "  EC2_INSTANCE_NAME= $EC2_INSTANCE_NAME"
 
-export        SSH_KEYFILE="${SSH_KEYFILE:-bin/resources/development.pem}"
-echo "        SSH_KEYFILE= $SSH_KEYFILE"
-chmod 400   "$SSH_KEYFILE" # ensure correct permissions on the keyfile
+
+# This check exists to allow running on local developer instance where deployment is not needed.
+if [ -z ${AWS_DEVELOP_2020_2+x} ] && [ -z ${AWS_PROD_2020_1+x} ] ; then
+  echo "INFO: No known keyfile found. Deployment jobs will fail"
+else
+  # AWS key pairs can be viewed here: https://eu-central-1.console.aws.amazon.com/ec2/v2/home?region=eu-central-1#KeyPairs:
+  if [ -e "$AWS_DEVELOP_2020_2" ]; then
+    export   SSH_KEYFILE="$AWS_DEVELOP_2020_2"
+    export   SSH_KEYPAIR_NAME="AWS_DEVELOP_2020_2"
+  elif [ -e "$AWS_PROD_2020_1" ]; then
+    export   SSH_KEYFILE="$AWS_PROD_2020_1"
+    export   SSH_KEYPAIR_NAME="AWS_PROD_2020_1"
+  else
+    echo >&2 "ERROR: could not determine EC2 Keypair"
+    exit 17
+  fi
+  echo "        SSH_KEYFILE= $SSH_KEYFILE"
+  chmod 400   "$SSH_KEYFILE" # ensure correct permissions on the keyfile
+fi
 
 
 export TAG="${CI_COMMIT_REF_SLUG}"
