@@ -175,19 +175,25 @@ const SettingsViewGeneral = (props) => {
 };
 
 SettingsViewGeneral.defaultProps = {
+  gid: null,
+  branch: null,
+  projectName: '',
+  projectId: '',
+  description: '',
   avatar: null,
+  history: {},
 };
 
 SettingsViewGeneral.propTypes = {
-  gid: PropTypes.number.isRequired,
-  branch: PropTypes.string.isRequired,
+  gid: PropTypes.number,
+  branch: PropTypes.string,
   avatar: PropTypes.string,
-  projectName: PropTypes.string.isRequired,
-  projectId: PropTypes.string.isRequired,
-  description: PropTypes.string.isRequired,
+  projectName: PropTypes.string,
+  projectId: PropTypes.string,
+  description: PropTypes.string,
   history: PropTypes.shape({
-    push: PropTypes.func.isRequired,
-  }).isRequired,
+    push: PropTypes.func,
+  }),
 };
 
 export default (SettingsViewGeneral);

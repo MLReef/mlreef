@@ -57,18 +57,19 @@ exports[`presence of basic user elements assert that snapshot matches 1`] = `
                   className="m-input_container"
                 >
                   <label
-                    htmlFor="project-undefined"
+                    htmlFor="project-"
                   >
                     Project name
                   </label>
                   <input
                     className="m-input_input "
-                    id="project-undefined"
+                    id="project-"
                     onBlur={[Function]}
                     onChange={[Function]}
                     placeholder={null}
                     readOnly={false}
                     type="text"
+                    value=""
                   />
                 </div>
               </div>
@@ -79,18 +80,19 @@ exports[`presence of basic user elements assert that snapshot matches 1`] = `
                   className="m-input_container"
                 >
                   <label
-                    htmlFor="project-undefined"
+                    htmlFor="project-"
                   >
                     Project ID
                   </label>
                   <input
                     className="m-input_input bg-light"
-                    id="project-undefined"
+                    id="project-"
                     onBlur={[Function]}
                     onChange={[Function]}
                     placeholder={null}
                     readOnly={true}
                     type="text"
+                    value=""
                   />
                 </div>
               </div>
@@ -147,6 +149,7 @@ exports[`presence of basic user elements assert that snapshot matches 1`] = `
                     name=""
                     onChange={[Function]}
                     rows="4"
+                    value=""
                   />
                 </label>
               </div>
@@ -167,7 +170,9 @@ exports[`presence of basic user elements assert that snapshot matches 1`] = `
                 >
                   <div
                     className="mr-3 bg-light emptyAvatar avatar-md"
-                  />
+                  >
+                    
+                  </div>
                 </div>
               </div>
               <h5
