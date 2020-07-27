@@ -77,16 +77,19 @@ fi
 # CI_COMMIT_REF_SLUG: feature-123-my-awesome-feature
 VERSION=${VERSION:-$CI_COMMIT_REF_SLUG} # If No Version is set Default to $CI_COMMIT_REF_SLUG as version
 
-
+cat docker-compose.yml > docker-compose.local.yml
 if [ "${FRONTEND_BUILD:-true}" = "true" ]; then
     web/bin/ci-build-frontend
+    sed -i "s/gateway:develop/gateway:$VERSION/"            docker-compose.local.yml
 fi
 if [ "${BACKEND_BUILD:-true}" = "true" ]; then
     backend/bin/ci-build-backend
+    sed -i "s/backend:develop/backend:$VERSION/"            docker-compose.local.yml
 fi
 if [ "${EPF_BUILD:-true}" = "true" ]; then
     epf/bin/ci-build-epf
 fi
+cat docker-compose.local.yml
 
 
 bin/install                                 \

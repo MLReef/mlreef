@@ -46,21 +46,17 @@ rewriteDockerImage 1151242 "backend"
 
 # rewrite docker compose file:
 # Activate (uncomment) specific lines in the docker-compose file
-sed -i "s~#CI_ACTIVATE~~"                                       docker-compose.yml
 # remove tagged lines in the docker-compose file
-sed -i "/#CI_DELETE_LINE/d"                                     docker-compose.yml
-cat docker-compose.yml
+sed "s~#CI_ACTIVATE~~" < docker-compose.yml \
+  | sed "/#CI_DELETE_LINE/d" > docker-compose.local.yml
+cat docker-compose.local.yml
 
 ### Prepare ssh connection
 while ! ssh-keyscan -H "$URL" >>~/.ssh/known_hosts; do echo "Trying again..."; sleep 5; done
 
 ssh -i   "$SSH_KEYFILE" -o 'AddKeysToAgent yes' ubuntu@"${URL}" "if [ -e ${SSH_KEYFILE} ]; then sudo rm $SSH_KEYFILE; fi"
-scp -rpi "$SSH_KEYFILE" -o 'AddKeysToAgent yes' bin                 ubuntu@"${URL}":/home/ubuntu/
-scp -rpi "$SSH_KEYFILE" -o 'AddKeysToAgent yes' docker-compose.yml  ubuntu@"${URL}":/home/ubuntu/
-
-echo "Wait for the machine to actually install docker"
-echo "Starting deploy script"
-echo "----------------------------------------"
+scp -rpi "$SSH_KEYFILE" -o 'AddKeysToAgent yes' bin                       ubuntu@"${URL}":/home/ubuntu/
+scp -rpi "$SSH_KEYFILE" -o 'AddKeysToAgent yes' docker-compose.local.yml  ubuntu@"${URL}":/home/ubuntu/
 ssh -i "$SSH_KEYFILE" -o 'AddKeysToAgent yes' ubuntu@"${URL}" "
   echo ${CI_REGISTRY_PASSWORD} | sudo docker login ${CI_REGISTRY} --username=${CI_REGISTRY_USER} --password-stdin
 "
