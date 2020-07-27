@@ -78,6 +78,8 @@ const SettingsView = (props) => {
 };
 SettingsView.propTypes = {
   project: PropTypes.shape({
+    gid: PropTypes.number.isRequired,
+    defaultBranch: PropTypes.string.isRequired,
     id: PropTypes.string.isRequired,
     ownerId: PropTypes.string.isRequired,
     avatarUrl: PropTypes.string,
