@@ -22,5 +22,10 @@ aws ec2 describe-instances --filters "Name=tag:Name,Values=$search_instance"    
   | tr -d '\r' > "$TMP"
 
 cat "$TMP"                            # Debug output
+if [ ! -s "$TMP" ]; then
+  echo >&2 "ERROR: Could not find instance"
+  exit 44;
+fi
+
 head -n 1 "$TMP" > "$INSTANCE_INFO"   # Take only the first URL (which should be the newest one)
 cat "$INSTANCE_INFO"                  # Debug output
