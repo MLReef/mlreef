@@ -118,7 +118,7 @@ class ExperimentsOverview extends Component {
                   id="new-experiment"
                   loading={false}
                   onClickHandler={() => {
-                    history.push(`/my-projects/${selectedProject.gid}/pipeline-execution/new-experiment`);
+                    history.push(`/my-projects/${selectedProject.namespace}/${selectedProject.slug}/pipeline-execution/new-experiment`);
                   }}
                   buttonLabel="Start an experiment"
                 />
@@ -187,7 +187,7 @@ class ExperimentsOverview extends Component {
                   id="new-experiment"
                   loading={false}
                   onClickHandler={() => {
-                    history.push(`/my-projects/${selectedProject.gid}/pipeline-execution/new-experiment`);
+                    history.push(`/my-projects/${selectedProject.namespace}/${selectedProject.slug}/pipeline-execution/new-experiment`);
                   }}
                   buttonLabel="New experiment"
                 />

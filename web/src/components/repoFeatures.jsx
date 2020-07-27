@@ -47,6 +47,7 @@ export class RepoFeatures extends Component {
           slug,
         },
       },
+      codeProjectButtonColor,
     } = this.props;
 
     const {
@@ -112,8 +113,9 @@ export class RepoFeatures extends Component {
                 <li className="plus-option">
                   <Link to={{
                     pathname: `/my-projects/${projectId}/${currentBranch}/upload-file`,
-                    state: { currentFilePath: path }
-                  }}>
+                    state: { currentFilePath: path },
+                  }}
+                  >
                     Upload File
                   </Link>
                 </li>
@@ -132,7 +134,7 @@ export class RepoFeatures extends Component {
         <AuthWrapper minRole={30} className="mr-2 mt-3">
           <Link
             className={`btn btn-dark px-3 ${isCodeProject ? '' : 'mr-auto'} mt-3`}
-            to={`/my-projects/${projectId}/pipe-line`}
+            to={`/my-projects/${namespace}/${slug}/pipeline-execution/new-data-pipeline`}
           >
             Data Pipeline
           </Link>
@@ -144,14 +146,21 @@ export class RepoFeatures extends Component {
         >
           <Link
             className="btn btn-dark px-3 mr-auto mt-3"
-            to={`/my-projects/${projectId}/pipeline-execution/new-data-visualisation`}
+            to={`/my-projects/${namespace}/${slug}/pipeline-execution/new-data-visualisation`}
           >
             Data Visualisation
           </Link>
         </AuthWrapper>
 
         {isCodeProject && (
-          <button className="btn px-3 ml-2 mr-auto mt-3" style={{ backgroundColor: 'rgb(233, 148, 68)', color: 'white'}}>
+          <button
+            type="button"
+            className="btn px-3 ml-2 mr-auto mt-3"
+            style={{
+              backgroundColor: codeProjectButtonColor,
+              color: 'white',
+            }}
+          >
             Publish
           </button>
         )}
@@ -168,7 +177,8 @@ export class RepoFeatures extends Component {
           </Link>
         </AuthWrapper>
       </div>
-    )}
+    );
+  }
 }
 
 RepoFeatures.propTypes = {
@@ -187,6 +197,7 @@ function mapStateToProps(state) {
   return {
     projects: state.projects,
     branches: state.branches,
+    codeProjectButtonColor: state.user.globalColorMarker,
   };
 }
 

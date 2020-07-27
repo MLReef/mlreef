@@ -68,7 +68,7 @@ class ProjectContainer extends React.Component {
             {isDataProject && (
               <Link
                 onClick={forceShowExperimentList}
-                to={`/my-projects/${id}/-/experiments`}
+                to={`/my-projects/${namespace}/${slug}/-/experiments`}
                 className="feature"
                 id="experiments"
               >
