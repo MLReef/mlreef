@@ -1,18 +1,18 @@
 #!/bin/sh
+#shellcheck disable=SC2086 ### Suppress: Double quote to prevent blogging or word splitting
+
 # This shell script provides a predictable docker-based version of the application in use.
 # Thereby creating a predictable environment for development, building, and debugging
 
-# This image must correspond with the base image in web/Dockerfile
 IMAGE="registry.gitlab.com/systemkern/s5:latest"
 COMMAND="jq"
 
-export DOCKER_OPTS="${DOCKER_OPTS--it}"
+# "${VAR:+default}" evaluates to either $VAR or the default value "default" if $VAR is unset
+export DOCKER_OPTS="${DOCKER_OPTS:--it}"
 
-exec docker run --rm "$DOCKER_OPTS"                   \
-  --network bridge                                    \
+exec docker run --rm $DOCKER_OPTS                     \
   --volume  /var/run/docker.sock:/var/run/docker.sock \
   --volume  \HOME:/root                               \
   --volume  "$(pwd)":"$(pwd)"                         \
   --workdir "$(pwd)"                                  \
-  --publish 3000:3000                                 \
   "$IMAGE" "$COMMAND" "$@"

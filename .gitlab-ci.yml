@@ -59,9 +59,7 @@ get production ip:
     refs:
       - master
   image: registry.gitlab.com/systemkern/s5:latest-aws
-  variables:
-    TF_VAR_INSTANCE_NAME: "mlreef-production"              # Used by terraform and '.gitlab-ci-provision.yml'
-  script: echo "ec2-3-126-88-77.eu-central-1.compute.amazonaws.com" > out/instance.info              # pass instance url to deploy stage
+  script: bin/ci-instance-info
   artifacts:
     paths:
       - out/instance.info                                  # pass instance url to later stages (see bin/includes/ci-environment)
@@ -149,7 +147,6 @@ e2e test experiment:
   artifacts:
     paths:
       - out/test
-
 
 
 # The decommission job is configured by the provision's job `on_stop` command.

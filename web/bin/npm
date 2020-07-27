@@ -1,4 +1,6 @@
 #!/bin/sh
+#shellcheck disable=SC2086 ### Suppress: Double quote to prevent blogging or word splitting
+
 # This shell script provides a predictable docker-based version of the application in use.
 # Thereby creating a predictable environment for development, building, and debugging
 

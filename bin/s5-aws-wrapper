@@ -1,0 +1,21 @@
+#!/bin/sh
+#shellcheck disable=SC2086 ### Suppress: Double quote to prevent blogging or word splitting
+
+# This shell script provides a predictable docker-based version of the application in use.
+# Thereby creating a predictable environment for development, building, and debugging
+
+IMAGE="registry.gitlab.com/systemkern/s5:latest-aws"
+
+# "${VAR:+default}" evaluates to either $VAR or the default value "default" if $VAR is unset
+export DOCKER_OPTS="${DOCKER_OPTS:--it}"
+
+exec docker run --rm $DOCKER_OPTS                           \
+  --volume  /var/run/docker.sock:/var/run/docker.sock       \
+  --volume  "$HOME":/root                                   \
+  --volume  "$(pwd)":"$(pwd)"                               \
+  --workdir "$(pwd)"                                        \
+  --env     CI_COMMIT_REF_SLUG="master"                     \
+  --env     AWS_ACCESS_KEY_ID="$AWS_ACCESS_KEY_ID"          \
+  --env     AWS_DEFAULT_REGION="$AWS_DEFAULT_REGION"        \
+  --env     AWS_SECRET_ACCESS_KEY="$AWS_SECRET_ACCESS_KEY"  \
+  "$IMAGE" "$@"
