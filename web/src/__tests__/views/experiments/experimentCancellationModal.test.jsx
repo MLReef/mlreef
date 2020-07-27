@@ -8,13 +8,14 @@ const setup = (abortClickHandler) => mount(
     experimentToAbort={experimentMock}
     shouldComponentRender
     abortClickHandler={abortClickHandler}
+    closeModal={jest.fn()}
   />,
 );
 
 describe('test elements presence in DOM', () => {
   let wrapper;
   beforeEach(() => {
-    wrapper = setup();
+    wrapper = setup(() => {});
   });
 
   test('assert that experiment information is present in the modal', () => {

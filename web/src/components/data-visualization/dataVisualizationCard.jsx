@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import {
-  func, number, string, arrayOf, shape,
+  number, string, arrayOf, shape,
 } from 'prop-types';
 import { Redirect, Link } from 'react-router-dom';
 import { getTimeCreatedAgo } from '../../functions/dataParserHelpers';
@@ -152,7 +152,6 @@ DataVisualizationCard.propTypes = {
       filesChanged: string,
     })).isRequired,
   }).isRequired,
-  setVisualizationSelected: func.isRequired,
   projectId: number.isRequired,
 };
 

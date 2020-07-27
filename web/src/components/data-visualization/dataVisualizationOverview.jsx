@@ -21,7 +21,7 @@ export class DataVisualizationOverview extends Component {
       all: null,
     };
     const arrayOfBranches = branches.filter((branch) => branch.name.startsWith('data-visualization'));
-    PipeLinesApi.getPipesByProjectId(selectedProject.id).then((res) => {
+    PipeLinesApi.getPipesByProjectId(selectedProject.gid).then((res) => {
       const visualizations = classifyPipeLines(res, arrayOfBranches);
       const finalClassification = [];
       finalClassification[0] = { status: 'In progress', values: [...visualizations[0].values] };
@@ -130,9 +130,8 @@ export class DataVisualizationOverview extends Component {
             ? <div id="loading-circular-progress"><CircularProgress size={30} /></div>
             : visualizations.map((dataInsClas) => (
               <DataVisualizationCard
-                setVisualizationSelected={this.setVisualizationSelected}
                 classification={dataInsClas}
-                projectId={selectedProject.id}
+                projectId={selectedProject.gid}
                 key={dataInsClas.status}
               />
             ))}
@@ -153,10 +152,8 @@ function mapStateToProps(state) {
 
 DataVisualizationOverview.propTypes = {
   selectedProject: shape({
-    id: number.isRequired,
-    namespace: shape({
-      name: string.isRequired,
-    }).isRequired,
+    gid: number.isRequired,
+    namespace: string.isRequired,
     name: string.isRequired,
   }).isRequired,
   branches: arrayOf(shape({})).isRequired,

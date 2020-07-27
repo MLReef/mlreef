@@ -84,7 +84,7 @@ const RouterComp = () => (
       <Route path="/:namespace/:slug/-/branches" component={BranchesView} exact />
       <Route path="/:namespace/:slug/-/branches/new" component={NewBranch} />
 
-      <PrivateRoute exact path="/my-projects/:projectId/pipeline-execution/:typePipelines" component={PipelinesExecutionView} />
+      <PrivateRoute exact path="/my-projects/:namespace/:slug/pipeline-execution/:typePipelines" component={PipelinesExecutionView} />
       <PrivateRoute path="/my-projects/:projectId/visualizations/:visName/path/:path" component={DataVisualizationDetail} />
       <PrivateRoute path="/my-projects/:projectId/visualizations/:visName" component={DataVisualizationDetail} />
       <PrivateRoute path="/my-projects/:projectId/visualizations" component={DataVisualizationOverview} />
@@ -93,7 +93,7 @@ const RouterComp = () => (
       <PrivateRoute path="/my-projects/:projectId/:branch/-/datasets/:dataId" component={DataInstanceDetails} />
       <PrivateRoute path="/my-projects/:projectId/fork" component={ForkView} />
       <PrivateRoute
-        path="/my-projects/:projectId/-/experiments"
+        path="/my-projects/:namespace/:slug/-/experiments"
         exact
         component={ExperimentsOverview}
       />
