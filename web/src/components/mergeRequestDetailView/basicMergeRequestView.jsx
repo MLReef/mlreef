@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { connect } from 'react-redux';
 import {
   number, shape, string, arrayOf,
@@ -76,13 +76,19 @@ const BasicMergeRequestView = (props) => {
     setRemoveBranch(!removeBranch);
   };
 
+  const fetchMergeRequestInfo = useCallback(
+    () => mergeRequestAPI.getSingleMR(gid, iid)
+      .then(setMRInfo),
+    [gid, iid],
+  );
+
   const acceptMergeRequest = () => {
     setWaiting(true);
 
     mergeRequestAPI.acceptMergeRequest(gid, iid, squash, removeBranch)
       .then(() => {
         toastr.success('Merged successfully:');
-        history.push(`/my-projects/${gid}/merge-requests`);
+        fetchMergeRequestInfo();
       })
       .catch((err) => {
         toastr.error('Unable to merge', err.message);
@@ -104,14 +110,7 @@ const BasicMergeRequestView = (props) => {
     status = <span className="state-config merged">MERGED</span>;
   }
 
-  // fetch merge request info
-  useEffect(
-    () => {
-      mergeRequestAPI.getSingleMR(gid, iid)
-        .then(setMRInfo);
-    },
-    [gid, iid],
-  );
+  useEffect(() => { fetchMergeRequestInfo(); }, [fetchMergeRequestInfo]);
 
   // fetch changes
   useEffect(() => {
@@ -257,10 +256,10 @@ const BasicMergeRequestView = (props) => {
                             <b>{targetBranch}</b>
                           </p>
                           <p>
-                            {(mrInfo.force_remove_source_branch || mrInfo.should_remove_source_branch)
-                          && (
-                            <span>The source branch has been deleted</span>
-                          ) }
+                            {(mrInfo.force_remove_source_branch
+                              || mrInfo.should_remove_source_branch) && (
+                                <span>The source branch has been deleted</span>
+                            )}
                           </p>
                         </section>
                       </div>

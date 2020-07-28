@@ -10,8 +10,11 @@ const setup = () => {
   const store = storeFactory({
     projects: projectsArrayMock.projects,
   });
+
+  const route = { params: { projectId: 1 } };
+
   const wrapper = shallow(
-    <MergeRequestOverview store={store} />,
+    <MergeRequestOverview match={route} store={store} />,
   );
   const afterDive = wrapper.dive().dive();
   return afterDive;

@@ -1,10 +1,12 @@
 import React, { Component } from 'react';
 import { CircularProgress } from '@material-ui/core';
+import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
 import {
-  number, shape, string, arrayOf,
+  number, shape, string, arrayOf, func,
 } from 'prop-types';
+import { getMergeRequestsList } from 'actions/mergeActions';
 import Navbar from '../navbar/navbar';
 import ProjectContainer from '../projectContainer';
 import './merge-request-overview.css';
@@ -34,6 +36,11 @@ class MergeRequestOverview extends Component {
       btnSelected: 'all-btn',
     };
     this.handleFilterBtnClick = this.handleFilterBtnClick.bind(this);
+    this.fetchMergeRequests = this.fetchMergeRequests.bind(this);
+  }
+
+  componentDidMount() {
+    this.fetchMergeRequests();
   }
 
   static getDerivedStateFromProps(nextProps, prevState) {
@@ -64,6 +71,17 @@ class MergeRequestOverview extends Component {
       .filter(
         (mrClass) => mrClass.mrState === mrStates[stateIndex],
       )[0] || { list: [] };
+  }
+
+  fetchMergeRequests() {
+    const {
+      actions,
+      match: {
+        params: { projectId: gid },
+      },
+    } = this.props;
+
+    return actions.getMergeRequestsList(gid);
   }
 
   render() {
@@ -186,12 +204,28 @@ function mapStateToProps(state) {
   };
 }
 
+function mapActionsToProps(dispatch) {
+  return {
+    actions: {
+      getMergeRequestsList: bindActionCreators(getMergeRequestsList, dispatch),
+    },
+  };
+}
+
 MergeRequestOverview.propTypes = {
   selectedProject: shape({
     gid: number.isRequired,
     name: string.isRequired,
     namespace: string.isRequired,
   }).isRequired,
+  actions: shape({
+    getMergeRequestsList: func.isRequired,
+  }).isRequired,
+  mergeRequests: arrayOf(shape).isRequired,
+  match: shape({
+    params: shape({}).isRequired,
+  }).isRequired,
+  history: shape({}).isRequired,
 };
 
-export default connect(mapStateToProps)(MergeRequestOverview);
+export default connect(mapStateToProps, mapActionsToProps)(MergeRequestOverview);
