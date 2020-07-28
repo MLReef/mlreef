@@ -2,7 +2,7 @@ import { toastr } from 'react-redux-toastr';
 import ApiDirector from './ApiDirector';
 import { METHODS, validServicesToCall } from './apiBuilders/requestEnums';
 import BLApiRequestCallBuilder from './apiBuilders/BLApiRequestCallBuilder';
-import { generateGetRequest, getCurrentToken } from './apiHelpers';
+import { generateGetRequest, getCurrentToken, getDomain } from './apiHelpers';
 import { handleResponse } from 'functions/apiCalls';
 
 export default class CommitsApi extends ApiDirector {
@@ -76,7 +76,7 @@ export default class CommitsApi extends ApiDirector {
   }
 
   static async getFileDataInCertainCommit(projectId, pathToFile, commitId) {
-    const url = `/api/v4/projects/${projectId}/repository/files/${pathToFile}/raw?ref=${commitId}`;
+    const url = `${getDomain()}:10080/api/v4/projects/${projectId}/repository/files/${pathToFile}/raw?ref=${commitId}`;
     const response = await generateGetRequest(url);
 
     return response.arrayBuffer();

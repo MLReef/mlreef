@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { shape, string } from 'prop-types';
+import { shape, string, any } from 'prop-types';
 import { Link } from 'react-router-dom';
 import Base64ToArrayBuffer from 'base64-arraybuffer';
 import './ImageDiffSection.scss';
@@ -117,8 +117,8 @@ ImageDiffSection.propTypes = {
   fileInfo: shape({
     fileName: string.isRequired,
   }).isRequired,
-  original: string,
-  modified: string,
+  original: any,
+  modified: any,
 };
 
 export default ImageDiffSection;

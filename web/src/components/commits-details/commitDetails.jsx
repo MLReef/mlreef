@@ -160,7 +160,12 @@ class CommitDetails extends Component {
             .
           </p>
           {imagesToRender.map((imageFile) => (
-            <ImageDiffSection imageFile={imageFile} key={imageFile.fileName} />
+            <ImageDiffSection
+              key={imageFile.fileName}
+              fileInfo={imageFile}
+              original={imageFile.previousVersionFileParsed}
+              modified={imageFile.nextVersionFileParsed}
+            />
           ))}
         </div>
       </div>
@@ -177,7 +182,8 @@ function mapStateToProps(state) {
 
 const project = shape(
   {
-    id: number,
+    id: string,
+    gid: number,
     description: string,
     name: string,
     avatarUrl: string,
