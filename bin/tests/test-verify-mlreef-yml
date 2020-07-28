@@ -37,10 +37,10 @@ echo "Targeting download branch $EXPERIMENT_BRANCH"
 
 curl "http://$URL:10080/api/v4/projects/$GITLAB_PROJECT_ID/repository/files/.mlreef.yml?ref=$EXPERIMENT_BRANCH" \
   --request GET --fail                          \
-  | bin/jq > out/test/download-mlreef-yml.response.json
+  | jq > out/test/download-mlreef-yml.response.json
 
 
-bin/jq -r ".content" < out/test/download-mlreef-yml.response.json \
+jq -r ".content" < out/test/download-mlreef-yml.response.json \
   | base64 -d    > out/test/download-mlreef.yml
 
 

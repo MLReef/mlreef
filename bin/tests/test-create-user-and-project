@@ -20,7 +20,7 @@ export PASSWORD="password"
 log "Username is $USER with password "
 export TOKEN #declare separately to be able to gather return value
 curl "http://$URL:8080/api/v1/auth/register" -X POST \
-  --request POST --fail --show-error            \
+  --request POST --fail --show-error          \
   --header 'Content-Type: application/json'   \
   --header 'Accept: application/json'         \
   --data '{
@@ -29,10 +29,10 @@ curl "http://$URL:8080/api/v1/auth/register" -X POST \
     "password" : "'$PASSWORD'",
     "name" : "Smoke Test User '$USER'"
     }'                                        \
-    | bin/jq                                      \
+    | jq                                      \
     | tee out/test/register.response.tmp
 
-bin/jq -r ".token" < out/test/register.response.tmp > out/test/token.tmp
+jq -r ".token" < out/test/register.response.tmp > out/test/token.tmp
 export TOKEN="$(cat out/test/token.tmp)"
 if [ "$TOKEN" = "" ]; then
   echo >&2 "ERROR: TOKEN is empty."
@@ -44,7 +44,7 @@ fi
 log "Registering exited with $? and produced token $TOKEN"
 
 curl "http://$URL:8080/api/v1/data-projects" -X POST \
-  --request POST --fail --show-error            \
+  --request POST --fail --show-error          \
   --header "PRIVATE-TOKEN: $TOKEN"            \
   --header "Content-Type: application/json"   \
   --header "Accept: application/json"         \
@@ -56,12 +56,12 @@ curl "http://$URL:8080/api/v1/data-projects" -X POST \
     "initialize_with_readme" : true,
     "visibility" : "PUBLIC"
   }'                                          \
-  | bin/jq                                        \
+  | jq                                        \
   | tee out/test/create-data-project.response.json
 
-bin/jq < out/test/create-data-project.response.json
+jq < out/test/create-data-project.response.json
 
-bin/jq -r ".id" < out/test/create-data-project.response.json > out/test/project-id.tmp
+jq -r ".id" < out/test/create-data-project.response.json > out/test/project-id.tmp
 export PROJECT_ID=$(cat out/test/project-id.tmp)
 echo "Project_ID=$PROJECT_ID"
 if [ "$PROJECT_ID" = "" ]; then
@@ -72,7 +72,7 @@ if [ "$PROJECT_ID" = "" ]; then
 fi
 
 
-bin/jq -r ".gitlab_id" < out/test/create-data-project.response.json > out/test/gitlab-project-id.tmp
+jq -r ".gitlab_id" < out/test/create-data-project.response.json > out/test/gitlab-project-id.tmp
 export GITLAB_PROJECT_ID=$(cat out/test/gitlab-project-id.tmp)
 if [ "$GITLAB_PROJECT_ID" = "" ]; then
   echo >&2 "ERROR: GITLAB_PROJECT_ID is empty."

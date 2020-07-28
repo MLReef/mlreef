@@ -27,4 +27,4 @@ fi
 curl "http://$URL:10080/api/v4/projects/$GITLAB_PROJECT_ID"  \
   --request POST --fail --show-error            \
   --header "PRIVATE-TOKEN: $TOKEN"              \
-  | bin/jq
+  | jq

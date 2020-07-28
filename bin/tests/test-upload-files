@@ -35,5 +35,5 @@ curl "http://$URL:10080/api/v4/projects/$GITLAB_PROJECT_ID/repository/files/data
       "commit_message": "run smoke test pipeline"
     }
     '                                           \
-    | bin/jq                                        \
+    | jq                                        \
     | tee out/test/create-gitlab-pipeline.response.tmp
