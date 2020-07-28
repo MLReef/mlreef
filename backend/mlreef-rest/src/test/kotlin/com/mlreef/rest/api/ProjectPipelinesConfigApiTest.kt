@@ -53,6 +53,7 @@ class ProjectPipelinesConfigApiTest : AbstractRestApiTest() {
     fun clearRepo() {
         pipelineTestPreparationTrait.apply()
         account = pipelineTestPreparationTrait.account
+        token = pipelineTestPreparationTrait.token
         dataOp1 = pipelineTestPreparationTrait.dataOp1
         dataOp2 = pipelineTestPreparationTrait.dataOp2
         dataOp3 = pipelineTestPreparationTrait.dataOp3
@@ -78,7 +79,7 @@ class ProjectPipelinesConfigApiTest : AbstractRestApiTest() {
         this.mockGetUserProjectsList(listOf(dataProject.id), account, AccessLevel.OWNER)
 
         val returnedResult: List<PipelineConfigDto> = this
-            .performGet("$rootUrl/${dataProject.id}/pipelines", account)
+            .performGet("$rootUrl/${dataProject.id}/pipelines", token)
             .andExpect(status().isOk)
             .document("project-pipelineconfig-retrieve-all",
                 responseFields(pipelineConfigDtoResponseFields("[]."))
@@ -116,7 +117,7 @@ class ProjectPipelinesConfigApiTest : AbstractRestApiTest() {
         this.mockGetUserProjectsList(listOf(dataProject.id), account, AccessLevel.OWNER)
 
         val url = "$rootUrl/${dataProject.id}/pipelines"
-        val returnedResult: PipelineConfigDto = performPost(url, account, body = request)
+        val returnedResult: PipelineConfigDto = performPost(url, token, body = request)
             .andExpect(status().isOk)
             .document("project-pipelineconfig-create-success",
                 requestFields(pipelineConfigCreateRequestFields())
@@ -157,7 +158,7 @@ class ProjectPipelinesConfigApiTest : AbstractRestApiTest() {
         this.mockGetUserProjectsList(listOf(dataProject.id), account, AccessLevel.OWNER)
 
         val url = "$rootUrl/${dataProject.id}/pipelines/create-start-instance"
-        val returnedResult: PipelineInstanceDto = performPost(url, account, body = request)
+        val returnedResult: PipelineInstanceDto = performPost(url, token, body = request)
             .andExpect(status().isOk)
             .document("project-pipelineconfig-create-start-instance-success",
                 requestFields(pipelineConfigCreateRequestFields())
@@ -201,7 +202,7 @@ class ProjectPipelinesConfigApiTest : AbstractRestApiTest() {
 
         val url = "$rootUrl/${dataProject.id}/pipelines/${pipelineConfig.id}"
         val returnedResult: PipelineConfigDto = this
-            .performPut(url, account, request)
+            .performPut(url, token, request)
             .andExpect(status().isOk)
             .document("project-pipelineconfig-update-success",
                 requestFields(pipelineConfigUpdateRequestFields())
@@ -240,7 +241,7 @@ class ProjectPipelinesConfigApiTest : AbstractRestApiTest() {
         this.mockGetUserProjectsList(listOf(dataProject.id), account, AccessLevel.OWNER)
 
         val url = "$rootUrl/${notOwn_dataProject.id}/pipelines"
-        performPost(url, account, body = request).andExpect(status().isForbidden)
+        performPost(url, token, body = request).andExpect(status().isForbidden)
     }
 
     @Transactional
@@ -253,7 +254,7 @@ class ProjectPipelinesConfigApiTest : AbstractRestApiTest() {
 
         this.mockGetUserProjectsList(listOf(dataProject.id), account, AccessLevel.OWNER)
 
-        performGet("$rootUrl/${dataProject.id}/pipelines/${entity.id}", account)
+        performGet("$rootUrl/${dataProject.id}/pipelines/${entity.id}", token)
             .andExpect(status().isOk)
             .document("project-pipelineconfig-retrieve-one",
                 responseFields(pipelineConfigDtoResponseFields())
@@ -270,7 +271,7 @@ class ProjectPipelinesConfigApiTest : AbstractRestApiTest() {
 
         this.mockGetUserProjectsList(listOf(dataProject.id), account, AccessLevel.OWNER)
 
-        this.performGet("$rootUrl/${notOwn_dataProject.id}/pipelines/${entity2.id}", account)
+        this.performGet("$rootUrl/${notOwn_dataProject.id}/pipelines/${entity2.id}", token)
             .andExpect(status().isForbidden)
 
     }

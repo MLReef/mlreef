@@ -14,7 +14,6 @@ import com.mlreef.rest.exceptions.NotFoundException
 import com.mlreef.rest.external_api.gitlab.TokenDetails
 import com.mlreef.rest.feature.pipeline.PipelineService
 import org.springframework.data.repository.findByIdOrNull
-import org.springframework.security.access.prepost.PostAuthorize
 import org.springframework.security.access.prepost.PostFilter
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.DeleteMapping
@@ -105,7 +104,7 @@ class PipelineController(
             ?: throw NotFoundException("dataProject not found for this Pipeline")
 
         val adaptedInstance = when (action) {
-            "start" -> pipelineService.startInstance(account, tokenDetails.permanentToken, dataProject.gitlabId, instance, secret = pipelineService.createSecret())
+            "start" -> pipelineService.startInstance(account, tokenDetails.accessToken, dataProject.gitlabId, instance, secret = pipelineService.createSecret())
             "archive" -> pipelineService.archiveInstance(instance)
             else -> throw MethodNotAllowedException("No valid action: '$action'")
         }
@@ -129,7 +128,7 @@ class PipelineController(
         val dataProject = dataProjectRepository.findByIdOrNull(instance.dataProjectId)
             ?: throw NotFoundException("DataProject was not found")
 
-        pipelineService.deletePipelineInstance(tokenDetails.permanentToken, dataProject.gitlabId, instance.targetBranch)
+        pipelineService.deletePipelineInstance(tokenDetails.accessToken, dataProject.gitlabId, instance.targetBranch)
         pipelineInstanceRepository.delete(instance)
     }
 }

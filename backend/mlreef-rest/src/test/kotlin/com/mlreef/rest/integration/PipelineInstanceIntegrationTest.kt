@@ -1,10 +1,7 @@
 package com.mlreef.rest.integration
 
-import com.mlreef.rest.DataAlgorithm
-import com.mlreef.rest.DataOperation
 import com.mlreef.rest.DataProcessorInstance
 import com.mlreef.rest.DataProcessorInstanceRepository
-import com.mlreef.rest.DataVisualization
 import com.mlreef.rest.FileLocation
 import com.mlreef.rest.ParameterType
 import com.mlreef.rest.PipelineConfig
@@ -19,9 +16,7 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.put
 import org.springframework.test.annotation.Rollback
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import java.util.UUID
 import java.util.UUID.randomUUID
 import javax.transaction.Transactional
@@ -68,8 +63,8 @@ class PipelineInstanceIntegrationTest : AbstractIntegrationTest() {
     @Rollback
     @Test
     fun `Can start specific DataInstance of viewable PipelineConfig`() {
-        val (account, _, _) = integrationTestsHelper.createRealUser()
-        val (project, _) = integrationTestsHelper.createRealDataProject(account)
+        val (account, token, _) = integrationTestsHelper.createRealUser()
+        val (project, _) = integrationTestsHelper.createRealDataProject(token, account)
 
         val fileList = arrayListOf(FileLocation.fromPath("folder"))
         val dataProcessorInstance = createDataProcessorInstance()
@@ -78,18 +73,16 @@ class PipelineInstanceIntegrationTest : AbstractIntegrationTest() {
 
         pipelineInstanceRepository.save(entity)
 
-        this.mockMvc.perform(
-            this.acceptContentAuth(put("$rootUrl/${pipelineConfig.id}/instances/${entity.id}/start"), account))
-            .andExpect(status().isOk)
-
+        this.performPut("$rootUrl/${pipelineConfig.id}/instances/${entity.id}/start", token)
+            .expectOk()
     }
 
     @Transactional
     @Rollback
     @Test
     fun `Cannot start specific DataInstance with invalid source branch`() {
-        val (account, _, _) = integrationTestsHelper.createRealUser()
-        val (project, _) = integrationTestsHelper.createRealDataProject(account)
+        val (account, token, _) = integrationTestsHelper.createRealUser()
+        val (project, _) = integrationTestsHelper.createRealDataProject(token, account)
 
         val fileList = arrayListOf(FileLocation.fromPath("folder"))
         val dataProcessorInstance = createDataProcessorInstance()
@@ -98,10 +91,8 @@ class PipelineInstanceIntegrationTest : AbstractIntegrationTest() {
 
         pipelineInstanceRepository.save(entity)
 
-        this.mockMvc.perform(
-            this.acceptContentAuth(put("$rootUrl/${pipelineConfig.id}/instances/${entity.id}/start"), account))
-            .andExpect(status().is4xxClientError)
-
+        this.performPut("$rootUrl/${pipelineConfig.id}/instances/${entity.id}/start", token)
+            .expect4xx()
     }
 
     private fun createPipelineConfig(

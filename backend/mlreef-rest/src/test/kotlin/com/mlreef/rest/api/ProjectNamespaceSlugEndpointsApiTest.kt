@@ -94,6 +94,8 @@ class ProjectNamespaceSlugEndpointsApiTest : AbstractRestApiTest() {
         account = accountSubjectPreparationTrait.account
         account2 = accountSubjectPreparationTrait.account2
 
+        token = accountSubjectPreparationTrait.token
+
         subject = accountSubjectPreparationTrait.subject
         subject2 = accountSubjectPreparationTrait.subject2
 
@@ -130,7 +132,7 @@ class ProjectNamespaceSlugEndpointsApiTest : AbstractRestApiTest() {
 
         this.mockGetUserProjectsList(listOf(project1.id, project2.id, project4.id, project5.id), account, AccessLevel.OWNER)
 
-        val returnedResult: ProjectDto = this.performGet("$rootUrl/mlreef/project-1", account)
+        val returnedResult: ProjectDto = this.performGet("$rootUrl/mlreef/project-1", token)
             .expectOk()
             .document("project-retrieve-one-by-namespace-slug", responseFields(projectResponseFields()))
             .returns(ProjectDto::class.java)
@@ -155,7 +157,7 @@ class ProjectNamespaceSlugEndpointsApiTest : AbstractRestApiTest() {
         this.mockGetUserProjectsList(listOf(project1.id), account, AccessLevel.OWNER)
         this.mockGetUserProjectsList(listOf(project1.id), account2, AccessLevel.DEVELOPER)
 
-        val returnedResult: List<UserInProjectDto> = this.performGet("$rootUrl/mlreef/project-1/users", account)
+        val returnedResult: List<UserInProjectDto> = this.performGet("$rootUrl/mlreef/project-1/users", token)
             .expectOk()
             .document("project-retrieve-users-list-by-namespace-slug", responseFields(usersInProjectResponseFields("[].")))
             .returnsList(UserInProjectDto::class.java)
@@ -177,7 +179,7 @@ class ProjectNamespaceSlugEndpointsApiTest : AbstractRestApiTest() {
         createExperiment(dataProject1.id, dataOp1, "experiment-1-slug")
         createExperiment(dataProject1.id, dataOp1, "experiment-2-slug")
 
-        val returnedResult: List<ExperimentDto> = performGet("$rootUrl/${dataProject1.gitlabNamespace}/${dataProject1.gitlabPath}/experiments", account)
+        val returnedResult: List<ExperimentDto> = performGet("$rootUrl/${dataProject1.gitlabNamespace}/${dataProject1.gitlabPath}/experiments", token)
             .expectOk()
             .document("experiments-retrieve-all-by-namespace-slug",
                 responseFields(experimentDtoResponseFields("[]."))
@@ -202,7 +204,7 @@ class ProjectNamespaceSlugEndpointsApiTest : AbstractRestApiTest() {
 
         val experiment1 = createExperiment(dataProject1.id, dataOp1)
 
-        performGet("$rootUrl/${dataProject1.gitlabNamespace}/${dataProject1.gitlabPath}/experiments/${experiment1.id}", account)
+        performGet("$rootUrl/${dataProject1.gitlabNamespace}/${dataProject1.gitlabPath}/experiments/${experiment1.id}", token)
             .expectOk()
             .document("experiments-retrieve-one-by-namespace-slug",
                 responseFields(experimentDtoResponseFields())
@@ -229,7 +231,7 @@ class ProjectNamespaceSlugEndpointsApiTest : AbstractRestApiTest() {
         createPipelineConfig(dataProcessorInstance, dataProject1.id, "slug2")
 
         val returnedResult: List<PipelineConfigDto> = this
-            .performGet("$rootUrl/${dataProject1.gitlabNamespace}/${dataProject1.gitlabPath}/pipelines", account)
+            .performGet("$rootUrl/${dataProject1.gitlabNamespace}/${dataProject1.gitlabPath}/pipelines", token)
             .expectOk()
             .document("project-pipelineconfig-retrieve-all-by-namespace-slug",
                 responseFields(pipelineConfigDtoResponseFields("[]."))
@@ -255,8 +257,8 @@ class ProjectNamespaceSlugEndpointsApiTest : AbstractRestApiTest() {
 
         val url = "$rootUrl/${dataProject1.gitlabNamespace}/${dataProject1.gitlabPath}/pipelines/${entity.id}"
 
-        performGet(url, account)
-            .andExpect(MockMvcResultMatchers.status().isOk)
+        performGet(url, token)
+            .expectOk()
             .document("project-pipelineconfig-retrieve-one-by-namespace-slug",
                 responseFields(pipelineConfigDtoResponseFields())
                     .and(dataProcessorInstanceFields("data_operations[].")))
@@ -277,7 +279,7 @@ class ProjectNamespaceSlugEndpointsApiTest : AbstractRestApiTest() {
 
         val url = "$rootUrl/${project.gitlabNamespace}/${project.gitlabPath}/processor"
 
-        this.performGet(url, account)
+        this.performGet(url, token)
             .andExpect(MockMvcResultMatchers.status().isOk)
             .document("data-processors-codeproject-retrieve-one-by-namespace-slug",
                 responseFields(dataProcessorFields()))

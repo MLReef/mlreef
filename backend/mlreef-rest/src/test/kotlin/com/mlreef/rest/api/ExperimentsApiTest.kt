@@ -61,6 +61,7 @@ class ExperimentsApiTest : AbstractRestApiTest() {
         MockKAnnotations.init(this, relaxUnitFun = true, relaxed = true)
         pipelineTestPreparationTrait.apply()
         account = pipelineTestPreparationTrait.account
+        token = pipelineTestPreparationTrait.token
         subject = pipelineTestPreparationTrait.subject
         dataOp1 = pipelineTestPreparationTrait.dataOp1
         dataOp2 = pipelineTestPreparationTrait.dataOp2
@@ -97,7 +98,7 @@ class ExperimentsApiTest : AbstractRestApiTest() {
         this.mockGetUserProjectsList(listOf(dataProject.id), account, AccessLevel.OWNER)
 
         val url = "$rootUrl/${dataProject.id}/experiments"
-        val returnedResult: ExperimentDto = this.performPost(url, account, request)
+        val returnedResult: ExperimentDto = this.performPost(url, token, request)
             .andExpect(status().isOk)
             .document("experiments-create-success",
                 requestFields(experimentCreateRequestFields())
@@ -132,7 +133,7 @@ class ExperimentsApiTest : AbstractRestApiTest() {
             ))
         )
         val url = "$rootUrl/${dataProject.id}/experiments"
-        val returnedResult: ExperimentDto = performPost(url, account, body = request)
+        val returnedResult: ExperimentDto = performPost(url, token, body = request)
             .andExpect(status().isOk)
             .returns(ExperimentDto::class.java)
 
@@ -161,7 +162,7 @@ class ExperimentsApiTest : AbstractRestApiTest() {
 
         val url = "$rootUrl/${dataProject2.id}/experiments"
 
-        val returnedResult: ExperimentDto = this.performPost(url, account, body = request)
+        val returnedResult: ExperimentDto = this.performPost(url, token, body = request)
             .andExpect(status().isOk)
             .returns(ExperimentDto::class.java)
 
@@ -187,7 +188,7 @@ class ExperimentsApiTest : AbstractRestApiTest() {
             ))
         )
         val url = "$rootUrl/${dataProject.id}/experiments"
-        this.performPost(url, account, request).andExpect(status().isBadRequest)
+        this.performPost(url, token, request).andExpect(status().isBadRequest)
     }
 
     @Transactional
@@ -200,7 +201,7 @@ class ExperimentsApiTest : AbstractRestApiTest() {
         createExperiment(dataProject.id, dataOp1, "experiment-2-slug")
         createExperiment(dataProject2.id, dataOp1, "experiment-3-slug")
 
-        val returnedResult: List<ExperimentDto> = performGet("$rootUrl/${dataProject.id}/experiments", account)
+        val returnedResult: List<ExperimentDto> = performGet("$rootUrl/${dataProject.id}/experiments", token)
             .andExpect(status().isOk)
             .document("experiments-retrieve-all",
                 responseFields(experimentDtoResponseFields("[]."))
@@ -218,7 +219,7 @@ class ExperimentsApiTest : AbstractRestApiTest() {
     @Tag(TestTags.RESTDOC)
     fun `Can retrieve specific own Experiment`() {
         val experiment1 = createExperiment(dataProject.id, dataOp1)
-        performGet("$rootUrl/${dataProject.id}/experiments/${experiment1.id}", account)
+        performGet("$rootUrl/${dataProject.id}/experiments/${experiment1.id}", token)
             .andExpect(status().isOk)
             .document("experiments-retrieve-one",
                 responseFields(experimentDtoResponseFields())
@@ -235,7 +236,7 @@ class ExperimentsApiTest : AbstractRestApiTest() {
     fun `Cannot retrieve foreign Experiment`() {
         val experiment1 = createExperiment(dataProject2.id, dataOp1)
 
-        this.performGet("$rootUrl/${dataProject2.id}/experiments/${experiment1.id}", account)
+        this.performGet("$rootUrl/${dataProject2.id}/experiments/${experiment1.id}", token)
             .andExpect(status().isForbidden)
     }
 
@@ -252,7 +253,6 @@ class ExperimentsApiTest : AbstractRestApiTest() {
         val tokenDetails = TokenDetails(
             "testusername",
             "test-token",
-            "test-access-token",
             randomUUID(),
             randomUUID(),
             projects = mutableMapOf(dataProject.id to AccessLevel.DEVELOPER)
@@ -279,7 +279,7 @@ class ExperimentsApiTest : AbstractRestApiTest() {
     fun `Can retrieve own Experiment's pipelineJobInfo`() {
         val experiment1 = createExperiment(dataProject.id, dataOp1)
 
-        this.performGet("$rootUrl/${dataProject.id}/experiments/${experiment1.id}/info", account)
+        this.performGet("$rootUrl/${dataProject.id}/experiments/${experiment1.id}/info", token)
             .andExpect(status().isOk)
             .document(
                 "experiments-retrieve-one-info",
@@ -293,7 +293,7 @@ class ExperimentsApiTest : AbstractRestApiTest() {
     fun `Can retrieve own Experiment's MLReef file`() {
         val experiment1 = createExperiment(dataProject.id, dataOp1)
 
-        val result = performGet("$rootUrl/${dataProject.id}/experiments/${experiment1.id}/mlreef-file", account)
+        val result = performGet("$rootUrl/${dataProject.id}/experiments/${experiment1.id}/mlreef-file", token)
             .andExpect(status().isOk)
             .document("experiments-retrieve-one-mlreef-file")
             .andReturn()
@@ -310,7 +310,7 @@ class ExperimentsApiTest : AbstractRestApiTest() {
     fun `Can start own Experiment as gitlab pipeline`() {
         val experiment1 = createExperiment(dataProject.id, dataOp1)
 
-        val pipelineJobInfoDto = performPost("$rootUrl/${dataProject.id}/experiments/${experiment1.id}/start", account)
+        val pipelineJobInfoDto = performPost("$rootUrl/${dataProject.id}/experiments/${experiment1.id}/start", token)
             .andExpect(status().isOk)
             .returns(PipelineJobInfoDto::class.java)
 
@@ -334,10 +334,10 @@ class ExperimentsApiTest : AbstractRestApiTest() {
             targetBranch = experiment1.targetBranch
         )
         // Start experiment
-        this.performPost("$rootUrl/${dataProject.id}/experiments/${experiment1.id}/start", account)
+        this.performPost("$rootUrl/${dataProject.id}/experiments/${experiment1.id}/start", token)
             .andExpect(status().isOk)
 
-        this.performGet("$rootUrl/${dataProject.id}/experiments/${experiment1.id}/info", account)
+        this.performGet("$rootUrl/${dataProject.id}/experiments/${experiment1.id}/info", token)
             .andExpect(status().isOk)
             .returns(PipelineJobInfoDto::class.java)
 

@@ -13,7 +13,6 @@ import com.mlreef.rest.config.censor
 import com.mlreef.rest.exceptions.ConflictException
 import com.mlreef.rest.exceptions.ErrorCode
 import com.mlreef.rest.exceptions.GitlabConnectException
-import com.mlreef.rest.exceptions.GitlabNoValidTokenException
 import com.mlreef.rest.exceptions.IncorrectCredentialsException
 import com.mlreef.rest.exceptions.NotConsistentInternalDb
 import com.mlreef.rest.exceptions.RestException
@@ -42,7 +41,6 @@ import org.springframework.stereotype.Service
 import org.springframework.web.client.ResourceAccessException
 import java.util.UUID
 import java.util.UUID.randomUUID
-import javax.security.auth.login.CredentialException
 import javax.transaction.Transactional
 
 
@@ -78,8 +76,7 @@ class AuthService(
         private val guestTokenDetails: TokenDetails by lazy {
             TokenDetails(
                 username = "",
-                permanentToken = "",
-                accessToken = null,
+                accessToken = "",
                 accountId = GUEST_ACCOUNT_ID,
                 personId = GUEST_PERSON_ID,
                 gitlabUser = null,
@@ -99,22 +96,11 @@ class AuthService(
 
         val account = found.getOrNull(0) ?: throw IncorrectCredentialsException("username or password is incorrect")
 
-        val accountToken = getBestToken(account) ?: throw GitlabNoValidTokenException("user token not found")
-
-        // assert that user is found in gitlab
-        findGitlabUserViaToken(accountToken.token)
-
         val oauthToken = gitlabRestClient.userLoginOAuthToGitlab(account.username, plainPassword)
         val accountUpdate = account.copy(lastLogin = I18N.dateTime())
         val loggedAccount = accountRepository.save(accountUpdate)
 
         return Pair(loggedAccount, oauthToken)
-    }
-
-    fun getBestToken(findAccount: Account?): AccountToken? {
-        val findAllByUserId = accountTokenRepository.findAllByAccountId(findAccount!!.id)
-        val sortedBy = findAllByUserId.filter { it.active && !it.revoked }.sortedBy { it.expiresAt }
-        return sortedBy.getOrNull(0)
     }
 
     @Transactional
@@ -136,8 +122,7 @@ class AuthService(
         val accountUuid = randomUUID()
 
         val person = Person(id = randomUUID(), slug = username, name = username, gitlabId = newGitlabUser.id)
-        val newToken = AccountToken(id = randomUUID(), accountId = accountUuid, token = token, gitlabId = newGitlabToken.id)
-        val newUser = Account(id = accountUuid, username = username, email = email, passwordEncrypted = encryptedPassword, person = person, gitlabId = null, tokens = mutableListOf(newToken))
+        val newUser = Account(id = accountUuid, username = username, email = email, passwordEncrypted = encryptedPassword, person = person, gitlabId = null)
 
         accountRepository.save(newUser)
 
@@ -178,8 +163,7 @@ class AuthService(
             val oauthTokenInfo = gitlabRestClient.userCheckOAuthTokenInGitlab(token)
             val account = accountRepository.findAccountByGitlabId(oauthTokenInfo.resourceOwnerId)
                 ?: throw UserNotFoundException(gitlabId = oauthTokenInfo.resourceOwnerId)
-            return gitlabRestClient.getUser(account.bestToken?.token
-                ?: throw CredentialException("No valid token for user"))
+            return gitlabRestClient.getUser(token)
         }
     }
 
@@ -244,8 +228,6 @@ class AuthService(
     fun createTokenDetails(token: String, account: Account, gitlabUser: GitlabUser): TokenDetails {
         var tokenDetails = TokenDetails(
             username = account.username,
-            permanentToken = account.bestToken?.token
-                ?: throw GitlabNoValidTokenException("No valid token found for user"),
             accessToken = token,
             accountId = account.id,
             personId = account.person.id,
@@ -260,9 +242,9 @@ class AuthService(
     }
 
     private fun injectGitlabInfoIntoTokenDetails(tokenDetails: TokenDetails, account: Account): TokenDetails {
-        tokenDetails.groups.putAll(groupService.getUserGroupsList(account.person.id).map { Pair(it.id, it.accessLevel) })
-        tokenDetails.projects.putAll(dataProjectsService.getUserProjectsList(account.id).map { Pair(it.id, it.accessLevel) })
-        tokenDetails.projects.putAll(codeProjectsService.getUserProjectsList(account.id).map { Pair(it.id, it.accessLevel) })
+        tokenDetails.groups.putAll(groupService.getUserGroupsList(tokenDetails.accessToken, account.person.id).map { Pair(it.id, it.accessLevel) })
+        tokenDetails.projects.putAll(dataProjectsService.getUserProjectsList(tokenDetails.accessToken, account.id).map { Pair(it.id, it.accessLevel) })
+        tokenDetails.projects.putAll(codeProjectsService.getUserProjectsList(tokenDetails.accessToken, account.id).map { Pair(it.id, it.accessLevel) })
         return tokenDetails
     }
 
@@ -309,7 +291,7 @@ class AuthService(
 
         person = Person(id = randomUUID(), slug = gitlabUser.username, name = gitlabUser.username, gitlabId = gitlabUser.id)
         accountToken = AccountToken(id = randomUUID(), accountId = accountUuid, token = permanentToken, gitlabId = null)
-        account = Account(id = accountUuid, username = gitlabUser.username, email = gitlabUser.email, passwordEncrypted = password, person = person, gitlabId = gitlabUser.id, tokens = mutableListOf(accountToken))
+        account = Account(id = accountUuid, username = gitlabUser.username, email = gitlabUser.email, passwordEncrypted = password, person = person, gitlabId = gitlabUser.id)
 
         accountRepository.save(account)
 

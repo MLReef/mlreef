@@ -47,6 +47,7 @@ class ProjectsApiTest : AbstractRestApiTest() {
     val codeProjectRootUrl = "/api/v1/code-projects"
     val dataProjectRootUrl = "/api/v1/code-projects"
     private lateinit var account2: Account
+    private lateinit var token2: String
     private lateinit var subject: Person
     private lateinit var subject2: Person
 
@@ -83,6 +84,9 @@ class ProjectsApiTest : AbstractRestApiTest() {
 
         account = accountSubjectPreparationTrait.account
         account2 = accountSubjectPreparationTrait.account2
+
+        token = accountSubjectPreparationTrait.token
+        token2 = accountSubjectPreparationTrait.token2
 
         subject = accountSubjectPreparationTrait.subject
         subject2 = accountSubjectPreparationTrait.subject2
@@ -126,7 +130,7 @@ class ProjectsApiTest : AbstractRestApiTest() {
 
         this.mockGetUserProjectsList(listOf(project1.id, project2.id, project4.id, project5.id), account, AccessLevel.OWNER)
 
-        val returnedResult: List<DataProjectDto> = this.performGet(rootUrl, account)
+        val returnedResult: List<DataProjectDto> = this.performGet(rootUrl, token)
             .expectOk()
             .document("project-retrieve-all", responseFields(projectResponseFields("[].")))
             .returnsList(DataProjectDto::class.java)
@@ -172,7 +176,7 @@ class ProjectsApiTest : AbstractRestApiTest() {
         codeProjectRepository.save(project6)
 
         this.mockGetUserProjectsList(listOf(project1.id, project2.id, project4.id, project5.id), account, AccessLevel.OWNER)
-        val returnedResult: DataProjectDto = this.performGet("$rootUrl/$id1", account)
+        val returnedResult: DataProjectDto = this.performGet("$rootUrl/$id1", token)
             .expectOk()
             .document("project-retrieve-one", responseFields(projectResponseFields()))
             .returns(DataProjectDto::class.java)
@@ -203,7 +207,7 @@ class ProjectsApiTest : AbstractRestApiTest() {
 
         this.mockGetUserProjectsList(listOf(project1.id, project2.id, project4.id, project5.id), account, AccessLevel.OWNER)
 
-        val returnedResult: ProjectDto = this.performGet("$rootUrl/$id1", account)
+        val returnedResult: ProjectDto = this.performGet("$rootUrl/$id1", token)
             .expectOk()
             .document("genericprojects-retrieve-one", responseFields(projectResponseFields()))
             .returns(ProjectDto::class.java)
@@ -235,7 +239,7 @@ class ProjectsApiTest : AbstractRestApiTest() {
 
         this.mockGetUserProjectsList(listOf(project1.id, project2.id, project4.id, project5.id), account, AccessLevel.OWNER)
 
-        val returnedResult: List<ProjectDto> = this.performGet("$rootUrl/slug/slug-1", account)
+        val returnedResult: List<ProjectDto> = this.performGet("$rootUrl/slug/slug-1", token)
             .expectOk()
             .document("project-retrieve-all", responseFields(projectResponseFields("[].")))
             .returnsList(ProjectDto::class.java)
@@ -284,7 +288,7 @@ class ProjectsApiTest : AbstractRestApiTest() {
 
         this.mockGetUserProjectsList(listOf(project1.id, project2.id, project4.id, project5.id), account, AccessLevel.OWNER)
 
-        val returnedResult: List<ProjectDto> = this.performGet("$rootUrl/namespace/mlreef", account)
+        val returnedResult: List<ProjectDto> = this.performGet("$rootUrl/namespace/mlreef", token)
             .expectOk()
             .document("project-retrieve-all", responseFields(projectResponseFields("[].")))
             .returnsList(ProjectDto::class.java)
@@ -331,7 +335,7 @@ class ProjectsApiTest : AbstractRestApiTest() {
 
         this.mockGetUserProjectsList(listOf(project1.id, project2.id, project4.id, project5.id), account, AccessLevel.OWNER)
 
-        val returnedResult: ProjectDto = this.performGet("$rootUrl/mlreef/project-1", account)
+        val returnedResult: ProjectDto = this.performGet("$rootUrl/mlreef/project-1", token)
             .expectOk()
             .document("project-retrieve-one", responseFields(projectResponseFields()))
             .returns(ProjectDto::class.java)
@@ -362,7 +366,7 @@ class ProjectsApiTest : AbstractRestApiTest() {
 
         this.mockGetUserProjectsList(listOf(project1.id, project2.id, project4.id, project5.id), account, AccessLevel.OWNER)
 
-        val returnedResult: ProjectDto = this.performGet("$rootUrl/mlreef/project-5", account)
+        val returnedResult: ProjectDto = this.performGet("$rootUrl/mlreef/project-5", token)
             .expectOk()
             .document("project-retrieve-one", responseFields(projectResponseFields()))
             .returns(ProjectDto::class.java)
@@ -413,7 +417,7 @@ class ProjectsApiTest : AbstractRestApiTest() {
 
         this.mockGetUserProjectsList(account)
 
-        val returnedResult = this.performPost("$rootUrl/code", account, body = request)
+        val returnedResult = this.performPost("$rootUrl/code", token, body = request)
             .expectOk()
             .document("project-create",
                 requestFields(projectCreateRequestFields()),
@@ -440,7 +444,7 @@ class ProjectsApiTest : AbstractRestApiTest() {
 
         this.mockGetUserProjectsList(account)
 
-        val returnedResult = this.performPost("$codeProjectRootUrl", account, body = request)
+        val returnedResult = this.performPost("$codeProjectRootUrl", token, body = request)
             .expectOk()
             .document("project-create",
                 requestFields(projectCreateRequestFields()),
@@ -467,7 +471,7 @@ class ProjectsApiTest : AbstractRestApiTest() {
 
         this.mockGetUserProjectsList(account)
 
-        val returnedResult = this.performPost("$rootUrl/data", account, body = request)
+        val returnedResult = this.performPost("$rootUrl/data", token, body = request)
             .expectOk()
             .document("project-create",
                 requestFields(projectCreateRequestFields()),
@@ -493,7 +497,7 @@ class ProjectsApiTest : AbstractRestApiTest() {
 
         this.mockGetUserProjectsList(account)
 
-        val returnedResult = this.performPost("$dataProjectRootUrl", account, body = request)
+        val returnedResult = this.performPost("$dataProjectRootUrl", token, body = request)
             .expectOk()
             .document("project-create",
                 requestFields(projectCreateRequestFields()),
@@ -517,7 +521,7 @@ class ProjectsApiTest : AbstractRestApiTest() {
 
         val request = ProjectUpdateRequest("New Test project", "new description")
 
-        val returnedResult = this.performPut("$rootUrl/$id1", account, body = request)
+        val returnedResult = this.performPut("$rootUrl/$id1", token, body = request)
             .expectOk()
             .document("project-update",
                 requestFields(projectUpdateRequestFields()),
@@ -542,7 +546,7 @@ class ProjectsApiTest : AbstractRestApiTest() {
 
         val request = ProjectUpdateRequest("New Test project", "description")
 
-        val returnedResult = this.performPut("$rootUrl/$id1", account, body = request)
+        val returnedResult = this.performPut("$rootUrl/$id1", token, body = request)
             .expectOk()
             .document("project-update",
                 requestFields(projectUpdateRequestFields()),
@@ -565,7 +569,7 @@ class ProjectsApiTest : AbstractRestApiTest() {
 
         assertThat(dataProjectRepository.findByIdOrNull(id1)).isNotNull()
 
-        this.performDelete("$rootUrl/$id1", account)
+        this.performDelete("$rootUrl/$id1", token)
             .expectNoContent()
             .document("project-delete")
 
@@ -585,7 +589,7 @@ class ProjectsApiTest : AbstractRestApiTest() {
 
         assertThat(codeProjectRepository.findByIdOrNull(id1)).isNotNull()
 
-        this.performDelete("$rootUrl/$id1", account)
+        this.performDelete("$rootUrl/$id1", token)
             .expectNoContent()
             .document("project-delete")
 
@@ -608,7 +612,7 @@ class ProjectsApiTest : AbstractRestApiTest() {
         this.mockGetUserProjectsList(listOf(project1.id), account, AccessLevel.OWNER)
         this.mockGetUserProjectsList(listOf(project1.id), account2, AccessLevel.DEVELOPER)
 
-        val returnedResult: List<UserInProjectDto> = this.performGet("$rootUrl/${project1.id}/users", account)
+        val returnedResult: List<UserInProjectDto> = this.performGet("$rootUrl/${project1.id}/users", token)
             .expectOk()
             .document("project-retrieve-users-list", responseFields(usersInProjectResponseFields("[].")))
             .returnsList(UserInProjectDto::class.java)
@@ -631,7 +635,7 @@ class ProjectsApiTest : AbstractRestApiTest() {
 
         this.mockGetUserProjectsList(listOf(project1.id), account, AccessLevel.OWNER)
 
-        val returnedResult: List<UserInProjectDto> = this.performPost("$rootUrl/${project1.id}/users/${account2.id}", account)
+        val returnedResult: List<UserInProjectDto> = this.performPost("$rootUrl/${project1.id}/users/${account2.id}", token)
             .expectOk()
             .document("projects-add-user", responseFields(usersInProjectResponseFields("[].")))
             .returnsList(UserInProjectDto::class.java)
@@ -654,7 +658,7 @@ class ProjectsApiTest : AbstractRestApiTest() {
 
         this.mockGetUserProjectsList(listOf(project1.id), account, AccessLevel.OWNER)
 
-        val returnedResult: List<UserInProjectDto> = this.performPost("$rootUrl/${project1.id}/users/${account2.id}", account)
+        val returnedResult: List<UserInProjectDto> = this.performPost("$rootUrl/${project1.id}/users/${account2.id}", token)
             .expectOk()
             .document("dataprojects-add-user", responseFields(usersInProjectResponseFields("[].")))
             .returnsList(UserInProjectDto::class.java)
@@ -679,7 +683,7 @@ class ProjectsApiTest : AbstractRestApiTest() {
 
         val url = "$rootUrl/${project1.id}/users?gitlab_id=${account2.person.gitlabId}&level=DEVELOPER&expires_at=2099-12-31T10:15:20Z"
 
-        val returnedResult: List<UserInProjectDto> = this.performPost(url, account)
+        val returnedResult: List<UserInProjectDto> = this.performPost(url, token)
             .expectOk()
             .document("project-add-user-by-params",
                 RequestDocumentation.requestParameters(
@@ -710,7 +714,7 @@ class ProjectsApiTest : AbstractRestApiTest() {
 
         val url = "$rootUrl/${project1.id}/users?gitlab_id=${account2.person.gitlabId}&level=DEVELOPER&expires_at=2099-12-31T10:15:20Z"
 
-        val returnedResult: List<UserInProjectDto> = this.performPost(url, account)
+        val returnedResult: List<UserInProjectDto> = this.performPost(url, token)
             .expectOk()
             .document("project-add-user-by-params",
                 RequestDocumentation.requestParameters(
@@ -743,7 +747,7 @@ class ProjectsApiTest : AbstractRestApiTest() {
 
         val url = "$rootUrl/${project1.id}/users"
 
-        val returnedResult: List<UserInProjectDto> = this.performPost(url, account, request)
+        val returnedResult: List<UserInProjectDto> = this.performPost(url, token, request)
             .expectOk()
             .document("project-add-user-by-body",
                 requestFields(projectAddEditUserRequestFields()),
@@ -771,7 +775,7 @@ class ProjectsApiTest : AbstractRestApiTest() {
 
         val url = "$rootUrl/${project1.id}/users"
 
-        val returnedResult: List<UserInProjectDto> = this.performPost(url, account, request)
+        val returnedResult: List<UserInProjectDto> = this.performPost(url, token, request)
             .expectOk()
             .document("project-add-user-by-body",
                 requestFields(projectAddEditUserRequestFields()),
@@ -795,7 +799,7 @@ class ProjectsApiTest : AbstractRestApiTest() {
 
         this.mockGetUserProjectsList(listOf(project1.id), account, AccessLevel.OWNER)
 
-        val returnedResult: List<UserInProjectDto> = this.performDelete("$rootUrl/${project1.id}/users/${account2.id}", account)
+        val returnedResult: List<UserInProjectDto> = this.performDelete("$rootUrl/${project1.id}/users/${account2.id}", token)
             .expectOk()
             .document("projects-delete-user", responseFields(usersInProjectResponseFields("[].")))
             .returnsList(UserInProjectDto::class.java)
@@ -817,7 +821,7 @@ class ProjectsApiTest : AbstractRestApiTest() {
 
         this.mockGetUserProjectsList(listOf(project1.id), account, AccessLevel.OWNER)
 
-        val returnedResult: List<UserInProjectDto> = this.performDelete("$rootUrl/${project1.id}/users/${account2.id}", account)
+        val returnedResult: List<UserInProjectDto> = this.performDelete("$rootUrl/${project1.id}/users/${account2.id}", token)
             .expectOk()
             .document("project-delete-user", responseFields(usersInProjectResponseFields("[].")))
             .returnsList(UserInProjectDto::class.java)
@@ -841,7 +845,7 @@ class ProjectsApiTest : AbstractRestApiTest() {
 
         val url = "$rootUrl/${project1.id}/users?gitlab_id=${account2.person.gitlabId}"
 
-        val returnedResult: List<UserInProjectDto> = this.performDelete(url, account)
+        val returnedResult: List<UserInProjectDto> = this.performDelete(url, token)
             .expectOk()
             .document("project-delete-user-by-params",
                 RequestDocumentation.requestParameters(
@@ -870,7 +874,7 @@ class ProjectsApiTest : AbstractRestApiTest() {
 
         val url = "$rootUrl/${project1.id}/users?gitlab_id=${account2.person.gitlabId}"
 
-        val returnedResult: List<UserInProjectDto> = this.performDelete(url, account)
+        val returnedResult: List<UserInProjectDto> = this.performDelete(url, token)
             .expectOk()
             .document("project-delete-user-by-params",
                 RequestDocumentation.requestParameters(

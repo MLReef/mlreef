@@ -105,6 +105,7 @@ import kotlin.random.Random
 abstract class AbstractRestApiTest : AbstractRestTest() {
 
     protected lateinit var account: Account
+    protected var token: String = "test-dummy-token-"
 
     companion object {
         private val log = LoggerFactory.getLogger(this::class.java)
@@ -156,8 +157,8 @@ abstract class AbstractRestApiTest : AbstractRestTest() {
 
     private val passwordEncoder: PasswordEncoder = BCryptPasswordEncoder()
 
-    protected fun defaultAcceptContentAuth(builder: MockHttpServletRequestBuilder): MockHttpServletRequestBuilder {
-        return this.acceptContentAuth(builder, account)
+    protected fun defaultAcceptContentAuth(builder: MockHttpServletRequestBuilder, token: String): MockHttpServletRequestBuilder {
+        return this.acceptContentAuth(builder, token)
     }
 
     @BeforeEach
@@ -260,7 +261,7 @@ abstract class AbstractRestApiTest : AbstractRestTest() {
         every { restClient.commitFiles(any(), any(), any(), any(), any(), any()) } returns Commit("branch")
         every { currentUserService.person() } answers { personRepository.findAll().first() }
         every { currentUserService.account() } answers { accountRepository.findAll().first() }
-        every { currentUserService.permanentToken() } answers { testPrivateUserTokenMock1 }
+        every { currentUserService.accessToken() } answers { testPrivateUserTokenMock1 }
     }
 
     protected fun mockGitlabPipelineWithBranch(sourceBranch: String, targetBranch: String) {
@@ -298,7 +299,6 @@ abstract class AbstractRestApiTest : AbstractRestTest() {
         val finalToken = token ?: TokenDetails(
             "testusername",
             "test-token",
-            "test-access-token",
             UUID.randomUUID(),
             UUID.randomUUID()
         )
@@ -392,7 +392,7 @@ abstract class AbstractRestApiTest : AbstractRestTest() {
         val passwordEncrypted = passwordEncoder.encode(plainPassword)
         val person = Person(UUID.randomUUID(), "person_slug", "user name", 1L)
         val token = AccountToken(UUID.randomUUID(), accountId, "secret_token", 0)
-        val account = Account(accountId, "username", "email@example.com", passwordEncrypted, person, mutableListOf(token))
+        val account = Account(accountId, "username", "email@example.com", passwordEncrypted, person)
 
         personRepository.save(person)
         accountRepository.save(account)
@@ -484,7 +484,6 @@ abstract class AbstractRestApiTest : AbstractRestTest() {
                              groupIdLevelMap: MutableMap<UUID, AccessLevel?>): TokenDetails {
         return TokenDetails(
             username = actualAccount.username,
-            permanentToken = actualAccount.bestToken?.token ?: throw RuntimeException("Could not setup mock"),
             accessToken = token,
             accountId = actualAccount.id,
             personId = actualAccount.person.id,

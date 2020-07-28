@@ -125,7 +125,6 @@ class AuthApiTest : AbstractRestApiTest() {
         assertThat(result).isNotNull()
         assertThat(result.username).isEqualTo(existingUser.username)
         assertThat(result.email).isEqualTo(existingUser.email)
-        assertThat(result.token!!.substring(0, 3)).isEqualTo(existingUser.bestToken?.token?.substring(0, 3))
     }
 
     @Transactional

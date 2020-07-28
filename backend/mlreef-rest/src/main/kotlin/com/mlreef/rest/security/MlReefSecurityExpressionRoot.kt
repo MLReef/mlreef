@@ -135,7 +135,6 @@ class MlReefSecurityExpressionRoot(
     fun isUserItselfByToken(token: String?): Boolean {
         return if (token != null) {
             (this.principal as? TokenDetails)?.accessToken == token
-                || (this.principal as? TokenDetails)?.permanentToken == token
         } else false
     }
 

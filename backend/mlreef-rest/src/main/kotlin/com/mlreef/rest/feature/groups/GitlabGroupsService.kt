@@ -28,7 +28,7 @@ import java.util.UUID.randomUUID
 import javax.transaction.Transactional
 
 interface GroupsService {
-    fun getUserGroupsList(personId: UUID? = null, userId: UUID? = null): List<GroupOfUser>
+    fun getUserGroupsList(token: String, personId: UUID? = null, userId: UUID? = null): List<GroupOfUser>
     fun getGroupById(groupId: UUID): Group?
     fun getUsersInGroup(groupId: UUID): List<UserInGroup>
     fun createGroup(ownerToken: String, groupName: String, path: String? = null, ownerId: UUID? = null): Group
@@ -43,7 +43,8 @@ interface GroupsService {
     fun checkUserInGroup(groupId: UUID, userToken: String? = null, userId: UUID? = null, userName: String? = null, email: String? = null, userGitlabId: Long? = null, personId: UUID? = null): Boolean
 }
 
-@Service class GitlabGroupsService(
+@Service
+class GitlabGroupsService(
     private val groupsRepository: GroupRepository,
     private val membershipRepository: MembershipRepository,
     private val accountRepository: AccountRepository,
@@ -55,12 +56,12 @@ interface GroupsService {
         private val log = LoggerFactory.getLogger(this::class.java)
     }
 
-    override fun getUserGroupsList(personId: UUID?, userId: UUID?): List<GroupOfUser> {
+    override fun getUserGroupsList(token: String, personId: UUID?, userId: UUID?): List<GroupOfUser> {
         val account = resolveAccount(userId = userId, personId = personId)
             ?: throw UserNotFoundException(userId = userId, personId = personId)
 
         val gitlabsGroupsIds = gitlabRestClient
-            .userGetUserGroups(account.bestToken?.token ?: throw UnknownUserException("User has no valid token"))
+            .userGetUserGroups(token)
             .map { it.id }
 
         return gitlabsGroupsIds.map {

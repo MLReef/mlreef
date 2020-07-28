@@ -16,7 +16,7 @@ class RedisSessionStrategy<T : Session>(private val sessionRepo: FindByIndexName
 
     override fun onAuthentication(authentication: Authentication?, request: HttpServletRequest?, response: HttpServletResponse?) {
         val userDetails = authentication?.principal as TokenDetails
-        val token = userDetails.accessToken ?: userDetails.permanentToken
+        val token = userDetails.accessToken
 
         val findByTokenNameMap = sessionRepo.findByIndexNameAndIndexValue(FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME, token)
 

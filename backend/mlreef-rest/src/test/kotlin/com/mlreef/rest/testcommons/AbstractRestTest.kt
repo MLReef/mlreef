@@ -3,7 +3,6 @@ package com.mlreef.rest.testcommons
 import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
-import com.mlreef.rest.Account
 import org.junit.jupiter.api.extension.ExtendWith
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -35,14 +34,11 @@ abstract class AbstractRestTest {
 
     protected fun acceptContentAuth(
         requestBuilder: MockHttpServletRequestBuilder,
-        account: Account? = null,
-        token: String? = null
+        token: String
     ): MockHttpServletRequestBuilder {
-        val finalToken = token ?: account?.bestToken?.token
-        ?: throw RuntimeException("No valid token to execute Gitlab request")
         return requestBuilder
             .accept(MediaType.APPLICATION_JSON)
-            .header(HEADER_PRIVATE_TOKEN, finalToken)
+            .header(HEADER_PRIVATE_TOKEN, token)
             .contentType(MediaType.APPLICATION_JSON)
     }
 
@@ -59,24 +55,24 @@ abstract class AbstractRestTest {
             .contentType(MediaType.APPLICATION_JSON)
     }
 
-    protected fun performPost(url: String, account: Account? = null, body: Any? = null) =
+    protected fun performPost(url: String, token: String? = null, body: Any? = null) =
         mockMvc.perform(
-            generateRequestBuilder(url, account, body, HttpMethod.POST)
+            generateRequestBuilder(url, token, body, HttpMethod.POST)
         )
 
-    protected fun performPut(url: String, account: Account? = null, body: Any? = null) =
+    protected fun performPut(url: String, token: String? = null, body: Any? = null) =
         mockMvc.perform(
-            generateRequestBuilder(url, account, body, HttpMethod.PUT)
+            generateRequestBuilder(url, token, body, HttpMethod.PUT)
         )
 
-    protected fun performGet(url: String, account: Account? = null) =
+    protected fun performGet(url: String, token: String? = null) =
         mockMvc.perform(
-            generateRequestBuilder(url, account, null, HttpMethod.GET)
+            generateRequestBuilder(url, token, null, HttpMethod.GET)
         )
 
-    protected fun performDelete(url: String, account: Account? = null) =
+    protected fun performDelete(url: String, token: String? = null) =
         mockMvc.perform(
-            generateRequestBuilder(url, account, null, HttpMethod.DELETE)
+            generateRequestBuilder(url, token, null, HttpMethod.DELETE)
         )
 
     protected fun performEPFPut(token: String, url: String, body: Any? = null) =
@@ -87,7 +83,7 @@ abstract class AbstractRestTest {
             this.mockMvc.perform(this.defaultAcceptContentEPFBot(token, RestDocumentationRequestBuilders.put(url)))
         }
 
-    private fun generateRequestBuilder(url: String, account: Account?, body: Any?, method: HttpMethod = HttpMethod.GET): MockHttpServletRequestBuilder {
+    private fun generateRequestBuilder(url: String, token: String?, body: Any?, method: HttpMethod = HttpMethod.GET): MockHttpServletRequestBuilder {
         val builder = when (method) {
             HttpMethod.GET -> RestDocumentationRequestBuilders.get(url)
             HttpMethod.POST -> RestDocumentationRequestBuilders.post(url)
@@ -100,10 +96,10 @@ abstract class AbstractRestTest {
             builder.content(objectMapper.writeValueAsString(body))
         }
 
-        return if (account == null) {
+        return if (token == null) {
             acceptAnonymousAuth(builder)
         } else {
-            acceptContentAuth(builder, account)
+            acceptContentAuth(builder, token)
         }
     }
 

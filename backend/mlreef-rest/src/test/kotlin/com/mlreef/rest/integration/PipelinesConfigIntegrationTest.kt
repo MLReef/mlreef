@@ -16,9 +16,7 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get
 import org.springframework.test.annotation.Rollback
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import java.util.UUID
 import java.util.UUID.randomUUID
 import javax.transaction.Transactional
@@ -40,11 +38,14 @@ class PipelinesConfigIntegrationTest : AbstractIntegrationTest() {
     private lateinit var pipelineTestPreparationTrait: PipelineTestPreparationTrait
 
     private lateinit var account: Account;
+    private lateinit var token: String;
 
     @BeforeEach
     @Transactional
     fun fillRepo() {
-        account = testsHelper.createRealUser(index = -1).first
+        val createdAccount = testsHelper.createRealUser(index = -1)
+        account = createdAccount.first
+        token = createdAccount.second
         testsHelper.generateProcessorsInDatabase(account.person)
     }
 
@@ -58,19 +59,15 @@ class PipelinesConfigIntegrationTest : AbstractIntegrationTest() {
     @Rollback
     @Test
     fun `Can retrieve all own Pipelines`() {
-        val (project, _) = testsHelper.createRealDataProject(account)
+        val (project, _) = testsHelper.createRealDataProject(token, account)
 
         val dataProcessorInstance = createDataProcessorInstance()
         createPipelineConfig(dataProcessorInstance, project.id, "slug1")
         createPipelineConfig(dataProcessorInstance, project.id, "slug2")
 
-        val returnedResult: List<PipelineConfigDto> = this.mockMvc.perform(
-            this.acceptContentAuth(get(rootUrl), account))
-            .andExpect(status().isOk)
-            .andReturn().let {
-                val constructCollectionType = objectMapper.typeFactory.constructCollectionType(List::class.java, PipelineConfigDto::class.java)
-                objectMapper.readValue(it.response.contentAsByteArray, constructCollectionType)
-            }
+        val returnedResult: List<PipelineConfigDto> = this.performGet(rootUrl, token)
+            .expectOk()
+            .returnsList(PipelineConfigDto::class.java)
 
         assertThat(returnedResult.size).isEqualTo(2)
     }
@@ -79,15 +76,13 @@ class PipelinesConfigIntegrationTest : AbstractIntegrationTest() {
     @Rollback
     @Test
     fun `Can retrieve specific PipelineConfig`() {
-        val (project, _) = testsHelper.createRealDataProject(account)
+        val (project, _) = testsHelper.createRealDataProject(token, account)
 
         val dataProcessorInstance = createDataProcessorInstance()
         val entity = createPipelineConfig(dataProcessorInstance, project.id, "slug")
 
-        this.mockMvc.perform(
-            this.acceptContentAuth(get("$rootUrl/${entity.id}"), account))
-            .andExpect(status().isOk)
-
+        this.performGet("$rootUrl/${entity.id}", token)
+            .expectOk()
     }
 
     private fun createPipelineConfig(dataProcessorInstance: DataProcessorInstance, dataProjectId: UUID, slug: String): PipelineConfig {

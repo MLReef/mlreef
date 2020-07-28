@@ -35,8 +35,8 @@ class AuthController(
         )
         .let { (findUser: Account, oauthToken) ->
             findUser.toSecretUserDto(
-                accessToken = oauthToken?.accessToken,
-                refreshToken = oauthToken?.refreshToken
+                accessToken = oauthToken.accessToken,
+                refreshToken = oauthToken.refreshToken
             )
         }
 

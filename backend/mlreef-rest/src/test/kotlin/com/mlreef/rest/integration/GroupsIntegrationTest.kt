@@ -16,16 +16,16 @@ class GroupsIntegrationTest : AbstractIntegrationTest() {
     @Test
     fun `Can retrieve all own groups`() {
         //given
-        val (account, _, _) = testsHelper.createRealUser(index = -1)
+        val (_, token, _) = testsHelper.createRealUser(index = -1)
 
-        val (group1, _) = testsHelper.createRealGroup(account)
-        val (group2, _) = testsHelper.createRealGroup(account)
-        val (group3, _) = testsHelper.createRealGroup(account)
+        val (group1, _) = testsHelper.createRealGroup(token)
+        val (group2, _) = testsHelper.createRealGroup(token)
+        val (group3, _) = testsHelper.createRealGroup(token)
 
         //when
         val url = "$rootUrl/my"
 
-        val result = this.performGet(url, account)
+        val result = this.performGet(url, token)
             .expectOk()
             .returnsList(GroupOfUserDto::class.java)
 
@@ -37,12 +37,12 @@ class GroupsIntegrationTest : AbstractIntegrationTest() {
     @Test
     fun `Can create a group as authorized user`() {
         //given
-        val (account, _, _) = testsHelper.createRealUser(index = -1)
+        val (account, token, _) = testsHelper.createRealUser(index = -1)
 
         val request = GroupCreateRequest("absolutenewtestpath", "test-namespace", "test-name")
 
         //when
-        val result = this.performPost(rootUrl, account, request)
+        val result = this.performPost(rootUrl, token, request)
             .expectOk()
             .returns(GroupDto::class.java)
 
@@ -64,53 +64,53 @@ class GroupsIntegrationTest : AbstractIntegrationTest() {
     @Test
     fun `Can create a duplicate name of group`() {
         //given
-        val (account, _, _) = testsHelper.createRealUser(index = -1)
-        val (group1, _) = testsHelper.createRealGroup(account)
+        val (account, token, _) = testsHelper.createRealUser(index = -1)
+        val (group1, _) = testsHelper.createRealGroup(token)
 
         val request = GroupCreateRequest("therealnewtestpath", "testnamespace", group1.name)
 
         //when
-        this.performPost(rootUrl, account, body = request)
+        this.performPost(rootUrl, token, body = request)
             .expectOk()
     }
 
     @Test
     fun `Cannot create a duplicate path of group`() {
         //given
-        val (account, _, _) = testsHelper.createRealUser(index = -1)
-        val (group1, gitlabGroup1) = testsHelper.createRealGroup(account)
+        val (account, token, _) = testsHelper.createRealUser(index = -1)
+        val (group1, gitlabGroup1) = testsHelper.createRealGroup(token)
 
         val request = GroupCreateRequest(gitlabGroup1.path, "testnamespace", "therealnewname")
 
         //when
-        this.performPost(rootUrl, account, body = request)
+        this.performPost(rootUrl, token, body = request)
             .expectBadRequest()
     }
 
     @Test
     fun `Cannot create a group with invalid parameters`() {
         //given
-        val (account, _, _) = testsHelper.createRealUser(index = -1)
+        val (account, token, _) = testsHelper.createRealUser(index = -1)
 
         val request = GroupCreateRequest("", "", "")
 
         //when
-        this.performPost(rootUrl, account, body = request)
+        this.performPost(rootUrl, token, body = request)
             .expectBadRequest()
     }
 
     @Test
     fun `Can update own group`() {
         //given
-        val (account, _, _) = testsHelper.createRealUser(index = -1)
-        val (group1, _) = testsHelper.createRealGroup(account)
+        val (account, token, _) = testsHelper.createRealUser(index = -1)
+        val (group1, _) = testsHelper.createRealGroup(token)
 
         val request = GroupUpdateRequest("new-test-name", null)
 
         //when
         val url = "$rootUrl/${group1.id}"
 
-        val result = this.performPut(url, account, request)
+        val result = this.performPut(url, token, request)
             .expectOk()
             .returns(GroupDto::class.java)
 
@@ -122,51 +122,51 @@ class GroupsIntegrationTest : AbstractIntegrationTest() {
     @Test
     fun `Cannot update not own group`() {
         //given
-        val (account, _, _) = testsHelper.createRealUser(index = -1)
-        val (group1, _) = testsHelper.createRealGroup(account)
-        val (account2, _, _) = testsHelper.createRealUser(index = -1)
+        val (account, token1, _) = testsHelper.createRealUser(index = -1)
+        val (group1, _) = testsHelper.createRealGroup(token1)
+        val (account2, token2, _) = testsHelper.createRealUser(index = -1)
 
         val request = GroupUpdateRequest("new-test-name", null)
 
         //when
         val url = "$rootUrl/${group1.id}"
 
-        this.performPut(url, account2, body = request)
+        this.performPut(url, token2, body = request)
             .expectForbidden()
     }
 
     @Test
     fun `Can delete own group`() {
         //given
-        val (account, _, _) = testsHelper.createRealUser(index = -1)
-        val (group1, _) = testsHelper.createRealGroup(account)
+        val (account, token, _) = testsHelper.createRealUser(index = -1)
+        val (group1, _) = testsHelper.createRealGroup(token)
 
         //when
         val url = "$rootUrl/${group1.id}"
 
-        this.performDelete(url, account)
+        this.performDelete(url, token)
             .expectNoContent()
     }
 
     @Test
     fun `Cannot delete not own group`() {
         //given
-        val (account, _, _) = testsHelper.createRealUser(index = -1)
-        val (group1, _) = testsHelper.createRealGroup(account)
-        val (account2, _, _) = testsHelper.createRealUser(index = -1)
+        val (account, token1, _) = testsHelper.createRealUser(index = -1)
+        val (group1, _) = testsHelper.createRealGroup(token1)
+        val (account2, token2, _) = testsHelper.createRealUser(index = -1)
 
         //when
         val url = "$rootUrl/${group1.id}"
 
-        this.performDelete(url, account2)
+        this.performDelete(url, token2)
             .expectForbidden()
     }
 
     @Test
     fun `Can get users in group as owner`() {
         //given
-        val (account, _, _) = testsHelper.createRealUser(index = -1)
-        val (group1, _) = testsHelper.createRealGroup(account)
+        val (account, token1, _) = testsHelper.createRealUser(index = -1)
+        val (group1, _) = testsHelper.createRealGroup(token1)
         val (account2, _, _) = testsHelper.createRealUser(index = -1)
         val (account3, _, _) = testsHelper.createRealUser(index = -1)
 
@@ -176,7 +176,7 @@ class GroupsIntegrationTest : AbstractIntegrationTest() {
         //when
         val url = "$rootUrl/${group1.id}/users"
 
-        val result = this.performGet(url, account)
+        val result = this.performGet(url, token1)
             .expectOk()
             .returnsList(UserInGroupDto::class.java)
 
@@ -200,9 +200,9 @@ class GroupsIntegrationTest : AbstractIntegrationTest() {
     @Test
     fun `Can get users in group as developer`() {
         //given
-        val (account, _, _) = testsHelper.createRealUser(index = -1)
-        val (group1, _) = testsHelper.createRealGroup(account)
-        val (account2, _, _) = testsHelper.createRealUser(index = -1)
+        val (account, token1, _) = testsHelper.createRealUser(index = -1)
+        val (group1, _) = testsHelper.createRealGroup(token1)
+        val (account2, token2, _) = testsHelper.createRealUser(index = -1)
         val (account3, _, _) = testsHelper.createRealUser(index = -1)
 
         testsHelper.addRealUserToGroup(group1.gitlabId!!, account2.person.gitlabId!!, GroupAccessLevel.DEVELOPER)
@@ -211,7 +211,7 @@ class GroupsIntegrationTest : AbstractIntegrationTest() {
         //when
         val url = "$rootUrl/${group1.id}/users"
 
-        val result = this.performGet(url, account2)
+        val result = this.performGet(url, token2)
             .expectOk()
             .returnsList(UserInGroupDto::class.java)
 
@@ -235,10 +235,10 @@ class GroupsIntegrationTest : AbstractIntegrationTest() {
     @Test
     fun `Cannot get users in group as guest`() {
         //given
-        val (account, _, _) = testsHelper.createRealUser(index = -1)
-        val (group1, _) = testsHelper.createRealGroup(account)
+        val (account, token1, _) = testsHelper.createRealUser(index = -1)
+        val (group1, _) = testsHelper.createRealGroup(token1)
         val (account2, _, _) = testsHelper.createRealUser(index = -1)
-        val (account3, _, _) = testsHelper.createRealUser(index = -1)
+        val (account3, token3, _) = testsHelper.createRealUser(index = -1)
 
         testsHelper.addRealUserToGroup(group1.gitlabId!!, account2.person.gitlabId!!, GroupAccessLevel.DEVELOPER)
         testsHelper.addRealUserToGroup(group1.gitlabId!!, account3.person.gitlabId!!, GroupAccessLevel.GUEST)
@@ -246,15 +246,15 @@ class GroupsIntegrationTest : AbstractIntegrationTest() {
         //when
         val url = "$rootUrl/${group1.id}/users"
 
-        this.performGet(url, account3)
+        this.performGet(url, token3)
             .expectForbidden()
     }
 
     @Test
     fun `Cannot get users in group as visitor`() {
         //given
-        val (account, _, _) = testsHelper.createRealUser(index = -1)
-        val (group1, _) = testsHelper.createRealGroup(account)
+        val (account, token1, _) = testsHelper.createRealUser(index = -1)
+        val (group1, _) = testsHelper.createRealGroup(token1)
         val (account2, _, _) = testsHelper.createRealUser(index = -1)
         val (account3, _, _) = testsHelper.createRealUser(index = -1)
 
@@ -271,14 +271,14 @@ class GroupsIntegrationTest : AbstractIntegrationTest() {
     @Test
     fun `Can add user to group as owner`() {
         //given
-        val (account, _, _) = testsHelper.createRealUser(index = -1)
-        val (group1, _) = testsHelper.createRealGroup(account)
+        val (account, token1, _) = testsHelper.createRealUser(index = -1)
+        val (group1, _) = testsHelper.createRealGroup(token1)
         val (account2, _, _) = testsHelper.createRealUser(index = -1)
 
         //when
         val url = "$rootUrl/${group1.id}/users/${account2.id}"
 
-        val result = this.performPost(url, account)
+        val result = this.performPost(url, token1)
             .expectOk()
             .returnsList(UserInGroupDto::class.java)
 
@@ -300,9 +300,9 @@ class GroupsIntegrationTest : AbstractIntegrationTest() {
     @Test
     fun `Can add user to group as maintainer`() {
         //given
-        val (account, _, _) = testsHelper.createRealUser(index = -1)
-        val (group1, _) = testsHelper.createRealGroup(account)
-        val (account2, _, _) = testsHelper.createRealUser(index = -1)
+        val (account, token1, _) = testsHelper.createRealUser(index = -1)
+        val (group1, _) = testsHelper.createRealGroup(token1)
+        val (account2, token2, _) = testsHelper.createRealUser(index = -1)
         val (account3, _, _) = testsHelper.createRealUser(index = -1)
 
         testsHelper.addRealUserToGroup(group1.gitlabId!!, account2.person.gitlabId!!, GroupAccessLevel.MAINTAINER)
@@ -310,7 +310,7 @@ class GroupsIntegrationTest : AbstractIntegrationTest() {
         //when
         val url = "$rootUrl/${group1.id}/users/${account3.id}"
 
-        val result = this.performPost(url, account2)
+        val result = this.performPost(url, token2)
             .expectOk()
             .returnsList(UserInGroupDto::class.java)
 
@@ -334,9 +334,9 @@ class GroupsIntegrationTest : AbstractIntegrationTest() {
     @Test
     fun `Cannot add user to group as developer`() {
         //given
-        val (account, _, _) = testsHelper.createRealUser(index = -1)
-        val (group1, _) = testsHelper.createRealGroup(account)
-        val (account2, _, _) = testsHelper.createRealUser(index = -1)
+        val (account, token1, _) = testsHelper.createRealUser(index = -1)
+        val (group1, _) = testsHelper.createRealGroup(token1)
+        val (account2, token2, _) = testsHelper.createRealUser(index = -1)
         val (account3, _, _) = testsHelper.createRealUser(index = -1)
 
         testsHelper.addRealUserToGroup(group1.gitlabId!!, account2.person.gitlabId!!, GroupAccessLevel.DEVELOPER)
@@ -344,15 +344,15 @@ class GroupsIntegrationTest : AbstractIntegrationTest() {
         //when
         val url = "$rootUrl/${group1.id}/users/${account3.id}"
 
-        this.performPost(url, account2)
+        this.performPost(url, token2)
             .expectForbidden()
     }
 
     @Test
     fun `Cannot add user to group as visitor`() {
         //given
-        val (account, _, _) = testsHelper.createRealUser(index = -1)
-        val (group1, _) = testsHelper.createRealGroup(account)
+        val (account, token1, _) = testsHelper.createRealUser(index = -1)
+        val (group1, _) = testsHelper.createRealGroup(token1)
         val (account2, _, _) = testsHelper.createRealUser(index = -1)
 
         //when
@@ -365,8 +365,8 @@ class GroupsIntegrationTest : AbstractIntegrationTest() {
     @Test
     fun `Can edit user in group as owner`() {
         //given
-        val (account, _, _) = testsHelper.createRealUser(index = -1)
-        val (group1, _) = testsHelper.createRealGroup(account)
+        val (account, token1, _) = testsHelper.createRealUser(index = -1)
+        val (group1, _) = testsHelper.createRealGroup(token1)
         val (account2, _, _) = testsHelper.createRealUser(index = -1)
 
         testsHelper.addRealUserToGroup(group1.gitlabId!!, account2.person.gitlabId!!, GroupAccessLevel.DEVELOPER)
@@ -374,7 +374,7 @@ class GroupsIntegrationTest : AbstractIntegrationTest() {
         //when
         val url = "$rootUrl/${group1.id}/users/${account2.id}?access_level=MAINTAINER"
 
-        val result = this.performPut(url, account)
+        val result = this.performPut(url, token1)
             .expectOk()
             .returnsList(UserInGroupDto::class.java)
 
@@ -396,9 +396,9 @@ class GroupsIntegrationTest : AbstractIntegrationTest() {
     @Test
     fun `Can edit user in group as maintainer`() {
         //given
-        val (account, _, _) = testsHelper.createRealUser(index = -1)
-        val (group1, _) = testsHelper.createRealGroup(account)
-        val (account2, _, _) = testsHelper.createRealUser(index = -1)
+        val (account, token1, _) = testsHelper.createRealUser(index = -1)
+        val (group1, _) = testsHelper.createRealGroup(token1)
+        val (account2, token2, _) = testsHelper.createRealUser(index = -1)
         val (account3, _, _) = testsHelper.createRealUser(index = -1)
 
         testsHelper.addRealUserToGroup(group1.gitlabId!!, account2.person.gitlabId!!, GroupAccessLevel.MAINTAINER)
@@ -407,7 +407,7 @@ class GroupsIntegrationTest : AbstractIntegrationTest() {
         //when
         val url = "$rootUrl/${group1.id}/users/${account3.id}?access_level=MAINTAINER"
 
-        val result = this.performPut(url, account2)
+        val result = this.performPut(url, token2)
             .expectOk()
             .returnsList(UserInGroupDto::class.java)
 
@@ -431,10 +431,10 @@ class GroupsIntegrationTest : AbstractIntegrationTest() {
     @Test
     fun `Cannot edit user in group as developer`() {
         //given
-        val (account, _, _) = testsHelper.createRealUser(index = -1)
-        val (group1, _) = testsHelper.createRealGroup(account)
+        val (account, token1, _) = testsHelper.createRealUser(index = -1)
+        val (group1, _) = testsHelper.createRealGroup(token1)
         val (account2, _, _) = testsHelper.createRealUser(index = -1)
-        val (account3, _, _) = testsHelper.createRealUser(index = -1)
+        val (account3, token3, _) = testsHelper.createRealUser(index = -1)
 
         testsHelper.addRealUserToGroup(group1.gitlabId!!, account2.person.gitlabId!!, GroupAccessLevel.MAINTAINER)
         testsHelper.addRealUserToGroup(group1.gitlabId!!, account3.person.gitlabId!!, GroupAccessLevel.DEVELOPER)
@@ -442,15 +442,15 @@ class GroupsIntegrationTest : AbstractIntegrationTest() {
         //when
         val url = "$rootUrl/${group1.id}/users/${account2.id}?access_level=DEVELOPER"
 
-        this.performPut(url, account3)
+        this.performPut(url, token3)
             .expectForbidden()
     }
 
     @Test
     fun `Cannot edit user in group as visitor`() {
         //given
-        val (account, _, _) = testsHelper.createRealUser(index = -1)
-        val (group1, _) = testsHelper.createRealGroup(account)
+        val (account, token1, _) = testsHelper.createRealUser(index = -1)
+        val (group1, _) = testsHelper.createRealGroup(token1)
         val (account2, _, _) = testsHelper.createRealUser(index = -1)
 
         testsHelper.addRealUserToGroup(group1.gitlabId!!, account2.person.gitlabId!!, GroupAccessLevel.MAINTAINER)
@@ -465,8 +465,8 @@ class GroupsIntegrationTest : AbstractIntegrationTest() {
     @Test
     fun `Can delete user from group as owner`() {
         //given
-        val (account, _, _) = testsHelper.createRealUser(index = -1)
-        val (group1, _) = testsHelper.createRealGroup(account)
+        val (account, token1, _) = testsHelper.createRealUser(index = -1)
+        val (group1, _) = testsHelper.createRealGroup(token1)
         val (account2, _, _) = testsHelper.createRealUser(index = -1)
         val (account3, _, _) = testsHelper.createRealUser(index = -1)
 
@@ -476,7 +476,7 @@ class GroupsIntegrationTest : AbstractIntegrationTest() {
         //when
         val url = "$rootUrl/${group1.id}/users/${account3.id}"
 
-        val result = this.performDelete(url, account)
+        val result = this.performDelete(url, token1)
             .expectOk()
             .returnsList(UserInGroupDto::class.java)
 
@@ -499,9 +499,9 @@ class GroupsIntegrationTest : AbstractIntegrationTest() {
     @Test
     fun `Can delete user from group as maintainer`() {
         //given
-        val (account, _, _) = testsHelper.createRealUser(index = -1)
-        val (group1, _) = testsHelper.createRealGroup(account)
-        val (account2, _, _) = testsHelper.createRealUser(index = -1)
+        val (account, token1, _) = testsHelper.createRealUser(index = -1)
+        val (group1, _) = testsHelper.createRealGroup(token1)
+        val (account2, token2, _) = testsHelper.createRealUser(index = -1)
         val (account3, _, _) = testsHelper.createRealUser(index = -1)
 
         testsHelper.addRealUserToGroup(group1.gitlabId!!, account2.person.gitlabId!!, GroupAccessLevel.MAINTAINER)
@@ -510,7 +510,7 @@ class GroupsIntegrationTest : AbstractIntegrationTest() {
         //when
         val url = "$rootUrl/${group1.id}/users/${account3.id}"
 
-        val result = this.performDelete(url, account2)
+        val result = this.performDelete(url, token2)
             .expectOk()
             .returnsList(UserInGroupDto::class.java)
 
@@ -533,10 +533,10 @@ class GroupsIntegrationTest : AbstractIntegrationTest() {
     @Test
     fun `Cannot delete user from group as developer`() {
         //given
-        val (account, _, _) = testsHelper.createRealUser(index = -1)
-        val (group1, _) = testsHelper.createRealGroup(account)
+        val (account, token1, _) = testsHelper.createRealUser(index = -1)
+        val (group1, _) = testsHelper.createRealGroup(token1)
         val (account2, _, _) = testsHelper.createRealUser(index = -1)
-        val (account3, _, _) = testsHelper.createRealUser(index = -1)
+        val (account3, token3, _) = testsHelper.createRealUser(index = -1)
 
         testsHelper.addRealUserToGroup(group1.gitlabId!!, account2.person.gitlabId!!, GroupAccessLevel.MAINTAINER)
         testsHelper.addRealUserToGroup(group1.gitlabId!!, account3.person.gitlabId!!, GroupAccessLevel.DEVELOPER)
@@ -544,15 +544,15 @@ class GroupsIntegrationTest : AbstractIntegrationTest() {
         //when
         val url = "$rootUrl/${group1.id}/users/${account2.id}"
 
-        this.performDelete(url, account3)
+        this.performDelete(url, token3)
             .expectForbidden()
     }
 
     @Test
     fun `Cannot delete user from group as visitor`() {
         //given
-        val (account, _, _) = testsHelper.createRealUser(index = -1)
-        val (group1, _) = testsHelper.createRealGroup(account)
+        val (account, token1, _) = testsHelper.createRealUser(index = -1)
+        val (group1, _) = testsHelper.createRealGroup(token1)
         val (account2, _, _) = testsHelper.createRealUser(index = -1)
 
         testsHelper.addRealUserToGroup(group1.gitlabId!!, account2.person.gitlabId!!, GroupAccessLevel.MAINTAINER)

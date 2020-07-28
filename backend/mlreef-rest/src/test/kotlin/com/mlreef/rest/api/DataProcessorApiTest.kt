@@ -23,7 +23,6 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Tag
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get
 import org.springframework.restdocs.payload.FieldDescriptor
 import org.springframework.restdocs.payload.JsonFieldType
 import org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath
@@ -57,6 +56,7 @@ class DataProcessorApiTest : AbstractRestApiTest() {
     fun clearRepo() {
         pipelineTestPreparationTrait.apply()
         account = pipelineTestPreparationTrait.account
+        token = pipelineTestPreparationTrait.token
         subject = pipelineTestPreparationTrait.subject
         dataOp1 = pipelineTestPreparationTrait.dataOp1
         dataOp2 = pipelineTestPreparationTrait.dataOp2
@@ -83,7 +83,7 @@ class DataProcessorApiTest : AbstractRestApiTest() {
         createDataProcessor(DataProcessorType.OPERATION, codeProject, DataType.IMAGE)
         createDataProcessor(DataProcessorType.OPERATION, codeProject2, DataType.IMAGE)
 
-        val returnedResult: List<DataProcessorDto> = this.performGet(rootUrl, account)
+        val returnedResult: List<DataProcessorDto> = this.performGet(rootUrl, token)
             .andExpect(status().isOk)
             .document("data-processors-retrieve-all", responseFields(dataProcessorFields("[].")))
             .returnsList(DataProcessorDto::class.java)
@@ -102,7 +102,7 @@ class DataProcessorApiTest : AbstractRestApiTest() {
         createProcessorVersion(processor, "master", 2, "command")
         createProcessorVersion(processor, "develop", 3, "command")
 
-        val returnedResult: List<ProcessorVersionDto> = this.performGet("$rootUrl/id/${processor.id}/versions", account)
+        val returnedResult: List<ProcessorVersionDto> = this.performGet("$rootUrl/id/${processor.id}/versions", token)
             .andExpect(status().isOk)
             .document("processor-versions-retrieve-all", responseFields(processorVersionFields("[].")))
             .returnsList(ProcessorVersionDto::class.java)
@@ -127,7 +127,7 @@ class DataProcessorApiTest : AbstractRestApiTest() {
     fun `Can retrieve all DataProcessors filtered`() {
         createManyMocks()
         val url = "$rootUrl?type=OPERATION&input_data_type=IMAGE&output_data_type=VIDEO"
-        val returnedResult: List<DataProcessorDto> = this.performGet(url, account)
+        val returnedResult: List<DataProcessorDto> = this.performGet(url, token)
             .andExpect(status().isOk)
             .document("data-processors-retrieve-all-filter",
                 requestParameters(
@@ -240,8 +240,7 @@ class DataProcessorApiTest : AbstractRestApiTest() {
     fun `Cannot retrieve foreign DataProcessor`() {
         createDataProcessor(DataProcessorType.OPERATION, codeProject)
 
-        this.mockMvc.perform(
-            this.defaultAcceptContentAuth(get("$rootUrl/${codeProject2.id}/processor")))
+        this.performGet("$rootUrl/${codeProject2.id}/processor", token)
             .andExpect(status().isNotFound)
     }
 
@@ -266,7 +265,7 @@ class DataProcessorApiTest : AbstractRestApiTest() {
             )
         )
         val url = "$rootUrl2/${codeProject.id}/processor"
-        val returnedResult: DataProcessorDto = this.performPost(url, account, body = request)
+        val returnedResult: DataProcessorDto = this.performPost(url, token, body = request)
             .andExpect(status().isOk)
             .document("data-processors-codeproject-create-success",
                 requestFields(dataProcessorCreateRequestFields()),
@@ -286,7 +285,7 @@ class DataProcessorApiTest : AbstractRestApiTest() {
 
         mockGetUserProjectsList(listOf(codeProject.id), account, AccessLevel.OWNER)
 
-        this.performGet("$rootUrl2/${codeProject.id}/processor", account)
+        this.performGet("$rootUrl2/${codeProject.id}/processor", token)
             .andExpect(status().isOk)
             .document("data-processors-codeproject-retrieve-one",
                 responseFields(dataProcessorFields()))
@@ -308,8 +307,7 @@ class DataProcessorApiTest : AbstractRestApiTest() {
     }
 
     private fun performFilterRequest(url: String): List<DataProcessorDto> {
-        return mockMvc.perform(
-            defaultAcceptContentAuth(get(url)))
+        return this.performGet(url, token)
             .andExpect(status().isOk)
             .returnsList(DataProcessorDto::class.java)
     }

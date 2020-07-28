@@ -31,6 +31,7 @@ import com.mlreef.rest.ProcessorVersion
 import com.mlreef.rest.ProcessorVersionRepository
 import com.mlreef.rest.external_api.gitlab.dto.GitlabProject
 import com.mlreef.rest.external_api.gitlab.dto.GitlabUserInProject
+import com.mlreef.rest.utils.RandomUtils
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.restdocs.payload.FieldDescriptor
 import org.springframework.restdocs.payload.JsonFieldType
@@ -229,6 +230,8 @@ internal class AccountSubjectPreparationTrait {
     lateinit var account2: Account
     lateinit var subject: Person
     lateinit var subject2: Person
+    var token: String = "test-dummy-token-"
+    lateinit var token2: String
 
     private val gitlabProjectMembers = HashMap<Long, MutableSet<GitlabUserInProject>>()
     private val gitlabUsersProjects = HashMap<Long, MutableSet<GitlabProject>>()
@@ -254,6 +257,8 @@ internal class AccountSubjectPreparationTrait {
         account2 = createMockUser(userOverrideSuffix = "0002", personGitlabId = 2L)
         subject = account.person
         subject2 = account2.person
+        token = RandomUtils.generateRandomUserName(25)
+        token2 = RandomUtils.generateRandomUserName(25)
     }
 
     protected fun deleteAll() {
@@ -290,8 +295,7 @@ internal class AccountSubjectPreparationTrait {
             username = "username$userSuffix",
             email = "email$userSuffix@example.com",
             passwordEncrypted = passwordEncrypted,
-            person = person,
-            tokens = mutableListOf(token))
+            person = person)
 
         personRepository.save(person)
         accountRepository.save(account)

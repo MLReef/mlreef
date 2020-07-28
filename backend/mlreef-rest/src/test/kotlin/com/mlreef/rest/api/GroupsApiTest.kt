@@ -88,7 +88,7 @@ class GroupsApiTest : AbstractRestApiTest() {
 
         val url = "$rootUrl/my"
 
-        val result = this.performGet(url, account)
+        val result = this.performGet(url, token)
             .expectOk()
             .document("user-groups-list",
                 responseFields(groupsOfUserResponseFields("[].")))
@@ -106,7 +106,7 @@ class GroupsApiTest : AbstractRestApiTest() {
 
         val request = GroupCreateRequest("path", "namespace", "name")
 
-        val result = this.performPost(rootUrl, account, body = request)
+        val result = this.performPost(rootUrl, token, body = request)
             .expectOk()
             .document("group-create",
                 PayloadDocumentation.requestFields(groupCreateRequestFields()),
@@ -130,7 +130,7 @@ class GroupsApiTest : AbstractRestApiTest() {
 
         val url = "$rootUrl/${group.id}"
 
-        val result = this.performPut(url, account, body = request)
+        val result = this.performPut(url, token, body = request)
             .expectOk()
             .document("group-update",
                 PayloadDocumentation.requestFields(groupUpdateRequestFields()),
@@ -152,7 +152,7 @@ class GroupsApiTest : AbstractRestApiTest() {
 
         val url = "$rootUrl/${group.id}"
 
-        this.performDelete(url, account)
+        this.performDelete(url, token)
             .expectNoContent()
             .document("group-delete")
     }
@@ -176,7 +176,7 @@ class GroupsApiTest : AbstractRestApiTest() {
 
         val url = "$rootUrl/${group.id}/users"
 
-        val result = this.performGet(url, account)
+        val result = this.performGet(url, token)
             .expectOk()
             .document("group-retrieve-users",
                 responseFields(usersInGroupResponseFields("[]."))
@@ -205,7 +205,7 @@ class GroupsApiTest : AbstractRestApiTest() {
 
         val url = "$rootUrl/${group.id}/users/${account2.id}?access_level=DEVELOPER"
 
-        val result = this.performPost(url, account)
+        val result = this.performPost(url, token)
             .expectOk()
             .document("group-add-user",
                 responseFields(usersInGroupResponseFields("[]."))
@@ -234,7 +234,7 @@ class GroupsApiTest : AbstractRestApiTest() {
 
         val url = "$rootUrl/${group.id}/users/${account2.id}?access_level=DEVELOPER"
 
-        val result = this.performPut(url, account)
+        val result = this.performPut(url, token)
             .expectOk()
             .document("group-edit-user",
                 requestParameters(
@@ -265,7 +265,7 @@ class GroupsApiTest : AbstractRestApiTest() {
 
         val url = "$rootUrl/${group.id}/users/${account2.id}"
 
-        val result = this.performDelete(url, account)
+        val result = this.performDelete(url, token)
             .expectOk()
             .document("group-delete-user",
                 PayloadDocumentation.responseFields(usersInGroupResponseFields("[]."))

@@ -38,8 +38,8 @@ class GroupsController(
     }
 
     @GetMapping("/my")
-    fun getAllUsersGroups(person: Person): List<GroupOfUserDto> {
-        return groupsService.getUserGroupsList(person.id).map(GroupOfUser::toDto)
+    fun getAllUsersGroups(person: Person, token: TokenDetails): List<GroupOfUserDto> {
+        return groupsService.getUserGroupsList(token.accessToken, person.id).map(GroupOfUser::toDto)
     }
 
     // FIXME: Coverage says: missing tests
@@ -47,7 +47,7 @@ class GroupsController(
     @PreAuthorize("canCreateGroup()")
     fun createGroup(@Valid @RequestBody groupCreateRequest: GroupCreateRequest, token: TokenDetails): GroupDto {
         val group = groupsService.createGroup(
-            ownerToken = token.permanentToken,
+            ownerToken = token.accessToken,
             groupName = groupCreateRequest.name,
             path = groupCreateRequest.path)
 
