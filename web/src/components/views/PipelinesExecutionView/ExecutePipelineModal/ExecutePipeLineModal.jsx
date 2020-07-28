@@ -9,11 +9,11 @@ import createExperimentInProject, { randomNameGenerator, createPipelineInProject
 
 const fakeMachinesToShow = [
   {
-    label: 'Small CPU - (CPU: 8 cores, RAM 8 GB) - 2&euro; per hour',
+    label: 'Small CPU - (CPU: 8 cores, RAM 8 GB)',
     value: 1,
   },
   {
-    label: 'Small GPU - (CPU: 8 cores, GPU: 1, RAM 16 GB) - 4&euro; per hour',
+    label: 'Small GPU - (CPU: 8 cores, GPU: 1, RAM 16 GB)',
     value: 2,
   },
 ];
@@ -132,7 +132,7 @@ const ExecutePipelineModal = ({
                   {jobName === 'model-experiment' && (
                   <MSelect
                     className="mt-2"
-                    label="Select a hyperparameter tuning method:"
+                    label="Soon available - Select a hyperparameter tuning method:"
                     onSelect={setTuningMethod}
                     value={tuningMethod}
                     options={[
@@ -185,10 +185,10 @@ const ExecutePipelineModal = ({
             <div className="mt-4">
               <p className="t-center">
                 You can close this window, your task will run on the background under
-                <b> “Insights/Tasks”</b>
+                <b> “Insights/Jobs”</b>
               </p>
               <p className="t-center">
-                or jump directly to your newly created data instance
+                or jump directly to your newly created instance
                 <b> data_instance_name.</b>
               </p>
             </div>

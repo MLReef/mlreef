@@ -51,7 +51,7 @@ MLReef has a broad scope and vision, and we are constantly iterating on existing
 | **ML project repositories**<br>Minimal | **Model pipelines**<br>Minimal | **Automatic REST deployment**<br>Planned |
 |**Data visualization**<br>Minimal|**Experiment metrics**<br>Minimal | |
 |**Data processing**<br>Minimal|**Model output**<br>Minimal||
-|**Data instances**<br>Minimal|**Cloud execution**<br>Minimal||
+|**Dataset**<br>Minimal|**Cloud execution**<br>Minimal||
 |**Data versioning with Git**<br>Minimal|**Local execution**<br>Planned||
 |**Storage optimization**<br>Planned|**Hyperparameter optimization**<br>Planned||
 |**Data source integrations**<br>Planned|||
@@ -76,7 +76,7 @@ For further documentation, visit the [ML project repository](../User_Documentati
 
 ### <a name="processing_data"></a> Processing data
 
-Processing data in MLReef is structured through the [data processing pipeline](../User_Documentation) and completed through atomic [data instance](../User_Documentation).
+Processing data in MLReef is structured through the [data processing pipeline](../User_Documentation) and completed through atomic [dataset](../User_Documentation).
 
 The following illustration highlights the workflow of processing data in MLReef:
 
@@ -89,7 +89,7 @@ You can access the data processing pipeline within your `data tab` in your ML pr
 
     By selecting a folder, all containing files will automatically be selected.
 
-    The data processing pipeline will not change the folder tree structure and the data instance will have the same structure. This can be specially relevant if your labeled your data through folders.
+    The data processing pipeline will not change the folder tree structure and the dataset will have the same structure. This can be specially relevant if your labeled your data through folders.
 
 3.  Drag and drop data operations from the right side into the data processing pipeline on the left.
 
@@ -170,7 +170,7 @@ Here you can find a list of major features and known problems. This list will co
 | Limitation or problem | Description |
 |---|---|
 | **All projects are found in "explore projects" tab** | New projects and forked projects are always here. Status: doing |
-| **Data instances have a copy of original files** | This is due to an error in the config file. Status: doing |
+| **Datasets have a copy of original files** | This is due to an error in the config file. Status: doing |
 | **Experiment values seem incorrect** | A parsing problem reads only the 5 first epochs. Status: Listed |
 
 
