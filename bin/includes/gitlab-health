@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 # shellcheck disable=SC2120  # function references arguments, but none are ever passed. See SC2120.
 
 # Checks if gitlab is present at $INSTANCE:10081 which is mapped to "gitlab:80" with a _curl_ request
@@ -8,11 +8,11 @@
 # 302: means that Gitlab is up and running
 # 502: Gitlab is still starting or broken
 checkGitlab80() {
-  curl --silent --output /dev/null -w ''%{http_code}'' $INSTANCE:10081
+  curl --silent --output /dev/null -w ''%{http_code}'' "$INSTANCE":10081
 }
 
 checkGitlabPort() {
-  curl --silent --output /dev/null -w ''%{http_code}'' $INSTANCE:$GITLAB_PORT/$1
+  curl --silent --output /dev/null -w ''%{http_code}'' "$INSTANCE":"$GITLAB_PORT"/"${1-}"
 }
 
 waitUntilGitlabAvailable() {

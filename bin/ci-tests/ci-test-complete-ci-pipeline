@@ -6,15 +6,16 @@
 #
 # The test depends on some secrets set as environment variables, due to the fact
 # that docker images are uploaded to the registry and ec2 machines are created.
-#
+
 
 # change to the repository root folder via the scripts location
 cd "$(dirname "$0")"/../..
 . bin/includes/ci-test-base
 ########################################
-set -x    # output all commands
-set -e    # exit on immediately on every error
-set -u    # error on usage of undefined variables
+set -x  # output all commands
+set -o  pipefail
+set -e  # exit on immediately on every error
+set -u  # error on usage of undefined variables
 ########################################
 
 

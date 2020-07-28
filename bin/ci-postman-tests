@@ -1,12 +1,13 @@
-#!/bin/sh
+#!/bin/bash
 # change to the repository root folder via the scripts location
 cd "$(dirname "$0")"/..
 . bin/includes/detect-os
 . bin/includes/ci-environment
 ########################################
-set -x    # output all commands
-set -e    # exit on immediately on every error
-set -u    # error on usage of undefined variables
+set -x  # output all commands
+set -o  pipefail
+set -e  # exit on immediately on every error
+set -u  # error on usage of undefined variables
 ########################################
 
 

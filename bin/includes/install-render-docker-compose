@@ -1,5 +1,4 @@
-#!/bin/sh
-
+#!/bin/bash
 
 # rewrite docker compose file:
 sed "s/:develop/:$VERSION/" < docker-compose.yml > docker-compose.local.yml

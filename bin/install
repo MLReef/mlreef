@@ -1,24 +1,21 @@
-#!/bin/sh
-
-#set -x    # output all commands
-set -e    # exit on immediately on every error
-
-# change to the repository root folder via the scripts known location
+#!/bin/bash
+# change to the repository root folder via the scripts location
 cd "$(dirname "$0")"/..
 . bin/includes/log
 . bin/includes/detect-os
 . bin/includes/detect-docker-runtime
 . bin/includes/gitlab-health
+. bin/includes/install-parse-cli-params
+########################################
+set -x  # output all commands
+set -o  pipefail
+set -e  # exit on immediately on every error
+set -u  # error on usage of undefined variables
 ########################################
 
 log "###### DOCKER_NVIDIA_RUNTIME $DOCKER_NVIDIA_RUNTIME"
 
 export GITLAB_PORT=10080
-
-export AWS_ACCESS_KEY_ID=""
-export AWS_SECRET_ACCESS_KEY=""
-export GITLAB_ADMIN_TOKEN=""
-
 
 # backup local.env if it exits
 cp local.env local.env.bak 2>/dev/null || true
@@ -27,11 +24,10 @@ rm -f local.env 2>/dev/null || true
 ###############################################################################
 
 
-. bin/includes/install-parse-cli-params
-
 . bin/includes/install-render-local-env
 
-. bin/includes/install-render-docker-compose
+#. bin/includes/install-render-docker-compose
+cat docker-compose.yml > docker-compose.local.yml
 
 
 
@@ -174,7 +170,6 @@ if [ "$INSTANCE" != "localhost" ]; then
   #openssl rsa -pubout -in bin/resources/development.pem  > bin/resources/development.pem.pub
   docker exec gitlab-runner sed -i "s/###AWS_ACCESS_KEY###/$AWS_ACCESS_KEY_ID/"        $CONFIG_TEMPLATE
   docker exec gitlab-runner sed -i "s~###AWS_ACCESS_SECRET###~$AWS_SECRET_ACCESS_KEY~" $CONFIG_TEMPLATE
-  docker exec gitlab-runner sed -i "s~###EC2_INSTANCE_NAME###~$EC2_INSTANCE_NAME~"     $CONFIG_TEMPLATE
 
   # clear runner config
   docker exec gitlab-runner sh -c "echo '' > /etc/gitlab-runner/config.toml"

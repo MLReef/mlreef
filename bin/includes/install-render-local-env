@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 log "### Starting Deployment"
 log "Writing Docker's env file: local.env"

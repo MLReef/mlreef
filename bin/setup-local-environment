@@ -79,10 +79,10 @@ VERSION=${VERSION:-$CI_COMMIT_REF_SLUG} # If No Version is set Default to $CI_CO
 
 
 if [ "${FRONTEND_BUILD:-true}" = "true" ]; then
-    bin/ci-build-frontend
+    web/bin/ci-build-frontend
 fi
 if [ "${BACKEND_BUILD:-true}" = "true" ]; then
-    bakend/bin/ci-build-backend
+    backend/bin/ci-build-backend
 fi
 if [ "${EPF_BUILD:-true}" = "true" ]; then
     epf/bin/ci-build-epf

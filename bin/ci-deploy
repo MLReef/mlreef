@@ -1,22 +1,27 @@
-#!/bin/sh
+#!/bin/bash
 # shellcheck disable=SC2087    # Quote 'EOF' to make here document expansions happen on the server side rather than on the client. See SC2087.
 # change to the repository root folder via the scripts location
 cd "$(dirname "$0")"/..
 . bin/includes/detect-os
 . bin/includes/ci-environment
 ########################################
-set -x    # output all commands
-set -e    # exit on immediately on every error
-set -u    # error on usage of undefined variables
+set -x  # output all commands
+set -o  pipefail
+set -e  # exit on immediately on every error
+set -u  # error on usage of undefined variables
 ########################################
 
 
 if [ "$URL" = "localhost" ]; then
-  echo "cannot deploy to localhost, exiting"
+  echo >&2 "ERROR: Cannot deploy to localhost, exiting."
   exit 18;
 fi
 
-if [ -z ${GITLAB_ADMIN_TOKEN+x} ]; then exit 17; fi
+# Ensure that GITLAB_COM_API_TOKEN is neither unset nor empty
+if [ -z "${GITLAB_COM_API_TOKEN-}" ]; then
+  echo >&2 "ERROR: Missing API token for gitlab.com 'GITLAB_COM_API_TOKEN'"
+  exit 17;
+fi
 
 
 rewriteDockerImage() {

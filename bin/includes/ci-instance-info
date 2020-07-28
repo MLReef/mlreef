@@ -1,0 +1,14 @@
+#!/bin/bash
+
+search_instance="${1:-$EC2_INSTANCE_NAME}"
+
+echo "Writing instance.info for instance: '$search_instance'"
+
+TMP=$(mktemp)
+
+aws ec2 describe-instances --filters "Name=tag:Name,Values=$search_instance"          \
+  | jq -r ".Reservations[].Instances[].NetworkInterfaces[].Association.PublicDnsName" \
+  | sed "/null/d"                                                                     \
+  | tr -d '\r' > "$TMP"
+head -n 1 "$TMP" > "$INSTANCE_INFO"   # Take only the first URL (which should be the newest one)
+cat "$INSTANCE_INFO"                  # Debug output

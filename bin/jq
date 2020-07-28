@@ -12,7 +12,7 @@ export DOCKER_OPTS="${DOCKER_OPTS:--it}"
 
 exec docker run --rm $DOCKER_OPTS                     \
   --volume  /var/run/docker.sock:/var/run/docker.sock \
-  --volume  \HOME:/root                               \
+  --volume  $HOME:/root                               \
   --volume  "$(pwd)":"$(pwd)"                         \
   --workdir "$(pwd)"                                  \
   "$IMAGE" "$COMMAND" "$@"

@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 # shellcheck disable=SC2155  ### declare and assign variables in one command might hide return values
 
 # The ci-environment script acts as the basis to all ci scripts.
@@ -40,12 +40,12 @@ if [ -z ${AWS_DEVELOP_2020_2+x} ] && [ -z ${AWS_PROD_2020_1+x} ] ; then
   echo "INFO: No known keyfile found. Deployment jobs will fail"
 else
   # AWS key pairs can be viewed here: https://eu-central-1.console.aws.amazon.com/ec2/v2/home?region=eu-central-1#KeyPairs:
-  if [ -e "$AWS_DEVELOP_2020_2" ]; then
-    export   SSH_KEYFILE="$AWS_DEVELOP_2020_2"
-    export   SSH_KEYPAIR_NAME="AWS_DEVELOP_2020_2"
-  elif [ -e "$AWS_PROD_2020_1" ]; then
+  if [ -e "$AWS_PROD_2020_1" ]; then
     export   SSH_KEYFILE="$AWS_PROD_2020_1"
     export   SSH_KEYPAIR_NAME="AWS_PROD_2020_1"
+  elif [ -e "$AWS_DEVELOP_2020_2" ]; then
+    export   SSH_KEYFILE="$AWS_DEVELOP_2020_2"
+    export   SSH_KEYPAIR_NAME="AWS_DEVELOP_2020_2"
   else
     echo >&2 "ERROR: could not determine EC2 Keypair"
     exit 17
