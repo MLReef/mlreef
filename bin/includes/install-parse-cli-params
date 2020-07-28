@@ -1,6 +1,6 @@
-#!/bin/sh
+#!/bin/bash
 
-while [ -n "$1" ]; do
+while [ -n "${1+x}" ]; do
   case "$1" in
   -ga | --gitlab-admin-token)
     export GITLAB_ADMIN_TOKEN="$2"
@@ -66,27 +66,27 @@ done
 #
 # Checking input parameters
 #
-if [ "$INSTANCE" = "" ]; then
+if [ -z "${INSTANCE+x}" ]; then
   echo "Missing instance url. Use the option -i or --instance option"
   exit 1
 fi
-if [ "$GITLAB_ADMIN_TOKEN" = "" ]; then
+if [ -z "${GITLAB_ADMIN_TOKEN+x}" ]; then
   echo "Missing GITLAB_ADMIN_TOKEN. Use the option -ga or --gitlab-admin-token option"
   exit 1
 fi
-if [ "$GITLAB_SECRETS_SECRET_KEY_BASE" = "" ]; then
+if [ -z "${GITLAB_SECRETS_SECRET_KEY_BASE+x}" ]; then
   echo "Missing GITLAB_SECRETS_SECRET_KEY_BASE. Use the option -gb or --gitlab-secrets-key-base"
   exit 1
 fi
-if [ "$GITLAB_SECRETS_OTP_KEY_BASE" = "" ]; then
+if [ -z "${GITLAB_SECRETS_OTP_KEY_BASE+x}"  ]; then
   echo "Missing GITLAB_SECRETS_OTP_KEY_BASE. Use the option -go or --gitlab-opt-key-base"
   exit 1
 fi
-if [ "$GITLAB_SECRETS_DB_KEY_BASE" = "" ]; then
+if [ -z "${GITLAB_SECRETS_DB_KEY_BASE+x}" ]; then
   echo "Missing GITLAB_SECRETS_DB_KEY_BASE. Use the option -gd or --gitlab-db-key-base"
   exit 1
 fi
-if [ "$VERSION" = "" ]; then
+if [ -z "${VERSION+x}" ]; then
   echo "Missing VERSION. Use the option -v or --version"
   exit 1
 fi

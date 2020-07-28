@@ -1,12 +1,13 @@
-#!/bin/sh
+#!/bin/bash
 # change to the repository root folder via the scripts location
 cd "$(dirname "$0")"/..
 . bin/includes/detect-os
 . bin/includes/ci-environment
 ########################################
-set -x    # output all commands
-set -e    # exit on immediately on every error
-set -u    # error on usage of undefined variables
+set -x  # output all commands
+set -o  pipefail
+set -e  # exit on immediately on every error
+set -u  # error on usage of undefined variables
 ########################################
 
 
@@ -30,7 +31,7 @@ echo "$EC2_INSTANCE_NAME"
 echo "$EC2_MACHINE_SIZE"
 
 
-bin/ci-instance-info "$EC2_INSTANCE_NAME"
+bin/includes/ci-instance-info "$EC2_INSTANCE_NAME"
 
 if [ "$(cat "$INSTANCE_INFO")" != "" ]; then
   echo "Found an existing environment which will be recycled";

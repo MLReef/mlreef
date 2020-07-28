@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # The Gitlab runner runtime defines how the runner manager deploys pipeline runs
 # docker: new pipeline runs are spawned as sister container to the runner manager
