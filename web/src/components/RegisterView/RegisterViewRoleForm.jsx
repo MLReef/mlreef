@@ -1,9 +1,12 @@
 import React, { useState } from 'react';
 import { toastr } from 'react-redux-toastr';
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
 import PropTypes from 'prop-types';
 import MSelect from 'components/ui/MSimpleSelect';
 import MButton from 'components/ui/MButton';
 import MRadio from 'components/ui/MRadio';
+import { getUserInfo } from 'actions/userActions';
 import { roles, userTypes } from './formInformation';
 
 const RegisterViewRoleForm = (props) => {
@@ -27,9 +30,11 @@ const RegisterViewRoleForm = (props) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    const { actions } = props;
 
     return updateUserInfo({ role, userType })
       .then((res) => {
+        actions.getUserInfo();
         toastr.success('Success:', 'Information updated.');
         return res;
       })
@@ -97,10 +102,21 @@ RegisterViewRoleForm.defaultProps = {
 };
 
 RegisterViewRoleForm.propTypes = {
+  actions: PropTypes.shape({
+    getUserInfo: PropTypes.func.isRequired,
+  }).isRequired,
   updateUserInfo: PropTypes.func.isRequired,
   onSuccess: PropTypes.func.isRequired,
   username: PropTypes.string.isRequired,
   isSubmitting: PropTypes.bool,
 };
 
-export default RegisterViewRoleForm;
+function mapDispatchToProps(dispatch) {
+  return {
+    actions: bindActionCreators({
+      getUserInfo,
+    }, dispatch),
+  };
+}
+
+export default connect(null, mapDispatchToProps)(RegisterViewRoleForm);

@@ -12,21 +12,21 @@ import './Profile.scss';
 const userApi = new UserApi();
 
 const ProfileSection = (props) => {
-  const { user: { auth, userInfo: { avatar_url: avatarUrl, id, name } } } = props;
+  const { user: { auth, username, gitlab_id, userInfo: { avatar_url: avatarUrl } } } = props;
   const fileMaxSize = 200;
   const imageInput = useRef();
   const [imgBase, setImgBase] = useState(avatarUrl);
   const [avatarFile, setAvatarFile] = useState(null);
   const [file, setImageName] = useState('No file chosen');
-  const [userName, setUserName] = useState(name);
+  const [userName, setUserName] = useState(username);
   const [status, setUserStatus] = useState('');
   const [uploading, setUploading] = useState(false);
 
   useEffect(() => {
-    userApi.getUserStatus(id)
+    userApi.getUserStatus(gitlab_id)
       .then((res) => res.message !== null ? setUserStatus(res.message) : setUserStatus(''))
       .catch(() => toastr.error('Error', 'Could not fetch the status'));
-  }, [id]);
+  }, [gitlab_id]);
 
   const profileStatusUpdate = () => userApi.updateUserStatus(status)
     .then(() => {
@@ -40,7 +40,7 @@ const ProfileSection = (props) => {
     e.preventDefault();
     const payload = {
       admin: auth,
-      id,
+      gitlab_id,
       name: userName,
     };
     if (avatarFile && typeof avatarFile !== 'undefined') {
@@ -159,7 +159,7 @@ const ProfileSection = (props) => {
               className="mt-1 w-50 muted bg-light"
               id="user_id"
               type="text"
-              value={id}
+              value={gitlab_id}
             />
           </div>
         </div>
@@ -181,10 +181,10 @@ const ProfileSection = (props) => {
 ProfileSection.propTypes = {
   user: PropTypes.shape({
     auth: PropTypes.bool.isRequired,
+    username: PropTypes.string.isRequired,
+    gitlab_id: PropTypes.number.isRequired,
     userInfo: PropTypes.shape({
       avatar_url: PropTypes.string.isRequired,
-      id: PropTypes.number.isRequired,
-      name: PropTypes.string.isRequired,
     }).isRequired,
   }).isRequired,
 };
