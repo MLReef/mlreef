@@ -66,38 +66,38 @@ done
 #
 # Checking input parameters
 #
-if [ -z "${INSTANCE+x}" ]; then
+if [ -z "${INSTANCE-}" ]; then
   echo "Missing instance url. Use the option -i or --instance option"
   exit 1
 fi
-if [ -z "${GITLAB_ADMIN_TOKEN+x}" ]; then
+if [ -z "${GITLAB_ADMIN_TOKEN-}" ]; then
   echo "Missing GITLAB_ADMIN_TOKEN. Use the option -ga or --gitlab-admin-token option"
   exit 1
 fi
-if [ -z "${GITLAB_SECRETS_SECRET_KEY_BASE+x}" ]; then
+if [ -z "${GITLAB_SECRETS_SECRET_KEY_BASE-}" ]; then
   echo "Missing GITLAB_SECRETS_SECRET_KEY_BASE. Use the option -gb or --gitlab-secrets-key-base"
   exit 1
 fi
-if [ -z "${GITLAB_SECRETS_OTP_KEY_BASE+x}"  ]; then
+if [ -z "${GITLAB_SECRETS_OTP_KEY_BASE-}"  ]; then
   echo "Missing GITLAB_SECRETS_OTP_KEY_BASE. Use the option -go or --gitlab-opt-key-base"
   exit 1
 fi
-if [ -z "${GITLAB_SECRETS_DB_KEY_BASE+x}" ]; then
+if [ -z "${GITLAB_SECRETS_DB_KEY_BASE-}" ]; then
   echo "Missing GITLAB_SECRETS_DB_KEY_BASE. Use the option -gd or --gitlab-db-key-base"
   exit 1
 fi
-if [ -z "${VERSION+x}" ]; then
+if [ -z "${VERSION-}" ]; then
   echo "Missing VERSION. Use the option -v or --version"
   exit 1
 fi
 
 # If we are working locally, we do not want to interface with EC2
 if [ "$INSTANCE" != "localhost" ]; then
-  if [ "$AWS_ACCESS_KEY_ID" = "" ]; then
+  if [ -z "${AWS_ACCESS_KEY_ID-}" ]; then
     echo "Missing AWS_ACCESS_KEY_ID. Use the -k or --key option"
     exit 1
   fi
-  if [ "$AWS_SECRET_ACCESS_KEY" = "" ]; then
+  if [ -z "${AWS_SECRET_ACCESS_KEY-}" ]; then
     echo "Missing AWS_SECRET_ACCESS_KEY. Use the -s or --secret option"
     exit 1
   fi

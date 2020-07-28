@@ -23,11 +23,7 @@ cp local.env local.env.bak 2>/dev/null || true
 rm -f local.env 2>/dev/null || true
 ###############################################################################
 
-
 . bin/includes/install-render-local-env
-
-#. bin/includes/install-render-docker-compose
-cat docker-compose.yml > docker-compose.local.yml
 
 
 
