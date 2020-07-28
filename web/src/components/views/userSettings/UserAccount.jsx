@@ -7,7 +7,7 @@ import ProfileSection from './ProfileSection';
 import './UserAccount.scss';
 
 const UserAccount = (props) => {
-  const { user: { userInfo: { name } } } = props;
+  const { user: { username } } = props;
   const tabs = useRef(null);
   const routes = [
     {
@@ -37,13 +37,20 @@ const UserAccount = (props) => {
         <div className="breadCrumbs-list">
           <div className="breadCrumbs-link">
             <ul style={{ listStyle: 'none' }} className="d-flex mb-0 pl-0">
-              <li>
-                <a href={`/${name}`}>
-                  {name}
+              <li className="mr-1">
+                <a href={`/${username}`}>
+                  {username}
+                  {' '}
+                  {'>'}
                   {' '}
                 </a>
               </li>
-              <li>Settings</li>
+              <li className="mr-1">
+                Settings
+                {' '}
+                {'>'}
+                {' '}
+              </li>
               <li>Profile</li>
             </ul>
           </div>
@@ -72,9 +79,7 @@ const UserAccount = (props) => {
 
 UserAccount.propTypes = {
   user: PropTypes.shape({
-    userInfo: PropTypes.shape({
-      name: PropTypes.string,
-    }).isRequired,
+    username: PropTypes.string.isRequired,
   }).isRequired,
 };
 
