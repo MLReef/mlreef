@@ -65,7 +65,7 @@ export const InstanceCard = ({ ...props }) => {
     const content = (
       <div style={{ textAlign: 'center' }}>
         <p>
-          <strong>Are you sure you want to delete your data instance</strong>
+          <strong>Are you sure you want to delete your dataset?</strong>
         </p>
         <p>
           You will free
@@ -80,7 +80,7 @@ export const InstanceCard = ({ ...props }) => {
     const onPositive = () => deletePipeline(name);
 
     fireModal({
-      title: `Delete data instance from your data pipeline ${name}`,
+      title: `Delete dataset from your data pipeline ${name}`,
       type: 'danger',
       content,
       onPositive,

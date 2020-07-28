@@ -24,7 +24,7 @@ const DataInstanteDeleteModal = (props) => {
               <p>
                 {
                   typeOfMessage === 'delete'
-                    ? 'Delete data instance from your data pipeline: Data_pipeline_2'
+                    ? 'Delete dataset from your data pipeline: Data_pipeline_2'
                     : 'Abort creation of di_Data_Pipeline_2'
                 }
               </p>
@@ -50,7 +50,7 @@ const DataInstanteDeleteModal = (props) => {
                   <br />
                   <p>
                     <b>
-                      Are you sure you want to delete your data instance: Data_pipeline_2
+                      Are you sure you want to delete your dataset: Data_pipeline_2
                     </b>
                   </p>
                   <p>
@@ -71,7 +71,7 @@ const DataInstanteDeleteModal = (props) => {
                   <p>
                     <b>
                       Are you sure you want to abort the
-                      creation of the data instance: di_data_pipeline_2
+                      creation of the dataset: di_data_pipeline_2
                     </b>
                   </p>
                   <p>
@@ -79,7 +79,7 @@ const DataInstanteDeleteModal = (props) => {
                   </p>
                   <div style={{ margin: '0px 3em' }}>
                     <p style={{ textAlign: 'left' }}>
-                      Data instance:
+                      Dataset:
                       <b>DI_ProjectName_1</b>
                     </p>
                     <div style={{

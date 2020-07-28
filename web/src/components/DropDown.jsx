@@ -42,7 +42,7 @@ export default function Dropdown() {
           <div
             style={{ marginLeft: '25%', fontSize: '14px' }}
           >
-            <p>Save Data Instances</p>
+            <p>Save Dataset</p>
           </div>
           <hr />
           <div className="search-branch">
