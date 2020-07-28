@@ -21,7 +21,7 @@ export default class SearchApi {
     const request = new Request(url, {
       method: 'GET',
       headers: new Headers({
-        'PRIVATE-TOKEN': getCurrentToken(),
+        authorization: getCurrentToken(),
       }),
     });
 
@@ -41,7 +41,7 @@ export default class SearchApi {
     const request = new Request(url, {
       method: 'GET',
       headers: new Headers({
-        'PRIVATE-TOKEN': getCurrentToken(),
+        authorization: getCurrentToken(),
       }),
     });
 
