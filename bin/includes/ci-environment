@@ -36,13 +36,13 @@ echo "  EC2_INSTANCE_NAME= $EC2_INSTANCE_NAME"
 
 
 # This check exists to allow running on local developer instance where deployment is not needed.
-if [ -z ${AWS_DEVELOP_2020_2+x} ] && [ -z ${AWS_PROD_2020_1+x} ] ; then
+if [ -z ${AWS_DEVELOP_2020_2+x} ]; then
   echo "INFO: No known keyfile found. Deployment jobs will fail"
 else
   # AWS key pairs can be viewed here: https://eu-central-1.console.aws.amazon.com/ec2/v2/home?region=eu-central-1#KeyPairs:
-  if [ -e "$AWS_PROD_2020_1" ]; then
-    export   SSH_KEYFILE="$AWS_PROD_2020_1"
-    export   SSH_KEYPAIR_NAME="AWS_PROD_2020_1"
+  if [ -e "$AWS_PROD_2020_2" ]; then
+    export   SSH_KEYFILE="$AWS_PROD_2020_2"
+    export   SSH_KEYPAIR_NAME="AWS_PROD_2020_2"
   elif [ -e "$AWS_DEVELOP_2020_2" ]; then
     export   SSH_KEYFILE="$AWS_DEVELOP_2020_2"
     export   SSH_KEYPAIR_NAME="AWS_DEVELOP_2020_2"
