@@ -9,11 +9,7 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.springframework.http.MediaType
-import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get
-import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.post
 import org.springframework.test.annotation.Rollback
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import javax.transaction.Transactional
 
 class AuthIntegrationTest : AbstractIntegrationTest() {
@@ -38,15 +34,9 @@ class AuthIntegrationTest : AbstractIntegrationTest() {
         val email = "$randomUserName@example.com"
         val registerRequest = RegisterRequest(randomUserName, email, randomPassword, "name")
 
-        val returnedResult: SecretUserDto = this.mockMvc.perform(
-            post("$authUrl/register")
-                .accept(MediaType.APPLICATION_JSON)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(registerRequest)))
-            .andExpect(status().isOk)
-            .andReturn().let {
-                objectMapper.readValue(it.response.contentAsByteArray, SecretUserDto::class.java)
-            }
+        val returnedResult: SecretUserDto = this.performPost("$authUrl/register", body = registerRequest)
+            .expectOk()
+            .returns()
 
         with(accountRepository.findOneByEmail(email)!!) {
             assertThat(id).isEqualTo(returnedResult.id)
@@ -60,36 +50,26 @@ class AuthIntegrationTest : AbstractIntegrationTest() {
         val (existingUser, _, _) = testsHelper.createRealUser()
         val registerRequest = RegisterRequest(existingUser.username, existingUser.email, "any other password", "name")
 
-        this.mockMvc.perform(
-            post("$authUrl/register")
-                .accept(MediaType.APPLICATION_JSON)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(registerRequest)))
-            .andExpect(status().is4xxClientError)
+        this.performPost("$authUrl/register", body = registerRequest)
+            .expect4xx()
     }
 
     @Transactional
     @Rollback
     @Test
     fun `Can login with existing user`() {
-        val (account, plainPassword, _) = testsHelper.createRealUser()
+        val password = RandomUtils.generateRandomPassword(20, true)
+        val (account, _, _) = testsHelper.createRealUser(password = password)
 
-        val loginRequest = LoginRequest(account.username, account.email, plainPassword)
+        val loginRequest = LoginRequest(account.username, account.email, password)
 
-        val returnedResult: SecretUserDto = this.mockMvc.perform(
-            post("$authUrl/login")
-                .accept(MediaType.APPLICATION_JSON)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(loginRequest)))
-            .andExpect(status().isOk)
-            .andReturn().let {
-                objectMapper.readValue(it.response.contentAsByteArray, SecretUserDto::class.java).censor()
-            }
+        val returnedResult: SecretUserDto = this.performPost("$authUrl/login", body = loginRequest)
+            .expectOk()
+            .returns()
 
         assertThat(returnedResult).isNotNull()
         assertThat(returnedResult.username).isEqualTo(account.username)
         assertThat(returnedResult.email).isEqualTo(account.email)
-        assertThat(returnedResult.token!!.substring(0, 3)).isEqualTo(account.bestToken?.token?.substring(0, 3))
     }
 
     @Transactional
@@ -103,26 +83,19 @@ class AuthIntegrationTest : AbstractIntegrationTest() {
 
         val loginRequest = LoginRequest(existingUser.username, existingUser.email, notRealPassword)
 
-        this.mockMvc.perform(
-            post("$authUrl/login")
-                .accept(MediaType.APPLICATION_JSON)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(loginRequest)))
-            .andExpect(status().is4xxClientError)
+        this.performPost("$authUrl/login", body = loginRequest)
+            .expect4xx()
     }
 
     @Test
     fun `Admin expiration OAuth token test`() {
-        val (account, _, _) = testsHelper.createRealUser()
+        val (account, token, _) = testsHelper.createRealUser()
 
         assertThat(restClient.oAuthAdminToken.get()).isNotNull
 
-        val returnedResult: UserDto = this.mockMvc.perform(
-            this.acceptContentAuth(get("$sessionsUrl/find/user?gitlab_id=${account.person.gitlabId}"), account))
-            .andExpect(status().isOk)
-            .andReturn().let {
-                objectMapper.readValue(it.response.contentAsByteArray, UserDto::class.java)
-            }
+        val returnedResult: UserDto = this.performGet("$sessionsUrl/find/user?gitlab_id=${account.person.gitlabId}", token)
+            .expectOk()
+            .returns()
 
         assertThat(returnedResult.id).isEqualTo(account.id)
         assertThat(returnedResult.username).isEqualTo(account.username)
@@ -134,12 +107,9 @@ class AuthIntegrationTest : AbstractIntegrationTest() {
 
         assertThat(restClient.oAuthAdminToken.get()!!.second).isEqualTo("123")
 
-        val returnedResult2: UserDto = this.mockMvc.perform(
-            this.acceptContentAuth(get("$sessionsUrl/find/user?gitlab_id=${account.person.gitlabId}"), account))
-            .andExpect(status().isOk)
-            .andReturn().let {
-                objectMapper.readValue(it.response.contentAsByteArray, UserDto::class.java)
-            }
+        val returnedResult2: UserDto = this.performGet("$sessionsUrl/find/user?gitlab_id=${account.person.gitlabId}", token)
+            .expectOk()
+            .returns()
 
         assertThat(returnedResult2.id).isEqualTo(account.id)
         assertThat(returnedResult2.username).isEqualTo(account.username)

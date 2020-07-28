@@ -9,7 +9,6 @@ import javax.persistence.Entity
 import javax.persistence.FetchType
 import javax.persistence.ForeignKey
 import javax.persistence.JoinColumn
-import javax.persistence.OneToMany
 import javax.persistence.OneToOne
 import javax.persistence.Table
 
@@ -24,11 +23,7 @@ class Account(
     @OneToOne(fetch = FetchType.EAGER, cascade = [CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH])
     @JoinColumn(name = "person_id", foreignKey = ForeignKey(name = "account_subject_person_id_fkey"))
     val person: Person,
-    @OneToMany(fetch = FetchType.EAGER, cascade = [CascadeType.ALL])
-    @JoinColumn(
-        name = "account_id",
-        foreignKey = ForeignKey(name = "accounttoken_account_account_id_fkey"))
-    val tokens: MutableList<AccountToken> = arrayListOf(),
+
     @Column(name = "gitlab_id")
     @Deprecated("Use gitlabId in Person Entity")
     val gitlabId: Long? = null,
@@ -60,7 +55,6 @@ class Account(
         person = person ?: this.person,
         gitlabId = gitlabId ?: this.gitlabId,
         lastLogin = lastLogin ?: this.lastLogin,
-        tokens = tokens ?: this.tokens,
         version = this.version,
         createdAt = this.createdAt,
         updatedAt = this.updatedAt,
@@ -79,19 +73,12 @@ class Account(
         person = this.person,
         gitlabId = this.gitlabId,
         lastLogin = this.lastLogin,
-        tokens = this.tokens,
         version = this.version,
         createdAt = this.createdAt,
         updatedAt = this.updatedAt,
         changeAccountToken = changeAccountToken,
         changeAccountTokenCreatedAt = changeAccountTokenCreatedAt
     )
-
-    val bestToken: AccountToken?
-        @javax.persistence.Transient
-        get() = this.tokens.filter { it.active && !it.revoked }
-            .sortedBy { it.expiresAt }
-            .getOrNull(0)
 
     fun toUserInGroup(accessLevel: AccessLevel?) = UserInGroup(
         id = this.id,
@@ -100,5 +87,4 @@ class Account(
         gitlabId = this.person.gitlabId,
         accessLevel = accessLevel
     )
-
 }

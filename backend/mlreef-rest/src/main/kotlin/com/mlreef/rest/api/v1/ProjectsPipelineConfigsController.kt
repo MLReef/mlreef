@@ -119,7 +119,7 @@ class ProjectsPipelineConfigsController(
         log.info("Created new Instance $createInstance for Pipeline $createInstance")
         service.startInstance(
             currentUserService.account(),
-            currentUserService.permanentToken(),
+            currentUserService.accessToken(),
             dataProject.gitlabId,
             createInstance,
             secret = service.createSecret())

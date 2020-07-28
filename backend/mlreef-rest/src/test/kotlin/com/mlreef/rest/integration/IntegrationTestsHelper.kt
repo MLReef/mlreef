@@ -2,7 +2,6 @@ package com.mlreef.rest.integration
 
 import com.mlreef.rest.Account
 import com.mlreef.rest.AccountRepository
-import com.mlreef.rest.AccountToken
 import com.mlreef.rest.BaseEnvironment
 import com.mlreef.rest.CodeProject
 import com.mlreef.rest.CodeProjectRepository
@@ -112,16 +111,16 @@ class IntegrationTestsHelper {
         val plainPassword = password ?: RandomUtils.generateRandomPassword(30, true)
 
         val userInGitlab = restClient.adminCreateUser(email, username, "Existing user", plainPassword)
-        val tokenInGitlab = restClient.adminCreateUserToken(gitlabUserId = userInGitlab.id, tokenName = "TestTokenName")
 
         val passwordEncrypted = passwordEncoder.encode(plainPassword)
         val person = Person(UUID.randomUUID(), "person_slug", "user name", userInGitlab.id)
-        val token = AccountToken(UUID.randomUUID(), accountId, tokenInGitlab.token, tokenInGitlab.id)
-        val account = Account(accountId, username, email, passwordEncrypted, person, mutableListOf(token))
+        val account = Account(accountId, username, email, passwordEncrypted, person)
 
         accountRepository.save(account)
 
-        val result = Triple(account, plainPassword, userInGitlab)
+        val loggedClient = restClient.userLoginOAuthToGitlab(username, plainPassword)
+
+        val result = Triple(account, loggedClient.accessToken, userInGitlab)
         realCreatedUsersCache.add(result)
 
         allCreatedUsersNames.add(username)
@@ -129,10 +128,10 @@ class IntegrationTestsHelper {
         return result
     }
 
-    fun createRealGroup(account: Account, name: String? = null): Pair<Group, GitlabGroup> {
+    fun createRealGroup(token: String, name: String? = null): Pair<Group, GitlabGroup> {
         val groupName = name ?: RandomUtils.generateRandomUserName(10)
         val groupPath = "path-$groupName"
-        val groupInGitlab = restClient.userCreateGroup(account.bestToken?.token!!, groupName, groupPath)
+        val groupInGitlab = restClient.userCreateGroup(token, groupName, groupPath)
 
         var groupInDatabase = Group(UUID.randomUUID(), "slug-$groupName", groupName, groupInGitlab.id)
 
@@ -142,7 +141,7 @@ class IntegrationTestsHelper {
     }
 
     fun createRealProjectInGitlab(
-        account: Account,
+        token: String,
         name: String? = null,
         slug: String? = null,
         namespace: String? = null,
@@ -153,13 +152,13 @@ class IntegrationTestsHelper {
         val projectNamespace = namespace ?: "mlreef"
 
         val findNamespace = try {
-            restClient.findNamespace(account.bestToken!!.token, projectNamespace)
+            restClient.findNamespace(token, projectNamespace)
         } catch (e: Exception) {
             null
         }
 
         val result = restClient.createProject(
-            token = account.bestToken?.token!!,
+            token = token,
             slug = projectSlug,
             name = projectName,
             defaultBranch = "master",
@@ -174,13 +173,14 @@ class IntegrationTestsHelper {
     }
 
     fun createRealCodeProject(
+        token: String,
         account: Account,
         name: String? = null,
         slug: String? = null,
         namespace: String? = null,
         public: Boolean = true
     ): Pair<CodeProject, GitlabProject> {
-        val gitLabProject = createRealProjectInGitlab(account, name, slug, namespace, public)
+        val gitLabProject = createRealProjectInGitlab(token, name, slug, namespace, public)
 
         val group = gitLabProject.pathWithNamespace.split("/")[0]
 
@@ -206,13 +206,14 @@ class IntegrationTestsHelper {
     }
 
     fun createRealDataProject(
+        token: String,
         account: Account,
         name: String? = null,
         slug: String? = null,
         namespace: String? = null,
         public: Boolean = true
     ): Pair<DataProject, GitlabProject> {
-        val gitLabProject = createRealProjectInGitlab(account, name, slug, namespace, public)
+        val gitLabProject = createRealProjectInGitlab(token, name, slug, namespace, public)
 
         val group = gitLabProject.pathWithNamespace.split("/")[0]
 

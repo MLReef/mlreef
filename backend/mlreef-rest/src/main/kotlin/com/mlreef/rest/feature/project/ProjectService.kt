@@ -90,7 +90,7 @@ interface ProjectService<T : Project> {
 
     fun deleteProject(userToken: String, ownerId: UUID, projectUUID: UUID)
 
-    fun getUserProjectsList(userId: UUID? = null): List<ProjectOfUser>
+    fun getUserProjectsList(userToken: String, userId: UUID? = null): List<ProjectOfUser>
 
     fun checkUserInProject(
         projectUUID: UUID,
@@ -310,12 +310,12 @@ open class ProjectServiceImpl<T : Project>(
             }.filterNotNull()
     }
 
-    override fun getUserProjectsList(userId: UUID?): List<ProjectOfUser> {
+    override fun getUserProjectsList(userToken: String, userId: UUID?): List<ProjectOfUser> {
         val user = resolveAccount(userId = userId)
             ?: throw UserNotFoundException(userId = userId)
 
         val userProjects = try {
-            gitlabRestClient.userGetUserAllProjects(user.bestToken?.token
+            gitlabRestClient.userGetUserAllProjects(userToken
                 ?: throw GitlabNoValidTokenException("User ${user.id} has no valid token"))
         } catch (ex: Exception) {
             log.error("Cannot request projects from gitlab for user ${user.id}. Exception: $ex.")

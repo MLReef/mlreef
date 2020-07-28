@@ -127,7 +127,7 @@ class ProjectsController(
         }
 
         val dataProject = dataProjectService.createProject(
-            userToken = token.permanentToken,
+            userToken = token.accessToken,
             ownerId = person.id,
             projectSlug = dataProjectCreateRequest.slug,
             projectNamespace = dataProjectCreateRequest.namespace,
@@ -153,7 +153,7 @@ class ProjectsController(
         }
 
         val codeProject = codeProjectService.createProject(
-            userToken = token.permanentToken,
+            userToken = token.accessToken,
             ownerId = person.id,
             projectSlug = codeProjectCreateRequest.slug,
             projectNamespace = codeProjectCreateRequest.namespace,
@@ -172,7 +172,7 @@ class ProjectsController(
                       token: TokenDetails,
                       person: Person): ProjectDto {
         val codeProject = projectService.updateProject(
-            userToken = token.permanentToken,
+            userToken = token.accessToken,
             ownerId = person.id,
             projectUUID = id,
             projectName = projectUpdateRequest.name,
@@ -193,7 +193,7 @@ class ProjectsController(
                           token: TokenDetails,
                           person: Person) {
         projectService.deleteProject(
-            userToken = token.permanentToken,
+            userToken = token.accessToken,
             ownerId = person.id,
             projectUUID = id)
     }

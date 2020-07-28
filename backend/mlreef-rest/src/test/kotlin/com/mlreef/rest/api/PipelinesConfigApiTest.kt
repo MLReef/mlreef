@@ -67,7 +67,7 @@ class PipelinesConfigApiTest : AbstractRestApiTest() {
         createPipelineConfig(dataProcessorInstance, dataProject.id, "slug2")
 
         val returnedResult: List<PipelineConfigDto> = this.mockMvc.perform(
-            this.defaultAcceptContentAuth(get(rootUrl)))
+            this.defaultAcceptContentAuth(get(rootUrl), token))
             .andExpect(status().isOk)
             .document("pipelineconfig-retrieve-all",
                 responseFields(pipelineConfigDtoResponseFields("[]."))
@@ -86,7 +86,7 @@ class PipelinesConfigApiTest : AbstractRestApiTest() {
         val entity = createPipelineConfig(dataProcessorInstance, dataProject.id, "slug")
 
         this.mockMvc.perform(
-            this.defaultAcceptContentAuth(get("$rootUrl/${entity.id}")))
+            this.defaultAcceptContentAuth(get("$rootUrl/${entity.id}"), token))
             .andExpect(status().isOk)
             .document("pipelineconfig-retrieve-one",
                 responseFields(pipelineConfigDtoResponseFields())

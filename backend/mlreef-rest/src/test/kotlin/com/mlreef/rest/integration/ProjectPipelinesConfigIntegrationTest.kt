@@ -63,10 +63,10 @@ class ProjectPipelinesConfigIntegrationTest : AbstractIntegrationTest() {
     @Rollback
     @Test
     fun `Can retrieve all Pipelines of own DataProject`() {
-        val (account1, _, _) = testsHelper.createRealUser()
-        val (account2, _, _) = testsHelper.createRealUser(index = 1)
-        val (project1, _) = testsHelper.createRealDataProject(account1)
-        val (project2, _) = testsHelper.createRealDataProject(account2)
+        val (account1, token1, _) = testsHelper.createRealUser()
+        val (account2, token2, _) = testsHelper.createRealUser(index = 1)
+        val (project1, _) = testsHelper.createRealDataProject(token1, account1)
+        val (project2, _) = testsHelper.createRealDataProject(token2, account2)
 
         val dataProcessorInstance = createDataProcessorInstance()
         createPipelineConfig(dataProcessorInstance, project1.id, "slug1")
@@ -74,7 +74,7 @@ class ProjectPipelinesConfigIntegrationTest : AbstractIntegrationTest() {
         createPipelineConfig(dataProcessorInstance, project2.id, "slug1")
 
         val returnedResult: List<PipelineConfigDto> = this.mockMvc.perform(
-            this.acceptContentAuth(get("$rootUrl/${project1.id}/pipelines"), account1))
+            this.acceptContentAuth(get("$rootUrl/${project1.id}/pipelines"), token1))
             .andExpect(status().isOk)
             .andReturn().let {
                 val constructCollectionType = objectMapper.typeFactory.constructCollectionType(List::class.java, PipelineConfigDto::class.java)
@@ -88,8 +88,8 @@ class ProjectPipelinesConfigIntegrationTest : AbstractIntegrationTest() {
     @Rollback
     @Test
     fun `Can create new PipelineConfig`() {
-        val (account, _, _) = testsHelper.createRealUser()
-        val (project, _) = testsHelper.createRealDataProject(account)
+        val (account, token, _) = testsHelper.createRealUser()
+        val (project, _) = testsHelper.createRealDataProject(token, account)
 
         val request = PipelineConfigCreateRequest(
             sourceBranch = "source",
@@ -113,7 +113,7 @@ class ProjectPipelinesConfigIntegrationTest : AbstractIntegrationTest() {
 
         val url = "$rootUrl/${project.id}/pipelines"
 
-        val result = this.performPost(url, account, request)
+        val result = this.performPost(url, token, request)
             .expectOk()
             .returns(PipelineConfigDto::class.java)
 
@@ -125,8 +125,8 @@ class ProjectPipelinesConfigIntegrationTest : AbstractIntegrationTest() {
     @Rollback
     @Test
     fun `Can update own PipelineConfig`() {
-        val (account, _, _) = testsHelper.createRealUser()
-        val (project, _) = testsHelper.createRealDataProject(account)
+        val (account, token, _) = testsHelper.createRealUser()
+        val (project, _) = testsHelper.createRealDataProject(token, account)
 
         val dataProcessorInstance = createDataProcessorInstance()
         val pipelineConfig = createPipelineConfig(dataProcessorInstance, project.id, "slug1")
@@ -151,7 +151,7 @@ class ProjectPipelinesConfigIntegrationTest : AbstractIntegrationTest() {
         val url = "$rootUrl/${project.id}/pipelines/${pipelineConfig.id}"
 
         val returnedResult: PipelineConfigDto = this.mockMvc.perform(
-            this.acceptContentAuth(put(url), account)
+            this.acceptContentAuth(put(url), token)
                 .content(objectMapper.writeValueAsString(request)))
             .andExpect(status().isOk)
             .andReturn().let {
@@ -165,10 +165,10 @@ class ProjectPipelinesConfigIntegrationTest : AbstractIntegrationTest() {
     @Rollback
     @Test
     fun `Cannot create new PipelineConfig in not-own DataProject`() {
-        val (account1, _, _) = testsHelper.createRealUser()
-        val (account2, _, _) = testsHelper.createRealUser(index = 1)
-        val (_, _) = testsHelper.createRealDataProject(account1)
-        val (project2, _) = testsHelper.createRealDataProject(account2)
+        val (account1, token1, _) = testsHelper.createRealUser()
+        val (account2, token2, _) = testsHelper.createRealUser(index = 1)
+        val (_, _) = testsHelper.createRealDataProject(token1, account1)
+        val (project2, _) = testsHelper.createRealDataProject(token2, account2)
 
         val request = PipelineConfigCreateRequest(
             sourceBranch = "source",
@@ -191,7 +191,7 @@ class ProjectPipelinesConfigIntegrationTest : AbstractIntegrationTest() {
         )
         val url = "$rootUrl/${project2.id}/pipelines"
         this.mockMvc.perform(
-            this.acceptContentAuth(post(url), account1)
+            this.acceptContentAuth(post(url), token1)
                 .content(objectMapper.writeValueAsString(request)))
             .andExpect(status().isForbidden)
     }
@@ -201,14 +201,14 @@ class ProjectPipelinesConfigIntegrationTest : AbstractIntegrationTest() {
     @Rollback
     @Test
     fun `Can retrieve specific PipelineConfig of own DataProject`() {
-        val (account, _, _) = testsHelper.createRealUser()
-        val (project, _) = testsHelper.createRealDataProject(account)
+        val (account, token, _) = testsHelper.createRealUser()
+        val (project, _) = testsHelper.createRealDataProject(token, account)
 
         val dataProcessorInstance = createDataProcessorInstance()
         val entity = createPipelineConfig(dataProcessorInstance, project.id, "slug")
 
         this.mockMvc.perform(
-            this.acceptContentAuth(get("$rootUrl/${project.id}/pipelines/${entity.id}"), account))
+            this.acceptContentAuth(get("$rootUrl/${project.id}/pipelines/${entity.id}"), token))
             .andExpect(status().isOk)
 
     }
@@ -217,16 +217,16 @@ class ProjectPipelinesConfigIntegrationTest : AbstractIntegrationTest() {
     @Rollback
     @Test
     fun `Can retrieve PipelineConfigs of foreign public DataProject`() {
-        val (account1, _, _) = testsHelper.createRealUser()
-        val (account2, _, _) = testsHelper.createRealUser(index = 1)
-        val (_, _) = testsHelper.createRealDataProject(account1)
-        val (project2, _) = testsHelper.createRealDataProject(account2, public = true)
+        val (account1, token1, _) = testsHelper.createRealUser()
+        val (account2, token2, _) = testsHelper.createRealUser(index = 1)
+        val (_, _) = testsHelper.createRealDataProject(token1, account1)
+        val (project2, _) = testsHelper.createRealDataProject(token2, account2, public = true)
 
         val dataProcessorInstance = createDataProcessorInstance(account2.person)
         val entity2 = createPipelineConfig(dataProcessorInstance, project2.id, "slug")
 
         this.mockMvc.perform(
-            this.acceptContentAuth(get("$rootUrl/${project2.id}/pipelines/${entity2.id}"), account1))
+            this.acceptContentAuth(get("$rootUrl/${project2.id}/pipelines/${entity2.id}"), token1))
             .andExpect(status().isOk)
 
     }
@@ -235,10 +235,10 @@ class ProjectPipelinesConfigIntegrationTest : AbstractIntegrationTest() {
     @Rollback
     @Test
     fun `Can retrieve PipelineConfigs of not-own not public but member of DataProject`() {
-        val (account1, _, _) = testsHelper.createRealUser()
-        val (account2, _, _) = testsHelper.createRealUser(index = 1)
+        val (account1, token1, _) = testsHelper.createRealUser()
+        val (account2, token2, _) = testsHelper.createRealUser(index = 1)
 
-        val (project, _) = testsHelper.createRealDataProject(account2, public = false)
+        val (project, _) = testsHelper.createRealDataProject(token2, account2, public = false)
 
         testsHelper.addRealUserToProject(project.gitlabId, account1.person.gitlabId!!)
 
@@ -246,7 +246,7 @@ class ProjectPipelinesConfigIntegrationTest : AbstractIntegrationTest() {
         val entity2 = createPipelineConfig(dataProcessorInstance, project.id, "slug")
 
         this.mockMvc.perform(
-            this.acceptContentAuth(get("$rootUrl/${project.id}/pipelines/${entity2.id}"), account1))
+            this.acceptContentAuth(get("$rootUrl/${project.id}/pipelines/${entity2.id}"), token1))
             .andExpect(status().isOk)
 
     }
@@ -255,16 +255,16 @@ class ProjectPipelinesConfigIntegrationTest : AbstractIntegrationTest() {
     @Rollback
     @Test
     fun `Cannot retrieve PipelineConfigs of foreign not public DataProject`() {
-        val (account1, _, _) = testsHelper.createRealUser()
-        val (account2, _, _) = testsHelper.createRealUser(index = 1)
-        val (_, _) = testsHelper.createRealDataProject(account1)
-        val (project2, _) = testsHelper.createRealDataProject(account2, public = false)
+        val (account1, token1, _) = testsHelper.createRealUser()
+        val (account2, token2, _) = testsHelper.createRealUser(index = 1)
+        val (_, _) = testsHelper.createRealDataProject(token1, account1)
+        val (project2, _) = testsHelper.createRealDataProject(token2, account2, public = false)
 
         val dataProcessorInstance = createDataProcessorInstance()
         val entity2 = createPipelineConfig(dataProcessorInstance, project2.id, "slug")
 
         this.mockMvc.perform(
-            this.acceptContentAuth(get("$rootUrl/${project2.id}/pipelines/${entity2.id}"), account1))
+            this.acceptContentAuth(get("$rootUrl/${project2.id}/pipelines/${entity2.id}"), token1))
             .andExpect(status().isForbidden)
 
     }

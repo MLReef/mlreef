@@ -25,8 +25,10 @@ class AccountTest : AbstractRepositoryTest() {
         val token = AccountToken(randomUUID(), id, "token")
         val entity = Account(
             id = id,
-            username = "username", passwordEncrypted = "enc", person = person,
-            email = "", tokens = arrayListOf(token),
+            username = "username",
+            passwordEncrypted = "enc",
+            person = person,
+            email = "",
             lastLogin = null)
         return Pair(id, entity)
     }

@@ -8,8 +8,7 @@ import java.util.UUID
 
 class TokenDetails(
     private val username: String,
-    val permanentToken: String,
-    val accessToken: String?,
+    val accessToken: String,
     val accountId: UUID,
     val personId: UUID,
     val valid: Boolean = true,
@@ -37,7 +36,7 @@ class TokenDetails(
     }
 
     override fun getPassword(): String {
-        return permanentToken
+        return accessToken
     }
 
     override fun isAccountNonExpired(): Boolean {

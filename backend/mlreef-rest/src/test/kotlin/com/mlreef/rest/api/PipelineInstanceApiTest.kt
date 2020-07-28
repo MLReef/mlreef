@@ -61,6 +61,7 @@ class PipelineInstanceApiTest : AbstractRestApiTest() {
     fun clearRepo() {
         pipelineTestPreparationTrait.apply()
         account = pipelineTestPreparationTrait.account
+        token = "test-dummy-token-"
         dataOp1 = pipelineTestPreparationTrait.dataOp1
         dataOp2 = pipelineTestPreparationTrait.dataOp2
         dataOp3 = pipelineTestPreparationTrait.dataOp3
@@ -85,7 +86,7 @@ class PipelineInstanceApiTest : AbstractRestApiTest() {
         createPipelineConfig(dataProcessorInstance, dataProject.id, "slug2", arrayListOf())
 
         val returnedResult: List<PipelineInstanceDto> = this.mockMvc.perform(
-            this.defaultAcceptContentAuth(get("$rootUrl/${pipelineConfig.id}/instances")))
+            this.defaultAcceptContentAuth(get("$rootUrl/${pipelineConfig.id}/instances"), token))
             .andExpect(status().isOk)
             .document("pipelineinstance-retrieve-all",
                 responseFields(pipelineInstanceDtoResponseFields("[]."))
@@ -106,7 +107,7 @@ class PipelineInstanceApiTest : AbstractRestApiTest() {
         pipelineInstanceRepository.save(pipelineConfig.createInstance(2))
 
         val returnedResult: List<PipelineInstanceDto> = this.mockMvc.perform(
-            this.defaultAcceptContentAuth(get("$rootUrl/${pipelineConfig.id}/instances")))
+            this.defaultAcceptContentAuth(get("$rootUrl/${pipelineConfig.id}/instances"), token))
             .andExpect(status().isOk)
             .returnsList(PipelineInstanceDto::class.java)
 
@@ -122,7 +123,7 @@ class PipelineInstanceApiTest : AbstractRestApiTest() {
         val pipelineConfig = createPipelineConfig(dataProcessorInstance, dataProject.id, "slug1", arrayListOf())
 
         val pipelineInstanceDto = this.mockMvc.perform(
-            this.defaultAcceptContentAuth(post("$rootUrl/${pipelineConfig.id}/instances/")))
+            this.defaultAcceptContentAuth(post("$rootUrl/${pipelineConfig.id}/instances/"), token))
             .andExpect(status().isOk)
             .document("pipelineinstance-create-success",
                 responseFields(pipelineInstanceDtoResponseFields())
@@ -143,7 +144,7 @@ class PipelineInstanceApiTest : AbstractRestApiTest() {
         pipelineInstanceRepository.save(entity)
 
         this.mockMvc.perform(
-            this.defaultAcceptContentAuth(get("$rootUrl/${pipelineConfig.id}/instances/${entity.id}")))
+            this.defaultAcceptContentAuth(get("$rootUrl/${pipelineConfig.id}/instances/${entity.id}"), token))
             .andExpect(status().isOk)
             .document(
                 "pipelineinstance-retrieve-one",
@@ -164,7 +165,7 @@ class PipelineInstanceApiTest : AbstractRestApiTest() {
         pipelineInstanceRepository.save(entity)
 
         this.mockMvc.perform(
-            this.defaultAcceptContentAuth(put("$rootUrl/${pipelineConfig.id}/instances/${entity.id}/archive")))
+            this.defaultAcceptContentAuth(put("$rootUrl/${pipelineConfig.id}/instances/${entity.id}/archive"), token))
             .andExpect(status().isOk)
             .document("pipelineinstance-update-success",
                 responseFields(pipelineInstanceDtoResponseFields())
@@ -185,7 +186,7 @@ class PipelineInstanceApiTest : AbstractRestApiTest() {
         pipelineInstanceRepository.save(entity)
 
         this.mockMvc.perform(
-            this.defaultAcceptContentAuth(put("$rootUrl/${pipelineConfig.id}/instances/${entity.id}/start")))
+            this.defaultAcceptContentAuth(put("$rootUrl/${pipelineConfig.id}/instances/${entity.id}/start"), token))
             .andExpect(status().isOk)
             .document("pipelineinstance-start-success",
                 responseFields(pipelineInstanceDtoResponseFields())
@@ -206,7 +207,7 @@ class PipelineInstanceApiTest : AbstractRestApiTest() {
         pipelineInstanceRepository.save(entity)
 
         this.mockMvc.perform(
-            this.defaultAcceptContentAuth(delete("$rootUrl/${pipelineConfig.id}/instances/${entity.id}")))
+            this.defaultAcceptContentAuth(delete("$rootUrl/${pipelineConfig.id}/instances/${entity.id}"), token))
             .andExpect(status().isOk)
             .document("pipelineinstance-delete-success")
 

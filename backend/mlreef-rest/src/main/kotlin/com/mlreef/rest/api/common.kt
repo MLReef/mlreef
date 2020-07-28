@@ -21,8 +21,6 @@ interface CurrentUserService {
     fun personOrNull(): Person?
     fun account(): Account
     fun accountOrNull(): Account?
-    fun permanentToken(): String
-    fun permanentTokenOrNull(): String?
     fun accessToken(): String
     fun accessTokenOrNull(): String?
     fun anyValidToken(): String?
@@ -59,16 +57,6 @@ class SimpleCurrentUserService(
         }
     }
 
-    override fun permanentToken(): String {
-        val tokenDetails: TokenDetails = authentication().principal as TokenDetails
-        return tokenDetails.permanentToken
-    }
-
-    override fun permanentTokenOrNull(): String? {
-        val tokenDetails: TokenDetails? = authenticationOrNull()?.principal as? TokenDetails
-        return tokenDetails?.permanentToken
-    }
-
     override fun accessToken(): String {
         val tokenDetails: TokenDetails = authentication().principal as TokenDetails
         return tokenDetails.accessToken ?: throw MissingAccessTokenForUser(tokenDetails.accountId)
@@ -80,7 +68,7 @@ class SimpleCurrentUserService(
     }
 
     override fun anyValidToken(): String? {
-        return accessTokenOrNull() ?: permanentTokenOrNull()
+        return accessTokenOrNull()
     }
 
     override fun account(): Account {

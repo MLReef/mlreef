@@ -44,7 +44,7 @@ fun Account.toSecretUserDto(accessToken: String? = null, refreshToken: String? =
     username = this.username,
     email = this.email,
     gitlabId = this.person.gitlabId,
-    token = this.bestToken?.token,
+    token = accessToken,
     accessToken = accessToken,
     refreshToken = refreshToken
 )

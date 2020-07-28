@@ -29,7 +29,6 @@ import com.mlreef.utils.Slugs
 import lombok.RequiredArgsConstructor
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.security.crypto.bcrypt.BCrypt
@@ -240,7 +239,7 @@ class PipelineService(
     fun startInstance(author: Account, userToken: String, gitlabProjectId: Long, instance: PipelineInstance, secret: String): PipelineInstance {
         val fileContent = createPipelineInstanceFile(author = author, pipelineInstance = instance, secret = secret)
         val username = author.username
-        val bestToken = author.bestToken?.token ?: "empty"
+        val bestToken = userToken
 
         val gitlabPipeline = createStartGitlabPipeline(
             userToken = userToken,

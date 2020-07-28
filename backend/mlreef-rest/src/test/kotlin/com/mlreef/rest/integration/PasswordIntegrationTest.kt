@@ -3,6 +3,7 @@ package com.mlreef.rest.integration
 import com.mlreef.rest.api.v1.LoginRequest
 import com.mlreef.rest.api.v1.PasswordResetRequest
 import com.mlreef.rest.api.v1.dto.SecretUserDto
+import com.mlreef.rest.utils.RandomUtils
 import com.ninjasquad.springmockk.SpykBean
 import io.mockk.Runs
 import io.mockk.every
@@ -38,20 +39,20 @@ class PasswordIntegrationTest : AbstractIntegrationTest() {
     @Test
     fun `Can request reset password`() {
         //GIVEN
-        val (account, realPassword, _) = testsHelper.createRealUser()
+        val password = RandomUtils.generateRandomPassword(15, true)
+        val (account, token, _) = testsHelper.createRealUser(password = password)
 
         // FIRST LOGIN WITH OLD PASSWORD
-        var loginRequest = LoginRequest(account.username, account.email, realPassword)
+        var loginRequest = LoginRequest(account.username, account.email, password)
 
         val loginUrl = "$authUrl/login"
 
-        var loginResult = this.performPost(loginUrl, account, loginRequest)
+        var loginResult = this.performPost(loginUrl, token, loginRequest)
             .expectOk()
             .returns(SecretUserDto::class.java)
 
         assertThat(loginResult.username).isEqualTo(account.username)
         assertThat(loginResult.email).isEqualTo(account.email)
-        assertThat(loginResult.token!!).isEqualTo(account.bestToken!!.token)
 
         // PASSWORD RESET REQUEST
         val passwordResetUrl = "$passwordsUrl/reset?email=${account.email}"
@@ -76,19 +77,18 @@ class PasswordIntegrationTest : AbstractIntegrationTest() {
         assertThat(passwordResetResult).isTrue()
 
         // SECOND LOGIN WITH OLD PASSWORD
-        this.performPost(loginUrl, account, loginRequest)
+        this.performPost(loginUrl, token, loginRequest)
             .expectBadRequest()
 
         // THIRD LOGIN WITH NEW PASSWORD
         loginRequest = LoginRequest(account.username, account.email, "NEW-PASSWORD")
 
-        loginResult = this.performPost(loginUrl, account, loginRequest)
+        loginResult = this.performPost(loginUrl, token, loginRequest)
             .expectOk()
             .returns(SecretUserDto::class.java)
 
         assertThat(loginResult.username).isEqualTo(account.username)
         assertThat(loginResult.email).isEqualTo(account.email)
-        assertThat(loginResult.token!!).isEqualTo(account.bestToken!!.token)
     }
 
     @Test

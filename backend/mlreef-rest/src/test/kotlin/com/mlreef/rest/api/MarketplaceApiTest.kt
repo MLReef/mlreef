@@ -102,7 +102,7 @@ class MarketplaceApiTest : AbstractRestApiTest() {
         personRepository.saveAll(listOf(EntityMocks.author))
         dataProjectRepository.saveAll(listOf(dataProject1, dataProject2, dataProject3))
 
-        val returnedResult = this.performGet("$rootUrl/entries", account)
+        val returnedResult = this.performGet("$rootUrl/entries", token)
             .checkStatus(HttpStatus.OK)
             .document("marketplace-entries-retrieve-all", responseFields(projectResponseFields("[].")))
             .returnsList(ProjectDto::class.java)
@@ -123,7 +123,7 @@ class MarketplaceApiTest : AbstractRestApiTest() {
         marketplaceService.prepareEntry(dataProject1, EntityMocks.author)
         this.mockGetUserProjectsList(listOf(dataProject1.id), account, AccessLevel.GUEST)
 
-        val returnedResult = this.performGet("$rootUrl/entries/${dataProject1.globalSlug}", account)
+        val returnedResult = this.performGet("$rootUrl/entries/${dataProject1.globalSlug}", token)
             .checkStatus(HttpStatus.OK)
             .document("marketplace-entries-retrieve-one", responseFields(projectResponseFields("")))
             .returns(ProjectDto::class.java)
@@ -434,7 +434,7 @@ class MarketplaceApiTest : AbstractRestApiTest() {
         personRepository.saveAll(listOf(EntityMocks.author))
         marketplaceTagRepository.saveAll(listOf(searchableTag1, searchableTag2, searchableTag3))
 
-        val returnedResult = this.performGet("$rootUrl/tags", account)
+        val returnedResult = this.performGet("$rootUrl/tags", token)
             .checkStatus(HttpStatus.OK)
             .document("marketplace-tags-retrieve-all", responseFields(searchableTags("[].")))
             .returnsList(SearchableTagDto::class.java)

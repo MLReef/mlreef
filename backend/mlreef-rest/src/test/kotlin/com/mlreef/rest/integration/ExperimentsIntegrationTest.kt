@@ -25,7 +25,6 @@ import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.repository.findByIdOrNull
-import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.post
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.put
 import org.springframework.test.annotation.Rollback
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
@@ -60,8 +59,8 @@ class ExperimentsIntegrationTest : AbstractIntegrationTest() {
     @Transactional
     @Rollback
     @Test fun `Can create new Experiment`() {
-        val (account, _, _) = testsHelper.createRealUser()
-        val (project, _) = testsHelper.createRealDataProject(account)
+        val (account, token, _) = testsHelper.createRealUser()
+        val (project, _) = testsHelper.createRealDataProject(token, account)
 
         val request = ExperimentCreateRequest(
             slug = "experiment-slug",
@@ -82,7 +81,7 @@ class ExperimentsIntegrationTest : AbstractIntegrationTest() {
 
         val url = "$rootUrl/${project.id}/experiments"
 
-        val result = this.performPost(url, account, request)
+        val result = this.performPost(url, token, request)
             .expectOk()
             .returns(ExperimentDto::class.java)
 
@@ -92,8 +91,8 @@ class ExperimentsIntegrationTest : AbstractIntegrationTest() {
     @Transactional
     @Rollback
     @Test fun `Can create second Experiment with different slug for same project`() {
-        val (account, _, _) = testsHelper.createRealUser()
-        val (project, _) = testsHelper.createRealDataProject(account)
+        val (account, token, _) = testsHelper.createRealUser()
+        val (project, _) = testsHelper.createRealDataProject(token, account)
 
         createExperiment(project.id, "first-experiment")
 
@@ -112,7 +111,7 @@ class ExperimentsIntegrationTest : AbstractIntegrationTest() {
 
         val url = "$rootUrl/${project.id}/experiments"
 
-        val result = this.performPost(url, account, request)
+        val result = this.performPost(url, token, request)
             .expectOk()
             .returns(ExperimentDto::class.java)
 
@@ -122,9 +121,9 @@ class ExperimentsIntegrationTest : AbstractIntegrationTest() {
     @Transactional
     @Rollback
     @Test fun `Can create second Experiment with same slug for different project`() {
-        val (account, _, _) = testsHelper.createRealUser()
-        val (project, _) = testsHelper.createRealDataProject(account)
-        val (project2, _) = testsHelper.createRealDataProject(account)
+        val (account, token, _) = testsHelper.createRealUser()
+        val (project, _) = testsHelper.createRealDataProject(token, account)
+        val (project2, _) = testsHelper.createRealDataProject(token, account)
 
         createExperiment(project.id, "experiment-slug")
 
@@ -143,7 +142,7 @@ class ExperimentsIntegrationTest : AbstractIntegrationTest() {
 
         val url = "$rootUrl/${project2.id}/experiments"
 
-        val result = this.performPost(url, account, request)
+        val result = this.performPost(url, token, request)
             .expectOk()
             .returns(ExperimentDto::class.java)
 
@@ -155,8 +154,8 @@ class ExperimentsIntegrationTest : AbstractIntegrationTest() {
     @Test
     @Deprecated("Unsure if needed")
     fun `Cannot create new Experiment with duplicate slug`() {
-        val (account, _, _) = testsHelper.createRealUser()
-        val (project, _) = testsHelper.createRealDataProject(account)
+        val (account, token, _) = testsHelper.createRealUser()
+        val (project, _) = testsHelper.createRealDataProject(token, account)
 
         createExperiment(project.id, "experiment-slug")
 
@@ -175,7 +174,7 @@ class ExperimentsIntegrationTest : AbstractIntegrationTest() {
 
         val url = "$rootUrl/${project.id}/experiments"
 
-        this.performPost(url, account, request)
+        this.performPost(url, token, request)
             .expectBadRequest()
     }
 
@@ -184,15 +183,15 @@ class ExperimentsIntegrationTest : AbstractIntegrationTest() {
     @Test
     @Deprecated("unsure")
     fun `Can retrieve all own Experiments`() {
-        val (account, _, _) = testsHelper.createRealUser(index = -1)
-        val (project1, _) = testsHelper.createRealDataProject(account)
-        val (project2, _) = testsHelper.createRealDataProject(account)
+        val (account, token, _) = testsHelper.createRealUser(index = -1)
+        val (project1, _) = testsHelper.createRealDataProject(token, account)
+        val (project2, _) = testsHelper.createRealDataProject(token, account)
 
         createExperiment(project1.id, "experiment-1-slug")
         createExperiment(project1.id, "experiment-2-slug")
         createExperiment(project2.id, "experiment-3-slug")
 
-        val returnedResult: List<ExperimentDto> = performGet("$rootUrl/${project1.id}/experiments", account)
+        val returnedResult: List<ExperimentDto> = performGet("$rootUrl/${project1.id}/experiments", token)
             .expectOk()
             .returnsList(ExperimentDto::class.java)
 
@@ -202,12 +201,12 @@ class ExperimentsIntegrationTest : AbstractIntegrationTest() {
     @Transactional
     @Rollback
     @Test fun `Can retrieve own Experiment`() {
-        val (account, _, _) = testsHelper.createRealUser()
-        val (project1, _) = testsHelper.createRealDataProject(account)
+        val (account, token, _) = testsHelper.createRealUser()
+        val (project1, _) = testsHelper.createRealDataProject(token, account)
 
         val experiment1 = createExperiment(project1.id)
 
-        performGet("$rootUrl/${project1.id}/experiments/${experiment1.id}", account)
+        performGet("$rootUrl/${project1.id}/experiments/${experiment1.id}", token)
             .expectOk()
     }
 
@@ -215,13 +214,13 @@ class ExperimentsIntegrationTest : AbstractIntegrationTest() {
     @Rollback
     @Test
     fun `Can retrieve foreign public Experiment`() {
-        val (realAccount1, _, _) = testsHelper.createRealUser()
-        val (realAccount2, _, _) = testsHelper.createRealUser()
-        val (project1, _) = testsHelper.createRealDataProject(realAccount1, public = true)
+        val (realAccount1, token1, _) = testsHelper.createRealUser()
+        val (realAccount2, token2, _) = testsHelper.createRealUser()
+        val (project1, _) = testsHelper.createRealDataProject(token1, realAccount1, public = true)
 
         val experiment1 = createExperiment(project1.id)
 
-        this.performGet("$rootUrl/${project1.id}/experiments/${experiment1.id}", realAccount2)
+        this.performGet("$rootUrl/${project1.id}/experiments/${experiment1.id}", token2)
             .expectOk()
     }
 
@@ -229,15 +228,15 @@ class ExperimentsIntegrationTest : AbstractIntegrationTest() {
     @Rollback
     @Test
     fun `Can retrieve foreign member Experiment`() {
-        val (account1, _, _) = testsHelper.createRealUser()
-        val (account2, _, _) = testsHelper.createRealUser()
-        val (project, _) = testsHelper.createRealDataProject(account1, public = false)
+        val (account1, token1, _) = testsHelper.createRealUser()
+        val (account2, token2, _) = testsHelper.createRealUser()
+        val (project, _) = testsHelper.createRealDataProject(token1, account1, public = false)
 
         testsHelper.addRealUserToProject(project.gitlabId, account2.person.gitlabId!!)
 
         val experiment1 = createExperiment(project.id)
 
-        this.performGet("$rootUrl/${project.id}/experiments/${experiment1.id}", account2)
+        this.performGet("$rootUrl/${project.id}/experiments/${experiment1.id}", token2)
             .expectOk()
     }
 
@@ -245,13 +244,13 @@ class ExperimentsIntegrationTest : AbstractIntegrationTest() {
     @Rollback
     @Test
     fun `Cannot retrieve foreign public Experiment`() {
-        val (realAccount1, _, _) = testsHelper.createRealUser()
-        val (realAccount2, _, _) = testsHelper.createRealUser()
-        val (project1, _) = testsHelper.createRealDataProject(realAccount1, public = false)
+        val (realAccount1, token1, _) = testsHelper.createRealUser()
+        val (_, token2, _) = testsHelper.createRealUser()
+        val (project1, _) = testsHelper.createRealDataProject(token1, realAccount1, public = false)
 
         val experiment1 = createExperiment(project1.id)
 
-        this.performGet("$rootUrl/${project1.id}/experiments/${experiment1.id}", realAccount2)
+        this.performGet("$rootUrl/${project1.id}/experiments/${experiment1.id}", token2)
             .expectForbidden()
     }
 
@@ -261,18 +260,18 @@ class ExperimentsIntegrationTest : AbstractIntegrationTest() {
     @Rollback
     @Test
     fun `Can update own Experiment's pipelineJobInfo with arbitrary json hashmap blob`() {
-        val (realAccount1, _, _) = testsHelper.createRealUser()
-        val (project1, _) = testsHelper.createRealDataProject(realAccount1)
+        val (realAccount1, token, _) = testsHelper.createRealUser()
+        val (project1, _) = testsHelper.createRealDataProject(token, realAccount1)
 
         val experiment1 = createExperiment(project1.id)
 
         val request: String = "" +
             """{"metric1": 20.0, "metrik2": 3, "string":"yes"}"""
 
-        val token = experimentRepository.findByIdOrNull(experiment1.id)!!.pipelineJobInfo!!.secret
+        val epfToken = experimentRepository.findByIdOrNull(experiment1.id)!!.pipelineJobInfo!!.secret
 
         val returnedResult = this.mockMvc.perform(
-            this.defaultAcceptContentEPFBot(token, put("$epfUrl/experiments/${experiment1.id}/update")).content(request))
+            this.defaultAcceptContentEPFBot(epfToken, put("$epfUrl/experiments/${experiment1.id}/update")).content(request))
             .andExpect(status().isOk)
             .returns(PipelineJobInfoDto::class.java)
 
@@ -286,16 +285,16 @@ class ExperimentsIntegrationTest : AbstractIntegrationTest() {
     @Rollback
     @Test
     fun `Can finish own Experiment's pipelineJobInfo`() {
-        val (account, _, _) = testsHelper.createRealUser()
-        val (project1, _) = testsHelper.createRealDataProject(account)
+        val (account, token, _) = testsHelper.createRealUser()
+        val (project1, _) = testsHelper.createRealDataProject(token, account)
 
         val experiment1 = createExperiment(project1.id)
 
         val beforeRequestTime = ZonedDateTime.now()
-        val token = experimentRepository.findByIdOrNull(experiment1.id)!!.pipelineJobInfo!!.secret
+        val epfToken = experimentRepository.findByIdOrNull(experiment1.id)!!.pipelineJobInfo!!.secret
 
         val returnedResult = this.mockMvc.perform(
-            this.defaultAcceptContentEPFBot(token, put("$epfUrl/experiments/${experiment1.id}/finish")))
+            this.defaultAcceptContentEPFBot(epfToken, put("$epfUrl/experiments/${experiment1.id}/finish")))
             .andExpect(status().isOk)
             .returns(PipelineJobInfoDto::class.java)
 
@@ -312,12 +311,12 @@ class ExperimentsIntegrationTest : AbstractIntegrationTest() {
     @Rollback
     @Test
     fun `Can retrieve own Experiment's pipelineJobInfo`() {
-        val (account, _, _) = testsHelper.createRealUser()
-        val (project1, _) = testsHelper.createRealDataProject(account)
+        val (account, token, _) = testsHelper.createRealUser()
+        val (project1, _) = testsHelper.createRealDataProject(token, account)
 
         val experiment1 = createExperiment(project1.id)
 
-        this.performGet("$rootUrl/${project1.id}/experiments/${experiment1.id}/info", account)
+        this.performGet("$rootUrl/${project1.id}/experiments/${experiment1.id}/info", token)
             .expectOk()
     }
 
@@ -325,12 +324,12 @@ class ExperimentsIntegrationTest : AbstractIntegrationTest() {
     @Rollback
     @Test
     fun `Can retrieve own Experiment's MLReef file`() {
-        val (account, _, _) = testsHelper.createRealUser()
-        val (project1, _) = testsHelper.createRealDataProject(account)
+        val (account, token, _) = testsHelper.createRealUser()
+        val (project1, _) = testsHelper.createRealDataProject(token, account)
 
         val experiment1 = createExperiment(project1.id)
 
-        val returnedResult = performGet("$rootUrl/${project1.id}/experiments/${experiment1.id}/mlreef-file", account)
+        val returnedResult = performGet("$rootUrl/${project1.id}/experiments/${experiment1.id}/mlreef-file", token)
             .andExpect(status().isOk)
             .andReturn().response.contentAsString
 
@@ -346,12 +345,12 @@ class ExperimentsIntegrationTest : AbstractIntegrationTest() {
     @Rollback
     @Test
     fun `Can start own Experiment as gitlab pipeline`() {
-        val (account, _, _) = testsHelper.createRealUser()
-        val (project1, _) = testsHelper.createRealDataProject(account)
+        val (account, token, _) = testsHelper.createRealUser()
+        val (project1, _) = testsHelper.createRealDataProject(token, account)
 
         val experiment1 = createExperiment(project1.id)
 
-        val pipelineJobInfoDto = performPost("$rootUrl/${project1.id}/experiments/${experiment1.id}/start", account)
+        val pipelineJobInfoDto = performPost("$rootUrl/${project1.id}/experiments/${experiment1.id}/start", token)
             .expectOk()
             .returns(PipelineJobInfoDto::class.java)
 
@@ -368,26 +367,26 @@ class ExperimentsIntegrationTest : AbstractIntegrationTest() {
     @Rollback
     @Test
     fun `Can manipulate Experiment in the correct Order PENDING - RUNNING - SUCCESS`() {
-        val (account, _, _) = testsHelper.createRealUser()
-        val (project1, _) = testsHelper.createRealDataProject(account)
+        val (account, token, _) = testsHelper.createRealUser()
+        val (project1, _) = testsHelper.createRealDataProject(token, account)
 
         val experiment1 = createExperiment(project1.id)
 
         // Start experiment
-        this.performPost("$rootUrl/${project1.id}/experiments/${experiment1.id}/start", account)
+        this.performPost("$rootUrl/${project1.id}/experiments/${experiment1.id}/start", token)
             .expectOk()
 
-        this.performGet("$rootUrl/${project1.id}/experiments/${experiment1.id}/info", account)
+        this.performGet("$rootUrl/${project1.id}/experiments/${experiment1.id}/info", token)
             .expectOk()
             .returns(PipelineJobInfoDto::class.java)
 
-        val token = experimentRepository.findByIdOrNull(experiment1.id)!!.pipelineJobInfo!!.secret
+        val epfToken = experimentRepository.findByIdOrNull(experiment1.id)!!.pipelineJobInfo!!.secret
 
-        val update = performEPFPut(token, "$epfUrl/experiments/${experiment1.id}/update", body = Object())
+        val update = performEPFPut(epfToken, "$epfUrl/experiments/${experiment1.id}/update", body = Object())
             .returns(PipelineJobInfoDto::class.java)
 
         assertThat(update).isNotNull()
-        val finish = performEPFPut(token, "$epfUrl/experiments/${experiment1.id}/finish")
+        val finish = performEPFPut(epfToken, "$epfUrl/experiments/${experiment1.id}/finish")
             .returns(PipelineJobInfoDto::class.java)
         assertThat(finish).isNotNull()
     }
@@ -398,21 +397,20 @@ class ExperimentsIntegrationTest : AbstractIntegrationTest() {
     @Rollback
     @Test
     fun `Cannot manipulate Experiment in the wrong Order PENDING - SUCCESS - RUNNING `() {
-        val (account, _, _) = testsHelper.createRealUser()
-        val (project1, _) = testsHelper.createRealDataProject(account)
+        val (account, token, _) = testsHelper.createRealUser()
+        val (project1, _) = testsHelper.createRealDataProject(token, account)
 
         val experiment1 = createExperiment(project1.id)
 
         // PENDING
-        this.mockMvc.perform(
-            this.acceptContentAuth(post("$rootUrl/${project1.id}/experiments/${experiment1.id}/start", account)))
-            .andExpect(status().isOk)
+        this.performPost("$rootUrl/${project1.id}/experiments/${experiment1.id}/start", token)
+            .expectOk()
 
-        val token = experimentRepository.findByIdOrNull(experiment1.id)!!.pipelineJobInfo!!.secret
+        val epfToken = experimentRepository.findByIdOrNull(experiment1.id)!!.pipelineJobInfo!!.secret
 
         // SUCCESS
         this.mockMvc.perform(
-            this.defaultAcceptContentEPFBot(token, put("$epfUrl/experiments/${experiment1.id}/finish")))
+            this.defaultAcceptContentEPFBot(epfToken, put("$epfUrl/experiments/${experiment1.id}/finish")))
             .andExpect(status().isOk).andReturn().let {
                 objectMapper.readValue(it.response.contentAsByteArray, PipelineJobInfoDto::class.java)
             }
@@ -420,7 +418,7 @@ class ExperimentsIntegrationTest : AbstractIntegrationTest() {
         // MUST fail after here
         // RUNNING
         this.mockMvc.perform(
-            this.defaultAcceptContentEPFBot(token, put("$epfUrl/experiments/${experiment1.id}/update"))
+            this.defaultAcceptContentEPFBot(epfToken, put("$epfUrl/experiments/${experiment1.id}/update"))
                 .content("{}"))
             .andExpect(status().isBadRequest)
     }
