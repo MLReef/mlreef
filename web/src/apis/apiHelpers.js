@@ -1,23 +1,26 @@
 import store from '../store';
 
+/**
+ * Returns the gitlab token. (legacy)
+ */
 export const getCurrentToken = () => {
   const { user } = store.getState();
 
-  return user && user.token;
+  return user && `Bearer ${user.token}`;
 };
 
 export const generateGetRequest = (url) => fetch(new Request(
   url, {
     method: 'GET',
     headers: new Headers({
-      'PRIVATE-TOKEN': getCurrentToken(),
+      authorization: getCurrentToken(),
       Accept: 'application/json',
     }),
   },
 ));
 
 export const buildHeaders = () => new Headers({
-  'PRIVATE-TOKEN': getCurrentToken(),
+  authorization: getCurrentToken(),
   'Content-Type': 'application/json',
   Accept: 'application/json',
   Origin: 'http://localhost',

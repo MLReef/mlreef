@@ -12,7 +12,7 @@ export default class CommitsApi extends ApiDirector {
         `/api/v4/projects/${projectId}/repository/commits`, {
           method: 'POST',
           headers: new Headers({
-            'PRIVATE-TOKEN': getCurrentToken(),
+            authorization: getCurrentToken(),
             'Content-Type': 'application/json',
           }),
           body: JSON.stringify({
@@ -45,7 +45,7 @@ export default class CommitsApi extends ApiDirector {
         `/api/v4/projects/${projectId}/repository/commits`, {
           method: 'POST',
           headers: new Headers({
-            'PRIVATE-TOKEN': getCurrentToken(),
+            authorization: getCurrentToken(),
             'Content-Type': 'application/json',
           }),
           body,

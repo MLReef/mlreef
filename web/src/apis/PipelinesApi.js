@@ -9,7 +9,7 @@ export default class PipeLinesApi {
         `/api/v4/projects/${projectId}/pipeline?ref=${refBranch}`, {
           method: 'POST',
           headers: new Headers({
-            'PRIVATE-TOKEN': getCurrentToken(),
+            authorization: getCurrentToken(),
             'Content-Type': 'application/json',
           }),
           body,
@@ -27,7 +27,7 @@ export default class PipeLinesApi {
         `/api/v4/projects/${projectId}/pipelines/`, {
           method: 'GET',
           headers: new Headers({
-            'PRIVATE-TOKEN': getCurrentToken(),
+            authorization: getCurrentToken(),
           }),
         },
       );

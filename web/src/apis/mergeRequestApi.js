@@ -42,7 +42,7 @@ export class MergeRequestAPI extends ApiDirector {
       url, {
         method: 'POST',
         headers: new Headers({
-          'PRIVATE-TOKEN': getCurrentToken(),
+          authorization: getCurrentToken(),
           'Content-Type': 'application/json',
         }),
         body,
@@ -67,7 +67,7 @@ export class MergeRequestAPI extends ApiDirector {
       baseUrl, {
         method: 'PUT',
         headers: new Headers({
-          'PRIVATE-TOKEN': getCurrentToken(),
+          authorization: getCurrentToken(),
           'Content-Type': 'application/json'
         }),
       },
