@@ -5,6 +5,7 @@ search_instance="${1:-$EC2_INSTANCE_NAME}"
 echo "Writing instance.info for instance: '$search_instance'"
 
 TMP=$(mktemp)
+mkdir -p out
 
 aws ec2 describe-instances --filters "Name=tag:Name,Values=$search_instance"          \
   | jq -r ".Reservations[].Instances[].NetworkInterfaces[].Association.PublicDnsName" \

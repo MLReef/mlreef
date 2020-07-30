@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 # shellcheck disable=SC2155   # Declare and assign separately to avoid masking return values. See SC2155.
 
 # change to the repository root folder via the scripts location
@@ -9,6 +9,7 @@ cd "$(dirname "$0")"/../..
 . bin/includes/test-environment
 ########################################
 set -x    # output all commands
+set -o    pipefail
 set -e    # exit on immediately on every error
 set -u    # error on usage of undefined variables
 ########################################
