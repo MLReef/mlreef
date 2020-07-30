@@ -9,7 +9,6 @@ import * as types from './actionTypes';
 const projectApi = new ProjectGeneralInfoApi();
 const mlSearchApi = new MLSearchApi();
 
-
 // This will fetch gitlab project and add it to the mlreef project
 const mergeWithGitlabProject = (project) => projectApi.getProjectInfoApi(project.gitlab_id)
   .then(parseToCamelCase)
@@ -23,7 +22,6 @@ const mergeGitlabResource = (projects, auth) => Promise.all(
     .then((members) => ({ ...project, members }))
     .catch(() => project)),
 );
-
 
 /**
  *
@@ -128,6 +126,14 @@ export function getProjectDetailsBySlug(namespace, slug, options = {}) {
     .then(parseToCamelCase)
     .then(adaptProjectModel)
     .then((project) => dispatch(setSelectedProjectSuccesfully(project)));
+}
+
+export function removeProject(id) {
+  return (dispatch) => projectApi.removeProject(id)
+    .then(() => {
+      // clean selectedProject after stack is executed to avoid proptypes warinings
+      setTimeout(() => dispatch(setSelectedProjectSuccesfully({})), 0);
+    });
 }
 
 /**

@@ -1,0 +1,13 @@
+.settings-view-general-advanced {
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+
+  &-block {
+    background-color: var(--light);
+    padding: 2rem;
+
+    & .title {
+      margin-top: 1rem;
+    }
+  }
+}

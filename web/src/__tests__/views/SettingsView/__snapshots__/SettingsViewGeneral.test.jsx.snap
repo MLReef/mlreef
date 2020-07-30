@@ -57,19 +57,19 @@ exports[`presence of basic user elements assert that snapshot matches 1`] = `
                   className="m-input_container"
                 >
                   <label
-                    htmlFor="project-"
+                    htmlFor="project-Test123"
                   >
                     Project name
                   </label>
                   <input
                     className="m-input_input "
-                    id="project-"
+                    id="project-Test123"
                     onBlur={[Function]}
                     onChange={[Function]}
                     placeholder={null}
                     readOnly={false}
                     type="text"
-                    value=""
+                    value="Test123"
                   />
                 </div>
               </div>
@@ -80,19 +80,19 @@ exports[`presence of basic user elements assert that snapshot matches 1`] = `
                   className="m-input_container"
                 >
                   <label
-                    htmlFor="project-"
+                    htmlFor="project-test"
                   >
                     Project ID
                   </label>
                   <input
                     className="m-input_input bg-light"
-                    id="project-"
+                    id="project-test"
                     onBlur={[Function]}
                     onChange={[Function]}
                     placeholder={null}
                     readOnly={true}
                     type="text"
-                    value=""
+                    value="test"
                   />
                 </div>
               </div>
@@ -149,7 +149,7 @@ exports[`presence of basic user elements assert that snapshot matches 1`] = `
                     name=""
                     onChange={[Function]}
                     rows="4"
-                    value=""
+                    value="Some test description"
                   />
                 </label>
               </div>
@@ -171,7 +171,7 @@ exports[`presence of basic user elements assert that snapshot matches 1`] = `
                   <div
                     className="mr-3 bg-light emptyAvatar avatar-md"
                   >
-                    
+                    T
                   </div>
                 </div>
               </div>
@@ -226,6 +226,80 @@ exports[`presence of basic user elements assert that snapshot matches 1`] = `
               </button>
             </div>
           </form>
+        </div>
+      </div>
+      <div
+        className="m-accordion-item"
+      >
+        <div
+          className="m-accordion-item_header"
+        >
+          <div
+            className="m-accordion-item_header_label"
+          >
+            <div
+              className="title"
+            >
+              Advanced
+            </div>
+            <div
+              className="sub-title"
+            >
+              Runs a number of housekeeping tasks within the current repository, such as compressing file revisions and removing unreachable objects.
+            </div>
+          </div>
+          <div
+            className="m-accordion-item_header_action"
+          >
+            <button
+              className="btn btn-outline-dark btn-label-sm btn-sm "
+              id={null}
+              onClick={[Function]}
+              type="button"
+            >
+              Expand
+            </button>
+          </div>
+        </div>
+        <div
+          className="m-accordion-item_content collapsed"
+        >
+          <section
+            className="settings-view-general-advanced"
+          >
+            <div
+              className="settings-view-general-advanced-block"
+            >
+              <h4
+                className="title t-danger"
+              >
+                Remove project
+              </h4>
+              <p>
+                Removing a project places it into a read-only state until 2020-03-03, at which point the project will be permanently removed.
+                <br />
+                Until that time, the project can be retored.
+              </p>
+              <p>
+                <b>
+                  Removing the project will delete its repository and all related resources including issues, merge requests etc.
+                </b>
+              </p>
+              <p>
+                <b>
+                  Removed projects cannot be restored!
+                </b>
+              </p>
+              <div>
+                <button
+                  className="btn btn-danger mt-2"
+                  onClick={[Function]}
+                >
+                  Remove project
+                </button>
+              </div>
+            </div>
+          </section>
         </div>
       </div>
     </div>

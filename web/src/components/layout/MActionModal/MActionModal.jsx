@@ -20,6 +20,7 @@ const MActionModal = (props) => {
     small,
     isShown,
     closable,
+    noActions,
     actions,
   } = props;
 
@@ -75,31 +76,33 @@ const MActionModal = (props) => {
         <div className="modal-content">
           {content}
         </div>
-        <div className="modal-actions px-3">
-          {ignoreLabel && (
+        {!noActions && (
+          <div className="modal-actions px-3">
+            {ignoreLabel && (
+              <button
+                type="button"
+                onClick={handleClose}
+                className={classes.btnIgnore}
+              >
+                {ignoreLabel}
+              </button>
+            )}
             <button
               type="button"
-              onClick={handleClose}
-              className={classes.btnIgnore}
+              onClick={handleNegative}
+              className={classes.btnNegative}
             >
-              {ignoreLabel}
+              {negativeLabel}
             </button>
-          )}
-          <button
-            type="button"
-            onClick={handleNegative}
-            className={classes.btnNegative}
-          >
-            {negativeLabel}
-          </button>
-          <button
-            type="button"
-            onClick={handlePositive}
-            className={classes.btnPositive}
-          >
-            {positiveLabel}
-          </button>
-        </div>
+            <button
+              type="button"
+              onClick={handlePositive}
+              className={classes.btnPositive}
+            >
+              {positiveLabel}
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -118,6 +121,7 @@ MActionModal.defaultProps = {
   small: false,
   isShown: false,
   closable: true,
+  noActions: false,
 };
 
 MActionModal.propTypes = {
@@ -140,11 +144,11 @@ MActionModal.propTypes = {
   small: PropTypes.bool,
   isShown: PropTypes.bool,
   closable: PropTypes.bool,
+  noActions: PropTypes.bool,
   actions: PropTypes.shape({
     closeModal: PropTypes.func.isRequired,
   }).isRequired,
 };
-
 
 const mapStateToProps = ({ actionModal }) => actionModal;
 
