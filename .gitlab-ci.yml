@@ -4,18 +4,16 @@ include:
   - local: epf/.gitlab-ci.yml
   - local: web/.gitlab-ci.yml
 
-
 stages:
   - build
   - deploy
   - test
+  - deploy production
   - maintenance
-
 
 variables:
   S3_DATA_BUCKET:       "mlreef-application-data"          # see also ec2 startup script
   DATA_ARCHIVE:         "mlreef-data-develop.zip"
-
 
 .except-docu-branches:
   except:
@@ -34,14 +32,10 @@ variables:
       - develop
       - master
 
-
 # provision boots up the new ec2 instance for deploying MLReef
 provision:
   extends: [".except-docu-branches"]
   stage: build
-  except:
-    refs:
-      - master
   image: registry.gitlab.com/systemkern/s5:latest-aws
   script: bin/ci-provision
   artifacts:
@@ -51,21 +45,6 @@ provision:
     name: $CI_COMMIT_REF_SLUG
     url: $CI_PIPELINE_URL
     on_stop: decommission                                  # clean up after branch merge
-
-
-get production ip:
-  stage: build
-  only:
-    refs:
-      - master
-  image: registry.gitlab.com/systemkern/s5:latest-aws
-  script: bin/ci-instance-info
-  artifacts:
-    paths:
-      - out/instance.info                                  # pass instance url to later stages (see bin/includes/ci-environment)
-  environment:
-    name: mlreef.com
-    url: https://mlreef.com
 
 
 gitlab env config:
@@ -96,7 +75,7 @@ deploy:
   extends: [".except-docu-branches"]
   stage: deploy
   when: delayed
-  start_in: 3 minutes                                                 # This delay exists to give new environments enough time to boot
+  start_in: 3 minutes                                                 # Give new ec2 environments enough time to boot
   image: registry.gitlab.com/systemkern/s5:latest
   script: bin/ci-deploy
 
