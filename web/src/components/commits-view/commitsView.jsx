@@ -1,4 +1,3 @@
-/* eslint-disable jsx-a11y/control-has-associated-label */
 import React, { Component, useRef } from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
@@ -15,8 +14,10 @@ import Navbar from '../navbar/navbar';
 import ProjectContainer from '../projectContainer';
 import './commitsView.css';
 // import folder01 from '../../images/folder_01.svg';
-import commitsApi from '../../apis/CommitsApi';
+import CommitsApi from '../../apis/CommitsApi.ts';
 import { getTimeCreatedAgo } from '../../functions/dataParserHelpers';
+
+const commitsApi = new CommitsApi();
 
 const arrowBlue = '/images/svg/arrow_down_blue_01.svg';
 

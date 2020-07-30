@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { toastr } from 'react-redux-toastr';
-import CommitsApi from 'apis/CommitsApi';
+import {
+  string, number, shape, arrayOf,
+} from 'prop-types';
 import { parseToCamelCase, getTimeCreatedAgo } from 'functions/dataParserHelpers';
-import { string, number, shape, arrayOf } from 'prop-types';
-
-const commitsApi = new CommitsApi();
+import { getCommits } from 'functions/apiCalls';
 
 const ProjectLastCommitSect = ({
   projectId,
@@ -15,16 +15,16 @@ const ProjectLastCommitSect = ({
 }) => {
   const [lastCommit, setLastCommit] = useState(null);
   useEffect(() => {
-    if(projectId){
-      const commitBranch = urlBranch && urlBranch !== '' &&  urlBranch !== 'null' 
-      ? urlBranch 
-      : projectDefaultBranch;
-    commitsApi.getCommits(projectId, commitBranch, '', 1)
-      .then((res) => setLastCommit(parseToCamelCase(res[0])))
-      .catch(() => toastr.error('Error', 'Error fetching last commit'));
+    if (projectId) {
+      const commitBranch = urlBranch && urlBranch !== '' && urlBranch !== 'null'
+        ? urlBranch
+        : projectDefaultBranch;
+
+      getCommits(projectId, commitBranch).then((res) => setLastCommit(parseToCamelCase(res[0])))
+        .catch(() => toastr.error('Error', 'Error fetching last commit'));
     }
   }, [projectId, urlBranch, projectDefaultBranch]);
-  if(!lastCommit && !testCommitData) return null; // testCommitData is just for testing purposes, never and ever pass it for real functionality 
+  if (!lastCommit && !testCommitData) return null; // testCommitData is just for testing purposes, never and ever pass it for real functionality
   const finalCommitInfo = lastCommit || testCommitData;
   const committer = finalCommitInfo && users.filter((user) => user.name === finalCommitInfo.authorName)[0];
   const avatarUrl = committer ? (committer.avatarUrl || committer.avatar_url) : ''; // avatarUrl not found
@@ -65,8 +65,8 @@ const ProjectLastCommitSect = ({
         <p>{finalCommitInfo.shortId}</p>
       </div>
     </div>
-  )
-}
+  );
+};
 
 ProjectLastCommitSect.propTypes = {
   projectId: number.isRequired,
@@ -74,6 +74,6 @@ ProjectLastCommitSect.propTypes = {
   projectDefaultBranch: string.isRequired,
   users: arrayOf(shape({ name: string.isRequired })),
   testCommitData: shape({}),
-}
+};
 
 export default ProjectLastCommitSect;

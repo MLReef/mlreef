@@ -9,9 +9,11 @@ import BlueBorderedInput from '../BlueBorderedInput';
 import '../../css/genericModal.css';
 import './deleteFileModal.css';
 import CustomizedMenus from '../customized-menu/CustomizedMenu';
-import commitsApi from '../../apis/CommitsApi';
-import { DELETE } from '../../dataTypes';
+import CommitsApi from '../../apis/GroupApi.ts';
 import BranchesApi from '../../apis/BranchesApi.ts';
+import { DELETE } from '../../dataTypes';
+
+const commitsApi = new CommitsApi();
 
 const DeleteFileModal = ({
   isModalVisible,

@@ -14,7 +14,7 @@ import relativeTime from 'dayjs/plugin/relativeTime';
 import MDropdown from 'components/ui/MDropdown';
 import { getProjectDetailsBySlug } from 'actions/projectInfoActions';
 import ProjectContainer from '../projectContainer';
-import CommitsApi from '../../apis/CommitsApi';
+import CommitsApi from '../../apis/CommitsApi.ts';
 import Navbar from '../navbar/navbar';
 import FilesApi from '../../apis/FilesApi.ts';
 import DeleteFileModal from '../delete-file-modal/deleteFileModal';

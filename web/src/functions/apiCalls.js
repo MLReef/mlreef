@@ -1,6 +1,10 @@
 import { POLL_TIMEOUT } from 'apiConfig';
-import commitsApi from 'apis/CommitsApi';
 import { PROJECT_TYPES } from 'domain/project/projectTypes';
+import CommitsApi from '../apis/CommitsApi.ts';
+
+const commitsApi = new CommitsApi();
+
+export const getCommits = (projectId, commitBranch) => commitsApi.getCommits(projectId, commitBranch, '', 1);
 
 export const getFileDifferences = async (projectId, diff, previousCommitId, lastCommitId) => {
   let previousVersionFile;

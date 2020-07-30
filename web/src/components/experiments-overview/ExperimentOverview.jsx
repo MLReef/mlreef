@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { plainToClass } from 'class-transformer';
 import Experiment from 'domain/experiments/Experiment';
-import CommitsApi from 'apis/CommitsApi';
 import { toastr } from 'react-redux-toastr';
 import { bindActionCreators } from 'redux';
 import uuidv1 from 'uuid/v1';
@@ -12,6 +11,7 @@ import {
 import CustomizedButton from 'components/CustomizedButton';
 import ExperimentsApi from 'apis/experimentApi';
 import { parseToCamelCase } from 'functions/dataParserHelpers';
+import CommitsApi from '../../apis/CommitsApi.ts';
 import Navbar from '../navbar/navbar';
 import ProjectContainer from '../projectContainer';
 import './experimentsOverview.css';

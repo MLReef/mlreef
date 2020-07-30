@@ -6,7 +6,9 @@ import { isImageFormat, compareArrayBy } from 'functions/dataParserHelpers';
 import ImageDiffSection from 'components/imageDiffSection/imageDiffSection';
 import CodeDiffSection from '../code-diff-section/codeDiffSection';
 import { getFileDifferences } from '../../functions/apiCalls';
-import CommitsApi from '../../apis/CommitsApi';
+import CommitsApi from '../../apis/CommitsApi.ts';
+
+const commitsApi = new CommitsApi();
 
 class ChangesMrSection extends Component {
   mounted = false // to avoid setState when component is not mounted.
@@ -62,7 +64,7 @@ class ChangesMrSection extends Component {
   fetchDiffs({ projectId, aheadCommits }) {
     aheadCommits.forEach(async (commit, index) => {
       const { id: commitId } = commit;
-      const commitDiffs = await CommitsApi.getCommitDiff(projectId, commitId);
+      const commitDiffs = await commitsApi.getCommitDiff(projectId, commitId);
       const file = await Promise.all(commitDiffs.map(async (commitDiff) => {
         const {
           previousVersionFile,
