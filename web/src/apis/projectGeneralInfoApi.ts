@@ -58,7 +58,7 @@ export default class ProjectGeneralInfoApi extends ApiDirector {
   async getProjectsList() {
     const url = '/api/v1/projects';
     const builder = new BLApiRequestCallBuilder(METHODS.GET, this.buildBasicHeaders(validServicesToCall.BACKEND), url);
-        
+
     return fetch(builder.build())
       .then(handleResponse)
   }
@@ -138,18 +138,19 @@ export default class ProjectGeneralInfoApi extends ApiDirector {
     return fetch(builder.build());
   }
 
-  removeProject = async (projectId: number) => {
-    const bl = new BLApiRequestCallBuilder(
-      METHODS.DELETE,
-      this.buildBasicHeaders(validServicesToCall.GITLAB),
-      `/api/v4/projects/${projectId}`)
-    return fetch(bl.build())
-  };
+  removeProject(id: string) {
+    const url = `/api/v1/data-projects/${id}`;
+    const headers = this.buildBasicHeaders(validServicesToCall.BACKEND);
+    const builder = new BLApiRequestCallBuilder(METHODS.DELETE, headers, url);
+
+    return fetch(builder.build())
+      .then(handleResponse)
+  }
 
   async getUsers(projectId: number, auth: boolean) {
     const url = `/api/v4/projects/${projectId}/users`;
     const builder = new BLApiRequestCallBuilder(METHODS.GET, this.buildBasicHeaders(validServicesToCall.GITLAB), url);
-    
+
     const response = await fetch(auth ? builder.build() : url);
     if (!response.ok) {
       return Promise.reject(response);

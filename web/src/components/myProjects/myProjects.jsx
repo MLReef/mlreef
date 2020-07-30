@@ -13,7 +13,6 @@ import * as processorActions from 'actions/processorActions';
 import { onlyDataProject } from 'functions/apiCalls';
 import Navbar from '../navbar/navbar';
 import './myProjects.scss';
-import ProjectDeletionModal from '../project-deletion-modal/projectDeletionModal';
 import * as projectActions from '../../actions/projectInfoActions';
 import * as groupsActions from '../../actions/groupsActions';
 import * as userActions from '../../actions/userActions';
@@ -29,9 +28,6 @@ class Myprojects extends React.Component {
     // that leads to memory leaks and console warnings.
 
     this.state = {
-      showModal: false,
-      projectName: '',
-      owner: '',
       /* unsuscribeServices: null, */
       allProjects: [],
       userProjects: [],
@@ -98,9 +94,6 @@ class Myprojects extends React.Component {
 
   render() {
     const {
-      showModal,
-      projectName,
-      owner,
       allProjects,
       userProjects,
       starredProjects,
@@ -112,20 +105,13 @@ class Myprojects extends React.Component {
 
     return (
       <div style={{ backgroundColor: '#f2f2f2' }}>
-        <ProjectDeletionModal
-          isShowing={showModal}
-          projectName={projectName}
-          owner={owner}
-          hideModal={() => {}}
-          projectsList={userProjects}
-        />
         <Navbar />
         <br />
         <br />
         <br />
         <MTabs>
-          <MTabs.Section 
-            defaultActive 
+          <MTabs.Section
+            defaultActive
             id={projectClassificationsProps[0].classification}
             label="ML Projects"
             color={projectClassificationsProps[0].color}
@@ -188,9 +174,9 @@ class Myprojects extends React.Component {
               allProjects={allProjects}
             />
           </MTabs.Section>
-          <MTabs.Section 
-            id={projectClassificationsProps[3].classification} 
-            label="Data visualizations" 
+          <MTabs.Section
+            id={projectClassificationsProps[3].classification}
+            label="Data visualizations"
             color={projectClassificationsProps[3].color}
             callback={() => {
               try {

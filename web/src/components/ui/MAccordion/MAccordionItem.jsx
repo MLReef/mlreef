@@ -49,11 +49,12 @@ const MAccordionItem = (props) => {
 MAccordionItem.defaultProps = {
   subtitle: '',
   defaultExpanded: false,
+  referenceId: null,
 };
 
 MAccordionItem.propTypes = {
   title: PropTypes.string.isRequired,
-  referenceId: PropTypes.string.isRequired,
+  referenceId: PropTypes.string,
   subtitle: PropTypes.oneOfType([
     PropTypes.string,
     PropTypes.element,

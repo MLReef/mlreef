@@ -56,11 +56,15 @@ export const suscribeRT = (options = {}) => (action, args) => {
 };
 
 // this returns an error if code is bigger than 400
-export const handleResponse = (res) => res.ok ? res.json() : Promise.reject(res);
+// added an extra guard to avoid failing by bad json parsing
+export const handleResponse = (res) => {
+  if (!res.ok) return Promise.reject(res);
+
+  return res.status !== 204 ? res.json() : res;
+};
 
 // eslint-disable-next-line
 export const inspect = (res) => console.info(res) || res;
-
 
 export const onlyDataProject = (project) =>
   project.searchableType === PROJECT_TYPES.DATA;

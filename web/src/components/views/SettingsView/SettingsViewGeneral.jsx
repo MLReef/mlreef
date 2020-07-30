@@ -5,10 +5,11 @@ import MInput from 'components/ui/MInput';
 import { INFORMATION_UNITS } from 'domain/informationUnits';
 import MAccordion from 'components/ui/MAccordion';
 import ProjectGeneralInfoApi from 'apis/projectGeneralInfoApi';
-import './SettingsViewGeneral.scss';
 import MAvatar from 'components/ui/MAvatar/MAvatar';
 import MEmptyAvatar from 'components/ui/MEmptyAvatar/MEmptyAvatar';
 import { validateProjectName } from 'functions/validations';
+import SettingsViewGeneralAdvanced from './SettingsViewGeneralAdvanced';
+import './SettingsViewGeneral.scss';
 
 const projectApi = new ProjectGeneralInfoApi();
 
@@ -168,6 +169,15 @@ const SettingsViewGeneral = (props) => {
               </button>
             </div>
           </form>
+        </MAccordion.Item>
+        <MAccordion.Item
+          title="Advanced"
+          subtitle="Runs a number of housekeeping tasks within the current repository, such as compressing file revisions and removing unreachable objects."
+        >
+          <SettingsViewGeneralAdvanced
+            id={projectId}
+            name={projectName}
+          />
         </MAccordion.Item>
       </MAccordion>
     </div>
