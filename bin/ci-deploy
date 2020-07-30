@@ -73,6 +73,8 @@ ssh -i "$SSH_KEYFILE" -o 'AddKeysToAgent yes' ubuntu@"${URL}" <<EOF
     --key $AWS_ACCESS_KEY_ID                                    \
     --secret $AWS_SECRET_ACCESS_KEY                             \
     --gitlab-admin-token $GITLAB_ADMIN_TOKEN                    \
+    --noreply-email $NOREPLY_EMAIL                              \
+    --noreply-email-password $NOREPLY_EMAIL_PASSWORD            \
     --gitlab-secrets-key-base secret1111111111122222222222333333333334444444444555555555566666666661234 \
     --gitlab-opt-key-base secret1111111111122222222222333333333334444444444555555555566666666661234     \
     --gitlab-db-key-base secret1111111111122222222222333333333334444444444555555555566666666661234
