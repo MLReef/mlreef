@@ -14,7 +14,7 @@ import { getTimeCreatedAgo, getCommentFromCommit } from 'functions/dataParserHel
 import Navbar from '../navbar/navbar';
 import ProjectContainer from '../projectContainer';
 import './commitDetails.css';
-import CommitsApi from '../../apis/CommitsApi';
+import CommitsApi from '../../apis/CommitsApi.ts';
 import ImageDiffSection from '../imageDiffSection/imageDiffSection';
 
 const imageFormats = [
@@ -39,7 +39,7 @@ class CommitDetails extends Component {
     commitsApi.getCommitDetails(projectId, commitId)
       .then((response) => {
         this.setState({ commits: response });
-        CommitsApi
+        commitsApi
           .getCommitDiff(projectId, commitId)
           .then((res) => {
             this.setState({ files: res });

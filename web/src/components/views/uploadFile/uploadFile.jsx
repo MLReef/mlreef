@@ -9,11 +9,11 @@ import {
 import { toastr } from 'react-redux-toastr';
 import './uploadFile.scss';
 import { Redirect } from 'react-router';
-import CommitsApi from 'apis/CommitsApi';
 import MCheckBox from 'components/ui/MCheckBox/MCheckBox';
 import MergeRequestAPI from 'apis/mergeRequestApi';
 import { randomNameGenerator } from 'functions/pipeLinesHelpers';
 import MButton from 'components/ui/MButton';
+import CommitsApi from '../../../apis/CommitsApi.ts';
 import {
   SET_FILESUPLOAD,
   SET_CONTENT,
@@ -34,6 +34,8 @@ import reducer from './uploadFileReducer';
 import ProjectNav from '../../project-nav/projectNav';
 import Navbar from '../../navbar/navbar';
 import FileToSend from './fileToSend';
+
+const commitsapi = new CommitsApi();
 
 const UploadFile = (props) => {
   const fileInput = useRef(null);
@@ -114,7 +116,7 @@ const UploadFile = (props) => {
       body = { ...body, branch: newBranchName, start_branch: branchForFile };
     }
     dispatch({ type: SET_SENDING_FILES, payload: true });
-    CommitsApi.performCommitForMultipleActions(
+    commitsapi.performCommitForMultipleActions(
       gid,
       JSON.stringify(body),
     )
