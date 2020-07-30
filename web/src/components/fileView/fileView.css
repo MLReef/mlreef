@@ -64,11 +64,6 @@
   padding: 0 !important;
 }
 
-.file-content {
-  text-align: center !important;
-  padding: 16px !important;
-}
-
 .file-info {
   display: flex;
   flex: 1 1 auto !important;

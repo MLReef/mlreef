@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Redirect } from 'react-router-dom';
 import {
-  bool, string, arrayOf, func,
+  bool, string, arrayOf, func, number,
 } from 'prop-types';
 import { Checkbox, FormControlLabel } from '@material-ui/core';
 import { toastr } from 'react-redux-toastr';
@@ -171,7 +171,7 @@ const DeleteFileModal = ({
 
 DeleteFileModal.propTypes = {
   isModalVisible: bool.isRequired,
-  projectId: string.isRequired,
+  projectId: number.isRequired,
   filepath: string.isRequired,
   fileName: string,
   branchSelected: string.isRequired,
