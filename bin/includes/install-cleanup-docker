@@ -1,0 +1,10 @@
+#!/bin/bash
+
+# List all unused images
+docker images -f "dangling=true"
+
+# Removes all unused images
+docker rmi $(docker images -f "dangling=true" -q) --force || true
+
+# Removes all unused volumes
+docker volume prune --force || true

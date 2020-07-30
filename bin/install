@@ -26,10 +26,12 @@ rm -f local.env 2>/dev/null || true
 . bin/includes/install-render-local-env
 
 
-
 ####
 log "Starting Deployment"
 if [ "$INSTANCE" != "localhost" ]; then
+  # Cleanup docker images and volumes
+  . bin/includes/install-cleanup-docker
+  # Dowload all needed images
   docker-compose -f docker-compose.local.yml pull
 fi
 log "Stopping service gateway backend mlreefdb"
