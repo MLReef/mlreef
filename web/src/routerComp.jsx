@@ -11,7 +11,7 @@ import RegisterView from './components/RegisterView';
 import projectView from './components/projectView/projectView';
 import PrivateRoute from './privateRoute';
 import Explore from 'components/views/Explore';
-import ExperimentsOverview from './components/experiments-overview/experimentsOverview';
+import ExperimentsOverview from './components/experiments-overview/ExperimentOverview';
 import Projects from './components/myProjects/myProjects';
 import Commits from './components/commits-view/commitsView';
 import CommitDetails from './components/commits-details/commitDetails';

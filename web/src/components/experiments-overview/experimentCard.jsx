@@ -1,12 +1,13 @@
 import React from 'react';
-import { connect } from 'react-redux';
+import {
+  string, number, arrayOf, shape,
+} from 'prop-types';
 import { Link } from 'react-router-dom';
 import './experimentsOverview.css';
 import {
   getTimeCreatedAgo,
 } from '../../functions/dataParserHelpers';
 import ExperimentSummary from './ExperimentSummary';
-import { string, number, arrayOf, shape } from 'prop-types';
 
 const ExperimentCard = (props) => {
   const {
@@ -17,7 +18,7 @@ const ExperimentCard = (props) => {
     algorithms,
   } = props;
   const today = new Date();
-  return experiments.length > 0 ? (
+  return (
     <div className="pipeline-card" key={today}>
       <div className="header mb-1">
         <div className="title-div">
@@ -39,7 +40,7 @@ const ExperimentCard = (props) => {
           pipelineJobInfo: pipelineInfo,
           slug,
         } = experiment;
-        const shortSlug = slug ? slug.slice(11, slug.length) : "";
+        const shortSlug = slug ? slug.slice(11, slug.length) : '';
         return (
           <div
             key={experiment.name}
@@ -101,8 +102,6 @@ const ExperimentCard = (props) => {
         );
       })}
     </div>
-  ) : (
-    null
   );
 };
 
@@ -130,12 +129,6 @@ ExperimentCard.propTypes = {
 
 ExperimentCard.defaultProps = {
   experiments: [],
-}
+};
 
-function mapStateToProps(state) {
-  return {
-    algorithms: state.processors.algorithms,
-  };
-}
-
-export default connect(mapStateToProps)(ExperimentCard);
+export default ExperimentCard;

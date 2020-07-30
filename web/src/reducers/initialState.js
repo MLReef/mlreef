@@ -37,6 +37,7 @@ export default {
     },
     globalColorMarker: null,
     isLoading: false,
+    preconfiguredOperations: null,
   },
   actionModal: {
     title: 'Modal title',

@@ -1,5 +1,7 @@
 import React, { Component } from 'react';
+import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
+import * as userActions from 'actions/userActions';
 import { shape, string, arrayOf } from 'prop-types';
 import $ from 'jquery';
 import './pipelineView.css';
@@ -70,26 +72,24 @@ class PipelinesExecutionView extends Component {
   }
 
   componentDidMount() {
-    const { currentProcessors } = this.state;
-    this.setPreconfiguredOperations(currentProcessors);
+    this.setPreconfiguredOperations();
   }
 
   setPreconfiguredOperations() {
-    let configuredOperations = sessionStorage.getItem('configuredOperations');
-    if (!configuredOperations) {
+    const { preconfiguredOperations, actions } = this.props;
+    const { currentProcessors } = this.state;
+    if (!preconfiguredOperations) {
       return;
     }
-    const { currentProcessors } = this.state;
-    configuredOperations = JSON.parse(configuredOperations);
-    const processorsSelected = configuredOperations.dataOperatorsExecuted.map((op) => {
+    const processorsSelected = preconfiguredOperations.dataOperatorsExecuted.map((op) => {
       const filteredProcessor = currentProcessors.filter((cP) => cP.slug === op.slug)[0];
-      const newParametersArray = filteredProcessor.parameters.map((param, paramIndex) => (
-        { ...param, value: op.parameters[paramIndex].value }
-      ));
+      const newParametersArray = filteredProcessor.parameters.map((param, paramIndex) => ({
+        ...param, value: op.parameters[paramIndex].value,
+      }));
       return { ...filteredProcessor, parameters: newParametersArray };
     });
-    this.setState({ processorsSelected, initialFiles: configuredOperations.inputFiles });
-    sessionStorage.removeItem('configuredOperations');
+    this.setState({ processorsSelected, initialFiles: preconfiguredOperations.inputFiles });
+    actions.setPreconfiguredOPerations(null);
   }
 
   onSortEnd = ({ oldIndex, newIndex }) => this.setState(({ processorsSelected }) => ({
@@ -355,6 +355,15 @@ function mapStateToProps(state) {
     selectedProject: state.projects.selectedProject,
     branches: state.branches,
     processors: state.processors,
+    preconfiguredOperations: state.user.preconfiguredOperations,
+  };
+}
+
+function mapDispatchToProps(dispatch) {
+  return {
+    actions: bindActionCreators({
+      ...userActions,
+    }, dispatch),
   };
 }
 
@@ -372,4 +381,4 @@ PipelinesExecutionView.propTypes = {
   branches: arrayOf(shape({})).isRequired,
 };
 
-export default connect(mapStateToProps)(PipelinesExecutionView);
+export default connect(mapStateToProps, mapDispatchToProps)(PipelinesExecutionView);

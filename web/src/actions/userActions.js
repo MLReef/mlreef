@@ -104,3 +104,14 @@ export function setIsLoadingSuccessfully(isLoading) {
 export function setIsLoading(isLoading) {
   return (dispatch) => dispatch(setIsLoadingSuccessfully(isLoading));
 }
+
+/**
+ * @param {*} preconfiguredOperations: operations that were executed by the pipeline
+ */
+export function setPreconfiguredOPerationsSucessfully(preconfiguredOperations) {
+  return { type: types.SET_PRECONFIGURED_OPERATIONS, preconfiguredOperations };
+}
+
+export function setPreconfiguredOPerations(preconfiguredOperations) {
+  return (dispatch) => dispatch(setPreconfiguredOPerationsSucessfully(preconfiguredOperations));
+}

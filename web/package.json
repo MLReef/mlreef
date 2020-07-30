@@ -72,7 +72,7 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
-    "test": "jest --modulePaths=src --env=jsdom",
+    "test": "jest --modulePaths=src --env=jsdom --detectOpenHandles",
     "cypress": "cypress open",
     "eject": "react-scripts eject"
   },
