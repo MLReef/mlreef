@@ -22,6 +22,7 @@ import {
 } from '../../dataTypes';
 import { deleteBranch, getBranchesList } from '../../actions/branchesActions';
 import { fireModal } from '../../actions/actionModalActions';
+import { setPreconfiguredOPerations } from '../../actions/userActions';
 import { classifyPipeLines } from '../../functions/pipeLinesHelpers';
 
 const getStatusForDataInstance = (status) => {
@@ -47,8 +48,14 @@ const getStatusForDataInstance = (status) => {
 };
 
 export const InstanceCard = ({ ...props }) => {
-  const { params, history, name, deletePipeline } = props;
-  function goToPipelineView(e, id) {
+  const {
+    params, 
+    history,
+    name, 
+    deletePipeline, 
+    setPreconfiguredOPerations,
+  } = props;
+  function goToPipelineView(id) {
     const pId = params.instances[0].projId;
     const instance = params.instances.filter((ins) => ins.id === id)[0];
     const configuredOperations = {
@@ -56,7 +63,7 @@ export const InstanceCard = ({ ...props }) => {
       inputFiles: instance.inputFiles,
       pipelineBackendId: instance.pipelineBackendId,
     };
-    sessionStorage.setItem('configuredOperations', JSON.stringify(configuredOperations));
+    setPreconfiguredOPerations(configuredOperations);
     history.push(`/my-projects/${pId}/pipeline-execution/new-data-pipeline`);
   }
 
@@ -108,7 +115,7 @@ export const InstanceCard = ({ ...props }) => {
           type="button"
           key="experiment-button"
           className="btn btn-outline-dark my-auto"
-          onClick={(e) => goToPipelineView(e, id)}
+          onClick={() => goToPipelineView(id)}
         >
           View Pipeline
         </button>,
@@ -130,7 +137,7 @@ export const InstanceCard = ({ ...props }) => {
           type="button"
           key="experiment-button"
           className="btn btn-outline-dark my-auto"
-          onClick={(e) => goToPipelineView(e, id)}
+          onClick={() => goToPipelineView(id)}
         >
           View Pipeline
         </button>,
@@ -325,7 +332,9 @@ class DataInstanceOverview extends Component {
       typeOfMessage,
       onPositiveAction,
     } = this.state;
-    const { history, projects: { selectedProject }, fireModal } = this.props;
+    const {
+      history, projects: { selectedProject }, fireModal, setPreconfiguredOPerations,
+    } = this.props;
     let groupName;
     let name;
     if (selectedProject) {
@@ -421,6 +430,7 @@ class DataInstanceOverview extends Component {
                     history={history}
                     setIsDeleteModalVisible={this.setIsDeleteModalVisible}
                     deletePipeline={this.deletePipeline}
+                    setPreconfiguredOPerations={setPreconfiguredOPerations}
                     fireModal={fireModal}
                     params={{
                       currentState: dataInstanceClassification.status,
@@ -457,6 +467,7 @@ function mapActionsToProps(dispatch) {
     deleteBranch: bindActionCreators(deleteBranch, dispatch),
     getBranches: bindActionCreators(getBranchesList, dispatch),
     fireModal: bindActionCreators(fireModal, dispatch),
+    setPreconfiguredOPerations: bindActionCreators(setPreconfiguredOPerations, dispatch),
   };
 }
 

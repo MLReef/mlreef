@@ -1,19 +1,20 @@
 import React from 'react';
 import { shallow } from 'enzyme';
-import { projectsArrayMock, branchesMock, dataPipeLines } from 'testData';
+import {
+  projectsArrayMock, branchesMock, dataPipeLines, configuredOperations,
+} from 'testData';
 import { storeFactory } from 'functions/testUtils';
 import 'babel-polyfill';
-import WithPipelinesExecution from 'components/views/PipelinesExecutionView';
+import PipelinesExecutionView from 'components/views/PipelinesExecutionView';
 
-const setup = () => {
-  const match = { params: { typePipelines: 'new-data-pipeline' } };
-  const store = storeFactory({
-    projects: projectsArrayMock.projects,
-    branches: branchesMock,
-    processors: { operations: dataPipeLines },
-  });
+const match = { params: { typePipelines: 'new-data-pipeline' } };
+
+const setPreconfiguredOPerations = jest.fn();
+
+const setup = (initialState) => {
+  const store = storeFactory(initialState);
   const wrapper = shallow(
-    <WithPipelinesExecution match={match} store={store} />,
+    <PipelinesExecutionView match={match} store={store} actions={{ setPreconfiguredOPerations }} />,
   );
   const afterDive = wrapper.dive().dive();
   return afterDive;
@@ -22,7 +23,11 @@ const setup = () => {
 describe('test the most basic rendering', () => {
   let wrapper;
   beforeEach(() => {
-    wrapper = setup();
+    wrapper = setup({
+      projects: projectsArrayMock.projects,
+      branches: branchesMock,
+      processors: { operations: dataPipeLines },
+    });
   });
 
   test('assert that execute modal does not render when no operation is selected', () => {
@@ -58,9 +63,33 @@ describe('test the most basic rendering', () => {
     wrapper.instance().deleteProcessor(posToDelete);
     const { processorsSelected: processorsSelectedAfterDelete } = wrapper.state();
     expect(
-      processorsSelectedAfterDelete.filter((pS) => pS.internalProcessorId === idPos)
+      processorsSelectedAfterDelete.filter((pS) => pS.internalProcessorId === idPos),
     )
       .toHaveLength(0);
     expect(processorsSelectedAfterDelete).toHaveLength(dataPipeLines.length - 1);
+  });
+});
+
+describe('test when preconfigured operations are passed as params', () => {
+  let wrapper;
+  beforeEach(() => {
+    wrapper = setup({
+      projects: projectsArrayMock.projects,
+      branches: branchesMock,
+      processors: { operations: dataPipeLines },
+      user: {
+        preconfiguredOperations: configuredOperations,
+      },
+    });
+  });
+  test('assert that operations preconfigured are set in the component state', () => {
+    const { processorsSelected, initialFiles } = wrapper.state();
+    expect(processorsSelected.length).toBe(1);
+    const { slug, name } = configuredOperations.dataOperatorsExecuted[0];
+    const { inputFiles } = configuredOperations;
+    expect(processorsSelected[0].slug).toBe(slug);
+    expect(processorsSelected[0].name).toBe(name);
+    expect(initialFiles.length).toBe(1);
+    expect(initialFiles[0].location).toBe(inputFiles[0].location);
   });
 });

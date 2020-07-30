@@ -124,7 +124,8 @@ export const projectsArrayMock = {
   projects: {
     all: [
       {
-        id: 14448940,
+        id: 'df778df87d78f8d7fdfdf78df7877hjjhhjfd7887',
+        gid: 14448940,
         slug: 'some-slug',
         gitlabNamespace: 'Some namespace',
         description: 'Categorical Classification of alphabets in the American Sign Language',
@@ -140,15 +141,17 @@ export const projectsArrayMock = {
         web_url: 'https://gitlab.com/mlreef/sign-language-classifier',
         readme_url: 'https://gitlab.com/mlreef/sign-language-classifier/blob/master/README.md',
         avatar_url: 'https://gitlab.com/uploads/-/system/project/avatar/14448940/proxy.duckduckgo.png',
-        star_count: 0,
+        starsCount: 0,
         forks_count: 0,
         last_activity_at: '2019-11-10T15:14:17.804Z',
         namespace: 'some-namespace',
       },
     ],
     selectedProject: {
-      id: 12395599,
+      id: 'df778df87d78f8d7fdfdf78df7877hjljkdh33223',
+      gid: 12395599,
       description: 'This is MLReef´s demo repository.',
+      gitlabName: 'demo',
       name: 'demo',
       namespace: 'my-namespace',
       slug: 'the-project-name',
@@ -163,19 +166,9 @@ export const projectsArrayMock = {
       webUrl: 'https://gitlab.com/mlreef/mlreef-demo',
       readmeUrl: 'https://gitlab.com/mlreef/mlreef-demo/blob/master/README.md',
       avatarUrl: 'https://gitlab.com/uploads/-/system/project/avatar/12395599/shutterstock_129655604-Converted-copy-text.png',
-      starCount: 2,
+      starsCount: 2,
       forksCount: 1,
       lastActivityAt: '2019-11-11T10:36:06.189Z',
-      // namespace: {
-      //   id: 5351747,
-      //   name: 'MLReef',
-      //   path: 'mlreef',
-      //   kind: 'group',
-      //   full_path: 'mlreef',
-      //   parent_id: null,
-      //   avatar_url: '/uploads/-/system/group/avatar/5351747/MLReef_Logo_POS_H_icon-01.png',
-      //   web_url: 'https://gitlab.com/groups/mlreef',
-      // },
       owner: {
         username: 'mlreef',
       },
@@ -2276,11 +2269,24 @@ export const filesMock = [
 export const experimentMock = {
   dataInstanceId: null,
   authorName: 'mlreef',
-  dataProjectId: "5345bb52-5256-4cda-820a-15f3bcc5ad05",
-  id: "3fbdcf9e-8c2c-45cf-889d-5704e8843489",
-  inputFiles: [{location: "data", location_type: "PATH"}],
-  jsonBlob: {"0": {"acc": null, "val_acc": null, "loss": 3.5322117805480957, "val_loss": 687.5565185546875}, "1": {"acc": null, "val_acc": null, "loss": 3.386892080307007, "val_loss": 52.79811096191406}, "2": {"acc": null, "val_acc": null, "loss": 2.0041089057922363, "val_loss": 271.48876953125}, "3": {"acc": null, "val_acc": null, "loss": 6.353485107421875, "val_loss": 247.885009765625}},
-  name: "experiment/kind-kraken_1062020",
+  dataProjectId: '5345bb52-5256-4cda-820a-15f3bcc5ad05',
+  id: '3fbdcf9e-8c2c-45cf-889d-5704e8843489',
+  inputFiles: [{ location: 'data', location_type: 'PATH' }],
+  jsonBlob: {
+    0: {
+      acc: null, val_acc: null, loss: 3.5322117805480957, val_loss: 687.5565185546875,
+    },
+    1: {
+      acc: null, val_acc: null, loss: 3.386892080307007, val_loss: 52.79811096191406,
+    },
+    2: {
+      acc: null, val_acc: null, loss: 2.0041089057922363, val_loss: 271.48876953125,
+    },
+    3: {
+      acc: null, val_acc: null, loss: 6.353485107421875, val_loss: 247.885009765625,
+    },
+  },
+  name: 'experiment/kind-kraken_1062020',
   pipelineJobInfo: {
     commitSha: 'abd778adfa9b53f02d903c6c03fbd7ba03e113c1',
     createdAt: '2020-06-10T15:06:51.382Z',
@@ -2302,3 +2308,328 @@ export const experimentMock = {
   status: 'SUCCESS',
   targetBranch: 'experiment/kind-kraken_1062020',
 };
+
+export const configuredOperations = {
+  dataOperatorsExecuted: [{
+    slug: 'commons-augment',
+    parameters: [{
+      name: 'input-path',
+      value: '.',
+      type: 'STRING',
+      required: true,
+      description: '',
+    },
+    {
+      name: 'output-path',
+      value: '.',
+      type: 'STRING',
+      required: true,
+      description: '',
+    }, {
+      name: 'iterations',
+      value: '8',
+      type: 'INTEGER',
+      required: true,
+      description: '',
+    }, {
+      name: 'rotation-range',
+      value: '89',
+      type: 'INTEGER',
+      required: true,
+      description: '',
+    }, {
+      name: 'width-shift-range',
+      value: '89',
+      type: 'INTEGER',
+      required: true,
+      description: '',
+    }, {
+      name: 'height-shift-range',
+      value: '98',
+      type: 'INTEGER',
+      required: true,
+      description: '',
+    }, {
+      name: 'shear-range',
+      value: '989',
+      type: 'FLOAT',
+      required: true,
+      description: '',
+    }, {
+      name: 'zoom-range',
+      value: '8',
+      type: 'FLOAT',
+      required: true,
+      description: '',
+    }, {
+      name: 'horizontal-flip',
+      value: '998',
+      type: 'BOOLEAN',
+      required: true,
+      description: '',
+    }, {
+      name: 'vertical-flip',
+      value: '89',
+      type: 'BOOLEAN',
+      required: true,
+      description: '',
+    }],
+    id: 'af3861a3-51fe-4df3-b5f8-0712f806a75e',
+    name: 'Augment',
+  }],
+  inputFiles: [{
+    location: 'README.md',
+    location_type: 'PATH',
+  }],
+  pipelineBackendId: '29f484f4-6d03-4797-a331-0cf743f39d23',
+};
+
+export const experimentsClassifiedMock = [
+  { status: 'RUNNING', values: [] },
+  { status: 'SUCCESS', values: [] },
+  { status: 'CANCELED', values: [] },
+  {
+    status: 'FAILED',
+    values: [{
+      id: 'd2fad8b3-8e3f-43bd-9623-5ae388e08ac2',
+      dataProjectId: 'f464fa7e-cabc-41cd-a87b-89ba29f2e2b7',
+      dataInstanceId: null,
+      slug: 'experiment-polite-shark-1272020',
+      name: 'experiment/polite-shark_1272020',
+      sourceBranch: 'master',
+      targetBranch: 'experiment/polite-shark_1272020',
+      status: 'FAILED',
+      pipelineJobInfo: {
+        id: 60, ref: 'experiment/polite-shark_1272020', commitSha: '5677cc98eaf0b1e93993176e143acad369ae8f6a', createdAt: '2020-07-12T21:21:09.373Z', updatedAt: '2020-07-12T21:21:09.464Z',
+      },
+      postProcessing: [],
+      processing: {
+        slug: 'debug-dataprocessor', parameters: [], id: 'c02ad63a-929e-494d-8654-73eba31bd8e1', name: 'Dummy debug_dataprocessor',
+      },
+      jsonBlob: '',
+      paramNames: [],
+      authorName: 'mlreef',
+      inputFiles: [{ location: 'training_set/cats', location_type: 'PATH' }],
+    }, {
+      id: 'a1263dba-6bbd-42e8-9cb8-00934bba3a36',
+      dataProjectId: 'f464fa7e-cabc-41cd-a87b-89ba29f2e2b7',
+      dataInstanceId: null,
+      slug: 'experiment-positive-clownfish-772020',
+      name: 'experiment/positive-clownfish_772020',
+      sourceBranch: 'master',
+      targetBranch: 'experiment/positive-clownfish_772020',
+      status: 'FAILED',
+      pipelineJobInfo: {
+        id: 34, ref: 'experiment/positive-clownfish_772020', commitSha: 'c4301e283bbd0edcb74d46b8d0e431f145d3a948', createdAt: '2020-07-07T14:24:30.247Z', updatedAt: '2020-07-07T14:24:30.345Z',
+      },
+      postProcessing: [],
+      processing: {
+        slug: 'resnet50',
+        parameters: [{
+          name: 'output-path', value: '.', type: 'STRING', required: true, description: '',
+        }, {
+          name: 'height', value: '100', type: 'INTEGER', required: true, description: '',
+        }, {
+          name: 'width', value: '100', type: 'INTEGER', required: true, description: '',
+        }, {
+          name: 'epochs', value: '3', type: 'FLOAT', required: true, description: '',
+        }],
+        id: '4383bb8c-0b8f-4084-aad4-09574ee86492',
+        name: 'Resnet 50',
+      },
+      jsonBlob: '',
+      paramNames: [],
+      authorName: 'mlreef',
+      inputFiles: [{ location: 'training_set/cats', location_type: 'PATH' }],
+    }, {
+      id: '75583c2d-4253-42ac-b2a9-037dbf6b2f82',
+      dataProjectId: 'f464fa7e-cabc-41cd-a87b-89ba29f2e2b7',
+      dataInstanceId: null,
+      slug: 'experiment-nice-megalodon-672020',
+      name: 'experiment/nice-megalodon_672020',
+      sourceBranch: 'master',
+      targetBranch: 'experiment/nice-megalodon_672020',
+      status: 'FAILED',
+      pipelineJobInfo: {
+        id: 20, ref: 'experiment/nice-megalodon_672020', commitSha: '8ac38552843d872e4456808a68a160e74d2e7c13', createdAt: '2020-07-06T21:37:26.095Z', updatedAt: '2020-07-06T21:37:26.204Z',
+      },
+      postProcessing: [],
+      processing: {
+        slug: 'resnet50',
+        parameters: [{
+          name: 'output-path', value: '.', type: 'STRING', required: true, description: '',
+        }, {
+          name: 'height', value: '100', type: 'INTEGER', required: true, description: '',
+        }, {
+          name: 'width', value: '100', type: 'INTEGER', required: true, description: '',
+        }, {
+          name: 'epochs', value: '2', type: 'FLOAT', required: true, description: '',
+        }],
+        id: '40825df9-314a-491e-84e2-3ede91a5e127',
+        name: 'Resnet 50',
+      },
+      jsonBlob: '',
+      paramNames: [],
+      authorName: 'mlreef',
+      inputFiles: [{ location: 'training_set', location_type: 'PATH' }],
+    }, {
+      id: '637277a2-8c8c-4684-ad2a-be036f14e728',
+      dataProjectId: 'f464fa7e-cabc-41cd-a87b-89ba29f2e2b7',
+      dataInstanceId: null,
+      slug: 'experiment-gentle-krill-372020',
+      name: 'experiment/gentle-krill_372020',
+      sourceBranch: 'master',
+      targetBranch: 'experiment/gentle-krill_372020',
+      status: 'FAILED',
+      pipelineJobInfo: {
+        id: 14, ref: 'experiment/gentle-krill_372020', commitSha: '008dae275a015ff1b8969da56cff0f26917947f1', createdAt: '2020-07-03T14:02:32.307Z', updatedAt: '2020-07-03T14:02:32.426Z',
+      },
+      postProcessing: [],
+      processing: {
+        slug: 'resnet50',
+        parameters: [{
+          name: 'output-path', value: '.', type: 'STRING', required: true, description: '',
+        }, {
+          name: 'height', value: '128', type: 'INTEGER', required: true, description: '',
+        }, {
+          name: 'width', value: '128', type: 'INTEGER', required: true, description: '',
+        }, {
+          name: 'epochs', value: '5', type: 'FLOAT', required: true, description: '',
+        }],
+        id: 'daddd510-9cd2-437f-b3d2-0b95159bf148',
+        name: 'Resnet 50',
+      },
+      jsonBlob: '',
+      paramNames: [],
+      authorName: 'mlreef',
+      inputFiles: [{ location: 'training_set', location_type: 'PATH' }],
+    }, {
+      id: '94a5b534-491a-49d3-ab4f-d62c0973cd47',
+      dataProjectId: 'f464fa7e-cabc-41cd-a87b-89ba29f2e2b7',
+      dataInstanceId: null,
+      slug: 'experiment-humble-moby-dick-372020',
+      name: 'experiment/humble-moby-dick_372020',
+      sourceBranch: 'master',
+      targetBranch: 'experiment/humble-moby-dick_372020',
+      status: 'FAILED',
+      pipelineJobInfo: {
+        id: 12, ref: 'experiment/humble-moby-dick_372020', commitSha: '6b5de8a04587485e720d7f6af0d18ac15c5d3318', createdAt: '2020-07-03T09:34:14.327Z', updatedAt: '2020-07-03T09:34:14.445Z',
+      },
+      postProcessing: [],
+      processing: {
+        slug: 'resnet50',
+        parameters: [{
+          name: 'output-path', value: '.', type: 'STRING', required: true, description: '',
+        }, {
+          name: 'height', value: '128', type: 'INTEGER', required: true, description: '',
+        }, {
+          name: 'width', value: '128', type: 'INTEGER', required: true, description: '',
+        }, {
+          name: 'epochs', value: '6', type: 'FLOAT', required: true, description: '',
+        }, {
+          name: 'learning-rate', value: '0.002', type: 'FLOAT', required: false, description: '',
+        }],
+        id: '58fcbe3d-09ef-4345-8023-bd85901fbec9',
+        name: 'Resnet 50',
+      },
+      jsonBlob: '',
+      paramNames: [],
+      authorName: 'mlreef',
+      inputFiles: [{ location: 'training_set', location_type: 'PATH' }],
+    }, {
+      id: 'c302f2ed-812f-4360-bbbf-5fcb0716ffe3',
+      dataProjectId: 'f464fa7e-cabc-41cd-a87b-89ba29f2e2b7',
+      dataInstanceId: null,
+      slug: 'experiment-excited-whale-272020',
+      name: 'experiment/excited-whale_272020',
+      sourceBranch: 'master',
+      targetBranch: 'experiment/excited-whale_272020',
+      status: 'FAILED',
+      pipelineJobInfo: {
+        id: 10, ref: 'experiment/excited-whale_272020', commitSha: '8aaa7e4d3955a7e9335db3be3b5525bedab22535', createdAt: '2020-07-02T18:19:21.084Z', updatedAt: '2020-07-02T18:19:21.187Z',
+      },
+      postProcessing: [],
+      processing: {
+        slug: 'resnet50',
+        parameters: [{
+          name: 'output-path', value: '.', type: 'STRING', required: true, description: '',
+        }, {
+          name: 'height', value: '100', type: 'INTEGER', required: true, description: '',
+        }, {
+          name: 'width', value: '100', type: 'INTEGER', required: true, description: '',
+        }, {
+          name: 'epochs', value: '2', type: 'FLOAT', required: true, description: '',
+        }],
+        id: '8caaf9dc-588b-4092-aa31-b4cfb1548afe',
+        name: 'Resnet 50',
+      },
+      jsonBlob: '',
+      paramNames: [],
+      authorName: 'mlreef',
+      inputFiles: [{ location: 'training_set', location_type: 'PATH' }],
+    }, {
+      id: 'd0abfa99-6f23-4309-8cbf-cccbe2f3df95',
+      dataProjectId: 'f464fa7e-cabc-41cd-a87b-89ba29f2e2b7',
+      dataInstanceId: null,
+      slug: 'experiment-optimum-lobster-172020',
+      name: 'experiment/optimum-lobster_172020',
+      sourceBranch: 'master',
+      targetBranch: 'experiment/optimum-lobster_172020',
+      status: 'FAILED',
+      pipelineJobInfo: {
+        id: 6, ref: 'experiment/optimum-lobster_172020', commitSha: '980f628beae2805459e4dc1c3bcfb4f57bc2a516', createdAt: '2020-07-01T08:53:35.734Z', updatedAt: '2020-07-01T08:53:35.837Z',
+      },
+      postProcessing: [],
+      processing: {
+        slug: 'resnet50',
+        parameters: [{
+          name: 'output-path', value: '.', type: 'STRING', required: true, description: '',
+        }, {
+          name: 'height', value: '128', type: 'INTEGER', required: true, description: '',
+        }, {
+          name: 'width', value: '128', type: 'INTEGER', required: true, description: '',
+        }, {
+          name: 'epochs', value: '5', type: 'FLOAT', required: true, description: '',
+        }],
+        id: '1fde6b4c-10be-4475-82a9-ee4b037ad619',
+        name: 'Resnet 50',
+      },
+      jsonBlob: '',
+      paramNames: [],
+      authorName: 'mlreef',
+      inputFiles: [{ location: 'training_set', location_type: 'PATH' }],
+    }, {
+      id: 'e962963d-cb62-44bc-8f3e-3ef2baffe86e',
+      dataProjectId: 'f464fa7e-cabc-41cd-a87b-89ba29f2e2b7',
+      dataInstanceId: null,
+      slug: 'experiment-glowing-prawn-3062020',
+      name: 'experiment/glowing-prawn_3062020',
+      sourceBranch: 'master',
+      targetBranch: 'experiment/glowing-prawn_3062020',
+      status: 'FAILED',
+      pipelineJobInfo: {
+        id: 2, ref: 'experiment/glowing-prawn_3062020', commitSha: '883f60011dcaa8bedcac0cac61b8988ebf4ad61b', createdAt: '2020-06-30T08:29:41.843Z', updatedAt: '2020-06-30T08:29:41.96Z',
+      },
+      postProcessing: [],
+      processing: {
+        slug: 'resnet50',
+        parameters: [{
+          name: 'output-path', value: '.', type: 'STRING', required: true, description: '',
+        }, {
+          name: 'height', value: '128', type: 'INTEGER', required: true, description: '',
+        }, {
+          name: 'width', value: '128', type: 'INTEGER', required: true, description: '',
+        }, {
+          name: 'epochs', value: '10', type: 'FLOAT', required: true, description: '',
+        }],
+        id: 'ff9d036a-73b4-4d13-b48d-e5ac92c4b185',
+        name: 'Resnet 50',
+      },
+      jsonBlob: '',
+      paramNames: [],
+      authorName: 'mlreef',
+      inputFiles: [{ location: 'training_set', location_type: 'PATH' }],
+    }],
+  },
+  { status: 'EXPIRED', values: [] },
+];

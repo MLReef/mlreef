@@ -34,7 +34,7 @@ export function getProcessors(type) {
       dataProcessors.map((dataProcessor) => dataProcApi.getParamDetails(dataProcessor.id)),
     ))
     .then((dataProcessorsVersionsArr) => dataProcessorsVersionsArr
-      .map((versionsArr) => versionsArr.filter((version) => version.branch === 'master'))
+      .map((versionsArr) => versionsArr.filter((version) => version.branch === 'master')) // this is not Gitlab info so to hardcode master makes sense. DO NOT REPLICATE
       .map((versionsFiltered) => versionsFiltered[0]))
     .then((processors) => {
       switch (type) {
