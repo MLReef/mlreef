@@ -109,10 +109,10 @@ services:
 
 volumes:
   sock:
-  gitlab-etc:  #CI_DELETE_LINE: this line gets removed by the CI/CD pipeline (.gitlab-ci-deploy.yml)
-  gitlab-log:  #CI_DELETE_LINE: this line gets removed by the CI/CD pipeline (.gitlab-ci-deploy.yml)
-  gitlab-opt:  #CI_DELETE_LINE: this line gets removed by the CI/CD pipeline (.gitlab-ci-deploy.yml)
-  mlreef-opt:  #CI_DELETE_LINE: this line gets removed by the CI/CD pipeline (.gitlab-ci-deploy.yml)
+  gitlab-etc:  #CI_DELETE_LINE: this line gets removed by the CI/CD pipeline (.gitlab-ci.yml)
+  gitlab-log:  #CI_DELETE_LINE: this line gets removed by the CI/CD pipeline (.gitlab-ci.yml)
+  gitlab-opt:  #CI_DELETE_LINE: this line gets removed by the CI/CD pipeline (.gitlab-ci.yml)
+  mlreef-opt:  #CI_DELETE_LINE: this line gets removed by the CI/CD pipeline (.gitlab-ci.yml)
 
 networks:
   mlreef-docker-network:
