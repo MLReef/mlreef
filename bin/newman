@@ -7,7 +7,6 @@
 IMAGE="registry.gitlab.com/systemkern/s5:latest-newman"
 COMMAND="newman"
 
-# "${VAR:+default}" evaluates to either $VAR or the default value "default" if $VAR is unset
 export DOCKER_OPTS="${DOCKER_OPTS:--it}"
 
 

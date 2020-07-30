@@ -69,9 +69,6 @@ if [ -z "${GITLAB_SECRETS_DB_KEY_BASE:+x}" ]; then
   export GITLAB_SECRETS_DB_KEY_BASE=secret11111111112222222222333333333344444444445555555555666666666612345
 fi
 
-if [ "$GITLAB_ADMIN_TOKEN" = "" ]; then
-  export GITLAB_ADMIN_TOKEN=local-api-token
-fi
 
 # Branch Name: feature/123-my-awesome-feature
 # CI_COMMIT_REF_SLUG: feature-123-my-awesome-feature
@@ -91,13 +88,20 @@ if [ "${EPF_BUILD:-true}" = "true" ]; then
 fi
 cat docker-compose.local.yml
 
+if [ "${GITLAB_ADMIN_TOKEN-}" != "" ]; then
+    echo >&2 "ERROR: In your environment the environment variable GITLAB_ADMIN_TOKEN is set to $GITLAB_ADMIN_TOKEN."
+    echo >&2 " This might lead to problems with modules running outside of the docker-compose environment"
+    exit 1
+fi
 
-bin/install                                 \
-  --gitlab-admin-token $GITLAB_ADMIN_TOKEN  \
-  --instance localhost                      \
-  --version "${VERSION:-develop}"           \
-  ${SKIP_BACKEND_DEPLOYMENT_OPTION:-}       \
-  ${SKIP_GATEWAY_DEPLOYMENT_OPTION:-}       \
+
+
+bin/install                                                       \
+  --gitlab-admin-token "local-api-token"                          \
+  --instance "localhost"                                          \
+  --version "${VERSION:-develop}"                                 \
+  ${SKIP_BACKEND_DEPLOYMENT_OPTION:-}                             \
+  ${SKIP_GATEWAY_DEPLOYMENT_OPTION:-}                             \
 
 
 if [ "${TEST:-true}" = "true" ]; then

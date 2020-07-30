@@ -27,10 +27,11 @@ touch $LOCK
   echo "### 4. Download Gitlab Database"
   docker run --rm --tty                           \
     --volume "${HOME}":/root                      \
-    --volume "${PWD}":/app                        \
-    -e AWS_ACCESS_KEY_ID=XXXXX                    \
-    -e AWS_SECRET_ACCESS_KEY=XXXXX                \
-    -e AWS_DEFAULT_REGION=eu-central-1            \
+    --volume "$(pwd)":/workdir                    \
+    --workdir /workdir                            \
+    -env AWS_ACCESS_KEY_ID=XXXXX                  \
+    -env AWS_SECRET_ACCESS_KEY=XXXXX              \
+    -env AWS_DEFAULT_REGION=eu-central-1          \
     registry.gitlab.com/systemkern/s5:latest-aws  \
     aws s3 cp s3://$S3_BUCKET_NAME/$INIT_ZIP .
 

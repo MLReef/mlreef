@@ -20,6 +20,9 @@ variables:
 
 # The before_script handles everything git related and sets up the automatic committing
 before_script:
+  # Debug output mlreef.yml
+  - cat .mlreef.yml
+  - echo "####################"
   #- it just aint working!
   - git remote set-url origin http://${GIT_PUSH_USER}:${GIT_PUSH_TOKEN}@%GITLAB_ROOT_URL%/%GITLAB_GROUP%/%GITLAB_PROJECT%.git
   - git config --global user.email "%CONF_EMAIL%"

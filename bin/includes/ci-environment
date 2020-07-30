@@ -1,5 +1,5 @@
 #!/bin/bash
-# shellcheck disable=SC2155  ### declare and assign variables in one command might hide return values
+# shellcheck disable=SC2155  # declare and assign variables in one command might hide return values
 
 # The ci-environment script acts as the basis to all ci scripts.
 # It ensures the existence of the necessary environment variables.
@@ -9,8 +9,8 @@
 
 
 GIT_BRANCH=$(git rev-parse --abbrev-ref HEAD) || echo "no-git-inside-docker-container"
-#This sed replaces slash "/" in branch names with dash "-"
-LOCAL_CI_COMMIT_REF_SLUG=$(echo "$GIT_BRANCH" | sed "s~/~-~")
+#This sed replaces slash "/" in branch names with dash "-"; make the whole string lowercase
+LOCAL_CI_COMMIT_REF_SLUG=$(echo "$GIT_BRANCH" | sed "s~/~-~" | awk '{print tolower($0)}')
 
 # https://www.gnu.org/software/bash/manual/html_node/Shell-Parameter-Expansion.html}
 # https://stackoverflow.com/a/13864829/638225
@@ -36,23 +36,18 @@ echo "  EC2_INSTANCE_NAME= $EC2_INSTANCE_NAME"
 
 
 # This check exists to allow running on local developer instance where deployment is not needed.
-if [ -z ${AWS_DEVELOP_2020_2+x} ]; then
-  echo "INFO: No known keyfile found. Deployment jobs will fail"
+# AWS key pairs can be viewed here: https://eu-central-1.console.aws.amazon.com/ec2/v2/home?region=eu-central-1#KeyPairs:
+if [ -e "$AWS_PROD_2020_2" ]; then
+  export   SSH_KEYFILE="$AWS_PROD_2020_2"
+  export   SSH_KEYPAIR_NAME="AWS_PROD_2020_2"
+elif [ -e "$AWS_DEVELOP_2020_2" ]; then
+  export   SSH_KEYFILE="$AWS_DEVELOP_2020_2"
+  export   SSH_KEYPAIR_NAME="AWS_DEVELOP_2020_2"
 else
-  # AWS key pairs can be viewed here: https://eu-central-1.console.aws.amazon.com/ec2/v2/home?region=eu-central-1#KeyPairs:
-  if [ -e "$AWS_PROD_2020_2" ]; then
-    export   SSH_KEYFILE="$AWS_PROD_2020_2"
-    export   SSH_KEYPAIR_NAME="AWS_PROD_2020_2"
-  elif [ -e "$AWS_DEVELOP_2020_2" ]; then
-    export   SSH_KEYFILE="$AWS_DEVELOP_2020_2"
-    export   SSH_KEYPAIR_NAME="AWS_DEVELOP_2020_2"
-  else
-    echo >&2 "ERROR: could not determine EC2 Keypair"
-    exit 17
-  fi
-  echo "        SSH_KEYFILE= $SSH_KEYFILE"
-  chmod 400   "$SSH_KEYFILE" # ensure correct permissions on the keyfile
+  echo "INFO: No known keyfile found. Deployment jobs will fail"
 fi
+echo "        SSH_KEYFILE= $SSH_KEYFILE"
+chmod 400   "$SSH_KEYFILE" # ensure correct permissions on the keyfile
 
 
 export TAG="${CI_COMMIT_REF_SLUG}"
