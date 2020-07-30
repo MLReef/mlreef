@@ -32,6 +32,16 @@ while [ -n "${1+x}" ]; do
     echo "Using AWS_ACCESS_KEY_ID $AWS_ACCESS_KEY_ID"
     shift
     ;;
+  --noreply-email)
+    export NOREPLY_EMAIL="$2"
+    echo "Using NOREPLY_EMAIL $NOREPLY_EMAIL"
+    shift
+    ;;
+  --noreply-email-password)
+    export NOREPLY_EMAIL_PASSWORD="$2"
+    echo "Using NOREPLY_EMAIL $NOREPLY_EMAIL_PASSWORD"
+    shift
+    ;;
   -n | --name)
     export EC2_INSTANCE_NAME="$2"
     echo "Using EC2_INSTANCE_NAME $EC2_INSTANCE_NAME"
