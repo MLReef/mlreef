@@ -1,11 +1,14 @@
 import React from 'react';
+import MCodeRenderer from 'components/layout/MCodefileRenderer/MCodefileRenderer';
 import './fileView.css';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { toastr } from 'react-redux-toastr';
 import { Base64 } from 'js-base64';
 import { Link } from 'react-router-dom';
-import { string, shape, arrayOf, func } from 'prop-types';
+import {
+  string, shape, arrayOf, func,
+} from 'prop-types';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import MDropdown from 'components/ui/MDropdown';
@@ -22,6 +25,7 @@ const file01 = '/images/svg/file_01.svg';
 
 const filesApi = new FilesApi();
 const commitsApi = new CommitsApi();
+
 
 export class FileView extends React.Component {
   constructor(props) {
@@ -43,8 +47,10 @@ export class FileView extends React.Component {
       actions,
       projectId,
       match: {
-        params: { file, branch, namespace, slug }
-      }
+        params: {
+          file, branch, namespace, slug,
+        },
+      },
     } = this.props;
 
     let gid;
@@ -90,7 +96,11 @@ export class FileView extends React.Component {
       users,
       branches,
       projectId,
-      match: { params: { file, branch, namespace, slug } }
+      match: {
+        params: {
+          file, branch, namespace, slug,
+        },
+      },
     } = this.props;
     const {
       project,
@@ -111,7 +121,7 @@ export class FileView extends React.Component {
     let fileName = null;
     let fileSize = null;
     let avatar = 'https://assets.gitlab-static.net/uploads/-/system/user/avatar/3839940/avatar.png';
-    let fileContent = [];
+    let fileContent = null;
     let filepath = [];
     let extension;
     if (users && authorName) {
@@ -122,13 +132,12 @@ export class FileView extends React.Component {
           avatar = avatarUrl;
         }
       });
-
     }
 
     if (fileData) {
       fileName = fileData.file_name;
       fileSize = fileData.size;
-      fileContent = Base64.decode(fileData.content).split('\n');
+      fileContent = Base64.decode(fileData.content);
       extension = fileName.split('.').pop().toLowerCase();
       filepath = fileData.file_path.split('/');
     }
@@ -302,17 +311,12 @@ export class FileView extends React.Component {
                   />
                 </div>
               ) : (
-                <table>
-                  <tbody>
-                    {fileContent.map((line, i) => (
-                      <tr key={i.toString()}>
-                        <td>
-                          <p>{line}</p>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+                fileContent && (
+                  <MCodeRenderer
+                    code={fileContent}
+                    fileExtension={extension}
+                  />
+                )
               )}
             </div>
           </div>
