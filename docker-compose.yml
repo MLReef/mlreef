@@ -6,7 +6,7 @@ services:
 
   gateway:
     container_name: gateway
-    image: registry.gitlab.com/mlreef/mlreef/gateway:develop
+    image: registry.gitlab.com/mlreef/mlreef/gateway:master
     restart: always
     depends_on:
       - gitlab
@@ -18,7 +18,7 @@ services:
 
   backend:
     container_name: backend
-    image: registry.gitlab.com/mlreef/mlreef/backend:develop
+    image: registry.gitlab.com/mlreef/mlreef/backend:master
     restart: always
     depends_on:
       - gitlab

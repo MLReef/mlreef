@@ -14,11 +14,9 @@ build frontend:
       - /usr/local/lib/node_modules
       - web/node_modules
   before_script:
-    - export TAG="${CI_COMMIT_REF_SLUG}"
-    - if [ $CI_COMMIT_REF_SLUG = "master" ]; then export TAG="latest";  fi          # follow docker naming conventions
-    - export GATEWAY_IMAGE_PATH=$CI_REGISTRY_IMAGE/gateway:$TAG
-    - export BACKEND_IMAGE_PATH=$CI_REGISTRY_IMAGE/backend:$TAG
-    - export     EPF_IMAGE_PATH=$CI_REGISTRY_IMAGE/epf:$TAG
+    - export GATEWAY_IMAGE_PATH=$CI_REGISTRY_IMAGE/gateway:$CI_COMMIT_REF_SLUG
+    - export BACKEND_IMAGE_PATH=$CI_REGISTRY_IMAGE/backend:$CI_COMMIT_REF_SLUG
+    - export     EPF_IMAGE_PATH=$CI_REGISTRY_IMAGE/epf:$CI_COMMIT_REF_SLUG
   script: |
     web/bin/ci-build-frontend
     docker push "$GATEWAY_IMAGE_PATH"
