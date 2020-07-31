@@ -16,6 +16,7 @@ class DataVisualization(
     description: String = "",
     author: Subject? = null,
     codeProject: CodeProject? = null,
+    codeProjectId: UUID? = codeProject?.id,
     termsAcceptedById: UUID? = null,
     termsAcceptedAt: ZonedDateTime? = null,
     licenceName: String? = null,
@@ -25,7 +26,7 @@ class DataVisualization(
     createdAt: ZonedDateTime? = null,
     updatedAt: ZonedDateTime? = null
 ) : DataProcessor(id, slug, name, inputDataType, DataType.NONE, DataProcessorType.VISUALIZATION,
-    visibilityScope, description, codeProject, codeProject?.id, author,
+    visibilityScope, description, codeProject, codeProject?.id ?: codeProjectId, author,
     termsAcceptedById, termsAcceptedAt, licenceName, licenceText, lastPublishedAt,
     version, createdAt, updatedAt) {
     override fun isChainable(): Boolean = true
@@ -54,6 +55,7 @@ class DataVisualization(
         author = author ?: this.author,
         id = id,
         codeProject = codeProject ?: this.codeProject,
+        codeProjectId = codeProjectId ?: this.codeProjectId,
         termsAcceptedById = termsAcceptedById ?: this.termsAcceptedById,
         termsAcceptedAt = termsAcceptedAt ?: this.termsAcceptedAt,
         licenceName = licenceName ?: this.licenceName,

@@ -79,6 +79,32 @@ deploy:
   image: registry.gitlab.com/systemkern/s5:latest
   script: bin/ci-deploy
 
+# please do not move, adapt, delete, move to a include, whatever, if you did not read about the special "pages" job of gitlab ci
+pages:
+  extends: [".except-docu-branches"]
+  stage: deploy
+  when: delayed
+  start_in: 1 minutes
+  cache:
+    key: pages-public-cache
+    paths:
+      - public/
+  script:
+    - ls public/develop public/feature/* -l || echo "Still empty"
+    - mkdir public/$CI_COMMIT_BRANCH -p || echo "Already existing"
+    - rm public/$CI_COMMIT_BRANCH/* -R || echo "Still empty"
+    - mkdir public/$CI_COMMIT_BRANCH/coverage -p
+    - mv backend/mlreef-rest/build/reports/jacoco/test/html/* public/$CI_COMMIT_BRANCH/coverage
+    - mv backend/mlreef-rest/build/asciidoc/html5/rest-api.html public/$CI_COMMIT_BRANCH/index.html
+    - echo "Documentation URL is $CI_PAGES_URL/$CI_COMMIT_BRANCH"
+  artifacts:
+    paths:
+      - public
+  environment:
+    name: $CI_COMMIT_REF_SLUG
+    url: $CI_PAGES_URL/$CI_COMMIT_BRANCH
+    on_stop: decommission
+
 
 gitlab api smoke test:
   extends: [.except-docu-branches]

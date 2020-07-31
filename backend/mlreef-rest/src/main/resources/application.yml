@@ -9,6 +9,8 @@ mlreef:
   gitlab:
     root-url: ${GITLAB_ROOT_URL}
     admin-user-token: ${GITLAB_ADMIN_TOKEN}
+    admin-username: ${GITLAB_ADMIN_USERNAME:mlreef}
+    admin-password: ${GITLAB_ADMIN_PASSWORD:password}
   bot-management:
     epf-bot-email-domain: mlreef.com
     epf-bot-password-length: 20

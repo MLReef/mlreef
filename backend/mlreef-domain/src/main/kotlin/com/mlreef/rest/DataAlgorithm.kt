@@ -30,7 +30,7 @@ class DataAlgorithm(
     createdAt: ZonedDateTime? = null,
     updatedAt: ZonedDateTime? = null
 ) : DataProcessor(id, slug, name, inputDataType, outputDataType, DataProcessorType.ALGORITHM,
-    visibilityScope, description, codeProject, codeProject?.id, author,
+    visibilityScope, description, codeProject, codeProject?.id ?: codeProjectId, author,
     termsAcceptedById, termsAcceptedAt, licenceName, licenceText, lastPublishedAt,
     version, createdAt, updatedAt) {
 
@@ -39,6 +39,7 @@ class DataAlgorithm(
     fun copy(
         slug: String? = null,
         name: String? = null,
+        codeProjectId: UUID? = null,
         inputDataType: DataType? = null,
         outputDataType: DataType? = null,
         visibilityScope: VisibilityScope? = null,
@@ -60,6 +61,7 @@ class DataAlgorithm(
         author = author ?: this.author,
         id = id,
         codeProject = codeProject ?: this.codeProject,
+        codeProjectId = codeProjectId ?: this.codeProjectId,
         termsAcceptedById = termsAcceptedById ?: this.termsAcceptedById,
         termsAcceptedAt = termsAcceptedAt ?: this.termsAcceptedAt,
         licenceName = licenceName ?: this.licenceName,

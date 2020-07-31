@@ -11,6 +11,7 @@ import com.mlreef.rest.DataProject
 import com.mlreef.rest.DataProjectRepository
 import com.mlreef.rest.DataType
 import com.mlreef.rest.Person
+import com.mlreef.rest.ProcessorVersionRepository
 import com.mlreef.rest.SearchableTagRepository
 import com.mlreef.rest.api.v1.FilterRequest
 import com.mlreef.rest.api.v1.dto.ProjectDto
@@ -57,6 +58,9 @@ class MarketplaceApiTest : AbstractRestApiTest() {
     private lateinit var dataProcessorRepository: DataProcessorRepository
 
     @Autowired
+    private lateinit var processorVersionRepository: ProcessorVersionRepository
+
+    @Autowired
     private lateinit var marketplaceTagRepository: SearchableTagRepository
 
     @Autowired
@@ -70,8 +74,9 @@ class MarketplaceApiTest : AbstractRestApiTest() {
     fun setUp() {
         marketplaceTagRepository.deleteAll()
 
-        codeProjectRepository.deleteAll()
+        processorVersionRepository.deleteAll()
         dataProcessorRepository.deleteAll()
+        codeProjectRepository.deleteAll()
         accountTokenRepository.deleteAll()
         accountRepository.deleteAll()
         personRepository.deleteAll()
