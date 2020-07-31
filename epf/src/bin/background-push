@@ -15,22 +15,18 @@ request_epf_endpoint_update() {
   echo ""
 }
 
-iteration=0
-while [ "$iteration" -lt 1000 ] # run 1_000 iterations max
-do
+i=0
+while [ "$i" -lt 1000 ]; do # run 1_000 iterations max
   echo "------------------------------------------------------------"
-  echo "Background Commit Iteration $iteration"
   if [ ! -f "$STATISTIC_FILE" ]; then
-    echo "$STATISTIC_FILE does not exist yet, waiting for experiment to start.."
+    echo "MLReef-EPF statistic service #$i: $STATISTIC_FILE does not exist yet, waiting for experiment to start.."
     sleep 10
-    iteration=`expr $iteration + 1` 
-    continue
+  else
+    echo "MLReef-EPF statistic service #$i:"
+    cat $STATISTIC_FILE
+    request_epf_endpoint_update
+    sleep 15
   fi
-
-  echo "iteration: $iteration"
-  request_epf_endpoint_update
-  cat $STATISTIC_FILE
-  sleep 15                              # sleep for 1 second
-  iteration=`expr $iteration + 1`       # increment running variable
+  i=$(($i + 1))
 done
 # 15 seconds times 1_000 ==> 15_000 seconds => 250 minutes => ~ 4 hours
