@@ -7,6 +7,7 @@ FROM node:10.19.0-alpine AS BUILDER
 ARG CI_COMMIT_REF_SLUG
 ARG CI_PIPELINE_ID=-1
 ARG CI_PIPELINE_URL="CI URL N/A"
+ARG NODE_OPTIONS="--max-old-space-size=2048"
 
 # add npm binaries to shell path
 ENV PATH /app/node_modules/.bin:$PATH
