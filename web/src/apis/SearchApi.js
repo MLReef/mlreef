@@ -51,4 +51,19 @@ export default class SearchApi {
       .then(filterRoot)
       .then(filterBots);
   }
+
+  static searchProjectByName(name) {
+    const url = `/api/v4/search?scope=projects&search=${name}`;
+
+    const request = new Request(url, {
+      method: 'GET',
+      headers: new Headers({
+        authorization: getCurrentToken(),
+      }),
+    });
+
+    return search.fetch(request)
+      // in case of gitlab fails
+      .then((results) => Array.isArray(results) ? results : []);
+  }
 }

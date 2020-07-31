@@ -71,6 +71,9 @@ exports[`presence of basic user elements assert that snapshot matches 1`] = `
                     type="text"
                     value=""
                   />
+                  <div
+                    className="m-input_errors"
+                  />
                 </div>
               </div>
               <div
@@ -93,6 +96,9 @@ exports[`presence of basic user elements assert that snapshot matches 1`] = `
                     readOnly={true}
                     type="text"
                     value=""
+                  />
+                  <div
+                    className="m-input_errors"
                   />
                 </div>
               </div>
@@ -123,6 +129,9 @@ exports[`presence of basic user elements assert that snapshot matches 1`] = `
                       readOnly={false}
                       type="text"
                       value=""
+                    />
+                    <div
+                      className="m-input_errors"
                     />
                   </div>
                 </div>
