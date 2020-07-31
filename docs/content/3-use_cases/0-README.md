@@ -2,7 +2,7 @@
 
 This section will help you understand the use cases you can build using MLReef. 
 
-We are continuously providing new use cases based on different data types and objectives. 
+We are continuously providing new use cases based on different data types and objectives.
 
 ## Image classification
 
@@ -20,8 +20,7 @@ train/
     ...
     class n/
 
-This way, the model understands that the subdirectory (e.g. class1/) is the first label. For simplicity, its always easy to rename
-the subdirectories to your label class.
+This is no general rule that always applies but, nevertheless, is commonly used. MLReef curated models will follow this convention so the model will be able to accpet the subdirectory (e.g. class1/) as the first label. For simplicity, its always easy to rename the subdirectories to your label class.
 
 #### Cats and dogs
 
