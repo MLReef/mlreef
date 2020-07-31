@@ -69,15 +69,7 @@
 }
 
 .text-input {
-    max-width: 320px; 
-    min-width: fit-content;
-    margin: 1em 0;
-    padding: 6px 10px;
-    width: 100%; 
-    border: 1px solid #dfdfdf; 
-    border-radius: 4px;
-    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out; 
-    background-clip: padding-box;
+    max-width: 40ch;
 }
 
 .text-input:focus {

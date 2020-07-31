@@ -33,13 +33,13 @@ const MInput = (props) => {
           readOnly={readOnly}
           min={min}
         />
-        {error && (
-          <div className="m-input_errors">
+        <div className="m-input_errors">
+          {error && (
             <div className="m-error">
               { error }
             </div>
-          </div>
-        )}
+          )}
+        </div>
       </div>
     </div>
   );

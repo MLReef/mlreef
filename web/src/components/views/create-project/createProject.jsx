@@ -1,4 +1,4 @@
-import React, { Component, createRef } from 'react';
+import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { Redirect } from 'react-router-dom';
@@ -17,8 +17,11 @@ import {
   privacyLevelsArr,
   ML_PROJECT,
 } from 'dataTypes';
+import MInput from 'components/ui/MInput';
+import MButton from 'components/ui/MButton';
 import { validateProjectName } from 'functions/validations';
 import { PROJECT_TYPES } from 'domain/project/projectTypes';
+import SearchApi from 'apis/SearchApi';
 import Navbar from '../../navbar/navbar';
 import './createProject.css';
 import * as projectActions from '../../../actions/projectInfoActions';
@@ -27,9 +30,10 @@ import ProjectGeneraInfoApi from '../../../apis/projectGeneralInfoApi.ts';
 import { convertToSlug } from '../../../functions/dataParserHelpers';
 import MCheckBox from '../../ui/MCheckBox/MCheckBox';
 
-class CreateProject extends Component {
-  slugRef = createRef();
+const MAX_LENGTH = 255;
+const projectGeneraInfoApi = new ProjectGeneraInfoApi();
 
+class CreateProject extends Component {
   dataTypes = [
     [
       { name: 'data-types Text', label: 'TEXT' },
@@ -54,14 +58,18 @@ class CreateProject extends Component {
     this.state = {
       visibility: privacyLevelsArr[0].value,
       projectName: '',
+      nameErrors: '',
+      slug: '',
       redirect: null,
       readme: false,
       nameSpace: '',
       description: '',
       dataTypesSelected: [],
+      isFetching: false,
     };
 
     this.handleDTCallback = this.handleDTCallback.bind(this);
+    this.handleCheckName = this.handleCheckName.bind(this);
   }
 
   componentDidMount() {
@@ -82,15 +90,43 @@ class CreateProject extends Component {
   }
 
   handleProjectName = (e) => {
-    this.setState({ projectName: e.target.value });
+    const projectName = e.target.value;
+
+    const nameTooLong = projectName.length > MAX_LENGTH
+      ? `Name is too long; Maximum is ${MAX_LENGTH} characters` : '';
+
+    const dangerousName = validateProjectName(projectName)
+      ? ''
+      : 'Name can only contain letters, digits, "_", ".", dashes or spaces. It must start with a letter, digit or "_".';
+
+    this.setState({
+      projectName,
+      slug: convertToSlug(projectName),
+      nameErrors: nameTooLong || dangerousName,
+    });
+  }
+
+  handleCheckName = () => {
+    const { projectName, slug } = this.state;
+
+    if (projectName.length < 3) return;
+
+    SearchApi.searchProjectByName(projectName)
+      .then((results) => {
+        const nameTaken = results.some(({ path }) => path === slug)
+          ? 'This name is not available.' : '';
+
+        if (nameTaken) this.setState({ nameErrors: nameTaken });
+      });
   }
 
   handleNamespace = (e) => {
     this.setState({ nameSpace: e.target.value });
   }
 
-  checkReadme = () => {
-    this.setState({ readme: !this.state.readme });
+  toggleCheckReadme = () => {
+    const { readme } = this.state;
+    this.setState({ readme: !readme });
   }
 
   handleDescription = (e) => {
@@ -100,6 +136,7 @@ class CreateProject extends Component {
   handleSubmit = () => {
     const {
       projectName,
+      slug,
       readme,
       description,
       visibility,
@@ -111,18 +148,6 @@ class CreateProject extends Component {
       ? PROJECT_TYPES.CODE_PROJ
       : PROJECT_TYPES.DATA_PROJ;
 
-    const isAValidName = validateProjectName(projectName);
-
-    if (!isAValidName) {
-      toastr.error('Error:', 'Name can contain only letters, digits, "_", ".", dash, space. It must start with letter, digit or "_".');
-      this.setState({ projectName: '' });
-      return;
-    }
-    if (projectName === null || projectName === '') {
-      toastr.error('Error:', 'Enter a valid project name');
-      return;
-    }
-    const slug = this.slugRef.current.value;
     const { user } = this.props;
     const isNamespaceAGroup = nameSpace !== '' && nameSpace !== user.username;
     const body = {
@@ -134,20 +159,28 @@ class CreateProject extends Component {
       visibility,
       // input_data_types: dataTypesSelected,
     };
-    const projectGeneraInfoApi = new ProjectGeneraInfoApi();
+
+    this.setState({ isFetching: true });
+
     projectGeneraInfoApi.create(body, projectType, isNamespaceAGroup)
       .then((proj) => {
-        this.setState({ redirect: `/${proj.gitlab_namespace}/${proj.slug}` })
+        this.setState({ redirect: `/${proj.gitlab_namespace}/${proj.slug}` });
       })
       .catch((err) => {
-        toastr.error('Error', err || 'Something went wrong')
+        toastr.error('Error', err || 'Something went wrong.');
+      })
+      .finally(() => {
+        this.setState({ isFetching: false });
       });
   }
 
- cancelCreate = () => this.props.history.push('/my-projects');
+  cancelCreate = () => {
+    const { history } = this.props;
+    history.goBack();
+  };
 
  getIsPrivacyOptionDisabled = (privacyLevel, nameSpace) => {
-  const { user, groups } = this.props;
+   const { user, groups } = this.props;
    if (nameSpace === '') {
      return false;
    }
@@ -180,21 +213,27 @@ class CreateProject extends Component {
    this.setState({ dataTypesSelected: dts });
  }
 
-
  render() {
    const {
      visibility,
      projectName,
+     nameErrors,
      redirect,
      nameSpace,
+     slug,
      description,
      dataTypesSelected: dtTypesSel,
+     isFetching,
    } = this.state;
    const { match: { params: { classification } }, groups, user } = this.props;
-   const specificType = projectClassificationsProps.filter((classif) => classif.classification === classification)[0];
+   const specificType = projectClassificationsProps
+     .filter((classif) => classif.classification === classification)[0];
    const classLabel = specificType.label;
    const newProjectInstructions = specificType.description;
    const isMaximumOfDataTypesSelected = dtTypesSel.length === 4;
+   const isValid = !nameErrors;
+
+
    return redirect ? (
      <Redirect to={redirect} />
    ) : (
@@ -213,12 +252,14 @@ class CreateProject extends Component {
            <form>
              <label className="label-name" htmlFor="projectTitle">
                <span className="heading">Project Name</span>
-               <input
+               <MInput
                  value={projectName}
                  onChange={this.handleProjectName}
+                 onBlur={this.handleCheckName}
                  className="text-input"
                  id="projectTitle"
                  type="text"
+                 error={nameErrors}
                  placeholder="My awesome ML Project"
                  required
                />
@@ -251,8 +292,7 @@ class CreateProject extends Component {
                <label className="label-name flex-1" htmlFor="projectSlug">
                  <span className="heading">Project Slug</span>
                  <input
-                   ref={this.slugRef}
-                   value={convertToSlug(projectName)}
+                   value={slug}
                    className="text-input"
                    id="projectSlug"
                    type="text"
@@ -272,7 +312,7 @@ class CreateProject extends Component {
                  rows="4"
                  maxLength="250"
                  spellCheck="false"
-                 placeholder="Description Format"
+                 placeholder="Enter your project description here..."
                />
              </label>
              {/* ------ Data-types radio buttons ------ */}
@@ -295,8 +335,8 @@ class CreateProject extends Component {
                >
                  {
                   isMaximumOfDataTypesSelected
-                    ? 'You already selected a maximum of 4 data types for this project'
-                    : 'Select maximum 4 data types your ML project will be based on'
+                    ? 'You already selected a maximum of 4 data types for this project.'
+                    : 'Select maximum 4 data types your ML project will be based on.'
                  }
                </span>
              </div>
@@ -335,7 +375,9 @@ class CreateProject extends Component {
                      <FormControlLabel
                        className="heading"
                        value={lvl.value}
-                       control={<Radio disabled={this.getIsPrivacyOptionDisabled(lvl.value, nameSpace)} />}
+                       control={(
+                         <Radio disabled={this.getIsPrivacyOptionDisabled(lvl.value, nameSpace)} />
+                       )}
                        label={(
                          <>
                            <img id="visibility-icon" src={lvl.icon} alt="" />
@@ -351,8 +393,8 @@ class CreateProject extends Component {
              <div className="readME">
                <MCheckBox
                  name="read-me-checkbox"
-                 labelValue="Initialize the Repository with a README"
-                 callback={(...args) => this.setState({ readme: args[2] })}
+                 labelValue="Initialize the repository with a README"
+                 callback={this.toggleCheckReadme}
                />
                <p className="readme-msg">
                  Allows you to immediately clone this projects repository.
@@ -367,15 +409,16 @@ class CreateProject extends Component {
                >
                  Cancel
                </button>
-               <button
-                 type="button"
+               <MButton
+                 disabled={!isValid}
                  className="btn btn-primary ml-auto"
+                 waiting={isFetching}
                  onClick={this.handleSubmit}
                >
                  Create new
                  {' '}
                  {classLabel}
-               </button>
+               </MButton>
              </div>
            </form>
          </div>
@@ -402,6 +445,11 @@ function mapDispatchToProps(dispatch) {
 }
 
 CreateProject.propTypes = {
+  user: PropTypes.shape({
+    username: PropTypes.string.isRequired,
+    id: PropTypes.string.isRequired,
+  }).isRequired,
+  groups: PropTypes.arrayOf(PropTypes.shape).isRequired,
   actions: PropTypes.shape({
     setGlobalMarkerColor: PropTypes.func.isRequired,
   }).isRequired,
@@ -410,6 +458,9 @@ CreateProject.propTypes = {
       classification: PropTypes.string,
     }),
   }),
+  history: PropTypes.shape({
+    goBack: PropTypes.func.isRequired,
+  }).isRequired,
 };
 
 CreateProject.defaultProps = {
