@@ -43,7 +43,6 @@ import org.springframework.web.client.HttpServerErrorException
 import org.springframework.web.client.HttpStatusCodeException
 import org.springframework.web.client.ResourceAccessException
 import org.springframework.web.client.RestTemplate
-import java.lang.NullPointerException
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
@@ -83,7 +82,7 @@ class GitlabRestClient(
 
         private const val REPEAT_REQUESTS_WHEN_GITLAB_UNAVAILABLE = 3
         private const val PAUSE_BETWEEN_REPEAT_WHEN_GITLAB_UNAVAILABLE_MS = 1500L
-        private const val GITLAB_FAILED_LIMIT_REACHED_ERROR_MESSAGE = "limit_reached"
+        private const val GITLAB_FAILED_LIMIT_REACHED_ERROR_MESSAGE_EMPTY = "\"limit_reached\":[]"
     }
 
     fun restTemplate(builder: RestTemplateBuilder): RestTemplate = builder.build()
@@ -124,8 +123,7 @@ class GitlabRestClient(
             .body ?: throw Exception("GitlabRestClient.createProject($slug): Gitlab response does not contain a body.")
     }
 
-    //FIXME: It seems to be incorrect. It uses admin headers but runs under user token
-    fun getProjects(token: String): List<GitlabProject> {
+    fun adminGetProjects(): List<GitlabProject> {
         return GitlabHttpEntity<String>("body", createAdminHeaders())
             .addErrorDescription(ErrorCode.NotFound, "Cannot find projects")
             .makeRequest {
@@ -914,7 +912,7 @@ class GitlabRestClient(
                     return repeatUnauthorized(this, ex, block)
                 } else if (ex.statusCode == HttpStatus.BAD_GATEWAY || ex.statusCode == HttpStatus.INTERNAL_SERVER_ERROR) {
                     return repeatBadGateway(this, ex, block)
-                } else if (ex.statusCode == HttpStatus.BAD_REQUEST && ex.responseBodyAsString.contains(GITLAB_FAILED_LIMIT_REACHED_ERROR_MESSAGE)) {
+                } else if (ex.statusCode == HttpStatus.BAD_REQUEST && !ex.responseBodyAsString.contains(GITLAB_FAILED_LIMIT_REACHED_ERROR_MESSAGE_EMPTY)) {
                     return repeatBadGateway(this, ex, block)
                 } else throw ex
             } catch (ex: HttpStatusCodeException) {

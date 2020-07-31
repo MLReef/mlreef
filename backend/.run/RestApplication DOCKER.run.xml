@@ -7,11 +7,11 @@
     <option name="ACTIVE_PROFILES" value="docker" />
     <option name="ALTERNATIVE_JRE_PATH" />
     <envs>
-      <env name="GITLAB_ADMIN_TOKEN" value="local-api-token" />
       <env name="EPF_BACKEND_URL" value="http://172.18.0.1:8080" />
-      <env name="EPF_IMAGE_TAG" value="feature-hotfix-stuff" />
+      <env name="EPF_IMAGE_TAG" value="latest" />
       <env name="EPF_GITLAB_URL" value="http://172.18.0.1:10080" />
       <env name="GITLAB_ROOT_URL" value="http://localhost:10080" />
+      <env name="GITLAB_ADMIN_TOKEN" value="local-api-token" />
     </envs>
     <method v="2">
       <option name="Make" enabled="true" />

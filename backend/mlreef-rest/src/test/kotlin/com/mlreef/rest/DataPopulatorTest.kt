@@ -1,6 +1,7 @@
 package com.mlreef.rest
 
 import com.mlreef.rest.external_api.gitlab.dto.GitlabUser
+import com.mlreef.rest.feature.data_processors.InitialDataLoader
 import com.mlreef.rest.feature.marketplace.MarketplaceService
 import com.mlreef.rest.feature.project.ProjectService
 import com.mlreef.rest.integration.AbstractIntegrationTest
@@ -22,19 +23,26 @@ class DataPopulatorTest : AbstractIntegrationTest() {
     private val userToken: String = "ysfd"
     private lateinit var author: Person
     private lateinit var dataPopulator: DataPopulator
+    private lateinit var initialDataLoader: InitialDataLoader
 
     @Autowired
     private lateinit var dataProjectRepository: DataProjectRepository
+
     @Autowired
     private lateinit var codeProjectRepository: CodeProjectRepository
+
     @Autowired
     private lateinit var experimentRepository: ExperimentRepository
+
     @Autowired
     private lateinit var dataProcessorRepository: DataProcessorRepository
+
     @Autowired
     private lateinit var pipelineInstanceRepository: PipelineInstanceRepository
+
     @Autowired
     private lateinit var pipelineConfigRepository: PipelineConfigRepository
+
     @Autowired
     private lateinit var dataProjectService: ProjectService<DataProject>
 
@@ -46,14 +54,19 @@ class DataPopulatorTest : AbstractIntegrationTest() {
 
     @Autowired
     private lateinit var processorInstanceRepository: DataProcessorInstanceRepository
+
     @Autowired
     private lateinit var parameterInstanceRepository: ParameterInstanceRepository
+
     @Autowired
     private lateinit var dataAlgorithmRepository: DataAlgorithmRepository
+
     @Autowired
     private lateinit var searchableTagRepository: SearchableTagRepository
+
     @Autowired
     private lateinit var marketplaceService: MarketplaceService
+
 //    @Mock private lateinit var restClient: GitlabRestClient
 
     private var ownerId: UUID = randomUUID()
@@ -61,6 +74,7 @@ class DataPopulatorTest : AbstractIntegrationTest() {
 
     @BeforeEach
     fun prepare() {
+        initialDataLoader = InitialDataLoader()
         dataPopulator = DataPopulator(
             experimentRepository = experimentRepository,
             dataProjectRepository = dataProjectRepository,
@@ -75,7 +89,8 @@ class DataPopulatorTest : AbstractIntegrationTest() {
             dataAlgorithmRepository = dataAlgorithmRepository,
             marketplaceService = marketplaceService,
             searchableTagRepository = searchableTagRepository,
-            processorVersionRepository = processorVersionRepository
+            processorVersionRepository = processorVersionRepository,
+            initialDataLoader = initialDataLoader
         )
 
         searchableTagRepository.deleteAll()
@@ -139,61 +154,6 @@ class DataPopulatorTest : AbstractIntegrationTest() {
     @Test
     @Transactional
     @Rollback
-    fun `create createDataOperation1`() {
-
-        assertThat(dataProcessorRepository.findAll().toList()).isEmpty()
-        assertThat(processorParameterRepository.findAll().toList()).isEmpty()
-
-        val (dataOp, param1, param2) = dataPopulator.createDataOperation_augment(userToken, author)
-        assertThat(dataOp).isNotNull()
-        assertThat(param1).isNotNull()
-        assertThat(param2).isNotNull()
-        assertThat(param1.processorVersionId).isEqualTo(dataOp.id)
-        assertThat(param2.processorVersionId).isEqualTo(dataOp.id)
-
-        assertThat(dataProcessorRepository.findAll().toList()).isNotEmpty()
-        assertThat(processorParameterRepository.findAll().toList()).isNotEmpty()
-    }
-
-    @Test
-    @Transactional
-    @Rollback
-    fun `create createDataOperation2`() {
-        assertThat(dataProcessorRepository.findAll().toList()).isEmpty()
-        assertThat(processorParameterRepository.findAll().toList()).isEmpty()
-
-        val (dataOp, param1, param2) = dataPopulator.createDataOperation2(userToken, author)
-        assertThat(dataOp).isNotNull()
-        assertThat(param1).isNotNull()
-        assertThat(param2).isNotNull()
-        assertThat(param1.processorVersionId).isEqualTo(dataOp.id)
-        assertThat(param2.processorVersionId).isEqualTo(dataOp.id)
-
-        assertThat(dataProcessorRepository.findAll().toList()).isNotEmpty()
-        assertThat(processorParameterRepository.findAll().toList()).isNotEmpty()
-    }
-
-    @Test
-    @Transactional
-    @Rollback
-    fun `create createDataOperation3`() {
-        assertThat(dataProcessorRepository.findAll().toList()).isEmpty()
-        assertThat(processorParameterRepository.findAll().toList()).isEmpty()
-
-        val (dataOp, param1, param2) = dataPopulator.createDataOperation3(userToken, author)
-        assertThat(dataOp).isNotNull()
-        assertThat(param1).isNotNull()
-        assertThat(param2).isNotNull()
-        assertThat(param1.processorVersionId).isEqualTo(dataOp.id)
-        assertThat(param2.processorVersionId).isEqualTo(dataOp.id)
-
-        assertThat(dataProcessorRepository.findAll().toList()).isNotEmpty()
-        assertThat(processorParameterRepository.findAll().toList()).isNotEmpty()
-    }
-
-    @Test
-    @Transactional
-    @Rollback
     fun `create DataProject`() {
         assertThat(dataProjectRepository.findAll().toList()).isEmpty()
         val createUserAndTokenInGitlab = dataPopulator.createUserAndTokenInGitlab()
@@ -205,26 +165,17 @@ class DataPopulatorTest : AbstractIntegrationTest() {
     @Test
     @Transactional
     @Rollback
-    fun `create experiment with dataOperations`() {
+    fun `Loading initial data succeeds`() {
+        assertThat(accountTokenRepository.findAll().toList()).isEmpty()
+        assertThat(accountRepository.findAll().toList()).isEmpty()
+
         val createUserAndTokenInGitlab = dataPopulator.createUserAndTokenInGitlab()
         val createUserToken = dataPopulator.createUserToken(createUserAndTokenInGitlab)
-        dataPopulator.createDataProject(userToken = createUserToken.token)
-        assertThat(experimentRepository.findAll().toList()).isEmpty()
-        assertThat(dataProcessorRepository.findAll().toList()).isEmpty()
-        assertThat(processorParameterRepository.findAll().toList()).isEmpty()
+        val author = Person(id = randomUUID(), slug = "user-demo", name = "Author1", gitlabId = 1)
 
+        dataPopulator.initialMLData(author, createUserToken.token)
 
-        val (dataOp1, param11, param12) = dataPopulator.createDataOperation_augment(userToken, author)
-
-        val (dataOp2, param21, param22) = dataPopulator.createDataOperation2(userToken, author)
-
-        val experiment = dataPopulator.createExperiment(
-            dataOp1, param11, param12,
-            dataOp2, param21, param22
-        )
-        assertThat(experiment).isNotNull()
-        assertThat(experimentRepository.findAll().toList()).isNotEmpty()
-        assertThat(dataProcessorRepository.findAll().toList()).isNotEmpty()
-        assertThat(processorParameterRepository.findAll().toList()).isNotEmpty()
+        assertThat(accountTokenRepository.findAll().toList()).isNotEmpty()
+        assertThat(accountRepository.findAll().toList()).isNotEmpty()
     }
 }
