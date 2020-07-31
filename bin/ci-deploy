@@ -27,15 +27,15 @@ fi
 rewriteDockerImage() {
   # If a gateway image exists for the current branch, rewrite the docker compose file
   # change the docker image tag from "latest" to the current branch's $CI_COMMIT_REF_SLUG
-  DOCKER_BRANCH_IMAGE_URL="https://gitlab.com/api/v4/projects/$CI_PROJECT_ID/registry/repositories/$1/tags/$TAG/"
+  DOCKER_BRANCH_IMAGE_URL="https://gitlab.com/api/v4/projects/$CI_PROJECT_ID/registry/repositories/$1/tags/$CI_COMMIT_REF_SLUG/"
   echo "DOCKER_BRANCH_IMAGE_URL  is $DOCKER_BRANCH_IMAGE_URL"
   CURL_RESPONSE=$(curl --silent --header "Authorization:Bearer $GITLAB_COM_API_TOKEN" --output /dev/null -w ''%{http_code}'' "$DOCKER_BRANCH_IMAGE_URL")
   echo "$CURL_RESPONSE"
   if [ "$CURL_RESPONSE" = "200" ]; then
     echo "Found branch specific docker image for $2"
-    sed -i "s/$2:develop/$2:$TAG/" docker-compose.yml;
+    sed -i "s/$2:develop/$2:$CI_COMMIT_REF_SLUG/" docker-compose.yml;
   else
-    echo "Could not find specific docker image for $2:$TAG in docker registry"
+    echo "Could not find specific docker image for $2:$CI_COMMIT_REF_SLUG in docker registry"
   fi
 }
 # 1117031 is the id of the "gateway's" sub-repository id

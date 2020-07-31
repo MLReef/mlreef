@@ -8,7 +8,7 @@ stages:
   - build
   - deploy
   - test
-  - deploy production
+  - staging
   - maintenance
 
 variables:
@@ -152,6 +152,14 @@ e2e test experiment:
   artifacts:
     paths:
       - out/test
+
+
+staging:
+  stage: staging
+  only:
+    refs:
+      - master
+  trigger: mlreef/infrastructure
 
 
 # The decommission job is configured by the provision's job `on_stop` command.
