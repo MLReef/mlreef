@@ -5,7 +5,7 @@ import {
 } from 'prop-types';
 import { toastr } from 'react-redux-toastr';
 import Checkbox from '@material-ui/core/Checkbox';
-import { Link, useHistory } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import { pluralize as plu } from 'functions/dataParserHelpers';
@@ -40,8 +40,6 @@ const BasicMergeRequestView = (props) => {
   let closeName;
   let closeAvatar;
   let closedAt;
-
-  const history = useHistory();
 
   const [mrInfo, setMRInfo] = useState({});
   const [behind, setBehind] = useState(0);
@@ -135,7 +133,6 @@ const BasicMergeRequestView = (props) => {
             id="edit-btn"
             disabled
             className="btn btn-outline-dark"
-            onClick={() => history.push(`/my-projects/${gid}/${sourceBranch}/new-merge-request`)}
           >
             Edit
           </button>

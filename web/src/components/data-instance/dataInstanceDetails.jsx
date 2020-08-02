@@ -7,13 +7,16 @@ import ProjectContainer from '../projectContainer';
 import './dataInstanceDetails.css';
 import FilesApi from '../../apis/FilesApi.ts';
 
-const DataInstanceDetails = ({ ...props }) => {
+const DataInstanceDetails = (props) => {
   const {
-    projects: { selectedProject: project },
+    projects: {
+      selectedProject: project,
+      selectedProject: { gid },
+    },
     branches,
     match: {
       params: {
-        projectId, path, dataId, branch,
+        path, dataId, branch,
       },
     },
     location: {
@@ -31,7 +34,7 @@ const DataInstanceDetails = ({ ...props }) => {
   useEffect(() => {
     const filesApi = new FilesApi();
     filesApi.getFilesPerProject(
-      projectId,
+      gid,
       path || '',
       false,
       diName,
@@ -39,7 +42,7 @@ const DataInstanceDetails = ({ ...props }) => {
     .catch(() => {
       toastr.error('Error', 'Something went wrong getting your files');
     });
-  }, [diName, projectId, path]);
+  }, [diName, gid, path]);
 
   return (
     <div id="experiments-overview-container">
@@ -102,10 +105,10 @@ const DataInstanceDetails = ({ ...props }) => {
             let routeType = '';
             if (targetDataKey === 'tree') {
               routeType = 'path';
-              link = `/my-projects/${projectId}/${branch}/data-instances/${diName}/${routeType}/${encodeURIComponent(file.path)}`;
+              link = `/my-projects/${gid}/${branch}/data-instances/${diName}/${routeType}/${encodeURIComponent(file.path)}`;
             } else {
               routeType = 'blob';
-              link = `/my-projects/${projectId}/${diName}/${routeType}/${encodeURIComponent(file.path)}`;
+              link = `/my-projects/${gid}/${diName}/${routeType}/${encodeURIComponent(file.path)}`;
             }
             props.history.push(link);
           }}

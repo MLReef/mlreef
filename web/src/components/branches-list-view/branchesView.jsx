@@ -116,6 +116,9 @@ class BranchesView extends Component {
     const commitShortIdLowerLimit = 0;
     const commitShortIdUpperLimit = 9;
 
+    const genQuery = (branch) => encodeURIComponent('merge_request[source_branch]') +
+      '=' + encodeURIComponent(branch.name);
+
     return (
       <>
         {urlToRedirect.length > 0 && <Redirect to={urlToRedirect} />}
@@ -206,7 +209,7 @@ class BranchesView extends Component {
                     )}
                     <Link
                       className="btn btn-outline-dark my-auto mr-2"
-                      to={`/my-projects/${projectName}/${encodeURIComponent(branch.name)}/new-merge-request`}
+                      to={`/${namespace}/${slug}/-/merge_requests/new?${genQuery(branch)}`}
                     >
                       Merge request
                     </Link>

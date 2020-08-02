@@ -49,12 +49,13 @@ const getStatusForDataInstance = (status) => {
 
 export const InstanceCard = ({ ...props }) => {
   const {
-    params, 
+    params,
     history,
-    name, 
-    deletePipeline, 
+    name,
+    deletePipeline,
     setPreconfiguredOPerations,
   } = props;
+
   function goToPipelineView(id) {
     const pId = params.instances[0].projId;
     const instance = params.instances.filter((ins) => ins.id === id)[0];

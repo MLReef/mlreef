@@ -69,7 +69,7 @@ describe('test functionality', () => {
     const { projects: { selectedProject: { namespace, slug } } } = projectsArrayMock;
     wrapper.find('#new-experiment').dive().find('button').simulate('click');
     expect(mockPush.mock.calls.length).toBe(1);
-    expect(mockPush).toHaveBeenCalledWith(`/my-projects/${namespace}/${slug}/pipeline-execution/new-experiment`);
+    expect(mockPush).toHaveBeenCalledWith(`/${namespace}/${slug}/-/experiments/new`);
   });
 
   test('assert that filters work', () => {

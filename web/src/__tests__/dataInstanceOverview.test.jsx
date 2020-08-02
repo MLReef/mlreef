@@ -20,6 +20,7 @@ const store = storeFactory({
     meta: {
       closedInstructions: {},
     },
+    isLoading: false,
   },
 });
 const wrapper = shallow(<DataInstanceOverview store={store} />);

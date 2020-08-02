@@ -90,8 +90,15 @@ class ExperimentsOverview extends Component {
     const {
       selectedProject, selectedExperiment, experiments,
     } = this.state;
-    const { history, algorithms } = this.props;
+
+    const {
+      history,
+      algorithms,
+      projects: { selectedProject: { namespace, slug } }
+    } = this.props;
+
     const areThereExperimentsToShow = experiments.map((expClass) => expClass.values.length).reduce((a, b) => a + b) !== 0;
+
     return (
       <div id="experiments-overview-container">
         <>
@@ -153,7 +160,7 @@ class ExperimentsOverview extends Component {
                     <CustomizedButton
                       id="new-experiment"
                       loading={false}
-                      onClickHandler={() => history.push(`/my-projects/${selectedProject.namespace}/${selectedProject.slug}/pipeline-execution/new-experiment`)}
+                      onClickHandler={() => history.push(`/${namespace}/${slug}/-/experiments/new`)}
                       buttonLabel="New experiment"
                     />
                   </div>
@@ -180,7 +187,7 @@ class ExperimentsOverview extends Component {
                   id="new-experiment"
                   loading={false}
                   onClickHandler={() => {
-                    history.push(`/my-projects/${selectedProject.namespace}/${selectedProject.slug}/pipeline-execution/new-experiment`);
+                    history.push(`/${namespace}/${slug}/-/experiments/new`);
                   }}
                   buttonLabel="Start an experiment"
                 />
