@@ -30,16 +30,21 @@ import {
 } from './dataModel';
 
 class PipelinesExecutionView extends Component {
+  isExperiment = false
+
   constructor(props) {
     super(props);
     const {
       selectedProject, branches, processors,
     } = this.props;
-    const { match: { params: { typePipelines } } } = this.props;
+    const { match: { path, params: { typePipelines } } } = this.props;
     let currentProcessors;
+    this.isExperiment = path === '/:namespace/:slug/-/experiments/new' ||
+      typePipelines === 'new-experiment';
+
     if (typePipelines === 'new-data-pipeline') {
       currentProcessors = processors.operations;
-    } else if (typePipelines === 'new-experiment') {
+    } else if (this.isExperiment) {
       currentProcessors = processors.algorithms;
     } else {
       currentProcessors = [];
@@ -224,7 +229,7 @@ class PipelinesExecutionView extends Component {
     let operationTypeToExecute;
     let operatorsTitle;
     let prefix = 'Op.';
-    if (typePipelines === 'new-experiment') {
+    if (this.isExperiment) {
       activeFeature = 'experiments';
       instructionDataModel = experimentInstructionData;
       pipelinesTypeExecutionTitle = 'Experiment';
@@ -370,7 +375,7 @@ function mapDispatchToProps(dispatch) {
 PipelinesExecutionView.propTypes = {
   match: shape({
     params: shape({
-      typePipelines: string.isRequired,
+      typePipelines: string,
     }),
   }).isRequired,
   processors: shape({

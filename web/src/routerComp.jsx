@@ -50,7 +50,6 @@ const RouterComp = () => (
       <PrivateRoute path="/perms/role" minRole={20} exact component={Projects} />
       <PrivateRoute path="/perms/account" accountType={1} exact component={Projects} />
 
-      <PrivateRoute path="/my-projects/:projectId/settings" exact component={SettingsView} />
       <PrivateRoute path="/my-projects" exact component={Projects} />
       <PrivateRoute exact path="/groups/new" component={CreateGroup} />
       <PrivateRoute exact path="/groups" component={GroupsOverview}/>
@@ -81,8 +80,19 @@ const RouterComp = () => (
       <Route path="/:namespace/:slug/-/tree/:branch/:path(.+)" component={projectView} />
       <Route path="/:namespace/:slug/-/tree/:branch" component={projectView} />
       <Route path="/:namespace/:slug/-/blob/:branch/:file(.+)" component={FileView} />
+      <PrivateRoute path="/:namespace/:slug/-/settings" exact component={SettingsView} />
+
+      <Route path="/:namespace/:slug/-/experiments" exact component={ExperimentsOverview} />
+      <PrivateRoute path="/:namespace/:slug/-/experiments/new" component={PipelinesExecutionView} newExperiment />
       <Route path="/:namespace/:slug/-/branches" component={BranchesView} exact />
       <Route path="/:namespace/:slug/-/branches/new" component={NewBranch} />
+      <Route path="/:namespace/:slug/-/merge_requests" component={mergeRequestOverview} exact />
+      <Route path="/:namespace/:slug/-/merge_requests/new" component={NewMergeRequest} />
+      <Route path="/:namespace/:slug/merge_requests/new" component={NewMergeRequest} />
+      <Route path="/:namespace/:slug/-/merge_requests/:iid" exact component={BasicMergeRequestView} />
+      <Route path="/:namespace/:slug/-/datasets" component={DataInstanceOverview} />
+      <Route path="/:namespace/:slug/-/datasets/:branch/:dataId/path/:path" component={DataInstanceDetails} />
+      <Route path="/:namespace/:slug/-/datasets/:branch/:dataId" component={DataInstanceDetails} />
 
       <PrivateRoute exact path="/my-projects/:namespace/:slug/pipeline-execution/:typePipelines" component={PipelinesExecutionView} />
       <PrivateRoute path="/my-projects/:projectId/visualizations/:visName/path/:path" component={DataVisualizationDetail} />

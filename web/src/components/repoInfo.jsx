@@ -28,7 +28,7 @@ const RepoInfo = ({
       </Link>
       </>
     )}
-      <Link to={`/my-projects/${project.gitlabId}/merge-requests/overview`} className="repo-stat">
+      <Link to={`/${project.namespace}/${project.slug}/-/merge_requests`} className="repo-stat">
         <p className="stat-no">{mergeRequests.length}</p>
         <p className="stat-type">Merge requests</p>
       </Link>
@@ -39,7 +39,7 @@ const RepoInfo = ({
             <p className="stat-no" />
             <p className="stat-type">Visualizations</p>
           </Link>
-          <Link to={`/my-projects/${project.gitlabId}/-/datasets`} className="repo-stat" replace>
+          <Link to={`/${project.namespace}/${project.slug}/-/datasets`} className="repo-stat">
             <p className="stat-no">{dataInstanesCount}</p>
             <p className="stat-type">Datasets</p>
           </Link>

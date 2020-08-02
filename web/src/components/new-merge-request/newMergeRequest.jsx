@@ -21,6 +21,14 @@ const imageFormats = [
   '.jpg',
 ];
 
+const getBranchFromSearch = search => {
+  const decoded = decodeURIComponent(search.substr(1));
+  const pairs = decoded.split('&').map((str) => str.split('='))
+  const [, val] = pairs.find(([key, val]) => key === 'merge_request[source_branch]');
+
+  return val;
+};
+
 export class NewMergeRequest extends Component {
   constructor(props) {
     super(props);
@@ -30,6 +38,7 @@ export class NewMergeRequest extends Component {
       imagesToRender: [],
       title: '',
       description: '',
+      branch: '',
       branchToMergeInto: '',
       loading: false,
       redirect: false,
@@ -40,18 +49,29 @@ export class NewMergeRequest extends Component {
     this.handleCreateBranchEv = this.handleCreateBranchEv.bind(this);
   }
 
+  componentDidMount() {
+    const {
+      projects: {
+        selectedProject: { defaultBranch },
+      },
+      location: { search }
+    } = this.props;
+
+    const branch = search ? getBranchFromSearch(search) : defaultBranch;
+
+    this.setState({ branch });
+  }
+
   onBranchChanged(branchSelected) {
     this.setState({ branchToMergeInto: branchSelected });
     const {
       projects: {
         selectedProject,
       },
-      match: {
-        params: {
-          branch,
-        },
-      },
     } = this.props;
+
+    const { branch } = this.state;
+
     const brApi = new BranchesApi();
     brApi.compare(selectedProject.gid, branchSelected, branch)
       .then((res) => {
@@ -118,17 +138,14 @@ export class NewMergeRequest extends Component {
       title,
       description,
       branchToMergeInto,
+      branch,
     } = this.state;
     const {
       projects: {
         selectedProject: { gid },
       },
-      match: {
-        params: {
-          branch,
-        },
-      },
     } = this.props;
+
     mergeRequestAPI
       .submitMergeReq(gid, branch, branchToMergeInto, title, description)
       .then(() => {
@@ -147,6 +164,7 @@ export class NewMergeRequest extends Component {
       imagesToRender,
       // loading,
       redirect,
+      branch,
     } = this.state;
     const isEnabledCreateMergeReq = title.length > 0
         && branchToMergeInto.length > 0;
@@ -156,12 +174,8 @@ export class NewMergeRequest extends Component {
       },
       branches,
       users,
-      match: {
-        params: {
-          branch,
-        },
-      },
     } = this.props;
+
     const groupName = selectedProject.namespace.name;
 
     const { namespace, slug } = selectedProject;
@@ -286,9 +300,13 @@ NewMergeRequest.propTypes = {
       gid: number.isRequired,
     }).isRequired,
   }).isRequired,
+  location: shape({
+    search: string.isRequired,
+  }).isRequired,
   match: shape({
     params: shape({
-      branch: string.isRequired,
+      namespace: string.isRequired,
+      slug: string.isRequired,
     }),
   }).isRequired,
   branches: arrayOf(string).isRequired,

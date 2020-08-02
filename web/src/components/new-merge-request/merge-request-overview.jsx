@@ -92,6 +92,9 @@ class MergeRequestOverview extends Component {
     const {
       selectedProject,
       history,
+      match: {
+        params: { namespace, slug },
+      },
     } = this.props;
     const openedMrs = this.filterStateAndCount(0);
     const closedMrs = this.filterStateAndCount(1);
@@ -123,24 +126,24 @@ class MergeRequestOverview extends Component {
                     id="new-mr-link"
                     loading={false}
                     onClickHandler={() => {
-                      history.push(`/my-projects/${selectedProject.gid}/master/new-merge-request`);
+                      history.push(`/${namespace}/${slug}/-/merge_requests/new`);
                     }}
                     buttonLabel="New merge request"
                   />
                 </div>
                 <div id="merge-requests-container-div">
                   {btnSelected === 'open-btn' && openedMrs.list.length > 0
-                    ? <MergeRequestCard mergeRequestsList={openedMrs} key={openedMrs.mrState} />
+                    ? <MergeRequestCard namespace={namespace} slug={slug} mergeRequestsList={openedMrs} key={openedMrs.mrState} />
                     : null}
                   {btnSelected === 'merged-btn' && mergedMrs.list.length > 0
-                    ? <MergeRequestCard mergeRequestsList={mergedMrs} key={mergedMrs.mrState} />
+                    ? <MergeRequestCard namespace={namespace} slug={slug} mergeRequestsList={mergedMrs} key={mergedMrs.mrState} />
                     : null}
                   {btnSelected === 'closed-btn' && closedMrs.list.length > 0
-                    ? <MergeRequestCard mergeRequestsList={closedMrs} key={closedMrs.mrState} />
+                    ? <MergeRequestCard namespace={namespace} slug={slug} mergeRequestsList={closedMrs} key={closedMrs.mrState} />
                     : null}
                   {btnSelected === 'all-btn' && mrsList
                     ? mrsList.map((mrsClass) => (
-                      <MergeRequestCard mergeRequestsList={mrsClass} key={mrsClass.mrState} />
+                      <MergeRequestCard namespace={namespace} slug={slug} mergeRequestsList={mrsClass} key={mrsClass.mrState} />
                     ))
                     : null}
                 </div>
@@ -154,7 +157,7 @@ class MergeRequestOverview extends Component {
   }
 }
 
-const MergeRequestCard = ({ mergeRequestsList }) => (
+const MergeRequestCard = ({ namespace, slug, mergeRequestsList }) => (
   <div className="merge-request-card" key={mergeRequestsList.mrState}>
     <div className="title">
       <p>{mergeRequestsList.mrState}</p>
@@ -162,7 +165,13 @@ const MergeRequestCard = ({ mergeRequestsList }) => (
     <div>
       {mergeRequestsList.list.map(((mr, index) => (
         <div className="merge-request-subcard" key={`${index.toString()}`}>
-          <p><b><Link to={`/my-projects/${mr.project_id}/merge-requests/${mr.iid}`}>{mr.title}</Link></b></p>
+          <p>
+            <b>
+              <Link to={`/${namespace}/${slug}/-/merge_requests/${mr.iid}`}>
+                {mr.title}
+              </Link>
+            </b>
+          </p>
           <p>
             {mr.reference}
             {' '}
@@ -186,6 +195,8 @@ const MergeRequestCard = ({ mergeRequestsList }) => (
 );
 
 MergeRequestCard.propTypes = {
+  namespace: string.isRequired,
+  slug: string.isRequired,
   mergeRequestsList: shape({
     mrState: string.isRequired,
     list: arrayOf(shape({

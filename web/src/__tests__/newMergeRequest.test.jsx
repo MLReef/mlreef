@@ -6,13 +6,13 @@ import { projectsArrayMock, imagesToRender } from '../testData';
 import { storeFactory } from '../functions/testUtils';
 
 const match = {
-  path: '/my-projects/:projectId/:branch/new-merge-request',
-  url: '/my-projects/14448940/master/new-merge-request',
+  path: '/:namespace/:slug/-/merge_requests/new',
+  url: '/my-namespace/project-slug/-/merge_requests/new',
   isExact: true,
-  params: {
-    projectId: '14448940',
-    branch: 'master',
-  },
+};
+
+const location = {
+  search: ''
 };
 
 const setup = () => {
@@ -24,6 +24,7 @@ const setup = () => {
     <NewMergeRequest
       store={store}
       match={match}
+      location={location}
       branchSelected="master"
       history={{ goBack: () => {} }}
     />,

@@ -148,7 +148,7 @@ export const projectsArrayMock = {
       },
     ],
     selectedProject: {
-      id: 'df778df87d78f8d7fdfdf78df7877hjljkdh33223',
+      id: 'this-is-the-mlreef-uuid',
       gid: 12395599,
       description: 'This is MLReef´s demo repository.',
       gitlabName: 'demo',
@@ -177,6 +177,7 @@ export const projectsArrayMock = {
           access_level: 30,
         },
       },
+      searchableType: 'DATA_PROJECT',
     },
   },
   users: [

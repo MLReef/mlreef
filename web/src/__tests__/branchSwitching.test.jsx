@@ -15,6 +15,7 @@ const setup = () => shallow(
     branches={branchesMock}
     path=""
     projectId={projectsArrayMock.projects.selectedProject.gid}
+    searchableType={projectsArrayMock.projects.selectedProject.searchableType}
     updateLastCommit={() => {}}
   />,
 );
@@ -75,6 +76,7 @@ describe('The branches list should be displayed when dropdown button is clicked'
               branches={branchesMock}
               path=""
               projectId={projectsArrayMock.projects.selectedProject.gid}
+              searchableType={projectsArrayMock.projects.selectedProject.searchableType}
               updateLastCommit={() => {}}
             />
           </MemoryRouter>
