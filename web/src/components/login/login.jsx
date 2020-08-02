@@ -135,7 +135,14 @@ class Login extends React.Component {
                 />
               </div>
               <div className="input-container paragraph">
-                <p>Password</p>
+                <div style={{ alignItems: 'baseline' }} className="w-100 d-flex">
+                  <div style={{ flex: '1' }}>
+                    <p>Password</p>
+                  </div>
+                  <div>
+                    <Link className="t-info" to="/user/reset-password">Forgot your password?</Link>
+                  </div>
+                </div>
                 <input
                   id="password"
                   type="password"
@@ -143,7 +150,6 @@ class Login extends React.Component {
                   onChange={this.handleChange}
                 />
               </div>
-
               <div id="sign-in-btn" className="input-container">
                 <MButton
                   type="submit"

@@ -5,6 +5,7 @@ import CreateGroup from 'components/views/create-group/createGroup';
 import GroupsOverview from 'components/views/groupsOverview';
 import SettingsView from 'components/views/SettingsView';
 import PipelinesExecutionView from 'components/views/PipelinesExecutionView';
+import ResetPasswordView from 'components/views/ResetPassword/ResetPasswordView';
 import FileView from './components/fileView/fileView';
 import Login from './components/login/login';
 import RegisterView from './components/RegisterView';
@@ -42,6 +43,7 @@ const RouterComp = () => (
       <Route path="/login" exact component={Login} />
       <Route path="/index.html" exact component={Login} />
       <Route path="/register" exact component={RegisterView} />
+      <Route path="/user/reset-password" exact component={ResetPasswordView} />
       <Route path="/error-page" exact component={ErrorPage} />
       <Route path="/explore" exact component={Explore} />
 

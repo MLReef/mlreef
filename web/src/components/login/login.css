@@ -118,3 +118,9 @@
     font-weight: 600;
     cursor: pointer;
 } */
+
+.pass-reset{
+    display: flex;
+    justify-content: flex-end;
+    margin: 1rem 2rem;
+}
