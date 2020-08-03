@@ -3,8 +3,8 @@ package com.mlreef.rest.external_api.gitlab.dto
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.mlreef.rest.api.v1.dto.SecretUserDto
 import com.mlreef.rest.api.v1.dto.UserDto
+import com.mlreef.rest.external_api.gitlab.GitlabAccessLevel
 import com.mlreef.rest.external_api.gitlab.GitlabActivityState
-import com.mlreef.rest.external_api.gitlab.GroupAccessLevel
 import org.springframework.context.annotation.Scope
 import java.io.Serializable
 import java.util.UUID
@@ -38,7 +38,7 @@ fun GitlabUserInProject.toGitlabUser(): GitlabUser =
         isAdmin = false
     )
 
-fun GitlabUser.toGitlabUserInProject(accessLevel: GroupAccessLevel): GitlabUserInProject =
+fun GitlabUser.toGitlabUserInProject(accessLevel: GitlabAccessLevel): GitlabUserInProject =
     GitlabUserInProject(
         id = this.id,
         webUrl = this.weburlUrl,

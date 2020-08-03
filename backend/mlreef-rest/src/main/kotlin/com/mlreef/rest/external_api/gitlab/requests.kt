@@ -95,11 +95,12 @@ internal class GitlabCreateCommitAction(
 ) : Serializable
 
 // https://docs.gitlab.com/ee/api/group_level_variables.html#create-variable
-internal class GitlabCreateGroupVariableRequest(
+internal class GitlabCreateVariableRequest(
     val key: String,
     val value: String,
     val variableType: VariableType = VariableType.ENV_VAR,
-    val protected: Boolean = false
+    val protected: Boolean = false,
+    val masked: Boolean = false
 ) : Serializable
 
 // https://docs.gitlab.com/ee/api/projects.html#create-project

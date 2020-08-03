@@ -22,3 +22,11 @@ cp -r docs/public .
 ls -al public/
 ls -al docs/
 ls -al docs/node_modules
+
+ls public/develop public/feature/* -l || echo "Develop REST docs empty"
+mkdir public/$CI_COMMIT_BRANCH -p || echo "Specific Branch REST docs exists"
+rm public/$CI_COMMIT_BRANCH/* -R || echo "Specific Branch REST docs empty"
+mkdir public/$CI_COMMIT_BRANCH/coverage -p
+mv backend/mlreef-rest/build/reports/jacoco/test/html/* public/$CI_COMMIT_BRANCH/coverage || echo "No backend docs on this Pipeline"
+mv backend/mlreef-rest/build/asciidoc/html5/rest-api.html public/$CI_COMMIT_BRANCH/index.html || echo "No backend docs on this Pipeline"
+echo "Documentation URL is $CI_PAGES_URL/$CI_COMMIT_BRANCH"

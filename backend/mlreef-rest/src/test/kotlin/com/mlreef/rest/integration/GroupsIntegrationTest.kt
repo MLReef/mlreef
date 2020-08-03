@@ -6,7 +6,7 @@ import com.mlreef.rest.api.v1.GroupUpdateRequest
 import com.mlreef.rest.api.v1.dto.GroupDto
 import com.mlreef.rest.api.v1.dto.GroupOfUserDto
 import com.mlreef.rest.api.v1.dto.UserInGroupDto
-import com.mlreef.rest.external_api.gitlab.GroupAccessLevel
+import com.mlreef.rest.external_api.gitlab.GitlabAccessLevel
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
@@ -170,8 +170,8 @@ class GroupsIntegrationTest : AbstractIntegrationTest() {
         val (account2, _, _) = testsHelper.createRealUser(index = -1)
         val (account3, _, _) = testsHelper.createRealUser(index = -1)
 
-        testsHelper.addRealUserToGroup(group1.gitlabId!!, account2.person.gitlabId!!, GroupAccessLevel.GUEST)
-        testsHelper.addRealUserToGroup(group1.gitlabId!!, account3.person.gitlabId!!, GroupAccessLevel.MAINTAINER)
+        testsHelper.addRealUserToGroup(group1.gitlabId!!, account2.person.gitlabId!!, GitlabAccessLevel.GUEST)
+        testsHelper.addRealUserToGroup(group1.gitlabId!!, account3.person.gitlabId!!, GitlabAccessLevel.MAINTAINER)
 
         //when
         val url = "$rootUrl/${group1.id}/users"
@@ -205,8 +205,8 @@ class GroupsIntegrationTest : AbstractIntegrationTest() {
         val (account2, token2, _) = testsHelper.createRealUser(index = -1)
         val (account3, _, _) = testsHelper.createRealUser(index = -1)
 
-        testsHelper.addRealUserToGroup(group1.gitlabId!!, account2.person.gitlabId!!, GroupAccessLevel.DEVELOPER)
-        testsHelper.addRealUserToGroup(group1.gitlabId!!, account3.person.gitlabId!!, GroupAccessLevel.GUEST)
+        testsHelper.addRealUserToGroup(group1.gitlabId!!, account2.person.gitlabId!!, GitlabAccessLevel.DEVELOPER)
+        testsHelper.addRealUserToGroup(group1.gitlabId!!, account3.person.gitlabId!!, GitlabAccessLevel.GUEST)
 
         //when
         val url = "$rootUrl/${group1.id}/users"
@@ -240,8 +240,8 @@ class GroupsIntegrationTest : AbstractIntegrationTest() {
         val (account2, _, _) = testsHelper.createRealUser(index = -1)
         val (account3, token3, _) = testsHelper.createRealUser(index = -1)
 
-        testsHelper.addRealUserToGroup(group1.gitlabId!!, account2.person.gitlabId!!, GroupAccessLevel.DEVELOPER)
-        testsHelper.addRealUserToGroup(group1.gitlabId!!, account3.person.gitlabId!!, GroupAccessLevel.GUEST)
+        testsHelper.addRealUserToGroup(group1.gitlabId!!, account2.person.gitlabId!!, GitlabAccessLevel.DEVELOPER)
+        testsHelper.addRealUserToGroup(group1.gitlabId!!, account3.person.gitlabId!!, GitlabAccessLevel.GUEST)
 
         //when
         val url = "$rootUrl/${group1.id}/users"
@@ -258,8 +258,8 @@ class GroupsIntegrationTest : AbstractIntegrationTest() {
         val (account2, _, _) = testsHelper.createRealUser(index = -1)
         val (account3, _, _) = testsHelper.createRealUser(index = -1)
 
-        testsHelper.addRealUserToGroup(group1.gitlabId!!, account2.person.gitlabId!!, GroupAccessLevel.DEVELOPER)
-        testsHelper.addRealUserToGroup(group1.gitlabId!!, account3.person.gitlabId!!, GroupAccessLevel.GUEST)
+        testsHelper.addRealUserToGroup(group1.gitlabId!!, account2.person.gitlabId!!, GitlabAccessLevel.DEVELOPER)
+        testsHelper.addRealUserToGroup(group1.gitlabId!!, account3.person.gitlabId!!, GitlabAccessLevel.GUEST)
 
         //when
         val url = "$rootUrl/${group1.id}/users"
@@ -305,7 +305,7 @@ class GroupsIntegrationTest : AbstractIntegrationTest() {
         val (account2, token2, _) = testsHelper.createRealUser(index = -1)
         val (account3, _, _) = testsHelper.createRealUser(index = -1)
 
-        testsHelper.addRealUserToGroup(group1.gitlabId!!, account2.person.gitlabId!!, GroupAccessLevel.MAINTAINER)
+        testsHelper.addRealUserToGroup(group1.gitlabId!!, account2.person.gitlabId!!, GitlabAccessLevel.MAINTAINER)
 
         //when
         val url = "$rootUrl/${group1.id}/users/${account3.id}"
@@ -339,7 +339,7 @@ class GroupsIntegrationTest : AbstractIntegrationTest() {
         val (account2, token2, _) = testsHelper.createRealUser(index = -1)
         val (account3, _, _) = testsHelper.createRealUser(index = -1)
 
-        testsHelper.addRealUserToGroup(group1.gitlabId!!, account2.person.gitlabId!!, GroupAccessLevel.DEVELOPER)
+        testsHelper.addRealUserToGroup(group1.gitlabId!!, account2.person.gitlabId!!, GitlabAccessLevel.DEVELOPER)
 
         //when
         val url = "$rootUrl/${group1.id}/users/${account3.id}"
@@ -369,7 +369,7 @@ class GroupsIntegrationTest : AbstractIntegrationTest() {
         val (group1, _) = testsHelper.createRealGroup(token1)
         val (account2, _, _) = testsHelper.createRealUser(index = -1)
 
-        testsHelper.addRealUserToGroup(group1.gitlabId!!, account2.person.gitlabId!!, GroupAccessLevel.DEVELOPER)
+        testsHelper.addRealUserToGroup(group1.gitlabId!!, account2.person.gitlabId!!, GitlabAccessLevel.DEVELOPER)
 
         //when
         val url = "$rootUrl/${group1.id}/users/${account2.id}?access_level=MAINTAINER"
@@ -401,8 +401,8 @@ class GroupsIntegrationTest : AbstractIntegrationTest() {
         val (account2, token2, _) = testsHelper.createRealUser(index = -1)
         val (account3, _, _) = testsHelper.createRealUser(index = -1)
 
-        testsHelper.addRealUserToGroup(group1.gitlabId!!, account2.person.gitlabId!!, GroupAccessLevel.MAINTAINER)
-        testsHelper.addRealUserToGroup(group1.gitlabId!!, account3.person.gitlabId!!, GroupAccessLevel.DEVELOPER)
+        testsHelper.addRealUserToGroup(group1.gitlabId!!, account2.person.gitlabId!!, GitlabAccessLevel.MAINTAINER)
+        testsHelper.addRealUserToGroup(group1.gitlabId!!, account3.person.gitlabId!!, GitlabAccessLevel.DEVELOPER)
 
         //when
         val url = "$rootUrl/${group1.id}/users/${account3.id}?access_level=MAINTAINER"
@@ -436,8 +436,8 @@ class GroupsIntegrationTest : AbstractIntegrationTest() {
         val (account2, _, _) = testsHelper.createRealUser(index = -1)
         val (account3, token3, _) = testsHelper.createRealUser(index = -1)
 
-        testsHelper.addRealUserToGroup(group1.gitlabId!!, account2.person.gitlabId!!, GroupAccessLevel.MAINTAINER)
-        testsHelper.addRealUserToGroup(group1.gitlabId!!, account3.person.gitlabId!!, GroupAccessLevel.DEVELOPER)
+        testsHelper.addRealUserToGroup(group1.gitlabId!!, account2.person.gitlabId!!, GitlabAccessLevel.MAINTAINER)
+        testsHelper.addRealUserToGroup(group1.gitlabId!!, account3.person.gitlabId!!, GitlabAccessLevel.DEVELOPER)
 
         //when
         val url = "$rootUrl/${group1.id}/users/${account2.id}?access_level=DEVELOPER"
@@ -453,7 +453,7 @@ class GroupsIntegrationTest : AbstractIntegrationTest() {
         val (group1, _) = testsHelper.createRealGroup(token1)
         val (account2, _, _) = testsHelper.createRealUser(index = -1)
 
-        testsHelper.addRealUserToGroup(group1.gitlabId!!, account2.person.gitlabId!!, GroupAccessLevel.MAINTAINER)
+        testsHelper.addRealUserToGroup(group1.gitlabId!!, account2.person.gitlabId!!, GitlabAccessLevel.MAINTAINER)
 
         //when
         val url = "$rootUrl/${group1.id}/users/${account2.id}?access_level=DEVELOPER"
@@ -470,8 +470,8 @@ class GroupsIntegrationTest : AbstractIntegrationTest() {
         val (account2, _, _) = testsHelper.createRealUser(index = -1)
         val (account3, _, _) = testsHelper.createRealUser(index = -1)
 
-        testsHelper.addRealUserToGroup(group1.gitlabId!!, account2.person.gitlabId!!, GroupAccessLevel.MAINTAINER)
-        testsHelper.addRealUserToGroup(group1.gitlabId!!, account3.person.gitlabId!!, GroupAccessLevel.DEVELOPER)
+        testsHelper.addRealUserToGroup(group1.gitlabId!!, account2.person.gitlabId!!, GitlabAccessLevel.MAINTAINER)
+        testsHelper.addRealUserToGroup(group1.gitlabId!!, account3.person.gitlabId!!, GitlabAccessLevel.DEVELOPER)
 
         //when
         val url = "$rootUrl/${group1.id}/users/${account3.id}"
@@ -504,8 +504,8 @@ class GroupsIntegrationTest : AbstractIntegrationTest() {
         val (account2, token2, _) = testsHelper.createRealUser(index = -1)
         val (account3, _, _) = testsHelper.createRealUser(index = -1)
 
-        testsHelper.addRealUserToGroup(group1.gitlabId!!, account2.person.gitlabId!!, GroupAccessLevel.MAINTAINER)
-        testsHelper.addRealUserToGroup(group1.gitlabId!!, account3.person.gitlabId!!, GroupAccessLevel.DEVELOPER)
+        testsHelper.addRealUserToGroup(group1.gitlabId!!, account2.person.gitlabId!!, GitlabAccessLevel.MAINTAINER)
+        testsHelper.addRealUserToGroup(group1.gitlabId!!, account3.person.gitlabId!!, GitlabAccessLevel.DEVELOPER)
 
         //when
         val url = "$rootUrl/${group1.id}/users/${account3.id}"
@@ -538,8 +538,8 @@ class GroupsIntegrationTest : AbstractIntegrationTest() {
         val (account2, _, _) = testsHelper.createRealUser(index = -1)
         val (account3, token3, _) = testsHelper.createRealUser(index = -1)
 
-        testsHelper.addRealUserToGroup(group1.gitlabId!!, account2.person.gitlabId!!, GroupAccessLevel.MAINTAINER)
-        testsHelper.addRealUserToGroup(group1.gitlabId!!, account3.person.gitlabId!!, GroupAccessLevel.DEVELOPER)
+        testsHelper.addRealUserToGroup(group1.gitlabId!!, account2.person.gitlabId!!, GitlabAccessLevel.MAINTAINER)
+        testsHelper.addRealUserToGroup(group1.gitlabId!!, account3.person.gitlabId!!, GitlabAccessLevel.DEVELOPER)
 
         //when
         val url = "$rootUrl/${group1.id}/users/${account2.id}"
@@ -555,7 +555,7 @@ class GroupsIntegrationTest : AbstractIntegrationTest() {
         val (group1, _) = testsHelper.createRealGroup(token1)
         val (account2, _, _) = testsHelper.createRealUser(index = -1)
 
-        testsHelper.addRealUserToGroup(group1.gitlabId!!, account2.person.gitlabId!!, GroupAccessLevel.MAINTAINER)
+        testsHelper.addRealUserToGroup(group1.gitlabId!!, account2.person.gitlabId!!, GitlabAccessLevel.MAINTAINER)
 
         //when
         val url = "$rootUrl/${group1.id}/users/${account2.id}"

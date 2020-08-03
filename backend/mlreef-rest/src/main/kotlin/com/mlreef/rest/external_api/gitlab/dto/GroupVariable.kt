@@ -9,6 +9,7 @@ import java.io.Serializable
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 @JsonInclude(JsonInclude.Include.NON_NULL)
+@Deprecated("Use GitlabVariable if possible")
 class GroupVariable(
     val key: String,
     val variableType: VariableType = VariableType.ENV_VAR,

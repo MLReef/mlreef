@@ -6,7 +6,7 @@ import com.mlreef.rest.AccessLevel
 import com.mlreef.rest.VisibilityScope
 
 
-enum class GroupAccessLevel(val accessCode: Int) {
+enum class GitlabAccessLevel(val accessCode: Int) {
     GUEST(10),
     REPORTER(20),
     DEVELOPER(30),
@@ -16,25 +16,25 @@ enum class GroupAccessLevel(val accessCode: Int) {
     companion object {
         @JvmStatic
         @JsonCreator
-        fun fromCode(code: Int?): GroupAccessLevel? {
+        fun fromCode(code: Int?): GitlabAccessLevel? {
             return values().firstOrNull { it.accessCode == code }
         }
 
-        fun isSufficientFor(instance: GroupAccessLevel?, limit: GroupAccessLevel?): Boolean {
+        fun isSufficientFor(instance: GitlabAccessLevel?, limit: GitlabAccessLevel?): Boolean {
             if (limit == null) return true
             if (instance == null) return false
             return instance.accessCode >= limit.accessCode
         }
     }
 
-    fun satisfies(limit: GroupAccessLevel?) = GroupAccessLevel.isSufficientFor(this, limit)
+    fun satisfies(limit: GitlabAccessLevel?) = GitlabAccessLevel.isSufficientFor(this, limit)
 }
 
-fun AccessLevel?.toGitlabAccessLevel(): GroupAccessLevel? {
-    return GroupAccessLevel.fromCode(this?.accessCode)
+fun AccessLevel?.toGitlabAccessLevel(): GitlabAccessLevel? {
+    return GitlabAccessLevel.fromCode(this?.accessCode)
 }
 
-fun GroupAccessLevel?.toAccessLevel(): AccessLevel? {
+fun GitlabAccessLevel?.toAccessLevel(): AccessLevel? {
     return AccessLevel.fromCode(this?.accessCode)
 }
 
@@ -76,12 +76,6 @@ enum class SubgroupCreationLevel {
 enum class GitlabActivityState {
     ACTIVE,
     INACTIVE
-}
-
-enum class GitlabAccessLevel {
-    DISABLED,
-    PRIVATE,
-    ENABLED
 }
 
 enum class NamespaceKind {

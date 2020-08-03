@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.mlreef.rest.external_api.gitlab.DeployStrategy
 import com.mlreef.rest.external_api.gitlab.GitStrategy
-import com.mlreef.rest.external_api.gitlab.GitlabAccessLevel
 import com.mlreef.rest.external_api.gitlab.GitlabState
 import com.mlreef.rest.external_api.gitlab.GitlabVisibility
 import com.mlreef.rest.external_api.gitlab.MergeMethod
@@ -64,11 +63,6 @@ class GitlabProject(
     val wikiEnabled: Boolean = true,
     val jobsEnabled: Boolean = true,
     val snippetsEnabled: Boolean = true,
-    val issuesAccessLevel: GitlabAccessLevel = GitlabAccessLevel.ENABLED,
-    val repositoryAccessLevel: GitlabAccessLevel = GitlabAccessLevel.ENABLED,
-    val wikiAccessLevel: GitlabAccessLevel = GitlabAccessLevel.ENABLED,
-    val buildsAccessLevel: GitlabAccessLevel = GitlabAccessLevel.ENABLED,
-    val snippetsAccessLevel: GitlabAccessLevel = GitlabAccessLevel.ENABLED,
     val sharedRunnersEnabled: Boolean = true,
     val lfsEnabled: Boolean = true,
     val importStatus: String? = null,

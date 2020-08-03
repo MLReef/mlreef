@@ -99,7 +99,6 @@ class ProjectsPipelineConfigsController(
         return persisted.toDto()
     }
 
-    // FIXME: Coverage says: missing tests
     @PostMapping("/create-start-instance")
     @PreAuthorize("isProjectOwner(#dataProjectId)")
     @Transactional
@@ -117,6 +116,7 @@ class ProjectsPipelineConfigsController(
         val pipelineConfig = pipelineConfigRepository.save(newPipelineConfig)
         val createInstance = pipelineInstanceRepository.save(pipelineConfig.createInstance(1))
         log.info("Created new Instance $createInstance for Pipeline $createInstance")
+
         service.startInstance(
             currentUserService.account(),
             currentUserService.accessToken(),

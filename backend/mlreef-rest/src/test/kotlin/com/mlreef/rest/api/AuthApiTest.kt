@@ -6,7 +6,6 @@ import com.mlreef.rest.api.v1.dto.SecretUserDto
 import com.mlreef.rest.exceptions.ErrorCode
 import com.mlreef.rest.exceptions.GitlabAuthenticationFailedException
 import com.mlreef.rest.external_api.gitlab.dto.OAuthToken
-import com.mlreef.rest.feature.auth.AuthService
 import com.mlreef.rest.utils.RandomUtils
 import com.ninjasquad.springmockk.SpykBean
 import io.mockk.Runs
@@ -25,8 +24,6 @@ import org.springframework.restdocs.payload.JsonFieldType
 import org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath
 import org.springframework.restdocs.payload.PayloadDocumentation.requestFields
 import org.springframework.restdocs.payload.PayloadDocumentation.responseFields
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
-import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.test.annotation.Rollback
 import javax.mail.internet.MimeMessage
 import javax.transaction.Transactional
@@ -36,12 +33,7 @@ class AuthApiTest : AbstractRestApiTest() {
     val authUrl = "/api/v1/auth"
 
     @SpykBean
-    lateinit var authService: AuthService
-
-    @SpykBean
     lateinit var mailSender: JavaMailSender
-
-    private val passwordEncoder: PasswordEncoder = BCryptPasswordEncoder()
 
     @Autowired
     private lateinit var accountSubjectPreparationTrait: AccountSubjectPreparationTrait

@@ -27,8 +27,8 @@ import com.mlreef.rest.ProcessorVersion
 import com.mlreef.rest.ProcessorVersionRepository
 import com.mlreef.rest.Subject
 import com.mlreef.rest.VisibilityScope
+import com.mlreef.rest.external_api.gitlab.GitlabAccessLevel
 import com.mlreef.rest.external_api.gitlab.GitlabRestClient
-import com.mlreef.rest.external_api.gitlab.GroupAccessLevel
 import com.mlreef.rest.external_api.gitlab.dto.GitlabGroup
 import com.mlreef.rest.external_api.gitlab.dto.GitlabProject
 import com.mlreef.rest.external_api.gitlab.dto.GitlabUser
@@ -165,7 +165,7 @@ class IntegrationTestsHelper {
             nameSpaceId = findNamespace?.id,
             description = "Test description $projectName",
             visibility = if (public) "public" else "private",
-            initializeWithReadme = false)
+            initializeWithReadme = true)
 
         allCreatedProjectsNames.add(projectName)
 
@@ -238,14 +238,14 @@ class IntegrationTestsHelper {
         return Pair(projectInDb, gitLabProject)
     }
 
-    fun addRealUserToProject(projectId: Long, userId: Long, accessLevel: GroupAccessLevel? = null) {
+    fun addRealUserToProject(projectId: Long, userId: Long, accessLevel: GitlabAccessLevel? = null) {
         restClient.adminAddUserToProject(projectId = projectId, userId = userId, accessLevel = accessLevel
-            ?: GroupAccessLevel.DEVELOPER)
+            ?: GitlabAccessLevel.DEVELOPER)
     }
 
-    fun addRealUserToGroup(groupId: Long, userId: Long, accessLevel: GroupAccessLevel? = null) {
+    fun addRealUserToGroup(groupId: Long, userId: Long, accessLevel: GitlabAccessLevel? = null) {
         restClient.adminAddUserToGroup(groupId = groupId, userId = userId, accessLevel = accessLevel
-            ?: GroupAccessLevel.DEVELOPER)
+            ?: GitlabAccessLevel.DEVELOPER)
     }
 
 

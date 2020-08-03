@@ -22,10 +22,14 @@ import com.mlreef.rest.ProcessorVersion
 import com.mlreef.rest.ProcessorVersionRepository
 import com.mlreef.rest.SubjectRepository
 import com.mlreef.rest.VisibilityScope
+import com.mlreef.rest.api.AbstractRestApiTest
 import com.mlreef.rest.exceptions.PipelineCreateException
 import com.mlreef.rest.external_api.gitlab.GitlabRestClient
 import com.mlreef.rest.external_api.gitlab.dto.Branch
 import com.mlreef.rest.external_api.gitlab.dto.Commit
+import com.mlreef.rest.external_api.gitlab.dto.GitlabUser
+import com.mlreef.rest.external_api.gitlab.dto.GitlabUserToken
+import com.mlreef.rest.feature.auth.AuthService
 import com.mlreef.rest.service.AbstractServiceTest
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
@@ -35,7 +39,6 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.data.repository.findByIdOrNull
 import java.util.UUID
 import java.util.UUID.randomUUID
 
@@ -71,6 +74,9 @@ class PipelineServiceTest : AbstractServiceTest() {
     private lateinit var processorParameterRepository: ProcessorParameterRepository
 
     @MockkBean
+    private lateinit var authService: AuthService
+
+    @MockkBean
     private lateinit var restClient: GitlabRestClient
 
     private var ownerId: UUID = randomUUID()
@@ -87,7 +93,8 @@ class PipelineServiceTest : AbstractServiceTest() {
             dataProjectRepository = dataProjectRepository,
             processorVersionRepository = processorVersionRepository,
             processorParameterRepository = processorParameterRepository,
-            gitlabRestClient = restClient
+            gitlabRestClient = restClient,
+            authService = authService
         )
 
         val subject = Person(ownerId, "new-person", "person's name", 1L)
@@ -96,6 +103,33 @@ class PipelineServiceTest : AbstractServiceTest() {
         dataProjectRepository.save(DataProject(dataRepositoryId2, "new-repo2", "url", "Test DataProject", "description", subject.id, "mlreef", "project", 0, VisibilityScope.PUBLIC, arrayListOf()))
 
         dataProjectRepository.save(dataRepository)
+
+        mockBotToken()
+    }
+
+    private fun mockBotToken(initialTokenReturned: Boolean = true) {
+        val userToken = if (initialTokenReturned) {
+            GitlabUserToken(
+                id = 1,
+                revoked = false,
+                token = AbstractRestApiTest.testPrivateUserTokenMock1,
+                active = true,
+                name = "mlreef-token"
+            )
+        } else {
+            null
+        }
+        every {
+            authService.ensureBotExistsWithToken(any(), any(), any())
+        } returns (Pair(
+            GitlabUser(
+                id = 1,
+                name = "Mock Gitlab User",
+                username = "mock_user",
+                email = "mock@example.com",
+                state = "active"
+            ),
+            userToken))
     }
 
     @Test
@@ -333,6 +367,33 @@ class PipelineServiceTest : AbstractServiceTest() {
 
         assertThat(createdInstance).isNotNull()
         assertThat(createdInstance.status).isEqualTo(PipelineStatus.CREATED)
+    }
+
+    @Test
+    fun `createStartGitlabPipeline works with initial token`() {
+        val pipelineConfig = createFullMockData()
+        val pipelineJobInfo = service.createStartGitlabPipeline(
+            userToken = "userToken",
+            projectGitlabId = 1,
+            sourceBranch = "sourceBranch",
+            targetBranch = "targetBranch",
+            fileContent = "fileContent", secret = "secret")
+
+        assertThat(pipelineJobInfo).isNotNull()
+    }
+
+    @Test
+    fun `createStartGitlabPipeline works without initial token`() {
+        val pipelineConfig = createFullMockData()
+        mockBotToken(initialTokenReturned = false)
+        val pipelineJobInfo = service.createStartGitlabPipeline(
+            userToken = "userToken",
+            projectGitlabId = 1,
+            sourceBranch = "sourceBranch",
+            targetBranch = "targetBranch",
+            fileContent = "fileContent", secret = "secret")
+
+        assertThat(pipelineJobInfo).isNotNull()
     }
 
     @Test

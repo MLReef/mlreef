@@ -16,6 +16,8 @@ import com.mlreef.rest.api.v1.dto.DataProcessorInstanceDto
 import com.mlreef.rest.api.v1.dto.FileLocationDto
 import com.mlreef.rest.api.v1.dto.ParameterInstanceDto
 import com.mlreef.rest.api.v1.dto.PipelineConfigDto
+import com.mlreef.rest.api.v1.dto.PipelineInstanceDto
+import com.mlreef.rest.feature.pipeline.GitlabVariables
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
@@ -118,6 +120,50 @@ class ProjectPipelinesConfigIntegrationTest : AbstractIntegrationTest() {
             .returns(PipelineConfigDto::class.java)
 
         assertThat(result).isNotNull()
+    }
+
+    @Transactional
+    @Rollback
+    @Test
+    fun `Can create new PipelineConfig via create-start-instance`() {
+        val (account, token, _) = testsHelper.createRealUser(userName = "project", password = "password")
+        val (project, _) = testsHelper.createRealDataProject(token, account)
+
+        val request = PipelineConfigCreateRequest(
+            sourceBranch = "master",
+            targetBranchPattern = "\$SLUG-\$ID",
+            pipelineType = "DATA",
+            slug = "data-pipeline",
+            name = "DataPipeline",
+            inputFiles = listOf(
+                FileLocationDto("."),
+                FileLocationDto("image.png"),
+                FileLocationDto("http://orf.at", "URL")
+            ),
+            dataOperations = listOf(
+                DataProcessorInstanceDto("commons-data-operation", listOf(
+                    ParameterInstanceDto("stringParam", type = ParameterType.STRING.name, value = "string value"),
+                    ParameterInstanceDto("floatParam", type = ParameterType.FLOAT.name, value = "0.01"),
+                    ParameterInstanceDto("integerParam", type = ParameterType.INTEGER.name, value = "10"),
+                    ParameterInstanceDto("stringList", type = ParameterType.LIST.name, value = "[\"asdf\",\"asdf\",\"asdf\"]")
+                )))
+        )
+
+        val url = "$rootUrl/${project.id}/pipelines/create-start-instance"
+
+        val result = this.performPost(url, token, request)
+            .expectOk()
+            .returns(PipelineInstanceDto::class.java)
+
+        assertThat(result).isNotNull()
+
+        val adminGetProjectVariables = restClient.adminGetProjectVariables(project.gitlabId)
+        val pushUser = restClient.adminGetProjectVariable(project.gitlabId, GitlabVariables.GIT_PUSH_USER)
+        val pushToken = restClient.adminGetProjectVariable(project.gitlabId, GitlabVariables.GIT_PUSH_TOKEN)
+        assertThat(adminGetProjectVariables).isNotNull()
+        assertThat(pushUser).isNotNull()
+        assertThat(pushToken).isNotNull()
+
     }
 
     @Disabled
