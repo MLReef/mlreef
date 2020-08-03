@@ -1,7 +1,7 @@
 #!/bin/bash
 
 if [ "$INSTANCE" == "localhost" ]; then
-  EPF_BACKEND_URL=backend
+  EPF_BACKEND_URL=backend:8080
   EPF_GITLAB_URL=gitlab
 else
   EPF_BACKEND_URL=$INSTANCE

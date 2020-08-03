@@ -16,19 +16,21 @@ set -u    # error on usage of undefined variables
 
 echo "URL is $URL"
 mkdir -p out/test/
-export USER="SMOKE-TEST-$(randomString 3)"
-export PASSWORD="password"
+echo "SMOKE-TEST-$(randomString 3)" > out/test/user.tmp
+echo "password" > out/test/password.tmp
+export USER=$(cat out/test/user.tmp)
+export PASSWORD=$(cat out/test/password.tmp)
 log "Username is $USER with password "
 export TOKEN #declare separately to be able to gather return value
-curl "http://$URL:8080/api/v1/auth/register" -X POST \
-  --request POST --fail --show-error          \
+curl "http://$URL:8080/api/v1/auth/register"  \
+  --request POST --show-error                 \
   --header 'Content-Type: application/json'   \
   --header 'Accept: application/json'         \
   --data '{
-    "username" : "'$USER'",
-    "email" : "'$USER'@example.com",
-    "password" : "'$PASSWORD'",
-    "name" : "Smoke Test User '$USER'"
+    "username" : "'"$USER"'",
+    "email" : "'"$USER"'@example.com",
+    "password" : "'"$PASSWORD"'",
+    "name" : "Smoke Test User '"$USER"'"
     }'                                        \
     | jq                                      \
     | tee out/test/register.response.tmp
@@ -45,7 +47,7 @@ fi
 log "Registering exited with $? and produced token $TOKEN"
 
 curl "http://$URL:8080/api/v1/data-projects" -X POST \
-  --request POST --fail --show-error          \
+  --request POST --show-error                 \
   --header "PRIVATE-TOKEN: $TOKEN"            \
   --header "Content-Type: application/json"   \
   --header "Accept: application/json"         \

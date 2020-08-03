@@ -7,11 +7,12 @@ echo "EPF_PIPELINE_URL is $EPF_PIPELINE_URL"
 # send information to Backend's EPF API endpoint for "update" or "finish"
 request_epf_endpoint_update() {
   url="$EPF_PIPELINE_URL/update"
-  echo $url
-  curl -sS --request PUT $url \
+  echo "Background push to URL: $url"
+  curl --include --request PUT "$url" \
     --header "EPF-BOT-TOKEN: $EPF_PIPELINE_SECRET" \
     --header "Content-Type: application/json" \
-    -d @experiment.json
+    --data @experiment.json
+  echo ""
 }
 
 iteration=0

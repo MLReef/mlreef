@@ -24,7 +24,7 @@ before_script:
   - cat .mlreef.yml
   - echo "####################"
   #- it just aint working!
-  - git remote set-url origin http://${GIT_PUSH_USER}:${GIT_PUSH_TOKEN}@%GITLAB_ROOT_URL%/%GITLAB_GROUP%/%GITLAB_PROJECT%.git
+  - git remote set-url origin http://${GIT_PUSH_USER}:password@"$EPF_GITLAB_HOST":10080/%GITLAB_GROUP%/%GITLAB_PROJECT%.git
   - git config --global user.email "%CONF_EMAIL%"
   - git config --global user.name "%CONF_NAME%"
   # TODO this can maybe be deleted

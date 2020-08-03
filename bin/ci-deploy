@@ -33,7 +33,7 @@ rewriteDockerImage() {
   echo "$CURL_RESPONSE"
   if [ "$CURL_RESPONSE" = "200" ]; then
     echo "Found branch specific docker image for $2"
-    sed -i "s/$2:develop/$2:$CI_COMMIT_REF_SLUG/" docker-compose.yml;
+    sed -i "s/$2:master/$2:$CI_COMMIT_REF_SLUG/" docker-compose.yml;
   else
     echo "Could not find specific docker image for $2:$CI_COMMIT_REF_SLUG in docker registry"
   fi

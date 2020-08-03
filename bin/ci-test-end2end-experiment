@@ -5,9 +5,10 @@ cd "$(dirname "$0")"/..
 . bin/includes/ci-environment
 . bin/includes/ci-test-base
 ########################################
-set -x    # output all commands
-set -e    # exit on immediately on every error
-set -u    # error on usage of undefined variables
+set -x   # output all commands
+set -e   # exit on immediately on every error
+set -o   pipefail
+set -u   # error on usage of undefined variables
 ########################################
 
 

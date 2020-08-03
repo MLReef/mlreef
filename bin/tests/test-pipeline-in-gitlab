@@ -31,6 +31,7 @@ fi
 echo "Using pipeline command $COMMAND"
 
 #Create MLReef.yml
+# If request fails remove --fail to see the curl response
 curl "http://$URL:10080/api/v4/projects/$GITLAB_PROJECT_ID/repository/files/.mlreef.yml" \
   --request POST --fail                         \
   --header "PRIVATE-TOKEN: $TOKEN"              \
