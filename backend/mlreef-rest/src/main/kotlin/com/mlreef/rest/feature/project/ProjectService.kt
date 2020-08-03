@@ -28,8 +28,8 @@ import com.mlreef.rest.exceptions.ProjectUpdateException
 import com.mlreef.rest.exceptions.UnknownGroupException
 import com.mlreef.rest.exceptions.UnknownUserException
 import com.mlreef.rest.exceptions.UserNotFoundException
+import com.mlreef.rest.external_api.gitlab.GitlabAccessLevel
 import com.mlreef.rest.external_api.gitlab.GitlabRestClient
-import com.mlreef.rest.external_api.gitlab.GroupAccessLevel
 import com.mlreef.rest.external_api.gitlab.dto.GitlabProject
 import com.mlreef.rest.external_api.gitlab.toAccessLevel
 import com.mlreef.rest.external_api.gitlab.toGitlabAccessLevel
@@ -326,7 +326,7 @@ open class ProjectServiceImpl<T : Project>(
             try {
                 //Without this IF block Gitlab returns access level for user as a Maintainer
                 val gitlabAccessLevel = if (project.owner.id.equals(user.person.gitlabId))
-                    GroupAccessLevel.OWNER
+                    GitlabAccessLevel.OWNER
                 else
                     gitlabRestClient.adminGetProjectMembers(project.id).first { gitlabUser -> gitlabUser.id == user.person.gitlabId }.accessLevel
 

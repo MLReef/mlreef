@@ -45,4 +45,4 @@ spring:
     enabled: false
   redis:
     host: localhost
-    port: 7379
+    port: 36379

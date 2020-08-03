@@ -1,11 +1,11 @@
 package com.mlreef.rest.external_api.gitlab.dto
 
-import com.mlreef.rest.external_api.gitlab.GroupAccessLevel
+import com.mlreef.rest.external_api.gitlab.GitlabAccessLevel
 
 class SharedGroup(
     val groupId: Long,
     val groupName: String,
     val groupFullPath: String? = null,
-    val groupAccessLevel: GroupAccessLevel = GroupAccessLevel.DEVELOPER,
+    val groupAccessLevel: GitlabAccessLevel = GitlabAccessLevel.DEVELOPER,
     val expiresAt: String? = null
 )

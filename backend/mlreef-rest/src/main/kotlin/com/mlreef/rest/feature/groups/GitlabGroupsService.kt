@@ -15,7 +15,6 @@ import com.mlreef.rest.exceptions.UnknownGroupException
 import com.mlreef.rest.exceptions.UnknownUserException
 import com.mlreef.rest.exceptions.UserNotFoundException
 import com.mlreef.rest.external_api.gitlab.GitlabRestClient
-import com.mlreef.rest.external_api.gitlab.GroupAccessLevel
 import com.mlreef.rest.external_api.gitlab.toAccessLevel
 import com.mlreef.rest.external_api.gitlab.toGitlabAccessLevel
 import com.mlreef.rest.helpers.GroupOfUser
@@ -35,7 +34,6 @@ interface GroupsService {
     fun updateGroup(groupId: UUID, groupName: String? = null, path: String? = null): Group
     fun deleteGroup(groupId: UUID)
     fun addUserToGroup(groupId: UUID, userId: UUID, accessLevel: AccessLevel? = AccessLevel.GUEST): List<UserInGroup>
-    fun addEPFBotToGroup(groupId: UUID, botGitlabId: Long): List<UserInGroup>
     fun editUserInGroup(groupId: UUID, userId: UUID, accessLevel: AccessLevel): List<UserInGroup>
     fun addUsersToGroup(groupId: UUID, users: List<UserInGroup>): List<UserInGroup>
     fun deleteUserFromGroup(groupId: UUID, userId: UUID): List<UserInGroup>
@@ -107,9 +105,8 @@ class GitlabGroupsService(
         )
 
         val group = Group(id = randomUUID(), slug = groupName, name = groupName, gitlabId = gitlabGroup.id)
-        groupsRepository.save(group)
 
-        return group
+        return groupsRepository.save(group)
     }
 
     override fun updateGroup(groupId: UUID, groupName: String?, path: String?): Group {
@@ -152,16 +149,6 @@ class GitlabGroupsService(
         return getUsersInGroup(groupId)
     }
 
-    override fun addEPFBotToGroup(groupId: UUID, botGitlabId: Long): List<UserInGroup> {
-        val group = groupsRepository.findByIdOrNull(groupId) ?: throw GroupNotFoundException(groupId = groupId)
-
-        gitlabRestClient.adminAddUserToGroup(
-            groupId = group.gitlabId ?: throw UnknownGroupException("Group $groupId is not connected to Gitlab"),
-            userId = botGitlabId,
-            accessLevel = GroupAccessLevel.MAINTAINER)
-
-        return getUsersInGroup(groupId)
-    }
 
     @RefreshUserInformation(list = "#users")
     override fun addUsersToGroup(groupId: UUID, users: List<UserInGroup>): List<UserInGroup> {
@@ -256,9 +243,8 @@ class GitlabGroupsService(
 
     override fun checkUserInGroup(groupId: UUID, userToken: String?, userId: UUID?, userName: String?, email: String?, userGitlabId: Long?, personId: UUID?): Boolean {
         try {
-            val account: Account? = resolveAccount(userToken, userId, personId, userName, email, userGitlabId)
-            if (account == null)
-                return false
+            val account: Account = resolveAccount(userToken, userId, personId, userName, email, userGitlabId)
+                ?: return false
             assertMemberOfGroup(groupId, personId = account.person.id)
             return true
         } catch (ex: Exception) {

@@ -12,7 +12,7 @@ import com.mlreef.rest.api.v1.dto.CodeProjectDto
 import com.mlreef.rest.api.v1.dto.DataProjectDto
 import com.mlreef.rest.api.v1.dto.ProjectDto
 import com.mlreef.rest.api.v1.dto.UserInProjectDto
-import com.mlreef.rest.external_api.gitlab.GroupAccessLevel
+import com.mlreef.rest.external_api.gitlab.GitlabAccessLevel
 import com.mlreef.rest.feature.caches.domain.PublicProjectHash
 import com.mlreef.rest.testcommons.ASYNC_UPDATE_OPERATIONS_WAIT_COMPLETION_TIMEOUT
 import io.mockk.verify
@@ -567,7 +567,7 @@ class ProjectsIntegrationTest : AbstractIntegrationTest() {
             .expectOk()
             .returns(DataProjectDto::class.java)
 
-        assertThat(result).isNotNull()
+        assertThat(result).isNotNull
     }
 
     @Transactional
@@ -589,7 +589,7 @@ class ProjectsIntegrationTest : AbstractIntegrationTest() {
             .expectOk()
             .returns(DataProjectDto::class.java)
 
-        assertThat(result).isNotNull()
+        assertThat(result).isNotNull
     }
 
     @Transactional
@@ -611,7 +611,7 @@ class ProjectsIntegrationTest : AbstractIntegrationTest() {
             .expectOk()
             .returns(CodeProjectDto::class.java)
 
-        assertThat(result).isNotNull()
+        assertThat(result).isNotNull
     }
 
     @Transactional
@@ -633,7 +633,7 @@ class ProjectsIntegrationTest : AbstractIntegrationTest() {
             .expectOk()
             .returns(CodeProjectDto::class.java)
 
-        assertThat(result).isNotNull()
+        assertThat(result).isNotNull
     }
 
     @Transactional
@@ -797,7 +797,7 @@ class ProjectsIntegrationTest : AbstractIntegrationTest() {
         val (account, token, _) = testsHelper.createRealUser()
         val (project, gitlabProject) = testsHelper.createRealDataProject(token, account)
 
-        assertThat(dataProjectRepository.findByIdOrNull(project.id)).isNotNull()
+        assertThat(dataProjectRepository.findByIdOrNull(project.id)).isNotNull
 
         assertThat(isUserInProject(project, token, AccessLevel.OWNER)).isTrue()
 
@@ -826,7 +826,7 @@ class ProjectsIntegrationTest : AbstractIntegrationTest() {
         val (account, token, _) = testsHelper.createRealUser()
         val (project, gitlabProject) = testsHelper.createRealCodeProject(token, account)
 
-        assertThat(codeProjectRepository.findByIdOrNull(project.id)).isNotNull()
+        assertThat(codeProjectRepository.findByIdOrNull(project.id)).isNotNull
 
         assertThat(isUserInProject(project, token, AccessLevel.OWNER)).isTrue()
 
@@ -856,13 +856,13 @@ class ProjectsIntegrationTest : AbstractIntegrationTest() {
 
         testsHelper.addRealUserToProject(project21.gitlabId, account1.person.gitlabId!!)
 
-        assertThat(dataProjectRepository.findByIdOrNull(project21.id)).isNotNull()
+        assertThat(dataProjectRepository.findByIdOrNull(project21.id)).isNotNull
 
         val url = "$rootUrl/${project21.id}"
 
         this.performDelete(url, token1).expectForbidden()
 
-        assertThat(dataProjectRepository.findByIdOrNull(project21.id)).isNotNull()
+        assertThat(dataProjectRepository.findByIdOrNull(project21.id)).isNotNull
 
         assertThat(isUserInProject(project21, token1, AccessLevel.DEVELOPER)).isTrue()
 
@@ -884,13 +884,13 @@ class ProjectsIntegrationTest : AbstractIntegrationTest() {
 
         testsHelper.addRealUserToProject(project21.gitlabId, account1.person.gitlabId!!)
 
-        assertThat(codeProjectRepository.findByIdOrNull(project21.id)).isNotNull()
+        assertThat(codeProjectRepository.findByIdOrNull(project21.id)).isNotNull
 
         val url = "$rootUrl/${project21.id}"
 
         this.performDelete(url, token1).expectForbidden()
 
-        assertThat(codeProjectRepository.findByIdOrNull(project21.id)).isNotNull()
+        assertThat(codeProjectRepository.findByIdOrNull(project21.id)).isNotNull
 
         assertThat(isUserInProject(project21, token1, AccessLevel.DEVELOPER)).isTrue()
 
@@ -937,8 +937,8 @@ class ProjectsIntegrationTest : AbstractIntegrationTest() {
 
         val (project21, _) = testsHelper.createRealDataProject(token2, account2)
 
-        testsHelper.addRealUserToProject(project21.gitlabId, account1.person.gitlabId!!, GroupAccessLevel.DEVELOPER)
-        testsHelper.addRealUserToProject(project21.gitlabId, account3.person.gitlabId!!, GroupAccessLevel.GUEST)
+        testsHelper.addRealUserToProject(project21.gitlabId, account1.person.gitlabId!!, GitlabAccessLevel.DEVELOPER)
+        testsHelper.addRealUserToProject(project21.gitlabId, account3.person.gitlabId!!, GitlabAccessLevel.GUEST)
 
         val getUsersUrl = "$rootUrl/${project21.id}/users"
 
@@ -962,8 +962,8 @@ class ProjectsIntegrationTest : AbstractIntegrationTest() {
 
         val (project21, _) = testsHelper.createRealDataProject(token2, account2)
 
-        testsHelper.addRealUserToProject(project21.gitlabId, account1.person.gitlabId!!, GroupAccessLevel.DEVELOPER)
-        testsHelper.addRealUserToProject(project21.gitlabId, account3.person.gitlabId!!, GroupAccessLevel.GUEST)
+        testsHelper.addRealUserToProject(project21.gitlabId, account1.person.gitlabId!!, GitlabAccessLevel.DEVELOPER)
+        testsHelper.addRealUserToProject(project21.gitlabId, account3.person.gitlabId!!, GitlabAccessLevel.GUEST)
 
         val userInProjectUrl = "$rootUrl/${project21.id}/users/check/myself"
         val getUsersUrl = "$rootUrl/${project21.id}/users"
@@ -1084,7 +1084,7 @@ class ProjectsIntegrationTest : AbstractIntegrationTest() {
 
         val (project21, _) = testsHelper.createRealDataProject(token2, account2)
 
-        testsHelper.addRealUserToProject(project21.gitlabId, account1.person.gitlabId!!, GroupAccessLevel.MAINTAINER)
+        testsHelper.addRealUserToProject(project21.gitlabId, account1.person.gitlabId!!, GitlabAccessLevel.MAINTAINER)
 
         val getUserUrl = "$rootUrl/${project21.id}/users"
         val addUserUrl = "$rootUrl/${project21.id}/users/${account3.id}"
@@ -1114,7 +1114,7 @@ class ProjectsIntegrationTest : AbstractIntegrationTest() {
 
         val (group1, _) = testsHelper.createRealGroup(token3)
 
-        testsHelper.addRealUserToProject(project21.gitlabId, account1.person.gitlabId!!, GroupAccessLevel.MAINTAINER)
+        testsHelper.addRealUserToProject(project21.gitlabId, account1.person.gitlabId!!, GitlabAccessLevel.MAINTAINER)
 
         val getUsersInProjectUrl = "$rootUrl/${project21.id}/users"
         val addGroupUrl = "$rootUrl/${project21.id}/groups?gitlab_id=${group1.gitlabId}"
@@ -1142,7 +1142,7 @@ class ProjectsIntegrationTest : AbstractIntegrationTest() {
 
         val (project21, _) = testsHelper.createRealDataProject(token2, account2)
 
-        testsHelper.addRealUserToProject(project21.gitlabId, account1.person.gitlabId!!, GroupAccessLevel.DEVELOPER)
+        testsHelper.addRealUserToProject(project21.gitlabId, account1.person.gitlabId!!, GitlabAccessLevel.DEVELOPER)
 
         val getUserUrl = "$rootUrl/${project21.id}/users"
         val addUserUrl = "$rootUrl/${project21.id}/users/${account3.id}"
@@ -1201,8 +1201,8 @@ class ProjectsIntegrationTest : AbstractIntegrationTest() {
 
         val (project21, _) = testsHelper.createRealDataProject(token2, account2)
 
-        testsHelper.addRealUserToProject(project21.gitlabId, account1.person.gitlabId!!, GroupAccessLevel.DEVELOPER)
-        testsHelper.addRealUserToProject(project21.gitlabId, account3.person.gitlabId!!, GroupAccessLevel.DEVELOPER)
+        testsHelper.addRealUserToProject(project21.gitlabId, account1.person.gitlabId!!, GitlabAccessLevel.DEVELOPER)
+        testsHelper.addRealUserToProject(project21.gitlabId, account3.person.gitlabId!!, GitlabAccessLevel.DEVELOPER)
 
         val getUserUrl = "$rootUrl/${project21.id}/users"
         val deleteUserUrl = "$rootUrl/${project21.id}/users/${account3.id}"

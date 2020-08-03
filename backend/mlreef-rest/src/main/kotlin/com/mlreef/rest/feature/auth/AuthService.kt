@@ -23,7 +23,6 @@ import com.mlreef.rest.external_api.gitlab.GitlabRestClient
 import com.mlreef.rest.external_api.gitlab.TokenDetails
 import com.mlreef.rest.external_api.gitlab.dto.GitlabUser
 import com.mlreef.rest.external_api.gitlab.dto.GitlabUserToken
-import com.mlreef.rest.external_api.gitlab.dto.GroupVariable
 import com.mlreef.rest.external_api.gitlab.dto.OAuthToken
 import com.mlreef.rest.feature.email.EmailMessageType
 import com.mlreef.rest.feature.email.EmailService
@@ -70,6 +69,8 @@ class AuthService(
 
         private val GUEST_ACCOUNT_ID = UUID(0L, 0L)
         private val GUEST_PERSON_ID = UUID(0L, 0L)
+        private val GITLAB_TOKEN_USER = "mlreef-user-token"
+        private val GITLAB_TOKEN_BOT = "mlreef-bot-token"
 
         private const val WELCOME_MESSAGE_SUBJECT = "Welcome to MlReef"
 
@@ -113,7 +114,7 @@ class AuthService(
             throw UserAlreadyExistsException(username, email)
         }
 
-        val newGitlabUser = createGitlabUser(username = username, email = email, password = plainPassword)
+        val newGitlabUser = createOrFindGitlabUser(username = username, email = email, password = plainPassword)
         val newGitlabToken = createGitlabToken(newGitlabUser)
 
         val oauthToken = gitlabRestClient.userLoginOAuthToGitlab(username, plainPassword)
@@ -125,22 +126,6 @@ class AuthService(
         val newUser = Account(id = accountUuid, username = username, email = email, passwordEncrypted = encryptedPassword, person = person, gitlabId = null)
 
         accountRepository.save(newUser)
-
-        val groupName = "mlreef-group-$username"
-
-        val group = groupService.createGroup(token, groupName)
-
-        //Create EPF-Bot and add it to user's group
-        val botName = "$username-bot"
-        val botEmail = "$botName@$botEmailDomain" //we have to use unique email for user creation
-        val botPassword = RandomUtils.generateRandomPassword(botPasswordLength)
-        val newGitlabEPFBot = createGitlabUser(username = botName, email = botEmail, password = botPassword)
-        val newGitlabEPFBotToken = createGitlabToken(newGitlabEPFBot)
-
-        groupService.addEPFBotToGroup(group.id, newGitlabEPFBot.id)
-
-        //Create variable in group with bot token
-        createGitlabVariable(token, group.gitlabId!!, GITLAB_GROUP_VARIABLE_NAME_FOR_BOT_TOKEN, newGitlabEPFBotToken.token)
 
         sendWelcomeMessage(newUser)
 
@@ -204,25 +189,49 @@ class AuthService(
         }
     }
 
-    private fun createGitlabUser(username: String, email: String, password: String): GitlabUser {
+    fun createOrFindGitlabUser(username: String, email: String, password: String): GitlabUser {
         return try {
             val gitlabName = "mlreef-user-$username"
+            log.info("Create user ${username}")
             gitlabRestClient.adminCreateUser(email = email, name = gitlabName, username = username, password = password)
         } catch (clientErrorException: RestException) {
             log.info("Already existing dev user. Error message: ${clientErrorException.message}")
             val adminGetUsers = gitlabRestClient.adminGetUsers()
-            adminGetUsers.first { it.username == username }
+            adminGetUsers.filter { it.username == username }.firstOrNull()
+                ?: throw UnknownUserException("User not found!")
         }
     }
 
     private fun createGitlabToken(gitlabUser: GitlabUser): GitlabUserToken {
         val gitlabUserId = gitlabUser.id
-        val tokenName = "mlreef-user-token"
-        return gitlabRestClient.adminCreateUserToken(gitlabUserId = gitlabUserId, tokenName = tokenName)
+        log.info("Create new Token for user ${gitlabUser.username}")
+        return gitlabRestClient.adminCreateUserToken(gitlabUserId = gitlabUserId, tokenName = GITLAB_TOKEN_USER)
     }
 
-    private fun createGitlabVariable(token: String, groupId: Long, variableName: String, value: String): GroupVariable {
-        return gitlabRestClient.userCreateGroupVariable(token = token, groupId = groupId, name = variableName, value = value)
+    fun ensureGitlabToken(account: Account, gitlabUser: GitlabUser): GitlabUserToken? {
+        val gitlabUserId = gitlabUser.id
+        val username = gitlabUser.username
+        val gitlabTokens = gitlabRestClient.adminGetUserTokens(gitlabUserId = gitlabUserId)
+
+        val savedTokens = accountTokenRepository.findAllByAccountId(account.id)
+        var mustCreateNow = true
+        val matchingGitlabTokens = gitlabTokens.filter { it.name == AuthService.GITLAB_TOKEN_BOT }
+
+        if (matchingGitlabTokens.isNotEmpty()) {
+            val first = matchingGitlabTokens.first()
+            val matchingSavedTokens = savedTokens.filter { it.gitlabId == first.id }
+            if (matchingSavedTokens.isNotEmpty()) {
+                mustCreateNow = false
+            }
+        }
+        return if (mustCreateNow) {
+            val token = createGitlabToken(gitlabUser)
+            token
+        } else {
+            log.debug("Gitlab user $username already has a token: secret  ${matchingGitlabTokens.first().token}")
+            log.warn("Token not freshly created, so no secret token will be available!")
+            null
+        }
     }
 
     fun createTokenDetails(token: String, account: Account, gitlabUser: GitlabUser): TokenDetails {
@@ -291,11 +300,54 @@ class AuthService(
 
         person = Person(id = randomUUID(), slug = gitlabUser.username, name = gitlabUser.username, gitlabId = gitlabUser.id)
         accountToken = AccountToken(id = randomUUID(), accountId = accountUuid, token = permanentToken, gitlabId = null)
-        account = Account(id = accountUuid, username = gitlabUser.username, email = gitlabUser.email, passwordEncrypted = password, person = person, gitlabId = gitlabUser.id)
+        account = Account(
+            id = accountUuid,
+            username = gitlabUser.username,
+            email = gitlabUser.email,
+            passwordEncrypted = password,
+            person = person,
+            gitlabId = gitlabUser.id
+        )
 
         accountRepository.save(account)
 
         return account
     }
 
+    @Transactional
+    fun ensureBotExistsOrCreateAccount(gitlabUser: GitlabUser, botPassword: String): Account {
+        var account = accountRepository.findOneByUsername(gitlabUser.username)
+            ?: accountRepository.findOneByEmail(gitlabUser.email)
+            ?: accountRepository.findAccountByGitlabId(gitlabUser.id)
+
+        if (account != null) {
+            return account
+        }
+
+        var person = personRepository.findByName(gitlabUser.username)
+        if (person == null) {
+            person = Person(id = randomUUID(), slug = gitlabUser.username, name = gitlabUser.username, gitlabId = gitlabUser.id)
+        }
+
+        val accountUuid = randomUUID()
+        account = Account(
+            id = accountUuid,
+            username = gitlabUser.username,
+            email = gitlabUser.email,
+            passwordEncrypted = botPassword,
+            person = person,
+            gitlabId = gitlabUser.id
+        )
+
+        return accountRepository.save(account)
+    }
+
+    fun ensureBotExistsWithToken(botName: String, botEmail: String, botPassword: String): Pair<GitlabUser, GitlabUserToken?> {
+        val gitlabUser = createOrFindGitlabUser(botName, botEmail, botPassword)
+        // save or find bot in local DB
+        val account = ensureBotExistsOrCreateAccount(gitlabUser, botPassword)
+        // create token ONCE on first try, otherwise return a optional null (no harm) of fail in pain
+        val newToken = ensureGitlabToken(account, gitlabUser)
+        return Pair(gitlabUser, newToken)
+    }
 }

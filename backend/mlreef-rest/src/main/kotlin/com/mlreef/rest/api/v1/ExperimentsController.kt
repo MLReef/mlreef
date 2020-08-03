@@ -98,10 +98,8 @@ class ExperimentsController(
         val secret = pipelineService.createSecret()
         val fileContent = service.createExperimentFile(experiment = experiment, author = account, secret = secret)
 
-        val username = account.username
-        val token = userToken.accessToken
-        val pipelineJobInfo = pipelineService.createStartGitlabPipeline(userToken = userToken.accessToken, projectId = dataProject.gitlabId,
-            targetBranch = experiment.targetBranch, fileContent = fileContent, sourceBranch = experiment.sourceBranch, secret = secret, gitPushUser = username, gitPushToken = token)
+        val pipelineJobInfo = pipelineService.createStartGitlabPipeline(userToken = userToken.accessToken, projectGitlabId = dataProject.gitlabId,
+            targetBranch = experiment.targetBranch, fileContent = fileContent, sourceBranch = experiment.sourceBranch, secret = secret)
 
         val experimentWithPipeline = service.savePipelineInfo(experiment, pipelineJobInfo)
 

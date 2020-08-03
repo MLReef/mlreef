@@ -16,19 +16,28 @@ import com.mlreef.rest.PipelineType
 import com.mlreef.rest.ProcessorParameterRepository
 import com.mlreef.rest.ProcessorVersionRepository
 import com.mlreef.rest.SubjectRepository
+import com.mlreef.rest.config.censor
 import com.mlreef.rest.exceptions.ErrorCode
 import com.mlreef.rest.exceptions.PipelineCreateException
 import com.mlreef.rest.exceptions.PipelineStartException
 import com.mlreef.rest.exceptions.RestException
+import com.mlreef.rest.external_api.gitlab.GitlabAccessLevel
 import com.mlreef.rest.external_api.gitlab.GitlabRestClient
 import com.mlreef.rest.external_api.gitlab.VariableType
 import com.mlreef.rest.external_api.gitlab.dto.Commit
 import com.mlreef.rest.external_api.gitlab.dto.GitlabPipeline
+import com.mlreef.rest.external_api.gitlab.dto.GitlabUserInProject
 import com.mlreef.rest.external_api.gitlab.dto.GitlabVariable
+import com.mlreef.rest.feature.auth.AuthService
+import com.mlreef.rest.feature.pipeline.GitlabVariables.EPF_BOT_SECRET
+import com.mlreef.rest.feature.pipeline.GitlabVariables.GIT_PUSH_TOKEN
+import com.mlreef.rest.feature.pipeline.GitlabVariables.GIT_PUSH_USER
+import com.mlreef.rest.utils.RandomUtils
 import com.mlreef.utils.Slugs
 import lombok.RequiredArgsConstructor
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.security.crypto.bcrypt.BCrypt
@@ -49,8 +58,15 @@ class PipelineService(
     private val pipelineInstanceRepository: PipelineInstanceRepository,
     private val processorVersionRepository: ProcessorVersionRepository,
     private val processorParameterRepository: ProcessorParameterRepository,
-    private val gitlabRestClient: GitlabRestClient
+    private val gitlabRestClient: GitlabRestClient,
+    private val authService: AuthService
 ) {
+
+    @Value("\${mlreef.bot-management.epf-bot-email-domain:\"\"}")
+    private val botEmailDomain: String = ""
+
+    @Value("\${mlreef.bot-management.epf-bot-password-length}")
+    private val botPasswordLength: Int = 0
 
     val log: Logger = LoggerFactory.getLogger(this::class.java)
 
@@ -61,7 +77,6 @@ class PipelineService(
     fun getPipelineById(projectId: UUID, pipelineId: UUID): PipelineConfig? {
         return pipelineConfigRepository.findOneByDataProjectIdAndId(projectId, pipelineId)
     }
-
 
     fun createPipelineConfig(
         authorId: UUID,
@@ -193,30 +208,28 @@ class PipelineService(
 
     fun createStartGitlabPipeline(
         userToken: String,
-        projectId: Long,
+        projectGitlabId: Long,
         targetBranch: String,
         fileContent: String,
         sourceBranch: String,
-        secret: String,
-        gitPushUser: String,
-        gitPushToken: String
+        secret: String
     ): PipelineJobInfo {
         commitYamlFile(
             userToken = userToken,
-            projectId = projectId,
+            projectId = projectGitlabId,
             sourceBranch = sourceBranch,
             targetBranch = targetBranch,
             fileContent = fileContent)
 
+        ensureProjectEpfBotUser(projectGitlabId = projectGitlabId)
+
         val variablesMap = hashMapOf(
-            "EPF_BOT_SECRET" to secret,
-            "GIT_PUSH_USER" to gitPushUser,
-            "GIT_PUSH_TOKEN" to gitPushToken
+            EPF_BOT_SECRET to secret
         )
 
         val gitlabPipeline = createPipeline(
             userToken = userToken,
-            projectId = projectId,
+            projectGitlabId = projectGitlabId,
             variables = variablesMap,
             commitRef = targetBranch
         )
@@ -238,18 +251,14 @@ class PipelineService(
 
     fun startInstance(author: Account, userToken: String, gitlabProjectId: Long, instance: PipelineInstance, secret: String): PipelineInstance {
         val fileContent = createPipelineInstanceFile(author = author, pipelineInstance = instance, secret = secret)
-        val username = author.username
-        val bestToken = userToken
 
         val gitlabPipeline = createStartGitlabPipeline(
             userToken = userToken,
-            projectId = gitlabProjectId,
-            targetBranch = instance.targetBranch,
+            projectGitlabId = gitlabProjectId,
             sourceBranch = instance.sourceBranch,
+            targetBranch = instance.targetBranch,
             fileContent = fileContent,
-            secret = secret,
-            gitPushUser = username,
-            gitPushToken = bestToken)
+            secret = secret)
 
         return instance.copy(
             status = PipelineStatus.PENDING,
@@ -262,24 +271,70 @@ class PipelineService(
             .let { pipelineInstanceRepository.save(it) }
     }
 
-    private fun createPipeline(userToken: String, projectId: Long, commitRef: String, variables: Map<String, String> = hashMapOf()): GitlabPipeline {
+    private fun createPipeline(userToken: String, projectGitlabId: Long, commitRef: String, variables: Map<String, String> = hashMapOf()): GitlabPipeline {
         val toList = variables.map {
             GitlabVariable(it.key, it.value, VariableType.ENV_VAR)
         }.toList()
         return try {
-            val pipeline = gitlabRestClient.createPipeline(userToken, projectId, commitRef, toList)
+            val pipeline = gitlabRestClient.createPipeline(userToken, projectGitlabId, commitRef, toList)
             log.info("Created gitlab pipeline ${pipeline.id} with variables $variables")
             try {
-                val pipelineVariables = gitlabRestClient.getPipelineVariables(userToken, projectId, pipelineId = pipeline.id)
+                val pipelineVariables = gitlabRestClient.getPipelineVariables(userToken, projectGitlabId, pipelineId = pipeline.id)
                 log.info(pipelineVariables.toString())
             } catch (e: Exception) {
                 log.warn("Error controlling variables")
             }
             pipeline
         } catch (e: RestException) {
-            throw PipelineStartException("Cannot start pipeline for commit $commitRef for project $projectId")
+            throw PipelineStartException("Cannot start pipeline for commit $commitRef for project $projectGitlabId")
         }
     }
 
     fun createSecret(): String = DigestUtils.md5DigestAsHex(BCrypt.gensalt().toByteArray(Charset.defaultCharset()))
+
+    fun ensureProjectEpfBotUser(projectGitlabId: Long) {
+        val botName = "mlreef-project-$projectGitlabId-bot"
+
+        log.debug("Ensure EPF user for gitlab project $projectGitlabId exists: $botName")
+        val botEmail = "$botName@$botEmailDomain" //we have to use unique email for user creation
+        val botPassword = RandomUtils.generateRandomPassword(botPasswordLength)
+
+        // ensure GitlabUser Bot exists
+        val (gitlabUser, newToken) = authService.ensureBotExistsWithToken(botName, botEmail, botPassword)
+        if (newToken != null) {
+            log.info("Created new Token for EPF-Bot $botName")
+            log.info("Must create GIT_PUSH_USER and GIT_PUSH_TOKEN, otherwise state information is lost!")
+            try {
+                log.debug("Create GIT_PUSH_TOKEN with ${newToken.token.censor()}")
+                gitlabRestClient.adminCreateProjectVariable(projectId = projectGitlabId, name = GIT_PUSH_TOKEN, value = newToken.token)
+            } catch (clientErrorException: RestException) {
+                log.error("PIPELINE MIGHT BE BROKEN: Could not save EPF Bot credentials")
+                log.error("Could not create EPF Tokens in Group ENV: ${clientErrorException.message}")
+            }
+            try {
+                log.debug("Create GIT_PUSH_USER with ${gitlabUser.username}")
+                gitlabRestClient.adminCreateProjectVariable(projectId = projectGitlabId, name = GIT_PUSH_USER, value = gitlabUser.username)
+            } catch (clientErrorException: RestException) {
+                log.error("PIPELINE MIGHT BE BROKEN: Could not save EPF Bot credentials")
+                log.error("Could not create EPF Tokens in Group ENV: ${clientErrorException.message}")
+            }
+        } else {
+            log.debug("EPF-Bot $botName already has a token")
+        }
+        try {
+            addEPFBotToProject(projectGitlabId, gitlabUser.id)
+        } catch (clientErrorException: RestException) {
+            log.error("PIPELINE MIGHT BE BROKEN: Could not attach EPF Bot to Project")
+            log.error("Could not ensure that EPF-Bot $botName is in correct project: ${clientErrorException.message}")
+        }
+    }
+
+    // TODO: Create or find
+    private fun addEPFBotToProject(projectGitlabId: Long, userGitlabId: Long): GitlabUserInProject {
+        return gitlabRestClient.adminAddUserToProject(
+            projectId = projectGitlabId,
+            userId = userGitlabId,
+            accessLevel = GitlabAccessLevel.MAINTAINER
+        )
+    }
 }
