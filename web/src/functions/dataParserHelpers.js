@@ -91,7 +91,7 @@ export const parseDecimal = (input, digits = 5) => {
 export const isImageFormat = (fileName) => {
   let imageFormatCounter = 0;
   imageFormats.forEach((format) => {
-    if (fileName.includes(format)) {
+    if (fileName.toLowerCase().includes(format)) {
       imageFormatCounter += 1;
     }
   });

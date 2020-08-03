@@ -27,7 +27,7 @@ export default class CommitsApi extends ApiDirector {
       ],
     });
     const url = `/api/v4/projects/${projectId}/repository/commits`
-    const blBuilder = new ApiRequestCallBuilder(METHODS.POST, this.buildBasicHeaders(validServicesToCall.BACKEND), url, data);
+    const blBuilder = new ApiRequestCallBuilder(METHODS.POST, this.buildBasicHeaders(validServicesToCall.GITLAB), url, data);
     return fetch(blBuilder.build())
       .then(handleResponse);
   }
@@ -37,7 +37,7 @@ export default class CommitsApi extends ApiDirector {
     body: string,
   ) {
       const url = `/api/v4/projects/${projectId}/repository/commits`;
-      const blBuilder = new ApiRequestCallBuilder(METHODS.POST, this.buildBasicHeaders(validServicesToCall.BACKEND), url, body);
+      const blBuilder = new ApiRequestCallBuilder(METHODS.POST, this.buildBasicHeaders(validServicesToCall.GITLAB), url, body);
       
       return fetch(blBuilder.build())
         .then(handleResponse);
