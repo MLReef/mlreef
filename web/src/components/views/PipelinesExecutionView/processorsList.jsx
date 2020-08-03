@@ -64,7 +64,17 @@ export const Processor = ({ processorData, handleDragStart }) => {
             {' '}
             <b>{processorData.inputDataType}</b>
           </p>
-          <p style={{ marginRight: '11px' }}><b>Source Code</b></p>
+          <p style={{ marginRight: '11px' }}>
+            <b>
+              {processorData.name === 'Resnet50'
+                ? (
+                  <a href="http://staging.mlreef.com/mlreef/commons-resnet-50">
+                    Source Code
+                  </a>
+                )
+                : 'Source Code'}
+            </b>
+          </p>
         </div>
       </div>
       )}
