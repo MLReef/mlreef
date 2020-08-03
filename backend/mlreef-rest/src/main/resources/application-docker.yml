@@ -2,3 +2,9 @@ mlreef:
   epf:
     backend-url: ${EPF_BACKEND_URL:http://backend:8080}
     gitlab-url: ${EPF_GITLAB_URL:http://gitlab:10080}
+
+logging:
+  level:
+    com.mlreef.rest: DEBUG
+    org.springframework.security: DEBUG
+    web: DEBUG

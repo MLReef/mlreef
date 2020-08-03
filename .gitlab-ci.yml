@@ -133,9 +133,12 @@ e2e test experiment:
   only:
     changes:
       - backend/**/*
+      - bin/tests/**/***
+      - bin/ci-test-end2end-experiment
+      - epf/**/*
   when: delayed
   start_in: 4 minutes
-  image: registry.gitlab.com/systemkern/s5:latest
+  image: registry.gitlab.com/systemkern/s5:latest-git
   script: bin/ci-test-end2end-experiment
   artifacts:
     paths:

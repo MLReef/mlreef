@@ -24,11 +24,35 @@ if [ -z ${PROJECT_ID+x} ]; then
   exit 1
 fi
 
+PROJECT_URL=http://"$(cat out/test/user.tmp)":"$(cat out/test/password.tmp)"@"$URL":10080/"$(cat out/test/user.tmp)"/test-project.git
+
+rm -rf out/git
+git config --global user.email "$(cat out/test/user.tmp)@example.com"
+git config --global user.name "$(cat out/test/user.tmp)"
+git clone "$PROJECT_URL" out/git
+
+mkdir -p out/git/data/category_1
+mkdir -p out/git/data/category_2
+i=0
+while [ "$i" -lt 100 ]; do
+  cp bin/resources/training-foto.png out/git/data/category_1/training-foto$i.png
+  i=$(($i + 1))       # increment running variable
+done
+i=0
+while [ "$i" -lt 100 ]; do
+  cp bin/resources/training-foto.png out/git/data/category_2/training-foto$i.png
+  i=$(($i + 1))       # increment running variable
+done
+
+cd out/git
+git add . && git commit -m"Add training data" && git push
+cd ../..
+
 echo "Using PRIVATE-TOKEN: $TOKEN"
 
 #Create Experiment via MLReef API
 curl "http://$URL:8080/api/v1/data-projects/$PROJECT_ID/experiments"  \
-  --request POST --fail --show-error            \
+  --request POST --show-error                   \
   --header "PRIVATE-TOKEN: $TOKEN"              \
   --header "Content-Type: application/json"     \
   --header "Accept: application/json"           \
@@ -37,15 +61,18 @@ curl "http://$URL:8080/api/v1/data-projects/$PROJECT_ID/experiments"  \
       "name" : "experiment/happy-jellyfish_2962020",
       "source_branch" : "master",
       "target_branch" : "experiment/happy-jellyfish_2962020",
-      "input_files": ["README.md"],
+      "input_files": ["data/"],
       "processing" : {
-        "slug" : "resnet50",
+        "slug" : "commons-resnet-50",
         "parameters" : [ {
-          "name" : "epochs",
-          "value" : "2"
-        },{
+          "name" : "input-path",
+          "value" : "data"
+        }, {
           "name" : "output-path",
           "value" : "."
+        }, {
+          "name" : "epochs",
+          "value" : "2"
         }, {
           "name" : "height",
           "value" : "36"
@@ -86,5 +113,10 @@ curl "http://$URL:8080/api/v1/data-projects/$PROJECT_ID/experiments/$EXPERIMENT_
   --header "PRIVATE-TOKEN: $TOKEN"              \
   --header "Content-Type: application/json"     \
   --header "Accept: application/json"           \
-    | bin/jq                                        \
+    | jq                                        \
     | tee out/test/start-experiment.response.json
+
+
+echo "####################################"
+echo "Project URL:"
+echo "$PROJECT_URL"
