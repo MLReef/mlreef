@@ -3,18 +3,23 @@ import { toastr } from 'react-redux-toastr';
 import moment from 'moment';
 import PipeLinesApi from 'apis/PipelinesApi';
 import { shape, string, arrayOf } from 'prop-types';
+import { parseToCamelCase } from 'functions/dataParserHelpers';
 
 const DetailsSummary = ({
   projectId, experimentName, currentState, parameters, pipelineInfo,
 }) => {
   const [pipelineDetails, setDetails] = useState({});
+  const {
+    id, duration, startedAt: startedAtRaw, finishedAt: finishedAtRaw,
+  } = pipelineDetails;
+  const first = 0;
   let startedAt = '---';
   let finishedAt = '---';
-  if (pipelineDetails.started_at) {
-    startedAt = pipelineDetails.started_at.split('.')[0];
+  if (startedAtRaw) {
+    startedAt = startedAtRaw.split('.')[first];
   }
-  if (pipelineDetails.finished_at) {
-    finishedAt = pipelineDetails.finished_at.split('.')[0];
+  if (finishedAtRaw) {
+    finishedAt = finishedAtRaw.split('.')[first];
   }
 
   let experimentStatus = (
@@ -39,7 +44,7 @@ const DetailsSummary = ({
 
   useEffect(() => {
     PipeLinesApi.getPipesById(projectId, pipelineInfo.id)
-      .then((res) => setDetails(res))
+      .then((res) => setDetails(res ? parseToCamelCase(res) : {}))
       .catch(() => toastr.error('Error', 'Could not fetch the pipeline information'));
   }, [projectId, pipelineInfo.id]);
   return (
@@ -78,7 +83,7 @@ const DetailsSummary = ({
                     backgroundColor: 'white',
                   }}
                 >
-                  {pipelineDetails.id}
+                  {id || '---'}
                 </button>
               </p>
             </div>
@@ -105,8 +110,8 @@ const DetailsSummary = ({
               <p>
                 Training time:
                 <b>
-                  {pipelineDetails.duration
-                    ? moment({}).startOf('day').seconds(pipelineDetails.duration).format('HH:mm:ss')
+                  {duration
+                    ? moment({}).startOf('day').seconds(duration).format('HH:mm:ss')
                     : '---'}
                 </b>
               </p>
@@ -193,7 +198,7 @@ DetailsSummary.propTypes = {
       value: string,
     }).isRequired,
   ).isRequired,
-  pipelineInfo: shape(arrayOf).isRequired,
+  pipelineInfo: shape({}).isRequired,
 };
 
 export default DetailsSummary;

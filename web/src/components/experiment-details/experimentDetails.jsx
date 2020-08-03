@@ -11,7 +11,7 @@ import './experimentDetails.css';
 import ExperimentsApi from 'apis/experimentApi';
 import Navbar from '../navbar/navbar';
 import ProjectContainer from '../projectContainer';
-import DetailsSummary from './menu-options/detailsSummary';
+import DetailsSummary from './menu-options/DetailSummary';
 import Files from './menu-options/files';
 import JobLog from './menu-options/jobLog';
 
