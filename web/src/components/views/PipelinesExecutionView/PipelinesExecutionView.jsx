@@ -267,7 +267,8 @@ class PipelinesExecutionView extends Component {
           processorsSelected={processorsSelected}
           filesSelectedInModal={filesSelectedInModal}
           httpUrlToRepo={project.httpUrlToRepo}
-          projectId={project.gitlabId}
+          projectNamespace={project.namespace}
+          projectSlug={project.slug}
           backendId={project.id}
           branchSelected={branchSelected}
         />

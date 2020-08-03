@@ -29,7 +29,7 @@ class ExperimentsOverview extends Component {
 
     this.state = {
       selectedProject,
-      all: [],
+      all: [{ values: [] }],
       experiments: [{ values: [] }],
       selectedExperiment: null,
     };
@@ -88,7 +88,7 @@ class ExperimentsOverview extends Component {
 
   render() {
     const {
-      selectedProject, selectedExperiment, experiments,
+      selectedProject, selectedExperiment, experiments, all,
     } = this.state;
 
     const {
@@ -97,7 +97,7 @@ class ExperimentsOverview extends Component {
       projects: { selectedProject: { namespace, slug } }
     } = this.props;
 
-    const areThereExperimentsToShow = experiments.map((expClass) => expClass.values.length).reduce((a, b) => a + b) !== 0;
+    const areThereExperimentsToShow = all.map((expClass) => expClass.values.length).reduce((a, b) => a + b) !== 0;
 
     return (
       <div id="experiments-overview-container">
