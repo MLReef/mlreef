@@ -158,22 +158,24 @@ exports[`The branches list should be displayed when dropdown button is clicked d
       </div>
     </div>
   </div>
+  <div>
+    <a
+      className="btn btn-dark px-3 mr-2 mt-3"
+      href="/my-projects/my-namespace/the-project-name/pipeline-execution/new-data-pipeline"
+      onClick={[Function]}
+    >
+      Data Ops
+    </a>
+    <a
+      className="btn btn-dark px-3 mr-auto mt-3"
+      href="/my-projects/my-namespace/the-project-name/pipeline-execution/new-data-visualisation"
+      onClick={[Function]}
+    >
+      Data Visualisation
+    </a>
+  </div>
   <a
-    className="btn btn-dark px-3 mr-auto mt-3"
-    href="/my-projects/my-namespace/the-project-name/pipeline-execution/new-data-pipeline"
-    onClick={[Function]}
-  >
-    Data Pipeline
-  </a>
-  <a
-    className="btn btn-dark px-3 mr-auto mt-3"
-    href="/my-projects/my-namespace/the-project-name/pipeline-execution/new-data-visualisation"
-    onClick={[Function]}
-  >
-    Data Visualisation
-  </a>
-  <a
-    className="btn btn-outline-dark mt-3"
+    className="btn btn-outline-dark ml-auto mt-3"
     href="/my-projects/12395599/master/commits/"
     onClick={[Function]}
   >

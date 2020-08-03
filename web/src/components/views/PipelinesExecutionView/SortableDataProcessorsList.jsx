@@ -36,9 +36,13 @@ const SortableProcessor = SortableElement(({
   const standardParameters = filterOperation(true);
   const advancedParameters = filterOperation(false);
 
+  const linkToResnetRepo = () => {
+    window.location.assign('http://staging.mlreef.com/mlreef/commons-resnet-50');
+  };
+
   return (
-    <span 
-      key={`data-operations-item-selected-${value.internalProcessorId}`} 
+    <span
+      key={`data-operations-item-selected-${value.internalProcessorId}`}
       className="sortable-data-operation-list-item"
     >
       <p style={{ marginRight: '15px' }}>
@@ -55,7 +59,18 @@ const SortableProcessor = SortableElement(({
       >
         <div className="header flexible-div">
           <div className="processor-title">
-            <p className="bold-text">{value.name}</p>
+            <p className="bold-text">
+              {value.name === 'Resnet50'
+                ? (
+                  <button
+                    type="button"
+                    className="btn btn-hidden bold-text"
+                    onClick={() => linkToResnetRepo()}
+                  >
+                    {value.name}
+                  </button>
+                ) : value.name}
+            </p>
             <p>
               Created by
               <span className="bold-text"> Keras</span>
@@ -127,7 +142,21 @@ const SortableProcessor = SortableElement(({
                   />
                 </div>
                 <div style={{ width: '50%', textAlign: 'end' }}>
-                  <p><b>Source code</b></p>
+                  <p>
+                    <b>
+                      {value.name === 'Resnet50'
+                        ? (
+                          <button
+                            type="button"
+                            className="btn btn-hidden bold-text"
+                            onClick={() => linkToResnetRepo()}
+                          >
+                            Source code
+                          </button>
+                        )
+                        : 'Source Code'}
+                    </b>
+                  </p>
                 </div>
               </div>
               <div id={`advanced-opts-div-${value.internalProcessorId}`} className="advanced-opts-div" style={{ width: 'max-content', margin: 'auto', marginLeft: '1rem' }}>

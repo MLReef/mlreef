@@ -131,26 +131,30 @@ export class RepoFeatures extends Component {
           )}
         />
 
-        <AuthWrapper minRole={30} className="mr-2 mt-3">
-          <Link
-            className={`btn btn-dark px-3 ${isCodeProject ? '' : 'mr-auto'} mt-3`}
-            to={`/my-projects/${namespace}/${slug}/pipeline-execution/new-data-pipeline`}
-          >
-            Data Pipeline
-          </Link>
-        </AuthWrapper>
+        {!isCodeProject && (
+          <div>
+            <AuthWrapper minRole={30} className="mr-2 mt-3">
+              <Link
+                className="btn btn-dark px-3 mr-2 mt-3"
+                to={`/my-projects/${namespace}/${slug}/pipeline-execution/new-data-pipeline`}
+              >
+                Data Ops
+              </Link>
+            </AuthWrapper>
 
-        <AuthWrapper
-          minRole={30}
-          className=""
-        >
-          <Link
-            className="btn btn-dark px-3 mr-auto mt-3"
-            to={`/my-projects/${namespace}/${slug}/pipeline-execution/new-data-visualisation`}
-          >
-            Data Visualisation
-          </Link>
-        </AuthWrapper>
+            <AuthWrapper
+              minRole={30}
+              className=""
+            >
+              <Link
+                className="btn btn-dark px-3 mr-auto mt-3"
+                to={`/my-projects/${namespace}/${slug}/pipeline-execution/new-data-visualisation`}
+              >
+                Data Visualisation
+              </Link>
+            </AuthWrapper>
+          </div>
+        )}
 
         {isCodeProject && (
           <button
@@ -170,7 +174,7 @@ export class RepoFeatures extends Component {
           accountType={1}
         >
           <Link
-            className="btn btn-outline-dark mt-3"
+            className="btn btn-outline-dark ml-auto mt-3"
             to={`/my-projects/${projectId}/${currentBranch}/commits/${path}`}
           >
             History
