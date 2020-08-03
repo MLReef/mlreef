@@ -24,7 +24,8 @@ const ExecutePipelineModal = ({
   toggle,
   processorsSelected,
   filesSelectedInModal,
-  projectId,
+  projectNamespace,
+  projectSlug,
   backendId,
   branchSelected,
 }) => {
@@ -219,8 +220,8 @@ const ExecutePipelineModal = ({
                 </button>
               ) : (
                 <Link to={type === ALGORITHM
-                  ? `/my-projects/${projectId}/-/experiments`
-                  : `/my-projects/${projectId}/-/datasets`}
+                  ? `/my-projects/${projectNamespace}/${projectSlug}/-/experiments`
+                  : `/my-projects/${projectNamespace}/${projectSlug}/-/datasets`}
                 >
                   <button id="show-machines" type="button" className="btn btn-primary">
                     Ok

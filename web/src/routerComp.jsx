@@ -100,7 +100,7 @@ const RouterComp = () => (
       <PrivateRoute path="/my-projects/:projectId/visualizations/:visName/path/:path" component={DataVisualizationDetail} />
       <PrivateRoute path="/my-projects/:projectId/visualizations/:visName" component={DataVisualizationDetail} />
       <PrivateRoute path="/my-projects/:projectId/visualizations" component={DataVisualizationOverview} />
-      <PrivateRoute exact path="/my-projects/:projectId/-/datasets" component={DataInstanceOverview} />
+      <PrivateRoute exact path="/my-projects/:namespace/:slug/-/datasets" component={DataInstanceOverview} />
       <PrivateRoute path="/my-projects/:projectId/:branch/-/datasets/:dataId/path/:path" component={DataInstanceDetails} />
       <PrivateRoute path="/my-projects/:projectId/:branch/-/datasets/:dataId" component={DataInstanceDetails} />
       <PrivateRoute path="/my-projects/:projectId/fork" component={ForkView} />
