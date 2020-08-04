@@ -140,7 +140,13 @@ class Login extends React.Component {
                     <p>Password</p>
                   </div>
                   <div>
-                    <Link className="t-info" to="/user/reset-password">Forgot your password?</Link>
+                    <Link
+                      tabIndex="-1"
+                      className="t-info"
+                      to="/user/reset-password"
+                    >
+                      Forgot your password?
+                    </Link>
                   </div>
                 </div>
                 <input
