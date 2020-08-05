@@ -82,6 +82,11 @@ deploy:
 pages:
   image: node:10.19.0-alpine                                # https://hub.docker.com/_/node/
   stage: deploy
+  only:
+    changes:
+      - backend/**/*
+      - docs/**/*
+      - README.md
   cache:
     key: pages-public-cache
     paths:

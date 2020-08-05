@@ -1,5 +1,11 @@
 #!/bin/bash
 # shellcheck disable=SC2155  # declare and assign variables in one command might hide return values
+########################################
+set -x  # output all commands
+set -o  pipefail
+set -e  # exit on immediately on every error
+set -u  # error on usage of undefined variables
+########################################
 
 # The ci-environment script acts as the basis to all ci scripts.
 # It ensures the existence of the necessary environment variables.
@@ -45,8 +51,9 @@ if [ "${SSH_KEYFILE-}" = "" ]; then
     echo "INFO: No known keyfile found. Deployment jobs will fail"
   fi
 fi
-echo "        SSH_KEYFILE= $SSH_KEYFILE"
+echo "        SSH_KEYFILE=$SSH_KEYFILE"
 chmod 400   "$SSH_KEYFILE" # ensure correct permissions on the keyfile
+
 
 
 # The text file which saves the environment URL

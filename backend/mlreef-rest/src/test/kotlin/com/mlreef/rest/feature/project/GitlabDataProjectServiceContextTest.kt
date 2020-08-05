@@ -16,7 +16,6 @@ import io.mockk.just
 import io.mockk.slot
 import io.mockk.verify
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.Ignore
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import java.util.UUID
@@ -27,6 +26,7 @@ class GitlabDataProjectServiceContextTest : AbstractContextTest() {
     private lateinit var service: ProjectService<DataProject>
 
     @Test
+    @Disabled
     fun `test create project`() {
         val slugSlot = slot<String>()
         val projectNameSlot = slot<String>()
