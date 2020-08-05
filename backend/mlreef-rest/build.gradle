@@ -12,7 +12,6 @@ plugins {
 group = 'com.mlreef'
 version = '0.0.1-SNAPSHOT'
 
-
 dependencies {
     implementation project(path: ':mlreef-domain', configuration:'default')
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
@@ -25,10 +24,6 @@ dependencies {
     implementation "org.springframework.boot:spring-boot-starter-aop"
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
-
-    // think about that SOON
-//    implementation 'org.springframework:spring-webflux'
-//    implementation 'io.projectreactor.netty:reactor-netty'
 
     // Rest and HATEOAS
     implementation 'org.springframework.boot:spring-boot-starter-hateoas'
