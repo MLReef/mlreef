@@ -52,66 +52,9 @@ class InitialDataLoader {
             //            // See SearchableTagType enum class
             //            type = SearchableTagType.UNDEFINED
             //        }
-            //TODO: HOW TO CHANGE IT FOR DATA VISUALIZATION
-            val codeProject_tsne = codeProject {
-                id = tsne_projectId
-                slug = "commons-tsne"
-                name = "T-SNE"
-                gitlabNamespace = "mlreef"
-                gitlabPath = "tsne"
-                inputDataTypes = hashSetOf(DataType.IMAGE)
-                outputDataTypes = hashSetOf(DataType.IMAGE)
-                description = "t-distributed Stochastic Neighbor Embedding Data visualization"
-            }
-            visualization {
-                linkToCodeProject(codeProject_tsne)
-                id = tsne_id
-                command = "tsne"
-                number = 1
-                baseEnvironment = BaseEnvironment.default()
-                inputDataType = DataType.IMAGE
-                outputDataType = DataType.IMAGE
-                publisher = author
 
-                parameters {
-                    STRING {
-                        id = fromString("2c9c637c-d16c-11ea-87d0-0242ac130003")
-                        name = "input-path"
-                        defaultValue = "."
-                        required = true
-                    }
-                    STRING {
-                        id = fromString("2c9c644e-d16c-11ea-87d0-0242ac130003")
-                        name = "output-path"
-                        defaultValue = "./output"
-                        required = true
-                    }
-                    INTEGER {
-                        id = fromString("2c9c6516-d16c-11ea-87d0-0242ac130003")
-                        name = "num_dimensions"
-                        defaultValue = "2"
-                        required = false
-                    }
-                    INTEGER {
-                        id = fromString("2c9c66ce-d16c-11ea-87d0-0242ac130003")
-                        name = "perplexity"
-                        defaultValue = "350"
-                        required = false
-                    }
-                    FLOAT {
-                        id = fromString("2c9c67c8-d16c-11ea-87d0-0242ac130003")
-                        name = "learning_rate"
-                        defaultValue = "150"
-                        required = false
-                    }
-                    INTEGER {
-                        id = fromString("2c9c69d0-d16c-11ea-87d0-0242ac130003")
-                        name = "max_iter"
-                        defaultValue = "1000"
-                        required = false
-                    }
-                }
-            }
+            // ############## OPERATION
+
             val codeProject_add_noise = codeProject {
                 id = im_add_noise_projectId
                 slug = "commons-add-noise"
@@ -138,18 +81,21 @@ class InitialDataLoader {
                         name = "input-path"
                         defaultValue = "."
                         required = true
+                        description = "path to directory of images or image file"
                     }
                     STRING {
                         id = fromString("a26bef36-d0ff-11ea-87d0-0242ac130003")
                         name = "output-path"
                         defaultValue = "./output"
                         required = true
+                        description = "output directory to save images"
                     }
                     STRING {
                         id = fromString("a26bf044-d0ff-11ea-87d0-0242ac130003")
                         name = "mode"
                         defaultValue = "gaussian"
                         required = false
+                        description = "noise mode it can take only these values: gaussian | localvar | poisson | salt | pepper | speckle"
                     }
                 }
             }
@@ -180,30 +126,35 @@ class InitialDataLoader {
                         name = "input-path"
                         defaultValue = "."
                         required = true
+                        description = "path to directory of images or image file"
                     }
                     STRING {
                         id = fromString("a26bf1e8-d0ff-11ea-87d0-0242ac130003")
                         name = "output-path"
                         defaultValue = "./output"
                         required = true
+                        description = "output directory to save images"
                     }
                     FLOAT {
                         id = fromString("a26bf300-d0ff-11ea-87d0-0242ac130003")
                         name = "brightness"
                         defaultValue = "0.5"
                         required = false
+                        description = "Brightness value"
                     }
                     FLOAT {
                         id = fromString("a26bf436-d0ff-11ea-87d0-0242ac130003")
                         name = "contrast"
                         defaultValue = "0.5"
                         required = false
+                        description = "contrast value"
                     }
                     FLOAT {
                         id = fromString("a26bf602-d0ff-11ea-87d0-0242ac130003")
                         name = "saturation"
                         defaultValue = "2"
                         required = false
+                        description = "saturation value"
                     }
                 }
             }
@@ -234,18 +185,21 @@ class InitialDataLoader {
                         name = "input-path"
                         defaultValue = "."
                         required = true
+                        description = "path to directory of images or image file"
                     }
                     STRING {
                         id = fromString("2c9c50f8-d16c-11ea-87d0-0242ac130003")
                         name = "output-path"
                         defaultValue = "./output"
                         required = true
+                        description = "output directory to save images"
                     }
                     INTEGER {
                         id = fromString("2c9c51c0-d16c-11ea-87d0-0242ac130003")
                         name = "size"
                         defaultValue = "128"
                         required = false
+                        description = "size of thumbnail width = height"
                     }
                 }
             }
@@ -276,24 +230,28 @@ class InitialDataLoader {
                         name = "input-path"
                         defaultValue = "."
                         required = true
+                        description = "path to directory of images or image file"
                     }
                     STRING {
                         id = fromString("2c9c54d6-d16c-11ea-87d0-0242ac130003")
                         name = "output-path"
                         defaultValue = "./output"
                         required = true
+                        description = "output directory to save images"
                     }
                     FLOAT {
                         id = fromString("2c9c55a8-d16c-11ea-87d0-0242ac130003")
                         name = "rotation"
                         defaultValue = "60"
                         required = false
+                        description = "Angle of rotation"
                     }
                     FLOAT {
                         id = fromString("2c9c5670-d16c-11ea-87d0-0242ac130003")
                         name = "shear"
                         defaultValue = "5"
                         required = false
+                        description = "Shear level"
                     }
                 }
             }
@@ -324,36 +282,42 @@ class InitialDataLoader {
                         name = "input-path"
                         defaultValue = "."
                         required = true
+                        description = "path to directory of images or image file"
                     }
                     STRING {
                         id = fromString("2c9c57f6-d16c-11ea-87d0-0242ac130003")
                         name = "output-path"
                         defaultValue = "./output"
                         required = true
+                        description = "output directory to save images"
                     }
                     FLOAT {
                         id = fromString("2c9c58b4-d16c-11ea-87d0-0242ac130003")
                         name = "scale_min"
                         defaultValue = "0.1"
                         required = false
+                        description = "min percentage of area to erase"
                     }
                     FLOAT {
                         id = fromString("2c9c5986-d16c-11ea-87d0-0242ac130003")
                         name = "scale_max"
                         defaultValue = "0.2"
                         required = false
+                        description = "max percentage of area to erase"
                     }
                     FLOAT {
                         id = fromString("2c9c5b7a-d16c-11ea-87d0-0242ac130003")
                         name = "ratio"
                         defaultValue = "0.3"
                         required = false
+                        description = "Ratio of area to erase"
                     }
                     FLOAT {
                         id = fromString("2c9c5c4c-d16c-11ea-87d0-0242ac130003")
                         name = "prob"
                         defaultValue = "0.9"
                         required = false
+                        description = "Probability of erase"
                     }
                 }
             }
@@ -384,18 +348,21 @@ class InitialDataLoader {
                         name = "input-path"
                         defaultValue = "."
                         required = true
+                        description = "path to directory of images or image file"
                     }
                     STRING {
                         id = fromString("2c9c5dd2-d16c-11ea-87d0-0242ac130003")
                         name = "output-path"
                         defaultValue = "./output"
                         required = true
+                        description = "output directory to save images"
                     }
                     FLOAT {
                         id = fromString("2c9c628c-d16c-11ea-87d0-0242ac130003")
                         name = "angle"
                         defaultValue = "30"
                         required = false
+                        description = "Angle of rotation"
                     }
                 }
             }
@@ -428,60 +395,70 @@ class InitialDataLoader {
                         name = "input-path"
                         defaultValue = "."
                         required = true
+                        description = "Path to folder with images"
                     }
                     STRING {
                         id = fromString("1000000-0000-0001-0012-000000000000")
                         name = "output-path"
                         defaultValue = "./output"
                         required = true
+                        description = "Output path to save models and logs"
                     }
                     INTEGER {
                         id = fromString("1000000-0000-0001-0013-000000000000")
                         name = "iterations"
                         defaultValue = "5"
                         required = true
+                        description = "Amount of time the process of augmentation will run"
                     }
                     INTEGER {
                         id = fromString("1000000-0000-0001-0014-000000000000")
                         name = "rotation-range"
                         defaultValue = "15"
                         required = true
+                        description = "Degree range for random rotations."
                     }
                     INTEGER {
                         id = fromString("1000000-0000-0001-0015-000000000000")
                         name = "width-shift-range"
                         defaultValue = "0"
                         required = true
+                        description = "FLOAT, 1-D array-like or INT - FLOAT: fraction of total width, if < 1, or pixels if >= 1. - 1-D array-like: random elements from the array. - INT: Integer number of pixels from Interval (-width_shift_range, +width_shift_range) - With width_shift_range=2 possible values are Integers [-1, 0, +1], same as with width_shift_range=[-1, 0, +1], while with width_shift_range=1.0 possible values are FLOATs in the INTerval [-1.0, +1.0)."
                     }
                     INTEGER {
                         id = fromString("1000000-0000-0001-0016-000000000000")
                         name = "height-shift-range"
                         defaultValue = "0"
                         required = true
+                        description = " FLOAT, 1-D array-like or INT - FLOAT: fraction of total height, if < 1, or pixels if >= 1. - 1-D array-like: random elements from the array. - INT: Integer number of pixels from interval (-height_shift_range, +height_shift_range) - With height_shift_range=2 possible values are INTegers [-1, 0, +1], same as with height_shift_range=[-1, 0, +1], while with height_shift_range=1.0 possible values are FLOATs in the INTerval [-1.0, +1.0)."
                     }
                     FLOAT {
                         id = fromString("1000000-0000-0001-0017-000000000000")
                         name = "shear-range"
                         defaultValue = "0"
                         required = true
+                        description = "Shear intensity (Shear angle in counter-clockwise direction in degrees)"
                     }
                     FLOAT {
                         id = fromString("1000000-0000-0001-0018-000000000000")
                         name = "zoom-range"
                         defaultValue = "0"
                         required = true
+                        description = "Zoom range from 0 none to 100"
                     }
                     BOOLEAN {
                         id = fromString("1000000-0000-0001-0019-000000000000")
                         name = "horizontal-flip"
                         defaultValue = "TRUE"
                         required = true
+                        description = "Use of horizonal flip for augmentation"
                     }
                     BOOLEAN {
                         id = fromString("1000000-0000-0001-0020-000000000000")
                         name = "vertical-flip"
                         defaultValue = "TRUE"
                         required = true
+                        description = "Use of vertical flip for augmentation"
                     }
                 }
             }
@@ -513,24 +490,28 @@ class InitialDataLoader {
                         name = "input-path"
                         defaultValue = "."
                         required = true
+                        description = "path to directory of images or image file"
                     }
                     STRING {
                         id = fromString("1000000-0000-0002-0010-000000000000")
                         name = "output-path"
                         defaultValue = "./output"
                         required = true
+                        description = "path to save processed images"
                     }
                     INTEGER {
                         id = fromString("1000000-0000-0002-0011-000000000000")
                         name = "height"
                         defaultValue = "35"
                         required = false
+                        description = "height of final cropped image"
                     }
                     INTEGER {
                         id = fromString("1000000-0000-0002-0012-000000000000")
                         name = "width"
                         defaultValue = "35"
                         required = false
+                        description = "width of final cropped image"
                     }
                     INTEGER {
                         id = fromString("1000000-0000-0002-0013-000000000000")
@@ -538,6 +519,7 @@ class InitialDataLoader {
                         defaultValue = "3"
                         required = false
                         group = "advanced"
+                        description = "seed for randomness"
                     }
                 }
             }
@@ -571,21 +553,94 @@ class InitialDataLoader {
                         name = "input-path"
                         defaultValue = "."
                         required = true
+                        description = "path to directory of images or image file"
                     }
                     STRING {
                         id = fromString("1000000-0000-0003-0012-000200000000")
                         name = "output-path"
                         defaultValue = "./output"
                         required = true
+                        description = "path to directory of images processed"
                     }
                     INTEGER {
                         id = fromString("1000000-0000-0003-0013-000300000000")
                         name = "intensity"
                         defaultValue = "5"
                         required = true
+                        description = "window size of Lee Filter"
                     }
                 }
             }
+
+            // ############## VISUALISATION
+
+            val codeProject_tsne = codeProject {
+                id = tsne_projectId
+                slug = "commons-tsne"
+                name = "T-SNE"
+                gitlabNamespace = "mlreef"
+                gitlabPath = "tsne"
+                inputDataTypes = hashSetOf(DataType.IMAGE)
+                outputDataTypes = hashSetOf(DataType.IMAGE)
+                description = "t-distributed Stochastic Neighbor Embedding Data visualization"
+            }
+            visualization {
+                linkToCodeProject(codeProject_tsne)
+                id = tsne_id
+                command = "tsne"
+                number = 1
+                baseEnvironment = BaseEnvironment.default()
+                inputDataType = DataType.IMAGE
+                outputDataType = DataType.IMAGE
+                publisher = author
+
+                parameters {
+                    STRING {
+                        id = fromString("2c9c637c-d16c-11ea-87d0-0242ac130003")
+                        name = "input-path"
+                        defaultValue = "."
+                        required = true
+                        description = "path to directory of images"
+                    }
+                    STRING {
+                        id = fromString("2c9c644e-d16c-11ea-87d0-0242ac130003")
+                        name = "output-path"
+                        defaultValue = "./output"
+                        required = true
+                        description = "path to directory to save the tsne mapping image"
+                    }
+                    INTEGER {
+                        id = fromString("2c9c6516-d16c-11ea-87d0-0242ac130003")
+                        name = "num_dimensions"
+                        defaultValue = "2"
+                        required = false
+                        description = "Number of dimensions of the mapping"
+                    }
+                    INTEGER {
+                        id = fromString("2c9c66ce-d16c-11ea-87d0-0242ac130003")
+                        name = "perplexity"
+                        defaultValue = "50"
+                        description ="this parameter balances the attention between local and global aspects"
+                        required = false
+                    }
+                    FLOAT {
+                        id = fromString("2c9c67c8-d16c-11ea-87d0-0242ac130003")
+                        name = "learning_rate"
+                        defaultValue = "150"
+                        required = false
+                        description = "learning rate"
+                    }
+                    INTEGER {
+                        id = fromString("2c9c69d0-d16c-11ea-87d0-0242ac130003")
+                        name = "max_iter"
+                        defaultValue = "1000"
+                        required = false
+                        description = "maximum number of iterations"
+                    }
+                }
+            }
+
+            // ############## MODEL
 
             val codeProject_resnet50 = codeProject {
                 id = resnet50_projectId
@@ -614,68 +669,80 @@ class InitialDataLoader {
                         name = "input-path"
                         defaultValue = "."
                         required = true
+                        description = "path to directory of images"
                     }
                     STRING {
                         id = fromString("1000000-1000-0003-0011-000000000000")
                         name = "output-path"
-                        defaultValue = "."
+                        defaultValue = "./output"
+                        description = "path to output metrics and model"
                     }
                     INTEGER {
                         id = fromString("1000000-1000-0003-0012-000000000000")
                         name = "height"
-                        defaultValue = "36"
+                        defaultValue = "224"
+                        description = "height of images (int)"
                     }
                     INTEGER {
                         id = fromString("1000000-1000-0003-0013-000000000000")
                         name = "width"
-                        defaultValue = "36"
+                        defaultValue = "224"
+                        description = "width of images (int)"
                     }
                     INTEGER {
                         id = fromString("1000000-1000-0003-0014-000000000000")
                         name = "epochs"
                         defaultValue = "35"
+                        description = "number of epochs for training"
                     }
                     INTEGER {
                         id = fromString("1000000-1000-0003-0015-000000000000")
                         name = "channels"
                         defaultValue = "3"
                         required = false
+                        description = "channels of images: 1 = grayscale, 3 = RGB ,4=RGBA (int)"
                     }
                     BOOLEAN {
                         id = fromString("1000000-1000-0003-0016-000000000000")
                         name = "use-pretrained"
                         defaultValue = "true"
                         required = false
+                        description = "use pretrained ResNet50 weights (bool)"
                     }
                     INTEGER {
                         id = fromString("1000000-1000-0003-0017-000000000000")
                         name = "batch-size"
                         defaultValue = "25"
                         required = false
+                        description = "batch size fed to the neural network (int)"
                     }
                     FLOAT {
                         id = fromString("1000000-1000-0003-0018-000000000000")
                         name = "validation-split"
                         defaultValue = "0.2"
                         required = false
+                        description = "fraction of images to be used for validation (float)"
                     }
                     STRING {
                         id = fromString("1000000-1000-0003-0019-000000000000")
                         name = "class_mode"
                         defaultValue = "categorical"
                         required = false
+                        description = "class mode : if class_mode is categorical (default value) it must include the label column with the class/es of each image. Values in column can be string/list/tuple if a single class or list/tuple if multiple classes. if class_mode is binary or sparse it must include the given label column with class values as strings. if class_mode is raw or multi_output it should contain the columns specified in labels. if class_mode is input or None no extra column is needed."
                     }
                     FLOAT {
                         id = fromString("1000000-1000-0003-0020-000000000000")
                         name = "learning-rate"
                         defaultValue = "0.0001"
                         required = false
+                        description = "learning rate of Adam Optimizer (float)"
                     }
-                    FLOAT {
+                    STRING {
                         id = fromString("1000000-1000-0003-0021-000000000000")
                         name = "loss"
-                        defaultValue = "0.1"
+                        defaultValue = "sparse_categorical_crossentropy"
                         required = false
+                        description = ": Use sparse_categorical_crossentropy loss function when there are two or more label classes. We expect labels to be provided as integers. If you want to provide labels using one-hot representation, please use categorial_crossentropy loss, binary_crossentropy means that the labels (there can be only 2) are encoded as float32 scalars with values 0 or 1."
                     }
                 }
             }
@@ -708,32 +775,40 @@ class InitialDataLoader {
                         name = "input-path"
                         defaultValue = "."
                         required = true
+                        description = "path to directory of images"
                     }
                     STRING {
                         id = fromString("2c9c6b6a-d16c-11ea-87d0-0242ac130003")
                         name = "output-path"
                         defaultValue = "./output"
+                        description = "path for output metrics and model"
                     }
                     INTEGER {
                         id = fromString("2c9c6c46-d16c-11ea-87d0-0242ac130003")
                         name = "batch-size"
                         defaultValue = "24"
+                        description = "batch size fed to the neural network (int)"
                     }
                     INTEGER {
                         id = fromString("2c9c6d0e-d16c-11ea-87d0-0242ac130003")
                         name = "epochs"
                         defaultValue = "100"
+                        description = "number of epochs for training"
                     }
                     STRING {
                         id = fromString("2c9c6de0-d16c-11ea-87d0-0242ac130003")
                         name = "model-name"
                         defaultValue = "vgg"
+                        description = "choose the model :resnet, alexnet, vgg, squeezenet, densenet, inception"
+                                                                                         
                     }
                     BOOLEAN {
                         id = fromString("2c9c7060-d16c-11ea-87d0-0242ac130003")
                         name = "feature-extract"
                         defaultValue = "true"
                         required = false
+                        description = "select true if you want to extract features or false for classification using the trained model"
+                                                                                            
                     }
                 }
             }
@@ -764,11 +839,13 @@ class InitialDataLoader {
                         id = fromString("1000000-2000-0003-0011-000000000000")
                         name = "epochs"
                         defaultValue = "10"
+                        description = ""
                     }
                     INTEGER {
                         id = fromString("1000000-2000-0003-0012-000000000000")
                         name = "batch_size"
                         defaultValue = "10"
+                        description = ""
                     }
                 }
             }
