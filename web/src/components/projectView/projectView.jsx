@@ -8,7 +8,7 @@ import forkingImage from 'images/forking.png';
 import { OPERATION, ALGORITHM, VISUALIZATION } from 'dataTypes';
 import { toastr } from 'react-redux-toastr';
 import FilesContainer from 'components/FilesContainer';
-import ReadMeComponent from '../readMe/readMe';
+import ReadMeComponent from '../ReadMe/ReadMe';
 import ProjectContainer from '../projectContainer';
 import RepoInfo from '../repoInfo';
 import RepoFeatures from '../repoFeatures';
@@ -114,7 +114,6 @@ class ProjectView extends React.Component {
       project: {
         gid,
         sshUrlToRepo,
-        name: projectName,
         readmeUrl: showReadMe,
       },
       match: {
@@ -208,7 +207,6 @@ class ProjectView extends React.Component {
                 />
                 {showReadMe && (
                 <ReadMeComponent
-                  projectName={projectName}
                   projectId={gid}
                   branch={decodedBranch}
                 />
