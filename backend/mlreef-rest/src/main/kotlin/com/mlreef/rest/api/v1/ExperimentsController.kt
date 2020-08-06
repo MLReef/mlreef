@@ -23,12 +23,15 @@ import com.mlreef.rest.feature.pipeline.PipelineService
 import com.mlreef.rest.feature.project.ProjectService
 import com.mlreef.utils.Slugs
 import org.springframework.data.repository.findByIdOrNull
+import org.springframework.http.HttpStatus
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
 import java.util.UUID
 import java.util.logging.Logger
@@ -168,6 +171,15 @@ class ExperimentsController(
     ) = (experimentRepository.findByIdOrNull(id) ?: throw UnknownProjectException("Experiment with id $id not found"))
         .copy(status = ExperimentStatus.CANCELED)
         .let { experimentRepository.save(it) }
+
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @PreAuthorize("hasAccessToProject(#dataProjectId, 'DEVELOPER')")
+    fun deleteExperiment(
+      @PathVariable dataProjectId: UUID,
+      @PathVariable id: UUID
+    ) = (experimentRepository.findByIdOrNull(id) ?: throw UnknownProjectException("Experiment with id $id not found"))
+        .let { experimentRepository.deleteById(id) }
 }
 
 

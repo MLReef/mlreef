@@ -52,4 +52,12 @@ export default class ExperimentsApi extends ApiDirector {
     return fetch(builder.build())
       .then(handleResponse);
   }
+
+  async delete(dataProjectId: string, experimentId: string){
+    const url = `/api/v1/data-projects/${dataProjectId}/experiments/${experimentId}`;
+    const builder = new BodyLessApiRequestCallBuilder(METHODS.DELETE, this.buildBasicHeaders(validServicesToCall.BACKEND), url);
+    
+    return fetch(builder.build())
+      .then(handleResponse);
+  }
 }

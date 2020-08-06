@@ -10,6 +10,7 @@ import './experimentsOverview.css';
 import { Line } from 'react-chartjs-2';
 import MModal from 'components/ui/MModal';
 import GitlabPipelinesApi from 'apis/GitlabPipelinesApi';
+import ExperimentsApi from 'apis/experimentApi';
 import traiangle01 from '../../images/triangle-01.png';
 import ArrowButton from '../arrow-button/arrowButton';
 import {
@@ -24,7 +25,7 @@ import {
   PENDING,
 } from '../../dataTypes';
 import ExperimentCancellationModal from './cancellationModal';
-import ExperimentsApi from 'apis/experimentApi';
+import DeleteExperimentModal from './DeletionModal';
 
 const gitlabApi = new GitlabPipelinesApi();
 const experimentApi = new ExperimentsApi();
@@ -63,6 +64,7 @@ const ExperimentSummary = ({
   });
   const [averageParams, setAverageParams] = useState([]);
   const [shouldAbortModalRender, setShouldAbortModalRender] = useState(false);
+  const [shouldDeleteModalRender, setShouldDeleteModalRender] = useState(false);
   const sourceBranch = experimentInstance ? experimentInstance.sourceBranch : '';
   const { processing } = experimentInstance;
   const modelName = processing ? processing.name : '';
@@ -71,16 +73,30 @@ const ExperimentSummary = ({
   )) : [];
 
   const closeModal = () => setShouldAbortModalRender(false);
+  const closeDeletionModal = () => setShouldDeleteModalRender(false);
 
   function abortClickHandler(pipelineId) {
     gitlabApi.abortGitlabPipelines(
       projectId,
       pipelineId,
     )
-      .then(() => experimentApi.cancelExperiment(dataProjectId, experiment.id))
-      .then(() => toastr.success('Success', 'Pipeline aborted'))
-      .catch(() => toastr.error('Error', 'Error aborting pipeline'))
-      .finally(() => closeModal());
+      .then(() => {
+        experimentApi.cancelExperiment(dataProjectId, experiment.id);
+        toastr.success('Success', 'Pipeline aborted');
+        closeModal();
+        window.location.reload();
+      })
+      .catch(() => toastr.error('Error', 'Error aborting pipeline'));
+  }
+
+  function deleteClickHandler(experimentId) {
+    experimentApi.delete(dataProjectId, experimentId)
+      .then(() => toastr.success('Success', 'Experiment deleted'))
+      .catch(() => toastr.error('Error', 'Something failed deleting'))
+      .finally(() => {
+        closeDeletionModal();
+        window.location.reload();
+      });
   }
 
   function handleArrowDownButtonClick() {
@@ -150,6 +166,7 @@ const ExperimentSummary = ({
           type="button"
           label="close"
           className="btn btn-icon btn-danger fa fa-times"
+          onClick={() => setShouldDeleteModalRender(!shouldDeleteModalRender)}
         />,
       ];
     } else if (experimentState === CANCELED) {
@@ -160,6 +177,7 @@ const ExperimentSummary = ({
           type="button"
           label="close"
           className="btn btn-icon btn-danger fa fa-times"
+          onClick={() => setShouldDeleteModalRender(!shouldDeleteModalRender)}
         />,
       ];
     }
@@ -176,6 +194,14 @@ const ExperimentSummary = ({
           shouldComponentRender={shouldAbortModalRender}
           abortClickHandler={abortClickHandler}
           closeModal={closeModal}
+        />
+      </MModal>
+      <MModal>
+        <DeleteExperimentModal
+          experiment={experiment}
+          shouldRender={shouldDeleteModalRender}
+          handleCloseModal={closeDeletionModal}
+          handleDeleteExp={deleteClickHandler}
         />
       </MModal>
       {showSummary && (
