@@ -67,7 +67,7 @@ export const handleResponse = (res) => {
   return res.status !== 204 ? res.json() : res;
 };
 
-// eslint-disable-next-line
+
 export const inspect = (res) => console.info(res) || res;
 
 export const onlyDataProject = (project) =>
