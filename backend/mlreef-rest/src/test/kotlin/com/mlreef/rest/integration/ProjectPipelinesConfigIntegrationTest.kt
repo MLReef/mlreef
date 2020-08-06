@@ -119,7 +119,7 @@ class ProjectPipelinesConfigIntegrationTest : AbstractIntegrationTest() {
             .expectOk()
             .returns(PipelineConfigDto::class.java)
 
-        assertThat(result).isNotNull()
+        assertThat(result).isNotNull
     }
 
     @Transactional
@@ -155,14 +155,14 @@ class ProjectPipelinesConfigIntegrationTest : AbstractIntegrationTest() {
             .expectOk()
             .returns(PipelineInstanceDto::class.java)
 
-        assertThat(result).isNotNull()
+        assertThat(result).isNotNull
 
         val adminGetProjectVariables = restClient.adminGetProjectVariables(project.gitlabId)
         val pushUser = restClient.adminGetProjectVariable(project.gitlabId, GitlabVariables.GIT_PUSH_USER)
         val pushToken = restClient.adminGetProjectVariable(project.gitlabId, GitlabVariables.GIT_PUSH_TOKEN)
-        assertThat(adminGetProjectVariables).isNotNull()
-        assertThat(pushUser).isNotNull()
-        assertThat(pushToken).isNotNull()
+        assertThat(adminGetProjectVariables).isNotNull
+        assertThat(pushUser).isNotNull
+        assertThat(pushToken).isNotNull
 
     }
 
@@ -204,7 +204,7 @@ class ProjectPipelinesConfigIntegrationTest : AbstractIntegrationTest() {
                 objectMapper.readValue(it.response.contentAsByteArray, PipelineConfigDto::class.java)
             }
 
-        assertThat(returnedResult).isNotNull()
+        assertThat(returnedResult).isNotNull
     }
 
     @Transactional

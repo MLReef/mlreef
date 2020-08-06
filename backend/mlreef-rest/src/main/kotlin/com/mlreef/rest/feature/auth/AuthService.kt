@@ -62,8 +62,6 @@ class AuthService(
     @Value("\${mlreef.bot-management.epf-bot-password-length}")
     private val botPasswordLength: Int = 0
 
-    private val GITLAB_GROUP_VARIABLE_NAME_FOR_BOT_TOKEN = "EPF_BOT_TOKEN"
-
     companion object {
         val log = LoggerFactory.getLogger(this::class.java)
 
@@ -205,7 +203,7 @@ class AuthService(
     private fun createGitlabToken(gitlabUser: GitlabUser): GitlabUserToken {
         val gitlabUserId = gitlabUser.id
         log.info("Create new Token for user ${gitlabUser.username}")
-        return gitlabRestClient.adminCreateUserToken(gitlabUserId = gitlabUserId, tokenName = GITLAB_TOKEN_USER)
+        return gitlabRestClient.adminCreateUserToken(gitlabUserId = gitlabUserId, tokenName = GITLAB_TOKEN_BOT)
     }
 
     fun ensureGitlabToken(account: Account, gitlabUser: GitlabUser): GitlabUserToken? {
@@ -215,7 +213,7 @@ class AuthService(
 
         val savedTokens = accountTokenRepository.findAllByAccountId(account.id)
         var mustCreateNow = true
-        val matchingGitlabTokens = gitlabTokens.filter { it.name == AuthService.GITLAB_TOKEN_BOT }
+        val matchingGitlabTokens = gitlabTokens.filter { it.name == GITLAB_TOKEN_BOT }
 
         if (matchingGitlabTokens.isNotEmpty()) {
             val first = matchingGitlabTokens.first()

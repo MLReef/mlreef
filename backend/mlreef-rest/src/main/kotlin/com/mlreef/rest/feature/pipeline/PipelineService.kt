@@ -29,9 +29,9 @@ import com.mlreef.rest.external_api.gitlab.dto.GitlabPipeline
 import com.mlreef.rest.external_api.gitlab.dto.GitlabUserInProject
 import com.mlreef.rest.external_api.gitlab.dto.GitlabVariable
 import com.mlreef.rest.feature.auth.AuthService
-import com.mlreef.rest.feature.pipeline.GitlabVariables.EPF_BOT_SECRET
 import com.mlreef.rest.feature.pipeline.GitlabVariables.GIT_PUSH_TOKEN
 import com.mlreef.rest.feature.pipeline.GitlabVariables.GIT_PUSH_USER
+import com.mlreef.rest.feature.pipeline.GitlabVariables.PIPELINE_TOKEN_SECRET
 import com.mlreef.rest.utils.RandomUtils
 import com.mlreef.utils.Slugs
 import lombok.RequiredArgsConstructor
@@ -224,7 +224,7 @@ class PipelineService(
         ensureProjectEpfBotUser(projectGitlabId = projectGitlabId)
 
         val variablesMap = hashMapOf(
-            EPF_BOT_SECRET to secret
+            PIPELINE_TOKEN_SECRET to secret
         )
 
         val gitlabPipeline = createPipeline(

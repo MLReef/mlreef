@@ -29,7 +29,7 @@ internal class GitlabGetUserTokensRequest(
 // https://docs.gitlab.com/ee/api/users.html#create-an-impersonation-token
 internal class GitlabCreateUserTokenRequest(
     val name: String = "mlreef-token",
-    val scopes: List<String> = listOf("api", "read_user"),
+    val scopes: List<String> = listOf("api", "read_user", "read_repository", "write_repository"),
     val expiresAt: String? = null
 ) : Serializable
 
