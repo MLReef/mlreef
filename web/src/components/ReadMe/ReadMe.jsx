@@ -2,14 +2,15 @@ import React, { useEffect, useState } from 'react';
 import { toastr } from 'react-redux-toastr';
 import { string, number } from 'prop-types';
 import ReactMarkdown from 'react-markdown';
-import './readme.css';
+import './Readme.scss';
 import { Base64 } from 'js-base64';
 import FilesApi from '../../apis/FilesApi.ts';
 
-const ReadMeComponent = ({ projectId, projectName, branch }) => {
+const filesApi = new FilesApi();
+
+const Readme = ({ projectId, branch }) => {
   const [textContent, setTextContent] = useState('');
   useEffect(() => {
-    const filesApi = new FilesApi();
     filesApi.getFileData(
       projectId,
       'README.md',
@@ -23,24 +24,25 @@ const ReadMeComponent = ({ projectId, projectName, branch }) => {
       <div className="readme-titlebar">
         <div className="readme-profile-pic" />
         <div className="readme-name">
-          <p id="readmeName"><b>README.md</b></p>
+          <p><b>README.md</b></p>
         </div>
       </div>
 
-      <div className="readme-content-container readme-style">
-        <div className="readme-content">
-          <p id="project-name-readme">{projectName}</p>
-          <ReactMarkdown id="project-content-readme" source={textContent} />
-        </div>
+      <div className="file-preview md">
+        <ReactMarkdown source={textContent} />
       </div>
     </div>
   );
-}
-
-ReadMeComponent.propTypes = {
-  projectName: string.isRequired,
-  projectId: number.isRequired,
-  branch: string.isRequired,
 };
 
-export default ReadMeComponent;
+Readme.defaultProps = {
+  projectId: null,
+  branch: '',
+};
+
+Readme.propTypes = {
+  projectId: number,
+  branch: string,
+};
+
+export default Readme;

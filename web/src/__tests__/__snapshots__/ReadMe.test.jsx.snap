@@ -1,0 +1,27 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`render basic readme elements assert that snapshot matches 1`] = `
+<div
+  className="readme-container"
+>
+  <div
+    className="readme-titlebar"
+  >
+    <div
+      className="readme-profile-pic"
+    />
+    <div
+      className="readme-name"
+    >
+      <p>
+        <b>
+          README.md
+        </b>
+      </p>
+    </div>
+  </div>
+  <div
+    className="file-preview md"
+  />
+</div>
+`;
