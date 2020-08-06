@@ -11,7 +11,7 @@ import java.io.InputStreamReader
 import java.util.stream.Collectors
 
 object GitlabVariables {
-    const val EPF_BOT_SECRET = "EPF_BOT_SECRET"
+    const val PIPELINE_TOKEN_SECRET = "EPF_BOT_SECRET"
     const val GIT_PUSH_USER = "GIT_PUSH_USER"
     const val GIT_PUSH_TOKEN = "GIT_PUSH_TOKEN"
 }
