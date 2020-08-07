@@ -3,10 +3,10 @@ $card-padding: 1rem;
 .card {
   margin-right: $card-padding;
   margin-bottom: $card-padding;
-  
+
   &-container {
     max-width: 250px;
-    @include card-shadown;
+    @include card-shadow;
     padding: $card-padding;
     border-radius: $border-radius;
   }

@@ -3,6 +3,7 @@ import { SortableContainer, SortableElement } from 'react-sortable-hoc';
 import $ from 'jquery';
 import { BOOL, errorMessages } from 'dataTypes';
 import MTooltip from 'components/ui/MTooltip';
+import MWrapper from 'components/ui/MWrapper';
 import advice01 from 'images/advice-01.png';
 import Input from '../../input/input';
 import ArrowButton from '../../arrow-button/arrowButton';
@@ -86,22 +87,24 @@ const SortableProcessor = SortableElement(({
                 className="btn btn-icon btn-hidden p-1 mr-1 fa fa-times"
               />
             </div>
-            <div>
-              <button
-                type="button"
-                label="copy"
-                id={`copy-btn-item-${value.internalProcessorId}`}
-                onClick={() => copyProcessor(index)}
-                className="btn btn-icon btn-hidden p-1 fa fa-copy mr-1"
-              />
-            </div>
+            <MWrapper norender msg="From #671 .39">
+              <div>
+                <button
+                  type="button"
+                  label="copy"
+                  id={`copy-btn-item-${value.internalProcessorId}`}
+                  onClick={() => copyProcessor(index)}
+                  className="btn btn-icon btn-hidden p-1 fa fa-copy mr-1"
+                />
+              </div>
+            </MWrapper>
             <div>
               <ArrowButton callback={() => setIsFormdivVisible(!isFormdivVisible)} />
             </div>
           </div>
         </div>
-        {isFormdivVisible && (
-        <div className="data-operation-form">
+
+        <div className={`data-operation-form ${isFormdivVisible ? '' : 'd-none'}`}>
           <br />
           <div style={{ width: 'max-content', margin: 'auto', marginLeft: '1rem' }}>
             {standardParameters && standardParameters.map((param, paramIndex) => (
@@ -137,7 +140,7 @@ const SortableProcessor = SortableElement(({
                   <ArrowButton
                     callback={() => {
                       const formDiv = document.getElementById(`advanced-opts-div-${value.internalProcessorId}`);
-                      formDiv.style.display = formDiv.style.display === 'none' ? 'unset' : 'none';
+                      formDiv.style.display = formDiv.style.display === 'none' ? 'block' : 'none';
                     }}
                   />
                 </div>
@@ -268,9 +271,9 @@ const SortableProcessor = SortableElement(({
                 })}
               </div>
             </div>
-            )}
+          )}
         </div>
-        )}
+
       </div>
       <span className="sortable-data-operation-list-item-arrow" />
       <span className="sortable-data-operation-list-item-separator" />

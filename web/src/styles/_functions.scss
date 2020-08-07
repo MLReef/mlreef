@@ -6,7 +6,7 @@
   @return ($rems / 1rem) * $context;
 }
 
-@mixin card-shadown {
+@mixin card-shadow {
   box-shadow: 1px 1px 3px 1px var(--almostWhite);
 }
 

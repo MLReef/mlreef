@@ -7,6 +7,10 @@ import { storeFactory } from '../functions/testUtils';
 import DataInstanceOverview from '../components/data-instance/dataInstanceOverview';
 import { projectsArrayMock, branchesMock } from '../testData';
 
+const match = {
+  params: { namespace: 'group-name', slug: 'my-proejct' },
+};
+
 const store = storeFactory({
   projects: projectsArrayMock.projects,
   branches: branchesMock,
@@ -23,7 +27,7 @@ const store = storeFactory({
     isLoading: false,
   },
 });
-const wrapper = shallow(<DataInstanceOverview store={store} />);
+const wrapper = shallow(<DataInstanceOverview match={match} store={store} />);
 
 describe('Data instance overview contains 4 buttons', () => {
   it('renders filtering functionality buttons', () => {
@@ -43,7 +47,7 @@ describe('Button filters data instances', () => {
     const instanceWrapper = mount((
       <Provider store={store}>
         <Router>
-          <DataInstanceOverview />
+          <DataInstanceOverview match={match} />
         </Router>
       </Provider>
     ));

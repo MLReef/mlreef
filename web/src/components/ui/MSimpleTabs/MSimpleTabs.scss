@@ -11,6 +11,10 @@
       & > ul {
         padding-right: 1rem;
         border-right: solid 1px var(--light);
+
+        &.no-border {
+          border-right: none;
+        }
       }
 
       & > section {
@@ -54,7 +58,7 @@
           border-bottom: solid 2px transparent;
 
           &.active {
-            border-color: var(--primary);
+            border-color: var(--info);
           }
         }
 
@@ -68,13 +72,13 @@
       }
 
       &.pills {
-        & > button {
+        & > button, & > a {
           border-radius: 5px;
           background-color: transparent;
-          padding: 0.5rem 2rem;
+          padding: 0.75rem 2rem;
 
           &.active {
-            background-color: var(--primary);
+            background-color: var(--info);
             color: var(--white);
 
           }
@@ -96,6 +100,10 @@
       &.active {
         display: block;
       }
+    }
+
+    &.left-border {
+      border-left: solid 1px var(--light);
     }
   }
 }

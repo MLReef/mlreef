@@ -34,7 +34,7 @@ describe('frontend contains initial insights tab elements', () => {
   });
 
   test('assert that insight-menu buttons are present', () => {
-    expect(wrapper.find('.insights-menu').children()).toHaveLength(1);
+    expect(wrapper.find('#insights-menu').children()).toHaveLength(1);
   });
 
   test('assert that jobs table is shown', () => {

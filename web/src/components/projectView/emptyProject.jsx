@@ -1,7 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { string } from 'prop-types';
-import BlackBorderedButton from '../BlackBorderedButton';
 import './emptyProject.scss';
 
 const EmptyProject = ({ sshUrlToRepo, projectId }) => (
@@ -19,7 +18,6 @@ const EmptyProject = ({ sshUrlToRepo, projectId }) => (
         >
           Upload File
         </Link>
-        <BlackBorderedButton textContent="Create a file" />
       </div>
     </div>
     <div className="empty-wrapper" style={{ marginTop: '3em' }}>

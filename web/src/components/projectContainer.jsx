@@ -4,6 +4,7 @@ import {
   string, objectOf, shape,
 } from 'prop-types';
 import AuthWrapper from 'components/AuthWrapper';
+import MParagraph from 'components/ui/MParagraph';
 import { connect } from 'react-redux';
 import ProjectInfo from './projectInfo';
 import ProjectNav from './project-nav/projectNav';
@@ -51,15 +52,12 @@ class ProjectContainer extends React.Component {
               viewName,
             ]}
           />
-
-          {viewName !== 'Settings' && (
-            <>
-              <ProjectInfo project={project} setIsForking={setIsForking} />
-              <p className="project-desc">
-                {description || 'No description'}
-              </p>
-            </>
-          )}
+          <ProjectInfo project={project} setIsForking={setIsForking} />
+          <MParagraph
+            className="project-desc"
+            text={description}
+            emptyMessage="No description"
+          />
           <div className="feature-list">
             <Link to={`/${namespace}/${slug}`} className="feature" id="data">
               Data

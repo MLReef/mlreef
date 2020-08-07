@@ -139,7 +139,7 @@ const SettingsViewMembers = (props) => {
                     onChange={handleSetQueryUser}
                   />
                   <div className="settings-view-search-results">
-                    <ul className="search-list">
+                    <ul className="search-list box-shadow">
                       {userSearchResults.map((result) => (
                         // eslint-disable-next-line
                         <li
@@ -240,7 +240,7 @@ const SettingsViewMembers = (props) => {
         <div className="panel-content">
           {members.map((member) => (
             <div key={`members-${member.id}`} className="panel-content-item">
-              <div className="avatar" />
+              <div className="avatar d-none" />
               <div className="info">
                 <div className="info-title">
                   <Link to={`/${member.user_name}`}>

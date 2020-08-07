@@ -1,0 +1,21 @@
+.m-wrapper {
+  position: relative;
+
+  &-content {
+    opacity: 0.5;
+  }
+
+  &-cover {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 2;
+    height: 100%;
+    
+    &.dark {
+      opacity: 0.5;
+      background-color: black;
+    }
+  }
+}

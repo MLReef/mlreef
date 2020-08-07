@@ -280,7 +280,7 @@ p.stat-no {
 
 .last-commit-name > p {
   margin: 0;
-  max-width: 250px;
+  max-width: 400px;
   text-overflow: ellipsis;
   overflow: hidden;
   white-space: nowrap;

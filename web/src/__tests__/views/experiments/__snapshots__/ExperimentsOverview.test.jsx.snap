@@ -329,11 +329,15 @@ exports[`test presence of elements in DOM compare with the latest snapshot of th
           </div>
         </div>
       </div>
-      <p
-        className="project-desc"
+      <section
+        className="m-paragraph project-desc"
       >
-        This is MLReef´s demo repository.
-      </p>
+        <p
+          className="m-paragraph-line "
+        >
+          This is MLReef´s demo repository.
+        </p>
+      </section>
       <div
         className="feature-list"
       >

@@ -48,22 +48,38 @@ const Insights = (props) => {
         activeFeature="insights"
         viewName="Insights"
       />
-      <div className="main-content web-box">
-        <div ref={tabs} className="insights-menu">
-          <Link role="button" id="jobs-btn" onClick={menuBtnHandler} className="mbtn active" to={`/my-projects/${gid}/insights/-/jobs`}>
-            Jobs
-          </Link>
+
+      <div className="main-content py-4">
+        <div className="simple-tabs">
+          <div className="simple-tabs-container vertical">
+            <ul ref={tabs} className="simple-tabs-menu vertical">
+              <li className="simple-tabs-menu-tab pills">
+                <Link
+                  role="button"
+                  id="jobs-btn"
+                  onClick={menuBtnHandler}
+                  className="simple-tabs-menu-tab-btn active"
+                  to={`/my-projects/${gid}/insights/-/jobs`}
+                >
+                  Jobs
+                </Link>
+              </li>
+
+            </ul>
+            <section id="insights-menu" className="simple-tabs-content pt-0">
+              <Switch>
+                {routes.map((route, index) => (
+                  <Route
+                    key={index.toString()}
+                    path={route.path}
+                    exact={route.exact}
+                    component={route.main}
+                  />
+                ))}
+              </Switch>
+            </section>
+          </div>
         </div>
-        <Switch>
-          {routes.map((route, index) => (
-            <Route
-              key={index.toString()}
-              path={route.path}
-              exact={route.exact}
-              component={route.main}
-            />
-          ))}
-        </Switch>
       </div>
     </>
   );

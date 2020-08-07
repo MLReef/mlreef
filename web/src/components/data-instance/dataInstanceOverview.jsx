@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { toastr } from 'react-redux-toastr';
-import { shape, objectOf, func } from 'prop-types';
+import { shape, objectOf, func, string } from 'prop-types';
 import DataPipelineApi from 'apis/DataPipelineApi';
 import BranchesApi from 'apis/BranchesApi';
 import Navbar from '../navbar/navbar';
@@ -52,12 +52,13 @@ export const InstanceCard = ({ ...props }) => {
     params,
     history,
     name,
+    namespace,
+    slug,
     deletePipeline,
     setPreconfiguredOPerations,
   } = props;
 
   function goToPipelineView(id) {
-    const pId = params.instances[0].projId;
     const instance = params.instances.filter((ins) => ins.id === id)[0];
     const configuredOperations = {
       dataOperatorsExecuted: instance.dataOperations,
@@ -65,7 +66,7 @@ export const InstanceCard = ({ ...props }) => {
       pipelineBackendId: instance.pipelineBackendId,
     };
     setPreconfiguredOPerations(configuredOperations);
-    history.push(`/my-projects/${pId}/pipeline-execution/new-data-pipeline`);
+    history.push(`/${namespace}/${slug}/-/datasets/new`);
   }
 
   // returns a function that receives the name (or id) of the pipeline and deletes it
@@ -334,8 +335,15 @@ class DataInstanceOverview extends Component {
       onPositiveAction,
     } = this.state;
     const {
-      history, projects: { selectedProject }, fireModal, setPreconfiguredOPerations,
+      match: {
+        params: { namespace, slug },
+      },
+      history,
+      projects: { selectedProject },
+      fireModal,
+      setPreconfiguredOPerations,
     } = this.props;
+
     let groupName;
     let name;
     if (selectedProject) {
@@ -428,6 +436,8 @@ class DataInstanceOverview extends Component {
                   <InstanceCard
                     key={InstanceName}
                     name={InstanceName}
+                    namespace={namespace}
+                    slug={slug}
                     history={history}
                     setIsDeleteModalVisible={this.setIsDeleteModalVisible}
                     deletePipeline={this.deletePipeline}
@@ -450,6 +460,12 @@ class DataInstanceOverview extends Component {
 }
 
 DataInstanceOverview.propTypes = {
+  match: shape({
+    params: shape({
+      namespace: string.isRequired,
+      slug: string.isRequired,
+    }).isRequired,
+  }).isRequired,
   projects: shape({
     selectedProject: objectOf(shape).isRequired,
   }).isRequired,

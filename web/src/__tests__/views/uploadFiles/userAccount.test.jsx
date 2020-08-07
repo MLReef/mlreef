@@ -28,6 +28,6 @@ describe('presence of basic user settings elements', () => {
   });
 
   test('assert that user settings sidebar is present', () => {
-    expect(wrapper.find('.insights-menu').children()).toHaveLength(1);
+    expect(wrapper.find('#profile-menu').children()).toHaveLength(1);
   });
 });
