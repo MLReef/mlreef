@@ -32,7 +32,6 @@ class ProjectView extends React.Component {
     // esLint does not like state out of constructor
     this.state = {
       contributors: [], // disconnected
-      users: [], // disconnected
       isForking: false,
     };
     this.setIsForking = this.setIsForking.bind(this);
@@ -127,10 +126,9 @@ class ProjectView extends React.Component {
       },
       mergeRequests,
       branches,
-    } = this.props;
-
-    const {
       users,
+    } = this.props;
+    const {
       contributors,
       isForking,
     } = this.state;
