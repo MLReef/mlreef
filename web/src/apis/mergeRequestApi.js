@@ -1,8 +1,9 @@
 import { toastr } from 'react-redux-toastr';
+import { handleResponse } from 'functions/apiCalls';
 import ApiDirector from './ApiDirector';
 import { METHODS, validServicesToCall } from './apiBuilders/requestEnums';
 import BLApiRequestCallBuilder from './apiBuilders/BLApiRequestCallBuilder';
-import { handleResponse } from 'functions/apiCalls';
+import ApiRequestCallBuilder from './apiBuilders/ApiRequestCallBuilder';
 import { generateGetRequest, getCurrentToken } from './apiHelpers';
 
 export class MergeRequestAPI extends ApiDirector {
@@ -13,6 +14,16 @@ export class MergeRequestAPI extends ApiDirector {
     const url = `/api/v4/projects/${projectId}/merge_requests`;
     const headers = this.buildBasicHeaders(validServicesToCall.GITLAB);
     const builder = new BLApiRequestCallBuilder(METHODS.GET, headers, url);
+
+    return fetch(builder.build())
+      .then(handleResponse);
+  }
+
+  updateMergeRequest(gid, iid, payload) {
+    const url = `/api/v4/projects/${gid}/merge_requests/${iid}`;
+    const headers = this.buildBasicHeaders(validServicesToCall.GITLAB);
+    const body = JSON.stringify(payload);
+    const builder = new ApiRequestCallBuilder(METHODS.PUT, headers, url, body);
 
     return fetch(builder.build())
       .then(handleResponse);

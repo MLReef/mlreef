@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
+import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import {
   number, shape, string, arrayOf,
@@ -8,6 +9,7 @@ import Checkbox from '@material-ui/core/Checkbox';
 import { Link } from 'react-router-dom';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
+import * as mergeRequestActions from 'actions/mergeActions';
 import { pluralize as plu } from 'functions/dataParserHelpers';
 import MSimpleTabs from 'components/ui/MSimpleTabs';
 import MParagraph from 'components/ui/MParagraph';
@@ -31,6 +33,8 @@ const BasicMergeRequestView = (props) => {
     selectedProject: { gid },
     match: { params: { iid } },
     users,
+    mrInfo,
+    actions,
   } = props;
 
   let status;
@@ -41,7 +45,6 @@ const BasicMergeRequestView = (props) => {
   let closeAvatar;
   let closedAt;
 
-  const [mrInfo, setMRInfo] = useState({});
   const [behind, setBehind] = useState(0);
   const [aheadCommits, setAheadCommits] = useState([]);
   const [diffs, setDiffs] = useState([]);
@@ -66,6 +69,14 @@ const BasicMergeRequestView = (props) => {
   const handleButton = () => {
   };
 
+  const handleCloseMergeRequest = () => {
+    actions.closeMergeRequest(gid, iid);
+  };
+
+  const handleReopenMergeRequest = () => {
+    actions.reopenMergeRequest(gid, iid);
+  };
+
   const squashCommits = () => {
     setSquash(!squash);
   };
@@ -75,9 +86,7 @@ const BasicMergeRequestView = (props) => {
   };
 
   const fetchMergeRequestInfo = useCallback(
-    () => mergeRequestAPI.getSingleMR(gid, iid)
-      .then(setMRInfo),
-    [gid, iid],
+    () => actions.getMergeRequest(gid, iid), [actions, gid, iid],
   );
 
   const acceptMergeRequest = () => {
@@ -140,9 +149,8 @@ const BasicMergeRequestView = (props) => {
           <button
             type="button"
             id="close-mr-btn"
-            disabled
             className="btn btn-outline-danger ml-3"
-            onClick={handleButton}
+            onClick={handleCloseMergeRequest}
           >
             Close Merge Request
           </button>
@@ -153,9 +161,8 @@ const BasicMergeRequestView = (props) => {
         <button
           type="button"
           id="reopen-mr-btn"
-          disabled
           className="btn btn-outline-warning ml-3"
-          onClick={handleButton}
+          onClick={handleReopenMergeRequest}
         >
           Reopen Merge Request
         </button>
@@ -170,7 +177,7 @@ const BasicMergeRequestView = (props) => {
         activeFeature="data"
         folders={[groupName, projectName, 'Data', 'Merge requests', iid]}
       />
-      <div className="basic-merge-request-view-content main-content">
+      <div className="basic-merge-request-view-content main-content v1023">
         <div style={{ display: 'flex', marginTop: '1em' }}>
           <div style={{ flex: '1' }}>
             <p style={{ marginBottom: '0' }}>
@@ -372,6 +379,15 @@ function mapStateToProps(state) {
   return {
     selectedProject: state.projects.selectedProject,
     users: state.users,
+    mrInfo: state.mergeRequests.current,
+  };
+}
+
+function mapDispatchToProps(dispatch) {
+  return {
+    actions: bindActionCreators({
+      ...mergeRequestActions,
+    }, dispatch),
   };
 }
 
@@ -393,6 +409,8 @@ BasicMergeRequestView.propTypes = {
     namespace: string.isRequired,
   }).isRequired,
   users: arrayOf(shape({})).isRequired,
+  mrInfo: shape({}).isRequired,
+  actions: shape({}).isRequired,
 };
 
-export default connect(mapStateToProps)(BasicMergeRequestView);
+export default connect(mapStateToProps, mapDispatchToProps)(BasicMergeRequestView);

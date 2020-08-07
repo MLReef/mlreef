@@ -76,9 +76,7 @@ class MergeRequestOverview extends Component {
   fetchMergeRequests() {
     const {
       actions,
-      match: {
-        params: { projectId: gid },
-      },
+      selectedProject: { gid },
     } = this.props;
 
     return actions.getMergeRequestsList(gid);
@@ -211,7 +209,7 @@ MergeRequestCard.propTypes = {
 function mapStateToProps(state) {
   return {
     selectedProject: state.projects.selectedProject,
-    mergeRequests: state.mergeRequests,
+    mergeRequests: state.mergeRequests.list,
   };
 }
 
