@@ -227,8 +227,12 @@
 
 .container {
   &-shadow {
-    @include card-shadown;
+    @include card-shadow;
   }
+}
+
+.box-shadow {
+  @include card-shadow;
 }
 
 .avatar {

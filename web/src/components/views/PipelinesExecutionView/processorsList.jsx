@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import {
   shape, string, func, arrayOf,
 } from 'prop-types';
-import star01 from 'images/star-01.png';
 import ArrowButton from '../../arrow-button/arrowButton';
 
 const ProcessorsList = ({
@@ -38,7 +37,6 @@ export const Processor = ({ processorData, handleDragStart }) => {
           </p>
         </div>
         <div className="data-oper-options flexible-div">
-          <div><img alt="" src={star01} /></div>
           <div>
             <p>
               {processorData.starCount}

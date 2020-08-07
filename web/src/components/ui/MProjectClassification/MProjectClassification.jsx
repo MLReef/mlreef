@@ -4,6 +4,7 @@ import {
 } from 'prop-types';
 import { Link } from 'react-router-dom';
 import ArrowButton from 'components/arrow-button/arrowButton';
+import MWrapper from 'components/ui/MWrapper';
 import ProjectSet from '../../projectSet';
 import './MProjectClassification.scss';
 import MCheckBox from '../MCheckBox/MCheckBox';
@@ -181,6 +182,8 @@ class MProjectClassification extends Component {
               personalProjects={userProjects}
               starredProjects={starredProjects}
             />
+            <MWrapper disable title="Not available yet.">
+              {/* eslint-disable-next-line */}
             <div id="side-filters">
               <div id="input-div">
                 <p>Refine by</p>
@@ -268,6 +271,7 @@ class MProjectClassification extends Component {
                 )}
               </>
             </div>
+            </MWrapper>
           </div>
         </div>
       </div>

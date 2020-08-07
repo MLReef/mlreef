@@ -139,435 +139,447 @@ exports[`test html elements 1`] = `
         </div>
       </div>
       <div
-        id="side-filters"
+        className="m-wrapper"
+        title="Not available yet."
       >
         <div
-          id="input-div"
+          className="m-wrapper-content"
         >
-          <p>
-            Refine by
-          </p>
-          <button>
-            Clear filters
-          </button>
-        </div>
-        <br />
-        <div
-          className="name-filter-section"
-        >
-          <p>
-            Data types
-          </p>
           <div
-            className="dropdown-btn-container-div"
+            id="side-filters"
           >
-            <button
-              aria-label="dropdown-btn"
-              className="btn btn-icon btn-hidden fa fa-chevron-down p-1"
-              id=""
+            <div
+              id="input-div"
+            >
+              <p>
+                Refine by
+              </p>
+              <button>
+                Clear filters
+              </button>
+            </div>
+            <br />
+            <div
+              className="name-filter-section"
+            >
+              <p>
+                Data types
+              </p>
+              <div
+                className="dropdown-btn-container-div"
+              >
+                <button
+                  aria-label="dropdown-btn"
+                  className="btn btn-icon btn-hidden fa fa-chevron-down p-1"
+                  id=""
+                  onClick={[Function]}
+                  type="button"
+                />
+                
+              </div>
+            </div>
+            <div
+              className="m-checkbox "
+              htmlFor="ml-project dataTypes Text"
               onClick={[Function]}
-              type="button"
-            />
-            
+              onKeyPress={[Function]}
+              role="button"
+              tabIndex={0}
+            >
+              <p>
+                Text
+              </p>
+              <input
+                checked={false}
+                onChange={[Function]}
+                type="checkbox"
+              />
+              <span
+                className="checkmark"
+              />
+            </div>
+            <div
+              className="m-checkbox "
+              htmlFor="ml-project dataTypes Image"
+              onClick={[Function]}
+              onKeyPress={[Function]}
+              role="button"
+              tabIndex={0}
+            >
+              <p>
+                Image
+              </p>
+              <input
+                checked={false}
+                onChange={[Function]}
+                type="checkbox"
+              />
+              <span
+                className="checkmark"
+              />
+            </div>
+            <div
+              className="m-checkbox "
+              htmlFor="ml-project dataTypes Audio"
+              onClick={[Function]}
+              onKeyPress={[Function]}
+              role="button"
+              tabIndex={0}
+            >
+              <p>
+                Audio
+              </p>
+              <input
+                checked={false}
+                onChange={[Function]}
+                type="checkbox"
+              />
+              <span
+                className="checkmark"
+              />
+            </div>
+            <div
+              className="m-checkbox "
+              htmlFor="ml-project dataTypes Video"
+              onClick={[Function]}
+              onKeyPress={[Function]}
+              role="button"
+              tabIndex={0}
+            >
+              <p>
+                Video
+              </p>
+              <input
+                checked={false}
+                onChange={[Function]}
+                type="checkbox"
+              />
+              <span
+                className="checkmark"
+              />
+            </div>
+            <div
+              className="m-checkbox "
+              htmlFor="ml-project dataTypes Tabular"
+              onClick={[Function]}
+              onKeyPress={[Function]}
+              role="button"
+              tabIndex={0}
+            >
+              <p>
+                Tabular
+              </p>
+              <input
+                checked={false}
+                onChange={[Function]}
+                type="checkbox"
+              />
+              <span
+                className="checkmark"
+              />
+            </div>
+            <div
+              className="name-filter-section"
+            >
+              <p>
+                Framework
+              </p>
+              <div
+                className="dropdown-btn-container-div"
+              >
+                <button
+                  aria-label="dropdown-btn"
+                  className="btn btn-icon btn-hidden fa fa-chevron-down p-1"
+                  id=""
+                  onClick={[Function]}
+                  type="button"
+                />
+                
+              </div>
+            </div>
+            <div
+              className="m-checkbox "
+              htmlFor="ml-project framework TensorFlow"
+              onClick={[Function]}
+              onKeyPress={[Function]}
+              role="button"
+              tabIndex={0}
+            >
+              <p>
+                TensorFlow
+              </p>
+              <input
+                checked={false}
+                onChange={[Function]}
+                type="checkbox"
+              />
+              <span
+                className="checkmark"
+              />
+            </div>
+            <div
+              className="m-checkbox "
+              htmlFor="ml-project framework Pytorch"
+              onClick={[Function]}
+              onKeyPress={[Function]}
+              role="button"
+              tabIndex={0}
+            >
+              <p>
+                Pytorch
+              </p>
+              <input
+                checked={false}
+                onChange={[Function]}
+                type="checkbox"
+              />
+              <span
+                className="checkmark"
+              />
+            </div>
+            <div
+              className="m-checkbox "
+              htmlFor="ml-project framework Keras"
+              onClick={[Function]}
+              onKeyPress={[Function]}
+              role="button"
+              tabIndex={0}
+            >
+              <p>
+                Keras
+              </p>
+              <input
+                checked={false}
+                onChange={[Function]}
+                type="checkbox"
+              />
+              <span
+                className="checkmark"
+              />
+            </div>
+            <div
+              className="m-checkbox "
+              htmlFor="ml-project framework Scikit Learn"
+              onClick={[Function]}
+              onKeyPress={[Function]}
+              role="button"
+              tabIndex={0}
+            >
+              <p>
+                Scikit Learn
+              </p>
+              <input
+                checked={false}
+                onChange={[Function]}
+                type="checkbox"
+              />
+              <span
+                className="checkmark"
+              />
+            </div>
+            <div
+              className="name-filter-section"
+            >
+              <p>
+                Model Type
+              </p>
+              <div
+                className="dropdown-btn-container-div"
+              >
+                <button
+                  aria-label="dropdown-btn"
+                  className="btn btn-icon btn-hidden fa fa-chevron-down p-1"
+                  id=""
+                  onClick={[Function]}
+                  type="button"
+                />
+                
+              </div>
+            </div>
+            <div
+              className="m-checkbox "
+              htmlFor="ml-project modelTypes CNN"
+              onClick={[Function]}
+              onKeyPress={[Function]}
+              role="button"
+              tabIndex={0}
+            >
+              <p>
+                CNN
+              </p>
+              <input
+                checked={false}
+                onChange={[Function]}
+                type="checkbox"
+              />
+              <span
+                className="checkmark"
+              />
+            </div>
+            <div
+              className="m-checkbox "
+              htmlFor="ml-project modelTypes Clustering"
+              onClick={[Function]}
+              onKeyPress={[Function]}
+              role="button"
+              tabIndex={0}
+            >
+              <p>
+                Clustering
+              </p>
+              <input
+                checked={false}
+                onChange={[Function]}
+                type="checkbox"
+              />
+              <span
+                className="checkmark"
+              />
+            </div>
+            <div
+              className="m-checkbox "
+              htmlFor="ml-project modelTypes Trees"
+              onClick={[Function]}
+              onKeyPress={[Function]}
+              role="button"
+              tabIndex={0}
+            >
+              <p>
+                Trees
+              </p>
+              <input
+                checked={false}
+                onChange={[Function]}
+                type="checkbox"
+              />
+              <span
+                className="checkmark"
+              />
+            </div>
+            <div
+              className="m-checkbox "
+              htmlFor="ml-project modelTypes Regression"
+              onClick={[Function]}
+              onKeyPress={[Function]}
+              role="button"
+              tabIndex={0}
+            >
+              <p>
+                Regression
+              </p>
+              <input
+                checked={false}
+                onChange={[Function]}
+                type="checkbox"
+              />
+              <span
+                className="checkmark"
+              />
+            </div>
+            <div
+              className="name-filter-section"
+            >
+              <p>
+                ML categories
+              </p>
+              <div
+                className="dropdown-btn-container-div"
+              >
+                <button
+                  aria-label="dropdown-btn"
+                  className="btn btn-icon btn-hidden fa fa-chevron-down p-1"
+                  id=""
+                  onClick={[Function]}
+                  type="button"
+                />
+                
+              </div>
+            </div>
+            <div
+              className="m-checkbox "
+              htmlFor="ml-project mlCategories Regression"
+              onClick={[Function]}
+              onKeyPress={[Function]}
+              role="button"
+              tabIndex={0}
+            >
+              <p>
+                Regression
+              </p>
+              <input
+                checked={false}
+                onChange={[Function]}
+                type="checkbox"
+              />
+              <span
+                className="checkmark"
+              />
+            </div>
+            <div
+              className="m-checkbox "
+              htmlFor="ml-project mlCategories Prediction"
+              onClick={[Function]}
+              onKeyPress={[Function]}
+              role="button"
+              tabIndex={0}
+            >
+              <p>
+                Prediction
+              </p>
+              <input
+                checked={false}
+                onChange={[Function]}
+                type="checkbox"
+              />
+              <span
+                className="checkmark"
+              />
+            </div>
+            <div
+              className="m-checkbox "
+              htmlFor="ml-project mlCategories Classification"
+              onClick={[Function]}
+              onKeyPress={[Function]}
+              role="button"
+              tabIndex={0}
+            >
+              <p>
+                Classification
+              </p>
+              <input
+                checked={false}
+                onChange={[Function]}
+                type="checkbox"
+              />
+              <span
+                className="checkmark"
+              />
+            </div>
+            <div
+              className="m-checkbox "
+              htmlFor="ml-project mlCategories Dimensionality reduction"
+              onClick={[Function]}
+              onKeyPress={[Function]}
+              role="button"
+              tabIndex={0}
+            >
+              <p>
+                Dimensionality reduction
+              </p>
+              <input
+                checked={false}
+                onChange={[Function]}
+                type="checkbox"
+              />
+              <span
+                className="checkmark"
+              />
+            </div>
           </div>
         </div>
         <div
-          className="m-checkbox "
-          htmlFor="ml-project dataTypes Text"
-          onClick={[Function]}
-          onKeyPress={[Function]}
-          role="button"
-          tabIndex={0}
-        >
-          <p>
-            Text
-          </p>
-          <input
-            checked={false}
-            onChange={[Function]}
-            type="checkbox"
-          />
-          <span
-            className="checkmark"
-          />
-        </div>
-        <div
-          className="m-checkbox "
-          htmlFor="ml-project dataTypes Image"
-          onClick={[Function]}
-          onKeyPress={[Function]}
-          role="button"
-          tabIndex={0}
-        >
-          <p>
-            Image
-          </p>
-          <input
-            checked={false}
-            onChange={[Function]}
-            type="checkbox"
-          />
-          <span
-            className="checkmark"
-          />
-        </div>
-        <div
-          className="m-checkbox "
-          htmlFor="ml-project dataTypes Audio"
-          onClick={[Function]}
-          onKeyPress={[Function]}
-          role="button"
-          tabIndex={0}
-        >
-          <p>
-            Audio
-          </p>
-          <input
-            checked={false}
-            onChange={[Function]}
-            type="checkbox"
-          />
-          <span
-            className="checkmark"
-          />
-        </div>
-        <div
-          className="m-checkbox "
-          htmlFor="ml-project dataTypes Video"
-          onClick={[Function]}
-          onKeyPress={[Function]}
-          role="button"
-          tabIndex={0}
-        >
-          <p>
-            Video
-          </p>
-          <input
-            checked={false}
-            onChange={[Function]}
-            type="checkbox"
-          />
-          <span
-            className="checkmark"
-          />
-        </div>
-        <div
-          className="m-checkbox "
-          htmlFor="ml-project dataTypes Tabular"
-          onClick={[Function]}
-          onKeyPress={[Function]}
-          role="button"
-          tabIndex={0}
-        >
-          <p>
-            Tabular
-          </p>
-          <input
-            checked={false}
-            onChange={[Function]}
-            type="checkbox"
-          />
-          <span
-            className="checkmark"
-          />
-        </div>
-        <div
-          className="name-filter-section"
-        >
-          <p>
-            Framework
-          </p>
-          <div
-            className="dropdown-btn-container-div"
-          >
-            <button
-              aria-label="dropdown-btn"
-              className="btn btn-icon btn-hidden fa fa-chevron-down p-1"
-              id=""
-              onClick={[Function]}
-              type="button"
-            />
-            
-          </div>
-        </div>
-        <div
-          className="m-checkbox "
-          htmlFor="ml-project framework TensorFlow"
-          onClick={[Function]}
-          onKeyPress={[Function]}
-          role="button"
-          tabIndex={0}
-        >
-          <p>
-            TensorFlow
-          </p>
-          <input
-            checked={false}
-            onChange={[Function]}
-            type="checkbox"
-          />
-          <span
-            className="checkmark"
-          />
-        </div>
-        <div
-          className="m-checkbox "
-          htmlFor="ml-project framework Pytorch"
-          onClick={[Function]}
-          onKeyPress={[Function]}
-          role="button"
-          tabIndex={0}
-        >
-          <p>
-            Pytorch
-          </p>
-          <input
-            checked={false}
-            onChange={[Function]}
-            type="checkbox"
-          />
-          <span
-            className="checkmark"
-          />
-        </div>
-        <div
-          className="m-checkbox "
-          htmlFor="ml-project framework Keras"
-          onClick={[Function]}
-          onKeyPress={[Function]}
-          role="button"
-          tabIndex={0}
-        >
-          <p>
-            Keras
-          </p>
-          <input
-            checked={false}
-            onChange={[Function]}
-            type="checkbox"
-          />
-          <span
-            className="checkmark"
-          />
-        </div>
-        <div
-          className="m-checkbox "
-          htmlFor="ml-project framework Scikit Learn"
-          onClick={[Function]}
-          onKeyPress={[Function]}
-          role="button"
-          tabIndex={0}
-        >
-          <p>
-            Scikit Learn
-          </p>
-          <input
-            checked={false}
-            onChange={[Function]}
-            type="checkbox"
-          />
-          <span
-            className="checkmark"
-          />
-        </div>
-        <div
-          className="name-filter-section"
-        >
-          <p>
-            Model Type
-          </p>
-          <div
-            className="dropdown-btn-container-div"
-          >
-            <button
-              aria-label="dropdown-btn"
-              className="btn btn-icon btn-hidden fa fa-chevron-down p-1"
-              id=""
-              onClick={[Function]}
-              type="button"
-            />
-            
-          </div>
-        </div>
-        <div
-          className="m-checkbox "
-          htmlFor="ml-project modelTypes CNN"
-          onClick={[Function]}
-          onKeyPress={[Function]}
-          role="button"
-          tabIndex={0}
-        >
-          <p>
-            CNN
-          </p>
-          <input
-            checked={false}
-            onChange={[Function]}
-            type="checkbox"
-          />
-          <span
-            className="checkmark"
-          />
-        </div>
-        <div
-          className="m-checkbox "
-          htmlFor="ml-project modelTypes Clustering"
-          onClick={[Function]}
-          onKeyPress={[Function]}
-          role="button"
-          tabIndex={0}
-        >
-          <p>
-            Clustering
-          </p>
-          <input
-            checked={false}
-            onChange={[Function]}
-            type="checkbox"
-          />
-          <span
-            className="checkmark"
-          />
-        </div>
-        <div
-          className="m-checkbox "
-          htmlFor="ml-project modelTypes Trees"
-          onClick={[Function]}
-          onKeyPress={[Function]}
-          role="button"
-          tabIndex={0}
-        >
-          <p>
-            Trees
-          </p>
-          <input
-            checked={false}
-            onChange={[Function]}
-            type="checkbox"
-          />
-          <span
-            className="checkmark"
-          />
-        </div>
-        <div
-          className="m-checkbox "
-          htmlFor="ml-project modelTypes Regression"
-          onClick={[Function]}
-          onKeyPress={[Function]}
-          role="button"
-          tabIndex={0}
-        >
-          <p>
-            Regression
-          </p>
-          <input
-            checked={false}
-            onChange={[Function]}
-            type="checkbox"
-          />
-          <span
-            className="checkmark"
-          />
-        </div>
-        <div
-          className="name-filter-section"
-        >
-          <p>
-            ML categories
-          </p>
-          <div
-            className="dropdown-btn-container-div"
-          >
-            <button
-              aria-label="dropdown-btn"
-              className="btn btn-icon btn-hidden fa fa-chevron-down p-1"
-              id=""
-              onClick={[Function]}
-              type="button"
-            />
-            
-          </div>
-        </div>
-        <div
-          className="m-checkbox "
-          htmlFor="ml-project mlCategories Regression"
-          onClick={[Function]}
-          onKeyPress={[Function]}
-          role="button"
-          tabIndex={0}
-        >
-          <p>
-            Regression
-          </p>
-          <input
-            checked={false}
-            onChange={[Function]}
-            type="checkbox"
-          />
-          <span
-            className="checkmark"
-          />
-        </div>
-        <div
-          className="m-checkbox "
-          htmlFor="ml-project mlCategories Prediction"
-          onClick={[Function]}
-          onKeyPress={[Function]}
-          role="button"
-          tabIndex={0}
-        >
-          <p>
-            Prediction
-          </p>
-          <input
-            checked={false}
-            onChange={[Function]}
-            type="checkbox"
-          />
-          <span
-            className="checkmark"
-          />
-        </div>
-        <div
-          className="m-checkbox "
-          htmlFor="ml-project mlCategories Classification"
-          onClick={[Function]}
-          onKeyPress={[Function]}
-          role="button"
-          tabIndex={0}
-        >
-          <p>
-            Classification
-          </p>
-          <input
-            checked={false}
-            onChange={[Function]}
-            type="checkbox"
-          />
-          <span
-            className="checkmark"
-          />
-        </div>
-        <div
-          className="m-checkbox "
-          htmlFor="ml-project mlCategories Dimensionality reduction"
-          onClick={[Function]}
-          onKeyPress={[Function]}
-          role="button"
-          tabIndex={0}
-        >
-          <p>
-            Dimensionality reduction
-          </p>
-          <input
-            checked={false}
-            onChange={[Function]}
-            type="checkbox"
-          />
-          <span
-            className="checkmark"
-          />
-        </div>
+          className="m-wrapper-cover"
+        />
       </div>
     </div>
   </div>

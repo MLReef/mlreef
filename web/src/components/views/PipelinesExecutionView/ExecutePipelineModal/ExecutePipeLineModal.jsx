@@ -132,6 +132,7 @@ const ExecutePipelineModal = ({
                   />
                   {jobName === 'model-experiment' && (
                   <MSelect
+                    disabled
                     className="mt-2"
                     label="Soon available - Select a hyperparameter tuning method:"
                     onSelect={setTuningMethod}

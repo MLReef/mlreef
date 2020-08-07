@@ -32,6 +32,10 @@ import {
 class PipelinesExecutionView extends Component {
   isExperiment = false
 
+  isDataset = false
+
+  isVisualization = false
+
   constructor(props) {
     super(props);
     const {
@@ -39,10 +43,17 @@ class PipelinesExecutionView extends Component {
     } = this.props;
     const { match: { path, params: { typePipelines } } } = this.props;
     let currentProcessors;
-    this.isExperiment = path === '/:namespace/:slug/-/experiments/new' ||
-      typePipelines === 'new-experiment';
 
-    if (typePipelines === 'new-data-pipeline') {
+    this.isExperiment = path === '/:namespace/:slug/-/experiments/new'
+      || typePipelines === 'new-experiment';
+
+    this.isDataset = path === '/:namespace/:slug/-/datasets/new'
+      || typePipelines === 'new-data-pipeline';
+
+    this.isVisualization = path === '/:namespace/:slug/-/visualization/new'
+      || typePipelines === 'new-data-visualisation';
+
+    if (this.isDataset) {
       currentProcessors = processors.operations;
     } else if (this.isExperiment) {
       currentProcessors = processors.algorithms;
@@ -211,7 +222,6 @@ class PipelinesExecutionView extends Component {
   }
 
   render = () => {
-    const { match: { params: { typePipelines } } } = this.props;
     const {
       project,
       branches,
@@ -236,7 +246,7 @@ class PipelinesExecutionView extends Component {
       operationTypeToExecute = ALGORITHM;
       operatorsTitle = 'Select a model:';
       prefix = 'Algo.';
-    } else if (typePipelines === 'new-data-pipeline') {
+    } else if (this.isDataset) {
       activeFeature = 'data';
       instructionDataModel = dataPipelineInstructionData;
       pipelinesTypeExecutionTitle = 'Data pipeline';
@@ -284,12 +294,6 @@ class PipelinesExecutionView extends Component {
             className="pipe-line-execution"
             title={pipelinesTypeExecutionTitle}
             buttons={[
-              <button key="pipeline-load" type="button" className="btn btn-basic-primary btn-sm">
-                Load
-              </button>,
-              <button key="pipeline-save" type="button" className="btn btn-basic-primary btn-sm d-none">
-                Save
-              </button>,
               <button
                 id="execute-button"
                 key="pipeline-execute"

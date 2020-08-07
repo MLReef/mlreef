@@ -175,6 +175,7 @@ const Demo = (props) => {
       marginTop: '100px'
     }}
     >
+      version: 10000
       <MTabs>
         <MTabs.Section defaultActive id="buttons" label="The buttons">
           <br />

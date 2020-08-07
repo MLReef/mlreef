@@ -3,10 +3,9 @@ $dark-grey: #b5b5b5;
 .job-container{
   display: flex;
   flex-direction: column;
-  width: 80%;
 
   &-title{
-    font-size: 18px; 
+    font-size: 18px;
   };
 }
 
@@ -17,7 +16,7 @@ $dark-grey: #b5b5b5;
     text-align: left;
     .head-tr{
       background-color: $light-grey;
-      border-radius: 4px; 
+      border-radius: 4px;
     };
 
     th{
@@ -28,7 +27,7 @@ $dark-grey: #b5b5b5;
     &-body{
       tr{
         border-bottom: 1px solid $light-grey;
-        
+
         td{
           padding: 1em;
           text-align: left;
@@ -61,4 +60,3 @@ $dark-grey: #b5b5b5;
       }
     }
 }
-

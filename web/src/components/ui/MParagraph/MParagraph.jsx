@@ -6,6 +6,7 @@ const MParagraph = (props) => {
   const {
     text,
     separator,
+    emptyMessage,
     className,
     lineClasses,
   } = props;
@@ -17,12 +18,18 @@ const MParagraph = (props) => {
           {line}
         </p>
       ))}
+      {!text.length && emptyMessage && (
+        <p className={`m-paragraph-line ${lineClasses}`}>
+          {emptyMessage}
+        </p>
+      )}
     </section>
   );
 };
 
 MParagraph.defaultProps = {
   separator: '\n',
+  emptyMessage: '',
   className: '',
   lineClasses: '',
 };
@@ -30,6 +37,7 @@ MParagraph.defaultProps = {
 MParagraph.propTypes = {
   text: PropTypes.string.isRequired,
   separator: PropTypes.string,
+  emptyMessage: PropTypes.string,
   className: PropTypes.string,
   lineClasses: PropTypes.string,
 };

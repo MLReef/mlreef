@@ -40,38 +40,49 @@ const UserAccount = (props) => {
               <li className="mr-1">
                 <a href={`/${username}`}>
                   {username}
-                  {' '}
-                  {'>'}
-                  {' '}
                 </a>
+                {' > '}
               </li>
               <li className="mr-1">
-                Settings
-                {' '}
-                {'>'}
-                {' '}
+                {' Settings > '}
               </li>
               <li>Profile</li>
             </ul>
           </div>
         </div>
       </div>
-      <div style={{ margin: '0 15%', height: 'auto' }} className="d-flex web-box pl-0">
-        <div ref={tabs} className="insights-menu">
-          <Link role="button" id="profile-btn" onClick={menuBtnHandler} className="mbtn active" to="/profile">
-            Profile
-          </Link>
+
+      <div className="main-content py-4">
+        <div className="simple-tabs">
+          <div className="simple-tabs-container vertical">
+            <ul ref={tabs} className="simple-tabs-menu vertical no-border">
+              <li className="simple-tabs-menu-tab pills">
+                <Link
+                  role="button"
+                  id="profile-btn"
+                  onClick={menuBtnHandler}
+                  className="simple-tabs-menu-tab-btn active"
+                  to="/profile"
+                >
+                  Profile
+                </Link>
+              </li>
+
+            </ul>
+            <section id="profile-menu" className="simple-tabs-content left-border">
+              <Switch>
+                {routes.map((route, index) => (
+                  <Route
+                    key={index.toString()}
+                    path={route.path}
+                    exact={route.exact}
+                    component={route.main}
+                  />
+                ))}
+              </Switch>
+            </section>
+          </div>
         </div>
-        <Switch>
-          {routes.map((route, index) => (
-            <Route
-              key={index.toString()}
-              path={route.path}
-              exact={route.exact}
-              component={route.main}
-            />
-          ))}
-        </Switch>
       </div>
     </>
   );

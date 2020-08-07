@@ -55,11 +55,13 @@ const RegisterViewRoleForm = (props) => {
       </div>
       <div className="register-view_info">
         <h2 style={{ color: 'var(--warning)' }} className="title-lg">
-          Early Access warning
+          Early Access Disclaimer
         </h2>
         <p className="title-subtitle">
-          Dear early fish! You are about to embark into uncharted waters, full of surprises, challanges and change.
-          Be aware that your data might get lost or that you are persued by the error-shark.
+          Dear {`${username || 'user'}`},
+          MLReef is currently in an alpha stage. Incomplete functions, bugs and even data-loss might happen during this development phase.
+          Please be sure to keep this in mind, especially when using or working with sensitive data or code.
+          We are very happy to recieve your feedback, feature or code improvements!
         </p>
         <p className="title-subtitle">
           If you need help, you can always reach out to us:

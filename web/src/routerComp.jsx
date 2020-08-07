@@ -86,6 +86,10 @@ const RouterComp = () => (
 
       <Route path="/:namespace/:slug/-/experiments" exact component={ExperimentsOverview} />
       <PrivateRoute path="/:namespace/:slug/-/experiments/new" component={PipelinesExecutionView} newExperiment />
+      <Route path="/:namespace/:slug/-/datasets" exact component={DataInstanceOverview} />
+      <PrivateRoute path="/:namespace/:slug/-/datasets/new" component={PipelinesExecutionView} newDataset />
+      <Route path="/:namespace/:slug/-/visualizations" exact component={DataVisualizationOverview} />
+      <PrivateRoute path="/:namespace/:slug/-/visualizations/new" component={PipelinesExecutionView} newVisualization />
       <Route path="/:namespace/:slug/-/branches" component={BranchesView} exact />
       <Route path="/:namespace/:slug/-/branches/new" component={NewBranch} />
       <Route path="/:namespace/:slug/-/merge_requests" component={mergeRequestOverview} exact />

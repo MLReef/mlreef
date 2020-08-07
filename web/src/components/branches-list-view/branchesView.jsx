@@ -214,11 +214,6 @@ class BranchesView extends Component {
                       Merge request
                     </Link>
                     <button
-                      className="btn btn-outline-dark my-auto mr-2"
-                    >
-                      Compare
-                    </button>
-                    <button
                       type="button"
                       className="btn btn-danger btn-icon fa fa-times my-auto"
                       onClick={() => this.toggleModalAndUpdateList(branch.name, false)}
