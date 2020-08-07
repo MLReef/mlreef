@@ -8,6 +8,7 @@ import forkingImage from 'images/forking.png';
 import { OPERATION, ALGORITHM, VISUALIZATION } from 'dataTypes';
 import { toastr } from 'react-redux-toastr';
 import FilesContainer from 'components/FilesContainer';
+import { filterSetsBy } from 'functions/dataParserHelpers';
 import ReadMeComponent from '../ReadMe/ReadMe';
 import ProjectContainer from '../projectContainer';
 import RepoInfo from '../repoInfo';
@@ -178,12 +179,8 @@ class ProjectView extends React.Component {
                   currentBranch={decodedBranch}
                   numberOfContributors={contributors.length}
                   branchesCount={branches.length}
-                  dataInstanesCount={
-                    branches
-                      .filter(
-                        (dInstBranch) => dInstBranch.name.startsWith('data-pipeline'),
-                      ).length
-                  }
+                  visualizationsCount={filterSetsBy(branches)('visualization').length}
+                  dataInstanesCount={filterSetsBy(branches)('pipeline').length}
                 />
                 <ProjectLastCommitSect
                   projectId={gid}
@@ -259,7 +256,7 @@ function mapStateToProps(state) {
     users: state.users,
     user: state.user,
     branches: state.branches,
-    mergeRequests: state.mergeRequests,
+    mergeRequests: state.mergeRequests.list,
     project: state.projects.selectedProject,
   };
 }

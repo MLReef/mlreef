@@ -181,3 +181,14 @@ export const adaptProjectModel = (project) => ({
   commitCount: project?.gitlab?.statistics?.commit_count || 0,
 
 });
+
+/**
+ * Return an array of a specific set type (pipelines, visualizations).
+ *
+ * @param {Array} branches git branches.
+ * @param {String} type type required, currently pipeline and visualization.
+ *
+ * @return {Array}
+ */
+export const filterSetsBy = (branches) => (type) => branches
+  .filter((branch) => branch.name.startsWith(`data-${type}`));

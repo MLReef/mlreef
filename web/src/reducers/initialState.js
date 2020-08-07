@@ -13,7 +13,10 @@ export default {
     algorithms: [],
     visualizations: [],
   },
-  mergeRequests: [],
+  mergeRequests: {
+    list: [],
+    current: {},
+  },
   user: {
     membership: 1,
     id: null,

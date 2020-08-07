@@ -17,6 +17,7 @@ export const SET_USER_PROJECTS = 'SET_USER_PROJECTS';
 
 export const GET_JOBS = 'GET_JOBS';
 export const GET_MERGE_REQUESTS = 'GET_MERGE_REQUESTS';
+export const SET_MERGE_REQUEST = 'SET_MERGE_REQUEST';
 // user, account, profile
 export const SET_USER_INFO = 'SET_USER_INFO';
 export const UPDATE_USER_INFO = 'UPDATE_USER_INFO';

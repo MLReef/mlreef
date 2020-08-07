@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { string, number, shape } from 'prop-types';
+import * as PropTypes from 'prop-types';
 import { PROJECT_TYPES } from 'domain/project/projectTypes';
 
 const RepoInfo = ({
@@ -8,10 +8,13 @@ const RepoInfo = ({
   mergeRequests,
   currentBranch,
   branchesCount,
+  visualizationsCount,
   dataInstanesCount,
 }) => {
   const isDataProject = project.searchableType === PROJECT_TYPES.DATA_PROJ
     || project.searchableType === PROJECT_TYPES.DATA;
+
+  const openedMergeRequests = mergeRequests.filter(({ state }) => state === 'opened');
 
   return (
   <>
@@ -29,14 +32,14 @@ const RepoInfo = ({
       </>
     )}
       <Link to={`/${project.namespace}/${project.slug}/-/merge_requests`} className="repo-stat">
-        <p className="stat-no">{mergeRequests.length}</p>
+        <p className="stat-no">{openedMergeRequests.length}</p>
         <p className="stat-type">Merge requests</p>
       </Link>
 
       {isDataProject ? (
         <>
           <Link className="repo-stat" to={`/my-projects/${project.gitlabId}/visualizations`}>
-            <p className="stat-no" />
+            <p className="stat-no">{visualizationsCount}</p>
             <p className="stat-type">Visualizations</p>
           </Link>
           <Link to={`/${project.namespace}/${project.slug}/-/datasets`} className="repo-stat">
@@ -52,18 +55,28 @@ const RepoInfo = ({
       )}
     </div>
   </>
-)};
+  );
+};
+
+RepoInfo.defaultProps = {
+  mergeRequests: [],
+};
 
 RepoInfo.propTypes = {
-  project: shape({
-    gitlabId: number.isRequired,
-    searchableType: string.isRequired,
-    commitCount: number.isRequired,
-  }),
-  numberOfContributors: number.isRequired,
-  currentBranch: string.isRequired,
-  branchesCount: number.isRequired,
-  dataInstanesCount: number.isRequired,
+  mergeRequests: PropTypes.arrayOf(PropTypes.shape({
+    state: PropTypes.string.isRequired,
+  })),
+  project: PropTypes.shape({
+    gitlabId: PropTypes.number.isRequired,
+    searchableType: PropTypes.string.isRequired,
+    namespace: PropTypes.string.isRequired,
+    slug: PropTypes.string.isRequired,
+    commitCount: PropTypes.number.isRequired,
+  }).isRequired,
+  currentBranch: PropTypes.string.isRequired,
+  branchesCount: PropTypes.number.isRequired,
+  dataInstanesCount: PropTypes.number.isRequired,
+  visualizationsCount: PropTypes.number.isRequired,
 };
 
 export default RepoInfo;
