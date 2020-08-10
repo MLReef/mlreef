@@ -1,10 +1,17 @@
 import React from 'react';
 import { mount } from 'enzyme';
+import { ALGORITHM } from 'dataTypes';
 import ExecutePipeLineModal from '../../../components/views/PipelinesExecutionView/ExecutePipelineModal/ExecutePipeLineModal';
 
 const setup = () => mount(
   <ExecutePipeLineModal
     isShowing
+    processorsSelected={[]}
+    projectNamespace="project-name"
+    projectSlug="project-slug"
+    backendId="88989-08-8809809-898098809089098"
+    branchSelected="master"
+    type={ALGORITHM}
     toggle={() => { }}
     amountFilesSelected={3}
     dataInstanceName="experiment-weird-exp"
