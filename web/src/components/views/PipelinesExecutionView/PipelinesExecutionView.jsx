@@ -100,7 +100,8 @@ class PipelinesExecutionView extends Component {
     const processorsSelected = preconfiguredOperations.dataOperatorsExecuted.map((op) => {
       const filteredProcessor = currentProcessors.filter((cP) => cP.slug === op.slug)[0];
       const newParametersArray = filteredProcessor.parameters.map((param, paramIndex) => ({
-        ...param, value: op.parameters[paramIndex].value,
+        ...param,
+        value: op.parameters[paramIndex] && op.parameters[paramIndex].value,
       }));
       return { ...filteredProcessor, parameters: newParametersArray };
     });
