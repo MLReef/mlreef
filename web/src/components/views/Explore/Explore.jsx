@@ -81,6 +81,7 @@ const Explore = (props) => {
                       namespace={proj.gitlabNamespace}
                       updatedAt={proj.lastActivityat}
                       projects={allProjects}
+                      dataProcessor={proj.dataProcessor}
                       inputDataTypes={proj.inputDataTypes}
                       outputDataTypes={proj.inputDataTypes}
                       users={proj.members}
