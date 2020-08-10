@@ -2,7 +2,6 @@ package com.mlreef.rest.feature.auth
 
 import com.mlreef.rest.Account
 import com.mlreef.rest.AccountRepository
-import com.mlreef.rest.AccountToken
 import com.mlreef.rest.AccountTokenRepository
 import com.mlreef.rest.CodeProject
 import com.mlreef.rest.DataProject
@@ -113,10 +112,9 @@ class AuthService(
         }
 
         val newGitlabUser = createOrFindGitlabUser(username = username, email = email, password = plainPassword)
-        val newGitlabToken = createGitlabToken(newGitlabUser)
+        createGitlabToken(newGitlabUser)
 
         val oauthToken = gitlabRestClient.userLoginOAuthToGitlab(username, plainPassword)
-        val token = newGitlabToken.token
 
         val accountUuid = randomUUID()
 
@@ -144,7 +142,7 @@ class AuthService(
             return gitlabRestClient.getUser(token)
         } else {
             val oauthTokenInfo = gitlabRestClient.userCheckOAuthTokenInGitlab(token)
-            val account = accountRepository.findAccountByGitlabId(oauthTokenInfo.resourceOwnerId)
+            accountRepository.findAccountByGitlabId(oauthTokenInfo.resourceOwnerId)
                 ?: throw UserNotFoundException(gitlabId = oauthTokenInfo.resourceOwnerId)
             return gitlabRestClient.getUser(token)
         }
@@ -284,7 +282,7 @@ class AuthService(
     fun findUserInGitlabAndCreateInternally(permanentToken: String): Account {
         val gitlabUser = findGitlabUserViaToken(permanentToken)
         var person = personRepository.findByName(gitlabUser.username)
-        var accountToken = accountTokenRepository.findOneByToken(permanentToken)
+        val accountToken = accountTokenRepository.findOneByToken(permanentToken)
         var account = accountRepository.findOneByUsername(gitlabUser.username)
             ?: accountRepository.findOneByEmail(gitlabUser.email)
             ?: accountRepository.findAccountByGitlabId(gitlabUser.id)
@@ -297,7 +295,7 @@ class AuthService(
         val accountUuid = randomUUID()
 
         person = Person(id = randomUUID(), slug = gitlabUser.username, name = gitlabUser.username, gitlabId = gitlabUser.id)
-        accountToken = AccountToken(id = randomUUID(), accountId = accountUuid, token = permanentToken, gitlabId = null)
+//        accountToken = AccountToken(id = randomUUID(), accountId = accountUuid, token = permanentToken, gitlabId = null)
         account = Account(
             id = accountUuid,
             username = gitlabUser.username,

@@ -241,7 +241,7 @@ class PipelineServiceTest : AbstractServiceTest() {
             "sourcebranch",
             listOf(), listOf())
 
-        assertThat(createExperiment).isNotNull()
+        assertThat(createExperiment).isNotNull
     }
 
     @Test
@@ -262,7 +262,7 @@ class PipelineServiceTest : AbstractServiceTest() {
             "sourcebranch",
             listOf(), listOf())
 
-        assertThat(createExperiment).isNotNull()
+        assertThat(createExperiment).isNotNull
     }
 
     @Test
@@ -283,7 +283,7 @@ class PipelineServiceTest : AbstractServiceTest() {
             "sourcebranch",
             listOf(), listOf())
 
-        assertThat(createExperiment).isNotNull()
+        assertThat(createExperiment).isNotNull
     }
 
     @Test
@@ -296,7 +296,7 @@ class PipelineServiceTest : AbstractServiceTest() {
             "sourcebranch",
             listOf(), listOf())
 
-        assertThat(createExperiment).isNotNull()
+        assertThat(createExperiment).isNotNull
     }
 
     @Test
@@ -309,7 +309,7 @@ class PipelineServiceTest : AbstractServiceTest() {
             "sourcebranch",
             listOf(), listOf())
 
-        assertThat(createExperiment).isNotNull()
+        assertThat(createExperiment).isNotNull
         assertThat(createExperiment.name).isNotEmpty()
     }
 
@@ -323,7 +323,7 @@ class PipelineServiceTest : AbstractServiceTest() {
             "sourcebranch",
             listOf(), listOf())
 
-        assertThat(createExperiment).isNotNull()
+        assertThat(createExperiment).isNotNull
     }
 
     @Test
@@ -336,7 +336,7 @@ class PipelineServiceTest : AbstractServiceTest() {
             "sourcebranch",
             listOf(), listOf())
 
-        assertThat(createExperiment).isNotNull()
+        assertThat(createExperiment).isNotNull
     }
 
     @Test
@@ -349,14 +349,14 @@ class PipelineServiceTest : AbstractServiceTest() {
             "sourcebranch",
             listOf(), listOf())
 
-        assertThat(createExperiment).isNotNull()
+        assertThat(createExperiment).isNotNull
     }
 
     @Test
     fun `Can create PipelineConfig with DataProcessors`() {
         val pipelineConfig = createFullMockData()
 
-        assertThat(pipelineConfig).isNotNull()
+        assertThat(pipelineConfig).isNotNull
     }
 
     @Test
@@ -365,13 +365,13 @@ class PipelineServiceTest : AbstractServiceTest() {
 
         val createdInstance = pipelineConfig.createInstance(1)
 
-        assertThat(createdInstance).isNotNull()
+        assertThat(createdInstance).isNotNull
         assertThat(createdInstance.status).isEqualTo(PipelineStatus.CREATED)
     }
 
     @Test
     fun `createStartGitlabPipeline works with initial token`() {
-        val pipelineConfig = createFullMockData()
+        createFullMockData()
         val pipelineJobInfo = service.createStartGitlabPipeline(
             userToken = "userToken",
             projectGitlabId = 1,
@@ -379,12 +379,12 @@ class PipelineServiceTest : AbstractServiceTest() {
             targetBranch = "targetBranch",
             fileContent = "fileContent", secret = "secret")
 
-        assertThat(pipelineJobInfo).isNotNull()
+        assertThat(pipelineJobInfo).isNotNull
     }
 
     @Test
     fun `createStartGitlabPipeline works without initial token`() {
-        val pipelineConfig = createFullMockData()
+        createFullMockData()
         mockBotToken(initialTokenReturned = false)
         val pipelineJobInfo = service.createStartGitlabPipeline(
             userToken = "userToken",
@@ -393,7 +393,7 @@ class PipelineServiceTest : AbstractServiceTest() {
             targetBranch = "targetBranch",
             fileContent = "fileContent", secret = "secret")
 
-        assertThat(pipelineJobInfo).isNotNull()
+        assertThat(pipelineJobInfo).isNotNull
     }
 
     @Test
@@ -467,7 +467,7 @@ class PipelineServiceTest : AbstractServiceTest() {
         verify { restClient.createBranch(userToken, projectId, targetBranch, sourceBranch) }
         verify { restClient.commitFiles(userToken, projectId, targetBranch, any(), fileContents, action = "create") }
 
-        assertThat(commit).isNotNull()
+        assertThat(commit).isNotNull
     }
 
     private fun createFullMockData(name: String = "name"): PipelineConfig {

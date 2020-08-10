@@ -20,10 +20,12 @@ class DataProcessorTest : AbstractRepositoryTest() {
     @Autowired
     private lateinit var repository: DataProcessorRepository
 
-    private fun createEntity(): Pair<UUID, DataProcessor> {
+    private fun createEntity(
+        slug: String = "slug"
+    ): Pair<UUID, DataProcessor> {
         val id = randomUUID()
         val codeProjectId = randomUUID()
-        val author = Person(randomUUID(), "slug", "name", 1L)
+        val author = Person(randomUUID(), slug, "name", 1L)
         val entity = DataOperation(
             id = id, slug = "commons-augment", name = "Augment",
             inputDataType = DataType.IMAGE, outputDataType = DataType.IMAGE,
@@ -67,5 +69,14 @@ class DataProcessorTest : AbstractRepositoryTest() {
         repository.delete(saved)
         Assertions.assertThat(saved).isNotNull()
         checkAfterCreated(saved)
+    }
+
+    @Transactional
+    @Test
+    fun `must not save duplicate slug`() {
+        commitAndFail {
+            repository.save(createEntity("slug1").second)
+            repository.save(createEntity("slug2").second)
+        }
     }
 }

@@ -58,7 +58,7 @@ class ProjectTest : AbstractRepositoryTest() {
     fun `saving persists Entry and inputDataTypes collection`() {
         val id = randomUUID()
 
-        val entity = marketplaceEntry(owner = author, id = id, inputDataTypes = setOf(DataType.IMAGE, DataType.VIDEO))
+        val entity = dataProject(owner = author, id = id, inputDataTypes = setOf(DataType.IMAGE, DataType.VIDEO))
 
         repository.save(entity)
         val fromRepo = repository.findByIdOrNull(id)
@@ -77,7 +77,7 @@ class ProjectTest : AbstractRepositoryTest() {
     fun `saving persists Entry and outputDataTypes collection`() {
         val id = randomUUID()
 
-        val entity = marketplaceEntry(id)
+        val entity = dataProject(id)
 
         repository.save(entity)
         val fromRepo = repository.findByIdOrNull(id)
@@ -89,14 +89,18 @@ class ProjectTest : AbstractRepositoryTest() {
         assertThat(fromRepo.outputDataTypes).contains(DataType.ANY)
     }
 
-    private fun marketplaceEntry(
+    private fun dataProject(
         id: UUID,
         tags: Set<SearchableTag> = emptySet(),
         globalSlug: String = "slug",
         searchable: Searchable = EntityMocks.dataProject(),
         owner: Subject = author,
         inputDataTypes: Set<DataType> = setOf(DataType.TABULAR, DataType.ANY),
-        outputDataTypes: Set<DataType> = setOf(DataType.TABULAR, DataType.ANY)
+        outputDataTypes: Set<DataType> = setOf(DataType.TABULAR, DataType.ANY),
+        gitlabId: Long = 2,
+        gitlabNamespace: String = "",
+        slug: String = globalSlug,
+        gitlabPath: String = slug
     ) = DataProject(
         id = id,
         globalSlug = globalSlug,
@@ -106,11 +110,11 @@ class ProjectTest : AbstractRepositoryTest() {
         outputDataTypes = outputDataTypes,
         description = "description",
         tags = tags,
-        gitlabId = 2,
-        gitlabNamespace = "",
+        gitlabId = gitlabId,
+        gitlabNamespace = gitlabNamespace,
         ownerId = owner.id,
-        slug = globalSlug,
-        gitlabPath = globalSlug,
+        slug = slug,
+        gitlabPath = gitlabPath,
         url = "url.com"
     )
 
@@ -124,7 +128,7 @@ class ProjectTest : AbstractRepositoryTest() {
 
         // test
         val id = randomUUID()
-        val entity = marketplaceEntry(id, tags = saveAll.toSet(), owner = author, globalSlug = "slug")
+        val entity = dataProject(id, tags = saveAll.toSet(), owner = author, globalSlug = "slug")
 
         repository.save(entity)
 
@@ -146,7 +150,7 @@ class ProjectTest : AbstractRepositoryTest() {
         val person2 = EntityMocks.person(slug = "slug234")
         personRepository.saveAll(listOf(person1, person2))
 
-        val entity = marketplaceEntry(owner = person1, id = id)
+        val entity = dataProject(owner = person1, id = id)
 
         val adapted = entity
             .addStar(person1)
@@ -169,7 +173,7 @@ class ProjectTest : AbstractRepositoryTest() {
     fun `saving persists Entry and stars after remove`() {
         val id = randomUUID()
 
-        val entity = marketplaceEntry(owner = author, id = id)
+        val entity = dataProject(owner = author, id = id)
 
         val person1 = EntityMocks.person(slug = "slug23")
         val person2 = EntityMocks.person(slug = "slug234")
@@ -208,7 +212,7 @@ class ProjectTest : AbstractRepositoryTest() {
         val id = randomUUID()
         TestTransaction.flagForCommit()
 
-        val entity = marketplaceEntry(owner = author, id = id)
+        val entity = dataProject(owner = author, id = id)
 
         val starId1 = EntityMocks.person()
         val starId2 = EntityMocks.person()
@@ -228,7 +232,7 @@ class ProjectTest : AbstractRepositoryTest() {
     fun `find works`() {
         val id = randomUUID()
 
-        val entity = marketplaceEntry(owner = author, id = id)
+        val entity = dataProject(owner = author, id = id)
 
         assertThat(repository.findByIdOrNull(id)).isNull()
         repository.save(entity)
@@ -239,7 +243,7 @@ class ProjectTest : AbstractRepositoryTest() {
     @Test
     fun `save works`() {
         val id = randomUUID()
-        val entity = marketplaceEntry(owner = author, id = id)
+        val entity = dataProject(owner = author, id = id)
 
         assertThat(repository.findByIdOrNull(id)).isNull()
         val saved = repository.save(entity)
@@ -252,11 +256,55 @@ class ProjectTest : AbstractRepositoryTest() {
     @Test
     fun `delete works`() {
         val id = randomUUID()
-        val entity = marketplaceEntry(owner = author, id = id)
+        val entity = dataProject(owner = author, id = id)
 
         val saved = repository.save(entity)
         repository.delete(saved)
         assertThat(saved).isNotNull()
         checkAfterCreated(saved)
+    }
+
+    @Transactional
+    @Test
+    fun `must not save duplicate globalSlug`() {
+        val entity1 = dataProject(id = randomUUID(), globalSlug = "slug1", gitlabId = 101, gitlabNamespace = "space1")
+        val entity2 = dataProject(id = randomUUID(), globalSlug = "slug1", gitlabId = 102, gitlabNamespace = "space2")
+        repository.save(entity1)
+        commitAndFail {
+            repository.save(entity2)
+        }
+    }
+
+    @Transactional
+    @Test
+    fun `must not save duplicate gitlabId`() {
+        val entity1 = dataProject(id = randomUUID(), globalSlug = "slug1", gitlabId = 100, gitlabNamespace = "space1")
+        val entity2 = dataProject(id = randomUUID(), globalSlug = "slug2", gitlabId = 100, gitlabNamespace = "space2")
+        repository.save(entity1)
+        commitAndFail {
+            repository.save(entity2)
+        }
+    }
+
+    @Transactional
+    @Test
+    fun `must not save duplicate namespacePath`() {
+        val entity1 = dataProject(id = randomUUID(), globalSlug = "slug1", gitlabId = 100, slug = "slug1", gitlabPath = "path", gitlabNamespace = "space1")
+        val entity2 = dataProject(id = randomUUID(), globalSlug = "slug2", gitlabId = 101, slug = "slug2", gitlabPath = "path", gitlabNamespace = "space1")
+        repository.save(entity1)
+        commitAndFail {
+            repository.save(entity2)
+        }
+    }
+
+    @Transactional
+    @Test
+    fun `must not save duplicate slug for same owner`() {
+        val entity1 = dataProject(id = randomUUID(), globalSlug = "slug1", slug = "slug", gitlabId = 100, gitlabNamespace = "space1")
+        val entity2 = dataProject(id = randomUUID(), globalSlug = "slug2", slug = "slug", gitlabId = 101, gitlabNamespace = "space2")
+        repository.save(entity1)
+        commitAndFail {
+            repository.save(entity2)
+        }
     }
 }

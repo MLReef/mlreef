@@ -5,7 +5,6 @@ import com.mlreef.rest.Account
 import com.mlreef.rest.AccountRepository
 import com.mlreef.rest.Person
 import com.mlreef.rest.PersonRepository
-import com.mlreef.rest.exceptions.MissingAccessTokenForUser
 import com.mlreef.rest.exceptions.UserNotFoundException
 import com.mlreef.rest.external_api.gitlab.TokenDetails
 import org.springframework.data.repository.findByIdOrNull
@@ -59,7 +58,7 @@ class SimpleCurrentUserService(
 
     override fun accessToken(): String {
         val tokenDetails: TokenDetails = authentication().principal as TokenDetails
-        return tokenDetails.accessToken ?: throw MissingAccessTokenForUser(tokenDetails.accountId)
+        return tokenDetails.accessToken
     }
 
     override fun accessTokenOrNull(): String? {

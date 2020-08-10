@@ -45,7 +45,6 @@ class Account(
         passwordEncrypted: String? = null,
         person: Person? = null,
         tokens: MutableList<AccountToken>? = null,
-        gitlabId: Long? = null,
         lastLogin: ZonedDateTime? = null
     ): Account = Account(
         id = this.id,
@@ -53,7 +52,6 @@ class Account(
         email = email ?: this.email,
         passwordEncrypted = passwordEncrypted ?: this.passwordEncrypted,
         person = person ?: this.person,
-        gitlabId = gitlabId ?: this.gitlabId,
         lastLogin = lastLogin ?: this.lastLogin,
         version = this.version,
         createdAt = this.createdAt,
@@ -71,7 +69,6 @@ class Account(
         email = this.email,
         passwordEncrypted = this.passwordEncrypted,
         person = this.person,
-        gitlabId = this.gitlabId,
         lastLogin = this.lastLogin,
         version = this.version,
         createdAt = this.createdAt,

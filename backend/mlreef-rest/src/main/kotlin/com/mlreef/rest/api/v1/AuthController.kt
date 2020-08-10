@@ -6,7 +6,6 @@ import com.mlreef.rest.api.v1.dto.SecretUserDto
 import com.mlreef.rest.api.v1.dto.UserDto
 import com.mlreef.rest.api.v1.dto.toSecretUserDto
 import com.mlreef.rest.api.v1.dto.toUserDto
-import com.mlreef.rest.exceptions.GitlabNoValidTokenException
 import com.mlreef.rest.external_api.gitlab.TokenDetails
 import com.mlreef.rest.external_api.gitlab.dto.OAuthToken
 import com.mlreef.rest.external_api.gitlab.dto.toUserDto
@@ -59,10 +58,9 @@ class AuthController(
 
     // FIXME: Coverage says: missing tests
     @GetMapping("/check/token")
-    fun checkToken(account: Account, token: TokenDetails): UserDto =
-        token.accessToken
-            ?.let { authService.checkUserInGitlab(token = it).toUserDto(account.id) }
-            ?: throw GitlabNoValidTokenException("No valid token for user")
+    fun checkToken(account: Account, token: TokenDetails): UserDto {
+        return authService.checkUserInGitlab(token = token.accessToken).toUserDto(account.id)
+    }
 }
 
 data class LoginRequest(

@@ -4,8 +4,9 @@ logging:
     com.mlreef.rest: DEBUG
     org.springframework.security: INFO
     org.springframework.orm: DEBUG
-    org.hibernate: DEBUG
-
+    org.hibernate: INFO
+  pattern:
+    console: '%d{yyyy-MM-dd HH:mm:ss.SSS} %highlight(%-5level) %boldGreen([%thread]) %cyan(%logger{85}.%M [%line]) - %msg%n%throwable'
 spring:
   devtools:
     add-properties: false

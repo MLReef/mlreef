@@ -57,7 +57,7 @@ class AuthApiTest : AbstractRestApiTest() {
         val randomUserName = RandomUtils.generateRandomUserName(10)
         val randomPassword = RandomUtils.generateRandomPassword(30, true)
         val email = "$randomUserName@example.com"
-        val registerRequest = RegisterRequest(randomUserName, email, randomPassword, "name")
+        val registerRequest = RegisterRequest(randomUserName, email, randomPassword, "absolute-new-name")
 
         val url = "$authUrl/register"
 
@@ -79,7 +79,7 @@ class AuthApiTest : AbstractRestApiTest() {
     @Tag(TestTags.RESTDOC)
     fun `Cannot register with existing user`() {
         val existingUser = createMockUser()
-        val registerRequest = RegisterRequest(existingUser.username, existingUser.email, "any other password", "name")
+        val registerRequest = RegisterRequest(existingUser.username, existingUser.email, "any other password", "another-new-name")
 
         val url = "$authUrl/register"
 

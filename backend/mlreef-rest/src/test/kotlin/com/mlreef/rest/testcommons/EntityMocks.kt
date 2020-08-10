@@ -21,7 +21,7 @@ class EntityMocks {
         val codeProject = codeProject()
         var lastGitlabId = 10L
 
-        fun person(id: UUID = randomUUID(), slug: String = "slug" + randomUUID()) = Person(id, slug, "name", lastGitlabId++)
+        fun person(id: UUID = randomUUID(), slug: String = "slug" + randomUUID()) = Person(id, slug, slug, lastGitlabId++)
 
         fun dataOperation(codeProject: CodeProject = this.codeProject, author: Subject = person(id = authorId), slug: String = "commons-augment") = DataOperation(
             id = randomUUID(), slug = slug, name = "Operations",
@@ -46,8 +46,8 @@ class EntityMocks {
 
         fun dataProject(ownerId: UUID = authorId, slug: String = "test-data-project", visibilityScope: VisibilityScope? = null, id: UUID = randomUUID()) = DataProject(
             id = id, slug = slug, name = "CodeProject Augment", ownerId = ownerId,
-            url = "https://gitlab.com/mlreef/sign-language-classifier", description = "",
-            gitlabPath = "sign-language-classifier", gitlabNamespace = "mlreef", gitlabId = lastGitlabId++,
+            url = "https://gitlab.com/mlreef/$slug", description = "",
+            gitlabPath = slug, gitlabNamespace = "mlreef", gitlabId = lastGitlabId++,
             visibilityScope = visibilityScope ?: VisibilityScope.default())
 
         fun codeProject(
@@ -57,8 +57,8 @@ class EntityMocks {
             name: String = "CodeProject Augment"
         ) = CodeProject(
             id = id, slug = slug, name = name, ownerId = ownerId,
-            url = "https://gitlab.com/mlreef/sign-language-classifier", description = "",
-            gitlabPath = "sign-language-classifier", gitlabNamespace = "mlreef", gitlabId = lastGitlabId++)
+            url = "https://gitlab.com/mlreef/$slug", description = "",
+            gitlabPath = slug, gitlabNamespace = "mlreef", gitlabId = lastGitlabId++)
 
         fun searchableTag(
             name: String,

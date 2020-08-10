@@ -36,6 +36,7 @@ interface SubjectRepository : KtCrudRepository<Subject, UUID>
 
 @Repository
 interface PersonRepository : KtCrudRepository<Person, UUID> {
+    //FIXME dangerous!! Multiple names should be ok!
     fun findByName(name: String): Person?
 }
 

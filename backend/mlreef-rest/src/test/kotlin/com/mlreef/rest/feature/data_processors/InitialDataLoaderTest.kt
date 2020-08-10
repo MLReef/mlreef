@@ -1,16 +1,21 @@
 package com.mlreef.rest.feature.data_processors
 
+import com.mlreef.rest.CodeProject
 import com.mlreef.rest.CodeProjectRepository
 import com.mlreef.rest.DataProcessorRepository
 import com.mlreef.rest.Person
 import com.mlreef.rest.PersonRepository
-import com.mlreef.rest.ProcessorParameterRepository
 import com.mlreef.rest.ProcessorVersionRepository
 import com.mlreef.rest.SearchableTagRepository
 import com.mlreef.rest.external_api.gitlab.GitlabRestClient
+import com.mlreef.rest.external_api.gitlab.GitlabVisibility
+import com.mlreef.rest.external_api.gitlab.dto.GitlabProject
+import com.mlreef.rest.external_api.gitlab.dto.GitlabUser
 import com.mlreef.rest.persistence.AbstractRepositoryTest
 import com.mlreef.rest.utils.RandomUtils
 import com.ninjasquad.springmockk.MockkBean
+import io.mockk.every
+import io.mockk.slot
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Disabled
@@ -40,8 +45,6 @@ class InitialDataLoaderTest : AbstractRepositoryTest() {
     @Autowired
     private lateinit var processorVersionRepository: ProcessorVersionRepository
 
-    @Autowired
-    private lateinit var processorParameterRepository: ProcessorParameterRepository
 
     @Autowired
     private lateinit var searchableTagRepository: SearchableTagRepository
@@ -61,6 +64,33 @@ class InitialDataLoaderTest : AbstractRepositoryTest() {
         token = "token"
         initialDataLoader = InitialDataLoader()
 
+        val slugSlot = slot<String>()
+        val projectNameSlot = slot<String>()
+        val visibilitySlot = slot<String>()
+        var gitlabId_projects = 0L
+        every {
+            restClient.createProject(
+                token = any(),
+                slug = capture(slugSlot),
+                name = capture(projectNameSlot),
+                defaultBranch = any(),
+                nameSpaceId = any(),
+                description = any(),
+                visibility = capture(visibilitySlot),
+                initializeWithReadme = any()
+            )
+        } answers {
+            GitlabProject(
+                gitlabId_projects++,
+                projectNameSlot.captured,
+                "test-name-withnamespace$gitlabId_projects",
+                slugSlot.captured,
+                "tes-path-with-namespace$gitlabId_projects",
+                GitlabUser(1L, "testusername", "testuser"),
+                1L,
+                visibility = GitlabVisibility.valueOf(visibilitySlot.captured.toUpperCase())
+            )
+        }
     }
 
     @Transactional
@@ -101,7 +131,8 @@ class InitialDataLoaderTest : AbstractRepositoryTest() {
     fun `initialDataLoader produces saveable codeProjects`() {
         val buildContext = initialDataLoader.prepare(author, token)
         val codeProjectsBuilders = buildContext.codeProjects
-        val codeProjects = codeProjectsBuilders.map { it.build() }
+        var mockGitlabId = 0L
+        val codeProjects = codeProjectsBuilders.map { it.build().copy<CodeProject>(gitlabId = mockGitlabId++) }
         codeProjectRepository.saveAll(codeProjects)
     }
 
@@ -121,7 +152,8 @@ class InitialDataLoaderTest : AbstractRepositoryTest() {
         val codeProjectsBuilders = buildContext.codeProjects
         val processorBuilders = buildContext.processors
 
-        val codeProjects = codeProjectsBuilders.map { it.build() }
+        var mockGitlabId = 0L
+        val codeProjects = codeProjectsBuilders.map { it.build().copy<CodeProject>(gitlabId = mockGitlabId++) }
         val processors = processorBuilders.map { it.buildProcessor() }
         codeProjectRepository.saveAll(codeProjects)
         dataProcessorRepository.saveAll(processors)
@@ -133,8 +165,9 @@ class InitialDataLoaderTest : AbstractRepositoryTest() {
         val buildContext = initialDataLoader.prepare(author, token)
         val codeProjectsBuilders = buildContext.codeProjects
         val processorBuilders = buildContext.processors
-        val codeProjects = codeProjectsBuilders.map { it.build() }
-        val processors = processorBuilders.map { it.buildProcessor() }
+        var mockGitlabId = 0L
+        val codeProjects = codeProjectsBuilders.map { it.build().copy<CodeProject>(gitlabId = mockGitlabId++) }
+        processorBuilders.map { it.buildProcessor() }
         val versions = processorBuilders.map { it.buildVersion(it.buildProcessor()) }
         codeProjectRepository.saveAll(codeProjects)
         dataProcessorRepository.saveAll(versions.map { it.dataProcessor })
@@ -148,7 +181,8 @@ class InitialDataLoaderTest : AbstractRepositoryTest() {
         val buildContext = initialDataLoader.prepare(author, token)
         val codeProjectsBuilders = buildContext.codeProjects
         val processorBuilders = buildContext.processors
-        val codeProjects = codeProjectsBuilders.map { it.build() }
+        var mockGitlabId = 0L
+        val codeProjects = codeProjectsBuilders.map { it.build().copy<CodeProject>(gitlabId = mockGitlabId++) }
         codeProjectRepository.saveAll(codeProjects)
 
         val processors = processorBuilders.map { it.buildProcessor() }
@@ -162,7 +196,8 @@ class InitialDataLoaderTest : AbstractRepositoryTest() {
         val buildContext = initialDataLoader.prepare(author, token)
         val codeProjectsBuilders = buildContext.codeProjects
         val processorBuilders = buildContext.processors
-        val codeProjects = codeProjectsBuilders.map { it.build() }
+        var mockGitlabId = 0L
+        val codeProjects = codeProjectsBuilders.map { it.build().copy<CodeProject>(gitlabId = mockGitlabId++) }
         val processors = processorBuilders.map { it.buildProcessor() }
         codeProjectRepository.saveAll(codeProjects)
         dataProcessorRepository.saveAll(processors)
@@ -177,7 +212,8 @@ class InitialDataLoaderTest : AbstractRepositoryTest() {
         val buildContext = initialDataLoader.prepare(author, token)
         val codeProjectsBuilders = buildContext.codeProjects
         val processorBuilders = buildContext.processors
-        val codeProjects = codeProjectsBuilders.map { it.build() }
+        var mockGitlabId = 0L
+        val codeProjects = codeProjectsBuilders.map { it.build().copy<CodeProject>(gitlabId = mockGitlabId++) }
         val processors = processorBuilders.map { it.buildProcessor() }
         codeProjectRepository.saveAll(codeProjects)
         dataProcessorRepository.saveAll(processors)
@@ -187,14 +223,15 @@ class InitialDataLoaderTest : AbstractRepositoryTest() {
         checkState()
     }
 
-    @Disabled
     @Transactional
     @Test
+    @Disabled
     fun `initialDataLoader merge-saves existing versions`() {
         val buildContext = initialDataLoader.prepare(author, token)
         val codeProjectsBuilders = buildContext.codeProjects
         val processorBuilders = buildContext.processors
-        val codeProjects = codeProjectsBuilders.map { it.build() }
+        var mockGitlabId = 0L
+        val codeProjects = codeProjectsBuilders.map { it.build().copy<CodeProject>(gitlabId = mockGitlabId++) }
         val versions = processorBuilders.map { it.buildVersion(it.buildProcessor()) }
         val processors = versions.map { it.dataProcessor }
 
@@ -221,9 +258,10 @@ class InitialDataLoaderTest : AbstractRepositoryTest() {
         val buildContext = initialDataLoader.prepare(author, token)
         val codeProjectsBuilders = buildContext.codeProjects
         val processorBuilders = buildContext.processors
-        val codeProjects = codeProjectsBuilders.map { it.build() }
+        var mockGitlabId = 0L
+        codeProjectsBuilders.map { it.build().copy<CodeProject>(gitlabId = mockGitlabId++) }
         val versions = processorBuilders.map { it.buildVersion(it.buildProcessor()) }
-        val processors = versions.map { it.dataProcessor }
+        versions.map { it.dataProcessor }
 
         buildContext.mergeSaveEverything(restClient, codeProjectRepository, dataProcessorRepository, processorVersionRepository)
         checkState()
@@ -235,7 +273,8 @@ class InitialDataLoaderTest : AbstractRepositoryTest() {
         val buildContext = initialDataLoader.prepare(author, token)
         val codeProjectsBuilders = buildContext.codeProjects
         val processorBuilders = buildContext.processors
-        val codeProjects = codeProjectsBuilders.map { it.build() }
+        var mockGitlabId = 0L
+        val codeProjects = codeProjectsBuilders.map { it.build().copy<CodeProject>(gitlabId = mockGitlabId++) }
         val versions = processorBuilders.map { it.buildVersion(it.buildProcessor()) }
         val processors = versions.map { it.dataProcessor }
 
@@ -261,7 +300,8 @@ class InitialDataLoaderTest : AbstractRepositoryTest() {
         val buildContext = initialDataLoader.prepare(author, token)
         val codeProjectsBuilders = buildContext.codeProjects
         val processorBuilders = buildContext.processors
-        val codeProjects = codeProjectsBuilders.map { it.build() }
+        var mockGitlabId = 0L
+        codeProjectsBuilders.map { it.build().copy<CodeProject>(gitlabId = mockGitlabId++) }
         val versions = processorBuilders.map { it.buildVersion(it.buildProcessor()) }
         val processors = versions.map { it.dataProcessor }
 

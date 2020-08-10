@@ -816,7 +816,6 @@ class InitialDataLoader {
                 id = dummy_projectId
                 slug = "code-project-dummy"
                 name = "Dummy debug_dataprocessor"
-                gitlabId = 11
                 gitlabNamespace = "mlreef"
                 gitlabPath = "code-project-dummy"
                 inputDataTypes = hashSetOf(DataType.IMAGE)

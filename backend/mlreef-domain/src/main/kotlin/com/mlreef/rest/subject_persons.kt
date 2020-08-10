@@ -58,7 +58,7 @@ class Person(
     override val slug: String,
     override val name: String,
     override val gitlabId: Long?,
-    @OneToMany(fetch = FetchType.EAGER, cascade = [CascadeType.REMOVE])
+    @OneToMany(fetch = FetchType.EAGER, cascade = [CascadeType.ALL])
     @JoinColumn(
         name = "person_id",
         foreignKey = ForeignKey(name = "membership_person_person_id_fkey")

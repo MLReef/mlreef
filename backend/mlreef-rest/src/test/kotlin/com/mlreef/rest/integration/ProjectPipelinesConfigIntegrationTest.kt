@@ -59,14 +59,15 @@ class ProjectPipelinesConfigIntegrationTest : AbstractIntegrationTest() {
     @Transactional
     fun clearRepo() {
         testsHelper.cleanProcessorsInDatabase()
+//        testsHelper.cleanUsers()
     }
 
     @Transactional
     @Rollback
     @Test
     fun `Can retrieve all Pipelines of own DataProject`() {
-        val (account1, token1, _) = testsHelper.createRealUser()
-        val (account2, token2, _) = testsHelper.createRealUser(index = 1)
+        val (account1, token1, _) = testsHelper.createRealUser(index = -1)
+        val (account2, token2, _) = testsHelper.createRealUser(index = -1)
         val (project1, _) = testsHelper.createRealDataProject(token1, account1)
         val (project2, _) = testsHelper.createRealDataProject(token2, account2)
 
@@ -90,7 +91,7 @@ class ProjectPipelinesConfigIntegrationTest : AbstractIntegrationTest() {
     @Rollback
     @Test
     fun `Can create new PipelineConfig`() {
-        val (account, token, _) = testsHelper.createRealUser()
+        val (account, token, _) = testsHelper.createRealUser(index = -1)
         val (project, _) = testsHelper.createRealDataProject(token, account)
 
         val request = PipelineConfigCreateRequest(
@@ -126,7 +127,7 @@ class ProjectPipelinesConfigIntegrationTest : AbstractIntegrationTest() {
     @Rollback
     @Test
     fun `Can create new PipelineConfig via create-start-instance`() {
-        val (account, token, _) = testsHelper.createRealUser(userName = "project", password = "password")
+        val (account, token, _) = testsHelper.createRealUser(userName = "project", password = "password", index = -1)
         val (project, _) = testsHelper.createRealDataProject(token, account)
 
         val request = PipelineConfigCreateRequest(
@@ -211,8 +212,8 @@ class ProjectPipelinesConfigIntegrationTest : AbstractIntegrationTest() {
     @Rollback
     @Test
     fun `Cannot create new PipelineConfig in not-own DataProject`() {
-        val (account1, token1, _) = testsHelper.createRealUser()
-        val (account2, token2, _) = testsHelper.createRealUser(index = 1)
+        val (account1, token1, _) = testsHelper.createRealUser(index = -1)
+        val (account2, token2, _) = testsHelper.createRealUser(index = -1)
         val (_, _) = testsHelper.createRealDataProject(token1, account1)
         val (project2, _) = testsHelper.createRealDataProject(token2, account2)
 
@@ -263,8 +264,8 @@ class ProjectPipelinesConfigIntegrationTest : AbstractIntegrationTest() {
     @Rollback
     @Test
     fun `Can retrieve PipelineConfigs of foreign public DataProject`() {
-        val (account1, token1, _) = testsHelper.createRealUser()
-        val (account2, token2, _) = testsHelper.createRealUser(index = 1)
+        val (account1, token1, _) = testsHelper.createRealUser(index = -1)
+        val (account2, token2, _) = testsHelper.createRealUser(index = -1)
         val (_, _) = testsHelper.createRealDataProject(token1, account1)
         val (project2, _) = testsHelper.createRealDataProject(token2, account2, public = true)
 
@@ -281,8 +282,8 @@ class ProjectPipelinesConfigIntegrationTest : AbstractIntegrationTest() {
     @Rollback
     @Test
     fun `Can retrieve PipelineConfigs of not-own not public but member of DataProject`() {
-        val (account1, token1, _) = testsHelper.createRealUser()
-        val (account2, token2, _) = testsHelper.createRealUser(index = 1)
+        val (account1, token1, _) = testsHelper.createRealUser(index = -1)
+        val (account2, token2, _) = testsHelper.createRealUser(index = -1)
 
         val (project, _) = testsHelper.createRealDataProject(token2, account2, public = false)
 
@@ -291,18 +292,16 @@ class ProjectPipelinesConfigIntegrationTest : AbstractIntegrationTest() {
         val dataProcessorInstance = createDataProcessorInstance(owner = account2.person)
         val entity2 = createPipelineConfig(dataProcessorInstance, project.id, "slug")
 
-        this.mockMvc.perform(
-            this.acceptContentAuth(get("$rootUrl/${project.id}/pipelines/${entity2.id}"), token1))
-            .andExpect(status().isOk)
-
+        this.performGet("$rootUrl/${project.id}/pipelines/${entity2.id}", token1)
+            .expectOk()
     }
 
     @Transactional
     @Rollback
     @Test
     fun `Cannot retrieve PipelineConfigs of foreign not public DataProject`() {
-        val (account1, token1, _) = testsHelper.createRealUser()
-        val (account2, token2, _) = testsHelper.createRealUser(index = 1)
+        val (account1, token1, _) = testsHelper.createRealUser(index = -1)
+        val (account2, token2, _) = testsHelper.createRealUser(index = -1)
         val (_, _) = testsHelper.createRealDataProject(token1, account1)
         val (project2, _) = testsHelper.createRealDataProject(token2, account2, public = false)
 
