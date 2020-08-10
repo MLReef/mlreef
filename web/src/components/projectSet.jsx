@@ -49,6 +49,7 @@ class ProjectSet extends Component {
             namespace={proj.gitlabNamespace}
             updatedAt={proj.lastActivityat}
             projects={allProjects}
+            dataProcessor={proj.dataProcessor}
             inputDataTypes={proj.inputDataTypes}
             outputDataTypes={proj.inputDataTypes}
             handleShowModal={handleShowModal}
