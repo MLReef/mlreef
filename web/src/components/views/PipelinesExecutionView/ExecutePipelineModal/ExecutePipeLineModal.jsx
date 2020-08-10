@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import MProgressBar from 'components/ui/MProgressBar';
-import { arrayOf, shape } from 'prop-types';
+import { arrayOf, shape, string, bool, func } from 'prop-types';
 import { Link } from 'react-router-dom';
 import './executePipeLineModal.scss';
 import MSelect from 'components/ui/MSelect';
@@ -17,6 +17,27 @@ const fakeMachinesToShow = [
     value: 2,
   },
 ];
+
+const operationsMetaData = {
+  ALGORITHM: {
+    commandName: 'experiment',
+    jobName: 'model-experiment',
+    decription: 'experiment',
+    prettyName: 'Experiment',
+  },
+  OPERATION: {
+    commandName: 'data-pipeline',
+    jobName: 'data-pipeline',
+    decription: 'set of dataset',
+    prettyName: 'Data set',
+  },
+  VISUALIZATION: {
+    commandName: 'data-visualization',
+    jobName: 'data-pipeline',
+    decription: 'data visualization',
+    prettyName: 'Data Visualization',
+  },
+};
 
 const ExecutePipelineModal = ({
   type,
@@ -35,21 +56,12 @@ const ExecutePipelineModal = ({
   const [selectMachinesMess, setSelectMachinesMess] = useState(null);
   const [tuningMethod, setTuningMethod] = useState(null);
   const uniqueName = randomNameGenerator();
-  let operationType = 'data-pipeline';
-  let jobName = operationType;
-  if (type === ALGORITHM) {
-    operationType = 'experiment';
-    jobName = 'model-experiment';
-  } else if (type === OPERATION) {
-    operationType = 'data-pipeline';
-  } else {
-    operationType = 'data-visualization';
-    jobName = operationType;
-  }
+  const {
+    jobName, commandName, decription: operationDescription, prettyName,
+  } = operationsMetaData[type];
   const pipelineType = type === OPERATION ? 'DATA' : 'VISUALISATION';
-  const branchName = `${operationType}/${uniqueName}`;
-  const dataInstanceName = `${operationType}/${uniqueName}`;
-  const isADataVisualizationPipe = dataInstanceName.includes('data-visualization');
+  const branchName = `${commandName}/${uniqueName}`;
+  const generatedOperationName = `${commandName}/${uniqueName}`;
   function cleanForm() {
     setIsFirstOptSelected(false);
     setIsSecondOptSelected(false);
@@ -93,9 +105,9 @@ const ExecutePipelineModal = ({
           <div>
             {section === 1
               ? 'Select output method for your'
-                  + `${isADataVisualizationPipe ? ' data visualization ' : ' set of data instances '}`
-                  + `with ${filesSelectedInModal.length} data files selected`
-              : 'Your new set of data intances is being created'}
+                  + ` ${operationDescription} `
+                  + `with ${filesSelectedInModal.length} data file(s) selected`
+              : 'Your new set of data sets is being created'}
           </div>
         </div>
         <div className="modal-content">
@@ -117,7 +129,7 @@ const ExecutePipelineModal = ({
               >
                 <input type="radio" checked={isFirstOptSelected} id="show-first-opt" onChange={() => {}} />
                 <p style={{ marginLeft: '1em' }} id="paragraph-op1">
-                  {`Create a new ${isADataVisualizationPipe ? 'data visualization ' : ' set of data instances '} in your data repository`}
+                  {`Create a new ${operationDescription} in your data repository`}
                 </p>
               </div>
 
@@ -152,7 +164,9 @@ const ExecutePipelineModal = ({
                 style={{
                   display: 'flex', alignItems: 'center', cursor: 'pointer', marginTop: 0,
                 }}
-                onClick={() => {
+               /*  
+               ---- Requested to be disabled ---
+               onClick={() => {
                   const secondOptExecModal = document.getElementById('second-option-execution-modal');
                   if (secondOptExecModal) {
                     secondOptExecModal.style.marginTop = '0';
@@ -164,12 +178,11 @@ const ExecutePipelineModal = ({
                     po1.style.fontWeight = 100;
                     document.getElementById('paragraph-op2').style.fontWeight = 700;
                   }
-                }}
+                }} */
               >
-                <input type="radio" checked={isSecondOptSelected} onChange={() => {}} />
+                <input type="radio" disabled checked={isSecondOptSelected} onChange={() => {}} />
                 <p style={{ marginLeft: '1em' }} id="paragraph-op2">
-                  Launch Jupyter notebook on your web browser to execute the
-                  pipeline locally on your machine
+                  Soon available: Download your pipeline and execute it locally using docker
                 </p>
               </div>
             </div>
@@ -178,8 +191,7 @@ const ExecutePipelineModal = ({
           {section === 2 && (
           <div className="execute-pipeline-modal-section2">
             <p>
-              {isADataVisualizationPipe ? 'Data visualization: ' : 'Data instance: '}
-              <b>{dataInstanceName}</b>
+              {`${prettyName}: ${generatedOperationName}`}
             </p>
             <div className="execute-pipeline-modal-section2-status mt-4">
               <MProgressBar color="info" />
@@ -190,13 +202,11 @@ const ExecutePipelineModal = ({
                 <b> “Insights/Jobs”</b>
               </p>
               <p className="t-center">
-                or jump directly to your newly created instance
-                <b> data_instance_name.</b>
+                {`or jump directly to your newly created instance ${generatedOperationName}`}
               </p>
             </div>
           </div>
           )}
-
         </div>
         <div className="modal-actions">
           <div className="row w-100 mx-4 mb-3">
@@ -239,10 +249,19 @@ const ExecutePipelineModal = ({
 
 ExecutePipelineModal.propTypes = {
   filesSelectedInModal: arrayOf(shape({})),
+  type: string.isRequired,
+  isShowing: bool.isRequired,
+  toggle: func.isRequired,
+  processorsSelected: arrayOf(shape({})).isRequired,
+  projectNamespace: string.isRequired,
+  projectSlug: string.isRequired,
+  backendId: string.isRequired,
+  branchSelected: string,
 };
 
 ExecutePipelineModal.defaultProps = {
   filesSelectedInModal: [],
+  branchSelected: 'master',
 };
 
 export default ExecutePipelineModal;
