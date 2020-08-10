@@ -15,12 +15,16 @@ const MProjectCard = (props) => {
     namespace,
     inputDataTypes,
     outputDataTypes,
+    dataProcessor,
     users,
   } = props;
 
   const history = useHistory();
 
   const goToProjectView = () => history.push(`/${namespace}/${slug}`);
+
+  const hasOutputTypes = !['ALGORITHM', 'VISUALIZATION']
+    .some((t) => dataProcessor?.type === t);
 
   return (
     <div className="card">
@@ -44,7 +48,9 @@ const MProjectCard = (props) => {
 
         <div className="card-content">
           <MProjectCardTypes input types={inputDataTypes} />
-          <MProjectCardTypes output types={outputDataTypes} />
+          {hasOutputTypes && (
+            <MProjectCardTypes output types={outputDataTypes} />
+          )}
 
           {!description ? (
             <div className="d-flex noelement-found-div" style={{ marginTop: '1rem' }}>
@@ -101,6 +107,7 @@ MProjectCard.defaultProps = {
   users: [],
   inputDataTypes: [],
   outputDataTypes: [],
+  dataProcessor: {},
 };
 
 MProjectCard.propTypes = {
@@ -117,6 +124,9 @@ MProjectCard.propTypes = {
   })),
   inputDataTypes: PropTypes.arrayOf(PropTypes.string),
   outputDataTypes: PropTypes.arrayOf(PropTypes.string),
+  dataProcessor: PropTypes.shape({
+    type: PropTypes.string,
+  }),
 };
 
 export default MProjectCard;
