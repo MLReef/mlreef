@@ -504,7 +504,6 @@ class MarketplaceServiceTest : AbstractRepositoryTest() {
 
     @Transactional
     @Test
-    @Disabled
     fun `filter DATA_PROJECT for outputDataTypes`() {
         val (_, _, _, entry4) = mockMarkeplaceEntries(ProjectType.DATA_PROJECT)
         val performSearch = service.performSearch(page(), FilterRequest(

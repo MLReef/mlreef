@@ -42,7 +42,6 @@ class GroupsController(
         return groupsService.getUserGroupsList(token.accessToken, person.id).map(GroupOfUser::toDto)
     }
 
-    // FIXME: Coverage says: missing tests
     @PostMapping
     @PreAuthorize("canCreateGroup()")
     fun createGroup(@Valid @RequestBody groupCreateRequest: GroupCreateRequest, token: TokenDetails): GroupDto {

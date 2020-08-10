@@ -14,7 +14,6 @@ import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
 import java.util.Arrays
-import java.util.UUID
 import java.util.UUID.fromString
 
 @Profile(value = [ApplicationProfiles.DEV, ApplicationProfiles.DOCKER])
@@ -57,12 +56,12 @@ internal class DataPopulator(
     val username = "mlreef"
     val email = "mlreef@example.org"
     val encryptedPassword = "$2a$10\$YYeURJweLZlrCHKyitID6ewdQlyK4rWwRTutvtcRMgvU8DMy6rab."
-    val subjectId = UUID.fromString("aaaa0000-0001-0000-0000-cccccccccccc")
-    val accountId = UUID.fromString("aaaa0000-0002-0000-0000-aaaaaaaaaaaa")
-    val accountTokenId = UUID.fromString("aaaa0000-0003-0000-0000-adadadadadad")
+    val subjectId = fromString("aaaa0000-0001-0000-0000-cccccccccccc")
+    val accountId = fromString("aaaa0000-0002-0000-0000-aaaaaaaaaaaa")
+    val accountTokenId = fromString("aaaa0000-0003-0000-0000-adadadadadad")
 
-    val dataProjectId = UUID.fromString("5d005488-afb6-4a0c-852a-f471153a04b5")
-    val experimentId = UUID.fromString("77481b71-8d40-4a48-9117-8d0c5129d6ec")
+    val dataProjectId = fromString("5d005488-afb6-4a0c-852a-f471153a04b5")
+    val experimentId = fromString("77481b71-8d40-4a48-9117-8d0c5129d6ec")
 
 
     val log = LoggerFactory.getLogger(this::class.java)
@@ -91,7 +90,6 @@ internal class DataPopulator(
 
             val augment = processorVersionRepository.findByIdOrNull(fromString("1000000-0000-0001-0002-000000000000"))
                 ?: throw IllegalStateException("Operation augment does not exist!")
-            val augment2 = dataProcessorRepository.findByIdOrNull(fromString("1000000-0000-0001-0002-000000000000"))
             val augment_param1 = processorParameterRepository.findByIdOrNull(fromString("1000000-0000-0001-0011-000000000000"))
                 ?: throw IllegalStateException("Operation augment does not have param 1!")
 
@@ -100,7 +98,6 @@ internal class DataPopulator(
 
             val randomCrop = processorVersionRepository.findByIdOrNull(fromString("1000000-0000-0002-0002-000000000000"))
                 ?: throw IllegalStateException("Operation randomCrop does not exist!")
-            val randomCrop2 = dataProcessorRepository.findByIdOrNull(fromString("1000000-0000-0001-0002-000000000000"))
             val randomCrop_param1 = processorParameterRepository.findByIdOrNull(fromString("1000000-0000-0002-0011-000000000000"))
                 ?: throw IllegalStateException("Operation randomCrop does not have param 1!")
 
@@ -138,11 +135,11 @@ internal class DataPopulator(
     @Transactional
     fun createExperiment(dataOp1: ProcessorVersion, dataOp1processorParameter1: ProcessorParameter, dataOp1processorParameter2: ProcessorParameter,
                          dataOp2: ProcessorVersion, dataOp2processorParameter1: ProcessorParameter, dataOp2processorParameter2: ProcessorParameter): Experiment {
-        val processorInstance = DataProcessorInstance(id = UUID.fromString("5d005488-afb6-4a0c-0031-f471153a04b5"), processorVersion = dataOp1)
+        val processorInstance = DataProcessorInstance(id = fromString("5d005488-afb6-4a0c-0031-f471153a04b5"), processorVersion = dataOp1)
         processorInstance.addParameterInstances(dataOp1processorParameter1, ".")
         processorInstance.addParameterInstances(dataOp1processorParameter2, ".")
 
-        val processorInstance2 = DataProcessorInstance(id = UUID.fromString("5d005488-afb6-4a0c-0032-f471153a04b5"), processorVersion = dataOp2)
+        val processorInstance2 = DataProcessorInstance(id = fromString("5d005488-afb6-4a0c-0032-f471153a04b5"), processorVersion = dataOp2)
         processorInstance2.addParameterInstances(dataOp2processorParameter1, ".")
         processorInstance2.addParameterInstances(dataOp2processorParameter2, ".")
 

@@ -17,9 +17,13 @@ class SubjectTest : AbstractRepositoryTest() {
     @Autowired
     private lateinit var repository: SubjectRepository
 
-    private fun createEntity(): Pair<UUID, Subject> {
+    private fun createEntity(
+        slug: String = "slug",
+        name: String = "name",
+        gitlabId: Long = 1L
+    ): Pair<UUID, Subject> {
         val id = randomUUID()
-        val entity = Person(id, "slug", "name", 1L)
+        val entity = Person(id, slug, name, gitlabId)
         return Pair(id, entity)
     }
 
@@ -49,17 +53,32 @@ class SubjectTest : AbstractRepositoryTest() {
         Assertions.assertThat(repository.findByIdOrNull(id)).isNotNull()
     }
 
-//    @Test
-//    fun `update works`() {
-//        val (id, entity) = createEntity()
-//        val saved = repository.save(entity)
-//        val newValue = "newname"
-//        val copy = saved.copy(slug = newValue)
-//        val updated = repository.save(copy)
-//        Assertions.assertThat(updated).isNotNull()
-    //    checkAfterUpdated(updated)
-//        Assertions.assertThat(updated.slug).isEqualTo(newValue)
-//    }
+    @Transactional
+    @Test
+    fun `must not save duplicate slug`() {
+        commitAndFail {
+            repository.save(createEntity("slug1", "username1", 101).second)
+            repository.save(createEntity("slug1", "username2", 102).second)
+        }
+    }
+
+    @Transactional
+    @Test
+    fun `must not save duplicate username`() {
+        commitAndFail {
+            repository.save(createEntity("slug1", "username1", 101).second)
+            repository.save(createEntity("slug2", "username1", 102).second)
+        }
+    }
+
+    @Transactional
+    @Test
+    fun `must not save duplicate gitlabId`() {
+        commitAndFail {
+            repository.save(createEntity("slug1", "username1", 101).second)
+            repository.save(createEntity("slug2", "username2", 101).second)
+        }
+    }
 
     @Transactional
     @Test

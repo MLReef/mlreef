@@ -2,9 +2,11 @@ package com.mlreef.rest.api.v1
 
 import com.mlreef.rest.api.v1.dto.RestExceptionDto
 import com.mlreef.rest.api.v1.dto.ValidationFailureDto
+import com.mlreef.rest.exceptions.ErrorCode
 import com.mlreef.rest.exceptions.NotFoundException
 import com.mlreef.rest.exceptions.RestException
 import com.mlreef.rest.exceptions.ValidationException
+import org.hibernate.exception.ConstraintViolationException
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.validation.FieldError
@@ -24,6 +26,13 @@ class RestExceptionHandler {
         val error = RestExceptionDto(exception)
         return ResponseEntity(error, HttpStatus.NOT_FOUND)
     }
+
+    @ExceptionHandler(ConstraintViolationException::class)
+    fun handleConstraintViolationException(exception: ConstraintViolationException): ResponseEntity<RestExceptionDto> {
+        val error = RestExceptionDto(RestException(ErrorCode.Conflict, "Group already exists"))
+        return ResponseEntity(error, HttpStatus.CONFLICT)
+    }
+
 
     @ExceptionHandler(RestException::class)
     fun handleException(exception: RestException): ResponseEntity<RestExceptionDto> {

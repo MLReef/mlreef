@@ -8,10 +8,17 @@ import com.mlreef.rest.api.v1.dto.GroupOfUserDto
 import com.mlreef.rest.api.v1.dto.UserInGroupDto
 import com.mlreef.rest.external_api.gitlab.GitlabAccessLevel
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
 
 class GroupsIntegrationTest : AbstractIntegrationTest() {
     val rootUrl = "/api/v1/groups"
+
+    @AfterEach
+    fun clearRepo() {
+        testsHelper.cleanUsers()
+        testsHelper.cleanGroups()
+    }
 
     @Test
     fun `Can retrieve all own groups`() {
@@ -37,7 +44,7 @@ class GroupsIntegrationTest : AbstractIntegrationTest() {
     @Test
     fun `Can create a group as authorized user`() {
         //given
-        val (account, token, _) = testsHelper.createRealUser(index = -1)
+        val (_, token, _) = testsHelper.createRealUser(index = -1)
 
         val request = GroupCreateRequest("absolutenewtestpath", "test-namespace", "test-name")
 
@@ -62,23 +69,23 @@ class GroupsIntegrationTest : AbstractIntegrationTest() {
     }
 
     @Test
-    fun `Can create a duplicate name of group`() {
+    fun `Cannot create a duplicate name of group`() {
         //given
-        val (account, token, _) = testsHelper.createRealUser(index = -1)
+        val (_, token, _) = testsHelper.createRealUser(index = -1)
         val (group1, _) = testsHelper.createRealGroup(token)
 
         val request = GroupCreateRequest("therealnewtestpath", "testnamespace", group1.name)
 
         //when
         this.performPost(rootUrl, token, body = request)
-            .expectOk()
+            .expect4xx()
     }
 
     @Test
     fun `Cannot create a duplicate path of group`() {
         //given
-        val (account, token, _) = testsHelper.createRealUser(index = -1)
-        val (group1, gitlabGroup1) = testsHelper.createRealGroup(token)
+        val (_, token, _) = testsHelper.createRealUser(index = -1)
+        val (_, gitlabGroup1) = testsHelper.createRealGroup(token)
 
         val request = GroupCreateRequest(gitlabGroup1.path, "testnamespace", "therealnewname")
 
@@ -90,7 +97,7 @@ class GroupsIntegrationTest : AbstractIntegrationTest() {
     @Test
     fun `Cannot create a group with invalid parameters`() {
         //given
-        val (account, token, _) = testsHelper.createRealUser(index = -1)
+        val (_, token, _) = testsHelper.createRealUser(index = -1)
 
         val request = GroupCreateRequest("", "", "")
 
@@ -102,7 +109,7 @@ class GroupsIntegrationTest : AbstractIntegrationTest() {
     @Test
     fun `Can update own group`() {
         //given
-        val (account, token, _) = testsHelper.createRealUser(index = -1)
+        val (_, token, _) = testsHelper.createRealUser(index = -1)
         val (group1, _) = testsHelper.createRealGroup(token)
 
         val request = GroupUpdateRequest("new-test-name", null)
@@ -122,9 +129,9 @@ class GroupsIntegrationTest : AbstractIntegrationTest() {
     @Test
     fun `Cannot update not own group`() {
         //given
-        val (account, token1, _) = testsHelper.createRealUser(index = -1)
+        val (_, token1, _) = testsHelper.createRealUser(index = -1)
         val (group1, _) = testsHelper.createRealGroup(token1)
-        val (account2, token2, _) = testsHelper.createRealUser(index = -1)
+        val (_, token2, _) = testsHelper.createRealUser(index = -1)
 
         val request = GroupUpdateRequest("new-test-name", null)
 
@@ -138,7 +145,7 @@ class GroupsIntegrationTest : AbstractIntegrationTest() {
     @Test
     fun `Can delete own group`() {
         //given
-        val (account, token, _) = testsHelper.createRealUser(index = -1)
+        val (_, token, _) = testsHelper.createRealUser(index = -1)
         val (group1, _) = testsHelper.createRealGroup(token)
 
         //when
@@ -151,9 +158,9 @@ class GroupsIntegrationTest : AbstractIntegrationTest() {
     @Test
     fun `Cannot delete not own group`() {
         //given
-        val (account, token1, _) = testsHelper.createRealUser(index = -1)
+        val (_, token1, _) = testsHelper.createRealUser(index = -1)
         val (group1, _) = testsHelper.createRealGroup(token1)
-        val (account2, token2, _) = testsHelper.createRealUser(index = -1)
+        val (_, token2, _) = testsHelper.createRealUser(index = -1)
 
         //when
         val url = "$rootUrl/${group1.id}"
@@ -235,7 +242,7 @@ class GroupsIntegrationTest : AbstractIntegrationTest() {
     @Test
     fun `Cannot get users in group as guest`() {
         //given
-        val (account, token1, _) = testsHelper.createRealUser(index = -1)
+        val (_, token1, _) = testsHelper.createRealUser(index = -1)
         val (group1, _) = testsHelper.createRealGroup(token1)
         val (account2, _, _) = testsHelper.createRealUser(index = -1)
         val (account3, token3, _) = testsHelper.createRealUser(index = -1)
@@ -253,7 +260,7 @@ class GroupsIntegrationTest : AbstractIntegrationTest() {
     @Test
     fun `Cannot get users in group as visitor`() {
         //given
-        val (account, token1, _) = testsHelper.createRealUser(index = -1)
+        val (_, token1, _) = testsHelper.createRealUser(index = -1)
         val (group1, _) = testsHelper.createRealGroup(token1)
         val (account2, _, _) = testsHelper.createRealUser(index = -1)
         val (account3, _, _) = testsHelper.createRealUser(index = -1)
@@ -334,7 +341,7 @@ class GroupsIntegrationTest : AbstractIntegrationTest() {
     @Test
     fun `Cannot add user to group as developer`() {
         //given
-        val (account, token1, _) = testsHelper.createRealUser(index = -1)
+        val (_, token1, _) = testsHelper.createRealUser(index = -1)
         val (group1, _) = testsHelper.createRealGroup(token1)
         val (account2, token2, _) = testsHelper.createRealUser(index = -1)
         val (account3, _, _) = testsHelper.createRealUser(index = -1)
@@ -351,7 +358,7 @@ class GroupsIntegrationTest : AbstractIntegrationTest() {
     @Test
     fun `Cannot add user to group as visitor`() {
         //given
-        val (account, token1, _) = testsHelper.createRealUser(index = -1)
+        val (_, token1, _) = testsHelper.createRealUser(index = -1)
         val (group1, _) = testsHelper.createRealGroup(token1)
         val (account2, _, _) = testsHelper.createRealUser(index = -1)
 
@@ -431,7 +438,7 @@ class GroupsIntegrationTest : AbstractIntegrationTest() {
     @Test
     fun `Cannot edit user in group as developer`() {
         //given
-        val (account, token1, _) = testsHelper.createRealUser(index = -1)
+        val (_, token1, _) = testsHelper.createRealUser(index = -1)
         val (group1, _) = testsHelper.createRealGroup(token1)
         val (account2, _, _) = testsHelper.createRealUser(index = -1)
         val (account3, token3, _) = testsHelper.createRealUser(index = -1)
@@ -449,7 +456,7 @@ class GroupsIntegrationTest : AbstractIntegrationTest() {
     @Test
     fun `Cannot edit user in group as visitor`() {
         //given
-        val (account, token1, _) = testsHelper.createRealUser(index = -1)
+        val (_, token1, _) = testsHelper.createRealUser(index = -1)
         val (group1, _) = testsHelper.createRealGroup(token1)
         val (account2, _, _) = testsHelper.createRealUser(index = -1)
 
@@ -533,7 +540,7 @@ class GroupsIntegrationTest : AbstractIntegrationTest() {
     @Test
     fun `Cannot delete user from group as developer`() {
         //given
-        val (account, token1, _) = testsHelper.createRealUser(index = -1)
+        val (_, token1, _) = testsHelper.createRealUser(index = -1)
         val (group1, _) = testsHelper.createRealGroup(token1)
         val (account2, _, _) = testsHelper.createRealUser(index = -1)
         val (account3, token3, _) = testsHelper.createRealUser(index = -1)
@@ -551,7 +558,7 @@ class GroupsIntegrationTest : AbstractIntegrationTest() {
     @Test
     fun `Cannot delete user from group as visitor`() {
         //given
-        val (account, token1, _) = testsHelper.createRealUser(index = -1)
+        val (_, token1, _) = testsHelper.createRealUser(index = -1)
         val (group1, _) = testsHelper.createRealGroup(token1)
         val (account2, _, _) = testsHelper.createRealUser(index = -1)
 

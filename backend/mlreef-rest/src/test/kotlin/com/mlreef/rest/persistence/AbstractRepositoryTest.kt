@@ -5,6 +5,7 @@ import com.mlreef.rest.AuditEntity
 import com.mlreef.rest.testcommons.TestPostgresContainer
 import com.mlreef.rest.testcommons.TestRedisContainer
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.assertThrows
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.jdbc.core.JdbcTemplate
@@ -55,6 +56,14 @@ class AbstractRepositoryTest {
             entityManager!!.createNativeQuery("truncate table $joinToString CASCADE ").executeUpdate()
         } else {
             entityManager!!.createNativeQuery("truncate table $joinToString ").executeUpdate()
+        }
+    }
+
+    fun commitAndFail(f: () -> Unit) {
+        assertThrows<Exception> {
+            withinTransaction {
+                f.invoke()
+            }
         }
     }
 

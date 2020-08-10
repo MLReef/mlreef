@@ -20,7 +20,6 @@ import javax.transaction.Transactional
  */
 class DataPopulatorTest : AbstractIntegrationTest() {
 
-    private val userToken: String = "ysfd"
     private lateinit var author: Person
     private lateinit var dataPopulator: DataPopulator
     private lateinit var initialDataLoader: InitialDataLoader
@@ -67,11 +66,6 @@ class DataPopulatorTest : AbstractIntegrationTest() {
     @Autowired
     private lateinit var marketplaceService: MarketplaceService
 
-//    @Mock private lateinit var restClient: GitlabRestClient
-
-    private var ownerId: UUID = randomUUID()
-    private var dataRepositoryId: UUID = randomUUID()
-
     @BeforeEach
     fun prepare() {
         initialDataLoader = InitialDataLoader()
@@ -106,7 +100,7 @@ class DataPopulatorTest : AbstractIntegrationTest() {
         accountTokenRepository.deleteAll()
         accountRepository.deleteAll()
         personRepository.deleteAll()
-        author = personRepository.save(Person(id = randomUUID(), slug = "user-demo", name = "Author1", gitlabId = RandomUtils.randomGitlabId()))
+        author = personRepository.save(Person(id = randomUUID(), slug = "user-demo" + RandomUtils.generateRandomUserName(20), name = RandomUtils.generateRandomUserName(20), gitlabId = RandomUtils.randomGitlabId()))
     }
 
     @Test
@@ -118,8 +112,8 @@ class DataPopulatorTest : AbstractIntegrationTest() {
         assertThat(accountRepository.findAll().toList()).isEmpty()
         dataPopulator.init()
 
-        assertThat(accountTokenRepository.findAll().toList()).isNotEmpty()
-        assertThat(accountRepository.findAll().toList()).isNotEmpty()
+        assertThat(accountTokenRepository.findAll().toList()).isNotEmpty
+        assertThat(accountRepository.findAll().toList()).isNotEmpty
     }
 
     @Test
@@ -128,8 +122,8 @@ class DataPopulatorTest : AbstractIntegrationTest() {
 
         val result = dataPopulator.createUserAndTokenInGitlab()
 
-        assertThat(result).isNotNull()
-        assertThat(accountRepository.findAll().toList()).isNotEmpty()
+        assertThat(result).isNotNull
+        assertThat(accountRepository.findAll().toList()).isNotEmpty
     }
 
     @Test
@@ -146,9 +140,9 @@ class DataPopulatorTest : AbstractIntegrationTest() {
         ))
 
         val result = dataPopulator.createUserToken(
-            GitlabUser(1, "user", "name", "email"))
-        assertThat(result).isNotNull()
-        assertThat(accountTokenRepository.findAll().toList()).isNotEmpty()
+            GitlabUser(1, "test-user", "test-name", "email"))
+        assertThat(result).isNotNull
+        assertThat(accountTokenRepository.findAll().toList()).isNotEmpty
     }
 
     @Test
@@ -159,7 +153,7 @@ class DataPopulatorTest : AbstractIntegrationTest() {
         val createUserAndTokenInGitlab = dataPopulator.createUserAndTokenInGitlab()
         val createUserToken = dataPopulator.createUserToken(createUserAndTokenInGitlab)
         dataPopulator.createDataProject(userToken = createUserToken.token)
-        assertThat(dataProjectRepository.findAll().toList()).isNotEmpty()
+        assertThat(dataProjectRepository.findAll().toList()).isNotEmpty
     }
 
     @Test
@@ -171,11 +165,11 @@ class DataPopulatorTest : AbstractIntegrationTest() {
 
         val createUserAndTokenInGitlab = dataPopulator.createUserAndTokenInGitlab()
         val createUserToken = dataPopulator.createUserToken(createUserAndTokenInGitlab)
-        val author = Person(id = randomUUID(), slug = "user-demo", name = "Author1", gitlabId = 1)
+        val author = personRepository.save(Person(id = randomUUID(), slug = "user-demo", name = "Author1", gitlabId = 1))
 
         dataPopulator.initialMLData(author, createUserToken.token)
 
-        assertThat(accountTokenRepository.findAll().toList()).isNotEmpty()
-        assertThat(accountRepository.findAll().toList()).isNotEmpty()
+        assertThat(accountTokenRepository.findAll().toList()).isNotEmpty
+        assertThat(accountRepository.findAll().toList()).isNotEmpty
     }
 }

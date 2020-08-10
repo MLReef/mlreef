@@ -20,7 +20,6 @@ import com.mlreef.rest.annotations.RefreshUserInformation
 import com.mlreef.rest.exceptions.BadParametersException
 import com.mlreef.rest.exceptions.ErrorCode
 import com.mlreef.rest.exceptions.GitlabCommonException
-import com.mlreef.rest.exceptions.GitlabNoValidTokenException
 import com.mlreef.rest.exceptions.GroupNotFoundException
 import com.mlreef.rest.exceptions.ProjectDeleteException
 import com.mlreef.rest.exceptions.ProjectNotFoundException
@@ -315,8 +314,7 @@ open class ProjectServiceImpl<T : Project>(
             ?: throw UserNotFoundException(userId = userId)
 
         val userProjects = try {
-            gitlabRestClient.userGetUserAllProjects(userToken
-                ?: throw GitlabNoValidTokenException("User ${user.id} has no valid token"))
+            gitlabRestClient.userGetUserAllProjects(userToken)
         } catch (ex: Exception) {
             log.error("Cannot request projects from gitlab for user ${user.id}. Exception: $ex.")
             listOf<GitlabProject>()

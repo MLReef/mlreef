@@ -288,7 +288,7 @@ internal class AccountSubjectPreparationTrait {
         val person = Person(
             id = UUID.fromString("aaaa0000-0001-0000-$userSuffix-cccccccccccc"),
             slug = "person_slug$userSuffix",
-            name = "user name",
+            name = "user name $userSuffix",
             gitlabId = personGitlabId ?: Random.nextLong().absoluteValue)
         val account = Account(
             id = accountId,
@@ -364,7 +364,7 @@ internal class PipelineTestPreparationTrait : AccountSubjectPreparationTrait() {
         ))
         dataProject2 = dataProjectRepository.save(DataProject(
             UUID.fromString("aaaa0001-0000-0000-0002-dbdbdbdbdbdb"), "slug2", "url", "Test DataProject",
-            "", ownerId = account2.person.id, gitlabId = Random.nextInt().toLong().absoluteValue, gitlabNamespace = "mlreef", gitlabPath = "project1")
+            "", ownerId = account2.person.id, gitlabId = Random.nextInt().toLong().absoluteValue, gitlabNamespace = "mlreef", gitlabPath = "project2")
         )
         codeProjectRepository.save(CodeProject(randomUUID(), "slug", "url", "Test DataProject", "", ownerId = account.person.id,
             gitlabNamespace = "", gitlabId = Random.nextInt().toLong().absoluteValue, gitlabPath = ""))

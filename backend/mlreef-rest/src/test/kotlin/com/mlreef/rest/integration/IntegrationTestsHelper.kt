@@ -58,7 +58,7 @@ class IntegrationTestsHelper {
     protected lateinit var accountRepository: AccountRepository
 
     @SpykBean
-    lateinit var groupsRepository: GroupRepository
+    protected lateinit var groupsRepository: GroupRepository
 
     @Autowired
     lateinit var codeProjectRepository: CodeProjectRepository
@@ -101,7 +101,7 @@ class IntegrationTestsHelper {
     private val realCreatedUsersCache: MutableList<Triple<Account, String, GitlabUser>> = mutableListOf()
 
     @Transactional
-    fun createRealUser(userName: String? = null, password: String? = null, index: Int = 0): Triple<Account, String, GitlabUser> {
+    fun createRealUser(userName: String? = null, password: String? = null, index: Int = -1): Triple<Account, String, GitlabUser> {
         if (realCreatedUsersCache.size < index)
             return realCreatedUsersCache[index]
 
@@ -110,10 +110,10 @@ class IntegrationTestsHelper {
         val email = "$username@example.com"
         val plainPassword = password ?: RandomUtils.generateRandomPassword(30, true)
 
-        val userInGitlab = restClient.adminCreateUser(email, username, "Existing user", plainPassword)
+        val userInGitlab = restClient.adminCreateUser(email, username, "Existing $username", plainPassword)
 
         val passwordEncrypted = passwordEncoder.encode(plainPassword)
-        val person = Person(UUID.randomUUID(), "person_slug", "user name", userInGitlab.id)
+        val person = Person(UUID.randomUUID(), Slugs.toSlug(username), "Name $username", userInGitlab.id)
         val account = Account(accountId, username, email, passwordEncrypted, person)
 
         accountRepository.save(account)
@@ -254,7 +254,8 @@ class IntegrationTestsHelper {
         val _dataOp2 = createDataAlgorithm()
         val _dataOp3 = createDataVisualization()
 
-        val publisher = person ?: personRepository.save(Person(UUID.randomUUID(), "subject", "name", 1))
+        val publisher = person
+            ?: personRepository.save(Person(UUID.randomUUID(), "subject", RandomUtils.generateRandomUserName(20), 1))
 
         dataOp1 = createProcessorVersion(_dataOp1, publisher)
         dataOp2 = createProcessorVersion(_dataOp2, publisher)
@@ -285,6 +286,15 @@ class IntegrationTestsHelper {
         dataOp1 = null
         dataOp2 = null
         dataOp3 = null
+    }
+
+    fun cleanUsers() {
+        personRepository.deleteAll()
+        accountRepository.deleteAll()
+    }
+
+    fun cleanGroups() {
+        groupsRepository.deleteAll()
     }
 
     fun createDataOperation(slug: String? = null, name: String? = null, command: String? = null): DataOperation {

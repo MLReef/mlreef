@@ -19,17 +19,23 @@ class AccountTest : AbstractRepositoryTest() {
     @Autowired
     private lateinit var repository: AccountRepository
 
-    private fun createEntity(): Pair<UUID, Account> {
+    private fun createEntity(
+        slug: String = "slug",
+        username: String = "username",
+        email: String = "email",
+        changeAccountToken: String? = null
+    ): Pair<UUID, Account> {
         val id = randomUUID()
-        val person = Person(randomUUID(), "slug", "name", 1L)
-        val token = AccountToken(randomUUID(), id, "token")
+        val person = Person(randomUUID(), slug, "name", 1L)
+        AccountToken(randomUUID(), id, "token")
         val entity = Account(
             id = id,
-            username = "username",
+            username = username,
             passwordEncrypted = "enc",
             person = person,
-            email = "",
-            lastLogin = null)
+            email = email,
+            lastLogin = null,
+            changeAccountToken = changeAccountToken)
         return Pair(id, entity)
     }
 
@@ -42,10 +48,9 @@ class AccountTest : AbstractRepositoryTest() {
     @Test
     fun `find works`() {
         val (id, entity) = createEntity()
-
         Assertions.assertThat(repository.findByIdOrNull(id)).isNull()
         repository.save(entity)
-        Assertions.assertThat(repository.findByIdOrNull(id)).isNotNull()
+        Assertions.assertThat(repository.findByIdOrNull(id)).isNotNull
     }
 
     @Transactional
@@ -54,9 +59,47 @@ class AccountTest : AbstractRepositoryTest() {
         val (id, entity) = createEntity()
         Assertions.assertThat(repository.findByIdOrNull(id)).isNull()
         val saved = repository.save(entity)
-        Assertions.assertThat(saved).isNotNull()
+        Assertions.assertThat(saved).isNotNull
         checkAfterCreated(saved)
-        Assertions.assertThat(repository.findByIdOrNull(id)).isNotNull()
+        Assertions.assertThat(repository.findByIdOrNull(id)).isNotNull
+    }
+
+    @Transactional
+    @Test
+    fun `must not save duplicate id`() {
+        val (_, entity1) = createEntity("slug1", "username1", "email1@dot.com")
+        val (_, entity2) = createEntity("slug2", "username2", "email2@dot.com")
+        repository.save(entity1)
+        commitAndFail {
+            repository.save(entity2)
+        }
+    }
+
+    @Transactional
+    @Test
+    fun `must not save duplicate slug`() {
+        commitAndFail {
+            repository.save(createEntity("slug1", "username1", "email1@dot.com").second)
+            repository.save(createEntity("slug1", "username2", "email2@dot.com").second)
+        }
+    }
+
+    @Transactional
+    @Test
+    fun `must not save duplicate username`() {
+        commitAndFail {
+            repository.save(createEntity("slug1", "username1", "email1@dot.com").second)
+            repository.save(createEntity("slug2", "username1", "email2@dot.com").second)
+        }
+    }
+
+    @Transactional
+    @Test
+    fun `must not save duplicate email`() {
+        commitAndFail {
+            repository.save(createEntity("slug1", "username1", "email1@dot.com").second)
+            repository.save(createEntity("slug2", "username2", "email1@dot.com").second)
+        }
     }
 
     @Transactional
@@ -67,8 +110,7 @@ class AccountTest : AbstractRepositoryTest() {
         val newValue = "newname"
         val copy = saved.copy(username = newValue)
         val updated = repository.save(copy)
-        Assertions.assertThat(updated).isNotNull()
-//        checkAfterUpdated(updated)
+        Assertions.assertThat(updated).isNotNull
         Assertions.assertThat(updated.username).isEqualTo(newValue)
     }
 
@@ -78,6 +120,6 @@ class AccountTest : AbstractRepositoryTest() {
         val (_, entity) = createEntity()
         val saved = repository.save(entity)
         repository.delete(saved)
-        Assertions.assertThat(saved).isNotNull()
+        Assertions.assertThat(saved).isNotNull
     }
 }

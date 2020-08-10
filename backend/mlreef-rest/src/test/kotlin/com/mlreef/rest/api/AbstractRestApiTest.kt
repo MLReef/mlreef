@@ -3,17 +3,16 @@ package com.mlreef.rest.api
 import com.mlreef.rest.AccessLevel
 import com.mlreef.rest.Account
 import com.mlreef.rest.AccountRepository
-import com.mlreef.rest.AccountToken
 import com.mlreef.rest.AccountTokenRepository
 import com.mlreef.rest.ApplicationProfiles
-import com.mlreef.rest.Email
-import com.mlreef.rest.EmailRepository
 import com.mlreef.rest.CodeProject
 import com.mlreef.rest.DataProcessor
 import com.mlreef.rest.DataProcessorInstance
 import com.mlreef.rest.DataProcessorInstanceRepository
 import com.mlreef.rest.DataProcessorType
 import com.mlreef.rest.DataType
+import com.mlreef.rest.Email
+import com.mlreef.rest.EmailRepository
 import com.mlreef.rest.Experiment
 import com.mlreef.rest.ExperimentRepository
 import com.mlreef.rest.FileLocation
@@ -51,6 +50,8 @@ import com.mlreef.rest.helpers.UserInProject
 import com.mlreef.rest.security.MlReefSessionRegistry
 import com.mlreef.rest.testcommons.AbstractRestTest
 import com.mlreef.rest.testcommons.TestRedisContainer
+import com.mlreef.rest.utils.RandomUtils
+import com.mlreef.rest.utils.RandomUtils.generateRandomUserName
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
 import io.mockk.mockk
@@ -198,7 +199,7 @@ abstract class AbstractRestApiTest : AbstractRestTest() {
         )
 
         every { restClient.getUser(any()) } returns GitlabUser(
-            id = 1,
+            id = RandomUtils.randomGitlabId(),
             name = "Mock Gitlab User",
             username = "mock_user",
             email = "mock@example.com",
@@ -246,7 +247,7 @@ abstract class AbstractRestApiTest : AbstractRestTest() {
         every { restClient.deleteProject(any(), any()) } returns Unit
 
         every { restClient.userCreateGroup(any(), any(), any()) } returns GitlabGroup(
-            id = 1,
+            id = RandomUtils.randomGitlabId(),
             webUrl = "www.url.com",
             name = "test-group",
             path = "test-path"
@@ -269,12 +270,12 @@ abstract class AbstractRestApiTest : AbstractRestTest() {
         val commit = Commit(id = "12341234")
         val branch = Branch(ref = sourceBranch, branch = targetBranch)
         val gitlabPipeline = GitlabPipeline(
-            id = 32452345,
+            RandomUtils.randomGitlabId(),
             coverage = "",
             sha = "sha",
             ref = "ref",
             beforeSha = "before_sha",
-            user = GitlabUser(id = 1000L),
+            user = GitlabUser(id = RandomUtils.randomGitlabId()),
             status = "CREATED",
             committedAt = I18N.dateTime(),
             createdAt = I18N.dateTime(),
@@ -390,9 +391,9 @@ abstract class AbstractRestApiTest : AbstractRestTest() {
     fun createMockUser(plainPassword: String = "password", userOverrideSuffix: String? = null): Account {
         val accountId = UUID.randomUUID()
         val passwordEncrypted = passwordEncoder.encode(plainPassword)
-        val person = Person(UUID.randomUUID(), "person_slug", "user name", 1L)
-        val token = AccountToken(UUID.randomUUID(), accountId, "secret_token", 0)
-        val account = Account(accountId, "username", "email@example.com", passwordEncrypted, person)
+        val person = Person(UUID.randomUUID(), generateRandomUserName(30), generateRandomUserName(30), 1L)
+//        val token = AccountToken(UUID.randomUUID(), accountId, "secret_token", 0)
+        val account = Account(accountId, person.slug, "${person.slug}@example.com", passwordEncrypted, person)
 
         personRepository.save(person)
         accountRepository.save(account)
@@ -440,7 +441,7 @@ abstract class AbstractRestApiTest : AbstractRestTest() {
     protected fun createPipelineConfig(dataProcessorInstance: DataProcessorInstance, dataProjectId: UUID, slug: String): PipelineConfig {
         val entity = PipelineConfig(
             id = UUID.randomUUID(),
-            pipelineType = PipelineType.DATA, slug = slug, name = "name",
+            pipelineType = PipelineType.DATA, slug = slug, name = "pipeline-name",
             dataProjectId = dataProjectId,
             sourceBranch = "source", targetBranchPattern = "target",
             dataOperations = arrayListOf(dataProcessorInstance))
@@ -454,7 +455,7 @@ abstract class AbstractRestApiTest : AbstractRestTest() {
                                       outputDataType: DataType = DataType.IMAGE): DataProcessor {
         val id = UUID.randomUUID()
         return dataProcessorService.createForCodeProject(
-            id = id, name = "name",
+            id = id, name = "dataprocessor-name",
             codeProject = codeProject,
             slug = "slug-$id", parameters = listOf(),
             author = null, description = "description", visibilityScope = VisibilityScope.PUBLIC,
