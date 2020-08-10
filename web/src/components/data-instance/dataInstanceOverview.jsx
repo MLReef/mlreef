@@ -158,7 +158,6 @@ export const InstanceCard = ({ ...props }) => {
       <div className="buttons-div d-flex">{buttons}</div>
     );
   }
-
   return (
     <div className="pipeline-card">
       <div className="header">
@@ -167,22 +166,26 @@ export const InstanceCard = ({ ...props }) => {
         </div>
       </div>
 
-      {params.instances.map((instance, index) => {
-        const dataId = instance.id;
-        const { timeCreatedAgo } = instance;
+      {params.instances.map((instance) => {
+        const { timeCreatedAgo, projId, id: dataId, userName, currentState } = instance;
         const dataInstanceName = instance.descTitle;
+        const diInstanceNameEncoded = encodeURIComponent(dataInstanceName);
         const uniqueName = dataInstanceName.split('/')[1];
         const modelDiv = 'inherit';
         let progressVisibility = 'inherit';
-        if (instance.currentState === 'Expired') { progressVisibility = 'hidden'; }
+        if (currentState === 'Expired') { progressVisibility = 'hidden'; }
         return (
-          <div key={index} className="card-content">
+          <div key={`instance-comp-id-${instance.id}`} className="card-content">
             <div id="data-ins-summary-data" className="summary-data" data-key={`${instance.descTitle}`}>
               <div className="project-desc-experiment">
                 <Link
                   to={{
-                    pathname: `/my-projects/${instance.projId}/master/-/datasets/${dataId}`,
-                    state: { di_name: encodeURIComponent(dataInstanceName), timeCreatedAgo },
+                    pathname: `/my-projects/${projId}/${diInstanceNameEncoded}/-/datasets/${dataId}`,
+                    state: {
+                      diName: diInstanceNameEncoded,
+                      timeCreatedAgo,
+                      diStatus: currentState,
+                    },
                   }}
                 >
                   <b>{uniqueName}</b>
@@ -190,9 +193,9 @@ export const InstanceCard = ({ ...props }) => {
                 <p>
                   Created by
                   {' '}
-                  <a href={`/${instance.userName}`}>
+                  <a href={`/${userName}`}>
                     <b>
-                      {instance.userName}
+                      {userName}
                     </b>
                   </a>
                   <br />
@@ -208,10 +211,10 @@ export const InstanceCard = ({ ...props }) => {
                 <p>
                   Id:
                   {' '}
-                  {instance.id}
+                  {dataId}
                 </p>
               </div>
-              { getButtonsDiv(instance.currentState.toUpperCase(), instance.id) }
+              { getButtonsDiv(currentState.toUpperCase(), dataId) }
             </div>
           </div>
         );
