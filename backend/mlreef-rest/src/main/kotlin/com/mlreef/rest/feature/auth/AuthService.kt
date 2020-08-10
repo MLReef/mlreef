@@ -187,11 +187,10 @@ class AuthService(
 
     fun createOrFindGitlabUser(username: String, email: String, password: String): GitlabUser {
         return try {
-            val gitlabName = "mlreef-user-$username"
             log.info("Create user ${username}")
-            gitlabRestClient.adminCreateUser(email = email, name = gitlabName, username = username, password = password)
+            gitlabRestClient.adminCreateUser(email = email, name = username, username = username, password = password)
         } catch (clientErrorException: RestException) {
-            log.info("Already existing dev user. Error message: ${clientErrorException.message}")
+            log.info("Already existing User. Error message: ${clientErrorException.message}")
             val adminGetUsers = gitlabRestClient.adminGetUsers()
             adminGetUsers.filter { it.username == username }.firstOrNull()
                 ?: throw UnknownUserException("User not found!")
