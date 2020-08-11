@@ -1,34 +1,41 @@
-################################################################################
-# This is the MLReef configuration file.                                       #
-# It contains the current configuration of your model-experiment (training)    #
-# as well as the temporary configurations executed data pipelines              #
-################################################################################
+#################################################################################
+# This is the MLReef configuration file.                                        #
+# It contains the current configuration of  your data pipeline, model training, #
+# or visualisation as well as the specific configurations.                      #
+# Please refer to the documentation for information on how to edit this file    #
+#################################################################################
 
 # This is the docker image your model training will be executed in
 image: registry.gitlab.com/mlreef/mlreef/epf:%EPF_IMAGE_TAG%
 
 variables:
+  #GIT_PUSH_TOKEN is a CI-environment variable which needs to be available in the Gitlab project
+  EPF_GITLAB_HOST:     "%EPF_GITLAB_HOST%"      # Gitlab host name without port
+  GIT_PUSH_NAME:       "%CONF_NAME%"            # The name used for git pushing pipeline results
+  GIT_PUSH_EMAIL:      "%CONF_EMAIL%"           # The email used for git pushing pipeline results
+  GITLAB_GROUP:        "%GITLAB_GROUP%"         # Gitlab namespace the project is located in
+  GITLAB_PROJECT:      "%GITLAB_PROJECT%"       # Gitlab project to git push pipeline results to
+  TARGET_BRANCH:       "%TARGET_BRANCH%"        # Git branch pipeline results are pushed to
+
+  # mlreef.com/api/v1/epf/experiments/:experiment_id
+  EPF_PIPELINE_URL:    "%EPF_PIPELINE_URL%"     # The complete URL to the backend endpoint for this particular pipeline used by the EPF
+  EPF_PIPELINE_SECRET: "%EPF_PIPELINE_SECRET%"  # Temporary token used to authenticate the EPF against the backend
+
+  INPUT_FILE_LIST:     "%INPUT_FILE_LIST%"      # Filled by the YamlFileGenerator.kt
+
   # Change pip's cache directory to be inside the project directory since we can only cache local items.
   PIP_CACHE_DIR:       "$CI_PROJECT_DIR/.cache/pip"
-  EPF_GITLAB_HOST:     "%EPF_GITLAB_HOST%"
-  # The EPF Pipeline URL is the complete URL to the EPF endpoint for this particular pipeline
-  # mlreef.com/api/v1/epf/experiments/:experiment_id
-  EPF_PIPELINE_URL:    "%EPF_PIPELINE_URL%"
-  EPF_PIPELINE_SECRET: "%EPF_PIPELINE_SECRET%"
-  INPUT_FILE_LIST:     "%INPUT_FILE_LIST%"
-  TARGET_BRANCH:       "%TARGET_BRANCH%"
 
 # The before_script handles everything git related and sets up the automatic committing
 before_script:
   # Debug output mlreef.yml
   - cat .mlreef.yml
   - echo "####################"
-  #- it just aint working!
   # https://stackoverflow.com/questions/42074414/gitlab-push-to-a-repository-using-access-token
   # git remote add origin https://oauth2:<mytoken>@gitlab.com/myuser/myrepo.git
-  - git remote set-url origin http://oauth2:${GIT_PUSH_TOKEN}@"$EPF_GITLAB_HOST":10080/%GITLAB_GROUP%/%GITLAB_PROJECT%.git
-  - git config --global user.email "%CONF_EMAIL%"
-  - git config --global user.name "%CONF_NAME%"
+  - git remote set-url origin "http://oauth2:$GIT_PUSH_TOKEN@$EPF_GITLAB_HOST:10080/$GITLAB_GROUP/$GITLAB_PROJECT.git"
+  - git config --global user.email "$GIT_PUSH_EMAIL"
+  - git config --global user.name "$GIT_PUSH_NAME"
   # TODO this can maybe be deleted
   #- git checkout %SOURCE_BRANCH%
   # TODO this can maybe be deleted
@@ -40,13 +47,13 @@ after_script:
   - epf-finish
 
 
-data-pipeline:
+mlreef-pipeline:
   script:
     - git checkout -b $TARGET_BRANCH
-    - echo ${CI_JOB_ID} >> data_pipeline.info
+    - echo $CI_JOB_ID >> data_pipeline.info
 %PIPELINE_STRING%
     - git add .
     - git status
     - git commit -m "Add pipeline results [skip ci]"
-    - git push --set-upstream origin $TARGET_BRANCH
+    - git push --set-upstream origin "$TARGET_BRANCH"
     - git push
