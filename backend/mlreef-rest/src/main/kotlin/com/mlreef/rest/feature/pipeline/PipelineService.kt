@@ -154,21 +154,17 @@ class PipelineService(
     fun createPipelineInstanceFile(author: Account, pipelineInstance: PipelineInstance, secret: String): String =
         if (pipelineInstance.inputFiles.isEmpty())
             throw PipelineCreateException(ErrorCode.PipelineCreationFilesMissing)
-        else dataProjectRepository.findByIdOrNull(pipelineInstance.dataProjectId)
-            ?.let { dataProject ->
-                YamlFileGenerator(conf.epf.imageTag).generateYamlFile(
-                    author = author,
-                    dataProject = dataProject,
-                    epfPipelineSecret = secret,
-                    epfPipelineUrl = "ID:${pipelineInstance.id}",
-                    epfGitlabUrl = conf.epf.gitlabUrl,
-                    sourceBranch = pipelineInstance.sourceBranch,
-                    targetBranch = pipelineInstance.targetBranch,
-                    processors = pipelineInstance.dataOperations,
-                    inputFileList = pipelineInstance.inputFiles.map { it.toYamlString() }
-                )
-            }
-            ?: throw PipelineCreateException(ErrorCode.PipelineCreationProjectMissing, "DataProject is missing!")
+        else YamlFileGenerator(conf.epf.imageTag)
+            .generateYamlFile(
+                author = author,
+                epfPipelineSecret = secret,
+                epfPipelineUrl = "ID:${pipelineInstance.id}",
+                epfGitlabUrl = conf.epf.gitlabUrl,
+                sourceBranch = pipelineInstance.sourceBranch,
+                targetBranch = pipelineInstance.targetBranch,
+                processors = pipelineInstance.dataOperations,
+                inputFileList = pipelineInstance.inputFiles.map { it.toYamlString() }
+            )
 
     fun commitYamlFile(userToken: String, projectId: Long, targetBranch: String, fileContent: String, sourceBranch: String = "master"): Commit {
         val commitMessage = "[skip ci] create .mlreef.yml"
@@ -220,7 +216,8 @@ class PipelineService(
             projectId = projectGitlabId,
             sourceBranch = sourceBranch,
             targetBranch = targetBranch,
-            fileContent = fileContent)
+            fileContent = fileContent
+        )
 
         ensureProjectEpfBotUser(projectGitlabId = projectGitlabId)
 
@@ -259,7 +256,8 @@ class PipelineService(
             sourceBranch = instance.sourceBranch,
             targetBranch = instance.targetBranch,
             fileContent = fileContent,
-            secret = secret)
+            secret = secret
+        )
 
         return instance.copy(
             status = PipelineStatus.PENDING,
