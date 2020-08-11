@@ -51,14 +51,19 @@ enum class MetricType {
  */
 enum class DataType {
     ANY,
+    AUDIO,
+    BINARY,
     NONE,
     HIERARCHICAL,
     IMAGE,
     TABULAR,
+    TEXT,
     TIME_SERIES,
     VIDEO,
     VOICE,
     MODEL,
+    SENSOR,
+    NUMBER,
 }
 
 /**

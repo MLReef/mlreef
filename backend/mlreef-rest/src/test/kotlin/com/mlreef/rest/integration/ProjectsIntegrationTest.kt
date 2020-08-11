@@ -560,6 +560,7 @@ class ProjectsIntegrationTest : AbstractIntegrationTest() {
             "Test project",
             "description",
             true,
+            listOf(),
             VisibilityScope.PUBLIC
         )
 
@@ -582,6 +583,7 @@ class ProjectsIntegrationTest : AbstractIntegrationTest() {
             "Test project",
             "description",
             true,
+            listOf(),
             VisibilityScope.PUBLIC
         )
 
@@ -667,7 +669,9 @@ class ProjectsIntegrationTest : AbstractIntegrationTest() {
             "",
             "description",
             true,
-            VisibilityScope.PUBLIC)
+            listOf(),
+            VisibilityScope.PUBLIC
+        )
 
         this.performPost("$rootUrl/data", token, request).expectBadRequest()
     }

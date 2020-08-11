@@ -17,6 +17,9 @@ import {
   privacyLevelsArr,
   ML_PROJECT,
 } from 'dataTypes';
+import {
+  PROJECT_DATA_TYPES,
+} from 'domain/project/ProjectDataTypes';
 import MInput from 'components/ui/MInput';
 import MButton from 'components/ui/MButton';
 import { validateProjectName } from 'functions/validations';
@@ -33,22 +36,26 @@ import MCheckBox from '../../ui/MCheckBox/MCheckBox';
 const MAX_LENGTH = 255;
 const projectGeneraInfoApi = new ProjectGeneraInfoApi();
 
+const {
+  IMAGE, TEXT, AUDIO, VIDEO, TABULAR, SENSOR, NUMBER, BINARY, MODEL,
+} = PROJECT_DATA_TYPES;
+
 class CreateProject extends Component {
   dataTypes = [
     [
-      { name: 'data-types Text', label: 'TEXT' },
-      { name: 'data-types Image', label: 'IMAGE' },
-      { name: 'data-types Audio', label: 'AUDIO' },
+      { name: 'data-types Text', label: TEXT },
+      { name: 'data-types Image', label: IMAGE },
+      { name: 'data-types Audio', label: AUDIO },
     ],
     [
-      { name: 'data-types Video', label: 'VIDEO' },
-      { name: 'data-types Tabular', label: 'TABULAR' },
-      { name: 'data-types Sensor', label: 'SENSOR' },
+      { name: 'data-types Video', label: VIDEO },
+      { name: 'data-types Tabular', label: TABULAR },
+      { name: 'data-types Sensor', label: SENSOR },
     ],
     [
-      { name: 'data-types Number', label: 'NUMBER' },
-      { name: 'data-types Binary', label: 'BINARY' },
-      { name: 'data-types Model', label: 'MODEL' },
+      { name: 'data-types Number', label: NUMBER },
+      { name: 'data-types Binary', label: BINARY },
+      { name: 'data-types Model', label: MODEL },
     ],
   ];
 
@@ -141,7 +148,7 @@ class CreateProject extends Component {
       description,
       visibility,
       nameSpace,
-      // dataTypesSelected,
+      dataTypesSelected,
     } = this.state;
     const { match: { params: { classification } } } = this.props;
     const projectType = classification && classification !== '' && classification !== ML_PROJECT
@@ -157,7 +164,7 @@ class CreateProject extends Component {
       initialize_with_readme: readme,
       description,
       visibility,
-      // input_data_types: dataTypesSelected,
+      input_data_types: dataTypesSelected,
     };
 
     this.setState({ isFetching: true });
@@ -232,7 +239,6 @@ class CreateProject extends Component {
    const newProjectInstructions = specificType.description;
    const isMaximumOfDataTypesSelected = dtTypesSel.length === 4;
    const isValid = !nameErrors;
-
 
    return redirect ? (
      <Redirect to={redirect} />

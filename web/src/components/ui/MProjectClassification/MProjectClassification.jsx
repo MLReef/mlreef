@@ -2,6 +2,7 @@ import React, { Component, createRef } from 'react';
 import {
   shape, arrayOf, string,
 } from 'prop-types';
+import { ML_PROJECT } from 'dataTypes';
 import { Link } from 'react-router-dom';
 import ArrowButton from 'components/arrow-button/arrowButton';
 import MWrapper from 'components/ui/MWrapper';
@@ -32,20 +33,8 @@ class MProjectClassification extends Component {
     this.updateActiveButtons();
   }
 
-  componentDidUpdate(){
-   this.updateActiveButtons();
-  }
-
-  updateActiveButtons(){
-    const { classification, history: { location: { hash } } } = this.props;
-    const buttonType = hash ? hash.substring(1, hash.length) : this.projFilterBtnsList[0];
-    let elementBtn;
-    this.projFilterBtnsList.forEach((btnId) => {
-      elementBtn = document.getElementById(`${classification}-${btnId}-btn`);
-      if(elementBtn) elementBtn.classList.replace('btn-basic-info', 'btn-basic-dark');
-    });
-    elementBtn = document.getElementById(`${classification}-${buttonType}-btn`);
-    if(elementBtn) elementBtn.classList.replace('btn-basic-dark', 'btn-basic-info');
+  componentDidUpdate() {
+    this.updateActiveButtons();
   }
 
   // this change tabs in projectSet
@@ -77,6 +66,18 @@ class MProjectClassification extends Component {
   handleClickMlCategoriesButton = () => this.setState((prevState) => ({
     isMlCategoriesVisible: !prevState.isMlCategoriesVisible,
   }));
+
+  updateActiveButtons() {
+    const { classification, history: { location: { hash } } } = this.props;
+    const buttonType = hash ? hash.substring(1, hash.length) : this.projFilterBtnsList[0];
+    let elementBtn;
+    this.projFilterBtnsList.forEach((btnId) => {
+      elementBtn = document.getElementById(`${classification}-${btnId}-btn`);
+      if (elementBtn) elementBtn.classList.replace('btn-basic-info', 'btn-basic-dark');
+    });
+    elementBtn = document.getElementById(`${classification}-${buttonType}-btn`);
+    if (elementBtn) elementBtn.classList.replace('btn-basic-dark', 'btn-basic-info');
+  }
 
   handleProjectFilterBtn(e, screen) {
     this.changeScreen(screen);
@@ -165,13 +166,17 @@ class MProjectClassification extends Component {
               </button>
             </div>
             <div id="new-element-container" className="ml-auto">
-              <Link
-                to={`/new-project/classification/${classification}`}
-                type="button"
-                className="btn btn-primary"
-              >
-                New project
-              </Link>
+              {classification === ML_PROJECT ? (
+                <Link
+                  to={`/new-project/classification/${classification}`}
+                  type="button"
+                  className="btn btn-primary"
+                >
+                  New project
+                </Link>
+              ) : (
+                <button type="button" className="btn btn-primary" disabled>New project</button>
+              )}
             </div>
           </div>
           <div className="m-project-classification">

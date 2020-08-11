@@ -134,7 +134,8 @@ class ProjectsController(
             projectName = dataProjectCreateRequest.name,
             description = dataProjectCreateRequest.description,
             initializeWithReadme = dataProjectCreateRequest.initializeWithReadme,
-            visibility = dataProjectCreateRequest.visibility
+            visibility = dataProjectCreateRequest.visibility,
+            inputDataTypes = dataProjectCreateRequest.inputDataTypes
         )
 
         return dataProject.toDto()
@@ -156,11 +157,12 @@ class ProjectsController(
             userToken = token.accessToken,
             ownerId = person.id,
             projectSlug = codeProjectCreateRequest.slug,
-            projectNamespace = codeProjectCreateRequest.namespace,
             projectName = codeProjectCreateRequest.name,
+            projectNamespace = codeProjectCreateRequest.namespace,
             description = codeProjectCreateRequest.description,
+            visibility = codeProjectCreateRequest.visibility,
             initializeWithReadme = codeProjectCreateRequest.initializeWithReadme,
-            visibility = codeProjectCreateRequest.visibility
+            inputDataTypes = codeProjectCreateRequest.inputDataTypes
         )
         return codeProject.toDto()
     }
@@ -409,6 +411,7 @@ class ProjectCreateRequest(
     @NotEmpty val name: String,
     @NotEmpty val description: String,
     @NotEmpty val initializeWithReadme: Boolean,
+    val inputDataTypes: List<DataType> = listOf(),
     val visibility: VisibilityScope = VisibilityScope.PUBLIC
 )
 
