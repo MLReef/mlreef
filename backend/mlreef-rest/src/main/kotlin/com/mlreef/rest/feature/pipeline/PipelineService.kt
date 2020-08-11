@@ -18,6 +18,7 @@ import com.mlreef.rest.ProcessorVersionRepository
 import com.mlreef.rest.SubjectRepository
 import com.mlreef.rest.config.censor
 import com.mlreef.rest.exceptions.ErrorCode
+import com.mlreef.rest.exceptions.GitlabIncorrectAnswerException
 import com.mlreef.rest.exceptions.PipelineCreateException
 import com.mlreef.rest.exceptions.PipelineStartException
 import com.mlreef.rest.exceptions.RestException
@@ -306,7 +307,8 @@ class PipelineService(
             log.info("Must create GIT_PUSH_USER and GIT_PUSH_TOKEN, otherwise state information is lost!")
             try {
                 log.debug("Create GIT_PUSH_TOKEN with ${newToken.token.censor()}")
-                gitlabRestClient.adminCreateProjectVariable(projectId = projectGitlabId, name = GIT_PUSH_TOKEN, value = newToken.token)
+                gitlabRestClient.adminCreateProjectVariable(projectId = projectGitlabId, name = GIT_PUSH_TOKEN, value = newToken.token
+                    ?: throw GitlabIncorrectAnswerException("Gitlab answered with empty token for bot user $gitlabUser"))
             } catch (clientErrorException: RestException) {
                 log.error("PIPELINE MIGHT BE BROKEN: Could not save EPF Bot credentials")
                 log.error("Could not create EPF Tokens in Group ENV: ${clientErrorException.message}")

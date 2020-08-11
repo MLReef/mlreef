@@ -161,6 +161,9 @@ class GitlabNotFoundException(responseBodyAsString: String, error: ErrorCode, me
 @ResponseStatus(code = HttpStatus.INTERNAL_SERVER_ERROR, reason = "Gitlab authentication failed")
 class GitlabAuthenticationFailedException(statusCode: Int, responseBodyAsString: String, error: ErrorCode, message: String) : GitlabCommonException(statusCode, responseBodyAsString, error, message)
 
+@ResponseStatus(code = HttpStatus.INTERNAL_SERVER_ERROR, reason = "Gitlab answered incorrectly")
+class GitlabIncorrectAnswerException(message: String) : RestException(500, message)
+
 private fun generateUserNotFoundMessage(userId: UUID?, userName: String?, email: String?,
                                         personId: UUID?, gitlabId: Long?, subjectId: UUID?) = listOf(
     "User id" to userId,

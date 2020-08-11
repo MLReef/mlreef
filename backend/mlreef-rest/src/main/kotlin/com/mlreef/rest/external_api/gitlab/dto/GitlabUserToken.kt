@@ -8,7 +8,7 @@ class GitlabUserToken(
     val id: Int,
     val revoked: Boolean,
     val scopes: List<String> = listOf(),
-    val token: String,
+    val token: String? = null,
     val name: String,
     val active: Boolean = false,
     val impersonation: Boolean = false,
