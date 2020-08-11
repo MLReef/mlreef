@@ -1,6 +1,7 @@
 package com.mlreef.rest
 
 import com.mlreef.rest.exceptions.GitlabConflictException
+import com.mlreef.rest.exceptions.GitlabIncorrectAnswerException
 import com.mlreef.rest.external_api.gitlab.GitlabRestClient
 import com.mlreef.rest.external_api.gitlab.dto.GitlabProject
 import com.mlreef.rest.external_api.gitlab.dto.GitlabUser
@@ -220,8 +221,12 @@ internal class DataPopulator(
         val gitlabUserToken = gitlabRestClient.adminCreateUserToken(gitlabUserId = gitlabUser.id, tokenName = "user-token")
         val accountToken = AccountToken(
             id = accountTokenId, accountId = accountId,
-            token = gitlabUserToken.token, gitlabId = gitlabUserToken.id,
-            active = true, revoked = false)
+            token = gitlabUserToken.token
+                ?: throw GitlabIncorrectAnswerException("Could not create user token for User ${gitlabUser.username} id:${gitlabUser.id} answered without token"),
+            gitlabId = gitlabUserToken.id,
+            active = true,
+            revoked = false
+        )
 
         accountTokenRepository.findByIdOrNull(accountToken.id) ?: accountTokenRepository.save(accountToken)
         return accountToken
