@@ -146,7 +146,7 @@ const ExperimentDetails = (props) => {
             <button type="button" id="training-btn" onClick={menuBtnHandler} className="menu-button">Training</button>
             <button type="button" id="files-btn" onClick={menuBtnHandler} className="menu-button">Files</button>
           </div>
-          {renderTheSelectedSection()}
+          {experimentJob && renderTheSelectedSection()}
         </div>
       </div>
     </>

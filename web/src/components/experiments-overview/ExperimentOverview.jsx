@@ -12,6 +12,7 @@ import CustomizedButton from 'components/CustomizedButton';
 import ExperimentsApi from 'apis/experimentApi';
 import { parseToCamelCase } from 'functions/dataParserHelpers';
 import CommitsApi from '../../apis/CommitsApi.ts';
+import * as jobsActions from '../../actions/jobsActions';
 import Navbar from '../navbar/navbar';
 import ProjectContainer from '../projectContainer';
 import './experimentsOverview.css';
@@ -20,6 +21,7 @@ import ExperimentCard from './experimentCard';
 import { classifyExperiments } from '../../functions/pipeLinesHelpers';
 import emptyLogo from '../../images/experiments_empty-01.png';
 
+const expApi = new ExperimentsApi();
 const commitsApi = new CommitsApi();
 
 class ExperimentsOverview extends Component {
@@ -40,7 +42,7 @@ class ExperimentsOverview extends Component {
   componentDidMount() {
     const { projects: { selectedProject: { gid, id } }, actions } = this.props;
     actions.setIsLoading(true);
-    const expApi = new ExperimentsApi();
+    actions.getJobsListPerProject(gid);
     expApi.getExperiments(id)
       .then((exps) => exps.map((exp) => parseToCamelCase(exp)))
       .then((rawExperiments) => rawExperiments
@@ -228,6 +230,7 @@ function mapDispatchToProps(dispatch) {
   return {
     actions: bindActionCreators({
       ...userActions,
+      ...jobsActions,
     }, dispatch),
   };
 }
