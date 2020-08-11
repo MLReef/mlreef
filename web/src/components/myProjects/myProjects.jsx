@@ -6,7 +6,7 @@ import { arrayOf, shape, func } from 'prop-types';
 import MProjectClassification from 'components/ui/MProjectClassification/MProjectClassification';
 import MTabs from 'components/ui/MTabs';
 import {
-  projectClassificationsProps
+  projectClassificationsProps,
 } from 'dataTypes';
 import { PROJECT_TYPES } from 'domain/project/projectTypes';
 import * as processorActions from 'actions/processorActions';
@@ -49,19 +49,19 @@ class Myprojects extends React.Component {
     this.addEventListeners();
   }
 
-  static getDerivedStateFromProps(nextProps){
+  static getDerivedStateFromProps(nextProps) {
     const {
       allProjects,
       userProjects,
-      starredProjects
+      starredProjects,
     } = nextProps;
-    const {actions} = nextProps;
+    const { actions } = nextProps;
     actions.setIsLoading(false);
     return {
       allProjects,
       userProjects,
-      starredProjects
-    }
+      starredProjects,
+    };
   }
 
   addEventListeners = () => projectClassificationsProps
@@ -81,9 +81,7 @@ class Myprojects extends React.Component {
   fetch() {
     const { actions } = this.props;
     return Promise.all([
-      /* actions.getUserProjects(), */
-      /* actions.getStarredProjects(), */
-      actions.getProjectsList(PROJECT_TYPES.DATA_PROJ),
+      actions.getProjectsList(),
     ])
       .catch(() => {
       })

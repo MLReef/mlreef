@@ -72,7 +72,9 @@ interface ProjectService<T : Project> {
         projectNamespace: String,
         description: String,
         visibility: VisibilityScope = VisibilityScope.PUBLIC,
-        initializeWithReadme: Boolean = false): T
+        initializeWithReadme: Boolean = false,
+        inputDataTypes: List<DataType>?
+    ): T
 
     fun saveProject(project: T): T
 
@@ -227,7 +229,8 @@ open class ProjectServiceImpl<T : Project>(
         projectNamespace: String,
         description: String,
         visibility: VisibilityScope,
-        initializeWithReadme: Boolean
+        initializeWithReadme: Boolean,
+        inputDataTypes: List<DataType>?
     ): T {
 
         val findNamespace = try {
@@ -247,7 +250,11 @@ open class ProjectServiceImpl<T : Project>(
             visibility = visibility.toGitlabString(),
             initializeWithReadme = initializeWithReadme)
         val project = createConcreteProject(ownerId, gitLabProject)
-        return saveProject(project)
+
+        return if(inputDataTypes != null)
+            saveProject(
+                project.copy(inputDataTypes = inputDataTypes.toSet())
+            ) else saveProject(project)
     }
 
     override fun saveProject(project: T): T {

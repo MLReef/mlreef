@@ -14,7 +14,12 @@ export default class ProjectGeneralInfoApi extends ApiDirector {
   }
   async create(body: any, projectType: string, isNamespaceAGroup: boolean) {
     const baseUrl = `/api/v1/${projectType}s`;
-    const apiReqBuilder = new ApiRequestCallBuilder(METHODS.POST, this.buildBasicHeaders(validServicesToCall.BACKEND), baseUrl, JSON.stringify(body));
+    const apiReqBuilder = new ApiRequestCallBuilder(
+      METHODS.POST, 
+      this.buildBasicHeaders(validServicesToCall.BACKEND), 
+      baseUrl, 
+      JSON.stringify(body)
+    );
     const response = await fetch(apiReqBuilder.build());
     if (!response.ok) {
       const body = await response.json();
@@ -24,7 +29,7 @@ export default class ProjectGeneralInfoApi extends ApiDirector {
       return response.json();
     }
     const projectPayload = await response.json();
-    return this.transferProjectToNamespace(projectPayload.gitlab_id, body.namespace)
+    return this.transferProjectToNamespace(projectPayload.gitlab_id, body.namespace);
   }
 
   async transferProjectToNamespace(projectId: number, namespace: string){

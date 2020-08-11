@@ -466,6 +466,7 @@ class ProjectsApiTest : AbstractRestApiTest() {
             "Test project",
             "description",
             true,
+            listOf(),
             VisibilityScope.PUBLIC
         )
 
@@ -492,6 +493,7 @@ class ProjectsApiTest : AbstractRestApiTest() {
             "Test project",
             "description",
             true,
+            listOf(),
             VisibilityScope.PUBLIC
         )
 
@@ -895,7 +897,9 @@ class ProjectsApiTest : AbstractRestApiTest() {
             PayloadDocumentation.fieldWithPath("description").type(JsonFieldType.STRING).description("Description of Project"),
             PayloadDocumentation.fieldWithPath("initialize_with_readme").type(JsonFieldType.BOOLEAN).description("Boolean flag, if that Project should have an automatic commit for a README"),
             PayloadDocumentation.fieldWithPath("visibility").type(JsonFieldType.STRING).description("Visibility, can be 'PUBLIC', 'INTERNAL', 'PRIVATE'"),
-            PayloadDocumentation.fieldWithPath("experiments").type(JsonFieldType.OBJECT).optional().description("Experiments arrays")
+            PayloadDocumentation.fieldWithPath("experiments").type(JsonFieldType.OBJECT).optional().description("Experiments arrays"),
+            PayloadDocumentation.fieldWithPath("input_data_types").type(listOf(JsonFieldType.OBJECT)).optional().description("Project datatypes array")
+
         )
     }
 

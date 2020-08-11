@@ -70,7 +70,8 @@ class GitlabDataProjectServiceContextTest : AbstractContextTest() {
             "test-namespace",
             "Description",
             VisibilityScope.PUBLIC,
-            true
+            true,
+            listOf()
         )
 
         assertThat(result.slug).isEqualTo("test-slug")

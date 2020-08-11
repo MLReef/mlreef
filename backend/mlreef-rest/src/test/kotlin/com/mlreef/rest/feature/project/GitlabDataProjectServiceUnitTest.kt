@@ -80,14 +80,15 @@ internal class GitlabDataProjectServiceUnitTest {
         }
 
         val result = service.createProject(
-            "test-token",
-            UUID.randomUUID(),
-            "test-slug",
-            "test-name",
-            "test-namespace",
-            "Description",
-            VisibilityScope.PUBLIC,
-            true
+                "test-token",
+                UUID.randomUUID(),
+                "test-slug",
+                "test-name",
+                "test-namespace",
+                "Description",
+                VisibilityScope.PUBLIC,
+                true,
+                listOf()
         )
 
         assertThat(result.slug).isEqualTo("test-slug")
