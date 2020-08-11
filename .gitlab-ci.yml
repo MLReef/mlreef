@@ -48,24 +48,21 @@ provision:
 
 gitlab env config:
   extends: [".except-docu-branches"]
-  image: registry.gitlab.com/systemkern/s5:latest
   stage: deploy
-  variables:
-    KEY: "Authorization:"                                  # workaround to preserver the yaml structure
-  before_script:
+  image: registry.gitlab.com/systemkern/s5:latest
+  script:
     - URL=$(cat out/instance.info)
     - echo $URL                                            # debug output
-  script:
     # Get the ID of the gitlab environment we want to edit
     - ID=$(curl --fail
-      --header "$KEY Bearer $GITLAB_COM_API_TOKEN"
+      --header "Authorization:Bearer $GITLAB_COM_API_TOKEN"
       https://gitlab.com/api/v4/projects/$CI_PROJECT_ID/environments?name=$CI_COMMIT_REF_SLUG
       | jq -c '.[] | select(.name | contains("'$CI_REF_SLUG'")) | .id'
       )
     - echo "ID is $ID"                                     # debug output
     # configure the gitlab environment with the correct URL
     - curl --request PUT --fail
-      --header "$KEY Bearer $GITLAB_COM_API_TOKEN"
+      --header "Authorization:Bearer $GITLAB_COM_API_TOKEN"
       --data "name=$CI_COMMIT_REF_SLUG&external_url=http://$URL/login"
       https://gitlab.com/api/v4/projects/$CI_PROJECT_ID/environments/$ID
 
@@ -73,6 +70,13 @@ gitlab env config:
 deploy:
   extends: [".except-docu-branches"]
   stage: deploy
+  only:
+    changes:
+      - backend/**/*
+      - bin/ci-deploy
+      - epf/**/*
+      - web/**/*
+      - docker-compose.yml
   when: delayed
   start_in: 3 minutes                                                 # Give new ec2 environments enough time to boot
   image: registry.gitlab.com/systemkern/s5:latest
@@ -148,6 +152,15 @@ e2e test experiment:
   artifacts:
     paths:
       - out/test
+
+
+test rest docs are present:
+  stage: test
+  image: registry.gitlab.com/systemkern/s5:latest
+  # See docu/bin/ci-pages for the exact path to where rest docs are deployed
+  script: |
+    echo "Testing if backend rest-docs are available at https://mlreef.gitlab.io/mlreef/rest-api/$CI_COMMIT_BRANCH/index.html"
+    curl --fail --GET "https://mlreef.gitlab.io/mlreef/rest-api/$CI_COMMIT_BRANCH/index.html" > /dev/null
 
 
 staging:

@@ -40,6 +40,7 @@ build backend:
     backend/bin/ci-build-backend
     docker push "$BACKEND_IMAGE_PATH"
 
+
 backend integration tests:
   allow_failure: true
   stage: test

@@ -29,4 +29,5 @@ rm public/rest-api/$CI_COMMIT_BRANCH/* -R || echo "SKIP CLEANING:Specific Branch
 mkdir public/rest-api/$CI_COMMIT_BRANCH/coverage -p
 cp backend/mlreef-rest/build/reports/jacoco/test/html/* public/rest-api/$CI_COMMIT_BRANCH/coverage || echo "No backend docs on this Pipeline"
 cp backend/mlreef-rest/build/asciidoc/html5/rest-api.html public/rest-api/$CI_COMMIT_BRANCH/index.html || echo "No backend docs on this Pipeline"
-echo "Documentation URL is $CI_PAGES_URL/$CI_COMMIT_BRANCH/rest-api"
+ls -al public/rest-api/$CI_COMMIT_BRANCH/
+echo "Documentation URL is $CI_PAGES_URL/$CI_COMMIT_BRANCH/rest-api/index.html"
