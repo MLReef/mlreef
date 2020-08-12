@@ -1,18 +1,33 @@
-![Build Status](https://gitlab.com/mlreef/frontend/badges/master/build.svg)
+![Build Status](https://gitlab.com/mlreef/mlreef/badges/master/build.svg)
 
-MLReef Frontend
+MLReef - The End2End Machine Learning Lifecycle Platform
 ====================
-Please read the [Contribution Guidelines](CONTRIBUTE.md) carefully
+
+Canonical source
+--------------------
+The canonical source of MLReef where all development takes place is hosted on gitLab.com/mlreef/mlreef.
+
+
+MLReef - The End2End Machine Learning Lifecycle Platform
+--------------------
+To find out more about how MLReef can streamline your Machine Learning Development Lifecycle see the [features on our homepage](https://about.mlreef.com)
+
+
+
+Getting Started as a Developer
+--------------------
+- Please read the [Contribution Guidelines](CONTRIBUTE.md) carefully
+- clone the [mlreef git repository](https://gitlab.com/mlreef/mlreef) to your local machine
+- read the [architecture document](https://docs.mlreef.com/99-development/architecture.md)
+
 
 ### Module Structure
-* **/bin**: contains scripts which help developers with their jobs  
-* **/docs**: contains documentation application 
-* **/src**: the root module contains terraform and infrastructure sources
-* **/web**: the npm based react frontend
+* **/backend: MLReef's Kotlin - Spring Boot backend
+* **/bin**:   scripts which help developers with their jobs  
+* **/docs**:  the Gatsby based documentation page
+* **/web**:   the npm based react frontend
 
 
-Getting Started
---------------------
 ### Run MLReef locally
  1. Install latest Docker
     * On OSX and Windows (and possibly on Unix), configure docker with at least 4GB of RAM
@@ -20,7 +35,7 @@ Getting Started
  3. Login to our private docker registry hosted on gitlab, with your gitlab credentials by executing `docker login registry.gitlab.com`
 
 ### Setup Infrastructure
-From the repositories _root_ folder execute: `bin/setup-local-environment.sh`
+From the repositories _root_ folder execute: `bin/setup-local-environment`
 
 After the setup has finished you can connect to MLReef via: [http://localhost](http://localhost)
 

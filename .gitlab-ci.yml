@@ -155,6 +155,7 @@ e2e test experiment:
 
 
 test rest docs are present:
+  extends: [.except-docu-branches]
   stage: test
   image: registry.gitlab.com/systemkern/s5:latest
   # See docu/bin/ci-pages for the exact path to where rest docs are deployed

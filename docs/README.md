@@ -1,7 +1,5 @@
 # MLReef Docs
 
-## Provisional stage
-http://mlreef.gitlab.io/frontend
 
 ## Important
 There is one foreign import:
