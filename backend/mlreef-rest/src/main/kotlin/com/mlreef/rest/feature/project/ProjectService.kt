@@ -57,6 +57,7 @@ import java.time.LocalTime
 import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.util.UUID
+import java.util.UUID.randomUUID
 import javax.transaction.Transactional
 
 interface ProjectService<T : Project> {
@@ -186,7 +187,7 @@ class ProjectTypesConfiguration(
 }
 
 open class ProjectServiceImpl<T : Project>(
-    val baseClass: Class<T>,
+    private val baseClass: Class<T>,
     val repository: ProjectBaseRepository<T>,
     val publicProjectsCacheService: PublicProjectsCacheService,
     val gitlabRestClient: GitlabRestClient,
@@ -291,7 +292,6 @@ open class ProjectServiceImpl<T : Project>(
 
         reservedNamesService.assertProjectNameIsNotReserved(projectName)
 
-        val findAllByOwnerId = repository.findAllByOwnerId(ownerId)
         repository.findOneByOwnerIdAndSlug(ownerId, possibleSlug)?.let {
             throw ConflictException(ErrorCode.GitlabProjectAlreadyExists, "Project exists for owner $creatingPersonId")
         }
@@ -417,7 +417,7 @@ open class ProjectServiceImpl<T : Project>(
         val project = this.getProjectById(projectUUID) ?: throw ProjectNotFoundException(projectUUID)
         return gitlabRestClient
             .adminGetProjectMembers(projectId = project.gitlabId)
-            .map {
+            .mapNotNull {
                 val account = accountRepository.findAccountByGitlabId(it.id)
                 if (account != null) {
                     val expiration = if (it.expiresAt != null) {
@@ -427,7 +427,7 @@ open class ProjectServiceImpl<T : Project>(
                     } else null
                     UserInProject(account.id, it.username, account.email, it.id, it.accessLevel.toAccessLevel(), expiration)
                 } else null //possible it is a bot or admin
-            }.filterNotNull()
+            }
     }
 
     override fun getUserProjectsList(userToken: String, userId: UUID?): List<ProjectOfUser> {
@@ -441,7 +441,7 @@ open class ProjectServiceImpl<T : Project>(
             listOf<GitlabProject>()
         }
 
-        return userProjects.map { project ->
+        return userProjects.mapNotNull { project ->
             try {
                 //Without this IF block Gitlab returns access level for user as a Maintainer
                 val gitlabAccessLevel = if (project.owner?.id?.equals(user.person.gitlabId) == true)
@@ -455,7 +455,7 @@ open class ProjectServiceImpl<T : Project>(
             } catch (ex: Exception) {
                 null
             }
-        }.filterNotNull()
+        }
     }
 
     override fun checkUserInProject(projectUUID: UUID, userId: UUID?, userName: String?, email: String?, userGitlabId: Long?, level: AccessLevel?, minlevel: AccessLevel?): Boolean {
@@ -467,20 +467,17 @@ open class ProjectServiceImpl<T : Project>(
                 ?: return false
 
             if ((level != null && level == AccessLevel.OWNER) || (minlevel != null && minlevel == AccessLevel.OWNER)) {
-                val gitlabProject = gitlabRestClient.adminGetProject(project.gitlabId)
-                return gitlabProject.owner?.id == gitlabId
+                return gitlabRestClient.adminGetProject(project.gitlabId).owner?.id == gitlabId
             } else {
                 val userInProjectInGitlab = gitlabRestClient.adminGetUserInProject(
                     projectId = project.gitlabId,
                     userId = gitlabId
                 )
 
-                return if (minlevel != null) {
-                    userInProjectInGitlab.accessLevel.satisfies(level.toGitlabAccessLevel())
-                } else if (level != null) {
-                    userInProjectInGitlab.accessLevel == level.toGitlabAccessLevel()
-                } else {
-                    true
+                return when {
+                    minlevel != null -> userInProjectInGitlab.accessLevel.satisfies(level.toGitlabAccessLevel())
+                    level != null -> userInProjectInGitlab.accessLevel == level.toGitlabAccessLevel()
+                    else -> true
                 }
             }
         } catch (ex: Exception) {
@@ -616,20 +613,19 @@ open class ProjectServiceImpl<T : Project>(
             else -> throw BadParametersException("Either group id or gitlab id must be presented")
         } ?: throw GroupNotFoundException(groupId = groupId, gitlabId = groupGitlabId)
 
-        gitlabRestClient
-            .adminDeleteGroupFromProject(projectId = project.gitlabId, groupId = group.gitlabId
-                ?: throw UnknownUserException("Group is not connected to Gitlab"))
+        gitlabRestClient.adminDeleteGroupFromProject(
+            projectId = project.gitlabId,
+            groupId = group.gitlabId ?: throw UnknownUserException("Group is not connected to Gitlab")
+        )
 
         return group
     }
 
     //Fixme move to new service that will appear after Budget task is merged
-    private fun resolveAccount(userToken: String? = null, userId: UUID? = null, personId: UUID? = null, userName: String? = null, email: String? = null, gitlabId: Long? = null): Account? {
-        return when {
-            userToken != null -> {
-                val gitlabUser = gitlabRestClient.getUser(userToken)
-                accountRepository.findAccountByGitlabId(gitlabUser.id)
-            }
+    private fun resolveAccount(userToken: String? = null, userId: UUID? = null, personId: UUID? = null, userName: String? = null, email: String? = null, gitlabId: Long? = null): Account? =
+        when {
+            userToken != null -> gitlabRestClient.getUser(userToken)
+                .let { accountRepository.findAccountByGitlabId(it.id) }
             personId != null -> accountRepository.findAccountByPersonId(personId)
             userId != null -> accountRepository.findByIdOrNull(userId)
             email != null -> accountRepository.findOneByEmail(email)
@@ -637,23 +633,18 @@ open class ProjectServiceImpl<T : Project>(
             gitlabId != null -> accountRepository.findAccountByGitlabId(gitlabId)
             else -> throw BadParametersException("At least one parameter must be provided")
         }
-    }
 
     @Suppress("UNCHECKED_CAST")
-    private fun createConcreteProject(ownerId: UUID, gitlabProject: GitlabProject): T {
-        val id = UUID.randomUUID()
-
+    private fun createConcreteProject(ownerId: UUID, gitlabProject: GitlabProject): T =
         when (baseClass) {
-            DataProject::class.java -> return createDataProjectEntity(id, ownerId, gitlabProject) as T
-            CodeProject::class.java -> return createCodeProjectEntity(id, ownerId, gitlabProject) as T
+            DataProject::class.java -> createDataProjectEntity(ownerId, gitlabProject) as T
+            CodeProject::class.java -> createCodeProjectEntity(ownerId, gitlabProject) as T
             else -> throw RuntimeException("You need to use concrete class")
         }
-    }
 
-    private fun createDataProjectEntity(id: UUID, ownerId: UUID, gitlabProject: GitlabProject): DataProject {
-        val group = gitlabProject.pathWithNamespace.split("/")[0]
-        return DataProject(
-            id = id,
+    private fun createDataProjectEntity(ownerId: UUID, gitlabProject: GitlabProject): DataProject =
+        DataProject(
+            id = randomUUID(),
             slug = gitlabProject.path,
             ownerId = ownerId,
             url = gitlabProject.webUrl,
@@ -661,16 +652,14 @@ open class ProjectServiceImpl<T : Project>(
             description = gitlabProject.description ?: "",
             gitlabPath = gitlabProject.path,
             gitlabPathWithNamespace = gitlabProject.pathWithNamespace,
-            gitlabNamespace = group,
+            gitlabNamespace = gitlabProject.pathWithNamespace.split("/")[0],
             gitlabId = gitlabProject.id,
             visibilityScope = gitlabProject.visibility.toVisibilityScope()
         )
-    }
 
-    private fun createCodeProjectEntity(id: UUID, ownerId: UUID, gitlabProject: GitlabProject): CodeProject {
-        val group = gitlabProject.pathWithNamespace.split("/")[0]
-        return CodeProject(
-            id = id,
+    private fun createCodeProjectEntity(ownerId: UUID, gitlabProject: GitlabProject): CodeProject =
+        CodeProject(
+            id = randomUUID(),
             slug = gitlabProject.path,
             ownerId = ownerId,
             url = gitlabProject.webUrl,
@@ -678,21 +667,19 @@ open class ProjectServiceImpl<T : Project>(
             description = gitlabProject.description ?: "",
             gitlabPath = gitlabProject.path,
             gitlabPathWithNamespace = gitlabProject.pathWithNamespace,
-            gitlabNamespace = group,
+            gitlabNamespace = gitlabProject.pathWithNamespace.split("/")[0],
             gitlabId = gitlabProject.id,
             visibilityScope = gitlabProject.visibility.toVisibilityScope()
         )
-    }
 
     @Transactional
     override fun updateUserNameInProjects(oldUserName: String, newUserName: String, tokenDetails: TokenDetails) {
-        val user = resolveAccount(userName = oldUserName)
+        resolveAccount(userName = oldUserName)
             ?: resolveAccount(userName = newUserName)
             ?: throw UserNotFoundException(userName = oldUserName)
 
-        val projects = this.getProjectsByNamespace(oldUserName)
-        projects.forEach {
-            if (tokenDetails.projects.get(it.id) == AccessLevel.OWNER) {
+        getProjectsByNamespace(oldUserName).forEach {
+            if (tokenDetails.projects[it.id] == AccessLevel.OWNER) {
                 val updatedProject = it.copy<T>(
                     url = it.url.replace(oldUserName, newUserName, true),
                     gitlabNamespace = it.gitlabNamespace.replace(oldUserName, newUserName, true),
