@@ -15,9 +15,9 @@ export default class ProjectGeneralInfoApi extends ApiDirector {
   async create(body: any, projectType: string, isNamespaceAGroup: boolean) {
     const baseUrl = `/api/v1/${projectType}s`;
     const apiReqBuilder = new ApiRequestCallBuilder(
-      METHODS.POST, 
-      this.buildBasicHeaders(validServicesToCall.BACKEND), 
-      baseUrl, 
+      METHODS.POST,
+      this.buildBasicHeaders(validServicesToCall.BACKEND),
+      baseUrl,
       JSON.stringify(body)
     );
     const response = await fetch(apiReqBuilder.build());
@@ -152,11 +152,12 @@ export default class ProjectGeneralInfoApi extends ApiDirector {
       .then(handleResponse)
   }
 
-  async getUsers(projectId: number, auth: boolean) {
+  async getUsers(projectId: number) {
     const url = `/api/v4/projects/${projectId}/users`;
-    const builder = new BLApiRequestCallBuilder(METHODS.GET, this.buildBasicHeaders(validServicesToCall.GITLAB), url);
+    const headers = this.buildBasicHeaders(validServicesToCall.GITLAB);
+    const builder = new BLApiRequestCallBuilder(METHODS.GET, headers, url);
 
-    const response = await fetch(auth ? builder.build() : url);
+    const response = await fetch(builder.build());
     if (!response.ok) {
       return Promise.reject(response);
     }
