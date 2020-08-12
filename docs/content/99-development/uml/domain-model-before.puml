@@ -1,0 +1,294 @@
+@startuml
+
+interface Searchable
+interface EpfAnnotation
+
+Searchable <|-- DataProject
+Searchable <|-- CodeProject
+Searchable <|-- DataProcessor
+
+EpfAnnotation <|-- DataAlgorithm
+EpfAnnotation <|-- DataProcessor
+EpfAnnotation <|-- DataOperation
+EpfAnnotation <|-- DataVisualization
+EpfAnnotation <|-- ProcessorParameter
+EpfAnnotation <|-- MetricSchema
+
+interface MLProject {
+    Describes a MLReef project linked to (gitlab) project.
+    Certain properties can describe this ML project.
+    ==
+    slug: String
+    url: String
+    name: String
+    ownerId: UUID
+    gitlabGroup: String
+    gitlabPathWithNamespace: String
+    gitlabProject: String
+    gitlabId: Long
+    visibilityScope: VisibilityScope
+}
+
+class DataProject {
+    Contains Data and lots of Experiments
+    ==
+    dataTypes: List<DataType>
+}
+class CodeProject {
+    Hosts DataProcessors and ML runnable code.
+    ==
+    dataProcessor: DataProcessor? = null
+}
+
+MLProject <|-- CodeProject
+MLProject <|-- DataProject
+
+class MarketplaceEntry {
+    Describes an Entity which can be found in the Marketplace and dynamic searches
+    ==
+    id: UUID
+    globalSlug: String
+    visibilityScope: VisibilityScope
+    name: String
+    description: String
+    tags: Set<SearchableTag>
+    owner: Subject
+    starsCount: Int
+    forksCount: Int
+    stars: List<Star>
+    searchableId: UUID
+    searchableType: SearchableType
+    inputDataTypes: Set<DataType>
+    outputDataTypes: Set<DataType>
+
+}
+
+MarketplaceEntry --> DataProject : "is Searchable"
+MarketplaceEntry --> CodeProject : "is Searchable"
+MarketplaceEntry --> DataProcessor : "is Searchable"
+
+interface DataProcessor {
+    They live in a CodeProject and describe
+     some python files to run
+    ==
+    id: UUID
+    slug: String
+    name: String
+    command: String
+    inputDataType: DataType
+    outputDataType: DataType
+    type: DataProcessorType
+    description: String
+    codeProjectId: UUID?
+    author: Subject?
+    parameters: List<ProcessorParameter>
+    outputFiles: List<OutputFile>
+    metricSchema: MetricSchema
+}
+
+DataProcessor <|-- DataOperation
+DataProcessor <|-- DataVisualization
+DataProcessor <|-- DataAlgorithm
+
+class DataAlgorithm {
+"Model-output" producing Model
+}
+
+MarketplaceEntry "*" <- "*" SearchableTag : "describe"
+
+CodeProject -- DataProcessor : "lives in" <
+
+DataProject *-- "many" Experiment : "has"
+DataProject *-- "many" PipelineConfig : "has"
+DataProject *--- "many" PipelineInstance : "has"
+PipelineConfig <-- "many" PipelineInstance : "has"
+
+Experiment *-- "some" DataProcessorInstance : "has"
+PipelineConfig *-- "some" DataProcessorInstance : "has"
+PipelineInstance *-- "some" DataProcessorInstance : "has"
+
+Experiment "many" -> "0-1" PipelineInstance : "references?"
+Experiment *-- "0-1" PipelineJobInfo : "has?"
+PipelineInstance *-- "0-1" PipelineJobInfo : "has?"
+
+DataProcessor <- "1" MetricSchema : "has"
+DataProcessor *- "some" ProcessorParameter : "has"
+DataProcessorInstance *- "some" ParameterInstance : "has"
+DataProcessor <-- "many" DataProcessorInstance : "references"
+ProcessorParameter <-- "many" ParameterInstance : "references"
+
+class DataProcessorInstance {
+    Actual instance of a Processor (Operation, Model, Visualisation).
+    References the DataProcessor and executes
+     with ParameterInstance which have values
+    ==
+    val dataProcessor: DataProcessor
+    val dataProcessorId: UUID
+    val dataProcessorVersion: Long?
+    val slug: String
+    val name: String
+    val command: String
+    val type: DataProcessorType
+    val metricSchema: MetricSchema
+    val parameterInstances: ParameterInstance[]
+    val parentId: UUID?
+    val children: DataProcessorInstance[]
+    var experimentPreProcessingId: UUID?
+    var experimentPostProcessingId: UUID?
+    var experimentProcessingId: UUID?
+    val dataInstanceId: UUID?
+    val pipelineConfigId: UUID?
+}
+
+class Experiment {
+    Experiment is configuration and instance at the same time.
+    Can reference a dataInstanceId (PipelineInstance) as data input branch.
+    Has a PipelineJobInfo after it has been started.
+    ==
+    val id: UUID
+    val dataProjectId: UUID
+    val dataInstanceId: UUID?
+    val slug: String
+    val name: String
+    val sourceBranch: String
+    val targetBranch: String
+    protected var processing: DataProcessorInstance?
+    val postProcessing: MutableList<DataProcessorInstance>
+    val inputFiles: List<FileLocation>
+    val outputFiles: List<OutputFile>
+    var jsonBlob: String
+    val pipelineJobInfo: PipelineJobInfo? = null
+    val status: ExperimentStatus = ExperimentStatus.CREATED
+}
+
+class PipelineConfig {
+    Is an abstract configuration of a DATA or VISUAL pipeline.
+    Has to be instantiated to create a PipelineInstance.
+    ==
+    val id: UUID
+    val dataProjectId: UUID
+    val pipelineType: PipelineType
+    val slug: String
+    val name: String
+    val sourceBranch: String
+    val targetBranchPattern: String
+    val inputFiles: MutableList<FileLocation>
+    val dataOperations: MutableList<DataProcessorInstance>
+}
+
+class PipelineInstance {
+    Is an actual instance of a PipelineConfig, which resulted in a branch.
+    Has a PipelineJobInfo after start, existing targetBranch and a number.
+    ==
+    val id: UUID
+    val dataProjectId: UUID
+    val pipelineConfigId: UUID
+    val pipelineType: PipelineType
+    val slug: String
+    val name: String
+    val number: Int
+    val sourceBranch: String
+    val targetBranch: String
+    val commit: String? = null
+    val inputFiles: MutableList<FileLocation>
+    val dataOperations: MutableList<DataProcessorInstance>
+    val status: PipelineStatus
+    val pipelineJobInfo: PipelineJobInfo?
+}
+
+class ProcessorParameter {
+    Description and specification of a Parameter used in Processors.
+    Does not have specific value.
+    ==
+    val dataProcessorId: UUID
+    val name: String
+    val type: ParameterType
+    val order: Int
+    val defaultValue: String
+    val required: Boolean
+    val group: String
+    val description: String?
+}
+
+class ParameterInstance {
+    References a ProcessorParameter and implements its value.
+    ==
+    val id: UUID
+    val processorParameter: ProcessorParameter
+    val dataProcessorInstanceId: UUID
+    val value: String
+    val name: String
+    val type: ParameterType
+}
+
+class PipelineJobInfo {
+    Informational Value Object to store the Gitlab Pipeline information
+    ==
+    var gitlabId: Long
+    var commitSha: String
+    var ref: String
+    var secret: String
+    var createdAt: ZonedDateTime?
+    var updatedAt: ZonedDateTime?
+    var startedAt: ZonedDateTime?
+    var committedAt: ZonedDateTime?
+    var finishedAt: ZonedDateTime?
+}
+
+class SearchableTag {
+    A Tag to be glued to a Searchable. Can be public, or owner-related private.
+    Tags have Families, e.g. Family "Usage" with "Classifier" Tag
+    ==
+    val id: UUID
+    val name: String
+    val public: Boolean
+    val ownerId: UUID?
+    val type: SearchableTagType
+}
+
+enum SearchableTagType {
+    USAGE,
+    STUFF,
+    UNDEFINED
+}
+
+enum DataProcessorType {
+    ALGORITHM,
+    OPERATION,
+    VISUALISATION
+}
+
+enum MetricType {
+    RECALL,
+    PRECISION,
+    F1_SCORE,
+    UNDEFINED
+}
+
+enum ParameterType {
+    BOOLEAN,
+    STRING,
+    INTEGER,
+    COMPLEX,
+    FLOAT,
+    LIST,
+    TUPLE,
+    DICTIONARY,
+    OBJECT
+}
+
+enum DataType {
+    ANY,
+    NUMPY_ARRAY,
+    IMAGE,
+    VIDEO,
+    SENSOR,
+    NUMBER,
+    TABULAR,
+    TEXT,
+    BINARY,
+    MODEL,
+    NONE
+}
+
+@enduml

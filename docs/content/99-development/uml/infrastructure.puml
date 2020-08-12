@@ -1,0 +1,46 @@
+@startuml
+
+package "MLReef Applications" {
+ interface "Reverse Proxy" as Proxy
+ Proxy --> [Frontend]
+ Proxy --> [Backend]
+ Proxy --> [Gitlab]
+ [Frontend] -> [Backend]
+ [Frontend] -> [Gitlab]
+ [Backend] --> [Gitlab]
+ [Gitlab] --> [GitlabCI MultiRunner]
+}
+
+actor "User" as User
+User --> Proxy
+
+cloud "Gitlab Runners (AWS)" {
+  [CI-Runner Job#1]
+  [CI-Runner Job#2]
+}
+
+[GitlabCI MultiRunner] <--> [CI-Runner Job#1]
+[GitlabCI MultiRunner] <--> [CI-Runner Job#2]
+
+package "Infrastructure Services" {
+    database "postgres-mlreef" as dbmlreef
+    database "postgres-gitlab" as dbgitlab
+    node Redis
+    node FileStorage
+}
+
+skinparam database {
+    arrowColor Green
+    backgroundColor #aaffaa
+}
+
+[Gitlab] --> dbgitlab
+[Backend] --> dbmlreef
+[Backend] --> Redis
+[Backend] --> FileStorage
+
+[Gitlab] --> Redis
+[Gitlab] --> FileStorage
+
+
+@enduml
