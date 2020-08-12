@@ -114,7 +114,7 @@ def resnet_model(height, width, channels, color_mode, use_pretrained, trainGener
                                                 factor=0.5,
                                                 min_lr=0.00001)
 
-    model.compile(optimizer=optimizers.adam(lr=learning_rate), loss=loss, metrics=["accuracy"])
+    model.compile(optimizer=optimizers.adam(lr=learning_rate), loss=loss, metrics=['acc'])
     csv_logger = CSVLogger('training.log', append=False)
     history_callback = model.fit_generator(generator=trainGenerator,
                                            steps_per_epoch=trainGenerator.samples // trainGenerator.batch_size,
@@ -183,6 +183,10 @@ if __name__ == '__main__':
     params = process_arguments(sys.argv[1:])
     images_path = params['input_path']
     output_path = params['output_path']
+    
+    if not os.path.exists(self.output_dir):
+        os.makedirs(self.output_dir)
+
     height = int(params['height'])
     width = int(params['width'])
     channels = int(params['channels'])
