@@ -17,8 +17,8 @@ const mergeWithGitlabProject = (project) => projectApi.getProjectInfoApi(project
 
 // fetch complementary member list from gitlab api, so far it's not possible
 // to get them within each project
-const mergeGitlabResource = (projects, auth) => Promise.all(
-  projects.map((project) => projectApi.getUsers(project.gitlabId, auth)
+const mergeGitlabResource = (projects) => Promise.all(
+  projects.map((project) => projectApi.getUsers(project.gitlabId)
     .then((members) => ({ ...project, members }))
     .catch(() => project)),
 );
@@ -48,16 +48,17 @@ export function getProjectsList() {
     if (auth) {
       allProjects = await projectApi.getProjectsList()
         .then((projs) => projs.map(parseToCamelCase))
-        .then((projects) => mergeGitlabResource(projects, auth));
+        .then((projects) => mergeGitlabResource(projects));
     } else {
       publicProjects = await projectApi.listPublicProjects()
         .then(handlePagination)
         .then((projs) => projs.map(parseToCamelCase))
-        .then((projects) => mergeGitlabResource(projects, auth));
+        .then((projects) => mergeGitlabResource(projects));
     }
     const finalArray = [...publicProjects, ...allProjects];
     if (finalArray) {
-      const memberProjects = finalArray.filter((project) => project.members?.some((m) => m.username === username));
+      const memberProjects = finalArray
+        .filter((project) => project.members?.some((m) => m.username === username));
 
       dispatch(getProjectsInfoSuccessfully(finalArray));
       dispatch(setUserProjectsSuccessfully(memberProjects));
