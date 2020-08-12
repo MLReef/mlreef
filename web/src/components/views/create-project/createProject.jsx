@@ -37,7 +37,7 @@ const MAX_LENGTH = 255;
 const projectGeneraInfoApi = new ProjectGeneraInfoApi();
 
 const {
-  IMAGE, TEXT, AUDIO, VIDEO, TABULAR, SENSOR, NUMBER, BINARY, MODEL,
+  IMAGE, TEXT, AUDIO, VIDEO, TABULAR, NUMBER, BINARY, MODEL, TIME_SERIES, HIERARCHICAL,
 } = PROJECT_DATA_TYPES;
 
 class CreateProject extends Component {
@@ -46,11 +46,12 @@ class CreateProject extends Component {
       { name: 'data-types Text', label: TEXT },
       { name: 'data-types Image', label: IMAGE },
       { name: 'data-types Audio', label: AUDIO },
+      { name: 'data-types Hierarchical', label: HIERARCHICAL },
     ],
     [
       { name: 'data-types Video', label: VIDEO },
       { name: 'data-types Tabular', label: TABULAR },
-      { name: 'data-types Sensor', label: SENSOR },
+      { name: 'data-types Time_series', label: TIME_SERIES },
     ],
     [
       { name: 'data-types Number', label: NUMBER },

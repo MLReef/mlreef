@@ -14,17 +14,17 @@ const MProjectCard = (props) => {
     slug,
     namespace,
     inputDataTypes,
-    outputDataTypes,
-    dataProcessor,
+    /* outputDataTypes, */
+    /* dataProcessor, */
     users,
   } = props;
 
   const history = useHistory();
 
   const goToProjectView = () => history.push(`/${namespace}/${slug}`);
-
+/* 
   const hasOutputTypes = !['ALGORITHM', 'VISUALIZATION']
-    .some((t) => dataProcessor?.type === t);
+    .some((t) => dataProcessor?.type === t); */
 
   return (
     <div className="card">
@@ -48,10 +48,6 @@ const MProjectCard = (props) => {
 
         <div className="card-content">
           <MProjectCardTypes input types={inputDataTypes} />
-          {hasOutputTypes && (
-            <MProjectCardTypes output types={outputDataTypes} />
-          )}
-
           {!description ? (
             <div className="d-flex noelement-found-div" style={{ marginTop: '1rem' }}>
               <img src={iconGrey} alt="" style={{ maxHeight: '30px' }} />

@@ -32,7 +32,7 @@ describe('test the frontend features', () => {
     expect(wrapper.find('#projectSlug')).toHaveLength(1);
     expect(wrapper.find('#projectDescription')).toHaveLength(1);
     expect(wrapper.find('#free-tags')).toHaveLength(1);
-    expect(wrapper.find('MCheckBox')).toHaveLength(10);
+    expect(wrapper.find('MCheckBox')).toHaveLength(11);
     expect(wrapper.find('.btn.btn-basic-dark')).toHaveLength(1);
     expect(wrapper.find('.btn.btn-primary')).toHaveLength(1);
   });
