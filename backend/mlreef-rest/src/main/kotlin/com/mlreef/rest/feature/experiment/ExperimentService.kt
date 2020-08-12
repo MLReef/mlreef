@@ -115,9 +115,6 @@ class ExperimentService(
     }
 
     fun createExperimentFile(author: Account, experiment: Experiment, secret: String): String {
-        val dataProject = dataProjectRepository.findByIdOrNull(experiment.dataProjectId)
-            ?: throw ExperimentCreateException(ErrorCode.ExperimentCreationProjectMissing, "DataProject is missing!")
-
         val processors: MutableList<DataProcessorInstance> = arrayListOf()
         experiment.getProcessor()?.let { processors.add(it) }
         processors.addAll(experiment.postProcessing)
@@ -128,7 +125,6 @@ class ExperimentService(
         val fileList = experiment.inputFiles.map(FileLocation::toYamlString)
         return YamlFileGenerator(conf.epf.imageTag).generateYamlFile(
             author = author,
-            dataProject = dataProject,
             epfPipelineSecret = secret,
             epfPipelineUrl = "${conf.epf.backendUrl}/api/v1/epf/experiments/${experiment.id}",
             epfGitlabUrl = conf.epf.gitlabUrl,

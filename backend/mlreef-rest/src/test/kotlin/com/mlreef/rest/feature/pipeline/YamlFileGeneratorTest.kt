@@ -1,6 +1,5 @@
 package com.mlreef.rest.feature.pipeline
 
-import com.mlreef.rest.ApplicationProfiles
 import com.mlreef.rest.BaseEnvironment
 import com.mlreef.rest.DataOperation
 import com.mlreef.rest.DataProcessorInstance
@@ -9,7 +8,6 @@ import com.mlreef.rest.ParameterType
 import com.mlreef.rest.Person
 import com.mlreef.rest.ProcessorParameter
 import com.mlreef.rest.ProcessorVersion
-import com.mlreef.rest.Subject
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import java.util.UUID.randomUUID
@@ -39,8 +37,6 @@ class YamlFileGeneratorTest {
         assertThat(generator.input).contains(YamlFileGenerator.EPF_PIPELINE_SECRET)
         assertThat(generator.input).contains(YamlFileGenerator.CONF_EMAIL)
         assertThat(generator.input).contains(YamlFileGenerator.CONF_NAME)
-        assertThat(generator.input).contains(YamlFileGenerator.GITLAB_GROUP)
-        assertThat(generator.input).contains(YamlFileGenerator.GITLAB_PROJECT)
         assertThat(generator.input).contains(YamlFileGenerator.SOURCE_BRANCH)
         assertThat(generator.input).contains(YamlFileGenerator.TARGET_BRANCH)
         assertThat(generator.input).contains(YamlFileGenerator.INPUT_FILE_LIST)
@@ -58,8 +54,6 @@ class YamlFileGeneratorTest {
         assertThat(generator.output).doesNotContain(YamlFileGenerator.EPF_PIPELINE_SECRET)
         assertThat(generator.output).doesNotContain(YamlFileGenerator.CONF_EMAIL)
         assertThat(generator.output).doesNotContain(YamlFileGenerator.CONF_NAME)
-        assertThat(generator.output).doesNotContain(YamlFileGenerator.GITLAB_GROUP)
-        assertThat(generator.output).doesNotContain(YamlFileGenerator.GITLAB_PROJECT)
         assertThat(generator.output).doesNotContain(YamlFileGenerator.SOURCE_BRANCH)
         assertThat(generator.output).doesNotContain(YamlFileGenerator.TARGET_BRANCH)
     }
@@ -120,14 +114,14 @@ class YamlFileGeneratorTest {
     }
 
     private fun mockDataProcessorInstance(slug: String): DataProcessorInstance {
-        val _dataOp1 = DataOperation(randomUUID(), slug, "name", DataType.ANY, DataType.ANY)
-        val dataOp1 = ProcessorVersion(
-            id = _dataOp1.id, dataProcessor = _dataOp1, publisher = Person(randomUUID(), "subject", "name", 1),
+        val dataOperation = DataOperation(randomUUID(), slug, "name", DataType.ANY, DataType.ANY)
+        val processorVersion = ProcessorVersion(
+            id = dataOperation.id, dataProcessor = dataOperation, publisher = Person(randomUUID(), "subject", "name", 1),
             command = "augment", number = 1, baseEnvironment = BaseEnvironment.default())
 
-        val processorParameter1 = ProcessorParameter(randomUUID(), dataOp1.id, "stringParam", ParameterType.STRING, 0, "")
-        val processorParameter2 = ProcessorParameter(randomUUID(), dataOp1.id, "floatParam", ParameterType.FLOAT, 1, "0.1")
-        val dataProcessorInstance = DataProcessorInstance(randomUUID(), dataOp1)
+        val processorParameter1 = ProcessorParameter(randomUUID(), processorVersion.id, "stringParam", ParameterType.STRING, 0, "")
+        val processorParameter2 = ProcessorParameter(randomUUID(), processorVersion.id, "floatParam", ParameterType.FLOAT, 1, "0.1")
+        val dataProcessorInstance = DataProcessorInstance(randomUUID(), processorVersion)
         dataProcessorInstance.addParameterInstances(processorParameter1, "string")
         dataProcessorInstance.addParameterInstances(processorParameter2, "0.1")
         return dataProcessorInstance

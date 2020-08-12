@@ -9,6 +9,9 @@
 image: registry.gitlab.com/mlreef/mlreef/epf:%EPF_IMAGE_TAG%
 
 variables:
+  # Variables containing the prefix CI_ are provided directly by the the pipeline environment
+  # https://docs.gitlab.com/ee/ci/variables/predefined_variables.html
+
   #GIT_PUSH_TOKEN is a CI-environment variable which needs to be available in the Gitlab project
   EPF_GITLAB_HOST:     "%EPF_GITLAB_HOST%"      # Gitlab host name without port
   GIT_PUSH_NAME:       "%CONF_NAME%"            # The name used for git pushing pipeline results
@@ -28,20 +31,28 @@ variables:
 
 # The before_script handles everything git related and sets up the automatic committing
 before_script:
-  # Debug output mlreef.yml
-  - cat .mlreef.yml
-  - echo "####################"
+  - cat .mlreef.yml         # Debug output mlreef.yml
+  - echo "################# Logging job parameters"
+  - echo "CI_SERVER_URL   = $CI_SERVER_URL"
+  - echo "CI_SERVER_HOST  = $CI_SERVER_HOST"
+  - echo "CI_SERVER_PORT  = $CI_SERVER_PORT"
+  - echo "CI_RUNNER_ID    = $CI_RUNNER_ID"
+  - echo "CI_PROJECT_NAME = $CI_PROJECT_NAME"
+  - echo "CI_PROJECT_PATH = $CI_PROJECT_PATH"
+  - echo "#################"
+  #- it just aint working!
   # https://stackoverflow.com/questions/42074414/gitlab-push-to-a-repository-using-access-token
   # git remote add origin https://oauth2:<mytoken>@gitlab.com/myuser/myrepo.git
-  - git remote set-url origin "http://oauth2:$GIT_PUSH_TOKEN@$EPF_GITLAB_HOST:10080/$GITLAB_GROUP/$GITLAB_PROJECT.git"
+  - git remote set-url origin "http://oauth2:$GIT_PUSH_TOKEN@$EPF_GITLAB_HOST:10080/$CI_PROJECT_PATH.git"
   - git config --global user.email "$GIT_PUSH_EMAIL"
   - git config --global user.name "$GIT_PUSH_NAME"
+  - echo "Target branch is $TARGET_BRANCH"
+  - background-push &
+
   # TODO this can maybe be deleted
   #- git checkout %SOURCE_BRANCH%
   # TODO this can maybe be deleted
   #- export GITLAB_API_TOKEN="${GIT_PUSH_TOKEN}"
-  - echo "Target branch is $TARGET_BRANCH"
-  - background-push &
 
 after_script:
   - epf-finish

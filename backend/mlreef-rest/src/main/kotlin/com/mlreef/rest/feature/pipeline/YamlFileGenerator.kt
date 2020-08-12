@@ -25,8 +25,6 @@ internal class YamlFileGenerator(
         const val EPF_GITLAB_HOST = "%EPF_GITLAB_HOST%"
         const val EPF_PIPELINE_URL = "%EPF_PIPELINE_URL%"
         const val EPF_PIPELINE_SECRET = "%EPF_PIPELINE_SECRET%"
-        const val GITLAB_GROUP = "%GITLAB_GROUP%"
-        const val GITLAB_PROJECT = "%GITLAB_PROJECT%"
         const val CONF_EMAIL = "%CONF_EMAIL%"
         const val CONF_NAME = "%CONF_NAME%"
         const val SOURCE_BRANCH = "%SOURCE_BRANCH%"
@@ -84,7 +82,6 @@ internal class YamlFileGenerator(
 
     fun generateYamlFile(
         author: Account,
-        dataProject: DataProject,
         epfPipelineSecret: String,
         epfPipelineUrl: String,
         epfGitlabUrl: String,
@@ -100,9 +97,7 @@ internal class YamlFileGenerator(
             epfPipelineUrl = epfPipelineUrl,
             confEmail = author.email,
             confName = author.username,
-            gitlabNamespace = dataProject.gitlabNamespace,
             epfGitlabUrl = epfGitlabUrl,
-            gitlabPath = dataProject.gitlabPath,
             sourceBranch = sourceBranch,
             targetBranch = targetBranch,
             inputFileList = inputFileListString
@@ -130,8 +125,6 @@ internal class YamlFileGenerator(
         epfPipelineSecret: String = "",
         epfPipelineUrl: String = "",
         epfGitlabUrl: String = "",
-        gitlabNamespace: String = "",
-        gitlabPath: String = "",
         confEmail: String = "",
         confName: String = "",
         sourceBranch: String = "",
@@ -144,8 +137,6 @@ internal class YamlFileGenerator(
             .replace(EPF_PIPELINE_SECRET, epfPipelineSecret)
             .replace(EPF_PIPELINE_URL, epfPipelineUrl)
             .replace(EPF_GITLAB_HOST, epfGitlabUrl.replace("http://", "").replace("https://", ""))
-            .replace(GITLAB_GROUP, gitlabNamespace)
-            .replace(GITLAB_PROJECT, gitlabPath)
             .replace(CONF_EMAIL, confEmail)
             .replace(CONF_NAME, confName)
             .replace(SOURCE_BRANCH, sourceBranch)
