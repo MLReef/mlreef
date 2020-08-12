@@ -5,8 +5,6 @@ import com.mlreef.rest.DataProcessorInstance
 import com.mlreef.rest.DataProcessorType
 import com.mlreef.rest.ParameterInstance
 import org.springframework.core.io.ClassPathResource
-import java.io.BufferedReader
-import java.io.InputStreamReader
 import java.util.stream.Collectors
 
 object GitlabVariables {
@@ -65,16 +63,9 @@ internal class YamlFileGenerator(
 
     init {
         output = ""
-
-        val classPathResource = ClassPathResource("mlreef-file-template.yml")
-        val inputStream = classPathResource.inputStream
-        try {
-            val reader = BufferedReader(InputStreamReader(inputStream))
-            val lines = reader.lines()
-            input = lines.collect(Collectors.joining(NEWLINE))
-        } catch (e: Exception) {
-            e.printStackTrace()
-            throw e
+        input = ClassPathResource("mlreef-file-template.yml")
+            .inputStream.bufferedReader().use {
+            it.lines().collect(Collectors.joining(NEWLINE))
         }
         output = input
     }
