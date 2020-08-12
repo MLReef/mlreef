@@ -60,9 +60,7 @@ enum class DataType {
     TEXT,
     TIME_SERIES,
     VIDEO,
-    VOICE,
     MODEL,
-    SENSOR,
     NUMBER,
 }
 

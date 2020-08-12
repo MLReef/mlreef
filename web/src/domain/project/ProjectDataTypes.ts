@@ -9,8 +9,6 @@ export enum PROJECT_DATA_TYPES {
   TEXT = 'TEXT',
   TIME_SERIES = 'TIME_SERIES',
   VIDEO = 'VIDEO',
-  VOICE = 'VOICE',
   MODEL = 'MODEL',
-  SENSOR = 'SENSOR',
   NUMBER = 'NUMBER',
 }

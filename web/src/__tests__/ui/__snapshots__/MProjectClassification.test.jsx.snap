@@ -89,9 +89,6 @@ exports[`test html elements 1`] = `
               <div
                 className="project-card-types d-flex"
               />
-              <div
-                className="project-card-types d-flex"
-              />
               <p
                 className="t-dark"
               >
