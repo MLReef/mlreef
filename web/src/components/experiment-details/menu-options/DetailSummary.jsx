@@ -28,13 +28,13 @@ const DetailsSummary = ({
     </b>
   );
 
-  if (currentState === 'running') {
+  if (currentState.toLowerCase() === 'running') {
     experimentStatus = (
-      <b style={{ color: '#2DB391' }}>
+      <b className="t-primary">
         {currentState}
       </b>
     );
-  } else if (currentState === 'pending') {
+  } else if (currentState.toLowerCase() === 'pending') {
     experimentStatus = (
       <b style={{ color: '#E99444' }}>
         {currentState}

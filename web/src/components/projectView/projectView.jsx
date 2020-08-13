@@ -113,7 +113,7 @@ class ProjectView extends React.Component {
       project,
       project: {
         gid,
-        sshUrlToRepo,
+        httpUrlToRepo,
         readmeUrl: showReadMe,
       },
       match: {
@@ -168,7 +168,7 @@ class ProjectView extends React.Component {
           {gid && (
           <div className="main-content">
             {project.emptyRepo ? (
-              <EmptyProject sshUrlToRepo={sshUrlToRepo} projectId={gid} />
+              <EmptyProject httpUrlToRepo={httpUrlToRepo} projectId={gid} />
             ) : (
               <>
                 <RepoInfo

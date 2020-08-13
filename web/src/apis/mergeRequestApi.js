@@ -64,7 +64,6 @@ export class MergeRequestAPI extends ApiDirector {
       toastr.error('Error', response.err);
     }
     return response.json();
-
   }
 
   static async acceptMergeRequest(id, iid, squash, removeSourceBranch) {

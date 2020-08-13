@@ -12,7 +12,8 @@ const JobLog = ({
   job,
 }) => {
   const [jobLog, setJobLog] = useState(null);
-  const parsedDuration = parseDurationInSeconds(job.duration);
+  const [duration, setDuration] = useState(0);
+  const parsedDuration = parseDurationInSeconds(duration);
   const {
     created_at: createdAt,
     user,
@@ -61,10 +62,13 @@ const JobLog = ({
   }
 
   useEffect(() => {
-    JobsApi.getLog(projectId, job.id)
-      .then((res) => res.ok ? handleResponse(res) : Promise.reject(res)).catch(() => {
-        toastr.error('Error', 'The log could not be read');
-      });
+    JobsApi.getJobById(projectId, job.id)
+      .then((res) => setDuration(res.duration))
+      .then(() => {
+        JobsApi.getLog(projectId, job.id)
+          .then((res) => res.ok ? handleResponse(res) : Promise.reject(res));
+      })
+      .catch(() => toastr.error('Error', 'The job was not found'));
   }, [projectId, job.id]);
 
   let jobStatus = (

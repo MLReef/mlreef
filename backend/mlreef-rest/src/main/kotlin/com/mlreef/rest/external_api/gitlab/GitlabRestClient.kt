@@ -112,8 +112,8 @@ class GitlabRestClient(
             buildTimeout = buildTimeout
         )
             .let { GitlabHttpEntity(it, createUserHeaders(token)) }
-            .addErrorDescription(409, ErrorCode.GitlabProjectAlreadyExists, "Cannot create project $name in gitlab. Project already exists")
-            .addErrorDescription(400, ErrorCode.GitlabProjectAlreadyExists, "Cannot create project $name in gitlab. Possible project already exists")
+            .addErrorDescription(409, ErrorCode.GitlabProjectAlreadyExists, "The project name already exists")
+            .addErrorDescription(400, ErrorCode.GitlabProjectAlreadyExists, "The project name alreay exists")
             .addErrorDescription(ErrorCode.GitlabProjectCreationFailed, "Cannot create project $name in gitlab")
             .makeRequest {
                 val url = "$gitlabServiceRootUrl/projects"
