@@ -121,7 +121,7 @@ const ProjectInfo = (props) => {
             <img className="mr-0 mr-lg-1" id="option-image" src="/images/svg/clone_01.svg" alt="" />
             <span className="my-auto d-none d-lg-block">Clone</span>
           </div>
-          <Clonedropdown className="border-rounded-right h-100" http={classProject.httpUrlToRepo} ssh={classProject.sshUrlToRepo} />
+          <Clonedropdown className="border-rounded-right h-100" http={classProject.httpUrlToRepo} />
         </div>
       </div>
     </div>
@@ -130,14 +130,12 @@ const ProjectInfo = (props) => {
 
 export function Clonedropdown(props) {
   const {
-    ssh,
     http,
     className,
   } = props;
 
-  // The following code can be used to refactor the rest of the code. New way of writing the code.
+  // const sshRef = React.useRef(null);
   const node = React.useRef();
-  const sshRef = React.useRef(null);
   const httpRef = React.useRef(null);
   const [open, setOpen] = React.useState(false);
 
@@ -161,11 +159,11 @@ export function Clonedropdown(props) {
     };
   }, [open]);
 
-  const handleCopySsh = e => {
-    sshRef && sshRef.current.select();
-    document.execCommand('copy');
-    setOpen(false);
-  };
+  // const handleCopySsh = e => {
+  //   sshRef && sshRef.current.select();
+  //   document.execCommand('copy');
+  //   setOpen(false);
+  // };
 
   const handleCopyHttp = e => {
     httpRef && httpRef.current.select();
@@ -191,7 +189,7 @@ export function Clonedropdown(props) {
       />
       {open && (
         <div className="clone-box mt-1">
-          <div className="link-box">
+          {/* <div className="link-box">
             <p>Clone with SSH</p>
             <div className="clone-link">
               <input
@@ -208,7 +206,7 @@ export function Clonedropdown(props) {
                 src="/images/svg/clone_01.svg"
                 alt="copy-icon" />
             </div>
-          </div>
+          </div> */}
           <div className="link-box">
             <p>Clone with HTTPS</p>
             <div className="clone-link">

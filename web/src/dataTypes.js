@@ -112,7 +112,7 @@ export const mrStates = [
 
 /* the next array is to contain global characters banned for urls */
 
-export const bannedCharsArray = ['..', '~', '^', ':', '\\', '{', '}', '[', ']', '$', '#', '&', '%', '*', '+', '¨', '"', '!'];
+export const bannedCharsArray = ['..', '~', '^', ':', '\\', '{', '}', '[', ']', ')', '(', '$', '#', '&', '%', '*', '+', ',', '¨', '"', '!'];
 
 /* -------------------------- Project classifications -------------------------- */
 

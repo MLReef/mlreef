@@ -25,7 +25,7 @@ export const initialState = {
   filesToUpload: [],
   targetBranch: '',
   commitMsg: 'Upload New File',
-  startMR: true,
+  startMR: false,
   isAValidForm: false,
   progress: 0,
   areFilesLoaded: false,

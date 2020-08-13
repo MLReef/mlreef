@@ -75,7 +75,7 @@ const RouterComp = () => (
       />
       <PrivateRoute
         exact
-        path="/my-projects/:projectId/:branch/upload-file"
+        path="/my-projects/:projectId/:branch(.+)/upload-file"
         component={UploadFile}
       />
       <Route path="/:namespace/:slug" component={projectView} exact />

@@ -78,8 +78,7 @@ class Login extends React.Component {
             toastr.warning('Connection problem:', 'Failed to fetch user information.');
           });
       })
-      .catch((error) => {
-        toastr.error('Error:', `Try Login with mlreef + password or get: ${error}`);
+      .catch(() => {
         this.setState({ hasErrors: true });
       })
       .finally(() => {

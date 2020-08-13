@@ -12,6 +12,7 @@ describe('Component exists', () => {
   it('should render 2 buttons when clicked', () => {
     wrapper.find('#t-clonedropdown-toggle').simulate('click');
 
-    expect(wrapper.find('.clone-icon')).toHaveLength(2);
+    // should check for length 2 when ssh is available
+    expect(wrapper.find('.clone-icon')).toHaveLength(1);
   });
 });

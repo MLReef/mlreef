@@ -168,7 +168,7 @@ class PipelinesExecutionView extends Component {
       return;
     }
     if (filesSelectedInModal.length === 0) {
-      toastr.error('Form', 'You have not selected a directory to execute operations on');
+      toastr.error('Form', 'Please select data to execute your pipeline');
       return;
     }
     let inputValuesAndDataModels;

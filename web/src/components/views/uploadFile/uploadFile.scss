@@ -48,26 +48,29 @@ $submit-button: #F9F8F8;
 }
 
 .upload-commit-message{
-
     > textarea {
-        margin-left: auto;
         width: 83.33%;
     }
 }
 
 .target-branch {
-        
     > .target-input-box{
         flex-direction: column;
-        margin-left: auto;
         width: 85.5%;
 
         > input {
             border: 1px solid $light-grey;
             padding: 8px 6px;
         };
-  };
-  
+  }; 
+}
+
+.upload-label {
+    padding: 0.65rem;
+    text-align: right;
+    flex: 0 0 16.67%;
+    max-width: 16.67%;
+    font-weight: 600;
 }
 
 .form-submit-buttons{

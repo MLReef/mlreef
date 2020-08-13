@@ -239,7 +239,7 @@ class CreateProject extends Component {
    const classLabel = specificType.label;
    const newProjectInstructions = specificType.description;
    const isMaximumOfDataTypesSelected = dtTypesSel.length === 4;
-   const isValid = !nameErrors;
+   const isValid = !nameErrors && projectName !== '';
 
    return redirect ? (
      <Redirect to={redirect} />

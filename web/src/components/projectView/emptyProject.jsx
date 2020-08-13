@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { string } from 'prop-types';
 import './emptyProject.scss';
 
-const EmptyProject = ({ sshUrlToRepo, projectId }) => (
+const EmptyProject = ({ httpUrlToRepo, projectId }) => (
   <>
     <div id="empty-project">
       <h4 style={{ fontSize: '1.3125rem', color: '#2e2e2e', marginBottom: '0.5rem' }}>The repository for this project is empty</h4>
@@ -33,8 +33,7 @@ const EmptyProject = ({ sshUrlToRepo, projectId }) => (
           <h5>Create a new repository</h5>
           <pre className="bg-light">
             git clone
-            {' '}
-            <span>{sshUrlToRepo}</span>
+            <span>{` ${httpUrlToRepo}`}</span>
             <p>cd test</p>
             <p>touch README.md</p>
             <p>git add README.md</p>
@@ -48,7 +47,7 @@ const EmptyProject = ({ sshUrlToRepo, projectId }) => (
             <p>git init</p>
             <p>
               git remote add origin
-              <span>{sshUrlToRepo}</span>
+              <span>{` ${httpUrlToRepo}`}</span>
             </p>
             <p>git add .</p>
             <p>git commit -m &quot;Initial commit&quot;</p>
@@ -61,7 +60,7 @@ const EmptyProject = ({ sshUrlToRepo, projectId }) => (
             <p>git remote rename origin old-origin</p>
             <p>
               git remote add origin
-              <span>{sshUrlToRepo}</span>
+              <span>{` ${httpUrlToRepo}`}</span>
             </p>
           </pre>
         </fieldset>
@@ -71,7 +70,7 @@ const EmptyProject = ({ sshUrlToRepo, projectId }) => (
 );
 
 EmptyProject.propTypes = {
-  sshUrlToRepo: string.isRequired,
+  httpUrlToRepo: string.isRequired,
 };
 
 export default EmptyProject;

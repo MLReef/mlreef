@@ -195,7 +195,7 @@ const UploadFile = (props) => {
 
   return (
     <>
-      {areFilesLoaded && <Redirect to={`/${groupName}/${slug}/-/tree/${targetBranch}`} /> }
+      {areFilesLoaded && <Redirect to={`/${groupName}/${slug}/-/tree/${encodeURIComponent(targetBranch)}`} /> }
       <Navbar />
       <div className="main-content">
         <ProjectNav projectId={gid} folders={folders} />
@@ -232,20 +232,20 @@ const UploadFile = (props) => {
             onRemove={removeFiles}
           />
         ))}
-        <div className="upload-commit-message d-flex">
-          <h3>Commit message</h3>
+        <div className="upload-commit-message d-flex mb-3">
+          <span className="upload-label">Commit message</span>
           <textarea
             id="commitMss-text-area"
             value={commitMsg}
             onChange={(e) => dispatch({ type: SET_MSG, payload: e.target.value })}
-            rows="4"
+            rows="5"
             maxLength="250"
             spellCheck="false"
             placeholder="Description Format"
           />
         </div>
         <div className="target-branch d-flex">
-          <h3>Target branch</h3>
+          <span className="upload-label">Target branch</span>
           <div className="target-input-box d-flex">
             <input
               id="target-branch"
