@@ -101,10 +101,8 @@ export class NewMergeRequest extends Component {
   getDiffDetails(diffsArray) {
     const { lastCommit } = this.state;
     const {
-      match: {
-        params: {
-          projectId,
-        },
+      projects: {
+        selectedProject: { gid },
       },
     } = this.props;
     diffsArray.filter((diff) => imageFormats
@@ -114,7 +112,7 @@ export class NewMergeRequest extends Component {
         const {
           previousVersionFile,
           nextVersionFile,
-        } = await getFileDifferences(projectId, imageDiff, lastCommit.parent_ids[0], lastCommit.id);
+        } = await getFileDifferences(gid, imageDiff, lastCommit.parent_ids[0], lastCommit.id);
         imagesToRender.push({
           previousVersionFileParsed: previousVersionFile,
           nextVersionFileParsed: nextVersionFile,
@@ -286,7 +284,12 @@ export class NewMergeRequest extends Component {
             />
           )}
           {imagesToRender.map((imageFile) => (
-            <ImageDiffSection key={imageFile.fileName} imageFile={imageFile} />
+            <ImageDiffSection
+              key={imageFile.fileName}
+              fileInfo={imageFile}
+              original={imageFile.previousVersionFileParsed}
+              modified={imageFile.nextVersionFileParsed}
+            />
           ))}
         </div>
       </>
