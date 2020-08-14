@@ -1,12 +1,8 @@
 import React from 'react';
-import Enzyme, { shallow } from 'enzyme';
-import Adapter from 'enzyme-adapter-react-16';
-import 'babel-polyfill';
+import { shallow } from 'enzyme';
 import CreateProject from '../components/views/create-project/createProject';
 import { storeFactory } from '../functions/testUtils';
 import { projectsArrayMock, branchesMock } from '../testData';
-
-Enzyme.configure({ adapter: new Adapter() });
 
 const setup = () => {
   const store = storeFactory({
@@ -14,12 +10,12 @@ const setup = () => {
     branches: branchesMock.map((branch) => branch.name),
     users: projectsArrayMock.users,
     user: {
-      username: 'my-username',
-      id: 'string-uuid',
+      username: 'nickname',
+      id: 'uuid',
     },
   });
   const history = {
-    goBack: () => {},
+    goBack: jest.fn,
   };
 
   const wrapper = shallow(

@@ -1,7 +1,7 @@
 /* eslint-disable no-undef */
 import React from 'react';
 import { shallow } from 'enzyme';
-import NewMergeRequest from '../components/new-merge-request/newMergeRequest';
+import NewMergeRequestView from 'components/new-merge-request/newMergeRequest';
 import { projectsArrayMock, imagesToRender } from '../testData';
 import { storeFactory } from '../functions/testUtils';
 
@@ -12,7 +12,7 @@ const match = {
 };
 
 const location = {
-  search: ''
+  search: '',
 };
 
 const setup = () => {
@@ -21,7 +21,7 @@ const setup = () => {
     projects: projectsArrayMock.projects,
   });
   const wrapper = shallow(
-    <NewMergeRequest
+    <NewMergeRequestView
       store={store}
       match={match}
       location={location}

@@ -40,7 +40,7 @@ describe('assert components behavior', () => {
   test('assert that create button is disabled when state contains null data', () => {
     const onClickHandler = jest.fn();
     wrapper.instance().handleOnClickCreateGroup = onClickHandler;
-    wrapper.instance().descriptionTextAreaRef = { current: { value: "" } };
+    wrapper.instance().descriptionTextAreaRef = { current: { value: '' } };
     wrapper.find('button#create-group').simulate('click');
 
     expect(wrapper.instance().handleOnClickCreateGroup.mock.calls.length).toBe(0);
@@ -56,7 +56,7 @@ describe('assert components behavior', () => {
 
     const onClickHandler = jest.fn();
     wrapper.instance().handleOnClickCreateGroup = onClickHandler;
-    wrapper.instance().descriptionTextAreaRef = { current: { value: "" } };
+    wrapper.instance().descriptionTextAreaRef = { current: { value: '' } };
     wrapper.find('button#create-group').simulate('click');
 
     expect(wrapper.instance().handleOnClickCreateGroup.mock.calls.length).toBe(0);
@@ -70,7 +70,7 @@ describe('assert components behavior', () => {
         value: mockGroupName,
       },
     };
-    wrapper.instance().descriptionTextAreaRef = { current: { value: ""} };
+    wrapper.instance().descriptionTextAreaRef = { current: { value: '' } };
     groupNameInput.simulate('change', changeEvent);
     const stateGroupName = wrapper.state().groupName;
     const stateGroupUrl = wrapper.state().groupUrl;
