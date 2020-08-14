@@ -11,7 +11,7 @@ import Login from './components/login/login';
 import RegisterView from './components/RegisterView';
 import projectView from './components/projectView/projectView';
 import PrivateRoute from './privateRoute';
-import Explore from 'components/views/Explore';
+import ExploreView from 'components/views/ExploreView';
 import ExperimentsOverview from './components/experiments-overview/ExperimentOverview';
 import Projects from './components/myProjects/myProjects';
 import Commits from './components/commits-view/commitsView';
@@ -45,7 +45,7 @@ const RouterComp = () => (
       <Route path="/register" exact component={RegisterView} />
       <Route path="/user/reset-password" exact component={ResetPasswordView} />
       <Route path="/error-page" exact component={ErrorPage} />
-      <Route path="/explore" exact component={Explore} />
+      <Route path="/explore" exact component={ExploreView} />
 
       <PrivateRoute path="/" exact component={Projects} />
       <PrivateRoute path="/perms/owner" owneronly exact component={Projects} />

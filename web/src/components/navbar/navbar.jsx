@@ -22,7 +22,7 @@ class Navbar extends Component {
   }
 
   render() {
-    const { user } = this.props;
+    const { user, globalMarker } = this.props;
     const avatarUrl = user.userInfo && user.userInfo.avatar_url;
 
     return (
@@ -30,7 +30,7 @@ class Navbar extends Component {
         <div className="navbar">
           <div className="w-100 px-3 d-flex">
             <div className="my-auto">
-              <Link to="/">
+              <Link to={user.auth ? '/' : '/explore'}>
                 <img className="logo" src={mlReefIcon01} alt="" />
               </Link>
             </div>
@@ -169,10 +169,10 @@ class Navbar extends Component {
             )}
           </div>
         </div>
-        {user.globalColorMarker && (
+        {globalMarker.color && (
           <MGlobalMarker
-            isLoading={user.isLoading}
-            globalColorMarker={user.globalColorMarker}
+            isLoading={globalMarker.isLoading}
+            globalColorMarker={globalMarker.color}
           />
         )}
       </>
@@ -190,21 +190,23 @@ Navbar.propTypes = {
     .shape({
       auth: PropTypes.bool.isRequired,
       username: PropTypes.string,
-      isLoading: PropTypes.bool.isRequired,
-      globalColorMarker: PropTypes.string,
       email: PropTypes.string,
       userInfo: PropTypes.shape({
         avatar_url: PropTypes.string,
       }),
     })
     .isRequired,
+  globalMarker: PropTypes.shape({
+    color: PropTypes.string,
+    isLoading: PropTypes.bool,
+  }).isRequired,
 };
-
 
 function mapStateToProps(state) {
   return {
     projectsList: state.projects,
     user: state.user,
+    globalMarker: state.globalMarker,
   };
 }
 

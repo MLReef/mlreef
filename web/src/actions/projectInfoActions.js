@@ -36,6 +36,10 @@ export function setUserProjectsSuccessfully(projects) {
   return { type: types.SET_USER_PROJECTS, projects };
 }
 
+export function setCodeProjects(codeProjectType, projects) {
+  return { type: types.SET_CODE_PROJECTS_ALL, codeProjectType, projects };
+}
+
 /**
  * get list of projects associated with authenticated user
  */
@@ -142,7 +146,7 @@ export function removeProject(id) {
  * This API call fetches code repos corresponding with data processors
  */
 
-export function getDataProcessorsAndCorrespondingProjects(searchableType, body = {}) {
+export function getDataProcessorsAndCorrespondingProjects(searchableType, body = {}, options) {
   return (dispatch) => mlSearchApi
     .search(searchableType, body)
     .then((payload) => payload?.content?.map((contentItem) => contentItem.project))
@@ -152,11 +156,12 @@ export function getDataProcessorsAndCorrespondingProjects(searchableType, body =
       if (projects) {
         const { user: { username } } = store.getState();
 
-        const memberProjects = projects.filter((project) =>
-          project.members?.some((m) => m.username === username)
-        );
+        const memberProjects = projects.filter((project) => project
+          .members?.some((m) => m.username === username));
 
-        dispatch(getProjectsInfoSuccessfully(projects));
+        if (options?.explore) dispatch(setCodeProjects(searchableType, projects));
+        else dispatch(getProjectsInfoSuccessfully(projects));
+
         dispatch(setUserProjectsSuccessfully(memberProjects));
       }
     });

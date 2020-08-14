@@ -107,3 +107,40 @@
     }
   }
 }
+
+
+.original.simple-tabs {
+  .simple-tabs {
+
+    &-container {
+      &.vertical {
+        & > section {
+        }
+      }
+    }
+
+    &-menu {
+      margin: auto;
+      width: max-content;
+
+      &-tab {
+        &-btn {
+          padding: 0.5rem 2rem;
+          white-space: nowrap;
+
+          &.border {
+            border-bottom: solid 4px transparent;
+          }
+        }
+      }
+    }
+
+    &-content {
+      background-color: var(--white);
+
+      &-section {
+
+      }
+    }
+  }
+}

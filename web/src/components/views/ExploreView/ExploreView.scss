@@ -1,0 +1,47 @@
+.explore-view {
+  background-color: var(--light);
+
+  &-content {
+    padding-top: 3rem;
+
+    &-container {
+      min-width: 50vw;
+      width: auto;
+      padding: 1rem;
+      min-height: 70vh;
+      display: flex;
+      margin-left: 2rem;
+      margin-right: 2rem;
+
+      &:first-child {
+        flex: 1;
+      }
+    }
+
+    & .project-list {
+      display: flex;
+      flex-wrap: wrap;
+      flex: 1;
+    }
+
+    & .m-tabs_content_section {
+      max-width: unset !important;
+    }
+
+    & .loading-image {
+      margin: auto;
+      padding-top: 4rem;
+      width: 260px;
+      height: 260px;
+      max-width: 90vw;
+      max-height: 90vw;
+
+      & > div {
+        width: 100%;
+        height: 100%;
+        background-repeat: no-repeat;
+        background-size: contain;
+      }
+    }
+  }
+}

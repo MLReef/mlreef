@@ -31,6 +31,18 @@ export default function projectReducer(state = initialState.projects, action) {
         all: action.projects,
       };
 
+    case types.SET_CODE_PROJECTS_ALL:
+      return {
+        ...state,
+        codeProjects: {
+          ...state.codeProjects,
+          [action.codeProjectType]: {
+            ...state.codeProjects[action.codeProjectType],
+            all: action.projects,
+          },
+        },
+      };
+
     default:
       return state;
   }

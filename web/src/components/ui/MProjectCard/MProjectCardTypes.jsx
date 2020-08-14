@@ -41,7 +41,7 @@ const MProjectCardTypes = (props) => {
       {types.map((type) => {
         const metaData = dataTypesMetadata.filter((dtMeta) => type === dtMeta.dataTypeName)[0];
         return (
-          <div className="mr-2">
+          <div key={`type-${metaData.label}`} className="mr-2">
             <i className={metaData.icon} style={metaData.style}>
               <span className="label">{` ${metaData.label}`}</span>
             </i>
