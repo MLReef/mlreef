@@ -22,3 +22,46 @@ input:not([type="select"]):not([type="radio"]):not([type="checkbox"]), textarea 
     // insert here your code
   }
 }
+
+select {
+  &.form-control {
+    background-color: #FFF;
+
+    &:focus {
+      outline: none;
+    }
+  }
+}
+
+.form {
+  &-field {
+    & label, & .label {
+
+    }
+
+    &-prepend {
+      margin-top: 0.5rem;
+      display: flex;
+
+      & > .prepended {
+        display: flex;
+        padding: 0.5rem;
+        border: 1px solid var(--secondary);
+        border-right: none;
+        vertical-align: middle;
+        border-top-left-radius: $border-radius;
+        border-bottom-left-radius: $border-radius;
+      }
+
+      & > .form-control {
+        padding: 0.5rem 1rem;
+        border-top-right-radius: $border-radius;
+        border-bottom-right-radius: $border-radius;
+      }
+    }
+  }
+
+  &-control {
+
+  }
+}

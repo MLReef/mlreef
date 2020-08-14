@@ -4,14 +4,9 @@ import { bindActionCreators } from 'redux';
 import { Redirect } from 'react-router-dom';
 import * as PropTypes from 'prop-types';
 import { toastr } from 'react-redux-toastr';
-import Button from '@material-ui/core/Button';
 import RadioGroup from '@material-ui/core/RadioGroup';
 import Radio from '@material-ui/core/Radio';
-import MenuItem from '@material-ui/core/MenuItem';
-import Select from '@material-ui/core/Select';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
-import FormControl from '@material-ui/core/FormControl';
-import Tooltip from '@material-ui/core/Tooltip';
 import {
   projectClassificationsProps,
   privacyLevelsArr,
@@ -239,7 +234,7 @@ class CreateProject extends Component {
    const classLabel = specificType.label;
    const newProjectInstructions = specificType.description;
    const isMaximumOfDataTypesSelected = dtTypesSel.length === 4;
-   const isValid = !nameErrors && projectName !== '';
+   const isValid = nameSpace && !nameErrors && projectName !== '';
 
    return redirect ? (
      <Redirect to={redirect} />
@@ -258,7 +253,7 @@ class CreateProject extends Component {
          <div className="form-control col-sm-12 col-lg-8 pl-3">
            <form>
              <label className="label-name" htmlFor="projectTitle">
-               <span className="heading">Project Name</span>
+               <span className="heading mb-1">Project Name</span>
                <MInput
                  value={projectName}
                  onChange={this.handleProjectName}
@@ -271,36 +266,44 @@ class CreateProject extends Component {
                  required
                />
              </label>
-             <div style={{ display: 'flex', flexWrap: 'wrap' }}>
-               <label className="label-name pr-4" htmlFor="projectURL">
-                 <span className="heading">Project URL</span>
-                 <div style={{ display: 'flex', margin: '1em 0' }}>
-                   <Tooltip arrow disableFocusListener disableTouchListener title="https://mlreef.com/">
-                     <Button>https://mlreef.com/</Button>
-                   </Tooltip>
-                   <FormControl id="projectURL" variant="outlined">
-                     <Select
-                       labelId="nameSpace-label"
-                       id="nameSpace"
-                       value={nameSpace}
-                       onChange={this.handleNamespace}
-                     >
-                       <MenuItem key="subtitle-1" value="">Groups</MenuItem>
-                       {groups.map((grp) => (
-                         <MenuItem key={`group kay ${grp.id}`} value={grp.full_path}>{grp.name}</MenuItem>
-                       ))}
-                       <MenuItem key="subtitle-2" value="">Users</MenuItem>
-                       <MenuItem key={`user key ${user.id}`} value={user.username}>{user.username}</MenuItem>
 
-                     </Select>
-                   </FormControl>
+             <div className="d-flex">
+               <div className="form-field mb-4 flex-1 mr-4">
+                 <label className="heading" htmlFor="nameSpace">
+                   Project URL
+                 </label>
+                 <div className="form-field-prepend">
+                   <div className="prepended bg-light">
+                     <span className="m-auto">
+                       https://mlreef.com/
+                     </span>
+                   </div>
+                   <select
+                     id="nameSpace"
+                     value={nameSpace}
+                     onChange={this.handleNamespace}
+                     className="form-control w-100"
+                   >
+                     <option key="namespace-select">
+                       Select
+                     </option>
+                     {groups.map((grp) => (
+                       <option key={`namespace-${grp.id}`} value={grp.id}>
+                         {grp.name}
+                       </option>
+                     ))}
+                     <option key={`namespace-user-${user.id}`} className="my-3" value={user.username}>
+                       {user.username}
+                     </option>
+                   </select>
                  </div>
-               </label>
-               <label className="label-name flex-1" htmlFor="projectSlug">
+               </div>
+
+               <label className="" htmlFor="projectSlug">
                  <span className="heading">Project Slug</span>
                  <input
                    value={slug}
-                   className="text-input"
+                   className="text-input mt-2"
                    id="projectSlug"
                    type="text"
                    placeholder="my-awesome-project"
@@ -309,6 +312,7 @@ class CreateProject extends Component {
                  />
                </label>
              </div>
+
              <label className="label-name" htmlFor="projectDescription">
                <span className="heading">Project Description (optional)</span>
                <textarea
@@ -323,8 +327,8 @@ class CreateProject extends Component {
                />
              </label>
              {/* ------ Data-types radio buttons ------ */}
-             <label className="label-name" htmlFor="free-tags">
-               <span className="heading">Free tags (optional)</span>
+             <label className="label-name mb-4" htmlFor="free-tags">
+               <span className="heading mb-2">Free tags (optional)</span>
                <input
                  className="text-input"
                  id="free-tags"
@@ -332,10 +336,8 @@ class CreateProject extends Component {
                  placeholder={'Enter free tags separated by ","'}
                />
              </label>
-             <span className="heading">Data types</span>
-             <br />
-             <br />
-             <div>
+             <span className="heading d-block mb-2">Data types</span>
+             <div className="my-2">
                <span
                  style={{ padding: 0, color: `var(--${isMaximumOfDataTypesSelected ? 'warning' : 'secondary'})` }}
                  className="visibility-msg"
@@ -347,8 +349,7 @@ class CreateProject extends Component {
                  }
                </span>
              </div>
-             <br />
-             <div className="d-flex">
+             <div className="d-flex mb-4">
                {this.dataTypes.map((dtBl, index) => (
                  <div key={`dtBl ${index.toString()}`} className="data-types-sec">
                    {dtBl.map((dt) => {
@@ -360,12 +361,13 @@ class CreateProject extends Component {
                        );
                      }
                      return (
-                       <div key={`div ${dt.name}`}>
+                       <div className="pl-3" key={`div ${dt.name}`}>
                          <MCheckBox
                            key={dt.name}
                            name={dt.name}
                            labelValue={dt.label}
                            callback={this.handleDTCallback}
+                           small
                          />
                        </div>
                      );
@@ -374,11 +376,11 @@ class CreateProject extends Component {
                ))}
              </div>
              {/* ------ ------ ------ ------ ------ --- */}
-             <div style={{ marginTop: '1em' }}>
+             <div className="mb-4">
                <span className="heading">Visibilty level</span>
                <RadioGroup aria-label="visibility" name="visibility" value={visibility} onChange={this.handleVisibility}>
                  {privacyLevelsArr.map((lvl) => (
-                   <div key={`privacy lvl ${lvl.value}`} className="d-flex" style={{ flexDirection: 'column' }}>
+                   <div key={`privacy lvl ${lvl.value}`} className="d-flex mb-2" style={{ flexDirection: 'column' }}>
                      <FormControlLabel
                        className="heading"
                        value={lvl.value}
@@ -399,6 +401,7 @@ class CreateProject extends Component {
              </div>
              <div className="readME">
                <MCheckBox
+                 small
                  name="read-me-checkbox"
                  labelValue="Initialize the repository with a README"
                  callback={this.toggleCheckReadme}

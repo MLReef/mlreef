@@ -156,10 +156,6 @@ class SelectDataPipelineModal extends Component {
                         </div>
                         <hr />
                         <div className="search-branch">
-                          <input
-                            type="text"
-                            placeholder="Search branches or tags"
-                          />
                           <div className="branches">
                             <ul>
                               <li className="branch-header">Branches</li>
@@ -187,13 +183,9 @@ class SelectDataPipelineModal extends Component {
                         </div>
                         <hr />
                         <div className="search-branch">
-                          <input
-                            type="text"
-                            placeholder="Search branches or tags"
-                          />
                           <div className="branches">
                             <ul>
-                              <li className="branch-header">Branches</li>
+                              <li className="branch-header">Datasets</li>
                               {branches.filter((branch) => branch.name.startsWith('data-pipeline')).reverse()
                                 .map((branch) => {
                                   const pipelineName = branch.name;

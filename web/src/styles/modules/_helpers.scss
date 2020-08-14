@@ -262,3 +262,21 @@
     }
   }
 }
+
+.scroll {
+  &-styled {
+    &::-webkit-scrollbar {
+      -webkit-appearance: none;
+      background-color: var(--light);
+      height: 5px;
+      width: 5px;
+      margin: 5px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      border-radius: 1px;
+      background-color: var(--secondary);
+      transform: translateX(10px);
+    }
+  }
+}

@@ -8,7 +8,7 @@ const ProcessorsList = ({
   processors,
   handleDragStart,
 }) => (
-  <div id="data-operations-list">
+  <div id="data-operations-list" className="scroll-styled">
     {processors && processors.map((processor) => (
       <Processor
         key={`processors-available-${processor.internalProcessorId}`}

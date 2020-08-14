@@ -13,9 +13,17 @@ const setup = () => {
     projects: projectsArrayMock.projects,
     branches: branchesMock.map((branch) => branch.name),
     users: projectsArrayMock.users,
+    user: {
+      username: 'my-username',
+      id: 'string-uuid',
+    },
   });
+  const history = {
+    goBack: () => {},
+  };
+
   const wrapper = shallow(
-    <CreateProject store={store} />,
+    <CreateProject history={history} store={store} />,
   );
   const afterDive = wrapper.dive().dive();
   return afterDive;

@@ -221,6 +221,8 @@
 
 #data-operations-list {
     height: 100%;
+    max-height: 80vh;
+    overflow-y: scroll;
     border-top-style: solid;
     border-top-width: 1px;
     border-top-color: #e5e5e5;

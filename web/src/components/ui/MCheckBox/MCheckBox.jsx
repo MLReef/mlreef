@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import { func, string, bool } from 'prop-types';
+import cx from 'classnames';
 import './MCheckBox.scss';
 
 const MCheckBox = (props) => {
@@ -10,6 +11,7 @@ const MCheckBox = (props) => {
     labelValue,
     callback,
     className,
+    small,
   } = props;
 
   const [value, setValue] = React.useState(defaultChecked);
@@ -36,7 +38,7 @@ const MCheckBox = (props) => {
     >
       {labelValue && <p>{labelValue}</p> }
       <input type="checkbox" checked={value} onChange={() => {}} />
-      <span className="checkmark" />
+      <span className={cx('checkmark', { small })} />
     </div>
   );
 };
@@ -45,6 +47,7 @@ MCheckBox.propTypes = {
   name: string.isRequired,
   defaultChecked: bool,
   checked: bool,
+  small: bool,
   labelValue: string,
   callback: func,
   className: string,
@@ -53,6 +56,7 @@ MCheckBox.propTypes = {
 MCheckBox.defaultProps = {
   defaultChecked: false,
   checked: false,
+  small: false,
   labelValue: '',
   callback: () => {},
   className: '',

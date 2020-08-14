@@ -46,10 +46,6 @@ exports[`The branches list should be displayed when dropdown button is clicked d
         <div
           className="search-branch"
         >
-          <input
-            placeholder="Search branches or tags"
-            type="text"
-          />
           <div
             className="branches"
           >

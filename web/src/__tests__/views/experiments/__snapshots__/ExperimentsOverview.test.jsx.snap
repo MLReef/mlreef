@@ -360,8 +360,6 @@ exports[`test presence of elements in DOM compare with the latest snapshot of th
       </div>
     </div>
   </div>
-  <br />
-  <br />
   <div
     className="main-content"
   >
@@ -387,10 +385,11 @@ exports[`test presence of elements in DOM compare with the latest snapshot of th
         Why not start one?
       </p>
       <button
-        className="undefined btn btn-primary"
+        className=" btn btn-primary"
         disabled={false}
         id="new-experiment"
         onClick={[Function]}
+        type="button"
         variant="contained"
       >
         Start an experiment

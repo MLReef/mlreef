@@ -9,7 +9,7 @@
   width: max-content;
 
   p {
-    margin: 0 0 0 1.75rem;
+    margin: 0 0 0 2rem;
     font-size: 1rem;
   }
 
@@ -19,7 +19,7 @@
     height: 0;
     width: 0;
   }
-  
+
   /* Custom checkbox */
   .checkmark {
     position: absolute;
@@ -44,6 +44,20 @@
       -webkit-transform: rotate(45deg);
       -ms-transform: rotate(45deg);
       transform: rotate(45deg);
+    }
+
+    &.small {
+      width: 1rem;
+      height: 1rem;
+      top: unset;
+
+      &:after {
+        left: 27%;
+        top: 10%;
+        width: 25%;
+        height: 50%;
+        border-width: 0 2px 2px 0;
+      }
     }
   }
 

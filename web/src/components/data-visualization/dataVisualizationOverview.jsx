@@ -84,10 +84,10 @@ export class DataVisualizationOverview extends Component {
         />
         <Instruction
           id="DataVisualizationOverview"
-          titleText="Handling data visualizations:"
+          titleText="Your data visualizations:"
           paragraph={
-            `A data visualization is the output of your data visualization pipeline.
-            By clicking on the name of your visualization, you will get access to the output files`
+            `Here you will find all your data visualizations created by a data visualization pipeline. You can access the visualization of a pipeline
+            as soon as it finished. `
           }
         />
 

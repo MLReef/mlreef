@@ -5,39 +5,15 @@ import {
 } from 'prop-types';
 import { Redirect } from 'react-router-dom';
 import { toastr } from 'react-redux-toastr';
-import {
-  makeStyles,
-} from '@material-ui/core/styles';
-import InputLabel from '@material-ui/core/InputLabel';
-import FormControl from '@material-ui/core/FormControl';
-import ProjectContainer from './projectContainer';
-import Navbar from './navbar/navbar';
-import BranchesApi from '../apis/BranchesApi.ts';
-import BorderedInput from './BlueBorderedInput';
-import CustomizedSelect from './CustomizedSelect';
+import MInput from 'components/ui/MInput';
+import MSelect from 'components/ui/MSelect';
+import MButton from 'components/ui/MButton';
+import ProjectContainer from 'components/projectContainer';
+import Navbar from 'components/navbar/navbar';
+import BranchesApi from 'apis/BranchesApi.ts';
+import './NewBranch.scss';
 
-const cuztomizedStyles = makeStyles(() => ({
-  formControl: {
-    minWidth: 120,
-    width: '100%',
-  },
-}));
-
-const TextFieldFromControl = ({ id, labelTxt, onChangeHandler }) => (
-  <FormControl required variant="outlined" className={cuztomizedStyles().formControl}>
-    <InputLabel id={`label-for-${id}`} style={{ backgroundColor: 'white', color: '#1A2B3F' }}>
-      {labelTxt}
-    </InputLabel>
-    <BorderedInput id={id} onChange={(e) => { onChangeHandler(e); }} />
-  </FormControl>
-);
-
-TextFieldFromControl.propTypes = {
-  id: string.isRequired,
-  labelTxt: string.isRequired,
-  onChangeHandler: func.isRequired,
-};
-
+const brApi = new BranchesApi();
 const bannedCharacters = [' ', '..', '~', '^', ':', '\\', '{', '}', '[', ']', '$', '#', '&', '%', '*', '+', '¨', '"', '!'];
 
 class NewBranch extends Component {
@@ -47,6 +23,7 @@ class NewBranch extends Component {
       branchSelected: null,
       newBranchName: '',
       redirect: false,
+      isWaiting: false,
     };
     this.handleCreateBranchEv = this.handleCreateBranchEv.bind(this);
   }
@@ -64,6 +41,11 @@ class NewBranch extends Component {
       return false;
     }
     let bannedCharCount = 0;
+
+    if (/^(new|new-branch)$/.test(branchName)) {
+      bannedCharCount += 1;
+    }
+
     bannedCharacters.forEach((char) => {
       if (branchName.includes(char)) {
         bannedCharCount += 1;
@@ -73,16 +55,15 @@ class NewBranch extends Component {
     return bannedCharCount === 0;
   }
 
-  handleCancel = (e) => {
+  handleCancel = () => {
     const {
-      history
+      history,
     } = this.props;
 
     return history.goBack();
   }
 
   handleCreateBranchEv() {
-    this.setState({ loading: true });
     const {
       projects: {
         selectedProject: { gid },
@@ -102,7 +83,9 @@ class NewBranch extends Component {
       toastr.error('Error:', 'Type please a branch name');
       return;
     }
-    const brApi = new BranchesApi();
+
+    this.setState({ isWaiting: true });
+
     brApi.create(
       gid,
       newBranchName,
@@ -114,6 +97,7 @@ class NewBranch extends Component {
       })
       .catch(
         () => {
+          this.setState({ isWaiting: false });
           toastr.error('Error:', 'An error has ocurred, try later please');
         },
       );
@@ -121,22 +105,38 @@ class NewBranch extends Component {
 
   render() {
     const {
-      projects: { selectedProject },
       branches,
       match: {
         params: {
           namespace,
           slug,
-        }
-      }
+        },
+      },
     } = this.props;
-    const groupName = selectedProject.namespace.name;
+
     const {
       branchSelected,
       newBranchName,
       redirect,
-      // loading,
+      isWaiting,
     } = this.state;
+
+    const breadcrumbs = [
+      {
+        name: namespace,
+      },
+      {
+        name: slug,
+        href: `/${namespace}/${slug}`,
+      },
+      {
+        name: 'Branches',
+        href: `/${namespace}/${slug}/-/branches`,
+      },
+      {
+        name: 'New',
+      },
+    ];
 
     const isValidBranchName = this.validateBranchName(newBranchName);
     const isEnabledCreateBranchButton = ((branchSelected !== null && branchSelected !== '') && isValidBranchName);
@@ -148,54 +148,53 @@ class NewBranch extends Component {
         <Navbar />
         <ProjectContainer
           activeFeature="data"
-          folders={[groupName, selectedProject.name, 'Data', 'New branch']}
+          breadcrumbs={breadcrumbs}
         />
-        <div className="main-content">
-          <br />
-          <div style={{ margin: '1%' }}>
-            <h6 className="t-dark">
-              New branch
-            </h6>
-          </div>
-          <br />
-          <div style={{ width: '74%', marginLeft: '5vw', marginBottom: '2vw' }}>
-            <TextFieldFromControl
-              id="new-branch-name"
-              labelTxt="Branch name"
-              onChangeHandler={(e) => this.setState({ newBranchName: e.target.value })}
-            />
-          </div>
-          <div style={{ width: '74%', marginLeft: '5vw', marginBottom: '2vw' }}>
-            <CustomizedSelect
-              options={branches}
-              inputId="branches-select"
-              onChangeHandler={this.setBranchSelected}
-              inputLabelText="Create from"
-            />
-          </div>
-          <div style={{
-            display: 'flex',
-            backgroundColor: '#F9F8F8',
-            padding: '1em 2em',
-            justifyContent: 'space-between',
-          }}
-          >
-            <button
-              className="btn btn-basic-dark"
-              onClick={this.handleCancel}
-            >
-              Cancel
-            </button>
 
-            <button
-              id="create-branch-btn"
-              type="button"
-              onClick={this.handleCreateBranchEv}
-              disabled={!isEnabledCreateBranchButton}
-              className="btn btn-primary"
-            >
-              Create Branch
-            </button>
+        <div className="new-branch-view main-content">
+          <div className="new-branch-view-title">
+            <h4 className="t-dark">
+              New branch
+            </h4>
+          </div>
+
+          <div className="new-branch-view-content">
+            <div className="new-branch-view ml-5">
+              <MInput
+                className="mb-2"
+                id="new-branch-name"
+                placeholder="Branch name"
+                value={newBranchName}
+                onChange={(e) => this.setState({ newBranchName: e.target.value })}
+                error={newBranchName !== '' && !isValidBranchName && 'Invalid name.'}
+              />
+
+              <MSelect
+                id="branches-select"
+                label="Create from"
+                options={branches.map((b) => ({ label: b, value: b }))}
+                value={branchSelected}
+                onSelect={this.setBranchSelected}
+              />
+            </div>
+            <div className="new-branch-view-actions">
+              <button
+                type="button"
+                className="btn btn-basic-dark"
+                onClick={this.handleCancel}
+              >
+                Cancel
+              </button>
+              <MButton
+                id="create-branch-btn"
+                onClick={this.handleCreateBranchEv}
+                disabled={!isEnabledCreateBranchButton}
+                waiting={isWaiting}
+                className="btn btn-primary"
+              >
+                Create Branch
+              </MButton>
+            </div>
           </div>
         </div>
       </>
@@ -214,6 +213,9 @@ NewBranch.propTypes = {
       namespace: string.isRequired,
       slug: string.isRequired,
     }).isRequired,
+  }).isRequired,
+  history: shape({
+    goBack: func.isRequired,
   }).isRequired,
   projects: shape({
     all: arrayOf(project),

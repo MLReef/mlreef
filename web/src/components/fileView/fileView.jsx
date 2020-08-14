@@ -12,6 +12,7 @@ import {
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import MDropdown from 'components/ui/MDropdown';
+import MWrapper from 'components/ui/MWrapper';
 import { getProjectDetailsBySlug } from 'actions/projectInfoActions';
 import ProjectContainer from '../projectContainer';
 import CommitsApi from '../../apis/CommitsApi.ts';
@@ -174,10 +175,6 @@ export class FileView extends React.Component {
                 </div>
                 <hr />
                 <div className="search-branch">
-                  <input
-                    type="text"
-                    placeholder="Search branches or tags"
-                  />
                   <div className="branches">
                     <ul>
                       <li className="branch-header">Branches</li>
@@ -281,12 +278,14 @@ export class FileView extends React.Component {
                 >
                   History
                 </Link>
-                <button
-                  type="button"
-                  className="btn btn-sm btn-basic-dark my-auto ml-2"
-                >
-                  Replace
-                </button>
+                <MWrapper norender>
+                  <button
+                    type="button"
+                    className="btn btn-sm btn-basic-dark my-auto ml-2"
+                  >
+                    Replace
+                  </button>
+                </MWrapper>
                 <button
                   type="button"
                   className="btn btn-sm btn-danger my-auto ml-2"
