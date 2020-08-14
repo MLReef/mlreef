@@ -1,10 +1,11 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import {
-  string, objectOf, shape,
+  string, objectOf, shape, arrayOf,
 } from 'prop-types';
 import AuthWrapper from 'components/AuthWrapper';
 import MParagraph from 'components/ui/MParagraph';
+import MBreadcrumb from 'components/ui/MBreadcrumb';
 import { connect } from 'react-redux';
 import ProjectInfo from './projectInfo';
 import ProjectNav from './project-nav/projectNav';
@@ -27,6 +28,7 @@ class ProjectContainer extends React.Component {
       forceShowExperimentList,
       setIsForking,
       viewName,
+      breadcrumbs,
     } = this.props;
 
     const isDataProject = project.projectType === PROJECT_TYPES.DATA_PROJ
@@ -44,14 +46,19 @@ class ProjectContainer extends React.Component {
     return (
       <div className="project-container" style={{ backgroundColor: '#e5e5e5' }}>
         <div className="project-details main-content">
-          <ProjectNav
-            key={`project-key-${id}`}
-            folders={[
-              namespace,
-              projectName,
-              viewName,
-            ]}
-          />
+          {breadcrumbs ? (
+            <MBreadcrumb items={breadcrumbs} />
+          ) : ( // legacy
+            <ProjectNav
+              key={`project-key-${id}`}
+              folders={[
+                namespace,
+                projectName,
+                viewName,
+              ]}
+            />
+          )}
+
           <ProjectInfo project={project} setIsForking={setIsForking} />
           <MParagraph
             className="project-desc"
@@ -97,7 +104,6 @@ class ProjectContainer extends React.Component {
   }
 }
 
-
 function mapStateToProps(state) {
   const { user: { globalColorMarker }, projects: { selectedProject: project } } = state;
   return {
@@ -107,12 +113,14 @@ function mapStateToProps(state) {
 }
 ProjectContainer.defaultProps = {
   viewName: 'Data',
+  breadcrumbs: undefined,
 };
 
 ProjectContainer.propTypes = {
   project: objectOf(shape).isRequired,
   activeFeature: string.isRequired,
   viewName: string,
+  breadcrumbs: arrayOf(shape),
 };
 
 export default connect(mapStateToProps)(ProjectContainer);

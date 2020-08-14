@@ -91,7 +91,7 @@ MSimpleTabs.propTypes = {
   sections: PropTypes.arrayOf(PropTypes.shape({
     disabled: PropTypes.bool,
     label: PropTypes.string.isRequired,
-    content: PropTypes.node.isRequired,
+    content: PropTypes.node,
     defaultActive: PropTypes.bool,
   })).isRequired,
 

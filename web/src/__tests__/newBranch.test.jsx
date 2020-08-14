@@ -1,6 +1,6 @@
 import React from 'react';
 import { shallow } from 'enzyme';
-import NewBranch from '../components/newBranch';
+import NewBranch from '../components/views/NewBranch';
 import { storeFactory } from '../functions/testUtils';
 import { projectsArrayMock } from '../testData';
 
@@ -21,8 +21,12 @@ const setup = () => {
       slug: 'the-project-name',
     },
   };
+  const history = {
+    goBack: () => {},
+  };
+
   const wrapper = shallow(
-    <NewBranch match={match} store={store} />,
+    <NewBranch match={match} store={store} history={history} />,
   );
   const afterDive = wrapper.dive().dive();
   return afterDive;
@@ -34,7 +38,7 @@ describe('test the frontend features', () => {
     wrapper = setup();
   });
   test('assert that select exists', () => {
-    expect(wrapper.find('CustomizedSelect')).toHaveLength(1);
+    expect(wrapper.find('MSelect')).toHaveLength(1);
   });
   test('assert that branch name input exists', () => {
     expect(wrapper.find('#new-branch-name')).toHaveLength(1);

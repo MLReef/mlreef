@@ -14,6 +14,7 @@ const CustomizedButton = ({
   return (
     <>
       <button
+        type="button"
         className={`${className} btn btn-primary`}
         id={id}
         variant="contained"
@@ -27,11 +28,16 @@ const CustomizedButton = ({
   );
 };
 
+CustomizedButton.defaultProps = {
+  className: '',
+};
+
 CustomizedButton.propTypes = {
   id: string.isRequired,
   onClickHandler: func.isRequired,
   buttonLabel: string.isRequired,
   loading: bool.isRequired,
+  className: string,
 };
 
 export default CustomizedButton;

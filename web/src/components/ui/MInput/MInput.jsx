@@ -68,7 +68,10 @@ MInput.propTypes = {
     .isRequired,
   onChange: PropTypes.func,
   onBlur: PropTypes.func,
-  error: PropTypes.string,
+  error: PropTypes.oneOfType([
+    PropTypes.string,
+    PropTypes.bool,
+  ]),
   type: PropTypes.string,
   placeholder: PropTypes.string,
   label: PropTypes

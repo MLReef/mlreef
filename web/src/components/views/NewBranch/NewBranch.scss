@@ -1,0 +1,19 @@
+.new-branch-view {
+  max-width: 800px;
+
+  &-header {
+
+  }
+
+  &-content {
+
+  }
+
+  &-actions {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 3rem;
+    background-color: var(--light);
+    padding: 1rem;
+  }
+}

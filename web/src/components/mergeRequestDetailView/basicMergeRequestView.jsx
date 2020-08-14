@@ -14,6 +14,7 @@ import { pluralize as plu } from 'functions/dataParserHelpers';
 import MSimpleTabs from 'components/ui/MSimpleTabs';
 import MParagraph from 'components/ui/MParagraph';
 import MButton from 'components/ui/MButton';
+import MWrapper from 'components/ui/MWrapper';
 import ChangesMrSection from 'components/changes-mr-section/ChangesMrSection';
 import Navbar from '../navbar/navbar';
 import CommitsList from '../commitsList';
@@ -328,12 +329,12 @@ const BasicMergeRequestView = (props) => {
                                 </>
                               )
                                 : (
-                                  <section>
+                                  <MWrapper norender>
                                     <p>
                                       There are merge conflicts&nbsp;
                                       <BlackBorderedButton id="resolve-btn" onClickHandler={handleButton} textContent="Resolve Conflicts" />
                                     </p>
-                                  </section>
+                                  </MWrapper>
                                 )}
                             </div>
                             {!hasConflicts && (

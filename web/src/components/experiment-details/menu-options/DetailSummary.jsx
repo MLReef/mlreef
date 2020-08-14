@@ -50,12 +50,11 @@ const DetailsSummary = ({
   return (
     <div style={{ width: '100%' }}>
       <div style={{
-        borderLeft: '1px solid rgb(236, 236, 236)',
         height: '5em',
         display: 'flex',
       }}
       >
-        <p className="experiment-details-subtitle">Metadata</p>
+        <p className="experiment-details-subtitle mt-2">Metadata</p>
       </div>
       <div style={{ display: 'flex', width: '100%' }}>
         <div

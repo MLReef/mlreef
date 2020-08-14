@@ -374,7 +374,7 @@ class DataInstanceOverview extends Component {
             titleText="Handling datasets:"
             paragraph={
               `A dataset is the result of an executed data pipeline. You can use this dataset directly as your source of data for an experiment
-               (or another data pipeline). You can also merge the dataset to your master branch in your repository.`
+               or to create another data pipeline. Simply select the dataset in the branch dropdown while selecting your data.`
             }
           />
           <div className="main-content">

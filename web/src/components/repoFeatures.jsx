@@ -75,10 +75,6 @@ export class RepoFeatures extends Component {
               </div>
               <hr />
               <div className="search-branch">
-                <input
-                  type="text"
-                  placeholder="Search branches or tags"
-                />
                 <div className="branches">
                   <ul>
                     <li className="branch-header">Branches</li>

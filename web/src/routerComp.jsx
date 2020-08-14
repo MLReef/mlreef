@@ -23,7 +23,7 @@ import ErrorPage from './components/error-page/errorPage';
 import ExperimentDetails from './components/experiment-details/experimentDetails';
 import CreateProject from './components/views/create-project/createProject';
 import NewMergeRequest from './components/new-merge-request/newMergeRequest';
-import NewBranch from './components/newBranch';
+import NewBranch from './components/views/NewBranch';
 import BranchesView from './components/branches-list-view/branchesView';
 import mergeRequestOverview from './components/new-merge-request/merge-request-overview';
 import BasicMergeRequestView from './components/mergeRequestDetailView/basicMergeRequestView';

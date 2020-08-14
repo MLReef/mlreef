@@ -41,7 +41,7 @@ const FilesTable = (props) => {
       <tbody>
         {isReturnOptVisible && <ReturnLink getBack={getBack} />}
         {files.map((file) => (
-          <tr key={file.id} id={file.id} className="files-row clickable" data-key={file.type} onClick={onClick}>
+          <tr key={`${file.id}-${file.name}`} id={file.id} className="files-row clickable" data-key={file.type} onClick={onClick}>
             {Object.keys(file).filter((key) => key !== 'id' && key !== 'type').map((k, keyIndex) => (
               <td
                 key={`column-name-${k}`}
@@ -67,7 +67,8 @@ const FilesTable = (props) => {
 
 FilesTable.propTypes = {
   files: arrayOf(shape({
-    id: string.isRequired,
+    id: string, // it's not included anymore
+    name: string.isRequired,
   })).isRequired,
   headers: arrayOf(string).isRequired,
   isReturnOptVisible: bool,

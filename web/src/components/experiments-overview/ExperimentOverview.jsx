@@ -109,15 +109,10 @@ class ExperimentsOverview extends Component {
             activeFeature="experiments"
             viewName="Experiments"
           />
-          <br />
-          <br />
           {areThereExperimentsToShow ? (
             <div className="main-content">
               {selectedExperiment === null && (
                 <>
-                  <br />
-                  <div id="line" />
-                  <br />
                   <div id="buttons-container">
                     <button
                       id="all"
@@ -161,6 +156,7 @@ class ExperimentsOverview extends Component {
                     </button>
                     <CustomizedButton
                       id="new-experiment"
+                      className="mr-0"
                       loading={false}
                       onClickHandler={() => history.push(`/${namespace}/${slug}/-/experiments/new`)}
                       buttonLabel="New experiment"
