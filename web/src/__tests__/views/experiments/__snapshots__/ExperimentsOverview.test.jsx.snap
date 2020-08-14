@@ -14,7 +14,7 @@ exports[`test presence of elements in DOM compare with the latest snapshot of th
         className="my-auto"
       >
         <a
-          href="/"
+          href="/explore"
           onClick={[Function]}
         >
           <img

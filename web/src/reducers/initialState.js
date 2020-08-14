@@ -1,3 +1,5 @@
+import { PROJECT_TYPES } from 'domain/project/projectTypes';
+
 export default {
   branches: [],
   jobs: [],
@@ -6,6 +8,23 @@ export default {
     userProjects: [],
     starredProjects: [],
     selectedProject: {},
+    codeProjects: {
+      [PROJECT_TYPES.ALGORITHM]: {
+        all: [],
+        starred: [],
+        userProjects: [],
+      },
+      [PROJECT_TYPES.OPERATION]: {
+        all: [],
+        starred: [],
+        userProjects: [],
+      },
+      [PROJECT_TYPES.VISUALIZATION]: {
+        all: [],
+        starred: [],
+        userProjects: [],
+      },
+    },
   },
   users: [],
   processors: {
@@ -55,6 +74,10 @@ export default {
     ignoreLabel: '',
     isShown: false,
     closable: true,
+  },
+  globalMarker: {
+    color: null,
+    isLoading: false,
   },
   groups: [],
 };

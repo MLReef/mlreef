@@ -8,6 +8,7 @@ import user from './userReducer';
 import actionModal from './actionModalReducer';
 import groups from './groupsReducer';
 import processors from './processorReducer';
+import globalMarker from './globalMarkerReducer';
 
 const rootReducer = combineReducers({
   branches,
@@ -19,6 +20,7 @@ const rootReducer = combineReducers({
   actionModal,
   groups,
   processors,
+  globalMarker,
 });
 
 export default rootReducer;

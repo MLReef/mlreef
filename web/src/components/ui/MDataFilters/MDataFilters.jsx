@@ -4,7 +4,7 @@ import MCheckBox from 'components/ui/MCheckBox/MCheckBox';
 import './MDataFilters.scss';
 
 const MDataFilters = ({ types }) => (
-  <div className="m-data-filters">
+  <div className="m-data-filters px-3">
     <div className="m-data-filters-actions">
       <p className="mr-3">Refine by</p>
       <button type="button" className="btn btn-hidden t-info">

@@ -58,6 +58,7 @@ $border-radius: 0.25rem !default;
         & button {
           padding: 0.5rem 2rem;
           border: solid 2px transparent;
+          color: var(--secondary);
         }
 
         &.active {
