@@ -32,6 +32,7 @@ import UploadFile from './components/views/uploadFile/uploadFile';
 import DataVisualizationDetail from './components/data-visualization/dataVisualizationDetail';
 import ForkView from './components/ForkView';
 import Insights from './components/insights/insights';
+import RegisterLandingView from 'components/RegisterView/RegisterLandingView';
 // this is component for testing layout and should be removed after alpha
 import Demo from './components/Demo';
 
@@ -46,7 +47,7 @@ const RouterComp = () => (
       <Route path="/user/reset-password" exact component={ResetPasswordView} />
       <Route path="/error-page" exact component={ErrorPage} />
       <Route path="/explore" exact component={ExploreView} />
-
+      <PrivateRoute path="/welcome" exact component={RegisterLandingView} />
       <PrivateRoute path="/" exact component={Projects} />
       <PrivateRoute path="/perms/owner" owneronly exact component={Projects} />
       <PrivateRoute path="/perms/role" minRole={20} exact component={Projects} />

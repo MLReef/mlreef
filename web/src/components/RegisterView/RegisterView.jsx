@@ -25,7 +25,7 @@ const RegisterView = (props) => {
 
   const onUpdatedRoleSuccess = () => {
     const { history } = props;
-    history.push('/my-projects');
+    history.push('/welcome');
   };
 
   return (
