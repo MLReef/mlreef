@@ -4,12 +4,14 @@ import com.mlreef.rest.DataProjectRepository
 import com.mlreef.rest.Experiment
 import com.mlreef.rest.ExperimentRepository
 import com.mlreef.rest.ExperimentStatus
+import com.mlreef.rest.PipelineInstance
+import com.mlreef.rest.PipelineInstanceRepository
+import com.mlreef.rest.PipelineJobInfo
+import com.mlreef.rest.PipelineStatus
 import com.mlreef.rest.api.CurrentUserService
 import com.mlreef.rest.api.v1.dto.PipelineJobInfoDto
 import com.mlreef.rest.api.v1.dto.toDto
-import com.mlreef.rest.exceptions.AccessDeniedException
 import com.mlreef.rest.exceptions.NotFoundException
-import com.mlreef.rest.external_api.gitlab.TokenDetails
 import com.mlreef.rest.feature.experiment.ExperimentService
 import org.slf4j.LoggerFactory
 import org.springframework.data.repository.findByIdOrNull
@@ -30,6 +32,7 @@ class EpfController(
     val service: ExperimentService,
     val currentUserService: CurrentUserService,
     val dataProjectRepository: DataProjectRepository,
+    val pipelineInstanceRepository: PipelineInstanceRepository,
     val experimentRepository: ExperimentRepository
 ) {
     companion object {
@@ -38,35 +41,38 @@ class EpfController(
 
     private val dataProjectNotFound = "Experiment with UUID was not found or visible"
 
-    // FIXME: Coverage says: exception path missing
-    private fun beforeGetExperiment(experimentId: UUID, token: String, tokenDetails: TokenDetails): Experiment {
+    private fun beforeGetExperiment(experimentId: UUID, token: String): Experiment {
         val experiment = experimentRepository.findByIdOrNull(experimentId)
             ?: throw NotFoundException(dataProjectNotFound)
+        return getGuardedInstance(experiment.pipelineJobInfo, token, experiment)
+    }
 
+    private fun beforeGetPipelineInstance(instanceId: UUID, token: String): PipelineInstance {
+        val instance = pipelineInstanceRepository.findByIdOrNull(instanceId)
+            ?: throw NotFoundException(dataProjectNotFound)
+        return getGuardedInstance(instance.pipelineJobInfo, token, instance)
+    }
+
+    private fun <T> getGuardedInstance(pipelineJobInfo: PipelineJobInfo?, token: String, guardedInstance: T): T {
         return when {
-            (experiment.pipelineJobInfo == null) -> {
-                log.warn("Experiment exists, but PipelineJobInfo is null!")
+            (pipelineJobInfo == null) -> {
+                log.warn("Experiment/Pipeline exists, but PipelineJobInfo is null!")
                 throw NotFoundException(dataProjectNotFound)
             }
-            (experiment.pipelineJobInfo!!.secret != token) -> {
-                log.warn("Experiment and PipelineJobInfo exist, but a wrong token is provided!")
+            (pipelineJobInfo.secret != token) -> {
+                log.warn("Experiment/Pipeline and PipelineJobInfo exist, but a wrong token is provided!")
                 throw NotFoundException(dataProjectNotFound)
             }
-            (tokenDetails.projects.get(experiment.dataProjectId) == null) -> {
-                log.error("User ${tokenDetails.accountId} has no access to the project ${experiment.dataProjectId} of the experiment")
-                throw AccessDeniedException("No access to the project")
-            }
-            else -> experiment
+            else -> guardedInstance
         }
     }
 
-    // FIXME: Coverage says: missing tests
     @PutMapping("/experiments/{id}/update")
     fun epfUpdateExperiment(@PathVariable id: UUID,
                             @RequestHeader(EPF_HEADER) token: String,
-                            @RequestBody jsonBlob: String,
-                            tokenDetails: TokenDetails): PipelineJobInfoDto {
-        val experiment = beforeGetExperiment(id, token, tokenDetails)
+                            @RequestBody jsonBlob: String
+    ): PipelineJobInfoDto {
+        val experiment = beforeGetExperiment(id, token)
         service.guardStatusChange(experiment, newStatus = ExperimentStatus.RUNNING)
         val pipelineJobInfo = experiment.pipelineJobInfo?.copy(
             updatedAt = ZonedDateTime.now()
@@ -80,11 +86,27 @@ class EpfController(
         return saved.pipelineJobInfo!!.toDto()
     }
 
+    @PutMapping("/pipeline_instance/{id}/update")
+    fun epfUpdatePipelineInstance(@PathVariable id: UUID,
+                                  @RequestHeader(EPF_HEADER) token: String,
+                                  @RequestBody jsonBlob: String
+    ): PipelineJobInfoDto {
+        val pipelineInstance = beforeGetPipelineInstance(id, token)
+        val pipelineJobInfo = pipelineInstance.pipelineJobInfo?.copy(
+            updatedAt = ZonedDateTime.now()
+        )
+        val experimentUpdate = pipelineInstance.copy(
+            pipelineJobInfo = pipelineJobInfo
+        )
+        val saved = pipelineInstanceRepository.save(experimentUpdate)
+        return saved.pipelineJobInfo!!.toDto()
+    }
+
     @PutMapping("/experiments/{id}/finish")
     fun epfFinishExperiment(@PathVariable id: UUID,
-                            @RequestHeader(EPF_HEADER) token: String,
-                            tokenDetails: TokenDetails): PipelineJobInfoDto {
-        val experiment = beforeGetExperiment(id, token, tokenDetails)
+                            @RequestHeader(EPF_HEADER) token: String
+    ): PipelineJobInfoDto {
+        val experiment = beforeGetExperiment(id, token)
 
         service.guardStatusChange(experiment, newStatus = ExperimentStatus.SUCCESS)
 
@@ -96,6 +118,23 @@ class EpfController(
             status = ExperimentStatus.SUCCESS
         )
         val saved = experimentRepository.save(experimentUpdate)
+        return saved.pipelineJobInfo!!.toDto()
+    }
+
+    @PutMapping("/pipeline_instance/{id}/finish")
+    fun epfFinishPipelineInstance(@PathVariable id: UUID,
+                                  @RequestHeader(EPF_HEADER) token: String
+    ): PipelineJobInfoDto {
+        val pipelineInstance = beforeGetPipelineInstance(id, token)
+
+        val pipelineJobInfo = pipelineInstance.pipelineJobInfo?.copy(
+            finishedAt = ZonedDateTime.now()
+        )
+        val instanceUpdate = pipelineInstance.copy(
+            pipelineJobInfo = pipelineJobInfo,
+            status = PipelineStatus.SUCCESS
+        )
+        val saved = pipelineInstanceRepository.save(instanceUpdate)
         return saved.pipelineJobInfo!!.toDto()
     }
 }
