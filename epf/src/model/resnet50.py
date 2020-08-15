@@ -184,8 +184,8 @@ if __name__ == '__main__':
     images_path = params['input_path']
     output_path = params['output_path']
     
-    if not os.path.exists(self.output_dir):
-        os.makedirs(self.output_dir)
+    if not os.path.exists(output_path):
+        os.makedirs(output_path)
 
     height = int(params['height'])
     width = int(params['width'])
