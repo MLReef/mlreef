@@ -10,6 +10,15 @@ class Input extends Component {
       currentValue: value,
     };
     this.onChange = this.onChange.bind(this);
+    this.onBlur = this.onBlur.bind(this);
+  }
+
+  onBlur(e) {
+    const { onBlurCallback } = this.props;
+
+    if (onBlurCallback && typeof onBlurCallback === 'function') {
+      onBlurCallback(e);
+    }
   }
 
   onChange(e) {
@@ -34,18 +43,19 @@ class Input extends Component {
     const {
       placeholder,
       name,
-      id,
+      hasErrors,
     } = this.props;
     const { currentValue } = this.state;
     return (
-      <div id={`input-${id}-div-container`} className="input-component-container">
+      <div className="input-component-container">
         <div>
           <input
+            style={hasErrors ? { border: '1px solid var(--danger)' } : {}}
             name={name}
-            id={id}
             className="grey-border"
             placeholder={placeholder}
             onChange={this.onChange}
+            onBlur={this.onBlur}
             value={currentValue}
           />
         </div>

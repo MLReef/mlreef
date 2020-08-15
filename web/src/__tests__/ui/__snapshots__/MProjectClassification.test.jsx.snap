@@ -167,9 +167,10 @@ exports[`test html elements 1`] = `
               >
                 <button
                   aria-label="dropdown-btn"
-                  className="btn btn-icon btn-hidden fa fa-chevron-down p-1"
+                  className="btn btn-icon btn-hidden fa fa-chevron-down p-1 "
                   id=""
                   onClick={[Function]}
+                  style={Object {}}
                   type="button"
                 />
                 
@@ -286,9 +287,10 @@ exports[`test html elements 1`] = `
               >
                 <button
                   aria-label="dropdown-btn"
-                  className="btn btn-icon btn-hidden fa fa-chevron-down p-1"
+                  className="btn btn-icon btn-hidden fa fa-chevron-down p-1 "
                   id=""
                   onClick={[Function]}
+                  style={Object {}}
                   type="button"
                 />
                 
@@ -385,9 +387,10 @@ exports[`test html elements 1`] = `
               >
                 <button
                   aria-label="dropdown-btn"
-                  className="btn btn-icon btn-hidden fa fa-chevron-down p-1"
+                  className="btn btn-icon btn-hidden fa fa-chevron-down p-1 "
                   id=""
                   onClick={[Function]}
+                  style={Object {}}
                   type="button"
                 />
                 
@@ -484,9 +487,10 @@ exports[`test html elements 1`] = `
               >
                 <button
                   aria-label="dropdown-btn"
-                  className="btn btn-icon btn-hidden fa fa-chevron-down p-1"
+                  className="btn btn-icon btn-hidden fa fa-chevron-down p-1 "
                   id=""
                   onClick={[Function]}
+                  style={Object {}}
                   type="button"
                 />
                 

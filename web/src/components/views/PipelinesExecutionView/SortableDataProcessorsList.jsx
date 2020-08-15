@@ -1,13 +1,136 @@
 import React, { useState } from 'react';
 import { SortableContainer, SortableElement } from 'react-sortable-hoc';
-import $ from 'jquery';
-import { BOOL, errorMessages } from 'dataTypes';
+import { BOOLEAN, errorMessages } from 'dataTypes';
 import MTooltip from 'components/ui/MTooltip';
+import validateInput from 'functions/validations';
 import MWrapper from 'components/ui/MWrapper';
 import advice01 from 'images/advice-01.png';
 import Input from '../../input/input';
 import ArrowButton from '../../arrow-button/arrowButton';
 import './SortableDataProcessorList.scss';
+
+const ErrorsDiv = ({ typeOfField }) => (
+  <div style={{ display: 'flex', alignItems: 'center' }}>
+    <img style={{ height: '15px' }} src={advice01} alt="" />
+    <p style={{ margin: '0 0 0 5px', color: 'red' }}>{errorMessages[typeOfField]}</p>
+  </div>
+);
+
+const InputParam = ({ param }) => {
+  const [hasErrors, setHasErrors] = useState(false);
+  function validateFields(e) {
+    setHasErrors(!validateInput(e.currentTarget.value, param.type, param.required));
+  }
+  return (
+    <div className="mb-3">
+      <div className="d-flex">
+        <span className="mr-auto" style={{ alignSelf: 'center', padding: '0rem 1rem' }}>
+          {param.description && (
+          <MTooltip
+            scale={120}
+            className="mr-1"
+            message={param.description}
+          />
+          )}
+          {`${param.name}: `}
+        </span>
+        <Input
+          callback={validateFields}
+          onBlurCallback={validateFields}
+          placeholder={String(param.default_value)}
+          value={param.value}
+          hasErrors={hasErrors}
+        />
+      </div>
+      {hasErrors && (<ErrorsDiv typeOfField={param.type} />)}
+    </div>
+  );
+};
+
+const SelectComp = ({
+  param,
+}) => {
+  const [value, setValue] = useState(param.default_value === 'TRUE');
+  const [hasErrors, setHasErrors] = useState(false);
+  const [isShowingOptions, setIsShowingOptions] = useState(false);
+
+  function handleSelectClick(newBoolValue) {
+    setValue(newBoolValue);
+    setHasErrors(false);
+    setIsShowingOptions(!isShowingOptions);
+  }
+  return (
+    <>
+      <div className="d-flex mb-3">
+        <span className="mr-auto" style={{ alignSelf: 'center', overflow: 'hidden', padding: '0rem 1rem' }}>
+          {param.description && (
+          <MTooltip
+            scale={120}
+            className="mr-1"
+            message={param.description}
+          />
+          )}
+          {`${param.name}: `}
+        </span>
+        <div
+          style={{
+            backgroundColor: 'var(--dark)',
+            color: 'white',
+            borderRadius: '0.25rem',
+            width: '8.9rem',
+          }}
+        >
+          <input
+            style={{ display: 'none' }}
+            value={value}
+            onChange={() => {}}
+          />
+          <div style={{ display: 'flex' }}>
+            <ArrowButton
+              placeholder={value ? 'Yes' : 'No'}
+              isOpened={isShowingOptions}
+              buttonStyle={{ width: '5rem' }}
+              callback={() => {
+                setIsShowingOptions(!isShowingOptions);
+              }}
+            />
+          </div>
+          {isShowingOptions && (
+          <ul style={{
+            boxShadow: '0 2px 4px rgb(0, 0, 0, 0.3)',
+            display: 'block !important',
+            position: 'absolute',
+            width: '80px',
+            background: 'var(--white)',
+            borderRadius: '0.5em',
+          }}
+          >
+            <li>
+              <button
+                type="button"
+                style={{ border: 'none', padding: '0.5rem', backgroundColor: 'white' }}
+                onClick={() => handleSelectClick(true)}
+              >
+                Yes
+              </button>
+            </li>
+            <li>
+              <button
+                type="button"
+                style={{ border: 'none', padding: '0.5rem', backgroundColor: 'white' }}
+                onClick={() => handleSelectClick(false)}
+              >
+                No
+              </button>
+            </li>
+          </ul>
+          )}
+        </div>
+      </div>
+      {hasErrors && (<ErrorsDiv typeOfField={param.type} />)}
+    </>
+  );
+};
 
 const SortableProcessor = SortableElement(({
   props: {
@@ -19,20 +142,13 @@ const SortableProcessor = SortableElement(({
   },
 }) => {
   const [isFormdivVisible, setIsFormdivVisible] = useState(true);
-  function handleSelectClick(advancedParamIndex, newBoolValue) {
-    $(`#advanced-drop-down-${value.internalProcessorId}-param-${advancedParamIndex}`).click();
-    $(`#paragraph-op-${value.internalProcessorId}-value-${advancedParamIndex}`).text(newBoolValue ? 'Yes' : 'No');
-    document
-      .getElementById(
-        `ad-hidden-input-advanced-drop-down-${value.internalProcessorId}-param-${advancedParamIndex}`,
-      )
-      .value = newBoolValue;
-  }
+  const [isAdvancedSectionVisible, setIsAdvancedSectionVisible] = useState(true);
   const sortedParameters = value
     .parameters?.sort((paramA, paramB) => paramA.order - paramB.order);
   const filterOperation = (paramType) => sortedParameters?.filter(
     (operation) => operation.required === paramType
   );
+  const hasTheFormErrors = value.parameters?.filter((param) => param.hasErrors === true).length > 0;
 
   const standardParameters = filterOperation(true);
   const advancedParameters = filterOperation(false);
@@ -43,7 +159,7 @@ const SortableProcessor = SortableElement(({
 
   return (
     <span
-      key={`data-operations-item-selected-${value.internalProcessorId}`}
+      key={`item-selected-${value.internalProcessorId}`}
       className="sortable-data-operation-list-item"
     >
       <p style={{ marginRight: '15px' }}>
@@ -55,8 +171,8 @@ const SortableProcessor = SortableElement(({
       </p>
       <div
         className="data-operations-item round-border-button shadowed-element"
-        id={`data-operations-item-selected-${value.internalProcessorId}`}
         key={`data-operations-item-selected-${value.internalProcessorId}`}
+        style={hasTheFormErrors ? { border: '1px solid red' } : {}}
       >
         <div className="header flexible-div">
           <div className="processor-title">
@@ -77,7 +193,7 @@ const SortableProcessor = SortableElement(({
               <span className="bold-text"> Keras</span>
             </p>
           </div>
-          <div id={`data-options-second-${value.internalProcessorId}`} className="data-oper-options flexible-div ">
+          <div className="data-oper-options flexible-div ">
             <div>
               <button
                 type="button"
@@ -107,29 +223,15 @@ const SortableProcessor = SortableElement(({
         <div className={`data-operation-form ${isFormdivVisible ? '' : 'd-none'}`}>
           <br />
           <div style={{ width: 'max-content', margin: 'auto', marginLeft: '1rem' }}>
-            {standardParameters && standardParameters.map((param, paramIndex) => (
-              <div key={`std-${param.name}`}>
-                <div className="d-flex mb-3">
-                  <span className="mr-4" style={{ alignSelf: 'center', flex: 1 }}>
-                    {param.description && (
-                      <MTooltip
-                        scale={120}
-                        className="mr-1"
-                        message={param.description}
-                      />
-                    )}
-                    {`${param.name}: `}
-                  </span>
-                  <div className="my-auto">
-                    <Input id={`param-${paramIndex}-item-data-operation-selected-form-${value.internalProcessorId}`} placeholder="" value={param.value} />
-                  </div>
-                </div>
-                <div id={`error-div-for-param-${paramIndex}-item-data-operation-selected-form-${value.internalProcessorId}`} style={{ display: 'none' }}>
-                  <img style={{ height: '15px' }} src={advice01} alt="" />
-                  <p style={{ margin: '0 0 0 5px' }}>{errorMessages[param.dataType]}</p>
-                </div>
-              </div>
-            ))}
+            {standardParameters && standardParameters.map((param) => param.type === BOOLEAN ? (
+              <SelectComp
+                key={`${value.internalProcessorId} ${param.name}`}
+                param={param}
+              />
+            )
+              : (
+                <InputParam param={param} key={`${value.internalProcessorId} ${param.name}`} />
+              ))}
           </div>
 
           {advancedParameters && (
@@ -138,10 +240,7 @@ const SortableProcessor = SortableElement(({
                 <div className="drop-down">
                   <p className="mr-2"><b>Advanced</b></p>
                   <ArrowButton
-                    callback={() => {
-                      const formDiv = document.getElementById(`advanced-opts-div-${value.internalProcessorId}`);
-                      formDiv.style.display = formDiv.style.display === 'none' ? 'block' : 'none';
-                    }}
+                    callback={() => setIsAdvancedSectionVisible(!isAdvancedSectionVisible)}
                   />
                 </div>
                 <div style={{ width: '50%', textAlign: 'end' }}>
@@ -162,114 +261,18 @@ const SortableProcessor = SortableElement(({
                   </p>
                 </div>
               </div>
-              <div id={`advanced-opts-div-${value.internalProcessorId}`} className="advanced-opts-div" style={{ width: 'max-content', margin: 'auto', marginLeft: '1rem' }}>
-                {advancedParameters.map((advancedParam, advancedParamIndex) => {
-                  const defaultValue = advancedParam.default_value;
-                  return (
-                    advancedParam.dataType === BOOL
-                      ? (
-                        <div key={`adv-${advancedParam.name}`} className="d-flex mb-3">
-                          <span className="mr-4" style={{ alignSelf: 'center', flex: 1 }}>
-                            {advancedParam.description && (
-                              <MTooltip
-                                scale={120}
-                                className="mr-1"
-                                message={advancedParam.description}
-                              />
-                            )}
-                            {`${advancedParam.name}: `}
-                          </span>
-                          <div>
-                            <input
-                              id={`ad-hidden-input-advanced-drop-down-${value.internalProcessorId}-param-${advancedParamIndex}`}
-                              style={{ display: 'none' }}
-                              onChange={() => { }}
-                              value={advancedParam.value}
-                            />
-                            <div style={{ display: 'flex' }}>
-                              <ArrowButton
-                                id={`advanced-drop-down-${value.internalProcessorId}-param-${advancedParamIndex}`}
-                                callback={() => {
-                                  const el = document.getElementById(`options-for-bool-select-${value.internalProcessorId}-ad-param-${advancedParamIndex}`);
-
-                                  el.style.display = el.style.display === 'none'
-                                    ? 'unset'
-                                    : 'none';
-                                }}
-                              />
-                              <p
-                                id={`paragraph-op-${value.internalProcessorId}-value-${advancedParamIndex}`}
-                              >
-                                {advancedParam.value === 'true' ? 'Yes' : 'No'}
-                              </p>
-                            </div>
-                            <div style={{ display: 'none' }} id={`options-for-bool-select-${value.internalProcessorId}-ad-param-${advancedParamIndex}`}>
-                              <ul style={{
-                                boxShadow: '0 2px 4px rgb(0, 0, 0, 0.3)',
-                                display: 'block !important',
-                                position: 'absolute',
-                                width: '80px',
-                                height: 'auto',
-                                background: '#fff',
-                                borderRadius: '1em',
-                              }}
-                              >
-                                <li>
-                                  <button
-                                    type="button"
-                                    style={{ border: 'none', backgroundColor: 'transparent' }}
-                                    onClick={() => handleSelectClick(advancedParamIndex, true)}
-                                  >
-                                    Yes
-                                  </button>
-                                </li>
-                                <li>
-                                  <button
-                                    type="button"
-                                    style={{ border: 'none', backgroundColor: 'transparent' }}
-                                    onClick={
-                                      () => handleSelectClick(advancedParamIndex, false)
-                                    }
-                                  >
-                                    No
-                                  </button>
-                                </li>
-                              </ul>
-                            </div>
-                          </div>
-
-                        </div>
-                      )
-                      : (
-                        <div key={`adv-${advancedParam.name}`}>
-                          <div className="d-flex mb-3">
-                            <span className="mr-4" style={{ alignSelf: 'center', flex: 1 }}>
-                              {advancedParam.description && (
-                                <MTooltip
-                                  scale={120}
-                                  className="mr-1"
-                                  message={advancedParam.description}
-                                />
-                              )}
-                              {`${advancedParam.name}: `}
-                            </span>
-                            <Input
-                              id={`ad-param-${advancedParamIndex}-item-data-operation-form-${value.internalProcessorId}`}
-                              placeholder={String(defaultValue)}
-                              value={advancedParam.value}
-                            />
-                          </div>
-                          <div
-                            style={{ display: 'none' }}
-                          >
-                            <img style={{ height: '15px' }} src={advice01} alt="" />
-                            <p style={{ margin: '0 0 0 5px' }}>{errorMessages[advancedParam.dataType]}</p>
-                          </div>
-                        </div>
-                      )
-                  );
-                })}
-              </div>
+              {isAdvancedSectionVisible && (
+                <div className="advanced-opts-div" style={{ width: 'max-content', margin: 'auto', marginLeft: '1rem' }}>
+                  {advancedParameters.map((advancedParam) => advancedParam.type === BOOLEAN ? (
+                    <SelectComp
+                      key={`${value.internalProcessorId} ${advancedParam.name}`}
+                      param={advancedParam}
+                    />
+                  ) : (
+                    <InputParam param={advancedParam} key={`${value.internalProcessorId} ${advancedParam.name}`} />
+                  ))}
+                </div>
+              )}
             </div>
           )}
         </div>

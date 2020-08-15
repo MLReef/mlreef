@@ -45,7 +45,7 @@ export const Processor = ({ processorData, handleDragStart }) => {
           </div>
           <div>
             <ArrowButton
-              callback={() => { setShouldDescriptionRender(!shouldDescriptionRender); }}
+              callback={() => setShouldDescriptionRender(!shouldDescriptionRender)}
             />
           </div>
         </div>

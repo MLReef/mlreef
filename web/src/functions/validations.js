@@ -1,20 +1,21 @@
 import {
-  INT, FLOAT, regExps, BOOL, bannedCharsArray
+  INTEGER, FLOAT, regExps, BOOLEAN, bannedCharsArray, STRING
 } from '../dataTypes';
 
 export default (value, dataType, required) => {
-  if (required && (value === '' || (typeof (value) === 'undefined' || value.length === 0))) return false;
-  if (value.length === 0) return true;
-
+  if (required && (!value || value === '')) return false;
+  if (value === '') return true;
   switch (dataType) {
-    case INT:
+    case INTEGER:
       return regExps.INT.test(value);
     case FLOAT:
-      return regExps.FLOAT.test(value);
-    case BOOL:
-      return (value === 'true') || (value === 'false');
-    default:
+      return regExps.FLOAT.test(value) && !Number.isNaN(Number.parseFloat(value));
+    case BOOLEAN:
+      return (value?.toLowerCase() === 'true') || (value?.toLowerCase() === 'false');
+    case STRING:
       return true;
+    default:
+      throw new Error('Not supported datatype');
   }
 };
 
