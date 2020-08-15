@@ -232,7 +232,6 @@ export function Clonedropdown(props) {
 };
 
 Clonedropdown.propTypes = {
-  ssh: string.isRequired,
   http: string.isRequired,
 };
 

@@ -1,26 +1,33 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import $ from 'jquery';
 import PropTypes from 'prop-types';
-import './arrowButton.css';
+import './arrowButton.scss';
 
 const ArrowButton = ({
   placeholder,
   callback,
   params,
   id,
+  isOpened,
+  buttonStyle
 }) => {
-  function handleDropDownClick(e) {
-    if(e.currentTarget){
-      $(e.currentTarget).attr('tabindex', 1).focus();
-      $(e.currentTarget).toggleClass('active');
-      $(e.currentTarget).find('.dropdown-menu').slideToggle(300);
-      
-      if (e.currentTarget.classList.contains('background-rotate')) {
-        $(e.currentTarget).removeClass('background-rotate');
+  const ref = useRef();
+
+  function rotate() {
+    if (ref.current) {
+      $(ref.current).attr('tabindex', 1).focus();
+      $(ref.current).toggleClass('active');
+      $(ref.current).find('.dropdown-menu').slideToggle(300);
+
+      if (ref.current.classList.contains('background-rotate')) {
+        $(ref.current).removeClass('background-rotate');
       } else {
-        $(e.currentTarget).addClass('background-rotate');
+        $(ref.current).addClass('background-rotate');
       }
     }
+  }
+  function handleDropDownClick(e) {
+    rotate();
 
     if (callback && typeof callback === 'function') {
       callback(e, params);
@@ -31,10 +38,12 @@ const ArrowButton = ({
     <div className="dropdown-btn-container-div">
       <button
         aria-label="dropdown-btn"
+        style={buttonStyle}
         type="button"
         id={id}
         key={id}
-        className="btn btn-icon btn-hidden fa fa-chevron-down p-1"
+        ref={ref}
+        className={`btn btn-icon btn-hidden fa fa-chevron-down p-1 ${isOpened ? 'background-rotate' : ''}`}
         onClick={(e) => { handleDropDownClick(e); }}
       />
       { placeholder && (
@@ -49,6 +58,8 @@ ArrowButton.propTypes = {
   callback: PropTypes.func,
   params: PropTypes.shape({}),
   id: PropTypes.string,
+  isOpened: PropTypes.bool,
+  buttonStyle: PropTypes.shape({}),
 };
 
 ArrowButton.defaultProps = {
@@ -56,6 +67,8 @@ ArrowButton.defaultProps = {
   callback: () => {},
   params: {},
   id: '',
+  isOpened: false,
+  buttonStyle: {},
 };
 
 export default ArrowButton;

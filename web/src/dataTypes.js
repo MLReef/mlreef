@@ -1,15 +1,16 @@
 import lock from 'images/lock-01.png';
 import global from 'images/global-01.png';
 
-export const INT = 'INT';
+export const INTEGER = 'INTEGER';
 export const FLOAT = 'FLOAT';
-export const BOOL = 'Boolean';
-export const regExps = { INT: /^[0-9]+$/, FLOAT: /^-?\d*\.?\d*$/ };
-export const STRING = 'String';
+export const BOOLEAN = 'BOOLEAN';
+export const regExps = { INT: /^[0-9]+$/, FLOAT: /^-?\d*\.\d*$/ };
+export const STRING = 'STRING';
 export const errorMessages = {
-  INT: 'Integer, value must be between 1 - 9.999',
-  FLOAT: 'Required field or float type',
-  BOOL: 'Required filed or bool type',
+  INTEGER: 'The value should be an integer number',
+  FLOAT: 'The value should be a floating number',
+  BOOLEAN: 'This parameter can be true or false only.',
+  STRING: 'This is not a valid entry for this parameter',
 };
 
 export const colorsForCharts = [
@@ -52,40 +53,6 @@ export const Nouns = ['dolphin', 'barracuda', 'starfish', 'scubadiver', 'plancto
   'cod', 'coral', 'eel', 'seal', 'shrimp', 'flounder', 'squid', 'herring', 'jellyfish', 'dory', 'krill', 'lobster', 'ray', 'megalodon', 'manatee',
   'warwhal', 'nautilus', 'octopus', 'oyster', 'plankton', 'prawn', 'pufferfish', 'sponge', 'swordfish', 'walrus', 'tuna', 'crab', 'algae', 'kraken',
   'nessie', 'siren', 'moby-dick'];
-
-export const dataVisualizations = [
-  {
-    title: 't-SNE',
-    username: 'Vaibhav_M',
-    starCount: '301',
-    index: 1,
-    command: 'tsne',
-    description:
-            'No description yet',
-    showDescription: false,
-    showAdvancedOptsDivDataPipeline: false,
-    dataType: 'Images',
-    params: {
-      standard: [{
-        name: 'Output path', dataType: STRING, required: true, commandName: 'output_path',
-      }],
-      advanced: [
-        {
-          name: 'num_dimensions', dataType: INT, required: false, commandName: 'num_dimensions',
-        },
-        {
-          name: 'perplexity', dataType: FLOAT, required: false, commandName: 'perplexity',
-        },
-        {
-          name: 'learning_rate', dataType: FLOAT, required: false, commandName: 'learning_rate',
-        },
-        {
-          name: 'max_iter', dataType: FLOAT, required: false, commandName: 'max_iter',
-        },
-      ],
-    },
-  },
-];
 
 /**
  * Gitlab actions

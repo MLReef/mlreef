@@ -13,7 +13,6 @@ import { OPERATION, ALGORITHM, VISUALIZATION } from 'dataTypes';
 import SortableProcessorsList from 'components/views/PipelinesExecutionView/SortableDataProcessorsList';
 import { parseToCamelCase } from 'functions/dataParserHelpers';
 import SelectDataPipelineModal from './SelectDataPipelineModal';
-import { showErrorsInTheOperationsSelected } from '../../../functions/pipeLinesHelpers';
 import validateInput from '../../../functions/validations';
 import ExecutePipelineModal from './ExecutePipelineModal';
 import Navbar from '../../navbar/navbar';
@@ -160,7 +159,6 @@ class PipelinesExecutionView extends Component {
   toggleExecutePipeLineModal() {
     const {
       processorsSelected,
-      isShowingExecutePipelineModal,
       filesSelectedInModal,
     } = this.state;
     if (processorsSelected.length === 0) {
@@ -178,12 +176,15 @@ class PipelinesExecutionView extends Component {
       const dataOperationsHtmlElm = dataOperationsHtmlElms[index];
       const dataOpInputs = Array.prototype.slice.call(dataOperationsHtmlElm.getElementsByTagName('input'));
       inputValuesAndDataModels = [];
+      const dataOpUpdated = dataOperation;
       dataOpInputs.forEach((input, inputIndex) => {
         let inputDataModel = null;
-        inputDataModel = dataOperation.parameters[inputIndex];
-        if (validateInput(input.value, inputDataModel.dataType, inputDataModel.required)) {
+        inputDataModel = dataOpUpdated.parameters[inputIndex];
+        if (validateInput(input.value, inputDataModel.type, inputDataModel.required)) {
           if (input.value !== '') { // fields can be valid but empty because not required...Do not delete
             const { name } = inputDataModel;
+            inputDataModel.hasErrors = false;
+            dataOpUpdated.parameters[inputIndex] = inputDataModel;
             inputValuesAndDataModels.push({
               name,
               value: input.value,
@@ -191,17 +192,17 @@ class PipelinesExecutionView extends Component {
           }
         } else {
           errorCounter += 1;
-          showErrorsInTheOperationsSelected(input, inputDataModel, dataOperationsHtmlElm);
+          inputDataModel.hasErrors = true;
+          dataOpUpdated.parameters[inputIndex] = inputDataModel;
         }
       });
-      return { ...dataOperation, inputValuesAndDataModels };
+      return { ...dataOpUpdated, inputValuesAndDataModels };
     });
-    if (errorCounter === 0) {
-      this.setState({
-        isShowingExecutePipelineModal: !isShowingExecutePipelineModal,
-        processorsSelected: dataOperationsSelectedUpdate,
-      });
-    } else {
+    this.setState({
+      isShowingExecutePipelineModal: errorCounter === 0,
+      processorsSelected: dataOperationsSelectedUpdate,
+    });
+    if (errorCounter > 0) {
       toastr.error('Form', 'Data you have entered is invalid');
     }
   }
@@ -221,6 +222,10 @@ class PipelinesExecutionView extends Component {
 
     this.setState({ processorsSelected: newProcessorsArray });
   }
+
+  toggleExecuteModal = () => this.setState(() => ({
+    isShowingExecutePipelineModal: false,
+  }));
 
   render = () => {
     const {
@@ -274,7 +279,8 @@ class PipelinesExecutionView extends Component {
         <ExecutePipelineModal
           type={operationTypeToExecute}
           isShowing={isShowingExecutePipelineModal}
-          toggle={this.toggleExecutePipeLineModal}
+          toggle={this.toggleExecuteModal}
+          execute={this.toggleExecutePipeLineModal}
           processorsSelected={processorsSelected}
           filesSelectedInModal={filesSelectedInModal}
           httpUrlToRepo={project.httpUrlToRepo}
