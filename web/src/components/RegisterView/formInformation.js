@@ -69,7 +69,7 @@ export const roles = [
     value: 2,
   },
   {
-    label: 'ML enginner',
+    label: 'ML engineer',
     value: 3,
   },
   {
