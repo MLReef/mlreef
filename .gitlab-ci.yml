@@ -117,6 +117,24 @@ postman test suite:
       - node_modules/.bin/
   script: bin/ci-postman-tests
 
+
+all services are responding:
+  extends: [.except-docu-branches]
+  stage: test
+  only:
+    changes:
+      - backend/**/*
+      - bin/tests/**/***
+      - epf/**/*
+  when: delayed
+  start_in: 4 minutes
+  image: registry.gitlab.com/systemkern/s5:latest-git
+  script: bin/tests/test-minimal-system-test.sh
+  artifacts:
+    paths:
+      - out/test
+
+
 test rest docs are present:
   allow_failure: true
   extends: [.except-docu-branches]
