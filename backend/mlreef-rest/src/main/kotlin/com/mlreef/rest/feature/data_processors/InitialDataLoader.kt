@@ -800,7 +800,7 @@ class InitialDataLoader {
                         name = "model-name"
                         defaultValue = "vgg"
                         description = "choose the model :resnet, alexnet, vgg, squeezenet, densenet, inception"
-                                                                                         
+
                     }
                     BOOLEAN {
                         id = fromString("2c9c7060-d16c-11ea-87d0-0242ac130003")
@@ -808,7 +808,7 @@ class InitialDataLoader {
                         defaultValue = "true"
                         required = false
                         description = "select true if you want to extract features or false for classification using the trained model"
-                                                                                            
+
                     }
                 }
             }

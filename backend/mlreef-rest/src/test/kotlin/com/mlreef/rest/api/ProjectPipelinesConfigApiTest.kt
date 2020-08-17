@@ -61,8 +61,7 @@ class ProjectPipelinesConfigApiTest : AbstractRestApiTest() {
         dataProject = pipelineTestPreparationTrait.dataProject
         notOwn_dataProject = pipelineTestPreparationTrait.dataProject2
 
-        mockGitlabPipelineWithBranch("sourceBranch", "targetBranch")
-
+        mockGitlabPipelineWithBranch("targetBranch")
     }
 
     @Transactional

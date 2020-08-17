@@ -1,6 +1,6 @@
 plugins {
-    id 'org.springframework.boot' version '2.1.9.RELEASE'
-    id 'io.spring.dependency-management' version '1.0.8.RELEASE'
+    id 'org.springframework.boot'
+    id 'io.spring.dependency-management'
     id 'org.jetbrains.kotlin.jvm'
     id 'kotlin-spring'
     id 'kotlin-jpa'
@@ -28,7 +28,7 @@ dependencies {
     // testing
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
 
-    def jupiter = "5.4.0"
+    def jupiter = "5.6.2"
     def mockkVersion = "1.9.3"
     testImplementation "org.junit.jupiter:junit-jupiter:$jupiter"
     testImplementation('org.springframework.boot:spring-boot-starter-test') {

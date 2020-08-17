@@ -21,8 +21,8 @@ variables:
   TARGET_BRANCH:       "%TARGET_BRANCH%"        # Git branch pipeline results are pushed to
 
   # mlreef.com/api/v1/epf/experiments/:experiment_id
-  EPF_PIPELINE_URL:    "%EPF_PIPELINE_URL%"     # The complete URL to the backend endpoint for this particular pipeline used by the EPF
-  EPF_PIPELINE_SECRET: "%EPF_PIPELINE_SECRET%"  # Temporary token used to authenticate the EPF against the backend
+  EPF_PIPELINE_URL:    "%EPF_PIPELINE_URL%"
+  EPF_PIPELINE_SECRET: "%EPF_PIPELINE_SECRET%"
 
   INPUT_FILE_LIST:     "%INPUT_FILE_LIST%"      # Filled by the YamlFileGenerator.kt
 

@@ -36,6 +36,7 @@ enum class ErrorCode(val errorCode: Int, val errorName: String) {
     GitlabBranchDeletionFailed(2115, "Cannot delete branch in gitlab"),
     GitlabProjectNotExists(2116, "Project not exists in Gitlab"),
     GitlabMembershipDeleteFailed(2117, "Unable to revoke user's membership"),
+    GitlabBranchNotExists(2118, "Branch does not exist in Gitlab"),
     GitlabUserModificationFailed(2101, "Cannot modify user in gitlab"),
 
     // Business errors: 3xxx

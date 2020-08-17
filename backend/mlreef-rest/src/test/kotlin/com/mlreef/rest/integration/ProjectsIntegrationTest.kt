@@ -386,8 +386,8 @@ class ProjectsIntegrationTest : AbstractIntegrationTest() {
         val (project14, _) = testsHelper.createRealCodeProject(token1, account1, public = true)
         val (_, _) = testsHelper.createRealCodeProject(token1, account1, public = false)
 
-        val (project21, _) = testsHelper.createRealDataProject(token2, account2, namespace = project1.gitlabNamespace)
-        val (project22, _) = testsHelper.createRealDataProject(token2, account2)
+        val (_, _) = testsHelper.createRealDataProject(token2, account2, namespace = project1.gitlabNamespace)
+        val (_, _) = testsHelper.createRealDataProject(token2, account2)
 
         val url = "$rootUrl/namespace/${project1.gitlabNamespace}"
 
@@ -515,7 +515,7 @@ class ProjectsIntegrationTest : AbstractIntegrationTest() {
     @Rollback
     @Test
     fun `Cannot retrieve not own not public DataProject`() {
-        val (account1, token1, _) = testsHelper.createRealUser()
+        val (_, token1, _) = testsHelper.createRealUser()
 
         val (account2, token2, _) = testsHelper.createRealUser(index = -1)
         val (project21, _) = testsHelper.createRealDataProject(token2, account2, public = false)
@@ -535,9 +535,9 @@ class ProjectsIntegrationTest : AbstractIntegrationTest() {
          * Still unsure, if that test should work
          */
     fun `Can retrieve not own but public DataProject`() {
-        val (account1, token1, _) = testsHelper.createRealUser()
+        val (_, token1, _) = testsHelper.createRealUser()
 
-        val (account2, token2, _) = testsHelper.createRealUser(index = -1)
+        val (account2, _, _) = testsHelper.createRealUser(index = -1)
         val (project21, _) = testsHelper.createRealDataProject(token1, account2, public = true)
 
         val url = "$rootUrl/${project21.id}"
@@ -552,7 +552,7 @@ class ProjectsIntegrationTest : AbstractIntegrationTest() {
     @Rollback
     @Test
     fun `Can create DataProject`() {
-        val (account, token, _) = testsHelper.createRealUser()
+        val (_, token, _) = testsHelper.createRealUser()
 
         val request = ProjectCreateRequest(
             "test-project",
@@ -575,7 +575,7 @@ class ProjectsIntegrationTest : AbstractIntegrationTest() {
     @Rollback
     @Test
     fun `Can create DataProject in data-project path`() {
-        val (account, token, _) = testsHelper.createRealUser()
+        val (_, token, _) = testsHelper.createRealUser()
 
         val request = ProjectCreateRequest(
             "test-project",
@@ -598,7 +598,7 @@ class ProjectsIntegrationTest : AbstractIntegrationTest() {
     @Rollback
     @Test
     fun `Can create CodeProject`() {
-        val (account, token, _) = testsHelper.createRealUser()
+        val (_, token, _) = testsHelper.createRealUser()
 
         val request = ProjectCreateRequest(
             slug = "test-project",
@@ -620,7 +620,7 @@ class ProjectsIntegrationTest : AbstractIntegrationTest() {
     @Rollback
     @Test
     fun `Can create CodeProject in code-project path`() {
-        val (account, token, _) = testsHelper.createRealUser()
+        val (_, token, _) = testsHelper.createRealUser()
 
         val request = ProjectCreateRequest(
             slug = "test-project",
@@ -661,7 +661,7 @@ class ProjectsIntegrationTest : AbstractIntegrationTest() {
     @Rollback
     @Test
     fun `Cannot create Project with invalid params`() {
-        val (account, token, _) = testsHelper.createRealUser()
+        val (_, token, _) = testsHelper.createRealUser()
 
         val request = ProjectCreateRequest(
             "",
@@ -771,7 +771,7 @@ class ProjectsIntegrationTest : AbstractIntegrationTest() {
     @Transactional
     @Test
     fun `Cannot update not-own CodeProject`() {
-        val (account1, token1, _) = testsHelper.createRealUser()
+        val (_, token1, _) = testsHelper.createRealUser()
 
         val (account2, token2, _) = testsHelper.createRealUser(index = -1)
         val (project21, gitlabProject21) = testsHelper.createRealCodeProject(token2, account2)
@@ -854,7 +854,7 @@ class ProjectsIntegrationTest : AbstractIntegrationTest() {
     fun `Cannot delete not-own DataProject`() {
         val (account1, token1, _) = testsHelper.createRealUser()
 
-        val (account2, token2, _) = testsHelper.createRealUser(index = -1)
+        val (account2, _, _) = testsHelper.createRealUser(index = -1)
         val (project21, gitlabProject21) = testsHelper.createRealDataProject(token1, account2)
         val (_, _) = testsHelper.createRealDataProject(token1, account2)
 
@@ -909,9 +909,9 @@ class ProjectsIntegrationTest : AbstractIntegrationTest() {
     @Rollback
     @Test
     fun `Owner can get users list in project`() {
-        val (account1, token1, _) = testsHelper.createRealUser()
+        val (account1, _, _) = testsHelper.createRealUser()
         val (account2, token2, _) = testsHelper.createRealUser(index = 1)
-        val (account3, token3, _) = testsHelper.createRealUser(index = 2)
+        val (account3, _, _) = testsHelper.createRealUser(index = 2)
 
         val (project21, _) = testsHelper.createRealDataProject(token2, account2)
         val (_, _) = testsHelper.createRealDataProject(token2, account2)
@@ -937,7 +937,7 @@ class ProjectsIntegrationTest : AbstractIntegrationTest() {
     fun `Developer can get users list in project`() {
         val (account1, token1, _) = testsHelper.createRealUser(index = -1)
         val (account2, token2, _) = testsHelper.createRealUser(index = -1)
-        val (account3, token3, _) = testsHelper.createRealUser(index = -1)
+        val (account3, _, _) = testsHelper.createRealUser(index = -1)
 
         val (project21, _) = testsHelper.createRealDataProject(token2, account2)
 
@@ -988,9 +988,9 @@ class ProjectsIntegrationTest : AbstractIntegrationTest() {
     @Rollback
     @Test
     fun `Owner can add a user to DataProject`() {
-        val (account1, token1, _) = testsHelper.createRealUser()
+        val (account1, _, _) = testsHelper.createRealUser()
         val (account2, token2, _) = testsHelper.createRealUser(index = 1)
-        val (account3, token3, _) = testsHelper.createRealUser(index = 2)
+        val (account3, _, _) = testsHelper.createRealUser(index = 2)
 
         val (project21, _) = testsHelper.createRealDataProject(token2, account2)
 
@@ -1016,9 +1016,9 @@ class ProjectsIntegrationTest : AbstractIntegrationTest() {
     @Rollback
     @Test
     fun `Owner can add a user to CodeProject`() {
-        val (account1, token1, _) = testsHelper.createRealUser()
+        val (account1, _, _) = testsHelper.createRealUser()
         val (account2, token2, _) = testsHelper.createRealUser(index = 1)
-        val (account3, token3, _) = testsHelper.createRealUser(index = 2)
+        val (account3, _, _) = testsHelper.createRealUser(index = 2)
 
         val (project21, _) = testsHelper.createRealCodeProject(token2, account2)
 
@@ -1045,7 +1045,7 @@ class ProjectsIntegrationTest : AbstractIntegrationTest() {
     @Test
     fun `Owner add a user to project with role and expiration in params`() {
         val (account1, token1, _) = testsHelper.createRealUser()
-        val (account2, token2, _) = testsHelper.createRealUser(index = 1)
+        val (account2, _, _) = testsHelper.createRealUser(index = 1)
 
         val (project1, _) = testsHelper.createRealDataProject(token1, account1)
 
@@ -1063,7 +1063,7 @@ class ProjectsIntegrationTest : AbstractIntegrationTest() {
     @Test
     fun `Owner add a user to project with role and expiration in body`() {
         val (account1, token1, _) = testsHelper.createRealUser()
-        val (account2, token2, _) = testsHelper.createRealUser(index = 2)
+        val (account2, _, _) = testsHelper.createRealUser(index = 2)
 
         val (project1, _) = testsHelper.createRealDataProject(token1, account1)
 
@@ -1084,7 +1084,7 @@ class ProjectsIntegrationTest : AbstractIntegrationTest() {
     fun `Maintainer can add a user to project`() {
         val (account1, token1, _) = testsHelper.createRealUser()
         val (account2, token2, _) = testsHelper.createRealUser(index = 1)
-        val (account3, token3, _) = testsHelper.createRealUser(index = 2)
+        val (account3, _, _) = testsHelper.createRealUser(index = 2)
 
         val (project21, _) = testsHelper.createRealDataProject(token2, account2)
 
@@ -1112,7 +1112,7 @@ class ProjectsIntegrationTest : AbstractIntegrationTest() {
     fun `Maintainer can add a group to project by gitlab id`() {
         val (account1, token1, _) = testsHelper.createRealUser()
         val (account2, token2, _) = testsHelper.createRealUser(index = 1)
-        val (account3, token3, _) = testsHelper.createRealUser(index = 2)
+        val (_, token3, _) = testsHelper.createRealUser(index = 2)
 
         val (project21, _) = testsHelper.createRealDataProject(token2, account2)
 
@@ -1142,7 +1142,7 @@ class ProjectsIntegrationTest : AbstractIntegrationTest() {
     fun `Developer cannot add a user to project`() {
         val (account1, token1, _) = testsHelper.createRealUser()
         val (account2, token2, _) = testsHelper.createRealUser(index = 1)
-        val (account3, token3, _) = testsHelper.createRealUser(index = 2)
+        val (account3, _, _) = testsHelper.createRealUser(index = 2)
 
         val (project21, _) = testsHelper.createRealDataProject(token2, account2)
 
@@ -1170,9 +1170,9 @@ class ProjectsIntegrationTest : AbstractIntegrationTest() {
     @Rollback
     @Test
     fun `Owner can delete a user from project`() {
-        val (account1, token1, _) = testsHelper.createRealUser()
+        val (account1, _, _) = testsHelper.createRealUser()
         val (account2, token2, _) = testsHelper.createRealUser(index = 1)
-        val (account3, token3, _) = testsHelper.createRealUser(index = 2)
+        val (account3, _, _) = testsHelper.createRealUser(index = 2)
 
         val (project21, _) = testsHelper.createRealDataProject(token2, account2)
 
@@ -1201,7 +1201,7 @@ class ProjectsIntegrationTest : AbstractIntegrationTest() {
     fun `Developer cannot delete a user from project`() {
         val (account1, token1, _) = testsHelper.createRealUser()
         val (account2, token2, _) = testsHelper.createRealUser(index = 1)
-        val (account3, token3, _) = testsHelper.createRealUser(index = 2)
+        val (account3, _, _) = testsHelper.createRealUser(index = 2)
 
         val (project21, _) = testsHelper.createRealDataProject(token2, account2)
 

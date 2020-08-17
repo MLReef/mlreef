@@ -1,0 +1,101 @@
+plugins {
+    id 'org.springframework.boot'
+    id 'io.spring.dependency-management'
+    id 'org.jetbrains.kotlin.jvm'
+    id 'kotlin-spring'
+    id 'kotlin-jpa'
+    id 'kotlin-allopen'
+}
+
+group = 'com.mlreef'
+version = '0.0.1-SNAPSHOT'
+
+dependencies {
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
+    implementation 'org.jetbrains.kotlin:kotlin-reflect'
+    implementation "com.fasterxml.jackson.module:jackson-module-kotlin:2.9.10"
+
+    testImplementation project(':mlreef-domain')
+    testImplementation project(':mlreef-rest')
+
+    // Rest and HATEOAS
+    implementation 'org.springframework.boot:spring-boot-starter-hateoas'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+
+    def jupiter = "5.6.2"
+    def mockkVersion = "1.10.0"
+    testImplementation "org.junit.jupiter:junit-jupiter:$jupiter"
+    testImplementation "org.junit.jupiter:junit-jupiter-api:$jupiter"
+
+    // Enable use of the JUnitPlatform Runner within the IDE
+    def junit_runner = "1.6.2"
+    testImplementation("org.junit.platform:junit-platform-runner:$junit_runner")
+
+    testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:$jupiter"
+    // DO NOT USE:   testImplementation "org.junit.jupiter:junit-jupiter-api:$jupiter"
+    // DO NOT USE:   testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:$jupiter"
+    testImplementation('org.springframework.boot:spring-boot-starter-test') {
+        exclude group: 'junit', module: 'junit' //by both name and group
+        exclude group: 'mockito', module: 'mockito-core' //by both name and group
+    }
+    testImplementation "io.mockk:mockk:${mockkVersion}"
+    testImplementation "org.eclipse.jgit:org.eclipse.jgit:5.8.1.202007141445-r"
+    testImplementation project(':mlreef-rest')
+}
+
+bootJar {
+    enabled = false
+}
+
+jar {
+    enabled = true
+}
+
+
+compileKotlin {
+    kotlinOptions {
+        jvmTarget = "1.8"
+    }
+}
+compileTestKotlin {
+    kotlinOptions {
+        jvmTarget = "1.8"
+    }
+}
+
+noArg {
+    annotation("com.mlreef.rest.api.Dto")
+    annotation("com.mlreef.rest.api.DtoRequest")
+}
+
+ext {
+    snippetsDir = file('build/generated-snippets')
+}
+
+test {
+    useJUnitPlatform {
+        excludeTags 'slow', 'system'
+    }
+}
+
+task allTests(type: Test) {
+    useJUnitPlatform {
+        includeTags 'any() | all()'
+    }
+}
+
+task systemTest(type: Test) {
+    useJUnitPlatform {
+        includeTags 'system'
+    }
+}
+
+tasks.withType(Test) {
+    testLogging {
+        exceptionFormat = 'full'
+    }
+    systemProperty 'junit.jupiter.extensions.autodetection.enabled', 'true'
+    afterTest { descriptor, result ->
+        println "\n$descriptor.classDisplayName > $descriptor.displayName: $result.resultType"
+    }
+}

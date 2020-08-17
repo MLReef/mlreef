@@ -102,23 +102,6 @@ pages:
     paths:
       - public
 
-
-gitlab api smoke test:
-  extends: [.except-docu-branches]
-  stage: test
-  when: delayed
-  start_in: 4 minutes
-  image: registry.gitlab.com/systemkern/s5:latest
-  # Gitlab Runners are a separate process from Gitlab's API and Gitlab's frontend
-  script: |
-    URL=$(cat out/instance.info)
-    echo $URL                                            # debug output
-    if [ $(curl --silent --output /dev/null -w ''%{http_code}'' $URL/api/v4/projects) != 200 ]; then
-      curl $URL/api/v4/projects
-      exit 1;
-    fi
-
-
 postman test suite:
   extends: [.except-docu-branches]
   stage: test
@@ -134,27 +117,8 @@ postman test suite:
       - node_modules/.bin/
   script: bin/ci-postman-tests
 
-
-e2e test experiment:
-  allow_failure: true
-  extends: [.except-docu-branches]
-  stage: test
-  only:
-    changes:
-      - backend/**/*
-      - bin/tests/**/***
-      - bin/ci-test-end2end-experiment
-      - epf/**/*
-  when: delayed
-  start_in: 4 minutes
-  image: registry.gitlab.com/systemkern/s5:latest-git
-  script: bin/ci-test-end2end-experiment
-  artifacts:
-    paths:
-      - out/test
-
-
 test rest docs are present:
+  allow_failure: true
   extends: [.except-docu-branches]
   stage: test
   image: registry.gitlab.com/systemkern/s5:latest
@@ -162,7 +126,6 @@ test rest docs are present:
   script: |
     echo "Testing if backend rest-docs are available at https://mlreef.gitlab.io/mlreef/rest-api/$CI_COMMIT_BRANCH/index.html"
     curl --fail --GET "https://mlreef.gitlab.io/mlreef/rest-api/$CI_COMMIT_BRANCH/index.html" > /dev/null
-
 
 staging:
   stage: staging

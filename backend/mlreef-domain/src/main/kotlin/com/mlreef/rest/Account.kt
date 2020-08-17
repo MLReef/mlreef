@@ -4,7 +4,6 @@ import com.mlreef.rest.helpers.UserInGroup
 import java.time.ZonedDateTime
 import java.util.UUID
 import javax.persistence.CascadeType
-import javax.persistence.Column
 import javax.persistence.Entity
 import javax.persistence.FetchType
 import javax.persistence.ForeignKey
@@ -24,9 +23,6 @@ class Account(
     @JoinColumn(name = "person_id", foreignKey = ForeignKey(name = "account_subject_person_id_fkey"))
     val person: Person,
 
-    @Column(name = "gitlab_id")
-    @Deprecated("Use gitlabId in Person Entity")
-    val gitlabId: Long? = null,
     val lastLogin: ZonedDateTime? = null,
 
     // Token for changing account (change password, etc)

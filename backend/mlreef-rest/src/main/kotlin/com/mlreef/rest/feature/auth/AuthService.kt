@@ -119,7 +119,7 @@ class AuthService(
         val accountUuid = randomUUID()
 
         val person = Person(id = randomUUID(), slug = username, name = username, gitlabId = newGitlabUser.id)
-        val newUser = Account(id = accountUuid, username = username, email = email, passwordEncrypted = encryptedPassword, person = person, gitlabId = null)
+        val newUser = Account(id = accountUuid, username = username, email = email, passwordEncrypted = encryptedPassword, person = person)
 
         accountRepository.save(newUser)
 
@@ -301,8 +301,7 @@ class AuthService(
             username = gitlabUser.username,
             email = gitlabUser.email,
             passwordEncrypted = password,
-            person = person,
-            gitlabId = gitlabUser.id
+            person = person
         )
 
         accountRepository.save(account)
@@ -331,8 +330,7 @@ class AuthService(
             username = gitlabUser.username,
             email = gitlabUser.email,
             passwordEncrypted = botPassword,
-            person = person,
-            gitlabId = gitlabUser.id
+            person = person
         )
 
         return accountRepository.save(account)

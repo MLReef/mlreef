@@ -5,6 +5,10 @@ mlreef:
 
 logging:
   level:
+    root: INFO
     com.mlreef.rest: DEBUG
+    web: INFO
     org.springframework.security: DEBUG
-    web: DEBUG
+    org.springframework.orm: WARN
+    org.hibernate: WARN
+    org.springframework.boot.autoconfigure: ERROR

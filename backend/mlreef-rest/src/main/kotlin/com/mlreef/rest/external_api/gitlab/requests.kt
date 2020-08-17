@@ -79,7 +79,8 @@ internal class GitlabCreateBranchRequest(
 internal class GitlabCreateCommitRequest(
     val branch: String,
     val commitMessage: String,
-    val actions: List<GitlabCreateCommitAction>
+    val actions: List<GitlabCreateCommitAction>,
+    val force: Boolean = false
 ) : Serializable
 
 // https://docs.gitlab.com/ee/api/pipelines.html#create-a-new-pipeline

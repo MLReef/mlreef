@@ -230,6 +230,7 @@ class GitlabRestClient(
             .body!!
     }
 
+    @Deprecated("unused?")
     fun userDeleteUserFromProject(token: String, projectId: Long, userId: Long) {
         GitlabHttpEntity(null, createUserHeaders(token))
             .addErrorDescription(ErrorCode.GitlabMembershipDeleteFailed, "Cannot revoke user's membership from project $projectId")
@@ -297,6 +298,7 @@ class GitlabRestClient(
             .body!!
     }
 
+    @Deprecated("unused?")
     fun adminUpdateProject(id: Long, name: String, description: String, visibility: String): GitlabProject {
         return GitlabUpdateProjectRequest(name = name)
             .let { GitlabHttpEntity(it, createAdminHeaders()) }
@@ -333,6 +335,30 @@ class GitlabRestClient(
             .body!!
     }
 
+    //GET /projects/:id/repository/branches/:branch
+    fun getBranch(token: String, projectId: Long, branch: String): Branch {
+        return GitlabHttpEntity("", createUserHeaders(token))
+            .addErrorDescription(404, ErrorCode.GitlabBranchNotExists, "Cannot get branch $branch in project with id $projectId.")
+            .makeRequest {
+                val url = "$gitlabServiceRootUrl/projects/$projectId/repository/branches/$branch"
+                restTemplate(builder).exchange(url, HttpMethod.GET, it, Branch::class.java)
+            }
+            .also { logGitlabCall(it) }
+            .body!!
+    }
+
+    //GET /projects/:id/repository/branches/:branch
+    fun getBranches(token: String, projectId: Long): List<Branch> {
+        return GitlabHttpEntity("", createUserHeaders(token))
+            .addErrorDescription(404, ErrorCode.GitlabProjectNotExists, "Cannot get branches of project with id $projectId.")
+            .makeRequest {
+                val url = "$gitlabServiceRootUrl/projects/$projectId/repository/branches"
+                restTemplate(builder).exchange(url, HttpMethod.GET, it, typeRef<List<Branch>>())
+            }
+            .also { logGitlabCall(it) }
+            .body!!
+    }
+
     fun deleteBranch(token: String, projectId: Long, targetBranch: String) {
         GitlabHttpEntity(null, createUserHeaders(token))
             .addErrorDescription(ErrorCode.GitlabBranchDeletionFailed, "Cannot delete branch $targetBranch in project with id $projectId")
@@ -349,10 +375,11 @@ class GitlabRestClient(
         targetBranch: String,
         commitMessage: String,
         fileContents: Map<String, String>,
-        action: String
+        action: String,
+        force: Boolean = false
     ): Commit {
         val actionList = fileContents.map { GitlabCreateCommitAction(filePath = it.key, content = it.value, action = action) }
-        return GitlabCreateCommitRequest(branch = targetBranch, actions = actionList, commitMessage = commitMessage)
+        return GitlabCreateCommitRequest(branch = targetBranch, actions = actionList, commitMessage = commitMessage, force = force)
             .let { GitlabHttpEntity(it, createUserHeaders(token)) }
             .addErrorDescription(ErrorCode.GitlabCommitFailed, "Cannot commit .mlreef.yml in $targetBranch")
             .makeRequest {
@@ -614,6 +641,7 @@ class GitlabRestClient(
             .body!!
     }
 
+    @Deprecated("unused")
     fun adminCreateGroupVariable(groupId: Long, name: String, value: String): GroupVariable {
         return GitlabCreateVariableRequest(key = name, value = value)
             .let { GitlabHttpEntity(it, createAdminHeaders()) }

@@ -1,11 +1,9 @@
 package com.mlreef.rest.api
 
 import com.mlreef.rest.AccessLevel
-import com.mlreef.rest.DataProcessorInstanceRepository
 import com.mlreef.rest.DataProject
 import com.mlreef.rest.ParameterType
 import com.mlreef.rest.Person
-import com.mlreef.rest.ProcessorParameterRepository
 import com.mlreef.rest.ProcessorVersion
 import com.mlreef.rest.api.v1.ExperimentCreateRequest
 import com.mlreef.rest.api.v1.dto.DataProcessorInstanceDto
@@ -46,12 +44,6 @@ class ExperimentsApiTest : AbstractRestApiTest() {
     val epfUrl = "/api/v1/epf"
 
     @Autowired
-    private lateinit var dataProcessorInstanceRepository: DataProcessorInstanceRepository
-
-    @Autowired
-    private lateinit var processorParameterRepository: ProcessorParameterRepository
-
-    @Autowired
     private lateinit var pipelineTestPreparationTrait: PipelineTestPreparationTrait
 
     @BeforeEach
@@ -69,7 +61,7 @@ class ExperimentsApiTest : AbstractRestApiTest() {
         dataProject = pipelineTestPreparationTrait.dataProject
         dataProject2 = pipelineTestPreparationTrait.dataProject2
 
-        mockGitlabPipelineWithBranch("sourceBranch", "targetBranch")
+        mockGitlabPipelineWithBranch("targetBranch")
         this.mockGetUserProjectsList(listOf(dataProject.id), account, AccessLevel.OWNER)
     }
 
@@ -330,7 +322,6 @@ class ExperimentsApiTest : AbstractRestApiTest() {
         val experiment1 = createExperiment(dataProject.id, dataOp1)
 
         mockGitlabPipelineWithBranch(
-            sourceBranch = experiment1.sourceBranch,
             targetBranch = experiment1.targetBranch
         )
         // Start experiment

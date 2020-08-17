@@ -49,6 +49,7 @@ object TestTags {
     const val SLOW = "slow"
     const val UNIT = "unit"
     const val INTEGRATION = "integration"
+    const val SYSTEM = "system"
     const val RESTDOC = "restdoc"
 }
 

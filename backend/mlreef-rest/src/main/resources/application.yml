@@ -27,17 +27,6 @@ mlreef:
     password-reset-url: https://mlreef.com/login/password-reset
     password-reset-confirm-url: https://mlreef.com/api/v1/password/confirm
 
-
-logging:
-  level:
-    root: INFO
-    com.mlreef.rest: DEBUG
-    org.springframework.security: WARN
-    org.springframework.orm: WARN
-    org.hibernate: WARN
-    org.springframework.boot.autoconfigure: ERROR
-
-
 spring:
   devtools:
     add-properties: false

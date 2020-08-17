@@ -112,6 +112,20 @@ class PipelineController(
         return adaptedInstance.toDto()
     }
 
+    @GetMapping("/{pid}/instances/{id}/mlreef-file")
+    @PreAuthorize("hasAccessToPipeline(#pid,'DEVELOPER')")
+    fun getExperimentYaml(
+        @PathVariable pid: UUID,
+        @PathVariable id: UUID,
+        account: Account
+    ): String {
+        beforeGetPipelineConfig(pid)
+
+        val instance = beforeGetPipelineInstance(pid, id)
+        return pipelineService.createPipelineInstanceFile(pipelineInstance = instance, author = account, secret = instance.pipelineJobInfo?.secret
+            ?: "***censored***")
+    }
+
     private fun beforeGetPipelineInstance(pid: UUID, id: UUID) =
         (pipelineInstanceRepository.findOneByPipelineConfigIdAndId(pid, id)
             ?: throw NotFoundException("PipelineInstance was not found"))

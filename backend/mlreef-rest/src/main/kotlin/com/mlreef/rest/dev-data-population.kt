@@ -209,7 +209,7 @@ internal class DataPopulator(
         val person = Person(subjectId, username, username, gitlabUser.id)
         val account = Account(
             id = accountId, username = username, email = email,
-            gitlabId = gitlabUser.id, person = person,
+            person = person,
             passwordEncrypted = encryptedPassword)
         accountRepository.findByIdOrNull(accountId) ?: accountRepository.save(account)
         personRepository.findByIdOrNull(person.id) ?: personRepository.save(person)

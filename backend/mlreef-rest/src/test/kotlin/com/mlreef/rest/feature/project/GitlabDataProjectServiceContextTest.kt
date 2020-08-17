@@ -302,8 +302,6 @@ class GitlabDataProjectServiceContextTest : AbstractContextTest() {
         dataProjectRepository.save(dataProject)
         publicProjectRepository.save(PublicProjectHash(dataProject.gitlabId, dataProject.id))
 
-        val visibilitySlot = slot<String>()
-
         every {
             gitlabRestClient.deleteProject(
                 id = eq(dataProject.gitlabId),

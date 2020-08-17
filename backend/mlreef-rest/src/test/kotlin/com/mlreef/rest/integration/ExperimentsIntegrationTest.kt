@@ -6,7 +6,6 @@ import com.mlreef.rest.Experiment
 import com.mlreef.rest.ExperimentRepository
 import com.mlreef.rest.FileLocation
 import com.mlreef.rest.FileLocationType
-import com.mlreef.rest.I18N
 import com.mlreef.rest.ParameterType
 import com.mlreef.rest.ProcessorParameter
 import com.mlreef.rest.ProcessorParameterRepository
@@ -15,9 +14,6 @@ import com.mlreef.rest.api.v1.dto.DataProcessorInstanceDto
 import com.mlreef.rest.api.v1.dto.ExperimentDto
 import com.mlreef.rest.api.v1.dto.ParameterInstanceDto
 import com.mlreef.rest.api.v1.dto.PipelineJobInfoDto
-import com.mlreef.rest.external_api.gitlab.dto.GitlabPipeline
-import com.mlreef.rest.external_api.gitlab.dto.GitlabUser
-import io.mockk.every
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
@@ -215,7 +211,7 @@ class ExperimentsIntegrationTest : AbstractIntegrationTest() {
     @Test
     fun `Can retrieve foreign public Experiment`() {
         val (realAccount1, token1, _) = testsHelper.createRealUser()
-        val (realAccount2, token2, _) = testsHelper.createRealUser()
+        val (_, token2, _) = testsHelper.createRealUser()
         val (project1, _) = testsHelper.createRealDataProject(token1, realAccount1, public = true)
 
         val experiment1 = createExperiment(project1.id)
@@ -423,29 +419,6 @@ class ExperimentsIntegrationTest : AbstractIntegrationTest() {
             .andExpect(status().isBadRequest)
     }
 
-
-    private fun createMockedPipeline(user: GitlabUser): GitlabPipeline {
-        val pipeline = GitlabPipeline(
-            id = 32452345,
-            coverage = "",
-            sha = "sha",
-            ref = "ref",
-            beforeSha = "before_sha",
-            user = user,
-            status = "CREATED",
-            committedAt = I18N.dateTime(),
-            createdAt = I18N.dateTime(),
-            startedAt = null,
-            updatedAt = null,
-            finishedAt = null
-        )
-
-        every {
-            restClient.createPipeline(any(), any(), any(), any())
-        } returns pipeline
-
-        return pipeline
-    }
 
     private fun createExperiment(dataProjectId: UUID, slug: String = "experiment-slug", dataInstanceId: UUID? = null): Experiment {
         val processorInstance = DataProcessorInstance(randomUUID(), testsHelper.dataOp1!!)

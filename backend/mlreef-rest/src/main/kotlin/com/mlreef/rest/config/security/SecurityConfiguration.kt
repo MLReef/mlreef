@@ -82,6 +82,7 @@ class SecurityConfiguration(private val provider: AuthenticationProvider) : WebS
     companion object {
         private val log = LoggerFactory.getLogger(SecurityConfiguration::class.java)
 
+        // FIXME: what is the difference ? Please let us fix that: every url should be for visitors, and THEN the permission mechanism is applied
         //Access without any security check
         private const val PROTECTED_URL = "/api/v1/**"
         private const val AUTH_LOGIN_URL = "/api/v1/auth/login"
@@ -91,6 +92,7 @@ class SecurityConfiguration(private val provider: AuthenticationProvider) : WebS
         private const val PING_URL = "/api/v1/ping"
         private const val EXPLORE_URL = "/api/v1/explore/**"
 
+        // FIXME: what is the difference ? Please let us fix that: every url should be for visitors, and THEN the permission mechanism is applied
         //Access with anonymous check (for visitors)
         private const val GENERIC_PROJECTS_PUBLIC_URL = "/api/v1/projects/public"
         private const val CODE_PROJECTS_PUBLIC_URL = "/api/v1/code-projects/public"
@@ -104,6 +106,7 @@ class SecurityConfiguration(private val provider: AuthenticationProvider) : WebS
             GENERIC_PROJECTS_PUBLIC_URL,
             CODE_PROJECTS_PUBLIC_URL,
             DATA_PROJECTS_PUBLIC_URL,
+            EPF_BOT_URL,
             PASSWORDS_URL,
             PROJECTS_URL
         )

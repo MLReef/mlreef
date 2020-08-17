@@ -3,8 +3,8 @@ logging:
     root: INFO
     com.mlreef.rest: DEBUG
     org.springframework.security: INFO
-    org.springframework.orm: DEBUG
-    org.hibernate: INFO
+    org.springframework.orm: WARN
+    org.hibernate: WARN
   pattern:
     console: '%d{yyyy-MM-dd HH:mm:ss.SSS} %highlight(%-5level) %boldGreen([%thread]) %cyan(%logger{15}.%M [%line]) - %msg%n%throwable'
 
