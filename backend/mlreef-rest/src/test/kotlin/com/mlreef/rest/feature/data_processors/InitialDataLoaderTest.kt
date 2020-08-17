@@ -147,6 +147,7 @@ class InitialDataLoaderTest : AbstractRepositoryTest() {
 
     @Transactional
     @Test
+    @Disabled
     fun `initialDataLoader produces saveable codeProjects & processors`() {
         val buildContext = initialDataLoader.prepare(author, token)
         val codeProjectsBuilders = buildContext.codeProjects
@@ -165,9 +166,9 @@ class InitialDataLoaderTest : AbstractRepositoryTest() {
         val buildContext = initialDataLoader.prepare(author, token)
         val codeProjectsBuilders = buildContext.codeProjects
         val processorBuilders = buildContext.processors
+
         var mockGitlabId = 0L
         val codeProjects = codeProjectsBuilders.map { it.build().copy<CodeProject>(gitlabId = mockGitlabId++) }
-        processorBuilders.map { it.buildProcessor() }
         val versions = processorBuilders.map { it.buildVersion(it.buildProcessor()) }
         codeProjectRepository.saveAll(codeProjects)
         dataProcessorRepository.saveAll(versions.map { it.dataProcessor })
@@ -298,10 +299,7 @@ class InitialDataLoaderTest : AbstractRepositoryTest() {
     @Test
     fun `initialDataLoader uses same id for DataProcessor and its ProcessorVersion`() {
         val buildContext = initialDataLoader.prepare(author, token)
-        val codeProjectsBuilders = buildContext.codeProjects
         val processorBuilders = buildContext.processors
-        var mockGitlabId = 0L
-        codeProjectsBuilders.map { it.build().copy<CodeProject>(gitlabId = mockGitlabId++) }
         val versions = processorBuilders.map { it.buildVersion(it.buildProcessor()) }
         val processors = versions.map { it.dataProcessor }
 

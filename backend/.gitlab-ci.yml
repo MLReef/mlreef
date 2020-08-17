@@ -2,7 +2,7 @@ unit test backend:
   stage: build
   only:
     changes:
-    - backend/**/*
+      - backend/**/*
   image: java:8
   services:
     - docker:19.03.0-dind
@@ -60,4 +60,24 @@ backend integration tests:
     DOCKER_DRIVER: overlay2           # gitlab needs this to support docker testcontainers
     DOCKER_TLS_CERTDIR: ""            # "/certs" gitlab needs this to support docker testcontainers
   script: backend/bin/ci-integration-test-backend
+
+
+system tests:
+  allow_failure: true
+  stage: test
+  when: delayed
+  start_in: 4 minutes
+  image: java:8
+  services:
+    - docker:19.03.0-dind
+  cache:
+    key: "$CI_COMMIT_BRANCH"
+    paths:
+      - .gradle/wrapper
+      - .gradle/caches
+  variables:
+    DOCKER_HOST: "tcp://docker:2375"  # gitlab needs this to support docker testcontainers
+    DOCKER_DRIVER: overlay2           # gitlab needs this to support docker testcontainers
+    DOCKER_TLS_CERTDIR: ""            # "/certs" gitlab needs this to support docker testcontainers
+  script: backend/bin/ci-system-test-backend.sh
 

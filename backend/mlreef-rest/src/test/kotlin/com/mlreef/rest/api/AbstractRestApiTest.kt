@@ -28,7 +28,6 @@ import com.mlreef.rest.PipelineType
 import com.mlreef.rest.ProcessorParameter
 import com.mlreef.rest.ProcessorParameterRepository
 import com.mlreef.rest.ProcessorVersion
-import com.mlreef.rest.Project
 import com.mlreef.rest.VisibilityScope
 import com.mlreef.rest.external_api.gitlab.GitlabRestClient
 import com.mlreef.rest.external_api.gitlab.GitlabVisibility
@@ -38,7 +37,6 @@ import com.mlreef.rest.external_api.gitlab.dto.Commit
 import com.mlreef.rest.external_api.gitlab.dto.GitlabGroup
 import com.mlreef.rest.external_api.gitlab.dto.GitlabPipeline
 import com.mlreef.rest.external_api.gitlab.dto.GitlabProject
-import com.mlreef.rest.external_api.gitlab.dto.GitlabProjectSimplified
 import com.mlreef.rest.external_api.gitlab.dto.GitlabUser
 import com.mlreef.rest.external_api.gitlab.dto.GitlabUserInGroup
 import com.mlreef.rest.external_api.gitlab.dto.GitlabUserToken
@@ -58,12 +56,10 @@ import io.mockk.mockk
 import io.mockk.slot
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.extension.ExtendWith
-import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.jdbc.EmbeddedDatabaseConnection
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.data.domain.PageImpl
 import org.springframework.restdocs.RestDocumentationContextProvider
 import org.springframework.restdocs.RestDocumentationExtension
 import org.springframework.restdocs.mockmvc.MockMvcRestDocumentation
@@ -72,7 +68,6 @@ import org.springframework.restdocs.operation.preprocess.Preprocessors
 import org.springframework.restdocs.operation.preprocess.Preprocessors.removeHeaders
 import org.springframework.restdocs.payload.FieldDescriptor
 import org.springframework.restdocs.payload.JsonFieldType
-import org.springframework.restdocs.payload.PayloadDocumentation
 import org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath
 import org.springframework.restdocs.snippet.Snippet
 import org.springframework.security.core.Authentication
@@ -109,8 +104,6 @@ abstract class AbstractRestApiTest : AbstractRestTest() {
     protected var token: String = "test-dummy-token-"
 
     companion object {
-        private val log = LoggerFactory.getLogger(this::class.java)
-
         const val testPrivateUserTokenMock1: String = "doesnotmatterat-all-11111"
     }
 
@@ -265,10 +258,10 @@ abstract class AbstractRestApiTest : AbstractRestTest() {
         every { currentUserService.accessToken() } answers { testPrivateUserTokenMock1 }
     }
 
-    protected fun mockGitlabPipelineWithBranch(sourceBranch: String, targetBranch: String) {
+    protected fun mockGitlabPipelineWithBranch(targetBranch: String) {
 
         val commit = Commit(id = "12341234")
-        val branch = Branch(ref = sourceBranch, branch = targetBranch)
+        val branch = Branch(name = targetBranch)
         val gitlabPipeline = GitlabPipeline(
             RandomUtils.randomGitlabId(),
             coverage = "",
@@ -322,9 +315,6 @@ abstract class AbstractRestApiTest : AbstractRestTest() {
         return mockGetUserProjectsList1(hashMapOf(), returnAccount)
     }
 
-    fun mockGetUserProjectsList2(projectIdLevelMap: Map<UUID, AccessLevel>, returnAccount: Account? = null) {
-        return mockGetUserProjectsList1(projectIdLevelMap.toMutableMap(), returnAccount)
-    }
 
     fun mockGetUserProjectsList1(projectIdLevelMap: MutableMap<UUID, AccessLevel?>, returnAccount: Account? = null) {
         val actualAccount = returnAccount ?: account
@@ -332,27 +322,6 @@ abstract class AbstractRestApiTest : AbstractRestTest() {
             val token = this.args[0] as String
             tokenDetails(actualAccount, token, projectIdLevelMap, mutableMapOf())
         }
-    }
-
-    fun mockGitlabPublicProjects(vararg projects: Project) {
-        every {
-            restClient.unauthenticatedGetAllPublicProjects()
-        } returns listOf(*projects).map {
-            GitlabProjectSimplified(
-                id = it.gitlabId,
-                name = it.name,
-                nameWithNamespace = null,
-                path = it.gitlabPath,
-                pathWithNamespace = it.gitlabPathWithNamespace
-            )
-        }
-
-        every {
-            publicProjectsCacheService.getPublicProjectsIdsList(any())
-        } returns listOf(*projects)
-            .map { it.id }
-            .let { PageImpl(it) }
-
     }
 
     fun mockUserAuthentication(projectIdLevelMap: MutableMap<UUID, AccessLevel?> = mutableMapOf(),
@@ -511,36 +480,6 @@ abstract class AbstractRestApiTest : AbstractRestTest() {
         )
     }
 
-    fun wrapToPage(content: List<FieldDescriptor>): List<FieldDescriptor> {
-        return mutableListOf(
-            fieldWithPath("last").type(JsonFieldType.BOOLEAN).description("Is the last page"),
-            fieldWithPath("total_pages").type(JsonFieldType.NUMBER).description("Total pages count"),
-            fieldWithPath("total_elements").type(JsonFieldType.NUMBER).description("Total elements count ([pages count] x [page size])"),
-            fieldWithPath("size").type(JsonFieldType.NUMBER).description("Requested elements count per page. Request parameter 'size'. Default 20"),
-            fieldWithPath("number").type(JsonFieldType.NUMBER).description("Current page number"),
-            fieldWithPath("number_of_elements").type(JsonFieldType.NUMBER).description("Elements count in current page"),
-            fieldWithPath("first").type(JsonFieldType.BOOLEAN).description("Is the first page"),
-            fieldWithPath("empty").type(JsonFieldType.BOOLEAN).description("Is the current page empty")
-        ).apply {
-            addAll(content.map { it.copy("content[].${it.path}") })
-            addAll(pageableFields())
-            addAll(sortFields())
-        }
-    }
-
-    private fun pageableFields(): List<FieldDescriptor> {
-        val prefix = "pageable."
-        return mutableListOf(
-            fieldWithPath(prefix + "offset").type(JsonFieldType.NUMBER).description("Current offset (starting from 0). Request parameter 'page' or 'offset'"),
-            fieldWithPath(prefix + "page_size").type(JsonFieldType.NUMBER).description("Requested elements count per page. Request parameter 'size'. Default 20"),
-            fieldWithPath(prefix + "page_number").type(JsonFieldType.NUMBER).description("Current page number"),
-            fieldWithPath(prefix + "unpaged").type(JsonFieldType.BOOLEAN).description("Is the result unpaged"),
-            fieldWithPath(prefix + "paged").type(JsonFieldType.BOOLEAN).description("Is the result paged")
-        ).apply {
-            addAll(sortFields(prefix))
-        }
-    }
-
     private fun sortFields(prefix: String = ""): List<FieldDescriptor> {
         return listOf(
             fieldWithPath(prefix + "sort.sorted").type(JsonFieldType.BOOLEAN).description("Is the result sorted. Request parameter 'sort', values '=field,direction(asc,desc)'"),
@@ -568,7 +507,7 @@ abstract class AbstractRestApiTest : AbstractRestTest() {
 }
 
 fun FieldDescriptor.copy(path: String? = null): FieldDescriptor {
-    return PayloadDocumentation.fieldWithPath(path ?: this.path)
+    return fieldWithPath(path ?: this.path)
         .type(this.type)
         .description(this.description)
         .also {

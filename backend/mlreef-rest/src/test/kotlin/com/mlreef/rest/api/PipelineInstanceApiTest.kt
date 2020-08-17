@@ -69,8 +69,7 @@ class PipelineInstanceApiTest : AbstractRestApiTest() {
         dataProject = pipelineTestPreparationTrait.dataProject
         dataProject2 = pipelineTestPreparationTrait.dataProject2
         this.mockGetUserProjectsList(listOf(dataProject.id), account, AccessLevel.MAINTAINER)
-        mockGitlabPipelineWithBranch("sourceBranch", "targetBranch")
-
+        mockGitlabPipelineWithBranch("targetBranch")
     }
 
     @Transactional
@@ -129,7 +128,7 @@ class PipelineInstanceApiTest : AbstractRestApiTest() {
                 responseFields(pipelineInstanceDtoResponseFields())
                     .and(dataProcessorInstanceFields("data_operations[].")))
             .returns(PipelineInstanceDto::class.java)
-        assertThat(pipelineInstanceDto).isNotNull()
+        assertThat(pipelineInstanceDto).isNotNull
     }
 
     @Transactional

@@ -1,0 +1,39 @@
+logging:
+  level:
+    root: INFO
+    com.mlreef.rest: DEBUG
+    org.springframework.security: INFO
+
+mlreef:
+  epf:
+    image-tag: ${EPF_IMAGE_TAG:latest}
+    backend-url: ${EPF_BACKEND_URL:http://localhost:8080}
+    gitlab-url: ${EPF_GITLAB_URL:http://localhost:10080}
+  gitlab:
+    root-url: ${GITLAB_ROOT_URL:http://localhost:10080}
+    admin-user-token: ${GITLAB_ADMIN_TOKEN:local-api-token}
+    admin-username: ${GITLAB_ADMIN_USERNAME:mlreef}
+    admin-password: ${GITLAB_ADMIN_PASSWORD:password}
+
+systemtest:
+  backend-url: ${MLREEF_BACKEND_URL:http://localhost:8080}
+
+spring:
+  devtools:
+    add-properties: true
+  datasource:
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:7000}/${DB_NAME:mlreef_backend_dev}
+    username: ${DB_USER:mlreef}
+    password: ${DB_PASSWORD:password}
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        temp.use_jdbc_metadata_defaults: false
+    hibernate:
+      ddl-auto: none
+  flyway:
+    enabled: false # USE for dev only
+  redis:
+    host: ${REDIS_HOST:localhost}
+    port: ${REDIS_PORT:7379}

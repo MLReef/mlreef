@@ -1,6 +1,6 @@
 plugins {
-    id 'org.springframework.boot' version '2.3.1.RELEASE'
-    id 'io.spring.dependency-management' version '1.0.9.RELEASE'
+    id 'org.springframework.boot'
+    id 'io.spring.dependency-management'
     id 'org.jetbrains.kotlin.jvm'
     id 'kotlin-spring'
     id 'kotlin-jpa'
@@ -13,7 +13,7 @@ group = 'com.mlreef'
 version = '0.0.1-SNAPSHOT'
 
 dependencies {
-    implementation project(path: ':mlreef-domain', configuration:'default')
+    implementation project(path: ':mlreef-domain', configuration: 'default')
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
     implementation 'org.jetbrains.kotlin:kotlin-reflect'
     implementation "org.projectlombok:lombok"
@@ -44,7 +44,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-mail'
     implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
 
-    def jupiter = "5.4.0"
+    def jupiter = "5.6.2"
     def mockkVersion = "1.10.0"
     testImplementation "org.junit.jupiter:junit-jupiter:$jupiter"
     // DO NOT USE:   testImplementation "org.junit.jupiter:junit-jupiter-api:$jupiter"
@@ -65,16 +65,7 @@ dependencies {
 
     //ebedded servers
     testImplementation "com.github.kstyrc:embedded-redis:0.6"
-
-}
-
-
-test {
-    systemProperty 'junit.jupiter.extensions.autodetection.enabled', 'true'
-    useJUnitPlatform()
-    afterTest { descriptor, result ->
-        println "\n$descriptor.className [$descriptor.classDisplayName] > $descriptor.name [$descriptor.displayName]: $result.resultType"
-    }
+    testImplementation "org.eclipse.jgit:org.eclipse.jgit:5.8.1.202007141445-r"
 }
 
 compileKotlin {
@@ -97,14 +88,23 @@ ext {
     snippetsDir = file('build/generated-snippets')
 }
 
+
+bootJar {
+    enabled = true
+}
+// needed, otherwise :systemTest will not find its sources ?? :/
+jar {
+    enabled = true
+    manifest {
+        attributes('Main-Class': 'com.mlreef.rest.RestApplicationKt')
+    }
+}
 test {
     outputs.dir snippetsDir
     finalizedBy jacocoTestReport
-    testLogging {
-        exceptionFormat = 'full'
-    }
-    useJUnitPlatform{
-        excludeTags 'slow'
+
+    useJUnitPlatform {
+        excludeTags 'slow', 'system'
     }
 }
 
@@ -117,6 +117,17 @@ task allTests(type: Test) {
 task integrationTest(type: Test) {
     useJUnitPlatform {
         includeTags 'integration'
+    }
+}
+
+tasks.withType(Test) {
+    testLogging {
+//        events "started", "passed", "skipped", "failed"
+        exceptionFormat = 'full'
+    }
+    systemProperty 'junit.jupiter.extensions.autodetection.enabled', 'true'
+    afterTest { descriptor, result ->
+        println "$descriptor.classDisplayName > $descriptor.displayName: $result.resultType"
     }
 }
 
@@ -136,22 +147,6 @@ jacocoTestReport {
     reports {
         xml.enabled true
         csv.enabled true
-    }
-}
-
-task explodeJar(type: Copy) {
-    dependsOn ":mlreef-rest:bootJar"
-    mustRunAfter ":mlreef-rest:bootJar"
-    from(zipTree(tasks.bootJar.outputs.files.singleFile))
-    into("build/dependency")
-}
-
-task prepareDocker {
-    dependsOn ":mlreef-rest:bootJar"
-    dependsOn ":mlreef-rest:explodeJar"
-    mustRunAfter ":mlreef-rest:explodeJar"
-    doLast {
-       print("Explode Jar for docker")
     }
 }
 

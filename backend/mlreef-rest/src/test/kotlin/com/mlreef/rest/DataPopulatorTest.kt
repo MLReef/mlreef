@@ -135,7 +135,7 @@ class DataPopulatorTest : AbstractIntegrationTest() {
         val accountId = UUID.fromString("aaaa0000-0002-0000-0000-aaaaaaaaaaaa")
 
         accountRepository.save(Account(
-            id = accountId, gitlabId = RandomUtils.randomGitlabId(), email = "",
+            id = accountId, email = "",
             username = "", passwordEncrypted = "", person = author
         ))
 
@@ -167,6 +167,7 @@ class DataPopulatorTest : AbstractIntegrationTest() {
         val createUserToken = dataPopulator.createUserToken(createUserAndTokenInGitlab)
         val author = personRepository.save(Person(id = randomUUID(), slug = "user-demo", name = "Author1", gitlabId = 1))
 
+        personRepository.save(author)
         dataPopulator.initialMLData(author, createUserToken.token)
 
         assertThat(accountTokenRepository.findAll().toList()).isNotEmpty

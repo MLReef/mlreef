@@ -454,7 +454,7 @@ class PipelineServiceTest : AbstractServiceTest() {
 
         every {
             restClient.createBranch(userToken, projectId, targetBranch, sourceBranch)
-        } returns (Branch(ref = sourceBranch, branch = targetBranch))
+        } returns (Branch(name = targetBranch))
         every {
             restClient.commitFiles(
                 token = userToken, targetBranch = targetBranch,
@@ -478,17 +478,17 @@ class PipelineServiceTest : AbstractServiceTest() {
         codeProjectRepository.save(CodeProject(id = codeProjectId, slug = "code-project-augment", name = "CodeProject Augment", ownerId = author.id, url = "url",
             description = "description", gitlabNamespace = "", gitlabId = 0, gitlabPath = ""))
 
-        val _dataOp1 = DataOperation(
+        val dataOperation = DataOperation(
             id = randomUUID(), slug = "commons-augment", name = "Augment",
             inputDataType = DataType.IMAGE, outputDataType = DataType.IMAGE,
             visibilityScope = VisibilityScope.PUBLIC, author = author,
             description = "description",
             codeProjectId = codeProjectId)
 
-        dataProcessorRepository.save(_dataOp1)
+        dataProcessorRepository.save(dataOperation)
 
         val dataOp1 = processorVersionRepository.save(ProcessorVersion(
-            id = _dataOp1.id, dataProcessor = _dataOp1, publisher = author,
+            id = dataOperation.id, dataProcessor = dataOperation, publisher = author,
             command = "augment", number = 1, baseEnvironment = BaseEnvironment.default()))
 
         val createPipelineConfig = service.createPipelineConfig(

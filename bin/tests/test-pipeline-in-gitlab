@@ -1,5 +1,6 @@
 #!/bin/sh
 
+# delete this
 # change to the repository root folder via the scripts location
 cd "$(dirname "$0")"/../..
 . bin/includes/log

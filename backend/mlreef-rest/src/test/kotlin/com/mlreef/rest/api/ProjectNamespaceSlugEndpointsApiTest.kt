@@ -103,7 +103,7 @@ class ProjectNamespaceSlugEndpointsApiTest : AbstractRestApiTest() {
         dataOp1 = pipelineTestPreparationTrait.dataOp1
         dataProject = pipelineTestPreparationTrait.dataProject
 
-        mockGitlabPipelineWithBranch("sourceBranch", "targetBranch")
+        mockGitlabPipelineWithBranch("targetBranch")
         this.mockGetUserProjectsList(listOf(dataProject.id), account, AccessLevel.OWNER)
 
         // To update user permissions before each test

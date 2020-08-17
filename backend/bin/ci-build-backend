@@ -10,5 +10,4 @@ set -e    # exit on immediately on every error
 set -u    # error on usage of undefined variables
 ########################################
 
-
 docker build --tag "$BACKEND_IMAGE_PATH" -f backend/Dockerfile backend

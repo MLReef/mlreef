@@ -1,3 +1,12 @@
+logging:
+  level:
+    root: INFO
+    com.mlreef.rest: DEBUG
+    org.springframework.security: WARN
+    org.springframework.orm: WARN
+    org.hibernate: WARN
+    org.springframework.boot.autoconfigure: ERROR
+
 mlreef:
   gitlab:
     root-url: ${GITLAB_ROOT_URL:http://localhost:10080}
@@ -8,16 +17,6 @@ mlreef:
     # and Gitlab via the docker hostname gitlab:10080
     backend-url: ${EPF_BACKEND_URL:http://localhost:8080}
     gitlab-url: ${EPF_GITLAB_URL:http://gitlab:10080}
-
-
-logging:
-  level:
-    root: INFO
-    com.mlreef.rest: DEBUG
-    org.springframework.security: INFO
-    org.springframework.orm: INFO
-    org.hibernate: INFO
-    web: DEBUG
 
 
 spring:

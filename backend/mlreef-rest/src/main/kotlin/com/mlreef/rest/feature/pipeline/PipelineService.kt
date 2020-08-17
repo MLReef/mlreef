@@ -151,20 +151,23 @@ class PipelineService(
         return processorInstance.addParameterInstances(processorParameter, value)
     }
 
+    //Prefer using an expression body for functions with the body consisting of a *single* expression, not just for everything and respect clean histories and code readability
     fun createPipelineInstanceFile(author: Account, pipelineInstance: PipelineInstance, secret: String): String =
-        if (pipelineInstance.inputFiles.isEmpty())
+        if (pipelineInstance.inputFiles.isEmpty()) {
             throw PipelineCreateException(ErrorCode.PipelineCreationFilesMissing)
-        else YamlFileGenerator(conf.epf.imageTag)
-            .generateYamlFile(
+        } else {
+            YamlFileGenerator(conf.epf.imageTag).generateYamlFile(
                 author = author,
                 epfPipelineSecret = secret,
-                epfPipelineUrl = "ID:${pipelineInstance.id}",
+                epfPipelineUrl = "${conf.epf.backendUrl}/api/v1/epf/pipeline_instance/${pipelineInstance.id}",
                 epfGitlabUrl = conf.epf.gitlabUrl,
                 sourceBranch = pipelineInstance.sourceBranch,
                 targetBranch = pipelineInstance.targetBranch,
                 processors = pipelineInstance.dataOperations,
                 inputFileList = pipelineInstance.inputFiles.map { it.toYamlString() }
             )
+        }
+
 
     fun commitYamlFile(userToken: String, projectId: Long, targetBranch: String, fileContent: String, sourceBranch: String = "master"): Commit {
         val commitMessage = "[skip ci] create .mlreef.yml"

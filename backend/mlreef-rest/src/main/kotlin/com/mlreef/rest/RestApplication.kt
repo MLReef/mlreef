@@ -15,6 +15,7 @@ object ApplicationProfiles {
     const val TEST = "test"
     const val SPRING_CONTEXT_TEST = "spring-context-test"
     const val INTEGRATION_TEST = "integration-test"
+    const val SYSTEM_TEST = "system-test"
     const val DEV = "dev"
     const val DOCKER = "docker"
     const val PROD = "prod"
@@ -28,7 +29,8 @@ object ApplicationProfiles {
 @EnableConfigurationProperties(
     ApplicationConfiguration::class,
     EpfConfiguration::class,
-    GitlabConfiguration::class
+    GitlabConfiguration::class,
+    SystemTestConfiguration::class
 )
 class RestApplication
 
@@ -75,4 +77,14 @@ class EpfConfiguration {
     lateinit var imageTag: String
     lateinit var gitlabUrl: String
     lateinit var backendUrl: String
+}
+
+@ConfigurationProperties(prefix = "systemtest")
+@Profile(ApplicationProfiles.SYSTEM_TEST)
+class SystemTestConfiguration {
+    lateinit var backendUrl: String
+//    lateinit var gitlabUrl: String
+//    lateinit var adminUsername: String
+//    lateinit var adminPassword: String
+//    lateinit var adminUserToken: String
 }

@@ -22,4 +22,5 @@ set -u  # error on usage of undefined variables
 export CI_COMMIT_REF_SLUG="${CI_COMMIT_REF_SLUG:-local-ci-test-smoke-tests}"
 echo " CI_COMMIT_REF_SLUG= $CI_COMMIT_REF_SLUG"
 
+## why so many files??
 ci-exec-newman bin/ci-smoke-tests
