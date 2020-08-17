@@ -1,4 +1,4 @@
-unit test backend:
+build & test backend:
   stage: build
   only:
     changes:
@@ -11,19 +11,15 @@ unit test backend:
     paths:
     - backend/.gradle/wrapper
     - backend/.gradle/caches
-  script: backend/bin/ci-unit-test-backend
+  script: backend/bin/ci-build-test-backend
   artifacts:
     paths:
-      - backend/mlreef-rest/build/asciidoc/html5/rest-api.html
-      - backend/mlreef-rest/build/libs/*
-      - backend/mlreef-rest/build/dependency/*
-      - backend/mlreef-rest/build/reports/jacoco/test
-      - backend/mlreef-rest/build/reports/tests/
+      - backend/mlreef-rest/build/
     reports:
       junit: backend/mlreef-rest/build/test-results/test/**/TEST-*.xml
 
 
-build backend:
+dockerize backend:
   extends: [".except-docu-branches"]
   stage: build
   only:
@@ -37,9 +33,8 @@ build backend:
     - export BACKEND_IMAGE_PATH=$CI_REGISTRY_IMAGE/backend:$CI_COMMIT_REF_SLUG
     - export     EPF_IMAGE_PATH=$CI_REGISTRY_IMAGE/epf:$CI_COMMIT_REF_SLUG
   script: |
-    backend/bin/ci-build-backend
+    backend/bin/ci-dockerize-backend
     docker push "$BACKEND_IMAGE_PATH"
-
 
 backend integration tests:
   allow_failure: true

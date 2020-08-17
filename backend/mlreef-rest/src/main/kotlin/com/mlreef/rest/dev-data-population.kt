@@ -202,8 +202,11 @@ internal class DataPopulator(
             gitlabRestClient.adminCreateUser(email = email, name = username, username = username, password = "password")
         } catch (clientErrorException: GitlabConflictException) {
             log.info("Already existing dev user")
-            val adminGetUsers = gitlabRestClient.adminGetUsers()
-            adminGetUsers.first { it.username == username }
+            val byUsername = gitlabRestClient.adminGetUsers(username = username)
+                .firstOrNull { it.username == username }
+            val bySearch = gitlabRestClient.adminGetUsers(searchNameEmail = email)
+                .firstOrNull { it.username == username }
+            byUsername ?: bySearch ?: throw IllegalStateException("Cannot create AND cannot find user $username!")
         }
 
         val person = Person(subjectId, username, username, gitlabUser.id)

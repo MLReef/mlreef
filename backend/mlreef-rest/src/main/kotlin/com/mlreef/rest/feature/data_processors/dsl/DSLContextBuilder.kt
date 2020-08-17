@@ -173,7 +173,10 @@ class DSLContextBuilder(val owner: Subject, val userToken: String) {
         if (refreshed == null) {
             log.error("STRANGE: Cannot create project and did also not find in Gitlab with slug ${item.slug}")
             log.error("STRANGE: Saving a detached CodeProject: ${item.slug}")
-            return repository.save(merged)
+            // 9/100 < x < 99/100 of MAX_VALUE
+            val randomHighInt = ((9.0 / 10.0 * Int.MAX_VALUE) * (Math.random() + 0.1)).toLong()
+            log.error("DANGEROUS: gilabId must still be unique!... so inventing a random one: $randomHighInt")
+            return repository.save(merged.copy(gitlabId = randomHighInt))
         } else {
             log.info("WITH GITLAB CodeProject: ${item.toString()}")
             return repository.save(refreshed)

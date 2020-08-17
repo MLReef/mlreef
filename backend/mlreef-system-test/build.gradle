@@ -92,6 +92,7 @@ task systemTest(type: Test) {
 
 tasks.withType(Test) {
     testLogging {
+        events "started", "passed", "skipped", "failed"
         exceptionFormat = 'full'
     }
     systemProperty 'junit.jupiter.extensions.autodetection.enabled', 'true'

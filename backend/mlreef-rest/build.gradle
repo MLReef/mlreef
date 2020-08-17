@@ -88,17 +88,6 @@ ext {
     snippetsDir = file('build/generated-snippets')
 }
 
-
-bootJar {
-    enabled = true
-}
-// needed, otherwise :systemTest will not find its sources ?? :/
-jar {
-    enabled = true
-    manifest {
-        attributes('Main-Class': 'com.mlreef.rest.RestApplicationKt')
-    }
-}
 test {
     outputs.dir snippetsDir
     finalizedBy jacocoTestReport
@@ -137,6 +126,8 @@ asciidoctor {
 }
 
 bootJar {
+    enabled = true
+    mainClassName = 'com.mlreef.rest.RestApplicationKt'
     dependsOn asciidoctor
     from("${asciidoctor.outputDir}/html5") {
         into 'static/docs'
@@ -147,6 +138,22 @@ jacocoTestReport {
     reports {
         xml.enabled true
         csv.enabled true
+    }
+}
+
+task explodeJar(type: Copy) {
+    dependsOn ":mlreef-rest:bootJar"
+    mustRunAfter ":mlreef-rest:bootJar"
+    from(zipTree(tasks.bootJar.outputs.files.singleFile))
+    into("build/dependency")
+}
+
+task prepareDocker {
+    dependsOn ":mlreef-rest:bootJar"
+    dependsOn ":mlreef-rest:explodeJar"
+    mustRunAfter ":mlreef-rest:explodeJar"
+    doLast {
+       print("Exploded Jar for docker")
     }
 }
 

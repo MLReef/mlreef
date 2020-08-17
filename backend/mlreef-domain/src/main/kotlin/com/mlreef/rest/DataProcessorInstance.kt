@@ -69,7 +69,7 @@ data class DataProcessorInstance(
     @Column(name = "parent_id")
     val parentId: UUID? = null,
 
-    @OneToMany(fetch = FetchType.LAZY, cascade = [CascadeType.MERGE, CascadeType.PERSIST])
+    @OneToMany(fetch = FetchType.EAGER, cascade = [CascadeType.MERGE, CascadeType.PERSIST])
     @JoinColumn(
         name = "parent_id",
         foreignKey = ForeignKey(name = "dataprocessorinstance_dataprocessorinstance_parent_id_fkey"))

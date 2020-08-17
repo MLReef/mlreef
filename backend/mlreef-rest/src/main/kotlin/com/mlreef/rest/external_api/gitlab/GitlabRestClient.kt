@@ -489,12 +489,18 @@ class GitlabRestClient(
             .body!!
     }
 
-    fun adminGetUsers(): List<GitlabUser> {
+    fun adminGetUsers(searchNameEmail: String? = null, username: String? = null): List<GitlabUser> {
         return GitlabHttpEntity<String>("body", createAdminHeaders())
             .addErrorDescription(404, ErrorCode.GitlabUserNotExisting, "Cannot find user by token as admin. User does not exist")
             .addErrorDescription(ErrorCode.GitlabUserNotExisting, "Cannot find user by token as admin")
             .makeRequest {
-                val url = "$gitlabServiceRootUrl/users"
+                val url = if (username != null) {
+                    "$gitlabServiceRootUrl/users?username=$username"
+                } else if (searchNameEmail != null) {
+                    "$gitlabServiceRootUrl/users?search=$searchNameEmail"
+                } else {
+                    "$gitlabServiceRootUrl/users"
+                }
                 restTemplate(builder).exchange(url, HttpMethod.GET, it, typeRef<List<GitlabUser>>())
             }
             .also { logGitlabCall(it) }

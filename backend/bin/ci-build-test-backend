@@ -1,0 +1,26 @@
+#!/bin/bash
+# change to the repository root folder via the scripts location
+cd "$(dirname "$0")"/../..
+. bin/includes/detect-os
+. bin/includes/ci-environment
+########################################
+set -x # output all commands
+set -e # exit on immediately on every error
+set -u # error on usage of undefined variables
+########################################
+
+cd backend
+. bin/ci-include-test-vars.sh
+
+export GRADLE_USER_HOME=$(pwd)/.gradle
+
+# ensure that there exists a gradle configuration
+if [ ! -e build.gradle ]; then exit 1; fi
+
+./gradlew :mlreef-rest:build :mlreef-rest:test :mlreef-domain:test :mlreef-rest:bootJar :mlreef-rest:prepareDocker :mlreef-rest:asciidoctor
+
+mkdir mlreef-rest/build/test-results/test/mlreef-domain
+cp mlreef-domain/build/test-results/test/TEST-*.xml mlreef-rest/build/test-results/test/mlreef-domain/
+./gradlew jacocoTestReport coverageReport
+
+ls -lisa mlreef-rest/build/
