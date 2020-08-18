@@ -1,29 +1,10 @@
-import React from 'react';
-import { mount } from 'enzyme';
-import { Provider } from 'react-redux';
 import { storeFactory } from 'functions/testUtils';
+import { testHook } from 'setupTests';
 import {
   useGetOwned,
   // useGetHasRole,
   // useGetHasAccountType,
 } from 'customHooks/permissions';
-
-const TestHook = ({ callback }) => {
-  callback();
-  return null;
-};
-
-const testHook = (hook, options) => {
-  const {
-    store,
-  } = options;
-
-  mount(
-    <Provider store={store}>
-      <TestHook callback={hook} />
-    </Provider>,
-  );
-};
 
 const mockedUser = {
   username: 'mlreef',
