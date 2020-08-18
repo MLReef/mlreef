@@ -40,10 +40,10 @@ class Metrics(keras.callbacks.Callback):
 
     def on_epoch_end(self, epoch, logs={}):
         self.metrics[epoch] = {
-            'acc': logs.get('acc'),
-            'val_acc': logs.get('val_acc'),
-            'loss': logs.get('loss'),
-            'val_loss': logs.get('val_loss')
+            'acc': float(logs.get('acc')),
+            'val_acc': float(logs.get('val_acc')),
+            'loss': float(logs.get('loss')),
+            'val_loss': float(logs.get('val_loss'))
         }
         with open('{}/experiment.json'.format(output_path), 'w') as file:
             json.dump(self.metrics, file)
