@@ -8,11 +8,11 @@ exports[`basic behaviour assert that snapshot matches 1`] = `
     >
       You are going to remove 
       Awesome project Name
-      . Removed project CANNOT be restored! are you ABSOLUTELY sure?
+      . Removed project CANNOT be restored! Are you ABSOLUTELY sure?
     </b>
   </p>
   <p>
-    This action can lead to data loss. To prevent accidental actions we ask you permission to confirm your intention.
+    This action can lead to data loss. To prevent accidental actions we ask your permission to confirm your intention.
     Please type 
     <span
       className="bg-light t-danger"
