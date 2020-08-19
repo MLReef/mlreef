@@ -60,6 +60,7 @@ export default {
     globalColorMarker: null,
     isLoading: false,
     preconfiguredOperations: null,
+    inspectedProfile: {},
   },
   actionModal: {
     title: 'Modal title',

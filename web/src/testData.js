@@ -199,6 +199,14 @@ export const usersArrayMock = [{
   state: 'active',
   avatar_url: 'https://www.gravatar.com/avatar/d64636c9c4cf15dd5c9e1ed6ab529100?s=80&d=identicon',
   web_url: 'http://ec2-52-57-196-223.eu-central-1.compute.amazonaws.com:10080/mlreef',
+},
+{
+  id: 3839940,
+  name: 'cpmlreef',
+  username: 'cpmlreef',
+  state: 'active',
+  avatar_url: 'https://assets.gitlab-static.net/uploads/-/system/user/avatar/3839940/avatar.png',
+  web_url: 'https://gitlab.com/cpmlreef',
 }];
 
 export const branchesMock = [

@@ -1,4 +1,5 @@
 import React from 'react';
+import { MemoryRouter } from 'react-router-dom';
 import { mount } from 'enzyme';
 import ProjectLastCommitSect from 'components/projectView/projectLastCommitSect';
 import { usersArrayMock, commitMockObject } from 'testData';
@@ -7,13 +8,15 @@ import { parseToCamelCase, getTimeCreatedAgo } from 'functions/dataParserHelpers
 const commitInfoParsed = parseToCamelCase(commitMockObject);
 
 const setup = (testCommitData = null) => mount(
-  <ProjectLastCommitSect
-    testCommitData={testCommitData}
-    projectId={14448940}
-    branch="null"
-    users={usersArrayMock}
-    projectDefaultBranch="master"
-  />,
+  <MemoryRouter>
+    <ProjectLastCommitSect
+      testCommitData={testCommitData}
+      projectId={14448940}
+      branch="null"
+      users={usersArrayMock}
+      projectDefaultBranch="master"
+    />
+  </MemoryRouter>,
 );
 
 describe('test most basic elements', () => {

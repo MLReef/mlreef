@@ -70,6 +70,13 @@ export default function userReducer(state = initialState.user, action) {
         ...state,
         preconfiguredOperations: action.preconfiguredOperations,
       };
+
+    case types.SET_USER_INSPECTED_PROFILE:
+      return {
+        ...state,
+        inspectedProfile: action.profile,
+      };
+
     default:
       return state;
   }
