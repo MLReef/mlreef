@@ -166,6 +166,8 @@ class ExperimentsOverview extends Component {
               )}
               {selectedExperiment === null && experiments.map((experimentClassification) => experimentClassification.values.length > 0 && (
                 <ExperimentCard
+                  projectNamespace={namespace}
+                  projectSlug={slug}
                   key={uuidv1()}
                   projectId={selectedProject.gid}
                   defaultBranch={selectedProject.defaultBranch}

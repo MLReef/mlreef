@@ -109,12 +109,8 @@ const RouterComp = () => (
       <PrivateRoute path="/my-projects/:projectId/:branch/-/datasets/:dataId/path/:path" component={DataInstanceDetails} />
       <PrivateRoute path="/my-projects/:projectId/:branch/-/datasets/:dataId" component={DataInstanceDetails} />
       <PrivateRoute path="/my-projects/:projectId/fork" component={ForkView} />
-      <PrivateRoute
-        path="/my-projects/:namespace/:slug/-/experiments"
-        exact
-        component={ExperimentsOverview}
-      />
-      <PrivateRoute path="/my-projects/:projectId/-/experiments/:experimentId" exact component={ExperimentDetails} />
+      <PrivateRoute path="/:namespace/:slug/-/experiments/:experimentId" exact component={ExperimentDetails} />
+      <PrivateRoute path="/:namespace/:slug/-/experiments" exact component={ExperimentsOverview} />
       <PrivateRoute
         path="/my-projects/:projectId/:branch/blob/:file"
         component={FileView}

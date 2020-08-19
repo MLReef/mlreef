@@ -2,13 +2,25 @@ import React, { useState, useEffect } from 'react';
 import { toastr } from 'react-redux-toastr';
 import moment from 'moment';
 import PipeLinesApi from 'apis/PipelinesApi';
-import { shape, string, arrayOf } from 'prop-types';
+import { shape, string, arrayOf, number } from 'prop-types';
 import { parseToCamelCase } from 'functions/dataParserHelpers';
+import { SUCCESS, RUNNING, PENDING } from 'dataTypes';
 
 const DetailsSummary = ({
-  projectId, experimentName, currentState, parameters, pipelineInfo,
+  projectNamespace,
+  projectSlug,
+  projectId,
+  experimentName,
+  currentState,
+  parameters,
+  pipelineInfo,
+  dataOperatorsExecuted,
+  inputFiles,
+  setPreconfiguredOPerations,
+  history,
 }) => {
   const [pipelineDetails, setDetails] = useState({});
+  const lowerCaseCurrCase = currentState;
   const {
     id, duration, startedAt: startedAtRaw, finishedAt: finishedAtRaw,
   } = pipelineDetails;
@@ -23,18 +35,18 @@ const DetailsSummary = ({
   }
 
   let experimentStatus = (
-    <b className={`m-auto ${currentState.toLowerCase() === 'success' ? 't-primary' : 't-danger'}`}>
+    <b className={`m-auto ${lowerCaseCurrCase === SUCCESS ? 't-primary' : 't-danger'}`}>
       {currentState}
     </b>
   );
 
-  if (currentState.toLowerCase() === 'running') {
+  if (lowerCaseCurrCase === RUNNING.toLowerCase()) {
     experimentStatus = (
       <b className="t-primary">
         {currentState}
       </b>
     );
-  } else if (currentState.toLowerCase() === 'pending') {
+  } else if (lowerCaseCurrCase === PENDING.toLowerCase()) {
     experimentStatus = (
       <b style={{ color: '#E99444' }}>
         {currentState}
@@ -68,28 +80,51 @@ const DetailsSummary = ({
         >
           <div className="content-subdiv">
             <div className="composed-row">
-              <div style={{ display: 'flex', alignItems: 'center' }}>
+              <div className="d-flex" style={{ alignItems: 'center' }}>
                 <p style={{ width: '10em', margin: '5px' }}>Experiment name: </p>
                 <p><b>{experimentName}</b></p>
               </div>
+              <div className="d-flex" style={{ alignItems: 'center' }}>
+                <button
+                  id="view-pipeline-btn"
+                  type="button"
+                  className="btn btn-outline-dark btn-label-sm"
+                  onClick={() => {
+                    const configuredOperations = {
+                      dataOperatorsExecuted: [dataOperatorsExecuted],
+                      inputFiles,
+                      pipelineBackendId: pipelineInfo.id,
+                    };
+                    setPreconfiguredOPerations(configuredOperations);
+                    history.push(`/${projectNamespace}/${projectSlug}/-/experiments/new`);
+                  }}
+                >
+                  View pipeline
+                </button>
+              </div>
+
+            </div>
+            <div className="composed-row">
+              <div className="d-flex">
+                <p className="ml-1 mr-1" style={{ width: '10rem' }}>Status: </p>
+                <p className="d-flex m-0">
+                  {experimentStatus}
+                </p>
+              </div>
               <p>
                 ID:
+                {' '}
                 <button
                   type="button"
                   style={{
                     border: '1px solid gray',
                     borderRadius: '4px',
                     backgroundColor: 'white',
+                    padding: '0rem 2.5rem',
                   }}
                 >
                   {id || '---'}
                 </button>
-              </p>
-            </div>
-            <div style={{ display: 'flex' }}>
-              <p style={{ width: '10em' }}>Status: </p>
-              <p className="d-flex m-0">
-                {experimentStatus}
               </p>
             </div>
           </div>
@@ -184,12 +219,13 @@ const DetailsSummary = ({
 
 DetailsSummary.defaultProps = {
   experimentName: '',
+  currentState: '---',
 };
 
 DetailsSummary.propTypes = {
-  projectId: string.isRequired,
+  projectId: number.isRequired,
   experimentName: string,
-  currentState: string.isRequired,
+  currentState: string,
   parameters: arrayOf(
     shape({
       name: string.isRequired,

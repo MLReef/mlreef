@@ -11,6 +11,8 @@ import ExperimentSummary from './ExperimentSummary';
 
 const ExperimentCard = (props) => {
   const {
+    projectNamespace,
+    projectSlug,
     experiments,
     currentState,
     defaultBranch,
@@ -51,7 +53,7 @@ const ExperimentCard = (props) => {
                 <Link
                   type="button"
                   to={{
-                    pathname: `/my-projects/${projectId}/-/experiments/${pipelineInfo.id}`,
+                    pathname: `/${projectNamespace}/${projectSlug}/-/experiments/${pipelineInfo.id}`,
                     state: {
                       uuid: dataProjectId,
                       currentState,

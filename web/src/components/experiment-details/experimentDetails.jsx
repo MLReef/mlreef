@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
 import { toastr } from 'react-redux-toastr';
 import {
   shape,
@@ -14,22 +15,25 @@ import ProjectContainer from '../projectContainer';
 import DetailsSummary from './menu-options/DetailSummary';
 import Files from './menu-options/files';
 import JobLog from './menu-options/jobLog';
+import { setPreconfiguredOPerations } from '../../actions/userActions';
 
 const expApi = new ExperimentsApi();
 
 const ExperimentDetails = (props) => {
   const [experiment, setExperiment] = useState({});
-
   const {
     selectedProject,
+    selectedProject: { gid: projectId },
     jobs,
     selectedProject: { gitlabName: name },
-    match: { params: { projectId } },
+    match: { params: { namespace, slug } },
     location: {
       state: {
         uuid, currentState, userParameters, pipelineInfo, experimentId, allParameters,
       },
     },
+    setPreconfiguredOPerations,
+    history,
   } = props;
   const groupName = selectedProject.namespace;
   const experimentName = experiment.name;
@@ -44,11 +48,9 @@ const ExperimentDetails = (props) => {
   const mergedArray = [...userParameters, ...allParameters];
   const set = new Set();
   const mergedParameters = mergedArray.filter((item) => {
-    if (!set.has(item.name)) {
-      set.add(item.name);
-      return true;
-    }
-    return false;
+    const isItemInSet = !set.has(item.name)
+    if (isItemInSet) set.add(item.name);
+    return isItemInSet;
   }, set);
 
   useEffect(() => {
@@ -96,15 +98,20 @@ const ExperimentDetails = (props) => {
           sections={[
             {
               label: 'Details',
-              content: experiment && experimentJob && (
+              content: experimentJob && (
                 <DetailsSummary
+                  projectNamespace={namespace}
+                  projectSlug={slug}
                   projectId={projectId}
-                  experiment={experiment}
+                  inputFiles={experiment.input_files}
+                  dataOperatorsExecuted={experiment.processing}
                   currentState={currentState}
                   experimentName={uniqueName}
                   parameters={mergedParameters}
                   pipelineInfo={pipelineInfo}
                   experimentJob={experimentJob}
+                  setPreconfiguredOPerations={setPreconfiguredOPerations}
+                  history={history}
                 />
               ),
               defaultActive: true,
@@ -146,7 +153,6 @@ ExperimentDetails.propTypes = {
   }).isRequired,
   match: shape({
     params: shape({
-      projectId: string.isRequired,
       experimentId: string.isRequired,
     }).isRequired,
   }).isRequired,
@@ -161,4 +167,11 @@ function mapStateToProps(state) {
   };
 }
 
-export default connect(mapStateToProps)(ExperimentDetails);
+function mapActionsToProps(dispatch) {
+  return {
+    setPreconfiguredOPerations: bindActionCreators(setPreconfiguredOPerations, dispatch),
+  };
+}
+
+
+export default connect(mapStateToProps, mapActionsToProps)(ExperimentDetails);

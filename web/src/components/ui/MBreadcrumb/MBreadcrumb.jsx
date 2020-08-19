@@ -37,7 +37,7 @@ MBreadcrumb.defaultProps = {
 
 MBreadcrumb.propTypes = {
   items: PropTypes.arrayOf(PropTypes.shape({
-    name: PropTypes.string.isRequired,
+    name: PropTypes.string,
     href: PropTypes.string,
   })),
   className: PropTypes.string,
