@@ -1,11 +1,12 @@
 $light-grey: #fafafa;
 
 .layout-page {
-  
+
   background-color: $light-grey;
   width: 100%;
   height: 100%;
   position: fixed;
+  color: var(--dark);
 
   > .content-wrapper{
     width: 100%;
@@ -18,9 +19,9 @@ $light-grey: #fafafa;
 
       > img {
         border-radius: 50%;
-        width: 10%; 
+        width: 10%;
       };
-      
+
     };
   };
 }

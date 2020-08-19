@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { toastr } from 'react-redux-toastr';
 import {
   string, number, shape, arrayOf,
@@ -35,11 +36,13 @@ const ProjectLastCommitSect = ({
   return (
     <div className="last-commit-info">
       <div className="last-commit-details">
-        <a href={committer && `/${avatarName}`}>
-          <span style={{ position: 'relative' }}>
-            <img className="avatar-circle mt-2" width="32" height="32" src={avatarUrl} alt="" />
-          </span>
-        </a>
+        {committer && (
+          <Link to={`/${avatarName}`}>
+            <span style={{ position: 'relative' }}>
+              <img className="avatar-circle mt-2" width="32" height="32" src={avatarUrl} alt="" />
+            </span>
+          </Link>
+        )}
         <div className="last-commit-name">
           <p>
             {finalCommitInfo.message}
@@ -48,9 +51,11 @@ const ProjectLastCommitSect = ({
             by
             {' '}
             <b>
-              <a href={committer && `/${avatarName}`}>
-                {finalCommitInfo.authorName}
-              </a>
+              {committer && (
+                <Link to={`/${avatarName}`}>
+                  {finalCommitInfo.authorName}
+                </Link>
+              )}
             </b>
             {' '}
             authored
@@ -66,6 +71,11 @@ const ProjectLastCommitSect = ({
       </div>
     </div>
   );
+};
+
+ProjectLastCommitSect.defaultProps = {
+  users: [],
+  testCommitData: {},
 };
 
 ProjectLastCommitSect.propTypes = {

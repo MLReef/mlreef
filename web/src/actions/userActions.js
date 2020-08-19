@@ -20,7 +20,6 @@ export function login(formData) {
     });
 }
 
-
 export function logoutSuccessfully() {
   return { type: types.LOGOUT };
 }
@@ -87,6 +86,35 @@ export function registerUser(data) {
       dispatch(registerUserSuccessfully(user));
       return user;
     });
+}
+
+export function setProfile(profile) {
+  return { type: types.SET_USER_INSPECTED_PROFILE, profile };
+}
+
+/**
+ * Get user information to display profile page.
+ *
+ * Get user id with username
+ * Get user info with user id
+ * Get user status with user id and merge it into profile.
+ *
+ * @param {String} username
+ *
+ * @return {Object} profile
+ */
+export function getProfile(username) {
+  return (dispatch) => userApi.getUserByUsername(username)
+    .then((users) => users.find((u) => u.username === username))
+    .then((user) => user ? user.id : Promise.reject(user))
+    .then((gid) => userApi.getGitlabProfile(gid)
+      .then((profile) => userApi.getUserStatus(gid)
+        .then((status) => {
+          const profileWithStatus = { ...profile, status };
+          dispatch(setProfile(profileWithStatus));
+
+          return profileWithStatus;
+        })));
 }
 
 export function setGlobalMarkerColorSuccessfully(color) {

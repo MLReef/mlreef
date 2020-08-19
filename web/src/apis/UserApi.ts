@@ -1,9 +1,7 @@
 import ApiDirector from './ApiDirector';
 import { METHODS, validServicesToCall } from './apiBuilders/requestEnums';
 import BLApiRequestCallBuilder from './apiBuilders/BLApiRequestCallBuilder';
-import 'babel-polyfill';
-
-const handleResponse = (res: Response) => res.ok ? res.json() : Promise.reject(res);
+import { handleResponse } from 'functions/apiCalls';
 
 export default class UserApi extends ApiDirector {
   async updateMeta(meta: any) {
@@ -17,7 +15,7 @@ export default class UserApi extends ApiDirector {
     const url = '/api/v4/user';
     const builder = new BLApiRequestCallBuilder(METHODS.GET, this.buildBasicHeaders(validServicesToCall.GITLAB), url);
     const response = await fetch(builder.build());
-    
+
     if (!response.ok) {
       window.history.replaceState({ errorCode: 500 }, 'Mlreef', '/error-page');
       window.location.reload();
@@ -25,9 +23,11 @@ export default class UserApi extends ApiDirector {
     return response.json();
   }
 
-  getUserStatus(username: string) {
-    const url = `/api/v4/users/${username}/status`;
-    const builder = new BLApiRequestCallBuilder(METHODS.GET, this.buildBasicHeaders(validServicesToCall.GITLAB), url);
+  getUserStatus(gid: number) {
+    const url = `api/v4/users/${gid}/status`;
+    const headers = this.buildBasicHeaders(validServicesToCall.GITLAB);
+    const builder = new BLApiRequestCallBuilder(METHODS.GET, headers, url);
+
     return fetch(builder.build())
       .then(handleResponse);
   }
@@ -43,5 +43,23 @@ export default class UserApi extends ApiDirector {
   async updateUserInfo(info: any) {
     // waiting for the endpoint
     return Promise.resolve(info);
+  }
+
+  getUserByUsername(username: string) {
+    const url = `api/v4/users?username=${username}`;
+    const headers = this.buildBasicHeaders(validServicesToCall.GITLAB);
+    const builder = new BLApiRequestCallBuilder(METHODS.GET, headers, url);
+
+    return fetch(builder.build())
+      .then(handleResponse);
+  }
+
+  getGitlabProfile(gid: number) {
+    const url = `api/v4/users/${gid}`;
+    const headers = this.buildBasicHeaders(validServicesToCall.GITLAB);
+    const builder = new BLApiRequestCallBuilder(METHODS.GET, headers, url);
+
+    return fetch(builder.build())
+      .then(handleResponse);
   }
 }
