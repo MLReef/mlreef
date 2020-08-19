@@ -1,0 +1,343 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`test presence of elements in DOM compare with the latest snapshot 1`] = `
+<div
+  style={
+    Object {
+      "width": "100%",
+    }
+  }
+>
+  <div
+    style={
+      Object {
+        "display": "flex",
+        "height": "5em",
+      }
+    }
+  >
+    <p
+      className="experiment-details-subtitle mt-2"
+    >
+      Metadata
+    </p>
+  </div>
+  <div
+    style={
+      Object {
+        "display": "flex",
+        "width": "100%",
+      }
+    }
+  >
+    <div
+      id="experiment-data-content"
+      style={
+        Object {
+          "borderBottom": "1px solid rgb(236, 236, 236)",
+          "borderTop": "1px solid rgb(236, 236, 236)",
+          "padding": "0px 1em",
+          "width": "100%",
+        }
+      }
+    >
+      <div
+        className="content-subdiv"
+      >
+        <div
+          className="composed-row"
+        >
+          <div
+            className="d-flex"
+            style={
+              Object {
+                "alignItems": "center",
+              }
+            }
+          >
+            <p
+              style={
+                Object {
+                  "margin": "5px",
+                  "width": "10em",
+                }
+              }
+            >
+              Experiment name: 
+            </p>
+            <p>
+              <b>
+                An exp
+              </b>
+            </p>
+          </div>
+          <div
+            className="d-flex"
+            style={
+              Object {
+                "alignItems": "center",
+              }
+            }
+          >
+            <button
+              className="btn btn-outline-dark btn-label-sm"
+              id="view-pipeline-btn"
+              onClick={[Function]}
+              type="button"
+            >
+              View pipeline
+            </button>
+          </div>
+        </div>
+        <div
+          className="composed-row"
+        >
+          <div
+            className="d-flex"
+          >
+            <p
+              className="ml-1 mr-1"
+              style={
+                Object {
+                  "width": "10rem",
+                }
+              }
+            >
+              Status: 
+            </p>
+            <p
+              className="d-flex m-0"
+            >
+              <b
+                className="t-primary"
+              >
+                running
+              </b>
+            </p>
+          </div>
+          <p>
+            ID:
+             
+            <button
+              style={
+                Object {
+                  "backgroundColor": "white",
+                  "border": "1px solid gray",
+                  "borderRadius": "4px",
+                  "padding": "0rem 2.5rem",
+                }
+              }
+              type="button"
+            >
+              ---
+            </button>
+          </p>
+        </div>
+      </div>
+      <br />
+      <div
+        className="content-subdiv"
+      >
+        <div
+          style={
+            Object {
+              "display": "flex",
+            }
+          }
+        >
+          <p
+            style={
+              Object {
+                "width": "10em",
+              }
+            }
+          >
+            Created:
+          </p>
+          <p
+            style={
+              Object {
+                "marginLeft": 0,
+              }
+            }
+          >
+            <b>
+              ---
+            </b>
+          </p>
+        </div>
+        <div
+          className="composed-row"
+        >
+          <div
+            style={
+              Object {
+                "display": "flex",
+              }
+            }
+          >
+            <p
+              style={
+                Object {
+                  "marginLeft": "5px",
+                  "width": "10em",
+                }
+              }
+            >
+              Completed:
+            </p>
+            <p
+              style={
+                Object {
+                  "marginLeft": "5px",
+                }
+              }
+            >
+              <b>
+                ---
+              </b>
+            </p>
+          </div>
+          <p>
+            Training time:
+            <b>
+              ---
+            </b>
+          </p>
+        </div>
+        <div
+          style={
+            Object {
+              "display": "flex",
+            }
+          }
+        >
+          <p
+            style={
+              Object {
+                "width": "10em",
+              }
+            }
+          >
+            Owner: 
+          </p>
+          <p
+            style={
+              Object {
+                "marginLeft": 0,
+              }
+            }
+          >
+            <b>
+              mlreef
+            </b>
+          </p>
+        </div>
+      </div>
+      <br />
+      <p
+        className="experiment-details-subtitle"
+        style={
+          Object {
+            "paddingLeft": "5px",
+          }
+        }
+      >
+        All parameters
+      </p>
+    </div>
+  </div>
+  <div
+    style={
+      Object {
+        "margin": "1em",
+      }
+    }
+  >
+    <table
+      style={
+        Object {
+          "border": "1px solid #e5e5e5",
+          "borderCollapse": "collapse",
+          "borderRadius": "10px",
+          "padding": "1px",
+          "textAlign": "left",
+          "width": "100%",
+        }
+      }
+    >
+      <thead
+        style={
+          Object {
+            "backgroundColor": "#1d2b40",
+            "color": "#fff",
+          }
+        }
+      >
+        <tr>
+          <th
+            style={
+              Object {
+                "paddingLeft": "10px",
+              }
+            }
+          >
+            <p>
+              #
+            </p>
+          </th>
+          <th>
+            <p>
+              Parameter
+            </p>
+          </th>
+          <th>
+            <p>
+              Values
+            </p>
+          </th>
+          <th>
+            <p>
+              Type
+            </p>
+          </th>
+        </tr>
+      </thead>
+      <tbody
+        className="files-tbody"
+      >
+        <tr
+          style={
+            Object {
+              "borderBottom": "1px solid #1d2b40",
+            }
+          }
+        >
+          <td
+            style={
+              Object {
+                "paddingLeft": "10px",
+              }
+            }
+          >
+            1
+          </td>
+          <td>
+            output-path
+          </td>
+          <td>
+            <p>
+              .
+            </p>
+          </td>
+          <td>
+            <p>
+              STRING
+            </p>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+`;

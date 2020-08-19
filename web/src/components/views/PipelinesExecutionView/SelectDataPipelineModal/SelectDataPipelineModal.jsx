@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes, {
-  shape, number, func, string,
+  shape, number, func, string, arrayOf,
 } from 'prop-types';
 import { toastr } from 'react-redux-toastr';
 import './SelectDataPipelineModal.scss';
@@ -330,10 +330,12 @@ SelectDataPipelineModal.propTypes = {
   }).isRequired,
   handleModalAccept: func.isRequired,
   selectDataClick: func.isRequired,
+  initialFiles: arrayOf(shape({ location: string.isRequired })),
 };
 
 SelectDataPipelineModal.defaultProps = {
   show: false,
+  initialFiles: [],
 };
 
 export default SelectDataPipelineModal;

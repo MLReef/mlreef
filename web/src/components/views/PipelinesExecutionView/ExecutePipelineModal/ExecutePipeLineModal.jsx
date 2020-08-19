@@ -231,8 +231,8 @@ const ExecutePipelineModal = ({
                 </button>
               ) : (
                 <Link to={type === ALGORITHM
-                  ? `/my-projects/${projectNamespace}/${projectSlug}/-/experiments`
-                  : `/my-projects/${projectNamespace}/${projectSlug}/-/datasets`}
+                  ? `/${projectNamespace}/${projectSlug}/-/experiments`
+                  : `/${projectNamespace}/${projectSlug}/-/datasets`}
                 >
                   <button id="show-machines" type="button" className="btn btn-primary">
                     Proceed to results

@@ -2,7 +2,9 @@ import React, { Component } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import * as userActions from 'actions/userActions';
-import { shape, string, arrayOf } from 'prop-types';
+import {
+  shape, string, arrayOf, func,
+} from 'prop-types';
 import $ from 'jquery';
 import './pipelineView.css';
 import { toastr } from 'react-redux-toastr';
@@ -72,7 +74,7 @@ class PipelinesExecutionView extends Component {
       processorsSelected: [],
       filesSelectedInModal: [],
       branches,
-      initialFiles: [],
+      initialFiles: null,
     };
     this.drop = this.drop.bind(this);
     this.allowDrop = this.allowDrop.bind(this);
@@ -92,18 +94,25 @@ class PipelinesExecutionView extends Component {
 
   setPreconfiguredOperations() {
     const { preconfiguredOperations, actions } = this.props;
+
     const { currentProcessors } = this.state;
     if (!preconfiguredOperations) {
       return;
     }
-    const processorsSelected = preconfiguredOperations.dataOperatorsExecuted.map((op) => {
-      const filteredProcessor = currentProcessors.filter((cP) => cP.slug === op.slug)[0];
-      const newParametersArray = filteredProcessor.parameters.map((param, paramIndex) => ({
-        ...param,
-        value: op.parameters[paramIndex] && op.parameters[paramIndex].value,
-      }));
-      return { ...filteredProcessor, parameters: newParametersArray };
-    });
+    const processorsSelected = preconfiguredOperations
+      .dataOperatorsExecuted
+      .map((executedOperation) => {
+        const filteredProcessor = currentProcessors.filter((cP) => cP.slug === executedOperation.slug)[0];
+        const newParametersArray = filteredProcessor?.parameters?.map((param) => {
+          const filteredParams = executedOperation.parameters?.filter((executedParam) => param.name === executedParam.name);
+          if (filteredParams.length === 0) return { ...param };
+          return {
+            ...param,
+            value: filteredParams[0].value,
+          };
+        });
+        return { ...filteredProcessor, parameters: newParametersArray };
+      });
     this.setState({ processorsSelected, initialFiles: preconfiguredOperations.inputFiles });
     actions.setPreconfiguredOPerations(null);
   }
@@ -314,7 +323,7 @@ class PipelinesExecutionView extends Component {
           >
             <MCard.Section>
               <FilesSelector
-                files={filesSelectedInModal}
+                files={initialFiles || filesSelectedInModal}
                 instructions={(
                   <p>
                     Start by selecting your data file(s) you want to include
@@ -392,10 +401,11 @@ PipelinesExecutionView.propTypes = {
   }).isRequired,
   processors: shape({
     algorithms: arrayOf(shape({})),
-    opeartions: arrayOf(shape({})),
+    operations: arrayOf(shape({})),
   }).isRequired,
   selectedProject: shape({}).isRequired,
   branches: arrayOf(shape({})).isRequired,
+  actions: shape({ setPreconfiguredOPerations: func.isRequired }).isRequired,
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(PipelinesExecutionView);
