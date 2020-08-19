@@ -216,7 +216,7 @@ const ExecutePipelineModal = ({
                 className="btn btn-outline-dark"
                 onClick={() => cleanForm()}
               >
-                Abort
+                Return to pipeline
               </button>
             </div>
             <div className="col-6 t-right" style={{ width: '50%', display: 'flex', justifyContent: 'flex-end' }}>
@@ -235,7 +235,7 @@ const ExecutePipelineModal = ({
                   : `/my-projects/${projectNamespace}/${projectSlug}/-/datasets`}
                 >
                   <button id="show-machines" type="button" className="btn btn-primary">
-                    Ok
+                    Proceed to results
                   </button>
                 </Link>
               )}

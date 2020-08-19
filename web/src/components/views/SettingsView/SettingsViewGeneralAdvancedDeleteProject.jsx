@@ -20,13 +20,13 @@ const SettingsViewGeneralAdvancedDeleteProject = (props) => {
       <p>
         <b className="t-danger">
           You are going to remove {name}. Removed project CANNOT be restored!
-          are you ABSOLUTELY sure?
+          Are you ABSOLUTELY sure?
         </b>
       </p>
 
       <p>
         This action can lead to data loss. To prevent accidental actions we ask
-        you permission to confirm your intention.
+        your permission to confirm your intention.
         {'Please type '}
         <span className="bg-light t-danger">{name}</span>
         {' to proceed or close this modal.'}
