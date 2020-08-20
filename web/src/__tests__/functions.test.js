@@ -1,6 +1,8 @@
-import validateInputs, { validateProjectName } from 'functions/validations';
+import validateInputs, { validateProjectName, isJson } from 'functions/validations';
+import {
+  STRING, FLOAT, INTEGER, BOOLEAN,
+} from 'dataTypes';
 import { parseDecimal } from '../functions/dataParserHelpers';
-import { STRING, FLOAT, INTEGER, BOOLEAN } from 'dataTypes';
 
 describe('Parse decimal numbers', () => {
   test('not number should return the input', () => {
@@ -75,4 +77,14 @@ describe('Validate inputs in data ops', () => {
       expect(error).toEqual(new Error('Not supported datatype'));
     }
   });
+});
+
+test('assert that "isJson" function tests correctly whether the param is a json or not', () => {
+  expect(isJson()).toBe(false);
+  expect(isJson(null)).toBe(false);
+  expect(isJson(0)).toBe(false);
+  expect(isJson('')).toBe(false);
+  expect(isJson('my mom loves me')).toBe(false);
+  expect(isJson([{ value: 'categorical' }, { value: 'binary' }, { value: 'sparse' }])).toBe(true);
+  expect(isJson('[{"value":"categorical"},{"value":"binary"},{"value":"sparse"}]')).toBe(true);
 });

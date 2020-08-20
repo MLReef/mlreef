@@ -302,7 +302,7 @@
 
 /* ------------------------ data-operation-form -----------------------*/
 
-.advanced-opt-drop-down {
+ .advanced-opt-drop-down {
     display: flex;
 }
 
@@ -310,11 +310,6 @@
     display: flex;
     align-items: center;
     width: 50%;
-}
-
-.advanced-opt-drop-down > .drop-down > button {
-    margin: 0 0 5px 5px;
-    border: none !important;
 }
 
 .advanced-opts-div > div {

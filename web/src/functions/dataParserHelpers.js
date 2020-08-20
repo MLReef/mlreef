@@ -1,3 +1,5 @@
+import { isJson } from "./validations";
+
 const imageFormats = [
   '.png',
   '.jpg',
@@ -111,6 +113,7 @@ export const getCommentFromCommit = (message = '') => {
 };
 
 export const parseToCamelCase = (objectToParse) => {
+  if (!objectToParse || !isJson(objectToParse)) return;
   const keys = Object.keys(objectToParse);
   const newObj = { };
   keys.forEach((key) => {

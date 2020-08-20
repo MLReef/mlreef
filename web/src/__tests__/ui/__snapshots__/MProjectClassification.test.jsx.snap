@@ -162,19 +162,19 @@ exports[`test html elements 1`] = `
               <p>
                 Data types
               </p>
-              <div
-                className="dropdown-btn-container-div"
+              <button
+                aria-label="dropdown-btn"
+                className="btn btn-icon btn-hidden p-1"
+                id=""
+                onClick={[Function]}
+                style={Object {}}
+                type="button"
               >
-                <button
-                  aria-label="dropdown-btn"
-                  className="btn btn-icon btn-hidden fa fa-chevron-down p-1 "
-                  id=""
-                  onClick={[Function]}
-                  style={Object {}}
-                  type="button"
-                />
                 
-              </div>
+                <i
+                  className="fa fa-chevron-down "
+                />
+              </button>
             </div>
             <div
               className="m-checkbox "
@@ -282,19 +282,19 @@ exports[`test html elements 1`] = `
               <p>
                 Framework
               </p>
-              <div
-                className="dropdown-btn-container-div"
+              <button
+                aria-label="dropdown-btn"
+                className="btn btn-icon btn-hidden p-1"
+                id=""
+                onClick={[Function]}
+                style={Object {}}
+                type="button"
               >
-                <button
-                  aria-label="dropdown-btn"
-                  className="btn btn-icon btn-hidden fa fa-chevron-down p-1 "
-                  id=""
-                  onClick={[Function]}
-                  style={Object {}}
-                  type="button"
-                />
                 
-              </div>
+                <i
+                  className="fa fa-chevron-down "
+                />
+              </button>
             </div>
             <div
               className="m-checkbox "
@@ -382,19 +382,19 @@ exports[`test html elements 1`] = `
               <p>
                 Model Type
               </p>
-              <div
-                className="dropdown-btn-container-div"
+              <button
+                aria-label="dropdown-btn"
+                className="btn btn-icon btn-hidden p-1"
+                id=""
+                onClick={[Function]}
+                style={Object {}}
+                type="button"
               >
-                <button
-                  aria-label="dropdown-btn"
-                  className="btn btn-icon btn-hidden fa fa-chevron-down p-1 "
-                  id=""
-                  onClick={[Function]}
-                  style={Object {}}
-                  type="button"
-                />
                 
-              </div>
+                <i
+                  className="fa fa-chevron-down "
+                />
+              </button>
             </div>
             <div
               className="m-checkbox "
@@ -482,19 +482,19 @@ exports[`test html elements 1`] = `
               <p>
                 ML categories
               </p>
-              <div
-                className="dropdown-btn-container-div"
+              <button
+                aria-label="dropdown-btn"
+                className="btn btn-icon btn-hidden p-1"
+                id=""
+                onClick={[Function]}
+                style={Object {}}
+                type="button"
               >
-                <button
-                  aria-label="dropdown-btn"
-                  className="btn btn-icon btn-hidden fa fa-chevron-down p-1 "
-                  id=""
-                  onClick={[Function]}
-                  style={Object {}}
-                  type="button"
-                />
                 
-              </div>
+                <i
+                  className="fa fa-chevron-down "
+                />
+              </button>
             </div>
             <div
               className="m-checkbox "

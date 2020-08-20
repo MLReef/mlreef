@@ -7,6 +7,70 @@
       height: auto;
       padding-bottom: 0.5rem;
       padding-top: 0.5rem;
+      
+      #advanced-dropdown-btn {
+        border: 1px solid var(--dark);
+        width: 3rem;
+        margin: 0 !important;
+      }
+      
+      #advanced-dropdown-btn:hover {
+        background-color: var(--dark);
+        color: var(--white);
+      }
+
+      #showform-button {
+        border: 1px solid var(--dark);
+        width: 3rem;
+      }
+
+      #showform-button:hover {
+        background-color: var(--dark);
+        color: var(--white);
+      }
+
+      .select-comp {
+        .dropdown {
+          background-color: var(--white);
+          color: var(--dark);
+          border: 1px solid var(--dark);
+          border-radius: 0.25rem;
+
+          ul {
+            box-shadow: 0 2px 4px var(--dark);
+            display: block !important;
+            position: absolute;
+            background-color: var(--white);
+            border-radius: 0.5em;
+            list-style-type: none;
+            padding: 0;
+            width: 16ch;
+
+            li {
+              justify-content: center;
+              button {
+                border: none;
+                padding: 0.5rem;
+                background-color: var(--white);
+                cursor: pointer;
+                width: 100%;
+                &:hover { 
+                  background-color: var(--dark) !important;
+                  color: var(--white);
+                }
+              }
+            }
+          }
+        }
+
+        .dropdown:hover {
+          background-color: var(--dark);
+          color: var(--white);
+          border: 1px solid var(--dark);
+        }
+
+        
+      }
 
       &:not(:first-child) {
         &::after {

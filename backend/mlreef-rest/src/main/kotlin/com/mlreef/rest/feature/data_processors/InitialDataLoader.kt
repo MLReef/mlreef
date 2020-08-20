@@ -93,7 +93,7 @@ class InitialDataLoader {
                     STRING {
                         id = fromString("a26bf044-d0ff-11ea-87d0-0242ac130003")
                         name = "mode"
-                        defaultValue = "[{ value: \"gaussian\" }, { value: \"localvar\" }, { value: \"poisson\" },{ value: \"salt\" },{ value: \"pepper\" },{ value: \"speckle\" }]"
+                        defaultValue = "[{ \"value\": \"gaussian\" }, { \"value\": \"localvar\" }, { \"value\": \"poisson\" },{ \"value\": \"salt\" },{ \"value\": \"pepper\" },{ \"value\": \"speckle\" }]"
                         required = false
                         description = "noise mode it can take only these values: gaussian | localvar | poisson | salt | pepper | speckle"
                     }
@@ -726,7 +726,7 @@ class InitialDataLoader {
                     STRING {
                         id = fromString("1000000-1000-0003-0019-000000000000")
                         name = "class_mode"
-                        defaultValue = "[{ value: \"categorical\" }, { value: \"binary\" }, { value: \"sparse\" }]"
+                        defaultValue = "[{ \"value\": \"categorical\" }, { \"value\": \"binary\" }, { \"value\": \"sparse\" }]"
                         required = false
                         description = "class mode : if class_mode is categorical (default value) it must include the label column with the class/es of each image. Values in column can be string/list/tuple if a single class or list/tuple if multiple classes. if class_mode is binary or sparse it must include the given label column with class values as strings. if class_mode is raw or multi_output it should contain the columns specified in labels. if class_mode is input or None no extra column is needed."
                     }

@@ -1,5 +1,5 @@
 import {
-  INTEGER, FLOAT, regExps, BOOLEAN, bannedCharsArray, STRING
+  INTEGER, FLOAT, regExps, BOOLEAN, bannedCharsArray, STRING,
 } from '../dataTypes';
 
 export default (value, dataType, required) => {
@@ -33,3 +33,21 @@ export const validateProjectName = (text) => {
 
   return bannedCharCount === 0;
 };
+
+export function isJson(item) {
+  const stringItem = typeof item === 'string'
+    ? item
+    : JSON.stringify(item);
+  let parsedItem;
+  try {
+    parsedItem = JSON.parse(stringItem);
+  } catch (e) {
+    return false;
+  }
+
+  if (typeof parsedItem === 'object' && parsedItem !== null) {
+    return true;
+  }
+
+  return false;
+}
