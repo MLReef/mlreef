@@ -1,73 +1,56 @@
-import React, { useRef } from 'react';
-import $ from 'jquery';
+import React, { useState, useRef, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import './arrowButton.scss';
 
 const ArrowButton = ({
   placeholder,
   callback,
-  params,
   id,
-  isOpened,
-  buttonStyle
+  buttonStyle,
+  initialIsOpened,
 }) => {
-  const ref = useRef();
+  const [isOpened, setIsOpened] = useState(initialIsOpened);
+  const buttonRef = useRef();
+  useEffect(() => {
+    setIsOpened(initialIsOpened);
+  }, [initialIsOpened]);
 
-  function rotate() {
-    if (ref.current) {
-      $(ref.current).attr('tabindex', 1).focus();
-      $(ref.current).toggleClass('active');
-      $(ref.current).find('.dropdown-menu').slideToggle(300);
-
-      if (ref.current.classList.contains('background-rotate')) {
-        $(ref.current).removeClass('background-rotate');
-      } else {
-        $(ref.current).addClass('background-rotate');
-      }
-    }
-  }
   function handleDropDownClick(e) {
-    rotate();
-
+    setIsOpened(!isOpened);
     if (callback && typeof callback === 'function') {
-      callback(e, params);
+      callback(e);
     }
   }
 
   return (
-    <div className="dropdown-btn-container-div">
-      <button
-        aria-label="dropdown-btn"
-        style={buttonStyle}
-        type="button"
-        id={id}
-        key={id}
-        ref={ref}
-        className={`btn btn-icon btn-hidden fa fa-chevron-down p-1 ${isOpened ? 'background-rotate' : ''}`}
-        onClick={(e) => { handleDropDownClick(e); }}
-      />
-      { placeholder && (
-      <p>{placeholder}</p>
+    <button
+      onClick={handleDropDownClick}
+      aria-label="dropdown-btn"
+      style={buttonStyle}
+      type="button"
+      id={id}
+      ref={buttonRef}
+      className="btn btn-icon btn-hidden p-1"
+    >
+      {placeholder && (
+        placeholder
       )}
-    </div>
+      <i className={`fa fa-chevron-down ${isOpened ? 'background-rotate' : ''}`} />
+    </button>
   );
 };
 
 ArrowButton.propTypes = {
   placeholder: PropTypes.string,
   callback: PropTypes.func,
-  params: PropTypes.shape({}),
   id: PropTypes.string,
-  isOpened: PropTypes.bool,
   buttonStyle: PropTypes.shape({}),
 };
 
 ArrowButton.defaultProps = {
   placeholder: '',
   callback: () => {},
-  params: {},
   id: '',
-  isOpened: false,
   buttonStyle: {},
 };
 
