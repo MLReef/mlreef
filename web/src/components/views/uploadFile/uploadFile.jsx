@@ -210,6 +210,8 @@ const UploadFile = (props) => {
             accept="*"
             onChange={(e) => handleFileChosen(e.target.files)}
             multiple
+            webkitdirectory="true"
+            directory="true"
             ref={fileInput}
           />
           <div>
