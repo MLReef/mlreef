@@ -54,9 +54,15 @@ const JobLog = ({
     const blob = await res.blob();
     const reader = new FileReader();
     reader.onload = () => {
-      const b64 = reader.result.replace(/^data:.+;base64,/, '');
-      const finalLog = atob(b64).split('\n');
-      setJobLog(finalLog);
+      let finalLog = [];
+      try {
+        const b64 = reader.result.replace(/^data:.+;base64,/, '');
+        finalLog = atob(b64).split('\n');
+        setJobLog(finalLog);
+      } catch (error) {
+        toastr.error('Error', 'Log not found or corrupted');
+        setJobLog(finalLog);
+      }
     };
     reader.readAsDataURL(blob);
   }
