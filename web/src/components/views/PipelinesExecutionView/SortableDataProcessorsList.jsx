@@ -72,8 +72,8 @@ export const SelectComp = ({
   if (isBoolean) {
     defaultValue = param.value || param.default_value;
     options = [
-      { label: 'Yes', value: 'true' },
-      { label: 'No', value: 'false' },
+      { label: 'True', value: 'true' },
+      { label: 'False', value: 'false' },
     ];
   } else {
     // default_value is used in list fields to persist the options ofr user
