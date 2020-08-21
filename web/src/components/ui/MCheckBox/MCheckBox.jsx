@@ -5,6 +5,7 @@ import './MCheckBox.scss';
 
 const MCheckBox = (props) => {
   const {
+    disabled,
     defaultChecked,
     checked,
     name,
@@ -21,6 +22,7 @@ const MCheckBox = (props) => {
   }, [checked]);
 
   function handleClick() {
+    if (disabled) return;
     const newValue = !value;
     setValue(newValue);
     callback(name, labelValue, newValue);
@@ -37,14 +39,15 @@ const MCheckBox = (props) => {
       onKeyPress={() => {}}
     >
       {labelValue && <p>{labelValue}</p> }
-      <input type="checkbox" checked={value} onChange={() => {}} />
-      <span className={cx('checkmark', { small })} />
+      <input disabled={disabled} type="checkbox" checked={value} onChange={() => {}} />
+      <span className={cx(`checkmark ${disabled ? 'disabled' : ''}`, { small })} />
     </div>
   );
 };
 
 MCheckBox.propTypes = {
   name: string.isRequired,
+  disabled: bool,
   defaultChecked: bool,
   checked: bool,
   small: bool,
@@ -55,6 +58,7 @@ MCheckBox.propTypes = {
 
 MCheckBox.defaultProps = {
   defaultChecked: false,
+  disabled: false,
   checked: false,
   small: false,
   labelValue: '',

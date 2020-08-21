@@ -189,11 +189,12 @@ exports[`test html elements 1`] = `
               </p>
               <input
                 checked={false}
+                disabled={false}
                 onChange={[Function]}
                 type="checkbox"
               />
               <span
-                className="checkmark"
+                className="checkmark "
               />
             </div>
             <div
@@ -209,11 +210,12 @@ exports[`test html elements 1`] = `
               </p>
               <input
                 checked={false}
+                disabled={false}
                 onChange={[Function]}
                 type="checkbox"
               />
               <span
-                className="checkmark"
+                className="checkmark "
               />
             </div>
             <div
@@ -229,11 +231,12 @@ exports[`test html elements 1`] = `
               </p>
               <input
                 checked={false}
+                disabled={false}
                 onChange={[Function]}
                 type="checkbox"
               />
               <span
-                className="checkmark"
+                className="checkmark "
               />
             </div>
             <div
@@ -249,11 +252,12 @@ exports[`test html elements 1`] = `
               </p>
               <input
                 checked={false}
+                disabled={false}
                 onChange={[Function]}
                 type="checkbox"
               />
               <span
-                className="checkmark"
+                className="checkmark "
               />
             </div>
             <div
@@ -269,11 +273,12 @@ exports[`test html elements 1`] = `
               </p>
               <input
                 checked={false}
+                disabled={false}
                 onChange={[Function]}
                 type="checkbox"
               />
               <span
-                className="checkmark"
+                className="checkmark "
               />
             </div>
             <div
@@ -309,11 +314,12 @@ exports[`test html elements 1`] = `
               </p>
               <input
                 checked={false}
+                disabled={false}
                 onChange={[Function]}
                 type="checkbox"
               />
               <span
-                className="checkmark"
+                className="checkmark "
               />
             </div>
             <div
@@ -329,11 +335,12 @@ exports[`test html elements 1`] = `
               </p>
               <input
                 checked={false}
+                disabled={false}
                 onChange={[Function]}
                 type="checkbox"
               />
               <span
-                className="checkmark"
+                className="checkmark "
               />
             </div>
             <div
@@ -349,11 +356,12 @@ exports[`test html elements 1`] = `
               </p>
               <input
                 checked={false}
+                disabled={false}
                 onChange={[Function]}
                 type="checkbox"
               />
               <span
-                className="checkmark"
+                className="checkmark "
               />
             </div>
             <div
@@ -369,11 +377,12 @@ exports[`test html elements 1`] = `
               </p>
               <input
                 checked={false}
+                disabled={false}
                 onChange={[Function]}
                 type="checkbox"
               />
               <span
-                className="checkmark"
+                className="checkmark "
               />
             </div>
             <div
@@ -409,11 +418,12 @@ exports[`test html elements 1`] = `
               </p>
               <input
                 checked={false}
+                disabled={false}
                 onChange={[Function]}
                 type="checkbox"
               />
               <span
-                className="checkmark"
+                className="checkmark "
               />
             </div>
             <div
@@ -429,11 +439,12 @@ exports[`test html elements 1`] = `
               </p>
               <input
                 checked={false}
+                disabled={false}
                 onChange={[Function]}
                 type="checkbox"
               />
               <span
-                className="checkmark"
+                className="checkmark "
               />
             </div>
             <div
@@ -449,11 +460,12 @@ exports[`test html elements 1`] = `
               </p>
               <input
                 checked={false}
+                disabled={false}
                 onChange={[Function]}
                 type="checkbox"
               />
               <span
-                className="checkmark"
+                className="checkmark "
               />
             </div>
             <div
@@ -469,11 +481,12 @@ exports[`test html elements 1`] = `
               </p>
               <input
                 checked={false}
+                disabled={false}
                 onChange={[Function]}
                 type="checkbox"
               />
               <span
-                className="checkmark"
+                className="checkmark "
               />
             </div>
             <div
@@ -509,11 +522,12 @@ exports[`test html elements 1`] = `
               </p>
               <input
                 checked={false}
+                disabled={false}
                 onChange={[Function]}
                 type="checkbox"
               />
               <span
-                className="checkmark"
+                className="checkmark "
               />
             </div>
             <div
@@ -529,11 +543,12 @@ exports[`test html elements 1`] = `
               </p>
               <input
                 checked={false}
+                disabled={false}
                 onChange={[Function]}
                 type="checkbox"
               />
               <span
-                className="checkmark"
+                className="checkmark "
               />
             </div>
             <div
@@ -549,11 +564,12 @@ exports[`test html elements 1`] = `
               </p>
               <input
                 checked={false}
+                disabled={false}
                 onChange={[Function]}
                 type="checkbox"
               />
               <span
-                className="checkmark"
+                className="checkmark "
               />
             </div>
             <div
@@ -569,11 +585,12 @@ exports[`test html elements 1`] = `
               </p>
               <input
                 checked={false}
+                disabled={false}
                 onChange={[Function]}
                 type="checkbox"
               />
               <span
-                className="checkmark"
+                className="checkmark "
               />
             </div>
           </div>

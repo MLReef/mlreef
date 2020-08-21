@@ -27,9 +27,13 @@
     left: 0;
     height: 1.2rem;
     width: 1.2rem;
-    background-color: white;
+    background-color: var(--white);
     border: 2px solid;
     border-radius: 0.2rem;
+
+    &.disabled {
+      background-color: var(--almostWhite);
+    }
 
     &:after {
       content: "";
@@ -39,7 +43,7 @@
       top: 0.15rem;
       width: 0.25rem;
       height: 0.6rem;
-      border: solid white;
+      border: solid var(--white);
       border-width: 0 3px 3px 0;
       -webkit-transform: rotate(45deg);
       -ms-transform: rotate(45deg);

@@ -2,12 +2,12 @@ import React from 'react';
 import { shallow, mount } from 'enzyme';
 import MCheckBox from 'components/ui/MCheckBox/MCheckBox';
 
-const setup = (options = { checked: false }) => shallow(
-  <MCheckBox name="test-group" labelValue="Option 1" callback={() => {}} checked={options.checked} />,
+const setup = (options = { checked: false, disabled: false, callback: () => {} }) => shallow(
+  <MCheckBox name="test-group" labelValue="Option 1" callback={options.callback} checked={options.checked} disabled={options.disabled} />,
 );
 
-const setupWithMount = (options = { checked: false }) => mount(
-  <MCheckBox name="test-group" labelValue="Option 1" callback={() => {}} checked={options.checked} />,
+const setupWithMount = (options = { checked: false, disabled: false, callback: () => {} }) => mount(
+  <MCheckBox name="test-group" labelValue="Option 1" callback={options.callback} checked={options.checked} disabled={options.disabled} />,
 );
 
 describe('check elements in DOM and test state', () => {
@@ -40,5 +40,17 @@ describe('test props updating state', () => {
     React.useState = jest.fn(() => [false, mockSetValue]);
     setupWithMount({ checked: true });
     expect(mockSetValue).toHaveBeenCalledWith(true);
+  });
+
+  test('assert that disabled prop does not let change state', () => {
+    const mockSetValue = jest.fn();
+    const mockCallback = jest.fn();
+    React.useState = jest.fn(() => [false, mockSetValue]);
+    const wrapper = setup({ checked: false, disabled: true, callback: mockCallback });
+    const button = wrapper.find('div');
+    button.simulate('click', {});
+
+    expect(mockSetValue.mock.calls.length).toBe(0);
+    expect(mockCallback.mock.calls.length).toBe(0);
   });
 });

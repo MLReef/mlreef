@@ -2,6 +2,7 @@ import React from 'react';
 import { shallow } from 'enzyme';
 import SelectDataPipelineModal from 'components/views/PipelinesExecutionView/SelectDataPipelineModal';
 import { projectsArrayMock, branchesMock, filesMock } from 'testData';
+import MCheckBox from 'components/ui/MCheckBox/MCheckBox';
 
 const setup = ({ show, handleModalAccept }) => shallow(
   <SelectDataPipelineModal
@@ -12,7 +13,6 @@ const setup = ({ show, handleModalAccept }) => shallow(
     selectDataClick={() => {}}
   />,
 );
-
 
 describe('basic rendering', () => {
   test('Assert that comp has the show class', () => {
@@ -30,14 +30,8 @@ describe('html elements presence', () => {
 
   test('assert that wrapper contains and renders elements', () => {
     expect(wrapper.find('MDropdown')).toHaveLength(1);
-    const selectAllBtn = wrapper.find('#select-all');
-    const deselectAllBtn = wrapper.find('#deselect-all');
     const acceptBtn = wrapper.find('#accept');
-    expect(selectAllBtn).toHaveLength(1);
-    expect(deselectAllBtn).toHaveLength(1);
     expect(acceptBtn).toHaveLength(1);
-    expect(selectAllBtn.text()).toBe('Select All');
-    expect(deselectAllBtn.text()).toBe('Deselect All');
     expect(acceptBtn.text()).toBe('Accept');
     expect(wrapper.find('table#file-tree')).toHaveLength(1);
   });
@@ -50,6 +44,21 @@ describe('test events in files table', () => {
     wrapper = setup({ show: true, handleModalAccept: mockedAcceptBtnClick });
     wrapper.instance().setState({ files: filesMock });
   });
+
+  test('assert that selecting and disabling works', () => {
+    wrapper.find(MCheckBox)
+      .at(0)
+      .dive()
+      .find('div')
+      .simulate('click');
+    const { files } = wrapper.state();
+    const checkedFiles = files.filter((f) => f.checked).length;
+    const disabledFiles = files.filter((f) => f.disabled).length;
+
+    expect(checkedFiles).toBe(1);
+    expect(disabledFiles).toBe(filesMock.length - 1);
+  });
+
   test('assert that clicking on a folder updates dom', () => {
     const mockUpdateFiles = jest.fn();
     wrapper.instance().updateFiles = mockUpdateFiles;

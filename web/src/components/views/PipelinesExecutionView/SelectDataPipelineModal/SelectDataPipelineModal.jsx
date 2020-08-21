@@ -71,28 +71,39 @@ class SelectDataPipelineModal extends Component {
       return initialFiles.filter((f) => f.location === file.path).length > 0;
     }
 
-    selectFileFromGrid = (file) => {
-      const { files } = this.state;
-      const newArray = [...files];
-      newArray[files.indexOf(file)] = { ...file, checked: !file.checked };
-      this.setState({
-        files: newArray,
-      });
-    }
-
-    changeCheckedToAll = (newCheckedValue) => this.setState((prevState) => ({
-      files: prevState.files.map((f) => ({ ...f, checked: newCheckedValue })),
+    /**
+     * @param {*} checkboxFile: file that corresponds to the checkbox clicked
+     * @param {*} checkedValue: checkbox value after clicking
+     */
+    handleClickOnCheckbox = (checkboxFile, checkedValue) => this.setState((state) => ({
+      ...state,
+      files: state.files.map((file) => ({
+        ...file,
+        checked: (file === checkboxFile) && checkedValue,
+        disabled: file !== checkboxFile && checkedValue,
+      })),
     }));
 
+    /* changeCheckedToAll = (newCheckedValue) => this.setState((prevState) => ({
+      files: prevState.files.map((f) => ({ ...f, checked: newCheckedValue })),
+    }));
+    */
     updateFiles(gid, path, branch) {
       filesApi.getFilesPerProject(
         gid,
         path,
         false,
         branch,
-      ).then((files) => this.setState({
-        files: [...files.map((file) => ({ ...file, checked: this.getIsFileChecked(file) }))],
-      }))
+      ).then((files) => {
+        const { initialFiles } = this.props;
+        this.setState({
+          files: [...files.map((file) => {
+            // TODO: When the pipeline has been executed this won't block the not checked files
+            const isChecked = this.getIsFileChecked(file);
+            return { ...file, checked: isChecked, disabled: !isChecked && initialFiles !== null };
+          })],
+        });
+      })
         .catch(() => toastr.error('Error', 'Files could not be recovered'));
     }
 
@@ -211,7 +222,10 @@ class SelectDataPipelineModal extends Component {
                   />
                 </div>
                 <div id="right-div" className="col-6 t-right">
-                  {files && (
+                  {
+                  /**
+                   * Since user can pick just a file opf type folder, the next code maskes no sense
+                  files && (
                     <>
                       <button
                         id="select-all"
@@ -230,7 +244,7 @@ class SelectDataPipelineModal extends Component {
                         Deselect All
                       </button>
                     </>
-                  )}
+                  ) */}
                   <button
                     id="accept"
                     type="button"
@@ -260,10 +274,10 @@ class SelectDataPipelineModal extends Component {
                           </th>
                           <th style={{ width: '87%' }}>
                             <p>
-                              {' '}
-                              { filesSelected.length }
-                              {' '}
-                              files selected
+                              {filesSelected.length === 0
+                                ? 'Select path to one folder or file'
+                                : 'You selected a path to a folder or file. Proceed with building your pipeline'
+                              }
                             </p>
                           </th>
                         </tr>
@@ -277,17 +291,18 @@ class SelectDataPipelineModal extends Component {
                           <tr key={index.toString()} id={`tr-file-${index}`} className="files-row" style={{ justifyContent: 'unset' }}>
                             <td className="icon-container-column" style={{ width: '2rem' }}>
                               <MCheckBox
+                                disabled={file.disabled}
                                 className="d-block ml-2 pb-2"
                                 name={`span-file-${index}`}
                                 checked={file.checked}
-                                callback={() => { this.selectFileFromGrid(file); }}
+                                callback={(name, labelValue, newValue) => this.handleClickOnCheckbox(file, newValue)}
                               />
                             </td>
                             <td className="icon-container-column">
                               <div>
                                 <img src={file.type === 'tree' ? folderIcon : fileIcon} alt="" />
                               </div>
-                              <p>
+                              <p style={{ color: `var(--${file.disabled ? 'lessWhite' : 'dark'}` }}>
                                 {file.type === 'tree'
                                   ? (
                                     <button
