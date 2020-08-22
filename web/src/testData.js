@@ -192,6 +192,10 @@ export const projectsArrayMock = {
   ],
 };
 
+export const groupsMock = [{
+  id: 82, web_url: 'http://ec2-18-195-30-163.eu-central-1.compute.amazonaws.com:10080/groups/group-for-test', name: 'Group for Test', path: 'group-for-test', description: 'laala lalalata', visibility: 'public', share_with_group_lock: false, require_two_factor_authentication: false, two_factor_grace_period: 48, project_creation_level: 'developer', auto_devops_enabled: null, subgroup_creation_level: 'maintainer', emails_disabled: null, mentions_disabled: null, lfs_enabled: true, avatar_url: null, request_access_enabled: true, full_name: 'Group for Test', full_path: 'group-for-test', parent_id: null, projects: [],
+}];
+
 export const usersArrayMock = [{
   id: 2,
   name: 'mlreef',
@@ -2162,12 +2166,12 @@ export const dataPipeLines = [
         default_value: 'TRUE',
       },
       {
-        name: "mode",
+        name: 'mode',
         default_value: '[{ "value": "gaussian" }, { "value": "localvar" }, { "value": "poisson" },{ "value": "salt" },{ "value": "pepper" },{ "value": "speckle" }]',
-        description: "noise mode it can take only these values: gaussian | localvar | poisson | salt | pepper | speckle",
+        description: 'noise mode it can take only these values: gaussian | localvar | poisson | salt | pepper | speckle',
         order: 2,
         required: false,
-        type: "STRING",
+        type: 'STRING',
       },
     ],
     internalProcessorId: '597e1670-bbbd-11ea-859c-85d2ab5837c3',

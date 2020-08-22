@@ -24,6 +24,7 @@ import Navbar from '../../navbar/navbar';
 import './createProject.css';
 import * as projectActions from '../../../actions/projectInfoActions';
 import * as userActions from '../../../actions/userActions';
+import { getGroupsList } from '../../../actions/groupsActions';
 import ProjectGeneraInfoApi from '../../../apis/projectGeneralInfoApi.ts';
 import { convertToSlug } from '../../../functions/dataParserHelpers';
 import MCheckBox from '../../ui/MCheckBox/MCheckBox';
@@ -85,7 +86,14 @@ class CreateProject extends Component {
       .filter((idsColor) => `${idsColor.classification}` === classification)[0].color;
 
     actions.setGlobalMarkerColor(bandColor);
+    actions.getGroupsList();
     this.handleSubmit = this.handleSubmit.bind(this);
+  }
+
+  static getDerivedStateFromProps(nextProps) {
+    return {
+      groups: nextProps.groups,
+    };
   }
 
   handleVisibility = (e) => {
@@ -166,8 +174,8 @@ class CreateProject extends Component {
     this.setState({ isFetching: true });
 
     projectGeneraInfoApi.create(body, projectType, isNamespaceAGroup)
-      .then((proj) => {
-        this.setState({ redirect: `/${proj.gitlab_namespace}/${proj.slug}` });
+      .then(() => {
+        this.setState({ redirect: `/${user.username}/${slug}` }); // FIXME: backend has to handle a group namespace
       })
       .catch((err) => {
         toastr.error('Error', err || 'Something went wrong.');
@@ -288,7 +296,7 @@ class CreateProject extends Component {
                        Select
                      </option>
                      {groups.map((grp) => (
-                       <option key={`namespace-${grp.id}`} value={grp.id}>
+                       <option key={`namespace-${grp.id}`} value={grp.full_path}>
                          {grp.name}
                        </option>
                      ))}
@@ -446,10 +454,12 @@ function mapStateToProps(state) {
 }
 
 function mapDispatchToProps(dispatch) {
+  const groupActions = { getGroupsList };
   return {
     actions: bindActionCreators({
       ...projectActions,
       ...userActions,
+      ...groupActions,
     }, dispatch),
   };
 }
@@ -462,6 +472,7 @@ CreateProject.propTypes = {
   groups: PropTypes.arrayOf(PropTypes.shape).isRequired,
   actions: PropTypes.shape({
     setGlobalMarkerColor: PropTypes.func.isRequired,
+    getGroupsList: PropTypes.func.isRequired,
   }).isRequired,
   match: PropTypes.shape({
     params: PropTypes.shape({
