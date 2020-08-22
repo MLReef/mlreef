@@ -21,7 +21,7 @@ ErrorsDiv.propTypes = {
   typeOfField: string.isRequired,
 };
 
-export const InputParam = ({ param }) => {
+export const InputParam = ({ param, filesSelectedInModal }) => {
   const [hasErrors, setHasErrors] = useState(false);
   function validateFields(e) {
     setHasErrors(!validateInput(e.currentTarget.value, param.type, param.required));
@@ -43,7 +43,7 @@ export const InputParam = ({ param }) => {
           callback={validateFields}
           onBlurCallback={validateFields}
           placeholder={String(param.default_value)}
-          value={param.value}
+          value={filesSelectedInModal !== undefined ? filesSelectedInModal : param.value}
           hasErrors={hasErrors}
         />
       </div>
@@ -177,10 +177,11 @@ SelectComp.defaultProps = {
 const SortableProcessor = SortableElement(({
   props: {
     value,
+    index,
     prefix,
     copyProcessor,
     deleteProcessor,
-    index,
+    filesSelectedInModal,
   },
 }) => {
   const [isFormdivVisible, setIsFormdivVisible] = useState(true);
@@ -197,6 +198,18 @@ const SortableProcessor = SortableElement(({
 
   const linkToResnetRepo = () => {
     window.location.assign('http://staging.mlreef.com/mlreef/commons-resnet-50');
+  };
+
+  const inputBasedText = (param) => {
+    let filePath;
+    if (filesSelectedInModal !== undefined) {
+      filePath = (filesSelectedInModal[0] && filesSelectedInModal[0].path);
+    }
+    return param.name === 'input-path'
+      ? <InputParam param={param} filesSelectedInModal={filePath} key={`${value.internalProcessorId} ${param.name}`} />
+      : (
+        <InputParam param={param} key={`${value.internalProcessorId} ${param.name}`} />
+      );
   };
 
   return (
@@ -274,7 +287,7 @@ const SortableProcessor = SortableElement(({
                   />
                 );
               }
-              return <InputParam param={param} key={`${value.internalProcessorId} ${param.name}`} />;
+              return inputBasedText(param);
             })}
           </div>
 
@@ -335,7 +348,7 @@ const SortableProcessor = SortableElement(({
 });
 
 const SortableProcessorsList = SortableContainer(({
-  items, prefix, copyProcessor, deleteProcessor,
+  items, prefix, copyProcessor, deleteProcessor, filesSelectedInModal
 }) => (
   <ul style={{ paddingLeft: '11px' }} id="data-operations-selected-container" key="data-operations-selected-container">
     {items.map((value, index) => {
@@ -345,6 +358,7 @@ const SortableProcessorsList = SortableContainer(({
         prefix,
         copyProcessor,
         deleteProcessor,
+        filesSelectedInModal,
       };
       return (
         <SortableProcessor
