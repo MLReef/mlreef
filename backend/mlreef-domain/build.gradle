@@ -1,5 +1,5 @@
 plugins {
-    id 'org.springframework.boot'
+//    id 'org.springframework.boot'
     id 'io.spring.dependency-management'
     id 'org.jetbrains.kotlin.jvm'
     id 'kotlin-spring'
@@ -38,9 +38,6 @@ dependencies {
 
 }
 
-bootJar {
-    enabled = false
-}
 
 jar {
     enabled = true

@@ -42,7 +42,7 @@ class B_DataProject_Experiment_Test : AbstractSystemTest() {
     @Test
     fun `B00 Prepare new User & Login `() {
         val returnedResult = prepareCurrentUser(globalRandomUserName, globalEmail, globalRandomPassword)
-        accessToken = returnedResult.accessToken!!
+        accessToken = returnedResult.accessToken ?: returnedResult.token!!
         currentUser = returnedResult
     }
 
@@ -210,11 +210,11 @@ class B_DataProject_Experiment_Test : AbstractSystemTest() {
         epfExperimentUrl = yamlFile.substringAfter(epfUrlString).substringBefore("\"").trim()
         epfExperimentSecret = yamlFile.substringAfter(epfSecretPrefix).substringBefore("\"").trim()
     }
-
-    @Test
-    fun `B05-03 YAML contains current imageTag`() {
-        assertThat(yamlFile).contains(conf.epf.imageTag)
-    }
+//
+//    @Test
+//    fun `B05-03 YAML contains current imageTag`() {
+//        assertThat(yamlFile).contains(conf.epf.imageTag)
+//    }
 
     @Test
     fun `B05-04 EPF_PIPELINE_URL seems valid`() {

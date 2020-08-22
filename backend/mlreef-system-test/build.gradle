@@ -1,5 +1,5 @@
 plugins {
-    id 'org.springframework.boot'
+//    id 'org.springframework.boot'
     id 'io.spring.dependency-management'
     id 'org.jetbrains.kotlin.jvm'
     id 'kotlin-spring'
@@ -15,24 +15,32 @@ dependencies {
     implementation 'org.jetbrains.kotlin:kotlin-reflect'
     implementation "com.fasterxml.jackson.module:jackson-module-kotlin:2.9.10"
 
-    testImplementation project(':mlreef-domain')
-    testImplementation project(':mlreef-rest')
+    implementation project(':mlreef-domain')
+    implementation project(':mlreef-rest')
+    testRuntime project(':mlreef-domain')
+    testRuntime project(':mlreef-rest')
 
+    testRuntime "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
+    testRuntime 'org.jetbrains.kotlin:kotlin-reflect'
     // Rest and HATEOAS
     implementation 'org.springframework.boot:spring-boot-starter-hateoas'
     implementation 'org.springframework.boot:spring-boot-starter-web'
+    annotationProcessor "org.springframework.boot:spring-boot-configuration-processor"
 
     def jupiter = "5.6.2"
     def mockkVersion = "1.10.0"
     testImplementation "org.junit.jupiter:junit-jupiter:$jupiter"
-    testImplementation "org.junit.jupiter:junit-jupiter-api:$jupiter"
+//    testImplementation "org.junit.jupiter:junit-jupiter-api:$jupiter"
 
     // Enable use of the JUnitPlatform Runner within the IDE
     def junit_runner = "1.6.2"
     testImplementation("org.junit.platform:junit-platform-runner:$junit_runner")
-
+    compileOnly("org.jetbrains:annotations:18.0.0")
     testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:$jupiter"
+//    testRuntimeOnly "org.junit.jupiter:junit-jupiter-api:$jupiter"
+//    testRuntimeOnly "org.junit.jupiter:junit-jupiter-params:$jupiter"
     // DO NOT USE:   testImplementation "org.junit.jupiter:junit-jupiter-api:$jupiter"
+
     // DO NOT USE:   testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:$jupiter"
     testImplementation('org.springframework.boot:spring-boot-starter-test') {
         exclude group: 'junit', module: 'junit' //by both name and group
@@ -43,15 +51,23 @@ dependencies {
     testImplementation project(':mlreef-rest')
 }
 
-bootJar {
-    enabled = false
-}
 
 jar {
     enabled = true
 }
 
 
+task fatJar(type: Jar) {
+    manifest.from jar.manifest
+    from {
+        configurations.testRuntime.collect { it.isDirectory() ? it : zipTree(it) }
+    } {
+        exclude "META-INF/*.SF"
+        exclude "META-INF/*.DSA"
+        exclude "META-INF/*.RSA"
+    }
+    with jar
+}
 compileKotlin {
     kotlinOptions {
         jvmTarget = "1.8"
@@ -85,14 +101,23 @@ task allTests(type: Test) {
 }
 
 task systemTest(type: Test) {
+    dependsOn fatJar
     useJUnitPlatform {
         includeTags 'system'
+    }
+    testLogging {
+        events "standardOut", "started", "passed", "skipped", "failed"
+        exceptionFormat = 'full'
+    }
+    systemProperty 'junit.jupiter.extensions.autodetection.enabled', 'true'
+    afterTest { descriptor, result ->
+        println "\n$descriptor.classDisplayName > $descriptor.displayName: $result.resultType"
     }
 }
 
 tasks.withType(Test) {
     testLogging {
-        events "started", "passed", "skipped", "failed"
+        events "standardOut", "started", "passed", "skipped", "failed"
         exceptionFormat = 'full'
     }
     systemProperty 'junit.jupiter.extensions.autodetection.enabled', 'true'

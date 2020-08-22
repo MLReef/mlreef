@@ -5,18 +5,12 @@ logging:
     org.springframework.security: INFO
 
 mlreef:
-  epf:
-    image-tag: ${EPF_IMAGE_TAG:latest}
-    backend-url: ${EPF_BACKEND_URL:http://localhost:8080}
-    gitlab-url: ${EPF_GITLAB_URL:http://localhost:10080}
   gitlab:
-    root-url: ${GITLAB_ROOT_URL:http://localhost:10080}
+    root-url: ${GITLAB_ROOT_URL:http://ec2-18-195-30-163.eu-central-1.compute.amazonaws.com:10080}
     admin-user-token: ${GITLAB_ADMIN_TOKEN:local-api-token}
     admin-username: ${GITLAB_ADMIN_USERNAME:mlreef}
     admin-password: ${GITLAB_ADMIN_PASSWORD:password}
-
-systemtest:
-  backend-url: ${MLREEF_BACKEND_URL:http://localhost:8080}
+  backend-url: ${MLREEF_BACKEND_URL:http://ec2-18-195-30-163.eu-central-1.compute.amazonaws.com:8080}
 
 spring:
   devtools:

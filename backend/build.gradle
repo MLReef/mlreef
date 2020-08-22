@@ -9,16 +9,16 @@ buildscript {
     }
 
     dependencies {
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.3.72"
-        classpath("org.jetbrains.kotlin:kotlin-noarg:1.3.72")
-        classpath("org.jetbrains.kotlin:kotlin-allopen:1.3.72")
-        classpath "gradle.plugin.com.palantir.gradle.docker:gradle-docker:0.22.1"
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.4.0"
+        classpath("org.jetbrains.kotlin:kotlin-noarg:1.4.0")
+        classpath("org.jetbrains.kotlin:kotlin-allopen:1.4.0")
+//        classpath "gradle.plugin.com.palantir.gradle.docker:gradle-docker:0.22.1"
     }
 }
 
 plugins {
     id 'io.spring.dependency-management' version '1.0.9.RELEASE'
-    id 'org.springframework.boot' version '2.3.1.RELEASE'
+//    id 'org.springframework.boot' version '2.3.1.RELEASE'
 }
 
 subprojects {
@@ -28,6 +28,7 @@ subprojects {
 
     apply plugin: 'io.spring.dependency-management'
     apply plugin: 'java-library'
+    apply plugin: 'kotlin'
 
     ext['junit-jupiter.version'] = '5.6.2'
 
@@ -38,7 +39,9 @@ subprojects {
 
     dependencyManagement {
         imports {
-            mavenBom("org.springframework.boot:spring-boot-dependencies:2.1.7.RELEASE")
+            mavenBom("org.springframework.boot:spring-boot-dependencies:2.2.9.RELEASE") {
+                bomProperty("kotlin.version", "1.4.0")
+            }
         }
     }
 

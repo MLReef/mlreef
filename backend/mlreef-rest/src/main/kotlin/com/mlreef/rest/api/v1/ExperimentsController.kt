@@ -23,6 +23,7 @@ import com.mlreef.rest.feature.project.ProjectService
 import com.mlreef.utils.Slugs
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.http.HttpStatus
+import org.springframework.http.MediaType
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
@@ -76,7 +77,7 @@ class ExperimentsController(
             ?: throw NotFoundException("Experiment does not have a PipelineJobInfo (yet)")
     }
 
-    @GetMapping("/{id}/mlreef-file")
+    @GetMapping("/{id}/mlreef-file", produces = [MediaType.TEXT_PLAIN_VALUE])
     @PreAuthorize("canViewProject(#dataProjectId)")
     fun getExperimentYaml(@PathVariable dataProjectId: UUID, @PathVariable id: UUID, account: Account): String {
         val experiment = beforeGetExperiment(id)

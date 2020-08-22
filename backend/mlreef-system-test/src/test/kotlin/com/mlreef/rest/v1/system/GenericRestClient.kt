@@ -1,29 +1,19 @@
 package com.mlreef.rest.v1.system
 
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.mlreef.rest.ApplicationConfiguration
-import com.mlreef.rest.ApplicationProfiles
-import com.mlreef.rest.SystemTestConfiguration
 import org.springframework.boot.web.client.RestTemplateBuilder
-import org.springframework.context.annotation.Profile
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpMethod
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
-import org.springframework.stereotype.Component
 import org.springframework.web.client.HttpStatusCodeException
 import org.springframework.web.client.RestTemplate
 
-@Component
-@Profile(ApplicationProfiles.SYSTEM_TEST)
 class GenericRestClient(
-    private val conf: ApplicationConfiguration,
-    private val testConf: SystemTestConfiguration,
+    private val backendUrl: String,
     private val builder: RestTemplateBuilder,
-    private val objectMapper: ObjectMapper
 ) {
-    val rootUrl = "${testConf.backendUrl}/api/v1"
+    private val rootUrl = "${backendUrl}/api/v1"
 
     fun restTemplate(): RestTemplate = builder.build()
 
@@ -57,7 +47,7 @@ class GenericRestClient(
         } else {
             HttpHeaders()
         }.apply {
-            accept = listOf(MediaType.APPLICATION_JSON)
+            accept = listOf(MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN)
             contentType = MediaType.APPLICATION_JSON
         }
 

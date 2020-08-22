@@ -32,14 +32,14 @@ abstract class AbstractRestTest {
         token: String
     ): MockHttpServletRequestBuilder {
         return requestBuilder
-            .accept(MediaType.APPLICATION_JSON)
+            .accept(MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN)
             .header(HEADER_PRIVATE_TOKEN, token)
             .contentType(MediaType.APPLICATION_JSON)
     }
 
     protected fun acceptAnonymousAuth(requestBuilder: MockHttpServletRequestBuilder): MockHttpServletRequestBuilder {
         return requestBuilder
-            .accept(MediaType.APPLICATION_JSON)
+            .accept(MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN)
             .contentType(MediaType.APPLICATION_JSON)
     }
 

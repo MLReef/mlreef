@@ -90,7 +90,7 @@ class MLReefObjectMapper : ObjectMapper() {
         this.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
         this.configure(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES, true)
         this.enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS)
-        this.propertyNamingStrategy = PropertyNamingStrategy.SNAKE_CASE //Don't delete it. Plz see file com.mlreef.rest.external_api.gitlab.GitlabRestClient
+        this.propertyNamingStrategy = PropertyNamingStrategy.SNAKE_CASE
     }
 
     override fun copy(): ObjectMapper {

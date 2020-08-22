@@ -5,7 +5,6 @@ import com.mlreef.rest.api.v1.dto.SecretUserDto
 import com.mlreef.rest.v1.system.ScenarioState.globalEmail
 import com.mlreef.rest.v1.system.ScenarioState.globalRandomPassword
 import com.mlreef.rest.v1.system.ScenarioState.globalRandomUserName
-import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Test
@@ -25,7 +24,7 @@ class A_User_Test : AbstractSystemTest() {
     @Test
     fun `A01 Register as a new User`() {
         val returnedResult = prepareCurrentUser(globalRandomUserName, globalEmail, globalRandomPassword)
-        accessToken = returnedResult.accessToken!!
+        accessToken = returnedResult.accessToken ?: returnedResult.token!!
         currentUser = returnedResult
     }
 
@@ -34,8 +33,7 @@ class A_User_Test : AbstractSystemTest() {
         val registerRequest = LoginRequest(globalRandomUserName, globalEmail, globalRandomPassword)
         val response: ResponseEntity<SecretUserDto> = backendRestClient.post("/auth/login", body = registerRequest)
         val returnedResult = response.expectOk().returns()
-        Assertions.assertThat(returnedResult.accessToken).isNotBlank()
-        accessToken = returnedResult.accessToken!!
+        accessToken = returnedResult.accessToken ?: returnedResult.token!!
         currentUser = returnedResult
     }
 }

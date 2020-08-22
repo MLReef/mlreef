@@ -14,6 +14,7 @@ import com.mlreef.rest.exceptions.NotFoundException
 import com.mlreef.rest.external_api.gitlab.TokenDetails
 import com.mlreef.rest.feature.pipeline.PipelineService
 import org.springframework.data.repository.findByIdOrNull
+import org.springframework.http.MediaType
 import org.springframework.security.access.prepost.PostFilter
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.DeleteMapping
@@ -112,7 +113,7 @@ class PipelineController(
         return adaptedInstance.toDto()
     }
 
-    @GetMapping("/{pid}/instances/{id}/mlreef-file")
+    @GetMapping("/{pid}/instances/{id}/mlreef-file", produces = [MediaType.TEXT_PLAIN_VALUE])
     @PreAuthorize("hasAccessToPipeline(#pid,'DEVELOPER')")
     fun getExperimentYaml(
         @PathVariable pid: UUID,
