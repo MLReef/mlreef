@@ -2,11 +2,12 @@ import React from 'react';
 import { shallow } from 'enzyme';
 import CreateProject from '../components/views/create-project/createProject';
 import { storeFactory } from '../functions/testUtils';
-import { projectsArrayMock, branchesMock } from '../testData';
+import { projectsArrayMock, branchesMock, groupsMock } from '../testData';
 
 const setup = () => {
   const store = storeFactory({
     projects: projectsArrayMock.projects,
+    groups: groupsMock,
     branches: branchesMock.map((branch) => branch.name),
     users: projectsArrayMock.users,
     user: {
@@ -65,5 +66,10 @@ describe('test the frontend functionality', () => {
       comp.dive().find('div').simulate('click', {});
     });
     expect(wrapper.state().dataTypesSelected.length).toBe(4);
+  });
+
+  test('assert that selecting groups works correctly', () => {
+    wrapper.find('#nameSpace').simulate('change', { target: { value: groupsMock[0].full_path } });
+    expect(wrapper.state().nameSpace).toBe(groupsMock[0].full_path);
   });
 });
