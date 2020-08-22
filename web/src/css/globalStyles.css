@@ -162,7 +162,7 @@ img.dropdown-white {
  .branches ul {
    list-style: none;
    margin: 0;
-   padding: 1em 0;
+   padding: 1em 0 0;
    width: 100%;
  }
  
@@ -170,26 +170,23 @@ img.dropdown-white {
    padding-left: 10px;
  }
  
- .branch-header {
-   padding-left: 2px !important;
- }
- 
  .branches ul li p {
-   margin-left: 4px;
    padding: 0.5em 0;
+   margin: 0;
    width: 100%;
    transition: background-color 0.2s ease;
  }
  
- .branches ul p:hover {
+ .branches ul li:hover {
    cursor: pointer;
    background: #c5c5c5;
  }
  
  .branches .branch-header {
    color: #707070;
-   font-size: 13px;
    line-height: 16px;
+   padding: 8px 0;
+   margin: 0;
  }
 
  /* ----------------------- ----------------------- ----------------------- */

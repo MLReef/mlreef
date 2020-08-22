@@ -158,6 +158,19 @@ class PipelinesExecutionView extends Component {
 
   handleExecuteBtn = () => this.toggleExecutePipeLineModal();
 
+  toggleExecuteModal = () => this.setState(() => ({
+    isShowingExecutePipelineModal: false,
+  }));
+
+  deleteProcessor(indexOfProcessor) {
+    const { processorsSelected } = this.state;
+    const newProcessorsArray = [...processorsSelected];
+
+    newProcessorsArray.splice(indexOfProcessor, 1);
+
+    this.setState({ processorsSelected: newProcessorsArray });
+  }
+
   handleDragStart(e, processorData) {
     this.setState({ processorDataSelected: processorData });
     const dt = e.dataTransfer;
@@ -222,19 +235,6 @@ class PipelinesExecutionView extends Component {
     const newProcessorsArray = [...processorsSelected, copiedProcessor];
     this.setState({ processorsSelected: newProcessorsArray });
   }
-
-  deleteProcessor(indexOfProcessor) {
-    const { processorsSelected } = this.state;
-    const newProcessorsArray = [...processorsSelected];
-
-    newProcessorsArray.splice(indexOfProcessor, 1);
-
-    this.setState({ processorsSelected: newProcessorsArray });
-  }
-
-  toggleExecuteModal = () => this.setState(() => ({
-    isShowingExecutePipelineModal: false,
-  }));
 
   render = () => {
     const {
@@ -344,6 +344,7 @@ class PipelinesExecutionView extends Component {
                 onSortEnd={this.onSortEnd}
                 copyProcessor={this.copyProcessor}
                 deleteProcessor={this.deleteProcessor}
+                filesSelectedInModal={filesSelectedInModal}
               />
 
               <div id="drop-zone" onDrop={this.drop} onDragOver={this.allowDrop}>
@@ -366,6 +367,7 @@ class PipelinesExecutionView extends Component {
               <ProcessorFilters show={false} />
               <ProcessorsList
                 handleDragStart={this.handleDragStart}
+                filesSelectedInModal={filesSelectedInModal}
                 processors={currentProcessors}
               />
             </MCard.Section>

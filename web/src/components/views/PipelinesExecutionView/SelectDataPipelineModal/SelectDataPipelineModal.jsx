@@ -161,7 +161,7 @@ class SelectDataPipelineModal extends Component {
                   <MDropdown
                     label={branchSelected || 'Select branch'}
                     component={(
-                      <div className="select-branch" style={{ top: '27%', left: '35px' }}>
+                      <div className="select-branch">
                         <div className="switch-header">
                           <p>Switch Branches</p>
                         </div>
@@ -169,7 +169,7 @@ class SelectDataPipelineModal extends Component {
                         <div className="search-branch">
                           <div className="branches">
                             <ul>
-                              <li className="branch-header">Branches</li>
+                              <p className="branch-header">Branches</p>
                               {branches.filter((branch) => !branch.name.startsWith('data-pipeline')
                                 && !branch.name.startsWith('experiment'))
                                 .map((branch, index) => (
@@ -196,7 +196,7 @@ class SelectDataPipelineModal extends Component {
                         <div className="search-branch">
                           <div className="branches">
                             <ul>
-                              <li className="branch-header">Datasets</li>
+                              <p className="branch-header">Datasets</p>
                               {branches.filter((branch) => branch.name.startsWith('data-pipeline')).reverse()
                                 .map((branch) => {
                                   const pipelineName = branch.name;
