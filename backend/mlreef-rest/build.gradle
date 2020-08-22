@@ -1,6 +1,5 @@
 plugins {
-    id 'org.springframework.boot'
-    id 'io.spring.dependency-management'
+    id 'org.springframework.boot' version '2.3.1.RELEASE'
     id 'org.jetbrains.kotlin.jvm'
     id 'kotlin-spring'
     id 'kotlin-jpa'
@@ -132,6 +131,23 @@ bootJar {
     from("${asciidoctor.outputDir}/html5") {
         into 'static/docs'
     }
+}
+
+jar {
+    enabled = true
+}
+
+
+task fatJar(type: Jar) {
+    manifest.from jar.manifest
+    from {
+        configurations.testRuntime.collect { it.isDirectory() ? it : zipTree(it) }
+    } {
+        exclude "META-INF/*.SF"
+        exclude "META-INF/*.DSA"
+        exclude "META-INF/*.RSA"
+    }
+    with jar
 }
 
 jacocoTestReport {

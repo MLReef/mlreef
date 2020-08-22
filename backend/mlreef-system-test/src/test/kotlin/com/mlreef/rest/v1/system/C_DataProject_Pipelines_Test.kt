@@ -43,7 +43,7 @@ class C_DataProject_Pipelines_Test : AbstractSystemTest() {
     @Test
     fun `C00 Prepare new User & Login `() {
         val returnedResult = prepareCurrentUser(globalRandomUserName, globalEmail, globalRandomPassword)
-        accessToken = returnedResult.accessToken!!
+        accessToken = returnedResult.accessToken ?: returnedResult.token!!
         currentUser = returnedResult
     }
 
@@ -196,10 +196,10 @@ class C_DataProject_Pipelines_Test : AbstractSystemTest() {
         epfPipelineSecret = yamlFile.substringAfter(epfSecretPrefix).substringBefore("\"").trim()
     }
 
-    @Test
-    fun `C04-01 YAML contains current imageTag`() {
-        assertThat(yamlFile).contains(conf.epf.imageTag)
-    }
+//    @Test
+//    fun `C04-01 YAML contains current imageTag`() {
+//        assertThat(yamlFile).contains(conf.epf.imageTag)
+//    }
 
     @Test
     fun `C04-02 EPF_PIPELINE_URL seems valid`() {

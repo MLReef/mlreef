@@ -6,11 +6,10 @@ cd "$(dirname "$0")"/../..
 . bin/includes/ci-environment
 . bin/includes/ci-test-base
 ########################################
-set -x    # output all commands
-set -e    # exit on immediately on every error
-set -u    # error on usage of undefined variables
+set -x # output all commands
+set -e # exit on immediately on every error
+set -u # error on usage of undefined variables
 ########################################
-
 
 # ensure that there exists a gradle configuration
 if [ ! -e backend/build.gradle ]; then exit 1; fi
@@ -28,9 +27,9 @@ export REDIS_PORT=6379
 export POSTGRES_DB=$DB_NAME
 export POSTGRES_USER=$DB_USER
 export POSTGRES_PASSWORD=$DB_PASSWORD
-export DOCKER_HOST="tcp://docker:2375"  # gitlab needs this to support docker testcontainers
-export DOCKER_DRIVER=overlay2           # gitlab needs this to support docker testcontainers
-export DOCKER_TLS_CERTDIR=""            # "/certs" gitlab needs this to support docker testcontainers
+export DOCKER_HOST="tcp://docker:2375" # gitlab needs this to support docker testcontainers
+export DOCKER_DRIVER=overlay2          # gitlab needs this to support docker testcontainers
+export DOCKER_TLS_CERTDIR=""           # "/certs" gitlab needs this to support docker testcontainers
 
 export GITLAB_ROOT_URL="$URL:10080"
 export MLREEF_BACKEND_URL="$URL:8080"
@@ -51,4 +50,5 @@ echo "  GITLAB_ROOT_URL       = $GITLAB_ROOT_URL"
 #echo "  GITLAB_ADMIN_PASSWORD = $GITLAB_ADMIN_PASSWORD"
 
 export GRADLE_USER_HOME=$(pwd)/.gradle
+
 ./gradlew :mlreef-system-test:systemTest
