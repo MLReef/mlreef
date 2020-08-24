@@ -187,7 +187,7 @@ class InitialDataLoaderTest : AbstractRepositoryTest() {
         codeProjectRepository.saveAll(codeProjects)
 
         val processors = processorBuilders.map { it.buildProcessor() }
-        buildContext.mergeSave(dataProcessorRepository, processors)
+        buildContext.mergeSave(dataProcessorRepository, author, processors)
         checkState(withVersions = false)
     }
 
@@ -203,7 +203,7 @@ class InitialDataLoaderTest : AbstractRepositoryTest() {
         codeProjectRepository.saveAll(codeProjects)
         dataProcessorRepository.saveAll(processors)
 
-        buildContext.mergeSave(dataProcessorRepository, processors)
+        buildContext.mergeSave(dataProcessorRepository, author, processors)
         checkState(withVersions = false)
     }
 
@@ -220,7 +220,7 @@ class InitialDataLoaderTest : AbstractRepositoryTest() {
         dataProcessorRepository.saveAll(processors)
 
         val versions = processorBuilders.map { it.buildVersion(it.buildProcessor()) }
-        buildContext.mergeSave(processorVersionRepository, versions)
+        buildContext.mergeSave(processorVersionRepository, author, versions)
         checkState()
     }
 
@@ -236,12 +236,12 @@ class InitialDataLoaderTest : AbstractRepositoryTest() {
         val versions = processorBuilders.map { it.buildVersion(it.buildProcessor()) }
         val processors = versions.map { it.dataProcessor }
 
-        buildContext.mergeSave(restClient, codeProjectRepository, codeProjects)
-        buildContext.mergeSave(dataProcessorRepository, processors)
+        buildContext.mergeSave(restClient, codeProjectRepository, author, codeProjects)
+        buildContext.mergeSave(dataProcessorRepository, author, processors)
 
         processorVersionRepository.saveAll(versions)
 
-        buildContext.mergeSave(processorVersionRepository, versions)
+        buildContext.mergeSave(processorVersionRepository, author, versions)
         checkState()
     }
 
@@ -249,7 +249,7 @@ class InitialDataLoaderTest : AbstractRepositoryTest() {
     @Test
     fun `initialDataLoader merge-saves everything new`() {
         val buildContext = initialDataLoader.prepare(author, token)
-        buildContext.mergeSaveEverything(restClient, codeProjectRepository, dataProcessorRepository, processorVersionRepository)
+        buildContext.mergeSaveEverything(restClient, codeProjectRepository, dataProcessorRepository, processorVersionRepository, author)
         checkState()
     }
 
@@ -264,7 +264,7 @@ class InitialDataLoaderTest : AbstractRepositoryTest() {
         val versions = processorBuilders.map { it.buildVersion(it.buildProcessor()) }
         versions.map { it.dataProcessor }
 
-        buildContext.mergeSaveEverything(restClient, codeProjectRepository, dataProcessorRepository, processorVersionRepository)
+        buildContext.mergeSaveEverything(restClient, codeProjectRepository, dataProcessorRepository, processorVersionRepository, author)
         checkState()
     }
 

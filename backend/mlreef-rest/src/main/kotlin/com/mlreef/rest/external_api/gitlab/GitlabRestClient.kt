@@ -123,11 +123,28 @@ class GitlabRestClient(
             .body ?: throw Exception("GitlabRestClient.createProject($slug): Gitlab response does not contain a body.")
     }
 
-    fun adminGetProjects(): List<GitlabProject> {
+    fun adminGetProjects(search: String? = null): List<GitlabProject> {
         return GitlabHttpEntity<String>("body", createAdminHeaders())
             .addErrorDescription(ErrorCode.NotFound, "Cannot find projects")
             .makeRequest {
-                val url = "$gitlabServiceRootUrl/projects"
+                val url = if (search != null) {
+                    "$gitlabServiceRootUrl/projects?search=$search"
+                } else {
+                    "$gitlabServiceRootUrl/projects"
+                }
+                restTemplate(builder).exchange(url, HttpMethod.GET, it, typeRef<List<GitlabProject>>())
+            }
+            .also { logGitlabCall(it) }
+            .body!!
+    }
+
+    // https://docs.gitlab.com/ee/api/projects.html#list-user-projects
+    // GET /users/:user_id/projects
+    fun adminGetUserProjects(userId: Long): List<GitlabProject> {
+        return GitlabHttpEntity<String>("body", createAdminHeaders())
+            .addErrorDescription(ErrorCode.NotFound, "Cannot find projects")
+            .makeRequest {
+                val url = "$gitlabServiceRootUrl/users/$userId/projects?per_page=100"
                 restTemplate(builder).exchange(url, HttpMethod.GET, it, typeRef<List<GitlabProject>>())
             }
             .also { logGitlabCall(it) }

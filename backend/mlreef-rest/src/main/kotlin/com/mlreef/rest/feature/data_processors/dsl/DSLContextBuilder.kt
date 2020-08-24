@@ -66,10 +66,12 @@ class DSLContextBuilder(val owner: Subject, val userToken: String) {
     fun buildProcessorVersions() = processors.map { it.buildVersion(it.buildProcessor()) }
 
     fun mergeSave(repository: DataProcessorRepository,
+                  author: Subject,
                   items: List<DataProcessor>
-    ) = items.map { mergeSave(repository, it) }
+    ) = items.map { mergeSave(repository, author, it) }
 
     fun mergeSave(repository: DataProcessorRepository,
+                  author: Subject,
                   item: DataProcessor): DataProcessor {
 
         log.info("CREATE/MERGE DataProcessor: $item")
@@ -130,8 +132,14 @@ class DSLContextBuilder(val owner: Subject, val userToken: String) {
         }
     }
 
-    fun mergeSave(repository: ProcessorVersionRepository, items: List<ProcessorVersion>) = items.map { mergeSave(repository, it) }
-    private fun mergeSave(repository: ProcessorVersionRepository, item: ProcessorVersion): ProcessorVersion {
+    fun mergeSave(repository: ProcessorVersionRepository,
+                  author: Subject,
+                  items: List<ProcessorVersion>
+    ) = items.map { mergeSave(repository, author, it) }
+
+    private fun mergeSave(repository: ProcessorVersionRepository,
+                          author: Subject,
+                          item: ProcessorVersion): ProcessorVersion {
         log.info("CREATE/MERGE processorVersion: ${item.toString()}")
         val existing = repository.findByIdOrNull(item.id) ?: return repository.save(item)
         log.info("MERGE processorVersion: ${item.toString()}")
@@ -150,10 +158,12 @@ class DSLContextBuilder(val owner: Subject, val userToken: String) {
 
     fun mergeSave(restClient: GitlabRestClient,
                   repository: CodeProjectRepository,
-                  items: List<CodeProject>) = items.map { mergeSave(restClient, repository, it) }
+                  author: Subject,
+                  items: List<CodeProject>) = items.map { mergeSave(restClient, repository, author, it) }
 
     private fun mergeSave(restClient: GitlabRestClient,
                           repository: CodeProjectRepository,
+                          author: Subject,
                           item: CodeProject): CodeProject {
         log.info("CREATE/MERGE CodeProject: ${item.toString()}")
         val existing = repository.findByIdOrNull(item.id)
@@ -168,7 +178,7 @@ class DSLContextBuilder(val owner: Subject, val userToken: String) {
         }
 
         // create in gitlab or use gitlab current information for gitlab fields
-        val refreshed = refreshWithGitlab(restClient, merged)
+        val refreshed = refreshWithGitlab(restClient, author, merged)
 
         if (refreshed == null) {
             log.error("STRANGE: Cannot create project and did also not find in Gitlab with slug ${item.slug}")
@@ -201,29 +211,39 @@ class DSLContextBuilder(val owner: Subject, val userToken: String) {
     )
 
 
-    private fun refreshWithGitlab(restClient: GitlabRestClient, item: CodeProject): CodeProject? {
-        val gitLabProject: GitlabProject? = try {
-            restClient.createProject(
-                token = userToken,
-                slug = item.slug,
-                name = item.name,
-                defaultBranch = "master",
-                nameSpaceId = null,
-                initializeWithReadme = true,
-                description = item.description,
-                visibility = "public")
-                .also {
-                    log.info("Created project ${item.slug} in Gitlab")
-                }
-        } catch (e: Exception) {
-            log.warn(e.message)
-            val projects = restClient.adminGetProjects()
-            val candidates = projects.filter { it.path == item.slug }
-            if (candidates.isNotEmpty()) {
-                candidates.first().also {
-                    log.info("Retrieved existing project ${item.slug} from Gitlab")
-                }
-            } else {
+    private fun refreshWithGitlab(restClient: GitlabRestClient,
+                                  author: Subject,
+                                  item: CodeProject): CodeProject? {
+
+        val projects1 = restClient.adminGetUserProjects(author.gitlabId!!)
+        val projects2 = restClient.adminGetProjects(search = item.slug).filter { it.path == item.slug }
+
+        val projects = arrayListOf<GitlabProject>().apply {
+            addAll(projects1)
+            addAll(projects2)
+        }
+        val candidates = projects.filter { it.path == item.slug }
+
+        val gitLabProject: GitlabProject? = if (candidates.isNotEmpty()) {
+            val first = candidates.first()
+            log.info("Retrieved existing project ${first.path} from Gitlab")
+            first
+        } else {
+            try {
+                restClient.createProject(
+                    token = userToken,
+                    slug = item.slug,
+                    name = item.name,
+                    defaultBranch = "master",
+                    nameSpaceId = null,
+                    initializeWithReadme = true,
+                    description = item.description,
+                    visibility = "public")
+                    .also {
+                        log.info("Created project ${item.slug} in Gitlab")
+                    }
+            } catch (e: Exception) {
+                log.warn(e.message)
                 null
             }
         }
@@ -247,7 +267,7 @@ class DSLContextBuilder(val owner: Subject, val userToken: String) {
         }
     }
 
-    fun mergeSaveEverything(restClient: GitlabRestClient, codeProjectRepository: CodeProjectRepository, dataProcessorRepository: DataProcessorRepository, processorVersionRepository: ProcessorVersionRepository) {
+    fun mergeSaveEverything(restClient: GitlabRestClient, codeProjectRepository: CodeProjectRepository, dataProcessorRepository: DataProcessorRepository, processorVersionRepository: ProcessorVersionRepository, author: Subject) {
         val codeProjectsBuilders = this.codeProjects
         val processorBuilders = this.processors
         val codeProjects = codeProjectsBuilders.map { it.build() }
@@ -255,13 +275,13 @@ class DSLContextBuilder(val owner: Subject, val userToken: String) {
         val processors = versions.map { it.dataProcessor }
 
         executeLogged("2a. CODE PROJECTS") {
-            mergeSave(restClient, codeProjectRepository, codeProjects)
+            mergeSave(restClient, codeProjectRepository, author, codeProjects)
         }
         executeLogged("2b. DATA PROCESSORS") {
-            mergeSave(dataProcessorRepository, processors)
+            mergeSave(dataProcessorRepository, author, processors)
         }
         executeLogged("2c. PROCESSOR VERSIONS & PARAMETERS") {
-            mergeSave(processorVersionRepository, versions)
+            mergeSave(processorVersionRepository, author, versions)
         }
     }
 
