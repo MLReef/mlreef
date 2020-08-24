@@ -8,10 +8,11 @@ import {
 import { plainToClass } from 'class-transformer';
 import DataProject from 'domain/project/DataProject';
 import MEmptyAvatar from 'components/ui/MEmptyAvatar/MEmptyAvatar';
-import ProjectGeneralInfoApi from '../apis/projectGeneralInfoApi.ts';
-import * as projectActions from '../actions/projectInfoActions';
+import MWrapper from 'components/ui/MWrapper';
 import { PROJECT_TYPES } from 'domain/project/projectTypes';
 import CodeProject from 'domain/project/CodeProject';
+import ProjectGeneralInfoApi from '../apis/projectGeneralInfoApi.ts';
+import * as projectActions from '../actions/projectInfoActions';
 
 const ProjectInfo = (props) => {
   const {
@@ -101,20 +102,22 @@ const ProjectInfo = (props) => {
         </div>
 
         {classProject.defaultBranch !== null && (
-        <div className="options d-flex mr-2">
-          <button
-            type="button"
-            className="option-name btn btn-hidden border-rounded-left py-2 px-3 my-0"
-            onClick={handleFork}
-          >
-            <img className="mr-0 mr-lg-1" id="option-image" src="/images/svg/fork_01.svg" alt="" />
-            <span className="my-auto d-none d-lg-block">Fork</span>
-          </button>
+        <MWrapper norender>
+          <div className="options d-flex mr-2">
+            <button
+              type="button"
+              className="option-name btn btn-hidden border-rounded-left py-2 px-3 my-0"
+              onClick={handleFork}
+            >
+              <img className="mr-0 mr-lg-1" id="option-image" src="/images/svg/fork_01.svg" alt="" />
+              <span className="my-auto d-none d-lg-block">Fork</span>
+            </button>
 
-          <div className="counter border-rounded-right h-100">
-            <span>{classProject.forksCount}</span>
+            <div className="counter border-rounded-right h-100">
+              <span>{classProject.forksCount}</span>
+            </div>
           </div>
-        </div>
+        </MWrapper>
         )}
         <div className="options d-flex">
           <div className="option-name border-rounded-left py-2 px-3 my-0">

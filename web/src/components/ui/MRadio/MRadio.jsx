@@ -1,74 +1,54 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import './MRadio.css';
+import './MRadio.scss';
 
 const MRadio = (props) => {
   const {
-    label,
-    options,
+    id,
     name,
     value,
-    footer,
+    checked,
     onChange,
-    direction,
+    color,
+    disabled,
   } = props;
-
-  const handleChange = (e) => {
-    const target = e.currentTarget;
-    const val = target && target.value;
-
-    return onChange(val);
-  };
 
   return (
     <div className="m-radio">
-      { label && <div className="m-radio_label">{ label }</div> }
-      <div className="m-radio_container" style={{ flexDirection: direction === 1 || undefined ? 'row' : 'column' }}>
-        {
-          (options || []).map((opt) => (
-            <div className="m-radio_option" key={`rad-opt-${opt.value}`}>
-              <input
-                id={name + value}
-                className="m-radio_option_input"
-                type="radio"
-                name={name}
-                checked={value === opt.value}
-                onChange={handleChange}
-                value={opt.value}
-              />
-              <label htmlFor={name + value} className="m-radio_option_label">
-                { opt.label }
-              </label>
-            </div>
-          ))
-        }
-        { footer && <div className="m-select_footer">{ footer }</div> }
-      </div>
+      <input
+        id={id}
+        className="m-radio-input"
+        type="radio"
+        name={name}
+        checked={checked}
+        onChange={onChange}
+        value={value}
+        disabled={disabled}
+      />
+      <span className={`checkmark ${color}`}><span /></span>
     </div>
   );
 };
 
 MRadio.defaultProps = {
-  label: null,
-  footer: null,
+  name: undefined,
+  value: undefined,
+  color: 'dark',
+  id: undefined,
+  disabled: false,
 };
 
 MRadio.propTypes = {
-  label: PropTypes.string,
-  options: PropTypes
-    .arrayOf(PropTypes.shape({
-      label: PropTypes.string.isRequired,
-      value: PropTypes.any,
-    }))
-    .isRequired,
-  name: PropTypes.string.isRequired,
+  name: PropTypes.string,
+  id: PropTypes.string,
+  color: PropTypes.string,
   value: PropTypes
     .oneOfType([
       PropTypes.string,
       PropTypes.number,
-    ])
-    .isRequired,
-  footer: PropTypes.string,
+    ]),
+  checked: PropTypes.bool.isRequired,
+  disabled: PropTypes.bool,
   onChange: PropTypes.func.isRequired,
 };
 

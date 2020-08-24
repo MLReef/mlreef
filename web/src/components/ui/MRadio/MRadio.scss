@@ -1,0 +1,88 @@
+
+$colors: dark, primary, danger, warning, info;
+
+.m-radio {
+  position: relative;
+  width: 1rem;
+  height: 1rem;
+  margin: auto 0;
+  margin-right: 0.5rem;
+  flex: 0 1 auto;
+
+  & .checkmark {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 0;
+    // height: 1rem;
+    // width: 1rem;
+    background-color: transparent;
+    border: solid 1px var(--secondary);
+
+    & > span {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 100%;
+      width: 100%;
+      background-color: var(--secondary);
+      opacity: 0;
+    }
+
+    @each $color in $colors {
+      &.#{$color} {
+        & > span {
+          background-color: var(--#{$color});
+        }
+      }
+    }
+
+    // &.primary {
+    //   & > span {
+    //     background-color: var(--primary);
+    //   }
+    // }
+  }
+
+  & .checkmark, span {
+    border-radius: 50%;
+  }
+
+  & input {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 1rem;
+    height: 1rem;
+    opacity: 0;
+    margin: 0;
+    z-index: 2;
+    cursor: pointer;
+  }
+
+  & input:disabled ~ .checkmark {
+    opacity: 0.5;
+  }
+
+  & input:checked ~ .checkmark {
+    border: 4px double var(--secondary);
+    border-radius: 50%;
+
+    @each $color in $colors {
+      &.#{$color} {
+        border-color: var(--#{$color});
+      }
+    }
+
+    & span {
+      opacity: 1;
+      border-radius: 50%;
+    }
+  }
+}

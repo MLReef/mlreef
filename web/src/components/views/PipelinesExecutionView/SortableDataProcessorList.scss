@@ -136,3 +136,16 @@
     }
   }
 }
+
+// this is to hide arrow hints when user is in experiments and visualizations
+.pipe-line-execution-container:not(.data-pipeline) {
+  & .sortable-data-operation-list-item::before,
+  & .sortable-data-operation-list-item::after {
+    border: none;
+  }
+
+  & .sortable-data-operation-list-item-arrow,
+  & .sortable-data-operation-list-item-separator {
+    display: none;
+  }
+}

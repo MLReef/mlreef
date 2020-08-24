@@ -58,7 +58,9 @@ exports[`test presence of elements in DOM compare with the latest snapshot of th
             <div
               className="user-projects"
             >
-              <p>
+              <p
+                className="px-3"
+              >
                 <a
                   href="/explore"
                   onClick={[Function]}
@@ -66,21 +68,6 @@ exports[`test presence of elements in DOM compare with the latest snapshot of th
                   Explore projects
                 </a>
               </p>
-            </div>
-            <div
-              className="project-search"
-            >
-              <input
-                placeholder="Search your projects"
-                type="text"
-              />
-              <div
-                className="mt-3"
-              >
-                <b>
-                  Frequently visited
-                </b>
-              </div>
             </div>
           </div>
         </div>
@@ -115,21 +102,6 @@ exports[`test presence of elements in DOM compare with the latest snapshot of th
               <p>
                 Explore Groups
               </p>
-            </div>
-            <div
-              className="project-search"
-            >
-              <input
-                placeholder="Search your groups"
-                type="text"
-              />
-              <div
-                className="mt-3"
-              >
-                <b>
-                  Frequently visited
-                </b>
-              </div>
             </div>
           </div>
         </div>
@@ -262,34 +234,6 @@ exports[`test presence of elements in DOM compare with the latest snapshot of th
             >
               <span>
                 2
-              </span>
-            </div>
-          </div>
-          <div
-            className="options d-flex mr-2"
-          >
-            <button
-              className="option-name btn btn-hidden border-rounded-left py-2 px-3 my-0"
-              onClick={[Function]}
-              type="button"
-            >
-              <img
-                alt=""
-                className="mr-0 mr-lg-1"
-                id="option-image"
-                src="/images/svg/fork_01.svg"
-              />
-              <span
-                className="my-auto d-none d-lg-block"
-              >
-                Fork
-              </span>
-            </button>
-            <div
-              className="counter border-rounded-right h-100"
-            >
-              <span>
-                1
               </span>
             </div>
           </div>

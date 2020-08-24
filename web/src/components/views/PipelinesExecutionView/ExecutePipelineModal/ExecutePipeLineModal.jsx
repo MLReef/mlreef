@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import MProgressBar from 'components/ui/MProgressBar';
 import { arrayOf, shape, string, bool, func } from 'prop-types';
 import { Link } from 'react-router-dom';
+import MRadio from 'components/ui/MRadio';
 import './executePipeLineModal.scss';
 import MSelect from 'components/ui/MSelect';
 import { ALGORITHM, OPERATION } from 'dataTypes';
@@ -127,8 +128,13 @@ const ExecutePipelineModal = ({
                   }
                 }}
               >
-                <input type="radio" checked={isFirstOptSelected} id="show-first-opt" onChange={() => {}} />
-                <p style={{ marginLeft: '1em' }} id="paragraph-op1">
+                <MRadio
+                  id="show-first-opt"
+                  color="primary"
+                  checked={isFirstOptSelected}
+                  onChange={() => {}}
+                />
+                <p id="paragraph-op1">
                   {`Create a new ${operationDescription} in your data repository`}
                 </p>
               </div>
@@ -164,7 +170,7 @@ const ExecutePipelineModal = ({
                 style={{
                   display: 'flex', alignItems: 'center', cursor: 'pointer', marginTop: 0,
                 }}
-               /*  
+               /*
                ---- Requested to be disabled ---
                onClick={() => {
                   const secondOptExecModal = document.getElementById('second-option-execution-modal');
@@ -180,8 +186,13 @@ const ExecutePipelineModal = ({
                   }
                 }} */
               >
-                <input type="radio" disabled checked={isSecondOptSelected} onChange={() => {}} />
-                <p style={{ marginLeft: '1em' }} id="paragraph-op2">
+                <MRadio
+                  color="primary"
+                  disabled
+                  checked={isSecondOptSelected}
+                  onChange={() => {}}
+                />
+                <p id="paragraph-op2">
                   Soon available: Download your pipeline and execute it locally using docker
                 </p>
               </div>
