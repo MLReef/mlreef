@@ -20,7 +20,7 @@ from PIL import Image
 
 def process_arguments(args):
     parser = argparse.ArgumentParser(description='tSNE on audio')
-    parser.add_argument('--images_path', action='store', help='path to directory of images')
+    parser.add_argument('--input_path', action='store', help='path to directory of images')
     parser.add_argument('--output_path', action='store', help='path to where to put output json file')
     parser.add_argument('--num_dimensions', action='store', default=2, help='dimensionality of t-SNE points (default 2)')
     parser.add_argument('--perplexity', action='store', default=30, help='perplexity of t-SNE (default 30)')
@@ -111,8 +111,12 @@ def run_tsne(images_path, output_path, tsne_dimensions, tsne_perplexity, tsne_le
 
 if __name__ == '__main__':
     params = process_arguments(sys.argv[1:])
-    images_path = params['images_path']
+    images_path = params['input_path']
     output_path = params['output_path']
+    # create folder if does not exists
+    if not os.path.exists(output_path):
+        os.makedirs(output_path)
+
     tsne_dimensions = int(params['num_dimensions'])
     tsne_perplexity = int(params['perplexity'])
     tsne_learning_rate = int(params['learning_rate'])
