@@ -126,6 +126,7 @@ internal class DataPopulator(
     fun initialMLData(author: Subject, token: String) {
         val buildContext = initialDataLoader.prepare(author, token)
         buildContext.mergeSaveEverything(
+            author = author,
             restClient = gitlabRestClient,
             codeProjectRepository = codeProjectRepository,
             dataProcessorRepository = dataProcessorRepository,
