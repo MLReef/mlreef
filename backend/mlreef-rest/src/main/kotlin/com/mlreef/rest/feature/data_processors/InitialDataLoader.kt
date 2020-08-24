@@ -81,7 +81,7 @@ class InitialDataLoader {
                         name = "input-path"
                         defaultValue = "."
                         required = true
-                        description = "path to directory of images or image file"
+                        description = "Data input, path to the images used for transformation"
                     }
                     STRING {
                         id = fromString("a26bef36-d0ff-11ea-87d0-0242ac130003")
@@ -126,7 +126,7 @@ class InitialDataLoader {
                         name = "input-path"
                         defaultValue = "."
                         required = true
-                        description = "path to directory of images or image file"
+                        description = "Data input, path to the images used for transformation"
                     }
                     STRING {
                         id = fromString("a26bf1e8-d0ff-11ea-87d0-0242ac130003")
@@ -185,7 +185,7 @@ class InitialDataLoader {
                         name = "input-path"
                         defaultValue = "."
                         required = true
-                        description = "path to directory of images or image file"
+                        description = "Data input, path to the images used for transformation"
                     }
                     STRING {
                         id = fromString("2c9c50f8-d16c-11ea-87d0-0242ac130003")
@@ -230,7 +230,7 @@ class InitialDataLoader {
                         name = "input-path"
                         defaultValue = "."
                         required = true
-                        description = "path to directory of images or image file"
+                        description = "Data input, path to the images used for transformation"
                     }
                     STRING {
                         id = fromString("2c9c54d6-d16c-11ea-87d0-0242ac130003")
@@ -282,7 +282,7 @@ class InitialDataLoader {
                         name = "input-path"
                         defaultValue = "."
                         required = true
-                        description = "path to directory of images or image file"
+                        description = "Data input, path to the images used for transformation"
                     }
                     STRING {
                         id = fromString("2c9c57f6-d16c-11ea-87d0-0242ac130003")
@@ -348,7 +348,7 @@ class InitialDataLoader {
                         name = "input-path"
                         defaultValue = "."
                         required = true
-                        description = "path to directory of images or image file"
+                        description = "Data input, path to the images used for transformation"
                     }
                     STRING {
                         id = fromString("2c9c5dd2-d16c-11ea-87d0-0242ac130003")
@@ -395,7 +395,7 @@ class InitialDataLoader {
                         name = "input-path"
                         defaultValue = "."
                         required = true
-                        description = "Path to folder with images"
+                        description = "Data input, path to the images used for augmentation"
                     }
                     STRING {
                         id = fromString("1000000-0000-0001-0012-000000000000")
@@ -490,7 +490,7 @@ class InitialDataLoader {
                         name = "input-path"
                         defaultValue = "."
                         required = true
-                        description = "path to directory of images or image file"
+                        description = "Data input, path to the images used for transformation"
                     }
                     STRING {
                         id = fromString("1000000-0000-0002-0010-000000000000")
@@ -553,7 +553,7 @@ class InitialDataLoader {
                         name = "input-path"
                         defaultValue = "."
                         required = true
-                        description = "path to directory of images or image file"
+                        description = "Data input, path to the images used for transformation"
                     }
                     STRING {
                         id = fromString("1000000-0000-0003-0012-000200000000")
@@ -600,7 +600,7 @@ class InitialDataLoader {
                         name = "input-path"
                         defaultValue = "."
                         required = true
-                        description = "path to directory of images"
+                        description = "Data input, path to the images used for dimensional reduction"
                     }
                     STRING {
                         id = fromString("2c9c644e-d16c-11ea-87d0-0242ac130003")
@@ -669,7 +669,7 @@ class InitialDataLoader {
                         name = "input-path"
                         defaultValue = "."
                         required = true
-                        description = "path to directory of images"
+                        description = "Data input, path to the images used for training"
                     }
                     STRING {
                         id = fromString("1000000-1000-0003-0011-000000000000")
@@ -775,7 +775,7 @@ class InitialDataLoader {
                         name = "input-path"
                         defaultValue = "."
                         required = true
-                        description = "path to directory of images"
+                        description = "Data input, path to the images used for training"
                     }
                     STRING {
                         id = fromString("2c9c6b6a-d16c-11ea-87d0-0242ac130003")
