@@ -59,8 +59,8 @@ class DistortAffine:
 
 
 def process_arguments(args):
-    parser = argparse.ArgumentParser(description='Pipeline: Add Noise')
-    parser.add_argument('--input-path', action='store', type=str, default='.', help='path to directory of images or image file')
+    parser = argparse.ArgumentParser(description='Pipeline: Affine distortion')
+    parser.add_argument('--input-path', action='store', type=str, default='.', help='path to directory of images for transformation')
     parser.add_argument('--output-path', action='store', type=str, default='.', help='output directory to save images')
     parser.add_argument('--rotation', action='store', type=float, default=60, help='Angle of rotation')
     parser.add_argument('--shear', action='store', type=float, default=5.0, help='Shear')
