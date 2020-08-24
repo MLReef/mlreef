@@ -33,8 +33,8 @@ class InitialDataLoader {
     val im_color_modifier_id = fromString("fe956d3a-d0cf-11ea-87d0-0242ac130003")
     val im_create_thumbnails_projectId = fromString("fe956e02-d0cf-11ea-87d0-0242ac130003")
     val im_create_thumbnails_id = fromString("fe957050-d0cf-11ea-87d0-0242ac130003")
-    val im_distort_afine_projectId = fromString("fe957122-d0cf-11ea-87d0-0242ac130003")
-    val im_distort_afine_id = fromString("fe9571e0-d0cf-11ea-87d0-0242ac130003")
+    val im_distort_affine_projectId = fromString("fe957122-d0cf-11ea-87d0-0242ac130003")
+    val im_distort_affine_id = fromString("fe9571e0-d0cf-11ea-87d0-0242ac130003")
     val im_random_erasing_projectId = fromString("fe957294-d0cf-11ea-87d0-0242ac130003")
     val im_random_erasing_id = fromString("fe95735c-d0cf-11ea-87d0-0242ac130003")
     val im_rotate_projectId = fromString("fe957410-d0cf-11ea-87d0-0242ac130003")
@@ -205,19 +205,19 @@ class InitialDataLoader {
             }
 
             val codeProject_distort_affine = codeProject {
-                id = im_distort_afine_projectId
+                id = im_distort_affine_projectId
                 slug = "commons-distort-affine"
                 name = "Distort Affine"
                 gitlabNamespace = "mlreef"
-                gitlabPath = "im_distort_afine"
+                gitlabPath = "im_distort_affine"
                 inputDataTypes = hashSetOf(DataType.IMAGE)
                 outputDataTypes = hashSetOf(DataType.IMAGE)
-                description = """Transform the images with afine distortion."""
+                description = """Transform the images with affine distortion."""
             }
             operation {
                 linkToCodeProject(codeProject_distort_affine)
-                id = im_distort_afine_id
-                command = "im_distort_afine"
+                id = im_distort_affine_id
+                command = "im_distort_affine"
                 number = 1
                 baseEnvironment = BaseEnvironment.default()
                 inputDataType = DataType.IMAGE
