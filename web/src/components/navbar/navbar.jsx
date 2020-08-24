@@ -4,6 +4,7 @@ import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import MDropdown from 'components/ui/MDropdown';
+import MWrapper from 'components/ui/MWrapper';
 import { logout } from 'actions/userActions';
 import MGlobalMarker from 'components/ui/MGlobalMarker/MGlobalMarker';
 import mlReefIcon01 from '../../images/MLReef_Logo_navbar.png';
@@ -43,27 +44,35 @@ class Navbar extends Component {
                 <div className="project-box">
                   {user.auth ? (
                     <div className="user-projects">
-                      <p><Link to="/#personal">Your Projects</Link></p>
-                      <p><Link to="/#starred">Starred Projects</Link></p>
-                      <p><Link to="/#explore">Explore Projects</Link></p>
+                      <p className="px-3">
+                        <Link to="/#personal">Your Projects</Link>
+                      </p>
+                      <p className="px-3">
+                        <Link to="/#starred">Starred Projects</Link>
+                      </p>
+                      <p className="px-3">
+                        <Link to="/#explore">Explore Projects</Link>
+                      </p>
                     </div>
 
                   ) : (
                     <div className="user-projects">
-                      <p>
+                      <p className="px-3">
                         <Link to="/explore">Explore projects</Link>
                       </p>
                     </div>
                   )}
-                  <div className="project-search">
-                    <input
-                      type="text"
-                      placeholder="Search your projects"
-                    />
-                    <div className="mt-3">
-                      <b>Frequently visited</b>
+                  <MWrapper norender>
+                    <div className="project-search">
+                      <input
+                        type="text"
+                        placeholder="Search your projects"
+                      />
+                      <div className="mt-3">
+                        <b>Frequently visited</b>
+                      </div>
                     </div>
-                  </div>
+                  </MWrapper>
                 </div>
               )}
             />
@@ -76,10 +85,18 @@ class Navbar extends Component {
                 <div className="project-box">
                   {user.auth ? (
                     <div className="user-projects">
-                      <p>Your Groups</p>
-                      <p>Starred Groups</p>
-                      <p><Link to="/groups">Explore Groups</Link></p>
-                      <p><Link to="/groups/new">New Group</Link></p>
+                      <p className="px-3 d-none">
+                        Your Groups
+                      </p>
+                      <p className="px-3 d-none">
+                        Starred Groups
+                      </p>
+                      <p className="px-3">
+                        <Link to="/groups">Explore Groups</Link>
+                      </p>
+                      <p className="px-3">
+                        <Link to="/groups/new">New Group</Link>
+                      </p>
                     </div>
 
                   ) : (
@@ -87,15 +104,17 @@ class Navbar extends Component {
                       <p>Explore Groups</p>
                     </div>
                   )}
-                  <div className="project-search">
-                    <input
-                      type="text"
-                      placeholder="Search your groups"
-                    />
-                    <div className="mt-3">
-                      <b>Frequently visited</b>
+                  <MWrapper norender>
+                    <div className="project-search">
+                      <input
+                        type="text"
+                        placeholder="Search your groups"
+                      />
+                      <div className="mt-3">
+                        <b>Frequently visited</b>
+                      </div>
                     </div>
-                  </div>
+                  </MWrapper>
                 </div>
               )}
             />

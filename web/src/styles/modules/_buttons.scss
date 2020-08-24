@@ -100,6 +100,12 @@
 
 //////////////////////////////////////////////////
 
+button {
+  &:focus {
+    outline: none;
+  }
+}
+
 .btn {
   // box-sizing: border-box;
   display: inline-block;

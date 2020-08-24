@@ -1,0 +1,55 @@
+
+.m-radio-group {
+  &_label {
+    font-weight: bold;
+    margin-bottom: 1rem;
+    display: block;
+  }
+
+  &_container {
+    display: flex;
+  }
+
+  &_option {
+    flex: 1 1 50%;
+    display: flex;
+    margin-bottom: 0.5rem;
+    border: none;
+    background-color: transparent;
+    cursor: pointer;
+
+    &_label {
+      cursor: inherit;
+    }
+  }
+
+  &_input {
+    width: 100%;
+    padding: 0.5rem;
+    border-radius: 5px;
+    border: solid 2px var(--info);
+    background-color: #fff;
+    color: var(--dark);
+    margin-bottom: 0.5rem;
+  }
+
+  &_footer {
+    color: var(--secondary);
+  }
+
+  & .checkmark {
+
+  }
+
+  @media screen and (max-width: 900px) {
+    &_container {
+      flex-wrap: wrap;
+    }
+
+    &_option {
+      flex-basis: 100%;
+      padding-top: 0.5rem;
+      padding-bottom: 0.5rem;
+    }
+  }
+}

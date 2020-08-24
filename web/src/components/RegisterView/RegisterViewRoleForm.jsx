@@ -5,7 +5,7 @@ import { bindActionCreators } from 'redux';
 import PropTypes from 'prop-types';
 import MSelect from 'components/ui/MSimpleSelect';
 import MButton from 'components/ui/MButton';
-import MRadio from 'components/ui/MRadio';
+import MRadioGroup from 'components/ui/MRadio/MRadioGroup';
 import { getUserInfo } from 'actions/userActions';
 import { roles, userTypes } from './formInformation';
 
@@ -53,8 +53,8 @@ const RegisterViewRoleForm = (props) => {
           In order to personalize your experience with MLReef we would like to know more about you
         </p>
       </div>
-      <div className="register-view_info">
-        <h2 style={{ color: 'var(--warning)' }} className="title-lg">
+      <div className="register-view_info px-3 border-rounded">
+        <h2 className="title-lg t-warning">
           Early Access Disclaimer
         </h2>
         <p className="title-subtitle">
@@ -80,7 +80,7 @@ const RegisterViewRoleForm = (props) => {
             />
           </div>
           <div className="form-group">
-            <MRadio
+            <MRadioGroup
               label="Who will be using this MLReef subscription?"
               name="userType"
               options={userTypes}

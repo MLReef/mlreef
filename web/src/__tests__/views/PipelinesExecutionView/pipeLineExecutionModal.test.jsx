@@ -30,7 +30,7 @@ describe('Check elements in the first render', () => {
   });
 
   test('assert that machines list is displayed after dropdown button click', () => {
-    wrapper.find('#show-first-opt').simulate('click');
+    wrapper.find('MRadio #show-first-opt').simulate('click');
     expect(wrapper.find('#t-machine-selector')).toHaveLength(1);
   });
 });

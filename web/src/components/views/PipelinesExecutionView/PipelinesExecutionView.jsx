@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
+import cx from 'classnames';
 import * as userActions from 'actions/userActions';
 import {
   shape, string, arrayOf, func,
@@ -264,7 +265,7 @@ class PipelinesExecutionView extends Component {
     } else if (this.isDataset) {
       activeFeature = 'data';
       instructionDataModel = dataPipelineInstructionData;
-      pipelinesTypeExecutionTitle = 'Data pipeline';
+      pipelinesTypeExecutionTitle = 'Data pre-processing pipeline';
       operationTypeToExecute = OPERATION;
       operatorsTitle = 'Select a data operation';
     } else {
@@ -305,7 +306,11 @@ class PipelinesExecutionView extends Component {
           titleText={instructionDataModel.titleText}
           paragraph={instructionDataModel.paragraph}
         />
-        <div className="pipe-line-execution-container flexible-div">
+        <div
+          className={cx('pipe-line-execution-container flexible-div', {
+            'data-pipeline': this.isDataset,
+          })}
+        >
           <MCard
             className="pipe-line-execution"
             title={pipelinesTypeExecutionTitle}
