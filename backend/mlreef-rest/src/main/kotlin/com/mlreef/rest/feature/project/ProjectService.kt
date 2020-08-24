@@ -29,6 +29,7 @@ import com.mlreef.rest.exceptions.UnknownUserException
 import com.mlreef.rest.exceptions.UserNotFoundException
 import com.mlreef.rest.external_api.gitlab.GitlabAccessLevel
 import com.mlreef.rest.external_api.gitlab.GitlabRestClient
+import com.mlreef.rest.external_api.gitlab.TokenDetails
 import com.mlreef.rest.external_api.gitlab.dto.GitlabProject
 import com.mlreef.rest.external_api.gitlab.toAccessLevel
 import com.mlreef.rest.external_api.gitlab.toGitlabAccessLevel
@@ -50,6 +51,7 @@ import java.time.LocalTime
 import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.util.UUID
+import javax.transaction.Transactional
 
 interface ProjectService<T : Project> {
     fun getAllPublicProjects(): List<T>
@@ -137,6 +139,8 @@ interface ProjectService<T : Project> {
 
     fun deleteUserFromProject(projectUUID: UUID, userId: UUID? = null, userGitlabId: Long? = null): Account
     fun deleteGroupFromProject(projectUUID: UUID, groupId: UUID? = null, groupGitlabId: Long? = null): Group
+
+    fun updateUserNameInProjects(oldUserName: String, newUserName: String, tokenDetails: TokenDetails)
 }
 
 @Configuration
@@ -570,4 +574,22 @@ open class ProjectServiceImpl<T : Project>(
         )
     }
 
+    @Transactional
+    override fun updateUserNameInProjects(oldUserName: String, newUserName: String, tokenDetails: TokenDetails) {
+        val user = resolveAccount(userName = oldUserName)
+            ?: resolveAccount(userName = newUserName)
+            ?: throw UserNotFoundException(userName = oldUserName)
+
+        val projects = this.getProjectsByNamespace(oldUserName)
+        projects.forEach {
+            if (tokenDetails.projects.get(it.id) == AccessLevel.OWNER) {
+                val updatedProject = it.copy<T>(
+                    url = it.url.replace(oldUserName, newUserName, true),
+                    gitlabNamespace = it.gitlabNamespace.replace(oldUserName, newUserName, true),
+                    gitlabPathWithNamespace = it.gitlabPathWithNamespace.replace(oldUserName, newUserName, true)
+                )
+                saveProject(updatedProject)
+            }
+        }
+    }
 }

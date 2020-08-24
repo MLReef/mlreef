@@ -2,6 +2,7 @@ package com.mlreef.rest.integration
 
 import com.mlreef.rest.api.v1.LoginRequest
 import com.mlreef.rest.api.v1.RegisterRequest
+import com.mlreef.rest.api.v1.UpdateRequest
 import com.mlreef.rest.api.v1.dto.SecretUserDto
 import com.mlreef.rest.api.v1.dto.UserDto
 import com.mlreef.rest.utils.RandomUtils
@@ -115,5 +116,44 @@ class AuthIntegrationTest : AbstractIntegrationTest() {
         assertThat(returnedResult2.username).isEqualTo(account.username)
 
         assertThat(restClient.oAuthAdminToken.get()!!.second).isNotEqualTo("123")
+    }
+
+    @Transactional
+    @Rollback
+    @Test
+    fun `Can update en existing user`() {
+        val randomUserName = RandomUtils.generateRandomUserName(10)
+        val randomPassword = RandomUtils.generateRandomPassword(30, true)
+        val email = "$randomUserName@example.com"
+        val registerRequest = RegisterRequest(randomUserName, email, randomPassword, "name")
+
+        val returnedResult: SecretUserDto = this.performPost("$authUrl/register", body = registerRequest)
+            .expectOk()
+            .returns()
+
+        with(accountRepository.findOneByEmail(email)!!) {
+            assertThat(id).isEqualTo(returnedResult.id)
+            assertThat(username).isEqualTo(returnedResult.username).isEqualTo(randomUserName)
+        }
+
+        val newRandomUserName = RandomUtils.generateRandomUserName(10)
+        val newEmail = "$newRandomUserName@example.com"
+
+        val updateRequest = UpdateRequest(
+            newRandomUserName,
+            newEmail
+        )
+
+        val returnedResult2: UserDto = this.performPut("$authUrl/update/${returnedResult.id}", returnedResult.accessToken, body = updateRequest)
+            .expectOk()
+            .returns()
+
+        with(accountRepository.findOneByEmail(newEmail)!!) {
+            assertThat(id).isEqualTo(returnedResult2.id)
+            assertThat(username).isEqualTo(returnedResult2.username).isEqualTo(newRandomUserName)
+        }
+
+        assertThat(accountRepository.findOneByEmail(email)).isNull()
+        assertThat(accountRepository.findOneByUsername(randomUserName)).isNull()
     }
 }

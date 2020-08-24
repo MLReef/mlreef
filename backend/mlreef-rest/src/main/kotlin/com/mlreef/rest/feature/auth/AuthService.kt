@@ -9,6 +9,7 @@ import com.mlreef.rest.I18N
 import com.mlreef.rest.Person
 import com.mlreef.rest.PersonRepository
 import com.mlreef.rest.config.censor
+import com.mlreef.rest.exceptions.BadParametersException
 import com.mlreef.rest.exceptions.ConflictException
 import com.mlreef.rest.exceptions.ErrorCode
 import com.mlreef.rest.exceptions.GitlabConnectException
@@ -128,6 +129,41 @@ class AuthService(
         return Pair(newUser, oauthToken)
     }
 
+    @Transactional
+    fun userProfileUpdate(userId: UUID, username: String? = null, email: String? = null, tokenDetails: TokenDetails): Account {
+        val user = accountRepository.findByIdOrNull(userId)
+            ?: accountRepository.findAccountByPersonId(userId)
+            ?: throw UserNotFoundException(userId)
+
+        val oldUserName = user.username
+
+        if (user != (username?.let { accountRepository.findOneByUsername(it) } ?: user))
+            throw ConflictException(ErrorCode.Conflict, "User with username $username is already registered")
+
+        if (user != (email?.let { accountRepository.findOneByEmail(it) } ?: user))
+            throw ConflictException(ErrorCode.Conflict, "User with email $email is already registered")
+
+        val updatedGitlabUser = updateGitlabUser(
+            user.person.gitlabId ?: throw BadParametersException("User ${user.username} is not connected to Gitlab"),
+            username,
+            email
+        )
+
+        var updatedUserInDb = user.copy(
+            username = username ?: user.username,
+            email = email ?: user.email
+        )
+
+        updatedUserInDb = accountRepository.save(updatedUserInDb)
+
+        if (updatedUserInDb.username != user.username) {
+            dataProjectsService.updateUserNameInProjects(oldUserName, updatedUserInDb.username, tokenDetails)
+            codeProjectsService.updateUserNameInProjects(oldUserName, updatedUserInDb.username, tokenDetails)
+        }
+
+        return updatedUserInDb
+    }
+
     private fun sendWelcomeMessage(account: Account) {
         val variables = mapOf(
             EmailVariables.USER_NAME to account.username,
@@ -194,6 +230,16 @@ class AuthService(
             val adminGetUsers = gitlabRestClient.adminGetUsers()
             adminGetUsers.filter { it.username == username }.firstOrNull()
                 ?: throw UnknownUserException("User not found!")
+        }
+    }
+
+    fun updateGitlabUser(id: Long, username: String?, email: String?): GitlabUser {
+        return try {
+            log.info("Update user $id with username ${username ?: ""} and email ${email ?: ""}")
+            gitlabRestClient.adminUpdateUser(id, email = email, name = username, username = username)
+        } catch (clientErrorException: RestException) {
+            log.info("Cannot update user in Gitlab. Error message: ${clientErrorException.message}")
+            throw clientErrorException
         }
     }
 

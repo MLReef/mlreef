@@ -302,6 +302,7 @@ abstract class AbstractRestApiTest : AbstractRestTest() {
 
         every { authentication.principal } answers { finalToken }
         every { secContext.authentication } answers { authentication }
+        every { sessionRegistry.retrieveFromSession(any()) } answers { finalToken }
 
         SecurityContextHolder.setContext(secContext)
     }
