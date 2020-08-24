@@ -16,6 +16,14 @@ internal class GitlabCreateUserRequest(
 ) : Serializable
 
 //https://docs.gitlab.com/ee/api/users.html#user-modification
+@JsonInclude(JsonInclude.Include.NON_NULL)
+internal class GitlabUpdateUserRequest(
+    val email: String?,
+    val username: String?,
+    val name: String?
+) : Serializable
+
+//https://docs.gitlab.com/ee/api/users.html#user-modification
 internal class GitlabModifyUserRequest(
     val password: String? = null
 ) : Serializable

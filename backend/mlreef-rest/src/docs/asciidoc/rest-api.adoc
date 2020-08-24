@@ -144,6 +144,13 @@ Login can be executed with the username or the email.
 
 operation::login-success[snippets='curl-request,request-fields,http-response,response-fields']
 
+[[update-profile]]
+=== PUT /auth/update/:user_id
+
+Update user's information
+
+operation::update-profile-success[snippets='curl-request,request-fields,http-response,response-fields']
+
 [[password-management]]
 = Passwords management - /password
 == Password reset request - POST /password/reset

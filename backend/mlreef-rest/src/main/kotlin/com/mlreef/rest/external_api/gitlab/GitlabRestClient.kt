@@ -693,6 +693,19 @@ class GitlabRestClient(
             .body!!
     }
 
+    fun adminUpdateUser(gitlabUserId: Long, email: String?, username: String?, name: String?): GitlabUser {
+        return GitlabUpdateUserRequest(email = email, username = username, name = name)
+            .let { GitlabHttpEntity(it, createAdminHeaders()) }
+            .addErrorDescription(409, ErrorCode.UserAlreadyExisting, "Cannot change username $username in gitlab. User already exists")
+            .addErrorDescription(ErrorCode.GitlabUserCreationFailed, "Cannot update user $gitlabUserId in gitlab")
+            .makeRequest {
+                val url = "$gitlabServiceRootUrl/users/$gitlabUserId"
+                restTemplate(builder).exchange(url, HttpMethod.PUT, it, GitlabUser::class.java)
+            }
+            .also { logGitlabCall(it) }
+            .body!!
+    }
+
     fun adminResetUserPassword(gitlabUserId: Long, password: String): GitlabUser {
         return GitlabModifyUserRequest(password = password)
             .let { GitlabHttpEntity(it, createAdminHeaders()) }

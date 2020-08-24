@@ -2,9 +2,12 @@ package com.mlreef.rest.api
 
 import com.mlreef.rest.api.v1.LoginRequest
 import com.mlreef.rest.api.v1.RegisterRequest
+import com.mlreef.rest.api.v1.UpdateRequest
 import com.mlreef.rest.api.v1.dto.SecretUserDto
+import com.mlreef.rest.api.v1.dto.UserDto
 import com.mlreef.rest.exceptions.ErrorCode
 import com.mlreef.rest.exceptions.GitlabAuthenticationFailedException
+import com.mlreef.rest.external_api.gitlab.TokenDetails
 import com.mlreef.rest.external_api.gitlab.dto.OAuthToken
 import com.mlreef.rest.utils.RandomUtils
 import com.ninjasquad.springmockk.SpykBean
@@ -25,6 +28,7 @@ import org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath
 import org.springframework.restdocs.payload.PayloadDocumentation.requestFields
 import org.springframework.restdocs.payload.PayloadDocumentation.responseFields
 import org.springframework.test.annotation.Rollback
+import java.util.UUID
 import javax.mail.internet.MimeMessage
 import javax.transaction.Transactional
 
@@ -142,6 +146,60 @@ class AuthApiTest : AbstractRestApiTest() {
                 responseFields(errorResponseFields()))
     }
 
+    @Transactional
+    @Rollback
+    @Test
+    @Tag(TestTags.RESTDOC)
+    fun `Can update an existing user`() {
+        val randomUserName = RandomUtils.generateRandomUserName(10)
+        val randomPassword = RandomUtils.generateRandomPassword(30, true)
+        val email = "$randomUserName@example.com"
+        val registerRequest = RegisterRequest(randomUserName, email, randomPassword, "absolute-new-name")
+
+        val url = "$authUrl/register"
+
+        val result = this.performPost(url, body = registerRequest)
+            .expectOk()
+            .returns(SecretUserDto::class.java)
+
+        with(accountRepository.findOneByEmail(email)!!) {
+            assertThat(id).isEqualTo(result.id)
+            assertThat(username).isEqualTo(result.username).isEqualTo(randomUserName)
+        }
+
+        val newRandomUserName = RandomUtils.generateRandomUserName(10)
+        val newEmail = "$newRandomUserName@example.com"
+
+        val updateRequest = UpdateRequest(
+            newRandomUserName,
+            newEmail
+        )
+
+        val tokenDetails = TokenDetails(
+            result.username,
+            "new-token-${UUID.randomUUID()}",
+            result.id,
+            UUID.randomUUID()
+        )
+
+        mockSecurityContextHolder(tokenDetails)
+
+        val returnedResult2: UserDto = this.performPut("$authUrl/update/${result.id}", token = "new-token-${UUID.randomUUID()}", body = updateRequest)
+            .expectOk()
+            .document("update-profile-success",
+                requestFields(updateProfileRequestFields()),
+                responseFields(userDtoResponseFields()))
+            .returns()
+
+        with(accountRepository.findOneByEmail(newEmail)!!) {
+            assertThat(id).isEqualTo(returnedResult2.id)
+            assertThat(username).isEqualTo(returnedResult2.username).isEqualTo(newRandomUserName)
+        }
+
+        assertThat(accountRepository.findOneByEmail(email)).isNull()
+        assertThat(accountRepository.findOneByUsername(randomUserName)).isNull()
+    }
+
     private fun userSecretDtoResponseFields(): List<FieldDescriptor> {
         return listOf(
             fieldWithPath("id").type(JsonFieldType.STRING).description("UUID"),
@@ -154,12 +212,29 @@ class AuthApiTest : AbstractRestApiTest() {
         )
     }
 
+    private fun userDtoResponseFields(): List<FieldDescriptor> {
+        return listOf(
+            fieldWithPath("id").type(JsonFieldType.STRING).description("UUID"),
+            fieldWithPath("username").type(JsonFieldType.STRING).description("An unique username"),
+            fieldWithPath("email").type(JsonFieldType.STRING).description("An valid email"),
+            fieldWithPath("gitlab_id").type(JsonFieldType.NUMBER).description("A gitlab id")
+        )
+    }
+
     private fun registerRequestFields(): List<FieldDescriptor> {
         return listOf(
             fieldWithPath("password").type(JsonFieldType.STRING).description("A plain text password"),
             fieldWithPath("username").type(JsonFieldType.STRING).description("A valid, not-yet-existing username"),
             fieldWithPath("email").type(JsonFieldType.STRING).description("A valid email"),
             fieldWithPath("name").type(JsonFieldType.STRING).description("The fullname of the user")
+        )
+    }
+
+    private fun updateProfileRequestFields(): List<FieldDescriptor> {
+        return listOf(
+            fieldWithPath("username").type(JsonFieldType.STRING).description("A valid, not-yet-existing username"),
+            fieldWithPath("email").type(JsonFieldType.STRING).description("A valid email"),
+            fieldWithPath("name").type(JsonFieldType.STRING).optional().description("The fullname of the user")
         )
     }
 
