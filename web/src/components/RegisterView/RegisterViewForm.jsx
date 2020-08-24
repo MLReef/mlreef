@@ -105,7 +105,7 @@ const RegisterForm = (props) => {
             />
             <label htmlFor="terms">
               {'I accept the '}
-              <Link className="btn-link" to="/">
+              <Link className="btn-link" to="https://about.mlreef.com/terms">
                 Terms of Service and Privacy Policy
               </Link>
             </label>
