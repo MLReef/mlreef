@@ -58,7 +58,8 @@ interface ProjectService<T : Project> {
     fun getAllPublicProjects(pageable: Pageable): List<T>
     fun getAllProjectsByIds(ids: Iterable<UUID>): List<T>
     fun getAllProjectsByIds(ids: Iterable<UUID>, pageable: Pageable): Page<T>
-    fun getAllProjectsForUser(personId: UUID): List<T>
+    fun getOwnProjectsOfUser(personId: UUID): List<T>
+    fun getProjectsByIds(ids: Iterable<UUID>): List<T>
     fun getProjectById(projectId: UUID): T?
     fun getProjectByIdAndPersonId(projectId: UUID, personId: UUID): T?
     fun getProjectsByNamespace(namespaceName: String): List<T>
@@ -199,8 +200,12 @@ open class ProjectServiceImpl<T : Project>(
         return repository.findAllByIdIn(ids, pageable)
     }
 
-    override fun getAllProjectsForUser(personId: UUID): List<T> {
+    override fun getOwnProjectsOfUser(personId: UUID): List<T> {
         return repository.findAllByOwnerId(personId)
+    }
+
+    override fun getProjectsByIds(ids: Iterable<UUID>): List<T> {
+        return repository.findAllById(ids).toList()
     }
 
     override fun getProjectById(projectId: UUID): T? {
