@@ -9,12 +9,13 @@ import com.mlreef.rest.ParameterType
 import com.mlreef.rest.Person
 import com.mlreef.rest.ProcessorParameter
 import com.mlreef.rest.ProcessorVersion
+import com.mlreef.rest.UserRole
 import com.mlreef.rest.VisibilityScope
 import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
-import org.springframework.data.repository.findByIdOrNull
+import java.time.ZonedDateTime
 import java.util.UUID.randomUUID
 
 class DataProcessorInstanceTest {
@@ -23,7 +24,9 @@ class DataProcessorInstanceTest {
 
     @BeforeEach
     fun prepare() {
-        val author = Person(randomUUID(), "slug", "name", 1L)
+        val author = Person(randomUUID(), "slug", "name", 1L, hasNewsletters = true,
+            userRole = UserRole.DEVELOPER,
+            termsAcceptedAt = ZonedDateTime.now())
         val codeProjectId = randomUUID()
 
         CodeProject(id = codeProjectId, slug = "code-project-augment", name = "CodeProject Augment", description = "", ownerId = author.id, url = "url",

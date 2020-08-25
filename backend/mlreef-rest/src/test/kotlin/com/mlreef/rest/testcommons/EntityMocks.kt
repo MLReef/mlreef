@@ -8,9 +8,11 @@ import com.mlreef.rest.DataType
 import com.mlreef.rest.DataVisualization
 import com.mlreef.rest.Person
 import com.mlreef.rest.Subject
+import com.mlreef.rest.UserRole
 import com.mlreef.rest.VisibilityScope
 import com.mlreef.rest.marketplace.SearchableTag
 import com.mlreef.rest.marketplace.SearchableTagType
+import java.time.ZonedDateTime
 import java.util.UUID
 import java.util.UUID.randomUUID
 
@@ -21,7 +23,7 @@ class EntityMocks {
         val codeProject = codeProject()
         var lastGitlabId = 10L
 
-        fun person(id: UUID = randomUUID(), slug: String = "slug" + randomUUID()) = Person(id, slug, slug, lastGitlabId++)
+        fun person(id: UUID = randomUUID(), slug: String = "slug" + randomUUID()) = Person(id, slug, slug, lastGitlabId++, hasNewsletters = true, termsAcceptedAt = ZonedDateTime.now(), userRole = UserRole.DEVELOPER)
 
         fun dataOperation(codeProject: CodeProject = this.codeProject, author: Subject = person(id = authorId), slug: String = "commons-augment") = DataOperation(
             id = randomUUID(), slug = slug, name = "Operations",

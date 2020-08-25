@@ -4,11 +4,13 @@ import com.mlreef.rest.Account
 import com.mlreef.rest.AccountRepository
 import com.mlreef.rest.AccountToken
 import com.mlreef.rest.Person
+import com.mlreef.rest.UserRole
 import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.repository.findByIdOrNull
+import java.time.ZonedDateTime
 import java.util.UUID
 import java.util.UUID.randomUUID
 import javax.transaction.Transactional
@@ -26,7 +28,9 @@ class AccountTest : AbstractRepositoryTest() {
         changeAccountToken: String? = null
     ): Pair<UUID, Account> {
         val id = randomUUID()
-        val person = Person(randomUUID(), slug, "name", 1L)
+        val person = Person(randomUUID(), slug, "name", 1L, hasNewsletters = true,
+            userRole = UserRole.DEVELOPER,
+            termsAcceptedAt = ZonedDateTime.now())
         AccountToken(randomUUID(), id, "token")
         val entity = Account(
             id = id,

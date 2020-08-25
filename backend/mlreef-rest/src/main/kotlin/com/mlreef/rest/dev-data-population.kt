@@ -64,7 +64,6 @@ internal class DataPopulator(
     val dataProjectId = fromString("5d005488-afb6-4a0c-852a-f471153a04b5")
     val experimentId = fromString("77481b71-8d40-4a48-9117-8d0c5129d6ec")
 
-
     val log = LoggerFactory.getLogger(this::class.java)
 
     fun init() {
@@ -81,13 +80,19 @@ internal class DataPopulator(
 
             val token = createUserToken.token
 
-            val entity = Person(id = subjectId, slug = "user-demo", name = "Author1", gitlabId = gitlabUser.id)
+            val entity = Person(
+                id = subjectId,
+                slug = "user-demo",
+                name = "Author1",
+                gitlabId = gitlabUser.id,
+                hasNewsletters = false,
+                termsAcceptedAt = null,
+                userRole = UserRole.ML_ENGINEER)
             val author = personRepository.findByIdOrNull(entity.id) ?: personRepository.save(entity)
 
             //
             log.info("2. ENSURE COMMON DATA EXISTS")
             initialMLData(author, token)
-
 
             val augment = processorVersionRepository.findByIdOrNull(fromString("1000000-0000-0001-0002-000000000000"))
                 ?: throw IllegalStateException("Operation augment does not exist!")
@@ -104,7 +109,6 @@ internal class DataPopulator(
 
             val randomCrop_param2 = processorParameterRepository.findByIdOrNull(fromString("1000000-0000-0002-0012-000000000000"))
                 ?: throw IllegalStateException("Operation randomCrop does not have param 2!")
-
 
             // Create DEMO DATA
             executeLoggedOptional("4. DEMO DATA: Create example DataProject & Experiment") {
@@ -210,13 +214,14 @@ internal class DataPopulator(
             byUsername ?: bySearch ?: throw IllegalStateException("Cannot create AND cannot find user $username!")
         }
 
-        val person = Person(subjectId, username, username, gitlabUser.id)
-        val account = Account(
+        val person = personRepository.findByIdOrNull(subjectId) ?: personRepository.save(Person(
+            subjectId, username, username, gitlabUser.id,
+            hasNewsletters = false, userRole = UserRole.ML_ENGINEER, termsAcceptedAt = null))
+
+        accountRepository.findByIdOrNull(accountId) ?: accountRepository.save(Account(
             id = accountId, username = username, email = email,
             person = person,
-            passwordEncrypted = encryptedPassword)
-        accountRepository.findByIdOrNull(accountId) ?: accountRepository.save(account)
-        personRepository.findByIdOrNull(person.id) ?: personRepository.save(person)
+            passwordEncrypted = encryptedPassword))
 
         return gitlabUser
     }

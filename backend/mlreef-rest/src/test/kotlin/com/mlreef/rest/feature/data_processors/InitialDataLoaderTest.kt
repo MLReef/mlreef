@@ -7,6 +7,7 @@ import com.mlreef.rest.Person
 import com.mlreef.rest.PersonRepository
 import com.mlreef.rest.ProcessorVersionRepository
 import com.mlreef.rest.SearchableTagRepository
+import com.mlreef.rest.UserRole
 import com.mlreef.rest.external_api.gitlab.GitlabRestClient
 import com.mlreef.rest.external_api.gitlab.GitlabVisibility
 import com.mlreef.rest.external_api.gitlab.dto.GitlabProject
@@ -24,6 +25,7 @@ import org.junit.jupiter.api.fail
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.test.annotation.Commit
+import java.time.ZonedDateTime
 import java.util.UUID
 import javax.transaction.Transactional
 
@@ -60,7 +62,9 @@ class InitialDataLoaderTest : AbstractRepositoryTest() {
     fun prepare() {
         truncateDbTables(listOf("subject", "marketplace_tag", "data_processor", "mlreef_project"), cascade = true)
 
-        author = personRepository.save(Person(id = UUID.randomUUID(), slug = "user-demo", name = "Author1", gitlabId = RandomUtils.randomGitlabId()))
+        author = personRepository.save(Person(id = UUID.randomUUID(), slug = "user-demo", name = "Author1", gitlabId = RandomUtils.randomGitlabId(), hasNewsletters = true,
+            userRole = UserRole.DEVELOPER,
+            termsAcceptedAt = ZonedDateTime.now()))
         token = "token"
         initialDataLoader = InitialDataLoader()
 

@@ -28,6 +28,7 @@ import com.mlreef.rest.PipelineType
 import com.mlreef.rest.ProcessorParameter
 import com.mlreef.rest.ProcessorParameterRepository
 import com.mlreef.rest.ProcessorVersion
+import com.mlreef.rest.UserRole
 import com.mlreef.rest.VisibilityScope
 import com.mlreef.rest.external_api.gitlab.GitlabRestClient
 import com.mlreef.rest.external_api.gitlab.GitlabVisibility
@@ -86,6 +87,7 @@ import org.springframework.test.web.servlet.setup.DefaultMockMvcBuilder
 import org.springframework.test.web.servlet.setup.MockMvcBuilders
 import org.springframework.web.context.WebApplicationContext
 import java.time.Instant
+import java.time.ZonedDateTime
 import java.util.UUID
 import java.util.regex.Pattern
 import javax.transaction.Transactional
@@ -361,7 +363,9 @@ abstract class AbstractRestApiTest : AbstractRestTest() {
     fun createMockUser(plainPassword: String = "password", userOverrideSuffix: String? = null): Account {
         val accountId = UUID.randomUUID()
         val passwordEncrypted = passwordEncoder.encode(plainPassword)
-        val person = Person(UUID.randomUUID(), generateRandomUserName(30), generateRandomUserName(30), 1L)
+        val person = Person(UUID.randomUUID(), generateRandomUserName(30), generateRandomUserName(30), 1L, hasNewsletters = true,
+            userRole = UserRole.DEVELOPER,
+            termsAcceptedAt = ZonedDateTime.now())
 //        val token = AccountToken(UUID.randomUUID(), accountId, "secret_token", 0)
         val account = Account(accountId, person.slug, "${person.slug}@example.com", passwordEncrypted, person)
 

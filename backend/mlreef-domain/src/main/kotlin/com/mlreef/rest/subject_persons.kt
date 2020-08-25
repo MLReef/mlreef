@@ -10,6 +10,8 @@ import javax.persistence.CascadeType
 import javax.persistence.Column
 import javax.persistence.Convert
 import javax.persistence.Entity
+import javax.persistence.EnumType
+import javax.persistence.Enumerated
 import javax.persistence.FetchType
 import javax.persistence.ForeignKey
 import javax.persistence.Id
@@ -66,6 +68,13 @@ class Person(
     @Fetch(value = FetchMode.SUBSELECT)
 //    @LazyCollection(LazyCollectionOption.FALSE)
     val memberships: List<Membership> = listOf(),
+    @Enumerated(EnumType.STRING)
+    @Column(name = "user_role")
+    val userRole: UserRole = UserRole.UNDEFINED,
+    @Column(name = "terms_accepted_at")
+    val termsAcceptedAt: ZonedDateTime? = null,
+    @Column(name = "has_newsletters")
+    val hasNewsletters: Boolean = false,
     version: Long? = null,
     createdAt: ZonedDateTime? = null,
     updatedAt: ZonedDateTime? = null
@@ -73,13 +82,19 @@ class Person(
     fun copy(
         slug: String? = null,
         name: String? = null,
-        memberships: List<Membership>? = null
+        memberships: List<Membership>? = null,
+        userRole: UserRole? = null,
+        termsAcceptedAt: ZonedDateTime? = null,
+        hasNewsletters: Boolean? = null,
     ): Person = Person(
         id = this.id,
         slug = slug ?: this.slug,
         name = name ?: this.name,
         gitlabId = gitlabId,
         memberships = memberships ?: this.memberships,
+        termsAcceptedAt = termsAcceptedAt ?: this.termsAcceptedAt,
+        userRole = userRole ?: this.userRole,
+        hasNewsletters = hasNewsletters ?: this.hasNewsletters,
         version = this.version,
         createdAt = this.createdAt,
         updatedAt = this.updatedAt

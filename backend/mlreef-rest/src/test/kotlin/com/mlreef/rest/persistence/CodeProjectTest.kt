@@ -3,11 +3,13 @@ package com.mlreef.rest.persistence
 import com.mlreef.rest.CodeProject
 import com.mlreef.rest.CodeProjectRepository
 import com.mlreef.rest.Person
+import com.mlreef.rest.UserRole
 import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.repository.findByIdOrNull
+import java.time.ZonedDateTime
 import java.util.UUID
 import java.util.UUID.randomUUID
 import javax.transaction.Transactional
@@ -20,7 +22,9 @@ class CodeProjectTest : AbstractRepositoryTest() {
 
     private fun createEntity(): Pair<UUID, CodeProject> {
         val id = randomUUID()
-        val person = Person(randomUUID(), "slug", "name", 1L)
+        val person = Person(randomUUID(), "slug", "name", 1L, hasNewsletters = true,
+            userRole = UserRole.DEVELOPER,
+            termsAcceptedAt = ZonedDateTime.now())
         val entity = CodeProject(id = id, slug = "code-project-augment", name = "CodeProject Augment", ownerId = person.id, url = "url",
             gitlabNamespace = "", gitlabId = 0, gitlabPath = "", description = "")
         return Pair(id, entity)
@@ -39,7 +43,7 @@ class CodeProjectTest : AbstractRepositoryTest() {
 
         Assertions.assertThat(repository.findByIdOrNull(id)).isNull()
         repository.save(entity)
-        Assertions.assertThat(repository.findByIdOrNull(id)).isNotNull()
+        Assertions.assertThat(repository.findByIdOrNull(id)).isNotNull
     }
 
     @Transactional
@@ -48,9 +52,9 @@ class CodeProjectTest : AbstractRepositoryTest() {
         val (id, entity) = createEntity()
         Assertions.assertThat(repository.findByIdOrNull(id)).isNull()
         val saved = repository.save(entity)
-        Assertions.assertThat(saved).isNotNull()
+        Assertions.assertThat(saved).isNotNull
         checkAfterCreated(saved)
-        Assertions.assertThat(repository.findByIdOrNull(id)).isNotNull()
+        Assertions.assertThat(repository.findByIdOrNull(id)).isNotNull
     }
 
     @Transactional
@@ -61,7 +65,7 @@ class CodeProjectTest : AbstractRepositoryTest() {
         val newValue = "newname"
         val copy = saved.copy<CodeProject>(slug = newValue)
         val updated = repository.save(copy)
-        Assertions.assertThat(updated).isNotNull()
+        Assertions.assertThat(updated).isNotNull
 //        checkAfterUpdated(updated)
         Assertions.assertThat(updated.slug).isEqualTo(newValue)
     }
@@ -72,7 +76,7 @@ class CodeProjectTest : AbstractRepositoryTest() {
         val (_, entity) = createEntity()
         val saved = repository.save(entity)
         repository.delete(saved)
-        Assertions.assertThat(saved).isNotNull()
+        Assertions.assertThat(saved).isNotNull
         checkAfterCreated(saved)
     }
 }

@@ -9,12 +9,14 @@ import com.mlreef.rest.DataType
 import com.mlreef.rest.Person
 import com.mlreef.rest.ProcessorVersion
 import com.mlreef.rest.ProcessorVersionRepository
+import com.mlreef.rest.UserRole
 import com.mlreef.rest.VisibilityScope
 import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.repository.findByIdOrNull
+import java.time.ZonedDateTime
 import java.util.UUID
 import java.util.UUID.randomUUID
 import javax.transaction.Transactional
@@ -31,7 +33,9 @@ class DataProcessorInstanceTest : AbstractRepositoryTest() {
     private fun createEntity(): Pair<UUID, DataProcessorInstance> {
         val codeProjectId = randomUUID()
         val id = randomUUID()
-        val author = Person(randomUUID(), "slug", "name", 1L)
+        val author = Person(randomUUID(), "slug", "name", 1L, hasNewsletters = true,
+            userRole = UserRole.DEVELOPER,
+            termsAcceptedAt = ZonedDateTime.now())
         CodeProject(id = codeProjectId, slug = "code-project-augment",
             name = "CodeProject Augment", description = "", ownerId = author.id, url = "url",
             gitlabNamespace = "", gitlabId = 0, gitlabPath = "")
@@ -62,7 +66,7 @@ class DataProcessorInstanceTest : AbstractRepositoryTest() {
 
         Assertions.assertThat(repository.findByIdOrNull(id)).isNull()
         repository.save(entity)
-        Assertions.assertThat(repository.findByIdOrNull(id)).isNotNull()
+        Assertions.assertThat(repository.findByIdOrNull(id)).isNotNull
     }
 
     @Transactional
@@ -73,9 +77,9 @@ class DataProcessorInstanceTest : AbstractRepositoryTest() {
 
         Assertions.assertThat(repository.findByIdOrNull(id)).isNull()
         val saved = repository.save(entity)
-        Assertions.assertThat(saved).isNotNull()
+        Assertions.assertThat(saved).isNotNull
         checkAfterCreated(saved)
-        Assertions.assertThat(repository.findByIdOrNull(id)).isNotNull()
+        Assertions.assertThat(repository.findByIdOrNull(id)).isNotNull
     }
 
     @Transactional
@@ -88,7 +92,7 @@ class DataProcessorInstanceTest : AbstractRepositoryTest() {
         val newValue = "newname"
         val copy = saved.copy(slug = newValue)
         val updated = repository.save(copy)
-        Assertions.assertThat(updated).isNotNull()
+        Assertions.assertThat(updated).isNotNull
         checkAfterUpdated(updated)
         Assertions.assertThat(updated.slug).isEqualTo(newValue)
     }
@@ -101,7 +105,7 @@ class DataProcessorInstanceTest : AbstractRepositoryTest() {
 
         val saved = repository.save(entity)
         repository.delete(saved)
-        Assertions.assertThat(saved).isNotNull()
+        Assertions.assertThat(saved).isNotNull
         checkAfterCreated(saved)
     }
 }
