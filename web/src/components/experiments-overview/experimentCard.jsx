@@ -15,7 +15,6 @@ const ExperimentCard = (props) => {
     projectSlug,
     experiments,
     currentState,
-    defaultBranch,
     projectId,
     algorithms,
   } = props;
@@ -35,7 +34,11 @@ const ExperimentCard = (props) => {
 
       {experiments.map((experiment) => {
         const modelTitle = experiment.processing.name;
+        const expSlug = experiment.processing.slug;
         const allParameters = algorithms.filter((algo) => algo.name === modelTitle)[0].parameters;
+        const codeProjectId = algorithms
+          .filter((algo) => algo.slug === expSlug)
+          .map((cd) => cd.code_project_id)[0];
         const {
           id, processing: { parameters },
           dataProjectId,
@@ -98,7 +101,7 @@ const ExperimentCard = (props) => {
               experiment={experiment}
               projectId={projectId}
               dataProjectId={dataProjectId}
-              defaultBranch={defaultBranch}
+              codeProjectId={codeProjectId}
             />
           </div>
         );
@@ -122,7 +125,6 @@ ExperimentCard.propTypes = {
     }),
   })),
   currentState: string.isRequired,
-  defaultBranch: string.isRequired,
   projectId: number.isRequired,
   algorithms: arrayOf(shape({
     name: string.isRequired,

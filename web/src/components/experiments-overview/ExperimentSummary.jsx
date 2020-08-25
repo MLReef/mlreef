@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   string,
   arrayOf,
@@ -11,6 +11,7 @@ import { Line } from 'react-chartjs-2';
 import MModal from 'components/ui/MModal';
 import GitlabPipelinesApi from 'apis/GitlabPipelinesApi';
 import ExperimentsApi from 'apis/experimentApi';
+import ProjectGeneralInfoApi from 'apis/projectGeneralInfoApi';
 import traiangle01 from '../../images/triangle-01.png';
 import ArrowButton from '../arrow-button/arrowButton';
 import {
@@ -29,6 +30,7 @@ import DeleteExperimentModal from './DeletionModal';
 
 const gitlabApi = new GitlabPipelinesApi();
 const experimentApi = new ExperimentsApi();
+const projectInstance = new ProjectGeneralInfoApi();
 
 const DataCard = ({ title, linesOfContent }) => (
   <div className="data-card">
@@ -55,6 +57,7 @@ const ExperimentSummary = ({
   projectId,
   dataProjectId,
   experiment,
+  codeProjectId,
 }) => {
   const experimentInstance = experiment;
   const [showSummary, setShowSummary] = useState(false);
@@ -65,6 +68,7 @@ const ExperimentSummary = ({
   const [averageParams, setAverageParams] = useState([]);
   const [shouldAbortModalRender, setShouldAbortModalRender] = useState(false);
   const [shouldDeleteModalRender, setShouldDeleteModalRender] = useState(false);
+  const [codeProject, setcodeProject] = useState({});
   const sourceBranch = experimentInstance ? experimentInstance.sourceBranch : '';
   const { processing } = experimentInstance;
   const modelName = processing ? processing.name : '';
@@ -72,6 +76,12 @@ const ExperimentSummary = ({
     `*P: ${param.name} = ${param.value}`
   )) : [];
 
+  useEffect(() => {
+    projectInstance.getCodeProjectById(codeProjectId)
+      .then((res) => setcodeProject(res));
+  }, [codeProjectId]);
+
+  const { gitlab_namespace: nameSpace, slug } = codeProject;
   const closeModal = () => setShouldAbortModalRender(false);
   const closeDeletionModal = () => setShouldDeleteModalRender(false);
 
@@ -236,19 +246,16 @@ const ExperimentSummary = ({
                 `*${sourceBranch}`,
               ]}
             />
-            <DataCard
-              title="Model"
-              linesOfContent={[
-                `*${modelName}`,
-                // 'from',
-                // `*branch:${experimentInstance.name}`,
-                // 'authored by',
-                // `*${userName} ${getTimeCreatedAgo(timeCreatedAgo, today)}`,
-                // 'being',
-                // `*${ahead} commits ahead and ${behind} commits behind`,
-                // `of its ${defaultBranch} branch`,
-              ]}
-            />
+            <div className="data-card">
+              <div className="title">
+                <p><b>Model</b></p>
+              </div>
+              <div>
+                <a target="_blank" rel="noopener noreferrer" href={`/${nameSpace}/${slug}`}>
+                  <b>{modelName}</b>
+                </a>
+              </div>
+            </div>
             <DataCard
               title="Used Parameters"
               linesOfContent={trainingData}
@@ -262,14 +269,13 @@ const ExperimentSummary = ({
 
 ExperimentSummary.propTypes = {
   projectId: number.isRequired,
-  defaultBranch: string.isRequired,
   experiments: shape({
     processing: shape({
       parameters: shape({
         name: string.isRequired,
         value: string.isRequired,
-      }),
-    }),
+      }).isRequired,
+    }).isRequired,
     name: string.isRequired,
     authorName: string.isRequired,
     pipelineJobInfo: shape({

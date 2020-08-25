@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { SortableContainer, SortableElement } from 'react-sortable-hoc';
 import { BOOLEAN, errorMessages, STRING } from 'dataTypes';
 import { string, bool, shape } from 'prop-types';
@@ -6,9 +6,12 @@ import MTooltip from 'components/ui/MTooltip';
 import validateInput, { isJson } from 'functions/validations';
 import MWrapper from 'components/ui/MWrapper';
 import advice01 from 'images/advice-01.png';
+import ProjectGeneralInfoApi from 'apis/projectGeneralInfoApi';
 import Input from '../../input/input';
 import ArrowButton from '../../arrow-button/arrowButton';
 import './SortableDataProcessorList.scss';
+
+const projectInstance = new ProjectGeneralInfoApi();
 
 const ErrorsDiv = ({ typeOfField }) => (
   <div style={{ display: 'flex', alignItems: 'center' }}>
@@ -186,6 +189,8 @@ const SortableProcessor = SortableElement(({
 }) => {
   const [isFormdivVisible, setIsFormdivVisible] = useState(true);
   const [isAdvancedSectionVisible, setIsAdvancedSectionVisible] = useState(true);
+  const [codeProjectURL, setCodeProjectURL] = useState({});
+  const { gitlab_namespace: nameSpace, slug } = codeProjectURL;
   const sortedParameters = value
     .parameters?.sort((paramA, paramB) => paramA.order - paramB.order);
   const filterOperation = (paramType) => sortedParameters?.filter(
@@ -196,8 +201,13 @@ const SortableProcessor = SortableElement(({
   const standardParameters = filterOperation(true);
   const advancedParameters = filterOperation(false);
 
-  const linkToResnetRepo = () => {
-    window.location.assign('http://staging.mlreef.com/mlreef/commons-resnet-50');
+  useEffect(() => {
+    projectInstance.getCodeProjectById(value.codeProjectId)
+      .then((res) => setCodeProjectURL(res));
+  }, [value]);
+
+  const linkToRepo = () => {
+    window.open(`/${nameSpace}/${slug}`);
   };
 
   const inputBasedText = (param) => {
@@ -232,16 +242,13 @@ const SortableProcessor = SortableElement(({
         <div className="header flexible-div">
           <div className="processor-title">
             <p className="bold-text">
-              {value.name === 'Resnet50'
-                ? (
-                  <button
-                    type="button"
-                    className="btn btn-hidden bold-text"
-                    onClick={() => linkToResnetRepo()}
-                  >
-                    {value.name}
-                  </button>
-                ) : value.name}
+              <button
+                type="button"
+                className="btn btn-hidden bold-text"
+                onClick={() => linkToRepo()}
+              >
+                {value.name}
+              </button>
             </p>
             <p>
               Created by
@@ -304,17 +311,13 @@ const SortableProcessor = SortableElement(({
                 <div style={{ width: '50%', textAlign: 'end' }}>
                   <p>
                     <b>
-                      {value.name === 'Resnet50'
-                        ? (
-                          <button
-                            type="button"
-                            className="btn btn-hidden bold-text"
-                            onClick={() => linkToResnetRepo()}
-                          >
-                            Source code
-                          </button>
-                        )
-                        : 'Source Code'}
+                      <button
+                        type="button"
+                        className="btn btn-hidden bold-text"
+                        onClick={() => linkToRepo()}
+                      >
+                        View Repository
+                      </button>
                     </b>
                   </p>
                 </div>

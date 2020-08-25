@@ -75,6 +75,15 @@ export default class ProjectGeneralInfoApi extends ApiDirector {
       .then(handleResponse);
   }
 
+  getCodeProjectById(projectId: string) {
+    const url = `/api/v1/code-projects/${projectId}`;
+    const headers = this.buildBasicHeaders(validServicesToCall.BACKEND);
+    const builder = new BLApiRequestCallBuilder(METHODS.GET, headers, url);
+
+    return fetch(builder.build())
+      .then(handleResponse);
+  }
+
   getMembers(projectId: string) {
     const url = `/api/v1/data-projects/${projectId}/users`;
     const headers = this.buildBasicHeaders(validServicesToCall.BACKEND);
