@@ -3,7 +3,6 @@ package com.mlreef.rest.feature.pipeline
 import com.mlreef.rest.Account
 import com.mlreef.rest.DataProcessorInstance
 import com.mlreef.rest.DataProcessorType
-import com.mlreef.rest.DataProject
 import com.mlreef.rest.ParameterInstance
 import org.springframework.core.io.ClassPathResource
 import java.io.BufferedReader
@@ -107,6 +106,21 @@ internal class YamlFileGenerator(
         return output
     }
 
+    private fun sanitizeWrongEnvUrl(epfPipelineUrl: String): String {
+        return if (epfPipelineUrl.startsWith("http://")
+            || epfPipelineUrl.startsWith("https://")) {
+            epfPipelineUrl
+        } else {
+            "http://$epfPipelineUrl"
+        }
+    }
+
+    private fun extractHostnamePort(urlyString: String) = urlyString
+        .replace("http://", "")
+        .replace("https://", "")
+        .substringBefore("/")
+
+
     fun replacePipeline(list: List<DataProcessorInstance> = listOf()): YamlFileGenerator {
         val pipelineStrings = writeInstances(list)
         val indexOf = input.indexOf("- git add .")
@@ -132,11 +146,13 @@ internal class YamlFileGenerator(
         inputFileList: String = ""
 
     ): YamlFileGenerator {
+        val sanitizedEpfUrl = sanitizeWrongEnvUrl(epfPipelineUrl)
+        val gitlabHost = extractHostnamePort(epfGitlabUrl)
         output = output
             .replace(EPF_IMAGE_TAG, epfTag)
             .replace(EPF_PIPELINE_SECRET, epfPipelineSecret)
-            .replace(EPF_PIPELINE_URL, epfPipelineUrl)
-            .replace(EPF_GITLAB_HOST, epfGitlabUrl.replace("http://", "").replace("https://", ""))
+            .replace(EPF_PIPELINE_URL, sanitizedEpfUrl)
+            .replace(EPF_GITLAB_HOST, gitlabHost)
             .replace(CONF_EMAIL, confEmail)
             .replace(CONF_NAME, confName)
             .replace(SOURCE_BRANCH, sourceBranch)
