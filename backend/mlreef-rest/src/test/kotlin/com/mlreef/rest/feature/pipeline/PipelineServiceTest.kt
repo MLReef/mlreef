@@ -21,6 +21,7 @@ import com.mlreef.rest.ProcessorParameterRepository
 import com.mlreef.rest.ProcessorVersion
 import com.mlreef.rest.ProcessorVersionRepository
 import com.mlreef.rest.SubjectRepository
+import com.mlreef.rest.UserRole
 import com.mlreef.rest.VisibilityScope
 import com.mlreef.rest.api.AbstractRestApiTest
 import com.mlreef.rest.exceptions.PipelineCreateException
@@ -39,6 +40,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.springframework.beans.factory.annotation.Autowired
+import java.time.ZonedDateTime
 import java.util.UUID
 import java.util.UUID.randomUUID
 
@@ -97,7 +99,9 @@ class PipelineServiceTest : AbstractServiceTest() {
             authService = authService
         )
 
-        val subject = Person(ownerId, "new-person", "person's name", 1L)
+        val subject = Person(ownerId, "new-person", "person's name", 1L, hasNewsletters = true,
+            userRole = UserRole.DEVELOPER,
+            termsAcceptedAt = ZonedDateTime.now())
         subjectRepository.save(subject)
         val dataRepository = DataProject(dataRepositoryId, "new-repo", "url", "Test DataProject", "description", subject.id, "mlreef", "project", 0, VisibilityScope.PUBLIC, arrayListOf())
         dataProjectRepository.save(DataProject(dataRepositoryId2, "new-repo2", "url", "Test DataProject", "description", subject.id, "mlreef", "project", 0, VisibilityScope.PUBLIC, arrayListOf()))
@@ -471,7 +475,9 @@ class PipelineServiceTest : AbstractServiceTest() {
     }
 
     private fun createFullMockData(name: String = "name"): PipelineConfig {
-        val author = Person(randomUUID(), "person", "name", 1L)
+        val author = Person(randomUUID(), "person", "name", 1L, hasNewsletters = true,
+            userRole = UserRole.DEVELOPER,
+            termsAcceptedAt = ZonedDateTime.now())
         val codeProjectId = randomUUID()
 
         personRepository.save(author)

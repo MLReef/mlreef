@@ -3,19 +3,17 @@ package com.mlreef.rest.service
 import com.mlreef.rest.CodeProject
 import com.mlreef.rest.CodeProjectRepository
 import com.mlreef.rest.DataAlgorithm
-import com.mlreef.rest.DataAlgorithmRepository
 import com.mlreef.rest.DataOperation
-import com.mlreef.rest.DataOperationRepository
 import com.mlreef.rest.DataProcessor
 import com.mlreef.rest.DataProcessorRepository
 import com.mlreef.rest.DataProcessorType
 import com.mlreef.rest.DataType
 import com.mlreef.rest.DataVisualization
-import com.mlreef.rest.DataVisualizationRepository
 import com.mlreef.rest.ParameterType
 import com.mlreef.rest.Person
 import com.mlreef.rest.ProcessorVersionRepository
 import com.mlreef.rest.SubjectRepository
+import com.mlreef.rest.UserRole
 import com.mlreef.rest.VisibilityScope
 import com.mlreef.rest.external_api.gitlab.GitlabRestClient
 import com.mlreef.rest.feature.data_processors.DataProcessorService
@@ -27,6 +25,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.mockito.Mock
 import org.springframework.beans.factory.annotation.Autowired
+import java.time.ZonedDateTime
 import java.util.UUID
 import java.util.UUID.randomUUID
 
@@ -59,7 +58,9 @@ class DataProcessorServiceTest : AbstractServiceTest() {
             dataProcessorRepository = dataProcessorRepository,
             processorVersionRepository = processorVersionRepository
         )
-        val subject = subjectRepository.save(Person(ownerId, "new-person", "person's name", 1L))
+        val subject = subjectRepository.save(Person(ownerId, "new-person", "person's name", 1L, hasNewsletters = true,
+            userRole = UserRole.DEVELOPER,
+            termsAcceptedAt = ZonedDateTime.now()))
 
         codeProject = CodeProject(
             id = randomUUID(), slug = "slug", url = "orf.at", name = "name", description = "",

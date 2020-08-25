@@ -26,6 +26,7 @@ import com.mlreef.rest.ProcessorParameterRepository
 import com.mlreef.rest.ProcessorVersion
 import com.mlreef.rest.ProcessorVersionRepository
 import com.mlreef.rest.Subject
+import com.mlreef.rest.UserRole
 import com.mlreef.rest.VisibilityScope
 import com.mlreef.rest.external_api.gitlab.GitlabAccessLevel
 import com.mlreef.rest.external_api.gitlab.GitlabRestClient
@@ -41,6 +42,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Component
+import java.time.ZonedDateTime
 import java.util.UUID
 import javax.transaction.Transactional
 
@@ -113,7 +115,9 @@ class IntegrationTestsHelper {
         val userInGitlab = restClient.adminCreateUser(email, username, "Existing $username", plainPassword)
 
         val passwordEncrypted = passwordEncoder.encode(plainPassword)
-        val person = Person(UUID.randomUUID(), Slugs.toSlug(username), "Name $username", userInGitlab.id)
+        val person = Person(UUID.randomUUID(), Slugs.toSlug(username), "Name $username", userInGitlab.id, hasNewsletters = true,
+            userRole = UserRole.DEVELOPER,
+            termsAcceptedAt = ZonedDateTime.now())
         val account = Account(accountId, username, email, passwordEncrypted, person)
 
         accountRepository.save(account)
@@ -255,7 +259,9 @@ class IntegrationTestsHelper {
         val _dataOp3 = createDataVisualization()
 
         val publisher = person
-            ?: personRepository.save(Person(UUID.randomUUID(), "subject", RandomUtils.generateRandomUserName(20), 1))
+            ?: personRepository.save(Person(UUID.randomUUID(), "subject", RandomUtils.generateRandomUserName(20), 1, hasNewsletters = true,
+                userRole = UserRole.DEVELOPER,
+                termsAcceptedAt = ZonedDateTime.now()))
 
         dataOp1 = createProcessorVersion(_dataOp1, publisher)
         dataOp2 = createProcessorVersion(_dataOp2, publisher)

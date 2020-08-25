@@ -19,6 +19,7 @@ import com.mlreef.rest.ProcessorParameterRepository
 import com.mlreef.rest.ProcessorVersion
 import com.mlreef.rest.ProcessorVersionRepository
 import com.mlreef.rest.SubjectRepository
+import com.mlreef.rest.UserRole
 import com.mlreef.rest.VisibilityScope
 import com.mlreef.rest.exceptions.ExperimentCreateException
 import com.mlreef.rest.external_api.gitlab.GitlabRestClient
@@ -30,6 +31,7 @@ import org.junit.jupiter.api.assertThrows
 import org.mockito.Mock
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.repository.findByIdOrNull
+import java.time.ZonedDateTime
 import java.util.UUID
 import java.util.UUID.randomUUID
 
@@ -78,7 +80,9 @@ class ExperimentServiceTest : AbstractServiceTest() {
             processorVersionRepository = processorVersionRepository,
             processorParameterRepository = processorParameterRepository
         )
-        val subject = Person(ownerId, "new-person", "person's name", 1L)
+        val subject = Person(ownerId, "new-person", "person's name", 1L, hasNewsletters = true,
+            userRole = UserRole.DEVELOPER,
+            termsAcceptedAt = ZonedDateTime.now())
         val dataRepository = DataProject(dataRepositoryId, "new-repo", "url", "Test DataProject", "", subject.id, "mlreef", "project", 0, VisibilityScope.PUBLIC, arrayListOf())
         val dataPipeline = PipelineConfig(dataPipelineConfigId, dataRepositoryId, PipelineType.DATA, "slug", "name", "source_branch", "target_branch/\$SLUG")
         val entity = DataAlgorithm(
@@ -210,7 +214,7 @@ class ExperimentServiceTest : AbstractServiceTest() {
             inputFiles = listOf(FileLocation.fromPath("folder")),
             processorInstance = dataProcessorInstance)
 
-        assertThat(createExperiment).isNotNull()
+        assertThat(createExperiment).isNotNull
     }
 
     @Test

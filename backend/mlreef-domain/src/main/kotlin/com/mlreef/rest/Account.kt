@@ -3,14 +3,20 @@ package com.mlreef.rest
 import com.mlreef.rest.helpers.UserInGroup
 import java.time.ZonedDateTime
 import java.util.UUID
-import javax.persistence.CascadeType
 import javax.persistence.Entity
-import javax.persistence.FetchType
-import javax.persistence.ForeignKey
 import javax.persistence.JoinColumn
 import javax.persistence.OneToOne
 import javax.persistence.Table
 
+enum class UserRole {
+    UNDEFINED,
+    DATA_SCIENTIST,
+    DEVELOPER,
+    ML_ENGINEER,
+    RESEARCHER,
+    STUDENT,
+    TEAM_LEAD,
+}
 
 @Entity
 @Table(name = "account")
@@ -22,9 +28,7 @@ class Account(
     @OneToOne(fetch = FetchType.EAGER, cascade = [CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH])
     @JoinColumn(name = "person_id", foreignKey = ForeignKey(name = "account_subject_person_id_fkey"))
     val person: Person,
-
     val lastLogin: ZonedDateTime? = null,
-
     // Token for changing account (change password, etc)
     val changeAccountToken: String? = null,
     val changeAccountTokenCreatedAt: ZonedDateTime? = null,

@@ -105,11 +105,10 @@ open class AbstractSystemTest() {
         try {
             val prepare: ResponseEntity<SecretUserDto> = backendRestClient.post(
                 "/auth/register",
-                body = RegisterRequest(globalRandomUserName, globalEmail, globalRandomPassword, "name"))
+                body = RegisterRequest(username, email, password, "name"))
             prepare.expectOk()
         } catch (ignore: Exception) {
             ignore.printStackTrace()
-            // register not neccessary
         }
 
         val loginRequest = LoginRequest(globalRandomUserName, globalEmail, globalRandomPassword)

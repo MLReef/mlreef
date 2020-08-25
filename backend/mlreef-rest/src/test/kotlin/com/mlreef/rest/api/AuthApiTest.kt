@@ -1,5 +1,6 @@
 package com.mlreef.rest.api
 
+import com.mlreef.rest.UserRole
 import com.mlreef.rest.api.v1.LoginRequest
 import com.mlreef.rest.api.v1.RegisterRequest
 import com.mlreef.rest.api.v1.UpdateRequest
@@ -28,6 +29,7 @@ import org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath
 import org.springframework.restdocs.payload.PayloadDocumentation.requestFields
 import org.springframework.restdocs.payload.PayloadDocumentation.responseFields
 import org.springframework.test.annotation.Rollback
+import java.time.ZonedDateTime
 import java.util.UUID
 import javax.mail.internet.MimeMessage
 import javax.transaction.Transactional
@@ -118,7 +120,7 @@ class AuthApiTest : AbstractRestApiTest() {
                 responseFields(userSecretDtoResponseFields()))
             .returns(SecretUserDto::class.java).censor()
 
-        assertThat(result).isNotNull()
+        assertThat(result).isNotNull
         assertThat(result.username).isEqualTo(existingUser.username)
         assertThat(result.email).isEqualTo(existingUser.email)
     }
@@ -200,6 +202,51 @@ class AuthApiTest : AbstractRestApiTest() {
         assertThat(accountRepository.findOneByUsername(randomUserName)).isNull()
     }
 
+    @Transactional
+    @Rollback
+    @Test
+    @Tag(TestTags.RESTDOC)
+    fun `Can update own user`() {
+        val randomUserName = RandomUtils.generateRandomUserName(10)
+        val randomPassword = RandomUtils.generateRandomPassword(30, true)
+        val email = "$randomUserName@example.com"
+        val registerRequest = RegisterRequest(randomUserName, email, randomPassword, "absolute-new-name")
+
+        val result = this.performPost("$authUrl/register", body = registerRequest)
+            .expectOk()
+            .returns(SecretUserDto::class.java)
+
+        mockSecurityContextHolder(TokenDetails(
+            result.username,
+            "new-token-${UUID.randomUUID()}",
+            result.id,
+            UUID.randomUUID()
+        ))
+
+        val returnedResult2: UserDto = this.performPut(
+            "$authUrl/user",
+            token = "new-token-${UUID.randomUUID()}",
+            body = UpdateRequest(
+                termsAcceptedAt = ZonedDateTime.now(),
+                hasNewsletters = true,
+                userRole = UserRole.DEVELOPER,
+                email = email,
+                username = randomUserName
+            ))
+            .expectOk()
+            .document("update-own-profile-success",
+                requestFields(updateProfileRequestFields()),
+                responseFields(userDtoResponseFields()))
+            .returns()
+
+        with(accountRepository.findOneByEmail(email)!!) {
+            assertThat(id).isEqualTo(returnedResult2.id)
+            assertThat(returnedResult2.userRole).isEqualTo(UserRole.DEVELOPER)
+            assertThat(returnedResult2.hasNewsletters).isEqualTo(true)
+            assertThat(returnedResult2.termsAcceptedAt).isNotNull
+        }
+    }
+
     private fun userSecretDtoResponseFields(): List<FieldDescriptor> {
         return listOf(
             fieldWithPath("id").type(JsonFieldType.STRING).description("UUID"),
@@ -208,7 +255,10 @@ class AuthApiTest : AbstractRestApiTest() {
             fieldWithPath("gitlab_id").type(JsonFieldType.NUMBER).description("A gitlab id"),
             fieldWithPath("token").type(JsonFieldType.STRING).optional().description("The permanent (with long-lifetime) token to authenticate in gitlab and mlreef. Can be used in PRIVATE-TOKEN"),
             fieldWithPath("access_token").type(JsonFieldType.STRING).optional().description("The OAuth (with short-lifetime) access token to authenticate in gitlab and mlreef. Can be used in PRIVATE-TOKEN"),
-            fieldWithPath("refresh_token").type(JsonFieldType.STRING).optional().description("The OAuth refresh token to authenticate in gitlab and mlreef. an be used in PRIVATE-TOKEN")
+            fieldWithPath("refresh_token").type(JsonFieldType.STRING).optional().description("The OAuth refresh token to authenticate in gitlab and mlreef. an be used in PRIVATE-TOKEN"),
+            fieldWithPath("user_role").optional().type(JsonFieldType.STRING).description("UserRole describes the main usage type of this user"),
+            fieldWithPath("terms_accepted_at").optional().type(JsonFieldType.STRING).description("Timestamp, when the terms & conditions have been accepted."),
+            fieldWithPath("has_newsletters").optional().type(JsonFieldType.BOOLEAN).description("Indicates that the user wants to retrieve newsletters, or not"),
         )
     }
 
@@ -217,7 +267,10 @@ class AuthApiTest : AbstractRestApiTest() {
             fieldWithPath("id").type(JsonFieldType.STRING).description("UUID"),
             fieldWithPath("username").type(JsonFieldType.STRING).description("An unique username"),
             fieldWithPath("email").type(JsonFieldType.STRING).description("An valid email"),
-            fieldWithPath("gitlab_id").type(JsonFieldType.NUMBER).description("A gitlab id")
+            fieldWithPath("gitlab_id").type(JsonFieldType.NUMBER).description("A gitlab id"),
+            fieldWithPath("user_role").optional().type(JsonFieldType.STRING).description("UserRole describes the main usage type of this user"),
+            fieldWithPath("terms_accepted_at").optional().type(JsonFieldType.STRING).description("Timestamp, when the terms & conditions have been accepted."),
+            fieldWithPath("has_newsletters").optional().type(JsonFieldType.BOOLEAN).description("Indicates that the user wants to retrieve newsletters, or not"),
         )
     }
 
@@ -226,7 +279,7 @@ class AuthApiTest : AbstractRestApiTest() {
             fieldWithPath("password").type(JsonFieldType.STRING).description("A plain text password"),
             fieldWithPath("username").type(JsonFieldType.STRING).description("A valid, not-yet-existing username"),
             fieldWithPath("email").type(JsonFieldType.STRING).description("A valid email"),
-            fieldWithPath("name").type(JsonFieldType.STRING).description("The fullname of the user")
+            fieldWithPath("name").type(JsonFieldType.STRING).description("The fullname of the user"),
         )
     }
 
@@ -234,7 +287,16 @@ class AuthApiTest : AbstractRestApiTest() {
         return listOf(
             fieldWithPath("username").type(JsonFieldType.STRING).description("A valid, not-yet-existing username"),
             fieldWithPath("email").type(JsonFieldType.STRING).description("A valid email"),
-            fieldWithPath("name").type(JsonFieldType.STRING).optional().description("The fullname of the user")
+            fieldWithPath("name").type(JsonFieldType.STRING).optional().description("The fullname of the user"),
+            fieldWithPath("user_role").optional().type(JsonFieldType.STRING).description("UserRole: Can be DATA_SCIENTIST,\n" +
+                "    DEVELOPER,\n" +
+                "    ML_ENGINEER,\n" +
+                "    RESEARCHER,\n" +
+                "    STUDENT,\n" +
+                "    TEAM_LEAD,"),
+            fieldWithPath("terms_accepted_at").optional().type(JsonFieldType.STRING).description("Timestamp, when the terms & conditions have been accepted."),
+            fieldWithPath("has_newsletters").optional().type(JsonFieldType.BOOLEAN).description("Indicates that the user wants to retrieve newsletters, or not")
+
         )
     }
 

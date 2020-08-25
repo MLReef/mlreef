@@ -145,9 +145,15 @@ Login can be executed with the username or the email.
 operation::login-success[snippets='curl-request,request-fields,http-response,response-fields']
 
 [[update-profile]]
+=== PUT /auth/user
+
+Update own user's information
+
+operation::update-own-profile-success[snippets='curl-request,request-fields,http-response,response-fields']
+
 === PUT /auth/update/:user_id
 
-Update user's information
+Update user's information, can be used by Admins or by that user itself.
 
 operation::update-profile-success[snippets='curl-request,request-fields,http-response,response-fields']
 

@@ -8,6 +8,7 @@ import com.mlreef.rest.DataProject
 import com.mlreef.rest.I18N
 import com.mlreef.rest.Person
 import com.mlreef.rest.PersonRepository
+import com.mlreef.rest.UserRole
 import com.mlreef.rest.config.censor
 import com.mlreef.rest.exceptions.BadParametersException
 import com.mlreef.rest.exceptions.ConflictException
@@ -38,6 +39,7 @@ import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.web.client.ResourceAccessException
+import java.time.ZonedDateTime
 import java.util.UUID
 import java.util.UUID.randomUUID
 import javax.transaction.Transactional
@@ -103,7 +105,9 @@ class AuthService(
     }
 
     @Transactional
-    fun registerUser(plainPassword: String, username: String, email: String): Pair<Account, OAuthToken?> {
+    fun registerUser(
+        plainPassword: String, username: String, email: String
+    ): Pair<Account, OAuthToken?> {
         val encryptedPassword = passwordEncoder.encode(plainPassword)
         val byUsername: Account? = accountRepository.findOneByUsername(username)
         val byEmail: Account? = accountRepository.findOneByEmail(email)
@@ -119,8 +123,14 @@ class AuthService(
 
         val accountUuid = randomUUID()
 
-        val person = Person(id = randomUUID(), slug = username, name = username, gitlabId = newGitlabUser.id)
-        val newUser = Account(id = accountUuid, username = username, email = email, passwordEncrypted = encryptedPassword, person = person)
+        val person = personRepository.save(Person(
+            id = randomUUID(),
+            slug = username,
+            name = username,
+            gitlabId = newGitlabUser.id))
+
+        val newUser = Account(
+            id = accountUuid, username = username, email = email, passwordEncrypted = encryptedPassword, person = person)
 
         accountRepository.save(newUser)
 
@@ -130,10 +140,17 @@ class AuthService(
     }
 
     @Transactional
-    fun userProfileUpdate(userId: UUID, username: String? = null, email: String? = null, tokenDetails: TokenDetails): Account {
-        val user = accountRepository.findByIdOrNull(userId)
-            ?: accountRepository.findAccountByPersonId(userId)
-            ?: throw UserNotFoundException(userId)
+    fun userProfileUpdate(accountId: UUID,
+                          tokenDetails: TokenDetails,
+                          username: String? = null,
+                          email: String? = null,
+                          userRole: UserRole? = null,
+                          hasNewsletters: Boolean? = null,
+                          termsAcceptedAt: ZonedDateTime? = null
+    ): Account {
+        val user = accountRepository.findByIdOrNull(accountId)
+            ?: accountRepository.findAccountByPersonId(accountId)
+            ?: throw UserNotFoundException(accountId)
 
         val oldUserName = user.username
 
@@ -154,6 +171,11 @@ class AuthService(
             email = email ?: user.email
         )
 
+        personRepository.save(user.person.copy(
+            userRole = userRole ?: user.person.userRole,
+            hasNewsletters = hasNewsletters ?: user.person.hasNewsletters,
+            termsAcceptedAt = termsAcceptedAt ?: user.person.termsAcceptedAt,
+        ))
         updatedUserInDb = accountRepository.save(updatedUserInDb)
 
         if (updatedUserInDb.username != user.username) {
@@ -229,7 +251,7 @@ class AuthService(
             log.info("Already existing User. Error message: ${clientErrorException.message}")
             val adminGetUsers = gitlabRestClient.adminGetUsers()
             adminGetUsers.filter { it.username == username }.firstOrNull()
-                ?: throw UnknownUserException("User not found!")
+                ?: throw UnknownUserException("User could not be created and not found in Gitlab!")
         }
     }
 
@@ -339,8 +361,15 @@ class AuthService(
 
         val accountUuid = randomUUID()
 
-        person = Person(id = randomUUID(), slug = gitlabUser.username, name = gitlabUser.username, gitlabId = gitlabUser.id)
-//        accountToken = AccountToken(id = randomUUID(), accountId = accountUuid, token = permanentToken, gitlabId = null)
+        person = Person(
+            id = randomUUID(),
+            slug = gitlabUser.username,
+            name = gitlabUser.username,
+            gitlabId = gitlabUser.id,
+            userRole = UserRole.UNDEFINED,
+            termsAcceptedAt = null,
+            hasNewsletters = false)
+
         account = Account(
             id = accountUuid,
             username = gitlabUser.username,
@@ -348,7 +377,8 @@ class AuthService(
             passwordEncrypted = password,
             person = person
         )
-
+        log.error("If an account is created here, we have some major problems going on!")
+        log.error("Please check created account: ${account.id}: ${account.username}")
         accountRepository.save(account)
 
         return account
@@ -366,7 +396,14 @@ class AuthService(
 
         var person = personRepository.findByName(gitlabUser.username)
         if (person == null) {
-            person = Person(id = randomUUID(), slug = gitlabUser.username, name = gitlabUser.username, gitlabId = gitlabUser.id)
+            person = personRepository.save(Person(
+                id = randomUUID(),
+                slug = gitlabUser.username,
+                name = gitlabUser.username,
+                gitlabId = gitlabUser.id,
+                userRole = UserRole.UNDEFINED,
+                termsAcceptedAt = null,
+                hasNewsletters = false))
         }
 
         val accountUuid = randomUUID()

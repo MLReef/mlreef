@@ -8,8 +8,10 @@ import com.mlreef.rest.ParameterType
 import com.mlreef.rest.Person
 import com.mlreef.rest.ProcessorParameter
 import com.mlreef.rest.ProcessorVersion
+import com.mlreef.rest.UserRole
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
+import java.time.ZonedDateTime
 import java.util.UUID.randomUUID
 
 
@@ -116,7 +118,9 @@ class YamlFileGeneratorTest {
     private fun mockDataProcessorInstance(slug: String): DataProcessorInstance {
         val dataOperation = DataOperation(randomUUID(), slug, "name", DataType.ANY, DataType.ANY)
         val processorVersion = ProcessorVersion(
-            id = dataOperation.id, dataProcessor = dataOperation, publisher = Person(randomUUID(), "subject", "name", 1),
+            id = dataOperation.id, dataProcessor = dataOperation, publisher = Person(randomUUID(), "subject", "name", 1, hasNewsletters = true,
+            userRole = UserRole.DEVELOPER,
+            termsAcceptedAt = ZonedDateTime.now()),
             command = "augment", number = 1, baseEnvironment = BaseEnvironment.default())
 
         val processorParameter1 = ProcessorParameter(randomUUID(), processorVersion.id, "stringParam", ParameterType.STRING, 0, "")

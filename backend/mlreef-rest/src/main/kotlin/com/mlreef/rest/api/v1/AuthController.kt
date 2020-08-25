@@ -1,6 +1,7 @@
 package com.mlreef.rest.api.v1
 
 import com.mlreef.rest.Account
+import com.mlreef.rest.UserRole
 import com.mlreef.rest.api.CurrentUserService
 import com.mlreef.rest.api.v1.dto.SecretUserDto
 import com.mlreef.rest.api.v1.dto.UserDto
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
+import java.time.ZonedDateTime
 import java.util.UUID
 import javax.validation.constraints.Email
 import javax.validation.constraints.NotEmpty
@@ -57,6 +59,7 @@ class AuthController(
             )
         }
 
+    @Deprecated("maybe we need an admin endpoint, but actually deprecated", ReplaceWith("updateOwnProfile"))
     @PutMapping("/update/{userId}")
     @PreAuthorize("isGitlabAdmin() || isUserItself(#userId)")
     fun updateProfile(
@@ -65,10 +68,29 @@ class AuthController(
         token: TokenDetails
     ): UserDto = authService
         .userProfileUpdate(
-            userId = userId,
+            accountId = userId,
+            tokenDetails = token,
             username = updateProfileRequest.username,
             email = updateProfileRequest.email,
-            tokenDetails = token
+            userRole = updateProfileRequest.userRole,
+            termsAcceptedAt = updateProfileRequest.termsAcceptedAt,
+            hasNewsletters = updateProfileRequest.hasNewsletters
+        ).toUserDto()
+
+    @PutMapping("/user")
+    @PreAuthorize("isUserItself(#token.accountId)")
+    fun updateOwnProfile(
+        @RequestBody updateProfileRequest: UpdateRequest,
+        token: TokenDetails
+    ): UserDto = authService
+        .userProfileUpdate(
+            accountId = token.accountId,
+            tokenDetails = token,
+            username = updateProfileRequest.username,
+            email = updateProfileRequest.email,
+            userRole = updateProfileRequest.userRole,
+            termsAcceptedAt = updateProfileRequest.termsAcceptedAt,
+            hasNewsletters = updateProfileRequest.hasNewsletters
         ).toUserDto()
 
     @GetMapping("/whoami")
@@ -95,7 +117,10 @@ data class RegisterRequest(
 )
 
 data class UpdateRequest(
-    @get:NotEmpty val username: String,
-    @get:Email @get:NotEmpty val email: String,
-    val name: String? = null
+    @get:NotEmpty val username: String? = null,
+    @get:Email @get:NotEmpty val email: String? = null,
+    val name: String? = null,
+    val userRole: UserRole? = null,
+    val termsAcceptedAt: ZonedDateTime? = null,
+    val hasNewsletters: Boolean? = null
 )

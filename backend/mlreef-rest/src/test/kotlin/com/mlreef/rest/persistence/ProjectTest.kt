@@ -4,10 +4,10 @@ import com.mlreef.rest.DataProject
 import com.mlreef.rest.DataType
 import com.mlreef.rest.Person
 import com.mlreef.rest.PersonRepository
-import com.mlreef.rest.Project
 import com.mlreef.rest.ProjectRepository
 import com.mlreef.rest.SearchableTagRepository
 import com.mlreef.rest.Subject
+import com.mlreef.rest.UserRole
 import com.mlreef.rest.VisibilityScope
 import com.mlreef.rest.marketplace.Searchable
 import com.mlreef.rest.marketplace.SearchableTag
@@ -23,6 +23,7 @@ import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.test.annotation.Commit
 import org.springframework.test.context.transaction.TestTransaction
+import java.time.ZonedDateTime
 import java.util.UUID
 import java.util.UUID.randomUUID
 import javax.transaction.Transactional
@@ -50,7 +51,9 @@ class ProjectTest : AbstractRepositoryTest() {
     @Transactional
     fun prepare() {
         truncateDbTables(listOf("subject", "mlreef_project"), cascade = true)
-        author = personRepository.save(Person(randomUUID(), "slug", "name", lastGitlabId++))
+        author = personRepository.save(Person(randomUUID(), "slug", "name", lastGitlabId++, hasNewsletters = true,
+            userRole = UserRole.DEVELOPER,
+            termsAcceptedAt = ZonedDateTime.now()))
     }
 
     @Transactional
@@ -63,7 +66,7 @@ class ProjectTest : AbstractRepositoryTest() {
         repository.save(entity)
         val fromRepo = repository.findByIdOrNull(id)
 
-        assertThat(fromRepo).isNotNull()
+        assertThat(fromRepo).isNotNull
         assertThat(fromRepo!!.inputDataTypes).hasSize(2)
         assertThat(fromRepo.inputDataTypes).hasSize(2)
 
@@ -82,7 +85,7 @@ class ProjectTest : AbstractRepositoryTest() {
         repository.save(entity)
         val fromRepo = repository.findByIdOrNull(id)
 
-        assertThat(fromRepo).isNotNull()
+        assertThat(fromRepo).isNotNull
         assertThat(fromRepo!!.outputDataTypes).hasSize(2)
 
         assertThat(fromRepo.outputDataTypes).contains(DataType.TABULAR)
@@ -134,7 +137,7 @@ class ProjectTest : AbstractRepositoryTest() {
 
         val fromRepo = repository.findByIdOrNull(id)
 
-        assertThat(fromRepo).isNotNull()
+        assertThat(fromRepo).isNotNull
         assertThat(fromRepo!!.tags).hasSize(2)
 
         assertThat(fromRepo.tags).contains(tag1)
@@ -155,12 +158,12 @@ class ProjectTest : AbstractRepositoryTest() {
         val adapted = entity
             .addStar(person1)
             .addStar(person2)
-        val save = repository.save(adapted as Project)
-        assertThat(save).isNotNull()
+        val save = repository.save(adapted)
+        assertThat(save).isNotNull
 
         val fromRepo = repository.findByIdOrNull(id)
 
-        assertThat(fromRepo).isNotNull()
+        assertThat(fromRepo).isNotNull
         assertThat(fromRepo!!.stars).hasSize(2)
         assertThat(fromRepo.starsCount).isEqualTo(2)
         assertThat(fromRepo.stars).contains(Star(entity.id, person1.id))
@@ -185,7 +188,7 @@ class ProjectTest : AbstractRepositoryTest() {
             .addStar(person2)
 
         withinTransaction {
-            repository.save(adapted as Project)
+            repository.save(adapted)
         }
 
         val fromRepo = repository.findByIdOrNull(id)
@@ -198,7 +201,7 @@ class ProjectTest : AbstractRepositoryTest() {
             val beforeRemove = fromRepo
                 .removeStar(person1)
                 .removeStar(person1)
-            repository.save(beforeRemove as Project)
+            repository.save(beforeRemove)
         }
         assertThat(afterRemove.stars).hasSize(1)
         assertThat(afterRemove.starsCount).isEqualTo(1)
@@ -222,7 +225,7 @@ class ProjectTest : AbstractRepositoryTest() {
 
         assertThrows<DataIntegrityViolationException> {
             withinTransaction {
-                repository.save(adapted as Project)
+                repository.save(adapted)
             }
         }
     }
@@ -236,7 +239,7 @@ class ProjectTest : AbstractRepositoryTest() {
 
         assertThat(repository.findByIdOrNull(id)).isNull()
         repository.save(entity)
-        assertThat(repository.findByIdOrNull(id)).isNotNull()
+        assertThat(repository.findByIdOrNull(id)).isNotNull
     }
 
     @Transactional
@@ -247,9 +250,9 @@ class ProjectTest : AbstractRepositoryTest() {
 
         assertThat(repository.findByIdOrNull(id)).isNull()
         val saved = repository.save(entity)
-        assertThat(saved).isNotNull()
+        assertThat(saved).isNotNull
         checkAfterCreated(saved)
-        assertThat(repository.findByIdOrNull(id)).isNotNull()
+        assertThat(repository.findByIdOrNull(id)).isNotNull
     }
 
     @Transactional
@@ -260,7 +263,7 @@ class ProjectTest : AbstractRepositoryTest() {
 
         val saved = repository.save(entity)
         repository.delete(saved)
-        assertThat(saved).isNotNull()
+        assertThat(saved).isNotNull
         checkAfterCreated(saved)
     }
 

@@ -68,7 +68,7 @@ class AuthIntegrationTest : AbstractIntegrationTest() {
             .expectOk()
             .returns()
 
-        assertThat(returnedResult).isNotNull()
+        assertThat(returnedResult).isNotNull
         assertThat(returnedResult.username).isEqualTo(account.username)
         assertThat(returnedResult.email).isEqualTo(account.email)
     }

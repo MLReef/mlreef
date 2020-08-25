@@ -9,11 +9,13 @@ import com.mlreef.rest.PipelineConfigRepository
 import com.mlreef.rest.PipelineInstance
 import com.mlreef.rest.PipelineInstanceRepository
 import com.mlreef.rest.PipelineType
+import com.mlreef.rest.UserRole
 import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.repository.findByIdOrNull
+import java.time.ZonedDateTime
 import java.util.UUID
 import java.util.UUID.randomUUID
 import javax.transaction.Transactional
@@ -57,7 +59,9 @@ class PipelineInstanceTest : AbstractRepositoryTest() {
     @BeforeEach
     fun prepare() {
 //        truncateDbTables(listOf("account", "account_token", "mlreef_project"), cascade = true)
-        val owner = Person(randomUUID(), "person$gitlabIdCount", "name$gitlabIdCount", ++gitlabIdCount)
+        val owner = Person(randomUUID(), "person$gitlabIdCount", "name$gitlabIdCount", ++gitlabIdCount, hasNewsletters = true,
+            userRole = UserRole.DEVELOPER,
+            termsAcceptedAt = ZonedDateTime.now())
         val dataProject = DataProject(randomUUID(), "slug", "url,", "CodeProject Augment", "", owner.id, "group", "project$gitlabIdCount", ++gitlabIdCount)
         val config = PipelineConfig(
             id = randomUUID(), slug = "pipeline-1", name = "Pipeline 1",
@@ -75,7 +79,7 @@ class PipelineInstanceTest : AbstractRepositoryTest() {
 
         Assertions.assertThat(repository.findByIdOrNull(id)).isNull()
         repository.save(entity)
-        Assertions.assertThat(repository.findByIdOrNull(id)).isNotNull()
+        Assertions.assertThat(repository.findByIdOrNull(id)).isNotNull
     }
 
     @Test
@@ -83,9 +87,9 @@ class PipelineInstanceTest : AbstractRepositoryTest() {
         val (id, entity) = createEntity(dataProjectId = pipelineConfig.dataProjectId, configId = pipelineConfig.id)
         Assertions.assertThat(repository.findByIdOrNull(id)).isNull()
         val saved = repository.save(entity)
-        Assertions.assertThat(saved).isNotNull()
+        Assertions.assertThat(saved).isNotNull
         checkAfterCreated(saved)
-        Assertions.assertThat(repository.findByIdOrNull(id)).isNotNull()
+        Assertions.assertThat(repository.findByIdOrNull(id)).isNotNull
     }
 
     @Test
@@ -95,7 +99,7 @@ class PipelineInstanceTest : AbstractRepositoryTest() {
         val newValue = "newname"
         val copy = saved.copy(slug = newValue)
         val updated = repository.save(copy)
-        Assertions.assertThat(updated).isNotNull()
+        Assertions.assertThat(updated).isNotNull
 //        checkAfterUpdated(updated)
         Assertions.assertThat(updated.slug).isEqualTo(newValue)
     }
@@ -105,7 +109,7 @@ class PipelineInstanceTest : AbstractRepositoryTest() {
         val (_, entity) = createEntity(dataProjectId = pipelineConfig.dataProjectId, configId = pipelineConfig.id)
         val saved = repository.save(entity)
         repository.delete(saved)
-        Assertions.assertThat(saved).isNotNull()
+        Assertions.assertThat(saved).isNotNull
 //        checkAfterUpdated(saved)
     }
 
@@ -122,7 +126,9 @@ class PipelineInstanceTest : AbstractRepositoryTest() {
     @Test
     fun `can save duplicate slug for different PipelineConfig`() {
 
-        val owner = Person(randomUUID(), "slug", "name", 1L)
+        val owner = Person(randomUUID(), "slug", "name", 1L, hasNewsletters = true,
+            userRole = UserRole.DEVELOPER,
+            termsAcceptedAt = ZonedDateTime.now())
         val dataProject1 = DataProject(randomUUID(), "slug1", "url,", "CodeProject Augment", "", owner.id, "group1", "project1", 201)
         val dataProject2 = DataProject(randomUUID(), "slug2", "url,", "CodeProject Augment", "", owner.id, "group2", "project2", 202)
 
@@ -147,7 +153,9 @@ class PipelineInstanceTest : AbstractRepositoryTest() {
     @Test
     fun `can save duplicate number for different PipelineConfig`() {
 
-        val owner = Person(randomUUID(), "slug", "name", 100)
+        val owner = Person(randomUUID(), "slug", "name", 100, hasNewsletters = true,
+            userRole = UserRole.DEVELOPER,
+            termsAcceptedAt = ZonedDateTime.now())
         val dataProject1 = DataProject(randomUUID(), "slug1", "url,", "CodeProject Augment", "", owner.id, "group1", "project1", 201)
         val dataProject2 = DataProject(randomUUID(), "slug2", "url,", "CodeProject Augment", "", owner.id, "group2", "project2", 202)
 

@@ -4,11 +4,13 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.mlreef.rest.AccessLevel
 import com.mlreef.rest.Account
+import com.mlreef.rest.UserRole
 import com.mlreef.rest.config.censor
 import com.mlreef.rest.helpers.DataClassWithId
 import com.mlreef.rest.helpers.UserInGroup
 import com.mlreef.rest.helpers.UserInProject
 import java.time.Instant
+import java.time.ZonedDateTime
 import java.util.UUID
 
 // FIXME: Coverage says: missing tests
@@ -16,14 +18,20 @@ data class UserDto(
     override val id: UUID,
     val username: String,
     val email: String,
-    val gitlabId: Long?
+    val gitlabId: Long?,
+    val userRole: UserRole? = null,
+    val termsAcceptedAt: ZonedDateTime? = null,
+    val hasNewsletters: Boolean? = null,
 ) : DataClassWithId
 
 fun Account.toUserDto() = UserDto(
     id = this.id,
     username = this.username,
     email = this.email,
-    gitlabId = this.person.gitlabId
+    gitlabId = this.person.gitlabId,
+    userRole = this.person.userRole,
+    termsAcceptedAt = this.person.termsAcceptedAt,
+    hasNewsletters = this.person.hasNewsletters,
 )
 
 data class SecretUserDto(
@@ -34,8 +42,12 @@ data class SecretUserDto(
     @Deprecated("This shall be removed in favour of the Oauth Token")
     val token: String? = null,
     val accessToken: String? = null,
-    val refreshToken: String? = null
-): DataClassWithId {
+    val refreshToken: String? = null,
+    val userRole: UserRole? = null,
+    val termsAcceptedAt: ZonedDateTime? = null,
+    val hasNewsletters: Boolean? = null,
+
+    ): DataClassWithId {
     fun censor(): SecretUserDto = this.copy(token = token?.censor())
 }
 
@@ -46,7 +58,10 @@ fun Account.toSecretUserDto(accessToken: String? = null, refreshToken: String? =
     gitlabId = this.person.gitlabId,
     token = accessToken,
     accessToken = accessToken,
-    refreshToken = refreshToken
+    refreshToken = refreshToken,
+    userRole = this.person.userRole,
+    termsAcceptedAt = this.person.termsAcceptedAt,
+    hasNewsletters = this.person.hasNewsletters,
 )
 
 @JsonIgnoreProperties(ignoreUnknown = true)

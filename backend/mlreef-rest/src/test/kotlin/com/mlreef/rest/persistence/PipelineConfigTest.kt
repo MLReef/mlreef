@@ -7,9 +7,11 @@ import com.mlreef.rest.PersonRepository
 import com.mlreef.rest.PipelineConfig
 import com.mlreef.rest.PipelineConfigRepository
 import com.mlreef.rest.PipelineType
+import com.mlreef.rest.UserRole
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
+import java.time.ZonedDateTime
 import java.util.UUID
 import java.util.UUID.randomUUID
 import javax.transaction.Transactional
@@ -34,7 +36,9 @@ class PipelineConfigTest : AbstractRepositoryTest() {
     @Transactional
     @BeforeEach
     fun prepare() {
-        val owner = Person(randomUUID(), "person${gitlabIdCount}", "name${gitlabIdCount}", ++gitlabIdCount)
+        val owner = Person(randomUUID(), "person${gitlabIdCount}", "name${gitlabIdCount}", ++gitlabIdCount, hasNewsletters = true,
+            userRole = UserRole.DEVELOPER,
+            termsAcceptedAt = ZonedDateTime.now())
         personRepository.save(owner)
         dataProject = dataProjectRepository.save(DataProject(randomUUID(), "slug", "url,", "CodeProject Augment", "", owner.id, "group", "project${gitlabIdCount}", ++gitlabIdCount))
     }
@@ -93,7 +97,9 @@ class PipelineConfigTest : AbstractRepositoryTest() {
     @Test
     fun `must not save duplicate slug per DataProject`() {
 
-        val owner = Person(randomUUID(), "slug", "name", 1L)
+        val owner = Person(randomUUID(), "slug", "name", 1L, hasNewsletters = true,
+            userRole = UserRole.DEVELOPER,
+            termsAcceptedAt = ZonedDateTime.now())
         val dataProject = DataProject(randomUUID(), "slug", "url,", "CodeProject Augment", "", owner.id, "group", "project", 0)
 
         personRepository.save(owner)
@@ -109,7 +115,9 @@ class PipelineConfigTest : AbstractRepositoryTest() {
     @Test
     fun `can save duplicate slug for different DataProject`() {
 
-        val owner = Person(randomUUID(), "slug", "name", 1L)
+        val owner = Person(randomUUID(), "slug", "name", 1L, hasNewsletters = true,
+            userRole = UserRole.DEVELOPER,
+            termsAcceptedAt = ZonedDateTime.now())
         val dataProject1 = DataProject(randomUUID(), "slug1", "url,", "CodeProject Augment", "", owner.id, "group1", "project1", 201)
         val dataProject2 = DataProject(randomUUID(), "slug2", "url,", "CodeProject Augment", "", owner.id, "group2", "project2", 202)
 

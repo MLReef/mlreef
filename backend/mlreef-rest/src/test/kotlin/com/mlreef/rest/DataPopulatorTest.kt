@@ -11,6 +11,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.test.annotation.Rollback
+import java.time.ZonedDateTime
 import java.util.UUID
 import java.util.UUID.randomUUID
 import javax.transaction.Transactional
@@ -100,7 +101,13 @@ class DataPopulatorTest : AbstractIntegrationTest() {
         accountTokenRepository.deleteAll()
         accountRepository.deleteAll()
         personRepository.deleteAll()
-        author = personRepository.save(Person(id = randomUUID(), slug = "user-demo" + RandomUtils.generateRandomUserName(20), name = RandomUtils.generateRandomUserName(20), gitlabId = RandomUtils.randomGitlabId()))
+        author = personRepository.save(Person(id = randomUUID(), slug = "user-demo" + RandomUtils.generateRandomUserName(20),
+            name = RandomUtils.generateRandomUserName(20),
+            gitlabId = RandomUtils.randomGitlabId(),
+            hasNewsletters = true,
+            userRole = UserRole.DEVELOPER,
+            termsAcceptedAt = ZonedDateTime.now()
+        ))
     }
 
     @Test
@@ -165,7 +172,9 @@ class DataPopulatorTest : AbstractIntegrationTest() {
 
         val createUserAndTokenInGitlab = dataPopulator.createUserAndTokenInGitlab()
         val createUserToken = dataPopulator.createUserToken(createUserAndTokenInGitlab)
-        val author = personRepository.save(Person(id = randomUUID(), slug = "user-demo", name = "Author1", gitlabId = 1))
+        val author = personRepository.save(Person(id = randomUUID(), slug = "user-demo", name = "Author1", gitlabId = 1, hasNewsletters = true,
+            userRole = UserRole.DEVELOPER,
+            termsAcceptedAt = ZonedDateTime.now()))
 
         personRepository.save(author)
         dataPopulator.initialMLData(author, createUserToken.token)

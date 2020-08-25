@@ -2,11 +2,13 @@ package com.mlreef.rest.persistence
 
 import com.mlreef.rest.Person
 import com.mlreef.rest.PersonRepository
+import com.mlreef.rest.UserRole
 import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.repository.findByIdOrNull
+import java.time.ZonedDateTime
 import java.util.UUID
 import java.util.UUID.randomUUID
 import javax.transaction.Transactional
@@ -17,7 +19,9 @@ class SubjectPersonTest : AbstractRepositoryTest() {
 
     private fun createEntity(): Pair<UUID, Person> {
         val id = randomUUID()
-        val entity = Person(id, "slug", "name", 1L)
+        val entity = Person(id, "slug", "name", 1L, hasNewsletters = true,
+            userRole = UserRole.DEVELOPER,
+            termsAcceptedAt = ZonedDateTime.now())
         return Pair(id, entity)
     }
 
@@ -33,7 +37,7 @@ class SubjectPersonTest : AbstractRepositoryTest() {
 
         Assertions.assertThat(repository.findByIdOrNull(id)).isNull()
         repository.save(entity)
-        Assertions.assertThat(repository.findByIdOrNull(id)).isNotNull()
+        Assertions.assertThat(repository.findByIdOrNull(id)).isNotNull
     }
 
     @Transactional
@@ -42,9 +46,9 @@ class SubjectPersonTest : AbstractRepositoryTest() {
         val (id, entity) = createEntity()
         Assertions.assertThat(repository.findByIdOrNull(id)).isNull()
         val saved = repository.save(entity)
-        Assertions.assertThat(saved).isNotNull()
+        Assertions.assertThat(saved).isNotNull
         checkAfterCreated(saved)
-        Assertions.assertThat(repository.findByIdOrNull(id)).isNotNull()
+        Assertions.assertThat(repository.findByIdOrNull(id)).isNotNull
     }
 
     @Transactional
@@ -55,7 +59,7 @@ class SubjectPersonTest : AbstractRepositoryTest() {
         val newValue = "newname"
         val copy = saved.copy(slug = newValue)
         val updated = repository.save(copy)
-        Assertions.assertThat(updated).isNotNull()
+        Assertions.assertThat(updated).isNotNull
 //        checkAfterUpdated(updated)
         Assertions.assertThat(updated.slug).isEqualTo(newValue)
     }
@@ -66,7 +70,7 @@ class SubjectPersonTest : AbstractRepositoryTest() {
         val (_, entity) = createEntity()
         val saved = repository.save(entity)
         repository.delete(saved)
-        Assertions.assertThat(saved).isNotNull()
+        Assertions.assertThat(saved).isNotNull
         checkAfterCreated(saved)
     }
 }
