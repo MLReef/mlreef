@@ -111,7 +111,7 @@ exports[`test presence of elements in DOM compare with the latest snapshot of th
       >
         <a
           className="btn btn-sm btn-dark mr-3 px-3"
-          href="/login"
+          href="/login?redirect=goback"
           onClick={[Function]}
         >
           Sign in
