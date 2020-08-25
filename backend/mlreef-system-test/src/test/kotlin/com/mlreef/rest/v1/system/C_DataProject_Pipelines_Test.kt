@@ -21,6 +21,7 @@ import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestMethodOrder
+import org.junit.jupiter.api.fail
 import org.springframework.http.HttpMethod
 import org.springframework.http.ResponseEntity
 
@@ -171,11 +172,24 @@ class C_DataProject_Pipelines_Test : AbstractSystemTest() {
 
     @Test
     fun `C03-06 Gitlab runners working = Pipeline should be started after some seconds`() {
-        Thread.sleep(5000)
-        val pipeline = gitlabRestClient.getPipeline(accessToken, ownDataProjectDto.gitlabId, startedPipeline.pipelineJobInfo!!.id)
-        assertThat(pipeline).isNotNull
-        // could be "running" or "failed", but should not be pending!
-        assertThat(pipeline.status).isNotEqualTo("pending")
+        var pipelineStarted = false
+        var iteration = 0
+        var pipelineStatus = ""
+        val seconds = 6
+        while (iteration < 10 && !pipelineStarted) {
+            Thread.sleep((seconds * 1000).toLong())
+            val pipeline = gitlabRestClient.getPipeline(accessToken, ownDataProjectDto.gitlabId, startedPipeline.pipelineJobInfo!!.id)
+            assertThat(pipeline).isNotNull
+            pipelineStatus = pipeline.status.toString().toLowerCase()
+            // could be "running" or "failed", but should not be pending!
+            pipelineStarted = pipelineStatus != "pending"
+            iteration++
+            println("Sleep for $seconds seconds -> current pipeline status : $pipelineStatus")
+        }
+
+        if (!pipelineStarted) {
+            fail("PIPELINES NOT RUNNING: After $iteration iterations with $seconds s (${iteration * seconds}s total), the pipeline status is still: $pipelineStatus")
+        }
     }
 
     @Test
