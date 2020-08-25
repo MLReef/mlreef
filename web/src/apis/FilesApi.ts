@@ -23,7 +23,7 @@ export default class FilesApi extends ApiDirector {
   }
 
   async getFileData(projectId: number, path: string, branch: string) {
-    const url = `${getDomain()}:10080/api/v4/projects/${projectId}/repository/files/${path}?ref=${branch}`;
+    const url = `${getDomain()}/api/v4/projects/${projectId}/repository/files/${path}?ref=${branch}`;
     const blBuilder = new BodyLessApiRequestCallBuilder(METHODS.GET, this.buildBasicHeaders(validServicesToCall.GITLAB), url);
     const response = await fetch(blBuilder.build());
     if (!response.ok) {
