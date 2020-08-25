@@ -64,8 +64,14 @@ class ProjectsController(
     private val log: Logger = Logger.getLogger(ProjectsController::class.simpleName)
 
     @GetMapping
-    fun getAllProjects(person: Person): List<ProjectDto> {
-        return projectService.getAllProjectsForUser(person.id).map { it.toDto() }
+    fun getAllProjects(person: Person, profile: TokenDetails?): List<ProjectDto> {
+        val idMap = profile?.projects?.keys ?: listOf<UUID>()
+        return projectService.getProjectsByIds(idMap).map { it.toDto() }
+    }
+
+    @GetMapping("/my")
+    fun getOwnProjects(person: Person): List<ProjectDto> {
+        return projectService.getOwnProjectsOfUser(person.id).map { it.toDto() }
     }
 
     @GetMapping("/public")
@@ -242,20 +248,20 @@ class ProjectsController(
         @PathVariable id: UUID,
         @RequestBody(required = false) body: ProjectUserMembershipRequest? = null,
         @RequestParam(value = "user_id", required = false) userId: UUID?,
-        @RequestParam(value = "gitlab_id", required = false) gitlabId: Long?,
+        @RequestParam(value = "gitlab_id", required = false) userGitlabId: Long?,
         @RequestParam(value = "level", required = false) level: String?,
         @RequestParam(value = "expires_at", required = false) expiresAt: Instant?): List<UserInProjectDto> {
 
         val accessLevelStr = body?.level ?: level
         val accessLevel = if (accessLevelStr != null) AccessLevel.parse(accessLevelStr) else null
         val currentUserId = body?.userId ?: userId
-        val currentGitlabId = body?.gitlabId ?: gitlabId
+        val currentUserGitlabId = body?.gitlabId ?: userGitlabId
         val currentExpiration = body?.expiresAt ?: expiresAt
 
         projectService.addUserToProject(
             projectUUID = id,
             userId = currentUserId,
-            userGitlabId = currentGitlabId,
+            userGitlabId = currentUserGitlabId,
             accessLevel = accessLevel,
             accessTill = currentExpiration
         )
