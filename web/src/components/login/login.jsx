@@ -31,10 +31,35 @@ class Login extends React.Component {
     this.redirectIfAuthenticated();
   }
 
+  // case: /login -> push('/')
+  // case: /login?redirect=goback -> goBack()
+  // case: /login?redirect=groups -> push('/groups')
   redirectIfAuthenticated() {
-    const { isAuth, history } = this.props;
+    const {
+      isAuth,
+      history,
+      location: { search },
+    } = this.props;
 
-    if (isAuth) history.push('/');
+    if (isAuth) {
+      const query = search.replace(/\?(.+)$/, '$1');
+      const redirect = query.split('&')
+        .map((chunk) => chunk.split('='))
+        .find((pair) => pair[0] === 'redirect');
+
+      if (redirect) {
+        switch (redirect[1]) {
+          case 'goback':
+            return history.goBack();
+
+          default:
+            return history.push(`/${redirect}`);
+        }
+      }
+
+      return history.push('/');
+    }
+    return null;
   }
 
   handleChange(event) {
@@ -189,6 +214,10 @@ Login.propTypes = {
   }).isRequired,
   history: PropTypes.shape({
     push: PropTypes.func.isRequired,
+    goBack: PropTypes.func.isRequired,
+  }).isRequired,
+  location: PropTypes.shape({
+    search: PropTypes.string.isRequired,
   }).isRequired,
 };
 
