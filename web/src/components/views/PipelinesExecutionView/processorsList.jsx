@@ -1,8 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   shape, string, func, arrayOf,
 } from 'prop-types';
+import ProjectGeneralInfoApi from 'apis/projectGeneralInfoApi';
 import ArrowButton from '../../arrow-button/arrowButton';
+
+const projectInstance = new ProjectGeneralInfoApi();
 
 const ProcessorsList = ({
   processors,
@@ -21,6 +24,14 @@ const ProcessorsList = ({
 
 export const Processor = ({ processorData, handleDragStart }) => {
   const [shouldDescriptionRender, setShouldDescriptionRender] = useState(false);
+  const [codeProjectURL, setCodeProjectURL] = useState({});
+  const { gitlab_namespace: nameSpace, slug } = codeProjectURL;
+
+  useEffect(() => {
+    projectInstance.getCodeProjectById(processorData.codeProjectId)
+      .then((res) => setCodeProjectURL(res));
+  }, [processorData]);
+
   return (
     <div
       draggable
@@ -64,13 +75,9 @@ export const Processor = ({ processorData, handleDragStart }) => {
           </p>
           <p style={{ marginRight: '11px' }}>
             <b>
-              {processorData.name === 'Resnet50'
-                ? (
-                  <a href="http://staging.mlreef.com/mlreef/commons-resnet-50">
-                    Source Code
-                  </a>
-                )
-                : 'Source Code'}
+              <a target="_blank" rel="noopener noreferrer" href={`/${nameSpace}/${slug}`}>
+                View Repository
+              </a>
             </b>
           </p>
         </div>
