@@ -82,7 +82,7 @@
     # https://docs.gitlab.com/runner/configuration/autoscale.html
 
     IdleCount = 0
-    IdleTime = 60               # Idle time is in seconds
+    IdleTime = 10800  # Idle time in seconds - 10800 = 3 hours
     OffPeakTimezone = ""
     OffPeakIdleCount = 0
 
@@ -104,4 +104,3 @@
       "amazonec2-ami=ami-061aaaac62de85935",    # Deep Learning AMI (Ubuntu 18.04) Version 28.1
       "amazonec2-root-size=120"                 # https://about.gitlab.com/blog/2017/11/23/autoscale-ci-runners/
     ]
-
