@@ -60,7 +60,7 @@ class PipelinesExecutionView extends Component {
     } else if (this.isExperiment) {
       currentProcessors = processors.algorithms;
     } else {
-      currentProcessors = [];
+      currentProcessors = processors.visualizations;
     }
     currentProcessors = currentProcessors.map((cP) => parseToCamelCase({
       ...cP, internalProcessorId: UUIDV1(),
