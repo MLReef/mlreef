@@ -8,7 +8,6 @@ import org.springframework.context.ConfigurableApplicationContext
 import org.springframework.test.context.ActiveProfiles
 import org.testcontainers.containers.GenericContainer
 import org.testcontainers.containers.output.Slf4jLogConsumer
-import org.testcontainers.containers.wait.strategy.HttpWaitStrategy
 import org.testcontainers.containers.wait.strategy.LogMessageWaitStrategy
 import java.time.Duration
 
@@ -25,11 +24,6 @@ class TestGitlabContainer private constructor() : GenericContainer<TestGitlabCon
         private const val WAIT_FOR_COMPLETE_CONTAINER_UP_MS = 10000L
 
         val instance by lazy {
-            val waitStrategy = HttpWaitStrategy()
-                .forPath("/")
-                .forStatusCode(200)
-                .withStartupTimeout(Duration.ofSeconds(600))
-
             val waitStrategyForLog = LogMessageWaitStrategy()
                 .withRegEx(GITLAB_START_LOG_REGEX)
                 .withTimes(1)
@@ -37,7 +31,6 @@ class TestGitlabContainer private constructor() : GenericContainer<TestGitlabCon
 
             val container = TestGitlabContainer().apply {
                 withExposedPorts(80)
-//                setWaitStrategy(waitStrategy)
                 setWaitStrategy(waitStrategyForLog)
                 withLogConsumer(Slf4jLogConsumer(logger))
                 withEnv(createConfig())

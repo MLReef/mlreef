@@ -115,9 +115,10 @@ class IntegrationTestsHelper {
         val userInGitlab = restClient.adminCreateUser(email, username, "Existing $username", plainPassword)
 
         val passwordEncrypted = passwordEncoder.encode(plainPassword)
-        val person = Person(UUID.randomUUID(), Slugs.toSlug(username), "Name $username", userInGitlab.id, hasNewsletters = true,
+        val person = personRepository.save(Person(
+            UUID.randomUUID(), Slugs.toSlug(username), "Name $username", userInGitlab.id, hasNewsletters = true,
             userRole = UserRole.DEVELOPER,
-            termsAcceptedAt = ZonedDateTime.now())
+            termsAcceptedAt = ZonedDateTime.now()))
         val account = Account(accountId, username, email, passwordEncrypted, person)
 
         accountRepository.save(account)

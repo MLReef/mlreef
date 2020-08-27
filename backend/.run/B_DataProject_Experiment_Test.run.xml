@@ -1,0 +1,32 @@
+<component name="ProjectRunConfigurationManager">
+    <configuration default="false" name="B_DataProject_Experiment_Test" type="GradleRunConfiguration"
+                   factoryName="Gradle">
+        <ExternalSystemSettings>
+            <option name="env">
+                <map>
+                    <entry key="GITLAB_ADMIN_TOKEN" value="local-api-token"/>
+                    <entry key="GITLAB_ROOT_URL"
+                           value="http://ec2-18-157-177-130.eu-central-1.compute.amazonaws.com:10080"/>
+                    <entry key="MLREEF_BACKEND_URL"
+                           value="http://ec2-18-157-177-130.eu-central-1.compute.amazonaws.com:8080"/>
+                </map>
+            </option>
+            <option name="executionName"/>
+            <option name="externalProjectPath" value="$PROJECT_DIR$"/>
+            <option name="externalSystemIdString" value="GRADLE"/>
+            <option name="scriptParameters"
+                    value="--tests &quot;com.mlreef.rest.v1.system.B_DataProject_Experiment_Test&quot;"/>
+            <option name="taskDescriptions">
+                <list/>
+            </option>
+            <option name="taskNames">
+                <list>
+                    <option value=":mlreef-system-test:systemTest"/>
+                </list>
+            </option>
+            <option name="vmOptions" value=""/>
+        </ExternalSystemSettings>
+        <GradleScriptDebugEnabled>false</GradleScriptDebugEnabled>
+        <method v="2"/>
+    </configuration>
+</component>
