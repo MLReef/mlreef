@@ -226,7 +226,7 @@ class C_DataProject_Pipelines_Test : AbstractSystemTest() {
     @Test
     fun `C05 Can update EPF PipelineInstance with EPF secret`() {
         val response: ResponseEntity<PipelineJobInfoDto> =
-            backendRestClient.sendEpfRequest(epfPipelineUrl + "/update", HttpMethod.PUT, epfPipelineSecret, "{}")
+            backendRestClient.sendEpfRequest(epfPipelineUrl + "/finish", HttpMethod.PUT, epfPipelineSecret, "{}")
         response.expectOk()
     }
 }

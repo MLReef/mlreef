@@ -43,8 +43,10 @@ class B_DataProject_Experiment_Test : AbstractSystemTest() {
     @Test
     fun `B00 Prepare new User & Login `() {
         val returnedResult = prepareCurrentUser(globalRandomUserName, globalEmail, globalRandomPassword)
+        Thread.sleep(1000)
         accessToken = returnedResult.accessToken ?: returnedResult.token!!
         currentUser = returnedResult
+        Thread.sleep(2000)
     }
 
     @Test
@@ -65,21 +67,22 @@ class B_DataProject_Experiment_Test : AbstractSystemTest() {
         assertThat(ownDataProjectDto).isNotNull
         assertThat(ownDataProjectDto.slug).isEqualTo("test-project")
 
-        val adminGetProject = gitlabRestClient.adminGetProject(ownDataProjectDto.gitlabId)
-        assertThat(adminGetProject).isNotNull
-        assertThat(adminGetProject.path).isEqualTo(request.slug)
+        Thread.sleep(500)
+
     }
 
     @Test
     fun `B01-01 DataProject was created in gitlab`() {
-        val adminGetProject = gitlabRestClient.adminGetProject(ownDataProjectDto.gitlabId)
-        assertThat(adminGetProject).isNotNull
 
         val userInProjectDto = gitlabRestClient.userGetUserInProject(accessToken, ownDataProjectDto.gitlabId, currentUser.gitlabId!!)
         assertThat(userInProjectDto).isNotNull
 
         val branch = gitlabRestClient.getBranch(accessToken, ownDataProjectDto.gitlabId, "master")
         assertThat(branch).isNotNull
+
+        val adminGetProject = gitlabRestClient.adminGetProject(ownDataProjectDto.gitlabId)
+        assertThat(adminGetProject).isNotNull
+
     }
 
     @Test
@@ -242,7 +245,7 @@ class B_DataProject_Experiment_Test : AbstractSystemTest() {
     @Test
     fun `B06 Can finish EPF experiment with EPF secret`() {
         val response: ResponseEntity<PipelineJobInfoDto> =
-            backendRestClient.sendEpfRequest(epfExperimentUrl + "/update", HttpMethod.PUT, epfExperimentSecret, "{}")
+            backendRestClient.sendEpfRequest(epfExperimentUrl + "/finish", HttpMethod.PUT, epfExperimentSecret, "{}")
         response.expectOk()
     }
 }

@@ -1,5 +1,11 @@
 # MLReef REST Backend
 
+## System-Tests
+
+MLREEF_BACKEND_URL=http://localhost:8080
+GITLAB_ROOT_URL=http://localhost:10080
+GITLAB_ADMIN_TOKEN=local-api-token
+
 ## Debug connection
 
 ```bash
