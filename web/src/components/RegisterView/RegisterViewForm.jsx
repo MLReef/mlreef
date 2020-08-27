@@ -140,14 +140,14 @@ const RegisterForm = (props) => {
   );
 };
 
-const handleErrors = (err) => (err.json ? err.json() : Promise.reject(err))
-  .then((er) => ({
-    title: 'Error',
-    message: er.error_name || 'Something happened.',
+const handleErrors = (errorRes) => (errorRes.json ? errorRes.json() : Promise.reject(errorRes))
+  .then((error) => ({
+    title: `Error`,
+    message: error.error_message || 'Something happened.',
   }))
   .catch(() => ({
-    title: `Error ${err.status || ''} (unprocessed)`,
-    message: err.statusText || err.message,
+    title: `Error ${errorRes.status || ''} (unprocessed)`,
+    message: errorRes.statusText || errorRes.message,
   }))
   .then(({ title, message }) => toastr.error(title, message));
 

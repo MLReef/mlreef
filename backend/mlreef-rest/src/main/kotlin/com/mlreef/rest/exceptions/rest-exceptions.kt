@@ -11,6 +11,12 @@ enum class ErrorCode(val errorCode: Int, val errorName: String) {
     NotAllowed(1405, "Method NotAllowed "),
     Conflict(1409, "Entity already exists"),
     AccessDenied(1410, "Access denied exception"),
+    ValidationFailed(1400, "ValidationFailed"),
+
+    // MAJOR general Gitlab errors: 15xx
+    GitlabBadGateway(1500, "Gitlab server is unavailable"),
+    @Deprecated("This errorCode has no meaning at all")
+    GitlabCommonError(1577, "Gitlab common error"),
 
     // specific user management errors 2xxx
     UserAlreadyExisting(2001, "User already exists"),
@@ -19,28 +25,25 @@ enum class ErrorCode(val errorCode: Int, val errorName: String) {
     GroupNotExisting(2004, "Group does not exist"),
     ProjectNotExisting(2005, "Project does not exist"),
     AccessTokenIsMissing(2006, "Access token is missing"),
-    GitlabUserCreationFailed(2101, "Cannot create user in gitlab"),
-    GitlabUserTokenCreationFailed(2102, "Cannot create user token in gitlab"),
-    GitlabUserNotExisting(2103, "Cannot find user in gitlab via token"),
-    GitlabGroupCreationFailed(2104, "Cannot create group in gitlab"),
-    GitlabUserAddingToGroupFailed(2105, "Cannot add user to group in gitlab"),
-    GitlabProjectCreationFailed(2106, "Cannot create project in gitlab"),
-    GitlabProjectUpdateFailed(2107, "Cannot update project in gitlab"),
-    GitlabProjectDeleteFailed(2108, "Cannot delete project in gitlab"),
-    GitlabVariableCreationFailed(2109, "Cannot create group variable in gitlab"),
-    GitlabCommonError(2110, "Gitlab common error"),
-    GitlabBadGateway(2111, "Gitlab server is unavailable"),
-    GitlabBranchCreationFailed(2112, "Cannot create branch in gitlab"),
-    GitlabCommitFailed(2113, "Cannot commit files in gitlab"),
-    GitlabProjectAlreadyExists(2114, "Cannot create project in gitlab. Project already exists"),
-    GitlabBranchDeletionFailed(2115, "Cannot delete branch in gitlab"),
-    GitlabProjectNotExists(2116, "Project not exists in Gitlab"),
-    GitlabMembershipDeleteFailed(2117, "Unable to revoke user's membership"),
-    GitlabBranchNotExists(2118, "Branch does not exist in Gitlab"),
-    GitlabUserModificationFailed(2101, "Cannot modify user in gitlab"),
+    UserCreationFailedEmailOrUsernameUsed(2007, "Email or username is already in use"),
+    // Gitlab user management errors 21xx
+    GitlabUserCreationFailed(2101, "Cannot create user in Gitlab"),
+    GitlabUserCreationFailedEmailUsed(2104,"Cannot create user in Gitlab - email or username already in use!"),
+    GitlabUserTokenCreationFailed(2102, "Cannot create user token in Gitlab"),
+    GitlabUserNotExisting(2103, "Cannot find user in Gitlab via token"),
+    GitlabUserAddingToGroupFailed(2110, "Cannot add user to group in Gitlab"),
 
-    // Business errors: 3xxx
-    ValidationFailed(3000, "ValidationFailed"),
+    //groups 22xx
+    GitlabGroupCreationFailed(2201, "Cannot create group in Gitlab"),
+    GitlabVariableCreationFailed(2202, "Cannot create group variable in Gitlab"),
+
+    // Projects 30xx
+    ProjectCreationFailed(3001, "Could not create project"),
+    GitlabProjectAlreadyExists(3002, "Cannot create project in Gitlab. Project already exists"),
+    GitlabProjectNotExists(3003, "Project not exists in Gitlab"),
+    GitlabProjectCreationFailed(3004, "Cannot create project in Gitlab"),
+    GitlabProjectUpdateFailed(3005, "Cannot update project in Gitlab"),
+    GitlabProjectDeleteFailed(3006, "Cannot delete project in Gitlab"),
 
     // Creating Experiments 31xx
     DataProcessorNotUsable(3101, "DataProcessor cannot be used"),
@@ -60,7 +63,14 @@ enum class ErrorCode(val errorCode: Int, val errorName: String) {
     PipelineCreationFilesMissing(3204, "Needs at least 1 Path"),
     PipelineCreationInvalid(3205, "Pipeline could not be created"),
 
-    ProjectCreationFailed(3301, "Could not create project"),
+
+    // Random unsorted stuff PLEASE INVENT NICE ERROR CODES, WHICH COULD BE GROUPED
+    GitlabBranchCreationFailed(2112, "Cannot create branch in Gitlab"),
+    GitlabCommitFailed(2113, "Cannot commit files in Gitlab"),
+    GitlabBranchDeletionFailed(2115, "Cannot delete branch in Gitlab"),
+    GitlabMembershipDeleteFailed(2117, "Unable to revoke user's membership"),
+    GitlabBranchNotExists(2118, "Branch does not exist in Gitlab"),
+    GitlabUserModificationFailed(2101, "Cannot modify user in Gitlab"),
 }
 
 @ResponseStatus(code = HttpStatus.BAD_REQUEST, reason = "Operation cannot be executed due to malformed input or invalid states.")
@@ -106,23 +116,29 @@ class ConflictException(errorCode: ErrorCode, message: String) : RestException(e
 class NotConsistentInternalDb(message: String) : RestException(ErrorCode.Conflict, message)
 
 @ResponseStatus(code = HttpStatus.CONFLICT, reason = "The state of internal db is inconsistent")
-class UserAlreadyExistsException(username: String, email: String) : RestException(ErrorCode.UserAlreadyExisting, "User ($username/$email) already exists and cant be created")
+class UserAlreadyExistsException(username: String, email: String) : RestException(ErrorCode.UserCreationFailedEmailOrUsernameUsed, "'$username' or '$email' is already in use!")
 
+@Deprecated("please use Exceptions and provide a particular, meaningful errorCode, not everywhere the same!")
 open class UnknownUserException(message: String? = null)
     : RestException(ErrorCode.UserNotExisting, message ?: "User is unknown and does not exist")
 
+@Deprecated("please use Exceptions and provide a particular, meaningful errorCode, not everywhere the same!")
 open class UnknownGroupException(message: String? = null)
     : RestException(ErrorCode.GroupNotExisting, message ?: "Group is unknown and does not exist")
 
+@Deprecated("please provide a particular, meaningful errorCode, not everywhere the same!")
 open class UnknownProjectException(message: String? = null)
     : RestException(ErrorCode.ProjectNotExisting, message ?: "Project is unknown and does not exist")
 
-class UserNotFoundException(userId: UUID? = null, userName: String? = null, email: String? = null, personId: UUID? = null, gitlabId: Long? = null, subjectId: UUID? = null)
-    : UnknownUserException(generateUserNotFoundMessage(userId, userName, email, personId, gitlabId, subjectId))
 
+class UserNotFoundException(userId: UUID? = null, userName: String? = null, email: String? = null, personId: UUID? = null, gitlabId: Long? = null, subjectId: UUID? = null)
+    : RestException(ErrorCode.UserNotExisting, generateUserNotFoundMessage(userId, userName, email, personId, gitlabId, subjectId))
+
+@Deprecated("please provide a particular, meaningful errorCode, not everywhere the same!")
 class GroupNotFoundException(groupId: UUID? = null, groupName: String? = null, subjectId: UUID? = null, gitlabId: Long? = null, path: String? = null)
     : UnknownGroupException(generateGroupNotFoundMessage(groupId, groupName, subjectId, gitlabId, path))
 
+@Deprecated("please provide a particular, meaningful errorCode, not everywhere the same!")
 class ProjectNotFoundException(projectId: UUID? = null, projectName: String? = null, gitlabId: Long? = null, path: String? = null)
     : UnknownProjectException(generateProjectNotFoundMessage(projectId, projectName, gitlabId, path))
 

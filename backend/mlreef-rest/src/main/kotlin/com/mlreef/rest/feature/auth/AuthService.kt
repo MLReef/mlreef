@@ -116,7 +116,7 @@ class AuthService(
             throw UserAlreadyExistsException(username, email)
         }
 
-        val newGitlabUser = createOrFindGitlabUser(username = username, email = email, password = plainPassword)
+        val newGitlabUser = createGitlabUser(username = username, email = email, password = plainPassword)
         createGitlabToken(newGitlabUser)
 
         val oauthToken = gitlabRestClient.userLoginOAuthToGitlab(username, plainPassword)
@@ -160,7 +160,7 @@ class AuthService(
         if (user != (email?.let { accountRepository.findOneByEmail(it) } ?: user))
             throw ConflictException(ErrorCode.Conflict, "User with email $email is already registered")
 
-        val updatedGitlabUser = updateGitlabUser(
+        updateGitlabUser(
             user.person.gitlabId ?: throw BadParametersException("User ${user.username} is not connected to Gitlab"),
             username,
             email
@@ -243,15 +243,25 @@ class AuthService(
         }
     }
 
+    fun createGitlabUser(username: String, email: String, password: String): GitlabUser {
+        return try {
+            log.info("Create user $username")
+            gitlabRestClient.adminCreateUser(email = email, name = username, username = username, password = password)
+        } catch (clientErrorException: RestException) {
+            log.error("Already existing User. Error message: ${clientErrorException.message}")
+            throw clientErrorException
+        }
+    }
+
     fun createOrFindGitlabUser(username: String, email: String, password: String): GitlabUser {
         return try {
-            log.info("Create user ${username}")
+            log.info("Create user $username")
             gitlabRestClient.adminCreateUser(email = email, name = username, username = username, password = password)
         } catch (clientErrorException: RestException) {
             log.info("Already existing User. Error message: ${clientErrorException.message}")
             val adminGetUsers = gitlabRestClient.adminGetUsers()
-            adminGetUsers.filter { it.username == username }.firstOrNull()
-                ?: throw UnknownUserException("User could not be created and not found in Gitlab!")
+            adminGetUsers.firstOrNull { it.username == username }
+                ?: throw RestException(ErrorCode.GitlabUserCreationFailedEmailUsed, "User could not be created in Gitlab: ${clientErrorException.message}")
         }
     }
 
