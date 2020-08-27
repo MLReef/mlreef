@@ -1,0 +1,16 @@
+#!/bin/sh
+# shellcheck disable=SC2155  # declare and assign variables in one command might hide return values
+########################################
+set -e  # exit on immediately on every error
+set -u  # error on usage of undefined variables
+########################################
+
+
+if [ -e "$AWS_DEVELOP_2020_2" ]; then
+  export   SSH_KEYFILE="$AWS_DEVELOP_2020_2"
+  export   SSH_KEYPAIR_NAME="AWS_DEVELOP_2020_2"
+else
+  echo "ERROR: No known keyfile found."
+fi
+echo "        SSH_KEYFILE=$SSH_KEYFILE"
+chmod 400   "$SSH_KEYFILE" # ensure correct permissions on the keyfile
