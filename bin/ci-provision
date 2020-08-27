@@ -3,6 +3,7 @@
 cd "$(dirname "$0")"/..
 . bin/includes/detect-os
 . bin/includes/ci-environment
+. bin/includes/ci-detect-ssh-keyfile
 ########################################
 set -x  # output all commands
 set -o  pipefail
