@@ -1,11 +1,7 @@
 import Search from 'functions/Search';
-import { getCurrentToken } from './apiHelpers';
+import { getCurrentToken, filterBots, filterRoot } from './apiHelpers';
 
 const search = new Search();
-
-const filterBots = (users) => users.filter((user) => !/bot$/.test(user.username));
-
-const filterRoot = (users) => users.filter((user) => user.id !== 1);
 
 export default class SearchApi {
   static updateMeta(meta) {

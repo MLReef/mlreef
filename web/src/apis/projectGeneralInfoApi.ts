@@ -3,6 +3,7 @@ import ApiRequestCallBuilder from './apiBuilders/ApiRequestCallBuilder';
 import BLApiRequestCallBuilder from './apiBuilders/BLApiRequestCallBuilder';
 import { METHODS, validServicesToCall } from './apiBuilders/requestEnums';
 import { handleResponse, handlePagination, inspect } from 'functions/apiCalls';
+import { filterBots } from './apiHelpers';
 
 export default class ProjectGeneralInfoApi extends ApiDirector {
   constructor() {
@@ -90,7 +91,8 @@ export default class ProjectGeneralInfoApi extends ApiDirector {
     const builder = new BLApiRequestCallBuilder(METHODS.GET, headers, url);
 
     return fetch(builder.build())
-      .then(handleResponse);
+      .then(handleResponse)
+      .then(filterBots);
   }
 
   addMember(projectId: string, formData: any) {
@@ -161,16 +163,14 @@ export default class ProjectGeneralInfoApi extends ApiDirector {
       .then(handleResponse)
   }
 
-  async getUsers(projectId: number) {
+  getUsers(projectId: number) {
     const url = `/api/v4/projects/${projectId}/users`;
     const headers = this.buildBasicHeaders(validServicesToCall.GITLAB);
     const builder = new BLApiRequestCallBuilder(METHODS.GET, headers, url);
 
-    const response = await fetch(builder.build());
-    if (!response.ok) {
-      return Promise.reject(response);
-    }
-    return response.json();
+    return fetch(builder.build())
+      .then(handleResponse)
+      .then(filterBots);
   }
 
   getProjectDetails(namespace: string, slug: string) {
