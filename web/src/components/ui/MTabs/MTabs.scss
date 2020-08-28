@@ -30,6 +30,8 @@ $border-radius: 0.25rem !default;
       margin: 0;
       margin-right: auto;
       padding: 0;
+      max-width: 100vw;
+      overflow-x: auto;
     }
 
     &_tab {
@@ -78,6 +80,7 @@ $border-radius: 0.25rem !default;
     flex: 1;
     height: 100%;
     background-color: #fff;
+    overflow-x: hidden;
     overflow-y: auto;
 
     &_section {
@@ -154,6 +157,14 @@ $border-radius: 0.25rem !default;
 
     &:active, &:focus, &:focus-within {
       outline: none;
+    }
+  }
+
+  @media screen and (max-width: 570px) {
+    &_menu {
+      &_container {
+
+      }
     }
   }
 }

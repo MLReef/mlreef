@@ -37,7 +37,7 @@ class Navbar extends Component {
             </div>
 
             <MDropdown
-              className="ml-3 my-auto"
+              className="ml-3 my-auto d-none d-lg-block"
               buttonClasses="btn btn-dark px-1"
               label="Projects"
               component={(
@@ -78,7 +78,7 @@ class Navbar extends Component {
             />
 
             <MDropdown
-              className="ml-3 my-auto"
+              className="ml-3 my-auto d-none d-lg-block"
               buttonClasses="btn btn-dark px-1"
               label="Groups"
               component={(
@@ -177,7 +177,7 @@ class Navbar extends Component {
             )}
 
             {!user.auth && (
-              <div className="d-none d-lg-flex ml-auto my-auto">
+              <div className="d-flex ml-auto my-auto">
                 <Link to="/login?redirect=goback" className="btn btn-sm btn-dark mr-3 px-3">
                   Sign in
                 </Link>

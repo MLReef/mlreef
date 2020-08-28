@@ -170,10 +170,11 @@ export class RepoFeatures extends Component {
           accountType={1}
         >
           <Link
-            className="btn btn-outline-dark ml-auto mt-3"
+            className="btn btn-outline-dark ml-auto mt-3 px-3"
             to={`/my-projects/${projectId}/${currentBranch}/commits/${path}`}
           >
-            History
+            <span className="d-none d-lg-block mx-3">history</span>
+            <span className="fa fa-history d-lg-none" />
           </Link>
         </AuthWrapper>
       </div>

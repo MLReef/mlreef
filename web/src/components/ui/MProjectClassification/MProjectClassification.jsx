@@ -138,7 +138,7 @@ class MProjectClassification extends Component {
     return (
       <div style={{ display: 'flex', justifyContent: 'space-around' }}>
         <div>
-          <div id="buttons-div">
+          <div className="scroll-styled" id="buttons-div">
             <div id="filter-div">
               <button
                 id={`${classification}-personal-btn`}
@@ -189,7 +189,7 @@ class MProjectClassification extends Component {
             />
             <MWrapper disable title="Not available yet.">
               {/* eslint-disable-next-line */}
-            <div id="side-filters">
+            <div className="d-none d-lg-block" id="side-filters">
               <div id="input-div">
                 <p>Refine by</p>
                 <button>Clear filters</button>

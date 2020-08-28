@@ -68,7 +68,7 @@ const ProjectInfo = (props) => {
               </div>
             </Link>
           )}
-        <div className="project-name">
+        <div className="project-name mb-2">
           <Link to={`/${project.namespace}/${project.slug}`} id="projectName">
             {classProject.gitlabName}
           </Link>

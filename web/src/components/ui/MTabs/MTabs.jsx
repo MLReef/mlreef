@@ -67,7 +67,7 @@ const MTabs = (props) => {
   return (
     <div className={`m-tabs ${className} ${vertical ? 'vertical' : ''}`}>
       <div className={`m-tabs_menu ${left ? 'ml-0' : ''}`}>
-        <ul className={`m-tabs_menu_container`} ref={tabsRef}>
+        <ul className="m-tabs_menu_container scroll-styled" ref={tabsRef}>
           {tabs.map((tab) => (
             <li
               className={`m-tabs_menu_tab ${tab.defaultActive ? 'active' : ''} ${pills ? 'pills' : ''}`}
