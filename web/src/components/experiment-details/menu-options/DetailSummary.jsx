@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { toastr } from 'react-redux-toastr';
 import moment from 'moment';
 import PipeLinesApi from 'apis/PipelinesApi';
-import { shape, string, arrayOf, number } from 'prop-types';
+import { shape, string, arrayOf, number, func } from 'prop-types';
 import { parseToCamelCase } from 'functions/dataParserHelpers';
 import { SUCCESS, RUNNING, PENDING } from 'dataTypes';
 
@@ -11,7 +11,6 @@ const DetailsSummary = ({
   projectSlug,
   projectId,
   experimentName,
-  currentState,
   parameters,
   pipelineInfo,
   dataOperatorsExecuted,
@@ -20,10 +19,10 @@ const DetailsSummary = ({
   history,
 }) => {
   const [pipelineDetails, setDetails] = useState({});
-  const lowerCaseCurrCase = currentState;
   const {
-    id, duration, startedAt: startedAtRaw, finishedAt: finishedAtRaw,
+    id, duration, startedAt: startedAtRaw, finishedAt: finishedAtRaw, status: currentState,
   } = pipelineDetails;
+  const lowerCaseCurrCase = currentState;
   const first = 0;
   let startedAt = '---';
   let finishedAt = '---';
@@ -36,20 +35,20 @@ const DetailsSummary = ({
 
   let experimentStatus = (
     <b className={`m-auto ${lowerCaseCurrCase === SUCCESS ? 't-primary' : 't-danger'}`}>
-      {currentState}
+      {currentState?.toUpperCase()}
     </b>
   );
 
   if (lowerCaseCurrCase === RUNNING.toLowerCase()) {
     experimentStatus = (
-      <b className="t-primary">
-        {currentState}
+      <b className="m-auto t-primary">
+        {RUNNING}
       </b>
     );
   } else if (lowerCaseCurrCase === PENDING.toLowerCase()) {
     experimentStatus = (
-      <b style={{ color: '#E99444' }}>
-        {currentState}
+      <b className="m-auto" style={{ color: '#E99444' }}>
+        {PENDING}
       </b>
     );
   }
@@ -224,8 +223,11 @@ DetailsSummary.defaultProps = {
 
 DetailsSummary.propTypes = {
   projectId: number.isRequired,
+  projectNamespace: string.isRequired,
+  projectSlug: string.isRequired,
   experimentName: string,
   currentState: string,
+  history: shape({}).isRequired,
   parameters: arrayOf(
     shape({
       name: string.isRequired,
@@ -234,6 +236,9 @@ DetailsSummary.propTypes = {
     }).isRequired,
   ).isRequired,
   pipelineInfo: shape({}).isRequired,
+  dataOperatorsExecuted: shape({}).isRequired,
+  inputFiles: arrayOf(shape({})).isRequired,
+  setPreconfiguredOPerations: func.isRequired,
 };
 
 export default DetailsSummary;

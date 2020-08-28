@@ -109,10 +109,8 @@ exports[`test presence of elements in DOM compare with the latest snapshot 1`] =
               className="d-flex m-0"
             >
               <b
-                className="t-primary"
-              >
-                running
-              </b>
+                className="m-auto t-danger"
+              />
             </p>
           </div>
           <p>
