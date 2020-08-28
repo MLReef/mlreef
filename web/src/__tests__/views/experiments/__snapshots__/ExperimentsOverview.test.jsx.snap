@@ -32,7 +32,7 @@ exports[`test presence of elements in DOM compare with the latest snapshot of th
         </a>
       </div>
       <div
-        className="m-dropdown  ml-3 my-auto"
+        className="m-dropdown  ml-3 my-auto d-none d-lg-block"
       >
         <div
           className="m-dropdown-button"
@@ -73,7 +73,7 @@ exports[`test presence of elements in DOM compare with the latest snapshot of th
         </div>
       </div>
       <div
-        className="m-dropdown  ml-3 my-auto"
+        className="m-dropdown  ml-3 my-auto d-none d-lg-block"
       >
         <div
           className="m-dropdown-button"
@@ -107,7 +107,7 @@ exports[`test presence of elements in DOM compare with the latest snapshot of th
         </div>
       </div>
       <div
-        className="d-none d-lg-flex ml-auto my-auto"
+        className="d-flex ml-auto my-auto"
       >
         <a
           className="btn btn-sm btn-dark mr-3 px-3"
@@ -186,7 +186,7 @@ exports[`test presence of elements in DOM compare with the latest snapshot of th
             </div>
           </a>
           <div
-            className="project-name"
+            className="project-name mb-2"
           >
             <a
               href="/my-namespace/the-project-name"

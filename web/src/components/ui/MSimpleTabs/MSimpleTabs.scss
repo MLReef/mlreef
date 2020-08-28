@@ -30,6 +30,8 @@
     margin-top: 0;
     margin-bottom: 0;
     height: fit-content;
+    max-width: 100vw;
+    overflow-x: auto;
 
     &-tab {
       flex: 1;
@@ -93,6 +95,8 @@
 
   &-content {
     padding: 1rem;
+    max-width: 100vw;
+    overflow-x: auto;
 
     &-section {
       display: none;

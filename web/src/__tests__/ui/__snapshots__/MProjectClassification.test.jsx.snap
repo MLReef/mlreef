@@ -11,6 +11,7 @@ exports[`test html elements 1`] = `
 >
   <div>
     <div
+      className="scroll-styled"
       id="buttons-div"
     >
       <div
@@ -143,6 +144,7 @@ exports[`test html elements 1`] = `
           className="m-wrapper-content"
         >
           <div
+            className="d-none d-lg-block"
             id="side-filters"
           >
             <div

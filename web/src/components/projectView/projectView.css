@@ -23,7 +23,8 @@
 
 .project-id {
   display: flex;
-  width: 50%;
+  flex: 1;
+  min-width: 220px;
 }
 
 .project-name {
@@ -204,6 +205,7 @@
   background-color: #32afc3;
   margin-top: 15px;
   border-radius: 0.3vw;
+  flex-wrap: wrap;
 }
 
 .repo-stat {

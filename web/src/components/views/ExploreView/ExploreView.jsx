@@ -84,7 +84,7 @@ const ExploreView = (props) => {
 
   const filtersSection = (
     <MWrapper disable title="No available yet.">
-      <MDataFilters types={dataTypes} />
+      <MDataFilters types={dataTypes} className="d-none d-lg-block" />
     </MWrapper>
   );
 
@@ -102,7 +102,7 @@ const ExploreView = (props) => {
               defaultActive: true,
               color: projectClassificationsProps[0].color,
               content: (
-                <div className="explore-view-content-container">
+                <div className="explore-view-content-container mx-auto mx-lg-4">
                   <MTabs left pills className="flex-1">
                     <MTabs.Section defaultActive id="allProjects" label="All" className="project-list">
                       <ExploreViewProjectSet
@@ -125,7 +125,7 @@ const ExploreView = (props) => {
               label: 'models',
               color: projectClassificationsProps[1].color,
               content: (
-                <div className="explore-view-content-container">
+                <div className="explore-view-content-container mx-auto mx-lg-4">
                   <MTabs left pills className="flex-1">
                     <MTabs.Section defaultActive id="allProjects" label="All" className="project-list">
                       <ExploreViewProjectSet
@@ -149,7 +149,7 @@ const ExploreView = (props) => {
               label: 'processors',
               color: projectClassificationsProps[2].color,
               content: (
-                <div className="explore-view-content-container">
+                <div className="explore-view-content-container mx-auto mx-lg-4">
                   <MTabs left pills className="flex-1">
                     <MTabs.Section defaultActive id="allProjects" label="All" className="project-list">
                       <ExploreViewProjectSet
@@ -172,7 +172,7 @@ const ExploreView = (props) => {
               label: 'visualizations',
               color: projectClassificationsProps[3].color,
               content: (
-                <div className="explore-view-content-container">
+                <div className="explore-view-content-container mx-auto mx-lg-4">
                   <MTabs left pills className="flex-1">
                     <MTabs.Section defaultActive id="allProjects" label="All" className="project-list">
                       <ExploreViewProjectSet

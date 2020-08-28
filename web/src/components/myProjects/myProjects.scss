@@ -49,6 +49,8 @@ $min-width-cards-div: 910px;
 #buttons-div {
   display: flex;
   margin-top: 1rem;
+  max-width: 100vw;
+  overflow-x: auto;
 
   #filter-div {
     // min-width: $min-width-cards-div;
@@ -78,7 +80,7 @@ $min-width-cards-div: 910px;
     button {
       padding: 0.500rem 1.25rem;
       width: max-content;
-      margin-top: 0.5rem;
+      margin-bottom: 0.5rem;
     }
   }
 

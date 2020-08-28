@@ -1,10 +1,11 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import MDropdown from 'components/ui/MDropdown';
 import MCheckBox from 'components/ui/MCheckBox/MCheckBox';
 import './MDataFilters.scss';
 
-const MDataFilters = ({ types }) => (
-  <div className="m-data-filters px-3">
+const MDataFilters = ({ types, className }) => (
+  <div className={`m-data-filters px-3 ${className}`}>
     <div className="m-data-filters-actions">
       <p className="mr-3">Refine by</p>
       <button type="button" className="btn btn-hidden t-info">
@@ -27,5 +28,14 @@ const MDataFilters = ({ types }) => (
     </div>
   </div>
 );
+
+MDataFilters.defaultProps = {
+  className: '',
+};
+
+MDataFilters.propTypes = {
+  types: PropTypes.arrayOf(PropTypes.shape).isRequired,
+  className: PropTypes.string,
+};
 
 export default MDataFilters;
