@@ -35,14 +35,11 @@ const ExperimentCard = (props) => {
       {experiments.map((experiment) => {
         const modelTitle = experiment.processing.name;
         const expSlug = experiment.processing.slug;
-        const allParameters = algorithms.filter((algo) => algo.name === modelTitle)[0].parameters;
         const codeProjectId = algorithms
           .filter((algo) => algo.slug === expSlug)
           .map((cd) => cd.code_project_id)[0];
         const {
-          id, processing: { parameters },
           dataProjectId,
-          pipelineJobInfo: pipelineInfo,
           slug,
         } = experiment;
         const shortSlug = slug ? slug.slice(11, slug.length) : '';
@@ -56,15 +53,7 @@ const ExperimentCard = (props) => {
                 <Link
                   type="button"
                   to={{
-                    pathname: `/${projectNamespace}/${projectSlug}/-/experiments/${pipelineInfo.id}`,
-                    state: {
-                      uuid: dataProjectId,
-                      currentState,
-                      userParameters: parameters,
-                      pipelineInfo,
-                      experimentId: id,
-                      allParameters,
-                    },
+                    pathname: `/${projectNamespace}/${projectSlug}/-/experiments/${experiment.id}`,
                   }}
                   style={{
                     border: 'none',

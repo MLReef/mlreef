@@ -22,19 +22,24 @@ const expApi = new ExperimentsApi();
 const ExperimentDetails = (props) => {
   const [experiment, setExperiment] = useState({});
   const {
-    selectedProject,
-    selectedProject: { gid: projectId },
+    projects,
+    algorithms,
     jobs,
-    selectedProject: { gitlabName: name },
-    match: { params: { namespace, slug } },
-    location: {
-      state: {
-        uuid, currentState, userParameters, pipelineInfo, experimentId, allParameters,
-      },
-    },
+    match: { params: { namespace, slug, experimentId } },
     setPreconfiguredOPerations,
     history,
   } = props;
+  const selectedProject = projects.filter((proj) => proj.slug === slug)[0];
+  const projectId = selectedProject?.gitlabId;
+  const backendId = selectedProject?.id;
+  const name = selectedProject?.gitlabName;
+  const userParameters = experiment?.processing?.parameters;
+  const expSlug = experiment?.processing?.slug;
+  const { pipeline_job_info: pipelineInfo } = experiment;
+  let mergedParameters;
+  const allParameters = algorithms
+    .filter((alg) => alg.slug === expSlug)
+    .map((alg) => alg.parameters)[0];
   const groupName = selectedProject.namespace;
   const experimentName = experiment.name;
   const uniqueName = experimentName && experimentName.split('/')[1];
@@ -45,19 +50,21 @@ const ExperimentDetails = (props) => {
   }
 
   // Union of two arrays of parameters
-  const mergedArray = [...userParameters, ...allParameters];
-  const set = new Set();
-  const mergedParameters = mergedArray.filter((item) => {
-    const isItemInSet = !set.has(item.name)
-    if (isItemInSet) set.add(item.name);
-    return isItemInSet;
-  }, set);
+  if (userParameters && allParameters) {
+    const mergedArray = [...userParameters, ...allParameters];
+    const set = new Set();
+    mergedParameters = mergedArray.filter((item) => {
+      const isItemInSet = !set.has(item.name);
+      if (isItemInSet) set.add(item.name);
+      return isItemInSet;
+    }, set);
+  }
 
   useEffect(() => {
-    expApi.getExperimentDetails(uuid, experimentId)
+    expApi.getExperimentDetails(backendId, experimentId)
       .then((res) => setExperiment(res))
       .catch(() => toastr.error('Error', 'Could not fetch the experiment'));
-  }, [uuid, experimentId]);
+  }, [backendId, experimentId]);
 
   // this got orphan after refactoring renderTheSelectedSection()
   // <DetailsSummary experiment={experiment} experimentName={uniqueName} />
@@ -105,7 +112,6 @@ const ExperimentDetails = (props) => {
                   projectId={projectId}
                   inputFiles={experiment.input_files}
                   dataOperatorsExecuted={experiment.processing}
-                  currentState={currentState}
                   experimentName={uniqueName}
                   parameters={mergedParameters}
                   pipelineInfo={pipelineInfo}
@@ -140,17 +146,8 @@ const ExperimentDetails = (props) => {
 };
 
 ExperimentDetails.propTypes = {
-  selectedProject: shape({
-    gitlabName: string.isRequired,
-  }).isRequired,
-  location: shape({
-    state: shape({
-      uuid: string.isRequired,
-      currentState: string.isRequired,
-      pipelineInfo: shape.isRequired,
-      userParameters: arrayOf.isRequired,
-    }).isRequired,
-  }).isRequired,
+  algorithms: arrayOf(shape({})).isRequired,
+  projects: arrayOf(shape({})).isRequired,
   match: shape({
     params: shape({
       experimentId: string.isRequired,
@@ -161,6 +158,7 @@ ExperimentDetails.propTypes = {
 
 function mapStateToProps(state) {
   return {
+    projects: state.projects.all,
     jobs: state.jobs,
     selectedProject: state.projects.selectedProject,
     algorithms: state.processors.algorithms,
