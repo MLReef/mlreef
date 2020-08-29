@@ -1,2 +1,4 @@
+epf/utils/** filter=lfs diff=lfs merge=lfs -text
+epf/src/data/** filter=lfs diff=lfs merge=lfs -text
 epf/utils/* filter=lfs diff=lfs merge=lfs -text
 epf/src/data/* filter=lfs diff=lfs merge=lfs -text
