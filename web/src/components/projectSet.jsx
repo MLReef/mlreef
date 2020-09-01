@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import {
-  arrayOf, shape, string,
+  arrayOf, shape, string, bool,
 } from 'prop-types';
 import MProjectCard from './ui/MProjectCard';
 import iconGrey from '../images/icon_grey-01.png';
@@ -20,6 +20,7 @@ class ProjectSet extends Component {
       personalProjects,
       starredProjects,
       handleShowModal,
+      isLoading,
       screen,
     } = this.props;
     let finalProjectsArray = [];
@@ -34,6 +35,17 @@ class ProjectSet extends Component {
         finalProjectsArray = allProjects;
         break;
     }
+
+    if (isLoading) {
+      return (
+        <div id="cards-section">
+          <div className="loading-image">
+            <div style={{ backgroundImage: 'url(/images/MLReef_loading.gif)' }} />
+          </div>
+        </div>
+      );
+    }
+
     return (
       <div id="cards-section">
         {finalProjectsArray.length > 0 ? finalProjectsArray.map((proj) => (
@@ -68,6 +80,7 @@ class ProjectSet extends Component {
 
 ProjectSet.defaultProps = {
   screen: '#personal',
+  isLoading: false,
 };
 
 ProjectSet.propTypes = {
@@ -76,11 +89,9 @@ ProjectSet.propTypes = {
     shape({
     }).isRequired,
   ).isRequired,
-
+  isLoading: bool,
   starredProjects: arrayOf(shape({}).isRequired).isRequired,
-
   personalProjects: arrayOf(shape({}).isRequired).isRequired,
-
 };
 
 export default ProjectSet;
