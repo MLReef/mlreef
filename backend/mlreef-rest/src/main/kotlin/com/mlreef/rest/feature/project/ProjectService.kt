@@ -10,6 +10,7 @@ import com.mlreef.rest.DataProjectRepository
 import com.mlreef.rest.DataType
 import com.mlreef.rest.Group
 import com.mlreef.rest.GroupRepository
+import com.mlreef.rest.Person
 import com.mlreef.rest.Project
 import com.mlreef.rest.ProjectBaseRepository
 import com.mlreef.rest.ProjectRepository
@@ -25,6 +26,7 @@ import com.mlreef.rest.exceptions.ProjectDeleteException
 import com.mlreef.rest.exceptions.ProjectNotFoundException
 import com.mlreef.rest.exceptions.ProjectUpdateException
 import com.mlreef.rest.exceptions.UnknownGroupException
+import com.mlreef.rest.exceptions.UnknownProjectException
 import com.mlreef.rest.exceptions.UnknownUserException
 import com.mlreef.rest.exceptions.UserNotFoundException
 import com.mlreef.rest.external_api.gitlab.GitlabAccessLevel
@@ -66,6 +68,9 @@ interface ProjectService<T : Project> {
     fun getProjectsBySlug(slug: String): List<T>
     fun getProjectsByNamespaceAndPath(namespaceName: String, slug: String): T?
     fun getUsersInProject(projectUUID: UUID): List<UserInProject>
+
+    fun starProject(projectId: UUID? = null, projectGitlabId: Long? = null, person: Person, userToken: String): T
+    fun unstarProject(projectId: UUID? = null, projectGitlabId: Long? = null, person: Person, userToken: String): T
 
     fun createProject(
         userToken: String,
@@ -210,6 +215,28 @@ open class ProjectServiceImpl<T : Project>(
 
     override fun getProjectById(projectId: UUID): T? {
         return repository.findByIdOrNull(projectId)
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    override fun starProject(projectId: UUID?, projectGitlabId: Long?, person: Person, userToken: String): T {
+        val project = when {
+            projectId != null -> repository.findByIdOrNull(projectId)
+            projectGitlabId != null -> repository.findByGitlabId(projectGitlabId)
+            else -> throw UnknownProjectException("Incorrect search project criteria")
+        } ?: throw ProjectNotFoundException(projectId, gitlabId = projectGitlabId)
+        gitlabRestClient.userStarProject(userToken, project.gitlabId)
+        return repository.save(project.addStar(person) as T)
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    override fun unstarProject(projectId: UUID?, projectGitlabId: Long?, person: Person, userToken: String): T {
+        val project = when {
+            projectId != null -> repository.findByIdOrNull(projectId)
+            projectGitlabId != null -> repository.findByGitlabId(projectGitlabId)
+            else -> throw UnknownProjectException("Incorrect search project criteria")
+        } ?: throw ProjectNotFoundException(projectId, gitlabId = projectGitlabId)
+        gitlabRestClient.userUnstarProject(userToken, project.gitlabId)
+        return repository.save(project.removeStar(person) as T)
     }
 
     override fun getProjectByIdAndPersonId(projectId: UUID, personId: UUID): T? {

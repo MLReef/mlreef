@@ -28,7 +28,7 @@ class CodeProjectBuilder {
     var globalSlug: String? = null
     var tags: Set<SearchableTag> = hashSetOf()
     var starsCount: Int = 0
-    var stars: List<Star> = arrayListOf()
+    var stars: List<Star> = listOf()
     var version: Long? = null
     var createdAt: ZonedDateTime? = null
     var updatedAt: ZonedDateTime? = null

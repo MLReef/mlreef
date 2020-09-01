@@ -20,6 +20,7 @@ import com.mlreef.rest.api.v1.dto.SearchableTagDto
 import com.mlreef.rest.feature.marketplace.MarketplaceService
 import com.mlreef.rest.marketplace.SearchableTag
 import com.mlreef.rest.marketplace.SearchableType
+import com.mlreef.rest.marketplace.Star
 import com.mlreef.rest.testcommons.EntityMocks
 import com.mlreef.rest.testcommons.RestResponsePage
 import org.assertj.core.api.Assertions.assertThat
@@ -201,6 +202,7 @@ class MarketplaceApiTest : AbstractRestApiTest() {
         assertThat(pagedResult).isNotNull()
     }
 
+
     @Transactional
     @Rollback
     @Test
@@ -378,6 +380,39 @@ class MarketplaceApiTest : AbstractRestApiTest() {
         assertThat(pagedResult.content).hasSize(4)
     }
 
+    @Transactional
+    @Rollback
+    @Test
+    @Tag(TestTags.RESTDOC)
+    fun `Can use Search Api with min-max stars`() {
+        prepareMocks()
+        val filterRequest = FilterRequest(minStars = 20, maxStars = 50)
+        val pagedResult: RestResponsePage<SearchResultDto> = this.performPost("$rootUrl/entries/search", null, filterRequest).returns()
+        assertThat(pagedResult.content.size).isEqualTo(2)
+    }
+
+    @Transactional
+    @Rollback
+    @Test
+    @Tag(TestTags.RESTDOC)
+    fun `Can use Search Api with min stars`() {
+        prepareMocks()
+        val filterRequest = FilterRequest(minStars = 20)
+        val pagedResult: RestResponsePage<SearchResultDto> = this.performPost("$rootUrl/entries/search", null, filterRequest).returns()
+        assertThat(pagedResult.content.size).isEqualTo(3)
+    }
+
+    @Transactional
+    @Rollback
+    @Test
+    @Tag(TestTags.RESTDOC)
+    fun `Can use Search Api with max stars`() {
+        prepareMocks()
+        val filterRequest = FilterRequest(maxStars = 79)
+        val pagedResult: RestResponsePage<SearchResultDto> = this.performPost("$rootUrl/entries/search", null, filterRequest).returns()
+        assertThat(pagedResult.content.size).isEqualTo(3)
+    }
+
     private fun prepareMocks(): List<SearchableTag> {
         val tag1 = marketplaceTagRepository.save(SearchableTag(UUID.randomUUID(), "tag1"))
         val tag2 = marketplaceTagRepository.save(SearchableTag(UUID.randomUUID(), "tag2"))
@@ -385,32 +420,63 @@ class MarketplaceApiTest : AbstractRestApiTest() {
 
         val author = personRepository.save(EntityMocks.author)
 
-        val project1 = EntityMocks.codeProject(slug = "entry1", name = "AA Project")
+        var project1 = EntityMocks.codeProject(slug = "entry1", name = "AA Project")
             .copy<CodeProject>(
                 inputDataTypes = setOf(DataType.IMAGE, DataType.TABULAR),
                 outputDataTypes = setOf(DataType.MODEL, DataType.TIME_SERIES),
                 tags = setOf(tag1, tag2)
             )
-        val project2 = EntityMocks.codeProject(slug = "entry2", name = "BB Project")
+
+        val starsList1 = (0..9).map {
+            Star(project1.id, UUID.randomUUID())
+        }
+
+        project1 = project1.copy(stars = starsList1)
+
+        var project2 = EntityMocks.codeProject(slug = "entry2", name = "BB Project")
             .copy<CodeProject>(
                 inputDataTypes = setOf(DataType.IMAGE, DataType.TABULAR),
                 outputDataTypes = setOf(DataType.MODEL, DataType.TIME_SERIES),
                 tags = setOf(tag1, tag2))
 
-        val project3 = EntityMocks.codeProject(slug = "entry3", name = "YY Project")
+        val starsList2 = (0..19).map {
+            Star(project2.id, UUID.randomUUID())
+        }
+
+        project2 = project2.copy(stars = starsList2)
+
+        var project3 = EntityMocks.codeProject(slug = "entry3", name = "YY Project")
             .copy<CodeProject>(inputDataTypes = setOf(DataType.TIME_SERIES, DataType.TABULAR),
                 outputDataTypes = setOf(DataType.MODEL, DataType.TIME_SERIES),
                 tags = setOf(tag1, tag2))
 
-        val project4 = EntityMocks.codeProject(slug = "entry4", name = "ZZ Project")
+        val starsList3 = (0..49).map {
+            Star(project3.id, UUID.randomUUID())
+        }
+
+        project3 = project3.copy(stars = starsList3)
+
+        var project4 = EntityMocks.codeProject(slug = "entry4", name = "ZZ Project")
             .copy<CodeProject>(inputDataTypes = setOf(DataType.TIME_SERIES, DataType.TABULAR),
                 outputDataTypes = setOf(DataType.MODEL, DataType.TIME_SERIES),
                 tags = setOf(tag1, tag2))
 
-        val project5 = EntityMocks.dataProject(slug = "entry5")
+        val starsList4 = (0..79).map {
+            Star(project4.id, UUID.randomUUID())
+        }
+
+        project4 = project4.copy(stars = starsList4)
+
+        var project5 = EntityMocks.dataProject(slug = "entry5")
             .copy<DataProject>(inputDataTypes = setOf(DataType.IMAGE, DataType.TABULAR),
                 outputDataTypes = setOf(DataType.MODEL, DataType.TIME_SERIES),
                 tags = setOf(tag1, tag2))
+
+        val starsList5 = (0..99).map {
+            Star(project5.id, UUID.randomUUID())
+        }
+
+        project5 = project5.copy(stars = starsList5)
 
         val dataProcessor1 = EntityMocks.dataOperation(codeProject = project1, slug = "op1", author = author).copy(inputDataType = DataType.IMAGE)
         val dataProcessor2 = EntityMocks.dataOperation(codeProject = project2, author = author, slug = "op2").copy(inputDataType = DataType.IMAGE)

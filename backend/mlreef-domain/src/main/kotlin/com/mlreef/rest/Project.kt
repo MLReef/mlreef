@@ -26,6 +26,7 @@ import javax.persistence.JoinTable
 import javax.persistence.ManyToMany
 import javax.persistence.OneToMany
 import javax.persistence.OneToOne
+import javax.persistence.PrePersist
 import javax.persistence.Table
 
 enum class ProjectType {
@@ -106,12 +107,12 @@ abstract class Project(
     override val tags: Set<SearchableTag> = hashSetOf(),
 
     @Column(name = "stars_count")
-    override val starsCount: Int = 0,
+    private var _starsCount: Int = 0,
 
     @OneToMany(fetch = FetchType.EAGER, cascade = [CascadeType.ALL], orphanRemoval = true)
     @JoinColumn(name = "project_id", foreignKey = ForeignKey(name = "project_star_entry_id"), updatable = false)
     @Fetch(value = FetchMode.JOIN)
-    override val stars: List<Star> = arrayListOf(),
+    override val stars: List<Star> = listOf(),
 
     version: Long? = null,
     createdAt: ZonedDateTime? = null,
@@ -148,15 +149,15 @@ abstract class Project(
     fun addStar(subject: Person): Project {
         val existing = stars.find { it.subjectId == subject.id }
         return if (existing != null) {
-            Searchable.log.info("Skipped: Marketplace already has a star for subject: $subject.id")
             this
         } else {
-            val newStars: List<Star> = this.stars.toMutableList().apply {
+            val newStars = this.stars.toMutableList().apply {
                 add(Star(
                     subjectId = subject.id,
                     projectId = this@Project.id
                 ))
             }
+
             this.clone(
                 stars = newStars
             )
@@ -166,15 +167,23 @@ abstract class Project(
     fun removeStar(subject: Person): Project {
         val existing = stars.find { it.subjectId == subject.id }
         return if (existing != null) {
-            val newStars = this.stars.toMutableList().filter { it.subjectId != subject.id }
+            val newStars = this.stars.filter { it.subjectId != subject.id }
             this.clone(
                 stars = newStars
             )
         } else {
-            Searchable.log.info("Skipped: Marketplace does not have a star for subject: $subject.id")
             this
         }
     }
+
+    override val starsCount: Int
+        get() = _starsCount
+
+    @PrePersist
+    fun prePersist() {
+        this._starsCount = this.stars.size
+    }
+
 
     fun addTags(tags: List<SearchableTag>): Project {
         return this.clone(

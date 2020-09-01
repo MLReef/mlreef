@@ -19,6 +19,7 @@ import com.mlreef.rest.api.v1.dto.ProjectDto
 import com.mlreef.rest.api.v1.dto.UserInProjectDto
 import com.mlreef.rest.feature.project.ProjectService
 import com.mlreef.rest.feature.system.SessionsService
+import com.mlreef.rest.marketplace.Star
 import com.ninjasquad.springmockk.SpykBean
 import io.mockk.every
 import org.assertj.core.api.Assertions.assertThat
@@ -887,6 +888,74 @@ class ProjectsApiTest : AbstractRestApiTest() {
             .returnsList(UserInProjectDto::class.java)
 
         assertThat(returnedResult.size).isEqualTo(1)
+    }
+
+    @Transactional
+    @Rollback
+    @Test
+    fun `Can star a project`() {
+        val id1 = randomUUID()
+        val project1 = CodeProject(id1, "slug-1", "www.url.com", "Test Project 1", "", account2.person.id, "group1", "project-1", 1)
+        codeProjectRepository.save(project1)
+
+        every { projectService.getUsersInProject(any()) } answers {
+            listOf(account).map { accountToUserInProject(it) }
+        }
+
+        this.mockGetUserProjectsList(listOf(project1.id), account, AccessLevel.OWNER)
+
+        var projectInDb = codeProjectRepository.findByIdOrNull(project1.id)!!
+
+        assertThat(projectInDb.stars.size).isEqualTo(0)
+        assertThat(projectInDb.starsCount).isEqualTo(0)
+
+        val url = "$rootUrl/${project1.id}/star"
+
+        val returnedResult = this.performPost(url, token)
+            .expectOk()
+            .document("project-place-star",
+                responseFields(projectResponseFields()))
+            .returns(ProjectDto::class.java)
+
+        projectInDb = codeProjectRepository.findByIdOrNull(project1.id)!!
+
+        assertThat(projectInDb.id).isEqualTo(returnedResult.id)
+        assertThat(projectInDb.stars.size).isEqualTo(1)
+        assertThat(projectInDb.starsCount).isEqualTo(1)
+    }
+
+    @Transactional
+    @Rollback
+    @Test
+    fun `Can unstar a project`() {
+        val id1 = randomUUID()
+        val project1 = CodeProject(id1, "slug-1", "www.url.com", "Test Project 1", "", account2.person.id, "group1", "project-1", 1, stars = mutableListOf(Star(id1, account.person.id)))
+        codeProjectRepository.save(project1)
+
+        every { projectService.getUsersInProject(any()) } answers {
+            listOf(account).map { accountToUserInProject(it) }
+        }
+
+        this.mockGetUserProjectsList(listOf(project1.id), account, AccessLevel.OWNER)
+
+        var projectInDb = codeProjectRepository.findByIdOrNull(project1.id)!!
+
+        assertThat(projectInDb.stars.size).isEqualTo(1)
+        assertThat(projectInDb.starsCount).isEqualTo(1)
+
+        val url = "$rootUrl/${project1.id}/star"
+
+        val returnedResult = this.performDelete(url, token)
+            .expectOk()
+            .document("project-remove-star",
+                responseFields(projectResponseFields()))
+            .returns(ProjectDto::class.java)
+
+        projectInDb = codeProjectRepository.findByIdOrNull(project1.id)!!
+
+        assertThat(projectInDb.id).isEqualTo(returnedResult.id)
+        assertThat(projectInDb.stars.size).isEqualTo(0)
+        assertThat(projectInDb.starsCount).isEqualTo(0)
     }
 
     private fun projectCreateRequestFields(): List<FieldDescriptor> {

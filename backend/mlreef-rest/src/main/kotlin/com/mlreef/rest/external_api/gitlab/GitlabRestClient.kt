@@ -123,6 +123,30 @@ class GitlabRestClient(
             .body ?: throw Exception("GitlabRestClient.createProject($slug): Gitlab response does not contain a body.")
     }
 
+    // https://docs.gitlab.com/ee/api/projects.html#star-a-project
+    fun userStarProject(token: String, projectId: Long): GitlabProject {
+        return GitlabHttpEntity(null, createUserHeaders(token))
+            .addErrorDescription(ErrorCode.GitlabCommonError, "Cannot star the project $projectId")
+            .makeRequest {
+                val url = "$gitlabServiceRootUrl/projects/$projectId/star"
+                restTemplate(builder).exchange(url, HttpMethod.POST, it, GitlabProject::class.java)
+            }
+            .also { logGitlabCall(it) }
+            .body!!
+    }
+
+    // https://docs.gitlab.com/ee/api/projects.html#star-a-project
+    fun userUnstarProject(token: String, projectId: Long): GitlabProject {
+        return GitlabHttpEntity(null, createUserHeaders(token))
+            .addErrorDescription(ErrorCode.GitlabCommonError, "Cannot unstar the project $projectId")
+            .makeRequest {
+                val url = "$gitlabServiceRootUrl/projects/$projectId/unstar"
+                restTemplate(builder).exchange(url, HttpMethod.POST, it, GitlabProject::class.java)
+            }
+            .also { logGitlabCall(it) }
+            .body!!
+    }
+
     fun adminGetProjects(search: String? = null): List<GitlabProject> {
         return GitlabHttpEntity<String>("body", createAdminHeaders())
             .addErrorDescription(ErrorCode.NotFound, "Cannot find projects")

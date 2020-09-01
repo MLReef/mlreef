@@ -224,6 +224,14 @@ operation::project-pipelineconfig-retrieve-one-by-namespace-slug[snippets='curl-
 
 operation::data-processors-codeproject-retrieve-one-by-namespace-slug[snippets='curl-request,response-body,response-fields']
 
+=== POST /projects/:project/star
+
+operation::project-place-star[snippets='curl-request,response-body,response-fields']
+
+=== DELETE /projects/:project/star
+
+operation::project-remove-star[snippets='curl-request,response-body,response-fields']
+
 [[code-projects]]
 == CodeProjects - /code-projects
 

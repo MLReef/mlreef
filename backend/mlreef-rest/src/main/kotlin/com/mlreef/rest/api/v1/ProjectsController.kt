@@ -101,6 +101,27 @@ class ProjectsController(
         return projects.map { it.toDto() }
     }
 
+    @PostMapping("/{id}/star")
+    @PreAuthorize("canViewProject(#id)")
+    fun starProjectById(
+        @PathVariable id: UUID,
+        person: Person,
+        token: TokenDetails
+    ): ProjectDto {
+        val project = projectService.starProject(id, person = person, userToken = token.accessToken)
+        return project.toDto()
+    }
+
+    @DeleteMapping("/{id}/star")
+    @PreAuthorize("canViewProject(#id)")
+    fun unstarProjectById(
+        @PathVariable id: UUID,
+        person: Person,
+        token: TokenDetails
+    ): ProjectDto {
+        val project = projectService.unstarProject(id, person = person, userToken = token.accessToken)
+        return project.toDto()
+    }
 
     @PostMapping
     @PreAuthorize("canCreateProject()")

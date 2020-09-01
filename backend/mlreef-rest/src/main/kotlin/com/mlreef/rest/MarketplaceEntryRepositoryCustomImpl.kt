@@ -29,7 +29,9 @@ class ProjectRepositoryCustomImpl() : ProjectRepositoryCustom {
         searchableType: SearchableType,
         inputDataTypes: List<DataType>?,
         outputDataTypes: List<DataType>?,
-        tags: List<SearchableTag>?
+        tags: List<SearchableTag>?,
+        minStars: Int?,
+        maxStars: Int?
     ): List<Project> {
 
         val pageNumber = pageable.pageNumber
@@ -39,13 +41,13 @@ class ProjectRepositoryCustomImpl() : ProjectRepositoryCustom {
         val countQuery = builder.createQuery(Long::class.java)
         val countRoot = countQuery.from(clazz)
         val countPredicates = createPredicates(
-            builder, countRoot, slugs, searchableType, inputDataTypes, outputDataTypes, tags)
+            builder, countRoot, slugs, searchableType, inputDataTypes, outputDataTypes, tags, minStars, maxStars)
 
         val entriesQuery: CriteriaQuery<T> = builder.createQuery(clazz)
         val entriesRoot: Root<T> = entriesQuery.from(clazz)
 
         val entriesPredicates = createPredicates(
-            builder, entriesRoot, slugs, searchableType, inputDataTypes, outputDataTypes, tags)
+            builder, entriesRoot, slugs, searchableType, inputDataTypes, outputDataTypes, tags, minStars, maxStars)
 
         countQuery.select(builder.count(countRoot)).where(builder.and(*countPredicates.toTypedArray()))
         val countResult = entityManager.createQuery(countQuery).singleResult
@@ -76,7 +78,9 @@ class ProjectRepositoryCustomImpl() : ProjectRepositoryCustom {
         searchableType: SearchableType,
         inputDataTypes: List<DataType>?,
         outputDataTypes: List<DataType>?,
-        tags: List<SearchableTag>?
+        tags: List<SearchableTag>?,
+        minStars: Int?,
+        maxStars: Int?
     ): ArrayList<Predicate> {
         val predicates = ArrayList<Predicate>()
 
@@ -114,6 +118,16 @@ class ProjectRepositoryCustomImpl() : ProjectRepositoryCustom {
             val groupPredicate = builder.and(*it.toTypedArray())
             // decide to use OR or AND for each specific subquery
             predicates.add(groupPredicate)
+        }
+
+        // AND-Filter for MinStars
+        minStars?.let {
+            predicates.add(builder.greaterThanOrEqualTo(root.get("_starsCount"), it))
+        }
+
+        // AND-Filter for MinStars
+        maxStars?.let {
+            predicates.add(builder.lessThanOrEqualTo(root.get("_starsCount"), it))
         }
 
         return predicates
