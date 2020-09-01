@@ -167,9 +167,8 @@ export const InstanceCard = ({ ...props }) => {
       </div>
 
       {params.instances.map((instance) => {
-        const { timeCreatedAgo, projId, id: dataId, userName, currentState } = instance;
+        const { id: dataId, pipelineBackendId, userName, currentState } = instance;
         const dataInstanceName = instance.descTitle;
-        const diInstanceNameEncoded = encodeURIComponent(dataInstanceName);
         const uniqueName = dataInstanceName.split('/')[1];
         const modelDiv = 'inherit';
         let progressVisibility = 'inherit';
@@ -178,16 +177,7 @@ export const InstanceCard = ({ ...props }) => {
           <div key={`instance-comp-id-${instance.id}`} className="card-content">
             <div id="data-ins-summary-data" className="summary-data" data-key={`${instance.descTitle}`}>
               <div className="project-desc-experiment">
-                <Link
-                  to={{
-                    pathname: `/my-projects/${projId}/${diInstanceNameEncoded}/-/datasets/${dataId}`,
-                    state: {
-                      diName: diInstanceNameEncoded,
-                      timeCreatedAgo,
-                      diStatus: currentState,
-                    },
-                  }}
-                >
+                <Link to={`/${namespace}/${slug}/-/datasets/${pipelineBackendId}`}>
                   <b>{uniqueName}</b>
                 </Link>
                 <p>
