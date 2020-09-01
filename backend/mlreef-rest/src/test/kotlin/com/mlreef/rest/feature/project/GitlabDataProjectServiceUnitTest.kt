@@ -4,6 +4,7 @@ import com.mlreef.rest.AccountRepository
 import com.mlreef.rest.DataProject
 import com.mlreef.rest.DataProjectRepository
 import com.mlreef.rest.GroupRepository
+import com.mlreef.rest.SubjectRepository
 import com.mlreef.rest.VisibilityScope
 import com.mlreef.rest.external_api.gitlab.GitlabRestClient
 import com.mlreef.rest.external_api.gitlab.dto.GitlabProject
@@ -37,11 +38,14 @@ internal class GitlabDataProjectServiceUnitTest {
     @MockK
     private lateinit var groupRepository: GroupRepository
 
+    @MockK
+    private lateinit var subjectRepository: SubjectRepository
+
     private lateinit var service: ProjectService<DataProject>
 
     @BeforeEach
     fun setUp() {
-        service = ProjectServiceImpl(DataProject::class.java, dataProjectRepository, publicProjectsCacheService, gitlabRestClient, accountRepository, groupRepository)
+        service = ProjectServiceImpl(DataProject::class.java, dataProjectRepository, publicProjectsCacheService, gitlabRestClient, accountRepository, groupRepository, subjectRepository)
     }
 
     @Test

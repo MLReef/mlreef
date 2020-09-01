@@ -83,6 +83,7 @@ class GitlabRestClient(
         private const val REPEAT_REQUESTS_WHEN_GITLAB_UNAVAILABLE = 3
         private const val PAUSE_BETWEEN_REPEAT_WHEN_GITLAB_UNAVAILABLE_MS = 1500L
         private const val GITLAB_FAILED_LIMIT_REACHED_ERROR_MESSAGE_EMPTY = "\"limit_reached\":[]"
+        private const val GITLAB_FAILED_LIMIT_REACHED_ERROR_PREFIX = "\"limit_reached\":["
     }
 
     fun restTemplate(builder: RestTemplateBuilder): RestTemplate = builder.build()
@@ -519,12 +520,12 @@ class GitlabRestClient(
     }
 
     // https://docs.gitlab.com/ee/api/namespaces.html#search-for-namespace
-    fun findNamespace(token: String, name: String): GitlabNamespace {
+    fun findNamespace(token: String, name: String): List<GitlabNamespace> {
         return GitlabHttpEntity<String>("body", createUserHeaders(token))
             .addErrorDescription(ErrorCode.GitlabCommonError, "Cannot find namespace with name $name")
             .makeRequest {
-                val url = "$gitlabServiceRootUrl/namespace?search=$name"
-                restTemplate(builder).exchange(url, HttpMethod.GET, it, GitlabNamespace::class.java)
+                val url = "$gitlabServiceRootUrl/namespaces?search=$name"
+                restTemplate(builder).exchange(url, HttpMethod.GET, it, typeRef<List<GitlabNamespace>>())
             }
             .also { logGitlabCall(it) }
             .body!!
@@ -622,8 +623,8 @@ class GitlabRestClient(
     }
 
 
-    fun adminCreateGroup(groupName: String, path: String): GitlabGroup {
-        return GitlabCreateGroupRequest(name = groupName, path = path)
+    fun adminCreateGroup(groupName: String, path: String, visibility: GitlabVisibility): GitlabGroup {
+        return GitlabCreateGroupRequest(name = groupName, path = path, visibility = visibility.name.toLowerCase())
             .let { GitlabHttpEntity(it, createAdminHeaders()) }
             .addErrorDescription(409, ErrorCode.GitlabGroupCreationFailed, "Cannot create group $groupName in gitlab as admin. Group already exists")
             .addErrorDescription(ErrorCode.GitlabGroupCreationFailed, "Cannot create group as admin")
@@ -635,8 +636,8 @@ class GitlabRestClient(
             .body!!
     }
 
-    fun userCreateGroup(token: String, groupName: String, path: String): GitlabGroup {
-        return GitlabCreateGroupRequest(name = groupName, path = path)
+    fun userCreateGroup(token: String, groupName: String, path: String, visibility: GitlabVisibility): GitlabGroup {
+        return GitlabCreateGroupRequest(name = groupName, path = path, visibility = visibility.name.toLowerCase())
             .let { GitlabHttpEntity(it, createUserHeaders(token)) }
             .addErrorDescription(409, ErrorCode.GitlabGroupCreationFailed, "Cannot create group $groupName in gitlab as user. Group already exists")
             .addErrorDescription(ErrorCode.GitlabGroupCreationFailed, "Cannot create group as user")
@@ -993,7 +994,10 @@ class GitlabRestClient(
                     return repeatUnauthorized(this, ex, block)
                 } else if (ex.statusCode == HttpStatus.BAD_GATEWAY || ex.statusCode == HttpStatus.INTERNAL_SERVER_ERROR) {
                     return repeatBadGateway(this, ex, block)
-                } else if (ex.statusCode == HttpStatus.BAD_REQUEST && !ex.responseBodyAsString.contains(GITLAB_FAILED_LIMIT_REACHED_ERROR_MESSAGE_EMPTY)) {
+                } else if (ex.statusCode == HttpStatus.BAD_REQUEST
+                    && ex.responseBodyAsString.contains(GITLAB_FAILED_LIMIT_REACHED_ERROR_PREFIX)
+                    && !ex.responseBodyAsString.contains(GITLAB_FAILED_LIMIT_REACHED_ERROR_MESSAGE_EMPTY)
+                ) {
                     return repeatBadGateway(this, ex, block)
                 } else throw ex
             } catch (ex: HttpStatusCodeException) {

@@ -44,6 +44,8 @@ enum class ErrorCode(val errorCode: Int, val errorName: String) {
     GitlabProjectCreationFailed(3004, "Cannot create project in Gitlab"),
     GitlabProjectUpdateFailed(3005, "Cannot update project in Gitlab"),
     GitlabProjectDeleteFailed(3006, "Cannot delete project in Gitlab"),
+    ProjectNamespaceSubjectNotFound(3007, "Cannot associate gitlab namespace with a persisted Subject"),
+    GitlabProjectIdAlreadyUsed(3008, "Cannot save project with a used gitlabId"),
 
     // Creating Experiments 31xx
     DataProcessorNotUsable(3101, "DataProcessor cannot be used"),

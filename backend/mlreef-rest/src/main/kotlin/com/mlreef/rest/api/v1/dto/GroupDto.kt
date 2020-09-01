@@ -13,7 +13,8 @@ import java.util.UUID
 data class GroupDto(
     override val id: UUID,
     val name: String,
-    val gitlabId: Long?
+    val gitlabId: Long?,
+//    val visibility: GitlabVisibility, //FIXME we need this
 ) : DataClassWithId
 
 

@@ -47,7 +47,8 @@ internal class GitlabGetUserTokenRequest : Serializable
 //https://docs.gitlab.com/ee/api/groups.html#new-group
 internal class GitlabCreateGroupRequest(
     val name: String,
-    val path: String
+    val path: String,
+    val visibility: String
 ) : Serializable
 
 //https://docs.gitlab.com/ee/api/groups.html#update-group

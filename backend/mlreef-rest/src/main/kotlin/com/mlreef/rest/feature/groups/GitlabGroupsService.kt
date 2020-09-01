@@ -6,6 +6,7 @@ import com.mlreef.rest.AccountRepository
 import com.mlreef.rest.Group
 import com.mlreef.rest.GroupRepository
 import com.mlreef.rest.MembershipRepository
+import com.mlreef.rest.VisibilityScope
 import com.mlreef.rest.annotations.RefreshUserInformation
 import com.mlreef.rest.api.CurrentUserService
 import com.mlreef.rest.exceptions.AccessDeniedException
@@ -15,8 +16,10 @@ import com.mlreef.rest.exceptions.UnknownGroupException
 import com.mlreef.rest.exceptions.UnknownUserException
 import com.mlreef.rest.exceptions.UserNotFoundException
 import com.mlreef.rest.external_api.gitlab.GitlabRestClient
+import com.mlreef.rest.external_api.gitlab.GitlabVisibility
 import com.mlreef.rest.external_api.gitlab.toAccessLevel
 import com.mlreef.rest.external_api.gitlab.toGitlabAccessLevel
+import com.mlreef.rest.external_api.gitlab.toGitlabVisibility
 import com.mlreef.rest.helpers.GroupOfUser
 import com.mlreef.rest.helpers.UserInGroup
 import org.slf4j.LoggerFactory
@@ -30,7 +33,7 @@ interface GroupsService {
     fun getUserGroupsList(token: String, personId: UUID? = null, userId: UUID? = null): List<GroupOfUser>
     fun getGroupById(groupId: UUID): Group?
     fun getUsersInGroup(groupId: UUID): List<UserInGroup>
-    fun createGroup(ownerToken: String, groupName: String, path: String? = null, ownerId: UUID? = null): Group
+    fun createGroup(ownerToken: String, groupName: String, path: String? = null, ownerId: UUID? = null, visibility: VisibilityScope?): Group
     fun updateGroup(groupId: UUID, groupName: String? = null, path: String? = null): Group
     fun deleteGroup(groupId: UUID)
     fun addUserToGroup(groupId: UUID, userId: UUID, accessLevel: AccessLevel? = AccessLevel.GUEST): List<UserInGroup>
@@ -95,13 +98,14 @@ class GitlabGroupsService(
 
     @Transactional
     @RefreshUserInformation(userId = "#ownerId")
-    override fun createGroup(ownerToken: String, groupName: String, path: String?, ownerId: UUID?): Group {
+    override fun createGroup(ownerToken: String, groupName: String, path: String?, ownerId: UUID?, visibility: VisibilityScope?): Group {
         resolveAccount(userToken = ownerToken, userId = ownerId) ?: throw UserNotFoundException(userId = ownerId)
 
         val gitlabGroup = gitlabRestClient.userCreateGroup(
             token = ownerToken,
             groupName = groupName,
-            path = path ?: groupName
+            path = path ?: groupName,
+            visibility = visibility?.toGitlabVisibility() ?: GitlabVisibility.PRIVATE
         )
 
         val group = Group(id = randomUUID(), slug = groupName, name = groupName, gitlabId = gitlabGroup.id)

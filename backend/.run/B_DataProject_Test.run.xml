@@ -1,6 +1,5 @@
 <component name="ProjectRunConfigurationManager">
-    <configuration default="false" name="backend:mlreef-system-test [systemTest]" type="GradleRunConfiguration"
-                   factoryName="Gradle">
+    <configuration default="false" name="B_DataProject_Test" type="GradleRunConfiguration" factoryName="Gradle">
         <ExternalSystemSettings>
             <option name="env">
                 <map>
@@ -10,20 +9,20 @@
                 </map>
             </option>
             <option name="executionName"/>
-            <option name="externalProjectPath" value="$PROJECT_DIR$/mlreef-system-test"/>
+            <option name="externalProjectPath" value="$PROJECT_DIR$"/>
             <option name="externalSystemIdString" value="GRADLE"/>
-            <option name="scriptParameters" value="--stacktrace"/>
+            <option name="scriptParameters" value="--tests &quot;com.mlreef.rest.v1.system.B_DataProject_Test&quot;"/>
             <option name="taskDescriptions">
                 <list/>
             </option>
             <option name="taskNames">
                 <list>
-                    <option value="systemTest"/>
+                    <option value=":mlreef-system-test:systemTest"/>
                 </list>
             </option>
             <option name="vmOptions" value=""/>
         </ExternalSystemSettings>
-        <GradleScriptDebugEnabled>true</GradleScriptDebugEnabled>
+        <GradleScriptDebugEnabled>false</GradleScriptDebugEnabled>
         <method v="2"/>
     </configuration>
 </component>

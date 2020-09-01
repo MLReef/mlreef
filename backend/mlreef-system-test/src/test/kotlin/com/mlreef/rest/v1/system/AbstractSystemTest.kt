@@ -3,8 +3,11 @@ package com.mlreef.rest.v1.system
 import com.mlreef.rest.ApplicationConfiguration
 import com.mlreef.rest.EpfConfiguration
 import com.mlreef.rest.GitlabConfiguration
+import com.mlreef.rest.api.v1.GroupCreateRequest
 import com.mlreef.rest.api.v1.LoginRequest
 import com.mlreef.rest.api.v1.RegisterRequest
+import com.mlreef.rest.api.v1.dto.GroupDto
+import com.mlreef.rest.api.v1.dto.GroupOfUserDto
 import com.mlreef.rest.api.v1.dto.SecretUserDto
 import com.mlreef.rest.config.MLReefObjectMapper
 import com.mlreef.rest.external_api.gitlab.GitlabRestClient
@@ -14,6 +17,8 @@ import com.mlreef.rest.v1.system.ScenarioState.globalRandomPassword
 import com.mlreef.rest.v1.system.ScenarioState.globalRandomUserName
 import org.assertj.core.api.Assertions
 import org.eclipse.jgit.api.Git
+import org.eclipse.jgit.api.GitCommand
+import org.eclipse.jgit.api.TransportCommand
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.MethodOrderer
@@ -44,6 +49,7 @@ object ScenarioState {
 //])
 open class AbstractSystemTest() {
 
+    lateinit var objectMapper: MLReefObjectMapper
     protected lateinit var gitlabRestClient: GitlabRestClient
 
     protected lateinit var backendRestClient: GenericRestClient
@@ -81,7 +87,8 @@ open class AbstractSystemTest() {
                 adminPassword = "GITLAB_ADMIN_PASSWORD" //FIXME
             })
 
-        val jsonConverter = MappingJackson2HttpMessageConverter(MLReefObjectMapper())
+        objectMapper = MLReefObjectMapper()
+        val jsonConverter = MappingJackson2HttpMessageConverter(objectMapper)
         val stringConverter = StringHttpMessageConverter(Charset.defaultCharset())
 //        converter.supportedMediaTypes = listOf(MediaType.APPLICATION_JSON,MediaType.TEXT_PLAIN)
         val builder = RestTemplateBuilder().messageConverters(jsonConverter, stringConverter)
@@ -111,9 +118,28 @@ open class AbstractSystemTest() {
             ignore.printStackTrace()
         }
 
-        val loginRequest = LoginRequest(globalRandomUserName, globalEmail, globalRandomPassword)
+        val loginRequest = LoginRequest(username, email, password)
         val response: ResponseEntity<SecretUserDto> = backendRestClient.post("/auth/login", body = loginRequest)
         return response.expectOk().returns()
+    }
+
+    protected fun prepareCurrentGroup(
+        accessToken: String,
+        groupName: String,
+    ): GroupDto {
+        return try {
+            val registerRequest = GroupCreateRequest(groupName, "unused", groupName)
+            val response: ResponseEntity<GroupDto> = backendRestClient.post("/groups", accessToken, registerRequest)
+            val returnedResult = response.expectOk()
+            returnedResult.returns()
+        } catch (ignore: Exception) {
+            ignore.printStackTrace()
+
+            val response: ResponseEntity<List<GroupOfUserDto>> = backendRestClient.get("/groups/my", accessToken)
+            val lists = response.expectOk().body ?: listOf()
+            val first = lists.first { it.name == groupName }
+            GroupDto(first.id, first.name, first.gitlabId)
+        }
     }
 
     fun <T> ResponseEntity<T>.expectOk(): ResponseEntity<T> {
@@ -125,12 +151,32 @@ open class AbstractSystemTest() {
         return this.body!!
     }
 
-    protected fun fixUrl(url: String): String {
+    fun <T> ResponseEntity<*>.returnsList(clazz: Class<T>): List<T> {
+        return if (body is List<*>) {
+            val items = this.body as List<*>
+            return items.map {
+                objectMapper.convertValue(it, clazz)
+            }
+        } else {
+            arrayListOf()
+        }
+    }
+
+    protected fun fixDockerUrlProblems(url: String): String {
         return url.replace("gitlab:", "localhost:")
     }
 
-    protected fun prepareGit(): Pair<File, Git> {
-        val url = fixUrl(B_DataProject_Experiment_Test.ownDataProjectDto.url)
+    protected fun sanitizeWrongEnvUrl(epfPipelineUrl: String): String {
+        return if (epfPipelineUrl.startsWith("http://")
+            || epfPipelineUrl.startsWith("https://")) {
+            epfPipelineUrl
+        } else {
+            "http://$epfPipelineUrl"
+        }
+    }
+
+    protected fun prepareGit(url: String): Pair<File, Git> {
+        val url = fixDockerUrlProblems(url)
         val newFolder = File(tempFolder, "repo").apply { mkdir() }
         val repo = prepareGit(url, newFolder)
         return Pair(newFolder, repo)
@@ -139,8 +185,8 @@ open class AbstractSystemTest() {
     protected fun prepareGit(
         url: String,
         newFolder: File,
-        username: String = ScenarioState.globalRandomUserName,
-        password: String = ScenarioState.globalRandomPassword
+        username: String = globalRandomUserName,
+        password: String = globalRandomPassword
     ) = Git.cloneRepository()
         .setCredentialsProvider(credentialsProvider(username, password))
         .setURI(url)
@@ -148,9 +194,15 @@ open class AbstractSystemTest() {
         .call()
 
     protected fun credentialsProvider(
-        username: String = ScenarioState.globalRandomUserName,
-        password: String = ScenarioState.globalRandomPassword) = UsernamePasswordCredentialsProvider(username, password)
+        username: String = globalRandomUserName,
+        password: String = globalRandomPassword) = UsernamePasswordCredentialsProvider(username, password)
 
+    protected fun <C : GitCommand<C>, T> TransportCommand<C, T>.withCp(
+        username: String = globalRandomUserName,
+        password: String = globalRandomPassword
+    ): C {
+        return this.setCredentialsProvider(UsernamePasswordCredentialsProvider(username, password))
+    }
 }
 
 

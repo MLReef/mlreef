@@ -24,7 +24,8 @@ dockerize backend:
   stage: build
   only:
     changes:
-      - backend/**/*
+      - backend/mlreef-domain/src/main/**/*
+      - backend/mlreef-rest/src/main/**/*
   image: docker:19.03.1
   services:
     - docker:19.03.0-dind
@@ -41,7 +42,9 @@ backend integration tests:
   stage: test
   only:
     changes:
-      - backend/**/*
+      - backend/mlreef-domain/src/main/**/*
+      - backend/mlreef-rest/src/main/**/*
+      - backend/mlreef-rest/src/test/**/*
   image: java:8
   services:
     - docker:19.03.0-dind
