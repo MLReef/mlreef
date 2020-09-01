@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import * as PropTypes from 'prop-types';
+import AuthWrapper from 'components/AuthWrapper';
 import { PROJECT_TYPES } from 'domain/project/projectTypes';
 
 const RepoInfo = ({
@@ -38,14 +39,18 @@ const RepoInfo = ({
 
       {isDataProject ? (
         <>
-          <Link className="repo-stat" to={`/my-projects/${project.gitlabId}/visualizations`}>
-            <p className="stat-no">{visualizationsCount}</p>
-            <p className="stat-type">Visualizations</p>
-          </Link>
-          <Link to={`/${project.namespace}/${project.slug}/-/datasets`} className="repo-stat">
-            <p className="stat-no">{dataInstanesCount}</p>
-            <p className="stat-type">Datasets</p>
-          </Link>
+          <AuthWrapper>
+            <Link className="repo-stat" to={`/${project.namespace}/${project.slug}/-/visualizations`}>
+              <p className="stat-no">{visualizationsCount}</p>
+              <p className="stat-type">Visualizations</p>
+            </Link>
+          </AuthWrapper>
+          <AuthWrapper>
+            <Link disabled to={`/${project.namespace}/${project.slug}/-/datasets`} className="repo-stat">
+              <p className="stat-no">{dataInstanesCount}</p>
+              <p className="stat-type">Datasets</p>
+            </Link>
+          </AuthWrapper>
         </>
       ) : (
         <div className="repo-stat">

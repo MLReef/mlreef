@@ -99,37 +99,39 @@ export class RepoFeatures extends Component {
           )}
         />
 
-        <MDropdown
-          className="mr-2 mt-3"
-          label={<i className="fa fa-plus" />}
-          component={(
-            <div className="plus-dropdown">
-              <ul className="plus-list">
-                <li>This directory</li>
-                <li className="plus-option">
-                  <Link to={{
-                    pathname: `/my-projects/${projectId}/${currentBranch}/upload-file`,
-                    state: { currentFilePath: path },
-                  }}
-                  >
-                    Upload File
-                  </Link>
-                </li>
-                <hr />
-                <li>This repository</li>
-                <li className="plus-option">
-                  <Link to={`/${namespace}/${slug}/-/branches/new`}>
-                    New branch
-                  </Link>
-                </li>
-              </ul>
-            </div>
-          )}
-        />
+        <AuthWrapper norender>
+          <MDropdown
+            className="mr-2 mt-3"
+            label={<i className="fa fa-plus" />}
+            component={(
+              <div className="plus-dropdown">
+                <ul className="plus-list">
+                  <li>This directory</li>
+                  <li className="plus-option">
+                    <Link to={{
+                      pathname: `/my-projects/${projectId}/${currentBranch}/upload-file`,
+                      state: { currentFilePath: path },
+                    }}
+                    >
+                      Upload File
+                    </Link>
+                  </li>
+                  <hr />
+                  <li>This repository</li>
+                  <li className="plus-option">
+                    <Link to={`/${namespace}/${slug}/-/branches/new`}>
+                      New branch
+                    </Link>
+                  </li>
+                </ul>
+              </div>
+            )}
+          />
+        </AuthWrapper>
 
         {!isCodeProject && (
-          <div>
-            <AuthWrapper minRole={30} className="mr-2 mt-3">
+          <>
+            <AuthWrapper minRole={30} className="mx-2 mt-3">
               <Link
                 className="btn btn-dark px-3 mr-2 mt-3"
                 to={`/${namespace}/${slug}/-/datasets/new`}
@@ -140,7 +142,7 @@ export class RepoFeatures extends Component {
 
             <AuthWrapper
               minRole={30}
-              className=""
+              className="ml-2 mr-auto mt-3"
             >
               <Link
                 className="btn btn-dark px-3 mr-auto mt-3"
@@ -149,7 +151,7 @@ export class RepoFeatures extends Component {
                 Data Visualization
               </Link>
             </AuthWrapper>
-          </div>
+          </>
         )}
 
         {isCodeProject && (
@@ -168,12 +170,13 @@ export class RepoFeatures extends Component {
           resource={{ type: 'project' }}
           minRole={20}
           accountType={1}
+          className="ml-auto mt-3"
         >
           <Link
             className="btn btn-outline-dark ml-auto mt-3 px-3"
             to={`/my-projects/${projectId}/${currentBranch}/commits/${path}`}
           >
-            <span className="d-none d-lg-block mx-3">history</span>
+            <span className="d-none d-lg-block mx-3">History</span>
             <span className="fa fa-history d-lg-none" />
           </Link>
         </AuthWrapper>

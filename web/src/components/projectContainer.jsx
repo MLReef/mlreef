@@ -71,18 +71,22 @@ class ProjectContainer extends React.Component {
             </Link>
 
             {isDataProject && (
-              <Link
-                onClick={forceShowExperimentList}
-                to={`/${namespace}/${slug}/-/experiments`}
-                className="feature"
-                id="experiments"
-              >
-                Experiments
-              </Link>
+              <AuthWrapper className="tab-disabled">
+                <Link
+                  onClick={forceShowExperimentList}
+                  to={`/${namespace}/${slug}/-/experiments`}
+                  className="feature"
+                  id="experiments"
+                >
+                  Experiments
+                </Link>
+              </AuthWrapper>
             )}
-            <Link to={`/my-projects/${id}/insights/-/jobs`} className="feature" id="insights">
-              Insights
-            </Link>
+            <AuthWrapper className="tab-disabled">
+              <Link to={`/my-projects/${id}/insights/-/jobs`} className="feature" id="insights">
+                Insights
+              </Link>
+            </AuthWrapper>
             <AuthWrapper
               owneronly
               norender

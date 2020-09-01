@@ -11,6 +11,7 @@ import {
 } from 'prop-types';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
+import AuthWrapper from 'components/AuthWrapper';
 import MDropdown from 'components/ui/MDropdown';
 import MWrapper from 'components/ui/MWrapper';
 import { getProjectDetailsBySlug } from 'actions/projectInfoActions';
@@ -286,13 +287,15 @@ export class FileView extends React.Component {
                     Replace
                   </button>
                 </MWrapper>
-                <button
-                  type="button"
-                  className="btn btn-sm btn-danger my-auto ml-2"
-                  onClick={this.showDeleteModal}
-                >
-                  Delete
-                </button>
+                <AuthWrapper norender>
+                  <button
+                    type="button"
+                    className="btn btn-sm btn-danger my-auto ml-2"
+                    onClick={this.showDeleteModal}
+                  >
+                    Delete
+                  </button>
+                </AuthWrapper>
               </div>
             </div>
           </div>

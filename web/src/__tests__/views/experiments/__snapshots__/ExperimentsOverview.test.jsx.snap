@@ -107,7 +107,7 @@ exports[`test presence of elements in DOM compare with the latest snapshot of th
         </div>
       </div>
       <div
-        className="d-flex ml-auto my-auto"
+        className="d-none d-lg-flex ml-auto my-auto"
       >
         <a
           className="btn btn-sm btn-dark mr-3 px-3"
@@ -293,14 +293,32 @@ exports[`test presence of elements in DOM compare with the latest snapshot of th
         >
           Data
         </a>
-        <a
-          className="feature"
-          href="/my-projects/12395599/insights/-/jobs"
-          id="insights"
-          onClick={[Function]}
+        <div
+          className="tab-disabled auth-wrapper
+      
+      group-role-required
+      
+    "
+          style={Object {}}
+          title="Please login"
         >
-          Insights
-        </a>
+          <div
+            className="auth-wrapper-cover"
+            onClick={[Function]}
+          />
+          <div
+            className="auth-wrapper-wrapped"
+          >
+            <a
+              className="feature"
+              href="/my-projects/12395599/insights/-/jobs"
+              id="insights"
+              onClick={[Function]}
+            >
+              Insights
+            </a>
+          </div>
+        </div>
       </div>
     </div>
   </div>

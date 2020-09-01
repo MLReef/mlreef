@@ -11,6 +11,7 @@ import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import * as mergeRequestActions from 'actions/mergeActions';
 import { pluralize as plu } from 'functions/dataParserHelpers';
+import AuthWrapper from 'components/AuthWrapper';
 import MSimpleTabs from 'components/ui/MSimpleTabs';
 import MParagraph from 'components/ui/MParagraph';
 import MButton from 'components/ui/MButton';
@@ -197,8 +198,9 @@ const BasicMergeRequestView = (props) => {
               </Link>
             </div>
           </div>
-
-          {actionButtons}
+          <AuthWrapper norender>
+            {actionButtons}
+          </AuthWrapper>
 
         </div>
         <br />

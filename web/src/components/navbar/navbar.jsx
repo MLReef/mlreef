@@ -177,7 +177,7 @@ class Navbar extends Component {
             )}
 
             {!user.auth && (
-              <div className="d-flex ml-auto my-auto">
+              <div className="d-none d-lg-flex ml-auto my-auto">
                 <Link to="/login?redirect=goback" className="btn btn-sm btn-dark mr-3 px-3">
                   Sign in
                 </Link>

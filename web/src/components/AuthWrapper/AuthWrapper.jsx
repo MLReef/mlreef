@@ -9,35 +9,7 @@ import {
   useGetHasRole,
   useGetHasAccountType,
 } from 'customHooks/permissions';
-
-// popup's content when ask upgrade account. This is temporary and will be changed
-// to a promotional image
-const upgradeAccountModal = {
-  type: 'info',
-  title: 'Upgraded needed',
-  dark: false,
-  content: (
-    <div className="m-auto t-center">
-      <h3>Please upgrade your account!</h3>
-    </div>
-  ),
-  positiveLabel: 'UPGRADE',
-  negativeLabel: 'BACK',
-};
-
-// popup's content when suggest to fork.
-const forkProjectModal = {
-  type: 'info',
-  title: 'You need permissions to access this feature',
-  dark: false,
-  content: (
-    <div className="m-auto t-center">
-      <h3>You can fork this project!</h3>
-    </div>
-  ),
-  positiveLabel: 'FORK!',
-  negativeLabel: 'BACK',
-};
+import { registerModal, upgradeAccountModal, forkProjectModal } from './popupInformation';
 
 /**
  * AuthWrapper
@@ -67,12 +39,18 @@ const AuthWrapper = (props) => {
     className,
     debug,
     children,
+    visitorAllowed,
   } = props;
 
   const history = useHistory();
   const dispatch = useDispatch();
 
-  const projectId = useSelector(({ projects: ps }) => ps.selectedProject && ps.selectedProject.id);
+  const {
+    user: { auth },
+    projects: {
+      selectedProject: { id: projectId },
+    },
+  } = useSelector((state) => state);
 
   // means is owner or ownership not required
   const owned = useGetOwned(owneronly, resource);
@@ -85,8 +63,8 @@ const AuthWrapper = (props) => {
 
   // children render normally
   const allowed = useMemo(
-    () => (owned || hasRole) && hasAccountType,
-    [owned, hasRole, hasAccountType],
+    () => (visitorAllowed || auth) && (owned || hasRole) && hasAccountType,
+    [owned, hasRole, hasAccountType, visitorAllowed, auth],
   );
 
   // so far these are informative classes, no more.
@@ -101,17 +79,24 @@ const AuthWrapper = (props) => {
   // this will be displayed as tooltip when hover
   const message = useMemo(
     () => {
+      if (!(visitorAllowed || auth)) return 'Please login';
       if (!owned) return 'Only the owner, you can fork it!';
       if (!hasRole) return 'You need a proper role.';
       if (!hasAccountType) return 'Upgrade your account';
 
       return 'You need permission to use this feature';
     },
-    [owned, hasRole, hasAccountType],
+    [owned, hasRole, hasAccountType, visitorAllowed, auth],
   );
 
   // fired if user click the cover
   const handleClick = () => {
+    if (!(visitorAllowed || auth)) return dispatch(fireModal({
+      ...registerModal,
+      // this will be executed when UPGRADE button is clicked
+      onNegative: () => history.push('/register'),
+      onPositive: () => history.push('/login?redirect=goback'),
+    }));
     // if user has not enough account tier a popup will be fired
     if (!hasAccountType) return dispatch(fireModal({
       ...upgradeAccountModal,
@@ -125,13 +110,18 @@ const AuthWrapper = (props) => {
       // this will be executed when FORK button is clicked
       onPositive: () => history.push(`/my-projects/${projectId}/fork`),
     }));
+
+    return null;
   };
 
   // this is a table that only print if debug is true
+  // eslint-disable-next-line
   debug && console.table({ owneronly, owned, role, hasRole, accountType, hasAccountType, allowed });
 
+  // eslint-disable-next-line
   return allowed ? children : (norender ? null : (
     <div title={message} className={`${className} ${classes.main}`} style={style}>
+      {/* eslint-disable-next-line */}
       <div onClick={handleClick} className="auth-wrapper-cover"></div>
       <div className="auth-wrapper-wrapped">
         {children}
@@ -149,6 +139,7 @@ AuthWrapper.defaultProps = {
     id: 0,
   },
   norender: false,
+  visitorAllowed: false,
   style: {},
   className: '',
 };
@@ -163,6 +154,7 @@ AuthWrapper.propTypes = {
     id: propTypes.number,
   }),
   debug: propTypes.bool,
+  visitorAllowed: propTypes.bool,
   className: propTypes.string,
   // children:
 };
