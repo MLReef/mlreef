@@ -175,7 +175,7 @@ class CreateProject extends Component {
 
     projectGeneraInfoApi.create(body, projectType, isNamespaceAGroup)
       .then(() => {
-        this.setState({ redirect: `/${user.username}/${slug}` }); // FIXME: backend has to handle a group namespace
+        this.setState({ redirect: `/${nameSpace}/${slug}` });
       })
       .catch((err) => {
         toastr.error('Error', err || 'Something went wrong.');
