@@ -1,6 +1,5 @@
 import React from 'react';
 import { withFormik } from 'formik';
-import { Link } from 'react-router-dom';
 import { toastr } from 'react-redux-toastr';
 import PropTypes from 'prop-types';
 import MButton from 'components/ui/MButton';
@@ -105,9 +104,9 @@ const RegisterForm = (props) => {
             />
             <label htmlFor="terms">
               {'I accept the '}
-              <Link className="btn-link" to="https://about.mlreef.com/terms">
+              <a className="btn-link" href="https://about.mlreef.com/terms">
                 Terms of Service and Privacy Policy
-              </Link>
+              </a>
             </label>
           </div>
           <div className="m-input_errors">
