@@ -1,6 +1,6 @@
 import React, { Component, createRef } from 'react';
 import {
-  shape, arrayOf, string,
+  shape, arrayOf, string, bool,
 } from 'prop-types';
 import { ML_PROJECT } from 'dataTypes';
 import { Link } from 'react-router-dom';
@@ -106,6 +106,7 @@ class MProjectClassification extends Component {
           hash: screen,
         },
       },
+      isLoading,
     } = this.props;
     const dataTypes = [
       { label: 'Text' },
@@ -186,6 +187,7 @@ class MProjectClassification extends Component {
               allProjects={allProjects}
               personalProjects={userProjects}
               starredProjects={starredProjects}
+              isLoading={isLoading}
             />
             <MWrapper disable title="Not available yet.">
               {/* eslint-disable-next-line */}
@@ -289,12 +291,14 @@ MProjectClassification.propTypes = {
   userProjects: arrayOf(shape({})),
   starredProjects: arrayOf(shape({})),
   allProjects: arrayOf(shape({})),
+  isLoading: bool,
 };
 
 MProjectClassification.defaultProps = {
   userProjects: [],
   starredProjects: [],
   allProjects: [],
+  isLoading: false,
 };
 
 export default MProjectClassification;

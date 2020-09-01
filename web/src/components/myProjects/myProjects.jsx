@@ -2,7 +2,9 @@ import React from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { toastr } from 'react-redux-toastr';
-import { arrayOf, shape, func } from 'prop-types';
+import {
+  arrayOf, shape, func, bool,
+} from 'prop-types';
 import MProjectClassification from 'components/ui/MProjectClassification/MProjectClassification';
 import MTabs from 'components/ui/MTabs';
 import {
@@ -55,8 +57,7 @@ class Myprojects extends React.Component {
       userProjects,
       starredProjects,
     } = nextProps;
-    const { actions } = nextProps;
-    actions.setIsLoading(false);
+
     return {
       allProjects,
       userProjects,
@@ -99,6 +100,7 @@ class Myprojects extends React.Component {
     const {
       history,
       actions,
+      isLoading,
     } = this.props;
 
     return (
@@ -116,7 +118,8 @@ class Myprojects extends React.Component {
             callback={() => {
               try {
                 actions.setIsLoading(true);
-                actions.getProjectsList();
+                actions.getProjectsList()
+                  .finally(() => actions.setIsLoading(false));
               } catch (error) {
                 toastr.error('Error', error);
               }
@@ -128,6 +131,7 @@ class Myprojects extends React.Component {
               userProjects={userProjects.filter(onlyDataProject)}
               starredProjects={starredProjects.filter(onlyDataProject)}
               allProjects={allProjects.filter(onlyDataProject)}
+              isLoading={isLoading}
             />
           </MTabs.Section>
           <MTabs.Section
@@ -137,7 +141,8 @@ class Myprojects extends React.Component {
             callback={() => {
               try {
                 actions.setIsLoading(true);
-                actions.getDataProcessorsAndCorrespondingProjects(PROJECT_TYPES.ALGORITHM);
+                actions.getDataProcessorsAndCorrespondingProjects(PROJECT_TYPES.ALGORITHM)
+                  .finally(() => actions.setIsLoading(false));
               } catch (error) {
                 toastr.error('Error', error);
               }
@@ -149,6 +154,7 @@ class Myprojects extends React.Component {
               userProjects={userProjects}
               starredProjects={starredProjects}
               allProjects={allProjects}
+              isLoading={isLoading}
             />
           </MTabs.Section>
           <MTabs.Section
@@ -158,7 +164,8 @@ class Myprojects extends React.Component {
             callback={() => {
               try {
                 actions.setIsLoading(true);
-                actions.getDataProcessorsAndCorrespondingProjects(PROJECT_TYPES.OPERATION);
+                actions.getDataProcessorsAndCorrespondingProjects(PROJECT_TYPES.OPERATION)
+                  .finally(() => actions.setIsLoading(false));
               } catch (error) {
                 toastr.error('Error', error);
               }
@@ -170,6 +177,7 @@ class Myprojects extends React.Component {
               userProjects={userProjects}
               starredProjects={starredProjects}
               allProjects={allProjects}
+              isLoading={isLoading}
             />
           </MTabs.Section>
           <MTabs.Section
@@ -179,7 +187,8 @@ class Myprojects extends React.Component {
             callback={() => {
               try {
                 actions.setIsLoading(true);
-                actions.getDataProcessorsAndCorrespondingProjects(PROJECT_TYPES.VISUALIZATION);
+                actions.getDataProcessorsAndCorrespondingProjects(PROJECT_TYPES.VISUALIZATION)
+                  .finally(() => actions.setIsLoading(false));
               } catch (error) {
                 toastr.error('Error', error);
               }
@@ -191,6 +200,7 @@ class Myprojects extends React.Component {
               userProjects={userProjects}
               starredProjects={starredProjects}
               allProjects={allProjects}
+              isLoading={isLoading}
             />
           </MTabs.Section>
         </MTabs>
@@ -205,6 +215,7 @@ function mapStateToProps(state) {
     userProjects: state.projects.userProjects,
     starredProjects: state.projects.starredProjects,
     groups: state.groups,
+    isLoading: state.globalMarker?.isLoading,
   };
 }
 
@@ -231,6 +242,8 @@ Myprojects.propTypes = {
   userProjects: arrayOf(
     shape({}).isRequired,
   ).isRequired,
+
+  isLoading: bool.isRequired,
 
   actions: shape({
     getProjectsList: func.isRequired,

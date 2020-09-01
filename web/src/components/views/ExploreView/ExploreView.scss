@@ -27,21 +27,21 @@
     & .m-tabs_content_section {
       max-width: unset !important;
     }
+  }
+}
 
-    & .loading-image {
-      margin: auto;
-      padding-top: 4rem;
-      width: 260px;
-      height: 260px;
-      max-width: 90vw;
-      max-height: 90vw;
+.loading-image {
+  margin: auto;
+  padding-top: 4rem;
+  width: 260px;
+  height: 260px;
+  max-width: 90vw;
+  max-height: 90vw;
 
-      & > div {
-        width: 100%;
-        height: 100%;
-        background-repeat: no-repeat;
-        background-size: contain;
-      }
-    }
+  & > div {
+    width: 100%;
+    height: 100%;
+    background-repeat: no-repeat;
+    background-size: contain;
   }
 }
