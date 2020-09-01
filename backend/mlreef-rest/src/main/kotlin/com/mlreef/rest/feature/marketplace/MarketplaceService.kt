@@ -193,7 +193,9 @@ class MarketplaceService(
             filter.searchableType,
             filter.inputDataTypes,
             filter.outputDataTypes,
-            existingTags
+            existingTags,
+            filter.minStars,
+            filter.maxStars
         )
         val accessibleEntriesMap = findAccessible.associateBy { it.id }
 

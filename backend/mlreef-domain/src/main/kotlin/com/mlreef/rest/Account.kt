@@ -1,9 +1,12 @@
 package com.mlreef.rest
 
 import com.mlreef.rest.helpers.UserInGroup
+import org.hibernate.annotations.Cascade
 import java.time.ZonedDateTime
 import java.util.UUID
 import javax.persistence.Entity
+import javax.persistence.FetchType
+import javax.persistence.ForeignKey
 import javax.persistence.JoinColumn
 import javax.persistence.OneToOne
 import javax.persistence.Table
@@ -25,7 +28,8 @@ class Account(
     val username: String,
     val email: String,
     val passwordEncrypted: String,
-    @OneToOne(fetch = FetchType.EAGER, cascade = [CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH])
+    @OneToOne(fetch = FetchType.EAGER)
+    @Cascade(org.hibernate.annotations.CascadeType.SAVE_UPDATE)
     @JoinColumn(name = "person_id", foreignKey = ForeignKey(name = "account_subject_person_id_fkey"))
     val person: Person,
     val lastLogin: ZonedDateTime? = null,

@@ -99,7 +99,6 @@ interface ProcessorVersionRepository : KtCrudRepository<ProcessorVersion, UUID> 
 
     @Query("SELECT v FROM ProcessorVersion v WHERE v.dataProcessor.slug LIKE %:processorSlug% AND v.branch LIKE %:branch% ORDER BY v.number DESC nulls first ")
     fun findBySlugAndBranch(processorSlug: String, branch: String, pageable: Pageable): List<ProcessorVersion>
-
 }
 
 @Repository
@@ -131,7 +130,9 @@ interface ProjectRepositoryCustom {
         searchableType: SearchableType,
         inputDataTypes: List<DataType>? = null,
         outputDataTypes: List<DataType>? = null,
-        tags: List<SearchableTag>? = null
+        tags: List<SearchableTag>? = null,
+        minStars: Int? = null,
+        maxStars: Int? = null
     ): List<Project>
 }
 

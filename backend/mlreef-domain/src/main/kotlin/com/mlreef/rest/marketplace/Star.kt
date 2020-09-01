@@ -32,7 +32,9 @@ data class Star(
     ) : Serializable
 
     override fun equals(other: Any?): Boolean {
-        return if (other is Star) {
+        return if (this === other) {
+            return true
+        } else if (other is Star) {
             other.projectId == this.projectId && other.subjectId == subjectId
         } else {
             false

@@ -1,6 +1,5 @@
 package com.mlreef.rest
 
-import com.mlreef.rest.marketplace.Searchable
 import com.mlreef.rest.marketplace.SearchableTag
 import com.mlreef.rest.marketplace.SearchableType
 import com.mlreef.rest.marketplace.Star
