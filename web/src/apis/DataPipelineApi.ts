@@ -4,6 +4,7 @@ import ApiDirector from './ApiDirector';
 import ApiRequestCallBuilder from './apiBuilders/ApiRequestCallBuilder';
 import BLApiRequestCallBuilder from './apiBuilders/BLApiRequestCallBuilder';
 import { METHODS, validServicesToCall } from './apiBuilders/requestEnums';
+import { handleResponse } from 'functions/apiCalls';
 
 export default class DataPiplineApi extends ApiDirector {
 
@@ -39,5 +40,13 @@ export default class DataPiplineApi extends ApiDirector {
       return Promise.reject(response);
     }
     return response.json();
+  }
+
+  async getBackendPipelineById(pipelineId: string) {
+    const url = `/api/v1/pipelines/${pipelineId}`;
+    const builder = new BLApiRequestCallBuilder(METHODS.GET, this.buildBasicHeaders(validServicesToCall.BACKEND), url);
+
+    return fetch(builder.build())
+      .then(handleResponse);
   }
 }

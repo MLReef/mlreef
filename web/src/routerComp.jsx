@@ -97,17 +97,15 @@ const RouterComp = () => (
       <Route path="/:namespace/:slug/-/merge_requests/new" component={NewMergeRequest} />
       <Route path="/:namespace/:slug/merge_requests/new" component={NewMergeRequest} />
       <Route path="/:namespace/:slug/-/merge_requests/:iid" exact component={BasicMergeRequestView} />
-      <Route path="/:namespace/:slug/-/datasets" component={DataInstanceOverview} />
-      <Route path="/:namespace/:slug/-/datasets/:branch/:dataId/path/:path" component={DataInstanceDetails} />
-      <Route path="/:namespace/:slug/-/datasets/:branch/:dataId" component={DataInstanceDetails} />
+      <Route exact path="/:namespace/:slug/-/datasets" component={DataInstanceOverview} />
+      <Route path="/:namespace/:slug/-/datasets/:dataId" component={DataInstanceDetails} />
 
       <PrivateRoute exact path="/my-projects/:namespace/:slug/pipeline-execution/:typePipelines" component={PipelinesExecutionView} />
       <PrivateRoute path="/my-projects/:projectId/visualizations/:visName/path/:path" component={DataVisualizationDetail} />
       <PrivateRoute path="/my-projects/:projectId/visualizations/:visName" component={DataVisualizationDetail} />
       <PrivateRoute path="/my-projects/:projectId/visualizations" component={DataVisualizationOverview} />
-      <PrivateRoute exact path="/my-projects/:namespace/:slug/-/datasets" component={DataInstanceOverview} />
-      <PrivateRoute path="/my-projects/:projectId/:branch/-/datasets/:dataId/path/:path" component={DataInstanceDetails} />
-      <PrivateRoute path="/my-projects/:projectId/:branch/-/datasets/:dataId" component={DataInstanceDetails} />
+      <PrivateRoute exact path="/:namespace/:slug/-/datasets" component={DataInstanceOverview} />
+      <PrivateRoute path="/:namespace/:slug/-/datasets/:dataId" component={DataInstanceDetails} />
       <PrivateRoute path="/my-projects/:projectId/fork" component={ForkView} />
       <PrivateRoute path="/:namespace/:slug/-/experiments/:experimentId" exact component={ExperimentDetails} />
       <PrivateRoute path="/:namespace/:slug/-/experiments" exact component={ExperimentsOverview} />
