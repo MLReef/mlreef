@@ -26,10 +26,10 @@ const MActionModal = (props) => {
 
   const classes = useMemo(() => ({
     main: `m-action-modal modal modal-${type} ${isShown ? 'show' : ''} ${dark ? 'dark-cover' : ''} ${small ? 'modal-sm' : ''}`,
-    header: 'modal-header py-2',
+    header: 'modal-header',
     btnPositive: `positive btn btn-${type}`,
     btnNegative: `negative btn btn-outline-${type}`,
-    btnIgnore: `ignore btn  btn-outline-${type}`,
+    btnIgnore: `ignore btn  btn-basic-dark`,
   }), [isShown, dark, type, small]);
 
   const closeModal = () => actions.closeModal();

@@ -4,7 +4,7 @@ import ApiDirector from './ApiDirector';
 import { METHODS, validServicesToCall } from './apiBuilders/requestEnums';
 import BLApiRequestCallBuilder from './apiBuilders/BLApiRequestCallBuilder';
 import ApiRequestCallBuilder from './apiBuilders/ApiRequestCallBuilder';
-import { generateGetRequest, getCurrentToken } from './apiHelpers';
+import { getCurrentToken } from './apiHelpers';
 
 export class MergeRequestAPI extends ApiDirector {
   /**
@@ -29,15 +29,13 @@ export class MergeRequestAPI extends ApiDirector {
       .then(handleResponse);
   }
 
-  static async getSingleMR(id, iid) {
+  getSingleMR(id, iid) {
     const url = `/api/v4/projects/${id}/merge_requests/${iid}`;
+    const headers = this.buildBasicHeaders(validServicesToCall.GITLAB);
+    const builder = new BLApiRequestCallBuilder(METHODS.GET, headers, url);
 
-    const response = await generateGetRequest(url);
-    if (!response.ok) {
-      Promise.reject(response);
-      toastr.error('Error', 'Server error while fetching the merge request');
-    }
-    return response.json();
+    return fetch(builder.build())
+      .then(handleResponse);
   }
 
   static async submitMergeReq(id, sourceBranch, targetBranch, title, description = '') {

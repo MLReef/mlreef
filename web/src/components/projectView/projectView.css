@@ -112,6 +112,12 @@
   text-decoration: none;
 }
 
+.feature-list > .tab-disabled {
+  height: auto;
+  width: auto;
+  padding: 1% 5%;
+}
+
 .feature {
   display: flex !important;
   height: inherit !important;

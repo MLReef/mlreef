@@ -8,6 +8,7 @@ import {
   number, string, shape, arrayOf, bool,
 } from 'prop-types';
 import CircularProgress from '@material-ui/core/CircularProgress';
+import AuthWrapper from 'components/AuthWrapper';
 import Navbar from '../navbar/navbar';
 import ProjectContainer from '../projectContainer';
 import BlueBorderedInput from '../BlueBorderedInput';
@@ -152,16 +153,19 @@ class BranchesView extends Component {
                 });
               }}
             />
-            <CustomizedButton
-              id="new-branch"
-              buttonLabel="New branch"
-              loading={false}
-              onClickHandler={() => {
-                this.setState({
-                  urlToRedirect: `${pathname}/new`,
-                });
-              }}
-            />
+            <AuthWrapper>
+              <CustomizedButton
+                id="new-branch"
+                buttonLabel="New branch"
+                loading={false}
+                onClickHandler={() => {
+                  this.setState({
+                    urlToRedirect: `${pathname}/new`,
+                  });
+                }}
+              />
+            </AuthWrapper>
+
           </div>
           <div id="branches-container">
             <p id="title">Active branches</p>
@@ -207,17 +211,20 @@ class BranchesView extends Component {
                         <CircularProgress size={20} />
                       </div>
                     )}
-                    <Link
-                      className="btn btn-outline-dark my-auto mr-2"
-                      to={`/${namespace}/${slug}/-/merge_requests/new?${genQuery(branch)}`}
-                    >
-                      Merge request
-                    </Link>
-                    <button
-                      type="button"
-                      className="btn btn-danger btn-icon fa fa-times my-auto"
-                      onClick={() => this.toggleModalAndUpdateList(branch.name, false)}
-                    />
+                    <AuthWrapper norender>
+                      <Link
+                        className="btn btn-outline-dark my-auto mr-2"
+                        to={`/${namespace}/${slug}/-/merge_requests/new?${genQuery(branch)}`}
+                      >
+                        Merge request
+                      </Link>
+                      <button
+                        type="button"
+                        label="delete"
+                        className="btn btn-danger btn-icon fa fa-times my-auto"
+                        onClick={() => this.toggleModalAndUpdateList(branch.name, false)}
+                      />
+                    </AuthWrapper>
                   </div>
                 )}
               </div>

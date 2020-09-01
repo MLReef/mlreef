@@ -40,7 +40,7 @@ function updateMergeRequest(gid, iid, payload) {
 }
 
 export function getMergeRequest(gid, iid) {
-  return (dispatch) => MergeRequestAPI.getSingleMR(gid, iid)
+  return (dispatch) => instance.getSingleMR(gid, iid)
     .then((mergeRequest) => dispatch(setMergeRequest(mergeRequest)));
 }
 

@@ -41,6 +41,7 @@
     width: 100vw;
     height: 100vh;
     z-index: 2;
+    backdrop-filter: blur(5px);
   }
 
   &-container {
@@ -59,14 +60,17 @@
     transition: top .5s;
     z-index: 3;
     box-sizing: border-box;
-    border-style: solid;
-    border-width: $border-width;
+    box-shadow: 1px 1px 4px 1px var(--secondary);
 
     &-close {
       position: absolute;
       top: $modal-padding;
       right: $modal-padding;
       color: #fff;
+
+      & > .btn {
+        font-size: 125%;
+      }
     }
   }
 
@@ -77,6 +81,8 @@
     width: 100%;
     padding: $modal-padding 0;
     border-color: $dark;
+    font-weight: bold;
+    @include round-top;
   }
 
   &-content {
@@ -92,6 +98,19 @@
     min-height: 3rem;
     margin-top: 0.5rem;
     margin-bottom: 0.5rem;
+
+    & .ignore {
+
+    }
+
+    & .negative {
+      margin-left: auto;
+      margin-right: 1rem;
+    }
+
+    & .positive {
+
+    }
   }
 
   &-lg &-container {
@@ -109,5 +128,40 @@
   &.show {
     top: 0;
     display: flex;
+
+    & .modal-cover {
+      animation: modal-cover-in 1s cubic-bezier(0, 0.2, 0.8, 1);
+    }
+  }
+}
+
+@keyframes modal-cover-in {
+  0% {
+    display: none;
+    opacity: 0;
+  }
+
+  20% {
+    display: block;
+    opacity: 0;
+  }
+
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes modal-cover-out {
+  0% {
+    opacity: 1;
+    display: block;
+  }
+
+  80% {
+    opacity: 0;
+  }
+
+  100% {
+    display: none;
   }
 }
