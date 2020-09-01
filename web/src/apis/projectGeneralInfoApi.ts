@@ -26,11 +26,7 @@ export default class ProjectGeneralInfoApi extends ApiDirector {
       const body = await response.json();
       return Promise.reject(body.error_message);
     }
-    if(!isNamespaceAGroup){
-      return response.json();
-    }
-    const projectPayload = await response.json();
-    return this.transferProjectToNamespace(projectPayload.gitlab_id, body.namespace);
+    return response.json();
   }
 
   async transferProjectToNamespace(projectId: number, namespace: string){

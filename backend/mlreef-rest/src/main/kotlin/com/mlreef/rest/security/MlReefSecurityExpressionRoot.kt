@@ -151,8 +151,10 @@ class MlReefSecurityExpressionRoot(
 
     fun userInGroup(groupId: UUID): Boolean = ((this.principal as? TokenDetails)?.groups?.containsKey(groupId) ?: false)
 
-    fun canCreateGroup(): Boolean = ((this.principal as? TokenDetails)?.gitlabUser?.canCreateGroup ?: false)
-
+    fun canCreateGroup(): Boolean {
+        val tokenDetails = this.principal as? TokenDetails
+        return tokenDetails?.gitlabUser?.canCreateGroup ?: false
+    }
 
     override fun getReturnObject() = returnObject
 

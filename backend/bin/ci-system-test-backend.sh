@@ -43,7 +43,7 @@ echo "  MLREEF_BACKEND_URL    = $MLREEF_BACKEND_URL"
 echo "  GITLAB_ROOT_URL       = $GITLAB_ROOT_URL"
 
 # do no show; or mask it
-#echo "  GITLAB_ADMIN_TOKEN    = $GITLAB_ADMIN_TOKEN"
+echo "  GITLAB_ADMIN_TOKEN    = $GITLAB_ADMIN_TOKEN"
 
 # currently not set! and *currently* no used..
 #echo "  GITLAB_ADMIN_USERNAME = $GITLAB_ADMIN_USERNAME"

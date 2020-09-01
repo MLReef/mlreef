@@ -30,6 +30,7 @@ import com.mlreef.rest.UserRole
 import com.mlreef.rest.VisibilityScope
 import com.mlreef.rest.external_api.gitlab.GitlabAccessLevel
 import com.mlreef.rest.external_api.gitlab.GitlabRestClient
+import com.mlreef.rest.external_api.gitlab.GitlabVisibility
 import com.mlreef.rest.external_api.gitlab.dto.GitlabGroup
 import com.mlreef.rest.external_api.gitlab.dto.GitlabProject
 import com.mlreef.rest.external_api.gitlab.dto.GitlabUser
@@ -136,7 +137,7 @@ class IntegrationTestsHelper {
     fun createRealGroup(token: String, name: String? = null): Pair<Group, GitlabGroup> {
         val groupName = name ?: RandomUtils.generateRandomUserName(10)
         val groupPath = "path-$groupName"
-        val groupInGitlab = restClient.userCreateGroup(token, groupName, groupPath)
+        val groupInGitlab = restClient.userCreateGroup(token, groupName, groupPath, GitlabVisibility.PRIVATE)
 
         var groupInDatabase = Group(UUID.randomUUID(), "slug-$groupName", groupName, groupInGitlab.id)
 
@@ -157,7 +158,7 @@ class IntegrationTestsHelper {
         val projectNamespace = namespace ?: "mlreef"
 
         val findNamespace = try {
-            restClient.findNamespace(token, projectNamespace)
+            restClient.findNamespace(token, projectNamespace).firstOrNull()
         } catch (e: Exception) {
             null
         }

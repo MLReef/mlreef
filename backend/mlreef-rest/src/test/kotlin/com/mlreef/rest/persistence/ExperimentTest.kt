@@ -36,7 +36,7 @@ class ExperimentTest : AbstractRepositoryTest() {
         val owner = Person(randomUUID(), "slug", "name", 1L, hasNewsletters = true,
             userRole = UserRole.DEVELOPER,
             termsAcceptedAt = ZonedDateTime.now())
-        val dataProject = DataProject(dataProjectId, "slug", "url,", "CodeProject Augment", "", owner.id, "group", "project", 0)
+        DataProject(dataProjectId, "slug", "url,", "CodeProject Augment", "", owner.id, "group", "project", 0)
         val entity = Experiment(id, dataProjectId, null, slug, "name", "source", "target")
 
         return Pair(id, entity)

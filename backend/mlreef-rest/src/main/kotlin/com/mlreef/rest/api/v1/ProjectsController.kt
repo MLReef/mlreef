@@ -65,7 +65,7 @@ class ProjectsController(
 
     @GetMapping
     fun getAllProjects(person: Person, profile: TokenDetails?): List<ProjectDto> {
-        val idMap = profile?.projects?.keys ?: listOf<UUID>()
+        val idMap = profile?.projects?.keys ?: listOf()
         return projectService.getProjectsByIds(idMap).map { it.toDto() }
     }
 

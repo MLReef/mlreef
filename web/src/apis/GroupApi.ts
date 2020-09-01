@@ -5,6 +5,7 @@ import BodyLessApiRequestCallBuilder from './apiBuilders/BLApiRequestCallBuilder
 import { parseToCamelCase } from 'functions/dataParserHelpers';
 import { METHODS, validServicesToCall } from './apiBuilders/requestEnums';
 
+// Can we call this GitlabGroupsApi or similar ?
 export default class GroupsApi extends ApiDirector {
   baseUrl = '/api/v1/groups';
   async create(name: string, path: string, description: string, visibility: string, avatar: string) {

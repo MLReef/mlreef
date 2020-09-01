@@ -212,7 +212,7 @@ abstract class AbstractRestApiTest : AbstractRestTest() {
         )
 
         every {
-            restClient.adminCreateGroup(any(), any())
+            restClient.adminCreateGroup(any(), any(), any())
         } returns GitlabGroup(
             id = 1,
             webUrl = "http://127.0.0.1/",
@@ -241,7 +241,7 @@ abstract class AbstractRestApiTest : AbstractRestTest() {
 
         every { restClient.deleteProject(any(), any()) } returns Unit
 
-        every { restClient.userCreateGroup(any(), any(), any()) } returns GitlabGroup(
+        every { restClient.userCreateGroup(any(), any(), any(), any()) } returns GitlabGroup(
             id = RandomUtils.randomGitlabId(),
             webUrl = "www.url.com",
             name = "test-group",

@@ -32,12 +32,17 @@ interface AccountTokenRepository : ReadOnlyRepository<AccountToken, UUID> {
 }
 
 @Repository
-interface SubjectRepository : KtCrudRepository<Subject, UUID>
+interface SubjectRepository : KtCrudRepository<Subject, UUID> {
+    fun findByGitlabId(gitlabId: Long): Subject?
+    fun findBySlug(path: String): List<Subject>
+}
 
 @Repository
 interface PersonRepository : KtCrudRepository<Person, UUID> {
     //FIXME dangerous!! Multiple names should be ok!
     fun findByName(name: String): Person?
+    fun findByGitlabId(gitlabId: Long): Person?
+
 }
 
 @Repository

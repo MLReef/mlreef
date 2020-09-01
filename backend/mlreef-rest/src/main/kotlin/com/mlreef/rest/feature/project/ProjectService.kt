@@ -14,6 +14,7 @@ import com.mlreef.rest.Person
 import com.mlreef.rest.Project
 import com.mlreef.rest.ProjectBaseRepository
 import com.mlreef.rest.ProjectRepository
+import com.mlreef.rest.SubjectRepository
 import com.mlreef.rest.VisibilityScope
 import com.mlreef.rest.annotations.RefreshGroupInformation
 import com.mlreef.rest.annotations.RefreshProject
@@ -22,6 +23,7 @@ import com.mlreef.rest.exceptions.BadParametersException
 import com.mlreef.rest.exceptions.ErrorCode
 import com.mlreef.rest.exceptions.GitlabCommonException
 import com.mlreef.rest.exceptions.GroupNotFoundException
+import com.mlreef.rest.exceptions.ProjectCreationException
 import com.mlreef.rest.exceptions.ProjectDeleteException
 import com.mlreef.rest.exceptions.ProjectNotFoundException
 import com.mlreef.rest.exceptions.ProjectUpdateException
@@ -31,6 +33,7 @@ import com.mlreef.rest.exceptions.UnknownUserException
 import com.mlreef.rest.exceptions.UserNotFoundException
 import com.mlreef.rest.external_api.gitlab.GitlabAccessLevel
 import com.mlreef.rest.external_api.gitlab.GitlabRestClient
+import com.mlreef.rest.external_api.gitlab.NamespaceKind
 import com.mlreef.rest.external_api.gitlab.TokenDetails
 import com.mlreef.rest.external_api.gitlab.dto.GitlabProject
 import com.mlreef.rest.external_api.gitlab.toAccessLevel
@@ -43,6 +46,7 @@ import com.mlreef.rest.marketplace.SearchableTag
 import org.slf4j.LoggerFactory
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.repository.findByIdOrNull
@@ -157,21 +161,23 @@ class ProjectTypesConfiguration(
     val publicProjectsCacheService: PublicProjectsCacheService,
     val gitlabRestClient: GitlabRestClient,
     private val accountRepository: AccountRepository,
-    private val groupRepository: GroupRepository
+    private val groupRepository: GroupRepository,
+    private val subjectRepository: SubjectRepository
+
 ) {
     @Bean
     fun dataProjectService(): ProjectService<DataProject> {
-        return ProjectServiceImpl(DataProject::class.java, dataProjectRepository, publicProjectsCacheService, gitlabRestClient, accountRepository, groupRepository)
+        return ProjectServiceImpl(DataProject::class.java, dataProjectRepository, publicProjectsCacheService, gitlabRestClient, accountRepository, groupRepository, subjectRepository)
     }
 
     @Bean
     fun codeProjectService(): ProjectService<CodeProject> {
-        return ProjectServiceImpl(CodeProject::class.java, codeProjectRepository, publicProjectsCacheService, gitlabRestClient, accountRepository, groupRepository)
+        return ProjectServiceImpl(CodeProject::class.java, codeProjectRepository, publicProjectsCacheService, gitlabRestClient, accountRepository, groupRepository, subjectRepository)
     }
 
     @Bean
     fun projectService(): ProjectService<Project> {
-        return ProjectServiceImpl(Project::class.java, projectRepository, publicProjectsCacheService, gitlabRestClient, accountRepository, groupRepository)
+        return ProjectServiceImpl(Project::class.java, projectRepository, publicProjectsCacheService, gitlabRestClient, accountRepository, groupRepository, subjectRepository)
     }
 }
 
@@ -181,7 +187,9 @@ open class ProjectServiceImpl<T : Project>(
     val publicProjectsCacheService: PublicProjectsCacheService,
     val gitlabRestClient: GitlabRestClient,
     private val accountRepository: AccountRepository,
-    private val groupRepository: GroupRepository
+    private val groupRepository: GroupRepository,
+    private val subjectRepository: SubjectRepository
+
 ) : ProjectService<T> {
     companion object {
         private val log = LoggerFactory.getLogger(this::class.java)
@@ -259,7 +267,7 @@ open class ProjectServiceImpl<T : Project>(
     @RefreshProject
     override fun createProject(
         userToken: String,
-        ownerId: UUID,
+        creatingPersonId: UUID,
         projectSlug: String,
         projectName: String,
         projectNamespace: String,
@@ -269,11 +277,31 @@ open class ProjectServiceImpl<T : Project>(
         inputDataTypes: List<DataType>?
     ): T {
 
-        val findNamespace = try {
-            gitlabRestClient.findNamespace(userToken, projectNamespace)
+        val findNamespace = if (projectNamespace.isNotBlank()) try {
+            val findNamespaces = gitlabRestClient.findNamespace(userToken, projectNamespace)
+            findNamespaces.firstOrNull { it.path.toLowerCase().contains(projectNamespace.toLowerCase()) }
         } catch (e: Exception) {
+            log.warn(e.message, e)
             log.warn("Namespace cannot be found, will use default one of user")
             null
+        } else null
+
+        // if project is stored under a "private" group, it has to be private
+        // https://gitlab.com/gitlab-org/gitlab/-/issues/14327
+        val finalVisibility = if (findNamespace != null && findNamespace.kind == NamespaceKind.GROUP) {
+            // TODO: append Visibility to Groups again, check visibility, if PRIVATE GROUP project has to be PRIVATE
+            // FIXME
+            VisibilityScope.PRIVATE
+        } else {
+            visibility
+        }
+
+        val ownerId = if (findNamespace != null) {
+            val findByPath = subjectRepository.findBySlug(findNamespace.path)
+            findByPath.firstOrNull()?.id
+                ?: throw ProjectCreationException(ErrorCode.ProjectNamespaceSubjectNotFound, "Gitlab Namespace ${findNamespace.id} not connected to persisted Subject")
+        } else {
+            creatingPersonId
         }
 
         val gitLabProject = gitlabRestClient.createProject(
@@ -283,14 +311,19 @@ open class ProjectServiceImpl<T : Project>(
             defaultBranch = "master",
             nameSpaceId = findNamespace?.id,
             description = description,
-            visibility = visibility.toGitlabString(),
+            visibility = finalVisibility.toGitlabString(),
             initializeWithReadme = initializeWithReadme)
         val project = createConcreteProject(ownerId, gitLabProject)
-
-        return if(inputDataTypes != null)
-            saveProject(
-                project.copy(inputDataTypes = inputDataTypes.toSet())
-            ) else saveProject(project)
+        try {
+            return if (inputDataTypes != null) {
+                saveProject(project.copy(inputDataTypes = inputDataTypes.toSet()))
+            } else {
+                saveProject(project)
+            }
+        } catch (e: DataIntegrityViolationException) {
+            throw ProjectCreationException(ErrorCode.GitlabProjectIdAlreadyUsed, e.message
+                ?: "GitlabId of new projects creates a conflict")
+        }
     }
 
     override fun saveProject(project: T): T {
@@ -366,7 +399,7 @@ open class ProjectServiceImpl<T : Project>(
         return userProjects.map { project ->
             try {
                 //Without this IF block Gitlab returns access level for user as a Maintainer
-                val gitlabAccessLevel = if (project.owner.id.equals(user.person.gitlabId))
+                val gitlabAccessLevel = if (project.owner?.id?.equals(user.person.gitlabId) == true)
                     GitlabAccessLevel.OWNER
                 else
                     gitlabRestClient.adminGetProjectMembers(project.id).first { gitlabUser -> gitlabUser.id == user.person.gitlabId }.accessLevel
@@ -390,7 +423,7 @@ open class ProjectServiceImpl<T : Project>(
 
             if ((level != null && level == AccessLevel.OWNER) || (minlevel != null && minlevel == AccessLevel.OWNER)) {
                 val gitlabProject = gitlabRestClient.adminGetProject(project.gitlabId)
-                return gitlabProject.owner.id == gitlabId
+                return gitlabProject.owner?.id == gitlabId
             } else {
                 val userInProjectInGitlab = gitlabRestClient.adminGetUserInProject(
                     projectId = project.gitlabId,

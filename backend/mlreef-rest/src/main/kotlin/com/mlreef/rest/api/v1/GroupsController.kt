@@ -2,6 +2,7 @@ package com.mlreef.rest.api.v1
 
 import com.mlreef.rest.AccessLevel
 import com.mlreef.rest.Person
+import com.mlreef.rest.VisibilityScope
 import com.mlreef.rest.api.v1.dto.GroupDto
 import com.mlreef.rest.api.v1.dto.GroupOfUserDto
 import com.mlreef.rest.api.v1.dto.UserInGroupDto
@@ -48,7 +49,8 @@ class GroupsController(
         val group = groupsService.createGroup(
             ownerToken = token.accessToken,
             groupName = groupCreateRequest.name,
-            path = groupCreateRequest.path)
+            path = groupCreateRequest.path,
+            visibility = groupCreateRequest.visibility)
 
         return GroupDto(group.id, group.name, group.gitlabId)
     }
@@ -126,8 +128,10 @@ class GroupsController(
 
 class GroupCreateRequest(
     @NotEmpty val path: String,
+    @Deprecated("unused?")
     @NotEmpty val namespace: String,
-    @NotEmpty val name: String
+    @NotEmpty val name: String,
+    val visibility: VisibilityScope = VisibilityScope.PRIVATE,
 )
 
 class GroupUpdateRequest(
