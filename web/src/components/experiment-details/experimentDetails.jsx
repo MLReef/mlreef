@@ -40,7 +40,7 @@ const ExperimentDetails = (props) => {
   const allParameters = algorithms
     .filter((alg) => alg.slug === expSlug)
     .map((alg) => alg.parameters)[0];
-  const groupName = selectedProject.namespace;
+  const groupName = selectedProject?.namespace;
   const experimentName = experiment.name;
   const uniqueName = experimentName && experimentName.split('/')[1];
   let experimentJob;
