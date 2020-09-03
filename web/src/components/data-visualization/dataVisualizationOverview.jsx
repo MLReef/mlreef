@@ -5,6 +5,7 @@ import {
 } from 'prop-types';
 import { CircularProgress } from '@material-ui/core';
 import './dataVisualizationOverview.css';
+import DataPipelineApi from 'apis/DataPipelineApi';
 import Navbar from '../navbar/navbar';
 import ProjectContainer from '../projectContainer';
 import Instruction from '../instruction/instruction';
@@ -12,38 +13,44 @@ import DataVisualizationCard from './dataVisualizationCard';
 import PipeLinesApi from '../../apis/PipelinesApi';
 import { classifyPipeLines } from '../../functions/pipeLinesHelpers';
 
+const dataPipelineApi = new DataPipelineApi();
+
 export class DataVisualizationOverview extends Component {
   constructor(props) {
     super(props);
-    const { selectedProject, branches } = this.props;
+    const { selectedProject, selectedProject: { id }, branches } = this.props;
     this.state = {
       visualizations: null,
       all: null,
     };
     const arrayOfBranches = branches.filter((branch) => branch.name.startsWith('data-visualization'));
-    PipeLinesApi.getPipesByProjectId(selectedProject.gid).then((res) => {
-      const visualizations = classifyPipeLines(res, arrayOfBranches);
-      const finalClassification = [];
-      finalClassification[0] = { status: 'In progress', values: [...visualizations[0].values] };
-      finalClassification[1] = {
-        status: 'Active',
-        values: [
-          ...visualizations[1].values,
-          ...visualizations[2].values,
-          ...visualizations[3].values,
-        ],
-      };
-      finalClassification[2] = {
-        status: 'Expired',
-        values: [
-          ...visualizations[4].values,
-        ],
-      };
-      this.setState({
-        visualizations: finalClassification,
-        all: finalClassification,
+    dataPipelineApi.getProjectPipelines(id)
+      .then((backendPipelines) => {
+        const visualPipelines = backendPipelines.filter((pipe) => pipe.pipeline_type === 'VISUALIZATION');
+        PipeLinesApi.getPipesByProjectId(selectedProject.gid).then((res) => {
+          const visualizations = classifyPipeLines(res, arrayOfBranches, visualPipelines);
+          const finalClassification = [];
+          finalClassification[0] = { status: 'In progress', values: [...visualizations[0].values] };
+          finalClassification[1] = {
+            status: 'Active',
+            values: [
+              ...visualizations[1].values,
+              ...visualizations[2].values,
+              ...visualizations[3].values,
+            ],
+          };
+          finalClassification[2] = {
+            status: 'Expired',
+            values: [
+              ...visualizations[4].values,
+            ],
+          };
+          this.setState({
+            visualizations: finalClassification,
+            all: finalClassification,
+          });
+        });
       });
-    });
     this.handleFilterBtnClick = this.handleFilterBtnClick.bind(this);
   }
 

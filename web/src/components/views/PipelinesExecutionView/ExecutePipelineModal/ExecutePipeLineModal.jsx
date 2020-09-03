@@ -60,7 +60,7 @@ const ExecutePipelineModal = ({
   const {
     jobName, commandName, decription: operationDescription, prettyName,
   } = operationsMetaData[type];
-  const pipelineType = type === OPERATION ? 'DATA' : 'VISUALISATION';
+  const pipelineType = type === OPERATION ? 'DATA' : 'VISUALIZATION';
   const branchName = `${commandName}/${uniqueName}`;
   const generatedOperationName = `${commandName}/${uniqueName}`;
   function cleanForm() {

@@ -23,7 +23,7 @@ import {
 import { deleteBranch, getBranchesList } from '../../actions/branchesActions';
 import { fireModal } from '../../actions/actionModalActions';
 import { setPreconfiguredOPerations } from '../../actions/userActions';
-import { classifyPipeLines } from '../../functions/pipeLinesHelpers';
+import { classifyPipeLines, getPipelineIcon } from '../../functions/pipeLinesHelpers';
 
 const getStatusForDataInstance = (status) => {
   let mappedStatus = status;
@@ -116,7 +116,7 @@ export const InstanceCard = ({ ...props }) => {
         <button
           type="button"
           key="experiment-button"
-          className="btn btn-outline-dark my-auto"
+          className="btn btn-outline-dark my-auto mr-1"
           onClick={() => goToPipelineView(id)}
         >
           View Pipeline
@@ -138,7 +138,7 @@ export const InstanceCard = ({ ...props }) => {
         <button
           type="button"
           key="experiment-button"
-          className="btn btn-outline-dark my-auto"
+          className="btn btn-outline-dark my-auto mr-1"
           onClick={() => goToPipelineView(id)}
         >
           View Pipeline
@@ -176,11 +176,12 @@ export const InstanceCard = ({ ...props }) => {
         return (
           <div key={`instance-comp-id-${instance.id}`} className="card-content">
             <div id="data-ins-summary-data" className="summary-data" data-key={`${instance.descTitle}`}>
+              <img style={{ alignSelf: 'center' }} src={getPipelineIcon(currentState.toUpperCase())} width="30" height="30" alt={currentState} />
               <div className="project-desc-experiment">
                 <Link to={`/${namespace}/${slug}/-/datasets/${pipelineBackendId}`}>
                   <b>{uniqueName}</b>
                 </Link>
-                <p>
+                <p className="m-0 mt-1">
                   Created by
                   {' '}
                   <a href={`/${userName}`}>
@@ -197,14 +198,14 @@ export const InstanceCard = ({ ...props }) => {
               <div className="project-desc-experiment" style={{ visibility: progressVisibility }}>
                 <p><b>Usage: ---</b></p>
               </div>
-              <div className="project-desc-experiment" style={{ visibility: modelDiv }}>
-                <p>
+              <div className="project-desc-experiment d-flex" style={{ visibility: modelDiv }}>
+                <p style={{ flex: '1' }}>
                   Id:
                   {' '}
                   {dataId}
                 </p>
+                { getButtonsDiv(currentState.toUpperCase(), dataId) }
               </div>
-              { getButtonsDiv(currentState.toUpperCase(), dataId) }
             </div>
           </div>
         );

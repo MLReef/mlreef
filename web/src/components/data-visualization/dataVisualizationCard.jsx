@@ -3,7 +3,8 @@ import {
   number, string, arrayOf, shape,
 } from 'prop-types';
 import { Redirect, Link } from 'react-router-dom';
-import { getTimeCreatedAgo } from '../../functions/dataParserHelpers';
+import { getPipelineIcon } from 'functions/pipeLinesHelpers';
+import { getTimeCreatedAgo } from 'functions/dataParserHelpers';
 import './dataVisualizationCard.css';
 
 const DataVisualizationCard = ({ classification, projectId }) => {
@@ -25,7 +26,7 @@ const DataVisualizationCard = ({ classification, projectId }) => {
       <button
         type="button"
         key="experiment-button"
-        className="non-active-black-border rounded-pipeline-btn"
+        className="btn non-active-black-border"
         onClick={() => goToPipelineView(val)}
       >
         View Pipeline
@@ -37,8 +38,8 @@ const DataVisualizationCard = ({ classification, projectId }) => {
         <button
           type="button"
           key="abort-button"
-          className="dangerous-red"
-          style={{ width: 'max-content', borderRadius: '0.2em' }}
+          className="btn btn-danger border-solid my-auto"
+          style={{ width: 'max-content' }}
         >
           <b> Abort </b>
         </button>,
@@ -65,7 +66,7 @@ const DataVisualizationCard = ({ classification, projectId }) => {
       ];
     }
     return (
-      <div id="buttons-div">{buttons}</div>
+      <div id="pipeline-buttons-div">{buttons}</div>
     );
   }
 
@@ -82,13 +83,13 @@ const DataVisualizationCard = ({ classification, projectId }) => {
       </div>
       {classification.values.map((val) => (
         <div className="data-visualization-card-content" key={`${val.creator} ${val.name}`} data-key={val.name}>
-          <div className="general-information">
-        
+          <img src={getPipelineIcon(val.status.toUpperCase())} width="30" height="30" alt={val.status} />
+          <div className="general-information ml-2">
             <Link to={`/my-projects/${projectId}/visualizations/${encodeURIComponent(val.name)}`}>
               <b>{val.name}</b>
             </Link>
-            <p>
-              Create by
+            <p className="m-0 mt-1">
+              Created by
               &nbsp;
               <b>{val.authorName}</b>
               &nbsp;
@@ -98,14 +99,6 @@ const DataVisualizationCard = ({ classification, projectId }) => {
             </p>
           </div>
           <div className="detailed-information-1">
-            {classification.status.toLowerCase() === 'in progress' && (
-            <p>
-              <b>
-                {val.completedPercentage}
-                % completed
-              </b>
-            </p>
-            )}
             {classification.status.toLowerCase() === 'active' && (
             <>
               <p>
@@ -120,16 +113,6 @@ const DataVisualizationCard = ({ classification, projectId }) => {
               </p>
             </>
             )}
-          </div>
-          <div className="detailed-information-2">
-            <p>
-              <b>
-                {val.filesChanged}
-                {' '}
-                files
-              </b>
-            </p>
-            <p>dl_code</p>
           </div>
           {getButtonsDiv(classification.status, val)}
         </div>
