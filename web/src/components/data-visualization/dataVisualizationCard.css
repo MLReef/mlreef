@@ -1,17 +1,14 @@
 .data-visualization-card-content {
   display: flex;
   color: #1C2B40;
-  padding: 0.5em 0.25em 0.5em 2em;
+  padding: 1rem;
   border-top: 2px solid #e5e5e5;
 }
 
 .data-visualization-card-content > .general-information {
   width: 30%;
+  flex: 1;
   text-align: left;
-}
-
-.data-visualization-card-content > .general-information > p {
-  cursor: pointer;
 }
 
 .data-visualization-card-content > .detailed-information-1 {
@@ -24,12 +21,9 @@
   text-align: center;
 }
 
-.data-visualization-card-content > #buttons-div {
+.data-visualization-card-content > #pipeline-buttons-div {
   display: flex;
-  justify-content: right;
-  align-items: center;
-  padding-top: 1%;
-  width: 35%;
+  justify-content: flex-end;
   height: max-content;
 }
 
@@ -37,6 +31,6 @@
   margin-right: 1em;
 }
 
-.data-visualization-card-content > #buttons-div > button {
+.data-visualization-card-content > #pipeline-buttons-div > button {
   margin: 1%;
 }

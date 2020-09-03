@@ -12,6 +12,10 @@ import {
   SKIPPED,
   SUCCESS,
 } from '../dataTypes';
+import Attention from '../images/Pipeline_Attention.png';
+import Loading from '../images/Pipeline_Loading.png';
+import Success from '../images/Pipeline_Success.png';
+import Fail from '../images/Pipeline_Fail.png';
 
 const dataPipelineApi = new DataPipelineApi();
 
@@ -206,5 +210,14 @@ export const classifyExperiments = (experiments) => [
       .filter((exp) => exp.status === EXPIRED),
   },
 ];
+
+export const getPipelineIcon = (status) => {
+  let pipelineIcon = Attention;
+  if (status === RUNNING || status === PENDING) pipelineIcon = Loading;
+  else if (status === SUCCESS) pipelineIcon = Success;
+  else if (status === FAILED) pipelineIcon = Fail;
+
+  return pipelineIcon;
+};
 
 /* ----------------------------  ----------------------------------  -------------------------------*/
