@@ -39,8 +39,11 @@ class InitialDataLoader {
     val im_random_erasing_id = fromString("fe95735c-d0cf-11ea-87d0-0242ac130003")
     val im_rotate_projectId = fromString("fe957410-d0cf-11ea-87d0-0242ac130003")
     val im_rotate_id = fromString("fe957582-d0cf-11ea-87d0-0242ac130003")
+    val txt_ops_projectId = fromString("723076c6-eee5-11ea-adc1-0242ac120002")
+    val txt_ops_id = fromString("72307a68-eee5-11ea-adc1-0242ac120002")
     val tsne_projectId = fromString("fe9577b2-d0cf-11ea-87d0-0242ac130003")
     val tsne_id = fromString("fe957884-d0cf-11ea-87d0-0242ac130003")
+    
 
     fun prepare(author: Subject, token: String): DSLContextBuilder {
 
@@ -54,6 +57,71 @@ class InitialDataLoader {
             //        }
 
             // ############## OPERATION
+            val codeProject_txtops = codeProject {
+                id = txt_ops_projectId
+                slug = "commons-txt-ops"
+                name = "Text processing operations"
+                gitlabNamespace = "mlreef"
+                gitlabPath = "txt_ops"
+                inputDataTypes = hashSetOf(DataType.IMAGE)
+                outputDataTypes = hashSetOf(DataType.IMAGE)
+                description = "Removes numbers,tokenization,numbers to words, filter words."
+            }
+            operation {
+                linkToCodeProject(codeProject_txtops)
+                id = txt_ops_id
+                command = "txt_ops"
+                number = 1
+                baseEnvironment = BaseEnvironment.default()
+                inputDataType = DataType.TEXT
+                outputDataType = DataType.TEXT
+                publisher = author
+
+                parameters {
+                    STRING {
+                        id = fromString("72309534-eee5-11ea-adc1-0242ac120002")
+                        name = "input-path"
+                        defaultValue = "."
+                        required = true
+                        description = "Data input, path to the csv file."
+                    }
+                    STRING {
+                        id = fromString("72307b80-eee5-11ea-adc1-0242ac120002")
+                        name = "output-path"
+                        defaultValue = "./output"
+                        required = true
+                        description = "output directory to save the processed text"
+                    }
+                    BOOLEAN {
+                        id = fromString("72307c70-eee5-11ea-adc1-0242ac120002")
+                        name = "stemmed"
+                        defaultValue = "FALSE"
+                        required = false
+                        description = "If this parameter is true the words will be stemmed using Snowballer stemmer."
+                    }
+                    BOOLEAN {
+                        id = fromString("72307d4c-eee5-11ea-adc1-0242ac120002")
+                        name = "filternums"
+                        defaultValue = "FALSE"
+                        required = false
+                        description = "If this parameter is true the numbers will be removed from the texts."
+                    }
+                    BOOLEAN {
+                        id = fromString("72307e14-eee5-11ea-adc1-0242ac120002")
+                        name = "num2words"
+                        defaultValue = "FALSE"
+                        required = false
+                        description = "If this parameter is true all the numbers will be transformed in to letters, for example 2 : two ."
+                    }
+                    BOOLEAN {
+                        id = fromString("72307edc-eee5-11ea-adc1-0242ac120002")
+                        name = "stopwords"
+                        defaultValue = "TRUE"
+                        required = false
+                        description = "If this parameter is true some words in a premade list will be filtered from the text. This script uses english stopwords list from nltk."
+                    }
+                }
+            }
 
             val codeProject_add_noise = codeProject {
                 id = im_add_noise_projectId
@@ -639,9 +707,64 @@ class InitialDataLoader {
                     }
                 }
             }
-
             // ############## MODEL
 
+            val codeProject_chatbot = codeProject {
+                id = chatbot_model_projectId
+                slug = "commons-chatbot"
+                name = "Small chatbot"
+                gitlabNamespace = "mlreef"
+                gitlabPath = "code-project-chatbot"
+                inputDataTypes = hashSetOf(DataType.TEXT)
+                outputDataTypes = hashSetOf(DataType.MODEL)
+                description = "Chatbot training for small group of sentences."
+            }
+            model {
+                linkToCodeProject(codeProject_chatbot)
+                id = chatbot_id
+                command = "chatbot_model"
+                number = 1
+                baseEnvironment = BaseEnvironment.default()
+                inputDataType = DataType.TEXT
+                outputDataType = DataType.MODEL
+                publisher = author
+
+                parameters {
+                    STRING {
+                        id = fromString("723080a8-eee5-11ea-adc1-0242ac120002")
+                        name = "input-path"
+                        defaultValue = "."
+                        required = true
+                        description = "Data input, path to the json file to train the model."
+                    }
+                    STRING {
+                        id = fromString("7230817a-eee5-11ea-adc1-0242ac120002")
+                        name = "output-path"
+                        defaultValue = "./output"
+                        description = "path to save the trained model"
+                    }
+                    INTEGER {
+                        id = fromString("72308238-eee5-11ea-adc1-0242ac120002")
+                        name = "epochs"
+                        defaultValue = "400"
+                        description = "number of epochs for training"
+                    }
+                    INTEGER {
+                        id = fromString("72308300-eee5-11ea-adc1-0242ac120002")
+                        name = "batch-size"
+                        defaultValue = "8"
+                        required = false
+                        description = "batch size fed to the neural network (int)"
+                    }
+                    FLOAT {
+                        id = fromString("723083be-eee5-11ea-adc1-0242ac120002")
+                        name = "learning-rate"
+                        defaultValue = "0.01"
+                        required = false
+                        description = "learning rate"
+                    }
+                }
+            }
             val codeProject_resnet50 = codeProject {
                 id = resnet50_projectId
                 slug = "commons-resnet-50"
@@ -649,10 +772,9 @@ class InitialDataLoader {
                 gitlabNamespace = "mlreef"
                 gitlabPath = "code-project-resnet-50"
                 inputDataTypes = hashSetOf(DataType.IMAGE)
-                outputDataTypes = hashSetOf(DataType.IMAGE)
+                outputDataTypes = hashSetOf(DataType.MODEL)
                 description = "ResNet50 is a 50 layer Residual Network."
             }
-
             model {
                 linkToCodeProject(codeProject_resnet50)
                 id = resnet50_id
@@ -660,7 +782,7 @@ class InitialDataLoader {
                 number = 1
                 baseEnvironment = BaseEnvironment.default()
                 inputDataType = DataType.IMAGE
-                outputDataType = DataType.IMAGE
+                outputDataType = DataType.MODEL
                 publisher = author
 
                 parameters {
@@ -753,7 +875,7 @@ class InitialDataLoader {
                 gitlabNamespace = "mlreef"
                 gitlabPath = "code-project-multimodel"
                 inputDataTypes = hashSetOf(DataType.IMAGE)
-                outputDataTypes = hashSetOf(DataType.IMAGE)
+                outputDataTypes = hashSetOf(DataType.MODEL)
                 description = "This script allows you to test several CNN models for image classification only adjusting args, you can choose between:" +
                     "resnet, alexnet,vgg, squeezenet, densenet,inception. You can use the pretrained version of those models or you can customize" +
                     "the behavior retraining with you own data."
@@ -766,7 +888,7 @@ class InitialDataLoader {
                 number = 1
                 baseEnvironment = BaseEnvironment.default()
                 inputDataType = DataType.IMAGE
-                outputDataType = DataType.IMAGE
+                outputDataType = DataType.MODEL
                 publisher = author
 
                 parameters {
