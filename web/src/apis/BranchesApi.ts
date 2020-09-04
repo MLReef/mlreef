@@ -3,7 +3,6 @@ import 'regenerator-runtime/runtime';
 import ApiDirector from './ApiDirector';
 import BodyLessApiRequestCallBuilder from './apiBuilders/BLApiRequestCallBuilder';
 import { METHODS, validServicesToCall } from './apiBuilders/requestEnums';
-import { getDomain } from './apiHelpers';
 
 export default class BranchesApi extends ApiDirector {
   async create(projectId: number, branchName: string, refBranch: string) {
@@ -57,7 +56,7 @@ export default class BranchesApi extends ApiDirector {
 
   async delete(projectId: number, branch: string) {
     const branchName = encodeURIComponent(branch);
-    const url = `${getDomain()}:10080/api/v4/projects/${projectId}/repository/branches/${branchName}`;
+    const url = `/api/v4/projects/${projectId}/repository/branches/${branchName}`;
     const BLbuilder = new BodyLessApiRequestCallBuilder(METHODS.DELETE, this.buildBasicHeaders(validServicesToCall.GITLAB), url);
 
     return fetch(BLbuilder.build())
