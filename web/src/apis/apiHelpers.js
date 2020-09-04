@@ -19,12 +19,11 @@ export const generateGetRequest = (url) => fetch(new Request(
   },
 ));
 
-export const buildHeaders = () => new Headers({
-  authorization: getCurrentToken(),
-  'Content-Type': 'application/json',
-  Accept: 'application/json',
-  Origin: 'http://localhost',
-});
+export const filterBots = (users) => {
+  const bot = /bot$/;
+  return users
+    .filter((user) => !bot.test(user.username) && !bot.test(user.user_name));
+};
 
 // return a remote defined route, or the current host.
 export const getDomain = () => {
@@ -33,12 +32,6 @@ export const getDomain = () => {
   const hostname = window?.location?.hostname;
 
   return domain || `${protocol}//${hostname}`;
-};
-
-export const filterBots = (users) => {
-  const bot = /bot$/;
-  return users
-    .filter((user) => !bot.test(user.username) && !bot.test(user.user_name));
 };
 
 export const filterRoot = (users) => users.filter((user) => user.id !== 1);
