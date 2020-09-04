@@ -44,7 +44,7 @@ class ColorModifier:
 
 
 def process_arguments(args):
-    parser = argparse.ArgumentParser(description='Pipeline: Random erasing')
+    parser = argparse.ArgumentParser(description='Pipeline: Color modifier')
     parser.add_argument('--input-path', action='store', default='.', help='path to directory of images or image file')
     parser.add_argument('--output-path', action='store', default='.', help='output directory to save images')
     parser.add_argument('--brightness', action='store', default=0.5, help='Brightness value')

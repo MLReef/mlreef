@@ -277,7 +277,7 @@ class MultiModel:
 
 
 def process_arguments(args):
-    parser = argparse.ArgumentParser(description='Pipeline: Text ops')
+    parser = argparse.ArgumentParser(description='Pipeline: Multimodel')
     parser.add_argument('--input-path', type=str, action='store', help='path to directory of images')
     parser.add_argument('--output-path', default='.', type=str, action='store', help='output path to save images')
     parser.add_argument('--batch-size', default=24, type=int, action='store', help='batch size')

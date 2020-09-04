@@ -39,7 +39,7 @@ class Thumbnail:
 
 def process_arguments(args):
 
-    parser = argparse.ArgumentParser(description='Pipeline: Random erasing')
+    parser = argparse.ArgumentParser(description='Pipeline: Create Thumbnails')
     parser.add_argument('--input-path', action='store', type=str, help='path to directory of images or image file')
     parser.add_argument('--output-path', action='store',type=str, help='output directory to save images')
     parser.add_argument('--size', action='store', type=int, default=128, help='size of thumbnail, width = height')
