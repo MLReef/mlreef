@@ -1,5 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
+import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import './RegisterView.scss';
 
@@ -16,7 +17,7 @@ const RegisterLandingView = (props) => {
       </div>
       <div className="second-state">
         <div className="user-options">
-          <a className="option-link mb-3 info-box" href="/new-project/classification/ml-project">
+          <Link className="option-link mb-3 info-box" to="/new-project/classification/ml-project">
             <div className="option-icon" style={{ backgroundColor: 'var(--info)' }} />
             <div className="state-body pl-3">
               <h4 className="state-title mt-0">Create a Project</h4>
@@ -26,8 +27,8 @@ const RegisterLandingView = (props) => {
                 visualizations and ML models.
               </p>
             </div>
-          </a>
-          <a className="option-link mb-3 success-box" href="/groups/new">
+          </Link>
+          <Link className="option-link mb-3 success-box" to="/groups/new">
             <div className="option-icon" style={{ backgroundColor: 'var(--success)' }} />
             <div className="state-body">
               <h4 className="state-title mt-0">Create a Group</h4>
@@ -35,8 +36,8 @@ const RegisterLandingView = (props) => {
                 In a group you can manage shared projects and coordinate with your group members.
               </p>
             </div>
-          </a>
-          <a className="option-link mb-3 danger-box" href="/#explore">
+          </Link>
+          <Link className="option-link mb-3 danger-box" to="/#explore">
             <div className="option-icon" style={{ backgroundColor: 'var(--danger)' }} />
             <div className="state-body">
               <h4 className="state-title mt-0">Explore Public Projects</h4>
@@ -45,7 +46,7 @@ const RegisterLandingView = (props) => {
                 growing number of projects, get inspired and be part of the reef
               </p>
             </div>
-          </a>
+          </Link>
           <a className="option-link mb-3 warning-box" href="https://doc.mlreef.com/" target="_blank" rel="noopener noreferrer">
             <div className="option-icon" style={{ backgroundColor: 'var(--warning)' }} />
             <div className="state-body">

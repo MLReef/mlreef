@@ -24,6 +24,7 @@ exports[`render basic landing view elements assert that snapshot matches 1`] = `
       <a
         className="option-link mb-3 info-box"
         href="/new-project/classification/ml-project"
+        onClick={[Function]}
       >
         <div
           className="option-icon"
@@ -51,6 +52,7 @@ exports[`render basic landing view elements assert that snapshot matches 1`] = `
       <a
         className="option-link mb-3 success-box"
         href="/groups/new"
+        onClick={[Function]}
       >
         <div
           className="option-icon"
@@ -78,6 +80,7 @@ exports[`render basic landing view elements assert that snapshot matches 1`] = `
       <a
         className="option-link mb-3 danger-box"
         href="/#explore"
+        onClick={[Function]}
       >
         <div
           className="option-icon"
