@@ -1,4 +1,5 @@
 import React from 'react';
+import { MemoryRouter } from 'react-router-dom';
 import { shallow } from 'enzyme';
 import renderer from 'react-test-renderer';
 import RegisterLandingView from 'components/RegisterView/RegisterLandingView';
@@ -20,7 +21,11 @@ const setup = () => {
 describe('render basic landing view elements', () => {
   const wrapper = setup();
   test('assert that snapshot matches', () => {
-    const snapShot = renderer.create(<RegisterLandingView store={store} />).toJSON();
+    const snapShot = renderer.create(
+      <MemoryRouter>
+        <RegisterLandingView store={store} />
+      </MemoryRouter>,
+    ).toJSON();
     expect(snapShot).toMatchSnapshot();
   });
 
