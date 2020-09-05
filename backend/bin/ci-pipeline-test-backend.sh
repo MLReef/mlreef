@@ -21,4 +21,4 @@ echo "  MLREEF_BACKEND_URL    = $MLREEF_BACKEND_URL"
 echo "  GITLAB_ROOT_URL       = $GITLAB_ROOT_URL"
 
 export GRADLE_USER_HOME=$(pwd)/.gradle
-./gradlew :mlreef-system-test:systemTest
+./gradlew :mlreef-system-test:pipelineTest

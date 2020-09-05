@@ -46,7 +46,6 @@ import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
 import java.time.Instant
 import java.util.UUID
-import java.util.logging.Logger
 import javax.servlet.http.HttpServletRequest
 import javax.validation.Valid
 import javax.validation.constraints.NotEmpty
@@ -61,23 +60,41 @@ class ProjectsController(
     private val pipelineService: PipelineService,
     private val dataProcessorService: DataProcessorService
 ) {
-    private val log: Logger = Logger.getLogger(ProjectsController::class.simpleName)
 
     @GetMapping
-    fun getAllProjects(person: Person, profile: TokenDetails?): List<ProjectDto> {
+    fun getAllAccessibleProjects(person: Person, profile: TokenDetails?): List<ProjectDto> {
         val idMap = profile?.projects?.keys ?: listOf()
-        return projectService.getProjectsByIds(idMap).map { it.toDto() }
+        // TODO: provide paging sometimes
+        return projectService.getAllAccessibleProjectsByIds(Pageable.unpaged(), idMap).map { it.toDto() }
     }
 
-    @GetMapping("/my")
+    @GetMapping("/starred")
+    fun getAllAccessibleStarredProjects(person: Person, profile: TokenDetails?): List<ProjectDto> {
+        val idMap = profile?.projects?.keys ?: listOf()
+        return projectService.getAllAccessibleStarredProjectsByIds(person.id, Pageable.unpaged(), idMap).map { it.toDto() }
+    }
+
+    @GetMapping("/own")
     fun getOwnProjects(person: Person): List<ProjectDto> {
         return projectService.getOwnProjectsOfUser(person.id).map { it.toDto() }
     }
 
+    @GetMapping("/my")
+    fun getMyProjects(person: Person, profile: TokenDetails?): List<ProjectDto> {
+        val idMap = profile?.projects?.keys ?: listOf()
+        return projectService.getProjectsSharedWithUser(person.id, idMap).map { it.toDto() }
+    }
+
     @GetMapping("/public")
-    fun getPublicProjects(pageable: Pageable): Page<ProjectDto> {
+    fun getPublicProjectsPaged(pageable: Pageable): Page<ProjectDto> {
         val list = projectService.getAllPublicProjects(pageable).map { it.toDto() }
         return PageImpl(list, pageable, list.size.toLong())
+    }
+
+    @GetMapping("/public/all")
+    fun getPublicProjectsUnpaged(pageable: Pageable): List<ProjectDto> {
+        val allPublicProjects = projectService.getAllPublicProjects(Pageable.unpaged())
+        return allPublicProjects.map { it.toDto() }
     }
 
     @GetMapping("/{id}")
@@ -263,6 +280,14 @@ class ProjectsController(
         return projectService.checkUserInProject(projectUUID = id, userId = userId, userGitlabId = gitlabId)
     }
 
+    @PostMapping("/{id}/users/{userId}")
+    @PreAuthorize("hasAccessToProject(#id, 'MAINTAINER')")
+    fun addUserToDataProjectById(@PathVariable id: UUID, @PathVariable userId: UUID): List<UserInProjectDto> {
+        projectService.addUserToProject(id, userId)
+        return getUsersInDataProjectById(id)
+    }
+
+    // FIXME: Something is strange here: 405 Method not allowed..
     @PostMapping("/{id}/users")
     @PreAuthorize("hasAccessToProject(#id, 'MAINTAINER')")
     fun addUsersToDataProjectById(
@@ -314,13 +339,6 @@ class ProjectsController(
             accessTill = currentExpiration
         )
 
-        return getUsersInDataProjectById(id)
-    }
-
-    @PostMapping("/{id}/users/{userId}")
-    @PreAuthorize("hasAccessToProject(#id, 'MAINTAINER')")
-    fun addUserToDataProjectById(@PathVariable id: UUID, @PathVariable userId: UUID): List<UserInProjectDto> {
-        projectService.addUserToProject(id, userId)
         return getUsersInDataProjectById(id)
     }
 

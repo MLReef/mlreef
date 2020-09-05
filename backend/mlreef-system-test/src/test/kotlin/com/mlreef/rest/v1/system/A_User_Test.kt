@@ -12,6 +12,7 @@ import com.mlreef.rest.v1.system.ScenarioState.globalRandomUserName
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.MethodOrderer
+import org.junit.jupiter.api.Tag
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestMethodOrder
 import org.springframework.http.ResponseEntity
@@ -19,6 +20,7 @@ import org.springframework.http.ResponseEntity
 
 @TestMethodOrder(value = MethodOrderer.Alphanumeric::class)
 @DisplayName("A: User and basic user management")
+@Tag(value = SystemTestTags.SYSTEM)
 class A_User_Test : AbstractSystemTest() {
 
     companion object {

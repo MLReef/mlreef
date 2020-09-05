@@ -90,7 +90,7 @@ ext {
 
 test {
     useJUnitPlatform {
-        excludeTags 'slow', 'system'
+        excludeTags 'slow', 'system', 'pipeline'
     }
 }
 
@@ -105,19 +105,18 @@ task systemTest(type: Test) {
     useJUnitPlatform {
         includeTags 'system'
     }
-    testLogging {
-        events "standardOut", "started", "passed", "skipped", "failed"
-        exceptionFormat = 'full'
-    }
-    systemProperty 'junit.jupiter.extensions.autodetection.enabled', 'true'
-    afterTest { descriptor, result ->
-        println "\n$descriptor.classDisplayName > $descriptor.displayName: $result.resultType"
+}
+
+task pipelineTest(type: Test) {
+    dependsOn fatJar
+    useJUnitPlatform {
+        includeTags 'pipeline'
     }
 }
 
 tasks.withType(Test) {
     testLogging {
-        events "standardOut", "started", "passed", "skipped", "failed"
+        events "started", "passed", "skipped", "failed"
         exceptionFormat = 'full'
     }
     systemProperty 'junit.jupiter.extensions.autodetection.enabled', 'true'

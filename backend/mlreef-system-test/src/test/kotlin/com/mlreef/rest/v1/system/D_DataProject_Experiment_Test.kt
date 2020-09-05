@@ -16,6 +16,7 @@ import com.mlreef.rest.v1.system.ScenarioState.globalRandomUserName
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.MethodOrderer
+import org.junit.jupiter.api.Tag
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestMethodOrder
 import org.junit.jupiter.api.fail
@@ -24,7 +25,7 @@ import org.springframework.http.ResponseEntity
 
 @TestMethodOrder(value = MethodOrderer.Alphanumeric::class)
 @DisplayName("D: Experiments")
-
+@Tag(value = SystemTestTags.PIPELINE)
 class D_DataProject_Experiment_Test : AbstractSystemTest() {
 
     companion object {

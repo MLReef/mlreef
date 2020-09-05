@@ -40,13 +40,14 @@ object ScenarioState {
     val globalEmail = "$globalRandomUserName@example.com"
 }
 
-@Tags(value = [Tag("system")])
+object SystemTestTags {
+    const val SLOW = "slow"
+    const val PIPELINE = "pipeline"
+    const val SYSTEM = "system"
+}
+
+@Tags(value = [Tag(SystemTestTags.SLOW)])
 @TestMethodOrder(value = MethodOrderer.Alphanumeric::class)
-//@ExtendWith(value = [SpringExtension::class])
-//@ActiveProfiles("system-test")
-//@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE, classes =
-//[SystemTestConfiguration::class
-//])
 open class AbstractSystemTest() {
 
     lateinit var objectMapper: MLReefObjectMapper
@@ -202,6 +203,10 @@ open class AbstractSystemTest() {
         password: String = globalRandomPassword
     ): C {
         return this.setCredentialsProvider(UsernamePasswordCredentialsProvider(username, password))
+    }
+
+    protected fun sleep(time: Long = 500) {
+        Thread.sleep(time)
     }
 }
 

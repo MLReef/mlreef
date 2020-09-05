@@ -14,15 +14,16 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.MethodOrderer
+import org.junit.jupiter.api.Tag
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestMethodOrder
 import org.springframework.http.ResponseEntity
 import java.io.File
 
 @TestMethodOrder(value = MethodOrderer.Alphanumeric::class)
-@DisplayName("B: DataProject ")
-
-class B_DataProject_Test : AbstractSystemTest() {
+@DisplayName("B: DataProject 01-04")
+@Tag(value = SystemTestTags.SYSTEM)
+class B1_DataProject_Test : AbstractSystemTest() {
 
     companion object {
         lateinit var accessToken: String
@@ -35,22 +36,16 @@ class B_DataProject_Test : AbstractSystemTest() {
     @Test
     fun `B00 Prepare new User & Login `() {
         val returnedResult = prepareCurrentUser(globalRandomUserName, globalEmail, globalRandomPassword)
-        Thread.sleep(1000)
+        sleep()
         accessToken = returnedResult.accessToken ?: returnedResult.token!!
         currentUser = returnedResult
-        Thread.sleep(2000)
     }
 
     @Test
     fun `B00-01 Prepare new Group `() {
         val returnedResult = prepareCurrentGroup(accessToken, RandomUtils.generateRandomUserName(10))
-        Thread.sleep(1000)
+        sleep()
         currentGroup = returnedResult
-        Thread.sleep(2000)
-//
-//        val response: ResponseEntity<List<UserInGroupDto>> = backendRestClient.post("/groups/${currentGroup.id}/users/${currentUser.id}", accessToken, null)
-//        val modifiedGroupUsers = response.expectOk().returns()
-//        assertThat(modifiedGroupUsers.map { it.userName }).contains(currentUser.username)
     }
 
     @Test
