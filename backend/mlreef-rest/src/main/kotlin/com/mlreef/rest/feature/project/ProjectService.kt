@@ -47,7 +47,6 @@ import org.slf4j.LoggerFactory
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.dao.DataIntegrityViolationException
-import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.repository.findByIdOrNull
 import java.time.Instant
@@ -60,14 +59,13 @@ import java.util.UUID
 import javax.transaction.Transactional
 
 interface ProjectService<T : Project> {
-    fun getAllPublicProjects(): List<T>
     fun getAllPublicProjects(pageable: Pageable): List<T>
-    fun getAllProjectsByIds(ids: Iterable<UUID>): List<T>
-    fun getAllProjectsByIds(ids: Iterable<UUID>, pageable: Pageable): Page<T>
+    fun getAllAccessibleProjectsByIds(pageable: Pageable, accessibleIds: Iterable<UUID>): List<T>
+    fun getAllAccessibleStarredProjectsByIds(subjectId: UUID, pageable: Pageable, accessibleIds: Iterable<UUID>): List<T>
+    fun getProjectsSharedWithUser(personId: UUID, accessibleIds: Iterable<UUID>): List<T>
     fun getOwnProjectsOfUser(personId: UUID): List<T>
-    fun getProjectsByIds(ids: Iterable<UUID>): List<T>
+
     fun getProjectById(projectId: UUID): T?
-    fun getProjectByIdAndPersonId(projectId: UUID, personId: UUID): T?
     fun getProjectsByNamespace(namespaceName: String): List<T>
     fun getProjectsBySlug(slug: String): List<T>
     fun getProjectsByNamespaceAndPath(namespaceName: String, slug: String): T?
@@ -195,30 +193,31 @@ open class ProjectServiceImpl<T : Project>(
         private val log = LoggerFactory.getLogger(this::class.java)
     }
 
-    override fun getAllPublicProjects(): List<T> {
-        val projectsIds = publicProjectsCacheService.getPublicProjectsIdsList()
-        return repository.findAllById(projectsIds).toList()
-    }
 
     override fun getAllPublicProjects(pageable: Pageable): List<T> {
         val projectsIds = publicProjectsCacheService.getPublicProjectsIdsList(pageable)
         return repository.findAllById(projectsIds).toList()
     }
 
-    override fun getAllProjectsByIds(ids: Iterable<UUID>): List<T> {
-        return repository.findAllById(ids).toList()
-    }
-
-    override fun getAllProjectsByIds(ids: Iterable<UUID>, pageable: Pageable): Page<T> {
-        return repository.findAllByIdIn(ids, pageable)
-    }
 
     override fun getOwnProjectsOfUser(personId: UUID): List<T> {
         return repository.findAllByOwnerId(personId)
     }
 
-    override fun getProjectsByIds(ids: Iterable<UUID>): List<T> {
-        return repository.findAllById(ids).toList()
+    override fun getAllAccessibleProjectsByIds(pageable: Pageable, accessibleIds: Iterable<UUID>): List<T> {
+        val projectsIds = publicProjectsCacheService.getPublicProjectsIdsList(pageable)
+        val addAll = projectsIds.plus(accessibleIds)
+        return repository.findAllById(addAll).toList()
+    }
+
+    override fun getAllAccessibleStarredProjectsByIds(subjectId: UUID, pageable: Pageable, accessibleIds: Iterable<UUID>): List<T> {
+        val projectsIds = publicProjectsCacheService.getPublicProjectsIdsList(pageable)
+        val addAll = projectsIds.plus(accessibleIds)
+        return repository.findAccessibleStarredProjects(subjectId, addAll, pageable).toList()
+    }
+
+    override fun getProjectsSharedWithUser(personId: UUID, accessibleIds: Iterable<UUID>): List<T> {
+        return repository.findAllById(accessibleIds).toList()
     }
 
     override fun getProjectById(projectId: UUID): T? {
@@ -245,10 +244,6 @@ open class ProjectServiceImpl<T : Project>(
         } ?: throw ProjectNotFoundException(projectId, gitlabId = projectGitlabId)
         gitlabRestClient.userUnstarProject(userToken, project.gitlabId)
         return repository.save(project.removeStar(person) as T)
-    }
-
-    override fun getProjectByIdAndPersonId(projectId: UUID, personId: UUID): T? {
-        return repository.findOneByOwnerIdAndId(personId, projectId)
     }
 
     override fun getProjectsByNamespace(namespaceName: String): List<T> {

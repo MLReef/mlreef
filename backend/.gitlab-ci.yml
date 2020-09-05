@@ -59,12 +59,12 @@ backend integration tests:
     DOCKER_TLS_CERTDIR: ""            # "/certs" gitlab needs this to support docker testcontainers
   script: backend/bin/ci-integration-test-backend
 
-
-system tests:
-  allow_failure: true
+.system-tests:
+  except:
+    refs:
+      - develop
+      - master
   stage: test
-  when: delayed
-  start_in: 4 minutes
   image: java:8
   services:
     - docker:19.03.0-dind
@@ -77,5 +77,18 @@ system tests:
     DOCKER_HOST: "tcp://docker:2375"  # gitlab needs this to support docker testcontainers
     DOCKER_DRIVER: overlay2           # gitlab needs this to support docker testcontainers
     DOCKER_TLS_CERTDIR: ""            # "/certs" gitlab needs this to support docker testcontainers
+
+system tests:
+  extends: [".system-tests"]
+  allow_failure: false
+  stage: test
+  when: delayed
+  start_in: 3 minutes
   script: backend/bin/ci-system-test-backend.sh
 
+pipeline tests:
+  extends: [".system-tests"]
+  allow_failure: true
+  stage: test
+  when: manual
+  script: backend/bin/ci-pipeline-test-backend.sh

@@ -29,7 +29,6 @@ import com.mlreef.rest.ProcessorParameter
 import com.mlreef.rest.ProcessorParameterRepository
 import com.mlreef.rest.ProcessorVersion
 import com.mlreef.rest.ProcessorVersionRepository
-import com.mlreef.rest.UserRole
 import com.mlreef.rest.external_api.gitlab.dto.GitlabProject
 import com.mlreef.rest.external_api.gitlab.dto.GitlabUserInProject
 import com.mlreef.rest.utils.RandomUtils
@@ -40,7 +39,6 @@ import org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Component
-import java.time.ZonedDateTime
 import java.util.UUID
 import java.util.UUID.randomUUID
 import javax.transaction.Transactional
@@ -51,7 +49,6 @@ object TestTags {
     const val SLOW = "slow"
     const val UNIT = "unit"
     const val INTEGRATION = "integration"
-    const val SYSTEM = "system"
     const val RESTDOC = "restdoc"
 }
 

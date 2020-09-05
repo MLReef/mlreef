@@ -4,7 +4,6 @@ package com.mlreef.rest
 
 import com.mlreef.rest.marketplace.SearchableTag
 import com.mlreef.rest.marketplace.SearchableType
-import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.CrudRepository
@@ -146,8 +145,10 @@ interface ProjectBaseRepository<T : Project> : CrudRepository<T, UUID> {
     fun findByGlobalSlugAndVisibilityScope(slug: String, visibilityScope: VisibilityScope): T?
     fun findAllByVisibilityScope(visibilityScope: VisibilityScope, pageable: Pageable): List<T>
     fun findAllByOwnerId(ownerId: UUID): List<T>
-    fun findOneByOwnerIdAndId(ownerId: UUID, id: UUID): T?
-    fun findOneByOwnerIdAndSlug(ownerId: UUID, slug: String): T?
+
+    @Query("select e from Project e JOIN Star s on s.projectId = e.id where e.id IN :ids AND s.subjectId = :ownerId")
+    fun findAccessibleStarredProjects(ownerId: UUID, ids: List<UUID>, pageable: Pageable): List<T>
+
     fun findByGitlabId(gitlabId: Long): T?
 
     @Query("SELECT p FROM Project p WHERE p.gitlabPathWithNamespace LIKE %:namespace%")
@@ -156,7 +157,6 @@ interface ProjectBaseRepository<T : Project> : CrudRepository<T, UUID> {
     @Query("SELECT p FROM Project p WHERE p.gitlabNamespace LIKE %:namespace% AND (p.gitlabPath LIKE %:path% OR p.slug LIKE %:path%)")
     fun findByNamespaceAndPath(namespace: String, path: String): T?
     fun findBySlug(slug: String): List<T>
-    fun findAllByIdIn(ids: Iterable<UUID>, pageable: Pageable): Page<T>
 }
 
 @Repository
@@ -165,7 +165,7 @@ interface ProjectRepository : ProjectBaseRepository<Project>, ProjectRepositoryC
     @Query("select e from Project e where e.id IN :ids")
     fun findAccessibleProjects(ids: List<UUID>, pageable: Pageable): List<Project>
 
-    @Query("select e from Project e  where e.id IN :ids and e.globalSlug LIKE :slug")
+    @Query("select e from Project e where e.id IN :ids and e.globalSlug LIKE :slug")
     fun findAccessibleProject(ids: List<UUID>, slug: String): Project?
 
     @Query("SELECT p FROM Project p WHERE p.gitlabPathWithNamespace LIKE %:namespace%")

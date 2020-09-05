@@ -178,11 +178,37 @@ For many requests, Projects can be used, but create or update operations, you mu
 
 === GET /projects
 
-operation::genericprojects-retrieve-all[snippets='curl-request,response-body,response-fields']
+All *accessible* Projects (own, shared, public)
+
+operation::project-retrieve-accessible[snippets='curl-request,response-body,response-fields']
+
+=== GET /projects/own
+
+All *own* Projects (created by user)
+
+operation::project-retrieve-own[snippets='curl-request']
+
+=== GET /projects/my
+
+All *own* (created by user) and *shared* (user or group is member of ) Projects
+
+operation::project-retrieve-my[snippets='curl-request']
+
+=== GET /projects/starred
+
+All *accessible* Projects *(own,shared,public)* which the user starred.
+
+operation::project-retrieve-starred[snippets='curl-request']
+
+=== GET /projects/public/all
+
+Public projects (can include own and shared), but without paging.
+
+operation::project-retrieve-public-all[snippets='curl-request']
 
 === GET /projects/public
 
-operation::genericprojects-retrieve-public[snippets='curl-request,response-body,response-fields']
+operation::genericprojects-retrieve-public[snippets='curl-request']
 
 === GET /projects/:id
 
@@ -190,11 +216,11 @@ operation::genericprojects-retrieve-one[snippets='curl-request,response-body,res
 
 === GET /projects/slug/:slug
 
-operation::genericprojects-retrieve-by-slug[snippets='curl-request,response-body,response-fields']
+operation::genericprojects-retrieve-by-slug[snippets='curl-request']
 
 === GET /projects/namespace/:namespace
 
-operation::genericprojects-retrieve-by-namespace[snippets='curl-request,response-body,response-fields']
+operation::genericprojects-retrieve-by-namespace[snippets='curl-request']
 
 === GET /projects/:namespace/:slug
 
@@ -202,8 +228,9 @@ operation::project-retrieve-one-by-namespace-slug[snippets='curl-request,respons
 
 === GET /projects/:namespace/:slug/users
 
-operation::project-retrieve-users-list-by-namespace-slug[snippets='curl-request,response-body,response-fields']
+operation::project-retrieve-users-list-by-namespace-slug[snippets='curl-request']
 
+// @German: please cleanup and re-order these docs :/ it is really messed up... there are chapters.. see line 528 for example
 === GET /projects/:namespace/:slug/experiments
 
 operation::experiments-retrieve-all-by-namespace-slug[snippets='curl-request,response-body,response-fields']
