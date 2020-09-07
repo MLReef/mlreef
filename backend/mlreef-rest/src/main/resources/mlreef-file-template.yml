@@ -68,3 +68,7 @@ mlreef-pipeline:
     - git commit -m "Add pipeline results [skip ci]"
     - git push --set-upstream origin "$TARGET_BRANCH"
     - git push
+  artifacts:
+    paths:
+      - output/*
+
