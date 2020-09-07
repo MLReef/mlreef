@@ -42,6 +42,7 @@ import com.mlreef.rest.external_api.gitlab.dto.GitlabUser
 import com.mlreef.rest.external_api.gitlab.dto.GitlabUserInGroup
 import com.mlreef.rest.external_api.gitlab.dto.GitlabUserToken
 import com.mlreef.rest.external_api.gitlab.dto.OAuthToken
+import com.mlreef.rest.external_api.gitlab.dto.OAuthTokenInfo
 import com.mlreef.rest.feature.caches.PublicProjectsCacheService
 import com.mlreef.rest.feature.data_processors.DataProcessorService
 import com.mlreef.rest.feature.pipeline.PipelineService
@@ -199,6 +200,14 @@ abstract class AbstractRestApiTest : AbstractRestTest() {
             username = "mock_user",
             email = "mock@example.com",
             state = "active"
+        )
+
+        every { restClient.userCheckOAuthTokenInGitlab(any()) } returns OAuthTokenInfo(
+            resourceOwnerId = 1L,
+            scopes = listOf(),
+            expiresInSeconds = 0L,
+            application = null,
+            createdAt = Instant.now().epochSecond
         )
 
         every { restClient.adminCreateUser(any(), any(), any(), any()) } returns gitlabUser

@@ -32,7 +32,7 @@ class SecurityConfiguration(private val provider: AuthenticationProvider) : WebS
     lateinit var sessionRepo: FindByIndexNameSessionRepository<out Session>
 
     init {
-        log.debug("MlReef security configuration processing...")
+        log.debug("MLReef security configuration processing...")
     }
 
     override fun configure(auth: AuthenticationManagerBuilder) {
