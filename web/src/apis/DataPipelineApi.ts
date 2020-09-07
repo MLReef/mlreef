@@ -49,4 +49,12 @@ export default class DataPiplineApi extends ApiDirector {
     return fetch(builder.build())
       .then(handleResponse);
   }
+
+  delete(backendProjectId: string, pipelineId: string) {
+    const url = `/api/v1/pipelines/${backendProjectId}/instances/${pipelineId}`;
+    const builder = new BLApiRequestCallBuilder(METHODS.DELETE, this.buildBasicHeaders(validServicesToCall.BACKEND), url);
+
+    return fetch(builder.build())
+      .then(handleResponse);
+  }
 }

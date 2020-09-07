@@ -23,7 +23,7 @@ describe('test the DOM', () => {
   });
   test('test elements presence', () => {
     expect(wrapper.find('#question-for-delete-exp').text().includes(experimentMock.name)).toBe(true);
-    expect(wrapper.find('#experiment-status').text().includes(SUCCESS)).toBe(true);
+    expect(wrapper.find('#experiment-status').text().toLowerCase().includes(SUCCESS)).toBe(true);
     expect(wrapper.find('#owner').text().includes(experimentMock.authorName)).toBe(true);
     expect(wrapper.find('button#cancel-deleting-experiment')).toHaveLength(1);
     expect(wrapper.find('button#delete-experiment')).toHaveLength(1);

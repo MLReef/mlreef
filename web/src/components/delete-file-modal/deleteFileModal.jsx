@@ -6,14 +6,14 @@ import {
 import { Checkbox, FormControlLabel } from '@material-ui/core';
 import { toastr } from 'react-redux-toastr';
 import BlueBorderedInput from '../BlueBorderedInput';
-import '../../css/genericModal.css';
-import './deleteFileModal.css';
 import CustomizedMenus from '../customized-menu/CustomizedMenu';
 import CommitsApi from '../../apis/GroupApi.ts';
 import BranchesApi from '../../apis/BranchesApi.ts';
 import { DELETE } from '../../dataTypes';
 
 const commitsApi = new CommitsApi();
+
+const brancheApi = new BranchesApi();
 
 const DeleteFileModal = ({
   isModalVisible,
@@ -55,7 +55,6 @@ const DeleteFileModal = ({
   }
 
   function createBranchAndCommit(redirectUrl, newBranch) {
-    const brancheApi = new BranchesApi();
     brancheApi.create(
       projectId,
       newBranch,

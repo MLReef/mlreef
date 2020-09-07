@@ -39,7 +39,7 @@ const DataVisualizationDetails = ({ ...props }) => {
     });
   }, [visName, projectId, path]);
   return (
-    <div id="experiments-overview-container">
+    <div>
       <Navbar />
       <ProjectContainer
         activeFeature="data"

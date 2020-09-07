@@ -1,11 +1,18 @@
 import React, { useEffect, useState } from 'react';
 import { toastr } from 'react-redux-toastr';
 import { connect } from 'react-redux';
-import { RUNNING, PENDING, SKIPPED } from 'dataTypes';
-import PipelinesApi from 'apis/PipelinesApi';
+import {
+  RUNNING, PENDING, SKIPPED, SUCCESS, FAILED, CANCELED,
+} from 'dataTypes';
+import moment from 'moment';
+import { bindActionCreators } from 'redux';
+import AuthWrapper from 'components/AuthWrapper';
+import GitlabPipelinesApi from 'apis/GitlabPipelinesApi.ts';
 import DataPipelineApi from 'apis/DataPipelineApi';
-import { getTimeCreatedAgo } from 'functions/dataParserHelpers';
-import PropTypes from 'prop-types';
+import { setPreconfiguredOPerations } from 'actions/userActions';
+import { parseToCamelCase } from 'functions/dataParserHelpers';
+import PropTypes, { shape, func } from 'prop-types';
+import DataCard from 'components/layout/DataCard';
 import FilesTable from '../files-table/filesTable';
 import Navbar from '../navbar/navbar';
 import ProjectContainer from '../projectContainer';
@@ -14,6 +21,7 @@ import FilesApi from '../../apis/FilesApi.ts';
 
 const filesApi = new FilesApi();
 const dataPipeApi = new DataPipelineApi();
+const gitPipelinesApis = new GitlabPipelinesApi();
 
 const DataInstanceDetails = (props) => {
   const {
@@ -24,6 +32,8 @@ const DataInstanceDetails = (props) => {
         namespace, path, slug, dataId,
       },
     },
+    history,
+    setPreconfOps,
   } = props;
   const selectedProject = projects.filter((proj) => proj.slug === slug)[0];
   const { gitlabId } = selectedProject;
@@ -36,13 +46,49 @@ const DataInstanceDetails = (props) => {
     ?.filter((pipeline) => pipeline.ref.includes(backendPipeline?.name)
     && pipeline.status !== SKIPPED)[0];
   const selectedPipeline = branches.filter((item) => item.name.includes(backendPipeline?.name))[0];
-  const { created_at: timeCreatedAgo, id, status: diStatus, ref: branchName } = gitlabFilterPipeline || {};
+  const {
+    created_at: timeCreatedAgo, id, status: diStatus, ref: branchName, updated_at: updatedAt
+  } = gitlabFilterPipeline || {};
+  const isCompleted = !(diStatus === RUNNING || diStatus === PENDING);
+  let statusParagraphColor;
+  switch (diStatus) {
+    case RUNNING:
+      statusParagraphColor = 'success';
+      break;
+    case SUCCESS:
+      statusParagraphColor = 'success';
+      break;
+    case PENDING:
+      statusParagraphColor = 'warning';
+      break;
+    case FAILED:
+      statusParagraphColor = 'danger';
+      break;
+    case CANCELED:
+      statusParagraphColor = 'danger';
+      break;
+    default:
+      statusParagraphColor = 'lessWhite';
+      break;
+  }
+
+  const duration = (new Date(updatedAt) - new Date(timeCreatedAgo));
+  function goToPipelineView() {
+    const { dataOperations, inputFiles } = backendPipeline;
+    const configuredOperations = {
+      dataOperatorsExecuted: dataOperations,
+      inputFiles,
+      pipelineBackendId: backendPipeline.id,
+    };
+    setPreconfOps(configuredOperations);
+    history.push(`/${namespace}/${slug}/-/datasets/new`);
+  }
 
   useEffect(() => {
     dataPipeApi.getBackendPipelineById(dataId)
-      .then((res) => setBackendPipeline(res))
+      .then((res) => setBackendPipeline(parseToCamelCase(res)))
       .then(() => {
-        PipelinesApi.getPipesByProjectId(gitlabId)
+        gitPipelinesApis.getPipesByProjectId(gitlabId)
           .then((res) => setGitlabPipes(res));
       })
       .then(() => branchName !== undefined && filesApi.getFilesPerProject(
@@ -55,7 +101,7 @@ const DataInstanceDetails = (props) => {
   }, [id, gitlabId, path, branchName, dataId]);
 
   return (
-    <div id="experiments-overview-container">
+    <>
       <Navbar />
       <ProjectContainer
         activeFeature="data"
@@ -63,44 +109,132 @@ const DataInstanceDetails = (props) => {
       />
       <div className="main-content">
         <br />
-        <div id="line" />
-        <br />
-        <div className="commit-per-date">
-          <div className="commit-header">
+        <div className="dataset-container">
+          <div className="header">
             <p>Viewing</p>
           </div>
           {selectedPipeline && (
-          <div className="summary-data" style={{ display: 'flex' }}>
-            <div className="project-desc-experiment pt-1">
-              <p><b>{branchName}</b></p>
-              <p>
-                Created by
-                <b>{selectedPipeline?.commit?.author_name}</b>
-                <br />
-                {`${getTimeCreatedAgo(timeCreatedAgo)} ago`}
-              </p>
+          <div className="content">
+            <br />
+            <div className="content-row">
+              <div className="item">
+                <p>Dataset:</p>
+                <p><b>{branchName?.replace(/.*\//, '')}</b></p>
+              </div>
+              <AuthWrapper
+                minRole={30}
+              >
+                <button
+                  type="button"
+                  style={{ padding: '0.5rem 1.3rem' }}
+                  className="btn btn-danger"
+                >
+                  Abort
+                </button>
+              </AuthWrapper>
             </div>
-            <div className="project-desc-experiment" style={{ visibility: 'inherit' }}>
-              <p><b>Usage: ---</b></p>
+            <div className="content-row">
+              <div className="item">
+                <p>Status:</p>
+                <p style={{ color: `var(--${statusParagraphColor})` }}><b>{diStatus}</b></p>
+              </div>
+              <div className="item">
+                <p>DataOps ID:</p>
+                <span style={{
+                  border: '1px solid gray',
+                  padding: '2px 0.5rem 0 2rem',
+                  borderRadius: '0.2rem',
+                }}
+                >
+                  {id}
+                </span>
+              </div>
             </div>
-            <div className="project-desc-experiment" style={{ visibility: 'inherit' }}>
-              <p>
-                Id:
-                {id}
-              </p>
+            <br />
+            <div className="content-row">
+              <div className="item">
+                <p>
+                  Created:
+                </p>
+                <p>
+                  <b>
+                    {moment(timeCreatedAgo).format('DD.MM.YYYY - hh:mm:ss')}
+                  </b>
+                </p>
+              </div>
             </div>
-            <button
-              type="button"
-              style={{ margin: '1.5em', cursor: 'pointer', marginLeft: 'auto' }}
-              className="dangerous-red"
-            >
-              <b>X</b>
-            </button>
+            <div className="content-row">
+              <div className="item">
+                <p>
+                  Completed:
+                </p>
+                <p>
+                  <b>
+                    {isCompleted ? moment(updatedAt).format('DD.MM.YYYY - hh:mm:ss') : '---'}
+                  </b>
+                </p>
+              </div>
+              <div className="item">
+                <p>
+                  Running time:
+                </p>
+                <p>
+                  <b>
+                    {duration
+                      ? moment({}).startOf('day').milliseconds(duration).format('HH:mm:ss')
+                      : '---'}
+                  </b>
+                </p>
+              </div>
+            </div>
+            <div className="content-row">
+              <div className="item">
+                <p>
+                  Owner:
+                </p>
+                <p>
+                  <b>
+                    {selectedPipeline?.commit?.author_name}
+                  </b>
+                </p>
+              </div>
+            </div>
           </div>
           )}
         </div>
         <br />
-        {diStatus === RUNNING.toLowerCase() || diStatus === PENDING.toLowerCase() ? (
+        <div className="d-flex" style={{ height: '20rem', justifyContent: 'space-around' }}>
+          {backendPipeline && (
+            <>
+              <DataCard
+                title="Data"
+                linesOfContent={[
+                  'Files selected from path',
+                  `*${backendPipeline?.inputFiles ? backendPipeline?.inputFiles[0].location : ''}`,
+                  'from',
+                  `*${branchName?.replace(/.*\//, '')}`,
+                ]}
+              />
+              <DataCard
+                title="DataOps"
+                linesOfContent={backendPipeline
+                  ?.dataOperations
+                  ?.map((op, opInd) => `*Op. ${opInd} - ${op.name}`)}
+              />
+            </>
+          )}
+          <button
+            type="button"
+            className="btn btn-outline-dark mr-1"
+            style={{ marginTop: 0, marginBottom: 'auto' }}
+            onClick={() => goToPipelineView()}
+          >
+            View Pipeline
+          </button>
+          ,
+        </div>
+        <br />
+        {diStatus === RUNNING || diStatus === PENDING ? (
           <>
             <table className="file-properties">
               <thead>
@@ -136,12 +270,12 @@ const DataInstanceDetails = (props) => {
                 routeType = 'blob';
                 link = `/${namespace}/${slug}/-/${routeType}/${encodeURIComponent(branchName)}/${encodeURIComponent(file.path)}`;
               }
-              props.history.push(link);
+              history.push(link);
             }}
           />
         )}
       </div>
-    </div>
+    </>
   );
 };
 
@@ -155,6 +289,10 @@ DataInstanceDetails.propTypes = {
       slug: PropTypes.string,
     }).isRequired,
   }).isRequired,
+  history: shape({
+    push: func.isRequired,
+  }).isRequired,
+  setPreconfOps: func.isRequired,
   branches: PropTypes.arrayOf(
     PropTypes.shape({}).isRequired,
   ).isRequired,
@@ -167,4 +305,11 @@ function mapStateToProps(state) {
   };
 }
 
-export default connect(mapStateToProps)(DataInstanceDetails);
+
+function mapActionsToProps(dispatch) {
+  return {
+    setPreconfOps: bindActionCreators(setPreconfiguredOPerations, dispatch),
+  };
+}
+
+export default connect(mapStateToProps, mapActionsToProps)(DataInstanceDetails);

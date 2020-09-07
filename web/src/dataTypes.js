@@ -23,13 +23,13 @@ export const colorsForCharts = [
 
 /* ------------------------- Statuses for pipelines ------------------------- */
 
-export const RUNNING = 'RUNNING';
-export const PENDING = 'PENDING';
-export const SUCCESS = 'SUCCESS';
-export const FAILED = 'FAILED';
-export const CANCELED = 'CANCELED';
-export const SKIPPED = 'SKIPPED';
-export const EXPIRED = 'EXPIRED';
+export const RUNNING = 'running';
+export const PENDING = 'pending';
+export const SUCCESS = 'success';
+export const FAILED = 'failed';
+export const CANCELED = 'canceled';
+export const SKIPPED = 'skipped';
+export const EXPIRED = 'expired';
 
 /* ------------------------- ---------------------- ------------------------- */
 

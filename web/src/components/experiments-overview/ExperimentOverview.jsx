@@ -58,7 +58,7 @@ class ExperimentsOverview extends Component {
         exp.authorName = commitInfo.author_name;
         exp.status = commitInfo
           .last_pipeline
-          .status?.toUpperCase(); // update with the latest status from Gitlab
+          .status;
         return exp;
       }))
       .then(async (promises) => {
@@ -83,7 +83,7 @@ class ExperimentsOverview extends Component {
     const { all } = this.state;
     let experiments = all;
     if (e.target.id !== 'all') {
-      experiments = all.filter((exp) => exp.status === e.target.id.toUpperCase());
+      experiments = all.filter((exp) => exp.status === e.target.id);
     }
     this.setState({ experiments });
   }
@@ -96,109 +96,107 @@ class ExperimentsOverview extends Component {
     const {
       history,
       algorithms,
-      projects: { selectedProject: { namespace, slug } }
+      projects: { selectedProject: { namespace, slug } },
     } = this.props;
 
     const areThereExperimentsToShow = all.map((expClass) => expClass.values.length).reduce((a, b) => a + b) !== 0;
 
     return (
-      <div id="experiments-overview-container">
-        <>
-          <Navbar />
-          <ProjectContainer
-            activeFeature="experiments"
-            viewName="Experiments"
-          />
-          {areThereExperimentsToShow ? (
-            <div className="main-content">
-              {selectedExperiment === null && (
-                <>
-                  <div id="buttons-container">
-                    <button
-                      id="all"
-                      type="button"
-                      className="btn btn-switch"
-                      onClick={(e) => this.handleButtonsClick(e)} // Tests break when the function call is not explicit
-                    >
-                      All
-                    </button>
-                    <button
-                      id="running"
-                      type="button"
-                      className="btn btn-switch"
-                      onClick={(e) => this.handleButtonsClick(e)}
-                    >
-                      Running
-                    </button>
-                    <button
-                      id="success"
-                      type="button"
-                      className="btn btn-switch"
-                      onClick={(e) => this.handleButtonsClick(e)}
-                    >
-                      Completed
-                    </button>
-                    <button
-                      id="failed"
-                      type="button"
-                      className="btn btn-switch"
-                      onClick={(e) => this.handleButtonsClick(e)}
-                    >
-                      Failed
-                    </button>
-                    <button
-                      id="canceled"
-                      type="button"
-                      className="btn btn-switch mr-auto"
-                      onClick={(e) => this.handleButtonsClick(e)}
-                    >
-                      Canceled
-                    </button>
-                    <CustomizedButton
-                      id="new-experiment"
-                      className="mr-0"
-                      loading={false}
-                      onClickHandler={() => history.push(`/${namespace}/${slug}/-/experiments/new`)}
-                      buttonLabel="New experiment"
-                    />
-                  </div>
-                </>
-              )}
-              {selectedExperiment === null && experiments.map((experimentClassification) => experimentClassification.values.length > 0 && (
-                <ExperimentCard
-                  projectNamespace={namespace}
-                  projectSlug={slug}
-                  key={uuidv1()}
-                  projectId={selectedProject.gid}
-                  defaultBranch={selectedProject.defaultBranch}
-                  currentState={experimentClassification.status}
-                  experiments={experimentClassification.values}
-                  algorithms={algorithms}
-                />
-              ))}
-            </div>
-          ) : (
-            <div className="main-content">
-              <div className="epmty-experiment-logo">
-                <img src={emptyLogo} width="240" alt="Create an experiment" />
-                <span>You don't have any experiment in your ML project</span>
-                <p>Why not start one?</p>
+      <>
+        <Navbar />
+        <ProjectContainer
+          activeFeature="experiments"
+          viewName="Experiments"
+        />
+        {areThereExperimentsToShow ? (
+          <div className="main-content">
+            {selectedExperiment === null && (
+            <>
+              <div id="buttons-container">
+                <button
+                  id="all"
+                  type="button"
+                  className="btn btn-switch"
+                  onClick={(e) => this.handleButtonsClick(e)}
+                >
+                  All
+                </button>
+                <button
+                  id="running"
+                  type="button"
+                  className="btn btn-switch"
+                  onClick={(e) => this.handleButtonsClick(e)}
+                >
+                  Running
+                </button>
+                <button
+                  id="success"
+                  type="button"
+                  className="btn btn-switch"
+                  onClick={(e) => this.handleButtonsClick(e)}
+                >
+                  Completed
+                </button>
+                <button
+                  id="failed"
+                  type="button"
+                  className="btn btn-switch"
+                  onClick={(e) => this.handleButtonsClick(e)}
+                >
+                  Failed
+                </button>
+                <button
+                  id="canceled"
+                  type="button"
+                  className="btn btn-switch mr-auto"
+                  onClick={(e) => this.handleButtonsClick(e)}
+                >
+                  Canceled
+                </button>
                 <CustomizedButton
                   id="new-experiment"
+                  className="mr-0"
                   loading={false}
-                  onClickHandler={() => {
-                    history.push(`/${namespace}/${slug}/-/experiments/new`);
-                  }}
-                  buttonLabel="Start an experiment"
+                  onClickHandler={() => history.push(`/${namespace}/${slug}/-/experiments/new`)}
+                  buttonLabel="New experiment"
                 />
               </div>
+            </>
+            )}
+            {selectedExperiment === null && experiments.map((experimentClassification) => experimentClassification.values.length > 0 && (
+            <ExperimentCard
+              projectNamespace={namespace}
+              projectSlug={slug}
+              key={uuidv1()}
+              projectId={selectedProject.gid}
+              defaultBranch={selectedProject.defaultBranch}
+              currentState={experimentClassification.status}
+              experiments={experimentClassification.values}
+              algorithms={algorithms}
+            />
+            ))}
+          </div>
+        ) : (
+          <div className="main-content">
+            <div className="epmty-experiment-logo">
+              <img src={emptyLogo} width="240" alt="Create an experiment" />
+              <span>You don't have any experiment in your ML project</span>
+              <p>Why not start one?</p>
+              <CustomizedButton
+                id="new-experiment"
+                loading={false}
+                onClickHandler={() => {
+                  history.push(`/${namespace}/${slug}/-/experiments/new`);
+                }}
+                buttonLabel="Start an experiment"
+              />
             </div>
-          )}
-          <br />
-          <br />
+          </div>
+        )}
+        <br />
+        <br />
 
-        </>
-      </div>
+      </>
     );
   }
 }
