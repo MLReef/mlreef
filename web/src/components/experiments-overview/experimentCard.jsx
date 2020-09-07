@@ -50,7 +50,7 @@ const ExperimentCard = (props) => {
             className="card-content p-3"
           >
             <div className="summary-data" style={{ width: 'auto' }}>
-              <img style={{ alignSelf: 'center' }} src={getPipelineIcon(currentState.toUpperCase())} width="30" height="30" alt={currentState} />
+              <img style={{ alignSelf: 'center' }} src={getPipelineIcon(currentState)} width="30" height="30" alt={currentState} />
               <div className="project-desc-experiment pt-1">
                 <Link
                   type="button"

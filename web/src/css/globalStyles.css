@@ -34,21 +34,6 @@ a:hover {
    color: #1c2b40;
 }
 
-.white-button {
-   color: #1c2b40;
-   border: 1px solid #1c2b40;
-   border-radius: 0.3vw;
-   background-color: #fff;
-   font-weight: 400;
-   display: flex;
-   padding-right: 8px;
-   padding-left: 8px;
- }
-
-.white-button:hover{
-   background-color: #e5e5e5;
-}
-
 .round-border-black-color {
    border-radius: 0.3vw;
    border: 1px solid #1C2B40;

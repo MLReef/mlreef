@@ -6,6 +6,7 @@ import CircularProgress from '@material-ui/core/CircularProgress';
 import { getTimeCreatedAgo, parseDurationInSeconds } from '../../../functions/dataParserHelpers';
 import './jobLog.css';
 import JobsApi from '../../../apis/JobsApi';
+import { SUCCESS, RUNNING, PENDING } from 'dataTypes';
 
 const JobLog = ({
   projectId,
@@ -79,7 +80,7 @@ const JobLog = ({
 
   let jobStatus = (
     <b style={{
-      color: (currentState === 'success')
+      color: (currentState === SUCCESS)
         ? '#38b797'
         : 'red',
     }}
@@ -87,13 +88,13 @@ const JobLog = ({
       {currentState}
     </b>
   );
-  if (currentState === 'running') {
+  if (currentState === RUNNING) {
     jobStatus = (
       <b style={{ color: '#2DB391' }}>
         {currentState}
       </b>
     );
-  } else if (currentState === 'pending') {
+  } else if (currentState === PENDING) {
     jobStatus = (
       <b style={{ color: '#E99444' }}>
         {currentState}

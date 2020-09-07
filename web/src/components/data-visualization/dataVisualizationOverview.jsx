@@ -10,10 +10,11 @@ import Navbar from '../navbar/navbar';
 import ProjectContainer from '../projectContainer';
 import Instruction from '../instruction/instruction';
 import DataVisualizationCard from './dataVisualizationCard';
-import PipeLinesApi from '../../apis/PipelinesApi';
+import GitlabPipelinesApi from '../../apis/GitlabPipelinesApi.ts';
 import { classifyPipeLines } from '../../functions/pipeLinesHelpers';
 
 const dataPipelineApi = new DataPipelineApi();
+const gitlabPipelinesApi = new GitlabPipelinesApi();
 
 export class DataVisualizationOverview extends Component {
   constructor(props) {
@@ -27,7 +28,7 @@ export class DataVisualizationOverview extends Component {
     dataPipelineApi.getProjectPipelines(id)
       .then((backendPipelines) => {
         const visualPipelines = backendPipelines.filter((pipe) => pipe.pipeline_type === 'VISUALIZATION');
-        PipeLinesApi.getPipesByProjectId(selectedProject.gid).then((res) => {
+        gitlabPipelinesApi.getPipesByProjectId(selectedProject.gid).then((res) => {
           const visualizations = classifyPipeLines(res, arrayOfBranches, visualPipelines);
           const finalClassification = [];
           finalClassification[0] = { status: 'In progress', values: [...visualizations[0].values] };

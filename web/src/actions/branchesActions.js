@@ -1,6 +1,7 @@
 import * as types from './actionTypes';
 import BranchesApi from '../apis/BranchesApi.ts';
 
+const brApi = new BranchesApi();
 /**
  *
  * @param {*} projects: set branches list so that it is available for all the views in the project
@@ -16,7 +17,6 @@ export function setBranchesSuccessfully(branches) {
  */
 
 export const getBranchesList = (projectId) => async (dispatch) => {
-  const brApi = new BranchesApi();
   const branches = await (brApi).getBranches(projectId);
   dispatch(setBranchesSuccessfully(
     branches,
@@ -24,6 +24,5 @@ export const getBranchesList = (projectId) => async (dispatch) => {
 };
 
 export const deleteBranch = (projectId, branch) => () => {
-  const brApi = new BranchesApi();
   return brApi.delete(projectId, branch);
 };

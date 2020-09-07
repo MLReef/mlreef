@@ -1,13 +1,37 @@
-.project-desc-experiment {
-    padding: 0% 1% 0% 1%;
-    margin-left: 1%;
-    width: 35%;
+.dataset-container {
+  border: 1px solid var(--almostWhite);
+
+  .header {
+    background-color: var(--almostWhite);
+    padding: 0.7rem 1.5rem;
+    p {
+      color: var(--dark);
+      font-weight: 700;
+      margin: 0;
+    }
+  }
+  .content {
+    &-row {
+      width: auto;
+      display: flex;
+      justify-content: space-between;
+      padding: 0.5rem 1.5rem;
+      .item {
+        display: flex;
+        
+        p {
+         margin: 0 1rem 0 0;
+        }
+      }
+    }
+   
+  }
 }
 
 #empty-table {
   padding: 2rem 0rem;
   border: 1px solid var(--lessWhite);
-
+  
   p {
     text-align: center;
     color: var(--lessWhite);

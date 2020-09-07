@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import {
   string,
-  arrayOf,
   shape,
   number,
 } from 'prop-types';
@@ -9,9 +8,10 @@ import { toastr } from 'react-redux-toastr';
 import './experimentsOverview.css';
 import { Line } from 'react-chartjs-2';
 import MModal from 'components/ui/MModal';
-import GitlabPipelinesApi from 'apis/GitlabPipelinesApi';
+import GitlabPipelinesApi from 'apis/GitlabPipelinesApi.ts';
 import ExperimentsApi from 'apis/experimentApi';
 import ProjectGeneralInfoApi from 'apis/projectGeneralInfoApi';
+import DataCard from 'components/layout/DataCard';
 import traiangle01 from '../../images/triangle-01.png';
 import ArrowButton from '../arrow-button/arrowButton';
 import {
@@ -31,27 +31,6 @@ import DeleteExperimentModal from './DeletionModal';
 const gitlabApi = new GitlabPipelinesApi();
 const experimentApi = new ExperimentsApi();
 const projectInstance = new ProjectGeneralInfoApi();
-
-const DataCard = ({ title, linesOfContent }) => (
-  <div className="data-card">
-    <div className="title">
-      <p><b>{title}</b></p>
-    </div>
-    <div>
-      {linesOfContent && linesOfContent.map((line, lineIndex) => {
-        const lineContent = line.startsWith('*')
-          ? <b>{line.replace('*', '')}</b>
-          : line;
-        return <p key={`${title} ${line} ${lineIndex.toString()}`} className="line">{lineContent}</p>;
-      })}
-    </div>
-  </div>
-);
-
-DataCard.propTypes = {
-  title: string.isRequired,
-  linesOfContent: arrayOf(string).isRequired,
-};
 
 const ExperimentSummary = ({
   projectId,
@@ -129,7 +108,8 @@ const ExperimentSummary = ({
 
   function getButtonsDiv() {
     let buttons;
-    const { slug: expName, status: experimentState } = experiment;
+    const { slug: expName, status } = experiment;
+    const experimentState = status?.toLowerCase();
     const arrowBtn = (
       <ArrowButton
         imgPlaceHolder={traiangle01}

@@ -1,0 +1,31 @@
+.data-card {
+  border: 1px solid #e5e5e5;
+  width: 32%;
+  margin: 0% 0% 1% 0.5%;
+  border-radius: 0.5vw;
+
+  .title {
+    border-radius : inherit;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+    text-align: center;
+    padding: 5px;
+  }
+  
+  .title {
+    border: 1px solid #e5e5e5;
+    background-color: #1c2b40;
+    color: #ffff;
+  }
+  
+  div:not(.title) {
+    padding: 3% 0% 0% 5%;
+  }
+  
+  div {
+    p {
+      margin-top: 4px;
+      margin-bottom: 4px;
+    }
+  }
+}

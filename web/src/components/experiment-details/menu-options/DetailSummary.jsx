@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { toastr } from 'react-redux-toastr';
 import moment from 'moment';
-import PipeLinesApi from 'apis/PipelinesApi';
+import GitlabPipelinesApi from 'apis/GitlabPipelinesApi';
 import { shape, string, arrayOf, number, func } from 'prop-types';
 import { parseToCamelCase } from 'functions/dataParserHelpers';
 import { SUCCESS, RUNNING, PENDING } from 'dataTypes';
+
+const gitlabPipelinesApi = new GitlabPipelinesApi();
 
 const DetailsSummary = ({
   projectNamespace,
@@ -54,7 +56,7 @@ const DetailsSummary = ({
   }
 
   useEffect(() => {
-    PipeLinesApi.getPipesById(projectId, pipelineInfo.id)
+    gitlabPipelinesApi.getPipesById(projectId, pipelineInfo.id)
       .then((res) => setDetails(res ? parseToCamelCase(res) : {}))
       .catch(() => toastr.error('Error', 'Could not fetch the pipeline information'));
   }, [projectId, pipelineInfo.id]);
