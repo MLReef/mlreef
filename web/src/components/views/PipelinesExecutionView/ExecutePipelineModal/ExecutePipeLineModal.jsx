@@ -5,7 +5,7 @@ import { Link } from 'react-router-dom';
 import MRadio from 'components/ui/MRadio';
 import './executePipeLineModal.scss';
 import MSelect from 'components/ui/MSelect';
-import { ALGORITHM, OPERATION } from 'dataTypes';
+import { ALGORITHM, OPERATION, VISUALIZATION } from 'dataTypes';
 import createExperimentInProject, { randomNameGenerator, createPipelineInProject } from '../../../../functions/pipeLinesHelpers';
 
 const fakeMachinesToShow = [
@@ -51,6 +51,7 @@ const ExecutePipelineModal = ({
   backendId,
   branchSelected,
 }) => {
+  console.log(type);
   const [section, setSection] = useState(1);
   const [isFirstOptSelected, setIsFirstOptSelected] = useState(false);
   const [isSecondOptSelected, setIsSecondOptSelected] = useState(false);
@@ -95,6 +96,15 @@ const ExecutePipelineModal = ({
       cleanForm();
     }
   };
+
+  const choosRedirectView = () => {
+    let redirectRoute = `/${projectNamespace}/${projectSlug}/-/experiments`;
+    if (type === VISUALIZATION) redirectRoute = `/${projectNamespace}/${projectSlug}/-/visualizations`;
+    else if (type === OPERATION) redirectRoute = `/${projectNamespace}/${projectSlug}/-/datasets`;
+
+    return redirectRoute;
+  };
+
   return (
     <div className={`modal modal-primary modal-lg dark-cover ${isShowing ? 'show' : ''}`}>
       <div className="modal-cover" onClick={() => cleanForm()} />
@@ -241,10 +251,7 @@ const ExecutePipelineModal = ({
                   Execute
                 </button>
               ) : (
-                <Link to={type === ALGORITHM
-                  ? `/${projectNamespace}/${projectSlug}/-/experiments`
-                  : `/${projectNamespace}/${projectSlug}/-/datasets`}
-                >
+                <Link to={choosRedirectView()}>
                   <button id="show-machines" type="button" className="btn btn-primary">
                     Proceed to results
                   </button>

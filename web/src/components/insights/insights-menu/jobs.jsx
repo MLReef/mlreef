@@ -7,17 +7,24 @@ import moment from 'moment';
 import greyLogo from 'images/icon_grey-01.png';
 import './jobs.scss';
 import jobsApi from 'apis/JobsApi';
+import DataPipelineApi from 'apis/DataPipelineApi';
 import BlackBorderedButton from '../../BlackBorderedButton';
 import { getTimeCreatedAgo } from '../../../functions/dataParserHelpers';
 
-const Jobs = ({ jobs, selectedProject: { gid: id } }) => {
-  const [jobList, setJobs] = useState(jobs);
+const dataPipeApi = new DataPipelineApi();
 
+const Jobs = ({ jobs, selectedProject: { gid, id } }) => {
+  const [jobList, setJobs] = useState(jobs);
+  const [backendPipes, setBackendPipes] = useState([]);
   useEffect(() => {
-    jobsApi.getPerProject(id)
-      .then((res) => setJobs(res))
+    dataPipeApi.getProjectPipelines(id)
+      .then((backendPipelines) => setBackendPipes(backendPipelines))
+      .then(() => {
+        jobsApi.getPerProject(gid)
+          .then((res) => setJobs(res));
+      })
       .catch(() => toastr.error('Error', 'Could not retrieve all the jobs'));
-  }, [id]);
+  }, [id, gid]);
 
   const sortJobs = (e) => {
     let allJobs = jobs;
@@ -25,6 +32,14 @@ const Jobs = ({ jobs, selectedProject: { gid: id } }) => {
       allJobs = jobs.filter((job) => job.status === e.target.id);
     }
     setJobs(allJobs);
+  };
+
+  const determineJobClass = (type) => {
+    let jobClass = 'experiment';
+    if (type === 'DATA') jobClass = 'data-ops';
+    else if (type === 'VISUALIZATION') jobClass = 'visualization';
+
+    return jobClass;
   };
 
   return (
@@ -72,6 +87,9 @@ const Jobs = ({ jobs, selectedProject: { gid: id } }) => {
             ? (
               <tbody className="job-table-body">
                 {jobList.map((job, index) => {
+                  const selectedPipe = backendPipes
+                    ?.filter((pipe) => job?.ref.includes(pipe.name))[0];
+                  const jobClass = selectedPipe?.pipeline_type;
                   let jobStatus = <span><b>{job.status}</b></span>;
                   const timeDuration = job.duration !== null && moment({}).startOf('day').seconds(job.duration).format('HH:mm:ss');
                   if (job.status === 'success' || job.status === 'running') {
@@ -84,18 +102,18 @@ const Jobs = ({ jobs, selectedProject: { gid: id } }) => {
                   return (
                     <tr className="p-3" key={index.toString()}>
                       <td className="job-status p-3">
-                        <Link to={`/my-projects/${id}/insights/-/jobs/${job.id}`}>
+                        <Link to={`/my-projects/${gid}/insights/-/jobs/${job.id}`}>
                           {jobStatus}
                         </Link>
                       </td>
                       <td>
-                        <Link to={`/my-projects/${id}/insights/-/jobs/${job.id}`}>
+                        <Link to={`/my-projects/${gid}/insights/-/jobs/${job.id}`}>
                           {`#${job.id}`}
                         </Link>
                       </td>
                       <td>
-                        <Link to={`/my-projects/${id}/insights/-/jobs/${job.id}`}>
-                          {job.name}
+                        <Link to={`/my-projects/${gid}/insights/-/jobs/${job.id}`}>
+                          {determineJobClass(jobClass)}
                         </Link>
                       </td>
                       <td className="job-pipeline-number p-3">
