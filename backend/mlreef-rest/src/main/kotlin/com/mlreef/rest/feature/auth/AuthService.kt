@@ -72,7 +72,7 @@ class AuthService(
         private val GITLAB_TOKEN_USER = "mlreef-user-token"
         private val GITLAB_TOKEN_BOT = "mlreef-bot-token"
 
-        private const val WELCOME_MESSAGE_SUBJECT = "Welcome to MlReef"
+        private const val WELCOME_MESSAGE_SUBJECT = "Welcome to MLReef"
 
         private val guestTokenDetails: TokenDetails by lazy {
             TokenDetails(
@@ -192,7 +192,7 @@ class AuthService(
             EmailVariables.RECIPIENT_EMAIL to account.email,
             EmailVariables.SUBJECT to WELCOME_MESSAGE_SUBJECT
         )
-        emailService.sendAsync(account.id, EmailMessageType.HTML, TemplateType.PASSWORD_RESET_TEMPLATE, variables)
+        emailService.sendAsync(account.id, EmailMessageType.HTML, TemplateType.WELCOME_MESSAGE_TEMPLATE, variables)
     }
 
     fun checkUserInGitlab(token: String): GitlabUser {

@@ -53,6 +53,10 @@ class AuthApiTest : AbstractRestApiTest() {
 
         every { mailSender.send(ofType(SimpleMailMessage::class)) } just Runs
         every { mailSender.send(ofType(MimeMessage::class)) } just Runs
+
+        accountSubjectPreparationTrait.apply()
+
+        account = accountSubjectPreparationTrait.account
     }
 
     @Transactional
@@ -245,6 +249,43 @@ class AuthApiTest : AbstractRestApiTest() {
             assertThat(returnedResult2.hasNewsletters).isEqualTo(true)
             assertThat(returnedResult2.termsAcceptedAt).isNotNull
         }
+    }
+
+    @Transactional
+    @Rollback
+    @Test
+    @Tag(TestTags.RESTDOC)
+    fun `Can get who-am-i`() {
+
+        mockUserAuthentication()
+
+        val result: UserDto = this.performGet("$authUrl/whoami", token = "new-token-${UUID.randomUUID()}")
+            .expectOk()
+            .document("who-am-i",
+                responseFields(userDtoResponseFields()))
+            .returns()
+
+        assertThat(account.id).isEqualTo(result.id)
+        assertThat(account.username).isEqualTo(result.username)
+        assertThat(account.email).isEqualTo(result.email)
+    }
+
+    @Transactional
+    @Rollback
+    @Test
+    @Tag(TestTags.RESTDOC)
+    fun `Can check token`() {
+        mockUserAuthentication()
+
+        val result: UserDto = this.performGet("$authUrl/check/token", token = "new-token-${UUID.randomUUID()}")
+            .expectOk()
+            .document("check-token",
+                responseFields(userDtoResponseFields()))
+            .returns()
+
+        assertThat(account.id).isEqualTo(result.id)
+        assertThat(result.username).isEqualTo("mock_user")
+        assertThat(result.email).isEqualTo("mock@example.com")
     }
 
     private fun userSecretDtoResponseFields(): List<FieldDescriptor> {

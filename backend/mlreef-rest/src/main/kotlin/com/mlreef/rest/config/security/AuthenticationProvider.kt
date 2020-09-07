@@ -27,7 +27,7 @@ class AuthenticationProvider(val authService: AuthService,
     }
 
     init {
-        log.debug("MlReef authentication provider is running...")
+        log.debug("MLReef authentication provider is running...")
     }
 
     /**

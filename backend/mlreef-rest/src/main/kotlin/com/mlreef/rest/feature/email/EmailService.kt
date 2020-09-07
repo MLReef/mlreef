@@ -115,8 +115,7 @@ class MlReefEmailService(
         val messageBodyHtml = generateHtmlFromTemplate(template, variables)
         val messageBodyText = generateTextFromTemplate(template, variables)
 
-        if (email.senderEmail != null) messageHelper.setFrom(email.senderEmail);
-
+        messageHelper.setFrom("MLReef", "MLReef");
         messageHelper.setTo(email.recipientEmail);
         messageHelper.setSubject(email.subject);
         messageHelper.setText(messageBodyText, messageBodyHtml);
@@ -135,6 +134,7 @@ class MlReefEmailService(
     private fun generateHtmlFromTemplate(template: TemplateType, variables: Map<EmailVariables, Any>): String {
         return when (template) {
             TemplateType.PASSWORD_RESET_TEMPLATE -> templateService.createPasswordResetTemplateHtml(variables)
+            TemplateType.WELCOME_MESSAGE_TEMPLATE -> templateService.createWelcomeMessageTemplateHtml(variables)
             else -> ""
         }
     }
@@ -142,6 +142,7 @@ class MlReefEmailService(
     private fun generateTextFromTemplate(template: TemplateType, variables: Map<EmailVariables, Any>): String {
         return when (template) {
             TemplateType.PASSWORD_RESET_TEMPLATE -> templateService.createPasswordResetTemplateText(variables)
+            TemplateType.WELCOME_MESSAGE_TEMPLATE -> templateService.createWelcomeMessageTemplateText(variables)
             else -> ""
         }
     }

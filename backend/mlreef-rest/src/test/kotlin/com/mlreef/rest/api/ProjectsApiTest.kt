@@ -134,7 +134,7 @@ class ProjectsApiTest : AbstractRestApiTest() {
 
         val returnedResult: List<DataProjectDto> = this.performGet(rootUrl, token)
             .expectOk()
-            .document("project-retrieve-all", responseFields(projectResponseFields("[].")))
+            .document("projects-retrieve-all", responseFields(projectResponseFields("[].")))
             .returnsList(DataProjectDto::class.java)
 
         assertThat(returnedResult.size).isEqualTo(4)
@@ -180,7 +180,7 @@ class ProjectsApiTest : AbstractRestApiTest() {
         this.mockGetUserProjectsList(listOf(project1.id, project2.id, project4.id, project5.id), account, AccessLevel.OWNER)
         val returnedResult: DataProjectDto = this.performGet("$rootUrl/$id1", token)
             .expectOk()
-            .document("project-retrieve-one", responseFields(projectResponseFields()))
+            .document("data-project-retrieve-one", responseFields(projectResponseFields()))
             .returns(DataProjectDto::class.java)
 
         assertThat(returnedResult.id).isEqualTo(id1)
@@ -211,7 +211,7 @@ class ProjectsApiTest : AbstractRestApiTest() {
 
         val returnedResult: ProjectDto = this.performGet("$rootUrl/$id1", token)
             .expectOk()
-            .document("genericprojects-retrieve-one", responseFields(projectResponseFields()))
+            .document("code-project-retrieve-one", responseFields(projectResponseFields()))
             .returns(ProjectDto::class.java)
 
         assertThat(returnedResult.id).isEqualTo(id1)
@@ -243,7 +243,7 @@ class ProjectsApiTest : AbstractRestApiTest() {
 
         val returnedResult: List<ProjectDto> = this.performGet("$rootUrl/slug/slug-1", token)
             .expectOk()
-            .document("project-retrieve-all", responseFields(projectResponseFields("[].")))
+            .document("projects-retrieve-by-slug", responseFields(projectResponseFields("[].")))
             .returnsList(ProjectDto::class.java)
 
         assertThat(returnedResult.size).isEqualTo(2)
@@ -292,7 +292,7 @@ class ProjectsApiTest : AbstractRestApiTest() {
 
         val returnedResult: List<ProjectDto> = this.performGet("$rootUrl/namespace/mlreef", token)
             .expectOk()
-            .document("project-retrieve-all", responseFields(projectResponseFields("[].")))
+            .document("projects-retrieve-by-namespace", responseFields(projectResponseFields("[].")))
             .returnsList(ProjectDto::class.java)
 
         assertThat(returnedResult.size).isEqualTo(4)
@@ -339,7 +339,7 @@ class ProjectsApiTest : AbstractRestApiTest() {
 
         val returnedResult: ProjectDto = this.performGet("$rootUrl/mlreef/project-1", token)
             .expectOk()
-            .document("project-retrieve-one", responseFields(projectResponseFields()))
+            .document("data-project-retrieve-one-by-namespace-slug", responseFields(projectResponseFields()))
             .returns(ProjectDto::class.java)
 
         assertThat(returnedResult.id).isEqualTo(id1)
@@ -370,7 +370,7 @@ class ProjectsApiTest : AbstractRestApiTest() {
 
         val returnedResult: ProjectDto = this.performGet("$rootUrl/mlreef/project-5", token)
             .expectOk()
-            .document("project-retrieve-one", responseFields(projectResponseFields()))
+            .document("code-project-retrieve-by-namespace-slug", responseFields(projectResponseFields()))
             .returns(ProjectDto::class.java)
 
         assertThat(returnedResult.id).isEqualTo(id1)
@@ -421,7 +421,7 @@ class ProjectsApiTest : AbstractRestApiTest() {
 
         val returnedResult = this.performPost("$rootUrl/code", token, body = request)
             .expectOk()
-            .document("project-create",
+            .document("code-project-create",
                 requestFields(projectCreateRequestFields()),
                 responseFields(projectResponseFields())
             )
@@ -448,7 +448,7 @@ class ProjectsApiTest : AbstractRestApiTest() {
 
         val returnedResult = this.performPost("$codeProjectRootUrl", token, body = request)
             .expectOk()
-            .document("project-create",
+            .document("code-project-create-by-path",
                 requestFields(projectCreateRequestFields()),
                 responseFields(projectResponseFields())
             )
@@ -476,7 +476,7 @@ class ProjectsApiTest : AbstractRestApiTest() {
 
         val returnedResult = this.performPost("$rootUrl/data", token, body = request)
             .expectOk()
-            .document("project-create",
+            .document("data-project-create",
                 requestFields(projectCreateRequestFields()),
                 responseFields(projectResponseFields()))
             .returns(DataProjectDto::class.java)
@@ -503,7 +503,7 @@ class ProjectsApiTest : AbstractRestApiTest() {
 
         val returnedResult = this.performPost("$dataProjectRootUrl", token, body = request)
             .expectOk()
-            .document("project-create",
+            .document("data-project-create-by-path",
                 requestFields(projectCreateRequestFields()),
                 responseFields(projectResponseFields()))
             .returns(DataProjectDto::class.java)
@@ -527,7 +527,7 @@ class ProjectsApiTest : AbstractRestApiTest() {
 
         val returnedResult = this.performPut("$rootUrl/$id1", token, body = request)
             .expectOk()
-            .document("project-update",
+            .document("code-project-update",
                 requestFields(projectUpdateRequestFields()),
                 responseFields(projectResponseFields())
             )
@@ -552,7 +552,7 @@ class ProjectsApiTest : AbstractRestApiTest() {
 
         val returnedResult = this.performPut("$rootUrl/$id1", token, body = request)
             .expectOk()
-            .document("project-update",
+            .document("data-project-update",
                 requestFields(projectUpdateRequestFields()),
                 responseFields(projectResponseFields()))
             .returns(ProjectDto::class.java)
@@ -575,7 +575,7 @@ class ProjectsApiTest : AbstractRestApiTest() {
 
         this.performDelete("$rootUrl/$id1", token)
             .expectNoContent()
-            .document("project-delete")
+            .document("data-project-delete")
 
         assertThat(dataProjectRepository.findByIdOrNull(id1)).isNull()
     }
@@ -595,7 +595,7 @@ class ProjectsApiTest : AbstractRestApiTest() {
 
         this.performDelete("$rootUrl/$id1", token)
             .expectNoContent()
-            .document("project-delete")
+            .document("code-project-delete")
 
         assertThat(codeProjectRepository.findByIdOrNull(id1)).isNull()
     }
@@ -641,7 +641,7 @@ class ProjectsApiTest : AbstractRestApiTest() {
 
         val returnedResult: List<UserInProjectDto> = this.performPost("$rootUrl/${project1.id}/users/${account2.id}", token)
             .expectOk()
-            .document("projects-add-user", responseFields(usersInProjectResponseFields("[].")))
+            .document("project-add-user", responseFields(usersInProjectResponseFields("[].")))
             .returnsList(UserInProjectDto::class.java)
 
         assertThat(returnedResult.size).isEqualTo(2)

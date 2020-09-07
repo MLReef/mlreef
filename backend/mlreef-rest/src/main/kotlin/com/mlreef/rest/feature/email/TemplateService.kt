@@ -66,7 +66,7 @@ class EmailTemplateService(
         context.setVariable(EmailVariables.USER_NAME.name, variables[EmailVariables.USER_NAME])
         context.setVariable(EmailVariables.REDIRECT_URL.name, variables[EmailVariables.REDIRECT_URL])
 
-        return templateEngine.process(PASSWORD_RESET_TEMPLATE_NAME_HTML, context)
+        return templateEngine.process(templatePath, context)
     }
 
     private fun generateTextTemplate(templatePath: String, params: Map<EmailVariables, Any>): String {
@@ -90,5 +90,6 @@ class EmailTemplateService(
 
 
 enum class TemplateType {
-    PASSWORD_RESET_TEMPLATE
+    PASSWORD_RESET_TEMPLATE,
+    WELCOME_MESSAGE_TEMPLATE
 }

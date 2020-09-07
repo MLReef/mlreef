@@ -157,6 +157,18 @@ Update user's information, can be used by Admins or by that user itself.
 
 operation::update-profile-success[snippets='curl-request,request-fields,http-response,response-fields']
 
+=== GET /auth/whoami
+
+Get user short profile info
+
+operation::who-am-i[snippets='curl-request,http-response,response-fields']
+
+=== GET /auth/check/token
+
+Check token is correct and alive
+
+operation::check-token[snippets='curl-request,http-response,response-fields']
+
 [[password-management]]
 = Passwords management - /password
 == Password reset request - POST /password/reset
@@ -212,19 +224,19 @@ operation::genericprojects-retrieve-public[snippets='curl-request']
 
 === GET /projects/:id
 
-operation::genericprojects-retrieve-one[snippets='curl-request,response-body,response-fields']
+operation::data-project-retrieve-one[snippets='curl-request,response-body,response-fields']
 
 === GET /projects/slug/:slug
 
-operation::genericprojects-retrieve-by-slug[snippets='curl-request']
+operation::projects-retrieve-by-slug[snippets='curl-request,response-body,response-fields']
 
 === GET /projects/namespace/:namespace
 
-operation::genericprojects-retrieve-by-namespace[snippets='curl-request']
+operation::projects-retrieve-by-namespace[snippets='curl-request,response-body,response-fields']
 
 === GET /projects/:namespace/:slug
 
-operation::project-retrieve-one-by-namespace-slug[snippets='curl-request,response-body,response-fields']
+operation::data-project-retrieve-one-by-namespace-slug[snippets='curl-request,response-body,response-fields']
 
 === GET /projects/:namespace/:slug/users
 
@@ -268,7 +280,7 @@ Currently users can only retrieve and manipulate their own CodeProjects
 
 === GET /code-projects
 
-operation::codeprojects-retrieve-all[snippets='curl-request,response-body,response-fields']
+operation::projects-retrieve-all[snippets='curl-request,response-body,response-fields']
 
 === GET /data-projects/public
 
@@ -276,33 +288,33 @@ operation::codeprojects-retrieve-public[snippets='curl-request,response-body']
 
 === GET /code-projects/:id
 
-operation::codeprojects-retrieve-one[snippets='curl-request,response-body,response-fields']
+operation::code-project-retrieve-one[snippets='curl-request,response-body,response-fields']
 
 === POST /code-projects
 
-operation::codeprojects-create[snippets='curl-request,response-body,response-fields']
+operation::code-project-create-by-path[snippets='curl-request,request-body,response-body,response-fields']
 
 === PUT /code-projects/:id
 
-operation::codeprojects-update[snippets='curl-request,response-body,response-fields']
+operation::code-project-update[snippets='curl-request,request-body,response-body,response-fields']
 
 === DELETE /code-projects/:id
 
-operation::codeprojects-delete[snippets='curl-request']
+operation::code-project-delete[snippets='curl-request']
 
-=== GET /code-projects/:id/users
+=== GET /projects/:id/users
 
-Get users list that are participate in the project by id (:id)
+Get users list that are participate in the project (any: data or code) by id (:id)
 
-operation::codeprojects-retrieve-users-list[snippets='curl-request,response-body,response-fields']
+operation::project-retrieve-users-list[snippets='curl-request,response-body,response-fields']
 
-=== POST /code-projects/:id/users/:userId
+=== POST /projects/:id/users/:userId
 
 Add a user by id (:userId) to the project by id (:id)
 
-operation::codeprojects-add-user[snippets='curl-request,response-body,response-fields']
+operation::project-add-user[snippets='curl-request,response-body,response-fields']
 
-=== POST /code-projects/:id/users?
+=== POST /projects/:id/users?
 
 Add a user by parameters user_id or gitlab_id to the project by id (:id)
 
@@ -311,20 +323,19 @@ Add a user by parameters user_id or gitlab_id to the project by id (:id)
 * level
 * expires_at
 
-operation::codeprojects-add-user-by-params[snippets='curl-request,request-parameters,response-body,response-fields']
+operation::project-add-user-by-params[snippets='curl-request,request-parameters,response-body,response-fields']
 
-=== POST /code-projects/:id/users
+=== POST /projects/:id/users
 
 Add a user in request body
 
-operation::codeprojects-add-user-by-body[snippets='curl-request,response-body,response-fields']
-
+operation::project-add-user-by-body[snippets='curl-request,response-body,response-fields']
 
 === DELETE /code-projects/:id/users/:userId
 
-Delete a user by id (:userId) from the project by id (:id). Returns a list with users left in the project
+Delete a user by id (:userId) from the project by id (:id).Returns a list with users left in the project
 
-operation::codeprojects-delete-user[snippets='curl-request,response-body,response-fields']
+operation::project-delete-user[snippets='curl-request,response-body,response-fields']
 
 === DELETE /code-projects/:id/users?
 
@@ -333,7 +344,7 @@ Delete a user with parameters by user_id or gitlab_id from the project by id (:i
 * gitlab_id
 * user_id
 
-operation::codeprojects-delete-user-by-params[snippets='curl-request,request-parameters,response-body,response-fields']
+operation::project-delete-user-by-params[snippets='curl-request,request-parameters,response-body,response-fields']
 
 [[data-projects]]
 == Data Projects - /data-projects
@@ -345,7 +356,7 @@ Currently users can only retrieve and manipulate their own DataProjects
 
 === GET /data-projects
 
-operation::dataprojects-retrieve-all[snippets='curl-request,response-body']
+operation::projects-retrieve-all[snippets='curl-request,response-body']
 
 === GET /data-projects/public
 
@@ -353,25 +364,25 @@ operation::dataprojects-retrieve-public[snippets='curl-request,response-body,res
 
 === GET /data-projects/:id
 
-operation::dataprojects-retrieve-one[snippets='curl-request,response-body,response-fields']
+operation::data-project-retrieve-one[snippets='curl-request,response-body,response-fields']
 
 === POST /data-projects
 
-operation::dataprojects-create[snippets='curl-request,response-body,response-fields']
+operation::data-project-create-by-path[snippets='curl-request,request-body,response-body,response-fields']
 
 === PUT /data-projects/:id
 
-operation::dataprojects-update[snippets='curl-request,response-body,response-fields']
+operation::data-project-update[snippets='curl-request,request-body,response-body,response-fields']
 
 === DELETE /data-projects/:id
 
-operation::dataprojects-delete[snippets='curl-request']
+operation::data-project-delete[snippets='curl-request']
 
 === GET /data-projects/:id/users
 
 Get users list that are participate in the project by id (:id)
 
-operation::dataprojects-retrieve-users-list[snippets='curl-request,response-body,response-fields']
+operation::project-retrieve-users-list[snippets='curl-request,response-body,response-fields']
 
 === POST /data-projects/:id/users/:userId
 
