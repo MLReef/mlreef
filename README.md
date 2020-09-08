@@ -1,6 +1,6 @@
 ![Build Status](https://gitlab.com/mlreef/mlreef/badges/master/build.svg)
 
-MLReef - The End2End Machine Learning Lifecycle Platform
+MLReef - Your entire Machine Learning life cycle in one platform
 ====================
 
 Canonical source
