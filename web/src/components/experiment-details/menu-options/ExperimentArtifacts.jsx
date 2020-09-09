@@ -1,29 +1,49 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   number, shape, string, arrayOf,
 } from 'prop-types';
+import { FAILED, SUCCESS } from 'dataTypes';
 import FileSaver from 'file-saver';
 import { toastr } from 'react-redux-toastr';
 import iconGrey from 'images/icon_grey-01.png';
 import FilesTable from '../../files-table/filesTable';
-import JobsApi from '../../../apis/JobsApi';
+import JobsApi from '../../../apis/JobsApi.ts';
+import { INFORMATION_UNITS } from 'domain/informationUnits';
+
+/**
+ * @param {*} numberOfUnits: number of bytes to transform
+ * @returns equivalent number but in gigabytes or megabytes
+ */
+const parseUnitsInformation = (
+  numberOfUnits,
+  outputUnitType,
+  incomeUnitType = INFORMATION_UNITS.BIT,
+) => (!numberOfUnits || !outputUnitType)
+  ? 0
+  : Number(((numberOfUnits * incomeUnitType) / outputUnitType).toFixed(1));
+
+const jobsApi = new JobsApi();
 
 const Files = ({ projectId, job }) => {
+  const [isDownloadingArtifacts, setIsDownloadingArtifacts] = useState(false);
   function downloadArtifacts() {
+    setIsDownloadingArtifacts(true);
+    toastr.info('Info', 'The artifacts download has started');
     const encodedBranchName = encodeURIComponent(job.ref);
-    JobsApi
+    jobsApi
       .downloadArtifacts(projectId, encodedBranchName, job.name)
       .then(
         (res) => res.ok
-          ? res.blob().then((data) => FileSaver.saveAs(data, 'artifacts.zip'))
+          ? res.blob().then((data) => FileSaver.saveAs(data, `${job.ref}-artifacts.zip`))
           : Promise.reject(res),
       ).catch(
-        () => toastr.error('Error', 'Your artifacts could not be downloaded'),
-      );
+        () => toastr.error('Error', 'Job artifacts were not found'),
+      )
+      .finally(() => setIsDownloadingArtifacts(false));
   }
   return (
     <div style={{ marginLeft: '1em', width: '100%' }}>
-      {(job.status === 'failed' || job.status === 'success') ? (
+      {(job.status === FAILED || job.status === SUCCESS) ? (
         <>
           <div style={{
             display: 'flex',
@@ -41,6 +61,7 @@ const Files = ({ projectId, job }) => {
                 type="button"
                 className="btn btn-outline-dark"
                 onClick={downloadArtifacts}
+                disabled={isDownloadingArtifacts}
               >
                 Download
               </button>
@@ -56,10 +77,14 @@ const Files = ({ projectId, job }) => {
             files={job.artifacts.map((art) => ({
               id: art.id,
               name: art.filename,
-              file_type: art.file_type,
-              size: art.size,
+              fileType: art.file_type,
+              size: `${parseUnitsInformation(
+                art.size,
+                INFORMATION_UNITS.MEGABYTE,
+                INFORMATION_UNITS.BYTE,
+              )}`,
             }))}
-            headers={['Parameter', 'Type', 'Size']}
+            headers={['Parameter', 'Type', 'Size(MB)']}
             onCLick={() => {}}
           />
         </>
@@ -74,6 +99,7 @@ const Files = ({ projectId, job }) => {
 };
 
 Files.propTypes = {
+  projectId: number.isRequired,
   job: shape({
     name: string.isRequired,
     artifacts: arrayOf(

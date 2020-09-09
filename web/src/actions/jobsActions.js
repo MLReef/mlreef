@@ -1,5 +1,11 @@
-import jobsApi from '../apis/JobsApi';
+import JobsApi from '../apis/JobsApi.ts';
 import { GET_JOBS } from './actionTypes';
+
+const jobsApi = new JobsApi();
+
+export function setJobsSuccesfully(jobs) {
+  return { type: GET_JOBS, jobs };
+}
 
 /**
  * get list of jobs per project to be persisted in redux state
@@ -10,7 +16,7 @@ export function getJobsListPerProject(projectId) {
     .then(
       (jobs) => dispatch(
         setJobsSuccesfully(
-          jobs
+          jobs,
         ),
       ),
     ).catch((err) => {
@@ -18,6 +24,3 @@ export function getJobsListPerProject(projectId) {
     });
 }
   
-export function setJobsSuccesfully(jobs) {
-  return { type: GET_JOBS, jobs };
-}

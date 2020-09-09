@@ -2,11 +2,13 @@ import React, { useEffect, useState } from 'react';
 
 import { number, shape, string } from 'prop-types';
 import { toastr } from 'react-redux-toastr';
+import { SUCCESS, RUNNING, PENDING } from 'dataTypes';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import { getTimeCreatedAgo, parseDurationInSeconds } from '../../../functions/dataParserHelpers';
 import './jobLog.css';
-import JobsApi from '../../../apis/JobsApi';
-import { SUCCESS, RUNNING, PENDING } from 'dataTypes';
+import JobsApi from '../../../apis/JobsApi.ts';
+
+const jobsApi = new JobsApi();
 
 const JobLog = ({
   projectId,
@@ -69,13 +71,11 @@ const JobLog = ({
   }
 
   useEffect(() => {
-    JobsApi.getJobById(projectId, job.id)
+    jobsApi.getJobById(projectId, job.id)
       .then((res) => setDuration(res.duration))
-      .then(() => {
-        JobsApi.getLog(projectId, job.id)
-          .then((res) => res.ok ? handleResponse(res) : Promise.reject(res));
-      })
-      .catch(() => toastr.error('Error', 'The job was not found'));
+      .then(() => jobsApi.getLog(projectId, job.id))
+      .then((res) => res.ok ? handleResponse(res) : Promise.reject(res))
+      .catch(() => toastr.error('Error', 'The job not found or error parsing it'));
   }, [projectId, job.id]);
 
   let jobStatus = (

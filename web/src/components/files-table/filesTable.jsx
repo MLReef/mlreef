@@ -46,7 +46,7 @@ const FilesTable = (props) => {
               <td
                 key={`column-name-${k}`}
                 className="icon-container-column"
-                style={{ width: 'auto' }}
+                style={{ width: `${tableColumnsWidth}%` }}
               >
                 {keyIndex === 0 && (
                 <div>

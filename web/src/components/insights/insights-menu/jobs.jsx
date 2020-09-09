@@ -6,12 +6,14 @@ import { arrayOf, shape, number, string } from 'prop-types';
 import moment from 'moment';
 import greyLogo from 'images/icon_grey-01.png';
 import './jobs.scss';
-import jobsApi from 'apis/JobsApi';
+import JobsApi from 'apis/JobsApi.ts';
 import DataPipelineApi from 'apis/DataPipelineApi';
 import BlackBorderedButton from '../../BlackBorderedButton';
 import { getTimeCreatedAgo } from '../../../functions/dataParserHelpers';
 
 const dataPipeApi = new DataPipelineApi();
+
+const jobsApi = new JobsApi();
 
 const Jobs = ({ jobs, selectedProject: { gid, id } }) => {
   const [jobList, setJobs] = useState(jobs);

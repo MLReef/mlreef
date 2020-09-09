@@ -13,7 +13,7 @@ import MSimpleTabs from 'components/ui/MSimpleTabs';
 import Navbar from '../navbar/navbar';
 import ProjectContainer from '../projectContainer';
 import DetailsSummary from './menu-options/DetailSummary';
-import Files from './menu-options/files';
+import Files from './menu-options/ExperimentArtifacts';
 import JobLog from './menu-options/jobLog';
 import { setPreconfiguredOPerations } from '../../actions/userActions';
 
