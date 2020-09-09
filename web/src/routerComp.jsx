@@ -6,6 +6,7 @@ import GroupsOverview from 'components/views/groupsOverview';
 import SettingsView from 'components/views/SettingsView';
 import PipelinesExecutionView from 'components/views/PipelinesExecutionView';
 import ResetPasswordView from 'components/views/ResetPassword/ResetPasswordView';
+import PublishingView from 'components/views/PublishingView';
 import FileView from './components/fileView/fileView';
 import Login from './components/login/login';
 import RegisterView from './components/RegisterView';
@@ -33,6 +34,7 @@ import DataVisualizationDetail from './components/data-visualization/dataVisuali
 import ForkView from './components/ForkView';
 import Insights from './components/insights/insights';
 import RegisterLandingView from 'components/RegisterView/RegisterLandingView';
+
 // this is component for testing layout and should be removed after alpha
 import Demo from './components/Demo';
 
@@ -41,6 +43,7 @@ const RouterComp = () => (
     <Switch>
       {/* this is a route for testing layout and should be removed after alpha */}
       <Route path="/demo" exact component={Demo} />
+      <Route path="/:namespace/:slug/-/publishing" exact component={PublishingView} />
       <Route path="/login" exact component={Login} />
       <Route path="/index.html" exact component={Login} />
       <Route path="/register" exact component={RegisterView} />

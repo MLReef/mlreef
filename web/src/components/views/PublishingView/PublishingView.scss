@@ -1,0 +1,21 @@
+.publishing-view {
+
+  & .statement {
+    color: var(--dark);
+    text-align: center;
+    width: min-content;
+    margin: auto;
+    margin-bottom: 2rem;
+
+    &-title {
+      font-size: 150%;
+      margin-bottom: 1rem;
+      padding: 0 1rem;
+      width: max-content;
+    }
+
+    &-subtitle {
+      width: 100%;
+    }
+  }
+}

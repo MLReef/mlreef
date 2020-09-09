@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react';
 import PropTypes from 'prop-types';
 import MProjectCard from 'components/ui/MProjectCard';
+import MBricksWall from 'components/ui/MBricksWall';
 import iconGrey from 'images/icon_grey-01.png';
 
 const ExploreViewProjectSet = (props) => {
@@ -19,25 +20,32 @@ const ExploreViewProjectSet = (props) => {
   );
 
   const projectList = useMemo(
-    () => projects.map((proj) => (
-      <MProjectCard
-        key={`proj-${proj.gitlabNamespace}-${proj.slug}`}
-        slug={proj.slug}
-        owner={proj.id}
-        title={proj.name}
-        projectId={proj.gitlabId}
-        description={proj.description}
-        starCount={proj.starCount || 0}
-        forkCount={proj.forksCount || 0}
-        namespace={proj.gitlabNamespace}
-        updatedAt={proj.lastActivityat}
-        projects={projects}
-        dataProcessor={proj.dataProcessor}
-        inputDataTypes={proj.inputDataTypes}
-        outputDataTypes={proj.inputDataTypes}
-        users={proj.members}
+    () => (
+      <MBricksWall
+        className="w-100"
+        animated
+        bricks={projects.map((proj) => (
+          <MProjectCard
+            className="bg-white"
+            key={`proj-${proj.gitlabNamespace}-${proj.slug}`}
+            slug={proj.slug}
+            owner={proj.id}
+            title={proj.name}
+            projectId={proj.gitlabId}
+            description={proj.description}
+            starCount={proj.starCount || 0}
+            forkCount={proj.forksCount || 0}
+            namespace={proj.gitlabNamespace}
+            updatedAt={proj.lastActivityat}
+            projects={projects}
+            dataProcessor={proj.dataProcessor}
+            inputDataTypes={proj.inputDataTypes}
+            outputDataTypes={proj.inputDataTypes}
+            users={proj.members}
+          />
+        ))}
       />
-    )),
+    ),
     [projects],
   );
 
