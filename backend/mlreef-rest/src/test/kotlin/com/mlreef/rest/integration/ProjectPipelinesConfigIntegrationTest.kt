@@ -90,6 +90,9 @@ class ProjectPipelinesConfigIntegrationTest : AbstractIntegrationTest() {
     @Transactional
     @Rollback
     @Test
+    @Disabled
+    // can we please get rid of IntegrationTests which test just the same as ApiTest?
+    // we should focus more on testing the components working together
     fun `Can create new PipelineConfig`() {
         val (account, token, _) = testsHelper.createRealUser(index = -1)
         val (project, _) = testsHelper.createRealDataProject(token, account)

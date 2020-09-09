@@ -444,6 +444,7 @@ class ExperimentsIntegrationTest : AbstractIntegrationTest() {
             sourceBranch = "master",
             targetBranch = "target",
             postProcessing = arrayListOf(processorInstance2),
+            number = 1 + experimentRepository.countByDataProjectId(dataProjectId),
             pipelineJobInfo = null,
             processing = processorInstance,
             inputFiles = listOf(FileLocation(randomUUID(), FileLocationType.PATH, "location1")))

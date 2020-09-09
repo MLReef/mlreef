@@ -106,6 +106,15 @@ class D_DataProject_Experiment_Test : AbstractSystemTest() {
     }
 
     @Test
+    fun `D03-02 Experiment exists in MLReef backend`() {
+        val response3: ResponseEntity<ExperimentDto> = backendRestClient.get("/data-projects/${ownDataProjectDto.id}/experiments/${createdExperiment.number}", accessToken)
+        val dto = response3.expectOk().returns()
+        assertThat(dto).isNotNull
+        assertThat(dto.id).isNotNull()
+        assertThat(dto.pipelineJobInfo).isNull()
+    }
+
+    @Test
     fun `D04 Can start own Experiment in DataProject with Resnet50`() {
         val response2: ResponseEntity<PipelineJobInfoDto> = backendRestClient.post("/data-projects/${ownDataProjectDto.id}/experiments/${createdExperiment.id}/start", accessToken)
         val pipelineJobInfoDto = response2.expectOk().returns()

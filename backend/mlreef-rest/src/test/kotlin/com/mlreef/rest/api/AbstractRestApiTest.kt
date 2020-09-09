@@ -49,6 +49,7 @@ import com.mlreef.rest.feature.pipeline.PipelineService
 import com.mlreef.rest.helpers.UserInProject
 import com.mlreef.rest.security.MlReefSessionRegistry
 import com.mlreef.rest.testcommons.AbstractRestTest
+import com.mlreef.rest.testcommons.TestPostgresContainer
 import com.mlreef.rest.testcommons.TestRedisContainer
 import com.mlreef.rest.utils.RandomUtils
 import com.mlreef.rest.utils.RandomUtils.generateRandomUserName
@@ -59,9 +60,8 @@ import io.mockk.slot
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.jdbc.EmbeddedDatabaseConnection
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.restdocs.RestDocumentationContextProvider
 import org.springframework.restdocs.RestDocumentationExtension
 import org.springframework.restdocs.mockmvc.MockMvcRestDocumentation
@@ -91,6 +91,8 @@ import java.time.Instant
 import java.time.ZonedDateTime
 import java.util.UUID
 import java.util.regex.Pattern
+import javax.persistence.EntityManager
+import javax.sql.DataSource
 import javax.transaction.Transactional
 import kotlin.math.absoluteValue
 import kotlin.random.Random
@@ -99,8 +101,8 @@ import kotlin.random.Random
 @ExtendWith(value = [RestDocumentationExtension::class, SpringExtension::class])
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles(ApplicationProfiles.TEST)
-@AutoConfigureTestDatabase(connection = EmbeddedDatabaseConnection.H2)
-@ContextConfiguration(initializers = [TestRedisContainer.Initializer::class])
+//@AutoConfigureTestDatabase(connection = EmbeddedDatabaseConnection.H2)
+@ContextConfiguration(initializers = [TestPostgresContainer.Initializer::class, TestRedisContainer.Initializer::class])
 abstract class AbstractRestApiTest : AbstractRestTest() {
 
     protected lateinit var account: Account
@@ -158,11 +160,57 @@ abstract class AbstractRestApiTest : AbstractRestTest() {
         return this.acceptContentAuth(builder, token)
     }
 
+    @Autowired
+    val dataSource: DataSource? = null
+
+    @Autowired
+    val jdbcTemplate: JdbcTemplate? = null
+
+    @Autowired
+    val entityManager: EntityManager? = null
+
+    protected fun truncateDbTables(tables: List<String>, cascade: Boolean = true) {
+        println("Truncating tables: $tables")
+        val joinToString = tables.joinToString("\", \"", "\"", "\"")
+
+        if (cascade) {
+            entityManager!!.createNativeQuery("truncate table $joinToString CASCADE ").executeUpdate()
+        } else {
+            entityManager!!.createNativeQuery("truncate table $joinToString ").executeUpdate()
+        }
+    }
+
+    protected fun truncateAllTables() {
+        truncateDbTables(listOf(
+            "account", "account_token",
+            "data_processor", "data_processor_instance",
+            "email", "experiment", "experiment_input_files",
+            "file_location",
+            "marketplace_star",
+            "marketplace_tag",
+            "membership",
+            "mlreef_project",
+            "output_file",
+            "parameter_instance",
+            "pipeline_config",
+            "pipeline_config_input_files",
+            "pipeline_instance",
+            "pipeline_instance_input_files",
+            "processor_parameter",
+            "processor_version",
+            "project_inputdatatypes",
+            "project_outputdatatypes",
+            "projects_tags",
+            "subject",
+        ), cascade = true)
+    }
+
     @BeforeEach
     fun setUp(
         webApplicationContext: WebApplicationContext,
         restDocumentation: RestDocumentationContextProvider
     ) {
+        truncateAllTables()
         val censoredSecretHash = testPrivateUserTokenMock1.substring(0, 5) + "**********"
         this.mockMvc = MockMvcBuilders
             .webAppContextSetup(webApplicationContext)
@@ -187,13 +235,20 @@ abstract class AbstractRestApiTest : AbstractRestTest() {
             1585910424)
 
         val gitlabUser = GitlabUser(
-            id = 1,
+            id = 200,
             name = "Mock Gitlab User",
             username = "mock_user",
             email = "mock@example.com",
             state = "active"
         )
 
+        every { restClient.adminCreateUser(any(), any(), any(), any()) } returns GitlabUser(
+            id = RandomUtils.randomGitlabId(),
+            name = "Mock Gitlab User",
+            username = "mock_user",
+            email = "mock@example.com",
+            state = "active"
+        )
         every { restClient.getUser(any()) } returns GitlabUser(
             id = RandomUtils.randomGitlabId(),
             name = "Mock Gitlab User",
@@ -210,7 +265,6 @@ abstract class AbstractRestApiTest : AbstractRestTest() {
             createdAt = Instant.now().epochSecond
         )
 
-        every { restClient.adminCreateUser(any(), any(), any(), any()) } returns gitlabUser
 
         every { restClient.adminCreateUserToken(any(), any()) } returns GitlabUserToken(
             id = 1,
@@ -372,14 +426,10 @@ abstract class AbstractRestApiTest : AbstractRestTest() {
     fun createMockUser(plainPassword: String = "password", userOverrideSuffix: String? = null): Account {
         val accountId = UUID.randomUUID()
         val passwordEncrypted = passwordEncoder.encode(plainPassword)
-        val person = Person(UUID.randomUUID(), generateRandomUserName(30), generateRandomUserName(30), 1L, hasNewsletters = true,
+        val person = personRepository.save(Person(UUID.randomUUID(), generateRandomUserName(30), generateRandomUserName(30), 10L, hasNewsletters = true,
             userRole = UserRole.DEVELOPER,
-            termsAcceptedAt = ZonedDateTime.now())
-//        val token = AccountToken(UUID.randomUUID(), accountId, "secret_token", 0)
-        val account = Account(accountId, person.slug, "${person.slug}@example.com", passwordEncrypted, person)
-
-        personRepository.save(person)
-        accountRepository.save(account)
+            termsAcceptedAt = ZonedDateTime.now()))
+        val account = accountRepository.save(Account(accountId, person.slug, "${person.slug}@example.com", passwordEncrypted, person))
         return account
     }
 
@@ -407,6 +457,7 @@ abstract class AbstractRestApiTest : AbstractRestTest() {
             sourceBranch = "source",
             targetBranch = "target",
             postProcessing = arrayListOf(processorInstance2),
+            number = experimentRepository.countByDataProjectId(dataProjectId) + 1,
             pipelineJobInfo = PipelineJobInfo(
                 gitlabId = 4,
                 createdAt = I18N.dateTime(),
@@ -441,7 +492,8 @@ abstract class AbstractRestApiTest : AbstractRestTest() {
             id = id, name = "dataprocessor-name",
             codeProject = codeProject,
             slug = "slug-$id", parameters = listOf(),
-            author = null, description = "description", visibilityScope = VisibilityScope.PUBLIC,
+            author = null, description = "description",
+            visibilityScope = VisibilityScope.PUBLIC,
             outputDataType = outputDataType,
             inputDataType = inputDataType,
             command = "command1",
@@ -509,6 +561,7 @@ abstract class AbstractRestApiTest : AbstractRestTest() {
             fieldWithPath(prefix + "data_instance_id").optional().type(JsonFieldType.STRING).description("Id of DataPipelineInstance"),
             fieldWithPath(prefix + "slug").type(JsonFieldType.STRING).description("Local slug scoped to DataProject"),
             fieldWithPath(prefix + "name").type(JsonFieldType.STRING).description("Name of that Experiment"),
+            fieldWithPath(prefix + "number").type(JsonFieldType.NUMBER).description("Number of this Experiment in its DataProject scope"),
             fieldWithPath(prefix + "pipeline_job_info").type(JsonFieldType.OBJECT).optional().description("An optional PipelineInfo describing the gitlab pipeline info"),
             fieldWithPath(prefix + "json_blob").type(JsonFieldType.STRING).optional().description("Json object describing experiments epochs statistics"),
             fieldWithPath(prefix + "post_processing").optional().type(JsonFieldType.ARRAY).optional().description("An optional List of DataProcessors used during PostProcessing"),

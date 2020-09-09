@@ -156,6 +156,7 @@ internal class DataPopulator(
             processing = processorInstance,
             name = "Experiment Name",
             slug = "experiment-slug",
+            number = 1,
             sourceBranch = "source",
             targetBranch = "target",
             inputFiles = listOf(FileLocation.fromPath("folder"))

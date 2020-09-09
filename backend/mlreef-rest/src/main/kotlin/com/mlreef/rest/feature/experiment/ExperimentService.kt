@@ -41,6 +41,7 @@ class ExperimentService(
 ) {
 
     val log: Logger = LoggerFactory.getLogger(this::class.java)
+    val synchedExperimentNumber: Any = Object()
 
     fun getExperimentsForProject(projectId: UUID): List<Experiment> {
         return experimentRepository.findAllByDataProjectId(projectId)
@@ -85,26 +86,30 @@ class ExperimentService(
 
         require(!validSlug.isBlank() && Slugs.isValid(validSlug)) { "slug name is not valid!" }
 
-        //require(targetBranch.isNotBlank()) { "targetBranch is missing!" }
+        require(targetBranch.isNotBlank()) { "targetBranch is missing!" }
 
-        val id = randomUUID()
-        val experiment = Experiment(
-            id,
-            dataProjectId = dataProjectId,
-            dataInstanceId = dataInstanceId,
-            slug = validSlug,
-            name = name,
-            inputFiles = inputFiles,
-            sourceBranch = sourceBranch,
-            targetBranch = targetBranch
-        )
+        return synchronized(synchedExperimentNumber) {
 
-        postProcessors.forEach {
-            experiment.addPostProcessor(it)
+            val id = randomUUID()
+            val countByDataProjectId = experimentRepository.countByDataProjectId(dataProjectId)
+
+            val experiment = Experiment(
+                id,
+                dataProjectId = dataProjectId,
+                dataInstanceId = dataInstanceId,
+                slug = validSlug,
+                name = name,
+                number = countByDataProjectId + 1,
+                inputFiles = inputFiles,
+                sourceBranch = sourceBranch,
+                targetBranch = targetBranch
+            )
+
+            postProcessors.forEach { experiment.addPostProcessor(it) }
+            experiment.setProcessor(processorInstance)
+            experimentRepository.save(experiment)
         }
-        experiment.setProcessor(processorInstance)
 
-        return experimentRepository.save(experiment)
     }
 
     private inline fun require(value: Boolean, lazyMessage: () -> Any): Unit {

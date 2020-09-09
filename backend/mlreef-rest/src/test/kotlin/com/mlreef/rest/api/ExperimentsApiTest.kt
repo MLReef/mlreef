@@ -225,6 +225,15 @@ class ExperimentsApiTest : AbstractRestApiTest() {
     @Transactional
     @Rollback
     @Test
+    @Tag(TestTags.RESTDOC)
+    fun `Can retrieve specific own Experiment via number`() {
+        val experiment1 = createExperiment(dataProject.id, dataOp1)
+        performGet("$rootUrl/${dataProject.id}/experiments/${experiment1.number}", token).andExpect(status().isOk)
+    }
+
+    @Transactional
+    @Rollback
+    @Test
     fun `Cannot retrieve foreign Experiment`() {
         val experiment1 = createExperiment(dataProject2.id, dataOp1)
 
@@ -282,6 +291,15 @@ class ExperimentsApiTest : AbstractRestApiTest() {
     @Rollback
     @Test
     @Tag(TestTags.RESTDOC)
+    fun `Can retrieve own Experiment's pipelineJobInfo via number`() {
+        val experiment1 = createExperiment(dataProject.id, dataOp1)
+        performGet("$rootUrl/${dataProject.id}/experiments/${experiment1.number}/info", token).andExpect(status().isOk)
+    }
+
+    @Transactional
+    @Rollback
+    @Test
+    @Tag(TestTags.RESTDOC)
     fun `Can retrieve own Experiment's MLReef file`() {
         val experiment1 = createExperiment(dataProject.id, dataOp1)
 
@@ -294,6 +312,15 @@ class ExperimentsApiTest : AbstractRestApiTest() {
 
         assertThat(result).isNotEmpty()
         assertThat(result).contains("image: registry.gitlab.com/mlreef/mlreef/epf:")
+    }
+
+    @Transactional
+    @Rollback
+    @Test
+    @Tag(TestTags.RESTDOC)
+    fun `Can retrieve own Experiment's MLReef file via number`() {
+        val experiment1 = createExperiment(dataProject.id, dataOp1)
+        performGet("$rootUrl/${dataProject.id}/experiments/${experiment1.number}/mlreef-file", token).andExpect(status().isOk)
     }
 
     @Transactional

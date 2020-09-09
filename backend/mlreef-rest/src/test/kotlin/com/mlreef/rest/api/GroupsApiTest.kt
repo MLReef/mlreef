@@ -47,6 +47,7 @@ class GroupsApiTest : AbstractRestApiTest() {
 
     @BeforeEach
     fun setUp() {
+        truncateAllTables()
         accountSubjectPreparationTrait.apply()
 
         account = accountSubjectPreparationTrait.account
@@ -60,16 +61,16 @@ class GroupsApiTest : AbstractRestApiTest() {
     @Test
     @Tag(TestTags.RESTDOC)
     fun `Can get all current user Groups`() {
-        val group1 = Group(id = randomUUID(), slug = "slug", name = "group-name-1", gitlabId = 101L)
-        val group2 = Group(id = randomUUID(), slug = "slug", name = "group-name-2", gitlabId = 102L)
-        val group3 = Group(id = randomUUID(), slug = "slug", name = "group-name-3", gitlabId = 103L)
+        val group1 = Group(id = randomUUID(), slug = "slug1", name = "group-name-1", gitlabId = 101L)
+        val group2 = Group(id = randomUUID(), slug = "slug2", name = "group-name-2", gitlabId = 102L)
+        val group3 = Group(id = randomUUID(), slug = "slug3", name = "group-name-3", gitlabId = 103L)
         groupsRepository.save(group1)
         groupsRepository.save(group2)
         groupsRepository.save(group3)
 
-        val gitlabGroup1 = GitlabGroup(101L,"url","group-name-1","path-1")
-        val gitlabGroup2 = GitlabGroup(102L,"url","group-name-1","path-1")
-        val gitlabGroup3 = GitlabGroup(103L,"url","group-name-1","path-1")
+        val gitlabGroup1 = GitlabGroup(101L, "url", "group-name-1", "path-1")
+        val gitlabGroup2 = GitlabGroup(102L, "url", "group-name-1", "path-2")
+        val gitlabGroup3 = GitlabGroup(103L, "url", "group-name-1", "path-3")
 
         val gitlabUserInGroup = GitlabUserInGroup(1L, "url", "test-user", "username")
 

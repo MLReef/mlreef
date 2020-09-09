@@ -279,27 +279,23 @@ internal class AccountSubjectPreparationTrait {
             mockToken = "second-token-$userSuffix"
         }
         val passwordEncrypted = passwordEncoder.encode(plainPassword)
-        val accountId = UUID.fromString("aaaa0000-0002-0000-$userSuffix-aaaaaaaaaaaa")
-        val token = AccountToken(
-            id = UUID.fromString("aaaa0000-0003-0000-$userSuffix-bbbbbbbbbbbb"),
-            accountId = accountId,
-            token = mockToken,
-            gitlabId = 0)
-        val person = Person(
-            id = UUID.fromString("aaaa0000-0001-0000-$userSuffix-cccccccccccc"),
+
+        val person = personRepository.save(Person(
+            id = randomUUID(),
             slug = "person_slug$userSuffix",
             name = "user name $userSuffix",
-            gitlabId = personGitlabId ?: Random.nextLong().absoluteValue)
-        val account = Account(
-            id = accountId,
+            gitlabId = personGitlabId ?: Random.nextLong().absoluteValue))
+        val account = accountRepository.save(Account(
+            id = randomUUID(),
             username = "username$userSuffix",
             email = "email$userSuffix@example.com",
             passwordEncrypted = passwordEncrypted,
-            person = person)
-
-        personRepository.save(person)
-        accountRepository.save(account)
-        accountTokenRepository.save(token)
+            person = person))
+        accountTokenRepository.save(AccountToken(
+            id = randomUUID(),
+            accountId = account.id,
+            token = mockToken,
+            gitlabId = 0))
         return account
     }
 }
@@ -359,15 +355,15 @@ internal class PipelineTestPreparationTrait : AccountSubjectPreparationTrait() {
         applyAccount()
 
         dataProject = dataProjectRepository.save(DataProject(
-            UUID.fromString("aaaa0001-0000-0000-0000-dbdbdbdbdbdb"), "slug1", "url", "Test DataProject",
-            "", ownerId = account.person.id, gitlabId = Random.nextInt().toLong().absoluteValue, gitlabNamespace = "mlreef", gitlabPath = "project1"
+            UUID.fromString("aaaa0001-0000-0000-0000-dbdbdbdbdbdb"), "data-project1", "url", "Test DataProject",
+            "", ownerId = account.person.id, gitlabId = Random.nextInt().toLong().absoluteValue, gitlabNamespace = "commons", gitlabPath = "data-project1"
         ))
         dataProject2 = dataProjectRepository.save(DataProject(
-            UUID.fromString("aaaa0001-0000-0000-0002-dbdbdbdbdbdb"), "slug2", "url", "Test DataProject",
-            "", ownerId = account2.person.id, gitlabId = Random.nextInt().toLong().absoluteValue, gitlabNamespace = "mlreef", gitlabPath = "project2")
+            UUID.fromString("aaaa0001-0000-0000-0002-dbdbdbdbdbdb"), "data-project2", "url", "Test DataProject",
+            "", ownerId = account2.person.id, gitlabId = Random.nextInt().toLong().absoluteValue, gitlabNamespace = "commons", gitlabPath = "data-project2")
         )
-        codeProjectRepository.save(CodeProject(randomUUID(), "slug", "url", "Test DataProject", "", ownerId = account.person.id,
-            gitlabNamespace = "", gitlabId = Random.nextInt().toLong().absoluteValue, gitlabPath = ""))
+        codeProjectRepository.save(CodeProject(randomUUID(), "code-project1", "url", "Test DataProject", "", ownerId = account.person.id,
+            gitlabNamespace = "commons", gitlabId = Random.nextInt().toLong().absoluteValue, gitlabPath = "code-project1"))
 
         val _dataOp1 = dataOperationRepository.save(DataOperation(randomUUID(), "commons-data-operation1", "name", DataType.ANY, DataType.ANY))
         val _dataOp2 = dataAlgorithmRepository.save(DataAlgorithm(randomUUID(), "commons-algorithm", "name", DataType.ANY, DataType.ANY))

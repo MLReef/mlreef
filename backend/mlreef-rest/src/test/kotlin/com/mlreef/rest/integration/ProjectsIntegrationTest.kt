@@ -64,7 +64,7 @@ class ProjectsIntegrationTest : AbstractIntegrationTest() {
         val (_, _) = testsHelper.createRealCodeProject(token2, account2)
         val (_, _) = testsHelper.createRealCodeProject(token2, account2)
 
-        val result = this.performGet(rootUrl, token1)
+        val result = this.performGet("$rootUrl/my", token1)
             .expectOk()
             .returnsList(DataProjectDto::class.java)
 
