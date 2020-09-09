@@ -6,4 +6,39 @@
   &-actions {
     display: flex;
   }
+
+  &-list {
+    width: max-content;
+
+    &-item {
+      margin-bottom: 1rem;
+
+      &.closed &-options {
+        height: 0;
+      }
+
+      &.closed &-btn > .fa {
+        transform: rotateZ(180deg);
+      }
+
+      &-btn {
+        display: flex;
+        border: none;
+        background-color: transparent;
+        justify-content: space-between;
+        padding: 0;
+        width: 100%;
+        cursor: pointer;
+
+        &-label {
+          font-weight: bold;
+          margin-right: 1rem;
+        }
+      }
+
+      &-options {
+        overflow-y: hidden;
+      }
+    }
+  }
 }

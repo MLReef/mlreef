@@ -91,6 +91,53 @@
     &.vertical {
       flex-direction: column;
     }
+
+    &.steps {
+      border-bottom: solid 1px var(--light);
+    }
+
+    &.steps &-tab {
+      background-color: transparent;
+
+      &-btn {
+        background-color: transparent;
+
+        & .label {
+          &.done {
+            color: var(--primary);
+          }
+
+          &-ordinal {
+            border-radius: 50%;
+            background-color: var(--secondary);
+            color: var(--white);
+            width: 2rem;
+            height: 2rem;
+            display: inline-flex;
+            margin-right: 0.5rem;
+
+            &.done {
+              background-color: var(--primary);
+            }
+
+            &-number {
+              margin: auto;
+            }
+          }
+        }
+
+        &.active {
+          & .label {
+            font-weight: bold;
+            color: var(--dark);
+
+            &-ordinal {
+              background-color: var(--dark);
+            }
+          }
+        }
+      }
+    }
   }
 
   &-content {

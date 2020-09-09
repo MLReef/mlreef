@@ -20,14 +20,14 @@ import { suscribeRT, onlyDataProject } from 'functions/apiCalls';
 import ExploreViewProjectSet from './ExploreViewProjectSet';
 import './ExploreView.scss';
 
-const { classification } = projectClassificationsProps[2];
+// const { classification } = projectClassificationsProps[2];
 
 const dataTypes = [
-  { name: `${classification} data-types`, label: 'Text' },
-  { name: `${classification} data-types`, label: 'Image' },
-  { name: `${classification} data-types`, label: 'Audio' },
-  { name: `${classification} data-types`, label: 'Video' },
-  { name: `${classification} data-types`, label: 'Tabular' },
+  // { name: `${classification} data-types`, label: 'Text' },
+  // { name: `${classification} data-types`, label: 'Image' },
+  // { name: `${classification} data-types`, label: 'Audio' },
+  // { name: `${classification} data-types`, label: 'Video' },
+  // { name: `${classification} data-types`, label: 'Tabular' },
 ];
 
 const ExploreView = (props) => {
@@ -84,7 +84,7 @@ const ExploreView = (props) => {
 
   const filtersSection = (
     <MWrapper disable title="No available yet.">
-      <MDataFilters types={dataTypes} className="d-none d-lg-block" />
+      <MDataFilters filters={dataTypes} className="d-none d-lg-block" />
     </MWrapper>
   );
 

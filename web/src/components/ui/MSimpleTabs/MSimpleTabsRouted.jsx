@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import * as PropTypes from 'prop-types';
 import useHashNavigation from 'customHooks/useHashNavigation';
 import useGlobalMarker from 'customHooks/useGlobalMarker';
@@ -6,14 +6,13 @@ import cx from 'classnames';
 import './MSimpleTabs.scss';
 import { convertToSlug as _s } from 'functions/dataParserHelpers';
 
-// const _s = (e) => e;
-
 const MSimpleTabs = (props) => {
   const {
     id,
     sections,
     border,
     vertical,
+    steps,
     original,
     pills,
     menuStyle,
@@ -39,6 +38,20 @@ const MSimpleTabs = (props) => {
     [sectionDisplayed, sections, setColor],
   );
 
+  const createLabel = useCallback(
+    (label, index, done = false) => !steps ? label : (
+      <span className={cx('label', { done })}>
+        <div className={cx('label-ordinal', { done })}>
+          <span className="label-ordinal-number">
+            {index + 1}
+          </span>
+        </div>
+        {label}
+      </span>
+    ),
+    [steps],
+  );
+
   const checkActive = (label) => _s(label) === sectionDisplayed;
 
   return (
@@ -46,9 +59,9 @@ const MSimpleTabs = (props) => {
       <div className={cx({ 'simple-tabs-container': true, border, vertical })}>
         <ul
           style={menuStyle}
-          className={cx(['simple-tabs-menu', menuClassNames, { vertical }])}
+          className={cx(['simple-tabs-menu', menuClassNames, { vertical, steps }])}
         >
-          {sections.map(({ label, disabled }) => (
+          {sections.map(({ label, disabled, done }, index) => (
             <li
               key={`simple-tab-menu-${id}-${label}`}
               style={tabStyle}
@@ -68,7 +81,7 @@ const MSimpleTabs = (props) => {
                   border,
                 })}
               >
-                {label}
+                {createLabel(label, index, done)}
               </button>
             </li>
           ))}
@@ -99,6 +112,7 @@ MSimpleTabs.defaultProps = {
   pills: false,
   original: false,
   border: false,
+  steps: false,
   tabStyle: {},
   menuStyle: {},
   contentStyle: {},
@@ -113,6 +127,7 @@ MSimpleTabs.propTypes = {
     disabled: PropTypes.bool,
     label: PropTypes.string.isRequired,
     content: PropTypes.node.isRequired,
+    done: PropTypes.bool,
     defaultActive: PropTypes.bool,
   })).isRequired,
 
@@ -121,6 +136,7 @@ MSimpleTabs.propTypes = {
   pills: PropTypes.bool,
   border: PropTypes.bool,
   original: PropTypes.bool,
+  steps: PropTypes.bool,
   tabStyle: PropTypes.shape({}),
   menuStyle: PropTypes.shape({}),
   contentStyle: PropTypes.shape({}),

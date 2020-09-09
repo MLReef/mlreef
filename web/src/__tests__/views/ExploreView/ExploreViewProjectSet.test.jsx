@@ -7,6 +7,7 @@ import ExploreViewProjectSet from 'components/views/ExploreView/ExploreViewProje
 const projects = projectsArrayMock.projects.all;
 
 describe('ExploreViewProjectSet functionality', () => {
+  global.ResizeObserver = () => ({ observe: jest.fn() });
   test('assert only loading gif is showed while starting', () => {
     const wrapper = mount(
       <ExploreViewProjectSet started={false} projects={projects} />,

@@ -1,0 +1,15 @@
+.m-bricks-wall {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  flex-direction: column;
+
+  &-brick {
+    position: absolute;
+    padding: 0.5rem;
+
+    &.animated {
+      transition: top 0.3s;
+    }
+  }
+}

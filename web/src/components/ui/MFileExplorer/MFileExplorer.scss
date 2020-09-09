@@ -1,0 +1,60 @@
+.m-file-explorer {
+  margin: auto;
+  width: max-content;
+  min-width: 600px;
+
+  &-branch-selector {
+    margin-bottom: 1rem;
+  }
+
+  &-files {
+    &-title {
+      background-color: var(--dark);
+      color: var(--white);
+      padding: 1rem;
+      border: solid 1px var(--dark);
+    }
+
+    &-list {
+      border: solid 1px var(--secondary);
+      border-top: none;
+      list-style: none;
+      padding: 0;
+      margin: 0;
+
+      &-item {
+        padding: 0.5rem;
+        display: flex;
+
+        &:not(:last-child) {
+          border-bottom: solid 1px var(--secondary);
+        }
+
+        &-btn {
+          background-color: transparent;
+          border: none;
+          padding: 0;
+          margin-left: 0.5rem;
+          cursor: pointer;
+
+          &[disabled] {
+            cursor: auto;
+          }
+
+          &-file {
+            display: flex;
+
+            &-icon {
+              width: 2rem;
+            }
+
+            &-label {
+              margin: auto 1rem;
+              color: var(--dark);
+            }
+          }
+        }
+      }
+    }
+  }
+}
