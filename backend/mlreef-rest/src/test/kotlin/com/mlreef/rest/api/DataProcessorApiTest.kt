@@ -54,6 +54,7 @@ class DataProcessorApiTest : AbstractRestApiTest() {
 
     @BeforeEach
     fun clearRepo() {
+        truncateAllTables()
         pipelineTestPreparationTrait.apply()
         account = pipelineTestPreparationTrait.account
         token = pipelineTestPreparationTrait.token
@@ -63,12 +64,12 @@ class DataProcessorApiTest : AbstractRestApiTest() {
         dataOp3 = pipelineTestPreparationTrait.dataOp3
 
         codeProject = codeProjectRepository.save(CodeProject(
-            randomUUID(), "slug1", "url", "Test DataProject", "",
-            ownerId = account.person.id, gitlabNamespace = "", gitlabId = 0, gitlabPath = ""))
+            randomUUID(), "code-project-slug1", "url", "Test DataProject", "",
+            ownerId = account.person.id, gitlabNamespace = "processor-api-test", gitlabId = 10, gitlabPath = "code-project-slug1"))
 
         codeProject2 = codeProjectRepository.save(CodeProject(
-            randomUUID(), "slug2", "url", "Test DataProject", "",
-            ownerId = account.person.id, gitlabNamespace = "", gitlabId = 0, gitlabPath = ""))
+            randomUUID(), "code-project-slug2", "url", "Test DataProject", "",
+            ownerId = account.person.id, gitlabNamespace = "processor-api-test", gitlabId = 11, gitlabPath = "code-project-slug2"))
 
         this.mockGetUserProjectsList(listOf(codeProject.id), account, AccessLevel.OWNER)
     }

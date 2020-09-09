@@ -13,6 +13,7 @@ import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.context.TestPropertySource
 import org.springframework.test.context.transaction.TestTransaction
+import org.springframework.transaction.annotation.Transactional
 import javax.persistence.EntityManager
 import javax.sql.DataSource
 
@@ -48,15 +49,44 @@ class AbstractRepositoryTest {
         }
     }
 
+    protected fun truncateAllTables() {
+        truncateDbTables(listOf(
+            "account", "account_token",
+            "data_processor", "data_processor_instance",
+            "email", "experiment", "experiment_input_files",
+            "file_location",
+            "marketplace_star",
+            "marketplace_tag",
+            "membership",
+            "mlreef_project",
+            "output_file",
+            "parameter_instance",
+            "pipeline_config",
+            "pipeline_config_input_files",
+            "pipeline_instance",
+            "pipeline_instance_input_files",
+            "processor_parameter",
+            "processor_version",
+            "project_inputdatatypes",
+            "project_outputdatatypes",
+            "projects_tags",
+            "subject",
+        ), cascade = true)
+    }
+
+    @Transactional
     protected fun truncateDbTables(tables: List<String>, cascade: Boolean = true) {
         println("Truncating tables: $tables")
         val joinToString = tables.joinToString("\", \"", "\"", "\"")
 
-        if (cascade) {
-            entityManager!!.createNativeQuery("truncate table $joinToString CASCADE ").executeUpdate()
+        val createNativeQuery = if (cascade) {
+            entityManager!!.createNativeQuery("truncate table $joinToString CASCADE ")
+
         } else {
-            entityManager!!.createNativeQuery("truncate table $joinToString ").executeUpdate()
+            entityManager!!.createNativeQuery("truncate table $joinToString ")
         }
+        entityManager!!.joinTransaction()
+        createNativeQuery.executeUpdate()
     }
 
     fun commitAndFail(f: () -> Unit) {

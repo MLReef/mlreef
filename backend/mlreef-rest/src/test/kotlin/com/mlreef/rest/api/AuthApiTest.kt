@@ -47,9 +47,7 @@ class AuthApiTest : AbstractRestApiTest() {
     @BeforeEach
     @AfterEach
     fun clearRepo() {
-        accountTokenRepository.deleteAll()
-        accountRepository.deleteAll()
-        personRepository.deleteAll()
+        truncateAllTables()
 
         every { mailSender.send(ofType(SimpleMailMessage::class)) } just Runs
         every { mailSender.send(ofType(MimeMessage::class)) } just Runs
@@ -104,7 +102,6 @@ class AuthApiTest : AbstractRestApiTest() {
     @Test
     @Tag(TestTags.RESTDOC)
     fun `Can login with existing user`() {
-        accountSubjectPreparationTrait.apply()
         account = accountSubjectPreparationTrait.account
 
         every {

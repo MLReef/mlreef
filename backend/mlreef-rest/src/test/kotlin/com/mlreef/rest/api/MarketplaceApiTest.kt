@@ -26,7 +26,6 @@ import com.mlreef.rest.testcommons.RestResponsePage
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Tag
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -73,15 +72,7 @@ class MarketplaceApiTest : AbstractRestApiTest() {
     @BeforeEach
     @AfterEach
     fun setUp() {
-        marketplaceTagRepository.deleteAll()
-
-        processorVersionRepository.deleteAll()
-        dataProcessorRepository.deleteAll()
-        codeProjectRepository.deleteAll()
-        accountTokenRepository.deleteAll()
-        accountRepository.deleteAll()
-        personRepository.deleteAll()
-
+        truncateAllTables()
         accountSubjectPreparationTrait.apply()
 
         account = accountSubjectPreparationTrait.account
@@ -196,12 +187,12 @@ class MarketplaceApiTest : AbstractRestApiTest() {
         )
         val pagedResult: RestResponsePage<SearchResultDto> = this.performPost("$rootUrl/entries/search", null, filterRequest)
             .checkStatus(HttpStatus.OK)
+            .expectOk()
             .document("marketplace-explore-search-maximal")
             .returns()
 
         assertThat(pagedResult).isNotNull()
     }
-
 
     @Transactional
     @Rollback
@@ -210,7 +201,7 @@ class MarketplaceApiTest : AbstractRestApiTest() {
     fun `Can use Search Api with type CODE_PROJECT`() {
         prepareMocks()
         val filterRequest = FilterRequest(searchableType = SearchableType.CODE_PROJECT)
-        val pagedResult: RestResponsePage<SearchResultDto> = this.performPost("$rootUrl/entries/search", null, filterRequest).returns()
+        val pagedResult: RestResponsePage<SearchResultDto> = this.performPost("$rootUrl/entries/search", null, filterRequest).expectOk().returns()
         assertThat(pagedResult.content.size).isEqualTo(4)
     }
 
@@ -221,7 +212,7 @@ class MarketplaceApiTest : AbstractRestApiTest() {
     fun `Can use Search Api with type DATA_PROJECT`() {
         prepareMocks()
         val filterRequest = FilterRequest(searchableType = SearchableType.DATA_PROJECT)
-        val pagedResult: RestResponsePage<SearchResultDto> = this.performPost("$rootUrl/entries/search", null, filterRequest).returns()
+        val pagedResult: RestResponsePage<SearchResultDto> = this.performPost("$rootUrl/entries/search", null, filterRequest).expectOk().returns()
         assertThat(pagedResult.content.size).isEqualTo(1)
     }
 
@@ -232,7 +223,7 @@ class MarketplaceApiTest : AbstractRestApiTest() {
     fun `Can use Search Api with type OPERATION`() {
         prepareMocks()
         val filterRequest = FilterRequest(searchableType = SearchableType.OPERATION)
-        val pagedResult: RestResponsePage<SearchResultDto> = this.performPost("$rootUrl/entries/search", null, filterRequest).returns()
+        val pagedResult: RestResponsePage<SearchResultDto> = this.performPost("$rootUrl/entries/search", null, filterRequest).expectOk().returns()
         assertThat(pagedResult.content.size).isEqualTo(2)
     }
 
@@ -243,7 +234,7 @@ class MarketplaceApiTest : AbstractRestApiTest() {
     fun `Can use Search Api with type VISUALIZATION`() {
         prepareMocks()
         val filterRequest = FilterRequest(searchableType = SearchableType.VISUALIZATION)
-        val pagedResult: RestResponsePage<SearchResultDto> = this.performPost("$rootUrl/entries/search", null, filterRequest).returns()
+        val pagedResult: RestResponsePage<SearchResultDto> = this.performPost("$rootUrl/entries/search", null, filterRequest).expectOk().returns()
         assertThat(pagedResult.content.size).isEqualTo(1)
     }
 
@@ -254,7 +245,7 @@ class MarketplaceApiTest : AbstractRestApiTest() {
     fun `Can use Search Api with type ALGORITHM`() {
         prepareMocks()
         val filterRequest = FilterRequest(searchableType = SearchableType.ALGORITHM)
-        val pagedResult: RestResponsePage<SearchResultDto> = this.performPost("$rootUrl/entries/search", null, filterRequest).returns()
+        val pagedResult: RestResponsePage<SearchResultDto> = this.performPost("$rootUrl/entries/search", null, filterRequest).expectOk().returns()
         assertThat(pagedResult.content.size).isEqualTo(1)
     }
 
@@ -266,7 +257,7 @@ class MarketplaceApiTest : AbstractRestApiTest() {
     fun `Can use Search Api with type CODE_PROJECT and inputTypeFilter`() {
         prepareMocks()
         val filterRequest = FilterRequest(searchableType = SearchableType.CODE_PROJECT, inputDataTypes = listOf(DataType.IMAGE))
-        val pagedResult: RestResponsePage<SearchResultDto> = this.performPost("$rootUrl/entries/search", null, filterRequest).returns()
+        val pagedResult: RestResponsePage<SearchResultDto> = this.performPost("$rootUrl/entries/search", null, filterRequest).expectOk().returns()
         assertThat(pagedResult.content.size).isEqualTo(2)
     }
 
@@ -277,7 +268,7 @@ class MarketplaceApiTest : AbstractRestApiTest() {
     fun `Can use Search Api with type DATA_PROJECT and inputTypeFilter`() {
         prepareMocks()
         val filterRequest = FilterRequest(searchableType = SearchableType.DATA_PROJECT, inputDataTypes = listOf(DataType.IMAGE))
-        val pagedResult: RestResponsePage<SearchResultDto> = this.performPost("$rootUrl/entries/search", null, filterRequest).returns()
+        val pagedResult: RestResponsePage<SearchResultDto> = this.performPost("$rootUrl/entries/search", null, filterRequest).expectOk().returns()
         assertThat(pagedResult.content.size).isEqualTo(1)
     }
 
@@ -288,7 +279,7 @@ class MarketplaceApiTest : AbstractRestApiTest() {
     fun `Can use Search Api with type OPERATION and inputTypeFilter`() {
         prepareMocks()
         val filterRequest = FilterRequest(searchableType = SearchableType.OPERATION, inputDataTypes = listOf(DataType.IMAGE))
-        val pagedResult: RestResponsePage<SearchResultDto> = this.performPost("$rootUrl/entries/search", null, filterRequest).returns()
+        val pagedResult: RestResponsePage<SearchResultDto> = this.performPost("$rootUrl/entries/search", null, filterRequest).expectOk().returns()
         assertThat(pagedResult.content.size).isEqualTo(2)
     }
 
@@ -299,7 +290,7 @@ class MarketplaceApiTest : AbstractRestApiTest() {
     fun `Can use Search Api with type VISUALIZATION and inputTypeFilter`() {
         prepareMocks()
         val filterRequest = FilterRequest(searchableType = SearchableType.VISUALIZATION, inputDataTypes = listOf(DataType.IMAGE))
-        val pagedResult: RestResponsePage<SearchResultDto> = this.performPost("$rootUrl/entries/search", null, filterRequest).returns()
+        val pagedResult: RestResponsePage<SearchResultDto> = this.performPost("$rootUrl/entries/search", null, filterRequest).expectOk().returns()
         assertThat(pagedResult.content.size).isEqualTo(1)
     }
 
@@ -310,7 +301,7 @@ class MarketplaceApiTest : AbstractRestApiTest() {
     fun `Can use Search Api with type ALGORITHM and inputTypeFilter`() {
         prepareMocks()
         val filterRequest = FilterRequest(searchableType = SearchableType.ALGORITHM, inputDataTypes = listOf(DataType.IMAGE))
-        val pagedResult: RestResponsePage<SearchResultDto> = this.performPost("$rootUrl/entries/search", null, filterRequest).returns()
+        val pagedResult: RestResponsePage<SearchResultDto> = this.performPost("$rootUrl/entries/search", null, filterRequest).expectOk().returns()
         assertThat(pagedResult.content.size).isEqualTo(1)
     }
 
@@ -341,8 +332,6 @@ class MarketplaceApiTest : AbstractRestApiTest() {
     @Rollback
     @Test
     @Tag(TestTags.RESTDOC)
-    @Disabled
-    // Cannot use postgresql FTS with H2
     fun `Can use Search Api with fts query and sort`() {
         prepareMocks()
 
@@ -386,8 +375,8 @@ class MarketplaceApiTest : AbstractRestApiTest() {
     @Tag(TestTags.RESTDOC)
     fun `Can use Search Api with min-max stars`() {
         prepareMocks()
-        val filterRequest = FilterRequest(minStars = 20, maxStars = 50)
-        val pagedResult: RestResponsePage<SearchResultDto> = this.performPost("$rootUrl/entries/search", null, filterRequest).returns()
+        val filterRequest = FilterRequest(minStars = 5, maxStars = 7)
+        val pagedResult: RestResponsePage<SearchResultDto> = this.performPost("$rootUrl/entries/search", null, filterRequest).expectOk().returns()
         assertThat(pagedResult.content.size).isEqualTo(2)
     }
 
@@ -397,9 +386,9 @@ class MarketplaceApiTest : AbstractRestApiTest() {
     @Tag(TestTags.RESTDOC)
     fun `Can use Search Api with min stars`() {
         prepareMocks()
-        val filterRequest = FilterRequest(minStars = 20)
-        val pagedResult: RestResponsePage<SearchResultDto> = this.performPost("$rootUrl/entries/search", null, filterRequest).returns()
-        assertThat(pagedResult.content.size).isEqualTo(3)
+        val filterRequest = FilterRequest(minStars = 6)
+        val pagedResult: RestResponsePage<SearchResultDto> = this.performPost("$rootUrl/entries/search", null, filterRequest).expectOk().returns()
+        assertThat(pagedResult.content.size).isEqualTo(2)
     }
 
     @Transactional
@@ -408,8 +397,8 @@ class MarketplaceApiTest : AbstractRestApiTest() {
     @Tag(TestTags.RESTDOC)
     fun `Can use Search Api with max stars`() {
         prepareMocks()
-        val filterRequest = FilterRequest(maxStars = 79)
-        val pagedResult: RestResponsePage<SearchResultDto> = this.performPost("$rootUrl/entries/search", null, filterRequest).returns()
+        val filterRequest = FilterRequest(maxStars = 7)
+        val pagedResult: RestResponsePage<SearchResultDto> = this.performPost("$rootUrl/entries/search", null, filterRequest).expectOk().returns()
         assertThat(pagedResult.content.size).isEqualTo(3)
     }
 
@@ -420,71 +409,62 @@ class MarketplaceApiTest : AbstractRestApiTest() {
 
         val author = personRepository.save(EntityMocks.author)
 
-        var project1 = EntityMocks.codeProject(slug = "entry1", name = "AA Project")
+        val persons = (0..10).map {
+            personRepository.save(EntityMocks.person(slug = "person-$it"))
+        }
+
+        val project1 = codeProjectRepository.save(EntityMocks.codeProject(slug = "entry1", name = "AA Project")
             .copy<CodeProject>(
                 inputDataTypes = setOf(DataType.IMAGE, DataType.TABULAR),
                 outputDataTypes = setOf(DataType.MODEL, DataType.TIME_SERIES),
                 tags = setOf(tag1, tag2)
-            )
+            ).let { project ->
+                project.copy<CodeProject>(stars = (1..3).map {
+                    Star(project.id, persons[it].id)
+                })
+            })
 
-        val starsList1 = (0..9).map {
-            Star(project1.id, UUID.randomUUID())
-        }
-
-        project1 = project1.copy(stars = starsList1)
-
-        var project2 = EntityMocks.codeProject(slug = "entry2", name = "BB Project")
+        val project2 = codeProjectRepository.save(EntityMocks.codeProject(slug = "entry2", name = "BB Project")
             .copy<CodeProject>(
                 inputDataTypes = setOf(DataType.IMAGE, DataType.TABULAR),
                 outputDataTypes = setOf(DataType.MODEL, DataType.TIME_SERIES),
-                tags = setOf(tag1, tag2))
+                tags = setOf(tag1, tag2)
+            ).let { project ->
+                project.copy(stars = (1..5).map {
+                    Star(project.id, persons[it].id)
+                })
+            })
 
-        val starsList2 = (0..19).map {
-            Star(project2.id, UUID.randomUUID())
-        }
-
-        project2 = project2.copy(stars = starsList2)
-
-        var project3 = EntityMocks.codeProject(slug = "entry3", name = "YY Project")
+        val project3 = codeProjectRepository.save(EntityMocks.codeProject(slug = "entry3", name = "YY Project")
             .copy<CodeProject>(inputDataTypes = setOf(DataType.TIME_SERIES, DataType.TABULAR),
                 outputDataTypes = setOf(DataType.MODEL, DataType.TIME_SERIES),
-                tags = setOf(tag1, tag2))
+                tags = setOf(tag1, tag2)
+            ).let { project ->
+                project.copy(stars = (1..7).map {
+                    Star(project.id, persons[it].id)
+                })
+            })
 
-        val starsList3 = (0..49).map {
-            Star(project3.id, UUID.randomUUID())
-        }
-
-        project3 = project3.copy(stars = starsList3)
-
-        var project4 = EntityMocks.codeProject(slug = "entry4", name = "ZZ Project")
+        val project4 = codeProjectRepository.save(EntityMocks.codeProject(slug = "entry4", name = "ZZ Project")
             .copy<CodeProject>(inputDataTypes = setOf(DataType.TIME_SERIES, DataType.TABULAR),
                 outputDataTypes = setOf(DataType.MODEL, DataType.TIME_SERIES),
-                tags = setOf(tag1, tag2))
+                tags = setOf(tag1, tag2)
+            ).let { project ->
+                project.copy(stars = (1..10).map {
+                    Star(project.id, persons[it].id)
+                })
+            })
 
-        val starsList4 = (0..79).map {
-            Star(project4.id, UUID.randomUUID())
-        }
-
-        project4 = project4.copy(stars = starsList4)
-
-        var project5 = EntityMocks.dataProject(slug = "entry5")
+        val project5 = dataProjectRepository.save(EntityMocks.dataProject(slug = "entry5")
             .copy<DataProject>(inputDataTypes = setOf(DataType.IMAGE, DataType.TABULAR),
                 outputDataTypes = setOf(DataType.MODEL, DataType.TIME_SERIES),
-                tags = setOf(tag1, tag2))
-
-        val starsList5 = (0..99).map {
-            Star(project5.id, UUID.randomUUID())
-        }
-
-        project5 = project5.copy(stars = starsList5)
+                tags = setOf(tag1, tag2)))
 
         val dataProcessor1 = EntityMocks.dataOperation(codeProject = project1, slug = "op1", author = author).copy(inputDataType = DataType.IMAGE)
         val dataProcessor2 = EntityMocks.dataOperation(codeProject = project2, author = author, slug = "op2").copy(inputDataType = DataType.IMAGE)
         val model1 = EntityMocks.dataAlgorithm(codeProject = project3, author = author).copy(inputDataType = DataType.IMAGE)
         val visualisation = EntityMocks.dataVisualization(codeProject = project4, author = author).copy(inputDataType = DataType.IMAGE)
 
-        codeProjectRepository.saveAll(listOf(project1, project2, project3, project4))
-        dataProjectRepository.save(project5)
         dataProcessorRepository.saveAll(listOf(dataProcessor1, dataProcessor2, model1, visualisation))
 
         marketplaceService.prepareEntry(project1, EntityMocks.author)

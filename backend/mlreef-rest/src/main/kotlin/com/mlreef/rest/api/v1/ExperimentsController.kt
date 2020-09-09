@@ -54,6 +54,18 @@ class ExperimentsController(
             ?: throw NotFoundException("Experiment with id $experimentId not found")
     }
 
+    private fun beforeGetExperiment(dataProjectId: UUID, idOrNumber: String): Experiment {
+        val number: Int? = tryOrNull { idOrNumber.toInt() }
+        val id: UUID? = tryOrNull { UUID.fromString(idOrNumber) }
+
+        val found = when {
+            number != null -> experimentRepository.findOneByDataProjectIdAndNumber(dataProjectId, number)
+            id != null -> experimentRepository.findOneByDataProjectIdAndId(dataProjectId, id)
+            else -> throw NotFoundException("Experiment not found: '$idOrNumber' not a valid id/number")
+        }
+        return found ?: throw NotFoundException("Experiment with id/number $idOrNumber not found")
+    }
+
     @GetMapping
     @PreAuthorize("canViewProject(#dataProjectId)")
     fun getAllExperiments(@PathVariable dataProjectId: UUID): List<ExperimentDto> {
@@ -61,40 +73,45 @@ class ExperimentsController(
         return experiments.map(Experiment::toDto)
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/{idOrNumber}")
     @PreAuthorize("canViewProject(#dataProjectId)")
-    fun getExperiment(@PathVariable dataProjectId: UUID, @PathVariable id: UUID): ExperimentDto {
-        val findOneByDataProjectIdAndId = experimentRepository.findOneByDataProjectIdAndId(dataProjectId, id)
-            ?: throw NotFoundException("Experiment not found")
-        return findOneByDataProjectIdAndId.toDto()
+    fun getExperiment(@PathVariable dataProjectId: UUID, @PathVariable idOrNumber: String): ExperimentDto {
+        val experiment = beforeGetExperiment(dataProjectId, idOrNumber)
+        return experiment.toDto() ?: throw NotFoundException("Experiment not found")
     }
 
-    @GetMapping("/{id}/info")
+    fun <R> tryOrNull(func: () -> R): R? = try {
+        func.invoke()
+    } catch (e: Exception) {
+        null
+    }
+
+    @GetMapping("/{idOrNumber}/info")
     @PreAuthorize("canViewProject(#dataProjectId)")
-    fun getExperimentMetrics(@PathVariable dataProjectId: UUID, @PathVariable id: UUID): PipelineJobInfoDto {
-        val experiment = beforeGetExperiment(id)
+    fun getExperimentMetrics(@PathVariable dataProjectId: UUID, @PathVariable idOrNumber: String): PipelineJobInfoDto {
+        val experiment = beforeGetExperiment(dataProjectId, idOrNumber)
         return experiment.pipelineJobInfo?.toDto()
             ?: throw NotFoundException("Experiment does not have a PipelineJobInfo (yet)")
     }
 
-    @GetMapping("/{id}/mlreef-file", produces = [MediaType.TEXT_PLAIN_VALUE])
+    @GetMapping("/{idOrNumber}/mlreef-file", produces = [MediaType.TEXT_PLAIN_VALUE])
     @PreAuthorize("canViewProject(#dataProjectId)")
-    fun getExperimentYaml(@PathVariable dataProjectId: UUID, @PathVariable id: UUID, account: Account): String {
-        val experiment = beforeGetExperiment(id)
+    fun getExperimentYaml(@PathVariable dataProjectId: UUID, @PathVariable idOrNumber: String, account: Account): String {
+        val experiment = beforeGetExperiment(dataProjectId, idOrNumber)
         return service.createExperimentFile(experiment = experiment, author = account, secret = experiment.pipelineJobInfo?.secret
             ?: "***censored***")
     }
 
-    @PostMapping("/{id}/start")
+    @PostMapping("/{idOrNumber}/start")
     @PreAuthorize("hasAccessToProject(#dataProjectId, 'DEVELOPER')")
     fun startExperiment(@PathVariable dataProjectId: UUID,
-                        @PathVariable id: UUID,
+                        @PathVariable idOrNumber: String,
                         account: Account,
                         userToken: TokenDetails): PipelineJobInfoDto {
         val dataProject = dataProjectService.getProjectById(dataProjectId)
             ?: throw ProjectNotFoundException(projectId = dataProjectId)
 
-        val experiment = beforeGetExperiment(id)
+        val experiment = beforeGetExperiment(dataProjectId, idOrNumber)
 
         service.guardStatusChange(experiment, newStatus = ExperimentStatus.PENDING)
 

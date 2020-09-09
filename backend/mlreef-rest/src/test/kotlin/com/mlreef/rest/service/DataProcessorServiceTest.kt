@@ -28,6 +28,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import java.time.ZonedDateTime
 import java.util.UUID
 import java.util.UUID.randomUUID
+import javax.transaction.Transactional
 
 class DataProcessorServiceTest : AbstractServiceTest() {
 
@@ -54,30 +55,30 @@ class DataProcessorServiceTest : AbstractServiceTest() {
 
     @BeforeEach
     fun prepare() {
+        truncateAllTables()
         dataProcessorService = DataProcessorService(
             dataProcessorRepository = dataProcessorRepository,
             processorVersionRepository = processorVersionRepository
         )
-        val subject = subjectRepository.save(Person(ownerId, "new-person", "person's name", 1L, hasNewsletters = true,
+        val subject = subjectRepository.save(Person(ownerId, "new-person", "person's name", 2, hasNewsletters = true,
             userRole = UserRole.DEVELOPER,
             termsAcceptedAt = ZonedDateTime.now()))
 
-        codeProject = CodeProject(
+        codeProject = codeProjectRepository.save(CodeProject(
             id = randomUUID(), slug = "slug", url = "orf.at", name = "name", description = "",
-            gitlabPathWithNamespace = "mlreef/slug", dataProcessor = null,
-            gitlabId = 3, ownerId = subject.id, gitlabPath = "slug",
-            gitlabNamespace = "mlreef")
-        codeProject2 = CodeProject(
+            dataProcessor = null,
+            gitlabId = codeProjectRepository.count(), ownerId = subject.id, gitlabPath = "slug",
+            gitlabNamespace = "mlreef"))
+        codeProject2 = codeProjectRepository.save(CodeProject(
             id = randomUUID(), slug = "slug2", url = "orf.at", name = "name", description = "",
-            gitlabPathWithNamespace = "mlreef/slug", dataProcessor = null,
-            gitlabId = 3, ownerId = subject.id, gitlabPath = "slug2",
-            gitlabNamespace = "mlreef")
+            dataProcessor = null,
+            gitlabId = codeProjectRepository.count(), ownerId = subject.id, gitlabPath = "slug2",
+            gitlabNamespace = "mlreef"))
 
-        codeProjectRepository.save(codeProject)
-        codeProjectRepository.save(codeProject2)
     }
 
     @Test
+    @Transactional
     fun `Can parse python example files`() {
         val filename = "resnet_annotations_demo.py"
         val resource = javaClass.classLoader.getResource(filename)!!
@@ -86,6 +87,7 @@ class DataProcessorServiceTest : AbstractServiceTest() {
     }
 
     @Test
+    @Transactional
     fun `Can save parsed DataProcessors`() {
         val filename = "resnet_annotations_demo.py"
         val resource = javaClass.classLoader.getResource(filename)!!
@@ -107,6 +109,7 @@ class DataProcessorServiceTest : AbstractServiceTest() {
     }
 
     @Test
+    @Transactional
     fun `Can create for CodeProject`() {
         val dataProcessor = testCreateDataProcessor(
             slug = "slug",
@@ -119,6 +122,7 @@ class DataProcessorServiceTest : AbstractServiceTest() {
     }
 
     @Test
+    @Transactional
     fun `Can create with correct type`() {
         val dataProcessor = testCreateDataProcessor(
             slug = "slug1",
@@ -143,6 +147,7 @@ class DataProcessorServiceTest : AbstractServiceTest() {
     }
 
     @Test
+    @Transactional
     fun `Can create second for CodeProject`() {
         testCreateDataProcessor(
             slug = "slug1",
@@ -158,6 +163,7 @@ class DataProcessorServiceTest : AbstractServiceTest() {
     }
 
     @Test
+    @Transactional
     fun `Can create same slug for another CodeProject`() {
         testCreateDataProcessor(
             slug = "slug",
@@ -173,6 +179,7 @@ class DataProcessorServiceTest : AbstractServiceTest() {
     }
 
     @Test
+    @Transactional
     fun `Cannot create duplicate in CodeProject`() {
         val dataProcessor = testCreateDataProcessor(
             slug = "slug",

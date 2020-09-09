@@ -61,6 +61,8 @@ interface ExperimentRepository : KtCrudRepository<Experiment, UUID> {
     fun findAllByDataProjectId(dataProjectId: UUID): List<Experiment>
     fun findOneByDataProjectIdAndSlug(dataProjectId: UUID, slug: String): Experiment?
     fun findOneByDataProjectIdAndId(dataProjectId: UUID, id: UUID): Experiment?
+    fun findOneByDataProjectIdAndNumber(dataProjectId: UUID, number: Int): Experiment?
+    fun countByDataProjectId(dataProjectId: UUID): Int
 }
 
 @Repository

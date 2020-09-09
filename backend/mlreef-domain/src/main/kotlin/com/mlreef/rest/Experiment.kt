@@ -38,6 +38,7 @@ data class Experiment(
 
     val slug: String,
     val name: String,
+    val number: Int,
 
     @Column(name = "source_branch")
     val sourceBranch: String,

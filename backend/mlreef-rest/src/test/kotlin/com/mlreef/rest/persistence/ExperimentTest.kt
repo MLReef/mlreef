@@ -37,7 +37,7 @@ class ExperimentTest : AbstractRepositoryTest() {
             userRole = UserRole.DEVELOPER,
             termsAcceptedAt = ZonedDateTime.now())
         DataProject(dataProjectId, "slug", "url,", "CodeProject Augment", "", owner.id, "group", "project", 0)
-        val entity = Experiment(id, dataProjectId, null, slug, "name", "source", "target")
+        val entity = Experiment(id, dataProjectId, null, slug, "name", 1, "source", "target")
 
         return Pair(id, entity)
     }
@@ -77,7 +77,7 @@ class ExperimentTest : AbstractRepositoryTest() {
             termsAcceptedAt = ZonedDateTime.now())
         val dataProject = DataProject(randomUUID(), "slug", "url,", "CodeProject Augment", "", owner.id, "group", "project", 0)
         val id = randomUUID()
-        val item = Experiment(id, dataProject.id, null, "slug", "name", "source", "target")
+        val item = Experiment(id, dataProject.id, null, "slug", "name", 1, "source", "target")
 
         val saved = repository.save(item)
         saved.copy(status = ExperimentStatus.SUCCESS)

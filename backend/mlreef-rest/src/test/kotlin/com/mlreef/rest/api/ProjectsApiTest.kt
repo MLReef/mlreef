@@ -123,9 +123,9 @@ class ProjectsApiTest : AbstractRestApiTest() {
         dataProjectRepository.save(project2)
         dataProjectRepository.save(project3)
 
-        val project4 = CodeProject(id4, "slug-4", "www.url.com", "Test Code Project 1", "description", subject.id, "group4", "project-4", 1)
-        val project5 = CodeProject(id5, "slug-5", "www.url.net", "Test Code Project 2", "description", subject.id, "group5", "project-5", 2)
-        val project6 = CodeProject(id6, "slug-6", "www.url.xyz", "Test Code Project 3", "description", subject2.id, "group6", "project-6", 3)
+        val project4 = CodeProject(id4, "slug-4", "www.url.com", "Test Code Project 1", "description", subject.id, "group4", "project-4", 4)
+        val project5 = CodeProject(id5, "slug-5", "www.url.net", "Test Code Project 2", "description", subject.id, "group5", "project-5", 5)
+        val project6 = CodeProject(id6, "slug-6", "www.url.xyz", "Test Code Project 3", "description", subject2.id, "group6", "project-6", 6)
         codeProjectRepository.save(project4)
         codeProjectRepository.save(project5)
         codeProjectRepository.save(project6)
@@ -170,9 +170,9 @@ class ProjectsApiTest : AbstractRestApiTest() {
         dataProjectRepository.save(project2)
         dataProjectRepository.save(project3)
 
-        val project4 = CodeProject(randomUUID(), "slug-4", "www.url.com", "Test Code Project 4", "description", subject.id, "group4", "project-4", 1)
-        val project5 = CodeProject(randomUUID(), "slug-5", "www.url.net", "Test Code Project 5", "description", subject.id, "group5", "project-5", 2)
-        val project6 = CodeProject(randomUUID(), "slug-6", "www.url.xyz", "Test Code Project 6", "description", subject2.id, "group6", "project-6", 3)
+        val project4 = CodeProject(randomUUID(), "slug-4", "www.url.com", "Test Code Project 4", "description", subject.id, "group4", "project-4", 4)
+        val project5 = CodeProject(randomUUID(), "slug-5", "www.url.net", "Test Code Project 5", "description", subject.id, "group5", "project-5", 5)
+        val project6 = CodeProject(randomUUID(), "slug-6", "www.url.xyz", "Test Code Project 6", "description", subject2.id, "group6", "project-6", 6)
         codeProjectRepository.save(project4)
         codeProjectRepository.save(project5)
         codeProjectRepository.save(project6)
@@ -200,9 +200,9 @@ class ProjectsApiTest : AbstractRestApiTest() {
         dataProjectRepository.save(project2)
         dataProjectRepository.save(project3)
 
-        val project4 = CodeProject(randomUUID(), "slug-4", "www.url.com", "Test Code Project 4", "description", subject.id, "group4", "project-4", 1)
-        val project5 = CodeProject(id1, "slug-5", "www.url.net", "Test Code Project 5", "description", subject.id, "group5", "project-5", 2)
-        val project6 = CodeProject(randomUUID(), "slug-6", "www.url.xyz", "Test Code Project 6", "description", subject2.id, "group6", "project-6", 3)
+        val project4 = CodeProject(randomUUID(), "slug-4", "www.url.com", "Test Code Project 4", "description", subject.id, "group4", "project-4", 4)
+        val project5 = CodeProject(id1, "slug-5", "www.url.net", "Test Code Project 5", "description", subject.id, "group5", "project-5", 5)
+        val project6 = CodeProject(randomUUID(), "slug-6", "www.url.xyz", "Test Code Project 6", "description", subject2.id, "group6", "project-6", 6)
         codeProjectRepository.save(project4)
         codeProjectRepository.save(project5)
         codeProjectRepository.save(project6)
@@ -232,9 +232,9 @@ class ProjectsApiTest : AbstractRestApiTest() {
         dataProjectRepository.save(project2)
         dataProjectRepository.save(project3)
 
-        val project4 = CodeProject(randomUUID(), "slug-2", "www.url.com", "Test Code Project 4", "description", subject.id, "group4", "project-4", 1)
-        val project5 = CodeProject(id2, "slug-1", "www.url.net", "Test Code Project 5", "description", subject.id, "group5", "project-5", 2)
-        val project6 = CodeProject(randomUUID(), "slug-1", "www.url.xyz", "Test Code Project 6", "description", subject2.id, "group6", "project-6", 3)
+        val project4 = CodeProject(randomUUID(), "slug-4", "www.url.com", "Test Code Project 4", "description", subject.id, "group4", "project-4", 4)
+        val project5 = CodeProject(id2, "slug-5", "www.url.net", "Test Code Project 5", "description", subject.id, "group5", "project-5", 5)
+        val project6 = CodeProject(randomUUID(), "slug-6", "www.url.xyz", "Test Code Project 6", "description", subject2.id, "group6", "project-6", 6)
         codeProjectRepository.save(project4)
         codeProjectRepository.save(project5)
         codeProjectRepository.save(project6)
@@ -246,19 +246,7 @@ class ProjectsApiTest : AbstractRestApiTest() {
             .document("projects-retrieve-by-slug", responseFields(projectResponseFields("[].")))
             .returnsList(ProjectDto::class.java)
 
-        assertThat(returnedResult.size).isEqualTo(2)
-
-        val setOfIds = setOf<UUID>(
-            returnedResult.get(0).id,
-            returnedResult.get(1).id
-        )
-
-        assertThat(setOfIds).containsExactlyInAnyOrder(id1, id2)
-
-        assertThat(returnedResult.get(0).id).isIn(id1, id2)
-        assertThat(returnedResult.get(0).gitlabPath).isIn("project-1", "project-5")
-        assertThat(returnedResult.get(1).id).isIn(id1, id2)
-        assertThat(returnedResult.get(1).gitlabPath).isIn("project-1", "project-5")
+        assertThat(returnedResult.size).isEqualTo(1)
     }
 
     @Transactional
@@ -280,9 +268,9 @@ class ProjectsApiTest : AbstractRestApiTest() {
         dataProjectRepository.save(project2)
         dataProjectRepository.save(project3)
 
-        val project4 = CodeProject(id4, "slug-4", "www.url.com", "Test Code Project 1", "description", subject.id, "mlreef", "project-4", 1)
-        val project5 = CodeProject(id5, "slug-5", "www.url.net", "Test Code Project 2", "description", subject.id, "mlreef", "project-5", 2)
-        val project6 = CodeProject(id6, "slug-6", "www.url.xyz", "Test Code Project 3", "description", subject2.id, "mlreef", "project-6", 3)
+        val project4 = CodeProject(id4, "slug-4", "www.url.com", "Test Code Project 1", "description", subject.id, "mlreef", "project-4", 4)
+        val project5 = CodeProject(id5, "slug-5", "www.url.net", "Test Code Project 2", "description", subject.id, "mlreef", "project-5", 5)
+        val project6 = CodeProject(id6, "slug-6", "www.url.xyz", "Test Code Project 3", "description", subject2.id, "mlreef", "project-6", 6)
         codeProjectRepository.save(project4)
         codeProjectRepository.save(project5)
         codeProjectRepository.save(project6)
@@ -390,9 +378,9 @@ class ProjectsApiTest : AbstractRestApiTest() {
         dataProjectRepository.save(project2)
         dataProjectRepository.save(project3)
 
-        val project4 = CodeProject(randomUUID(), "slug-4", "www.url.com", "Test Code Project 4", "description", subject.id, "group4", "project-4", 1)
-        val project5 = CodeProject(randomUUID(), "slug-5", "www.url.net", "Test Code Project 5", "description", subject.id, "group5", "project-5", 2)
-        val project6 = CodeProject(id1, "slug-6", "www.url.xyz", "Test Code Project 6", "description", subject2.id, "group6", "project-6", 3)
+        val project4 = CodeProject(randomUUID(), "slug-4", "www.url.com", "Test Code Project 4", "description", subject.id, "group4", "project-4", 4)
+        val project5 = CodeProject(randomUUID(), "slug-5", "www.url.net", "Test Code Project 5", "description", subject.id, "group5", "project-5", 5)
+        val project6 = CodeProject(id1, "slug-6", "www.url.xyz", "Test Code Project 6", "description", subject2.id, "group6", "project-6", 6)
         codeProjectRepository.save(project4)
         codeProjectRepository.save(project5)
         codeProjectRepository.save(project6)
