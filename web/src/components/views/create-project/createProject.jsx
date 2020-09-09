@@ -192,7 +192,8 @@ class CreateProject extends Component {
 
  getIsPrivacyOptionDisabled = (privacyLevel, nameSpace) => {
    const { user, groups } = this.props;
-   if (nameSpace === '') {
+
+   if (!nameSpace && nameSpace === '') {
      return false;
    }
    const isNamespaceAGroup = nameSpace !== user.username;
@@ -292,7 +293,7 @@ class CreateProject extends Component {
                      onChange={this.handleNamespace}
                      className="form-control w-100"
                    >
-                     <option key="namespace-select">
+                     <option key="namespace-select" value="">
                        Select
                      </option>
                      {groups.map((grp) => (
