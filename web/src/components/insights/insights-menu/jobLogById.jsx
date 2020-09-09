@@ -1,14 +1,16 @@
 import React, { useEffect, useState } from 'react';
-import JobsApi from '../../../apis/JobsApi';
 import { toastr } from 'react-redux-toastr';
+import JobsApi from '../../../apis/JobsApi.ts';
 import JobLog from '../../experiment-details/menu-options/jobLog'
+
+const jobsApi = new JobsApi();
 
 const JobLogById = (props) => {
   const { logId, projectId } = props;
   const [job, setJob] = useState();
 
   useEffect(() => {
-    JobsApi.getJobById(projectId, logId)
+    jobsApi.getJobById(projectId, logId)
       .then((res) => setJob(res))
       .catch(() => {
         toastr.error('Error', 'The job was not found');
@@ -16,11 +18,9 @@ const JobLogById = (props) => {
   },[projectId, logId]);
 
   return (
-    <>
-      <div style={{ width: '80%' }}>
-        {job !==undefined && <JobLog projectId={projectId} job={job} />}
-      </div>
-    </>
+    <div style={{ width: '80%' }}>
+      {job !== undefined && <JobLog projectId={projectId} job={job} />}
+    </div>
   )
 };
 
