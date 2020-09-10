@@ -6,7 +6,6 @@ import * as userActions from 'actions/userActions';
 import {
   shape, string, arrayOf, func,
 } from 'prop-types';
-import $ from 'jquery';
 import './pipelineView.css';
 import { toastr } from 'react-redux-toastr';
 import arrayMove from 'array-move';
@@ -194,7 +193,9 @@ class PipelinesExecutionView extends Component {
     }
     let inputValuesAndDataModels;
     let errorCounter = 0;
-    const dataOperationsHtmlElms = $('#data-operations-selected-container > span > div');
+    const dataOperationsHtmlElms = Array.prototype.slice.call(
+      document.getElementById('data-operations-selected-container').childNodes,
+    );
     const dataOperationsSelectedUpdate = processorsSelected.map((dataOperation, index) => {
       const dataOperationsHtmlElm = dataOperationsHtmlElms[index];
       const dataOpInputs = Array.prototype.slice.call(dataOperationsHtmlElm.getElementsByTagName('input'));

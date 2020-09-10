@@ -26,9 +26,14 @@ export const createPipelineInProject = (
   filesSelectedInModal,
   dataOperationsSelected,
 ) => {
-  const datOperationSlug = dataOperationsSelected[0].slug;
-  const dataOperationParameters = dataOperationsSelected[0].inputValuesAndDataModels
-    .map((param) => ({ name: param.name, value: (param.value || param.default_value) }));
+  const dataOperations = dataOperationsSelected?.map((dataOp) => ({
+    slug: dataOp.slug,
+    parameters: dataOp.inputValuesAndDataModels
+      ?.map((param) => ({
+        name: param.name,
+        value: (param.value || param.default_value),
+      })),
+  }));
 
   const pipelineBody = {
     source_branch: branchName,
@@ -36,10 +41,7 @@ export const createPipelineInProject = (
     input_files: filesSelectedInModal.map((file) => ({
       location: file.path,
     })),
-    data_operations: [{
-      slug: datOperationSlug,
-      parameters: dataOperationParameters,
-    }],
+    data_operations: dataOperations,
   };
 
   dataPipelineApi.create(
