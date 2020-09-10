@@ -1,10 +1,9 @@
-import React from 'react';
+import React, { Suspense } from 'react';
 import * as PropTypes from 'prop-types';
-// monaco-editor is needed to language highlighting
-import 'monaco-editor';
-import { MonacoDiffEditor } from 'react-monaco-editor';
 import { getLanguageByExt } from 'functions/dataParserHelpers';
 import './codeDiffSection.css';
+
+const MonacoDiffEditor = React.lazy(() => import('customImports/MonacoDiffEditor'));
 
 const CodeDiffSection = (props) => {
   const {
@@ -45,14 +44,16 @@ const CodeDiffSection = (props) => {
           {`+ ${Math.floor(sizeAdded)} bytes`}
         </span>
       </div>
-      <MonacoDiffEditor
-        height="600"
-        language={getLanguageByExt(ext)}
-        original={original}
-        value={modified}
-        editorWillMount={checkIntegrity}
-        options={options}
-      />
+      <Suspense fallback={<div>Loading...</div>}>
+        <MonacoDiffEditor
+          height="600"
+          language={getLanguageByExt(ext)}
+          original={original}
+          value={modified}
+          editorWillMount={checkIntegrity}
+          options={options}
+        />
+      </Suspense>
     </div>
   );
 };

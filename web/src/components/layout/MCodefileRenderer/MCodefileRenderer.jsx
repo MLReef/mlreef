@@ -1,7 +1,7 @@
-import React from 'react';
-import 'monaco-editor';
-import MonacoEditor from 'react-monaco-editor';
+import React, { Suspense } from 'react';
 import { string } from 'prop-types';
+
+const MonacoEditor = React.lazy(() => import('react-monaco-editor'));
 
 const languagesPerExtensions = {
   js: 'javascript',
@@ -16,19 +16,21 @@ const languagesPerExtensions = {
 };
 
 const MCodeRenderer = ({ code, fileExtension, theme, height }) => (
-  <MonacoEditor
-    width="100%"
-    height={height}
-    language={languagesPerExtensions[fileExtension]}
-    theme={theme}
-    value={code}
-    options={{ readOnly: true }}
-    onChange={() => {}}
-    editorDidMount={(editor) => {
-      editor.focus();
-    }}
-    editorWillMount={() => {}}
-  />
+  <Suspense fallback={<div>Loading...</div>}>
+    <MonacoEditor
+      width="100%"
+      height={height}
+      language={languagesPerExtensions[fileExtension]}
+      theme={theme}
+      value={code}
+      options={{ readOnly: true }}
+      onChange={() => {}}
+      editorDidMount={(editor) => {
+        editor.focus();
+      }}
+      editorWillMount={() => {}}
+    />
+  </Suspense>
 );
 
 MCodeRenderer.propTypes = {
