@@ -51,7 +51,6 @@ const ExecutePipelineModal = ({
   backendId,
   branchSelected,
 }) => {
-  console.log(type);
   const [section, setSection] = useState(1);
   const [isFirstOptSelected, setIsFirstOptSelected] = useState(false);
   const [isSecondOptSelected, setIsSecondOptSelected] = useState(false);

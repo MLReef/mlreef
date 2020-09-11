@@ -2,13 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { toastr } from 'react-redux-toastr';
-import { arrayOf, shape, number, string } from 'prop-types';
+import {
+  arrayOf, shape, number, string,
+} from 'prop-types';
 import moment from 'moment';
 import greyLogo from 'images/icon_grey-01.png';
 import './jobs.scss';
 import * as jobsActions from 'actions/jobsActions';
 import DataPipelineApi from 'apis/DataPipelineApi';
-import BlackBorderedButton from '../../BlackBorderedButton';
 import { getTimeCreatedAgo } from '../../../functions/dataParserHelpers';
 
 const dataPipeApi = new DataPipelineApi();
@@ -57,35 +58,38 @@ const Jobs = ({ jobs, selectedProject: { gid, id } }) => {
           <h1 className="job-container-title">Jobs</h1>
         </div>
         <div className="my-3 mx-0">
-          <BlackBorderedButton
+          <button
+            type="button"
+            className="btn btn-basic-dark"
             id="all"
-            onClickHandler={handleButtonsClick}
-            textContent="All"
-          />
-          <BlackBorderedButton
-            className="ml-3"
+            onClick={handleButtonsClick}
+          >
+            {`${jobs.length} All`}
+          </button>
+          <button
+            type="button"
+            className="btn btn-basic-dark ml-3"
             id="pending"
-            onClickHandler={handleButtonsClick}
-            textContent="Pending"
-          />
-          <BlackBorderedButton
-            className="ml-3"
+            onClick={handleButtonsClick}
+          >
+            Pending
+          </button>
+          <button
+            type="button"
+            className="btn btn-basic-dark  ml-3"
             id="running"
-            onClickHandler={handleButtonsClick}
-            textContent="Running"
-          />
-          <BlackBorderedButton
-            className="ml-3"
-            id="success"
-            onClickHandler={handleButtonsClick}
-            textContent="Success"
-          />
-          <BlackBorderedButton
-            className="ml-3"
-            id="failed"
-            onClickHandler={handleButtonsClick}
-            textContent="Failed"
-          />
+            onClick={handleButtonsClick}
+          >
+            Running
+          </button>
+          <button
+            type="button"
+            className="btn btn-basic-dark  ml-3"
+            id="finished"
+            onClick={handleButtonsClick}
+          >
+            Finished
+          </button>
         </div>
         <table className="job-table">
           <thead className="job-table-head">

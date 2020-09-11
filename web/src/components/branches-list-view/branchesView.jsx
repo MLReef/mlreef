@@ -7,11 +7,11 @@ import { toastr } from 'react-redux-toastr';
 import {
   number, string, shape, arrayOf, bool,
 } from 'prop-types';
+import MInput from 'components/ui/MInput';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import AuthWrapper from 'components/AuthWrapper';
 import Navbar from '../navbar/navbar';
 import ProjectContainer from '../projectContainer';
-import BlueBorderedInput from '../BlueBorderedInput';
 import CustomizedButton from '../CustomizedButton';
 import { getTimeCreatedAgo } from '../../functions/dataParserHelpers';
 import './branchesView.css';
@@ -136,7 +136,7 @@ class BranchesView extends Component {
         />
         <div className="main-content">
           <div id="inputs-div" className="my-3">
-            <BlueBorderedInput
+            <MInput
               className="mr-3"
               placeholder="Filter by branch name"
               id="filter-input"

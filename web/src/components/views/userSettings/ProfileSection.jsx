@@ -6,13 +6,12 @@ import PropTypes from 'prop-types';
 import Base64ToArrayBuffer from 'base64-arraybuffer';
 import UserApi from 'apis/UserApi';
 import { INFORMATION_UNITS } from 'domain/informationUnits';
-import BlackBorderedButton from '../../BlackBorderedButton';
 import './Profile.scss';
 
 const userApi = new UserApi();
 
 const ProfileSection = (props) => {
-  const { user: { auth, username, gitlab_id, userInfo: { avatar_url: avatarUrl } } } = props;
+  const { user: { auth, username, gitlab_id: gitlabId, userInfo: { avatar_url: avatarUrl } } } = props;
   const fileMaxSize = 200;
   const imageInput = useRef();
   const [imgBase, setImgBase] = useState(avatarUrl);
@@ -23,10 +22,10 @@ const ProfileSection = (props) => {
   const [uploading, setUploading] = useState(false);
 
   useEffect(() => {
-    userApi.getUserStatus(gitlab_id)
+    userApi.getUserStatus(gitlabId)
       .then((res) => res.message !== null ? setUserStatus(res.message) : setUserStatus(''))
       .catch(() => toastr.error('Error', 'Could not fetch the status'));
-  }, [gitlab_id]);
+  }, [gitlabId]);
 
   const profileStatusUpdate = () => userApi.updateUserStatus(status)
     .then(() => {
@@ -40,7 +39,7 @@ const ProfileSection = (props) => {
     e.preventDefault();
     const payload = {
       admin: auth,
-      gitlab_id,
+      gitlabId,
       name: userName,
     };
     if (avatarFile && typeof avatarFile !== 'undefined') {
@@ -90,11 +89,13 @@ const ProfileSection = (props) => {
           </div>
           <h5 className="mt-0">Upload new avatar</h5>
           <div className="mt-1 mb-2">
-            <BlackBorderedButton
+            <button
               type="button"
-              textContent="Choose File"
+              className="btn btn-basic-dark"
               onClickHandler={() => imageInput.current.click()}
-            />
+            >
+              Choose File
+            </button>
             <span className="ml-2" style={{ position: 'relative', display: 'inline-block' }}>{file}</span>
             <input
               ref={imageInput}
@@ -159,7 +160,7 @@ const ProfileSection = (props) => {
               className="mt-1 w-50 muted bg-light"
               id="user_id"
               type="text"
-              value={gitlab_id}
+              value={gitlabId}
             />
           </div>
         </div>
