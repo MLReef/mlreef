@@ -6,14 +6,12 @@ import { arrayOf, shape, number, string } from 'prop-types';
 import moment from 'moment';
 import greyLogo from 'images/icon_grey-01.png';
 import './jobs.scss';
-import JobsApi from 'apis/JobsApi.ts';
+import * as jobsActions from 'actions/jobsActions';
 import DataPipelineApi from 'apis/DataPipelineApi';
 import BlackBorderedButton from '../../BlackBorderedButton';
 import { getTimeCreatedAgo } from '../../../functions/dataParserHelpers';
 
 const dataPipeApi = new DataPipelineApi();
-
-const jobsApi = new JobsApi();
 
 const Jobs = ({ jobs, selectedProject: { gid, id } }) => {
   const [jobList, setJobs] = useState(jobs);
@@ -22,19 +20,10 @@ const Jobs = ({ jobs, selectedProject: { gid, id } }) => {
     dataPipeApi.getProjectPipelines(id)
       .then((backendPipelines) => setBackendPipes(backendPipelines))
       .then(() => {
-        jobsApi.getPerProject(gid)
-          .then((res) => setJobs(res));
+        jobsActions.getJobsListPerProject(gid);
       })
       .catch(() => toastr.error('Error', 'Could not retrieve all the jobs'));
   }, [id, gid]);
-
-  const sortJobs = (e) => {
-    let allJobs = jobs;
-    if (e.target.id !== 'all') {
-      allJobs = jobs.filter((job) => job.status === e.target.id);
-    }
-    setJobs(allJobs);
-  };
 
   const determineJobClass = (type) => {
     let jobClass = 'experiment';
@@ -42,6 +31,23 @@ const Jobs = ({ jobs, selectedProject: { gid, id } }) => {
     else if (type === 'VISUALIZATION') jobClass = 'visualization';
 
     return jobClass;
+  };
+
+  const handleButtonsClick = (e) => {
+    if (e.target.parentNode) {
+      e.target.parentNode.childNodes.forEach((childNode) => {
+        if (childNode.id !== e.target.id) {
+          childNode.classList.remove('active');
+        }
+      });
+      e.target.classList.add('active');
+    }
+
+    let allJobs = jobs;
+    if (e.target.id !== 'all') {
+      allJobs = jobs.filter((job) => job.status === e.target.id);
+    }
+    setJobs(allJobs);
   };
 
   return (
@@ -53,26 +59,32 @@ const Jobs = ({ jobs, selectedProject: { gid, id } }) => {
         <div className="my-3 mx-0">
           <BlackBorderedButton
             id="all"
-            onClickHandler={(e) => sortJobs(e)}
-            textContent={`${jobs.length} All`}
+            onClickHandler={handleButtonsClick}
+            textContent="All"
           />
           <BlackBorderedButton
             className="ml-3"
             id="pending"
-            onClickHandler={(e) => sortJobs(e)}
+            onClickHandler={handleButtonsClick}
             textContent="Pending"
           />
           <BlackBorderedButton
             className="ml-3"
             id="running"
-            onClickHandler={(e) => sortJobs(e)}
+            onClickHandler={handleButtonsClick}
             textContent="Running"
           />
           <BlackBorderedButton
             className="ml-3"
-            id="finished"
-            onClickHandler={(e) => sortJobs(e)}
-            textContent="Finished"
+            id="success"
+            onClickHandler={handleButtonsClick}
+            textContent="Success"
+          />
+          <BlackBorderedButton
+            className="ml-3"
+            id="failed"
+            onClickHandler={handleButtonsClick}
+            textContent="Failed"
           />
         </div>
         <table className="job-table">
@@ -165,10 +177,10 @@ Jobs.propTypes = {
       id: number.isRequired,
       name: string.isRequired,
       status: string.isRequired,
-      duration: number.isRequired,
+      duration: number,
       pipeline: {
         id: number.isRequired,
-      }.isRequired
+      }.isRequired,
     }).isRequired,
   ).isRequired,
   selectedProject: shape({
