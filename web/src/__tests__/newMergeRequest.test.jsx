@@ -45,8 +45,8 @@ describe('frontend should contain initial html elements', () => {
   test('assert that target branch dropdown exists', () => {
     expect(wrapper.find('CustomizedSelect').length).toBe(1);
   });
-  test('assert that merge request name input exists', () => {
-    expect(wrapper.find('#title-mr-input').length).toBe(1);
+  test('assert that MergeRequestEdit is present', () => {
+    expect(wrapper.find('MergeRequestEdit').length).toBe(1);
   });
   test('assert that description text area exists', () => {
 

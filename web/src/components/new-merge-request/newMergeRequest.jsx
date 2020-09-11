@@ -5,10 +5,10 @@ import {
 } from 'prop-types';
 import { Redirect, Link } from 'react-router-dom';
 import { toastr } from 'react-redux-toastr';
+import MergeRequestEdit from 'components/layout/MergeRequests/MergeRequestEdit';
 import ProjectContainer from '../projectContainer';
 import Navbar from '../navbar/navbar';
 import CustomizedSelect from '../CustomizedSelect';
-import BlueBorderedInput from '../BlueBorderedInput';
 import './newMergeRequest.css';
 import BranchesApi from '../../apis/BranchesApi.ts';
 import mergeRequestAPI from '../../apis/mergeRequestApi';
@@ -44,8 +44,8 @@ export class NewMergeRequest extends Component {
       redirect: false,
     };
     this.onBranchChanged = this.onBranchChanged.bind(this);
-    this.onTitleChangedHandler = this.onTitleChangedHandler.bind(this);
-    this.onDescriptionChangedHandler = this.onDescriptionChangedHandler.bind(this);
+    this.onTitleChange = this.onTitleChange.bind(this);
+    this.onDescriptionChange = this.onDescriptionChange.bind(this);
     this.handleCreateBranchEv = this.handleCreateBranchEv.bind(this);
   }
 
@@ -86,13 +86,13 @@ export class NewMergeRequest extends Component {
       });
   }
 
-  onTitleChangedHandler(e) {
+  onTitleChange(e) {
     this.setState({
       title: e.target.value,
     });
   }
 
-  onDescriptionChangedHandler(e) {
+  onDescriptionChange(e) {
     this.setState({
       description: e.target.value,
     });
@@ -163,6 +163,7 @@ export class NewMergeRequest extends Component {
       // loading,
       redirect,
       branch,
+      description,
     } = this.state;
     const isEnabledCreateMergeReq = title.length > 0
         && branchToMergeInto.length > 0;
@@ -220,33 +221,12 @@ export class NewMergeRequest extends Component {
           <br />
           <br />
           <div style={{ borderTop: '1px solid #e5e5e5' }}>
-            <div style={{ display: 'flex', marginLeft: '10%', marginTop: '3em' }}>
-              <p style={{
-                width: '6em', textAlign: 'end', fontWeight: '700', marginRight: '2em',
-              }}
-              >
-                Title
-              </p>
-              <BlueBorderedInput id="title-mr-input" style={{ width: '100%' }} onChange={this.onTitleChangedHandler} />
-            </div>
-            <div style={{ display: 'flex', marginLeft: '10%', marginTop: '3em' }}>
-              <p style={{
-                width: '6em', textAlign: 'end', fontWeight: '700', marginRight: '2em',
-              }}
-              >
-                Description
-              </p>
-              <BlueBorderedInput
-                id="description-mr-input"
-                multiline
-                rows="4"
-                placeholder="Describe the goal
-                  of the changes and what
-                  the reviewers must pay attention at"
-                onChange={this.onDescriptionChangedHandler}
-                style={{ width: '100%' }}
-              />
-            </div>
+            <MergeRequestEdit
+              title={title}
+              description={description}
+              onTitleChange={this.onTitleChange}
+              onDescriptionChange={this.onDescriptionChange}
+            />
           </div>
           <div style={{
             display: 'flex',

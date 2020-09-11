@@ -1,0 +1,29 @@
+.merge-request-edit {
+  &-content {
+    // height: auto;
+    &.preview {
+      min-height: 180px;
+    }
+  }
+
+  &-field {
+    display: flex;
+    margin-bottom: 2rem;
+
+    &-label {
+      min-width: 14ch;
+      text-align: right;
+      font-weight: bold;
+      margin: auto;
+      margin-right: 2rem;
+    }
+
+    &-input {
+
+    }
+  }
+
+  &-actions {
+    display: flex;
+  }
+}
