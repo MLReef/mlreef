@@ -8,22 +8,22 @@ import { toastr } from 'react-redux-toastr';
 import MergeRequestEdit from 'components/layout/MergeRequests/MergeRequestEdit';
 import ProjectContainer from '../projectContainer';
 import Navbar from '../navbar/navbar';
-import CustomizedSelect from '../CustomizedSelect';
 import './newMergeRequest.css';
 import BranchesApi from '../../apis/BranchesApi.ts';
 import mergeRequestAPI from '../../apis/mergeRequestApi';
 import ImageDiffSection from '../imageDiffSection/imageDiffSection';
 import CommitsList from '../commitsList';
 import { getFileDifferences } from '../../functions/apiCalls';
+import MSelect from 'components/ui/MSelect';
 
 const imageFormats = [
   '.png',
   '.jpg',
 ];
 
-const getBranchFromSearch = search => {
+const getBranchFromSearch = (search) => {
   const decoded = decodeURIComponent(search.substr(1));
-  const pairs = decoded.split('&').map((str) => str.split('='))
+  const pairs = decoded.split('&').map((str) => str.split('='));
   const [, val] = pairs.find(([key, val]) => key === 'merge_request[source_branch]');
 
   return val;
@@ -40,7 +40,6 @@ export class NewMergeRequest extends Component {
       description: '',
       branch: '',
       branchToMergeInto: '',
-      loading: false,
       redirect: false,
     };
     this.onBranchChanged = this.onBranchChanged.bind(this);
@@ -54,7 +53,7 @@ export class NewMergeRequest extends Component {
       projects: {
         selectedProject: { defaultBranch },
       },
-      location: { search }
+      location: { search },
     } = this.props;
 
     const branch = search ? getBranchFromSearch(search) : defaultBranch;
@@ -131,7 +130,6 @@ export class NewMergeRequest extends Component {
   };
 
   handleCreateBranchEv() {
-    this.setState({ loading: true });
     const {
       title,
       description,
@@ -147,7 +145,7 @@ export class NewMergeRequest extends Component {
     mergeRequestAPI
       .submitMergeReq(gid, branch, branchToMergeInto, title, description)
       .then(() => {
-        this.setState({ loading: false, redirect: true });
+        this.setState({ redirect: true });
       }).catch((err) => {
         toastr.error('Error: ', err.message);
       });
@@ -209,14 +207,15 @@ export class NewMergeRequest extends Component {
               &nbsp;into
             </p>
             &nbsp;
-            <div style={{ marginLeft: '1em', width: '20%' }}>
-              <CustomizedSelect
-                options={branches.filter((branchForSelect) => branchForSelect !== branch)}
-                inputId="branches-select"
-                onChangeHandler={this.onBranchChanged}
-                inputLabelText="Select a branch"
-              />
-            </div>
+            <MSelect
+              label="Select a branch..."
+              options={branches
+                .filter((branchForSelect) => branchForSelect !== branch)
+                .map((br) => ({ label: br, value: br}))
+              }
+              onSelect={this.onBranchChanged}
+              value={branchToMergeInto}
+            />
           </div>
           <br />
           <br />

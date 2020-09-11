@@ -23,7 +23,6 @@ import CommitsList from '../commitsList';
 import mergeRequestAPI from '../../apis/mergeRequestApi';
 import BranchesApi from '../../apis/BranchesApi.ts';
 import ProjectContainer from '../projectContainer';
-import BlackBorderedButton from '../BlackBorderedButton';
 import './basicMR.css';
 
 dayjs.extend(relativeTime);
@@ -69,9 +68,6 @@ const BasicMergeRequestView = (props) => {
 
   const name = mrInfo.author && mrInfo.author.name;
   const avatarUrl = mrInfo.author && mrInfo.author.avatar_url;
-
-  const handleButton = () => {
-  };
 
   const handleCloseMergeRequest = () => {
     actions.closeMergeRequest(gid, iid);
@@ -353,7 +349,6 @@ const BasicMergeRequestView = (props) => {
                                   <MWrapper norender>
                                     <p>
                                       There are merge conflicts&nbsp;
-                                      <BlackBorderedButton id="resolve-btn" onClickHandler={handleButton} textContent="Resolve Conflicts" />
                                     </p>
                                   </MWrapper>
                                 )}

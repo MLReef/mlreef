@@ -22,7 +22,7 @@ const setup = () => {
   return afterDive;
 };
 
-describe('test presence of elements in DOM', () => {
+/* describe('test presence of elements in DOM', () => {
   test('compare with the latest snapshot of the empty view', () => {
     const store = storeFactory({ projects: projectsArrayMock.projects });
     const component = renderer
@@ -37,7 +37,7 @@ describe('test presence of elements in DOM', () => {
 
     expect(component).toMatchSnapshot();
   });
-});
+}); */
 
 describe('test functionality', () => {
   let wrapper;

@@ -3,10 +3,9 @@ import { Redirect } from 'react-router-dom';
 import {
   bool, string, arrayOf, func, number,
 } from 'prop-types';
+import MSelect from 'components/ui/MSelect';
 import { Checkbox, FormControlLabel } from '@material-ui/core';
 import { toastr } from 'react-redux-toastr';
-import BlueBorderedInput from '../BlueBorderedInput';
-import CustomizedMenus from '../customized-menu/CustomizedMenu';
 import CommitsApi from '../../apis/GroupApi.ts';
 import BranchesApi from '../../apis/BranchesApi.ts';
 import { DELETE } from '../../dataTypes';
@@ -90,22 +89,21 @@ const DeleteFileModal = ({
         </div>
 
         <div className="modal-content">
-          <BlueBorderedInput
+          <textarea
             id="commit-message"
+            cols="30" 
+            rows="10" 
             defaultValue={`Delete ${fileName}`}
-            multiline
-            rows="4"
-            style={{ width: '100%' }}
             onChange={(e) => { setCommitMess(e.target.value); }}
           />
           <br />
           <br />
-          <CustomizedMenus
+          <MSelect
+            label="Select a branch"
             placeholder={placeholder}
-            options={branches}
-            menuTitle="Select a branch"
-            onOptionSelectedHandler={setTargetBranch}
-            onInputChangeHandler={setNewBranchName}
+            options={branches.map((br) => ({ label: br, value: br }))}
+            value={targetBranch}
+            onSelect={setTargetBranch}
           />
           {(newBranchName.length > 0 || targetBranch.length > 0) && (
           <>

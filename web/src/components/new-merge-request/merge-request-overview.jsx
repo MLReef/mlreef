@@ -10,10 +10,8 @@ import { getMergeRequestsList } from 'actions/mergeActions';
 import Navbar from '../navbar/navbar';
 import ProjectContainer from '../projectContainer';
 import './merge-request-overview.css';
-import CustomizedButton from '../CustomizedButton';
 import { mrStates } from '../../dataTypes';
 import { getTimeCreatedAgo } from '../../functions/dataParserHelpers';
-import BlackBorderedButton from '../BlackBorderedButton';
 
 /**
    * @param {mrs} is the merge requests list to be classified by state
@@ -115,19 +113,28 @@ class MergeRequestOverview extends Component {
                 <br />
                 <br />
                 <div id="filter-buttons-new-mr">
-                  <BlackBorderedButton className="mr-2 mb-2" id="open-btn" textContent={`${openedMrs.list.length} Open`} onClickHandler={this.handleFilterBtnClick} />
-                  <BlackBorderedButton className="mr-2 mb-2" id="merged-btn" textContent={`${mergedMrs.list.length} Merged`} onClickHandler={this.handleFilterBtnClick} />
-                  <BlackBorderedButton className="mr-2 mb-2" id="closed-btn" textContent={`${closedMrs.list.length} Closed`} onClickHandler={this.handleFilterBtnClick} />
-                  <BlackBorderedButton className="mr-auto mb-2" id="all-btn" textContent="All" onClickHandler={this.handleFilterBtnClick} />
-                  <CustomizedButton
-                    className="ml-2 mb-2"
+                  <button type="button" className="btn btn-basic-dark mr-2 mb-2" id="open-btn" onClick={this.handleFilterBtnClick}>
+                    {`${openedMrs.list.length} Open`}
+                  </button>
+                  <button type="button" className="btn btn-basic-dark mr-2 mb-2" id="merged-btn" onClick={this.handleFilterBtnClick}>
+                    {`${mergedMrs.list.length} Merged`}
+                  </button>
+                  <button type="button" className="btn btn-basic-dark mr-2 mb-2" id="closed-btn" onClick={this.handleFilterBtnClick}>
+                    {`${closedMrs.list.length} Closed`}
+                  </button>
+                  <button type="button" className="btn btn-basic-dark mr-auto mb-2" id="all-btn" onClick={this.handleFilterBtnClick}>
+                    All
+                  </button>
+                  <button
+                    type="button"
+                    className="btn btn-primary mr-2 ml-2 mb-2"
                     id="new-mr-link"
-                    loading={false}
-                    onClickHandler={() => {
+                    onClick={() => {
                       history.push(`/${namespace}/${slug}/-/merge_requests/new`);
                     }}
-                    buttonLabel="New merge request"
-                  />
+                  >
+                    New merge request
+                  </button>
                 </div>
                 <div id="merge-requests-container-div">
                   {btnSelected === 'open-btn' && openedMrs.list.length > 0
