@@ -34,7 +34,7 @@ export function getMergeRequestsList(projectId) {
     });
 }
 
-function updateMergeRequest(gid, iid, payload) {
+export function updateMergeRequest(gid, iid, payload) {
   return (dispatch) => instance.updateMergeRequest(gid, iid, payload)
     .then((mr) => dispatch(setMergeRequest(mr)));
 }

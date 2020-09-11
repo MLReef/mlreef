@@ -9,11 +9,12 @@ import Checkbox from '@material-ui/core/Checkbox';
 import { Link } from 'react-router-dom';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
+import ReactMarkdown from 'react-markdown';
+import { MergeRequestEditWithActions } from 'components/layout/MergeRequests';
 import * as mergeRequestActions from 'actions/mergeActions';
 import { pluralize as plu } from 'functions/dataParserHelpers';
 import AuthWrapper from 'components/AuthWrapper';
 import MSimpleTabs from 'components/ui/MSimpleTabs';
-import MParagraph from 'components/ui/MParagraph';
 import MButton from 'components/ui/MButton';
 import MWrapper from 'components/ui/MWrapper';
 import ChangesMrSection from 'components/changes-mr-section/ChangesMrSection';
@@ -53,6 +54,7 @@ const BasicMergeRequestView = (props) => {
   const [squash, setSquash] = useState(false);
   const [removeBranch, setRemoveBranch] = useState(false);
   const [waiting, setWaiting] = useState(false);
+  const [editMode, setEditMode] = useState(false);
 
   const { title, description, state } = mrInfo;
 
@@ -77,6 +79,15 @@ const BasicMergeRequestView = (props) => {
 
   const handleReopenMergeRequest = () => {
     actions.reopenMergeRequest(gid, iid);
+  };
+
+  const handleUpdateMergeRequest = (fields) => {
+    setWaiting(true);
+    actions.updateMergeRequest(gid, iid, fields)
+      .then(() => setEditMode(false))
+      .catch((e) => e.json()
+        .then((er) => toastr.error("Changes weren't saved.", er.error)))
+      .finally(() => setWaiting(false));
   };
 
   const squashCommits = () => {
@@ -142,10 +153,10 @@ const BasicMergeRequestView = (props) => {
           <button
             type="button"
             id="edit-btn"
-            disabled
             className="btn btn-outline-dark"
+            onClick={() => setEditMode(!editMode)}
           >
-            Edit
+            {editMode ? 'Stop editing' : 'Edit'}
           </button>
 
           <button
@@ -210,11 +221,19 @@ const BasicMergeRequestView = (props) => {
           sections={[
             {
               label: 'Overview',
-              content: (
+              content: editMode ? (
+                <MergeRequestEditWithActions
+                  title={title}
+                  description={description}
+                  onSave={handleUpdateMergeRequest}
+                  onCancel={() => setEditMode(false)}
+                  waiting={waiting}
+                />
+              ) : (
                 <>
                   {description && (
                   <div style={{ padding: '1em 2em' }}>
-                    <MParagraph text={description} />
+                    <ReactMarkdown source={description} />
                     <p className="faded-style">
                       {`Edited ${dayjs(updatedAt).fromNow()}`}
                     </p>
