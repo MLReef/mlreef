@@ -299,7 +299,7 @@ class ExperimentServiceTest : AbstractServiceTest() {
                 assertThat(element).isGreaterThan(0)
                 assertThat(used).doesNotContain(element)
 
-                used.add(element)
+                used.add(element ?: 0)
             }
         }
 
