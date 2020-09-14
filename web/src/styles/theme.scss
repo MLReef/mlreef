@@ -37,6 +37,24 @@
   }
 }
 
+// The spinner before the application starts.
+#root > #initial-loading {
+  height: 67vh;
+  width: 100%;
+  display: flex;
+
+  & > .waiting {
+    margin: auto;
+    width: 2rem;
+    height: 2rem;
+
+    &:after {
+      border-color: var(--primary);
+      transform: scale(2);
+    }
+  }
+}
+
 @keyframes lds-ripple {
   0% {
     top: 1rem;
