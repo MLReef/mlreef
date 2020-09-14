@@ -21,25 +21,27 @@ enum class BaseEnvironment(
         title = "Base environment python-3.6-GPU",
         docker_image = "tensorflow/tensorflow:2.1.0-gpu-py3",
         description = "GPU nvidia drivers and TF 2.1, python 3.6",
-        requirements = "cycler==0.10.0\n" +
-            "decorator==4.4.2\n" +
-            "imageio==2.8.0\n" +
-            "joblib==0.14.1\n" +
-            "kiwisolver==1.2.0\n" +
-            "matplotlib==3.2.1\n" +
-            "networkx==2.4\n" +
-            "numpy==1.18.4\n" +
-            "nltk==3.5\n" +
-            "num2words==0.5.10\n" +
-            "opencv-python==4.2.0.34\n" +
-            "Pillow==7.1.2\n" +
-            "pyparsing==2.4.7\n" +
-            "python-dateutil==2.8.1\n" +
-            "PyWavelets==1.1.1\n" +
-            "scikit-image==0.16.2\n" +
-            "scikit-learn==0.23.1\n" +
-            "scipy==1.4.1\n" +
-            "six==1.14.0",
+        requirements = """
+            |cycler==0.10.0
+            |decorator==4.4.2
+            |imageio==2.8.0
+            |joblib==0.14.1
+            |kiwisolver==1.2.0
+            |matplotlib==3.2.1
+            |networkx==2.4
+            |numpy==1.18.4
+            |nltk==3.5
+            |num2words==0.5.10
+            |opencv-python==4.2.0.34
+            |Pillow==7.1.2
+            |pyparsing==2.4.7
+            |python-dateutil==2.8.1
+            |PyWavelets==1.1.1
+            |scikit-image==0.16.2
+            |scikit-learn==0.23.1
+            |scipy==1.4.1
+            |six==1.14.0
+            """.trimMargin(),
         machine_type = "GPU",
         python_version = "3.6"
     );
