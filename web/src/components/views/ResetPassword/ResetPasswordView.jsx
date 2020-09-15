@@ -2,11 +2,11 @@ import React, { useState } from 'react';
 import MInput from 'components/ui/MInput';
 import MButton from 'components/ui/MButton';
 import { toastr } from 'react-redux-toastr';
-import icon from 'images/ml_reef_icon_01.svg';
 import './ResetPassword.scss';
 import PropTypes from 'prop-types';
 import PasswordManagementApi from 'apis/PasswordManagementApi';
 import CheckEmailView from './CheckEmailView';
+import icon from '../../../images/MLReef_Icon_POS_ALPHA-01.svg';
 
 const passwordApi = new PasswordManagementApi();
 
@@ -15,11 +15,18 @@ const ResetPasswordView = (props) => {
   const [flag, setFlag] = useState(0);
   const [email, setEmail] = useState('');
 
-  const sendResetEmail = () => {
-    setFlag(1);
+  const sendResetEmail = (e) => {
+    e.preventDefault();
+
     passwordApi.sendResetPassEmail(email)
-      .then(() => toastr.info('Email sent', 'A Reset password link has been sent to your email'))
-      .catch(() => toastr.error('Error', 'Sorry!! your email does not exist with us'));
+      .then(() => {
+        setFlag(1);
+        toastr.info('Email sent', 'A Reset password link has been sent to your email');
+      })
+      .catch(() => {
+        if (email !== '') toastr.error('Error', 'Sorry!! your email does not exist with us');
+        else toastr.error('Error', 'Please enter a valid Email Id');
+      });
   };
 
   return (
@@ -46,7 +53,7 @@ const ResetPasswordView = (props) => {
                   </div>
                 </div>
                 <div className="reset-view_submit">
-                  <MButton onClick={sendResetEmail} id="password-submit" type="button" className="btn btn-primary">
+                  <MButton onClick={sendResetEmail} id="password-submit" type="submit" className="btn btn-primary">
                     Send password reset email
                   </MButton>
                 </div>

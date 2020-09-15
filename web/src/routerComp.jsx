@@ -7,6 +7,7 @@ import SettingsView from 'components/views/SettingsView';
 import PipelinesExecutionView from 'components/views/PipelinesExecutionView';
 import ResetPasswordView from 'components/views/ResetPassword/ResetPasswordView';
 import PublishingView from 'components/views/PublishingView';
+import PasswordConfirmationView from 'components/views/ResetPassword/PasswordConfirmationView';
 import FileView from './components/fileView/fileView';
 import Login from './components/login/login';
 import RegisterView from './components/RegisterView';
@@ -50,6 +51,7 @@ const RouterComp = () => (
       <Route path="/user/reset-password" exact component={ResetPasswordView} />
       <Route path="/error-page" exact component={ErrorPage} />
       <Route path="/explore" exact component={ExploreView} />
+      <Route path="/login/password-reset/:token" exact component={PasswordConfirmationView} />
       <PrivateRoute path="/welcome" exact component={RegisterLandingView} />
       <PrivateRoute path="/" exact component={Projects} />
       <PrivateRoute path="/perms/owner" owneronly exact component={Projects} />

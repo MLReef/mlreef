@@ -21,8 +21,9 @@ describe('presence of basic user elements', () => {
     expect(snapShot).toMatchSnapshot();
   });
 
-  test('assert password reset button changes state', () => {
-    wrapper.find('#password-submit').simulate('click');
-    expect(wrapper.find('CheckEmailView')).toHaveLength(1);
+  test('assert that reset email button submits the form', () => {
+    wrapper.find('#email').value = 'mlreef@example.org';
+    wrapper.find('#password-submit').simulate('submit', { preventDefault: jest.fn() });
+    wrapper.find('#email').simulate('keypress', { key: 'Enter' });
   });
 });
