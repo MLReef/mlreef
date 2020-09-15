@@ -166,12 +166,12 @@ we can route API calls to the Backend, Gitlab and other services through the sam
 To connect to a development instance you will need either the IP or hostname of the instance.
 This can be found in the [Environments Section](https://gitlab.com/mlreef/frontend/-/environments) on gitlab.com
 
-You will also need the most current `development.pem` which contains the private key to authenticate with the ec2 instance
+You will also need the most current `KEYFILE` which contains the private key to authenticate with the ec2 instance
 
 To login to the an instance located at `ec2-123-123-123-123.eu-central-1.compute.amazonaws.com` use the following command.
 
 ```bash
-ssh -i "development.pem" ubuntu@ec2-123-123-123-123.eu-central-1.compute.amazonaws.com
+ssh -i KEYFILE ubuntu@ec2-123-123-123-123.eu-central-1.compute.amazonaws.com
 
 # to switch to the root user type:
 sudo bash
