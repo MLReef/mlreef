@@ -37,7 +37,7 @@ export const validationSchema = Yup.object().shape({
     .required('Username is required.'),
 
   password: Yup.string()
-    .min(8, 'At least 8 characters.')
+    .min(8, 'Password must be at least 8 characters.')
     .matches(/[\w]/, 'At least one letter.')
     // .matches(/[\d]/, 'At least one number.')
     .required('Password is required.'),
