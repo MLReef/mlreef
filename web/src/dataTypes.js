@@ -135,12 +135,14 @@ export const projectClassificationsProps = [{
 export const privacyLevelsArr = [
   {
     name: 'Private',
+    label: 'Private',
     value: 'private',
     message: 'The #protected-element access must be granted explicitly to every user.',
     icon: lock,
   },
   {
     name: 'Public',
+    label: 'Public',
     value: 'public',
     message: 'The #protected-element can be accessed without any authentication.',
     icon: global,

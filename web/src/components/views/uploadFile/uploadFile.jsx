@@ -150,7 +150,7 @@ const UploadFile = (props) => {
 
   const processAndSetStatus = (rawFiles) => {
     const processedFiles = processFiles(rawFiles);
-    if (processedFiles === null) {
+    if (processedFiles.length === 0) {
       toastr.error('Error', 'The files selected is larger than size permitted(10MB)');
       return;
     }

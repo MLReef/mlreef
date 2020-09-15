@@ -8,11 +8,10 @@ import {
   number, string, shape, arrayOf, bool,
 } from 'prop-types';
 import MInput from 'components/ui/MInput';
-import CircularProgress from '@material-ui/core/CircularProgress';
+import MLoadingSpinner from 'components/ui/MLoadingSpinner';
 import AuthWrapper from 'components/AuthWrapper';
 import Navbar from '../navbar/navbar';
 import ProjectContainer from '../projectContainer';
-import CustomizedButton from '../CustomizedButton';
 import { getTimeCreatedAgo } from '../../functions/dataParserHelpers';
 import './branchesView.css';
 import DeleteBranchModal from './deleteBranchModal';
@@ -117,8 +116,8 @@ class BranchesView extends Component {
     const commitShortIdLowerLimit = 0;
     const commitShortIdUpperLimit = 9;
 
-    const genQuery = (branch) => encodeURIComponent('merge_request[source_branch]') +
-      '=' + encodeURIComponent(branch.name);
+    const genQuery = (branch) => `${encodeURIComponent('merge_request[source_branch]')
+    }=${encodeURIComponent(branch.name)}`;
 
     return (
       <>
@@ -154,16 +153,16 @@ class BranchesView extends Component {
               }}
             />
             <AuthWrapper>
-              <CustomizedButton
+              <button
+                className="btn btn-primary"
                 id="new-branch"
-                buttonLabel="New branch"
-                loading={false}
-                onClickHandler={() => {
-                  this.setState({
-                    urlToRedirect: `${pathname}/new`,
-                  });
-                }}
-              />
+                type="button"
+                onClick={() => this.setState({
+                  urlToRedirect: `${pathname}/new`,
+                })}
+              >
+                New branch
+              </button>
             </AuthWrapper>
 
           </div>
@@ -207,9 +206,7 @@ class BranchesView extends Component {
                         {`${branch.behind} | ${branch.ahead}`}
                       </p>
                     ) : (
-                      <div className="mr-2">
-                        <CircularProgress size={20} />
-                      </div>
+                      <MLoadingSpinner />
                     )}
                     <AuthWrapper norender>
                       <Link

@@ -4,9 +4,6 @@ import { bindActionCreators } from 'redux';
 import { Redirect } from 'react-router-dom';
 import * as PropTypes from 'prop-types';
 import { toastr } from 'react-redux-toastr';
-import RadioGroup from '@material-ui/core/RadioGroup';
-import Radio from '@material-ui/core/Radio';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
 import {
   projectClassificationsProps,
   privacyLevelsArr,
@@ -28,6 +25,7 @@ import { getGroupsList } from '../../../actions/groupsActions';
 import ProjectGeneraInfoApi from '../../../apis/projectGeneralInfoApi.ts';
 import { convertToSlug } from '../../../functions/dataParserHelpers';
 import MCheckBox from '../../ui/MCheckBox/MCheckBox';
+import MRadioGroup from 'components/ui/MRadio/MRadioGroup';
 
 const MAX_LENGTH = 255;
 const projectGeneraInfoApi = new ProjectGeneraInfoApi();
@@ -96,9 +94,7 @@ class CreateProject extends Component {
     };
   }
 
-  handleVisibility = (e) => {
-    this.setState({ visibility: e.target.value });
-  }
+  handleVisibility = (visibility) => this.setState({ visibility });
 
   handleProjectName = (e) => {
     const projectName = e.target.value;
@@ -384,30 +380,13 @@ class CreateProject extends Component {
                  </div>
                ))}
              </div>
-             {/* ------ ------ ------ ------ ------ --- */}
-             <div className="mb-4">
-               <span className="heading">Visibilty level</span>
-               <RadioGroup aria-label="visibility" name="visibility" value={visibility} onChange={this.handleVisibility}>
-                 {privacyLevelsArr.map((lvl) => (
-                   <div key={`privacy lvl ${lvl.value}`} className="d-flex mb-2" style={{ flexDirection: 'column' }}>
-                     <FormControlLabel
-                       className="heading"
-                       value={lvl.value}
-                       control={(
-                         <Radio disabled={this.getIsPrivacyOptionDisabled(lvl.value, nameSpace)} />
-                       )}
-                       label={(
-                         <>
-                           <img id="visibility-icon" src={lvl.icon} alt="" />
-                           <span>{lvl.name}</span>
-                         </>
-                        )}
-                     />
-                     <span key={`privacy lvl mss ${lvl.value}`} className="visibility-msg">{lvl.message.replace('#protected-element', 'project')}</span>
-                   </div>
-                 ))}
-               </RadioGroup>
-             </div>
+             <MRadioGroup
+               label="Visibilty level"
+               name="visibility"
+               options={privacyLevelsArr}
+               value={visibility}
+               onChange={this.handleVisibility}
+             />
              <div className="readME">
                <MCheckBox
                  small

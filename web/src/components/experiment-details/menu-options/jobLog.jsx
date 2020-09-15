@@ -2,8 +2,8 @@ import React, { useEffect, useState } from 'react';
 
 import { number, shape, string } from 'prop-types';
 import { toastr } from 'react-redux-toastr';
+import MLoadingSpinner from 'components/ui/MLoadingSpinner';
 import { SUCCESS, RUNNING, PENDING } from 'dataTypes';
-import CircularProgress from '@material-ui/core/CircularProgress';
 import { getTimeCreatedAgo, parseDurationInSeconds } from '../../../functions/dataParserHelpers';
 import './jobLog.css';
 import JobsApi from '../../../apis/JobsApi.ts';
@@ -184,7 +184,7 @@ const JobLog = ({
             );
           }) : (
             <div style={{ paddingLeft: '2.5em' }}>
-              <CircularProgress size={30} />
+              <MLoadingSpinner />
             </div>
           )}
       </div>

@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import {
   number, shape, string, arrayOf,
 } from 'prop-types';
-import { CircularProgress } from '@material-ui/core';
+import MLoadingSpinner from 'components/ui/MLoadingSpinner';
 import './dataVisualizationOverview.css';
 import DataPipelineApi from 'apis/DataPipelineApi';
 import Navbar from '../navbar/navbar';
@@ -135,7 +135,7 @@ export class DataVisualizationOverview extends Component {
             </button>
           </div>
           {visualizations === null
-            ? <div id="loading-circular-progress"><CircularProgress size={30} /></div>
+            ? <div id="loading-circular-progress"><MLoadingSpinner /></div>
             : visualizations.map((dataInsClas) => (
               <DataVisualizationCard
                 classification={dataInsClas}

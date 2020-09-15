@@ -3,8 +3,8 @@ import { Redirect } from 'react-router-dom';
 import {
   bool, string, arrayOf, func, number,
 } from 'prop-types';
+import MCheckBox from 'components/ui/MCheckBox/MCheckBox';
 import MSelect from 'components/ui/MSelect';
-import { Checkbox, FormControlLabel } from '@material-ui/core';
 import { toastr } from 'react-redux-toastr';
 import CommitsApi from '../../apis/GroupApi.ts';
 import BranchesApi from '../../apis/BranchesApi.ts';
@@ -109,20 +109,10 @@ const DeleteFileModal = ({
           <>
             <br />
             <br />
-            <FormControlLabel
-              control={(
-                <Checkbox
-                  id="span-new-merge-req"
-                  checked={isNewMR}
-                  color="primary"
-                  inputProps={{
-                    'aria-label': 'primary checkbox',
-                  }}
-                  onClick={() => setNewMR(!isNewMR)}
-                />
-            )}
-              id="span-new-merge-req-lab"
-              label="Start a new merge request with these changes"
+            <MCheckBox
+              name="span-new-merge-req"
+              labelValue="Start a new merge request with these changes"
+              callback={() => setNewMR(!isNewMR)}
             />
           </>
           )}

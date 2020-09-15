@@ -1,6 +1,6 @@
 import React from 'react';
 import { string, number, func } from 'prop-types';
-import LinearProgress from '@material-ui/core/LinearProgress';
+import MProgressBar from 'components/ui/MProgressBar';
 
 const file01 = '/images/svg/file_01.svg';
 
@@ -8,7 +8,7 @@ const FileToSend = ({
   fileId, fileName, progress, onRemove,
 }) => (
   <>
-    <LinearProgress variant="determinate" value={progress} />
+    {progress < 100 ? <MProgressBar color="info" /> : null}
     <div className="file-uploaded d-flex">
       <img className="dropdown-white" src={file01} alt="File" />
       <p>

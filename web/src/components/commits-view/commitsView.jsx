@@ -1,7 +1,6 @@
 import React, { Component, useRef } from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
-import { Tooltip } from '@material-ui/core';
 import { toastr } from 'react-redux-toastr';
 import {
   string,
@@ -216,22 +215,20 @@ export function CommitDiv(props) {
         </div>
         <div className="commit-details btn-group">
           <span ref={spanRef} className="border-rounded-left">{id}</span>
-          <Tooltip title={`Copy ${id}`} aria-label="copy">
-            <button
-              type="button"
-              label="clone"
-              className="btn btn-icon fa fa-copy t-primary"
-              onClick={() => {
-                const phantomInput = document.createElement('input');
-                phantomInput.value = spanRef.current.innerText;
-                document.body.appendChild(phantomInput);
-                phantomInput.select();
-                document.execCommand('copy');
-                document.body.removeChild(phantomInput);
-              }}
-            />
-          </Tooltip>
-          {/* <img className="folder-icon" src={folder01} alt="" /> */}
+          {/*TODO: The next button had a tooltip but MToolTip does not fit the needs, think about something */}
+          <button
+            type="button"
+            label="clone"
+            className="btn btn-icon fa fa-copy t-primary"
+            onClick={() => {
+              const phantomInput = document.createElement('input');
+              phantomInput.value = spanRef.current.innerText;
+              document.body.appendChild(phantomInput);
+              phantomInput.select();
+              document.execCommand('copy');
+              document.body.removeChild(phantomInput);
+            }}
+          />
         </div>
       </div>
     </div>

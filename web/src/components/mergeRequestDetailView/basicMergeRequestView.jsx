@@ -5,7 +5,6 @@ import {
   number, shape, string, arrayOf,
 } from 'prop-types';
 import { toastr } from 'react-redux-toastr';
-import Checkbox from '@material-ui/core/Checkbox';
 import { Link } from 'react-router-dom';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
@@ -13,6 +12,7 @@ import ReactMarkdown from 'react-markdown';
 import { MergeRequestEditWithActions } from 'components/layout/MergeRequests';
 import * as mergeRequestActions from 'actions/mergeActions';
 import { pluralize as plu } from 'functions/dataParserHelpers';
+import MCheckBox from 'components/ui/MCheckBox/MCheckBox';
 import AuthWrapper from 'components/AuthWrapper';
 import MSimpleTabs from 'components/ui/MSimpleTabs';
 import MButton from 'components/ui/MButton';
@@ -84,14 +84,6 @@ const BasicMergeRequestView = (props) => {
       .catch((e) => e.json()
         .then((er) => toastr.error("Changes weren't saved.", er.error)))
       .finally(() => setWaiting(false));
-  };
-
-  const squashCommits = () => {
-    setSquash(!squash);
-  };
-
-  const removeSourceBranch = () => {
-    setRemoveBranch(!removeBranch);
   };
 
   const fetchMergeRequestInfo = useCallback(
@@ -319,30 +311,16 @@ const BasicMergeRequestView = (props) => {
                               />
                               {!hasConflicts ? (
                                 <>
-                                  <div className="labeled-checkbox">
-                                    <Checkbox
-                                      id="delete"
-                                      color="primary"
-                                      inputProps={{
-                                        'aria-label': 'primary checkbox',
-                                      }}
-                                      checked={removeBranch}
-                                      onChange={removeSourceBranch}
-                                    />
-                                    <span>Delete source branch </span>
-                                  </div>
-                                  <div className="labeled-checkbox">
-                                    <Checkbox
-                                      id="delete"
-                                      color="primary"
-                                      inputProps={{
-                                        'aria-label': 'primary checkbox',
-                                      }}
-                                      checked={squash}
-                                      onChange={squashCommits}
-                                    />
-                                    <span> Squash Commits </span>
-                                  </div>
+                                  <MCheckBox
+                                    name="delete"
+                                    labelValue="Delete branch"
+                                    callback={() => setRemoveBranch(!removeBranch)}
+                                  />
+                                  <MCheckBox
+                                    name="squash"
+                                    labelValue="Squash commits"
+                                    onChange={() => setSquash(!squash)}
+                                  />
                                 </>
                               )
                                 : (

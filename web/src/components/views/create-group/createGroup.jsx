@@ -1,17 +1,17 @@
 import React, { Component, createRef } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import { RadioGroup, Radio, FormControlLabel } from '@material-ui/core';
 import { toastr } from 'react-redux-toastr';
 import Base64ToArrayBuffer from 'base64-arraybuffer';
 import { convertToSlug } from 'functions/dataParserHelpers';
-import { bannedCharsArray } from '../../../dataTypes';
-import Navbar from '../../navbar/navbar';
 import './createGroup.scss';
 import { EXTERNAL_URL } from 'apiConfig';
 import GroupsApi from 'apis/GroupApi.ts';
 import * as groupsActions from "actions/groupsActions";
 import { privacyLevelsArr } from "dataTypes";
+import MRadioGroup from 'components/ui/MRadio/MRadioGroup';
+import { bannedCharsArray } from '../../../dataTypes';
+import Navbar from '../../navbar/navbar';
 
 const MAX_ALLOWED_FILE_SIZE = 500000;
 const groupsApi = new GroupsApi();
@@ -48,7 +48,7 @@ export class UnconnectedNewGroup extends Component {
     this.setState({ fileSelected });
   }
 
-  handleOnChangeVisibility = (e) => this.setState({ visibility: e.target.value });
+  handleOnChangeVisibility = (visibility) => this.setState({ visibility });
 
   handleOnClickCreateGroup = () => {
     const {
@@ -86,6 +86,7 @@ export class UnconnectedNewGroup extends Component {
       groupName,
       groupUrl,
       fileSelected,
+      visibility,
     } = this.state;
     const isValidForm = this.validateValues(groupName, groupUrl);
     return (
@@ -177,26 +178,13 @@ export class UnconnectedNewGroup extends Component {
                 <span style={{ marginTop: '1rem', color: 'var(--secondary)' }}>Maximum file size allowed is 500KB.</span>
               </label>
               <div style={{ marginTop: '1.5em' }}>
-                <span className="heading">Visibilty level</span>
-                <RadioGroup aria-label="visibility" name="visibility" onChange={this.handleOnChangeVisibility}>
-                  {privacyLevelsArr.map((option, index) => (
-                    <div key={`div visibility opt ${option.name}`} className="d-flex" style={{ flexDirection: 'column' }}>
-                      <FormControlLabel
-                        key={`radiobutton element ${option.name} ${index.toString()}`}
-                        className="heading"
-                        value={option.value}
-                        control={<Radio />}
-                        label={(
-                          <>
-                            <img id="visibility-icon" src={option.icon} alt="" />
-                            <span>{option.name}</span>
-                          </>
-                      )}
-                      />
-                      <span className="visibility-msg">{option.message.replace('#protected-element', 'group')}</span>
-                    </div>
-                  ))}
-                </RadioGroup>
+                <MRadioGroup
+                  label="Visibilty level"
+                  name="visibility"
+                  options={privacyLevelsArr}
+                  value={visibility}
+                  onChange={this.handleOnChangeVisibility}
+                />
               </div>
               <div id="buttons-container">
                 <button id="cancel-group-creation" type="button" className="btn btn-outline-dark">
