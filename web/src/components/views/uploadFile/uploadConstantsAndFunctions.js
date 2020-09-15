@@ -39,16 +39,19 @@ export const isFileExtensionForBase64Enc = (type) => formatsWhichNeedbase64Encod
   .length > 0;
 
 export const processFiles = (rawFiles) => {
-  const arrayFormatFiles = Array.from(rawFiles);
-  const totalSize = arrayFormatFiles.map((rFile) => rFile.size)
+  if (rawFiles?.length > 0) {
+    const arrayFormatFiles = Array.from(rawFiles);
+    const totalSize = arrayFormatFiles?.map((rFile) => rFile.size)
     .reduce((currentTotalSize, currentFileSize) => currentTotalSize
-      + currentFileSize);
-  if (totalSize > MAX_SIZE_FILE_PERMITTED) {
-    return null;
+    + currentFileSize);
+    if (totalSize > MAX_SIZE_FILE_PERMITTED) {
+      return [];
+    }
+    return arrayFormatFiles
+      .map((rawF) => new FileToUpload(UUIDV1(), rawF.name, rawF.size, rawF.type));
   }
-  return arrayFormatFiles.map((rawF) => new FileToUpload(UUIDV1(), rawF.name, rawF.size, rawF.type));
+  return [];
 };
-
 
 export const generateActionsForCommit = (
   currentFilePath,

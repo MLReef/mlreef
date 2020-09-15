@@ -67,7 +67,7 @@ describe('test functionality', () => {
 
   test('assert that new experiment is called with the component function', () => {
     const { projects: { selectedProject: { namespace, slug } } } = projectsArrayMock;
-    wrapper.find('#new-experiment').dive().find('button').simulate('click');
+    wrapper.find('#new-experiment').simulate('click');
     expect(mockPush.mock.calls.length).toBe(1);
     expect(mockPush).toHaveBeenCalledWith(`/${namespace}/${slug}/-/experiments/new`);
   });

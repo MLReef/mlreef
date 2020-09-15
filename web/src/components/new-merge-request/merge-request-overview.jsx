@@ -1,11 +1,11 @@
 import React, { Component } from 'react';
-import { CircularProgress } from '@material-ui/core';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
 import {
   number, shape, string, arrayOf, func,
 } from 'prop-types';
+import MLoadingSpinner from 'components/ui/MLoadingSpinner';
 import { getMergeRequestsList } from 'actions/mergeActions';
 import Navbar from '../navbar/navbar';
 import ProjectContainer from '../projectContainer';
@@ -107,7 +107,7 @@ class MergeRequestOverview extends Component {
         />
         <div className="main-content">
           {!mrsList
-            ? <div id="circular-progress-container"><CircularProgress /></div>
+            ? <div id="circular-progress-container"><MLoadingSpinner /></div>
             : (
               <>
                 <br />

@@ -8,7 +8,6 @@ import uuidv1 from 'uuid/v1';
 import {
   shape, string, number, func, arrayOf,
 } from 'prop-types';
-import CustomizedButton from 'components/CustomizedButton';
 import ExperimentsApi from 'apis/experimentApi';
 import { parseToCamelCase } from 'functions/dataParserHelpers';
 import CommitsApi from '../../apis/CommitsApi.ts';
@@ -153,13 +152,14 @@ class ExperimentsOverview extends Component {
                 >
                   Canceled
                 </button>
-                <CustomizedButton
+                <button
                   id="new-experiment"
-                  className="mr-0"
-                  loading={false}
-                  onClickHandler={() => history.push(`/${namespace}/${slug}/-/experiments/new`)}
-                  buttonLabel="New experiment"
-                />
+                  type="button"
+                  className="btn btn-primary"
+                  onClick={() => history.push(`/${namespace}/${slug}/-/experiments/new`)}
+                >
+                  New  experiment
+                </button>
               </div>
             </>
             )}
@@ -182,14 +182,14 @@ class ExperimentsOverview extends Component {
               <img src={emptyLogo} width="240" alt="Create an experiment" />
               <span>You don't have any experiment in your ML project</span>
               <p>Why not start one?</p>
-              <CustomizedButton
+              <button
                 id="new-experiment"
-                loading={false}
-                onClickHandler={() => {
-                  history.push(`/${namespace}/${slug}/-/experiments/new`);
-                }}
-                buttonLabel="Start an experiment"
-              />
+                type="button"
+                className="btn btn-primary"
+                onClick={() => history.push(`/${namespace}/${slug}/-/experiments/new`)}
+              >
+                Start an experiment
+              </button>
             </div>
           </div>
         )}
