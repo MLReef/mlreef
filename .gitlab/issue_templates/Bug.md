@@ -1,3 +1,5 @@
+[MLReef's Glossary](https://gitlab.com/mlreef/www-mlreef-com/-/tree/master/handbook/glossary.md)
+
 ### Observed behaviour
 
 
@@ -10,11 +12,6 @@
 
 
 
-### Terminology
-> Define terms that are important in the context of this task
-
-
-
 ### Solution
 > Add technical implementation details and the results of the tickets discussion here.
 
@@ -24,6 +21,3 @@
 
 Additional Notes
 =====================
-
-
-relates to: 
