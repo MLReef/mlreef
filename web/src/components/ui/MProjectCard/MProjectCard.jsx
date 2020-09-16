@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Link, useHistory } from 'react-router-dom';
 import iconGrey from 'images/icon_grey-01.png';
+import MParagraph from 'components/ui/MParagraph';
 import MProjectCardTypes from './MProjectCardTypes';
 import './MProjectCard.scss';
 
@@ -22,7 +23,7 @@ const MProjectCard = (props) => {
   const history = useHistory();
 
   const goToProjectView = () => history.push(`/${namespace}/${slug}`);
-/* 
+  /*
   const hasOutputTypes = !['ALGORITHM', 'VISUALIZATION']
     .some((t) => dataProcessor?.type === t); */
 
@@ -54,7 +55,7 @@ const MProjectCard = (props) => {
               <p style={{ height: 'unset' }}>No description</p>
             </div>
           ) : (
-            <p className="t-dark">{description}</p>
+            <MParagraph className="card-content-description" text={description} />
           )}
 
           <div className="d-flex t-secondary">
@@ -102,7 +103,7 @@ MProjectCard.defaultProps = {
   forkCount: null,
   users: [],
   inputDataTypes: [],
-  outputDataTypes: [],
+  // outputDataTypes: [],
   dataProcessor: {},
 };
 
@@ -119,7 +120,7 @@ MProjectCard.propTypes = {
     avatar_id: PropTypes.string,
   })),
   inputDataTypes: PropTypes.arrayOf(PropTypes.string),
-  outputDataTypes: PropTypes.arrayOf(PropTypes.string),
+  // outputDataTypes: PropTypes.arrayOf(PropTypes.string),
   dataProcessor: PropTypes.shape({
     type: PropTypes.string,
   }),

@@ -35,11 +35,15 @@ exports[`ExploreViewProjectSet appareance assert that snapshot matches 1`] = `
           <div
             className="project-card-types d-flex"
           />
-          <p
-            className="t-dark"
+          <section
+            className="m-paragraph card-content-description"
           >
-            Categorical Classification of alphabets in the American Sign Language
-          </p>
+            <p
+              className="m-paragraph-line "
+            >
+              Categorical Classification of alphabets in the American Sign Language
+            </p>
+          </section>
           <div
             className="d-flex t-secondary"
           >

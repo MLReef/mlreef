@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import {
   arrayOf, shape, string, bool,
 } from 'prop-types';
+import MBricksWall from 'components/ui/MBricksWall';
 import MProjectCard from './ui/MProjectCard';
 import iconGrey from '../images/icon_grey-01.png';
 
@@ -48,26 +49,32 @@ class ProjectSet extends Component {
 
     return (
       <div id="cards-section">
-        {finalProjectsArray.length > 0 ? finalProjectsArray.map((proj) => (
-          <MProjectCard
-            key={`proj-${proj.gitlabNamespace}-${proj.slug}-${proj.id}`}
-            slug={proj.slug}
-            owner={proj.id}
-            title={proj.name}
-            projectId={proj.gitlabId}
-            description={proj.description}
-            starCount={proj.starCount || 0}
-            forkCount={proj.forksCount || 0}
-            namespace={proj.gitlabNamespace}
-            updatedAt={proj.lastActivityat}
-            projects={allProjects}
-            dataProcessor={proj.dataProcessor}
-            inputDataTypes={proj.inputDataTypes}
-            outputDataTypes={proj.inputDataTypes}
-            handleShowModal={handleShowModal}
-            users={proj.members}
+        {finalProjectsArray.length > 0 ? (
+          <MBricksWall
+            className="w-100"
+            animated
+            bricks={finalProjectsArray.map((proj) => (
+              <MProjectCard
+                key={`proj-${proj.gitlabNamespace}-${proj.slug}-${proj.id}`}
+                slug={proj.slug}
+                owner={proj.id}
+                title={proj.name}
+                projectId={proj.gitlabId}
+                description={proj.description}
+                starCount={proj.starCount || 0}
+                forkCount={proj.forksCount || 0}
+                namespace={proj.gitlabNamespace}
+                updatedAt={proj.lastActivityat}
+                projects={allProjects}
+                dataProcessor={proj.dataProcessor}
+                inputDataTypes={proj.inputDataTypes}
+                outputDataTypes={proj.inputDataTypes}
+                handleShowModal={handleShowModal}
+                users={proj.members}
+              />
+            ))}
           />
-        )) : (
+        ) : (
           <div className="d-flex noelement-found-div">
             <img src={iconGrey} alt="" style={{ maxHeight: '100px' }} />
             <p>No projects found</p>

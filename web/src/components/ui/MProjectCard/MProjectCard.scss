@@ -6,7 +6,7 @@
       font-size: 1.2rem;
       margin: 0;
       padding: 0;
-      height: 3.5rem;
+      margin-bottom: 1rem;
       overflow: hidden;
     }
 
@@ -20,11 +20,12 @@
 
     .card-content {
       margin-top: 0.8rem;
-    }
 
-    .card-content p {
-      height: 4.5rem;
-      overflow: hidden;
+      &-description {
+        color: var(--dark);
+        margin-top: 1rem;
+        margin-bottom: 2rem;
+      }
     }
 
     span {
