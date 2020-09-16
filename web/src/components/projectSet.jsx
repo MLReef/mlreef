@@ -61,7 +61,7 @@ class ProjectSet extends Component {
                 title={proj.name}
                 projectId={proj.gitlabId}
                 description={proj.description}
-                starCount={proj.starCount || 0}
+                starCount={proj.starsCount || 0}
                 forkCount={proj.forksCount || 0}
                 namespace={proj.gitlabNamespace}
                 updatedAt={proj.lastActivityat}

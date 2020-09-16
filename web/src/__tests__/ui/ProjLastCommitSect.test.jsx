@@ -13,7 +13,7 @@ const setup = (testCommitData = null) => mount(
       testCommitData={testCommitData}
       projectId={14448940}
       branch="null"
-      users={usersArrayMock}
+      users={[usersArrayMock[0].userInfo]}
       projectDefaultBranch="master"
     />
   </MemoryRouter>,

@@ -35,10 +35,10 @@ export const commitMockObject = {
   ],
   title: 'Replace color_0_0054_A.png',
   message: 'Replace color_0_0054_A.png',
-  author_name: 'cpmlreef',
+  author_name: 'mlreef',
   author_email: 'cp@mlreef.com',
   authored_date: '2019-11-09T14:24:40.000Z',
-  committer_name: 'cpmlreef',
+  committer_name: 'mlreef',
   committer_email: 'cp@mlreef.com',
   committed_date: '2019-11-09T14:24:40.000Z',
   stats: {
@@ -177,6 +177,19 @@ export const projectsArrayMock = {
           access_level: 30,
         },
       },
+      projectStarrers: [
+        {
+          starred_since: '2020-09-16T14:41:07.871Z',
+          user: {
+            avatar_url: 'https://www.gravatar.com/avatar/d64636c9c4cf15dd5c9e1ed6ab529100?s=80&d=identicon',
+            id: 2,
+            name: 'mlreef',
+            state: 'active',
+            username: 'mlreef',
+            web_url: 'http://ec2-18-192-20-20.eu-central-1.compute.amazonaws.com:10080/mlreef',
+          },
+        },
+      ],
       searchableType: 'DATA_PROJECT',
     },
   },
@@ -197,21 +210,16 @@ export const groupsMock = [{
 }];
 
 export const usersArrayMock = [{
-  id: 2,
-  name: 'mlreef',
-  username: 'mlreef',
-  state: 'active',
-  avatar_url: 'https://www.gravatar.com/avatar/d64636c9c4cf15dd5c9e1ed6ab529100?s=80&d=identicon',
-  web_url: 'http://ec2-52-57-196-223.eu-central-1.compute.amazonaws.com:10080/mlreef',
+  userInfo: {
+    id: 2,
+    name: 'mlreef',
+    username: 'mlreef',
+    state: 'active',
+    avatar_url: 'https://www.gravatar.com/avatar/d64636c9c4cf15dd5c9e1ed6ab529100?s=80&d=identicon',
+    web_url: 'http://ec2-52-57-196-223.eu-central-1.compute.amazonaws.com:10080/mlreef',
+  },
 },
-{
-  id: 3839940,
-  name: 'cpmlreef',
-  username: 'cpmlreef',
-  state: 'active',
-  avatar_url: 'https://assets.gitlab-static.net/uploads/-/system/user/avatar/3839940/avatar.png',
-  web_url: 'https://gitlab.com/cpmlreef',
-}];
+];
 
 export const branchesMock = [
   {

@@ -43,6 +43,14 @@ export default function projectReducer(state = initialState.projects, action) {
         },
       };
 
+    case types.SET_PROJECT_STARRERS:
+      return {
+        ...state,
+        selectedProject: {
+          ...state.selectedProject,
+          projectStarrers: action.projectStarrers,
+        },
+      };
     default:
       return state;
   }

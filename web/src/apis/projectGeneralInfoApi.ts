@@ -4,6 +4,7 @@ import BLApiRequestCallBuilder from './apiBuilders/BLApiRequestCallBuilder';
 import { METHODS, validServicesToCall } from './apiBuilders/requestEnums';
 import { handleResponse, handlePagination, inspect } from 'functions/apiCalls';
 import { filterBots } from './apiHelpers';
+import BodyLessApiRequestCallBuilder from './apiBuilders/BLApiRequestCallBuilder';
 
 export default class ProjectGeneralInfoApi extends ApiDirector {
   constructor() {
@@ -187,5 +188,27 @@ export default class ProjectGeneralInfoApi extends ApiDirector {
         .filter((res: any) => res.gitlab_namespace === namespace)
         .find((res: any) => res.slug === slug)
       );
+  }
+
+  star(projectId: string, isProjectStarred: boolean){
+    const baseUrl = `/api/v1/projects/${projectId}/star`;
+    const apiReqBuilder = new BodyLessApiRequestCallBuilder(
+      isProjectStarred ? METHODS.DELETE : METHODS.POST,
+      this.buildBasicHeaders(validServicesToCall.BACKEND),
+      baseUrl
+    );
+    return fetch(apiReqBuilder.build())
+      .then(handleResponse);
+  }
+
+  listStarrers(gId: string){
+    const baseUrl = `/api/v4/projects/${gId}/starrers`;
+    const apiReqBuilder = new BodyLessApiRequestCallBuilder(
+      METHODS.GET,
+      this.buildBasicHeaders(validServicesToCall.GITLAB),
+      baseUrl
+    );
+    return fetch(apiReqBuilder.build())
+      .then(handleResponse);
   }
 }

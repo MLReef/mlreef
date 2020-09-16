@@ -7,9 +7,9 @@ import AuthWrapper from 'components/AuthWrapper';
 import MParagraph from 'components/ui/MParagraph';
 import MBreadcrumb from 'components/ui/MBreadcrumb';
 import { connect } from 'react-redux';
-import ProjectInfo from './projectInfo';
-import ProjectNav from './project-nav/projectNav';
 import { PROJECT_TYPES } from 'domain/project/projectTypes';
+import ProjectInfo from './ProjectTitleNActions';
+import ProjectNav from './project-nav/projectNav';
 
 class ProjectContainer extends React.Component {
   componentDidMount() {
@@ -26,7 +26,6 @@ class ProjectContainer extends React.Component {
       project,
       project: { namespace, slug },
       forceShowExperimentList,
-      setIsForking,
       viewName,
       breadcrumbs,
     } = this.props;
@@ -59,7 +58,7 @@ class ProjectContainer extends React.Component {
             />
           )}
 
-          <ProjectInfo project={project} setIsForking={setIsForking} />
+          <ProjectInfo />
           <MParagraph
             className="project-desc"
             text={description}
