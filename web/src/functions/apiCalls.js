@@ -61,19 +61,22 @@ export const suscribeRT = (options = {}) => (action, args) => {
 
 // this returns an error if code is bigger than 400
 // added an extra guard to avoid failing by bad json parsing
-export const handleResponse = (res) => {
-  if (!res.ok) return Promise.reject(res);
-
-  return res.status !== 204 ? res.json() : res;
-};
-
+export const handleResponse = (res) => res
+  .json()
+  .then((body) => {
+    if (!res.ok) {
+      const error = new Error();
+      error.name = res.statusText;
+      error.message = body.message;
+      return Promise.reject(error);
+    }
+    return res.status !== 204 ? body : res;
+  });
 
 export const inspect = (res) => console.info(res) || res;
 
-export const onlyDataProject = (project) =>
-  project.searchableType === PROJECT_TYPES.DATA;
+export const onlyDataProject = (project) => project.searchableType === PROJECT_TYPES.DATA;
 
-export const onlyCodeProject = (project) =>
-  project.searchableType === PROJECT_TYPES.CODE;
+export const onlyCodeProject = (project) => project.searchableType === PROJECT_TYPES.CODE;
 
 export const handlePagination = ({ content }) => ([...content]);

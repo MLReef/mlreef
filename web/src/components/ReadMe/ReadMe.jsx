@@ -17,7 +17,7 @@ const Readme = ({ projectId, branch }) => {
       branch,
     )
       .then((res) => setTextContent(Base64.decode(res.content)))
-      .catch(() => toastr.error('Error', 'An error occurred recovering your readme'));
+      .catch((error) => toastr.error('Error', error.message));
   }, [projectId, branch]);
   return (
     <div className="readme-container">
