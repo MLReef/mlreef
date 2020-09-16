@@ -166,3 +166,18 @@ export function getDataProcessorsAndCorrespondingProjects(searchableType, body =
       }
     });
 }
+
+/**
+ * @param {*} gid: id in Gitlab of the project,
+ * this action fetches users that have starred a project.
+ */
+
+export function setProjectStarrers(projectStarrers) {
+  return { type: types.SET_PROJECT_STARRERS, projectStarrers };
+}
+
+export function getProjectStarrers(gid) {
+  return (dispatch) => projectApi
+    .listStarrers(gid)
+    .then((starrers) => dispatch(setProjectStarrers(starrers)));
+}

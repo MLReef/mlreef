@@ -9,10 +9,8 @@ class ErrorHandler extends Component {
     };
   }
 
-  componentDidCatch(error, info) {    
+  componentDidCatch() {
     this.setState({ hasError: true });
-    console.log(error);
-    console.log(info);
   }
 
   render() {

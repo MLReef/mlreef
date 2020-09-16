@@ -74,6 +74,7 @@ class ProjectView extends React.Component {
           actions.getBranchesList(gid),
           actions.getMergeRequestsList(gid),
           actions.getUsersLit(gid),
+          actions.getProjectStarrers(gid),
         ]);
       })
       .catch(() => toastr.error('Error', 'Error fetching project'));
@@ -103,6 +104,7 @@ class ProjectView extends React.Component {
           actions.getMergeRequestsList(gid),
           actions.getUsersLit(gid),
           actions.getJobsListPerProject(gid),
+          actions.getProjectStarrers(gid),
         ]);
       })
       .catch(() => toastr.error('Error', 'Error fetching project'));

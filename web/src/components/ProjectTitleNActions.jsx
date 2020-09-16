@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
-import { Link, Redirect } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { bindActionCreators } from 'redux';
 import {
   func, shape, string, number,
 } from 'prop-types';
+import { toastr } from 'react-redux-toastr';
 import { plainToClass } from 'class-transformer';
 import DataProject from 'domain/project/DataProject';
 import MEmptyAvatar from 'components/ui/MEmptyAvatar/MEmptyAvatar';
@@ -13,22 +14,36 @@ import { PROJECT_TYPES } from 'domain/project/projectTypes';
 import CodeProject from 'domain/project/CodeProject';
 import ProjectGeneralInfoApi from '../apis/projectGeneralInfoApi.ts';
 import * as projectActions from '../actions/projectInfoActions';
+import MLoadingSpinner from './ui/MLoadingSpinner';
+
+const projectGeneralInfoApi = new ProjectGeneralInfoApi();
 
 const ProjectInfo = (props) => {
   const {
     project,
     actions,
-    userNamespace,
-    setIsForking,
+    userGid,
   } = props;
-
+  const starrers = project
+    ?.projectStarrers
+    ?.filter((starrer) => starrer?.user?.id === userGid);
+  const [isStarred, setIsStarred] = useState(null);
+  const [isDisabledStarBtn, setIsDisabledStarBtn] = useState(false);
+  const [starsCount, setStarsCount] = useState(project.starsCount);
   const isDataProject = project.projectType === PROJECT_TYPES.DATA_PROJ
     || project.projectType === PROJECT_TYPES.DATA;
 
+  useEffect(() => {
+    setIsStarred(starrers ? starrers.length > 0 : null);
+    setStarsCount(project.starsCount);
+  }, [starrers, project.starsCount]);
   const classProject = isDataProject
     ? plainToClass(DataProject, project)
     : plainToClass(CodeProject, project);
-  const [redirect, setRedirect] = React.useState(false);
+  /* const [redirect, setRedirect] = React.useState(false); */
+
+  /* 
+  Disable code because fork button currently does not render
 
   function handleFork() {
     let gid;
@@ -39,7 +54,7 @@ const ProjectInfo = (props) => {
     }
 
     setIsForking(true);
-    const projectGeneralInfoApi = new ProjectGeneralInfoApi();
+
     projectGeneralInfoApi.forkProject(gid, userNamespace, projectName)
       .then(
         () => {
@@ -50,6 +65,16 @@ const ProjectInfo = (props) => {
       .finally(() => {
         setIsForking(false);
       });
+  } */
+
+  function onClickStarBtn() {
+    if (isDisabledStarBtn) return;
+    setIsDisabledStarBtn(true);
+    projectGeneralInfoApi.star(classProject.id, isStarred)
+      .then(() => actions.getProjectDetailsBySlug(classProject.namespace, classProject.slug))
+      .then(() => actions.getProjectStarrers(classProject.gid))
+      .catch(() => toastr.error('Error', 'Something went wrong'))
+      .finally(() => setIsDisabledStarBtn(false));
   }
 
   return (
@@ -74,32 +99,36 @@ const ProjectInfo = (props) => {
           </Link>
           <p id="projectId">
             Project ID:
-            {classProject.id}
-            {' '}
-            | {classProject.getRepositorySize()} used
+            {`${classProject.id} | ${classProject.getRepositorySize()} used`}
           </p>
         </div>
       </div>
-      {redirect ? <Redirect to="/" /> : null}
+      {/* redirect ? <Redirect to="/" /> : null */}
       <div className="project-options">
-        <div className="options d-flex mr-2">
-          <button
-            type="button"
-            className="option-name btn btn-hidden border-rounded-left py-2 px-3 my-0"
-          >
-            <img
-              className="mr-0 mr-lg-1"
-              id="option-image"
-              src="/images/svg/star_01.svg"
-              alt=""
-            />
-            <span className="my-auto d-none d-lg-block">Star</span>
-          </button>
+        {isStarred === null || isDisabledStarBtn ? (
+          <MLoadingSpinner />
+        ) : (
+          <div className="options d-flex mr-2">
+            <button
+              id="star-btn"
+              type="button"
+              className="option-name btn btn-hidden border-rounded-left py-2 px-3 my-0"
+              onClick={onClickStarBtn}
+            >
+              <img
+                className="mr-0 mr-lg-1 repo-actions-image"
+                id="star-icon"
+                src={isStarred ? '/images/svg/unstar.svg' : '/images/star.png'}
+                alt={isStarred ? 'unstar' : 'star'}
+                title={isStarred ? 'unstar' : 'star'}
+              />
+            </button>
 
-          <div className="counter border-rounded-right h-100">
-            <span>{classProject.starsCount}</span>
+            <div className="counter border-rounded-right h-100">
+              <span>{starsCount}</span>
+            </div>
           </div>
-        </div>
+        )}
 
         {classProject.defaultBranch !== null && (
         <MWrapper norender>
@@ -107,9 +136,9 @@ const ProjectInfo = (props) => {
             <button
               type="button"
               className="option-name btn btn-hidden border-rounded-left py-2 px-3 my-0"
-              onClick={handleFork}
+              /* onClick={handleFork} */
             >
-              <img className="mr-0 mr-lg-1" id="option-image" src="/images/svg/fork_01.svg" alt="" />
+              <img className="mr-0 mr-lg-1 repo-actions-image" src="/images/svg/fork_01.svg" alt="" />
               <span className="my-auto d-none d-lg-block">Fork</span>
             </button>
 
@@ -121,7 +150,7 @@ const ProjectInfo = (props) => {
         )}
         <div className="options d-flex">
           <div className="option-name border-rounded-left py-2 px-3 my-0">
-            <img className="mr-0 mr-lg-1" id="option-image" src="/images/svg/clone_01.svg" alt="" />
+            <img className="mr-0 mr-lg-1 repo-actions-image" src="/images/svg/clone_01.svg" alt="" />
             <span className="my-auto d-none d-lg-block">Clone</span>
           </div>
           <Clonedropdown className="border-rounded-right h-100" http={classProject.httpUrlToRepo} />
@@ -168,13 +197,13 @@ export function Clonedropdown(props) {
   //   setOpen(false);
   // };
 
-  const handleCopyHttp = e => {
+  const handleCopyHttp = (e) => {
     httpRef && httpRef.current.select();
     document.execCommand('copy');
     setOpen(false);
   };
 
-  const handleClickInput = e => {
+  const handleClickInput = (e) => {
     e.target.select();
   };
 
@@ -183,7 +212,7 @@ export function Clonedropdown(props) {
       id="t-clonedropdown-toggle"
       className={`${className} counter clone-dropdown`}
       ref={node}
-      onClick={ () => setOpen(!open) }
+      onClick={() => setOpen(!open)}
       style={{ cursor: 'pointer' }}
     >
       <span
@@ -225,14 +254,15 @@ export function Clonedropdown(props) {
                 onClick={handleCopyHttp}
                 className="clone-icon http"
                 src="/images/svg/clone_01.svg"
-                alt="copy-icon" />
+                alt="copy-icon"
+              />
             </div>
           </div>
         </div>
       )}
     </div>
   );
-};
+}
 
 Clonedropdown.propTypes = {
   http: string.isRequired,
@@ -246,14 +276,13 @@ function mapDispatchToProps(dispatch) {
   };
 }
 
-function mapStateToProps({ user }) {
+function mapStateToProps({ projects: { selectedProject }, user }) {
   return {
+    project: selectedProject,
     userNamespace: user.username || '',
+    userGid: user?.userInfo?.id,
   };
 }
-ProjectInfo.defaultProps = {
-  setIsForking: () => {},
-};
 
 ProjectInfo.propTypes = {
   project: shape({
@@ -269,8 +298,7 @@ ProjectInfo.propTypes = {
   actions: shape({
     getProjectsList: func.isRequired,
   }).isRequired,
-  userNamespace: string.isRequired,
-  setIsForking: func,
+  userGid: number.isRequired,
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(ProjectInfo);

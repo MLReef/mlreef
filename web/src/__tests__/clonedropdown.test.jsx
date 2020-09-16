@@ -1,7 +1,6 @@
-/* eslint-disable no-undef */
 import React from 'react';
 import { shallow } from 'enzyme';
-import { Clonedropdown } from '../components/projectInfo';
+import { Clonedropdown } from '../components/ProjectTitleNActions';
 
 const ssh = 'ssh://git@gitlab:10022/mlreef/walking-on-moon.git';
 const http = 'http://gitlab/mlreef/walking-on-moon.git';
