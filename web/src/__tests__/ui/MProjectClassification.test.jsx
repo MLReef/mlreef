@@ -8,7 +8,6 @@ import { projectsArrayMock } from 'testData';
 import { parseToCamelCase } from 'functions/dataParserHelpers';
 import ArrowButton from 'components/arrow-button/arrowButton';
 
-
 const setup = () => shallow(
   <MProjectClassification
     classification={ML_PROJECT}
@@ -18,6 +17,8 @@ const setup = () => shallow(
     history={{ push: () => {}, location: { hash: '#Personal'}}}
   />,
 );
+
+global.ResizeObserver = () => ({ observe: jest.fn() });
 
 test('test html elements', () => {
   const tree = renderer.create(

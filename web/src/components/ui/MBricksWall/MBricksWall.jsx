@@ -21,14 +21,19 @@ const MBricksWall = (props) => {
   const sortBricks = useCallback(
     () => {
       const container = containerRef.current;
-      const { width } = container.getClientRects()[0];
-      const info = {};
-      const replaceBrick = sortGrid(width, info);
 
-      Array.from(container.children).forEach(replaceBrick);
-      container.style.height = `${info.maxHeight}px`;
+      // sometimes returns null OGK
+      if (container) {
+        const { width } = container.getClientRects()[0];
+        const info = {};
+        const replaceBrick = sortGrid(width, info);
+
+        Array.from(container.children).forEach(replaceBrick);
+        container.style.height = `${info.maxHeight}px`;
+      }
     },
-    [],
+    // eslint-disable-next-line
+    [bricks.length], // bricks.length is required implicitly.
   );
 
   const resizeObs = useMemo(
@@ -47,7 +52,7 @@ const MBricksWall = (props) => {
     <div ref={containerRef} className={cx('m-bricks-wall', className)}>
       {bricks.map((brick, index) => (
         // eslint-disable-next-line
-        <div className={cx('m-bricks-wall-brick', { animated })} key={index}>
+        <div className={cx('m-bricks-wall-brick', { animated })} key={brick.key || index}>
           {brick}
         </div>
       ))}

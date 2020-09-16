@@ -138,7 +138,7 @@ class MProjectClassification extends Component {
 
     return (
       <div style={{ display: 'flex', justifyContent: 'space-around' }}>
-        <div>
+        <div className="flex-1 mx-5">
           <div className="scroll-styled" id="buttons-div">
             <div id="filter-div">
               <button

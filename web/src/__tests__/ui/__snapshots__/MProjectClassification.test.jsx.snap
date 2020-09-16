@@ -9,7 +9,9 @@ exports[`test html elements 1`] = `
     }
   }
 >
-  <div>
+  <div
+    className="flex-1 mx-5"
+  >
     <div
       className="scroll-styled"
       id="buttons-div"
@@ -63,75 +65,87 @@ exports[`test html elements 1`] = `
         id="cards-section"
       >
         <div
-          className="card"
+          className="m-bricks-wall w-100"
         >
           <div
-            className="card-container project-card-container"
-            onClick={[Function]}
-            onKeyPress={[Function]}
-            role="button"
-            tabIndex="0"
+            className="m-bricks-wall-brick animated"
           >
-            <p
-              className="card-title"
-            >
-              Sign Language Classifier
-            </p>
             <div
-              className="project-card-container-autor pb-3 mt-2"
-            >
-              <p>
-                Some namespace
-              </p>
-            </div>
-            <div
-              className="card-content"
+              className="card"
             >
               <div
-                className="project-card-types d-flex"
-              />
-              <p
-                className="t-dark"
+                className="card-container project-card-container"
+                onClick={[Function]}
+                onKeyPress={[Function]}
+                role="button"
+                tabIndex="0"
               >
-                Categorical Classification of alphabets in the American Sign Language
-              </p>
-              <div
-                className="d-flex t-secondary"
-              >
-                <div
-                  className="mr-3"
+                <p
+                  className="card-title"
                 >
-                  <i
-                    className="fa fa-star"
-                  >
-                    <span
-                      className="label"
-                    >
-                       0
-                    </span>
-                  </i>
+                  Sign Language Classifier
+                </p>
+                <div
+                  className="project-card-container-autor pb-3 mt-2"
+                >
+                  <p>
+                    Some namespace
+                  </p>
                 </div>
                 <div
-                  className="mr-3"
+                  className="card-content"
                 >
-                  <i
-                    className="fa fa-code-branch"
+                  <div
+                    className="project-card-types d-flex"
+                  />
+                  <section
+                    className="m-paragraph card-content-description"
                   >
-                    <span
-                      className="label"
+                    <p
+                      className="m-paragraph-line "
                     >
-                       0
-                    </span>
-                  </i>
+                      Categorical Classification of alphabets in the American Sign Language
+                    </p>
+                  </section>
+                  <div
+                    className="d-flex t-secondary"
+                  >
+                    <div
+                      className="mr-3"
+                    >
+                      <i
+                        className="fa fa-star"
+                      >
+                        <span
+                          className="label"
+                        >
+                           0
+                        </span>
+                      </i>
+                    </div>
+                    <div
+                      className="mr-3"
+                    >
+                      <i
+                        className="fa fa-code-branch"
+                      >
+                        <span
+                          className="label"
+                        >
+                           0
+                        </span>
+                      </i>
+                    </div>
+                  </div>
+                </div>
+                <div
+                  className="card-actions"
+                >
+                  <div
+                    className="avatars-reversed"
+                  />
                 </div>
               </div>
-            </div>
-            <div
-              className="card-actions"
-            >
-              <div
-                className="avatars-reversed"
-              />
             </div>
           </div>
         </div>
