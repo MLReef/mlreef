@@ -22,6 +22,7 @@ import DataInstanceOverview from './components/data-instance/dataInstanceOvervie
 import DataInstanceDetails from './components/data-instance/dataInstanceDetails';
 import DataVisualizationOverview from './components/data-visualization/dataVisualizationOverview';
 import ErrorPage from './components/error-page/errorPage';
+import Error404Page from './components/error-page/error404Page';
 import ExperimentDetails from './components/experiment-details/experimentDetails';
 import CreateProject from './components/views/create-project/createProject';
 import NewMergeRequest from './components/new-merge-request/newMergeRequest';
@@ -135,7 +136,7 @@ const RouterComp = () => (
         path="/my-projects/:projectId/:branch/new-merge-request"
         component={NewMergeRequest}
       />
-      <Route component={ErrorPage} />
+      <Route component={Error404Page} />
     </Switch>
   </BrowserRouter>
 );
