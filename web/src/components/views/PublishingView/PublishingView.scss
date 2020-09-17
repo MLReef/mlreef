@@ -18,4 +18,21 @@
       width: 100%;
     }
   }
+
+  &-summary {
+    margin-bottom: 1rem;
+
+    & .parameter {
+      display: flex;
+
+      &-key {
+        margin-right: 1rem;
+        width: max-content;
+      }
+
+      &-value {
+        width: max-content;
+      }
+    }
+  }
 }

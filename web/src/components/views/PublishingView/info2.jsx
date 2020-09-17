@@ -148,3 +148,41 @@ export const filters = [
     ],
   },
 ];
+
+export const modelOptions = [
+  {
+    label: 'CNN',
+    value: 1,
+  },
+  {
+    label: 'Clustering',
+    value: 2,
+  },
+  {
+    label: 'Tree',
+    value: 3,
+  },
+  {
+    label: 'Regression',
+    value: 4,
+  },
+];
+
+export const categoryOptions = [
+  {
+    label: 'Regression',
+    value: 1,
+  },
+  {
+    label: 'Prediction',
+    value: 2,
+  },
+  {
+    label: 'Classification',
+    value: 3,
+  },
+  {
+    label: 'Dimensionality reduction',
+    value: 4,
+  },
+];
