@@ -2,8 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { bindActionCreators } from 'redux';
+import { Helmet } from 'react-helmet';
 import {
-  func, shape, string, number,
+  func, shape, string, number, bool,
 } from 'prop-types';
 import { toastr } from 'react-redux-toastr';
 import { plainToClass } from 'class-transformer';
@@ -22,6 +23,9 @@ const ProjectInfo = (props) => {
   const {
     project,
     actions,
+    userNamespace,
+    setIsForking,
+    isLoading,
     userGid,
   } = props;
   const starrers = project
@@ -42,7 +46,7 @@ const ProjectInfo = (props) => {
     : plainToClass(CodeProject, project);
   /* const [redirect, setRedirect] = React.useState(false); */
 
-  /* 
+  /*
   Disable code because fork button currently does not render
 
   function handleFork() {
@@ -79,6 +83,13 @@ const ProjectInfo = (props) => {
 
   return (
     <div className="project-info">
+      {!isLoading && (
+        <Helmet>
+          <title>
+            {`${classProject.gitlabName} · MLReef`}
+          </title>
+        </Helmet>
+      )}
       <div className="project-id">
         {classProject.avatarUrl === null
           ? (
@@ -276,10 +287,11 @@ function mapDispatchToProps(dispatch) {
   };
 }
 
-function mapStateToProps({ projects: { selectedProject }, user }) {
+function mapStateToProps({ projects: { selectedProject }, user, globalMarker }) {
   return {
     project: selectedProject,
     userNamespace: user.username || '',
+    isLoading: globalMarker.isLoading,
     userGid: user?.userInfo?.id,
   };
 }
@@ -298,6 +310,9 @@ ProjectInfo.propTypes = {
   actions: shape({
     getProjectsList: func.isRequired,
   }).isRequired,
+  userNamespace: string.isRequired,
+  setIsForking: func,
+  isLoading: bool.isRequired,
   userGid: number.isRequired,
 };
 
