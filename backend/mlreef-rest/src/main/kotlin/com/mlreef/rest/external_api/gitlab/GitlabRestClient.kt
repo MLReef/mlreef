@@ -3,14 +3,14 @@ package com.mlreef.rest.external_api.gitlab
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.mlreef.rest.ApplicationConfiguration
 import com.mlreef.rest.config.censor
+import com.mlreef.rest.exceptions.BadRequestException
+import com.mlreef.rest.exceptions.ConflictException
 import com.mlreef.rest.exceptions.ErrorCode
 import com.mlreef.rest.exceptions.GitlabAuthenticationFailedException
 import com.mlreef.rest.exceptions.GitlabBadGatewayException
-import com.mlreef.rest.exceptions.GitlabBadRequestException
 import com.mlreef.rest.exceptions.GitlabCommonException
-import com.mlreef.rest.exceptions.GitlabConflictException
 import com.mlreef.rest.exceptions.GitlabConnectException
-import com.mlreef.rest.exceptions.GitlabNotFoundException
+import com.mlreef.rest.exceptions.NotFoundException
 import com.mlreef.rest.exceptions.RestException
 import com.mlreef.rest.external_api.gitlab.dto.Branch
 import com.mlreef.rest.external_api.gitlab.dto.Commit
@@ -968,18 +968,18 @@ class GitlabRestClient(
             internalHeaders.putAll(headers)
         }
 
-        fun addErrorDescription(error: ErrorCode?, message: String?): GitlabHttpEntity<T> =
-            addErrorDescription(null, error, message)
+        fun addErrorDescription(error: ErrorCode?, name: String?): GitlabHttpEntity<T> =
+            addErrorDescription(null, error, name)
 
-        fun addErrorDescription(code: Int?, error: ErrorCode?, message: String?): GitlabHttpEntity<T> {
-            errorsMap[code] = Pair(error, message)
+        fun addErrorDescription(code: Int?, errorCode: ErrorCode?, errorName: String?): GitlabHttpEntity<T> {
+            errorsMap[code] = Pair(errorCode, errorName)
             return this
         }
 
-        fun getError(code: Int?): ErrorCode? =
+        fun getErrorCode(code: Int?): ErrorCode? =
             errorsMap[code]?.first ?: errorsMap.get(null)?.first
 
-        fun getMessage(code: Int?): String? =
+        fun getErrorName(code: Int?): String? =
             errorsMap[code]?.second ?: errorsMap.get(null)?.second
 
         override fun getHeaders(): HttpHeaders = this.internalHeaders
@@ -1002,8 +1002,8 @@ class GitlabRestClient(
                 } else throw ex
             } catch (ex: HttpStatusCodeException) {
                 throw handleException(
-                    this.getError(ex.rawStatusCode),
-                    this.getMessage(ex.rawStatusCode),
+                    this.getErrorCode(ex.rawStatusCode),
+                    this.getErrorName(ex.rawStatusCode),
                     ex
                 )
             }
@@ -1044,20 +1044,20 @@ class GitlabRestClient(
     private fun handleException(error: ErrorCode?, message: String?, response: HttpStatusCodeException): RestException {
         log.error("Received error from gitlab: ${response.responseHeaders?.location} ${response.statusCode}")
         log.error(response.responseHeaders?.toString())
-        val responseBodyAsString = response.responseBodyAsString
+        val detailMessage = response.responseBodyAsString
         val statusCode = response.statusCode.value()
-        log.error(responseBodyAsString)
+        log.error(detailMessage)
 
         val currentError = error ?: ErrorCode.GitlabCommonError
-        val currentMessage = message ?: "Gitlab common error"
+        val errorName = message ?: "Gitlab common error"
 
         when (response.statusCode) {
-            HttpStatus.BAD_REQUEST -> return GitlabBadRequestException(responseBodyAsString, currentError, currentMessage)
-            HttpStatus.CONFLICT -> return GitlabConflictException(responseBodyAsString, currentError, currentMessage)
-            HttpStatus.BAD_GATEWAY -> return GitlabBadGatewayException(responseBodyAsString)
-            HttpStatus.NOT_FOUND -> return GitlabNotFoundException(responseBodyAsString, currentError, currentMessage)
-            HttpStatus.FORBIDDEN -> return GitlabAuthenticationFailedException(statusCode, responseBodyAsString, currentError, currentMessage)
-            else -> return GitlabCommonException(statusCode, responseBodyAsString)
+            HttpStatus.BAD_REQUEST -> return BadRequestException(currentError, detailMessage)
+            HttpStatus.CONFLICT -> return ConflictException(currentError, detailMessage)
+            HttpStatus.BAD_GATEWAY -> return GitlabBadGatewayException(detailMessage)
+            HttpStatus.NOT_FOUND -> return NotFoundException(currentError, detailMessage)
+            HttpStatus.FORBIDDEN -> return GitlabAuthenticationFailedException(statusCode, currentError, detailMessage)
+            else -> return GitlabCommonException(statusCode, currentError, detailMessage)
         }
     }
 }

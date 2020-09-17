@@ -11,6 +11,7 @@ import com.mlreef.rest.PipelineStatus
 import com.mlreef.rest.api.CurrentUserService
 import com.mlreef.rest.api.v1.dto.PipelineJobInfoDto
 import com.mlreef.rest.api.v1.dto.toDto
+import com.mlreef.rest.exceptions.ErrorCode
 import com.mlreef.rest.exceptions.NotFoundException
 import com.mlreef.rest.feature.experiment.ExperimentService
 import org.slf4j.LoggerFactory
@@ -43,13 +44,13 @@ class EpfController(
 
     private fun beforeGetExperiment(experimentId: UUID, token: String): Experiment {
         val experiment = experimentRepository.findByIdOrNull(experimentId)
-            ?: throw NotFoundException(dataProjectNotFound)
+            ?: throw NotFoundException(ErrorCode.NotFound, dataProjectNotFound)
         return getGuardedInstance(experiment.pipelineJobInfo, token, experiment)
     }
 
     private fun beforeGetPipelineInstance(instanceId: UUID, token: String): PipelineInstance {
         val instance = pipelineInstanceRepository.findByIdOrNull(instanceId)
-            ?: throw NotFoundException(dataProjectNotFound)
+            ?: throw NotFoundException(ErrorCode.NotFound, dataProjectNotFound)
         return getGuardedInstance(instance.pipelineJobInfo, token, instance)
     }
 
@@ -57,11 +58,11 @@ class EpfController(
         return when {
             (pipelineJobInfo == null) -> {
                 log.warn("Experiment/Pipeline exists, but PipelineJobInfo is null!")
-                throw NotFoundException(dataProjectNotFound)
+                throw NotFoundException(ErrorCode.NotFound, dataProjectNotFound)
             }
             (pipelineJobInfo.secret != token) -> {
                 log.warn("Experiment/Pipeline and PipelineJobInfo exist, but a wrong token is provided!")
-                throw NotFoundException(dataProjectNotFound)
+                throw NotFoundException(ErrorCode.NotFound, dataProjectNotFound)
             }
             else -> guardedInstance
         }

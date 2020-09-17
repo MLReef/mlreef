@@ -9,6 +9,7 @@ import com.mlreef.rest.PipelineInstanceRepository
 import com.mlreef.rest.api.v1.dto.PipelineConfigDto
 import com.mlreef.rest.api.v1.dto.PipelineInstanceDto
 import com.mlreef.rest.api.v1.dto.toDto
+import com.mlreef.rest.exceptions.ErrorCode
 import com.mlreef.rest.exceptions.MethodNotAllowedException
 import com.mlreef.rest.exceptions.NotFoundException
 import com.mlreef.rest.external_api.gitlab.TokenDetails
@@ -39,7 +40,7 @@ class PipelineController(
 
     private fun beforeGetPipelineConfig(id: UUID): PipelineConfig {
         return pipelineConfigRepository.findByIdOrNull(id)
-            ?: throw NotFoundException("PipelineConfig was not found")
+            ?: throw NotFoundException(ErrorCode.NotFound, "PipelineConfig was not found")
     }
 
     @GetMapping
@@ -102,12 +103,12 @@ class PipelineController(
         val instance = beforeGetPipelineInstance(pid, id)
 
         val dataProject = dataProjectRepository.findByIdOrNull(pipelineConfig.dataProjectId)
-            ?: throw NotFoundException("dataProject not found for this Pipeline")
+            ?: throw NotFoundException(ErrorCode.NotFound, "dataProject not found for this Pipeline")
 
         val adaptedInstance = when (action) {
             "start" -> pipelineService.startInstance(account, tokenDetails.accessToken, dataProject.gitlabId, instance, secret = pipelineService.createSecret())
             "archive" -> pipelineService.archiveInstance(instance)
-            else -> throw MethodNotAllowedException("No valid action: '$action'")
+            else -> throw MethodNotAllowedException(ErrorCode.NotFound, "No valid action: '$action'")
         }
 
         return adaptedInstance.toDto()
@@ -129,7 +130,7 @@ class PipelineController(
 
     private fun beforeGetPipelineInstance(pid: UUID, id: UUID) =
         (pipelineInstanceRepository.findOneByPipelineConfigIdAndId(pid, id)
-            ?: throw NotFoundException("PipelineInstance was not found"))
+            ?: throw NotFoundException(ErrorCode.NotFound, "PipelineInstance was not found"))
 
     @DeleteMapping("/{pid}/instances/{id}")
     @PreAuthorize("hasAccessToPipeline(#pid,'DEVELOPER')")
@@ -141,7 +142,7 @@ class PipelineController(
         val instance = beforeGetPipelineInstance(pid, id)
 
         val dataProject = dataProjectRepository.findByIdOrNull(instance.dataProjectId)
-            ?: throw NotFoundException("DataProject was not found")
+            ?: throw NotFoundException(ErrorCode.NotFound, "DataProject was not found")
 
         pipelineService.deletePipelineInstance(tokenDetails.accessToken, dataProject.gitlabId, instance.targetBranch)
         pipelineInstanceRepository.delete(instance)

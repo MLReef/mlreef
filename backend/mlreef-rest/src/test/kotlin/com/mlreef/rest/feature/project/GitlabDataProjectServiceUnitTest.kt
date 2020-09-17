@@ -10,6 +10,7 @@ import com.mlreef.rest.external_api.gitlab.GitlabRestClient
 import com.mlreef.rest.external_api.gitlab.dto.GitlabProject
 import com.mlreef.rest.external_api.gitlab.dto.GitlabUser
 import com.mlreef.rest.feature.caches.PublicProjectsCacheService
+import com.mlreef.rest.feature.system.ReservedNamesService
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
@@ -33,6 +34,9 @@ internal class GitlabDataProjectServiceUnitTest {
     private lateinit var publicProjectsCacheService: PublicProjectsCacheService
 
     @MockK
+    private lateinit var reservedNamesService: ReservedNamesService
+
+    @MockK
     private lateinit var gitlabRestClient: GitlabRestClient
 
     @MockK
@@ -45,7 +49,7 @@ internal class GitlabDataProjectServiceUnitTest {
 
     @BeforeEach
     fun setUp() {
-        service = ProjectServiceImpl(DataProject::class.java, dataProjectRepository, publicProjectsCacheService, gitlabRestClient, accountRepository, groupRepository, subjectRepository)
+        service = ProjectServiceImpl(DataProject::class.java, dataProjectRepository, publicProjectsCacheService, gitlabRestClient, reservedNamesService, accountRepository, groupRepository, subjectRepository)
     }
 
     @Test

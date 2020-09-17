@@ -134,7 +134,7 @@ class AuthApiTest : AbstractRestApiTest() {
         every {
             restClient.userLoginOAuthToGitlab(any(), any())
         } answers {
-            throw GitlabAuthenticationFailedException(403, "Incorrect user or password", ErrorCode.ValidationFailed, "Bad credentials")
+            throw GitlabAuthenticationFailedException(403, ErrorCode.ValidationFailed, "Bad credentials")
         }
 
         val plainPassword = "password"

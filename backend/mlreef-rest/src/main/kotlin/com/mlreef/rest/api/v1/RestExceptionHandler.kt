@@ -2,7 +2,10 @@ package com.mlreef.rest.api.v1
 
 import com.mlreef.rest.api.v1.dto.RestExceptionDto
 import com.mlreef.rest.api.v1.dto.ValidationFailureDto
+import com.mlreef.rest.exceptions.BadRequestException
+import com.mlreef.rest.exceptions.ConflictException
 import com.mlreef.rest.exceptions.ErrorCode
+import com.mlreef.rest.exceptions.ForbiddenContentException
 import com.mlreef.rest.exceptions.NotFoundException
 import com.mlreef.rest.exceptions.RestException
 import com.mlreef.rest.exceptions.ValidationException
@@ -33,11 +36,25 @@ class RestExceptionHandler {
         return ResponseEntity(error, HttpStatus.CONFLICT)
     }
 
-
     @ExceptionHandler(RestException::class)
     fun handleException(exception: RestException): ResponseEntity<RestExceptionDto> {
         val error = RestExceptionDto(exception)
         return ResponseEntity(error, HttpStatus.BAD_REQUEST)
+    }
+
+    @ExceptionHandler(BadRequestException::class)
+    fun handleException(exception: BadRequestException): ResponseEntity<RestExceptionDto> {
+        return ResponseEntity(RestExceptionDto(exception), HttpStatus.BAD_REQUEST)
+    }
+
+    @ExceptionHandler(ConflictException::class)
+    fun handleException(exception: ConflictException): ResponseEntity<RestExceptionDto> {
+        return ResponseEntity(RestExceptionDto(exception), HttpStatus.CONFLICT)
+    }
+
+    @ExceptionHandler(ForbiddenContentException::class)
+    fun handleException(exception: ForbiddenContentException): ResponseEntity<RestExceptionDto> {
+        return ResponseEntity(RestExceptionDto(exception), HttpStatus.UNAVAILABLE_FOR_LEGAL_REASONS)
     }
 
     @ExceptionHandler(MethodArgumentNotValidException::class)

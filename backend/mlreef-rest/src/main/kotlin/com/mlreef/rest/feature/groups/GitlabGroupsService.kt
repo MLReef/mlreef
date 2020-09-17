@@ -11,6 +11,8 @@ import com.mlreef.rest.annotations.RefreshUserInformation
 import com.mlreef.rest.api.CurrentUserService
 import com.mlreef.rest.exceptions.AccessDeniedException
 import com.mlreef.rest.exceptions.BadParametersException
+import com.mlreef.rest.exceptions.ConflictException
+import com.mlreef.rest.exceptions.ErrorCode
 import com.mlreef.rest.exceptions.GroupNotFoundException
 import com.mlreef.rest.exceptions.UnknownGroupException
 import com.mlreef.rest.exceptions.UnknownUserException
@@ -20,8 +22,10 @@ import com.mlreef.rest.external_api.gitlab.GitlabVisibility
 import com.mlreef.rest.external_api.gitlab.toAccessLevel
 import com.mlreef.rest.external_api.gitlab.toGitlabAccessLevel
 import com.mlreef.rest.external_api.gitlab.toGitlabVisibility
+import com.mlreef.rest.feature.system.ReservedNamesService
 import com.mlreef.rest.helpers.GroupOfUser
 import com.mlreef.rest.helpers.UserInGroup
+import com.mlreef.utils.Slugs
 import org.slf4j.LoggerFactory
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
@@ -42,10 +46,12 @@ interface GroupsService {
     fun deleteUserFromGroup(groupId: UUID, userId: UUID): List<UserInGroup>
     fun deleteUsersFromGroup(groupId: UUID, users: List<UserInGroup>): List<UserInGroup>
     fun checkUserInGroup(groupId: UUID, userToken: String? = null, userId: UUID? = null, userName: String? = null, email: String? = null, userGitlabId: Long? = null, personId: UUID? = null): Boolean
+    fun checkAvailability(userToken: String, creatingPersonId: UUID, groupName: String): String
 }
 
 @Service
 class GitlabGroupsService(
+    private val reservedNamesService: ReservedNamesService,
     private val groupsRepository: GroupRepository,
     private val membershipRepository: MembershipRepository,
     private val accountRepository: AccountRepository,
@@ -101,14 +107,17 @@ class GitlabGroupsService(
     override fun createGroup(ownerToken: String, groupName: String, path: String?, ownerId: UUID?, visibility: VisibilityScope?): Group {
         resolveAccount(userToken = ownerToken, userId = ownerId) ?: throw UserNotFoundException(userId = ownerId)
 
+        val slug = Slugs.toSlug(groupName)
+        reservedNamesService.assertGroupNameIsNotReserved(groupName)
+
         val gitlabGroup = gitlabRestClient.userCreateGroup(
             token = ownerToken,
             groupName = groupName,
-            path = path ?: groupName,
+            path = path ?: slug,
             visibility = visibility?.toGitlabVisibility() ?: GitlabVisibility.PRIVATE
         )
 
-        val group = Group(id = randomUUID(), slug = groupName, name = groupName, gitlabId = gitlabGroup.id)
+        val group = Group(id = randomUUID(), slug = slug, name = groupName, gitlabId = gitlabGroup.id)
 
         return groupsRepository.save(group)
     }
@@ -116,6 +125,8 @@ class GitlabGroupsService(
     override fun updateGroup(groupId: UUID, groupName: String?, path: String?): Group {
         val group = groupsRepository.findByIdOrNull(groupId) ?: throw GroupNotFoundException(groupId = groupId)
         val gitlabId = group.gitlabId ?: throw UnknownGroupException("Group $groupId is not connected to Gitlab")
+
+        reservedNamesService.assertGroupNameIsNotReserved(groupName ?: group.name)
 
         val gitlabGroup = gitlabRestClient.adminUpdateGroup(
             groupId = gitlabId,
@@ -152,7 +163,6 @@ class GitlabGroupsService(
 
         return getUsersInGroup(groupId)
     }
-
 
     @RefreshUserInformation(list = "#users")
     override fun addUsersToGroup(groupId: UUID, users: List<UserInGroup>): List<UserInGroup> {
@@ -255,6 +265,17 @@ class GitlabGroupsService(
             return false
         }
     }
+
+    override fun checkAvailability(userToken: String, creatingPersonId: UUID, groupName: String): String {
+        val possibleSlug = Slugs.toSlug(groupName)
+        reservedNamesService.assertGroupNameIsNotReserved(groupName)
+        val existingGroups = groupsRepository.findAllBySlug(possibleSlug)
+        if (existingGroups.isNotEmpty()) {
+            throw ConflictException(ErrorCode.GroupAlreadyExists, "Group exists for owner $possibleSlug $groupName")
+        }
+        return possibleSlug
+    }
+
 
     private fun assertMemberOfGroup(groupUUID: UUID, accountId: UUID? = null, personId: UUID? = null) {
         val currentPersonId = personId ?: resolveAccount(userId = accountId)?.person?.id

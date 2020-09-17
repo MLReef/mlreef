@@ -104,11 +104,11 @@ class GroupsApiTest : AbstractRestApiTest() {
     @Test
     @Tag(TestTags.RESTDOC)
     @Disabled
-    // Fails, sry idk why
+    //FIXME fails currently, we dont know why
     fun `Can create Group`() {
         this.mockUserAuthentication()
 
-        val request = GroupCreateRequest("path", "namespace", "name")
+        val request = GroupCreateRequest("new-group", "mlreef", "name")
 
         val result = this.performPost(rootUrl, token, body = request)
             .expectOk()
@@ -278,6 +278,8 @@ class GroupsApiTest : AbstractRestApiTest() {
 
         assertThat(result.size).isEqualTo(1)
     }
+
+
 
     fun groupCreateRequestFields(): List<FieldDescriptor> {
         return listOf(

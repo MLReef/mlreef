@@ -251,7 +251,6 @@ class ProjectsController(
         return usersInProject.map { it.toDto() }
     }
 
-
     // FIXME: Coverage says: missing tests
     @GetMapping("/{id}/users/check/myself")
     fun checkCurrentUserInProject(@PathVariable id: UUID, account: Account): Boolean {
@@ -406,7 +405,7 @@ class ProjectsController(
         val projectId = getProjectIdByNamespaceAndSlug(namespace, slug)
 
         return experimentsService.getExperimentById(projectId, experimentId)?.toDto()
-            ?: throw NotFoundException("Experiment $experimentId not found for the project $namespace/$slug")
+            ?: throw NotFoundException(ErrorCode.NotFound, "Experiment $experimentId not found for the project $namespace/$slug")
     }
 
     @GetMapping("/{namespace}/{slug}/pipelines")
@@ -429,7 +428,7 @@ class ProjectsController(
         val projectId = getProjectIdByNamespaceAndSlug(namespace, slug)
 
         return pipelineService.getPipelineById(projectId, pipelineId)?.toDto()
-            ?: throw NotFoundException("Pipeline $pipelineId not found for the project $namespace/$slug")
+            ?: throw NotFoundException(ErrorCode.NotFound, "Pipeline $pipelineId not found for the project $namespace/$slug")
     }
 
     @GetMapping("/{namespace}/{slug}/processor")
@@ -439,7 +438,7 @@ class ProjectsController(
         val projectId = getProjectIdByNamespaceAndSlug(namespace, slug)
 
         val dataProcessor = dataProcessorService.getProcessorByProjectId(projectId)
-            ?: throw NotFoundException("processor not found: $namespace/$slug")
+            ?: throw NotFoundException(ErrorCode.NotFound, "processor not found: $namespace/$slug")
 
         return dataProcessor.toDto()
     }

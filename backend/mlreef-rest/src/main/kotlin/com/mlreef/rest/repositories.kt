@@ -47,6 +47,7 @@ interface PersonRepository : KtCrudRepository<Person, UUID> {
 @Repository
 interface GroupRepository : KtCrudRepository<Group, UUID> {
     fun findByGitlabId(gitlabId: Long): Group?
+    fun findAllBySlug(slug: String): List<Group>
 }
 
 @Repository
@@ -147,6 +148,7 @@ interface ProjectBaseRepository<T : Project> : CrudRepository<T, UUID> {
     fun findByGlobalSlugAndVisibilityScope(slug: String, visibilityScope: VisibilityScope): T?
     fun findAllByVisibilityScope(visibilityScope: VisibilityScope, pageable: Pageable): List<T>
     fun findAllByOwnerId(ownerId: UUID): List<T>
+    fun findOneByOwnerIdAndSlug(ownerId: UUID, slug: String): T?
 
     @Query("select e from Project e JOIN Star s on s.projectId = e.id where e.id IN :ids AND s.subjectId = :ownerId")
     fun findAccessibleStarredProjects(ownerId: UUID, ids: List<UUID>, pageable: Pageable): List<T>

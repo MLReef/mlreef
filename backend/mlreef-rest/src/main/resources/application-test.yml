@@ -1,8 +1,9 @@
 logging:
   level:
     root: INFO
+    web: INFO
     com.mlreef.rest: DEBUG
-    org.springframework.security: INFO
+    org.springframework.security: DEBUG
     org.springframework.orm: INFO
     org.hibernate: INFO
     com.mlreef.rest.testcommons.TestGitlabContainer: WARN

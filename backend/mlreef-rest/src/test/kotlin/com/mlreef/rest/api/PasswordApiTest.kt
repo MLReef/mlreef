@@ -22,7 +22,7 @@ import org.springframework.restdocs.request.RequestDocumentation.parameterWithNa
 import org.springframework.restdocs.request.RequestDocumentation.requestParameters
 import org.springframework.test.annotation.Rollback
 import java.time.ZonedDateTime
-import java.util.*
+import java.util.UUID
 import javax.mail.internet.MimeMessage
 import javax.transaction.Transactional
 
@@ -77,8 +77,7 @@ class PasswordApiTest : AbstractRestApiTest() {
     fun `Cannot request password reset for non existing user`() {
         val url = "$baseUrl/reset?email=notexistingemail@example.com"
 
-        this.performPost(url)
-            .expectBadRequest()
+        this.performPost(url).isNotFound()
     }
 
     @Transactional

@@ -12,7 +12,7 @@ import MEmptyAvatar from 'components/ui/MEmptyAvatar/MEmptyAvatar';
 import MWrapper from 'components/ui/MWrapper';
 import { PROJECT_TYPES } from 'domain/project/projectTypes';
 import CodeProject from 'domain/project/CodeProject';
-import ProjectGeneralInfoApi from '../apis/projectGeneralInfoApi.ts';
+import ProjectGeneralInfoApi from '../apis/ProjectGeneralInfoApi.ts';
 import * as projectActions from '../actions/projectInfoActions';
 import MLoadingSpinner from './ui/MLoadingSpinner';
 

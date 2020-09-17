@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import MInput from 'components/ui/MInput';
 import { INFORMATION_UNITS } from 'domain/informationUnits';
 import MAccordion from 'components/ui/MAccordion';
-import ProjectGeneralInfoApi from 'apis/projectGeneralInfoApi';
+import ProjectGeneralInfoApi from 'apis/ProjectGeneralInfoApi';
 import MAvatar from 'components/ui/MAvatar/MAvatar';
 import MEmptyAvatar from 'components/ui/MEmptyAvatar/MEmptyAvatar';
 import { validateProjectName } from 'functions/validations';
