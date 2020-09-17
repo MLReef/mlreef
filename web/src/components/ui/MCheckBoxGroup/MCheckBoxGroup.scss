@@ -1,0 +1,20 @@
+.m-check-box-group {
+  display: flex;
+  flex-wrap: wrap;
+
+  &-option-btn {
+    margin-right: 0.5rem;
+    margin-bottom: 0.5rem;
+    padding: 0 1rem;
+    min-width: 200px;
+
+    &.checked {
+      background-color: var(--info);
+      color: var(--white);
+
+      & .checkmark {
+        background-color: var(--info) !important;
+      }
+    }
+  }
+}

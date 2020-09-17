@@ -1,0 +1,53 @@
+.m-vertical-steps {
+  &-step {
+    display: flex;
+
+    &-marker {
+      flex: 0 0 4rem;
+      display: flex;
+      position: relative;
+
+      & .label-ordinal {
+        background-color: var(--secondary);
+        border-radius: 50%;
+        width: 2rem;
+        height: 2rem;
+        color: var(--white);
+        display: flex;
+        margin: 0 auto;
+
+        &.done {
+          background-color: var(--success);
+        }
+
+        &-number {
+          margin: auto;
+        }
+      }
+    }
+
+    &-content {
+      padding-bottom: 1rem;
+
+      &-title {
+        margin-top: 0.5rem;
+        margin-bottom: 1rem;
+        font-size: 115%;
+        font-weight: bold;
+      }
+    }
+
+    &:not(:last-child) &-marker {
+      &::before {
+        position: absolute;
+        top: 2rem;
+        bottom: 0;
+        left: 50%;
+        content: "";
+        z-index: 1;
+        height: calc(100% - 2rem);
+        border-left: solid 1px var(--secondary);
+      }
+    }
+  }
+}
