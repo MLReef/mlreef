@@ -2,6 +2,7 @@ import React from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { toastr } from 'react-redux-toastr';
+import { Helmet } from 'react-helmet';
 import {
   arrayOf, shape, func, bool,
 } from 'prop-types';
@@ -105,6 +106,11 @@ class Myprojects extends React.Component {
 
     return (
       <div style={{ backgroundColor: '#f2f2f2' }}>
+        <Helmet>
+          <title>
+            Dashboard · MLReef
+          </title>
+        </Helmet>
         <Navbar />
         <br />
         <br />

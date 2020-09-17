@@ -7,6 +7,7 @@ import { Provider } from 'react-redux';
 import { PersistGate } from 'redux-persist/integration/react';
 import MActionModal from 'components/layout/MActionModal';
 import { persistStore } from 'redux-persist';
+import { Helmet } from 'react-helmet';
 import store from './store';
 import RouterComp from './routerComp';
 import ToastMessage from './components/toast/toast';
@@ -36,6 +37,9 @@ ReactDOM.render(
         )}
         persistor={persistor}
       >
+        <Helmet>
+          <title>MLReef</title>
+        </Helmet>
         <div className="main-container mb-5">
           <RouterComp store={store} />
         </div>
