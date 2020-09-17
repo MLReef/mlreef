@@ -1,0 +1,28 @@
+<component name="ProjectRunConfigurationManager">
+    <configuration default="false" name="E_Docker_Test" type="GradleRunConfiguration" factoryName="Gradle">
+        <ExternalSystemSettings>
+            <option name="env">
+                <map>
+                    <entry key="GITLAB_ADMIN_TOKEN" value="local-api-token"/>
+                    <entry key="GITLAB_ROOT_URL" value="http://localhost:10080"/>
+                    <entry key="MLREEF_BACKEND_URL" value="http://localhost:8080"/>
+                </map>
+            </option>
+            <option name="executionName"/>
+            <option name="externalProjectPath" value="$PROJECT_DIR$"/>
+            <option name="externalSystemIdString" value="GRADLE"/>
+            <option name="scriptParameters" value="--tests &quot;com.mlreef.rest.v1.system.E_Docker_Test&quot;"/>
+            <option name="taskDescriptions">
+                <list/>
+            </option>
+            <option name="taskNames">
+                <list>
+                    <option value=":mlreef-system-test:pipelineTest"/>
+                </list>
+            </option>
+            <option name="vmOptions" value=""/>
+        </ExternalSystemSettings>
+        <GradleScriptDebugEnabled>false</GradleScriptDebugEnabled>
+        <method v="2"/>
+    </configuration>
+</component>
