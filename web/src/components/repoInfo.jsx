@@ -16,50 +16,49 @@ const RepoInfo = ({
     || project.searchableType === PROJECT_TYPES.DATA;
 
   const openedMergeRequests = mergeRequests.filter(({ state }) => state === 'opened');
-
   return (
-  <>
-    <div className="repo-info">
-    {branchesCount > 0 && (
-      <>
-      <Link to={`/my-projects/${project.gitlabId}/${currentBranch}/commits`} className="repo-stat">
-        <p className="stat-no">{project.commitCount}</p>
-        <p className="stat-type">Commits</p>
-      </Link>
-      <Link to={`/${project.namespace}/${project.slug}/-/branches`} className="repo-stat">
-        <p className="stat-no">{branchesCount}</p>
-        <p className="stat-type">Branches</p>
-      </Link>
-      </>
-    )}
-      <Link to={`/${project.namespace}/${project.slug}/-/merge_requests`} className="repo-stat">
-        <p className="stat-no">{openedMergeRequests.length}</p>
-        <p className="stat-type">Merge requests</p>
-      </Link>
+    <>
+      <div className="repo-info">
+        {branchesCount > 0 && (
+          <>
+            <Link to={`/my-projects/${project.gitlabId}/${currentBranch}/commits`} className="repo-stat">
+              <p className="stat-no">{project.commitCount}</p>
+              <p className="stat-type">Commits</p>
+            </Link>
+            <Link to={`/${project.namespace}/${project.slug}/-/branches`} className="repo-stat">
+              <p className="stat-no">{branchesCount}</p>
+              <p className="stat-type">Branches</p>
+            </Link>
+          </>
+        )}
+        <Link to={`/${project.namespace}/${project.slug}/-/merge_requests`} className="repo-stat">
+          <p className="stat-no">{openedMergeRequests.length}</p>
+          <p className="stat-type">Merge requests</p>
+        </Link>
 
-      {isDataProject ? (
-        <>
-          <AuthWrapper>
-            <Link className="repo-stat" to={`/${project.namespace}/${project.slug}/-/visualizations`}>
-              <p className="stat-no">{visualizationsCount}</p>
-              <p className="stat-type">Visualizations</p>
-            </Link>
-          </AuthWrapper>
-          <AuthWrapper>
-            <Link disabled to={`/${project.namespace}/${project.slug}/-/datasets`} className="repo-stat">
-              <p className="stat-no">{dataInstanesCount}</p>
-              <p className="stat-type">Datasets</p>
-            </Link>
-          </AuthWrapper>
-        </>
-      ) : (
-        <div className="repo-stat">
-          <p className="stat-no">0</p>
-          <p className="stat-type">Publications</p>
-        </div>
-      )}
-    </div>
-  </>
+        {isDataProject ? (
+          <>
+            <AuthWrapper>
+              <Link className="repo-stat" to={`/${project.namespace}/${project.slug}/-/visualizations`}>
+                <p className="stat-no">{visualizationsCount}</p>
+                <p className="stat-type">Visualizations</p>
+              </Link>
+            </AuthWrapper>
+            <AuthWrapper>
+              <Link disabled to={`/${project.namespace}/${project.slug}/-/datasets`} className="repo-stat">
+                <p className="stat-no">{dataInstanesCount}</p>
+                <p className="stat-type">Datasets</p>
+              </Link>
+            </AuthWrapper>
+          </>
+        ) : (
+          <div className="repo-stat">
+            <p className="stat-no">0</p>
+            <p className="stat-type">Publications</p>
+          </div>
+        )}
+      </div>
+    </>
   );
 };
 

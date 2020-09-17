@@ -66,14 +66,22 @@ export default class CommitsApi extends ApiDirector {
     const builder = new BLApiRequestCallBuilder(METHODS.GET, this.buildBasicHeaders(validServicesToCall.GITLAB) , url);
     const response = await fetch(builder.build());
 
-    return response.arrayBuffer();
+    const imageFileSize = response.headers.get('Content-Length');
+    const imageArrayBuffer = await response.arrayBuffer();
+    return { imageArrayBuffer, imageFileSize };
   }
 
-  async getCommitDiff(projectId: number, commitId: number) {
-    const url = `/api/v4/projects/${projectId}/repository/commits/${commitId}/diff`;
-    
+  async getCommitDiff(projectId: number, commitId: number, page: number) {
+    const url = `/api/v4/projects/${projectId}/repository/commits/${commitId}/diff?page=${page}&per_page=10`;
     const builder = new BLApiRequestCallBuilder(METHODS.GET, this.buildBasicHeaders(validServicesToCall.GITLAB) , url);
-    return fetch(builder.build())
-    .then(handleResponse);
+    const response = await fetch(builder.build());
+    
+    if (!response.ok) {
+      return Promise.reject(response);
+    }
+    const body = await response.json();
+    const totalFilesChanged = response.headers.get('x-total');
+    const totalPages = response.headers.get('x-total-pages');
+    return {body, totalPages, totalFilesChanged};
   }
 }

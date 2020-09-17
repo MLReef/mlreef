@@ -153,3 +153,9 @@
     width: 100%;
     border-radius: 50%;
 }
+
+.alert {
+    color: #fc9403;
+    background-color: rgb(252, 148, 3, 0.3);
+    border: 1px solid transparent;
+}

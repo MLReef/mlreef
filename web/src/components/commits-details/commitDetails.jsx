@@ -32,24 +32,23 @@ class CommitDetails extends Component {
       commits: {},
       users,
       imagesToRender: [],
-      files: [],
+      page: 1,
+      filesChanged: 0,
+      totalPages: '1',
+      scrolling: false,
     };
     const { match } = this.props;
     const { projectId, commitId } = match.params;
     commitsApi.getCommitDetails(projectId, commitId)
       .then((response) => {
         this.setState({ commits: response });
-        commitsApi
-          .getCommitDiff(projectId, commitId)
-          .then((res) => {
-            this.setState({ files: res });
-            return this.getDiffDetails(res);
-          })
-          .catch(
-            (err) => err,
-          );
+        this.loadDiffCommits();
       })
       .catch((err) => err);
+
+    this.scrollListener = window.addEventListener('scroll', (e) => {
+      this.handleFileScroll(e);
+    });
   }
 
   getDiffDetails(diffsArray) {
@@ -64,15 +63,60 @@ class CommitDetails extends Component {
         const {
           previousVersionFile,
           nextVersionFile,
+          imageFileSize,
         } = await getFileDifferences(projectId, imageDiff, commits.parent_ids[0], commits.id);
         imagesToRender.push({
           previousVersionFileParsed: previousVersionFile,
           nextVersionFileParsed: nextVersionFile,
+          imageFileSize,
           fileName: imageDiff.old_path.split('/').slice(-1)[0],
         });
         this.setState({ ...imagesToRender });
       });
   }
+
+  handleFileScroll = () => {
+    const { scrolling, page, totalPages } = this.state;
+    if (scrolling) return null;
+    if (totalPages <= page) return null;
+    const lastEle = document.querySelector('.diff-sections:last-child');
+    const lastEleOffSet = lastEle?.offsetTop + lastEle?.clientHeight;
+    const pageOffset = window.pageYOffset + window.innerHeight;
+    const bottomOffset = 200;
+    if (pageOffset > lastEleOffSet - bottomOffset) this.loadMoreCommits();
+
+    return null;
+  };
+
+  loadDiffCommits = () => {
+    const {
+      match: {
+        params: { projectId, commitId },
+      },
+    } = this.props;
+    const { page } = this.state;
+
+    commitsApi
+      .getCommitDiff(projectId, commitId, page)
+      .then((res) => {
+        this.setState({
+          totalPages: res.totalPages,
+          filesChanged: res.totalFilesChanged,
+          scrolling: false,
+        });
+        return this.getDiffDetails([...res.body]);
+      })
+      .catch(
+        (err) => err,
+      );
+  };
+
+  loadMoreCommits = () => {
+    this.setState((prevState) => ({
+      page: prevState.page + 1,
+      scrolling: true,
+    }), this.loadDiffCommits);
+  };
 
   aprox = (floatValue) => Math.floor(floatValue);
 
@@ -84,7 +128,7 @@ class CommitDetails extends Component {
       commits,
       users,
       imagesToRender,
-      files,
+      filesChanged,
     } = this.state;
     const commitId = commits.short_id;
     let avatarUrl = 'https://assets.gitlab-static.net/uploads/-/system/user/avatar/3839940/avatar.png';
@@ -141,8 +185,24 @@ class CommitDetails extends Component {
             )}
           </div>
           <hr />
+          {filesChanged > 1000 && (
+          <div className="alert pl-3 pr-3 mb-3">
+            <div className="d-flex p-2">
+              <i className="fas fa-exclamation-triangle mt-1" />
+              <p className="m-0 pl-3">
+                Too many items to show. To preserve performance only
+                <b>
+                  {' 1000 '}
+                  of
+                  {` ${filesChanged} `}
+                </b>
+                items are displayed
+              </p>
+            </div>
+          </div>
+          )}
           <p className="stats">
-            {`Showing ${files.length} files changed with`}
+            {`Showing ${filesChanged > 1000 ? 1000 : filesChanged} files changed with`}
             <span className="addition">
               {' '}
               {commits.stats ? commits.stats.additions : 0}
@@ -159,14 +219,17 @@ class CommitDetails extends Component {
             </span>
             .
           </p>
-          {imagesToRender.map((imageFile) => (
-            <ImageDiffSection
-              key={imageFile.fileName}
-              fileInfo={imageFile}
-              original={imageFile.previousVersionFileParsed}
-              modified={imageFile.nextVersionFileParsed}
-            />
-          ))}
+          <div className="diff-sections">
+            {imagesToRender.map((imageFile) => (
+              <ImageDiffSection
+                key={imageFile.fileName}
+                fileInfo={imageFile}
+                fileSize={imageFile.imageFileSize}
+                original={imageFile.previousVersionFileParsed}
+                modified={imageFile.nextVersionFileParsed}
+              />
+            ))}
+          </div>
         </div>
       </div>
     );
