@@ -1,0 +1,8 @@
+build:
+  image: docker:19.03.5
+  services:
+    - docker:dind
+  script: |
+    echo "$CI_REGISTRY_PASSWORD" | docker login "$CI_REGISTRY" --username="$CI_REGISTRY_USER" --password-stdin
+    docker build --tag "$CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG" -f Dockerfile .
+    docker push "$CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG"

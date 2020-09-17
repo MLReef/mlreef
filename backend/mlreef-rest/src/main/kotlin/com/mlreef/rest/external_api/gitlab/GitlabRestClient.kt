@@ -120,8 +120,6 @@ class GitlabRestClient(
                 val url = "$gitlabServiceRootUrl/projects"
                 restTemplate(builder).exchange(url, HttpMethod.POST, it, GitlabProject::class.java)
             }
-            .also { logGitlabCall(it) }
-            .body ?: throw Exception("GitlabRestClient.createProject($slug): Gitlab response does not contain a body.")
     }
 
     // https://docs.gitlab.com/ee/api/projects.html#star-a-project
@@ -132,8 +130,6 @@ class GitlabRestClient(
                 val url = "$gitlabServiceRootUrl/projects/$projectId/star"
                 restTemplate(builder).exchange(url, HttpMethod.POST, it, GitlabProject::class.java)
             }
-            .also { logGitlabCall(it) }
-            .body!!
     }
 
     // https://docs.gitlab.com/ee/api/projects.html#star-a-project
@@ -144,8 +140,6 @@ class GitlabRestClient(
                 val url = "$gitlabServiceRootUrl/projects/$projectId/unstar"
                 restTemplate(builder).exchange(url, HttpMethod.POST, it, GitlabProject::class.java)
             }
-            .also { logGitlabCall(it) }
-            .body!!
     }
 
     fun adminGetProjects(search: String? = null): List<GitlabProject> {
@@ -159,8 +153,6 @@ class GitlabRestClient(
                 }
                 restTemplate(builder).exchange(url, HttpMethod.GET, it, typeRef<List<GitlabProject>>())
             }
-            .also { logGitlabCall(it) }
-            .body!!
     }
 
     // https://docs.gitlab.com/ee/api/projects.html#list-user-projects
@@ -172,8 +164,6 @@ class GitlabRestClient(
                 val url = "$gitlabServiceRootUrl/users/$userId/projects?per_page=100"
                 restTemplate(builder).exchange(url, HttpMethod.GET, it, typeRef<List<GitlabProject>>())
             }
-            .also { logGitlabCall(it) }
-            .body!!
     }
 
     fun adminGetProject(projectId: Long): GitlabProject {
@@ -184,8 +174,6 @@ class GitlabRestClient(
                 val url = "$gitlabServiceRootUrl/projects/$projectId"
                 restTemplate(builder).exchange(url, HttpMethod.GET, it, GitlabProject::class.java)
             }
-            .also { logGitlabCall(it) }
-            .body!!
     }
 
 
@@ -197,8 +185,6 @@ class GitlabRestClient(
                 val url = "$gitlabServiceRootUrl/projects/$projectId/members/all"
                 restTemplate(builder).exchange(url, HttpMethod.GET, it, typeRef<List<GitlabUserInProject>>())
             }
-            .also { logGitlabCall(it) }
-            .body!!
     }
 
     fun adminGetProjectMember(projectId: Long, userId: Long): GitlabUserInProject {
@@ -209,8 +195,6 @@ class GitlabRestClient(
                 val url = "$gitlabServiceRootUrl/projects/$projectId/members/$userId"
                 restTemplate(builder).exchange(url, HttpMethod.GET, it, GitlabUserInProject::class.java)
             }
-            .also { logGitlabCall(it) }
-            .body!!
     }
 
     fun adminAddUserToProject(projectId: Long, userId: Long, accessLevel: GitlabAccessLevel = GitlabAccessLevel.DEVELOPER, expiresAt: Instant? = null): GitlabUserInProject {
@@ -224,8 +208,6 @@ class GitlabRestClient(
                 val url = "$gitlabServiceRootUrl/projects/$projectId/members"
                 restTemplate(builder).exchange(url, HttpMethod.POST, it, GitlabUserInProject::class.java)
             }
-            .also { logGitlabCall(it) }
-            .body!!
     }
 
     fun adminAddGroupToProject(projectId: Long, groupId: Long, accessLevel: GitlabAccessLevel = GitlabAccessLevel.GUEST, expiresAt: Instant? = null): GitlabGroupInProject {
@@ -239,8 +221,6 @@ class GitlabRestClient(
                 val url = "$gitlabServiceRootUrl/projects/$projectId/share"
                 restTemplate(builder).exchange(url, HttpMethod.POST, it, GitlabGroupInProject::class.java)
             }
-            .also { logGitlabCall(it) }
-            .body!!
     }
 
     fun adminEditUserInProject(projectId: Long, userId: Long, accessLevel: GitlabAccessLevel = GitlabAccessLevel.DEVELOPER, expiresAt: Instant? = null): GitlabUserInProject {
@@ -254,8 +234,6 @@ class GitlabRestClient(
                 val url = "$gitlabServiceRootUrl/projects/$projectId/members/$userId"
                 restTemplate(builder).exchange(url, HttpMethod.PUT, it, GitlabUserInProject::class.java)
             }
-            .also { logGitlabCall(it) }
-            .body!!
     }
 
     fun userEditUserInProject(token: String, projectId: Long, userId: Long, accessLevel: GitlabAccessLevel = GitlabAccessLevel.DEVELOPER): GitlabUserInProject {
@@ -268,8 +246,6 @@ class GitlabRestClient(
                 val url = "$gitlabServiceRootUrl/projects/$projectId/members/$userId"
                 restTemplate(builder).exchange(url, HttpMethod.PUT, it, GitlabUserInProject::class.java)
             }
-            .also { logGitlabCall(it) }
-            .body!!
     }
 
     @Deprecated("unused?")
@@ -280,7 +256,6 @@ class GitlabRestClient(
                 val url = "$gitlabServiceRootUrl/projects/$projectId/members/$userId"
                 restTemplate(builder).exchange(url, HttpMethod.DELETE, it, Any::class.java)
             }
-            .also { logGitlabCall(it) }
     }
 
     fun adminDeleteUserFromProject(projectId: Long, userId: Long) {
@@ -290,7 +265,6 @@ class GitlabRestClient(
                 val url = "$gitlabServiceRootUrl/projects/$projectId/members/$userId"
                 restTemplate(builder).exchange(url, HttpMethod.DELETE, it, Any::class.java)
             }
-            .also { logGitlabCall(it) }
     }
 
     fun adminDeleteGroupFromProject(projectId: Long, groupId: Long) {
@@ -301,7 +275,6 @@ class GitlabRestClient(
                 val url = "$gitlabServiceRootUrl/projects/$projectId/share/$groupId"
                 restTemplate(builder).exchange(url, HttpMethod.DELETE, it, Any::class.java)
             }
-            .also { logGitlabCall(it) }
     }
 
     fun userGetUserInProject(token: String, projectId: Long, userId: Long): GitlabUserInProject {
@@ -312,8 +285,6 @@ class GitlabRestClient(
                 val url = "$gitlabServiceRootUrl/projects/$projectId/members/$userId"
                 restTemplate(builder).exchange(url, HttpMethod.GET, it, GitlabUserInProject::class.java)
             }
-            .also { logGitlabCall(it) }
-            .body!!
     }
 
     fun adminGetUserInProject(projectId: Long, userId: Long): GitlabUserInProject {
@@ -324,8 +295,6 @@ class GitlabRestClient(
                 val url = "$gitlabServiceRootUrl/projects/$projectId/members/$userId"
                 restTemplate(builder).exchange(url, HttpMethod.GET, it, GitlabUserInProject::class.java)
             }
-            .also { logGitlabCall(it) }
-            .body!!
     }
 
     fun userUpdateProject(id: Long, token: String, name: String? = null, description: String? = null, visibility: String? = null): GitlabProject {
@@ -336,8 +305,6 @@ class GitlabRestClient(
                 val url = "$gitlabServiceRootUrl/projects/$id"
                 restTemplate(builder).exchange(url, HttpMethod.PUT, it, GitlabProject::class.java)
             }
-            .also { logGitlabCall(it) }
-            .body!!
     }
 
     @Deprecated("unused?")
@@ -349,8 +316,6 @@ class GitlabRestClient(
                 val url = "$gitlabServiceRootUrl/projects/$id"
                 restTemplate(builder).exchange(url, HttpMethod.PUT, it, GitlabProject::class.java)
             }
-            .also { logGitlabCall(it) }
-            .body!!
     }
 
     fun deleteProject(id: Long, token: String) {
@@ -360,7 +325,6 @@ class GitlabRestClient(
                 val url = "$gitlabServiceRootUrl/projects/$id"
                 restTemplate(builder).exchange(url, HttpMethod.DELETE, it, Any::class.java)
             }
-            .also { logGitlabCall(it) }
     }
 
 
@@ -373,8 +337,6 @@ class GitlabRestClient(
                 val url = "$gitlabServiceRootUrl/projects/$projectId/repository/branches"
                 restTemplate(builder).exchange(url, HttpMethod.POST, it, Branch::class.java)
             }
-            .also { logGitlabCall(it) }
-            .body!!
     }
 
     //GET /projects/:id/repository/branches/:branch
@@ -385,8 +347,6 @@ class GitlabRestClient(
                 val url = "$gitlabServiceRootUrl/projects/$projectId/repository/branches/$branch"
                 restTemplate(builder).exchange(url, HttpMethod.GET, it, Branch::class.java)
             }
-            .also { logGitlabCall(it) }
-            .body!!
     }
 
     //GET /projects/:id/repository/branches/:branch
@@ -397,8 +357,6 @@ class GitlabRestClient(
                 val url = "$gitlabServiceRootUrl/projects/$projectId/repository/branches"
                 restTemplate(builder).exchange(url, HttpMethod.GET, it, typeRef<List<Branch>>())
             }
-            .also { logGitlabCall(it) }
-            .body!!
     }
 
     fun deleteBranch(token: String, projectId: Long, targetBranch: String) {
@@ -408,7 +366,6 @@ class GitlabRestClient(
                 val url = "$gitlabServiceRootUrl/projects/$projectId/repository/branches/$targetBranch"
                 restTemplate(builder).exchange(url, HttpMethod.DELETE, it, Any::class.java)
             }
-            .also { logGitlabCall(it) }
     }
 
     fun commitFiles(
@@ -428,8 +385,6 @@ class GitlabRestClient(
                 val url = "$gitlabServiceRootUrl/projects/$projectId/repository/commits"
                 restTemplate(builder).exchange(url, HttpMethod.POST, it, Commit::class.java)
             }
-            .also { logGitlabCall(it) }
-            .body!!
     }
 
     fun createPipeline(token: String, projectId: Long, commitRef: String, variables: List<GitlabVariable>): GitlabPipeline {
@@ -442,8 +397,6 @@ class GitlabRestClient(
                 val url = "$gitlabServiceRootUrl/projects/$projectId/pipeline"
                 restTemplate(builder).exchange(url, HttpMethod.POST, it, GitlabPipeline::class.java)
             }
-            .also { logGitlabCall(it) }
-            .body!!
     }
 
     // GET /projects/:id/pipelines/:pipeline_id
@@ -454,8 +407,16 @@ class GitlabRestClient(
                 val url = "$gitlabServiceRootUrl/projects/$projectId/pipelines/$pipelineId"
                 restTemplate(builder).exchange(url, HttpMethod.GET, it, GitlabPipeline::class.java)
             }
-            .also { logGitlabCall(it) }
-            .body!!
+    }
+
+    // GET /projects/:id/pipelines/
+    fun getPipelines(token: String, projectId: Long): List<GitlabPipeline> {
+        return GitlabHttpEntity<String>("", createUserHeaders(token))
+            .let { GitlabHttpEntity(it, createUserHeaders(token)) }
+            .makeRequest {
+                val url = "$gitlabServiceRootUrl/projects/$projectId/pipelines"
+                restTemplate(builder).exchange(url, HttpMethod.GET, it, typeRef<List<GitlabPipeline>>())
+            }
     }
 
     // GET /projects/:id/pipelines/:pipeline_id/variables
@@ -466,8 +427,6 @@ class GitlabRestClient(
                 val url = "$gitlabServiceRootUrl/projects/$projectId/pipelines/$pipelineId/variables"
                 restTemplate(builder).exchange(url, HttpMethod.GET, it, typeRef<List<GitlabVariable>>())
             }
-            .also { logGitlabCall(it) }
-            .body!!
     }
 
     fun getUser(token: String): GitlabUser {
@@ -478,8 +437,6 @@ class GitlabRestClient(
                 val url = "$gitlabServiceRootUrl/user"
                 restTemplate(builder).exchange(url, HttpMethod.GET, it, GitlabUser::class.java)
             }
-            .also { logGitlabCall(it) }
-            .body!!
     }
 
     // https://docs.gitlab.com/ee/api/projects.html#list-user-projects
@@ -491,8 +448,6 @@ class GitlabRestClient(
                 val url = "$gitlabServiceRootUrl/users/$userId/projects"
                 restTemplate(builder).exchange(url, HttpMethod.GET, it, typeRef<List<GitlabProject>>())
             }
-            .also { logGitlabCall(it) }
-            .body!!
     }
 
     // https://docs.gitlab.com/ee/api/projects.html#list-all-projects
@@ -503,8 +458,6 @@ class GitlabRestClient(
                 val url = "$gitlabServiceRootUrl/projects?membership=true"
                 restTemplate(builder).exchange(url, HttpMethod.GET, it, typeRef<List<GitlabProject>>())
             }
-            .also { logGitlabCall(it) }
-            .body!!
     }
 
     // https://docs.gitlab.com/ee/api/projects.html#list-all-projects
@@ -515,8 +468,6 @@ class GitlabRestClient(
                 val url = "$gitlabServiceRootUrl/projects?simple=true"
                 restTemplate(builder).exchange(url, HttpMethod.GET, it, typeRef<List<GitlabProjectSimplified>>())
             }
-            .also { logGitlabCall(it) }
-            .body!!
     }
 
     // https://docs.gitlab.com/ee/api/namespaces.html#search-for-namespace
@@ -527,8 +478,6 @@ class GitlabRestClient(
                 val url = "$gitlabServiceRootUrl/namespaces?search=$name"
                 restTemplate(builder).exchange(url, HttpMethod.GET, it, typeRef<List<GitlabNamespace>>())
             }
-            .also { logGitlabCall(it) }
-            .body!!
     }
 
     fun adminGetUsers(searchNameEmail: String? = null, username: String? = null): List<GitlabUser> {
@@ -545,8 +494,6 @@ class GitlabRestClient(
                 }
                 restTemplate(builder).exchange(url, HttpMethod.GET, it, typeRef<List<GitlabUser>>())
             }
-            .also { logGitlabCall(it) }
-            .body!!
     }
 
     fun adminGetUserById(id: Long): GitlabUser {
@@ -557,8 +504,6 @@ class GitlabRestClient(
                 val url = "$gitlabServiceRootUrl/users/$id"
                 restTemplate(builder).exchange(url, HttpMethod.GET, it, GitlabUser::class.java)
             }
-            .also { logGitlabCall(it) }
-            .body!!
     }
 
     fun assertConnection(): String? {
@@ -606,8 +551,6 @@ class GitlabRestClient(
                 val url = "$gitlabOAuthUrl/token"
                 restTemplate(builder).exchange(url, HttpMethod.POST, it, OAuthToken::class.java)
             }
-            .also { logGitlabCall(it) }
-            .body!!
     }
 
     fun userCheckOAuthTokenInGitlab(accessToken: String): OAuthTokenInfo {
@@ -618,8 +561,6 @@ class GitlabRestClient(
                 val url = "$gitlabOAuthUrl/token/info"
                 restTemplate(builder).exchange(url, HttpMethod.GET, it, OAuthTokenInfo::class.java)
             }
-            .also { logGitlabCall(it) }
-            .body!!
     }
 
 
@@ -632,8 +573,6 @@ class GitlabRestClient(
                 val url = "$gitlabServiceRootUrl/groups"
                 restTemplate(builder).exchange(url, HttpMethod.POST, it, GitlabGroup::class.java)
             }
-            .also { logGitlabCall(it) }
-            .body!!
     }
 
     fun userCreateGroup(token: String, groupName: String, path: String, visibility: GitlabVisibility): GitlabGroup {
@@ -645,8 +584,6 @@ class GitlabRestClient(
                 val url = "$gitlabServiceRootUrl/groups"
                 restTemplate(builder).exchange(url, HttpMethod.POST, it, GitlabGroup::class.java)
             }
-            .also { logGitlabCall(it) }
-            .body!!
     }
 
     fun adminUpdateGroup(groupId: Long, groupName: String?, path: String?): GitlabGroup {
@@ -658,8 +595,6 @@ class GitlabRestClient(
                 val url = "$gitlabServiceRootUrl/groups/$groupId"
                 restTemplate(builder).exchange(url, HttpMethod.PUT, it, GitlabGroup::class.java)
             }
-            .also { logGitlabCall(it) }
-            .body!!
     }
 
     fun adminDeleteGroup(groupId: Long) {
@@ -669,7 +604,6 @@ class GitlabRestClient(
                 val url = "$gitlabServiceRootUrl/groups/$groupId"
                 restTemplate(builder).exchange(url, HttpMethod.DELETE, it, Any::class.java)
             }
-            .also { logGitlabCall(it) }
     }
 
     @Deprecated("use admin")
@@ -685,8 +619,6 @@ class GitlabRestClient(
                     it,
                     GroupVariable::class.java)
             }
-            .also { logGitlabCall(it) }
-            .body!!
     }
 
     @Deprecated("unused")
@@ -702,8 +634,6 @@ class GitlabRestClient(
                     it,
                     GroupVariable::class.java)
             }
-            .also { logGitlabCall(it) }
-            .body!!
     }
 
     fun adminCreateProjectVariable(projectId: Long, name: String, value: String): GitlabVariable {
@@ -718,8 +648,6 @@ class GitlabRestClient(
                     it,
                     GitlabVariable::class.java)
             }
-            .also { logGitlabCall(it) }
-            .body!!
     }
 
     fun adminCreateUser(email: String, username: String, name: String, password: String): GitlabUser {
@@ -731,8 +659,6 @@ class GitlabRestClient(
                 val url = "$gitlabServiceRootUrl/users"
                 restTemplate(builder).exchange(url, HttpMethod.POST, it, GitlabUser::class.java)
             }
-            .also { logGitlabCall(it) }
-            .body!!
     }
 
     fun adminUpdateUser(gitlabUserId: Long, email: String?, username: String?, name: String?): GitlabUser {
@@ -744,8 +670,6 @@ class GitlabRestClient(
                 val url = "$gitlabServiceRootUrl/users/$gitlabUserId"
                 restTemplate(builder).exchange(url, HttpMethod.PUT, it, GitlabUser::class.java)
             }
-            .also { logGitlabCall(it) }
-            .body!!
     }
 
     fun adminResetUserPassword(gitlabUserId: Long, password: String): GitlabUser {
@@ -757,8 +681,6 @@ class GitlabRestClient(
                 val url = "$gitlabServiceRootUrl/users/$gitlabUserId"
                 restTemplate(builder).exchange(url, HttpMethod.PUT, it, GitlabUser::class.java)
             }
-            .also { logGitlabCall(it) }
-            .body!!
     }
 
 
@@ -773,8 +695,6 @@ class GitlabRestClient(
                     it,
                     typeRef<List<GitlabUserToken>>())
             }
-            .also { logGitlabCall(it) }
-            .body!!
     }
 
     fun adminGetProjectVariables(projectId: Long): List<GitlabVariable> {
@@ -785,8 +705,6 @@ class GitlabRestClient(
                 val url = "$gitlabServiceRootUrl/projects/$projectId/variables"
                 restTemplate(builder).exchange(url, HttpMethod.GET, it, typeRef<List<GitlabVariable>>())
             }
-            .also { logGitlabCall(it) }
-            .body!!
     }
 
     fun adminGetProjectVariable(projectId: Long, key: String): GitlabVariable {
@@ -797,8 +715,6 @@ class GitlabRestClient(
                 val url = "$gitlabServiceRootUrl/projects/$projectId/variables/$key"
                 restTemplate(builder).exchange(url, HttpMethod.GET, it, GitlabVariable::class.java)
             }
-            .also { logGitlabCall(it) }
-            .body!!
     }
 
     fun adminCreateUserToken(gitlabUserId: Long, tokenName: String): GitlabUserToken {
@@ -813,8 +729,6 @@ class GitlabRestClient(
                     it,
                     GitlabUserToken::class.java)
             }
-            .also { logGitlabCall(it) }
-            .body!!
     }
 
     /**
@@ -828,8 +742,6 @@ class GitlabRestClient(
                 val url = "$gitlabServiceRootUrl/groups"
                 restTemplate(builder).exchange(url, HttpMethod.GET, it, typeRef<List<GitlabGroup>>())
             }
-            .also { logGitlabCall(it) }
-            .body!!
     }
 
     /**
@@ -843,8 +755,6 @@ class GitlabRestClient(
                 val url = "$gitlabServiceRootUrl/groups/$groupId/members"
                 restTemplate(builder).exchange(url, HttpMethod.GET, it, typeRef<List<GitlabUserInGroup>>())
             }
-            .also { logGitlabCall(it) }
-            .body!!
     }
 
     fun adminAddUserToGroup(groupId: Long, userId: Long, accessLevel: GitlabAccessLevel? = null): GitlabUserInGroup {
@@ -858,8 +768,6 @@ class GitlabRestClient(
                 restTemplate(builder).exchange(
                     url, HttpMethod.POST, it, GitlabUserInGroup::class.java)
             }
-            .also { logGitlabCall(it) }
-            .body!!
     }
 
 
@@ -874,8 +782,6 @@ class GitlabRestClient(
                 restTemplate(builder).exchange(
                     url, HttpMethod.PUT, it, GitlabUserInGroup::class.java)
             }
-            .also { logGitlabCall(it) }
-            .body!!
     }
 
 
@@ -886,15 +792,16 @@ class GitlabRestClient(
                 val url = "$gitlabServiceRootUrl/groups/$groupId/members/$userId"
                 restTemplate(builder).exchange(url, HttpMethod.DELETE, it, Any::class.java)
             }
-            .also { logGitlabCall(it) }
     }
 
     private fun logGitlabCall(it: ResponseEntity<out Any>) {
         if (it.statusCode.is2xxSuccessful) {
             log.info("Received from gitlab: ${it.statusCode}")
         } else {
-            log.warn("Received from gitlab: ${it.statusCode}")
-            log.warn(it.headers.toString())
+            log.warn("""
+                | --- Received from gitlab: ${it.statusCode}
+                | --- ${it.headers.map { "${it.key}: ${it.value}" }.joinToString()}
+            """.trimMargin())
         }
     }
 
@@ -985,21 +892,26 @@ class GitlabRestClient(
         override fun getHeaders(): HttpHeaders = this.internalHeaders
     }
 
-    private fun <T : GitlabHttpEntity<out Any>, R> T.makeRequest(block: (T) -> R): R {
+    private fun <T : GitlabHttpEntity<out Any>, R> T.makeRequest(block: (T) -> ResponseEntity<out R>): R =
         try {
-            return block.invoke(this)
+            block.invoke(this)
+                .also { logGitlabCall(it) }
+                .body
+                ?: throw Exception("GitlabRestClient: Gitlab response does not contain a body.")
         } catch (ex: HttpStatusCodeException) {
             try {
                 if (ex.statusCode == HttpStatus.UNAUTHORIZED || ex.statusCode == HttpStatus.FORBIDDEN) {
-                    return repeatUnauthorized(this, ex, block)
+                    repeatUnauthorized(this, ex, block).body
                 } else if (ex.statusCode == HttpStatus.BAD_GATEWAY || ex.statusCode == HttpStatus.INTERNAL_SERVER_ERROR) {
-                    return repeatBadGateway(this, ex, block)
-                } else if (ex.statusCode == HttpStatus.BAD_REQUEST
+                    repeatBadGateway(this, ex, block).body
+                } else if (
+                    ex.statusCode == HttpStatus.BAD_REQUEST
                     && ex.responseBodyAsString.contains(GITLAB_FAILED_LIMIT_REACHED_ERROR_PREFIX)
                     && !ex.responseBodyAsString.contains(GITLAB_FAILED_LIMIT_REACHED_ERROR_MESSAGE_EMPTY)
                 ) {
-                    return repeatBadGateway(this, ex, block)
-                } else throw ex
+                    repeatBadGateway(this, ex, block).body
+                } else
+                    throw ex
             } catch (ex: HttpStatusCodeException) {
                 throw handleException(
                     this.getErrorCode(ex.rawStatusCode),
@@ -1008,7 +920,7 @@ class GitlabRestClient(
                 )
             }
         }
-    }
+
 
     private fun <T : GitlabHttpEntity<out Any>, R> repeatUnauthorized(entity: T, ex: HttpStatusCodeException, block: (T) -> R): R {
         val isAdmin = entity.headers.getFirst(IS_ADMIN_INTERNAL_HEADER)?.toBoolean() ?: false
@@ -1034,10 +946,10 @@ class GitlabRestClient(
 
         Thread.sleep(PAUSE_BETWEEN_REPEAT_WHEN_GITLAB_UNAVAILABLE_MS)
 
-        try {
-            return block.invoke(entity)
+        return try {
+            block.invoke(entity)
         } catch (ex: HttpClientErrorException) {
-            return repeatBadGateway(entity, ex, block, turn + 1)
+            repeatBadGateway(entity, ex, block, turn + 1)
         }
     }
 

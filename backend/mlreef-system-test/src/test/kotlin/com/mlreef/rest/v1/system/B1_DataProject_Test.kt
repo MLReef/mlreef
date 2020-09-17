@@ -101,7 +101,7 @@ class B1_DataProject_Test : AbstractSystemTest() {
 
         testFile.copyTo(File(newFolder.absolutePath + "/data/copy1.png"))
         testFile.copyTo(File(newFolder.absolutePath + "/data/copy2.png"))
-        repo.add().addFilepattern("*").setUpdate(true).call()
+        repo.add().addFilepattern(".").setUpdate(false).call()
         repo.commit().setMessage("commit").call()
         val call = repo.push().withCp().call()
         assertThat(call).isNotNull
@@ -153,7 +153,7 @@ class B1_DataProject_Test : AbstractSystemTest() {
 
         testFile.copyTo(File(newFolder.absolutePath + "/data/copy1.png"))
         testFile.copyTo(File(newFolder.absolutePath + "/data/copy2.png"))
-        repo.add().addFilepattern("*").setUpdate(true).call()
+        repo.add().addFilepattern(".").setUpdate(false).call()
         repo.commit().setMessage("commit").call()
         val call = repo.push().withCp().call()
         assertThat(call).isNotNull
