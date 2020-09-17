@@ -73,7 +73,7 @@ class ProjectView extends React.Component {
         return Promise.all([
           actions.getBranchesList(gid),
           actions.getMergeRequestsList(gid),
-          actions.getUsersLit(gid),
+          actions.getUsersList(gid),
           actions.getProjectStarrers(gid),
         ]);
       })
@@ -102,7 +102,7 @@ class ProjectView extends React.Component {
         return Promise.all([
           actions.getBranchesList(gid),
           actions.getMergeRequestsList(gid),
-          actions.getUsersLit(gid),
+          actions.getUsersList(gid),
           actions.getJobsListPerProject(gid),
           actions.getProjectStarrers(gid),
         ]);
@@ -246,7 +246,7 @@ ProjectView.propTypes = {
   ).isRequired,
   actions: shape({
     setSelectedProject: func.isRequired,
-    getUsersLit: func.isRequired,
+    getUsersList: func.isRequired,
   }).isRequired,
 };
 

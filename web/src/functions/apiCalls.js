@@ -9,24 +9,33 @@ export const getCommits = (projectId, commitBranch) => commitsApi.getCommits(pro
 export const getFileDifferences = async (projectId, diff, previousCommitId, lastCommitId) => {
   let previousVersionFile;
   let nextVersionFile;
+  let imageFileSize;
   if (!diff.new_file) {
-    previousVersionFile = await commitsApi.getFileDataInCertainCommit(
+    await commitsApi.getFileDataInCertainCommit(
       projectId,
       encodeURIComponent(
         diff.old_path,
       ), previousCommitId,
-    );
+    )
+      .then((res) => {
+        previousVersionFile = res.imageArrayBuffer;
+        imageFileSize = res.imageFileSize;
+      });
   }
   if (!diff.deleted_file) {
-    nextVersionFile = await commitsApi.getFileDataInCertainCommit(
+    await commitsApi.getFileDataInCertainCommit(
       projectId,
       encodeURIComponent(
         diff.old_path,
       ), lastCommitId,
-    );
+    )
+      .then((res) => {
+        nextVersionFile = res.imageArrayBuffer;
+        imageFileSize = res.imageFileSize;
+      });
   }
 
-  return { previousVersionFile, nextVersionFile };
+  return { previousVersionFile, nextVersionFile, imageFileSize };
 };
 
 /**

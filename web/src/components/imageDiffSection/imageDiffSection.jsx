@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { shape, string, any } from 'prop-types';
+import { shape, string } from 'prop-types';
 import { Link } from 'react-router-dom';
+import { INFORMATION_UNITS } from 'domain/informationUnits';
 import Base64ToArrayBuffer from 'base64-arraybuffer';
 import './ImageDiffSection.scss';
 
-const ImageDiffSection = ({ fileInfo, original, modified }) => {
+const ImageDiffSection = ({ fileInfo, original, modified, fileSize }) => {
   const [widthPreviousFile, setWidthPreviousFile] = useState(0);
   const [heightPreviousFile, setHeightPreviousFile] = useState(0);
   const [widthNextFile, setWidthNextFile] = useState(0);
@@ -41,10 +42,8 @@ const ImageDiffSection = ({ fileInfo, original, modified }) => {
             <span id="image-modified-name">{fileInfo.fileName}</span>
             <span>
               {modified ? '+' : '-'}
-              {Math.floor((modified
-                ? modified.byteLength
-                : original.byteLength) / 1000000)}
-              MB
+              {Math.floor((fileSize) / INFORMATION_UNITS.KILOBYTE)}
+              Kb
             </span>
           </div>
           <div className="filechange-info">
@@ -71,7 +70,7 @@ const ImageDiffSection = ({ fileInfo, original, modified }) => {
               style={imageStyles}
               src={previousFile.src}
               alt="previousImage"
-              className="solid-border deleted my-2"
+              className="solid-border deleted my-3"
             />
             <div className="image-dimensions">
               <span className="t-secondary">
@@ -117,8 +116,9 @@ ImageDiffSection.propTypes = {
   fileInfo: shape({
     fileName: string.isRequired,
   }).isRequired,
-  original: any,
-  modified: any,
+  original: string,
+  modified: shape({}),
+  fileSize: string.isRequired,
 };
 
 export default ImageDiffSection;

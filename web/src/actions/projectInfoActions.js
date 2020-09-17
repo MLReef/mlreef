@@ -101,7 +101,7 @@ export function setProjUsersSuccessfully(users) {
  * get list of users associated with a project
  */
 
-export function getUsersLit(projectId) {
+export function getUsersList(projectId) {
   return (dispatch) => {
     projectApi.getUsers(projectId)
       .then(async (users) => {
