@@ -58,6 +58,7 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.slot
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
@@ -82,6 +83,7 @@ import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.context.TestPropertySource
 import org.springframework.test.context.junit.jupiter.SpringExtension
+import org.springframework.test.context.transaction.TestTransaction
 import org.springframework.test.web.servlet.ResultActions
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder
 import org.springframework.test.web.servlet.setup.DefaultMockMvcBuilder
@@ -290,18 +292,22 @@ abstract class AbstractRestApiTest : AbstractRestTest() {
             username = "mock-group"
         )
 
-        every { restClient.createProject(any(), any(), any(), any(), any(), any(), any(), any(), any(), any()) } returns
+        val pathSlot = slot<String>()
+        val nameSlot = slot<String>()
+        every { restClient.createProject(any(), capture(pathSlot), capture(nameSlot), any(), any(), any(), any(), any(), any(), any()) } answers {
+            val name = nameSlot.captured
+            val path = pathSlot.captured
             GitlabProject(
                 id = 1,
-                name = "Mock Gitlab Project",
-                nameWithNamespace = "mlreef / Mock Gitlab Project",
-                path = "test-path",
-                pathWithNamespace = "mlreef/test-path",
+                name = name,
+                nameWithNamespace = "mlreef / $name",
+                path = path,
+                pathWithNamespace = "mlreef/$path",
                 owner = gitlabUser,
                 creatorId = 1L,
                 webUrl = "http://127.0.0.1/"
             )
-
+        }
         every { restClient.deleteProject(any(), any()) } returns Unit
 
         every { restClient.userCreateGroup(any(), any(), any(), any()) } returns GitlabGroup(
@@ -312,7 +318,6 @@ abstract class AbstractRestApiTest : AbstractRestTest() {
         )
 
         val emailSlot = slot<Email>()
-
         every { emailRepository.save(capture(emailSlot)) } answers { emailSlot.captured }
 
         every { restClient.userGetUserGroups(any()) } returns emptyList()
@@ -570,6 +575,30 @@ abstract class AbstractRestApiTest : AbstractRestTest() {
             fieldWithPath(prefix + "source_branch").type(JsonFieldType.STRING).description("Branch name"),
             fieldWithPath(prefix + "target_branch").type(JsonFieldType.STRING).description("Branch name")
         )
+    }
+
+    fun commitAndFail(f: () -> Unit) {
+        assertThrows<Exception> {
+            withinTransaction {
+                f.invoke()
+            }
+        }
+    }
+
+    fun <T> withinTransaction(commit: Boolean = true, func: () -> T): T {
+        if (!TestTransaction.isActive()) TestTransaction.start()
+        val result = func.invoke()
+        if (commit) {
+            TestTransaction.flagForCommit()
+        } else {
+            TestTransaction.flagForRollback()
+        }
+        try {
+            TestTransaction.end()
+        } catch (e: Exception) {
+            throw e
+        }
+        return result
     }
 }
 

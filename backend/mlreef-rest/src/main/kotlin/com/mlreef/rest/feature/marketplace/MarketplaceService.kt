@@ -12,6 +12,7 @@ import com.mlreef.rest.SearchableTagRepository
 import com.mlreef.rest.Subject
 import com.mlreef.rest.VisibilityScope
 import com.mlreef.rest.api.v1.FilterRequest
+import com.mlreef.rest.exceptions.ErrorCode
 import com.mlreef.rest.exceptions.NotFoundException
 import com.mlreef.rest.marketplace.Searchable
 import com.mlreef.rest.marketplace.SearchableTag
@@ -156,7 +157,7 @@ class MarketplaceService(
 
         val project = projectRepository.findAccessibleProject(ids, slug)
         val findPublic = projectRepository.findByGlobalSlugAndVisibilityScope(slug, VisibilityScope.PUBLIC)
-        return findPublic ?: project ?: throw NotFoundException("Not found")
+        return findPublic ?: project ?: throw NotFoundException(ErrorCode.ProjectNotExisting, "Not found")
     }
 
     /**

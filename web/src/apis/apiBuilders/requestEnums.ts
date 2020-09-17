@@ -6,7 +6,8 @@ export enum METHODS {
 }
 
 export enum headerDataTypes {
-  JSON = 'application/json'
+  JSON = 'application/json',
+  TEXT = 'text/plain'
 }
 
 export enum commonHeaderNames {

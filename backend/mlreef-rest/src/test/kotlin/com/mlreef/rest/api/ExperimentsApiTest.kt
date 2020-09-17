@@ -180,7 +180,7 @@ class ExperimentsApiTest : AbstractRestApiTest() {
             ))
         )
         val url = "$rootUrl/${dataProject.id}/experiments"
-        this.performPost(url, token, request).andExpect(status().isBadRequest)
+        this.performPost(url, token, request).andExpect(status().isConflict)
     }
 
     @Transactional

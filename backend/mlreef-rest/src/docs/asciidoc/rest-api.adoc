@@ -80,6 +80,9 @@ use of HTTP status codes.
 | `415 Unsupported Media Type`
 | Only json is supported
 
+| `451 Unavailable for legal reasons`
+| A create or update request cannot be accepted due to use of reserved/restricted words
+
 |===
 
 [[overview-headers]]
@@ -183,7 +186,7 @@ operation::password-reset-confirmation[snippets='curl-request,request-body,respo
 = Resources
 
 [[projects]]
-== Projects - /projects
+== Projects - /projects, /code-projects, /data-projects
 
 Projects are abstract entities with the subtypes DataProject and CodeProject.
 For many requests, Projects can be used, but create or update operations, you must use the specific /data-project and /code-project endpoints
@@ -220,7 +223,7 @@ operation::project-retrieve-public-all[snippets='curl-request']
 
 === GET /projects/public
 
-operation::genericprojects-retrieve-public[snippets='curl-request']
+operation::projects-retrieve-public[snippets='curl-request']
 
 === GET /projects/:id
 
@@ -271,20 +274,33 @@ operation::project-place-star[snippets='curl-request,response-body,response-fiel
 
 operation::project-remove-star[snippets='curl-request,response-body,response-fields']
 
+=== GET /projects/check-availability?
+
+|===
+| Status code | Usage
+
+| `200 OK`
+| String slug is returned
+
+| `409 Conflict`
+| Name or slug is already in use for the current owner/namespace
+
+| `451 Unavailable for legal reasons`
+| The name is on the blacklist for reserved names and cannot be used
+|===
+
+operation::project-check-availability-success[snippets='curl-request,request-parameters,response-body']
+
 [[code-projects]]
 == CodeProjects - /code-projects
 
 CodeProjects are the semantic equivalent of a gitlab project which acts as a place for DataProcessors
 
-Currently users can only retrieve and manipulate their own CodeProjects
+Currently, users can only retrieve and manipulate their own CodeProjects
 
 === GET /code-projects
 
 operation::projects-retrieve-all[snippets='curl-request,response-body,response-fields']
-
-=== GET /data-projects/public
-
-operation::codeprojects-retrieve-public[snippets='curl-request,response-body']
 
 === GET /code-projects/:id
 
@@ -358,10 +374,6 @@ Currently users can only retrieve and manipulate their own DataProjects
 
 operation::projects-retrieve-all[snippets='curl-request,response-body']
 
-=== GET /data-projects/public
-
-operation::dataprojects-retrieve-public[snippets='curl-request,response-body,response-fields']
-
 === GET /data-projects/:id
 
 operation::data-project-retrieve-one[snippets='curl-request,response-body,response-fields']
@@ -414,7 +426,7 @@ operation::dataprojects-delete-user[snippets='curl-request,response-body,respons
 
 === DELETE /data-projects/:id/users?
 
-Delete a user with parameters by user_id or gitlab_id from the project by id (:id). Returns a list with users left in the project.
+Delete a user with parameters by user_id or gitlab_id from the project by id (:id).Returns a list with users left in the project.
 
 * gitlab_id
 * user_id
@@ -432,6 +444,23 @@ Group is an entity that unites accounts to a single class/batch
 Returns current user's groups where the user has membership
 
 operation::user-groups-list[snippets='curl-request,response-body,response-fields']
+
+=== GET /group/check-availability?
+
+|===
+| Status code | Usage
+
+| `200 OK`
+| String slug is returned
+
+| `409 Conflict`
+| Name or slug is already in use
+
+| `451 Unavailable for legal reasons`
+| The name is on the blacklist for reserved names and cannot be used
+|===
+
+operation::group-check-availability-success[snippets='curl-request,request-parameters,response-body']
 
 === POST /groups
 

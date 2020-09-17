@@ -1,6 +1,6 @@
 package com.mlreef.rest
 
-import com.mlreef.rest.exceptions.GitlabConflictException
+import com.mlreef.rest.exceptions.ConflictException
 import com.mlreef.rest.exceptions.GitlabIncorrectAnswerException
 import com.mlreef.rest.external_api.gitlab.GitlabRestClient
 import com.mlreef.rest.external_api.gitlab.dto.GitlabProject
@@ -206,7 +206,7 @@ internal class DataPopulator(
     fun createUserAndTokenInGitlab(): GitlabUser {
         val gitlabUser = try {
             gitlabRestClient.adminCreateUser(email = email, name = username, username = username, password = "password")
-        } catch (clientErrorException: GitlabConflictException) {
+        } catch (clientErrorException: ConflictException) {
             log.info("Already existing dev user")
             val byUsername = gitlabRestClient.adminGetUsers(username = username)
                 .firstOrNull { it.username == username }

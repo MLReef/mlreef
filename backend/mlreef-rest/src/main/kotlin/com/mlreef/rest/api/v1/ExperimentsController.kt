@@ -51,7 +51,7 @@ class ExperimentsController(
 
     private fun beforeGetExperiment(experimentId: UUID): Experiment {
         return experimentRepository.findByIdOrNull(experimentId)
-            ?: throw NotFoundException("Experiment with id $experimentId not found")
+            ?: throw NotFoundException(ErrorCode.NotFound, "Experiment with id $experimentId not found")
     }
 
     private fun beforeGetExperiment(dataProjectId: UUID, idOrNumber: String): Experiment {
@@ -61,9 +61,9 @@ class ExperimentsController(
         val found = when {
             number != null -> experimentRepository.findOneByDataProjectIdAndNumber(dataProjectId, number)
             id != null -> experimentRepository.findOneByDataProjectIdAndId(dataProjectId, id)
-            else -> throw NotFoundException("Experiment not found: '$idOrNumber' not a valid id/number")
+            else -> throw NotFoundException(ErrorCode.NotFound, "Experiment not found: '$idOrNumber' not a valid id/number")
         }
-        return found ?: throw NotFoundException("Experiment with id/number $idOrNumber not found")
+        return found ?: throw NotFoundException(ErrorCode.NotFound, "Experiment with id/number $idOrNumber not found")
     }
 
     @GetMapping
@@ -77,7 +77,7 @@ class ExperimentsController(
     @PreAuthorize("canViewProject(#dataProjectId)")
     fun getExperiment(@PathVariable dataProjectId: UUID, @PathVariable idOrNumber: String): ExperimentDto {
         val experiment = beforeGetExperiment(dataProjectId, idOrNumber)
-        return experiment.toDto() ?: throw NotFoundException("Experiment not found")
+        return experiment.toDto()
     }
 
     fun <R> tryOrNull(func: () -> R): R? = try {
@@ -91,7 +91,7 @@ class ExperimentsController(
     fun getExperimentMetrics(@PathVariable dataProjectId: UUID, @PathVariable idOrNumber: String): PipelineJobInfoDto {
         val experiment = beforeGetExperiment(dataProjectId, idOrNumber)
         return experiment.pipelineJobInfo?.toDto()
-            ?: throw NotFoundException("Experiment does not have a PipelineJobInfo (yet)")
+            ?: throw NotFoundException(ErrorCode.NotFound, "Experiment does not have a PipelineJobInfo (yet)")
     }
 
     @GetMapping("/{idOrNumber}/mlreef-file", produces = [MediaType.TEXT_PLAIN_VALUE])

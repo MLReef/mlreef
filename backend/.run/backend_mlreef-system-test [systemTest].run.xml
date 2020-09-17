@@ -17,7 +17,7 @@
       </option>
       <option name="taskNames">
         <list>
-          <option value="systemTest" />
+          <option value=":mlreef-system-test:systemTest"/>
         </list>
       </option>
       <option name="vmOptions" value="" />

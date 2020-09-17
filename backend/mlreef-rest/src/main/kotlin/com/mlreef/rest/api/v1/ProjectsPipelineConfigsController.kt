@@ -55,7 +55,7 @@ class ProjectsPipelineConfigsController(
     @PreAuthorize("canViewProject(#dataProjectId)")
     fun getPipelineConfig(@PathVariable dataProjectId: UUID, @PathVariable id: UUID): PipelineConfigDto {
         val findOneByDataProjectIdAndId = pipelineConfigRepository.findOneByDataProjectIdAndId(dataProjectId, id)
-            ?: throw NotFoundException("Experiment not found")
+            ?: throw NotFoundException(ErrorCode.NotFound, "Experiment not found")
         return findOneByDataProjectIdAndId.toDto()
     }
 
@@ -69,7 +69,7 @@ class ProjectsPipelineConfigsController(
         log.info(updateRequest.toString())
 
         val existingPipelineConfig = pipelineConfigRepository.findOneByDataProjectIdAndId(dataProjectId, id)
-            ?: throw NotFoundException("PipelineConfig not found or not accessible")
+            ?: throw NotFoundException(ErrorCode.NotFound, "PipelineConfig not found or not accessible")
         val newPipelineConfig = existingPipelineConfig.copy(
             dataOperations = arrayListOf(),
             inputFiles = arrayListOf()

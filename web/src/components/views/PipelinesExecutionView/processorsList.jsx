@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import {
   shape, string, func, arrayOf,
 } from 'prop-types';
-import ProjectGeneralInfoApi from 'apis/projectGeneralInfoApi';
+import ProjectGeneralInfoApi from 'apis/ProjectGeneralInfoApi';
 import ArrowButton from '../../arrow-button/arrowButton';
 
 const projectInstance = new ProjectGeneralInfoApi();

@@ -6,7 +6,7 @@ import MTooltip from 'components/ui/MTooltip';
 import validateInput, { isJson } from 'functions/validations';
 import MWrapper from 'components/ui/MWrapper';
 import advice01 from 'images/advice-01.png';
-import ProjectGeneralInfoApi from 'apis/projectGeneralInfoApi';
+import ProjectGeneralInfoApi from 'apis/ProjectGeneralInfoApi';
 import Input from '../../input/input';
 import ArrowButton from '../../arrow-button/arrowButton';
 import './SortableDataProcessorList.scss';

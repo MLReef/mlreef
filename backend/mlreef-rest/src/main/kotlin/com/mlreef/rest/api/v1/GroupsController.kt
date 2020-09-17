@@ -14,6 +14,7 @@ import com.mlreef.rest.helpers.GroupOfUser
 import com.mlreef.rest.helpers.UserInGroup
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
+import org.springframework.http.MediaType
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
@@ -43,9 +44,24 @@ class GroupsController(
         return groupsService.getUserGroupsList(token.accessToken, person.id).map(GroupOfUser::toDto)
     }
 
+    @PreAuthorize("canCreateGroup()")
+    @GetMapping("/check-availability", produces = [MediaType.TEXT_PLAIN_VALUE])
+    fun checkAvailability(
+        @RequestParam(required = true) name: String = "",
+        token: TokenDetails,
+        person: Person
+    ): String {
+        return groupsService.checkAvailability(
+            userToken = token.accessToken,
+            creatingPersonId = person.id,
+            groupName = name,
+        )
+    }
+
     @PostMapping
     @PreAuthorize("canCreateGroup()")
     fun createGroup(@Valid @RequestBody groupCreateRequest: GroupCreateRequest, token: TokenDetails): GroupDto {
+
         val group = groupsService.createGroup(
             ownerToken = token.accessToken,
             groupName = groupCreateRequest.name,

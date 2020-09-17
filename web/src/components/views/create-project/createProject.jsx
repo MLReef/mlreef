@@ -22,7 +22,7 @@ import './createProject.css';
 import * as projectActions from '../../../actions/projectInfoActions';
 import * as userActions from '../../../actions/userActions';
 import { getGroupsList } from '../../../actions/groupsActions';
-import ProjectGeneraInfoApi from '../../../apis/projectGeneralInfoApi.ts';
+import ProjectGeneraInfoApi from '../../../apis/ProjectGeneralInfoApi.ts';
 import { convertToSlug } from '../../../functions/dataParserHelpers';
 import MCheckBox from '../../ui/MCheckBox/MCheckBox';
 import MRadioGroup from 'components/ui/MRadio/MRadioGroup';
@@ -113,6 +113,7 @@ class CreateProject extends Component {
     });
   }
 
+  // deprecated, candidate to be removed.
   handleCheckName = () => {
     const { projectName, slug } = this.state;
 
@@ -124,6 +125,42 @@ class CreateProject extends Component {
           ? 'This name is not available.' : '';
 
         if (nameTaken) this.setState({ nameErrors: nameTaken });
+      });
+  }
+
+  handleValidateName = () => {
+    const { projectName } = this.state;
+
+    if (projectName.length < 3) return;
+
+    projectGeneraInfoApi.getSlugForValidName(projectName)
+      .then((res) => {
+        if (res.status === 409) {
+          this.setState({ nameErrors: 'Conflicting: Project name is already used by you or in your teams' });
+        }
+        if (res.status === 451) {
+          this.setState({ nameErrors: 'Forbidden: The name does not comply with our naming policy. Please see the User Docs' });
+        }
+        if (!res.ok) return Promise.reject(res);
+        return res.status !== 204 ? res.json() : res;
+      })
+      .then((result) => {
+        const nameTooLong = projectName.length > MAX_LENGTH
+          ? `Name is too long; Maximum is ${MAX_LENGTH} characters` : '';
+        const dangerousName = validateProjectName(projectName)
+          ? ''
+          : 'Name can only contain letters, digits, "_", ".", dashes or spaces. It must start with a letter, digit or "_".';
+        this.setState({
+          projectName,
+          slug: result.slug,
+          nameErrors: nameTooLong || dangerousName,
+        });
+      })
+      .catch((err) => {
+        toastr.error('Error', err || 'Something went wrong.');
+      })
+      .finally(() => {
+        this.setState({ isFetching: false });
       });
   }
 
@@ -262,7 +299,7 @@ class CreateProject extends Component {
                <MInput
                  value={projectName}
                  onChange={this.handleProjectName}
-                 onBlur={this.handleCheckName}
+                 onBlur={this.handleValidateName}
                  className="text-input"
                  id="projectTitle"
                  type="text"

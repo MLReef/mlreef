@@ -36,6 +36,8 @@ import org.springframework.restdocs.payload.PayloadDocumentation
 import org.springframework.restdocs.payload.PayloadDocumentation.requestFields
 import org.springframework.restdocs.payload.PayloadDocumentation.responseFields
 import org.springframework.restdocs.request.RequestDocumentation
+import org.springframework.restdocs.request.RequestDocumentation.parameterWithName
+import org.springframework.restdocs.request.RequestDocumentation.requestParameters
 import org.springframework.test.annotation.Rollback
 import java.time.Instant
 import java.time.Period
@@ -416,6 +418,26 @@ class ProjectsApiTest : AbstractRestApiTest() {
             .returns(CodeProjectDto::class.java)
 
         assertThat(returnedResult).isNotNull()
+    }
+
+
+    @Transactional
+    @Rollback
+    @Test
+    @Tag(TestTags.RESTDOC)
+    fun `Cannot create CodeProject with name on reserved names list`() {
+        val request = ProjectCreateRequest(
+            slug = "test-project",
+            namespace = "mlreef",
+            name = "badges",
+            description = "Description of Test Project",
+            visibility = VisibilityScope.PUBLIC,
+            initializeWithReadme = true
+        )
+        this.mockGetUserProjectsList(account)
+        this.performPost("$rootUrl/code", token, body = request)
+            .isUnavailableForLegalReasons()
+
     }
 
     @Transactional

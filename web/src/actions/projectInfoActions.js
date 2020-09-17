@@ -1,5 +1,5 @@
 import { toastr } from 'react-redux-toastr';
-import ProjectGeneralInfoApi from 'apis/projectGeneralInfoApi';
+import ProjectGeneralInfoApi from 'apis/ProjectGeneralInfoApi';
 import { parseToCamelCase, adaptProjectModel } from 'functions/dataParserHelpers';
 import MLSearchApi from 'apis/MLSearchApi';
 import { handlePagination } from 'functions/apiCalls';

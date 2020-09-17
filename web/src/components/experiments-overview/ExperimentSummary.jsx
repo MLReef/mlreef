@@ -10,7 +10,7 @@ import { Line } from 'react-chartjs-2';
 import MModal from 'components/ui/MModal';
 import GitlabPipelinesApi from 'apis/GitlabPipelinesApi.ts';
 import ExperimentsApi from 'apis/experimentApi';
-import ProjectGeneralInfoApi from 'apis/projectGeneralInfoApi';
+import ProjectGeneralInfoApi from 'apis/ProjectGeneralInfoApi';
 import DataCard from 'components/layout/DataCard';
 import traiangle01 from '../../images/triangle-01.png';
 import ArrowButton from '../arrow-button/arrowButton';

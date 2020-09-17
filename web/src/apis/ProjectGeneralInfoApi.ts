@@ -118,11 +118,19 @@ export default class ProjectGeneralInfoApi extends ApiDirector {
   updateProjectDetails(projectId: number, body: Object) {
     const url = `/api/v1/data-projects/${projectId}`;
     const data = {...body}
-    const headers = this.buildBasicHeaders(validServicesToCall.BACKEND)
+    const headers = this.buildBasicHeaders(validServicesToCall.BACKEND);
     const builder = new ApiRequestCallBuilder(METHODS.PUT, headers, url, JSON.stringify(data));
 
     return fetch(builder.build())
       .then(handleResponse);
+  }
+
+  getSlugForValidName(name:string) {
+    const url = `/api/v1/project-names/is-available?name=${name}`;
+    const headers = this.buildBasicHeaders(validServicesToCall.BACKEND);
+    const builder = new BLApiRequestCallBuilder(METHODS.GET, headers, url);
+
+    return fetch(builder.build());
   }
 
   // updateProjectAvatar(projectId: number, payload: FormData) {

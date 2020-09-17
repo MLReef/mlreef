@@ -20,13 +20,13 @@ import com.mlreef.rest.annotations.RefreshGroupInformation
 import com.mlreef.rest.annotations.RefreshProject
 import com.mlreef.rest.annotations.RefreshUserInformation
 import com.mlreef.rest.exceptions.BadParametersException
+import com.mlreef.rest.exceptions.ConflictException
 import com.mlreef.rest.exceptions.ErrorCode
 import com.mlreef.rest.exceptions.GitlabCommonException
 import com.mlreef.rest.exceptions.GroupNotFoundException
 import com.mlreef.rest.exceptions.ProjectCreationException
-import com.mlreef.rest.exceptions.ProjectDeleteException
 import com.mlreef.rest.exceptions.ProjectNotFoundException
-import com.mlreef.rest.exceptions.ProjectUpdateException
+import com.mlreef.rest.exceptions.RestException
 import com.mlreef.rest.exceptions.UnknownGroupException
 import com.mlreef.rest.exceptions.UnknownProjectException
 import com.mlreef.rest.exceptions.UnknownUserException
@@ -40,13 +40,14 @@ import com.mlreef.rest.external_api.gitlab.toAccessLevel
 import com.mlreef.rest.external_api.gitlab.toGitlabAccessLevel
 import com.mlreef.rest.external_api.gitlab.toVisibilityScope
 import com.mlreef.rest.feature.caches.PublicProjectsCacheService
+import com.mlreef.rest.feature.system.ReservedNamesService
 import com.mlreef.rest.helpers.ProjectOfUser
 import com.mlreef.rest.helpers.UserInProject
 import com.mlreef.rest.marketplace.SearchableTag
+import com.mlreef.utils.Slugs
 import org.slf4j.LoggerFactory
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.data.domain.Pageable
 import org.springframework.data.repository.findByIdOrNull
 import java.time.Instant
@@ -149,6 +150,10 @@ interface ProjectService<T : Project> {
     fun deleteGroupFromProject(projectUUID: UUID, groupId: UUID? = null, groupGitlabId: Long? = null): Group
 
     fun updateUserNameInProjects(oldUserName: String, newUserName: String, tokenDetails: TokenDetails)
+    fun checkAvailability(userToken: String,
+                          creatingPersonId: UUID,
+                          projectName: String,
+                          projectNamespace: String?): String
 }
 
 @Configuration
@@ -158,6 +163,7 @@ class ProjectTypesConfiguration(
     val codeProjectRepository: CodeProjectRepository,
     val publicProjectsCacheService: PublicProjectsCacheService,
     val gitlabRestClient: GitlabRestClient,
+    private val reservedNamesService: ReservedNamesService,
     private val accountRepository: AccountRepository,
     private val groupRepository: GroupRepository,
     private val subjectRepository: SubjectRepository
@@ -165,17 +171,17 @@ class ProjectTypesConfiguration(
 ) {
     @Bean
     fun dataProjectService(): ProjectService<DataProject> {
-        return ProjectServiceImpl(DataProject::class.java, dataProjectRepository, publicProjectsCacheService, gitlabRestClient, accountRepository, groupRepository, subjectRepository)
+        return ProjectServiceImpl(DataProject::class.java, dataProjectRepository, publicProjectsCacheService, gitlabRestClient, reservedNamesService, accountRepository, groupRepository, subjectRepository)
     }
 
     @Bean
     fun codeProjectService(): ProjectService<CodeProject> {
-        return ProjectServiceImpl(CodeProject::class.java, codeProjectRepository, publicProjectsCacheService, gitlabRestClient, accountRepository, groupRepository, subjectRepository)
+        return ProjectServiceImpl(CodeProject::class.java, codeProjectRepository, publicProjectsCacheService, gitlabRestClient, reservedNamesService, accountRepository, groupRepository, subjectRepository)
     }
 
     @Bean
     fun projectService(): ProjectService<Project> {
-        return ProjectServiceImpl(Project::class.java, projectRepository, publicProjectsCacheService, gitlabRestClient, accountRepository, groupRepository, subjectRepository)
+        return ProjectServiceImpl(Project::class.java, projectRepository, publicProjectsCacheService, gitlabRestClient, reservedNamesService, accountRepository, groupRepository, subjectRepository)
     }
 }
 
@@ -184,6 +190,7 @@ open class ProjectServiceImpl<T : Project>(
     val repository: ProjectBaseRepository<T>,
     val publicProjectsCacheService: PublicProjectsCacheService,
     val gitlabRestClient: GitlabRestClient,
+    private val reservedNamesService: ReservedNamesService,
     private val accountRepository: AccountRepository,
     private val groupRepository: GroupRepository,
     private val subjectRepository: SubjectRepository
@@ -258,6 +265,46 @@ open class ProjectServiceImpl<T : Project>(
         return repository.findByNamespaceAndPath(namespaceName, slug)
     }
 
+    override fun checkAvailability(
+        userToken: String,
+        creatingPersonId: UUID,
+        projectName: String,
+        projectNamespace: String?
+    ): String {
+
+        val possibleSlug = Slugs.toSlug(projectName)
+        val findNamespace = if (projectNamespace != null && projectNamespace.isNotBlank()) try {
+            gitlabRestClient
+                .findNamespace(userToken, projectNamespace)
+                .firstOrNull { it.path.toLowerCase().contains(projectNamespace.toLowerCase()) }
+        } catch (e: Exception) {
+            null
+        } else null
+
+        val ownerId = if (findNamespace != null) {
+            val findByPath = subjectRepository.findBySlug(findNamespace.path)
+            findByPath.firstOrNull()?.id
+                ?: throw ProjectCreationException(ErrorCode.ProjectNamespaceSubjectNotFound, "Gitlab Namespace ${findNamespace.id} not connected to persisted Subject")
+        } else {
+            creatingPersonId
+        }
+
+        reservedNamesService.assertProjectNameIsNotReserved(projectName)
+
+        val findAllByOwnerId = repository.findAllByOwnerId(ownerId)
+        repository.findOneByOwnerIdAndSlug(ownerId, possibleSlug)?.let {
+            throw ConflictException(ErrorCode.GitlabProjectAlreadyExists, "Project exists for owner $creatingPersonId")
+        }
+
+        if (projectNamespace != null) {
+            repository.findByNamespaceAndPath(projectNamespace, possibleSlug)?.let {
+                throw ConflictException(ErrorCode.GitlabProjectAlreadyExists, "Project exists for owner $creatingPersonId")
+            }
+        }
+
+        return possibleSlug
+    }
+
     @RefreshUserInformation(userId = "#ownerId")
     @RefreshProject
     override fun createProject(
@@ -271,6 +318,7 @@ open class ProjectServiceImpl<T : Project>(
         initializeWithReadme: Boolean,
         inputDataTypes: List<DataType>?
     ): T {
+        reservedNamesService.assertProjectNameIsNotReserved(projectName)
 
         val findNamespace = if (projectNamespace.isNotBlank()) try {
             val findNamespaces = gitlabRestClient.findNamespace(userToken, projectNamespace)
@@ -315,8 +363,8 @@ open class ProjectServiceImpl<T : Project>(
             } else {
                 saveProject(project)
             }
-        } catch (e: DataIntegrityViolationException) {
-            throw ProjectCreationException(ErrorCode.GitlabProjectIdAlreadyUsed, e.message
+        } catch (e: Exception) {
+            throw ConflictException(ErrorCode.GitlabProjectIdAlreadyUsed, e.message
                 ?: "GitlabId of new projects creates a conflict")
         }
     }
@@ -328,6 +376,8 @@ open class ProjectServiceImpl<T : Project>(
     @RefreshProject(projectId = "#projectUUID")
     override fun updateProject(userToken: String, ownerId: UUID, projectUUID: UUID, projectName: String?, description: String?, visibility: VisibilityScope?, inputDataTypes: List<DataType>?, outputDataTypes: List<DataType>?, tags: List<SearchableTag>?): T {
         val project = this.getProjectById(projectUUID) ?: throw ProjectNotFoundException(projectUUID)
+        reservedNamesService.assertProjectNameIsNotReserved(projectName ?: project.name)
+
         try {
             val gitlabProject = gitlabRestClient.userUpdateProject(
                 id = project.gitlabId,
@@ -348,7 +398,7 @@ open class ProjectServiceImpl<T : Project>(
                 )
             )
         } catch (e: GitlabCommonException) {
-            throw ProjectUpdateException(ErrorCode.GitlabProjectCreationFailed, "Cannot update Project $projectUUID: ${e.responseBodyAsString}")
+            throw RestException(ErrorCode.GitlabProjectCreationFailed, "Cannot update Project $projectUUID: ${e.message}")
         }
     }
 
@@ -359,7 +409,7 @@ open class ProjectServiceImpl<T : Project>(
             gitlabRestClient.deleteProject(id = project.gitlabId, token = userToken)
             repository.delete(project)
         } catch (e: GitlabCommonException) {
-            throw ProjectDeleteException(ErrorCode.GitlabProjectCreationFailed, "Cannot delete Project $projectUUID: ${e.responseBodyAsString}")
+            throw RestException(ErrorCode.GitlabProjectDeleteFailed, "Cannot delete Project $projectUUID: ${e.message}")
         }
     }
 

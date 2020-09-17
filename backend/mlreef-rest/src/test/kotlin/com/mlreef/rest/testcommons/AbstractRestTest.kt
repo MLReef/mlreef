@@ -147,6 +147,18 @@ abstract class AbstractRestTest {
         return this.andExpect(MockMvcResultMatchers.status().isBadRequest)
     }
 
+    fun ResultActions.isNotFound(): ResultActions {
+        return this.andExpect(MockMvcResultMatchers.status().isNotFound)
+    }
+
+    fun ResultActions.isConflict(): ResultActions {
+        return this.andExpect(MockMvcResultMatchers.status().isConflict)
+    }
+
+    fun ResultActions.isUnavailableForLegalReasons(): ResultActions {
+        return this.andExpect(MockMvcResultMatchers.status().isUnavailableForLegalReasons)
+    }
+
     @PublishedApi
     internal var `access$objectMapper`: ObjectMapper
         get() = objectMapper

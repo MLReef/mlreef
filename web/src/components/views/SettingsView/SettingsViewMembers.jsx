@@ -9,7 +9,7 @@ import MInput from 'components/ui/MInput';
 import MSimpleSelect from 'components/ui/MSimpleSelect';
 import MButton from 'components/ui/MButton';
 import SearchApi from 'apis/SearchApi';
-import ProjectGeneralInfoApi from 'apis/projectGeneralInfoApi';
+import ProjectGeneralInfoApi from 'apis/ProjectGeneralInfoApi';
 import { parseDate } from 'functions/dataParserHelpers';
 
 // const logAndGo = (payload) => console.log(payload) || payload;

@@ -1,10 +1,10 @@
 package com.mlreef.rest.integration
 
+import com.mlreef.rest.exceptions.BadRequestException
+import com.mlreef.rest.exceptions.ConflictException
 import com.mlreef.rest.exceptions.GitlabAuthenticationFailedException
-import com.mlreef.rest.exceptions.GitlabBadRequestException
 import com.mlreef.rest.exceptions.GitlabCommonException
-import com.mlreef.rest.exceptions.GitlabConflictException
-import com.mlreef.rest.exceptions.GitlabNotFoundException
+import com.mlreef.rest.exceptions.NotFoundException
 import com.mlreef.rest.external_api.gitlab.GitlabAccessLevel
 import com.mlreef.rest.external_api.gitlab.GitlabRestClient
 import com.mlreef.rest.utils.RandomUtils
@@ -141,7 +141,7 @@ class GitlabRestClientTest : AbstractIntegrationTest() {
         val createProject = createProject(token)
         assertThat(createProject).isNotNull
 
-        assertThrows<GitlabBadRequestException> {
+        assertThrows<BadRequestException> {
             gitlabRestClient.createBranch(
                 token = token,
                 projectId = createProject.id,
@@ -248,14 +248,14 @@ class GitlabRestClientTest : AbstractIntegrationTest() {
 
     @Test
     fun `adminGetProject must not deliver not-existing projects`() {
-        assertThrows<GitlabNotFoundException> {
+        assertThrows<NotFoundException> {
             gitlabRestClient.adminGetProject(Long.MAX_VALUE)
         }
     }
 
     @Test
     fun `adminGetProjectMembers must not deliver for not-existing projects`() {
-        assertThrows<GitlabNotFoundException> {
+        assertThrows<NotFoundException> {
             gitlabRestClient.adminGetProjectMembers(Long.MAX_VALUE)
         }
     }
@@ -285,7 +285,7 @@ class GitlabRestClientTest : AbstractIntegrationTest() {
         val (_, token1, _) = testsHelper.createRealUser()
         val (user2, _, _) = testsHelper.createRealUser()
         val project1 = createProject(token1)
-        assertThrows<GitlabNotFoundException> {
+        assertThrows<NotFoundException> {
             gitlabRestClient.adminGetProjectMember(project1.id, user2.person.gitlabId!!)
         }
     }
@@ -294,7 +294,7 @@ class GitlabRestClientTest : AbstractIntegrationTest() {
     fun `adminAddUserToProject must not accept not-existing user`() {
         val (_, token1, _) = testsHelper.createRealUser()
         val project1 = createProject(token1)
-        assertThrows<GitlabNotFoundException> {
+        assertThrows<NotFoundException> {
             gitlabRestClient.adminAddUserToProject(project1.id, Long.MAX_VALUE)
         }
     }
@@ -303,7 +303,7 @@ class GitlabRestClientTest : AbstractIntegrationTest() {
     fun `adminAddUserToProject must not accept already included user`() {
         val (user1, token1, _) = testsHelper.createRealUser()
         val project1 = createProject(token1)
-        assertThrows<GitlabConflictException> {
+        assertThrows<ConflictException> {
             gitlabRestClient.adminAddUserToProject(project1.id, user1.person.gitlabId!!)
         }
     }
@@ -322,7 +322,7 @@ class GitlabRestClientTest : AbstractIntegrationTest() {
     fun `adminEditUserInProject must not accept not-existing user`() {
         val (_, token1, _) = testsHelper.createRealUser()
         val project1 = createProject(token1)
-        assertThrows<GitlabNotFoundException> {
+        assertThrows<NotFoundException> {
             gitlabRestClient.adminEditUserInProject(project1.id, Long.MAX_VALUE)
         }
     }

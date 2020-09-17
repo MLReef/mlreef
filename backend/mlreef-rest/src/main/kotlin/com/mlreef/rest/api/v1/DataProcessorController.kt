@@ -20,6 +20,7 @@ import com.mlreef.rest.api.v1.dto.DataProcessorDto
 import com.mlreef.rest.api.v1.dto.ParameterDto
 import com.mlreef.rest.api.v1.dto.ProcessorVersionDto
 import com.mlreef.rest.api.v1.dto.toDto
+import com.mlreef.rest.exceptions.ErrorCode
 import com.mlreef.rest.exceptions.NotFoundException
 import com.mlreef.rest.feature.data_processors.DataProcessorService
 import com.mlreef.rest.feature.project.ProjectService
@@ -84,7 +85,7 @@ class DataProcessorsController(
     @PostAuthorize("postCanViewProcessor()")
     fun getDataProcessorById(@PathVariable id: UUID): DataProcessorDto {
         val dataProcessor = dataProcessorRepository.findByIdOrNull(id)
-            ?: throw NotFoundException("Data processor not found by id: $id")
+            ?: throw NotFoundException(ErrorCode.NotFound, "Data processor not found by id: $id")
         return dataProcessor.toDto()
     }
 
@@ -92,7 +93,7 @@ class DataProcessorsController(
     @PreAuthorize("canViewProcessor(#id)")
     fun getDataProcessorByIdVersions(@PathVariable id: UUID): List<ProcessorVersionDto> {
         val dataProcessor = dataProcessorRepository.findByIdOrNull(id)
-            ?: throw NotFoundException("Data processor not found by id: $id")
+            ?: throw NotFoundException(ErrorCode.NotFound, "Data processor not found by id: $id")
         val versions = processorVersionRepository.findAllByDataProcessorId(id)
 
         return versions.map(ProcessorVersion::toDto)
@@ -103,7 +104,7 @@ class DataProcessorsController(
     @PostAuthorize("postCanViewProcessor()")
     fun getDataProcessorBySlug(@PathVariable slug: String): DataProcessorDto {
         val dataProcessor = dataProcessorRepository.findBySlug(slug)
-            ?: throw NotFoundException("Data processor not found by slug: $slug")
+            ?: throw NotFoundException(ErrorCode.NotFound, "Data processor not found by slug: $slug")
         return dataProcessor.toDto()
     }
 
@@ -111,7 +112,7 @@ class DataProcessorsController(
     @PreAuthorize("canViewProject(#codeProjectId)")
     fun getByCodeProjects(@PathVariable codeProjectId: UUID): DataProcessorDto {
         val dataProcessor = dataProcessorRepository.findAllByCodeProjectId(codeProjectId).firstOrNull()
-            ?: throw NotFoundException("processor not found: $codeProjectId")
+            ?: throw NotFoundException(ErrorCode.NotFound, "processor not found: $codeProjectId")
         return dataProcessor.toDto()
     }
 
@@ -123,7 +124,7 @@ class DataProcessorsController(
         owner: Person
     ): DataProcessorDto {
         val codeProject = codeProjectService.getProjectById(codeProjectId)
-            ?: throw NotFoundException("Code project with id $codeProjectId not found")
+            ?: throw NotFoundException(ErrorCode.NotFound, "Code project with id $codeProjectId not found")
         val dataProcessorId = randomUUID()
         val mapIndexed = createRequest.parameters.mapIndexed { index, it ->
             createParameterFromDto(it, dataProcessorId = dataProcessorId, order = index)

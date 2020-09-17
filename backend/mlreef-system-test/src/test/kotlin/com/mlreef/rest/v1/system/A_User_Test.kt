@@ -47,7 +47,7 @@ class A_User_Test : AbstractSystemTest() {
 
     @Test
     fun `A03 Create new group`() {
-        val groupName = RandomUtils.generateRandomUserName(10)
+        val groupName = RandomUtils.generateRandomUserName(15)
         val registerRequest = GroupCreateRequest(groupName, "unused", groupName)
         val response: ResponseEntity<GroupDto> = backendRestClient.post("/groups", accessToken, registerRequest)
         val returnedResult = response.expectOk().returns()
