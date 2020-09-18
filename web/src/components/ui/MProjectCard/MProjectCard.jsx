@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { Link, useHistory } from 'react-router-dom';
 import iconGrey from 'images/icon_grey-01.png';
@@ -22,10 +22,29 @@ const MProjectCard = (props) => {
 
   const history = useHistory();
 
+  const [avatars, setAvatars] = useState([]);
+
   const goToProjectView = () => history.push(`/${namespace}/${slug}`);
   /*
   const hasOutputTypes = !['ALGORITHM', 'VISUALIZATION']
     .some((t) => dataProcessor?.type === t); */
+
+  useEffect(
+    () => {
+      let isMounted = true;
+
+      if (users instanceof Promise) {
+        users.then((results) => {
+          if (isMounted) setAvatars(results);
+        });
+      }
+
+      if (Array.isArray(users)) setAvatars(users);
+
+      return () => { isMounted = false; };
+    },
+    [users],
+  );
 
   return (
     <div className="card">
@@ -73,24 +92,22 @@ const MProjectCard = (props) => {
         </div>
 
         <div className="card-actions">
-          {users && (
-            <div className="avatars-reversed">
-              {[...users].reverse().map((ava) => (
-                <Link
-                  key={`ava-cont-${ava.id}`}
-                  to={`/${ava.username}`}
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <img
-                    src={ava.avatar_url}
-                    title={ava.username}
-                    alt={ava.username}
-                    className="project-card-avatar"
-                  />
-                </Link>
-              ))}
-            </div>
-          )}
+          <div className="avatars-reversed">
+            {avatars.map((ava) => (
+              <Link
+                key={`ava-cont-${ava.id}`}
+                to={`/${ava.username}`}
+                onClick={(e) => e.stopPropagation()}
+              >
+                <img
+                  src={ava.avatar_url}
+                  title={ava.username}
+                  alt={ava.username}
+                  className="project-card-avatar"
+                />
+              </Link>
+            ))}
+          </div>
         </div>
       </div>
     </div>
@@ -114,11 +131,15 @@ MProjectCard.propTypes = {
   forkCount: PropTypes.number,
   slug: PropTypes.string.isRequired,
   namespace: PropTypes.string.isRequired,
-  users: PropTypes.arrayOf(PropTypes.shape({
-    id: PropTypes.number,
-    username: PropTypes.string,
-    avatar_id: PropTypes.string,
-  })),
+  // users: PropTypes.object,
+  users: PropTypes.oneOfType([
+    PropTypes.instanceOf(Object),
+    PropTypes.arrayOf(PropTypes.shape({
+      id: PropTypes.number,
+      username: PropTypes.string,
+      avatar_id: PropTypes.string,
+    })),
+  ]),
   inputDataTypes: PropTypes.arrayOf(PropTypes.string),
   // outputDataTypes: PropTypes.arrayOf(PropTypes.string),
   dataProcessor: PropTypes.shape({
