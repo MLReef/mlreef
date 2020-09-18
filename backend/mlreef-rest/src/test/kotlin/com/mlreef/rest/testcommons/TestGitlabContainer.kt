@@ -6,6 +6,7 @@ import org.springframework.boot.test.util.TestPropertyValues
 import org.springframework.context.ApplicationContextInitializer
 import org.springframework.context.ConfigurableApplicationContext
 import org.springframework.test.context.ActiveProfiles
+import org.testcontainers.containers.BindMode
 import org.testcontainers.containers.GenericContainer
 import org.testcontainers.containers.output.Slf4jLogConsumer
 import org.testcontainers.containers.wait.strategy.LogMessageWaitStrategy
@@ -34,6 +35,7 @@ class TestGitlabContainer private constructor() : GenericContainer<TestGitlabCon
                 setWaitStrategy(waitStrategyForLog)
                 withLogConsumer(Slf4jLogConsumer(logger))
                 withEnv(createConfig())
+                withClasspathResourceMapping("gitlab.rb", "/etc/gitlab/gitlab.rb", BindMode.READ_ONLY)
             }
 
             container

@@ -22,7 +22,6 @@ class PasswordController(
         @RequestParam(value = "user_name", required = false) userName: String?,
         @RequestParam(value = "user_id", required = false) userId: UUID?
     ) {
-        //TODO: Add capcha!!!!!!!!!!!!!
         passwordService.resetPasswordStart(email, userName, userId)
     }
 

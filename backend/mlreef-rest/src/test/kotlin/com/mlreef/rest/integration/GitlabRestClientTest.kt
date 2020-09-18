@@ -83,7 +83,7 @@ class GitlabRestClientTest : AbstractIntegrationTest() {
     fun `userUpdateProject must not accept empty name`() {
         val createProject = createProject(token)
         assertThat(createProject).isNotNull
-        assertThrows<GitlabCommonException> {
+        assertThrows<BadRequestException> {
             gitlabRestClient.userUpdateProject(
                 id = createProject.id,
                 token = token,
@@ -97,7 +97,7 @@ class GitlabRestClientTest : AbstractIntegrationTest() {
     fun `userUpdateProject must not change visibility`() {
         val createProject = createProject(token)
         assertThat(createProject).isNotNull
-        assertThrows<GitlabCommonException> {
+        assertThrows<BadRequestException> {
             gitlabRestClient.userUpdateProject(
                 id = createProject.id,
                 token = token,
@@ -155,7 +155,7 @@ class GitlabRestClientTest : AbstractIntegrationTest() {
     fun `deleteBranch must not delete master`() {
         val createProject = createProject(token)
         assertThat(createProject).isNotNull
-        assertThrows<GitlabCommonException> {
+        assertThrows<BadRequestException> {
             gitlabRestClient.deleteBranch(
                 token = token,
                 projectId = createProject.id,
@@ -201,7 +201,7 @@ class GitlabRestClientTest : AbstractIntegrationTest() {
             targetBranch = "second"
         )
 
-        assertThrows<GitlabCommonException> {
+        assertThrows<NotFoundException> {
             gitlabRestClient.deleteBranch(
                 token = token,
                 projectId = createProject.id,

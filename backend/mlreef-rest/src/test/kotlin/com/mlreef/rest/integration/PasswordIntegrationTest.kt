@@ -97,7 +97,7 @@ class PasswordIntegrationTest : AbstractIntegrationTest() {
         val passwordResetUrl = "$passwordsUrl/reset?email=whattheemailitis@example.com"
 
         this.performPost(passwordResetUrl)
-            .expectBadRequest()
+            .expect4xx()
     }
 
 }
