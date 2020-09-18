@@ -50,6 +50,7 @@ dependencies {
     // DO NOT USE:   testImplementation "org.junit.jupiter:junit-jupiter-api:$jupiter"
     // DO NOT USE:   testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:$jupiter"
     testImplementation('org.springframework.boot:spring-boot-starter-test') {
+        exclude group: "org.junit.vintage", module: "junit-vintage-engine"
         exclude group: 'junit', module: 'junit' //by both name and group
         exclude group: 'mockito', module: 'mockito-core' //by both name and group
     }

@@ -66,6 +66,7 @@ class EmailTemplateService(
         context.setVariable(EmailVariables.USER_NAME.name, variables[EmailVariables.USER_NAME])
         context.setVariable(EmailVariables.REDIRECT_URL.name, variables[EmailVariables.REDIRECT_URL])
 
+
         return templateEngine.process(templatePath, context)
     }
 

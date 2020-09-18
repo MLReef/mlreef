@@ -80,7 +80,7 @@ class GitlabRestClient(
         private const val PERMANENT_TOKEN_VALUE_PREFIX = ""
         private const val IS_ADMIN_INTERNAL_HEADER = "is-admin"
 
-        private const val REPEAT_REQUESTS_WHEN_GITLAB_UNAVAILABLE = 3
+        private const val REPEAT_REQUESTS_WHEN_GITLAB_UNAVAILABLE = 5
         private const val PAUSE_BETWEEN_REPEAT_WHEN_GITLAB_UNAVAILABLE_MS = 1500L
         private const val GITLAB_FAILED_LIMIT_REACHED_ERROR_MESSAGE_EMPTY = "\"limit_reached\":[]"
         private const val GITLAB_FAILED_LIMIT_REACHED_ERROR_PREFIX = "\"limit_reached\":["
@@ -119,7 +119,7 @@ class GitlabRestClient(
             .makeRequest {
                 val url = "$gitlabServiceRootUrl/projects"
                 restTemplate(builder).exchange(url, HttpMethod.POST, it, GitlabProject::class.java)
-            }
+            } ?: throw Exception("GitlabRestClient: Gitlab response does not contain a body.")
     }
 
     // https://docs.gitlab.com/ee/api/projects.html#star-a-project
@@ -129,7 +129,7 @@ class GitlabRestClient(
             .makeRequest {
                 val url = "$gitlabServiceRootUrl/projects/$projectId/star"
                 restTemplate(builder).exchange(url, HttpMethod.POST, it, GitlabProject::class.java)
-            }
+            } ?: throw Exception("GitlabRestClient: Gitlab response does not contain a body.")
     }
 
     // https://docs.gitlab.com/ee/api/projects.html#star-a-project
@@ -139,7 +139,7 @@ class GitlabRestClient(
             .makeRequest {
                 val url = "$gitlabServiceRootUrl/projects/$projectId/unstar"
                 restTemplate(builder).exchange(url, HttpMethod.POST, it, GitlabProject::class.java)
-            }
+            } ?: throw Exception("GitlabRestClient: Gitlab response does not contain a body.")
     }
 
     fun adminGetProjects(search: String? = null): List<GitlabProject> {
@@ -152,7 +152,7 @@ class GitlabRestClient(
                     "$gitlabServiceRootUrl/projects"
                 }
                 restTemplate(builder).exchange(url, HttpMethod.GET, it, typeRef<List<GitlabProject>>())
-            }
+            } ?: throw Exception("GitlabRestClient: Gitlab response does not contain a body.")
     }
 
     // https://docs.gitlab.com/ee/api/projects.html#list-user-projects
@@ -163,7 +163,7 @@ class GitlabRestClient(
             .makeRequest {
                 val url = "$gitlabServiceRootUrl/users/$userId/projects?per_page=100"
                 restTemplate(builder).exchange(url, HttpMethod.GET, it, typeRef<List<GitlabProject>>())
-            }
+            } ?: throw Exception("GitlabRestClient: Gitlab response does not contain a body.")
     }
 
     fun adminGetProject(projectId: Long): GitlabProject {
@@ -173,7 +173,7 @@ class GitlabRestClient(
             .makeRequest {
                 val url = "$gitlabServiceRootUrl/projects/$projectId"
                 restTemplate(builder).exchange(url, HttpMethod.GET, it, GitlabProject::class.java)
-            }
+            } ?: throw Exception("GitlabRestClient: Gitlab response does not contain a body.")
     }
 
 
@@ -184,7 +184,7 @@ class GitlabRestClient(
             .makeRequest {
                 val url = "$gitlabServiceRootUrl/projects/$projectId/members/all"
                 restTemplate(builder).exchange(url, HttpMethod.GET, it, typeRef<List<GitlabUserInProject>>())
-            }
+            } ?: throw Exception("GitlabRestClient: Gitlab response does not contain a body.")
     }
 
     fun adminGetProjectMember(projectId: Long, userId: Long): GitlabUserInProject {
@@ -261,7 +261,7 @@ class GitlabRestClient(
     fun adminDeleteUserFromProject(projectId: Long, userId: Long) {
         GitlabHttpEntity(null, createAdminHeaders())
             .addErrorDescription(ErrorCode.GitlabMembershipDeleteFailed, "Cannot revoke user's $userId membership from project $projectId")
-            .makeRequest {
+            .makeRequestNoBody {
                 val url = "$gitlabServiceRootUrl/projects/$projectId/members/$userId"
                 restTemplate(builder).exchange(url, HttpMethod.DELETE, it, Any::class.java)
             }
@@ -362,7 +362,7 @@ class GitlabRestClient(
     fun deleteBranch(token: String, projectId: Long, targetBranch: String) {
         GitlabHttpEntity(null, createUserHeaders(token))
             .addErrorDescription(ErrorCode.GitlabBranchDeletionFailed, "Cannot delete branch $targetBranch in project with id $projectId")
-            .makeRequest {
+            .makeRequestNoBody {
                 val url = "$gitlabServiceRootUrl/projects/$projectId/repository/branches/$targetBranch"
                 restTemplate(builder).exchange(url, HttpMethod.DELETE, it, Any::class.java)
             }
@@ -788,7 +788,7 @@ class GitlabRestClient(
     fun adminDeleteUserFromGroup(groupId: Long, userId: Long) {
         GitlabHttpEntity(null, createAdminHeaders())
             .addErrorDescription(ErrorCode.GitlabMembershipDeleteFailed, "Cannot revoke user's membership from group $groupId")
-            .makeRequest {
+            .makeRequestNoBody {
                 val url = "$gitlabServiceRootUrl/groups/$groupId/members/$userId"
                 restTemplate(builder).exchange(url, HttpMethod.DELETE, it, Any::class.java)
             }
@@ -899,27 +899,40 @@ class GitlabRestClient(
                 .body
                 ?: throw Exception("GitlabRestClient: Gitlab response does not contain a body.")
         } catch (ex: HttpStatusCodeException) {
-            try {
-                if (ex.statusCode == HttpStatus.UNAUTHORIZED || ex.statusCode == HttpStatus.FORBIDDEN) {
-                    repeatUnauthorized(this, ex, block).body
-                } else if (ex.statusCode == HttpStatus.BAD_GATEWAY || ex.statusCode == HttpStatus.INTERNAL_SERVER_ERROR) {
-                    repeatBadGateway(this, ex, block).body
-                } else if (
-                    ex.statusCode == HttpStatus.BAD_REQUEST
-                    && ex.responseBodyAsString.contains(GITLAB_FAILED_LIMIT_REACHED_ERROR_PREFIX)
-                    && !ex.responseBodyAsString.contains(GITLAB_FAILED_LIMIT_REACHED_ERROR_MESSAGE_EMPTY)
-                ) {
-                    repeatBadGateway(this, ex, block).body
-                } else
-                    throw ex
-            } catch (ex: HttpStatusCodeException) {
-                throw handleException(
-                    this.getErrorCode(ex.rawStatusCode),
-                    this.getErrorName(ex.rawStatusCode),
-                    ex
-                )
-            }
+            processExceptionFormGitlab(ex, this, block)
+                ?: throw Exception("GitlabRestClient: Gitlab response does not contain a body.")
         }
+
+    private fun <T : GitlabHttpEntity<out Any>, R> T.makeRequestNoBody(block: (T) -> ResponseEntity<out R>) =
+        try {
+            block.invoke(this)
+                .also { logGitlabCall(it) }
+        } catch (ex: HttpStatusCodeException) {
+            processExceptionFormGitlab(ex, this, block)
+        }
+
+    private fun <T : GitlabHttpEntity<out Any>, R> processExceptionFormGitlab(ex: HttpStatusCodeException, entity: T, block: (T) -> ResponseEntity<out R>): R? {
+        return try {
+            if (ex.statusCode == HttpStatus.UNAUTHORIZED || ex.statusCode == HttpStatus.FORBIDDEN) {
+                repeatUnauthorized(entity, ex, block).body
+            } else if (ex.statusCode == HttpStatus.BAD_GATEWAY || ex.statusCode == HttpStatus.INTERNAL_SERVER_ERROR) {
+                repeatBadGateway(entity, ex, block).body
+            } else if (
+                ex.statusCode == HttpStatus.BAD_REQUEST
+                && ex.responseBodyAsString.contains(GITLAB_FAILED_LIMIT_REACHED_ERROR_PREFIX)
+                && !ex.responseBodyAsString.contains(GITLAB_FAILED_LIMIT_REACHED_ERROR_MESSAGE_EMPTY)
+            ) {
+                repeatBadGateway(entity, ex, block).body
+            } else
+                repeatBadGateway(entity, ex, block).body
+        } catch (ex: HttpStatusCodeException) {
+            throw handleException(
+                entity.getErrorCode(ex.rawStatusCode),
+                entity.getErrorName(ex.rawStatusCode),
+                ex
+            )
+        }
+    }
 
 
     private fun <T : GitlabHttpEntity<out Any>, R> repeatUnauthorized(entity: T, ex: HttpStatusCodeException, block: (T) -> R): R {
@@ -940,11 +953,11 @@ class GitlabRestClient(
         } else throw ex
     }
 
-    private fun <T : GitlabHttpEntity<out Any>, R> repeatBadGateway(entity: T, ex: HttpStatusCodeException, block: (T) -> R, turn: Int = 0): R {
-        if (turn >= REPEAT_REQUESTS_WHEN_GITLAB_UNAVAILABLE)
+    private fun <T : GitlabHttpEntity<out Any>, R> repeatBadGateway(entity: T, ex: HttpStatusCodeException, block: (T) -> R, turn: Int = 1): R {
+        if (turn > REPEAT_REQUESTS_WHEN_GITLAB_UNAVAILABLE)
             throw ex
 
-        Thread.sleep(PAUSE_BETWEEN_REPEAT_WHEN_GITLAB_UNAVAILABLE_MS)
+        Thread.sleep(PAUSE_BETWEEN_REPEAT_WHEN_GITLAB_UNAVAILABLE_MS * turn)
 
         return try {
             block.invoke(entity)

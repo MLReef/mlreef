@@ -25,7 +25,7 @@ import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.put
 import org.springframework.test.annotation.Rollback
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import java.time.ZonedDateTime
-import java.util.UUID
+import java.util.*
 import java.util.UUID.randomUUID
 import javax.transaction.Transactional
 
@@ -171,7 +171,7 @@ class ExperimentsIntegrationTest : AbstractIntegrationTest() {
         val url = "$rootUrl/${project.id}/experiments"
 
         this.performPost(url, token, request)
-            .expectBadRequest()
+            .expect4xx()
     }
 
     @Transactional
