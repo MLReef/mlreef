@@ -17,11 +17,10 @@ const mergeWithGitlabProject = (project) => projectApi.getProjectInfoApi(project
 
 // fetch complementary member list from gitlab api, so far it's not possible
 // to get them within each project
-const mergeGitlabResource = (projects) => Promise.all(
-  projects.map((project) => projectApi.getUsers(project.gitlabId)
-    .then((members) => ({ ...project, members }))
-    .catch(() => project)),
-);
+const mergeGitlabResource = (projects) => projects.map((project) => ({
+  ...project,
+  members: projectApi.getUsers(project.gitlabId),
+}));
 
 /**
  *
@@ -61,11 +60,15 @@ export function getProjectsList() {
     }
     const finalArray = [...publicProjects, ...allProjects];
     if (finalArray) {
-      const memberProjects = finalArray
-        .filter((project) => project.members?.some((m) => m.username === username));
+      const filterMember = (ps) => ps.filter((p) => p.members
+        .some((m) => m.username === username));
 
       dispatch(getProjectsInfoSuccessfully(finalArray));
-      dispatch(setUserProjectsSuccessfully(memberProjects));
+
+      Promise.all(finalArray.map((project) => project.members
+        .then((members) => ({ ...project, members }))))
+        .then(filterMember)
+        .then((ms) => dispatch(setUserProjectsSuccessfully(ms)));
     }
   };
 }
@@ -156,13 +159,16 @@ export function getDataProcessorsAndCorrespondingProjects(searchableType, body =
       if (projects) {
         const { user: { username } } = store.getState();
 
-        const memberProjects = projects.filter((project) => project
-          .members?.some((m) => m.username === username));
+        const filterMember = (ps) => ps.filter((p) => p.members
+          .some((m) => m.username === username));
 
         if (options?.explore) dispatch(setCodeProjects(searchableType, projects));
         else dispatch(getProjectsInfoSuccessfully(projects));
 
-        dispatch(setUserProjectsSuccessfully(memberProjects));
+        Promise.all(projects.map((project) => project.members
+          .then((members) => ({ ...project, members }))))
+          .then(filterMember)
+          .then((ms) => dispatch(setUserProjectsSuccessfully(ms)));
       }
     });
 }
