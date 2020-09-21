@@ -17,7 +17,7 @@ describe('assert state changes after project actions are called', () => {
   });
   test('assert that projects list is set in the state', () => {
     const expectedArrayOfProjects = projectsArrayMock.projects.all;
-    store.dispatch(projectInfoActions.getProjectsInfoSuccessfully(expectedArrayOfProjects));
+    store.dispatch(projectInfoActions.setProjectsInfoSuccessfully(expectedArrayOfProjects));
     expect(store.getState().projects.all).toStrictEqual(expectedArrayOfProjects);
   });
 
