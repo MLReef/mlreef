@@ -95,7 +95,7 @@ class MProjectClassification extends Component {
       isMlCategoriesVisible,
       isModelTypesVisible,
     } = this.state;
-
+    
     const {
       classification,
       userProjects,

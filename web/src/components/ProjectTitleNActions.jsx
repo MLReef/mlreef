@@ -23,8 +23,6 @@ const ProjectInfo = (props) => {
   const {
     project,
     actions,
-    userNamespace,
-    setIsForking,
     isLoading,
     userGid,
   } = props;

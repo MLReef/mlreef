@@ -27,7 +27,7 @@ const mergeGitlabResource = (projects) => projects.map((project) => ({
  * @param {*} projects: load list for redux global state
  */
 
-export function getProjectsInfoSuccessfully(projects) {
+export function setProjectsInfoSuccessfully(projects) {
   return { type: types.GET_LIST_OF_PROJECTS, projects };
 }
 
@@ -37,6 +37,10 @@ export function setUserProjectsSuccessfully(projects) {
 
 export function setCodeProjects(codeProjectType, projects) {
   return { type: types.SET_CODE_PROJECTS_ALL, codeProjectType, projects };
+}
+
+export function setStarredProjectsSuccessfully(projects) {
+  return { type: types.SET_STARRED_PROJECTS, projects };
 }
 
 /**
@@ -63,7 +67,8 @@ export function getProjectsList() {
       const filterMember = (ps) => ps.filter((p) => p.members
         .some((m) => m.username === username));
 
-      dispatch(getProjectsInfoSuccessfully(finalArray));
+      dispatch(setProjectsInfoSuccessfully(finalArray));
+      dispatch(setStarredProjectsSuccessfully(finalArray.filter((proj) => proj?.starsCount > 0)));
 
       Promise.all(finalArray.map((project) => project.members
         .then((members) => ({ ...project, members }))))
@@ -163,7 +168,9 @@ export function getDataProcessorsAndCorrespondingProjects(searchableType, body =
           .some((m) => m.username === username));
 
         if (options?.explore) dispatch(setCodeProjects(searchableType, projects));
-        else dispatch(getProjectsInfoSuccessfully(projects));
+        else dispatch(setProjectsInfoSuccessfully(projects));
+
+        dispatch(setStarredProjectsSuccessfully(projects.filter((proj) => proj?.starsCount > 0)));
 
         Promise.all(projects.map((project) => project.members
           .then((members) => ({ ...project, members }))))
