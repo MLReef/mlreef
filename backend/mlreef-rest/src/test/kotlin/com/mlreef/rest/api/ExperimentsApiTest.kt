@@ -8,6 +8,7 @@ import com.mlreef.rest.ProcessorVersion
 import com.mlreef.rest.api.v1.ExperimentCreateRequest
 import com.mlreef.rest.api.v1.dto.DataProcessorInstanceDto
 import com.mlreef.rest.api.v1.dto.ExperimentDto
+import com.mlreef.rest.api.v1.dto.FileLocationDto
 import com.mlreef.rest.api.v1.dto.ParameterInstanceDto
 import com.mlreef.rest.api.v1.dto.PipelineJobInfoDto
 import com.mlreef.rest.external_api.gitlab.TokenDetails
@@ -277,6 +278,37 @@ class ExperimentsApiTest : AbstractRestApiTest() {
     @Rollback
     @Test
     @Tag(TestTags.RESTDOC)
+    fun `Can update own Experiment's pipelineJobInfo`() {
+        val experiment1 = createExperiment(dataProject.id, dataOp1)
+
+        val beforeRequestTime = ZonedDateTime.now()
+        val token = experimentRepository.findByIdOrNull(experiment1.id)!!.pipelineJobInfo!!.secret
+
+        val tokenDetails = TokenDetails(
+            "testusername",
+            "test-token",
+            randomUUID(),
+            randomUUID(),
+            projects = mutableMapOf(dataProject.id to AccessLevel.DEVELOPER)
+        )
+
+        mockSecurityContextHolder(tokenDetails)
+
+        val returnedResult = this.performEPFPut(token,
+            "$epfUrl/experiments/${experiment1.id}/update",
+            FileLocationDto("file"))
+            .andExpect(status().isOk)
+            .document("experiments-epf-update",
+                responseFields(pipelineInfoDtoResponseFields()))
+            .returns(PipelineJobInfoDto::class.java)
+
+        assertThat(returnedResult).isNotNull()
+    }
+
+    @Transactional
+    @Rollback
+    @Test
+    @Tag(TestTags.RESTDOC)
     fun `Can retrieve own Experiment's pipelineJobInfo`() {
         val experiment1 = createExperiment(dataProject.id, dataOp1)
 
@@ -331,6 +363,7 @@ class ExperimentsApiTest : AbstractRestApiTest() {
 
         val pipelineJobInfoDto = performPost("$rootUrl/${dataProject.id}/experiments/${experiment1.id}/start", token)
             .andExpect(status().isOk)
+            .document("experiments-create-mlreef-file-commit")
             .returns(PipelineJobInfoDto::class.java)
 
         assertThat(pipelineJobInfoDto.id).isNotNull()

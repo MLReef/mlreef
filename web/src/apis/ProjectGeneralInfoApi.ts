@@ -188,6 +188,7 @@ export default class ProjectGeneralInfoApi extends ApiDirector {
       .then((results) => results.find((res: any) => res.gitlab_namespace === namespace));
   }
 
+  // use   @GetMapping("/{namespace}/{slug}")
   getProjectDetailsNoAuth(namespace: string, slug: string) {
     return this.listPublicProjects()
       .then(handlePagination)

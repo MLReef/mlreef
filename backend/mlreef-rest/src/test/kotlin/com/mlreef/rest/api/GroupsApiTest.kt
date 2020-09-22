@@ -10,8 +10,10 @@ import com.mlreef.rest.api.v1.dto.GroupDto
 import com.mlreef.rest.api.v1.dto.GroupOfUserDto
 import com.mlreef.rest.api.v1.dto.UserInGroupDto
 import com.mlreef.rest.external_api.gitlab.dto.GitlabGroup
+import com.mlreef.rest.external_api.gitlab.dto.GitlabUser
 import com.mlreef.rest.external_api.gitlab.dto.GitlabUserInGroup
 import com.mlreef.rest.feature.system.SessionsService
+import com.mlreef.rest.utils.RandomUtils
 import io.mockk.every
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
@@ -104,11 +106,20 @@ class GroupsApiTest : AbstractRestApiTest() {
     @Test
     @Tag(TestTags.RESTDOC)
     @Disabled
-    //FIXME fails currently, we dont know why
+    // TODO: still misses some random strange mocks?
     fun `Can create Group`() {
-        this.mockUserAuthentication()
-
+        this.mockUserAuthentication(returnAccount=account)
         val request = GroupCreateRequest("new-group", "mlreef", "name")
+
+        every { restClient.getUser(any()) } answers  {
+            GitlabUser(
+                id = 10,
+                name = "Mock Gitlab User",
+                username = "mock_user",
+                email = "mock@example.com",
+                state = "active"
+            )
+        }
 
         val result = this.performPost(rootUrl, token, body = request)
             .expectOk()

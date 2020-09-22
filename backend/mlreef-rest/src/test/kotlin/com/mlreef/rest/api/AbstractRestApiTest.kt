@@ -61,7 +61,9 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.autoconfigure.data.web.SpringDataWebProperties
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.data.domain.Pageable
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.restdocs.RestDocumentationContextProvider
 import org.springframework.restdocs.RestDocumentationExtension
@@ -392,6 +394,12 @@ abstract class AbstractRestApiTest : AbstractRestTest() {
         every { sessionRegistry.retrieveFromSession(any()) } answers {
             val token = this.args[0] as String
             tokenDetails(actualAccount, token, projectIdLevelMap, mutableMapOf())
+        }
+    }
+
+    fun mockGetPublicProjectsIdsList(ids: List<UUID>) {
+        every { publicProjectsCacheService.getPublicProjectsIdsList() } answers {
+          ids
         }
     }
 

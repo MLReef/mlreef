@@ -1,7 +1,6 @@
 package com.mlreef.rest.api.v1
 
 import com.mlreef.rest.AccessLevel
-import com.mlreef.rest.Account
 import com.mlreef.rest.CodeProject
 import com.mlreef.rest.DataProject
 import com.mlreef.rest.DataType
@@ -11,8 +10,6 @@ import com.mlreef.rest.VisibilityScope
 import com.mlreef.rest.api.v1.dto.CodeProjectDto
 import com.mlreef.rest.api.v1.dto.DataProcessorDto
 import com.mlreef.rest.api.v1.dto.DataProjectDto
-import com.mlreef.rest.api.v1.dto.ExperimentDto
-import com.mlreef.rest.api.v1.dto.PipelineConfigDto
 import com.mlreef.rest.api.v1.dto.ProjectDto
 import com.mlreef.rest.api.v1.dto.UserInProjectDto
 import com.mlreef.rest.api.v1.dto.toDto
@@ -23,12 +20,11 @@ import com.mlreef.rest.exceptions.ProjectNotFoundException
 import com.mlreef.rest.exceptions.RestException
 import com.mlreef.rest.external_api.gitlab.TokenDetails
 import com.mlreef.rest.feature.data_processors.DataProcessorService
-import com.mlreef.rest.feature.experiment.ExperimentService
-import com.mlreef.rest.feature.pipeline.PipelineService
 import com.mlreef.rest.feature.project.ProjectService
 import com.mlreef.rest.marketplace.SearchableTag
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageImpl
+import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
 import org.springframework.http.HttpStatus
 import org.springframework.security.access.prepost.PostAuthorize
@@ -56,8 +52,6 @@ class ProjectsController(
     private val projectService: ProjectService<Project>,
     private val dataProjectService: ProjectService<DataProject>,
     private val codeProjectService: ProjectService<CodeProject>,
-    private val experimentsService: ExperimentService,
-    private val pipelineService: PipelineService,
     private val dataProcessorService: DataProcessorService
 ) {
 
@@ -92,8 +86,8 @@ class ProjectsController(
     }
 
     @GetMapping("/public/all")
-    fun getPublicProjectsUnpaged(pageable: Pageable): List<ProjectDto> {
-        val allPublicProjects = projectService.getAllPublicProjects(Pageable.unpaged())
+    fun getPublicProjectsUnpaged(): List<ProjectDto> {
+        val allPublicProjects = projectService.getAllPublicProjects()
         return allPublicProjects.map { it.toDto() }
     }
 
@@ -104,6 +98,7 @@ class ProjectsController(
         return project.toDto()
     }
 
+    @Deprecated("currently not used")
     @GetMapping("/namespace/{namespace}")
     @PostFilter("postCanViewProject()")
     fun getProjectsByNamespace(@PathVariable namespace: String): List<ProjectDto> {
@@ -251,41 +246,6 @@ class ProjectsController(
         return usersInProject.map { it.toDto() }
     }
 
-    // FIXME: Coverage says: missing tests
-    @GetMapping("/{id}/users/check/myself")
-    fun checkCurrentUserInProject(@PathVariable id: UUID, account: Account): Boolean {
-        return projectService.checkUserInProject(projectUUID = id, userId = account.id)
-    }
-
-    //    // FIXME: Coverage says: missing tests
-    @GetMapping("/{id}/users/check/{userId}")
-    @PreAuthorize("hasAccessToProject(#id, 'DEVELOPER') || isUserItself(#userId)")
-    fun checkUserInDataProjectById(@PathVariable id: UUID,
-                                   @PathVariable userId: UUID,
-                                   @RequestParam(required = false) level: String?,
-                                   @RequestParam(required = false, name = "min_level") minLevel: String?): Boolean {
-        val checkLevel = if (level != null) AccessLevel.parse(level) else null
-        val checkMinLevel = if (minLevel != null) AccessLevel.parse(minLevel) else null
-        return projectService.checkUserInProject(projectUUID = id, userId = userId, level = checkLevel, minlevel = checkMinLevel)
-    }
-
-    // FIXME: Coverage says: missing tests
-    @GetMapping("/{id}/users/check")
-    @PreAuthorize("hasAccessToProject(#id, 'DEVELOPER')")
-    fun checkUsersInDataProjectById(
-        @PathVariable id: UUID,
-        @RequestParam(value = "user_id", required = false) userId: UUID?,
-        @RequestParam(value = "gitlab_id", required = false) gitlabId: Long?): Boolean {
-        return projectService.checkUserInProject(projectUUID = id, userId = userId, userGitlabId = gitlabId)
-    }
-
-    @PostMapping("/{id}/users/{userId}")
-    @PreAuthorize("hasAccessToProject(#id, 'MAINTAINER')")
-    fun addUserToDataProjectById(@PathVariable id: UUID, @PathVariable userId: UUID): List<UserInProjectDto> {
-        projectService.addUserToProject(id, userId)
-        return getUsersInDataProjectById(id)
-    }
-
     // FIXME: Something is strange here: 405 Method not allowed..
     @PostMapping("/{id}/users")
     @PreAuthorize("hasAccessToProject(#id, 'MAINTAINER')")
@@ -341,16 +301,18 @@ class ProjectsController(
         return getUsersInDataProjectById(id)
     }
 
+    @Deprecated("Tips for API Design: DECIDE and be consistent ")
     @DeleteMapping("/{id}/users")
     @PreAuthorize("hasAccessToProject(#id, 'MAINTAINER')")
     fun deleteUsersFromDataProjectById(
-        @PathVariable id: UUID,
-        @RequestParam(value = "user_id", required = false) userId: UUID?,
-        @RequestParam(value = "gitlab_id", required = false) gitlabId: Long?): List<UserInProjectDto> {
+            @PathVariable id: UUID,
+            @RequestParam(value = "user_id", required = false) userId: UUID?,
+            @RequestParam(value = "gitlab_id", required = false) gitlabId: Long?): List<UserInProjectDto> {
         projectService.deleteUserFromProject(projectUUID = id, userId = userId, userGitlabId = gitlabId)
         return getUsersInDataProjectById(id)
     }
 
+    @Deprecated("Tips for API Design: DECIDE and be consistent ")
     @DeleteMapping("/{id}/users/{userId}")
     @PreAuthorize("hasAccessToProject(#id, 'MAINTAINER') || isUserItself(#userId)")
     fun deleteUserFromDataProjectById(@PathVariable id: UUID, @PathVariable userId: UUID): List<UserInProjectDto> {
@@ -378,59 +340,7 @@ class ProjectsController(
         return project.toDto()
     }
 
-    @GetMapping("/{namespace}/{slug}/users")
-    @PreAuthorize("canViewProject(#namespace, #slug)")
-    fun getProjectsUsersByNamespaceAndSlugInPath(@PathVariable namespace: String, @PathVariable slug: String): List<UserInProjectDto> {
-        val projectId = getProjectIdByNamespaceAndSlug(namespace, slug)
-        return this.getUsersInDataProjectById(projectId)
-    }
-
-    @GetMapping("/{namespace}/{slug}/experiments")
-    @PreAuthorize("canViewProject(#namespace, #slug)")
-    fun getAllExperiments(
-        @PathVariable namespace: String,
-        @PathVariable slug: String
-    ): List<ExperimentDto> {
-        val projectId = getProjectIdByNamespaceAndSlug(namespace, slug)
-        return experimentsService.getExperimentsForProject(projectId).map { it.toDto() }
-    }
-
-    @GetMapping("/{namespace}/{slug}/experiments/{experimentId}")
-    @PreAuthorize("canViewProject(#namespace, #slug)")
-    fun getAllExperiments(
-        @PathVariable namespace: String,
-        @PathVariable slug: String,
-        @PathVariable experimentId: UUID
-    ): ExperimentDto {
-        val projectId = getProjectIdByNamespaceAndSlug(namespace, slug)
-
-        return experimentsService.getExperimentById(projectId, experimentId)?.toDto()
-            ?: throw NotFoundException(ErrorCode.NotFound, "Experiment $experimentId not found for the project $namespace/$slug")
-    }
-
-    @GetMapping("/{namespace}/{slug}/pipelines")
-    @PreAuthorize("canViewProject(#namespace, #slug)")
-    fun getAllPipelinesByNamespaceAndSlugInPath(
-        @PathVariable namespace: String,
-        @PathVariable slug: String
-    ): List<PipelineConfigDto> {
-        val projectId = getProjectIdByNamespaceAndSlug(namespace, slug)
-        return pipelineService.getPipelinesForProject(projectId).map { it.toDto() }
-    }
-
-    @GetMapping("/{namespace}/{slug}/pipelines/{pipelineId}")
-    @PreAuthorize("canViewProject(#namespace, #slug)")
-    fun getPipelineByIdByNamespaceAndSlugInPath(
-        @PathVariable namespace: String,
-        @PathVariable slug: String,
-        @PathVariable pipelineId: UUID
-    ): PipelineConfigDto {
-        val projectId = getProjectIdByNamespaceAndSlug(namespace, slug)
-
-        return pipelineService.getPipelineById(projectId, pipelineId)?.toDto()
-            ?: throw NotFoundException(ErrorCode.NotFound, "Pipeline $pipelineId not found for the project $namespace/$slug")
-    }
-
+    @Deprecated("maybe unused, frontend unclear")
     @GetMapping("/{namespace}/{slug}/processor")
     @PreAuthorize("canViewProject(#namespace, #slug)")
     fun getDataProcessorByNamespaceAndSlug(@PathVariable namespace: String,
