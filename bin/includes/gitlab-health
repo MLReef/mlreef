@@ -8,11 +8,11 @@
 # 302: means that Gitlab is up and running
 # 502: Gitlab is still starting or broken
 checkGitlab80() {
-  curl --silent --output /dev/null -w ''%{http_code}'' "$INSTANCE":10081
+  curl --silent --output /dev/null -w ''%{http_code}'' "$INSTANCE_HOST":10081
 }
 
 checkGitlabPort() {
-  curl --silent --output /dev/null -w ''%{http_code}'' "$INSTANCE":"$GITLAB_PORT"/"${1-}"
+  curl --silent --output /dev/null -w ''%{http_code}'' "$INSTANCE_HOST":"$GITLAB_PORT"/"${1-}"
 }
 
 waitUntilGitlabAvailable() {

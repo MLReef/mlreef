@@ -10,14 +10,12 @@ set -e    # exit on immediately on every error
 set -u    # error on usage of undefined variables
 ########################################
 
-
 # ensure that there is a package json present
 if [ ! -e web/package.json ]; then exit 1; fi
 
 docker build --tag "$GATEWAY_IMAGE_PATH" -f web/Dockerfile web  \
   --build-arg CI_COMMIT_REF_SLUG="$CI_COMMIT_REF_SLUG"          \
   --build-arg CI_PIPELINE_ID="$CI_PIPELINE_ID"                  \
-
 
 # Get Test coverage report from build image
 docker create -ti --name coverage-container "$GATEWAY_IMAGE_PATH" bash

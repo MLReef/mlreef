@@ -23,8 +23,8 @@ while [ -n "${1+x}" ]; do
     shift
     ;;
   -i | --instance)
-    export INSTANCE="$2"
-    echo "Connecting to instance $INSTANCE"
+    export INSTANCE_HOST="$2"
+    echo "Connecting to instance $INSTANCE_HOST"
     shift
     ;;
   -k | --key)
@@ -76,8 +76,8 @@ done
 #
 # Checking input parameters
 #
-if [ -z "${INSTANCE-}" ]; then
-  echo "Missing instance url. Use the option -i or --instance option"
+if [ -z "${INSTANCE_HOST-}" ]; then
+  echo "Missing INSTANCE_HOST url. Use the option -i or --instance option"
   exit 1
 fi
 if [ -z "${GITLAB_ADMIN_TOKEN-}" ]; then

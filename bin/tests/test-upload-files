@@ -27,7 +27,7 @@ fi
 
 #Create MLReef.yml
 # If request fails remove --fail to see the curl response
-curl "http://$URL:10080/api/v4/projects/$GITLAB_PROJECT_ID/repository/files/data/" \
+curl "http://$INSTANCE_HOST:10080/api/v4/projects/$GITLAB_PROJECT_ID/repository/files/data/" \
   --request POST --fail                         \
   --header "PRIVATE-TOKEN: $TOKEN"              \
   --header "Content-Type: application/json"     \

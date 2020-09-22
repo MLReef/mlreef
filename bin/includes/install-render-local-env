@@ -1,11 +1,11 @@
 #!/bin/bash
 
-if [ "$INSTANCE" == "localhost" ]; then
-  EPF_BACKEND_URL=backend:8080
-  EPF_GITLAB_URL=gitlab
+if [ "$INSTANCE_HOST" == "localhost" ]; then
+  EPF_BACKEND_URL=http://backend:8080
+  EPF_GITLAB_URL=http://gitlab
 else
-  EPF_BACKEND_URL=$INSTANCE
-  EPF_GITLAB_URL=$INSTANCE
+  EPF_BACKEND_URL=http://$INSTANCE_HOST
+  EPF_GITLAB_URL=http://$INSTANCE_HOST
 fi
 
 
@@ -18,10 +18,10 @@ cat > local.env << HEREDOC
 # for the proper functioning of MLReef
 ##################################################
 
-# The INSTANCE variable represents the full URL to the EC2 instance MLReef is running on
+# The INSTANCE_HOST variable represents the full URL to the EC2 instance MLReef is running on
 # e.g: 'ec2-3-126-88-77.eu-central-1.compute.amazonaws.com'
 # This Information is necessary so that e.g. the runners know where to find the backend
-INSTANCE=$INSTANCE
+INSTANCE_HOST=$INSTANCE_HOST
 
 # Only Used during deployment for gitlab configuration and runner configuration
 # The gitlab server always serves port 80 locally. By setting the GITLAB_PORT variable,

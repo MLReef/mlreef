@@ -17,20 +17,16 @@ set -u    # error on usage of undefined variables
 
 #URL = ec2-18-195-30-163.eu-central-1.compute.amazonaws.com
 
-# @Rainerkern please, we might need to find a strategy for those URLs
-echo "HOST is $URL"
-echo "URL is http://$URL"
-
 echo "TEST Frontend is reachable:"
-curl "http://$URL/login" --output /dev/null
+curl "http://$INSTANCE_HOST/login" --output /dev/null
 
 echo "TEST Gitlab is reachable:"
-curl "http://$URL/api/v4/projects" --output /dev/null
+curl "http://$INSTANCE_HOST/api/v4/projects" --output /dev/null
 
 echo "TEST Backend is reachable:"
-curl "http://$URL:8080/api/v1/info/status"  | jq
+curl "http://$INSTANCE_HOST:8080/api/v1/info/status"  | jq
 
 echo "TEST Backend is healthy and gitlab connection works:"
-curl "http://$URL:8080/api/v1/info/health"  | jq
+curl "http://$INSTANCE_HOST:8080/api/v1/info/health"  | jq
 
 #"2020-08-24T12:24:58.714Z"

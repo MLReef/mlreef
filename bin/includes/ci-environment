@@ -56,18 +56,18 @@ echo "      INSTANCE_INFO= $INSTANCE_INFO"
 echo ""
 if [ -e "${INSTANCE_INFO}" ]; then
   ls -al "${INSTANCE_INFO}"
-  export URL=$(cat "$INSTANCE_INFO")
+  export INSTANCE_HOST=$(cat "$INSTANCE_INFO")
   echo "INFO: Looking for instance information in file $INSTANCE_INFO"
 else
   echo "INSTANCE_INFO= $INSTANCE_INFO"
   #ls -al
   echo "INFO: file $INSTANCE_INFO not found, looking for URL environment variable"
-  if [ -z ${URL+x} ]; then
+  if [ -z ${INSTANCE_HOST+x} ]; then
     echo "INFO: environment variable URL is not set"
     echo "INFO: defaulting to 'localhost' instance"
-    export URL="localhost"
+    export INSTANCE_HOST="localhost"
   fi
-  echo "Target instance URL=$URL"
+  echo "Target instance    =$INSTANCE_HOST"
 fi
 
 
