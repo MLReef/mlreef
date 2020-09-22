@@ -239,23 +239,24 @@ const SortableProcessor = SortableElement(({
         key={`data-operations-item-selected-${value.internalProcessorId}`}
         style={hasTheFormErrors ? { border: '1px solid red' } : {}}
       >
-        <div className="header flexible-div">
+        <div className="header d-flex">
           <div className="processor-title">
-            <p className="bold-text">
+            <p>
               <button
                 type="button"
-                className="btn btn-hidden bold-text"
+                className="btn btn-hidden "
                 onClick={() => linkToRepo()}
               >
-                {value.name}
+                <b>{value.name}</b>
               </button>
             </p>
             <p>
               Created by
-              <span className="bold-text"> Keras</span>
+              {' '}
+              <span><b>Keras</b></span>
             </p>
           </div>
-          <div className="data-oper-options flexible-div ">
+          <div className="data-oper-options d-flex">
             <div>
               <button
                 type="button"
@@ -284,7 +285,8 @@ const SortableProcessor = SortableElement(({
           <br />
           <div style={{ width: 'max-content', margin: 'auto', marginLeft: '1rem' }}>
             {standardParameters && standardParameters.map((param) => {
-              const isSelectable = param.type === BOOLEAN || (param.type === STRING && isJson(param.default_value));
+              const isSelectable = param.type === BOOLEAN 
+                || (param.type === STRING && isJson(param.default_value));
               if (isSelectable) {
                 return (
                   <SelectComp
@@ -308,19 +310,14 @@ const SortableProcessor = SortableElement(({
                     callback={() => setIsAdvancedSectionVisible(!isAdvancedSectionVisible)}
                   />
                 </div>
-                <div style={{ width: '50%', textAlign: 'end' }}>
-                  <p>
-                    <b>
-                      <button
-                        type="button"
-                        className="btn btn-hidden bold-text"
-                        onClick={() => linkToRepo()}
-                      >
-                        View Repository
-                      </button>
-                    </b>
-                  </p>
-                </div>
+                <button
+                  type="button"
+                  className="btn btn-hidden ml-auto"
+                  onClick={() => linkToRepo()}
+                  style={{ fontWeight: 600, margin: 0 }}
+                >
+                  View Repository
+                </button>
               </div>
               {isAdvancedSectionVisible && (
                 <div className="advanced-opts-div" style={{ width: 'max-content', margin: 'auto', marginLeft: '1rem' }}>

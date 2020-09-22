@@ -1,0 +1,18 @@
+.files-selector {
+  .instruction {
+    color: var(--lessWhite);
+    text-align: center;
+  }
+
+  .data-button-container div {
+    border: 2px solid var(--lessWhite);
+    color: var(--lessWhite);
+    width: max-content;
+    padding: 0.5% 4% 0.5% 4%;
+    border-radius: 0.3vw;
+  }
+
+  .data-button-container{
+    justify-content: center;
+  }
+}

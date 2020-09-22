@@ -9,6 +9,7 @@ const FilesSelector = (props) => {
     files,
     handleSelectData,
     instructions,
+    branch
   } = props;
 
   return (
@@ -19,10 +20,27 @@ const FilesSelector = (props) => {
         </div>
       ) : (
         <div className="px-3 d-flex">
-          <div className="mr-auto">
-            <b>
-              {`Data: ${files.length} file(s) selected`}
-            </b>
+          <div className="mr-auto d-flex" style={{ alignItems: 'center' }}>
+            <div className="mr-4">
+              <p>Data: </p>
+            </div>
+            <div>
+              <p>
+                Branch:
+                {'  '}
+                <b>
+                  {branch}
+                </b>
+              </p>
+              <p>
+                Path:
+                {'  '}
+                <b>
+                  {files[0].path}
+                </b>
+              </p>
+            </div>
+
           </div>
           <button
             type="button"
