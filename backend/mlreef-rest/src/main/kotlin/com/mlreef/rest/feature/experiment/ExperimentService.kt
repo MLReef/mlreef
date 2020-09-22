@@ -67,7 +67,6 @@ class ExperimentService(
         inputFiles: List<FileLocation>,
         processorInstance: DataProcessorInstance
     ): Experiment {
-
         subjectRepository.findByIdOrNull(authorId)
             ?: throw ExperimentCreateException(ErrorCode.ExperimentCreationOwnerMissing, "Owner is missing!")
         dataProjectRepository.findByIdOrNull(dataProjectId)
@@ -89,12 +88,10 @@ class ExperimentService(
         require(targetBranch.isNotBlank()) { "targetBranch is missing!" }
 
         return synchronized(synchedExperimentNumber) {
-
-            val id = randomUUID()
             val countByDataProjectId = experimentRepository.countByDataProjectId(dataProjectId)
 
             val experiment = Experiment(
-                id,
+                id = randomUUID(),
                 dataProjectId = dataProjectId,
                 dataInstanceId = dataInstanceId,
                 slug = validSlug,

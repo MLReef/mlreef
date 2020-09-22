@@ -308,6 +308,7 @@ internal class PipelineTestPreparationTrait : AccountSubjectPreparationTrait() {
     lateinit var dataOp3: ProcessorVersion
     lateinit var dataProject: DataProject
     lateinit var dataProject2: DataProject
+    lateinit var codeProject: CodeProject
 
     @Autowired
     private lateinit var pipelineConfigRepository: PipelineConfigRepository
@@ -362,7 +363,7 @@ internal class PipelineTestPreparationTrait : AccountSubjectPreparationTrait() {
             UUID.fromString("aaaa0001-0000-0000-0002-dbdbdbdbdbdb"), "data-project2", "url", "Test DataProject",
             "", ownerId = account2.person.id, gitlabId = Random.nextInt().toLong().absoluteValue, gitlabNamespace = "commons", gitlabPath = "data-project2")
         )
-        codeProjectRepository.save(CodeProject(randomUUID(), "code-project1", "url", "Test DataProject", "", ownerId = account.person.id,
+        codeProject = codeProjectRepository.save(CodeProject(randomUUID(), "code-project1", "url", "Test DataProject", "", ownerId = account.person.id,
             gitlabNamespace = "commons", gitlabId = Random.nextInt().toLong().absoluteValue, gitlabPath = "code-project1"))
 
         val _dataOp1 = dataOperationRepository.save(DataOperation(randomUUID(), "commons-data-operation1", "name", DataType.ANY, DataType.ANY))

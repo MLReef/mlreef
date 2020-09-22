@@ -1,0 +1,7 @@
+FROM alpine:latest
+
+# the current directory - relative to the Dockerfile
+# is added to the docker image
+ADD . /workdir
+# Sets the default starting directory of this image to
+WORKDIR /workdir
