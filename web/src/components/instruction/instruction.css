@@ -26,3 +26,13 @@
     width: 10%;
     margin: 0% 0% 0% 1%;
 }
+
+#xButton > button {
+    background-color: #2db391;
+    color: white;
+    border: none;
+    font-weight: bold;
+    cursor: pointer;
+    margin-top: 2px;
+    margin-left: 4px;
+}

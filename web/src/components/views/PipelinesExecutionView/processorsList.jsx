@@ -38,16 +38,16 @@ export const Processor = ({ processorData, handleDragStart }) => {
       onDragStart={(e) => handleDragStart(e, processorData)}
       className="data-operations-item round-border-button shadowed-element"
     >
-      <div className="header flexible-div">
+      <div className="header d-flex">
         <div className="processor-title">
-          <p className="bold-text">{processorData.name}</p>
+          <p><b>{processorData.name}</b></p>
           <p>
             Created by
             &nbsp;
-            <span className="bold-text">Keras</span>
+            <span><b>Keras</b></span>
           </p>
         </div>
-        <div className="data-oper-options flexible-div">
+        <div className="data-oper-options d-flex">
           <div>
             <p>
               {processorData.starCount}

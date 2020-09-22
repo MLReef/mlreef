@@ -6,7 +6,7 @@ import * as userActions from 'actions/userActions';
 import {
   shape, string, arrayOf, func,
 } from 'prop-types';
-import './pipelineView.css';
+import './PipelinesExecutionView.scss';
 import { toastr } from 'react-redux-toastr';
 import arrayMove from 'array-move';
 import UUIDV1 from 'uuid/v1';
@@ -70,10 +70,11 @@ class PipelinesExecutionView extends Component {
       processorDataSelected: null,
       isShowingExecutePipelineModal: false,
       currentProcessors,
-      showSelectFilesModal: false,
+      isVisibleSelectFilesModal: false,
       processorsSelected: [],
       filesSelectedInModal: [],
       branches,
+      // Sometimes user rebuilt a pipeline, hence these initial files might be required
       initialFiles: null,
     };
     this.drop = this.drop.bind(this);
@@ -102,9 +103,12 @@ class PipelinesExecutionView extends Component {
     const processorsSelected = preconfiguredOperations
       .dataOperatorsExecuted
       .map((executedOperation) => {
-        const filteredProcessor = currentProcessors.filter((cP) => cP.slug === executedOperation.slug)[0];
+        const filteredProcessor = currentProcessors
+          .filter((cP) => cP.slug === executedOperation.slug)[0];
         const newParametersArray = filteredProcessor?.parameters?.map((param) => {
-          const filteredParams = executedOperation.parameters?.filter((executedParam) => param.name === executedParam.name);
+          const filteredParams = executedOperation
+            .parameters
+            ?.filter((executedParam) => param.name === executedParam.name);
           if (filteredParams.length === 0) return { ...param };
           return {
             ...param,
@@ -143,16 +147,16 @@ class PipelinesExecutionView extends Component {
   };
 
   selectDataClick = () => {
-    const { showSelectFilesModal } = this.state;
-    this.setState({ showSelectFilesModal: !showSelectFilesModal });
+    const { isVisibleSelectFilesModal } = this.state;
+    this.setState({ isVisibleSelectFilesModal: !isVisibleSelectFilesModal });
   };
 
   handleModalAccept = (filesSelected, branchSelected) => {
-    const { showSelectFilesModal } = this.state;
+    const { isVisibleSelectFilesModal } = this.state;
     this.setState({
       branchSelected,
       filesSelectedInModal: filesSelected,
-      showSelectFilesModal: !showSelectFilesModal,
+      isVisibleSelectFilesModal: !isVisibleSelectFilesModal,
     });
   };
 
@@ -233,7 +237,10 @@ class PipelinesExecutionView extends Component {
 
   copyProcessor(indexOfProcessor) {
     const { processorsSelected } = this.state;
-    const copiedProcessor = { ...processorsSelected[indexOfProcessor], internalProcessorId: UUIDV1() };
+    const copiedProcessor = {
+      ...processorsSelected[indexOfProcessor],
+      internalProcessorId: UUIDV1(),
+    };
     const newProcessorsArray = [...processorsSelected, copiedProcessor];
     this.setState({ processorsSelected: newProcessorsArray });
   }
@@ -246,7 +253,7 @@ class PipelinesExecutionView extends Component {
       processorsSelected,
       filesSelectedInModal,
       currentProcessors,
-      showSelectFilesModal,
+      isVisibleSelectFilesModal,
       isShowingExecutePipelineModal,
       initialFiles,
     } = this.state;
@@ -282,7 +289,7 @@ class PipelinesExecutionView extends Component {
           project={project}
           branches={branches}
           selectDataClick={this.selectDataClick}
-          show={showSelectFilesModal}
+          show={isVisibleSelectFilesModal}
           filesSelectedInModal={this.filesSelectedInModal}
           handleModalAccept={this.handleModalAccept}
           initialFiles={initialFiles}
@@ -308,7 +315,7 @@ class PipelinesExecutionView extends Component {
           paragraph={instructionDataModel.paragraph}
         />
         <div
-          className={cx('pipe-line-execution-container flexible-div', {
+          className={cx('pipe-line-execution-container d-flex', {
             'data-pipeline': this.isDataset,
           })}
         >
@@ -329,6 +336,7 @@ class PipelinesExecutionView extends Component {
           >
             <MCard.Section>
               <FilesSelector
+                branch={branchSelected}
                 files={initialFiles || filesSelectedInModal}
                 instructions={(
                   <p>
@@ -353,7 +361,7 @@ class PipelinesExecutionView extends Component {
                 filesSelectedInModal={filesSelectedInModal}
               />
 
-              <div id="drop-zone" onDrop={this.drop} onDragOver={this.allowDrop}>
+              <div id="drop-zone" className="d-flex" onDrop={this.drop} onDragOver={this.allowDrop}>
                 <p style={{ marginLeft: '10px', fontWeight: 600 }}>{`${prefix}${processorsSelected.length + 1}:`}</p>
                 <img src={plus} alt="" style={{ height: '80px', marginLeft: '60px' }} />
                 <p style={{
