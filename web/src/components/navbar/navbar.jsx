@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import { Link } from 'react-router-dom';
+import { Link } from 'router';
 import PropTypes from 'prop-types';
 import MDropdown from 'components/ui/MDropdown';
 import MWrapper from 'components/ui/MWrapper';
@@ -31,7 +31,7 @@ class Navbar extends Component {
         <div className="navbar">
           <div className="w-100 px-3 d-flex">
             <div className="my-auto">
-              <Link to={user.auth ? '/' : '/explore'}>
+              <Link to={{ name: user.auth ? 'home' : 'explore' }}>
                 <img className="logo" src={mlReefIcon01} alt="" />
               </Link>
             </div>

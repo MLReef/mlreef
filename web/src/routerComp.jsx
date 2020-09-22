@@ -1,3 +1,4 @@
+// not used, candidate for deletion
 import React from 'react';
 import { BrowserRouter, Route, Switch } from 'react-router-dom';
 import UserAccount from 'components/views/userSettings/UserAccount';
@@ -12,7 +13,7 @@ import FileView from './components/fileView/fileView';
 import Login from './components/login/login';
 import RegisterView from './components/RegisterView';
 import projectView from './components/projectView/projectView';
-import PrivateRoute from './privateRoute';
+import PrivateRoute from './router/PrivateRoute';
 import ExploreView from 'components/views/ExploreView';
 import ExperimentsOverview from './components/experiments-overview/ExperimentOverview';
 import Projects from './components/myProjects/myProjects';
