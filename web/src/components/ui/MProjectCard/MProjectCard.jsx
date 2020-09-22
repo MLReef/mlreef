@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
-import { Link, useHistory } from 'react-router-dom';
+import { Link, useHistory } from 'router';
 import iconGrey from 'images/icon_grey-01.png';
 import MParagraph from 'components/ui/MParagraph';
 import MProjectCardTypes from './MProjectCardTypes';
@@ -15,7 +15,6 @@ const MProjectCard = (props) => {
     slug,
     namespace,
     inputDataTypes,
-    /* outputDataTypes, */
     /* dataProcessor, */
     users,
   } = props;

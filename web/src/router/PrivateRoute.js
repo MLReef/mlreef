@@ -77,11 +77,10 @@ const PrivateRoute = (routeProps) => {
   );
 
   return (
-    <Route
-      {...rest}
-      exact
-      render={(props) => (allowed
-        ? <Component {...props} />
+    // eslint-disable-next-line
+    <Route {...rest} exact render={(props) => (allowed
+      /* eslint-disable-next-line */
+      ? <Component {...props} />
       : isExternal ? null : <Redirect to={redirectUrl} />)}
     />
   );

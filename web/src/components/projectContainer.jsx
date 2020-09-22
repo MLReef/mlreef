@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link } from 'router';
 import {
   string, objectOf, shape, arrayOf,
 } from 'prop-types';
@@ -42,6 +42,9 @@ class ProjectContainer extends React.Component {
       description = project.description;
       projectName = project.gitlabName;
     }
+
+    const projectRoute = { name: 'project', params: { namespace, slug } };
+
     return (
       <div className="project-container" style={{ backgroundColor: '#e5e5e5' }}>
         <div className="project-details main-content">
@@ -65,7 +68,7 @@ class ProjectContainer extends React.Component {
             emptyMessage="No description"
           />
           <div className="feature-list">
-            <Link to={`/${namespace}/${slug}`} className="feature" id="data">
+            <Link to={projectRoute} className="feature" id="data">
               Data
             </Link>
 
