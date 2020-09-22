@@ -26,12 +26,12 @@ export const filterBots = (users) => {
 };
 
 // return a remote defined route, or the current host.
-export const getDomain = () => {
-  const domain = process.env.REACT_APP_BACKEND_REROUTE;
+export const getRootUrl = () => {
+  const rootUrl = process.env.REACT_APP_BACKEND_REROUTE_URL;
   const protocol = window?.location?.protocol;
   const hostname = window?.location?.hostname;
 
-  return domain || `${protocol}//${hostname}`;
+  return rootUrl || `${protocol}//${hostname}`;
 };
 
 export const filterRoot = (users) => users.filter((user) => user.id !== 1);

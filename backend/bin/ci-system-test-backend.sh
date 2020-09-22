@@ -10,13 +10,13 @@ set -u # error on usage of undefined variables
 if [ ! -e backend/build.gradle ]; then exit 1; fi
 cd backend
 
-export GITLAB_ROOT_URL="$URL:10080"
-export MLREEF_BACKEND_URL="$URL:8080"
+export GITLAB_ROOT_URL="http://$INSTANCE_HOST:10080"
+export MLREEF_BACKEND_URL="http://$INSTANCE_HOST:8080"
 
 echo "# SYSTEM TEST ENVIRONMENT"
 echo "   EC2_INSTANCE_NAME = $EC2_INSTANCE_NAME"
 echo "  CI_COMMIT_REF_SLUG = $CI_COMMIT_REF_SLUG"
-echo " Target instance URL = $URL"
+echo " Target instance     = $INSTANCE_HOST"
 echo "  MLREEF_BACKEND_URL    = $MLREEF_BACKEND_URL"
 echo "  GITLAB_ROOT_URL       = $GITLAB_ROOT_URL"
 

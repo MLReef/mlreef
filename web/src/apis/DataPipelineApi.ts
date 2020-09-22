@@ -8,7 +8,7 @@ import { handleResponse } from 'functions/apiCalls';
 
 export default class DataPiplineApi extends ApiDirector {
 
-    /**
+  /**
    * https://mlreef.gitlab.io/backend/develop/#_post_pipelines
    * @param projectUUId
    * @param body
@@ -45,7 +45,6 @@ export default class DataPiplineApi extends ApiDirector {
   async getBackendPipelineById(pipelineId: string) {
     const url = `/api/v1/pipelines/${pipelineId}`;
     const builder = new BLApiRequestCallBuilder(METHODS.GET, this.buildBasicHeaders(validServicesToCall.BACKEND), url);
-
     return fetch(builder.build())
       .then(handleResponse);
   }

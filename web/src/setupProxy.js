@@ -8,7 +8,7 @@ const proxy = require('http-proxy-middleware');
 const LOCALHOST = 'http://localhost';
 
 module.exports = function (app) {
-  const BACKEND_REROUTE = process.env.REACT_APP_BACKEND_REROUTE || LOCALHOST;
+  const BACKEND_REROUTE = process.env.REACT_APP_BACKEND_REROUTE_URL || LOCALHOST;
   const isLocalhost = BACKEND_REROUTE === LOCALHOST;
 
   app.use(

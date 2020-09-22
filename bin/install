@@ -28,7 +28,7 @@ rm -f local.env 2>/dev/null || true
 
 ####
 log "Starting Deployment"
-if [ "$INSTANCE" != "localhost" ]; then
+if [ "$INSTANCE_HOST" != "localhost" ]; then
   # Cleanup docker images and volumes
   . bin/includes/install-cleanup-docker
   # Dowload all needed images
@@ -64,9 +64,9 @@ if [ "$(checkGitlabPort)" = "302" ]; then
   docker exec gitlab sh -c 'cat /etc/gitlab/gitlab.rb | grep external_url\ \"'
 elif [ "$(checkGitlab80)" = "302" ]; then
   log "Found Gitlab at port 80. Reconfiguring Gitlab for port $GITLAB_PORT"
-  if [ "$INSTANCE" != "localhost" ]; then
-    log "2. Configure Gitlab external_url 'http://$INSTANCE:$GITLAB_PORT'"
-    echo "external_url \"http://${INSTANCE}:${GITLAB_PORT}\"" | docker exec -i gitlab sh -c "cat >> /etc/gitlab/gitlab.rb"
+  if [ "$INSTANCE_HOST" != "localhost" ]; then
+    log "2. Configure Gitlab external_url 'http://$INSTANCE_HOST:$GITLAB_PORT'"
+    echo "external_url \"http://${INSTANCE_HOST}:${GITLAB_PORT}\"" | docker exec -i gitlab sh -c "cat >> /etc/gitlab/gitlab.rb"
   else
     log "2. Configure Gitlab external_url 'http://gitlab:$GITLAB_PORT'"
     # When running locally in docker compose, this lets the runners access Gitlab via the Docker network
@@ -145,7 +145,7 @@ echo "Gitlab RUNNER_REGISTRATION_TOKEN=$RUNNER_REGISTRATION_TOKEN"
 # Step 5 Register Gitlab Runner
 #
 #
-if [ "$INSTANCE" != "localhost" ]; then
+if [ "$INSTANCE_HOST" != "localhost" ]; then
   log "5. Configuring Gitlab Runner for cloud environment"
 #  log "5.1 unregister current runners"
 #  docker exec -t gitlab-runner sh -c "$(cat << EOM
@@ -178,8 +178,8 @@ if [ "$INSTANCE" != "localhost" ]; then
   docker exec gitlab-runner gitlab-runner register                \
     --non-interactive                                             \
     --template-config="$CONFIG_TEMPLATE"                          \
-    --name="Multi runner dispatcher on $INSTANCE"                 \
-    --url="http://$INSTANCE:$GITLAB_PORT/"                        \
+    --name="Multi runner dispatcher on $INSTANCE_HOST"                 \
+    --url="http://$INSTANCE_HOST:$GITLAB_PORT/"                        \
     --registration-token="$RUNNER_REGISTRATION_TOKEN"             \
     --request-concurrency="12"                                    \
     --executor="docker+machine"                                   \
@@ -198,7 +198,7 @@ else ### Configuration for local environments ###
   # no caching on Amazon S3 buckets
   docker exec gitlab-runner gitlab-runner register                \
     --non-interactive                                             \
-    --name="Packaged Dispatcher on $INSTANCE"                     \
+    --name="Packaged Dispatcher on $INSTANCE_HOST"                     \
     --url="http://gitlab:$GITLAB_PORT/"                           \
     --docker-network-mode mlreef-docker-network                   \
     --registration-token="$RUNNER_REGISTRATION_TOKEN"             \

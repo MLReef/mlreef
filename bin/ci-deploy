@@ -12,7 +12,7 @@ set -u  # error on usage of undefined variables
 ########################################
 
 
-if [ "$URL" = "localhost" ]; then
+if [ "$INSTANCE_HOST" = "localhost" ]; then
   echo >&2 "ERROR: Cannot deploy to localhost, exiting."
   exit 18;
 fi
@@ -52,23 +52,23 @@ sed "s~#CI_ACTIVATE~~" < docker-compose.yml \
 cat docker-compose.local.yml
 
 ### Prepare ssh connection
-while ! ssh-keyscan -H "$URL" >>~/.ssh/known_hosts; do echo "Trying again..."; sleep 5; done
+while ! ssh-keyscan -H "$INSTANCE_HOST" >>~/.ssh/known_hosts; do echo "Trying again..."; sleep 5; done
 
-ssh -i   "$SSH_KEYFILE" -o 'AddKeysToAgent yes' ubuntu@"${URL}" "if [ -e ${SSH_KEYFILE} ]; then sudo rm $SSH_KEYFILE; fi"
-scp -rpi "$SSH_KEYFILE" -o 'AddKeysToAgent yes' bin                       ubuntu@"${URL}":/home/ubuntu/
-scp -rpi "$SSH_KEYFILE" -o 'AddKeysToAgent yes' docker-compose.local.yml  ubuntu@"${URL}":/home/ubuntu/
-ssh -i "$SSH_KEYFILE" -o 'AddKeysToAgent yes' ubuntu@"${URL}" "
+ssh -i   "$SSH_KEYFILE" -o 'AddKeysToAgent yes' ubuntu@"${INSTANCE_HOST}" "if [ -e ${SSH_KEYFILE} ]; then sudo rm $SSH_KEYFILE; fi"
+scp -rpi "$SSH_KEYFILE" -o 'AddKeysToAgent yes' bin                       ubuntu@"${INSTANCE_HOST}":/home/ubuntu/
+scp -rpi "$SSH_KEYFILE" -o 'AddKeysToAgent yes' docker-compose.local.yml  ubuntu@"${INSTANCE_HOST}":/home/ubuntu/
+ssh -i "$SSH_KEYFILE" -o 'AddKeysToAgent yes' ubuntu@"${INSTANCE_HOST}" "
   echo ${CI_REGISTRY_PASSWORD} | sudo docker login ${CI_REGISTRY} --username=${CI_REGISTRY_USER} --password-stdin
 "
 
 if [ "$GITLAB_ADMIN_TOKEN" = "" ]; then exit 19; fi
 
 ### Execute the actual deployment ###
-ssh -i "$SSH_KEYFILE" -o 'AddKeysToAgent yes' ubuntu@"${URL}" <<EOF
+ssh -i "$SSH_KEYFILE" -o 'AddKeysToAgent yes' ubuntu@"${INSTANCE_HOST}" <<EOF
   sudo docker images;
   sudo docker ps;
   sudo bin/install                                              \
-    --instance $URL                                             \
+    --instance $INSTANCE_HOST                                   \
     --version $CI_COMMIT_REF_SLUG                               \
     --key $AWS_ACCESS_KEY_ID                                    \
     --secret $AWS_SECRET_ACCESS_KEY                             \

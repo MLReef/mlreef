@@ -51,8 +51,10 @@ gitlab env config:
   stage: deploy
   image: registry.gitlab.com/systemkern/s5:latest
   script:
-    - URL=$(cat out/instance.info)
-    - echo $URL                                            # debug output
+    - INSTANCE_HOST=$(cat out/instance.info)
+    - GITLAB_ROOT_URL=http://$INSTANCE_HOST
+    - echo $INSTANCE_HOST
+    - echo $GITLAB_ROOT_URL
     # Get the ID of the gitlab environment we want to edit
     - ID=$(curl --fail
       --header "Authorization:Bearer $GITLAB_COM_API_TOKEN"
@@ -63,7 +65,7 @@ gitlab env config:
     # configure the gitlab environment with the correct URL
     - curl --request PUT --fail
       --header "Authorization:Bearer $GITLAB_COM_API_TOKEN"
-      --data "name=$CI_COMMIT_REF_SLUG&external_url=http://$URL/login"
+      --data "name=$CI_COMMIT_REF_SLUG&external_url=$GITLAB_ROOT_URL/login"
       https://gitlab.com/api/v4/projects/$CI_PROJECT_ID/environments/$ID
 
 
@@ -204,14 +206,14 @@ backup branch:
   when: manual
   image: registry.gitlab.com/systemkern/s5:latest-aws
   before_script:
-    - URL=$(cat out/instance.info)
-    - echo $URL                                            # debug output
+    - INSTANCE_HOST=$(cat out/instance.info)
+    - echo $INSTANCE_HOST
     - chmod 400 $SSH_KEYFILE                               # prepare private key file
     - chmod +x $BACKUP_SCRIPT
     - sed -i "s~AWS_ACCESS_KEY_ID=XXXXX~AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID~"                  $BACKUP_SCRIPT
     - sed -i "s~AWS_SECRET_ACCESS_KEY=XXXXX~AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY~"      $BACKUP_SCRIPT
   script:
-    - bin/ci-backup --instance $URL --bucket $S3_DATA_BUCKET --file mlreef-data-$CI_COMMIT_REF_SLUG.tar
+    - bin/ci-backup --instance $INSTANCE_HOST --bucket $S3_DATA_BUCKET --file mlreef-data-$CI_COMMIT_REF_SLUG.tar
 
 
 restore from develop:
@@ -220,13 +222,13 @@ restore from develop:
   when: manual
   image: registry.gitlab.com/systemkern/s5:latest-aws
   before_script:
-    - URL=$(cat out/instance.info)
-    - echo $URL                                            # debug output
+    - INSTANCE_HOST=$(cat out/instance.info)
+    - echo $INSTANCE_HOST                                            # debug output
     - chmod 400 $SSH_KEYFILE                               # prepare private key file
     - chmod +x $RESTORE_SCRIPT
     - sed -i "s~AWS_ACCESS_KEY_ID=XXXXX~AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID~"                  $RESTORE_SCRIPT
     - sed -i "s~AWS_SECRET_ACCESS_KEY=XXXXX~AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY~"      $RESTORE_SCRIPT
-  script: ci-restore --instance $URL --bucket $S3_DATA_BUCKET --file mlreef-data-develop.tar
+  script: ci-restore --instance $INSTANCE_HOST --bucket $S3_DATA_BUCKET --file mlreef-data-develop.tar
   except:
     refs:
       - master
@@ -234,4 +236,4 @@ restore from develop:
 
 restore branch backup:
   extends: [.feature-branches-only, "restore from develop"]
-  script: ci-restore --instance $URL --bucket $S3_DATA_BUCKET --file mlreef-data-$CI_COMMIT_REF_SLUG.tar
+  script: ci-restore --instance $INSTANCE_HOST --bucket $S3_DATA_BUCKET --file mlreef-data-$CI_COMMIT_REF_SLUG.tar

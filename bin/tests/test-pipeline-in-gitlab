@@ -31,9 +31,11 @@ if [ -z ${COMMAND+x} ]; then
 fi
 echo "Using pipeline command $COMMAND"
 
+GITLAB_ROOT_URL=http://$INSTANCE_HOST:10080
+
 #Create MLReef.yml
 # If request fails remove --fail to see the curl response
-curl "http://$URL:10080/api/v4/projects/$GITLAB_PROJECT_ID/repository/files/.mlreef.yml" \
+curl "$GITLAB_ROOT_URL/api/v4/projects/$GITLAB_PROJECT_ID/repository/files/.mlreef.yml" \
   --request POST --fail                         \
   --header "PRIVATE-TOKEN: $TOKEN"              \
   --header "Content-Type: application/json"     \

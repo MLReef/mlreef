@@ -16,7 +16,7 @@ export NEWMAN_ENV="$NEWMAN_ENV_TEMPLATE.pipeline"
 
 # replace base url in postman environment file
 cp "$NEWMAN_ENV_TEMPLATE" "$NEWMAN_ENV"
-sed -i "s/mlreef.com/$URL/" "$NEWMAN_ENV"
+sed -i "s/mlreef.com/$INSTANCE_HOST/" "$NEWMAN_ENV"
 cat "$NEWMAN_ENV"
 newman run bin/resources/smoke-tests.postman_collection.json --environment "$NEWMAN_ENV"
 

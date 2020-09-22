@@ -14,13 +14,13 @@ set -u  # error on usage of undefined variables
 INIT_ARCHIVE=mlreef-data-develop.tar         # see ec2-startup
 S3_BUCKET_NAME="mlreef-application-data"     # see ec2-startup
 
-alias remote-ec2="ssh -i $SSH_KEYFILE -o 'AddKeysToAgent yes' ubuntu@\${INSTANCE} "
+alias remote-ec2="ssh -i $SSH_KEYFILE -o 'AddKeysToAgent yes' ubuntu@\${INSTANCE_HOST} "
 
 while [ -n "$1" ]; do
   case "$1" in
   -i | --instance)
-    INSTANCE="$2"
-    echo "Connecting to ec2 instance $INSTANCE"
+    INSTANCE_HOST="$2"
+    echo "Connecting to ec2 instance $INSTANCE_HOST"
     shift
     ;;
   -b | --bucket)
