@@ -376,16 +376,28 @@ class GitlabRestClient(
         fileContents: Map<String, String>,
         action: String,
         force: Boolean = false
-    ): Commit {
-        val actionList = fileContents.map { GitlabCreateCommitAction(filePath = it.key, content = it.value, action = action) }
-        return GitlabCreateCommitRequest(branch = targetBranch, actions = actionList, commitMessage = commitMessage, force = force)
-            .let { GitlabHttpEntity(it, createUserHeaders(token)) }
-            .addErrorDescription(ErrorCode.GitlabCommitFailed, "Cannot commit .mlreef.yml in $targetBranch")
+    ): Commit =
+        GitlabCreateCommitRequest(
+            branch = targetBranch,
+            actions = fileContents.map { GitlabCreateCommitAction(filePath = it.key, content = it.value, action = action) },
+            commitMessage = commitMessage,
+            force = force
+        )
+            .let {
+                GitlabHttpEntity(
+                    it,
+                    createUserHeaders(token)
+                )
+            }
+            .addErrorDescription(
+                error = ErrorCode.GitlabCommitFailed,
+                name = "Cannot commit ${fileContents.keys.joinToString()} in $targetBranch for Gitlab project $projectId"
+            )
             .makeRequest {
                 val url = "$gitlabServiceRootUrl/projects/$projectId/repository/commits"
                 restTemplate(builder).exchange(url, HttpMethod.POST, it, Commit::class.java)
             }
-    }
+
 
     fun createPipeline(token: String, projectId: Long, commitRef: String, variables: List<GitlabVariable>): GitlabPipeline {
         return GitlabCreatePipelineRequest(

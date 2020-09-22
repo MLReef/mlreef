@@ -33,9 +33,11 @@ import org.springframework.http.converter.StringHttpMessageConverter
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter
 import java.io.File
 import java.nio.charset.Charset
+import java.time.LocalDate
 
 object ScenarioState {
-    val globalRandomUserName = RandomUtils.generateRandomUserName(10)
+    val dateString = LocalDate.now().toString()
+    val globalRandomUserName = "TEST-" + RandomUtils.generateRandomUserName(5) + dateString
     val globalRandomPassword = RandomUtils.generateRandomPassword(30, true)
     val globalEmail = "$globalRandomUserName@example.com"
 }
@@ -48,7 +50,7 @@ object SystemTestTags {
 
 @Tags(value = [Tag(SystemTestTags.SLOW)])
 @TestMethodOrder(value = MethodOrderer.Alphanumeric::class)
-open class AbstractSystemTest() {
+open class AbstractSystemTest {
 
     lateinit var objectMapper: MLReefObjectMapper
     protected lateinit var gitlabRestClient: GitlabRestClient
