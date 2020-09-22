@@ -53,22 +53,27 @@ const JobLog = ({
     );
   }
 
-  async function handleResponse(res) {
-    const blob = await res.blob();
-    const reader = new FileReader();
-    reader.onload = () => {
-      let finalLog = [];
-      try {
-        const b64 = reader.result.replace(/^data:.+;base64,/, '');
-        finalLog = atob(b64).split('\n');
-        setJobLog(finalLog);
-      } catch (error) {
-        toastr.error('Error', 'Log not found or corrupted');
-        setJobLog(finalLog);
+  const handleResponse = (res) => res
+    .blob()
+    .then((content) => {
+      const reader = new FileReader();
+      if (content.size === 0) {
+        toastr.info('Info', 'No log has been generated yet');
+        return;
       }
-    };
-    reader.readAsDataURL(blob);
-  }
+      reader.onload = () => {
+        let finalLog = [];
+        try {
+          const b64 = reader.result.replace(/^data:.+;base64,/, '');
+          finalLog = atob(b64).split('\n');
+          setJobLog(finalLog);
+        } catch (error) {
+          toastr.error('Error', 'Something went wrong reading the log');
+          setJobLog(finalLog);
+        }
+      };
+      reader.readAsDataURL(content);
+    });
 
   useEffect(() => {
     jobsApi.getJobById(projectId, job.id)
@@ -183,7 +188,7 @@ const JobLog = ({
               </div>
             );
           }) : (
-            <div style={{ paddingLeft: '2.5em' }}>
+            <div className="d-flex p-1" style={{ minHeight: '3rem', justifyContent: 'center' }}>
               <MLoadingSpinner />
             </div>
           )}
