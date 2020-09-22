@@ -9,7 +9,6 @@ import com.mlreef.rest.PipelineType
 import com.mlreef.rest.ProcessorParameter
 import com.mlreef.rest.ProcessorParameterRepository
 import com.mlreef.rest.Subject
-import com.mlreef.rest.api.PipelineTestPreparationTrait
 import com.mlreef.rest.api.v1.PipelineConfigCreateRequest
 import com.mlreef.rest.api.v1.PipelineConfigUpdateRequest
 import com.mlreef.rest.api.v1.dto.DataProcessorInstanceDto
@@ -45,9 +44,6 @@ class ProjectPipelinesConfigIntegrationTest : AbstractIntegrationTest() {
 
     @Autowired
     private lateinit var dataProcessorInstanceRepository: DataProcessorInstanceRepository
-
-    @Autowired
-    private lateinit var pipelineTestPreparationTrait: PipelineTestPreparationTrait
 
     @BeforeEach
     @Transactional

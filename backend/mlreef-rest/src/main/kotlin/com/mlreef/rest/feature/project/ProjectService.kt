@@ -60,7 +60,7 @@ import java.util.UUID
 import javax.transaction.Transactional
 
 interface ProjectService<T : Project> {
-    fun getAllPublicProjects(pageable: Pageable): List<T>
+    fun getAllPublicProjects(pageable: Pageable?=null): List<T>
     fun getAllAccessibleProjectsByIds(pageable: Pageable, accessibleIds: Iterable<UUID>): List<T>
     fun getAllAccessibleStarredProjectsByIds(subjectId: UUID, pageable: Pageable, accessibleIds: Iterable<UUID>): List<T>
     fun getProjectsSharedWithUser(personId: UUID, accessibleIds: Iterable<UUID>): List<T>
@@ -200,11 +200,16 @@ open class ProjectServiceImpl<T : Project>(
         private val log = LoggerFactory.getLogger(this::class.java)
     }
 
+    override fun getAllPublicProjects(pageable: Pageable?): List<T> {
+        val projectsIds = if (pageable != null)
+            publicProjectsCacheService.getPublicProjectsIdsList(pageable)
+        else
+            publicProjectsCacheService.getPublicProjectsIdsList()
 
-    override fun getAllPublicProjects(pageable: Pageable): List<T> {
-        val projectsIds = publicProjectsCacheService.getPublicProjectsIdsList(pageable)
         return repository.findAllById(projectsIds).toList()
     }
+
+
 
 
     override fun getOwnProjectsOfUser(personId: UUID): List<T> {

@@ -241,27 +241,6 @@ operation::projects-retrieve-by-namespace[snippets='curl-request,response-body,r
 
 operation::data-project-retrieve-one-by-namespace-slug[snippets='curl-request,response-body,response-fields']
 
-=== GET /projects/:namespace/:slug/users
-
-operation::project-retrieve-users-list-by-namespace-slug[snippets='curl-request']
-
-// @German: please cleanup and re-order these docs :/ it is really messed up... there are chapters.. see line 528 for example
-=== GET /projects/:namespace/:slug/experiments
-
-operation::experiments-retrieve-all-by-namespace-slug[snippets='curl-request,response-body,response-fields']
-
-=== GET /projects/:namespace/:slug/experiments/:experimentId
-
-operation::experiments-retrieve-one-by-namespace-slug[snippets='curl-request,response-body,response-fields']
-
-=== GET /projects/:namespace/:slug/pipelines
-
-operation::project-pipelineconfig-retrieve-all-by-namespace-slug[snippets='curl-request,response-body,response-fields']
-
-=== GET /projects/:namespace/:slug/pipelines/:pipelineId
-
-operation::project-pipelineconfig-retrieve-one-by-namespace-slug[snippets='curl-request,response-body,response-fields']
-
 === GET /projects/:namespace/:slug/processor
 
 operation::data-processors-codeproject-retrieve-one-by-namespace-slug[snippets='curl-request,response-body,response-fields']
@@ -274,7 +253,7 @@ operation::project-place-star[snippets='curl-request,response-body,response-fiel
 
 operation::project-remove-star[snippets='curl-request,response-body,response-fields']
 
-=== GET /projects/check-availability?
+=== GET /project-names/is-available?
 
 |===
 | Status code | Usage
@@ -324,12 +303,6 @@ Get users list that are participate in the project (any: data or code) by id (:i
 
 operation::project-retrieve-users-list[snippets='curl-request,response-body,response-fields']
 
-=== POST /projects/:id/users/:userId
-
-Add a user by id (:userId) to the project by id (:id)
-
-operation::project-add-user[snippets='curl-request,response-body,response-fields']
-
 === POST /projects/:id/users?
 
 Add a user by parameters user_id or gitlab_id to the project by id (:id)
@@ -347,13 +320,14 @@ Add a user in request body
 
 operation::project-add-user-by-body[snippets='curl-request,response-body,response-fields']
 
-=== DELETE /code-projects/:id/users/:userId
+=== DELETE /projects/:id/users/:userId
 
-Delete a user by id (:userId) from the project by id (:id).Returns a list with users left in the project
+Delete a user by id (:userId) from the project by id (:id).
+Returns a list with users left in the project
 
 operation::project-delete-user[snippets='curl-request,response-body,response-fields']
 
-=== DELETE /code-projects/:id/users?
+=== DELETE /projects/:id/users?
 
 Delete a user with parameters by user_id or gitlab_id from the project by id (:id).Returns a list with users left in the project.
 
@@ -390,49 +364,6 @@ operation::data-project-update[snippets='curl-request,request-body,response-body
 
 operation::data-project-delete[snippets='curl-request']
 
-=== GET /data-projects/:id/users
-
-Get users list that are participate in the project by id (:id)
-
-operation::project-retrieve-users-list[snippets='curl-request,response-body,response-fields']
-
-=== POST /data-projects/:id/users/:userId
-
-Add a user by id (:userId) to the project by id (:id)
-
-operation::dataprojects-add-user[snippets='curl-request,response-body,response-fields']
-
-=== POST /data-projects/:id/users?
-
-Add a user by with parameters user_id or gitlab_id to the project by id (:id)
-
-* gitlab_id
-* user_id
-
-operation::dataprojects-add-user-by-params[snippets='curl-request,request-parameters,response-body,response-fields']
-
-=== POST /data-projects/:id/users
-
-Add a user in request body
-
-operation::dataprojects-add-user-by-body[snippets='curl-request,response-body,response-fields']
-
-
-=== DELETE /data-projects/:id/users/:userId
-
-Delete a user by id (:userId) from the project by id (:id). Returns a list with users left in the project.
-
-operation::dataprojects-delete-user[snippets='curl-request,response-body,response-fields']
-
-=== DELETE /data-projects/:id/users?
-
-Delete a user with parameters by user_id or gitlab_id from the project by id (:id).Returns a list with users left in the project.
-
-* gitlab_id
-* user_id
-
-operation::dataprojects-delete-user-by-params[snippets='curl-request,request-parameters,response-body,response-fields']
-
 
 [[groups]]
 == Groups - /groups
@@ -445,7 +376,7 @@ Returns current user's groups where the user has membership
 
 operation::user-groups-list[snippets='curl-request,response-body,response-fields']
 
-=== GET /group/check-availability?
+=== GET /group-name/is-available?
 
 |===
 | Status code | Usage
@@ -611,7 +542,7 @@ operation::experiments-create-mlreef-file-commit[snippets='curl-request,response
 This endpoint is for scripts and Bots which work under the scope of EPF.
 Therefore the permissions could be limited to certain, lightweight operations.
 
-=== PUT .../experiments/:id/epf/update
+=== PUT /epf/experiments/:id/update
 
 A "json blob" is needed for request body.
 A json blob can be any arbitrary json data, but should be in the form of a parsable, not-nested hashmap
@@ -620,7 +551,7 @@ This will ensure the Experiment Status is RUNNING, and fail, if the Status is al
 
 operation::experiments-epf-update[snippets='curl-request,http-response,response-fields']
 
-=== PUT .../experiments/:id/epf/finish
+=== PUT /epf/experiments/:id/finish
 
 No request body payload needed.
 
@@ -671,7 +602,7 @@ operation::pipelineinstance-retrieve-one[snippets='curl-request,response-body,re
 Creation of PipelineInstance is special as it does not need any parameters.
 Creation is actually an Instantiation of a PipelineConfig, which copies all the needed information and starts a new Pipeline.
 
-operation::pipelineinstance-create-success[snippets='curl-request,request-fields,http-response,response-fields']
+operation::pipelineinstance-create-success[snippets='curl-request,http-response,response-fields']
 
 === PUT /pipelines/:pid/instances/:id
 

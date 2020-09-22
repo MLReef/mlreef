@@ -13,7 +13,9 @@ import com.mlreef.rest.exceptions.AccessDeniedException
 import com.mlreef.rest.exceptions.BadParametersException
 import com.mlreef.rest.exceptions.ConflictException
 import com.mlreef.rest.exceptions.ErrorCode
+import com.mlreef.rest.exceptions.ForbiddenContentException
 import com.mlreef.rest.exceptions.GroupNotFoundException
+import com.mlreef.rest.exceptions.IncorrectCredentialsException
 import com.mlreef.rest.exceptions.UnknownGroupException
 import com.mlreef.rest.exceptions.UnknownUserException
 import com.mlreef.rest.exceptions.UserNotFoundException
@@ -37,7 +39,7 @@ interface GroupsService {
     fun getUserGroupsList(token: String, personId: UUID? = null, userId: UUID? = null): List<GroupOfUser>
     fun getGroupById(groupId: UUID): Group?
     fun getUsersInGroup(groupId: UUID): List<UserInGroup>
-    fun createGroup(ownerToken: String, groupName: String, path: String? = null, ownerId: UUID? = null, visibility: VisibilityScope?): Group
+    fun createGroup(ownerToken: String, groupName: String, path: String? = null, visibility: VisibilityScope?): Group
     fun updateGroup(groupId: UUID, groupName: String? = null, path: String? = null): Group
     fun deleteGroup(groupId: UUID)
     fun addUserToGroup(groupId: UUID, userId: UUID, accessLevel: AccessLevel? = AccessLevel.GUEST): List<UserInGroup>
@@ -104,8 +106,8 @@ class GitlabGroupsService(
 
     @Transactional
     @RefreshUserInformation(userId = "#ownerId")
-    override fun createGroup(ownerToken: String, groupName: String, path: String?, ownerId: UUID?, visibility: VisibilityScope?): Group {
-        resolveAccount(userToken = ownerToken, userId = ownerId) ?: throw UserNotFoundException(userId = ownerId)
+    override fun createGroup(ownerToken: String, groupName: String, path: String?, visibility: VisibilityScope?): Group {
+        resolveAccount(userToken = ownerToken) ?: throw IncorrectCredentialsException("Not authenticated")
 
         val slug = Slugs.toSlug(groupName)
         reservedNamesService.assertGroupNameIsNotReserved(groupName)

@@ -3,6 +3,7 @@ package com.mlreef.rest.v1.system
 import com.mlreef.rest.DataType
 import com.mlreef.rest.VisibilityScope
 import com.mlreef.rest.api.v1.ProjectCreateRequest
+import com.mlreef.rest.api.v1.ProjectUserMembershipRequest
 import com.mlreef.rest.api.v1.dto.DataProjectDto
 import com.mlreef.rest.api.v1.dto.ProjectDto
 import com.mlreef.rest.api.v1.dto.SecretUserDto
@@ -122,8 +123,10 @@ class B2_DataProject_Permission_Test : AbstractSystemTest() {
         assertThat(projectA2shared).isNotNull
 
         // Add User B to Project A2
-        val url = "/projects/${projectA2shared.id}/users/${userB.id}"
-        val response2: ResponseEntity<List<UserInProjectDto>> = backendRestClient.post(url, userA_token, null)
+        val url = "/projects/${projectA2shared.id}/users"
+        val response2: ResponseEntity<List<UserInProjectDto>> = backendRestClient.post(url, userA_token, ProjectUserMembershipRequest(
+            userId = userB.id
+        ))
         val projectUsers = response2.expectOk().returnsList(UserInProjectDto::class.java)
         assertThat(projectUsers.map { it.userName }).contains(userB.username)
     }
