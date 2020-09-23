@@ -8,8 +8,9 @@ import { PersistGate } from 'redux-persist/integration/react';
 import MActionModal from 'components/layout/MActionModal';
 import { persistStore } from 'redux-persist';
 import { Helmet } from 'react-helmet';
-import Router from 'router';
-import routes from './routes';
+// import Router from 'router';
+// import routes from './routes';
+import RouterComp from 'routerComp';
 import store from './store';
 import ToastMessage from './components/toast/toast';
 import ErrorHandler from './ErrorHandler';
@@ -42,7 +43,7 @@ ReactDOM.render(
           <title>MLReef</title>
         </Helmet>
         <div className="main-container mb-5">
-          <Router routes={routes} />
+          <RouterComp />
         </div>
       </PersistGate>
     </Provider>
