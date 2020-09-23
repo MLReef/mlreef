@@ -399,7 +399,7 @@ class GitlabRestClient(
             }
 
 
-    fun createPipeline(token: String, projectId: Long, commitRef: String, variables: List<GitlabVariable>): GitlabPipeline {
+    fun createPipeline(token: String, projectId: Long, commitRef: String, variables: List<GitlabVariable> = listOf()): GitlabPipeline {
         return GitlabCreatePipelineRequest(
             ref = commitRef,
             variables = variables)

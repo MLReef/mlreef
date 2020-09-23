@@ -1,5 +1,8 @@
 package com.mlreef.rest.api.v1.dto
 
-internal data class PublishingStatusDto(
-    val status: String = "success"
+import com.mlreef.rest.external_api.gitlab.dto.Commit
+import com.mlreef.rest.external_api.gitlab.dto.GitlabPipeline
+
+internal data class CodeProjectPublishingPipelineDto(
+    val commit: Commit
 )

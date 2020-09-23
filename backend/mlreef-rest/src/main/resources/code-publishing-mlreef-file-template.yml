@@ -1,0 +1,10 @@
+#################################################################################
+# This is the MLReef configuration file.                                        #
+# It contains the current configuration of  your data pipeline, model training, #
+# or visualisation as well as the specific configurations.                      #
+# Please refer to the documentation for information on how to edit this file    #
+#################################################################################
+
+job:
+  image: alpine:latest
+  script: echo "Hello World"
