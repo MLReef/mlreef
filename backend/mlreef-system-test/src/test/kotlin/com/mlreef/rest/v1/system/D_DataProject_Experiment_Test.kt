@@ -7,6 +7,7 @@ import com.mlreef.rest.api.v1.ProjectCreateRequest
 import com.mlreef.rest.api.v1.dto.DataProcessorInstanceDto
 import com.mlreef.rest.api.v1.dto.DataProjectDto
 import com.mlreef.rest.api.v1.dto.ExperimentDto
+import com.mlreef.rest.api.v1.dto.FileLocationDto
 import com.mlreef.rest.api.v1.dto.ParameterInstanceDto
 import com.mlreef.rest.api.v1.dto.PipelineJobInfoDto
 import com.mlreef.rest.api.v1.dto.SecretUserDto
@@ -77,7 +78,7 @@ class D_DataProject_Experiment_Test : AbstractSystemTest() {
             "QA Experiment",
             "master",
             "experiment/test",
-            listOf("data/"),
+            listOf(FileLocationDto("data/")),
             DataProcessorInstanceDto(slug = "commons-resnet-50",
                 parameters = listOf(
                     ParameterInstanceDto("input-path", "data"),

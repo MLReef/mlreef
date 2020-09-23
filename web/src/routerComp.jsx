@@ -8,6 +8,7 @@ import SettingsView from 'components/views/SettingsView';
 import PipelinesExecutionView from 'components/views/PipelinesExecutionView';
 import ResetPasswordView from 'components/views/ResetPassword/ResetPasswordView';
 import PublishingView from 'components/views/PublishingView';
+import DetailedRepositoryView from 'components/views/DetailedRepositoryView';
 import PasswordConfirmationView from 'components/views/ResetPassword/PasswordConfirmationView';
 import FileView from './components/fileView/fileView';
 import Login from './components/login/login';
@@ -89,7 +90,8 @@ const RouterComp = () => (
       <Route path="/:namespace/:slug" component={projectView} exact />
       <Route path="/:namespace/:slug/-/tree/:branch/:path(.+)" component={projectView} />
       <Route path="/:namespace/:slug/-/tree/:branch" component={projectView} />
-      <Route path="/:namespace/:slug/-/blob/:branch/:file(.+)" component={FileView} />
+      <Route path="/:namespace/:slug/-/blob/branch/:branch/path/:file(.+)" component={FileView} />
+      <Route path="/:namespace/:slug/-/blob/commit/:commit/path/:file(.+)" component={FileView} />
       <PrivateRoute path="/:namespace/:slug/-/settings" exact component={SettingsView} />
 
       <Route path="/:namespace/:slug/-/experiments" exact component={ExperimentsOverview} />
@@ -120,6 +122,9 @@ const RouterComp = () => (
         path="/my-projects/:projectId/:branch/blob/:file"
         component={FileView}
       />
+      <PrivateRoute path="/:namespace/:slug/-/repository/tree/-/branch/:branch/path/:path" component={DetailedRepositoryView} />
+      <PrivateRoute path="/:namespace/:slug/-/repository/tree/-/commit/:commit/path/:path" component={DetailedRepositoryView} exact />
+      <PrivateRoute path="/:namespace/:slug/-/repository/tree/-/commit/:commit" component={DetailedRepositoryView} />
       <PrivateRoute path="/my-projects/:projectId/:branch/path/:path" component={projectView} />
       <PrivateRoute path="/my-projects/:projectId/commit/:commitId" exact component={CommitDetails} />
       <PrivateRoute

@@ -6,6 +6,11 @@ const commitsApi = new CommitsApi();
 
 export const getCommits = (projectId, commitBranch) => commitsApi.getCommits(projectId, commitBranch, '', 1);
 
+export const getCommitDetails = (
+  projectId, 
+  commitId
+) => commitsApi.getCommitDetails(projectId, commitId);
+
 export const getFileDifferences = async (projectId, diff, previousCommitId, lastCommitId) => {
   let previousVersionFile;
   let nextVersionFile;

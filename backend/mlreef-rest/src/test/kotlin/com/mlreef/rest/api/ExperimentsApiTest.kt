@@ -77,7 +77,7 @@ class ExperimentsApiTest : AbstractRestApiTest() {
             dataInstanceId = null,
             sourceBranch = "source",
             targetBranch = "target",
-            inputFiles = listOf("folder"),
+            inputFiles = listOf(FileLocationDto("folder")),
             processing = DataProcessorInstanceDto("commons-algorithm", listOf(
                 ParameterInstanceDto("booleanParam", type = ParameterType.BOOLEAN.name, value = "true"),
                 ParameterInstanceDto("complexName", type = ParameterType.COMPLEX.name, value = "(1.0, 2.0)")
@@ -96,7 +96,8 @@ class ExperimentsApiTest : AbstractRestApiTest() {
             .document("experiments-create-success",
                 requestFields(experimentCreateRequestFields())
                     .and(dataProcessorInstanceFields("post_processing[]."))
-                    .and(dataProcessorInstanceFields("processing.")),
+                    .and(dataProcessorInstanceFields("processing."))
+                    .and(fileLocationsFields("input_files[].")),
                 responseFields(experimentDtoResponseFields())
                     .and(pipelineInfoDtoResponseFields("pipeline_job_info."))
                     .and(dataProcessorInstanceFields("post_processing[]."))
@@ -119,7 +120,7 @@ class ExperimentsApiTest : AbstractRestApiTest() {
             dataInstanceId = null,
             sourceBranch = "source",
             targetBranch = "target",
-            inputFiles = listOf("folder"),
+            inputFiles = listOf(FileLocationDto("folder")),
             processing = DataProcessorInstanceDto("commons-algorithm", listOf(
                 ParameterInstanceDto("booleanParam", type = ParameterType.BOOLEAN.name, value = "true"),
                 ParameterInstanceDto("complexName", type = ParameterType.COMPLEX.name, value = "(1.0, 2.0)")
@@ -144,7 +145,7 @@ class ExperimentsApiTest : AbstractRestApiTest() {
             dataInstanceId = null,
             sourceBranch = "source",
             targetBranch = "target",
-            inputFiles = listOf("folder"),
+            inputFiles = listOf(FileLocationDto("folder")),
             processing = DataProcessorInstanceDto("commons-algorithm", listOf(
                 ParameterInstanceDto("booleanParam", type = ParameterType.BOOLEAN.name, value = "true"),
                 ParameterInstanceDto("complexName", type = ParameterType.COMPLEX.name, value = "(1.0, 2.0)")
@@ -174,7 +175,7 @@ class ExperimentsApiTest : AbstractRestApiTest() {
             dataInstanceId = null,
             sourceBranch = "source",
             targetBranch = "target",
-            inputFiles = listOf("folder"),
+            inputFiles = listOf(FileLocationDto("folder")),
             processing = DataProcessorInstanceDto("commons-algorithm", listOf(
                 ParameterInstanceDto("booleanParam", type = ParameterType.BOOLEAN.name, value = "true"),
                 ParameterInstanceDto("complexName", type = ParameterType.COMPLEX.name, value = "(1.0, 2.0)")

@@ -73,7 +73,8 @@ const createExperimentInProject = (
     name: branchName,
     source_branch: branchSelected,
     target_branch: branchName,
-    input_files: filesSelectedInModal.map((file) => file.path),
+    input_files: filesSelectedInModal
+      .map((file) => ({ location: file.path, location_type: file.type === 'blob' ? 'PATH_FILE' : 'PATH_FOLDER' })),
     processing: {
       slug,
       parameters,

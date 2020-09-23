@@ -66,7 +66,7 @@ const ExperimentCard = (props) => {
                 >
                   <b>{shortSlug}</b>
                 </Link>
-                <p style={{ margin: '0' }} id="time-created-ago">
+                <p className="m-0">
                   Created by
                   &nbsp;
                   <b>
@@ -81,7 +81,7 @@ const ExperimentCard = (props) => {
                 </p>
               </div>
               <div className="project-desc-experiment">
-                <p>
+                <p className="m-0">
                   Model:
                   {' '}
                   <b>{modelTitle}</b>
@@ -91,6 +91,8 @@ const ExperimentCard = (props) => {
             <ExperimentSummary
               experiment={experiment}
               projectId={projectId}
+              projectNamespace={projectNamespace}
+              projectSlug={projectSlug}
               dataProjectId={dataProjectId}
               codeProjectId={codeProjectId}
             />

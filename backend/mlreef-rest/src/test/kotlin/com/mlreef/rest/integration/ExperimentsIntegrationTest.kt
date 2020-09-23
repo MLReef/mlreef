@@ -12,6 +12,7 @@ import com.mlreef.rest.ProcessorParameterRepository
 import com.mlreef.rest.api.v1.ExperimentCreateRequest
 import com.mlreef.rest.api.v1.dto.DataProcessorInstanceDto
 import com.mlreef.rest.api.v1.dto.ExperimentDto
+import com.mlreef.rest.api.v1.dto.FileLocationDto
 import com.mlreef.rest.api.v1.dto.ParameterInstanceDto
 import com.mlreef.rest.api.v1.dto.PipelineJobInfoDto
 import org.assertj.core.api.Assertions.assertThat
@@ -64,7 +65,7 @@ class ExperimentsIntegrationTest : AbstractIntegrationTest() {
             dataInstanceId = null,
             sourceBranch = "source",
             targetBranch = "target",
-            inputFiles = listOf("folder"),
+            inputFiles = listOf(FileLocationDto("folder")),
             processing = DataProcessorInstanceDto("commons-algorithm", listOf(
                 ParameterInstanceDto("booleanParam", type = ParameterType.BOOLEAN.name, value = "true"),
                 ParameterInstanceDto("complexName", type = ParameterType.COMPLEX.name, value = "(1.0, 2.0)")
@@ -98,7 +99,7 @@ class ExperimentsIntegrationTest : AbstractIntegrationTest() {
             dataInstanceId = null,
             sourceBranch = "source",
             targetBranch = "target",
-            inputFiles = listOf("folder"),
+            inputFiles = listOf(FileLocationDto("folder")),
             processing = DataProcessorInstanceDto("commons-algorithm", listOf(
                 ParameterInstanceDto("booleanParam", type = ParameterType.BOOLEAN.name, value = "true"),
                 ParameterInstanceDto("complexName", type = ParameterType.COMPLEX.name, value = "(1.0, 2.0)")
@@ -129,7 +130,7 @@ class ExperimentsIntegrationTest : AbstractIntegrationTest() {
             dataInstanceId = null,
             sourceBranch = "source",
             targetBranch = "target",
-            inputFiles = listOf("folder"),
+            inputFiles = listOf(FileLocationDto("folder")),
             processing = DataProcessorInstanceDto("commons-algorithm", listOf(
                 ParameterInstanceDto("booleanParam", type = ParameterType.BOOLEAN.name, value = "true"),
                 ParameterInstanceDto("complexName", type = ParameterType.COMPLEX.name, value = "(1.0, 2.0)")
@@ -161,7 +162,7 @@ class ExperimentsIntegrationTest : AbstractIntegrationTest() {
             dataInstanceId = null,
             sourceBranch = "source",
             targetBranch = "target",
-            inputFiles = listOf("folder"),
+            inputFiles = listOf(FileLocationDto("folder")),
             processing = DataProcessorInstanceDto("commons-algorithm", listOf(
                 ParameterInstanceDto("booleanParam", type = ParameterType.BOOLEAN.name, value = "true"),
                 ParameterInstanceDto("complexName", type = ParameterType.COMPLEX.name, value = "(1.0, 2.0)")

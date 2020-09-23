@@ -1,5 +1,5 @@
 .data-card {
-  border: 1px solid #e5e5e5;
+  border: 1px solid var(--almostWhite);
   width: 32%;
   margin: 0% 0% 1% 0.5%;
   border-radius: 0.5vw;
@@ -10,14 +10,11 @@
     border-bottom-right-radius: 0;
     text-align: center;
     padding: 5px;
+    border: 1px solid var(--almostWhite);
+    background-color: var(--dark);
+    color: var(--white);
   }
-  
-  .title {
-    border: 1px solid #e5e5e5;
-    background-color: #1c2b40;
-    color: #ffff;
-  }
-  
+    
   div:not(.title) {
     padding: 3% 0% 0% 5%;
   }

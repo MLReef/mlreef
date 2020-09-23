@@ -98,7 +98,6 @@ class SelectDataPipelineModal extends Component {
         const { initialFiles } = this.props;
         this.setState({
           files: [...files.map((file) => {
-            // TODO: When the pipeline has been executed this won't block the not checked files
             const isChecked = this.getIsFileChecked(file);
             return { ...file, checked: isChecked, disabled: !isChecked && initialFiles !== null };
           })],
@@ -205,8 +204,12 @@ class SelectDataPipelineModal extends Component {
                                   return (
                                     <li
                                       key={`b-${pipelineName}`}
-                                      onKeyDown={() => this.updateFilesArrayOnBranchChange(gid, pipelineName)}
-                                      onClick={() => this.updateFilesArrayOnBranchChange(gid, pipelineName)}
+                                      onKeyDown={
+                                        () => this.updateFilesArrayOnBranchChange(gid, pipelineName)
+                                      }
+                                      onClick={
+                                        () => this.updateFilesArrayOnBranchChange(gid, pipelineName)
+                                      }
                                     >
                                       <p>
                                         {`${uniqueName} - ${customTime(branch.commit.created_at)}`}

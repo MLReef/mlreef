@@ -36,6 +36,7 @@ import Error404View from 'components/error-page/error404Page';
 
 // this is component for testing layout and should be removed after alpha
 import DemoView from 'components/Demo';
+import DetailedRepositoryView from 'components/views/DetailedRepositoryView';
 
 export default [
   {
@@ -188,6 +189,12 @@ export default [
     },
   },
   // files
+  {
+    name: 'fileCommit',
+    path: '/:namespace/:slug/-/blob/commit/:commit/path/:file(.+)',
+    exact: true,
+    component: FileView,
+  },
   {
     name: 'fileBranch',
     path: '/:namespace/:slug/-/blob/:branch/:file(.+)',
@@ -351,8 +358,32 @@ export default [
       authRequired: true,
     },
   },
-
-  // the end
+  {
+    name: 'detailed-view-1',
+    path: '/:namespace/:slug/-/repository/tree/-/branch/:branch/path/:path',
+    component: DetailedRepositoryView,
+    exact: true,
+    meta: {
+      authRequired: true,
+    },
+  },
+  {
+    name: 'detailed-view-2',
+    path: '/:namespace/:slug/-/repository/tree/-/commit/:commit/path/:path',
+    component: DetailedRepositoryView,
+    exact: true,
+    meta: {
+      authRequired: true,
+    },
+  },
+  {
+    name: 'detailed-view-3',
+    path: '/:namespace/:slug/-/repository/tree/-/commit/:commit',
+    component: DetailedRepositoryView,
+    meta: {
+      authRequired: true,
+    },
+  },
   {
     name: 'error',
     path: '/error-page',

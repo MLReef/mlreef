@@ -4,11 +4,11 @@ import { METHODS, validServicesToCall } from './apiBuilders/requestEnums';
 import { handleResponse } from 'functions/apiCalls';
 
 export default class FilesApi extends ApiDirector {
-  async getFilesPerProject(projectId: number, path: string, recursive = false, branch: string) {
+  async getFilesPerProject(projectId: number, path: string, recursive = false, ref: string) {
     const baseUrl = `/api/v4/projects/${projectId}/repository/tree`;
     const blBuilder = new BodyLessApiRequestCallBuilder(METHODS.GET, this.buildBasicHeaders(validServicesToCall.GITLAB), baseUrl);
     const params = new Map();
-    params.set('ref', branch);
+    params.set('ref', ref);
     params.set('recursive', recursive);
     params.set('path', path);
     params.set('per_page', '50');
@@ -21,8 +21,8 @@ export default class FilesApi extends ApiDirector {
     return response.json();
   }
 
-  async getFileData(projectId: number, path: string, branch: string) {
-    const url = `/api/v4/projects/${projectId}/repository/files/${path}?ref=${branch}`;
+  async getFileData(projectId: number, path: string, ref: string) {
+    const url = `/api/v4/projects/${projectId}/repository/files/${path}?ref=${ref}`;
     const blBuilder = new BodyLessApiRequestCallBuilder(METHODS.GET, this.buildBasicHeaders(validServicesToCall.GITLAB), url);
     return fetch(blBuilder.build())
       .then(handleResponse)
