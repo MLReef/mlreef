@@ -21,16 +21,17 @@ const MBricksWall = (props) => {
   const sortBricks = useCallback(
     () => {
       const container = containerRef.current;
+      const rects = container?.getClientRects();
 
-      // sometimes returns null OGK
-      if (container) {
-        const { width } = container.getClientRects()[0];
-        const info = {};
-        const replaceBrick = sortGrid(width, info);
+      // sometimes no rects... OGK
+      if (!(rects && rects[0])) return;
 
-        Array.from(container.children).forEach(replaceBrick);
-        container.style.height = `${info.maxHeight}px`;
-      }
+      const { width } = rects[0];
+      const info = {};
+      const replaceBrick = sortGrid(width, info);
+
+      Array.from(container.children).forEach(replaceBrick);
+      container.style.height = `${info.maxHeight}px`;
     },
     // eslint-disable-next-line
     [bricks.length], // bricks.length is required implicitly.
