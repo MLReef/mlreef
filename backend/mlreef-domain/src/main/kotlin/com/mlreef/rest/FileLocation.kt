@@ -8,13 +8,17 @@ import javax.persistence.Id
 import javax.persistence.Table
 
 enum class FileLocationType {
+    @Deprecated("This option is not should be replaced, not specific enough")
     PATH,
+    PATH_FILE,
+    PATH_FOLDER,
     URL,
     AWS_ID;
 
     companion object {
         fun fromString(value: String) = when (value.toUpperCase()) {
-            PATH.name -> PATH
+            PATH_FILE.name -> PATH_FILE
+            PATH_FOLDER.name -> PATH_FOLDER
             URL.name -> URL
             AWS_ID.name -> AWS_ID
             "AWS" -> AWS_ID

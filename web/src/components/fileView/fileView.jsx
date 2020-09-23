@@ -50,11 +50,10 @@ export class FileView extends React.Component {
       projectId,
       match: {
         params: {
-          file, branch, namespace, slug,
+          file, branch, commit, namespace, slug,
         },
       },
     } = this.props;
-
     let gid;
 
     if (projectId) {
@@ -68,7 +67,7 @@ export class FileView extends React.Component {
       }
     }
 
-    filesApi.getFileData(gid, encodeURIComponent(file), branch)
+    filesApi.getFileData(gid, encodeURIComponent(file), branch || commit)
       .then((res) => {
         const fileData = res;
         this.setState({ fileData });
@@ -126,6 +125,8 @@ export class FileView extends React.Component {
     let fileContent = null;
     let filepath = [];
     let extension;
+    const filteredBranches = branches.filter((branch) => !branch.name.startsWith('data-pipeline/')
+      && !branch.name.startsWith('experiment/'));
     if (users && authorName) {
       users.forEach((contributor) => {
         const { name } = contributor;
@@ -166,7 +167,7 @@ export class FileView extends React.Component {
         )}
         <div className="branch-path">
           <MDropdown
-            label={decodeURIComponent(branch)}
+            label={decodeURIComponent(branch || filteredBranches[0].name)}
             component={(
               <div id="branches-list" className="select-branch fileview-select">
                 <div
@@ -179,17 +180,16 @@ export class FileView extends React.Component {
                   <div className="branches">
                     <ul>
                       <li className="branch-header">Branches</li>
-                      {branches && branches.filter((branch) => !branch.name.startsWith('data-pipeline/')
-                        && !branch.name.startsWith('experiment/')).map((branch) => {
-                        const encoded = encodeURIComponent(branch.name);
+                      {filteredBranches.map((fBranch) => {
+                        const encoded = encodeURIComponent(fBranch.name);
                         return (
                           <li key={encoded}>
                             <Link
-                              id={branch.name}
+                              id={fBranch.name}
                               to={`/${namespace}/${slug}/-/tree/${encoded}`}
                               onClick={this.handleClick}
                             >
-                              <p>{branch.name}</p>
+                              <p>{fBranch.name}</p>
                             </Link>
                           </li>
                         );

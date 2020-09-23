@@ -204,22 +204,24 @@ const DataInstanceDetails = (props) => {
         </div>
         <br />
         <div className="d-flex" style={{ height: '20rem', justifyContent: 'space-around' }}>
-          {backendPipeline && (
+          {backendPipeline && backendPipeline.dataOperations && (
             <>
               <DataCard
                 title="Data"
                 linesOfContent={[
-                  'Files selected from path',
-                  `*${backendPipeline?.inputFiles ? backendPipeline?.inputFiles[0].location : ''}`,
-                  'from',
-                  `*${branchName?.replace(/.*\//, '')}`,
+                  { text: 'Files selected from path' },
+                  { text: `*${backendPipeline?.inputFiles ? backendPipeline?.inputFiles[0].location : ''}` },
+                  { text: 'from' },
+                  { text: `*${branchName?.replace(/.*\//, '')}` },
                 ]}
               />
               <DataCard
                 title="DataOps"
-                linesOfContent={backendPipeline
-                  ?.dataOperations
-                  ?.map((op, opInd) => `*Op. ${opInd} - ${op.name}`)}
+                linesOfContent={
+                  backendPipeline
+                    ?.dataOperations
+                    ?.map((op, opInd) => ({ text: `*Op. ${opInd} - ${op.name}` }))
+                }
               />
             </>
           )}

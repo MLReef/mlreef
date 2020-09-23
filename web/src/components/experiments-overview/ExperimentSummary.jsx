@@ -3,6 +3,7 @@ import {
   string,
   shape,
   number,
+  arrayOf,
 } from 'prop-types';
 import { toastr } from 'react-redux-toastr';
 import './experimentsOverview.css';
@@ -35,24 +36,38 @@ const projectInstance = new ProjectGeneralInfoApi();
 const ExperimentSummary = ({
   projectId,
   dataProjectId,
-  experiment,
   codeProjectId,
+  projectNamespace,
+  projectSlug,
+  experiment,
 }) => {
-  const experimentInstance = experiment;
   const [showSummary, setShowSummary] = useState(false);
   const [dataToGraph, setDataToGraph] = useState({
     datasets: [],
     labels: [],
   });
+  const {
+    inputFiles,
+    sourceBranch,
+    id,
+    jsonBlob,
+    epochs,
+    name,
+    status,
+    processing,
+    pipelineJobInfo: { commitSha },
+    slug: expName,
+  } = experiment;
+
+  const inputFilePath = inputFiles[0].location.toString();
+  const basePath = `${projectNamespace}/${projectSlug}`;
   const [averageParams, setAverageParams] = useState([]);
   const [shouldAbortModalRender, setShouldAbortModalRender] = useState(false);
   const [shouldDeleteModalRender, setShouldDeleteModalRender] = useState(false);
   const [codeProject, setcodeProject] = useState({});
-  const sourceBranch = experimentInstance ? experimentInstance.sourceBranch : '';
-  const { processing } = experimentInstance;
   const modelName = processing ? processing.name : '';
   const trainingData = processing.parameters ? processing.parameters.map((param) => (
-    `*P: ${param.name} = ${param.value}`
+    { text: `*P: ${param.name} = ${param.value}` }
   )) : [];
 
   useEffect(() => {
@@ -63,6 +78,7 @@ const ExperimentSummary = ({
   const { gitlab_namespace: nameSpace, slug } = codeProject;
   const closeModal = () => setShouldAbortModalRender(false);
   const closeDeletionModal = () => setShouldDeleteModalRender(false);
+  const linkToRepoView = `/${basePath}/-/repository/tree/-/commit/${commitSha}`;
 
   function abortClickHandler(pipelineId) {
     gitlabApi.abortGitlabPipelines(
@@ -70,7 +86,7 @@ const ExperimentSummary = ({
       pipelineId,
     )
       .then(() => {
-        experimentApi.cancelExperiment(dataProjectId, experiment.id);
+        experimentApi.cancelExperiment(dataProjectId, id);
         toastr.success('Success', 'Pipeline aborted');
         closeModal();
         window.location.reload();
@@ -95,11 +111,11 @@ const ExperimentSummary = ({
       return;
     }
     try {
-      experimentInstance.fromBlobToEpochs(experimentInstance.jsonBlob);
-      setAverageParams(experimentInstance.generateAverageInformation());
+      experiment.fromBlobToEpochs(jsonBlob);
+      setAverageParams(experiment.generateAverageInformation());
       setDataToGraph({
-        labels: Object.keys(experimentInstance.epochs),
-        datasets: experimentInstance.generateChartInformation(),
+        labels: Object.keys(epochs),
+        datasets: experiment.generateChartInformation(),
       });
     } catch (error) {
       toastr.info('Experiment', error.message);
@@ -108,8 +124,7 @@ const ExperimentSummary = ({
 
   function getButtonsDiv() {
     let buttons;
-    const { slug: expName, status } = experiment;
-    const experimentState = status?.toLowerCase();
+    const experimentStatus = status?.toLowerCase();
     const arrowBtn = (
       <ArrowButton
         imgPlaceHolder={traiangle01}
@@ -118,7 +133,7 @@ const ExperimentSummary = ({
         key={`ArrowButton-${expName}`}
       />
     );
-    if (experimentState === RUNNING || experimentState === PENDING) {
+    if (experimentStatus === RUNNING || experimentStatus === PENDING) {
       buttons = [
         arrowBtn,
         <button
@@ -131,7 +146,7 @@ const ExperimentSummary = ({
           Abort
         </button>,
       ];
-    } else if (experimentState === SKIPPED) {
+    } else if (experimentStatus === SKIPPED) {
       buttons = [
         arrowBtn,
         <button
@@ -148,7 +163,7 @@ const ExperimentSummary = ({
           Resume
         </button>,
       ];
-    } else if (experimentState === SUCCESS || experimentState === FAILED) {
+    } else if (experimentStatus === SUCCESS || experimentStatus === FAILED) {
       buttons = [
         arrowBtn,
         <button
@@ -159,7 +174,7 @@ const ExperimentSummary = ({
           onClick={() => setShouldDeleteModalRender(!shouldDeleteModalRender)}
         />,
       ];
-    } else if (experimentState === CANCELED) {
+    } else if (experimentStatus === CANCELED) {
       buttons = [
         arrowBtn,
         <button
@@ -196,46 +211,48 @@ const ExperimentSummary = ({
       </MModal>
       {showSummary && (
         <>
-          <div key={`${experimentInstance.name} ${experimentInstance.status} data-summary`} className="data-summary">
+          <div key={`${name} ${experiment.status} data-summary`} className="data-summary">
             <div style={{ width: '100%', minWidth: 700, maxWidth: 750 }}>
               <Line data={dataToGraph} height={50} />
             </div>
             <div className="content">
               <p><b>Performace achieved from last epoch:</b></p>
               {
-                averageParams.map(({ name, value }) => (
-                  <p key={`${name}-${value}`}>
+                averageParams.map(({ adParamName, value }) => (
+                  <p key={`${adParamName}-${value}`}>
                     {' '}
-                    {`${name}: ${parseDecimal(value)}`}
+                    {`${adParamName}: ${parseDecimal(value)}`}
                     {' '}
                   </p>
                 ))
               }
             </div>
           </div>
-          <div style={{ flexBasis: '100%', height: 0 }} key={`${experimentInstance.name} ${experimentInstance.status} division2`} />
-          <div key={`${experimentInstance.name} ${experimentInstance.status} card-results`} className="card-results">
+          <div style={{ flexBasis: '100%', height: 0 }} key={`${name} ${status} division2`} />
+          <div key={`${name} ${status} card-results`} className="card-results">
             <DataCard
               title="Data"
               linesOfContent={[
-                'files selected from folder',
-                `*${experiment.inputFiles.map((file) => `${file.location}`).toString()}`,
-                sourceBranch.startsWith('data-instance')
-                  ? 'sourcing from data instance'
-                  : 'sourcing from',
-                `*${sourceBranch}`,
+                { text: 'files selected from folder' },
+                {
+                  text: `*${inputFilePath}`,
+                  isLink: true,
+                  href: experiment.inputFiles[0].location_type === 'PATH_FILE'
+                    ? `/${basePath}/-/blob/commit/${commitSha}/path/${inputFilePath}`
+                    : `${linkToRepoView}/path/${inputFilePath}`,
+                },
+                { text: sourceBranch?.startsWith('data-instance') ? 'sourcing from data instance' : 'sourcing from' },
+                { text: `*${sourceBranch || ''}`, isLink: true, href: linkToRepoView },
+                { text: 'Last commit', isLink: false },
+                { text: `${commitSha?.substring(0, 8)}`, isLink: true, href: `/my-projects/${projectId}/commit/${commitSha}` },
               ]}
             />
-            <div className="data-card">
-              <div className="title">
-                <p><b>Model</b></p>
-              </div>
-              <div>
-                <a target="_blank" rel="noopener noreferrer" href={`/${nameSpace}/${slug}`}>
-                  <b>{modelName}</b>
-                </a>
-              </div>
-            </div>
+            <DataCard
+              title="Model"
+              linesOfContent={[
+                { text: modelName, isLink: true, href: `/${nameSpace}/${slug}` },
+              ]}
+            />
             <DataCard
               title="Used Parameters"
               linesOfContent={trainingData}
@@ -249,19 +266,19 @@ const ExperimentSummary = ({
 
 ExperimentSummary.propTypes = {
   projectId: number.isRequired,
-  experiments: shape({
+  experiment: shape({
     processing: shape({
-      parameters: shape({
+      parameters: arrayOf(shape({
         name: string.isRequired,
         value: string.isRequired,
-      }).isRequired,
+      })).isRequired,
     }).isRequired,
     name: string.isRequired,
     authorName: string.isRequired,
     pipelineJobInfo: shape({
       createdAt: string.isRequired,
     }),
-  }),
+  }).isRequired,
 };
 
 export default ExperimentSummary;

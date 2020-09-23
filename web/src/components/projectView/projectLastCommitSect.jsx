@@ -5,7 +5,7 @@ import {
   string, number, shape, arrayOf,
 } from 'prop-types';
 import { parseToCamelCase, getTimeCreatedAgo } from 'functions/dataParserHelpers';
-import { getCommits } from 'functions/apiCalls';
+import { getCommits, getCommitDetails } from 'functions/apiCalls';
 
 const ProjectLastCommitSect = ({
   projectId,
@@ -13,10 +13,11 @@ const ProjectLastCommitSect = ({
   projectDefaultBranch,
   users,
   testCommitData,
+  lastCommitId,
 }) => {
   const [lastCommit, setLastCommit] = useState(null);
   useEffect(() => {
-    if (projectId) {
+    if (projectId && urlBranch) {
       const commitBranch = urlBranch && urlBranch !== '' && urlBranch !== 'null'
         ? urlBranch
         : projectDefaultBranch;
@@ -24,10 +25,20 @@ const ProjectLastCommitSect = ({
       getCommits(projectId, commitBranch).then((res) => setLastCommit(parseToCamelCase(res[0])))
         .catch(() => toastr.error('Error', 'Error fetching last commit'));
     }
-  }, [projectId, urlBranch, projectDefaultBranch]);
-  if (!lastCommit && !testCommitData) return null; // testCommitData is just for testing purposes, never and ever pass it for real functionality
+
+    if (projectId && lastCommitId) {
+      getCommitDetails(projectId, lastCommitId)
+        .then((res) => setLastCommit(parseToCamelCase(res)))
+        .catch(() => toastr.error('Error', 'Error fetching last commit'));
+    }
+  }, [projectId, urlBranch, projectDefaultBranch, lastCommitId]);
+  /*
+    testCommitData is just for testing purposes, never and ever pass it for real functionality
+  */
+  if (!lastCommit && !testCommitData) return null;
   const finalCommitInfo = lastCommit || testCommitData;
-  const committer = finalCommitInfo && users.filter((user) => user.name === finalCommitInfo.authorName)[0];
+  const committer = finalCommitInfo
+    && users.filter((user) => user.name === finalCommitInfo.authorName)[0];
   const avatarUrl = committer ? (committer.avatarUrl || committer.avatar_url) : ''; // avatarUrl not found
   const avatarName = committer && committer.name;
   const today = new Date();
@@ -81,6 +92,7 @@ ProjectLastCommitSect.defaultProps = {
 ProjectLastCommitSect.propTypes = {
   projectId: number.isRequired,
   branch: string.isRequired,
+  lastCommitId: number.isRequired,
   projectDefaultBranch: string.isRequired,
   users: arrayOf(shape({ name: string.isRequired })),
   testCommitData: shape({}),

@@ -11,6 +11,7 @@ import com.mlreef.rest.Person
 import com.mlreef.rest.api.v1.dto.DataProcessorInstanceDto
 import com.mlreef.rest.api.v1.dto.ExperimentDto
 import com.mlreef.rest.api.v1.dto.PipelineJobInfoDto
+import com.mlreef.rest.api.v1.dto.FileLocationDto
 import com.mlreef.rest.api.v1.dto.toDto
 import com.mlreef.rest.exceptions.ConflictException
 import com.mlreef.rest.exceptions.ErrorCode
@@ -160,7 +161,10 @@ class ExperimentsController(
             }
         }
 
-        val inputFiles = experimentCreateRequest.inputFiles.map { FileLocation.fromPath(it) }
+
+        val inputFiles = experimentCreateRequest.inputFiles.map {
+            FileLocation.fromDto(it.location, it.locationType)
+        }
         val newExperiment = service.createExperiment(
             authorId = person.id,
             dataProjectId = dataProject.id,
@@ -211,7 +215,7 @@ class ExperimentCreateRequest(
     @NotEmpty val name: String,
     @NotEmpty val sourceBranch: String,
     @NotEmpty val targetBranch: String = "",
-    @NotEmpty val inputFiles: List<String> = listOf(),
+    @NotEmpty val inputFiles: List<FileLocationDto> = listOf(),
     @Valid val processing: DataProcessorInstanceDto,
     @Valid val postProcessing: List<DataProcessorInstanceDto> = arrayListOf()
 )

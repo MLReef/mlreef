@@ -99,7 +99,6 @@ class ExperimentsOverview extends Component {
     } = this.props;
 
     const areThereExperimentsToShow = all.map((expClass) => expClass.values.length).reduce((a, b) => a + b) !== 0;
-
     return (
       <>
         <Navbar />

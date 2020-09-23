@@ -1,5 +1,7 @@
 import React from 'react';
-import { string, arrayOf } from 'prop-types';
+import {
+  string, arrayOf, bool, shape,
+} from 'prop-types';
 import './DataCard.scss';
 
 const DataCard = ({ title, linesOfContent }) => (
@@ -8,11 +10,17 @@ const DataCard = ({ title, linesOfContent }) => (
       <p><b>{title}</b></p>
     </div>
     <div>
-      {linesOfContent && linesOfContent.map((line, lineIndex) => {
-        const lineContent = line.startsWith('*')
-          ? <b>{line.replace('*', '')}</b>
-          : line;
-        return <p key={`${title} ${line} ${lineIndex.toString()}`} className="line">{lineContent}</p>;
+      {linesOfContent?.map((line) => {
+        const lineContent = line?.text?.startsWith('*')
+          ? <b>{line.text.replace('*', '')}</b>
+          : line.text;
+        return line?.isLink
+          ? (
+            <a key={line?.text} target="_blank" rel="noopener noreferrer" href={line.href}>
+              <b>{lineContent}</b>
+            </a>
+          )
+          : <p key={line?.text} className="line">{lineContent}</p>;
       })}
     </div>
   </div>
@@ -20,7 +28,12 @@ const DataCard = ({ title, linesOfContent }) => (
 
 DataCard.propTypes = {
   title: string.isRequired,
-  linesOfContent: arrayOf(string).isRequired,
+  linesOfContent: arrayOf(
+    shape({
+      text: string.isRequired,
+      isLink: bool,
+    }),
+  ).isRequired,
 };
 
 export default DataCard;
