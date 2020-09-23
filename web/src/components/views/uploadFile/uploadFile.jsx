@@ -149,41 +149,45 @@ const UploadFile = (props) => {
   );
 
   const processAndSetStatus = (rawFiles) => {
-    const processedFiles = processFiles(rawFiles);
-    if (processedFiles.length === 0) {
-      toastr.error('Error', 'The files selected is larger than size permitted(10MB)');
-      return;
-    }
-    dispatch({ type: SET_FILESUPLOAD, payload: processedFiles });
-    processedFiles.forEach((pf, pfIndex) => {
-      const f = rawFiles[pfIndex];
-      const fileReader = new FileReader();
-      fileReader.addEventListener('progress', (event) => {
-        dispatch({
-          type: SET_PROGRESS,
-          payload: {
-            fileId: pf.id,
-            progress: Math.round((event.loaded / event.total) * 100),
-          },
+    try {
+      const processedFiles = processFiles(rawFiles);
+      dispatch({ type: SET_FILESUPLOAD, payload: processedFiles.filter((pf) => pf.isValid) });
+      processedFiles.forEach((pf, pfIndex) => {
+        if (!pf.isValid) {
+          toastr.warning('Warning', `The "${pf.getName()}" file is not valid`);
+          return;
+        }
+        const f = rawFiles[pfIndex];
+        const fileReader = new FileReader();
+        fileReader.addEventListener('progress', (event) => {
+          dispatch({
+            type: SET_PROGRESS,
+            payload: {
+              fileId: pf.id,
+              progress: Math.round((event.loaded / event.total) * 100),
+            },
+          });
         });
+        fileReader.onloadend = () => {
+          const content = fileReader.result;
+          dispatch({ type: SET_CONTENT, payload: { fileId: pf.id, content } });
+          dispatch({
+            type: SET_PROGRESS,
+            payload: {
+              fileId: pf.id,
+              progress: 100,
+            },
+          });
+        };
+        if (isFileExtensionForBase64Enc(pf.type)) {
+          fileReader.readAsArrayBuffer(f);
+        } else {
+          fileReader.readAsText(f);
+        }
       });
-      fileReader.onloadend = () => {
-        const content = fileReader.result;
-        dispatch({ type: SET_CONTENT, payload: { fileId: pf.id, content } });
-        dispatch({
-          type: SET_PROGRESS,
-          payload: {
-            fileId: pf.id,
-            progress: 100,
-          },
-        });
-      };
-      if (isFileExtensionForBase64Enc(pf.type)) {
-        fileReader.readAsArrayBuffer(f);
-      } else {
-        fileReader.readAsText(f);
-      }
-    });
+    } catch (error) {
+      toastr.error('Error', error.message);
+    }
   };
 
   const handleFileChosen = (rawFiles) => processAndSetStatus(rawFiles);
@@ -275,7 +279,7 @@ const UploadFile = (props) => {
             type="button"
             variant="contained"
             className="btn btn-switch"
-            onClick={() => history.goBack() }
+            onClick={() => history.goBack()}
           >
             Cancel
           </button>

@@ -24,7 +24,7 @@ export const MAX_SIZE_FILE_PERMITTED = 10000000;
 export const initialState = {
   filesToUpload: [],
   targetBranch: '',
-  commitMsg: 'Upload New File',
+  commitMsg: 'Upload new file',
   startMR: false,
   isAValidForm: false,
   progress: 0,
@@ -39,18 +39,24 @@ export const isFileExtensionForBase64Enc = (type) => formatsWhichNeedbase64Encod
   .length > 0;
 
 export const processFiles = (rawFiles) => {
-  if (rawFiles?.length > 0) {
-    const arrayFormatFiles = Array.from(rawFiles);
-    const totalSize = arrayFormatFiles?.map((rFile) => rFile.size)
+  if (rawFiles?.length === 0) {
+    throw new Error('Not valid files selected');
+  }
+  const arrayFormatFiles = Array.from(rawFiles);
+  const totalSize = arrayFormatFiles?.map((rFile) => rFile.size)
     .reduce((currentTotalSize, currentFileSize) => currentTotalSize
     + currentFileSize);
-    if (totalSize > MAX_SIZE_FILE_PERMITTED) {
-      return [];
-    }
-    return arrayFormatFiles
-      .map((rawF) => new FileToUpload(UUIDV1(), rawF.name, rawF.size, rawF.type));
+  if (totalSize > MAX_SIZE_FILE_PERMITTED) {
+    throw new Error('The files selected is larger than size permitted (10MB)');
   }
-  return [];
+  return arrayFormatFiles
+    .map((rawF) => new FileToUpload(
+      UUIDV1(),
+      rawF.name,
+      rawF.size,
+      rawF.type,
+      !(rawF.type === ''),
+    ));
 };
 
 export const generateActionsForCommit = (

@@ -5,12 +5,14 @@ export default class FileToUpload {
   private size: Number = 0;
   private type: String;
   private progress: Number = 0;
+  public isValid: Boolean = true;
 
-  constructor(id: String, name: String, size: Number, type: String){
+  constructor(id: String, name: String, size: Number, type: String, isValid: Boolean){
     this.id = id;
     this.name = name;
     this.size = size;
     this.type = type;
+    this.isValid = isValid;
   }
   
   public setId = (id: String) => this.id = id;
