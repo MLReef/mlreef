@@ -3,7 +3,7 @@ package com.mlreef.rest.api
 import com.mlreef.rest.AccessLevel
 import com.mlreef.rest.CodeProject
 import com.mlreef.rest.Person
-import com.mlreef.rest.api.v1.dto.PublishingStatusDto
+import com.mlreef.rest.api.v1.dto.CodeProjectPublishingPipelineDto
 import io.mockk.MockKAnnotations
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
@@ -11,15 +11,11 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Tag
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.restdocs.payload.FieldDescriptor
-import org.springframework.restdocs.payload.JsonFieldType
-import org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath
 import org.springframework.test.annotation.Rollback
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers.content
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import javax.transaction.Transactional
 
-class CodePublishingApiTest : AbstractRestApiTest() {
+class CodeProjectPublishingApiTest : AbstractRestApiTest() {
 
     private lateinit var subject: Person
     private lateinit var codeProject: CodeProject
@@ -59,8 +55,7 @@ class CodePublishingApiTest : AbstractRestApiTest() {
 //                //requestFields(),
 //                //responseFields()
 //            )
-            .returns(PublishingStatusDto::class.java)
+            .returns(CodeProjectPublishingPipelineDto::class.java)
 
-        assertThat(returnedResult.status).isEqualTo("success")
     }
 }
