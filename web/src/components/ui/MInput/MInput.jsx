@@ -16,6 +16,7 @@ const MInput = (props) => {
     className,
     readOnly,
     styleClass,
+    cypressTag,
   } = props;
 
   return (
@@ -24,6 +25,7 @@ const MInput = (props) => {
         <label htmlFor={id}>{ label }</label>
         <input
           id={id}
+          data-cy={cypressTag}
           className={`m-input_input ${styleClass}`}
           type={type}
           value={value}
@@ -35,7 +37,7 @@ const MInput = (props) => {
         />
         <div className="m-input_errors">
           {error && (
-            <div className="m-error">
+            <div data-cy="m-error" className="m-error">
               { error }
             </div>
           )}
@@ -56,6 +58,7 @@ MInput.defaultProps = {
   onChange: () => {},
   readOnly: false,
   styleClass: '',
+  cypressTag: '',
 };
 
 MInput.propTypes = {
@@ -87,6 +90,7 @@ MInput.propTypes = {
   className: PropTypes.string,
   readOnly: PropTypes.bool,
   styleClass: PropTypes.string,
+  cypressTag: PropTypes.string,
 };
 
 export default MInput;

@@ -13,6 +13,7 @@ const MCheckBox = (props) => {
     callback,
     className,
     small,
+    cypressTag,
   } = props;
 
   const [value, setValue] = React.useState(defaultChecked);
@@ -30,6 +31,7 @@ const MCheckBox = (props) => {
 
   return (
     <div
+      data-cy={cypressTag}
       role="button"
       tabIndex={0}
       key={`${name} ${labelValue}`}
@@ -54,6 +56,7 @@ MCheckBox.propTypes = {
   labelValue: string,
   callback: func,
   className: string,
+  cypressTag: string,
 };
 
 MCheckBox.defaultProps = {
@@ -64,6 +67,7 @@ MCheckBox.defaultProps = {
   labelValue: '',
   callback: () => {},
   className: '',
+  cypressTag: '',
 };
 
 export default MCheckBox;

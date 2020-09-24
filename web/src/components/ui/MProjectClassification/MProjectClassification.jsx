@@ -170,6 +170,7 @@ class MProjectClassification extends Component {
               {classification === ML_PROJECT ? (
                 <Link
                   to={`/new-project/classification/${classification}`}
+                  data-cy="project-create-btn"
                   type="button"
                   className="btn btn-primary"
                 >

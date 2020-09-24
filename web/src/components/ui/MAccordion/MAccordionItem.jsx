@@ -9,6 +9,7 @@ const MAccordionItem = (props) => {
     subtitle,
     referenceId,
     defaultExpanded,
+    cypressTag,
   } = props;
 
   const [collapsed, setCollapsed] = useState(!defaultExpanded);
@@ -30,6 +31,7 @@ const MAccordionItem = (props) => {
         </div>
         <div className="m-accordion-item_header_action">
           <button
+            data-cy={cypressTag}
             className={`btn btn-outline-dark btn-label-sm btn-sm ${!collapsed ? 'active' : ''}`}
             type="button"
             id={referenceId}
@@ -50,6 +52,7 @@ MAccordionItem.defaultProps = {
   subtitle: '',
   defaultExpanded: false,
   referenceId: null,
+  cypressTag: null,
 };
 
 MAccordionItem.propTypes = {
@@ -64,6 +67,7 @@ MAccordionItem.propTypes = {
     PropTypes.arrayOf(PropTypes.node),
     PropTypes.node,
   ]).isRequired,
+  cypressTag: PropTypes.string,
 };
 
 export default MAccordionItem;

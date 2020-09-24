@@ -80,6 +80,7 @@ const SettingsViewGeneral = (props) => {
           <form>
             <div className="row ml-0 mr-0 mb-3">
               <MInput
+                cypressTag="project-name"
                 id={`project-${name}`}
                 className="mt-2 pr-4 pl-3 pt-2 pb-2"
                 label="Project name"
@@ -171,6 +172,7 @@ const SettingsViewGeneral = (props) => {
           </form>
         </MAccordion.Item>
         <MAccordion.Item
+          cypressTag="advanced-accordion"
           title="Advanced"
           subtitle="Runs a number of housekeeping tasks within the current repository, such as compressing file revisions and removing unreachable objects."
         >

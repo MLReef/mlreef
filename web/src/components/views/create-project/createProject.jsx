@@ -294,7 +294,7 @@ class CreateProject extends Component {
          </div>
          <div className="form-control col-sm-12 col-lg-8 pl-3">
            <form>
-             <label className="label-name" htmlFor="projectTitle">
+             <label data-cy="projectName" className="label-name" htmlFor="projectTitle">
                <span className="heading mb-1">Project Name</span>
                <MInput
                  value={projectName}
@@ -305,6 +305,7 @@ class CreateProject extends Component {
                  type="text"
                  error={nameErrors}
                  placeholder="My awesome ML Project"
+                 cypressTag="project-name"
                  required
                />
              </label>
@@ -321,6 +322,7 @@ class CreateProject extends Component {
                      </span>
                    </div>
                    <select
+                     data-cy="namespace-select"
                      id="nameSpace"
                      value={nameSpace}
                      onChange={this.handleNamespace}
@@ -358,6 +360,7 @@ class CreateProject extends Component {
              <label className="label-name" htmlFor="projectDescription">
                <span className="heading">Project Description (optional)</span>
                <textarea
+                 data-cy="description"
                  value={description}
                  className="proj-desc-textarea"
                  onChange={this.handleDescription}
@@ -405,6 +408,7 @@ class CreateProject extends Component {
                      return (
                        <div className="pl-3" key={`div ${dt.name}`}>
                          <MCheckBox
+                           cypressTag={dt.label}
                            key={dt.name}
                            name={dt.name}
                            labelValue={dt.label}
@@ -427,6 +431,7 @@ class CreateProject extends Component {
              <div className="readME">
                <MCheckBox
                  small
+                 cypressTag="read-me-checkbox"
                  name="read-me-checkbox"
                  labelValue="Initialize the repository with a README"
                  callback={this.toggleCheckReadme}
@@ -445,6 +450,7 @@ class CreateProject extends Component {
                  Cancel
                </button>
                <MButton
+                 cypressTag="create-btn"
                  disabled={!isValid}
                  className="btn btn-primary ml-auto"
                  waiting={isFetching}
