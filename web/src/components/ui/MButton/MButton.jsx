@@ -14,6 +14,7 @@ const MButton = (props) => {
     disabled,
     noDisable,
     onClick,
+    cypressTag,
   } = props;
 
   // const displayedLabel = useMemo(
@@ -34,6 +35,7 @@ const MButton = (props) => {
     // eslint-disable-next-line
     <button
       type={type}
+      data-cy={cypressTag}
       onClick={onClick}
       disabled={disabled || (!noDisable && waiting)}
       className={computedClasses}
@@ -52,6 +54,7 @@ MButton.defaultProps = {
   waiting: false,
   disabled: false,
   noDisable: false,
+  cypressTag: null,
 };
 
 MButton.propTypes = {
@@ -66,6 +69,7 @@ MButton.propTypes = {
     PropTypes.node,
     PropTypes.string,
   ]),
+  cypressTag: PropTypes.string,
 };
 
 export default MButton;

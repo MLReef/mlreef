@@ -23,11 +23,13 @@ exports[`basic behaviour assert that snapshot matches 1`] = `
   </p>
   <input
     className="mb-4"
+    data-cy="project-name-input"
     onChange={[Function]}
     value=""
   />
   <button
     className="btn btn-danger"
+    data-cy="remove-project"
     disabled={true}
     onClick={[Function]}
     type="button"

@@ -32,9 +32,10 @@ const SettingsViewGeneralAdvancedDeleteProject = (props) => {
         {' to proceed or close this modal.'}
       </p>
 
-      <input className="mb-4" onChange={handleInputChange} value={confirmation} />
+      <input data-cy="project-name-input" className="mb-4" onChange={handleInputChange} value={confirmation} />
 
       <button
+        data-cy="remove-project"
         type="button"
         onClick={onDelete}
         disabled={disabled}

@@ -78,7 +78,7 @@ const SettingsViewGeneralAdvanced = (props) => {
           </b>
         </p>
         <div>
-          <button type="button" onClick={handleDelete} className="btn btn-danger mt-2">
+          <button data-cy="project-delete-btn" type="button" onClick={handleDelete} className="btn btn-danger mt-2">
             Remove project
           </button>
         </div>
