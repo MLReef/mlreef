@@ -56,14 +56,14 @@ object MLPython3AnnotationFactory {
     }
 }
 
-class ParsingContext() {
+
+class ParsingContext {
     var metricSchema: MetricSchema? = null
     var dataProcessor: DataProcessor? = null
     var countParameters: Int = 0
 }
 
 class MLPython3Parser : MLParser {
-
     override fun parse(inStream: InputStream): MLParseResult {
         val result = MLParseResult()
         val lexer = Python3Lexer(CharStreams.fromStream(inStream))
@@ -79,7 +79,6 @@ class MLPython3Parser : MLParser {
     }
 
     class MLVisitor(private val result: MLParseResult) : Python3BaseVisitor<Any>() {
-
         private val logger: Logger = Logger.getLogger(javaClass.simpleName)
 
         override fun visitFuncdef(ctx: Python3Parser.FuncdefContext?): Any {
@@ -102,13 +101,13 @@ class MLPython3Parser : MLParser {
         }
 
         private fun checkDecorators(decorators: Python3Parser.DecoratorsContext) {
-
             val context = ParsingContext()
 
             var foundMLAnnotation = false
-            decorators.children.forEach {
-                println("Annotation: ${it.text}")
-                if (it is Python3Parser.DecoratorContext) {
+            decorators.children
+                .filterIsInstance<Python3Parser.DecoratorContext>()
+                .forEach {
+                    println("Annotation: ${it.text}")
                     try {
                         val children = it.children
                         val annotationType = children[1] as Python3Parser.Dotted_nameContext
@@ -131,7 +130,6 @@ class MLPython3Parser : MLParser {
                         logger.warning(error.message)
                     }
                 }
-            }
             if (foundMLAnnotation) {
                 result.countMLDecoratedFunctions += 1
             }
