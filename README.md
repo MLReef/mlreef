@@ -1,4 +1,4 @@
-![Build Status](https://gitlab.com/mlreef/mlreef/badges/master/build.svg)
+<img src="https://about.mlreef.com/static/e83d49c6147bb03391fc4e230da3d9a0/MLReef_Logo_POS_H-01.png" alt="MLReef" width="500"/>
 
 MLReef - Your entire Machine Learning life cycle in one platform
 ====================
