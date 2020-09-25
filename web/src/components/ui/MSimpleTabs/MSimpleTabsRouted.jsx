@@ -33,9 +33,11 @@ const MSimpleTabs = (props) => {
   useEffect(
     () => {
       const actSection = sections.find((sec) => _s(sec.label) === sectionDisplayed);
-      if (actSection) setColor(actSection.color);
+      const colorChanged = actSection?.color && (actSection.color !== color);
+
+      if (colorChanged) setColor(actSection.color);
     },
-    [sectionDisplayed, sections, setColor],
+    [sectionDisplayed, sections, color, setColor],
   );
 
   const createLabel = useCallback(
