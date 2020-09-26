@@ -1,4 +1,5 @@
 import React, { Component, createRef } from 'react';
+import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { arrayOf, shape, func } from 'prop-types';
@@ -88,6 +89,11 @@ export class UnconnectedGroupsOverview extends Component {
     ].map((pF) => ({ ...pF, name: `${pF.label} dataTypes` }));
     return (
       <>
+        <Helmet>
+          <title>
+            Groups · MLReef
+          </title>
+        </Helmet>
         <Navbar />
         <div className="groups-overview">
           <MTabs>

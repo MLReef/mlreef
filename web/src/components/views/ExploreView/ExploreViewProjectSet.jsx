@@ -42,6 +42,7 @@ const ExploreViewProjectSet = (props) => {
             inputDataTypes={proj.inputDataTypes}
             outputDataTypes={proj.inputDataTypes}
             users={proj.members}
+            visibility={proj.visibilityScope}
           />
         ))}
       />

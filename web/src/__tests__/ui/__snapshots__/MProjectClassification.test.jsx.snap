@@ -74,6 +74,21 @@ exports[`test html elements 1`] = `
             <div
               className="card"
             >
+              <img
+                alt="private"
+                aria-hidden="true"
+                className="icon-visibility"
+                height="24"
+                src={
+                  Object {
+                    "canInstrument": true,
+                    "createTransformer": [Function],
+                    "getCacheKey": [Function],
+                    "process": [Function],
+                  }
+                }
+                width="24"
+              />
               <div
                 className="card-container project-card-container"
                 onClick={[Function]}
