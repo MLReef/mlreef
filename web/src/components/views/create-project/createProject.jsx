@@ -77,12 +77,13 @@ class CreateProject extends Component {
   componentDidMount() {
     const {
       actions,
-      match: { params: { classification } },
+      match: { params: { classification, groupNamespace } },
     } = this.props;
 
     const bandColor = projectClassificationsProps
       .filter((idsColor) => `${idsColor.classification}` === classification)[0].color;
 
+    if (groupNamespace) this.setState({ nameSpace: groupNamespace });
     actions.setGlobalMarkerColor(bandColor);
     actions.getGroupsList();
     this.handleSubmit = this.handleSubmit.bind(this);
@@ -500,6 +501,7 @@ CreateProject.propTypes = {
   match: PropTypes.shape({
     params: PropTypes.shape({
       classification: PropTypes.string,
+      groupNamespace: PropTypes.string,
     }),
   }),
   history: PropTypes.shape({
@@ -511,6 +513,7 @@ CreateProject.defaultProps = {
   match: {
     params: {
       classification: 'ml-project',
+      groupNamespace: undefined,
     },
   },
 };

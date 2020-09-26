@@ -3,6 +3,9 @@ import PropTypes from 'prop-types';
 import { Link, useHistory } from 'router';
 import iconGrey from 'images/icon_grey-01.png';
 import MParagraph from 'components/ui/MParagraph';
+import { PUBLIC } from 'dataTypes';
+import publicIcon from 'images/public-01.svg';
+import lockIcon from 'images/Lock-01.svg';
 import MProjectCardTypes from './MProjectCardTypes';
 import './MProjectCard.scss';
 
@@ -15,8 +18,11 @@ const MProjectCard = (props) => {
     slug,
     namespace,
     inputDataTypes,
+    visibility,
+    /* outputDataTypes, */
     /* dataProcessor, */
     users,
+    owner,
   } = props;
 
   const history = useHistory();
@@ -47,6 +53,19 @@ const MProjectCard = (props) => {
 
   return (
     <div className="card">
+      {owner && (
+        <div className="icon-visibility" style={{ fontSize: '1.2rem', borderRadius: '3px', right: '4rem', color: '#fff', backgroundColor: 'var(--lessWhite)' }}>
+          <span className="p-2">Owner</span>
+        </div>
+      )}
+      <img
+        src={visibility === PUBLIC ? publicIcon : lockIcon}
+        alt={visibility === PUBLIC ? 'public' : 'private'}
+        width="24"
+        height="24"
+        className="icon-visibility"
+        aria-hidden="true"
+      />
       <div
         role="button"
         tabIndex="0"
@@ -119,6 +138,8 @@ MProjectCard.defaultProps = {
   forkCount: null,
   users: [],
   inputDataTypes: [],
+  visibility: null,
+  owner: false,
   // outputDataTypes: [],
   dataProcessor: {},
 };
@@ -144,6 +165,8 @@ MProjectCard.propTypes = {
   dataProcessor: PropTypes.shape({
     type: PropTypes.string,
   }),
+  visibility: PropTypes.string,
+  owner: PropTypes.bool,
 };
 
 export default MProjectCard;

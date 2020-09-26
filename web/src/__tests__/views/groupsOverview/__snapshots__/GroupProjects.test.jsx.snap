@@ -1,0 +1,377 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`snapshot for GroupProjects assert that snapshot matches 1`] = `
+<div
+  className="cards-section p-3 mx-5"
+>
+  <div
+    className="pt-2"
+  >
+    <div
+      id="navigation-div"
+    >
+      <div
+        className="flex-1"
+        id="filter-div"
+      >
+        <button
+          className="btn btn-basic-dark"
+          id="personal-btn"
+          type="button"
+        >
+          Own
+        </button>
+      </div>
+      <div
+        className="dropdown"
+        style={
+          Object {
+            "float": "right",
+          }
+        }
+      >
+        <button
+          className="btn btn-primary project-dropdown-btn"
+          onClick={[Function]}
+        >
+          New Project
+        </button>
+        <button
+          className="dropdown-btn-arrow"
+          onClick={[Function]}
+        >
+          <i
+            className="fa fa-chevron-down t-primary p-1 my-auto"
+          />
+        </button>
+      </div>
+    </div>
+    <div
+      className="group-projects d-flex mt-2"
+    >
+      <div
+        className="flex-row"
+        style={
+          Object {
+            "flex": "4 1",
+          }
+        }
+      >
+        <div
+          className="m-bricks-wall w-100"
+        >
+          <div
+            className="m-bricks-wall-brick animated"
+          >
+            <div
+              className="card"
+            >
+              <img
+                alt="private"
+                aria-hidden="true"
+                className="icon-visibility"
+                height="24"
+                src={
+                  Object {
+                    "canInstrument": true,
+                    "createTransformer": [Function],
+                    "getCacheKey": [Function],
+                    "process": [Function],
+                  }
+                }
+                width="24"
+              />
+              <div
+                className="card-container project-card-container"
+                onClick={[Function]}
+                onKeyPress={[Function]}
+                role="button"
+                tabIndex="0"
+              >
+                <p
+                  className="card-title"
+                >
+                  group-project
+                </p>
+                <div
+                  className="project-card-container-autor pb-3 mt-2"
+                >
+                  <p>
+                    test-group
+                  </p>
+                </div>
+                <div
+                  className="card-content"
+                >
+                  <div
+                    className="project-card-types d-flex"
+                  />
+                  <div
+                    className="d-flex noelement-found-div"
+                    style={
+                      Object {
+                        "marginTop": "1rem",
+                      }
+                    }
+                  >
+                    <img
+                      alt=""
+                      src={
+                        Object {
+                          "canInstrument": true,
+                          "createTransformer": [Function],
+                          "getCacheKey": [Function],
+                          "process": [Function],
+                        }
+                      }
+                      style={
+                        Object {
+                          "maxHeight": "30px",
+                        }
+                      }
+                    />
+                    <p
+                      style={
+                        Object {
+                          "height": "unset",
+                        }
+                      }
+                    >
+                      No description
+                    </p>
+                  </div>
+                  <div
+                    className="d-flex t-secondary"
+                  >
+                    <div
+                      className="mr-3"
+                    >
+                      <i
+                        className="fa fa-star"
+                      >
+                        <span
+                          className="label"
+                        >
+                           0
+                        </span>
+                      </i>
+                    </div>
+                    <div
+                      className="mr-3"
+                    >
+                      <i
+                        className="fa fa-code-branch"
+                      >
+                        <span
+                          className="label"
+                        >
+                           0
+                        </span>
+                      </i>
+                    </div>
+                  </div>
+                </div>
+                <div
+                  className="card-actions"
+                >
+                  <div
+                    className="avatars-reversed"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div
+        className="d-none d-lg-block"
+        id="side-filters"
+      >
+        <div
+          id="input-div"
+        >
+          <p>
+            Refine by
+          </p>
+          <button>
+            Clear filters
+          </button>
+        </div>
+        <br />
+        <div
+          className="name-filter-section"
+        >
+          <p>
+            Project Type
+          </p>
+          <button
+            aria-label="dropdown-btn"
+            className="btn btn-icon btn-hidden p-1"
+            id=""
+            onClick={[Function]}
+            style={Object {}}
+            type="button"
+          >
+            
+            <i
+              className="fa fa-chevron-down "
+            />
+          </button>
+        </div>
+        <div
+          className="m-checkbox "
+          data-cy=""
+          htmlFor="test-group-projectType ML project"
+          onClick={[Function]}
+          onKeyPress={[Function]}
+          role="button"
+          tabIndex={0}
+        >
+          <p>
+            ML project
+          </p>
+          <input
+            checked={false}
+            disabled={false}
+            onChange={[Function]}
+            type="checkbox"
+          />
+          <span
+            className="checkmark "
+          />
+        </div>
+        <div
+          className="m-checkbox "
+          data-cy=""
+          htmlFor="test-group-projectType Model"
+          onClick={[Function]}
+          onKeyPress={[Function]}
+          role="button"
+          tabIndex={0}
+        >
+          <p>
+            Model
+          </p>
+          <input
+            checked={false}
+            disabled={false}
+            onChange={[Function]}
+            type="checkbox"
+          />
+          <span
+            className="checkmark "
+          />
+        </div>
+        <div
+          className="m-checkbox "
+          data-cy=""
+          htmlFor="test-group-projectType Data operation"
+          onClick={[Function]}
+          onKeyPress={[Function]}
+          role="button"
+          tabIndex={0}
+        >
+          <p>
+            Data operation
+          </p>
+          <input
+            checked={false}
+            disabled={false}
+            onChange={[Function]}
+            type="checkbox"
+          />
+          <span
+            className="checkmark "
+          />
+        </div>
+        <div
+          className="m-checkbox "
+          data-cy=""
+          htmlFor="test-group-projectType Data visualization"
+          onClick={[Function]}
+          onKeyPress={[Function]}
+          role="button"
+          tabIndex={0}
+        >
+          <p>
+            Data visualization
+          </p>
+          <input
+            checked={false}
+            disabled={false}
+            onChange={[Function]}
+            type="checkbox"
+          />
+          <span
+            className="checkmark "
+          />
+        </div>
+        <div
+          className="name-filter-section"
+        >
+          <p>
+            Visibility
+          </p>
+          <button
+            aria-label="dropdown-btn"
+            className="btn btn-icon btn-hidden p-1"
+            id=""
+            onClick={[Function]}
+            style={Object {}}
+            type="button"
+          >
+            
+            <i
+              className="fa fa-chevron-down "
+            />
+          </button>
+        </div>
+        <div
+          className="m-checkbox "
+          data-cy=""
+          htmlFor="test-group-visibility Private"
+          onClick={[Function]}
+          onKeyPress={[Function]}
+          role="button"
+          tabIndex={0}
+        >
+          <p>
+            Private
+          </p>
+          <input
+            checked={false}
+            disabled={false}
+            onChange={[Function]}
+            type="checkbox"
+          />
+          <span
+            className="checkmark "
+          />
+        </div>
+        <div
+          className="m-checkbox "
+          data-cy=""
+          htmlFor="test-group-visibility Public"
+          onClick={[Function]}
+          onKeyPress={[Function]}
+          role="button"
+          tabIndex={0}
+        >
+          <p>
+            Public
+          </p>
+          <input
+            checked={false}
+            disabled={false}
+            onChange={[Function]}
+            type="checkbox"
+          />
+          <span
+            className="checkmark "
+          />
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+`;

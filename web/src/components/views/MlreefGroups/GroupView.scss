@@ -1,0 +1,121 @@
+@import '../../../styles/breakpoints';
+
+#side-filters {
+  flex: 1;
+
+  #input-div {
+    border-bottom: 1px solid var(--secondary);
+    display: flex;
+    button {
+      background-color: transparent;
+      color: var(--info);
+      border: none;
+      padding: 0px;
+      margin-left: 0;
+      margin: 0 0 1rem 0;
+      cursor: pointer;
+    }
+    p {
+      margin: 0 7rem 1rem 0;
+      color: var(--secondary);
+    }
+  }
+
+  .name-filter-section {
+    display: flex;
+    justify-content: space-between;
+  }
+}
+
+#navigation-div {
+  display: flex;
+  margin-top: 1rem;
+  max-width: 100vw;
+  padding: 0.5rem;
+
+  #filter-div {
+    // min-width: $min-width-cards-div;
+    width: max-content;
+    button {
+      margin-right: 1rem;
+    }
+  }
+}
+
+@media (max-width: $bp-lg) {
+  #cards-section, #filter-div {
+    height: unset !important;
+    width: unset !important;
+    min-width: unset !important;
+    flex: unset;
+  }
+}
+
+@media (max-width: $bp-md) {
+  #filter-div {
+    display: flex;
+    // flex-direction: column;
+    button {
+      padding: 0.500rem 1.25rem;
+      width: max-content;
+      margin-bottom: 0.5rem;
+    }
+  }
+}
+
+.dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.dropdown-content {
+  position: absolute;
+  right: 0;
+  background-color: #fff;
+  width: 250px;
+  border: 2px solid var(--primary);
+  border-radius: 4px;
+  z-index: 1;
+}
+
+.project-dropdown-btn {
+  border-top-left-radius: 5px;
+  border-bottom-left-radius: 5px;
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.dropdown-btn-arrow {
+  background: transparent;
+  border: 2px solid var(--info);
+  height: 100%;
+  border-top-right-radius: 5px;
+  border-bottom-right-radius: 5px;
+  margin-left: 0.2rem;
+  cursor: pointer;
+}
+
+.dropdown-content a {
+  color: black;
+  padding: 0.5rem 1rem;
+  text-decoration: none;
+  display: block;
+}
+
+.dropdown-content a:hover {
+  cursor: pointer;
+  background-color: rgba(50, 175, 195, 0.2);
+}
+
+@media (max-width: $bp-md) {
+  .project-dropdown-btn {
+    padding: 0.500rem 1.25rem;
+    width: max-content;
+    margin-bottom: 0.5rem;
+  }
+  
+  .dropdown-btn-arrow {
+    height: 80%;
+    width: max-content;
+  }
+}

@@ -57,7 +57,6 @@ class ProjectSet extends Component {
               <MProjectCard
                 key={`proj-${proj.gitlabNamespace}-${proj.slug}-${proj.id}`}
                 slug={proj.slug}
-                owner={proj.id}
                 title={proj.name}
                 projectId={proj.gitlabId}
                 description={proj.description}
@@ -71,6 +70,8 @@ class ProjectSet extends Component {
                 outputDataTypes={proj.inputDataTypes}
                 handleShowModal={handleShowModal}
                 users={proj.members}
+                visibility={proj.visibilityScope}
+                owner={false}
               />
             ))}
           />

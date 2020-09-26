@@ -21,6 +21,11 @@ export const colorsForCharts = [
   '#00796b',
 ];
 
+/* ------------------------- Visibility scopes ------------------------- */
+
+export const PUBLIC = 'PUBLIC';
+export const PRIVATE = 'PRIVATE';
+
 /* ------------------------- Statuses for pipelines ------------------------- */
 
 export const RUNNING = 'running';

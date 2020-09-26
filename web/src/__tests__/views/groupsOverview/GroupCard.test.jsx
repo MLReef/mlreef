@@ -30,20 +30,3 @@ describe('test basic rendering', () => {
     expect(wrapper.find('.projects-section').length).toBe(1);
   });
 });
-
-describe('test functionality', () => {
-  let wrapper;
-
-  beforeEach(() => {
-    wrapper = setup();
-  });
-
-  test('assert that there exists a projects list and all projects are included', () => {
-    expect(wrapper.find('.projects-list').length).toBe(0);
-    wrapper.find('ArrowButton').dive().find('button').simulate('click', {});
-    expect(wrapper.find('.projects-list').length).toBe(1);
-    expect(wrapper.find('.project-details').length).toBe(projectsList.length);
-    const projectDetails = wrapper.find('.project-details');
-    expect(projectDetails.children().at(0).text()).toBe(projectsList[0].name);
-  });
-});

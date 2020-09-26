@@ -10,6 +10,7 @@ import ResetPasswordView from 'components/views/ResetPassword/ResetPasswordView'
 import PublishingView from 'components/views/PublishingView';
 import DetailedRepositoryView from 'components/views/DetailedRepositoryView';
 import PasswordConfirmationView from 'components/views/ResetPassword/PasswordConfirmationView';
+import GroupsView from 'components/views/MlreefGroups/GroupView';
 import FileView from './components/fileView/fileView';
 import Login from './components/login/login';
 import RegisterView from './components/RegisterView';
@@ -64,9 +65,10 @@ const RouterComp = () => (
       <PrivateRoute path="/my-projects" exact component={Projects} />
       <PrivateRoute exact path="/groups/new" component={CreateGroup} />
       <PrivateRoute exact path="/groups" component={GroupsOverview}/>
+      <PrivateRoute exact path="/groups/:groupPath" component={GroupsView} />
       <PrivateRoute exact path="/profile" component={UserAccount} />
       <PrivateRoute path="/:user" exact component={UserProfile} />
-      <PrivateRoute path="/new-project/classification/:classification" exact component={CreateProject} />
+      <PrivateRoute path="/new-project/classification/:classification/:groupNamespace?" exact component={CreateProject} />
       <PrivateRoute path="/my-projects/:projectId/:branch(.+)/commits/:pathParam?" exact component={Commits} />
       <PrivateRoute
         path="/my-projects/:projectId/insights/-/jobs/:logId"
