@@ -43,6 +43,12 @@ class InitialDataLoader {
     val txt_ops_id = fromString("72307a68-eee5-11ea-adc1-0242ac120002")
     val tsne_projectId = fromString("fe9577b2-d0cf-11ea-87d0-0242ac130003")
     val tsne_id = fromString("fe957884-d0cf-11ea-87d0-0242ac130003")
+    val scatterplot_projectId = fromString("a827c776-008c-11eb-adc1-0242ac120002")
+    val scatterplot_id = fromString("a827c83e-008c-11eb-adc1-0242ac120002")
+    val wordcloud_projectId = fromString("a827c906-008c-11eb-adc1-0242ac120002")
+    val wordcloud_id = fromString("a827c9c4-008c-11eb-adc1-0242ac120002")
+    
+
     
 
     fun prepare(author: Subject, token: String): DSLContextBuilder {
@@ -641,7 +647,115 @@ class InitialDataLoader {
             }
 
             // ############## VISUALISATION
+            val codeProject_scatterplot = codeProject {
+                id = scatterplot_projectId
+                slug = "commons-scatterplot"
+                name = "Scatter Plot"
+                gitlabNamespace = "mlreef"
+                gitlabPath = "scatterplot"
+                inputDataTypes = hashSetOf(DataType.TABULAR)
+                outputDataTypes = hashSetOf(DataType.IMAGE)
+                description = "Scatter plot with matplotlib"
+            }
+            visualization {
+                linkToCodeProject(codeProject_scatterplot)
+                id = scatterplot_id
+                command = "scatterPlot"
+                number = 1
+                baseEnvironment = BaseEnvironment.default()
+                inputDataType = DataType.IMAGE
+                outputDataType = DataType.IMAGE
+                publisher = author
 
+                parameters {
+                    STRING {
+                        id = fromString("a827cb90-008c-11eb-adc1-0242ac120002")
+                        name = "input-path"
+                        defaultValue = "."
+                        required = true
+                        description = "Data input, path to the folder with the csv files"
+                    }
+                    STRING {
+                        id = fromString("a827cdfc-008c-11eb-adc1-0242ac120002")
+                        name = "output-path"
+                        defaultValue = "./output"
+                        required = true
+                        description = "path to directory to save the scatter plots"
+                    }
+                    INTEGER {
+                        id = fromString("a827cfa0-008c-11eb-adc1-0242ac120002")
+                        name = "column-x"
+                        defaultValue = "0"
+                        required = false
+                        description = "Selects the csv column data to plot in axis x"
+                    }
+                    INTEGER {
+                        id = fromString("a827d07c-008c-11eb-adc1-0242ac120002")
+                        name = "column-y"
+                        defaultValue = "1"
+                        description ="Selects the csv column data to plot in axis y"
+                        required = false
+                    }
+                    STRING {
+                        id = fromString("a827d144-008c-11eb-adc1-0242ac120002")
+                        name = "label-x"
+                        defaultValue = "x"
+                        required = false
+                        description = "Label for axis x"
+                    }
+                    STRING {
+                        id = fromString("a827d374-008c-11eb-adc1-0242ac120002")
+                        name = "label-y"
+                        defaultValue = "y"
+                        required = false
+                        description = "Label for axis x"
+                    }
+                    STRING {
+                        id = fromString("a827d446-008c-11eb-adc1-0242ac120002")
+                        name = "title"
+                        defaultValue = "Scatter plot x.vs y"
+                        required = false
+                        description = "Title of plot"
+                    }
+                }
+            }
+            val codeProject_wordcloud = codeProject {
+                id = wordcloud_projectId
+                slug = "commons-wordcloud"
+                name = "WordCloud"
+                gitlabNamespace = "mlreef"
+                gitlabPath = "wordcloud"
+                inputDataTypes = hashSetOf(DataType.TEXT)
+                outputDataTypes = hashSetOf(DataType.IMAGE)
+                description = "Rectangular word cloud from text"
+            }
+            visualization {
+                linkToCodeProject(codeProject_wordcloud)
+                id = wordcloud_id
+                command = "wordcloud_square"
+                number = 2
+                baseEnvironment = BaseEnvironment.default()
+                inputDataType = DataType.TEXT
+                outputDataType = DataType.IMAGE
+                publisher = author
+
+                parameters {
+                    STRING {
+                        id = fromString("a827d504-008c-11eb-adc1-0242ac120002")
+                        name = "input-path"
+                        defaultValue = "."
+                        required = true
+                        description = "Data input, path to the folder with the text files"
+                    }
+                    STRING {
+                        id = fromString("a827d5c2-008c-11eb-adc1-0242ac120002")
+                        name = "output-path"
+                        defaultValue = "./output"
+                        required = true
+                        description = "path to directory to save the wordcloud images"
+                    }
+                }
+            }
             val codeProject_tsne = codeProject {
                 id = tsne_projectId
                 slug = "commons-tsne"
@@ -656,7 +770,7 @@ class InitialDataLoader {
                 linkToCodeProject(codeProject_tsne)
                 id = tsne_id
                 command = "tsne"
-                number = 1
+                number = 3
                 baseEnvironment = BaseEnvironment.default()
                 inputDataType = DataType.IMAGE
                 outputDataType = DataType.IMAGE
@@ -707,7 +821,7 @@ class InitialDataLoader {
                     }
                 }
             }
-            // ############## MODEL
+            // ############## MODEL #################
 
             val codeProject_chatbot = codeProject {
                 id = chatbot_model_projectId
