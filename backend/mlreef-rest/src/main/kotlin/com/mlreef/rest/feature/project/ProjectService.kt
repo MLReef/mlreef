@@ -1,44 +1,12 @@
 package com.mlreef.rest.feature.project
 
-import com.mlreef.rest.AccessLevel
-import com.mlreef.rest.Account
-import com.mlreef.rest.AccountRepository
-import com.mlreef.rest.CodeProject
-import com.mlreef.rest.CodeProjectRepository
-import com.mlreef.rest.DataProject
-import com.mlreef.rest.DataProjectRepository
-import com.mlreef.rest.DataType
-import com.mlreef.rest.Group
-import com.mlreef.rest.GroupRepository
-import com.mlreef.rest.Person
-import com.mlreef.rest.Project
-import com.mlreef.rest.ProjectBaseRepository
-import com.mlreef.rest.ProjectRepository
-import com.mlreef.rest.SubjectRepository
-import com.mlreef.rest.VisibilityScope
+import com.mlreef.rest.*
 import com.mlreef.rest.annotations.RefreshGroupInformation
 import com.mlreef.rest.annotations.RefreshProject
 import com.mlreef.rest.annotations.RefreshUserInformation
-import com.mlreef.rest.exceptions.BadParametersException
-import com.mlreef.rest.exceptions.ConflictException
-import com.mlreef.rest.exceptions.ErrorCode
-import com.mlreef.rest.exceptions.GitlabCommonException
-import com.mlreef.rest.exceptions.GroupNotFoundException
-import com.mlreef.rest.exceptions.ProjectCreationException
-import com.mlreef.rest.exceptions.ProjectNotFoundException
-import com.mlreef.rest.exceptions.RestException
-import com.mlreef.rest.exceptions.UnknownGroupException
-import com.mlreef.rest.exceptions.UnknownProjectException
-import com.mlreef.rest.exceptions.UnknownUserException
-import com.mlreef.rest.exceptions.UserNotFoundException
-import com.mlreef.rest.external_api.gitlab.GitlabAccessLevel
-import com.mlreef.rest.external_api.gitlab.GitlabRestClient
-import com.mlreef.rest.external_api.gitlab.NamespaceKind
-import com.mlreef.rest.external_api.gitlab.TokenDetails
+import com.mlreef.rest.exceptions.*
+import com.mlreef.rest.external_api.gitlab.*
 import com.mlreef.rest.external_api.gitlab.dto.GitlabProject
-import com.mlreef.rest.external_api.gitlab.toAccessLevel
-import com.mlreef.rest.external_api.gitlab.toGitlabAccessLevel
-import com.mlreef.rest.external_api.gitlab.toVisibilityScope
 import com.mlreef.rest.feature.caches.PublicProjectsCacheService
 import com.mlreef.rest.feature.system.ReservedNamesService
 import com.mlreef.rest.helpers.ProjectOfUser
@@ -50,12 +18,7 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.data.domain.Pageable
 import org.springframework.data.repository.findByIdOrNull
-import java.time.Instant
-import java.time.LocalDate
-import java.time.LocalDateTime
-import java.time.LocalTime
-import java.time.ZoneId
-import java.time.ZonedDateTime
+import java.time.*
 import java.util.UUID
 import javax.transaction.Transactional
 
@@ -67,6 +30,7 @@ interface ProjectService<T : Project> {
     fun getOwnProjectsOfUser(personId: UUID): List<T>
 
     fun getProjectById(projectId: UUID): T?
+    fun getProjectByGitlabId(projectId: Long): T?
     fun getProjectsByNamespace(namespaceName: String): List<T>
     fun getProjectsBySlug(slug: String): List<T>
     fun getProjectsByNamespaceAndPath(namespaceName: String, slug: String): T?
@@ -234,6 +198,10 @@ open class ProjectServiceImpl<T : Project>(
 
     override fun getProjectById(projectId: UUID): T? {
         return repository.findByIdOrNull(projectId)
+    }
+
+    override fun getProjectByGitlabId(projectId: Long): T? {
+        return repository.findByGitlabId(projectId)
     }
 
     @Suppress("UNCHECKED_CAST")

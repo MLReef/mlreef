@@ -97,11 +97,16 @@ class ValidationException(val validationErrors: Array<FieldError?>) : RestExcept
 class BadRequestException(errorCode: ErrorCode, detailMessage: String) : RestException(errorCode, detailMessage)
 
 @ResponseStatus(code = HttpStatus.UNAUTHORIZED, reason = "Unauthorized for the request")
-class AccessDeniedException(message: String? = null) : RestException(ErrorCode.AccessDenied, message ?: "Access denied")
+class AccessDeniedException(message: String? = null) : RestException(ErrorCode.AccessDenied, message
+    ?: "Access denied")
 
 @ResponseStatus(code = HttpStatus.FORBIDDEN, reason = "Bad credentials")
 class IncorrectCredentialsException(message: String? = null) : RestException(ErrorCode.AccessDenied, message
     ?: "Access denied")
+
+@ResponseStatus(code = HttpStatus.BAD_REQUEST, reason = "Operation cannot be executed due to malformed input or invalid states.")
+class InternalException(message: String? = null) : RestException(ErrorCode.ValidationFailed, message
+    ?: "Internal server error")
 
 @ResponseStatus(code = HttpStatus.NOT_FOUND, reason = "Entity not found")
 open class NotFoundException(errorCode: ErrorCode, message: String) : RestException(errorCode, message)
