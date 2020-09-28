@@ -1,10 +1,10 @@
 import 'core-js/stable';
 import 'regenerator-runtime/runtime';
+import { handleResponse } from 'functions/apiCalls';
 import ApiDirector from './ApiDirector';
 import ApiRequestCallBuilder from './apiBuilders/ApiRequestCallBuilder';
 import BLApiRequestCallBuilder from './apiBuilders/BLApiRequestCallBuilder';
 import { METHODS, validServicesToCall } from './apiBuilders/requestEnums';
-import { handleResponse } from 'functions/apiCalls';
 
 export default class DataPiplineApi extends ApiDirector {
 

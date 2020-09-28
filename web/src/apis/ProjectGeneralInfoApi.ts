@@ -2,7 +2,7 @@ import ApiDirector from './ApiDirector';
 import ApiRequestCallBuilder from './apiBuilders/ApiRequestCallBuilder';
 import BLApiRequestCallBuilder from './apiBuilders/BLApiRequestCallBuilder';
 import { METHODS, validServicesToCall } from './apiBuilders/requestEnums';
-import { handleResponse, handlePagination, inspect } from 'functions/apiCalls';
+import { handleResponse, handlePagination, inspect } from '../functions/apiCalls';
 import { filterBots } from './apiHelpers';
 import BodyLessApiRequestCallBuilder from './apiBuilders/BLApiRequestCallBuilder';
 
@@ -185,7 +185,7 @@ export default class ProjectGeneralInfoApi extends ApiDirector {
 
     return fetch(builder.build())
       .then(handleResponse)
-      .then((results) => results.find((res: any) => res.gitlab_namespace === namespace));
+      .then((results: any) => results.find((res: any) => res.gitlab_namespace === namespace));
   }
 
   // use   @GetMapping("/{namespace}/{slug}")
@@ -193,7 +193,7 @@ export default class ProjectGeneralInfoApi extends ApiDirector {
     return this.listPublicProjects()
       .then(handlePagination)
       .then(inspect)
-      .then((results) => results
+      .then((results: any) => results
         .filter((res: any) => res.gitlab_namespace === namespace)
         .find((res: any) => res.slug === slug)
       );
