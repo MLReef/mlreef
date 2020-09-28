@@ -16,6 +16,8 @@ if [ "$(uname)" = "Darwin" ]; then
   OS="OSX"
 elif [ "$(expr substr "$(uname -s)" 1 5)" = "Linux" ]; then
   echo "INFO: Running on LINUX."
+elif [ "$(uname)" = "MINGW64_NT-10.0" ]; then
+  echo "INFO: Running on WINDOWS."
 elif [ "$(uname)" = "CYGWIN_NT-10.0" ]; then
   echo "WARN: Running on Windows 10 Cygwin; setting +e because of compatibility issues"
   set +e   # This was added after testing on Saathvik's machine

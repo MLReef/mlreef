@@ -78,11 +78,13 @@ deploy:
       - bin/ci-deploy
       - epf/**/*
       - web/**/*
+      - .gitlab-ci.yml
       - docker-compose.yml
   when: delayed
   start_in: 3 minutes                                                 # Give new ec2 environments enough time to boot
   image: registry.gitlab.com/systemkern/s5:latest
   script: bin/ci-deploy
+
 
 # please do not move, adapt, delete, move to a include, whatever, if you did not read about the special "pages" job of gitlab ci
 pages:
@@ -135,6 +137,26 @@ all services are responding:
   artifacts:
     paths:
       - out/test
+
+
+end2end tests - node:
+  extends: [".except-docu-branches"]
+  stage: test
+  only:
+    changes:
+      - backend/**/*
+      - bin/ci-deploy
+      - epf/**/*
+      - web/**/*
+      - .gitlab-ci.yml
+      - docker-compose.yml
+  image: node:10.19.0-alpine
+  cache:
+    key: "mlreef-node-cache"
+    paths:
+      - /usr/local/lib/node_modules
+      - web/node_modules
+  script: web/bin/ci-run-end2end-tests
 
 
 test rest docs are present:
