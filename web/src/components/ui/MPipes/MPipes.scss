@@ -1,0 +1,187 @@
+$h1: 1.15rem;
+
+@mixin line {
+  position: absolute;
+  content: "";
+  border-bottom:solid 1px var(--secondary);
+  top: $h1;
+}
+
+@mixin connector {
+  position: absolute;
+  content: "";
+  border-right:solid 1px var(--secondary);
+  left: 50%;
+  height: 50%;
+}
+
+.m-pipes {
+  color: var(--dark);
+  width: max-content;
+  
+  &-container {
+    display: flex;
+    background-color: var(--light);
+    padding: 1rem;
+  }
+
+  &-stage {
+    &-label {
+      font-weight: bold;
+      margin-bottom: 1rem;
+    }
+
+    &-container {
+      display: flex;
+    }
+
+    &-jobs {
+      &-job {
+        display: flex;
+        border: solid 1px var(--primary);
+        padding: 0.5rem;
+        margin-bottom: 1rem;
+
+        &.status {
+          &-pending {
+            border-color: var(--secondary);
+          }
+
+          &-running {
+            border-color: var(--info);
+          }
+
+          &-passed {
+            border-color: var(--success);
+          }
+
+          &-warning {
+            border-color: var(--warning);
+          }
+
+          &-failed {
+            border-color: var(--danger);
+          }
+        }
+
+        & > .icon {
+          height: 1.5rem;
+          margin-right: 0.5rem;
+        }
+      }
+    }
+
+    &-separator {
+      width: 4rem;
+      display: flex;
+      flex-direction: column;
+
+      & > .line {
+        position: relative;
+        flex: 1;
+        // background-color: salmon;
+
+        &.unique {
+          &::before {
+            @include line;
+            width: 100%;
+          }
+        }
+
+        &.first {
+          &::before {
+            @include line;
+            width: 100%;
+          }
+
+          &::after {
+            @include connector;
+            top: $h1;
+          }
+        }
+
+        &.middle {
+          &::before {
+            @include line;
+            width: 50%;
+          }
+
+          &::after {
+            @include connector;
+            height: 115%;
+            top: -$h1;
+          }
+        }
+
+        &.last {
+          &::before {
+            @include line;
+            width: 50%;
+          }
+
+          &::after {
+            @include connector;
+            bottom: calc(100% - #{$h1});
+          }
+        }
+
+        & > .end {
+          &::before {
+            @include line;
+            width: 90%;
+          }
+
+          &::after {
+            content: "»";
+            position: absolute;
+            right: 0;
+            top: calc((#{$h1} - 2px) / 2);
+            // top: $h1;
+            margin: auto;
+          }
+        }
+
+        &::before {
+          @include line;
+        }
+      }
+
+    }
+  }
+
+  &-status {
+    margin-left: 0.5rem;
+
+    &-label {
+      font-weight: bold;
+      margin-bottom: 1rem;
+    }
+
+    &-value {
+      padding: 0.5rem 0;
+      font-weight: bold;
+
+
+
+      &.pending {
+        color: var(--secondary);
+      }
+
+      &.running {
+        color: var(--info);
+      }
+
+      &.passed {
+        color: var(--success);
+      }
+
+      &.warning {
+        color: var(--warning);
+      }
+
+      &.failed {
+        color: var(--danger);
+      }
+    }
+  }
+}
