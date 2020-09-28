@@ -284,7 +284,7 @@ class AuthService(
     fun ensureGitlabToken(account: Account, gitlabUser: GitlabUser): GitlabUserToken? {
         val gitlabUserId = gitlabUser.id
         val username = gitlabUser.username
-        val gitlabTokens = gitlabRestClient.adminGetUserTokens(gitlabUserId = gitlabUserId).filterNot { !it.revoked }
+        val gitlabTokens = gitlabRestClient.adminGetUserTokens(gitlabUserId = gitlabUserId).filterNot { it.revoked }
 
         val savedTokens = accountTokenRepository.findAllByAccountId(account.id)
         var mustCreateNow = true
