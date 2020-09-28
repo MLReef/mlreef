@@ -8,6 +8,7 @@ import SettingsView from 'components/views/SettingsView';
 import PipelinesExecutionView from 'components/views/PipelinesExecutionView';
 import ResetPasswordView from 'components/views/ResetPassword/ResetPasswordView';
 import PublishingView from 'components/views/PublishingView';
+import PublishProcessView from 'components/views/PublishProcessView';
 import DetailedRepositoryView from 'components/views/DetailedRepositoryView';
 import PasswordConfirmationView from 'components/views/ResetPassword/PasswordConfirmationView';
 import GroupsView from 'components/views/MlreefGroups/GroupView';
@@ -48,6 +49,7 @@ const RouterComp = () => (
     <Switch>
       {/* this is a route for testing layout and should be removed after alpha */}
       <Route path="/demo" exact component={Demo} />
+      <Route path="/:namespace/:slug/-/publishing/process" exact component={PublishProcessView} />
       <Route path="/:namespace/:slug/-/publishing" exact component={PublishingView} />
       <Route path="/login" exact component={Login} />
       <Route path="/index.html" exact component={Login} />

@@ -32,6 +32,7 @@ import UploadFileView from 'components/views/uploadFile/uploadFile';
 import CommitDetailsView from 'components/commits-details/commitDetails';
 import ForkView from 'components/ForkView';
 import PublishingView from 'components/views/PublishingView';
+import PublishProcessView from 'components/views/PublishProcessView';
 import Error404View from 'components/error-page/error404Page';
 
 // this is component for testing layout and should be removed after alpha
@@ -355,7 +356,16 @@ export default [
     component: PublishingView,
     exact: true,
     meta: {
-      authRequired: true,
+      authRequired: false,
+    },
+  },
+  {
+    name: 'publishingProcess',
+    path: '/:namespace/:slug/-/publishing/process',
+    component: PublishProcessView,
+    exact: true,
+    meta: {
+      authRequired: false,
     },
   },
   {
