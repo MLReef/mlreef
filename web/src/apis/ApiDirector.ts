@@ -1,6 +1,5 @@
-// import store from '../store';
+import store from '../store';
 import { commonHeaderNames, headerDataTypes, validServicesToCall } from "./apiBuilders/requestEnums";
-const store = { getState: () => ({ user: { access_token: "", auth: true } }) };
 
 export default class ApiDirector {   
   getCurrentToken() : string {
