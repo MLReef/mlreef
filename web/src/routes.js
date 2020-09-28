@@ -247,12 +247,6 @@ export default [
     component: DataInstancesView,
   },
   {
-    name: 'dataset',
-    path: '/:namespace/:slug/-/datasets/:dataId',
-    exact: true,
-    component: DataInstancesView,
-  },
-  {
     name: 'newDataset',
     path: '/:namespace/:slug/-/datasets/new',
     component: PipelinesExecutionView,
@@ -261,6 +255,12 @@ export default [
       authRequired: true,
       newDataset: true,
     },
+  },
+  {
+    name: 'dataset',
+    path: '/:namespace/:slug/-/datasets/:dataId',
+    exact: true,
+    component: DataInstancesView,
   },
   {
     name: 'datasetBranchPath',

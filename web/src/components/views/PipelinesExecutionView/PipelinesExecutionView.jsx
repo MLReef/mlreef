@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, createRef } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import cx from 'classnames';
@@ -10,7 +10,6 @@ import './PipelinesExecutionView.scss';
 import { toastr } from 'react-redux-toastr';
 import arrayMove from 'array-move';
 import UUIDV1 from 'uuid/v1';
-import plus from 'images/plus_01.svg';
 import { OPERATION, ALGORITHM, VISUALIZATION } from 'dataTypes';
 import SortableProcessorsList from 'components/views/PipelinesExecutionView/SortableDataProcessorsList';
 import { parseToCamelCase } from 'functions/dataParserHelpers';
@@ -36,6 +35,8 @@ class PipelinesExecutionView extends Component {
   isDataset = false
 
   isVisualization = false
+
+  dropZoneRef = createRef();
 
   constructor(props) {
     super(props);
@@ -77,9 +78,9 @@ class PipelinesExecutionView extends Component {
       // Sometimes user rebuilt a pipeline, hence these initial files might be required
       initialFiles: null,
     };
-    this.drop = this.drop.bind(this);
     this.allowDrop = this.allowDrop.bind(this);
     this.handleDragStart = this.handleDragStart.bind(this);
+    this.handleDragEnd = this.handleDragEnd.bind(this);
     this.selectDataClick = this.selectDataClick.bind(this);
     this.handleModalAccept = this.handleModalAccept.bind(this);
     this.handleExecuteBtn = this.handleExecuteBtn.bind(this);
@@ -125,12 +126,9 @@ class PipelinesExecutionView extends Component {
     processorsSelected: arrayMove(processorsSelected, oldIndex, newIndex),
   }));
 
-  drop = (e) => e.preventDefault();
-
   allowDrop = (e) => {
     const dropZone = document.elementFromPoint(e.clientX, e.clientY);
     if (dropZone.id !== 'drop-zone') return;
-
     const { processorDataSelected, processorsSelected } = this.state;
     const isProcessorAlreadySelected = processorsSelected
       .filter((
@@ -142,6 +140,7 @@ class PipelinesExecutionView extends Component {
       const newProcessorsSelected = [...processorsSelected, processorDataSelected];
       this.setState({ processorsSelected: newProcessorsSelected });
     }
+    this.dropZoneRef.current.classList.remove('moving');
 
     e.preventDefault();
   };
@@ -166,6 +165,8 @@ class PipelinesExecutionView extends Component {
     isShowingExecutePipelineModal: false,
   }));
 
+  handleDragEnd = () => this.dropZoneRef.current.classList.remove('moving');
+
   deleteProcessor(indexOfProcessor) {
     const { processorsSelected } = this.state;
     const newProcessorsArray = [...processorsSelected];
@@ -180,6 +181,7 @@ class PipelinesExecutionView extends Component {
     const dt = e.dataTransfer;
     dt.setData('text/plain', e.currentTarget.id);
     dt.effectAllowed = 'move';
+    this.dropZoneRef.current.classList.add('moving');
   }
 
   toggleExecutePipeLineModal() {
@@ -269,7 +271,7 @@ class PipelinesExecutionView extends Component {
       pipelinesTypeExecutionTitle = 'Experiment';
       operationTypeToExecute = ALGORITHM;
       operatorsTitle = 'Select a model:';
-      prefix = 'Algo.';
+      prefix = 'Model.';
     } else if (this.isDataset) {
       activeFeature = 'data';
       instructionDataModel = dataPipelineInstructionData;
@@ -284,7 +286,7 @@ class PipelinesExecutionView extends Component {
       operatorsTitle = 'Select a data visualization';
     }
     return (
-      <div className="pipe-line-view">
+      <>
         <SelectDataPipelineModal
           project={project}
           branches={branches}
@@ -360,14 +362,17 @@ class PipelinesExecutionView extends Component {
                 deleteProcessor={this.deleteProcessor}
                 filesSelectedInModal={filesSelectedInModal}
               />
-
-              <div id="drop-zone" className="d-flex" onDrop={this.drop} onDragOver={this.allowDrop}>
-                <p style={{ marginLeft: '10px', fontWeight: 600 }}>{`${prefix}${processorsSelected.length + 1}:`}</p>
-                <img src={plus} alt="" style={{ height: '80px', marginLeft: '60px' }} />
-                <p style={{
-                  margin: '0', padding: '0', width: '100%', textAlign: 'center',
-                }}
-                >
+              <div
+                id="drop-zone"
+                ref={this.dropZoneRef}
+                className="drop-zone d-flex ml-1"
+                onDragEnter={this.allowDrop}
+              >
+                <p className="drop-zone-operation-counter">
+                  {`${prefix}${processorsSelected.length + 1}:`}
+                </p>
+                <icon className="fas fa-plus" />
+                <p className="drop-zone-instruction">
                   Drag and drop an operator from the right
                   <br />
                   list
@@ -381,13 +386,14 @@ class PipelinesExecutionView extends Component {
               <ProcessorFilters show={false} />
               <ProcessorsList
                 handleDragStart={this.handleDragStart}
+                handleDragEnd={this.handleDragEnd}
                 filesSelectedInModal={filesSelectedInModal}
                 processors={currentProcessors}
               />
             </MCard.Section>
           </MCard>
         </div>
-      </div>
+      </>
     );
   }
 }

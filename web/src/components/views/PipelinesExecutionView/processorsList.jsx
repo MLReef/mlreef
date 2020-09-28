@@ -10,6 +10,7 @@ const projectInstance = new ProjectGeneralInfoApi();
 const ProcessorsList = ({
   processors,
   handleDragStart,
+  handleDragEnd,
 }) => (
   <div id="data-operations-list" className="scroll-styled">
     {processors && processors.map((processor) => (
@@ -17,12 +18,13 @@ const ProcessorsList = ({
         key={`processors-available-${processor.internalProcessorId}`}
         processorData={processor}
         handleDragStart={handleDragStart}
+        handleDragEnd={handleDragEnd}
       />
     ))}
   </div>
 );
 
-export const Processor = ({ processorData, handleDragStart }) => {
+export const Processor = ({ processorData, handleDragStart, handleDragEnd }) => {
   const [shouldDescriptionRender, setShouldDescriptionRender] = useState(false);
   const [codeProjectURL, setCodeProjectURL] = useState({});
   const { gitlab_namespace: nameSpace, slug } = codeProjectURL;
@@ -36,6 +38,7 @@ export const Processor = ({ processorData, handleDragStart }) => {
     <div
       draggable
       onDragStart={(e) => handleDragStart(e, processorData)}
+      onDragEnd={handleDragEnd}
       className="data-operations-item round-border-button shadowed-element"
     >
       <div className="header d-flex">
