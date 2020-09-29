@@ -1,18 +1,26 @@
-build frontend:
-  extends: [".except-docu-branches"]
-  stage: build
-  only:
-    changes:
-      - web/**/*
-  # This docker version should correspond with the on docker version in the EC2 deployment
-  image: docker:19.03.5                                     # https://hub.docker.com/_/docker/
-  services:
-    - docker:dind
+# This is the centralised config for all jobs that need an npm cache
+# Currently this is
+# - build frontend
+# - end2end tests - node (from REPO_ROOT/.gitlab-ci.yml)
+.npm-cache-config:
   cache:
     key: "mlreef-node-cache"
     paths:
       - /usr/local/lib/node_modules
       - web/node_modules
+
+
+build frontend:
+  # import the centralised caching configuration for npm caches
+  extends: [".except-docu-branches", ".npm-cache-config"]
+  stage: build
+  only:
+    changes:
+      - web/**/*
+  # This docker version should correspond with the on docker version in the EC2 deployment
+  image: docker:19.03.5          # https://hub.docker.com/_/docker/
+  services:
+    - docker:dind
   before_script:
     - export GATEWAY_IMAGE_PATH=$CI_REGISTRY_IMAGE/gateway:$CI_COMMIT_REF_SLUG
     - export BACKEND_IMAGE_PATH=$CI_REGISTRY_IMAGE/backend:$CI_COMMIT_REF_SLUG

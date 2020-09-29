@@ -140,7 +140,8 @@ all services are responding:
 
 
 end2end tests - node:
-  extends: [".except-docu-branches"]
+  # import the centralised caching configuration for npm caches (from web/.gitlab-ci.yml)
+  extends: [".except-docu-branches", ".npm-cache-config"]
   stage: test
   only:
     changes:
@@ -150,12 +151,7 @@ end2end tests - node:
       - web/**/*
       - .gitlab-ci.yml
       - docker-compose.yml
-  image: node:10.19.0-alpine
-  cache:
-    key: "mlreef-node-cache"
-    paths:
-      - /usr/local/lib/node_modules
-      - web/node_modules
+  image: node:10.19.0-alpine    # This shall be the same image as web/Dockerfile and the "build frontend" job
   script: web/bin/ci-run-end2end-tests
 
 
