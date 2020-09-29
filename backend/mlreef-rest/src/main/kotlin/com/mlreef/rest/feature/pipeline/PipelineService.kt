@@ -30,9 +30,6 @@ import com.mlreef.rest.external_api.gitlab.dto.GitlabPipeline
 import com.mlreef.rest.external_api.gitlab.dto.GitlabUserInProject
 import com.mlreef.rest.external_api.gitlab.dto.GitlabVariable
 import com.mlreef.rest.feature.auth.AuthService
-import com.mlreef.rest.feature.pipeline.GitlabVariables.GIT_PUSH_TOKEN
-import com.mlreef.rest.feature.pipeline.GitlabVariables.GIT_PUSH_USER
-import com.mlreef.rest.feature.pipeline.GitlabVariables.PIPELINE_TOKEN_SECRET
 import com.mlreef.rest.utils.RandomUtils
 import com.mlreef.utils.Slugs
 import kotlinx.coroutines.GlobalScope
@@ -158,15 +155,15 @@ class PipelineService(
         if (pipelineInstance.inputFiles.isEmpty()) {
             throw PipelineCreateException(ErrorCode.PipelineCreationFilesMissing)
         } else {
-            YamlFileGenerator(conf.epf.imageTag).generateYamlFile(
+            YamlFileGenerator.renderYaml(
                 author = author,
                 epfPipelineSecret = secret,
                 epfPipelineUrl = "${conf.epf.backendUrl}/api/v1/epf/pipeline_instance/${pipelineInstance.id}",
                 epfGitlabUrl = conf.epf.gitlabUrl,
+                epfImageTag = conf.epf.imageTag,
                 sourceBranch = pipelineInstance.sourceBranch,
                 targetBranch = pipelineInstance.targetBranch,
-                processors = pipelineInstance.dataOperations,
-                inputFileList = pipelineInstance.inputFiles.map { it.toYamlString() }
+                dataProcessors = pipelineInstance.dataOperations,
             )
         }
 
@@ -179,7 +176,7 @@ class PipelineService(
                 token = userToken,
                 projectId = projectId,
                 targetBranch = targetBranch,
-                sourceBranch = sourceBranch
+                sourceBranch = sourceBranch,
             )
         } catch (e: RestException) {
             throw PipelineStartException("Cannot create branch $targetBranch for project $projectId, check the source_branch $sourceBranch: ${e.errorName}")
@@ -191,7 +188,8 @@ class PipelineService(
                 targetBranch = targetBranch,
                 commitMessage = commitMessage,
                 fileContents = fileContents,
-                action = "create")
+                action = "create",
+            )
             log.info("Committed Yaml file in commit ${commitFiles.shortId}")
             commitFiles
         } catch (e: RestException) {
