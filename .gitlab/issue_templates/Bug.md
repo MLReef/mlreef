@@ -11,13 +11,15 @@
 ### Steps to reproduce
 
 
+### Workaround
+
 
 ### Solution
-> Add technical implementation details and the results of the tickets discussion here.
-
-* [ ]  Add at least one test
+<!-- Add technical implementation details and the results of the tickets discussion here. -->
 
 
 
 Additional Notes
 =====================
+
+/label ~bug
