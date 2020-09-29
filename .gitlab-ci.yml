@@ -106,21 +106,6 @@ pages:
     paths:
       - public
 
-postman test suite:
-  extends: [.except-docu-branches]
-  stage: test
-  only:
-    changes:
-      - backend/**/*
-  when: delayed
-  start_in: 4 minutes
-  image: registry.gitlab.com/systemkern/s5:latest-newman
-  cache:
-    key: newman
-    paths:
-      - node_modules/.bin/
-  script: bin/ci-postman-tests
-
 
 all services are responding:
   extends: [.except-docu-branches]
