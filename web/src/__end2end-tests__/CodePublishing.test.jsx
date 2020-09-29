@@ -1,15 +1,16 @@
+import { EXTERNAL_ROOT_URL } from 'apiConfig';
 import CodeProjectPublishingApi from 'apis/CodeProjectPublishing';
 
 const api = new CodeProjectPublishingApi();
 
-// run test with: `npm test CodePublishing.test.jsx`
-
 describe('Can request all the Stuffs from the API', () => {
+  console.log('##########################################################');
+  console.log('##########################################################');
+  console.log(`Running end2end tests against ${EXTERNAL_ROOT_URL}`);
   it('should load projects data', () => api.publishCodeProject(
     'https://mlreef.com',
   )
     .then((data) => {
-      // console.log('then', data);
       expect(data).toBeDefined();
     }));
 

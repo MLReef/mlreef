@@ -67,7 +67,7 @@ else
     echo "INFO: defaulting to 'localhost' instance"
     export INSTANCE_HOST="localhost"
   fi
-  echo "Target instance    =$INSTANCE_HOST"
+  echo "      INSTANCE_HOST= $INSTANCE_HOST"
 fi
 
 

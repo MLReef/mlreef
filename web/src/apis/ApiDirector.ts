@@ -1,18 +1,7 @@
-import store from '../store';
+import { getAuth, getCurrentToken } from "TokenProvider";
 import { commonHeaderNames, headerDataTypes, validServicesToCall } from "./apiBuilders/requestEnums";
 
-export default class ApiDirector {   
-  getCurrentToken() : string {
-    const { user } = store.getState();
-    return user && `Bearer ${user.access_token}`;
-  }
-
-  private getAuth(): boolean {
-    const { user } = store.getState();
-
-    return !!user?.auth;
-  }
-
+export default class ApiDirector {
   buildAnonHeaders() {
     const contentHeaders = new Map<string, string>();
     contentHeaders.set(commonHeaderNames.CONTENT_TYPE, headerDataTypes.JSON);
@@ -35,8 +24,8 @@ export default class ApiDirector {
   buildBasicHeaders = (serviceToCall: string) : Map<string, string> => {
     const headers = this.buildAnonHeaders();
 
-    if (this.getAuth()) {
-      return headers.set(this.resolveTokenName(serviceToCall), this.getCurrentToken());
+    if (getAuth()) {
+      return headers.set(this.resolveTokenName(serviceToCall), getCurrentToken());
     }
 
     return headers;

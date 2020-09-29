@@ -74,10 +74,10 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
-    "test": "jest --modulePaths=src --env=jsdom --detectOpenHandles",
+    "test": "jest --modulePaths=src --env=jsdom --detectOpenHandles  --testPathPattern=/__tests__/*",
+    "end2end": "jest --modulePaths=src --env=jsdom --detectOpenHandles CodePublishing",
     "cypress": "cypress open",
-    "eject": "react-scripts eject",
-    "test-end2end": "tsc src/apis/CodeProjectPublishing.ts && npm test CodePublishing"
+    "eject": "react-scripts eject"
   },
   "browserslist": {
     "production": [
