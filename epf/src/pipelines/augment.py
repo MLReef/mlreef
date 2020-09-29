@@ -36,7 +36,7 @@ def augment():
                     image_array = image_array.reshape((1,) + image_array.shape) 
 
                     iterator = 0
-                    for batch in datagen.flow(image_array, batch_size=1, save_to_dir=output, save_prefix='augment', save_format='png'):
+                    for batch in datagen.flow(image_array, batch_size=1, save_to_dir=output_path, save_prefix='augment', save_format='png'):
                         iterator += 1
                         if iterator >= iterations:
                             break  # otherwise the generator would loop indefinitely
@@ -68,7 +68,10 @@ if __name__ == "__main__":
     params = process_arguments(sys.argv[1:])
     print("Parameters input are: ",params)
     input = params['input_path']
-    output= params['output_path']
+    output_path= params['output_path']
+     # create folder if does not exists
+    if not os.path.exists(output_path):
+        os.makedirs(output_path)
     iterations = int(params['iterations'])
     rotation_range = int(params['rotation_range'])
     width_shift_range = int(params['width_shift_range'])
