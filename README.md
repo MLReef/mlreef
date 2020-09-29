@@ -3,6 +3,9 @@
 MLReef - Your entire Machine Learning life cycle in one platform
 ====================
 
+Web: https://mlreef.com
+
+
 Canonical source
 --------------------
 The canonical source of MLReef where all development takes place is hosted on gitLab.com/mlreef/mlreef.
@@ -10,7 +13,7 @@ The canonical source of MLReef where all development takes place is hosted on gi
 
 MLReef - The End2End Machine Learning Lifecycle Platform
 --------------------
-To find out more about how MLReef can streamline your Machine Learning Development Lifecycle see the [features on our homepage](https://about.mlreef.com)
+To find out more about how MLReef can streamline your Machine Learning Development Lifecycle see the [features on our homepage](https://mlreef.com)
 
 
 
