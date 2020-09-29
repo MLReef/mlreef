@@ -221,10 +221,6 @@ Public projects (can include own and shared), but without paging.
 
 operation::project-retrieve-public-all[snippets='curl-request']
 
-=== GET /projects/public
-
-operation::projects-retrieve-public[snippets='curl-request']
-
 === GET /projects/:id
 
 operation::data-project-retrieve-one[snippets='curl-request,response-body,response-fields']
@@ -395,7 +391,7 @@ operation::group-check-availability-success[snippets='curl-request,request-param
 
 === POST /groups
 
-operation::group-create[snippets='curl-request,response-body,response-fields']
+
 
 === PUT /groups/:id
 
