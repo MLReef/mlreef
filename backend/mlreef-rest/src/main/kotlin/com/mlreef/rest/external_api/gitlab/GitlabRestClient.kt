@@ -590,7 +590,8 @@ class GitlabRestClient(
     fun userCreateGroup(token: String, groupName: String, path: String, visibility: GitlabVisibility): GitlabGroup {
         return GitlabCreateGroupRequest(name = groupName, path = path, visibility = visibility.name.toLowerCase())
             .let { GitlabHttpEntity(it, createUserHeaders(token)) }
-            .addErrorDescription(409, ErrorCode.GitlabGroupCreationFailed, "Cannot create group $groupName in gitlab as user. Group already exists")
+            .addErrorDescription(409, ErrorCode.GitlabGroupCreationFailed, "Cannot create group $groupName in gitlab. Group already exists")
+            .addErrorDescription(400, ErrorCode.GitlabGroupCreationFailed, "Cannot create group $groupName. Probably group name is already taken")
             .addErrorDescription(ErrorCode.GitlabGroupCreationFailed, "Cannot create group as user")
             .makeRequest {
                 val url = "$gitlabServiceRootUrl/groups"
