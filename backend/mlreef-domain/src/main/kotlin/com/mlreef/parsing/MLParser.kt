@@ -223,6 +223,7 @@ class MLParseResult {
     var countMLDataProcessor: Int = 0
     var countMLMetricSchema: Int = 0
 
+    /** Validates python variable names to be alphanumeric + underscore. */
     fun validate() {
         val nameValidator = Regex("[a-zA-Z0-9_]*")
 

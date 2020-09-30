@@ -28,6 +28,8 @@ data class ProcessorParameter(
     val name: String,
     @Enumerated(EnumType.STRING)
     val type: ParameterType,
+
+    /** position of the parameter starting at 1*/
     @Column(name = "parameter_order")
     val order: Int,
     val defaultValue: String,

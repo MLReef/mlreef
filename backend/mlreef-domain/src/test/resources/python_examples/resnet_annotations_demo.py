@@ -128,6 +128,7 @@ def resnet_model(height, width, channels, color_mode, use_pretrained, trainGener
     output_type="IMAGE"
 )
 # TODO FIXME: I've used the default python datatypes str and int instead of enum for making the file run
+# Parameter order is implicitly defined by the order of these annotations
 @parameter('images_path', "str", True, '.')
 @parameter('output_path', "str", True, '.')
 @parameter('height', "int", True, 256)

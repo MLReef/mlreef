@@ -19,6 +19,7 @@ object MLPython3AnnotationFactory {
         val argMap = transformContextToMap(arguments)
         val argList = transformContextToOrderedList(arguments)
         return when (name) {
+            // hardcoded name for MLReef annotations
             "parameter" -> ModelExtractor.createParameter(context, argMap, argList)
             "data_processor" -> ModelExtractor.createDataOperation(argMap)
             "metric" -> ModelExtractor.createMetric(argMap, argList)
@@ -88,6 +89,8 @@ class MLPython3Parser : MLParser {
             return 0
         }
 
+        // Annotations on Python are named Decorators
+        // ==> Decorated context is equal to an annotation
         override fun visitDecorated(context: Python3Parser.DecoratedContext?): Any {
             if (context != null) {
                 val decorators = context.decorators()
@@ -110,6 +113,14 @@ class MLPython3Parser : MLParser {
                     println("Annotation: ${it.text}")
                     try {
                         val children = it.children
+                        //e.g. @parameter(parameters...)
+                        //@parameters => Dotted_namedContext
+                        //parameters.. => arglist
+                        //children[0] = "@"
+                        //children[1] = "parameter"
+                        //children[2] = "("
+                        //children[3] = parameters...
+                        //children[4] = "4"
                         val annotationType = children[1] as Python3Parser.Dotted_nameContext
                         val annotationValues = children[3] as Python3Parser.ArglistContext
                         val mlAnnotation = MLPython3AnnotationFactory.create(context, annotationType, annotationValues)
