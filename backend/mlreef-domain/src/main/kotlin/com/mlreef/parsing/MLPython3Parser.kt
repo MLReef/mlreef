@@ -16,8 +16,18 @@ object MLPython3AnnotationFactory {
     fun create(context: ParsingContext, nameContext: Python3Parser.Dotted_nameContext, arglistContext: Python3Parser.ArglistContext): EPFAnnotation {
         val name: String = nameContext.text
         val arguments = arglistContext.argument()
-        val argMap = transformContextToMap(arguments)
-        val argList = transformContextToOrderedList(arguments)
+        // transform context to map
+        val argMap: Map<String, String> = arguments
+            .filter { argumentContext -> argumentContext.text.isNotBlank() && argumentContext.test().size > 1 }
+            .map { argumentContext ->
+                val tupleKey = argumentContext.test(0).text
+                val tupleValue = argumentContext.test(1).text.replace("\"", "")
+                tupleKey to cleanValue(tupleValue)
+            }.toMap()
+        // transform context orderedList
+        val argList: List<String> = arguments
+            .filter { it.text.isNotBlank() && it.test().size > 0 }
+            .map { cleanValue(it.test(0).text) }
         return when (name) {
             // hardcoded name for MLReef annotations
             "parameter" -> ModelExtractor.createParameter(context, argMap, argList)
@@ -25,29 +35,6 @@ object MLPython3AnnotationFactory {
             "metric" -> ModelExtractor.createMetric(argMap, argList)
             else -> throw IllegalArgumentException("Not supported Annotation: $name")
         }
-    }
-
-    private fun transformContextToMap(values: MutableList<Python3Parser.ArgumentContext>): HashMap<String, String> {
-        val map: HashMap<String, String> = HashMap()
-        values.forEach { argumentContext ->
-            if (argumentContext.text.isNotBlank() && argumentContext.test().size > 1) {
-                val tupleKey = argumentContext.test(0).text
-                val tupleValue = argumentContext.test(1).text.replace("\"", "")
-                map[tupleKey] = cleanValue(tupleValue)
-            }
-        }
-        return map
-    }
-
-    private fun transformContextToOrderedList(values: MutableList<Python3Parser.ArgumentContext>): List<String> {
-        val list: MutableList<String> = arrayListOf()
-        values.forEach { argumentContext ->
-            if (argumentContext.text.isNotBlank() && argumentContext.test().size > 0) {
-                val singleValue = cleanValue(argumentContext.test(0).text)
-                list.add(singleValue)
-            }
-        }
-        return list
     }
 
     fun cleanValue(string: String): String {
