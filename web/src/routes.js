@@ -50,6 +50,11 @@ export default [
     },
   },
   {
+    name: 'error',
+    path: '/error-page',
+    component: ErrorView,
+  },
+  {
     name: 'demo',
     path: '/demo',
     exact: true,
@@ -393,11 +398,6 @@ export default [
     meta: {
       authRequired: true,
     },
-  },
-  {
-    name: 'error',
-    path: '/error-page',
-    component: ErrorView,
   },
   {
     name: 'empty',

@@ -26,8 +26,7 @@ const SettingsViewGeneralAdvanced = (props) => {
       toastr.success(`Project ${name} deleted.`);
       history.push('/');
     })
-    .catch((err) => {
-      const error = err.json();
+    .catch((error) => {
       toastr.error(`Error while deleting ${name}`, error.message);
     });
 
