@@ -64,10 +64,9 @@ const SettingsViewMembers = (props) => {
         setRole('GUEST');
         setExpiration('');
       })
-      .catch((res) => res.json()
-        .then((err) => {
-          toastr.error('Failed adding member', err.error_name);
-        }))
+      .catch((err) => {
+        toastr.error('Failed adding member', err.message);
+      })
       .finally(() => setWaiting(false));
   };
 

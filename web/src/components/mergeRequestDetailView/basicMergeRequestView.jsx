@@ -81,8 +81,7 @@ const BasicMergeRequestView = (props) => {
     setWaiting(true);
     actions.updateMergeRequest(gid, iid, fields)
       .then(() => setEditMode(false))
-      .catch((e) => e.json()
-        .then((er) => toastr.error("Changes weren't saved.", er.error)))
+      .catch((er) => toastr.error("Changes weren't saved.", er.message))
       .finally(() => setWaiting(false));
   };
 
