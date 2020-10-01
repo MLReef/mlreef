@@ -67,7 +67,7 @@ const createExperimentInProject = (
 ) => {
   const expApi = new ExperimentsApi();
   const experimentData = dataOperationsSelected[0];
-  const { inputValuesAndDataModels: parameters, slug } = experimentData;
+  const { parameters, slug } = experimentData;
   const experimentBody = {
     slug: branchName, // slug is NOT the branch name, it needs replacement
     name: branchName,
@@ -77,7 +77,13 @@ const createExperimentInProject = (
       .map((file) => ({ location: file.path, location_type: file.type === 'blob' ? 'PATH_FILE' : 'PATH_FOLDER' })),
     processing: {
       slug,
-      parameters,
+      parameters: parameters.map(({ name, value, type, required, description}) => ({
+        name,
+        value,
+        type,
+        required,
+        description,
+      })),
     },
   };
   expApi.createExperiment(backendId, experimentBody)
@@ -92,7 +98,7 @@ const createExperimentInProject = (
           }
         });
     })
-    .catch(async (err) => {
+    .catch((err) => {
       toastr.error('Error', err);
     });
 };

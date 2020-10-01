@@ -68,16 +68,16 @@ Input.propTypes = {
   value: string,
   placeholder: string,
   name: string,
-  id: string,
-  callback: func,
+  callback: func, 
+  onBlurCallback: func, 
 };
 
 Input.defaultProps = {
   value: '',
   placeholder: '',
   name: '',
-  id: '',
   callback: () => {},
+  onBlurCallback: () => {},
 };
 
 export default Input;

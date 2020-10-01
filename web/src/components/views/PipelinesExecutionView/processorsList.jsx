@@ -1,44 +1,50 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import {
-  shape, string, func, arrayOf,
+  shape, string,
 } from 'prop-types';
 import ProjectGeneralInfoApi from 'apis/ProjectGeneralInfoApi';
 import ArrowButton from '../../arrow-button/arrowButton';
+import { DataPipelinesContext } from './DataPipelineHooks/DataPipelinesProvider';
+import { SET_PROCESSOR_SELECTED } from './DataPipelineHooks/actions';
 
 const projectInstance = new ProjectGeneralInfoApi();
 
-const ProcessorsList = ({
-  processors,
-  handleDragStart,
-  handleDragEnd,
-}) => (
-  <div id="data-operations-list" className="scroll-styled">
-    {processors && processors.map((processor) => (
-      <Processor
-        key={`processors-available-${processor.internalProcessorId}`}
-        processorData={processor}
-        handleDragStart={handleDragStart}
-        handleDragEnd={handleDragEnd}
-      />
-    ))}
-  </div>
-);
+const ProcessorsList = () => {
+  const [{ currentProcessors }] = useContext(DataPipelinesContext);
+  return (
+    <div id="data-operations-list" className="scroll-styled">
+      {currentProcessors && currentProcessors.map((processor) => (
+        <Processor
+          key={`processors-available-${processor.internalProcessorId}`}
+          processorData={processor}
+        />
+      ))}
+    </div>
+)};
 
-export const Processor = ({ processorData, handleDragStart, handleDragEnd }) => {
+export const Processor = ({ processorData }) => {
   const [shouldDescriptionRender, setShouldDescriptionRender] = useState(false);
-  const [codeProjectURL, setCodeProjectURL] = useState({});
-  const { gitlab_namespace: nameSpace, slug } = codeProjectURL;
+  const [codeProjectInformation, setCodeProjectInformation] = useState({});
+  const { gitlab_namespace: nameSpace, slug } = codeProjectInformation;
 
+  const [, dispatch] = useContext(DataPipelinesContext);
   useEffect(() => {
     projectInstance.getCodeProjectById(processorData.codeProjectId)
-      .then((res) => setCodeProjectURL(res));
+      .then((res) => setCodeProjectInformation(res));
   }, [processorData]);
+
+  function handleDragStart(e) {
+    const dt = e.dataTransfer;
+    dt.setData('text/plain', e.currentTarget.id);
+    dt.effectAllowed = 'move';
+    dispatch({ type: SET_PROCESSOR_SELECTED, processorData });
+  }
 
   return (
     <div
       draggable
-      onDragStart={(e) => handleDragStart(e, processorData)}
-      onDragEnd={handleDragEnd}
+      onDragStart={handleDragStart}
+      onDragEnd={() => dispatch({ type: SET_PROCESSOR_SELECTED, processorData: null })}
       className="data-operations-item round-border-button shadowed-element"
     >
       <div className="header d-flex">
@@ -98,12 +104,6 @@ const procDataShape = shape({
 
 Processor.propTypes = {
   processorData: procDataShape.isRequired,
-  handleDragStart: func.isRequired,
-};
-
-ProcessorsList.propTypes = {
-  processors: arrayOf(procDataShape).isRequired,
-  handleDragStart: func.isRequired,
 };
 
 export default ProcessorsList;

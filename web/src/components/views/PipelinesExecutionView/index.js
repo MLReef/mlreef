@@ -1,3 +1,3 @@
-import PipelinesExecutionView from './PipelinesExecutionView';
+import FunctionalExecutionPipelinesView from './FunctionalExecutionPipelinesView';
 
-export default PipelinesExecutionView;
+export default FunctionalExecutionPipelinesView;

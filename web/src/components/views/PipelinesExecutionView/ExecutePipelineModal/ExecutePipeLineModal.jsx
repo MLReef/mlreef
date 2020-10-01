@@ -1,12 +1,14 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import MProgressBar from 'components/ui/MProgressBar';
-import { arrayOf, shape, string, bool, func } from 'prop-types';
+import { string } from 'prop-types';
 import { Link } from 'react-router-dom';
 import MRadio from 'components/ui/MRadio';
 import './executePipeLineModal.scss';
 import MSelect from 'components/ui/MSelect';
 import { ALGORITHM, OPERATION, VISUALIZATION } from 'dataTypes';
 import createExperimentInProject, { randomNameGenerator, createPipelineInProject } from '../../../../functions/pipeLinesHelpers';
+import { DataPipelinesContext } from '../DataPipelineHooks/DataPipelinesProvider';
+import { SET_IS_SHOWING_EXECUTE_PIPELINE_MODAL } from '../DataPipelineHooks/actions';
 
 const fakeMachinesToShow = [
   {
@@ -40,17 +42,24 @@ const operationsMetaData = {
   },
 };
 
-const ExecutePipelineModal = ({
-  type,
-  isShowing,
-  toggle,
-  processorsSelected,
-  filesSelectedInModal,
-  projectNamespace,
-  projectSlug,
-  backendId,
-  branchSelected,
-}) => {
+const ExecutePipelineModal = (props) => {
+  const [state, dispatch] = useContext(DataPipelinesContext);
+  const {
+    isShowingExecutePipelineModal: isShowing,
+    filesSelectedInModal,
+    processorsSelected,
+    branchSelected,
+  } = state;
+
+  const {
+    type,
+    project: {
+      namespace: projectNamespace,
+      slug: projectSlug,
+      id: backendId,
+    },
+  } = props;
+
   const [section, setSection] = useState(1);
   const [isFirstOptSelected, setIsFirstOptSelected] = useState(false);
   const [isSecondOptSelected, setIsSecondOptSelected] = useState(false);
@@ -67,7 +76,7 @@ const ExecutePipelineModal = ({
     setIsFirstOptSelected(false);
     setIsSecondOptSelected(false);
     setSection(1);
-    toggle();
+    dispatch({ type: SET_IS_SHOWING_EXECUTE_PIPELINE_MODAL, isShowingExecutePipelineModal: false });
     setSelectMachinesMess('Select a machine...');
   }
 
@@ -103,7 +112,6 @@ const ExecutePipelineModal = ({
 
     return redirectRoute;
   };
-
   return (
     <div className={`modal modal-primary modal-lg dark-cover ${isShowing ? 'show' : ''}`}>
       <div className="modal-cover" onClick={() => cleanForm()} />
@@ -265,20 +273,7 @@ const ExecutePipelineModal = ({
 };
 
 ExecutePipelineModal.propTypes = {
-  filesSelectedInModal: arrayOf(shape({})),
   type: string.isRequired,
-  isShowing: bool.isRequired,
-  toggle: func.isRequired,
-  processorsSelected: arrayOf(shape({})).isRequired,
-  projectNamespace: string.isRequired,
-  projectSlug: string.isRequired,
-  backendId: string.isRequired,
-  branchSelected: string,
-};
-
-ExecutePipelineModal.defaultProps = {
-  filesSelectedInModal: [],
-  branchSelected: 'master',
 };
 
 export default ExecutePipelineModal;

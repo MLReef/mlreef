@@ -95,6 +95,8 @@ const DetailsSummary = ({
                       dataOperatorsExecuted: [dataOperatorsExecuted],
                       inputFiles,
                       pipelineBackendId: pipelineInfo.id,
+                      branch: pipelineInfo.ref,
+                      commit: pipelineInfo.commit_sha,
                     };
                     setPreconfiguredOPerations(configuredOperations);
                     history.push(`/${projectNamespace}/${projectSlug}/-/experiments/new`);

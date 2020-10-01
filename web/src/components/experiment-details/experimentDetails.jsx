@@ -65,10 +65,7 @@ const ExperimentDetails = (props) => {
       .then((res) => setExperiment(res))
       .catch(() => toastr.error('Error', 'Could not fetch the experiment'));
   }, [backendId, experimentId]);
-
-  // this got orphan after refactoring renderTheSelectedSection()
-  // <DetailsSummary experiment={experiment} experimentName={uniqueName} />
-
+  
   const breadcrumbs = useMemo(
     () => [
       {
@@ -115,7 +112,6 @@ const ExperimentDetails = (props) => {
                   experimentName={uniqueName}
                   parameters={mergedParameters}
                   pipelineInfo={pipelineInfo}
-                  experimentJob={experimentJob}
                   setPreconfiguredOPerations={setPreconfiguredOPerations}
                   history={history}
                 />

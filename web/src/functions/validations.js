@@ -51,3 +51,24 @@ export function isJson(item) {
 
   return false;
 }
+
+/**
+ * 
+ * @param {*} files: files selected as input for data ops.
+ * @param {*} dataProcessors: operators which will process files.
+ */
+
+export const validateForm = (files, dataProcessors) => {
+  if (!dataProcessors || dataProcessors?.length === 0) {
+    return false;
+  }
+
+  if (!files || files?.length === 0) {
+    return false;
+  }
+
+  const invalidParamsCount = dataProcessors
+    .map((dp) => dp.parameters.filter((param) => !param.isValid).length)
+    .reduce((a, b) => a + b);
+  return invalidParamsCount === 0;
+}
