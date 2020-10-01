@@ -21,7 +21,7 @@ const DragDropZone = (prop) => {
       dispatch({ type: SET_INITIAL_OPERATORS_SELECTED, initialDataOperators });
       actions.setPreconfiguredOPerations(null);
     }
-  }, [currentProcessors, dispatch, initialDataOperators, processorDataSelected]);
+  }, [currentProcessors, dispatch, initialDataOperators, processorDataSelected, actions]);
 
   const allowDrop = () => dispatch({ type: ADD_NEW_PROCESSOR });
 

@@ -203,7 +203,7 @@ export default [
   },
   {
     name: 'fileBranch',
-    path: '/:namespace/:slug/-/blob/:branch/:file(.+)',
+    path: '/:namespace/:slug/-/blob/branch/:branch/path/:file(.+)',
     component: FileView,
   },
   {
