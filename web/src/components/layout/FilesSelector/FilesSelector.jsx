@@ -1,17 +1,28 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 import './FilesSelector.scss';
+import { DataPipelinesContext } from 'components/views/PipelinesExecutionView/DataPipelineHooks/DataPipelinesProvider';
+import { SET_IS_VISIBLE_FILES_MODAL } from 'components/views/PipelinesExecutionView/DataPipelineHooks/actions';
 
 const FilesSelector = (props) => {
   const {
     className,
     buttonLabel,
-    files,
-    handleSelectData,
     instructions,
-    branch
   } = props;
-
+  const [{ 
+    branchSelected: branch,
+    initialFiles,
+    filesSelectedInModal,
+    isVisibleSelectFilesModal
+  }, dispatch] = useContext(DataPipelinesContext);
+  const files = initialFiles || filesSelectedInModal;
+  function handleSelectData() {
+    dispatch({
+      type: SET_IS_VISIBLE_FILES_MODAL, 
+      isVisibleSelectFilesModal: !isVisibleSelectFilesModal 
+    });
+  };
   return (
     <div className={`${className} files-selector`}>
       {files.length === 0 ? (
@@ -81,14 +92,11 @@ FilesSelector.defaultProps = {
   ),
   className: '',
   buttonLabel: 'Select data',
-  files: [],
 };
 
 FilesSelector.propTypes = {
   className: PropTypes.string,
   buttonLabel: PropTypes.string,
-  files: PropTypes.arrayOf(PropTypes.shape({})),
-  handleSelectData: PropTypes.func.isRequired,
   instructions: PropTypes.node,
 };
 

@@ -1,22 +1,29 @@
 import React from 'react';
-import { mount, shallow } from 'enzyme';
+import { mount } from 'enzyme';
 import { dataPipeLines } from 'testData';
 import ProcessorsList, { Processor } from 'components/views/PipelinesExecutionView/processorsList';
+import { DataPipelinesContext } from 'components/views/PipelinesExecutionView/DataPipelineHooks/DataPipelinesProvider';
+import { initialState } from 'components/views/PipelinesExecutionView/DataPipelineHooks/DataPipelinesReducer';
 
-const setup = () => shallow(
-  <ProcessorsList
-    handleDragStart={() => { }}
-    processors={dataPipeLines}
-  />,
+const mockUseReducer = [
+  { ...initialState, currentProcessors: dataPipeLines },
+  jest.fn(),
+];
+
+const setup = () => mount(
+  <DataPipelinesContext.Provider value={mockUseReducer}>
+    <ProcessorsList />
+  </DataPipelinesContext.Provider>,
 );
 
 const mockedProcessor = dataPipeLines[0];
 
 const setupProcessor = () => mount(
-  <Processor
-    handleDragStart={() => { }}
-    processorData={mockedProcessor}
-  />,
+  <DataPipelinesContext.Provider value={mockUseReducer}>
+    <Processor
+      processorData={mockedProcessor}
+    />
+  </DataPipelinesContext.Provider>,
 );
 
 describe('check processors on the first render', () => {

@@ -68,6 +68,8 @@ export const InstanceCard = ({ ...props }) => {
   function goToPipelineView(instance) {
     if (!instance) return;
     const configuredOperations = {
+      branch: instance.descTitle,
+      commit: instance.commitId,
       dataOperatorsExecuted: instance.dataOperations,
       inputFiles: instance.inputFiles,
       pipelineBackendId: instance.pipelineBackendId,
@@ -367,6 +369,7 @@ class DataInstanceOverview extends Component {
                     currentState: val.status,
                     descTitle: val.name,
                     userName: val.commit.author_name,
+                    commitId: val?.commit.id,
                     timeCreatedAgo: timediff,
                     projId: selectedProject.gid,
                     backendProjectId: selectedProject.id,

@@ -1,23 +1,25 @@
 import React from 'react';
 import { mount } from 'enzyme';
 import { ALGORITHM } from 'dataTypes';
+import { DataPipelinesContext } from 'components/views/PipelinesExecutionView/DataPipelineHooks/DataPipelinesProvider';
+import { initialState } from 'components/views/PipelinesExecutionView/DataPipelineHooks/DataPipelinesReducer';
+import { projectsArrayMock } from 'testData';
 import ExecutePipeLineModal from '../../../components/views/PipelinesExecutionView/ExecutePipelineModal/ExecutePipeLineModal';
 
-const setup = () => mount(
-  <ExecutePipeLineModal
-    isShowing
-    processorsSelected={[]}
-    projectNamespace="project-name"
-    projectSlug="project-slug"
-    backendId="88989-08-8809809-898098809089098"
-    branchSelected="master"
-    type={ALGORITHM}
-    toggle={() => { }}
-    amountFilesSelected={3}
-    dataInstanceName="experiment-weird-exp"
-    httpUrlToRepo="http://some-project.com"
-  />,
-);
+const setup = () => {
+  const mockUseReducer = [
+    initialState,
+    jest.fn(),
+  ];
+  return mount(
+    <DataPipelinesContext.Provider value={mockUseReducer}>
+      <ExecutePipeLineModal
+        type={ALGORITHM}
+        project={projectsArrayMock.projects.selectedProject}
+      />
+    </DataPipelinesContext.Provider>,
+  );
+};
 
 describe('Check elements in the first render', () => {
   let wrapper;

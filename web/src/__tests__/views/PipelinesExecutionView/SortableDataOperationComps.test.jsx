@@ -1,7 +1,9 @@
 import React from 'react';
 import { mount } from 'enzyme';
 import { dataPipeLines } from 'testData';
-import { SelectComp } from 'components/views/PipelinesExecutionView/SortableDataProcessorsList';
+import SelectComp from 'components/views/PipelinesExecutionView/SortableDataProcessorsList/SelectComp';
+import { initialState } from 'components/views/PipelinesExecutionView/DataPipelineHooks/DataPipelinesReducer';
+import { DataPipelinesContext } from 'components/views/PipelinesExecutionView/DataPipelineHooks/DataPipelinesProvider';
 
 const dataOp = dataPipeLines[0];
 const param = dataOp.parameters[10];
@@ -10,8 +12,15 @@ const options = JSON.parse(param.default_value);
 const booleanParam = dataOp.parameters[8];
 const booleanParam1 = dataOp.parameters[9];
 
+const mockUseReducer = [
+  { ...initialState, currentProcessors: dataPipeLines },
+  jest.fn(),
+];
+
 const setup = (currentParm, isBoolean = false) => mount(
-  <SelectComp param={currentParm} isBoolean={isBoolean} />,
+  <DataPipelinesContext.Provider value={mockUseReducer}>
+    <SelectComp param={currentParm} isBoolean={isBoolean} dataProcessorId="88e8f90we890fwe890f890wef" />
+  </DataPipelinesContext.Provider>,
 );
 
 describe('', () => {

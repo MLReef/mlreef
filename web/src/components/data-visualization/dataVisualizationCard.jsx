@@ -73,7 +73,6 @@ const DataVisualizationCard = ({ classification, projectId }) => {
   if (redirect) {
     return <Redirect to={`/my-projects/${projectId}/pipeline-execution/new-data-visualization`} />;
   }
-
   return (
     <div className="pipeline-card" key={today}>
       <div className="header">
