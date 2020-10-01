@@ -26,7 +26,7 @@ import org.springframework.data.repository.findByIdOrNull
 import org.springframework.test.annotation.Rollback
 import java.time.Instant
 import java.time.Period
-import java.util.*
+import java.util.UUID
 import javax.transaction.Transactional
 
 
@@ -998,7 +998,7 @@ class ProjectsIntegrationTest : AbstractIntegrationTest() {
         testsHelper.addRealUserToProject(project21.gitlabId, account1.person.gitlabId!!)
 
         val getUserUrl = "$rootUrl/${project21.id}/users"
-        val addUserUrl = "$rootUrl/${project21.id}/users/${account3.id}"
+        val addUserUrl = "$rootUrl/${project21.id}/users?user_id=${account3.id}"
 
         var returnedResult: List<UserInProjectDto> = this.performGet(getUserUrl, token2)
             .expectOk()
@@ -1026,7 +1026,7 @@ class ProjectsIntegrationTest : AbstractIntegrationTest() {
         testsHelper.addRealUserToProject(project21.gitlabId, account1.person.gitlabId!!)
 
         val getUserUrl = "$rootUrl/${project21.id}/users"
-        val addUserUrl = "$rootUrl/${project21.id}/users/${account3.id}"
+        val addUserUrl = "$rootUrl/${project21.id}/users?user_id=${account3.id}"
 
         var returnedResult: List<UserInProjectDto> = this.performGet(getUserUrl, token2)
             .expectOk()
@@ -1092,7 +1092,7 @@ class ProjectsIntegrationTest : AbstractIntegrationTest() {
         testsHelper.addRealUserToProject(project21.gitlabId, account1.person.gitlabId!!, GitlabAccessLevel.MAINTAINER)
 
         val getUserUrl = "$rootUrl/${project21.id}/users"
-        val addUserUrl = "$rootUrl/${project21.id}/users/${account3.id}"
+        val addUserUrl = "$rootUrl/${project21.id}/users?user_id=${account3.id}"
 
         var returnedResult: List<UserInProjectDto> = this.performGet(getUserUrl, token2)
             .expectOk()
@@ -1150,7 +1150,7 @@ class ProjectsIntegrationTest : AbstractIntegrationTest() {
         testsHelper.addRealUserToProject(project21.gitlabId, account1.person.gitlabId!!, GitlabAccessLevel.DEVELOPER)
 
         val getUserUrl = "$rootUrl/${project21.id}/users"
-        val addUserUrl = "$rootUrl/${project21.id}/users/${account3.id}"
+        val addUserUrl = "$rootUrl/${project21.id}/users?user_id=${account3.id}"
 
         var returnedResult: List<UserInProjectDto> = this.performGet(getUserUrl, token2)
             .expectOk()

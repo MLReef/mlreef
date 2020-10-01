@@ -1,8 +1,24 @@
 package com.mlreef.rest.api.v1
 
-import com.mlreef.rest.*
-import com.mlreef.rest.api.v1.dto.*
-import com.mlreef.rest.exceptions.*
+import com.mlreef.rest.AccessLevel
+import com.mlreef.rest.Account
+import com.mlreef.rest.CodeProject
+import com.mlreef.rest.DataProject
+import com.mlreef.rest.DataType
+import com.mlreef.rest.Person
+import com.mlreef.rest.Project
+import com.mlreef.rest.VisibilityScope
+import com.mlreef.rest.api.v1.dto.CodeProjectDto
+import com.mlreef.rest.api.v1.dto.DataProcessorDto
+import com.mlreef.rest.api.v1.dto.DataProjectDto
+import com.mlreef.rest.api.v1.dto.ProjectDto
+import com.mlreef.rest.api.v1.dto.UserInProjectDto
+import com.mlreef.rest.api.v1.dto.toDto
+import com.mlreef.rest.exceptions.BadParametersException
+import com.mlreef.rest.exceptions.ErrorCode
+import com.mlreef.rest.exceptions.NotFoundException
+import com.mlreef.rest.exceptions.ProjectNotFoundException
+import com.mlreef.rest.exceptions.RestException
 import com.mlreef.rest.external_api.gitlab.TokenDetails
 import com.mlreef.rest.feature.data_processors.DataProcessorService
 import com.mlreef.rest.feature.project.ProjectService
@@ -14,7 +30,16 @@ import org.springframework.http.HttpStatus
 import org.springframework.security.access.prepost.PostAuthorize
 import org.springframework.security.access.prepost.PostFilter
 import org.springframework.security.access.prepost.PreAuthorize
-import org.springframework.web.bind.annotation.*
+import org.springframework.web.bind.annotation.DeleteMapping
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.PutMapping
+import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
+import org.springframework.web.bind.annotation.ResponseStatus
+import org.springframework.web.bind.annotation.RestController
 import java.time.Instant
 import java.util.UUID
 import javax.servlet.http.HttpServletRequest
@@ -327,6 +352,33 @@ class ProjectsController(
                 ?: throw NotFoundException(ErrorCode.NotFound, "processor not found: $namespace/$slug")
 
         return dataProcessor.toDto()
+    }
+
+//----------------------------------------------------------------------------------------------------------------------
+
+    @GetMapping("/{id}/users/check/myself")
+    fun checkCurrentUserInProject(@PathVariable id: UUID, account: Account): Boolean {
+        return projectService.checkUserInProject(projectUUID = id, userId = account.id)
+    }
+
+    @GetMapping("/{id}/users/check/{userId}")
+    @PreAuthorize("hasAccessToProject(#id, 'DEVELOPER') || isUserItself(#userId)")
+    fun checkUserInDataProjectById(@PathVariable id: UUID,
+                                   @PathVariable userId: UUID,
+                                   @RequestParam(required = false) level: String?,
+                                   @RequestParam(required = false, name = "min_level") minLevel: String?): Boolean {
+        val checkLevel = if (level != null) AccessLevel.parse(level) else null
+        val checkMinLevel = if (minLevel != null) AccessLevel.parse(minLevel) else null
+        return projectService.checkUserInProject(projectUUID = id, userId = userId, level = checkLevel, minlevel = checkMinLevel)
+    }
+
+    @GetMapping("/{id}/users/check")
+    @PreAuthorize("hasAccessToProject(#id, 'DEVELOPER')")
+    fun checkUsersInDataProjectById(
+        @PathVariable id: UUID,
+        @RequestParam(value = "user_id", required = false) userId: UUID?,
+        @RequestParam(value = "gitlab_id", required = false) gitlabId: Long?): Boolean {
+        return projectService.checkUserInProject(projectUUID = id, userId = userId, userGitlabId = gitlabId)
     }
 
     private fun getProjectIdByNamespaceAndSlug(namespace: String, slug: String): UUID {
