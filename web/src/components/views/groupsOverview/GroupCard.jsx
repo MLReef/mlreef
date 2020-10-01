@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useHistory } from 'react-router-dom';
+import { useHistory } from 'react-router-dom';
 import { toastr } from 'react-redux-toastr';
-import ArrowButton from 'components/arrow-button/arrowButton';
 import {
   arrayOf, shape, number, string,
 } from 'prop-types';
@@ -12,14 +11,6 @@ import personAvatar from 'images/personAvatar.png';
 
 const grApi = new GroupsApi();
 
-const projectTypesToRender = {
-  DATA_PROJECT: 'ML project',
-};
-
-const projectColorsToRender = {
-  DATA_PROJECT: '#91BD44',
-};
-
 const GroupCard = ({
   groupId,
   groupName,
@@ -27,11 +18,8 @@ const GroupCard = ({
   groupProjects,
   groupPath,
 }) => {
-  const [isProjectsDivShown, setIsProjectsDivShown] = useState(false);
+  const [isProjectsDivShown] = useState(false);
   const [members, setMembers] = useState([]);
-  function handleShowProjectsList() {
-    setIsProjectsDivShown(!isProjectsDivShown);
-  }
   useEffect(() => {
     grApi.getUsers(groupId)
       .then((membersPayload) => setMembers(membersPayload))
