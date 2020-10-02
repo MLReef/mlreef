@@ -1,3 +1,5 @@
+@import '../../../styles/breakpoints';
+
 .settings-view-members {
   & .panel {
     &-header {
@@ -11,6 +13,10 @@
         display: flex;
         padding: 1rem;
         border: solid 1px var(--light);
+
+        @media (max-width: $bp-sm) {
+          flex-direction: column;;
+        }
 
         & .avatar {
           border: solid 1px var(--secondary);
@@ -38,6 +44,10 @@
 
         & .actions {
           display: flex;
+
+          @media (max-width: $bp-sm) {
+            padding-top: 1rem;
+          }
 
           & > .date {
             overflow: hidden;
