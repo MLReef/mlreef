@@ -38,13 +38,13 @@ const RepoInfo = ({
 
         {isDataProject ? (
           <>
-            <AuthWrapper>
+            <AuthWrapper minRole={10}>
               <Link className="repo-stat" to={`/${project.namespace}/${project.slug}/-/visualizations`}>
                 <p className="stat-no">{visualizationsCount}</p>
                 <p className="stat-type">Visualizations</p>
               </Link>
             </AuthWrapper>
-            <AuthWrapper>
+            <AuthWrapper minRole={10}>
               <Link disabled to={`/${project.namespace}/${project.slug}/-/datasets`} className="repo-stat">
                 <p className="stat-no">{dataInstanesCount}</p>
                 <p className="stat-type">Datasets</p>

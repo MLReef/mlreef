@@ -287,7 +287,7 @@ export class FileView extends React.Component {
                     Replace
                   </button>
                 </MWrapper>
-                <AuthWrapper norender>
+                <AuthWrapper minRole={30} norender>
                   <button
                     type="button"
                     className="btn btn-sm btn-danger my-auto ml-2"

@@ -8,6 +8,7 @@ import {
 import { toastr } from 'react-redux-toastr';
 import './experimentsOverview.css';
 import { Line } from 'react-chartjs-2';
+import AuthWrapper from 'components/AuthWrapper';
 import MModal from 'components/ui/MModal';
 import GitlabPipelinesApi from 'apis/GitlabPipelinesApi.ts';
 import ExperimentsApi from 'apis/experimentApi';
@@ -125,6 +126,7 @@ const ExperimentSummary = ({
   function getButtonsDiv() {
     let buttons;
     const experimentStatus = status?.toLowerCase();
+
     const arrowBtn = (
       <ArrowButton
         imgPlaceHolder={traiangle01}
@@ -133,9 +135,9 @@ const ExperimentSummary = ({
         key={`ArrowButton-${expName}`}
       />
     );
+
     if (experimentStatus === RUNNING || experimentStatus === PENDING) {
       buttons = [
-        arrowBtn,
         <button
           key={`dangerous-red-${expName}`}
           type="button"
@@ -148,7 +150,6 @@ const ExperimentSummary = ({
       ];
     } else if (experimentStatus === SKIPPED) {
       buttons = [
-        arrowBtn,
         <button
           key={`dangerous-red-${expName}`}
           type="button"
@@ -176,7 +177,6 @@ const ExperimentSummary = ({
       ];
     } else if (experimentStatus === CANCELED) {
       buttons = [
-        arrowBtn,
         <button
           key={`dangerous-red-${expName}`}
           type="button"
@@ -186,10 +186,17 @@ const ExperimentSummary = ({
         />,
       ];
     }
+
     return (
-      <div className="buttons-div my-auto">{buttons}</div>
+      <div className="buttons-div my-auto">
+        {arrowBtn}
+        <AuthWrapper minRole={30} norender>
+          {buttons}
+        </AuthWrapper>
+      </div>
     );
   }
+
   return (
     <>
       {getButtonsDiv()}

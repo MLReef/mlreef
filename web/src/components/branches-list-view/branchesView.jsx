@@ -136,7 +136,7 @@ class BranchesView extends Component {
         <div className="main-content">
           <div id="inputs-div" className="my-3">
             <MInput
-              className="mr-3"
+              className=""
               placeholder="Filter by branch name"
               id="filter-input"
               onChange={(e) => {
@@ -152,9 +152,9 @@ class BranchesView extends Component {
                 });
               }}
             />
-            <AuthWrapper>
+            <AuthWrapper minRole={30} norender>
               <button
-                className="btn btn-primary"
+                className="btn btn-primary mb-auto ml-3"
                 id="new-branch"
                 type="button"
                 onClick={() => this.setState({
@@ -208,7 +208,7 @@ class BranchesView extends Component {
                     ) : (
                       <MLoadingSpinner />
                     )}
-                    <AuthWrapper norender>
+                    <AuthWrapper minRole={30} norender>
                       <Link
                         className="btn btn-outline-dark my-auto mr-2"
                         to={`/${namespace}/${slug}/-/merge_requests/new?${genQuery(branch)}`}

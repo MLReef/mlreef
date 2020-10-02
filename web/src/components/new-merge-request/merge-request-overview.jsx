@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom';
 import {
   number, shape, string, arrayOf, func,
 } from 'prop-types';
+import AuthWrapper from 'components/AuthWrapper';
 import MLoadingSpinner from 'components/ui/MLoadingSpinner';
 import { getMergeRequestsList } from 'actions/mergeActions';
 import Navbar from '../navbar/navbar';
@@ -125,16 +126,18 @@ class MergeRequestOverview extends Component {
                   <button type="button" className="btn btn-basic-dark mr-auto mb-2" id="all-btn" onClick={this.handleFilterBtnClick}>
                     All
                   </button>
-                  <button
-                    type="button"
-                    className="btn btn-primary mr-2 ml-2 mb-2"
-                    id="new-mr-link"
-                    onClick={() => {
-                      history.push(`/${namespace}/${slug}/-/merge_requests/new`);
-                    }}
-                  >
-                    New merge request
-                  </button>
+                  <AuthWrapper minRole={30} norender>
+                    <button
+                      type="button"
+                      className="btn btn-primary mr-2 ml-2 mb-2"
+                      id="new-mr-link"
+                      onClick={() => {
+                        history.push(`/${namespace}/${slug}/-/merge_requests/new`);
+                      }}
+                    >
+                      New merge request
+                    </button>
+                  </AuthWrapper>
                 </div>
                 <div id="merge-requests-container-div">
                   {btnSelected === 'open-btn' && openedMrs.list.length > 0
