@@ -33,8 +33,8 @@ const SettingsView = (props) => {
                 label: 'General',
                 content: (
                   <SettingsViewGeneral
-                    gid={project.gid}
-                    branch={project.defaultBranch}
+                    namespace={project.namespace}
+                    slug={project.slug}
                     projectName={project.gitlabName}
                     description={project.description}
                     avatar={project.avatarUrl}

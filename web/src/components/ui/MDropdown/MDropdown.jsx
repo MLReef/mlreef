@@ -43,6 +43,31 @@ const MDropdown = (props) => {
 
   const handleContainerClick = () => onClickClose && close();
 
+  const showCorrectDropDown = () => {
+    if (component) {
+      return component;
+    } if (items.length > 0) {
+      return (
+        <>
+          {listTitle && (
+          <div className="m-dropdown-list-title">
+            {listTitle}
+          </div>
+          )}
+          <ul className="m-dropdown-list p-3">
+            {items.map((item, i) => (
+              <li key={`dp-item-${i}`} className="m-dropdown-list-item">
+                {item.content}
+              </li>
+            ))}
+          </ul>
+        </>
+      );
+    }
+
+    return null;
+  };
+
   return (
     <div ref={dropDownRef} className={`m-dropdown ${isShown ? 'show' : ''} ${className}`}>
       <div className="m-dropdown-button">
@@ -56,25 +81,13 @@ const MDropdown = (props) => {
         </button>
       </div>
       <div
+        tabIndex="0"
+        role="button"
         onClick={handleContainerClick}
+        onKeyDown={handleContainerClick}
         className={`m-dropdown-list-container border-rounded ${align} mt-1`}
       >
-        {component || (
-          <>
-            {listTitle && (
-              <div className="m-dropdown-list-title">
-                {listTitle}
-              </div>
-            )}
-            <ul className="m-dropdown-list p-3">
-              {items.map((item, i) => (
-                <li key={`dp-item-${i}`} className="m-dropdown-list-item">
-                  {item.content}
-                </li>
-              ))}
-            </ul>
-          </>
-        )}
+        {showCorrectDropDown()}
       </div>
     </div>
   );

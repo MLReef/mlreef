@@ -24,6 +24,9 @@ exports[`The branches list should be displayed when dropdown button is clicked d
     <div
       className="m-dropdown-list-container border-rounded  mt-1"
       onClick={[Function]}
+      onKeyDown={[Function]}
+      role="button"
+      tabIndex="0"
     >
       <div
         className="select-branch"

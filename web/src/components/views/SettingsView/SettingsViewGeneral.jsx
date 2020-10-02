@@ -17,7 +17,7 @@ const SettingsViewGeneral = (props) => {
   const fileMaxSize = 200;
   const imageInput = useRef();
   const {
-    gid, branch, avatar, projectId, projectName, description, history,
+    namespace, slug, avatar, projectId, projectName, description, history,
   } = props;
 
   const [name, setProjectName] = useState(projectName);
@@ -48,7 +48,7 @@ const SettingsViewGeneral = (props) => {
 
     projectApi.updateProjectDetails(projectId, body)
       .then(() => {
-        history.push(`/my-projects/${gid}/${branch}`);
+        history.push(`/${namespace}/${slug}`);
         toastr.success('Success', 'Project was successfully updated');
       })
       .catch((err) => toastr.error('Error', err.json()));
@@ -187,8 +187,8 @@ const SettingsViewGeneral = (props) => {
 };
 
 SettingsViewGeneral.defaultProps = {
-  gid: null,
-  branch: null,
+  namespace: '',
+  slug: null,
   projectName: '',
   projectId: '',
   description: '',
@@ -197,8 +197,8 @@ SettingsViewGeneral.defaultProps = {
 };
 
 SettingsViewGeneral.propTypes = {
-  gid: PropTypes.number,
-  branch: PropTypes.string,
+  namespace: PropTypes.string,
+  slug: PropTypes.string,
   avatar: PropTypes.string,
   projectName: PropTypes.string,
   projectId: PropTypes.string,
