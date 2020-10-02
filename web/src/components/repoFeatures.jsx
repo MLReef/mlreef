@@ -99,7 +99,7 @@ export class RepoFeatures extends Component {
           )}
         />
 
-        <AuthWrapper norender>
+        <AuthWrapper minRole={30} norender>
           <MDropdown
             className="mr-2 mt-3"
             label={<i className="fa fa-plus" />}
@@ -131,7 +131,11 @@ export class RepoFeatures extends Component {
 
         {!isCodeProject && (
           <>
-            <AuthWrapper minRole={30} className="mx-2 mt-3">
+            <AuthWrapper
+              minRole={30}
+              resource={{ type: 'project' }}
+              className="mx-2 mt-3"
+            >
               <Link
                 className="btn btn-dark px-3 mr-2 mt-3"
                 to={`/${namespace}/${slug}/-/datasets/new`}
@@ -168,7 +172,7 @@ export class RepoFeatures extends Component {
         )}
         <AuthWrapper
           resource={{ type: 'project' }}
-          minRole={20}
+          minRole={10}
           accountType={1}
           className="ml-auto mt-3"
         >

@@ -206,16 +206,18 @@ export class NewMergeRequest extends Component {
               </Link>
               &nbsp;into
             </p>
-            &nbsp;
-            <MSelect
-              label="Select a branch..."
-              options={branches
-                .filter((branchForSelect) => branchForSelect !== branch)
-                .map((br) => ({ label: br, value: br}))
-              }
-              onSelect={this.onBranchChanged}
-              value={branchToMergeInto}
-            />
+            <div className="ml-3 my-auto flex-1">
+              <MSelect
+                className="new-merge-request-select-box"
+                label="Select a branch..."
+                options={branches
+                  .filter((branchForSelect) => branchForSelect !== branch)
+                  .map((br) => ({ label: br, value: br}))
+                }
+                onSelect={this.onBranchChanged}
+                value={branchToMergeInto}
+              />
+            </div>
           </div>
           <br />
           <br />

@@ -10,6 +10,7 @@ import {
 } from 'prop-types';
 import ExperimentsApi from 'apis/experimentApi';
 import { parseToCamelCase } from 'functions/dataParserHelpers';
+import AuthWrapper from 'components/AuthWrapper';
 import CommitsApi from '../../apis/CommitsApi.ts';
 import * as jobsActions from '../../actions/jobsActions';
 import Navbar from '../navbar/navbar';
@@ -151,14 +152,16 @@ class ExperimentsOverview extends Component {
                 >
                   Canceled
                 </button>
-                <button
-                  id="new-experiment"
-                  type="button"
-                  className="btn btn-primary"
-                  onClick={() => history.push(`/${namespace}/${slug}/-/experiments/new`)}
-                >
-                  New  experiment
-                </button>
+                <AuthWrapper minRole={30} norender>
+                  <button
+                    id="new-experiment"
+                    type="button"
+                    className="btn btn-primary"
+                    onClick={() => history.push(`/${namespace}/${slug}/-/experiments/new`)}
+                  >
+                    New experiment
+                  </button>
+                </AuthWrapper>
               </div>
             </>
             )}

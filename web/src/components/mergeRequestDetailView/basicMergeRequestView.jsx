@@ -196,7 +196,7 @@ const BasicMergeRequestView = (props) => {
               </Link>
             </div>
           </div>
-          <AuthWrapper norender>
+          <AuthWrapper minRole={30} norender>
             {actionButtons}
           </AuthWrapper>
 
@@ -246,102 +246,105 @@ const BasicMergeRequestView = (props) => {
                     )}
                   </div>
                   <div className="vertical" />
-                  <div className="state-box">
+                  <AuthWrapper minRole={30} norender>
+                    <div className="state-box">
 
-                    {state === 'merged'
-                      && (
-                      <div>
-                        <h4 style={{ display: 'flex' }}>
-                          <b>
-                            Merged by
-                          </b>
-                          <div style={{ margin: '0 4px 0 2px' }}>
-                            <img className="avatar-style" width="16" src={mergerAvatar} alt="avatar" />
-                          </div>
-                          {`${mergerName} ${dayjs(mergedAt).fromNow()}`}
-                          <button className="revert-merge" type="button">
-                            Revert
-                          </button>
-                        </h4>
-                        <section>
-                          <p>
-                            {'The changes were merged into '}
-                            <b>{targetBranch}</b>
-                          </p>
-                          <p>
-                            {(mrInfo.force_remove_source_branch
-                              || mrInfo.should_remove_source_branch) && (
-                                <span>The source branch has been deleted</span>
-                            )}
-                          </p>
-                        </section>
-                      </div>
-                      )}
-
-                    {state === 'closed'
-                      && (
+                      {state === 'merged'
+                        && (
                         <div>
                           <h4 style={{ display: 'flex' }}>
-                            Closed by
+                            <b>
+                              Merged by
+                            </b>
                             <div style={{ margin: '0 4px 0 2px' }}>
-                              <img className="avatar-style" width="16" src={closeAvatar} alt="avatar" />
+                              <img className="avatar-style" width="16" src={mergerAvatar} alt="avatar" />
                             </div>
-                            {`${closeName} ${dayjs(closedAt).fromNow()}`}
+                            {`${mergerName} ${dayjs(mergedAt).fromNow()}`}
+                            <button className="revert-merge" type="button">
+                              Revert
+                            </button>
                           </h4>
                           <section>
                             <p>
-                              {'The changes were not merged into '}
+                              {'The changes were merged into '}
                               <b>{targetBranch}</b>
+                            </p>
+                            <p>
+                              {(mrInfo.force_remove_source_branch
+                                || mrInfo.should_remove_source_branch) && (
+                                  <span>The source branch has been deleted</span>
+                              )}
                             </p>
                           </section>
                         </div>
-                      )}
-
-                    {state === 'opened'
-                        && (
-                          <>
-                            <div style={{ display: 'flex' }}>
-                              <MButton
-                                className="merge-action btn btn-primary my-auto mr-3"
-                                disabled={hasConflicts}
-                                onClick={acceptMergeRequest}
-                                waiting={waiting}
-                                label="Merge"
-                              />
-                              {!hasConflicts ? (
-                                <>
-                                  <MCheckBox
-                                    name="delete"
-                                    labelValue="Delete branch"
-                                    callback={() => setRemoveBranch(!removeBranch)}
-                                  />
-                                  <MCheckBox
-                                    name="squash"
-                                    labelValue="Squash commits"
-                                    onChange={() => setSquash(!squash)}
-                                  />
-                                </>
-                              )
-                                : (
-                                  <MWrapper norender>
-                                    <p>
-                                      There are merge conflicts&nbsp;
-                                    </p>
-                                  </MWrapper>
-                                )}
-                            </div>
-                            {!hasConflicts && (
-                              <div>
-                                <p>
-                                  {squash ? '1 commit' : `${aheadCommits.length} commit${plu(aheadCommits.length)}`}
-                                  {' and 1 merge commit will be added into '}
-                                  <b>{targetBranch}</b>
-                                </p>
-                              </div>
-                            )}
-                          </>
                         )}
-                  </div>
+
+                      {state === 'closed'
+                        && (
+                          <div>
+                            <h4 style={{ display: 'flex' }}>
+                              Closed by
+                              <div style={{ margin: '0 4px 0 2px' }}>
+                                <img className="avatar-style" width="16" src={closeAvatar} alt="avatar" />
+                              </div>
+                              {`${closeName} ${dayjs(closedAt).fromNow()}`}
+                            </h4>
+                            <section>
+                              <p>
+                                {'The changes were not merged into '}
+                                <b>{targetBranch}</b>
+                              </p>
+                            </section>
+                          </div>
+                        )}
+
+                      {state === 'opened'
+                          && (
+                            <>
+                              <div style={{ display: 'flex' }}>
+                                <MButton
+                                  className="merge-action btn btn-primary my-auto mr-3"
+                                  disabled={hasConflicts}
+                                  onClick={acceptMergeRequest}
+                                  waiting={waiting}
+                                  label="Merge"
+                                />
+                                {!hasConflicts ? (
+                                  <>
+                                    <MCheckBox
+                                      name="delete"
+                                      labelValue="Delete branch"
+                                      callback={() => setRemoveBranch(!removeBranch)}
+                                    />
+                                    <MCheckBox
+                                      name="squash"
+                                      labelValue="Squash commits"
+                                      onChange={() => setSquash(!squash)}
+                                    />
+                                  </>
+                                )
+                                  : (
+                                    <MWrapper norender>
+                                      <p>
+                                        There are merge conflicts&nbsp;
+                                      </p>
+                                    </MWrapper>
+                                  )}
+                              </div>
+                              {!hasConflicts && (
+                                <div>
+                                  <p>
+                                    {squash ? '1 commit' : `${aheadCommits.length} commit${plu(aheadCommits.length)}`}
+                                    {' and 1 merge commit will be added into '}
+                                    <b>{targetBranch}</b>
+                                  </p>
+                                </div>
+                              )}
+                            </>
+                          )}
+                    </div>
+                  </AuthWrapper>
+
                 </>
               ),
             },

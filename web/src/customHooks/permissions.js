@@ -25,8 +25,8 @@ export const useGetHasRole = (role, resource = {}) => {
         : projects.selectedProject;
 
       // project_access is the gitlab impl for permissions
-      const perm = project && project.permissions;
-      const level = perm && perm.project_access && perm.project_access.access_level;
+      const perm = project?.gitlab?.permissions;
+      const level = perm?.project_access?.access_level;
 
       // this is in case of a resource different than project (like group) is given
       // so far there is nothing more than project
@@ -49,19 +49,16 @@ export const useGetHasRole = (role, resource = {}) => {
  * Since we don't know the gitlab user id there is a workaround with path.
  * if owneronly is false then return true.
  *
- * @param {Boolean} owneronly if the ownership has to be checked.
  * @param {Object[type, id]} resource is the resource to be checked, mainly projects.
  *
  * @return {Boolean} if fullfilled.
  */
-export const useGetOwned = (owneronly, resource = {}) => {
+export const useGetOwned = (resource = {}) => {
   const user = useSelector(({ user }) => user);
   const projects = useSelector(({ projects }) => projects);
 
   return useMemo(
     () => {
-      if (!owneronly) return true;
-
       // if resource is supplied then will lookup in the all projects, else will
       // check selectedProject
       const project = resource.id
@@ -88,7 +85,7 @@ export const useGetOwned = (owneronly, resource = {}) => {
           return username === projectUsername;
       }
     },
-    [projects, user, owneronly, resource.type, resource.id],
+    [projects, user, resource.type, resource.id],
   );
 };
 

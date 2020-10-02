@@ -96,8 +96,8 @@ exports[`The branches list should be displayed when dropdown button is clicked d
   </div>
   <div
     className="mx-2 mt-3 auth-wrapper
-      
-      
+      ownership-required
+      group-role-required
       
     "
     style={Object {}}
@@ -121,8 +121,8 @@ exports[`The branches list should be displayed when dropdown button is clicked d
   </div>
   <div
     className="ml-2 mr-auto mt-3 auth-wrapper
-      
-      
+      ownership-required
+      group-role-required
       
     "
     style={Object {}}
@@ -146,8 +146,8 @@ exports[`The branches list should be displayed when dropdown button is clicked d
   </div>
   <div
     className="ml-auto mt-3 auth-wrapper
-      
-      
+      ownership-required
+      group-role-required
       
     "
     style={Object {}}

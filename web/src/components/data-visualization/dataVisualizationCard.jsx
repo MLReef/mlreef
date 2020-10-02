@@ -3,6 +3,7 @@ import {
   number, string, arrayOf, shape,
 } from 'prop-types';
 import { Redirect, Link } from 'react-router-dom';
+import AuthWrapper from 'components/AuthWrapper';
 import { getPipelineIcon } from 'functions/pipeLinesHelpers';
 import { getTimeCreatedAgo } from 'functions/dataParserHelpers';
 import './dataVisualizationCard.css';
@@ -32,9 +33,9 @@ const DataVisualizationCard = ({ classification, projectId }) => {
         View Pipeline
       </button>
     );
+
     if (dataVisualizationState.toLowerCase() === 'in progress') {
       buttons = [
-        viewPipeLineBtn,
         <button
           type="button"
           key="abort-button"
@@ -48,25 +49,24 @@ const DataVisualizationCard = ({ classification, projectId }) => {
       dataVisualizationState.toLowerCase() === 'active'
     ) {
       buttons = [
-        viewPipeLineBtn,
         <button
           type="button"
           key="delete-button"
-          className="dangerous-red"
+          label="close"
+          className="btn btn-icon btn-danger fa fa-times"
           style={{ borderRadius: '0.2em' }}
-        >
-          <b>
-            X
-          </b>
-        </button>,
+        />,
       ];
     } else {
-      buttons = [
-        viewPipeLineBtn,
-      ];
+      buttons = [];
     }
     return (
-      <div id="pipeline-buttons-div">{buttons}</div>
+      <div id="pipeline-buttons-div">
+        {viewPipeLineBtn}
+        <AuthWrapper minRole={30} norender>
+          {buttons}
+        </AuthWrapper>
+      </div>
     );
   }
 

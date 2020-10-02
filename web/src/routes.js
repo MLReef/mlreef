@@ -190,9 +190,6 @@ export default [
     path: '/my-projects/:projectId/:branch/commits/:pathParam?',
     component: CommitsView,
     exact: true,
-    meta: {
-      authRequired: true,
-    },
   },
   // files
   {
@@ -232,11 +229,6 @@ export default [
     component: MergeRequestsView,
   },
   {
-    name: 'mergeRequest',
-    path: '/:namespace/:slug/-/merge_requests/:iid',
-    component: MergeRequestView,
-  },
-  {
     name: 'newMergeRequest',
     // for compatibility with git cli
     path: '/:namespace/:slug/(-/|)merge_requests/new',
@@ -245,6 +237,11 @@ export default [
     meta: {
       authRequired: true,
     },
+  },
+  {
+    name: 'mergeRequest',
+    path: '/:namespace/:slug/-/merge_requests/:iid',
+    component: MergeRequestView,
   },
   {
     name: 'datasets',
@@ -350,9 +347,6 @@ export default [
     path: '/my-projects/:projectId/commit/:commitId',
     component: CommitDetailsView,
     exact: true,
-    meta: {
-      authRequired: true,
-    },
   },
   // publishing
   {

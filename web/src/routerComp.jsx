@@ -130,7 +130,7 @@ const RouterComp = () => (
       <PrivateRoute path="/:namespace/:slug/-/repository/tree/-/commit/:commit/path/:path" component={DetailedRepositoryView} exact />
       <PrivateRoute path="/:namespace/:slug/-/repository/tree/-/commit/:commit" component={DetailedRepositoryView} />
       <PrivateRoute path="/my-projects/:projectId/:branch/path/:path" component={projectView} />
-      <PrivateRoute path="/my-projects/:projectId/commit/:commitId" exact component={CommitDetails} />
+      <Route path="/my-projects/:projectId/commit/:commitId" exact component={CommitDetails} />
       <PrivateRoute
         exact
         path="/my-projects/:projectId/merge-requests/overview"

@@ -53,7 +53,7 @@ const AuthWrapper = (props) => {
   } = useSelector((state) => state);
 
   // means is owner or ownership not required
-  const owned = useGetOwned(owneronly, resource);
+  const owned = useGetOwned(resource);
 
   // means has role enough high or role is not required
   const hasRole = useGetHasRole(role, resource);

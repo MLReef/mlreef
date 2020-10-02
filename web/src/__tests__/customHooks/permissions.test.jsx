@@ -67,11 +67,11 @@ beforeEach(() => {
 
   testHook(() => {
     // testing useGetOwned
-    isOwnerOfSelectedProject = useGetOwned(true);
-    isOwnerOfResourceWithoutOwnerKey = useGetOwned(true, { type: 'project', id: 21 });
-    isOwnerOfGivenResource = useGetOwned(true, { type: 'project', id: 22 });
-    isNotOwnerOfGivenResource = useGetOwned(true, { type: 'project', id: 23 });
-    isTrueWhenOwnerNotRequired = useGetOwned(false);
+    isOwnerOfSelectedProject = useGetOwned();
+    isOwnerOfResourceWithoutOwnerKey = useGetOwned({ type: 'project', id: 21 });
+    isOwnerOfGivenResource = useGetOwned({ type: 'project', id: 22 });
+    isNotOwnerOfGivenResource = useGetOwned({ type: 'project', id: 23 });
+    isTrueWhenOwnerNotRequired = useGetOwned();
   }, { store });
 });
 
