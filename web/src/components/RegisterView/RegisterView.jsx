@@ -16,7 +16,6 @@ const RegisterView = (props) => {
   const dispatch = useDispatch();
 
   // if already logged when mount then logout
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => { if (auth) dispatch(logout()); }, []);
 
   const onRegistrySuccess = () => {

@@ -9,16 +9,6 @@ export const getCurrentToken = () => {
   return user && `Bearer ${user.token}`;
 };
 
-export const generateGetRequest = (url) => fetch(new Request(
-  url, {
-    method: 'GET',
-    headers: new Headers({
-      authorization: getCurrentToken(),
-      Accept: 'application/json',
-    }),
-  },
-));
-
 export const filterBots = (users) => {
   const bot = /bot$/;
   return users
