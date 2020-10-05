@@ -5,7 +5,7 @@ import { handleResponse } from 'functions/apiCalls';
 import ApiRequestCallBuilder from './apiBuilders/ApiRequestCallBuilder';
 
 export default class CommitsApi extends ApiDirector {
-  async performCommit(
+  performCommit(
     projectId: number, 
     filePath: string,
     fileContent: string, 
@@ -32,7 +32,7 @@ export default class CommitsApi extends ApiDirector {
       .then(handleResponse);
   }
 
-  async performCommitForMultipleActions(
+  performCommitForMultipleActions(
     projectId: number,
     body: string,
   ) {

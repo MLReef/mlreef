@@ -76,7 +76,7 @@
     "build": "react-scripts build",
     "testLocally": "jest --modulePaths=src --env=jsdom --detectOpenHandles",
     "test": "jest --modulePaths=src --env=jsdom --detectOpenHandles  --testPathPattern=/__tests__/*",
-    "end2end": "jest --modulePaths=src --env=jsdom --detectOpenHandles CodePublishing",
+    "end2end": "jest --modulePaths=src --env=jsdom --detectOpenHandles --testPathPattern=/__end2end-tests__/*",
     "cypress": "cypress open",
     "eject": "react-scripts eject"
   },

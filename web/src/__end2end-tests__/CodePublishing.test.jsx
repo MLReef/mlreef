@@ -1,35 +1,124 @@
 import { EXTERNAL_ROOT_URL } from 'apiConfig';
-import CodeProjectPublishingApi from 'apis/CodeProjectPublishing';
+import uuidv1 from 'uuid/v1';
+import CodeProjectPublishingApi from './apiMocks/CodeProjectPublishing.spike.ts';
+import CommitsApiMock from './apiMocks/CommitMocks.spike.ts';
+import ProjectApiMockSpike from './apiMocks/ProjectApiMock.spike.ts';
+import UserApi from './apiMocks/UserApi.ts';
 
 const api = new CodeProjectPublishingApi();
+const userApi = new UserApi();
+const projectApi = new ProjectApiMockSpike();
+const commitsApiMock = new CommitsApiMock();
 
-describe('Can request all the Stuffs from the API', () => {
+test('Can create new user, new code project, commit file and publish code project', async () => {
   console.log('##########################################################');
-  console.log('##########################################################');
+  console.log('#                                                        #');
   console.log(`Running end2end tests against ${EXTERNAL_ROOT_URL}`);
-  it('should load projects data', () => api.publishCodeProject(
-    'https://mlreef.com',
-  )
-    .then((data) => {
-      expect(data).toBeDefined();
-    }));
+  console.log('#                                                        #');
+  console.log('##########################################################');
 
-  // Example test for Rainer, I have an idea, please try to use the actions instead
-  // of the api directly. they are connected to redux and the redux store
+  jest.setTimeout(30000);
+  // ------------- create the user ------------- //
+  const suffix = uuidv1().toString().split('-')[0];
+  const username = `TEST-Node.${suffix}`;
+  const password = 'password';
+  const email = `aqui.va.${suffix}@gmail.com`;
+  const registerData = {
+    username,
+    email,
+    password,
+    name: 'Test User Node',
+  };
+  const registerResp = await userApi.register(registerData);
+  expect(registerResp.ok).toBeTruthy();
 
-  // describe('asert that state changes', () => {
-  //   let store;
-  //   beforeEach(() => {
-  //     store = storeFactory({ jobs: [], });
-  //   });
-  //   test('assert that this action updates the jobs array in redux', () => {
-  //     const expectedMockArr = [jobMock];
-  //     store.dispatch(jobsActions.setJobsSuccesfully(expectedMockArr));
-  //     expect(store.getState().jobs).toStrictEqual(expectedMockArr);
-  //   });
-  // });
-  /*
-    test('assert that this action updates the branches array in redux', () => {
-        assert response code == 200
-  */
+  //
+  // ----------- login with the user ----------- //
+  const loginData = {
+    username,
+    email,
+    password,
+  };
+  const loginResp = await userApi.login(loginData);
+  expect(loginResp.ok).toBe(true);
+  const resgistrationBody = await loginResp.json();
+  expect(resgistrationBody.access_token).toBeDefined();
+
+  const headers = {
+    'Content-type': 'Application/json',
+    'PRIVATE-TOKEN': `Bearer ${resgistrationBody.access_token}`,
+    Authorization: `Bearer ${resgistrationBody.access_token}`,
+  };
+
+  //
+  // ----------- create a new project ----------- //
+  //
+  const body = JSON.stringify({
+    name: 'Just a testing project 1',
+    slug: 'just-a-testing-project-1',
+    namespace: 'andres.ausecha',
+    initialize_with_readme: true,
+    description: '',
+    visibility: 'public',
+    input_data_types: [],
+  });
+  const projectCreationResp = await projectApi.create(headers, body);
+  const creationProjRespBody = await projectCreationResp.json();
+  expect(projectCreationResp.ok).toBeTruthy();
+
+  const { id: projectId, gitlab_id: gid } = creationProjRespBody;
+
+  //
+  // -------- Commit the project recently created -------- //
+  //
+  const commitResp = await commitsApiMock.performCommit(
+    gid,
+    'README.md',
+    `File committed by ${username}`,
+    'master',
+    'some message',
+    'update',
+    'text',
+    headers,
+  );
+
+  expect(commitResp.ok).toBeTruthy();
+
+  //
+  // -------- Publish the Project -------- //
+  //
+  const publishingRes = await api.publish(
+    headers,
+    projectId,
+    JSON.stringify({
+      name: 'Just a testing project 1',
+      slug: 'just-a-testing-project-1',
+      namespace: 'andres.ausecha',
+      initialize_with_readme: true,
+      description: '',
+      visibility: 'public',
+      input_data_types: [],
+    }),
+  );
+
+  console.log('################### Publishing Response');
+  console.log(publishingRes);
+  console.log('################### Publishing Response Body');
+  console.log(await publishingRes.json());
+  expect(publishingRes.ok).toBeTruthy();
+
+  //
+  // -------- Verify Publishing status -------- //
+  //
+  console.log('################### Get Project');
+  const projectReadResponse = await projectApi.get(headers, projectId);
+  expect(projectReadResponse.ok).toBeTruthy();
+  console.log(await projectReadResponse.json());
+
+  //
+  // -------- Remove project at the end of the test -------- //
+  //  At least removing the project automatically we do not fill the database of garbage
+  //
+//  const projDeletionResp = await projectApi.delete(projectId, headers);
+//  expect(projDeletionResp.ok).toBeTruthy();
 });

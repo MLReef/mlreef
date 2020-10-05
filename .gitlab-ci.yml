@@ -140,6 +140,42 @@ end2end tests - node:
   script: web/bin/ci-run-end2end-tests
 
 
+.system-tests:
+  extends: [".except-docu-branches"]
+  except:
+    refs:
+      - develop
+      - master
+  stage: test
+  image: java:8
+  services:
+    - docker:19.03.0-dind
+  cache:
+    key: "$CI_COMMIT_BRANCH"
+    paths:
+      - .gradle/wrapper
+      - .gradle/caches
+  variables:
+    DOCKER_HOST: "tcp://docker:2375"  # gitlab needs this to support docker testcontainers
+    DOCKER_DRIVER: overlay2           # gitlab needs this to support docker testcontainers
+    DOCKER_TLS_CERTDIR: ""            # "/certs" gitlab needs this to support docker testcontainers
+
+system tests:
+  extends: [".system-tests"]
+  allow_failure: false
+  stage: test
+  when: delayed
+  start_in: 3 minutes
+  script: backend/bin/ci-system-test-backend.sh
+
+pipeline tests:
+  extends: [".system-tests"]
+  allow_failure: true
+  stage: test
+  when: manual
+  script: backend/bin/ci-pipeline-test-backend.sh
+
+
 test rest docs are present:
   extends: [.except-docu-branches]
   stage: test
