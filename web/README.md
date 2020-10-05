@@ -1,4 +1,29 @@
-# MLreef front-end guidelines
+React Web App
+=============
+
+This module contains the MLReef frontend web app which is implemented as a [REACT Web App](https://reactjs.org/).
+
+
+Getting Started for Frontend Development
+--------------------
+### Setup your developer environment
+* Install Node (10.16.0 LTS)
+  * Windows [link](https://nodejs.org/en/download/)
+  * **OSX:**
+  ```shell script
+  # install homebrew
+  /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+  # use homebrew to install node
+  brew install node`
+  ```
+* Install react scripts `npm install --global react-scripts`
+
+### Download Dependencies
+Install all frontend dependencies with npm: `npm install`
+
+### Run Locally
+You can start the frontend application locally with npm, using the `npm start` command. 
+
 
 ## Project structure
 
@@ -11,7 +36,7 @@
 * The "CSS" folder should only contain general styles that can be used everywhere.
 * "functions" folder contains abstract operations like conversions, math calculations, validations and other logic which is used in modules but separated for readability purposes
 
-## Files naming
+## File naming
 
 * Tests are always in "src/\__tests\__" folder, files in this folder must always finish with ".test.js"
 * Camel case will be used throughout the project for files(except for some configuration files that have to be named in other ways), for folder the words should be separated by "-"
