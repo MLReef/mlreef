@@ -117,14 +117,14 @@ class ProjectsApiTest : AbstractRestApiTest() {
         //FIXME hard to maintain
         val project1 = DataProject(id1, "slug-1", "www.url.com", "Test Project 1", "description", subject.id, "group1", "project-1", 1, VisibilityScope.PUBLIC, listOf())
         val project2 = DataProject(id2, "slug-2", "www.url.net", "Test Project 2", "description", subject.id, "group2", "project-2", 2, VisibilityScope.PUBLIC, listOf())
-        val project3 = DataProject(id3, "slug-3", "www.url.xyz", "Test Project 3", "description", subject2.id, "group3", "project-3", 3, VisibilityScope.PUBLIC, listOf())
+        val project3 = DataProject(id3, "slug-3", "www.url.xyz", "Test Project 3", "description", subject2.id, "group3", "project-3", 3, VisibilityScope.PRIVATE, listOf())
         dataProjectRepository.save(project1)
         dataProjectRepository.save(project2)
         dataProjectRepository.save(project3)
 
         val project4 = CodeProject(id4, "slug-4", "www.url.com", "Test Code Project 1", "description", subject.id, "group4", "project-4", 4)
         val project5 = CodeProject(id5, "slug-5", "www.url.net", "Test Code Project 2", "description", subject.id, "group5", "project-5", 5)
-        val project6 = CodeProject(id6, "slug-6", "www.url.xyz", "Test Code Project 3", "description", subject2.id, "group6", "project-6", 6)
+        val project6 = CodeProject(id6, "slug-6", "www.url.xyz", "Test Code Project 3", "description", subject2.id, "group6", "project-6", 6, VisibilityScope.PRIVATE)
         codeProjectRepository.save(project4)
         codeProjectRepository.save(project5)
         codeProjectRepository.save(project6)
@@ -926,10 +926,10 @@ class ProjectsApiTest : AbstractRestApiTest() {
     fun `Can retrieve accessible Projects with |`() {
         val project1 = dataProjectRepository.save(DataProject(randomUUID(), "slug-1", "www.url.com", "Test Project 1", "description", subject.id, "group1", "project-1", 1, VisibilityScope.PUBLIC, listOf()))
         val project2 = dataProjectRepository.save(DataProject(randomUUID(), "slug-2", "www.url.net", "Test Project 2", "description", subject.id, "group2", "project-2", 2, VisibilityScope.PUBLIC, listOf()))
-        dataProjectRepository.save(DataProject(randomUUID(), "slug-3", "www.url.xyz", "Test Project 3", "description", subject2.id, "group3", "project-3", 3, VisibilityScope.PUBLIC, listOf()))
-        val project4 = codeProjectRepository.save(CodeProject(randomUUID(), "slug-4", "www.url.com", "Test Code Project 1", "description", subject.id, "group4", "project-4", 4))
-        val project5 = codeProjectRepository.save(CodeProject(randomUUID(), "slug-5", "www.url.net", "Test Code Project 2", "description", subject.id, "group5", "project-5", 5))
-        codeProjectRepository.save(CodeProject(randomUUID(), "slug-6", "www.url.xyz", "Test Code Project 3", "description", subject2.id, "group6", "project-6", 6))
+        dataProjectRepository.save(DataProject(randomUUID(), "slug-3", "www.url.xyz", "Test Project 3", "description", subject2.id, "group3", "project-3", 3, VisibilityScope.PRIVATE, listOf()))
+        val project4 = codeProjectRepository.save(CodeProject(randomUUID(), "slug-4", "www.url.com", "Test Code Project 1", "description", subject.id, "group4", "project-4", 4, VisibilityScope.PRIVATE))
+        val project5 = codeProjectRepository.save(CodeProject(randomUUID(), "slug-5", "www.url.net", "Test Code Project 2", "description", subject.id, "group5", "project-5", 5, VisibilityScope.PRIVATE))
+        codeProjectRepository.save(CodeProject(randomUUID(), "slug-6", "www.url.xyz", "Test Code Project 3", "description", subject2.id, "group6", "project-6", 6, VisibilityScope.PRIVATE))
 
         this.mockGetUserProjectsList(listOf(project1.id, project2.id, project4.id, project5.id), account, AccessLevel.OWNER)
 

@@ -23,9 +23,8 @@ import com.mlreef.rest.external_api.gitlab.TokenDetails
 import com.mlreef.rest.feature.data_processors.DataProcessorService
 import com.mlreef.rest.feature.project.ProjectService
 import com.mlreef.rest.marketplace.SearchableTag
-import org.springframework.data.domain.Page
-import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.Pageable
+import org.springframework.data.web.PageableDefault
 import org.springframework.http.HttpStatus
 import org.springframework.security.access.prepost.PostAuthorize
 import org.springframework.security.access.prepost.PostFilter
@@ -49,42 +48,126 @@ import javax.validation.constraints.NotEmpty
 @RestController
 @RequestMapping(value = ["/api/v1/projects", "/api/v1/data-projects", "/api/v1/code-projects"])
 class ProjectsController(
-        private val projectService: ProjectService<Project>,
-        private val dataProjectService: ProjectService<DataProject>,
-        private val codeProjectService: ProjectService<CodeProject>,
-        private val dataProcessorService: DataProcessorService
+    private val projectService: ProjectService<Project>,
+    private val dataProjectService: ProjectService<DataProject>,
+    private val codeProjectService: ProjectService<CodeProject>,
+    private val dataProcessorService: DataProcessorService
 ) {
+    companion object {
+        private const val MAX_PAGE_SIZE = 2000
+    }
 
     @GetMapping
-    fun getAllAccessibleProjects(person: Person, profile: TokenDetails?): List<ProjectDto> {
-        val idMap = profile?.projects?.keys ?: listOf()
-        // TODO: provide paging sometimes
-        return projectService.getAllAccessibleProjectsByIds(Pageable.unpaged(), idMap).map { it.toDto() }
+    fun getAllAccessibleProjects(
+        profile: TokenDetails,
+        @PageableDefault(size = MAX_PAGE_SIZE) pageable: Pageable
+    ): Iterable<ProjectDto> {
+        val projectsPage = projectService.getAllProjectsAccessibleByUser(profile, pageable)
+
+        return if (pageable.pageSize == MAX_PAGE_SIZE) {
+            projectsPage.content.map { it.toDto() }
+        } else {
+            projectsPage.map { it.toDto() }
+        }
     }
 
     @GetMapping("/starred")
-    fun getAllAccessibleStarredProjects(person: Person, profile: TokenDetails?): List<ProjectDto> {
-        val idMap = profile?.projects?.keys ?: listOf()
-        return projectService.getAllAccessibleStarredProjectsByIds(person.id, Pageable.unpaged(), idMap).map { it.toDto() }
+    fun getAllAccessibleStarredProjects(
+        profile: TokenDetails,
+        @PageableDefault(size = MAX_PAGE_SIZE) pageable: Pageable
+    ): Iterable<ProjectDto> {
+        val projectsPage = projectService.getAllProjectsStarredByUser(profile, pageable)
+
+        return if (pageable.pageSize == MAX_PAGE_SIZE) {
+            projectsPage.content.map { it.toDto() }
+        } else {
+            projectsPage.map { it.toDto() }
+        }
     }
 
     @GetMapping("/own")
-    fun getOwnProjects(person: Person): List<ProjectDto> {
-        return projectService.getOwnProjectsOfUser(person.id).map { it.toDto() }
+    fun getOwnProjects(
+        profile: TokenDetails,
+        @PageableDefault(size = MAX_PAGE_SIZE) pageable: Pageable
+    ): Iterable<ProjectDto> {
+        val projectsPage = projectService.getOwnProjectsOfUser(profile, pageable)
+
+        return if (pageable.pageSize == MAX_PAGE_SIZE) {
+            projectsPage.content.map { it.toDto() }
+        } else {
+            projectsPage.map { it.toDto() }
+        }
     }
 
     @GetMapping("/my")
-    fun getMyProjects(person: Person, profile: TokenDetails?): List<ProjectDto> {
-        val idMap = profile?.projects?.keys ?: listOf()
-        return projectService.getProjectsSharedWithUser(person.id, idMap).map { it.toDto() }
+    fun getMyProjects(
+        profile: TokenDetails,
+        @PageableDefault(size = MAX_PAGE_SIZE) pageable: Pageable
+    ): Iterable<ProjectDto> {
+        val projectsPage = projectService.getAllProjectsUserMemberIn(profile, pageable)
+
+        return if (pageable.pageSize == MAX_PAGE_SIZE) {
+            projectsPage.content.map { it.toDto() }
+        } else {
+            projectsPage.map { it.toDto() }
+        }
     }
 
     @GetMapping("/public")
-    fun getPublicProjectsPaged(pageable: Pageable): Page<ProjectDto> {
-        val list = projectService.getAllPublicProjects(pageable).map { it.toDto() }
-        return PageImpl(list, pageable, list.size.toLong())
+    fun getPublicProjectsPaged(
+        @PageableDefault(size = MAX_PAGE_SIZE) pageable: Pageable
+    ): Iterable<ProjectDto> {
+        val projectsPage = projectService.getAllPublicProjectsOnly(pageable)
+
+        return if (pageable.pageSize == MAX_PAGE_SIZE) {
+            projectsPage.content.map { it.toDto() }
+        } else {
+            projectsPage.map { it.toDto() }
+        }
     }
 
+    @Deprecated("currently not used")
+    @GetMapping("/namespace/{namespace}")
+    @PostFilter("postCanViewProject()")
+    fun getProjectsByNamespace(
+        @PathVariable namespace: String,
+        @PageableDefault(size = MAX_PAGE_SIZE) pageable: Pageable,
+    ): Iterable<ProjectDto> {
+        val projectsPage = projectService.getProjectsByNamespace(namespace)
+
+        return if (pageable.pageSize == MAX_PAGE_SIZE) {
+            projectsPage.content.map { it.toDto() }
+        } else {
+            projectsPage.map { it.toDto() }
+        }
+    }
+
+    @GetMapping("/slug/{slug}")
+    @PostFilter("postCanViewProject()")
+    fun getProjectBySlug(
+        @PathVariable slug: String,
+        @PageableDefault(size = MAX_PAGE_SIZE) pageable: Pageable,
+    ): Iterable<ProjectDto> {
+        val projectsPage = projectService.getProjectsBySlug(slug)
+
+        return if (pageable.pageSize == MAX_PAGE_SIZE) {
+            projectsPage.content.map { it.toDto() }
+        } else {
+            projectsPage.map { it.toDto() }
+        }
+    }
+
+    @GetMapping("/{id}/users")
+    @PreAuthorize("canViewProject(#id)")
+    fun getUsersInDataProjectById(
+        @PathVariable id: UUID
+    ): List<UserInProjectDto> {
+        val usersInProject = projectService.getUsersInProject(id)
+        return usersInProject.map { it.toDto() }
+    }
+
+
+    @Deprecated("To be deleted, /public endpoints is doing the same")
     @GetMapping("/public/all")
     fun getPublicProjectsUnpaged(): List<ProjectDto> {
         val allPublicProjects = projectService.getAllPublicProjects()
@@ -98,27 +181,13 @@ class ProjectsController(
         return project.toDto()
     }
 
-    @Deprecated("currently not used")
-    @GetMapping("/namespace/{namespace}")
-    @PostFilter("postCanViewProject()")
-    fun getProjectsByNamespace(@PathVariable namespace: String): List<ProjectDto> {
-        val projects = projectService.getProjectsByNamespace(namespace)
-        return projects.map { it.toDto() }
-    }
-
-    @GetMapping("/slug/{slug}")
-    @PostFilter("postCanViewProject()")
-    fun getProjectBySlug(@PathVariable slug: String): List<ProjectDto> {
-        val projects = projectService.getProjectsBySlug(slug)
-        return projects.map { it.toDto() }
-    }
 
     @PostMapping("/{id}/star")
     @PreAuthorize("canViewProject(#id)")
     fun starProjectById(
-            @PathVariable id: UUID,
-            person: Person,
-            token: TokenDetails
+        @PathVariable id: UUID,
+        person: Person,
+        token: TokenDetails
     ): ProjectDto {
         val project = projectService.starProject(id, person = person, userToken = token.accessToken)
         return project.toDto()
@@ -127,9 +196,9 @@ class ProjectsController(
     @DeleteMapping("/{id}/star")
     @PreAuthorize("canViewProject(#id)")
     fun unstarProjectById(
-            @PathVariable id: UUID,
-            person: Person,
-            token: TokenDetails
+        @PathVariable id: UUID,
+        person: Person,
+        token: TokenDetails
     ): ProjectDto {
         val project = projectService.unstarProject(id, person = person, userToken = token.accessToken)
         return project.toDto()
@@ -139,10 +208,10 @@ class ProjectsController(
     @PreAuthorize("canCreateProject()")
     @Suppress("UNCHECKED_CAST")
     fun <T : ProjectDto> createProject(
-            @Valid @RequestBody projectCreateRequest: ProjectCreateRequest,
-            request: HttpServletRequest,
-            token: TokenDetails,
-            person: Person): T {
+        @Valid @RequestBody projectCreateRequest: ProjectCreateRequest,
+        request: HttpServletRequest,
+        token: TokenDetails,
+        person: Person): T {
 
         if (request.requestURL.contains("data-project")) {
             return this.createDataProject(projectCreateRequest, token, null, person) as T
@@ -161,20 +230,20 @@ class ProjectsController(
                           person: Person): DataProjectDto {
 
         if ((request?.requestURL?.contains("data-project") == true)
-                || (request?.requestURL?.contains("code-project")) == true) {
+            || (request?.requestURL?.contains("code-project")) == true) {
             throw RestException(ErrorCode.NotFound)
         }
 
         val dataProject = dataProjectService.createProject(
-                userToken = token.accessToken,
-                ownerId = person.id,
-                projectSlug = dataProjectCreateRequest.slug,
-                projectNamespace = dataProjectCreateRequest.namespace,
-                projectName = dataProjectCreateRequest.name,
-                description = dataProjectCreateRequest.description,
-                initializeWithReadme = dataProjectCreateRequest.initializeWithReadme,
-                visibility = dataProjectCreateRequest.visibility,
-                inputDataTypes = dataProjectCreateRequest.inputDataTypes
+            userToken = token.accessToken,
+            ownerId = person.id,
+            projectSlug = dataProjectCreateRequest.slug,
+            projectNamespace = dataProjectCreateRequest.namespace,
+            projectName = dataProjectCreateRequest.name,
+            description = dataProjectCreateRequest.description,
+            initializeWithReadme = dataProjectCreateRequest.initializeWithReadme,
+            visibility = dataProjectCreateRequest.visibility,
+            inputDataTypes = dataProjectCreateRequest.inputDataTypes
         )
 
         return dataProject.toDto()
@@ -188,20 +257,20 @@ class ProjectsController(
                           person: Person): CodeProjectDto {
 
         if ((request?.requestURL?.contains("data-project") == true)
-                || (request?.requestURL?.contains("code-project")) == true) {
+            || (request?.requestURL?.contains("code-project")) == true) {
             throw RestException(ErrorCode.NotFound)
         }
 
         val codeProject = codeProjectService.createProject(
-                userToken = token.accessToken,
-                ownerId = person.id,
-                projectSlug = codeProjectCreateRequest.slug,
-                projectName = codeProjectCreateRequest.name,
-                projectNamespace = codeProjectCreateRequest.namespace,
-                description = codeProjectCreateRequest.description,
-                visibility = codeProjectCreateRequest.visibility,
-                initializeWithReadme = codeProjectCreateRequest.initializeWithReadme,
-                inputDataTypes = codeProjectCreateRequest.inputDataTypes
+            userToken = token.accessToken,
+            ownerId = person.id,
+            projectSlug = codeProjectCreateRequest.slug,
+            projectName = codeProjectCreateRequest.name,
+            projectNamespace = codeProjectCreateRequest.namespace,
+            description = codeProjectCreateRequest.description,
+            visibility = codeProjectCreateRequest.visibility,
+            initializeWithReadme = codeProjectCreateRequest.initializeWithReadme,
+            inputDataTypes = codeProjectCreateRequest.inputDataTypes
         )
         return codeProject.toDto()
     }
@@ -213,15 +282,15 @@ class ProjectsController(
                       token: TokenDetails,
                       person: Person): ProjectDto {
         val codeProject = projectService.updateProject(
-                userToken = token.accessToken,
-                ownerId = person.id,
-                projectUUID = id,
-                projectName = projectUpdateRequest.name,
-                description = projectUpdateRequest.description,
-                visibility = projectUpdateRequest.visibility,
-                inputDataTypes = projectUpdateRequest.inputDataTypes,
-                outputDataTypes = projectUpdateRequest.outputDataTypes,
-                tags = projectUpdateRequest.tags
+            userToken = token.accessToken,
+            ownerId = person.id,
+            projectUUID = id,
+            projectName = projectUpdateRequest.name,
+            description = projectUpdateRequest.description,
+            visibility = projectUpdateRequest.visibility,
+            inputDataTypes = projectUpdateRequest.inputDataTypes,
+            outputDataTypes = projectUpdateRequest.outputDataTypes,
+            tags = projectUpdateRequest.tags
         )
 
         return codeProject.toDto()
@@ -231,32 +300,25 @@ class ProjectsController(
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @PreAuthorize("isProjectOwner(#id)")
     fun deleteProject(
-            @PathVariable id: UUID,
-            token: TokenDetails,
-            person: Person) {
+        @PathVariable id: UUID,
+        token: TokenDetails,
+        person: Person) {
         projectService.deleteProject(
-                userToken = token.accessToken,
-                ownerId = person.id,
-                projectUUID = id)
+            userToken = token.accessToken,
+            ownerId = person.id,
+            projectUUID = id)
     }
 
-    @GetMapping("/{id}/users")
-    @PreAuthorize("canViewProject(#id)")
-    fun getUsersInDataProjectById(@PathVariable id: UUID): List<UserInProjectDto> {
-        val usersInProject = projectService.getUsersInProject(id)
-        return usersInProject.map { it.toDto() }
-    }
 
-    // FIXME: Something is strange here: 405 Method not allowed..
     @PostMapping("/{id}/users")
     @PreAuthorize("hasAccessToProject(#id, 'MAINTAINER')")
     fun addUsersToDataProjectById(
-            @PathVariable id: UUID,
-            @RequestBody(required = false) body: ProjectUserMembershipRequest? = null,
-            @RequestParam(value = "user_id", required = false) userId: UUID?,
-            @RequestParam(value = "gitlab_id", required = false) userGitlabId: Long?,
-            @RequestParam(value = "level", required = false) level: String?,
-            @RequestParam(value = "expires_at", required = false) expiresAt: Instant?): List<UserInProjectDto> {
+        @PathVariable id: UUID,
+        @RequestBody(required = false) body: ProjectUserMembershipRequest? = null,
+        @RequestParam(value = "user_id", required = false) userId: UUID?,
+        @RequestParam(value = "gitlab_id", required = false) userGitlabId: Long?,
+        @RequestParam(value = "level", required = false) level: String?,
+        @RequestParam(value = "expires_at", required = false) expiresAt: Instant?): List<UserInProjectDto> {
 
         val accessLevelStr = body?.level ?: level
         val accessLevel = if (accessLevelStr != null) AccessLevel.parse(accessLevelStr) else null
@@ -265,11 +327,11 @@ class ProjectsController(
         val currentExpiration = body?.expiresAt ?: expiresAt
 
         projectService.addUserToProject(
-                projectUUID = id,
-                userId = currentUserId,
-                userGitlabId = currentUserGitlabId,
-                accessLevel = accessLevel,
-                accessTill = currentExpiration
+            projectUUID = id,
+            userId = currentUserId,
+            userGitlabId = currentUserGitlabId,
+            accessLevel = accessLevel,
+            accessTill = currentExpiration
         )
 
         return getUsersInDataProjectById(id)
@@ -278,12 +340,12 @@ class ProjectsController(
     @PostMapping("/{id}/groups")
     @PreAuthorize("hasAccessToProject(#id, 'MAINTAINER')")
     fun addGroupsToDataProjectById(
-            @PathVariable id: UUID,
-            @RequestBody(required = false) body: ProjectGroupMembershipRequest? = null,
-            @RequestParam(value = "group_id", required = false) groupId: UUID?,
-            @RequestParam(value = "gitlab_id", required = false) gitlabId: Long?,
-            @RequestParam(value = "level", required = false) level: String?,
-            @RequestParam(value = "expires_at", required = false) expiresAt: Instant?): List<UserInProjectDto> {
+        @PathVariable id: UUID,
+        @RequestBody(required = false) body: ProjectGroupMembershipRequest? = null,
+        @RequestParam(value = "group_id", required = false) groupId: UUID?,
+        @RequestParam(value = "gitlab_id", required = false) gitlabId: Long?,
+        @RequestParam(value = "level", required = false) level: String?,
+        @RequestParam(value = "expires_at", required = false) expiresAt: Instant?): List<UserInProjectDto> {
 
         val accessLevelStr = body?.level ?: level
         val accessLevel = if (accessLevelStr != null) AccessLevel.parse(accessLevelStr) else null
@@ -292,11 +354,11 @@ class ProjectsController(
         val currentExpiration = body?.expiresAt ?: expiresAt
 
         projectService.addGroupToProject(
-                projectUUID = id,
-                groupId = currentGroupId,
-                groupGitlabId = currentGitlabId,
-                accessLevel = accessLevel,
-                accessTill = currentExpiration
+            projectUUID = id,
+            groupId = currentGroupId,
+            groupGitlabId = currentGitlabId,
+            accessLevel = accessLevel,
+            accessTill = currentExpiration
         )
 
         return getUsersInDataProjectById(id)
@@ -306,9 +368,9 @@ class ProjectsController(
     @DeleteMapping("/{id}/users")
     @PreAuthorize("hasAccessToProject(#id, 'MAINTAINER')")
     fun deleteUsersFromDataProjectById(
-            @PathVariable id: UUID,
-            @RequestParam(value = "user_id", required = false) userId: UUID?,
-            @RequestParam(value = "gitlab_id", required = false) gitlabId: Long?): List<UserInProjectDto> {
+        @PathVariable id: UUID,
+        @RequestParam(value = "user_id", required = false) userId: UUID?,
+        @RequestParam(value = "gitlab_id", required = false) gitlabId: Long?): List<UserInProjectDto> {
         projectService.deleteUserFromProject(projectUUID = id, userId = userId, userGitlabId = gitlabId)
         return getUsersInDataProjectById(id)
     }
@@ -324,9 +386,9 @@ class ProjectsController(
     @DeleteMapping("/{id}/groups")
     @PreAuthorize("hasAccessToProject(#id, 'MAINTAINER')")
     fun deleteGroupFromDataProjectById(
-            @PathVariable id: UUID,
-            @RequestParam(value = "group_id", required = false) groupId: UUID?,
-            @RequestParam(value = "gitlab_id", required = false) gitlabId: Long?): List<UserInProjectDto> {
+        @PathVariable id: UUID,
+        @RequestParam(value = "group_id", required = false) groupId: UUID?,
+        @RequestParam(value = "gitlab_id", required = false) gitlabId: Long?): List<UserInProjectDto> {
         projectService.deleteGroupFromProject(projectUUID = id, groupId = groupId, groupGitlabId = gitlabId)
         return getUsersInDataProjectById(id)
     }
@@ -337,7 +399,7 @@ class ProjectsController(
     @PostAuthorize("postCanViewProject()")
     fun getProjectsByNamespaceAndSlugInPath(@PathVariable namespace: String, @PathVariable slug: String): ProjectDto {
         val project = projectService.getProjectsByNamespaceAndPath(namespace, slug)
-                ?: throw ProjectNotFoundException(path = "$namespace/$slug")
+            ?: throw ProjectNotFoundException(path = "$namespace/$slug")
         return project.toDto()
     }
 
@@ -349,7 +411,7 @@ class ProjectsController(
         val projectId = getProjectIdByNamespaceAndSlug(namespace, slug)
 
         val dataProcessor = dataProcessorService.getProcessorByProjectId(projectId)
-                ?: throw NotFoundException(ErrorCode.NotFound, "processor not found: $namespace/$slug")
+            ?: throw NotFoundException(ErrorCode.NotFound, "processor not found: $namespace/$slug")
 
         return dataProcessor.toDto()
     }
@@ -383,39 +445,39 @@ class ProjectsController(
 
     private fun getProjectIdByNamespaceAndSlug(namespace: String, slug: String): UUID {
         return projectService.getProjectsByNamespaceAndPath(namespace, slug)?.id
-                ?: throw ProjectNotFoundException(path = "$namespace/$slug")
+            ?: throw ProjectNotFoundException(path = "$namespace/$slug")
     }
 }
 
 class ProjectCreateRequest(
-        @NotEmpty val slug: String,
-        @NotEmpty val namespace: String,
-        @NotEmpty val name: String,
-        @NotEmpty val description: String,
-        @NotEmpty val initializeWithReadme: Boolean,
-        val inputDataTypes: List<DataType> = listOf(),
-        val visibility: VisibilityScope = VisibilityScope.PUBLIC
+    @NotEmpty val slug: String,
+    @NotEmpty val namespace: String,
+    @NotEmpty val name: String,
+    @NotEmpty val description: String,
+    @NotEmpty val initializeWithReadme: Boolean,
+    val inputDataTypes: List<DataType> = listOf(),
+    val visibility: VisibilityScope = VisibilityScope.PUBLIC
 )
 
 class ProjectUpdateRequest(
-        @NotEmpty val name: String,
-        @NotEmpty val description: String,
-        val visibility: VisibilityScope? = null,
-        val inputDataTypes: List<DataType>? = null,
-        val outputDataTypes: List<DataType>? = null,
-        val tags: List<SearchableTag>? = null
+    @NotEmpty val name: String,
+    @NotEmpty val description: String,
+    val visibility: VisibilityScope? = null,
+    val inputDataTypes: List<DataType>? = null,
+    val outputDataTypes: List<DataType>? = null,
+    val tags: List<SearchableTag>? = null
 )
 
 class ProjectUserMembershipRequest(
-        val userId: UUID? = null,
-        val gitlabId: Long? = null,
-        val level: String? = null,
-        val expiresAt: Instant? = null
+    val userId: UUID? = null,
+    val gitlabId: Long? = null,
+    val level: String? = null,
+    val expiresAt: Instant? = null
 )
 
 class ProjectGroupMembershipRequest(
-        val groupId: UUID? = null,
-        val gitlabId: Long? = null,
-        val level: String? = null,
-        val expiresAt: Instant? = null
+    val groupId: UUID? = null,
+    val gitlabId: Long? = null,
+    val level: String? = null,
+    val expiresAt: Instant? = null
 )

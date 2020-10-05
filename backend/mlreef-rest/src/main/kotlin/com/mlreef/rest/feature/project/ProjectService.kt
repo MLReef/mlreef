@@ -1,12 +1,44 @@
 package com.mlreef.rest.feature.project
 
-import com.mlreef.rest.*
+import com.mlreef.rest.AccessLevel
+import com.mlreef.rest.Account
+import com.mlreef.rest.AccountRepository
+import com.mlreef.rest.CodeProject
+import com.mlreef.rest.CodeProjectRepository
+import com.mlreef.rest.DataProject
+import com.mlreef.rest.DataProjectRepository
+import com.mlreef.rest.DataType
+import com.mlreef.rest.Group
+import com.mlreef.rest.GroupRepository
+import com.mlreef.rest.Person
+import com.mlreef.rest.Project
+import com.mlreef.rest.ProjectBaseRepository
+import com.mlreef.rest.ProjectRepository
+import com.mlreef.rest.SubjectRepository
+import com.mlreef.rest.VisibilityScope
 import com.mlreef.rest.annotations.RefreshGroupInformation
 import com.mlreef.rest.annotations.RefreshProject
 import com.mlreef.rest.annotations.RefreshUserInformation
-import com.mlreef.rest.exceptions.*
-import com.mlreef.rest.external_api.gitlab.*
+import com.mlreef.rest.exceptions.BadParametersException
+import com.mlreef.rest.exceptions.ConflictException
+import com.mlreef.rest.exceptions.ErrorCode
+import com.mlreef.rest.exceptions.GitlabCommonException
+import com.mlreef.rest.exceptions.GroupNotFoundException
+import com.mlreef.rest.exceptions.ProjectCreationException
+import com.mlreef.rest.exceptions.ProjectNotFoundException
+import com.mlreef.rest.exceptions.RestException
+import com.mlreef.rest.exceptions.UnknownGroupException
+import com.mlreef.rest.exceptions.UnknownProjectException
+import com.mlreef.rest.exceptions.UnknownUserException
+import com.mlreef.rest.exceptions.UserNotFoundException
+import com.mlreef.rest.external_api.gitlab.GitlabAccessLevel
+import com.mlreef.rest.external_api.gitlab.GitlabRestClient
+import com.mlreef.rest.external_api.gitlab.NamespaceKind
+import com.mlreef.rest.external_api.gitlab.TokenDetails
 import com.mlreef.rest.external_api.gitlab.dto.GitlabProject
+import com.mlreef.rest.external_api.gitlab.toAccessLevel
+import com.mlreef.rest.external_api.gitlab.toGitlabAccessLevel
+import com.mlreef.rest.external_api.gitlab.toVisibilityScope
 import com.mlreef.rest.feature.caches.PublicProjectsCacheService
 import com.mlreef.rest.feature.system.ReservedNamesService
 import com.mlreef.rest.helpers.ProjectOfUser
@@ -16,24 +48,32 @@ import com.mlreef.utils.Slugs
 import org.slf4j.LoggerFactory
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.repository.findByIdOrNull
-import java.time.*
+import java.time.Instant
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.LocalTime
+import java.time.ZoneId
+import java.time.ZonedDateTime
 import java.util.UUID
 import java.util.UUID.randomUUID
 import javax.transaction.Transactional
 
 interface ProjectService<T : Project> {
     fun getAllPublicProjects(pageable: Pageable? = null): List<T>
-    fun getAllAccessibleProjectsByIds(pageable: Pageable, accessibleIds: Iterable<UUID>): List<T>
-    fun getAllAccessibleStarredProjectsByIds(subjectId: UUID, pageable: Pageable, accessibleIds: Iterable<UUID>): List<T>
-    fun getProjectsSharedWithUser(personId: UUID, accessibleIds: Iterable<UUID>): List<T>
-    fun getOwnProjectsOfUser(personId: UUID): List<T>
+
+    fun getAllPublicProjectsOnly(pageable: Pageable?): Page<T>
+    fun getAllProjectsAccessibleByUser(token: TokenDetails, pageable: Pageable? = null): Page<T>
+    fun getAllProjectsStarredByUser(token: TokenDetails, pageable: Pageable? = null): Page<T>
+    fun getOwnProjectsOfUser(token: TokenDetails, pageable: Pageable? = null): Page<T>
+    fun getAllProjectsUserMemberIn(token: TokenDetails, pageable: Pageable? = null): Page<T>
+    fun getProjectsByNamespace(namespaceName: String, pageable: Pageable? = null): Page<T>
+    fun getProjectsBySlug(slug: String, pageable: Pageable? = null): Page<T>
 
     fun getProjectById(projectId: UUID): T?
     fun getProjectByGitlabId(projectId: Long): T?
-    fun getProjectsByNamespace(namespaceName: String): List<T>
-    fun getProjectsBySlug(slug: String): List<T>
     fun getProjectsByNamespaceAndPath(namespaceName: String, slug: String): T?
     fun getUsersInProject(projectUUID: UUID): List<UserInProject>
 
@@ -165,6 +205,51 @@ open class ProjectServiceImpl<T : Project>(
         private val log = LoggerFactory.getLogger(this::class.java)
     }
 
+    override fun getAllProjectsAccessibleByUser(token: TokenDetails, pageable: Pageable?): Page<T> {
+        if (token.isVisitor) {
+            return repository.findAccessibleProjectsForVisitor(pageable)
+        } else {
+            return repository.findAccessibleProjectsForOwner(token.personId, token.projects.map { it.key }, pageable)
+        }
+    }
+
+    override fun getAllProjectsStarredByUser(token: TokenDetails, pageable: Pageable?): Page<T> {
+        if (token.isVisitor) {
+            return Page.empty(pageable ?: Pageable.unpaged())
+        } else {
+            return repository.findAccessibleStarredProjectsForUser(token.personId, token.projects.map { it.key }, pageable)
+        }
+    }
+
+    override fun getOwnProjectsOfUser(token: TokenDetails, pageable: Pageable?): Page<T> {
+        if (token.isVisitor) {
+            return Page.empty(pageable ?: Pageable.unpaged())
+        } else {
+            return repository.findAllByOwnerId(token.personId, pageable)
+        }
+    }
+
+    override fun getAllProjectsUserMemberIn(token: TokenDetails, pageable: Pageable?): Page<T> {
+        if (token.isVisitor) {
+            return Page.empty(pageable ?: Pageable.unpaged())
+        } else {
+            return repository.findAllByIdIn(token.projects.map { it.key }, pageable)
+        }
+    }
+
+    override fun getAllPublicProjectsOnly(pageable: Pageable?): Page<T> {
+        return repository.findAllByVisibilityScope(visibilityScope = VisibilityScope.PUBLIC, pageable = pageable)
+    }
+
+    override fun getProjectsByNamespace(namespaceName: String, pageable: Pageable?): Page<T> {
+        return repository.findByNamespaceLike("$namespaceName/", pageable)
+    }
+
+    override fun getProjectsBySlug(slug: String, pageable: Pageable?): Page<T> {
+        return repository.findBySlug(slug, pageable)
+    }
+
+
     override fun getAllPublicProjects(pageable: Pageable?): List<T> {
         val projectsIds = if (pageable != null)
             publicProjectsCacheService.getPublicProjectsIdsList(pageable).content
@@ -172,27 +257,6 @@ open class ProjectServiceImpl<T : Project>(
             publicProjectsCacheService.getPublicProjectsIdsList()
 
         return repository.findAllById(projectsIds).toList()
-    }
-
-
-    override fun getOwnProjectsOfUser(personId: UUID): List<T> {
-        return repository.findAllByOwnerId(personId)
-    }
-
-    override fun getAllAccessibleProjectsByIds(pageable: Pageable, accessibleIds: Iterable<UUID>): List<T> {
-        val projectsIds = publicProjectsCacheService.getPublicProjectsIdsList(pageable)
-        val addAll = projectsIds.plus(accessibleIds)
-        return repository.findAllById(addAll).toList()
-    }
-
-    override fun getAllAccessibleStarredProjectsByIds(subjectId: UUID, pageable: Pageable, accessibleIds: Iterable<UUID>): List<T> {
-        val projectsIds = publicProjectsCacheService.getPublicProjectsIdsList(pageable)
-        val addAll = projectsIds.plus(accessibleIds)
-        return repository.findAccessibleStarredProjects(subjectId, addAll, pageable).toList()
-    }
-
-    override fun getProjectsSharedWithUser(personId: UUID, accessibleIds: Iterable<UUID>): List<T> {
-        return repository.findAllById(accessibleIds).toList()
     }
 
     override fun getProjectById(projectId: UUID): T? {
@@ -225,13 +289,6 @@ open class ProjectServiceImpl<T : Project>(
         return repository.save(project.removeStar(person) as T)
     }
 
-    override fun getProjectsByNamespace(namespaceName: String): List<T> {
-        return repository.findByNamespace("$namespaceName/")
-    }
-
-    override fun getProjectsBySlug(slug: String): List<T> {
-        return repository.findBySlug(slug)
-    }
 
     override fun getProjectsByNamespaceAndPath(namespaceName: String, slug: String): T? {
         return repository.findByNamespaceAndPath(namespaceName, slug)
