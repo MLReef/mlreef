@@ -4,6 +4,7 @@ package com.mlreef.rest
 
 import com.mlreef.rest.marketplace.SearchableTag
 import com.mlreef.rest.marketplace.SearchableType
+import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.CrudRepository
@@ -146,9 +147,22 @@ interface ProjectRepositoryCustom {
 @Repository
 interface ProjectBaseRepository<T : Project> : CrudRepository<T, UUID> {
     fun findByGlobalSlugAndVisibilityScope(slug: String, visibilityScope: VisibilityScope): T?
-    fun findAllByVisibilityScope(visibilityScope: VisibilityScope, pageable: Pageable): List<T>
-    fun findAllByOwnerId(ownerId: UUID): List<T>
+//    fun findAllByVisibilityScope(visibilityScope: VisibilityScope, pageable: Pageable): List<T>
+    fun findAllByOwnerId(ownerId: UUID, pageable: Pageable?): Page<T>
     fun findOneByOwnerIdAndSlug(ownerId: UUID, slug: String): T?
+
+    @Query("select p from Project p WHERE p.ownerId=:ownerId OR p.visibilityScope=:scope or p.id in :projectIds")
+    fun findAccessibleProjectsForOwner(ownerId: UUID, projectIds:List<UUID>, pageable: Pageable?, scope: VisibilityScope = VisibilityScope.PUBLIC): Page<T>
+
+    @Query("select p from Project p WHERE p.visibilityScope=:scope")
+    fun findAccessibleProjectsForVisitor(pageable: Pageable?, scope: VisibilityScope = VisibilityScope.PUBLIC): Page<T>
+
+    @Query("select p from Project p JOIN Star s on s.projectId = p.id where (p.ownerId=:ownerId or p.visibilityScope=:scope OR p.id IN :ids) AND s.subjectId = :ownerId")
+    fun findAccessibleStarredProjectsForUser(ownerId: UUID, ids: List<UUID>, pageable: Pageable?, scope: VisibilityScope = VisibilityScope.PUBLIC): Page<T>
+
+    fun findAllByIdIn(ids: Iterable<UUID>, pageable: Pageable?): Page<T>
+
+    fun findAllByVisibilityScope(visibilityScope: VisibilityScope = VisibilityScope.PUBLIC, pageable: Pageable? = null): Page<T>
 
     @Query("select e from Project e JOIN Star s on s.projectId = e.id where e.id IN :ids AND s.subjectId = :ownerId")
     fun findAccessibleStarredProjects(ownerId: UUID, ids: List<UUID>, pageable: Pageable): List<T>
@@ -158,9 +172,13 @@ interface ProjectBaseRepository<T : Project> : CrudRepository<T, UUID> {
     @Query("SELECT p FROM Project p WHERE p.gitlabPathWithNamespace LIKE %:namespace%")
     fun findByNamespace(namespace: String): List<T>
 
+    @Query("SELECT p FROM Project p WHERE p.gitlabPathWithNamespace LIKE %:namespace%")
+    fun findByNamespaceLike(namespace: String, pageable: Pageable?): Page<T>
+
     @Query("SELECT p FROM Project p WHERE p.gitlabNamespace LIKE %:namespace% AND (p.gitlabPath LIKE %:path% OR p.slug LIKE %:path%)")
     fun findByNamespaceAndPath(namespace: String, path: String): T?
-    fun findBySlug(slug: String): List<T>
+
+    fun findBySlug(slug: String, pageable: Pageable?): Page<T>
 }
 
 @Repository
