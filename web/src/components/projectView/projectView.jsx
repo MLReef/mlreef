@@ -22,7 +22,7 @@ import * as userActions from '../../actions/userActions';
 import * as jobsActions from '../../actions/jobsActions';
 import * as mergeActions from '../../actions/mergeActions';
 import EmptyProject from './emptyProject';
-import ProjectLastCommitSect from './projectLastCommitSect';
+import ProjectLastCommitSect from './LastCommitSect';
 
 const isValidBranch = (branch) => branch !== 'null' && branch !== null && branch !== undefined;
 

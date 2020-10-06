@@ -2,6 +2,7 @@ import validateInputs, { validateProjectName, isJson } from 'functions/validatio
 import {
   STRING, FLOAT, INTEGER, BOOLEAN,
 } from 'dataTypes';
+import { handleResponse } from 'functions/apiCalls';
 import { parseDecimal } from '../functions/dataParserHelpers';
 
 describe('Parse decimal numbers', () => {
@@ -87,4 +88,36 @@ test('assert that "isJson" function tests correctly whether the param is a json 
   expect(isJson('my mom loves me')).toBe(false);
   expect(isJson([{ value: 'categorical' }, { value: 'binary' }, { value: 'sparse' }])).toBe(true);
   expect(isJson('[{"value":"categorical"},{"value":"binary"},{"value":"sparse"}]')).toBe(true);
+});
+
+describe('test the handleResponse function', () => {
+  test('assert that function returns only the response body when successful', async () => {
+    const bodyRes = { message: 'done' };
+    const json = () => new Promise((resolve) => resolve(bodyRes));
+    const mockedResp = {
+      ok: true, status: 200, statusText: 'Some successful request', json,
+    };
+    const handledResponse = await handleResponse(mockedResp);
+    expect(handledResponse).toBe(bodyRes);
+  });
+
+  test('assert that function returns undefined request does not contain body', async () => {
+    const mockedResp = {
+      ok: true, status: 204, statusText: 'Some successful request',
+    };
+    const handledResponse = await handleResponse(mockedResp);
+    expect(handledResponse).toBe(undefined);
+  });
+
+  test('assert that function returns an error when request is unsuccessful', async () => {
+    const statusText = 'Not found';
+    const bodyRes = { message: 'file not found' };
+    const json = () => new Promise((resolve) => resolve(bodyRes));
+    const mockedResp = {
+      ok: false, status: 404, statusText, json,
+    };
+    handleResponse(mockedResp).catch((error) => {
+      expect(error.name).toBe(statusText);
+    });
+  });
 });

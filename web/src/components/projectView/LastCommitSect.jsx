@@ -26,7 +26,7 @@ const ProjectLastCommitSect = ({
         .catch(() => toastr.error('Error', 'Error fetching last commit'));
     }
 
-    if (projectId && lastCommitId) {
+    if (projectId && lastCommitId !== 0) {
       getCommitDetails(projectId, lastCommitId)
         .then((res) => setLastCommit(parseToCamelCase(res)))
         .catch(() => toastr.error('Error', 'Error fetching last commit'));
@@ -92,10 +92,14 @@ ProjectLastCommitSect.defaultProps = {
 ProjectLastCommitSect.propTypes = {
   projectId: number.isRequired,
   branch: string.isRequired,
-  lastCommitId: number.isRequired,
+  lastCommitId: number,
   projectDefaultBranch: string.isRequired,
   users: arrayOf(shape({ name: string.isRequired })),
   testCommitData: shape({}),
+};
+
+ProjectLastCommitSect.defaultProps = {
+  lastCommitId: 0, // in the reality gitlab will never use 0 as commit id
 };
 
 export default ProjectLastCommitSect;

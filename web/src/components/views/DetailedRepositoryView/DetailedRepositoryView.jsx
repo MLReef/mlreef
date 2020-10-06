@@ -4,7 +4,7 @@ import { toastr } from 'react-redux-toastr';
 import './DetailedRepositoryView.scss';
 import Navbar from 'components/navbar/navbar';
 import MBreadcrumb from 'components/ui/MBreadcrumb';
-import ProjectLastCommitSect from 'components/projectView/projectLastCommitSect';
+import ProjectLastCommitSect from 'components/projectView/LastCommitSect';
 import FilesTable from 'components/files-table/filesTable';
 import FilesApi from 'apis/FilesApi';
 import {
