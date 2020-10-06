@@ -26,9 +26,7 @@ const SettingsViewGeneralAdvanced = (props) => {
       toastr.success(`Project ${name} deleted.`);
       history.push('/');
     })
-    .catch((error) => {
-      toastr.error(`Error while deleting ${name}`, error.message);
-    });
+    .catch((error) => toastr.error(`Error while deleting ${name}`, error.message));
 
   const onDeleteProject = () => {
     dispatch(closeModal());

@@ -7,8 +7,8 @@ const commitsApi = new CommitsApi();
 export const getCommits = (projectId, commitBranch) => commitsApi.getCommits(projectId, commitBranch, '', 1);
 
 export const getCommitDetails = (
-  projectId, 
-  commitId
+  projectId,
+  commitId,
 ) => commitsApi.getCommitDetails(projectId, commitId);
 
 export const getFileDifferences = async (projectId, diff, previousCommitId, lastCommitId) => {
@@ -75,17 +75,21 @@ export const suscribeRT = (options = {}) => (action, args) => {
 
 // this returns an error if code is bigger than 400
 // added an extra guard to avoid failing by bad json parsing
-export const handleResponse = (res) => res
-  .json()
-  .then((body) => {
-    if (!res.ok) {
-      const error = new Error();
-      error.name = res.statusText;
-      error.message = body.message;
-      return Promise.reject(error);
-    }
-    return res.status !== 204 ? body : res;
-  });
+export const handleResponse = async (res) => {
+  let body;
+  const NO_CONTENT_STATUS = 204;
+  if (res.status !== NO_CONTENT_STATUS) {
+    body = await res.json();
+  }
+  if (!res.ok) {
+    const error = new Error();
+    error.name = res.statusText;
+    error.message = body ? body.message : '';
+    return Promise.reject(error);
+  }
+
+  return body;
+};
 
 export const inspect = (res) => console.info(res) || res;
 
