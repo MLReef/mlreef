@@ -1,6 +1,6 @@
 package com.mlreef.rest.feature.data_processors
 
-import com.mlreef.parsing.MLPython3Parser
+import com.mlreef.parsing.parsePython3
 import com.mlreef.rest.BaseEnvironment
 import com.mlreef.rest.DataProcessor
 import com.mlreef.rest.MetricSchema
@@ -24,11 +24,7 @@ class PythonParserService(
     private val dataProcessorService: DataProcessorService,
     private val projectResolverService: ProjectResolverService,
 ) {
-    val parser = MLPython3Parser()
-
-    companion object {
-        val log = LoggerFactory.getLogger(this::class.java)
-    }
+    val log = LoggerFactory.getLogger(this::class.java)
 
     fun findAndParseDataProcessorInProject(projectId: UUID, mainFilePath: String?): ProcessorVersion {
         val project = projectResolverService.resolveProject(projectId = projectId)
@@ -59,18 +55,20 @@ class PythonParserService(
     }
 
     private fun parsePythonFile(stream: InputStream, filePath: String? = null): ProcessorVersion? {
-        val parse = parser.parse(stream)
-
-        val annotations = parse.mlAnnotations
+        val annotations = parsePython3(stream).mlAnnotations
         val dataProcessors = annotations.filterIsInstance(DataProcessor::class.java)
         val parameters = annotations.filterIsInstance(ProcessorParameter::class.java)
         val metricSchemas = annotations.filterIsInstance(MetricSchema::class.java)
-
         log.info("Parsing: Found ${annotations.size} annotation")
         log.info("Parsing: Found ${dataProcessors.size} DataProcessors")
+
+
         if (dataProcessors.isEmpty()) {
             log.warn("Found zero DataProcessors, nothing to do")
             return null
+        } else if (dataProcessors.size > 1) {
+            log.warn("Found too much DataProcessors, this is unexpected")
+            throw IllegalArgumentException("Only one DataProcessor per file is allowed! Found: ${dataProcessors.size}")
         }
 
         val metricSchema = if (metricSchemas.isNotEmpty()) {
@@ -78,31 +76,23 @@ class PythonParserService(
         } else {
             MetricSchema(MetricType.UNDEFINED)
         }
-        if (dataProcessors.size > 1) {
-            log.warn("Found too many DataProcessors. Expecting 1, found ${dataProcessors.size}")
-            throw IllegalArgumentException("Only one DataProcessor per file is allowed! Found: ${dataProcessors.size}")
-        }
-        val dataProcessor = dataProcessors.first()
-        val ownParameters = parameters.filter { it.processorVersionId == dataProcessor.id }
-        val processorVersion = ProcessorVersion(
-            id = dataProcessor.id,
-            dataProcessor = dataProcessor,
+        return ProcessorVersion(
+            id = dataProcessors.first().id,
+            dataProcessor = dataProcessors.first(),
             branch = "master",
             baseEnvironment = BaseEnvironment.UNDEFINED,
             number = 1,
             publisher = null,
             publishedAt = ZonedDateTime.now(),
             command = "",
-            parameters = ownParameters,
+            parameters = parameters.filter { it.processorVersionId == dataProcessors.first().id },
             metricSchema = metricSchema,
             gitlabPath = filePath,
         )
-        return processorVersion
     }
 
-    fun parseAndSave(url: URL): ProcessorVersion {
-        val dataProcessor = this.parsePythonFile(url)
+    fun parseAndSave(url: URL): ProcessorVersion =
+        this.parsePythonFile(url)
+            ?.let { dataProcessorService.saveDataProcessor(it) }
             ?: throw IllegalArgumentException("Could not find a DataProcessor at this url")
-        return dataProcessorService.saveDataProcessor(dataProcessor)
-    }
 }

@@ -146,8 +146,7 @@ class MLParsingTest {
 
     private fun testResult(filename: String, doValidate: Boolean = false): MLParseResult {
         val resource = javaClass.classLoader.getResourceAsStream("python_examples/$filename")
-        val mlParser = MLPython3Parser()
-        val result = mlParser.parse(resource!!)
+        val result = parsePython3(resource!!)
         if (doValidate) result.validate()
         return result
     }
