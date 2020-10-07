@@ -27,6 +27,7 @@ RUN echo "Gitlab Pipeline $CI_PIPELINE_ID built on "$(date +%Y-%m-%d\ %H:%M:%S) 
     echo "REACT_APP_VERSION=$CI_PIPELINE_ID"                                    >> .env         && \
     echo "REACT_APP_BUILD_NUMBER=$CI_PIPELINE_ID"                               >> .env         && \
     echo "REACT_APP_BRANCH_NAME=$CI_COMMIT_REF_SLUG"                            >> .env         && \
+    echo "REACT_APP_EXTERNAL_URL=https://mlreef.com"                            >> .env         && \
     if [ "$CI_COMMIT_REF_SLUG" = "master" ]; then                                                  \
       echo "REACT_APP_NO_AUTH_REDIRECT=https://about.mlreef.com"  >> .env;                         \
     fi                                                                                          && \

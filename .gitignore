@@ -706,3 +706,6 @@ iOSInjectionProject/
 /gradle/wrapper/gradle-wrapper.properties
 /gradlew
 /gradlew.bat
+
+# Ignore sitemap which is dynamically generated
+/web/public/sitemap.xml
