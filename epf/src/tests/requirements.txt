@@ -1,5 +1,6 @@
 cycler==0.10.0
 decorator==4.4.2
+fbprophet==0.7.1
 imageio==2.8.0
 joblib==0.14.1
 kiwisolver==1.2.0

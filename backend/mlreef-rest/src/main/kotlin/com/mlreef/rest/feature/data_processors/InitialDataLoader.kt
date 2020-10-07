@@ -21,6 +21,8 @@ class InitialDataLoader {
     val leeFilter_id = fromString("1000000-0000-0003-0002-000000000000")
     val resnet50_projectId = fromString("1000000-1000-0003-0001-000000000000")
     val resnet50_id = fromString("1000000-1000-0003-0002-000000000000")
+    val forecasting_projectId = fromString("e1e3abfa-08c6-11eb-adc1-0242ac120002")
+    val forecasting_id = fromString("e1e3ae20-08c6-11eb-adc1-0242ac120002")
     val multimodel_projectId = fromString("fe957942-d0cf-11ea-87d0-0242ac130003")
     val multimodel_id = fromString("fe957a00-d0cf-11ea-87d0-0242ac130003")
     val chatbot_model_projectId = fromString("fe957abe-d0cf-11ea-87d0-0242ac130003")
@@ -822,6 +824,85 @@ class InitialDataLoader {
                 }
             }
             // ############## MODEL #################
+            val codeProject_forecasting = codeProject {
+                id = forecasting_projectId
+                slug = "commons-forecasting"
+                name = "Forecasting"
+                gitlabNamespace = "mlreef"
+                gitlabPath = "code-project-forecasting"
+                inputDataTypes = hashSetOf(DataType.TABULAR)
+                outputDataTypes = hashSetOf(DataType.MODEL)
+                description = "Forecasting sales with fbprophet, featuring a kaggle dataset."
+            }
+            model {
+                linkToCodeProject(codeProject_forecasting)
+                id = forecasting_id
+                command = "forecasting"
+                number = 3
+                baseEnvironment = BaseEnvironment.default()
+                inputDataType = DataType.TABULAR
+                outputDataType = DataType.MODEL
+                publisher = author
+
+                parameters {
+                    STRING {
+                        id = fromString("e1e3b01e-08c6-11eb-adc1-0242ac120002")
+                        name = "input-path"
+                        defaultValue = "data"
+                        required = true
+                        description = "Path to input folder"
+                    }
+                    STRING {
+                        id = fromString("e1e3b104-08c6-11eb-adc1-0242ac120002")
+                        name = "input-file"
+                        defaultValue = "train.csv"
+                        required = true
+                        description = "Name of training data csv file"
+                    }
+                    STRING {
+                        id = fromString("e1e3b1cc-08c6-11eb-adc1-0242ac120002")
+                        name = "test-file"
+                        defaultValue = "test.csv"
+                        required = true
+                        description = "Name of test data csv file"
+                    }
+                    STRING {
+                        id = fromString("e1e3b35c-08c6-11eb-adc1-0242ac120002")
+                        name = "output-path"
+                        defaultValue = "./output"
+                        required = true
+                        description = "path to output save predictions"
+                    }
+                    INTEGER {
+                        id = fromString("e1e3b42e-08c6-11eb-adc1-0242ac120002")
+                        name = "seasonality"
+                        defaultValue = "monthly"
+                        required = true
+                        description = "Choose between monthly, quarterly or hourly"
+                    }
+                    FLOAT {
+                        id = fromString("e1e3b4f6-08c6-11eb-adc1-0242ac120002")
+                        name = "period"
+                        defaultValue = "30.5"
+                        required = true
+                        description = "Float number of days in one period"
+                    }
+                    INTEGER {
+                        id = fromString("e1e3b5b4-08c6-11eb-adc1-0242ac120002")
+                        name = "fourier-order"
+                        defaultValue = "5"
+                        required = false
+                        description = "Integer number of Fourier components to use"
+                    }
+                    INTEGER {
+                        id = fromString("e1e3b7e4-08c6-11eb-adc1-0242ac120002")
+                        name = "future-periods"
+                        defaultValue = "10"
+                        required = false
+                        description = "Number of periods to predict"
+                    }
+                }
+            }
 
             val codeProject_chatbot = codeProject {
                 id = chatbot_model_projectId
