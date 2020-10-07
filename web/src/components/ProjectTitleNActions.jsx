@@ -13,6 +13,7 @@ import MEmptyAvatar from 'components/ui/MEmptyAvatar/MEmptyAvatar';
 import MWrapper from 'components/ui/MWrapper';
 import { PROJECT_TYPES } from 'domain/project/projectTypes';
 import CodeProject from 'domain/project/CodeProject';
+import { EXTERNAL_URL } from 'apiConfig.js';
 import ProjectGeneralInfoApi from '../apis/ProjectGeneralInfoApi.ts';
 import * as projectActions from '../actions/projectInfoActions';
 import MLoadingSpinner from './ui/MLoadingSpinner';
@@ -86,6 +87,7 @@ const ProjectInfo = (props) => {
           <title>
             {`${classProject.gitlabName} · MLReef`}
           </title>
+          <link rel="canonical" href={`${EXTERNAL_URL}/${classProject.namespace}/${classProject.slug}`} />
         </Helmet>
       )}
       <div className="project-id">

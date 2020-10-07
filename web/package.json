@@ -18,6 +18,7 @@
     "core-js": "^3.6.4",
     "dayjs": "^1.8.29",
     "dompurify": "^2.0.8",
+    "dotenv": "^8.2.0",
     "file-saver": "^2.0.2",
     "formik": "^2.1.4",
     "history": "^4.10.1",
@@ -73,11 +74,12 @@
   },
   "scripts": {
     "start": "react-scripts start",
-    "build": "react-scripts build",
+    "build": "npm run sitemap && react-scripts build",
     "testLocally": "jest --modulePaths=src --env=jsdom --detectOpenHandles",
     "test": "jest --modulePaths=src --env=jsdom --detectOpenHandles  --testPathPattern=/__tests__/*",
     "end2end": "jest --modulePaths=src --env=jsdom --detectOpenHandles --testPathPattern=/__end2end-tests__/*",
     "cypress": "cypress open",
+    "sitemap": "node bin/sitemap-generator.js",
     "eject": "react-scripts eject"
   },
   "browserslist": {
