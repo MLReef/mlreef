@@ -58,7 +58,7 @@ export function getProjectsList() {
         .then((projects) => mergeGitlabResource(projects));
     } else {
       publicProjects = await projectApi.listPublicProjects()
-        .then(handlePagination)
+        // .then(handlePagination)
         .then((projs) => projs.map(parseToCamelCase))
         .then((projects) => mergeGitlabResource(projects));
     }
