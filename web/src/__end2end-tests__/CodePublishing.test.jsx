@@ -10,13 +10,10 @@ const userApi = new UserApi();
 const projectApi = new ProjectApiMockSpike();
 const commitsApiMock = new CommitsApiMock();
 
+beforeAll(async () => {
+  console.log('Running end2end tests against localhost:80 -> expecting proxy to redirect to $INSTANCE_HOST');
+});
 test('Can create new user, new code project, commit file and publish code project', async () => {
-  console.log('##########################################################');
-  console.log('#                                                        #');
-  console.log(`Running end2end tests against ${EXTERNAL_ROOT_URL}`);
-  console.log('#                                                        #');
-  console.log('##########################################################');
-
   jest.setTimeout(30000);
   // ------------- create the user ------------- //
   const suffix = uuidv1().toString().split('-')[0];
@@ -113,7 +110,6 @@ test('Can create new user, new code project, commit file and publish code projec
   console.log('################### Get Project');
   const projectReadResponse = await projectApi.get(headers, projectId);
   expect(projectReadResponse.ok).toBeTruthy();
-  console.log(await projectReadResponse.json());
 
   //
   // -------- Remove project at the end of the test -------- //
