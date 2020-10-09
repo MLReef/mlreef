@@ -11,7 +11,7 @@ import Jobs from './insights-menu/jobs';
 const Insights = (props) => {
   const {
     selectedProject, selectedProject: { gid },
-    match: { params: { logId } },
+    match: { params: { logId, namespace, slug } },
   } = props;
 
   const tabs = useRef(null);
@@ -21,12 +21,12 @@ const Insights = (props) => {
   // into this array and attach the respective component
   const routes = [
     {
-      path: `/my-projects/${gid}/insights/-/jobs`,
+      path: `/${namespace}/${slug}/insights/-/jobs`,
       exact: true,
-      main: () => <Jobs />,
+      main: () => <Jobs namespace={namespace} slug={slug} />,
     },
     {
-      path: `/my-projects/${gid}/insights/-/jobs/${logId}`,
+      path: `/${namespace}/${slug}/insights/-/jobs/${logId}`,
       exact: true,
       main: () => <JobLogById projectId={gid} logId={logId} />,
     },
@@ -59,7 +59,7 @@ const Insights = (props) => {
                   id="jobs-btn"
                   onClick={menuBtnHandler}
                   className="simple-tabs-menu-tab-btn active"
-                  to={`/my-projects/${gid}/insights/-/jobs`}
+                  to={`/${namespace}/${slug}/insights/-/jobs`}
                 >
                   Jobs
                 </Link>

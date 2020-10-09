@@ -4,78 +4,169 @@ import { connect } from 'react-redux';
 import {
   shape, string, arrayOf, func,
 } from 'prop-types';
-import FilesTable from '../files-table/filesTable';
+import AuthWrapper from 'components/AuthWrapper';
+import { SKIPPED, RUNNING, PENDING } from 'dataTypes';
+import moment from 'moment';
+import { parseToCamelCase } from 'functions/dataParserHelpers';
+import GitlabPipelinesApi from 'apis/GitlabPipelinesApi.ts';
+import DataPipelineApi from 'apis/DataPipelineApi';
 import FilesApi from '../../apis/FilesApi.ts';
-import './dataVisualizationDetail.css';
+import './dataVisualizationDetail.scss';
 import Navbar from '../navbar/navbar';
+import FilesTable from '../files-table/filesTable';
 import ProjectContainer from '../projectContainer';
-import { getTimeCreatedAgo } from '../../functions/dataParserHelpers';
+
+const filesApi = new FilesApi();
+const dataPipeApi = new DataPipelineApi();
+const gitPipelinesApis = new GitlabPipelinesApi();
 
 const DataVisualizationDetails = ({ ...props }) => {
   const [files, setFiles] = useState([]);
   const {
     project,
+    project: {
+      gitlabId,
+      namespace: {
+        name: groupName,
+      },
+    },
     branches,
     match: {
       params: {
-        projectId, path, visName,
+        path, visId, namespace, slug,
       },
     },
   } = props;
-  const groupName = project.namespace.name;
-  const visNameDecoded = decodeURIComponent(visName);
-  const visualizationSelected = branches.filter((br) => br.name === visNameDecoded)[0];
+  const [gitlabPipes, setGitlabPipes] = useState([]);
+  const [backendPipeline, setBackendPipeline] = useState({});
+  const gitlabFilterPipeline = gitlabPipes
+    ?.filter((pipeline) => pipeline.ref.includes(backendPipeline?.name)
+    && pipeline.status !== SKIPPED)[0];
+  const selectedPipeline = branches.filter((item) => item.name.includes(backendPipeline?.name))[0];
+
+  const {
+    created_at: timeCreatedAgo, id, status: diStatus, ref: branchName, updated_at: updatedAt,
+  } = gitlabFilterPipeline || {};
+  const isCompleted = !(diStatus === RUNNING || diStatus === PENDING);
+  const duration = (new Date(updatedAt) - new Date(timeCreatedAgo));
+
   useEffect(() => {
-    const filesApi = new FilesApi();
-    filesApi.getFilesPerProject(
-      projectId,
-      path || '',
-      false,
-      visName,
-    ).then((res) => {
-      setFiles(res);
-    }).catch(() => {
-      toastr.error('Error', 'Something went wrong getting your files');
-    });
-  }, [visName, projectId, path]);
+    dataPipeApi.getBackendPipelineById(visId)
+      .then((res) => setBackendPipeline(parseToCamelCase(res)))
+      .then(() => {
+        gitPipelinesApis.getPipesByProjectId(gitlabId)
+          .then((res) => setGitlabPipes(res));
+      })
+      .then(() => branchName !== undefined && filesApi.getFilesPerProject(
+        gitlabId,
+        path || '',
+        false,
+        branchName,
+      ).then((filesPerProject) => setFiles(filesPerProject)))
+      .catch(() => toastr.error('Error', 'Something went wrong fetching pipelines'));
+  }, [visId, gitlabId, path, branchName]);
+
   return (
     <div>
       <Navbar />
       <ProjectContainer
         activeFeature="data"
-        folders={[groupName, project.name, 'Data', 'Instances']}
+        folders={[groupName, project?.name, 'Data', 'Instances']}
       />
       <div className="main-content">
         <br />
-        <br />
-        <div className="viewing-visualization">
-          <div className="title-bar">
+        <div className="visualization-container">
+          <div className="header">
             <p><b>Viewing</b></p>
           </div>
-          <div className="content-data">
-            <div>
-              <p><b>{visualizationSelected.name}</b></p>
-              <p>
-                Create by
-                &nbsp;
-                <b>{visualizationSelected.commit.author_name}</b>
-                &nbsp;
-                {getTimeCreatedAgo(visualizationSelected.commit.created_at, new Date())}
-                &nbsp;
-                ago
-              </p>
+          {selectedPipeline && (
+          <div className="content">
+            <br />
+            <div className="content-row">
+              <div className="item">
+                <p>Dataset:</p>
+                <p><b>{branchName?.replace(/.*\//, '')}</b></p>
+              </div>
+              <AuthWrapper
+                minRole={30}
+              >
+                <button
+                  type="button"
+                  style={{ padding: '0.5rem 1.3rem' }}
+                  className="btn btn-danger"
+                >
+                  Abort
+                </button>
+              </AuthWrapper>
             </div>
-            <div>
-              <p><b>----</b></p>
-              <p>di_code</p>
+            <div className="content-row">
+              <div className="item">
+                <p>Status:</p>
+                <p><b>{diStatus}</b></p>
+              </div>
+              <div className="item">
+                <p>DataOps ID:</p>
+                <span style={{
+                  border: '1px solid gray',
+                  padding: '2px 0.5rem 0 2rem',
+                  borderRadius: '0.2rem',
+                }}
+                >
+                  {id}
+                </span>
+              </div>
             </div>
-            <div id="buttons-div">
-              <br />
-              <button type="button" className="dangerous-red">
-                <b>X</b>
-              </button>
+            <br />
+            <div className="content-row">
+              <div className="item">
+                <p>
+                  Created:
+                </p>
+                <p>
+                  <b>
+                    {moment(timeCreatedAgo).format('DD.MM.YYYY - hh:mm:ss')}
+                  </b>
+                </p>
+              </div>
+            </div>
+            <div className="content-row">
+              <div className="item">
+                <p>
+                  Completed:
+                </p>
+                <p>
+                  <b>
+                    {isCompleted ? moment(updatedAt).format('DD.MM.YYYY - hh:mm:ss') : '---'}
+                  </b>
+                </p>
+              </div>
+              <div className="item">
+                <p>
+                  Running time:
+                </p>
+                <p>
+                  <b>
+                    {duration
+                      ? moment({}).startOf('day').milliseconds(duration).format('HH:mm:ss')
+                      : '---'}
+                  </b>
+                </p>
+              </div>
+            </div>
+            <div className="content-row">
+              <div className="item">
+                <p>
+                  Owner:
+                </p>
+                <p>
+                  <b>
+                    {selectedPipeline?.commit?.author_name}
+                  </b>
+                </p>
+              </div>
             </div>
           </div>
+          )}
         </div>
         <br />
         <FilesTable
@@ -89,9 +180,9 @@ const DataVisualizationDetails = ({ ...props }) => {
             const file = files.filter((f) => f.id === targetId)[0];
             let link = '';
             if (targetDataKey === 'tree') {
-              link = `/my-projects/${projectId}/visualizations/${visName}/path/${encodeURIComponent(file.path)}`;
+              link = `/${namespace}/${slug}/-/tree/${visId}/${encodeURIComponent(file.path)}`;
             } else {
-              link = `/my-projects/${projectId}/${visName}/blob/${encodeURIComponent(file.path)}`;
+              link = `/${namespace}/${slug}/-/blob/branch/${branchName}/path/${encodeURIComponent(file.path)}`;
             }
             props.history.push(link);
           }}
@@ -114,9 +205,9 @@ DataVisualizationDetails.propTypes = {
   branches: arrayOf(shape({})).isRequired,
   match: shape({
     params: shape({
-      projectId: string.isRequired,
+      gitlabId: string.isRequired,
       path: string,
-      visName: string.isRequired,
+      visId: string.isRequired,
     }).isRequired,
   }).isRequired,
   history: shape({

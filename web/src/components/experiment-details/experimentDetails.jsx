@@ -32,7 +32,7 @@ const ExperimentDetails = (props) => {
   const selectedProject = projects.filter((proj) => proj.slug === slug)[0];
   const projectId = selectedProject?.gitlabId;
   const backendId = selectedProject?.id;
-  const name = selectedProject?.gitlabName;
+  const name = selectedProject?.name;
   const userParameters = experiment?.processing?.parameters;
   const expSlug = experiment?.processing?.slug;
   const { pipeline_job_info: pipelineInfo } = experiment;
@@ -65,25 +65,25 @@ const ExperimentDetails = (props) => {
       .then((res) => setExperiment(res))
       .catch(() => toastr.error('Error', 'Could not fetch the experiment'));
   }, [backendId, experimentId]);
-  
+
   const breadcrumbs = useMemo(
     () => [
       {
-        name: groupName,
+        name: namespace,
       },
       {
         name,
-        href: `/${groupName}/${name}`,
+        href: `/${namespace}/${slug}`,
       },
       {
         name: 'Experiments',
-        href: `/${groupName}/${name}/-/experiments`,
+        href: `/${namespace}/${slug}/-/experiments`,
       },
       {
         name: uniqueName,
       },
     ],
-    [groupName, name, uniqueName],
+    [namespace, slug, name, uniqueName],
   );
 
   return (

@@ -10,11 +10,13 @@ import greyLogo from 'images/icon_grey-01.png';
 import './jobs.scss';
 import * as jobsActions from 'actions/jobsActions';
 import DataPipelineApi from 'apis/DataPipelineApi';
+import { determineJobClass } from 'functions/pipeLinesHelpers';
 import { getTimeCreatedAgo } from '../../../functions/dataParserHelpers';
 
 const dataPipeApi = new DataPipelineApi();
 
-const Jobs = ({ jobs, selectedProject: { gid, id } }) => {
+const Jobs = (props) => {
+  const { jobs, selectedProject: { gid, id }, namespace, slug } = props;
   const [jobList, setJobs] = useState(jobs);
   const [backendPipes, setBackendPipes] = useState([]);
   useEffect(() => {
@@ -25,14 +27,6 @@ const Jobs = ({ jobs, selectedProject: { gid, id } }) => {
       })
       .catch(() => toastr.error('Error', 'Could not retrieve all the jobs'));
   }, [id, gid]);
-
-  const determineJobClass = (type) => {
-    let jobClass = 'experiment';
-    if (type === 'DATA') jobClass = 'data-ops';
-    else if (type === 'VISUALIZATION') jobClass = 'visualization';
-
-    return jobClass;
-  };
 
   const handleButtonsClick = (e) => {
     if (e.target.parentNode) {
@@ -120,17 +114,17 @@ const Jobs = ({ jobs, selectedProject: { gid, id } }) => {
                   return (
                     <tr className="p-3" key={index.toString()}>
                       <td className="job-status p-3">
-                        <Link to={`/my-projects/${gid}/insights/-/jobs/${job.id}`}>
+                        <Link to={`/${namespace}/${slug}/insights/-/jobs/${job.id}`}>
                           {jobStatus}
                         </Link>
                       </td>
                       <td>
-                        <Link to={`/my-projects/${gid}/insights/-/jobs/${job.id}`}>
+                        <Link to={`/${namespace}/${slug}/insights/-/jobs/${job.id}`}>
                           {`#${job.id}`}
                         </Link>
                       </td>
                       <td>
-                        <Link to={`/my-projects/${gid}/insights/-/jobs/${job.id}`}>
+                        <Link to={`/${namespace}/${slug}/insights/-/jobs/${job.id}`}>
                           {determineJobClass(jobClass)}
                         </Link>
                       </td>
@@ -187,6 +181,8 @@ Jobs.propTypes = {
       }.isRequired,
     }).isRequired,
   ).isRequired,
+  namespace: string.isRequired,
+  slug: string.isRequired,
   selectedProject: shape({
     gid: number.isRequired,
   }).isRequired,

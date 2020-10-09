@@ -78,6 +78,12 @@ export class DataVisualizationOverview extends Component {
   render() {
     const {
       selectedProject,
+      match: {
+        params: {
+          namespace,
+          slug,
+        }
+      },
     } = this.props;
     const {
       visualizations,
@@ -140,6 +146,8 @@ export class DataVisualizationOverview extends Component {
               <DataVisualizationCard
                 classification={dataInsClas}
                 projectId={selectedProject.gid}
+                namespace={namespace}
+                slug={slug}
                 key={dataInsClas.status}
               />
             ))}
@@ -163,6 +171,12 @@ DataVisualizationOverview.propTypes = {
     gid: number.isRequired,
     namespace: string.isRequired,
     name: string.isRequired,
+  }).isRequired,
+  match: shape({
+    params: shape({
+      namespace: string.isRequired,
+      slug: string.isRequired,
+    }).isRequired,
   }).isRequired,
   branches: arrayOf(shape({})).isRequired,
 };

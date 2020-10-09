@@ -8,7 +8,7 @@ import { getPipelineIcon } from 'functions/pipeLinesHelpers';
 import { getTimeCreatedAgo } from 'functions/dataParserHelpers';
 import './dataVisualizationCard.css';
 
-const DataVisualizationCard = ({ classification, projectId }) => {
+const DataVisualizationCard = ({ classification, projectId, namespace, slug }) => {
   const today = new Date();
   const [redirect, setRedirect] = useState(false);
   function goToPipelineView(e, val) {
@@ -80,42 +80,45 @@ const DataVisualizationCard = ({ classification, projectId }) => {
           <p><b>{classification.status}</b></p>
         </div>
       </div>
-      {classification.values.map((val) => (
-        <div className="data-visualization-card-content" key={`${val.creator} ${val.name}`} data-key={val.name}>
-          <img src={getPipelineIcon(val.status.toUpperCase())} width="30" height="30" alt={val.status} />
-          <div className="general-information ml-2">
-            <Link to={`/my-projects/${projectId}/visualizations/${encodeURIComponent(val.name)}`}>
-              <b>{val.name}</b>
-            </Link>
-            <p className="m-0 mt-1">
-              Created by
-              &nbsp;
-              <b>{val.authorName}</b>
-              &nbsp;
-              {getTimeCreatedAgo(val.createdAt, new Date())}
-              &nbsp;
-              ago
-            </p>
-          </div>
-          <div className="detailed-information-1">
-            {classification.status.toLowerCase() === 'active' && (
-            <>
-              <p>
-                <b>
-                  Use:
-                  {val.spaceUsed}
-                </b>
+      {classification.values.map((val) => {
+        const pipeBackendId = val?.backendPipeline?.id;
+        return (
+          <div className="data-visualization-card-content" key={`${val.creator} ${val.name}`} data-key={val.name}>
+            <img src={getPipelineIcon(val.status.toUpperCase())} width="30" height="30" alt={val.status} />
+            <div className="general-information ml-2">
+              <Link to={`/${namespace}/${slug}/-/visualizations/${pipeBackendId}`}>
+                <b>{val.name}</b>
+              </Link>
+              <p className="m-0 mt-1">
+                Created by
+                &nbsp;
+                <b>{val.authorName}</b>
+                &nbsp;
+                {getTimeCreatedAgo(val.createdAt, new Date())}
+                &nbsp;
+                ago
               </p>
-              <p>
-                Expires in:
-                {val.expiresIn}
-              </p>
-            </>
-            )}
+            </div>
+            <div className="detailed-information-1">
+              {classification.status.toLowerCase() === 'active' && (
+              <>
+                <p>
+                  <b>
+                    Use:
+                    {val.spaceUsed}
+                  </b>
+                </p>
+                <p>
+                  Expires in:
+                  {val.expiresIn}
+                </p>
+              </>
+              )}
+            </div>
+            {getButtonsDiv(classification.status, val)}
           </div>
-          {getButtonsDiv(classification.status, val)}
-        </div>
-      ))}
+        );
+      })}
     </div>
   );
 };
@@ -135,6 +138,8 @@ DataVisualizationCard.propTypes = {
     })).isRequired,
   }).isRequired,
   projectId: number.isRequired,
+  namespace: string.isRequired,
+  slug: string.isRequired,
 };
 
 export default DataVisualizationCard;
