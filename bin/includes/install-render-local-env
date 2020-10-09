@@ -8,6 +8,10 @@ else
   EPF_GITLAB_URL=http://$INSTANCE_HOST
 fi
 
+#dameon file path to add entry for insecure registry
+DOCKER_DAEMON_JSON="/etc/docker/daemon.json"
+REGISTRY_NGINX_PORT=5050
+
 
 log "### Starting Deployment"
 log "Writing Docker's env file: local.env"
@@ -53,5 +57,9 @@ EPF_GITLAB_URL=$EPF_GITLAB_URL
 # App password used for the noreply@mlreef.com account
 NOREPLY_EMAIL=${NOREPLY_EMAIL-}
 NOREPLY_EMAIL_PASSWORD=${NOREPLY_EMAIL_PASSWORD-}
+
+#Entry for container registry
+DOCKER_DAEMON_JSON=${DOCKER_DAEMON_JSON}
+REGISTRY_NGINX_PORT=${REGISTRY_NGINX_PORT}
 
 HEREDOC

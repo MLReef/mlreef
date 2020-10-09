@@ -59,33 +59,6 @@ waitUntilGitlabAvailable
 # Step 2 Configure Gitlab's port and external URL
 #
 #
-if [ "$(checkGitlabPort)" = "302" ]; then
-  log "2. Found Gitlab at expected port $GITLAB_PORT. Printing relevant parts of /etc/gitlab/gitlab.rb"
-  docker exec gitlab sh -c 'cat /etc/gitlab/gitlab.rb | grep external_url\ \"'
-elif [ "$(checkGitlab80)" = "302" ]; then
-  log "Found Gitlab at port 80. Reconfiguring Gitlab for port $GITLAB_PORT"
-  if [ "$INSTANCE_HOST" != "localhost" ]; then
-    log "2. Configure Gitlab external_url 'http://$INSTANCE_HOST:$GITLAB_PORT'"
-    echo "external_url \"http://${INSTANCE_HOST}:${GITLAB_PORT}\"" | docker exec -i gitlab sh -c "cat >> /etc/gitlab/gitlab.rb"
-  else
-    log "2. Configure Gitlab external_url 'http://gitlab:$GITLAB_PORT'"
-    # When running locally in docker compose, this lets the runners access Gitlab via the Docker network
-    echo "external_url \"http://gitlab:${GITLAB_PORT}\"" | docker exec -i gitlab sh -c "cat >> /etc/gitlab/gitlab.rb"
-  fi
-  log "Printing new Gitlab external_url configuration"
-  docker exec gitlab sh -c 'tail -1 /etc/gitlab/gitlab.rb'
-  log "Reconfigure Gitlab"
-  docker exec gitlab gitlab-ctl reconfigure > /dev/null
-  log "Restart Gitlab"
-  docker exec --detach gitlab gitlab-ctl restart
-  sleep 30
-  log "Waiting for Gitlab to start"
-  until [ "$(checkGitlabPort)" = "302" ]; do
-    printf '.'
-    sleep 5;
-  done
-  log "Expecting code 302; received: $(checkGitlabPort)"
-fi
 
 log "Ensuring availability of the Gitlab API to start"
 until [ "$(checkGitlabPort /api/v4/projects)" = "200" ]; do
@@ -191,6 +164,22 @@ if [ "$INSTANCE_HOST" != "localhost" ]; then
     --cache-s3-access-key="$AWS_ACCESS_KEY_ID"                    \
     --cache-s3-secret-key="$AWS_SECRET_ACCESS_KEY"                \
 
+  docker exec gitlab-runner gitlab-runner register                \
+    --non-interactive                                             \
+    --name="Packaged Dispatcher on $INSTANCE_HOST"                     \
+    --url="http://$INSTANCE_HOST:$GITLAB_PORT/"                           \
+    --docker-network-mode mlreef-docker-network                   \
+    --registration-token="$RUNNER_REGISTRATION_TOKEN"             \
+    --executor "docker"                                           \
+    --docker-image alpine:latest                                  \
+    --docker-volumes /var/run/docker.sock:/var/run/docker.sock    \
+    --tag-list "docker,local-docker"                                           \
+    --run-untagged="false"                                         \
+    --locked="false"                                              \
+    --access-level="not_protected"
+
+
+
 else ### Configuration for local environments ###
   log "5. Configuring Gitlab Runner for local environment"
   # Register the runner on a local developers machine
@@ -237,6 +226,19 @@ sleep 30 # Add an additional sleep in the end to improve user experience; So tha
 #
 echo "Debug Log: gitlab runner configuration"
 docker exec gitlab-runner cat /etc/gitlab-runner/config.toml
+
+###Add insecure registry entry in docker daemon"
+echo "adding entry in ${DOCKER_DAEMON_JSON}"
+if [ -f ${DOCKER_DAEMON_JSON} ]; then
+  if ! grep -P "insecure-registries.*${INSTANCE_HOST}:${REGISTRY_NGINX_PORT}.*" ${DOCKER_DAEMON_JSON} ; then
+    sed -i '$s/}/,"insecure-registries" : ["'"$INSTANCE_HOST"':'"$REGISTRY_NGINX_PORT"'"]\n}/' ${DOCKER_DAEMON_JSON}
+  fi
+else
+  echo "{ \"insecure-registries\" : [\"${INSTANCE_HOST}:${REGISTRY_NGINX_PORT}\"] }" > ${DOCKER_DAEMON_JSON}
+fi
+#Reload docker system config
+systemctl reload docker
+echo "Done - ${DOCKER_DAEMON_JSON} changes"
 
 log "Done - MLReef has been successfully installed. "
 #
