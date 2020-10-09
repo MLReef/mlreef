@@ -1,13 +1,22 @@
 import React from 'react';
 import { shallow } from 'enzyme';
 import 'babel-polyfill';
-import JobLog from '../../../components/experiment-details/menu-options/jobLog';
-import { jobMock } from '../../../testData';
-import { getTimeCreatedAgo, parseDurationInSeconds } from '../../../functions/dataParserHelpers';
+import JobLog from 'components/experiment-details/menu-options/jobLog';
+import { jobMock } from 'testData';
+import { storeFactory } from 'functions/testUtils';
+import { getTimeCreatedAgo, parseDurationInSeconds } from 'functions/dataParserHelpers';
+
+const store = storeFactory({
+  projects: {
+    selectedProject: {
+      id: '5d005488-afb6-4a0c-852a-f471153a04b5',
+    },
+  },
+});
 
 const setup = () => {
   const wrapper = shallow(
-    <JobLog projectId={14448940} job={jobMock} currentState="" />,
+    <JobLog projectId={14448940} store={store} job={jobMock} currentState="" />,
   );
 
   return wrapper;
@@ -16,7 +25,7 @@ const setup = () => {
 describe('assert that component includes information about job', () => {
   let wrapper;
   beforeEach(() => {
-    wrapper = setup();
+    wrapper = setup().dive().dive();
   });
 
   test('main info', () => {

@@ -270,7 +270,7 @@ const DataInstanceDetails = (props) => {
                 link = `/${selectedProject?.namespace}/${selectedProject?.slug}/-/tree/${branchName}/${encodeURIComponent(file.path)}`;
               } else {
                 routeType = 'blob';
-                link = `/${namespace}/${slug}/-/${routeType}/${encodeURIComponent(branchName)}/${encodeURIComponent(file.path)}`;
+                link = `/${namespace}/${slug}/-/${routeType}/branch/${encodeURIComponent(branchName)}/path/${encodeURIComponent(file.path)}`;
               }
               history.push(link);
             }}

@@ -229,4 +229,12 @@ export const getPipelineIcon = (status) => {
   return pipelineIcon;
 };
 
+export const determineJobClass = (type) => {
+  let jobClass = 'experiment';
+  if (type === 'DATA') jobClass = 'data-ops';
+  else if (type === 'VISUALIZATION') jobClass = 'visualization';
+
+  return jobClass;
+};
+
 /* ----------------------------  ----------------------------------  -------------------------------*/

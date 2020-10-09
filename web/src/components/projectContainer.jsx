@@ -85,7 +85,7 @@ class ProjectContainer extends React.Component {
               </AuthWrapper>
             )}
             <AuthWrapper minRole={10} className="tab-disabled">
-              <Link to={`/my-projects/${id}/insights/-/jobs`} className="feature" id="insights">
+              <Link to={`/${namespace}/${slug}/insights/-/jobs`} className="feature" id="insights">
                 Insights
               </Link>
             </AuthWrapper>

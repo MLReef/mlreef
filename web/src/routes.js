@@ -207,7 +207,7 @@ export default [
   },
   {
     name: 'fileBranch',
-    path: '/:namespace/:slug/-/blob/branch/:branch/path/:file(.+)',
+    path: '/:namespace/:slug/-/blob/branch/:branch(.+)/path/:file(.+)',
     component: FileView,
   },
   {
@@ -270,18 +270,12 @@ export default [
     name: 'dataset',
     path: '/:namespace/:slug/-/datasets/:dataId',
     exact: true,
-    component: DataInstancesView,
+    component: DataInstanceDetailsView,
   },
   {
     name: 'datasetBranchPath',
     path: '/:namespace/:slug/-/datasets/:branch/:dataId/path/:path',
     component: DataInstanceDetailsView,
-  },
-  {
-    name: 'datasetBranch',
-    path: '/:namespace/:slug/-/datasets/:branch/:dataId',
-    component: DataInstanceDetailsView,
-    exact: true,
   },
   {
     name: 'experiments',
@@ -303,6 +297,9 @@ export default [
     name: 'experiment',
     path: '/:namespace/:slug/-/experiments/:experimentId',
     component: ExperimentDetailsView,
+    meta: {
+      authRequired: true,
+    },
   },
 
   {
@@ -323,18 +320,24 @@ export default [
   },
   {
     name: 'visualization',
-    path: '/:namespace/:slug/-/visualizations/:visName',
+    path: '/:namespace/:slug/-/visualizations/:visId',
     component: VisualizationDetailView,
+    meta: {
+      authRequired: true,
+    },
   },
   {
     name: 'visualizationBranch',
-    path: '/:namespace/:slug/-/visualizations/:visName/path/:path',
+    path: '/:namespace/:slug/-/visualizations/:visId/path/:path',
     component: VisualizationDetailView,
+    meta: {
+      authRequired: true,
+    },
   },
   // insights
   {
     name: 'insightJob',
-    path: '/my-projects/:projectId/insights/-/jobs/:logId',
+    path: '/:namespace/:slug/insights/-/jobs/:logId',
     component: InsightsView,
     meta: {
       authRequired: true,
@@ -342,7 +345,7 @@ export default [
   },
   {
     name: 'insights',
-    path: '/my-projects/:projectId/insights/-/jobs',
+    path: '/:namespace/:slug/insights/-/jobs',
     component: InsightsView,
     exact: true,
     meta: {
