@@ -16,7 +16,13 @@ build frontend:
   stage: build
   only:
     changes:
-      - web/**/*
+      # changes on specific bin scripts
+      - web/bin/ci-build-frontend
+      # all files and folders under web/src and web/public
+      - web/public/**/*
+      - web/src/**/*
+      # all files in the web directory
+      - web/*
   # This docker version should correspond with the on docker version in the EC2 deployment
   image: docker:19.03.5          # https://hub.docker.com/_/docker/
   services:
