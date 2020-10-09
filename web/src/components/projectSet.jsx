@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
 import {
   arrayOf, shape, string, bool,
 } from 'prop-types';
@@ -23,6 +24,7 @@ class ProjectSet extends Component {
       handleShowModal,
       isLoading,
       screen,
+      user: { id: userId },
     } = this.props;
     let finalProjectsArray = [];
     switch (screen) {
@@ -71,7 +73,7 @@ class ProjectSet extends Component {
                 handleShowModal={handleShowModal}
                 users={proj.members}
                 visibility={proj.visibilityScope}
-                owner={false}
+                owner={proj.ownerId === userId}
               />
             ))}
           />
@@ -102,4 +104,11 @@ ProjectSet.propTypes = {
   personalProjects: arrayOf(shape({}).isRequired).isRequired,
 };
 
-export default ProjectSet;
+function mapStateToProps(state) {
+  return {
+    allProjects: state.projects.all,
+    user: state.user,
+  };
+}
+
+export default connect(mapStateToProps)(ProjectSet);

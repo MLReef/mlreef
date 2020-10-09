@@ -64,11 +64,12 @@ class ChangesMrSection extends Component {
   fetchDiffs({ projectId, aheadCommits }) {
     aheadCommits.forEach(async (commit, index) => {
       const { id: commitId } = commit;
-      const commitDiffs = await commitsApi.getCommitDiff(projectId, commitId);
-      const file = await Promise.all(commitDiffs.map(async (commitDiff) => {
+      const commitDiffs = await commitsApi.getCommitDiff(projectId, commitId, 0, false);
+      const file = await Promise.all(commitDiffs?.body?.map(async (commitDiff) => {
         const {
           previousVersionFile,
           nextVersionFile,
+          imageFileSize,
         } = await getFileDifferences(projectId, commitDiff, commit.parent_ids[0], commit.id);
         let previousVersionFileParsed = previousVersionFile;
         let nextVersionFileParsed = nextVersionFile;
@@ -97,11 +98,12 @@ class ChangesMrSection extends Component {
           id: `${commit.id} ${index}`,
           sizeDeleted,
           sizeAdded,
+          imageFileSize,
         };
       }));
 
       const { filesToRender: filesInState } = this.state;
-      const finalArrayOfFiles = [...filesInState, file[0]];
+      const finalArrayOfFiles = [...filesInState, ...file];
 
       if (this.mounted) {
         this.setState((s) => ({ ...s, filesToRender: finalArrayOfFiles }));
@@ -124,8 +126,9 @@ class ChangesMrSection extends Component {
           if (isImageFormat(fileToRender.fileName)) {
             return (
               <ImageDiffSection
-                key={`i-${fileToRender.id}`}
+                key={`i-${fileToRender.id}-${fileToRender.imageFileSize}`}
                 fileInfo={fileToRender}
+                fileSize={fileToRender.imageFileSize}
                 original={fileToRender.previousVersionFileParsed}
                 modified={fileToRender.nextVersionFileParsed}
               />

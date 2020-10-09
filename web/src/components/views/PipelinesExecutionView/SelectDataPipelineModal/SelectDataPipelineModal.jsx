@@ -35,14 +35,31 @@ export const UnconnectedSelectDataPipelineModal = (props) => {
   const [showReturnOption, setShowReturnOption] = useState(false);
   const [files, setfiles] = useState(testFiles || null);
 
+  function updateFiles(path) {
+    filesApi.getFilesPerProject(
+      gid,
+      path,
+      false,
+      initialCommit || branchSelected,
+    ).then((filesRes) => {
+      const newfilesSelected = filesRes.map((file) => ({
+        ...file,
+        checked: getIsFileChecked(file),
+        disabled: !getIsFileChecked(file) && initialFiles.length !== 0,
+      }));
+      setfiles(newfilesSelected);
+      if (initialFiles.length > 0) {
+        dispatch({ type: UPDATE_FILES_SELECTED_IN_MODAL, filesSelectedInModal: newfilesSelected });
+        dispatch({ type: SET_BRANCH_SELECTED, branchSelected });
+      }
+    })
+      .catch(() => toastr.error('Error', 'Files could not be recovered'));
+  }
+
   useEffect(() => {
     updateFiles('');
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  function onGetBackBtnClick(e) {
-    e.preventDefault();
-    getBack();
-  }
 
   function getBack() {
     const path = filePath.substring(0, filePath.lastIndexOf('/'));
@@ -50,6 +67,11 @@ export const UnconnectedSelectDataPipelineModal = (props) => {
     updateFiles(newFilePath);
     setFilepath(newFilePath);
     setShowReturnOption(!(newFilePath === ''));
+  }
+
+  function onGetBackBtnClick(e) {
+    e.preventDefault();
+    getBack();
   }
 
   /**
@@ -78,26 +100,6 @@ export const UnconnectedSelectDataPipelineModal = (props) => {
       files: prevState.files.map((f) => ({ ...f, checked: newCheckedValue })),
     }));
     */
-  function updateFiles(path) {
-    filesApi.getFilesPerProject(
-      gid,
-      path,
-      false,
-      initialCommit || branchSelected,
-    ).then((filesRes) => {
-      const newfilesSelected = filesRes.map((file) => ({
-        ...file,
-        checked: getIsFileChecked(file),
-        disabled: !getIsFileChecked(file) && initialFiles.length !== 0,
-      }));
-      setfiles(newfilesSelected);
-      if (initialFiles.length > 0) {
-        dispatch({ type: UPDATE_FILES_SELECTED_IN_MODAL, filesSelectedInModal: newfilesSelected });
-        dispatch({ type: SET_BRANCH_SELECTED, branchSelected });
-      }
-    })
-      .catch(() => toastr.error('Error', 'Files could not be recovered'));
-  }
 
   function handleCloseButton() {
     dispatch({ type: SET_IS_VISIBLE_FILES_MODAL, isVisibleSelectFilesModal: false });

@@ -44,9 +44,10 @@ describe('test specific features in processor comp', () => {
   });
   test('assert that title, description and data type are in the comp', () => {
     const titleContent = wrapper.find('.processor-title > p').at(0);
+    const imageIcon = wrapper.find('.processor-title > .input-images');
     wrapper.find('button').simulate('click', {});
     expect(titleContent.text()).toBe(mockedProcessor.name);
     expect(wrapper.find('.processor-content > p').text()).toBe(mockedProcessor.description);
-    expect(wrapper.find('.processor-content > div > p').at(0).text().includes(mockedProcessor.inputDataType)).toBe(true);
+    expect(imageIcon.find('.mr-2 > fa-images'));
   });
 });

@@ -10,24 +10,6 @@ exports[`ExploreViewProjectSet appareance assert that snapshot matches 1`] = `
     <div
       className="card"
     >
-      <div
-        className="icon-visibility"
-        style={
-          Object {
-            "backgroundColor": "var(--lessWhite)",
-            "borderRadius": "3px",
-            "color": "#fff",
-            "fontSize": "1.2rem",
-            "right": "4rem",
-          }
-        }
-      >
-        <span
-          className="p-2"
-        >
-          Owner
-        </span>
-      </div>
       <img
         alt="private"
         aria-hidden="true"

@@ -71,8 +71,11 @@ export default class CommitsApi extends ApiDirector {
     return { imageArrayBuffer, imageFileSize };
   }
 
-  async getCommitDiff(projectId: number, commitId: number, page: number) {
-    const url = `/api/v4/projects/${projectId}/repository/commits/${commitId}/diff?page=${page}&per_page=10`;
+  async getCommitDiff(projectId: number, commitId: number, page: number, pageable: boolean) {
+    let url = `/api/v4/projects/${projectId}/repository/commits/${commitId}/diff`;
+    if(pageable) {
+      url = `${url}?page=${page}&per_page=10`;
+    }
     const builder = new BLApiRequestCallBuilder(METHODS.GET, this.buildBasicHeaders(validServicesToCall.GITLAB) , url);
     const response = await fetch(builder.build());
     

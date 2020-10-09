@@ -10,11 +10,11 @@ const MCard = (props) => {
     buttons,
     children,
     className,
+    cardHeaderStyle,
   } = props;
-
   return (
     <div className={`${className} m-card border-rounded`}>
-      <MCardHeader title={title}>
+      <MCardHeader headerColor={cardHeaderStyle} title={title}>
         {buttons}
       </MCardHeader>
       <div className="m-card-content">
@@ -28,6 +28,7 @@ MCard.defaultProps = {
   title: '',
   buttons: [],
   className: '',
+  cardHeaderStyle: 'var(--dark)',
 };
 
 MCard.propTypes = {
@@ -38,6 +39,7 @@ MCard.propTypes = {
     PropTypes.arrayOf(PropTypes.node),
     PropTypes.node,
   ]).isRequired,
+  cardHeaderStyle: PropTypes.string,
 };
 
 MCard.Section = MCardSection;

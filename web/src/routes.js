@@ -7,6 +7,7 @@ import ErrorView from 'components/error-page/errorPage';
 import ExploreView from 'components/views/ExploreView';
 import RegisterLandingView from 'components/RegisterView/RegisterLandingView';
 import GroupsOverview from 'components/views/groupsOverview';
+import GroupsView from 'components/views/MlreefGroups/GroupView';
 import UserAccountView from 'components/views/userSettings/UserAccount';
 import ProfileView from 'components/userProfile/userProfile';
 import ProjectView from 'components/projectView/projectView';
@@ -14,7 +15,6 @@ import CreateProjectView from 'components/views/create-project/createProject';
 import BranchesView from 'components/branches-list-view/branchesView';
 import NewBranchView from 'components/views/NewBranch';
 import MergeRequestsView from 'components/new-merge-request/merge-request-overview';
-import MergeRequestView from 'components/mergeRequestDetailView/basicMergeRequestView';
 import NewMergeRequestView from 'components/new-merge-request/newMergeRequest';
 import DataInstancesView from 'components/data-instance/dataInstanceOverview';
 import DataInstanceDetailsView from 'components/data-instance/dataInstanceDetails';
@@ -38,6 +38,7 @@ import Error404View from 'components/error-page/error404Page';
 // this is component for testing layout and should be removed after alpha
 import DemoView from 'components/Demo';
 import DetailedRepositoryView from 'components/views/DetailedRepositoryView';
+import BasicMergeRequestView from './components/mergeRequestDetailView/basicMergeRequestView';
 
 export default [
   {
@@ -104,6 +105,12 @@ export default [
     },
   },
   {
+    name: 'groupsOverview',
+    path: '/groups/:groupPath',
+    exact: true,
+    component: GroupsView,
+  },
+  {
     name: 'newGroup',
     path: '/groups/new',
     exact: true,
@@ -154,7 +161,7 @@ export default [
   },
   {
     name: 'createProject',
-    path: '/new-project/classification/:classification',
+    path: '/new-project/classification/:classification/:groupNamespace?',
     exact: true,
     component: CreateProjectView,
     meta: {
@@ -239,9 +246,9 @@ export default [
     },
   },
   {
-    name: 'mergeRequest',
+    name: 'basicMergeRequest',
     path: '/:namespace/:slug/-/merge_requests/:iid',
-    component: MergeRequestView,
+    component: BasicMergeRequestView,
   },
   {
     name: 'datasets',

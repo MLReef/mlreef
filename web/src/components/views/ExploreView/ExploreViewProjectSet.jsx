@@ -1,4 +1,5 @@
 import React, { useMemo } from 'react';
+import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import MProjectCard from 'components/ui/MProjectCard';
 import MBricksWall from 'components/ui/MBricksWall';
@@ -8,6 +9,7 @@ const ExploreViewProjectSet = (props) => {
   const {
     started,
     projects,
+    user: { id: userId },
   } = props;
 
   const loadingSection = useMemo(
@@ -29,7 +31,6 @@ const ExploreViewProjectSet = (props) => {
             className="bg-white"
             key={`proj-${proj.gitlabNamespace}-${proj.slug}`}
             slug={proj.slug}
-            owner={proj.id}
             title={proj.name}
             projectId={proj.gitlabId}
             description={proj.description}
@@ -43,11 +44,12 @@ const ExploreViewProjectSet = (props) => {
             outputDataTypes={proj.inputDataTypes}
             users={proj.members}
             visibility={proj.visibilityScope}
+            owner={proj.ownerId === userId}
           />
         ))}
       />
     ),
-    [projects],
+    [projects, userId],
   );
 
   const checkEmpty = useMemo(
@@ -72,4 +74,10 @@ ExploreViewProjectSet.propTypes = {
   projects: PropTypes.arrayOf(PropTypes.shape({})),
 };
 
-export default ExploreViewProjectSet;
+function mapStateToProps(state) {
+  return {
+    user: state.user,
+  };
+}
+
+export default connect(mapStateToProps)(ExploreViewProjectSet);

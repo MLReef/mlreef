@@ -5,6 +5,7 @@ import * as userActions from 'actions/userActions';
 import cx from 'classnames';
 import './PipelinesExecutionView.scss';
 import { OPERATION, ALGORITHM, VISUALIZATION } from 'dataTypes';
+import { string, shape } from 'prop-types';
 import ExecutePipelineModal from './ExecutePipelineModal';
 import SelectDataPipelineModal from './SelectDataPipelineModal';
 import Navbar from '../../navbar/navbar';
@@ -69,6 +70,7 @@ const FunctionalExecutionPipelinesView = (props) => {
   let operationTypeToExecute;
   let operatorsTitle;
   let prefix = 'Op.';
+  let processorColor = 'var(--dark)';
   if (isExperiment) {
     activeFeature = 'experiments';
     instructionDataModel = experimentInstructionData;
@@ -76,17 +78,38 @@ const FunctionalExecutionPipelinesView = (props) => {
     operationTypeToExecute = ALGORITHM;
     operatorsTitle = 'Select a model:';
     prefix = 'Algo.';
+    processorColor = 'rgb(233, 148, 68)';
   } else if (isDataset) {
     instructionDataModel = dataPipelineInstructionData;
     pipelinesTypeExecutionTitle = 'Data pre-processing pipeline';
     operationTypeToExecute = OPERATION;
     operatorsTitle = 'Select a data operation';
+    processorColor = 'rgb(210, 81, 157)';
   } else {
     instructionDataModel = dataVisualizationInstuctionData;
     pipelinesTypeExecutionTitle = 'Data visualization';
     operationTypeToExecute = VISUALIZATION;
     operatorsTitle = 'Select a data visualization';
+    processorColor = 'rgb(115, 93, 168)';
   }
+
+  // Will be useful in redirecting to dashboard.
+  // const exploreAllOperationCards = () => {
+  //   if (operationTypeToExecute === ALGORITHM) history.push('/');
+  //   else if (operationTypeToExecute === OPERATION) history.push('/');
+  //   else history.push('/');
+  // };
+
+  const pipelineExploreButtons = [
+    <button
+      key={`explore-${operationTypeToExecute}`}
+      className="p-1"
+      type="button"
+      onClick={() => {}}
+    >
+      Explore all
+    </button>,
+  ];
 
   return (
     <Provider currentProcessors={setProcessors(processors, operationTypeToExecute)}>
@@ -137,14 +160,38 @@ const FunctionalExecutionPipelinesView = (props) => {
           </MCard.Section>
         </MCard>
 
-        <MCard className="pipe-line-execution tasks-list" title={operatorsTitle}>
-          <MCard.Section>
+        <MCard
+          className="pipe-line-execution tasks-list"
+          buttons={pipelineExploreButtons}
+          cardHeaderStyle={processorColor}
+          title={operatorsTitle}
+        >
+          <MCard.Section cardContentStyle={processorColor}>
             <ProcessorsList />
           </MCard.Section>
         </MCard>
       </div>
     </Provider>
   );
+};
+
+FunctionalExecutionPipelinesView.defaultProps = {
+  preconfiguredOperations: {},
+};
+
+FunctionalExecutionPipelinesView.propTypes = {
+  selectedProject: shape({
+    project: shape({}),
+  }).isRequired,
+  match: shape({
+    path: string.isRequired,
+    params: shape({
+      typePipelines: string,
+    }).isRequired,
+  }).isRequired,
+  processors: shape({}).isRequired,
+  preconfiguredOperations: shape({}),
+  actions: shape({}).isRequired,
 };
 
 function mapStateToProps(state) {
