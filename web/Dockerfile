@@ -38,7 +38,7 @@ RUN echo "Gitlab Pipeline $CI_PIPELINE_ID built on "$(date +%Y-%m-%d\ %H:%M:%S) 
 RUN npm install --global --silent react-scripts             && \
     npm install --global --silent create-react-app@latest   && \
     npm install --global --silent react-scripts@3.0.1       && \
-    npm install .                                           && \
+    npm install --silent .                                  && \
     # execute tests first, so there should be a halt when compiling if tests fail
     npm test                                                && \
     npm run build

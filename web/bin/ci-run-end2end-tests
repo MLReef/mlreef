@@ -13,7 +13,7 @@ cd web
 
 echo "Running end2end tests against $INSTANCE_HOST"
 
-npm install
+npm install --silent
 
 # Instance host is used by the proxy as target for redirection
 env INSTANCE_HOST="$INSTANCE_HOST" node src/__end2end-tests__/testProxy.js &
