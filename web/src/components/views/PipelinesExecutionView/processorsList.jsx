@@ -3,6 +3,7 @@ import {
   shape, string,
 } from 'prop-types';
 import ProjectGeneralInfoApi from 'apis/ProjectGeneralInfoApi';
+import MProjectCardTypes from '../../ui/MProjectCard/MProjectCardTypes';
 import ArrowButton from '../../arrow-button/arrowButton';
 import { DataPipelinesContext } from './DataPipelineHooks/DataPipelinesProvider';
 import { SET_PROCESSOR_SELECTED } from './DataPipelineHooks/actions';
@@ -25,7 +26,12 @@ const ProcessorsList = () => {
 export const Processor = ({ processorData }) => {
   const [shouldDescriptionRender, setShouldDescriptionRender] = useState(false);
   const [codeProjectInformation, setCodeProjectInformation] = useState({});
-  const { gitlab_namespace: nameSpace, slug } = codeProjectInformation;
+  const {
+    gitlab_namespace: nameSpace,
+    slug,
+    input_data_types: inputDataTypes,
+    stars_count: stars,
+  } = codeProjectInformation;
 
   const [, dispatch] = useContext(DataPipelinesContext);
   useEffect(() => {
@@ -49,17 +55,21 @@ export const Processor = ({ processorData }) => {
     >
       <div className="header d-flex">
         <div className="processor-title">
-          <p><b>{processorData.name}</b></p>
+          <p className="m-0"><b>{processorData.name}</b></p>
           <p>
             Created by
             &nbsp;
             <span><b>Keras</b></span>
           </p>
+          <div>
+            {inputDataTypes && <MProjectCardTypes input types={inputDataTypes} />}
+          </div>
         </div>
         <div className="data-oper-options d-flex">
-          <div>
+          <div className="d-flex">
+            <img src={stars > 0 ? '/images/svg/unstar.svg' : '/images/star.png'} alt="stars" />
             <p>
-              {processorData.starCount}
+              {stars}
             &nbsp;
             </p>
           </div>
@@ -76,13 +86,8 @@ export const Processor = ({ processorData }) => {
           {processorData.description}
         </p>
         <br />
-        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-          <p>
-            Data type:
-            {' '}
-            <b>{processorData.inputDataType}</b>
-          </p>
-          <p style={{ marginRight: '11px' }}>
+        <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+          <p className="m-0">
             <b>
               <a target="_blank" rel="noopener noreferrer" href={`/${nameSpace}/${slug}`}>
                 View Repository

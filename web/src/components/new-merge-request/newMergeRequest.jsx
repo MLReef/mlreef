@@ -105,16 +105,19 @@ export class NewMergeRequest extends Component {
       },
     } = this.props;
     diffsArray.filter((diff) => imageFormats
-      .filter((format) => diff.old_path.includes(format)).length > 0)
+      .filter((format) => diff.old_path.includes(format))
+      .length > 0)
       .forEach(async (imageDiff) => {
         const { imagesToRender } = this.state;
         const {
           previousVersionFile,
           nextVersionFile,
+          imageFileSize,
         } = await getFileDifferences(gid, imageDiff, lastCommit.parent_ids[0], lastCommit.id);
         imagesToRender.push({
           previousVersionFileParsed: previousVersionFile,
           nextVersionFileParsed: nextVersionFile,
+          imageFileSize,
           fileName: imageDiff.old_path.split('/').slice(-1)[0],
         });
         this.setState({ ...imagesToRender });
@@ -268,6 +271,7 @@ export class NewMergeRequest extends Component {
             <ImageDiffSection
               key={imageFile.fileName}
               fileInfo={imageFile}
+              fileSize={imageFile.imageFileSize}
               original={imageFile.previousVersionFileParsed}
               modified={imageFile.nextVersionFileParsed}
             />

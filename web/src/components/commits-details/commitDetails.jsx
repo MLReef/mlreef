@@ -97,7 +97,7 @@ class CommitDetails extends Component {
     const { page } = this.state;
 
     commitsApi
-      .getCommitDiff(projectId, commitId, page)
+      .getCommitDiff(projectId, commitId, page, true)
       .then((res) => {
         this.setState({
           totalPages: res.totalPages,

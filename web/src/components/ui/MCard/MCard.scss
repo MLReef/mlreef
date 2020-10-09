@@ -5,9 +5,7 @@
   border: 1px solid var(--light);
 
   &-header {
-    background-color: var(--dark);
     padding: 0.5rem;
-    border: 1px solid var(--dark);
     align-items: center;
     display: flex;
     justify-content: space-between;
@@ -17,6 +15,16 @@
     }
 
     &-buttons {
+      display: flex;
+      align-items: center;
+
+      & > button {
+        border: 1px solid var(--dark);
+        cursor: pointer;
+        border-radius: 4px;
+        background-color: var(--white);
+      };
+
       & > * {
         margin-right: 0.5rem;
       }

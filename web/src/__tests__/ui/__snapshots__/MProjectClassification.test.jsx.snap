@@ -66,104 +66,27 @@ exports[`test html elements 1`] = `
         id="cards-section"
       >
         <div
-          className="m-bricks-wall w-100"
+          className="d-flex noelement-found-div"
         >
-          <div
-            className="m-bricks-wall-brick animated"
-          >
-            <div
-              className="card"
-            >
-              <img
-                alt="private"
-                aria-hidden="true"
-                className="icon-visibility"
-                height="24"
-                src={
-                  Object {
-                    "canInstrument": true,
-                    "createTransformer": [Function],
-                    "getCacheKey": [Function],
-                    "process": [Function],
-                  }
-                }
-                width="24"
-              />
-              <div
-                className="card-container project-card-container"
-                onClick={[Function]}
-                onKeyPress={[Function]}
-                role="button"
-                tabIndex="0"
-              >
-                <p
-                  className="card-title"
-                >
-                  Sign Language Classifier
-                </p>
-                <div
-                  className="project-card-container-autor pb-3 mt-2"
-                >
-                  <p>
-                    Some namespace
-                  </p>
-                </div>
-                <div
-                  className="card-content"
-                >
-                  <div
-                    className="project-card-types d-flex"
-                  />
-                  <section
-                    className="m-paragraph card-content-description"
-                  >
-                    <p
-                      className="m-paragraph-line "
-                    >
-                      Categorical Classification of alphabets in the American Sign Language
-                    </p>
-                  </section>
-                  <div
-                    className="d-flex t-secondary"
-                  >
-                    <div
-                      className="mr-3"
-                    >
-                      <i
-                        className="fa fa-star"
-                      >
-                        <span
-                          className="label"
-                        >
-                           0
-                        </span>
-                      </i>
-                    </div>
-                    <div
-                      className="mr-3"
-                    >
-                      <i
-                        className="fa fa-code-branch"
-                      >
-                        <span
-                          className="label"
-                        >
-                           0
-                        </span>
-                      </i>
-                    </div>
-                  </div>
-                </div>
-                <div
-                  className="card-actions"
-                >
-                  <div
-                    className="avatars-reversed"
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
+          <img
+            alt=""
+            src={
+              Object {
+                "canInstrument": true,
+                "createTransformer": [Function],
+                "getCacheKey": [Function],
+                "process": [Function],
+              }
+            }
+            style={
+              Object {
+                "maxHeight": "100px",
+              }
+            }
+          />
+          <p>
+            No projects found
+          </p>
         </div>
       </div>
       <div

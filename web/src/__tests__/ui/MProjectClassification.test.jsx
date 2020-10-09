@@ -1,10 +1,12 @@
 import React from 'react';
+import { Provider } from 'react-redux';
 import renderer from 'react-test-renderer';
 import { shallow } from 'enzyme';
 import { MemoryRouter } from 'react-router-dom';
 import { ML_PROJECT } from 'dataTypes';
 import MProjectClassification from 'components/ui/MProjectClassification/MProjectClassification';
 import { projectsArrayMock } from 'testData';
+import { storeFactory } from 'functions/testUtils';
 import { parseToCamelCase } from 'functions/dataParserHelpers';
 import ArrowButton from 'components/arrow-button/arrowButton';
 
@@ -22,15 +24,17 @@ global.ResizeObserver = () => ({ observe: jest.fn() });
 
 test('test html elements', () => {
   const tree = renderer.create(
-    <MemoryRouter>
-      <MProjectClassification
-        classification={ML_PROJECT}
-        userProjects={[]}
-        starredProjects={[]}
-        allProjects={projectsArrayMock.projects.all.map((p) => parseToCamelCase(p))}
-        history={{ push: () => {}, location: { hash: '#Personal' }}}
-      />
-    </MemoryRouter>
+    <Provider store={storeFactory()}>
+      <MemoryRouter>
+        <MProjectClassification
+          classification={ML_PROJECT}
+          userProjects={[]}
+          starredProjects={[]}
+          allProjects={projectsArrayMock.projects.all.map((p) => parseToCamelCase(p))}
+          history={{ push: () => {}, location: { hash: '#Personal' }}}
+        />
+      </MemoryRouter>
+    </Provider>
   )
   .toJSON();
   expect(tree).toMatchSnapshot();

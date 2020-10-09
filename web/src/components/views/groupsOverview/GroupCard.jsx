@@ -18,7 +18,6 @@ const GroupCard = ({
   groupProjects,
   groupPath,
 }) => {
-  const [isProjectsDivShown] = useState(false);
   const [members, setMembers] = useState([]);
   useEffect(() => {
     grApi.getUsers(groupId)
@@ -57,9 +56,9 @@ const GroupCard = ({
             )}
           </div>
           {groupProjects.length > 0 ? (
-            <div className={`projects-section ${isProjectsDivShown ? 'open' : 'close'}`}>
-              <div className={`d-flex drop-down-button ${isProjectsDivShown ? 'open' : 'close'}`}>
-                <p className={`${isProjectsDivShown ? 'open' : 'close'}`}>{`${groupProjects.length} project(s)`}</p>
+            <div className="projects-section">
+              <div className="d-flex drop-down-button">
+                <p>{`${groupProjects.length} project(s)`}</p>
               </div>
             </div>
           ) : (
@@ -68,7 +67,7 @@ const GroupCard = ({
                 backgroundColor: '#F6F6F6', color: '#B2B2B2', padding: '3px 5px 3px 5px', margin: 0,
               }}
               >
-                Group has no project
+                Group has no projects
               </p>
             </div>
           )}

@@ -6,10 +6,11 @@ const MCardHeader = (props) => {
     className,
     children,
     title,
+    headerColor,
   } = props;
 
   return (
-    <div className={`${className} m-card-header border-rounded-top`}>
+    <div style={{ backgroundColor: `${headerColor}` }} className={`${className} m-card-header border-rounded-top`}>
       <div className="m-card-header-title">
         <b>{title}</b>
       </div>
@@ -22,6 +23,7 @@ const MCardHeader = (props) => {
 
 MCardHeader.defaultProps = {
   className: '',
+  headerColor: 'var(--dark)',
   title: 'Card title',
 };
 
@@ -32,6 +34,7 @@ MCardHeader.propTypes = {
     PropTypes.arrayOf(PropTypes.node),
     PropTypes.node,
   ]).isRequired,
+  headerColor: PropTypes.string,
 };
 
 export default MCardHeader;
