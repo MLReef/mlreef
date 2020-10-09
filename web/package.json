@@ -19,6 +19,7 @@
     "dayjs": "^1.8.29",
     "dompurify": "^2.0.8",
     "dotenv": "^8.2.0",
+    "express": "^4.17.1",
     "file-saver": "^2.0.2",
     "formik": "^2.1.4",
     "history": "^4.10.1",
@@ -45,7 +46,6 @@
     "reflect-metadata": "^0.1.13",
     "regenerator-runtime": "^0.13.3",
     "uuid": "^3.4.0",
-    "whatwg-fetch": "^3.0.0",
     "yup": "^0.28.1"
   },
   "devDependencies": {
@@ -78,6 +78,7 @@
     "testLocally": "jest --modulePaths=src --env=jsdom --detectOpenHandles",
     "test": "jest --modulePaths=src --env=jsdom --detectOpenHandles  --testPathPattern=/__tests__/*",
     "end2end": "jest --modulePaths=src --env=jsdom --detectOpenHandles --testPathPattern=/__end2end-tests__/*",
+    "e2e": "jest --modulePaths=src --env=jsdom --detectOpenHandles --testPathPattern=/__e2e__/tests/*",
     "cypress": "cypress open",
     "sitemap": "node bin/sitemap-generator.js",
     "eject": "react-scripts eject"

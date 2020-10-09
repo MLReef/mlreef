@@ -136,7 +136,8 @@ end2end tests - node:
       - web/**/*
       - .gitlab-ci.yml
       - docker-compose.yml
-  image: node:10.19.0-alpine    # This shall be the same image as web/Dockerfile and the "build frontend" job
+  # The imgae should be the same image as web/Dockerfile and the "build frontend" job
+  image: node:10.19.0-alpine
   script: web/bin/ci-run-end2end-tests
 
 

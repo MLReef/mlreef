@@ -84,6 +84,7 @@ export const handleResponse = async (res) => {
   if (!res.ok) {
     const error = new Error();
     error.name = res.statusText;
+    error.status = res.status;
     error.message = body ? body.message : '';
     return Promise.reject(error);
   }

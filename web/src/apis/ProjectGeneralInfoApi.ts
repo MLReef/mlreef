@@ -63,7 +63,7 @@ export default class ProjectGeneralInfoApi extends ApiDirector {
     const builder = new BLApiRequestCallBuilder(METHODS.GET, this.buildBasicHeaders(validServicesToCall.BACKEND), url);
 
     return fetch(builder.build())
-      .then(handleResponse)
+      .then(handleResponse);
   }
 
   listPublicProjects() {

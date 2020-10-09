@@ -15,4 +15,7 @@ echo "Running end2end tests against $INSTANCE_HOST"
 
 npm install
 
+# Instance host is used by the proxy as target for redirection
+env INSTANCE_HOST="$INSTANCE_HOST" node src/__end2end-tests__/testProxy.js &
+
 exec npm run end2end
