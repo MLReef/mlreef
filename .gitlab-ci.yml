@@ -76,6 +76,7 @@ deploy:
     changes:
       - backend/**/*
       - bin/ci-deploy
+      - bin/install
       - epf/**/*
       - web/**/*
       - .gitlab-ci.yml

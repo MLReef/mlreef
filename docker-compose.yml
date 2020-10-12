@@ -111,6 +111,7 @@ services:
 
   gitlab-runner:
     container_name: gitlab-runner
+    restart: always
     image: gitlab/gitlab-runner:alpine
     volumes:
       #CI_ACTIVATE- /data/gitlab-runner:/etc/gitlab-runner/:Z       # this line gets activated by the CI/CD pipeline
