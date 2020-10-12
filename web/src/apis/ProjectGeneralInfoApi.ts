@@ -2,7 +2,7 @@ import ApiDirector from './ApiDirector';
 import ApiRequestCallBuilder from './apiBuilders/ApiRequestCallBuilder';
 import BLApiRequestCallBuilder from './apiBuilders/BLApiRequestCallBuilder';
 import { METHODS, validServicesToCall } from './apiBuilders/requestEnums';
-import { handleResponse, handlePagination, inspect } from '../functions/apiCalls';
+import { handleResponse, inspect } from '../functions/apiCalls';
 import { filterBots } from './apiHelpers';
 import BodyLessApiRequestCallBuilder from './apiBuilders/BLApiRequestCallBuilder';
 
@@ -191,7 +191,6 @@ export default class ProjectGeneralInfoApi extends ApiDirector {
   // use   @GetMapping("/{namespace}/{slug}")
   getProjectDetailsNoAuth(namespace: string, slug: string) {
     return this.listPublicProjects()
-      .then(handlePagination)
       .then(inspect)
       .then((results: any) => results
         .filter((res: any) => res.gitlab_namespace === namespace)
