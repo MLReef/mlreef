@@ -1,0 +1,247 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Evaluate AuthWrapper assert snapshot for authenticated 1`] = `
+<main>
+  <section>
+    authenticated: only auth
+    <div>
+      should render
+    </div>
+  </section>
+  <section>
+    authenticated: only auth, norender
+    <div>
+      should render
+    </div>
+  </section>
+  <section>
+    authenticated: developer
+    <div
+      className="auth-wrapper ownership-required group-role-required"
+      title="Only the owner, you can fork it!"
+    >
+      <div
+        className="auth-wrapper-cover"
+        onClick={[Function]}
+      />
+      <div
+        className="auth-wrapper-wrapped"
+      >
+        <div>
+          should render covered
+        </div>
+      </div>
+    </div>
+  </section>
+  <section>
+    authenticated: developer, norender
+  </section>
+  <section>
+    authenticated: owneronly norender
+    <div
+      className="auth-wrapper ownership-required"
+      title="Only the owner, you can fork it!"
+    >
+      <div
+        className="auth-wrapper-cover"
+        onClick={[Function]}
+      />
+      <div
+        className="auth-wrapper-wrapped"
+      >
+        <div>
+          should render covered
+        </div>
+      </div>
+    </div>
+  </section>
+  <section>
+    authenticated: owneronly norender
+  </section>
+</main>
+`;
+
+exports[`Evaluate AuthWrapper assert snapshot for member of a project 1`] = `
+<main>
+  <section>
+    developer: only auth
+    <div>
+      should render
+    </div>
+  </section>
+  <section>
+    developer: only auth, norender
+    <div>
+      should render
+    </div>
+  </section>
+  <section>
+    developer: developer
+    <div>
+      should render
+    </div>
+  </section>
+  <section>
+    developer: developer, covered
+    <div>
+      should render
+    </div>
+  </section>
+  <section>
+    developer: developer w/o perms, covered
+    <div
+      className="auth-wrapper ownership-required group-role-required"
+      title="Only the owner, you can fork it!"
+    >
+      <div
+        className="auth-wrapper-cover"
+        onClick={[Function]}
+      />
+      <div
+        className="auth-wrapper-wrapped"
+      >
+        <div>
+          should render covered
+        </div>
+      </div>
+    </div>
+  </section>
+  <section>
+    developer: developer w/o perms, no render
+  </section>
+  <section>
+    developer: owneronly covered
+    <div
+      className="auth-wrapper ownership-required"
+      title="Only the owner, you can fork it!"
+    >
+      <div
+        className="auth-wrapper-cover"
+        onClick={[Function]}
+      />
+      <div
+        className="auth-wrapper-wrapped"
+      >
+        <div>
+          should render covered
+        </div>
+      </div>
+    </div>
+  </section>
+  <section>
+    developer: owneronly norender
+  </section>
+</main>
+`;
+
+exports[`Evaluate AuthWrapper assert snapshot for project owner 1`] = `
+<main>
+  <section>
+    owner: only auth
+    <div>
+      should render
+    </div>
+  </section>
+  <section>
+    owner: only auth, norender
+    <div>
+      should render
+    </div>
+  </section>
+  <section>
+    owner: developer
+    <div>
+      should render
+    </div>
+  </section>
+  <section>
+    owner: developer, covered
+    <div>
+      should render
+    </div>
+  </section>
+  <section>
+    owner: owneronly covered
+    <div>
+      should render
+    </div>
+  </section>
+  <section>
+    owner: owneronly norender
+    <div>
+      should render
+    </div>
+  </section>
+</main>
+`;
+
+exports[`Evaluate AuthWrapper assert snapshot for visitor 1`] = `
+<main>
+  <section>
+    visitor: only auth
+    <div
+      className="auth-wrapper ownership-required"
+      title="Please login"
+    >
+      <div
+        className="auth-wrapper-cover"
+        onClick={[Function]}
+      />
+      <div
+        className="auth-wrapper-wrapped"
+      >
+        <div>
+          should render covered
+        </div>
+      </div>
+    </div>
+  </section>
+  <section>
+    visitor: only auth, norender
+  </section>
+  <section>
+    visitor: developer covered
+    <div
+      className="auth-wrapper ownership-required group-role-required"
+      title="Please login"
+    >
+      <div
+        className="auth-wrapper-cover"
+        onClick={[Function]}
+      />
+      <div
+        className="auth-wrapper-wrapped"
+      >
+        <div>
+          should render covered
+        </div>
+      </div>
+    </div>
+  </section>
+  <section>
+    visitor: developer, norender
+  </section>
+  <section>
+    visitor: owneronly, covered
+    <div
+      className="auth-wrapper ownership-required"
+      title="Please login"
+    >
+      <div
+        className="auth-wrapper-cover"
+        onClick={[Function]}
+      />
+      <div
+        className="auth-wrapper-wrapped"
+      >
+        <div>
+          should render covered
+        </div>
+      </div>
+    </div>
+  </section>
+  <section>
+    visitor: owneronly norender
+  </section>
+</main>
+`;
