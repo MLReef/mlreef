@@ -205,6 +205,8 @@ class ProjectView extends React.Component {
                 {showReadMe && (
                 <ReadMeComponent
                   projectId={gid}
+                  namespace={namespace}
+                  slug={slug}
                   branch={decodedBranch}
                 />
                 )}
