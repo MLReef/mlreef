@@ -2,6 +2,7 @@ import React, { useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useHistory } from 'react-router-dom';
 import propTypes from 'prop-types';
+import cx from 'classnames';
 import './AuthWrapper.css';
 import { fireModal } from 'actions/actionModalActions';
 import {
@@ -39,7 +40,6 @@ const AuthWrapper = (props) => {
     className,
     debug,
     children,
-    visitorAllowed,
   } = props;
 
   const history = useHistory();
@@ -61,37 +61,39 @@ const AuthWrapper = (props) => {
   // means account tier is enough or account level is not required
   const hasAccountType = useGetHasAccountType(accountType);
 
-  // children render normally
   const allowed = useMemo(
-    () => (visitorAllowed || auth) && (owned || hasRole) && hasAccountType,
-    [owned, hasRole, hasAccountType, visitorAllowed, auth],
+    () => auth && (owned || (!owneronly && hasRole)) && hasAccountType,
+    [owned, owneronly, hasRole, hasAccountType, auth],
   );
 
   // so far these are informative classes, no more.
-  const classes = useMemo(() => ({
-    main: `auth-wrapper
-      ${!owned ? 'ownership-required' : ''}
-      ${!hasRole ? 'group-role-required' : ''}
-      ${!hasAccountType ? 'project-role-required' : ''}
-    `,
-  }), [owned, hasRole, hasAccountType]);
+  const classes = useMemo(
+    () => ({
+      main: cx('auth-wrapper', className, {
+        'ownership-required': !owned,
+        'group-role-required': !hasRole,
+        'project-role-required': !hasAccountType,
+      }),
+    }),
+    [owned, hasRole, hasAccountType, className],
+  );
 
   // this will be displayed as tooltip when hover
   const message = useMemo(
     () => {
-      if (!(visitorAllowed || auth)) return 'Please login';
+      if (!auth) return 'Please login';
       if (!owned) return 'Only the owner, you can fork it!';
       if (!hasRole) return 'You need a proper role.';
       if (!hasAccountType) return 'Upgrade your account';
 
       return 'You need permission to use this feature';
     },
-    [owned, hasRole, hasAccountType, visitorAllowed, auth],
+    [owned, hasRole, hasAccountType, auth],
   );
 
   // fired if user click the cover
   const handleClick = () => {
-    if (!(visitorAllowed || auth)) return dispatch(fireModal({
+    if (!auth) return dispatch(fireModal({
       ...registerModal,
       // this will be executed when UPGRADE button is clicked
       onNegative: () => history.push('/register'),
@@ -120,7 +122,7 @@ const AuthWrapper = (props) => {
 
   // eslint-disable-next-line
   return allowed ? children : (norender ? null : (
-    <div title={message} className={`${className} ${classes.main}`} style={style}>
+    <div title={message} className={classes.main} style={style}>
       {/* eslint-disable-next-line */}
       <div onClick={handleClick} className="auth-wrapper-cover"></div>
       <div className="auth-wrapper-wrapped">
@@ -132,21 +134,20 @@ const AuthWrapper = (props) => {
 
 AuthWrapper.defaultProps = {
   owner: false,
-  role: 0,
+  minRole: 0,
   accountType: 0,
   resource: {
     type: 'project',
     id: 0,
   },
   norender: false,
-  visitorAllowed: false,
-  style: {},
+  style: undefined,
   className: '',
 };
 
 AuthWrapper.propTypes = {
   owner: propTypes.bool,
-  role: propTypes.number,
+  minRole: propTypes.number,
   accountType: propTypes.number,
   norender: propTypes.bool,
   resource: propTypes.shape({
@@ -154,7 +155,6 @@ AuthWrapper.propTypes = {
     id: propTypes.number,
   }),
   debug: propTypes.bool,
-  visitorAllowed: propTypes.bool,
   className: propTypes.string,
   // children:
 };

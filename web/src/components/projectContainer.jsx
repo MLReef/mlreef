@@ -73,7 +73,7 @@ class ProjectContainer extends React.Component {
             </Link>
 
             {isDataProject && (
-              <AuthWrapper minRole={10} className="tab-disabled">
+              <AuthWrapper className="tab-disabled">
                 <Link
                   onClick={forceShowExperimentList}
                   to={`/${namespace}/${slug}/-/experiments`}
@@ -84,7 +84,7 @@ class ProjectContainer extends React.Component {
                 </Link>
               </AuthWrapper>
             )}
-            <AuthWrapper minRole={10} className="tab-disabled">
+            <AuthWrapper className="tab-disabled">
               <Link to={`/${namespace}/${slug}/insights/-/jobs`} className="feature" id="insights">
                 Insights
               </Link>
