@@ -28,11 +28,12 @@ export const createPipelineInProject = (
 ) => {
   const dataOperations = dataOperationsSelected?.map((dataOp) => ({
     slug: dataOp.slug,
-    parameters: dataOp.inputValuesAndDataModels
-      ?.map((param) => ({
-        name: param.name,
-        value: (param.value || param.default_value),
-      })),
+    parameters: dataOp?.parameters?.map(({
+      name, value, default_value: defaultValue,
+    }) => ({
+      name,
+      value: value || defaultValue,
+    })),
   }));
 
   const pipelineBody = {
@@ -77,9 +78,11 @@ const createExperimentInProject = (
       .map((file) => ({ location: file.path, location_type: file.type === 'blob' ? 'PATH_FILE' : 'PATH_FOLDER' })),
     processing: {
       slug,
-      parameters: parameters.map(({ name, value, type, required, description}) => ({
+      parameters: parameters.map(({
+        name, value, type, required, description, default_value: defaultValue,
+      }) => ({
         name,
-        value,
+        value: value || defaultValue,
         type,
         required,
         description,
@@ -96,6 +99,7 @@ const createExperimentInProject = (
           } else {
             return Promise.reject(res);
           }
+          return null;
         });
     })
     .catch((err) => {
