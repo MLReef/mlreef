@@ -2,8 +2,7 @@ import ApiDirector from './ApiDirector';
 import { METHODS, validServicesToCall } from './apiBuilders/requestEnums';
 import ApiRequestCallBuilder from './apiBuilders/ApiRequestCallBuilder';
 import BLApiRequestCallBuilder from './apiBuilders/BLApiRequestCallBuilder';
-import { handleResponse } from 'functions/apiCalls';
-import 'babel-polyfill';
+import { handleResponse } from 'functions/helpers';
 
 export default class PasswordManagementApi extends ApiDirector {
   async sendResetPassEmail(email: string) {

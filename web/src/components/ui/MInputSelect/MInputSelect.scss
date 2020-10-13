@@ -1,0 +1,26 @@
+.m-input-select {
+  &-options {
+    margin-top: 0.5rem;
+    width: max-content;
+
+    ul {
+      position: absolute;
+      z-index: 4;
+      background-color: white;
+      list-style-type: none;
+      padding: 0 0 0 0.5rem;
+      margin-top: -5px;
+      box-shadow: 0 2px 4px var(--dark);
+      border-radius: 5px;
+      height: 15rem;
+      overflow-y: scroll;
+      li {
+        padding: 1rem 0.5rem 0.5rem 0.5rem;
+
+        input {
+          width: auto;
+        }
+      }
+    }
+  }
+}

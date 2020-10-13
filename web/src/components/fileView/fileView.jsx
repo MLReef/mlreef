@@ -19,7 +19,7 @@ import ProjectContainer from '../projectContainer';
 import CommitsApi from '../../apis/CommitsApi.ts';
 import Navbar from '../navbar/navbar';
 import FilesApi from '../../apis/FilesApi.ts';
-import DeleteFileModal from '../delete-file-modal/deleteFileModal';
+import DeleteFileModal from '../DeleteFileModal/DeleteFileModal';
 
 dayjs.extend(relativeTime);
 
@@ -149,13 +149,15 @@ export class FileView extends React.Component {
       <div className="file-view">
         {projectId && (
           <DeleteFileModal
+            namespace={namespace}
+            slug={slug}
             projectId={projectId}
             filepath={encodeURIComponent(file)}
             isModalVisible={isdeleteModalVisible}
             fileName={fileName}
             branches={branches.map((branchObj) => branchObj.name)}
             showDeleteModal={this.showDeleteModal}
-            branchSelected={branch}
+            sourceBranch={branch}
           />
         )}
         <Navbar />

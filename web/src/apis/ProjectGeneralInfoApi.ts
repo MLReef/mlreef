@@ -2,9 +2,10 @@ import ApiDirector from './ApiDirector';
 import ApiRequestCallBuilder from './apiBuilders/ApiRequestCallBuilder';
 import BLApiRequestCallBuilder from './apiBuilders/BLApiRequestCallBuilder';
 import { METHODS, validServicesToCall } from './apiBuilders/requestEnums';
-import { handlePagination, handleResponse, inspect } from '../functions/apiCalls';
+import { handlePagination, inspect } from '../functions/apiCalls';
 import { filterBots } from './apiHelpers';
 import BodyLessApiRequestCallBuilder from './apiBuilders/BLApiRequestCallBuilder';
+import { handleResponse } from 'functions/helpers';
 
 export default class ProjectGeneralInfoApi extends ApiDirector {
   constructor() {

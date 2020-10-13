@@ -78,7 +78,7 @@ const FilesContainer = ({
           <Link
             type="button"
             className="btn btn-basic-dark"
-            to={`/my-projects/${projectId}/${finalBranch}/new-merge-request`} // TODO: this route does not exist
+            to={`/${namespace}/${slug}/-/merge_requests/new?merge_request[source_branch]=${finalBranch}`}
           >
             Create merge request
           </Link>
