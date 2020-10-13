@@ -1,5 +1,5 @@
 import { toastr } from 'react-redux-toastr';
-import { handleResponse } from 'functions/apiCalls';
+import { handleResponse } from 'functions/helpers';
 import ApiDirector from './ApiDirector';
 import { METHODS, validServicesToCall } from './apiBuilders/requestEnums';
 import BLApiRequestCallBuilder from './apiBuilders/BLApiRequestCallBuilder';

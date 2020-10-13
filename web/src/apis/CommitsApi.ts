@@ -1,7 +1,7 @@
 import ApiDirector from './ApiDirector';
 import { METHODS, validServicesToCall } from './apiBuilders/requestEnums';
 import BLApiRequestCallBuilder from './apiBuilders/BLApiRequestCallBuilder';
-import { handleResponse } from 'functions/apiCalls';
+import { handleResponse } from 'functions/helpers';
 import ApiRequestCallBuilder from './apiBuilders/ApiRequestCallBuilder';
 
 export default class CommitsApi extends ApiDirector {
@@ -11,10 +11,11 @@ export default class CommitsApi extends ApiDirector {
     fileContent: string, 
     branch: string, 
     commitMss: string, 
-    action: string, 
+    action: string,
     encoding: string = 'text',
+    branchStart: string,
   ) {
-    const data = JSON.stringify({
+    const body = {
       branch,
       commit_message: commitMss,
       actions: [
@@ -25,7 +26,8 @@ export default class CommitsApi extends ApiDirector {
           encoding,
         },
       ],
-    });
+    }
+    const data = JSON.stringify(branchStart ? { ...body, start_branch: branchStart } : body);
     const url = `/api/v4/projects/${projectId}/repository/commits`
     const blBuilder = new ApiRequestCallBuilder(METHODS.POST, this.buildBasicHeaders(validServicesToCall.GITLAB), url, data);
     return fetch(blBuilder.build())

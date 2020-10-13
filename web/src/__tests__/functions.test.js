@@ -2,7 +2,7 @@ import validateInputs, { validateProjectName, isJson } from 'functions/validatio
 import {
   STRING, FLOAT, INTEGER, BOOLEAN,
 } from 'dataTypes';
-import { handleResponse } from 'functions/apiCalls';
+import { handleResponse } from 'functions/helpers';
 import { parseDecimal } from '../functions/dataParserHelpers';
 
 describe('Parse decimal numbers', () => {

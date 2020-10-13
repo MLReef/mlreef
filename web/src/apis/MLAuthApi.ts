@@ -7,7 +7,7 @@ import 'regenerator-runtime/runtime';
 import ApiDirector from './ApiDirector';
 import ApiRequestCallBuilder from './apiBuilders/ApiRequestCallBuilder';
 import { METHODS } from './apiBuilders/requestEnums';
-import { handleResponse } from 'functions/apiCalls';
+import { handleResponse } from 'functions/helpers';
 
 export default class MLRAuthApi extends ApiDirector {
   login(username: string, email: string, password: string) {

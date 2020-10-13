@@ -7,6 +7,7 @@ const ArrowButton = ({
   callback,
   id,
   buttonStyle,
+  className,
   initialIsOpened,
 }) => {
   const [isOpened, setIsOpened] = useState(initialIsOpened);
@@ -30,7 +31,7 @@ const ArrowButton = ({
       type="button"
       id={id}
       ref={buttonRef}
-      className="btn btn-icon btn-hidden p-1"
+      className={className || 'btn btn-icon btn-hidden p-1'}
     >
       {placeholder && (
         placeholder

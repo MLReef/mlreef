@@ -74,25 +74,6 @@ export const suscribeRT = (options = {}) => (action, args) => {
   };
 };
 
-// this returns an error if code is bigger than 400
-// added an extra guard to avoid failing by bad json parsing
-export const handleResponse = async (res) => {
-  let body;
-  const NO_CONTENT_STATUS = 204;
-  if (res.status !== NO_CONTENT_STATUS) {
-    body = await res.json();
-  }
-  if (!res.ok) {
-    const error = new Error();
-    error.name = res.statusText;
-    error.status = res.status;
-    error.message = body ? body.message : '';
-    return Promise.reject(error);
-  }
-
-  return body;
-};
-
 export const inspect = (res) => console.info(res) || res;
 
 export const onlyDataProject = (project) => project.searchableType === PROJECT_TYPES.DATA;

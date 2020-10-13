@@ -1,7 +1,7 @@
 import ApiDirector from './ApiDirector';
 import BodyLessApiRequestCallBuilder from './apiBuilders/BLApiRequestCallBuilder';
 import { METHODS, validServicesToCall } from './apiBuilders/requestEnums';
-import { handleResponse } from 'functions/apiCalls';
+import { handleResponse } from 'functions/helpers';
 
 export default class FilesApi extends ApiDirector {
   async getFilesPerProject(projectId: number, path: string, recursive = false, ref: string) {
