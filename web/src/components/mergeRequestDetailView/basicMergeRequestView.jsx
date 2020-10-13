@@ -20,7 +20,7 @@ import MWrapper from 'components/ui/MWrapper';
 import ChangesMrSection from 'components/changes-mr-section/ChangesMrSection';
 import Navbar from '../navbar/navbar';
 import CommitsList from '../commitsList';
-import mergeRequestAPI from '../../apis/mergeRequestApi';
+import MergeRequestAPI from '../../apis/MergeRequestApi.ts';
 import BranchesApi from '../../apis/BranchesApi.ts';
 import ProjectContainer from '../projectContainer';
 import './basicMR.css';
@@ -28,6 +28,8 @@ import './basicMR.css';
 dayjs.extend(relativeTime);
 
 const brApi = new BranchesApi();
+
+const mergeRequestAPI = new MergeRequestAPI();
 
 const BasicMergeRequestView = (props) => {
   const {
