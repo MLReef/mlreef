@@ -110,6 +110,7 @@ const ImageDiffSection = ({ fileInfo, original, modified, fileSize }) => {
 ImageDiffSection.defaultProps = {
   original: '',
   modified: '',
+  fileSize: '0',
 };
 
 ImageDiffSection.propTypes = {
@@ -118,7 +119,7 @@ ImageDiffSection.propTypes = {
   }).isRequired,
   original: string,
   modified: shape({}),
-  fileSize: string.isRequired,
+  fileSize: string,
 };
 
 export default ImageDiffSection;

@@ -11,6 +11,7 @@ import { Link } from 'react-router-dom';
 import MDropdown from 'components/ui/MDropdown';
 import { getFileDifferences } from 'functions/apiCalls';
 import { getTimeCreatedAgo, getCommentFromCommit } from 'functions/dataParserHelpers';
+import MScrollableSection from 'components/ui/MScrollableSection/MScrollableSection';
 import Navbar from '../navbar/navbar';
 import ProjectContainer from '../projectContainer';
 import './commitDetails.css';
@@ -45,10 +46,6 @@ class CommitDetails extends Component {
         this.loadDiffCommits();
       })
       .catch((err) => err);
-
-    this.scrollListener = window.addEventListener('scroll', (e) => {
-      this.handleFileScroll(e);
-    });
   }
 
   getDiffDetails(diffsArray) {
@@ -75,18 +72,15 @@ class CommitDetails extends Component {
       });
   }
 
-  handleFileScroll = () => {
-    const { scrolling, page, totalPages } = this.state;
-    if (scrolling) return null;
-    if (totalPages <= page) return null;
-    const lastEle = document.querySelector('.diff-sections:last-child');
-    const lastEleOffSet = lastEle?.offsetTop + lastEle?.clientHeight;
-    const pageOffset = window.pageYOffset + window.innerHeight;
-    const bottomOffset = 200;
-    if (pageOffset > lastEleOffSet - bottomOffset) this.loadMoreCommits();
+   handleFileScroll = () => {
+     const { scrolling, page, totalPages } = this.state;
+     if (scrolling) return null;
+     if (totalPages <= page) return null;
 
-    return null;
-  };
+     this.loadMoreCommits();
+
+     return null;
+   };
 
   loadDiffCommits = () => {
     const {
@@ -219,7 +213,7 @@ class CommitDetails extends Component {
             </span>
             .
           </p>
-          <div className="diff-sections">
+          <MScrollableSection className="diff-sections" handleOnScrollDown={this.handleFileScroll}>
             {imagesToRender.map((imageFile) => (
               <ImageDiffSection
                 key={imageFile.fileName}
@@ -229,7 +223,7 @@ class CommitDetails extends Component {
                 modified={imageFile.nextVersionFileParsed}
               />
             ))}
-          </div>
+          </MScrollableSection>
         </div>
       </div>
     );

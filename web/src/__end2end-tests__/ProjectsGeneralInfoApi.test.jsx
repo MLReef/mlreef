@@ -9,6 +9,6 @@ beforeAll(async () => {
 test('Can get public projects ', async () => {
   jest.setTimeout(30000);
 
-  const projects = await projectApi.listPublicProjects();
+  const projects = await projectApi.getProjectsList('/public');
   expect(projects.length > 0).toBe(true);
 });

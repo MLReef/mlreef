@@ -95,7 +95,7 @@ class MProjectClassification extends Component {
       isMlCategoriesVisible,
       isModelTypesVisible,
     } = this.state;
-    
+
     const {
       classification,
       userProjects,
@@ -191,94 +191,93 @@ class MProjectClassification extends Component {
               isLoading={isLoading}
             />
             <MWrapper disable title="Not available yet.">
-              {/* eslint-disable-next-line */}
-            <div className="d-none d-lg-block" id="side-filters">
-              <div id="input-div">
-                <p>Refine by</p>
-                <button>Clear filters</button>
+              <div className="d-none d-lg-block" id="side-filters">
+                <div id="input-div">
+                  <p>Refine by</p>
+                  <button>Clear filters</button>
+                </div>
+                <br />
+                <>
+                  <div className="name-filter-section">
+                    <p>
+                      Data types
+                    </p>
+                    <ArrowButton callback={this.handleClickDataTypesButton} />
+                  </div>
+                  {isDataTypesVisible && (
+                    dataTypes.map((dtype) => (
+                      <MCheckBox
+                        key={`${dtype.name} ${dtype.label} comp`}
+                        name={dtype.name}
+                        labelValue={dtype.label}
+                        callback={(name, labelValue, newValue) => {
+
+                        }}
+                      />
+                    ))
+                  )}
+                </>
+                <>
+                  <div className="name-filter-section">
+                    <p>
+                      Framework
+                    </p>
+                    <ArrowButton callback={this.handleClickFrameworkButton} />
+                  </div>
+                  {isFrameworksVisible && (
+                    frameworks.map((dtype) => (
+                      <MCheckBox
+                        key={`${dtype.name} ${dtype.label} comp`}
+                        name={dtype.name}
+                        labelValue={dtype.label}
+                        callback={(name, labelValue, newValue) => {
+
+                        }}
+                      />
+                    ))
+                  )}
+                </>
+                <>
+                  <div className="name-filter-section">
+                    <p>
+                      Model Type
+                    </p>
+                    <ArrowButton callback={this.handleClickModelTypeButton} />
+                  </div>
+                  {isModelTypesVisible && (
+                    modelTypes.map((dtype) => (
+                      <MCheckBox
+                        key={`${dtype.name} ${dtype.label} comp`}
+                        name={dtype.name}
+                        labelValue={dtype.label}
+                        callback={(name, labelValue, newValue) => {
+
+                        }}
+                      />
+                    ))
+                  )}
+                </>
+                <>
+                  <div className="name-filter-section">
+                    <p>
+                      ML categories
+                    </p>
+                    <ArrowButton callback={this.handleClickMlCategoriesButton} />
+                  </div>
+                  {isMlCategoriesVisible && (
+                    mlCategories.map((dtype) => (
+                      <MCheckBox
+                        key={`${dtype.name} ${dtype.label} comp`}
+                        name={dtype.name}
+                        labelValue={dtype.label}
+                        callback={(name, labelValue, newValue) => {
+
+                        }}
+                      />
+                    ))
+                  )}
+                </>
               </div>
-              <br />
-              <>
-                <div className="name-filter-section">
-                  <p>
-                    Data types
-                  </p>
-                  <ArrowButton callback={this.handleClickDataTypesButton} />
-                </div>
-                {isDataTypesVisible && (
-                  dataTypes.map((dtype) => (
-                    <MCheckBox
-                      key={`${dtype.name} ${dtype.label} comp`}
-                      name={dtype.name}
-                      labelValue={dtype.label}
-                      callback={(name, labelValue, newValue) => {
-
-                      }}
-                    />
-                  ))
-                )}
-              </>
-              <>
-                <div className="name-filter-section">
-                  <p>
-                    Framework
-                  </p>
-                  <ArrowButton callback={this.handleClickFrameworkButton} />
-                </div>
-                {isFrameworksVisible && (
-                  frameworks.map((dtype) => (
-                    <MCheckBox
-                      key={`${dtype.name} ${dtype.label} comp`}
-                      name={dtype.name}
-                      labelValue={dtype.label}
-                      callback={(name, labelValue, newValue) => {
-
-                      }}
-                    />
-                  ))
-                )}
-              </>
-              <>
-                <div className="name-filter-section">
-                  <p>
-                    Model Type
-                  </p>
-                  <ArrowButton callback={this.handleClickModelTypeButton} />
-                </div>
-                {isModelTypesVisible && (
-                  modelTypes.map((dtype) => (
-                    <MCheckBox
-                      key={`${dtype.name} ${dtype.label} comp`}
-                      name={dtype.name}
-                      labelValue={dtype.label}
-                      callback={(name, labelValue, newValue) => {
-
-                      }}
-                    />
-                  ))
-                )}
-              </>
-              <>
-                <div className="name-filter-section">
-                  <p>
-                    ML categories
-                  </p>
-                  <ArrowButton callback={this.handleClickMlCategoriesButton} />
-                </div>
-                {isMlCategoriesVisible && (
-                  mlCategories.map((dtype) => (
-                    <MCheckBox
-                      key={`${dtype.name} ${dtype.label} comp`}
-                      name={dtype.name}
-                      labelValue={dtype.label}
-                      callback={(name, labelValue, newValue) => {
-
-                      }}
-                    />
-                  ))
-                )}
-              </>
-            </div>
             </MWrapper>
           </div>
         </div>

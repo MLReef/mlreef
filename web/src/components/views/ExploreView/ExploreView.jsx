@@ -47,7 +47,7 @@ const ExploreView = (props) => {
         .getDataProcessorsAndCorrespondingProjects(type, {}, { explore: true });
 
       return Promise.all([
-        actions.getProjectsList(),
+        actions.getProjectsList(0, 20),
         // actions.getGroupsList(),
         execRequest(PROJECT_TYPES.ALGORITHM),
         execRequest(PROJECT_TYPES.OPERATION),
@@ -71,6 +71,7 @@ const ExploreView = (props) => {
     [fetch],
   );
 
+  // This filter can be removed because we only fetch now data projects
   const dataProjects = useMemo(
     () => allProjects.filter(onlyDataProject),
     [allProjects],

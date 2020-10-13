@@ -25,6 +25,7 @@ export default {
         userProjects: [],
       },
     },
+    paginationInfo: {}
   },
   users: [],
   processors: {

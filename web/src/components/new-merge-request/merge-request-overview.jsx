@@ -139,6 +139,7 @@ class MergeRequestOverview extends Component {
                     </button>
                   </AuthWrapper>
                 </div>
+                {/* TODO: refactor the next code, no need to copy 4 times the same */}
                 <div id="merge-requests-container-div">
                   {btnSelected === 'open-btn' && openedMrs.list.length > 0
                     ? <MergeRequestCard namespace={namespace} slug={slug} mergeRequestsList={openedMrs} key={openedMrs.mrState} />

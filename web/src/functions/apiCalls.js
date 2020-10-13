@@ -1,6 +1,7 @@
 import { POLL_TIMEOUT } from 'apiConfig';
 import { PROJECT_TYPES } from 'domain/project/projectTypes';
 import CommitsApi from '../apis/CommitsApi.ts';
+import { parseToCamelCase } from './dataParserHelpers';
 
 const commitsApi = new CommitsApi();
 
@@ -99,3 +100,14 @@ export const onlyDataProject = (project) => project.searchableType === PROJECT_T
 export const onlyCodeProject = (project) => project.searchableType === PROJECT_TYPES.CODE;
 
 export const handlePagination = ({ content }) => ([...content]);
+
+export const handlePaginationWithAdditionalInfo = ({
+  last, pageable, content, total_pages: totalPages, number
+}) => ({ 
+  pagination: { 
+    last, 
+    pageable, 
+    totalPages, 
+    number,
+  },
+  content: content.map(parseToCamelCase)});
