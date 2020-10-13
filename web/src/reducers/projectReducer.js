@@ -4,15 +4,12 @@ import * as types from '../actions/actionTypes';
 export default function projectReducer(state = initialState.projects, action) {
   switch (action.type) {
     case types.GET_LIST_OF_PROJECTS:
-      state.all = [...action.projects];
-      return { ...state };
+      return { 
+        ...state,
+        all: action.projects,
+      };
     case types.SET_SELECTED_PROJECT:
-      state.selectedProject = action.project;
-      return { ...state };
-    case types.UPDATE_PROJECTS_LIST:
-      state.all = action.projects;
-      return { ...state };
-
+      return { ...state, selectedProject: action.project };
     case types.SET_STARRED_PROJECTS:
       return {
         ...state,
@@ -51,6 +48,13 @@ export default function projectReducer(state = initialState.projects, action) {
           projectStarrers: action.projectStarrers,
         },
       };
+    case types.SET_PAGINATION_INFO:
+      return {
+        ...state,
+        paginationInfo: {
+          ...action.pagination
+        },
+      }
     default:
       return state;
   }

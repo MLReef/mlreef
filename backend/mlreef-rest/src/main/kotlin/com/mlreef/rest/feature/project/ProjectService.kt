@@ -65,7 +65,7 @@ interface ProjectService<T : Project> {
     fun getAllPublicProjects(pageable: Pageable? = null): List<T>
 
     fun getAllPublicProjectsOnly(pageable: Pageable?): Page<T>
-    fun getAllProjectsAccessibleByUser(token: TokenDetails, pageable: Pageable? = null): Page<T>
+    fun getAllProjectsAccessibleByUser(token: TokenDetails, pageable: Pageable? = null, isDataProjectRequest: Boolean): Page<T>
     fun getAllProjectsStarredByUser(token: TokenDetails, pageable: Pageable? = null): Page<T>
     fun getOwnProjectsOfUser(token: TokenDetails, pageable: Pageable? = null): Page<T>
     fun getAllProjectsUserMemberIn(token: TokenDetails, pageable: Pageable? = null): Page<T>
@@ -205,12 +205,17 @@ open class ProjectServiceImpl<T : Project>(
         private val log = LoggerFactory.getLogger(this::class.java)
     }
 
-    override fun getAllProjectsAccessibleByUser(token: TokenDetails, pageable: Pageable?): Page<T> {
-        if (token.isVisitor) {
-            return repository.findAccessibleProjectsForVisitor(pageable)
-        } else {
-            return repository.findAccessibleProjectsForOwner(token.personId, token.projects.map { it.key }, pageable)
-        }
+    override fun getAllProjectsAccessibleByUser(token: TokenDetails, pageable: Pageable?, isDataProjectRequest: Boolean): Page<T> {
+        return if (token.isVisitor)
+            if(isDataProjectRequest)
+                repository.findAccessibleDataProjectsForVisitor(pageable)
+            else
+                repository.findAccessibleProjectsForVisitor(pageable)
+        else
+            if(isDataProjectRequest)
+                repository.findAccessibleDataProjectsForOwner(token.personId, token.projects.map { it.key }, pageable)
+            else
+                repository.findAccessibleProjectsForOwner(token.personId, token.projects.map { it.key }, pageable)
     }
 
     override fun getAllProjectsStarredByUser(token: TokenDetails, pageable: Pageable?): Page<T> {

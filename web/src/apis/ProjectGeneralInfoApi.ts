@@ -2,7 +2,7 @@ import ApiDirector from './ApiDirector';
 import ApiRequestCallBuilder from './apiBuilders/ApiRequestCallBuilder';
 import BLApiRequestCallBuilder from './apiBuilders/BLApiRequestCallBuilder';
 import { METHODS, validServicesToCall } from './apiBuilders/requestEnums';
-import { handleResponse, inspect } from '../functions/apiCalls';
+import { handlePagination, handleResponse, inspect } from '../functions/apiCalls';
 import { filterBots } from './apiHelpers';
 import BodyLessApiRequestCallBuilder from './apiBuilders/BLApiRequestCallBuilder';
 
@@ -10,7 +10,7 @@ export default class ProjectGeneralInfoApi extends ApiDirector {
   constructor() {
     super();
 
-    this.listPublicProjects = this.listPublicProjects.bind(this);
+    this.getProjectsList = this.getProjectsList.bind(this);
     this.getProjectDetails = this.getProjectDetails.bind(this);
     this.getProjectDetailsNoAuth = this.getProjectDetailsNoAuth.bind(this);
   }
@@ -58,18 +58,11 @@ export default class ProjectGeneralInfoApi extends ApiDirector {
     return response.json();
   }
 
-  async getProjectsList() {
-    const url = '/api/v1/projects';
-    const builder = new BLApiRequestCallBuilder(METHODS.GET, this.buildBasicHeaders(validServicesToCall.BACKEND), url);
+  getProjectsList(query: string) {
+    const url = '/api/v1/data-projects';
+    const builder = new BLApiRequestCallBuilder(METHODS.GET, this.buildBasicHeaders(validServicesToCall.BACKEND), `${url}${query}`);
 
     return fetch(builder.build())
-      .then(handleResponse);
-  }
-
-  listPublicProjects() {
-    const url = '/api/v1/projects/public';
-
-    return fetch(url)
       .then(handleResponse);
   }
 
@@ -190,7 +183,8 @@ export default class ProjectGeneralInfoApi extends ApiDirector {
 
   // use   @GetMapping("/{namespace}/{slug}")
   getProjectDetailsNoAuth(namespace: string, slug: string) {
-    return this.listPublicProjects()
+    return this.getProjectsList('/public')
+      .then(handlePagination)
       .then(inspect)
       .then((results: any) => results
         .filter((res: any) => res.gitlab_namespace === namespace)

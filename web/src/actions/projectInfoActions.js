@@ -2,7 +2,7 @@ import { toastr } from 'react-redux-toastr';
 import ProjectGeneralInfoApi from 'apis/ProjectGeneralInfoApi';
 import { parseToCamelCase, adaptProjectModel } from 'functions/dataParserHelpers';
 import MLSearchApi from 'apis/MLSearchApi';
-import { handlePagination } from 'functions/apiCalls';
+import { handlePaginationWithAdditionalInfo } from 'functions/apiCalls';
 import store from '../store';
 import * as types from './actionTypes';
 
@@ -43,40 +43,40 @@ export function setStarredProjectsSuccessfully(projects) {
   return { type: types.SET_STARRED_PROJECTS, projects };
 }
 
+export function setPaginationInfoSuccessfully(pagination) {
+  return { type: types.SET_PAGINATION_INFO, pagination };
+}
+
 /**
- * get list of projects associated with authenticated user
+ * get list of projects, function changes the API call depending on the user authentication
+ */
+/**
+ * @param {*} page: number of the page to request
+ * @param {*} size: number of the elements to fetch
  */
 
-export function getProjectsList() {
-  return async (dispatch) => {
-    const { user: { username, auth } } = store.getState();
-    let allProjects = [];
-    let publicProjects = [];
-    if (auth) {
-      allProjects = await projectApi.getProjectsList()
-        .then((projs) => projs.map(parseToCamelCase))
-        .then((projects) => mergeGitlabResource(projects));
-    } else {
-      publicProjects = await projectApi.listPublicProjects()
-        // .then(handlePagination)
-        .then((projs) => projs.map(parseToCamelCase))
-        .then((projects) => mergeGitlabResource(projects));
-    }
-    const finalArray = [...publicProjects, ...allProjects];
-    if (finalArray) {
-      const filterMember = (ps) => ps.filter((p) => p.members
-        .some((m) => m.username === username));
+export const getProjectsList = (page, size) => async (dispatch) => {
+  const { user: { username, auth }, projects: stateProjects } = store.getState();
+  const { projects, pagination } = await projectApi.getProjectsList(`${auth ? '' : '/public'}?page=${page}&size=${size}`)
+    .then(handlePaginationWithAdditionalInfo)
+    .then((projsPag) => ({ ...projsPag, projects: mergeGitlabResource(projsPag.content) }));
+  if (projects) {
+    const filterMember = (ps) => ps.filter((p) => p.members
+      .some((m) => m.username === username));
 
-      dispatch(setProjectsInfoSuccessfully(finalArray));
-      dispatch(setStarredProjectsSuccessfully(finalArray.filter((proj) => proj?.starsCount > 0)));
+    const completeArrayOfProjects = page > 0 ? [...stateProjects.all, ...projects] : projects;
+    dispatch(setProjectsInfoSuccessfully(completeArrayOfProjects));
+    dispatch(setStarredProjectsSuccessfully(
+      completeArrayOfProjects.filter((proj) => proj?.starsCount > 0),
+    ));
+    dispatch(setPaginationInfoSuccessfully(pagination));
 
-      Promise.all(finalArray.map((project) => project.members
-        .then((members) => ({ ...project, members }))))
-        .then(filterMember)
-        .then((ms) => dispatch(setUserProjectsSuccessfully(ms)));
-    }
-  };
-}
+    Promise.all(completeArrayOfProjects.map((project) => project.members
+      .then((members) => ({ ...project, members }))))
+      .then(filterMember)
+      .then((ms) => dispatch(setUserProjectsSuccessfully(ms)));
+  }
+};
 
 export function setSelectedProjectSuccesfully(project) {
   return { type: types.SET_SELECTED_PROJECT, project };
@@ -90,10 +90,6 @@ export function setSelectedProject(projectSelected) {
   return (dispatch) => {
     dispatch(setSelectedProjectSuccesfully(projectSelected));
   };
-}
-
-export function updateProjectsList(projects) {
-  return (dispatch) => dispatch({ type: types.UPDATE_PROJECTS_LIST, projects });
 }
 
 /**

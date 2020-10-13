@@ -6,20 +6,24 @@ import {
 import { Redirect, Link } from 'react-router-dom';
 import { toastr } from 'react-redux-toastr';
 import MergeRequestEdit from 'components/layout/MergeRequests/MergeRequestEdit';
+import MSelect from 'components/ui/MSelect';
 import ProjectContainer from '../projectContainer';
 import Navbar from '../navbar/navbar';
 import './newMergeRequest.css';
 import BranchesApi from '../../apis/BranchesApi.ts';
-import mergeRequestAPI from '../../apis/mergeRequestApi';
+import MergeRequestApi from '../../apis/mergeRequestApi';
 import ImageDiffSection from '../imageDiffSection/imageDiffSection';
 import CommitsList from '../commitsList';
 import { getFileDifferences } from '../../functions/apiCalls';
-import MSelect from 'components/ui/MSelect';
 
 const imageFormats = [
   '.png',
   '.jpg',
 ];
+
+const brApi = new BranchesApi();
+
+const mergeRequestAPI = new MergeRequestApi();
 
 const getBranchFromSearch = (search) => {
   const decoded = decodeURIComponent(search.substr(1));
@@ -30,8 +34,8 @@ const getBranchFromSearch = (search) => {
 };
 
 export class NewMergeRequest extends Component {
-  constructor(props) {
-    super(props);
+  constructor() {
+    super();
     this.state = {
       commits: [],
       lastCommit: {},
@@ -71,7 +75,6 @@ export class NewMergeRequest extends Component {
 
     const { branch } = this.state;
 
-    const brApi = new BranchesApi();
     brApi.compare(selectedProject.gid, branchSelected, branch)
       .then((res) => {
         this.setState({

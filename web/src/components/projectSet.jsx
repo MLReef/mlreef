@@ -21,8 +21,6 @@ class ProjectSet extends Component {
       allProjects,
       personalProjects,
       starredProjects,
-      handleShowModal,
-      isLoading,
       screen,
       user: { id: userId },
     } = this.props;
@@ -38,17 +36,6 @@ class ProjectSet extends Component {
         finalProjectsArray = allProjects;
         break;
     }
-
-    if (isLoading) {
-      return (
-        <div id="cards-section">
-          <div className="loading-image">
-            <div style={{ backgroundImage: 'url(/images/MLReef_loading.gif)' }} />
-          </div>
-        </div>
-      );
-    }
-
     return (
       <div id="cards-section">
         {finalProjectsArray.length > 0 ? (
@@ -70,7 +57,6 @@ class ProjectSet extends Component {
                 dataProcessor={proj.dataProcessor}
                 inputDataTypes={proj.inputDataTypes}
                 outputDataTypes={proj.inputDataTypes}
-                handleShowModal={handleShowModal}
                 users={proj.members}
                 visibility={proj.visibilityScope}
                 owner={proj.ownerId === userId}

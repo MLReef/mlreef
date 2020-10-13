@@ -19,14 +19,13 @@ import './myProjects.scss';
 import * as projectActions from '../../actions/projectInfoActions';
 import * as groupsActions from '../../actions/groupsActions';
 import * as userActions from '../../actions/userActions';
+import MScrollableSection from 'components/ui/MScrollableSection/MScrollableSection';
 
 class Myprojects extends React.Component {
   projFilterBtnsList = ['own', 'starred', 'explore'];
 
   constructor(props) {
     super(props);
-    this.fetch = this.fetch.bind(this);
-
     // the constructor is not the place for actions and state update
     // that leads to memory leaks and console warnings.
 
@@ -35,13 +34,15 @@ class Myprojects extends React.Component {
       allProjects: [],
       userProjects: [],
       starredProjects: [],
+      page: 0,
+      isLastPage: false,
+      scrolling: false,
     };
+
+    this.fetch = this.fetch.bind(this);
   }
 
   componentDidMount() {
-    const { actions } = this.props;
-    actions.setIsLoading(true);
-    actions.setGlobalMarkerColor(projectClassificationsProps[0].color);
     this.fetch();
     // polling every 10 seconds (it is the default value, it's just for demostration)
     // const unsuscribeServices = suscribeRT({ timeout: 200000 })(this.fetch);
@@ -57,13 +58,20 @@ class Myprojects extends React.Component {
       allProjects,
       userProjects,
       starredProjects,
+      paginationInfo: { last },
     } = nextProps;
 
     return {
       allProjects,
       userProjects,
       starredProjects,
+      isLastPage: last,
     };
+  }
+
+  componentWillUnmount() {
+    const { actions } = this.props;
+    actions.setPaginationInfoSuccessfully({});
   }
 
   addEventListeners = () => projectClassificationsProps
@@ -80,15 +88,32 @@ class Myprojects extends React.Component {
         });
     });
 
+  handleOnScrollEvent = () => {
+    const { scrolling, isLastPage } = this.state;
+    if (isLastPage) return null;
+    if (scrolling) return null;
+
+    this.setState((prevState) => ({
+      page: prevState.page + 1,
+      scrolling: true,
+    }), this.fetch);
+
+    return null;
+  }
+
   fetch() {
-    const { actions } = this.props;
+    const { actions: { setIsLoading, setGlobalMarkerColor, getProjectsList } } = this.props;
+    const { page } = this.state;
+    setIsLoading(true);
+    setGlobalMarkerColor(projectClassificationsProps[0].color);
     return Promise.all([
-      actions.getProjectsList(),
+      getProjectsList(page, 10),
     ])
       .catch(() => {
       })
       .finally(() => {
-        actions.setIsLoading(false);
+        setIsLoading(false);
+        this.setState({ scrolling: false });
       });
   }
 
@@ -122,23 +147,24 @@ class Myprojects extends React.Component {
             label="ML Projects"
             color={projectClassificationsProps[0].color}
             callback={() => {
-              try {
-                actions.setIsLoading(true);
-                actions.getProjectsList()
-                  .finally(() => actions.setIsLoading(false));
-              } catch (error) {
-                toastr.error('Error', error);
-              }
+              actions.setProjectsInfoSuccessfully([]);
+              actions.setStarredProjectsSuccessfully([]);
+              actions.setUserProjectsSuccessfully([]);
+              this.setState(() => ({
+                page: 0,
+              }), this.fetch);
             }}
           >
-            <MProjectClassification
-              classification={projectClassificationsProps[0].classification}
-              history={history}
-              userProjects={userProjects.filter(onlyDataProject)}
-              starredProjects={starredProjects.filter(onlyDataProject)}
-              allProjects={allProjects.filter(onlyDataProject)}
-              isLoading={isLoading}
-            />
+            <MScrollableSection handleOnScrollDown={this.handleOnScrollEvent}>
+              <MProjectClassification
+                classification={projectClassificationsProps[0].classification}
+                history={history}
+                userProjects={userProjects}
+                starredProjects={starredProjects}
+                allProjects={allProjects}
+                isLoading={isLoading}
+              />
+            </MScrollableSection>
           </MTabs.Section>
           <MTabs.Section
             id={projectClassificationsProps[1].classification}
@@ -217,6 +243,7 @@ class Myprojects extends React.Component {
 
 function mapStateToProps(state) {
   return {
+    paginationInfo: state.projects.paginationInfo,
     allProjects: state.projects.all,
     userProjects: state.projects.userProjects,
     starredProjects: state.projects.starredProjects,
@@ -253,8 +280,6 @@ Myprojects.propTypes = {
 
   actions: shape({
     getProjectsList: func.isRequired,
-    /* getUserProjects: func.isRequired, */
-    /* getStarredProjects: func.isRequired, */
   }).isRequired,
 };
 

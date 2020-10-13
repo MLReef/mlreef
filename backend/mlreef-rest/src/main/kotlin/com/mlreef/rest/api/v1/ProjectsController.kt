@@ -60,9 +60,11 @@ class ProjectsController(
     @GetMapping
     fun getAllAccessibleProjects(
         profile: TokenDetails,
-        @PageableDefault(size = MAX_PAGE_SIZE) pageable: Pageable
+        @PageableDefault(size = MAX_PAGE_SIZE) pageable: Pageable,
+        request: HttpServletRequest,
     ): Iterable<ProjectDto> {
-        val projectsPage = projectService.getAllProjectsAccessibleByUser(profile, pageable)
+        val isDataProjectRequest = request.requestURI.contains ("data-projects");
+        val projectsPage = projectService.getAllProjectsAccessibleByUser(profile, pageable, isDataProjectRequest)
 
         return if (pageable.pageSize == MAX_PAGE_SIZE) {
             projectsPage.content.map { it.toDto() }

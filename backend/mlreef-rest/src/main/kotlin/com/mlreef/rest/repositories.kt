@@ -151,11 +151,17 @@ interface ProjectBaseRepository<T : Project> : CrudRepository<T, UUID> {
     fun findAllByOwnerId(ownerId: UUID, pageable: Pageable?): Page<T>
     fun findOneByOwnerIdAndSlug(ownerId: UUID, slug: String): T?
 
-    @Query("select p from Project p WHERE p.ownerId=:ownerId OR p.visibilityScope=:scope or p.id in :projectIds")
+    @Query("select p from Project p WHERE p.ownerId=:ownerId OR p.visibilityScope=:scope OR p.id in :projectIds")
     fun findAccessibleProjectsForOwner(ownerId: UUID, projectIds:List<UUID>, pageable: Pageable?, scope: VisibilityScope = VisibilityScope.PUBLIC): Page<T>
+
+    @Query("select p from Project p WHERE p.type='DATA_PROJECT' AND (p.ownerId=:ownerId OR p.visibilityScope=:scope OR p.id in :projectIds)")
+    fun findAccessibleDataProjectsForOwner(ownerId: UUID, projectIds:List<UUID>, pageable: Pageable?, scope: VisibilityScope = VisibilityScope.PUBLIC): Page<T>
 
     @Query("select p from Project p WHERE p.visibilityScope=:scope")
     fun findAccessibleProjectsForVisitor(pageable: Pageable?, scope: VisibilityScope = VisibilityScope.PUBLIC): Page<T>
+
+    @Query("select p from Project p WHERE p.type='DATA_PROJECT' AND p.visibilityScope=:scope")
+    fun findAccessibleDataProjectsForVisitor(pageable: Pageable?, scope: VisibilityScope = VisibilityScope.PUBLIC): Page<T>
 
     @Query("select p from Project p JOIN Star s on s.projectId = p.id where (p.ownerId=:ownerId or p.visibilityScope=:scope OR p.id IN :ids) AND s.subjectId = :ownerId")
     fun findAccessibleStarredProjectsForUser(ownerId: UUID, ids: List<UUID>, pageable: Pageable?, scope: VisibilityScope = VisibilityScope.PUBLIC): Page<T>
