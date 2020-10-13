@@ -117,11 +117,12 @@ class ProjectsPipelineConfigsController(
         val createInstance = pipelineInstanceRepository.save(pipelineConfig.createInstance(1))
         log.info("Created new Instance $createInstance for Pipeline $createInstance")
 
-        service.startInstance(
+
+        service.startInstanceAsync(
             currentUserService.account(),
             currentUserService.accessToken(),
             dataProject.gitlabId,
-            createInstance,
+            createInstance.copy(),
             secret = service.createSecret())
         return createInstance.toDto()
     }

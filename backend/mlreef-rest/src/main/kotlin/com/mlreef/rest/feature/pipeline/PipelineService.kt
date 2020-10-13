@@ -35,6 +35,8 @@ import com.mlreef.rest.feature.pipeline.GitlabVariables.GIT_PUSH_USER
 import com.mlreef.rest.feature.pipeline.GitlabVariables.PIPELINE_TOKEN_SECRET
 import com.mlreef.rest.utils.RandomUtils
 import com.mlreef.utils.Slugs
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import lombok.RequiredArgsConstructor
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -266,6 +268,12 @@ class PipelineService(
             status = PipelineStatus.PENDING,
             pipelineJobInfo = gitlabPipeline
         ).let { pipelineInstanceRepository.save(it) }
+    }
+
+    fun startInstanceAsync(author: Account, userToken: String, gitlabProjectId: Long, instance: PipelineInstance, secret: String) {
+        GlobalScope.launch {
+            startInstance(author, userToken, gitlabProjectId, instance, secret)
+        }
     }
 
     fun archiveInstance(instance: PipelineInstance): PipelineInstance {
