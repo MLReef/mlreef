@@ -17,12 +17,14 @@ Getting Started for Frontend Development
   brew install node`
   ```
 * Install react scripts `npm install --global react-scripts`
+* To perform the unit test run `npm test`
+* To perform end2end testing run `bin/ci-run-end2end-tests`
 
 ### Download Dependencies
 Install all frontend dependencies with npm: `npm install`
 
 ### Run Locally
-You can start the frontend application locally with npm, using the `npm start` command. 
+You can start the frontend application locally with npm, using the `npm start` command.
 
 
 ## Project structure

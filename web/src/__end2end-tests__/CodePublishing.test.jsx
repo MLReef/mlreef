@@ -1,5 +1,7 @@
-import { EXTERNAL_ROOT_URL } from 'apiConfig';
 import uuidv1 from 'uuid/v1';
+import store from 'store';
+import * as types from 'actions/actionTypes';
+import MLRAuthApi from 'apis/MLAuthApi';
 import CodeProjectPublishingApi from './apiMocks/CodeProjectPublishing.spike.ts';
 import CommitsApiMock from './apiMocks/CommitMocks.spike.ts';
 import ProjectApiMockSpike from './apiMocks/ProjectApiMock.spike.ts';
@@ -7,34 +9,64 @@ import UserApi from './apiMocks/UserApi.ts';
 
 const api = new CodeProjectPublishingApi();
 const userApi = new UserApi();
+const authApi = new MLRAuthApi();
 const projectApi = new ProjectApiMockSpike();
 const commitsApiMock = new CommitsApiMock();
 
+// TODO: this part is necessary to supply the API mocks with credentials
+// As the apiMocks are removed from this test, these lines can also be removed
+// eslint-disable-next-line camelcase
+let removeMe_user;
+// eslint-disable-next-line camelcase
+let removeMe_email;
+// eslint-disable-next-line camelcase
+let removeMe_pass;
+// end todo
+
 beforeAll(async () => {
-  console.log('Running end2end tests against localhost:80 -> expecting proxy to redirect to $INSTANCE_HOST');
-});
-test('Can create new user, new code project, commit file and publish code project', async () => {
-  jest.setTimeout(30000);
   // ------------- create the user ------------- //
   const suffix = uuidv1().toString().split('-')[0];
-  const username = `TEST-Node.${suffix}`;
+  const username = `TEST-CodeProjectPublishing.${suffix}`;
   const password = 'password';
-  const email = `aqui.va.${suffix}@gmail.com`;
+  const email = `TEST-Node.${suffix}@example.com`;
   const registerData = {
     username,
     email,
     password,
-    name: 'Test User Node',
+    name: username,
   };
-  const registerResp = await userApi.register(registerData);
-  expect(registerResp.ok).toBeTruthy();
+  const registerResponse = await userApi.register(registerData);
+  expect(registerResponse.ok).toBeTruthy();
 
+  // ----------- login with newly create user ----------- //
+  console.log('Running end2end tests against localhost:80 -> expecting proxy to redirect to $INSTANCE_HOST');
+  if (!store.getState().user.isAuth) {
+    await authApi.login(username, email, password)
+      .then((user) => store.dispatch({ type: types.LOGIN, user }));
+  }
+
+  // TODO: this part is necessary to supply the API mocks with credentials
+  // As the apiMocks are removed from this test, these lines can also be removed
+  // eslint-disable-next-line camelcase
+  removeMe_user = username;
+  // eslint-disable-next-line camelcase
+  removeMe_email = email;
+  // eslint-disable-next-line camelcase
+  removeMe_pass = password;
+  // end todo
+});
+
+test('Can create new user, new code project, commit file and publish code project', async () => {
+  jest.setTimeout(30000);
   //
   // ----------- login with the user ----------- //
+  // TODO: this part is necessary to supply the API mocks with credentials
+  // As the apiMocks are removed from this test, these lines can also be removed
+  // eslint-disable-next-line camelcase
   const loginData = {
-    username,
-    email,
-    password,
+    username: removeMe_user,
+    email: removeMe_email,
+    password: removeMe_pass,
   };
   const loginResp = await userApi.login(loginData);
   expect(loginResp.ok).toBe(true);
@@ -51,9 +83,9 @@ test('Can create new user, new code project, commit file and publish code projec
   // ----------- create a new project ----------- //
   //
   const body = JSON.stringify({
-    name: 'Just a testing project 1',
-    slug: 'just-a-testing-project-1',
-    namespace: 'andres.ausecha',
+    name: 'Can publish code project',
+    slug: 'can-publish-code-project',
+    namespace: '',
     initialize_with_readme: true,
     description: '',
     visibility: 'public',
@@ -71,7 +103,8 @@ test('Can create new user, new code project, commit file and publish code projec
   const commitResp = await commitsApiMock.performCommit(
     gid,
     'README.md',
-    `File committed by ${username}`,
+    // eslint-disable-next-line camelcase
+    `File committed by ${removeMe_user}`,
     'master',
     'some message',
     'update',
