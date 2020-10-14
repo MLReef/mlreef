@@ -11,9 +11,13 @@ job:
     - docker:dind
   only:
     - master
+  tags:
+    - local-docker
   when: on_success
   script:
-    - docker build -f ./Dockerfile -t $CI_REGISTRY/#{#CI_PROJECT_SLUG} --force-rm .
-    - docker tag $CI_REGISTRY/#{#CI_PROJECT_SLUG} $CI_REGISTRY/#{#CI_PROJECT_SLUG}:latest
-    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
-    - docker push $CI_REGISTRY/#{#CI_PROJECT_SLUG}:latest
+    # Build the docker image in the repositories root directory
+    - docker build --tag "$CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG" -f Dockerfile .
+    # login to MLReef's docker image registry
+    - echo "$CI_REGISTRY_PASSWORD" | docker login "$CI_REGISTRY" --username="$CI_REGISTRY_USER" --password-stdin
+    # Upload the newly built docker image to MLReef's docker image registry
+    - docker push "$CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG"
