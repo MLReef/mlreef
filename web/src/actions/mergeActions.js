@@ -1,4 +1,4 @@
-import MergeRequestAPI from '../apis/mergeRequestApi';
+import MergeRequestAPI from '../apis/MergeRequestApi.ts';
 import * as types from './actionTypes';
 
 const instance = new MergeRequestAPI();

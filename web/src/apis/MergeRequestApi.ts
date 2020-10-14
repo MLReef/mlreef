@@ -1,16 +1,14 @@
-import { toastr } from 'react-redux-toastr';
 import { handleResponse } from 'functions/helpers';
 import ApiDirector from './ApiDirector';
 import { METHODS, validServicesToCall } from './apiBuilders/requestEnums';
 import BLApiRequestCallBuilder from './apiBuilders/BLApiRequestCallBuilder';
 import ApiRequestCallBuilder from './apiBuilders/ApiRequestCallBuilder';
-import { getCurrentToken } from './apiHelpers';
 
-export class MergeRequestAPI extends ApiDirector {
+export default class MergeRequestAPI extends ApiDirector {
   /**
    * @param {projectId} is the id the project to get MR's to
    */
-  getListByProject(projectId) {
+  getListByProject(projectId: number) {
     const url = `/api/v4/projects/${projectId}/merge_requests`;
     const headers = this.buildBasicHeaders(validServicesToCall.GITLAB);
     const builder = new BLApiRequestCallBuilder(METHODS.GET, headers, url);
@@ -19,7 +17,7 @@ export class MergeRequestAPI extends ApiDirector {
       .then(handleResponse);
   }
 
-  updateMergeRequest(gid, iid, payload) {
+  updateMergeRequest(gid: number, iid: number, payload: any) {
     const url = `/api/v4/projects/${gid}/merge_requests/${iid}`;
     const headers = this.buildBasicHeaders(validServicesToCall.GITLAB);
     const body = JSON.stringify(payload);
@@ -29,7 +27,7 @@ export class MergeRequestAPI extends ApiDirector {
       .then(handleResponse);
   }
 
-  getSingleMR(id, iid) {
+  getSingleMR(id: number, iid: number) {
     const url = `/api/v4/projects/${id}/merge_requests/${iid}`;
     const headers = this.buildBasicHeaders(validServicesToCall.GITLAB);
     const builder = new BLApiRequestCallBuilder(METHODS.GET, headers, url);
@@ -38,7 +36,7 @@ export class MergeRequestAPI extends ApiDirector {
       .then(handleResponse);
   }
 
-  static async submitMergeReq(id, sourceBranch, targetBranch, title, description = '') {
+  async submitMergeReq(id: number, sourceBranch: string, targetBranch: string, title: string, description = '') {
     const body = JSON.stringify({
       id,
       source_branch: sourceBranch,
@@ -47,44 +45,20 @@ export class MergeRequestAPI extends ApiDirector {
       description,
     });
     const url = `/api/v4/projects/${id}/merge_requests`;
-    const response = await fetch(
-      url, {
-        method: 'POST',
-        headers: new Headers({
-          authorization: getCurrentToken(),
-          'Content-Type': 'application/json',
-        }),
-        body,
-      },
-    );
-    if (!response.ok) {
-      Promise.reject(response);
-      toastr.error('Error', response.err);
-    }
-    return response.json();
+    const builder = new ApiRequestCallBuilder(METHODS.POST, this.buildBasicHeaders(validServicesToCall.GITLAB), url, body)
+    return fetch(builder.build())
+      .then(handleResponse)
   }
 
-  static async acceptMergeRequest(id, iid, squash, removeSourceBranch) {
+  acceptMergeRequest(id: number, iid: number, squash: boolean, removeSourceBranch: string) {
     let baseUrl = `/api/v4/projects/${id}/merge_requests/${iid}/merge?squash=${squash}`;
 
     if (removeSourceBranch) {
       baseUrl = `${baseUrl}&should_remove_source_branch=${removeSourceBranch}`;
     }
 
-    const response = await fetch(new Request(
-      baseUrl, {
-        method: 'PUT',
-        headers: new Headers({
-          authorization: getCurrentToken(),
-          'Content-Type': 'application/json'
-        }),
-      },
-    ));
-    if (!response.ok) {
-      return Promise.reject(await response.json());
-    }
-    return response.json();
+    const builder = new BLApiRequestCallBuilder(METHODS.PUT, this.buildBasicHeaders(validServicesToCall.GITLAB), baseUrl);
+    return fetch(builder.build())
+      .then(handleResponse)
   }
 }
-
-export default MergeRequestAPI;

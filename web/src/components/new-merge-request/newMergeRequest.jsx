@@ -11,7 +11,7 @@ import ProjectContainer from '../projectContainer';
 import Navbar from '../navbar/navbar';
 import './newMergeRequest.css';
 import BranchesApi from '../../apis/BranchesApi.ts';
-import MergeRequestApi from '../../apis/mergeRequestApi';
+import MergeRequestApi from '../../apis/MergeRequestApi.ts';
 import ImageDiffSection from '../imageDiffSection/imageDiffSection';
 import CommitsList from '../commitsList';
 import { getFileDifferences } from '../../functions/apiCalls';

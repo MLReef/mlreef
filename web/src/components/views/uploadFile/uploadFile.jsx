@@ -10,7 +10,7 @@ import { toastr } from 'react-redux-toastr';
 import './uploadFile.scss';
 import { Redirect } from 'react-router';
 import MCheckBox from 'components/ui/MCheckBox/MCheckBox';
-import MergeRequestAPI from 'apis/mergeRequestApi';
+import MergeRequestAPI from 'apis/MergeRequestApi.ts';
 import { randomNameGenerator } from 'functions/pipeLinesHelpers';
 import MButton from 'components/ui/MButton';
 import CommitsApi from '../../../apis/CommitsApi.ts';
@@ -36,6 +36,8 @@ import Navbar from '../../navbar/navbar';
 import FileToSend from './fileToSend';
 
 const commitsapi = new CommitsApi();
+
+const mergeRequestAPI = new MergeRequestAPI();
 
 const UploadFile = (props) => {
   const fileInput = useRef(null);
@@ -124,7 +126,7 @@ const UploadFile = (props) => {
         removeFiles();
         if (startMR && !isEmptyRepo) {
           toastr.info('Info', 'Creating your new MR');
-          MergeRequestAPI
+          mergeRequestAPI
             .submitMergeReq(gid, newBranchName, targetBranch || defaultBranch, 'Merge file to main branch')
             .then((bodyRes) => {
               const { source_branch: mrSourceBranch } = bodyRes;
