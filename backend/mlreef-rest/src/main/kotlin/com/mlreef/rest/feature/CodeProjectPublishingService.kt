@@ -1,6 +1,10 @@
 package com.mlreef.rest.feature
 
-import com.mlreef.rest.exceptions.*
+import com.mlreef.rest.exceptions.ErrorCode
+import com.mlreef.rest.exceptions.InternalException
+import com.mlreef.rest.exceptions.NotFoundException
+import com.mlreef.rest.exceptions.PipelineStartException
+import com.mlreef.rest.exceptions.RestException
 import com.mlreef.rest.external_api.gitlab.GitlabRestClient
 import com.mlreef.rest.external_api.gitlab.dto.Commit
 import com.mlreef.rest.feature.project.ProjectResolverService
@@ -38,7 +42,6 @@ internal class PublishingService(
     private val gitlabRestClient: GitlabRestClient,
     private val projectResolverService: ProjectResolverService,
 ) {
-
     val log: Logger = LoggerFactory.getLogger(this::class.java)
 
     // https://docs.gitlab.com/ee/user/packages/container_registry/index.html#build-and-push-images-using-gitlab-cicd
@@ -116,11 +119,9 @@ internal class PublishingService(
         return template ?: throw InternalException("Template cannot be not parsed")
     }
 
-    private fun adaptProjectName(projectName: String): String {
-        return projectName
+    private fun adaptProjectName(projectName: String): String =
+        projectName
             .replace(" ", "_")
             .toLowerCase()
-    }
-
 }
 

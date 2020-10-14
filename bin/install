@@ -151,8 +151,8 @@ if [ "$INSTANCE_HOST" != "localhost" ]; then
   docker exec gitlab-runner gitlab-runner register                \
     --non-interactive                                             \
     --template-config="$CONFIG_TEMPLATE"                          \
-    --name="Multi runner dispatcher on $INSTANCE_HOST"                 \
-    --url="http://$INSTANCE_HOST:$GITLAB_PORT/"                        \
+    --name="Multi runner dispatcher on $INSTANCE_HOST"            \
+    --url="http://$INSTANCE_HOST:$GITLAB_PORT/"                   \
     --registration-token="$RUNNER_REGISTRATION_TOKEN"             \
     --request-concurrency="12"                                    \
     --executor="docker+machine"                                   \
@@ -166,15 +166,15 @@ if [ "$INSTANCE_HOST" != "localhost" ]; then
 
   docker exec gitlab-runner gitlab-runner register                \
     --non-interactive                                             \
-    --name="Packaged Dispatcher on $INSTANCE_HOST"                     \
-    --url="http://$INSTANCE_HOST:$GITLAB_PORT/"                           \
+    --name="Packaged Dispatcher on $INSTANCE_HOST"                \
+    --url="http://$INSTANCE_HOST:$GITLAB_PORT/"                   \
     --docker-network-mode mlreef-docker-network                   \
     --registration-token="$RUNNER_REGISTRATION_TOKEN"             \
     --executor "docker"                                           \
     --docker-image alpine:latest                                  \
     --docker-volumes /var/run/docker.sock:/var/run/docker.sock    \
-    --tag-list "docker,local-docker"                                           \
-    --run-untagged="false"                                         \
+    --tag-list "docker,local-docker"                              \
+    --run-untagged="false"                                        \
     --locked="false"                                              \
     --access-level="not_protected"
 
@@ -187,7 +187,7 @@ else ### Configuration for local environments ###
   # no caching on Amazon S3 buckets
   docker exec gitlab-runner gitlab-runner register                \
     --non-interactive                                             \
-    --name="Packaged Dispatcher on $INSTANCE_HOST"                     \
+    --name="Packaged Dispatcher on $INSTANCE_HOST"                \
     --url="http://gitlab:$GITLAB_PORT/"                           \
     --docker-network-mode mlreef-docker-network                   \
     --registration-token="$RUNNER_REGISTRATION_TOKEN"             \
@@ -244,4 +244,3 @@ log "Done - MLReef has been successfully installed. "
 #
 #echo Test connection for admin:
 #curl -f -I -X GET --header "Content-Type: application/json" --header "Accept: application/json" --header "PRIVATE-TOKEN: $GITLAB_ADMIN_TOKEN" "localhost:20080/api/v1"
-#curl -f -I -X GET --header "Content-Type: application/json" --header "Accept: application/json" --header "PRIVATE-TOKEN: $GITLAB_ADMIN_TOKEN" "localhost:10080/api/v4/users/1"
