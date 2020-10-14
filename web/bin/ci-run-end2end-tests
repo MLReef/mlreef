@@ -9,6 +9,19 @@ set -e    # exit on immediately on every error
 set -u    # error on usage of undefined variables
 ########################################
 
+#
+# KNOWN ISSUES
+#
+# 1. This script created a proxy server listening on port 80.
+#    On Linux and OSX it has to be run as sudo
+# 2. After the tests are finished the proxy does not shutdown
+#    This is a also a feature ;-)
+#
+#    You can run this script as "setup" and do all subsequent
+#    runs skipping the `npm install` and just running `npm run end2end`
+#    in your console.
+#
+
 cd web
 
 echo "Running end2end tests against $INSTANCE_HOST"

@@ -28,7 +28,7 @@ Getting Started as a Developer
 * **/backend: MLReef's Kotlin - Spring Boot backend
 * **/bin**:   scripts which help developers with their jobs  
 * **/docs**:  the Gatsby based documentation page
-* **/web**:   the npm based react frontend
+* **/web**:   the npm based react frontend as well as the node based end-to-end tests
 
 
 ### Run MLReef locally
