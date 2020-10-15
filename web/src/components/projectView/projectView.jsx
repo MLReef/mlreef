@@ -2,11 +2,10 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import {
-  string, shape, func, arrayOf,
+  string, shape, func, arrayOf, bool,
 } from 'prop-types';
 import forkingImage from 'images/forking.png';
 import { OPERATION, ALGORITHM, VISUALIZATION } from 'dataTypes';
-import { toastr } from 'react-redux-toastr';
 import FilesContainer from 'components/FilesContainer';
 import { filterSetsBy } from 'functions/dataParserHelpers';
 import ReadMeComponent from '../ReadMe/ReadMe';
@@ -35,6 +34,7 @@ class ProjectView extends React.Component {
       isForking: false,
     };
     this.setIsForking = this.setIsForking.bind(this);
+    this.redirectToNotFoundPage = this.redirectToNotFoundPage.bind(this);
     this.fetchIfAuthenticated = this.fetchIfAuthenticated.bind(this);
     this.fetchVisitor = this.fetchVisitor.bind(this);
   }
@@ -44,7 +44,6 @@ class ProjectView extends React.Component {
       actions,
       user: { auth },
     } = this.props;
-
     const fetch = auth ? this.fetchIfAuthenticated : this.fetchVisitor;
 
     actions.setIsLoading(true);
@@ -54,6 +53,15 @@ class ProjectView extends React.Component {
 
   setIsForking(status) {
     this.setState({ isForking: status });
+  }
+
+  redirectToNotFoundPage() {
+    const {
+      location,
+      history,
+    } = this.props;
+
+    history.replace(`/not-found/${encodeURIComponent(location.pathname)}`);
   }
 
   fetchVisitor() {
@@ -77,7 +85,7 @@ class ProjectView extends React.Component {
           actions.getProjectStarrers(gid),
         ]);
       })
-      .catch(() => toastr.error('Error', 'Error fetching project'));
+      .catch(this.redirectToNotFoundPage);
   }
 
   fetchIfAuthenticated() {
@@ -107,7 +115,7 @@ class ProjectView extends React.Component {
           actions.getProjectStarrers(gid),
         ]);
       })
-      .catch(() => toastr.error('Error', 'Error fetching project'));
+      .catch(this.redirectToNotFoundPage);
   }
 
   render() {
@@ -228,6 +236,12 @@ ProjectView.propTypes = {
   projects: shape({
     all: arrayOf.isRequired,
   }).isRequired,
+  location: shape({
+    pathname: string.isRequired,
+  }).isRequired,
+  history: shape({
+    replace: func.isRequired,
+  }).isRequired,
   match: shape({
     params: shape({
       namespace: string.isRequired,
@@ -237,6 +251,9 @@ ProjectView.propTypes = {
       path: string,
     }),
   }).isRequired,
+  user: arrayOf(shape({
+    auth: bool,
+  })).isRequired,
   users: arrayOf(shape({
     name: string.isRequired,
   })).isRequired,
