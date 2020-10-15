@@ -51,6 +51,11 @@ export default [
     },
   },
   {
+    name: 'notFound',
+    path: '/not-found/:info?',
+    component: Error404View,
+  },
+  {
     name: 'error',
     path: '/error-page',
     component: ErrorView,
