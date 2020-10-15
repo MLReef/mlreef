@@ -794,6 +794,13 @@ class InitialDataLoader {
                         description = "path to directory to save the tsne mapping image"
                     }
                     INTEGER {
+                        id = fromString("2c9c6716-d16c-11ea-87d0-0242ac130003")
+                        name = "pca_components"
+                        defaultValue = "200"
+                        required = false
+                        description = "Number of PCA components"
+                    }
+                    INTEGER {
                         id = fromString("2c9c6516-d16c-11ea-87d0-0242ac130003")
                         name = "num_dimensions"
                         defaultValue = "2"
