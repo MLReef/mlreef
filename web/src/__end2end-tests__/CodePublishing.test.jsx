@@ -143,11 +143,50 @@ test('Can create new user, new code project, commit file and publish code projec
   console.log('################### Get Project');
   const projectReadResponse = await projectApi.get(headers, projectId);
   expect(projectReadResponse.ok).toBeTruthy();
+  console.log('################### Print Json Response');
+  const projectBody = await projectReadResponse.json()
+  console.log(projectBody);
+  console.log('################### Assert dataOperation exists');
+  /* { id: '723076c6-eee5-11ea-adc1-0242ac120002',
+        slug: 'commons-txt-ops',
+        url: 'http://ec2-18-157-161-187.eu-central-1.compute.amazonaws.com:10080/mlreef/commons-txt-ops',
+        owner_id: 'aaaa0000-0001-0000-0000-cccccccccccc',
+        name: 'Text processing operations',
+        gitlab_namespace: 'mlreef',
+        gitlab_path: 'commons-txt-ops',
+        gitlab_id: 1,
+        visibility_scope: 'PUBLIC',
+        description:         'Removes numbers,tokenization,numbers to words, filter words.',
+        tags: [],
+        stars_count: 0,
+        forks_count: 0,
+        input_data_types: [ 'IMAGE' ],
+        output_data_types: [ 'IMAGE' ],
+        searchable_type: 'CODE_PROJECT',
+        data_processor:
+         { id: '72307a68-eee5-11ea-adc1-0242ac120002',
+           slug: 'commons-txt-ops',
+           name: 'Text processing operations',
+           input_data_type: 'TEXT',
+           output_data_type: 'TEXT',
+           type: 'OPERATION',
+           visibility_scope: 'PUBLIC',
+           description:
+            'Removes numbers,tokenization,numbers to words, filter words.',
+           code_project_id: '723076c6-eee5-11ea-adc1-0242ac120002',
+           author_id: 'aaaa0000-0001-0000-0000-cccccccccccc' } },
+   */
+
+  expect(projectBody.name !== undefined).toBeTruthy();
+  // TODO: make the following line work
+  // expect(projectBody.data_processor !== undefined).toBeTruthy();
+
+
 
   //
   // -------- Remove project at the end of the test -------- //
   //  At least removing the project automatically we do not fill the database of garbage
   //
-//  const projDeletionResp = await projectApi.delete(projectId, headers);
-//  expect(projDeletionResp.ok).toBeTruthy();
+  // const projDeletionResp = await projectApi.delete(projectId, headers);
+  // expect(projDeletionResp.ok).toBeTruthy();
 });

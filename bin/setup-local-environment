@@ -104,6 +104,6 @@ bin/install                                                       \
   ${SKIP_GATEWAY_DEPLOYMENT_OPTION:-}                             \
 
 
-if [ "${TEST:-true}" = "true" ]; then
+if [ "${TEST:-false}" = "true" ]; then
   bin/ci-test-end2end-experiment
 fi
