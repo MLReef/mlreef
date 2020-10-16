@@ -31,17 +31,22 @@ RUN echo "Gitlab Pipeline $CI_PIPELINE_ID built on "$(date +%Y-%m-%d\ %H:%M:%S) 
     if [ "$CI_COMMIT_REF_SLUG" = "master" ]; then                                                  \
       echo "REACT_APP_NO_AUTH_REDIRECT=https://about.mlreef.com"  >> .env;                         \
     fi                                                                                          && \
+    echo "Time: $(date +%Y-%m-%d\ %H:%M:%S)"                                                    && \
     cat .env
 
 
 # install all NPM packages and compile the react app
-RUN npm install --global --silent react-scripts             && \
+RUN echo "Frontend Build Time: $(date +%Y-%m-%d\ %H:%M:%S)" && \
+    npm install --global --silent react-scripts             && \
     npm install --global --silent create-react-app@latest   && \
     npm install --global --silent react-scripts@3.0.1       && \
     npm install --silent .                                  && \
+    echo "Frontend Build Time: $(date +%Y-%m-%d\ %H:%M:%S)" && \
     # execute tests first, so there should be a halt when compiling if tests fail
     npm test                                                && \
-    npm run build
+    echo "Frontend Build Time: $(date +%Y-%m-%d\ %H:%M:%S)" && \
+    npm run build                                           && \
+    echo "Frontend Build Time: $(date +%Y-%m-%d\ %H:%M:%S)"
 
 #
 # Stage 2: Use nginx for serving the finished production build
