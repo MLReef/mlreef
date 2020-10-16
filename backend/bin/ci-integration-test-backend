@@ -9,7 +9,6 @@ set -e    # exit on immediately on every error
 set -u    # error on usage of undefined variables
 ########################################
 
-
 # ensure that there exists a gradle configuration
 if [ ! -e backend/build.gradle ]; then exit 1; fi
 

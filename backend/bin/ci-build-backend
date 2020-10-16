@@ -10,9 +10,8 @@ set -e # exit on immediately on every error
 set -u # error on usage of undefined variables
 ########################################
 
-cd backend/
-. bin/ci-include-test-vars.sh
-
 # change directory to the backend folder
+cd backend/
+
 docker build --tag "$BACKEND_IMAGE_PATH" -f Dockerfile .
 ls -lisa .
