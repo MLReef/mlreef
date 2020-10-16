@@ -16,7 +16,8 @@ import com.mlreef.rest.api.v1.dto.FileLocationDto
 import com.mlreef.rest.api.v1.dto.ParameterInstanceDto
 import com.mlreef.rest.api.v1.dto.PipelineConfigDto
 import com.mlreef.rest.api.v1.dto.PipelineInstanceDto
-import com.mlreef.rest.feature.pipeline.GitlabVariables
+import com.mlreef.rest.feature.pipeline.GIT_PUSH_TOKEN
+import com.mlreef.rest.feature.pipeline.GIT_PUSH_USER
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
@@ -158,8 +159,8 @@ class ProjectPipelinesConfigIntegrationTest : AbstractIntegrationTest() {
         assertThat(result).isNotNull
 
         val adminGetProjectVariables = restClient.adminGetProjectVariables(project.gitlabId)
-        val pushUser = restClient.adminGetProjectVariable(project.gitlabId, GitlabVariables.GIT_PUSH_USER)
-        val pushToken = restClient.adminGetProjectVariable(project.gitlabId, GitlabVariables.GIT_PUSH_TOKEN)
+        val pushUser = restClient.adminGetProjectVariable(project.gitlabId, GIT_PUSH_USER)
+        val pushToken = restClient.adminGetProjectVariable(project.gitlabId, GIT_PUSH_TOKEN)
         assertThat(adminGetProjectVariables).isNotNull
         assertThat(pushUser).isNotNull
         assertThat(pushToken).isNotNull

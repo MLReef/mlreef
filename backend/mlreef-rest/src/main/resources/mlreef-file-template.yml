@@ -24,8 +24,6 @@ variables:
   EPF_PIPELINE_URL:    "%EPF_PIPELINE_URL%"
   EPF_PIPELINE_SECRET: "%EPF_PIPELINE_SECRET%"
 
-  INPUT_FILE_LIST:     "%INPUT_FILE_LIST%"      # Filled by the YamlFileGenerator.kt
-
   # Change pip's cache directory to be inside the project directory since we can only cache local items.
   PIP_CACHE_DIR:       "$CI_PROJECT_DIR/.cache/pip"
 
@@ -42,33 +40,28 @@ before_script:
   - echo "#################"
   #- it just aint working!
   # https://stackoverflow.com/questions/42074414/gitlab-push-to-a-repository-using-access-token
-  # git remote add origin https://oauth2:<mytoken>@gitlab.com/myuser/myrepo.git
+  # git remote add origin https://oauth2:<my-token>@gitlab.com/my-user/my-repo.git
   - git remote set-url origin "http://oauth2:$GIT_PUSH_TOKEN@$EPF_GITLAB_HOST:10080/$CI_PROJECT_PATH.git"
   - git config --global user.email "$GIT_PUSH_EMAIL"
   - git config --global user.name "$GIT_PUSH_NAME"
   - echo "Target branch is $TARGET_BRANCH"
   - background-push &
 
-  # TODO this can maybe be deleted
-  #- git checkout %SOURCE_BRANCH%
-  # TODO this can maybe be deleted
-  #- export GITLAB_API_TOKEN="${GIT_PUSH_TOKEN}"
 
 after_script:
   - epf-finish
 
 
 mlreef-pipeline:
-  script:
-    - git checkout -b $TARGET_BRANCH
-    - echo $CI_JOB_ID >> data_pipeline.info
-%PIPELINE_STRING%
-    - git add .
-    - git status
-    - git commit -m "Add pipeline results [skip ci]"
-    - git push --set-upstream origin "$TARGET_BRANCH"
-    - git push
   artifacts:
     paths:
       - output/*
-
+  script: |
+    git checkout -b $TARGET_BRANCH
+    echo $CI_JOB_ID >> data_pipeline.info
+%PIPELINE_STRING%
+    git add .
+    git status
+    git commit -m "Add pipeline results [skip ci]"
+    git push --set-upstream origin "$TARGET_BRANCH"
+    git push

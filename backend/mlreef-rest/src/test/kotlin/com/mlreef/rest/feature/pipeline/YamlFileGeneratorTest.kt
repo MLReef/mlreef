@@ -9,6 +9,7 @@ import com.mlreef.rest.Person
 import com.mlreef.rest.ProcessorParameter
 import com.mlreef.rest.ProcessorVersion
 import com.mlreef.rest.UserRole
+import io.mockk.mockk
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import java.time.ZonedDateTime
@@ -18,101 +19,107 @@ import java.util.UUID.randomUUID
 class YamlFileGeneratorTest {
 
     @Test
-    fun `Template is found`() {
-        val generator = YamlFileGenerator()
-        assertThat(generator).isNotNull
-    }
-
-    @Test
-    fun `Input and output is not empty`() {
-        val generator = YamlFileGenerator()
-        assertThat(generator.input).isNotEmpty()
-        assertThat(generator.output).isNotEmpty()
-    }
-
-    @Test
     fun `Template contains all necessary constants`() {
-        val generator = YamlFileGenerator()
-        assertThat(generator.input).contains(YamlFileGenerator.EPF_IMAGE_TAG)
-        assertThat(generator.input).contains(YamlFileGenerator.EPF_GITLAB_HOST)
-        assertThat(generator.input).contains(YamlFileGenerator.EPF_PIPELINE_URL)
-        assertThat(generator.input).contains(YamlFileGenerator.EPF_PIPELINE_SECRET)
-        assertThat(generator.input).contains(YamlFileGenerator.CONF_EMAIL)
-        assertThat(generator.input).contains(YamlFileGenerator.CONF_NAME)
-        assertThat(generator.input).contains(YamlFileGenerator.SOURCE_BRANCH)
-        assertThat(generator.input).contains(YamlFileGenerator.TARGET_BRANCH)
-        assertThat(generator.input).contains(YamlFileGenerator.INPUT_FILE_LIST)
-        assertThat(generator.input).contains(YamlFileGenerator.PIPELINE_STRING)
+        with(YamlFileGenerator) {
+            assertThat(template).isNotEmpty()
+            assertThat(template).contains(EPF_IMAGE_TAG)
+            assertThat(template).contains(EPF_GITLAB_HOST)
+            assertThat(template).contains(EPF_PIPELINE_URL)
+            assertThat(template).contains(EPF_PIPELINE_SECRET)
+            assertThat(template).contains(CONF_EMAIL)
+            assertThat(template).contains(CONF_NAME)
+            assertThat(template).contains(TARGET_BRANCH)
+            assertThat(template).contains(PIPELINE_STRING)
+        }
     }
 
     @Test
-    fun `Single strings get replaced`() {
-        val generator = YamlFileGenerator()
-            .replaceAllSingleStrings()
+    fun `Can replace specific template Strings`() {
+        val output = YamlFileGenerator.renderYaml(
+            author = mockk(),
+            epfPipelineSecret = "test-pipeline-secret",
+            epfPipelineUrl = "test-pipeline-url",
+            epfGitlabUrl = "test-gitlab-url",
+            epfImageTag = "latest",
+            sourceBranch = "test-source-branch",
+            targetBranch = "test-target-branch",
+            dataProcessors = listOf(),
+        )
 
-        assertThat(generator.output).doesNotContain(YamlFileGenerator.EPF_IMAGE_TAG)
-        assertThat(generator.output).doesNotContain(YamlFileGenerator.EPF_GITLAB_HOST)
-        assertThat(generator.output).doesNotContain(YamlFileGenerator.EPF_PIPELINE_URL)
-        assertThat(generator.output).doesNotContain(YamlFileGenerator.EPF_PIPELINE_SECRET)
-        assertThat(generator.output).doesNotContain(YamlFileGenerator.CONF_EMAIL)
-        assertThat(generator.output).doesNotContain(YamlFileGenerator.CONF_NAME)
-        assertThat(generator.output).doesNotContain(YamlFileGenerator.SOURCE_BRANCH)
-        assertThat(generator.output).doesNotContain(YamlFileGenerator.TARGET_BRANCH)
+        assertThat(output).doesNotContain(EPF_IMAGE_TAG)
+        assertThat(output).doesNotContain(EPF_GITLAB_HOST)
+        assertThat(output).doesNotContain(EPF_PIPELINE_URL)
+        assertThat(output).doesNotContain(EPF_PIPELINE_SECRET)
+        assertThat(output).doesNotContain(CONF_EMAIL)
+        assertThat(output).doesNotContain(CONF_NAME)
+        assertThat(output).doesNotContain(SOURCE_BRANCH)
+        assertThat(output).doesNotContain(TARGET_BRANCH)
     }
 
     @Test
-    fun `PIPELINE_STRING is not replaced implicitly`() {
-        val generator = YamlFileGenerator()
-        assertThat(generator.output).contains(YamlFileGenerator.PIPELINE_STRING)
-        generator.replaceAllSingleStrings()
-        assertThat(generator.output).contains(YamlFileGenerator.PIPELINE_STRING)
+    fun `Can render Data Operations`() {
+        assertThat(YamlFileGenerator.template).contains(PIPELINE_STRING)
+        val output = YamlFileGenerator.renderYaml(
+            author = mockk(),
+            epfPipelineSecret = "test-pipeline-secret",
+            epfPipelineUrl = "test-pipeline-url",
+            epfGitlabUrl = "test-gitlab-url",
+            epfImageTag = "latest",
+            sourceBranch = "test-source-branch",
+            targetBranch = "test-target-branch",
+            dataProcessors = listOf(),
+        )
+        assertThat(output).doesNotContain(PIPELINE_STRING)
     }
 
     @Test
-    fun `PIPELINE_STRING is replaced explicitly`() {
-        val generator = YamlFileGenerator()
-        assertThat(generator.output).contains(YamlFileGenerator.PIPELINE_STRING)
-        generator.replacePipeline()
-        assertThat(generator.output).doesNotContain(YamlFileGenerator.PIPELINE_STRING)
-    }
+    fun `Can render multiple Data Operations`() {
+        val generator = YamlFileGenerator
+        val countLinesBefore = generator.template.lines().count()
 
-    @Test
-    fun `Pipelines are multiline`() {
-        val generator = YamlFileGenerator()
-        assertThat(generator.output).contains(YamlFileGenerator.PIPELINE_STRING)
+        val output = generator.renderYaml(
+            author = mockk(),
+            epfPipelineSecret = "test-pipeline-secret",
+            epfPipelineUrl = "test-pipeline-url",
+            epfGitlabUrl = "test-gitlab-url",
+            epfImageTag = "latest",
+            sourceBranch = "test-source-branch",
+            targetBranch = "test-target-branch",
+            dataProcessors = listOf(
+                mockDataProcessorInstance("commons-data-operation1"),
+                mockDataProcessorInstance("commons-data-operation2")
+            ),
+        )
 
-        val countLinesBefore = generator.output.count { it == '\n' }
-
-        val list = listOf(
-            mockDataProcessorInstance("commons-data-operation1"),
-            mockDataProcessorInstance("commons-data-operation2"))
-        generator.replacePipeline(list)
-
-        val countLinesAfterwards = generator.output.count { it == '\n' }
-
-        assertThat(generator.output).doesNotContain(YamlFileGenerator.PIPELINE_STRING)
-        assertThat(countLinesAfterwards).isEqualTo(countLinesBefore + 1)
+        assertThat(output).doesNotContain(PIPELINE_STRING)
+        assertThat(output.lines().count()).isEqualTo(countLinesBefore + 1)
     }
 
     @Test
     fun `Pipelines are indented correctly`() {
-        val generator = YamlFileGenerator()
-        assertThat(generator.output).contains(YamlFileGenerator.PIPELINE_STRING)
+        val output = YamlFileGenerator.renderYaml(
+            author = mockk(),
+            epfPipelineSecret = "test-pipeline-secret",
+            epfPipelineUrl = "test-pipeline-url",
+            epfGitlabUrl = "test-gitlab-url",
+            epfImageTag = "latest",
+            sourceBranch = "test-source-branch",
+            targetBranch = "test-target-branch",
+            dataProcessors = listOf(
+                mockDataProcessorInstance("commons-data-operation1"),
+                mockDataProcessorInstance("commons-data-operation2")
+            ),
+        )
 
-        generator.replacePipeline(listOf(
-            mockDataProcessorInstance("commons-data-operation1"),
-            mockDataProcessorInstance("commons-data-operation2")
-        ))
-
-        generator.output.lines()
+        output.lines()
             .filter { it.contains("python") }
             .forEach {
-                val indent = it.indexOf("-")
-                val expected = 4
-                assertThat(indent)
-                    .withFailMessage("Expected an indentation of $expected spaces for line: '$it'")
-                    .isEqualTo(expected)
+                assertThat(it.indexOf("python"))
+                    .withFailMessage("Expected an indentation of ${4} spaces for line: '$it'")
+                    .isEqualTo(4)
             }
+
+        println(output.lines())
     }
 
     private fun mockDataProcessorInstance(slug: String): DataProcessorInstance {

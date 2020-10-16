@@ -3,152 +3,69 @@ package com.mlreef.rest.feature.pipeline
 import com.mlreef.rest.Account
 import com.mlreef.rest.DataProcessorInstance
 import com.mlreef.rest.DataProcessorType
-import com.mlreef.rest.ParameterInstance
 import org.springframework.core.io.ClassPathResource
 import java.util.stream.Collectors
 
-object GitlabVariables {
-    const val PIPELINE_TOKEN_SECRET = "EPF_BOT_SECRET"
-    const val GIT_PUSH_USER = "GIT_PUSH_USER"
-    const val GIT_PUSH_TOKEN = "GIT_PUSH_TOKEN"
-}
 
-internal class YamlFileGenerator(
-    private val epfImageTag: String = "latest"
-) {
+const val PIPELINE_TOKEN_SECRET = "EPF_BOT_SECRET"
+const val GIT_PUSH_USER = "GIT_PUSH_USER"
+const val GIT_PUSH_TOKEN = "GIT_PUSH_TOKEN"
 
-    companion object {
-        const val EPF_IMAGE_TAG = "%EPF_IMAGE_TAG%"
-        const val EPF_GITLAB_HOST = "%EPF_GITLAB_HOST%"
-        const val EPF_PIPELINE_URL = "%EPF_PIPELINE_URL%"
-        const val EPF_PIPELINE_SECRET = "%EPF_PIPELINE_SECRET%"
-        const val CONF_EMAIL = "%CONF_EMAIL%"
-        const val CONF_NAME = "%CONF_NAME%"
-        const val SOURCE_BRANCH = "%SOURCE_BRANCH%"
-        const val TARGET_BRANCH = "%TARGET_BRANCH%"
-        const val PIPELINE_STRING = "%PIPELINE_STRING%"
-        const val INPUT_FILE_LIST = "%INPUT_FILE_LIST%"
-        const val NEWLINE = "\n"
+const val EPF_IMAGE_TAG = "%EPF_IMAGE_TAG%"
+const val EPF_GITLAB_HOST = "%EPF_GITLAB_HOST%"
+const val EPF_PIPELINE_URL = "%EPF_PIPELINE_URL%"
+const val EPF_PIPELINE_SECRET = "%EPF_PIPELINE_SECRET%"
+const val CONF_EMAIL = "%CONF_EMAIL%"
+const val CONF_NAME = "%CONF_NAME%"
+const val SOURCE_BRANCH = "%SOURCE_BRANCH%"
+const val TARGET_BRANCH = "%TARGET_BRANCH%"
+const val PIPELINE_STRING = "%PIPELINE_STRING%"
+const val NEWLINE = "\n"
 
-        fun writeInstances(list: List<DataProcessorInstance>): List<String> {
-            return list.map { writeInstance(it) }
-        }
-
-        private fun writeInstance(instance: DataProcessorInstance): String {
-            // /epf/pipelines
-            //  let line = `- python ${path}/${dataOperation.command}.py --images-path#directoriesAndFiles`;
-            return try {
-                val path = when (instance.dataProcessor.type) {
-                    DataProcessorType.ALGORITHM -> "/epf/model/"
-                    DataProcessorType.OPERATION -> "/epf/pipelines/"
-                    DataProcessorType.VISUALIZATION -> "/epf/visualisation/"
-                }
-                "python $path${instance.processorVersion.command}.py " + writeParameters(instance.parameterInstances)
-            } catch (e: Exception) {
-                "# could not parse dataprocessor: ${e.message}"
-            }
-        }
-
-        private fun writeParameters(parameterInstances: List<ParameterInstance>): String {
-            return parameterInstances.joinToString(" ") { writeParameter(it) }
-        }
-
-        private fun writeParameter(it: ParameterInstance): String {
-            return "--${it.name} ${it.value}"
-        }
-    }
-
-    val input: String
-    var output: String
-
-    init {
-        output = ""
-        input = ClassPathResource("mlreef-file-template.yml")
-            .inputStream.bufferedReader().use {
+internal object YamlFileGenerator {
+    val template: String = ClassPathResource("mlreef-file-template.yml")
+        .inputStream.bufferedReader().use {
             it.lines().collect(Collectors.joining(NEWLINE))
         }
-        output = input
-    }
 
-    fun generateYamlFile(
+    fun renderYaml(
         author: Account,
         epfPipelineSecret: String,
         epfPipelineUrl: String,
         epfGitlabUrl: String,
+        epfImageTag: String,
         sourceBranch: String,
         targetBranch: String,
-        processors: List<DataProcessorInstance>,
-        inputFileList: List<String>
-    ): String {
-        val inputFileListString = inputFileList.joinToString(",")
-        replaceAllSingleStrings(
-            epfTag = epfImageTag,
-            epfPipelineSecret = epfPipelineSecret,
-            epfPipelineUrl = epfPipelineUrl,
-            confEmail = author.email,
-            confName = author.username,
-            epfGitlabUrl = epfGitlabUrl,
-            sourceBranch = sourceBranch,
-            targetBranch = targetBranch,
-            inputFileList = inputFileListString
+        dataProcessors: List<DataProcessorInstance>,
+    ): String = template
+        .replace(CONF_EMAIL, newValue = author.email)
+        .replace(CONF_NAME, newValue = author.username)
+        .replace(SOURCE_BRANCH, newValue = sourceBranch)
+        .replace(TARGET_BRANCH, newValue = targetBranch)
+        .replace(EPF_IMAGE_TAG, newValue = epfImageTag)
+        .replace(EPF_PIPELINE_SECRET, newValue = epfPipelineSecret)
+        .replace(EPF_GITLAB_HOST, epfGitlabUrl
+            .removePrefix("http://")
+            .removePrefix("https://")
+            .substringBefore("/"))
+        .replace(EPF_PIPELINE_URL,
+            if (epfPipelineUrl.startsWith("http://")
+                || epfPipelineUrl.startsWith("https://")) {
+                epfPipelineUrl
+            } else { "http://$epfPipelineUrl" }
         )
-        replacePipeline(processors)
+        .replace(PIPELINE_STRING,
+            dataProcessors.joinToString(NEWLINE) { dpInstance ->
+                val path = when (dpInstance.dataProcessor.type) {
+                    DataProcessorType.ALGORITHM -> "/epf/model/"
+                    DataProcessorType.OPERATION -> "/epf/pipelines/"
+                    DataProcessorType.VISUALIZATION -> "/epf/visualisation/"
+                }
+                // the 4 space indentation is necessary for the yaml syntax
+                "    python $path${dpInstance.processorVersion.command}.py " +
+                    dpInstance.parameterInstances
+                        .joinToString(" ") { "--${it.name} ${it.value}" }
+            },
+        )
 
-        return output
-    }
-
-    private fun sanitizeWrongEnvUrl(epfPipelineUrl: String): String {
-        return if (epfPipelineUrl.startsWith("http://")
-            || epfPipelineUrl.startsWith("https://")) {
-            epfPipelineUrl
-        } else {
-            "http://$epfPipelineUrl"
-        }
-    }
-
-    private fun extractHostnamePort(urlyString: String) = urlyString
-        .replace("http://", "")
-        .replace("https://", "")
-        .substringBefore("/")
-
-
-    fun replacePipeline(list: List<DataProcessorInstance> = listOf()): YamlFileGenerator {
-        val pipelineStrings = writeInstances(list)
-        val indexOf = input.indexOf("- git add .")
-        val lineBegin = input.indexOf(NEWLINE, indexOf)
-        val dash = input.indexOf("-", lineBegin)
-        val indent = dash - lineBegin - 1
-        val prefix = " ".repeat(indent) + "-"
-
-        val indentedStrings = pipelineStrings.joinToString(NEWLINE) { "$prefix $it" }
-        output = output.replace(PIPELINE_STRING, indentedStrings)
-        return this
-    }
-
-    fun replaceAllSingleStrings(
-        epfTag: String = "",
-        epfPipelineSecret: String = "",
-        epfPipelineUrl: String = "",
-        epfGitlabUrl: String = "",
-        confEmail: String = "",
-        confName: String = "",
-        sourceBranch: String = "",
-        targetBranch: String = "",
-        inputFileList: String = ""
-
-    ): YamlFileGenerator {
-        val sanitizedEpfUrl = sanitizeWrongEnvUrl(epfPipelineUrl)
-        val gitlabHost = extractHostnamePort(epfGitlabUrl)
-        output = output
-            .replace(EPF_IMAGE_TAG, epfTag)
-            .replace(EPF_PIPELINE_SECRET, epfPipelineSecret)
-            .replace(EPF_PIPELINE_URL, sanitizedEpfUrl)
-            .replace(EPF_GITLAB_HOST, gitlabHost)
-            .replace(CONF_EMAIL, confEmail)
-            .replace(CONF_NAME, confName)
-            .replace(SOURCE_BRANCH, sourceBranch)
-            .replace(TARGET_BRANCH, targetBranch)
-            .replace(INPUT_FILE_LIST, inputFileList)
-        return this
-    }
 }

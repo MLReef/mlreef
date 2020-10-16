@@ -65,7 +65,7 @@ class ExperimentService(
         targetBranch: String,
         postProcessors: List<DataProcessorInstance> = listOf(),
         inputFiles: List<FileLocation>,
-        processorInstance: DataProcessorInstance
+        processorInstance: DataProcessorInstance,
     ): Experiment {
         subjectRepository.findByIdOrNull(authorId)
             ?: throw ExperimentCreateException(ErrorCode.ExperimentCreationOwnerMissing, "Owner is missing!")
@@ -88,18 +88,16 @@ class ExperimentService(
         require(targetBranch.isNotBlank()) { "targetBranch is missing!" }
 
         return synchronized(synchedExperimentNumber) {
-            val countByDataProjectId = experimentRepository.countByDataProjectId(dataProjectId)
-
             val experiment = Experiment(
                 id = randomUUID(),
                 dataProjectId = dataProjectId,
                 dataInstanceId = dataInstanceId,
                 slug = validSlug,
                 name = name,
-                number = countByDataProjectId + 1,
+                number = experimentRepository.countByDataProjectId(dataProjectId) + 1,
                 inputFiles = inputFiles,
                 sourceBranch = sourceBranch,
-                targetBranch = targetBranch
+                targetBranch = targetBranch,
             )
 
             postProcessors.forEach { experiment.addPostProcessor(it) }
@@ -124,16 +122,15 @@ class ExperimentService(
         require(experiment.inputFiles.isNotEmpty()) { "Experiment must have at least 1 input file before yaml can be created" }
         require(processors.isNotEmpty()) { "Experiment must have at least 1 DataProcessor before yaml can be created" }
 
-        val fileList = experiment.inputFiles.map(FileLocation::toYamlString)
-        return YamlFileGenerator(conf.epf.imageTag).generateYamlFile(
+        return YamlFileGenerator.renderYaml(
             author = author,
             epfPipelineSecret = secret,
             epfPipelineUrl = "${conf.epf.backendUrl}/api/v1/epf/experiments/${experiment.id}",
             epfGitlabUrl = conf.epf.gitlabUrl,
+            epfImageTag = conf.epf.imageTag,
             sourceBranch = experiment.sourceBranch,
             targetBranch = experiment.targetBranch,
-            processors = processors,
-            inputFileList = fileList
+            dataProcessors = processors,
         )
     }
 
