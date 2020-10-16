@@ -2,7 +2,7 @@
 # shellcheck disable=SC2155   # Declare and assign separately to avoid masking return values. See SC2155.
 
 # change to the repository root folder via the scripts location
-cd "$(dirname "$0")"/../..
+cd "$(dirname "$0")"/..
 . bin/includes/log
 . bin/includes/detect-os
 . bin/includes/ci-environment
@@ -28,5 +28,3 @@ curl "http://$INSTANCE_HOST:8080/api/v1/info/status"  | jq
 
 echo "TEST Backend is healthy and gitlab connection works:"
 curl "http://$INSTANCE_HOST:8080/api/v1/info/health"  | jq
-
-#"2020-08-24T12:24:58.714Z"

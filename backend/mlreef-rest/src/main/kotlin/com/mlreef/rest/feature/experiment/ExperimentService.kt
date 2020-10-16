@@ -158,9 +158,12 @@ class ExperimentService(
 
 
     fun savePipelineInfo(experiment: Experiment, pipelineJobInfo: PipelineJobInfo): Experiment =
-        experimentRepository.save(experiment.copy(
-            status = ExperimentStatus.PENDING,
-            pipelineJobInfo = pipelineJobInfo
-        ))
+        experiment
+            .copy(
+                status = ExperimentStatus.PENDING,
+                pipelineJobInfo = pipelineJobInfo,
+            )
+            .let { experimentRepository.save(it) }
+
 
 }
