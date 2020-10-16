@@ -168,14 +168,14 @@ system tests:
   stage: test
   when: delayed
   start_in: 3 minutes
-  script: backend/bin/ci-system-test-backend.sh
+  script: backend/bin/ci-system-tests
 
 pipeline tests:
   extends: [".system-tests"]
   allow_failure: true
   stage: test
   when: manual
-  script: backend/bin/ci-pipeline-test-backend.sh
+  script: backend/bin/ci-pipeline-tests
 
 
 test rest docs are present:

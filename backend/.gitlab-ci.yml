@@ -1,9 +1,17 @@
-build & test backend:
-  extends: [".except-docu-branches"]
-  stage: build
+.only-on-backend-code-changes:
   only:
     changes:
-      - backend/**/*
+      - backend/mlreef-domain/src/**/*
+      - backend/mlreef-rest/src/**/*
+      - backend/Dockerfile
+      - backend/gradle.properties
+      - backend/settings.gradle
+      - backend/.gitlab-ci.yaml
+
+
+test backend:
+  extends: [".except-docu-branches", ".only-on-backend-code-changes"]
+  stage: build
   image: java:8
   services:
     - docker:19.03.0-dind
@@ -12,7 +20,7 @@ build & test backend:
     paths:
     - backend/.gradle/wrapper
     - backend/.gradle/caches
-  script: backend/bin/ci-build-test-backend
+  script: backend/bin/ci-test-backend
   artifacts:
     paths:
       - backend/mlreef-rest/build/
@@ -20,34 +28,31 @@ build & test backend:
       junit: backend/mlreef-rest/build/test-results/test/**/TEST-*.xml
 
 
-dockerize backend:
-  extends: [".except-docu-branches"]
+build backend:
+  extends: [".except-docu-branches", ".only-on-backend-code-changes"]
   stage: build
-  only:
-    changes:
-      - backend/mlreef-domain/src/main/**/*
-      - backend/mlreef-rest/src/main/**/*
   image: docker:19.03.1
   services:
     - docker:19.03.0-dind
+  cache:
+    key: "$CI_COMMIT_REF_SLUG"
+    paths:
+      - backend/.gradle/wrapper
+      - backend/.gradle/caches
   before_script:
     - export GATEWAY_IMAGE_PATH=$CI_REGISTRY_IMAGE/gateway:$CI_COMMIT_REF_SLUG
     - export BACKEND_IMAGE_PATH=$CI_REGISTRY_IMAGE/backend:$CI_COMMIT_REF_SLUG
     - export     EPF_IMAGE_PATH=$CI_REGISTRY_IMAGE/epf:$CI_COMMIT_REF_SLUG
   script: |
-    backend/bin/ci-dockerize-backend
+    backend/bin/ci-build-backend
     docker push "$BACKEND_IMAGE_PATH"
 
 
 backend integration tests:
-  extends: [".except-docu-branches"]
+  extends: [".except-docu-branches", ".only-on-backend-code-changes"]
+  dependencies: ["test backend"]
   allow_failure: true
   stage: test
-  only:
-    changes:
-      - backend/mlreef-domain/src/main/**/*
-      - backend/mlreef-rest/src/main/**/*
-      - backend/mlreef-rest/src/test/**/*
   image: java:8
   services:
     - docker:19.03.0-dind
