@@ -56,6 +56,22 @@ mlreef-pipeline:
   artifacts:
     paths:
       - output/*
+  # Workaround for failing pipelines mlreef#799 https://docs.gitlab.com/ee/ci/yaml/
+  retry:
+    max: 2
+    when:
+      # Retry when the failure reason is unknown.
+      - unknown_failure
+      # Retry when the script failed.
+      - script_failure
+      # Retry on API failure.
+      - api_failure
+      # Retry if there was a runner system failure (for example, job setup failed).
+      - runner_system_failure
+      # Retry if the runner was unsupported.
+      - runner_unsupported
+      # Retry if the scheduler failed to assign the job to a runner.
+      - scheduler_failure
   script: |
     git checkout -b $TARGET_BRANCH
     echo $CI_JOB_ID >> data_pipeline.info
