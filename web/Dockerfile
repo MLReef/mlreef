@@ -37,8 +37,6 @@ RUN echo "Gitlab Pipeline $CI_PIPELINE_ID built on "$(date +%Y-%m-%d\ %H:%M:%S) 
 
 # install all NPM packages and compile the react app
 RUN echo "Frontend Build Time: $(date +%Y-%m-%d\ %H:%M:%S)" && \
-    npm install --global --silent react-scripts             && \
-    npm install --global --silent create-react-app@latest   && \
     npm install --global --silent react-scripts@3.0.1       && \
     npm install --silent .                                  && \
     echo "Frontend Build Time: $(date +%Y-%m-%d\ %H:%M:%S)" && \
