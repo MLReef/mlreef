@@ -6,11 +6,11 @@ import ApiRequestCallBuilder from './apiBuilders/ApiRequestCallBuilder';
 
 export default class CommitsApi extends ApiDirector {
   performCommit(
-    projectId: number, 
+    projectId: number,
     filePath: string,
-    fileContent: string, 
-    branch: string, 
-    commitMss: string, 
+    fileContent: string,
+    branch: string,
+    commitMss: string,
     action: string,
     encoding: string = 'text',
     branchStart: string,
@@ -26,7 +26,7 @@ export default class CommitsApi extends ApiDirector {
           encoding,
         },
       ],
-    }
+    };
     const data = JSON.stringify(branchStart ? { ...body, start_branch: branchStart } : body);
     const url = `/api/v4/projects/${projectId}/repository/commits`
     const blBuilder = new ApiRequestCallBuilder(METHODS.POST, this.buildBasicHeaders(validServicesToCall.GITLAB), url, data);

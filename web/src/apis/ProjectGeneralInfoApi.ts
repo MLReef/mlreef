@@ -93,7 +93,7 @@ export default class ProjectGeneralInfoApi extends ApiDirector {
       METHODS.POST,
       headers,
       url,
-      JSON.stringify(formData)
+      JSON.stringify(formData),
     );
 
     return fetch(builder.build())
@@ -148,7 +148,7 @@ export default class ProjectGeneralInfoApi extends ApiDirector {
       `/api/v4/projects/${id}/fork`,
       JSON.stringify({
         id, namespace, name,
-      })
+      }),
     );
     return fetch(builder.build());
   }
@@ -159,7 +159,7 @@ export default class ProjectGeneralInfoApi extends ApiDirector {
     const builder = new BLApiRequestCallBuilder(METHODS.DELETE, headers, url);
 
     return fetch(builder.build())
-      .then(handleResponse)
+      .then(handleResponse);
   }
 
   getUsers(projectId: number) {
@@ -198,18 +198,18 @@ export default class ProjectGeneralInfoApi extends ApiDirector {
     const apiReqBuilder = new BodyLessApiRequestCallBuilder(
       isProjectStarred ? METHODS.DELETE : METHODS.POST,
       this.buildBasicHeaders(validServicesToCall.BACKEND),
-      baseUrl
+      baseUrl,
     );
     return fetch(apiReqBuilder.build())
       .then(handleResponse);
   }
 
-  listStarrers(gId: string){
+  listStarrers(gId: string) {
     const baseUrl = `/api/v4/projects/${gId}/starrers`;
     const apiReqBuilder = new BodyLessApiRequestCallBuilder(
       METHODS.GET,
       this.buildBasicHeaders(validServicesToCall.GITLAB),
-      baseUrl
+      baseUrl,
     );
     return fetch(apiReqBuilder.build())
       .then(handleResponse);

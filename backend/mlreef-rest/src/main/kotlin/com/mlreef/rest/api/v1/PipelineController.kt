@@ -34,7 +34,7 @@ class PipelineController(
     val pipelineService: PipelineService,
     val dataProjectRepository: DataProjectRepository,
     val pipelineConfigRepository: PipelineConfigRepository,
-    val pipelineInstanceRepository: PipelineInstanceRepository
+    val pipelineInstanceRepository: PipelineInstanceRepository,
 ) {
     private val log: Logger = Logger.getLogger(ExperimentsController::class.simpleName)
 
@@ -69,9 +69,8 @@ class PipelineController(
     @PreAuthorize("canViewPipeline(#pid)")
     fun getOnePipelineInstanceFromConfig(@PathVariable pid: UUID, @PathVariable id: UUID): PipelineInstanceDto {
         beforeGetPipelineConfig(pid)
-        val instance = beforeGetPipelineInstance(pid, id)
-
-        return instance.toDto()
+        return beforeGetPipelineInstance(pid, id)
+            .toDto()
     }
 
     @PostMapping("/{pid}/instances")
@@ -94,11 +93,13 @@ class PipelineController(
 
     @PutMapping("/{pid}/instances/{id}/{action}")
     @PreAuthorize("hasAccessToPipeline(#pid,'DEVELOPER')")
-    fun updatePipelineInstanceFromConfig(@PathVariable pid: UUID,
-                                         @PathVariable id: UUID,
-                                         @PathVariable action: String,
-                                         tokenDetails: TokenDetails,
-                                         account: Account): PipelineInstanceDto {
+    fun updatePipelineInstanceFromConfig(
+        @PathVariable pid: UUID,
+        @PathVariable id: UUID,
+        @PathVariable action: String,
+        tokenDetails: TokenDetails,
+        account: Account,
+    ): PipelineInstanceDto {
         val pipelineConfig = beforeGetPipelineConfig(pid)
         val instance = beforeGetPipelineInstance(pid, id)
 
@@ -119,7 +120,7 @@ class PipelineController(
     fun getExperimentYaml(
         @PathVariable pid: UUID,
         @PathVariable id: UUID,
-        account: Account
+        account: Account,
     ): String {
         beforeGetPipelineConfig(pid)
 
@@ -134,9 +135,11 @@ class PipelineController(
 
     @DeleteMapping("/{pid}/instances/{id}")
     @PreAuthorize("hasAccessToPipeline(#pid,'DEVELOPER')")
-    fun deletePipelineInstanceFromConfig(@PathVariable pid: UUID,
-                                         @PathVariable id: UUID,
-                                         tokenDetails: TokenDetails) {
+    fun deletePipelineInstanceFromConfig(
+        @PathVariable pid: UUID,
+        @PathVariable id: UUID,
+        tokenDetails: TokenDetails,
+    ) {
         beforeGetPipelineConfig(pid)
 
         val instance = beforeGetPipelineInstance(pid, id)

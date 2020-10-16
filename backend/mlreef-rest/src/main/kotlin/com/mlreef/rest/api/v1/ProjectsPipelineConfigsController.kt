@@ -105,12 +105,16 @@ class ProjectsPipelineConfigsController(
     fun createPipelineConfigInstanceStart(
         @PathVariable dataProjectId: UUID,
         @Valid @RequestBody createRequest: PipelineConfigCreateRequest,
-        person: Person
+        person: Person,
     ): PipelineInstanceDto {
         val dataProject = dataProjectService.getProjectById(dataProjectId)
             ?: throw ProjectNotFoundException(projectId = dataProjectId)
 
-        val newPipelineConfig = createNewPipelineConfig(dataProject, createRequest, person)
+        val newPipelineConfig = createNewPipelineConfig(
+            dataProject = dataProject,
+            createRequest = createRequest,
+            person = person,
+        )
         appendProcessorsAndFiles(createRequest.dataOperations, createRequest.inputFiles, newPipelineConfig)
 
         val pipelineConfig = pipelineConfigRepository.save(newPipelineConfig)

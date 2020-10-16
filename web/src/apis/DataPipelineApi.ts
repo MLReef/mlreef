@@ -1,13 +1,12 @@
 import 'core-js/stable';
 import 'regenerator-runtime/runtime';
 import { handleResponse } from 'functions/helpers';
-import ApiDirector from './ApiDirector';
-import ApiRequestCallBuilder from './apiBuilders/ApiRequestCallBuilder';
-import BLApiRequestCallBuilder from './apiBuilders/BLApiRequestCallBuilder';
-import { METHODS, validServicesToCall } from './apiBuilders/requestEnums';
+import ApiDirector from 'apis/ApiDirector';
+import ApiRequestCallBuilder from 'apis/apiBuilders/ApiRequestCallBuilder';
+import BLApiRequestCallBuilder from 'apis/apiBuilders/BLApiRequestCallBuilder';
+import { METHODS, validServicesToCall } from 'apis/apiBuilders/requestEnums';
 
 export default class DataPiplineApi extends ApiDirector {
-
   /**
    * https://mlreef.gitlab.io/backend/develop/#_post_pipelines
    * @param projectUUId
@@ -20,8 +19,7 @@ export default class DataPiplineApi extends ApiDirector {
     const BLbuilder = new ApiRequestCallBuilder(METHODS.POST, this.buildBasicHeaders(validServicesToCall.BACKEND), url, JSON.stringify(data));
     const response = await fetch(BLbuilder.build());
     if (!response.ok) {
-      const body = await response.json();
-      return Promise.reject(body.error_message);
+      return Promise.reject(response);
     }
     return response;
   }

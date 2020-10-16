@@ -50,7 +50,7 @@ build backend:
 
 backend integration tests:
   extends: [".except-docu-branches", ".only-on-backend-code-changes"]
-  dependencies: ["test backend"]
+  needs: ["test backend"]
   allow_failure: true
   stage: test
   image: java:8
