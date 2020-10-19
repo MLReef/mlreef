@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
-import { Link, useHistory } from 'router';
+import { Link } from 'router';
 import iconGrey from 'images/icon_grey-01.png';
 import MParagraph from 'components/ui/MParagraph';
 import { PUBLIC } from 'dataTypes';
@@ -25,11 +25,8 @@ const MProjectCard = (props) => {
     owner,
   } = props;
 
-  const history = useHistory();
-
   const [avatars, setAvatars] = useState([]);
 
-  const goToProjectView = () => history.push(`/${namespace}/${slug}`);
   /*
   const hasOutputTypes = !['ALGORITHM', 'VISUALIZATION']
     .some((t) => dataProcessor?.type === t); */
@@ -66,49 +63,44 @@ const MProjectCard = (props) => {
         className="icon-visibility"
         aria-hidden="true"
       />
-      <div
-        role="button"
-        tabIndex="0"
-        className="card-container project-card-container"
-        onClick={goToProjectView}
-        onKeyPress={goToProjectView}
-      >
-        <p className="card-title">
-          {title}
-        </p>
-        {namespace && (
-          <div
-            className="project-card-container-autor pb-3 mt-2"
-          >
-            <p>{namespace}</p>
-          </div>
-        )}
-
-        <div className="card-content">
-          <MProjectCardTypes input types={inputDataTypes} />
-          {!description ? (
-            <div className="d-flex noelement-found-div" style={{ marginTop: '1rem' }}>
-              <img src={iconGrey} alt="" style={{ maxHeight: '30px' }} />
-              <p style={{ height: 'unset' }}>No description</p>
+      <div className="card-container project-card-container">
+        <Link className="project-card-link" to={`/${namespace}/${slug}`}>
+          <p className="card-title">
+            {title}
+          </p>
+          {namespace && (
+            <div
+              className="project-card-container-autor pb-3 mt-2"
+            >
+              <p>{namespace}</p>
             </div>
-          ) : (
-            <MParagraph className="card-content-description" text={description} />
           )}
 
-          <div className="d-flex t-secondary">
-            <div className="mr-3">
-              <i className="fa fa-star">
-                <span className="label">{` ${starCount}`}</span>
-              </i>
-            </div>
-            <div className="mr-3">
-              <i className="fa fa-code-branch">
-                <span className="label">{` ${forkCount}`}</span>
-              </i>
+          <div className="card-content">
+            <MProjectCardTypes input types={inputDataTypes} />
+            {!description ? (
+              <div className="d-flex noelement-found-div" style={{ marginTop: '1rem' }}>
+                <img src={iconGrey} alt="" style={{ maxHeight: '30px' }} />
+                <p style={{ height: 'unset' }}>No description</p>
+              </div>
+            ) : (
+              <MParagraph className="card-content-description" text={description} />
+            )}
+
+            <div className="d-flex t-secondary">
+              <div className="mr-3">
+                <i className="fa fa-star">
+                  <span className="label">{` ${starCount}`}</span>
+                </i>
+              </div>
+              <div className="mr-3">
+                <i className="fa fa-code-branch">
+                  <span className="label">{` ${forkCount}`}</span>
+                </i>
+              </div>
             </div>
           </div>
-        </div>
-
+        </Link>
         <div className="card-actions">
           <div className="avatars-reversed">
             {avatars.map((ava) => (

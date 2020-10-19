@@ -27,69 +27,71 @@ exports[`ExploreViewProjectSet appareance assert that snapshot matches 1`] = `
       />
       <div
         className="card-container project-card-container"
-        onClick={[Function]}
-        onKeyPress={[Function]}
-        role="button"
-        tabIndex="0"
       >
-        <p
-          className="card-title"
+        <a
+          className="project-card-link"
+          href="/Some namespace/some-slug"
+          onClick={[Function]}
         >
-          Sign Language Classifier
-        </p>
-        <div
-          className="project-card-container-autor pb-3 mt-2"
-        >
-          <p>
-            Some namespace
+          <p
+            className="card-title"
+          >
+            Sign Language Classifier
           </p>
-        </div>
-        <div
-          className="card-content"
-        >
           <div
-            className="project-card-types d-flex"
-          />
-          <section
-            className="m-paragraph card-content-description"
+            className="project-card-container-autor pb-3 mt-2"
           >
-            <p
-              className="m-paragraph-line "
-            >
-              Categorical Classification of alphabets in the American Sign Language
+            <p>
+              Some namespace
             </p>
-          </section>
+          </div>
           <div
-            className="d-flex t-secondary"
+            className="card-content"
           >
             <div
-              className="mr-3"
+              className="project-card-types d-flex"
+            />
+            <section
+              className="m-paragraph card-content-description"
             >
-              <i
-                className="fa fa-star"
+              <p
+                className="m-paragraph-line "
               >
-                <span
-                  className="label"
-                >
-                   0
-                </span>
-              </i>
-            </div>
+                Categorical Classification of alphabets in the American Sign Language
+              </p>
+            </section>
             <div
-              className="mr-3"
+              className="d-flex t-secondary"
             >
-              <i
-                className="fa fa-code-branch"
+              <div
+                className="mr-3"
               >
-                <span
-                  className="label"
+                <i
+                  className="fa fa-star"
                 >
-                   0
-                </span>
-              </i>
+                  <span
+                    className="label"
+                  >
+                     0
+                  </span>
+                </i>
+              </div>
+              <div
+                className="mr-3"
+              >
+                <i
+                  className="fa fa-code-branch"
+                >
+                  <span
+                    className="label"
+                  >
+                     0
+                  </span>
+                </i>
+              </div>
             </div>
           </div>
-        </div>
+        </a>
         <div
           className="card-actions"
         >
