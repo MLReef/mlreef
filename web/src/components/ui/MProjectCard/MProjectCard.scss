@@ -43,6 +43,10 @@
     width: 30px;
     border-radius: 50%;
   }
+
+  &-link:hover {
+    text-decoration: none;
+  }
 }
 
 .project-card-types {

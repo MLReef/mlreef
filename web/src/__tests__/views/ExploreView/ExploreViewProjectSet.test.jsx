@@ -1,5 +1,6 @@
 import React from 'react';
 import renderer from 'react-test-renderer';
+import { MemoryRouter } from 'react-router-dom';
 import { mount } from 'enzyme';
 import { projectsArrayMock, userProfileMock } from 'testData';
 import { storeFactory } from 'functions/testUtils';
@@ -14,7 +15,9 @@ describe('ExploreViewProjectSet functionality', () => {
   global.ResizeObserver = () => ({ observe: jest.fn() });
   test('assert only loading gif is showed while starting', () => {
     const wrapper = mount(
-      <ExploreViewProjectSet store={store} started={false} projects={projects} />,
+      <MemoryRouter>
+        <ExploreViewProjectSet store={store} started={false} projects={projects} />
+      </MemoryRouter>,
     );
 
     expect(wrapper.find('MProjectCard')).toHaveLength(0);
@@ -24,7 +27,9 @@ describe('ExploreViewProjectSet functionality', () => {
 
   test('assert only empty icon is showed for no project', () => {
     const wrapper = mount(
-      <ExploreViewProjectSet store={store} started projects={[]} />,
+      <MemoryRouter>
+        <ExploreViewProjectSet store={store} started projects={[]} />
+      </MemoryRouter>,
     );
 
     expect(wrapper.find('MProjectCard')).toHaveLength(0);
@@ -34,7 +39,9 @@ describe('ExploreViewProjectSet functionality', () => {
 
   test('assert MProjectCard is showed', () => {
     const wrapper = mount(
-      <ExploreViewProjectSet store={store} started projects={projects} />,
+      <MemoryRouter>
+        <ExploreViewProjectSet store={store} started projects={projects} />
+      </MemoryRouter>,
     );
 
     expect(wrapper.find('MProjectCard')).toHaveLength(1);
@@ -46,7 +53,9 @@ describe('ExploreViewProjectSet functionality', () => {
 describe('ExploreViewProjectSet appareance', () => {
   test('assert that snapshot matches', () => {
     const snapshot = renderer.create(
-      <ExploreViewProjectSet store={store} started projects={projects} />,
+      <MemoryRouter>
+        <ExploreViewProjectSet store={store} started projects={projects} />
+      </MemoryRouter>,
     )
       .toJSON();
 
