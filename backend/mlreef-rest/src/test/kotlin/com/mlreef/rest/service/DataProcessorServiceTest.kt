@@ -17,6 +17,7 @@ import com.mlreef.rest.UserRole
 import com.mlreef.rest.VisibilityScope
 import com.mlreef.rest.external_api.gitlab.GitlabRestClient
 import com.mlreef.rest.feature.data_processors.DataProcessorService
+import com.mlreef.rest.feature.data_processors.PythonParserService
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -36,6 +37,7 @@ class DataProcessorServiceTest : AbstractServiceTest() {
 
     @Autowired
     private lateinit var subjectRepository: SubjectRepository
+
     @Autowired
     private lateinit var codeProjectRepository: CodeProjectRepository
 
@@ -44,6 +46,9 @@ class DataProcessorServiceTest : AbstractServiceTest() {
 
     @Autowired
     private lateinit var processorVersionRepository: ProcessorVersionRepository
+
+    @Autowired
+    private lateinit var pythonParserService: PythonParserService
 
     @Mock
     private lateinit var gitlabRestClient: GitlabRestClient
@@ -82,7 +87,7 @@ class DataProcessorServiceTest : AbstractServiceTest() {
     fun `Can parse python example files`() {
         val filename = "resnet_annotations_demo.py"
         val resource = javaClass.classLoader.getResource(filename)!!
-        val dataProcessor = dataProcessorService.parsePythonFile(resource)
+        val dataProcessor = pythonParserService.parsePythonFile(resource)
         assertNotNull(dataProcessor)
     }
 
@@ -91,7 +96,7 @@ class DataProcessorServiceTest : AbstractServiceTest() {
     fun `Can save parsed DataProcessors`() {
         val filename = "resnet_annotations_demo.py"
         val resource = javaClass.classLoader.getResource(filename)!!
-        val processorVersion = dataProcessorService.parseAndSave(resource)
+        val processorVersion = pythonParserService.parseAndSave(resource)
         val dataProcessor = processorVersion.dataProcessor
         assertNotNull(dataProcessor)
         assertThat(dataProcessor.name).isEqualTo("Resnet 2.0 Filter")

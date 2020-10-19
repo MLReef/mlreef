@@ -28,6 +28,9 @@ import com.mlreef.rest.external_api.gitlab.dto.GitlabVariable
 import com.mlreef.rest.external_api.gitlab.dto.GroupVariable
 import com.mlreef.rest.external_api.gitlab.dto.OAuthToken
 import com.mlreef.rest.external_api.gitlab.dto.OAuthTokenInfo
+import com.mlreef.rest.external_api.gitlab.dto.RepositoryFile
+import com.mlreef.rest.external_api.gitlab.dto.RepositoryTree
+import com.mlreef.rest.external_api.gitlab.dto.RepositoryTreePaged
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.web.client.RestTemplateBuilder
@@ -176,6 +179,38 @@ class GitlabRestClient(
             } ?: throw Exception("GitlabRestClient: Gitlab response does not contain a body.")
     }
 
+    fun adminGetProjectTree(projectId: Long, path: String? = null, pageSize: Int = 100, pageNumber: Int = 1): RepositoryTreePaged {
+        return GitlabHttpEntity(null, createAdminHeaders())
+            .addErrorDescription(404, ErrorCode.NotFound, "Cannot find project with id $projectId")
+            .addErrorDescription(ErrorCode.GitlabCommonError, "Cannot fetch repository for project $projectId")
+            .makeRequest {
+                val params = "per_page=$pageSize&page=$pageNumber${path?.let { "&path=$it" } ?: ""}"
+
+                val url = "$gitlabServiceRootUrl/projects/$projectId/repository/tree?${params}"
+
+                val result = restTemplate(builder).exchange(url, HttpMethod.GET, it, typeRef<List<RepositoryTree>>())
+
+                ResponseEntity.status(result.statusCodeValue).body(
+                    RepositoryTreePaged(
+                        result.body,
+                        result.headers.getOrEmpty("X-Page").getOrNull(0)?.toInt() ?: 0,
+                        result.headers.getOrEmpty("X-Total-Pages").getOrNull(0)?.toInt() ?: 0,
+                        result.headers.getOrEmpty("X-Total").getOrNull(0)?.toInt() ?: 0,
+                        result.headers.getOrEmpty("X-Per-Page").getOrNull(0)?.toInt() ?: 0,
+                    )
+                )
+            } ?: throw Exception("GitlabRestClient: Gitlab response does not contain a body.")
+    }
+
+    fun adminGetRepositoryFileContent(projectId: Long, sha: String): RepositoryFile {
+        return GitlabHttpEntity(null, createAdminHeaders())
+            .addErrorDescription(404, ErrorCode.NotFound, "Cannot find project with id $projectId")
+            .addErrorDescription(ErrorCode.GitlabCommonError, "Cannot fetch repository for project $projectId")
+            .makeRequest {
+                val url = "$gitlabServiceRootUrl/projects/$projectId/repository/blobs/$sha"
+                restTemplate(builder).exchange(url, HttpMethod.GET, it, RepositoryFile::class.java)
+            } ?: throw Exception("GitlabRestClient: Gitlab response does not contain a body.")
+    }
 
     fun adminGetProjectMembers(projectId: Long): List<GitlabUserInProject> {
         return GitlabHttpEntity<String>("body", createAdminHeaders())

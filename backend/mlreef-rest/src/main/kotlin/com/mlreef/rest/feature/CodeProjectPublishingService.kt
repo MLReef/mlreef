@@ -7,6 +7,8 @@ import com.mlreef.rest.exceptions.PipelineStartException
 import com.mlreef.rest.exceptions.RestException
 import com.mlreef.rest.external_api.gitlab.GitlabRestClient
 import com.mlreef.rest.external_api.gitlab.dto.Commit
+import com.mlreef.rest.feature.data_processors.DataProcessorService
+import com.mlreef.rest.feature.data_processors.PythonParserService
 import com.mlreef.rest.feature.project.ProjectResolverService
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -25,6 +27,7 @@ const val DOCKERFILE_NAME = "Dockerfile"
 const val MLREEF_NAME = ".mlreef.yml"
 const val NEWLINE = "\n"
 
+
 const val PROJECT_NAME_VARIABLE = "CI_PROJECT_SLUG"
 
 val dockerfileTemplate: String = ClassPathResource("code-publishing-dockerfile-template")
@@ -41,6 +44,8 @@ val mlreefTemplate: String = ClassPathResource("code-publishing-mlreef-file-temp
 internal class PublishingService(
     private val gitlabRestClient: GitlabRestClient,
     private val projectResolverService: ProjectResolverService,
+    private val dataProcessorService: DataProcessorService,
+    private val pythonParserService: PythonParserService,
 ) {
     val log: Logger = LoggerFactory.getLogger(this::class.java)
 
@@ -52,9 +57,13 @@ internal class PublishingService(
      *   2. parse data processor
      *   3. ... ?
      */
-    fun startPublishing(userToken: String, projectId: UUID): Commit {
+    fun startPublishing(mainFilePath: String?, userToken: String, projectId: UUID): Commit {
         val project = projectResolverService.resolveProject(projectId = projectId)
             ?: throw NotFoundException(ErrorCode.NotFound, "Project $projectId not found")
+
+        val dataProcessor = pythonParserService.findAndParseDataProcessorInProject(projectId, mainFilePath)
+
+        dataProcessorService.saveDataProcessor(dataProcessor)
 
         return try {
             gitlabRestClient.commitFiles(
@@ -69,7 +78,7 @@ internal class PublishingService(
                 action = "create"
             )
         } catch (e: RestException) {
-            throw PipelineStartException("Cannot commit $DOCKERFILE_NAME file to branch $TARGET_BRANCH for project $projectId: ${e.errorName}")
+            throw PipelineStartException("Cannot commit $DOCKERFILE_NAME file to branch $TARGET_BRANCH for project ${project.name}: ${e.errorName}")
         }
     }
 

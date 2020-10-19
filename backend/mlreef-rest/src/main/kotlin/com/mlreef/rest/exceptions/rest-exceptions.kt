@@ -19,6 +19,9 @@ enum class ErrorCode(val errorCode: Int, val errorName: String) {
     @Deprecated("This errorCode has no meaning at all")
     GitlabCommonError(1577, "Gitlab common error"),
 
+    // Requests error
+    BadParametersRequest(1601, "Bad request parameters"),
+
     // specific user management errors 2xxx
     UserAlreadyExisting(2001, "User already exists"),
     UserNotExisting(2002, "User does not exist"),
@@ -157,6 +160,7 @@ class ProjectNotFoundException(projectId: UUID? = null, projectName: String? = n
 class ExperimentCreateException(errorCode: ErrorCode, message: String) : RestException(errorCode, message)
 class ExperimentUpdateException(message: String) : RestException(ErrorCode.ExperimentCannotBeChanged, message)
 class ProjectCreationException(errorCode: ErrorCode, message: String) : RestException(errorCode, message)
+class ProjectPublicationException(errorCode: ErrorCode, message: String) : RestException(errorCode, message)
 
 class PipelineCreateException(errorCode: ErrorCode, message: String? = "") : RestException(errorCode, message ?: "")
 class PipelineStartException(message: String) : RestException(ErrorCode.CommitPipelineScriptFailed, message)
