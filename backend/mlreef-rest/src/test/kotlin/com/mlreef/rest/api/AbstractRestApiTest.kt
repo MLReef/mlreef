@@ -32,6 +32,7 @@ import com.mlreef.rest.UserRole
 import com.mlreef.rest.VisibilityScope
 import com.mlreef.rest.external_api.gitlab.GitlabRestClient
 import com.mlreef.rest.external_api.gitlab.GitlabVisibility
+import com.mlreef.rest.external_api.gitlab.RepositoryTreeType
 import com.mlreef.rest.external_api.gitlab.TokenDetails
 import com.mlreef.rest.external_api.gitlab.dto.Branch
 import com.mlreef.rest.external_api.gitlab.dto.Commit
@@ -43,6 +44,9 @@ import com.mlreef.rest.external_api.gitlab.dto.GitlabUserInGroup
 import com.mlreef.rest.external_api.gitlab.dto.GitlabUserToken
 import com.mlreef.rest.external_api.gitlab.dto.OAuthToken
 import com.mlreef.rest.external_api.gitlab.dto.OAuthTokenInfo
+import com.mlreef.rest.external_api.gitlab.dto.RepositoryFile
+import com.mlreef.rest.external_api.gitlab.dto.RepositoryTree
+import com.mlreef.rest.external_api.gitlab.dto.RepositoryTreePaged
 import com.mlreef.rest.feature.caches.PublicProjectsCacheService
 import com.mlreef.rest.feature.data_processors.DataProcessorService
 import com.mlreef.rest.feature.pipeline.PipelineService
@@ -61,9 +65,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.autoconfigure.data.web.SpringDataWebProperties
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.data.domain.Pageable
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.restdocs.RestDocumentationContextProvider
 import org.springframework.restdocs.RestDocumentationExtension
@@ -90,7 +92,9 @@ import org.springframework.test.web.servlet.ResultActions
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder
 import org.springframework.test.web.servlet.setup.DefaultMockMvcBuilder
 import org.springframework.test.web.servlet.setup.MockMvcBuilders
+import org.springframework.util.Base64Utils
 import org.springframework.web.context.WebApplicationContext
+import java.io.InputStream
 import java.time.Instant
 import java.time.ZonedDateTime
 import java.util.UUID
@@ -328,6 +332,47 @@ abstract class AbstractRestApiTest : AbstractRestTest() {
         every { currentUserService.person() } answers { personRepository.findAll().first() }
         every { currentUserService.account() } answers { accountRepository.findAll().first() }
         every { currentUserService.accessToken() } answers { testPrivateUserTokenMock1 }
+
+        every {
+            restClient.adminGetProjectTree(any(), any(), any(), any())
+        } answers {
+            RepositoryTreePaged(
+                listOf(
+                    RepositoryTree(
+                        id = UUID.randomUUID().toString(),
+                        name = "main.py",
+                        type = RepositoryTreeType.BLOB,
+                        path = "main.py",
+                        mode = "rw"
+                    ),
+                    RepositoryTree(
+                        id = UUID.randomUUID().toString(),
+                        name = "main.pyt",
+                        type = RepositoryTreeType.BLOB,
+                        path = "main.pyt",
+                        mode = "rw"
+                    ),
+                ),
+                page = 1,
+                totalPages = 1,
+                totalElements = 2,
+                perPage = 10
+            )
+        }
+
+        every {
+            restClient.adminGetRepositoryFileContent(any(), any())
+        } answers {
+            val filename = "resnet_annotations_demo.py"
+            val content = javaClass.classLoader.getResource(filename)!!.content as InputStream
+
+            RepositoryFile(
+                sha = UUID.randomUUID().toString(),
+                size = 100L,
+                encoding = "Base64",
+                content = Base64Utils.encodeToString(content.readBytes())
+            )
+        }
     }
 
     protected fun mockGitlabPipelineWithBranch(targetBranch: String) {

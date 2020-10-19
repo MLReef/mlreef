@@ -105,3 +105,8 @@ enum class DeployStrategy {
     TIMED_INCREMENTAL
 }
 
+enum class RepositoryTreeType {
+    TREE,
+    BLOB,
+}
+
