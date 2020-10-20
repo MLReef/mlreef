@@ -2,7 +2,6 @@ import ApiDirector from './ApiDirector';
 import ApiRequestCallBuilder from './apiBuilders/ApiRequestCallBuilder';
 import BLApiRequestCallBuilder from './apiBuilders/BLApiRequestCallBuilder';
 import { METHODS, validServicesToCall } from './apiBuilders/requestEnums';
-import { handlePagination, inspect } from '../functions/apiCalls';
 import { filterBots } from './apiHelpers';
 import BodyLessApiRequestCallBuilder from './apiBuilders/BLApiRequestCallBuilder';
 import { handleResponse } from 'functions/helpers';
@@ -13,7 +12,6 @@ export default class ProjectGeneralInfoApi extends ApiDirector {
 
     this.getProjectsList = this.getProjectsList.bind(this);
     this.getProjectDetails = this.getProjectDetails.bind(this);
-    this.getProjectDetailsNoAuth = this.getProjectDetailsNoAuth.bind(this);
   }
   async create(body: any, projectType: string, isNamespaceAGroup: boolean) {
     const baseUrl = `/api/v1/${projectType}s`;
@@ -180,17 +178,6 @@ export default class ProjectGeneralInfoApi extends ApiDirector {
     return fetch(builder.build())
       .then(handleResponse)
       .then((results: any) => results.find((res: any) => res.gitlab_namespace === namespace));
-  }
-
-  // use   @GetMapping("/{namespace}/{slug}")
-  getProjectDetailsNoAuth(namespace: string, slug: string) {
-    return this.getProjectsList('/public')
-      .then(handlePagination)
-      .then(inspect)
-      .then((results: any) => results
-        .filter((res: any) => res.gitlab_namespace === namespace)
-        .find((res: any) => res.slug === slug)
-      );
   }
 
   star(projectId: string, isProjectStarred: boolean){
