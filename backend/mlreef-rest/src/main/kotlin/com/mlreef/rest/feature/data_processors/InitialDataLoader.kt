@@ -23,6 +23,8 @@ class InitialDataLoader {
     val resnet50_id = fromString("1000000-1000-0003-0002-000000000000")
     val forecasting_projectId = fromString("e1e3abfa-08c6-11eb-adc1-0242ac120002")
     val forecasting_id = fromString("e1e3ae20-08c6-11eb-adc1-0242ac120002")
+    val bertsent_projectId = fromString("e6452744-0edb-11eb-adc1-0242ac120002")
+    val bertsent_id = fromString("e645299c-0edb-11eb-adc1-0242ac120002")
     val multimodel_projectId = fromString("fe957942-d0cf-11ea-87d0-0242ac130003")
     val multimodel_id = fromString("fe957a00-d0cf-11ea-87d0-0242ac130003")
     val chatbot_model_projectId = fromString("fe957abe-d0cf-11ea-87d0-0242ac130003")
@@ -71,8 +73,8 @@ class InitialDataLoader {
                 name = "Text processing operations"
                 gitlabNamespace = "mlreef"
                 gitlabPath = "txt_ops"
-                inputDataTypes = hashSetOf(DataType.IMAGE)
-                outputDataTypes = hashSetOf(DataType.IMAGE)
+                inputDataTypes = hashSetOf(DataType.TEXT)
+                outputDataTypes = hashSetOf(DataType.TEXT)
                 description = "Removes numbers,tokenization,numbers to words, filter words."
             }
             operation {
@@ -345,7 +347,7 @@ class InitialDataLoader {
             operation {
                 linkToCodeProject(codeProject_random_erasing)
                 id = im_random_erasing_id
-                command = "im_ramdom_erasing"
+                command = "im_random_erasing"
                 number = 1
                 baseEnvironment = BaseEnvironment.default()
                 inputDataType = DataType.IMAGE
@@ -830,7 +832,88 @@ class InitialDataLoader {
                     }
                 }
             }
+            
             // ############## MODEL #################
+            val codeProject_bertsent = codeProject {
+                id = bertsent_projectId
+                slug = "commons-bertsent"
+                name = "Bert Sentiment classification"
+                gitlabNamespace = "mlreef"
+                gitlabPath = "code-project-bertsent"
+                inputDataTypes = hashSetOf(DataType.TEXT)
+                outputDataTypes = hashSetOf(DataType.MODEL)
+                description = "BERT sentiment classification with Imdb dataset."
+            }
+            model {
+                linkToCodeProject(codeProject_bertsent)
+                id = bertsent_id
+                command = "bertscript"
+                number = 3
+                baseEnvironment = BaseEnvironment.default()
+                inputDataType = DataType.TEXT
+                outputDataType = DataType.MODEL
+                publisher = author
+
+                parameters {
+                    STRING {
+                        id = fromString("e6452bf4-0edb-11eb-adc1-0242ac120002")
+                        name = "input-path"
+                        defaultValue = "data"
+                        required = true
+                        description = "Path to input folder"
+                    }
+                    STRING {
+                        id = fromString("e6452ce4-0edb-11eb-adc1-0242ac120002")
+                        name = "train-file"
+                        defaultValue = "imdb_train.txt"
+                        required = true
+                        description = "Name of training data csv file"
+                    }
+                    STRING {
+                        id = fromString("e6452dca-0edb-11eb-adc1-0242ac120002")
+                        name = "test-file"
+                        defaultValue = "imdb_test.txt"
+                        required = true
+                        description = "Name of test data csv file"
+                    }
+                    STRING {
+                        id = fromString("e6452e9c-0edb-11eb-adc1-0242ac120002")
+                        name = "output-path"
+                        defaultValue = "./output"
+                        required = true
+                        description = "path to output save weights"
+                    }
+                    BOOLEAN {
+                        id = fromString("e6452f6e-0edb-11eb-adc1-0242ac120002")
+                        name = "train"
+                        defaultValue = "true"
+                        required = true
+                        description = "True for training"
+                    }
+                    INTEGER {
+                        id = fromString("e6453040-0edb-11eb-adc1-0242ac120002")
+                        name = "epochs"
+                        defaultValue = "10"
+                        required = true
+                        description = "Amount of epochs for training"
+                    }
+                    BOOLEAN {
+                        id = fromString("e64533ce-0edb-11eb-adc1-0242ac120002")
+                        name = "evaluate"
+                        defaultValue = "false"
+                        required = false
+                        description = "True for model evaluation"
+                    }
+                    BOOLEAN {
+                        id = fromString("e64534b4-0edb-11eb-adc1-0242ac120002")
+                        name = "predict"
+                        defaultValue = "false"
+                        required = false
+                        description = "True to use the model"
+                    }
+                }
+            }
+
             val codeProject_forecasting = codeProject {
                 id = forecasting_projectId
                 slug = "commons-forecasting"
