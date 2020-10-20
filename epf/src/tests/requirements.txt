@@ -20,4 +20,5 @@ scipy==1.4.1
 six==1.14.0
 torch==1.5.0
 torchvision==0.6.0
+tqdm==4.50.1
 wordcloud==1.8.0
