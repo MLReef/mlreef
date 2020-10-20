@@ -211,7 +211,7 @@ internal class ExperimentsController(
 }
 
 
-internal class ExperimentCreateRequest(
+class ExperimentCreateRequest(
     val dataInstanceId: UUID?,
     @NotEmpty val slug: String = "",
     @NotEmpty val name: String,

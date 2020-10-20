@@ -125,12 +125,8 @@ export function getProjectDetails(id) {
     .then((project) => dispatch({ type: types.SET_SELECTED_PROJECT, project }));
 }
 
-export function getProjectDetailsBySlug(namespace, slug, options = {}) {
-  const requestFn = options.visitor
-    ? projectApi.getProjectDetailsNoAuth
-    : projectApi.getProjectDetails;
-
-  return (dispatch) => requestFn(namespace, slug)
+export function getProjectDetailsBySlug(namespace, slug) {
+  return (dispatch) => projectApi.getProjectDetails(namespace, slug)
     .then(mergeWithGitlabProject)
     .then(parseToCamelCase)
     .then(adaptProjectModel)
