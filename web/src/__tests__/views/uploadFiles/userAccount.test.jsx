@@ -2,6 +2,7 @@ import React from 'react';
 import { shallow } from 'enzyme';
 import { storeFactory } from 'functions/testUtils';
 import { userProfileMock } from 'testData';
+import MBreadcrumb from 'components/ui/MBreadcrumb';
 import UserAccount from 'components/views/userSettings/UserAccount';
 import 'babel-polyfill';
 
@@ -17,6 +18,17 @@ const setup = () => {
   return afterDive;
 };
 
+const breadcrumbs = [
+  {
+    name: 'User Settings',
+    href: '/profile',
+  },
+  {
+    name: 'Profile',
+    href: '/profile',
+  },
+];
+
 describe('presence of basic user settings elements', () => {
   let wrapper;
   beforeEach(() => {
@@ -24,7 +36,7 @@ describe('presence of basic user settings elements', () => {
   });
 
   test('assert that breadcrumb links are present', () => {
-    expect(wrapper.find('.breadCrumbs-link > ul').children()).toHaveLength(3);
+    expect(wrapper.contains(<MBreadcrumb items={breadcrumbs} />)).toBeTruthy();
   });
 
   test('assert that user settings sidebar is present', () => {

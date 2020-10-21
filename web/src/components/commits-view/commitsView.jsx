@@ -5,10 +5,10 @@ import { toastr } from 'react-redux-toastr';
 import {
   string,
   shape,
-  number,
   objectOf,
   arrayOf,
 } from 'prop-types';
+import { generateBreadCrumbs } from 'functions/helpers';
 import Navbar from '../navbar/navbar';
 import ProjectContainer from '../projectContainer';
 import './commitsView.css';
@@ -32,17 +32,19 @@ class CommitsView extends Component {
   }
 
   componentDidMount() {
-    const { match: { params: { projectId, branch, pathParam } } } = this.props;
-    commitsApi.getCommits(projectId, branch, pathParam)
+    const { match: { params: { branch, pathParam } } } = this.props;
+    const { project: { gitlabId } } = this.state;
+    commitsApi.getCommits(gitlabId, branch, pathParam)
       .then((response) => this.setState({ commits: response }))
       .catch(() => toastr.error('Error getting commits'));
   }
 
   componentDidUpdate(prevProps) {
-    const { match: { params: { projectId, branch } } } = this.props;
+    const { match: { params: { branch } } } = this.props;
+    const { project: { gitlabId } } = this.state;
     const prevBranch = prevProps.match.params.branch;
     if (branch !== prevBranch) {
-      commitsApi.getCommits(projectId, branch)
+      commitsApi.getCommits(gitlabId, branch)
         .then((response) => this.setState({ commits: response }))
         .catch(() => toastr.error('Error getting commits'));
     }
@@ -73,9 +75,20 @@ class CommitsView extends Component {
       commits,
       show,
     } = this.state;
-    const groupName = project.namespace.name;
     const { users, branches } = this.props;
-    const { match: { params: { branch } } } = this.props;
+    const { match: { params: { branch, namespace, slug } } } = this.props;
+
+    const customCrumbs = [
+      {
+        name: 'Data',
+        href: `/${namespace}/${slug}`,
+      },
+      {
+        name: 'Commits',
+        href: `/${namespace}/${slug}/-/commits/${branch}`,
+      },
+    ];
+
     const distinct = [
       ...new Set(
         commits.map(
@@ -92,7 +105,10 @@ class CommitsView extends Component {
     return (
       <div id="commits-view-container">
         <Navbar />
-        <ProjectContainer activeFeature="data" folders={[groupName, project.name, 'Data', 'Commits']} />
+        <ProjectContainer
+          activeFeature="data"
+          breadcrumbs={generateBreadCrumbs(project, customCrumbs)}
+        />
         <br />
         <br />
         <div className="main-content">
@@ -119,7 +135,7 @@ class CommitsView extends Component {
                         const encoded = encodeURIComponent(item.name);
                         return (
                           <li key={encoded}>
-                            <Link id={item.name} to={`/my-projects/${project.id}/${encoded}/commits`}><p>{item.name}</p></Link>
+                            <Link id={item.name} to={`/${namespace}/${slug}/-/commits/${branch}`}><p>{item.name}</p></Link>
                           </li>
                         );
                       })}
@@ -157,7 +173,8 @@ class CommitsView extends Component {
                     ? (
                       <CommitDiv
                         key={item.short_id}
-                        projectId={project.gitlabId}
+                        namespace={namespace}
+                        slug={slug}
                         commitid={item.id}
                         title={item.title}
                         name={item.author_name}
@@ -185,9 +202,10 @@ export function CommitDiv(props) {
     name,
     title,
     commitid,
-    projectId,
     avatarImage,
     userName,
+    namespace,
+    slug,
   } = props;
   const spanRef = useRef();
   const today = new Date();
@@ -202,7 +220,7 @@ export function CommitDiv(props) {
           </span>
         </a>
         <div className="commit-data">
-          <Link to={`/my-projects/${projectId}/commit/${commitid}`}>{title}</Link>
+          <Link to={`/${namespace}/${slug}/-/commit/${commitid}`}>{title}</Link>
           <span>
             <a href={`/${userName}`}>
               {name}
@@ -241,7 +259,8 @@ CommitDiv.propTypes = {
   name: string.isRequired,
   title: string.isRequired,
   commitid: string.isRequired,
-  projectId: number.isRequired,
+  namespace: string.isRequired,
+  slug: string.isRequired,
   avatarImage: string.isRequired,
   userName: string.isRequired,
 };
@@ -255,7 +274,6 @@ CommitsView.defaultProps = {
 CommitsView.propTypes = {
   match: shape({
     params: shape({
-      projectId: string.isRequired,
       branch: string.isRequired,
       path: string,
     }),

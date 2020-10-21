@@ -8,6 +8,7 @@ import AuthWrapper from 'components/AuthWrapper';
 import { SKIPPED, RUNNING, PENDING } from 'dataTypes';
 import moment from 'moment';
 import { parseToCamelCase } from 'functions/dataParserHelpers';
+import { generateBreadCrumbs } from 'functions/helpers';
 import GitlabPipelinesApi from 'apis/GitlabPipelinesApi.ts';
 import DataPipelineApi from 'apis/DataPipelineApi';
 import FilesApi from '../../apis/FilesApi.ts';
@@ -26,9 +27,6 @@ const DataVisualizationDetails = ({ ...props }) => {
     project,
     project: {
       gitlabId,
-      namespace: {
-        name: groupName,
-      },
     },
     branches,
     match: {
@@ -66,12 +64,27 @@ const DataVisualizationDetails = ({ ...props }) => {
       .catch(() => toastr.error('Error', 'Something went wrong fetching pipelines'));
   }, [visId, gitlabId, path, branchName]);
 
+  const customCrumbs = [
+    {
+      name: 'Data',
+      href: `/${namespace}/${slug}`,
+    },
+    {
+      name: 'Visualizations',
+      href: `/${namespace}/${slug}/-/visualizations`,
+    },
+    {
+      name: `${id}`,
+      href: `/${namespace}/${slug}/-/visualizations/${visId}`,
+    },
+  ];
+
   return (
     <div>
       <Navbar />
       <ProjectContainer
         activeFeature="data"
-        folders={[groupName, project?.name, 'Data', 'Instances']}
+        breadcrumbs={generateBreadCrumbs(project, customCrumbs)}
       />
       <div className="main-content">
         <br />

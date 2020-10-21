@@ -6,18 +6,32 @@ import PropTypes from 'prop-types';
 import ProjectContainer from 'components/projectContainer';
 import Navbar from 'components/navbar/navbar';
 import MSimpleTabs from 'components/ui/MSimpleTabs';
+import { generateBreadCrumbs } from 'functions/helpers';
 import SettingsViewMembers from './SettingsViewMembers';
 import SettingsViewGeneral from './SettingsViewGeneral';
 
 const SettingsView = (props) => {
-  const { project, history } = props;
+  const {
+    project,
+    history,
+    project: {
+      namespace,
+      slug,
+    },
+  } = props;
+  const customCrumbs = [
+    {
+      name: 'Settings',
+      href: `/${namespace}/${slug}/-/settings`,
+    },
+  ];
   return (
     <div>
       <Navbar />
       <ProjectContainer
         setIsForking={() => {}}
         activeFeature="settings"
-        viewName="Settings"
+        breadcrumbs={generateBreadCrumbs(project, customCrumbs)}
       />
       <div className="settings-view main-content">
         <div className="settings-view-content">
@@ -49,8 +63,8 @@ const SettingsView = (props) => {
                 label: 'Members',
                 content: (
                   <SettingsViewMembers
-                    ownerId={project.ownerId}
-                    projectId={project.id}
+                    ownerId={project?.ownerId}
+                    projectId={project?.id}
                   />
                 ),
               },
@@ -85,6 +99,8 @@ SettingsView.propTypes = {
     avatarUrl: PropTypes.string,
     gitlabName: PropTypes.string.isRequired,
     description: PropTypes.string,
+    namespace: PropTypes.string.isRequired,
+    slug: PropTypes.string.isRequired,
   }).isRequired,
   history: PropTypes.shape({}).isRequired,
 };

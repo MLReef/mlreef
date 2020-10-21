@@ -101,6 +101,15 @@ export default [
     component: ExploreView,
   },
   {
+    name: 'newGroup',
+    path: '/groups/new',
+    exact: true,
+    component: CreateGroupView,
+    meta: {
+      authRequired: true,
+    },
+  },
+  {
     name: 'groups',
     path: '/groups',
     exact: true,
@@ -114,15 +123,6 @@ export default [
     path: '/groups/:groupPath',
     exact: true,
     component: GroupsView,
-  },
-  {
-    name: 'newGroup',
-    path: '/groups/new',
-    exact: true,
-    component: CreateGroupView,
-    meta: {
-      authRequired: true,
-    },
   },
   {
     name: 'userProfile',
@@ -199,7 +199,7 @@ export default [
   },
   {
     name: 'branchCommits',
-    path: '/my-projects/:projectId/:branch/commits/:pathParam?',
+    path: '/:namespace/:slug/-/:branch(.+)/commits/:pathParam(.+)?',
     component: CommitsView,
     exact: true,
   },
@@ -359,7 +359,7 @@ export default [
   },
   {
     name: 'commitDetails',
-    path: '/my-projects/:projectId/commit/:commitId',
+    path: '/:namespace/:slug/-/commit/:commitHash',
     component: CommitDetailsView,
     exact: true,
   },

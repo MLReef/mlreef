@@ -17,6 +17,7 @@ const MScrollableSection = ({
     window.addEventListener('scroll', onScrollCallback);
 
     return () => window.removeEventListener('scroll', onScrollCallback);
+    // eslint-disable-next-line
   }, []);
 
   return (

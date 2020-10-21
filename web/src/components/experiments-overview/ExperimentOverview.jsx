@@ -10,6 +10,7 @@ import {
 } from 'prop-types';
 import ExperimentsApi from 'apis/experimentApi';
 import { parseToCamelCase } from 'functions/dataParserHelpers';
+import { generateBreadCrumbs } from 'functions/helpers';
 import AuthWrapper from 'components/AuthWrapper';
 import CommitsApi from '../../apis/CommitsApi.ts';
 import * as jobsActions from '../../actions/jobsActions';
@@ -96,8 +97,19 @@ class ExperimentsOverview extends Component {
     const {
       history,
       algorithms,
-      projects: { selectedProject: { namespace, slug } },
+      projects: {
+        selectedProject: {
+          namespace, slug,
+        },
+      },
     } = this.props;
+
+    const customCrumbs = [
+      {
+        name: 'Experiments',
+        href: `/${namespace}/${slug}/-/experiments`,
+      },
+    ];
 
     const areThereExperimentsToShow = all.map((expClass) => expClass.values.length).reduce((a, b) => a + b) !== 0;
     return (
@@ -106,6 +118,7 @@ class ExperimentsOverview extends Component {
         <ProjectContainer
           activeFeature="experiments"
           viewName="Experiments"
+          breadcrumbs={generateBreadCrumbs(selectedProject, customCrumbs)}
         />
         {areThereExperimentsToShow ? (
           <div className="main-content">

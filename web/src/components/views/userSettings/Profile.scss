@@ -1,9 +1,10 @@
 @import '../../../styles/breakpoints';
 
 .user-form {
+  width: 90%;
+
   > .row {
     flex-wrap: wrap;
-    margin: 0 -15px;
   }
 
   .right-row {

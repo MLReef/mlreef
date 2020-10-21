@@ -6,6 +6,7 @@ import cx from 'classnames';
 import './PipelinesExecutionView.scss';
 import { OPERATION, ALGORITHM, VISUALIZATION } from 'dataTypes';
 import { string, shape } from 'prop-types';
+import { generateBreadCrumbs } from 'functions/helpers';
 import ExecutePipelineModal from './ExecutePipelineModal';
 import SelectDataPipelineModal from './SelectDataPipelineModal';
 import Navbar from '../../navbar/navbar';
@@ -52,7 +53,7 @@ const ExecuteButton = () => {
 const FunctionalExecutionPipelinesView = (props) => {
   const {
     selectedProject: project,
-    match: { path, params: { typePipelines } },
+    match: { path, params: { typePipelines, namespace, slug } },
     processors,
     preconfiguredOperations,
     actions,
@@ -70,9 +71,13 @@ const FunctionalExecutionPipelinesView = (props) => {
   let operationTypeToExecute;
   let operatorsTitle;
   let prefix = 'Op.';
+  let breadCrumbPerPipeline = 'Datasets';
+  let breadCrumbRoute = 'datasets';
   let processorColor = 'var(--dark)';
   if (isExperiment) {
     activeFeature = 'experiments';
+    breadCrumbRoute = 'experiments';
+    breadCrumbPerPipeline = 'Experiments';
     instructionDataModel = experimentInstructionData;
     pipelinesTypeExecutionTitle = 'Experiment';
     operationTypeToExecute = ALGORITHM;
@@ -86,11 +91,13 @@ const FunctionalExecutionPipelinesView = (props) => {
     operatorsTitle = 'Select a data operation';
     processorColor = 'rgb(210, 81, 157)';
   } else {
+    breadCrumbRoute = 'visualizations';
     instructionDataModel = dataVisualizationInstuctionData;
     pipelinesTypeExecutionTitle = 'Data visualization';
     operationTypeToExecute = VISUALIZATION;
     operatorsTitle = 'Select a data visualization';
     processorColor = 'rgb(115, 93, 168)';
+    breadCrumbPerPipeline = 'Visualizations';
   }
 
   // Will be useful in redirecting to dashboard.
@@ -111,6 +118,20 @@ const FunctionalExecutionPipelinesView = (props) => {
     </button>,
   ];
 
+  const customCrumbs = [
+    {
+      name: 'Data',
+      href: `/${namespace}/${slug}`,
+    },
+    {
+      name: `${breadCrumbPerPipeline}`,
+      href: `/${namespace}/${slug}/-/${breadCrumbRoute}`,
+    },
+    {
+      name: 'New',
+    },
+  ];
+
   return (
     <Provider currentProcessors={setProcessors(processors, operationTypeToExecute)}>
       <SelectDataPipelineModal />
@@ -119,7 +140,10 @@ const FunctionalExecutionPipelinesView = (props) => {
         project={project}
       />
       <Navbar />
-      <ProjectContainer activeFeature={activeFeature} />
+      <ProjectContainer
+        breadcrumbs={generateBreadCrumbs(project, customCrumbs)}
+        activeFeature={activeFeature}
+      />
       <Instruction
         id={instructionDataModel.id}
         titleText={instructionDataModel.titleText}

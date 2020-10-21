@@ -7,6 +7,7 @@ import {
 import moment from 'moment';
 import { bindActionCreators } from 'redux';
 import AuthWrapper from 'components/AuthWrapper';
+import { generateBreadCrumbs } from 'functions/helpers';
 import GitlabPipelinesApi from 'apis/GitlabPipelinesApi.ts';
 import DataPipelineApi from 'apis/DataPipelineApi';
 import { setPreconfiguredOPerations } from 'actions/userActions';
@@ -37,7 +38,6 @@ const DataInstanceDetails = (props) => {
   } = props;
   const selectedProject = projects.filter((proj) => proj.slug === slug)[0];
   const { gitlabId } = selectedProject;
-  const groupName = selectedProject?.namespace?.name;
 
   const [files, setFiles] = useState([]);
   const [gitlabPipes, setGitlabPipes] = useState([]);
@@ -100,12 +100,23 @@ const DataInstanceDetails = (props) => {
       .catch(() => toastr.error('Error', 'Something went wrong fetching pipelines'));
   }, [id, gitlabId, path, branchName, dataId]);
 
+  const customCrumbs = [
+    {
+      name: 'Datasets',
+      href: `/${namespace}/${slug}/-/datasets`,
+    },
+    {
+      name: `${id}`,
+      href: `/${namespace}/${slug}/-/datasets/${dataId}`,
+    },
+  ];
+
   return (
     <>
       <Navbar />
       <ProjectContainer
         activeFeature="data"
-        folders={[groupName, selectedProject.name, 'Data', 'Instances']}
+        breadcrumbs={generateBreadCrumbs(selectedProject, customCrumbs)}
       />
       <div className="main-content">
         <br />

@@ -8,6 +8,7 @@ import forkingImage from 'images/forking.png';
 import { OPERATION, ALGORITHM, VISUALIZATION } from 'dataTypes';
 import FilesContainer from 'components/FilesContainer';
 import { filterSetsBy } from 'functions/dataParserHelpers';
+import { generateBreadCrumbs } from 'functions/helpers';
 import ReadMeComponent from '../ReadMe/ReadMe';
 import ProjectContainer from '../projectContainer';
 import RepoInfo from '../repoInfo';
@@ -142,9 +143,15 @@ class ProjectView extends React.Component {
       contributors,
       isForking,
     } = this.state;
-
     const currentBranch = isValidBranch(branch) ? branch : project.defaultBranch;
     const decodedBranch = decodeURIComponent(currentBranch);
+
+    const customCrumbs = [
+      {
+        name: 'Data',
+        href: `/${namespace}/${slug}`,
+      },
+    ];
 
     return (
       <div className="project-component">
@@ -173,6 +180,7 @@ class ProjectView extends React.Component {
             <ProjectContainer
               setIsForking={this.setIsForking}
               activeFeature="data"
+              breadcrumbs={generateBreadCrumbs(project, customCrumbs)}
             />
           )}
           {gid && (

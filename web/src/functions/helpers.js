@@ -32,3 +32,25 @@ export const handleResponse = async (res) => {
 
   return body;
 };
+
+export const generateBreadCrumbs = (selectedProject, customCrumbs) => {
+  const {
+    namespace,
+    slug,
+    gitlab,
+    gitlabName,
+  } = selectedProject;
+  const userKind = gitlab?.namespace?.kind;
+  const crumbs = [
+    {
+      name: `${namespace}`,
+      href: userKind === 'group' ? `/groups/${namespace}` : `/${namespace}`,
+    },
+    {
+      name: `${gitlabName}`,
+      href: `/${namespace}/${slug}`,
+    },
+  ];
+  customCrumbs.map((crumb) => crumbs.push(crumb));
+  return crumbs;
+};

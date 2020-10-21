@@ -10,6 +10,10 @@ const match = {
   path: '/:namespace/:slug/-/merge_requests/new',
   url: '/my-namespace/project-slug/-/merge_requests/new',
   isExact: true,
+  params: {
+    namespace: 'mlreef',
+    slug: 'test-project',
+  },
 };
 
 const location = {

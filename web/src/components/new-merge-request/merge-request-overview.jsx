@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom';
 import {
   number, shape, string, arrayOf, func,
 } from 'prop-types';
+import { generateBreadCrumbs } from 'functions/helpers';
 import AuthWrapper from 'components/AuthWrapper';
 import MLoadingSpinner from 'components/ui/MLoadingSpinner';
 import { getMergeRequestsList } from 'actions/mergeActions';
@@ -97,14 +98,23 @@ class MergeRequestOverview extends Component {
     const closedMrs = this.filterStateAndCount(1);
     const mergedMrs = this.filterStateAndCount(2);
 
-    const projectName = selectedProject.name;
-    const groupName = selectedProject.namespace;
+    const customCrumbs = [
+      {
+        name: 'Data',
+        href: `/${namespace}/${slug}`,
+      },
+      {
+        name: 'Merge Requests',
+        href: `/${namespace}/${slug}/-/merge_requests`,
+      },
+    ];
+
     return (
       <>
         <Navbar />
         <ProjectContainer
           activeFeature="data"
-          folders={[groupName, projectName, 'Data']}
+          breadcrumbs={generateBreadCrumbs(selectedProject, customCrumbs)}
         />
         <div className="main-content">
           {!mrsList

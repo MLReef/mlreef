@@ -178,7 +178,7 @@ export class RepoFeatures extends Component {
         >
           <Link
             className="btn btn-outline-dark ml-auto mt-3 px-3"
-            to={`/my-projects/${projectId}/${currentBranch}/commits/${path}`}
+            to={`/${namespace}/${slug}/-/${currentBranch}/commits${path && `/${path}`}`}
           >
             <span className="d-none d-lg-block mx-3">History</span>
             <span className="fa fa-history d-lg-none" />

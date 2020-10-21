@@ -10,6 +10,7 @@ import {
 import { Link } from 'react-router-dom';
 import MDropdown from 'components/ui/MDropdown';
 import { getFileDifferences } from 'functions/apiCalls';
+import { generateBreadCrumbs } from 'functions/helpers';
 import { getTimeCreatedAgo, getCommentFromCommit } from 'functions/dataParserHelpers';
 import MScrollableSection from 'components/ui/MScrollableSection/MScrollableSection';
 import Navbar from '../navbar/navbar';
@@ -38,9 +39,11 @@ class CommitDetails extends Component {
       totalPages: '1',
       scrolling: false,
     };
-    const { match } = this.props;
-    const { projectId, commitId } = match.params;
-    commitsApi.getCommitDetails(projectId, commitId)
+    const {
+      projects: { selectedProject: { gid } },
+      match: { params: { commitHash } },
+    } = this.props;
+    commitsApi.getCommitDetails(gid, commitHash)
       .then((response) => {
         this.setState({ commits: response });
         this.loadDiffCommits();
@@ -50,8 +53,7 @@ class CommitDetails extends Component {
 
   getDiffDetails(diffsArray) {
     const { commits } = this.state;
-    const { match } = this.props;
-    const { projectId } = match.params;
+    const { projects: { selectedProject: { gid } } } = this.props;
     diffsArray.filter((diff) => imageFormats
       .filter((format) => diff.old_path.includes(format))
       .length > 0)
@@ -61,7 +63,7 @@ class CommitDetails extends Component {
           previousVersionFile,
           nextVersionFile,
           imageFileSize,
-        } = await getFileDifferences(projectId, imageDiff, commits.parent_ids[0], commits.id);
+        } = await getFileDifferences(gid, imageDiff, commits.parent_ids[0], commits.id);
         imagesToRender.push({
           previousVersionFileParsed: previousVersionFile,
           nextVersionFileParsed: nextVersionFile,
@@ -85,13 +87,14 @@ class CommitDetails extends Component {
   loadDiffCommits = () => {
     const {
       match: {
-        params: { projectId, commitId },
+        params: { commitHash },
       },
     } = this.props;
     const { page } = this.state;
+    const { projects: { selectedProject: { gid } } } = this.props;
 
     commitsApi
-      .getCommitDiff(projectId, commitId, page, true)
+      .getCommitDiff(gid, commitHash, page, true)
       .then((res) => {
         this.setState({
           totalPages: res.totalPages,
@@ -115,9 +118,6 @@ class CommitDetails extends Component {
   aprox = (floatValue) => Math.floor(floatValue);
 
   render() {
-    const { projects } = this.props;
-    const proj = projects.selectedProject;
-    const groupName = proj.namespace.name;
     const {
       commits,
       users,
@@ -125,8 +125,37 @@ class CommitDetails extends Component {
       filesChanged,
     } = this.state;
     const commitId = commits.short_id;
+    const {
+      projects: {
+        selectedProject,
+        selectedProject: {
+          defaultBranch,
+        },
+      },
+      match: {
+        params: {
+          namespace, slug, commitHash,
+        },
+      },
+    } = this.props;
     let avatarUrl = 'https://assets.gitlab-static.net/uploads/-/system/user/avatar/3839940/avatar.png';
     let avatarName = '';
+
+    const customCrumbs = [
+      {
+        name: 'Data',
+        href: `/${namespace}/${slug}`,
+      },
+      {
+        name: 'Commits',
+        href: `/${namespace}/${slug}/-/commits/${defaultBranch}`,
+      },
+      {
+        name: `${commitId}`,
+        href: `/${namespace}/${slug}/-/commit/${commitHash}`,
+      },
+    ];
+
     users.forEach((contributor) => {
       if (contributor.name === commits.author_name) {
         avatarUrl = contributor.avatar_url;
@@ -136,7 +165,10 @@ class CommitDetails extends Component {
     return (
       <div id="commits-view-container">
         <Navbar />
-        <ProjectContainer activeFeature="data" folders={[groupName, proj.name, 'Data', 'Commits', commits.short_id]} />
+        <ProjectContainer
+          activeFeature="data"
+          breadcrumbs={generateBreadCrumbs(selectedProject, customCrumbs)}
+        />
         <br />
         <br />
         <div className="main-content">
@@ -265,7 +297,6 @@ CommitDetails.propTypes = {
     url: string,
     isExact: bool,
     params: shape({
-      projectId: string,
       commitId: string,
     }),
   }).isRequired,
