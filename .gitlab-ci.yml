@@ -31,6 +31,7 @@ variables:
       - backend/**/*
       - bin/ci-deploy
       - bin/install
+      - bin/resources/*.toml
       - epf/**/*
       - web/**/*
       - .gitlab-ci.yml
