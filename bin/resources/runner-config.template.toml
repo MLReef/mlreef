@@ -188,7 +188,7 @@
     privileged = true
     disable_entrypoint_overwrite = false
     disable_cache = false
-    volumes = ["/var/run/docker.sock:/var/run/docker.sock", "/cache"]
+    volumes = ["/cache"]
     oom_kill_disable = false
     shm_size = 0
 
@@ -209,6 +209,7 @@
     MachineDriver = "amazonec2"
     MachineName = "mlreef-aiops-%s"
     MachineOptions = [
+      "engine-insecure-registry=###INSECURE_REGISTRY###", #Add the registry http url:port to access from docker client of runner
       "amazonec2-access-key=###AWS_ACCESS_KEY###",
       "amazonec2-secret-key=###AWS_ACCESS_SECRET###",
       "amazonec2-retries=2",
