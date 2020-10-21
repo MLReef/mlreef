@@ -61,7 +61,7 @@ let pipeline;
 //   target_branch: 'data-pipeline/test-pipeline-1'
 // }
 
-jest.setTimeout(30000);
+jest.setTimeout(100000);
 beforeAll(async () => {
   // ------------- create the user ------------- //
   const suffix = uuidv1().toString().split('-')[0];
@@ -151,9 +151,10 @@ test('Can get Pipeline Instance for created data pipeline', async () => {
   setTimeout(async () => {
     const response = await jobApi.getPerProject(project.gitlab_id);
     resp = response;
-  }, 3000);
+  }, 50000);
 
   await waitForExpect(() => {
     expect(resp.length > 0).toBeTruthy();
-  });
+  }, 50000);
+  console.log(resp);
 });
