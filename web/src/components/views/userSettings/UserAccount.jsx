@@ -1,13 +1,12 @@
 import React, { useRef } from 'react';
 import { connect } from 'react-redux';
 import { Route, Link, Switch } from 'react-router-dom';
-import PropTypes from 'prop-types';
+import MBreadcrumb from 'components/ui/MBreadcrumb';
 import Navbar from '../../navbar/navbar';
 import ProfileSection from './ProfileSection';
 import './UserAccount.scss';
 
-const UserAccount = (props) => {
-  const { user: { username } } = props;
+const UserAccount = () => {
   const tabs = useRef(null);
   const routes = [
     {
@@ -30,25 +29,23 @@ const UserAccount = (props) => {
     e.target.classList.add('active');
   }
 
+  const breadcrumbs = [
+    {
+      name: 'User Settings',
+      href: '/profile',
+    },
+    {
+      name: 'Profile',
+      href: '/profile',
+    },
+  ];
+
   return (
     <>
       <Navbar />
       <div className="breadCrumbs web-box p-0">
         <div className="breadCrumbs-list">
-          <div className="breadCrumbs-link">
-            <ul style={{ listStyle: 'none' }} className="d-flex mb-0 pl-0">
-              <li className="mr-1">
-                <a href={`/${username}`}>
-                  {username}
-                </a>
-                {' > '}
-              </li>
-              <li className="mr-1">
-                {' Settings > '}
-              </li>
-              <li>Profile</li>
-            </ul>
-          </div>
+          <MBreadcrumb items={breadcrumbs} />
         </div>
       </div>
 
@@ -86,12 +83,6 @@ const UserAccount = (props) => {
       </div>
     </>
   );
-};
-
-UserAccount.propTypes = {
-  user: PropTypes.shape({
-    username: PropTypes.string.isRequired,
-  }).isRequired,
 };
 
 function mapStateToProps(state) {

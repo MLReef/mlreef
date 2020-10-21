@@ -13,7 +13,6 @@ import {
 } from 'dataTypes';
 import { PROJECT_TYPES } from 'domain/project/projectTypes';
 import * as processorActions from 'actions/processorActions';
-import { onlyDataProject } from 'functions/apiCalls';
 import Navbar from '../navbar/navbar';
 import './myProjects.scss';
 import * as projectActions from '../../actions/projectInfoActions';
@@ -58,14 +57,13 @@ class Myprojects extends React.Component {
       allProjects,
       userProjects,
       starredProjects,
-      paginationInfo: { last },
     } = nextProps;
-
+    const lastPage = nextProps?.paginationInfo?.last;
     return {
       allProjects,
       userProjects,
       starredProjects,
-      isLastPage: last,
+      isLastPage: lastPage,
     };
   }
 

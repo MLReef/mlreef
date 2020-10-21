@@ -32,6 +32,7 @@ const ExperimentDetails = (props) => {
   const selectedProject = projects.filter((proj) => proj.slug === slug)[0];
   const projectId = selectedProject?.gitlabId;
   const backendId = selectedProject?.id;
+  const userKind = selectedProject?.gitlab?.namespace?.kind;
   const name = selectedProject?.name;
   const userParameters = experiment?.processing?.parameters;
   const expSlug = experiment?.processing?.slug;
@@ -40,7 +41,6 @@ const ExperimentDetails = (props) => {
   const allParameters = algorithms
     .filter((alg) => alg.slug === expSlug)
     .map((alg) => alg.parameters)[0];
-  const groupName = selectedProject?.namespace;
   const experimentName = experiment.name;
   const uniqueName = experimentName && experimentName.split('/')[1];
   let experimentJob;
@@ -70,6 +70,7 @@ const ExperimentDetails = (props) => {
     () => [
       {
         name: namespace,
+        href: userKind === 'group' ? `/groups/${namespace}` : `/${namespace}`,
       },
       {
         name,
@@ -83,7 +84,7 @@ const ExperimentDetails = (props) => {
         name: uniqueName,
       },
     ],
-    [namespace, slug, name, uniqueName],
+    [namespace, slug, name, uniqueName, userKind],
   );
 
   return (
@@ -92,7 +93,6 @@ const ExperimentDetails = (props) => {
       <ProjectContainer
         project={selectedProject}
         activeFeature="experiments"
-        folders={[groupName, name, 'Experiments', 'Details']}
         breadcrumbs={breadcrumbs}
       />
       <div className="main-content mt-4">

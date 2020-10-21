@@ -150,7 +150,7 @@ exports[`The branches list should be displayed when dropdown button is clicked d
     >
       <a
         className="btn btn-outline-dark ml-auto mt-3 px-3"
-        href="/my-projects/12395599/master/commits/"
+        href="/my-namespace/the-project-name/-/master/commits"
         onClick={[Function]}
       >
         <span

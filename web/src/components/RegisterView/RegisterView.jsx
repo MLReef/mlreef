@@ -16,7 +16,7 @@ const RegisterView = (props) => {
   const dispatch = useDispatch();
 
   // if already logged when mount then logout
-  useEffect(() => { if (auth) dispatch(logout()); }, []);
+  useEffect(() => { if (auth) dispatch(logout()); }, [auth, dispatch]);
 
   const onRegistrySuccess = () => {
     setTimeout(() => setRegistryStatus(1), 200);

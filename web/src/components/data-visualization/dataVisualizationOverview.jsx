@@ -6,6 +6,7 @@ import {
 import MLoadingSpinner from 'components/ui/MLoadingSpinner';
 import './dataVisualizationOverview.css';
 import DataPipelineApi from 'apis/DataPipelineApi';
+import { generateBreadCrumbs } from 'functions/helpers';
 import Navbar from '../navbar/navbar';
 import ProjectContainer from '../projectContainer';
 import Instruction from '../instruction/instruction';
@@ -77,24 +78,38 @@ export class DataVisualizationOverview extends Component {
 
   render() {
     const {
+      selectedProject: {
+        gid,
+      },
       selectedProject,
       match: {
         params: {
           namespace,
           slug,
-        }
+        },
       },
     } = this.props;
     const {
       visualizations,
     } = this.state;
-    const groupName = selectedProject.namespace.name;
+
+    const customCrumbs = [
+      {
+        name: 'Data',
+        href: `/${namespace}/${slug}`,
+      },
+      {
+        name: 'Visualizations',
+        href: `/${namespace}/${slug}/-/visualizations`,
+      },
+    ];
+
     return (
       <>
         <Navbar />
         <ProjectContainer
           activeFeature="data"
-          folders={[groupName, selectedProject.name, 'Data', 'Visualizations']}
+          breadcrumbs={generateBreadCrumbs(selectedProject, customCrumbs)}
         />
         <Instruction
           id="DataVisualizationOverview"
@@ -145,7 +160,7 @@ export class DataVisualizationOverview extends Component {
             : visualizations.map((dataInsClas) => (
               <DataVisualizationCard
                 classification={dataInsClas}
-                projectId={selectedProject.gid}
+                projectId={gid}
                 namespace={namespace}
                 slug={slug}
                 key={dataInsClas.status}

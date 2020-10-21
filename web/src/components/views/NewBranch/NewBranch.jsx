@@ -11,6 +11,7 @@ import MButton from 'components/ui/MButton';
 import ProjectContainer from 'components/projectContainer';
 import Navbar from 'components/navbar/navbar';
 import BranchesApi from 'apis/BranchesApi.ts';
+import { generateBreadCrumbs } from 'functions/helpers';
 import './NewBranch.scss';
 
 const brApi = new BranchesApi();
@@ -106,6 +107,9 @@ class NewBranch extends Component {
   render() {
     const {
       branches,
+      projects: {
+        selectedProject,
+      },
       match: {
         params: {
           namespace,
@@ -121,12 +125,9 @@ class NewBranch extends Component {
       isWaiting,
     } = this.state;
 
-    const breadcrumbs = [
+    const customCrumbs = [
       {
-        name: namespace,
-      },
-      {
-        name: slug,
+        name: 'Data',
         href: `/${namespace}/${slug}`,
       },
       {
@@ -148,7 +149,7 @@ class NewBranch extends Component {
         <Navbar />
         <ProjectContainer
           activeFeature="data"
-          breadcrumbs={breadcrumbs}
+          breadcrumbs={generateBreadCrumbs(selectedProject, customCrumbs)}
         />
 
         <div className="new-branch-view main-content">

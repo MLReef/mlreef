@@ -9,6 +9,7 @@ import {
 import DataPipelineApi from 'apis/DataPipelineApi';
 import BranchesApi from 'apis/BranchesApi';
 import MModal from 'components/ui/MModal';
+import { generateBreadCrumbs } from 'functions/helpers';
 import Navbar from '../navbar/navbar';
 import ProjectContainer from '../projectContainer';
 import './dataInstanceOverview.css';
@@ -297,15 +298,19 @@ class DataInstanceOverview extends Component {
       },
       history,
       projects: { selectedProject },
-      setPreconfiguredOPerations,
     } = this.props;
 
-    let groupName;
-    let name;
-    if (selectedProject) {
-      groupName = selectedProject.namespace.name;
-      name = selectedProject.name;
-    }
+    const customCrumbs = [
+      {
+        name: 'Data',
+        href: `/${namespace}/${slug}`,
+      },
+      {
+        name: 'Datasets',
+        href: `/${namespace}/${slug}/-/datasets`,
+      },
+    ];
+
     return (
       <>
         <div>
@@ -313,7 +318,7 @@ class DataInstanceOverview extends Component {
           { project.gid && (
             <ProjectContainer
               activeFeature="data"
-              folders={[groupName, name, 'Data', 'Instances']}
+              breadcrumbs={generateBreadCrumbs(selectedProject, customCrumbs)}
             />
           )}
           <Instruction

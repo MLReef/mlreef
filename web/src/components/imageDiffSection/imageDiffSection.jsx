@@ -118,7 +118,7 @@ ImageDiffSection.propTypes = {
     fileName: string.isRequired,
   }).isRequired,
   original: string,
-  modified: shape({}),
+  modified: string,
   fileSize: string,
 };
 

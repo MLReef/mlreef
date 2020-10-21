@@ -9,6 +9,7 @@ import { Link } from 'react-router-dom';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import ReactMarkdown from 'react-markdown';
+import { generateBreadCrumbs } from 'functions/helpers';
 import { MergeRequestEditWithActions } from 'components/layout/MergeRequests';
 import * as mergeRequestActions from 'actions/mergeActions';
 import { pluralize as plu } from 'functions/dataParserHelpers';
@@ -34,7 +35,9 @@ const mergeRequestAPI = new MergeRequestAPI();
 const BasicMergeRequestView = (props) => {
   const {
     selectedProject,
-    selectedProject: { gid },
+    selectedProject: {
+      gid, namespace, slug,
+    },
     match: { params: { iid } },
     users,
     mrInfo,
@@ -58,9 +61,6 @@ const BasicMergeRequestView = (props) => {
   const [editMode, setEditMode] = useState(false);
 
   const { title, description, state } = mrInfo;
-
-  const projectName = selectedProject.name;
-  const groupName = selectedProject.namespace;
 
   const sourceBranch = mrInfo.source_branch;
   const targetBranch = mrInfo.target_branch;
@@ -135,6 +135,21 @@ const BasicMergeRequestView = (props) => {
     }
   }, [gid, iid, sourceBranch, targetBranch]);
 
+  const customCrumbs = [
+    {
+      name: 'Data',
+      href: `/${namespace}/${slug}`,
+    },
+    {
+      name: 'Merge Requests',
+      href: `/${namespace}/${slug}/-/merge_requests`,
+    },
+    {
+      name: `${iid}`,
+      href: `/${namespace}/${slug}/-/merge_requests/${iid}`,
+    },
+  ];
+
   const actionButtons = (
     <div style={{ height: 'max-content' }} className="modify-MR mr-0">
       {state === 'opened' && (
@@ -177,7 +192,7 @@ const BasicMergeRequestView = (props) => {
       <Navbar />
       <ProjectContainer
         activeFeature="data"
-        folders={[groupName, projectName, 'Data', 'Merge requests', iid]}
+        breadcrumbs={generateBreadCrumbs(selectedProject, customCrumbs)}
       />
       <div className="basic-merge-request-view-content main-content v1023">
         <div style={{ display: 'flex', marginTop: '1em' }}>

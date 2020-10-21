@@ -14,6 +14,7 @@ import relativeTime from 'dayjs/plugin/relativeTime';
 import AuthWrapper from 'components/AuthWrapper';
 import MDropdown from 'components/ui/MDropdown';
 import MWrapper from 'components/ui/MWrapper';
+import { generateBreadCrumbs } from 'functions/helpers';
 import { getProjectDetailsBySlug } from 'actions/projectInfoActions';
 import ProjectContainer from '../projectContainer';
 import CommitsApi from '../../apis/CommitsApi.ts';
@@ -105,6 +106,9 @@ export class FileView extends React.Component {
     } = this.props;
     const {
       project,
+      project: {
+        name,
+      },
       commitInfo: {
         author_name: authorName,
         message,
@@ -118,7 +122,6 @@ export class FileView extends React.Component {
 
     const numContribs = contributors.length;
 
-    const groupName = project.namespace;
     let fileName = null;
     let fileSize = null;
     let avatar = 'https://assets.gitlab-static.net/uploads/-/system/user/avatar/3839940/avatar.png';
@@ -145,6 +148,13 @@ export class FileView extends React.Component {
       filepath = fileData.file_path.split('/');
     }
 
+    const customCrumbs = [
+      {
+        name: 'Data',
+        href: `/${namespace}/${slug}`,
+      },
+    ];
+
     return (
       <div className="file-view">
         {projectId && (
@@ -164,7 +174,7 @@ export class FileView extends React.Component {
         {projectId && (
           <ProjectContainer
             activeFeature="data"
-            folders={[groupName, project && project.name, 'Data']}
+            breadcrumbs={generateBreadCrumbs(project, customCrumbs)}
           />
         )}
         <div className="branch-path">
@@ -205,7 +215,7 @@ export class FileView extends React.Component {
 
           <span className="filepath">
             <b>
-              <a href="/home">{project && project.name}</a>
+              <a href={`/${namespace}/${slug}`}>{name}</a>
               {' '}
               /
               {filepath.map((path, i) => (filepath.length === i + 1 ? (
@@ -276,7 +286,7 @@ export class FileView extends React.Component {
             <div className="wrapper">
               <div className="file-actions pr-2">
                 <Link
-                  to={`/my-projects/${projectId}/${branch}/commits/${file}`}
+                  to={`/${namespace}/${slug}/-/${branch}/commits/${file}`}
                   className="btn btn-sm btn-basic-dark my-auto ml-2"
                 >
                   History

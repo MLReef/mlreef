@@ -13,6 +13,13 @@ const setup = () => {
       selectedProject: {
         backendId: 'anything',
         ownerId: 'anything-else',
+        defaultBranch: 'master',
+        gid: 18,
+        gitlab: {
+          namespace: {
+            kind: 'user',
+          },
+        },
       },
     },
   });

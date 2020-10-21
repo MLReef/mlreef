@@ -2,6 +2,7 @@ import React, { useRef } from 'react';
 import { Route, Link, Switch } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { shape, number, string } from 'prop-types';
+import { generateBreadCrumbs } from 'functions/helpers';
 import JobLogById from 'components/insights/insights-menu/jobLogById';
 import Navbar from '../navbar/navbar';
 import ProjectContainer from '../projectContainer';
@@ -40,13 +41,20 @@ const Insights = (props) => {
     e.target.classList.add('active');
   }
 
+  const customCrumbs = [
+    {
+      name: 'Insights',
+      href: `/${namespace}/${slug}/insights/-/jobs`,
+    },
+  ];
+
   return (
     <>
       <Navbar />
       <ProjectContainer
         project={selectedProject}
         activeFeature="insights"
-        viewName="Insights"
+        breadcrumbs={generateBreadCrumbs(selectedProject, customCrumbs)}
       />
 
       <div className="main-content py-4">

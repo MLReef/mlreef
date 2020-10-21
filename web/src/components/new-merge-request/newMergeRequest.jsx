@@ -7,6 +7,7 @@ import { Redirect, Link } from 'react-router-dom';
 import { toastr } from 'react-redux-toastr';
 import MergeRequestEdit from 'components/layout/MergeRequests/MergeRequestEdit';
 import MSelect from 'components/ui/MSelect';
+import { generateBreadCrumbs } from 'functions/helpers';
 import ProjectContainer from '../projectContainer';
 import Navbar from '../navbar/navbar';
 import './newMergeRequest.css';
@@ -177,11 +178,27 @@ export class NewMergeRequest extends Component {
       },
       branches,
       users,
+      match: {
+        params: {
+          namespace,
+          slug,
+        },
+      },
     } = this.props;
 
-    const groupName = selectedProject.namespace.name;
-
-    const { namespace, slug } = selectedProject;
+    const customCrumbs = [
+      {
+        name: 'Data',
+        href: `/${namespace}/${slug}`,
+      },
+      {
+        name: 'Merge Requests',
+        href: `/${namespace}/${slug}/-/merge_requests`,
+      },
+      {
+        name: 'New',
+      },
+    ];
 
     return (
       <>
@@ -191,7 +208,7 @@ export class NewMergeRequest extends Component {
         <Navbar />
         <ProjectContainer
           activeFeature="data"
-          folders={[groupName, selectedProject.name, 'Data', 'New merge request']}
+          breadcrumbs={generateBreadCrumbs(selectedProject, customCrumbs)}
         />
         <div className="main-content">
           <br />

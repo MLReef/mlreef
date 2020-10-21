@@ -10,6 +10,7 @@ import {
 import MInput from 'components/ui/MInput';
 import MLoadingSpinner from 'components/ui/MLoadingSpinner';
 import AuthWrapper from 'components/AuthWrapper';
+import { generateBreadCrumbs } from 'functions/helpers';
 import Navbar from '../navbar/navbar';
 import ProjectContainer from '../projectContainer';
 import { getTimeCreatedAgo } from '../../functions/dataParserHelpers';
@@ -106,11 +107,21 @@ class BranchesView extends Component {
     } = this.state;
 
     const {
-      gitlabName: projectName,
       gid,
       namespace,
       slug,
     } = selectedProject;
+
+    const customCrumbs = [
+      {
+        name: 'Data',
+        href: `/${namespace}/${slug}`,
+      },
+      {
+        name: 'Branches',
+        href: `/${namespace}/${slug}/-/branches`,
+      },
+    ];
 
     const today = new Date();
     const commitShortIdLowerLimit = 0;
@@ -131,7 +142,7 @@ class BranchesView extends Component {
         <Navbar />
         <ProjectContainer
           activeFeature="data"
-          folders={['Group Name', projectName, 'Data', 'Branches']}
+          breadcrumbs={generateBreadCrumbs(selectedProject, customCrumbs)}
         />
         <div className="main-content">
           <div id="inputs-div" className="my-3">
