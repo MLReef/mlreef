@@ -1,9 +1,12 @@
 import uuidv1 from 'uuid/v1';
 import store from 'store';
+import waitForExpect from 'wait-for-expect';
 import * as types from 'actions/actionTypes';
 import MLRAuthApi from 'apis/MLAuthApi';
+import GitlabPipelineApi from 'apis/GitlabPipelinesApi';
+import ProjectGeneralInfoApi from 'apis/ProjectGeneralInfoApi';
+import CommitsApi from 'apis/CommitsApi';
 import CodeProjectPublishingApi from './apiMocks/CodeProjectPublishing.spike.ts';
-import CommitsApiMock from './apiMocks/CommitMocks.spike.ts';
 import ProjectApiMockSpike from './apiMocks/ProjectApiMock.spike.ts';
 import UserApi from './apiMocks/UserApi.ts';
 
@@ -11,7 +14,9 @@ const api = new CodeProjectPublishingApi();
 const userApi = new UserApi();
 const authApi = new MLRAuthApi();
 const projectApi = new ProjectApiMockSpike();
-const commitsApiMock = new CommitsApiMock();
+const commitsApi = new CommitsApi();
+const gitlabApiMock = new GitlabPipelineApi();
+const projectInfoApi = new ProjectGeneralInfoApi();
 
 // TODO: this part is necessary to supply the API mocks with credentials
 // As the apiMocks are removed from this test, these lines can also be removed
@@ -22,6 +27,7 @@ let removeMe_email;
 // eslint-disable-next-line camelcase
 let removeMe_pass;
 // end todo
+let gitlabProjectId;
 
 beforeAll(async () => {
   // ------------- create the user ------------- //
@@ -57,7 +63,8 @@ beforeAll(async () => {
 });
 
 test('Can create new user, new code project, commit file and publish code project', async () => {
-  jest.setTimeout(30000);
+  jest.setTimeout(300000);
+
   //
   // ----------- login with the user ----------- //
   // TODO: this part is necessary to supply the API mocks with credentials
@@ -96,32 +103,16 @@ test('Can create new user, new code project, commit file and publish code projec
   expect(projectCreationResp.ok).toBeTruthy();
 
   const { id: projectId, gitlab_id: gid } = creationProjRespBody;
+  gitlabProjectId = creationProjRespBody?.gitlab_id;
 
   //
   // -------- Commit the project recently created -------- //
   //
-  const commitResp = await commitsApiMock.performCommit(
+  const commitDataProcessorResp = await commitsApi.performCommit(
     gid,
-    'README.md',
+    'dataproc.py',
     // eslint-disable-next-line camelcase
-    `File committed by ${removeMe_user}`,
-    'master',
-    'some message',
-    'update',
-    'text',
-    headers,
-  );
-
-  expect(commitResp.ok).toBeTruthy();
-
-  //
-  // -------- Commit the project recently created -------- //
-  //
-  const commitDataProcessorResp = await commitsApiMock.performCommit(
-      gid,
-      'dataproc.py',
-      // eslint-disable-next-line camelcase
-      `
+    `
 @data_processor(
     name="Resnet 2.0 Filter",
     author="MLReef",
@@ -140,14 +131,14 @@ def myCustomOperationEntrypoint(cropFactor, imageFiles, optionalFilterParam=1):
     # we have to provide a way to store and chain outputs to the next input
 
 myCustomOperationEntrypoint(epfInputArray)`,
-      'master',
-      'Data processor',
-      'create',
-      'text',
-      headers,
+    'master',
+    'Data processor',
+    'create',
+    'text',
   );
 
-  expect(commitDataProcessorResp.ok).toBeTruthy();
+  expect(commitDataProcessorResp.title).toBe('Data processor');
+  expect(commitDataProcessorResp.project_id).toBe(gid);
 
   //
   // -------- Publish the Project -------- //
@@ -208,12 +199,27 @@ myCustomOperationEntrypoint(epfInputArray)`,
   // TODO: make the following line work
   // expect(projectBody.data_processor !== undefined).toBeTruthy();
 
-
-
   //
   // -------- Remove project at the end of the test -------- //
   //  At least removing the project automatically we do not fill the database of garbage
   //
   // const projDeletionResp = await projectApi.delete(projectId, headers);
   // expect(projDeletionResp.ok).toBeTruthy();
+});
+
+test('Verify whether gitlab starts pipeline', async () => {
+  const pipelineInfo = await gitlabApiMock.getPipesByProjectId(gitlabProjectId);
+  expect(pipelineInfo.length > 0).toBeTruthy();
+});
+
+test('Check whether Gitlab registries contain images', async () => {
+  let resp = [];
+  setTimeout(async () => {
+    const response = await projectInfoApi.getGitlabRegistries(gitlabProjectId);
+    resp = response;
+  }, 200000);
+
+  await waitForExpect(() => {
+    expect(resp.length > 0).toBeTruthy();
+  }, 200000, 500);
 });
