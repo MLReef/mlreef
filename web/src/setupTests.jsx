@@ -8,6 +8,7 @@ import 'babel-polyfill';
 import 'whatwg-fetch';
 
 configure({ adapter: new Adapter() });
+jest.setTimeout(300000);
 
 export const TestHook = ({ callback }) => {
   callback();
