@@ -1,0 +1,35 @@
+.not-found-view {
+  background: url(/images/background_fishes.png);
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  height: 100vh;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  transition: ease 1s;
+
+  &-container {
+    padding: 5rem 2rem;
+  }
+
+  &-title {
+    & .title {
+      color: var(--secondary);
+      font-size: 300%;
+      // line-height: 550%;
+      font-weight: bold;
+    }
+  }
+
+  &-content {
+    color: var(--dark);
+  }
+
+  &-actions {
+    margin-top: 4rem;
+  }
+}

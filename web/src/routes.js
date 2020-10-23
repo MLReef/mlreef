@@ -3,7 +3,7 @@ import LoginView from 'components/login/login';
 import RegisterView from 'components/RegisterView';
 import ResetPasswordView from 'components/views/ResetPassword/ResetPasswordView';
 import PasswordConfirmationView from 'components/views/ResetPassword/PasswordConfirmationView';
-import ErrorView from 'components/error-page/errorPage';
+import ErrorView from 'components/views/ErrorView';
 import ExploreView from 'components/views/ExploreView';
 import RegisterLandingView from 'components/RegisterView/RegisterLandingView';
 import GroupsOverview from 'components/views/groupsOverview';
@@ -33,7 +33,7 @@ import CommitDetailsView from 'components/commits-details/commitDetails';
 import ForkView from 'components/ForkView';
 import PublishingView from 'components/views/PublishingView';
 import PublishProcessView from 'components/views/PublishProcessView';
-import Error404View from 'components/error-page/error404Page';
+import NotFoundView from 'components/views/ErrorView/NotFoundView';
 
 // this is component for testing layout and should be removed after alpha
 import DemoView from 'components/Demo';
@@ -53,7 +53,7 @@ export default [
   {
     name: 'notFound',
     path: '/not-found/:info?',
-    component: Error404View,
+    component: NotFoundView,
   },
   {
     name: 'error',
@@ -411,6 +411,6 @@ export default [
   {
     name: 'empty',
     path: '',
-    component: Error404View,
+    component: NotFoundView,
   },
 ];

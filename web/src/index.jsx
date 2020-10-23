@@ -24,8 +24,8 @@ checkVersion();
 const persistor = persistStore(store);
 
 ReactDOM.render(
-  <ErrorHandler>
-    <Provider store={store}>
+  <Provider store={store}>
+    <ErrorHandler>
       <ToastMessage />
       <MActionModal />
       <PersistGate
@@ -45,7 +45,7 @@ ReactDOM.render(
           <Router routes={routes} />
         </div>
       </PersistGate>
-    </Provider>
-  </ErrorHandler>,
+    </ErrorHandler>
+  </Provider>,
   document.getElementById('root'),
 );

@@ -8,6 +8,7 @@ import forkingImage from 'images/forking.png';
 import { OPERATION, ALGORITHM, VISUALIZATION } from 'dataTypes';
 import FilesContainer from 'components/FilesContainer';
 import { filterSetsBy } from 'functions/dataParserHelpers';
+import { redirectNotFound } from 'actions/errorsActions';
 import { generateBreadCrumbs } from 'functions/helpers';
 import ReadMeComponent from '../ReadMe/ReadMe';
 import ProjectContainer from '../projectContainer';
@@ -35,7 +36,6 @@ class ProjectView extends React.Component {
       isForking: false,
     };
     this.setIsForking = this.setIsForking.bind(this);
-    this.redirectToNotFoundPage = this.redirectToNotFoundPage.bind(this);
     this.fetchIfAuthenticated = this.fetchIfAuthenticated.bind(this);
     this.fetchVisitor = this.fetchVisitor.bind(this);
   }
@@ -54,15 +54,6 @@ class ProjectView extends React.Component {
 
   setIsForking(status) {
     this.setState({ isForking: status });
-  }
-
-  redirectToNotFoundPage() {
-    const {
-      location,
-      history,
-    } = this.props;
-
-    history.replace(`/not-found/${encodeURIComponent(location.pathname)}`);
   }
 
   fetchVisitor() {
@@ -86,7 +77,7 @@ class ProjectView extends React.Component {
           actions.getProjectStarrers(gid),
         ]);
       })
-      .catch(this.redirectToNotFoundPage);
+      .catch(actions.redirectNotFound);
   }
 
   fetchIfAuthenticated() {
@@ -116,7 +107,7 @@ class ProjectView extends React.Component {
           actions.getProjectStarrers(gid),
         ]);
       })
-      .catch(this.redirectToNotFoundPage);
+      .catch(actions.redirectNotFound);
   }
 
   render() {
@@ -246,12 +237,6 @@ ProjectView.propTypes = {
   projects: shape({
     all: arrayOf.isRequired,
   }).isRequired,
-  location: shape({
-    pathname: string.isRequired,
-  }).isRequired,
-  history: shape({
-    replace: func.isRequired,
-  }).isRequired,
   match: shape({
     params: shape({
       namespace: string.isRequired,
@@ -297,6 +282,7 @@ function mapDispatchToProps(dispatch) {
       ...branchesActions,
       ...mergeActions,
       ...processorActions,
+      redirectNotFound,
     }, dispatch),
   };
 }
