@@ -82,4 +82,12 @@ export default {
     isLoading: false,
   },
   groups: [],
+  errors: {
+    hasErrors: false,
+    info: {
+      code: undefined,
+      message: undefined,
+      silent: false,
+    },
+  },
 };

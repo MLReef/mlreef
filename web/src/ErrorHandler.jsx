@@ -1,28 +1,19 @@
-import React, { Component } from 'react';
-import ErrorPage from './components/error-page/errorPage';
+import React from 'react';
+import { useSelector } from 'react-redux';
+import ErrorView from './components/views/ErrorView';
 
-class ErrorHandler extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      hasError: false,
-    };
+const ErrorHandler = (props) => {
+  const { children } = props;
+  const {
+    hasErrors,
+    info: { code, message },
+  } = useSelector(({ errors }) => errors);
+
+  if (hasErrors) {
+    return <ErrorView errorCode={code || 500} errorMessage={message || 'Internal error'} />;
   }
 
-  componentDidCatch() {
-    this.setState({ hasError: true });
-  }
-
-  render() {
-    const { hasError } = this.state;
-    const { children } = this.props;
-    if (hasError) {
-      return <ErrorPage errorCode={500} errorMessage="Internal error" />;
-    }
-
-    return children;
-  }
-}
-
+  return children;
+};
 
 export default ErrorHandler;

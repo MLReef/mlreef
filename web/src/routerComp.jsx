@@ -25,8 +25,8 @@ import CommitDetails from './components/commits-details/commitDetails';
 import DataInstanceOverview from './components/data-instance/dataInstanceOverview';
 import DataInstanceDetails from './components/data-instance/dataInstanceDetails';
 import DataVisualizationOverview from './components/data-visualization/dataVisualizationOverview';
-import ErrorPage from './components/error-page/errorPage';
-import Error404Page from './components/error-page/error404Page';
+import ErrorView from './components/views/ErrorView';
+import NotFoundView from './components/views/ErrorView/NotFoundView';
 import ExperimentDetails from './components/experiment-details/experimentDetails';
 import CreateProject from './components/views/create-project/createProject';
 import NewMergeRequest from './components/new-merge-request/newMergeRequest';
@@ -55,7 +55,7 @@ const RouterComp = () => (
       <Route path="/index.html" exact component={Login} />
       <Route path="/register" exact component={RegisterView} />
       <Route path="/user/reset-password" exact component={ResetPasswordView} />
-      <Route path="/error-page" exact component={ErrorPage} />
+      <Route path="/error-page" exact component={ErrorView} />
       <Route path="/explore" exact component={ExploreView} />
       <Route path="/login/password-reset/:token" exact component={PasswordConfirmationView} />
       <PrivateRoute path="/welcome" exact component={RegisterLandingView} />
@@ -146,7 +146,7 @@ const RouterComp = () => (
         path="/my-projects/:projectId/:branch/new-merge-request"
         component={NewMergeRequest}
       />
-      <Route component={Error404Page} />
+      <Route component={NotFoundView} />
     </Switch>
   </BrowserRouter>
 );
