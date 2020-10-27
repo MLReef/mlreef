@@ -6,6 +6,7 @@ import com.mlreef.rest.FileLocation
 import com.mlreef.rest.Person
 import com.mlreef.rest.PipelineConfig
 import com.mlreef.rest.PipelineConfigRepository
+import com.mlreef.rest.PipelineInstance
 import com.mlreef.rest.PipelineInstanceRepository
 import com.mlreef.rest.api.CurrentUserService
 import com.mlreef.rest.api.v1.dto.DataProcessorInstanceDto
@@ -46,17 +47,20 @@ class ProjectsPipelineConfigsController(
 
     @GetMapping
     @PreAuthorize("canViewProject(#dataProjectId)")
-    fun getAllPipelineConfig(@PathVariable dataProjectId: UUID): List<PipelineConfigDto> {
-        val list: List<PipelineConfig> = pipelineConfigRepository.findAllByDataProjectId(dataProjectId).toList()
-        return list.map(PipelineConfig::toDto)
-    }
+    fun getAllPipelineConfig(@PathVariable dataProjectId: UUID) =
+        pipelineConfigRepository.findAllByDataProjectId(dataProjectId).map {
+            val instances = pipelineInstanceRepository.findAllByPipelineConfigId(it.id)
+            it.toDto(instances.map(PipelineInstance::toDto))
+        }
+
 
     @GetMapping("/{id}")
     @PreAuthorize("canViewProject(#dataProjectId)")
     fun getPipelineConfig(@PathVariable dataProjectId: UUID, @PathVariable id: UUID): PipelineConfigDto {
-        val findOneByDataProjectIdAndId = pipelineConfigRepository.findOneByDataProjectIdAndId(dataProjectId, id)
+        val config = pipelineConfigRepository.findOneByDataProjectIdAndId(dataProjectId, id)
             ?: throw NotFoundException(ErrorCode.NotFound, "Experiment not found")
-        return findOneByDataProjectIdAndId.toDto()
+        val instances = pipelineInstanceRepository.findAllByPipelineConfigId(config.id)
+        return config.toDto(instances.map(PipelineInstance::toDto))
     }
 
     @PutMapping("/{id}")
@@ -78,7 +82,8 @@ class ProjectsPipelineConfigsController(
 
         pipelineConfigRepository.save(newPipelineConfig)
         val persisted = pipelineConfigRepository.findOneByDataProjectIdAndId(dataProjectId, newPipelineConfig.id)!!
-        return persisted.toDto()
+        val instances = pipelineInstanceRepository.findAllByPipelineConfigId(persisted.id)
+        return persisted.toDto(instances.map(PipelineInstance::toDto))
     }
 
     @PostMapping

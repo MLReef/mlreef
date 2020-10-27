@@ -94,22 +94,6 @@ class PipelinesConfigApiTest : AbstractRestApiTest() {
 
     }
 
-    private fun pipelineConfigDtoResponseFields(prefix: String = ""): List<FieldDescriptor> {
-        return listOf(
-            fieldWithPath(prefix + "id").type(JsonFieldType.STRING).description("UUID"),
-            fieldWithPath(prefix + "pipeline_type").type(JsonFieldType.STRING).description("Type of this Pipeline, can be DATA or VISUALIZATION"),
-            fieldWithPath(prefix + "slug").type(JsonFieldType.STRING).description("Unique slug of this PipelineConfig"),
-            fieldWithPath(prefix + "name").type(JsonFieldType.STRING).description("Name of this PipelineConfig"),
-            fieldWithPath(prefix + "input_files").type(JsonFieldType.ARRAY).optional().description("FileLocation used as input files"),
-            fieldWithPath(prefix + "input_files[].location").type(JsonFieldType.STRING).optional().description("FileLocation path or url"),
-            fieldWithPath(prefix + "input_files[].location_type").type(JsonFieldType.STRING).optional().description("FileLocationType: AWS, URL, or PATH (default)"),
-            fieldWithPath(prefix + "data_project_id").type(JsonFieldType.STRING).description("Id of DataProject"),
-            fieldWithPath(prefix + "data_operations").optional().type(JsonFieldType.ARRAY).optional().description("An optional List of DataProcessors used during PreProcessing"),
-            fieldWithPath(prefix + "source_branch").type(JsonFieldType.STRING).description("Branch name"),
-            fieldWithPath(prefix + "target_branch_pattern").type(JsonFieldType.STRING).description("Branch name pattern, can include \$ID and \$SLUG")
-        )
-    }
-
     private fun pipelineConfigCreateRequestFields(): List<FieldDescriptor> {
         return listOf(
             fieldWithPath("pipeline_type").type(JsonFieldType.STRING).description("Type of this Pipeline, can be DATA or VISUALIZATION"),

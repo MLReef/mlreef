@@ -47,14 +47,18 @@ class PipelineController(
     @PostFilter("postCanViewPipeline()")
     fun getAllPipelineConfigs(): List<PipelineConfigDto> {
         val list: List<PipelineConfig> = pipelineConfigRepository.findAll().toList()
-        return list.map(PipelineConfig::toDto)
+        return list.map {
+            val instances = pipelineInstanceRepository.findAllByPipelineConfigId(it.id)
+            it.toDto(instances.map(PipelineInstance::toDto))
+        }
     }
 
     @GetMapping("/{id}")
     @PreAuthorize("canViewPipeline(#id)")
     fun getPipelineConfig(@PathVariable id: UUID): PipelineConfigDto {
-        val findOneByDataProjectIdAndId = beforeGetPipelineConfig(id)
-        return findOneByDataProjectIdAndId.toDto()
+        val config = beforeGetPipelineConfig(id)
+        val instances = pipelineInstanceRepository.findAllByPipelineConfigId(config.id)
+        return config.toDto(instances.map(PipelineInstance::toDto))
     }
 
     @GetMapping("/{pid}/instances")
@@ -133,16 +137,16 @@ class PipelineController(
         (pipelineInstanceRepository.findOneByPipelineConfigIdAndId(pid, id)
             ?: throw NotFoundException(ErrorCode.NotFound, "PipelineInstance was not found"))
 
-    @DeleteMapping("/{pid}/instances/{id}")
-    @PreAuthorize("hasAccessToPipeline(#pid,'DEVELOPER')")
+    @DeleteMapping("/{configId}/instances/{instanceId}")
+    @PreAuthorize("hasAccessToPipeline(#configId,'DEVELOPER')")
     fun deletePipelineInstanceFromConfig(
-        @PathVariable pid: UUID,
-        @PathVariable id: UUID,
+        @PathVariable configId: UUID,
+        @PathVariable instanceId: UUID,
         tokenDetails: TokenDetails,
     ) {
-        beforeGetPipelineConfig(pid)
+        beforeGetPipelineConfig(configId)
 
-        val instance = beforeGetPipelineInstance(pid, id)
+        val instance = beforeGetPipelineInstance(configId, instanceId)
 
         val dataProject = dataProjectRepository.findByIdOrNull(instance.dataProjectId)
             ?: throw NotFoundException(ErrorCode.NotFound, "DataProject was not found")
