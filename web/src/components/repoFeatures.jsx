@@ -7,6 +7,7 @@ import {
   shape,
   number,
   arrayOf,
+  func,
 } from 'prop-types';
 import AuthWrapper from 'components/AuthWrapper';
 import { PROJECT_TYPES } from 'domain/project/projectTypes';
@@ -48,6 +49,7 @@ export class RepoFeatures extends Component {
         },
       },
       codeProjectButtonColor,
+      history,
     } = this.props;
 
     const {
@@ -159,16 +161,24 @@ export class RepoFeatures extends Component {
         )}
 
         {isCodeProject && (
-          <button
-            type="button"
-            className="btn px-3 ml-2 mr-auto mt-3"
-            style={{
-              backgroundColor: codeProjectButtonColor,
-              color: 'white',
-            }}
+          <AuthWrapper
+            resource={{ type: 'project' }}
+            minRole={10}
+            accountType={1}
+            className="ml-auto mt-3"
           >
-            Publish
-          </button>
+            <button
+              type="button"
+              className="btn px-3 ml-2 mr-auto mt-3"
+              onClick={() => history.push(`/${namespace}/${slug}/-/publishing`)}
+              style={{
+                backgroundColor: codeProjectButtonColor,
+                color: 'white',
+              }}
+            >
+              Publish
+            </button>
+          </AuthWrapper>
         )}
         <AuthWrapper
           resource={{ type: 'project' }}
@@ -199,6 +209,7 @@ RepoFeatures.propTypes = {
     }),
   ).isRequired,
   searchableType: string.isRequired,
+  history: shape({ push: func }).isRequired,
 };
 
 function mapStateToProps(state) {

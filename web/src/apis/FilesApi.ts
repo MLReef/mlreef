@@ -14,11 +14,9 @@ export default class FilesApi extends ApiDirector {
     params.set('per_page', '50');
     blBuilder.setUrlParams(params);
     blBuilder.buildUrlWithParams();
-    const response = await fetch(blBuilder.build());
-    if (!response.ok) {
-      return Promise.reject(response);
-    }
-    return response.json();
+    return fetch(blBuilder.build())
+      .then(handleResponse)
+
   }
 
   async getFileData(projectId: number, path: string, ref: string) {

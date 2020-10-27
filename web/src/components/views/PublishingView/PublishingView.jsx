@@ -1,22 +1,67 @@
-import React from 'react';
+import React, { useEffect, useReducer } from 'react';
 import PropTypes from 'prop-types';
+import { connect } from 'react-redux';
+import { toastr } from 'react-redux-toastr';
+import FilesApi from 'apis/FilesApi';
 import Navbar from 'components/navbar/navbar';
 import MBreadcrumb from 'components/ui/MBreadcrumb';
+import MButton from 'components/ui/MButton';
 import MSimpleTabs from 'components/ui/MSimpleTabs/MSimpleTabsRouted';
-import MFileExplorer from 'components/ui/MFileExplorer';
-import MBricksWall from 'components/ui/MBricksWall';
-import MDataFilters from 'components/ui/MDataFilters';
 import './PublishingView.scss';
 import PublishingViewPublishModel from './PublishingViewPublishModel';
-import branches from './info.json';
-import { files, bricks, filters } from './info2';
+import { environments } from './info2';
+import initialState, { reducer } from './stateManagement';
+import SelectBaseEnv from './SelectBaseEnv/SelectBaseEnv';
+import SelectEntryPoint from './SelectEntryPoint/SelectEntryPoint';
+import publishingActions from './publishingActions';
 
-const PublishingView = (props) => {
+const filesApi = new FilesApi();
+
+export const UnconnectedPublishingView = (props) => {
   const {
     match: {
-      params: { namespace, slug },
+      params: { namespace, slug, path },
     },
+    project,
+    branches,
+    history,
   } = props;
+  const { gitlabId, id } = project;
+  const [{
+    selectedBranch,
+    files,
+    entryPointFile,
+    selectedEnv,
+    isRequirementsFileExisting,
+    model,
+    mlCategory,
+    areTermsAccepted,
+    isPublishing,
+  }, dispatch] = useReducer(reducer, {
+    selectedBranch: branches[0].name,
+    ...initialState,
+  });
+
+  const isEntryPointFormValid = entryPointFile && selectedBranch !== '';
+
+  const isFinalFormValid = mlCategory && model && areTermsAccepted;
+
+  useEffect(() => {
+    filesApi.getFilesPerProject(
+      gitlabId,
+      encodeURIComponent(path || ''),
+      false,
+      selectedBranch,
+    ).then((newFilesArr) => {
+      dispatch({ type: 'SET_FILES', payload: newFilesArr });
+      if (!path || path === '') {
+        dispatch({
+          type: 'SET_REQUIREMENTS_FILE_EXISTING',
+          payload: newFilesArr,
+        });
+      }
+    }).catch((error) => toastr.error('Error', error.message));
+  }, [gitlabId, selectedBranch, path, branches]);
 
   const breadcrumbs = [
     {
@@ -43,103 +88,40 @@ const PublishingView = (props) => {
             sections={[
               {
                 label: 'Select entry point and branch',
-                done: true,
+                done: isEntryPointFormValid,
+                defaultActive: true,
                 content: (
-                  <div className="row" style={{ minHeight: '60vh' }}>
-                    <div className="col-3" />
-                    <div className="col-6">
-                      <div className="statement">
-                        <div className="statement-title">
-                          Select the entry point for your model
-                        </div>
-                        <div className="statement-subtitle">
-                          The make your model automatically executable for the entire
-                          community, you need to select the entry python file of a given branch.
-                        </div>
-                      </div>
-                      <MFileExplorer
-                        selectable
-                        files={files}
-                        branches={branches}
-                        onEnterDir={() => {}}
-                      />
-                    </div>
-                    <div className="col-3 pl-3">
-                      <div className="publishing-view-summary">
-                        <div className="parameter mb-3">
-                          <span className="parameter-key">
-                            Selected:
-                          </span>
-                          <strong className="parameter-value t-danger">
-                            No entry point selected
-                          </strong>
-                        </div>
-                        <div className="parameter mb-3">
-                          <span className="parameter-key">
-                            Branch:
-                          </span>
-                          <strong className="parameter-value t-primary">
-                            Master
-                          </strong>
-                        </div>
-                        <button
-                          type="button"
-                          disabled
-                          className="btn btn-dark"
-                        >
-                          Continue
-                        </button>
-                      </div>
-                    </div>
-                  </div>
+                  <SelectEntryPoint
+                    entryPointFile={entryPointFile}
+                    files={files}
+                    branches={branches}
+                    selectedBranch={selectedBranch}
+                    path={path}
+                    namespace={namespace}
+                    slug={slug}
+                    dispatch={dispatch}
+                  />
                 ),
               },
               {
                 label: 'Select base environment',
-                done: false,
+                done: !!selectedEnv,
+                disabled: !isEntryPointFormValid,
                 content: (
-                  <div className="row" style={{ minHeight: '60vh' }}>
-                    <div className="col-3" />
-                    <div className="col-6">
-                      <div className="statement">
-                        <div className="statement-title">
-                          Select a base environment for your model
-                        </div>
-                        <div className="statement-subtitle">
-                          MLReef provides a set of base environment images including
-                          a set of pre-installed packages. Select one, that works best
-                          with your code!
-                        </div>
-                      </div>
-                      <MBricksWall animated bricks={bricks} />
-                    </div>
-                    <div className="col-3 pl-3">
-                      <div className="publishing-view-summary">
-                        <div className="parameter mb-3">
-                          <span className="parameter-key">
-                            Selected:
-                          </span>
-                          <strong className="parameter-value t-danger">
-                            No base environment selected
-                          </strong>
-                        </div>
-                        <button
-                          type="button"
-                          disabled
-                          className="btn btn-dark"
-                        >
-                          Continue
-                        </button>
-                      </div>
-                      <MDataFilters filters={filters} />
-                    </div>
-                  </div>
+                  <SelectBaseEnv
+                    namespace={namespace}
+                    slug={slug}
+                    environments={environments}
+                    selectedEnv={selectedEnv}
+                    dispatch={dispatch}
+                    history={history}
+                  />
                 ),
               },
               {
                 label: 'Publish model',
                 done: false,
-                defaultActive: true,
+                disabled: !isEntryPointFormValid || !selectedEnv,
                 content: (
                   <div style={{ minHeight: '60vh' }}>
                     <div className="row">
@@ -163,23 +145,45 @@ const PublishingView = (props) => {
                               Status to publish:
                             </span>
                             <strong className="parameter-value t-danger">
-                              No model type
+                              {model ? model.label : 'No model type'}
                             </strong>
                           </div>
-                          <button
+                          <MButton
                             type="button"
-                            disabled
+                            disabled={!isFinalFormValid}
+                            waiting={isPublishing}
+                            onClick={() => {
+                              dispatch({ type: 'SET_IS_PUBLISHING', payload: true });
+                              publishingActions.publish(id)
+                                .then(() => {
+                                  toastr.success('Success', 'Your project will appear in the market place');
+                                  history.push('/');
+                                })
+                                .catch((err) => {
+                                  dispatch({ type: 'SET_IS_PUBLISHING', payload: false });
+                                  toastr.error('Error', err.message);
+                                });
+                            }}
                             className="btn btn-dark"
                           >
                             Publish
-                          </button>
+                          </MButton>
                         </div>
                       </div>
                     </div>
                     <div className="row">
                       <div className="col-2" />
                       <div className="col-10">
-                        <PublishingViewPublishModel />
+                        <PublishingViewPublishModel
+                          selectedBranch={selectedBranch}
+                          entryPointFile={entryPointFile}
+                          selectedEnvironment={selectedEnv?.name}
+                          isRequirementsFileExisting={isRequirementsFileExisting}
+                          areTermsAccepted={areTermsAccepted}
+                          model={model}
+                          category={mlCategory}
+                          dispatch={dispatch}
+                        />
                       </div>
                     </div>
                   </div>
@@ -193,17 +197,27 @@ const PublishingView = (props) => {
   );
 };
 
-PublishingView.defautProps = {
+UnconnectedPublishingView.defautProps = {
 
 };
 
-PublishingView.propTypes = {
+UnconnectedPublishingView.propTypes = {
   match: PropTypes.shape({
     params: PropTypes.shape({
       namespace: PropTypes.string.isRequired,
       slug: PropTypes.string.isRequired,
     }).isRequired,
   }).isRequired,
+  project: PropTypes.shape({}).isRequired,
+  branches: PropTypes.arrayOf(PropTypes.shape({ name: PropTypes.string })).isRequired,
+  history: PropTypes.shape({ push: PropTypes.func }).isRequired,
 };
 
-export default PublishingView;
+function mapStateToProps({ projects: { selectedProject }, branches }) {
+  return {
+    project: selectedProject,
+    branches,
+  };
+}
+
+export default connect(mapStateToProps)(UnconnectedPublishingView);

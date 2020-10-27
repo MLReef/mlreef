@@ -35,7 +35,6 @@ const MCheckBoxGroup = (props) => {
             checked={checkOption(option.value)}
             name={name}
             labelValue={option.label}
-            callback={handleSelect(option.value)}
           />
         </button>
 

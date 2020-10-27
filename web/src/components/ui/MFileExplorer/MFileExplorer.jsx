@@ -17,6 +17,8 @@ const MFileExplorer = (props) => {
     className,
     onEnterDir,
     activeBranch,
+    onBranchSelected,
+    onFileSelected,
   } = props;
 
   const handleClick = (file) => () => file.type === 'tree'
@@ -30,6 +32,7 @@ const MFileExplorer = (props) => {
           <MBranchSelector
             activeBranch={activeBranch}
             branches={branches}
+            onBranchSelected={onBranchSelected}
           />
         </div>
       )}
@@ -43,9 +46,11 @@ const MFileExplorer = (props) => {
               {selectable && (
                 <MCheckBox
                   small
+                  disabled={file.disabled || file.type === 'tree'}
                   className="mr-3 ml-2"
                   checked={file.selected}
                   name={file.id}
+                  callback={onFileSelected}
                 />
               )}
               <button

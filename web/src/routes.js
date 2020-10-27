@@ -370,7 +370,16 @@ export default [
     component: PublishingView,
     exact: true,
     meta: {
-      authRequired: false,
+      authRequired: true,
+    },
+  },
+  {
+    name: 'publishing',
+    path: '/:namespace/:slug/-/publishing/path/:path',
+    component: PublishingView,
+    exact: true,
+    meta: {
+      authRequired: true,
     },
   },
   {
@@ -379,7 +388,7 @@ export default [
     component: PublishProcessView,
     exact: true,
     meta: {
-      authRequired: false,
+      authRequired: true,
     },
   },
   {

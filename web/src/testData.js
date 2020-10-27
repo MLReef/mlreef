@@ -2443,6 +2443,13 @@ export const filesMock = [
     path: '.gitignore',
     mode: '100644',
   },
+  {
+    id: 'f248cabd580ad48d40ebcf5c8e0122784fe32f71',
+    name: 'script.py',
+    type: 'blob',
+    path: 'script.py',
+    mode: '100644',
+  },
 ];
 
 // --------- new mock data which emulates backend response --------- //

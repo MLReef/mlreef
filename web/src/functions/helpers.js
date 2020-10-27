@@ -26,7 +26,12 @@ export const handleResponse = async (res) => {
     const error = new Error();
     error.name = res.statusText;
     error.status = res.status;
-    error.message = body ? body.message : '';
+    if (body) {
+      // error_message and error_name come from Backend and message comes from Gitlab
+      error.name = body.error_name || res.statusText;
+      error.message = body.message || body.error_message;
+    }
+
     return Promise.reject(error);
   }
 

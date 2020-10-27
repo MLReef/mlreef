@@ -14,11 +14,11 @@ describe('files table should render properly', () => {
   });
 
   test('assert that contains the right number of rows', () => {
-    expect(wrapper.find('tbody').children()).toHaveLength(3);
+    expect(wrapper.find('tbody').children()).toHaveLength(filesMock.length);
   });
 
   test('assert that icon item is present', () => {
-    expect(wrapper.find('img')).toHaveLength(3);
+    expect(wrapper.find('img')).toHaveLength(filesMock.length);
   });
 
   test('assert that file name is right', () => {

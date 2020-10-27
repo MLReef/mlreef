@@ -42,6 +42,8 @@ class Myprojects extends React.Component {
   }
 
   componentDidMount() {
+    const { actions: { setGlobalMarkerColor } } = this.props;
+    setGlobalMarkerColor(projectClassificationsProps[0].color);
     this.fetch();
     // polling every 10 seconds (it is the default value, it's just for demostration)
     // const unsuscribeServices = suscribeRT({ timeout: 200000 })(this.fetch);
@@ -100,19 +102,20 @@ class Myprojects extends React.Component {
   }
 
   fetch() {
-    const { actions: { setIsLoading, setGlobalMarkerColor, getProjectsList } } = this.props;
+    const { actions: { setIsLoading, getProjectsList } } = this.props;
     const { page } = this.state;
     setIsLoading(true);
-    setGlobalMarkerColor(projectClassificationsProps[0].color);
-    return Promise.all([
-      getProjectsList(page, 10),
-    ])
-      .catch(() => {
-      })
-      .finally(() => {
-        setIsLoading(false);
-        this.setState({ scrolling: false });
-      });
+    try {
+      Promise.all([
+        getProjectsList(page, 10),
+      ])
+        .finally(() => {
+          setIsLoading(false);
+          this.setState({ scrolling: false });
+        });
+    } catch (error) {
+      toastr.error('Error', error?.message);
+    }
   }
 
   render() {
