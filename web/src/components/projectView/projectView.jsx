@@ -126,6 +126,7 @@ class ProjectView extends React.Component {
           branch,
         },
       },
+      history,
       mergeRequests,
       branches,
       users,
@@ -200,6 +201,7 @@ class ProjectView extends React.Component {
                   branch={decodedBranch}
                   path={path || ''}
                   searchableType={project.searchableType}
+                  history={history}
                 />
                 <FilesContainer
                   projectId={gid}

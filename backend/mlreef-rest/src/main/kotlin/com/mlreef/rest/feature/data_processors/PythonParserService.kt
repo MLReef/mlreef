@@ -36,7 +36,12 @@ class PythonParserService(
 
         val files = repositoryService.getFilesContentOfRepository(project, mainFilePath, mainFilePath == null)
 
+        files.forEach {
+            log.debug(it)
+        }
+
         val processors = files.mapNotNull {
+            log.debug(it)
             parsePythonFile(it)
         }
 

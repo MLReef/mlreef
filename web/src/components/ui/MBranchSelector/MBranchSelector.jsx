@@ -9,6 +9,7 @@ const MBranchSelector = (props) => {
     branches,
     activeBranch,
     className,
+    onBranchSelected,
   } = props;
 
   return (
@@ -32,7 +33,8 @@ const MBranchSelector = (props) => {
                       tabIndex="0"
                       role="button"
                       key={index.toString()}
-                      onClick={() => {}}
+                      value={branch.name}
+                      onClick={() => onBranchSelected(branch.name)}
                       onKeyDown={() => {}}
                     >
                       <p>{branch.name}</p>

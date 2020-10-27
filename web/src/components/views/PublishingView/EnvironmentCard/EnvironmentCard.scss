@@ -1,0 +1,29 @@
+$border: 1px solid var(--info);
+
+.environment-card {
+  &-container {
+    border: 1px solid transparent;
+    &.selected, &:hover {
+      border: $border;
+    }
+    cursor: pointer; 
+    padding-right: 10rem;
+    .environments-title {
+      font-size: 0.75rem;
+      color: var(--lessWhite);
+    }
+    &-content {
+      ul {
+        list-style-type: none;
+        padding-left: 0px;
+
+        li {
+          p {
+            margin: 0.5rem 0rem;
+            font-size: 0.85rem;
+          }
+        }
+      }
+    }
+  }
+}
