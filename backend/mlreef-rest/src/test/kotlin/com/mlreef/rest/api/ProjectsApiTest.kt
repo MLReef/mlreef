@@ -1075,5 +1075,4 @@ class ProjectsApiTest : AbstractRestApiTest() {
             PayloadDocumentation.fieldWithPath("expires_at").type(JsonFieldType.STRING).optional().description("Expiration date")
         )
     }
-
 }
