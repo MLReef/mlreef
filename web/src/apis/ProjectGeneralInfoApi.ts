@@ -13,48 +13,26 @@ export default class ProjectGeneralInfoApi extends ApiDirector {
     this.getProjectsList = this.getProjectsList.bind(this);
     this.getProjectDetails = this.getProjectDetails.bind(this);
   }
-  async create(body: any, projectType: string, isNamespaceAGroup: boolean) {
+
+  create(bodyReq: any, projectType: string) {
     const baseUrl = `/api/v1/${projectType}s`;
     const apiReqBuilder = new ApiRequestCallBuilder(
       METHODS.POST,
       this.buildBasicHeaders(validServicesToCall.BACKEND),
       baseUrl,
-      JSON.stringify(body)
+      JSON.stringify(bodyReq)
     );
-    const response = await fetch(apiReqBuilder.build());
-    if (!response.ok) {
-      const body = await response.json();
-      return Promise.reject(body.error_message);
-    }
-    return response.json();
+
+    return fetch(apiReqBuilder.build())
+      .then(handleResponse)
   }
 
-  async transferProjectToNamespace(projectId: number, namespace: string){
-    const baseUrl = `/api/v4/projects/${projectId}/transfer`;
-    const body = {
-      namespace,
-    };
-    const apiReqBuilder = new ApiRequestCallBuilder(METHODS.PUT, this.buildBasicHeaders(validServicesToCall.GITLAB), baseUrl, JSON.stringify(body));
-    const response = await fetch(apiReqBuilder.build());
-
-    if (!response.ok) {
-      const body = await response.json();
-      return Promise.reject(body.error_message);
-    }
-
-    return response.json();
-  }
-
-  async getProjectInfoApi(projectId: number) {
+  getProjectInfoApi(projectId: number) {
     const url = `/api/v4/projects/${projectId}?statistics=true`;
     const builder = new BLApiRequestCallBuilder(METHODS.GET, this.buildBasicHeaders(validServicesToCall.GITLAB), url);
 
-    const response = await fetch(builder.build());
-
-    if (!response.ok) {
-      return Promise.reject(response);
-    }
-    return response.json();
+    return fetch(builder.build())
+      .then(handleResponse)
   }
 
   getProjectsList(query: string) {

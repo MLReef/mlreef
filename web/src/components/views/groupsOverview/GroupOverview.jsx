@@ -35,7 +35,7 @@ export class UnconnectedGroupsOverview extends Component {
     const { actions } = this.props;
     actions.setIsLoading(true);
     actions.getGroupsList(true);
-    actions.getProjectsList();
+    actions.getProjectsList(0, 100);
   }
 
   static getDerivedStateFromProps(nextProps) {
