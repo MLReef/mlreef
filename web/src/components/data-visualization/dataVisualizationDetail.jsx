@@ -7,7 +7,11 @@ import {
 import AuthWrapper from 'components/AuthWrapper';
 import { SKIPPED, RUNNING, PENDING } from 'dataTypes';
 import moment from 'moment';
+import DataCard from 'components/layout/DataCard';
+import { bindActionCreators } from 'redux';
+import { goToPipelineView } from 'functions/pipeLinesHelpers';
 import { parseToCamelCase } from 'functions/dataParserHelpers';
+import { setPreconfiguredOPerations } from 'actions/userActions';
 import { generateBreadCrumbs } from 'functions/helpers';
 import GitlabPipelinesApi from 'apis/GitlabPipelinesApi.ts';
 import DataPipelineApi from 'apis/DataPipelineApi';
@@ -34,6 +38,8 @@ const DataVisualizationDetails = ({ ...props }) => {
         path, visId, namespace, slug,
       },
     },
+    setPreconfOps,
+    history,
   } = props;
   const [gitlabPipes, setGitlabPipes] = useState([]);
   const [backendPipeline, setBackendPipeline] = useState({});
@@ -64,6 +70,13 @@ const DataVisualizationDetails = ({ ...props }) => {
       .catch(() => toastr.error('Error', 'Something went wrong fetching pipelines'));
   }, [visId, gitlabId, path, branchName]);
 
+  const pipelineViewProps = {
+    backendPipeline,
+    setPreconfOps,
+    selectedProject: project,
+    history,
+    routeType: '/visualizations/new',
+  }
   const customCrumbs = [
     {
       name: 'Data',
@@ -118,7 +131,7 @@ const DataVisualizationDetails = ({ ...props }) => {
                 <p><b>{diStatus}</b></p>
               </div>
               <div className="item">
-                <p>DataOps ID:</p>
+                <p>Visualization ID:</p>
                 <span style={{
                   border: '1px solid gray',
                   padding: '2px 0.5rem 0 2rem',
@@ -178,6 +191,39 @@ const DataVisualizationDetails = ({ ...props }) => {
                 </p>
               </div>
             </div>
+            <div className="p-4 data-tabs">
+              {backendPipeline && backendPipeline.dataOperations && (
+                <>
+                <div>
+                  <DataCard
+                    title="Data"
+                    linesOfContent={[
+                      { text: 'Files selected from path' },
+                      { text: `*${backendPipeline?.inputFiles ? backendPipeline?.inputFiles[0].location : ''}` },
+                      { text: 'from' },
+                      { text: `*${branchName?.replace(/.*\//, '')}` },
+                    ]}
+                  />
+                  </div>
+                    <DataCard
+                      styleClasses="visualization"
+                      title="Data Visualization pipeline"
+                      linesOfContent={
+                        backendPipeline
+                          ?.dataOperations
+                          ?.map((op, opInd) => ({ text: `*Op. ${opInd} - ${op.name}` }))
+                      }
+                    />
+                </>
+              )}
+              <button
+                type="button"
+                className="btn btn-outline-dark ml-2 mb-auto"
+                onClick={() => goToPipelineView(pipelineViewProps)}
+              >
+                View Pipeline
+              </button>
+            </div>
           </div>
           )}
         </div>
@@ -193,11 +239,11 @@ const DataVisualizationDetails = ({ ...props }) => {
             const file = files.filter((f) => f.id === targetId)[0];
             let link = '';
             if (targetDataKey === 'tree') {
-              link = `/${namespace}/${slug}/-/tree/${visId}/${encodeURIComponent(file.path)}`;
+              link = `/${namespace}/${slug}/-/tree/${encodeURIComponent(branchName)}/${encodeURIComponent(file.path)}`;
             } else {
               link = `/${namespace}/${slug}/-/blob/branch/${branchName}/path/${encodeURIComponent(file.path)}`;
             }
-            props.history.push(link);
+            history.push(link);
           }}
         />
       </div>
@@ -228,5 +274,10 @@ DataVisualizationDetails.propTypes = {
   }).isRequired,
 };
 
+function mapActionsToProps(dispatch) {
+  return {
+    setPreconfOps: bindActionCreators(setPreconfiguredOPerations, dispatch),
+  };
+}
 
-export default connect(mapStateToProps)(DataVisualizationDetails);
+export default connect(mapStateToProps, mapActionsToProps)(DataVisualizationDetails);

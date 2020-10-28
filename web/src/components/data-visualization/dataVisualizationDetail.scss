@@ -1,3 +1,5 @@
+@import '../../styles/breakpoints';
+
 .visualization-container {
   border: 1px solid var(--almostWhite);
 
@@ -11,14 +13,27 @@
     padding: 0.7rem 1.5rem;
   };
 
-  .content-row {
-    width: auto;
-    display: flex;
-    justify-content: space-between;
-    padding: 0.5rem 1.5rem;
+  .content {
+    
+    > .data-tabs {
+      display: grid;
+      grid-template-columns: 2fr 4fr 1fr;
+      height: 20rem;
 
-    .item {
+      @media screen and (max-width: $bp-md) {
+          display: block;
+      }
+    };
+
+    .content-row {
+      width: auto;
       display: flex;
-    }
-  };
+      justify-content: space-between;
+      padding: 0.5rem 1.5rem;
+  
+      .item {
+        display: flex;
+      }
+    };
+  }
 }

@@ -10,6 +10,7 @@ import AuthWrapper from 'components/AuthWrapper';
 import { generateBreadCrumbs } from 'functions/helpers';
 import GitlabPipelinesApi from 'apis/GitlabPipelinesApi.ts';
 import DataPipelineApi from 'apis/DataPipelineApi';
+import { goToPipelineView } from 'functions/pipeLinesHelpers';
 import { setPreconfiguredOPerations } from 'actions/userActions';
 import { parseToCamelCase } from 'functions/dataParserHelpers';
 import PropTypes, { shape, func } from 'prop-types';
@@ -37,7 +38,7 @@ const DataInstanceDetails = (props) => {
     setPreconfOps,
   } = props;
   const selectedProject = projects.filter((proj) => proj.slug === slug)[0];
-  const { gitlabId } = selectedProject;
+  const gitlabProjectId = selectedProject?.gitlabId;
 
   const [files, setFiles] = useState([]);
   const [gitlabPipes, setGitlabPipes] = useState([]);
@@ -73,33 +74,30 @@ const DataInstanceDetails = (props) => {
   }
 
   const duration = (new Date(updatedAt) - new Date(timeCreatedAgo));
-  function goToPipelineView() {
-    const { dataOperations, inputFiles } = backendPipeline;
-    const configuredOperations = {
-      dataOperatorsExecuted: dataOperations,
-      inputFiles,
-      pipelineBackendId: backendPipeline.id,
-    };
-    setPreconfOps(configuredOperations);
-    history.push(`/${namespace}/${slug}/-/datasets/new`);
-  }
 
   useEffect(() => {
     dataPipeApi.getBackendPipelineById(dataId)
       .then((res) => setBackendPipeline(parseToCamelCase(res)))
       .then(() => {
-        gitPipelinesApis.getPipesByProjectId(gitlabId)
+        gitPipelinesApis.getPipesByProjectId(gitlabProjectId)
           .then((res) => setGitlabPipes(res));
       })
       .then(() => branchName !== undefined && filesApi.getFilesPerProject(
-        gitlabId,
+        gitlabProjectId,
         path || '',
         false,
         branchName,
       ).then((filesPerProject) => setFiles(filesPerProject)))
       .catch(() => toastr.error('Error', 'Something went wrong fetching pipelines'));
-  }, [id, gitlabId, path, branchName, dataId]);
+  }, [id, gitlabProjectId, path, branchName, dataId]);
 
+  const pipelineViewProps = {
+    backendPipeline,
+    setPreconfOps,
+    selectedProject,
+    history,
+    routeType: '/datasets/new',
+  }
   const customCrumbs = [
     {
       name: 'Datasets',
@@ -210,42 +208,43 @@ const DataInstanceDetails = (props) => {
                 </p>
               </div>
             </div>
+            <div className="p-4 data-tabs">
+              {backendPipeline && backendPipeline.dataOperations && (
+                <>
+                <div>
+                  <DataCard
+                    title="Data"
+                    linesOfContent={[
+                      { text: 'Files selected from path' },
+                      { text: `*${backendPipeline?.inputFiles ? backendPipeline?.inputFiles[0].location : ''}` },
+                      { text: 'from' },
+                      { text: `*${branchName?.replace(/.*\//, '')}` },
+                    ]}
+                  />
+                  </div>
+                    <DataCard
+                      styleClasses="model"
+                      title="DataOps"
+                      linesOfContent={
+                        backendPipeline
+                          ?.dataOperations
+                          ?.map((op, opInd) => ({ text: `*Op. ${opInd} - ${op.name}` }))
+                      }
+                    />
+                </>
+              )}
+              <button
+                type="button"
+                className="btn btn-outline-dark ml-2 mb-auto"
+                onClick={() => goToPipelineView(pipelineViewProps)}
+              >
+                View Pipeline
+              </button>
+            </div>
           </div>
           )}
         </div>
         <br />
-        <div className="d-flex" style={{ height: '20rem', justifyContent: 'space-around' }}>
-          {backendPipeline && backendPipeline.dataOperations && (
-            <>
-              <DataCard
-                title="Data"
-                linesOfContent={[
-                  { text: 'Files selected from path' },
-                  { text: `*${backendPipeline?.inputFiles ? backendPipeline?.inputFiles[0].location : ''}` },
-                  { text: 'from' },
-                  { text: `*${branchName?.replace(/.*\//, '')}` },
-                ]}
-              />
-              <DataCard
-                title="DataOps"
-                linesOfContent={
-                  backendPipeline
-                    ?.dataOperations
-                    ?.map((op, opInd) => ({ text: `*Op. ${opInd} - ${op.name}` }))
-                }
-              />
-            </>
-          )}
-          <button
-            type="button"
-            className="btn btn-outline-dark mr-1"
-            style={{ marginTop: 0, marginBottom: 'auto' }}
-            onClick={() => goToPipelineView()}
-          >
-            View Pipeline
-          </button>
-          ,
-        </div>
         <br />
         {diStatus === RUNNING || diStatus === PENDING ? (
           <>
@@ -277,8 +276,8 @@ const DataInstanceDetails = (props) => {
               let link = '';
               let routeType = '';
               if (targetDataKey === 'tree') {
-                routeType = 'path';
-                link = `/${selectedProject?.namespace}/${selectedProject?.slug}/-/tree/${branchName}/${encodeURIComponent(file.path)}`;
+                routeType = 'tree';
+                link = `/${namespace}/${slug}/-/${routeType}/${encodeURIComponent(branchName)}/${encodeURIComponent(file.path)}`;
               } else {
                 routeType = 'blob';
                 link = `/${namespace}/${slug}/-/${routeType}/branch/${encodeURIComponent(branchName)}/path/${encodeURIComponent(file.path)}`;
@@ -317,7 +316,6 @@ function mapStateToProps(state) {
     branches: state.branches,
   };
 }
-
 
 function mapActionsToProps(dispatch) {
   return {
