@@ -41,7 +41,7 @@ variables:
 provision:
   extends: [".except-docu-branches"]
   stage: build
-  image: registry.gitlab.com/systemkern/s5:latest-aws
+  image: registry.gitlab.com/systemkern/s5:1-aws
   script: bin/ci-provision
   artifacts:
     paths:
@@ -56,7 +56,7 @@ gitlab env config:
   extends: [".except-docu-branches"]
   stage: deploy
   needs: [provision]
-  image: registry.gitlab.com/systemkern/s5:latest
+  image: registry.gitlab.com/systemkern/s5:1-aws
   script:
     - INSTANCE_HOST=$(cat out/instance.info)
     - GITLAB_ROOT_URL=http://$INSTANCE_HOST
@@ -80,7 +80,7 @@ deploy:
   extends: [".except-docu-branches"]
   stage: deploy
   <<: *run-on-all-code-changes
-  image: registry.gitlab.com/systemkern/s5:latest
+  image: registry.gitlab.com/systemkern/s5:1-aws
   dependencies: [provision]                         # only copy artifacts from provision job
   script: bin/ci-deploy
 
@@ -169,7 +169,8 @@ pipeline tests:
 test rest docs are present:
   extends: [.except-docu-branches]
   stage: test
-  image: registry.gitlab.com/systemkern/s5:latest
+  image: registry.gitlab.com/systemkern/s5:1
+  allow_failure: true
   # See bin/ci-pages for the exact path to where rest docs are deployed
   script: |
     echo "Testing if backend rest-docs are available at https://mlreef.gitlab.io/mlreef/rest-api/$CI_COMMIT_BRANCH/index.html"
@@ -249,7 +250,7 @@ backup branch:
   extends: [.feature-branches-only]
   stage: maintenance
   when: manual
-  image: registry.gitlab.com/systemkern/s5:latest-aws
+  image: registry.gitlab.com/systemkern/s5:1-aws
   before_script:
     - INSTANCE_HOST=$(cat out/instance.info)
     - echo $INSTANCE_HOST
@@ -265,7 +266,7 @@ restore from develop:
   extends: [.feature-branches-only]
   stage: maintenance
   when: manual
-  image: registry.gitlab.com/systemkern/s5:latest-aws
+  image: registry.gitlab.com/systemkern/s5:1-aws
   before_script:
     - INSTANCE_HOST=$(cat out/instance.info)
     - echo $INSTANCE_HOST                                            # debug output
