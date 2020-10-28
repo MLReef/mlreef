@@ -63,7 +63,8 @@
 /* --------------------------- Card results css --------------------------- */
 
 .card-content > .card-results {
-    display: flex;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
     width: 100%;
     margin-left: 1.5%;
 }

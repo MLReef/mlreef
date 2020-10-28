@@ -1,8 +1,25 @@
+@import '../../../styles/breakpoints';
+
+$models: #d2519d;
+$visualizations: #735da8;
+
 .data-card {
   border: 1px solid var(--almostWhite);
-  width: 32%;
   margin: 0% 0% 1% 0.5%;
   border-radius: 0.5vw;
+  height: 100%;
+
+  @media (max-width: $bp-md) {
+    height: auto;
+}
+
+  > .model {
+    background-color: $models !important;
+  }
+
+  > .visualization {
+    background-color: $visualizations !important;
+  }
 
   .title {
     border-radius : inherit;

@@ -4,9 +4,9 @@ import {
 } from 'prop-types';
 import './DataCard.scss';
 
-const DataCard = ({ title, linesOfContent }) => (
-  <div className="data-card">
-    <div className="title">
+const DataCard = ({ title, linesOfContent, styleClasses }) => (
+  <div className="data-card ml-2 mr-2">
+    <div className={`title ${styleClasses}`}>
       <p><b>{title}</b></p>
     </div>
     <div>
@@ -26,6 +26,10 @@ const DataCard = ({ title, linesOfContent }) => (
   </div>
 );
 
+DataCard.defaultProps = {
+  styleClasses: '',
+};
+
 DataCard.propTypes = {
   title: string.isRequired,
   linesOfContent: arrayOf(
@@ -34,6 +38,7 @@ DataCard.propTypes = {
       isLink: bool,
     }),
   ).isRequired,
+  styleClasses: string,
 };
 
 export default DataCard;
