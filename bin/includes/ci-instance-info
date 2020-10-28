@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 search_instance="${1:-$EC2_INSTANCE_NAME}"
 
