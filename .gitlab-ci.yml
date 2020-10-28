@@ -31,11 +31,19 @@ variables:
       - backend/**/*
       - bin/ci-deploy
       - bin/install
-      - bin/resources/*.toml
+      - bin/resources/runner-config*
       - epf/**/*
       - web/**/*
       - .gitlab-ci.yml
       - docker-compose.yml
+
+.pages-code-changes: &run-on-pages-relevant-changes
+  only:
+    changes:
+      - backend/**/*
+      - docs/**/*
+      - README.md
+
 
 # provision boots up the new ec2 instance for deploying MLReef
 provision:
@@ -89,11 +97,7 @@ deploy:
 pages:
   image: node:10.19.0-alpine                                # https://hub.docker.com/_/node/
   stage: deploy
-  only:
-    changes:
-      - backend/**/*
-      - docs/**/*
-      - README.md
+  <<: *run-on-pages-relevant-changes
   cache:
     key: pages-public-cache
     paths:
@@ -104,6 +108,32 @@ pages:
   artifacts:
     paths:
       - public
+
+test rest docs are present:
+  extends: [.except-docu-branches]
+  stage: test
+  <<: *run-on-pages-relevant-changes
+  image: registry.gitlab.com/systemkern/s5:1
+  allow_failure: true
+  # See bin/ci-pages for the exact path to where rest docs are deployed
+  script: |
+    echo "Testing if backend rest-docs are available at https://mlreef.gitlab.io/mlreef/rest-api/$CI_COMMIT_BRANCH/index.html"
+    echo "https://mlreef.gitlab.io/mlreef/rest-api/$CI_COMMIT_BRANCH/index.html"
+    curl --fail --GET "https://mlreef.gitlab.io/mlreef/rest-api/$CI_COMMIT_BRANCH/index.html" > rest-docs-test.html
+    ls -al
+
+    # look for the specific error output of Spring Rest Docs
+    #cat rest-docs-test.html | grep -e "not found for operation::" > missing.html
+    #if [ -e missing.html ]; then
+    #  cat missing.html  
+    #  echo "MLReef rest-docs is missing some snippets :( "
+    #  exit 1
+    #fi
+    #if [ -s missing.html ]; then
+    #  echo "Yay, MLReef rest-docs is not missing snippets :) "
+    #fi
+
+
 
 
 smoke tests:
@@ -164,30 +194,6 @@ pipeline tests:
   stage: test
   when: manual
   script: backend/bin/ci-pipeline-tests
-
-
-test rest docs are present:
-  extends: [.except-docu-branches]
-  stage: test
-  image: registry.gitlab.com/systemkern/s5:1
-  allow_failure: true
-  # See bin/ci-pages for the exact path to where rest docs are deployed
-  script: |
-    echo "Testing if backend rest-docs are available at https://mlreef.gitlab.io/mlreef/rest-api/$CI_COMMIT_BRANCH/index.html"
-    echo "https://mlreef.gitlab.io/mlreef/rest-api/$CI_COMMIT_BRANCH/index.html"
-    curl --fail --GET "https://mlreef.gitlab.io/mlreef/rest-api/$CI_COMMIT_BRANCH/index.html" > rest-docs-test.html
-    ls -al
-
-    # look for the specific error output of Spring Rest Docs
-    #cat rest-docs-test.html | grep -e "not found for operation::" > missing.html
-    #if [ -e missing.html ]; then
-    #  cat missing.html  
-    #  echo "MLReef rest-docs is missing some snippets :( "
-    #  exit 1
-    #fi
-    #if [ -s missing.html ]; then
-    #  echo "Yay, MLReef rest-docs is not missing snippets :) "
-    #fi
 
 
 staging:

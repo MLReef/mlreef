@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 # List all unused images
 docker images -f "dangling=true"
