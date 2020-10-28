@@ -1,14 +1,15 @@
-<img src="https://about.mlreef.com/static/e83d49c6147bb03391fc4e230da3d9a0/MLReef_Logo_POS_H-01.png" alt="MLReef" width="500"/>
+[![Foo](https://about.mlreef.com/static/e83d49c6147bb03391fc4e230da3d9a0/MLReef_Logo_POS_H-01.png)](http://gitlab.com/mlreef/mlreef)
+
 
 MLReef - Your entire Machine Learning life cycle in one platform
 ====================
 
-Web: https://mlreef.com
+web: https://mlreef.com
 
 
 Canonical source
 --------------------
-The canonical source of MLReef where all development takes place is hosted on gitLab.com/mlreef/mlreef.
+The canonical source of MLReef where all development takes place is hosted on [gitLab.com/mlreef/mlreef](http://gitlab.com/mlreef/mlreef).
 
 
 MLReef - The End2End Machine Learning Lifecycle Platform
