@@ -60,7 +60,7 @@ describe('The branches list should be displayed when dropdown button is clicked'
       projects: projectsArrayMock.projects,
       branches: branchesMock,
       user: {
-        membership: 1,
+        auth: true,
         username: 'mlreef',
       },
     });

@@ -251,14 +251,6 @@ export const projectsArrayMock = {
       starsCount: 2,
       forksCount: 1,
       lastActivityAt: '2019-11-11T10:36:06.189Z',
-      owner: {
-        username: 'mlreef',
-      },
-      permissions: {
-        project_access: {
-          access_level: 30,
-        },
-      },
       projectStarrers: [
         {
           starred_since: '2020-09-16T14:41:07.871Z',
@@ -320,8 +312,16 @@ export const projectsArrayMock = {
         onlyAllowMergeIfAllDiscussionsAreResolved: false,
         onlyAllowMergeIfPipelineSucceeds: false,
         openIssuesCount: 0,
+        owner: {
+          username: 'mlreef',
+        },
         path: 'sign-language-classifier',
         pathWithNamespace: 'mlreef/sign-language-classifier',
+        permissions: {
+          project_access: {
+            access_level: 30,
+          },
+        },
         printingMergeRequestLinkEnabled: true,
         publicJobs: true,
         readmeUrl: 'http://ec2-54-93-80-141.eu-central-1.compute.amazonaws.com:10080/mlreef/sign-language-classifier/blob/master/README.md',

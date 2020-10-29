@@ -7,6 +7,7 @@ export const RecordedPropTypes = PropTypes.shape({
   path: PropTypes.string.isRequired,
   component: PropTypes.elementType.isRequired,
   exact: PropTypes.bool,
+  debug: PropTypes.bool,
   meta: PropTypes.shape({
     requiresAuth: PropTypes.bool,
   }),

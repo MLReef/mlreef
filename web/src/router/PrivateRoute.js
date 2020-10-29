@@ -17,8 +17,8 @@ const isExternal = /^https?/.test(NO_AUTH_REDIRECT);
  * PrivateRoute.
  *
  * If no auth: redirect to login.
- * If no enough account tier: redirect to upgrade account page.
- * Else: render component.
+ * If a user doesn't fullfil permission will be redirected to error-page
+ * Else: render route's component.
  *
  * @param {React.Component} component rendered by route.
  * @param {String} path
@@ -26,15 +26,16 @@ const isExternal = /^https?/.test(NO_AUTH_REDIRECT);
  * @param {Boolean} owneronly if ownership is required.
  * @param {Number[int]} role min role required.
  * @param {Number[int]} accountType min account tier required.
+ * @param {Boolean} debug print logs with internal values.
  */
 const PrivateRoute = (routeProps) => {
   const {
     component: Component,
-    path,
     resource,
     owneronly,
     role,
     accountType,
+    debug,
     ...rest
   } = routeProps;
 
@@ -43,7 +44,7 @@ const PrivateRoute = (routeProps) => {
   const auth = !!user.auth;
 
   // means is owner or ownership not required
-  const owned = useGetOwned(owneronly, resource);
+  const owned = useGetOwned(resource);
 
   // means has role enough high or role is not required
   const hasRole = useGetHasRole(role, resource);
@@ -52,8 +53,8 @@ const PrivateRoute = (routeProps) => {
   const hasAccountType = useGetHasAccountType(accountType);
 
   const permissions = useMemo(
-    () => (owned || hasRole) && hasAccountType,
-    [owned, hasRole, hasAccountType],
+    () => (!owneronly || owned) && (!role || hasRole || owned),
+    [owneronly, owned, role, hasRole],
   );
 
   const allowed = useMemo(
@@ -70,15 +71,18 @@ const PrivateRoute = (routeProps) => {
         }
         return NO_AUTH_REDIRECT;
       }
-      if (!permissions) return '/account/upgrade';
+      if (!permissions) return '/error-page';
       return null;
     },
     [auth, permissions],
   );
 
+  // eslint-disable-next-line
+  debug && console.table({ auth, owneronly, role, owned, hasRole, hasAccountType, permissions, allowed });
+
   return (
     // eslint-disable-next-line
-    <Route {...rest} exact render={(props) => (allowed
+    <Route {...rest} render={(props) => (allowed
       /* eslint-disable-next-line */
       ? <Component {...props} />
       : isExternal ? null : <Redirect to={redirectUrl} />)}
@@ -91,9 +95,11 @@ PrivateRoute.defaultProps = {
     type: 'project',
     id: 0,
   },
-  owner: false,
+  owneronly: false,
   role: 0,
   accountType: 0,
+  exact: false,
+  debug: false,
 };
 
 PrivateRoute.propTypes = {
@@ -101,9 +107,12 @@ PrivateRoute.propTypes = {
     type: propTypes.string,
     id: propTypes.number,
   }),
-  owner: propTypes.bool,
+  owneronly: propTypes.bool,
   role: propTypes.number,
   accountType: propTypes.number,
+  path: propTypes.string.isRequired,
+  exact: propTypes.bool,
+  debug: propTypes.bool,
 };
 
 export default PrivateRoute;

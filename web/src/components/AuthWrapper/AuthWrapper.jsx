@@ -62,8 +62,8 @@ const AuthWrapper = (props) => {
   const hasAccountType = useGetHasAccountType(accountType);
 
   const allowed = useMemo(
-    () => auth && (owned || (!owneronly && hasRole)) && hasAccountType,
-    [owned, owneronly, hasRole, hasAccountType, auth],
+    () => auth && (!owneronly || owned) && (!role || hasRole || owned),
+    [owned, owneronly, hasRole, role, auth],
   );
 
   // so far these are informative classes, no more.
@@ -133,7 +133,7 @@ const AuthWrapper = (props) => {
 };
 
 AuthWrapper.defaultProps = {
-  owner: false,
+  owneronly: false,
   minRole: 0,
   accountType: 0,
   resource: {
@@ -146,7 +146,7 @@ AuthWrapper.defaultProps = {
 };
 
 AuthWrapper.propTypes = {
-  owner: propTypes.bool,
+  owneronly: propTypes.bool,
   minRole: propTypes.number,
   accountType: propTypes.number,
   norender: propTypes.bool,
