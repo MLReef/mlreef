@@ -346,4 +346,9 @@ class PipelineService(
             accessLevel = GitlabAccessLevel.MAINTAINER
         )
     }
+
+    fun cancelInstance(instance: PipelineInstance) =
+        pipelineInstanceRepository.save(
+            instance.copy(status = PipelineStatus.CANCELED)
+        )
 }

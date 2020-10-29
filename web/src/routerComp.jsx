@@ -22,7 +22,7 @@ import ExperimentsOverview from './components/experiments-overview/ExperimentOve
 import Projects from './components/myProjects/myProjects';
 import Commits from './components/commits-view/commitsView';
 import CommitDetails from './components/commits-details/commitDetails';
-import DataInstanceOverview from './components/data-instance/dataInstanceOverview';
+import DataInstanceOverview from './components/data-instance/DataInstancesOverview';
 import DataInstanceDetails from './components/data-instance/dataInstanceDetails';
 import DataVisualizationOverview from './components/data-visualization/dataVisualizationOverview';
 import ErrorView from './components/views/ErrorView';

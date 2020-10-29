@@ -13,15 +13,13 @@ export default class DataPiplineApi extends ApiDirector {
    * @param body
    * @returns PipelineInstance !!
    */
-  async create(projectUUId: number, body: any) {
+  create(projectUUId: number, body: any) {
     const url = `/api/v1/data-projects/${projectUUId}/pipelines/create-start-instance`;
     const data = { ...body };
     const BLbuilder = new ApiRequestCallBuilder(METHODS.POST, this.buildBasicHeaders(validServicesToCall.BACKEND), url, JSON.stringify(data));
-    const response = await fetch(BLbuilder.build());
-    if (!response.ok) {
-      return Promise.reject(response);
-    }
-    return response;
+    
+    return fetch(BLbuilder.build())
+      .then(handleResponse);
   }
 
   /**
@@ -29,27 +27,33 @@ export default class DataPiplineApi extends ApiDirector {
    * @param projectUUID Id of own DataProject
    * @returns List<PipelineConfig>
    */
-  async getProjectPipelines(projectUUID: number) {
+  getProjectPipelines(projectUUID: number) {
     const url = `/api/v1/data-projects/${projectUUID}/pipelines`;
     const builder = new BLApiRequestCallBuilder(METHODS.GET, this.buildBasicHeaders(validServicesToCall.BACKEND), url);
-    const response = await fetch(builder.build());
 
-    if (!response.ok) {
-      return Promise.reject(response);
-    }
-    return response.json();
+    return fetch(builder.build())
+      .then(handleResponse);
   }
 
-  async getBackendPipelineById(pipelineId: string) {
+  getBackendPipelineById(pipelineId: string) {
     const url = `/api/v1/pipelines/${pipelineId}`;
     const builder = new BLApiRequestCallBuilder(METHODS.GET, this.buildBasicHeaders(validServicesToCall.BACKEND), url);
     return fetch(builder.build())
       .then(handleResponse);
   }
 
-  delete(backendProjectId: string, pipelineId: string) {
-    const url = `/api/v1/pipelines/${backendProjectId}/instances/${pipelineId}`;
+  delete(pipeLineConfigId: string, pipelineId: string) {
+    const url = `/api/v1/pipelines/${pipeLineConfigId}/instances/${pipelineId}`;
     const builder = new BLApiRequestCallBuilder(METHODS.DELETE, this.buildBasicHeaders(validServicesToCall.BACKEND), url);
+
+    return fetch(builder.build())
+      .then(handleResponse);
+  }
+
+  cancel(pipeLineConfigId: string, pipelineId: string){
+    const url = `/api/v1/pipelines/${pipeLineConfigId}/instances/${pipelineId}/cancel`;
+
+    const builder = new BLApiRequestCallBuilder(METHODS.PUT, this.buildBasicHeaders(validServicesToCall.BACKEND), url);
 
     return fetch(builder.build())
       .then(handleResponse);

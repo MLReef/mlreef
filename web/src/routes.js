@@ -16,7 +16,7 @@ import BranchesView from 'components/branches-list-view/branchesView';
 import NewBranchView from 'components/views/NewBranch';
 import MergeRequestsView from 'components/new-merge-request/merge-request-overview';
 import NewMergeRequestView from 'components/new-merge-request/newMergeRequest';
-import DataInstancesView from 'components/data-instance/dataInstanceOverview';
+import DataInstancesView from 'components/data-instance/DataInstancesOverview';
 import DataInstanceDetailsView from 'components/data-instance/dataInstanceDetails';
 import ExperimentsView from 'components/experiments-overview/ExperimentOverview';
 import ExperimentDetailsView from 'components/experiment-details/experimentDetails';

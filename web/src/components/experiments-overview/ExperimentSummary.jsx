@@ -189,7 +189,6 @@ const ExperimentSummary = ({
 
     return (
       <div className="buttons-div my-auto">
-        {arrowBtn}
         <AuthWrapper minRole={30} norender>
           {buttons}
         </AuthWrapper>

@@ -4,7 +4,7 @@ import { BrowserRouter as Router } from 'react-router-dom';
 import 'babel-polyfill';
 import { Provider } from 'react-redux';
 import { storeFactory } from '../functions/testUtils';
-import DataInstanceOverview from '../components/data-instance/dataInstanceOverview';
+import DataInstanceOverview from '../components/data-instance/DataInstancesOverview';
 import { projectsArrayMock, branchesMock } from '../testData';
 
 const match = {
