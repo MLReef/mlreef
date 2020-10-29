@@ -7,13 +7,16 @@ Prepare route list
 ```js
 const routes = [
   {
-    name: 'home',
-    path: '/',
-    component: View,
+    name: 'home',    // react-router-dom prop
+    path: '/',       // react-router-dom prop
+    exact: true,     // react-router-dom prop
+    component: View, // React component to be rendered
     meta: {
-      requiresAuth: true,
+      authRequired: true, // (optional) user must be logged
+      role: 40,           // (optional) Minimun role required (gitlab roles)
+      owneronly: true,    // (optional) only owner (override other rules)
+      // other optional, e.g. newDataset: true
     },
-    privated: true,
   },
   {
     name: 'project',
@@ -110,4 +113,18 @@ history.push({ name: 'experiment', hash: 'all', params: {
     expId: 21,
   }
 })
+```
+
+### MemoryRouter
+designed for testing, similar to *react-router-dom's* MemoryRouter
+
+```js
+import React from 'react';
+import { Provider } from 'react-redux';
+import { MemoryRouter } from 'router';
+
+
+<Provider store={store}>
+  <MemoryRouter routes={routes} initialEntries={['route-to-test']} />
+</Provider>,
 ```

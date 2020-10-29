@@ -68,7 +68,7 @@ export const useGetOwned = (resource = {}) => {
       // in simple project info there is not 'owner' key, so we need a workaround
       // with namespace
       const ownerInfo = project?.gitlab?.owner;
-      const nsInfo = project?.namespace;
+      const nsInfo = project?.gitlab?.namespace;
 
       const projectUsername = ownerInfo
         ? ownerInfo.username

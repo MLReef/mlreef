@@ -98,71 +98,95 @@ exports[`The branches list should be displayed when dropdown button is clicked d
     </div>
   </div>
   <div
-    className="auth-wrapper mx-2 mt-3 ownership-required group-role-required"
-    title="Please login"
+    className="m-dropdown  mr-2 mt-3"
   >
     <div
-      className="auth-wrapper-cover"
-      onClick={[Function]}
-    />
-    <div
-      className="auth-wrapper-wrapped"
+      className="m-dropdown-button"
     >
-      <a
-        className="btn btn-dark px-3 mr-2 mt-3"
-        href="/my-namespace/the-project-name/-/datasets/new"
+      <button
+        className="btn btn-basic-dark px-2 "
         onClick={[Function]}
+        type="button"
       >
-        Data Ops
-      </a>
-    </div>
-  </div>
-  <div
-    className="auth-wrapper ml-2 mr-auto mt-3 ownership-required group-role-required"
-    title="Please login"
-  >
-    <div
-      className="auth-wrapper-cover"
-      onClick={[Function]}
-    />
-    <div
-      className="auth-wrapper-wrapped"
-    >
-      <a
-        className="btn btn-dark px-3 mr-auto mt-3"
-        href="/my-namespace/the-project-name/-/visualizations/new"
-        onClick={[Function]}
-      >
-        Data Visualization
-      </a>
-    </div>
-  </div>
-  <div
-    className="auth-wrapper ml-auto mt-3 ownership-required group-role-required"
-    title="Please login"
-  >
-    <div
-      className="auth-wrapper-cover"
-      onClick={[Function]}
-    />
-    <div
-      className="auth-wrapper-wrapped"
-    >
-      <a
-        className="btn btn-outline-dark ml-auto mt-3 px-3"
-        href="/my-namespace/the-project-name/-/master/commits"
-        onClick={[Function]}
-      >
-        <span
-          className="d-none d-lg-block mx-3"
-        >
-          History
-        </span>
-        <span
-          className="fa fa-history d-lg-none"
+        <i
+          className="fa fa-plus"
         />
-      </a>
+        <i
+          className="fa fa-chevron-down ml-2 my-auto"
+        />
+      </button>
+    </div>
+    <div
+      className="m-dropdown-list-container border-rounded  mt-1"
+      onClick={[Function]}
+      onKeyDown={[Function]}
+      role="button"
+      tabIndex="0"
+    >
+      <div
+        className="plus-dropdown"
+      >
+        <ul
+          className="plus-list"
+        >
+          <li>
+            This directory
+          </li>
+          <li
+            className="plus-option"
+          >
+            <a
+              href="/my-projects/12395599/master/upload-file"
+              onClick={[Function]}
+            >
+              Upload File
+            </a>
+          </li>
+          <hr />
+          <li>
+            This repository
+          </li>
+          <li
+            className="plus-option"
+          >
+            <a
+              href="/my-namespace/the-project-name/-/branches/new"
+              onClick={[Function]}
+            >
+              New branch
+            </a>
+          </li>
+        </ul>
+      </div>
     </div>
   </div>
+  <a
+    className="btn btn-dark px-3 mr-2 mt-3"
+    href="/my-namespace/the-project-name/-/datasets/new"
+    onClick={[Function]}
+  >
+    Data Ops
+  </a>
+  <a
+    className="btn btn-dark px-3 mr-auto mt-3"
+    href="/my-namespace/the-project-name/-/visualizations/new"
+    onClick={[Function]}
+  >
+    Data Visualization
+  </a>
+  <a
+    className="btn btn-outline-dark ml-auto mt-3 px-3"
+    href="/my-namespace/the-project-name/-/master/commits"
+    onClick={[Function]}
+  >
+    <span
+      className="d-none d-lg-block mx-3"
+    >
+      History
+    </span>
+    <span
+      className="fa fa-history d-lg-none"
+    />
+  </a>
 </div>
 `;

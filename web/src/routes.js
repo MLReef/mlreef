@@ -152,6 +152,7 @@ export default [
     component: SettingsView,
     meta: {
       authRequired: true,
+      owneronly: true,
     },
   },
   {
@@ -371,6 +372,7 @@ export default [
     exact: true,
     meta: {
       authRequired: true,
+      role: 40,
     },
   },
   {
@@ -380,6 +382,7 @@ export default [
     exact: true,
     meta: {
       authRequired: true,
+      role: 40,
     },
   },
   {
@@ -389,6 +392,7 @@ export default [
     exact: true,
     meta: {
       authRequired: true,
+      role: 40,
     },
   },
   {

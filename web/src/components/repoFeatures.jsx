@@ -161,10 +161,9 @@ export class RepoFeatures extends Component {
         )}
 
         {isCodeProject && (
+
           <AuthWrapper
             resource={{ type: 'project' }}
-            minRole={10}
-            accountType={1}
             className="ml-auto mt-3"
           >
             <button

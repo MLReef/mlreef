@@ -56,7 +56,19 @@ const stores = {
   }),
 
   owner: storeFactory({
-    ...state,
+    projects: {
+      selectedProject: {
+        ...state.projects.selectedProject,
+        gitlab: {
+          ...state.projects.selectedProject.gitlab,
+          permissions: {
+            project_access: {
+              access_level: 40,
+            },
+          },
+        },
+      },
+    },
     user: {
       ...state.user,
       username: 'mlreef',
