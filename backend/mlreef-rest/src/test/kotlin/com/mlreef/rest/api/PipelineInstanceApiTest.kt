@@ -204,7 +204,7 @@ class PipelineInstanceApiTest : AbstractRestApiTest() {
 
         this.mockMvc.perform(
             this.defaultAcceptContentAuth(delete("$rootUrl/${pipelineConfig.id}/instances/${entity.id}"), token))
-            .andExpect(status().isOk)
+            .andExpect(status().`is`(204))
             .document("pipelineinstance-delete-success")
 
     }

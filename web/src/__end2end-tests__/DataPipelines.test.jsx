@@ -127,14 +127,17 @@ test('Can create empty data pipeline', async () => {
     }],
     data_operations: [],
   };
-  const response = await (await dataPipelineApi.create(project.id, body)).json();
-  expect(response.name).toBe('data-pipeline/test-pipeline');
-  expect(response.pipeline_type).toBe('DATA');
-  expect(response.slug).toBe('data-pipeline-test-pipeline-1');
-  expect(response.data_operations.length).toBe(0);
+  pipeline = await dataPipelineApi.create(project.id, body);
+
+  console.log('Pipeline created: ', pipeline);
+
+  expect(pipeline.name).toBe('data-pipeline/test-pipeline');
+  expect(pipeline.pipeline_type).toBe('DATA');
+  expect(pipeline.slug).toBe('data-pipeline-test-pipeline-1');
+  expect(pipeline.data_operations.length).toBe(0);
 });
 
-test('Project has exactly one pipeline after pipeline creatio', async () => {
+test('Project has exactly one pipeline after pipeline creation', async () => {
   // This test relies on the previous tests to create a data pipeline
   const response = await dataPipelineApi.getProjectPipelines(project.id);
 
@@ -157,4 +160,21 @@ test('Can get Pipeline Instance for created data pipeline', async () => {
     expect(resp.length > 0).toBeTruthy();
   }, 50000);
   console.log(resp);
+});
+
+// The next endpoints will fail if the request returns an error response so no need for assertion
+test('assert that the cancel pipeline endpoint works', async () => {
+  console.log('pipeline to cancel', pipeline);
+  const res = await dataPipelineApi.cancel(pipeline.pipeline_config_id, pipeline.id);
+
+  console.log(res);
+  expect(res.status.toLowerCase()).toBe('canceled');
+});
+
+test('assert that the delete pipeline endpoint works', async () => {
+  console.log('pipeline to delete', pipeline);
+  const res = await dataPipelineApi.delete(pipeline.pipeline_config_id, pipeline.id);
+
+  console.log(res);
+  expect(res).toBe(undefined);
 });

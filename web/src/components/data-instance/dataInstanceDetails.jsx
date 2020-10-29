@@ -2,17 +2,14 @@ import React, { useEffect, useState } from 'react';
 import { toastr } from 'react-redux-toastr';
 import { connect } from 'react-redux';
 import {
-  RUNNING, PENDING, SKIPPED, SUCCESS, FAILED, CANCELED,
+  RUNNING, PENDING, SUCCESS, FAILED, CANCELED,
 } from 'dataTypes';
 import moment from 'moment';
 import { bindActionCreators } from 'redux';
 import AuthWrapper from 'components/AuthWrapper';
 import { generateBreadCrumbs } from 'functions/helpers';
-import GitlabPipelinesApi from 'apis/GitlabPipelinesApi.ts';
-import DataPipelineApi from 'apis/DataPipelineApi';
 import { goToPipelineView } from 'functions/pipeLinesHelpers';
 import { setPreconfiguredOPerations } from 'actions/userActions';
-import { parseToCamelCase } from 'functions/dataParserHelpers';
 import PropTypes, { shape, func } from 'prop-types';
 import DataCard from 'components/layout/DataCard';
 import FilesTable from '../files-table/filesTable';
@@ -20,15 +17,18 @@ import Navbar from '../navbar/navbar';
 import ProjectContainer from '../projectContainer';
 import './dataInstanceDetails.scss';
 import FilesApi from '../../apis/FilesApi.ts';
+import { closeModal, fireModal } from 'actions/actionModalActions';
+import DataInstanteDeleteModal from 'components/DeleteDataInstance/DeleteDatainstance';
+import actions from './DataInstanceActions';
+import { getBranchesList } from 'actions/branchesActions';
 
 const filesApi = new FilesApi();
-const dataPipeApi = new DataPipelineApi();
-const gitPipelinesApis = new GitlabPipelinesApi();
 
 const DataInstanceDetails = (props) => {
   const {
-    projects,
+    project: selectedProject,
     branches,
+    getBranchesList,
     match: {
       params: {
         namespace, path, slug, dataId,
@@ -36,20 +36,26 @@ const DataInstanceDetails = (props) => {
     },
     history,
     setPreconfOps,
+    fireModal,
   } = props;
-  const selectedProject = projects.filter((proj) => proj.slug === slug)[0];
-  const gitlabProjectId = selectedProject?.gitlabId;
+
+  const { gitlabId } = selectedProject;
 
   const [files, setFiles] = useState([]);
-  const [gitlabPipes, setGitlabPipes] = useState([]);
-  const [backendPipeline, setBackendPipeline] = useState({});
-  const gitlabFilterPipeline = gitlabPipes
-    ?.filter((pipeline) => pipeline.ref.includes(backendPipeline?.name)
-    && pipeline.status !== SKIPPED)[0];
-  const selectedPipeline = branches.filter((item) => item.name.includes(backendPipeline?.name))[0];
+  const [dataInstance, setDataInstance] = useState({});
+  const selectedPipeline = branches.filter((item) => item.name.includes(dataInstance?.name))[0];
   const {
-    created_at: timeCreatedAgo, id, status: diStatus, ref: branchName, updated_at: updatedAt
-  } = gitlabFilterPipeline || {};
+    name,
+    instances,
+    dataOperations,
+    id,
+    inputFiles,
+    timeCreatedAgo, 
+    gitlabPipelineId, 
+    diStatus, 
+    branchName, 
+    updatedAt
+  } = dataInstance;
   const isCompleted = !(diStatus === RUNNING || diStatus === PENDING);
   let statusParagraphColor;
   switch (diStatus) {
@@ -76,23 +82,24 @@ const DataInstanceDetails = (props) => {
   const duration = (new Date(updatedAt) - new Date(timeCreatedAgo));
 
   useEffect(() => {
-    dataPipeApi.getBackendPipelineById(dataId)
-      .then((res) => setBackendPipeline(parseToCamelCase(res)))
-      .then(() => {
-        gitPipelinesApis.getPipesByProjectId(gitlabProjectId)
-          .then((res) => setGitlabPipes(res));
-      })
-      .then(() => branchName !== undefined && filesApi.getFilesPerProject(
-        gitlabProjectId,
+    getBranchesList(gitlabId);
+
+    actions.getDataInstanceAndAllItsInformation(gitlabId, dataId)
+      .then(setDataInstance);
+
+    if (branchName) {
+      filesApi.getFilesPerProject(
+        gitlabId,
         path || '',
         false,
         branchName,
-      ).then((filesPerProject) => setFiles(filesPerProject)))
+      ).then((filesPerProject) => setFiles(filesPerProject))
       .catch(() => toastr.error('Error', 'Something went wrong fetching pipelines'));
-  }, [id, gitlabProjectId, path, branchName, dataId]);
+    }
+  }, [gitlabId, path, branchName, dataId]);
 
   const pipelineViewProps = {
-    backendPipeline,
+    backendPipeline: dataInstance,
     setPreconfOps,
     selectedProject,
     history,
@@ -104,7 +111,7 @@ const DataInstanceDetails = (props) => {
       href: `/${namespace}/${slug}/-/datasets`,
     },
     {
-      name: `${id}`,
+      name: `${gitlabPipelineId}`,
       href: `/${namespace}/${slug}/-/datasets/${dataId}`,
     },
   ];
@@ -137,8 +144,32 @@ const DataInstanceDetails = (props) => {
                   type="button"
                   style={{ padding: '0.5rem 1.3rem' }}
                   className="btn btn-danger"
+                  onClick={() => {
+                    fireModal({
+                      title: `${isCompleted ? 'Delete': 'Abort' } ${name}`,
+                      type: 'danger',
+                      closable: true,
+                      content: <DataInstanteDeleteModal dataInstanceName={name}/>,
+                      onPositive: () => isCompleted ? actions
+                        .deleteDataInstance(
+                          id,
+                          instances[0].id, 
+                        ).then(() => toastr.success('Success', 'The data instace was deleted'))
+                          .then(() => history.push(`/${selectedProject?.gitlabNamespace}/${selectedProject?.slug}/-/datasets`))
+                          .catch((err) => toastr.error('Error', err?.message))
+                        : actions.abortDataInstance(
+                          gitlabId,
+                          id,
+                          instances[0].id,
+                          gitlabPipelineId
+                        ).then(() => toastr.success('Success', 'The data instace was aborted'))
+                          .then(actions.getDataInstanceAndAllItsInformation(gitlabId, dataId))
+                          .then(setDataInstance)
+                        .catch((err) => toastr.error('Error', err?.message))
+                      })
+                  }}
                 >
-                  Abort
+                  <b>{isCompleted ? 'X' : 'Abort'}</b>
                 </button>
               </AuthWrapper>
             </div>
@@ -155,7 +186,7 @@ const DataInstanceDetails = (props) => {
                   borderRadius: '0.2rem',
                 }}
                 >
-                  {id}
+                  {gitlabPipelineId}
                 </span>
               </div>
             </div>
@@ -209,14 +240,14 @@ const DataInstanceDetails = (props) => {
               </div>
             </div>
             <div className="p-4 data-tabs">
-              {backendPipeline && backendPipeline.dataOperations && (
+              {dataOperations  && (
                 <>
                 <div>
                   <DataCard
                     title="Data"
                     linesOfContent={[
                       { text: 'Files selected from path' },
-                      { text: `*${backendPipeline?.inputFiles ? backendPipeline?.inputFiles[0].location : ''}` },
+                      { text: `*${inputFiles ? inputFiles[0].location : ''}` },
                       { text: 'from' },
                       { text: `*${branchName?.replace(/.*\//, '')}` },
                     ]}
@@ -226,7 +257,7 @@ const DataInstanceDetails = (props) => {
                       styleClasses="model"
                       title="DataOps"
                       linesOfContent={
-                        backendPipeline
+                        dataInstance
                           ?.dataOperations
                           ?.map((op, opInd) => ({ text: `*Op. ${opInd} - ${op.name}` }))
                       }
@@ -263,7 +294,7 @@ const DataInstanceDetails = (props) => {
           </>
         ) : (
           <FilesTable
-            isReturnOptVisible={false}
+            isReturnOptVisible={!!path}
             files={files.map((f) => ({ id: f.id, name: f.name, type: f.type }))}
             headers={[
               'Name',
@@ -275,12 +306,15 @@ const DataInstanceDetails = (props) => {
               const file = files.filter((f) => f.id === targetId)[0];
               let link = '';
               let routeType = '';
+              const baseUrl = `/${selectedProject?.gitlabNamespace}/${selectedProject?.slug}`;
+              const encodedBranch = encodeURIComponent(branchName);
+              const encodedPath = encodeURIComponent(file.path);
               if (targetDataKey === 'tree') {
-                routeType = 'tree';
-                link = `/${namespace}/${slug}/-/${routeType}/${encodeURIComponent(branchName)}/${encodeURIComponent(file.path)}`;
+                routeType = 'path';
+                link = `${baseUrl}/-/datasets/${encodedBranch}/${id}/path/${encodedPath}`;
               } else {
                 routeType = 'blob';
-                link = `/${namespace}/${slug}/-/${routeType}/branch/${encodeURIComponent(branchName)}/path/${encodeURIComponent(file.path)}`;
+                link = `${baseUrl}/-/${routeType}/branch/${encodedBranch}/path/${encodedPath}`;
               }
               history.push(link);
             }}
@@ -292,7 +326,7 @@ const DataInstanceDetails = (props) => {
 };
 
 DataInstanceDetails.propTypes = {
-  projects: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
+  project: PropTypes.shape({}).isRequired,
   match: PropTypes.shape({
     params: PropTypes.shape({
       namespace: PropTypes.string,
@@ -312,7 +346,7 @@ DataInstanceDetails.propTypes = {
 
 function mapStateToProps(state) {
   return {
-    projects: state.projects.all,
+    project: state.projects.selectedProject,
     branches: state.branches,
   };
 }
@@ -320,6 +354,9 @@ function mapStateToProps(state) {
 function mapActionsToProps(dispatch) {
   return {
     setPreconfOps: bindActionCreators(setPreconfiguredOPerations, dispatch),
+    fireModal: bindActionCreators(fireModal, dispatch),
+    closeModal: bindActionCreators(closeModal, dispatch),
+    getBranchesList: bindActionCreators(getBranchesList, dispatch),
   };
 }
 

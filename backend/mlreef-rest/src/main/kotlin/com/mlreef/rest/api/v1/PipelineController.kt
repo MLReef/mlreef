@@ -15,6 +15,7 @@ import com.mlreef.rest.exceptions.NotFoundException
 import com.mlreef.rest.external_api.gitlab.TokenDetails
 import com.mlreef.rest.feature.pipeline.PipelineService
 import org.springframework.data.repository.findByIdOrNull
+import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.security.access.prepost.PostFilter
 import org.springframework.security.access.prepost.PreAuthorize
@@ -25,6 +26,7 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.ResponseStatus
 import java.util.UUID
 import java.util.logging.Logger
 
@@ -113,6 +115,7 @@ class PipelineController(
         val adaptedInstance = when (action) {
             "start" -> pipelineService.startInstance(account, tokenDetails.accessToken, dataProject.gitlabId, instance, secret = pipelineService.createSecret())
             "archive" -> pipelineService.archiveInstance(instance)
+            "cancel" -> pipelineService.cancelInstance(instance)
             else -> throw MethodNotAllowedException(ErrorCode.NotFound, "No valid action: '$action'")
         }
 
@@ -139,6 +142,7 @@ class PipelineController(
 
     @DeleteMapping("/{configId}/instances/{instanceId}")
     @PreAuthorize("hasAccessToPipeline(#configId,'DEVELOPER')")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     fun deletePipelineInstanceFromConfig(
         @PathVariable configId: UUID,
         @PathVariable instanceId: UUID,

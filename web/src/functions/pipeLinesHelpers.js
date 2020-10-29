@@ -126,16 +126,15 @@ export const randomNameGenerator = () => {
 };
 
 export const classifyPipeLines = (pipelinesToClassify, arrayOfBranches, dataPipelines) => {
-  const pipes = pipelinesToClassify.filter((pipe) => pipe.status !== SKIPPED.toLowerCase());
+  console.log('dataPipelines: ', dataPipelines);
+  const pipelinesClassified = pipelinesToClassify.filter((pipe) => pipe.status !== SKIPPED);
+  console.log('pipelinesClassified: ', pipelinesClassified);
   const infoPipelinesComplemented = arrayOfBranches.map((branch) => {
-    const pipeBranch = pipes.filter((pipe) => pipe.ref === branch.name)[0];
-    let backendPipeline;
-    dataPipelines.forEach((pipe) => {
-      if (pipeBranch && pipeBranch.ref.includes(pipe.name)) {
-        backendPipeline = pipe;
-      }
-    });
-    if (pipeBranch) {
+    const pipeBranch = pipelinesClassified.filter((pipe) => pipe.ref === branch.name)[0];
+    const backendPipeline = dataPipelines
+      .filter((pipe) => pipeBranch?.ref.includes(pipe.name))[0];
+    console.log(backendPipeline);
+    if (pipeBranch && backendPipeline) {
       return {
         id: pipeBranch.id,
         status: pipeBranch.status,
