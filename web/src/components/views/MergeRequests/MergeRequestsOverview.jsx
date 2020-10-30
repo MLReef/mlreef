@@ -9,11 +9,11 @@ import { generateBreadCrumbs } from 'functions/helpers';
 import AuthWrapper from 'components/AuthWrapper';
 import MLoadingSpinner from 'components/ui/MLoadingSpinner';
 import { getMergeRequestsList } from 'actions/mergeActions';
-import Navbar from '../navbar/navbar';
-import ProjectContainer from '../projectContainer';
+import Navbar from '../../navbar/navbar';
+import ProjectContainer from '../../projectContainer';
 import './merge-request-overview.css';
-import { mrStates } from '../../dataTypes';
-import { getTimeCreatedAgo } from '../../functions/dataParserHelpers';
+import { mrStates } from '../../../dataTypes';
+import { getTimeCreatedAgo } from '../../../functions/dataParserHelpers';
 
 /**
    * @param {mrs} is the merge requests list to be classified by state
@@ -33,7 +33,7 @@ class MergeRequestOverview extends Component {
     super(props);
     this.state = {
       mrsList: null,
-      btnSelected: 'all-btn',
+      btnSelected: 'all',
     };
     this.handleFilterBtnClick = this.handleFilterBtnClick.bind(this);
     this.fetchMergeRequests = this.fetchMergeRequests.bind(this);
@@ -94,9 +94,12 @@ class MergeRequestOverview extends Component {
         params: { namespace, slug },
       },
     } = this.props;
-    const openedMrs = this.filterStateAndCount(0);
-    const closedMrs = this.filterStateAndCount(1);
-    const mergedMrs = this.filterStateAndCount(2);
+    const classifiedMergeRequests = {
+      open: this.filterStateAndCount(0),
+      closed: this.filterStateAndCount(1),
+      merged: this.filterStateAndCount(2),
+      all: mrsList,
+    };
 
     const customCrumbs = [
       {
@@ -124,16 +127,16 @@ class MergeRequestOverview extends Component {
                 <br />
                 <br />
                 <div id="filter-buttons-new-mr">
-                  <button type="button" className="btn btn-basic-dark mr-2 mb-2" id="open-btn" onClick={this.handleFilterBtnClick}>
-                    {`${openedMrs.list.length} Open`}
+                  <button type="button" className="btn btn-basic-dark mr-2 mb-2" id="open" onClick={this.handleFilterBtnClick}>
+                    {`${classifiedMergeRequests.open.list.length} Open`}
                   </button>
-                  <button type="button" className="btn btn-basic-dark mr-2 mb-2" id="merged-btn" onClick={this.handleFilterBtnClick}>
-                    {`${mergedMrs.list.length} Merged`}
+                  <button type="button" className="btn btn-basic-dark mr-2 mb-2" id="merged" onClick={this.handleFilterBtnClick}>
+                    {`${classifiedMergeRequests.merged.list.length} Merged`}
                   </button>
-                  <button type="button" className="btn btn-basic-dark mr-2 mb-2" id="closed-btn" onClick={this.handleFilterBtnClick}>
-                    {`${closedMrs.list.length} Closed`}
+                  <button type="button" className="btn btn-basic-dark mr-2 mb-2" id="closed" onClick={this.handleFilterBtnClick}>
+                    {`${classifiedMergeRequests.closed.list.length} Closed`}
                   </button>
-                  <button type="button" className="btn btn-basic-dark mr-auto mb-2" id="all-btn" onClick={this.handleFilterBtnClick}>
+                  <button type="button" className="btn btn-basic-dark mr-auto mb-2" id="all" onClick={this.handleFilterBtnClick}>
                     All
                   </button>
                   <AuthWrapper minRole={30} norender>
@@ -141,30 +144,30 @@ class MergeRequestOverview extends Component {
                       type="button"
                       className="btn btn-primary mr-2 ml-2 mb-2"
                       id="new-mr-link"
-                      onClick={() => {
-                        history.push(`/${namespace}/${slug}/-/merge_requests/new`);
-                      }}
+                      onClick={() => history.push(`/${namespace}/${slug}/-/merge_requests/new`)}
                     >
                       New merge request
                     </button>
                   </AuthWrapper>
                 </div>
-                {/* TODO: refactor the next code, no need to copy 4 times the same */}
                 <div id="merge-requests-container-div">
-                  {btnSelected === 'open-btn' && openedMrs.list.length > 0
-                    ? <MergeRequestCard namespace={namespace} slug={slug} mergeRequestsList={openedMrs} key={openedMrs.mrState} />
-                    : null}
-                  {btnSelected === 'merged-btn' && mergedMrs.list.length > 0
-                    ? <MergeRequestCard namespace={namespace} slug={slug} mergeRequestsList={mergedMrs} key={mergedMrs.mrState} />
-                    : null}
-                  {btnSelected === 'closed-btn' && closedMrs.list.length > 0
-                    ? <MergeRequestCard namespace={namespace} slug={slug} mergeRequestsList={closedMrs} key={closedMrs.mrState} />
-                    : null}
-                  {btnSelected === 'all-btn' && mrsList
-                    ? mrsList.map((mrsClass) => (
-                      <MergeRequestCard namespace={namespace} slug={slug} mergeRequestsList={mrsClass} key={mrsClass.mrState} />
+                  {btnSelected === 'all' && classifiedMergeRequests.all
+                    ? classifiedMergeRequests.all.map((mrsClass) => (
+                      <MergeRequestCard
+                        namespace={namespace}
+                        slug={slug}
+                        mergeRequestsList={mrsClass}
+                        key={mrsClass.mrState}
+                      />
                     ))
-                    : null}
+                    : (
+                      <MergeRequestCard
+                        namespace={namespace}
+                        slug={slug}
+                        mergeRequestsList={classifiedMergeRequests[btnSelected]}
+                        key={classifiedMergeRequests[btnSelected].mrState}
+                      />
+                    )}
                 </div>
                 <br />
                 <br />
@@ -176,42 +179,46 @@ class MergeRequestOverview extends Component {
   }
 }
 
-const MergeRequestCard = ({ namespace, slug, mergeRequestsList }) => (
-  <div className="merge-request-card" key={mergeRequestsList.mrState}>
-    <div className="title">
-      <p>{mergeRequestsList.mrState}</p>
+const MergeRequestCard = ({ namespace, slug, mergeRequestsList }) => {
+  if (mergeRequestsList.list.length === 0) return <div />;
+
+  return (
+    <div className="merge-request-card" key={mergeRequestsList.mrState}>
+      <div className="title">
+        <p>{mergeRequestsList.mrState}</p>
+      </div>
+      <div>
+        {mergeRequestsList.list.map(((mr, index) => (
+          <div className="merge-request-subcard" key={`${index.toString()}`}>
+            <p>
+              <b>
+                <Link to={`/${namespace}/${slug}/-/merge_requests/${mr.iid}`}>
+                  {mr.title}
+                </Link>
+              </b>
+            </p>
+            <p>
+              {mr.reference}
+              {' '}
+              Opened by
+              {' '}
+              <b>
+                <a href={`/${mr.author.username}`}>
+                  {mr.author.username}
+                </a>
+              </b>
+              {' '}
+              {getTimeCreatedAgo(mr.updated_at, new Date())}
+              {' '}
+              ago
+            </p>
+          </div>
+        )
+        ))}
+      </div>
     </div>
-    <div>
-      {mergeRequestsList.list.map(((mr, index) => (
-        <div className="merge-request-subcard" key={`${index.toString()}`}>
-          <p>
-            <b>
-              <Link to={`/${namespace}/${slug}/-/merge_requests/${mr.iid}`}>
-                {mr.title}
-              </Link>
-            </b>
-          </p>
-          <p>
-            {mr.reference}
-            {' '}
-            Opened by
-            {' '}
-            <b>
-              <a href={`/${mr.author.username}`}>
-                {mr.author.username}
-              </a>
-            </b>
-            {' '}
-            {getTimeCreatedAgo(mr.updated_at, new Date())}
-            {' '}
-            ago
-          </p>
-        </div>
-      )
-      ))}
-    </div>
-  </div>
-);
+  );
+};
 
 MergeRequestCard.propTypes = {
   namespace: string.isRequired,

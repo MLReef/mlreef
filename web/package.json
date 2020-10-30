@@ -76,8 +76,8 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "npm run sitemap && react-scripts build",
-    "testLocally": "jest --modulePaths=src --env=jsdom --detectOpenHandles",
-    "test": "jest --modulePaths=src --env=jsdom --detectOpenHandles  --testPathPattern=/__tests__/*",
+    "testLocally": "jest --modulePaths=src --env=jsdom --detectOpenHandles --silent",
+    "test": "jest --modulePaths=src --env=jsdom --detectOpenHandles  --testPathPattern=/__tests__/* --silent",
     "end2end": "jest --modulePaths=src --env=jsdom --detectOpenHandles --testPathPattern=/__end2end-tests__/*",
     "e2e": "jest --modulePaths=src --env=jsdom --detectOpenHandles --testPathPattern=/__e2e__/tests/*",
     "cypress": "cypress open",
