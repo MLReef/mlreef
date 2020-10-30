@@ -20,6 +20,7 @@ import com.mlreef.rest.utils.RandomUtils
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.confirmVerified
 import io.mockk.every
+import io.mockk.spyk
 import io.mockk.verify
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
@@ -62,11 +63,14 @@ internal class CodeProjectPublishingServiceTest : AbstractServiceTest() {
     @Transactional
     @BeforeEach
     internal fun setUp() {
-        service = PublishingService(
-            gitlabRestClient = gitlabClient,
-            projectResolverService,
-            dataProcessorService,
-            pythonParserService,
+        service = spyk(
+            PublishingService(
+                gitlabRestClient = gitlabClient,
+                projectResolverService,
+                dataProcessorService,
+                pythonParserService,
+            ),
+            recordPrivateCalls = true
         )
 
         subject = subjectRepository.save(
@@ -163,8 +167,13 @@ internal class CodeProjectPublishingServiceTest : AbstractServiceTest() {
                 fileContents = match {
                     it.containsKey(MLREEF_NAME)
                         && it.containsKey(DOCKERFILE_NAME)
-//                        && it[MLREEF_NAME]?.contains(project.name)
-//                        ?: throw NullPointerException()
+//                        && it[MLREEF_NAME]?.contains(project.name) ?: false
+                        && it[MLREEF_NAME]?.contains("job:") ?: false
+                        && it[MLREEF_NAME]?.contains("image:") ?: false
+                        && it[MLREEF_NAME]?.contains("script:") ?: false
+                        && it[DOCKERFILE_NAME]?.contains(EPF_DOCKER_IMAGE) ?: false
+                        && it[DOCKERFILE_NAME]?.contains("main.py") ?: false
+
                 },
                 action = "create"
             )
@@ -178,15 +187,6 @@ internal class CodeProjectPublishingServiceTest : AbstractServiceTest() {
         }
 
         confirmVerified(gitlabClient)
-    }
-
-    @Test
-    fun `Can render publishing YAML`() {
-        with(service.generateCodePublishingYAML("Project")) {
-            assertThat(this).contains("job:")
-            assertThat(this).contains("image:")
-            assertThat(this).contains("script:")
-        }
     }
 }
 

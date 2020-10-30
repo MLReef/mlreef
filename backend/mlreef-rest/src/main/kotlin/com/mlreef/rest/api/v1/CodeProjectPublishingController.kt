@@ -43,7 +43,6 @@ internal class CodeProjectPublishingController(
             .let {
                 CodeProjectPublishingPipelineDto(commit = it)
             }
-
 }
 
 class PublishingRequest(

@@ -45,7 +45,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
 
     def jupiter = "5.6.2"
-    def mockkVersion = "1.10.0"
+    def mockkVersion = "1.10.2"
     testImplementation "org.junit.jupiter:junit-jupiter:$jupiter"
     // DO NOT USE:   testImplementation "org.junit.jupiter:junit-jupiter-api:$jupiter"
     // DO NOT USE:   testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:$jupiter"

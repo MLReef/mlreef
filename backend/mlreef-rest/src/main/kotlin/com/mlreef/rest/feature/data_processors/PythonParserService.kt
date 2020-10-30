@@ -34,15 +34,15 @@ class PythonParserService(
         val project = projectResolverService.resolveProject(projectId = projectId)
             ?: throw NotFoundException(ErrorCode.NotFound, "Project $projectId not found")
 
-        val files = repositoryService.getFilesContentOfRepository(project, mainFilePath, mainFilePath == null)
+        val files = repositoryService.getFilesContentOfRepository(project.gitlabId, mainFilePath, mainFilePath == null)
 
         files.forEach {
-            log.debug(it)
+            log.debug(it.value)
         }
 
-        val processors = files.mapNotNull {
-            log.debug(it)
-            parsePythonFile(it)
+        val processors = files.entries.mapNotNull {
+            log.debug(it.value)
+            parsePythonFile(it.value, it.key)
         }
 
         if (processors.size > 1) throw ProjectPublicationException(ErrorCode.Conflict, "More than 1 data processor found in the project. Please selected a main file")
@@ -51,14 +51,14 @@ class PythonParserService(
         return processors[0]
     }
 
-    fun parsePythonFile(pythonCode: String) = parsePythonFile(pythonCode.byteInputStream())
+    fun parsePythonFile(pythonCode: String, filePath: String? = null) = parsePythonFile(pythonCode.byteInputStream(), filePath)
 
     fun parsePythonFile(url: URL): ProcessorVersion? {
         log.info("Parsing url $url for DataProcessors and annotations")
         return parsePythonFile(url.openStream())
     }
 
-    private fun parsePythonFile(stream: InputStream): ProcessorVersion? {
+    private fun parsePythonFile(stream: InputStream, filePath: String? = null): ProcessorVersion? {
         val parse = parser.parse(stream)
 
         val annotations = parse.mlAnnotations
@@ -79,7 +79,7 @@ class PythonParserService(
             MetricSchema(MetricType.UNDEFINED)
         }
         if (dataProcessors.size > 1) {
-            log.warn("Found too much DataProcessors, this is unexpected")
+            log.warn("Found too many DataProcessors. Expecting 1, found ${dataProcessors.size}")
             throw IllegalArgumentException("Only one DataProcessor per file is allowed! Found: ${dataProcessors.size}")
         }
         val dataProcessor = dataProcessors.first()
@@ -94,7 +94,8 @@ class PythonParserService(
             publishedAt = ZonedDateTime.now(),
             command = "",
             parameters = ownParameters,
-            metricSchema = metricSchema
+            metricSchema = metricSchema,
+            gitlabPath = filePath,
         )
         return processorVersion
     }
