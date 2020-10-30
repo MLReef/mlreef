@@ -38,7 +38,7 @@ describe('Data instance overview contains 4 buttons', () => {
       <button>Active</button>,
       <button>Expired</button>,
     ]));
-    expect(afterDiveWrapper.find('#buttons-container').children()).toHaveLength(4);
+    expect(afterDiveWrapper.find('#buttons-container').children()).toHaveLength(5);
   });
 });
 

@@ -1,14 +1,15 @@
 import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { toastr } from 'react-redux-toastr';
 import { connect } from 'react-redux';
 import {
-  RUNNING, PENDING, SUCCESS, FAILED, CANCELED,
+  RUNNING, PENDING
 } from 'dataTypes';
 import moment from 'moment';
 import { bindActionCreators } from 'redux';
 import AuthWrapper from 'components/AuthWrapper';
 import { generateBreadCrumbs } from 'functions/helpers';
-import { goToPipelineView } from 'functions/pipeLinesHelpers';
+import { goToPipelineView, getInfoFromStatus } from 'functions/pipeLinesHelpers';
 import { setPreconfiguredOPerations } from 'actions/userActions';
 import PropTypes, { shape, func } from 'prop-types';
 import DataCard from 'components/layout/DataCard';
@@ -56,28 +57,18 @@ const DataInstanceDetails = (props) => {
     branchName, 
     updatedAt
   } = dataInstance;
-  const isCompleted = !(diStatus === RUNNING || diStatus === PENDING);
-  let statusParagraphColor;
-  switch (diStatus) {
-    case RUNNING:
-      statusParagraphColor = 'success';
-      break;
-    case SUCCESS:
-      statusParagraphColor = 'success';
-      break;
-    case PENDING:
-      statusParagraphColor = 'warning';
-      break;
-    case FAILED:
-      statusParagraphColor = 'danger';
-      break;
-    case CANCELED:
-      statusParagraphColor = 'danger';
-      break;
-    default:
-      statusParagraphColor = 'lessWhite';
-      break;
+
+  let commitSha;
+  let inputFilePath;
+  if(instances) {
+    commitSha = instances[0].pipeline_job_info?.commit_sha;
+    inputFilePath = inputFiles[0].location?.toString();
   }
+  const basePath = `${namespace}/${slug}`;
+  const linkToRepoView = `/${basePath}/-/repository/tree/-/commit/${commitSha}`;
+
+  const isCompleted = !(diStatus === RUNNING || diStatus === PENDING);
+  const { statusColor: statusParagraphColor } = getInfoFromStatus(diStatus);
 
   const duration = (new Date(updatedAt) - new Date(timeCreatedAgo));
 
@@ -233,9 +224,11 @@ const DataInstanceDetails = (props) => {
                   Owner:
                 </p>
                 <p>
-                  <b>
-                    {selectedPipeline?.commit?.author_name}
-                  </b>
+                  <Link to={`/${selectedPipeline?.commit?.author_name}`}>
+                    <b>
+                      {selectedPipeline?.commit?.author_name}
+                    </b>
+                  </Link>
                 </p>
               </div>
             </div>
@@ -247,7 +240,13 @@ const DataInstanceDetails = (props) => {
                     title="Data"
                     linesOfContent={[
                       { text: 'Files selected from path' },
-                      { text: `*${inputFiles ? inputFiles[0].location : ''}` },
+                      {
+                        text: `*${inputFiles ? inputFiles[0].location : ''}`,
+                        isLink: true,
+                        href: inputFiles[0].location_type === 'PATH_FILE'
+                          ? `/${basePath}/-/blob/commit/${commitSha}/path/${inputFilePath}`
+                          : `${linkToRepoView}/path/${inputFilePath}`,
+                      },
                       { text: 'from' },
                       { text: `*${branchName?.replace(/.*\//, '')}` },
                     ]}
@@ -259,7 +258,11 @@ const DataInstanceDetails = (props) => {
                       linesOfContent={
                         dataInstance
                           ?.dataOperations
-                          ?.map((op, opInd) => ({ text: `*Op. ${opInd} - ${op.name}` }))
+                          ?.map((op, opInd) => ({
+                            text: `*Op. ${opInd} - ${op.name}`,
+                            isLink: true,
+                            href: `/${namespace}/${op.slug}`
+                          }))
                       }
                     />
                 </>

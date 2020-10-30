@@ -7,6 +7,7 @@ import {
 } from 'prop-types';
 import { closeModal, fireModal } from 'actions/actionModalActions';
 import { generateBreadCrumbs } from 'functions/helpers';
+import { filterPipelinesOnStatus } from 'functions/pipeLinesHelpers';
 import DataInstanceActions from 'components/data-instance/DataInstanceActions';
 import Navbar from '../navbar/navbar';
 import ProjectContainer from '../projectContainer';
@@ -70,6 +71,7 @@ class DataInstanceOverview extends Component {
 
   render() {
     const {
+      all,
       dataInstances,
     } = this.state;
     const {
@@ -116,7 +118,7 @@ class DataInstanceOverview extends Component {
                 id="all"
                 type="button"
                 className="active btn btn-switch btn-bg-light btn-label-sm my-auto mr-2"
-                onClick={(e) => this.handleButtonsClick(e)}
+                onClick={(e) => this.setState({ dataInstances: filterPipelinesOnStatus(e, all) })}
               >
                 All
               </button>
@@ -124,25 +126,33 @@ class DataInstanceOverview extends Component {
                 id="InProgress"
                 type="button"
                 className="btn btn-switch btn-bg-light btn-label-sm my-auto mr-2"
-                onClick={(e) => this.handleButtonsClick(e)}
+                onClick={(e) => this.setState({ dataInstances: filterPipelinesOnStatus(e, all) })}
               >
                 In Progress
               </button>
               <button
-                id="Active"
+                id="Success"
                 type="button"
                 className="btn btn-switch btn-bg-light btn-label-sm my-auto mr-2"
-                onClick={(e) => this.handleButtonsClick(e)}
+                onClick={(e) => this.setState({ dataInstances: filterPipelinesOnStatus(e, all) })}
               >
-                Active
+                Success
               </button>
               <button
-                id="expired"
+                id="Failed"
                 type="button"
                 className="btn btn-switch btn-bg-light btn-bg-lightbtn-label-sm my-auto mr-2"
-                onClick={(e) => this.handleButtonsClick(e)}
+                onClick={(e) => this.setState({ dataInstances: filterPipelinesOnStatus(e, all) })}
               >
-                Expired
+                Failed
+              </button>
+              <button
+                id="Canceled"
+                type="button"
+                className="btn btn-switch btn-bg-light btn-bg-lightbtn-label-sm my-auto mr-2"
+                onClick={(e) => this.setState({ dataInstances: filterPipelinesOnStatus(e, all) })}
+              >
+                Canceled
               </button>
             </div>
             {dataInstances

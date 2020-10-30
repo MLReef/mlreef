@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import {
   number, shape, string, arrayOf,
@@ -6,13 +7,14 @@ import {
 import MLoadingSpinner from 'components/ui/MLoadingSpinner';
 import './dataVisualizationOverview.css';
 import DataPipelineApi from 'apis/DataPipelineApi';
+import { closeModal, fireModal } from 'actions/actionModalActions';
 import { generateBreadCrumbs } from 'functions/helpers';
 import Navbar from '../navbar/navbar';
 import ProjectContainer from '../projectContainer';
 import Instruction from '../instruction/instruction';
 import DataVisualizationCard from './dataVisualizationCard';
 import GitlabPipelinesApi from '../../apis/GitlabPipelinesApi.ts';
-import { classifyPipeLines } from '../../functions/pipeLinesHelpers';
+import { classifyPipeLines, filterPipelinesOnStatus } from '../../functions/pipeLinesHelpers';
 
 const dataPipelineApi = new DataPipelineApi();
 const gitlabPipelinesApi = new GitlabPipelinesApi();
@@ -20,60 +22,35 @@ const gitlabPipelinesApi = new GitlabPipelinesApi();
 export class DataVisualizationOverview extends Component {
   constructor(props) {
     super(props);
-    const { selectedProject, selectedProject: { id }, branches } = this.props;
     this.state = {
       visualizations: null,
       all: null,
     };
+    this.fetchVisualizations = this.fetchVisualizations.bind(this);
+  }
+
+  componentDidMount() {
+    this.fetchVisualizations();
+  }
+
+  componentWillUnmount() {
+    this.setState((state) => state);
+  }
+
+  fetchVisualizations() {
+    const { selectedProject, selectedProject: { id }, branches } = this.props;
     const arrayOfBranches = branches.filter((branch) => branch.name.startsWith('data-visualization'));
     dataPipelineApi.getProjectPipelines(id)
       .then((backendPipelines) => {
         const visualPipelines = backendPipelines.filter((pipe) => pipe.pipeline_type === 'VISUALIZATION');
         gitlabPipelinesApi.getPipesByProjectId(selectedProject.gid).then((res) => {
           const visualizations = classifyPipeLines(res, arrayOfBranches, visualPipelines);
-          const finalClassification = [];
-          finalClassification[0] = { status: 'In progress', values: [...visualizations[0].values] };
-          finalClassification[1] = {
-            status: 'Active',
-            values: [
-              ...visualizations[1].values,
-              ...visualizations[2].values,
-              ...visualizations[3].values,
-            ],
-          };
-          finalClassification[2] = {
-            status: 'Expired',
-            values: [
-              ...visualizations[4].values,
-            ],
-          };
           this.setState({
-            visualizations: finalClassification,
-            all: finalClassification,
+            visualizations,
+            all: visualizations,
           });
         });
       });
-    this.handleFilterBtnClick = this.handleFilterBtnClick.bind(this);
-  }
-
-  handleFilterBtnClick(idFilterButtonPressed) {
-    let filteredIns = [];
-    const { all } = this.state;
-    switch (idFilterButtonPressed) {
-      case 'all':
-        filteredIns = all;
-        break;
-      case 'progress':
-        filteredIns = all.filter((dataIns) => dataIns.status === 'In progress');
-        break;
-      case 'active':
-        filteredIns = all.filter((dataIns) => dataIns.status === 'Active');
-        break;
-      default:
-        filteredIns = all.filter((dataIns) => dataIns.status === 'Expired');
-        break;
-    }
-    this.setState({ visualizations: filteredIns });
   }
 
   render() {
@@ -90,6 +67,7 @@ export class DataVisualizationOverview extends Component {
       },
     } = this.props;
     const {
+      all,
       visualizations,
     } = this.state;
 
@@ -126,47 +104,59 @@ export class DataVisualizationOverview extends Component {
               id="all"
               type="button"
               className="btn btn-switch"
-              onClick={(e) => this.handleFilterBtnClick(e.target.id)}
+              onClick={(e) => this.setState({ visualizations: filterPipelinesOnStatus(e, all) })}
             >
               All
             </button>
             <button
-              id="progress"
+              id="InProgress"
               type="button"
               className="btn btn-switch"
-              onClick={(e) => this.handleFilterBtnClick(e.target.id)}
+              onClick={(e) => this.setState({ visualizations: filterPipelinesOnStatus(e, all) })}
             >
               In progress
             </button>
             <button
-              id="active"
+              id="Success"
               type="button"
               className="btn btn-switch"
-              onClick={(e) => this.handleFilterBtnClick(e.target.id)}
+              onClick={(e) => this.setState({ visualizations: filterPipelinesOnStatus(e, all) })}
             >
-              Active
+              Success
             </button>
             <button
-              id="expired"
+              id="Failed"
               type="button"
               className="btn btn-switch"
-              onClick={(e) => this.handleFilterBtnClick(e.target.id)}
+              onClick={(e) => this.setState({ visualizations: filterPipelinesOnStatus(e, all) })}
             >
-              Expired
+              Failed
+            </button>
+            <button
+              id="Canceled"
+              type="button"
+              className="btn btn-switch"
+              onClick={(e) => this.setState({ visualizations: filterPipelinesOnStatus(e, all) })}
+            >
+              Canceled
             </button>
           </div>
           {visualizations === null
             ? <div id="loading-circular-progress"><MLoadingSpinner /></div>
-            : visualizations.map((dataInsClas) => (
-              <DataVisualizationCard
-                classification={dataInsClas}
-                projectId={gid}
-                namespace={namespace}
-                slug={slug}
-                key={dataInsClas.status}
-              />
-            ))}
-
+            : visualizations
+              .filter((vis) => vis?.values?.length > 0)
+              .map((dataInsClas) => (
+                <DataVisualizationCard
+                  classification={dataInsClas}
+                  projectId={gid}
+                  namespace={namespace}
+                  slug={slug}
+                  key={dataInsClas.status}
+                  fireModal={fireModal}
+                  closeModal={closeModal}
+                  callback={this.fetchVisualizations}
+                />
+              ))}
         </div>
         <br />
       </>
@@ -196,4 +186,11 @@ DataVisualizationOverview.propTypes = {
   branches: arrayOf(shape({})).isRequired,
 };
 
-export default connect(mapStateToProps)(DataVisualizationOverview);
+function mapActionsToProps(dispatch) {
+  return {
+    fireModal: bindActionCreators(fireModal, dispatch),
+    closeModal: bindActionCreators(closeModal, dispatch),
+  };
+}
+
+export default connect(mapStateToProps, mapActionsToProps)(DataVisualizationOverview);
