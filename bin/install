@@ -240,7 +240,47 @@ fi
 systemctl reload docker
 echo "Done - ${DOCKER_DAEMON_JSON} changes"
 
+
+###gitlab local group and project creation###
+export GITLAB_ROOTGROUP=mlreef-group 
+export GITLAB_PROJECT=mlreef 
+
+#creating root group # 
+rootGroupId=$(curl --header "PRIVATE-TOKEN: $GITLAB_ADMIN_TOKEN" "${INSTANCE_HOST}:${GITLAB_PORT}/api/v4/groups?search=$GITLAB_ROOTGROUP" | grep  -i "\"name\":\"$GITLAB_ROOTGROUP\"" | jq '.[0]["id"]' )
+if [ $rootGroupId == "null" ]; then
+  rootGroupId=$(curl --request POST --header "PRIVATE-TOKEN: $GITLAB_ADMIN_TOKEN" --header "Content-Type: application/json" \
+  --data '{"path": "'$GITLAB_ROOTGROUP'", "name": "'$GITLAB_ROOTGROUP'", "lfs_enabled": "true" , "description": "Root Group" }' \
+  "${INSTANCE_HOST}:${GITLAB_PORT}/api/v4/groups/" | jq '.["id"]')
+fi
+echo "Root group Id: $rootGroupId"
+#project creation # 
+projectId=$(curl "${INSTANCE_HOST}:${GITLAB_PORT}/api/v4/groups/$rootGroupId/projects?search=$GITLAB_PROJECT" -H "PRIVATE-TOKEN: $GITLAB_ADMIN_TOKEN" | grep  -i "\"name\":\"$GITLAB_PROJECT\"" | jq '.[0]["id"]' )
+if [ $projectId == "null" ]; then
+  projectId=$(curl --request POST --header "PRIVATE-TOKEN: $GITLAB_ADMIN_TOKEN" --header "Content-Type: application/json" \
+  --data '{"path": "'$GITLAB_PROJECT'", "namespace_id": "'$rootGroupId'"}' \
+  "${INSTANCE_HOST}:${GITLAB_PORT}/api/v4/projects/" | jq '.["id"]')
+fi
+echo "Project Id: $projectId" 
+
+###gitlab group project creation ends###
+
+###Local epf image upload ###
+export LOCAL_CI_REGISTRY="${INSTANCE_HOST}:${REGISTRY_NGINX_PORT}"
+export LOCAL_CI_REGISTRY_USER=root
+export LOCAL_CI_REGISTRY_IMAGE="${LOCAL_CI_REGISTRY_IMAGE:-$LOCAL_CI_REGISTRY/$GITLAB_ROOTGROUP/$GITLAB_PROJECT}"
+export LOCAL_EPF_IMAGE_PATH=$LOCAL_CI_REGISTRY_IMAGE/epf:$VERSION
+
+if [ -n "${LOCAL_CI_REGISTRY+x}" ] && [ -n "${LOCAL_CI_REGISTRY_USER+x}" ] && [ -n "${GITLAB_ADMIN_TOKEN+x}" ]; then
+          echo "$GITLAB_ADMIN_TOKEN" | docker login "$LOCAL_CI_REGISTRY" --username="$LOCAL_CI_REGISTRY_USER" --password-stdin
+fi
+
+docker build --tag "$LOCAL_EPF_IMAGE_PATH" -f epf/Dockerfile epf
+docker push "$LOCAL_EPF_IMAGE_PATH"
+log "$LOCAL_EPF_IMAGE_PATH has been successfully uploaded "
+
+###Local epf image upload ends ###
+
 log "Done - MLReef has been successfully installed. "
-#
+
 #echo Test connection for admin:
 #curl -f -I -X GET --header "Content-Type: application/json" --header "Accept: application/json" --header "PRIVATE-TOKEN: $GITLAB_ADMIN_TOKEN" "localhost:20080/api/v1"

@@ -58,7 +58,7 @@ cat docker-compose.local.yml
 while ! ssh-keyscan -H "$INSTANCE_HOST" >>~/.ssh/known_hosts; do echo "Trying again..."; sleep 5; done
 
 ssh -i   "$SSH_KEYFILE" -o 'AddKeysToAgent yes' ubuntu@"${INSTANCE_HOST}" "if [ -e ${SSH_KEYFILE} ]; then sudo rm $SSH_KEYFILE; fi"
-scp -rpi "$SSH_KEYFILE" -o 'AddKeysToAgent yes' bin                       ubuntu@"${INSTANCE_HOST}":/home/ubuntu/
+scp -rpi "$SSH_KEYFILE" -o 'AddKeysToAgent yes' bin epf                   ubuntu@"${INSTANCE_HOST}":/home/ubuntu/
 scp -rpi "$SSH_KEYFILE" -o 'AddKeysToAgent yes' docker-compose.local.yml  ubuntu@"${INSTANCE_HOST}":/home/ubuntu/
 ssh -i "$SSH_KEYFILE" -o 'AddKeysToAgent yes' ubuntu@"${INSTANCE_HOST}" "
   echo ${CI_REGISTRY_PASSWORD} | sudo docker login ${CI_REGISTRY} --username=${CI_REGISTRY_USER} --password-stdin
