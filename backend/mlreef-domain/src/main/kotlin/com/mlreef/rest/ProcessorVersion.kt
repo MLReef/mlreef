@@ -61,6 +61,8 @@ data class ProcessorVersion(
     val pipelineJobInfo: PipelineJobInfo? = null,
 
     @Column(name = "published_at")
-    val publishedAt: ZonedDateTime = ZonedDateTime.now()
+    val publishedAt: ZonedDateTime = ZonedDateTime.now(),
 
-) : EPFAnnotation
+    val gitlabPath: String? = null,
+
+    ) : EPFAnnotation

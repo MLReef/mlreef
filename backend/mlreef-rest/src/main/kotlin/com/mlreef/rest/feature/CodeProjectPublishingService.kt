@@ -22,13 +22,18 @@ import java.util.UUID
 import java.util.stream.Collectors
 
 const val TARGET_BRANCH = "master"
-const val COMMIT_MESSAGE = "Adding Dockerfile for publishing"
 const val DOCKERFILE_NAME = "Dockerfile"
 const val MLREEF_NAME = ".mlreef.yml"
+const val PUBLISH_COMMIT_MESSAGE = "Adding $DOCKERFILE_NAME and $MLREEF_NAME files for publishing"
+const val UNPUBLISH_COMMIT_MESSAGE = "Removing $DOCKERFILE_NAME and $MLREEF_NAME files from repository"
 const val NEWLINE = "\n"
 
+const val EPF_DOCKER_IMAGE = "registry.gitlab.com/mlreef/mlreef/epf:master"
 
 const val PROJECT_NAME_VARIABLE = "CI_PROJECT_SLUG"
+const val IMAGE_NAME_VARIABLE = "IMAGE_NAME"
+const val MAIN_SCRIPT_NAME_VARIABLE = "MAIN_SCRIPT"
+
 
 val dockerfileTemplate: String = ClassPathResource("code-publishing-dockerfile-template")
     .inputStream.bufferedReader().use {
@@ -63,16 +68,17 @@ internal class PublishingService(
 
         val dataProcessor = pythonParserService.findAndParseDataProcessorInProject(projectId, mainFilePath)
 
-        dataProcessorService.saveDataProcessor(dataProcessor)
-
-        return try {
+        val commitMessage = try {
             gitlabRestClient.commitFiles(
                 token = userToken,
                 projectId = project.gitlabId,
                 targetBranch = TARGET_BRANCH,
-                commitMessage = COMMIT_MESSAGE,
+                commitMessage = PUBLISH_COMMIT_MESSAGE,
                 fileContents = mapOf(
-                    DOCKERFILE_NAME to dockerfileTemplate,
+                    DOCKERFILE_NAME to generateCodePublishingDockerFile(
+                        EPF_DOCKER_IMAGE,
+                        dataProcessor.gitlabPath ?: "main.py"
+                    ),
                     MLREEF_NAME to generateCodePublishingYAML(project.name)
                 ),
                 action = "create"
@@ -80,6 +86,10 @@ internal class PublishingService(
         } catch (e: RestException) {
             throw PipelineStartException("Cannot commit $DOCKERFILE_NAME file to branch $TARGET_BRANCH for project ${project.name}: ${e.errorName}")
         }
+
+        dataProcessorService.saveDataProcessor(dataProcessor)
+
+        return commitMessage
     }
 
     // https://docs.gitlab.com/ee/user/packages/container_registry/index.html#build-and-push-images-using-gitlab-cicd
@@ -99,7 +109,7 @@ internal class PublishingService(
                 token = userToken,
                 projectId = project.gitlabId,
                 targetBranch = TARGET_BRANCH,
-                commitMessage = COMMIT_MESSAGE,
+                commitMessage = UNPUBLISH_COMMIT_MESSAGE,
                 fileContents = mapOf(
                     DOCKERFILE_NAME to "",
                     MLREEF_NAME to ""
@@ -111,7 +121,7 @@ internal class PublishingService(
         }
     }
 
-    fun generateCodePublishingYAML(projectName: String): String {
+    private fun generateCodePublishingYAML(projectName: String): String {
         val expressionParser: ExpressionParser = SpelExpressionParser()
         val context = StandardEvaluationContext()
 
@@ -121,7 +131,25 @@ internal class PublishingService(
             val expression = expressionParser.parseExpression(mlreefTemplate, TemplateParserContext())
             expression.getValue(context) as String
         } catch (ex: Exception) {
-            log.error("Cannot parse expression: $ex")
+            log.error("Cannot parse file $mlreefTemplate: $ex")
+            null
+        }
+
+        return template ?: throw InternalException("Template cannot be not parsed")
+    }
+
+    private fun generateCodePublishingDockerFile(imageName: String, mainScriptName: String): String {
+        val expressionParser: ExpressionParser = SpelExpressionParser()
+        val context = StandardEvaluationContext()
+
+        context.setVariable(IMAGE_NAME_VARIABLE, adaptProjectName(imageName))
+        context.setVariable(MAIN_SCRIPT_NAME_VARIABLE, adaptProjectName(mainScriptName))
+
+        val template = try {
+            val expression = expressionParser.parseExpression(dockerfileTemplate, TemplateParserContext())
+            expression.getValue(context) as String
+        } catch (ex: Exception) {
+            log.error("Cannot parse file $dockerfileTemplate: $ex")
             null
         }
 
