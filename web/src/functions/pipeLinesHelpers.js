@@ -126,14 +126,11 @@ export const randomNameGenerator = () => {
 };
 
 export const classifyPipeLines = (pipelinesToClassify, arrayOfBranches, dataPipelines) => {
-  console.log('dataPipelines: ', dataPipelines);
   const pipelinesClassified = pipelinesToClassify.filter((pipe) => pipe.status !== SKIPPED);
-  console.log('pipelinesClassified: ', pipelinesClassified);
   const infoPipelinesComplemented = arrayOfBranches.map((branch) => {
     const pipeBranch = pipelinesClassified.filter((pipe) => pipe.ref === branch.name)[0];
     const backendPipeline = dataPipelines
       .filter((pipe) => pipeBranch?.ref.includes(pipe.name))[0];
-    console.log(backendPipeline);
     if (pipeBranch && backendPipeline) {
       return {
         id: pipeBranch.id,
@@ -230,6 +227,60 @@ export const getPipelineIcon = (status) => {
   else if (status === FAILED) pipelineIcon = Fail;
 
   return pipelineIcon;
+};
+
+export const getInfoFromStatus = (pipelineStatus) => {
+  let statusTitle = pipelineStatus;
+  let statusColor = '';
+  switch (pipelineStatus) {
+    case RUNNING:
+      statusTitle = 'In progress';
+      statusColor = 'success';
+      break;
+    case SUCCESS:
+      statusTitle = 'Success';
+      statusColor = 'success';
+      break;
+    case PENDING:
+      statusTitle = 'In progress';
+      statusColor = 'warning';
+      break;
+    case FAILED:
+      statusTitle = 'Failed';
+      statusColor = 'danger';
+      break;
+    case CANCELED:
+      statusTitle = 'Canceled';
+      statusColor = 'danger';
+      break;
+    default:
+      return 'lessWhite';
+  }
+
+  return { statusTitle, statusColor };
+};
+
+export const filterPipelinesOnStatus = (e, allPipelines) => {
+  let filteredInstances = allPipelines;
+  if (e) {
+    e.target.parentNode.childNodes.forEach((childNode) => {
+      if (childNode.id !== e.target.id) {
+        childNode.classList.remove('active');
+      }
+    });
+    e.target.classList.add('active');
+
+    if (e.target.id === 'InProgress') {
+      filteredInstances = allPipelines.filter((exp) => exp.status === RUNNING);
+    } else if (e.target.id === 'Success') {
+      filteredInstances = allPipelines.filter((exp) => exp.status === SUCCESS);
+    } else if (e.target.id === 'Failed') {
+      filteredInstances = allPipelines.filter((exp) => exp.status === FAILED);
+    } else if (e.target.id === 'Canceled') {
+      filteredInstances = allPipelines.filter((exp) => exp.status === CANCELED);
+    }
+  }
+  return filteredInstances;
 };
 
 export const determineJobClass = (type) => {

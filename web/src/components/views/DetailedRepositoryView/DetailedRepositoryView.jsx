@@ -16,6 +16,10 @@ const filesApi = new FilesApi();
 const DetailedRepositoryView = (props) => {
   const {
     selectedProject,
+    selectedProject: {
+      gitlab,
+      name: projectName,
+    },
     users,
     match: {
       params: {
@@ -43,6 +47,22 @@ const DetailedRepositoryView = (props) => {
         });
     }
   }, [selectedProject.gitlabId, finalPath, branch, commit]);
+
+  const userKind = gitlab?.namespace?.kind;
+  const customCrumbs = [
+    {
+      name: namespace,
+      href: userKind === 'group' ? `/groups/${namespace}` : `/${namespace}`,
+    },
+    {
+      name: projectName,
+      href: `/${namespace}/${slug}`,
+    },
+    {
+      name: 'Repository',
+    },
+  ];
+
   return (
     <div className="detailed-repository-view">
       <Navbar />
@@ -50,7 +70,7 @@ const DetailedRepositoryView = (props) => {
         <div className="header">
           <div className="main-content header-content">
             <MBreadcrumb
-              items={[{ name: namespace }, { name: slug }, { name: 'Repository' }]}
+              items={customCrumbs}
             />
           </div>
         </div>

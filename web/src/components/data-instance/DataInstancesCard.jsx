@@ -5,30 +5,8 @@ import {
   CANCELED, FAILED, PENDING, RUNNING, SUCCESS,
 } from 'dataTypes';
 import { Link } from 'router';
-import { getPipelineIcon } from 'functions/pipeLinesHelpers';
+import { getPipelineIcon, getInfoFromStatus } from 'functions/pipeLinesHelpers';
 import DataInstanceActions from './DataInstanceActions';
-
-const getStatusForDataInstance = (status) => {
-  let mappedStatus = status;
-  switch (status) {
-    case RUNNING:
-      mappedStatus = 'In progress';
-      break;
-    case SUCCESS:
-      mappedStatus = 'Active';
-      break;
-    case CANCELED:
-      mappedStatus = 'Aborted';
-      break;
-    case PENDING:
-      mappedStatus = 'In progress';
-      break;
-    default:
-      break;
-  }
-
-  return mappedStatus;
-};
 
 const DataInstancesCard = ({ ...props }) => {
   const {
@@ -40,6 +18,8 @@ const DataInstancesCard = ({ ...props }) => {
     fetchPipelines,
     fireModal,
   } = props;
+
+  const { statusTitle } = getInfoFromStatus(params.currentState);
 
   function goToPipelineView(instance) {
     if (!instance) return;
@@ -102,6 +82,21 @@ const DataInstancesCard = ({ ...props }) => {
           key="delete-button"
           onClick={
               () => {
+                fireModal({
+                  title: `Delete ${instance.descTitle}`,
+                  type: 'danger',
+                  closable: true,
+                  content: <DataInstanteDeleteModal dataInstanceName={instance.descTitle} />,
+                  onPositive: () => {
+                    DataInstanceActions.deleteDataInstance(
+                      instance.pipelineBackendId,
+                      instance.backendInstanceId,
+                    )
+                      .then(fetchPipelines)
+                      .then(() => toastr.success('Success', 'Pipeline was deleted'))
+                      .catch((error) => toastr.error('Error', error?.message));
+                  },
+                });
               }
             }
           className="btn btn-danger btn-icon my-auto"
@@ -155,7 +150,7 @@ const DataInstancesCard = ({ ...props }) => {
     <div className="pipeline-card">
       <div className="header">
         <div className="title-div">
-          <p><b>{getStatusForDataInstance(params.currentState)}</b></p>
+          <p><b>{statusTitle}</b></p>
         </div>
       </div>
 

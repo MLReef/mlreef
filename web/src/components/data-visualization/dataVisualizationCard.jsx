@@ -1,119 +1,202 @@
 import React, { useState } from 'react';
 import {
-  number, string, arrayOf, shape,
+  func, string, arrayOf, shape,
 } from 'prop-types';
 import { Redirect, Link } from 'react-router-dom';
+import { bindActionCreators } from 'redux';
+import { connect } from 'react-redux';
+import {
+  RUNNING,
+  SUCCESS,
+  CANCELED,
+  FAILED,
+  PENDING,
+} from 'dataTypes';
+import { toastr } from 'react-redux-toastr';
+import { closeModal, fireModal } from 'actions/actionModalActions';
+import DataInstanteDeleteModal from 'components/DeleteDataInstance/DeleteDatainstance';
 import AuthWrapper from 'components/AuthWrapper';
-import { getPipelineIcon } from 'functions/pipeLinesHelpers';
+import { setPreconfiguredOPerations } from 'actions/userActions';
+import { getPipelineIcon, getInfoFromStatus } from 'functions/pipeLinesHelpers';
 import { getTimeCreatedAgo } from 'functions/dataParserHelpers';
+import DataInstanceActions from '../data-instance/DataInstanceActions';
 import './dataVisualizationCard.css';
 
-const DataVisualizationCard = ({ classification, projectId, namespace, slug }) => {
+const DataVisualizationCard = (
+  {
+    classification,
+    namespace,
+    slug,
+    setPreconfOps,
+    callback,
+    fireModal,
+  },
+) => {
   const today = new Date();
   const [redirect, setRedirect] = useState(false);
-  function goToPipelineView(e, val) {
+  const { statusTitle } = getInfoFromStatus(classification?.status);
+
+  function goToPipelineView(val) {
+    const {
+      data_operations: dataOperations,
+      input_files: inputFiles,
+      id,
+    } = val?.backendPipeline;
     const configuredOperations = {
-      dataOperatorsExecuted: val.dataOperations,
-      inputFiles: val.inputFiles,
-      pipelineBackendId: val.pipelineBackendId,
+      dataOperatorsExecuted: dataOperations,
+      inputFiles,
+      id,
     };
-    sessionStorage.setItem('configuredOperations', JSON.stringify(configuredOperations));
+    setPreconfOps(configuredOperations);
     setRedirect(true);
   }
 
   function getButtonsDiv(dataVisualizationState, val) {
     let buttons;
-    const viewPipeLineBtn = (
-      <button
-        type="button"
-        key="experiment-button"
-        className="btn non-active-black-border"
-        onClick={() => goToPipelineView(val)}
-      >
-        View Pipeline
-      </button>
-    );
-
-    if (dataVisualizationState.toLowerCase() === 'in progress') {
+    if (dataVisualizationState === RUNNING || dataVisualizationState === PENDING) {
       buttons = [
-        <button
-          type="button"
-          key="abort-button"
-          className="btn btn-danger border-solid my-auto"
-          style={{ width: 'max-content' }}
-        >
-          <b> Abort </b>
-        </button>,
+        <AuthWrapper minRole={30}>
+          <button
+            type="button"
+            key="abort-button"
+            className="btn btn-danger border-solid my-auto"
+            style={{ width: 'max-content' }}
+            onClick={() => {
+              fireModal({
+                title: `Delete ${val?.name}`,
+                type: 'danger',
+                closable: true,
+                content: <DataInstanteDeleteModal dataInstanceName={val?.name} />,
+                onPositive: () => {
+                  DataInstanceActions.deleteDataInstance(
+                    val?.pipelineBackendId,
+                    val?.backendInstanceId,
+                  )
+                    .then(callback)
+                    .then(() => toastr.success('Success', 'Pipeline was deleted'))
+                    .catch((error) => toastr.error('Error', error?.message));
+                },
+              });
+            }}
+          >
+            Abort
+          </button>
+        </AuthWrapper>,
       ];
     } else if (
-      dataVisualizationState.toLowerCase() === 'active'
+      dataVisualizationState === SUCCESS
     ) {
       buttons = [
         <button
           type="button"
-          key="delete-button"
-          label="close"
-          className="btn btn-icon btn-danger fa fa-times"
-          style={{ borderRadius: '0.2em' }}
-        />,
+          key="experiment-button"
+          className="btn btn-outline-dark my-auto mr-1"
+          onClick={() => goToPipelineView(val)}
+        >
+          View Pipeline
+        </button>,
+        <AuthWrapper minRole={30}>
+          <button
+            type="button"
+            key="delete-button"
+            onClick={() => {
+              fireModal({
+                title: `Delete ${val?.name}`,
+                type: 'danger',
+                closable: true,
+                content: <DataInstanteDeleteModal dataInstanceName={val?.name} />,
+                onPositive: () => {
+                  DataInstanceActions.deleteDataInstance(
+                    val?.pipelineBackendId,
+                    val?.backendInstanceId,
+                  )
+                    .then(callback)
+                    .then(() => toastr.success('Success', 'Pipeline was deleted'))
+                    .catch((error) => toastr.error('Error', error?.message));
+                },
+              });
+            }}
+            className="btn btn-danger btn-icon my-auto"
+          >
+            <i className="fa fa-times" />
+          </button>
+        </AuthWrapper>,
       ];
-    } else {
-      buttons = [];
+    } else if (dataVisualizationState === FAILED
+      || dataVisualizationState === CANCELED) {
+      buttons = [
+        <button
+          type="button"
+          key="experiment-button"
+          className="btn btn-outline-dark my-auto mr-1"
+          onClick={() => goToPipelineView(val)}
+        >
+          View Pipeline
+        </button>,
+        <AuthWrapper key="delete-button" minRole={30}>
+          <button
+            type="button"
+            className="btn btn-danger btn-icon my-auto"
+            onClick={() => {
+              fireModal({
+                title: `Delete ${val?.name}`,
+                type: 'danger',
+                closable: true,
+                content: <DataInstanteDeleteModal dataInstanceName={val?.name} />,
+                onPositive: () => {
+                  DataInstanceActions.deleteDataInstance(
+                    val?.pipelineBackendId,
+                    val?.backendInstanceId,
+                  )
+                    .then(callback)
+                    .then(() => toastr.success('Success', 'Pipeline was deleted'))
+                    .catch((error) => toastr.error('Error', error?.message));
+                },
+              });
+            }}
+          >
+            <i className="fa fa-times" />
+          </button>
+        </AuthWrapper>,
+      ];
     }
-    return (
-      <div id="pipeline-buttons-div">
-        {viewPipeLineBtn}
-        <AuthWrapper minRole={30} norender>
-          {buttons}
-        </AuthWrapper>
-      </div>
-    );
+
+    return buttons;
   }
 
   if (redirect) {
-    return <Redirect to={`/my-projects/${projectId}/pipeline-execution/new-data-visualization`} />;
+    return <Redirect to={`/${namespace}/${slug}/-/visualizations/new`} />;
   }
   return (
     <div className="pipeline-card" key={today}>
       <div className="header">
         <div className="title-div">
-          <p><b>{classification.status}</b></p>
+          <p><b>{statusTitle}</b></p>
         </div>
       </div>
       {classification.values.map((val) => {
         const pipeBackendId = val?.backendPipeline?.id;
+        const uniqueName = val?.name?.split('/')[1];
         return (
           <div className="data-visualization-card-content" key={`${val.creator} ${val.name}`} data-key={val.name}>
-            <img src={getPipelineIcon(val.status.toUpperCase())} width="30" height="30" alt={val.status} />
+            <img src={getPipelineIcon(val.status)} width="30" height="30" alt={val.status} />
             <div className="general-information ml-2">
               <Link to={`/${namespace}/${slug}/-/visualizations/${pipeBackendId}`}>
-                <b>{val.name}</b>
+                <b>{uniqueName}</b>
               </Link>
               <p className="m-0 mt-1">
                 Created by
-                &nbsp;
-                <b>{val.authorName}</b>
-                &nbsp;
+                {' '}
+                <a href={`/${val?.authorName}`}>
+                  <b>
+                    {val?.authorName}
+                  </b>
+                </a>
+                {' '}
                 {getTimeCreatedAgo(val.createdAt, new Date())}
                 &nbsp;
                 ago
               </p>
-            </div>
-            <div className="detailed-information-1">
-              {classification.status.toLowerCase() === 'active' && (
-              <>
-                <p>
-                  <b>
-                    Use:
-                    {val.spaceUsed}
-                  </b>
-                </p>
-                <p>
-                  Expires in:
-                  {val.expiresIn}
-                </p>
-              </>
-              )}
             </div>
             {getButtonsDiv(classification.status, val)}
           </div>
@@ -137,9 +220,18 @@ DataVisualizationCard.propTypes = {
       filesChanged: string,
     })).isRequired,
   }).isRequired,
-  projectId: number.isRequired,
+  setPreconfOps: func.isRequired,
   namespace: string.isRequired,
   slug: string.isRequired,
+  callback: func.isRequired,
 };
 
-export default DataVisualizationCard;
+function mapActionsToProps(dispatch) {
+  return {
+    setPreconfOps: bindActionCreators(setPreconfiguredOPerations, dispatch),
+    fireModal: bindActionCreators(fireModal, dispatch),
+    closeModal: bindActionCreators(closeModal, dispatch),
+  };
+}
+
+export default connect(null, mapActionsToProps)(DataVisualizationCard);
