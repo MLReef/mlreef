@@ -12,7 +12,7 @@ randomString() {
 OS=""
 if [ "$(uname)" = "Darwin" ]; then
   echo "INFO: Running on OSX. Aliasing 'sed' command to use alpine based 'sed'"
-  alias sed="docker run -it --rm --volume \$(pwd):/workdir --workdir /workdir alpine:latest sed"
+  alias sed="docker run -i --rm --volume \$(pwd):/workdir --workdir /workdir alpine:latest sed"
   OS="OSX"
 elif [ "$(expr substr "$(uname -s)" 1 5)" = "Linux" ]; then
   echo "INFO: Running on LINUX."

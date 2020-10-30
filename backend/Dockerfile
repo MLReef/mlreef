@@ -1,5 +1,8 @@
 FROM gradle:6.5-jdk8 AS BUILDER
 
+ENV JVM_OPTS -Xmx2g -Xms2g -XX:MaxPermSize=1024m
+
+
 # provide a tmp/cache dir
 VOLUME /tmp
 
