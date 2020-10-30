@@ -73,6 +73,7 @@ const DataInstanceDetails = (props) => {
   const duration = (new Date(updatedAt) - new Date(timeCreatedAgo));
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     getBranchesList(gitlabId);
 
     actions.getDataInstanceAndAllItsInformation(gitlabId, dataId)

@@ -29,7 +29,7 @@ import ErrorView from './components/views/ErrorView';
 import NotFoundView from './components/views/ErrorView/NotFoundView';
 import ExperimentDetails from './components/experiment-details/experimentDetails';
 import CreateProject from './components/views/create-project/createProject';
-import NewMergeRequest from './components/new-merge-request/newMergeRequest';
+import NewMergeRequest from './components/new-merge-request/NewMergeReq';
 import NewBranch from './components/views/NewBranch';
 import BranchesView from './components/branches-list-view/branchesView';
 import mergeRequestOverview from './components/new-merge-request/merge-request-overview';

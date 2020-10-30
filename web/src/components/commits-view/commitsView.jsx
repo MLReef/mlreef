@@ -9,74 +9,58 @@ import {
   arrayOf,
 } from 'prop-types';
 import { generateBreadCrumbs } from 'functions/helpers';
+import MSelect from 'components/ui/MSelect';
 import Navbar from '../navbar/navbar';
 import ProjectContainer from '../projectContainer';
 import './commitsView.css';
-// import folder01 from '../../images/folder_01.svg';
 import CommitsApi from '../../apis/CommitsApi.ts';
 import { getTimeCreatedAgo } from '../../functions/dataParserHelpers';
 
 const commitsApi = new CommitsApi();
 
-const arrowBlue = '/images/svg/arrow_down_blue_01.svg';
-
 class CommitsView extends Component {
   constructor(props) {
     super(props);
-    const { projects } = this.props;
     this.state = {
-      show: false,
       commits: [],
-      project: projects && projects.selectedProject,
+      commitMessageSearchedFor: '',
     };
   }
 
   componentDidMount() {
-    const { match: { params: { branch, pathParam } } } = this.props;
-    const { project: { gitlabId } } = this.state;
-    commitsApi.getCommits(gitlabId, branch, pathParam)
-      .then((response) => this.setState({ commits: response }))
-      .catch(() => toastr.error('Error getting commits'));
+    const {
+      projects: { selectedProject: { gitlabId } },
+      match: { params: { branch } },
+    } = this.props;
+    this.getCommits(gitlabId, branch)
+      .catch(this.handleErrorsGettingCommits);
   }
 
-  componentDidUpdate(prevProps) {
-    const { match: { params: { branch } } } = this.props;
-    const { project: { gitlabId } } = this.state;
-    const prevBranch = prevProps.match.params.branch;
-    if (branch !== prevBranch) {
-      commitsApi.getCommits(gitlabId, branch)
-        .then((response) => this.setState({ commits: response }))
-        .catch(() => toastr.error('Error getting commits'));
-    }
+  getCommits = (gitlabId, val) => commitsApi.getCommits(gitlabId, val)
+    .then((response) => this.setState({ commits: response }))
+
+  handleErrorsGettingCommits = (error) => toastr.error('Error', error?.message);
+
+  onBranchSelected = (val) => {
+    const { projects: { selectedProject: project }, history } = this.props;
+    const { match: { params: { namespace, slug } } } = this.props;
+    const { gitlabId } = project;
+    this.getCommits(gitlabId, val)
+      .then(history.push(`/${namespace}/${slug}/-/${val}/commits`))
+      .catch(this.handleErrorsGettingCommits);
   }
-
-  handleBlur = (e) => {
-    if (this.node.contains(e.target)) {
-      return;
-    }
-    this.handleDrop();
-  };
-
-  handleDrop = () => {
-    const { show } = this.state;
-    if (!show) {
-      document.addEventListener('click', this.handleBlur, false);
-    } else {
-      document.removeEventListener('click', this.handleBlur, false);
-    }
-    this.setState((prevState) => ({
-      show: !prevState.show,
-    }));
-  };
 
   render() {
     const {
-      project,
       commits,
-      show,
+      commitMessageSearchedFor,
     } = this.state;
-    const { users, branches } = this.props;
-    const { match: { params: { branch, namespace, slug } } } = this.props;
+    const {
+      projects: { selectedProject: project },
+      users,
+      branches,
+      match: { params: { branch, namespace, slug } },
+    } = this.props;
 
     const customCrumbs = [
       {
@@ -113,38 +97,20 @@ class CommitsView extends Component {
         <br />
         <div className="main-content">
           <div className="commit-path">
-            <div className="btn" ref={(node) => { this.node = node; }}>
-              <button type="button" onClick={this.handleDrop}>
-                <span>{decodeURIComponent(branch)}</span>
-                <img className="dropdown-white" src={arrowBlue} alt="" />
-              </button>
-            </div>
-            {show && (
-              <div id="branches-list" className="select-branch commitview-select">
-                <div
-                  style={{ margin: '0 50px', fontSize: '14px', padding: '0 40px' }}
-                >
-                  <p>Switch Branches</p>
-                </div>
-                <hr />
-                <div className="search-branch">
-                  <div className="branches">
-                    <ul>
-                      <li className="branch-header">Branches</li>
-                      {branches && branches.map((item) => {
-                        const encoded = encodeURIComponent(item.name);
-                        return (
-                          <li key={encoded}>
-                            <Link id={item.name} to={`/${namespace}/${slug}/-/commits/${branch}`}><p>{item.name}</p></Link>
-                          </li>
-                        );
-                      })}
-                    </ul>
-                  </div>
-                </div>
-              </div>
-            )}
-            <input type="text" placeholder="Filter by commit message" />
+            <MSelect
+              label={branch || 'Select branch'}
+              options={branches.map(({ name }) => ({ label: name, value: name }))}
+              onSelect={this.onBranchSelected}
+            />
+            <input
+              type="text"
+              id="commits-filter-input"
+              placeholder="Filter by commit message"
+              onChange={(e) => {
+                const val = e.target.value;
+                this.setState({ commitMessageSearchedFor: val });
+              }}
+            />
           </div>
           {distinct.map((commit, index) => (
             <div key={index.toString()} className="commit-per-date">
@@ -155,38 +121,39 @@ class CommitsView extends Component {
                   {commit}
                 </p>
               </div>
-              {commits.map((item) => {
-                let avatarImage = 'https://assets.gitlab-static.net/uploads/-/system/user/avatar/3839940/avatar.png';
-                let userName = '';
-                if (users) {
-                  users.forEach((user) => {
-                    const { name } = user;
-                    const avatarUrl = user.avatar_url;
-                    if (name === item.author_name) {
-                      avatarImage = avatarUrl;
-                      userName = name;
-                    }
-                  });
-                }
-                return (
-                  new Date(item.committed_date).toLocaleString('en-eu', { day: 'numeric', month: 'short', year: 'numeric' }) === commit
-                    ? (
-                      <CommitDiv
-                        key={item.short_id}
-                        namespace={namespace}
-                        slug={slug}
-                        commitid={item.id}
-                        title={item.title}
-                        name={item.author_name}
-                        id={item.short_id}
-                        time={item.committed_date}
-                        avatarImage={avatarImage}
-                        userName={userName}
-                      />
-                    )
-                    : ''
-                );
-              })}
+              {commits
+                .filter((comm) => comm.title.includes(commitMessageSearchedFor)).map((item) => {
+                  let avatarImage = 'https://assets.gitlab-static.net/uploads/-/system/user/avatar/3839940/avatar.png';
+                  let userName = '';
+                  if (users) {
+                    users.forEach((user) => {
+                      const { name } = user;
+                      const avatarUrl = user.avatar_url;
+                      if (name === item.author_name) {
+                        avatarImage = avatarUrl;
+                        userName = name;
+                      }
+                    });
+                  }
+                  return (
+                    new Date(item.committed_date).toLocaleString('en-eu', { day: 'numeric', month: 'short', year: 'numeric' }) === commit
+                      ? (
+                        <CommitDiv
+                          key={item.short_id}
+                          namespace={namespace}
+                          slug={slug}
+                          commitid={item.id}
+                          title={item.title}
+                          name={item.author_name}
+                          id={item.short_id}
+                          time={item.committed_date}
+                          avatarImage={avatarImage}
+                          userName={userName}
+                        />
+                      )
+                      : ''
+                  );
+                })}
             </div>
           ))}
         </div>
@@ -211,14 +178,24 @@ export function CommitDiv(props) {
   const today = new Date();
   const previous = new Date(time);
   const timediff = getTimeCreatedAgo(previous, today);
+  const inputRef = useRef();
+
+  function onClick() {
+    const phantomInput = document.createElement('input');
+    phantomInput.value = spanRef.current.innerText;
+    document.body.appendChild(phantomInput);
+    phantomInput.select();
+    document.execCommand('copy');
+    document.body.removeChild(phantomInput);
+  }
   return (
     <div className="commits" key={id}>
       <div className="commit-list">
-        <a href={`/${userName}`}>
+        <Link to={`/${userName}`}>
           <span style={{ position: 'relative' }}>
             <img width="32" height="32" className="avatar-circle mt-3 ml-1" src={avatarImage} alt="avatar" />
           </span>
-        </a>
+        </Link>
         <div className="commit-data">
           <Link to={`/${namespace}/${slug}/-/commit/${commitid}`}>{title}</Link>
           <span>
@@ -232,20 +209,14 @@ export function CommitDiv(props) {
           </span>
         </div>
         <div className="commit-details btn-group">
+          <input type="text" ref={inputRef} style={{ display: 'none' }} />
           <span ref={spanRef} className="border-rounded-left">{id}</span>
-          {/*TODO: The next button had a tooltip but MToolTip does not fit the needs, think about something */}
+          {/* TODO: The next button had a tooltip but MToolTip does not fit the needs, think about something */}
           <button
             type="button"
             label="clone"
             className="btn btn-icon fa fa-copy t-primary"
-            onClick={() => {
-              const phantomInput = document.createElement('input');
-              phantomInput.value = spanRef.current.innerText;
-              document.body.appendChild(phantomInput);
-              phantomInput.select();
-              document.execCommand('copy');
-              document.body.removeChild(phantomInput);
-            }}
+            onClick={onClick}
           />
         </div>
       </div>

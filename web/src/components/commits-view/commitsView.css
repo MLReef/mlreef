@@ -9,7 +9,7 @@ position: relative;
 }
 
 .commit-path input{
-margin-left: auto;
+margin: 0 0 0.5rem 1rem;
 padding: 0.5em 3em;
 border: 2px solid #e5e5e5;
 border-radius: 4px;

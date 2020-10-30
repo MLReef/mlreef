@@ -8,14 +8,14 @@ import { toastr } from 'react-redux-toastr';
 import MergeRequestEdit from 'components/layout/MergeRequests/MergeRequestEdit';
 import MSelect from 'components/ui/MSelect';
 import { generateBreadCrumbs } from 'functions/helpers';
-import ProjectContainer from '../projectContainer';
-import Navbar from '../navbar/navbar';
+import actions from './mergeReqActions';
+import ProjectContainer from '../../projectContainer';
+import Navbar from '../../navbar/navbar';
 import './newMergeRequest.css';
-import BranchesApi from '../../apis/BranchesApi.ts';
-import MergeRequestApi from '../../apis/MergeRequestApi.ts';
-import ImageDiffSection from '../imageDiffSection/imageDiffSection';
-import CommitsList from '../commitsList';
-import { getFileDifferences } from '../../functions/apiCalls';
+import BranchesApi from '../../../apis/BranchesApi.ts';
+import ImageDiffSection from '../../imageDiffSection/imageDiffSection';
+import CommitsList from '../../commitsList';
+import { getFileDifferences } from '../../../functions/apiCalls';
 
 const imageFormats = [
   '.png',
@@ -23,8 +23,6 @@ const imageFormats = [
 ];
 
 const brApi = new BranchesApi();
-
-const mergeRequestAPI = new MergeRequestApi();
 
 const getBranchFromSearch = (search) => {
   const decoded = decodeURIComponent(search.substr(1));
@@ -149,8 +147,7 @@ export class NewMergeRequest extends Component {
       },
     } = this.props;
 
-    mergeRequestAPI
-      .submitMergeReq(gid, branch, branchToMergeInto, title, description)
+    actions.submit(gid, branch, branchToMergeInto, title, description)
       .then(() => {
         this.setState({ redirect: true });
       }).catch((err) => {
@@ -235,8 +232,7 @@ export class NewMergeRequest extends Component {
                 label="Select a branch..."
                 options={branches
                   .filter((branchForSelect) => branchForSelect !== branch)
-                  .map((br) => ({ label: br, value: br}))
-                }
+                  .map((br) => ({ label: br, value: br }))}
                 onSelect={this.onBranchChanged}
                 value={branchToMergeInto}
               />

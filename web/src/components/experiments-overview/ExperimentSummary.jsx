@@ -5,14 +5,16 @@ import {
   number,
   arrayOf,
 } from 'prop-types';
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
 import { toastr } from 'react-redux-toastr';
 import './experimentsOverview.css';
 import { Line } from 'react-chartjs-2';
 import AuthWrapper from 'components/AuthWrapper';
-import MModal from 'components/ui/MModal';
 import GitlabPipelinesApi from 'apis/GitlabPipelinesApi.ts';
 import ExperimentsApi from 'apis/experimentApi';
 import ProjectGeneralInfoApi from 'apis/ProjectGeneralInfoApi';
+import { fireModal } from 'actions/actionModalActions';
 import DataCard from 'components/layout/DataCard';
 import traiangle01 from '../../images/triangle-01.png';
 import ArrowButton from '../arrow-button/arrowButton';
@@ -41,6 +43,7 @@ const ExperimentSummary = ({
   projectNamespace,
   projectSlug,
   experiment,
+  actions,
 }) => {
   const [showSummary, setShowSummary] = useState(false);
   const [dataToGraph, setDataToGraph] = useState({
@@ -63,8 +66,6 @@ const ExperimentSummary = ({
   const inputFilePath = inputFiles[0].location.toString();
   const basePath = `${projectNamespace}/${projectSlug}`;
   const [averageParams, setAverageParams] = useState([]);
-  const [shouldAbortModalRender, setShouldAbortModalRender] = useState(false);
-  const [shouldDeleteModalRender, setShouldDeleteModalRender] = useState(false);
   const [codeProject, setcodeProject] = useState({});
   const modelName = processing ? processing.name : '';
   const trainingData = processing.parameters ? processing.parameters.map((param) => (
@@ -77,33 +78,7 @@ const ExperimentSummary = ({
   }, [codeProjectId]);
 
   const { gitlab_namespace: nameSpace, slug } = codeProject;
-  const closeModal = () => setShouldAbortModalRender(false);
-  const closeDeletionModal = () => setShouldDeleteModalRender(false);
   const linkToRepoView = `/${basePath}/-/repository/tree/-/commit/${commitSha}`;
-
-  function abortClickHandler(pipelineId) {
-    gitlabApi.abortGitlabPipelines(
-      projectId,
-      pipelineId,
-    )
-      .then(() => {
-        experimentApi.cancelExperiment(dataProjectId, id);
-        toastr.success('Success', 'Pipeline aborted');
-        closeModal();
-        window.location.reload();
-      })
-      .catch(() => toastr.error('Error', 'Error aborting pipeline'));
-  }
-
-  function deleteClickHandler(experimentId) {
-    experimentApi.delete(dataProjectId, experimentId)
-      .then(() => toastr.success('Success', 'Experiment deleted'))
-      .catch(() => toastr.error('Error', 'Something failed deleting'))
-      .finally(() => {
-        closeDeletionModal();
-        window.location.reload();
-      });
-  }
 
   function handleArrowDownButtonClick() {
     const newIsShowingSum = !showSummary;
@@ -143,7 +118,28 @@ const ExperimentSummary = ({
           type="button"
           className="btn btn-danger"
           style={{ width: 'max-content' }}
-          onClick={() => setShouldAbortModalRender(true)}
+          onClick={() => {
+            actions.fireModal({
+              title: 'Abort experiments?',
+              type: 'danger',
+              closable: true,
+              content: <ExperimentCancellationModal
+                experimentToAbort={experiment}
+              />,
+              onPositive: () => {
+                gitlabApi.abortGitlabPipelines(
+                  projectId,
+                  experiment.pipelineJobInfo.id,
+                )
+                  .then(() => {
+                    experimentApi.cancelExperiment(dataProjectId, id);
+                    toastr.success('Success', 'Pipeline aborted');
+                    window.location.reload();
+                  })
+                  .catch(() => toastr.error('Error', 'Error aborting pipeline'));
+              },
+            })
+          }}
         >
           Abort
         </button>,
@@ -172,7 +168,24 @@ const ExperimentSummary = ({
           type="button"
           label="close"
           className="btn btn-icon btn-danger fa fa-times"
-          onClick={() => setShouldDeleteModalRender(!shouldDeleteModalRender)}
+          onClick={() => {
+            actions.fireModal({
+              title: 'Delete experiments?',
+              type: 'danger',
+              closable: true,
+              content: <DeleteExperimentModal
+                experiment={experiment}
+              />,
+              onPositive: () => {
+                experimentApi.delete(dataProjectId, experiment.id)
+                  .then(() => toastr.success('Success', 'Experiment deleted'))
+                  .catch(() => toastr.error('Error', 'Something failed deleting'))
+                  .finally(() => {
+                    window.location.reload();
+                  });
+              },
+            })
+          }}
         />,
       ];
     } else if (experimentStatus === CANCELED) {
@@ -182,7 +195,24 @@ const ExperimentSummary = ({
           type="button"
           label="close"
           className="btn btn-icon btn-danger fa fa-times"
-          onClick={() => setShouldDeleteModalRender(!shouldDeleteModalRender)}
+          onClick={() => 
+            actions.fireModal({
+              title: 'Delete experiments?',
+              type: 'danger',
+              closable: true,
+              content: <DeleteExperimentModal
+                experiment={experiment}
+              />,
+              onPositive: () => {
+                experimentApi.delete(dataProjectId, experiment.id)
+                  .then(() => toastr.success('Success', 'Experiment deleted'))
+                  .catch(() => toastr.error('Error', 'Something failed deleting'))
+                  .finally(() => {
+                    window.location.reload();
+                  });
+              },
+            })
+          }
         />,
       ];
     }
@@ -199,22 +229,6 @@ const ExperimentSummary = ({
   return (
     <>
       {getButtonsDiv()}
-      <MModal>
-        <ExperimentCancellationModal
-          experimentToAbort={experiment}
-          shouldComponentRender={shouldAbortModalRender}
-          abortClickHandler={abortClickHandler}
-          closeModal={closeModal}
-        />
-      </MModal>
-      <MModal>
-        <DeleteExperimentModal
-          experiment={experiment}
-          shouldRender={shouldDeleteModalRender}
-          handleCloseModal={closeDeletionModal}
-          handleDeleteExp={deleteClickHandler}
-        />
-      </MModal>
       {showSummary && (
         <>
           <div key={`${name} ${experiment.status} data-summary`} className="data-summary">
@@ -287,4 +301,13 @@ ExperimentSummary.propTypes = {
   }).isRequired,
 };
 
-export default ExperimentSummary;
+function mapDispatchToProps(dispatch) {
+  return {
+    actions: bindActionCreators({
+      fireModal,
+    }, dispatch),
+  };
+}
+
+export default connect(() => {}, mapDispatchToProps)(ExperimentSummary);
+

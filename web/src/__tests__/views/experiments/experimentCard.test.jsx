@@ -1,6 +1,5 @@
 import React from 'react';
 import { shallow } from 'enzyme';
-import { Provider } from 'react-redux';
 import Experiment from 'domain/experiments/Experiment';
 import { plainToClass } from 'class-transformer';
 import { experimentMock } from 'testData';
@@ -12,14 +11,13 @@ const store = storeFactory({
 });
 
 const setup = () => shallow(
-  <Provider store={store}>
-    <ExperimentSummary
-      experiment={plainToClass(Experiment, experimentMock)}
-      projectId={123456}
-      defaultBranch="master"
-    />
-  </Provider>,
-);
+  <ExperimentSummary
+    store={store}
+    experiment={plainToClass(Experiment, experimentMock)}
+    projectId={123456}
+    defaultBranch="master"
+  />,
+).dive().dive();
 
 describe('functionality tests', () => {
   let wrapper;
@@ -28,13 +26,12 @@ describe('functionality tests', () => {
   });
   test('assert that after clicking dropdown button the chart is rendered', () => {
     const mockEvent = { currentTarget: { classList: { contains: () => {} } } };
-    const expWrapper = wrapper.find('ExperimentSummary').dive();
-    const btn = expWrapper.find('ArrowButton')
+    const btn = wrapper.find('ArrowButton')
       .first()
       .dive()
       .find(`button#ArrowButton-${experimentMock.slug}`);
 
     btn.simulate('click', mockEvent);
-    expect(expWrapper.find('.data-summary')).toHaveLength(1);
+    expect(wrapper.find('.data-summary')).toHaveLength(1);
   });
 });

@@ -47,28 +47,6 @@ class DataInstanceOverview extends Component {
       })).catch((err) => toastr.error('Error', err?.message));
   }
 
-  handleButtonsClick(e) {
-    if (e) {
-      e.target.parentNode.childNodes.forEach((childNode) => {
-        if (childNode.id !== e.target.id) {
-          childNode.classList.remove('active');
-        }
-      });
-      e.target.classList.add('active');
-
-      const { all } = this.state;
-      let filteredInstances = all;
-      if (e.target.id === 'InProgress') {
-        filteredInstances = all.filter((exp) => exp.status === RUNNING);
-      } else if (e.target.id === 'Active') {
-        filteredInstances = all.filter((exp) => exp.status === SUCCESS);
-      } else if (e.target.id === 'expired') {
-        filteredInstances = all.filter((exp) => exp.status === FAILED);
-      }
-      this.setState({ dataInstances: filteredInstances });
-    }
-  }
-
   render() {
     const {
       all,

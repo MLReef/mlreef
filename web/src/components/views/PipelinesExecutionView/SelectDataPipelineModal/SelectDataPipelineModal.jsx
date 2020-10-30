@@ -7,14 +7,16 @@ import { toastr } from 'react-redux-toastr';
 import './SelectDataPipelineModal.scss';
 import MDropdown from 'components/ui/MDropdown';
 import ReturnLink from 'components/returnLink';
+import dayjs from 'dayjs';
 import MCheckBox from 'components/ui/MCheckBox/MCheckBox';
-import FilesApi from 'apis/FilesApi';
 import { DataPipelinesContext } from '../DataPipelineHooks/DataPipelinesProvider';
-import { SET_BRANCH_SELECTED, SET_IS_VISIBLE_FILES_MODAL, UPDATE_FILES_SELECTED_IN_MODAL, VALIDATE_FORM } from '../DataPipelineHooks/actions';
+import actions from './actions'
+import {
+  SET_BRANCH_SELECTED, SET_IS_VISIBLE_FILES_MODAL, UPDATE_FILES_SELECTED_IN_MODAL, VALIDATE_FORM,
+} from '../DataPipelineHooks/actions';
 
 const folderIcon = '/images/svg/folder_01.svg';
 const fileIcon = '/images/svg/file_01.svg';
-const filesApi = new FilesApi();
 
 export const UnconnectedSelectDataPipelineModal = (props) => {
   const [{ isVisibleSelectFilesModal }, dispatch] = useContext(DataPipelinesContext);
@@ -28,37 +30,37 @@ export const UnconnectedSelectDataPipelineModal = (props) => {
     initialFiles,
     initialBranch,
     initialCommit,
-    testFiles, // only for testing purposes, do not pass in real usage
   } = props;
   const [filePath, setFilepath] = useState('');
   const [branchSelected, setBranchSelected] = useState(initialBranch || defaultBranch);
   const [showReturnOption, setShowReturnOption] = useState(false);
-  const [files, setfiles] = useState(testFiles || null);
+  const [files, setfiles] = useState(null);
 
   function updateFiles(path) {
-    filesApi.getFilesPerProject(
+    actions.getAndClassifyFiles(
       gid,
       path,
-      false,
-      initialCommit || branchSelected,
-    ).then((filesRes) => {
-      const newfilesSelected = filesRes.map((file) => ({
-        ...file,
-        checked: getIsFileChecked(file),
-        disabled: !getIsFileChecked(file) && initialFiles.length !== 0,
-      }));
-      setfiles(newfilesSelected);
-      if (initialFiles.length > 0) {
-        dispatch({ type: UPDATE_FILES_SELECTED_IN_MODAL, filesSelectedInModal: newfilesSelected });
-        dispatch({ type: SET_BRANCH_SELECTED, branchSelected });
-      }
-    })
+      initialCommit,
+      branchSelected,
+      initialFiles,
+    )
+      .then((filesRes) => actions.handleFiles(filesRes, initialFiles))
+      .then((newfilesSelected) => {
+        setfiles(newfilesSelected);
+        if (initialFiles.length > 0) {
+          dispatch({
+            type: UPDATE_FILES_SELECTED_IN_MODAL,
+            filesSelectedInModal: newfilesSelected,
+          });
+          dispatch({ type: SET_BRANCH_SELECTED, branchSelected });
+        }
+      })
       .catch(() => toastr.error('Error', 'Files could not be recovered'));
   }
 
   useEffect(() => {
-    updateFiles('');
     // eslint-disable-next-line react-hooks/exhaustive-deps
+    updateFiles('');
   }, []);
 
   function getBack() {
@@ -75,16 +77,6 @@ export const UnconnectedSelectDataPipelineModal = (props) => {
   }
 
   /**
-     * Sometimes a pipeline is rebuilt so the files provided as input should be shown as selected
-     * @param {*} file: file which was used as file input when a pipeline was executed
-     */
-  function getIsFileChecked(file) {
-    if (!initialFiles) return false;
-
-    return initialFiles.filter((f) => f.location === file.path).length > 0;
-  }
-
-  /**
      * @param {*} checkboxFile: file that corresponds to the checkbox clicked
      * @param {*} checkedValue: checkbox value after clicking
      */
@@ -96,11 +88,6 @@ export const UnconnectedSelectDataPipelineModal = (props) => {
     })));
   };
 
-  /* changeCheckedToAll = (newCheckedValue) => this.setState((prevState) => ({
-      files: prevState.files.map((f) => ({ ...f, checked: newCheckedValue })),
-    }));
-    */
-
   function handleCloseButton() {
     dispatch({ type: SET_IS_VISIBLE_FILES_MODAL, isVisibleSelectFilesModal: false });
   }
@@ -110,16 +97,6 @@ export const UnconnectedSelectDataPipelineModal = (props) => {
     setBranchSelected(branchSelectedLocal);
     updateFiles('');
   }
-
-  const customTime = (ISODate) => {
-    const today = new Date(ISODate);
-    const h = today.getHours();
-    let m = today.getMinutes();
-    if (m < 10) {
-      m = `0${m}`;
-    }
-    return (`${h}:${m}`);
-  };
 
   function handleModalAccept(filesSelectedInModal) {
     dispatch({ type: SET_IS_VISIBLE_FILES_MODAL, isVisibleSelectFilesModal: false });
@@ -202,7 +179,7 @@ export const UnconnectedSelectDataPipelineModal = (props) => {
                                       }
                                 >
                                   <p>
-                                    {`${uniqueName} - ${customTime(branch.commit.created_at)}`}
+                                    {`${uniqueName} - ${dayjs(branch.commit.created_at).format('HH:mm')}`}
                                   </p>
                                 </li>
                               );
@@ -215,29 +192,6 @@ export const UnconnectedSelectDataPipelineModal = (props) => {
               />
             </div>
             <div id="right-div" className="col-6 t-right">
-              {
-                  /**
-                   * Since user can pick just a file opf type folder, the next code maskes no sense
-                  files && (
-                    <>
-                      <button
-                        id="select-all"
-                        type="button"
-                        className="btn btn-outline-dark btn-label-sm mr-2"
-                        onClick={() => changeCheckedToAll(true)}
-                      >
-                        Select All
-                      </button>
-                      <button
-                        id="deselect-all"
-                        type="button"
-                        className="btn btn-outline-dark btn-label-sm mr-2"
-                        onClick={() => changeCheckedToAll(false)}
-                      >
-                        Deselect All
-                      </button>
-                    </>
-                  ) */}
               <button
                 id="accept"
                 type="button"
@@ -277,7 +231,7 @@ export const UnconnectedSelectDataPipelineModal = (props) => {
 
                   <tbody className="w-100">
                     {showReturnOption && (
-                    <ReturnLink getBack={onGetBackBtnClick} />
+                      <ReturnLink getBack={onGetBackBtnClick} />
                     )}
                     {files && files.map((file, index) => (
                       <tr key={index.toString()} id={`tr-file-${index}`} className="files-row" style={{ justifyContent: 'unset' }}>
@@ -332,14 +286,19 @@ UnconnectedSelectDataPipelineModal.propTypes = {
     defaultBranch: string.isRequired,
   }).isRequired,
   initialFiles: arrayOf(shape({ location: string.isRequired })),
+  branches: arrayOf(shape({})).isRequired,
+  initialBranch: string,
+  initialCommit: shape({}),
 };
 
 UnconnectedSelectDataPipelineModal.defaultProps = {
   initialFiles: [],
+  initialBranch: null,
+  initialCommit: null,
 };
 
 function mapStateToProps(
-  { projects: { selectedProject: project }, branches, user: { preconfiguredOperations } }
+  { projects: { selectedProject: project }, branches, user: { preconfiguredOperations } },
 ) {
   return {
     project,
