@@ -62,7 +62,7 @@ while [ -n "${1+x}" ]; do
   ;;
   -v | --version)
     export VERSION="$2"
-    echo "Using AWS_ACCESS_KEY_ID $AWS_SECRET_ACCESS_KEY"
+    echo "Using CI_COMMIT_REF_SLUG AS VERSION $VERSION"
     shift
     ;;
   *)
