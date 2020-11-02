@@ -65,7 +65,7 @@ jest.setTimeout(100000);
 beforeAll(async () => {
   // ------------- create the user ------------- //
   const suffix = uuidv1().toString().split('-')[0];
-  const username = `TEST-ProjectGeneralInfoApi.${suffix}`;
+  const username = `TEST-CanExecuteDataPipeline.${suffix}`;
   const password = 'password';
   const email = `TEST-Node.${suffix}@example.com`;
   const registerData = {
@@ -84,8 +84,8 @@ beforeAll(async () => {
   }
 
   const request = {
-    name: 'Data Pipelines test project',
-    slug: 'can-create-project',
+    name: 'Can execute Data Pipelines',
+    slug: 'can-execute-data-pipelines',
     namespace: '',
     initialize_with_readme: false,
     description: '',
