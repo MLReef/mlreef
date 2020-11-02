@@ -27,9 +27,8 @@ class DataProcessorService(
 ) {
     val log = LoggerFactory.getLogger(this::class.java)
 
-    fun getProcessorByProjectId(projectId: UUID): DataProcessor? {
-        return dataProcessorRepository.findAllByCodeProjectId(projectId).firstOrNull()
-    }
+    fun getProcessorByProjectId(projectId: UUID): DataProcessor? =
+        dataProcessorRepository.findAllByCodeProjectId(projectId).firstOrNull()
 
     fun saveDataProcessor(dataProcessor: ProcessorVersion): ProcessorVersion {
         dataProcessorRepository.save(dataProcessor.dataProcessor)
@@ -50,7 +49,6 @@ class DataProcessorService(
         author: Subject?,
         parameters: List<ProcessorParameter> = arrayListOf()
     ): DataProcessor {
-
         val codeProjectId = codeProject.id
         log.info("Creating new DataProcessors with slug $slug for $codeProjectId")
         val findBySlug = dataProcessorRepository.findBySlug(slug)
