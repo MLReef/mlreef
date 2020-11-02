@@ -40,8 +40,8 @@ test('Can get public projects ', async () => {
 
 test('Can create project', async () => {
   const request = {
-    name: 'Can create project',
-    slug: 'can-create-project',
+    name: 'Can get Project Info',
+    slug: 'can-get-project-info',
     namespace: '',
     initialize_with_readme: false,
     description: '',

@@ -36,7 +36,7 @@ jest.setTimeout(30000);
 beforeAll(async () => {
   // ------------- create the user ------------- //
   const suffix = uuidv1().toString().split('-')[0];
-  const username = `TEST-ProjectGeneralInfoApi.${suffix}`;
+  const username = `TEST-CanCallCommitsApi.${suffix}`;
   const password = 'password';
   const email = `TEST-Node.${suffix}@example.com`;
   const registerData = {
@@ -55,8 +55,8 @@ beforeAll(async () => {
   }
 
   const request = {
-    name: 'Commits API test project',
-    slug: 'can-create-project',
+    name: 'Can call Commits-API',
+    slug: 'can-call-commits-api',
     namespace: '',
     initialize_with_readme: false,
     description: '',
