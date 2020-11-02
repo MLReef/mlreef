@@ -16,7 +16,7 @@ import { PROJECT_TYPES } from 'domain/project/projectTypes';
 import { projectClassificationsProps } from 'dataTypes';
 import * as projectActions from 'actions/projectInfoActions';
 import { setIsLoading } from 'actions/globalMarkerActions';
-import { suscribeRT, onlyDataProject } from 'functions/apiCalls';
+import { onlyDataProject } from 'functions/apiCalls';
 import ExploreViewProjectSet from './ExploreViewProjectSet';
 import './ExploreView.scss';
 
@@ -35,19 +35,29 @@ const ExploreView = (props) => {
     actions,
     allProjects,
     codeProjects,
+    pagination,
   } = props;
 
   const [started, setStarted] = useState(false);
 
   const fetch = useCallback(
     () => {
-      if (!started) actions.setIsLoading(true);
+      const handleFinally = () => {
+        setStarted(true);
+        actions.setIsLoading(false);
+      };
+
+      if (pagination.last) return handleFinally();
+
+      actions.setIsLoading(true);
 
       const execRequest = (type) => actions
         .getDataProcessorsAndCorrespondingProjects(type, {}, { explore: true });
 
+      const nextPage = typeof pagination.number === 'number' ? pagination.number + 1 : 0;
+
       return Promise.all([
-        actions.getProjectsList(0, 20),
+        actions.getProjectsList(nextPage, 20),
         // actions.getGroupsList(),
         execRequest(PROJECT_TYPES.ALGORITHM),
         execRequest(PROJECT_TYPES.OPERATION),
@@ -55,18 +65,18 @@ const ExploreView = (props) => {
       ])
         .catch(() => {
         })
-        .finally(() => {
-          setStarted(true);
-          actions.setIsLoading(false);
-        });
+        .finally(handleFinally);
     },
-    [actions, started, setStarted],
+    [actions, setStarted, pagination],
   );
 
   useEffect(
     () => {
-      const unsuscribeServices = suscribeRT({ timeout: 60000 })(fetch);
-      return unsuscribeServices;
+      // commented because fetch() now depends on pagination.
+      // suscribeRT must be rethough.
+      // const unsuscribeServices = suscribeRT({ timeout: 60000 })(fetch);
+      // return unsuscribeServices;
+      fetch();
     },
     [fetch],
   );
@@ -215,9 +225,15 @@ ExploreView.propTypes = {
     getDataProcessorsAndCorrespondingProjects: PropTypes.func.isRequired,
     setIsLoading: PropTypes.func.isRequired,
   }).isRequired,
+  pagination: PropTypes.shape({
+    last: PropTypes.bool,
+    number: PropTypes.number,
+    totalPages: PropTypes.number,
+  }).isRequired,
 };
 
 const mapStateToProps = (state) => ({
+  pagination: state.projects.paginationInfo,
   allProjects: state.projects.all,
   // groups: state.groups,
   codeProjects: state.projects.codeProjects,
