@@ -13,6 +13,7 @@ const setup = () => {
         backendId: 'anything',
         ownerId: 'anything-else',
       },
+      paginationInfo: {},
       all: [],
       codeProjects: {
         [PROJECT_TYPES.ALGORITHM]: {
