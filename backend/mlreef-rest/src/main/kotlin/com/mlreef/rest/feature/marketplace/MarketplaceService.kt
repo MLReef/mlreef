@@ -17,6 +17,8 @@ import com.mlreef.rest.exceptions.NotFoundException
 import com.mlreef.rest.marketplace.Searchable
 import com.mlreef.rest.marketplace.SearchableTag
 import com.mlreef.rest.marketplace.SearchableType
+import java.lang.System.currentTimeMillis
+import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.data.domain.Pageable
 import org.springframework.data.repository.findByIdOrNull
@@ -33,28 +35,33 @@ class MarketplaceService(
     private val projectRepository: ProjectRepository,
     private val dataProjectRepository: DataProjectRepository,
     private val codeProjectRepository: CodeProjectRepository,
-    private val searchableTagRepository: SearchableTagRepository
+    private val searchableTagRepository: SearchableTagRepository,
 ) {
-    companion object {
-        val log = LoggerFactory.getLogger(this::class.java)
-    }
+    val log = LoggerFactory.getLogger(this::class.java) as Logger
 
     /**
      * Creates a new Entry for a Searchable with a Subject as owner/author.
      * Searchable can be a DataProject or a DataProcessorr
-     *
      */
     @Transactional
-    fun prepareEntry(searchable: Searchable, owner: Subject): Project {
-        val afterSave = when (searchable) {
-            is DataProject -> updateDataProject(searchable, owner)
-            is CodeProject -> updateCodeProject(searchable, owner)
+    fun prepareEntry(searchable: Searchable, owner: Subject): Project =
+        when (searchable) {
+            is DataProject -> searchable.copy(
+                name = searchable.name,
+                description = searchable.description,
+                visibilityScope = searchable.visibilityScope,
+                globalSlug = "data-project-${searchable.slug}"
+            ) as DataProject
+            is CodeProject -> searchable.copy(
+                name = searchable.name,
+                description = searchable.description,
+                visibilityScope = searchable.visibilityScope,
+                globalSlug = "code-project-${searchable.slug}"
+            ) as CodeProject
             else -> throw NotImplementedError("Searchable does not support that type")
         }
-
-        log.info("Create new Searchable for searchable id ${searchable.getId()} and owner $owner")
-        return save(afterSave)
-    }
+            .also { log.info("Create new Searchable for searchable id ${searchable.getId()} and owner $owner") }
+            .let { save(it) }
 
     /**
      * Creates a new Entry for a Searchable with a Subject as owner/author.
@@ -68,96 +75,56 @@ class MarketplaceService(
     }
 
     @Transactional
-    fun save(searchable: Searchable): Project {
-        return when (searchable) {
+    fun save(searchable: Searchable): Project =
+        when (searchable) {
             is DataProject -> dataProjectRepository.save(searchable)
             is CodeProject -> codeProjectRepository.save(searchable)
             is Project -> projectRepository.save(searchable)
             else -> throw IllegalStateException("Not possible ")
         }
-    }
 
     /**
      * Adds a star from one Person
      */
-    fun addStar(searchable: Project, person: Person): Project {
-        val adapted = searchable.addStar(person)
-        return save(adapted)
-    }
+    fun addStar(searchable: Project, person: Person): Project =
+        searchable.addStar(person)
+            .let { save(it) }
 
     /**
      * Adds a preexisting Tag to this Entry, Tags are stored just once per Entry
      */
     @Transactional
-    fun addTags(searchable: Project, tags: List<SearchableTag>): Project {
-        val adapted = searchable.addTags(tags)
-        return save(adapted)
-    }
+    fun addTags(searchable: Project, tags: List<SearchableTag>): Project =
+        searchable.addTags(tags)
+            .let { save(it) }
 
     /**
      * Sets the Tags of this Entry, similar to removing all Tags and adding new ones
      */
-    fun defineTags(searchable: Project, tags: List<SearchableTag>): Project {
-        val adapted = searchable
-            .clone(tags = hashSetOf())
+    fun defineTags(searchable: Project, tags: List<SearchableTag>): Project =
+        searchable.clone(tags = hashSetOf())
             .addTags(tags)
-        return save(adapted)
-    }
+            .let { save(it) }
 
-    fun removeStar(searchable: Project, person: Person): Project {
-        val adapted = searchable.removeStar(person)
-        log.info("User $person put a star on $Searchable")
-        return save(adapted)
-    }
-
-    private fun updateDataProject(
-        dataProject: DataProject,
-        owner: Subject,
-        name: String = dataProject.name,
-        description: String = "",
-        visibilityScope: VisibilityScope = dataProject.visibilityScope
-    ): Searchable {
-        return dataProject.copy(
-            name = name,
-            description = description,
-            visibilityScope = visibilityScope,
-            globalSlug = "data-project-${dataProject.slug}"
-        )
-    }
-
-    private fun updateCodeProject(
-        codeProject: CodeProject,
-        owner: Subject,
-        name: String = codeProject.name,
-        description: String = "",
-        visibilityScope: VisibilityScope = codeProject.visibilityScope
-    ): Searchable {
-        return codeProject.copy(
-            name = name,
-            description = description,
-            visibilityScope = visibilityScope,
-            globalSlug = "code-project-${codeProject.slug}"
-        )
-    }
-
+    fun removeStar(searchable: Project, person: Person): Project =
+        searchable.removeStar(person)
+            .also { log.info("User $person put removed star from $Searchable") }
+            .let { save(it) }
 
     fun findEntriesForProjects(pageable: Pageable, projectsMap: Map<UUID, AccessLevel?>): List<Project> {
         val ids: List<UUID> = projectsMap.filterValues { AccessLevel.isSufficientFor(it, AccessLevel.GUEST) }.map { it.key }.toList()
-
-        val findAllByVisibilityScope = projectRepository.findAllByVisibilityScope(VisibilityScope.PUBLIC, pageable)
         val projects = projectRepository.findAccessibleProjects(ids, pageable)
-        return findAllByVisibilityScope.toMutableSet().apply {
-            addAll(projects)
-        }.toList()
+        return projectRepository.findAllByVisibilityScope(VisibilityScope.PUBLIC, pageable)
+            .toMutableSet()
+            .apply { addAll(projects) }
+            .toList()
     }
-
 
     fun findEntriesForProjectsBySlug(projectsMap: Map<UUID, AccessLevel?>, slug: String): Project {
         val ids: List<UUID> = projectsMap.filterValues { AccessLevel.isSufficientFor(it, AccessLevel.GUEST) }.map { it.key }.toList()
-
-        val project = projectRepository.findAccessibleProject(ids, slug)
-        val findPublic = projectRepository.findByGlobalSlugAndVisibilityScope(slug, VisibilityScope.PUBLIC)
-        return findPublic ?: project ?: throw NotFoundException(ErrorCode.ProjectNotExisting, "Not found")
+        return projectRepository.findByGlobalSlugAndVisibilityScope(slug, VisibilityScope.PUBLIC)
+            ?: projectRepository.findAccessibleProject(ids, slug)
+            ?: throw NotFoundException(ErrorCode.ProjectNotExisting, "Not found")
     }
 
     /**
@@ -174,9 +141,8 @@ class MarketplaceService(
      * *Hint*: If you need a "global order by rank" just use a page size of over 9000 which should result in one page which is ordered per rank
      */
     fun performSearch(pageable: Pageable, filter: FilterRequest, projectsMap: Map<UUID, AccessLevel?>? = null): List<SearchResult> {
-
         log.debug("Start MarketplaceSearch for filterRequest ${filter} and paging ${pageable}")
-        val time = System.currentTimeMillis()
+        val time = currentTimeMillis()
 
         val ids: List<UUID>? = projectsMap?.filterValues { AccessLevel.isSufficientFor(it, AccessLevel.VISITOR) }?.map { it.key }?.toList()
         val existingTags = filter.tags?.let { findTagsForStrings(it) }
@@ -201,14 +167,20 @@ class MarketplaceService(
         val accessibleEntriesMap = findAccessible.associateBy { it.id }
 
         log.debug("Found ${findAccessible.size} findAccessible")
-        log.info("Marketplace Search found ${findAccessible.size} normal results within ${System.currentTimeMillis() - time} ms")
+        log.info("Marketplace Search found ${findAccessible.size} normal results within ${currentTimeMillis() - time} ms")
 
-        if (findAccessible.isEmpty()) {
+        if (findAccessible.isEmpty())
             return emptyList()
-        }
 
-        if (filter.query.isNotBlank()) {
+        if (!filter.query.isNotBlank()) {
+            return findAccessible.map { SearchResult(it, null) }
+        } else {
             val ftsQueryPart = buildFTSCondition(filter.query, queryAnd = filter.queryAnd)
+
+            /**
+             * Requires the "update_fts_document" PSQL TRIGGER and "project_fts_index" gin index
+             * Currently Fulltext search is implemented via psql and _relies_ on that, be aware of that when you change DB!
+             */
 
             /**
              * Requires the "update_fts_document" PSQL TRIGGER and "project_fts_index" gin index
@@ -232,19 +204,13 @@ class MarketplaceService(
             val searchResults = finalPageRankedEntries.zip(rankedResults).map {
                 SearchResult(it.first, SearchResultProperties(rank = it.second.rank.toFloat()))
             }
-            log.info("Marketplace fulltext search found ${searchResults.size} fts results within ${System.currentTimeMillis() - time} ms")
+            log.info("Marketplace fulltext search found ${searchResults.size} fts results within ${currentTimeMillis() - time} ms")
             return searchResults
-        } else {
-            return findAccessible.map {
-                SearchResult(it, null)
-            }
         }
-
     }
 
-    private fun findTagsForStrings(tagNames: List<String>): List<SearchableTag> {
-        return searchableTagRepository.findAllByPublicTrueAndNameIsIn(tagNames.map(String::toLowerCase))
-    }
+    private fun findTagsForStrings(tagNames: List<String>): List<SearchableTag> =
+        searchableTagRepository.findAllByPublicTrueAndNameIsIn(tagNames.map(String::toLowerCase))
 
     /**
      * Requires the "update_fts_document" PSQL TRIGGER and "project_fts_index" gin index
@@ -252,9 +218,8 @@ class MarketplaceService(
      * Currently Fulltext search is implemented via psql and _relies_ on that, be aware of that when you change DB!
      */
     private fun buildFTSCondition(query: String, queryAnd: Boolean): String {
-
-        val safeQuery = query.replace("\"", "").replace("\'", "")
-        val list = safeQuery.split(" ")
+        val list = query.replace("\"", "")
+            .replace("\'", "").split(" ")
         return if (queryAnd) {
             list.joinToString(" & ")
         } else {
@@ -264,15 +229,15 @@ class MarketplaceService(
 }
 
 data class SearchResultProperties(
-    val rank: Float
+    val rank: Float,
 )
 
 data class SearchResult(
     val project: Project,
-    val properties: SearchResultProperties?
+    val properties: SearchResultProperties?,
 )
 
 data class UUIDRank(
     val id: UUID,
-    val rank: Double
+    val rank: Double,
 )
