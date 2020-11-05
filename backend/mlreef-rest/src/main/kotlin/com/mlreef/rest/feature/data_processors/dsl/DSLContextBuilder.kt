@@ -64,13 +64,11 @@ class DSLContextBuilder(val owner: Subject, val userToken: String) {
 
     fun mergeSave(
         repository: DataProcessorRepository,
-        author: Subject,
         items: List<DataProcessor>,
-    ) = items.map { mergeSave(repository, author, it) }
+    ) = items.map { mergeSave(repository, it) }
 
     fun mergeSave(
         repository: DataProcessorRepository,
-        author: Subject,
         item: DataProcessor,
     ): DataProcessor =
         when (val existing = repository.findByIdOrNull(item.id)) {
@@ -153,16 +151,16 @@ class DSLContextBuilder(val owner: Subject, val userToken: String) {
         // create in gitlab or use gitlab current information for gitlab fields
         val refreshed = refreshWithGitlab(restClient, author, merged)
 
-        if (refreshed == null) {
+        return if (refreshed == null) {
             log.error("STRANGE: Cannot create project and did also not find in Gitlab with slug ${item.slug}")
             log.error("STRANGE: Saving a detached CodeProject: ${item.slug}")
             // 9/100 < x < 99/100 of MAX_VALUE
             val randomHighInt = ((9.0 / 10.0 * Int.MAX_VALUE) * (Math.random() + 0.1)).toLong()
             log.error("DANGEROUS: gilabId must still be unique!... so inventing a random one: $randomHighInt")
-            return repository.save(merged.copy(gitlabId = randomHighInt))
+            repository.save(merged.copy(gitlabId = randomHighInt))
         } else {
             log.info("WITH GITLAB CodeProject: ${item.toString()}")
-            return repository.save(refreshed)
+            repository.save(refreshed)
         }
     }
 
@@ -180,7 +178,7 @@ class DSLContextBuilder(val owner: Subject, val userToken: String) {
         inputDataTypes = new.inputDataTypes,
         outputDataTypes = new.outputDataTypes,
         tags = new.tags,
-        visibilityScope = new.visibilityScope
+        visibilityScope = new.visibilityScope,
     )
 
 
@@ -189,7 +187,6 @@ class DSLContextBuilder(val owner: Subject, val userToken: String) {
         author: Subject,
         item: CodeProject,
     ): CodeProject? {
-
         val projects1 = restClient.adminGetUserProjects(author.gitlabId!!)
         val projects2 = restClient.adminGetProjects(search = item.slug).filter { it.path == item.slug }
 
@@ -223,22 +220,19 @@ class DSLContextBuilder(val owner: Subject, val userToken: String) {
             }
         }
 
-        return if (gitLabProject != null) {
-            val pathWithNamespace = gitLabProject.pathWithNamespace
-            val group = pathWithNamespace.split("/")[0]
-            val codeProject = item.copy<CodeProject>(
+        return if (gitLabProject == null) {
+            null
+        } else {
+            item.copy(
                 slug = gitLabProject.path,
                 url = gitLabProject.webUrl,
                 name = gitLabProject.name,
                 description = gitLabProject.description ?: item.description,
                 gitlabPath = gitLabProject.path,
                 gitlabPathWithNamespace = gitLabProject.pathWithNamespace,
-                gitlabNamespace = group,
+                gitlabNamespace = gitLabProject.pathWithNamespace.split("/")[0],
                 gitlabId = gitLabProject.id
             )
-            return codeProject
-        } else {
-            null
         }
     }
 
@@ -253,7 +247,7 @@ class DSLContextBuilder(val owner: Subject, val userToken: String) {
             mergeSave(restClient, codeProjectRepository, author, codeProjects)
         }
         executeLogged("2b. DATA PROCESSORS") {
-            mergeSave(dataProcessorRepository, author, processors)
+            mergeSave(dataProcessorRepository, processors)
         }
         executeLogged("2c. PROCESSOR VERSIONS & PARAMETERS") {
             mergeSave(processorVersionRepository, author, versions)
