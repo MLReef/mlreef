@@ -8,7 +8,7 @@ import { Link } from 'router';
 import { getPipelineIcon, getInfoFromStatus } from 'functions/pipeLinesHelpers';
 import DataInstanceActions from './DataInstanceActions';
 
-const DataInstancesCard = ({ ...props }) => {
+const DataInstancesCard = (props) => {
   const {
     params,
     history,
@@ -19,7 +19,7 @@ const DataInstancesCard = ({ ...props }) => {
     fireModal,
   } = props;
 
-  const { statusTitle } = getInfoFromStatus(params.currentState);
+  const { statusTitle } = getInfoFromStatus(params?.currentState);
 
   function goToPipelineView(instance) {
     if (!instance) return;
@@ -154,7 +154,7 @@ const DataInstancesCard = ({ ...props }) => {
         </div>
       </div>
 
-      {params.instances.map((instance) => {
+      {params?.instances?.map((instance) => {
         const {
           id: dataId, pipelineBackendId, userName, currentState,
         } = instance;

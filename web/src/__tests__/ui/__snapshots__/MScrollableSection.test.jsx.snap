@@ -1,0 +1,126 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`assert that snapshot matches 1`] = `
+<div
+  className="diff-sections"
+>
+  <div
+    className="image-diff-section"
+    id="image-div-section-container"
+  >
+    <div
+      className="commit-per-date"
+    >
+      <div
+        className="pipeline-modify-details"
+      >
+        <div
+          className="basic-information-image"
+        >
+          <span
+            id="image-modified-name"
+          >
+            5.jpg
+          </span>
+          <span>
+            -
+            5
+            Kb
+          </span>
+        </div>
+        <div
+          className="filechange-info"
+        >
+          <button
+            className="btn btn-sm btn-basic-dark px-3 mr-2"
+            onClick={[Function]}
+            type="button"
+          >
+            <i
+              className="fa fa-chevron-up"
+            />
+          </button>
+          <button
+            className="btn btn-sm btn-basic-dark mr-2"
+            type="button"
+          >
+            Copy Path
+          </button>
+          <a
+            className="btn btn-sm btn-basic-dark"
+            href="/#foo"
+            onClick={[Function]}
+          >
+            View File
+          </a>
+        </div>
+      </div>
+      <div
+        className="image-display "
+      >
+        
+        
+      </div>
+    </div>
+  </div>
+  <div
+    className="image-diff-section"
+    id="image-div-section-container"
+  >
+    <div
+      className="commit-per-date"
+    >
+      <div
+        className="pipeline-modify-details"
+      >
+        <div
+          className="basic-information-image"
+        >
+          <span
+            id="image-modified-name"
+          >
+            12.jpg
+          </span>
+          <span>
+            -
+            5
+            Kb
+          </span>
+        </div>
+        <div
+          className="filechange-info"
+        >
+          <button
+            className="btn btn-sm btn-basic-dark px-3 mr-2"
+            onClick={[Function]}
+            type="button"
+          >
+            <i
+              className="fa fa-chevron-up"
+            />
+          </button>
+          <button
+            className="btn btn-sm btn-basic-dark mr-2"
+            type="button"
+          >
+            Copy Path
+          </button>
+          <a
+            className="btn btn-sm btn-basic-dark"
+            href="/#foo"
+            onClick={[Function]}
+          >
+            View File
+          </a>
+        </div>
+      </div>
+      <div
+        className="image-display "
+      >
+        
+        
+      </div>
+    </div>
+  </div>
+</div>
+`;

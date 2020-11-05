@@ -1,0 +1,133 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`assert that snapshot matches 1`] = `
+<div
+  className="pipeline-card"
+>
+  <div
+    className="header"
+  >
+    <div
+      className="title-div"
+    >
+      <p>
+        <b>
+          Failed
+        </b>
+      </p>
+    </div>
+  </div>
+  <div
+    className="card-content"
+  >
+    <div
+      className="summary-data"
+      data-key="data-pipeline/dear-nessie-4112020-1"
+      id="data-ins-summary-data"
+    >
+      <img
+        alt="failed"
+        height="30"
+        src={
+          Object {
+            "canInstrument": true,
+            "createTransformer": [Function],
+            "getCacheKey": [Function],
+            "process": [Function],
+          }
+        }
+        style={
+          Object {
+            "alignSelf": "center",
+          }
+        }
+        width="30"
+      />
+      <div
+        className="project-desc-experiment"
+      >
+        <a
+          className=""
+          href="/mlreef/mlreef-slug/-/datasets/e3397d9c-6f0f-4607-b41b-fe27720ff8ac"
+          onClick={[Function]}
+        >
+          <b>
+            dear-nessie-4112020-1
+          </b>
+        </a>
+        <p
+          className="m-0 mt-1"
+        >
+          Created by
+           
+          <a
+            href="/mlreef"
+          >
+            <b>
+              mlreef
+            </b>
+          </a>
+          <br />
+          4 hour(s)
+           
+          ago
+        </p>
+      </div>
+      <div
+        className="project-desc-experiment"
+        style={
+          Object {
+            "visibility": "inherit",
+          }
+        }
+      >
+        <p>
+          <b>
+            Usage: ---
+          </b>
+        </p>
+      </div>
+      <div
+        className="project-desc-experiment d-flex"
+        style={
+          Object {
+            "visibility": "inherit",
+          }
+        }
+      >
+        <p
+          style={
+            Object {
+              "flex": "1",
+            }
+          }
+        >
+          Id:
+           
+          16
+        </p>
+        <div
+          className="buttons-div d-flex"
+        >
+          <button
+            className="btn btn-outline-dark my-auto mr-1"
+            onClick={[Function]}
+            type="button"
+          >
+            View Pipeline
+          </button>
+          <button
+            className="btn btn-danger btn-icon my-auto"
+            onClick={[Function]}
+            type="button"
+          >
+            <i
+              className="fa fa-times"
+            />
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+`;

@@ -2718,3 +2718,43 @@ export const experimentsClassifiedMock = [
   },
   { status: 'EXPIRED', values: [] },
 ];
+
+export const filesInScrollableSection = [
+  {
+    key: '5.jpg',
+    fileName: '5.jpg',
+    props: {
+      fileInfo: {
+        fileName: '5.jpg',
+        imageFileSize: '5751',
+        nextVersionFileParsed: {},
+        previousVersionFileParsed: undefined,
+      },
+      fileSize: '5751',
+      original: '',
+      modified: '',
+    },
+    ref: null,
+    _store: {
+      validated: false,
+    },
+  },
+  {
+    key: '12.jpg',
+    props: {
+      fileInfo: {
+        fileName: '12.jpg',
+        imageFileSize: '5233',
+        nextVersionFileParsed: {},
+        previousVersionFileParsed: undefined,
+      },
+      fileSize: '5233',
+      original: '',
+      modified: '',
+    },
+    ref: null,
+    _store: {
+      validated: false,
+    },
+  },
+];

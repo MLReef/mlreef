@@ -1,0 +1,43 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`assert that snapshot matches 1`] = `
+<div
+  className="data-card ml-2 mr-2"
+>
+  <div
+    className="title "
+  >
+    <p>
+      <b>
+        Data
+      </b>
+    </p>
+  </div>
+  <div>
+    <p
+      className="line"
+    >
+      Files selected from path
+    </p>
+    <a
+      href="/some-path"
+      rel="noopener noreferrer"
+      target="_blank"
+    >
+      <b>
+        Folder Name
+      </b>
+    </a>
+    <p
+      className="line"
+    >
+      from
+    </p>
+    <p
+      className="line"
+    >
+      Branch Name
+    </p>
+  </div>
+</div>
+`;

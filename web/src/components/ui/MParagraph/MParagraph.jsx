@@ -13,12 +13,12 @@ const MParagraph = (props) => {
 
   return (
     <section className={`m-paragraph ${className}`}>
-      {text.split(separator).map((line) => (
+      {text?.split(separator).map((line) => (
         <p key={`p-line-${line}`} className={`m-paragraph-line ${lineClasses}`}>
           {line}
         </p>
       ))}
-      {!text.length && emptyMessage && (
+      {!text?.length && emptyMessage && (
         <p className={`m-paragraph-line ${lineClasses}`}>
           {emptyMessage}
         </p>

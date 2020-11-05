@@ -71,6 +71,7 @@ const DataInstanceDetails = (props) => {
   const { statusColor: statusParagraphColor } = getInfoFromStatus(diStatus);
 
   const duration = (new Date(updatedAt) - new Date(timeCreatedAgo));
+  const showFilesInfo = diStatus === undefined || diStatus === RUNNING || diStatus === PENDING;
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -121,7 +122,6 @@ const DataInstanceDetails = (props) => {
           <div className="header">
             <p>Viewing</p>
           </div>
-          {selectedPipeline && (
           <div className="content">
             <br />
             <div className="content-row">
@@ -270,18 +270,17 @@ const DataInstanceDetails = (props) => {
               )}
               <button
                 type="button"
-                className="btn btn-outline-dark ml-2 mb-auto"
+                className="pipeline-view-btn btn btn-outline-dark ml-2 mb-auto"
                 onClick={() => goToPipelineView(pipelineViewProps)}
               >
                 View Pipeline
               </button>
             </div>
           </div>
-          )}
         </div>
         <br />
         <br />
-        {diStatus === RUNNING || diStatus === PENDING ? (
+        {showFilesInfo ? (
           <>
             <table className="file-properties">
               <thead>

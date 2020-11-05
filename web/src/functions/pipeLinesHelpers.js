@@ -254,7 +254,8 @@ export const getInfoFromStatus = (pipelineStatus) => {
       statusColor = 'danger';
       break;
     default:
-      return 'lessWhite';
+      statusTitle = '';
+      statusColor = 'lessWhite';
   }
 
   return { statusTitle, statusColor };
@@ -306,7 +307,7 @@ export const goToPipelineView = ({
     pipelineBackendId: backendPipeline.id,
   };
   setPreconfOps(configuredOperations);
-  history.push(`/${namespace}/${slug}/-${routeType}`);
+  if (history) history.push(`/${namespace}/${slug}/-${routeType}`);
 };
 
 /* ----------------------------  ----------------------------------  -------------------------------*/
