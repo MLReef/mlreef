@@ -111,7 +111,6 @@ EOM
 #
 log "4. Getting Gitlab runners registration token from Gitlab."
 RUNNER_REGISTRATION_TOKEN=$(docker exec -t gitlab bash -c 'gitlab-rails runner -e production "puts Gitlab::CurrentSettings.current_application_settings.runners_registration_token"' | tr -d '\r')
-echo "Gitlab RUNNER_REGISTRATION_TOKEN=$RUNNER_REGISTRATION_TOKEN"
 
 #
 #
@@ -182,6 +181,7 @@ if [ "$INSTANCE_HOST" != "localhost" ]; then
 
 else ### Configuration for local environments ###
   log "5. Configuring Gitlab Runner for local environment"
+  echo "Gitlab RUNNER_REGISTRATION_TOKEN=$RUNNER_REGISTRATION_TOKEN"
   # Register the runner on a local developers machine
   # The main differences are the URL and,
   # no caching on Amazon S3 buckets
