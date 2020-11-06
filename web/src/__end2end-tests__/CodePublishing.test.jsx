@@ -1,4 +1,3 @@
-import uuidv1 from 'uuid/v1';
 import store from 'store';
 import waitForExpect from 'wait-for-expect';
 import * as types from 'actions/actionTypes';
@@ -9,6 +8,7 @@ import CommitsApi from 'apis/CommitsApi';
 import CodeProjectPublishingApi from './apiMocks/CodeProjectPublishing.spike.ts';
 import ProjectApiMockSpike from './apiMocks/ProjectApiMock.spike.ts';
 import UserApi from './apiMocks/UserApi.ts';
+import assureUserRegistration from './fixtures/testHelpers';
 
 const api = new CodeProjectPublishingApi();
 const userApi = new UserApi();
@@ -30,26 +30,10 @@ let removeMe_pass;
 let gitlabProjectId;
 
 beforeAll(async () => {
-  // ------------- create the user ------------- //
-  const suffix = uuidv1().toString().split('-')[0];
-  const username = `TEST-CodeProjectPublishing.${suffix}`;
-  const password = 'password';
-  const email = `TEST-Node.${suffix}@example.com`;
-  const registerData = {
-    username,
-    email,
-    password,
-    name: username,
-  };
-  const registerResponse = await userApi.register(registerData);
-  expect(registerResponse.ok).toBeTruthy();
-
   // ----------- login with newly create user ----------- //
   console.log('Running end2end tests against localhost:80 -> expecting proxy to redirect to $INSTANCE_HOST');
-  if (!store.getState().user.isAuth) {
-    await authApi.login(username, email, password)
-      .then((user) => store.dispatch({ type: types.LOGIN, user }));
-  }
+  const { registerData: respData } = await assureUserRegistration();
+  const { username, email, password } = respData;
 
   // TODO: this part is necessary to supply the API mocks with credentials
   // As the apiMocks are removed from this test, these lines can also be removed
