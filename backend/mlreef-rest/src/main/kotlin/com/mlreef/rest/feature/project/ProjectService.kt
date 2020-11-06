@@ -92,8 +92,6 @@ interface ProjectService<T : Project> {
         inputDataTypes: List<DataType>?
     ): T
 
-    fun saveProject(project: T): T
-
     fun updateProject(userToken: String,
                       ownerId: UUID,
                       projectUUID: UUID,
@@ -305,7 +303,6 @@ open class ProjectServiceImpl<T : Project>(
         projectName: String,
         projectNamespace: String?
     ): String {
-
         val possibleSlug = Slugs.toSlug(projectName)
         val findNamespace = if (projectNamespace != null && projectNamespace.isNotBlank()) try {
             gitlabRestClient
@@ -402,7 +399,7 @@ open class ProjectServiceImpl<T : Project>(
         }
     }
 
-    override fun saveProject(project: T): T {
+    private fun saveProject(project: T): T {
         return repository.save(project)
     }
 
