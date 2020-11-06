@@ -187,8 +187,6 @@ class ProjectView extends React.Component {
                   currentBranch={decodedBranch}
                   numberOfContributors={contributors.length}
                   branchesCount={branches.length}
-                  visualizationsCount={filterSetsBy(branches)('visualization').length}
-                  dataInstanesCount={filterSetsBy(branches)('pipeline').length}
                 />
                 <ProjectLastCommitSect
                   projectId={gid}
