@@ -107,7 +107,6 @@ class BranchesView extends Component {
     } = this.state;
 
     const {
-      gid,
       namespace,
       slug,
     } = selectedProject;
@@ -197,7 +196,7 @@ class BranchesView extends Component {
                     <p className="commit-code">
                       <Link
                         className="t-info"
-                        to={`/my-projects/${gid}/commit/${branch.commitInfo.id}`}
+                        to={`/${namespace}/${slug}/-/commits/${branch.name}/-/${branch.commitInfo.id}`}
                       >
                         {branch.commitInfo.id.slice(commitShortIdLowerLimit, commitShortIdUpperLimit)}
                       </Link>

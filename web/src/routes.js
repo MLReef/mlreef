@@ -198,12 +198,7 @@ export default [
       authRequired: true,
     },
   },
-  {
-    name: 'branchCommits',
-    path: '/:namespace/:slug/-/:branch(.+)/commits/:pathParam(.+)?',
-    component: CommitsView,
-    exact: true,
-  },
+
   // files
   {
     name: 'fileCommit',
@@ -359,9 +354,21 @@ export default [
     },
   },
   {
+    name: 'branchCommitsFile',
+    path: '/:namespace/:slug/-/commits/file/:branch(.+)/-/:path(.+)',
+    component: CommitsView,
+    exact: true,
+  },
+  {
     name: 'commitDetails',
-    path: '/:namespace/:slug/-/commit/:commitHash',
+    path: '/:namespace/:slug/-/commits/:branch(.+)/-/:commitHash',
     component: CommitDetailsView,
+    exact: true,
+  },
+  {
+    name: 'branchCommits',
+    path: '/:namespace/:slug/-/commits/:branch(.+)',
+    component: CommitsView,
     exact: true,
   },
   // publishing

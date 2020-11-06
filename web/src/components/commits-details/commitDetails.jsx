@@ -128,13 +128,10 @@ class CommitDetails extends Component {
     const {
       projects: {
         selectedProject,
-        selectedProject: {
-          defaultBranch,
-        },
       },
       match: {
         params: {
-          namespace, slug, commitHash,
+          namespace, slug, branch,
         },
       },
     } = this.props;
@@ -148,11 +145,10 @@ class CommitDetails extends Component {
       },
       {
         name: 'Commits',
-        href: `/${namespace}/${slug}/-/commits/${defaultBranch}`,
+        href: `/${namespace}/${slug}/-/commits/${branch}`,
       },
       {
         name: `${commitId}`,
-        href: `/${namespace}/${slug}/-/commit/${commitHash}`,
       },
     ];
 
@@ -162,6 +158,7 @@ class CommitDetails extends Component {
         avatarName = contributor.name;
       }
     });
+
     return (
       <div id="commits-view-container">
         <Navbar />
@@ -297,7 +294,10 @@ CommitDetails.propTypes = {
     url: string,
     isExact: bool,
     params: shape({
-      commitId: string,
+      namespace: string.isRequired,
+      slug: string.isRequired,
+      branch: string.isRequired,
+      commitHash: string.isRequired,
     }),
   }).isRequired,
   projects: shape({

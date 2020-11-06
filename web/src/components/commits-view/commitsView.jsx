@@ -6,6 +6,7 @@ import {
   string,
   shape,
   objectOf,
+  func,
   arrayOf,
 } from 'prop-types';
 import { generateBreadCrumbs } from 'functions/helpers';
@@ -30,13 +31,18 @@ class CommitsView extends Component {
   componentDidMount() {
     const {
       projects: { selectedProject: { gitlabId } },
-      match: { params: { branch } },
+      match: {
+        params: {
+          branch,
+          path,
+        },
+      },
     } = this.props;
-    this.getCommits(gitlabId, branch)
+    this.getCommits(gitlabId, branch, path)
       .catch(this.handleErrorsGettingCommits);
   }
 
-  getCommits = (gitlabId, val) => commitsApi.getCommits(gitlabId, val)
+  getCommits = (gitlabId, branch, path) => commitsApi.getCommits(gitlabId, branch, path)
     .then((response) => this.setState({ commits: response }))
 
   handleErrorsGettingCommits = (error) => toastr.error('Error', error?.message);
@@ -46,7 +52,7 @@ class CommitsView extends Component {
     const { match: { params: { namespace, slug } } } = this.props;
     const { gitlabId } = project;
     this.getCommits(gitlabId, val)
-      .then(history.push(`/${namespace}/${slug}/-/${val}/commits`))
+      .then(history.push(`/${namespace}/${slug}/-/commits/${val}`))
       .catch(this.handleErrorsGettingCommits);
   }
 
@@ -69,7 +75,6 @@ class CommitsView extends Component {
       },
       {
         name: 'Commits',
-        href: `/${namespace}/${slug}/-/commits/${branch}`,
       },
     ];
 
@@ -139,6 +144,7 @@ class CommitsView extends Component {
                     new Date(item.committed_date).toLocaleString('en-eu', { day: 'numeric', month: 'short', year: 'numeric' }) === commit
                       ? (
                         <CommitDiv
+                          branch={branch}
                           key={item.short_id}
                           namespace={namespace}
                           slug={slug}
@@ -164,6 +170,7 @@ class CommitsView extends Component {
 
 export function CommitDiv(props) {
   const {
+    branch,
     time,
     id,
     name,
@@ -197,7 +204,7 @@ export function CommitDiv(props) {
           </span>
         </Link>
         <div className="commit-data">
-          <Link to={`/${namespace}/${slug}/-/commit/${commitid}`}>{title}</Link>
+          <Link to={`/${namespace}/${slug}/-/commits/${branch}/-/${commitid}`}>{title}</Link>
           <span>
             <a href={`/${userName}`}>
               {name}
@@ -225,6 +232,7 @@ export function CommitDiv(props) {
 }
 
 CommitDiv.propTypes = {
+  branch: string.isRequired,
   time: string.isRequired,
   id: string.isRequired,
   name: string.isRequired,
@@ -249,6 +257,9 @@ CommitsView.propTypes = {
       path: string,
     }),
   }),
+  history: shape({
+    push: func.isRequired,
+  }).isRequired,
   branches: arrayOf(
     shape({
       name: string.isRequired,

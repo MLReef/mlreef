@@ -21,7 +21,7 @@ const RepoInfo = ({
       <div className="repo-info">
         {branchesCount > 0 && (
           <>
-            <Link to={`/${project.namespace}/${project.slug}/-/${currentBranch}/commits`} className="repo-stat">
+            <Link to={`/${project.namespace}/${project.slug}/-/commits/${currentBranch}`} className="repo-stat">
               <p className="stat-no">{project.commitCount}</p>
               <p className="stat-type">Commits</p>
             </Link>
