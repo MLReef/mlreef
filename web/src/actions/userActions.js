@@ -52,7 +52,6 @@ export function updateUserMeta(meta) {
     .then((success) => success && dispatch(updateUserMetaSuccessfully(meta)));
 }
 
-
 export function setUserInfo(userInfo) {
   return { type: types.SET_USER_INFO, userInfo };
 }
@@ -62,7 +61,6 @@ export function getUserInfo() {
     .getUserInfo()
     .then((userInfo) => dispatch(setUserInfo(userInfo)));
 }
-
 
 export function updateUserInfoSuccessfully(info) {
   return { type: types.UPDATE_USER_INFO, info };

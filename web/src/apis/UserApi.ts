@@ -16,10 +16,6 @@ export default class UserApi extends ApiDirector {
     const builder = new BLApiRequestCallBuilder(METHODS.GET, this.buildBasicHeaders(validServicesToCall.GITLAB), url);
     const response = await fetch(builder.build());
 
-    if (!response.ok) {
-      window.history.replaceState({ errorCode: 500 }, 'Mlreef', '/error-page');
-      window.location.reload();
-    }
     return response.json();
   }
 
