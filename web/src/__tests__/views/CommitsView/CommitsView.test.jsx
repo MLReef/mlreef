@@ -78,6 +78,7 @@ describe('test CommitDiv', () => {
     const userName = 'mlreef';
     const wrapper = shallow(
       <CommitDiv
+        branch="feature/a-branch"
         namespace="namespace"
         slug="slug"
         commitid={commitMockObject.id}
@@ -91,7 +92,7 @@ describe('test CommitDiv', () => {
     );
     const links = wrapper.find('Link');
     expect(links.at(0).props().to).toBe(`/${userName}`);
-    expect(links.at(1).props().to).toBe(`/namespace/slug/-/commit/${commitMockObject.id}`);
+    expect(links.at(1).props().to).toBe(`/namespace/slug/-/commits/feature/a-branch/-/${commitMockObject.id}`);
     const today = new Date();
     const previous = new Date(commitMockObject.committed_date);
     const timediff = getTimeCreatedAgo(previous, today);

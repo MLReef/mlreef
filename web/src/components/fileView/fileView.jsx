@@ -286,7 +286,7 @@ export class FileView extends React.Component {
             <div className="wrapper">
               <div className="file-actions pr-2">
                 <Link
-                  to={`/${namespace}/${slug}/-/${branch}/commits/${file}`}
+                  to={`/${namespace}/${slug}/-/commits/file/${branch}/-/${file}`}
                   className="btn btn-sm btn-basic-dark my-auto ml-2"
                 >
                   History
