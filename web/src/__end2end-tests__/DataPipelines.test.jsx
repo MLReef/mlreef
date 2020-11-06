@@ -7,9 +7,8 @@ import MLRAuthApi from 'apis/MLAuthApi';
 import CommitsApi from 'apis/CommitsApi.ts';
 import DataPipelineApi from 'apis/DataPipelineApi';
 import JobsApi from 'apis/JobsApi';
-import UserApi from './apiMocks/UserApi.ts';
+import assureUserRegistration from './fixtures/testHelpers';
 
-const userApi = new UserApi();
 const authApi = new MLRAuthApi();
 const projectApi = new ProjectGeneralInfoApi();
 const commitApi = new CommitsApi();
@@ -63,33 +62,18 @@ let pipeline;
 
 jest.setTimeout(100000);
 beforeAll(async () => {
-  // ------------- create the user ------------- //
-  const suffix = uuidv1().toString().split('-')[0];
-  const username = `TEST-CanExecuteDataPipeline.${suffix}`;
-  const password = 'password';
-  const email = `TEST-Node.${suffix}@example.com`;
-  const registerData = {
-    username,
-    email,
-    password,
-    name: username,
-  };
-  const registerResponse = await userApi.register(registerData);
-  expect(registerResponse.ok).toBeTruthy();
+  // ----------- login with the user ----------- //
+  await assureUserRegistration();
+});
 
-  // ----------- login with newly create user ----------- //
-  if (!store.getState().user.isAuth) {
-    await authApi.login(username, email, password)
-      .then((user) => store.dispatch({ type: types.LOGIN, user }));
-  }
-
+test('Can create a project', async () => {
   const request = {
-    name: 'Can execute Data Pipelines',
-    slug: 'can-execute-data-pipelines',
+    name: `Data Pipelines Test project ${uuidv1()}`,
+    slug: `data-pipelines-test-${uuidv1()}`,
     namespace: '',
     initialize_with_readme: false,
     description: '',
-    visibility: 'private',
+    visibility: 'public',
     input_data_types: [],
   };
 
@@ -103,6 +87,9 @@ beforeAll(async () => {
   expect(response.slug).toBe(request.slug);
 
   project = response;
+});
+
+test('Performing a commit in the project', async () => {
   console.log(`Running Pipeline tests against project: ${project.url}`);
 
   const commit = await commitApi.performCommit(

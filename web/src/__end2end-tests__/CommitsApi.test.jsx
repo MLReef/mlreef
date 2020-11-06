@@ -1,12 +1,10 @@
 import ProjectGeneralInfoApi from 'apis/ProjectGeneralInfoApi';
-import uuidv1 from 'uuid/v1';
 import store from 'store';
 import * as types from 'actions/actionTypes';
 import MLRAuthApi from 'apis/MLAuthApi';
 import CommitsApi from 'apis/CommitsApi.ts';
-import UserApi from './apiMocks/UserApi.ts';
+import assureUserRegistration from './fixtures/testHelpers';
 
-const userApi = new UserApi();
 const authApi = new MLRAuthApi();
 const projectApi = new ProjectGeneralInfoApi();
 const commitApi = new CommitsApi();
@@ -34,25 +32,8 @@ let project;
 
 jest.setTimeout(30000);
 beforeAll(async () => {
-  // ------------- create the user ------------- //
-  const suffix = uuidv1().toString().split('-')[0];
-  const username = `TEST-CanCallCommitsApi.${suffix}`;
-  const password = 'password';
-  const email = `TEST-Node.${suffix}@example.com`;
-  const registerData = {
-    username,
-    email,
-    password,
-    name: username,
-  };
-  const registerResponse = await userApi.register(registerData);
-  expect(registerResponse.ok).toBeTruthy();
-
   // ----------- login with newly create user ----------- //
-  if (!store.getState().user.isAuth) {
-    await authApi.login(username, email, password)
-      .then((user) => store.dispatch({ type: types.LOGIN, user }));
-  }
+  await assureUserRegistration();
 
   const request = {
     name: 'Can call Commits-API',
@@ -60,7 +41,7 @@ beforeAll(async () => {
     namespace: '',
     initialize_with_readme: false,
     description: '',
-    visibility: 'private',
+    visibility: 'public',
     input_data_types: [],
   };
 
