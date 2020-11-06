@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { toastr } from 'react-redux-toastr';
 import { connect } from 'react-redux';
 import {
-  RUNNING, PENDING
+  RUNNING, PENDING, PIPELINE_VIEWS_FORMAT
 } from 'dataTypes';
 import moment from 'moment';
 import { bindActionCreators } from 'redux';
@@ -190,7 +190,7 @@ const DataInstanceDetails = (props) => {
                 </p>
                 <p>
                   <b>
-                    {moment(timeCreatedAgo).format('DD.MM.YYYY - hh:mm:ss')}
+                    {moment(timeCreatedAgo).format(PIPELINE_VIEWS_FORMAT)}
                   </b>
                 </p>
               </div>
@@ -202,7 +202,7 @@ const DataInstanceDetails = (props) => {
                 </p>
                 <p>
                   <b>
-                    {isCompleted ? moment(updatedAt).format('DD.MM.YYYY - hh:mm:ss') : '---'}
+                    {isCompleted ? moment(updatedAt).format(PIPELINE_VIEWS_FORMAT) : '---'}
                   </b>
                 </p>
               </div>

@@ -6,7 +6,7 @@ import {
   shape, string, arrayOf, func,
 } from 'prop-types';
 import AuthWrapper from 'components/AuthWrapper';
-import { RUNNING, PENDING } from 'dataTypes';
+import { RUNNING, PENDING, PIPELINE_VIEWS_FORMAT } from 'dataTypes';
 import moment from 'moment';
 import DataCard from 'components/layout/DataCard';
 import { bindActionCreators } from 'redux';
@@ -190,7 +190,7 @@ const DataVisualizationDetails = ({ ...props }) => {
                 </p>
                 <p>
                   <b>
-                    {moment(timeCreatedAgo).format('DD.MM.YYYY - hh:mm:ss')}
+                    {moment(timeCreatedAgo).format(PIPELINE_VIEWS_FORMAT)}
                   </b>
                 </p>
               </div>
@@ -202,7 +202,7 @@ const DataVisualizationDetails = ({ ...props }) => {
                 </p>
                 <p>
                   <b>
-                    {isCompleted ? moment(updatedAt).format('DD.MM.YYYY - hh:mm:ss') : '---'}
+                    {isCompleted ? moment(updatedAt).format(PIPELINE_VIEWS_FORMAT) : '---'}
                   </b>
                 </p>
               </div>

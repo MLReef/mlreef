@@ -159,4 +159,6 @@ export const OPERATION = 'OPERATION';
 export const ALGORITHM = 'ALGORITHM';
 export const VISUALIZATION = 'VISUALIZATION';
 
-/* --------------------------  ----------------------------------------------- -------------------------- */
+/* --------------------------  ------------------------------------- ------------------*/
+
+export const PIPELINE_VIEWS_FORMAT = 'DD/MM - hh:mm';
