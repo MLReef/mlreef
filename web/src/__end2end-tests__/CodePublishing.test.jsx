@@ -193,12 +193,19 @@ myCustomOperationEntrypoint(epfInputArray)`,
   // expect(projDeletionResp.ok).toBeTruthy();
 });
 
-test('Verify whether gitlab starts pipeline', async () => {
-  const pipelineInfo = await gitlabApiMock.getPipesByProjectId(gitlabProjectId);
-  expect(pipelineInfo.length > 0).toBeTruthy();
+test('Verify whether gitlab starts a pipeline', async () => {
+  let resp = [];
+  setTimeout(async () => {
+    const response = await gitlabApiMock.getPipesByProjectId(gitlabProjectId);
+    resp = response;
+  }, 200000);
+
+  await waitForExpect(() => {
+    expect(resp.length > 0).toBeTruthy();
+  }, 200000, 500);
 });
 
-test('Check whether Gitlab registries contain images', async () => {
+test('Check whether Gitlabs docker registry lists the new image', async () => {
   let resp = [];
   setTimeout(async () => {
     const response = await projectInfoApi.getGitlabRegistries(gitlabProjectId);
