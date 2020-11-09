@@ -29,6 +29,8 @@ let removeMe_pass;
 // end todo
 let gitlabProjectId;
 
+let regsitryResponse;
+
 beforeAll(async () => {
   // ------------- create the user ------------- //
   const suffix = uuidv1().toString().split('-')[0];
@@ -217,9 +219,16 @@ test('Check whether Gitlab registries contain images', async () => {
   setTimeout(async () => {
     const response = await projectInfoApi.getGitlabRegistries(gitlabProjectId);
     resp = response;
+    regsitryResponse = response;
   }, 200000);
 
   await waitForExpect(() => {
     expect(resp.length > 0).toBeTruthy();
   }, 200000, 500);
+});
+
+test('Verify if container tags are created inside registry', async () => {
+  const response = await projectInfoApi.getGitlabRegistryTags(gitlabProjectId, regsitryResponse[0].id);
+  console.log(response);
+  expect(response.length > 0).toBeTruthy();
 });

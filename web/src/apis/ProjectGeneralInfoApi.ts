@@ -199,4 +199,15 @@ export default class ProjectGeneralInfoApi extends ApiDirector {
     return fetch(apiReqBuilder.build())
       .then(handleResponse);
   }
+
+  getGitlabRegistryTags(gitlabProjectId: number, registryId: number) {
+    const baseUrl = `/api/v4/projects/${gitlabProjectId}/registry/repositories/${registryId}/tags`;
+    const apiReqBuilder = new BodyLessApiRequestCallBuilder(
+      METHODS.GET,
+      this.buildBasicHeaders(validServicesToCall.GITLAB),
+      baseUrl,
+    );
+    return fetch(apiReqBuilder.build())
+      .then(handleResponse);
+  }
 }
