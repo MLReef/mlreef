@@ -1,29 +1,29 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { plainToClass } from 'class-transformer';
-import Experiment from 'domain/experiments/Experiment';
 import { toastr } from 'react-redux-toastr';
 import { bindActionCreators } from 'redux';
 import uuidv1 from 'uuid/v1';
 import {
   shape, string, number, func, arrayOf,
 } from 'prop-types';
-import ExperimentsApi from 'apis/experimentApi';
-import { parseToCamelCase } from 'functions/dataParserHelpers';
 import { generateBreadCrumbs } from 'functions/helpers';
 import AuthWrapper from 'components/AuthWrapper';
-import CommitsApi from '../../apis/CommitsApi.ts';
 import * as jobsActions from '../../actions/jobsActions';
 import Navbar from '../navbar/navbar';
 import ProjectContainer from '../projectContainer';
 import './experimentsOverview.css';
 import * as userActions from '../../actions/userActions';
 import ExperimentCard from './experimentCard';
-import { classifyExperiments } from '../../functions/pipeLinesHelpers';
 import emptyLogo from '../../images/experiments_empty-01.png';
+import experimentActions from './ExperimentActions';
 
-const expApi = new ExperimentsApi();
-const commitsApi = new CommitsApi();
+export const buttons = [
+  'All',
+  'Running',
+  'Completed',
+  'Failed',
+  'Canceled',
+];
 
 class ExperimentsOverview extends Component {
   constructor(props) {
@@ -43,30 +43,10 @@ class ExperimentsOverview extends Component {
   componentDidMount() {
     const { projects: { selectedProject: { gid, id } }, actions } = this.props;
     actions.setIsLoading(true);
-    actions.getJobsListPerProject(gid);
-    expApi.getExperiments(id)
-      .then((exps) => exps.map((exp) => parseToCamelCase(exp)))
-      .then((rawExperiments) => rawExperiments
-        .filter((exp) => exp.pipelineJobInfo !== null)
-        .map((exp) => {
-          const classExp = plainToClass(Experiment, parseToCamelCase(exp));
-          classExp.pipelineJobInfo = parseToCamelCase(exp.pipelineJobInfo);
-
-          return classExp;
-        }))
-      .then((exps) => exps.map(async (exp) => {
-        const commitInfo = await commitsApi.getCommitDetails(gid, exp.pipelineJobInfo?.commitSha);
-        exp.authorName = commitInfo.author_name;
-        exp.status = commitInfo
-          .last_pipeline
-          .status;
-        return exp;
+    experimentActions.getAndSortExperimentsInfo(id, gid)
+      .then((experimentsClassified) => this.setState({
+        experiments: experimentsClassified, all: experimentsClassified,
       }))
-      .then(async (promises) => {
-        const experiments = await Promise.all(promises);
-        const experimentsClassified = classifyExperiments(experiments);
-        this.setState({ experiments: experimentsClassified, all: experimentsClassified });
-      })
       .catch(() => toastr.error('Error', 'Could not fetch the latest experiments'))
       .finally(() => actions.setIsLoading(false));
   }
@@ -84,7 +64,7 @@ class ExperimentsOverview extends Component {
     const { all } = this.state;
     let experiments = all;
     if (e.target.id !== 'all') {
-      experiments = all.filter((exp) => exp.status === e.target.id);
+      experiments = all.filter((exp) => exp.status?.toLowerCase() === e.target.id);
     }
     this.setState({ experiments });
   }
@@ -111,7 +91,8 @@ class ExperimentsOverview extends Component {
       },
     ];
 
-    const areThereExperimentsToShow = all.map((expClass) => expClass.values.length).reduce((a, b) => a + b) !== 0;
+    const areThereExperimentsToShow = all
+      .map((expClass) => expClass.values.length).reduce((a, b) => a + b) !== 0;
     return (
       <>
         <Navbar />
@@ -125,46 +106,16 @@ class ExperimentsOverview extends Component {
             {selectedExperiment === null && (
             <>
               <div id="buttons-container">
-                <button
-                  id="all"
-                  type="button"
-                  className="btn btn-switch"
-                  onClick={(e) => this.handleButtonsClick(e)}
-                >
-                  All
-                </button>
-                <button
-                  id="running"
-                  type="button"
-                  className="btn btn-switch"
-                  onClick={(e) => this.handleButtonsClick(e)}
-                >
-                  Running
-                </button>
-                <button
-                  id="success"
-                  type="button"
-                  className="btn btn-switch"
-                  onClick={(e) => this.handleButtonsClick(e)}
-                >
-                  Completed
-                </button>
-                <button
-                  id="failed"
-                  type="button"
-                  className="btn btn-switch"
-                  onClick={(e) => this.handleButtonsClick(e)}
-                >
-                  Failed
-                </button>
-                <button
-                  id="canceled"
-                  type="button"
-                  className="btn btn-switch mr-auto"
-                  onClick={(e) => this.handleButtonsClick(e)}
-                >
-                  Canceled
-                </button>
+                {buttons.map((name) => (
+                  <button
+                    id={name.toLowerCase()}
+                    type="button"
+                    className="btn btn-switch"
+                    onClick={this.handleButtonsClick}
+                  >
+                    {name}
+                  </button>
+                ))}
                 <AuthWrapper minRole={30} norender>
                   <button
                     id="new-experiment"
@@ -178,18 +129,19 @@ class ExperimentsOverview extends Component {
               </div>
             </>
             )}
-            {selectedExperiment === null && experiments.map((experimentClassification) => experimentClassification.values.length > 0 && (
-            <ExperimentCard
-              projectNamespace={namespace}
-              projectSlug={slug}
-              key={uuidv1()}
-              projectId={selectedProject.gid}
-              defaultBranch={selectedProject.defaultBranch}
-              currentState={experimentClassification.status}
-              experiments={experimentClassification.values}
-              algorithms={algorithms}
-            />
-            ))}
+            {selectedExperiment === null && experiments
+              .map((experimentClassification) => experimentClassification.values.length > 0 && (
+              <ExperimentCard
+                projectNamespace={namespace}
+                projectSlug={slug}
+                key={uuidv1()}
+                projectId={selectedProject.gid}
+                defaultBranch={selectedProject.defaultBranch}
+                currentState={experimentClassification.status}
+                experiments={experimentClassification.values}
+                algorithms={algorithms}
+              />
+              ))}
           </div>
         ) : (
           <div className="main-content">
@@ -197,14 +149,16 @@ class ExperimentsOverview extends Component {
               <img src={emptyLogo} width="240" alt="Create an experiment" />
               <span>You don't have any experiment in your ML project</span>
               <p>Why not start one?</p>
-              <button
-                id="new-experiment"
-                type="button"
-                className="btn btn-primary"
-                onClick={() => history.push(`/${namespace}/${slug}/-/experiments/new`)}
-              >
-                Start an experiment
-              </button>
+              <AuthWrapper minRole={30}>
+                <button
+                  id="new-experiment"
+                  type="button"
+                  className="btn btn-primary"
+                  onClick={() => history.push(`/${namespace}/${slug}/-/experiments/new`)}
+                  >
+                  Start an experiment
+                </button>
+              </AuthWrapper>
             </div>
           </div>
         )}
