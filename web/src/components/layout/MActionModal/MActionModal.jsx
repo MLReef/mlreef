@@ -29,7 +29,7 @@ const MActionModal = (props) => {
     header: 'modal-header',
     btnPositive: `positive btn btn-${type}`,
     btnNegative: `negative btn btn-outline-${type}`,
-    btnIgnore: `ignore btn  btn-basic-dark`,
+    btnIgnore: 'ignore btn  btn-basic-dark',
   }), [isShown, dark, type, small]);
 
   const closeModal = () => actions.closeModal();
@@ -63,7 +63,8 @@ const MActionModal = (props) => {
               type="button"
               className="btn btn-hidden fa fa-times"
               onClick={handleClose}
-              label="close"
+              label="close modal"
+              aria-label="close modal"
             />
           </div>
         )}

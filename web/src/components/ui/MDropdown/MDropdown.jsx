@@ -73,6 +73,7 @@ const MDropdown = (props) => {
       <div className="m-dropdown-button">
         <button
           type="button"
+          label="toggle"
           className={`${buttonClasses} ${isShown ? 'active' : ''}`}
           onClick={toggleShow}
         >

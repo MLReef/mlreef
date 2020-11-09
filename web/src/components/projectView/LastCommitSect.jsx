@@ -50,7 +50,7 @@ const ProjectLastCommitSect = ({
         {committer && (
           <Link to={`/${avatarName}`}>
             <span style={{ position: 'relative' }}>
-              <img className="avatar-circle mt-2" width="32" height="32" src={avatarUrl} alt="" />
+              <img className="avatar-circle mt-2" width="32" height="32" src={avatarUrl} alt="avatar" />
             </span>
           </Link>
         )}
