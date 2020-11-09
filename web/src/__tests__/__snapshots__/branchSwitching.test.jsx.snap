@@ -12,6 +12,7 @@ exports[`The branches list should be displayed when dropdown button is clicked d
     >
       <button
         className="btn btn-basic-dark px-2 "
+        label="toggle"
         onClick={[Function]}
         type="button"
       >
@@ -105,6 +106,7 @@ exports[`The branches list should be displayed when dropdown button is clicked d
     >
       <button
         className="btn btn-basic-dark px-2 "
+        label="toggle"
         onClick={[Function]}
         type="button"
       >

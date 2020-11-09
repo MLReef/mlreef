@@ -14,7 +14,7 @@
     background-color: #fafafa;
     border: 1px solid #e5e5e5;
     border-radius: 2px;
-    
+
     p {
       margin: 0;
     }
@@ -30,4 +30,9 @@ fieldset{
   padding: 0;
   margin: 0;
   border: 0;
+}
+
+fieldset pre {
+  max-width: 100vw;
+  overflow-x: auto;
 }

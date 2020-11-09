@@ -31,8 +31,8 @@ class Navbar extends Component {
         <div className="navbar">
           <div className="w-100 px-3 d-flex">
             <div className="my-auto">
-              <Link to={user.auth ? '/' : '/explore'}>
-                <img className="logo" src={mlReefIcon01} alt="" />
+              <Link to={user.auth ? '/' : '/explore'} aria-label="Go to home" label="Go to home">
+                <img className="logo" src={mlReefIcon01} alt="MLReef brand" />
               </Link>
             </div>
 

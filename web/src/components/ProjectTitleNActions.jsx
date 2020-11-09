@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { bindActionCreators } from 'redux';
-import { Helmet } from 'react-helmet';
 import {
   func, shape, string, number, bool,
 } from 'prop-types';
@@ -11,9 +10,9 @@ import { plainToClass } from 'class-transformer';
 import DataProject from 'domain/project/DataProject';
 import MEmptyAvatar from 'components/ui/MEmptyAvatar/MEmptyAvatar';
 import MWrapper from 'components/ui/MWrapper';
+import SEO from 'components/commons/SEO';
 import { PROJECT_TYPES } from 'domain/project/projectTypes';
 import CodeProject from 'domain/project/CodeProject';
-import { EXTERNAL_URL } from 'apiConfig.js';
 import ProjectGeneralInfoApi from '../apis/ProjectGeneralInfoApi.ts';
 import * as projectActions from '../actions/projectInfoActions';
 import MLoadingSpinner from './ui/MLoadingSpinner';
@@ -83,12 +82,13 @@ const ProjectInfo = (props) => {
   return (
     <div className="project-info">
       {!isLoading && (
-        <Helmet>
-          <title>
-            {`${classProject.gitlabName} · MLReef`}
-          </title>
-          <link rel="canonical" href={`${EXTERNAL_URL}/${classProject.namespace}/${classProject.slug}`} />
-        </Helmet>
+        <SEO
+          title={`${classProject.gitlabName} · MLReef`}
+          description={classProject.description}
+          image={classProject.avatarUrl}
+          path={`/${classProject.namespace}/${classProject.slug}`}
+          type="object"
+        />
       )}
       <div className="project-id">
         {classProject.avatarUrl === null
@@ -228,6 +228,8 @@ export function Clonedropdown(props) {
     >
       <span
         role="button"
+        label="toggle"
+        aria-label="toggle"
         className={`fa fa-chevron-${open ? 'up' : 'down'}`}
       />
       {open && (
@@ -275,8 +277,13 @@ export function Clonedropdown(props) {
   );
 }
 
+Clonedropdown.defaultProps = {
+  className: '',
+};
+
 Clonedropdown.propTypes = {
   http: string.isRequired,
+  className: string,
 };
 
 function mapDispatchToProps(dispatch) {

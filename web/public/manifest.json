@@ -1,8 +1,9 @@
 {
   "short_name": "MLReef",
-  "name": "Provides you and your team the environment to manage your data",
-  "start_url": "./index.html",
+  "name": "Machine Learning Ops | MLReef",
+  "description": "MLReef - your entire Machine Learning life cycle in one platform.",
+  "categories": ["ML", "git", "MLOps"],
   "display": "standalone",
-  "theme_color": "#000000",
+  "theme_color": "#1D2B40",
   "background_color": "#ffffff"
 }

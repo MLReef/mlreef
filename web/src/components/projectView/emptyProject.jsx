@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { string } from 'prop-types';
+import MWrapper from 'components/ui/MWrapper';
 import './emptyProject.scss';
 
 const EmptyProject = ({ httpUrlToRepo, projectId }) => (
@@ -9,6 +10,8 @@ const EmptyProject = ({ httpUrlToRepo, projectId }) => (
       <h4 style={{ fontSize: '1.3125rem', color: '#2e2e2e', marginBottom: '0.5rem' }}>The repository for this project is empty</h4>
       <h3>Get started with the following options:</h3>
       <div style={{ display: 'flex' }}>
+        <MWrapper disable title="This action is temporarily disabled">
+          {/* eslint-disable-next-line */}
         <Link
           type="button"
           className="btn btn-primary mr-3"
@@ -18,6 +21,7 @@ const EmptyProject = ({ httpUrlToRepo, projectId }) => (
         >
           Upload File
         </Link>
+        </MWrapper>
       </div>
     </div>
     <div className="empty-wrapper" style={{ marginTop: '3em' }}>
