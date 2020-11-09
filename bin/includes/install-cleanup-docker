@@ -4,7 +4,7 @@
 docker images -f "dangling=true"
 
 # Removes all unused images
-docker rmi $(docker images -f "dangling=true" -q) --force || true
+docker rmi $(docker images -f "dangling=true" -q)  || true
 
 # Removes all unused volumes
 docker volume prune --force || true
