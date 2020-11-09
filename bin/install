@@ -28,12 +28,6 @@ rm -f local.env 2>/dev/null || true
 
 ####
 log "Starting Deployment"
-if [ "$INSTANCE_HOST" != "localhost" ]; then
-  # Cleanup docker images and volumes
-  . bin/includes/install-cleanup-docker
-  # Dowload all needed images
-  docker-compose -f docker-compose.local.yml pull
-fi
 log "Stopping service gateway backend mlreefdb"
 docker-compose -f docker-compose.local.yml stop gateway backend mlreefdb
 log "Starting Deployment"
@@ -50,8 +44,10 @@ cat local.env
 #
 log "1. Starting Gitlab Omnibus"
 # the container ec2-startup wait is necessary to let gitlab initialise the database
-log "docker-compose up -f docker-compose.local.yml --detach gitlab gitlab-runner"
-docker-compose -f docker-compose.local.yml up --detach gitlab gitlab-runner
+log "Pulling and starting 'Gitlab'"
+docker-compose -f docker-compose.local.yml pull gitlab && docker-compose -f docker-compose.local.yml up --detach gitlab
+log "Pulling and starting 'Gitlab Runner'"
+docker-compose -f docker-compose.local.yml pull gitlab-runner && docker-compose -f docker-compose.local.yml up --detach gitlab-runner
 waitUntilGitlabAvailable
 
 #
@@ -214,18 +210,38 @@ done
 log "Expecting code 200; received: $(checkGitlabPort /api/v4/projects)"
 
 log "6. Start other services"
-docker-compose -f docker-compose.local.yml up --detach redis mlreefdb
-if [ "${SKIP_BACKEND_DEPLOYMENT:-false}" != "true" ]; then
-  docker-compose -f docker-compose.local.yml up --detach backend
-fi
-if [ "${SKIP_GATEWAY_DEPLOYMENT:-false}" != "true" ]; then
-  docker-compose -f docker-compose.local.yml up --detach gateway
+docker-compose -f docker-compose.local.yml pull redis && docker-compose -f docker-compose.local.yml up --detach redis 
+docker-compose -f docker-compose.local.yml pull mlreefdb && docker-compose -f docker-compose.local.yml up --detach  mlreefdb
+# When running in the cloud, we want to explicitly pull new versions of our images before restarting the services (backend & gateway),
+# But on localhost, the locally created images for both services or one time pull from docker compose definition of image will be enough
+if [ "$INSTANCE_HOST" != "localhost" ]; then
+  if [ "${SKIP_BACKEND_DEPLOYMENT:-false}" != "true" ]; then
+    docker-compose -f docker-compose.local.yml pull backend && docker-compose -f docker-compose.local.yml up --detach backend
+  fi
+  if [ "${SKIP_GATEWAY_DEPLOYMENT:-false}" != "true" ]; then
+    docker-compose -f docker-compose.local.yml pull gateway && docker-compose -f docker-compose.local.yml up --detach gateway
+  fi
+else
+  #Use local build images when running on localhost
+  if [ "${SKIP_BACKEND_DEPLOYMENT:-false}" != "true" ]; then
+    docker-compose -f docker-compose.local.yml up --detach backend
+  fi
+  if [ "${SKIP_GATEWAY_DEPLOYMENT:-false}" != "true" ]; then
+    docker-compose -f docker-compose.local.yml up --detach gateway
+  fi
 fi
 sleep 30 # Add an additional sleep in the end to improve user experience; So that Docker is started when the script ends
 
 #
 echo "Debug Log: gitlab runner configuration"
 docker exec gitlab-runner cat /etc/gitlab-runner/config.toml
+
+if [ "$INSTANCE_HOST" != "localhost" ]; then
+  # After all services are up, the older version of images which are no more being used by
+  # any containers, can be deleted. The same can be done for any non-persistent volume which is no more being used
+  # Cleanup docker images and volumes with below script
+  . bin/includes/install-cleanup-docker
+fi
 
 ###Add insecure registry entry in docker daemon"
 echo "adding entry in ${DOCKER_DAEMON_JSON}"
