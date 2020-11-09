@@ -2719,6 +2719,127 @@ export const experimentsClassifiedMock = [
   { status: 'EXPIRED', values: [] },
 ];
 
+
+export const backendExperiments = [
+  {
+    id: '22b2c5c5-221e-4216-8052-21f5a61c6098',
+    data_project_id: 'c48b8573-1aeb-4cab-980b-f70edff4e49b',
+    data_instance_id: null,
+    slug: 'experiment-powerful-krill-6112020',
+    name: 'experiment/powerful-krill_6112020',
+    number: 1,
+    source_branch: 'master',
+    target_branch: 'experiment/powerful-krill_6112020',
+    status: 'PENDING',
+    pipeline_job_info: {
+      id: 231,
+      ref: 'experiment/powerful-krill_6112020',
+      commit_sha: '9d2816464e6f1eb5ab42830c02c39ec6c7de67ba',
+      created_at: '2020-11-06T15:03:47.796Z',
+      updated_at: '2020-11-06T15:03:47.919Z',
+    },
+    input_files: [
+      {
+        location: 'README.md',
+        location_type: 'PATH_FILE',
+      },
+    ],
+    post_processing: [],
+    processing: {
+      slug: 'commons-resnet-50',
+      parameters: [
+        {
+          name: 'input-path',
+          value: 'README.md',
+          type: 'STRING',
+          required: true,
+          description: 'Data input, path to the images used for training',
+        },
+        {
+          name: 'output-path',
+          value: '.',
+          type: 'STRING',
+          required: true,
+          description: 'path to output metrics and model',
+        },
+        {
+          name: 'height',
+          value: '9',
+          type: 'INTEGER',
+          required: true,
+          description: 'height of images (int)',
+        },
+        {
+          name: 'width',
+          value: '9',
+          type: 'INTEGER',
+          required: true,
+          description: 'width of images (int)',
+        },
+        {
+          name: 'epochs',
+          value: '9',
+          type: 'INTEGER',
+          required: true,
+          description: 'number of epochs for training',
+        },
+        {
+          name: 'channels',
+          value: '3',
+          type: 'INTEGER',
+          required: false,
+          description: 'channels of images: 1 = grayscale, 3 = RGB ,4=RGBA (int)',
+        },
+        {
+          name: 'use-pretrained',
+          value: 'true',
+          type: 'BOOLEAN',
+          required: false,
+          description: 'use pretrained ResNet50 weights (bool)',
+        },
+        {
+          name: 'batch-size',
+          value: '25',
+          type: 'INTEGER',
+          required: false,
+          description: 'batch size fed to the neural network (int)',
+        },
+        {
+          name: 'validation-split',
+          value: '0.2',
+          type: 'FLOAT',
+          required: false,
+          description: 'fraction of images to be used for validation (float)',
+        },
+        {
+          name: 'class_mode',
+          value: '[{ "value": "categorical" }, { "value": "binary" }, { "value": "sparse" }]',
+          type: 'STRING',
+          required: false,
+          description: 'class mode : if class_mode is categorical (default value) it must include the label column with the class/es of each image. Values in column can be string/list/tuple if a single class or list/tuple if multiple classes. if class_mode is binary or sparse it must include the given label column with class values as strings. if class_mode is raw or multi_output it should contain the columns specified in labels. if class_mode is input or None no extra column is needed.',
+        },
+        {
+          name: 'learning-rate',
+          value: '0.0001',
+          type: 'FLOAT',
+          required: false,
+          description: 'learning rate of Adam Optimizer (float)',
+        },
+        {
+          name: 'loss',
+          value: 'sparse_categorical_crossentropy',
+          type: 'STRING',
+          required: false,
+          description: ': Use sparse_categorical_crossentropy loss function when there are two or more label classes. We expect labels to be provided as integers. If you want to provide labels using one-hot representation, please use categorial_crossentropy loss, binary_crossentropy means that the labels (there can be only 2) are encoded as float32 scalars with values 0 or 1.',
+        },
+      ],
+      id: '72a88241-d956-490c-b594-d18066a9c905',
+      name: 'Resnet50',
+    },
+    json_blob: '',
+  },
+];
+
 export const filesInScrollableSection = [
   {
     key: '5.jpg',

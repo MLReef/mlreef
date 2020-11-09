@@ -179,9 +179,13 @@ export const classifyPipeLines = (pipelinesToClassify, arrayOfBranches, dataPipe
   ];
 };
 
-/* ----------------------------  ----------------------------------  -------------------------------*/
+/* -------------------  ----------------------------------  ------------------------------- */
 
-const sortingByDateFunc = (a, b) => new Date(b.pipelineJobInfo.createdAt) - new Date(a.pipelineJobInfo.createdAt);
+const sortingByDateFunc = (a, b) => new Date(
+  b.pipelineJobInfo.createdAt,
+) - new Date(
+  a.pipelineJobInfo.createdAt,
+);
 
 /**
  *
