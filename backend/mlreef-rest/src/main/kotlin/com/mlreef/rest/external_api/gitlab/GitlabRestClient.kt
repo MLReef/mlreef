@@ -57,7 +57,7 @@ inline fun <reified T : Any> typeRef(): ParameterizedTypeReference<T> = object :
 @Component
 class GitlabRestClient(
     private val conf: ApplicationConfiguration,
-    private val builder: RestTemplateBuilder
+    private val builder: RestTemplateBuilder,
 ) {
     @Autowired
     private lateinit var objectMapper: ObjectMapper
@@ -101,9 +101,9 @@ class GitlabRestClient(
         nameSpaceId: Long? = null,
         initializeWithReadme: Boolean = false,
         autoDevopsEnabled: Boolean = false,
-        buildTimeout: Int = 18000
-    ): GitlabProject {
-        return GitlabCreateProjectRequest(
+        buildTimeout: Int = 18000,
+    ): GitlabProject =
+        GitlabCreateProjectRequest(
             name = name,
             path = slug,
             description = description,
@@ -116,14 +116,36 @@ class GitlabRestClient(
             buildTimeout = buildTimeout
         )
             .let { GitlabHttpEntity(it, createUserHeaders(token)) }
-            .addErrorDescription(409, ErrorCode.GitlabProjectAlreadyExists, "The project name already exists")
-            .addErrorDescription(400, ErrorCode.GitlabProjectAlreadyExists, "The project name alreay exists")
+            .addErrorDescription(409, ErrorCode.GitlabProjectAlreadyExists, "The project name is already in use by another project in the same namespace")
+            .addErrorDescription(400, ErrorCode.GitlabProjectAlreadyExists, "The project name is already in use by another project in the same namespace")
             .addErrorDescription(ErrorCode.GitlabProjectCreationFailed, "Cannot create project $name in gitlab")
             .makeRequest {
                 val url = "$gitlabServiceRootUrl/projects"
                 restTemplate(builder).exchange(url, HttpMethod.POST, it, GitlabProject::class.java)
-            } ?: throw Exception("GitlabRestClient: Gitlab response does not contain a body.")
-    }
+            }
+            ?: throw Exception("GitlabRestClient: Gitlab response does not contain a body.")
+
+    // https://docs.gitlab.com/ee/api/projects.html#fork-project
+    fun forkProject(
+        token: String,
+        sourceId: Long,
+        targetName: String? = null,
+        targetPath: String? = null,
+    ): GitlabProject =
+        GitlabForkProjectRequest(
+            id = sourceId,
+            name = targetName,
+            path = targetPath,
+        )
+            .let { GitlabHttpEntity(it, createUserHeaders(token)) }
+            .addErrorDescription(409, ErrorCode.GitlabProjectAlreadyExists, "The project name is already in use by another project in the same namespace")
+            .addErrorDescription(400, ErrorCode.GitlabProjectAlreadyExists, "The project name is already in use by another project in the same namespace")
+            .makeRequest {
+                val url = "$gitlabServiceRootUrl/projects"
+                restTemplate(builder).exchange(url, HttpMethod.POST, it, GitlabProject::class.java)
+            }
+            ?: throw Exception("GitlabRestClient: Gitlab response does not contain a body.")
+
 
     // https://docs.gitlab.com/ee/api/projects.html#star-a-project
     fun userStarProject(token: String, projectId: Long): GitlabProject {
@@ -410,7 +432,7 @@ class GitlabRestClient(
         commitMessage: String,
         fileContents: Map<String, String>,
         action: String,
-        force: Boolean = false
+        force: Boolean = false,
     ): Commit =
         GitlabCreateCommitRequest(
             branch = targetBranch,
@@ -947,7 +969,7 @@ class GitlabRestClient(
                 .body
                 ?: throw Exception("GitlabRestClient: Gitlab response does not contain a body.")
         } catch (ex: HttpStatusCodeException) {
-            processExceptionFormGitlab(ex, this, block)
+            processGitlabException(ex, this, block)
                 ?: throw Exception("GitlabRestClient: Gitlab response does not contain a body.")
         }
 
@@ -956,10 +978,10 @@ class GitlabRestClient(
             block.invoke(this)
                 .also { logGitlabCall(it) }
         } catch (ex: HttpStatusCodeException) {
-            processExceptionFormGitlab(ex, this, block)
+            processGitlabException(ex, this, block)
         }
 
-    private fun <T : GitlabHttpEntity<out Any>, R> processExceptionFormGitlab(ex: HttpStatusCodeException, entity: T, block: (T) -> ResponseEntity<out R>): R? {
+    private fun <T : GitlabHttpEntity<out Any>, R> processGitlabException(ex: HttpStatusCodeException, entity: T, block: (T) -> ResponseEntity<out R>): R? {
         return try {
             if (ex.statusCode == HttpStatus.UNAUTHORIZED || ex.statusCode == HttpStatus.FORBIDDEN) {
                 repeatUnauthorized(entity, ex, block).body

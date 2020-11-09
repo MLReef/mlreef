@@ -7,8 +7,10 @@ import com.mlreef.rest.exceptions.GitlabCommonException
 import com.mlreef.rest.exceptions.NotFoundException
 import com.mlreef.rest.external_api.gitlab.GitlabAccessLevel
 import com.mlreef.rest.external_api.gitlab.GitlabRestClient
+import com.mlreef.rest.external_api.gitlab.dto.GitlabProject
 import com.mlreef.rest.utils.RandomUtils
 import com.mlreef.utils.Slugs
+import java.time.ZonedDateTime.now
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
@@ -18,6 +20,7 @@ import org.junit.jupiter.api.assertThrows
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.test.annotation.Rollback
 import javax.transaction.Transactional
+import org.assertj.core.api.Assertions.assertThatIllegalStateException
 
 @Suppress("UsePropertyAccessSyntax")
 @Transactional
@@ -51,7 +54,7 @@ class GitlabRestClientTest : AbstractIntegrationTest() {
             name = "name",
             description = "description",
             defaultBranch = "master",
-            visibility = "public"
+            visibility = "public",
         )
         assertThat(createProject).isNotNull
     }
@@ -65,8 +68,61 @@ class GitlabRestClientTest : AbstractIntegrationTest() {
                 name = "another",
                 description = "description",
                 defaultBranch = "master",
-                visibility = "public"
+                visibility = "public",
             )
+        }
+    }
+
+    @Test
+    fun `Can fork project into same namespace`() {
+        val (_, token, _) = testsHelper.createRealUser()
+        val original = gitlabRestClient.createProject(
+            token = token,
+            slug = "original-name",
+            name = "Original Name",
+            description = "description",
+            defaultBranch = "master",
+            visibility = "public",
+        )
+        val targetName = "New Name"
+        val fork = gitlabRestClient.forkProject(
+            token = token,
+            sourceId = original.id,
+            targetName = targetName,
+        )
+
+        with(fork) {
+            assertThat(id).isNotEqualTo(original.id)
+            assertThat(name).isEqualTo(targetName)
+            assertThat(path).contains("new-name")
+            assertThat(namespace!!.path).contains(original.namespace!!.path)
+            assertThat(createdAt).isNotEqualTo(original.createdAt)
+        }
+    }
+
+    @Test
+    fun `Can fork project from foreign namespace into personal namespace`() {
+        val (_, originalOwner, _) = testsHelper.createRealUser()
+        val original = gitlabRestClient.createProject(
+            token = originalOwner,
+            slug = "original-name",
+            name = "Original Name",
+            description = "description",
+            defaultBranch = "master",
+            visibility = "public",
+        )
+        val fork = gitlabRestClient.forkProject(
+            token = token,
+            sourceId = original.id,
+            targetName = original.name, // possible because we are forking from a foreign namespace to our private namespace
+        )
+
+        with(fork) {
+            assertThat(id).isNotEqualTo(original.id)
+            assertThat(name).isEqualTo(original.name)
+            assertThat(path).isEqualTo(original.path)
+            assertThat(namespace!!.path).doesNotContain(original.namespace!!.path)
+            assertThat(createdAt).isNotEqualTo(original.createdAt)
         }
     }
 
@@ -88,7 +144,7 @@ class GitlabRestClientTest : AbstractIntegrationTest() {
                 id = createProject.id,
                 token = token,
                 name = "",
-                visibility = "public"
+                visibility = "public",
             )
         }
     }
@@ -101,7 +157,7 @@ class GitlabRestClientTest : AbstractIntegrationTest() {
             gitlabRestClient.userUpdateProject(
                 id = createProject.id,
                 token = token,
-                visibility = ""
+                visibility = "",
             )
         }
     }
@@ -124,20 +180,20 @@ class GitlabRestClientTest : AbstractIntegrationTest() {
     }
 
     @Test
-    fun `createBranch should create branch`() {
+    fun `Can create Git branch`() {
         val createProject = createProject(token)
         assertThat(createProject).isNotNull
         val createBranch = gitlabRestClient.createBranch(
             token = token,
             projectId = createProject.id,
             targetBranch = "second",
-            sourceBranch = "master"
+            sourceBranch = "master",
         )
         assertThat(createBranch).isNotNull
     }
 
     @Test
-    fun `createBranch cannot create branch from missing source branch`() {
+    fun `Cannot create branch without valid source branch`() {
         val createProject = createProject(token)
         assertThat(createProject).isNotNull
 
@@ -146,26 +202,26 @@ class GitlabRestClientTest : AbstractIntegrationTest() {
                 token = token,
                 projectId = createProject.id,
                 targetBranch = "second",
-                sourceBranch = "no"
+                sourceBranch = "no",
             )
         }
     }
 
     @Test
-    fun `deleteBranch must not delete master`() {
+    fun `Cannot delete master branch`() {
         val createProject = createProject(token)
         assertThat(createProject).isNotNull
         assertThrows<BadRequestException> {
             gitlabRestClient.deleteBranch(
                 token = token,
                 projectId = createProject.id,
-                targetBranch = "master"
+                targetBranch = "master",
             )
         }
     }
 
     @Test
-    fun `deleteBranch should delete branch`() {
+    fun `Can delete branch`() {
         val createProject = createProject(token)
         assertThat(createProject).isNotNull
         val createBranch = gitlabRestClient.createBranch(
@@ -191,21 +247,21 @@ class GitlabRestClientTest : AbstractIntegrationTest() {
             token = token,
             projectId = createProject.id,
             targetBranch = "second",
-            sourceBranch = "master"
+            sourceBranch = "master",
         )
         assertThat(createBranch).isNotNull
 
         gitlabRestClient.deleteBranch(
             token = token,
             projectId = createProject.id,
-            targetBranch = "second"
+            targetBranch = "second",
         )
 
         assertThrows<NotFoundException> {
             gitlabRestClient.deleteBranch(
                 token = token,
                 projectId = createProject.id,
-                targetBranch = "second"
+                targetBranch = "second",
             )
         }
     }
@@ -215,15 +271,15 @@ class GitlabRestClientTest : AbstractIntegrationTest() {
         name: String = "Name " + RandomUtils.generateRandomUserName(20),
         slug: String = Slugs.toSlug("slug-" + name),
         initializeWithReadme: Boolean = true,
-        defaultBranch: String = "master"
-    ) = gitlabRestClient.createProject(
+        defaultBranch: String = "master",
+    ): GitlabProject = gitlabRestClient.createProject(
         token = token,
         slug = slug,
         name = name,
         description = "description",
         defaultBranch = defaultBranch,
         visibility = "public",
-        initializeWithReadme = initializeWithReadme
+        initializeWithReadme = initializeWithReadme,
     )
 
     @Test
