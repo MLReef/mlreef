@@ -63,6 +63,6 @@ data class ProcessorVersion(
     @Column(name = "published_at")
     val publishedAt: ZonedDateTime = ZonedDateTime.now(),
 
-    val gitlabPath: String? = null,
+    val path: String? = null,
 
     ) : EPFAnnotation
