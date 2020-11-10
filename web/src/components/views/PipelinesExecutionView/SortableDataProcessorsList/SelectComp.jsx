@@ -92,7 +92,7 @@ export const SelectComp = ({
             }}
           />
           {isShowingOptions && (
-            <ul>
+            <ul style={{ zIndex: 1 }}>
               {options.map((opt) => (
                 <li
                   key={opt.value}

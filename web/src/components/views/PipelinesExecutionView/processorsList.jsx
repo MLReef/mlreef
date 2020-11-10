@@ -21,7 +21,8 @@ const ProcessorsList = () => {
         />
       ))}
     </div>
-)};
+  );
+};
 
 export const Processor = ({ processorData }) => {
   const [shouldDescriptionRender, setShouldDescriptionRender] = useState(false);
@@ -39,17 +40,10 @@ export const Processor = ({ processorData }) => {
       .then((res) => setCodeProjectInformation(res));
   }, [processorData]);
 
-  function handleDragStart(e) {
-    const dt = e.dataTransfer;
-    dt.setData('text/plain', e.currentTarget.id);
-    dt.effectAllowed = 'move';
-    dispatch({ type: SET_PROCESSOR_SELECTED, processorData });
-  }
-
   return (
     <div
       draggable
-      onDragStart={handleDragStart}
+      onDragStart={() => dispatch({ type: SET_PROCESSOR_SELECTED, processorData })}
       onDragEnd={() => dispatch({ type: SET_PROCESSOR_SELECTED, processorData: null })}
       className="data-operations-item round-border-button shadowed-element"
     >
