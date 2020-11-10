@@ -2,12 +2,9 @@ package com.mlreef.rest.feature.data_processors.dsl
 
 import com.mlreef.rest.CodeProject
 import com.mlreef.rest.CodeProjectRepository
-import com.mlreef.rest.DataAlgorithm
-import com.mlreef.rest.DataOperation
 import com.mlreef.rest.DataProcessor
 import com.mlreef.rest.DataProcessorRepository
 import com.mlreef.rest.DataProcessorType
-import com.mlreef.rest.DataVisualization
 import com.mlreef.rest.ProcessorVersion
 import com.mlreef.rest.ProcessorVersionRepository
 import com.mlreef.rest.Subject
@@ -65,81 +62,53 @@ class DSLContextBuilder(val owner: Subject, val userToken: String) {
 
     fun buildProcessorVersions() = processors.map { it.buildVersion(it.buildProcessor()) }
 
-    fun mergeSave(repository: DataProcessorRepository,
-                  author: Subject,
-                  items: List<DataProcessor>
+    fun mergeSave(
+        repository: DataProcessorRepository,
+        author: Subject,
+        items: List<DataProcessor>,
     ) = items.map { mergeSave(repository, author, it) }
 
-    fun mergeSave(repository: DataProcessorRepository,
-                  author: Subject,
-                  item: DataProcessor): DataProcessor {
-
-        log.info("CREATE/MERGE DataProcessor: $item")
-        val existing = repository.findByIdOrNull(item.id) ?: return repository.save(item)
-
-        log.info("MERGE DataProcessor: ${item.toString()}")
-
-        return when (existing) {
-            is DataOperation -> repository.save(existing.copy(
-                codeProjectId = item.codeProjectId,
-                slug = item.slug,
-                name = item.name,
-                inputDataType = item.inputDataType,
-                outputDataType = item.outputDataType,
-                visibilityScope = item.visibilityScope,
-                description = item.description,
-                author = item.author,
-                termsAcceptedById = item.termsAcceptedById,
-                termsAcceptedAt = item.termsAcceptedAt,
-                licenceName = item.licenceName,
-                licenceText = item.licenceText,
-                lastPublishedAt = item.lastPublishedAt
-            ))
-            is DataAlgorithm -> repository.save(existing.copy(
-                codeProjectId = item.codeProjectId,
-                slug = item.slug,
-                name = item.name,
-                inputDataType = item.inputDataType,
-                outputDataType = item.outputDataType,
-                visibilityScope = item.visibilityScope,
-                description = item.description,
-                author = item.author,
-                termsAcceptedById = item.termsAcceptedById,
-                termsAcceptedAt = item.termsAcceptedAt,
-                licenceName = item.licenceName,
-                licenceText = item.licenceText,
-                lastPublishedAt = item.lastPublishedAt
-            ))
-            is DataVisualization -> repository.save(existing.copy(
-                codeProjectId = item.codeProjectId,
-                slug = item.slug,
-                name = item.name,
-                inputDataType = item.inputDataType,
-                outputDataType = item.outputDataType,
-                visibilityScope = item.visibilityScope,
-                description = item.description,
-                author = item.author,
-                termsAcceptedById = item.termsAcceptedById,
-                termsAcceptedAt = item.termsAcceptedAt,
-                licenceName = item.licenceName,
-                licenceText = item.licenceText,
-                lastPublishedAt = item.lastPublishedAt
-            ))
+    fun mergeSave(
+        repository: DataProcessorRepository,
+        author: Subject,
+        item: DataProcessor,
+    ): DataProcessor =
+        when (val existing = repository.findByIdOrNull(item.id)) {
+            null -> {
+                log.info("CREATE DataProcessor: $item")
+                repository.save(item)
+            }
             else -> {
-                log.warn("Could not mergePersist DataProcessor: ${item.toString()}")
-                throw IllegalArgumentException("Cannot use this type: $item")
+                log.info("MERGE DataProcessor: ${item.toString()}")
+                repository.save(existing.copy(
+                    codeProjectId = item.codeProjectId,
+                    slug = item.slug,
+                    name = item.name,
+                    inputDataType = item.inputDataType,
+                    outputDataType = item.outputDataType,
+                    visibilityScope = item.visibilityScope,
+                    description = item.description,
+                    author = item.author,
+                    termsAcceptedById = item.termsAcceptedById,
+                    termsAcceptedAt = item.termsAcceptedAt,
+                    licenceName = item.licenceName,
+                    licenceText = item.licenceText,
+                    lastPublishedAt = item.lastPublishedAt
+                ))
             }
         }
-    }
 
-    fun mergeSave(repository: ProcessorVersionRepository,
-                  author: Subject,
-                  items: List<ProcessorVersion>
+    fun mergeSave(
+        repository: ProcessorVersionRepository,
+        author: Subject,
+        items: List<ProcessorVersion>,
     ) = items.map { mergeSave(repository, author, it) }
 
-    private fun mergeSave(repository: ProcessorVersionRepository,
-                          author: Subject,
-                          item: ProcessorVersion): ProcessorVersion {
+    private fun mergeSave(
+        repository: ProcessorVersionRepository,
+        author: Subject,
+        item: ProcessorVersion,
+    ): ProcessorVersion {
         log.info("CREATE/MERGE processorVersion: ${item.toString()}")
         val existing = repository.findByIdOrNull(item.id) ?: return repository.save(item)
         log.info("MERGE processorVersion: ${item.toString()}")
@@ -156,15 +125,19 @@ class DSLContextBuilder(val owner: Subject, val userToken: String) {
         ))
     }
 
-    fun mergeSave(restClient: GitlabRestClient,
-                  repository: CodeProjectRepository,
-                  author: Subject,
-                  items: List<CodeProject>) = items.map { mergeSave(restClient, repository, author, it) }
+    fun mergeSave(
+        restClient: GitlabRestClient,
+        repository: CodeProjectRepository,
+        author: Subject,
+        items: List<CodeProject>,
+    ) = items.map { mergeSave(restClient, repository, author, it) }
 
-    private fun mergeSave(restClient: GitlabRestClient,
-                          repository: CodeProjectRepository,
-                          author: Subject,
-                          item: CodeProject): CodeProject {
+    private fun mergeSave(
+        restClient: GitlabRestClient,
+        repository: CodeProjectRepository,
+        author: Subject,
+        item: CodeProject,
+    ): CodeProject {
         log.info("CREATE/MERGE CodeProject: ${item.toString()}")
         val existing = repository.findByIdOrNull(item.id)
 
@@ -211,9 +184,11 @@ class DSLContextBuilder(val owner: Subject, val userToken: String) {
     )
 
 
-    private fun refreshWithGitlab(restClient: GitlabRestClient,
-                                  author: Subject,
-                                  item: CodeProject): CodeProject? {
+    private fun refreshWithGitlab(
+        restClient: GitlabRestClient,
+        author: Subject,
+        item: CodeProject,
+    ): CodeProject? {
 
         val projects1 = restClient.adminGetUserProjects(author.gitlabId!!)
         val projects2 = restClient.adminGetProjects(search = item.slug).filter { it.path == item.slug }

@@ -25,37 +25,55 @@ class DataVisualization(
     version: Long? = null,
     createdAt: ZonedDateTime? = null,
     updatedAt: ZonedDateTime? = null
-) : DataProcessor(id, slug, name, inputDataType, DataType.NONE, DataProcessorType.VISUALIZATION,
-    visibilityScope, description, codeProject, codeProject?.id ?: codeProjectId, author,
-    termsAcceptedById, termsAcceptedAt, licenceName, licenceText, lastPublishedAt,
-    version, createdAt, updatedAt) {
+) : DataProcessor(
+    id = id,
+    slug = slug,
+    name = name,
+    inputDataType = inputDataType,
+    outputDataType = DataType.NONE,
+    type = DataProcessorType.VISUALIZATION,
+    visibilityScope = visibilityScope,
+    description = description,
+    codeProject = codeProject,
+    codeProjectId = codeProject?.id
+        ?: codeProjectId,
+    author = author,
+    termsAcceptedById = termsAcceptedById,
+    termsAcceptedAt = termsAcceptedAt,
+    licenceName = licenceName,
+    licenceText = licenceText,
+    lastPublishedAt = lastPublishedAt,
+    version = version,
+    createdAt = createdAt,
+    updatedAt = updatedAt
+) {
     override fun isChainable(): Boolean = true
 
-    fun copy(
-        slug: String? = null,
-        name: String? = null,
-        inputDataType: DataType? = null,
-        outputDataType: DataType? = null,
-        visibilityScope: VisibilityScope? = null,
-        description: String? = null,
-        author: Subject? = null,
-        codeProject: CodeProject? = null,
-        codeProjectId: UUID? = codeProject?.id,
-        termsAcceptedById: UUID? = null,
-        termsAcceptedAt: ZonedDateTime? = null,
-        licenceName: String? = null,
-        licenceText: String? = null,
-        lastPublishedAt: ZonedDateTime? = null
+    override fun copy(
+        slug: String,
+        name: String,
+        codeProject: CodeProject?,
+        codeProjectId: UUID?,
+        inputDataType: DataType,
+        outputDataType: DataType,
+        visibilityScope: VisibilityScope,
+        description: String,
+        author: Subject?,
+        termsAcceptedById: UUID?,
+        termsAcceptedAt: ZonedDateTime?,
+        licenceName: String?,
+        licenceText: String?,
+        lastPublishedAt: ZonedDateTime?,
     ): DataVisualization = DataVisualization(
-        slug = slug ?: this.slug,
-        name = name ?: this.name,
-        inputDataType = inputDataType ?: this.inputDataType,
-        visibilityScope = visibilityScope ?: this.visibilityScope,
-        description = description ?: this.description,
-        author = author ?: this.author,
         id = id,
-        codeProject = codeProject ?: this.codeProject,
-        codeProjectId = codeProjectId ?: this.codeProjectId,
+        slug = slug,
+        name = name,
+        description = description,
+        author = author,
+        inputDataType = inputDataType,
+        visibilityScope = visibilityScope,
+        codeProject = codeProject,
+        codeProjectId = codeProjectId,
         termsAcceptedById = termsAcceptedById ?: this.termsAcceptedById,
         termsAcceptedAt = termsAcceptedAt ?: this.termsAcceptedAt,
         licenceName = licenceName ?: this.licenceName,
@@ -63,7 +81,6 @@ class DataVisualization(
         lastPublishedAt = lastPublishedAt ?: this.lastPublishedAt,
         version = this.version,
         createdAt = this.createdAt,
-        updatedAt = this.updatedAt
+        updatedAt = this.updatedAt,
     )
-
 }

@@ -93,7 +93,7 @@ abstract class DataProcessor(
     @Enumerated(EnumType.STRING)
     val visibilityScope: VisibilityScope,
     @Column(length = 1024)
-    val description: String,
+    val description: String = "",
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "code_project_id", foreignKey = ForeignKey(name = "codeproject_dataprocessor_code_project_id_fkey"), updatable = false, insertable = false)
@@ -121,6 +121,24 @@ abstract class DataProcessor(
     createdAt: ZonedDateTime? = null,
     updatedAt: ZonedDateTime? = null
 ) : AuditEntity(id, version, createdAt, updatedAt), EPFAnnotation {
+
+    abstract fun copy(
+        slug: String = this.slug,
+        name: String = this.name,
+        codeProject: CodeProject? = this.codeProject,
+        codeProjectId: UUID? = this.codeProjectId,
+        inputDataType: DataType = this.inputDataType,
+        outputDataType: DataType = this.outputDataType,
+        visibilityScope: VisibilityScope = this.visibilityScope,
+        description: String = this.description,
+        author: Subject? = this.author,
+        termsAcceptedById: UUID? = this.termsAcceptedById,
+        termsAcceptedAt: ZonedDateTime? = this.termsAcceptedAt,
+        licenceName: String? = this.licenceName,
+        licenceText: String? = this.licenceText,
+        lastPublishedAt: ZonedDateTime? = this.lastPublishedAt,
+    ): DataProcessor
+
 
     fun isChainable(): Boolean {
         return type != DataProcessorType.ALGORITHM

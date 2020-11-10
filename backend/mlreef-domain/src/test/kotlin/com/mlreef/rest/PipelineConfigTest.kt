@@ -17,7 +17,8 @@ class PipelineConfigTest {
             dataProjectId = randomUUID(),
             sourceBranch = "source",
             targetBranchPattern = "target",
-            dataOperations = arrayListOf())
+            dataOperations = arrayListOf(),
+        )
     }
 
     @Test
