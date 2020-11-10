@@ -56,7 +56,8 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.ZoneId
-import java.time.ZonedDateTime
+import java.time.ZonedDateTime.now
+import java.time.ZonedDateTime.of
 import java.util.UUID
 import java.util.UUID.randomUUID
 import javax.transaction.Transactional
@@ -89,18 +90,23 @@ interface ProjectService<T : Project> {
         description: String,
         visibility: VisibilityScope = VisibilityScope.PUBLIC,
         initializeWithReadme: Boolean = false,
-        inputDataTypes: List<DataType>?
+        inputDataTypes: List<DataType>?,
     ): T
 
-    fun updateProject(userToken: String,
-                      ownerId: UUID,
-                      projectUUID: UUID,
-                      projectName: String? = null,
-                      description: String? = null,
-                      visibility: VisibilityScope? = null,
-                      inputDataTypes: List<DataType>? = null,
-                      outputDataTypes: List<DataType>? = null,
-                      tags: List<SearchableTag>? = null
+    fun forkProject(userToken: String, originalId: UUID): T
+
+    fun saveProject(project: T): T
+
+    fun updateProject(
+        userToken: String,
+        ownerId: UUID,
+        projectUUID: UUID,
+        projectName: String? = null,
+        description: String? = null,
+        visibility: VisibilityScope? = null,
+        inputDataTypes: List<DataType>? = null,
+        outputDataTypes: List<DataType>? = null,
+        tags: List<SearchableTag>? = null,
     ): T
 
     fun deleteProject(userToken: String, ownerId: UUID, projectUUID: UUID)
@@ -114,7 +120,7 @@ interface ProjectService<T : Project> {
         email: String? = null,
         userGitlabId: Long? = null,
         level: AccessLevel? = null,
-        minlevel: AccessLevel? = null
+        minlevel: AccessLevel? = null,
     ): Boolean
 
     fun addUserToProject(
@@ -122,7 +128,7 @@ interface ProjectService<T : Project> {
         userId: UUID? = null,
         userGitlabId: Long? = null,
         accessLevel: AccessLevel? = null,
-        accessTill: Instant? = null
+        accessTill: Instant? = null,
     ): Account
 
     fun addGroupToProject(
@@ -130,7 +136,7 @@ interface ProjectService<T : Project> {
         groupId: UUID? = null,
         groupGitlabId: Long? = null,
         accessLevel: AccessLevel? = null,
-        accessTill: Instant? = null
+        accessTill: Instant? = null,
     ): Group
 
     fun editUserInProject(
@@ -138,7 +144,7 @@ interface ProjectService<T : Project> {
         userId: UUID? = null,
         userGitlabId: Long? = null,
         accessLevel: AccessLevel? = null,
-        accessTill: Instant? = null
+        accessTill: Instant? = null,
     ): Account
 
     fun editGroupInProject(
@@ -146,17 +152,19 @@ interface ProjectService<T : Project> {
         groupId: UUID? = null,
         groupGitlabId: Long? = null,
         accessLevel: AccessLevel? = null,
-        accessTill: Instant? = null
+        accessTill: Instant? = null,
     ): Group
 
     fun deleteUserFromProject(projectUUID: UUID, userId: UUID? = null, userGitlabId: Long? = null): Account
     fun deleteGroupFromProject(projectUUID: UUID, groupId: UUID? = null, groupGitlabId: Long? = null): Group
 
     fun updateUserNameInProjects(oldUserName: String, newUserName: String, tokenDetails: TokenDetails)
-    fun checkAvailability(userToken: String,
-                          creatingPersonId: UUID,
-                          projectName: String,
-                          projectNamespace: String?): String
+    fun checkAvailability(
+        userToken: String,
+        creatingPersonId: UUID,
+        projectName: String,
+        projectNamespace: String?,
+    ): String
 }
 
 @Configuration
@@ -169,9 +177,9 @@ class ProjectTypesConfiguration(
     private val reservedNamesService: ReservedNamesService,
     private val accountRepository: AccountRepository,
     private val groupRepository: GroupRepository,
-    private val subjectRepository: SubjectRepository
-
+    private val subjectRepository: SubjectRepository,
 ) {
+
     @Bean
     fun dataProjectService(): ProjectService<DataProject> {
         return ProjectServiceImpl(DataProject::class.java, dataProjectRepository, publicProjectsCacheService, gitlabRestClient, reservedNamesService, accountRepository, groupRepository, subjectRepository)
@@ -196,33 +204,28 @@ open class ProjectServiceImpl<T : Project>(
     private val reservedNamesService: ReservedNamesService,
     private val accountRepository: AccountRepository,
     private val groupRepository: GroupRepository,
-    private val subjectRepository: SubjectRepository
-
+    private val subjectRepository: SubjectRepository,
 ) : ProjectService<T> {
-    companion object {
-        private val log = LoggerFactory.getLogger(this::class.java)
-    }
 
-    override fun getAllProjectsAccessibleByUser(token: TokenDetails, pageable: Pageable?, isDataProjectRequest: Boolean): Page<T> {
-        return if (token.isVisitor)
-            if(isDataProjectRequest)
+    private val log = LoggerFactory.getLogger(this::class.java)
+
+    override fun getAllProjectsAccessibleByUser(token: TokenDetails, pageable: Pageable?, isDataProjectRequest: Boolean): Page<T> =
+        if (token.isVisitor)
+            if (isDataProjectRequest)
                 repository.findAccessibleDataProjectsForVisitor(pageable)
             else
                 repository.findAccessibleProjectsForVisitor(pageable)
         else
-            if(isDataProjectRequest)
+            if (isDataProjectRequest)
                 repository.findAccessibleDataProjectsForOwner(token.personId, token.projects.map { it.key }, pageable)
             else
                 repository.findAccessibleProjectsForOwner(token.personId, token.projects.map { it.key }, pageable)
-    }
 
-    override fun getAllProjectsStarredByUser(token: TokenDetails, pageable: Pageable?): Page<T> {
-        if (token.isVisitor) {
-            return Page.empty(pageable ?: Pageable.unpaged())
-        } else {
-            return repository.findAccessibleStarredProjectsForUser(token.personId, token.projects.map { it.key }, pageable)
-        }
-    }
+    override fun getAllProjectsStarredByUser(token: TokenDetails, pageable: Pageable?): Page<T> =
+        if (token.isVisitor)
+            Page.empty(pageable ?: Pageable.unpaged())
+        else
+            repository.findAccessibleStarredProjectsForUser(token.personId, token.projects.map { it.key }, pageable)
 
     override fun getOwnProjectsOfUser(token: TokenDetails, pageable: Pageable?): Page<T> {
         if (token.isVisitor) {
@@ -251,7 +254,6 @@ open class ProjectServiceImpl<T : Project>(
     override fun getProjectsBySlug(slug: String, pageable: Pageable?): Page<T> {
         return repository.findBySlug(slug, pageable)
     }
-
 
     override fun getAllPublicProjects(pageable: Pageable?): List<T> {
         val projectsIds = if (pageable != null)
@@ -292,7 +294,6 @@ open class ProjectServiceImpl<T : Project>(
         return repository.save(project.removeStar(person) as T)
     }
 
-
     override fun getProjectsByNamespaceAndPath(namespaceName: String, slug: String): T? {
         return repository.findByNamespaceAndPath(namespaceName, slug)
     }
@@ -301,7 +302,7 @@ open class ProjectServiceImpl<T : Project>(
         userToken: String,
         creatingPersonId: UUID,
         projectName: String,
-        projectNamespace: String?
+        projectNamespace: String?,
     ): String {
         val possibleSlug = Slugs.toSlug(projectName)
         val findNamespace = if (projectNamespace != null && projectNamespace.isNotBlank()) try {
@@ -346,7 +347,7 @@ open class ProjectServiceImpl<T : Project>(
         description: String,
         visibility: VisibilityScope,
         initializeWithReadme: Boolean,
-        inputDataTypes: List<DataType>?
+        inputDataTypes: List<DataType>?,
     ): T {
         reservedNamesService.assertProjectNameIsNotReserved(projectName)
 
@@ -399,7 +400,28 @@ open class ProjectServiceImpl<T : Project>(
         }
     }
 
-    private fun saveProject(project: T): T {
+    override fun forkProject(userToken: String, originalId: UUID): T {
+        val original = repository.findByIdOrNull(originalId)
+            ?: throw ProjectNotFoundException(originalId)
+
+        val gitlabFork = try {
+            gitlabRestClient.forkProject(
+                token = userToken,
+                sourceId = original.gitlabId,
+            )
+        } catch (e: GitlabCommonException) {
+            throw ConflictException(ErrorCode.GitlabProjectCreationFailed, "Cannot update Project $originalId: ${e.message}")
+        }
+
+        return this.saveProject(original.copy(
+            id = randomUUID(),
+            gitlabId = gitlabFork.id,
+            createdAt = now(),
+            updatedAt = now(),
+        ))
+    }
+
+    override fun saveProject(project: T): T {
         return repository.save(project)
     }
 
@@ -452,7 +474,7 @@ open class ProjectServiceImpl<T : Project>(
                 if (account != null) {
                     val expiration = if (it.expiresAt != null) {
                         val localDate = LocalDate.from(gitlabRestClient.gitlabDateTimeFormatter.parse(it.expiresAt))
-                        val zonedDateTime = ZonedDateTime.of(LocalDateTime.of(localDate, LocalTime.MIN), ZoneId.systemDefault())
+                        val zonedDateTime = of(LocalDateTime.of(localDate, LocalTime.MIN), ZoneId.systemDefault())
                         Instant.from(zonedDateTime)
                     } else null
                     UserInProject(account.id, it.username, account.email, it.id, it.accessLevel.toAccessLevel(), expiration)
@@ -522,7 +544,7 @@ open class ProjectServiceImpl<T : Project>(
         userId: UUID?,
         userGitlabId: Long?,
         accessLevel: AccessLevel?,
-        accessTill: Instant?
+        accessTill: Instant?,
     ): Account {
         val codeProject = this.getProjectById(projectUUID) ?: throw ProjectNotFoundException(projectUUID)
         val level = accessLevel ?: AccessLevel.GUEST
@@ -551,7 +573,7 @@ open class ProjectServiceImpl<T : Project>(
         groupId: UUID?,
         groupGitlabId: Long?,
         accessLevel: AccessLevel?,
-        accessTill: Instant?
+        accessTill: Instant?,
     ): Group {
         val project = this.getProjectById(projectUUID) ?: throw ProjectNotFoundException(projectUUID)
         val level = accessLevel ?: AccessLevel.GUEST
@@ -578,7 +600,7 @@ open class ProjectServiceImpl<T : Project>(
         userId: UUID?,
         userGitlabId: Long?,
         accessLevel: AccessLevel?,
-        accessTill: Instant?
+        accessTill: Instant?,
     ): Account {
         val codeProject = this.getProjectById(projectUUID) ?: throw ProjectNotFoundException(projectUUID)
 
@@ -610,7 +632,7 @@ open class ProjectServiceImpl<T : Project>(
         groupId: UUID?,
         groupGitlabId: Long?,
         accessLevel: AccessLevel?,
-        accessTill: Instant?
+        accessTill: Instant?,
     ): Group {
         this.deleteGroupFromProject(projectUUID, groupId, groupGitlabId)
         return this.addGroupToProject(projectUUID, groupId, groupGitlabId, accessLevel, accessTill)

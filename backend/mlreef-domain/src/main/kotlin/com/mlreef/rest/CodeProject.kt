@@ -11,8 +11,6 @@ import javax.persistence.Entity
 /**
  * A Code Repository is used for the working Code like Data Operations,
  * Algorithms, or soon Visualisations.
- *
- * A
  */
 @Entity
 @DiscriminatorValue("CODE_PROJECT")
@@ -51,6 +49,7 @@ class CodeProject(
 
     @Suppress("UNCHECKED_CAST")
     override fun <T : Project> copy(
+        id: UUID,
         url: String?,
         slug: String?,
         name: String?,
@@ -70,7 +69,7 @@ class CodeProject(
         visibilityScope: VisibilityScope?
     ): T {
         return CodeProject(
-            id = this.id,
+            id = id,
             slug = slug ?: this.slug,
             url = url ?: this.url,
             name = name ?: this.name,

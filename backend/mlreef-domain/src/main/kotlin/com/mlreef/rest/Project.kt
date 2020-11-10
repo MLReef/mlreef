@@ -127,6 +127,7 @@ abstract class Project(
     )
 
     abstract fun <T : Project> copy(
+        id: UUID = this.id,
         url: String? = null,
         slug: String? = null,
         name: String? = null,
