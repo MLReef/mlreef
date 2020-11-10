@@ -87,7 +87,7 @@ class PythonParserService(
             command = "",
             parameters = parameters.filter { it.processorVersionId == dataProcessors.first().id },
             metricSchema = metricSchema,
-            gitlabPath = filePath,
+            path = filePath,
         )
     }
 

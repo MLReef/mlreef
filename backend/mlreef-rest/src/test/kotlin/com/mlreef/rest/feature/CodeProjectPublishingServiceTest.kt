@@ -172,8 +172,6 @@ internal class CodeProjectPublishingServiceTest : AbstractServiceTest() {
                         && it[MLREEF_NAME]?.contains("image:") ?: false
                         && it[MLREEF_NAME]?.contains("script:") ?: false
                         && it[DOCKERFILE_NAME]?.contains(EPF_DOCKER_IMAGE) ?: false
-                        && it[DOCKERFILE_NAME]?.contains("main.py") ?: false
-
                 },
                 action = "create"
             )

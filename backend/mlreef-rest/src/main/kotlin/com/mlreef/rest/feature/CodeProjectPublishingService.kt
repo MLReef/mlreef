@@ -76,8 +76,7 @@ internal class PublishingService(
                 commitMessage = PUBLISH_COMMIT_MESSAGE,
                 fileContents = mapOf(
                     DOCKERFILE_NAME to generateCodePublishingDockerFile(
-                        EPF_DOCKER_IMAGE,
-                        dataProcessor.gitlabPath ?: "main.py"
+                        EPF_DOCKER_IMAGE
                     ),
                     MLREEF_NAME to generateCodePublishingYAML(project.name)
                 ),
@@ -138,12 +137,11 @@ internal class PublishingService(
         return template ?: throw InternalException("Template cannot be not parsed")
     }
 
-    private fun generateCodePublishingDockerFile(imageName: String, mainScriptName: String): String {
+    private fun generateCodePublishingDockerFile(imageName: String): String {
         val expressionParser: ExpressionParser = SpelExpressionParser()
         val context = StandardEvaluationContext()
 
         context.setVariable(IMAGE_NAME_VARIABLE, adaptProjectName(imageName))
-        context.setVariable(MAIN_SCRIPT_NAME_VARIABLE, adaptProjectName(mainScriptName))
 
         val template = try {
             val expression = expressionParser.parseExpression(dockerfileTemplate, TemplateParserContext())

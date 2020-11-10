@@ -5,5 +5,3 @@ FROM #{#IMAGE_NAME}
 ADD . /workdir
 # Sets the default starting directory of this image to
 WORKDIR /workdir
-
-CMD [ "python", "./#{#MAIN_SCRIPT}" ]
