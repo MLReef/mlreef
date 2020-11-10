@@ -132,7 +132,7 @@ myCustomOperationEntrypoint(epfInputArray)`,
   const publishingRes = await api.publish(
     headers,
     projectId,
-    null
+    null,
   );
 
   console.log('################### Publishing Response');
@@ -148,7 +148,7 @@ myCustomOperationEntrypoint(epfInputArray)`,
   const projectReadResponse = await projectApi.get(headers, projectId);
   expect(projectReadResponse.ok).toBeTruthy();
   console.log('################### Print Json Response');
-  const projectBody = await projectReadResponse.json()
+  const projectBody = await projectReadResponse.json();
   console.log(projectBody);
   console.log('################### Assert dataOperation exists');
   /* { id: '723076c6-eee5-11ea-adc1-0242ac120002',

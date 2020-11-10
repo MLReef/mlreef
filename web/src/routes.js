@@ -373,6 +373,16 @@ export default [
   },
   // publishing
   {
+    name: 'publishingProcess',
+    path: '/:namespace/:slug/-/publishing/process',
+    component: PublishProcessView,
+    exact: true,
+    meta: {
+      authRequired: true,
+      role: 40,
+    },
+  },
+  {
     name: 'publishing',
     path: '/:namespace/:slug/-/publishing',
     component: PublishingView,

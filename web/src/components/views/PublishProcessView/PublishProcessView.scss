@@ -2,6 +2,50 @@
   &-content {
     max-width: 1024px;
     margin: auto;
+
+    .no-info-found {
+      text-align: center;
+      color: var(--dark);
+    }
+
+    &-overview {
+      &-title-div {
+        border-bottom: 1px solid var(--almostWhite);
+        margin-bottom: 1rem;
+
+        h3 {
+          margin: 0 0 1rem 0;
+        }
+      }
+
+      &-basic-info-1 {
+        display: flex;
+        margin-bottom: 1rem;
+        p {
+          margin: 0 0.5rem 0 0;
+        }
+        :last-child {
+          margin: 0 0 0 0.5rem;
+        }
+      }
+
+      &-basic-info-2 {
+        display: flex;
+        margin-bottom: 1rem;
+
+        p {
+          margin: 0 0.5rem 0 0;
+        }
+      }
+
+      &-basic-info-3 {
+        display: flex;
+        
+        p {
+          margin: 0 0.5rem 0 0;
+        }
+      }
+    }
   }
 
   & .statement {

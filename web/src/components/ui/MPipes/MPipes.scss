@@ -51,7 +51,7 @@ $h1: 1.15rem;
             border-color: var(--info);
           }
 
-          &-passed {
+          &-success {
             border-color: var(--success);
           }
 
@@ -171,7 +171,7 @@ $h1: 1.15rem;
         color: var(--info);
       }
 
-      &.passed {
+      &.success {
         color: var(--success);
       }
 

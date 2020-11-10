@@ -1,5 +1,5 @@
 import React from 'react';
-import { shallow, mount } from 'enzyme';
+import { shallow } from 'enzyme';
 import { projectsArrayMock } from '../testData';
 import { storeFactory } from '../functions/testUtils';
 import Jobs from '../components/insights/insights-menu/jobs';
@@ -11,9 +11,9 @@ const setup = () => {
   });
   const wrapper = shallow(
     <Jobs
-    id={projectsArrayMock.projects.selectedProject.id}
-    jobs={jobMock}
-    store={store}
+      id={projectsArrayMock.projects.selectedProject.id}
+      jobs={jobMock}
+      store={store}
     />,
   );
   const afterDive = wrapper.dive().dive();
