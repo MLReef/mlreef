@@ -20,6 +20,13 @@ export default class JobsApi extends ApiDirector {
       .then(handleResponse);    
   }
 
+  getJobsByPipelineId(projectId: number, pipelineId: number) {
+    const url = `/api/v4/projects/${projectId}/pipelines/${pipelineId}/jobs`;
+    const blbuilder = new BodyLessApiRequestCallBuilder(METHODS.GET, this.buildBasicHeaders(validServicesToCall.GITLAB), url);
+
+    return fetch(blbuilder.build());
+  }
+
   downloadArtifacts(projectId: number, refName: string, jobName: string) {
     const url = `/api/v4/projects/${projectId}/jobs/artifacts/${refName}/download?job=${jobName}`;
     const blbuilder = new BodyLessApiRequestCallBuilder(METHODS.GET, this.buildBasicHeaders(validServicesToCall.GITLAB), url);

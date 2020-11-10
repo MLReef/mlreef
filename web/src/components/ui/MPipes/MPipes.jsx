@@ -8,6 +8,7 @@ const MPipes = (props) => {
     stages,
     status,
     className,
+    setSelectedJob,
   } = props;
 
   const calcPipes = useCallback(
@@ -33,11 +34,13 @@ const MPipes = (props) => {
               <div className="m-pipes-stage-jobs">
                 {stage.jobs.map((job) => (
                   <div
+                    style={{ cursor: 'pointer' }}
                     key={`job-${job.name}`}
                     className={cx(
                       'm-pipes-stage-jobs-job border-rounded',
                       `status-${job.status}`,
                     )}
+                    onClick={() => setSelectedJob(job)}
                   >
                     <img
                       className="icon"
@@ -85,7 +88,7 @@ MPipes.defaultProps = {
 const statusModel = [
   'pending',
   'running',
-  'passed',
+  'success',
   'warning',
   'failed',
 ];

@@ -23,7 +23,7 @@ const setup = () => {
         />
       </Provider>
     </MemoryRouter>,
-  )
+  );
 };
 
 describe('PublishingView tests', () => {

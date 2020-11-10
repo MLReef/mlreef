@@ -1,5 +1,6 @@
 import React, { useEffect, useReducer } from 'react';
 import PropTypes from 'prop-types';
+import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { toastr } from 'react-redux-toastr';
 import FilesApi from 'apis/FilesApi';
@@ -14,6 +15,7 @@ import initialState, { reducer } from './stateManagement';
 import SelectBaseEnv from './SelectBaseEnv/SelectBaseEnv';
 import SelectEntryPoint from './SelectEntryPoint/SelectEntryPoint';
 import publishingActions from './publishingActions';
+import InterludeView from './InterludeView';
 
 const filesApi = new FilesApi();
 
@@ -26,6 +28,7 @@ export const UnconnectedPublishingView = (props) => {
     branches,
     history,
   } = props;
+
   const { gitlabId, id } = project;
   const [{
     selectedBranch,
@@ -81,118 +84,122 @@ export const UnconnectedPublishingView = (props) => {
     <div className="publishing-view">
       <Navbar />
       <MBreadcrumb className="bg-light px-3" items={breadcrumbs} />
-      <div className="publishing-view pt-4">
-        <div className="publishing-view-content">
-          <MSimpleTabs
-            steps
-            sections={[
-              {
-                label: 'Select entry point and branch',
-                done: isEntryPointFormValid,
-                defaultActive: true,
-                content: (
-                  <SelectEntryPoint
-                    entryPointFile={entryPointFile}
-                    files={files}
-                    branches={branches}
-                    selectedBranch={selectedBranch}
-                    path={path}
-                    namespace={namespace}
-                    slug={slug}
-                    dispatch={dispatch}
-                  />
-                ),
-              },
-              {
-                label: 'Select base environment',
-                done: !!selectedEnv,
-                disabled: !isEntryPointFormValid,
-                content: (
-                  <SelectBaseEnv
-                    namespace={namespace}
-                    slug={slug}
-                    environments={environments}
-                    selectedEnv={selectedEnv}
-                    dispatch={dispatch}
-                    history={history}
-                  />
-                ),
-              },
-              {
-                label: 'Publish model',
-                done: false,
-                disabled: !isEntryPointFormValid || !selectedEnv,
-                content: (
-                  <div style={{ minHeight: '60vh' }}>
-                    <div className="row">
-                      <div className="col-3" />
-                      <div className="col-6">
-                        <div className="statement">
-                          <div className="statement-title">
-                            Review publishing pipeline
+      {isPublishing ? (
+        <InterludeView />
+      ) : (
+        <div className="publishing-view pt-4">
+          <div className="publishing-view-content">
+            <MSimpleTabs
+              steps
+              sections={[
+                {
+                  label: 'Select entry point and branch',
+                  done: isEntryPointFormValid,
+                  defaultActive: true,
+                  content: (
+                    <SelectEntryPoint
+                      entryPointFile={entryPointFile}
+                      files={files}
+                      branches={branches}
+                      selectedBranch={selectedBranch}
+                      path={path}
+                      namespace={namespace}
+                      slug={slug}
+                      dispatch={dispatch}
+                    />
+                  ),
+                },
+                {
+                  label: 'Select base environment',
+                  done: !!selectedEnv,
+                  disabled: !isEntryPointFormValid,
+                  content: (
+                    <SelectBaseEnv
+                      namespace={namespace}
+                      slug={slug}
+                      environments={environments}
+                      selectedEnv={selectedEnv}
+                      dispatch={dispatch}
+                      history={history}
+                    />
+                  ),
+                },
+                {
+                  label: 'Publish model',
+                  done: false,
+                  disabled: !isEntryPointFormValid || !selectedEnv,
+                  content: (
+                    <div style={{ minHeight: '60vh' }}>
+                      <div className="row">
+                        <div className="col-3" />
+                        <div className="col-6">
+                          <div className="statement">
+                            <div className="statement-title">
+                              Review publishing pipeline
+                            </div>
+                            <div className="statement-subtitle">
+                              MLReef provides a set of base environment images including
+                              a set of pre-installed packages. Select one, that works best
+                              with your code!
+                            </div>
                           </div>
-                          <div className="statement-subtitle">
-                            MLReef provides a set of base environment images including
-                            a set of pre-installed packages. Select one, that works best
-                            with your code!
+                        </div>
+                        <div className="col-3 pl-3">
+                          <div className="publishing-view-summary">
+                            <div className="parameter mb-3">
+                              <span className="parameter-key">
+                                Status to publish:
+                              </span>
+                              <strong className="parameter-value t-danger">
+                                {model ? model.label : 'No model type'}
+                              </strong>
+                            </div>
+                            <MButton
+                              type="button"
+                              disabled={!isFinalFormValid}
+                              waiting={isPublishing}
+                              onClick={() => {
+                                dispatch({ type: 'SET_IS_PUBLISHING', payload: true });
+                                publishingActions.publish(id)
+                                  .then(() => {
+                                    toastr.success('Success', 'Your project will appear in the market place');
+                                    history.push(`/${namespace}/${slug}/-/publishing/process`);
+                                  })
+                                  .catch((err) => {
+                                    dispatch({ type: 'SET_IS_PUBLISHING', payload: false });
+                                    toastr.error('Error', err.message);
+                                  });
+                              }}
+                              className="btn btn-dark"
+                            >
+                              Publish
+                            </MButton>
                           </div>
                         </div>
                       </div>
-                      <div className="col-3 pl-3">
-                        <div className="publishing-view-summary">
-                          <div className="parameter mb-3">
-                            <span className="parameter-key">
-                              Status to publish:
-                            </span>
-                            <strong className="parameter-value t-danger">
-                              {model ? model.label : 'No model type'}
-                            </strong>
-                          </div>
-                          <MButton
-                            type="button"
-                            disabled={!isFinalFormValid}
-                            waiting={isPublishing}
-                            onClick={() => {
-                              dispatch({ type: 'SET_IS_PUBLISHING', payload: true });
-                              publishingActions.publish(id)
-                                .then(() => {
-                                  toastr.success('Success', 'Your project will appear in the market place');
-                                  history.push('/');
-                                })
-                                .catch((err) => {
-                                  dispatch({ type: 'SET_IS_PUBLISHING', payload: false });
-                                  toastr.error('Error', err.message);
-                                });
-                            }}
-                            className="btn btn-dark"
-                          >
-                            Publish
-                          </MButton>
+                      <div className="row">
+                        <div className="col-2" />
+                        <div className="col-10">
+                          <PublishingViewPublishModel
+                            selectedBranch={selectedBranch}
+                            entryPointFile={entryPointFile}
+                            selectedEnvironment={selectedEnv?.name}
+                            isRequirementsFileExisting={isRequirementsFileExisting}
+                            areTermsAccepted={areTermsAccepted}
+                            model={model}
+                            category={mlCategory}
+                            dispatch={dispatch}
+                          />
                         </div>
                       </div>
                     </div>
-                    <div className="row">
-                      <div className="col-2" />
-                      <div className="col-10">
-                        <PublishingViewPublishModel
-                          selectedBranch={selectedBranch}
-                          entryPointFile={entryPointFile}
-                          selectedEnvironment={selectedEnv?.name}
-                          isRequirementsFileExisting={isRequirementsFileExisting}
-                          areTermsAccepted={areTermsAccepted}
-                          model={model}
-                          category={mlCategory}
-                          dispatch={dispatch}
-                        />
-                      </div>
-                    </div>
-                  </div>
-                ),
-              },
-            ]}
-          />
+                  ),
+                },
+              ]}
+            />
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 };
