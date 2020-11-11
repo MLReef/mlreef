@@ -16,6 +16,7 @@ import MInput from 'components/ui/MInput';
 import MButton from 'components/ui/MButton';
 import { validateProjectName } from 'functions/validations';
 import { PROJECT_TYPES } from 'domain/project/projectTypes';
+import MRadioGroup from 'components/ui/MRadio/MRadioGroup';
 import SearchApi from 'apis/SearchApi';
 import Navbar from '../../navbar/navbar';
 import './createProject.css';
@@ -25,7 +26,6 @@ import { getGroupsList } from '../../../actions/groupsActions';
 import ProjectGeneraInfoApi from '../../../apis/ProjectGeneralInfoApi.ts';
 import { convertToSlug } from '../../../functions/dataParserHelpers';
 import MCheckBox from '../../ui/MCheckBox/MCheckBox';
-import MRadioGroup from 'components/ui/MRadio/MRadioGroup';
 
 const MAX_LENGTH = 255;
 const projectGeneraInfoApi = new ProjectGeneraInfoApi();
@@ -165,9 +165,7 @@ class CreateProject extends Component {
       });
   }
 
-  handleNamespace = (e) => {
-    this.setState({ nameSpace: e.target.value });
-  }
+  handleNamespace = (e) => this.setState({ nameSpace: e.target.value, visibility: '' })
 
   toggleCheckReadme = () => {
     const { readme } = this.state;
@@ -425,7 +423,11 @@ class CreateProject extends Component {
              <MRadioGroup
                label="Visibilty level"
                name="visibility"
-               options={privacyLevelsArr}
+               options={privacyLevelsArr
+                 .map((opt) => ({
+                   ...opt,
+                   disabled: this.getIsPrivacyOptionDisabled(opt.value, nameSpace),
+                 }))}
                value={visibility}
                onChange={this.handleVisibility}
              />

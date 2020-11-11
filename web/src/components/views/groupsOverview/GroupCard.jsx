@@ -6,10 +6,8 @@ import {
 } from 'prop-types';
 import './groupCard.scss';
 import iconGrey from 'images/icon_grey-01.png';
-import GroupsApi from 'apis/GroupApi';
 import personAvatar from 'images/personAvatar.png';
-
-const grApi = new GroupsApi();
+import actions from './GroupActions';
 
 const GroupCard = ({
   groupId,
@@ -20,8 +18,8 @@ const GroupCard = ({
 }) => {
   const [members, setMembers] = useState([]);
   useEffect(() => {
-    grApi.getUsers(groupId)
-      .then((membersPayload) => setMembers(membersPayload))
+    actions.getGroupUsers(groupId)
+      .then(setMembers)
       .catch(() => toastr.error('Error', `Group ${groupName} members coud not be fetched`));
   }, [groupId, groupName]);
 
@@ -72,17 +70,19 @@ const GroupCard = ({
             </div>
           )}
           <div className="members">
-            {members.map((mem, index) => (
-              <div className="members-content" key={mem.id}>
-                <div key={`ava-cont-${mem.id}`} className={`avatar-container d-flex ${index === members.length && 'grouped'}`}>
-                  <img src={mem.avatar_url} alt={mem.name} className="member-card-avatar" />
-                </div>
-                <div className="members-number">
-                  <p>{members.length}</p>
-                  <img src={personAvatar} alt="person" />
-                </div>
+            <div className="members-content">
+              <div className="members-content-avatars">
+                {members.map((mem, index) => (
+                  <div key={`ava-cont-${mem.id}`} className={`avatar-container d-flex ${index === (members.length - 1) && 'grouped'}`}>
+                    <img src={mem.avatar_url} alt={mem.name} className="member-card-avatar" />
+                  </div>
+                ))}
               </div>
-            ))}
+              <div className="members-number">
+                <p>{members.length}</p>
+                <img src={personAvatar} alt="person" />
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -97,6 +97,7 @@ GroupCard.propTypes = {
   groupProjects: arrayOf(
     shape({}),
   ),
+  groupPath: string.isRequired,
 };
 
 GroupCard.defaultProps = {

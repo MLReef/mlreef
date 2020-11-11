@@ -358,8 +358,52 @@ export const projectsArrayMock = {
 };
 
 export const groupsMock = [{
-  id: 82, web_url: 'http://ec2-18-195-30-163.eu-central-1.compute.amazonaws.com:10080/groups/group-for-test', name: 'Group for Test', path: 'group-for-test', description: 'laala lalalata', visibility: 'public', share_with_group_lock: false, require_two_factor_authentication: false, two_factor_grace_period: 48, project_creation_level: 'developer', auto_devops_enabled: null, subgroup_creation_level: 'maintainer', emails_disabled: null, mentions_disabled: null, lfs_enabled: true, avatar_url: null, request_access_enabled: true, full_name: 'Group for Test', full_path: 'group-for-test', parent_id: null, projects: [],
-}];
+  id: 82,
+  web_url: 'http://ec2-18-195-30-163.eu-central-1.compute.amazonaws.com:10080/groups/group-for-test',
+  name: 'Group for Test',
+  path: 'group-for-test',
+  description: 'laala lalalata',
+  visibility: 'public',
+  share_with_group_lock: false,
+  require_two_factor_authentication: false,
+  two_factor_grace_period: 48,
+  project_creation_level: 'developer',
+  auto_devops_enabled: null,
+  subgroup_creation_level: 'maintainer',
+  emails_disabled: null,
+  mentions_disabled: null,
+  lfs_enabled: true,
+  avatar_url: null,
+  request_access_enabled: true,
+  full_name: 'Group for Test',
+  full_path: 'group-for-test',
+  parent_id: null,
+  projects: [],
+}, 
+{
+  id: 83,
+  web_url: 'http://ec2-18-195-30-163.eu-central-1.compute.amazonaws.com:10080/groups/group-for-test',
+  name: 'Group for Test 1',
+  path: 'group-for-test-1',
+  description: 'laala lalalata',
+  visibility: 'private',
+  share_with_group_lock: false,
+  require_two_factor_authentication: false,
+  two_factor_grace_period: 48,
+  project_creation_level: 'developer',
+  auto_devops_enabled: null,
+  subgroup_creation_level: 'maintainer',
+  emails_disabled: null,
+  mentions_disabled: null,
+  lfs_enabled: true,
+  avatar_url: null,
+  request_access_enabled: true,
+  full_name: 'Group for Test',
+  full_path: 'group-for-test-1',
+  parent_id: null,
+  projects: [],
+}
+];
 
 export const usersArrayMock = [{
   userInfo: {
@@ -2719,7 +2763,6 @@ export const experimentsClassifiedMock = [
   { status: 'EXPIRED', values: [] },
 ];
 
-
 export const backendExperiments = [
   {
     id: '22b2c5c5-221e-4216-8052-21f5a61c6098',
@@ -2877,5 +2920,28 @@ export const filesInScrollableSection = [
     _store: {
       validated: false,
     },
+  },
+];
+
+export const membersMock = [
+  {
+    id: 1,
+    name: 'mlreef',
+    username: 'mlreef',
+    state: 'active',
+    avatar_url: 'https://www.gravatar.com/avatar/d64636c9c4cf15dd5c9e1ed6ab529100?s=80&d=identicon',
+    web_url: 'http://ec2-18-157-161-187.eu-central-1.compute.amazonaws.com:10080/mlreef',
+    access_level: 50,
+    expires_at: null,
+  },
+  {
+    id: 2,
+    name: 'cpmlreef',
+    username: 'cpmlreef',
+    state: 'active',
+    avatar_url: 'https://www.gravatar.com/avatar/d64636c9c4cf15dd5c9e1ed6ab529100?s=80&d=identicon',
+    web_url: 'http://ec2-18-157-161-187.eu-central-1.compute.amazonaws.com:10080/mlreef',
+    access_level: 50,
+    expires_at: null,
   },
 ];

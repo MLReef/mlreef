@@ -113,6 +113,11 @@
             height: 20px;
           }
         }
+
+        &-avatars {
+          display: flex;
+          width: max-content;
+        }
       }
     }
   }
