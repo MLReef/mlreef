@@ -14,7 +14,11 @@ const MRadioGroup = (props) => {
     direction,
   } = props;
 
-  const handleChange = (e) => {
+  const handleChange = (e, disabled = false) => {
+    if (disabled) {
+      return disabled;
+    }
+
     const val = e?.currentTarget?.value || e;
 
     return onChange(val);
@@ -30,13 +34,14 @@ const MRadioGroup = (props) => {
               type="button"
               key={`rad-opt-${opt.value}`}
               className="m-radio-group_option"
-              onClick={() => handleChange(opt.value)}
+              onClick={() => handleChange(opt.value, opt.disabled)}
             >
               <MRadio
                 name={name}
                 checked={value === opt.value}
                 value={opt.value}
                 onChange={handleChange}
+                disabled={opt.disabled}
               />
               <label htmlFor={name + value} className="m-radio-group_option_label">
                 { opt.label }
@@ -53,6 +58,7 @@ const MRadioGroup = (props) => {
 MRadioGroup.defaultProps = {
   label: null,
   footer: null,
+  direction: undefined,
 };
 
 MRadioGroup.propTypes = {
@@ -71,6 +77,7 @@ MRadioGroup.propTypes = {
     ])
     .isRequired,
   footer: PropTypes.string,
+  direction: PropTypes.number,
   onChange: PropTypes.func.isRequired,
 };
 

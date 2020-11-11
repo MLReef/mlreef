@@ -109,7 +109,7 @@ export class UnconnectedGroupsOverview extends Component {
                     <button ref={this.ownButtonRef} id="own" className="btn btn-basic-info" type="button" onClick={() => this.ownClickHandler()}>
                       Own
                     </button>
-                    <button ref={this.exploreButtonRef} id="explore" className="btn btn-basic-dark ml-auto" type="button" onClick={() => this.exploreClickHandler()}>
+                    <button ref={this.exploreButtonRef} id="explore" disabled className="btn btn-basic-dark ml-auto" type="button" onClick={() => this.exploreClickHandler()}>
                       Explore
                     </button>
                   </div>

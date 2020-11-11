@@ -1,6 +1,11 @@
 import React from 'react';
 import { shallow } from 'enzyme';
 import { UnconnectedGroupsOverview } from 'components/views/groupsOverview/GroupOverview';
+import { projectsArrayMock } from 'testData';
+
+const getGroupsList = jest.fn();
+const setIsLoading = jest.fn();
+const getProjectsList = jest.fn();
 
 const mockedGroups = [
   {
@@ -14,11 +19,11 @@ const mockedGroups = [
 const setup = () => shallow(
   <UnconnectedGroupsOverview
     groups={mockedGroups}
-    projects={[]}
+    projects={projectsArrayMock.projects.all}
     actions={{
-      getGroupsList: () => {},
-      setIsLoading: () => {},
-      getProjectsList: () => {},
+      getGroupsList,
+      setIsLoading,
+      getProjectsList,
     }}
   />,
 );
@@ -36,6 +41,8 @@ describe('test basic rendering', () => {
     expect(wrapper.find('#new-group-link')).toHaveLength(1);
     expect(wrapper.find('#show-projects-filter')).toHaveLength(1);
     expect(wrapper.find('MCheckBox')).toHaveLength(4);
+
+    expect(getProjectsList).toHaveBeenCalledWith(0, 100);
   });
 });
 
@@ -47,16 +54,16 @@ describe('test functionality', () => {
   });
 
   test('assert that handlers are called', () => {
-    const mockedOwnHandler = jest.fn();
-    const mockedExploreHandler = jest.fn();
-    const mockedShowProjectsHandler = jest.fn();
-    wrapper.instance().ownClickHandler = mockedOwnHandler;
-    wrapper.instance().exploreClickHandler = mockedExploreHandler;
-    wrapper.instance().showProjectsHandler = mockedShowProjectsHandler;
     wrapper.find('button#own').simulate('click');
-    expect(mockedOwnHandler.mock.calls.length).toBe(1);
+    expect(getGroupsList).toHaveBeenCalledWith(true);
+    expect(setIsLoading).toHaveBeenCalledWith(true);
+    getGroupsList.mockClear();
+    /*
     wrapper.find('button#explore').simulate('click');
-    expect(mockedExploreHandler.mock.calls.length).toBe(1);
+    expect(getGroupsList).toHaveBeenCalledWith(false);
+    expect(setIsLoading).toHaveBeenCalledWith(true);
+    */
+    // assert that right side filters are hiden after clicking chevron button
     wrapper.find('#show-projects-filter').dive().find('button').simulate('click', {});
     expect(wrapper.state().isHasProjectsVisible).toBe(false);
     expect(wrapper.find('MCheckBox')).toHaveLength(0);

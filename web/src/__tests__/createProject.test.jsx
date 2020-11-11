@@ -68,8 +68,18 @@ describe('test the frontend functionality', () => {
     expect(wrapper.state().dataTypesSelected.length).toBe(4);
   });
 
-  test('assert that selecting groups works correctly', () => {
-    wrapper.find('#nameSpace').simulate('change', { target: { value: groupsMock[0].full_path } });
-    expect(wrapper.state().nameSpace).toBe(groupsMock[0].full_path);
+  test('assert that public project option is disabled for private groups', () => {
+    const { full_path: fPath } = groupsMock[1];
+    wrapper.find('#nameSpace').simulate('change', { target: { value: fPath } });
+    expect(wrapper.state().nameSpace).toBe(fPath);
+    expect(
+      wrapper
+        .find('MRadioGroup')
+        .dive()
+        .find('MRadio')
+        .at(1)
+        .props()
+        .disabled,
+    ).toBe(true);
   });
 });

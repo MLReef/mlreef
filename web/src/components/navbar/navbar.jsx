@@ -77,33 +77,21 @@ class Navbar extends Component {
               )}
             />
 
+            {user.auth && (
             <MDropdown
               className="ml-3 my-auto d-none d-lg-block"
               buttonClasses="btn btn-dark px-1"
               label="Groups"
               component={(
                 <div className="project-box">
-                  {user.auth ? (
-                    <div className="user-projects">
-                      <p className="px-3 d-none">
-                        Your Groups
-                      </p>
-                      <p className="px-3 d-none">
-                        Starred Groups
-                      </p>
-                      <p className="px-3">
-                        <Link to="/groups">Explore Groups</Link>
-                      </p>
-                      <p className="px-3">
-                        <Link to="/groups/new">New Group</Link>
-                      </p>
-                    </div>
-
-                  ) : (
-                    <div className="user-projects">
-                      <p>Explore Groups</p>
-                    </div>
-                  )}
+                  <div className="user-projects">
+                    <p className="px-3">
+                      <Link to="/groups">Explore Groups</Link>
+                    </p>
+                    <p className="px-3">
+                      <Link to="/groups/new">New Group</Link>
+                    </p>
+                  </div>
                   <MWrapper norender>
                     <div className="project-search">
                       <input
@@ -118,6 +106,7 @@ class Navbar extends Component {
                 </div>
               )}
             />
+            )}
 
             {user.auth && (
               <>
