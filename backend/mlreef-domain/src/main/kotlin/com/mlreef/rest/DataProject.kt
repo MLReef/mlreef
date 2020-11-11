@@ -59,6 +59,7 @@ class DataProject(
 
     @Suppress("UNCHECKED_CAST")
     override fun <T : Project> copy(
+        id: UUID,
         url: String?,
         slug: String?,
         name: String?,
