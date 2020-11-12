@@ -34,6 +34,7 @@ import ForkView from 'components/ForkView';
 import PublishingView from 'components/views/PublishingView';
 import PublishProcessView from 'components/views/PublishProcessView';
 import NotFoundView from 'components/views/ErrorView/NotFoundView';
+import Redirect from 'components/commons/Redirect';
 
 // this is component for testing layout and should be removed after alpha
 import DemoView from 'components/Demo';
@@ -123,6 +124,11 @@ export default [
     path: '/groups/:groupPath',
     exact: true,
     component: GroupsView,
+  },
+  {
+    name: 'redirect',
+    path: '/redirect/:action',
+    component: Redirect,
   },
   {
     name: 'userProfile',

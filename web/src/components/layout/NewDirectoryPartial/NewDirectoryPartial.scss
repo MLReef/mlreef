@@ -1,0 +1,36 @@
+.new-directory-partial {
+  padding: 0 1rem;
+  color: var(--dark);
+
+  &-field {
+    display: flex;
+    margin: 1rem 0;
+
+    &-label {
+      width: 25ch;
+      margin-top: 0.75rem;
+      white-space: nowrap;
+    }
+
+    &-fixed-value {
+      font-weight: bold;
+      flex: 0 1 100%;
+      margin-top: 0.75rem;
+    }
+
+    &-input {
+      flex: 0 1 100%;
+    }
+  }
+
+  &-actions {
+    margin-top: 2rem;
+    display: flex;
+  }
+
+  @media screen and (max-width: 570px) {
+    &-field {
+      flex-direction: column;
+    }
+  }
+}

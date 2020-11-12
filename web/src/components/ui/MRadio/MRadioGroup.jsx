@@ -65,7 +65,10 @@ MRadioGroup.propTypes = {
   label: PropTypes.string,
   options: PropTypes
     .arrayOf(PropTypes.shape({
-      label: PropTypes.string.isRequired,
+      label: PropTypes.oneOfType([
+        PropTypes.string,
+        PropTypes.node,
+      ]),
       value: PropTypes.any,
     }))
     .isRequired,

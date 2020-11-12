@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
 import { Link } from 'react-router-dom';
 import MDropdown from 'components/ui/MDropdown';
 import {
@@ -10,6 +11,8 @@ import {
   func,
 } from 'prop-types';
 import AuthWrapper from 'components/AuthWrapper';
+import NewDirectoryPartial from 'components/layout/NewDirectoryPartial';
+import { fireModal, closeModal } from 'actions/actionModalActions';
 import { PROJECT_TYPES } from 'domain/project/projectTypes';
 
 export class RepoFeatures extends Component {
@@ -23,6 +26,8 @@ export class RepoFeatures extends Component {
       projectId,
       branches: [],
     };
+
+    this.showCreateDirectoryModal = this.showCreateDirectoryModal.bind(this);
   }
 
   static getDerivedStateFromProps = (nextProps, prevState) => {
@@ -38,6 +43,37 @@ export class RepoFeatures extends Component {
 
   componentWillUnmount() {
     this.setState = (state) => (state);
+  }
+
+  showCreateDirectoryModal() {
+    const {
+      actions,
+      projectId,
+      branch,
+      path,
+      history,
+    } = this.props;
+
+    actions.fireModal({
+      type: 'primary',
+      closable: true,
+      title: 'Create a new directory',
+      positiveLabel: 'Create directory',
+      noActions: true,
+      onPositive: () => {},
+      content: (
+        <NewDirectoryPartial
+          gid={projectId}
+          branch={branch}
+          targetDir={path}
+          onCancel={() => actions.closeModal({ reset: true })}
+          onSuccess={() => {
+            actions.closeModal();
+            history.push('/redirect/back');
+          }}
+        />
+      ),
+    });
   }
 
   render() {
@@ -117,6 +153,16 @@ export class RepoFeatures extends Component {
                     >
                       Upload File
                     </Link>
+                  </li>
+                  <li className="plus-option">
+                    <button
+                      type="button"
+                      className="btn btn-hidden"
+                      style={{ fontSize: '1rem' }}
+                      onClick={this.showCreateDirectoryModal}
+                    >
+                      New directory
+                    </button>
                   </li>
                   <hr />
                   <li>This repository</li>
@@ -209,6 +255,10 @@ RepoFeatures.propTypes = {
   ).isRequired,
   searchableType: string.isRequired,
   history: shape({ push: func }).isRequired,
+  actions: shape({
+    fireModal: func.isRequired,
+    closeModal: func.isRequired,
+  }).isRequired,
 };
 
 function mapStateToProps(state) {
@@ -218,5 +268,13 @@ function mapStateToProps(state) {
     codeProjectButtonColor: state.user.globalColorMarker,
   };
 }
+function mapDispatchToProps(dispatch) {
+  return {
+    actions: bindActionCreators({
+      fireModal,
+      closeModal,
+    }, dispatch),
+  };
+}
 
-export default connect(mapStateToProps)(RepoFeatures);
+export default connect(mapStateToProps, mapDispatchToProps)(RepoFeatures);
