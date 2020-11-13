@@ -93,7 +93,7 @@ interface ProjectService<T : Project> {
         inputDataTypes: List<DataType>?,
     ): T
 
-    fun forkProject(userToken: String, originalId: UUID): T
+    fun forkProject(userToken: String, originalId: UUID, name: String? = null, path: String? = null): T
 
     fun saveProject(project: T): T
 
@@ -400,7 +400,7 @@ open class ProjectServiceImpl<T : Project>(
         }
     }
 
-    override fun forkProject(userToken: String, originalId: UUID): T {
+    override fun forkProject(userToken: String, originalId: UUID, name: String?, path: String?): T {
         val original = repository.findByIdOrNull(originalId)
             ?: throw ProjectNotFoundException(originalId)
 
@@ -408,6 +408,8 @@ open class ProjectServiceImpl<T : Project>(
             gitlabRestClient.forkProject(
                 token = userToken,
                 sourceId = original.gitlabId,
+                targetName = name,
+                targetPath = path,
             )
         } catch (e: GitlabCommonException) {
             throw ConflictException(ErrorCode.GitlabProjectCreationFailed, "Cannot update Project $originalId: ${e.message}")
@@ -418,6 +420,7 @@ open class ProjectServiceImpl<T : Project>(
             gitlabId = gitlabFork.id,
             createdAt = now(),
             updatedAt = now(),
+            name = name ?: original.name,
         ))
     }
 

@@ -377,7 +377,6 @@ abstract class AbstractRestApiTest : AbstractRestTest() {
     }
 
     protected fun mockGitlabPipelineWithBranch(targetBranch: String) {
-
         val commit = Commit(id = "12341234")
         val branch = Branch(name = targetBranch)
         val gitlabPipeline = GitlabPipeline(

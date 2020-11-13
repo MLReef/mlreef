@@ -1,60 +1,59 @@
 import ProjectGeneralInfoApi from 'apis/ProjectGeneralInfoApi';
-import uuidv1 from 'uuid/v1';
-import store from 'store';
-import * as types from 'actions/actionTypes';
-import MLRAuthApi from 'apis/MLAuthApi';
-import UserApi from './apiMocks/UserApi.ts';
+import assureUserRegistration from './fixtures/testHelpers';
 
-const userApi = new UserApi();
-const authApi = new MLRAuthApi();
 const projectApi = new ProjectGeneralInfoApi();
 
 beforeAll(async () => {
-  // ------------- create the user ------------- //
-  const suffix = uuidv1().toString().split('-')[0];
-  const username = `TEST-ProjectGeneralInfoApi.${suffix}`;
-  const password = 'password';
-  const email = `TEST-Node.${suffix}@example.com`;
-  const registerData = {
-    username,
-    email,
-    password,
-    name: username,
-  };
-  const registerResponse = await userApi.register(registerData);
-  expect(registerResponse.ok).toBeTruthy();
-
-  // ----------- login with newly create user ----------- //
-  if (!store.getState().user.isAuth) {
-    await authApi.login(username, email, password)
-      .then((user) => store.dispatch({ type: types.LOGIN, user }));
-  }
+  // ----------- login with the user ----------- //
+  await assureUserRegistration();
 });
 
-test('Can get public projects ', async () => {
-  jest.setTimeout(30000);
+describe('Authenticated user', () => {
+  test('Can get public projects ', async () => {
+    jest.setTimeout(30000);
 
-  const projects = await projectApi.getProjectsList('/public');
-  expect(projects.length > 0).toBe(true);
-});
+    const projects = await projectApi.getProjectsList('/public');
+    expect(projects.length > 0).toBe(true);
+  });
 
-test('Can create project', async () => {
-  const request = {
-    name: 'Can get Project Info',
-    slug: 'can-get-project-info',
-    namespace: '',
-    initialize_with_readme: false,
-    description: '',
-    visibility: 'private',
-    input_data_types: [],
-  };
+  let projectUUID;
+  test('Can create project', async () => {
+    const request = {
+      name: 'Can get Project Info',
+      slug: 'can-get-project-info',
+      namespace: '',
+      initialize_with_readme: false,
+      description: '',
+      visibility: 'private',
+      input_data_types: [],
+    };
 
-  const response = await projectApi.create(request, 'data-project', false)
-    .catch((err) => {
-      expect(true).not.toBe(true);
-      return err;
-    });
+    const response = await projectApi.create(request, 'data-project', false)
+      .catch((err) => {
+        expect(true).not.toBe(true);
+        return err;
+      });
 
-  expect(response.name).toBe(request.name);
-  expect(response.slug).toBe(request.slug);
+    expect(response.name).toBe(request.name);
+    expect(response.slug).toBe(request.slug);
+
+    projectUUID = response.id;
+  });
+
+  test('Can fork own project ', async () => {
+    const request = {
+      target_namespace_gitlab_id: -1, // "null" implies forking to user's private namespace
+      target_name: 'New Name', // If null, defaults to original name
+      target_path: 'new-path', // If null, defaults to original path - needs to be set when forking within the same namespace
+    };
+    console.log(`Running forking test against id: ${projectUUID}. Request: ${JSON.stringify(request)}`);
+    const response = await projectApi.fork(projectUUID, request, false)
+      .catch((err) => {
+        console.log(err);
+        throw new Error(err);
+      });
+
+    expect(response.name).toBe(request.target_name);
+    expect('new-path').toBe(request.target_path);
+  });
 });

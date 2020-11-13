@@ -241,6 +241,10 @@ operation::data-project-retrieve-one-by-namespace-slug[snippets='curl-request,re
 
 operation::data-processors-codeproject-retrieve-one-by-namespace-slug[snippets='curl-request,response-body,response-fields']
 
+=== POST /projects/:id/fork
+
+operation::fork-project[snippets='curl-request,response-body,response-fields']
+
 === POST /projects/:project/star
 
 operation::project-place-star[snippets='curl-request,response-body,response-fields']

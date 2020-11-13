@@ -11,6 +11,7 @@ import com.mlreef.rest.ProcessorVersion
 import com.mlreef.rest.Project
 import com.mlreef.rest.VisibilityScope
 import com.mlreef.rest.api.v1.ProjectCreateRequest
+import com.mlreef.rest.api.v1.ProjectForkRequest
 import com.mlreef.rest.api.v1.ProjectUpdateRequest
 import com.mlreef.rest.api.v1.ProjectUserMembershipRequest
 import com.mlreef.rest.api.v1.dto.CodeProjectDto
@@ -22,6 +23,10 @@ import com.mlreef.rest.feature.system.SessionsService
 import com.mlreef.rest.marketplace.Star
 import com.ninjasquad.springmockk.SpykBean
 import io.mockk.every
+import java.time.Instant
+import java.time.Period
+import java.util.UUID.randomUUID
+import javax.transaction.Transactional
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
@@ -30,17 +35,15 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.restdocs.payload.FieldDescriptor
-import org.springframework.restdocs.payload.JsonFieldType
+import org.springframework.restdocs.payload.JsonFieldType.BOOLEAN
+import org.springframework.restdocs.payload.JsonFieldType.NUMBER
+import org.springframework.restdocs.payload.JsonFieldType.OBJECT
+import org.springframework.restdocs.payload.JsonFieldType.STRING
 import org.springframework.restdocs.payload.PayloadDocumentation
 import org.springframework.restdocs.payload.PayloadDocumentation.requestFields
 import org.springframework.restdocs.payload.PayloadDocumentation.responseFields
 import org.springframework.restdocs.request.RequestDocumentation
 import org.springframework.test.annotation.Rollback
-import java.time.Instant
-import java.time.Period
-import java.util.UUID
-import java.util.UUID.randomUUID
-import javax.transaction.Transactional
 
 class ProjectsApiTest : AbstractRestApiTest() {
 
@@ -138,22 +141,22 @@ class ProjectsApiTest : AbstractRestApiTest() {
 
         assertThat(returnedResult.size).isEqualTo(4)
 
-        val setOfIds = setOf<UUID>(
-            returnedResult.get(0).id,
-            returnedResult.get(1).id,
-            returnedResult.get(2).id,
-            returnedResult.get(3).id
+        val setOfIds = setOf(
+            returnedResult[0].id,
+            returnedResult[1].id,
+            returnedResult[2].id,
+            returnedResult[3].id
         )
 
         assertThat(setOfIds).containsExactlyInAnyOrder(id1, id2, id4, id5)
-        assertThat(returnedResult.get(0).id).isIn(id1, id2, id4, id5)
-        assertThat(returnedResult.get(0).gitlabPath).isIn("project-1", "project-2", "project-4", "project-5")
-        assertThat(returnedResult.get(1).id).isIn(id1, id2, id4, id5)
-        assertThat(returnedResult.get(1).gitlabPath).isIn("project-1", "project-2", "project-4", "project-5")
-        assertThat(returnedResult.get(2).id).isIn(id1, id2, id4, id5)
-        assertThat(returnedResult.get(2).gitlabPath).isIn("project-1", "project-2", "project-4", "project-5")
-        assertThat(returnedResult.get(3).id).isIn(id1, id2, id4, id5)
-        assertThat(returnedResult.get(3).gitlabPath).isIn("project-1", "project-2", "project-4", "project-5")
+        assertThat(returnedResult[0].id).isIn(id1, id2, id4, id5)
+        assertThat(returnedResult[0].gitlabPath).isIn("project-1", "project-2", "project-4", "project-5")
+        assertThat(returnedResult[1].id).isIn(id1, id2, id4, id5)
+        assertThat(returnedResult[1].gitlabPath).isIn("project-1", "project-2", "project-4", "project-5")
+        assertThat(returnedResult[2].id).isIn(id1, id2, id4, id5)
+        assertThat(returnedResult[2].gitlabPath).isIn("project-1", "project-2", "project-4", "project-5")
+        assertThat(returnedResult[3].id).isIn(id1, id2, id4, id5)
+        assertThat(returnedResult[3].gitlabPath).isIn("project-1", "project-2", "project-4", "project-5")
     }
 
     @Transactional
@@ -284,22 +287,22 @@ class ProjectsApiTest : AbstractRestApiTest() {
 
         assertThat(returnedResult.size).isEqualTo(4)
 
-        val setOfIds = setOf<UUID>(
-            returnedResult.get(0).id,
-            returnedResult.get(1).id,
-            returnedResult.get(2).id,
-            returnedResult.get(3).id
+        val setOfIds = setOf(
+            returnedResult[0].id,
+            returnedResult[1].id,
+            returnedResult[2].id,
+            returnedResult[3].id
         )
 
         assertThat(setOfIds).containsExactlyInAnyOrder(id1, id2, id4, id5)
-        assertThat(returnedResult.get(0).id).isIn(id1, id2, id4, id5)
-        assertThat(returnedResult.get(0).gitlabPath).isIn("project-1", "project-2", "project-4", "project-5")
-        assertThat(returnedResult.get(1).id).isIn(id1, id2, id4, id5)
-        assertThat(returnedResult.get(1).gitlabPath).isIn("project-1", "project-2", "project-4", "project-5")
-        assertThat(returnedResult.get(2).id).isIn(id1, id2, id4, id5)
-        assertThat(returnedResult.get(2).gitlabPath).isIn("project-1", "project-2", "project-4", "project-5")
-        assertThat(returnedResult.get(3).id).isIn(id1, id2, id4, id5)
-        assertThat(returnedResult.get(3).gitlabPath).isIn("project-1", "project-2", "project-4", "project-5")
+        assertThat(returnedResult[0].id).isIn(id1, id2, id4, id5)
+        assertThat(returnedResult[0].gitlabPath).isIn("project-1", "project-2", "project-4", "project-5")
+        assertThat(returnedResult[1].id).isIn(id1, id2, id4, id5)
+        assertThat(returnedResult[1].gitlabPath).isIn("project-1", "project-2", "project-4", "project-5")
+        assertThat(returnedResult[2].id).isIn(id1, id2, id4, id5)
+        assertThat(returnedResult[2].gitlabPath).isIn("project-1", "project-2", "project-4", "project-5")
+        assertThat(returnedResult[3].id).isIn(id1, id2, id4, id5)
+        assertThat(returnedResult[3].gitlabPath).isIn("project-1", "project-2", "project-4", "project-5")
     }
 
     @Transactional
@@ -414,7 +417,7 @@ class ProjectsApiTest : AbstractRestApiTest() {
             )
             .returns(CodeProjectDto::class.java)
 
-        assertThat(returnedResult).isNotNull()
+        assertThat(returnedResult).isNotNull
     }
 
     @Transactional
@@ -452,7 +455,7 @@ class ProjectsApiTest : AbstractRestApiTest() {
 
         this.mockGetUserProjectsList(account)
 
-        val returnedResult = this.performPost("$codeProjectRootUrl", token, body = request)
+        val returnedResult = this.performPost(codeProjectRootUrl, token, body = request)
             .expectOk()
             .document("code-project-create-by-path",
                 requestFields(projectCreateRequestFields()),
@@ -460,7 +463,7 @@ class ProjectsApiTest : AbstractRestApiTest() {
             )
             .returns(CodeProjectDto::class.java)
 
-        assertThat(returnedResult).isNotNull()
+        assertThat(returnedResult).isNotNull
     }
 
     @Transactional
@@ -496,21 +499,50 @@ class ProjectsApiTest : AbstractRestApiTest() {
     @Test
     fun `Can create DataProject by data-project path`() {
         val request = ProjectCreateRequest(
-            "test-project",
-            "mlreef",
-            "Test project",
-            "description",
-            true,
-            listOf(),
-            VisibilityScope.PUBLIC
+            slug = "test-project",
+            namespace = "mlreef",
+            name = "Test project",
+            description = "description",
+            initializeWithReadme = true,
+            inputDataTypes = listOf(),
+            visibility = VisibilityScope.PUBLIC
         )
 
         this.mockGetUserProjectsList(account)
 
-        val returnedResult = this.performPost("$dataProjectRootUrl", token, body = request)
+        val returnedResult = this.performPost(url = dataProjectRootUrl, token = token, body = request)
             .expectOk()
             .document("data-project-create-by-path",
                 requestFields(projectCreateRequestFields()),
+                responseFields(projectResponseFields()))
+            .returns(DataProjectDto::class.java)
+
+        assertThat(returnedResult).isNotNull
+    }
+
+    @Transactional
+    @Rollback
+    @Tag(TestTags.RESTDOC)
+    @Test
+    fun `Can fork 3rd party data project`() {
+        val id1 = randomUUID()
+        val project1 = DataProject(id1, "slug-1", "www.url.com", "Test Project 1", "100 tests", randomUUID(), "mlreef", "group1", 1, VisibilityScope.PUBLIC, listOf())
+        dataProjectRepository.save(project1)
+
+//        every { projectService.getUsersInProject(any()) } answers {
+//            listOf(account, account2).map { accountToUserInProject(it) }
+//        }
+        val request = ProjectForkRequest(
+            targetName= "Fork Name",
+            targetPath = "fork-name",
+        )
+
+        this.mockGetUserProjectsList(account)
+
+        val returnedResult = this.performPost("$rootUrl/fork/$id1", token, body = request)
+            .expectOk()
+            .document("fork-project",
+                requestFields(projectForkRequestFields()),
                 responseFields(projectResponseFields()))
             .returns(DataProjectDto::class.java)
 
@@ -577,7 +609,7 @@ class ProjectsApiTest : AbstractRestApiTest() {
 
         this.mockGetUserProjectsList(listOf(project1.id), account, AccessLevel.OWNER)
 
-        assertThat(dataProjectRepository.findByIdOrNull(id1)).isNotNull()
+        assertThat(dataProjectRepository.findByIdOrNull(id1)).isNotNull
 
         this.performDelete("$rootUrl/$id1", token)
             .expectNoContent()
@@ -597,7 +629,7 @@ class ProjectsApiTest : AbstractRestApiTest() {
 
         mockGetUserProjectsList(listOf(project1.id), account, AccessLevel.OWNER)
 
-        assertThat(codeProjectRepository.findByIdOrNull(id1)).isNotNull()
+        assertThat(codeProjectRepository.findByIdOrNull(id1)).isNotNull
 
         this.performDelete("$rootUrl/$id1", token)
             .expectNoContent()
@@ -1000,7 +1032,7 @@ class ProjectsApiTest : AbstractRestApiTest() {
         mockGetPublicProjectsIdsList(listOf(project1.id, project2.id, project3.id))
         mockGetUserProjectsList(listOf(project1.id, project2.id, project4.id), account, AccessLevel.OWNER)
 
-        val returnedResult: List<DataProjectDto> = this.performGet(rootUrl + "/public/all", token)
+        val returnedResult: List<DataProjectDto> = this.performGet("$rootUrl/public/all", token)
             .expectOk()
             .document("project-retrieve-public-all", responseFields(projectResponseFields("[].")))
             .returnsList(DataProjectDto::class.java)
@@ -1031,48 +1063,37 @@ class ProjectsApiTest : AbstractRestApiTest() {
         assertThat(returnedResult.size).isEqualTo(3)
     }
 
-    private fun projectCreateRequestFields(): List<FieldDescriptor> {
-        return listOf(
-            PayloadDocumentation.fieldWithPath("slug").type(JsonFieldType.STRING).description("Valid slug of Project (matches Gitlab)"),
-            PayloadDocumentation.fieldWithPath("namespace").type(JsonFieldType.STRING).description("Gitlab group or user namespace"),
-            PayloadDocumentation.fieldWithPath("name").type(JsonFieldType.STRING).description("Name of Project"),
-            PayloadDocumentation.fieldWithPath("description").type(JsonFieldType.STRING).description("Description of Project"),
-            PayloadDocumentation.fieldWithPath("initialize_with_readme").type(JsonFieldType.BOOLEAN).description("Boolean flag, if that Project should have an automatic commit for a README"),
-            PayloadDocumentation.fieldWithPath("visibility").type(JsonFieldType.STRING).description("Visibility, can be 'PUBLIC', 'INTERNAL', 'PRIVATE'"),
-            PayloadDocumentation.fieldWithPath("experiments").type(JsonFieldType.OBJECT).optional().description("Experiments arrays"),
-            PayloadDocumentation.fieldWithPath("input_data_types").type(listOf(JsonFieldType.OBJECT)).optional().description("Project datatypes array")
-
-        )
-    }
-
-    private fun projectUpdateRequestFields(): List<FieldDescriptor> {
-        return listOf(
-            PayloadDocumentation.fieldWithPath("description").type(JsonFieldType.STRING).description("Description of Project"),
-            PayloadDocumentation.fieldWithPath("name").type(JsonFieldType.STRING).description("Name of Project"),
-            PayloadDocumentation.fieldWithPath("visibility").type(JsonFieldType.STRING).optional().description("Visibility of project"),
-            PayloadDocumentation.fieldWithPath("input_data_types").type(JsonFieldType.STRING).optional().description("Input data types"),
-            PayloadDocumentation.fieldWithPath("output_data_types").type(JsonFieldType.STRING).optional().description("Output data types"),
-            PayloadDocumentation.fieldWithPath("tags").type(JsonFieldType.STRING).optional().description("Tags")
-        )
-    }
-
-    fun usersInProjectResponseFields(prefix: String = ""): List<FieldDescriptor> {
-        return listOf(
-            PayloadDocumentation.fieldWithPath(prefix + "id").type(JsonFieldType.STRING).description("Data project id"),
-            PayloadDocumentation.fieldWithPath(prefix + "user_name").type(JsonFieldType.STRING).description("User name"),
-            PayloadDocumentation.fieldWithPath(prefix + "email").type(JsonFieldType.STRING).description("User's email"),
-            PayloadDocumentation.fieldWithPath(prefix + "gitlab_id").type(JsonFieldType.NUMBER).description("Id in gitlab"),
-            PayloadDocumentation.fieldWithPath(prefix + "access_level").type(JsonFieldType.STRING).description("Role"),
-            PayloadDocumentation.fieldWithPath(prefix + "expired_at").type(JsonFieldType.STRING).optional().description("Access expires at")
-        )
-    }
-
-    fun projectAddEditUserRequestFields(): List<FieldDescriptor> {
-        return listOf(
-            PayloadDocumentation.fieldWithPath("user_id").type(JsonFieldType.STRING).optional().description("User id"),
-            PayloadDocumentation.fieldWithPath("gitlab_id").type(JsonFieldType.NUMBER).optional().description("Gitlab user id"),
-            PayloadDocumentation.fieldWithPath("level").type(JsonFieldType.STRING).optional().description("Role/Level of user in project"),
-            PayloadDocumentation.fieldWithPath("expires_at").type(JsonFieldType.STRING).optional().description("Expiration date")
-        )
-    }
 }
+
+private fun projectCreateRequestFields(): List<FieldDescriptor> = listOf(
+    PayloadDocumentation.fieldWithPath("slug").type(STRING).description("Valid slug of Project (matches Gitlab)"),
+    PayloadDocumentation.fieldWithPath("namespace").type(STRING).description("Gitlab group or user namespace"),
+    PayloadDocumentation.fieldWithPath("name").type(STRING).description("Name of Project"),
+    PayloadDocumentation.fieldWithPath("description").type(STRING).description("Description of Project"),
+    PayloadDocumentation.fieldWithPath("initialize_with_readme").type(BOOLEAN).description("Boolean flag, if that Project should have an automatic commit for a README"),
+    PayloadDocumentation.fieldWithPath("visibility").type(STRING).description("Visibility, can be 'PUBLIC', 'INTERNAL', 'PRIVATE'"),
+    PayloadDocumentation.fieldWithPath("experiments").type(OBJECT).optional().description("Experiments arrays"),
+    PayloadDocumentation.fieldWithPath("input_data_types").type(listOf(OBJECT)).optional().description("Project datatypes array")
+)
+
+private fun projectForkRequestFields(): List<FieldDescriptor> = listOf(
+    PayloadDocumentation.fieldWithPath("target_namespace_gitlab_id").type(NUMBER).optional().description("The gitlabId (long) of the namespace you want to fork to."),
+    PayloadDocumentation.fieldWithPath("target_name").type(STRING).optional().description("The new name of the project. If omitted will default to the original project's value."),
+    PayloadDocumentation.fieldWithPath("target_path").type(STRING).optional().description("The new path (slug) of the project. If omitted will default to the original project's value."),
+)
+
+fun usersInProjectResponseFields(prefix: String = ""): List<FieldDescriptor> = listOf(
+    PayloadDocumentation.fieldWithPath(prefix + "id").type(STRING).description("Data project id"),
+    PayloadDocumentation.fieldWithPath(prefix + "user_name").type(STRING).description("User name"),
+    PayloadDocumentation.fieldWithPath(prefix + "email").type(STRING).description("User's email"),
+    PayloadDocumentation.fieldWithPath(prefix + "gitlab_id").type(NUMBER).description("Id in gitlab"),
+    PayloadDocumentation.fieldWithPath(prefix + "access_level").type(STRING).description("Role"),
+    PayloadDocumentation.fieldWithPath(prefix + "expired_at").type(STRING).optional().description("Access expires at")
+)
+
+fun projectAddEditUserRequestFields(): List<FieldDescriptor> = listOf(
+    PayloadDocumentation.fieldWithPath("user_id").type(STRING).optional().description("User id"),
+    PayloadDocumentation.fieldWithPath("gitlab_id").type(NUMBER).optional().description("Gitlab user id"),
+    PayloadDocumentation.fieldWithPath("level").type(STRING).optional().description("Role/Level of user in project"),
+    PayloadDocumentation.fieldWithPath("expires_at").type(STRING).optional().description("Expiration date")
+)

@@ -20,11 +20,24 @@ export default class ProjectGeneralInfoApi extends ApiDirector {
       METHODS.POST,
       this.buildBasicHeaders(validServicesToCall.BACKEND),
       baseUrl,
-      JSON.stringify(bodyReq)
+      JSON.stringify(bodyReq),
     );
 
     return fetch(apiReqBuilder.build())
-      .then(handleResponse)
+      .then(handleResponse);
+  }
+
+  fork(projectId: string, bodyReq: any) {
+    const baseUrl = `/api/v1/projects/fork/${projectId}`;
+    const apiReqBuilder = new ApiRequestCallBuilder(
+      METHODS.POST,
+      this.buildBasicHeaders(validServicesToCall.BACKEND),
+      baseUrl,
+      JSON.stringify(bodyReq),
+    );
+
+    return fetch(apiReqBuilder.build())
+      .then(handleResponse);
   }
 
   getProjectInfoApi(projectId: number) {
