@@ -4,13 +4,13 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import java.io.Serializable
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-class Commit(
-    val authorEmail: String = "",
-    val authorName: String = "",
-    val authoredDate: String = "",
-    val committerEmail: String = "",
-    val committerName: String = "",
-    val committedDate: String = "",
+data class Commit(
+    val authorEmail: String? = null,
+    val authorName: String? = null,
+    val authoredDate: String? = null,
+    val committerEmail: String? = null,
+    val committerName: String? = null,
+    val committedDate: String? = null,
     val title: String = "",
     val message: String = "",
     val id: String = "",
