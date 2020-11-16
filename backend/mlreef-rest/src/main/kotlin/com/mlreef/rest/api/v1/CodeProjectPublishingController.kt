@@ -1,6 +1,7 @@
 package com.mlreef.rest.api.v1
 
 import com.mlreef.rest.api.v1.dto.CodeProjectPublishingPipelineDto
+import com.mlreef.rest.api.v1.dto.toCommitDto
 import com.mlreef.rest.external_api.gitlab.TokenDetails
 import com.mlreef.rest.feature.PublishingService
 import org.springframework.http.HttpStatus
@@ -29,7 +30,7 @@ internal class CodeProjectPublishingController(
     ): CodeProjectPublishingPipelineDto =
         publishingService.startPublishing(request?.path, userToken = token.accessToken, projectId = id)
             .let {
-                CodeProjectPublishingPipelineDto(commit = it)
+                CodeProjectPublishingPipelineDto(commit = it.toCommitDto())
             }
 
     @PostMapping("unpublish")
@@ -41,8 +42,23 @@ internal class CodeProjectPublishingController(
     ): CodeProjectPublishingPipelineDto =
         publishingService.unPublishProject(userToken = token.accessToken, projectId = id)
             .let {
-                CodeProjectPublishingPipelineDto(commit = it)
+                CodeProjectPublishingPipelineDto(commit = it.toCommitDto())
             }
+
+    @PostMapping("republish")
+    @ResponseStatus(HttpStatus.OK)
+    @PreAuthorize("canViewProject(#id)")
+    fun republishExistingProject(
+        @RequestBody(required = false) request: PublishingRequest?,
+        @PathVariable id: UUID,
+        token: TokenDetails
+    ): CodeProjectPublishingPipelineDto {
+        publishingService.unPublishProject(userToken = token.accessToken, projectId = id)
+        return publishingService.startPublishing(request?.path, userToken = token.accessToken, projectId = id)
+            .let {
+                CodeProjectPublishingPipelineDto(commit = it.toCommitDto())
+            }
+    }
 }
 
 class PublishingRequest(

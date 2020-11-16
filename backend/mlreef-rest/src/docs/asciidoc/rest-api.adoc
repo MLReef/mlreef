@@ -336,6 +336,24 @@ Delete a user with parameters by user_id or gitlab_id from the project by id (:i
 
 operation::project-delete-user-by-params[snippets='curl-request,request-parameters,response-body,response-fields']
 
+=== POST /code-projects/:id/publish
+
+Publish current project: pack it to docker and put it to repository
+
+operation::code-projects-publish-success[snippets='curl-request,request-fields,response-body,response-fields']
+
+=== POST /code-projects/:id/unpublish
+
+Publish current project: pack it to docker and put it to repository
+
+operation::code-projects-unpublish-success[snippets='curl-request,response-body,response-fields']
+
+=== POST /code-projects/:id/republish
+
+Publish current project: pack it to docker and put it to repository
+
+operation::code-projects-republish-success[snippets='curl-request,request-fields,response-body,response-fields']
+
 [[data-projects]]
 == Data Projects - /data-projects
 

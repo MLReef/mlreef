@@ -335,7 +335,7 @@ abstract class AbstractRestApiTest : AbstractRestTest() {
         every { currentUserService.accessToken() } answers { testPrivateUserTokenMock1 }
 
         every {
-            restClient.adminGetProjectTree(any(), any(), any(), any())
+            restClient.adminGetProjectTree(any(), isNull(), any(), any())
         } answers {
             RepositoryTreePaged(
                 listOf(
@@ -351,6 +351,26 @@ abstract class AbstractRestApiTest : AbstractRestTest() {
                         name = "main.pyt",
                         type = RepositoryTreeType.BLOB,
                         path = "main.pyt",
+                        mode = "rw"
+                    ),
+                ),
+                page = 1,
+                totalPages = 1,
+                totalElements = 2,
+                perPage = 10
+            )
+        }
+
+        every {
+            restClient.adminGetProjectTree(any(), isNull(inverse = true), any(), any())
+        } answers {
+            RepositoryTreePaged(
+                listOf(
+                    RepositoryTree(
+                        id = UUID.randomUUID().toString(),
+                        name = "main.py",
+                        type = RepositoryTreeType.BLOB,
+                        path = "main.py",
                         mode = "rw"
                     ),
                 ),

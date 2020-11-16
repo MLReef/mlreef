@@ -88,7 +88,13 @@ internal class PublishingService(
 
         dataProcessorService.saveDataProcessor(dataProcessor)
 
-        return commitMessage
+        return commitMessage.copy(
+            authorEmail = null,
+            authorName = null,
+            authoredDate = null,
+            committerEmail = null,
+            committerName = null
+        )
     }
 
     // https://docs.gitlab.com/ee/user/packages/container_registry/index.html#build-and-push-images-using-gitlab-cicd

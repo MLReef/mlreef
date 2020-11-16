@@ -101,7 +101,7 @@ internal class CodeProjectPublishingServiceTest : AbstractServiceTest() {
         )
 
         every {
-            gitlabClient.adminGetProjectTree(any(), any(), any(), any())
+            gitlabClient.adminGetProjectTree(any(), isNull(), any(), any())
         } answers {
             RepositoryTreePaged(
                 listOf(
@@ -126,6 +126,27 @@ internal class CodeProjectPublishingServiceTest : AbstractServiceTest() {
                 perPage = 10
             )
         }
+
+        every {
+            gitlabClient.adminGetProjectTree(any(), isNull(inverse = true), any(), any())
+        } answers {
+            RepositoryTreePaged(
+                listOf(
+                    RepositoryTree(
+                        id = UUID.randomUUID().toString(),
+                        name = "main.py",
+                        type = RepositoryTreeType.BLOB,
+                        path = "main.py",
+                        mode = "rw"
+                    ),
+                ),
+                page = 1,
+                totalPages = 1,
+                totalElements = 2,
+                perPage = 10
+            )
+        }
+
 
         every {
             gitlabClient.adminGetRepositoryFileContent(any(), any())

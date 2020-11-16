@@ -223,6 +223,22 @@ internal fun fileLocationsFields(prefix: String = ""): MutableList<FieldDescript
     )
 }
 
+internal fun commitFields(prefix: String = ""): MutableList<FieldDescriptor> {
+    return mutableListOf(
+        fieldWithPath(prefix + "author_email").optional().type(JsonFieldType.STRING).description("User's email"),
+        fieldWithPath(prefix + "author_name").optional().type(JsonFieldType.STRING).description("Username"),
+        fieldWithPath(prefix + "authored_date").optional().type(JsonFieldType.STRING).description("Date of publish"),
+        fieldWithPath(prefix + "committer_email").optional().type(JsonFieldType.STRING).description("Commiter email"),
+        fieldWithPath(prefix + "committer_name").optional().type(JsonFieldType.STRING).description("Commiter name"),
+        fieldWithPath(prefix + "committed_date").optional().type(JsonFieldType.STRING).description("Date of commit"),
+        fieldWithPath(prefix + "title").type(JsonFieldType.STRING).description("Commit title"),
+        fieldWithPath(prefix + "message").type(JsonFieldType.STRING).description("Commit message"),
+        fieldWithPath(prefix + "id").optional().type(JsonFieldType.STRING).description("Username"),
+        fieldWithPath(prefix + "short_id").optional().type(JsonFieldType.STRING).description("Username"),
+    )
+}
+
+
 @Component
 internal class AccountSubjectPreparationTrait {
 
