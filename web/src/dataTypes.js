@@ -70,7 +70,6 @@ export const CHMOD = 'chmod';
 
 /*-----------------------------------------*/
 
-
 /**
  * Merge req states
 */
@@ -80,7 +79,6 @@ export const mrStates = [
   'closed',
   'merged',
 ];
-
 
 /* the next array is to contain global characters banned for urls */
 
@@ -94,46 +92,48 @@ export const DATA_OPERATION = 'data-operation';
 export const DATA_VISUALIZATION = 'data-visualization';
 
 export const projectClassificationsProps = [{
-    classification: ML_PROJECT,
-    label: 'ML Project',
-    color: '#91BD44',
-    description: `A Machine Learning (ML) project is where you house your data set (repository),
+  classification: ML_PROJECT,
+  label: 'ML Project',
+  color: '#91BD44',
+  description: `A Machine Learning (ML) project is where you house your data set (repository),
     where you perform data processing (data pipeline), visualize your data set (data visualization)
-    and where you create your experiments`
-  },
-  { classification: MODEL, label: 'Model', color: '#E99444',
-    description: `
+    and where you create your experiments`,
+},
+{
+  classification: MODEL,
+  label: 'Model',
+  color: '#E99444',
+  description: `
     A machine learning(ML) model is an algorithm that can be trained
     with data to be a mathematical representation of a real-world process. 
 
     Create a model repository to use it in your experiment pipelines and publishing it. 
     You can find detailed instructions how to create models in MLReef in the documentation
-    `
-   },
-  { 
-    classification: DATA_OPERATION, 
-    label: 'Data Operation', 
-    color: '#D2519D',
-    description: `A data operation transforms your data in a data pre-processing pipeline. 
+    `,
+},
+{
+  classification: DATA_OPERATION,
+  label: 'Data Operation',
+  color: '#D2519D',
+  description: `A data operation transforms your data in a data pre-processing pipeline. 
     It is a script that need input data to create output data. 
 
     You can find detailed instructions how to create data operations in the documentation
-    `
-  },
-  { 
-    classification: DATA_VISUALIZATION, 
-    label: 'Data visualization', 
-    color: '#735DA8',
-    description: `A data visualization create undestandable representations of the structure in your data. 
+    `,
+},
+{
+  classification: DATA_VISUALIZATION,
+  label: 'Data visualization',
+  color: '#735DA8',
+  description: `A data visualization create undestandable representations of the structure in your data. 
     The output are plots and graphs. 
 
     You can find detailed instructions how to create data visualizations in the documentation.
-    `
-  },
+    `,
+},
 ];
 
 /* -------------------------- ------------- -------------------------- */
-
 
 /* -------------------------- The next are access levels implemented by Gitlab -------------------------- */
 

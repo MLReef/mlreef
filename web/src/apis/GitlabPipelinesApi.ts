@@ -33,7 +33,7 @@ export default class GitlabPipelinesApi extends ApiDirector {
     const bl = new BodyLessApiRequestCallBuilder(
       METHODS.GET,
       this.buildBasicHeaders(validServicesToCall.GITLAB),
-      `/api/v4/projects/${projectId}/pipelines/`,
+      `/api/v4/projects/${projectId}/pipelines`,
     );
     return fetch(bl.build())
       .then(handleResponse);

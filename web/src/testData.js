@@ -2945,3 +2945,43 @@ export const membersMock = [
     expires_at: null,
   },
 ];
+
+
+export const mockedPipelines = [
+  {
+    id: 201,
+    sha: '563790b2ad29f7690e02573807b6e1e78d500390',
+    ref: 'master',
+    status: 'success',
+    createdAt: '2020-11-03T18:28:34.249Z',
+    updatedAt: '2020-11-03T18:29:15.516Z',
+    webUrl: 'http://ec2-18-157-161-187.eu-central-1.compute.amazonaws.com:10080/mlreef/commons-bertsent/pipelines/201',
+  },
+  {
+    id: 200,
+    sha: 'bd144cb53a6864fb26ed8ccdbd82d14f47a12c02',
+    ref: 'master',
+    status: 'success',
+    createdAt: '2020-11-03T18:22:59.942Z',
+    updatedAt: '2020-11-03T18:23:42.769Z',
+    webUrl: 'http://ec2-18-157-161-187.eu-central-1.compute.amazonaws.com:10080/mlreef/commons-bertsent/pipelines/200',
+  },
+  {
+    id: 195,
+    sha: 'c19d61e0d5c5fee87f657eed3cb54d7e98e2e7d3',
+    ref: 'master',
+    status: 'success',
+    createdAt: '2020-11-03T14:36:55.164Z',
+    updatedAt: '2020-11-03T14:37:36.851Z',
+    webUrl: 'http://ec2-18-157-161-187.eu-central-1.compute.amazonaws.com:10080/mlreef/commons-bertsent/pipelines/195',
+  },
+  {
+    id: 194,
+    sha: 'c7ad26dc9154998f999f6ffcd31a52b3440d26ce',
+    ref: 'master',
+    status: 'success',
+    createdAt: '2020-11-03T14:02:12.033Z',
+    updatedAt: '2020-11-03T14:03:00.828Z',
+    webUrl: 'http://ec2-18-157-161-187.eu-central-1.compute.amazonaws.com:10080/mlreef/commons-bertsent/pipelines/194',
+  },
+];

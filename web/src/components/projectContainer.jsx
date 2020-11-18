@@ -69,7 +69,7 @@ class ProjectContainer extends React.Component {
           />
           <div className="feature-list">
             <Link to={projectRoute} className="feature" id="data">
-              Data
+              {isDataProject ? 'Data' : 'Code'}
             </Link>
 
             {isDataProject && (

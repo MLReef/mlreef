@@ -40,6 +40,7 @@ import Redirect from 'components/commons/Redirect';
 import DemoView from 'components/Demo';
 import DetailedRepositoryView from 'components/views/DetailedRepositoryView';
 import BasicMergeRequestView from './components/mergeRequestDetailView/basicMergeRequestView';
+import Publications from 'components/views/Publications/Publications';
 
 export default [
   {
@@ -389,6 +390,16 @@ export default [
     },
   },
   {
+    name: 'specificPublication',
+    path: '/:namespace/:slug/-/publications/:pipelineId',
+    component: PublishProcessView,
+    exact: true,
+    meta: {
+      authRequired: true,
+      role: 40,
+    },
+  },
+  {
     name: 'publishing',
     path: '/:namespace/:slug/-/publishing',
     component: PublishingView,
@@ -409,13 +420,13 @@ export default [
     },
   },
   {
-    name: 'publishingProcess',
-    path: '/:namespace/:slug/-/publishing/process',
-    component: PublishProcessView,
+    name: 'publications',
+    path: '/:namespace/:slug/-/publications',
+    component: Publications,
     exact: true,
     meta: {
       authRequired: true,
-      role: 40,
+      role: 10,
     },
   },
   {

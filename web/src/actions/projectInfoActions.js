@@ -3,11 +3,13 @@ import ProjectGeneralInfoApi from 'apis/ProjectGeneralInfoApi';
 import { parseToCamelCase, adaptProjectModel } from 'functions/dataParserHelpers';
 import MLSearchApi from 'apis/MLSearchApi';
 import { handlePaginationWithAdditionalInfo } from 'functions/apiCalls';
+import GitlabPipelinesApi from 'apis/GitlabPipelinesApi';
 import store from '../store';
 import * as types from './actionTypes';
 
 const projectApi = new ProjectGeneralInfoApi();
 const mlSearchApi = new MLSearchApi();
+const gitlabPipelinesApi = new GitlabPipelinesApi();
 
 // This will fetch gitlab project and add it to the mlreef project
 const mergeWithGitlabProject = (project) => projectApi.getProjectInfoApi(project.gitlab_id)
@@ -185,4 +187,23 @@ export function getProjectStarrers(gid) {
   return (dispatch) => projectApi
     .listStarrers(gid)
     .then((starrers) => dispatch(setProjectStarrers(starrers)));
+}
+
+/**
+ * 
+ * @param {*} pipes: pipelines to persist in the redux state
+ */
+
+export const setProjectPipelines = (pipes = []) => ({
+  type: types.SET_PROJECT_PIPES, pipes,
+});
+
+/**
+ * 
+ * @param {*} gid: project id to get pipelines for
+ */
+
+export function getProjectPipelines(gid) {
+  return (dispatch) => gitlabPipelinesApi.getPipesByProjectId(gid)
+    .then((pipes) => dispatch(setProjectPipelines(pipes)));
 }

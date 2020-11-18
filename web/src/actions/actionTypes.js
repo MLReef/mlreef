@@ -16,6 +16,7 @@ export const SET_PROJECT_STARRERS = 'SET_PROJECT_STARRERS';
 export const GET_LIST_OF_PROJECTS = 'GET_LIST_OF_PROJECTS';
 export const SET_SELECTED_PROJECT = 'SET_SELECTED_PROJECT';
 export const SET_PAGINATION_INFO = 'SET_PAGINATION_INFO';
+export const SET_PROJECT_PIPES = 'SET_PROJECT_PIPES';
 
 /*
  * ---------- Jobs and mrs ----------

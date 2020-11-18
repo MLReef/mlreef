@@ -210,7 +210,7 @@ export class RepoFeatures extends Component {
 
           <AuthWrapper
             resource={{ type: 'project' }}
-            className="ml-auto mt-3"
+            className="mt-3"
           >
             <button
               type="button"

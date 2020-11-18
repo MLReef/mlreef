@@ -9,8 +9,7 @@ const RepoInfo = ({
   mergeRequests,
   currentBranch,
   branchesCount,
-  visualizationsCount,
-  dataInstanesCount,
+  publicationsCount,
 }) => {
   const isDataProject = project.searchableType === PROJECT_TYPES.DATA_PROJ
     || project.searchableType === PROJECT_TYPES.DATA;
@@ -50,10 +49,10 @@ const RepoInfo = ({
             </AuthWrapper>
           </>
         ) : (
-          <div className="repo-stat">
-            <p className="stat-no">0</p>
+          <Link className="repo-stat" to={`/${project.namespace}/${project.slug}/-/publications`}>
+            <p className="stat-no">{publicationsCount}</p>
             <p className="stat-type">Publications</p>
-          </div>
+          </Link>
         )}
       </div>
     </>
@@ -62,6 +61,7 @@ const RepoInfo = ({
 
 RepoInfo.defaultProps = {
   mergeRequests: [],
+  publicationsCount: 0,
 };
 
 RepoInfo.propTypes = {
@@ -77,6 +77,7 @@ RepoInfo.propTypes = {
   }).isRequired,
   currentBranch: PropTypes.string.isRequired,
   branchesCount: PropTypes.number.isRequired,
+  publicationsCount: PropTypes.number,
 };
 
 export default RepoInfo;
