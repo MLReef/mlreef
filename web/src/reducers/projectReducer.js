@@ -55,6 +55,16 @@ export default function projectReducer(state = initialState.projects, action) {
           ...action.pagination
         },
       }
+    case types.SET_PROJECT_PIPES:
+      return {
+        ...state,
+        selectedProject: {
+          ...state.selectedProject,
+          pipelines: [
+            ...action.pipes
+          ]
+        },
+      }
     default:
       return state;
   }

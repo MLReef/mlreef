@@ -20,7 +20,11 @@ import publishingActions from './publishingActionsAndFuncs';
 const PublishProcessView = (props) => {
   const {
     match: {
-      params: { namespace, slug },
+      params: {
+        namespace,
+        slug,
+        pipelineId,
+      },
     },
     project,
   } = props;
@@ -50,12 +54,12 @@ const PublishProcessView = (props) => {
   const fetch = useCallback(
     () => {
       setIsFetching(true);
-      publishingActions.getPipelineJobs(project.gid)
+      publishingActions.getPipelineJobs(project.gid, pipelineId)
         .then(setSortedJobs)
         .catch((err) => toastr.error('Error:', err?.message))
         .finally(() => setIsFetching(false));
     },
-    [project.gid],
+    [project.gid, pipelineId],
   );
 
   useEffect(() => {

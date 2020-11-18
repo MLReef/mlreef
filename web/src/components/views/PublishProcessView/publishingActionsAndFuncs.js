@@ -13,14 +13,19 @@ const sortJobs = (unsortedJobs) => Array.from(
   jobs: unsortedJobs.filter((job) => job.stage === stage),
 }));
 
+const definePipeline = (projectId, pipelineId) => pipelineId
+  ? gitlabPipelinesApi.getPipesById(projectId, pipelineId)
+  : gitlabPipelinesApi.getPipesByProjectId(projectId)
+    .then((pipes) => pipes.length > 0
+      ? pipes[0]
+      : null);
+
 const getPipelineJobs = (
   projectId,
-) => gitlabPipelinesApi.getPipesByProjectId(projectId)
-  .then((pipes) => pipes.length > 0
-    ? pipes[0]
-    : null)
-  .then((lastPipeline) => lastPipeline
-    ? jobsApi.getJobsByPipelineId(projectId, lastPipeline.id)
+  pipelineId,
+) => definePipeline(projectId, pipelineId)
+  .then((selectedPipeline) => selectedPipeline
+    ? jobsApi.getJobsByPipelineId(projectId, selectedPipeline.id)
       .then(handleResponse)
     : [])
   .then((unsortedJobs) => unsortedJobs.length > 0

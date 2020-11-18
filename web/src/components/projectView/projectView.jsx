@@ -7,9 +7,9 @@ import {
 import forkingImage from 'images/forking.png';
 import { OPERATION, ALGORITHM, VISUALIZATION } from 'dataTypes';
 import FilesContainer from 'components/FilesContainer';
-import { filterSetsBy } from 'functions/dataParserHelpers';
 import { redirectNotFound } from 'actions/errorsActions';
 import { generateBreadCrumbs } from 'functions/helpers';
+import { PROJECT_TYPES } from 'domain/project/projectTypes';
 import ReadMeComponent from '../ReadMe/ReadMe';
 import ProjectContainer from '../projectContainer';
 import RepoInfo from '../repoInfo';
@@ -99,13 +99,19 @@ class ProjectView extends React.Component {
         actions.getProcessors(ALGORITHM);
         actions.getProcessors(VISUALIZATION);
 
-        return Promise.all([
+        let promises = [
           actions.getBranchesList(gid),
           actions.getMergeRequestsList(gid),
           actions.getUsersList(gid),
           actions.getJobsListPerProject(gid),
           actions.getProjectStarrers(gid),
-        ]);
+        ];
+
+        if (project.searchableType === PROJECT_TYPES.CODE) {
+          promises = [...promises, actions.getProjectPipelines(gid)];
+        }
+
+        return Promise.all(promises);
       })
       .catch(actions.redirectNotFound);
   }
@@ -117,6 +123,7 @@ class ProjectView extends React.Component {
         gid,
         httpUrlToRepo,
         readmeUrl: showReadMe,
+        pipelines,
       },
       match: {
         params: {
@@ -187,6 +194,7 @@ class ProjectView extends React.Component {
                   currentBranch={decodedBranch}
                   numberOfContributors={contributors.length}
                   branchesCount={branches.length}
+                  publicationsCount={pipelines?.length}
                 />
                 <ProjectLastCommitSect
                   projectId={gid}
