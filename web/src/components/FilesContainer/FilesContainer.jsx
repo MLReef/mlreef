@@ -45,10 +45,12 @@ const FilesContainer = ({
     }
   }, [projectId, path, finalBranch, defaultBranch, isTheBranchDefault]);
 
+  const hasChanges = !!(ahead || behind);
+
   return (
-    <div className={`files-container ${defaultBranch && isTheBranchDefault ? 'files-container-master' : ''}`}>
-      {!isTheBranchDefault && (
-      <div className="commit-status px-3 py-2">
+    <div className="files-container pt-3">
+      {!isTheBranchDefault && hasChanges && (
+      <div className="commit-status">
         <p id="commitStatus">
           This branch is
           {' '}
@@ -100,7 +102,7 @@ const FilesContainer = ({
             return;
           }
           const link = targetDataKey === 'tree'
-            ? `${baseLink}/${finalBranch}/${file.path}` 
+            ? `${baseLink}/${finalBranch}/${file.path}`
             : `${baseLink}/branch/${finalBranch}/path/${file.path}`;
           history.push(link);
         }}

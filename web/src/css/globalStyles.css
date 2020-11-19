@@ -127,15 +127,13 @@ img.dropdown-white {
    left: 0px;
    border-radius: 4px;
  }
- 
+
  .search-branch {
    position: relative;
    display: block !important;
-   padding: 0.5em;
  }
- 
+
  .search-branch > input {
    width: -webkit-fill-available;
  }
  /* ----------------------- ----------------------- ----------------------- */
- 

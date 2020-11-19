@@ -191,20 +191,13 @@ export class RepoFeatures extends Component {
             </button>
           </AuthWrapper>
         )}
-        <AuthWrapper
-          resource={{ type: 'project' }}
-          minRole={10}
-          accountType={1}
-          className="ml-auto mt-3"
+        <Link
+          className="btn btn-outline-dark ml-auto mt-3 px-3"
+          to={path ? `/${namespace}/${slug}/-/commits/file/${currentBranch}/-/${path}` : `/${namespace}/${slug}/-/commits/${currentBranch}`}
         >
-          <Link
-            className="btn btn-outline-dark ml-auto mt-3 px-3"
-            to={path ? `/${namespace}/${slug}/-/commits/file/${currentBranch}/-/${path}` : `/${namespace}/${slug}/-/commits/${currentBranch}`}
-          >
-            <span className="d-none d-lg-block mx-3">History</span>
-            <span className="fa fa-history d-lg-none" />
-          </Link>
-        </AuthWrapper>
+          <span className="d-none d-lg-block mx-3">History</span>
+          <span className="fa fa-history d-lg-none" />
+        </Link>
       </div>
     );
   }

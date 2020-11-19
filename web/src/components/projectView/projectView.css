@@ -354,7 +354,6 @@ p.stat-no {
   align-items: center;
   justify-content: space-between;
   height: 40px;
-  margin-top: 15px;
   border-radius: 0.3vw 0.3vw 0px 0px;
   background-color: #2db391;
   /* border: 1px solid #32AFC3; */
@@ -363,8 +362,4 @@ p.stat-no {
 #commitStatus {
   color: #fff;
   margin: 0 2%;
-}
-
-.files-container-master{
-  padding-top: 15px;
 }

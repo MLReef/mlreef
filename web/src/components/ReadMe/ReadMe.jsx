@@ -32,7 +32,6 @@ const Readme = ({ projectId, branch, namespace, slug }) => {
   return (
     <div className="readme-container">
       <div className="readme-titlebar">
-        <div className="readme-profile-pic" />
         <div className="readme-name">
           <p><b>README.md</b></p>
         </div>
