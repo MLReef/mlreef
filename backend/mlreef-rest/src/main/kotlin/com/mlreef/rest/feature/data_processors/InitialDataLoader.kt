@@ -797,14 +797,14 @@ class InitialDataLoader {
                     }
                     INTEGER {
                         id = fromString("2c9c6716-d16c-11ea-87d0-0242ac130003")
-                        name = "pca_components"
+                        name = "pca-components"
                         defaultValue = "200"
                         required = false
                         description = "Number of PCA components"
                     }
                     INTEGER {
                         id = fromString("2c9c6516-d16c-11ea-87d0-0242ac130003")
-                        name = "num_dimensions"
+                        name = "num-dimensions"
                         defaultValue = "2"
                         required = false
                         description = "Number of dimensions of the mapping"
@@ -818,14 +818,14 @@ class InitialDataLoader {
                     }
                     FLOAT {
                         id = fromString("2c9c67c8-d16c-11ea-87d0-0242ac130003")
-                        name = "learning_rate"
+                        name = "learning-rate"
                         defaultValue = "150"
                         required = false
                         description = "learning rate"
                     }
                     INTEGER {
                         id = fromString("2c9c69d0-d16c-11ea-87d0-0242ac130003")
-                        name = "max_iter"
+                        name = "max-iter"
                         defaultValue = "1000"
                         required = false
                         description = "maximum number of iterations"
