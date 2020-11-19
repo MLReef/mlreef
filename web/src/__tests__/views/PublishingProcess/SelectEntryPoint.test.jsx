@@ -40,7 +40,7 @@ describe('html elements presence', () => {
   test('test elements presence', () => {
     wrapper = setup();
     expect(wrapper.find('MFileExplorer')).toHaveLength(1);
-    expect(wrapper.find('div.search-branch')).toHaveLength(2);
+    expect(wrapper.find('div.search-branch')).toHaveLength(1);
     expect(wrapper.find('ul.m-file-explorer-files-list')).toHaveLength(1);
     const continueBtn = wrapper.find('button.btn.btn-dark');
     expect(continueBtn).toHaveLength(1);

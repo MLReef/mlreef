@@ -13,6 +13,7 @@ import {
 import AuthWrapper from 'components/AuthWrapper';
 import NewDirectoryPartial from 'components/layout/NewDirectoryPartial';
 import { fireModal, closeModal } from 'actions/actionModalActions';
+import MBranchSelector from 'components/ui/MBranchSelector';
 import { PROJECT_TYPES } from 'domain/project/projectTypes';
 
 export class RepoFeatures extends Component {
@@ -95,43 +96,17 @@ export class RepoFeatures extends Component {
 
     return (
       <div id="repo-features">
-
-        <MDropdown
+        <MBranchSelector
           className="mr-2 mt-3"
-          label={decodeURIComponent(currentBranch)}
-          component={(
-            <div id="branches-list" className="select-branch">
-              <div
-                style={{ margin: '0 50px', fontSize: '14px', padding: '0 40px' }}
-              >
-                <p>Switch Branches</p>
-              </div>
-              <hr />
-              <div className="search-branch">
-                <div className="branches">
-                  <ul>
-                    <li className="branch-header">Branches</li>
-                    {branches && branches.filter((branch) => !branch.name.startsWith('data-pipeline/')
-                      && !branch.name.startsWith('data-visualization/') && !branch.name.startsWith('experiment/')).map((branch) => {
-                      const encoded = encodeURIComponent(branch.name);
-                      return (
-                        <li key={encoded}>
-                          <Link
-                            id={branch.name}
-                            to={`/${namespace}/${slug}/-/tree/${encoded}`}
-                          >
-                            <p>{branch.name}</p>
-                          </Link>
-                        </li>
-                      );
-                    })}
-                  </ul>
-                </div>
-              </div>
-            </div>
-          )}
+          branches={branches}
+          activeBranch={decodeURIComponent(currentBranch)}
+          onBranchSelected={
+            (branchName) => history.push(`/${namespace}/${slug}/-/tree/${encodeURIComponent(branchName)}`)
+          }
+          showDatasets
+          showExperiments
+          showVisualizations
         />
-
         <AuthWrapper minRole={30} norender>
           <MDropdown
             className="mr-2 mt-3"

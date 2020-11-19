@@ -137,41 +137,5 @@ img.dropdown-white {
  .search-branch > input {
    width: -webkit-fill-available;
  }
- 
- .branches {
-   display: block;
-   margin: "1em";
- }
- 
- .branches ul {
-   list-style: none;
-   margin: 0;
-   padding: 1em 0 0;
-   width: 100%;
- }
- 
- .branches ul li {
-   padding-left: 10px;
- }
- 
- .branches ul li p {
-   padding: 0.5em 0;
-   margin: 0;
-   width: 100%;
-   transition: background-color 0.2s ease;
- }
- 
- .branches ul li:hover {
-   cursor: pointer;
-   background: #c5c5c5;
- }
- 
- .branches .branch-header {
-   color: #707070;
-   line-height: 16px;
-   padding: 8px 0;
-   margin: 0;
- }
-
  /* ----------------------- ----------------------- ----------------------- */
  

@@ -52,18 +52,19 @@ describe('frontend should contain initial html elements', () => {
     expect(wrapper.find('MergeRequestEdit').length).toBe(1);
     expect(wrapper.find('#cancel-button').length).toBe(1);
     expect(wrapper.find('#submit-merge-request').length).toBe(1);
-    expect(wrapper.find('MSelect').length).toBe(1);
+    expect(wrapper.find('MBranchSelector').length).toBe(1);
     expect(wrapper.find('ImageDiffSection').length).toBe(1);
   });
   test('assert that the proper form is submitted', () => {
     const branchSelectedIndex = 0;
     wrapper
-      .find('MSelect')
+      .find('MBranchSelector')
+      .dive()
       .dive()
       .find('li')
       .at(branchSelectedIndex)
       .simulate('click');
-    expect(wrapper.find('MSelect').props().value).toBe(branchesMock[branchSelectedIndex].name);
+    expect(wrapper.find('MBranchSelector').props().activeBranch).toBe(branchesMock[branchSelectedIndex].name);
 
     const mergeRequestEdit = wrapper.find('MergeRequestEdit').dive().dive();
     const title = 'Some title';

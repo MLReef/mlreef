@@ -35,7 +35,7 @@ describe('test UI only', () => {
   });
 
   test('assert component renders and contains UI elements', () => {
-    expect(wrapper.find('MSelect')).toHaveLength(1);
+    expect(wrapper.find('MBranchSelector')).toHaveLength(1);
     expect(wrapper.find('input#commits-filter-input')).toHaveLength(1);
   });
 
@@ -49,7 +49,8 @@ describe('test UI only', () => {
       });
     expect(wrapper.find('CommitDiv')).toHaveLength(commits.length);
     wrapper
-      .find('MSelect')
+      .find('MBranchSelector')
+      .dive()
       .dive()
       .find('li')
       .at(0)

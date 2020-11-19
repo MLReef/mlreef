@@ -18,4 +18,61 @@
         };
 
     };
+
+    .pipeline-btn:hover {
+        background-color: var(--almostWhite);
+    }
+}
+
+.select-branch {
+    button {
+        width: 100%;
+        padding: 0;
+        text-align: left;
+        border: none;
+        background: transparent;
+    }
+}
+
+.branches {
+    display: block;
+    margin: "1em";
+
+    > ul {
+        list-style: none;
+        margin: 0;
+        width: 100%;
+
+        > li {
+            padding: 0.5rem 0;
+
+            &:hover {
+                cursor: pointer;
+                background-color: var(--almostWhite);
+            }
+        }
+    }
+  }
+
+.datasets {
+    ul {
+        list-style: disc;
+        margin: 0;
+        padding: 0;
+        padding-left: 2rem;
+
+        > li {
+            padding: 0.25rem;
+            font-size: 1.5rem;
+
+            &:hover {
+                cursor: pointer;
+                background-color: var(--almostWhite);   
+            }
+
+            > button {
+                padding: 0.25rem;;
+            }
+        }
+    }
 }

@@ -33,6 +33,9 @@ const MFileExplorer = (props) => {
             activeBranch={activeBranch}
             branches={branches}
             onBranchSelected={onBranchSelected}
+            showDatasets={false}
+            showVisualizations={false}
+            showExperiments={false}
           />
         </div>
       )}
