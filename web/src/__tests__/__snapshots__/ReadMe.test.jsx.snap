@@ -8,9 +8,6 @@ exports[`render basic readme elements assert that snapshot matches 1`] = `
     className="readme-titlebar"
   >
     <div
-      className="readme-profile-pic"
-    />
-    <div
       className="readme-name"
     >
       <p>
