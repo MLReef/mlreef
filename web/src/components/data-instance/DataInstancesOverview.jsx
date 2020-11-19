@@ -14,11 +14,6 @@ import ProjectContainer from '../projectContainer';
 import './dataInstanceOverview.css';
 import Instruction from '../instruction/instruction';
 import { getTimeCreatedAgo, parseToCamelCase } from '../../functions/dataParserHelpers';
-import {
-  RUNNING,
-  SUCCESS,
-  FAILED,
-} from '../../dataTypes';
 import { setPreconfiguredOPerations } from '../../actions/userActions';
 import DataInstancesCard from './DataInstancesCard';
 

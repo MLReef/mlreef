@@ -9,8 +9,8 @@ import {
   func,
   arrayOf,
 } from 'prop-types';
+import MBranchSelector from 'components/ui/MBranchSelector';
 import { generateBreadCrumbs } from 'functions/helpers';
-import MSelect from 'components/ui/MSelect';
 import Navbar from '../navbar/navbar';
 import ProjectContainer from '../projectContainer';
 import './commitsView.css';
@@ -102,13 +102,18 @@ class CommitsView extends Component {
         <br />
         <div className="main-content">
           <div className="commit-path">
-            <MSelect
-              label={branch || 'Select branch'}
-              options={branches.map(({ name }) => ({ label: name, value: name }))}
-              onSelect={this.onBranchSelected}
+            <MBranchSelector
+              className="mr-2 mt-3"
+              branches={branches}
+              activeBranch={decodeURIComponent(branch)}
+              onBranchSelected={this.onBranchSelected}
+              showDatasets
+              showExperiments
+              showVisualizations
             />
             <input
               type="text"
+              className="mt-3"
               id="commits-filter-input"
               placeholder="Filter by commit message"
               onChange={(e) => {

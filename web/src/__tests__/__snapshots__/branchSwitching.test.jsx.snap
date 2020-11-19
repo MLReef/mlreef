@@ -5,7 +5,7 @@ exports[`The branches list should be displayed when dropdown button is clicked d
   id="repo-features"
 >
   <div
-    className="m-dropdown  mr-2 mt-3"
+    className="m-dropdown  m-branch-selector mr-2 mt-3"
   >
     <div
       className="m-dropdown-button"
@@ -31,16 +31,9 @@ exports[`The branches list should be displayed when dropdown button is clicked d
     >
       <div
         className="select-branch"
-        id="branches-list"
       >
         <div
-          style={
-            Object {
-              "fontSize": "14px",
-              "margin": "0 50px",
-              "padding": "0 40px",
-            }
-          }
+          className="switch-header"
         >
           <p>
             Switch Branches
@@ -54,47 +47,64 @@ exports[`The branches list should be displayed when dropdown button is clicked d
             className="branches"
           >
             <ul>
-              <li
+              <p
                 className="branch-header"
               >
                 Branches
+              </p>
+              <li
+                className="pl-3"
+                onClick={[Function]}
+                onKeyDown={[Function]}
+                role="button"
+                tabIndex="0"
+                value="data-instance/happy-whale"
+              >
+                data-instance/happy-whale
               </li>
-              <li>
-                <a
-                  href="/my-namespace/the-project-name/-/tree/data-instance%2F664e1c60"
-                  id="data-instance/664e1c60"
-                  onClick={[Function]}
-                >
-                  <p>
-                    data-instance/664e1c60
-                  </p>
-                </a>
+              <li
+                className="pl-3"
+                onClick={[Function]}
+                onKeyDown={[Function]}
+                role="button"
+                tabIndex="0"
+                value="data-instance/lazy-shark"
+              >
+                data-instance/lazy-shark
               </li>
-              <li>
-                <a
-                  href="/my-namespace/the-project-name/-/tree/data-instance%2F9ae9c8c0"
-                  id="data-instance/9ae9c8c0"
-                  onClick={[Function]}
-                >
-                  <p>
-                    data-instance/9ae9c8c0
-                  </p>
-                </a>
+              <li
+                className="pl-3"
+                onClick={[Function]}
+                onKeyDown={[Function]}
+                role="button"
+                tabIndex="0"
+                value="master"
+              >
+                master
               </li>
-              <li>
-                <a
-                  href="/my-namespace/the-project-name/-/tree/master"
-                  id="master"
-                  onClick={[Function]}
-                >
-                  <p>
-                    master
-                  </p>
-                </a>
+              <li
+                className="pl-3"
+                onClick={[Function]}
+                onKeyDown={[Function]}
+                role="button"
+                tabIndex="0"
+                value="data-visualisation/flubby-seahorse"
+              >
+                data-visualisation/flubby-seahorse
               </li>
             </ul>
           </div>
         </div>
+        <hr />
+        <div
+          className="search-branch"
+        />
+        <div
+          className="search-branch"
+        />
+        <div
+          className="search-branch"
+        />
       </div>
     </div>
   </div>

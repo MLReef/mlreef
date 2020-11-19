@@ -8,15 +8,18 @@ import './SelectDataPipelineModal.scss';
 import MDropdown from 'components/ui/MDropdown';
 import ReturnLink from 'components/returnLink';
 import dayjs from 'dayjs';
+import { CANCELED, FAILED, SUCCESS } from 'dataTypes';
 import MCheckBox from 'components/ui/MCheckBox/MCheckBox';
+import JobsApi from 'apis/JobsApi';
+import actions from './actions';
 import { DataPipelinesContext } from '../DataPipelineHooks/DataPipelinesProvider';
-import actions from './actions'
 import {
   SET_BRANCH_SELECTED, SET_IS_VISIBLE_FILES_MODAL, UPDATE_FILES_SELECTED_IN_MODAL, VALIDATE_FORM,
 } from '../DataPipelineHooks/actions';
 
 const folderIcon = '/images/svg/folder_01.svg';
 const fileIcon = '/images/svg/file_01.svg';
+const jobsApi = new JobsApi();
 
 export const UnconnectedSelectDataPipelineModal = (props) => {
   const [{ isVisibleSelectFilesModal }, dispatch] = useContext(DataPipelinesContext);
@@ -32,6 +35,7 @@ export const UnconnectedSelectDataPipelineModal = (props) => {
     initialCommit,
   } = props;
   const [filePath, setFilepath] = useState('');
+  const [jobs, setJobs] = useState([]);
   const [branchSelected, setBranchSelected] = useState(initialBranch || defaultBranch);
   const [showReturnOption, setShowReturnOption] = useState(false);
   const [files, setfiles] = useState(null);
@@ -59,9 +63,11 @@ export const UnconnectedSelectDataPipelineModal = (props) => {
   }
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     updateFiles('');
-  }, []);
+    jobsApi.getPerProject(gid)
+      .then((jobList) => setJobs(jobList));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [branchSelected, gid]);
 
   function getBack() {
     const path = filePath.substring(0, filePath.lastIndexOf('/'));
@@ -93,9 +99,8 @@ export const UnconnectedSelectDataPipelineModal = (props) => {
   }
 
   function updateFilesArrayOnBranchChange(branchSelectedLocal) {
-    setShowReturnOption(false);
     setBranchSelected(branchSelectedLocal);
-    updateFiles('');
+    setShowReturnOption(false);
   }
 
   function handleModalAccept(filesSelectedInModal) {
@@ -103,6 +108,32 @@ export const UnconnectedSelectDataPipelineModal = (props) => {
     dispatch({ type: UPDATE_FILES_SELECTED_IN_MODAL, filesSelectedInModal });
     dispatch({ type: SET_BRANCH_SELECTED, branchSelected });
     dispatch({ type: VALIDATE_FORM });
+  }
+
+  function displayAvailablePipelines(branch) {
+    const pipelineName = branch.name;
+    const uniqueName = pipelineName.split('/')[1];
+    const datasetWithStatus = jobs?.filter((job) => job.ref === pipelineName);
+    const pipeStatus = datasetWithStatus[0]?.status;
+
+    let statusIcon = 'var(--warning)';
+    if (pipeStatus === SUCCESS) statusIcon = 'var(--primary)';
+    else if (pipeStatus === FAILED || pipeStatus === CANCELED) statusIcon = 'var(--danger)';
+
+    return (
+      <li style={{ color: statusIcon }} className="pipeline-btn pt-1">
+        <button
+          type="button"
+          disabled={pipeStatus !== SUCCESS}
+          onKeyDown={() => updateFilesArrayOnBranchChange(pipelineName)}
+          onClick={() => updateFilesArrayOnBranchChange(pipelineName)}
+        >
+          <p className="m-0">
+            {`${uniqueName} - ${dayjs(branch.commit.created_at).format('HH:mm')}`}
+          </p>
+        </button>
+      </li>
+    );
   }
 
   const filesSelected = files ? files.filter((f) => f.checked) : 0;
@@ -136,23 +167,24 @@ export const UnconnectedSelectDataPipelineModal = (props) => {
                     <hr />
                     <div className="search-branch">
                       <div className="branches">
-                        <ul>
-                          <p className="branch-header">Branches</p>
+                        <p className="m-0">Branches</p>
+                        <ul className="pl-2">
                           {branches.filter((branch) => !branch.name.startsWith('data-pipeline')
                                 && !branch.name.startsWith('experiment'))
                             .map((branch, index) => (
-                              <li
-                                tabIndex="0"
-                                role="button"
-                                key={index.toString()}
-                                onClick={() => updateFilesArrayOnBranchChange(
-                                  branch.name,
-                                )}
-                                onKeyDown={() => updateFilesArrayOnBranchChange(
-                                  branch.name,
-                                )}
-                              >
-                                <p>{branch.name}</p>
+                              <li>
+                                <button
+                                  type="button"
+                                  key={index.toString()}
+                                  onClick={() => updateFilesArrayOnBranchChange(
+                                    branch.name,
+                                  )}
+                                  onKeyDown={() => updateFilesArrayOnBranchChange(
+                                    branch.name,
+                                  )}
+                                >
+                                  <p className="m-0">{branch.name}</p>
+                                </button>
                               </li>
                             ))}
                         </ul>
@@ -160,35 +192,16 @@ export const UnconnectedSelectDataPipelineModal = (props) => {
                     </div>
                     <hr />
                     <div className="search-branch">
-                      <div className="branches">
+                      <div className="datasets">
+                        <p className="m-0">Datasets</p>
                         <ul>
-                          <p className="branch-header">Datasets</p>
                           {branches.filter((branch) => branch.name.startsWith('data-pipeline')).reverse()
-                            .map((branch) => {
-                              const pipelineName = branch.name;
-                              const uniqueName = pipelineName.split('/')[1];
-
-                              return (
-                                <li
-                                  key={`b-${pipelineName}`}
-                                  onKeyDown={
-                                        () => updateFilesArrayOnBranchChange(gid, pipelineName)
-                                      }
-                                  onClick={
-                                        () => updateFilesArrayOnBranchChange(gid, pipelineName)
-                                      }
-                                >
-                                  <p>
-                                    {`${uniqueName} - ${dayjs(branch.commit.created_at).format('HH:mm')}`}
-                                  </p>
-                                </li>
-                              );
-                            })}
+                            .map((branch) => displayAvailablePipelines(branch))}
                         </ul>
                       </div>
                     </div>
                   </div>
-                    )}
+                )}
               />
             </div>
             <div id="right-div" className="col-6 t-right">
@@ -289,6 +302,9 @@ UnconnectedSelectDataPipelineModal.propTypes = {
   branches: arrayOf(shape({})).isRequired,
   initialBranch: string,
   initialCommit: shape({}),
+  jobs: arrayOf(
+    shape().isRequired,
+  ).isRequired,
 };
 
 UnconnectedSelectDataPipelineModal.defaultProps = {

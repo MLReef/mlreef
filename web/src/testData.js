@@ -417,9 +417,11 @@ export const usersArrayMock = [{
 },
 ];
 
+// Update branches mock with new branch naming fashion
+// such as data-pipeline/, experiment/ instead of data-instance/
 export const branchesMock = [
   {
-    name: 'data-instance/664e1c60',
+    name: 'data-instance/happy-whale',
     commit: {
       id: '12e05078d142b2bee947e86d6a52db4a5f85eb65',
       short_id: '12e05078',
@@ -442,7 +444,7 @@ export const branchesMock = [
     default: false,
   },
   {
-    name: 'data-instance/9ae9c8c0',
+    name: 'data-instance/lazy-shark',
     commit: {
       id: '3e36bfab31a1d43457e00f46af9e6d31d4f55a66',
       short_id: '3e36bfab',
@@ -488,7 +490,7 @@ export const branchesMock = [
     default: true,
   },
   {
-    name: 'data-visualization/98084-345-345345345',
+    name: 'data-visualisation/flubby-seahorse',
     commit: {
       id: '3e36bfab31a1d43457e00f46af9e6d31d4f55a66',
       short_id: '3e36bfab',
@@ -2945,7 +2947,6 @@ export const membersMock = [
     expires_at: null,
   },
 ];
-
 
 export const mockedPipelines = [
   {

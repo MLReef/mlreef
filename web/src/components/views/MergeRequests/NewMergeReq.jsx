@@ -6,7 +6,7 @@ import {
 import { Redirect, Link } from 'react-router-dom';
 import { toastr } from 'react-redux-toastr';
 import MergeRequestEdit from 'components/layout/MergeRequests/MergeRequestEdit';
-import MSelect from 'components/ui/MSelect';
+import MBranchSelector from 'components/ui/MBranchSelector';
 import { generateBreadCrumbs } from 'functions/helpers';
 import actions from './mergeReqActions';
 import ProjectContainer from '../../projectContainer';
@@ -227,14 +227,14 @@ export class NewMergeRequest extends Component {
               &nbsp;into
             </p>
             <div className="ml-3 my-auto flex-1">
-              <MSelect
+              <MBranchSelector
                 className="new-merge-request-select-box"
-                label="Select a branch..."
-                options={branches
-                  .filter((branchForSelect) => branchForSelect !== branch)
-                  .map((br) => ({ label: br, value: br }))}
-                onSelect={this.onBranchChanged}
-                value={branchToMergeInto}
+                branches={branches}
+                onBranchSelected={this.onBranchChanged}
+                activeBranch={branchToMergeInto || 'Select a branch...'}
+                showDatasets
+                showExperiments
+                showVisualizations
               />
             </div>
           </div>
@@ -328,7 +328,7 @@ function mapStateToProps(state) {
   return {
     users: state.users,
     projects: state.projects,
-    branches: state.branches.map((branch) => branch.name),
+    branches: state.branches,
   };
 }
 

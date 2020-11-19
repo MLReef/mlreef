@@ -3,27 +3,33 @@ import { Link } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { toastr } from 'react-redux-toastr';
 import {
-  arrayOf, shape, number, string,
+  shape, number, string,
 } from 'prop-types';
 import moment from 'moment';
 import greyLogo from 'images/icon_grey-01.png';
 import './jobs.scss';
-import * as jobsActions from 'actions/jobsActions';
+import JobsApi from 'apis/JobsApi';
 import DataPipelineApi from 'apis/DataPipelineApi';
 import { determineJobClass } from 'functions/pipeLinesHelpers';
 import { getTimeCreatedAgo } from '../../../functions/dataParserHelpers';
 
 const dataPipeApi = new DataPipelineApi();
+const jobsApi = new JobsApi();
 
 const Jobs = (props) => {
-  const { jobs, selectedProject: { gid, id }, namespace, slug } = props;
-  const [jobList, setJobs] = useState(jobs);
+  const { selectedProject: { gid, id }, namespace, slug } = props;
+  const [jobList, setJobs] = useState([]);
+  const [filteredJobs, setFilteredJobs] = useState([]);
   const [backendPipes, setBackendPipes] = useState([]);
   useEffect(() => {
     dataPipeApi.getProjectPipelines(id)
       .then((backendPipelines) => setBackendPipes(backendPipelines))
       .then(() => {
-        jobsActions.getJobsListPerProject(gid);
+        jobsApi.getPerProject(gid)
+          .then((res) => {
+            setFilteredJobs(res);
+            setJobs(res);
+          });
       })
       .catch(() => toastr.error('Error', 'Could not retrieve all the jobs'));
   }, [id, gid]);
@@ -38,11 +44,11 @@ const Jobs = (props) => {
       e.target.classList.add('active');
     }
 
-    let allJobs = jobs;
+    let allJobs = jobList;
     if (e.target.id !== 'all') {
-      allJobs = jobs.filter((job) => job.status === e.target.id);
+      allJobs = allJobs.filter((job) => job.status === e.target.id);
     }
-    setJobs(allJobs);
+    setFilteredJobs(allJobs);
   };
 
   return (
@@ -58,15 +64,7 @@ const Jobs = (props) => {
             id="all"
             onClick={handleButtonsClick}
           >
-            {`${jobs.length} All`}
-          </button>
-          <button
-            type="button"
-            className="btn btn-basic-dark ml-3"
-            id="pending"
-            onClick={handleButtonsClick}
-          >
-            Pending
+            All
           </button>
           <button
             type="button"
@@ -79,10 +77,18 @@ const Jobs = (props) => {
           <button
             type="button"
             className="btn btn-basic-dark  ml-3"
-            id="finished"
+            id="success"
             onClick={handleButtonsClick}
           >
-            Finished
+            Success
+          </button>
+          <button
+            type="button"
+            className="btn btn-basic-dark  ml-3"
+            id="failed"
+            onClick={handleButtonsClick}
+          >
+            Failed
           </button>
         </div>
         <table className="job-table">
@@ -95,10 +101,10 @@ const Jobs = (props) => {
               <th>Timing</th>
             </tr>
           </thead>
-          {jobs.length > 0
+          {filteredJobs.length > 0
             ? (
               <tbody className="job-table-body">
-                {jobList.map((job, index) => {
+                {filteredJobs.map((job, index) => {
                   const selectedPipe = backendPipes
                     ?.filter((pipe) => job?.ref.includes(pipe.name))[0];
                   const jobClass = selectedPipe?.pipeline_type;
@@ -170,17 +176,6 @@ const Jobs = (props) => {
 };
 
 Jobs.propTypes = {
-  jobs: arrayOf(
-    shape({
-      id: number.isRequired,
-      name: string.isRequired,
-      status: string.isRequired,
-      duration: number,
-      pipeline: {
-        id: number.isRequired,
-      }.isRequired,
-    }).isRequired,
-  ).isRequired,
   namespace: string.isRequired,
   slug: string.isRequired,
   selectedProject: shape({
@@ -191,7 +186,6 @@ Jobs.propTypes = {
 function mapStateToProps(state) {
   return {
     selectedProject: state.projects.selectedProject,
-    jobs: state.jobs,
   };
 }
 

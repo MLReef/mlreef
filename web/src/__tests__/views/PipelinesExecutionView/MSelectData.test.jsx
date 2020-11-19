@@ -116,7 +116,7 @@ describe('test events in files table and correct submit', () => {
         type: 'UPDATE_FILES_SELECTED_IN_MODAL',
       }],
     );
-    expect(calls[2]).toEqual([{ branchSelected: branchesMock[0].name, type: 'SET_BRANCH_SELECTED' }]);
+    expect(calls[2]).toEqual([{ branchSelected: branchesMock[2].name, type: 'SET_BRANCH_SELECTED' }]);
   });
 
   afterEach(() => {
