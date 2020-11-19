@@ -220,7 +220,7 @@ export default [
   },
   {
     name: 'uploadFile',
-    path: '/my-projects/:projectId/upload-file',
+    path: '/:namespace/:slug/:branch(.+)/upload-file',
     component: UploadFileView,
     exact: true,
     meta: {
@@ -229,7 +229,7 @@ export default [
   },
   {
     name: 'uploadFileBranch',
-    path: '/my-projects/:projectId/:branch(.+)/upload-file',
+    path: '/:namespace/:slug/:branch(.+)/upload-file/path/:path(.+)?',
     component: UploadFileView,
     exact: true,
     meta: {

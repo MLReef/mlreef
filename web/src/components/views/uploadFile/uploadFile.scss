@@ -21,8 +21,12 @@ $submit-button: #F9F8F8;
     color: transparent;
     opacity: 0;
     cursor: pointer;
-    width: 100%;
+    width: 0 !important;
     height: 100%;
+}
+
+.file-hover {
+    border: 3px solid var(--info);
 }
 
 .choose-file {

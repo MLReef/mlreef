@@ -18,12 +18,8 @@ import { PROJECT_TYPES } from 'domain/project/projectTypes';
 export class RepoFeatures extends Component {
   constructor(props) {
     super(props);
-    const {
-      projectId,
-    } = this.props;
 
     this.state = {
-      projectId,
       branches: [],
     };
 
@@ -89,7 +85,6 @@ export class RepoFeatures extends Component {
     } = this.props;
 
     const {
-      projectId,
       branches,
     } = this.state;
 
@@ -146,11 +141,7 @@ export class RepoFeatures extends Component {
                 <ul className="plus-list">
                   <li>This directory</li>
                   <li className="plus-option">
-                    <Link to={{
-                      pathname: `/my-projects/${projectId}/${currentBranch}/upload-file`,
-                      state: { currentFilePath: path },
-                    }}
-                    >
+                    <Link to={`/${namespace}/${slug}/${currentBranch}/upload-file/path/${path}`}>
                       Upload File
                     </Link>
                   </li>
@@ -247,7 +238,6 @@ export class RepoFeatures extends Component {
 RepoFeatures.propTypes = {
   branch: string.isRequired,
   path: string.isRequired,
-  projectId: number.isRequired,
   branches: arrayOf(
     shape({
       name: string.isRequired,
