@@ -138,7 +138,7 @@ exports[`The branches list should be displayed when dropdown button is clicked d
             className="plus-option"
           >
             <a
-              href="/my-projects/12395599/master/upload-file"
+              href="/my-namespace/the-project-name/master/upload-file/path/src"
               onClick={[Function]}
             >
               Upload File
@@ -194,7 +194,7 @@ exports[`The branches list should be displayed when dropdown button is clicked d
   </a>
   <a
     className="btn btn-outline-dark ml-auto mt-3 px-3"
-    href="/my-namespace/the-project-name/-/commits/master"
+    href="/my-namespace/the-project-name/-/commits/file/master/-/src"
     onClick={[Function]}
   >
     <span

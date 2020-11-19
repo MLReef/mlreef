@@ -41,6 +41,7 @@ const mergeRequestAPI = new MergeRequestAPI();
 
 const UploadFile = (props) => {
   const fileInput = useRef(null);
+  const dragZone = useRef(null);
   const {
     selectedProject: {
       name,
@@ -52,13 +53,8 @@ const UploadFile = (props) => {
     },
     branches,
     history,
-    match: { params: { branch: currentBranch } },
-    location,
+    match: { params: { branch: currentBranch, path } },
   } = props;
-  let currentFilePath = '';
-  if (location.state) {
-    currentFilePath = location.state.currentFilePath;
-  }
 
   const getAValidTargetBranch = () => {
     if (isEmptyRepo) {
@@ -111,7 +107,7 @@ const UploadFile = (props) => {
     let body = {
       branch: branchForFile,
       commit_message: finalCommitMsg,
-      actions: generateActionsForCommit(pathForFile, finalArrayOfFilesToUpload),
+      actions: generateActionsForCommit(path || '/', finalArrayOfFilesToUpload),
     };
     if (startMR) {
       newBranchName = randomNameGenerator();
@@ -146,9 +142,12 @@ const UploadFile = (props) => {
   const handleUploadFile = () => createNewFiles(
     targetBranch,
     commitMsg,
-    currentFilePath,
+    path,
     filesToUpload,
   );
+  const redirectBackToFolder = path
+    ? `${encodeURIComponent(targetBranch)}/${path}`
+    : encodeURIComponent(targetBranch);
 
   const processAndSetStatus = (rawFiles) => {
     try {
@@ -194,19 +193,47 @@ const UploadFile = (props) => {
 
   const handleFileChosen = (rawFiles) => processAndSetStatus(rawFiles);
 
-  const handleDrop = (e) => {
+  const handleFileDrop = (e) => {
     e.stopPropagation();
-    processAndSetStatus(e.target.files);
+    e.preventDefault();
+    const { dataTransfer: { files } } = e;
+    processAndSetStatus(files);
+    dragZone.current.classList.remove('file-hover');
+  };
+
+  const dragOver = (e) => {
+    e.preventDefault();
+    dragZone.current.classList.add('file-hover');
+  };
+
+  const handleFileDragEnter = (e) => {
+    e.preventDefault();
+    dragZone.current.classList.add('file-hover');
+  };
+
+  const handleFileDragEnd = (e) => {
+    e.preventDefault();
+    dragZone.current.classList.remove('file-hover');
+  };
+
+  const handleFileDragLeave = (e) => {
+    e.preventDefault();
+    dragZone.current.classList.remove('file-hover');
   };
 
   return (
     <>
-      {areFilesLoaded && <Redirect to={`/${groupName}/${slug}/-/tree/${encodeURIComponent(targetBranch)}`} /> }
+      {areFilesLoaded && <Redirect to={`/${groupName}/${slug}/-/tree/${redirectBackToFolder}`} /> }
       <Navbar />
       <div className="main-content">
         <ProjectNav projectId={gid} folders={folders} />
         <div
-          onDrop={(e) => handleDrop(e)}
+          ref={dragZone}
+          onDrop={handleFileDrop}
+          onDragOver={dragOver}
+          onDragEnter={handleFileDragEnter}
+          onDragLeave={handleFileDragLeave}
+          onDragEnd={handleFileDragEnd}
           className="draggable-container d-flex"
         >
           <input
@@ -216,8 +243,6 @@ const UploadFile = (props) => {
             accept="*"
             onChange={(e) => handleFileChosen(e.target.files)}
             multiple
-            webkitdirectory="true"
-            directory="true"
             ref={fileInput}
           />
           <div>
@@ -240,6 +265,18 @@ const UploadFile = (props) => {
             onRemove={removeFiles}
           />
         ))}
+        <div className="upload-commit-message d-flex mb-3">
+          <span className="upload-label">Path</span>
+          <p className="m-0 p-1">
+            <b>
+              {slug}
+              {' '}
+              /
+              {' '}
+              {path}
+            </b>
+          </p>
+        </div>
         <div className="upload-commit-message d-flex mb-3">
           <span className="upload-label">Commit message</span>
           <textarea
@@ -315,19 +352,6 @@ UploadFile.propTypes = {
   history: shape({
     push: func.isRequired,
   }).isRequired,
-  location: shape({
-    state: shape({
-      currentFilePath: string,
-    }),
-  }),
-};
-
-UploadFile.defaultProps = {
-  location: {
-    state: {
-      currentFilePath: '',
-    },
-  },
 };
 
 function mapStateToProps(state) {

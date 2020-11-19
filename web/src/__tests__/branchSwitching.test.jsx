@@ -74,7 +74,7 @@ describe('The branches list should be displayed when dropdown button is clicked'
               projects={projectsArrayMock.projects}
               branch="master"
               branches={branchesMock}
-              path=""
+              path="src"
               projectId={projectsArrayMock.projects.selectedProject.gid}
               searchableType={projectsArrayMock.projects.selectedProject.searchableType}
               updateLastCommit={() => {}}
