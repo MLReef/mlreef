@@ -16,13 +16,11 @@ import ExperimentsApi from 'apis/experimentApi';
 import ProjectGeneralInfoApi from 'apis/ProjectGeneralInfoApi';
 import { fireModal } from 'actions/actionModalActions';
 import DataCard from 'components/layout/DataCard';
-import traiangle01 from '../../images/triangle-01.png';
 import ArrowButton from '../arrow-button/arrowButton';
 import {
   parseDecimal,
 } from '../../functions/dataParserHelpers';
 import {
-  SKIPPED,
   RUNNING,
   SUCCESS,
   CANCELED,
@@ -35,6 +33,12 @@ import DeleteExperimentModal from './DeletionModal';
 const gitlabApi = new GitlabPipelinesApi();
 const experimentApi = new ExperimentsApi();
 const projectInstance = new ProjectGeneralInfoApi();
+
+const onPositiveDelete = (dataProjectId, experimentId) => () => experimentApi
+  .delete(dataProjectId, experimentId)
+  .then(() => toastr.success('Success', 'Experiment deleted'))
+  .catch(() => toastr.error('Error', 'Something failed deleting'))
+  .finally(() => window.location.reload());
 
 const ExperimentSummary = ({
   projectId,
@@ -104,8 +108,7 @@ const ExperimentSummary = ({
 
     const arrowBtn = (
       <ArrowButton
-        imgPlaceHolder={traiangle01}
-        callback={() => handleArrowDownButtonClick()}
+        callback={handleArrowDownButtonClick}
         id={`ArrowButton-${expName}`}
         key={`ArrowButton-${expName}`}
       />
@@ -138,54 +141,28 @@ const ExperimentSummary = ({
                   })
                   .catch(() => toastr.error('Error', 'Error aborting pipeline'));
               },
-            })
+            });
           }}
         >
           Abort
         </button>,
       ];
-    } else if (experimentStatus === SKIPPED) {
-      buttons = [
-        <button
-          key={`dangerous-red-${expName}`}
-          type="button"
-          label="close"
-          className="btn btn-icon btn-danger fa fa-times"
-        />,
-        <button
-          key={`deploy-${expName}`}
-          type="button"
-          className="btn btn-primary"
-        >
-          Resume
-        </button>,
-      ];
     } else if (experimentStatus === SUCCESS || experimentStatus === FAILED) {
       buttons = [
-        arrowBtn,
         <button
           key={`dangerous-red-${expName}`}
           type="button"
           label="close"
           className="btn btn-icon btn-danger fa fa-times"
-          onClick={() => {
-            actions.fireModal({
-              title: 'Delete experiments?',
-              type: 'danger',
-              closable: true,
-              content: <DeleteExperimentModal
-                experiment={experiment}
-              />,
-              onPositive: () => {
-                experimentApi.delete(dataProjectId, experiment.id)
-                  .then(() => toastr.success('Success', 'Experiment deleted'))
-                  .catch(() => toastr.error('Error', 'Something failed deleting'))
-                  .finally(() => {
-                    window.location.reload();
-                  });
-              },
-            })
-          }}
+          onClick={() => actions.fireModal({
+            title: 'Delete experiments?',
+            type: 'danger',
+            closable: true,
+            content: <DeleteExperimentModal
+              experiment={experiment}
+            />,
+            onPositive: onPositiveDelete(dataProjectId, experiment.id),
+          })}
         />,
       ];
     } else if (experimentStatus === CANCELED) {
@@ -195,24 +172,15 @@ const ExperimentSummary = ({
           type="button"
           label="close"
           className="btn btn-icon btn-danger fa fa-times"
-          onClick={() => 
-            actions.fireModal({
-              title: 'Delete experiments?',
-              type: 'danger',
-              closable: true,
-              content: <DeleteExperimentModal
-                experiment={experiment}
-              />,
-              onPositive: () => {
-                experimentApi.delete(dataProjectId, experiment.id)
-                  .then(() => toastr.success('Success', 'Experiment deleted'))
-                  .catch(() => toastr.error('Error', 'Something failed deleting'))
-                  .finally(() => {
-                    window.location.reload();
-                  });
-              },
-            })
-          }
+          onClick={() => actions.fireModal({
+            title: 'Delete experiments?',
+            type: 'danger',
+            closable: true,
+            content: <DeleteExperimentModal
+              experiment={experiment}
+            />,
+            onPositive: onPositiveDelete(dataProjectId, experiment.id),
+          })}
         />,
       ];
     }
@@ -220,7 +188,7 @@ const ExperimentSummary = ({
     return (
       <div className="buttons-div my-auto">
         <AuthWrapper minRole={30} norender>
-          {buttons}
+          {[...buttons, arrowBtn].reverse()}
         </AuthWrapper>
       </div>
     );
@@ -310,4 +278,3 @@ function mapDispatchToProps(dispatch) {
 }
 
 export default connect(() => {}, mapDispatchToProps)(ExperimentSummary);
-
