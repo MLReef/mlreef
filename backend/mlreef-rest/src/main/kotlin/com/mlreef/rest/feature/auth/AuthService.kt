@@ -256,12 +256,12 @@ class AuthService(
     fun createOrFindGitlabUser(username: String, email: String, password: String): GitlabUser {
         return try {
             log.info("Create user $username")
-            gitlabRestClient.adminCreateUser(email = email, name = username, username = username, password = password)
+            gitlabRestClient.adminGetUsers(username = username).firstOrNull()
+                ?: gitlabRestClient.adminGetUsers(searchNameEmail = email).find { it.username == username }
+                ?: gitlabRestClient.adminCreateUser(email = email, name = username, username = username, password = password)
         } catch (clientErrorException: RestException) {
-            log.info("Already existing User. Error message: ${clientErrorException.message}")
-            val adminGetUsers = gitlabRestClient.adminGetUsers()
-            adminGetUsers.firstOrNull { it.username == username }
-                ?: throw RestException(ErrorCode.GitlabUserCreationFailedEmailUsed, "User could not be created in Gitlab: ${clientErrorException.message}")
+            log.info("Cannot create the user $username with email $email: ${clientErrorException.message}")
+            throw RestException(ErrorCode.GitlabUserCreationFailedEmailUsed, "User could not be created in Gitlab: ${clientErrorException.message}")
         }
     }
 
