@@ -44,7 +44,7 @@ internal object YamlFileGenerator {
         .replace(TARGET_BRANCH, newValue = targetBranch)
         .replace(EPF_IMAGE_TAG, newValue = epfImageTag)
         .replace(EPF_PIPELINE_SECRET, newValue = epfPipelineSecret)
-        .replace(EPF_GITLAB_HOST, epfGitlabUrl
+        .replace(EPF_GITLAB_HOST, normilizeGitlabHost(epfGitlabUrl)
             .removePrefix("http://")
             .removePrefix("https://")
             .substringBefore("/"))
@@ -54,7 +54,8 @@ internal object YamlFileGenerator {
                 epfPipelineUrl
             } else { "http://$epfPipelineUrl" }
         )
-        .replace(PIPELINE_STRING,
+        .replace(
+            PIPELINE_STRING,
             dataProcessors.joinToString(NEWLINE) { dpInstance ->
                 val path = when (dpInstance.dataProcessor.type) {
                     DataProcessorType.ALGORITHM -> "/epf/model/"
@@ -67,5 +68,12 @@ internal object YamlFileGenerator {
                         .joinToString(" ") { "--${it.name} ${it.value}" }
             },
         )
+
+    //FIXME: For the moment the experiment yaml file contains PORT hardcoded in the script.
+    // The best way is to move it from yml generation to the backend
+    private fun normilizeGitlabHost(host: String): String {
+        val hostAndPort = host.split(":")
+        return if (hostAndPort.size > 2) "${hostAndPort[0]}:${hostAndPort[1]}" else host
+    }
 
 }
