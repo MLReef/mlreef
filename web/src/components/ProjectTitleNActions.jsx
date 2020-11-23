@@ -10,16 +10,18 @@ import { plainToClass } from 'class-transformer';
 import DataProject from 'domain/project/DataProject';
 import MEmptyAvatar from 'components/ui/MEmptyAvatar/MEmptyAvatar';
 import MWrapper from 'components/ui/MWrapper';
+import MCloneDropdown from 'components/ui/MCloneDropdown';
 import SEO from 'components/commons/SEO';
 import { PROJECT_TYPES } from 'domain/project/projectTypes';
 import CodeProject from 'domain/project/CodeProject';
+import { fixHostname } from 'functions/helpers';
 import ProjectGeneralInfoApi from '../apis/ProjectGeneralInfoApi.ts';
 import * as projectActions from '../actions/projectInfoActions';
 import MLoadingSpinner from './ui/MLoadingSpinner';
 
 const projectGeneralInfoApi = new ProjectGeneralInfoApi();
 
-const ProjectInfo = (props) => {
+const ProjectTitleNActions = (props) => {
   const {
     project,
     actions,
@@ -39,11 +41,11 @@ const ProjectInfo = (props) => {
     setIsStarred(starrers ? starrers.length > 0 : null);
     setStarsCount(project.starsCount);
   }, [starrers, project.starsCount]);
+
   const classProject = isDataProject
     ? plainToClass(DataProject, project)
     : plainToClass(CodeProject, project);
   /* const [redirect, setRedirect] = React.useState(false); */
-
   /*
   Disable code because fork button currently does not render
 
@@ -129,7 +131,7 @@ const ProjectInfo = (props) => {
               <img
                 className="mr-0 mr-lg-1 repo-actions-image"
                 id="star-icon"
-                src={isStarred ? '/images/svg/unstar.svg' : '/images/star.png'}
+                src={isStarred ? '/images/stared.png' : '/images/star.png'}
                 alt={isStarred ? 'unstar' : 'star'}
                 title={isStarred ? 'unstar' : 'star'}
               />
@@ -164,126 +166,11 @@ const ProjectInfo = (props) => {
             <img className="mr-0 mr-lg-1 repo-actions-image" src="/images/svg/clone_01.svg" alt="" />
             <span className="my-auto d-none d-lg-block">Clone</span>
           </div>
-          <Clonedropdown className="border-rounded-right h-100" http={classProject.httpUrlToRepo} />
+          <MCloneDropdown className="border-rounded-right h-100" http={fixHostname(classProject.httpUrlToRepo)} />
         </div>
       </div>
     </div>
   );
-};
-
-export function Clonedropdown(props) {
-  const {
-    http,
-    className,
-  } = props;
-
-  // const sshRef = React.useRef(null);
-  const node = React.useRef();
-  const httpRef = React.useRef(null);
-  const [open, setOpen] = React.useState(false);
-
-  const handleClickOutside = (e) => {
-    if (node.current.contains(e.target)) {
-      // inside click
-      return;
-    }
-    // outside click
-    setOpen(false);
-  };
-
-  React.useEffect(() => {
-    if (open) {
-      document.addEventListener('mousedown', handleClickOutside);
-    } else {
-      document.removeEventListener('mousedown', handleClickOutside);
-    }
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, [open]);
-
-  // const handleCopySsh = e => {
-  //   sshRef && sshRef.current.select();
-  //   document.execCommand('copy');
-  //   setOpen(false);
-  // };
-
-  const handleCopyHttp = (e) => {
-    httpRef && httpRef.current.select();
-    document.execCommand('copy');
-    setOpen(false);
-  };
-
-  const handleClickInput = (e) => {
-    e.target.select();
-  };
-
-  return (
-    <div
-      id="t-clonedropdown-toggle"
-      className={`${className} counter clone-dropdown`}
-      ref={node}
-      onClick={() => setOpen(!open)}
-      style={{ cursor: 'pointer' }}
-    >
-      <span
-        role="button"
-        label="toggle"
-        aria-label="toggle"
-        className={`fa fa-chevron-${open ? 'up' : 'down'}`}
-      />
-      {open && (
-        <div className="clone-box mt-1">
-          {/* <div className="link-box">
-            <p>Clone with SSH</p>
-            <div className="clone-link">
-              <input
-                ref={sshRef}
-                onClick={handleClickInput}
-                type="text"
-                value={ssh}
-                className="ssh-http-link"
-                readOnly
-              />
-              <img
-                onClick={handleCopySsh}
-                className="clone-icon ssh"
-                src="/images/svg/clone_01.svg"
-                alt="copy-icon" />
-            </div>
-          </div> */}
-          <div className="link-box">
-            <p>Clone with HTTPS</p>
-            <div className="clone-link">
-              <input
-                ref={httpRef}
-                onClick={handleClickInput}
-                type="text"
-                value={http}
-                className="ssh-http-link"
-                readOnly
-              />
-              <img
-                onClick={handleCopyHttp}
-                className="clone-icon http"
-                src="/images/svg/clone_01.svg"
-                alt="copy-icon"
-              />
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
-  );
-}
-
-Clonedropdown.defaultProps = {
-  className: '',
-};
-
-Clonedropdown.propTypes = {
-  http: string.isRequired,
-  className: string,
 };
 
 function mapDispatchToProps(dispatch) {
@@ -303,7 +190,7 @@ function mapStateToProps({ projects: { selectedProject }, user, globalMarker }) 
   };
 }
 
-ProjectInfo.propTypes = {
+ProjectTitleNActions.propTypes = {
   project: shape({
     avatarUrl: string,
     forksCount: number.isRequired,
@@ -323,4 +210,4 @@ ProjectInfo.propTypes = {
   userGid: number.isRequired,
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(ProjectInfo);
+export default connect(mapStateToProps, mapDispatchToProps)(ProjectTitleNActions);

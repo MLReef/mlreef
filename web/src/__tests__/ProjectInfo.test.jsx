@@ -32,7 +32,7 @@ describe('test comp renders', () => {
     wrapper = setup();
   });
   test('assert that star button react and the right icon is shown initially', () => {
-    expect(wrapper.find('#star-icon').props().src).toBe('/images/svg/unstar.svg');
+    expect(wrapper.find('#star-icon').props().src).toBe('/images/stared.png');
     wrapper.find('button#star-btn').simulate('click');
     expect(wrapper.find('div.m-loading-spinner')).toHaveLength(1);
   });
