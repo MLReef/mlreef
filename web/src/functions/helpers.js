@@ -59,3 +59,13 @@ export const generateBreadCrumbs = (selectedProject, customCrumbs) => {
   customCrumbs.map((crumb) => crumbs.push(crumb));
   return crumbs;
 };
+
+/**
+ * Used to replace original url provided by gitlab
+ */
+export const fixHostname = (url) => {
+  if (!url) return '';
+  const hostname = window?.location?.hostname;
+
+  return url.replace(/^(https?:\/\/)(.+):/, `$1${hostname}:`);
+};
