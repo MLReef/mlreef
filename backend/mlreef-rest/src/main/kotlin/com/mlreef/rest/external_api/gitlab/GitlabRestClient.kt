@@ -344,6 +344,16 @@ class GitlabRestClient(
             }
     }
 
+    fun adminGetUsersInProjects(projectId: Long, searchNameEmail: String): List<GitlabUserInProject> {
+        return GitlabHttpEntity<String>("body", createAdminHeaders())
+            .addErrorDescription(404, ErrorCode.GitlabUserNotExisting, "Cannot find project")
+            .addErrorDescription(ErrorCode.GitlabUserNotExisting, "Cannot search user in project")
+            .makeRequest {
+                val url = "$gitlabServiceRootUrl/projects/$projectId/users?search=$searchNameEmail"
+                restTemplate(builder).exchange(url, HttpMethod.GET, it, typeRef<List<GitlabUserInProject>>())
+            }
+    }
+
     fun adminGetUserInProject(projectId: Long, userId: Long): GitlabUserInProject {
         return GitlabHttpEntity<String>("", createAdminHeaders())
             .addErrorDescription(404, ErrorCode.UserNotExisting, "Cannot find user in project. User or project does not exist")
@@ -565,6 +575,7 @@ class GitlabRestClient(
             }
     }
 
+
     fun adminGetUserById(id: Long): GitlabUser {
         return GitlabHttpEntity<String>("body", createAdminHeaders())
             .addErrorDescription(404, ErrorCode.GitlabUserNotExisting, "Cannot find user by id as admin. User does not exist")
@@ -720,6 +731,26 @@ class GitlabRestClient(
             }
     }
 
+    fun adminGetProjectVariables(projectId: Long): List<GitlabVariable> {
+        return GitlabHttpEntity<String>("body", createAdminHeaders())
+            .addErrorDescription(404, ErrorCode.ProjectNotExisting, "Cannot find project by id.")
+            .addErrorDescription(ErrorCode.GitlabUserNotExisting, "Unable to get variables of project")
+            .makeRequest {
+                val url = "$gitlabServiceRootUrl/projects/$projectId/variables"
+                restTemplate(builder).exchange(url, HttpMethod.GET, it, typeRef<List<GitlabVariable>>())
+            }
+    }
+
+    fun adminGetProjectVariable(projectId: Long, key: String): GitlabVariable {
+        return GitlabHttpEntity<String>("body", createAdminHeaders())
+            .addErrorDescription(404, ErrorCode.ProjectNotExisting, "Cannot find project by id.")
+            .addErrorDescription(ErrorCode.GitlabUserNotExisting, "Unable to get variables of project")
+            .makeRequest {
+                val url = "$gitlabServiceRootUrl/projects/$projectId/variables/$key"
+                restTemplate(builder).exchange(url, HttpMethod.GET, it, GitlabVariable::class.java)
+            }
+    }
+
     fun adminCreateUser(email: String, username: String, name: String, password: String): GitlabUser {
         return GitlabCreateUserRequest(email = email, username = username, name = name, password = password)
             .let { GitlabHttpEntity(it, createAdminHeaders()) }
@@ -767,25 +798,7 @@ class GitlabRestClient(
             }
     }
 
-    fun adminGetProjectVariables(projectId: Long): List<GitlabVariable> {
-        return GitlabHttpEntity<String>("body", createAdminHeaders())
-            .addErrorDescription(404, ErrorCode.ProjectNotExisting, "Cannot find project by id.")
-            .addErrorDescription(ErrorCode.GitlabUserNotExisting, "Unable to get variables of project")
-            .makeRequest {
-                val url = "$gitlabServiceRootUrl/projects/$projectId/variables"
-                restTemplate(builder).exchange(url, HttpMethod.GET, it, typeRef<List<GitlabVariable>>())
-            }
-    }
 
-    fun adminGetProjectVariable(projectId: Long, key: String): GitlabVariable {
-        return GitlabHttpEntity<String>("body", createAdminHeaders())
-            .addErrorDescription(404, ErrorCode.ProjectNotExisting, "Cannot find project by id.")
-            .addErrorDescription(ErrorCode.GitlabUserNotExisting, "Unable to get variables of project")
-            .makeRequest {
-                val url = "$gitlabServiceRootUrl/projects/$projectId/variables/$key"
-                restTemplate(builder).exchange(url, HttpMethod.GET, it, GitlabVariable::class.java)
-            }
-    }
 
     fun adminCreateUserToken(gitlabUserId: Long, tokenName: String): GitlabUserToken {
         return GitlabCreateUserTokenRequest(name = tokenName)

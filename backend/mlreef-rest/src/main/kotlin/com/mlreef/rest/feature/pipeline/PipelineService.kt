@@ -312,26 +312,35 @@ class PipelineService(
         if (newToken != null) {
             log.info("Created new Token for EPF-Bot $botName")
             log.info("Must create GIT_PUSH_USER and GIT_PUSH_TOKEN, otherwise state information is lost!")
-            try {
-                log.debug("Create GIT_PUSH_TOKEN with ${newToken.token.censor()}")
-                gitlabRestClient.adminCreateProjectVariable(projectId = projectGitlabId, name = GIT_PUSH_TOKEN, value = newToken.token
-                    ?: throw GitlabIncorrectAnswerException("Gitlab answered with empty token for bot user $gitlabUser"))
-            } catch (clientErrorException: RestException) {
-                log.error("PIPELINE MIGHT BE BROKEN: Could not save EPF Bot credentials")
-                log.error("Could not create EPF Tokens in Group ENV: ${clientErrorException.message}")
+            val existingVariablesKeys = gitlabRestClient.adminGetProjectVariables(projectId = projectGitlabId).map { it.key }
+
+            if (!existingVariablesKeys.contains(GIT_PUSH_TOKEN)) {
+                try {
+                    log.debug("Create GIT_PUSH_TOKEN with ${newToken.token.censor()}")
+                    gitlabRestClient.adminCreateProjectVariable(projectId = projectGitlabId, name = GIT_PUSH_TOKEN, value = newToken.token
+                        ?: throw GitlabIncorrectAnswerException("Gitlab answered with empty token for bot user $gitlabUser"))
+                } catch (clientErrorException: RestException) {
+                    log.error("PIPELINE MIGHT BE BROKEN: Could not save EPF Bot credentials")
+                    log.error("Could not create EPF Tokens in Group ENV: ${clientErrorException.message}")
+                }
             }
-            try {
-                log.debug("Create GIT_PUSH_USER with ${gitlabUser.username}")
-                gitlabRestClient.adminCreateProjectVariable(projectId = projectGitlabId, name = GIT_PUSH_USER, value = gitlabUser.username)
-            } catch (clientErrorException: RestException) {
-                log.error("PIPELINE MIGHT BE BROKEN: Could not save EPF Bot credentials")
-                log.error("Could not create EPF Tokens in Group ENV: ${clientErrorException.message}")
+
+            if (!existingVariablesKeys.contains(GIT_PUSH_USER)) {
+                try {
+                    log.debug("Create GIT_PUSH_USER with ${gitlabUser.username}")
+                    gitlabRestClient.adminCreateProjectVariable(projectId = projectGitlabId, name = GIT_PUSH_USER, value = gitlabUser.username)
+                } catch (clientErrorException: RestException) {
+                    log.error("PIPELINE MIGHT BE BROKEN: Could not save EPF Bot credentials")
+                    log.error("Could not create EPF Tokens in Group ENV: ${clientErrorException.message}")
+                }
             }
         } else {
             log.debug("EPF-Bot $botName already has a token")
         }
         try {
-            addEPFBotToProject(projectGitlabId, gitlabUser.id)
+            if (gitlabRestClient.adminGetUsersInProjects(projectGitlabId, searchNameEmail = botName).firstOrNull() == null) {
+                addEPFBotToProject(projectGitlabId, gitlabUser.id)
+            }
         } catch (clientErrorException: RestException) {
             log.error("PIPELINE MIGHT BE BROKEN: Could not attach EPF Bot to Project")
             log.error("Could not ensure that EPF-Bot $botName is in correct project: ${clientErrorException.message}")
