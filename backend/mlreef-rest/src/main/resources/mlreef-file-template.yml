@@ -73,7 +73,7 @@ mlreef-pipeline:
       # Retry if the scheduler failed to assign the job to a runner.
       - scheduler_failure
   script: |
-    git checkout -b $TARGET_BRANCH
+    git checkout -B $TARGET_BRANCH
     echo $CI_JOB_ID >> data_pipeline.info
 %PIPELINE_STRING%
     git add .
