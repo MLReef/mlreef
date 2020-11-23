@@ -223,4 +223,15 @@ export default class ProjectGeneralInfoApi extends ApiDirector {
     return fetch(apiReqBuilder.build())
       .then(handleResponse);
   }
+
+  getSingleProjectInfo(namespaceName: string, projectName: string) {
+    const baseUrl = `/api/v4/projects/${namespaceName}%2F${projectName}`;
+    const apiReqBuilder = new BodyLessApiRequestCallBuilder(
+      METHODS.GET,
+      this.buildBasicHeaders(validServicesToCall.GITLAB),
+      baseUrl,
+    );
+    return fetch(apiReqBuilder.build())
+      .then(handleResponse);
+  }
 }
