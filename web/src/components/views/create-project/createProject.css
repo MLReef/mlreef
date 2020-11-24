@@ -1,53 +1,53 @@
 .main-div{
     display: flex;
-    margin: 0 12%;
+    margin: 0 1rem;
     height: auto;
 }
 
 .proj-description > span{
-    color: #1c2b40; 
-    font-weight: 600; 
+    color: #1c2b40;
+    font-weight: 600;
     font-size: 1.3125rem;
 }
 
 .separator{
-    border-left: 3px solid #e5e5e5; 
-    margin: 2em 0; 
+    border-left: 3px solid #e5e5e5;
+    margin: 2em 0;
     padding-right: 2em;
 }
 
 .heading{
-    color: #1c2b40; 
-    font-weight: 600; 
+    color: #1c2b40;
+    font-weight: 600;
     font-size: 0.875rem
 }
 
 .label-name{
-    display: flex; 
+    display: flex;
     flex-direction: column;
 }
 
 .data-types{
-    display: grid; 
-    grid-template-columns: repeat(3, 1fr); 
-    grid-gap: 1em; 
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-gap: 1em;
     margin-top: 1em
 }
 
 .data-types > div{
-    background-color: #e5e5e5; 
-    max-width: 14em; 
-    border-radius: 6px; 
+    background-color: #e5e5e5;
+    max-width: 14em;
+    border-radius: 6px;
     max-height: 3em;
 }
 
 .form-controls{
-    display: flex; 
+    display: flex;
     margin-top: 1em;
 }
 
 .visibility-msg{
-    color: #919191; 
+    color: #919191;
     padding-left: 2.5em
 }
 
@@ -56,15 +56,15 @@
 }
 
 .readme-msg{
-    color: #919191; 
+    color: #919191;
     padding-left: 2.5em;
     margin: 0;
 }
 
 .customize{
-    width: 180px; 
-    top: 16em; 
-    right: 44.5em; 
+    width: 180px;
+    top: 16em;
+    right: 44.5em;
     z-index: 10;
 }
 
@@ -81,10 +81,10 @@
     overflow: auto;
     margin: 0.5rem 0 2rem;
     padding: 6px 10px;
-    width: 100%; 
-    border: 1px solid #dfdfdf; 
+    width: 100%;
+    border: 1px solid #dfdfdf;
     border-radius: 4px;
-    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out; 
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
     background-clip: padding-box;
 }
 
@@ -109,10 +109,17 @@
     padding-bottom: 0.2em !important;
 }
 
+.data-types-container {
+  display: flex;
+  flex-wrap:  wrap;
+  margin-bottom: 2rem;
+}
+
 .data-types-sec {
   display: flex;
   flex-direction: column;
-  flex: 1;
+  flex: 0 0 100%;
+  max-width: 220px;
 }
 
 .data-types-sec div {
@@ -125,4 +132,9 @@
 .data-type-disabled {
   margin: 0.5rem 0;
   color: var(--secondary);
+}
+
+.create-project-url-container {
+  display: flex;
+  flex-wrap: wrap;
 }

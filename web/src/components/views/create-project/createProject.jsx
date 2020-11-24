@@ -78,12 +78,14 @@ class CreateProject extends Component {
     const {
       actions,
       match: { params: { classification, groupNamespace } },
+      user,
     } = this.props;
 
     const bandColor = projectClassificationsProps
       .filter((idsColor) => `${idsColor.classification}` === classification)[0].color;
 
-    if (groupNamespace) this.setState({ nameSpace: groupNamespace });
+    this.setState({ nameSpace: groupNamespace || user.username });
+
     actions.setGlobalMarkerColor(bandColor);
     actions.getGroupsList();
     this.handleSubmit = this.handleSubmit.bind(this);
@@ -165,7 +167,7 @@ class CreateProject extends Component {
       });
   }
 
-  handleNamespace = (e) => this.setState({ nameSpace: e.target.value, visibility: '' })
+  handleNamespace = (e) => this.setState({ nameSpace: e.target.value })
 
   toggleCheckReadme = () => {
     const { readme } = this.state;
@@ -291,7 +293,7 @@ class CreateProject extends Component {
            </span>
            <p>{newProjectInstructions}</p>
          </div>
-         <div className="form-control col-sm-12 col-lg-8 pl-3">
+         <div className="form-control col-sm-12 col-lg-8">
            <form>
              <label data-cy="projectName" className="label-name" htmlFor="projectTitle">
                <span className="heading mb-1">Project Name</span>
@@ -309,7 +311,7 @@ class CreateProject extends Component {
                />
              </label>
 
-             <div className="d-flex">
+             <div className="create-project-url-container">
                <div className="form-field mb-4 flex-1 mr-4">
                  <label className="heading" htmlFor="nameSpace">
                    Project URL
@@ -327,9 +329,6 @@ class CreateProject extends Component {
                      onChange={this.handleNamespace}
                      className="form-control w-100"
                    >
-                     <option key="namespace-select" value="">
-                       Select
-                     </option>
                      {groups.map((grp) => (
                        <option key={`namespace-${grp.id}`} value={grp.full_path}>
                          {grp.name}
@@ -342,7 +341,7 @@ class CreateProject extends Component {
                  </div>
                </div>
 
-               <label className="" htmlFor="projectSlug">
+               <label className="mb-4" htmlFor="projectSlug">
                  <span className="heading">Project Slug</span>
                  <input
                    value={slug}
@@ -393,7 +392,7 @@ class CreateProject extends Component {
                  }
                </span>
              </div>
-             <div className="d-flex mb-4">
+             <div className="data-types-container">
                {this.dataTypes.map((dtBl, index) => (
                  <div key={`dtBl ${index.toString()}`} className="data-types-sec">
                    {dtBl.map((dt) => {
