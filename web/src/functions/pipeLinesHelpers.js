@@ -19,6 +19,11 @@ import Fail from '../images/Pipeline_Fail.png';
 
 const dataPipelineApi = new DataPipelineApi();
 
+const createFieldsForDB = (files) => files.map((file) => ({
+  location: file.path, 
+  location_type: file.type === 'blob' ? 'PATH_FILE' : 'PATH_FOLDER',
+}));
+
 export const createPipelineInProject = (
   backendId,
   branchName,
@@ -39,9 +44,7 @@ export const createPipelineInProject = (
   const pipelineBody = {
     source_branch: branchName,
     pipeline_type: pipelineType,
-    input_files: filesSelectedInModal.map((file) => ({
-      location: file.path,
-    })),
+    input_files: createFieldsForDB(filesSelectedInModal),
     data_operations: dataOperations,
   };
 
@@ -74,8 +77,7 @@ const createExperimentInProject = (
     name: branchName,
     source_branch: branchSelected,
     target_branch: branchName,
-    input_files: filesSelectedInModal
-      .map((file) => ({ location: file.path, location_type: file.type === 'blob' ? 'PATH_FILE' : 'PATH_FOLDER' })),
+    input_files: createFieldsForDB(filesSelectedInModal),
     processing: {
       slug,
       parameters: parameters.map(({
@@ -150,31 +152,31 @@ export const classifyPipeLines = (pipelinesToClassify, arrayOfBranches, dataPipe
       status: RUNNING,
       values: infoPipelinesComplemented
         .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-        .filter((exp) => exp.status === RUNNING.toLowerCase() || exp.status === PENDING.toLowerCase()),
+        .filter((exp) => exp.status === RUNNING || exp.status === PENDING),
     },
     {
       status: SUCCESS,
       values: infoPipelinesComplemented
         .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-        .filter((exp) => exp.status === SUCCESS.toLowerCase()),
+        .filter((exp) => exp.status === SUCCESS),
     },
     {
       status: CANCELED,
       values: infoPipelinesComplemented
         .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-        .filter((exp) => exp.status === CANCELED.toLowerCase()),
+        .filter((exp) => exp.status === CANCELED),
     },
     {
       status: FAILED,
       values: infoPipelinesComplemented
         .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-        .filter((exp) => exp.status === FAILED.toLowerCase()),
+        .filter((exp) => exp.status === FAILED),
     },
     {
       status: EXPIRED,
       values: infoPipelinesComplemented
         .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-        .filter((exp) => exp.status === EXPIRED.toLowerCase()),
+        .filter((exp) => exp.status === EXPIRED),
     },
   ];
 };
