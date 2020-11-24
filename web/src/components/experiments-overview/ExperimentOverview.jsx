@@ -45,7 +45,8 @@ class ExperimentsOverview extends Component {
     actions.setIsLoading(true);
     experimentActions.getAndSortExperimentsInfo(id, gid)
       .then((experimentsClassified) => this.setState({
-        experiments: experimentsClassified, all: experimentsClassified,
+        experiments: experimentsClassified,
+        all: experimentsClassified,
       }))
       .catch(() => toastr.error('Error', 'Could not fetch the latest experiments'))
       .finally(() => actions.setIsLoading(false));
