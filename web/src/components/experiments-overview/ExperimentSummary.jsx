@@ -18,7 +18,7 @@ import { fireModal } from 'actions/actionModalActions';
 import DataCard from 'components/layout/DataCard';
 import ArrowButton from '../arrow-button/arrowButton';
 import {
-  parseDecimal,
+  parseDecimal, parseToCamelCase,
 } from '../../functions/dataParserHelpers';
 import {
   RUNNING,
@@ -29,6 +29,8 @@ import {
 } from '../../dataTypes';
 import ExperimentCancellationModal from './cancellationModal';
 import DeleteExperimentModal from './DeletionModal';
+import { plainToClass } from 'class-transformer';
+import Experiment from 'domain/experiments/Experiment';
 
 const gitlabApi = new GitlabPipelinesApi();
 const experimentApi = new ExperimentsApi();
@@ -49,6 +51,7 @@ const ExperimentSummary = ({
   experiment,
   actions,
 }) => {
+  const classExp = plainToClass(Experiment, parseToCamelCase(experiment));
   const [showSummary, setShowSummary] = useState(false);
   const [dataToGraph, setDataToGraph] = useState({
     datasets: [],
@@ -91,7 +94,7 @@ const ExperimentSummary = ({
       return;
     }
     try {
-      experiment.fromBlobToEpochs(jsonBlob);
+      classExp.fromBlobToEpochs(jsonBlob);
       setAverageParams(experiment.generateAverageInformation());
       setDataToGraph({
         labels: Object.keys(epochs),

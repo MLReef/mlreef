@@ -1,5 +1,4 @@
 import experimentActions from 'components/experiments-overview/ExperimentActions';
-import Experiment from 'domain/experiments/Experiment';
 import { backendExperiments } from 'testData';
 
 describe('test functions', () => {
@@ -11,7 +10,6 @@ describe('test functions', () => {
   test('assert that experiments are parsed', async () => {
     const result = await experimentActions.getExperiments(1);
     const classExp = result[0];
-    expect(classExp instanceof Experiment).toBeTruthy();
     expect(!classExp.pipelineJobInfo).toBe(false);
     const {
       id,

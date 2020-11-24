@@ -12,12 +12,9 @@ const getExperiments = (id) => expApi.getExperiments(id)
   .then((exps) => exps.map(parseToCamelCase))
   .then((rawExperiments) => rawExperiments
     .filter((exp) => exp.pipelineJobInfo !== null)
-    .map((exp) => {
-      const classExp = plainToClass(Experiment, parseToCamelCase(exp));
-      classExp.pipelineJobInfo = parseToCamelCase(exp.pipelineJobInfo);
-
-      return classExp;
-    }));
+    .map((exp) => (
+      { ...exp, pipelineJobInfo: parseToCamelCase(exp.pipelineJobInfo) }
+    )));
 
 const getAndSortExperimentsInfo = (id, gid) => getExperiments(id)
   .then((exps) => exps.map(async (exp) => {
