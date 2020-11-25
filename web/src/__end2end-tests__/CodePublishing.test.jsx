@@ -1,19 +1,14 @@
-import store from 'store';
 import waitForExpect from 'wait-for-expect';
-import * as types from 'actions/actionTypes';
-import MLRAuthApi from 'apis/MLAuthApi';
+import { PROJECT_TYPES } from 'domain/project/projectTypes';
 import GitlabPipelineApi from 'apis/GitlabPipelinesApi';
 import ProjectGeneralInfoApi from 'apis/ProjectGeneralInfoApi';
 import CommitsApi from 'apis/CommitsApi';
 import CodeProjectPublishingApi from './apiMocks/CodeProjectPublishing.spike.ts';
-import ProjectApiMockSpike from './apiMocks/ProjectApiMock.spike.ts';
 import UserApi from './apiMocks/UserApi.ts';
 import assureUserRegistration from './fixtures/testHelpers';
 
 const api = new CodeProjectPublishingApi();
 const userApi = new UserApi();
-const authApi = new MLRAuthApi();
-const projectApi = new ProjectApiMockSpike();
 const commitsApi = new CommitsApi();
 const gitlabApiMock = new GitlabPipelineApi();
 const projectInfoApi = new ProjectGeneralInfoApi();
@@ -75,19 +70,20 @@ test('Can create new user, new code project, commit file and publish code projec
   //
   // ----------- create a new project ----------- //
   //
-  const body = JSON.stringify({
+  const body = {
     name: 'Can publish code project',
     slug: 'can-publish-code-project',
-    namespace: '',
+    namespace: loginData.username,
     initialize_with_readme: true,
-    description: '',
+    description: 'Generated description',
     visibility: 'public',
-    input_data_types: [],
-  });
-  const projectCreationResp = await projectApi.create(headers, body);
-  const creationProjRespBody = await projectCreationResp.json();
-  expect(projectCreationResp.ok).toBeTruthy();
+    input_data_types: ['HIERARCHICAL'],
+    data_processor_type: 'ALGORITHM',
+  };
 
+  const creationProjRespBody = await projectInfoApi.create(body, PROJECT_TYPES.CODE_PROJ);
+
+  console.log(`Project recently created: ${JSON.stringify(creationProjRespBody)}`);
   const { id: projectId, gitlab_id: gid } = creationProjRespBody;
   gitlabProjectId = creationProjRespBody?.gitlab_id;
 
@@ -97,7 +93,6 @@ test('Can create new user, new code project, commit file and publish code projec
   const commitDataProcessorResp = await commitsApi.performCommit(
     gid,
     'dataproc.py',
-    // eslint-disable-next-line camelcase
     `
 @data_processor(
     name="Resnet 2.0 Filter",
@@ -145,12 +140,8 @@ myCustomOperationEntrypoint(epfInputArray)`,
   // -------- Verify Publishing status -------- //
   //
   console.log('################### Get Project');
-  const projectReadResponse = await projectApi.get(headers, projectId);
-  expect(projectReadResponse.ok).toBeTruthy();
-  console.log('################### Print Json Response');
-  const projectBody = await projectReadResponse.json();
-  console.log(projectBody);
-  console.log('################### Assert dataOperation exists');
+  const projectReadResponse = await projectInfoApi.getCodeProjectById(projectId);
+  console.log(JSON.stringify(projectReadResponse));
   /* { id: '723076c6-eee5-11ea-adc1-0242ac120002',
         slug: 'commons-txt-ops',
         url: 'http://ec2-18-157-161-187.eu-central-1.compute.amazonaws.com:10080/mlreef/commons-txt-ops',
@@ -181,7 +172,7 @@ myCustomOperationEntrypoint(epfInputArray)`,
            author_id: 'aaaa0000-0001-0000-0000-cccccccccccc' } },
    */
 
-  expect(projectBody.name !== undefined).toBeTruthy();
+  expect(projectReadResponse.name !== undefined).toBeTruthy();
   // TODO: make the following line work
   // expect(projectBody.data_processor !== undefined).toBeTruthy();
 
@@ -219,7 +210,11 @@ test('Check whether Gitlabs docker registry lists the new image', async () => {
 });
 
 test('Verify if container tags are created inside registry', async () => {
-  const response = await projectInfoApi.getGitlabRegistryTags(gitlabProjectId, regsitryResponse[0].id);
+  const response = await projectInfoApi
+    .getGitlabRegistryTags(
+      gitlabProjectId,
+      regsitryResponse[0].id,
+    );
   console.log(response);
   expect(response.length > 0).toBeTruthy();
 });

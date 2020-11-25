@@ -8,6 +8,9 @@ import {
   projectClassificationsProps,
   privacyLevelsArr,
   ML_PROJECT,
+  DATA_OPERATION,
+  DATA_VISUALIZATION,
+  MODEL as BE_MODEL,
 } from 'dataTypes';
 import {
   PROJECT_DATA_TYPES,
@@ -33,6 +36,12 @@ const projectGeneraInfoApi = new ProjectGeneraInfoApi();
 const {
   IMAGE, TEXT, AUDIO, VIDEO, TABULAR, NUMBER, BINARY, MODEL, TIME_SERIES, HIERARCHICAL,
 } = PROJECT_DATA_TYPES;
+
+const processorTypes = [
+  { name: BE_MODEL, dataProcessorType: 'ALGORITHM' },
+  { name: DATA_OPERATION, dataProcessorType: 'OPERATION' },
+  { name: DATA_VISUALIZATION, dataProcessorType: 'VISUALIZATION' },
+];
 
 class CreateProject extends Component {
   dataTypes = [
@@ -193,9 +202,7 @@ class CreateProject extends Component {
       ? PROJECT_TYPES.CODE_PROJ
       : PROJECT_TYPES.DATA_PROJ;
 
-    const { user } = this.props;
-    const isNamespaceAGroup = nameSpace !== '' && nameSpace !== user.username;
-    const body = {
+    let body = {
       name: projectName,
       slug,
       namespace: nameSpace,
@@ -205,9 +212,18 @@ class CreateProject extends Component {
       input_data_types: dataTypesSelected,
     };
 
+    if (projectType === PROJECT_TYPES.CODE_PROJ) {
+      body = {
+        ...body,
+        data_processor_type: processorTypes
+          .filter((pt) => pt.name === classification)[0]
+          .dataProcessorType,
+      };
+    }
+
     this.setState({ isFetching: true });
 
-    projectGeneraInfoApi.create(body, projectType, isNamespaceAGroup)
+    projectGeneraInfoApi.create(body, projectType)
       .then(() => {
         this.setState({ redirect: `/${nameSpace}/${slug}` });
       })

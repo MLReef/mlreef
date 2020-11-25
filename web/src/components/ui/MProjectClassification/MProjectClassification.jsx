@@ -2,7 +2,6 @@ import React, { Component, createRef } from 'react';
 import {
   shape, arrayOf, string, bool,
 } from 'prop-types';
-import { ML_PROJECT } from 'dataTypes';
 import { Link } from 'react-router-dom';
 import ArrowButton from 'components/arrow-button/arrowButton';
 import MWrapper from 'components/ui/MWrapper';
@@ -167,18 +166,14 @@ class MProjectClassification extends Component {
               </button>
             </div>
             <div id="new-element-container" className="ml-auto">
-              {classification === ML_PROJECT ? (
-                <Link
-                  to={`/new-project/classification/${classification}`}
-                  data-cy="project-create-btn"
-                  type="button"
-                  className="btn btn-primary"
-                >
-                  New project
-                </Link>
-              ) : (
-                <button type="button" className="btn btn-primary" disabled>New project</button>
-              )}
+              <Link
+                to={`/new-project/classification/${classification}`}
+                data-cy="project-create-btn"
+                type="button"
+                className="btn btn-primary"
+              >
+                {`New ${classification}`.replace('-', ' ')}
+              </Link>
             </div>
           </div>
           <div className="m-project-classification">

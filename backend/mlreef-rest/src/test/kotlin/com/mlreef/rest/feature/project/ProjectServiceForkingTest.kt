@@ -4,6 +4,7 @@ import com.mlreef.rest.CodeProject
 import com.mlreef.rest.CodeProjectRepository
 import com.mlreef.rest.Project
 import com.mlreef.rest.external_api.gitlab.GitlabRestClient
+import com.mlreef.rest.feature.data_processors.DataProcessorService
 import io.mockk.confirmVerified
 import io.mockk.every
 import io.mockk.mockk
@@ -48,7 +49,8 @@ internal class ProjectServiceForkingTest {
         reservedNamesService = mockk(),
         accountRepository = mockk(),
         groupRepository = mockk(),
-        subjectRepository = mockk()
+        subjectRepository = mockk(),
+        dataProcessorService = mockk(),
     )
 
 

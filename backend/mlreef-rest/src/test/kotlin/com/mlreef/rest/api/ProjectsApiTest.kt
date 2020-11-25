@@ -4,8 +4,10 @@ import com.mlreef.rest.AccessLevel
 import com.mlreef.rest.Account
 import com.mlreef.rest.CodeProject
 import com.mlreef.rest.CodeProjectRepository
+import com.mlreef.rest.DataProcessorType
 import com.mlreef.rest.DataProject
 import com.mlreef.rest.DataProjectRepository
+import com.mlreef.rest.DataType
 import com.mlreef.rest.Person
 import com.mlreef.rest.ProcessorVersion
 import com.mlreef.rest.Project
@@ -49,7 +51,7 @@ class ProjectsApiTest : AbstractRestApiTest() {
 
     val rootUrl = "/api/v1/projects"
     val codeProjectRootUrl = "/api/v1/code-projects"
-    val dataProjectRootUrl = "/api/v1/code-projects"
+    val dataProjectRootUrl = "/api/v1/data-projects"
     private lateinit var account2: Account
     private lateinit var token2: String
     private lateinit var subject: Person
@@ -404,12 +406,14 @@ class ProjectsApiTest : AbstractRestApiTest() {
             name = "Test project",
             description = "Description of Test Project",
             visibility = VisibilityScope.PUBLIC,
-            initializeWithReadme = true
+            initializeWithReadme = true,
+            inputDataTypes = listOf(DataType.AUDIO),
+            dataProcessorType = DataProcessorType.ALGORITHM,
         )
 
         this.mockGetUserProjectsList(account)
 
-        val returnedResult = this.performPost("$rootUrl/code", token, body = request)
+        val returnedResult = this.performPost(codeProjectRootUrl, token, body = request)
             .expectOk()
             .document("code-project-create",
                 requestFields(projectCreateRequestFields()),
@@ -431,10 +435,12 @@ class ProjectsApiTest : AbstractRestApiTest() {
             name = "badges",
             description = "Description of Test Project",
             visibility = VisibilityScope.PUBLIC,
-            initializeWithReadme = true
+            initializeWithReadme = true,
+            inputDataTypes = listOf(DataType.AUDIO),
+            dataProcessorType = DataProcessorType.ALGORITHM
         )
         this.mockGetUserProjectsList(account)
-        this.performPost("$rootUrl/code", token, body = request)
+        this.performPost(codeProjectRootUrl, token, body = request)
             .isUnavailableForLegalReasons()
 
     }
@@ -450,7 +456,9 @@ class ProjectsApiTest : AbstractRestApiTest() {
             name = "Test project",
             description = "Description of Test Project",
             visibility = VisibilityScope.PUBLIC,
-            initializeWithReadme = true
+            initializeWithReadme = true,
+            dataProcessorType = DataProcessorType.ALGORITHM,
+            inputDataTypes = listOf(DataType.AUDIO),
         )
 
         this.mockGetUserProjectsList(account)
@@ -1073,7 +1081,8 @@ private fun projectCreateRequestFields(): List<FieldDescriptor> = listOf(
     PayloadDocumentation.fieldWithPath("initialize_with_readme").type(BOOLEAN).description("Boolean flag, if that Project should have an automatic commit for a README"),
     PayloadDocumentation.fieldWithPath("visibility").type(STRING).description("Visibility, can be 'PUBLIC', 'INTERNAL', 'PRIVATE'"),
     PayloadDocumentation.fieldWithPath("experiments").type(OBJECT).optional().description("Experiments arrays"),
-    PayloadDocumentation.fieldWithPath("input_data_types").type(listOf(OBJECT)).optional().description("Project datatypes array")
+    PayloadDocumentation.fieldWithPath("input_data_types").type(listOf(OBJECT)).optional().description("Project datatypes array"),
+    PayloadDocumentation.fieldWithPath("data_processor_type").type(STRING).optional().description("Type of the code project's data processor"),
 )
 
 private fun projectForkRequestFields(): List<FieldDescriptor> = listOf(
