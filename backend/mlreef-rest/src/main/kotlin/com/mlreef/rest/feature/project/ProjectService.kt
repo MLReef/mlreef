@@ -5,6 +5,7 @@ import com.mlreef.rest.Account
 import com.mlreef.rest.AccountRepository
 import com.mlreef.rest.CodeProject
 import com.mlreef.rest.CodeProjectRepository
+import com.mlreef.rest.DataProcessorType
 import com.mlreef.rest.DataProject
 import com.mlreef.rest.DataProjectRepository
 import com.mlreef.rest.DataType
@@ -40,6 +41,7 @@ import com.mlreef.rest.external_api.gitlab.toAccessLevel
 import com.mlreef.rest.external_api.gitlab.toGitlabAccessLevel
 import com.mlreef.rest.external_api.gitlab.toVisibilityScope
 import com.mlreef.rest.feature.caches.PublicProjectsCacheService
+import com.mlreef.rest.feature.data_processors.DataProcessorService
 import com.mlreef.rest.feature.system.ReservedNamesService
 import com.mlreef.rest.helpers.ProjectOfUser
 import com.mlreef.rest.helpers.UserInProject
@@ -91,6 +93,19 @@ interface ProjectService<T : Project> {
         visibility: VisibilityScope = VisibilityScope.PUBLIC,
         initializeWithReadme: Boolean = false,
         inputDataTypes: List<DataType>?,
+    ): T
+
+    fun createCodeProjectAndProcessor(
+            userToken: String,
+            ownerId: UUID,
+            projectSlug: String,
+            projectName: String,
+            projectNamespace: String,
+            description: String,
+            visibility: VisibilityScope = VisibilityScope.PUBLIC,
+            initializeWithReadme: Boolean = false,
+            inputDataTypes: List<DataType>,
+            dataProcessorType: DataProcessorType,
     ): T
 
     fun forkProject(userToken: String, originalId: UUID, name: String? = null, path: String? = null): T
@@ -178,21 +193,22 @@ class ProjectTypesConfiguration(
     private val accountRepository: AccountRepository,
     private val groupRepository: GroupRepository,
     private val subjectRepository: SubjectRepository,
+    private val dataProcessorService: DataProcessorService,
 ) {
 
     @Bean
     fun dataProjectService(): ProjectService<DataProject> {
-        return ProjectServiceImpl(DataProject::class.java, dataProjectRepository, publicProjectsCacheService, gitlabRestClient, reservedNamesService, accountRepository, groupRepository, subjectRepository)
+        return ProjectServiceImpl(DataProject::class.java, dataProjectRepository, publicProjectsCacheService, gitlabRestClient, reservedNamesService, accountRepository, groupRepository, subjectRepository, dataProcessorService)
     }
 
     @Bean
     fun codeProjectService(): ProjectService<CodeProject> {
-        return ProjectServiceImpl(CodeProject::class.java, codeProjectRepository, publicProjectsCacheService, gitlabRestClient, reservedNamesService, accountRepository, groupRepository, subjectRepository)
+        return ProjectServiceImpl(CodeProject::class.java, codeProjectRepository, publicProjectsCacheService, gitlabRestClient, reservedNamesService, accountRepository, groupRepository, subjectRepository, dataProcessorService)
     }
 
     @Bean
     fun projectService(): ProjectService<Project> {
-        return ProjectServiceImpl(Project::class.java, projectRepository, publicProjectsCacheService, gitlabRestClient, reservedNamesService, accountRepository, groupRepository, subjectRepository)
+        return ProjectServiceImpl(Project::class.java, projectRepository, publicProjectsCacheService, gitlabRestClient, reservedNamesService, accountRepository, groupRepository, subjectRepository, dataProcessorService)
     }
 }
 
@@ -205,6 +221,7 @@ open class ProjectServiceImpl<T : Project>(
     private val accountRepository: AccountRepository,
     private val groupRepository: GroupRepository,
     private val subjectRepository: SubjectRepository,
+    private val dataProcessorService: DataProcessorService,
 ) : ProjectService<T> {
 
     private val log = LoggerFactory.getLogger(this::class.java)
@@ -398,6 +415,49 @@ open class ProjectServiceImpl<T : Project>(
             throw ConflictException(ErrorCode.GitlabProjectIdAlreadyUsed, e.message
                 ?: "GitlabId of new projects creates a conflict")
         }
+    }
+
+    @RefreshUserInformation(userId = "#ownerId")
+    @RefreshProject
+    override fun createCodeProjectAndProcessor(
+        userToken: String,
+        ownerId: UUID,
+        projectSlug: String,
+        projectName: String,
+        projectNamespace: String,
+        description: String,
+        visibility: VisibilityScope,
+        initializeWithReadme: Boolean,
+        inputDataTypes: List<DataType>,
+        dataProcessorType: DataProcessorType
+    ): T {
+        val codeProject = this.createProject(
+            userToken,
+            ownerId,
+            projectSlug,
+            projectName,
+            projectNamespace,
+            description,
+            visibility,
+            initializeWithReadme,
+            inputDataTypes,
+        )
+        val dataProcessorId = randomUUID()
+        dataProcessorService.createForCodeProject(
+            id = dataProcessorId,
+            name = "Data processor $dataProcessorId",
+            slug = "data-proc-$dataProcessorId",
+            parameters = listOf(),
+            author = null,
+            description = "description",
+            visibilityScope = VisibilityScope.PRIVATE,
+            outputDataType = inputDataTypes.component1(),
+            inputDataType = inputDataTypes.component1(),
+            codeProject = codeProject as CodeProject,
+            command = "command $dataProcessorId",
+            type = dataProcessorType,
+        )
+        return codeProject
     }
 
     override fun forkProject(userToken: String, originalId: UUID, name: String?, path: String?): T {

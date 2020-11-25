@@ -3,6 +3,7 @@ package com.mlreef.rest.api.v1
 import com.mlreef.rest.AccessLevel
 import com.mlreef.rest.Account
 import com.mlreef.rest.CodeProject
+import com.mlreef.rest.DataProcessorType
 import com.mlreef.rest.DataProject
 import com.mlreef.rest.DataType
 import com.mlreef.rest.Person
@@ -276,12 +277,7 @@ class ProjectsController(
         request: HttpServletRequest?,
         person: Person,
     ): CodeProjectDto {
-        if ((request?.requestURL?.contains("data-project") == true)
-            || (request?.requestURL?.contains("code-project")) == true) {
-            throw RestException(ErrorCode.NotFound)
-        }
-
-        val codeProject = codeProjectService.createProject(
+        val codeProject = codeProjectService.createCodeProjectAndProcessor(
             userToken = token.accessToken,
             ownerId = person.id,
             projectSlug = codeProjectCreateRequest.slug,
@@ -290,8 +286,10 @@ class ProjectsController(
             description = codeProjectCreateRequest.description,
             visibility = codeProjectCreateRequest.visibility,
             initializeWithReadme = codeProjectCreateRequest.initializeWithReadme,
-            inputDataTypes = codeProjectCreateRequest.inputDataTypes
+            inputDataTypes = codeProjectCreateRequest.inputDataTypes,
+            dataProcessorType = codeProjectCreateRequest.dataProcessorType!!
         )
+
         return codeProject.toDto()
     }
 
@@ -489,6 +487,7 @@ class ProjectCreateRequest(
     @NotEmpty val initializeWithReadme: Boolean,
     val inputDataTypes: List<DataType> = listOf(),
     val visibility: VisibilityScope = VisibilityScope.PUBLIC,
+    val dataProcessorType: DataProcessorType? = null
 )
 
 class ProjectForkRequest(

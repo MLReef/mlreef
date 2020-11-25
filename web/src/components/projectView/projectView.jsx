@@ -95,9 +95,11 @@ class ProjectView extends React.Component {
       .then(({ project }) => {
         const gid = project.gitlabId || project.gitlab?.id;
 
-        actions.getProcessors(OPERATION);
-        actions.getProcessors(ALGORITHM);
-        actions.getProcessors(VISUALIZATION);
+        if (project.projectType === PROJECT_TYPES.DATA) {
+          actions.getProcessors(OPERATION);
+          actions.getProcessors(ALGORITHM);
+          actions.getProcessors(VISUALIZATION);
+        }
 
         let promises = [
           actions.getBranchesList(gid),

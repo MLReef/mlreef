@@ -13,12 +13,12 @@ import {
 } from 'dataTypes';
 import { PROJECT_TYPES } from 'domain/project/projectTypes';
 import * as processorActions from 'actions/processorActions';
+import MScrollableSection from 'components/ui/MScrollableSection/MScrollableSection';
 import Navbar from '../navbar/navbar';
 import './myProjects.scss';
 import * as projectActions from '../../actions/projectInfoActions';
 import * as groupsActions from '../../actions/groupsActions';
 import * as userActions from '../../actions/userActions';
-import MScrollableSection from 'components/ui/MScrollableSection/MScrollableSection';
 
 class Myprojects extends React.Component {
   projFilterBtnsList = ['own', 'starred', 'explore'];

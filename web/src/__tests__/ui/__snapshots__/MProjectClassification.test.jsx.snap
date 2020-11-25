@@ -55,7 +55,7 @@ exports[`test html elements 1`] = `
           onClick={[Function]}
           type="button"
         >
-          New project
+          New ml project
         </a>
       </div>
     </div>
