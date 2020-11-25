@@ -105,7 +105,7 @@ class ProjectsPipelineConfigsController(
     }
 
     @PostMapping("/create-start-instance")
-    @PreAuthorize("isProjectOwner(#dataProjectId)")
+    @PreAuthorize("hasAccessToProject(#dataProjectId, 'MAINTAINER')")
     @Transactional
     fun createPipelineConfigInstanceStart(
         @PathVariable dataProjectId: UUID,
