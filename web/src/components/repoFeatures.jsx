@@ -153,6 +153,7 @@ export class RepoFeatures extends Component {
               <Link
                 className="btn btn-dark px-3 mr-2 mt-3"
                 to={`/${namespace}/${slug}/-/datasets/new`}
+                data-icon="o"
               >
                 Data Ops
               </Link>
@@ -164,6 +165,7 @@ export class RepoFeatures extends Component {
             >
               <Link
                 className="btn btn-dark px-3 mr-auto mt-3"
+                data-icon="v"
                 to={`/${namespace}/${slug}/-/visualizations/new`}
               >
                 Data Visualization
