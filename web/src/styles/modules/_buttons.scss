@@ -235,4 +235,18 @@ button {
   &-link {
     color: $info;
   }
+
+
+  &[data-icon] {
+    @media screen and (max-width: $bp-md) {
+      font-size: 0;
+      font-family: mlreef;
+      padding: 0.25rem;
+
+      &::before {
+        content: attr(data-icon);
+        font-size: 1.55rem;
+      }
+    }
+  }
 }

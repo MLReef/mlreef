@@ -190,6 +190,7 @@ exports[`The branches list should be displayed when dropdown button is clicked d
   </div>
   <a
     className="btn btn-dark px-3 mr-2 mt-3"
+    data-icon="o"
     href="/my-namespace/the-project-name/-/datasets/new"
     onClick={[Function]}
   >
@@ -197,6 +198,7 @@ exports[`The branches list should be displayed when dropdown button is clicked d
   </a>
   <a
     className="btn btn-dark px-3 mr-auto mt-3"
+    data-icon="v"
     href="/my-namespace/the-project-name/-/visualizations/new"
     onClick={[Function]}
   >
