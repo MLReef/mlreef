@@ -22,7 +22,7 @@ class InitialDataLoader {
     val resnet50_projectId = fromString("1000000-1000-0003-0001-000000000000")
     val resnet50_id = fromString("1000000-1000-0003-0002-000000000000")
     val forecasting_projectId = fromString("e1e3abfa-08c6-11eb-adc1-0242ac120002")
-    val forecasting_id = fromString("e1e3ae20-08c6-11eb-adc1-0242ac120002")
+    val forecasting_id = fromString("e1e3ae20-08c7-11eb-adc1-0242ac120002")
     val bertsent_projectId = fromString("e6452744-0edb-11eb-adc1-0242ac120002")
     val bertsent_id = fromString("e645299c-0edb-11eb-adc1-0242ac120002")
     val multimodel_projectId = fromString("fe957942-d0cf-11ea-87d0-0242ac130003")
@@ -51,6 +51,8 @@ class InitialDataLoader {
     val scatterplot_id = fromString("a827c83e-008c-11eb-adc1-0242ac120002")
     val wordcloud_projectId = fromString("a827c906-008c-11eb-adc1-0242ac120002")
     val wordcloud_id = fromString("a827c9c4-008c-11eb-adc1-0242ac120002")
+    val asfinagtreecover_projectId = fromString("e4575902-2fe2-11eb-adc1-0242ac120002")
+    val asfinagtreecover_id = fromString("e4575b82-2fe2-11eb-adc1-0242ac120002")
     
 
     
@@ -1134,7 +1136,7 @@ class InitialDataLoader {
                         id = fromString("1000000-1000-0003-0019-000000000000")
                         name = "class_mode"
                         defaultValue = "[{ \"value\": \"categorical\" }, { \"value\": \"binary\" }, { \"value\": \"sparse\" }]"
-                        required = false
+                        required = true
                         description = "class mode : if class_mode is categorical (default value) it must include the label column with the class/es of each image. Values in column can be string/list/tuple if a single class or list/tuple if multiple classes. if class_mode is binary or sparse it must include the given label column with class values as strings. if class_mode is raw or multi_output it should contain the columns specified in labels. if class_mode is input or None no extra column is needed."
                     }
                     FLOAT {
@@ -1197,6 +1199,12 @@ class InitialDataLoader {
                         description = "batch size fed to the neural network (int)"
                     }
                     INTEGER {
+                        id = fromString("2c9c6c47-d16c-11ea-87d0-0242ac130003")
+                        name = "num-classes"
+                        defaultValue = "11"
+                        description = "amount of classes present in the training data"
+                    }
+                    INTEGER {
                         id = fromString("2c9c6d0e-d16c-11ea-87d0-0242ac130003")
                         name = "epochs"
                         defaultValue = "100"
@@ -1219,6 +1227,99 @@ class InitialDataLoader {
                     }
                 }
             }
+
+            //asfinag_tree_cover.py
+            val codeProject_asfinagtree = codeProject {
+                id = asfinagtreecover_projectId
+                slug = "code-asfinag-treecover"
+                name = "ASFINAG Tree cover"
+                gitlabNamespace = "mlreef"
+                gitlabPath = "code-asfinag-treecover"
+                inputDataTypes = hashSetOf(DataType.IMAGE)
+                outputDataTypes = hashSetOf(DataType.MODEL)
+                description = "ASFINAG use case for semantic segmentation to mark tree covered areas"
+            }
+
+            model {
+                linkToCodeProject(codeProject_asfinagtree)
+                id = asfinagtreecover_id
+                command = "asfinag_tree_cover"
+                number = 5
+                baseEnvironment = BaseEnvironment.default()
+                inputDataType = DataType.IMAGE
+                outputDataType = DataType.MODEL
+                publisher = author
+
+                parameters {
+                    STRING {
+                        id = fromString("c55180da-2fe4-11eb-adc1-0242ac120002")
+                        name = "input-path"
+                        defaultValue = "example_data"
+                        required = true
+                        description = "Data folder with geojson files"
+                    }
+                    STRING {
+                        id = fromString("c55181fc-2fe4-11eb-adc1-0242ac120002")
+                        name = "output-path"
+                        defaultValue = "output"
+                        description = "path for output metrics and model"
+                        required= true
+                    }
+                    STRING {
+                        id = fromString("c5518300-2fe4-11eb-adc1-0242ac120002")
+                        name = "filename"
+                        defaultValue = "eastern_france.geojson"
+                        description = "filename geojson file to train"
+                        required= true
+                    }
+                    INTEGER {
+                        id = fromString("c55183f0-2fe4-11eb-adc1-0242ac120002")
+                        name = "width"
+                        defaultValue = "256"
+                        description = "width of images to train"
+                        required = false
+                    }
+                    INTEGER {
+                        id = fromString("c55184e0-2fe4-11eb-adc1-0242ac120002")
+                        name = "height"
+                        defaultValue = "256"
+                        description = "height of images to train"
+                        required = false
+
+                    }
+                    STRING {
+                        id = fromString("c55185d0-2fe4-11eb-adc1-0242ac120002")
+                        name = "instance-id"
+                        defaultValue = ""
+                        required = false
+                        description = "Instance id in sentinel hub account"
+
+                    }
+                    STRING {
+                        id = fromString("c5518878-2fe4-11eb-adc1-0242ac120002")
+                        name = "time-start"
+                        defaultValue = "2017-01-01"
+                        required = true
+                        description = "Start of time interval to extract images"
+
+                    }
+                    STRING {
+                        id = fromString("c5518972-2fe4-11eb-adc1-0242ac120002")
+                        name = "time-end"
+                        defaultValue = "2017-12-31"
+                        required = true
+                        description = "End of time interval to extract images"
+
+                    }
+                    FLOAT {
+                        id = fromString("c5518900-2fe4-11eb-adc1-0242ac120002")
+                        name = "max-acc"
+                        defaultValue = "0.2"
+                        required = false
+                        description = "Threshold of accuracy for training"
+                    }
+                  }
+                }
             val codeProject_dummy = codeProject {
                 id = dummy_projectId
                 slug = "code-project-dummy"
