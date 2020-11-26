@@ -164,7 +164,7 @@ def process_arguments(args):
     parser.add_argument('--channels', action='store', default=3, help='channels of images: 1 = grayscale, 3 = RGB ,'
                                                                       '4=RGBA (int)')
     parser.add_argument('--use-pretrained', action='store', default=True, help='use pretrained ResNet50 weights (bool)')
-    parser.add_argument('--epochs', action='store', help='number of epochs for training')
+    parser.add_argument('--epochs', action='store',default=25, help='number of epochs for training')
     parser.add_argument('--batch-size', action='store', default=32, help='batch size fed to the neural network (int)')
     parser.add_argument('--validation-split', action='store', default=.25, help='fraction of images to be used for '
                                                                                 'validation (float)')

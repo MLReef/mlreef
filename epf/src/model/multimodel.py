@@ -184,6 +184,9 @@ class MultiModel:
         #  to the ImageFolder structure
         self.input_dir = params['input_path']
         self.output_dir = params['output_path']
+        # Number of classes in the dataset
+        self.num_classes= int(params['num_classes'])
+
         # create folder if does not exists
         if not os.path.exists(self.output_dir):
             os.makedirs(self.output_dir)
@@ -195,8 +198,8 @@ class MultiModel:
         # Flag for feature extracting. When False, we fine tune the whole model,
         #  when True we only update the reshaped layer params
         self.feature_extract = bool(params['feature_extract'])
-        # Number of classes in the dataset
-        self.num_classes = 11
+        
+
 
         # Initialize the model for this run
         self.model_ft, input_size = initialize_model(self.model_name, self.num_classes, self.feature_extract)
@@ -280,6 +283,7 @@ def process_arguments(args):
     parser = argparse.ArgumentParser(description='Pipeline: Multimodel')
     parser.add_argument('--input-path', type=str, action='store', help='path to directory of images')
     parser.add_argument('--output-path', default='.', type=str, action='store', help='output path to save images')
+    parser.add_argument('--num-classes', default='2', type=int, action='store',help='number of classes present in the training data')
     parser.add_argument('--batch-size', default=24, type=int, action='store', help='batch size')
     parser.add_argument('--epochs', default=100, type=int, action='store', help='epochs')
     parser.add_argument('--model-name', default='vgg', type=str, action='store', help='model name to '
