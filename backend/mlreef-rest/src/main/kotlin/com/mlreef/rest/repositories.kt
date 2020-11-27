@@ -34,7 +34,7 @@ interface AccountTokenRepository : ReadOnlyRepository<AccountToken, UUID> {
 @Repository
 interface SubjectRepository : KtCrudRepository<Subject, UUID> {
     fun findByGitlabId(gitlabId: Long): Subject?
-    fun findBySlug(path: String): List<Subject>
+    fun findBySlug(path: String): Subject?
 }
 
 @Repository

@@ -331,8 +331,7 @@ open class ProjectServiceImpl<T : Project>(
         } else null
 
         val ownerId = if (findNamespace != null) {
-            val findByPath = subjectRepository.findBySlug(findNamespace.path)
-            findByPath.firstOrNull()?.id
+            subjectRepository.findBySlug(findNamespace.path)?.id
                 ?: throw ProjectCreationException(ErrorCode.ProjectNamespaceSubjectNotFound, "Gitlab Namespace ${findNamespace.id} not connected to persisted Subject")
         } else {
             creatingPersonId
@@ -388,8 +387,7 @@ open class ProjectServiceImpl<T : Project>(
         }
 
         val ownerId = if (findNamespace != null) {
-            val findByPath = subjectRepository.findBySlug(findNamespace.path)
-            findByPath.firstOrNull()?.id
+            subjectRepository.findBySlug(findNamespace.path)?.id
                 ?: throw ProjectCreationException(ErrorCode.ProjectNamespaceSubjectNotFound, "Gitlab Namespace ${findNamespace.id} not connected to persisted Subject")
         } else {
             creatingPersonId
