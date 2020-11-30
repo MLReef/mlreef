@@ -20,12 +20,10 @@
     "gatsby-plugin-sass": "^2.2.1",
     "gatsby-remark-copy-linked-files": "^2.3.3",
     "gatsby-remark-images": "^3.3.7",
-    "gatsby-remark-mermaid": "^2.1.0",
     "gatsby-source-filesystem": "^2.2.2",
-    "gatsby-transformer-remark": "^2.11.1",
+    "gatsby-transformer-remark": "^2.7.1",
     "github-markdown-css": "^4.0.0",
     "node-sass": "^4.13.1",
-    "puppeteer": "^5.5.0",
     "react": "^16.12.0",
     "react-dom": "^16.12.0",
     "react-sidebar": "^3.0.2"
