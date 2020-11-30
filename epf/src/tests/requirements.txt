@@ -6,7 +6,7 @@ joblib==0.14.1
 kiwisolver==1.2.0
 matplotlib==3.2.1
 networkx==2.4
-numpy==1.18.4
+numpy==1.19.0
 nltk==3.5
 num2words==0.5.10
 opencv-python==4.2.0.34
