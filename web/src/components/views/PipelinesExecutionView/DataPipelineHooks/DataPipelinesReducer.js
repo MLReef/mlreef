@@ -51,11 +51,14 @@ export function setProcessors(nonFilteredProcessors, type) {
   } else {
     filteredProcessors = nonFilteredProcessors.visualizations;
   }
-  return filteredProcessors.map((cP) => parseToCamelCase({
-    ...cP,
-    internalProcessorId: UUIDV1(),
-    parameters: cP.parameters.map((param) => ({ ...param, isValid: !param.required })),
-  }));
+
+  return filteredProcessors
+    .filter((cP) => cP !== null && cP !== undefined)
+    .map((cP) => parseToCamelCase({
+      ...cP,
+      internalProcessorId: UUIDV1(),
+      parameters: cP.parameters.map((param) => ({ ...param, isValid: !param.required })),
+    }));
 }
 
 export const initialState = {

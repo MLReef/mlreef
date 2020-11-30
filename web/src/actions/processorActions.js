@@ -37,25 +37,26 @@ export function getProcessors(type) {
       .map((versionsArr) => versionsArr.filter((version) => version.branch === 'master')) // this is not Gitlab info so to hardcode master makes sense. DO NOT REPLICATE
       .map((versionsFiltered) => versionsFiltered[0]))
     .then((processors) => {
+      const nonNullProcessors = processors.filter((proc) => proc !== null &&  proc !== undefined)
       switch (type) {
         case OPERATION:
           dispatch(
             setOperationsSuccessfully(
-              processors,
+              nonNullProcessors,
             ),
           );
           break;
         case ALGORITHM:
           dispatch(
             setAlgorithmsSuccessfully(
-              processors,
+              nonNullProcessors,
             ),
           );
           break;
         default:
           dispatch(
             setVisualizationsSuccessfully(
-              processors,
+              nonNullProcessors,
             ),
           );
           break;
