@@ -76,7 +76,7 @@ const ExperimentCard = (props) => {
                   </b>
                   {' '}
                   {getTimeCreatedAgo(experiment.pipelineJobInfo.createdAt, today)}
-                    &nbsp;
+                  &nbsp;
                   ago
                 </p>
               </div>
