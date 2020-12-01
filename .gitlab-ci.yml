@@ -45,6 +45,7 @@ variables:
       - README.md
 
 
+
 # provision boots up the new ec2 instance for deploying MLReef
 provision:
   extends: [".except-docu-branches"]
@@ -53,11 +54,14 @@ provision:
   script: bin/ci-provision
   artifacts:
     paths:
-      - out/instance.info                                  # pass instance url to later stages (see bin/includes/ci-environment)
+      - out/instance.info             # pass instance url to later stages (see bin/includes/ci-environment)
   environment:
     name: $CI_COMMIT_REF_SLUG
     url: $CI_PIPELINE_URL
-    on_stop: decommission                                  # clean up after branch merge
+    on_stop: decommission             # clean up after branch merge
+    auto_stop_in: 2 weeks
+
+
 
 
 gitlab env config:
