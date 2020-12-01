@@ -12,7 +12,7 @@ stages:
 
 variables:
   S3_DATA_BUCKET:       "mlreef-application-data"          # see also ec2 startup script
-  DATA_ARCHIVE:         "mlreef-data-develop.zip"
+  DATA_ARCHIVE:         "mlreef-data-master.zip"
 
 .except-docu-branches:
   except:
@@ -164,7 +164,6 @@ end2end tests:
   <<: *run-on-all-code-changes
   except:
     refs:
-      - develop
       - master
   stage: test
   image: java:8
@@ -249,7 +248,6 @@ decommission:
   extends: [".except-docu-branches"]
   except:
     refs:
-      - develop
       - master
 
 backup branch:
@@ -268,7 +266,7 @@ backup branch:
     - bin/ci-backup --instance $INSTANCE_HOST --bucket $S3_DATA_BUCKET --file mlreef-data-$CI_COMMIT_REF_SLUG.tar
 
 
-restore from develop:
+restore from master:
   extends: [.feature-branches-only]
   stage: maintenance
   when: manual
@@ -280,12 +278,12 @@ restore from develop:
     - chmod +x $RESTORE_SCRIPT
     - sed -i "s~AWS_ACCESS_KEY_ID=XXXXX~AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID~"                  $RESTORE_SCRIPT
     - sed -i "s~AWS_SECRET_ACCESS_KEY=XXXXX~AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY~"      $RESTORE_SCRIPT
-  script: ci-restore --instance $INSTANCE_HOST --bucket $S3_DATA_BUCKET --file mlreef-data-develop.tar
+  script: ci-restore --instance $INSTANCE_HOST --bucket $S3_DATA_BUCKET --file mlreef-data-master.tar
   except:
     refs:
       - master
 
 
 restore branch backup:
-  extends: [.feature-branches-only, "restore from develop"]
+  extends: [.feature-branches-only, "restore from master"]
   script: ci-restore --instance $INSTANCE_HOST --bucket $S3_DATA_BUCKET --file mlreef-data-$CI_COMMIT_REF_SLUG.tar

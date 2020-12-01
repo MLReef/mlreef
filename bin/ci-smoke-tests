@@ -1,6 +1,4 @@
 #!/bin/bash
-# shellcheck disable=SC2155   # Declare and assign separately to avoid masking return values. See SC2155.
-
 # change to the repository root folder via the scripts location
 cd "$(dirname "$0")"/..
 . bin/includes/log
@@ -14,8 +12,6 @@ set -e    # exit on immediately on every error
 set -u    # error on usage of undefined variables
 ########################################
 
-
-#URL = ec2-18-195-30-163.eu-central-1.compute.amazonaws.com
 
 echo "TEST Frontend is reachable:"
 curl "http://$INSTANCE_HOST/login" --output /dev/null

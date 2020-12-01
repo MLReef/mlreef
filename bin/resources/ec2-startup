@@ -2,7 +2,7 @@
 
 LOG="/root/startup.log"
 LOCK="/root/installation.lock"
-INIT_ZIP="mlreef-data-develop.zip"       # see ci-backup
+INIT_ZIP="mlreef-data-master.zip"       # see ci-backup
 S3_BUCKET_NAME="mlreef-application-data" # see ci-backup
 
 touch $LOG
