@@ -235,7 +235,7 @@ const ExperimentSummary = ({
                 { text: sourceBranch?.startsWith('data-instance') ? 'sourcing from data instance' : 'sourcing from' },
                 { text: `*${sourceBranch || ''}`, isLink: true, href: linkToRepoView },
                 { text: 'Last commit', isLink: false },
-                { text: `${commitSha?.substring(0, 8)}`, isLink: true, href: `/my-projects/${projectId}/commit/${commitSha}` },
+                { text: `${commitSha?.substring(0, 8)}`, isLink: true, href: `/${nameSpace}/${slug}/-/commits/${commitSha}` },
               ]}
             />
             <DataCard
