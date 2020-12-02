@@ -44,17 +44,26 @@ describe('presence of elements and functions', () => {
     expect(wrapper.find('MButton')).toHaveLength(1);
   });
 
-  test('assert that reducer is called when files are selected', () => {
-    const mockFileName = 'a-file-to-test';
-    const mockedFile = new File([''], mockFileName, { type: 'application/jpg' });
-    const mockChangeEv = {
+  test('assert that files array is updated and previous files are not deleted', () => {
+    const mockFileName1 = 'a-file-to-test-1';
+    const mockFileName2 = 'a-file-to-test-2';
+    const mockedFile1 = new File([''], mockFileName1, { type: 'application/jpg' });
+    const mockedFile2 = new File([''], mockFileName2, { type: 'application/jpg' });
+    const mockChangeEv1 = {
       target: {
-        files: [mockedFile],
+        files: [mockedFile1],
       },
     };
-    wrapper.find('input.file-browser-input').simulate('change', mockChangeEv);
+    const mockChangeEv2 = {
+      target: {
+        files: [mockedFile2],
+      },
+    };
+    wrapper.find('input.file-browser-input').simulate('change', mockChangeEv1);
+    wrapper.find('input.file-browser-input').simulate('change', mockChangeEv2);
     const filesInTheDom = wrapper.find('FileToSend');
-    expect(filesInTheDom).toHaveLength(1);
-    expect(filesInTheDom.first().props().fileName).toBe(mockFileName);
+    expect(filesInTheDom).toHaveLength(2);
+    expect(filesInTheDom.first().props().fileName).toBe(mockFileName1);
+    expect(filesInTheDom.at(1).props().fileName).toBe(mockFileName2);
   });
 });
