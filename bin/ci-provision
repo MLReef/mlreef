@@ -14,8 +14,6 @@ set -u  # error on usage of undefined variables
 
 export   EC2_MACHINE_SIZE="t3a.xlarge"                       # https://aws.amazon.com/ec2/instance-types/
 echo "   EC2_MACHINE_SIZE= $EC2_MACHINE_SIZE"
-export EC2_MACHINE_SIZE_DEV="t3.2xlarge"
-echo " EC2_MACHINE_SIZE_DEV= $EC2_MACHINE_SIZE_DEV"
 export      EC2_IMAGE_AMI="ami-061aaaac62de85935"            # Deep Learning AMI (Ubuntu 18.04) Version 28.1
 echo "      EC2_IMAGE_AMI= $EC2_IMAGE_AMI"
 export   EC2_SECURITY_GRP="application-servers"
@@ -25,9 +23,6 @@ echo "    DEVICE_MAPPINGS= $DEVICE_MAPPINGS"
 export     STARTUP_SCRIPT="bin/resources/ec2-startup"          # used in .gitlab-ci.yml
 echo "     STARTUP_SCRIPT= $STARTUP_SCRIPT"
 
-if [ "$CI_COMMIT_REF_SLUG" = "develop" ]; then
-  EC2_MACHINE_SIZE=$EC2_MACHINE_SIZE_DEV;
-fi
 echo "$EC2_INSTANCE_NAME"
 echo "$EC2_MACHINE_SIZE"
 
