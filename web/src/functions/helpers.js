@@ -60,6 +60,12 @@ export const generateBreadCrumbs = (selectedProject, customCrumbs) => {
   return crumbs;
 };
 
+export const removeDuplicatedProjects = (items) => {
+  const uniqueIds = Array.from(new Set(items.map((p) => p.id)));
+
+  return uniqueIds.map((id) => items.find((p) => p.id === id));
+};
+
 /**
  * Used to replace original url provided by gitlab
  */

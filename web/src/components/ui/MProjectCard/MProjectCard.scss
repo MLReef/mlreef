@@ -48,6 +48,10 @@
   &-link:hover {
     text-decoration: none;
   }
+
+  &-actions {
+    min-height: 33px;
+  }
 }
 
 .project-card-types {

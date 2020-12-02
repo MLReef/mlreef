@@ -20,8 +20,8 @@ export default class MLSearchApi extends ApiDirector {
       "min_stars" : 0
     }'
   */
-  async search(searchableType: String, body: any) {
-    const url = `/api/v1/explore/entries/search?searchable_type=${searchableType}`;
+  async search(searchableType: String, body: any, pagQuery: string = '') {
+    const url = `/api/v1/explore/entries/search?searchable_type=${searchableType}${pagQuery}`;
     const data = { ...body };
     const BLbuilder = new ApiRequestCallBuilder(METHODS.POST, this.buildBasicHeaders(validServicesToCall.BACKEND), url, JSON.stringify(data));
     const response = await fetch(BLbuilder.build());

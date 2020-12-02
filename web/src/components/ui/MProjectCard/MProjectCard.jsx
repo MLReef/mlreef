@@ -1,13 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { Link } from 'router';
-import iconGrey from 'images/icon_grey-01.png';
 import MParagraph from 'components/ui/MParagraph';
 import { PUBLIC } from 'dataTypes';
-import publicIcon from 'images/public-01.svg';
-import lockIcon from 'images/Lock-01.svg';
 import MProjectCardTypes from './MProjectCardTypes';
 import './MProjectCard.scss';
+
+const publicIcon = '/images/public-01.svg';
+const lockIcon = '/images/Lock-01.svg';
+const iconGrey = '/images/icon_grey-01.png';
 
 const MProjectCard = (props) => {
   const {
@@ -101,7 +102,7 @@ const MProjectCard = (props) => {
             </div>
           </div>
         </Link>
-        <div className="card-actions">
+        <div className="card-actions project-card-actions">
           <div className="avatars-reversed">
             {avatars.map((ava) => (
               <Link

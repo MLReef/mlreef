@@ -12,6 +12,7 @@ $almostWhite: #e5e5e5 !default;
 $lessWhite: #b2b2b2 !default;
 
 :root {
+  --context: #{$info};
   --white: #fff;
   --black: #000;
   --dark: #{$dark};

@@ -63,6 +63,7 @@ export default (maxWidth, info = {}) => {
     }
 
     const cell = grid[y][x];
+    const rightColumn = grid[y][grid[y].length - 1];
 
     // eslint-disable-next-line
     brick.style.top = `${cell.top}px`;
@@ -70,5 +71,7 @@ export default (maxWidth, info = {}) => {
     brick.style.left = `${cell.left}px`;
     // eslint-disable-next-line
     info.maxHeight = Math.max(info.maxHeight || 0, cell.top + height);
+    // eslint-disable-next-line
+    info.width = Math.max(info.width || 0, rightColumn.left + width);
   };
 };

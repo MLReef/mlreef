@@ -2,7 +2,7 @@ import { toastr } from 'react-redux-toastr';
 import ProjectGeneralInfoApi from 'apis/ProjectGeneralInfoApi';
 import { parseToCamelCase, adaptProjectModel } from 'functions/dataParserHelpers';
 import MLSearchApi from 'apis/MLSearchApi';
-import { handlePaginationWithAdditionalInfo } from 'functions/apiCalls';
+import { handlePaginationWithAdditionalInfo, createPagination } from 'functions/apiCalls';
 import GitlabPipelinesApi from 'apis/GitlabPipelinesApi';
 import store from '../store';
 import * as types from './actionTypes';
@@ -37,8 +37,17 @@ export function setUserProjectsSuccessfully(projects) {
   return { type: types.SET_USER_PROJECTS, projects };
 }
 
-export function setCodeProjects(codeProjectType, projects) {
-  return { type: types.SET_CODE_PROJECTS_ALL, codeProjectType, projects };
+export function setDataProjects({ pagination, projects }) {
+  return { type: types.SET_DATA_PROJECTS, pagination, projects };
+}
+
+export function setCodeProjects(codeProjectType, { pagination, projects }) {
+  return {
+    type: types.SET_CODE_PROJECTS,
+    codeProjectType,
+    pagination,
+    projects,
+  };
 }
 
 export function setStarredProjectsSuccessfully(projects) {
@@ -161,8 +170,7 @@ export function getDataProcessorsAndCorrespondingProjects(searchableType, body =
         const filterMember = (ps) => ps.filter((p) => p.members
           .some((m) => m.username === username));
 
-        if (options?.explore) dispatch(setCodeProjects(searchableType, projects));
-        else dispatch(setProjectsInfoSuccessfully(projects));
+        dispatch(setProjectsInfoSuccessfully(projects));
 
         dispatch(setStarredProjectsSuccessfully(projects.filter((proj) => proj?.starsCount > 0)));
 
@@ -171,6 +179,29 @@ export function getDataProcessorsAndCorrespondingProjects(searchableType, body =
           .then(filterMember)
           .then((ms) => dispatch(setUserProjectsSuccessfully(ms)));
       }
+    });
+}
+
+export function getDataProjects(page, size) {
+  return (dispatch) => projectApi.getProjectsList(`/public?page=${page}&size=${size}`)
+    .then((payload) => ({
+      projects: mergeGitlabResource(payload?.content?.map(parseToCamelCase)),
+      pagination: createPagination(payload),
+    }))
+    .then((dataSet) => {
+      dispatch(setDataProjects(dataSet));
+    });
+}
+
+export function getCodeProjects(searchableType, { page, size }, body = {}) {
+  return (dispatch) => mlSearchApi
+    .search(searchableType, body, `&page=${page}&size=${size}`)
+    .then((payload) => ({
+      projects: mergeGitlabResource(payload?.content?.map((i) => parseToCamelCase(i.project))),
+      pagination: createPagination(payload),
+    }))
+    .then((codeSet) => {
+      dispatch(setCodeProjects(searchableType, codeSet));
     });
 }
 
@@ -190,7 +221,7 @@ export function getProjectStarrers(gid) {
 }
 
 /**
- * 
+ *
  * @param {*} pipes: pipelines to persist in the redux state
  */
 
@@ -199,7 +230,7 @@ export const setProjectPipelines = (pipes = []) => ({
 });
 
 /**
- * 
+ *
  * @param {*} gid: project id to get pipelines for
  */
 
