@@ -20,7 +20,7 @@ export default (state, { type, payload }) => {
 
   switch (type) {
     case SET_FILESUPLOAD:
-      return { ...state, filesToUpload: payload };
+      return { ...state, filesToUpload: [...prevFilesArr, ...payload] };
     case REMOVE_FILE:
       return { ...state, filesToUpload: prevFilesArr.filter((f) => f.getId() !== fileId) };
     case SET_CONTENT:

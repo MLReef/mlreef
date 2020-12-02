@@ -34,6 +34,7 @@ import reducer from './uploadFileReducer';
 import ProjectNav from '../../project-nav/projectNav';
 import Navbar from '../../navbar/navbar';
 import FileToSend from './fileToSend';
+import { convertToSlug } from 'functions/dataParserHelpers';
 
 const commitsapi = new CommitsApi();
 
@@ -103,16 +104,17 @@ const UploadFile = (props) => {
     pathForFile,
     finalArrayOfFilesToUpload,
   ) => {
-    let newBranchName;
+    const slugVersionBranch = convertToSlug(branchForFile);
     let body = {
-      branch: branchForFile,
+      branch: slugVersionBranch,
       commit_message: finalCommitMsg,
-      actions: generateActionsForCommit(path || '/', finalArrayOfFilesToUpload),
+      actions: generateActionsForCommit(pathForFile || '/', finalArrayOfFilesToUpload),
     };
-    if (startMR) {
-      newBranchName = randomNameGenerator();
-      body = { ...body, branch: newBranchName, start_branch: branchForFile };
+
+    if (!branches.includes(slugVersionBranch)) {
+      body = { ...body, start_branch: currentBranch };
     }
+
     dispatch({ type: SET_SENDING_FILES, payload: true });
     commitsapi.performCommitForMultipleActions(
       gid,
@@ -120,10 +122,11 @@ const UploadFile = (props) => {
     )
       .then(() => {
         removeFiles();
-        if (startMR && !isEmptyRepo) {
+        dispatch({ type: SET_TARGET, payload: slugVersionBranch });
+        if (startMR) {
           toastr.info('Info', 'Creating your new MR');
           mergeRequestAPI
-            .submitMergeReq(gid, newBranchName, targetBranch || defaultBranch, 'Merge file to main branch')
+            .submitMergeReq(gid, slugVersionBranch, currentBranch, 'Merge file to main branch')
             .then((bodyRes) => {
               const { source_branch: mrSourceBranch } = bodyRes;
               dispatch({ type: SET_TARGET, payload: mrSourceBranch });
@@ -145,6 +148,7 @@ const UploadFile = (props) => {
     path,
     filesToUpload,
   );
+
   const redirectBackToFolder = path
     ? `${encodeURIComponent(targetBranch)}/${path}`
     : encodeURIComponent(targetBranch);
@@ -300,15 +304,17 @@ const UploadFile = (props) => {
               readOnly={isEmptyRepo && true}
             />
             <div>
-              <MCheckBox
-                defaultChecked
-                key="isNewMr comp"
-                name="isNewMr"
-                labelValue="Start a new merge request with these changes"
-                callback={(name, labelValue, newValue) => {
-                  dispatch({ type: SET_MR, payload: newValue });
-                }}
-              />
+              {!isEmptyRepo && (
+                <MCheckBox
+                  defaultChecked
+                  key="isNewMr comp"
+                  name="isNewMr"
+                  labelValue="Start a new merge request with these changes"
+                  callback={(name, labelValue, newValue) => {
+                    dispatch({ type: SET_MR, payload: newValue });
+                  }}
+                />
+              )}
             </div>
           </div>
         </div>

@@ -187,7 +187,7 @@ class ProjectView extends React.Component {
           {gid && (
           <div className="main-content">
             {project.emptyRepo ? (
-              <EmptyProject httpUrlToRepo={httpUrlToRepo} projectId={gid} />
+              <EmptyProject httpUrlToRepo={httpUrlToRepo} namespace={namespace} slug={slug} />
             ) : (
               <>
                 <RepoInfo
