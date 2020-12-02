@@ -287,7 +287,7 @@ class ProjectsController(
             visibility = codeProjectCreateRequest.visibility,
             initializeWithReadme = codeProjectCreateRequest.initializeWithReadme,
             inputDataTypes = codeProjectCreateRequest.inputDataTypes,
-            dataProcessorType = codeProjectCreateRequest.dataProcessorType!!
+            dataProcessorType = codeProjectCreateRequest.dataProcessorType
         )
 
         return codeProject.toDto()
@@ -487,7 +487,7 @@ class ProjectCreateRequest(
     @NotEmpty val initializeWithReadme: Boolean,
     val inputDataTypes: List<DataType> = listOf(),
     val visibility: VisibilityScope = VisibilityScope.PUBLIC,
-    val dataProcessorType: DataProcessorType? = null
+    val dataProcessorType: DataProcessorType
 )
 
 class ProjectForkRequest(

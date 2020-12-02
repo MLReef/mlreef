@@ -2,6 +2,7 @@ package com.mlreef.rest.integration
 
 import com.mlreef.rest.AccessLevel
 import com.mlreef.rest.CodeProjectRepository
+import com.mlreef.rest.DataProcessorType
 import com.mlreef.rest.DataProjectRepository
 import com.mlreef.rest.Project
 import com.mlreef.rest.VisibilityScope
@@ -555,13 +556,14 @@ class ProjectsIntegrationTest : AbstractIntegrationTest() {
         val (_, token, _) = testsHelper.createRealUser()
 
         val request = ProjectCreateRequest(
-            "test-project",
-            "mlreef",
-            "Test project",
-            "description",
-            true,
-            listOf(),
-            VisibilityScope.PUBLIC
+            slug = "test-project",
+            namespace = "mlreef",
+            name = "Test project",
+            description = "description",
+            initializeWithReadme = true,
+            inputDataTypes = listOf(),
+            visibility = VisibilityScope.PUBLIC,
+            dataProcessorType = DataProcessorType.ALGORITHM,
         )
 
         val result = this.performPost("$rootUrl/data", token, request)
@@ -578,13 +580,14 @@ class ProjectsIntegrationTest : AbstractIntegrationTest() {
         val (_, token, _) = testsHelper.createRealUser()
 
         val request = ProjectCreateRequest(
-            "test-project",
-            "mlreef",
-            "Test project",
-            "description",
-            true,
-            listOf(),
-            VisibilityScope.PUBLIC
+            slug = "test-project",
+            namespace = "mlreef",
+            name = "Test project",
+            description = "description",
+            initializeWithReadme = true,
+            inputDataTypes = listOf(),
+            visibility = VisibilityScope.PUBLIC,
+            dataProcessorType = DataProcessorType.ALGORITHM,
         )
 
         val result = this.performPost(dataProjectRootUrl, token, request)
@@ -606,7 +609,8 @@ class ProjectsIntegrationTest : AbstractIntegrationTest() {
             name = "Test project",
             description = "Description of Test Project",
             visibility = VisibilityScope.PUBLIC,
-            initializeWithReadme = true
+            initializeWithReadme = true,
+            dataProcessorType = DataProcessorType.ALGORITHM,
         )
 
         val result = this.performPost("$rootUrl/code", token, request)
@@ -628,7 +632,8 @@ class ProjectsIntegrationTest : AbstractIntegrationTest() {
             name = "Test project",
             description = "Description of Test Project",
             visibility = VisibilityScope.PUBLIC,
-            initializeWithReadme = true
+            initializeWithReadme = true,
+            dataProcessorType = DataProcessorType.ALGORITHM,
         )
 
         val result = this.performPost(codeProjectRootUrl, token, request)
@@ -651,7 +656,8 @@ class ProjectsIntegrationTest : AbstractIntegrationTest() {
             name = project.name,
             description = "New description",
             initializeWithReadme = true,
-            visibility = VisibilityScope.PUBLIC
+            visibility = VisibilityScope.PUBLIC,
+            dataProcessorType = DataProcessorType.ALGORITHM,
         )
 
         this.performPost("$rootUrl/data", token, request).expect4xx()
@@ -664,13 +670,14 @@ class ProjectsIntegrationTest : AbstractIntegrationTest() {
         val (_, token, _) = testsHelper.createRealUser()
 
         val request = ProjectCreateRequest(
-            "",
-            "",
-            "",
-            "description",
-            true,
-            listOf(),
-            VisibilityScope.PUBLIC
+            slug = "",
+            namespace = "",
+            name = "",
+            description = "description",
+            initializeWithReadme = true,
+            inputDataTypes = listOf(),
+            visibility = VisibilityScope.PUBLIC,
+            dataProcessorType = DataProcessorType.ALGORITHM,
         )
 
         this.performPost("$rootUrl/data", token, request).expectBadRequest()

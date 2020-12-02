@@ -480,13 +480,14 @@ class ProjectsApiTest : AbstractRestApiTest() {
     @Test
     fun `Can create DataProject`() {
         val request = ProjectCreateRequest(
-            "test-project",
-            "mlreef",
-            "Test project",
-            "description",
-            true,
-            listOf(),
-            VisibilityScope.PUBLIC
+            slug = "test-project",
+            namespace = "mlreef",
+            name = "Test project",
+            description = "description",
+            initializeWithReadme = true,
+            inputDataTypes = listOf(),
+            visibility = VisibilityScope.PUBLIC,
+            dataProcessorType = DataProcessorType.ALGORITHM,
         )
 
         this.mockGetUserProjectsList(account)
@@ -513,7 +514,8 @@ class ProjectsApiTest : AbstractRestApiTest() {
             description = "description",
             initializeWithReadme = true,
             inputDataTypes = listOf(),
-            visibility = VisibilityScope.PUBLIC
+            visibility = VisibilityScope.PUBLIC,
+            dataProcessorType = DataProcessorType.ALGORITHM,
         )
 
         this.mockGetUserProjectsList(account)
