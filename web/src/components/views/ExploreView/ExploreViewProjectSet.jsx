@@ -10,6 +10,7 @@ const ExploreViewProjectSet = (props) => {
     started,
     projects,
     user: { id: userId },
+    onMore,
   } = props;
 
   const loadingSection = useMemo(
@@ -23,33 +24,44 @@ const ExploreViewProjectSet = (props) => {
 
   const projectList = useMemo(
     () => (
-      <MBricksWall
-        className="w-100"
-        animated
-        bricks={projects.map((proj) => (
-          <MProjectCard
-            className="bg-white"
-            key={`proj-${proj.gitlabNamespace}-${proj.slug}`}
-            slug={proj.slug}
-            title={proj.name}
-            projectId={proj.gitlabId}
-            description={proj.description}
-            starCount={proj.starCount || 0}
-            forkCount={proj.forksCount || 0}
-            namespace={proj.gitlabNamespace}
-            updatedAt={proj.lastActivityat}
-            projects={projects}
-            dataProcessor={proj.dataProcessor}
-            inputDataTypes={proj.inputDataTypes}
-            outputDataTypes={proj.inputDataTypes}
-            users={proj.members}
-            visibility={proj.visibilityScope}
-            owner={proj.ownerId === userId}
+      <>
+        <div style={{ overflow: 'hidden' }}>
+          <MBricksWall
+            alignMarginLeft
+            animated
+            bricks={projects.map((proj) => (
+              <MProjectCard
+                className="bg-white"
+                key={`proj-${proj.gitlabNamespace}-${proj.slug}`}
+                slug={proj.slug}
+                title={proj.name}
+                projectId={proj.gitlabId}
+                description={proj.description}
+                starCount={proj.starCount || 0}
+                forkCount={proj.forksCount || 0}
+                namespace={proj.gitlabNamespace}
+                updatedAt={proj.lastActivityat}
+                projects={projects}
+                dataProcessor={proj.dataProcessor}
+                inputDataTypes={proj.inputDataTypes}
+                outputDataTypes={proj.inputDataTypes}
+                users={proj.members}
+                visibility={proj.visibilityScope}
+                owner={proj.ownerId === userId}
+              />
+            ))}
           />
-        ))}
-      />
+        </div>
+        {onMore && (
+          <div className="d-flex">
+            <button onClick={onMore} type="button" className="btn btn-link btn-hidden mx-auto py-3">
+              More
+            </button>
+          </div>
+        )}
+      </>
     ),
-    [projects, userId],
+    [projects, userId, onMore],
   );
 
   const checkEmpty = useMemo(
@@ -67,11 +79,13 @@ const ExploreViewProjectSet = (props) => {
 
 ExploreViewProjectSet.defaultProps = {
   projects: [],
+  onMore: null,
 };
 
 ExploreViewProjectSet.propTypes = {
   started: PropTypes.bool.isRequired,
   projects: PropTypes.arrayOf(PropTypes.shape({})),
+  onMore: PropTypes.func,
 };
 
 function mapStateToProps(state) {

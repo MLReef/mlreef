@@ -2,102 +2,103 @@
 
 exports[`ExploreViewProjectSet appareance assert that snapshot matches 1`] = `
 <div
-  className="m-bricks-wall w-100"
+  style={
+    Object {
+      "overflow": "hidden",
+    }
+  }
 >
   <div
-    className="m-bricks-wall-brick animated"
+    className="m-bricks-wall"
   >
     <div
-      className="card"
+      className="m-bricks-wall-brick animated"
     >
-      <img
-        alt="private"
-        aria-hidden="true"
-        className="icon-visibility"
-        height="24"
-        src={
-          Object {
-            "canInstrument": true,
-            "createTransformer": [Function],
-            "getCacheKey": [Function],
-            "process": [Function],
-          }
-        }
-        width="24"
-      />
       <div
-        className="card-container project-card-container"
+        className="card"
       >
-        <a
-          className="project-card-link"
-          href="/Some namespace/some-slug"
-          onClick={[Function]}
+        <img
+          alt="private"
+          aria-hidden="true"
+          className="icon-visibility"
+          height="24"
+          src="/images/Lock-01.svg"
+          width="24"
+        />
+        <div
+          className="card-container project-card-container"
         >
-          <p
-            className="card-title"
+          <a
+            className="project-card-link"
+            href="/Some namespace/some-slug"
+            onClick={[Function]}
           >
-            Sign Language Classifier
-          </p>
-          <div
-            className="project-card-container-autor pb-3 mt-2"
-          >
-            <p>
-              Some namespace
+            <p
+              className="card-title"
+            >
+              Sign Language Classifier
             </p>
-          </div>
-          <div
-            className="card-content"
-          >
             <div
-              className="project-card-types d-flex"
-            />
-            <section
-              className="m-paragraph card-content-description"
+              className="project-card-container-autor pb-3 mt-2"
             >
-              <p
-                className="m-paragraph-line "
-              >
-                Categorical Classification of alphabets in the American Sign Language
+              <p>
+                Some namespace
               </p>
-            </section>
+            </div>
             <div
-              className="d-flex t-secondary"
+              className="card-content"
             >
               <div
-                className="mr-3"
+                className="project-card-types d-flex"
+              />
+              <section
+                className="m-paragraph card-content-description"
               >
-                <i
-                  className="fa fa-star"
+                <p
+                  className="m-paragraph-line "
                 >
-                  <span
-                    className="label"
-                  >
-                     0
-                  </span>
-                </i>
-              </div>
+                  Categorical Classification of alphabets in the American Sign Language
+                </p>
+              </section>
               <div
-                className="mr-3"
+                className="d-flex t-secondary"
               >
-                <i
-                  className="fa fa-code-branch"
+                <div
+                  className="mr-3"
                 >
-                  <span
-                    className="label"
+                  <i
+                    className="fa fa-star"
                   >
-                     0
-                  </span>
-                </i>
+                    <span
+                      className="label"
+                    >
+                       0
+                    </span>
+                  </i>
+                </div>
+                <div
+                  className="mr-3"
+                >
+                  <i
+                    className="fa fa-code-branch"
+                  >
+                    <span
+                      className="label"
+                    >
+                       0
+                    </span>
+                  </i>
+                </div>
               </div>
             </div>
-          </div>
-        </a>
-        <div
-          className="card-actions"
-        >
+          </a>
           <div
-            className="avatars-reversed"
-          />
+            className="card-actions project-card-actions"
+          >
+            <div
+              className="avatars-reversed"
+            />
+          </div>
         </div>
       </div>
     </div>

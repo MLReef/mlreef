@@ -13,6 +13,7 @@ const persistConfig = {
     'globalMarker',
     'errors',
     // 'projects',
+    'marketplace',
   ],
 };
 

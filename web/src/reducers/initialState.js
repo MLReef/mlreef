@@ -3,29 +3,33 @@ import { PROJECT_TYPES } from 'domain/project/projectTypes';
 export default {
   branches: [],
   jobs: [],
+  marketplace: {
+    dataProjects: {
+      projects: [],
+      pagination: {},
+    },
+    codeProjects: {
+      [PROJECT_TYPES.ALGORITHM]: {
+        projects: [],
+        pagination: {},
+      },
+      [PROJECT_TYPES.OPERATION]: {
+        projects: [],
+        pagination: {},
+
+      },
+      [PROJECT_TYPES.VISUALIZATION]: {
+        projects: [],
+        pagination: {},
+      },
+    },
+  },
   projects: {
     all: [],
     userProjects: [],
     starredProjects: [],
     selectedProject: {},
-    codeProjects: {
-      [PROJECT_TYPES.ALGORITHM]: {
-        all: [],
-        starred: [],
-        userProjects: [],
-      },
-      [PROJECT_TYPES.OPERATION]: {
-        all: [],
-        starred: [],
-        userProjects: [],
-      },
-      [PROJECT_TYPES.VISUALIZATION]: {
-        all: [],
-        starred: [],
-        userProjects: [],
-      },
-    },
-    paginationInfo: {}
+    paginationInfo: {},
   },
   users: [],
   processors: {
@@ -68,9 +72,7 @@ export default {
     subtitle: '',
     content: '',
     positiveLabel: 'Accept',
-    onPositive: (val) => {
-      return Promise.resolve(val);
-    },
+    onPositive: (val) => Promise.resolve(val),
     negativeLabel: 'Cancel',
     onNegative: () => Promise.resolve(false),
     ignoreLabel: '',

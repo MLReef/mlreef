@@ -71,14 +71,7 @@ exports[`snapshot for GroupProjects assert that snapshot matches 1`] = `
                 aria-hidden="true"
                 className="icon-visibility"
                 height="24"
-                src={
-                  Object {
-                    "canInstrument": true,
-                    "createTransformer": [Function],
-                    "getCacheKey": [Function],
-                    "process": [Function],
-                  }
-                }
+                src="/images/Lock-01.svg"
                 width="24"
               />
               <div
@@ -117,14 +110,7 @@ exports[`snapshot for GroupProjects assert that snapshot matches 1`] = `
                     >
                       <img
                         alt=""
-                        src={
-                          Object {
-                            "canInstrument": true,
-                            "createTransformer": [Function],
-                            "getCacheKey": [Function],
-                            "process": [Function],
-                          }
-                        }
+                        src="/images/icon_grey-01.png"
                         style={
                           Object {
                             "maxHeight": "30px",
@@ -174,7 +160,7 @@ exports[`snapshot for GroupProjects assert that snapshot matches 1`] = `
                   </div>
                 </a>
                 <div
-                  className="card-actions"
+                  className="card-actions project-card-actions"
                 >
                   <div
                     className="avatars-reversed"

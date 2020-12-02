@@ -1,0 +1,68 @@
+/* Structure
+ *
+ * div.tabs-routed
+ *  div.tabs-routed-container
+ *    ul.tabs-routed-menu
+ *      li.tabs-routed-menu-tab
+ *        a.tabs-routed-menu-a
+ *    section.tabs-routed-content
+ */
+.tabs-routed {
+
+  &-container {
+    &.border {
+
+    }
+  }
+
+  &-menu {
+    display: flex;
+    list-style: none;
+    padding-left: 0;
+    margin: 0;
+
+    &-tab {
+      flex: 1;
+      display: flex;
+
+      &.border {
+        border: solid 1px var(--light);
+        border-bottom: none;
+      }
+
+      &-btn {
+        cursor: pointer;
+        text-align: center;
+        flex: 1;
+        padding: 0.5rem;
+
+        &:hover {
+          text-decoration: none;
+        }
+
+        &:disabled {
+          cursor: auto;
+        }
+
+        &:focus {
+          outline: none;
+        }
+
+        &.active {
+
+        }
+
+        &.border {
+
+          &.active {
+
+          }
+        }
+      }
+    }
+  }
+
+  &-content {
+
+  }
+}

@@ -84,11 +84,29 @@ export const handlePagination = ({ content }) => ([...content]);
 
 export const handlePaginationWithAdditionalInfo = ({
   last, pageable, content, total_pages: totalPages, number
-}) => ({ 
-  pagination: { 
-    last, 
-    pageable, 
-    totalPages, 
+}) => ({
+  pagination: {
+    last,
+    pageable,
+    totalPages,
     number,
   },
   content: content.map(parseToCamelCase)});
+
+export const createPagination = (payload) => {
+  const {
+    total_pages: total,
+    number: current,
+    size,
+    total_elements: totalElements,
+    last,
+  } = payload;
+
+  return {
+    total,
+    current,
+    size,
+    totalElements,
+    last,
+  };
+};

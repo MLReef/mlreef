@@ -13,6 +13,7 @@ const MBricksWall = (props) => {
   const {
     bricks,
     animated,
+    alignMarginLeft,
     className,
   } = props;
 
@@ -32,6 +33,10 @@ const MBricksWall = (props) => {
 
       Array.from(container.children).forEach(replaceBrick);
       container.style.height = `${info.maxHeight}px`;
+
+      if (alignMarginLeft) {
+        container.style.marginLeft = `calc((100% - ${info.width}px + 1rem) / 2)`;
+      }
     },
     // eslint-disable-next-line
     [bricks.length], // bricks.length is required implicitly.
@@ -64,12 +69,14 @@ const MBricksWall = (props) => {
 MBricksWall.defaultProps = {
   bricks: [],
   animated: false,
+  alignMarginLeft: false,
   className: '',
 };
 
 MBricksWall.propTypes = {
   bricks: PropTypes.arrayOf(PropTypes.node),
   animated: PropTypes.bool,
+  alignMarginLeft: PropTypes.bool,
   className: PropTypes.string,
 };
 
