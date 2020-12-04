@@ -1,7 +1,5 @@
 import CommitsApi from 'apis/CommitsApi';
 import ExperimentsApi from 'apis/experimentApi';
-import { plainToClass } from 'class-transformer';
-import Experiment from 'domain/experiments/Experiment';
 import { parseToCamelCase } from 'functions/dataParserHelpers';
 import { classifyExperiments } from 'functions/pipeLinesHelpers';
 

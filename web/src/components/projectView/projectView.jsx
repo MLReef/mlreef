@@ -256,9 +256,9 @@ ProjectView.propTypes = {
       path: string,
     }),
   }).isRequired,
-  user: arrayOf(shape({
+  user: shape({
     auth: bool,
-  })).isRequired,
+  }).isRequired,
   users: arrayOf(shape({
     name: string.isRequired,
   })).isRequired,

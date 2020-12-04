@@ -2,7 +2,7 @@ import React from 'react';
 import './ExperimentCancellationModal.scss';
 import { PENDING, RUNNING, SUCCESS } from 'dataTypes';
 import {
-  string, shape, bool, func, number,
+  string, shape, number,
 } from 'prop-types';
 
 const ExperimentCancellationModal = ({

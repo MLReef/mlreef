@@ -1,6 +1,5 @@
 import React, { useEffect, useReducer } from 'react';
 import PropTypes from 'prop-types';
-import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { toastr } from 'react-redux-toastr';
 import FilesApi from 'apis/FilesApi';
