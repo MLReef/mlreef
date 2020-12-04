@@ -6,7 +6,6 @@ import MDropdown from 'components/ui/MDropdown';
 import {
   string,
   shape,
-  number,
   arrayOf,
   func,
 } from 'prop-types';
@@ -177,8 +176,9 @@ export class RepoFeatures extends Component {
         {isCodeProject && (
 
           <AuthWrapper
-            resource={{ type: 'project' }}
-            className="mt-3"
+            owneronly
+            norender
+            className="ml-2 mr-auto mt-3"
           >
             <button
               type="button"
@@ -187,6 +187,7 @@ export class RepoFeatures extends Component {
               style={{
                 backgroundColor: codeProjectButtonColor,
                 color: 'white',
+                border: `solid 2px ${codeProjectButtonColor}`,
               }}
             >
               Publish

@@ -11,7 +11,6 @@ import './uploadFile.scss';
 import { Redirect } from 'react-router';
 import MCheckBox from 'components/ui/MCheckBox/MCheckBox';
 import MergeRequestAPI from 'apis/MergeRequestApi.ts';
-import { randomNameGenerator } from 'functions/pipeLinesHelpers';
 import MButton from 'components/ui/MButton';
 import CommitsApi from '../../../apis/CommitsApi.ts';
 import {
