@@ -19,6 +19,8 @@ import DeleteBranchModal from './deleteBranchModal';
 import * as branchesActions from '../../actions/branchesActions';
 import BranchesApi from '../../apis/BranchesApi.ts';
 
+const branchesApi = new BranchesApi();
+
 class BranchesView extends Component {
   constructor(props) {
     super(props);
@@ -30,67 +32,70 @@ class BranchesView extends Component {
       branchName: '',
       urlToRedirect: '',
       currentBranches: branches,
+      nameToFilterBy: '',
     };
+    this.toggleModalAndUpdateList = this.toggleModalAndUpdateList.bind(this);
   }
 
+
   componentDidMount() {
-    const {
-      branches,
-      selectedProject: { gid },
-    } = this.props;
-    const defaultBranch = branches.filter((branch) => branch.default === true)[0];
-    const currentBranchesUpdated = branches;
-    const branchesApi = new BranchesApi();
-    branches.forEach(async (branch, index) => {
-      if (!branch.default) {
-        try {
-          const behind = await branchesApi.compare(
-            gid, branch.name, defaultBranch.name,
-          );
-          const ahead = await branchesApi.compare(
-            gid, defaultBranch.name, branch.name,
-          );
-          branch.ahead = ahead.commits.length;
-          branch.behind = behind.commits.length;
-        } catch (error) {
-          toastr.error('Error', 'Something went wrong requesting commits');
-        }
-      }
-      currentBranchesUpdated[index] = branch;
-      this.setState({
-        currentBranches: currentBranchesUpdated,
-      });
-    });
-    this.toggleModalAndUpdateList = this.toggleModalAndUpdateList.bind(this);
+    this.getBranchesAdditionaInformation();
+  }
+
+  componentDidUpdate(prevProps) {
+    const { branches } = this.props;
+    if (prevProps.branches.length !== branches.length) {
+      this.getBranchesAdditionaInformation();
+    }
   }
 
   componentWillUnmount() {
     this.setState = (state) => (state);
   }
 
-  static getDerivedStateFromProps(nextProps, prevState) {
-    if (nextProps.branches.length !== prevState.currentBranches.length && !prevState.isFiltering) {
-      return {
-        currentBranches: nextProps.branches,
-      };
-    }
-    return { ...prevState };
+  getBranchesAdditionaInformation() {
+    const {
+      branches,
+      selectedProject: { gid, defaultBranch },
+    } = this.props;
+    const currentBranchesUpdated = branches;
+    branches.forEach(async (branch, index) => {
+      if (!branch?.default) {
+        try {
+          const behind = await branchesApi.compare(
+            gid, branch?.name, defaultBranch,
+          );
+          const ahead = await branchesApi.compare(
+            gid, defaultBranch, branch?.name,
+          );
+          currentBranchesUpdated[index] = {
+            ...branch,
+            ahead: ahead?.commits?.length || 0,
+            behind: behind?.commits?.length || 0,
+          };
+        } catch (error) {
+          toastr.error('Error', error?.message || 'Something went wrong requesting commits');
+        }
+      }
+      this.setState({
+        currentBranches: currentBranchesUpdated,
+      });
+    });
+  }
+
+  getBranches() {
+    const { actions, selectedProject: { gid } } = this.props;
+    actions.getBranchesList(gid);
   }
 
   toggleModalAndUpdateList = (branchName, isNeededUpdateBranchesAgain) => {
-    if (isNeededUpdateBranchesAgain) this.updateBranchesArr();
+    if (isNeededUpdateBranchesAgain) this.getBranches();
     this.setState(
       (prevState) => ({
         branchName,
-        isFiltering: false,
         isModalVisible: !prevState.isModalVisible,
       }),
     );
-  }
-
-  updateBranchesArr() {
-    const { actions, selectedProject: { gid } } = this.props;
-    actions.getBranchesList(gid);
   }
 
   render() {
@@ -104,8 +109,10 @@ class BranchesView extends Component {
       branchName,
       urlToRedirect,
       currentBranches,
+      nameToFilterBy,
     } = this.state;
 
+    let filteredBranches = currentBranches;
     const {
       namespace,
       slug,
@@ -129,6 +136,10 @@ class BranchesView extends Component {
     const genQuery = (branch) => `${encodeURIComponent('merge_request[source_branch]')
     }=${encodeURIComponent(branch.name)}`;
 
+    if (nameToFilterBy !== '') {
+      filteredBranches = currentBranches.filter((branch) => branch.name.includes(nameToFilterBy));
+    }
+
     return (
       <>
         {urlToRedirect.length > 0 && <Redirect to={urlToRedirect} />}
@@ -151,14 +162,9 @@ class BranchesView extends Component {
               id="filter-input"
               onChange={(e) => {
                 const currentValue = e.currentTarget.value;
-                const { branches } = this.props;
-                let filteredBranches = branches;
-                if (currentValue !== '') {
-                  filteredBranches = branches.filter((branch) => branch.name.includes(e.currentTarget.value));
-                }
                 this.setState({
                   isFiltering: true,
-                  currentBranches: filteredBranches,
+                  nameToFilterBy: currentValue,
                 });
               }}
             />
@@ -178,7 +184,7 @@ class BranchesView extends Component {
           </div>
           <div id="branches-container">
             <p id="title">Active branches</p>
-            {currentBranches.map((branch) => (
+            {filteredBranches.map((branch) => (
               <div key={`key-for-${branch.name}`} className="branch-row">
                 <div className="info">
                   <div style={{ display: 'flex' }}>
