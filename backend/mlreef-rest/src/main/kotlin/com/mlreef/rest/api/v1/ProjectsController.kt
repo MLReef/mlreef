@@ -487,7 +487,7 @@ class ProjectCreateRequest(
     @NotEmpty val initializeWithReadme: Boolean,
     val inputDataTypes: List<DataType> = listOf(),
     val visibility: VisibilityScope = VisibilityScope.PUBLIC,
-    val dataProcessorType: DataProcessorType
+    val dataProcessorType: DataProcessorType = DataProcessorType.ALGORITHM,
 )
 
 class ProjectForkRequest(
