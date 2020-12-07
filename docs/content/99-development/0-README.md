@@ -38,23 +38,33 @@ This is a simplified architecture diagram that can be used to understand MLReefâ
 
 ```mermaid
 graph TD
-subgraph "Core MLReef Product"
-  S(Data Scientist) -->|interacts with| FE[MLReef Frontend]
-  FE  -->|rest api| GL[Gitlab Instance]
-  FE  -->|authenticate user| GL
-  FE  -->|rest api| BE[Management Service]
-  FE  -->|rest api| DR[Docker Registry]
+  BE[Management Service]
+  DR[Docker Registry]
+  EPF[Executable Pipeline Framework]
+  GL[Gitlab Instance]
+  R[Runner]
 
-  BE  -->|authenticate user| GL  
+  S(Data Scientist) -->|interacts with| FE[MLReef Frontend]
+  FE  -->|rest api| GL
+  FE  -->|authenticate user| GL
+  FE  -->|rest api| BE
+  FE  -->|rest api| DR
 
   GL  -->|manage 1:*| R[Runner]
-
+  
+  R   -->|execute| EPF
   R   -->|download images| DR
-  R   -->|execute| EPF[Executable Pipeline Framework]
+  
+  BE  -->|verify authentication| GL
 
+  subgraph "Gitlab Sub Stack"
+    GL
+    DR
+  end
+
+  
   EPF -->|download repository| GL
 	EPF -->|submit runtime and model indormation|BE 
-end
 ```
 
 _Fig 1: container level diagram of the MLReef system architecture_
