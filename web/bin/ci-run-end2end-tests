@@ -9,13 +9,18 @@ set -e    # exit on immediately on every error
 set -u    # error on usage of undefined variables
 ########################################
 
+# Currently, the end2end tests can only be run against localhost:80.
+# https://gitlab.com/mlreef/mlreef/-/issues/821
+# Therefore, in order to run the tests against an any server
+# this script provides a reverse proxy listening to localhost:80
+# and forwarding the API requests to $INSTANCE_HOST
 #
 # KNOWN ISSUES
 #
-# 1. This script created a proxy server listening on port 80.
-#    On Linux and OSX it has to be run as sudo
+# 1. This script creates a proxy server listening on port 80.
+#    On Linux and OSX it has to be run as sudo.
 # 2. After the tests are finished the proxy does not shutdown
-#    This is a also a feature ;-)
+#    This is a feature ;-)
 #
 #    You can run this script as "setup" and do all subsequent
 #    runs skipping the `npm install` and just running `npm run end2end`
@@ -23,6 +28,21 @@ set -u    # error on usage of undefined variables
 #
 
 cd web
+
+while [ -n "${1+x}" ]; do
+  case "$1" in
+  -i | --instance)
+    export INSTANCE_HOST="$2"
+    echo "Using CLI parameter $2 as INSTANCE_HOST"
+    shift
+    ;;
+  *)
+    echo "Option $1 not recognized"
+    exit 1
+    ;;
+  esac
+  shift
+done
 
 echo "Running end2end tests against $INSTANCE_HOST"
 
