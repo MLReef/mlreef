@@ -11,6 +11,8 @@ import DataProject from 'domain/project/DataProject';
 import MEmptyAvatar from 'components/ui/MEmptyAvatar/MEmptyAvatar';
 import MWrapper from 'components/ui/MWrapper';
 import MCloneDropdown from 'components/ui/MCloneDropdown';
+import MDropdown from 'components/ui/MDropdown';
+import SocialLinks from 'components/commons/SocialLinks';
 import SEO from 'components/commons/SEO';
 import { PROJECT_TYPES } from 'domain/project/projectTypes';
 import CodeProject from 'domain/project/CodeProject';
@@ -117,7 +119,7 @@ const ProjectTitleNActions = (props) => {
         </div>
       </div>
       {/* redirect ? <Redirect to="/" /> : null */}
-      <div className="project-options">
+      <div className="project-options ml-auto">
         {isStarred === null || isDisabledStarBtn ? (
           <MLoadingSpinner />
         ) : (
@@ -142,6 +144,22 @@ const ProjectTitleNActions = (props) => {
             </div>
           </div>
         )}
+
+        <div className="options d-flex mr-2">
+          <div className="option-name btn btn-hidden border-rounded-left px-3 my-0">
+            <i className="fa fa-share" />
+          </div>
+          <MDropdown
+            label=""
+            className="counter border-rounded-right h-100"
+            align="right"
+            component={(
+              <div className="social-links-container">
+                <SocialLinks />
+              </div>
+            )}
+          />
+        </div>
 
         {classProject.defaultBranch !== null && (
         <MWrapper norender>

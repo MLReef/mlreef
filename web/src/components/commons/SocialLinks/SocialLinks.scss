@@ -1,0 +1,24 @@
+.social-links {
+  display: flex;
+
+  &-label {
+    color: var(--dark);
+    margin-top: auto;
+    margin-bottom: auto;
+    padding-right: 0.5rem;
+    font-weight: bolder;
+    font-size: 80%;
+  }
+
+  &-icons {
+    margin-top: auto;
+    margin-bottom: auto;
+    padding-top: 0.25rem;
+  }
+
+  &-icon {
+    // width: 2rem;
+    height: 1.5rem;
+    margin: 0 0.15rem;
+  }
+}

@@ -66,8 +66,42 @@
   line-height: 160%;
 }
 
+.option-name .fa {
+  font-size: 125%;
+  line-height: 200%;
+  color: var(--primary);
+  margin-top: 1px;
+}
+
+.options .m-dropdown {
+  border-left: 2px solid #e5e5e5;
+}
+
+.options .m-dropdown button {
+  padding: 0;
+  border: none;
+  margin-top: 1px;
+  font-size: 102%;
+  text-align: center;
+}
+
+.options .m-dropdown .fa {
+  margin: 0 !important;
+}
+
+.options .m-dropdown .m-dropdown-list-container {
+  top: 100%;
+  min-width: unset;
+  width: max-content;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
 .repo-actions-image {
   width: 1.5rem;
+}
+
+.options .social-links-container {
+  padding: 0.5rem;
 }
 
 .counter {
