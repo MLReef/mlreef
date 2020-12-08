@@ -1,0 +1,66 @@
+.tabular-data-graph-creator {
+  & ul {
+    list-style: none;
+    padding-left: 0;
+  }
+
+  & select {
+    padding: 0.5em;
+  }
+
+  &-series {
+    &-list {
+      max-height: 50vh;
+      overflow: auto;
+
+      &-item {
+        margin-bottom: 2rem;
+      }
+    }
+  }
+
+  &-text {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1rem;
+    max-width: 300px;
+  }
+
+  &-axis {
+    &-col {
+      display: flex;
+
+      &-field {
+        margin-right: 2rem;
+      }
+    }
+
+    &-range {
+      display: flex;
+      margin-bottom: 1rem;
+      border-bottom: solid 1px var(--secondary);
+
+      &-field {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex: 0 1 100px;
+        margin-left: 3rem;
+      }
+    }
+  }
+
+  &-color {
+    display: flex;
+    align-items: center;
+
+    &-picker {
+      margin-right: 1rem;
+    }
+
+    &-size {
+      display: flex;
+      align-items: center;
+    }
+  }
+}

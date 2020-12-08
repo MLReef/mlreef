@@ -1,5 +1,5 @@
 // global input text
-input:not([type="select"]):not([type="radio"]):not([type="checkbox"]), textarea {
+input:not(.m-table-input):not([type="select"]):not([type="radio"]):not([type="checkbox"]):not([type="color"]), textarea {
   box-sizing: border-box;
   width: 100%;
   border: solid 1px var(--secondary);

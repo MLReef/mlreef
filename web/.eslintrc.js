@@ -26,5 +26,11 @@ module.exports = {
   rules: {
     'no-confusing-arrow': 0,
     'import/no-unresolved': 0,
+    'jsx-a11y/label-has-associated-control': [
+      'warn',
+      {
+        assert: 'either',
+      },
+    ],
   },
 };

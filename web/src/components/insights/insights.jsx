@@ -4,6 +4,7 @@ import { connect } from 'react-redux';
 import { shape, number, string } from 'prop-types';
 import { generateBreadCrumbs } from 'functions/helpers';
 import JobLogById from 'components/insights/insights-menu/jobLogById';
+import TabularData from 'components/commons/TabularData';
 import Navbar from '../navbar/navbar';
 import ProjectContainer from '../projectContainer';
 import './insights.scss';
@@ -25,6 +26,11 @@ const Insights = (props) => {
       path: `/${namespace}/${slug}/insights/-/jobs`,
       exact: true,
       main: () => <Jobs namespace={namespace} slug={slug} />,
+    },
+    {
+      path: `/${namespace}/${slug}/insights/-/jobs/graphs`,
+      exact: true,
+      main: () => <TabularData />,
     },
     {
       path: `/${namespace}/${slug}/insights/-/jobs/${logId}`,
@@ -70,6 +76,17 @@ const Insights = (props) => {
                   to={`/${namespace}/${slug}/insights/-/jobs`}
                 >
                   Jobs
+                </Link>
+              </li>
+              <li className="simple-tabs-menu-tab pills mt-2">
+                <Link
+                  role="button"
+                  id="jobs-btn"
+                  onClick={menuBtnHandler}
+                  className="simple-tabs-menu-tab-btn active"
+                  to={`/${namespace}/${slug}/insights/-/jobs/graphs`}
+                >
+                  Graphs
                 </Link>
               </li>
 

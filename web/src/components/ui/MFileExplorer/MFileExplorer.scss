@@ -53,6 +53,12 @@
               color: var(--dark);
             }
           }
+
+          &.exit-btn {
+            width: 100%;
+            text-align: left;
+            margin-left: 1rem;
+          }
         }
       }
     }

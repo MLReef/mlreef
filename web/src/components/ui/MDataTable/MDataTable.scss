@@ -1,0 +1,171 @@
+.m-data-table {
+  border-spacing: 0;
+  max-width: 100%;
+  font-size: 100%;
+  position: relative;
+  z-index: 0;
+
+  &-container {
+    max-height: 80vh;
+    overflow-y: auto;
+    overflow-x: hidden;
+    width: max-content;
+    position: relative;
+  }
+
+  & > thead {
+
+  }
+
+  & > tbody {
+
+  }
+
+  & > tfoot {
+
+  }
+
+  & th {
+    padding: 0.5em;
+    text-align: center;
+    background-color: var(--dark);
+    color: var(--light);
+    position: sticky;
+    z-index: 1;
+    top: 0;
+    & .fa {
+      cursor: pointer;
+    }
+  }
+
+  & tr {
+    &.deleting {
+      background-color: var(--danger);
+
+      & > td {
+        background-color: inherit;
+      }
+    }
+
+    border: solid 1px red;
+    &:hover {
+
+      & .m-data-table-actions-cell-btn {
+        display: block;
+      }
+    }
+
+  }
+
+  & td {
+    text-align: center;
+
+    &[data-type="field"] {
+      border: none;
+      resize: horizontal;
+      overflow: auto;
+      padding: 0.5em;
+      width: 6em;
+      background-color: var(--light);
+    }
+
+    &[data-col="index"] {
+      color: var(--secondary);
+      user-select: none;
+    }
+
+    & > span {
+
+    }
+
+    & > input {
+      padding: 0;
+      border-radius: 0;
+      border: none;
+      font-size: inherit;
+      box-sizing: content-box;
+      width: 100%;
+      text-align: center;
+      background-color: transparent;
+      display: none;
+
+      &:focus {
+        outline: none;
+      }
+    }
+
+    &.editable.edit {
+      background-color: var(--white);
+
+      & > span {
+        display: none;
+      }
+
+      & > input {
+        display: inline-block;
+      }
+    }
+  }
+
+  &-menu {
+    position: absolute;
+    right: -210px;
+    background-color: var(--white);
+    color: var(--dark);
+    width: 200px;
+    padding-bottom: 2rem;
+    top: 0;
+    // bottom: 0;
+    z-index: 1;
+    transition: ease 0.3s;
+    box-shadow: -1px 1px 3px 1px var(--almostWhite);
+
+    &.open {
+      right: 0;
+    }
+
+    &-field {
+      display: flex;
+      align-items: center;
+
+      &-label {
+        flex: 1;
+        margin-left: 0.5rem;
+      }
+
+      &-input {
+        width: unset !important;
+      }
+    }
+  }
+
+  &-header {
+    &-cell {
+      cursor: pointer;
+
+      &-label {
+
+      }
+
+      & > .fa {
+        position: absolute;
+        right: 4px;
+      }
+    }
+  }
+
+  &-actions {
+    &-cell {
+      text-align: center;
+      font-size: inherit;
+
+      &-btn {
+        display: none;
+        font-size: inherit;
+        padding: 0.4em;
+        margin: auto;
+        // border: solid 1px black;
+      }
+    }
+  }
+}

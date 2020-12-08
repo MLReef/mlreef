@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import cx from 'classnames';
 import MCheckBox from 'components/ui/MCheckBox/MCheckBox';
 import MBranchSelector from 'components/ui/MBranchSelector';
+import { MLoadingSpinnerContainer } from 'components/ui/MLoadingSpinner';
 import './MFileExplorer.scss';
 
 const folderIcon = '/images/svg/folder_01.svg';
@@ -15,15 +16,23 @@ const MFileExplorer = (props) => {
     selectable,
     title,
     className,
+    root,
     onEnterDir,
+    onExitDir,
     activeBranch,
+    waiting,
     onBranchSelected,
     onFileSelected,
+    onFileClicked,
   } = props;
+
+  const handleFileCallback = (file) => file.callback
+    ? file.callback(file)
+    : onFileClicked(file);
 
   const handleClick = (file) => () => file.type === 'tree'
     ? onEnterDir(file)
-    : file.callback(file);
+    : handleFileCallback(file);
 
   return (
     <div className={cx('m-file-explorer', className)}>
@@ -43,37 +52,50 @@ const MFileExplorer = (props) => {
         <div className="m-file-explorer-files-title border-rounded-top">
           {title}
         </div>
-        <ul className="m-file-explorer-files-list border-rounded-bottom">
-          {files.map((file) => (
-            <li key={file.id} className="m-file-explorer-files-list-item">
-              {selectable && (
-                <MCheckBox
-                  small
-                  disabled={file.disabled || file.type === 'tree'}
-                  className="mr-3 ml-2"
-                  checked={file.selected}
-                  name={file.id}
-                  callback={onFileSelected}
-                />
-              )}
-              <button
-                className="m-file-explorer-files-list-item-btn"
-                type="button"
-                disabled={file.type !== 'tree' && !file.callback}
-                onClick={handleClick(file)}
-              >
-                <div className="m-file-explorer-files-list-item-btn-file">
-                  <div className="m-file-explorer-files-list-item-btn-file-icon">
-                    <img src={file.type === 'tree' ? folderIcon : fileIcon} alt="icon" />
+        <MLoadingSpinnerContainer active={waiting}>
+          <ul className="m-file-explorer-files-list border-rounded-bottom">
+            {!root && (
+              <li className="m-file-explorer-files-list-item">
+                <button
+                  className="m-file-explorer-files-list-item-btn exit-btn"
+                  type="button"
+                  onClick={onExitDir}
+                >
+                  ..
+                </button>
+              </li>
+            )}
+            {files.map((file) => (
+              <li key={file.id} className="m-file-explorer-files-list-item">
+                {selectable && (
+                  <MCheckBox
+                    small
+                    disabled={file.disabled || file.type === 'tree'}
+                    className="mr-3 ml-2"
+                    checked={file.selected}
+                    name={file.id}
+                    callback={onFileSelected}
+                  />
+                )}
+                <button
+                  className="m-file-explorer-files-list-item-btn"
+                  type="button"
+                  disabled={file.type !== 'tree' && (!onFileClicked && !file.callback)}
+                  onClick={handleClick(file)}
+                >
+                  <div className="m-file-explorer-files-list-item-btn-file">
+                    <div className="m-file-explorer-files-list-item-btn-file-icon">
+                      <img src={file.type === 'tree' ? folderIcon : fileIcon} alt="icon" />
+                    </div>
+                    <div className="m-file-explorer-files-list-item-btn-file-label">
+                      {file.name}
+                    </div>
                   </div>
-                  <div className="m-file-explorer-files-list-item-btn-file-label">
-                    {file.name}
-                  </div>
-                </div>
-              </button>
-            </li>
-          ))}
-        </ul>
+                </button>
+              </li>
+            ))}
+          </ul>
+        </MLoadingSpinnerContainer>
       </div>
     </div>
   );
@@ -86,6 +108,10 @@ MFileExplorer.defaultProps = {
   selectable: false,
   activeBranch: null,
   className: '',
+  waiting: false,
+  root: false,
+  onFileSelected: () => {},
+  onFileClicked: null,
 };
 
 MFileExplorer.propTypes = {
@@ -102,8 +128,14 @@ MFileExplorer.propTypes = {
   title: PropTypes.string,
   selectable: PropTypes.bool,
   onEnterDir: PropTypes.func.isRequired,
+  onExitDir: PropTypes.func.isRequired,
+  onBranchSelected: PropTypes.func.isRequired,
+  onFileSelected: PropTypes.func,
+  onFileClicked: PropTypes.func,
   activeBranch: PropTypes.string,
   className: PropTypes.string,
+  waiting: PropTypes.bool,
+  root: PropTypes.bool,
 };
 
 export default MFileExplorer;
