@@ -1,3 +1,17 @@
-.m-loading-spinner::after {
-  background: var(--dark);
+.m-loading-spinner {
+  &::after {
+    background: var(--dark);
+  }
+
+  &-container {
+    min-height: 4rem;
+    width: 100%;
+    display: flex;
+
+    & > .m-loading-spinner {
+      margin: auto;
+      height: 2rem;
+      width: 2rem;
+    }
+  }
 }

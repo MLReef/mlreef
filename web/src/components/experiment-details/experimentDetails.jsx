@@ -10,6 +10,7 @@ import {
 import './experimentDetails.css';
 import ExperimentsApi from 'apis/experimentApi';
 import MSimpleTabs from 'components/ui/MSimpleTabs';
+import TabularData from 'components/commons/TabularData';
 import Navbar from '../navbar/navbar';
 import ProjectContainer from '../projectContainer';
 import DetailsSummary from './menu-options/DetailSummary';

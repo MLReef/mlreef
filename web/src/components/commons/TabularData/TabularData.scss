@@ -1,0 +1,72 @@
+.tabular-data {
+  &-color-picker {
+    width: 2rem;
+    height: 2rem;
+    padding: 0;
+    border: none;
+    border-radius: 0;
+  }
+
+  & .hidden {
+    display: none;
+  }
+
+  &-serie {
+    margin: 1rem;
+    padding: 0.5rem;
+    border: solid 1px var(--secondary);
+    width: 200px;
+    height: 200px;
+  }
+
+  &-panels {
+    &-add {
+      text-align: right;
+      padding: 0 1rem;
+      margin-bottom: 2rem;
+
+      &-btn {
+        background-color: var(--secondary);
+        padding: 1rem;
+      }
+    }
+
+    &-list {
+      display: flex;
+      margin-bottom: 2rem;
+      list-style: none;
+      padding-left: 0;
+    }
+  }
+
+  &-series {
+    min-height: 500px;
+    display: flex;
+
+    &-add {
+      margin: 1rem;
+      max-width: 300px;
+
+      &-btn {
+        font-size: 200%;
+        background-color: var(--secondary);
+        padding: 2rem;
+      }
+    }
+  }
+
+  &-feeder {
+    &-file-explorer {
+      height: 400px;
+    }
+
+    &-upload-btn {
+      cursor: pointer;
+      position: absolute;
+      opacity: 0;
+      top: 0;
+      right: 0;
+      bottom: 0;
+    }
+  }
+}

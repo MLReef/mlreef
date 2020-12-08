@@ -26,6 +26,24 @@ export default class FilesApi extends ApiDirector {
       .then(handleResponse)
   }
 
+  // returns base64
+  getBlob(gid: number, sha: string) {
+    const url = `/api/v4/projects/${gid}/repository/blobs/${sha}`;
+    const headers = this.buildBasicHeaders(validServicesToCall.GITLAB);
+    const blBuilder = new BodyLessApiRequestCallBuilder(METHODS.GET, headers, url);
+
+    return fetch(blBuilder.build())
+      .then(handleResponse);
+  }
+
+  getBlobRaw(gid: number, sha: string) {
+    const url = `/api/v4/projects/${gid}/repository/blobs/${sha}/raw`;
+    const headers = this.buildBasicHeaders(validServicesToCall.GITLAB);
+    const blBuilder = new BodyLessApiRequestCallBuilder(METHODS.GET, headers, url);
+
+    return fetch(blBuilder.build());
+  }
+
   getContributors(projectId: number) {
     const url = `/api/v4/projects/${projectId}/repository/contributors`;
     const headers = this.buildBasicHeaders(validServicesToCall.GITLAB);

@@ -13,7 +13,6 @@ const checkVersion = () => {
 
 export default checkVersion;
 
-
 // this returns an error if code is bigger than 400
 // added an extra guard to avoid failing by bad json parsing
 export const handleResponse = async (res) => {
@@ -65,6 +64,11 @@ export const removeDuplicatedProjects = (items) => {
 
   return uniqueIds.map((id) => items.find((p) => p.id === id));
 };
+
+/**
+ * copy from web/src/router/functions.js#L11
+ */
+export const compose = (...fns) => (arg) => fns.reverse().reduce((acc, fn) => fn(acc), arg);
 
 /**
  * Used to replace original url provided by gitlab
