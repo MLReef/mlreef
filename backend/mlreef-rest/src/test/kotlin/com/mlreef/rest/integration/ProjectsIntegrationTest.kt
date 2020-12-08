@@ -818,11 +818,11 @@ class ProjectsIntegrationTest : AbstractIntegrationTest() {
 
         assertThat(dataProjectRepository.findByIdOrNull(project.id)).isNull()
 
-        //Ensure that public project cache was updated
-        //The code below can not work. There are no any possibility to clear internal state (eg. calls number) of spyk objects
-        //(publicProjectRepository is spyk object in this case)
-        //Until it is not fixed on SpringMockk library the code will possible fail with exception "No call was recorded with matcher....".
-        //The verifier unexpected reads the previous call that was in other tests before, but not provided in current one.
+        // Ensure that public project cache was updated
+        // The code below can not work. There are no any possibility to clear internal state (eg. calls number) of spyk objects
+        // (publicProjectRepository is spyk object in this case)
+        // Until it is not fixed on SpringMockk library the code will possible fail with exception "No call was recorded with matcher....".
+        // The verifier unexpected reads the previous call that was in other tests before, but not provided in current one.
         verify(atLeast = 1, timeout = ASYNC_UPDATE_OPERATIONS_WAIT_COMPLETION_TIMEOUT) {
             publicProjectRepository.delete(
                 eq(PublicProjectHash(gitlabProject.id, project.id))

@@ -283,9 +283,7 @@ abstract class AbstractRestApiTest : AbstractRestTest() {
             name = "mlreef-token"
         )
 
-        every {
-            restClient.adminCreateGroup(any(), any(), any())
-        } returns GitlabGroup(
+        every { restClient.adminCreateGroup(any(), any(), any()) } returns GitlabGroup(
             id = 1,
             webUrl = "http://127.0.0.1/",
             name = "Mock Gitlab Group",
@@ -305,7 +303,7 @@ abstract class AbstractRestApiTest : AbstractRestTest() {
             val name = nameSlot.captured
             val path = pathSlot.captured
             GitlabProject(
-                id = 1,
+                id = 2,
                 name = name,
                 nameWithNamespace = "mlreef / $name",
                 path = path,
