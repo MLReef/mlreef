@@ -17,6 +17,7 @@ import com.mlreef.rest.ProjectBaseRepository
 import com.mlreef.rest.ProjectRepository
 import com.mlreef.rest.SubjectRepository
 import com.mlreef.rest.VisibilityScope
+import com.mlreef.rest.ProjectType.DATA_PROJECT
 import com.mlreef.rest.annotations.RefreshGroupInformation
 import com.mlreef.rest.annotations.RefreshProject
 import com.mlreef.rest.annotations.RefreshUserInformation
@@ -46,6 +47,7 @@ import com.mlreef.rest.feature.system.ReservedNamesService
 import com.mlreef.rest.helpers.ProjectOfUser
 import com.mlreef.rest.helpers.UserInProject
 import com.mlreef.rest.marketplace.SearchableTag
+import com.mlreef.rest.marketplace.SearchableType
 import com.mlreef.utils.Slugs
 import org.slf4j.LoggerFactory
 import org.springframework.context.annotation.Bean
@@ -248,7 +250,7 @@ open class ProjectServiceImpl<T : Project>(
         if (token.isVisitor) {
             return Page.empty(pageable ?: Pageable.unpaged())
         } else {
-            return repository.findAllByOwnerId(token.personId, pageable)
+            return repository.findAllByOwnerIdAndType(token.personId, type = DATA_PROJECT, pageable)
         }
     }
 

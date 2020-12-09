@@ -127,7 +127,7 @@ export const projectsArrayMock = {
         id: 'df778df87d78f8d7fdfdf78df7877hjjhhjfd7887',
         gid: 14448940,
         slug: 'some-slug',
-        gitlabNamespace: 'Some namespace',
+        gitlabNamespace: 'some-namespace',
         description: 'Categorical Classification of alphabets in the American Sign Language',
         name: 'Sign Language Classifier',
         name_with_namespace: 'MLReef / Sign Language Classifier',

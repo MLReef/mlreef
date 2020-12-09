@@ -30,7 +30,7 @@ exports[`ExploreViewProjectSet appareance assert that snapshot matches 1`] = `
         >
           <a
             className="project-card-link"
-            href="/Some namespace/some-slug"
+            href="/some-namespace/some-slug"
             onClick={[Function]}
           >
             <p
@@ -42,7 +42,7 @@ exports[`ExploreViewProjectSet appareance assert that snapshot matches 1`] = `
               className="project-card-container-autor pb-3 mt-2"
             >
               <p>
-                Some namespace
+                some-namespace
               </p>
             </div>
             <div
