@@ -28,7 +28,7 @@ export const UnconnectedPublishingView = (props) => {
     history,
   } = props;
 
-  const { gitlabId, id } = project;
+  const { gitlabId, id, pipelines } = project;
   const [{
     selectedBranch,
     files,
@@ -47,6 +47,8 @@ export const UnconnectedPublishingView = (props) => {
   const isEntryPointFormValid = entryPointFile && selectedBranch !== '';
 
   const isFinalFormValid = mlCategory && model && areTermsAccepted;
+
+  const hasPipelines = pipelines?.length > 0;
 
   useEffect(() => {
     filesApi.getFilesPerProject(
@@ -159,7 +161,7 @@ export const UnconnectedPublishingView = (props) => {
                               waiting={isPublishing}
                               onClick={() => {
                                 dispatch({ type: 'SET_IS_PUBLISHING', payload: true });
-                                publishingActions.publish(id)
+                                publishingActions.publish(id, hasPipelines)
                                   .then(() => {
                                     toastr.success('Success', 'Your project will appear in the market place');
                                     history.push(`/${namespace}/${slug}/-/publishing/process`);
