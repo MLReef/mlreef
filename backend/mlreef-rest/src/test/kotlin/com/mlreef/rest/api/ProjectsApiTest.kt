@@ -535,23 +535,62 @@ class ProjectsApiTest : AbstractRestApiTest() {
     @Tag(TestTags.RESTDOC)
     @Test
     fun `Can fork 3rd party data project`() {
-        val id1 = randomUUID()
-        val project1 = DataProject(id1, "slug-1", "www.url.com", "Test Project 1", "100 tests", randomUUID(), "mlreef", "group1", 1, VisibilityScope.PUBLIC, listOf())
-        dataProjectRepository.save(project1)
+        val original = codeProjectRepository.save(CodeProject(
+            id = randomUUID(),
+            slug = "slug-1",
+            url = "www.url.com",
+            name = "Test Project 1",
+            description = "description",
+            ownerId = subject2.id,
+            gitlabNamespace = "group1",
+            gitlabPath = "project-1",
+            gitlabId = 1
+        ))
 
-//        every { projectService.getUsersInProject(any()) } answers {
-//            listOf(account, account2).map { accountToUserInProject(it) }
-//        }
         val request = ProjectForkRequest(
-            targetName= "Fork Name",
+            targetName = "Fork Name",
             targetPath = "fork-name",
         )
 
         this.mockGetUserProjectsList(account)
 
-        val returnedResult = this.performPost("$rootUrl/fork/$id1", token, body = request)
+        val returnedResult = this.performPost("$rootUrl/fork/${original.id}", token, body = request)
             .expectOk()
-            .document("fork-project",
+            .document("fork-data-project",
+                requestFields(projectForkRequestFields()),
+                responseFields(projectResponseFields()))
+            .returns(DataProjectDto::class.java)
+
+        assertThat(returnedResult).isNotNull
+    }
+
+    @Transactional
+    @Rollback
+    @Tag(TestTags.RESTDOC)
+    @Test
+    fun `Can fork 3rd party code project`() {
+        val original = codeProjectRepository.save(CodeProject(
+            id = randomUUID(),
+            slug = "slug-4",
+            url = "www.url.com",
+            name = "Test Code Project 1",
+            description = "description",
+            ownerId = subject2.id,
+            gitlabNamespace = "group4",
+            gitlabPath = "project-4",
+            gitlabId = 4
+        ))
+
+        val request = ProjectForkRequest(
+            targetName = "Fork Name",
+            targetPath = "fork-name",
+        )
+
+        this.mockGetUserProjectsList(account)
+
+        val returnedResult = this.performPost("$rootUrl/fork/${original.id}", token, body = request)
+            .expectOk()
+            .document("fork-code-project",
                 requestFields(projectForkRequestFields()),
                 responseFields(projectResponseFields()))
             .returns(DataProjectDto::class.java)

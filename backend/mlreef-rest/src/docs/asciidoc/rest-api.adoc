@@ -243,7 +243,8 @@ operation::data-processors-codeproject-retrieve-one-by-namespace-slug[snippets='
 
 === POST /projects/:id/fork
 
-operation::fork-project[snippets='curl-request,response-body,response-fields']
+operation::fork-data-project[snippets='curl-request,response-body,response-fields']
+
 
 === POST /projects/:project/star
 

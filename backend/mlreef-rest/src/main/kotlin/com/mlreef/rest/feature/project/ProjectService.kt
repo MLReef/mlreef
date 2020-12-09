@@ -34,6 +34,7 @@ import com.mlreef.rest.exceptions.UnknownUserException
 import com.mlreef.rest.exceptions.UserNotFoundException
 import com.mlreef.rest.external_api.gitlab.GitlabAccessLevel
 import com.mlreef.rest.external_api.gitlab.GitlabRestClient
+import com.mlreef.rest.external_api.gitlab.GitlabVisibility
 import com.mlreef.rest.external_api.gitlab.NamespaceKind
 import com.mlreef.rest.external_api.gitlab.TokenDetails
 import com.mlreef.rest.external_api.gitlab.dto.GitlabProject
@@ -47,6 +48,7 @@ import com.mlreef.rest.helpers.ProjectOfUser
 import com.mlreef.rest.helpers.UserInProject
 import com.mlreef.rest.marketplace.SearchableTag
 import com.mlreef.utils.Slugs
+import java.lang.NullPointerException
 import org.slf4j.LoggerFactory
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -108,7 +110,7 @@ interface ProjectService<T : Project> {
             dataProcessorType: DataProcessorType,
     ): T
 
-    fun forkProject(userToken: String, originalId: UUID, name: String? = null, path: String? = null): T
+    fun forkProject(userToken: String, originalId: UUID, creatorId: UUID, name: String? = null, path: String? = null): T
 
     fun saveProject(project: T): T
 
@@ -458,8 +460,8 @@ open class ProjectServiceImpl<T : Project>(
         return codeProject
     }
 
-    override fun forkProject(userToken: String, originalId: UUID, name: String?, path: String?): T {
-        val original = repository.findByIdOrNull(originalId)
+    @Suppress("UNCHECKED_CAST")
+    override fun forkProject(userToken: String, originalId: UUID, creatorId: UUID, name: String?, path: String?): T {        val original = repository.findByIdOrNull(originalId)
             ?: throw ProjectNotFoundException(originalId)
 
         val gitlabFork = try {
@@ -473,13 +475,11 @@ open class ProjectServiceImpl<T : Project>(
             throw ConflictException(ErrorCode.GitlabProjectCreationFailed, "Cannot update Project $originalId: ${e.message}")
         }
 
-        return this.saveProject(original.copy(
-            id = randomUUID(),
-            gitlabId = gitlabFork.id,
-            createdAt = now(),
-            updatedAt = now(),
-            name = name ?: original.name,
-        ))
+        val fork: T = if (original is DataProject)
+            createDataProjectEntity(ownerId = creatorId, gitlabFork) as T
+        else
+            createCodeProjectEntity(ownerId = creatorId, gitlabFork) as T
+        return this.saveProject(fork.copy(createdAt = now(), updatedAt = now()))
     }
 
     override fun saveProject(project: T): T {

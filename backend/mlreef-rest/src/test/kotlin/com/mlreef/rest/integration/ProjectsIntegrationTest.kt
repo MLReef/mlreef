@@ -4,6 +4,7 @@ import com.mlreef.rest.AccessLevel
 import com.mlreef.rest.CodeProjectRepository
 import com.mlreef.rest.DataProcessorType
 import com.mlreef.rest.DataProjectRepository
+import com.mlreef.rest.DataType
 import com.mlreef.rest.Project
 import com.mlreef.rest.VisibilityScope
 import com.mlreef.rest.api.v1.ProjectCreateRequest
@@ -611,6 +612,7 @@ class ProjectsIntegrationTest : AbstractIntegrationTest() {
             visibility = VisibilityScope.PUBLIC,
             initializeWithReadme = true,
             dataProcessorType = DataProcessorType.ALGORITHM,
+            inputDataTypes = listOf(DataType.ANY),
         )
 
         val result = this.performPost("$rootUrl/code", token, request)
@@ -634,6 +636,7 @@ class ProjectsIntegrationTest : AbstractIntegrationTest() {
             visibility = VisibilityScope.PUBLIC,
             initializeWithReadme = true,
             dataProcessorType = DataProcessorType.ALGORITHM,
+            inputDataTypes = listOf(DataType.ANY),
         )
 
         val result = this.performPost(codeProjectRootUrl, token, request)
@@ -675,7 +678,7 @@ class ProjectsIntegrationTest : AbstractIntegrationTest() {
             name = "",
             description = "description",
             initializeWithReadme = true,
-            inputDataTypes = listOf(),
+            inputDataTypes = listOf(DataType.ANY),
             visibility = VisibilityScope.PUBLIC,
             dataProcessorType = DataProcessorType.ALGORITHM,
         )

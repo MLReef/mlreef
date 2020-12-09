@@ -24,6 +24,7 @@ import com.mlreef.rest.external_api.gitlab.TokenDetails
 import com.mlreef.rest.feature.data_processors.DataProcessorService
 import com.mlreef.rest.feature.project.ProjectService
 import com.mlreef.rest.marketplace.SearchableTag
+import java.lang.IllegalArgumentException
 import org.springframework.data.domain.Pageable
 import org.springframework.data.web.PageableDefault
 import org.springframework.http.HttpStatus
@@ -216,10 +217,18 @@ class ProjectsController(
         token: TokenDetails,
         person: Person,
     ): T {
-        if (request.requestURL.contains("data-project")) {
-            return this.createDataProject(projectCreateRequest, token, null, person) as T
+        return if (request.requestURL.contains("data-project")) {
+            this.createDataProject(
+                dataProjectCreateRequest = projectCreateRequest,
+                token = token,
+                person = person
+            ) as T
         } else if (request.requestURL.contains("code-project")) {
-            return this.createCodeProject(projectCreateRequest, token, null, person) as T
+            this.createCodeProject(
+                request = projectCreateRequest,
+                token = token,
+                person = person
+            ) as T
         } else {
             throw BadParametersException("You should request either /data or /code endpoints")
         }
@@ -237,6 +246,7 @@ class ProjectsController(
         this.projectService.forkProject(
             userToken = token.accessToken,
             originalId = id,
+            creatorId = person.id,
             name = projectForkRequest.targetName,
             path = projectForkRequest.targetPath,
         ).toDto() as T
@@ -246,7 +256,7 @@ class ProjectsController(
     fun createDataProject(
         @Valid @RequestBody dataProjectCreateRequest: ProjectCreateRequest,
         token: TokenDetails,
-        request: HttpServletRequest?,
+        request: HttpServletRequest? = null,
         person: Person,
     ): DataProjectDto {
         if ((request?.requestURL?.contains("data-project") == true)
@@ -272,22 +282,23 @@ class ProjectsController(
     @PostMapping("/code")
     @PreAuthorize("canCreateProject()")
     fun createCodeProject(
-        @Valid @RequestBody codeProjectCreateRequest: ProjectCreateRequest,
+        @Valid @RequestBody request: ProjectCreateRequest,
         token: TokenDetails,
-        request: HttpServletRequest?,
         person: Person,
     ): CodeProjectDto {
+        if (request.inputDataTypes.isEmpty())
+            throw IllegalArgumentException("A code project needs an InputDataType. request.inputDataType=${request.inputDataTypes}")
         val codeProject = codeProjectService.createCodeProjectAndProcessor(
             userToken = token.accessToken,
             ownerId = person.id,
-            projectSlug = codeProjectCreateRequest.slug,
-            projectName = codeProjectCreateRequest.name,
-            projectNamespace = codeProjectCreateRequest.namespace,
-            description = codeProjectCreateRequest.description,
-            visibility = codeProjectCreateRequest.visibility,
-            initializeWithReadme = codeProjectCreateRequest.initializeWithReadme,
-            inputDataTypes = codeProjectCreateRequest.inputDataTypes,
-            dataProcessorType = codeProjectCreateRequest.dataProcessorType
+            projectSlug = request.slug,
+            projectName = request.name,
+            projectNamespace = request.namespace,
+            description = request.description,
+            visibility = request.visibility,
+            initializeWithReadme = request.initializeWithReadme,
+            inputDataTypes = request.inputDataTypes,
+            dataProcessorType = request.dataProcessorType
         )
 
         return codeProject.toDto()

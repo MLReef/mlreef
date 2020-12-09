@@ -61,6 +61,16 @@ import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.slot
+import java.io.InputStream
+import java.time.Instant
+import java.time.ZonedDateTime
+import java.util.UUID
+import java.util.regex.Pattern
+import javax.persistence.EntityManager
+import javax.sql.DataSource
+import javax.transaction.Transactional
+import kotlin.math.absoluteValue
+import kotlin.random.Random
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
@@ -95,16 +105,6 @@ import org.springframework.test.web.servlet.setup.DefaultMockMvcBuilder
 import org.springframework.test.web.servlet.setup.MockMvcBuilders
 import org.springframework.util.Base64Utils
 import org.springframework.web.context.WebApplicationContext
-import java.io.InputStream
-import java.time.Instant
-import java.time.ZonedDateTime
-import java.util.UUID
-import java.util.regex.Pattern
-import javax.persistence.EntityManager
-import javax.sql.DataSource
-import javax.transaction.Transactional
-import kotlin.math.absoluteValue
-import kotlin.random.Random
 
 @TestPropertySource("classpath:application.yml")
 @ExtendWith(value = [RestDocumentationExtension::class, SpringExtension::class])
@@ -313,6 +313,26 @@ abstract class AbstractRestApiTest : AbstractRestTest() {
                 webUrl = "http://127.0.0.1/"
             )
         }
+
+        val targetNameSlot = slot<String>()
+        val targetPathSlot = slot<String>()
+        val sourceIdSlot = slot<Long>()
+        every {
+            restClient.forkProject(token = any(), sourceId = capture(sourceIdSlot), targetName = capture(targetNameSlot), targetPath = capture(targetPathSlot))
+        } answers {
+            GitlabProject(
+                id = sourceIdSlot.captured + 2, // the forked Gitlab must will have a different id than the original
+                name = targetNameSlot.captured,
+                nameWithNamespace = "mlreef / ${targetNameSlot.captured}",
+                path = targetPathSlot.captured,
+                pathWithNamespace = "mlreef/${targetPathSlot.captured}",
+                owner = gitlabUser,
+                creatorId = 1L,
+                webUrl = "http://127.0.0.1/",
+                visibility = GitlabVisibility.PUBLIC
+            )
+        }
+
         every { restClient.deleteProject(any(), any()) } returns Unit
 
         every { restClient.userCreateGroup(any(), any(), any(), any()) } returns GitlabGroup(
