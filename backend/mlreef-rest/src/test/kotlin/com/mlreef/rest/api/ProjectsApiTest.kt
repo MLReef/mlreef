@@ -1041,7 +1041,7 @@ class ProjectsApiTest : AbstractRestApiTest() {
             .document("project-retrieve-own", responseFields(projectResponseFields("[].")))
             .returnsList(DataProjectDto::class.java)
 
-        assertThat(returnedResult.size).isEqualTo(4)
+        assertThat(returnedResult.size).isEqualTo(2)
     }
 
     @Transactional

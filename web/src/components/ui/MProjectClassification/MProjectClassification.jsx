@@ -3,11 +3,16 @@ import {
   shape, arrayOf, string, bool,
 } from 'prop-types';
 import { Link } from 'react-router-dom';
+import { bindActionCreators } from 'redux';
+import { connect } from 'react-redux';
+import { ML_PROJECT } from 'dataTypes';
 import ArrowButton from 'components/arrow-button/arrowButton';
 import MWrapper from 'components/ui/MWrapper';
 import ProjectSet from '../../projectSet';
 import './MProjectClassification.scss';
 import MCheckBox from '../MCheckBox/MCheckBox';
+import * as projectActions from '../../../actions/projectInfoActions';
+import * as userActions from '../../../actions/userActions';
 
 class MProjectClassification extends Component {
   projFilterBtnsList = ['personal', 'starred', 'explore'];
@@ -32,12 +37,7 @@ class MProjectClassification extends Component {
     this.updateActiveButtons();
   }
 
-  componentDidUpdate() {
-    this.updateActiveButtons();
-  }
-
-  // this change tabs in projectSet
-  changeScreen = (screen) => {
+  changeScreen = async (screen) => {
     const {
       history: {
         push,
@@ -45,8 +45,23 @@ class MProjectClassification extends Component {
           pathname,
         },
       },
+      classification,
+      actions,
     } = this.props;
+    let projectUrl = '/own';
+    if (screen === '#explore') {
+      projectUrl = '';
+    }
 
+    if (screen === '#starred') {
+      projectUrl = '/starred';
+    }
+
+    if (classification === ML_PROJECT) {
+      actions.setIsLoading(true);
+      actions.getPaginatedProjectsByQuery(`${projectUrl}?page=${0}&size=${10}`, true)
+        .then(() => actions.setIsLoading(false));
+    }
     push(`${pathname}${screen}`);
   }
 
@@ -66,7 +81,14 @@ class MProjectClassification extends Component {
     isMlCategoriesVisible: !prevState.isMlCategoriesVisible,
   }));
 
-  updateActiveButtons() {
+  handleFilterButtonClick = (screen) => async () => {
+    const { setPage } = this.props;
+    setPage(0);
+    this.changeScreen(screen);
+    this.updateActiveButtons();
+  };
+
+  updateActiveButtons = async () => {
     const { classification, history: { location: { hash } } } = this.props;
     const buttonType = hash ? hash.substring(1, hash.length) : this.projFilterBtnsList[0];
     let elementBtn;
@@ -76,15 +98,6 @@ class MProjectClassification extends Component {
     });
     elementBtn = document.getElementById(`${classification}-${buttonType}-btn`);
     if (elementBtn) elementBtn.classList.replace('btn-basic-dark', 'btn-basic-info');
-  }
-
-  handleProjectFilterBtn(e, screen) {
-    this.changeScreen(screen);
-    const { classification } = this.props;
-    this.projFilterBtnsList.forEach((btnId) => {
-      document.getElementById(`${classification}-${btnId}-btn`).classList.replace('btn-basic-info', 'btn-basic-dark');
-    });
-    e.target.classList.replace('btn-basic-dark', 'btn-basic-info');
   }
 
   render() {
@@ -97,14 +110,7 @@ class MProjectClassification extends Component {
 
     const {
       classification,
-      userProjects,
-      starredProjects,
       allProjects,
-      history: {
-        location: {
-          hash: screen,
-        },
-      },
       isLoading,
     } = this.props;
     const dataTypes = [
@@ -142,7 +148,7 @@ class MProjectClassification extends Component {
             <div id="filter-div">
               <button
                 id={`${classification}-personal-btn`}
-                onClick={(e) => this.handleProjectFilterBtn(e, '#personal')}
+                onClick={this.handleFilterButtonClick('#personal')}
                 type="button"
                 className="btn btn-basic-dark"
               >
@@ -150,7 +156,7 @@ class MProjectClassification extends Component {
               </button>
               <button
                 id={`${classification}-starred-btn`}
-                onClick={(e) => this.handleProjectFilterBtn(e, '#starred')}
+                onClick={this.handleFilterButtonClick('#starred')}
                 type="button"
                 className="btn btn-basic-dark"
               >
@@ -158,7 +164,7 @@ class MProjectClassification extends Component {
               </button>
               <button
                 id={`${classification}-explore-btn`}
-                onClick={(e) => this.handleProjectFilterBtn(e, '#explore')}
+                onClick={this.handleFilterButtonClick('#explore')}
                 type="button"
                 className="btn btn-basic-dark"
               >
@@ -178,11 +184,7 @@ class MProjectClassification extends Component {
           </div>
           <div className="m-project-classification">
             <ProjectSet
-              screen={screen || '#personal'}
-              changeScreen={this.changeScreen}
               allProjects={allProjects}
-              personalProjects={userProjects}
-              starredProjects={starredProjects}
               isLoading={isLoading}
             />
             <MWrapper disable title="Not available yet.">
@@ -283,17 +285,22 @@ class MProjectClassification extends Component {
 
 MProjectClassification.propTypes = {
   classification: string.isRequired,
-  userProjects: arrayOf(shape({})),
-  starredProjects: arrayOf(shape({})),
   allProjects: arrayOf(shape({})),
   isLoading: bool,
 };
 
 MProjectClassification.defaultProps = {
-  userProjects: [],
-  starredProjects: [],
   allProjects: [],
   isLoading: false,
 };
 
-export default MProjectClassification;
+function mapDispatchToProps(dispatch) {
+  return {
+    actions: bindActionCreators({
+      getPaginatedProjectsByQuery: projectActions.getPaginatedProjectsByQuery,
+      setIsLoading: userActions.setIsLoading,
+    }, dispatch),
+  };
+}
+
+export default connect(() => ({}), mapDispatchToProps)(MProjectClassification);

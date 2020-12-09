@@ -150,6 +150,7 @@ interface ProjectBaseRepository<T : Project> : CrudRepository<T, UUID> {
 //    fun findAllByVisibilityScope(visibilityScope: VisibilityScope, pageable: Pageable): List<T>
     fun findAllByOwnerId(ownerId: UUID, pageable: Pageable?): Page<T>
     fun findOneByOwnerIdAndSlug(ownerId: UUID, slug: String): T?
+    fun findAllByOwnerIdAndType(ownerId: UUID, type: ProjectType, pageable: Pageable?): Page<T>
 
     @Query("select p from Project p WHERE p.ownerId=:ownerId OR p.visibilityScope=:scope OR p.id in :projectIds")
     fun findAccessibleProjectsForOwner(ownerId: UUID, projectIds:List<UUID>, pageable: Pageable?, scope: VisibilityScope = VisibilityScope.PUBLIC): Page<T>

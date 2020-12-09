@@ -8,11 +8,20 @@ const MScrollableSection = ({
 
   useEffect(() => {
     const onScrollCallback = () => {
-      const lastEle = containerRef.current?.lastChild;
-      const lastEleOffSet = lastEle?.offsetTop + lastEle?.clientHeight;
-      const pageOffset = window.pageYOffset + window.innerHeight;
-      const bottomOffset = 200;
-      if (pageOffset > lastEleOffSet - bottomOffset) handleOnScrollDown();
+      const windowHeight = window.innerHeight;
+      const { body } = document;
+      const html = document.documentElement;
+      const docHeight = Math.max(
+        body.scrollHeight,
+        body.offsetHeight,
+        html.clientHeight,
+        html.scrollHeight,
+        html.offsetHeight,
+      );
+      const windowBottom = windowHeight + window.pageYOffset;
+      if (windowBottom + 150 >= docHeight) {
+        handleOnScrollDown();
+      }
     };
     window.addEventListener('scroll', onScrollCallback);
 

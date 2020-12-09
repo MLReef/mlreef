@@ -58,6 +58,24 @@ export function setPaginationInfoSuccessfully(pagination) {
   return { type: types.SET_PAGINATION_INFO, pagination };
 }
 
+const buildQuery = (auth, page = 0, size = 10) => `${auth ? '' : '/public'}?page=${page}&size=${size}`;
+
+const setInformationInTheStorage = (username, projects, pagination) => async (dispatch) => {
+  const filterMember = (ps) => ps.filter((p) => p.members
+    .some((m) => m.username === username));
+
+  dispatch(setProjectsInfoSuccessfully(projects));
+  dispatch(setStarredProjectsSuccessfully(
+    projects.filter((proj) => proj?.starsCount > 0),
+  ));
+  dispatch(setPaginationInfoSuccessfully(pagination));
+
+  Promise.all(projects.map((project) => project.members
+    .then((members) => ({ ...project, members }))))
+    .then(filterMember)
+    .then((ms) => dispatch(setUserProjectsSuccessfully(ms)));
+};
+
 /**
  * get list of projects, function changes the API call depending on the user authentication
  */
@@ -68,25 +86,22 @@ export function setPaginationInfoSuccessfully(pagination) {
 
 export const getProjectsList = (page, size) => async (dispatch) => {
   const { user: { username, auth }, projects: stateProjects } = store.getState();
-  const { projects, pagination } = await projectApi.getProjectsList(`${auth ? '' : '/public'}?page=${page}&size=${size}`)
+  const finalQuery = buildQuery(auth, page, size);
+  const { projects, pagination } = await projectApi.getProjectsList(finalQuery)
     .then(handlePaginationWithAdditionalInfo)
     .then((projsPag) => ({ ...projsPag, projects: mergeGitlabResource(projsPag.content) }));
-  if (projects) {
-    const filterMember = (ps) => ps.filter((p) => p.members
-      .some((m) => m.username === username));
 
-    const completeArrayOfProjects = page > 0 ? [...stateProjects.all, ...projects] : projects;
-    dispatch(setProjectsInfoSuccessfully(completeArrayOfProjects));
-    dispatch(setStarredProjectsSuccessfully(
-      completeArrayOfProjects.filter((proj) => proj?.starsCount > 0),
-    ));
-    dispatch(setPaginationInfoSuccessfully(pagination));
+  const completeArrayOfProjects = page > 0 ? [...stateProjects.all, ...projects] : projects;
+  setInformationInTheStorage(username, completeArrayOfProjects, pagination)(dispatch);
+};
 
-    Promise.all(completeArrayOfProjects.map((project) => project.members
-      .then((members) => ({ ...project, members }))))
-      .then(filterMember)
-      .then((ms) => dispatch(setUserProjectsSuccessfully(ms)));
-  }
+export const getPaginatedProjectsByQuery = (query = '', isFirstpage = false) => async (dispatch) => {
+  const { user: { username }, projects: stateProjects } = store.getState();
+  const { projects, pagination } = await projectApi.getProjectsList(query)
+    .then(handlePaginationWithAdditionalInfo)
+    .then((projsPag) => ({ ...projsPag, projects: mergeGitlabResource(projsPag.content) }));
+  const completeArrayOfProjects = isFirstpage ? projects : [...stateProjects.all, ...projects];
+  setInformationInTheStorage(username, completeArrayOfProjects, pagination)(dispatch);
 };
 
 export function setSelectedProjectSuccesfully(project) {
@@ -157,9 +172,38 @@ export function removeProject(id) {
  * This API call fetches code repos corresponding with data processors
  */
 
-export function getDataProcessorsAndCorrespondingProjects(searchableType, body = {}, options) {
+export function getDataProcessorsAndCorrespondingProjects(
+  searchableType, body = {},
+) {
   return (dispatch) => mlSearchApi
     .search(searchableType, body)
+    .then((payload) => payload?.content?.map((contentItem) => contentItem.project))
+    .then((projs) => projs.map(parseToCamelCase))
+    .then(mergeGitlabResource)
+    .then((projects) => {
+      if (projects) {
+        const { user: { username } } = store.getState();
+
+        const filterMember = (ps) => ps.filter((p) => p.members
+          .some((m) => m.username === username));
+
+        dispatch(setProjectsInfoSuccessfully(projects));
+
+        dispatch(setStarredProjectsSuccessfully(projects.filter((proj) => proj?.starsCount > 0)));
+
+        Promise.all(projects.map((project) => project.members
+          .then((members) => ({ ...project, members }))))
+          .then(filterMember)
+          .then((ms) => dispatch(setUserProjectsSuccessfully(ms)));
+      }
+    });
+}
+
+export function getProcessorsPaginated(
+  searchableType, body = {}, page, size,
+) {
+  return (dispatch) => mlSearchApi
+    .searchPaginated(searchableType, body, page, size)
     .then((payload) => payload?.content?.map((contentItem) => contentItem.project))
     .then((projs) => projs.map(parseToCamelCase))
     .then(mergeGitlabResource)
