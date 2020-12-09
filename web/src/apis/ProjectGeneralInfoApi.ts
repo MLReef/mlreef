@@ -193,8 +193,8 @@ export default class ProjectGeneralInfoApi extends ApiDirector {
       .then(handleResponse);
   }
 
-  publish(projectId: string){
-    const baseUrl = `/api/v1/code-projects/${projectId}/publish`;
+  publish(projectId: string, republish: boolean = false){
+    const baseUrl = `/api/v1/code-projects/${projectId}/${republish ? 'republish' : 'publish'}`;
     const headers = this.buildBasicHeaders(validServicesToCall.BACKEND)
     const builder = new BLApiRequestCallBuilder(METHODS.POST, headers, baseUrl);
 
