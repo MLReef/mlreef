@@ -34,6 +34,7 @@ import com.mlreef.rest.external_api.gitlab.GitlabVisibility
 import com.mlreef.rest.external_api.gitlab.dto.GitlabGroup
 import com.mlreef.rest.external_api.gitlab.dto.GitlabProject
 import com.mlreef.rest.external_api.gitlab.dto.GitlabUser
+import com.mlreef.rest.external_api.gitlab.toVisibilityScope
 import com.mlreef.rest.feature.caches.domain.PublicProjectHash
 import com.mlreef.rest.feature.caches.repositories.PublicProjectsRepository
 import com.mlreef.rest.utils.RandomUtils
@@ -151,7 +152,7 @@ class IntegrationTestsHelper {
         name: String? = null,
         slug: String? = null,
         namespace: String? = null,
-        public: Boolean = true
+        public: Boolean = true,
     ): GitlabProject {
         val projectName = name ?: RandomUtils.generateRandomUserName(20)
         val projectSlug = Slugs.toSlug(slug ?: "slug-$projectName")

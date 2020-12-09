@@ -16,7 +16,7 @@ describe('Authenticated user', () => {
     expect(projects.length > 0).toBe(true);
   });
 
-  let projectUUID;
+  let originalUUID;
   test('Can create project', async () => {
     const request = {
       name: 'Can get Project Info',
@@ -37,7 +37,7 @@ describe('Authenticated user', () => {
     expect(response.name).toBe(request.name);
     expect(response.slug).toBe(request.slug);
 
-    projectUUID = response.id;
+    originalUUID = response.id;
   });
 
   test('Can fork own project ', async () => {
@@ -46,8 +46,8 @@ describe('Authenticated user', () => {
       target_name: 'New Name', // If null, defaults to original name
       target_path: 'new-path', // If null, defaults to original path - needs to be set when forking within the same namespace
     };
-    console.log(`Running forking test against id: ${projectUUID}. Request: ${JSON.stringify(request)}`);
-    const response = await projectApi.fork(projectUUID, request, false)
+    console.log(`Running forking test against id: ${originalUUID}. Request: ${JSON.stringify(request)}`);
+    const response = await projectApi.fork(originalUUID, request, false)
       .catch((err) => {
         console.log(err);
         throw new Error(err);

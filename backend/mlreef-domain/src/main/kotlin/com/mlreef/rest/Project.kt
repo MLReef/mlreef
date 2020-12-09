@@ -116,9 +116,9 @@ abstract class Project(
 
     version: Long? = null,
     createdAt: ZonedDateTime? = null,
-    updatedAt: ZonedDateTime? = null
+    updatedAt: ZonedDateTime? = null,
 
-) : AuditEntity(id, version, createdAt, updatedAt), Searchable {
+    ) : AuditEntity(id, version, createdAt, updatedAt), Searchable {
 
     fun toProjectOfUser(accessLevel: AccessLevel?) = ProjectOfUser(
         id = this.id,
@@ -144,7 +144,7 @@ abstract class Project(
         version: Long? = null,
         createdAt: ZonedDateTime? = null,
         updatedAt: ZonedDateTime? = null,
-        visibilityScope: VisibilityScope? = null
+        visibilityScope: VisibilityScope? = null,
     ): T
 
     fun addStar(subject: Person): Project {
@@ -182,7 +182,9 @@ abstract class Project(
 
     @PrePersist
     fun prePersist() {
-        this._starsCount = this.stars.size
+        @Suppress("SENSELESS_COMPARISON")
+        // Because of a mocking error 'this.stars' sometimes is null during tests
+        this._starsCount = if (this.stars != null) this.stars.size else 0
     }
 
 
@@ -223,7 +225,7 @@ abstract class Project(
         stars: List<Star>? = null,
         outputDataTypes: MutableSet<DataType>? = null,
         inputDataTypes: MutableSet<DataType>? = null,
-        tags: MutableSet<SearchableTag>? = null
+        tags: MutableSet<SearchableTag>? = null,
     ): Project
 
 }

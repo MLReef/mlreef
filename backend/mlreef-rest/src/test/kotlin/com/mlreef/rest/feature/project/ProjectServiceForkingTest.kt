@@ -3,14 +3,17 @@ package com.mlreef.rest.feature.project
 import com.mlreef.rest.CodeProject
 import com.mlreef.rest.CodeProjectRepository
 import com.mlreef.rest.Project
+import com.mlreef.rest.VisibilityScope
 import com.mlreef.rest.external_api.gitlab.GitlabRestClient
+import com.mlreef.rest.external_api.gitlab.GitlabVisibility
+import com.mlreef.rest.external_api.gitlab.dto.GitlabProject
 import com.mlreef.rest.feature.data_processors.DataProcessorService
 import io.mockk.confirmVerified
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.slot
 import io.mockk.verify
-import java.time.ZonedDateTime.*
+import java.time.ZonedDateTime.now
 import java.util.UUID
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
@@ -31,6 +34,7 @@ internal class ProjectServiceForkingTest {
         gitlabPath = "test-project",
         createdAt = now().minusYears(1),
         updatedAt = now().minusMonths(1),
+        visibilityScope = VisibilityScope.PUBLIC,
     )
 
     private val repoMock: CodeProjectRepository = mockk {
@@ -39,7 +43,19 @@ internal class ProjectServiceForkingTest {
         every { this@mockk.save(any()) } answers { this.arg(0) }
     }
 
-    private val gitlabRestClientMock: GitlabRestClient = mockk()
+    private val gitlabRestClientMock: GitlabRestClient = mockk {
+        val sourceId = slot<Long>()
+        every { this@mockk.forkProject(any(), capture(sourceId), any(), any()) } answers {
+            GitlabProject(
+                id = sourceId.captured + 1, // The forked Gitlab project will have a different id than the original
+                name = "targetName.captured",
+                nameWithNamespace = "Forking Namespace / Forking Name",
+                path = "forking-path",
+                pathWithNamespace = "forking-namespace/forking-path",
+                visibility = GitlabVisibility.PUBLIC,
+            )
+        }
+    }
 
     private val codeProjectService: ProjectService<CodeProject> = ProjectServiceImpl(
         baseClass = CodeProject::class.java,
@@ -61,11 +77,15 @@ internal class ProjectServiceForkingTest {
         // Capture what is saved to the repository
         val capture = slot<CodeProject>()
         every { repoMock.save(capture(capture)) } answers { this.arg(0) }
-
-        val ret = codeProjectService.forkProject(userToken = "test-token", originalId = original.id)
+        val ret = codeProjectService.forkProject(userToken = "test-token", creatorId = UUID.randomUUID(), originalId = original.id)
         verify {
             repoMock.findById(original.id)
-            gitlabRestClientMock.forkProject("test-token", original.gitlabId)
+            gitlabRestClientMock.forkProject(
+                token = "test-token",
+                sourceId = original.gitlabId,
+                targetName = any(),
+                targetPath = any(),
+            )
             repoMock.save(any())
         }
         // makes sure all calls were covered with verification
@@ -73,7 +93,7 @@ internal class ProjectServiceForkingTest {
         confirmVerified(repoMock)
 
         // assert that what was saved is what was returned
-        with (capture.captured) {
+        with(capture.captured) {
             assertThat(id).isEqualTo(ret.id)
             assertThat(gitlabId).isEqualTo(ret.gitlabId)
         }
