@@ -1,5 +1,4 @@
-import ProjectGeneralInfoApi from 'apis/ProjectGeneralInfoApi';
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { SortableElement } from 'react-sortable-hoc';
 import { BOOLEAN, STRING } from 'dataTypes';
 import { isJson } from 'functions/validations';
@@ -9,8 +8,6 @@ import { DataPipelinesContext } from '../DataPipelineHooks/DataPipelinesProvider
 import InputParam from './InputParam';
 import { SelectComp } from './SelectComp';
 import { REMOVE_DATA_PROCESSOR_BY_ID, VALIDATE_FORM } from '../DataPipelineHooks/actions';
-
-const projectInstance = new ProjectGeneralInfoApi();
 
 const SortableProcessor = SortableElement(({
   props: {
@@ -23,8 +20,7 @@ const SortableProcessor = SortableElement(({
   const [, dispatch] = useContext(DataPipelinesContext);
   const [isFormdivVisible, setIsFormdivVisible] = useState(true);
   const [isAdvancedSectionVisible, setIsAdvancedSectionVisible] = useState(true);
-  const [codeProjectURL, setCodeProjectURL] = useState({});
-  const { gitlab_namespace: nameSpace, slug } = codeProjectURL;
+  const { nameSpace, slug } = value;
   const sortedParameters = value
     .parameters?.sort((paramA, paramB) => paramA.order - paramB.order);
   const filterOperation = (paramType) => sortedParameters?.filter(
@@ -34,11 +30,6 @@ const SortableProcessor = SortableElement(({
 
   const standardParameters = filterOperation(true);
   const advancedParameters = filterOperation(false);
-
-  useEffect(() => {
-    projectInstance.getCodeProjectById(value.codeProjectId)
-      .then((res) => setCodeProjectURL(res));
-  }, [value]);
 
   function deleteProcessor() {
     dispatch({ type: REMOVE_DATA_PROCESSOR_BY_ID, id: value.internalProcessorId });
@@ -111,16 +102,14 @@ const SortableProcessor = SortableElement(({
         <div className={`data-operation-item-form ${isFormdivVisible ? '' : 'd-none'}`}>
           <br />
           <div style={{ width: 'max-content', margin: 'auto', marginLeft: '1rem' }}>
-            {standardParameters && (
             <ParametersSection
               parameters={standardParameters}
               filesSelectedInModal={filesSelectedInModal}
               value={value}
             />
-            )}
           </div>
 
-          {advancedParameters && (
+          {advancedParameters.length > 0 && (
           <div>
             <div className="advanced-opt-drop-down">
               <div className="drop-down">
@@ -141,13 +130,11 @@ const SortableProcessor = SortableElement(({
             </div>
             {isAdvancedSectionVisible && (
             <div className="advanced-opts-div" style={{ width: 'max-content', margin: 'auto', marginLeft: '1rem' }}>
-              {advancedParameters && (
               <ParametersSection
                 parameters={advancedParameters}
                 filesSelectedInModal={filesSelectedInModal}
                 value={value}
               />
-              )}
             </div>
             )}
           </div>

@@ -20,17 +20,12 @@ const MProjectCard = (props) => {
     namespace,
     inputDataTypes,
     visibility,
-    /* outputDataTypes, */
-    /* dataProcessor, */
     users,
     owner,
+    classification,
   } = props;
 
   const [avatars, setAvatars] = useState([]);
-
-  /*
-  const hasOutputTypes = !['ALGORITHM', 'VISUALIZATION']
-    .some((t) => dataProcessor?.type === t); */
 
   useEffect(
     () => {
@@ -52,7 +47,16 @@ const MProjectCard = (props) => {
   return (
     <div className="card">
       {owner && (
-        <div className="icon-visibility" style={{ fontSize: '1.2rem', borderRadius: '3px', right: '4rem', color: '#fff', backgroundColor: 'var(--lessWhite)' }}>
+        <div
+          className="icon-visibility"
+          style={{
+            fontSize: '1.2rem',
+            borderRadius: '3px',
+            right: '4rem',
+            color: '#fff',
+            backgroundColor: 'var(--lessWhite)',
+          }}
+        >
           <span className="p-2">Owner</span>
         </div>
       )}
@@ -64,7 +68,7 @@ const MProjectCard = (props) => {
         className="icon-visibility"
         aria-hidden="true"
       />
-      <div className="card-container project-card-container">
+      <div className={`card-container project-card-container ${classification}`}>
         <Link className="project-card-link" to={`/${namespace}/${slug}`}>
           <p className="card-title">
             {title}
@@ -133,7 +137,6 @@ MProjectCard.defaultProps = {
   inputDataTypes: [],
   visibility: null,
   owner: false,
-  // outputDataTypes: [],
   dataProcessor: {},
 };
 
@@ -144,7 +147,6 @@ MProjectCard.propTypes = {
   forkCount: PropTypes.number,
   slug: PropTypes.string.isRequired,
   namespace: PropTypes.string.isRequired,
-  // users: PropTypes.object,
   users: PropTypes.oneOfType([
     PropTypes.instanceOf(Object),
     PropTypes.arrayOf(PropTypes.shape({
@@ -154,7 +156,6 @@ MProjectCard.propTypes = {
     })),
   ]),
   inputDataTypes: PropTypes.arrayOf(PropTypes.string),
-  // outputDataTypes: PropTypes.arrayOf(PropTypes.string),
   dataProcessor: PropTypes.shape({
     type: PropTypes.string,
   }),

@@ -11,6 +11,7 @@ const ProjectSet = (props) => {
   const {
     allProjects,
     user: { id: userId },
+    classification,
   } = props;
   return (
     <div id="cards-section">
@@ -36,6 +37,7 @@ const ProjectSet = (props) => {
               users={proj.members}
               visibility={proj.visibilityScope}
               owner={proj.ownerId === userId}
+              classification={classification}
             />
           ))}
         />

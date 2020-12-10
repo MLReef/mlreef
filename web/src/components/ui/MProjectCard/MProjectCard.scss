@@ -1,8 +1,10 @@
+$border-size: 0 0 1px 1.5px;
+
 .project-card {
   &-container {
     background-color: var(--white);
     width: 250px;
-    border: 1px solid transparent;
+    
     .card-title {
       font-size: 1.2rem;
       margin: 0;
@@ -35,9 +37,30 @@
     }
   }
 
+  &-container {
+    padding: 1.25rem;
+    border-radius: 7.5px;
+  }
+
   &-container:hover {
-    border: 1px solid var(--info);
+    box-shadow: $border-size var(--info) !important;
     cursor: pointer;
+  }
+
+  &-container.ml-project {
+    box-shadow: $border-size #91BD44;
+  }
+
+  &-container.model {
+    box-shadow: $border-size #E99444;
+  }
+
+  &-container.data-operation {
+    box-shadow: $border-size #D2519D;
+  }
+
+  &-container.data-visualization {
+    box-shadow: $border-size #735DA8;
   }
 
   &-avatar {

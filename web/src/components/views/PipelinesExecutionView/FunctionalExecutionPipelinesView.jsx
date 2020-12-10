@@ -2,10 +2,13 @@ import React, { useContext, useEffect, useState } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import * as userActions from 'actions/userActions';
+import { toastr } from 'react-redux-toastr';
 import cx from 'classnames';
 import './PipelinesExecutionView.scss';
 import { OPERATION, ALGORITHM, VISUALIZATION } from 'dataTypes';
-import { string, shape } from 'prop-types';
+import ProjectGeneralInfoApi from 'apis/ProjectGeneralInfoApi';
+import { string, shape, arrayOf } from 'prop-types';
+import MLoadingSpinnerContainer from 'components/ui/MLoadingSpinner/MLoadingSpinnerContainer';
 import { generateBreadCrumbs } from 'functions/helpers';
 import ExecutePipelineModal from './ExecutePipelineModal';
 import SelectDataPipelineModal from './SelectDataPipelineModal';
@@ -25,20 +28,35 @@ import DragDropZone from './DragNDropZone';
 import { setProcessors } from './DataPipelineHooks/DataPipelinesReducer';
 import { SET_IS_SHOWING_EXECUTE_PIPELINE_MODAL } from './DataPipelineHooks/actions';
 
+const projectInstance = new ProjectGeneralInfoApi();
+
 const ExecuteButton = () => {
-  const [{ isFormValid }, dispatch] = useContext(DataPipelinesContext);
+  const [{
+    isFormValid,
+    filesSelectedInModal,
+    processorsSelected,
+  }, dispatch] = useContext(DataPipelinesContext);
   const [isDisabled, setIsDisabled] = useState(isFormValid);
   useEffect(() => {
-    setIsDisabled(!isFormValid)
+    setIsDisabled(!isFormValid);
   }, [isFormValid]);
   return (
     <button
-      disabled={isDisabled}
       id="execute-button"
+      style={isDisabled ? { backgroundColor: '#F6F6F6', border: '1px solid #b2b2b2', color: '#2dbe91' } : {}}
       key="pipeline-execute"
       type="button"
       onClick={() => {
-        dispatch({ 
+        if (isDisabled) {
+          if (filesSelectedInModal.length === 0) {
+            toastr.info('Error in files', 'Select first the input files in the Select data modal');
+          }
+          if (processorsSelected.length === 0) {
+            toastr.info('Error in operators', 'Select operators in order to execute on your input files');
+          }
+          return;
+        }
+        dispatch({
           type: SET_IS_SHOWING_EXECUTE_PIPELINE_MODAL,
           isShowingExecutePipelineModal: true,
         });
@@ -60,10 +78,10 @@ const FunctionalExecutionPipelinesView = (props) => {
   } = props;
 
   const isExperiment = path === '/:namespace/:slug/-/experiments/new'
-    || typePipelines === 'new-experiment';
+  || typePipelines === 'new-experiment';
 
   const isDataset = path === '/:namespace/:slug/-/datasets/new'
-    || typePipelines === 'new-data-pipeline';
+  || typePipelines === 'new-data-pipeline';
 
   let activeFeature = 'data';
   let instructionDataModel;
@@ -73,7 +91,6 @@ const FunctionalExecutionPipelinesView = (props) => {
   let prefix = 'Op.';
   let breadCrumbPerPipeline = 'Datasets';
   let breadCrumbRoute = 'datasets';
-  let processorColor = 'var(--dark)';
   if (isExperiment) {
     activeFeature = 'experiments';
     breadCrumbRoute = 'experiments';
@@ -83,40 +100,57 @@ const FunctionalExecutionPipelinesView = (props) => {
     operationTypeToExecute = ALGORITHM;
     operatorsTitle = 'Select a model:';
     prefix = 'Algo.';
-    processorColor = 'rgb(233, 148, 68)';
   } else if (isDataset) {
     instructionDataModel = dataPipelineInstructionData;
     pipelinesTypeExecutionTitle = 'Data pre-processing pipeline';
     operationTypeToExecute = OPERATION;
     operatorsTitle = 'Select a data operation';
-    processorColor = 'rgb(210, 81, 157)';
   } else {
     breadCrumbRoute = 'visualizations';
     instructionDataModel = dataVisualizationInstuctionData;
     pipelinesTypeExecutionTitle = 'Data visualization';
     operationTypeToExecute = VISUALIZATION;
     operatorsTitle = 'Select a data visualization';
-    processorColor = 'rgb(115, 93, 168)';
     breadCrumbPerPipeline = 'Visualizations';
   }
 
-  // Will be useful in redirecting to dashboard.
-  // const exploreAllOperationCards = () => {
-  //   if (operationTypeToExecute === ALGORITHM) history.push('/');
-  //   else if (operationTypeToExecute === OPERATION) history.push('/');
-  //   else history.push('/');
-  // };
+  const [processorsAndProjects, setProcessorsAndProjects] = useState([]);
 
-  const pipelineExploreButtons = [
-    <button
-      key={`explore-${operationTypeToExecute}`}
-      className="p-1"
-      type="button"
-      onClick={() => {}}
-    >
-      Explore all
-    </button>,
-  ];
+  const processorsForCurrentView = setProcessors(
+    processors,
+    operationTypeToExecute,
+  );
+
+  useEffect(() => {
+    Promise.all(
+      processorsForCurrentView
+        .map((proc) => projectInstance.getCodeProjectById(proc.codeProjectId)),
+    )
+      .then((projects) => projects.map((proj) => {
+        const processor = processorsForCurrentView
+          .filter((proc) => proc.codeProjectId === proj.id)[0];
+        const {
+          gitlab_namespace: nameSpace,
+          slug: projSlug,
+          input_data_types: inputDataTypes,
+          stars_count: stars,
+        } = proj;
+        return {
+          ...processor,
+          nameSpace,
+          slug: projSlug,
+          inputDataTypes,
+          stars,
+        };
+      }))
+      .then(setProcessorsAndProjects);
+  }, [processors]);
+
+  if (processorsAndProjects.length === 0) {
+    return (
+      <MLoadingSpinnerContainer active />
+    );
+  }
 
   const customCrumbs = [
     {
@@ -133,7 +167,7 @@ const FunctionalExecutionPipelinesView = (props) => {
   ];
 
   return (
-    <Provider currentProcessors={setProcessors(processors, operationTypeToExecute)}>
+    <Provider currentProcessors={processorsAndProjects}>
       <SelectDataPipelineModal />
       <ExecutePipelineModal
         type={operationTypeToExecute}
@@ -186,12 +220,10 @@ const FunctionalExecutionPipelinesView = (props) => {
 
         <MCard
           className="pipe-line-execution tasks-list"
-          buttons={pipelineExploreButtons}
-          cardHeaderStyle={processorColor}
           title={operatorsTitle}
         >
-          <MCard.Section cardContentStyle={processorColor}>
-            <ProcessorsList />
+          <MCard.Section>
+            <ProcessorsList operationTypeToExecute={operationTypeToExecute?.toLowerCase()} />
           </MCard.Section>
         </MCard>
       </div>
@@ -201,6 +233,7 @@ const FunctionalExecutionPipelinesView = (props) => {
 
 FunctionalExecutionPipelinesView.defaultProps = {
   preconfiguredOperations: {},
+  processors: [],
 };
 
 FunctionalExecutionPipelinesView.propTypes = {
@@ -213,7 +246,7 @@ FunctionalExecutionPipelinesView.propTypes = {
       typePipelines: string,
     }).isRequired,
   }).isRequired,
-  processors: shape({}).isRequired,
+  processors: arrayOf(shape({})),
   preconfiguredOperations: shape({}),
   actions: shape({}).isRequired,
 };

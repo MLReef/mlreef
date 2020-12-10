@@ -48,8 +48,7 @@ const InputParam = ({ param, dataProcessorId }) => {
           {`${param.name}: `}
         </span>
         <Input
-          callback={() => {}}
-          onBlurCallback={validateFields}
+          callback={validateFields}
           placeholder={String(param.default_value)}
           value={param.value}
           hasErrors={hasErrors}
