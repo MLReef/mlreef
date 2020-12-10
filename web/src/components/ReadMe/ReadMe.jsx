@@ -22,11 +22,10 @@ const Readme = ({ projectId, branch, namespace, slug }) => {
   }, [projectId, branch]);
 
   const modifyImageSource = (input) => {
-    const relToAbsPath = new URL(input, `${getRootUrl()}:10080/${namespace}/${slug}/raw/${branch}/`).href;
     if (/^https?:/.test(input)) {
       return input;
     }
-    return relToAbsPath;
+    return `/api/v4/projects/${projectId}/repository/files/${encodeURIComponent(input)}/raw?ref=${branch}`;
   };
 
   return (
