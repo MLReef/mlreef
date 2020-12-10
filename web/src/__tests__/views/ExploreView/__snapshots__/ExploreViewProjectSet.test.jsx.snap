@@ -26,7 +26,7 @@ exports[`ExploreViewProjectSet appareance assert that snapshot matches 1`] = `
           width="24"
         />
         <div
-          className="card-container project-card-container"
+          className="card-container project-card-container undefined"
         >
           <a
             className="project-card-link"

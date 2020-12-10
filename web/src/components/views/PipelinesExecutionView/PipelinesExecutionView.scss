@@ -1,3 +1,5 @@
+$border-size: 0 0 1px 1.5px;
+
 /* ----------------------Classes for everything ---------------------*/
 
 .round-border-button {
@@ -62,13 +64,25 @@
   width: -webkit-fill-available;
   width: -moz-available;
   padding: 2% 2% 2% 3%;
-  margin-top: 2%;
-  cursor: grab;
+  margin: 0.75rem 0 0.75rem 0;
   transition: transform 200ms ease, box-shadow 200ms ease;
 }
 
 .data-operations-item:hover{
-    border: 1px solid #32AFC3;
+  box-shadow: $border-size var(--info) !important;
+  cursor: pointer;
+}
+
+.data-operations-item.algorithm {
+  box-shadow: $border-size #E99444;
+}
+
+.data-operations-item.operation {
+  box-shadow: $border-size #D2519D;
+}
+
+.data-operations-item.visualization {
+  box-shadow: $border-size #735DA8;
 }
 
 

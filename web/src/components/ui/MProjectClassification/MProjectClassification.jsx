@@ -186,6 +186,7 @@ class MProjectClassification extends Component {
             <ProjectSet
               allProjects={allProjects}
               isLoading={isLoading}
+              classification={classification}
             />
             <MWrapper disable title="Not available yet.">
               <div className="d-none d-lg-block" id="side-filters">

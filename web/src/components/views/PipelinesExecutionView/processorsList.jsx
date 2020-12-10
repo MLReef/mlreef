@@ -1,16 +1,13 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useContext } from 'react';
 import {
   shape, string,
 } from 'prop-types';
-import ProjectGeneralInfoApi from 'apis/ProjectGeneralInfoApi';
 import MProjectCardTypes from '../../ui/MProjectCard/MProjectCardTypes';
 import ArrowButton from '../../arrow-button/arrowButton';
 import { DataPipelinesContext } from './DataPipelineHooks/DataPipelinesProvider';
 import { SET_PROCESSOR_SELECTED } from './DataPipelineHooks/actions';
 
-const projectInstance = new ProjectGeneralInfoApi();
-
-const ProcessorsList = () => {
+const ProcessorsList = ({ operationTypeToExecute }) => {
   const [{ currentProcessors }] = useContext(DataPipelinesContext);
   return (
     <div id="data-operations-list" className="scroll-styled">
@@ -18,34 +15,30 @@ const ProcessorsList = () => {
         <Processor
           key={`processors-available-${processor.internalProcessorId}`}
           processorData={processor}
+          operationTypeToExecute={operationTypeToExecute}
         />
       ))}
     </div>
   );
 };
 
-export const Processor = ({ processorData }) => {
+export const Processor = ({ processorData, operationTypeToExecute }) => {
   const [shouldDescriptionRender, setShouldDescriptionRender] = useState(false);
-  const [codeProjectInformation, setCodeProjectInformation] = useState({});
   const {
-    gitlab_namespace: nameSpace,
+    nameSpace,
     slug,
-    input_data_types: inputDataTypes,
-    stars_count: stars,
-  } = codeProjectInformation;
+    inputDataTypes,
+    stars,
+  } = processorData;
 
   const [, dispatch] = useContext(DataPipelinesContext);
-  useEffect(() => {
-    projectInstance.getCodeProjectById(processorData.codeProjectId)
-      .then((res) => setCodeProjectInformation(res));
-  }, [processorData]);
 
   return (
     <div
       draggable
       onDragStart={() => dispatch({ type: SET_PROCESSOR_SELECTED, processorData })}
       onDragEnd={() => dispatch({ type: SET_PROCESSOR_SELECTED, processorData: null })}
-      className="data-operations-item round-border-button shadowed-element"
+      className={`data-operations-item ${operationTypeToExecute} round-border-button`}
     >
       <div className="header d-flex">
         <div className="processor-title">
