@@ -7,7 +7,7 @@ import { toastr } from 'react-redux-toastr';
 import { Base64 } from 'js-base64';
 import { Link } from 'react-router-dom';
 import {
-  string, shape, arrayOf, func,
+  string, shape, arrayOf, func, number,
 } from 'prop-types';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
@@ -28,7 +28,6 @@ const file01 = '/images/svg/file_01.svg';
 
 const filesApi = new FilesApi();
 const commitsApi = new CommitsApi();
-
 
 export class FileView extends React.Component {
   constructor(props) {
@@ -124,7 +123,7 @@ export class FileView extends React.Component {
 
     let fileName = null;
     let fileSize = null;
-    let avatar = 'https://assets.gitlab-static.net/uploads/-/system/user/avatar/3839940/avatar.png';
+    let avatar;
     let fileContent = null;
     let filepath = [];
     let extension;
@@ -215,20 +214,28 @@ export class FileView extends React.Component {
 
           <span className="filepath">
             <b>
-              <a href={`/${namespace}/${slug}`}>{name}</a>
+              <Link to={`/${namespace}/${slug}`}>
+                {name}
+              </Link>
               {' '}
-              /
-              {filepath.map((path, i) => (filepath.length === i + 1 ? (
-                <span key={path}>{path}</span>
-              ) : (
-                <span key={i.toString()}>
-                  <a href="/">
-                    {path}
-                    {' '}
-                  </a>
-                  /
+              {filepath.slice(0, -1)
+                .reduce((acc, namePath) => ({
+                  cur: `${acc.cur}/${namePath}`,
+                  list: acc.list.concat({
+                    path: `${acc.cur}/${namePath}`,
+                    namePath,
+                  }),
+                }), { cur: '', list: [] })
+                .list.map(({ path, namePath }) => (
+                  <Link key={path} to={`/${namespace}/${slug}/-/tree/${branch}${path}`}>
+                    {`/ ${namePath} `}
+                  </Link>
+                ))}
+              {filepath.slice(-1).map((path) => (
+                <span key={`final-${path}`}>
+                  {`/ ${path}`}
                 </span>
-              )))}
+              ))}
             </b>
           </span>
         </div>
@@ -236,22 +243,26 @@ export class FileView extends React.Component {
           <div className="file-container-header">
             <div className="commit-info">
               <div className="d-flex">
-                <Link to={`/${authorName}`} className="m-auto">
-                  <img className="avatar-circle ml-3 mr-2" src={avatar} alt={authorName} />
-                </Link>
+                {avatar && (
+                  <Link to={`/${authorName}`} className="m-auto">
+                    <img className="avatar-circle ml-3 mr-2" src={avatar} alt={authorName} />
+                  </Link>
+                )}
               </div>
               <div className="commit-msg">
                 <div className="title">{message}</div>
-                <span>
-                  {'by '}
-                  <Link to={`/${authorName}`}>
-                    <b>
-                      {authorName}
-                    </b>
-                  </Link>
-                  {' authored '}
-                  <b>{dayjs(createdAt).fromNow()}</b>
-                </span>
+                {!authorName?.match(/.+@.+/) && (
+                  <span>
+                    {'by '}
+                    <Link to={`/${authorName}`}>
+                      <b>
+                        {authorName}
+                      </b>
+                    </Link>
+                    {' authored '}
+                    <b>{dayjs(createdAt).fromNow()}</b>
+                  </span>
+                )}
               </div>
             </div>
             <div className="commit-code">
@@ -317,9 +328,9 @@ export class FileView extends React.Component {
           >
             <div className="file-content">
               {extension === 'jpg' || extension === 'png' ? (
-                <div>
+                <div className="d-flex">
                   <img
-                    className="file-img"
+                    className="file-img mx-auto"
                     src={`data:image/png;base64,${fileData.content}`}
                     alt={fileName}
                   />
@@ -347,6 +358,7 @@ FileView.defaultProps = {
 };
 
 FileView.propTypes = {
+  projectId: number.isRequired,
   match: shape({
     params: shape({
       namespace: string.isRequired,
