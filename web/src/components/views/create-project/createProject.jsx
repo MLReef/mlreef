@@ -301,7 +301,7 @@ class CreateProject extends Component {
      <>
        <Navbar />
        <div className="new-project main-div row mt-4">
-         <div className="proj-description col-sm-12 col-lg-4 pr-3 ">
+         <div className="proj-description col-sm-12 col-lg-3 pr-3 ">
            <span>
              New
              {' '}
@@ -309,7 +309,7 @@ class CreateProject extends Component {
            </span>
            <p>{newProjectInstructions}</p>
          </div>
-         <div className="form-control col-sm-12 col-lg-8">
+         <div className="form-control col-sm-12 col-lg-7">
            <form>
              <label data-cy="projectName" className="label-name" htmlFor="projectTitle">
                <span className="heading mb-1">Project Name</span>

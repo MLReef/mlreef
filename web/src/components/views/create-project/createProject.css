@@ -2,6 +2,11 @@
     display: flex;
     margin: 0 1rem;
     height: auto;
+    justify-content: center;
+}
+
+.proj-description {
+    margin-right: 1rem;
 }
 
 .proj-description > span{
