@@ -1,0 +1,11 @@
+#!/bin/bash
+
+set -e
+
+echo "MLReef Rocks"
+java -version
+
+# call the Gitlab wrapper
+/assets/wrapper
+
+# java -cp app:app/lib/* com.mlreef.rest.RestApplicationKt

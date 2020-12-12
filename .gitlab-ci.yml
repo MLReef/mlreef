@@ -45,7 +45,6 @@ variables:
       - README.md
 
 
-
 # provision boots up the new ec2 instance for deploying MLReef
 provision:
   extends: [".except-docu-branches"]
@@ -60,8 +59,6 @@ provision:
     url: $CI_PIPELINE_URL
     on_stop: decommission             # clean up after branch merge
     auto_stop_in: 2 weeks
-
-
 
 
 gitlab env config:
