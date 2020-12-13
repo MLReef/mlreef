@@ -1,5 +1,7 @@
 #!/bin/sh
 
+sentinelhub.config --show
+
 STATISTIC_FILE="experiment.json"
 echo "EPF_PIPELINE_SECRET is $EPF_PIPELINE_SECRET"
 echo "EPF_PIPELINE_URL is $EPF_PIPELINE_URL"
