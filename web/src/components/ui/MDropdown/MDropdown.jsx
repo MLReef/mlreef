@@ -22,7 +22,7 @@ const MDropdown = (props) => {
 
   const handleBodyClick = (e) => {
     const clickedElement = document.elementFromPoint(e.clientX, e.clientY);
-    if(!dropDownRef.current) return;
+    if (!dropDownRef.current) return;
     if (!dropDownRef.current.contains(clickedElement)) {
       close();
     }

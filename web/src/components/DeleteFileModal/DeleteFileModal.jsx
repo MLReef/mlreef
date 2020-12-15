@@ -109,7 +109,7 @@ const DeleteFileModal = ({
             onClick={() => {
               setLoading(!loading);
               const baseUrl = `/${namespace}/${slug}`;
-              const requestUrl = isNewMR ? `/-/merge_requests/new?merge_request[source_branch]=${targetBranch}` : '';
+              const requestUrl = isNewMR ? `/-/merge_requests/new?merge_request[source_branch]=${targetBranch}` : `/-/tree/${targetBranch}`;
               const completeUrl = `${baseUrl}${requestUrl}`;
               deleteFileActions.createCommit(
                 projectId,
