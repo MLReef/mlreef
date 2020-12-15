@@ -3,9 +3,7 @@
 ### Observed behaviour
 
 
-
 ### Expected behaviour
-
 
 
 ### Steps to reproduce
@@ -15,7 +13,13 @@
 
 
 ### Solution
-<!-- Add technical implementation details and the results of the tickets discussion here. -->
+<!--
+  AKA. Specification
+  Add technical implementation details and the results of the ticket's discussion here.
+  Specifications written here need to be taken seriously.
+
+  If you write speculation here, mark it as such.
+-->
 
 
 
