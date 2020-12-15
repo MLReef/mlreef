@@ -30,6 +30,12 @@ class DataProcessorService(
     fun getProcessorByProjectId(projectId: UUID): DataProcessor? =
         dataProcessorRepository.findAllByCodeProjectId(projectId).firstOrNull()
 
+    fun getProcessorVersionByProjectId(projectId: UUID): ProcessorVersion? {
+        return getProcessorByProjectId(projectId)?.let {
+            processorVersionRepository.findAllByDataProcessorId(it.id).firstOrNull()
+        }
+    }
+
     fun saveDataProcessor(dataProcessor: ProcessorVersion): ProcessorVersion {
         dataProcessorRepository.save(dataProcessor.dataProcessor)
         return processorVersionRepository.save(dataProcessor)
@@ -67,5 +73,22 @@ class DataProcessorService(
         }
 
         return dataProcessorRepository.save(newProcessor)
+    }
+
+    fun createVersionForDataProcessor(
+        dataProcessor: DataProcessor,
+        publisher: Subject? = null,
+        command: String? = null,
+        number: Long = 1L
+    ): ProcessorVersion {
+        return processorVersionRepository.save(
+            ProcessorVersion(
+                UUID.randomUUID(),
+                dataProcessor,
+                publisher,
+                number = number,
+                command = command ?: ""
+            )
+        )
     }
 }

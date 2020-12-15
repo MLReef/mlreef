@@ -251,3 +251,7 @@ interface SearchableTagRepository : KtCrudRepository<SearchableTag, UUID> {
 
 @Repository
 interface EmailRepository : KtCrudRepository<Email, UUID>
+
+@Repository
+interface BaseEnvironmentsRepository : KtCrudRepository<BaseEnvironments, UUID>
+

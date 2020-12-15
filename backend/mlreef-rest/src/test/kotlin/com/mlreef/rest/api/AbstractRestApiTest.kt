@@ -5,6 +5,8 @@ import com.mlreef.rest.Account
 import com.mlreef.rest.AccountRepository
 import com.mlreef.rest.AccountTokenRepository
 import com.mlreef.rest.ApplicationProfiles
+import com.mlreef.rest.BaseEnvironments
+import com.mlreef.rest.BaseEnvironmentsRepository
 import com.mlreef.rest.CodeProject
 import com.mlreef.rest.DataProcessor
 import com.mlreef.rest.DataProcessorInstance
@@ -28,6 +30,7 @@ import com.mlreef.rest.PipelineType
 import com.mlreef.rest.ProcessorParameter
 import com.mlreef.rest.ProcessorParameterRepository
 import com.mlreef.rest.ProcessorVersion
+import com.mlreef.rest.PublishingMachineType
 import com.mlreef.rest.UserRole
 import com.mlreef.rest.VisibilityScope
 import com.mlreef.rest.external_api.gitlab.GitlabRestClient
@@ -88,6 +91,7 @@ import org.springframework.restdocs.payload.JsonFieldType
 import org.springframework.restdocs.payload.PayloadDocumentation
 import org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath
 import org.springframework.restdocs.snippet.Snippet
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.Authentication
 import org.springframework.security.core.context.SecurityContext
 import org.springframework.security.core.context.SecurityContextHolder
@@ -162,6 +166,9 @@ abstract class AbstractRestApiTest : AbstractRestTest() {
 
     @Autowired
     protected lateinit var dataProcessorService: DataProcessorService
+
+    @Autowired
+    private lateinit var baseEnvironmentsRepository: BaseEnvironmentsRepository
 
     private val passwordEncoder: PasswordEncoder = BCryptPasswordEncoder()
 
@@ -415,7 +422,7 @@ abstract class AbstractRestApiTest : AbstractRestTest() {
     }
 
     protected fun mockGitlabPipelineWithBranch(targetBranch: String) {
-        val commit = Commit(id = "12341234")
+        val commit = Commit(id = UUID.randomUUID().toString())
         val branch = Branch(name = targetBranch)
         val gitlabPipeline = GitlabPipeline(
             RandomUtils.randomGitlabId(),
@@ -443,6 +450,46 @@ abstract class AbstractRestApiTest : AbstractRestTest() {
         } returns gitlabPipeline
     }
 
+    protected fun mockFilesInBranch(fileName: String) {
+        val repoTree = RepositoryTree(UUID.randomUUID().toString(), fileName, RepositoryTreeType.BLOB, "/", "064")
+        val repoTreePage = RepositoryTreePaged(listOf(repoTree), 1, 1, 1, 1)
+        every {
+            restClient.adminGetProjectTree(any(), any(), any(), any())
+        } returns repoTreePage
+    }
+
+    protected fun mockFilesInBranchOnlyOnce(fileName: String, fileNameAlwaysPresent: String) {
+        val alwaysRepoTree = RepositoryTree(UUID.randomUUID().toString(), fileNameAlwaysPresent, RepositoryTreeType.BLOB, "/", "064")
+        val repoTree = RepositoryTree(UUID.randomUUID().toString(), fileName, RepositoryTreeType.BLOB, "/", "064")
+        val repoTreePage = RepositoryTreePaged(listOf(repoTree, alwaysRepoTree), 1, 1, 1, 1)
+        val repoTreePageEmpty = RepositoryTreePaged(listOf(alwaysRepoTree), 1, 1, 1, 1)
+        every {
+            restClient.adminGetProjectTree(any(), any(), any(), any())
+        } returns repoTreePage andThen repoTreePageEmpty
+    }
+
+    protected fun mockNoFilesInBranch(fileName: String) {
+        val repoTreePage = RepositoryTreePaged(listOf(), 1, 1, 1, 1)
+        every {
+            restClient.adminGetProjectTree(any(), any(), any(), any())
+        } returns repoTreePage
+    }
+
+    fun generateAdminTokenDetails(): TokenDetails {
+        return TokenDetails(
+            username = "test-admin",
+            accessToken = "test-token",
+            accountId = UUID.randomUUID(),
+            personId = UUID.randomUUID(),
+            gitlabUser = GitlabUser(
+                id = Random.nextLong(),
+                username = "test-admin",
+                name = "Admin",
+                email = "admin@mlreef.com",
+                isAdmin = true
+            )
+        )
+    }
 
     fun mockSecurityContextHolder(token: TokenDetails? = null) {
         val finalToken = token ?: TokenDetails(
@@ -456,7 +503,7 @@ abstract class AbstractRestApiTest : AbstractRestTest() {
         val authentication = mockk<Authentication>()
 
         every { authentication.principal } answers { finalToken }
-        every { secContext.authentication } answers { authentication }
+        every { secContext.authentication } answers { UsernamePasswordAuthenticationToken(token, token) }
         every { sessionRegistry.retrieveFromSession(any()) } answers { finalToken }
 
         SecurityContextHolder.setContext(secContext)
@@ -597,6 +644,11 @@ abstract class AbstractRestApiTest : AbstractRestTest() {
         )
     }
 
+    protected fun createVersionForDataProcessor(processor: DataProcessor): ProcessorVersion {
+        return dataProcessorService.createVersionForDataProcessor(processor)
+    }
+
+
     protected fun createDataProcessorInstance(dataOp: ProcessorVersion): DataProcessorInstance {
         val dataProcessorInstance = DataProcessorInstance(UUID.randomUUID(), dataOp)
         val processorParameter = ProcessorParameter(
@@ -608,6 +660,20 @@ abstract class AbstractRestApiTest : AbstractRestTest() {
             processorParameter, "value")
         processorParameterRepository.save(processorParameter)
         return dataProcessorInstanceRepository.save(dataProcessorInstance)
+    }
+
+    protected fun createEnvironment(title: String? = null): BaseEnvironments {
+        return baseEnvironmentsRepository.save(
+            BaseEnvironments(
+                UUID.randomUUID(),
+                title ?: "Test environment",
+                "docker:shmoker",
+                "description",
+                "no requirements",
+                PublishingMachineType.CPU,
+                "3.7"
+            )
+        )
     }
 
     private fun tokenDetails(actualAccount: Account,

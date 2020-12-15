@@ -4,7 +4,8 @@ import com.mlreef.rest.Account
 import com.mlreef.rest.AccountRepository
 import com.mlreef.rest.AccountToken
 import com.mlreef.rest.AccountTokenRepository
-import com.mlreef.rest.BaseEnvironment
+import com.mlreef.rest.BaseEnvironments
+import com.mlreef.rest.BaseEnvironmentsRepository
 import com.mlreef.rest.CodeProject
 import com.mlreef.rest.CodeProjectRepository
 import com.mlreef.rest.DataAlgorithm
@@ -179,7 +180,7 @@ internal fun processorVersionFields(prefix: String = ""): MutableList<FieldDescr
         fieldWithPath(prefix + "number").optional().type(JsonFieldType.NUMBER).description("Relative number of this DataProcessor Version"),
         fieldWithPath(prefix + "branch").optional().type(JsonFieldType.STRING).description("Branch this Version was built on"),
         fieldWithPath(prefix + "command").optional().type(JsonFieldType.STRING).description("Python command to execute"),
-        fieldWithPath(prefix + "base_environment").optional().type(JsonFieldType.STRING).description("Identifier of BaseEnvironment"),
+//        fieldWithPath(prefix + "base_environment").optional().type(JsonFieldType.STRING).description("Identifier of BaseEnvironment"),
         fieldWithPath(prefix + "published_at").optional().type(JsonFieldType.STRING).description("Timestamp of publication"),
         fieldWithPath(prefix + "input_data_type").type(JsonFieldType.STRING).description("DataType for input data"),
         fieldWithPath(prefix + "output_data_type").type(JsonFieldType.STRING).description("DataType for output data"),
@@ -200,6 +201,8 @@ internal fun processorVersionFields(prefix: String = ""): MutableList<FieldDescr
         fieldWithPath(prefix + "pipeline_job_info").optional().type(JsonFieldType.OBJECT).optional().description("Gitlab Pipeline information")
     ).apply {
         addAll(pipelineInfoDtoResponseFields(prefix + "pipeline_job_info."))
+    }.apply {
+        addAll(environmentsFields(prefix + "base_environment."))
     }
 }
 
@@ -235,6 +238,31 @@ internal fun commitFields(prefix: String = ""): MutableList<FieldDescriptor> {
         fieldWithPath(prefix + "message").type(JsonFieldType.STRING).description("Commit message"),
         fieldWithPath(prefix + "id").optional().type(JsonFieldType.STRING).description("Username"),
         fieldWithPath(prefix + "short_id").optional().type(JsonFieldType.STRING).description("Username"),
+    )
+}
+
+internal fun publishingInformationFields(prefix: String = ""): MutableList<FieldDescriptor> {
+    return mutableListOf(
+        fieldWithPath(prefix + "id").optional().type(JsonFieldType.STRING).description("Data processor id"),
+        fieldWithPath(prefix + "branch").optional().type(JsonFieldType.STRING).description("Published branch"),
+        fieldWithPath(prefix + "command").optional().type(JsonFieldType.STRING).description("Command"),
+        fieldWithPath(prefix + "path").optional().type(JsonFieldType.STRING).description("Main script path"),
+    ).apply {
+        addAll(pipelineInfoDtoResponseFields(prefix + "pipeline_job_info."))
+    }.apply {
+        addAll(environmentsFields(prefix + "environment."))
+    }
+}
+
+internal fun environmentsFields(prefix: String = ""): MutableList<FieldDescriptor> {
+    return mutableListOf(
+        fieldWithPath(prefix + "id").optional().type(JsonFieldType.STRING).description("Environment id"),
+        fieldWithPath(prefix + "title").optional().type(JsonFieldType.STRING).description("Title"),
+        fieldWithPath(prefix + "description").type(JsonFieldType.STRING).optional().description("Description"),
+        fieldWithPath(prefix + "requirements").type(JsonFieldType.STRING).optional().description("Library requirements"),
+        fieldWithPath(prefix + "docker_image").optional().type(JsonFieldType.STRING).description("Docker image"),
+        fieldWithPath(prefix + "machine_type").optional().type(JsonFieldType.STRING).description("Machine type"),
+        fieldWithPath(prefix + "sdk_version").optional().type(JsonFieldType.STRING).description("SDK version (Python, Java etc)"),
     )
 }
 
@@ -325,6 +353,9 @@ internal class PipelineTestPreparationTrait : AccountSubjectPreparationTrait() {
     lateinit var dataProject: DataProject
     lateinit var dataProject2: DataProject
     lateinit var codeProject: CodeProject
+    lateinit var baseEnv1: BaseEnvironments
+    lateinit var baseEnv2: BaseEnvironments
+    lateinit var baseEnv3: BaseEnvironments
 
     @Autowired
     private lateinit var pipelineConfigRepository: PipelineConfigRepository
@@ -365,11 +396,17 @@ internal class PipelineTestPreparationTrait : AccountSubjectPreparationTrait() {
     @Autowired
     private lateinit var processorVersionRepository: ProcessorVersionRepository
 
-    override fun apply() {
+    @Autowired
+    private lateinit var baseEnvironmentsRepository: BaseEnvironmentsRepository
 
+    override fun apply() {
         deleteAll()
         super.deleteAll()
         applyAccount()
+
+        baseEnv1 = baseEnvironmentsRepository.save(BaseEnvironments(randomUUID(), RandomUtils.generateRandomUserName(15), "docker1:latest", sdkVersion = "3.7"))
+        baseEnv2 = baseEnvironmentsRepository.save(BaseEnvironments(randomUUID(), RandomUtils.generateRandomUserName(15), "docker2:latest", sdkVersion = "3.7"))
+        baseEnv3 = baseEnvironmentsRepository.save(BaseEnvironments(randomUUID(), RandomUtils.generateRandomUserName(15), "docker3:latest", sdkVersion = "3.7"))
 
         dataProject = dataProjectRepository.save(DataProject(
             UUID.fromString("aaaa0001-0000-0000-0000-dbdbdbdbdbdb"), "data-project1", "url", "Test DataProject",
@@ -388,15 +425,15 @@ internal class PipelineTestPreparationTrait : AccountSubjectPreparationTrait() {
 
         dataOp1 = processorVersionRepository.save(ProcessorVersion(
             id = _dataOp1.id, dataProcessor = _dataOp1, publisher = account.person,
-            command = "command", number = 1, baseEnvironment = BaseEnvironment.default()))
+            command = "command", number = 1, baseEnvironment = baseEnv1))
 
         dataOp2 = processorVersionRepository.save(ProcessorVersion(
             id = _dataOp2.id, dataProcessor = _dataOp2, publisher = account.person,
-            command = "command", number = 1, baseEnvironment = BaseEnvironment.default()))
+            command = "command", number = 1, baseEnvironment = baseEnv2))
 
         dataOp3 = processorVersionRepository.save(ProcessorVersion(
             id = _dataOp3.id, dataProcessor = _dataOp3, publisher = account.person,
-            command = "command", number = 1, baseEnvironment = BaseEnvironment.default()))
+            command = "command", number = 1, baseEnvironment = baseEnv3))
 
         processorParameterRepository.save(ProcessorParameter(randomUUID(), dataOp1.id, "stringParam", type = ParameterType.STRING, order = 0, defaultValue = ""))
         processorParameterRepository.save(ProcessorParameter(randomUUID(), dataOp1.id, "floatParam", type = ParameterType.FLOAT, order = 1, defaultValue = ""))
@@ -433,6 +470,7 @@ internal class PipelineTestPreparationTrait : AccountSubjectPreparationTrait() {
         accountTokenRepository.deleteAll()
         accountRepository.deleteAll()
         personRepository.deleteAll()
+        baseEnvironmentsRepository.deleteAll()
     }
 
 

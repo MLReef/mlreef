@@ -337,6 +337,30 @@ Delete a user with parameters by user_id or gitlab_id from the project by id (:i
 
 operation::project-delete-user-by-params[snippets='curl-request,request-parameters,response-body,response-fields']
 
+=== GET /code-projects/environments
+
+Get environments list for publishing code project
+
+operation::publish-environments-list[snippets='curl-request,response-body']
+
+=== POST /code-projects/environments
+
+Create new environment for publishing code project
+
+operation::create-publish-environment[snippets='curl-request,request-fields,response-body,response-fields']
+
+=== DELETE /code-projects/environments/:id
+
+Delete exiting environment
+
+operation::delete-publish-environment[snippets='curl-request,response-body']
+
+=== GET /code-projects/:id/publish
+
+Get publish information for requested code project
+
+operation::code-projects-publish-info[snippets='curl-request,response-body,response-fields']
+
 === POST /code-projects/:id/publish
 
 Publish current project: pack it to docker and put it to repository

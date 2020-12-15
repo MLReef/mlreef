@@ -2,6 +2,7 @@ package com.mlreef.rest.feature.data_processors
 
 import com.mlreef.rest.external_api.gitlab.GitlabRestClient
 import com.mlreef.rest.external_api.gitlab.RepositoryTreeType
+import com.mlreef.rest.external_api.gitlab.dto.RepositoryTree
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import java.util.Base64
@@ -13,30 +14,62 @@ class RepositoryService(
     companion object {
         val processingExtensions = setOf("py")
         val log = LoggerFactory.getLogger(this::class.java)
+        private const val GITLAB_PATH_SEPARATOR = "/"
     }
 
-    fun getFilesContentOfRepository(gitlabId: Long, path: String? = null, filterByExt: Boolean = true): Map<String, String> {
-        var filesList = gitlabRestClient.adminGetProjectTree(gitlabId, path)
+    fun findFileInRepository(gitlabId: Long, filePath: String?): RepositoryTree? {
+        val splitedFolderAndFile = getPathWithoutFileName(filePath)
+        var filesList = gitlabRestClient.adminGetProjectTree(gitlabId, splitedFolderAndFile?.first)
+
+        while (filesList.page <= filesList.totalPages) {
+            val searchingFile = filesList.content?.find { it.name == splitedFolderAndFile?.second && it.type == RepositoryTreeType.BLOB }
+
+            if (searchingFile != null) return searchingFile
+            if (!(filesList.page < filesList.totalPages)) break
+
+            filesList = gitlabRestClient.adminGetProjectTree(gitlabId, splitedFolderAndFile?.first, pageNumber = filesList.page + 1)
+        }
+
+        return null
+    }
+
+    fun getFilesContentOfRepository(gitlabId: Long, path: String? = null, filterByExt: Boolean = true, processAsFile: Boolean = true): Map<String, String> {
         val allFiles = mutableMapOf<String, String>()
+        var filesList = gitlabRestClient.adminGetProjectTree(gitlabId, path)
+
+        if (path != null && filesList.content?.size == 0 && processAsFile) {
+            val splitedFolderAndFile = getPathWithoutFileName(path)
+
+            filesList = gitlabRestClient.adminGetProjectTree(gitlabId, splitedFolderAndFile?.first)
+
+            filesList.content?.find { it.name == splitedFolderAndFile?.second }?.let {
+                if (it.type == RepositoryTreeType.TREE) {
+                    allFiles.putAll(getFilesContentOfRepository(gitlabId, it.path, filterByExt, false))
+                } else {
+                    it.let {
+                        val fileContent = getFileContent(gitlabId, it.id)
+                        fileContent?.let { content -> allFiles.put(it.path, content) }
+                    }
+                }
+            }
+
+            return allFiles
+        }
 
         while (filesList.page <= filesList.totalPages) {
             filesList.content
                 ?.forEach {
                     if (it.type == RepositoryTreeType.TREE) {
-                        allFiles.putAll(getFilesContentOfRepository(gitlabId, it.path, filterByExt))
+                        allFiles.putAll(getFilesContentOfRepository(gitlabId, it.path, filterByExt, false))
                     } else {
                         if (!filterByExt || processingExtensions.contains(getFilenameExtension(it.name))) {
-                            val file = gitlabRestClient.adminGetRepositoryFileContent(gitlabId, it.id)
-                            try {
-                                allFiles.putAll(mapOf(it.path to String(Base64.getDecoder().decode(file.content))))
-                            } catch (ex: Exception) {
-                                log.error("Cannot decode file ${it.name}")
-                            }
+                            val fileContent = getFileContent(gitlabId, it.id)
+                            fileContent?.let { content -> allFiles.put(it.path, content) }
                         }
                     }
                 }
 
-            if (filesList.page >= filesList.totalPages) break
+            if (!(filesList.page < filesList.totalPages)) break
 
             filesList = gitlabRestClient.adminGetProjectTree(gitlabId, path, pageNumber = filesList.page + 1)
         }
@@ -44,7 +77,31 @@ class RepositoryService(
         return allFiles
     }
 
-    private fun getFilenameExtension(filename: String): String? {
+    private fun getFileContent(gitlabId: Long, fileSha: String): String? {
+        val file = gitlabRestClient.adminGetRepositoryFileContent(gitlabId, fileSha)
+        try {
+            return String(Base64.getDecoder().decode(file.content))
+        } catch (ex: Exception) {
+            log.error("Cannot decode file $fileSha")
+            return null
+        }
+    }
+
+    private fun getFilenameExtension(filename: String): String {
         return filename.substring(filename.lastIndexOf(".") + 1).trim()
+    }
+
+    private fun getPathWithoutFileName(filename: String?): Pair<String?, String?>? {
+        return filename?.let {
+            val pathParts = it.split(GITLAB_PATH_SEPARATOR)
+            if (pathParts.size > 1) {
+                Pair(
+                    pathParts.subList(0, pathParts.size - 1).joinToString(GITLAB_PATH_SEPARATOR), //folder
+                    pathParts[pathParts.size - 1] //filename
+                )
+            } else {
+                Pair(null, it) //folder is null, only filename
+            }
+        }
     }
 }

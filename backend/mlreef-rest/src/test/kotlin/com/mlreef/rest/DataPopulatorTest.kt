@@ -67,6 +67,9 @@ class DataPopulatorTest : AbstractIntegrationTest() {
     @Autowired
     private lateinit var marketplaceService: MarketplaceService
 
+    @Autowired
+    private lateinit var baseEnvironmentsRepository: BaseEnvironmentsRepository
+
     @BeforeEach
     fun prepare() {
         initialDataLoader = InitialDataLoader()
@@ -85,7 +88,8 @@ class DataPopulatorTest : AbstractIntegrationTest() {
             marketplaceService = marketplaceService,
             searchableTagRepository = searchableTagRepository,
             processorVersionRepository = processorVersionRepository,
-            initialDataLoader = initialDataLoader
+            initialDataLoader = initialDataLoader,
+            baseEnvironmentsRepository = baseEnvironmentsRepository
         )
 
         searchableTagRepository.deleteAll()
