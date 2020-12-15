@@ -1,5 +1,7 @@
 package com.mlreef.rest.feature.data_processors.dsl
 
+import com.mlreef.rest.BaseEnvironments
+import com.mlreef.rest.BaseEnvironmentsRepository
 import com.mlreef.rest.CodeProject
 import com.mlreef.rest.CodeProjectRepository
 import com.mlreef.rest.DataProcessor
@@ -27,11 +29,19 @@ class DSLContextBuilder(val owner: Subject, val userToken: String) {
     var codeProjects: ArrayList<CodeProjectBuilder> = arrayListOf()
     var processors: ArrayList<DataProcessorBuilder> = arrayListOf()
     var tags: ArrayList<SearchableTagBuilder> = arrayListOf()
+    var environments: ArrayList<BaseEnvironmentBuilder> = arrayListOf()
 
     fun tag(action: SearchableTagBuilder.() -> Unit): SearchableTagBuilder {
         val builder = SearchableTagBuilder()
         action.invoke(builder)
         tags.add(builder)
+        return builder
+    }
+
+    fun environment(action: BaseEnvironmentBuilder.() -> Unit): BaseEnvironmentBuilder {
+        val builder = BaseEnvironmentBuilder()
+        action.invoke(builder)
+        environments.add(builder)
         return builder
     }
 
@@ -54,7 +64,6 @@ class DSLContextBuilder(val owner: Subject, val userToken: String) {
         processors.add(builder)
         return builder
     }
-
 
     fun buildTags() = tags.map { it.build() }
 
@@ -164,6 +173,33 @@ class DSLContextBuilder(val owner: Subject, val userToken: String) {
         }
     }
 
+    fun mergeSave(
+        repository: BaseEnvironmentsRepository,
+        items: List<BaseEnvironments>,
+    ) = items.map { mergeSave(repository, it) }
+
+    fun mergeSave(
+        repository: BaseEnvironmentsRepository,
+        item: BaseEnvironments,
+    ): BaseEnvironments =
+        when (val existing = repository.findByIdOrNull(item.id)) {
+            null -> {
+                log.info("CREATE Base Environment: $item")
+                repository.save(item)
+            }
+            else -> {
+                log.info("MERGE Base Environment: ${item}")
+                repository.save(existing.copy(
+                    title = item.title,
+                    dockerImage = item.dockerImage,
+                    description = item.description,
+                    requirements = item.requirements,
+                    machineType = item.machineType,
+                    sdkVersion = item.sdkVersion,
+                ))
+            }
+        }
+
     private fun merge(existing: CodeProject, new: CodeProject) = existing.copy<CodeProject>(
         url = new.url,
         slug = new.slug,
@@ -236,20 +272,33 @@ class DSLContextBuilder(val owner: Subject, val userToken: String) {
         }
     }
 
-    fun mergeSaveEverything(restClient: GitlabRestClient, codeProjectRepository: CodeProjectRepository, dataProcessorRepository: DataProcessorRepository, processorVersionRepository: ProcessorVersionRepository, author: Subject) {
+    fun mergeSaveEverything(
+        restClient: GitlabRestClient,
+        codeProjectRepository: CodeProjectRepository,
+        dataProcessorRepository: DataProcessorRepository,
+        processorVersionRepository: ProcessorVersionRepository,
+        baseEnvironmentsRepository: BaseEnvironmentsRepository,
+        author: Subject
+    ) {
         val codeProjectsBuilders = this.codeProjects
         val processorBuilders = this.processors
+        val environmentsBuilders = this.environments
+
+        val environments = environmentsBuilders.map { it.build() }
         val codeProjects = codeProjectsBuilders.map { it.build() }
         val versions = processorBuilders.map { it.buildVersion(it.buildProcessor()) }
         val processors = versions.map { it.dataProcessor }
 
-        executeLogged("2a. CODE PROJECTS") {
+        executeLogged("2a. ENVIRONMENTS") {
+            mergeSave(baseEnvironmentsRepository, environments)
+        }
+        executeLogged("2b. CODE PROJECTS") {
             mergeSave(restClient, codeProjectRepository, author, codeProjects)
         }
-        executeLogged("2b. DATA PROCESSORS") {
+        executeLogged("2c. DATA PROCESSORS") {
             mergeSave(dataProcessorRepository, processors)
         }
-        executeLogged("2c. PROCESSOR VERSIONS & PARAMETERS") {
+        executeLogged("2d. PROCESSOR VERSIONS & PARAMETERS") {
             mergeSave(processorVersionRepository, author, versions)
         }
     }

@@ -1,6 +1,6 @@
 package com.mlreef.rest.feature.pipeline
 
-import com.mlreef.rest.BaseEnvironment
+import com.mlreef.rest.BaseEnvironments
 import com.mlreef.rest.DataOperation
 import com.mlreef.rest.DataProcessorInstance
 import com.mlreef.rest.DataType
@@ -9,6 +9,7 @@ import com.mlreef.rest.Person
 import com.mlreef.rest.ProcessorParameter
 import com.mlreef.rest.ProcessorVersion
 import com.mlreef.rest.UserRole
+import com.mlreef.rest.utils.RandomUtils
 import io.mockk.mockk
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
@@ -124,11 +125,14 @@ class YamlFileGeneratorTest {
 
     private fun mockDataProcessorInstance(slug: String): DataProcessorInstance {
         val dataOperation = DataOperation(randomUUID(), slug, "name", DataType.ANY, DataType.ANY)
+
+        val baseEnv = BaseEnvironments(randomUUID(), RandomUtils.generateRandomUserName(15), "docker1:latest", sdkVersion = "3.7")
+
         val processorVersion = ProcessorVersion(
             id = dataOperation.id, dataProcessor = dataOperation, publisher = Person(randomUUID(), "subject", "name", 1, hasNewsletters = true,
             userRole = UserRole.DEVELOPER,
             termsAcceptedAt = ZonedDateTime.now()),
-            command = "augment", number = 1, baseEnvironment = BaseEnvironment.default())
+            command = "augment", number = 1, baseEnvironment = baseEnv)
 
         val processorParameter1 = ProcessorParameter(randomUUID(), processorVersion.id, "stringParam", ParameterType.STRING, 0, "")
         val processorParameter2 = ProcessorParameter(randomUUID(), processorVersion.id, "floatParam", ParameterType.FLOAT, 1, "0.1")

@@ -1,7 +1,6 @@
 package com.mlreef.rest.api
 
 import com.mlreef.rest.AccessLevel
-import com.mlreef.rest.BaseEnvironment
 import com.mlreef.rest.CodeProject
 import com.mlreef.rest.CodeProjectRepository
 import com.mlreef.rest.DataProcessor
@@ -116,7 +115,7 @@ class DataProcessorApiTest : AbstractRestApiTest() {
     ): ProcessorVersion {
         val processorVersion = ProcessorVersion(
             id = randomUUID(), dataProcessor = processor, publisher = processor.author,
-            command = command, branch = branch, number = number, baseEnvironment = BaseEnvironment.default(),
+            command = command, branch = branch, number = number, baseEnvironment = pipelineTestPreparationTrait.baseEnv1,
             parameters = parameters)
         return processorVersionRepository.save(processorVersion)
     }

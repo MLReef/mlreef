@@ -1,5 +1,7 @@
 package com.mlreef.rest
 
+import com.fasterxml.jackson.annotation.JsonValue
+
 enum class AccessLevel(val accessCode: Int) {
     NONE(0),
     VISITOR(5), // Use VISITOR for PUBLIC projects as pseudo role
@@ -28,4 +30,28 @@ enum class AccessLevel(val accessCode: Int) {
     }
 
     fun satisfies(limit: AccessLevel?) = isSufficientFor(this, limit)
+}
+
+enum class PublishingModelType(val code: Int) {
+    UNDEFINED(0),
+    CNN(1),
+    CLUSTERING(2),
+    TREE(3),
+    REGRESSION(4),
+    ;
+
+    @JsonValue
+    fun getModelTypeCode() = this.code
+}
+
+enum class PublishingMlCategory(val code: Int) {
+    UNDEFINED(0),
+    REGRESSION(1),
+    PREDICTION(2),
+    CLASSIFICATION(3),
+    DIMENSIONALITY_REDUCTION(4),
+    ;
+
+    @JsonValue
+    fun getMlCategoryCode() = this.code
 }

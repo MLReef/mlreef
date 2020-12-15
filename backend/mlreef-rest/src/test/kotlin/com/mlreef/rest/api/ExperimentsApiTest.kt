@@ -251,7 +251,7 @@ class ExperimentsApiTest : AbstractRestApiTest() {
         val experiment1 = createExperiment(dataProject.id, dataOp1)
 
         val beforeRequestTime = ZonedDateTime.now()
-        val token = experimentRepository.findByIdOrNull(experiment1.id)!!.pipelineJobInfo!!.secret
+        val token = experimentRepository.findByIdOrNull(experiment1.id)!!.pipelineJobInfo!!.secret!!
 
         val tokenDetails = TokenDetails(
             "testusername",
@@ -283,7 +283,7 @@ class ExperimentsApiTest : AbstractRestApiTest() {
         val experiment1 = createExperiment(dataProject.id, dataOp1)
 
         val beforeRequestTime = ZonedDateTime.now()
-        val token = experimentRepository.findByIdOrNull(experiment1.id)!!.pipelineJobInfo!!.secret
+        val token = experimentRepository.findByIdOrNull(experiment1.id)!!.pipelineJobInfo!!.secret!!
 
         val tokenDetails = TokenDetails(
             "testusername",
@@ -393,7 +393,7 @@ class ExperimentsApiTest : AbstractRestApiTest() {
             .andExpect(status().isOk)
             .returns(PipelineJobInfoDto::class.java)
 
-        val token = experimentRepository.findByIdOrNull(experiment1.id)!!.pipelineJobInfo!!.secret
+        val token = experimentRepository.findByIdOrNull(experiment1.id)!!.pipelineJobInfo!!.secret!!
 
         val update = performEPFPut(token, "$epfUrl/experiments/${experiment1.id}/update", body = Object())
             .returns(PipelineJobInfoDto::class.java)

@@ -26,7 +26,7 @@ import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.put
 import org.springframework.test.annotation.Rollback
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import java.time.ZonedDateTime
-import java.util.*
+import java.util.UUID
 import java.util.UUID.randomUUID
 import javax.transaction.Transactional
 
@@ -265,7 +265,7 @@ class ExperimentsIntegrationTest : AbstractIntegrationTest() {
         val request: String = "" +
             """{"metric1": 20.0, "metrik2": 3, "string":"yes"}"""
 
-        val epfToken = experimentRepository.findByIdOrNull(experiment1.id)!!.pipelineJobInfo!!.secret
+        val epfToken = experimentRepository.findByIdOrNull(experiment1.id)!!.pipelineJobInfo!!.secret!!
 
         val returnedResult = this.mockMvc.perform(
             this.defaultAcceptContentEPFBot(epfToken, put("$epfUrl/experiments/${experiment1.id}/update")).content(request))
@@ -288,7 +288,7 @@ class ExperimentsIntegrationTest : AbstractIntegrationTest() {
         val experiment1 = createExperiment(project1.id)
 
         val beforeRequestTime = ZonedDateTime.now()
-        val epfToken = experimentRepository.findByIdOrNull(experiment1.id)!!.pipelineJobInfo!!.secret
+        val epfToken = experimentRepository.findByIdOrNull(experiment1.id)!!.pipelineJobInfo!!.secret!!
 
         val returnedResult = this.mockMvc.perform(
             this.defaultAcceptContentEPFBot(epfToken, put("$epfUrl/experiments/${experiment1.id}/finish")))
@@ -377,7 +377,7 @@ class ExperimentsIntegrationTest : AbstractIntegrationTest() {
             .expectOk()
             .returns(PipelineJobInfoDto::class.java)
 
-        val epfToken = experimentRepository.findByIdOrNull(experiment1.id)!!.pipelineJobInfo!!.secret
+        val epfToken = experimentRepository.findByIdOrNull(experiment1.id)!!.pipelineJobInfo!!.secret!!
 
         val update = performEPFPut(epfToken, "$epfUrl/experiments/${experiment1.id}/update", body = Object())
             .returns(PipelineJobInfoDto::class.java)
@@ -403,7 +403,7 @@ class ExperimentsIntegrationTest : AbstractIntegrationTest() {
         this.performPost("$rootUrl/${project1.id}/experiments/${experiment1.id}/start", token)
             .expectOk()
 
-        val epfToken = experimentRepository.findByIdOrNull(experiment1.id)!!.pipelineJobInfo!!.secret
+        val epfToken = experimentRepository.findByIdOrNull(experiment1.id)!!.pipelineJobInfo!!.secret!!
 
         // SUCCESS
         this.mockMvc.perform(

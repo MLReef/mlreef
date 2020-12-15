@@ -1,8 +1,8 @@
 package com.mlreef.rest.feature.data_processors
 
 import com.mlreef.rest.ApplicationProfiles
-import com.mlreef.rest.BaseEnvironment
 import com.mlreef.rest.DataType
+import com.mlreef.rest.PublishingMachineType
 import com.mlreef.rest.Subject
 import com.mlreef.rest.feature.data_processors.dsl.DSLContextBuilder
 import com.mlreef.rest.feature.data_processors.dsl.ensureData
@@ -53,9 +53,8 @@ class InitialDataLoader {
     val wordcloud_id = fromString("a827c9c4-008c-11eb-adc1-0242ac120002")
     val asfinagtreecover_projectId = fromString("e4575902-2fe2-11eb-adc1-0242ac120002")
     val asfinagtreecover_id = fromString("e4575b82-2fe2-11eb-adc1-0242ac120002")
-    
+    val python_environment_id = fromString("870a0b67-f36b-40c8-9e76-560c32d5f3e8")
 
-    
 
     fun prepare(author: Subject, token: String): DSLContextBuilder {
 
@@ -67,6 +66,36 @@ class InitialDataLoader {
             //            // See SearchableTagType enum class
             //            type = SearchableTagType.UNDEFINED
             //        }
+            // ############## ENVIRONMENT
+            val environment = environment {
+                id = python_environment_id
+                title = "Base environment python-3.6-GPU"
+                dockerImage = "tensorflow/tensorflow:2.1.0-gpu-py3"
+                description = "GPU nvidia drivers and TF 2.1, python 3.6"
+                requirements = """
+                        |cycler==0.10.0
+                        |decorator==4.4.2
+                        |imageio==2.8.0
+                        |joblib==0.14.1
+                        |kiwisolver==1.2.0
+                        |matplotlib==3.2.1
+                        |networkx==2.4
+                        |numpy==1.18.4
+                        |nltk==3.5
+                        |num2words==0.5.10
+                        |opencv-python==4.2.0.34
+                        |Pillow==7.1.2
+                        |pyparsing==2.4.7
+                        |python-dateutil==2.8.1
+                        |PyWavelets==1.1.1
+                        |scikit-image==0.16.2
+                        |scikit-learn==0.23.1
+                        |scipy==1.4.1
+                        |six==1.14.0
+                        """.trimMargin()
+                machineType = PublishingMachineType.GPU
+                sdkVersion = "3.6"
+            }
 
             // ############## OPERATION
             val codeProject_txtops = codeProject {
@@ -81,10 +110,10 @@ class InitialDataLoader {
             }
             operation {
                 linkToCodeProject(codeProject_txtops)
+                linkToEnvironments(environment)
                 id = txt_ops_id
                 command = "txt_ops"
                 number = 1
-                baseEnvironment = BaseEnvironment.default()
                 inputDataType = DataType.TEXT
                 outputDataType = DataType.TEXT
                 publisher = author
@@ -147,10 +176,10 @@ class InitialDataLoader {
             }
             operation {
                 linkToCodeProject(codeProject_add_noise)
+                linkToEnvironments(environment)
                 id = im_add_noise_id
                 command = "im_add_noise"
                 number = 1
-                baseEnvironment = BaseEnvironment.default()
                 inputDataType = DataType.IMAGE
                 outputDataType = DataType.IMAGE
                 publisher = author
@@ -192,10 +221,10 @@ class InitialDataLoader {
             }
             operation {
                 linkToCodeProject(codeProject_color_modifier)
+                linkToEnvironments(environment)
                 id = im_color_modifier_id
                 command = "im_color_modifier"
                 number = 1
-                baseEnvironment = BaseEnvironment.default()
                 inputDataType = DataType.IMAGE
                 outputDataType = DataType.IMAGE
                 publisher = author
@@ -251,10 +280,10 @@ class InitialDataLoader {
             }
             operation {
                 linkToCodeProject(codeProject_create_thumbnails)
+                linkToEnvironments(environment)
                 id = im_create_thumbnails_id
                 command = "im_create_thumbnails"
                 number = 1
-                baseEnvironment = BaseEnvironment.default()
                 inputDataType = DataType.IMAGE
                 outputDataType = DataType.IMAGE
                 publisher = author
@@ -296,10 +325,10 @@ class InitialDataLoader {
             }
             operation {
                 linkToCodeProject(codeProject_distort_affine)
+                linkToEnvironments(environment)
                 id = im_distort_affine_id
                 command = "im_distort_affine"
                 number = 1
-                baseEnvironment = BaseEnvironment.default()
                 inputDataType = DataType.IMAGE
                 outputDataType = DataType.IMAGE
                 publisher = author
@@ -348,10 +377,10 @@ class InitialDataLoader {
             }
             operation {
                 linkToCodeProject(codeProject_random_erasing)
+                linkToEnvironments(environment)
                 id = im_random_erasing_id
                 command = "im_random_erasing"
                 number = 1
-                baseEnvironment = BaseEnvironment.default()
                 inputDataType = DataType.IMAGE
                 outputDataType = DataType.IMAGE
                 publisher = author
@@ -414,10 +443,10 @@ class InitialDataLoader {
             }
             operation {
                 linkToCodeProject(codeProject_rotate)
+                linkToEnvironments(environment)
                 id = im_rotate_id
                 command = "im_rotate"
                 number = 1
-                baseEnvironment = BaseEnvironment.default()
                 inputDataType = DataType.IMAGE
                 outputDataType = DataType.IMAGE
                 publisher = author
@@ -461,10 +490,10 @@ class InitialDataLoader {
 
             operation {
                 linkToCodeProject(codeProject_augment)
+                linkToEnvironments(environment)
                 id = augment_id
                 command = "augment"
                 number = 1
-                baseEnvironment = BaseEnvironment.default()
                 inputDataType = DataType.IMAGE
                 outputDataType = DataType.IMAGE
                 publisher = author
@@ -556,10 +585,10 @@ class InitialDataLoader {
 
             operation {
                 linkToCodeProject(codeProject_randomCrop)
+                linkToEnvironments(environment)
                 id = randomCrop_id
                 command = "im_random_crop"
                 number = 1
-                baseEnvironment = BaseEnvironment.default()
                 inputDataType = DataType.IMAGE
                 outputDataType = DataType.IMAGE
                 publisher = author
@@ -619,10 +648,10 @@ class InitialDataLoader {
 
             operation {
                 linkToCodeProject(codeProject_leeFilter)
+                linkToEnvironments(environment)
                 id = leeFilter_id
                 command = "im_lee_filter"
                 number = 1
-                baseEnvironment = BaseEnvironment.default()
                 inputDataType = DataType.IMAGE
                 outputDataType = DataType.IMAGE
                 publisher = author
@@ -665,10 +694,10 @@ class InitialDataLoader {
             }
             visualization {
                 linkToCodeProject(codeProject_scatterplot)
+                linkToEnvironments(environment)
                 id = scatterplot_id
                 command = "scatterPlot"
                 number = 1
-                baseEnvironment = BaseEnvironment.default()
                 inputDataType = DataType.IMAGE
                 outputDataType = DataType.IMAGE
                 publisher = author
@@ -737,10 +766,10 @@ class InitialDataLoader {
             }
             visualization {
                 linkToCodeProject(codeProject_wordcloud)
+                linkToEnvironments(environment)
                 id = wordcloud_id
                 command = "wordcloud_square"
                 number = 2
-                baseEnvironment = BaseEnvironment.default()
                 inputDataType = DataType.TEXT
                 outputDataType = DataType.IMAGE
                 publisher = author
@@ -774,10 +803,10 @@ class InitialDataLoader {
             }
             visualization {
                 linkToCodeProject(codeProject_tsne)
+                linkToEnvironments(environment)
                 id = tsne_id
                 command = "tsne"
                 number = 3
-                baseEnvironment = BaseEnvironment.default()
                 inputDataType = DataType.IMAGE
                 outputDataType = DataType.IMAGE
                 publisher = author
@@ -834,7 +863,7 @@ class InitialDataLoader {
                     }
                 }
             }
-            
+
             // ############## MODEL #################
             val codeProject_bertsent = codeProject {
                 id = bertsent_projectId
@@ -848,10 +877,10 @@ class InitialDataLoader {
             }
             model {
                 linkToCodeProject(codeProject_bertsent)
+                linkToEnvironments(environment)
                 id = bertsent_id
                 command = "bertscript"
                 number = 3
-                baseEnvironment = BaseEnvironment.default()
                 inputDataType = DataType.TEXT
                 outputDataType = DataType.MODEL
                 publisher = author
@@ -928,10 +957,10 @@ class InitialDataLoader {
             }
             model {
                 linkToCodeProject(codeProject_forecasting)
+                linkToEnvironments(environment)
                 id = forecasting_id
                 command = "forecasting"
                 number = 3
-                baseEnvironment = BaseEnvironment.default()
                 inputDataType = DataType.TABULAR
                 outputDataType = DataType.MODEL
                 publisher = author
@@ -1008,10 +1037,10 @@ class InitialDataLoader {
             }
             model {
                 linkToCodeProject(codeProject_chatbot)
+                linkToEnvironments(environment)
                 id = chatbot_id
                 command = "chatbot_model"
                 number = 1
-                baseEnvironment = BaseEnvironment.default()
                 inputDataType = DataType.TEXT
                 outputDataType = DataType.MODEL
                 publisher = author
@@ -1064,10 +1093,10 @@ class InitialDataLoader {
             }
             model {
                 linkToCodeProject(codeProject_resnet50)
+                linkToEnvironments(environment)
                 id = resnet50_id
                 command = "resnet50"
                 number = 1
-                baseEnvironment = BaseEnvironment.default()
                 inputDataType = DataType.IMAGE
                 outputDataType = DataType.MODEL
                 publisher = author
@@ -1170,10 +1199,10 @@ class InitialDataLoader {
 
             model {
                 linkToCodeProject(codeProject_multimodel)
+                linkToEnvironments(environment)
                 id = multimodel_id
                 command = "multimodel"
                 number = 1
-                baseEnvironment = BaseEnvironment.default()
                 inputDataType = DataType.IMAGE
                 outputDataType = DataType.MODEL
                 publisher = author
@@ -1242,10 +1271,10 @@ class InitialDataLoader {
 
             model {
                 linkToCodeProject(codeProject_asfinagtree)
+                linkToEnvironments(environment)
                 id = asfinagtreecover_id
                 command = "asfinag_tree_cover"
                 number = 5
-                baseEnvironment = BaseEnvironment.default()
                 inputDataType = DataType.IMAGE
                 outputDataType = DataType.MODEL
                 publisher = author
@@ -1333,10 +1362,10 @@ class InitialDataLoader {
 
             model {
                 linkToCodeProject(codeProject_dummy)
+                linkToEnvironments(environment)
                 id = dummy_id
                 command = "debug_dataprocessor"
                 number = 1
-                baseEnvironment = BaseEnvironment.default()
                 inputDataType = DataType.IMAGE
                 outputDataType = DataType.IMAGE
                 publisher = author

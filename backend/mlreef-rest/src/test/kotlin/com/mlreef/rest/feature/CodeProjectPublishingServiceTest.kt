@@ -1,5 +1,7 @@
 package com.mlreef.rest.feature
 
+import com.mlreef.rest.BaseEnvironments
+import com.mlreef.rest.BaseEnvironmentsRepository
 import com.mlreef.rest.CodeProject
 import com.mlreef.rest.CodeProjectRepository
 import com.mlreef.rest.Person
@@ -14,6 +16,7 @@ import com.mlreef.rest.external_api.gitlab.dto.RepositoryTree
 import com.mlreef.rest.external_api.gitlab.dto.RepositoryTreePaged
 import com.mlreef.rest.feature.data_processors.DataProcessorService
 import com.mlreef.rest.feature.data_processors.PythonParserService
+import com.mlreef.rest.feature.data_processors.RepositoryService
 import com.mlreef.rest.feature.project.ProjectResolverService
 import com.mlreef.rest.service.AbstractServiceTest
 import com.mlreef.rest.utils.RandomUtils
@@ -48,6 +51,12 @@ internal class CodeProjectPublishingServiceTest : AbstractServiceTest() {
     @Autowired
     private lateinit var dataProcessorService: DataProcessorService
 
+    @Autowired
+    private lateinit var baseEnvironmentsRepository: BaseEnvironmentsRepository
+
+    @Autowired
+    private lateinit var repositoryService: RepositoryService
+
     @MockkBean
     private lateinit var gitlabClient: GitlabRestClient
 
@@ -57,6 +66,7 @@ internal class CodeProjectPublishingServiceTest : AbstractServiceTest() {
 
     lateinit var subject: Subject
     lateinit var project: CodeProject
+    lateinit var baseEnvironments: BaseEnvironments
 
     private lateinit var service: PublishingService
 
@@ -69,6 +79,9 @@ internal class CodeProjectPublishingServiceTest : AbstractServiceTest() {
                 projectResolverService,
                 dataProcessorService,
                 pythonParserService,
+                baseEnvironmentsRepository,
+                repositoryService,
+                subjectRepository
             ),
             recordPrivateCalls = true
         )
@@ -83,6 +96,10 @@ internal class CodeProjectPublishingServiceTest : AbstractServiceTest() {
                 userRole = UserRole.DEVELOPER,
                 termsAcceptedAt = ZonedDateTime.now()
             )
+        )
+
+        baseEnvironments = baseEnvironmentsRepository.save(
+            BaseEnvironments(UUID.randomUUID(), RandomUtils.generateRandomUserName(15), "docker:latest")
         )
 
         project = codeProjectRepository.save(
@@ -176,7 +193,7 @@ internal class CodeProjectPublishingServiceTest : AbstractServiceTest() {
     fun `Can start publishing pipeline`() {
         val token = "test-token"
 
-        service.startPublishing(userToken = token, projectId = project.id, mainFilePath = null)
+        service.startPublishing(userToken = token, projectId = project.id, mainFilePath = null, environmentId = baseEnvironments.id, mlCategory = null, modelType = null, publisherSubjectId = subject.id)
 
         verify(exactly = 1) {
             gitlabClient.commitFiles(
@@ -197,7 +214,7 @@ internal class CodeProjectPublishingServiceTest : AbstractServiceTest() {
                 action = "create"
             )
         }
-        verify(exactly = 1) {
+        verify(exactly = 2) {
             gitlabClient.adminGetProjectTree(any(), any(), any(), any())
         }
 

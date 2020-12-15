@@ -17,6 +17,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter'
     implementation 'javax.persistence:javax.persistence-api'
     implementation 'org.hibernate:hibernate-core' //, version: '5.3.12.Final'
+    implementation "com.fasterxml.jackson.module:jackson-module-kotlin:2.9.10"
 
     implementation 'org.springframework.data:spring-data-jpa'
     implementation 'org.jetbrains.kotlin:kotlin-reflect'

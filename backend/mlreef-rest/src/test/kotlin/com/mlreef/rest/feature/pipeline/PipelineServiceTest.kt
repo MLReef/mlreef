@@ -1,6 +1,7 @@
 package com.mlreef.rest.feature.pipeline
 
-import com.mlreef.rest.BaseEnvironment
+import com.mlreef.rest.BaseEnvironments
+import com.mlreef.rest.BaseEnvironmentsRepository
 import com.mlreef.rest.CodeProject
 import com.mlreef.rest.CodeProjectRepository
 import com.mlreef.rest.DataOperation
@@ -32,6 +33,7 @@ import com.mlreef.rest.external_api.gitlab.dto.GitlabUser
 import com.mlreef.rest.external_api.gitlab.dto.GitlabUserToken
 import com.mlreef.rest.feature.auth.AuthService
 import com.mlreef.rest.service.AbstractServiceTest
+import com.mlreef.rest.utils.RandomUtils
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
 import io.mockk.verify
@@ -76,6 +78,9 @@ class PipelineServiceTest : AbstractServiceTest() {
     @Autowired
     private lateinit var processorParameterRepository: ProcessorParameterRepository
 
+    @Autowired
+    private lateinit var baseEnvironmentsRepository: BaseEnvironmentsRepository
+
     @MockkBean
     private lateinit var authService: AuthService
 
@@ -85,6 +90,8 @@ class PipelineServiceTest : AbstractServiceTest() {
     private var ownerId: UUID = randomUUID()
     private var dataRepositoryId: UUID = randomUUID()
     private var dataRepositoryId2: UUID = randomUUID()
+
+    lateinit var baseEnv: BaseEnvironments
 
     @BeforeEach
     @Transactional
@@ -501,6 +508,8 @@ class PipelineServiceTest : AbstractServiceTest() {
             userRole = UserRole.DEVELOPER,
             termsAcceptedAt = ZonedDateTime.now()))
 
+        baseEnv = baseEnvironmentsRepository.save(BaseEnvironments(randomUUID(), RandomUtils.generateRandomUserName(15), "docker1:latest", sdkVersion = "3.7"))
+
         val codeProjectId = randomUUID()
 
         codeProjectRepository.save(CodeProject(id = codeProjectId, slug = "code-project-$name", name = "CodeProject $name", ownerId = author.id, url = "url",
@@ -515,7 +524,7 @@ class PipelineServiceTest : AbstractServiceTest() {
 
         val dataOp1 = processorVersionRepository.save(ProcessorVersion(
             id = dataOperation.id, dataProcessor = dataOperation, publisher = author,
-            command = "augment", number = 1, baseEnvironment = BaseEnvironment.default()))
+            command = "augment", number = 1, baseEnvironment = baseEnv))
 
         val createPipelineConfig = service.createPipelineConfig(
             ownerId,

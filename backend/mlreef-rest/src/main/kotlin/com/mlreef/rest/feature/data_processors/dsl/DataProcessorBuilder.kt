@@ -1,6 +1,5 @@
 package com.mlreef.rest.feature.data_processors.dsl
 
-import com.mlreef.rest.BaseEnvironment
 import com.mlreef.rest.DataAlgorithm
 import com.mlreef.rest.DataOperation
 import com.mlreef.rest.DataProcessor
@@ -31,7 +30,7 @@ class DataProcessorBuilder(val processorType: DataProcessorType) {
     var publisher: Subject? = null
     var number: Long = 0
     var branch: String = defaults.branchName()
-    var baseEnvironment: BaseEnvironment = BaseEnvironment.default()
+    var baseEnvironmentId: UUID? = null
     var metricSchema: MetricSchema = MetricSchema.undefined()
     var pipelineJobInfo: PipelineJobInfo? = null
     var publishedAt: ZonedDateTime = ZonedDateTime.now()
@@ -54,7 +53,7 @@ class DataProcessorBuilder(val processorType: DataProcessorType) {
         command = command,
         number = number,
         publishedAt = publishedAt,
-        baseEnvironment = baseEnvironment,
+        baseEnvironmentId = baseEnvironmentId,
         pipelineJobInfo = pipelineJobInfo,
         parameters = buildParameters(dataProcessor)
     )
@@ -149,6 +148,10 @@ class DataProcessorBuilder(val processorType: DataProcessorType) {
         description = useCodeProject.description
         author = useCodeProject.owner
         codeProjectId = useCodeProject.id
+    }
+
+    fun linkToEnvironments(environmentBuilder: BaseEnvironmentBuilder) {
+        baseEnvironmentId = environmentBuilder.id
     }
 
     fun param(type: ParameterType, action: ParameterBuild.() -> Unit): ParameterBuild {

@@ -2,15 +2,16 @@ package com.mlreef.rest.external_api.gitlab.dto
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import java.io.Serializable
+import java.time.ZonedDateTime
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class Commit(
     val authorEmail: String? = null,
     val authorName: String? = null,
-    val authoredDate: String? = null,
+    val authoredDate: ZonedDateTime? = null,
     val committerEmail: String? = null,
     val committerName: String? = null,
-    val committedDate: String? = null,
+    val committedDate: ZonedDateTime? = null,
     val title: String = "",
     val message: String = "",
     val id: String = "",

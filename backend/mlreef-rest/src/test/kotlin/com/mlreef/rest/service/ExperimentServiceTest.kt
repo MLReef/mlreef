@@ -1,6 +1,7 @@
 package com.mlreef.rest.service
 
-import com.mlreef.rest.BaseEnvironment
+import com.mlreef.rest.BaseEnvironments
+import com.mlreef.rest.BaseEnvironmentsRepository
 import com.mlreef.rest.CodeProject
 import com.mlreef.rest.CodeProjectRepository
 import com.mlreef.rest.DataAlgorithm
@@ -29,6 +30,7 @@ import com.mlreef.rest.VisibilityScope
 import com.mlreef.rest.exceptions.ExperimentCreateException
 import com.mlreef.rest.external_api.gitlab.GitlabRestClient
 import com.mlreef.rest.feature.experiment.ExperimentService
+import com.mlreef.rest.utils.RandomUtils
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
@@ -83,6 +85,9 @@ class ExperimentServiceTest : AbstractServiceTest() {
     @Autowired
     private lateinit var processorParameterRepository: ProcessorParameterRepository
 
+    @Autowired
+    private lateinit var baseEnvironmentsRepository: BaseEnvironmentsRepository
+
     @Mock
     private lateinit var gitlabRestClient: GitlabRestClient
 
@@ -92,9 +97,13 @@ class ExperimentServiceTest : AbstractServiceTest() {
     private var dataProjectId: UUID = randomUUID()
     private var dataPipelineConfigId: UUID = randomUUID()
 
+    lateinit var baseEnv: BaseEnvironments
+
     @BeforeEach
     fun prepare() {
         truncateAllTables()
+
+        baseEnv = baseEnvironmentsRepository.save(BaseEnvironments(UUID.randomUUID(), RandomUtils.generateRandomUserName(15), "docker1:latest", sdkVersion = "3.7"))
 
         experimentService = ExperimentService(
             conf = config,
@@ -119,7 +128,7 @@ class ExperimentServiceTest : AbstractServiceTest() {
 
         dataProcessorVersion = processorVersionRepository.save(ProcessorVersion(
             id = dataProcessor.id, dataProcessor = dataProcessor, publisher = subject,
-            command = "augment", number = 1, baseEnvironment = BaseEnvironment.default()))
+            command = "augment", number = 1, baseEnvironment = baseEnv))
 
         val dataPipeline = pipelineConfigRepository.save(PipelineConfig(dataPipelineConfigId, dataProjectId, PipelineType.DATA, "slug", "name", "source_branch", "target_branch/\$SLUG"))
         dataProcessorInstance = dataProcessorInstanceRepository.save(DataProcessorInstance(randomUUID(), dataProcessorVersion, parameterInstances = arrayListOf()))
@@ -205,7 +214,7 @@ class ExperimentServiceTest : AbstractServiceTest() {
 
         val dataProcessor = ProcessorVersion(
             id = _dataProcessor.id, dataProcessor = _dataProcessor, publisher = _dataProcessor.author,
-            command = "augment", number = 1, baseEnvironment = BaseEnvironment.default())
+            command = "augment", number = 1, baseEnvironment = baseEnv)
         processorVersionRepository.save(dataProcessor)
 
         val dataProcessorInstance = DataProcessorInstance(randomUUID(), dataProcessor, parameterInstances = arrayListOf())

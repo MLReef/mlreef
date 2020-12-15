@@ -1,5 +1,6 @@
 package com.mlreef.rest.feature.data_processors
 
+import com.mlreef.rest.BaseEnvironmentsRepository
 import com.mlreef.rest.CodeProject
 import com.mlreef.rest.CodeProjectRepository
 import com.mlreef.rest.DataProcessorRepository
@@ -54,6 +55,9 @@ class InitialDataLoaderTest : AbstractRepositoryTest() {
     @Autowired
     private lateinit var personRepository: PersonRepository
 
+    @Autowired
+    private lateinit var baseEnvironmentsRepository: BaseEnvironmentsRepository
+
     @MockkBean(relaxed = true, relaxUnitFun = true)
     private lateinit var restClient: GitlabRestClient
 
@@ -103,12 +107,16 @@ class InitialDataLoaderTest : AbstractRepositoryTest() {
         val buildContext = initialDataLoader.prepare(author, token)
         val codeProjects = buildContext.codeProjects
         val processors = buildContext.processors
+        val environments = buildContext.environments
 
         assertThat(codeProjects).isNotEmpty
         assertThat(processors).isNotEmpty
+        assertThat(environments).isNotEmpty
     }
 
     private fun checkState(withVersions: Boolean = true) {
+        assertThat(baseEnvironmentsRepository.findByIdOrNull(initialDataLoader.python_environment_id)).isNotNull
+
         assertThat(codeProjectRepository.findByIdOrNull(initialDataLoader.augment_projectId)).isNotNull
         assertThat(codeProjectRepository.findByIdOrNull(initialDataLoader.leeFilter_projectId)).isNotNull
         assertThat(codeProjectRepository.findByIdOrNull(initialDataLoader.randomCrop_projectId)).isNotNull
@@ -151,6 +159,15 @@ class InitialDataLoaderTest : AbstractRepositoryTest() {
 
     @Transactional
     @Test
+    fun `initialDataLoader produces saveable environments`() {
+        val buildContext = initialDataLoader.prepare(author, token)
+        val envBuilders = buildContext.environments
+        val envs = envBuilders.map { it.build() }
+        baseEnvironmentsRepository.saveAll(envs)
+    }
+
+    @Transactional
+    @Test
     @Disabled
     fun `initialDataLoader produces saveable codeProjects & processors`() {
         val buildContext = initialDataLoader.prepare(author, token)
@@ -168,12 +185,15 @@ class InitialDataLoaderTest : AbstractRepositoryTest() {
     @Test
     fun `initialDataLoader produces saveable processors & versions`() {
         val buildContext = initialDataLoader.prepare(author, token)
+        val environmentsBuilders = buildContext.environments
         val codeProjectsBuilders = buildContext.codeProjects
         val processorBuilders = buildContext.processors
 
         var mockGitlabId = 0L
+        val environments = environmentsBuilders.map { it.build() }
         val codeProjects = codeProjectsBuilders.map { it.build().copy<CodeProject>(gitlabId = mockGitlabId++) }
         val versions = processorBuilders.map { it.buildVersion(it.buildProcessor()) }
+        baseEnvironmentsRepository.saveAll(environments)
         codeProjectRepository.saveAll(codeProjects)
         dataProcessorRepository.saveAll(versions.map { it.dataProcessor })
         processorVersionRepository.saveAll(versions)
@@ -253,7 +273,7 @@ class InitialDataLoaderTest : AbstractRepositoryTest() {
     @Test
     fun `initialDataLoader merge-saves everything new`() {
         val buildContext = initialDataLoader.prepare(author, token)
-        buildContext.mergeSaveEverything(restClient, codeProjectRepository, dataProcessorRepository, processorVersionRepository, author)
+        buildContext.mergeSaveEverything(restClient, codeProjectRepository, dataProcessorRepository, processorVersionRepository, baseEnvironmentsRepository, author)
         checkState()
     }
 
@@ -268,7 +288,7 @@ class InitialDataLoaderTest : AbstractRepositoryTest() {
         val versions = processorBuilders.map { it.buildVersion(it.buildProcessor()) }
         versions.map { it.dataProcessor }
 
-        buildContext.mergeSaveEverything(restClient, codeProjectRepository, dataProcessorRepository, processorVersionRepository, author)
+        buildContext.mergeSaveEverything(restClient, codeProjectRepository, dataProcessorRepository, processorVersionRepository, baseEnvironmentsRepository, author)
         checkState()
     }
 
@@ -296,7 +316,6 @@ class InitialDataLoaderTest : AbstractRepositoryTest() {
             .let { insertOrFail(it, codeProjectsIds) }
             .let { insertOrFail(it, processorIds) }
             .let { insertOrFail(it, paramIds) }
-
     }
 
     @Transactional

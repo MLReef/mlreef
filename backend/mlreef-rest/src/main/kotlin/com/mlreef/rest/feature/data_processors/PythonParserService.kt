@@ -1,7 +1,6 @@
 package com.mlreef.rest.feature.data_processors
 
 import com.mlreef.parsing.parsePython3
-import com.mlreef.rest.BaseEnvironment
 import com.mlreef.rest.DataProcessor
 import com.mlreef.rest.MetricSchema
 import com.mlreef.rest.MetricType
@@ -15,7 +14,6 @@ import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import java.io.InputStream
 import java.net.URL
-import java.time.ZonedDateTime
 import java.util.UUID
 
 @Service
@@ -62,7 +60,6 @@ class PythonParserService(
         log.info("Parsing: Found ${annotations.size} annotation")
         log.info("Parsing: Found ${dataProcessors.size} DataProcessors")
 
-
         if (dataProcessors.isEmpty()) {
             log.warn("Found zero DataProcessors, nothing to do")
             return null
@@ -76,14 +73,15 @@ class PythonParserService(
         } else {
             MetricSchema(MetricType.UNDEFINED)
         }
+
         return ProcessorVersion(
             id = dataProcessors.first().id,
             dataProcessor = dataProcessors.first(),
             branch = "master",
-            baseEnvironment = BaseEnvironment.UNDEFINED,
+            baseEnvironment = null,
             number = 1,
             publisher = null,
-            publishedAt = ZonedDateTime.now(),
+            publishedAt = null,
             command = "",
             parameters = parameters.filter { it.processorVersionId == dataProcessors.first().id },
             metricSchema = metricSchema,

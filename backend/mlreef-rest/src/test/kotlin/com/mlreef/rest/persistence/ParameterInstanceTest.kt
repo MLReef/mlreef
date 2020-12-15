@@ -1,6 +1,7 @@
 package com.mlreef.rest.persistence
 
-import com.mlreef.rest.BaseEnvironment
+import com.mlreef.rest.BaseEnvironments
+import com.mlreef.rest.BaseEnvironmentsRepository
 import com.mlreef.rest.DataOperation
 import com.mlreef.rest.DataProcessorInstance
 import com.mlreef.rest.DataType
@@ -13,6 +14,7 @@ import com.mlreef.rest.ProcessorParameterRepository
 import com.mlreef.rest.ProcessorVersion
 import com.mlreef.rest.UserRole
 import com.mlreef.rest.VisibilityScope
+import com.mlreef.rest.utils.RandomUtils
 import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -30,6 +32,8 @@ class ParameterInstanceTest : AbstractRepositoryTest() {
     @Autowired
     private lateinit var processorParameterRepository: ProcessorParameterRepository
 
+    @Autowired
+    private lateinit var baseEnvironmentsRepository: BaseEnvironmentsRepository
 
     private fun createEntity(): Pair<UUID, ParameterInstance> {
         val id = randomUUID()
@@ -38,6 +42,7 @@ class ParameterInstanceTest : AbstractRepositoryTest() {
             userRole = UserRole.DEVELOPER,
             termsAcceptedAt = ZonedDateTime.now())
 //        val codeProject = CodeProject(id = codeProjectId, slug = "code-project-augment", ownerId = author.id, url = "url")
+        val baseEnv = baseEnvironmentsRepository.save(BaseEnvironments(randomUUID(), RandomUtils.generateRandomUserName(15), "docker1:latest", sdkVersion = "3.7"))
         val _dataProcessor = DataOperation(
             id = randomUUID(), slug = "commons-random-crop", name = "Random crop",
             inputDataType = DataType.IMAGE, outputDataType = DataType.IMAGE,
@@ -47,7 +52,7 @@ class ParameterInstanceTest : AbstractRepositoryTest() {
 
         val dataProcessor = ProcessorVersion(
             id = _dataProcessor.id, dataProcessor = _dataProcessor, publisher = author,
-            command = "random_crop", number = 1, baseEnvironment = BaseEnvironment.default())
+            command = "random_crop", number = 1, baseEnvironment = baseEnv)
 
         val processorParameter = ProcessorParameter(randomUUID(), dataProcessor.id, "height", ParameterType.INTEGER, 1, "")
         val dataProcessorInstance = DataProcessorInstance(id = randomUUID(), processorVersion = dataProcessor)

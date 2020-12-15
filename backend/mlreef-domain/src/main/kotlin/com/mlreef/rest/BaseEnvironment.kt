@@ -8,6 +8,7 @@ import com.mlreef.utils.Slugs
  * Should be transformend to a Entity sooner or later, similar to Tags. But currently we know not enough to design that,
  * and a Enum is sufficient.
  */
+@Deprecated("Was replaced with com.mlreef.rest.BaseEnvironments entity. To be deleted")
 enum class BaseEnvironment(
     val title: String,
     val docker_image: String,

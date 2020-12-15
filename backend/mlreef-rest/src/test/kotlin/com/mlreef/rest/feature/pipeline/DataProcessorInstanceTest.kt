@@ -1,6 +1,6 @@
 package com.mlreef.rest.feature.pipeline
 
-import com.mlreef.rest.BaseEnvironment
+import com.mlreef.rest.BaseEnvironments
 import com.mlreef.rest.CodeProject
 import com.mlreef.rest.DataOperation
 import com.mlreef.rest.DataProcessorInstance
@@ -11,6 +11,7 @@ import com.mlreef.rest.ProcessorParameter
 import com.mlreef.rest.ProcessorVersion
 import com.mlreef.rest.UserRole
 import com.mlreef.rest.VisibilityScope
+import com.mlreef.rest.utils.RandomUtils
 import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -39,9 +40,11 @@ class DataProcessorInstanceTest {
             description = "description",
             codeProjectId = codeProjectId)
 
+        val env = BaseEnvironments(randomUUID(), RandomUtils.generateRandomUserName(15), "docker:latest")
+
         val dataOp1 = ProcessorVersion(
             id = _dataOp1.id, dataProcessor = _dataOp1, publisher = author,
-            command = "augment", number = 1, baseEnvironment = BaseEnvironment.default())
+            command = "augment", number = 1, baseEnvironment = env)
 
 
         entity = DataProcessorInstance(id = randomUUID(), processorVersion = dataOp1)

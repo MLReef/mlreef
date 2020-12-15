@@ -8,8 +8,8 @@ import java.time.ZonedDateTime
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 data class PipelineJobInfoDto(
-    val id: Long,
-    val ref: String,
+    val id: Long?,
+    val ref: String?,
     val commitSha: String,
     val createdAt: ZonedDateTime? = null,
     val committedAt: ZonedDateTime? = null,

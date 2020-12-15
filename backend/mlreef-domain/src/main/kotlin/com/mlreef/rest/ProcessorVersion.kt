@@ -8,12 +8,11 @@ import javax.persistence.CascadeType
 import javax.persistence.Column
 import javax.persistence.Embedded
 import javax.persistence.Entity
-import javax.persistence.EnumType
-import javax.persistence.Enumerated
 import javax.persistence.FetchType
 import javax.persistence.ForeignKey
 import javax.persistence.Id
 import javax.persistence.JoinColumn
+import javax.persistence.ManyToOne
 import javax.persistence.OneToMany
 import javax.persistence.OneToOne
 import javax.persistence.Table
@@ -24,7 +23,7 @@ data class ProcessorVersion(
     @Id
     val id: UUID,
 
-    @OneToOne(fetch = FetchType.EAGER, cascade = [CascadeType.REFRESH])
+    @OneToOne(fetch = FetchType.EAGER, cascade = [CascadeType.REFRESH, CascadeType.MERGE])
     @Fetch(value = FetchMode.JOIN)
     @JoinColumn(
         name = "data_processor_id",
@@ -47,11 +46,14 @@ data class ProcessorVersion(
 
     val number: Long,
     val branch: String = defaults.branchName(),
-    val command: String,
+    val command: String = "",
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "base_environment")
-    val baseEnvironment: BaseEnvironment = BaseEnvironment.default(),
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "environment_id", updatable = false, insertable = false)
+    val baseEnvironment: BaseEnvironments? = null,
+
+    @Column(name = "environment_id")
+    val baseEnvironmentId: UUID? = baseEnvironment?.id,
 
     @Column(name = "metric_schema_")
     @Embedded
@@ -61,8 +63,10 @@ data class ProcessorVersion(
     val pipelineJobInfo: PipelineJobInfo? = null,
 
     @Column(name = "published_at")
-    val publishedAt: ZonedDateTime = ZonedDateTime.now(),
+    val publishedAt: ZonedDateTime? = null,
 
     val path: String? = null,
 
-    ) : EPFAnnotation
+    val modelType: String? = null,
+    val mlCategory: String? = null,
+) : EPFAnnotation

@@ -150,16 +150,16 @@ enum class ExperimentStatus(private val stage: Int) {
 @Embeddable
 data class PipelineJobInfo(
     @Column(name = "gitlab_id")
-    var gitlabId: Long,
+    var gitlabId: Long? = null,
 
     @Column(name = "gitlab_commit_sha")
     var commitSha: String,
 
     @Column(name = "gitlab_ref")
-    var ref: String,
+    var ref: String? = null,
 
     @Column(name = "gitlab_hash")
-    var secret: String,
+    var secret: String? = null,
 
     @Column(name = "gitlab_created_at")
     var createdAt: ZonedDateTime? = null,

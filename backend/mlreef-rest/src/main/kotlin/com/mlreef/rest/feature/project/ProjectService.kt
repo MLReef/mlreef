@@ -360,7 +360,7 @@ open class ProjectServiceImpl<T : Project>(
     @RefreshProject
     override fun createProject(
         userToken: String,
-        creatingPersonId: UUID,
+        ownerId: UUID,
         projectSlug: String,
         projectName: String,
         projectNamespace: String,
@@ -390,11 +390,11 @@ open class ProjectServiceImpl<T : Project>(
             visibility
         }
 
-        val ownerId = if (findNamespace != null) {
+        val creatorId = if (findNamespace != null) {
             subjectRepository.findBySlug(findNamespace.path)?.id
                 ?: throw ProjectCreationException(ErrorCode.ProjectNamespaceSubjectNotFound, "Gitlab Namespace ${findNamespace.id} not connected to persisted Subject")
         } else {
-            creatingPersonId
+            ownerId
         }
 
         val gitLabProject = gitlabRestClient.createProject(
@@ -406,7 +406,7 @@ open class ProjectServiceImpl<T : Project>(
             description = description,
             visibility = finalVisibility.toGitlabString(),
             initializeWithReadme = initializeWithReadme)
-        val project = createConcreteProject(ownerId, gitLabProject)
+        val project = createConcreteProject(creatorId, gitLabProject)
         try {
             return if (inputDataTypes != null) {
                 saveProject(project.copy(inputDataTypes = inputDataTypes.toSet()))
@@ -453,8 +453,8 @@ open class ProjectServiceImpl<T : Project>(
             author = null,
             description = "description",
             visibilityScope = VisibilityScope.PRIVATE,
-            outputDataType = inputDataTypes.component1(),
-            inputDataType = inputDataTypes.component1(),
+            outputDataType = inputDataTypes.getOrNull(0) ?: DataType.NONE,
+            inputDataType = inputDataTypes.getOrNull(0) ?: DataType.NONE,
             codeProject = codeProject as CodeProject,
             command = "command $dataProcessorId",
             type = dataProcessorType,

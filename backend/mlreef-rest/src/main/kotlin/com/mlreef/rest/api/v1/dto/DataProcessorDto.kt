@@ -1,19 +1,15 @@
 package com.mlreef.rest.api.v1.dto
 
-import com.mlreef.rest.BaseEnvironment
 import com.mlreef.rest.DataProcessor
 import com.mlreef.rest.DataProcessorType
 import com.mlreef.rest.DataType
 import com.mlreef.rest.MetricType
-import com.mlreef.rest.PipelineJobInfo
 import com.mlreef.rest.ProcessorParameter
 import com.mlreef.rest.ProcessorVersion
 import com.mlreef.rest.VisibilityScope
 import com.mlreef.rest.helpers.DataClassWithId
 import java.time.ZonedDateTime
 import java.util.UUID
-import javax.persistence.Column
-import javax.persistence.Embedded
 
 data class DataProcessorDto(
     override val id: UUID,
@@ -61,9 +57,9 @@ data class ProcessorVersionDto(
     val number: Long,
     val branch: String,
     val command: String,
-    val baseEnvironment: BaseEnvironment,
+    val baseEnvironment: BaseEnvironmentsDto? = null,
     val pipelineJobInfo: PipelineJobInfoDto? = null,
-    val publishedAt: ZonedDateTime
+    val publishedAt: ZonedDateTime? = null
 ) : DataClassWithId
 
 internal fun ProcessorVersion.toDto(): ProcessorVersionDto =
@@ -83,7 +79,7 @@ internal fun ProcessorVersion.toDto(): ProcessorVersionDto =
         parameters = this.parameters.map(ProcessorParameter::toDto),
         publisherId = this.publisher?.id,
         pipelineJobInfo = this.pipelineJobInfo?.toDto(),
-        baseEnvironment = this.baseEnvironment,
+        baseEnvironment = this.baseEnvironment?.toBaseEnvironmentsDto(),
         branch = this.branch,
         command = this.command,
         number = this.number,

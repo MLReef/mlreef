@@ -2,7 +2,8 @@ package com.mlreef.rest.integration
 
 import com.mlreef.rest.Account
 import com.mlreef.rest.AccountRepository
-import com.mlreef.rest.BaseEnvironment
+import com.mlreef.rest.BaseEnvironments
+import com.mlreef.rest.BaseEnvironmentsRepository
 import com.mlreef.rest.CodeProject
 import com.mlreef.rest.CodeProjectRepository
 import com.mlreef.rest.DataAlgorithm
@@ -25,6 +26,7 @@ import com.mlreef.rest.ProcessorParameter
 import com.mlreef.rest.ProcessorParameterRepository
 import com.mlreef.rest.ProcessorVersion
 import com.mlreef.rest.ProcessorVersionRepository
+import com.mlreef.rest.PublishingMachineType
 import com.mlreef.rest.Subject
 import com.mlreef.rest.UserRole
 import com.mlreef.rest.VisibilityScope
@@ -94,9 +96,14 @@ class IntegrationTestsHelper {
     @Autowired
     protected lateinit var publicProjectRepository: PublicProjectsRepository
 
+    @Autowired
+    private lateinit var baseEnvironmentsRepository: BaseEnvironmentsRepository
+
     var dataOp1: ProcessorVersion? = null
     var dataOp2: ProcessorVersion? = null
     var dataOp3: ProcessorVersion? = null
+
+    lateinit var baseEnv: BaseEnvironments
 
     private val processorParametersCache = mutableListOf<ProcessorParameter>()
 
@@ -306,6 +313,10 @@ class IntegrationTestsHelper {
         groupsRepository.deleteAll()
     }
 
+    fun cleanEnvironments() {
+        baseEnvironmentsRepository.deleteAll()
+    }
+
     fun createDataOperation(slug: String? = null, name: String? = null, command: String? = null): DataOperation {
         return dataOperationRepository.save(
             DataOperation(
@@ -328,11 +339,40 @@ class IntegrationTestsHelper {
         )
     }
 
+    fun createBaseEnvironment(title: String? = null): BaseEnvironments {
+        return baseEnvironmentsRepository.save(
+            BaseEnvironments(
+                UUID.randomUUID(),
+                title ?: "Test environment",
+                "docker:shmoker",
+                "description",
+                "no requirements",
+                PublishingMachineType.CPU,
+                "3.7"
+            )
+        )
+    }
+
+    fun putFileToRepository(token: String, projectId: Long, fileName: String, content: String? = null, resourceName: String? = null): String { //returns commit sha
+        return restClient.commitFiles(
+            token = token,
+            projectId = projectId,
+            targetBranch = "master",
+            commitMessage = "Test commit",
+            fileContents = mapOf(fileName to (content ?: readResource(resourceName!!))),
+            action = "create",
+        ).id
+    }
+
+    private fun readResource(pathToFile: String): String {
+        return javaClass.classLoader.getResource(pathToFile)!!.readText()
+    }
+
     fun createProcessorVersion(dataOp1: DataProcessor, publisher: Subject, command: String = "command"): ProcessorVersion {
+        baseEnv = baseEnvironmentsRepository.save(BaseEnvironments(UUID.randomUUID(), RandomUtils.generateRandomUserName(15), "docker1:latest", sdkVersion = "3.7"))
         return processorVersionRepository.save(ProcessorVersion(
             id = dataOp1.id, dataProcessor = dataOp1, publisher = publisher,
-            command = command, number = 1, baseEnvironment = BaseEnvironment.default()))
-
+            command = command, number = 1, baseEnvironment = baseEnv))
     }
 
     fun adaptProcessorVersion(version: ProcessorVersion, publisher: Subject, command: String = "command"): ProcessorVersion {

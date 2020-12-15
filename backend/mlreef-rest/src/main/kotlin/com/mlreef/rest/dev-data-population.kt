@@ -51,7 +51,8 @@ internal class DataPopulator(
     val experimentRepository: ExperimentRepository,
     val searchableTagRepository: SearchableTagRepository,
     val marketplaceService: MarketplaceService,
-    val initialDataLoader: InitialDataLoader
+    val initialDataLoader: InitialDataLoader,
+    val baseEnvironmentsRepository: BaseEnvironmentsRepository,
 ) {
 
     val username = "mlreef"
@@ -134,7 +135,8 @@ internal class DataPopulator(
             restClient = gitlabRestClient,
             codeProjectRepository = codeProjectRepository,
             dataProcessorRepository = dataProcessorRepository,
-            processorVersionRepository = processorVersionRepository
+            processorVersionRepository = processorVersionRepository,
+            baseEnvironmentsRepository = baseEnvironmentsRepository,
         )
     }
 
