@@ -65,6 +65,9 @@ interface ExperimentRepository : KtCrudRepository<Experiment, UUID> {
     fun findOneByDataProjectIdAndId(dataProjectId: UUID, id: UUID): Experiment?
     fun findOneByDataProjectIdAndNumber(dataProjectId: UUID, number: Int): Experiment?
     fun countByDataProjectId(dataProjectId: UUID): Int
+
+    @Query("SELECT max(e.number) FROM Experiment e WHERE e.dataProjectId = :dataProjectId")
+    fun maxNumberByDataProjectId(dataProjectId: UUID): Int?
 }
 
 @Repository
