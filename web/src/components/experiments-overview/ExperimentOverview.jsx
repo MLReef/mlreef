@@ -106,7 +106,7 @@ class ExperimentsOverview extends Component {
           <div className="main-content">
             {selectedExperiment === null && (
             <>
-              <div id="buttons-container">
+              <div id="buttons-container" className="d-flex">
                 {buttons.map((name) => (
                   <button
                     id={name.toLowerCase()}

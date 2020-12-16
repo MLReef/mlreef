@@ -86,7 +86,7 @@ class DataInstanceOverview extends Component {
             }
           />
           <div className="main-content">
-            <div id="buttons-container" className="left">
+            <div id="buttons-container" className="left d-flex">
               <button
                 id="all"
                 type="button"
