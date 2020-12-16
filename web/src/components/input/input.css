@@ -39,3 +39,9 @@
 .grey-border {
     border: 1px solid #888f9a;
 }
+
+.blue-border-dark-blue-letter {
+   border: 1px solid var(--info);
+   background-color: var(--white);
+   color: var(--dark);
+}

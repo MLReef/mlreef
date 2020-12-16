@@ -186,7 +186,7 @@ export class UnconnectedNewGroup extends Component {
                   onChange={this.handleOnChangeVisibility}
                 />
               </div>
-              <div id="buttons-container">
+              <div id="buttons-container" className="d-flex">
                 <button id="cancel-group-creation" type="button" className="btn btn-outline-dark">
                   Cancel
                 </button>

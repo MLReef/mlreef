@@ -1,3 +1,36 @@
+/************ from globalStyles.css ****************/
+
+.pipeline-card {
+   border: 2px solid var(--light);
+   border-radius: 0.3vw;
+   margin-top: 1%;
+   color: var(--dark);
+}
+
+.pipeline-card > .header{
+   display: flex;
+   padding: 0.5em;
+   background-color: var(--light);
+}
+
+.pipeline-card > .header > .title-div > p {
+   margin: unset;
+}
+
+.pipeline-card > .header > .select-div {
+   display: flex;
+   align-content: flex-end;
+   width: 50%;
+   flex-direction: row-reverse;
+}
+
+.pipeline-card > .header > .select-div > select {
+   border: none;
+   background-color: transparent;
+}
+
+/*************************************************/
+
 .pipeline-card > .card-content {
     display: flex;
     flex-wrap: wrap;

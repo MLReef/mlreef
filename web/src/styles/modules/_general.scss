@@ -1,0 +1,74 @@
+// Some styles come from globalStyles.css
+
+a {
+  color: $dark;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+hr {
+  border: none;
+  height: 1px;
+  background: $secondary;
+}
+
+.main-content {
+  max-width: $max-width;
+  align-items: center;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+.fa {
+  // because fa uses weight bold
+  & > .label {
+    font-weight: normal;
+  }
+}
+
+.avatar-container {
+  background-color: $secondary;
+  width: 30px;
+  height: 30px;
+  border: solid 1px var(--white);
+  border-radius: 50%;
+
+  // stack circles
+  &.grouped {
+    margin-right: -1rem;
+  }
+}
+
+/* the following will be removed once branch selector is applied everywhere */
+
+/*
+  mlreef-frontend/web/src/components/fileView/fileView.jsx
+  mlreef-frontend/web/src/components/ui/MBranchSelector/MBranchSelector.jsx
+  mlreef-frontend/web/src/components/views/PipelinesExecutionView/SelectDataPipelineModal/SelectDataPipelineModal.jsx
+  mlreef-frontend/web/src/components/views/PipelinesExecutionView/SelectDataPipelineModal/SelectDataPipelineModal.scss
+*/
+.select-branch {
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  position: absolute;
+  background-color: white;
+  z-index: 10;
+  display: block !important;
+  width: 300px;
+  height: auto;
+  background: #fff;
+  top: 100%;
+  left: 0px;
+  border-radius: 4px;
+}
+
+.search-branch {
+  position: relative;
+  display: block !important;
+}
+
+.search-branch > input {
+  width: -webkit-fill-available;
+}
