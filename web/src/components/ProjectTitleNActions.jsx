@@ -16,7 +16,7 @@ import SocialLinks from 'components/commons/SocialLinks';
 import SEO from 'components/commons/SEO';
 import { PROJECT_TYPES } from 'domain/project/projectTypes';
 import CodeProject from 'domain/project/CodeProject';
-import { fixHostname } from 'functions/helpers';
+// import { fixHostname } from 'functions/helpers';
 import ProjectGeneralInfoApi from '../apis/ProjectGeneralInfoApi.ts';
 import * as projectActions from '../actions/projectInfoActions';
 import MLoadingSpinner from './ui/MLoadingSpinner';
@@ -184,7 +184,7 @@ const ProjectTitleNActions = (props) => {
             <img className="mr-0 mr-lg-1 repo-actions-image" src="/images/svg/clone_01.svg" alt="" />
             <span className="my-auto d-none d-lg-block">Clone</span>
           </div>
-          <MCloneDropdown className="border-rounded-right h-100" http={fixHostname(classProject.httpUrlToRepo)} />
+          <MCloneDropdown className="border-rounded-right h-100" http={classProject.httpUrlToRepo} />
         </div>
       </div>
     </div>
