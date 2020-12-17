@@ -17,11 +17,6 @@ const FilesTable = (props) => {
     isReturnOptVisible,
   } = props;
 
-  let tableColumnsWidth = 25;
-  if (headers.length > 1) {
-    tableColumnsWidth = 100 / headers.length;
-  }
-
   const getBack = () => window.history.back();
 
   return (
@@ -31,7 +26,7 @@ const FilesTable = (props) => {
           {headers.map((header, headerIndex) => {
             const paddingLeft = headerIndex === 0 ? '1.2em' : '0em';
             return (
-              <th key={`tableHeader ${header}`} style={{ width: `${tableColumnsWidth}%` }}>
+              <th key={`tableHeader ${header}`}>
                 <p style={{ paddingLeft }}>{header}</p>
               </th>
             );
@@ -46,7 +41,7 @@ const FilesTable = (props) => {
               <td
                 key={`column-name-${k}`}
                 className="icon-container-column"
-                style={{ width: `${tableColumnsWidth}%` }}
+                style={{ maxWidth: '80vw' }}
               >
                 {keyIndex === 0 && (
                 <div>

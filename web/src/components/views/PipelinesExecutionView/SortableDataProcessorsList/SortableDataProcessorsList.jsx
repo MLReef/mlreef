@@ -31,4 +31,6 @@ const SortableProcessorsList = SortableContainer(({
   );
 });
 
-export default SortableProcessorsList;
+// this pressDelay avoid conflics with onClick events
+// eslint-disable-next-line
+export default (props) => <SortableProcessorsList pressDelay={500} {...props} />;
