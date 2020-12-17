@@ -59,6 +59,7 @@ MInput.defaultProps = {
   readOnly: false,
   styleClass: '',
   cypressTag: '',
+  value: undefined,
 };
 
 MInput.propTypes = {
@@ -67,8 +68,7 @@ MInput.propTypes = {
     .oneOfType([
       PropTypes.string,
       PropTypes.number,
-    ])
-    .isRequired,
+    ]),
   onChange: PropTypes.func,
   onBlur: PropTypes.func,
   error: PropTypes.oneOfType([

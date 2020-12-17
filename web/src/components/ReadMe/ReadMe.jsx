@@ -4,12 +4,16 @@ import { string, number } from 'prop-types';
 import ReactMarkdown from 'react-markdown/with-html';
 import './Readme.scss';
 import { Base64 } from 'js-base64';
-import { getRootUrl } from 'apis/apiHelpers';
 import FilesApi from '../../apis/FilesApi.ts';
 
 const filesApi = new FilesApi();
 
-const Readme = ({ projectId, branch, namespace, slug }) => {
+const Readme = (props) => {
+  const {
+    projectId,
+    branch,
+  } = props;
+
   const [textContent, setTextContent] = useState('');
   useEffect(() => {
     filesApi.getFileData(
@@ -50,15 +54,11 @@ const Readme = ({ projectId, branch, namespace, slug }) => {
 Readme.defaultProps = {
   projectId: null,
   branch: '',
-  namespace: '',
-  slug: '',
 };
 
 Readme.propTypes = {
   projectId: number,
   branch: string,
-  namespace: string,
-  slug: string,
 };
 
 export default Readme;

@@ -121,7 +121,11 @@ export const UnconnectedSelectDataPipelineModal = (props) => {
     else if (pipeStatus === FAILED || pipeStatus === CANCELED) statusIcon = 'var(--danger)';
 
     return (
-      <li style={{ color: statusIcon }} className="pipeline-btn pt-1">
+      <li
+        key={`display-branch-${branch.name}`}
+        style={{ color: statusIcon }}
+        className="pipeline-btn pt-1"
+      >
         <button
           type="button"
           disabled={pipeStatus !== SUCCESS}
@@ -172,7 +176,7 @@ export const UnconnectedSelectDataPipelineModal = (props) => {
                           {branches.filter((branch) => !branch.name.startsWith('data-pipeline')
                                 && !branch.name.startsWith('experiment'))
                             .map((branch, index) => (
-                              <li>
+                              <li key={`branches-${branch.name}`}>
                                 <button
                                   type="button"
                                   key={index.toString()}
@@ -302,9 +306,6 @@ UnconnectedSelectDataPipelineModal.propTypes = {
   branches: arrayOf(shape({})).isRequired,
   initialBranch: string,
   initialCommit: shape({}),
-  jobs: arrayOf(
-    shape().isRequired,
-  ).isRequired,
 };
 
 UnconnectedSelectDataPipelineModal.defaultProps = {

@@ -51,10 +51,10 @@ const DataInstanceDetails = (props) => {
     dataOperations,
     id,
     inputFiles,
-    timeCreatedAgo, 
-    gitlabPipelineId, 
-    diStatus, 
-    branchName, 
+    timeCreatedAgo,
+    gitlabPipelineId,
+    diStatus,
+    branchName,
     updatedAt
   } = dataInstance;
 
@@ -89,6 +89,7 @@ const DataInstanceDetails = (props) => {
       ).then((filesPerProject) => setFiles(filesPerProject))
       .catch(() => toastr.error('Error', 'Something went wrong fetching pipelines'));
     }
+    // eslint-disable-next-line
   }, [gitlabId, path, branchName, dataId]);
 
   const pipelineViewProps = {
@@ -145,7 +146,7 @@ const DataInstanceDetails = (props) => {
                       onPositive: () => isCompleted ? actions
                         .deleteDataInstance(
                           id,
-                          instances[0].id, 
+                          instances[0].id,
                         ).then(() => toastr.success('Success', 'The data instace was deleted'))
                           .then(() => history.push(`/${selectedProject?.gitlabNamespace}/${selectedProject?.slug}/-/datasets`))
                           .catch((err) => toastr.error('Error', err?.message))

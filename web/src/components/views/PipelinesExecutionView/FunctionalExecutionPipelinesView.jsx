@@ -144,6 +144,7 @@ const FunctionalExecutionPipelinesView = (props) => {
         };
       }))
       .then(setProcessorsAndProjects);
+    // eslint-disable-next-line
   }, [processors]);
 
   if (processorsAndProjects.length === 0) {

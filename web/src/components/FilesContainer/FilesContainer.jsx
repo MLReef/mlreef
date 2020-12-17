@@ -79,7 +79,7 @@ const FilesContainer = ({
         <AuthWrapper minRole={30}>
           <Link
             type="button"
-            className="btn btn-basic-dark"
+            className="btn btn-basic-dark btn-sm mr-2"
             to={`/${namespace}/${slug}/-/merge_requests/new?merge_request[source_branch]=${finalBranch}`}
           >
             Create merge request
