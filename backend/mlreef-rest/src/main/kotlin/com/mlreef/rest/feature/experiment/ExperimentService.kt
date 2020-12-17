@@ -94,7 +94,7 @@ class ExperimentService(
                 dataInstanceId = dataInstanceId,
                 slug = validSlug,
                 name = name,
-                number = experimentRepository.countByDataProjectId(dataProjectId) + 1,
+                number = (experimentRepository.maxNumberByDataProjectId(dataProjectId) ?: 0) + 1,
                 inputFiles = inputFiles,
                 sourceBranch = sourceBranch,
                 targetBranch = targetBranch,
