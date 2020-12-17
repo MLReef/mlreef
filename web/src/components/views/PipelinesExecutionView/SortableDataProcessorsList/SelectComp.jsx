@@ -60,7 +60,7 @@ export const SelectComp = ({
   return (
     <>
       <div className="select-comp d-flex mb-3">
-        <span className="mr-auto" style={{ alignSelf: 'center', overflow: 'hidden', padding: '0rem 1rem' }}>
+        <span className="mr-auto" style={{ alignSelf: 'center', padding: '0rem 1rem' }}>
           {param.description && (
             <MTooltip
               scale={120}

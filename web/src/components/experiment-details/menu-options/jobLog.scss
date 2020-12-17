@@ -7,15 +7,15 @@
     width: 100%;
     justify-content: space-between;
     height: max-content;
-  
+
     .job-table {
       display: table;
       width: 100%;
-    
+
       &-header {
         display: table-row;
       };
-    
+
       &-content {
         display: table-cell;
         padding-right: 0.5rem;
@@ -45,18 +45,19 @@
     padding: 0.5em 0em
   }
 
-  
+
   .log-line {
     display: flex;
     color: var(--white);
     margin: 0 0 0 2em;
     padding: 0.35em;
     font-size: 0.8rem;
+    font-family: monospace;
   }
 
   .number-span-container {
     display: 'flex';
-    justify-content: 'right'; 
+    justify-content: 'right';
     width: '1em';
     margin-right: '0.5em';
   }
