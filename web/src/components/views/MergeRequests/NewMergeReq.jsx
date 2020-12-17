@@ -313,7 +313,7 @@ NewMergeRequest.propTypes = {
       slug: string.isRequired,
     }),
   }).isRequired,
-  branches: arrayOf(string).isRequired,
+  branches: arrayOf(shape).isRequired,
   users: arrayOf(
     shape({
       name: string.isRequired,
