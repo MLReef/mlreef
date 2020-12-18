@@ -1,5 +1,5 @@
 import initialState from './initialState';
-import { SET_OPERATIONS, SET_ALGORITHMS, SET_VISUALIZATIONS } from '../actions/actionTypes';
+import { SET_OPERATIONS, SET_ALGORITHMS, SET_VISUALIZATIONS } from '../actionTypes';
 
 export default function processorReducer(state = initialState.processors, action) {
   switch (action.type) {

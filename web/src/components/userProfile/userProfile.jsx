@@ -2,7 +2,7 @@ import React, { useEffect, useMemo } from 'react';
 import * as PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
 import dayjs from 'dayjs';
-import { getProfile } from 'actions/userActions';
+import { getProfile } from 'store/actions/userActions';
 import Navbar from '../navbar/navbar';
 import './userProfile.scss';
 

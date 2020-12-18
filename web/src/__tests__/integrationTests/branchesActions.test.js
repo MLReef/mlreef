@@ -1,4 +1,4 @@
-import * as branchesActions from 'actions/branchesActions';
+import * as branchesActions from 'store/actions/branchesActions';
 import { branchesMock } from 'testData';
 import { storeFactory } from 'functions/testUtils';
 

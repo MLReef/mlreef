@@ -4,7 +4,7 @@ import { useHistory } from 'react-router-dom';
 import propTypes from 'prop-types';
 import cx from 'classnames';
 import './AuthWrapper.css';
-import { fireModal } from 'actions/actionModalActions';
+import { fireModal } from 'store/actions/actionModalActions';
 import {
   useGetOwned,
   useGetHasRole,

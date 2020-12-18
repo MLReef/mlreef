@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import * as userActions from 'actions/userActions';
+import * as userActions from 'store/actions/userActions';
 import { toastr } from 'react-redux-toastr';
 import cx from 'classnames';
 import './PipelinesExecutionView.scss';

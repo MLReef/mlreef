@@ -1,5 +1,5 @@
 import initialState from './initialState';
-import * as types from '../actions/actionTypes';
+import * as types from '../actionTypes';
 
 export default function branchesReducer(state = initialState.branches, action) {
   switch (action.type) {

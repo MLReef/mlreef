@@ -3,7 +3,7 @@ import * as PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import './MActionModal.scss';
-import { closeModal as closeModalAction } from 'actions/actionModalActions';
+import { closeModal as closeModalAction } from 'store/actions/actionModalActions';
 
 const MActionModal = (props) => {
   const {

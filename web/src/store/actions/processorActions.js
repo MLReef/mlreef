@@ -1,6 +1,6 @@
 import { OPERATION, ALGORITHM } from 'dataTypes';
-import { SET_OPERATIONS, SET_ALGORITHMS, SET_VISUALIZATIONS } from './actionTypes';
-import DataProcessorsApi from '../apis/DataProcessorsApi.ts';
+import DataProcessorsApi from 'apis/DataProcessorsApi.ts';
+import { SET_OPERATIONS, SET_ALGORITHMS, SET_VISUALIZATIONS } from '../actionTypes';
 
 const dataProcApi = new DataProcessorsApi();
 /**

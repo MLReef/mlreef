@@ -2,7 +2,7 @@ import React, { useMemo } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
-import { updateUserClosedInstructions } from '../../actions/userActions';
+import { updateUserClosedInstructions } from 'store/actions/userActions';
 import advice01 from '../../images/advice-01.png';
 import './instruction.css';
 

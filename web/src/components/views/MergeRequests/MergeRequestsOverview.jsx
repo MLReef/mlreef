@@ -8,7 +8,7 @@ import {
 import { generateBreadCrumbs } from 'functions/helpers';
 import AuthWrapper from 'components/AuthWrapper';
 import MLoadingSpinner from 'components/ui/MLoadingSpinner';
-import { getMergeRequestsList } from 'actions/mergeActions';
+import { getMergeRequestsList } from 'store/actions/mergeActions';
 import Navbar from '../../navbar/navbar';
 import ProjectContainer from '../../projectContainer';
 import './merge-request-overview.css';

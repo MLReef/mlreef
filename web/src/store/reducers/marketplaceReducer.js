@@ -1,4 +1,4 @@
-import * as types from 'actions/actionTypes';
+import * as types from '../actionTypes';
 import initialState from './initialState';
 
 export default function markerplaceReducer(state = initialState.marketplace, action) {

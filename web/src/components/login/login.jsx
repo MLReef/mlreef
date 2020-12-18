@@ -5,7 +5,7 @@ import { bindActionCreators } from 'redux';
 import { toastr } from 'react-redux-toastr';
 import { Link } from 'react-router-dom';
 import MButton from 'components/ui/MButton';
-import { login, getUserInfo } from 'actions/userActions';
+import { login, getUserInfo } from 'store/actions/userActions';
 import './login.css';
 // import icon from '../../images/ml_reef_icon_01.svg';
 import icon from '../../images/MLReef_Icon_POS_ALPHA-01.svg';

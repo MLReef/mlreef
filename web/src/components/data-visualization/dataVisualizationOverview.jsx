@@ -7,7 +7,7 @@ import {
 import MLoadingSpinner from 'components/ui/MLoadingSpinner';
 import './dataVisualizationOverview.css';
 import DataPipelineApi from 'apis/DataPipelineApi';
-import { closeModal, fireModal } from 'actions/actionModalActions';
+import { closeModal, fireModal } from 'store/actions/actionModalActions';
 import { generateBreadCrumbs } from 'functions/helpers';
 import Navbar from '../navbar/navbar';
 import ProjectContainer from '../projectContainer';

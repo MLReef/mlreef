@@ -5,7 +5,7 @@ import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import MTabs from 'components/ui/MTabs';
 import MAccordion from 'components/ui/MAccordion';
-import { fireModal } from 'actions/actionModalActions';
+import { fireModal } from 'store/actions/actionModalActions';
 import icon from 'images/ml_reef_icon_01.svg';
 import MDropdown from 'components/ui/MDropdown';
 import MSelect from 'components/ui/MSelect';

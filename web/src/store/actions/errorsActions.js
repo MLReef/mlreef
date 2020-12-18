@@ -1,4 +1,4 @@
-import * as types from './actionTypes';
+import * as types from '../actionTypes';
 
 export function reduceErrors(errors) {
   return { type: types.SET_ERROR_STATUS, errors };

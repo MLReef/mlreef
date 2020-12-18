@@ -4,8 +4,8 @@ import { useHistory } from 'react-router-dom';
 import * as PropTypes from 'prop-types';
 import dayjs from 'dayjs';
 import { toastr } from 'react-redux-toastr';
-import { removeProject } from 'actions/projectInfoActions';
-import { fireModal, closeModal } from 'actions/actionModalActions';
+import { removeProject } from 'store/actions/projectInfoActions';
+import { fireModal, closeModal } from 'store/actions/actionModalActions';
 import DeleteProject from './SettingsViewGeneralAdvancedDeleteProject';
 import './SettingsViewGeneralAdvanced.scss';
 

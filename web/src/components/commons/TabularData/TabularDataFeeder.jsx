@@ -5,7 +5,7 @@ import { toastr } from 'react-redux-toastr';
 import cx from 'classnames';
 import RepositoryFileExplorer from 'components/commons/RepositoryFileExplorer';
 import FilesApi from 'apis/FilesApi.ts';
-import { fireModal, closeModal } from 'actions/actionModalActions';
+import { fireModal, closeModal } from 'store/actions/actionModalActions';
 import { inspect } from 'functions/apiCalls';
 import { cvsToArray, jsonToArray, arrayToRichData } from './functions';
 

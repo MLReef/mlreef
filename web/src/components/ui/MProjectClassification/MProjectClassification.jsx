@@ -8,11 +8,11 @@ import { connect } from 'react-redux';
 import { ML_PROJECT } from 'dataTypes';
 import ArrowButton from 'components/arrow-button/arrowButton';
 import MWrapper from 'components/ui/MWrapper';
+import * as projectActions from 'store/actions/projectInfoActions';
+import * as userActions from 'store/actions/userActions';
 import ProjectSet from '../../projectSet';
 import './MProjectClassification.scss';
 import MCheckBox from '../MCheckBox/MCheckBox';
-import * as projectActions from '../../../actions/projectInfoActions';
-import * as userActions from '../../../actions/userActions';
 
 class MProjectClassification extends Component {
   projFilterBtnsList = ['personal', 'starred', 'explore'];

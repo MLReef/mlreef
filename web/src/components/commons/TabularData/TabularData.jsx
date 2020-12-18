@@ -7,7 +7,7 @@ import PropTypes from 'prop-types';
 import cx from 'classnames';
 import MAccordion from 'components/ui/MAccordion';
 import MChart from 'components/ui/MChart';
-import { fireModal, closeModal } from 'actions/actionModalActions';
+import { fireModal, closeModal } from 'store/actions/actionModalActions';
 import TabularDataFeeder from './TabularDataFeeder';
 import TabularDataGraphCreator from './TabularDataGraphCreator';
 import './TabularData.scss';

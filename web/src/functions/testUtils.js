@@ -2,8 +2,8 @@
 import checkPropTypes from 'check-prop-types';
 import { createStore, applyMiddleware } from 'redux';
 
-import rootReducer from '../reducers/index';
-import { middlewares } from '../configureStore';
+import { middlewares } from 'store/configureStore';
+import rootReducer from 'store/reducers/index';
 
 export const findByTestAttr = (wrapper, attrName, val) => wrapper.find(`[${attrName}="${val}"]`);
 

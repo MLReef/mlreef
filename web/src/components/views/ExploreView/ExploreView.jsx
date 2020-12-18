@@ -12,8 +12,8 @@ import TabsRouted from 'components/commons/TabsRouted';
 // import MDataFilters from 'components/ui/MDataFilters';
 import { PROJECT_TYPES } from 'domain/project/projectTypes';
 import { projectClassificationsProps } from 'dataTypes';
-import * as projectActions from 'actions/projectInfoActions';
-import { setIsLoading, setColor } from 'actions/globalMarkerActions';
+import * as projectActions from 'store/actions/projectInfoActions';
+import { setIsLoading, setColor } from 'store/actions/globalMarkerActions';
 import ExploreViewProjectSet from './ExploreViewProjectSet';
 import './ExploreView.scss';
 

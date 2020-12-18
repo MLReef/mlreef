@@ -1,4 +1,4 @@
-import * as types from './actionTypes';
+import * as types from '../actionTypes';
 
 export function reduceColor(color) {
   return { type: types.SET_GLOBAL_COLOR_MARKER, color };
