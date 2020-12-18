@@ -1,5 +1,5 @@
-import JobsApi from '../apis/JobsApi.ts';
-import { GET_JOBS } from './actionTypes';
+import JobsApi from 'apis/JobsApi.ts';
+import { GET_JOBS } from '../actionTypes';
 
 const jobsApi = new JobsApi();
 
@@ -23,4 +23,3 @@ export function getJobsListPerProject(projectId) {
       throw err;
     });
 }
-  

@@ -10,10 +10,11 @@ import { RUNNING, PENDING, PIPELINE_VIEWS_FORMAT } from 'dataTypes';
 import moment from 'moment';
 import DataCard from 'components/layout/DataCard';
 import { bindActionCreators } from 'redux';
-import { closeModal, fireModal } from 'actions/actionModalActions';
+import { closeModal, fireModal } from 'store/actions/actionModalActions';
+import { setPreconfiguredOPerations } from 'store/actions/userActions';
+import { getBranchesList } from 'store/actions/branchesActions';
 import DataInstanteDeleteModal from 'components/DeleteDataInstance/DeleteDatainstance';
 import { goToPipelineView, getInfoFromStatus } from 'functions/pipeLinesHelpers';
-import { setPreconfiguredOPerations } from 'actions/userActions';
 import { generateBreadCrumbs } from 'functions/helpers';
 import FilesApi from '../../apis/FilesApi.ts';
 import './dataVisualizationDetail.scss';
@@ -21,7 +22,6 @@ import Navbar from '../navbar/navbar';
 import FilesTable from '../files-table/filesTable';
 import ProjectContainer from '../projectContainer';
 import actions from '../data-instance/DataInstanceActions';
-import { getBranchesList } from 'actions/branchesActions';
 
 const filesApi = new FilesApi();
 
@@ -50,10 +50,10 @@ const DataVisualizationDetails = ({ ...props }) => {
     id,
     inputFiles,
     dataOperations,
-    timeCreatedAgo, 
-    gitlabPipelineId, 
-    diStatus, 
-    branchName, 
+    timeCreatedAgo,
+    gitlabPipelineId,
+    diStatus,
+    branchName,
     updatedAt
   } = dataInstance;
 
@@ -143,7 +143,7 @@ const DataVisualizationDetails = ({ ...props }) => {
                       onPositive: () => isCompleted ? actions
                         .deleteDataInstance(
                           id,
-                          instances[0].id, 
+                          instances[0].id,
                         ).then(() => toastr.success('Success', 'The data instace was deleted'))
                           .then(() => history.push(`/${project?.gitlabNamespace}/${project?.slug}/-/datasets`))
                           .catch((err) => toastr.error('Error', err?.message))

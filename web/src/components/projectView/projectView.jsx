@@ -7,21 +7,21 @@ import {
 import forkingImage from 'images/forking.png';
 import { OPERATION, ALGORITHM, VISUALIZATION } from 'dataTypes';
 import FilesContainer from 'components/FilesContainer';
-import { redirectNotFound } from 'actions/errorsActions';
 import { generateBreadCrumbs } from 'functions/helpers';
 import { PROJECT_TYPES } from 'domain/project/projectTypes';
+import { redirectNotFound } from 'store/actions/errorsActions';
+import * as projectActions from 'store/actions/projectInfoActions';
+import * as branchesActions from 'store/actions/branchesActions';
+import * as processorActions from 'store/actions/processorActions';
+import * as userActions from 'store/actions/userActions';
+import * as jobsActions from 'store/actions/jobsActions';
+import * as mergeActions from 'store/actions/mergeActions';
 import ReadMeComponent from '../ReadMe/ReadMe';
 import ProjectContainer from '../projectContainer';
 import RepoInfo from '../repoInfo';
 import RepoFeatures from '../repoFeatures';
 import Navbar from '../navbar/navbar';
-import * as projectActions from '../../actions/projectInfoActions';
-import * as branchesActions from '../../actions/branchesActions';
-import * as processorActions from '../../actions/processorActions';
 import './projectView.css';
-import * as userActions from '../../actions/userActions';
-import * as jobsActions from '../../actions/jobsActions';
-import * as mergeActions from '../../actions/mergeActions';
 import EmptyProject from './emptyProject';
 import ProjectLastCommitSect from './LastCommitSect';
 

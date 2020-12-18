@@ -1,5 +1,5 @@
 import initialState from './initialState';
-import { SET_PROJECT_USERS } from '../actions/actionTypes';
+import { SET_PROJECT_USERS } from '../actionTypes';
 
 export default function usersReducer(state = initialState.users, action) {
   switch (action.type) {

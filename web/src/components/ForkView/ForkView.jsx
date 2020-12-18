@@ -6,7 +6,7 @@ import { toastr } from 'react-redux-toastr';
 import './ForkView.scss';
 import forkingImage from 'images/forking.png';
 import ProjectGeneralInfoApi from 'apis/ProjectGeneralInfoApi';
-import { getProjectDetails } from 'actions/projectInfoActions';
+import { getProjectDetails } from 'store/actions/projectInfoActions';
 import Navbar from '../navbar/navbar';
 
 const ForkView = (props) => {

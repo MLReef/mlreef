@@ -1,6 +1,6 @@
 import MLRAuthApi from 'apis/MLAuthApi';
 import store from 'store';
-import * as types from 'actions/actionTypes';
+import * as types from 'store/actionTypes';
 import moment from 'moment';
 
 const authApi = new MLRAuthApi();

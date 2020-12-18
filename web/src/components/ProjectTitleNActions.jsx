@@ -16,9 +16,9 @@ import SocialLinks from 'components/commons/SocialLinks';
 import SEO from 'components/commons/SEO';
 import { PROJECT_TYPES } from 'domain/project/projectTypes';
 import CodeProject from 'domain/project/CodeProject';
+import * as projectActions from 'store/actions/projectInfoActions';
 // import { fixHostname } from 'functions/helpers';
 import ProjectGeneralInfoApi from '../apis/ProjectGeneralInfoApi.ts';
-import * as projectActions from '../actions/projectInfoActions';
 import MLoadingSpinner from './ui/MLoadingSpinner';
 
 const projectGeneralInfoApi = new ProjectGeneralInfoApi();

@@ -13,10 +13,10 @@ import {
   PENDING,
 } from 'dataTypes';
 import { toastr } from 'react-redux-toastr';
-import { closeModal, fireModal } from 'actions/actionModalActions';
+import { closeModal, fireModal } from 'store/actions/actionModalActions';
+import { setPreconfiguredOPerations } from 'store/actions/userActions';
 import DataInstanteDeleteModal from 'components/DeleteDataInstance/DeleteDatainstance';
 import AuthWrapper from 'components/AuthWrapper';
-import { setPreconfiguredOPerations } from 'actions/userActions';
 import { getPipelineIcon, getInfoFromStatus } from 'functions/pipeLinesHelpers';
 import { getTimeCreatedAgo } from 'functions/dataParserHelpers';
 import DataInstanceActions from '../data-instance/DataInstanceActions';

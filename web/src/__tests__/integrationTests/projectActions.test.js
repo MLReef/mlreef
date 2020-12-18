@@ -1,6 +1,6 @@
 import 'babel-polyfill';
 import { storeFactory } from 'functions/testUtils';
-import * as projectInfoActions from "actions/projectInfoActions";
+import * as projectInfoActions from 'store/actions/projectInfoActions';
 import { projectsArrayMock } from 'testData';
 
 describe('assert state changes after project actions are called', () => {
@@ -26,7 +26,7 @@ describe('assert state changes after project actions are called', () => {
     store.dispatch(projectInfoActions.setSelectedProjectSuccesfully(expectedSelectedProj));
     expect(store.getState().projects.selectedProject).toStrictEqual(expectedSelectedProj);
   });
-  
+
   test('assert that projects list is set in the state', () => {
     const expectedArrayOfProjects = projectsArrayMock.projects.all;
     store.dispatch(projectInfoActions.setUserProjectsSuccessfully(expectedArrayOfProjects));

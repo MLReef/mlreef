@@ -9,9 +9,9 @@ import MTabs from 'components/ui/MTabs';
 import { Link } from 'react-router-dom';
 import ArrowButton from 'components/arrow-button/arrowButton';
 import MCheckBox from 'components/ui/MCheckBox/MCheckBox';
-import * as groupsActions from 'actions/groupsActions';
-import * as projectActions from 'actions/projectInfoActions';
-import * as userActions from 'actions/userActions';
+import * as groupsActions from 'store/actions/groupsActions';
+import * as projectActions from 'store/actions/projectInfoActions';
+import * as userActions from 'store/actions/userActions';
 import GroupCard from './GroupCard';
 
 export class UnconnectedGroupsOverview extends Component {

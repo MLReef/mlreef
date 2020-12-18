@@ -1,5 +1,5 @@
 import GroupsApi from 'apis/GroupApi.ts';
-import * as types from './actionTypes';
+import * as types from '../actionTypes';
 
 const groupsApi = new GroupsApi();
 /**

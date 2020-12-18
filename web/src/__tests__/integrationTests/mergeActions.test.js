@@ -1,5 +1,5 @@
 import 'babel-polyfill';
-import * as mergeActions from 'actions/mergeActions';
+import * as mergeActions from 'store/actions/mergeActions';
 import { mockMergeRequests } from 'testData';
 import { storeFactory } from 'functions/testUtils';
 

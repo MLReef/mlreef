@@ -11,7 +11,7 @@ import {
 } from 'prop-types';
 import AuthWrapper from 'components/AuthWrapper';
 import NewDirectoryPartial from 'components/layout/NewDirectoryPartial';
-import { fireModal, closeModal } from 'actions/actionModalActions';
+import { fireModal, closeModal } from 'store/actions/actionModalActions';
 import MBranchSelector from 'components/ui/MBranchSelector';
 import { PROJECT_TYPES } from 'domain/project/projectTypes';
 

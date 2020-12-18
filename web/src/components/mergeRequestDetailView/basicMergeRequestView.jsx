@@ -11,7 +11,7 @@ import relativeTime from 'dayjs/plugin/relativeTime';
 import ReactMarkdown from 'react-markdown';
 import { generateBreadCrumbs } from 'functions/helpers';
 import { MergeRequestEditWithActions } from 'components/layout/MergeRequests';
-import * as mergeRequestActions from 'actions/mergeActions';
+import * as mergeRequestActions from 'store/actions/mergeActions';
 import { pluralize as plu } from 'functions/dataParserHelpers';
 import MCheckBox from 'components/ui/MCheckBox/MCheckBox';
 import AuthWrapper from 'components/AuthWrapper';

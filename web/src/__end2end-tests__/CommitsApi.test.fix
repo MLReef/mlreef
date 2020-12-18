@@ -1,6 +1,6 @@
 import ProjectGeneralInfoApi from 'apis/ProjectGeneralInfoApi';
 import store from 'store';
-import * as types from 'actions/actionTypes';
+import * as types from 'store/actionTypes';
 import MLRAuthApi from 'apis/MLAuthApi';
 import CommitsApi from 'apis/CommitsApi.ts';
 import assureUserRegistration from './fixtures/testHelpers';

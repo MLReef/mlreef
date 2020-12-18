@@ -3,7 +3,7 @@ import { Provider } from 'react-redux';
 import renderer from 'react-test-renderer';
 import { storeFactory } from 'functions/testUtils';
 import AuthWrapper from 'components/AuthWrapper';
-import initialState from 'reducers/initialState';
+import initialState from 'store/reducers/initialState';
 
 /*
  * These snapshots should never break!

@@ -14,7 +14,7 @@ import AuthWrapper from 'components/AuthWrapper';
 import GitlabPipelinesApi from 'apis/GitlabPipelinesApi.ts';
 import ExperimentsApi from 'apis/experimentApi';
 import ProjectGeneralInfoApi from 'apis/ProjectGeneralInfoApi';
-import { fireModal } from 'actions/actionModalActions';
+import { fireModal } from 'store/actions/actionModalActions';
 import DataCard from 'components/layout/DataCard';
 import ArrowButton from '../arrow-button/arrowButton';
 import {

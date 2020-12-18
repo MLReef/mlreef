@@ -4,8 +4,8 @@ import { parseToCamelCase, adaptProjectModel } from 'functions/dataParserHelpers
 import MLSearchApi from 'apis/MLSearchApi';
 import { handlePaginationWithAdditionalInfo, createPagination } from 'functions/apiCalls';
 import GitlabPipelinesApi from 'apis/GitlabPipelinesApi';
-import store from '../store';
-import * as types from './actionTypes';
+import store from 'store';
+import * as types from '../actionTypes';
 
 const projectApi = new ProjectGeneralInfoApi();
 const mlSearchApi = new MLSearchApi();

@@ -2,7 +2,7 @@ import { createStore, applyMiddleware } from 'redux';
 import { persistReducer } from 'redux-persist';
 import thunk from 'redux-thunk';
 import storage from 'redux-persist/lib/storage'; // defaults to localStorage for web
-import rootReducer from './reducers/index';
+import rootReducer from './reducers';
 import initialState from './reducers/initialState';
 
 const persistConfig = {

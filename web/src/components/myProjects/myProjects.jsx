@@ -12,13 +12,13 @@ import {
   projectClassificationsProps,
 } from 'dataTypes';
 import { PROJECT_TYPES } from 'domain/project/projectTypes';
-import * as processorActions from 'actions/processorActions';
 import MScrollableSection from 'components/ui/MScrollableSection/MScrollableSection';
+import * as processorActions from 'store/actions/processorActions';
+import * as projectActions from 'store/actions/projectInfoActions';
+import * as groupsActions from 'store/actions/groupsActions';
+import * as userActions from 'store/actions/userActions';
 import Navbar from '../navbar/navbar';
 import './myProjects.scss';
-import * as projectActions from '../../actions/projectInfoActions';
-import * as groupsActions from '../../actions/groupsActions';
-import * as userActions from '../../actions/userActions';
 
 class Myprojects extends React.Component {
   constructor(props) {

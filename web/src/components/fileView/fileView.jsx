@@ -15,7 +15,7 @@ import AuthWrapper from 'components/AuthWrapper';
 import MDropdown from 'components/ui/MDropdown';
 import MWrapper from 'components/ui/MWrapper';
 import { generateBreadCrumbs } from 'functions/helpers';
-import { getProjectDetailsBySlug } from 'actions/projectInfoActions';
+import { getProjectDetailsBySlug } from 'store/actions/projectInfoActions';
 import ProjectContainer from '../projectContainer';
 import CommitsApi from '../../apis/CommitsApi.ts';
 import Navbar from '../navbar/navbar';

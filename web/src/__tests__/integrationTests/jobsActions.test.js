@@ -1,5 +1,5 @@
 import 'babel-polyfill';
-import * as jobsActions from 'actions/jobsActions';
+import * as jobsActions from 'store/actions/jobsActions';
 import { jobMock } from 'testData';
 import { storeFactory } from 'functions/testUtils';
 

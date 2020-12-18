@@ -8,11 +8,11 @@ import {
 } from 'prop-types';
 import { generateBreadCrumbs } from 'functions/helpers';
 import AuthWrapper from 'components/AuthWrapper';
-import * as jobsActions from '../../actions/jobsActions';
+import * as jobsActions from 'store/actions/jobsActions';
+import * as userActions from 'store/actions/userActions';
 import Navbar from '../navbar/navbar';
 import ProjectContainer from '../projectContainer';
 import './experimentsOverview.css';
-import * as userActions from '../../actions/userActions';
 import ExperimentCard from './experimentCard';
 import emptyLogo from '../../images/experiments_empty-01.png';
 import experimentActions from './ExperimentActions';

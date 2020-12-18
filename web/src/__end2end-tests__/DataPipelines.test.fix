@@ -2,7 +2,7 @@ import ProjectGeneralInfoApi from 'apis/ProjectGeneralInfoApi';
 import uuidv1 from 'uuid/v1';
 import waitForExpect from 'wait-for-expect';
 import store from 'store';
-import * as types from 'actions/actionTypes';
+import * as types from 'store/actionTypes';
 import MLRAuthApi from 'apis/MLAuthApi';
 import CommitsApi from 'apis/CommitsApi.ts';
 import DataPipelineApi from 'apis/DataPipelineApi';

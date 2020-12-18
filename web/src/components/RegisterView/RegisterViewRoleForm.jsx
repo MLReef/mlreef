@@ -6,7 +6,7 @@ import PropTypes from 'prop-types';
 import MSelect from 'components/ui/MSimpleSelect';
 import MButton from 'components/ui/MButton';
 import MRadioGroup from 'components/ui/MRadio/MRadioGroup';
-import { getUserInfo } from 'actions/userActions';
+import { getUserInfo } from 'store/actions/userActions';
 import { roles, userTypes } from './formInformation';
 
 const RegisterViewRoleForm = (props) => {

@@ -10,12 +10,12 @@ import {
 import './experimentDetails.css';
 import ExperimentsApi from 'apis/experimentApi';
 import MSimpleTabs from 'components/ui/MSimpleTabs';
+import { setPreconfiguredOPerations } from 'store/actions/userActions';
 import Navbar from '../navbar/navbar';
 import ProjectContainer from '../projectContainer';
 import DetailsSummary from './menu-options/DetailSummary';
 import Files from './menu-options/ExperimentArtifacts';
 import JobLog from './menu-options/jobLog';
-import { setPreconfiguredOPerations } from '../../actions/userActions';
 
 const expApi = new ExperimentsApi();
 

@@ -5,7 +5,8 @@ import { toastr } from 'react-redux-toastr';
 import {
   shape, objectOf, string,
 } from 'prop-types';
-import { closeModal, fireModal } from 'actions/actionModalActions';
+import { closeModal, fireModal } from 'store/actions/actionModalActions';
+import { setPreconfiguredOPerations } from 'store/actions/userActions';
 import { generateBreadCrumbs } from 'functions/helpers';
 import { filterPipelinesOnStatus } from 'functions/pipeLinesHelpers';
 import DataInstanceActions from 'components/data-instance/DataInstanceActions';
@@ -14,7 +15,6 @@ import ProjectContainer from '../projectContainer';
 import './dataInstanceOverview.css';
 import Instruction from '../instruction/instruction';
 import { getTimeCreatedAgo, parseToCamelCase } from '../../functions/dataParserHelpers';
-import { setPreconfiguredOPerations } from '../../actions/userActions';
 import DataInstancesCard from './DataInstancesCard';
 
 class DataInstanceOverview extends Component {

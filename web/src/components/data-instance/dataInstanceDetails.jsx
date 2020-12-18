@@ -10,7 +10,6 @@ import { bindActionCreators } from 'redux';
 import AuthWrapper from 'components/AuthWrapper';
 import { generateBreadCrumbs } from 'functions/helpers';
 import { goToPipelineView, getInfoFromStatus } from 'functions/pipeLinesHelpers';
-import { setPreconfiguredOPerations } from 'actions/userActions';
 import PropTypes, { shape, func } from 'prop-types';
 import DataCard from 'components/layout/DataCard';
 import FilesTable from '../files-table/filesTable';
@@ -18,10 +17,11 @@ import Navbar from '../navbar/navbar';
 import ProjectContainer from '../projectContainer';
 import './dataInstanceDetails.scss';
 import FilesApi from '../../apis/FilesApi.ts';
-import { closeModal, fireModal } from 'actions/actionModalActions';
+import { setPreconfiguredOPerations } from 'store/actions/userActions';
+import { closeModal, fireModal } from 'store/actions/actionModalActions';
+import { getBranchesList } from 'store/actions/branchesActions';
 import DataInstanteDeleteModal from 'components/DeleteDataInstance/DeleteDatainstance';
 import actions from './DataInstanceActions';
-import { getBranchesList } from 'actions/branchesActions';
 
 const filesApi = new FilesApi();
 

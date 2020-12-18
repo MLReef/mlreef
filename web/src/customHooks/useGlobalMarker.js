@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import * as actions from 'actions/globalMarkerActions';
+import * as actions from 'store/actions/globalMarkerActions';
 
 const useGlobalMarker = () => {
   const globalMarker = useSelector((state) => state.globalMarker);

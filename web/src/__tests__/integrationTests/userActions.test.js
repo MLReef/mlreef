@@ -1,6 +1,6 @@
 import 'babel-polyfill';
 import { storeFactory } from 'functions/testUtils';
-import * as userActions from 'actions/userActions';
+import * as userActions from 'store/actions/userActions';
 
 const user = {
   membership: 1,

@@ -11,12 +11,12 @@ import MInput from 'components/ui/MInput';
 import MLoadingSpinner from 'components/ui/MLoadingSpinner';
 import AuthWrapper from 'components/AuthWrapper';
 import { generateBreadCrumbs } from 'functions/helpers';
+import * as branchesActions from 'store/actions/branchesActions';
 import Navbar from '../navbar/navbar';
 import ProjectContainer from '../projectContainer';
 import { getTimeCreatedAgo } from '../../functions/dataParserHelpers';
 import './branchesView.css';
 import DeleteBranchModal from './deleteBranchModal';
-import * as branchesActions from '../../actions/branchesActions';
 import BranchesApi from '../../apis/BranchesApi.ts';
 
 const branchesApi = new BranchesApi();

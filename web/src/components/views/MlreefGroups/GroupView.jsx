@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import MEmptyAvatar from 'components/ui/MEmptyAvatar/MEmptyAvatar';
 import { bindActionCreators } from 'redux';
 import Navbar from 'components/navbar/navbar';
-import * as groupsActions from 'actions/groupsActions';
+import * as groupsActions from 'store/actions/groupsActions';
 import MParagraph from 'components/ui/MParagraph';
 import MBreadcrumb from 'components/ui/MBreadcrumb';
 import PropTypes from 'prop-types';

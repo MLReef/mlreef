@@ -1,6 +1,6 @@
 import UserApi from 'apis/UserApi';
 import MLAuthApi from 'apis/MLAuthApi';
-import * as types from './actionTypes';
+import * as types from '../actionTypes';
 
 const userApi = new UserApi();
 const authApi = new MLAuthApi();
