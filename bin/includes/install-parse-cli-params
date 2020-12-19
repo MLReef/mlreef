@@ -102,7 +102,7 @@ if [ -z "${VERSION-}" ]; then
 fi
 
 # If we are working locally, we do not want to interface with EC2
-if [ "$INSTANCE" != "localhost" ]; then
+if [ "$INSTANCE_HOST" != "localhost" ]; then
   if [ -z "${AWS_ACCESS_KEY_ID-}" ]; then
     echo "Missing AWS_ACCESS_KEY_ID. Use the -k or --key option"
     exit 1
