@@ -102,6 +102,9 @@ bin/install                                                       \
   --version "${VERSION:-develop}"                                 \
   ${SKIP_BACKEND_DEPLOYMENT_OPTION:-}                             \
   ${SKIP_GATEWAY_DEPLOYMENT_OPTION:-}                             \
+  --gitlab-secrets-key-base secret1111111111122222222222333333333334444444444555555555566666666661234 \
+  --gitlab-opt-key-base secret1111111111122222222222333333333334444444444555555555566666666661234     \
+  --gitlab-db-key-base secret1111111111122222222222333333333334444444444555555555566666666661234
 
 
 if [ "${TEST:-false}" = "true" ]; then
