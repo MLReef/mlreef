@@ -14,6 +14,7 @@ const FilesContainer = ({
   projectId, path, urlBranch, defaultBranch, namespace, slug,
 }) => {
   const history = useHistory();
+  const [waiting, setWaiting] = useState(false);
   const [ahead, setAhead] = useState(0);
   const [behind, setBehind] = useState(0);
   const [files, setFiles] = useState([]);
@@ -23,6 +24,8 @@ const FilesContainer = ({
 
   useEffect(() => {
     if (projectId) {
+      setWaiting(true);
+
       filesApi.getFilesPerProject(
         projectId,
         path,
@@ -31,7 +34,8 @@ const FilesContainer = ({
       ).then((files) => setFiles(files))
         .catch(() => {
           toastr.error('Error', 'Something went wrong getting files');
-        });
+        })
+        .finally(() => { setWaiting(false); });
     }
 
     if (!isTheBranchDefault) {
@@ -91,6 +95,7 @@ const FilesContainer = ({
         isReturnOptVisible={!!path}
         files={files.map((f) => ({ id: `${f.id} ${f.name}`, name: f.name, type: f.type }))}
         headers={['Name']}
+        waiting={waiting}
         onClick={(e) => {
           const target = e.currentTarget;
           const targetDataKey = target.getAttribute('data-key');

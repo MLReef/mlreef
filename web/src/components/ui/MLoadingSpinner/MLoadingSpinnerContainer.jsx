@@ -8,11 +8,13 @@ const MLoadingSpinnerContainer = (props) => {
     className,
     active,
     children,
+    cover,
   } = props;
 
   return !active ? children : (
-    <div className={cx('m-loading-spinner-container', className)}>
-      <MLoadingSpinner />
+    <div className={cx('m-loading-spinner-container', className, { cover })}>
+      <MLoadingSpinner className={cx({ cover })} />
+      {cover && children}
     </div>
   );
 };
@@ -20,11 +22,13 @@ const MLoadingSpinnerContainer = (props) => {
 MLoadingSpinnerContainer.defaultProps = {
   className: '',
   active: false,
+  cover: false,
 };
 
 MLoadingSpinnerContainer.propTypes = {
   className: PropTypes.string,
   active: PropTypes.bool,
+  cover: PropTypes.bool,
   children: PropTypes.oneOfType([
     PropTypes.node,
     PropTypes.string,
