@@ -4,6 +4,10 @@
   width: 100%;
 }
 
+.file-properties-spinner {
+  min-height: 120px;
+}
+
 .title-row {
   background-color: #1d2b40;
   color: #fff;

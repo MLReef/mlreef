@@ -3,6 +3,7 @@ import React from 'react';
 import {
   arrayOf, shape, string, func, bool,
 } from 'prop-types';
+import { MLoadingSpinnerContainer } from 'components/ui/MLoadingSpinner';
 import ReturnLink from '../returnLink';
 import './filesTable.css';
 
@@ -15,49 +16,58 @@ const FilesTable = (props) => {
     headers,
     onClick,
     isReturnOptVisible,
+    waiting,
   } = props;
 
   const getBack = () => window.history.back();
 
   return (
-    <table className="file-properties">
-      <thead>
-        <tr className="title-row">
-          {headers.map((header, headerIndex) => {
-            const paddingLeft = headerIndex === 0 ? '1.2em' : '0em';
-            return (
-              <th key={`tableHeader ${header}`}>
-                <p style={{ paddingLeft }}>{header}</p>
-              </th>
-            );
-          })}
-        </tr>
-      </thead>
-      <tbody>
-        {isReturnOptVisible && <ReturnLink getBack={getBack} />}
-        {files.map((file) => (
-          <tr key={`${file.id}-${file.name}`} id={file.id} className="files-row clickable" data-key={file.type} onClick={onClick}>
-            {Object.keys(file).filter((key) => key !== 'id' && key !== 'type').map((k, keyIndex) => (
-              <td
-                key={`column-name-${k}`}
-                className="icon-container-column"
-                style={{ maxWidth: '80vw' }}
-              >
-                {keyIndex === 0 && (
-                <div>
-                  <img src={file.type === 'tree' ? folderIcon : fileIcon} alt="" />
-                </div>
-                )}
-                <div>
-                  <p>{file[k]}</p>
-                </div>
-              </td>
-            ))}
+    <MLoadingSpinnerContainer cover className="file-properties-spinner" active={waiting}>
+
+      <table className="file-properties">
+        <thead>
+          <tr className="title-row">
+            {headers.map((header, headerIndex) => {
+              const paddingLeft = headerIndex === 0 ? '1.2em' : '0em';
+              return (
+                <th key={`tableHeader ${header}`}>
+                  <p style={{ paddingLeft }}>{header}</p>
+                </th>
+              );
+            })}
           </tr>
-        ))}
-      </tbody>
-    </table>
+        </thead>
+        <tbody>
+          {isReturnOptVisible && <ReturnLink getBack={getBack} />}
+          {files.map((file) => (
+            <tr key={`${file.id}-${file.name}`} id={file.id} className="files-row clickable" data-key={file.type} onClick={onClick}>
+              {Object.keys(file).filter((key) => key !== 'id' && key !== 'type').map((k, keyIndex) => (
+                <td
+                  key={`column-name-${k}`}
+                  className="icon-container-column"
+                  style={{ maxWidth: '80vw' }}
+                >
+                  {keyIndex === 0 && (
+                  <div>
+                    <img src={file.type === 'tree' ? folderIcon : fileIcon} alt="" />
+                  </div>
+                  )}
+                  <div>
+                    <p>{file[k]}</p>
+                  </div>
+                </td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </MLoadingSpinnerContainer>
+
   );
+};
+
+FilesTable.defaultProps = {
+  waiting: false,
 };
 
 FilesTable.propTypes = {
@@ -68,6 +78,7 @@ FilesTable.propTypes = {
   headers: arrayOf(string).isRequired,
   isReturnOptVisible: bool,
   onClick: func,
+  waiting: bool,
 };
 
 FilesTable.defaultProps = {

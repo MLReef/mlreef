@@ -29,6 +29,10 @@
   overflow-y: hidden;
 }
 
+.file-content .monaco-editor * {
+  font-family: unset;
+}
+
 .file-content > div {
   top: 50%;
   left: 50%;

@@ -8,10 +8,27 @@
     width: 100%;
     display: flex;
 
+    &.cover {
+      position: relative;
+
+      & > *:not(.m-loading-spinner) {
+        opacity: 0.5;
+      }
+    }
+
     & > .m-loading-spinner {
       margin: auto;
       height: 2rem;
       width: 2rem;
+
+      &.cover {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 2;
+      }
     }
   }
 }
