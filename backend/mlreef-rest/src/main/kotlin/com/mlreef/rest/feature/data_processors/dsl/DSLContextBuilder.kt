@@ -120,7 +120,7 @@ class DSLContextBuilder(val owner: Subject, val userToken: String) {
         val existing = repository.findByIdOrNull(item.id) ?: return repository.save(item)
         log.info("MERGE processorVersion: ${item.toString()}")
         return repository.save(existing.copy(
-            publisher = item.publisher,
+            publishingInfo = item.publishingInfo,
             parameters = item.parameters,
             number = item.number,
             branch = item.branch,
@@ -128,7 +128,6 @@ class DSLContextBuilder(val owner: Subject, val userToken: String) {
             baseEnvironment = item.baseEnvironment,
             metricSchema = item.metricSchema,
             pipelineJobInfo = item.pipelineJobInfo,
-            publishedAt = item.publishedAt
         ))
     }
 

@@ -24,6 +24,7 @@ import com.mlreef.rest.PipelineType
 import com.mlreef.rest.ProcessorParameterRepository
 import com.mlreef.rest.ProcessorVersion
 import com.mlreef.rest.ProcessorVersionRepository
+import com.mlreef.rest.PublishingInfo
 import com.mlreef.rest.SubjectRepository
 import com.mlreef.rest.UserRole
 import com.mlreef.rest.VisibilityScope
@@ -127,7 +128,7 @@ class ExperimentServiceTest : AbstractServiceTest() {
             codeProjectId = codeProjectId))
 
         dataProcessorVersion = processorVersionRepository.save(ProcessorVersion(
-            id = dataProcessor.id, dataProcessor = dataProcessor, publisher = subject,
+            id = dataProcessor.id, dataProcessor = dataProcessor, publishingInfo = PublishingInfo(publisher = subject),
             command = "augment", number = 1, baseEnvironment = baseEnv))
 
         val dataPipeline = pipelineConfigRepository.save(PipelineConfig(dataPipelineConfigId, dataProjectId, PipelineType.DATA, "slug", "name", "source_branch", "target_branch/\$SLUG"))
@@ -213,7 +214,7 @@ class ExperimentServiceTest : AbstractServiceTest() {
         val _dataProcessor = dataProcessorRepository.findByIdOrNull(dataAlgorithmId)!!
 
         val dataProcessor = ProcessorVersion(
-            id = _dataProcessor.id, dataProcessor = _dataProcessor, publisher = _dataProcessor.author,
+            id = _dataProcessor.id, dataProcessor = _dataProcessor, publishingInfo = PublishingInfo(publisher = _dataProcessor.author),
             command = "augment", number = 1, baseEnvironment = baseEnv)
         processorVersionRepository.save(dataProcessor)
 

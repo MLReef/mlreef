@@ -26,7 +26,7 @@ import java.util.UUID
 @RestController
 @RequestMapping("/api/v1/code-projects/")
 internal class CodeProjectPublishingController(
-    val publishingService: PublishingService
+    private val publishingService: PublishingService
 ) {
 
     @GetMapping("environments")

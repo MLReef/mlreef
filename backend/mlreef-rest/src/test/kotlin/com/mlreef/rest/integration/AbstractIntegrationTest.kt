@@ -3,7 +3,9 @@ package com.mlreef.rest.integration
 import com.mlreef.rest.AccountRepository
 import com.mlreef.rest.AccountTokenRepository
 import com.mlreef.rest.ApplicationProfiles
+import com.mlreef.rest.DataProcessorRepository
 import com.mlreef.rest.PersonRepository
+import com.mlreef.rest.ProcessorVersionRepository
 import com.mlreef.rest.api.TestTags
 import com.mlreef.rest.external_api.gitlab.GitlabRestClient
 import com.mlreef.rest.feature.caches.PublicProjectsCacheService
@@ -64,6 +66,12 @@ abstract class AbstractIntegrationTest : AbstractRestTest() {
 
     @Autowired
     protected lateinit var accountRepository: AccountRepository
+
+    @Autowired
+    protected lateinit var dataProcessorRepository: DataProcessorRepository
+
+    @Autowired
+    protected lateinit var processorVersionRepository: ProcessorVersionRepository
 
     @BeforeEach
     fun setUp(

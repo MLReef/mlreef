@@ -77,11 +77,11 @@ internal fun ProcessorVersion.toDto(): ProcessorVersionDto =
         visibilityScope = this.dataProcessor.visibilityScope,
         codeProjectId = this.dataProcessor.codeProjectId,
         parameters = this.parameters.map(ProcessorParameter::toDto),
-        publisherId = this.publisher?.id,
+        publisherId = this.publishingInfo?.publisher?.id,
         pipelineJobInfo = this.pipelineJobInfo?.toDto(),
         baseEnvironment = this.baseEnvironment?.toBaseEnvironmentsDto(),
         branch = this.branch,
         command = this.command,
         number = this.number,
-        publishedAt = this.publishedAt
+        publishedAt = this.publishingInfo?.publishedAt
     )

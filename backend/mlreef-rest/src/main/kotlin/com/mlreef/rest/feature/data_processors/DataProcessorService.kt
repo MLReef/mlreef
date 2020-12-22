@@ -14,6 +14,7 @@ import com.mlreef.rest.DataVisualization
 import com.mlreef.rest.ProcessorParameter
 import com.mlreef.rest.ProcessorVersion
 import com.mlreef.rest.ProcessorVersionRepository
+import com.mlreef.rest.PublishingInfo
 import com.mlreef.rest.Subject
 import com.mlreef.rest.VisibilityScope
 import org.slf4j.LoggerFactory
@@ -37,7 +38,6 @@ class DataProcessorService(
     }
 
     fun saveDataProcessor(dataProcessor: ProcessorVersion): ProcessorVersion {
-        dataProcessorRepository.save(dataProcessor.dataProcessor)
         return processorVersionRepository.save(dataProcessor)
     }
 
@@ -85,7 +85,7 @@ class DataProcessorService(
             ProcessorVersion(
                 UUID.randomUUID(),
                 dataProcessor,
-                publisher,
+                publishingInfo = PublishingInfo(publisher = publisher),
                 number = number,
                 command = command ?: ""
             )

@@ -3,7 +3,6 @@ package com.mlreef.rest.integration
 import com.mlreef.rest.CodeProject
 import com.mlreef.rest.CodeProjectRepository
 import com.mlreef.rest.DataProcessor
-import com.mlreef.rest.DataProcessorRepository
 import com.mlreef.rest.DataProcessorType
 import com.mlreef.rest.DataType
 import com.mlreef.rest.ParameterType
@@ -27,9 +26,6 @@ import javax.transaction.Transactional
 class DataProcessorIntegrationTest : AbstractIntegrationTest() {
     val rootUrl = "/api/v1/data-processors"
     val rootUrl2 = "/api/v1/code-projects"
-
-    @Autowired
-    private lateinit var dataProcessorRepository: DataProcessorRepository
 
     @Autowired
     private lateinit var dataProcessorService: DataProcessorService

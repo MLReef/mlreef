@@ -35,9 +35,6 @@ class DataPopulatorTest : AbstractIntegrationTest() {
     private lateinit var experimentRepository: ExperimentRepository
 
     @Autowired
-    private lateinit var dataProcessorRepository: DataProcessorRepository
-
-    @Autowired
     private lateinit var pipelineInstanceRepository: PipelineInstanceRepository
 
     @Autowired
@@ -48,9 +45,6 @@ class DataPopulatorTest : AbstractIntegrationTest() {
 
     @Autowired
     private lateinit var processorParameterRepository: ProcessorParameterRepository
-
-    @Autowired
-    private lateinit var processorVersionRepository: ProcessorVersionRepository
 
     @Autowired
     private lateinit var processorInstanceRepository: DataProcessorInstanceRepository

@@ -17,6 +17,13 @@ class RepositoryService(
         private const val GITLAB_PATH_SEPARATOR = "/"
     }
 
+    data class RepositoryFileContent(
+        val path: String,
+        val content: String?,
+        val sha256: String?,
+        val lastCommitId: String?,
+    )
+
     fun findFileInRepository(gitlabId: Long, filePath: String?): RepositoryTree? {
         val splitedFolderAndFile = getPathWithoutFileName(filePath)
         var filesList = gitlabRestClient.adminGetProjectTree(gitlabId, splitedFolderAndFile?.first)
@@ -33,38 +40,36 @@ class RepositoryService(
         return null
     }
 
-    fun getFilesContentOfRepository(gitlabId: Long, path: String? = null, filterByExt: Boolean = true, processAsFile: Boolean = true): Map<String, String> {
-        val allFiles = mutableMapOf<String, String>()
+    fun getFilesContentOfRepository(gitlabId: Long, path: String? = null, filterByExt: Boolean = true, processAsFile: Boolean = true): List<RepositoryFileContent> {
+        val allFiles = mutableListOf<RepositoryFileContent?>()
         var filesList = gitlabRestClient.adminGetProjectTree(gitlabId, path)
 
         if (path != null && filesList.content?.size == 0 && processAsFile) {
             val splitedFolderAndFile = getPathWithoutFileName(path)
 
-            filesList = gitlabRestClient.adminGetProjectTree(gitlabId, splitedFolderAndFile?.first)
+            filesList = gitlabRestClient.adminGetProjectTree(gitlabId, normalizeGitlabFolder(splitedFolderAndFile?.first))
 
             filesList.content?.find { it.name == splitedFolderAndFile?.second }?.let {
                 if (it.type == RepositoryTreeType.TREE) {
-                    allFiles.putAll(getFilesContentOfRepository(gitlabId, it.path, filterByExt, false))
+                    allFiles.addAll(getFilesContentOfRepository(gitlabId, it.path, filterByExt, false))
                 } else {
                     it.let {
-                        val fileContent = getFileContent(gitlabId, it.id)
-                        fileContent?.let { content -> allFiles.put(it.path, content) }
+                        allFiles.add(getFileContent(gitlabId, it.path))
                     }
                 }
             }
 
-            return allFiles
+            return allFiles.filterNotNull()
         }
 
         while (filesList.page <= filesList.totalPages) {
             filesList.content
                 ?.forEach {
                     if (it.type == RepositoryTreeType.TREE) {
-                        allFiles.putAll(getFilesContentOfRepository(gitlabId, it.path, filterByExt, false))
+                        allFiles.addAll(getFilesContentOfRepository(gitlabId, it.path, filterByExt, false))
                     } else {
                         if (!filterByExt || processingExtensions.contains(getFilenameExtension(it.name))) {
-                            val fileContent = getFileContent(gitlabId, it.id)
-                            fileContent?.let { content -> allFiles.put(it.path, content) }
+                            allFiles.add(getFileContent(gitlabId, it.path))
                         }
                     }
                 }
@@ -74,17 +79,26 @@ class RepositoryService(
             filesList = gitlabRestClient.adminGetProjectTree(gitlabId, path, pageNumber = filesList.page + 1)
         }
 
-        return allFiles
+        return allFiles.filterNotNull()
     }
 
-    private fun getFileContent(gitlabId: Long, fileSha: String): String? {
-        val file = gitlabRestClient.adminGetRepositoryFileContent(gitlabId, fileSha)
-        try {
-            return String(Base64.getDecoder().decode(file.content))
+    private fun getFileContent(gitlabId: Long, filePath: String): RepositoryFileContent? {
+        val file = gitlabRestClient.adminGetRepositoryFileContentAndInformation(gitlabId, filePath)
+        return try {
+            RepositoryFileContent(
+                path = filePath,
+                content = String(Base64.getDecoder().decode(file.content)),
+                sha256 = file.contentSha256,
+                lastCommitId = file.lastCommitId,
+            )
         } catch (ex: Exception) {
-            log.error("Cannot decode file $fileSha")
-            return null
+            log.error("Cannot decode file $filePath")
+            null
         }
+    }
+
+    private fun normalizeGitlabFolder(folder: String?): String? {
+        return if (folder?.startsWith("/") ?: false) folder?.substring(1, folder.length) else folder
     }
 
     private fun getFilenameExtension(filename: String): String {

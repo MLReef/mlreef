@@ -32,3 +32,18 @@ data class RepositoryFile(
     val encoding: String,
     val content: String?,
 )
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+@JsonInclude(JsonInclude.Include.NON_NULL)
+data class RepositoryFileFullInfo(
+    val fileName: String,
+    val filePath: String,
+    val size: Long,
+    val encoding: String,
+    val contentSha256: String,
+    val ref: String,
+    val blobId: String,
+    val commitId: String,
+    val lastCommitId: String,
+    val content: String?,
+)

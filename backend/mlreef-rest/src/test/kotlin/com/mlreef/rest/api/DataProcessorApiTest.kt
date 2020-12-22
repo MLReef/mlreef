@@ -12,6 +12,7 @@ import com.mlreef.rest.Person
 import com.mlreef.rest.ProcessorParameter
 import com.mlreef.rest.ProcessorVersion
 import com.mlreef.rest.ProcessorVersionRepository
+import com.mlreef.rest.PublishingInfo
 import com.mlreef.rest.VisibilityScope
 import com.mlreef.rest.api.v1.DataProcessorCreateRequest
 import com.mlreef.rest.api.v1.dto.DataProcessorDto
@@ -114,7 +115,7 @@ class DataProcessorApiTest : AbstractRestApiTest() {
                                        command: String, parameters: List<ProcessorParameter> = listOf()
     ): ProcessorVersion {
         val processorVersion = ProcessorVersion(
-            id = randomUUID(), dataProcessor = processor, publisher = processor.author,
+            id = randomUUID(), dataProcessor = processor, publishingInfo = PublishingInfo(publisher = processor.author),
             command = command, branch = branch, number = number, baseEnvironment = pipelineTestPreparationTrait.baseEnv1,
             parameters = parameters)
         return processorVersionRepository.save(processorVersion)

@@ -8,6 +8,7 @@ import com.mlreef.rest.ParameterType
 import com.mlreef.rest.Person
 import com.mlreef.rest.ProcessorParameter
 import com.mlreef.rest.ProcessorVersion
+import com.mlreef.rest.PublishingInfo
 import com.mlreef.rest.UserRole
 import com.mlreef.rest.utils.RandomUtils
 import io.mockk.mockk
@@ -128,10 +129,12 @@ class YamlFileGeneratorTest {
 
         val baseEnv = BaseEnvironments(randomUUID(), RandomUtils.generateRandomUserName(15), "docker1:latest", sdkVersion = "3.7")
 
-        val processorVersion = ProcessorVersion(
-            id = dataOperation.id, dataProcessor = dataOperation, publisher = Person(randomUUID(), "subject", "name", 1, hasNewsletters = true,
+        val publisher = Person(randomUUID(), "subject", "name", 1, hasNewsletters = true,
             userRole = UserRole.DEVELOPER,
-            termsAcceptedAt = ZonedDateTime.now()),
+            termsAcceptedAt = ZonedDateTime.now())
+
+        val processorVersion = ProcessorVersion(
+            id = dataOperation.id, dataProcessor = dataOperation, publishingInfo = PublishingInfo(publisher = publisher),
             command = "augment", number = 1, baseEnvironment = baseEnv)
 
         val processorParameter1 = ProcessorParameter(randomUUID(), processorVersion.id, "stringParam", ParameterType.STRING, 0, "")

@@ -13,6 +13,7 @@ import kotlin.random.Random
 
 class CodeProjectPublishingIntegrationTest : AbstractIntegrationTest() {
     val rootUrl = "/api/v1/code-projects"
+    val epfUrl = "/api/v1/epf"
 
     @BeforeEach
     fun clearRepo() {
@@ -200,5 +201,37 @@ class CodeProjectPublishingIntegrationTest : AbstractIntegrationTest() {
         // Do unpublish without publish
         this.performPost("$rootUrl/${project1.id}/unpublish", token1)
             .isNotFound()
+    }
+
+    @Transactional
+    @Rollback
+    @Test
+    fun `Can finish publishing code-project`() {
+        val (account1, token1, _) = testsHelper.createRealUser(index = -1)
+        val (project1, _) = testsHelper.createRealCodeProject(token1, account1)
+
+        testsHelper.putFileToRepository(token1, project1.gitlabId, "main.py", resourceName = "resnet_annotations_demo.py")
+        testsHelper.putFileToRepository(token1, project1.gitlabId, "main2.py", resourceName = "resnet_annotations_demo.py")
+
+        val env1 = testsHelper.createBaseEnvironment("Env-${Random.nextInt()}")
+
+        val request1 = PublishingRequest(
+            path = "main.py",
+            environment = env1.id
+        )
+
+        // Do regular publish
+        this.performPost("$rootUrl/${project1.id}/publish", token1, request1).expectOk()
+
+        val processor = dataProcessorRepository.findAllByCodeProjectId(project1.id)[0]
+        val processorVersion = processorVersionRepository.findAllByDataProcessorId(processor.id)[0]
+
+        //Do finish
+        val result = this.performEPFPut(processorVersion.publishingInfo!!.secret!!, "$epfUrl/code-projects/${project1.id}/publish/rescan-processor-source")
+            .expectOk()
+            .returns(CodeProjectPublishingDto::class.java)
+
+        assertThat(result.path).isEqualTo("main.py")
+        assertThat(result.environment!!.id).isEqualTo(env1.id)
     }
 }

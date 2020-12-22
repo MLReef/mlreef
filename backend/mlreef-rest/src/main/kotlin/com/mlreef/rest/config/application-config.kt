@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.PropertyNamingStrategy
 import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
+import com.mlreef.rest.ProxyConfiguration
 import org.slf4j.LoggerFactory
 import org.springframework.boot.context.properties.ConfigurationProperties
 import org.springframework.boot.context.properties.EnableConfigurationProperties
@@ -19,6 +20,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaAuditing
 import org.springframework.data.redis.connection.RedisConnectionFactory
 import org.springframework.data.redis.core.RedisTemplate
 import org.springframework.data.redis.repository.configuration.EnableRedisRepositories
+import java.util.Properties
 import javax.annotation.PostConstruct
 
 
@@ -79,6 +81,20 @@ class BeansConfig {
     @Bean
     fun objectMapper(): ObjectMapper {
         return MLReefObjectMapper()
+    }
+}
+
+@Configuration
+class ProxyConfig(
+    private val config: ProxyConfiguration,
+) {
+    @PostConstruct
+    fun init() {
+        if (config.enabled) {
+            val props: Properties = System.getProperties()
+            props.put("http.proxyHost", config.host)
+            props.put("http.proxyPort", config.port.toString())
+        }
     }
 }
 

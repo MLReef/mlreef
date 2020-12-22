@@ -30,6 +30,7 @@ import com.mlreef.rest.ProcessorParameter
 import com.mlreef.rest.ProcessorParameterRepository
 import com.mlreef.rest.ProcessorVersion
 import com.mlreef.rest.ProcessorVersionRepository
+import com.mlreef.rest.PublishingInfo
 import com.mlreef.rest.external_api.gitlab.dto.GitlabProject
 import com.mlreef.rest.external_api.gitlab.dto.GitlabUserInProject
 import com.mlreef.rest.utils.RandomUtils
@@ -241,17 +242,26 @@ internal fun commitFields(prefix: String = ""): MutableList<FieldDescriptor> {
     )
 }
 
-internal fun publishingInformationFields(prefix: String = ""): MutableList<FieldDescriptor> {
+internal fun publishingProcessFields(prefix: String = ""): MutableList<FieldDescriptor> {
     return mutableListOf(
         fieldWithPath(prefix + "id").optional().type(JsonFieldType.STRING).description("Data processor id"),
         fieldWithPath(prefix + "branch").optional().type(JsonFieldType.STRING).description("Published branch"),
         fieldWithPath(prefix + "command").optional().type(JsonFieldType.STRING).description("Command"),
         fieldWithPath(prefix + "path").optional().type(JsonFieldType.STRING).description("Main script path"),
+        fieldWithPath(prefix + "publish_info").optional().type(JsonFieldType.OBJECT).description("Information about commit"),
     ).apply {
-        addAll(pipelineInfoDtoResponseFields(prefix + "pipeline_job_info."))
+        addAll(publishingInfoFields(prefix + "publish_info."))
     }.apply {
         addAll(environmentsFields(prefix + "environment."))
     }
+}
+
+internal fun publishingInfoFields(prefix: String = ""): MutableList<FieldDescriptor> {
+    return arrayListOf(
+        fieldWithPath(prefix + "commit_sha").type(JsonFieldType.STRING).optional().description("Publishing commit sha"),
+        fieldWithPath(prefix + "published_at").type(JsonFieldType.STRING).optional().description("Timestamp when the project was published"),
+        fieldWithPath(prefix + "published_by").type(JsonFieldType.STRING).optional().description("Published person id"),
+    )
 }
 
 internal fun environmentsFields(prefix: String = ""): MutableList<FieldDescriptor> {
@@ -424,15 +434,15 @@ internal class PipelineTestPreparationTrait : AccountSubjectPreparationTrait() {
         val _dataOp3 = dataVisualizationRepository.save(DataVisualization(randomUUID(), "commons-data-visualisation", "name", DataType.ANY))
 
         dataOp1 = processorVersionRepository.save(ProcessorVersion(
-            id = _dataOp1.id, dataProcessor = _dataOp1, publisher = account.person,
+            id = _dataOp1.id, dataProcessor = _dataOp1, publishingInfo = PublishingInfo(publisher = account.person),
             command = "command", number = 1, baseEnvironment = baseEnv1))
 
         dataOp2 = processorVersionRepository.save(ProcessorVersion(
-            id = _dataOp2.id, dataProcessor = _dataOp2, publisher = account.person,
+            id = _dataOp2.id, dataProcessor = _dataOp2, publishingInfo = PublishingInfo(publisher = account.person),
             command = "command", number = 1, baseEnvironment = baseEnv2))
 
         dataOp3 = processorVersionRepository.save(ProcessorVersion(
-            id = _dataOp3.id, dataProcessor = _dataOp3, publisher = account.person,
+            id = _dataOp3.id, dataProcessor = _dataOp3, publishingInfo = PublishingInfo(publisher = account.person),
             command = "command", number = 1, baseEnvironment = baseEnv3))
 
         processorParameterRepository.save(ProcessorParameter(randomUUID(), dataOp1.id, "stringParam", type = ParameterType.STRING, order = 0, defaultValue = ""))

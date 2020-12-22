@@ -65,6 +65,15 @@ export default class ProjectGeneralInfoApi extends ApiDirector {
       .then(handleResponse);
   }
 
+  getCodeProjectProcessorByProjectId(projectId: string) {
+    const url = `/api/v1/code-projects/${projectId}/processor`;
+    const headers = this.buildBasicHeaders(validServicesToCall.BACKEND);
+    const builder = new BLApiRequestCallBuilder(METHODS.GET, headers, url);
+
+    return fetch(builder.build())
+      .then(handleResponse);
+  }
+
   getMembers(projectId: string) {
     const url = `/api/v1/data-projects/${projectId}/users`;
     const headers = this.buildBasicHeaders(validServicesToCall.BACKEND);
@@ -197,6 +206,15 @@ export default class ProjectGeneralInfoApi extends ApiDirector {
     const baseUrl = `/api/v1/code-projects/${projectId}/${republish ? 'republish' : 'publish'}`;
     const headers = this.buildBasicHeaders(validServicesToCall.BACKEND)
     const builder = new BLApiRequestCallBuilder(METHODS.POST, headers, baseUrl);
+
+    return fetch(builder.build())
+      .then(handleResponse);
+  }
+
+  getProjectPublishStatus(projectId: string) {
+    const url = `/api/v1/code-projects/${projectId}/publish`;
+    const headers = this.buildBasicHeaders(validServicesToCall.BACKEND);
+    const builder = new BLApiRequestCallBuilder(METHODS.GET, headers, url);
 
     return fetch(builder.build())
       .then(handleResponse);

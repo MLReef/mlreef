@@ -4,6 +4,7 @@ import com.mlreef.rest.Account
 import com.mlreef.rest.ApplicationConfiguration
 import com.mlreef.rest.DataProcessorInstance
 import com.mlreef.rest.DataProjectRepository
+import com.mlreef.rest.EPF_CONTROLLER_PATH
 import com.mlreef.rest.FileLocation
 import com.mlreef.rest.ParameterInstance
 import com.mlreef.rest.PipelineConfig
@@ -158,7 +159,7 @@ class PipelineService(
             YamlFileGenerator.renderYaml(
                 author = author,
                 epfPipelineSecret = secret,
-                epfPipelineUrl = "${conf.epf.backendUrl}/api/v1/epf/pipeline_instance/${pipelineInstance.id}",
+                epfPipelineUrl = "${conf.epf.backendUrl}$EPF_CONTROLLER_PATH/pipeline_instance/${pipelineInstance.id}",
                 epfGitlabUrl = conf.epf.gitlabUrl,
                 epfImageTag = conf.epf.imageTag,
                 sourceBranch = pipelineInstance.sourceBranch,
