@@ -8,11 +8,18 @@ import com.mlreef.rest.PipelineInstance
 import com.mlreef.rest.PipelineInstanceRepository
 import com.mlreef.rest.PipelineJobInfo
 import com.mlreef.rest.PipelineStatus
+import com.mlreef.rest.ProcessorVersion
 import com.mlreef.rest.api.CurrentUserService
+import com.mlreef.rest.api.v1.dto.CodeProjectPublishingDto
 import com.mlreef.rest.api.v1.dto.PipelineJobInfoDto
 import com.mlreef.rest.api.v1.dto.toDto
+import com.mlreef.rest.api.v1.dto.toPublishingPipelineDto
+import com.mlreef.rest.exceptions.AccessDeniedException
 import com.mlreef.rest.exceptions.ErrorCode
+import com.mlreef.rest.exceptions.InternalException
 import com.mlreef.rest.exceptions.NotFoundException
+import com.mlreef.rest.feature.PublishingService
+import com.mlreef.rest.feature.data_processors.DataProcessorService
 import com.mlreef.rest.feature.experiment.ExperimentService
 import org.slf4j.LoggerFactory
 import org.springframework.data.repository.findByIdOrNull
@@ -34,7 +41,9 @@ class EpfController(
     val currentUserService: CurrentUserService,
     val dataProjectRepository: DataProjectRepository,
     val pipelineInstanceRepository: PipelineInstanceRepository,
-    val experimentRepository: ExperimentRepository
+    val experimentRepository: ExperimentRepository,
+    private val publishingService: PublishingService,
+    private val dataProcessorService: DataProcessorService,
 ) {
     companion object {
         private val log = LoggerFactory.getLogger(this::class.java)
@@ -52,6 +61,17 @@ class EpfController(
         val instance = pipelineInstanceRepository.findByIdOrNull(instanceId)
             ?: throw NotFoundException(ErrorCode.NotFound, dataProjectNotFound)
         return getGuardedInstance(instance.pipelineJobInfo, token, instance)
+    }
+
+    private fun beforeGetPublishing(projectId: UUID, token: String): ProcessorVersion {
+        val dataProcessorVersion = dataProcessorService.getProcessorVersionByProjectId(projectId)
+            ?: throw NotFoundException(ErrorCode.NotFound, "Project $projectId has no data process. Probably it was published incorrectly")
+
+        if ((dataProcessorVersion.publishingInfo?.secret
+                ?: throw InternalException("Publish secret cannot be empty")) != token)
+            throw AccessDeniedException("Incorrect token provided for publishing process")
+
+        return dataProcessorVersion
     }
 
     private fun <T> getGuardedInstance(pipelineJobInfo: PipelineJobInfo?, token: String, guardedInstance: T): T {
@@ -137,6 +157,15 @@ class EpfController(
         )
         val saved = pipelineInstanceRepository.save(instanceUpdate)
         return saved.pipelineJobInfo!!.toDto()
+    }
+
+    @PutMapping("/code-projects/{id}/publish/rescan-processor-source")
+    fun finishPublishing(
+        @PathVariable id: UUID,
+        @RequestHeader(EPF_HEADER) token: String,
+    ): CodeProjectPublishingDto {
+        beforeGetPublishing(id, token)
+        return publishingService.rescanProcessorSource(id).toPublishingPipelineDto()
     }
 }
 

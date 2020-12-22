@@ -26,6 +26,11 @@ mlreef:
     reset-password-token-valid-sec: 600
     password-reset-url: https://mlreef.com/login/password-reset
     password-reset-confirm-url: https://mlreef.com/api/v1/password/confirm
+  proxy:
+    enabled: ${PROXY_ENABLED:false}
+    host: ${PROXY_HOST:localhost}
+    port: ${PROXY_PORT:8866}
+
 
 spring:
   devtools:

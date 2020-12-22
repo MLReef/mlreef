@@ -5,6 +5,11 @@
 # Please refer to the documentation for information on how to edit this file    #
 #################################################################################
 
+variables:
+  # mlreef.com/api/v1/code-projects/:id/publish/finish
+  EPF_PUBLISH_URL: #{#EPF_PUBLISH_URL}
+  EPF_PUBLISH_SECRET: #{#EPF_PUBLISH_SECRET}
+
 job:
   image: docker:stable
   services:
@@ -21,3 +26,5 @@ job:
     - echo "$CI_REGISTRY_PASSWORD" | docker login "$CI_REGISTRY" --username="$CI_REGISTRY_USER" --password-stdin
     # Upload the newly built docker image to MLReef's docker image registry
     - docker push "$CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG"
+    # Update processor information
+    - curl --include --verbose --request PUT "$EPF_PUBLISH_URL/publish/rescan-processor-source" --header "EPF-BOT-TOKEN:$EPF_PUBLISH_SECRET"

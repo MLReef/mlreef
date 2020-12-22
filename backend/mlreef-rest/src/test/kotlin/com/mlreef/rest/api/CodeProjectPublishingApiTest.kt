@@ -11,6 +11,7 @@ import com.mlreef.rest.api.v1.dto.CodeProjectPublishingDto
 import com.mlreef.rest.api.v1.dto.CommitDto
 import com.mlreef.rest.feature.MLREEF_NAME
 import io.mockk.MockKAnnotations
+import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Tag
@@ -116,12 +117,14 @@ class CodeProjectPublishingApiTest : AbstractRestApiTest() {
         )
 
         val url = "$rootUrl/${codeProject.id}/publish"
-        val returnedResult = this.performGet(url, token)
+        val result = this.performGet(url, token)
             .andExpect(status().isOk)
             .document("code-projects-publish-info",
-                responseFields(publishingInformationFields(""))
+                responseFields(publishingProcessFields())
             )
             .returns(CodeProjectPublishingDto::class.java)
+
+        Assertions.assertThat(result).isNotNull()
     }
 
     @Transactional
@@ -141,7 +144,7 @@ class CodeProjectPublishingApiTest : AbstractRestApiTest() {
             .andExpect(status().isOk)
             .document("code-projects-publish-success",
                 requestFields(projectPublishRequestFields()),
-                responseFields(publishingInformationFields(""))
+                responseFields(publishingProcessFields(""))
             )
             .returns(CodeProjectPublishingDto::class.java)
     }
@@ -181,7 +184,7 @@ class CodeProjectPublishingApiTest : AbstractRestApiTest() {
             .andExpect(status().isOk)
             .document("code-projects-republish-success",
                 requestFields(projectPublishRequestFields()),
-                responseFields(publishingInformationFields(""))
+                responseFields(publishingProcessFields(""))
             )
             .returns(CodeProjectPublishingDto::class.java)
     }

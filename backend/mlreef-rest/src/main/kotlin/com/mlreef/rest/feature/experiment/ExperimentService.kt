@@ -4,6 +4,7 @@ import com.mlreef.rest.Account
 import com.mlreef.rest.ApplicationConfiguration
 import com.mlreef.rest.DataProcessorInstance
 import com.mlreef.rest.DataProjectRepository
+import com.mlreef.rest.EPF_CONTROLLER_PATH
 import com.mlreef.rest.Experiment
 import com.mlreef.rest.ExperimentRepository
 import com.mlreef.rest.ExperimentStatus
@@ -125,7 +126,7 @@ class ExperimentService(
         return YamlFileGenerator.renderYaml(
             author = author,
             epfPipelineSecret = secret,
-            epfPipelineUrl = "${conf.epf.backendUrl}/api/v1/epf/experiments/${experiment.id}",
+            epfPipelineUrl = "${conf.epf.backendUrl}$EPF_CONTROLLER_PATH/experiments/${experiment.id}",
             epfGitlabUrl = conf.epf.gitlabUrl,
             epfImageTag = conf.epf.imageTag,
             sourceBranch = experiment.sourceBranch,

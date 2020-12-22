@@ -48,6 +48,7 @@ import com.mlreef.rest.external_api.gitlab.dto.GitlabUserToken
 import com.mlreef.rest.external_api.gitlab.dto.OAuthToken
 import com.mlreef.rest.external_api.gitlab.dto.OAuthTokenInfo
 import com.mlreef.rest.external_api.gitlab.dto.RepositoryFile
+import com.mlreef.rest.external_api.gitlab.dto.RepositoryFileFullInfo
 import com.mlreef.rest.external_api.gitlab.dto.RepositoryTree
 import com.mlreef.rest.external_api.gitlab.dto.RepositoryTreePaged
 import com.mlreef.rest.feature.caches.PublicProjectsCacheService
@@ -64,16 +65,6 @@ import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.slot
-import java.io.InputStream
-import java.time.Instant
-import java.time.ZonedDateTime
-import java.util.UUID
-import java.util.regex.Pattern
-import javax.persistence.EntityManager
-import javax.sql.DataSource
-import javax.transaction.Transactional
-import kotlin.math.absoluteValue
-import kotlin.random.Random
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
@@ -109,6 +100,16 @@ import org.springframework.test.web.servlet.setup.DefaultMockMvcBuilder
 import org.springframework.test.web.servlet.setup.MockMvcBuilders
 import org.springframework.util.Base64Utils
 import org.springframework.web.context.WebApplicationContext
+import java.io.InputStream
+import java.time.Instant
+import java.time.ZonedDateTime
+import java.util.UUID
+import java.util.regex.Pattern
+import javax.persistence.EntityManager
+import javax.sql.DataSource
+import javax.transaction.Transactional
+import kotlin.math.absoluteValue
+import kotlin.random.Random
 
 @TestPropertySource("classpath:application.yml")
 @ExtendWith(value = [RestDocumentationExtension::class, SpringExtension::class])
@@ -417,6 +418,26 @@ abstract class AbstractRestApiTest : AbstractRestTest() {
                 size = 100L,
                 encoding = "Base64",
                 content = Base64Utils.encodeToString(content.readBytes())
+            )
+        }
+
+        every {
+            restClient.adminGetRepositoryFileContentAndInformation(any(), any())
+        } answers {
+            val filename = "resnet_annotations_demo.py"
+            val content = javaClass.classLoader.getResource(filename)!!.content as InputStream
+
+            RepositoryFileFullInfo(
+                "main.py",
+                "main.py",
+                blobId = UUID.randomUUID().toString(),
+                size = 100L,
+                encoding = "Base64",
+                content = Base64Utils.encodeToString(content.readBytes()),
+                contentSha256 = "230148ea3aa5aed560b9313d0c560731f76752961140d46f5a10a3b1e2bbf408",
+                ref = "master",
+                commitId = UUID.randomUUID().toString(),
+                lastCommitId = UUID.randomUUID().toString(),
             )
         }
     }

@@ -11,6 +11,7 @@ import com.mlreef.rest.ParameterType
 import com.mlreef.rest.PipelineJobInfo
 import com.mlreef.rest.ProcessorParameter
 import com.mlreef.rest.ProcessorVersion
+import com.mlreef.rest.PublishingInfo
 import com.mlreef.rest.Subject
 import com.mlreef.rest.VisibilityScope
 import com.mlreef.rest.defaults
@@ -46,16 +47,15 @@ class DataProcessorBuilder(val processorType: DataProcessorType) {
 
     fun buildVersion(dataProcessor: DataProcessor) = ProcessorVersion(
         id = id,
-        publisher = publisher,
         metricSchema = metricSchema,
         branch = branch,
         dataProcessor = dataProcessor,
         command = command,
         number = number,
-        publishedAt = publishedAt,
         baseEnvironmentId = baseEnvironmentId,
         pipelineJobInfo = pipelineJobInfo,
-        parameters = buildParameters(dataProcessor)
+        parameters = buildParameters(dataProcessor),
+        publishingInfo = PublishingInfo(publisher = publisher, publishedAt = publishedAt)
     )
 
     private fun buildParameters(dataProcessor: DataProcessor): List<ProcessorParameter> {

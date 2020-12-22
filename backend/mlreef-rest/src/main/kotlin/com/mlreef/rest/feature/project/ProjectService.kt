@@ -15,9 +15,9 @@ import com.mlreef.rest.Person
 import com.mlreef.rest.Project
 import com.mlreef.rest.ProjectBaseRepository
 import com.mlreef.rest.ProjectRepository
+import com.mlreef.rest.ProjectType.DATA_PROJECT
 import com.mlreef.rest.SubjectRepository
 import com.mlreef.rest.VisibilityScope
-import com.mlreef.rest.ProjectType.DATA_PROJECT
 import com.mlreef.rest.annotations.RefreshGroupInformation
 import com.mlreef.rest.annotations.RefreshProject
 import com.mlreef.rest.annotations.RefreshUserInformation
@@ -35,7 +35,6 @@ import com.mlreef.rest.exceptions.UnknownUserException
 import com.mlreef.rest.exceptions.UserNotFoundException
 import com.mlreef.rest.external_api.gitlab.GitlabAccessLevel
 import com.mlreef.rest.external_api.gitlab.GitlabRestClient
-import com.mlreef.rest.external_api.gitlab.GitlabVisibility
 import com.mlreef.rest.external_api.gitlab.NamespaceKind
 import com.mlreef.rest.external_api.gitlab.TokenDetails
 import com.mlreef.rest.external_api.gitlab.dto.GitlabProject
@@ -48,9 +47,7 @@ import com.mlreef.rest.feature.system.ReservedNamesService
 import com.mlreef.rest.helpers.ProjectOfUser
 import com.mlreef.rest.helpers.UserInProject
 import com.mlreef.rest.marketplace.SearchableTag
-import com.mlreef.rest.marketplace.SearchableType
 import com.mlreef.utils.Slugs
-import java.lang.NullPointerException
 import org.slf4j.LoggerFactory
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration

@@ -1,10 +1,12 @@
 package com.mlreef.rest.feature
 
+import com.mlreef.rest.ApplicationConfiguration
 import com.mlreef.rest.BaseEnvironments
 import com.mlreef.rest.BaseEnvironmentsRepository
-import com.mlreef.rest.PipelineJobInfo
+import com.mlreef.rest.EPF_CONTROLLER_PATH
 import com.mlreef.rest.ProcessorVersion
 import com.mlreef.rest.Project
+import com.mlreef.rest.PublishingInfo
 import com.mlreef.rest.PublishingMachineType
 import com.mlreef.rest.SubjectRepository
 import com.mlreef.rest.exceptions.ConflictException
@@ -18,6 +20,7 @@ import com.mlreef.rest.external_api.gitlab.dto.Commit
 import com.mlreef.rest.feature.data_processors.DataProcessorService
 import com.mlreef.rest.feature.data_processors.PythonParserService
 import com.mlreef.rest.feature.data_processors.RepositoryService
+import com.mlreef.rest.feature.pipeline.PipelineService
 import com.mlreef.rest.feature.project.ProjectResolverService
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -35,8 +38,8 @@ import java.util.stream.Collectors
 const val TARGET_BRANCH = "master"
 const val DOCKERFILE_NAME = "Dockerfile"
 const val MLREEF_NAME = ".mlreef.yml"
-const val PUBLISH_COMMIT_MESSAGE = "Adding $DOCKERFILE_NAME and $MLREEF_NAME files for publishing"
-const val UNPUBLISH_COMMIT_MESSAGE = "Removing $DOCKERFILE_NAME and $MLREEF_NAME files from repository"
+const val PUBLISH_COMMIT_MESSAGE = "Publish: Adding $DOCKERFILE_NAME and $MLREEF_NAME files for publishing"
+const val UNPUBLISH_COMMIT_MESSAGE = "Unpublish: Removing $DOCKERFILE_NAME and $MLREEF_NAME files from repository"
 const val NEWLINE = "\n"
 
 const val EPF_DOCKER_IMAGE = "registry.gitlab.com/mlreef/mlreef/epf:master"
@@ -44,6 +47,8 @@ const val EPF_DOCKER_IMAGE = "registry.gitlab.com/mlreef/mlreef/epf:master"
 const val PROJECT_NAME_VARIABLE = "CI_PROJECT_SLUG"
 const val IMAGE_NAME_VARIABLE = "IMAGE_NAME"
 const val MAIN_SCRIPT_NAME_VARIABLE = "MAIN_SCRIPT"
+const val EPF_PUBLISH_URL = "EPF_PUBLISH_URL"
+const val EPF_PUBLISH_SECRET = "EPF_PUBLISH_SECRET"
 
 
 val dockerfileTemplate: String = ClassPathResource("code-publishing-dockerfile-template")
@@ -57,7 +62,8 @@ val mlreefTemplate: String = ClassPathResource("code-publishing-mlreef-file-temp
     }
 
 @Service
-internal class PublishingService(
+class PublishingService(
+    private val conf: ApplicationConfiguration,
     private val gitlabRestClient: GitlabRestClient,
     private val projectResolverService: ProjectResolverService,
     private val dataProcessorService: DataProcessorService,
@@ -65,6 +71,7 @@ internal class PublishingService(
     private val baseEnvironmentsRepository: BaseEnvironmentsRepository,
     private val repositoryService: RepositoryService,
     private val subjectRepository: SubjectRepository,
+    private val pipelineService: PipelineService,
 ) {
     val log: Logger = LoggerFactory.getLogger(this::class.java)
 
@@ -110,6 +117,12 @@ internal class PublishingService(
         val existingDataProcessorVersion = dataProcessorService.getProcessorVersionByProjectId(project.id)
             ?: dataProcessorVersion
 
+        val existingDataProcessor = dataProcessorService.getProcessorByProjectId(project.id)
+            ?: existingDataProcessorVersion.dataProcessor
+
+        val secret = pipelineService.createSecret()
+        val finishUrl = "${conf.epf.backendUrl}$EPF_CONTROLLER_PATH/code-projects/${project.id}"
+
         val commitMessage = try {
             gitlabRestClient.commitFiles(
                 token = userToken,
@@ -117,10 +130,8 @@ internal class PublishingService(
                 targetBranch = TARGET_BRANCH,
                 commitMessage = PUBLISH_COMMIT_MESSAGE,
                 fileContents = mapOf(
-                    DOCKERFILE_NAME to generateCodePublishingDockerFile(
-                        EPF_DOCKER_IMAGE
-                    ),
-                    MLREEF_NAME to generateCodePublishingYAML(project.name)
+                    DOCKERFILE_NAME to generateCodePublishingDockerFile(EPF_DOCKER_IMAGE),
+                    MLREEF_NAME to generateCodePublishingYAML(project.name, secret, finishUrl)
                 ),
                 action = "create"
             )
@@ -130,17 +141,16 @@ internal class PublishingService(
 
         return dataProcessorService.saveDataProcessor(
             existingDataProcessorVersion.copy(
-                dataProcessor = existingDataProcessorVersion.dataProcessor.copy(codeProjectId = projectId),
+                dataProcessor = existingDataProcessor.copy(codeProjectId = projectId),
                 baseEnvironment = baseEnvironment,
+                baseEnvironmentId = baseEnvironment.id,
                 modelType = modelType,
                 mlCategory = mlCategory,
-                pipelineJobInfo = PipelineJobInfo(commitSha = commitMessage.id, committedAt = commitMessage.committedDate),
-                publishedAt = ZonedDateTime.now(),
-                publisher = publisher,
+                publishingInfo = PublishingInfo(commitMessage.id, ZonedDateTime.now(), secret, publisher),
                 path = dataProcessorVersion.path,
                 branch = dataProcessorVersion.branch,
                 command = dataProcessorVersion.command,
-                parameters = dataProcessorVersion.parameters,
+                parameters = dataProcessorVersion.parameters.map { it.copy(processorVersionId = existingDataProcessorVersion.id) },
             )
         )
     }
@@ -214,15 +224,70 @@ internal class PublishingService(
         )
     }
 
+    fun rescanProcessorSource(projectId: UUID): ProcessorVersion {
+        val project = projectResolverService.resolveProject(projectId = projectId)
+            ?: throw NotFoundException(ErrorCode.NotFound, "Project $projectId not found")
+
+        val dataProcessorVersion = dataProcessorService.getProcessorVersionByProjectId(project.id)
+            ?: throw NotFoundException(ErrorCode.NotFound, "Project $projectId has no data process. Probably it was published incorrectly")
+
+        val files = repositoryService.getFilesContentOfRepository(
+            project.gitlabId,
+            dataProcessorVersion.path
+                ?: throw NotFoundException(ErrorCode.NotFound, "Project $projectId has no main script. Probably it was published incorrectly"),
+            false)
+
+        return if (files.size > 1) {
+            throw InternalException("There was something wrong in data processor recognition for project $projectId. More then one file was returned from repository")
+        } else if (files.size == 0) {
+            log.warn("Main script was not found in repository for project $projectId. Data processor will be cleaned")
+
+            dataProcessorService.saveDataProcessor(
+                dataProcessorVersion.copy(
+                    path = null,
+                    branch = dataProcessorVersion.branch,
+                    command = "",
+                    parameters = listOf(),
+                    contentSha256 = null
+                )
+            )
+        } else if (files[0].sha256 != dataProcessorVersion.contentSha256) {
+            log.warn("Main script was changed for project $projectId. Data processor will be updated")
+
+            val mainScript = files[0]
+
+            val newDataProcessorVersion = pythonParserService.findAndParseDataProcessorInProject(projectId, mainScript.path)
+
+            val publishInfo = dataProcessorVersion.publishingInfo?.copy(commitSha = mainScript.lastCommitId
+                ?: "", publishedAt = ZonedDateTime.now())
+                ?: PublishingInfo(commitSha = mainScript.lastCommitId ?: "", publishedAt = ZonedDateTime.now())
+
+            dataProcessorService.saveDataProcessor(
+                dataProcessorVersion.copy(
+                    publishingInfo = publishInfo,
+                    path = newDataProcessorVersion.path,
+                    branch = newDataProcessorVersion.branch,
+                    command = newDataProcessorVersion.command,
+                    parameters = newDataProcessorVersion.parameters.map { it.copy(processorVersionId = dataProcessorVersion.id) },
+                    contentSha256 = dataProcessorVersion.contentSha256
+                )
+            )
+        } else {
+            dataProcessorVersion
+        }
+    }
+
     private fun isProjectPublished(project: Project): Boolean {
         return repositoryService.findFileInRepository(project.gitlabId, MLREEF_NAME) != null
     }
 
-    private fun generateCodePublishingYAML(projectName: String): String {
+    private fun generateCodePublishingYAML(projectName: String, secret: String, finishUrl: String): String {
         val expressionParser: ExpressionParser = SpelExpressionParser()
         val context = StandardEvaluationContext()
 
         context.setVariable(PROJECT_NAME_VARIABLE, adaptProjectName(projectName))
+        context.setVariable(EPF_PUBLISH_URL, finishUrl)
+        context.setVariable(EPF_PUBLISH_SECRET, secret)
 
         val template = try {
             val expression = expressionParser.parseExpression(mlreefTemplate, TemplateParserContext())

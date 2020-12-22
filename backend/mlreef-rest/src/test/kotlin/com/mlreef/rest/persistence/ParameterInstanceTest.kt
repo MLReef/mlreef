@@ -12,6 +12,7 @@ import com.mlreef.rest.Person
 import com.mlreef.rest.ProcessorParameter
 import com.mlreef.rest.ProcessorParameterRepository
 import com.mlreef.rest.ProcessorVersion
+import com.mlreef.rest.PublishingInfo
 import com.mlreef.rest.UserRole
 import com.mlreef.rest.VisibilityScope
 import com.mlreef.rest.utils.RandomUtils
@@ -51,7 +52,7 @@ class ParameterInstanceTest : AbstractRepositoryTest() {
             codeProjectId = codeProjectId)
 
         val dataProcessor = ProcessorVersion(
-            id = _dataProcessor.id, dataProcessor = _dataProcessor, publisher = author,
+            id = _dataProcessor.id, dataProcessor = _dataProcessor, publishingInfo = PublishingInfo(publisher = author),
             command = "random_crop", number = 1, baseEnvironment = baseEnv)
 
         val processorParameter = ProcessorParameter(randomUUID(), dataProcessor.id, "height", ParameterType.INTEGER, 1, "")

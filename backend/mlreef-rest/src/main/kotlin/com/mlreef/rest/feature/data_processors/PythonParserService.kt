@@ -30,14 +30,10 @@ class PythonParserService(
 
         val files = repositoryService.getFilesContentOfRepository(project.gitlabId, mainFilePath, mainFilePath == null)
 
-        files.forEach {
-            log.debug(it.value)
-        }
-
-        val processors = files.entries.mapNotNull {
-            log.debug(it.value)
-            parsePythonFile(it.value, it.key)
-        }
+        val processors = files.filterNot { it.content == null }.map {
+            log.debug(it.content)
+            parsePythonFile(it.content!!, it.path)?.copy(contentSha256 = it.sha256) //it.content!! is covered by filterNot function before this lambda
+        }.filterNotNull()
 
         if (processors.size > 1) throw ProjectPublicationException(ErrorCode.Conflict, "More than 1 data processor found in the project. Please selected a main file")
         if (processors.size == 0) throw ProjectPublicationException(ErrorCode.DataProcessorNotUsable, "No any data processor found in the project or incorrect main file. Candidate files found: ${files.size}")
@@ -80,8 +76,6 @@ class PythonParserService(
             branch = "master",
             baseEnvironment = null,
             number = 1,
-            publisher = null,
-            publishedAt = null,
             command = "",
             parameters = parameters.filter { it.processorVersionId == dataProcessors.first().id },
             metricSchema = metricSchema,

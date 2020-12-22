@@ -26,6 +26,7 @@ import com.mlreef.rest.ProcessorParameter
 import com.mlreef.rest.ProcessorParameterRepository
 import com.mlreef.rest.ProcessorVersion
 import com.mlreef.rest.ProcessorVersionRepository
+import com.mlreef.rest.PublishingInfo
 import com.mlreef.rest.PublishingMachineType
 import com.mlreef.rest.Subject
 import com.mlreef.rest.UserRole
@@ -36,7 +37,6 @@ import com.mlreef.rest.external_api.gitlab.GitlabVisibility
 import com.mlreef.rest.external_api.gitlab.dto.GitlabGroup
 import com.mlreef.rest.external_api.gitlab.dto.GitlabProject
 import com.mlreef.rest.external_api.gitlab.dto.GitlabUser
-import com.mlreef.rest.external_api.gitlab.toVisibilityScope
 import com.mlreef.rest.feature.caches.domain.PublicProjectHash
 import com.mlreef.rest.feature.caches.repositories.PublicProjectsRepository
 import com.mlreef.rest.utils.RandomUtils
@@ -371,13 +371,13 @@ class IntegrationTestsHelper {
     fun createProcessorVersion(dataOp1: DataProcessor, publisher: Subject, command: String = "command"): ProcessorVersion {
         baseEnv = baseEnvironmentsRepository.save(BaseEnvironments(UUID.randomUUID(), RandomUtils.generateRandomUserName(15), "docker1:latest", sdkVersion = "3.7"))
         return processorVersionRepository.save(ProcessorVersion(
-            id = dataOp1.id, dataProcessor = dataOp1, publisher = publisher,
+            id = dataOp1.id, dataProcessor = dataOp1, publishingInfo = PublishingInfo(publisher = publisher),
             command = command, number = 1, baseEnvironment = baseEnv))
     }
 
     fun adaptProcessorVersion(version: ProcessorVersion, publisher: Subject, command: String = "command"): ProcessorVersion {
         return processorVersionRepository.save(version.copy(
-            publisher = publisher
+            publishingInfo = PublishingInfo(publisher = publisher)
         ))
     }
 

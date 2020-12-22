@@ -11,12 +11,13 @@ import com.mlreef.rest.UserRole
 import com.mlreef.rest.VisibilityScope
 import com.mlreef.rest.external_api.gitlab.GitlabRestClient
 import com.mlreef.rest.external_api.gitlab.RepositoryTreeType
-import com.mlreef.rest.external_api.gitlab.dto.RepositoryFile
+import com.mlreef.rest.external_api.gitlab.dto.RepositoryFileFullInfo
 import com.mlreef.rest.external_api.gitlab.dto.RepositoryTree
 import com.mlreef.rest.external_api.gitlab.dto.RepositoryTreePaged
 import com.mlreef.rest.feature.data_processors.DataProcessorService
 import com.mlreef.rest.feature.data_processors.PythonParserService
 import com.mlreef.rest.feature.data_processors.RepositoryService
+import com.mlreef.rest.feature.pipeline.PipelineService
 import com.mlreef.rest.feature.project.ProjectResolverService
 import com.mlreef.rest.service.AbstractServiceTest
 import com.mlreef.rest.utils.RandomUtils
@@ -38,7 +39,6 @@ import java.util.UUID
 import kotlin.math.absoluteValue
 
 internal class CodeProjectPublishingServiceTest : AbstractServiceTest() {
-
     @Autowired
     private lateinit var codeProjectRepository: CodeProjectRepository
 
@@ -56,6 +56,9 @@ internal class CodeProjectPublishingServiceTest : AbstractServiceTest() {
 
     @Autowired
     private lateinit var repositoryService: RepositoryService
+
+    @Autowired
+    private lateinit var pipelineService: PipelineService
 
     @MockkBean
     private lateinit var gitlabClient: GitlabRestClient
@@ -75,13 +78,15 @@ internal class CodeProjectPublishingServiceTest : AbstractServiceTest() {
     internal fun setUp() {
         service = spyk(
             PublishingService(
+                config,
                 gitlabRestClient = gitlabClient,
                 projectResolverService,
                 dataProcessorService,
                 pythonParserService,
                 baseEnvironmentsRepository,
                 repositoryService,
-                subjectRepository
+                subjectRepository,
+                pipelineService
             ),
             recordPrivateCalls = true
         )
@@ -166,16 +171,22 @@ internal class CodeProjectPublishingServiceTest : AbstractServiceTest() {
 
 
         every {
-            gitlabClient.adminGetRepositoryFileContent(any(), any())
+            gitlabClient.adminGetRepositoryFileContentAndInformation(any(), any())
         } answers {
             val filename = "resnet_annotations_demo.py"
             val content = javaClass.classLoader.getResource(filename)!!.content as InputStream
 
-            RepositoryFile(
-                sha = UUID.randomUUID().toString(),
+            RepositoryFileFullInfo(
+                "main.py",
+                "main.py",
+                blobId = UUID.randomUUID().toString(),
                 size = 100L,
                 encoding = "Base64",
-                content = Base64Utils.encodeToString(content.readBytes())
+                content = Base64Utils.encodeToString(content.readBytes()),
+                contentSha256 = "230148ea3aa5aed560b9313d0c560731f76752961140d46f5a10a3b1e2bbf408",
+                ref = "master",
+                commitId = UUID.randomUUID().toString(),
+                lastCommitId = UUID.randomUUID().toString(),
             )
         }
     }
@@ -219,7 +230,7 @@ internal class CodeProjectPublishingServiceTest : AbstractServiceTest() {
         }
 
         verify(exactly = 1) {
-            gitlabClient.adminGetRepositoryFileContent(any(), any())
+            gitlabClient.adminGetRepositoryFileContentAndInformation(any(), any())
         }
 
         confirmVerified(gitlabClient)

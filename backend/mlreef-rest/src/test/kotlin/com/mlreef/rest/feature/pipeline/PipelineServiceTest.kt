@@ -21,6 +21,7 @@ import com.mlreef.rest.PipelineStatus
 import com.mlreef.rest.ProcessorParameterRepository
 import com.mlreef.rest.ProcessorVersion
 import com.mlreef.rest.ProcessorVersionRepository
+import com.mlreef.rest.PublishingInfo
 import com.mlreef.rest.SubjectRepository
 import com.mlreef.rest.UserRole
 import com.mlreef.rest.VisibilityScope
@@ -523,7 +524,7 @@ class PipelineServiceTest : AbstractServiceTest() {
             codeProjectId = codeProjectId))
 
         val dataOp1 = processorVersionRepository.save(ProcessorVersion(
-            id = dataOperation.id, dataProcessor = dataOperation, publisher = author,
+            id = dataOperation.id, dataProcessor = dataOperation, publishingInfo = PublishingInfo(publisher = author),
             command = "augment", number = 1, baseEnvironment = baseEnv))
 
         val createPipelineConfig = service.createPipelineConfig(

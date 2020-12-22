@@ -41,14 +41,14 @@ internal class RepositoryServiceContextTest : AbstractContextTest() {
         val result = service.getFilesContentOfRepository(1L, filterByExt = true)
 
         assertThat(result.size).isEqualTo(3)
-        assertThat(result.keys).containsExactlyInAnyOrderElementsOf(listOf("file1.py", "file2.py", "file3.py"))
+        assertThat(result.map { it.path }).containsExactlyInAnyOrderElementsOf(listOf("file1.py", "file2.py", "file3.py"))
 
         verify(exactly = 1) {
             gitlabRestClient.adminGetProjectTree(any(), any())
         }
 
         verify(exactly = 3) {
-            gitlabRestClient.adminGetRepositoryFileContent(any(), any())
+            gitlabRestClient.adminGetRepositoryFileContentAndInformation(any(), any())
         }
 
         verify(exactly = 1) {
@@ -108,7 +108,7 @@ internal class RepositoryServiceContextTest : AbstractContextTest() {
         val result = service.getFilesContentOfRepository(1L, filterByExt = true)
 
         assertThat(result.size).isEqualTo(6)
-        assertThat(result.keys).containsExactlyInAnyOrderElementsOf(
+        assertThat(result.map { it.path }).containsExactlyInAnyOrderElementsOf(
             listOf("file1.py", "file2.py", "file3.py", "file4.py", "file5.py", "file6.py")
         )
 
@@ -117,7 +117,7 @@ internal class RepositoryServiceContextTest : AbstractContextTest() {
         }
 
         verify(exactly = 6) {
-            gitlabRestClient.adminGetRepositoryFileContent(any(), any())
+            gitlabRestClient.adminGetRepositoryFileContentAndInformation(any(), any())
         }
 
         verify(exactly = 1) {
@@ -178,7 +178,7 @@ internal class RepositoryServiceContextTest : AbstractContextTest() {
         val result = service.getFilesContentOfRepository(1L, filterByExt = true)
 
         assertThat(result.size).isEqualTo(9)
-        assertThat(result.keys).containsExactlyInAnyOrderElementsOf(
+        assertThat(result.map { it.path }).containsExactlyInAnyOrderElementsOf(
             listOf("file1.py", "file2.py", "file3.py", "file4.py", "file5.py", "file6.py", "file7.py", "file8.py", "file9.py")
         )
 
@@ -187,7 +187,7 @@ internal class RepositoryServiceContextTest : AbstractContextTest() {
         }
 
         verify(exactly = 9) {
-            gitlabRestClient.adminGetRepositoryFileContent(any(), any())
+            gitlabRestClient.adminGetRepositoryFileContentAndInformation(any(), any())
         }
 
         verify(exactly = 1) {
@@ -224,7 +224,7 @@ internal class RepositoryServiceContextTest : AbstractContextTest() {
         val result = service.getFilesContentOfRepository(1L, filterByExt = true)
 
         assertThat(result.size).isEqualTo(3)
-        assertThat(result.keys).containsExactlyInAnyOrderElementsOf(
+        assertThat(result.map { it.path }).containsExactlyInAnyOrderElementsOf(
             listOf("file1.py", "py", "file8.python.py")
         )
 
@@ -233,7 +233,7 @@ internal class RepositoryServiceContextTest : AbstractContextTest() {
         }
 
         verify(exactly = 3) {
-            gitlabRestClient.adminGetRepositoryFileContent(any(), any())
+            gitlabRestClient.adminGetRepositoryFileContentAndInformation(any(), any())
         }
 
         verify(exactly = 1) {

@@ -9,6 +9,7 @@ import com.mlreef.rest.ParameterType
 import com.mlreef.rest.Person
 import com.mlreef.rest.ProcessorParameter
 import com.mlreef.rest.ProcessorVersion
+import com.mlreef.rest.PublishingInfo
 import com.mlreef.rest.UserRole
 import com.mlreef.rest.VisibilityScope
 import com.mlreef.rest.utils.RandomUtils
@@ -43,7 +44,7 @@ class DataProcessorInstanceTest {
         val env = BaseEnvironments(randomUUID(), RandomUtils.generateRandomUserName(15), "docker:latest")
 
         val dataOp1 = ProcessorVersion(
-            id = _dataOp1.id, dataProcessor = _dataOp1, publisher = author,
+            id = _dataOp1.id, dataProcessor = _dataOp1, publishingInfo = PublishingInfo(publisher = author),
             command = "augment", number = 1, baseEnvironment = env)
 
 

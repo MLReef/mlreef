@@ -28,7 +28,8 @@ object ApplicationProfiles {
 @EnableConfigurationProperties(
     ApplicationConfiguration::class,
     EpfConfiguration::class,
-    GitlabConfiguration::class
+    GitlabConfiguration::class,
+    ProxyConfiguration::class,
 )
 class RestApplication
 
@@ -55,6 +56,8 @@ internal class AssertGitlabAppStartupRunner(private val restClient: GitlabRestCl
     }
 }
 
+const val EPF_CONTROLLER_PATH = "/api/v1/epf"
+
 @ConfigurationProperties(prefix = "mlreef")
 class ApplicationConfiguration(
     val epf: EpfConfiguration,
@@ -76,3 +79,9 @@ class EpfConfiguration {
     lateinit var backendUrl: String
 }
 
+@ConfigurationProperties(prefix = "mlreef.proxy")
+class ProxyConfiguration(
+    var enabled: Boolean = false,
+    var host: String? = null,
+    var port: Int? = null,
+)

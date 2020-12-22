@@ -10,6 +10,7 @@ import com.mlreef.rest.DataType
 import com.mlreef.rest.Person
 import com.mlreef.rest.ProcessorVersion
 import com.mlreef.rest.ProcessorVersionRepository
+import com.mlreef.rest.PublishingInfo
 import com.mlreef.rest.UserRole
 import com.mlreef.rest.VisibilityScope
 import com.mlreef.rest.utils.RandomUtils
@@ -51,7 +52,7 @@ class DataProcessorInstanceTest : AbstractRepositoryTest() {
             description = "description",
             codeProjectId = codeProjectId)
         val dataOp1 = ProcessorVersion(
-            id = _dataOp1.id, dataProcessor = _dataOp1, publisher = author,
+            id = _dataOp1.id, dataProcessor = _dataOp1, publishingInfo = PublishingInfo(publisher = author),
             command = "augment", number = 1, baseEnvironment = baseEnv)
 
         val entity = DataProcessorInstance(id = id, processorVersion = dataOp1)

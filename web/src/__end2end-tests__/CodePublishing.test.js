@@ -121,13 +121,18 @@ myCustomOperationEntrypoint(epfInputArray)`,
   expect(commitDataProcessorResp.title).toBe('Data processor');
   expect(commitDataProcessorResp.project_id).toBe(gid);
 
+  const publishBody = {
+    environment: '870a0b67-f36b-40c8-9e76-560c32d5f3e8',
+    path: 'dataproc.py',
+  };
+
   //
   // -------- Publish the Project -------- //
   //
   const publishingRes = await api.publish(
     headers,
     projectId,
-    null,
+    JSON.stringify(publishBody),
   );
 
   console.log('################### Publishing Response');
@@ -140,8 +145,12 @@ myCustomOperationEntrypoint(epfInputArray)`,
   // -------- Verify Publishing status -------- //
   //
   console.log('################### Get Project');
-  const projectReadResponse = await projectInfoApi.getCodeProjectById(projectId);
-  console.log(JSON.stringify(projectReadResponse));
+  const projectPublishResponse = await projectInfoApi.getProjectPublishStatus(projectId);
+  console.log(JSON.stringify(projectPublishResponse));
+
+  // console.log('################### Get Project');
+  // const projectReadResponse = await projectInfoApi.getCodeProjectById(projectId);
+  // console.log(JSON.stringify(projectReadResponse));
   /* { id: '723076c6-eee5-11ea-adc1-0242ac120002',
         slug: 'commons-txt-ops',
         url: 'http://ec2-18-157-161-187.eu-central-1.compute.amazonaws.com:10080/mlreef/commons-txt-ops',
@@ -172,7 +181,7 @@ myCustomOperationEntrypoint(epfInputArray)`,
            author_id: 'aaaa0000-0001-0000-0000-cccccccccccc' } },
    */
 
-  expect(projectReadResponse.name !== undefined).toBeTruthy();
+  // expect(projectReadResponse.name !== undefined).toBeTruthy();
   // TODO: make the following line work
   // expect(projectBody.data_processor !== undefined).toBeTruthy();
 
