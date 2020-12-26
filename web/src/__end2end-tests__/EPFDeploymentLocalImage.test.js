@@ -1,16 +1,14 @@
 import waitForExpect from 'wait-for-expect';
 import ProjectGeneralInfoApi from 'apis/ProjectGeneralInfoApi';
-import assureUserRegistration from './fixtures/testHelpers';
 
 const projectInfoApi = new ProjectGeneralInfoApi();
 
-let gitlabGroupName = 'mlreef-group';
-let gitlabProjectName = 'mlreef';
+const gitlabGroupName = 'mlreef-group';
+const gitlabProjectName = 'mlreef';
 let projectResponse;
 let regsitryResponse;
 
 jest.setTimeout(100000);
-
 
 test('Check whether Gitlabs returns project for given group and project name', async () => {
   let resp = [];
@@ -22,7 +20,7 @@ test('Check whether Gitlabs returns project for given group and project name', a
 
   await waitForExpect(() => {
     expect(projectResponse.name).toBe(gitlabProjectName);
-  }, 50000);
+  });
   console.log(`Running EPF local registry tests against project: ${projectResponse.http_url_to_repo}`);
   console.log(`The project ID : ${projectResponse.id}`);
   console.log(resp);
@@ -39,7 +37,7 @@ test('Check whether Gitlabs docker registry lists the new image', async () => {
 
   await waitForExpect(() => {
     expect(resp.length > 0).toBeTruthy();
-  }, 50000);
+  });
   console.log(resp);
 });
 
