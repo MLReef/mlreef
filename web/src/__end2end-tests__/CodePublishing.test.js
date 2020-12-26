@@ -1,79 +1,30 @@
-import waitForExpect from 'wait-for-expect';
 import { PROJECT_TYPES } from 'domain/project/projectTypes';
 import GitlabPipelineApi from 'apis/GitlabPipelinesApi';
 import ProjectGeneralInfoApi from 'apis/ProjectGeneralInfoApi';
 import CommitsApi from 'apis/CommitsApi';
-import CodeProjectPublishingApi from './apiMocks/CodeProjectPublishing.spike.ts';
-import UserApi from './apiMocks/UserApi.ts';
+import waitForExpect from 'wait-for-expect';
 import assureUserRegistration from './fixtures/testHelpers';
+import EnvironmentsApi from 'apis/EnvironmentsApi';
 
-const api = new CodeProjectPublishingApi();
-const userApi = new UserApi();
 const commitsApi = new CommitsApi();
-const gitlabApiMock = new GitlabPipelineApi();
+const gitlabApi = new GitlabPipelineApi();
 const projectInfoApi = new ProjectGeneralInfoApi();
 
-// TODO: this part is necessary to supply the API mocks with credentials
-// As the apiMocks are removed from this test, these lines can also be removed
-// eslint-disable-next-line camelcase
-let removeMe_user;
-// eslint-disable-next-line camelcase
-let removeMe_email;
-// eslint-disable-next-line camelcase
-let removeMe_pass;
-// end todo
-let gitlabProjectId;
+jest.setTimeout(300000);
 
-let regsitryResponse;
-
-beforeAll(async () => {
+test('Can create new user, new code project, commit file and publish code project', async () => {
   // ----------- login with newly create user ----------- //
   console.log('Running end2end tests against localhost:80 -> expecting proxy to redirect to $INSTANCE_HOST');
   const { registerData: respData } = await assureUserRegistration();
-  const { username, email, password } = respData;
-
-  // TODO: this part is necessary to supply the API mocks with credentials
-  // As the apiMocks are removed from this test, these lines can also be removed
-  // eslint-disable-next-line camelcase
-  removeMe_user = username;
-  // eslint-disable-next-line camelcase
-  removeMe_email = email;
-  // eslint-disable-next-line camelcase
-  removeMe_pass = password;
-  // end todo
-});
-
-test('Can create new user, new code project, commit file and publish code project', async () => {
-  jest.setTimeout(300000);
-
-  //
-  // ----------- login with the user ----------- //
-  // TODO: this part is necessary to supply the API mocks with credentials
-  // As the apiMocks are removed from this test, these lines can also be removed
-  // eslint-disable-next-line camelcase
-  const loginData = {
-    username: removeMe_user,
-    email: removeMe_email,
-    password: removeMe_pass,
-  };
-  const loginResp = await userApi.login(loginData);
-  expect(loginResp.ok).toBe(true);
-  const resgistrationBody = await loginResp.json();
-  expect(resgistrationBody.access_token).toBeDefined();
-
-  const headers = {
-    'Content-type': 'Application/json',
-    'PRIVATE-TOKEN': `Bearer ${resgistrationBody.access_token}`,
-    Authorization: `Bearer ${resgistrationBody.access_token}`,
-  };
-
+  const { username } = respData;
+  console.log(`user info: ${JSON.stringify(respData)}`);
   //
   // ----------- create a new project ----------- //
   //
   const body = {
     name: 'Can publish code project',
     slug: 'can-publish-code-project',
-    namespace: loginData.username,
+    namespace: username,
     initialize_with_readme: true,
     description: 'Generated description',
     visibility: 'public',
@@ -85,7 +36,6 @@ test('Can create new user, new code project, commit file and publish code projec
 
   console.log(`Project recently created: ${JSON.stringify(creationProjRespBody)}`);
   const { id: projectId, gitlab_id: gid } = creationProjRespBody;
-  gitlabProjectId = creationProjRespBody?.gitlab_id;
 
   //
   // -------- Commit the project recently created -------- //
@@ -121,109 +71,58 @@ myCustomOperationEntrypoint(epfInputArray)`,
   expect(commitDataProcessorResp.title).toBe('Data processor');
   expect(commitDataProcessorResp.project_id).toBe(gid);
 
-  const publishBody = {
-    environment: '870a0b67-f36b-40c8-9e76-560c32d5f3e8',
-    path: 'dataproc.py',
-  };
+
+  // ---------------------- Get the environments ------------------ //
+
+  const envs = await EnvironmentsApi.getMany();
+  expect(envs.length > 0).toBe(true);
 
   //
   // -------- Publish the Project -------- //
   //
-  const publishingRes = await api.publish(
-    headers,
+
+  const publishingRes = await projectInfoApi.publish(
     projectId,
-    JSON.stringify(publishBody),
+    {
+      path: 'dataproc.py',
+      environment: envs[0].id,
+      model_type: null,
+      ml_category: null,
+      accepted_publishing_terms: null,
+    },
   );
 
   console.log('################### Publishing Response');
   console.log(publishingRes);
-  console.log('################### Publishing Response Body');
-  console.log(await publishingRes.json());
-  expect(publishingRes.ok).toBeTruthy();
 
-  //
-  // -------- Verify Publishing status -------- //
-  //
   console.log('################### Get Project');
-  const projectPublishResponse = await projectInfoApi.getProjectPublishStatus(projectId);
-  console.log(JSON.stringify(projectPublishResponse));
+  const projectReadResponse = await projectInfoApi.getCodeProjectById(projectId);
+  console.log(JSON.stringify(projectReadResponse));
+  expect(projectReadResponse.name !== undefined).toBeTruthy();
 
-  // console.log('################### Get Project');
-  // const projectReadResponse = await projectInfoApi.getCodeProjectById(projectId);
-  // console.log(JSON.stringify(projectReadResponse));
-  /* { id: '723076c6-eee5-11ea-adc1-0242ac120002',
-        slug: 'commons-txt-ops',
-        url: 'http://ec2-18-157-161-187.eu-central-1.compute.amazonaws.com:10080/mlreef/commons-txt-ops',
-        owner_id: 'aaaa0000-0001-0000-0000-cccccccccccc',
-        name: 'Text processing operations',
-        gitlab_namespace: 'mlreef',
-        gitlab_path: 'commons-txt-ops',
-        gitlab_id: 1,
-        visibility_scope: 'PUBLIC',
-        description:         'Removes numbers,tokenization,numbers to words, filter words.',
-        tags: [],
-        stars_count: 0,
-        forks_count: 0,
-        input_data_types: [ 'IMAGE' ],
-        output_data_types: [ 'IMAGE' ],
-        searchable_type: 'CODE_PROJECT',
-        data_processor:
-         { id: '72307a68-eee5-11ea-adc1-0242ac120002',
-           slug: 'commons-txt-ops',
-           name: 'Text processing operations',
-           input_data_type: 'TEXT',
-           output_data_type: 'TEXT',
-           type: 'OPERATION',
-           visibility_scope: 'PUBLIC',
-           description:
-            'Removes numbers,tokenization,numbers to words, filter words.',
-           code_project_id: '723076c6-eee5-11ea-adc1-0242ac120002',
-           author_id: 'aaaa0000-0001-0000-0000-cccccccccccc' } },
-   */
+  // --------------- Verify whether gitlab starts a pipeline --------------- //
 
-  // expect(projectReadResponse.name !== undefined).toBeTruthy();
-  // TODO: make the following line work
-  // expect(projectBody.data_processor !== undefined).toBeTruthy();
-
-  //
-  // -------- Remove project at the end of the test -------- //
-  //  At least removing the project automatically we do not fill the database of garbage
-  //
-  // const projDeletionResp = await projectApi.delete(projectId, headers);
-  // expect(projDeletionResp.ok).toBeTruthy();
-});
-
-test('Verify whether gitlab starts a pipeline', async () => {
-  let resp = [];
-  setTimeout(async () => {
-    const response = await gitlabApiMock.getPipesByProjectId(gitlabProjectId);
-    resp = response;
-  }, 200000);
-
-  await waitForExpect(() => {
-    expect(resp.length > 0).toBeTruthy();
-  }, 200000, 500);
-});
-
-test('Check whether Gitlabs docker registry lists the new image', async () => {
-  let resp = [];
-  setTimeout(async () => {
-    const response = await projectInfoApi.getGitlabRegistries(gitlabProjectId);
-    resp = response;
-    regsitryResponse = response;
-  }, 200000);
-
-  await waitForExpect(() => {
-    expect(resp.length > 0).toBeTruthy();
-  }, 200000, 500);
-});
-
-test('Verify if container tags are created inside registry', async () => {
-  const response = await projectInfoApi
-    .getGitlabRegistryTags(
-      gitlabProjectId,
-      regsitryResponse[0].id,
-    );
-  console.log(response);
+  const response = await gitlabApi.getPipesByProjectId(gid);
   expect(response.length > 0).toBeTruthy();
+
+  let registryResponse = [];
+  let tagsResponse = [];
+
+  // ------------------ Verify Gitlab registry responses --------------------- //
+
+  setTimeout(async () => {
+    registryResponse = await projectInfoApi.getGitlabRegistries(gid);
+  }, 60000);
+
+  await waitForExpect(() => {
+    expect(registryResponse.length > 0).toBeTruthy();
+  });
+
+  tagsResponse = await projectInfoApi
+    .getGitlabRegistryTags(
+      gid,
+      registryResponse[0].id,
+    );
+  console.log(tagsResponse);
+  expect(tagsResponse.length > 0).toBeTruthy();
 });

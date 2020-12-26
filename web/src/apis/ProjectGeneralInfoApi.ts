@@ -1,10 +1,10 @@
+import { handleResponse } from 'functions/helpers';
 import ApiDirector from './ApiDirector';
 import ApiRequestCallBuilder from './apiBuilders/ApiRequestCallBuilder';
 import BLApiRequestCallBuilder from './apiBuilders/BLApiRequestCallBuilder';
 import { METHODS, validServicesToCall } from './apiBuilders/requestEnums';
 import { filterBots } from './apiHelpers';
 import BodyLessApiRequestCallBuilder from './apiBuilders/BLApiRequestCallBuilder';
-import { handleResponse } from 'functions/helpers';
 
 export default class ProjectGeneralInfoApi extends ApiDirector {
   constructor() {
@@ -45,7 +45,7 @@ export default class ProjectGeneralInfoApi extends ApiDirector {
     const builder = new BLApiRequestCallBuilder(METHODS.GET, this.buildBasicHeaders(validServicesToCall.GITLAB), url);
 
     return fetch(builder.build())
-      .then(handleResponse)
+      .then(handleResponse);
   }
 
   getProjectsList(query: string) {
@@ -86,7 +86,7 @@ export default class ProjectGeneralInfoApi extends ApiDirector {
 
   addMember(projectId: string, formData: any) {
     const url = `/api/v1/data-projects/${projectId}/users`;
-    const headers = this.buildBasicHeaders(validServicesToCall.BACKEND)
+    const headers = this.buildBasicHeaders(validServicesToCall.BACKEND);
     const builder = new ApiRequestCallBuilder(
       METHODS.POST,
       headers,
@@ -100,7 +100,7 @@ export default class ProjectGeneralInfoApi extends ApiDirector {
 
   removeMember(projectId: number, userUuid: string) {
     const url = `/api/v1/data-projects/${projectId}/users/${userUuid}`;
-    const headers = this.buildBasicHeaders(validServicesToCall.BACKEND)
+    const headers = this.buildBasicHeaders(validServicesToCall.BACKEND);
     const builder = new BLApiRequestCallBuilder(METHODS.DELETE, headers, url);
 
     return fetch(builder.build())
@@ -109,7 +109,7 @@ export default class ProjectGeneralInfoApi extends ApiDirector {
 
   updateProjectDetails(projectId: number, body: Object) {
     const url = `/api/v1/data-projects/${projectId}`;
-    const data = {...body}
+    const data = { ...body };
     const headers = this.buildBasicHeaders(validServicesToCall.BACKEND);
     const builder = new ApiRequestCallBuilder(METHODS.PUT, headers, url, JSON.stringify(data));
 
@@ -172,7 +172,7 @@ export default class ProjectGeneralInfoApi extends ApiDirector {
 
   getProjectDetails(namespace: string, slug: string) {
     const url = `/api/v1/projects/slug/${slug}`;
-    const headers = this.buildBasicHeaders(validServicesToCall.BACKEND)
+    const headers = this.buildBasicHeaders(validServicesToCall.BACKEND);
     const builder = new BLApiRequestCallBuilder(METHODS.GET, headers, url);
 
     return fetch(builder.build())
@@ -180,7 +180,7 @@ export default class ProjectGeneralInfoApi extends ApiDirector {
       .then((results: any) => results.find((res: any) => res.gitlab_namespace === namespace));
   }
 
-  star(projectId: string, isProjectStarred: boolean){
+  star(projectId: string, isProjectStarred: boolean) {
     const baseUrl = `/api/v1/projects/${projectId}/star`;
     const apiReqBuilder = new BodyLessApiRequestCallBuilder(
       isProjectStarred ? METHODS.DELETE : METHODS.POST,
@@ -202,10 +202,14 @@ export default class ProjectGeneralInfoApi extends ApiDirector {
       .then(handleResponse);
   }
 
-  publish(projectId: string, republish: boolean = false){
+  publish(
+    projectId: string, 
+    body: any,
+    republish: boolean = false,
+  ) {
     const baseUrl = `/api/v1/code-projects/${projectId}/${republish ? 'republish' : 'publish'}`;
-    const headers = this.buildBasicHeaders(validServicesToCall.BACKEND)
-    const builder = new BLApiRequestCallBuilder(METHODS.POST, headers, baseUrl);
+    const headers = this.buildBasicHeaders(validServicesToCall.BACKEND);
+    const builder = new ApiRequestCallBuilder(METHODS.POST, headers, baseUrl, JSON.stringify(body));
 
     return fetch(builder.build())
       .then(handleResponse);

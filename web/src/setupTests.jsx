@@ -2,10 +2,15 @@
 import React from 'react';
 import { Provider } from 'react-redux';
 import { MemoryRouter } from 'react-router-dom';
+import waitForExpect from 'wait-for-expect';
+
 import { configure, mount } from 'enzyme';
 import Adapter from 'enzyme-adapter-react-16';
 import 'babel-polyfill';
 import 'whatwg-fetch';
+
+waitForExpect.defaults.timeout = 200000;
+waitForExpect.defaults.interval = 10000;
 
 configure({ adapter: new Adapter() });
 jest.setTimeout(300000);

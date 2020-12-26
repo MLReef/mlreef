@@ -1,24 +1,18 @@
+import ProjectGeneralInfoApi from 'apis/ProjectGeneralInfoApi';
 import uuidv1 from 'uuid/v1';
 import store from 'store';
-import ProjectGeneralInfoApi from 'apis/ProjectGeneralInfoApi';
 import assureUserRegistration from './fixtures/testHelpers';
 
 const projectApi = new ProjectGeneralInfoApi();
-
-beforeAll(async () => {
-  // ----------- login with the user ----------- //
-  await assureUserRegistration();
-});
+jest.setTimeout(30000);
+let originalUUID;
 
 describe('Authenticated user', () => {
-  test('Can get public projects ', async () => {
-    jest.setTimeout(30000);
-
-    const projects = await projectApi.getProjectsList('/public');
-    expect(projects.length > 0).toBe(true);
+  beforeEach(async () => {
+    // ----------- login with the user ----------- //
+    await assureUserRegistration();
   });
 
-  let originalUUID;
   test('Can create project', async () => {
     const request = {
       name: 'Can get Project Info',
