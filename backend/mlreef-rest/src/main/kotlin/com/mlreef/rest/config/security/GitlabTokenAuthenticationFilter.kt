@@ -27,7 +27,7 @@ class GitlabTokenAuthenticationFilter(requestMatcher: RequestMatcher) : Abstract
 
         val tokenHeader = request?.getHeader("PRIVATE-TOKEN")
         val token = tokenHeader?.removePrefix("Bearer")?.trim()
-        val springToken = UsernamePasswordAuthenticationToken(token, token, listOf())
+        val springToken = UsernamePasswordAuthenticationToken(token, token, listOf(SimpleGrantedAuthority("USER")))
 
         val authentication = authenticationManager.authenticate(springToken)
         val securityContext: SecurityContext = SecurityContextHolder.getContext()

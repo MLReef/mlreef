@@ -64,16 +64,6 @@ import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.slot
-import java.io.InputStream
-import java.time.Instant
-import java.time.ZonedDateTime
-import java.util.UUID
-import java.util.regex.Pattern
-import javax.persistence.EntityManager
-import javax.sql.DataSource
-import javax.transaction.Transactional
-import kotlin.math.absoluteValue
-import kotlin.random.Random
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
@@ -93,6 +83,7 @@ import org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath
 import org.springframework.restdocs.snippet.Snippet
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.Authentication
+import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.core.context.SecurityContext
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
@@ -109,6 +100,16 @@ import org.springframework.test.web.servlet.setup.DefaultMockMvcBuilder
 import org.springframework.test.web.servlet.setup.MockMvcBuilders
 import org.springframework.util.Base64Utils
 import org.springframework.web.context.WebApplicationContext
+import java.io.InputStream
+import java.time.Instant
+import java.time.ZonedDateTime
+import java.util.UUID
+import java.util.regex.Pattern
+import javax.persistence.EntityManager
+import javax.sql.DataSource
+import javax.transaction.Transactional
+import kotlin.math.absoluteValue
+import kotlin.random.Random
 
 @TestPropertySource("classpath:application.yml")
 @ExtendWith(value = [RestDocumentationExtension::class, SpringExtension::class])
@@ -688,7 +689,8 @@ abstract class AbstractRestApiTest : AbstractRestTest() {
             gitlabUser = GitlabUser(account.person.gitlabId!!, "testuser", "Test User", "test@example.com"),
             valid = true,
             projects = projectIdLevelMap,
-            groups = groupIdLevelMap
+            groups = groupIdLevelMap,
+            authorities = listOf(SimpleGrantedAuthority("USER"))
         )
     }
 

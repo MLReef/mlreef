@@ -250,6 +250,10 @@ interface SearchableTagRepository : KtCrudRepository<SearchableTag, UUID> {
 
     //    fun findAllByPublicTrueAndNameEquals(name: String): List<SearchableTag>
     fun findAllByPublicTrueAndNameIsIn(names: List<String>): List<SearchableTag>
+
+    fun findAllByNameIsIn(names: List<String>): List<SearchableTag>
+    fun findAllByNameIsInIgnoreCase(names: List<String>): List<SearchableTag>
+    fun findByNameIgnoreCase(name: String): SearchableTag
 }
 
 @Repository

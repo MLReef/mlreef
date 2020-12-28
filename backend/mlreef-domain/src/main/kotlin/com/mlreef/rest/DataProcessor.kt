@@ -3,6 +3,7 @@ package com.mlreef.rest
 import com.mlreef.rest.marketplace.SearchableType
 import java.time.ZonedDateTime
 import java.util.UUID
+import javax.persistence.CascadeType
 import javax.persistence.CascadeType.ALL
 import javax.persistence.Column
 import javax.persistence.DiscriminatorColumn
@@ -99,6 +100,9 @@ abstract class DataProcessor(
     @OneToOne(fetch = FetchType.LAZY, cascade = [ALL])
     @JoinColumn(name = "code_project_id", foreignKey = ForeignKey(name = "codeproject_dataprocessor_code_project_id_fkey"), updatable = false, insertable = false)
     val codeProject: CodeProject? = null,
+
+    @OneToOne(mappedBy = "dataProcessor", fetch = FetchType.LAZY, cascade = [CascadeType.ALL])
+    val processorVersion: ProcessorVersion? = null,
 
     @Column(name = "code_project_id")
     val codeProjectId: UUID? = codeProject?.id,
