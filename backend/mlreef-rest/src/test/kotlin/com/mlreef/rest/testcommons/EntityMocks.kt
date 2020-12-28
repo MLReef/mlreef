@@ -9,6 +9,7 @@ import com.mlreef.rest.DataProject
 import com.mlreef.rest.DataType
 import com.mlreef.rest.DataVisualization
 import com.mlreef.rest.Person
+import com.mlreef.rest.PublishingInfo
 import com.mlreef.rest.ProcessorVersion
 import com.mlreef.rest.Subject
 import com.mlreef.rest.UserRole
@@ -78,7 +79,7 @@ class EntityMocks {
         ) = ProcessorVersion(
             id = randomUUID(),
             dataProcessor = dataProcessor,
-            publisher = publisher,
+            publishingInfo = PublishingInfo(publisher = publisher),
             baseEnvironmentId = environment?.id,
             modelType = modelType,
             mlCategory = mlCategory,
