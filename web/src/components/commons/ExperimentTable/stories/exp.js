@@ -1,0 +1,217 @@
+export default [
+  {
+    id: 0,
+    cols: [
+      {
+        x: 0,
+        y: 0,
+        type: 'status',
+        value: 'status',
+      },
+      {
+        x: 1,
+        y: 0,
+        type: 'label',
+        value: 'name',
+      },
+      {
+        x: 2,
+        y: 0,
+        type: 'timestamp',
+        value: 'finished',
+      },
+      {
+        x: 3,
+        y: 0,
+        type: 'time',
+        value: 'duration',
+      },
+      {
+        x: 4,
+        y: 0,
+        type: 'parameter',
+        value: 'acc',
+      },
+      {
+        x: 5,
+        y: 0,
+        type: 'parameter',
+        value: 'val_acc',
+      },
+      {
+        x: 6,
+        y: 0,
+        type: 'parameter',
+        value: 'loss',
+      },
+      {
+        x: 7,
+        y: 0,
+        type: 'parameter',
+        value: 'cal_loss',
+      },
+    ],
+  },
+  {
+    id: 1,
+    cols: [
+      {
+        x: 0,
+        y: 1,
+        type: 'status',
+        value: 'success',
+      },
+      {
+        x: 1,
+        y: 1,
+        type: 'label',
+        color: '#BADA55',
+        value: 'frikis-mortis-20201011',
+      },
+      {
+        x: 2,
+        y: 1,
+        type: 'timestamp',
+        value: 'Tue Dec 15 2020 12:42:08 GMT-0500',
+      },
+      {
+        x: 3,
+        y: 1,
+        type: 'time',
+        value: 3591,
+      },
+      {
+        x: 4,
+        y: 1,
+        type: 'parameter',
+        value: 0.8455284833908081,
+      },
+      {
+        x: 5,
+        y: 1,
+        type: 'parameter',
+        value: 0.90625,
+      },
+      {
+        x: 6,
+        y: 1,
+        type: 'parameter',
+        value: 15.186208089192709,
+      },
+      {
+        x: 7,
+        y: 1,
+        type: 'parameter',
+        value: 2072.48193359375,
+      },
+    ],
+  },
+  {
+    id: 2,
+    cols: [
+      {
+        x: 0,
+        y: 2,
+        type: 'status',
+        value: 'failed',
+      },
+      {
+        x: 1,
+        y: 2,
+        type: 'label',
+        color: '#77FF00',
+        value: 'morning-glory-20201011',
+      },
+      {
+        x: 2,
+        y: 2,
+        type: 'timestamp',
+        value: 'Mon Dec 14 2020 15:50:08 GMT-0500',
+      },
+      {
+        x: 3,
+        y: 2,
+        type: 'time',
+        value: 14809,
+      },
+      {
+        x: 4,
+        y: 2,
+        type: 'parameter',
+        value: 0.921875,
+      },
+      {
+        x: 5,
+        y: 2,
+        type: 'parameter',
+        value: 0.9473684430122375,
+      },
+      {
+        x: 6,
+        y: 2,
+        type: 'parameter',
+        value: 10.81331729888916,
+      },
+      {
+        x: 7,
+        y: 2,
+        type: 'parameter',
+        value: 776.7804565429688,
+      },
+    ],
+  },
+  {
+    id: 3,
+    cols: [
+      {
+        x: 0,
+        y: 3,
+        type: 'status',
+        value: 'running',
+      },
+      {
+        x: 1,
+        y: 3,
+        type: 'label',
+        color: '#FF00AA',
+        value: 'fade-to-black-20201011',
+      },
+      {
+        x: 2,
+        y: 3,
+        type: 'timestamp',
+        value: 'Sun Dec 13 2020 02:22:08 GMT-0500',
+      },
+      {
+        x: 3,
+        y: 3,
+        type: 'time',
+        value: 128,
+      },
+      {
+        x: 4,
+        y: 3,
+        type: 'parameter',
+        value: 0.9024389982223511,
+      },
+      {
+        x: 5,
+        y: 3,
+        type: 'parameter',
+        value: 0.96875,
+      },
+      {
+        x: 6,
+        y: 3,
+        type: 'parameter',
+        value: 2.936842867998573,
+      },
+      {
+        x: 7,
+        y: 3,
+        type: 'parameter',
+        value: 70.81609344482422,
+      },
+    ],
+  },
+];
