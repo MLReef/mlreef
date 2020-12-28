@@ -1,0 +1,129 @@
+.experiment-table {
+  width: 100%;
+
+  &-container {
+    width: fit-content;
+  }
+
+  &-header {
+    display: flex;
+    justify-content: space-between;
+  }
+
+  &-filters {
+    margin-bottom: 1rem;
+  }
+
+  &-customize-columns {
+    max-width: 300px;
+    text-align: right;
+
+    &-box {
+      display: none;
+
+      &.expanded {
+        display: block;
+      }
+
+      &-container {
+        margin: 0.5rem 0;
+        width: max-content;
+        max-width: 80vw;
+        float: right;
+      }
+
+      &-btn {
+        padding: 0.25rem 0.5rem;
+        margin-left: 0.5rem;
+        margin-bottom: 0.5rem;
+      }
+    }
+  }
+
+  & > thead {
+    & > tr {
+      & > th {
+        font-weight: bold;
+        color: var(--white);
+        background-color: var(--dark);
+        padding: 0.5em;
+      }
+    }
+  }
+
+  & > tbody {
+
+  }
+
+  &-row {
+    &-panel {
+      height: 300px;
+    }
+  }
+
+  &-row-cell {
+    padding-top: 0.25em;
+    padding-bottom: 0.25em;
+
+    &[data-col="index"] {
+      display: none;
+    }
+
+    &[data-col="actions"] {
+      & .experiment-table-action {
+        display: flex;
+        margin-left: 0.5em;
+
+        &-btn {
+          padding: 0.25em;
+          margin-right: 0.5em;
+          border: solid 1px var(--dark);
+          color: var(--dark);
+        }
+      }
+    }
+
+    &[data-col="status"] {
+      & img {
+        margin: auto;
+        width: 1.5em;
+        height: 1.5em;
+        align-self: center;
+      }
+    }
+
+    &[data-col="label"] {
+      min-width: 24ch;
+      display: flex;
+
+      & .label-color {
+        background-color: pink;
+        width: 1em;
+        height: 1em;
+        margin: 0.25em;
+        border-radius: 4px;
+      }
+
+      & .label-text {
+        align-self: center;
+      }
+    }
+
+    &[data-col="finished"] {
+
+    }
+
+    &[data-col="duration"] {
+      text-align: right;
+    }
+
+    &[data-col="parameter"] {
+
+    }
+
+    &[data-type="field"] {
+      text-align: right;
+      padding-left: 1em;
+    }
+  }
+}
