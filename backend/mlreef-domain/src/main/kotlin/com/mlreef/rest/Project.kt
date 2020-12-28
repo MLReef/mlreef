@@ -96,7 +96,7 @@ abstract class Project(
     @Column(name = "global_slug", length = 64)
     override val globalSlug: String?,
 
-    @ManyToMany(fetch = FetchType.EAGER, cascade = [CascadeType.ALL])
+    @ManyToMany(fetch = FetchType.EAGER, cascade = [CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH])
     @Cascade(org.hibernate.annotations.CascadeType.SAVE_UPDATE)
     @JoinTable(
         name = "projects_tags",

@@ -36,6 +36,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.security.authentication.BadCredentialsException
+import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.web.client.ResourceAccessException
@@ -82,7 +83,8 @@ class AuthService(
                 personId = GUEST_PERSON_ID,
                 gitlabUser = null,
                 valid = (true),
-                isVisitor = true
+                isVisitor = true,
+                authorities = listOf(SimpleGrantedAuthority("VISITOR"))
             )
         }
     }
@@ -315,7 +317,8 @@ class AuthService(
             personId = account.person.id,
             gitlabUser = gitlabUser,
             valid = true,
-            isVisitor = false
+            isVisitor = false,
+            authorities = listOf(SimpleGrantedAuthority("USER"))
         )
 
         tokenDetails = injectGitlabInfoIntoTokenDetails(tokenDetails, account)

@@ -716,23 +716,7 @@ The minimal FilterRequest contains the SearchableType:
 DATA_PROJECT will find DataProjects, CODE_PROJECT will find all CodeProjects connected with their CodeProcessors.
 If you want to filter for an explicit CODE_PROJECT type, use OPERATION, VISUALIZATION or ALGORITHM.
 
-operation::marketplace-explore-search[snippets='request-fields']
-
-===== Paging
-
-operation::marketplace-explore-search-params[snippets='request-parameters']
-
-===== Minimal Request
-
-operation::marketplace-explore-search-minimal[snippets='curl-request']
-
-===== Request with all filters
-
-operation::marketplace-explore-search-maximal[snippets='curl-request']
-
-==== Result
-
-The Result is a List of SearchableResults packed in a pageable result.
+operation::marketplace-search[snippets='curl-request,request-fields,request-parameters,response-body,response-fields']
 
 ===== Fulltext search
 

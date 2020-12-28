@@ -16,11 +16,12 @@ class TokenDetails(
     val groups: MutableMap<UUID, AccessLevel?> = mutableMapOf(),
     val projects: MutableMap<UUID, AccessLevel?> = mutableMapOf(),
     val gitlabUser: GitlabUser? = null,
-    val isVisitor: Boolean = false
+    val isVisitor: Boolean = false,
+    val authorities: List<out GrantedAuthority> = listOf(),
 ) : UserDetails {
 
-    override fun getAuthorities(): MutableCollection<out GrantedAuthority> {
-        return arrayListOf()
+    override fun getAuthorities(): Collection<out GrantedAuthority> {
+        return authorities
     }
 
     override fun isEnabled(): Boolean {

@@ -42,7 +42,14 @@ class SecurityConfiguration(private val provider: AuthenticationProvider) : WebS
     override fun configure(webSecurity: WebSecurity) {
         webSecurity
             .ignoring()
-            .antMatchers("/docs", "/docs/*", AUTH_LOGIN_URL, AUTH_REGISTER_URL, EPF_BOT_URL, INFO_URL, EXPLORE_URL)
+            .antMatchers(
+                "/docs",
+                "/docs/*",
+                AUTH_LOGIN_URL,
+                AUTH_REGISTER_URL,
+                EPF_BOT_URL,
+                INFO_URL,
+            )
     }
 
     @Throws(Exception::class)
@@ -51,7 +58,8 @@ class SecurityConfiguration(private val provider: AuthenticationProvider) : WebS
             .exceptionHandling().and()
             .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
             .anonymous().and()
-            .authorizeRequests().antMatchers("/docs", "/docs/*", AUTH_LOGIN_URL, AUTH_REGISTER_URL, EPF_BOT_URL, INFO_URL, *visitorsUrls).permitAll()
+            .authorizeRequests().antMatchers("/docs", "/docs/*", AUTH_LOGIN_URL, AUTH_REGISTER_URL, EPF_BOT_URL, INFO_URL).permitAll()
+            .antMatchers(*visitorsUrls).hasAnyAuthority("USER", "VISITOR")
             .and()
             .authorizeRequests().anyRequest().fullyAuthenticated()
             .and()
@@ -108,7 +116,8 @@ class SecurityConfiguration(private val provider: AuthenticationProvider) : WebS
             DATA_PROJECTS_PUBLIC_URL,
             EPF_BOT_URL,
             PASSWORDS_URL,
-            PROJECTS_URL
+            PROJECTS_URL,
+            EXPLORE_URL,
         )
 
         private val PROTECTED_MATCHER = AndRequestMatcher(
@@ -117,7 +126,6 @@ class SecurityConfiguration(private val provider: AuthenticationProvider) : WebS
             NegatedRequestMatcher(AntPathRequestMatcher(AUTH_REGISTER_URL)),
             NegatedRequestMatcher(AntPathRequestMatcher(EPF_BOT_URL)),
             NegatedRequestMatcher(AntPathRequestMatcher(INFO_URL)),
-            NegatedRequestMatcher(AntPathRequestMatcher(EXPLORE_URL)),
             NegatedRequestMatcher(AntPathRequestMatcher(PING_URL))
         )
     }

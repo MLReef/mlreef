@@ -27,6 +27,7 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         temp.use_jdbc_metadata_defaults: false
+        format_sql: true
     hibernate:
       ddl-auto: none
   flyway:

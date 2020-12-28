@@ -84,6 +84,7 @@ import org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath
 import org.springframework.restdocs.snippet.Snippet
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.Authentication
+import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.core.context.SecurityContext
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
@@ -709,7 +710,8 @@ abstract class AbstractRestApiTest : AbstractRestTest() {
             gitlabUser = GitlabUser(account.person.gitlabId!!, "testuser", "Test User", "test@example.com"),
             valid = true,
             projects = projectIdLevelMap,
-            groups = groupIdLevelMap
+            groups = groupIdLevelMap,
+            authorities = listOf(SimpleGrantedAuthority("USER"))
         )
     }
 

@@ -41,7 +41,6 @@ class AuthenticationProvider(val authService: AuthService,
             throw BadCredentialsException("authentication is null during AuthenticationProvider")
         }
 
-        // I mmust mock this!
         val fromSession: UserDetails? = sessionRegistry.retrieveFromSession(accessToken)
         if (fromSession != null) {
             log.debug("Using token details for user ${fromSession.username} from session")
