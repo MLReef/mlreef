@@ -19,6 +19,8 @@ job:
   tags:
     - local-docker
   when: on_success
+  before_script:
+    - apk add --update curl
   script:
     # Build the docker image in the repositories root directory
     - docker build --tag "$CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG" -f Dockerfile .

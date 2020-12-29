@@ -52,6 +52,11 @@ while [ -n "${1+x}" ]; do
     echo "Using AWS_ACCESS_KEY_ID $AWS_SECRET_ACCESS_KEY"
     shift
     ;;
+  --k8s-runner-token)
+    export K8S_RUNNER_BEARER_TOKEN="$2"
+    echo "Using K8S_RUNNER_BEARER_TOKEN"
+    shift
+    ;;
   --skip-backend-deployment)
     export SKIP_BACKEND_DEPLOYMENT="true"
     echo "Skipping Backend deployment in docker-compose up"
@@ -111,5 +116,10 @@ if [ "$INSTANCE_HOST" != "localhost" ]; then
     echo "Missing AWS_SECRET_ACCESS_KEY. Use the -s or --secret option"
     exit 1
   fi
+  if [ -z "${K8S_RUNNER_BEARER_TOKEN-}" ]; then
+    echo "Missing K8S_RUNNER_BEARER_TOKEN. Use the --k8s-runner-token option"
+    exit 1
+  fi
+
 fi
 echo "Successfully parsed command line parameters"
