@@ -54,11 +54,23 @@ sed "s~#CI_ACTIVATE~~" < docker-compose.yml \
   | sed "/#CI_DELETE_LINE/d" > docker-compose.local.yml
 cat docker-compose.local.yml
 
+##Define seperate k8s authentication variables for dev and prod environment
+if [ "$CI_COMMIT_REF_SLUG" = "master" ]; then
+  K8S_RUNNER_BEARER_TOKEN=$PROD_K8S_RUNNER_BEARER_TOKEN
+  ###Copy k8s ca cert for runner from CI variable
+  cat "$PROD_K8_RUNNER_CA_CRT" > "$(pwd)/k8s_runner_ca.crt"
+
+else
+  K8S_RUNNER_BEARER_TOKEN=$DEV_K8S_RUNNER_BEARER_TOKEN
+  ###Copy k8s ca cert for runner from CI variable
+  cat "$DEV_K8_RUNNER_CA_CRT" > "$(pwd)/k8s_runner_ca.crt"
+fi
+
 ### Prepare ssh connection
 while ! ssh-keyscan -H "$INSTANCE_HOST" >>~/.ssh/known_hosts; do echo "Trying again..."; sleep 5; done
 
 ssh -i   "$SSH_KEYFILE" -o 'AddKeysToAgent yes' ubuntu@"${INSTANCE_HOST}" "if [ -e ${SSH_KEYFILE} ]; then sudo rm $SSH_KEYFILE; fi"
-scp -rpi "$SSH_KEYFILE" -o 'AddKeysToAgent yes' bin epf                   ubuntu@"${INSTANCE_HOST}":/home/ubuntu/
+scp -rpi "$SSH_KEYFILE" -o 'AddKeysToAgent yes' bin epf k8s_runner_ca.crt  ubuntu@"${INSTANCE_HOST}":/home/ubuntu/
 scp -rpi "$SSH_KEYFILE" -o 'AddKeysToAgent yes' docker-compose.local.yml  ubuntu@"${INSTANCE_HOST}":/home/ubuntu/
 ssh -i "$SSH_KEYFILE" -o 'AddKeysToAgent yes' ubuntu@"${INSTANCE_HOST}" "
   echo ${CI_REGISTRY_PASSWORD} | sudo docker login ${CI_REGISTRY} --username=${CI_REGISTRY_USER} --password-stdin
@@ -80,5 +92,6 @@ ssh -i "$SSH_KEYFILE" -o 'AddKeysToAgent yes' ubuntu@"${INSTANCE_HOST}" <<EOF
     --noreply-email-password $NOREPLY_EMAIL_PASSWORD            \
     --gitlab-secrets-key-base secret1111111111122222222222333333333334444444444555555555566666666661234 \
     --gitlab-opt-key-base secret1111111111122222222222333333333334444444444555555555566666666661234     \
-    --gitlab-db-key-base secret1111111111122222222222333333333334444444444555555555566666666661234
+    --gitlab-db-key-base secret1111111111122222222222333333333334444444444555555555566666666661234      \
+    --k8s-runner-token $K8S_RUNNER_BEARER_TOKEN
 EOF

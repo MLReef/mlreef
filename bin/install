@@ -129,35 +129,39 @@ if [ "$INSTANCE_HOST" != "localhost" ]; then
 #EOM
 #  )" #end of $(cat …)
 
-  CONFIG_TEMPLATE="/etc/gitlab-runner/runner-config.template.toml"
-  docker cp bin/resources/runner-config.template.toml gitlab-runner:etc/gitlab-runner/
-  docker cp bin/resources/development.pem             gitlab-runner:etc/gitlab-runner/
-  docker cp bin/resources/development.pem.pub         gitlab-runner:etc/gitlab-runner/
+#  CONFIG_TEMPLATE="/etc/gitlab-runner/runner-config.template.toml"
+#  docker cp bin/resources/runner-config.template.toml gitlab-runner:etc/gitlab-runner/
+#  docker cp bin/resources/development.pem             gitlab-runner:etc/gitlab-runner/
+#  docker cp bin/resources/development.pem.pub         gitlab-runner:etc/gitlab-runner/
   #openssl rsa -pubout -in bin/resources/development.pem  > bin/resources/development.pem.pub
-  docker exec gitlab-runner sed -i "s/###AWS_ACCESS_KEY###/$AWS_ACCESS_KEY_ID/"        $CONFIG_TEMPLATE
-  docker exec gitlab-runner sed -i "s~###AWS_ACCESS_SECRET###~$AWS_SECRET_ACCESS_KEY~" $CONFIG_TEMPLATE
-  docker exec gitlab-runner sed -i "s~###INSECURE_REGISTRY###~${INSTANCE_HOST}:${REGISTRY_NGINX_PORT}~" $CONFIG_TEMPLATE
+#  docker exec gitlab-runner sed -i "s/###AWS_ACCESS_KEY###/$AWS_ACCESS_KEY_ID/"        $CONFIG_TEMPLATE
+#  docker exec gitlab-runner sed -i "s~###AWS_ACCESS_SECRET###~$AWS_SECRET_ACCESS_KEY~" $CONFIG_TEMPLATE
+#  docker exec gitlab-runner sed -i "s~###INSECURE_REGISTRY###~${INSTANCE_HOST}:${REGISTRY_NGINX_PORT}~" $CONFIG_TEMPLATE
+
+  #Configuration for k8s config template
+  K8S_CONFIG_TEMPLATE="/etc/gitlab-runner/runner-config.k8s-template.toml" 
+  docker cp bin/resources/runner-config.k8s-template.toml gitlab-runner:etc/gitlab-runner/
+  docker cp /home/ubuntu/k8s_runner_ca.crt gitlab-runner:etc/gitlab-runner/
+  docker cp bin/resources/runner-config.config.toml gitlab-runner:etc/gitlab-runner/
+  docker exec gitlab-runner sed -i "s/###K8S_RUNNER_BEARER_TOKEN###/$K8S_RUNNER_BEARER_TOKEN/" $K8S_CONFIG_TEMPLATE
+
   # clear runner config
   docker exec gitlab-runner sh -c "echo '' > /etc/gitlab-runner/config.toml"
-
   sleep 10 # This sleep is necessary to allow the gitlab Runner to reload the now empty config file
-
-  # https://docs.gitlab.com/runner/configuration/advanced-configuration.html#volumes-in-the-runnersdocker-section
+  #Add customized config.toml
+  docker exec gitlab-runner bash -c "cat /etc/gitlab-runner/runner-config.config.toml > /etc/gitlab-runner/config.toml"
+  
   docker exec gitlab-runner gitlab-runner register                \
     --non-interactive                                             \
-    --template-config="$CONFIG_TEMPLATE"                          \
-    --name="Multi runner dispatcher on $INSTANCE_HOST"            \
+    --template-config="$K8S_CONFIG_TEMPLATE"                      \
+    --name="K8S runner on $INSTANCE_HOST"                         \
     --url="http://$INSTANCE_HOST:$GITLAB_PORT/"                   \
     --registration-token="$RUNNER_REGISTRATION_TOKEN"             \
-    --request-concurrency="12"                                    \
-    --executor="docker+machine"                                   \
-    --docker-image="alpine:latest"                                \
-    --tag-list="docker"                                           \
+    --executor "kubernetes"                                       \
+    --tag-list "k8s-runner"                                       \
     --run-untagged="true"                                         \
     --locked="false"                                              \
-    --access-level="not_protected"                                \
-    --cache-s3-access-key="$AWS_ACCESS_KEY_ID"                    \
-    --cache-s3-secret-key="$AWS_SECRET_ACCESS_KEY"                \
+    --limit="1"                                                   
 
   docker exec gitlab-runner gitlab-runner register                \
     --non-interactive                                             \
@@ -171,8 +175,8 @@ if [ "$INSTANCE_HOST" != "localhost" ]; then
     --tag-list "docker,local-docker"                              \
     --run-untagged="false"                                        \
     --locked="false"                                              \
-    --access-level="not_protected"
-
+    --access-level="not_protected"                                \
+    --limit=1
 
 
 else ### Configuration for local environments ###
@@ -195,6 +199,7 @@ else ### Configuration for local environments ###
     --locked="false"                                              \
     --access-level="not_protected"
 fi
+docker exec gitlab-runner gitlab-runner verify
 log "Runner was registered successfully"
 
 #

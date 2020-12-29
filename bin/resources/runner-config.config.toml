@@ -1,0 +1,6 @@
+concurrent = 2
+check_interval = 10
+
+[session_server]
+  session_timeout = 1800
+
