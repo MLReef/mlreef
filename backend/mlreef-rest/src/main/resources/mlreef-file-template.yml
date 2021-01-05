@@ -45,7 +45,7 @@ before_script:
   - git config --global user.email "$GIT_PUSH_EMAIL"
   - git config --global user.name "$GIT_PUSH_NAME"
   - echo "Target branch is $TARGET_BRANCH"
-  - background-push &
+  #- background-push &
 
 
 after_script:

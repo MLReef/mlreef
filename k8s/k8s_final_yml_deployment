@@ -1,0 +1,53 @@
+#!/bin/bash
+###The script does kubernetes deployment from k8s/app config definitions. 
+###It includes all the component except gitlab, as gitlab should be up and running when other gets deployed.
+
+
+cd "$(dirname "$0")"/..
+set -e
+set -x
+
+scope_files() {
+  for file in "$@"; do
+    cat "$file"
+    echo "---"
+  done
+}
+
+scope_files \
+  k8s/apps/* \
+  > apps-full.yml
+
+if [[ -z "$KUBE_INGRESS_BASE_DOMAIN" ]]; then
+    echo "A needed variable is not exported. : GITLAB_GKE_DOMAIN"
+    exit 1
+fi
+
+##Define seperate k8s authentication variables for dev and prod environment
+if [ "$CI_COMMIT_REF_SLUG" = "master" ]; then
+  K8S_RUNNER_BEARER_TOKEN=$PROD_K8S_RUNNER_BEARER_TOKEN
+  ###Copy k8s ca cert for runner from CI variable
+  cat "$PROD_K8_RUNNER_CA_CRT" > "$(pwd)/k8s-runner-ca.crt"
+
+else
+  K8S_RUNNER_BEARER_TOKEN=$DEV_K8S_RUNNER_BEARER_TOKEN
+  ###Copy k8s ca cert for runner from CI variable
+  cat "$DEV_K8_RUNNER_CA_CRT" > "$(pwd)/k8s-runner-ca.crt"
+fi
+#ConfigMap for CA CERT to gitlab runner k8s cluster. It will be used for gitlab-runner pod creation.
+kubectl delete configmap k8s-runner-ca-crt || echo "configmap k8s-runner-ca-crt does not exist"
+kubectl  create configmap k8s-runner-ca-crt --from-file=$(pwd)/k8s-runner-ca.crt
+
+dashed_domain="${CI_ENVIRONMENT_SLUG}"
+echo "Using apps-${dashed_domain}.yml"
+cp apps-full.yml apps-${dashed_domain}.yml
+
+sed -i.bak "
+    s/@GITLAB_GKE_DOMAIN@/$CI_ENVIRONMENT_SLUG.$KUBE_INGRESS_BASE_DOMAIN/g
+" apps-${dashed_domain}.yml
+sed -i.bak "
+    s/@K8S_RUNNER_BEARER_TOKEN@/$K8S_RUNNER_BEARER_TOKEN/g
+" apps-${dashed_domain}.yml
+
+rm apps-${dashed_domain}.yml.bak
+

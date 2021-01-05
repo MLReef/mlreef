@@ -1,0 +1,78 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: gitlab-runner-scripts
+data:
+  entrypoint: |
+    #!/bin/bash
+
+    set -xe
+
+    cp /scripts/config.toml /etc/gitlab-runner/
+    #Some time to reload new config.yml
+    sleep 10
+
+    # Register the local docker runner
+    /entrypoint register --non-interactive                        \
+    --name="Packaged Dispatcher on @GITLAB_GKE_DOMAIN@"           \
+    --url="http://gitlab:10080/"                                  \
+    --executor "docker"                                           \
+    --docker-image alpine:latest                                  \
+    --docker-volumes /var/run/docker.sock:/var/run/docker.sock    \
+    --tag-list "docker,local-docker"                              \
+    --run-untagged="false"                                        \
+    --locked="false"                                              \
+    --access-level="not_protected"                                \
+    --limit=1
+    # Register k8s runner
+    /entrypoint register --non-interactive \
+    --url http://gitlab:10080/ \
+    --template-config="/scripts/k8s-template.toml"                \
+    --name="K8S runner on @GITLAB_GKE_DOMAIN@"                    \
+    --executor "kubernetes"                                       \
+    --tag-list "k8s-runner"                                       \
+    --run-untagged="true"                                         \
+    --locked="false"                                              \
+    --limit="1"
+
+    # Start the runner
+    /entrypoint run --user=gitlab-runner \
+      --working-directory=/home/gitlab-runner
+  config.toml: |
+    concurrent = 2
+    check_interval = 10
+
+  k8s-template.toml: |
+    # https://docs.gitlab.com/runner/executors/kubernetes.html
+    # https://docs.gitlab.com/runner/configuration/advanced-configuration.html#the-runnerskubernetes-section
+      [[runners]]
+        [runners.custom_build_dir]
+        [runners.cache]
+          [runners.cache.s3]
+          [runners.cache.gcs]
+          [runners.cache.azure]
+        [runners.kubernetes]
+          host = "https://34.91.108.245"
+          ca_file = "/etc/ssl/certs/k8s-runner-ca.crt"
+          bearer_token_overwrite_allowed = false
+          bearer_token = "@K8S_RUNNER_BEARER_TOKEN@"
+          image = ""
+          namespace = "default"
+          namespace_overwrite_allowed = ""
+          privileged = true
+          pull_policy = "always"
+          helper_image = "registry.gitlab.com/mlreef/devops/k8s-images/gitlab-runner-helper:latest"
+          cpu_limit = "1.7"
+          memory_limit = "42G"
+          service_cpu_limit = "500m"
+          service_memory_limit = "14G"
+          helper_cpu_limit = "500m"
+          helper_memory_limit = "100Mi"
+          poll_interval = 5
+          poll_timeout = 3600
+          service_account_overwrite_allowed = ""
+          pod_annotations_overwrite_allowed = ""
+          [runners.kubernetes.affinity]
+          [runners.kubernetes.pod_security_context]
+          [runners.kubernetes.volumes]
+

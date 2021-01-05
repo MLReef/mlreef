@@ -1,0 +1,229 @@
+#gitlab
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: gitlab
+  labels:
+    app: gitlab-__CI_PROJECT_NAME__
+    ref: __CI_ENVIRONMENT_SLUG__
+spec:
+  type: NodePort
+  selector:
+    name: gitlab
+  ports:
+    - name: gitlab-ui
+      port: 10080
+      protocol: TCP
+      targetPort: 80
+    - name: gitlab-ssh
+      port: 10022
+      protocol: TCP
+      targetPort: 22
+    - name: gitlab-registry
+      port: 5050
+      protocol: TCP
+      targetPort: 5050
+
+  selector:
+    app: gitlab-__CI_PROJECT_NAME__
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: gitlab-pv-claim-config
+  labels:
+    app: gitlab-__CI_PROJECT_NAME__
+    ref: __CI_ENVIRONMENT_SLUG__
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: gitlab-pv-claim-opt
+  labels:
+    app: gitlab-__CI_PROJECT_NAME__
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: gitlab-pv-claim-log
+  labels:
+    app: gitlab-__CI_PROJECT_NAME__
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 20Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gitlab
+  labels:
+    app: gitlab-__CI_PROJECT_NAME__
+    ref: __CI_ENVIRONMENT_SLUG__
+spec:
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: gitlab-__CI_PROJECT_NAME__
+  template:
+    metadata:
+      labels:
+        app: gitlab-__CI_PROJECT_NAME__
+        ref: __CI_ENVIRONMENT_SLUG__
+      annotations:
+        app.gitlab.com/app: __CI_PROJECT_PATH_SLUG__
+        app.gitlab.com/env: __CI_ENVIRONMENT_SLUG__
+    spec:
+      containers:
+        - image: gitlab/gitlab-ce:12.7.0-ce.0
+          name: gitlab
+          envFrom:
+          - configMapRef:
+              name: local-config
+          env:
+            - name: GITLAB_EXTERNAL_SCHEME
+              valueFrom:
+                configMapKeyRef:
+                  name: gitlab-config
+                  key: external_scheme
+            - name: GITLAB_EXTERNAL_HOSTNAME
+              valueFrom:
+                configMapKeyRef:
+                  name: gitlab-config
+                  key: external_hostname
+            - name: GITLAB_REGISTRY_EXTERNAL_SCHEME
+              valueFrom:
+                configMapKeyRef:
+                  name: gitlab-config
+                  key: registry_external_scheme
+            - name: GITLAB_REGISTRY_EXTERNAL_HOSTNAME
+              valueFrom:
+                configMapKeyRef:
+                  name: gitlab-config
+                  key: registry_external_hostname
+            - name: GITLAB_INITIAL_SHARED_RUNNERS_REGISTRATION_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: gitlab-secrets
+                  key: initial_shared_runners_registration_token
+
+            - name: GITLAB_OMNIBUS_CONFIG
+              value: |
+                # This is the URL that Gitlab expects to be addressed at.
+                # This URL will be sent to the runners and will show up as repo cloning url
+                external_url "#{ENV['GITLAB_EXTERNAL_SCHEME']}://#{ENV['GITLAB_EXTERNAL_HOSTNAME']}"
+                # Deactivate automatic HTTPS redirection of Gitlab's API gateway
+                nginx['redirect_http_to_https'] = false
+                # The external URL for the internal Docker registry
+                registry_external_url "#{ENV['GITLAB_REGISTRY_EXTERNAL_SCHEME']}://#{ENV['GITLAB_REGISTRY_EXTERNAL_HOSTNAME']}"
+                registry_nginx['enable'] = true
+                # Access port for the internal Docker registry (has to be exposed via Docker as well)
+                registry_nginx['listen_port'] = 5050  
+                gitlab_rails['initial_shared_runners_registration_token'] = ENV['GITLAB_INITIAL_SHARED_RUNNERS_REGISTRATION_TOKEN']
+  
+                #  GITLAB_SSH_PORT: 10022                                      # TODO use correct environment parameter
+            - name: GITLAB_HTTPS
+              value: 'false'                                          # TODO evaluate if this is the correct parameter
+                #GITLAB_RELATIVE_URL_ROOT:
+            - name: GITLAB_ROOT_PASSWORD
+              value: 'password'
+            - name: TZ
+              value: 'Austria/Vienna'                                           # TODO evaluate if this is the correct parameter
+            - name: GITLAB_TIMEZONE
+              value: 'Vienna'                                      # TODO evaluate if this is the correct parameter
+            - name: SSL_SELF_SIGNED
+              value: 'false'                                       # TODO evaluate if this is the correct parameter
+          ports:
+            - name: registry
+              containerPort: 5050
+            - name: ssh
+              containerPort: 22
+            - name: http
+              containerPort: 80
+          volumeMounts:
+            - name: gitlab-opt
+              mountPath: /var/opt/gitlab
+            - name: gitlab-config
+              mountPath: /etc/gitlab
+            - name: gitlab-log
+              mountPath: /var/log/gitlab
+      volumes:
+        - name: gitlab-config
+          persistentVolumeClaim:
+            claimName: gitlab-pv-claim-config
+        - name: gitlab-opt
+          persistentVolumeClaim:
+            claimName: gitlab-pv-claim-opt
+        - name: gitlab-log
+          persistentVolumeClaim:
+            claimName: gitlab-pv-claim-log
+---
+# Ingress Resource
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  name: app-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/tls-acme: "true"
+    nginx.ingress.kubernetes.io/ingress.class: "nginx"
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+  labels:
+    app: ingress-__CI_PROJECT_NAME__
+    ref: __CI_ENVIRONMENT_SLUG__
+
+spec:
+  tls:
+  - hosts:
+    - __CI_ENVIRONMENT_SLUG__.__KUBE_INGRESS_BASE_DOMAIN__
+    - backend.__CI_ENVIRONMENT_SLUG__.__KUBE_INGRESS_BASE_DOMAIN__
+    - gitlab.__CI_ENVIRONMENT_SLUG__.__KUBE_INGRESS_BASE_DOMAIN__
+    - registry.__CI_ENVIRONMENT_SLUG__.__KUBE_INGRESS_BASE_DOMAIN__
+    secretName: review-deploy-tls
+  rules:
+  - host: __CI_ENVIRONMENT_SLUG__.__KUBE_INGRESS_BASE_DOMAIN__
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: gateway
+          servicePort: 80
+  - host: backend.__CI_ENVIRONMENT_SLUG__.__KUBE_INGRESS_BASE_DOMAIN__
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: backend
+          servicePort: 8080
+  - host: gitlab.__CI_ENVIRONMENT_SLUG__.__KUBE_INGRESS_BASE_DOMAIN__
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: gitlab
+          servicePort: 10080
+  - host: registry.__CI_ENVIRONMENT_SLUG__.__KUBE_INGRESS_BASE_DOMAIN__
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: gitlab
+          servicePort: 5050
+
+

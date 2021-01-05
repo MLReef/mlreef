@@ -2,7 +2,7 @@
 # change to the repository root folder via the scripts location
 cd "$(dirname "$0")"/../..
 . bin/includes/detect-os
-. bin/includes/ci-environment
+. k8s/includes/ci-environment
 ########################################
 set -x # output all commands
 set -e # exit on immediately on every error
@@ -13,11 +13,13 @@ if [ ! -e backend/build.gradle ]; then exit 1; fi
 
 cd backend
 
-export GITLAB_ROOT_URL="http://$INSTANCE_HOST:10080"
-export MLREEF_BACKEND_URL="http://$INSTANCE_HOST:8080"
+export GITLAB_ROOT_URL="http://gitlab.$INSTANCE_HOST"
+export MLREEF_BACKEND_URL="http://backend.$INSTANCE_HOST"
+
+
 
 echo "# SYSTEM TEST ENVIRONMENT"
-echo "   EC2_INSTANCE_NAME = $EC2_INSTANCE_NAME"
+#echo "   EC2_INSTANCE_NAME = $EC2_INSTANCE_NAME"
 echo "  CI_COMMIT_REF_SLUG = $CI_COMMIT_REF_SLUG"
 echo " Target instance     = $INSTANCE_HOST"
 echo "  MLREEF_BACKEND_URL    = $MLREEF_BACKEND_URL"

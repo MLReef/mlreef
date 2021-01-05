@@ -36,7 +36,7 @@ variables:
       - web/**/*
       - .gitlab-ci.yml
       - docker-compose.yml
-
+      - k8s/**/*
 .pages-code-changes: &run-on-pages-relevant-changes
   only:
     changes:
@@ -44,54 +44,85 @@ variables:
       - docs/**/*
       - README.md
 
-
-# provision boots up the new ec2 instance for deploying MLReef
-provision:
-  extends: [".except-docu-branches"]
-  stage: build
-  image: registry.gitlab.com/systemkern/s5:1-aws
-  script: bin/ci-provision
-  artifacts:
-    paths:
-      - out/instance.info             # pass instance url to later stages (see bin/includes/ci-environment)
-  environment:
-    name: $CI_COMMIT_REF_SLUG
-    url: $CI_PIPELINE_URL
-    on_stop: decommission             # clean up after branch merge
-    auto_stop_in: 2 weeks
-
-
-gitlab env config:
-  extends: [".except-docu-branches"]
-  stage: deploy
-  needs: [provision]
-  image: registry.gitlab.com/systemkern/s5:1-aws
-  script:
-    - INSTANCE_HOST=$(cat out/instance.info)
-    - GITLAB_ROOT_URL=http://$INSTANCE_HOST
-    - echo $INSTANCE_HOST
-    - echo $GITLAB_ROOT_URL
-    # Get the ID of the gitlab environment we want to edit
-    - ID=$(curl --fail
-      --header "Authorization:Bearer $GITLAB_COM_API_TOKEN"
-      https://gitlab.com/api/v4/projects/$CI_PROJECT_ID/environments?name=$CI_COMMIT_REF_SLUG
-      | jq -c '.[] | select(.name | contains("'$CI_REF_SLUG'")) | .id'
-      )
-    - echo "ID is $ID"                                     # debug output
-    # configure the gitlab environment with the correct URL
-    - curl --request PUT --fail
-      --header "Authorization:Bearer $GITLAB_COM_API_TOKEN"
-      --data "name=$CI_COMMIT_REF_SLUG&external_url=$GITLAB_ROOT_URL/login"
-      https://gitlab.com/api/v4/projects/$CI_PROJECT_ID/environments/$ID
-
-
-deploy:
+deploy_review:
   extends: [".except-docu-branches"]
   stage: deploy
   <<: *run-on-all-code-changes
-  image: registry.gitlab.com/systemkern/s5:1-aws
-  dependencies: [provision]                         # only copy artifacts from provision job
-  script: bin/ci-deploy
+  image:
+    name: registry.gitlab.com/mlreef/devops/k8s-images/k8s-kubectl:latest
+    entrypoint: ["/bin/bash", "-c"]
+  except:
+    - tags
+  environment:
+    name: review/$CI_BUILD_REF_NAME
+    url: https://$CI_ENVIRONMENT_SLUG.$KUBE_INGRESS_BASE_DOMAIN
+    on_stop: stop_review
+  script:
+    - kubectl version
+    - kubectl delete service,deployment,ing -l ref=${CI_ENVIRONMENT_SLUG}
+    - ./k8s/gitlab-deployment
+    - ./k8s/k8s_final_yml_deployment
+    - sed_files deployment apps-${CI_ENVIRONMENT_SLUG}.yml
+    - cat apps-${CI_ENVIRONMENT_SLUG}.yml
+    - kubectl apply -f apps-${CI_ENVIRONMENT_SLUG}.yml
+    - kubectl get deploy,svc,ing,pod -l ref="${CI_ENVIRONMENT_SLUG}"
+  artifacts:
+    paths:
+      - out/instance.info             # pass instance url to later stages (see k8s/includes/ci-environment)
+
+stop_review:
+  image:
+    name: registry.gitlab.com/mlreef/devops/k8s-images/k8s-kubectl:latest
+    entrypoint: ["/bin/bash", "-c"]
+  stage: maintenance
+  variables:
+    GIT_STRATEGY: none
+  when: manual
+  only:
+    - branches
+  except:
+    - tags
+  environment:
+    name: review/$CI_BUILD_REF_NAME
+    action: stop
+  script:
+    - kubectl version
+    - kubectl delete ing -l ref=${CI_ENVIRONMENT_SLUG}
+    - kubectl delete all -l ref=${CI_ENVIRONMENT_SLUG}
+
+.helper_functions: &helper_functions_template |
+  function sed_files() {
+    file_type=${1:-compose}
+    file_name=$2
+    echo "File Type is $file_type"
+
+    if [[ "$file_type" == "deployment" ]]
+    then
+      echo "Applying SED on Deployment Yamls"
+      echo "CI_REGISTRY_IMAGE : ${CI_REGISTRY_IMAGE}"
+      sed -i "s~__CI_REGISTRY_IMAGE__~${CI_REGISTRY_IMAGE}~" $file_name
+      echo "CI_ENVIRONMENT_SLUG: ${CI_ENVIRONMENT_SLUG}"
+      sed -i "s/__CI_ENVIRONMENT_SLUG__/${CI_ENVIRONMENT_SLUG}/" $file_name
+      echo "CI_COMMIT_REF_NAME: ${CI_COMMIT_REF_NAME}"
+      LOCAL_CI_COMMIT_REF_NAME=$(echo "$CI_COMMIT_REF_NAME" | sed "s~/~-~" | awk '{print tolower($0)}')
+      echo "LOCAL_CI_COMMIT_REF_NAME: ${LOCAL_CI_COMMIT_REF_NAME}"
+      sed -i "s~__VERSION__~${LOCAL_CI_COMMIT_REF_NAME}~" $file_name
+      echo "CI_PROJECT_NAME: ${CI_PROJECT_NAME}"
+      sed -i "s~__CI_PROJECT_NAME__~${CI_PROJECT_NAME}~" $file_name
+      echo "CI_PROJECT_PATH_SLUG : ${CI_PROJECT_PATH_SLUG}"
+      sed -i "s~__CI_PROJECT_PATH_SLUG__~${CI_PROJECT_PATH_SLUG}~" $file_name
+      echo "KUBE_INGRESS_BASE_DOMAIN : ${KUBE_INGRESS_BASE_DOMAIN}"
+      sed -i "s/__KUBE_INGRESS_BASE_DOMAIN__/${KUBE_INGRESS_BASE_DOMAIN}/" $file_name
+    else
+      echo "Applying SED on compose Yamls"
+      sed -i "s~__CI_REGISTRY_IMAGE__~${CI_REGISTRY_IMAGE}~" docker-compose.yml
+    fi
+  }
+
+before_script:
+  - *helper_functions_template
+
+
 
 
 # please do not move, adapt, delete, move to a include, whatever, if you did not read about the special "pages" job of gitlab ci
@@ -153,10 +184,10 @@ end2end tests:
   stage: test
   <<: *run-on-all-code-changes
   needs:
-    - provision                                # artifacts from provision are needed
-    - deploy                                   # wait for the deployment to be finished
+    - deploy_review                                   # wait for the deployment to be finished
   # The image should be the same image as web/Dockerfile and the "build frontend" job
   image: node:10.19.0-alpine
+  allow_failure: true ##Temporary till the time bug gets fixed
   script: web/bin/ci-run-end2end-tests
 
 
@@ -196,95 +227,4 @@ pipeline tests:
   script: backend/bin/ci-pipeline-tests
 
 
-staging:
-  stage: staging
-  only:
-    refs:
-      - master
-  trigger: mlreef/infrastructure
 
-
-# The decommission job is configured by the provision's job `on_stop` command.
-# The execution of decommission is triggered by merging or deleting a branch.
-# https://docs.gitlab.com/ee/ci/environments.html#automatically-stopping-an-environment
-decommission:
-  extends: [".feature-branches-only"]
-  stage: maintenance
-  when: manual
-  image: registry.gitlab.com/systemkern/s5:latest-aws
-  variables:
-    GIT_STRATEGY: "none"                                    # because branches are deleted on merge, we must not access the git repo
-  script:
-    - EC2_INSTANCE_NAME="mlreef-$CI_COMMIT_REF_SLUG"
-
-    # decommission the current environment
-    # use the aws-cli to retrieve the description (json) for our machine
-    # parse the json with jq to get the instance id
-    # the xargs command submits the termination command to AWS
-    - aws ec2 describe-instances --filters "Name=tag:Name,Values=$EC2_INSTANCE_NAME"
-      | jq -r ".Reservations[].Instances[].InstanceId"
-      | xargs --no-run-if-empty aws ec2 terminate-instances --instance-id
-
-    # remove the branch's frontend docker container
-    # 1117031 is the id of the "gateway's" sub-repository id
-    - curl --request DELETE --header "PRIVATE-TOKEN:$GITLAB_COM_API_TOKEN"
-      https://gitlab.com/api/v4/projects/$CI_PROJECT_ID/registry/repositories/1117031/tags/$CI_COMMIT_REF_SLUG
-    # 1151242 is the id of the "backend's" sub-repository id
-    - curl --request DELETE --header "PRIVATE-TOKEN:$GITLAB_COM_API_TOKEN"
-      https://gitlab.com/api/v4/projects/$CI_PROJECT_ID/registry/repositories/1151242/tags/$CI_COMMIT_REF_SLUG
-    # 1196730 is the id of the "epf's" sub-repository id
-    - curl --request DELETE --header "PRIVATE-TOKEN:$GITLAB_COM_API_TOKEN"
-      https://gitlab.com/api/v4/projects/$CI_PROJECT_ID/registry/repositories/1196730/tags/$CI_COMMIT_REF_SLUG
-  after_script:
-    # remove the data backup from s3 (if it exists)
-    - aws s3 rm "s3://$S3_DATA_BUCKET/mlreef-data-$CI_COMMIT_REF_SLUG.zip"
-  environment:
-    name: $CI_COMMIT_REF_SLUG
-    action: stop
-
-
-########### maintenance jobs ###########
-
-.feature-branches-only:
-  extends: [".except-docu-branches"]
-  except:
-    refs:
-      - master
-
-backup branch:
-  extends: [.feature-branches-only]
-  stage: maintenance
-  when: manual
-  image: registry.gitlab.com/systemkern/s5:1-aws
-  before_script:
-    - INSTANCE_HOST=$(cat out/instance.info)
-    - echo $INSTANCE_HOST
-    - chmod 400 $SSH_KEYFILE                               # prepare private key file
-    - chmod +x $BACKUP_SCRIPT
-    - sed -i "s~AWS_ACCESS_KEY_ID=XXXXX~AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID~"                  $BACKUP_SCRIPT
-    - sed -i "s~AWS_SECRET_ACCESS_KEY=XXXXX~AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY~"      $BACKUP_SCRIPT
-  script:
-    - bin/ci-backup --instance $INSTANCE_HOST --bucket $S3_DATA_BUCKET --file mlreef-data-$CI_COMMIT_REF_SLUG.tar
-
-
-restore from master:
-  extends: [.feature-branches-only]
-  stage: maintenance
-  when: manual
-  image: registry.gitlab.com/systemkern/s5:1-aws
-  before_script:
-    - INSTANCE_HOST=$(cat out/instance.info)
-    - echo $INSTANCE_HOST                                            # debug output
-    - chmod 400 $SSH_KEYFILE                               # prepare private key file
-    - chmod +x $RESTORE_SCRIPT
-    - sed -i "s~AWS_ACCESS_KEY_ID=XXXXX~AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID~"                  $RESTORE_SCRIPT
-    - sed -i "s~AWS_SECRET_ACCESS_KEY=XXXXX~AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY~"      $RESTORE_SCRIPT
-  script: ci-restore --instance $INSTANCE_HOST --bucket $S3_DATA_BUCKET --file mlreef-data-master.tar
-  except:
-    refs:
-      - master
-
-
-restore branch backup:
-  extends: [.feature-branches-only, "restore from master"]
-  script: ci-restore --instance $INSTANCE_HOST --bucket $S3_DATA_BUCKET --file mlreef-data-$CI_COMMIT_REF_SLUG.tar

@@ -1,0 +1,24 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: gitlab-config
+  labels:
+    app: gitlab-__CI_PROJECT_NAME__
+    ref: __CI_ENVIRONMENT_SLUG__
+
+data:
+  external_scheme: http
+  external_hostname: gitlab.@GITLAB_GKE_DOMAIN@
+  registry_external_scheme: http
+  registry_external_hostname: registry.@GITLAB_GKE_DOMAIN@
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: gitlab-secrets
+  labels:
+    app: gitlab-__CI_PROJECT_NAME__
+    ref: __CI_ENVIRONMENT_SLUG__
+data:
+  initial_shared_runners_registration_token: NDl1ZjNtenMxcWR6NXZnbw==
+
