@@ -1,6 +1,6 @@
 import React from 'react';
 import { shallow } from 'enzyme';
-import EnvironmentCard from 'components/views/PublishingView/EnvironmentCard/EnvironmentCard';
+import EnvironmentCard, { processRequirementsFile } from 'components/views/PublishingView/EnvironmentCard/EnvironmentCard';
 import { environments } from 'components/views/PublishingView/info2';
 
 const environment = environments[0];
@@ -21,9 +21,11 @@ describe('test EnvironmentCard elements presence and logic', () => {
     const ulRequirements = wrapper.find('ul');
     expect(ulRequirements).toHaveLength(1);
     const requirementElements = ulRequirements.children();
-    expect(requirementElements).toHaveLength(environment.requirements.length);
+    const parsedRequirementsFile = processRequirementsFile(environment.requirements);
+    expect(requirementElements)
+      .toHaveLength(parsedRequirementsFile.length);
     requirementElements.forEach((liNode, index) => {
-      expect(liNode.text()).toBe(environment.requirements[index]);
+      expect(liNode.childAt(0).text()).toBe(parsedRequirementsFile[index]);
     });
   });
   test('assert that Env card has a title and requirements', () => {

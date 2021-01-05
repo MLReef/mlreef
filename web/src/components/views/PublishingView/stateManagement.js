@@ -1,5 +1,6 @@
 export default {
   files: [],
+  listOfEnvs: [],
   entryPointFile: null,
   selectedEnv: null,
   isRequirementsFileExisting: false,
@@ -29,6 +30,8 @@ export const reducer = (state, { type, payload }) => {
       return { ...state, areTermsAccepted: payload };
     case 'SET_IS_PUBLISHING':
       return { ...state, isPublishing: payload };
+    case 'SET_LIST_OF_ENVS':
+      return { ...state, listOfEnvs: payload };
     default:
       return state;
   }
