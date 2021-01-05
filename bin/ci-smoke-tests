@@ -3,7 +3,7 @@
 cd "$(dirname "$0")"/..
 . bin/includes/log
 . bin/includes/detect-os
-. bin/includes/ci-environment
+. k8s/includes/ci-environment
 . bin/includes/test-environment
 ########################################
 set -x    # output all commands
@@ -17,10 +17,10 @@ echo "TEST Frontend is reachable:"
 curl "http://$INSTANCE_HOST/login" --output /dev/null
 
 echo "TEST Gitlab is reachable:"
-curl "http://$INSTANCE_HOST/api/v4/projects" --output /dev/null
+curl "http://gitlab.$INSTANCE_HOST/api/v4/projects" --output /dev/null
 
 echo "TEST Backend is reachable:"
-curl "http://$INSTANCE_HOST:8080/api/v1/info/status"  | jq
+curl "http://backend.$INSTANCE_HOST/api/v1/info/status"  | jq
 
 echo "TEST Backend is healthy and gitlab connection works:"
-curl "http://$INSTANCE_HOST:8080/api/v1/info/health"  | jq
+curl "http://backend.$INSTANCE_HOST/api/v1/info/health"  | jq

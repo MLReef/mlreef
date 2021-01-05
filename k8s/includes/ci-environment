@@ -1,0 +1,84 @@
+#!/bin/sh
+# shellcheck disable=SC2155  # declare and assign variables in one command might hide return values
+########################################
+set -e  # exit on immediately on every error
+set -u  # error on usage of undefined variables
+########################################
+
+# The ci-environment script acts as the basis to all ci scripts.
+# It ensures the existence of the necessary environment variables.
+# Since Gitlab's environment variables are created by Gitlab, this script
+#
+# In order to support local execution, necessary Gitlab CI variables are mocked
+
+# If you want to know more about bash variable expansion go to https://opensource.com/article/17/6/bash-parameter-expansion
+#
+# parameter          unset var 	      var=""	                var="foo"
+#
+# ${var-default}	   default	        ""                      foo
+# ${var:-default}	   default	        default	                foo
+# ${var+alternate}	 ""	              alternate	              alternate
+# ${var:+alternate}	 ""               ""                      alternate
+# ${var?error}	     error	          ""                      foo
+# ${var:?error}	     error	          error	                  foo
+
+randomString() {
+  LENGTH="${1:-30}"
+    head /dev/urandom | tr -dc A-Za-z0-9 | head -c"$LENGTH"
+}
+
+GIT_BRANCH=$(git rev-parse --abbrev-ref HEAD) || echo "no-git-inside-docker-container"
+#This sed replaces slash "/" in branch names with dash "-"; make the whole string lowercase
+LOCAL_CI_COMMIT_REF_SLUG=$(echo "$GIT_BRANCH" | sed "s~/~-~" | awk '{print tolower($0)}')
+
+# https://www.gnu.org/software/bash/manual/html_node/Shell-Parameter-Expansion.html}
+# https://stackoverflow.com/a/13864829/638225
+# "${VAR:-default}" evaluates to either $VAR or the default value "default"
+export      CI_PROJECT_ID="${CI_PROJECT_ID:-12894267}" #gitlab.com/mlreef/mlreef
+echo "      CI_PROJECT_ID= $CI_PROJECT_ID"
+export    CI_PIPELINE_URL="${CI_PIPELINE_URL:-http://localhost}"
+echo "    CI_PIPELINE_URL= $CI_PIPELINE_URL"
+export     CI_PIPELINE_ID="${CI_PIPELINE_ID:--1}"
+echo "     CI_PIPELINE_ID= $CI_PIPELINE_ID"
+export CI_COMMIT_REF_SLUG="${CI_COMMIT_REF_SLUG:-$LOCAL_CI_COMMIT_REF_SLUG}"
+echo " CI_COMMIT_REF_SLUG= $CI_COMMIT_REF_SLUG"
+export        CI_REGISTRY="${CI_REGISTRY:-registry.gitlab.com}"
+echo "        CI_REGISTRY= $CI_REGISTRY"
+export  CI_REGISTRY_IMAGE="${CI_REGISTRY_IMAGE:-registry.gitlab.com/mlreef/mlreef}"
+echo "  CI_REGISTRY_IMAGE= $CI_REGISTRY_IMAGE"
+
+export GITLAB_ADMIN_TOKEN=${GITLAB_ADMIN_TOKEN:-$(randomString 30)}
+echo " GITLAB_ADMIN_TOKEN= $GITLAB_ADMIN_TOKEN"
+
+# The text file which saves the environment URL
+export      INSTANCE_INFO=${INSTANCE_INFO:-out/instance.info}
+echo "      INSTANCE_INFO= $INSTANCE_INFO"
+echo ""
+if [ -e "${INSTANCE_INFO}" ]; then
+  ls -al "${INSTANCE_INFO}"
+  export INSTANCE_HOST=$(cat "$INSTANCE_INFO")
+  echo "INFO: Looking for instance information in file $INSTANCE_INFO"
+else
+  echo "INSTANCE_INFO= $INSTANCE_INFO"
+  #ls -al
+  echo "INFO: file $INSTANCE_INFO not found, looking for INSTANCE_HOST environment variable"
+  if [ -z ${INSTANCE_HOST+x} ]; then
+    echo "INFO: environment variable INSTANCE_HOST is not set"
+    echo "INFO: defaulting to 'localhost' instance"
+    export INSTANCE_HOST="localhost"
+  fi
+  echo "      INSTANCE_HOST= $INSTANCE_HOST"
+fi
+
+
+#export      INSTANCE_HOST=${CI_ENVIRONMENT_SLUG}.${KUBE_INGRESS_BASE_DOMAIN}
+echo "      INSTANCE_HOST= $INSTANCE_HOST"
+echo ""
+
+
+
+export GATEWAY_IMAGE_PATH=$CI_REGISTRY_IMAGE/gateway:$CI_COMMIT_REF_SLUG
+export BACKEND_IMAGE_PATH=$CI_REGISTRY_IMAGE/backend:$CI_COMMIT_REF_SLUG
+export     EPF_IMAGE_PATH=$CI_REGISTRY_IMAGE/epf:$CI_COMMIT_REF_SLUG
+
+

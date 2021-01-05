@@ -1,0 +1,315 @@
+#gitlab runner
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gitlab-runner
+  labels:
+    app: gitlab-runner-__CI_PROJECT_NAME__
+    ref: __CI_ENVIRONMENT_SLUG__
+spec:
+  selector:
+    matchLabels:
+      app: gitlab-runner-__CI_PROJECT_NAME__
+  template:
+    metadata:
+      labels:
+        app: gitlab-runner-__CI_PROJECT_NAME__
+        ref: __CI_ENVIRONMENT_SLUG__
+      annotations:
+        app.gitlab.com/app: __CI_PROJECT_PATH_SLUG__
+        app.gitlab.com/env: __CI_ENVIRONMENT_SLUG__
+    spec:
+      containers:
+      - name: gitlab-runner
+        image: gitlab/gitlab-runner:alpine
+        command: ["/bin/bash", "/scripts/entrypoint"]
+        imagePullPolicy: Always
+        env:
+        - name: REGISTRATION_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: gitlab-secrets
+              key: initial_shared_runners_registration_token
+        resources:
+          limits:
+            memory: 500Mi
+            cpu: 600m
+          requests:
+            memory: 500Mi
+            cpu: 600m
+        volumeMounts:
+        - name: scripts
+          mountPath: /scripts
+        - name: var-run-docker-sock
+          mountPath: /var/run/docker.sock
+        - name: k8s-runner-ca-crt
+          mountPath: /etc/ssl/certs/k8s-runner-ca.crt
+          subPath: k8s-runner-ca.crt
+          readOnly: false
+      volumes:
+      - name: var-run-docker-sock
+        hostPath:
+          path: /var/run/docker.sock
+      - name: scripts
+        configMap:
+          name: gitlab-runner-scripts
+      - name: k8s-runner-ca-crt
+        configMap:
+          name: k8s-runner-ca-crt
+
+
+# redis
+--- 
+apiVersion: v1
+kind: Service
+metadata: 
+  labels: 
+    app: redis-__CI_PROJECT_NAME__
+    ref: __CI_ENVIRONMENT_SLUG__
+  name: redis
+spec: 
+  clusterIP: None
+  ports:
+  - name: redis
+    port: 6379
+    targetPort: 6379
+  selector: 
+    app: redis-__CI_PROJECT_NAME__
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: redis-pv-claim
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis
+  labels:
+    app: redis-__CI_PROJECT_NAME__
+    ref: __CI_ENVIRONMENT_SLUG__
+spec:
+  selector:
+    matchLabels:
+      app: redis-__CI_PROJECT_NAME__
+  template:
+    metadata:
+      labels:
+        app: redis-__CI_PROJECT_NAME__
+        ref: __CI_ENVIRONMENT_SLUG__
+      annotations:
+        app.gitlab.com/app: __CI_PROJECT_PATH_SLUG__
+        app.gitlab.com/env: __CI_ENVIRONMENT_SLUG__
+    spec:
+      containers:
+      - name: redis
+        image: redis:6.0.0-alpine
+        ports:
+        - containerPort: 6379
+          name: redis
+        volumeMounts:
+        - name: redis-data
+          mountPath: /data
+      volumes:
+      - name: redis-data
+        persistentVolumeClaim:
+          claimName: redis-pv-claim
+
+
+# db
+--- 
+apiVersion: v1
+kind: Service
+metadata: 
+  name: mlreefdb
+  labels: 
+    app: mlreefdb-__CI_PROJECT_NAME__
+    ref: __CI_ENVIRONMENT_SLUG__
+spec: 
+  clusterIP: None
+  ports: 
+  - name: mlreefdb
+    port: 6000
+    targetPort: 5432
+  selector: 
+    app: mlreefdb-__CI_PROJECT_NAME__
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mlreefdb
+  labels:
+    app: mlreefdb-__CI_PROJECT_NAME__
+    ref: __CI_ENVIRONMENT_SLUG__
+spec:
+  selector:
+    matchLabels:
+      app: mlreefdb-__CI_PROJECT_NAME__
+  template:
+    metadata:
+      labels:
+        app: mlreefdb-__CI_PROJECT_NAME__
+        ref: __CI_ENVIRONMENT_SLUG__
+      annotations:
+        app.gitlab.com/app: __CI_PROJECT_PATH_SLUG__
+        app.gitlab.com/env: __CI_ENVIRONMENT_SLUG__
+    spec:
+      containers:
+      - name: mlreefdb
+        image: postgres:11.7
+        env:
+        - name: PGDATA
+          value: /var/lib/postgresql/data/pgdata
+        - name: POSTGRES_USER
+          value: mlreef
+        - name: POSTGRES_PASSWORD
+          value: password
+        - name: POSTGRES_DB
+          value: mlreef_backend
+        - name: DB_EXTENSION
+          value: pg_trgm
+        ports:
+        - containerPort: 5432
+          name: mlreefdb
+        volumeMounts:
+        - name: mlreefdb-data
+          mountPath: /var/lib/postgresql/data
+      volumes:
+      - name: mlreefdb-data
+        persistentVolumeClaim:
+          claimName: postgres-pv-claim
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: postgres-pv-claim
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+
+# gateway
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: gateway
+  labels:
+    app: gateway-__CI_PROJECT_NAME__
+    ref: __CI_ENVIRONMENT_SLUG__
+spec:
+  type: NodePort
+  ports:
+  - port: 80
+    targetPort: 80
+    name: gateway
+  selector:
+    app: gateway-__CI_PROJECT_NAME__
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gateway
+  labels:
+    app: gateway-__CI_PROJECT_NAME__
+    ref: __CI_ENVIRONMENT_SLUG__
+spec:
+  selector:
+    matchLabels:
+      app: gateway-__CI_PROJECT_NAME__
+  template:
+    metadata:
+      labels:
+        app: gateway-__CI_PROJECT_NAME__
+        ref: __CI_ENVIRONMENT_SLUG__
+      annotations:
+        app.gitlab.com/app: __CI_PROJECT_PATH_SLUG__
+        app.gitlab.com/env: __CI_ENVIRONMENT_SLUG__
+    spec:
+      containers:
+      - name: gateway
+        image: registry.gitlab.com/mlreef/mlreef/gateway:__VERSION__
+        ports:
+        - containerPort: 80
+          name: gateway
+        envFrom:
+        - configMapRef:
+            name: local-config
+        imagePullPolicy: Always
+
+# backend
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend
+  labels:
+    app: backend-__CI_PROJECT_NAME__
+    ref: __CI_ENVIRONMENT_SLUG__
+spec:
+  type: NodePort
+  ports:
+    - port: 8080
+      targetPort: 8080
+      name: backend
+  selector:
+    app: backend-__CI_PROJECT_NAME__
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend
+  labels:
+    app: backend-__CI_PROJECT_NAME__
+    ref: __CI_ENVIRONMENT_SLUG__
+spec:
+  selector:
+    matchLabels:
+      app: backend-__CI_PROJECT_NAME__
+  template:
+    metadata:
+      labels:
+        app: backend-__CI_PROJECT_NAME__
+        ref: __CI_ENVIRONMENT_SLUG__
+      annotations:
+        app.gitlab.com/app: __CI_PROJECT_PATH_SLUG__
+        app.gitlab.com/env: __CI_ENVIRONMENT_SLUG__
+    spec:
+      containers:
+      - name: backend
+        image: registry.gitlab.com/mlreef/mlreef/backend:__VERSION__
+        ports:
+        - containerPort: 8080
+          name: backend
+        env:
+        - name: SPRING_PROFILES_ACTIVE
+          value: docker
+        - name: DB_HOST
+          value: mlreefdb
+        - name: DB_PORT
+          value: "5432"
+        - name: DB_USER
+          value: mlreef
+        - name: DB_PASS
+          value: password
+        - name: DB_NAME
+          value: mlreef_backend
+        - name: REDIS_HOST
+          value: redis
+        - name: STARTUP_DELAY
+          value: "30"
+        envFrom:
+        - configMapRef:
+            name: local-config
+        imagePullPolicy: Always
+---

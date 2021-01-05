@@ -2,7 +2,7 @@
 # change to the repository root folder via the scripts location
 cd "$(dirname "$0")"/../..
 . bin/includes/detect-os
-. bin/includes/ci-environment
+. k8s/includes/ci-environment
 . bin/includes/docker-registry-login
 ########################################
 set -x    # output all commands
