@@ -1,9 +1,9 @@
 import 'core-js/stable';
 import 'regenerator-runtime/runtime';
+import { handleResponse } from 'functions/helpers';
 import ApiDirector from './ApiDirector';
 import ApiRequestCallBuilder from './apiBuilders/ApiRequestCallBuilder';
 import { METHODS, validServicesToCall } from './apiBuilders/requestEnums';
-import { handleResponse } from 'functions/helpers';
 
 export default class MLSearchApi extends ApiDirector {
   /**
@@ -22,10 +22,15 @@ export default class MLSearchApi extends ApiDirector {
     }'
   */
 
- async search(searchableType: String, body: any, pagQuery: string = '') {
+  async search(searchableType: String, body: any, pagQuery: string = '') {
     const url = `/api/v1/explore/entries/search?searchable_type=${searchableType}${pagQuery}`;
     const data = { ...body };
-    const BLbuilder = new ApiRequestCallBuilder(METHODS.POST, this.buildBasicHeaders(validServicesToCall.BACKEND), url, JSON.stringify(data));
+    const BLbuilder = new ApiRequestCallBuilder(
+      METHODS.POST,
+      this.buildBasicHeaders(validServicesToCall.BACKEND),
+      url,
+      JSON.stringify(data),
+    );
     const response = await fetch(BLbuilder.build());
     if (!response.ok) {
       const body = await response.json();
@@ -36,16 +41,16 @@ export default class MLSearchApi extends ApiDirector {
 
   searchPaginated(searchableType: String, body: any, page: number, size: number) {
     let url = `/api/v1/explore/entries/search?searchable_type=${searchableType}`;
-    if(page !== undefined && size !== undefined){
+    if (page !== undefined && size !== undefined) {
       url = `${url}&page=${page}&size=${size}`;
     }
     const BLbuilder = new ApiRequestCallBuilder(
-      METHODS.POST, 
-      this.buildBasicHeaders(validServicesToCall.BACKEND), 
-      url, 
+      METHODS.POST,
+      this.buildBasicHeaders(validServicesToCall.BACKEND),
+      url,
       JSON.stringify(body),
     );
-    
-    return fetch(BLbuilder.build()).then(handleResponse)
+
+    return fetch(BLbuilder.build()).then(handleResponse);
   }
 }

@@ -13,6 +13,7 @@ import * as userActions from 'store/actions/userActions';
 import ProjectSet from '../../projectSet';
 import './MProjectClassification.scss';
 import MCheckBox from '../MCheckBox/MCheckBox';
+import { getSearchable } from './functions';
 
 class MProjectClassification extends Component {
   projFilterBtnsList = ['personal', 'starred', 'explore'];
@@ -49,6 +50,8 @@ class MProjectClassification extends Component {
       actions,
     } = this.props;
     let projectUrl = '/own';
+    const page = 0;
+    const size = 10;
     if (screen === '#explore') {
       projectUrl = '';
     }
@@ -57,9 +60,27 @@ class MProjectClassification extends Component {
       projectUrl = '/starred';
     }
 
+    actions.setIsLoading(true);
     if (classification === ML_PROJECT) {
-      actions.setIsLoading(true);
-      actions.getPaginatedProjectsByQuery(`${projectUrl}?page=${0}&size=${10}`, true)
+      actions.getPaginatedProjectsByQuery(`${projectUrl}?page=${page}&size=${size}`, true)
+        .then(() => actions.setIsLoading(false));
+    } else {
+      let body = {
+        visibility: 'PUBLIC',
+      };
+
+      if (screen === '#personal') {
+        body = {
+          ...body,
+          visibility: 'PRIVATE',
+        }
+      } else if (screen === '#starred') {
+        body = {
+          ...body,
+          min_stars: 1,
+        };
+      }
+      actions.getProcessorsPaginated(getSearchable(classification), body, page, size)
         .then(() => actions.setIsLoading(false));
     }
     push(`${pathname}${screen}`);
@@ -299,6 +320,7 @@ function mapDispatchToProps(dispatch) {
   return {
     actions: bindActionCreators({
       getPaginatedProjectsByQuery: projectActions.getPaginatedProjectsByQuery,
+      getProcessorsPaginated: projectActions.getProcessorsPaginated,
       setIsLoading: userActions.setIsLoading,
     }, dispatch),
   };

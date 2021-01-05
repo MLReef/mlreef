@@ -65,9 +65,6 @@ const setInformationInTheStorage = (username, projects, pagination) => async (di
     .some((m) => m.username === username));
 
   dispatch(setProjectsInfoSuccessfully(projects));
-  dispatch(setStarredProjectsSuccessfully(
-    projects.filter((proj) => proj?.starsCount > 0),
-  ));
   dispatch(setPaginationInfoSuccessfully(pagination));
 
   Promise.all(projects.map((project) => project.members
@@ -169,59 +166,27 @@ export function removeProject(id) {
 
 /**
  *
- * This API call fetches code repos corresponding with data processors
+ * @param {*} searchableType: types of projects and processors.
+    DATA_PROJECT, CODE_PROJECT (ALL Processors)
+    OPERATION, VISUALIZATION, ALGORITHM.
+ * @param {*} body: options to search by.
+ * @param {*} page: the page of the response array.
+ * @param {*} size: size of the page.
  */
-
-export function getDataProcessorsAndCorrespondingProjects(
-  searchableType, body = {},
-) {
-  return (dispatch) => mlSearchApi
-    .search(searchableType, body)
-    .then((payload) => payload?.content?.map((contentItem) => contentItem.project))
-    .then((projs) => projs.map(parseToCamelCase))
-    .then(mergeGitlabResource)
-    .then((projects) => {
-      if (projects) {
-        const { user: { username } } = store.getState();
-
-        const filterMember = (ps) => ps.filter((p) => p.members
-          .some((m) => m.username === username));
-
-        dispatch(setProjectsInfoSuccessfully(projects));
-
-        dispatch(setStarredProjectsSuccessfully(projects.filter((proj) => proj?.starsCount > 0)));
-
-        Promise.all(projects.map((project) => project.members
-          .then((members) => ({ ...project, members }))))
-          .then(filterMember)
-          .then((ms) => dispatch(setUserProjectsSuccessfully(ms)));
-      }
-    });
-}
 
 export function getProcessorsPaginated(
   searchableType, body = {}, page, size,
 ) {
   return (dispatch) => mlSearchApi
     .searchPaginated(searchableType, body, page, size)
-    .then((payload) => payload?.content?.map((contentItem) => contentItem.project))
-    .then((projs) => projs.map(parseToCamelCase))
-    .then(mergeGitlabResource)
-    .then((projects) => {
+    .then(handlePaginationWithAdditionalInfo)
+    .then((projsPag) => ({ ...projsPag, projects: mergeGitlabResource(projsPag.content) }))
+    .then(({ projects, pagination }) => {
       if (projects) {
-        const { user: { username } } = store.getState();
+        const { user: { username }, projects: stateProjects } = store.getState();
 
-        const filterMember = (ps) => ps.filter((p) => p.members
-          .some((m) => m.username === username));
-
-        dispatch(setProjectsInfoSuccessfully(projects));
-
-        dispatch(setStarredProjectsSuccessfully(projects.filter((proj) => proj?.starsCount > 0)));
-
-        Promise.all(projects.map((project) => project.members
-          .then((members) => ({ ...project, members }))))
-          .then(filterMember)
-          .then((ms) => dispatch(setUserProjectsSuccessfully(ms)));
+        const completeArrayOfProjects = page > 0 ? [...stateProjects.all, ...projects] : projects;
+        setInformationInTheStorage(username, completeArrayOfProjects, pagination)(dispatch);
       }
     });
 }

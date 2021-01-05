@@ -88,7 +88,7 @@ class Myprojects extends React.Component {
 
   handleOnScrollEvent = () => {
     const {
-      scrolling, isLastPage, projectType, page
+      scrolling, isLastPage, projectType, page,
     } = this.state;
     if (isLastPage) return null;
     if (scrolling) return null;
@@ -99,24 +99,50 @@ class Myprojects extends React.Component {
       scrolling: true,
     }), projectType === PROJECT_TYPES.DATA
       ? this.fetchDataProjects(newPage)
-      : this.fetchCodeProjects(projectType));
+      : this.fetchCodeProjects(newPage, projectType));
 
     return null;
   }
 
-  fetchCodeProjects(codeProjectType = PROJECT_TYPES.VISUALIZATION) {
+  setPage = (page = 0) => this.setState({ page });
+
+  fetchCodeProjects(page, codeProjectType = PROJECT_TYPES.VISUALIZATION) {
     // The bug is in this function, I must distinguish between code and data projects
     const {
       actions: {
         setIsLoading,
         getProcessorsPaginated,
       },
+      location: {
+        hash,
+      },
     } = this.props;
-    const { page } = this.state;
     setIsLoading(true);
+
+    let body = { 
+      visibility: 'PUBLIC',
+    };
+
+    if (hash === '#personal') {
+      body = {
+        ...body,
+        visibility: 'PRIVATE',
+      }
+    } else if (hash === '#starred') {
+      body = {
+        ...body,
+        min_stars: 1,
+      };
+    }
+
     try {
       Promise.all([
-        getProcessorsPaginated(codeProjectType, {}, page, 10),
+        getProcessorsPaginated(
+          codeProjectType,
+          body,
+          page,
+          10,
+        ),
       ])
         .finally(() => {
           setIsLoading(false);
@@ -160,8 +186,6 @@ class Myprojects extends React.Component {
       toastr.error('Error', error?.message);
     }
   }
-
-  setPage = (page = 0) => this.setState({ page });
 
   render() {
     const {
@@ -221,7 +245,7 @@ class Myprojects extends React.Component {
                 actions.setIsLoading(true);
                 this.setState(() => ({
                   page: 0,
-                }), this.fetchCodeProjects(PROJECT_TYPES.ALGORITHM));
+                }), this.fetchCodeProjects(0, PROJECT_TYPES.ALGORITHM));
               } catch (error) {
                 toastr.error('Error', error);
               }
@@ -249,7 +273,7 @@ class Myprojects extends React.Component {
                 actions.setUserProjectsSuccessfully([]);
                 this.setState(() => ({
                   page: 0,
-                }), this.fetchCodeProjects(PROJECT_TYPES.OPERATION));
+                }), this.fetchCodeProjects(0, PROJECT_TYPES.OPERATION));
               } catch (error) {
                 toastr.error('Error', error);
               }
@@ -277,7 +301,7 @@ class Myprojects extends React.Component {
                 actions.setUserProjectsSuccessfully([]);
                 this.setState(() => ({
                   page: 0,
-                }), this.fetchCodeProjects);
+                }), this.fetchCodeProjects(0));
               } catch (error) {
                 toastr.error('Error', error);
               }
