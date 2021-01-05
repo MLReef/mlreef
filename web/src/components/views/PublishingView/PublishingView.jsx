@@ -7,9 +7,9 @@ import Navbar from 'components/navbar/navbar';
 import MBreadcrumb from 'components/ui/MBreadcrumb';
 import MButton from 'components/ui/MButton';
 import MSimpleTabs from 'components/ui/MSimpleTabs/MSimpleTabsRouted';
+import EnvironmentsApi from 'apis/EnvironmentsApi';
 import './PublishingView.scss';
 import PublishingViewPublishModel from './PublishingViewPublishModel';
-import { environments } from './info2';
 import initialState, { reducer } from './stateManagement';
 import SelectBaseEnv from './SelectBaseEnv/SelectBaseEnv';
 import SelectEntryPoint from './SelectEntryPoint/SelectEntryPoint';
@@ -39,6 +39,7 @@ export const UnconnectedPublishingView = (props) => {
     mlCategory,
     areTermsAccepted,
     isPublishing,
+    listOfEnvs,
   }, dispatch] = useReducer(reducer, {
     selectedBranch: branches[0].name,
     ...initialState,
@@ -65,6 +66,11 @@ export const UnconnectedPublishingView = (props) => {
         });
       }
     }).catch((error) => toastr.error('Error', error.message));
+
+    EnvironmentsApi
+      .getMany()
+      .then((envs) => dispatch({ type: 'SET_LIST_OF_ENVS', payload: envs }))
+      .catch((err) => toastr.error('Error', err.message));
   }, [gitlabId, selectedBranch, path, branches]);
 
   const breadcrumbs = [
@@ -118,7 +124,7 @@ export const UnconnectedPublishingView = (props) => {
                     <SelectBaseEnv
                       namespace={namespace}
                       slug={slug}
-                      environments={environments}
+                      environments={listOfEnvs}
                       selectedEnv={selectedEnv}
                       dispatch={dispatch}
                       history={history}
@@ -161,7 +167,16 @@ export const UnconnectedPublishingView = (props) => {
                               waiting={isPublishing}
                               onClick={() => {
                                 dispatch({ type: 'SET_IS_PUBLISHING', payload: true });
-                                publishingActions.publish(id, hasPipelines)
+                                publishingActions.publish(
+                                  id, {
+                                    path: entryPointFile.path,
+                                    environment: selectedEnv.id,
+                                    model_type: model.label,
+                                    ml_category: mlCategory.label,
+                                    accepted_publishing_terms: areTermsAccepted,
+                                  },
+                                  hasPipelines,
+                                )
                                   .then(() => {
                                     toastr.success('Success', 'Your project will appear in the market place');
                                     history.push(`/${namespace}/${slug}/-/publishing/process`);

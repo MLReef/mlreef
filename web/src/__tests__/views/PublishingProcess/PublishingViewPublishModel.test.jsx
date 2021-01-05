@@ -67,7 +67,10 @@ describe('test UI html elements prensence and funtionality', () => {
     wrapper
       .find('MCheckBox[name="acceptance-termns-checkbox"]')
       .simulate('click');
-    expect(dispatch).toHaveBeenCalledWith({ type: 'SET_TERMS_ACCEPTED', payload: true });
+    const acceptanceTerms = dispatch.mock.calls[0][0];
+    expect(acceptanceTerms.type).toBe('SET_TERMS_ACCEPTED');
+    // check that a number is persisted in acceptance terms date
+    expect(Number(acceptanceTerms.payload)).toBeDefined();
   });
 
   afterEach(() => {

@@ -2,12 +2,7 @@ export const environments = [
   {
     id: '1',
     name: 'CPU - TF - KERAS',
-    requirements: [
-      'package 122',
-      'package 123',
-      'package 124',
-      'package 125',
-    ],
+    requirements: 'package 122\npackage 123\npackage 124\npackage 125',
   },
 ];
 

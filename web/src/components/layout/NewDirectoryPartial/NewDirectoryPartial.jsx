@@ -35,7 +35,6 @@ const NewDirectoryPartial = (props) => {
   const unwrap = (setter) => (e) => e?.target && setter(e.target.value);
 
   function createNewDirectory() {
-    console.log('here');
     const payload = {
       branch,
       commit_message: message,
