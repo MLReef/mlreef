@@ -1,7 +1,7 @@
 import ApiDirector from './ApiDirector';
+import { handleResponse } from 'functions/helpers';
 import BodyLessApiRequestCallBuilder from './apiBuilders/BLApiRequestCallBuilder';
 import { METHODS, validServicesToCall } from './apiBuilders/requestEnums';
-import { handleResponse } from 'functions/helpers';
 
 export default class JobsApi extends ApiDirector {
   getPerProject(projectId: number) {
