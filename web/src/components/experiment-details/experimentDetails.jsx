@@ -6,9 +6,11 @@ import {
   shape,
   arrayOf,
   string,
+  func,
 } from 'prop-types';
 import './experimentDetails.css';
 import ExperimentsApi from 'apis/experimentApi';
+import JobsApi from 'apis/JobsApi';
 import MSimpleTabs from 'components/ui/MSimpleTabs';
 import { setPreconfiguredOPerations } from 'store/actions/userActions';
 import Navbar from '../navbar/navbar';
@@ -18,13 +20,14 @@ import Files from './menu-options/ExperimentArtifacts';
 import JobLog from './menu-options/jobLog';
 
 const expApi = new ExperimentsApi();
+const jobsApi = new JobsApi();
 
 const ExperimentDetails = (props) => {
   const [experiment, setExperiment] = useState({});
+  const [jobs, setJobs] = useState([]);
   const {
     projects,
     algorithms,
-    jobs,
     match: { params: { namespace, slug, experimentId } },
     setPreconfiguredOPerations,
     history,
@@ -43,12 +46,12 @@ const ExperimentDetails = (props) => {
     .map((alg) => alg.parameters)[0];
   const experimentName = experiment.name;
   const uniqueName = experimentName && experimentName.split('/')[1];
-  let experimentJob;
-  const firstInd = 0;
-  if (experiment) {
-    experimentJob = jobs.filter((job) => job.ref === experiment.name)[firstInd];
-  }
-
+  const experimentJob = jobs.filter((job) => job.ref === experiment.name)[0];
+  useEffect(() => {
+    jobsApi.getPerProject(projectId)
+      .then((js) => setJobs(js))
+      .catch((err) => toastr.error('Error', err.message));
+  }, [projectId]);
   // Union of two arrays of parameters
   if (userParameters && allParameters) {
     const mergedArray = [...userParameters, ...allParameters];
@@ -149,14 +152,13 @@ ExperimentDetails.propTypes = {
       experimentId: string.isRequired,
     }).isRequired,
   }).isRequired,
-  jobs: arrayOf(shape({})).isRequired,
+  setPreconfiguredOPerations: func.isRequired,
+  history: shape({}).isRequired
 };
 
 function mapStateToProps(state) {
   return {
     projects: state.projects.all,
-    jobs: state.jobs,
-    selectedProject: state.projects.selectedProject,
     algorithms: state.processors.algorithms,
   };
 }
