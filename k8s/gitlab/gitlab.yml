@@ -157,6 +157,13 @@ spec:
               containerPort: 22
             - name: http
               containerPort: 80
+          resources:
+            limits:
+              memory: 2500Mi
+              cpu: 500m
+            requests:
+              memory: 1800Mi
+              cpu: 300m
           volumeMounts:
             - name: gitlab-opt
               mountPath: /var/opt/gitlab
@@ -181,7 +188,7 @@ kind: Ingress
 metadata:
   name: app-ingress
   annotations:
-    nginx.ingress.kubernetes.io/tls-acme: "true"
+#    nginx.ingress.kubernetes.io/tls-acme: "true"
     nginx.ingress.kubernetes.io/ingress.class: "nginx"
     nginx.ingress.kubernetes.io/ssl-redirect: "false"
   labels:
@@ -189,13 +196,13 @@ metadata:
     ref: __CI_ENVIRONMENT_SLUG__
 
 spec:
-  tls:
-  - hosts:
-    - __CI_ENVIRONMENT_SLUG__.__KUBE_INGRESS_BASE_DOMAIN__
-    - backend.__CI_ENVIRONMENT_SLUG__.__KUBE_INGRESS_BASE_DOMAIN__
-    - gitlab.__CI_ENVIRONMENT_SLUG__.__KUBE_INGRESS_BASE_DOMAIN__
-    - registry.__CI_ENVIRONMENT_SLUG__.__KUBE_INGRESS_BASE_DOMAIN__
-    secretName: review-deploy-tls
+#  tls:
+#  - hosts:
+#    - __CI_ENVIRONMENT_SLUG__.__KUBE_INGRESS_BASE_DOMAIN__
+#    - backend.__CI_ENVIRONMENT_SLUG__.__KUBE_INGRESS_BASE_DOMAIN__
+#    - gitlab.__CI_ENVIRONMENT_SLUG__.__KUBE_INGRESS_BASE_DOMAIN__
+#    - registry.__CI_ENVIRONMENT_SLUG__.__KUBE_INGRESS_BASE_DOMAIN__
+#    secretName: review-deploy-tls
   rules:
   - host: __CI_ENVIRONMENT_SLUG__.__KUBE_INGRESS_BASE_DOMAIN__
     http:

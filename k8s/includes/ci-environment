@@ -2,6 +2,7 @@
 # shellcheck disable=SC2155  # declare and assign variables in one command might hide return values
 ########################################
 set -e  # exit on immediately on every error
+set -x  # output all commands
 set -u  # error on usage of undefined variables
 ########################################
 
