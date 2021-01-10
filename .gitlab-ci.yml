@@ -59,12 +59,13 @@ deploy_review:
     on_stop: stop_review
   script:
     - kubectl version
-    - kubectl delete service,deployment,ing -l ref=${CI_ENVIRONMENT_SLUG}
+    - kubectl delete service,deployment,ing,pod -l ref=${CI_ENVIRONMENT_SLUG}
     - ./k8s/gitlab-deployment
     - ./k8s/k8s_final_yml_deployment
     - sed_files deployment apps-${CI_ENVIRONMENT_SLUG}.yml
     - cat apps-${CI_ENVIRONMENT_SLUG}.yml
     - kubectl apply -f apps-${CI_ENVIRONMENT_SLUG}.yml
+    - sleep 20
     - kubectl get deploy,svc,ing,pod -l ref="${CI_ENVIRONMENT_SLUG}"
   artifacts:
     paths:
@@ -103,10 +104,8 @@ stop_review:
       sed -i "s~__CI_REGISTRY_IMAGE__~${CI_REGISTRY_IMAGE}~" $file_name
       echo "CI_ENVIRONMENT_SLUG: ${CI_ENVIRONMENT_SLUG}"
       sed -i "s/__CI_ENVIRONMENT_SLUG__/${CI_ENVIRONMENT_SLUG}/" $file_name
-      echo "CI_COMMIT_REF_NAME: ${CI_COMMIT_REF_NAME}"
-      LOCAL_CI_COMMIT_REF_NAME=$(echo "$CI_COMMIT_REF_NAME" | sed "s~/~-~" | awk '{print tolower($0)}')
-      echo "LOCAL_CI_COMMIT_REF_NAME: ${LOCAL_CI_COMMIT_REF_NAME}"
-      sed -i "s~__VERSION__~${LOCAL_CI_COMMIT_REF_NAME}~" $file_name
+      echo "CI_COMMIT_REF_SLUG: ${CI_COMMIT_REF_SLUG}"
+      sed -i "s~__VERSION__~${CI_COMMIT_REF_SLUG}~" $file_name
       echo "CI_PROJECT_NAME: ${CI_PROJECT_NAME}"
       sed -i "s~__CI_PROJECT_NAME__~${CI_PROJECT_NAME}~" $file_name
       echo "CI_PROJECT_PATH_SLUG : ${CI_PROJECT_PATH_SLUG}"

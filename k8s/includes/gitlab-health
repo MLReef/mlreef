@@ -1,0 +1,24 @@
+#!/bin/bash
+# shellcheck disable=SC2120  # function references arguments, but none are ever passed. See SC2120.
+
+# Checks if gitlab is present at Gitlab Instance gitlab.$INSTANCE which is mapped to "gitlab:80" with a _curl_ request
+# This is the default setting
+#
+# @returns: The HTTP code received by _curl_.
+# 302: means that Gitlab is up and running
+# 502: Gitlab is still starting or broken
+
+checkGitlabPort() {
+  curl --silent --output /dev/null -w ''%{http_code}'' "gitlab.$INSTANCE_HOST"/"${1-}"
+}
+
+waitUntilGitlabAvailable() {
+  log "Waiting for Gitlab to start."
+  log "Looking for Gitlab at ports 80 "
+  # Port 10080 is the mapped to Gitlab's initial port (80) in the k8s/gitlab/gitlab.yml
+  until [ "$(checkGitlabPort)" = "302" ]; do
+    printf '.'
+    sleep 5
+  done
+  echo ""
+}

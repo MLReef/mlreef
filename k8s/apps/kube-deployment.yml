@@ -34,11 +34,11 @@ spec:
               key: initial_shared_runners_registration_token
         resources:
           limits:
-            memory: 500Mi
-            cpu: 600m
+            memory: 200Mi
+            cpu: 200m
           requests:
-            memory: 500Mi
-            cpu: 600m
+            memory: 100Mi
+            cpu: 100m
         volumeMounts:
         - name: scripts
           mountPath: /scripts
@@ -115,6 +115,13 @@ spec:
         ports:
         - containerPort: 6379
           name: redis
+        resources:
+          limits:
+            memory: 100Mi
+            cpu: 60m
+          requests:
+            memory: 50Mi
+            cpu: 30m
         volumeMounts:
         - name: redis-data
           mountPath: /data
@@ -179,6 +186,13 @@ spec:
         ports:
         - containerPort: 5432
           name: mlreefdb
+        resources:
+          limits:
+            memory: 100Mi
+            cpu: 60m
+          requests:
+            memory: 50Mi
+            cpu: 20m
         volumeMounts:
         - name: mlreefdb-data
           mountPath: /var/lib/postgresql/data
@@ -242,6 +256,13 @@ spec:
         ports:
         - containerPort: 80
           name: gateway
+        resources:
+          limits:
+            memory: 50Mi
+            cpu: 60m
+          requests:
+            memory: 25Mi
+            cpu: 30m
         envFrom:
         - configMapRef:
             name: local-config
@@ -311,5 +332,12 @@ spec:
         envFrom:
         - configMapRef:
             name: local-config
+        resources:
+          limits:
+            memory: 600Mi
+            cpu: 100m
+          requests:
+            memory: 500Mi
+            cpu: 50m
         imagePullPolicy: Always
 ---

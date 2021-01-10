@@ -5,6 +5,7 @@
 cd "$(dirname "$0")"/..
 . k8s/includes/log
 . k8s/includes/ci-environment
+. k8s/includes/gitlab-health
 ########################################
 set -x  # output all commands
 set -o  pipefail
@@ -86,6 +87,7 @@ kubectl apply -f local-config-${CI_ENVIRONMENT_SLUG}.yml
 ##cat /tmp/tls.crt | base64 -w 0
 ##cat /tmp/tls.key | base64 -w 0
 ##Add them in Gitlab variable
+##and the same is being used for all the review environments
 cat > review-deploy-tls-${CI_ENVIRONMENT_SLUG}.yml << LOCALCONF
 apiVersion: v1
 kind: Secret
@@ -95,7 +97,6 @@ type: kubernetes.io/tls
 data:
   tls.crt: $DEV_INGRESS_TLS_CRT
   tls.key: $DEV_INGRESS_TLS_KEY
-
 LOCALCONF
 
 cat review-deploy-tls-${CI_ENVIRONMENT_SLUG}.yml
@@ -113,10 +114,8 @@ function sed_files() {
       sed -i "s~__CI_REGISTRY_IMAGE__~${CI_REGISTRY_IMAGE}~" $file_name
       echo "CI_ENVIRONMENT_SLUG: ${CI_ENVIRONMENT_SLUG}"
       sed -i "s/__CI_ENVIRONMENT_SLUG__/${CI_ENVIRONMENT_SLUG}/" $file_name
-      echo "CI_COMMIT_REF_NAME: ${CI_COMMIT_REF_NAME}"
-      LOCAL_CI_COMMIT_REF_NAME=$(echo "$CI_COMMIT_REF_NAME" | sed "s~/~-~" | awk '{print tolower($0)}')
-      echo "LOCAL_CI_COMMIT_REF_NAME: ${LOCAL_CI_COMMIT_REF_NAME}"
-      sed -i "s~__VERSION__~${LOCAL_CI_COMMIT_REF_NAME}~" $file_name
+      echo "CI_COMMIT_REF_SLUG: ${CI_COMMIT_REF_SLUG}"
+      sed -i "s~__VERSION__~${CI_COMMIT_REF_SLUG}~" $file_name
       echo "CI_PROJECT_NAME: ${CI_PROJECT_NAME}"
       sed -i "s~__CI_PROJECT_NAME__~${CI_PROJECT_NAME}~" $file_name
       echo "CI_PROJECT_PATH_SLUG : ${CI_PROJECT_PATH_SLUG}"
@@ -159,12 +158,21 @@ cat gitlab-${dashed_domain}.yml
 kubectl apply -f gitlab-${dashed_domain}.yml
 
 ##Verify if gitlab is up
+waitUntilGitlabAvailable
 
-##todo
+log "Ensuring availability of the Gitlab API to start"
+until [ "$(checkGitlabPort /api/v4/projects)" = "200" ]; do
+  printf '.'
+  sleep 5;
+done
+log "Expecting code 200; received: $(checkGitlabPort /api/v4/projects)"
+log "Waiting for Gitlab Runners API. The runners API is running in a separate process from the normal API"
+until [ "$(checkGitlabPort /runners)" = "302" ]; do
+  printf '.'
+  sleep 5;
+done
+log "Expecting code 302; received: $(checkGitlabPort /runners)"
 
-sleep 100
-
-#####
 gitlab_pod_name=$(kubectl get pods --selector=app=gitlab-$CI_PROJECT_NAME | grep gitlab | awk '{print $1}')
 log "2. Deleting all API tokens for root user (id=1)"
 # http://gitlab.com/help/administration/troubleshooting/gitlab_rails_cheat_sheet.md
@@ -180,7 +188,7 @@ kubectl exec -it $gitlab_pod_name -- sh -c "$(cat << EOM
   "
 EOM
 )"
-log "3. Creating Admin API token $GITLAB_ADMIN_TOKEN. This might take up to 5 minutes"
+log "Creating Admin API token $GITLAB_ADMIN_TOKEN. This might take up to 5 minutes"
 kubectl exec -it $gitlab_pod_name -- sh -c "$(cat << EOM
   gitlab-rails runner -e production "User.find(1).personal_access_tokens.create(
     name: 'admin-api-token',
