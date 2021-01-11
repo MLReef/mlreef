@@ -14,7 +14,7 @@ import Navbar from '../../navbar/navbar';
 import './newMergeRequest.css';
 import BranchesApi from '../../../apis/BranchesApi.ts';
 import ImageDiffSection from '../../imageDiffSection/imageDiffSection';
-import CommitsList from '../../commitsList';
+import CommitsList from '../../CommitList';
 import { getFileDifferences } from '../../../functions/apiCalls';
 
 const imageFormats = [

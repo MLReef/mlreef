@@ -1,6 +1,6 @@
 import React from 'react';
 import { shallow } from 'enzyme';
-import CommitsView, { CommitDiv } from 'components/commits-view/commitsView';
+import CommitsView, { CommitDiv } from 'components/CommitsView/CommitView';
 import { storeFactory } from 'functions/testUtils';
 import { branchesMock, projectsArrayMock, commitMockObject } from 'testData';
 import { getTimeCreatedAgo } from 'functions/dataParserHelpers';
