@@ -9,8 +9,8 @@ import com.mlreef.rest.DataProject
 import com.mlreef.rest.DataType
 import com.mlreef.rest.DataVisualization
 import com.mlreef.rest.Person
-import com.mlreef.rest.PublishingInfo
 import com.mlreef.rest.ProcessorVersion
+import com.mlreef.rest.PublishingInfo
 import com.mlreef.rest.Subject
 import com.mlreef.rest.UserRole
 import com.mlreef.rest.VisibilityScope
@@ -95,6 +95,7 @@ class EntityMocks {
             outputDataTypes: List<DataType> = listOf(),
             tags: List<SearchableTag> = listOf(),
             forksCount: Int = 0,
+            namespace: String? = null,
         ) = DataProject(
             id = id,
             slug = slug,
@@ -103,7 +104,7 @@ class EntityMocks {
             url = "https://gitlab.com/mlreef/$slug",
             description = "",
             gitlabPath = slug,
-            gitlabNamespace = "mlreef",
+            gitlabNamespace = namespace ?: "mlreef",
             gitlabId = lastGitlabId++,
             visibilityScope = visibilityScope ?: VisibilityScope.default(),
             inputDataTypes = inputDataTypes.toMutableSet(),
@@ -122,6 +123,7 @@ class EntityMocks {
             outputDataTypes: List<DataType> = listOf(),
             tags: List<SearchableTag> = listOf(),
             forksCount: Int = 0,
+            namespace: String? = null,
         ) = CodeProject(
             id = id,
             slug = slug,
@@ -130,7 +132,7 @@ class EntityMocks {
             url = "https://gitlab.com/mlreef/$slug",
             description = "",
             gitlabPath = slug,
-            gitlabNamespace = "mlreef",
+            gitlabNamespace = namespace ?: "mlreef",
             gitlabId = lastGitlabId++,
             visibilityScope = visibilityScope ?: VisibilityScope.default(),
             inputDataTypes = inputDataTypes.toMutableSet(),
