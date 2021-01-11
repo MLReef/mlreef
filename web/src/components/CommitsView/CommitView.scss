@@ -1,0 +1,109 @@
+.commit-path {
+  display: flex;
+  margin: 0% auto 0% auto;
+  margin-top: 15px;
+  margin-bottom: 8px;
+  max-width: 1024px;
+  align-items: center;
+  position: relative;
+
+  input{
+    margin: 0 0 0.5rem 1rem;
+    padding: 0.5em 3em;
+    border: 2px solid #e5e5e5;
+    border-radius: 4px;
+  }
+}
+
+.commit-per-date{
+  border: 1px solid #adadad;
+  border-radius: 0.3vw;
+  margin-bottom: 8px;
+}
+
+.commit-per-date:last-child{
+  border-bottom: 1px solid #adadad;
+  margin-bottom: 2em;
+}
+
+.commit-header{
+  margin-top: 0;
+  border-bottom: 1px solid #e5e5e5;
+  background-color: #e5e5e5;
+  display: flex;
+  border-radius: 0.3vw 0.3vw 0 0;
+
+  p {
+    margin-left: 1em;
+    color: #1c2b40;
+    font-size: 14px;
+    font-weight: 600;
+  }
+}
+
+.btn button {
+    color: #1c2b40;
+    cursor: pointer;
+    position: relative;
+    background: none;
+    text-decoration: none;
+    border: 1px solid #1c2b40;
+    border-radius: 0.3vw;
+    display: flex;
+    padding: 0.5em 0.5em;
+    font-weight: 400;
+}
+
+.commits{
+    margin: 0.5em 1em 0.5em 1em;
+    display: flex;
+}
+
+.commit-list{
+    display: flex;
+    width: 100%;
+}
+
+.commit-data {
+  padding-left: 0.5em;
+  display: flex;
+  flex-direction: column;
+  
+  a {
+    margin-bottom: 5px;
+    font-size: 0.9rem;
+    font-weight: 700;
+    padding: 1em 0.5rem 0rem 0rem;
+    cursor: pointer;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+    max-width: 20rem;
+  }
+}
+
+.commit-details {
+  display: flex;
+  margin: 1em 1em 1em auto;
+  border: 1px solid var(--secondary);
+  border-radius: 5px;
+  background-color: var(--light);
+
+  span {
+    margin: auto;
+    padding: 0.5em 1em;
+  }
+}
+
+.commitview-select{
+  left: 1% !important;
+  top: 100%;
+}
+
+.copy-commit-id {
+  border: none;
+  margin: 1px 0.7em;
+  background-position: center !important;
+  background-size: 1.5em !important;
+  background-repeat: no-repeat !important;
+}

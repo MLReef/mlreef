@@ -13,7 +13,7 @@ import MBranchSelector from 'components/ui/MBranchSelector';
 import { generateBreadCrumbs } from 'functions/helpers';
 import Navbar from '../navbar/navbar';
 import ProjectContainer from '../projectContainer';
-import './commitsView.css';
+import './CommitView.scss';
 import CommitsApi from '../../apis/CommitsApi.ts';
 import { getTimeCreatedAgo } from '../../functions/dataParserHelpers';
 
@@ -200,6 +200,7 @@ export function CommitDiv(props) {
     document.execCommand('copy');
     document.body.removeChild(phantomInput);
   }
+
   return (
     <div className="commits" key={id}>
       <div className="commit-list">
@@ -222,9 +223,9 @@ export function CommitDiv(props) {
         </div>
         <div className="commit-details btn-group">
           <input type="text" ref={inputRef} style={{ display: 'none' }} />
-          <span ref={spanRef} className="border-rounded-left">{id}</span>
-          {/* TODO: The next button had a tooltip but MToolTip does not fit the needs, think about something */}
+          <span ref={spanRef} className="border-rounded-left" title={id}>{id}</span>
           <button
+            title={id}
             type="button"
             label="clone"
             className="btn btn-icon fa fa-copy t-primary"

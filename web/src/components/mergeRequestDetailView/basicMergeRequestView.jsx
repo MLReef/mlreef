@@ -20,7 +20,7 @@ import MButton from 'components/ui/MButton';
 import MWrapper from 'components/ui/MWrapper';
 import ChangesMrSection from 'components/changes-mr-section/ChangesMrSection';
 import Navbar from '../navbar/navbar';
-import CommitsList from '../commitsList';
+import CommitsList from '../CommitList';
 import MergeRequestAPI from '../../apis/MergeRequestApi.ts';
 import BranchesApi from '../../apis/BranchesApi.ts';
 import ProjectContainer from '../projectContainer';

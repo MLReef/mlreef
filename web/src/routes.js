@@ -26,7 +26,7 @@ import VisualizationDetailView from 'components/data-visualization/dataVisualiza
 import FileView from 'components/fileView/fileView';
 import SettingsView from 'components/views/SettingsView';
 import CreateGroupView from 'components/views/create-group/createGroup';
-import CommitsView from 'components/commits-view/commitsView';
+import CommitsView from 'components/CommitsView/CommitView';
 import InsightsView from 'components/insights/insights';
 import UploadFileView from 'components/views/uploadFile/uploadFile';
 import CommitDetailsView from 'components/commits-details/commitDetails';
