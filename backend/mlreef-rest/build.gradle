@@ -61,8 +61,8 @@ dependencies {
     asciidoctor 'org.springframework.restdocs:spring-restdocs-asciidoctor'
 
     // testcontainers
-    testImplementation "org.testcontainers:testcontainers:1.12.5"
-    testImplementation "org.testcontainers:postgresql:1.12.5"
+    testImplementation "org.testcontainers:testcontainers:1.15.1"
+    testImplementation "org.testcontainers:postgresql:1.15.1"
 
     //ebedded servers
     testImplementation "com.github.kstyrc:embedded-redis:0.6"

@@ -1049,6 +1049,32 @@ class MarketplaceServiceTest : AbstractRepositoryTest() {
         assertThat(ids).containsExactlyInAnyOrderElementsOf(expectationIds)
     }
 
+    @Transactional
+    @Rollback
+    @Test
+    fun `search project by namespace`() {
+        createMockedProjects()
+        var searchResult = service.searchProjects(SearchRequest(
+            namespace = "namespace1",
+        ), page(), token1)
+        var ids = searchResult.map { it.slug }
+
+        var expectationIds = getDataProjectSlugsByIndex(0, 2, 3, 5, 6, 8) + getCodeProjectSlugsByIndex(0, 2, 3, 4, 5, 6, 8, 9)
+
+        assertThat(searchResult).hasSize(14)
+        assertThat(ids).containsExactlyInAnyOrderElementsOf(expectationIds)
+
+        searchResult = service.searchProjects(SearchRequest(
+            namespace = "namespace2",
+        ), page(), token2)
+        ids = searchResult.map { it.slug }
+
+        expectationIds = getDataProjectSlugsByIndex(1, 7, 9) + getCodeProjectSlugsByIndex(1, 7)
+
+        assertThat(searchResult).hasSize(5)
+        assertThat(ids).containsExactlyInAnyOrderElementsOf(expectationIds)
+    }
+
     private fun page() = PageRequest.of(0, 100)
 
     private fun createMockedProjects() {
@@ -1072,29 +1098,29 @@ class MarketplaceServiceTest : AbstractRepositoryTest() {
         val dataTypeSet7 = listOf(DataType.ANY)
         val dataTypeSet8 = listOf(DataType.IMAGE, DataType.VIDEO)
 
-        dataProject0 = projectRepository.save(EntityMocks.dataProject(slug = "slug0", inputDataTypes = dataTypeSet1, outputDataTypes = dataTypeSet2, tags = mutableListOf(tag1), visibilityScope = PUBLIC, forksCount = 9))
-        dataProject1 = projectRepository.save(EntityMocks.dataProject(slug = "slug1", inputDataTypes = dataTypeSet4, outputDataTypes = dataTypeSet3, tags = tagSet2, ownerId = author2.id, visibilityScope = PUBLIC, forksCount = 8))
-        dataProject2 = projectRepository.save(EntityMocks.dataProject(slug = "slug2", inputDataTypes = dataTypeSet1, outputDataTypes = dataTypeSet1, tags = tagSet3, visibilityScope = PRIVATE, forksCount = 7))
-        dataProject3 = projectRepository.save(EntityMocks.dataProject(slug = "notslug3", inputDataTypes = dataTypeSet5, outputDataTypes = dataTypeSet6, tags = tagSet4, visibilityScope = PUBLIC, forksCount = 6))
-        dataProject4 = projectRepository.save(EntityMocks.dataProject(slug = "Slug4", inputDataTypes = dataTypeSet4, outputDataTypes = dataTypeSet4, tags = tagSet5, ownerId = author2.id, visibilityScope = PRIVATE, forksCount = 5))
-        dataProject5 = projectRepository.save(EntityMocks.dataProject(slug = "SLUG5", tags = mutableListOf(tag2), visibilityScope = PUBLIC, forksCount = 4))
-        dataProject6 = projectRepository.save(EntityMocks.dataProject(slug = "lug6", inputDataTypes = dataTypeSet2, outputDataTypes = dataTypeSet6, tags = mutableListOf(tag3), visibilityScope = PRIVATE, forksCount = 3))
-        dataProject7 = projectRepository.save(EntityMocks.dataProject(slug = "slu7", inputDataTypes = dataTypeSet7, outputDataTypes = dataTypeSet1, tags = mutableListOf(tag4), ownerId = author2.id, visibilityScope = PUBLIC, forksCount = 2))
-        dataProject8 = projectRepository.save(EntityMocks.dataProject(slug = "8guls", inputDataTypes = dataTypeSet3, tags = mutableListOf(tag5), visibilityScope = PRIVATE, forksCount = 1))
-        dataProject9 = projectRepository.save(EntityMocks.dataProject(slug = "slug9", outputDataTypes = dataTypeSet2, ownerId = author2.id, visibilityScope = PRIVATE))
+        dataProject0 = projectRepository.save(EntityMocks.dataProject(slug = "slug0", inputDataTypes = dataTypeSet1, outputDataTypes = dataTypeSet2, tags = mutableListOf(tag1), visibilityScope = PUBLIC, forksCount = 9, namespace = "namespace1"))
+        dataProject1 = projectRepository.save(EntityMocks.dataProject(slug = "slug1", inputDataTypes = dataTypeSet4, outputDataTypes = dataTypeSet3, tags = tagSet2, ownerId = author2.id, visibilityScope = PUBLIC, forksCount = 8, namespace = "namespace2"))
+        dataProject2 = projectRepository.save(EntityMocks.dataProject(slug = "slug2", inputDataTypes = dataTypeSet1, outputDataTypes = dataTypeSet1, tags = tagSet3, visibilityScope = PRIVATE, forksCount = 7, namespace = "namespace1"))
+        dataProject3 = projectRepository.save(EntityMocks.dataProject(slug = "notslug3", inputDataTypes = dataTypeSet5, outputDataTypes = dataTypeSet6, tags = tagSet4, visibilityScope = PUBLIC, forksCount = 6, namespace = "namespace1"))
+        dataProject4 = projectRepository.save(EntityMocks.dataProject(slug = "Slug4", inputDataTypes = dataTypeSet4, outputDataTypes = dataTypeSet4, tags = tagSet5, ownerId = author2.id, visibilityScope = PRIVATE, forksCount = 5, namespace = "namespace1"))
+        dataProject5 = projectRepository.save(EntityMocks.dataProject(slug = "SLUG5", tags = mutableListOf(tag2), visibilityScope = PUBLIC, forksCount = 4, namespace = "namespace1"))
+        dataProject6 = projectRepository.save(EntityMocks.dataProject(slug = "lug6", inputDataTypes = dataTypeSet2, outputDataTypes = dataTypeSet6, tags = mutableListOf(tag3), visibilityScope = PRIVATE, forksCount = 3, namespace = "namespace1"))
+        dataProject7 = projectRepository.save(EntityMocks.dataProject(slug = "slu7", inputDataTypes = dataTypeSet7, outputDataTypes = dataTypeSet1, tags = mutableListOf(tag4), ownerId = author2.id, visibilityScope = PUBLIC, forksCount = 2, namespace = "namespace2"))
+        dataProject8 = projectRepository.save(EntityMocks.dataProject(slug = "8guls", inputDataTypes = dataTypeSet3, tags = mutableListOf(tag5), visibilityScope = PRIVATE, forksCount = 1, namespace = "namespace1"))
+        dataProject9 = projectRepository.save(EntityMocks.dataProject(slug = "slug9", outputDataTypes = dataTypeSet2, ownerId = author2.id, visibilityScope = PRIVATE, namespace = "namespace2"))
 
         dataProjectList = listOf(dataProject0, dataProject1, dataProject2, dataProject3, dataProject4, dataProject5, dataProject6, dataProject7, dataProject8, dataProject9)
 
-        codeProject0 = projectRepository.save(EntityMocks.codeProject(slug = "slug10", inputDataTypes = dataTypeSet3, outputDataTypes = dataTypeSet7, tags = tagSet5, visibilityScope = PUBLIC))
-        codeProject1 = projectRepository.save(EntityMocks.codeProject(slug = "slug11", inputDataTypes = dataTypeSet2, outputDataTypes = dataTypeSet2, tags = tagSet4, ownerId = author2.id, visibilityScope = PRIVATE, forksCount = 1))
-        codeProject2 = projectRepository.save(EntityMocks.codeProject(slug = "slug12", inputDataTypes = dataTypeSet1, outputDataTypes = dataTypeSet5, tags = tagSet3, visibilityScope = PRIVATE, forksCount = 2))
-        codeProject3 = projectRepository.save(EntityMocks.codeProject(slug = "slug13", inputDataTypes = dataTypeSet4, outputDataTypes = dataTypeSet6, tags = tagSet2, visibilityScope = PUBLIC, forksCount = 3))
-        codeProject4 = projectRepository.save(EntityMocks.codeProject(slug = "Slug14", visibilityScope = PRIVATE, forksCount = 4))
-        codeProject5 = projectRepository.save(EntityMocks.codeProject(slug = "SLUG15", inputDataTypes = dataTypeSet5, tags = mutableListOf(tag5), visibilityScope = PRIVATE, forksCount = 5))
-        codeProject6 = projectRepository.save(EntityMocks.codeProject(slug = "lug16", outputDataTypes = dataTypeSet7, tags = mutableListOf(tag4), visibilityScope = PUBLIC, forksCount = 6))
-        codeProject7 = projectRepository.save(EntityMocks.codeProject(slug = "slu17", inputDataTypes = dataTypeSet8, outputDataTypes = dataTypeSet6, tags = mutableListOf(tag3), ownerId = author2.id, visibilityScope = PUBLIC, forksCount = 7))
-        codeProject8 = projectRepository.save(EntityMocks.codeProject(slug = "81guls", inputDataTypes = dataTypeSet3, outputDataTypes = dataTypeSet1, tags = mutableListOf(tag2), visibilityScope = PRIVATE, forksCount = 8))
-        codeProject9 = projectRepository.save(EntityMocks.codeProject(slug = "slug19", inputDataTypes = dataTypeSet6, outputDataTypes = dataTypeSet2, tags = mutableListOf(tag1), visibilityScope = PRIVATE, forksCount = 9))
+        codeProject0 = projectRepository.save(EntityMocks.codeProject(slug = "slug10", inputDataTypes = dataTypeSet3, outputDataTypes = dataTypeSet7, tags = tagSet5, visibilityScope = PUBLIC, namespace = "namespace1"))
+        codeProject1 = projectRepository.save(EntityMocks.codeProject(slug = "slug11", inputDataTypes = dataTypeSet2, outputDataTypes = dataTypeSet2, tags = tagSet4, ownerId = author2.id, visibilityScope = PRIVATE, forksCount = 1, namespace = "namespace2"))
+        codeProject2 = projectRepository.save(EntityMocks.codeProject(slug = "slug12", inputDataTypes = dataTypeSet1, outputDataTypes = dataTypeSet5, tags = tagSet3, visibilityScope = PRIVATE, forksCount = 2, namespace = "namespace1"))
+        codeProject3 = projectRepository.save(EntityMocks.codeProject(slug = "slug13", inputDataTypes = dataTypeSet4, outputDataTypes = dataTypeSet6, tags = tagSet2, visibilityScope = PUBLIC, forksCount = 3, namespace = "namespace1"))
+        codeProject4 = projectRepository.save(EntityMocks.codeProject(slug = "Slug14", visibilityScope = PRIVATE, forksCount = 4, namespace = "namespace1"))
+        codeProject5 = projectRepository.save(EntityMocks.codeProject(slug = "SLUG15", inputDataTypes = dataTypeSet5, tags = mutableListOf(tag5), visibilityScope = PRIVATE, forksCount = 5, namespace = "namespace1"))
+        codeProject6 = projectRepository.save(EntityMocks.codeProject(slug = "lug16", outputDataTypes = dataTypeSet7, tags = mutableListOf(tag4), visibilityScope = PUBLIC, forksCount = 6, namespace = "namespace1"))
+        codeProject7 = projectRepository.save(EntityMocks.codeProject(slug = "slu17", inputDataTypes = dataTypeSet8, outputDataTypes = dataTypeSet6, tags = mutableListOf(tag3), ownerId = author2.id, visibilityScope = PUBLIC, forksCount = 7, namespace = "namespace2"))
+        codeProject8 = projectRepository.save(EntityMocks.codeProject(slug = "81guls", inputDataTypes = dataTypeSet3, outputDataTypes = dataTypeSet1, tags = mutableListOf(tag2), visibilityScope = PRIVATE, forksCount = 8, namespace = "namespace1"))
+        codeProject9 = projectRepository.save(EntityMocks.codeProject(slug = "slug19", inputDataTypes = dataTypeSet6, outputDataTypes = dataTypeSet2, tags = mutableListOf(tag1), visibilityScope = PRIVATE, forksCount = 9, namespace = "namespace1"))
 
         codeProjectList = listOf(codeProject0, codeProject1, codeProject2, codeProject3, codeProject4, codeProject5, codeProject6, codeProject7, codeProject8, codeProject9)
 

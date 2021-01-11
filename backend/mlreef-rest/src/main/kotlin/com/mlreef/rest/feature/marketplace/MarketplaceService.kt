@@ -138,6 +138,8 @@ class MarketplaceService(
         request.ownerIdsOr?.let { builder.and().`in`("ownerId", it) }
         request.name?.let { builder.and().like("name", "%${it}%", caseSensitive = false) }
         request.nameExact?.let { builder.and().equals("name", it, caseSensitive = false) }
+        request.namespace?.let { builder.and().like("gitlabNamespace", "%${it}%", caseSensitive = false) }
+        request.namespaceExact?.let { builder.and().equals("gitlabNamespace", it, caseSensitive = false) }
 
         return if (returnEmptyResult) {
             PageImpl(listOf(), pageable, 0)
