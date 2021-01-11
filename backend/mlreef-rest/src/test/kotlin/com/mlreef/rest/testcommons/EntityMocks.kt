@@ -76,10 +76,12 @@ class EntityMocks {
             mlCategory: String? = null,
             publisher: Subject = person(id = authorId),
             environment: BaseEnvironments? = null,
+            publishedAt: ZonedDateTime? = null,
+            publishFinishedAt: ZonedDateTime? = null,
         ) = ProcessorVersion(
             id = randomUUID(),
             dataProcessor = dataProcessor,
-            publishingInfo = PublishingInfo(publisher = publisher),
+            publishingInfo = PublishingInfo(publisher = publisher, publishedAt = publishedAt, finishedAt = publishFinishedAt),
             baseEnvironmentId = environment?.id,
             modelType = modelType,
             mlCategory = mlCategory,

@@ -76,7 +76,8 @@ internal fun projectResponseFields(prefix: String = ""): MutableList<FieldDescri
         fieldWithPath(prefix + "name").type(JsonFieldType.STRING).description("Project name"),
         fieldWithPath(prefix + "gitlab_namespace").type(JsonFieldType.STRING).description("The group/namespace where the project is in"),
         fieldWithPath(prefix + "gitlab_path").type(JsonFieldType.STRING).description("Project path"),
-        fieldWithPath(prefix + "gitlab_id").type(JsonFieldType.NUMBER).description("Id in gitlab")
+        fieldWithPath(prefix + "gitlab_id").type(JsonFieldType.NUMBER).description("Id in gitlab"),
+        fieldWithPath(prefix + "published").optional().type(JsonFieldType.BOOLEAN).description("Project is published"),
     ).apply {
         this.add(fieldWithPath(prefix + "data_processor").optional().type(JsonFieldType.OBJECT).description("DataProcessor"))
         this.addAll(dataProcessorFields(prefix + "data_processor."))

@@ -146,7 +146,7 @@ class PublishingService(
                 baseEnvironmentId = baseEnvironment.id,
                 modelType = modelType,
                 mlCategory = mlCategory,
-                publishingInfo = PublishingInfo(commitMessage.id, ZonedDateTime.now(), secret, publisher),
+                publishingInfo = PublishingInfo(commitSha = commitMessage.id, publishedAt = ZonedDateTime.now(), secret = secret, publisher = publisher),
                 path = dataProcessorVersion.path,
                 branch = dataProcessorVersion.branch,
                 command = dataProcessorVersion.command,
@@ -238,14 +238,18 @@ class PublishingService(
             false)
 
         return if (files.size > 1) {
-            throw InternalException("There was something wrong in data processor recognition for project $projectId. More then one file was returned from repository")
+            throw InternalException("There was something wrong in data processor recognition for project $projectId. More than one file was returned from repository")
         } else if (files.size == 0) {
             log.warn("Main script was not found in repository for project $projectId. Data processor will be cleaned")
+
+            val publishingInfo = dataProcessorVersion.publishingInfo?.copy(finishedAt = null)
+                ?: PublishingInfo(finishedAt = null)
 
             dataProcessorService.saveDataProcessor(
                 dataProcessorVersion.copy(
                     path = null,
                     branch = dataProcessorVersion.branch,
+                    publishingInfo = publishingInfo,
                     command = "",
                     parameters = listOf(),
                     contentSha256 = null
@@ -258,9 +262,12 @@ class PublishingService(
 
             val newDataProcessorVersion = pythonParserService.findAndParseDataProcessorInProject(projectId, mainScript.path)
 
-            val publishInfo = dataProcessorVersion.publishingInfo?.copy(commitSha = mainScript.lastCommitId
-                ?: "", publishedAt = ZonedDateTime.now())
-                ?: PublishingInfo(commitSha = mainScript.lastCommitId ?: "", publishedAt = ZonedDateTime.now())
+            val publishInfo = dataProcessorVersion.publishingInfo?.copy(
+                commitSha = mainScript.lastCommitId ?: "",
+                publishedAt = ZonedDateTime.now(),
+                finishedAt = ZonedDateTime.now(),
+            ) ?: PublishingInfo(commitSha = mainScript.lastCommitId
+                ?: "", publishedAt = ZonedDateTime.now(), finishedAt = ZonedDateTime.now())
 
             dataProcessorService.saveDataProcessor(
                 dataProcessorVersion.copy(

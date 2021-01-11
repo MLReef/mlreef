@@ -13,6 +13,7 @@ import javax.persistence.criteria.Expression
 import javax.persistence.criteria.Join
 import javax.persistence.criteria.JoinType
 import javax.persistence.criteria.Order
+import javax.persistence.criteria.Path
 import javax.persistence.criteria.Predicate
 import javax.persistence.criteria.Root
 import javax.persistence.criteria.Selection
@@ -285,18 +286,10 @@ class QueryBuilder<T>(
         checkPredicateIsAllowed()
 
         val predicate = if (caseSensitive) {
-            val ex: Expression<*> = if (joinedAlias != null)
-                joins[joinedAlias]?.get<Any>(field)
-                    ?: throw RuntimeException("Join with name/alias $joinedAlias was not found")
-            else from.get<Any>(field)
-
+            val ex = getExpressionByPath<Any>(field, joinedAlias)
             builder.equal(ex, value)
         } else {
-            val ex: Expression<String> = if (joinedAlias != null)
-                joins[joinedAlias]?.get<String>(field)
-                    ?: throw RuntimeException("Join with name/alias $joinedAlias was not found")
-            else from.get<String>(field)
-
+            val ex = getExpressionByPath<String>(field, joinedAlias)
             builder.equal(builder.lower(ex), value.toString().toLowerCase())
         }
 
@@ -314,10 +307,7 @@ class QueryBuilder<T>(
     fun isNull(field: String, joinedAlias: String? = null): QueryBuilder<T> {
         checkPredicateIsAllowed()
 
-        val ex: Expression<*> = if (joinedAlias != null)
-            joins[joinedAlias]?.get<Any>(field)
-                ?: throw RuntimeException("Join with name/alias $joinedAlias was not found")
-        else from.get<Any>(field)
+        val ex = getExpressionByPath<Any>(field, joinedAlias)
 
         currentPredicatesList.add(
             PredicateRecord(
@@ -333,10 +323,7 @@ class QueryBuilder<T>(
     fun isNotNull(field: String, joinedAlias: String? = null): QueryBuilder<T> {
         checkPredicateIsAllowed()
 
-        val ex: Expression<*> = if (joinedAlias != null)
-            joins[joinedAlias]?.get<Any>(field)
-                ?: throw RuntimeException("Join with name/alias $joinedAlias was not found")
-        else from.get<Any>(field)
+        val ex = getExpressionByPath<Any>(field, joinedAlias)
 
         currentPredicatesList.add(
             PredicateRecord(
@@ -366,9 +353,7 @@ class QueryBuilder<T>(
     fun <V> contains(field: String, value: V, joinedAlias: String? = null): QueryBuilder<T> {
         checkPredicateIsAllowed()
 
-        val expression: Expression<Collection<V>> = if (joinedAlias != null)
-            joins[joinedAlias]?.get(field) ?: throw RuntimeException("Join with name $joinedAlias was not found")
-        else from.get(field)
+        val expression = getExpressionByPath<Collection<V>>(field, joinedAlias)
 
         currentPredicatesList.add(
             PredicateRecord(
@@ -410,9 +395,7 @@ class QueryBuilder<T>(
     fun <V> notContains(field: String, value: V, joinedAlias: String? = null): QueryBuilder<T> {
         checkPredicateIsAllowed()
 
-        val expression: Expression<Collection<V>> = if (joinedAlias != null)
-            joins[joinedAlias]?.get(field) ?: throw RuntimeException("Join with name $joinedAlias was not found")
-        else from.get(field)
+        val expression = getExpressionByPath<Collection<V>>(field, joinedAlias)
 
         currentPredicatesList.add(
             PredicateRecord(
@@ -498,9 +481,7 @@ class QueryBuilder<T>(
     fun like(field: String, value: Any, caseSensitive: Boolean = true, joinedAlias: String? = null): QueryBuilder<T> {
         checkPredicateIsAllowed()
 
-        val ex: Expression<String> = if (joinedAlias != null)
-            joins[joinedAlias]?.get(field) ?: throw RuntimeException("Join with name/alias $joinedAlias was not found")
-        else from.get(field)
+        val ex = getExpressionByPath<String>(field, joinedAlias)
 
         val str = value as? String ?: value.toString()
 
@@ -523,10 +504,7 @@ class QueryBuilder<T>(
     fun groupBy(field: String, joinedAlias: String? = null): QueryBuilder<T> {
         if (!grouping) throw RuntimeException("Not grouping query builder. Use 'grouping=true' in constructor")
 
-        val ex: Expression<*> = if (joinedAlias != null)
-            joins[joinedAlias]?.get<Any>(field)
-                ?: throw RuntimeException("Join with name/alias $joinedAlias was not found")
-        else from.get<Any>(field)
+        val ex = getExpressionByPath<Any>(field, joinedAlias)
 
         currentGroupingList.add(ex)
         currentGroupingSelections.add(ex)
@@ -537,10 +515,7 @@ class QueryBuilder<T>(
     fun <N : Number> max(field: String, joinedAlias: String? = null): QueryBuilder<T> {
         if (!grouping) throw RuntimeException("Not grouping query builder. Use 'grouping=true' in constructor")
 
-        val ex: Expression<N> = if (joinedAlias != null)
-            joins[joinedAlias]?.get<N>(field)
-                ?: throw RuntimeException("Join with name/alias $joinedAlias was not found")
-        else from.get<N>(field)
+        val ex = getExpressionByPath<N>(field, joinedAlias)
 
         currentGroupingSelections.add(builder.max(ex))
 
@@ -550,10 +525,7 @@ class QueryBuilder<T>(
     fun <N : Number> min(field: String, joinedAlias: String? = null): QueryBuilder<T> {
         if (!grouping) throw RuntimeException("Not grouping query builder. Use 'grouping=true' in constructor")
 
-        val ex: Expression<N> = if (joinedAlias != null)
-            joins[joinedAlias]?.get<N>(field)
-                ?: throw RuntimeException("Join with name/alias $joinedAlias was not found")
-        else from.get<N>(field)
+        val ex = getExpressionByPath<N>(field, joinedAlias)
 
         currentGroupingSelections.add(builder.min(ex))
 
@@ -563,10 +535,7 @@ class QueryBuilder<T>(
     fun <N : Number> avg(field: String, joinedAlias: String? = null): QueryBuilder<T> {
         if (!grouping) throw RuntimeException("Not grouping query builder. Use 'grouping=true' in constructor")
 
-        val ex: Expression<N> = if (joinedAlias != null)
-            joins[joinedAlias]?.get<N>(field)
-                ?: throw RuntimeException("Join with name/alias $joinedAlias was not found")
-        else from.get<N>(field)
+        val ex = getExpressionByPath<N>(field, joinedAlias)
 
         currentGroupingSelections.add(builder.avg(ex))
 
@@ -576,10 +545,7 @@ class QueryBuilder<T>(
     fun <N : Number> sum(field: String, joinedAlias: String? = null): QueryBuilder<T> {
         if (!grouping) throw RuntimeException("Not grouping query builder. Use 'grouping=true' in constructor")
 
-        val ex: Expression<N> = if (joinedAlias != null)
-            joins[joinedAlias]?.get<N>(field)
-                ?: throw RuntimeException("Join with name/alias $joinedAlias was not found")
-        else from.get<N>(field)
+        val ex = getExpressionByPath<N>(field, joinedAlias)
 
         currentGroupingSelections.add(builder.sum(ex))
 
@@ -589,10 +555,7 @@ class QueryBuilder<T>(
     fun count(field: String, joinedAlias: String? = null): QueryBuilder<T> {
         if (!grouping) throw RuntimeException("Not grouping query builder. Use 'grouping=true' in constructor")
 
-        val ex: Expression<*> = if (joinedAlias != null)
-            joins[joinedAlias]?.get<Any>(field)
-                ?: throw RuntimeException("Join with name/alias $joinedAlias was not found")
-        else from.get<Any>(field)
+        val ex = getExpressionByPath<Any>(field, joinedAlias)
 
         currentGroupingSelections.add(builder.count(ex))
 
@@ -651,17 +614,12 @@ class QueryBuilder<T>(
     }
 
     private fun <V : Comparable<V>> buildBetweenSubPredicate(key: String, value1: V, value2: V, joinedAlias: String?): Predicate {
-        val expression: Expression<V> = if (joinedAlias != null)
-            joins[joinedAlias]?.get<V>(key) ?: throw RuntimeException("Join with name/alias $joinedAlias was not found")
-        else from.get<V>(key)
-
+        val expression = getExpressionByPath<V>(key, joinedAlias)
         return builder.between<V>(expression, value1, value2)
     }
 
     private fun <V : Comparable<V>> buildCompareSubPredicate(key: String, value: V, greater: Boolean, equal: Boolean, joinedAlias: String?): Predicate {
-        val expression: Expression<V> = if (joinedAlias != null)
-            joins[joinedAlias]?.get<V>(key) ?: throw RuntimeException("Join with name/alias $joinedAlias was not found")
-        else from.get<V>(key)
+        val expression = getExpressionByPath<V>(key, joinedAlias)
 
         return when {
             greater && equal -> builder.greaterThanOrEqualTo(expression, value)
@@ -674,9 +632,7 @@ class QueryBuilder<T>(
 
     private fun <V> buildInSubPredicate(key: String, values: Collection<V>, joinedAlias: String?, caseSensitive: Boolean): Predicate {
         return if (caseSensitive) {
-            val expression: Expression<V> = if (joinedAlias != null)
-                joins[joinedAlias]?.get(key) ?: throw RuntimeException("Join with name $joinedAlias was not found")
-            else from.get(key)
+            val expression = getExpressionByPath<V>(key, joinedAlias)
 
             val inPredicate = builder.`in`(expression)
 
@@ -686,9 +642,7 @@ class QueryBuilder<T>(
 
             inPredicate
         } else {
-            val expression: Expression<String> = if (joinedAlias != null)
-                joins[joinedAlias]?.get(key) ?: throw RuntimeException("Join with name $joinedAlias was not found")
-            else from.get(key)
+            val expression = getExpressionByPath<String>(key, joinedAlias)
 
             val inPredicate = builder.`in`(builder.lower(expression))
 
@@ -698,6 +652,40 @@ class QueryBuilder<T>(
 
             inPredicate
         }
+    }
+
+    private fun <Y> getExpressionByPath(path: String, joinedAlias: String?): Expression<Y> {
+        val paths = path.split(".")
+
+        if (paths.isEmpty()) {
+            throw IllegalArgumentException("Incorrect path $path")
+        } else if (paths.size == 1) {
+            return getExpression(paths[0], joinedAlias)
+        } else {
+            var currentPath: Path<Y>? = null
+            for (i in 0..paths.size - 2) {
+                currentPath = getPath(paths[i], joinedAlias, currentPath)
+            }
+            return getExpression(paths.last(), joinedAlias, currentPath)
+        }
+    }
+
+    private fun <Y> getExpression(key: String, joinedAlias: String?, path: Path<Y>? = null): Expression<Y> {
+        return path?.get(key)
+            ?: if (joinedAlias != null) {
+                joins[joinedAlias]?.get(key) ?: throw RuntimeException("Join with name $joinedAlias was not found")
+            } else {
+                from.get(key)
+            }
+    }
+
+    private fun <Y> getPath(key: String, joinedAlias: String?, path: Path<Y>? = null): Path<Y> {
+        return path?.get(key)
+            ?: if (joinedAlias != null) {
+                joins[joinedAlias]?.get(key) ?: throw RuntimeException("Join with name $joinedAlias was not found")
+            } else {
+                from.get(key)
+            }
     }
 
     private enum class LogicOperator {

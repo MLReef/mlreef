@@ -140,6 +140,13 @@ class MarketplaceService(
         request.nameExact?.let { builder.and().equals("name", it, caseSensitive = false) }
         request.namespace?.let { builder.and().like("gitlabNamespace", "%${it}%", caseSensitive = false) }
         request.namespaceExact?.let { builder.and().equals("gitlabNamespace", it, caseSensitive = false) }
+        request.published?.let {
+            if (it) {
+                builder.and().isNotNull("publishingInfo.finishedAt", "version")
+            } else {
+                builder.and().isNull("publishingInfo.finishedAt", "version")
+            }
+        }
 
         return if (returnEmptyResult) {
             PageImpl(listOf(), pageable, 0)

@@ -623,6 +623,7 @@ class MarketplaceApiTest : AbstractRestApiTest() {
             fieldWithPath(prefix + "slug_exact").type(JsonFieldType.STRING).optional().description("Slug of project, complete part of requested string must match (EQUAL TEXT request)"),
             fieldWithPath(prefix + "name").type(JsonFieldType.STRING).optional().description("Name of project, any part of requested string must match (LIKE %TEXT% request)"),
             fieldWithPath(prefix + "name_exact").type(JsonFieldType.STRING).optional().description("Name of project, complete part of requested string must match (EQUAL TEXT request)"),
+            fieldWithPath(prefix + "published").type(JsonFieldType.BOOLEAN).optional().description("Whether project published or not"),
             fieldWithPath(prefix + "namespace").type(JsonFieldType.STRING).optional().description("Namespace of project, any part of requested string must match (LIKE %TEXT% request)"),
             fieldWithPath(prefix + "namespace_exact").type(JsonFieldType.STRING).optional().description("Namespace of project, complete part of requested string must match (EQUAL TEXT request)"),
         )
