@@ -34,7 +34,8 @@ open class ProjectDto(
     open val inputDataTypes: List<DataType>,
     open val outputDataTypes: List<DataType>,
     open val searchableType: SearchableType,
-    open val dataProcessor: DataProcessorDto?
+    open val dataProcessor: DataProcessorDto?,
+    open val published: Boolean?,
 ) : DataClassWithId
 
 // FIXME: Coverage says: missing tests
@@ -73,7 +74,7 @@ data class DataProjectDto(
     globalSlug, visibilityScope, description,
     tags, starsCount, forksCount,
     inputDataTypes, outputDataTypes,
-    searchableType, dataProcessor)
+    searchableType, dataProcessor, null)
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 data class CodeProjectDto(
@@ -94,14 +95,15 @@ data class CodeProjectDto(
     override val inputDataTypes: List<DataType>,
     override val outputDataTypes: List<DataType>,
     override val searchableType: SearchableType,
-    override val dataProcessor: DataProcessorDto?
+    override val dataProcessor: DataProcessorDto?,
+    override val published: Boolean?,
 ) : ProjectDto(
     id, slug, url, ownerId, name,
     gitlabNamespace, gitlabPath, gitlabId,
     globalSlug, visibilityScope, description,
     tags, starsCount, forksCount,
     inputDataTypes, outputDataTypes,
-    searchableType, dataProcessor)
+    searchableType, dataProcessor, published)
 
 internal fun ProjectOfUserDto.toDomain() = ProjectOfUser(
     id = this.id,
@@ -129,7 +131,8 @@ fun Project.toDto(): ProjectDto {
         this.inputDataTypes.toList(),
         this.outputDataTypes.toList(),
         searchableType,
-        this.dataProcessor?.toDto()
+        this.dataProcessor?.toDto(),
+        this.dataProcessor?.processorVersion?.publishingInfo?.finishedAt != null
     )
 }
 
@@ -176,5 +179,6 @@ internal fun CodeProject.toDto() =
         inputDataTypes = this.inputDataTypes.toList(),
         outputDataTypes = this.outputDataTypes.toList(),
         searchableType = searchableType,
-        dataProcessor = this.dataProcessor?.toDto()
+        dataProcessor = this.dataProcessor?.toDto(),
+        published = this.dataProcessor?.processorVersion?.publishingInfo?.finishedAt != null
     )

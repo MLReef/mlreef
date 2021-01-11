@@ -36,6 +36,7 @@ import org.springframework.data.domain.PageRequest
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.test.annotation.Commit
 import org.springframework.test.annotation.Rollback
+import java.time.ZonedDateTime
 import java.util.UUID
 import java.util.UUID.randomUUID
 import javax.transaction.Transactional
@@ -1052,6 +1053,32 @@ class MarketplaceServiceTest : AbstractRepositoryTest() {
     @Transactional
     @Rollback
     @Test
+    fun `search project by published`() {
+        createMockedProjects()
+        var searchResult = service.searchProjects(SearchRequest(
+            published = true,
+        ), page(), token1)
+        var ids = searchResult.map { it.slug }
+
+        var expectationIds = getCodeProjectSlugsByIndex(0)
+
+        assertThat(searchResult).hasSize(1)
+        assertThat(ids).containsExactlyInAnyOrderElementsOf(expectationIds)
+
+        searchResult = service.searchProjects(SearchRequest(
+            published = true,
+        ), page(), token2)
+        ids = searchResult.map { it.slug }
+
+        expectationIds = getCodeProjectSlugsByIndex(0, 1)
+
+        assertThat(searchResult).hasSize(2)
+        assertThat(ids).containsExactlyInAnyOrderElementsOf(expectationIds)
+    }
+
+    @Transactional
+    @Rollback
+    @Test
     fun `search project by namespace`() {
         createMockedProjects()
         var searchResult = service.searchProjects(SearchRequest(
@@ -1140,8 +1167,8 @@ class MarketplaceServiceTest : AbstractRepositoryTest() {
         val dataProcessor7 = EntityMocks.dataOperation(codeProject = codeProject7, author = author1, slug = "op-3")
         val dataProcessor9 = EntityMocks.dataVisualization(codeProject = codeProject9, author = author1, slug = "vis-3")
 
-        val version0 = EntityMocks.processorVersion(dataProcessor0, "modelType0", "mlCategory0", publisher = author1)
-        val version1 = EntityMocks.processorVersion(dataProcessor1, "modelType1", "mlCategory1", publisher = author2)
+        val version0 = EntityMocks.processorVersion(dataProcessor0, "modelType0", "mlCategory0", publisher = author1, publishFinishedAt = ZonedDateTime.now())
+        val version1 = EntityMocks.processorVersion(dataProcessor1, "modelType1", "mlCategory1", publisher = author2, publishFinishedAt = ZonedDateTime.now())
         val version2 = EntityMocks.processorVersion(dataProcessor2, "modelType2", "mlCategory2", publisher = author1)
         val version3 = EntityMocks.processorVersion(dataProcessor3, "modelType3", "mlCategory3", publisher = author2)
         val version4 = EntityMocks.processorVersion(dataProcessor4, "modelType4", "mlCategory4", publisher = author1)

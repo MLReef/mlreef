@@ -78,6 +78,9 @@ data class PublishingInfo(
     @Column(name = "published_at")
     val publishedAt: ZonedDateTime? = null,
 
+    @Column(name = "publish_finished_at")
+    val finishedAt: ZonedDateTime? = null,
+
     @Column(name = "publish_secret")
     val secret: String? = null,
 
