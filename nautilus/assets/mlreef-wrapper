@@ -1,11 +1,17 @@
 #!/bin/bash
 
 set -e
+set -m
 
 echo "MLReef Rocks"
 java -version
 
 # call the Gitlab wrapper
-/assets/wrapper
+/assets/wrapper > /dev/null &
+
+#Start the PostgreSQL mlreefdb server
+pg_ctlcluster 11 main start
 
 # java -cp app:app/lib/* com.mlreef.rest.RestApplicationKt
+
+fg %1
