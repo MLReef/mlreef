@@ -10,7 +10,6 @@ const groupName = 'Group-name';
 const groupDescription = 'A group to contain some testing projects';
 const projectsList = projectsArrayMock.projects.all;
 
-
 const setup = (description) => {
   groupActions.getGroupUsers = jest.fn(() => new Promise((resolve) => resolve(membersMock)));
   return mount(

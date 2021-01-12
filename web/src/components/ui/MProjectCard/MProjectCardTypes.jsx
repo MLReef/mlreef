@@ -1,23 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
-
-import { PROJECT_DATA_TYPES } from 'domain/project/ProjectDataTypes';
-
-const dataTypesMetadata = [
-  { label: 'Any', dataTypeName: PROJECT_DATA_TYPES.ANY, icon: 'fas fa-archive' },
-  { label: 'Audio', dataTypeName: PROJECT_DATA_TYPES.AUDIO, icon: 'fa fa-volume-up t-info' },
-  { label: 'Bin', dataTypeName: PROJECT_DATA_TYPES.BINARY, icon: 'fas fa-barcode t-info' },
-  { label: 'None', dataTypeName: PROJECT_DATA_TYPES.NONE, icon: '' },
-  { label: 'Hier', dataTypeName: PROJECT_DATA_TYPES.HIERARCHICAL, icon: 'fas fa-sitemap t-info' },
-  { label: 'Image', dataTypeName: PROJECT_DATA_TYPES.IMAGE, icon: 'fas fa-images', style: { color: '#D2519D' }},
-  { label: 'Tabular', dataTypeName: PROJECT_DATA_TYPES.TABULAR, icon: 'fas fa-grip-lines-vertical t-warning' },
-  { label: 'Text', dataTypeName: PROJECT_DATA_TYPES.TEXT, icon: 'fa fa-file t-success' },
-  { label: 'T.Series', dataTypeName: PROJECT_DATA_TYPES.TIME_SERIES, icon: 'fas fa-hourglass-end', style: { color: '#D2519D' }},
-  { label: 'Video', dataTypeName: PROJECT_DATA_TYPES.VIDEO, icon: 'fa fa-video t-danger' },
-  { label: 'Model', dataTypeName: PROJECT_DATA_TYPES.MODEL, icon: 'fas fa-project-diagram', style: { color: '#D2519D' }},
-  { label: 'Number', dataTypeName: PROJECT_DATA_TYPES.NUMBER, icon: 'fas fa-calculator t-info' },
-];
+import { dataTypesMetadata } from 'dataTypes';
 
 const MProjectCardTypes = (props) => {
   const {
