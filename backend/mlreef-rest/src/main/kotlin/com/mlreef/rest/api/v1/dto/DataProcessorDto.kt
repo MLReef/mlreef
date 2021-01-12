@@ -1,5 +1,6 @@
 package com.mlreef.rest.api.v1.dto
 
+import com.fasterxml.jackson.annotation.JsonInclude
 import com.mlreef.rest.DataProcessor
 import com.mlreef.rest.DataProcessorType
 import com.mlreef.rest.DataType
@@ -11,6 +12,7 @@ import com.mlreef.rest.helpers.DataClassWithId
 import java.time.ZonedDateTime
 import java.util.UUID
 
+@JsonInclude(JsonInclude.Include.NON_NULL)
 data class DataProcessorDto(
     override val id: UUID,
     val slug: String,
@@ -21,7 +23,8 @@ data class DataProcessorDto(
     val visibilityScope: VisibilityScope,
     val description: String,
     val codeProjectId: UUID?,
-    val authorId: UUID?
+    val authorId: UUID?,
+    val versions: List<ProcessorVersionDto>? = null, //later when we have processorVersions as OneToMany it will be right type still
 ) : DataClassWithId
 
 
@@ -36,9 +39,11 @@ internal fun DataProcessor.toDto(): DataProcessorDto =
         inputDataType = this.inputDataType,
         outputDataType = this.outputDataType,
         visibilityScope = this.visibilityScope,
-        codeProjectId = this.codeProjectId
+        codeProjectId = this.codeProjectId,
+        versions = this.processorVersion?.let { listOf(it.toDto()) }
     )
 
+@JsonInclude(JsonInclude.Include.NON_NULL)
 data class ProcessorVersionDto(
     override val id: UUID,
     val slug: String,

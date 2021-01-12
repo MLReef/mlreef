@@ -218,7 +218,10 @@ internal fun dataProcessorFields(prefix: String = ""): MutableList<FieldDescript
         fieldWithPath(prefix + "description").optional().type(JsonFieldType.STRING).description("Description"),
         fieldWithPath(prefix + "code_project_id").type(JsonFieldType.STRING).optional().description("CodeProject this Processor belongs to"),
         fieldWithPath(prefix + "author_id").optional().type(JsonFieldType.STRING).optional().description("Author who created this")
-    )
+    ).apply {
+        add(fieldWithPath(prefix + "versions").optional().type(JsonFieldType.ARRAY).description("Data processor versions"))
+        addAll(processorVersionFields(prefix + "versions[]."))
+    }
 }
 
 internal fun processorVersionFields(prefix: String = ""): MutableList<FieldDescriptor> {
