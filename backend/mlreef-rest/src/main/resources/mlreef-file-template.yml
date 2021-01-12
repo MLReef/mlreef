@@ -41,7 +41,7 @@ before_script:
   #- it just aint working!
   # https://stackoverflow.com/questions/42074414/gitlab-push-to-a-repository-using-access-token
   # git remote add origin https://oauth2:<my-token>@gitlab.com/my-user/my-repo.git
-  - git remote set-url origin "http://oauth2:$GIT_PUSH_TOKEN@$EPF_GITLAB_HOST:10080/$CI_PROJECT_PATH.git"
+  - git remote set-url origin "http://oauth2:$GIT_PUSH_TOKEN@$EPF_GITLAB_HOST/$CI_PROJECT_PATH.git"
   - git config --global user.email "$GIT_PUSH_EMAIL"
   - git config --global user.name "$GIT_PUSH_NAME"
   - echo "Target branch is $TARGET_BRANCH"
