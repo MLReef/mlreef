@@ -1,0 +1,52 @@
+$border-size: 0 0 1px 1.5px;
+.data-provider-card {
+  width: fit-content;
+  &-container {
+    box-shadow: $border-size var(--almostWhite);
+    background-color: var(--white);
+    width: 275px;
+    padding: 1rem;
+    border-radius: 7.5px;
+
+    &-header {
+      color: var(--dark);
+      p {
+        font-size: 1.3rem;
+        margin: 0 0 0 1rem;
+        padding: 0;
+        font-weight: 700;
+      }
+      align-items: center;
+      overflow: hidden;
+    }
+
+    &-content {
+      margin: 1rem 0rem 1rem 0rem;
+      color: var(--dark);
+      p {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        font-size: 1rem;
+        justify-content: left;
+      }
+    }
+
+    &-gray-zone {
+      height: 8rem;
+      background-color: var(--lessWhite);
+      margin-bottom: 1rem;
+    }
+
+    &-tags-zone {
+      font-size: 1rem;
+      color: var(--lessWhite);
+      background-color: var(--almostWhite);
+      padding: 0.25rem 0rem 1rem 0.25rem;
+    }
+  }
+
+  &-container:hover {
+    cursor: pointer;
+    box-shadow: $border-size var(--info);
+  }
+}

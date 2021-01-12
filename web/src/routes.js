@@ -41,6 +41,7 @@ import DemoView from 'components/Demo';
 import DetailedRepositoryView from 'components/views/DetailedRepositoryView';
 import BasicMergeRequestView from './components/mergeRequestDetailView/basicMergeRequestView';
 import Publications from 'components/views/Publications/Publications';
+import ImportDataOverview from 'components/views/ImportDataOverview'
 
 export default [
   {
@@ -454,6 +455,12 @@ export default [
     meta: {
       authRequired: true,
     },
+  },
+  {
+    name: 'import-data',
+    path: '/import-data/-/overview',
+    exact: true,
+    component: ImportDataOverview,
   },
   {
     name: 'empty',

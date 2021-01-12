@@ -1,0 +1,32 @@
+#data-providers {
+  max-width: 1280px;
+}
+
+.imp-data-overview-cont {
+  background-color: #f2f2f2;
+  .data-providers-tab {    
+    &-buttons {
+      margin: 1rem 0rem 2rem 0rem;
+      button {
+        margin-right: 1rem;
+     }
+    } 
+    
+    &-cards {
+     margin-top: 1rem;
+     justify-content: center;
+     &-empty {
+       color: var(--lessWhite);
+       div {
+         img {
+           height: 70px;
+           margin: auto
+         }
+        }
+        p {
+         text-align: center;
+        }
+      }
+    }
+  }
+}
