@@ -39,9 +39,10 @@ import Redirect from 'components/commons/Redirect';
 // this is component for testing layout and should be removed after alpha
 import DemoView from 'components/Demo';
 import DetailedRepositoryView from 'components/views/DetailedRepositoryView';
-import BasicMergeRequestView from './components/mergeRequestDetailView/basicMergeRequestView';
 import Publications from 'components/views/Publications/Publications';
+import FileCreation from 'components/views/FileCreation';
 import ImportDataOverview from 'components/views/ImportDataOverview'
+import BasicMergeRequestView from './components/mergeRequestDetailView/basicMergeRequestView';
 
 export default [
   {
@@ -161,6 +162,30 @@ export default [
     meta: {
       authRequired: true,
       owneronly: true,
+    },
+  },
+  {
+    name: 'file-creation-1',
+    path: '/:namespace/:slug/-/tree/branch/:branch/path/:path/file/new',
+    component: FileCreation,
+    meta: {
+      authRequired: true,
+    },
+  },
+  {
+    name: 'file-creation-2',
+    path: '/:namespace/:slug/-/tree/branch/:branch/file/new',
+    component: FileCreation,
+    meta: {
+      authRequired: true,
+    },
+  },
+  {
+    name: 'file-creation-3',
+    path: '/:namespace/:slug/-/tree/file/new',
+    component: FileCreation,
+    meta: {
+      authRequired: true,
     },
   },
   {

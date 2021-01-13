@@ -184,6 +184,16 @@ exports[`The branches list should be displayed when dropdown button is clicked d
               New branch
             </a>
           </li>
+          <li
+            className="plus-option"
+          >
+            <a
+              href="/my-namespace/the-project-name/-/tree/branch/master/path/src/file/new"
+              onClick={[Function]}
+            >
+              New file
+            </a>
+          </li>
         </ul>
       </div>
     </div>

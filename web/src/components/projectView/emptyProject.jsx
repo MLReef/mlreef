@@ -8,13 +8,20 @@ const EmptyProject = ({ httpUrlToRepo, namespace, slug }) => (
     <div id="empty-project">
       <h4 style={{ fontSize: '1.3125rem', color: '#2e2e2e', marginBottom: '0.5rem' }}>The repository for this project is empty</h4>
       <h3>Get started with the following options:</h3>
-      <div style={{ display: 'flex' }}>
+      <div className="d-flex">
         <Link
           type="button"
           className="btn btn-primary mr-3"
           to={`/${namespace}/${slug}/master/upload-file/path/`}
         >
           Upload File
+        </Link>
+        <Link
+          type="button"
+          className="btn btn-primary mr-3"
+          to={`/${namespace}/${slug}/-/tree/file/new`}
+        >
+          Create File
         </Link>
       </div>
     </div>

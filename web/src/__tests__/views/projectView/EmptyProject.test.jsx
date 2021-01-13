@@ -28,7 +28,9 @@ describe('', () => {
     expect(emptyProjProps.httpUrlToRepo).toBe(project.httpUrlToRepo);
     expect(emptyProjProps.namespace).toBe(project.namespace);
     expect(emptyProjProps.slug).toBe(project.slug);
+    const links = wrapper.find('Link');
 
-    expect(wrapper.find('Link').props().to).toBe(`/${project.namespace}/${project.slug}/master/upload-file/path/`);
+    expect(links.at(0).props().to).toBe(`/${project.namespace}/${project.slug}/master/upload-file/path/`);
+    expect(links.at(1).props().to).toBe(`/${project.namespace}/${project.slug}/-/tree/file/new`);
   });
 });

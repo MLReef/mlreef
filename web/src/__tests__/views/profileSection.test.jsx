@@ -3,7 +3,6 @@ import { shallow } from 'enzyme';
 import { storeFactory } from 'functions/testUtils';
 import { userProfileMock } from 'testData';
 import ProfileSection from 'components/views/userSettings/ProfileSection';
-import 'babel-polyfill';
 
 const user = {
   auth: true,

@@ -136,6 +136,11 @@ export class RepoFeatures extends Component {
                       New branch
                     </Link>
                   </li>
+                  <li className="plus-option">
+                    <Link to={`/${namespace}/${slug}/-/tree/branch/${currentBranch}/${path ? `path/${path}/` : ''}file/new`}>
+                      New file
+                    </Link>
+                  </li>
                 </ul>
               </div>
             )}

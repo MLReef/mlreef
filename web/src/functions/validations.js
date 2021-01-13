@@ -72,3 +72,28 @@ export const validateForm = (files, dataProcessors) => {
     .reduce((a, b) => a + b);
   return invalidParamsCount === 0;
 }
+
+
+export const validateBranchName = (branchName) => {
+  if (!branchName.length > 0) {
+    return false;
+  }
+
+  if (branchName.startsWith('-')) {
+    return false;
+  }
+  let bannedCharCount = 0;
+
+  if (/^(new|new-branch)$/.test(branchName)) {
+    bannedCharCount += 1;
+  }
+
+  
+  bannedCharsArray.forEach((char) => {
+    if (branchName.includes(char)) {
+      bannedCharCount += 1;
+    }
+  });
+
+  return bannedCharCount === 0;
+}
