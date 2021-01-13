@@ -21,7 +21,7 @@ const mergeWithGitlabProject = (project) => projectApi.getProjectInfoApi(project
 // to get them within each project
 const mergeGitlabResource = (projects) => projects.map((project) => ({
   ...project,
-  members: projectApi.getUsers(project.gitlabId),
+  members: projectApi.getUsers(project.gitlabId).catch(() => []),
 }));
 
 /**

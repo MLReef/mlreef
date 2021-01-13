@@ -3,6 +3,7 @@ import {
   shape, arrayOf, string, bool,
 } from 'prop-types';
 import { Link } from 'react-router-dom';
+import { toastr } from 'react-redux-toastr';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { ML_PROJECT } from 'dataTypes';
@@ -38,6 +39,10 @@ class MProjectClassification extends Component {
     this.updateActiveButtons();
   }
 
+  componentDidUpdate() {
+    this.updateActiveButtons();
+  }
+
   changeScreen = async (screen) => {
     const {
       history: {
@@ -46,6 +51,7 @@ class MProjectClassification extends Component {
           pathname,
         },
       },
+      userInfo: { username },
       classification,
       actions,
     } = this.props;
@@ -65,23 +71,27 @@ class MProjectClassification extends Component {
       actions.getPaginatedProjectsByQuery(`${projectUrl}?page=${page}&size=${size}`, true)
         .then(() => actions.setIsLoading(false));
     } else {
-      let body = {
-        visibility: 'PUBLIC',
-      };
-
+      let body = {};
       if (screen === '#personal') {
         body = {
           ...body,
-          visibility: 'PRIVATE',
-        }
+          namespace: username,
+        };
+      } else if (screen === '#explore') {
+        body = {
+          ...body,
+          visibility: 'PUBLIC',
+        };
       } else if (screen === '#starred') {
         body = {
           ...body,
           min_stars: 1,
         };
       }
+
       actions.getProcessorsPaginated(getSearchable(classification), body, page, size)
-        .then(() => actions.setIsLoading(false));
+        .then(() => actions.setIsLoading(false))
+        .catch((err) => toastr.error('Error', err.message));
     }
     push(`${pathname}${screen}`);
   }
@@ -316,6 +326,12 @@ MProjectClassification.defaultProps = {
   isLoading: false,
 };
 
+function mapStateToProps(state) {
+  return {
+    userInfo: state.user.userInfo,
+  };
+}
+
 function mapDispatchToProps(dispatch) {
   return {
     actions: bindActionCreators({
@@ -326,4 +342,4 @@ function mapDispatchToProps(dispatch) {
   };
 }
 
-export default connect(() => ({}), mapDispatchToProps)(MProjectClassification);
+export default connect(mapStateToProps, mapDispatchToProps)(MProjectClassification);
