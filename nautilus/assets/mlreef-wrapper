@@ -6,6 +6,10 @@ set -m
 echo "MLReef Rocks"
 java -version
 
+# Start the API Gateway
+# NGINX will self-daemonize and run in the background
+/usr/sbin/nginx
+
 # call the Gitlab wrapper
 /assets/wrapper > /dev/null &
 
@@ -13,5 +17,7 @@ java -version
 pg_ctlcluster 11 main start
 
 # java -cp app:app/lib/* com.mlreef.rest.RestApplicationKt
+
+
 
 fg %1
