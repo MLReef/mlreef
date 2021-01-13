@@ -113,28 +113,12 @@ class Myprojects extends React.Component {
         setIsLoading,
         getProcessorsPaginated,
       },
-      location: {
-        hash,
-      },
+      userInfo: { username },
     } = this.props;
     setIsLoading(true);
-
-    let body = { 
-      visibility: 'PUBLIC',
+    const body = {
+      namespace: username,
     };
-
-    if (hash === '#personal') {
-      body = {
-        ...body,
-        visibility: 'PRIVATE',
-      }
-    } else if (hash === '#starred') {
-      body = {
-        ...body,
-        min_stars: 1,
-      };
-    }
-
     try {
       Promise.all([
         getProcessorsPaginated(
@@ -187,6 +171,19 @@ class Myprojects extends React.Component {
     }
   }
 
+  cleanPreviousParams = () => {
+    const {
+      actions,
+      history,
+    } = this.props;
+
+    actions.setProjectsInfoSuccessfully([]);
+    actions.setStarredProjectsSuccessfully([]);
+    actions.setUserProjectsSuccessfully([]);
+    history.push('/#personal');
+    actions.setIsLoading(true);
+  }
+
   render() {
     const {
       allProjects,
@@ -215,9 +212,7 @@ class Myprojects extends React.Component {
             label="ML Projects"
             color={projectClassificationsProps[0].color}
             callback={() => {
-              actions.setProjectsInfoSuccessfully([]);
-              actions.setStarredProjectsSuccessfully([]);
-              actions.setUserProjectsSuccessfully([]);
+              this.cleanPreviousParams();
               this.setState(() => ({
                 page: 0,
               }), this.fetchDataProjects);
@@ -238,11 +233,8 @@ class Myprojects extends React.Component {
             label="Models"
             color={projectClassificationsProps[1].color}
             callback={() => {
+              this.cleanPreviousParams();
               try {
-                actions.setProjectsInfoSuccessfully([]);
-                actions.setStarredProjectsSuccessfully([]);
-                actions.setUserProjectsSuccessfully([]);
-                actions.setIsLoading(true);
                 this.setState(() => ({
                   page: 0,
                 }), this.fetchCodeProjects(0, PROJECT_TYPES.ALGORITHM));
@@ -267,10 +259,7 @@ class Myprojects extends React.Component {
             color={projectClassificationsProps[2].color}
             callback={() => {
               try {
-                actions.setIsLoading(true);
-                actions.setProjectsInfoSuccessfully([]);
-                actions.setStarredProjectsSuccessfully([]);
-                actions.setUserProjectsSuccessfully([]);
+                this.cleanPreviousParams();
                 this.setState(() => ({
                   page: 0,
                 }), this.fetchCodeProjects(0, PROJECT_TYPES.OPERATION));
@@ -295,10 +284,7 @@ class Myprojects extends React.Component {
             color={projectClassificationsProps[3].color}
             callback={() => {
               try {
-                actions.setIsLoading(true);
-                actions.setProjectsInfoSuccessfully([]);
-                actions.setStarredProjectsSuccessfully([]);
-                actions.setUserProjectsSuccessfully([]);
+                this.cleanPreviousParams();
                 this.setState(() => ({
                   page: 0,
                 }), this.fetchCodeProjects(0));
@@ -331,6 +317,7 @@ function mapStateToProps(state) {
     starredProjects: state.projects.starredProjects,
     groups: state.groups,
     isLoading: state.globalMarker?.isLoading,
+    userInfo: state.user.userInfo,
   };
 }
 
