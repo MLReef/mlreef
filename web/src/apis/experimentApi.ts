@@ -1,8 +1,8 @@
+import { handleResponse } from 'functions/helpers';
 import ApiDirector from './ApiDirector';
 import ApiRequestCallBuilder from './apiBuilders/ApiRequestCallBuilder';
 import { METHODS, validServicesToCall } from './apiBuilders/requestEnums';
 import BodyLessApiRequestCallBuilder from './apiBuilders/BLApiRequestCallBuilder';
-import { handleResponse } from 'functions/helpers';
 
 export default class ExperimentsApi extends ApiDirector {
   async createExperiment(backendId: string, body: string) {
@@ -16,17 +16,13 @@ export default class ExperimentsApi extends ApiDirector {
       .then(handleResponse);
   }
 
-  async startExperiment(dataProjectId: string, experimentId: string) {
+  startExperiment(dataProjectId: string, experimentId: string) {
     const builder = new BodyLessApiRequestCallBuilder(
       METHODS.POST, 
       this.buildBasicHeaders(validServicesToCall.BACKEND), 
       `/api/v1/data-projects/${dataProjectId}/experiments/${experimentId}/start`
     );
-    const response = await fetch(builder.build());
-    if (!response.ok) {
-      return Promise.reject(response);
-    }
-    return response;
+    return fetch(builder.build()).then(handleResponse);
   }
 
   async getExperimentDetails(backendId: string, experimentID: string) {

@@ -18,9 +18,10 @@ import Success from '../images/Pipeline_Success.png';
 import Fail from '../images/Pipeline_Fail.png';
 
 const dataPipelineApi = new DataPipelineApi();
+const expApi = new ExperimentsApi();
 
 const createFieldsForDB = (files) => files.map((file) => ({
-  location: file.path, 
+  location: file.path,
   location_type: file.type === 'blob' ? 'PATH_FILE' : 'PATH_FOLDER',
 }));
 
@@ -68,50 +69,35 @@ const createExperimentInProject = (
   branchName,
   branchSelected,
   filesSelectedInModal,
-) => {
-  const expApi = new ExperimentsApi();
-  const experimentData = dataOperationsSelected[0];
-  const { parameters, slug } = experimentData;
-  const experimentBody = {
-    slug: branchName, // slug is NOT the branch name, it needs replacement
-    name: branchName,
-    source_branch: branchSelected,
-    target_branch: branchName,
-    input_files: createFieldsForDB(filesSelectedInModal),
-    processing: {
-      slug,
-      parameters: parameters.map(({
-        name, value, type, required, description, default_value: defaultValue,
-      }) => ({
-        name,
-        value: value || defaultValue,
-        type,
-        required,
-        description,
-      })),
-    },
-  };
-  expApi.createExperiment(backendId, experimentBody)
-    .then((experiment) => {
-      toastr.success('Success', 'Experiment was generated');
-      expApi.startExperiment(backendId, experiment.id)
-        .then((res) => {
-          if (res.ok) {
-            toastr.success('Success', 'Experiment was started');
-          } else {
-            return Promise.reject(res);
-          }
-          return null;
-        });
-    })
-    .catch((err) => {
-      toastr.error('Error', err);
-    });
-};
+) => dataOperationsSelected
+  .forEach(({ parameters, slug }, index) => expApi
+    .createExperiment(
+      backendId, {
+        slug: `${branchName}-${index}`, // slug is NOT the branch name, it needs replacement
+        name: `${branchName}-${index}`,
+        source_branch: branchSelected,
+        target_branch: `${branchName}-${index}`,
+        input_files: createFieldsForDB(filesSelectedInModal),
+        processing: {
+          slug,
+          parameters: parameters.map(({
+            name, value, type, required, description, default_value: defaultValue,
+          }) => ({
+            name,
+            value: value || defaultValue,
+            type,
+            required,
+            description,
+          })),
+        },
+      })
+    .then((experiment) => expApi.startExperiment(backendId, experiment.id))
+    .then(() => toastr.success('Success', 'The experiment has started'))
+    .catch((err) => toastr.error('Error', err)));
 
 export default createExperimentInProject;
 
-/* ----------------------------  ----------------------------------  -------------------------------*/
+/* ---------------------------  ----------------------------------  ------------------------------*/
 
 /**
  * Utility to generate names for branches principally
