@@ -1,0 +1,32 @@
+.file-creation {
+  color: var(--dark);
+  &-nav-bar {
+    background-color: var(--almostWhite);
+    &-bread-crumbs {
+      margin: 0 5rem;
+      padding: 0.5rem;
+      max-width: 1024px;
+    }
+  }
+  &-container {
+    margin: 0 5rem;
+    padding: 0.5rem;
+
+    &-options {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.25rem 2.5rem ;
+      background-color: var(--almostWhite);
+    }
+
+    &-editor {
+      border: 1px solid var(--almostWhite);
+    }
+
+    &-buttons {
+      display: flex;
+      justify-content: flex-end;
+    }
+  }
+}

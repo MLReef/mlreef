@@ -12,10 +12,10 @@ import ProjectContainer from 'components/projectContainer';
 import Navbar from 'components/navbar/navbar';
 import BranchesApi from 'apis/BranchesApi.ts';
 import { generateBreadCrumbs } from 'functions/helpers';
+import { validateBranchName } from 'functions/validations';
 import './NewBranch.scss';
 
 const brApi = new BranchesApi();
-const bannedCharacters = [' ', '..', '~', '^', ':', '\\', '{', '}', '[', ']', '$', '#', '&', '%', '*', '+', '¨', '"', '!'];
 
 class NewBranch extends Component {
   constructor(props) {
@@ -32,29 +32,6 @@ class NewBranch extends Component {
   setBranchSelected = (branchSelected) => this.setState(() => ({
     branchSelected,
   }));
-
-  validateBranchName = (branchName) => {
-    if (!branchName.length > 0) {
-      return false;
-    }
-
-    if (branchName.startsWith('-')) {
-      return false;
-    }
-    let bannedCharCount = 0;
-
-    if (/^(new|new-branch)$/.test(branchName)) {
-      bannedCharCount += 1;
-    }
-
-    bannedCharacters.forEach((char) => {
-      if (branchName.includes(char)) {
-        bannedCharCount += 1;
-      }
-    });
-
-    return bannedCharCount === 0;
-  }
 
   handleCancel = () => {
     const {
@@ -139,7 +116,7 @@ class NewBranch extends Component {
       },
     ];
 
-    const isValidBranchName = this.validateBranchName(newBranchName);
+    const isValidBranchName = validateBranchName(newBranchName);
     const isEnabledCreateBranchButton = ((branchSelected !== null && branchSelected !== '') && isValidBranchName);
 
     return redirect ? (
