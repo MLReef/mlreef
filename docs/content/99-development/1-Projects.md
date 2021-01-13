@@ -1,6 +1,19 @@
 Projects
 ====================
 
+### Projects Forking
+Forking of all projects in MLReef follows the same principles, no matter if a Code Project or a Data Project is forked.
+
+```mermaid
+sequenceDiagram
+  Frontend->>+Backend:    "send forking request"
+  Backend->>-Gitlab:      "send forking request"
+  Note over Backend,Gitlab: "creates a new Gitlab project"
+  Gitlab ->>+Backend: "respond with GitlabProject entity"
+  Backend ->>+Backend: "create MLReef project entity"
+  Backend-->>-Frontend:   "send forking response"
+```
+
 Code Projects
 --------------------
 

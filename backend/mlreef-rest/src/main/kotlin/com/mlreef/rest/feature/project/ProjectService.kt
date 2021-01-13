@@ -459,6 +459,11 @@ open class ProjectServiceImpl<T : Project>(
         return codeProject
     }
 
+    /**
+     * For more information see
+     * https://gitlab.com/mlreef/mlreef/-/blob/master/docs/content/99-development/1-Projects.md
+     *
+     */
     @Suppress("UNCHECKED_CAST")
     override fun forkProject(userToken: String, originalId: UUID, creatorId: UUID, name: String?, path: String?): T {        val original = repository.findByIdOrNull(originalId)
             ?: throw ProjectNotFoundException(originalId)
