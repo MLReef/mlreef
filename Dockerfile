@@ -24,7 +24,10 @@ ENV GITLAB_OMNIBUS_CONFIG "\
     # Access port for the internal Docker registry              \
     # (has to be exposed via Docker as well)                    \
     registry_nginx['listen_port'] = 5050;                       \
+    redis['bind'] = '127.0.0.1';                                \
+    redis['port'] = 6379;                                       \
     "
+
 ENV GITLAB_HTTPS "false"              # TODO: is this correct, can it be moved in the above GITLAB_OMNIBUS_CONFIG block
 ENV GITLAB_ROOT_PASSWORD 'password'   # TODO: is this correct, can it be moved in the above GITLAB_OMNIBUS_CONFIG block
 ENV TZ 'Austria/Vienna'               # TODO: is this correct, can it be moved in the above GITLAB_OMNIBUS_CONFIG block
@@ -47,12 +50,22 @@ ENV DB_USER "mlreef"
 # Backend DB password
 ENV DB_PASS "password"
 # Backend DB name
-ENV DB_NAME "mlreef_backen"
+ENV DB_NAME "mlreef_backend"
 # Backend Redis host
 ENV REDIS_HOST "localhost"
 # Backend Startup delay
 ENV STARTUP_DELAY "30"
 
+###
+### GITLAB RUNNER
+###
+# Install Gitlab Runner in Docker container
+# https://docs.gitlab.com/runner/install/linux-manually.html
+RUN apt-get update                          && \
+    curl -L https://packages.gitlab.com/install/repositories/runner/gitlab-runner/script.deb.sh | bash  && \
+    apt-get install --yes gitlab-runner     && \
+    apt-get clean                           && \
+    gitlab-runner --version
 
 
 ###
@@ -98,11 +111,11 @@ RUN echo "host all all 0.0.0.0/0 md5" >> /etc/postgresql/${PG_VERSION}/main/pg_h
     cat /etc/postgresql/${PG_VERSION}/main/postgresql.conf
 
 #Default DB, DB user and extension creation 
-RUN cat /etc/postgresql/${PG_VERSION}/main/postgresql.conf | grep port && pg_ctlcluster 11 main start            && \
-    ps -ef | grep postgres                                                                                       && \
-    su -c - postgres "psql -p ${DB_PORT} --command \"CREATE USER $DB_USER WITH SUPERUSER PASSWORD '$DB_PASS';\"" && \
-    su -c - postgres "createdb -p ${DB_PORT} -O ${DB_USER} ${DB_NAME}"                                           && \
-    su -c - postgres "psql -p ${DB_PORT} --command \"CREATE EXTENSION IF NOT EXISTS ${DB_EXTENSION};\""          && \
+RUN cat /etc/postgresql/${PG_VERSION}/main/postgresql.conf | grep port && pg_ctlcluster 11 main start              && \
+    ps -ef | grep postgres                                                                                         && \
+    su -c - postgres "psql -p ${DB_PORT} --command \"CREATE USER $DB_USER WITH SUPERUSER PASSWORD '$DB_PASS';\""   && \
+    su -c - postgres "createdb -p ${DB_PORT} -O ${DB_USER} ${DB_NAME}"                                             && \
+    su -c - postgres "psql -p ${DB_PORT} ${DB_NAME} --command \"CREATE EXTENSION IF NOT EXISTS ${DB_EXTENSION};\"" && \
     pg_ctlcluster 11 main stop
 
 
