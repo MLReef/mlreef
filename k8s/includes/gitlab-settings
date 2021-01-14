@@ -1,0 +1,5 @@
+#!/bin/bash
+# Set max_artifacts_size using api
+setMaxArtifactSizeForGitlab() {
+  curl --request PUT --header "PRIVATE-TOKEN: $GITLAB_ADMIN_TOKEN" "gitlab.$INSTANCE_HOST"/"api/v4/application/settings?max_artifacts_size=2048"
+}

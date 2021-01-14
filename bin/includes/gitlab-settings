@@ -1,0 +1,12 @@
+#!/bin/bash
+# shellcheck disable=SC2120  # function references arguments, but none are ever passed. See SC2120.
+
+# Checks if gitlab is present at $INSTANCE:10081 which is mapped to "gitlab:80" with a _curl_ request
+# This is the default setting
+#
+# @returns: The HTTP code received by _curl_.
+# 302: means that Gitlab is up and running
+# 502: Gitlab is still starting or broken
+setMaxArtifactSizeForGitlab() {
+  curl --request PUT --header "PRIVATE-TOKEN: $GITLAB_ADMIN_TOKEN" "$INSTANCE_HOST":"$GITLAB_PORT"/"api/v4/application/settings?max_artifacts_size=2048"
+}
