@@ -8,16 +8,19 @@ java -version
 
 # Start the API Gateway
 # NGINX will self-daemonize and run in the background
+
+# TODO FIXME: nginx: [emerg] "gzip" directive is duplicate in /etc/nginx/conf.d/default.conf:14
+sed -i "/gzip on;/d" /etc/nginx/conf.d/default.conf
+sed -i "s/gitlab:10080/localhost:10080/" /etc/nginx/conf.d/default.conf
+sed -i "s/backend:8080/localhost:8080/" /etc/nginx/conf.d/default.conf
+echo "########################"
+
 /usr/sbin/nginx
 
 # call the Gitlab wrapper
-/assets/wrapper > /dev/null &
+/assets/wrapper > /dev/null
 
-#Start the PostgreSQL mlreefdb server
+# Start the PostgreSQL mlreefdb server
 pg_ctlcluster 11 main start
 
 # java -cp app:app/lib/* com.mlreef.rest.RestApplicationKt
-
-
-
-fg %1
