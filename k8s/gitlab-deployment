@@ -6,6 +6,7 @@ cd "$(dirname "$0")"/..
 . k8s/includes/log
 . k8s/includes/ci-environment
 . k8s/includes/gitlab-health
+. k8s/includes/gitlab-settings
 ########################################
 set -x  # output all commands
 set -o  pipefail
@@ -198,6 +199,9 @@ kubectl exec -it $gitlab_pod_name -- sh -c "$(cat << EOM
   )"
 EOM
 )" #end of $(cat …)
+
+#Change gitlab default setting
+setMaxArtifactSizeForGitlab
 
 
 

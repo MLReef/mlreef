@@ -6,6 +6,7 @@ cd "$(dirname "$0")"/..
 . bin/includes/detect-docker-runtime
 . bin/includes/gitlab-health
 . bin/includes/install-parse-cli-params
+. bin/includes/gitlab-settings
 ########################################
 set -x  # output all commands
 set -o  pipefail
@@ -98,6 +99,13 @@ docker exec -t gitlab sh -c "$(cat << EOM
   )"
 EOM
 )" #end of $(cat …)
+
+#
+#
+# Step 3.1 Change gitlab settings
+#
+#
+setMaxArtifactSizeForGitlab
 
 
 #
