@@ -12,10 +12,10 @@ ARG NODE_OPTIONS="--max-old-space-size=2048"
 # add npm binaries to shell path
 ENV PATH /app/node_modules/.bin:$PATH
 
-# copy the frontend (ecept .dockerignore) to image
-COPY . /app
 # all following commands will be executed in /app
-WORKDIR /app
+WORKDIR /workdir
+# copy the sources to image (except .dockerignore)
+ADD . /workdir
 
 # create build.info with build and add build information to React's env variables
 RUN echo "Gitlab Pipeline $CI_PIPELINE_ID built on "$(date +%Y-%m-%d\ %H:%M:%S)  > build.info   && \
@@ -52,10 +52,10 @@ RUN echo "Frontend Build Time: $(date +%Y-%m-%d\ %H:%M:%S)" && \
 FROM nginx:latest AS PROD
 # Copy frontend production build from the NPM stage
 # This path has to correspond to the configuration in nginx_default.conf
-COPY --from=BUILDER /app/build /usr/share/nginx/html
+COPY --from=BUILDER /workdir/build /usr/share/nginx/html
 # Copy the test coverage report to the final stage
 # The CI pipeline later extracts this report and makes it available in Gitlab
-COPY --from=BUILDER /app/coverage /usr/share/coverage
+COPY --from=BUILDER /workdir/coverage /usr/share/coverage
 
 # Add nginx configuration. Note the name change of the file
 ADD nginx_default.conf /etc/nginx/conf.d/default.conf

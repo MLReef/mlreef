@@ -2,11 +2,12 @@ FROM gradle:6.5-jdk8 AS BUILDER
 
 ENV JVM_OPTS -Xmx2g -Xms2g -XX:MaxPermSize=1024m
 
-
 # provide a tmp/cache dir
 VOLUME /tmp
 
+# all following commands will be executed in /app
 WORKDIR /workdir
+# copy the sources to image (except .dockerignore)
 ADD . /workdir
 RUN gradle -x test :mlreef-rest:bootJar :mlreef-rest:prepareDocker -x :mlreef-rest:asciidoctor
 
