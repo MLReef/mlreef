@@ -91,6 +91,24 @@ stop_review:
     - kubectl delete ing -l ref=${CI_ENVIRONMENT_SLUG}
     - kubectl delete all -l ref=${CI_ENVIRONMENT_SLUG}
 
+clean rest docs folder:
+  extends: [.except-docu-branches]
+  stage: maintenance
+  <<: *run-on-pages-relevant-changes
+  image: registry.gitlab.com/systemkern/s5:1
+  allow_failure: true
+  cache:
+    key: pages-public-cache
+    paths:
+      - public/
+      - /usr/local/lib/node_modules
+      - docs/node_modules
+  # See bin/ci-pages for the exact path to where rest docs are deployed
+  script: |
+    chmod +x docs/bin/ci-pages-cleanup
+    docs/bin/ci-pages-cleanup
+
+
 .helper_functions: &helper_functions_template |
   function sed_files() {
     file_type=${1:-compose}

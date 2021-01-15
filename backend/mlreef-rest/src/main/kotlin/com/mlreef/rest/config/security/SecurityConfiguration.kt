@@ -43,6 +43,7 @@ class SecurityConfiguration(private val provider: AuthenticationProvider) : WebS
         webSecurity
             .ignoring()
             .antMatchers(
+                "/",
                 "/docs",
                 "/docs/*",
                 AUTH_LOGIN_URL,
