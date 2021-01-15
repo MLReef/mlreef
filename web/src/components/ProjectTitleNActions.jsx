@@ -9,10 +9,11 @@ import { toastr } from 'react-redux-toastr';
 import { plainToClass } from 'class-transformer';
 import DataProject from 'domain/project/DataProject';
 import MEmptyAvatar from 'components/ui/MEmptyAvatar/MEmptyAvatar';
-import MWrapper from 'components/ui/MWrapper';
 import MCloneDropdown from 'components/ui/MCloneDropdown';
 import MDropdown from 'components/ui/MDropdown';
 import SocialLinks from 'components/commons/SocialLinks';
+import MWrapper from 'components/ui/MWrapper';
+import { useGetOwned, useGetHasRole } from 'customHooks/permissions';
 import SEO from 'components/commons/SEO';
 import { PROJECT_TYPES } from 'domain/project/projectTypes';
 import CodeProject from 'domain/project/CodeProject';
@@ -39,6 +40,10 @@ const ProjectTitleNActions = (props) => {
   const isDataProject = project.projectType === PROJECT_TYPES.DATA_PROJ
     || project.projectType === PROJECT_TYPES.DATA;
 
+  const isOwner = useGetOwned();
+  const hasMinRole = useGetHasRole(10, { type: 'project' });
+  const forkable = !isOwner && !hasMinRole && true;
+
   useEffect(() => {
     setIsStarred(starrers ? starrers.length > 0 : null);
     setStarsCount(project.starsCount);
@@ -47,31 +52,6 @@ const ProjectTitleNActions = (props) => {
   const classProject = isDataProject
     ? plainToClass(DataProject, project)
     : plainToClass(CodeProject, project);
-  /* const [redirect, setRedirect] = React.useState(false); */
-  /*
-  Disable code because fork button currently does not render
-
-  function handleFork() {
-    let gid;
-    let projectName;
-    if (classProject) {
-      gid = classProject.gid;
-      projectName = classProject.name;
-    }
-
-    setIsForking(true);
-
-    projectGeneralInfoApi.forkProject(gid, userNamespace, projectName)
-      .then(
-        () => {
-          actions.getProjectsList();
-          setRedirect(true);
-        },
-      )
-      .finally(() => {
-        setIsForking(false);
-      });
-  } */
 
   function onClickStarBtn() {
     if (isDisabledStarBtn) return;
@@ -118,7 +98,6 @@ const ProjectTitleNActions = (props) => {
           </p>
         </div>
       </div>
-      {/* redirect ? <Redirect to="/" /> : null */}
       <div className="project-options ml-auto">
         {isStarred === null || isDisabledStarBtn ? (
           <MLoadingSpinner />
@@ -161,23 +140,22 @@ const ProjectTitleNActions = (props) => {
           />
         </div>
 
-        {classProject.defaultBranch !== null && (
-        <MWrapper norender>
+        {classProject.defaultBranch !== null && forkable && (
           <div className="options d-flex mr-2">
-            <button
-              type="button"
-              className="option-name btn btn-hidden border-rounded-left py-2 px-3 my-0"
-              /* onClick={handleFork} */
+            <Link
+              to={`/projects/${classProject.id}/fork`}
+              className="option-name btn btn-hidden border-rounded-left border-rounded-right py-2 px-3 my-0"
             >
               <img className="mr-0 mr-lg-1 repo-actions-image" src="/images/svg/fork_01.svg" alt="" />
               <span className="my-auto d-none d-lg-block">Fork</span>
-            </button>
+            </Link>
 
-            <div className="counter border-rounded-right h-100">
-              <span>{classProject.forksCount}</span>
-            </div>
+            <MWrapper norender title="Hidding the counter until the feature is ready in the API">
+              <div className="counter border-rounded-right h-100">
+                <span>{classProject.forksCount}</span>
+              </div>
+            </MWrapper>
           </div>
-        </MWrapper>
         )}
         <div className="options d-flex">
           <div className="option-name border-rounded-left py-2 px-3 my-0">
@@ -222,8 +200,6 @@ ProjectTitleNActions.propTypes = {
   actions: shape({
     getProjectsList: func.isRequired,
   }).isRequired,
-  userNamespace: string.isRequired,
-  setIsForking: func,
   isLoading: bool.isRequired,
   userGid: number.isRequired,
 };

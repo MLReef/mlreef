@@ -4,6 +4,7 @@ import { bindActionCreators } from 'redux';
 import { Redirect } from 'react-router-dom';
 import * as PropTypes from 'prop-types';
 import { toastr } from 'react-redux-toastr';
+import MRadioGroup from 'components/ui/MRadio/MRadioGroup';
 import {
   projectClassificationsProps,
   privacyLevelsArr,
@@ -19,7 +20,6 @@ import MInput from 'components/ui/MInput';
 import MButton from 'components/ui/MButton';
 import { validateProjectName } from 'functions/validations';
 import { PROJECT_TYPES } from 'domain/project/projectTypes';
-import MRadioGroup from 'components/ui/MRadio/MRadioGroup';
 import SearchApi from 'apis/SearchApi';
 import * as projectActions from 'store/actions/projectInfoActions';
 import * as userActions from 'store/actions/userActions';

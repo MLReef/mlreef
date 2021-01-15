@@ -7,6 +7,9 @@ const projectApi = new ProjectGeneralInfoApi();
 jest.setTimeout(30000);
 let originalUUID;
 
+const defaultUser = 'mlreef';
+const forkableProjectName = 'sign-language-classifier';
+
 describe('Authenticated user', () => {
   beforeEach(async () => {
     // ----------- login with the user ----------- //
@@ -33,24 +36,23 @@ describe('Authenticated user', () => {
     expect(response.name).toBe(request.name);
     expect(response.slug).toBe(request.slug);
 
+    // eslint-disable-next-line
     originalUUID = response.id;
   });
 
-  test('Can fork own project ', async () => {
-    const request = {
-      target_namespace_gitlab_id: -1, // "null" implies forking to user's private namespace
-      target_name: 'New Name', // If null, defaults to original name
-      target_path: 'new-path', // If null, defaults to original path - needs to be set when forking within the same namespace
-    };
-    console.log(`Running forking test against id: ${originalUUID}. Request: ${JSON.stringify(request)}`);
-    const response = await projectApi.fork(originalUUID, request, false)
-      .catch((err) => {
-        console.log(err);
-        throw new Error(err);
-      });
+  test('Can fork a public project ', async () => {
+    const { user: { username } } = store.getState();
 
-    expect(response.name).toBe(request.target_name);
-    expect('new-path').toBe(request.target_path);
+    const forkable = await projectApi.getProjectDetails(defaultUser, forkableProjectName);
+
+    const response = await projectApi.fork(forkable.id, null, forkable.name);
+
+    const forked = await projectApi.getProjectDetails(username, response.slug);
+
+    expect(forked.name).toBe(forkable.name);
+
+    // still problems for deleting a forked
+    // await projectApi.removeProject(forked.id);
   });
 });
 

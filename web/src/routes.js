@@ -30,7 +30,7 @@ import CommitsView from 'components/CommitsView/CommitView';
 import InsightsView from 'components/insights/insights';
 import UploadFileView from 'components/views/uploadFile/uploadFile';
 import CommitDetailsView from 'components/commits-details/commitDetails';
-import ForkView from 'components/ForkView';
+import ForkView from 'components/views/ForkView';
 import PublishingView from 'components/views/PublishingView';
 import PublishProcessView from 'components/views/PublishProcessView';
 import NotFoundView from 'components/views/ErrorView/NotFoundView';
@@ -209,7 +209,7 @@ export default [
   },
   {
     name: 'fork',
-    path: '/my-projects/:projectId/fork',
+    path: '/projects/:projectId/fork',
     component: ForkView,
     exact: true,
     meta: {

@@ -1,13 +1,14 @@
-import React, { useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-// import { useHistory } from 'react-router-dom';
+import React, { useEffect, useCallback } from 'react';
+import { useSelector } from 'react-redux';
 import PropTypes from 'prop-types';
 import { toastr } from 'react-redux-toastr';
 import './ForkView.scss';
 import forkingImage from 'images/forking.png';
 import ProjectGeneralInfoApi from 'apis/ProjectGeneralInfoApi';
-import { getProjectDetails } from 'store/actions/projectInfoActions';
-import Navbar from '../navbar/navbar';
+// import { getProjectDetails } from 'store/actions/projectInfoActions';
+import Navbar from 'components/navbar/navbar';
+
+const projectGeneralInfoApi = new ProjectGeneralInfoApi();
 
 const ForkView = (props) => {
   const {
@@ -19,32 +20,25 @@ const ForkView = (props) => {
     },
   } = props;
 
-  const dispatch = useDispatch();
   const projectInfo = useSelector(({ projects }) => projects.selectedProject);
-  const { username } = useSelector(({ user }) => user);
 
-  const handleFork = () => {
-    dispatch(getProjectDetails(projectId))
-      .then(() => Promise.reject())
-      .then(() => {
-        const projApi = new ProjectGeneralInfoApi();
-        return projApi.forkProject(projectInfo.id, username, projectInfo.name);
-      })
-      .then(() => {
-        setTimeout(() => {
-          history.push('/');
-        }, 2000);
-      })
-      .catch((err) => {
-        toastr.error('Failed fork:', err);
-        history.goBack();
-      });
-  };
+  const handleFork = useCallback(
+    () => {
+      projectGeneralInfoApi.fork(projectId, null, projectInfo.gitlabName, null)
+        .then((project) => {
+          history.push(`/${project.gitlab_namespace}/${project.slug}`);
+        })
+        .catch((err) => {
+          toastr.error('Error:', err?.message);
+          history.goBack();
+        });
+    },
+    [history, projectId, projectInfo],
+  );
 
   useEffect(() => {
     handleFork();
-    // eslint-disable-next-line
-  }, []);
+  }, [handleFork]);
 
   return (
     <div className="project-component">
@@ -71,11 +65,7 @@ const ForkView = (props) => {
 };
 
 ForkView.defaultProps = {
-  match: {
-    params: {
-      projectId: '',
-    },
-  },
+
 };
 
 ForkView.propTypes = {
@@ -85,9 +75,9 @@ ForkView.propTypes = {
   }).isRequired,
   match: PropTypes.shape({
     params: PropTypes.shape({
-      projectId: PropTypes.string,
-    }),
-  }),
+      projectId: PropTypes.string.isRequired,
+    }).isRequired,
+  }).isRequired,
 };
 
 export default ForkView;

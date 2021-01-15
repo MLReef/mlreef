@@ -222,6 +222,7 @@ class ProjectsApiTest : AbstractRestApiTest() {
         assertThat(returnedResult.gitlabPath).isEqualTo("project-5")
     }
 
+    /*
     @Transactional
     @Rollback
     @Test
@@ -252,6 +253,7 @@ class ProjectsApiTest : AbstractRestApiTest() {
 
         assertThat(returnedResult.size).isEqualTo(1)
     }
+    */
 
     @Transactional
     @Rollback
