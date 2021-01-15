@@ -90,6 +90,19 @@ stop_review:
     - kubectl version
     - kubectl delete ing -l ref=${CI_ENVIRONMENT_SLUG}
     - kubectl delete all -l ref=${CI_ENVIRONMENT_SLUG}
+    # remove the branch's docker containers
+    # ?????? is the id of the "nautilus" repository id
+    #- curl --request DELETE --header "PRIVATE-TOKEN:$GITLAB_COM_API_TOKEN"
+    #  https://gitlab.com/api/v4/projects/$CI_PROJECT_ID/registry/repositories/??????/tags/$CI_COMMIT_REF_SLUG
+    # 1117031 is the id of the "gateway's" sub-repository id
+    - curl --request DELETE --header "PRIVATE-TOKEN:$GITLAB_COM_API_TOKEN"
+      https://gitlab.com/api/v4/projects/$CI_PROJECT_ID/registry/repositories/1117031/tags/$CI_COMMIT_REF_SLUG
+    # 1151242 is the id of the "backend's" sub-repository id
+    - curl --request DELETE --header "PRIVATE-TOKEN:$GITLAB_COM_API_TOKEN"
+      https://gitlab.com/api/v4/projects/$CI_PROJECT_ID/registry/repositories/1151242/tags/$CI_COMMIT_REF_SLUG
+    # 1196730 is the id of the "epf's" sub-repository id
+    - curl --request DELETE --header "PRIVATE-TOKEN:$GITLAB_COM_API_TOKEN"
+      https://gitlab.com/api/v4/projects/$CI_PROJECT_ID/registry/repositories/1196730/tags/$CI_COMMIT_REF_SLUG
 
 clean rest docs folder:
   extends: [.except-docu-branches]
