@@ -1,0 +1,15 @@
+#!/bin/sh
+# change to the repository root folder via the scripts location
+cd "$(dirname "$0")"/../..
+. bin/includes/detect-os
+. bin/includes/ci-environment
+##########################################
+set -x    # output all commands
+set -e    # exit on immediately on every error
+set -u    # error on usage of undefined variables
+##########################################
+
+# clean rest api folder
+ls
+rm -r public/rest-api/$CI_COMMIT_BRANCH || echo "SKIP DELETING:Specific Branch REST docs does not exist"
+echo "Doc folder for branch $CI_COMMIT_BRANCH is cleaned"
