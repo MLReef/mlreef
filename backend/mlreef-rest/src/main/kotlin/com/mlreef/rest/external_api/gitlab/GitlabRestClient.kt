@@ -138,15 +138,15 @@ class GitlabRestClient(
         targetPath: String? = null,
     ): GitlabProject =
         GitlabForkProjectRequest(
-            id = sourceId,
+
             name = targetName,
-            path = targetPath,
+
         )
             .let { GitlabHttpEntity(it, createUserHeaders(token)) }
             .addErrorDescription(409, ErrorCode.GitlabProjectAlreadyExists, "The project name is already in use by another project in the same namespace")
             .addErrorDescription(400, ErrorCode.GitlabProjectAlreadyExists, "The project name is already in use by another project in the same namespace")
             .makeRequest {
-                val url = "$gitlabServiceRootUrl/projects"
+                val url = "$gitlabServiceRootUrl/projects/$sourceId/fork"
                 restTemplate(builder).exchange(url, HttpMethod.POST, it, GitlabProject::class.java)
             }
             ?: throw Exception("GitlabRestClient: Gitlab response does not contain a body.")

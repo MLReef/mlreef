@@ -110,7 +110,7 @@ const AuthWrapper = (props) => {
     if (!hasRole) return dispatch(fireModal({
       ...forkProjectModal,
       // this will be executed when FORK button is clicked
-      onPositive: () => history.push(`/my-projects/${projectId}/fork`),
+      onPositive: () => history.push(`/projects/${projectId}/fork`),
     }));
 
     return null;

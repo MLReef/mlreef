@@ -27,8 +27,14 @@ export default class ProjectGeneralInfoApi extends ApiDirector {
       .then(handleResponse);
   }
 
-  fork(projectId: string, bodyReq: any) {
+  fork(projectId: string, targetNamespaceGitlabId: number, targetName: string, targetPath: string) {
     const baseUrl = `/api/v1/projects/fork/${projectId}`;
+    const bodyReq = {
+      // target_namespace_gitlab_id: targetNamespaceGitlabId,
+      target_name: targetName,
+      // target_path: targetPath,
+    }
+    console.log(bodyReq);
     const apiReqBuilder = new ApiRequestCallBuilder(
       METHODS.POST,
       this.buildBasicHeaders(validServicesToCall.BACKEND),
@@ -125,32 +131,6 @@ export default class ProjectGeneralInfoApi extends ApiDirector {
     return fetch(builder.build());
   }
 
-  // updateProjectAvatar(projectId: number, payload: FormData) {
-  //   const url = `/api/v4/projects/${projectId}`;
-  //   const headers = this.buildBasicHeaders(validServicesToCall.GITLAB);
-  //   const builder = new ApiRequestCallBuilder(METHODS.PUT, headers, url, payload);
-
-  //   return fetch(builder.build())
-  //     .then(handleResponse);
-  // }
-
-  /**
-   * @param {*} id: project which will be forked
-   * @param {*} namespace: space to fork project to
-   * @param {*} name: forked project name
-   */
-  async forkProject(id: number, namespace: string, name: string) {
-    const builder = new ApiRequestCallBuilder(
-      METHODS.POST,
-      this.buildBasicHeaders(validServicesToCall.GITLAB),
-      `/api/v4/projects/${id}/fork`,
-      JSON.stringify({
-        id, namespace, name,
-      }),
-    );
-    return fetch(builder.build());
-  }
-
   removeProject(id: string) {
     const url = `/api/v1/data-projects/${id}`;
     const headers = this.buildBasicHeaders(validServicesToCall.BACKEND);
@@ -171,13 +151,12 @@ export default class ProjectGeneralInfoApi extends ApiDirector {
   }
 
   getProjectDetails(namespace: string, slug: string) {
-    const url = `/api/v1/projects/slug/${slug}`;
+    const url = `/api/v1/projects/slug/${namespace}/${slug}`;
     const headers = this.buildBasicHeaders(validServicesToCall.BACKEND);
     const builder = new BLApiRequestCallBuilder(METHODS.GET, headers, url);
 
     return fetch(builder.build())
       .then(handleResponse)
-      .then((results: any) => results.find((res: any) => res.gitlab_namespace === namespace));
   }
 
   star(projectId: string, isProjectStarred: boolean) {
@@ -203,7 +182,7 @@ export default class ProjectGeneralInfoApi extends ApiDirector {
   }
 
   publish(
-    projectId: string, 
+    projectId: string,
     body: any,
     republish: boolean = false,
   ) {

@@ -75,7 +75,7 @@ interface ProjectService<T : Project> {
     fun getAllProjectsUserMemberIn(token: TokenDetails, pageable: Pageable? = null): Page<T>
     fun getProjectsByNamespace(namespaceName: String, pageable: Pageable? = null): Page<T>
     fun getProjectsBySlug(slug: String, pageable: Pageable? = null): Page<T>
-
+    fun getProjectsByNamespaceAndSlug(namespace: String, slug: String): T?
     fun getProjectById(projectId: UUID): T?
     fun getProjectByGitlabId(projectId: Long): T?
     fun getProjectsByNamespaceAndPath(namespaceName: String, slug: String): T?
@@ -271,6 +271,10 @@ open class ProjectServiceImpl<T : Project>(
 
     override fun getProjectsBySlug(slug: String, pageable: Pageable?): Page<T> {
         return repository.findBySlug(slug, pageable)
+    }
+
+    override fun getProjectsByNamespaceAndSlug(namespace: String, slug: String): T? {
+      return repository.findNamespaceAndSlug(namespace, slug)
     }
 
     override fun getAllPublicProjects(pageable: Pageable?): List<T> {

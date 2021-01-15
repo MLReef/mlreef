@@ -709,3 +709,5 @@ iOSInjectionProject/
 
 # Ignore sitemap which is dynamically generated
 /web/public/sitemap.xml
+
+web/storybook-static

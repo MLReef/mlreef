@@ -140,8 +140,6 @@ internal class GitlabUpdateProjectRequest(
 // https://docs.gitlab.com/ee/api/projects.html#fork-project
 @JsonInclude(JsonInclude.Include.NON_NULL)
 internal class GitlabForkProjectRequest(
-    /** The ID or URL-encoded path of the project. */
-    val id: Long,
     /** The name assigned to the resultant project after forking. */
     val name: String? = null,
     /** The path assigned to the resultant project after forking. */
@@ -165,4 +163,3 @@ internal class GitlabLoginOAuthTokenRequest(
 
 // https://docs.gitlab.com/ee/api/#oauth2-tokens
 internal class GitlabOAuthTokenInfoRequest : Serializable
-

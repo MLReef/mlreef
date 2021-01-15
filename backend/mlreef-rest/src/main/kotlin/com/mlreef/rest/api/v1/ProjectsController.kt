@@ -146,19 +146,15 @@ class ProjectsController(
         }
     }
 
-    @GetMapping("/slug/{slug}")
-    @PostFilter("postCanViewProject()")
-    fun getProjectBySlug(
+    @GetMapping("/slug/{namespace}/{slug}")
+    fun getProjectByNamespaceAndSlug(
+        @PathVariable namespace: String,
         @PathVariable slug: String,
-        @PageableDefault(size = MAX_PAGE_SIZE) pageable: Pageable,
-    ): Iterable<ProjectDto> {
-        val projectsPage = projectService.getProjectsBySlug(slug)
+    ): ProjectDto {
+      val project = projectService.getProjectsByNamespaceAndSlug(namespace, slug)
+          ?: throw ProjectNotFoundException(path = "$namespace/$slug")
 
-        return if (pageable.pageSize == MAX_PAGE_SIZE) {
-            projectsPage.content.map { it.toDto() }
-        } else {
-            projectsPage.map { it.toDto() }
-        }
+      return project.toDto()
     }
 
     @GetMapping("/{id}/users")
