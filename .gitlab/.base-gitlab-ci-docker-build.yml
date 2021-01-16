@@ -1,0 +1,17 @@
+.base-gitlab-ci-docker-build:
+  extends: [".except-docu-branches"]
+  stage: build
+  image: docker:latest
+  services:
+    - docker:dind
+  variables:
+    NAUTILUS_IMAGE_PATH: "$CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG"
+    GATEWAY_IMAGE_PATH:  "$CI_REGISTRY_IMAGE/gateway:$CI_COMMIT_REF_SLUG"
+    BACKEND_IMAGE_PATH:  "$CI_REGISTRY_IMAGE/backend:$CI_COMMIT_REF_SLUG"
+    EPF_IMAGE_PATH:      "$CI_REGISTRY_IMAGE/epf:$CI_COMMIT_REF_SLUG"
+  before_script:
+    - echo "NAUTILUS_IMAGE_PATH = $NAUTILUS_IMAGE_PATH"
+    - echo " GATEWAY_IMAGE_PATH = $GATEWAY_IMAGE_PATH"
+    - echo " BACKEND_IMAGE_PATH = $BACKEND_IMAGE_PATH"
+    - echo "     EPF_IMAGE_PATH = $EPF_IMAGE_PATH"
+    - echo "$CI_REGISTRY_PASSWORD" | docker login "$CI_REGISTRY" --username="$CI_REGISTRY_USER" --password-stdin

@@ -1,0 +1,16 @@
+build nautilus:
+  extends: [".except-docu-branches", ".base-gitlab-ci-docker-build"]
+  stage: build
+  only:
+    changes:
+      - backend/**/*
+      - bin/ci-deploy
+      - bin/resources/runner-config*
+      - epf/**/*
+      - nautilus/**/*
+      - k8s/**/*
+      - web/**/*
+      - .gitlab-ci.yml
+  script: |
+    docker build --tag $NAUTILUS_IMAGE_PATH -f Dockerfile .
+    docker push "$NAUTILUS_IMAGE_PATH"

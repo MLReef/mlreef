@@ -1,6 +1,8 @@
 include:
+  - local: .gitlab/.base-gitlab-ci-docker-build.yml
   - local: backend/.gitlab-ci.yml
   - local: epf/.gitlab-ci.yml
+  - local: nautilus/.gitlab-ci.yml
   - local: web/.gitlab-ci.yml
 
 stages:
@@ -33,10 +35,10 @@ variables:
       - bin/install
       - bin/resources/runner-config*
       - epf/**/*
+      - k8s/**/*
       - web/**/*
       - .gitlab-ci.yml
       - docker-compose.yml
-      - k8s/**/*
 .pages-code-changes: &run-on-pages-relevant-changes
   only:
     changes:

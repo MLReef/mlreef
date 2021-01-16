@@ -28,9 +28,10 @@ build frontend:
   services:
     - docker:dind
   before_script:
-    - export GATEWAY_IMAGE_PATH=$CI_REGISTRY_IMAGE/gateway:$CI_COMMIT_REF_SLUG
-    - export BACKEND_IMAGE_PATH=$CI_REGISTRY_IMAGE/backend:$CI_COMMIT_REF_SLUG
-    - export     EPF_IMAGE_PATH=$CI_REGISTRY_IMAGE/epf:$CI_COMMIT_REF_SLUG
+    - export NAUTILUS_IMAGE_PATH=$CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG
+    - export  GATEWAY_IMAGE_PATH=$CI_REGISTRY_IMAGE/gateway:$CI_COMMIT_REF_SLUG
+    - export  BACKEND_IMAGE_PATH=$CI_REGISTRY_IMAGE/backend:$CI_COMMIT_REF_SLUG
+    - export      EPF_IMAGE_PATH=$CI_REGISTRY_IMAGE/epf:$CI_COMMIT_REF_SLUG
   script: |
     web/bin/ci-build-frontend
     docker push "$GATEWAY_IMAGE_PATH"
