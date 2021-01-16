@@ -1,29 +1,62 @@
 #!/bin/bash
+# change directory scripts location
+cd "$(dirname "$0")"
+########################################
+# set -x  # output all commands
+set -o pipefail
+set -e # exit on immediately on every error
+set -u # error on usage of undefined variables
+########################################
 
-set -e
-set -m
+function sigterm_handler() {
+  echo "SIGTERM signal received, try to gracefully shutdown all services..."
+  gitlab-ctl stop
+  exit
+}
+trap "sigterm_handler; exit" TERM
 
-echo "MLReef Rocks"
-java -version
+log() {
+  echo "### $(date +%Y-%m-%d\ %H:%M:%S) ### $1"
+}
 
-# Start the API Gateway
-# NGINX will self-daemonize and run in the background
+recreateGitlabAdminToken() {
+  # http://gitlab.com/help/administration/troubleshooting/gitlab_rails_cheat_sheet.md
+  # Deleting all API tokens for root user (id=1)
+  gitlab-rails runner -e production "
+    User.find(1).personal_access_tokens.each do |cur|
+      cur.delete
+    end
+  "
+  #Creating Admin API token $GITLAB_ADMIN_TOKEN. This might take up to 5 minutes
+  gitlab-rails runner -e production "User.find(1).personal_access_tokens.create(
+    name: 'mlreef-backend-api-token $(date +%Y-%m-%d\ %H:%M:%S)',
+    token_digest: Gitlab::CryptoHelper.sha256('$GITLAB_ADMIN_TOKEN'),
+    impersonation: false,
+    scopes: [:api,:sudo]
+  )"
+}
 
-# TODO FIXME: nginx: [emerg] "gzip" directive is duplicate in /etc/nginx/conf.d/default.conf:14
-sed -i "/gzip on;/d" /etc/nginx/conf.d/default.conf
-sed -i "s/gitlab:10080/localhost:10080/" /etc/nginx/conf.d/default.conf
-sed -i "s/backend:8080/localhost:8080/" /etc/nginx/conf.d/default.conf
-echo "########################"
+getGitlabRunnerRegistrationToken() {
+  gitlab-rails runner -e production "puts Gitlab::CurrentSettings.current_application_settings.runners_registration_token" | tr -d '\r'
+}
 
-/usr/sbin/nginx
+#########################
+# Call the Gitlab wrapper
+# Gitlab will self-daemonize and run in the background hence no '&' is needed
+log "booting and configuring Gitlab ..."
+/assets/gitlab-wrapper >/dev/null
 
-# call the Gitlab wrapper
-/assets/wrapper > /dev/null &
+log "Refreshing root user api-token"
+recreateGitlabAdminToken
 
-# Start the PostgreSQL mlreefdb server
-pg_ctlcluster 11 main start
+log "Getting Gitlab runners registration token from Gitlab."
+RUNNER_REGISTRATION_TOKEN=$(getGitlabRunnerRegistrationToken)
 
-##Setup gitlab-runner
+log "GITLAB_RUNNER_REGISTRATION_TOKEN=$RUNNER_REGISTRATION_TOKEN"
+log "Gitlab is ready"
+
+#########################
+# Setup gitlab-runner
 GITLAB_PORT=10080
 # Wait for Gitlab to enable the database
 touch /var/log/configuration.lock
@@ -59,7 +92,28 @@ touch /var/log/configuration.log
 } >/var/log/configuration.log
 rm -f /var/log/configuration.lock
 
-# java -cp app:app/lib/* com.mlreef.rest.RestApplicationKt
+#########################
+# Start the PostgreSQL mlreefdb server
+# Postgres will self-daemonize and run in the background hence no '&' is needed
+log "starting MLReef database"
+pg_ctlcluster 11 main start
+
+#########################
+# Start the backend
+# using "&" to run the process in the background
+log "starting MLReef backend..."
+java -cp /app:/app/lib/* com.mlreef.rest.RestApplicationKt &
+
+########################
+# Start the API Gateway
+# NGINX will self-daemonize and run in the background hence no '&' is needed
+/usr/sbin/nginx
+
+########################
+# keep Docker container alive
+tail -f /dev/null
+# Wait for SIGTERM
+wait
 
 #Bring the first process to foreground
 fg %1

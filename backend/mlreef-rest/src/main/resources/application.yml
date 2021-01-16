@@ -1,3 +1,6 @@
+server:
+  port : ${MLREEF_BACKEND_PORT:8080}
+
 mlreef:
   epf:
     image-tag: ${EPF_IMAGE_TAG:latest}

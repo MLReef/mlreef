@@ -49,7 +49,7 @@ GITLAB_SECRETS_DB_KEY_BASE=$GITLAB_SECRETS_DB_KEY_BASE
 
 # This is the docker tag that will be used for starting EPF pipelines
 EPF_IMAGE_TAG=$VERSION
-# THe internal connection URL for the EPF runners to connect to the backend
+# The internal connection URL for the EPF runners to connect to the backend
 EPF_BACKEND_URL=$EPF_BACKEND_URL
 # THe internal connection URL for the EPF runners to connect to the gitlab
 EPF_GITLAB_URL=$EPF_GITLAB_URL
