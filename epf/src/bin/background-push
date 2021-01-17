@@ -1,8 +1,18 @@
 #!/bin/sh
-
-sentinelhub.config --show
-
-STATISTIC_FILE="experiment.json"
+#only continues if it is a model
+if echo "$1" | grep -v "epf/model/"
+   then
+        echo "Skip background-push"
+        exit 0
+fi
+#sentinelhub.config --show
+#extraction of output-path parameter and type of dataprocessor from PIPELINE_STRING mlreef-905
+FILE="experiment.json"
+PIPELINE_STRING="$1"
+PIPELINE_STRING="${PIPELINE_STRING#*output-path }"
+PIPELINE_STRING="${PIPELINE_STRING%% *}"
+STAT="$PIPELINE_STRING/$FILE"
+echo "STATISTIC_FILE is $STAT "
 echo "EPF_PIPELINE_SECRET is $EPF_PIPELINE_SECRET"
 echo "EPF_PIPELINE_URL is $EPF_PIPELINE_URL"
 
@@ -13,22 +23,22 @@ request_epf_endpoint_update() {
   curl --include --request PUT "$url" \
     --header "EPF-BOT-TOKEN: $EPF_PIPELINE_SECRET" \
     --header "Content-Type: application/json" \
-    --data @experiment.json
+    --data @"$STAT"
   echo ""
 }
 
 i=0
-while [ "$i" -lt 1000 ]; do # run 1_000 iterations max
+while [ "$i" -lt 100 ]; do # run 100 iterations max
   echo "------------------------------------------------------------"
-  if [ ! -f "$STATISTIC_FILE" ]; then
-    echo "MLReef-EPF statistic service #$i: $STATISTIC_FILE does not exist yet, waiting for experiment to start.."
+  if [ ! -f "$STAT" ]; then
+    echo "MLReef-EPF statistic service #$i: $STAT does not exist yet, waiting for experiment to start.."
     sleep 10
   else
     echo "MLReef-EPF statistic service #$i:"
-    cat $STATISTIC_FILE
+    cat $STAT
     request_epf_endpoint_update
     sleep 15
   fi
   i=$(($i + 1))
 done
-# 15 seconds times 1_000 ==> 15_000 seconds => 250 minutes => ~ 4 hours
+# 15 seconds times 100 ==> 1500 seconds => 25 minutes 

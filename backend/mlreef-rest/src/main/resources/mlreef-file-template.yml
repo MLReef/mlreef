@@ -19,7 +19,9 @@ variables:
   GITLAB_GROUP:        "%GITLAB_GROUP%"         # Gitlab namespace the project is located in
   GITLAB_PROJECT:      "%GITLAB_PROJECT%"       # Gitlab project to git push pipeline results to
   TARGET_BRANCH:       "%TARGET_BRANCH%"        # Git branch pipeline results are pushed to
-
+  #save pipeline command to extract output-path for experiments
+  PIPELINE_COMMAND:    "%PIPELINE_STRING%"
+  ARTIFACTS_PATH:    "%ARTIFACTS_PATH%"
   # mlreef.com/api/v1/epf/experiments/:experiment_id
   EPF_PIPELINE_URL:    "%EPF_PIPELINE_URL%"
   EPF_PIPELINE_SECRET: "%EPF_PIPELINE_SECRET%"
@@ -45,7 +47,9 @@ before_script:
   - git config --global user.email "$GIT_PUSH_EMAIL"
   - git config --global user.name "$GIT_PUSH_NAME"
   - echo "Target branch is $TARGET_BRANCH"
-  #- background-push &
+  - echo "Output path is $ARTIFACTS_PATH"
+  #only run background-push if it is an experiment
+  - background-push "$PIPELINE_COMMAND" &
 
 
 after_script:
@@ -55,7 +59,7 @@ after_script:
 mlreef-pipeline:
   artifacts:
     paths:
-      - output/*
+      - $ARTIFACTS_PATH/*
   # Workaround for failing pipelines mlreef#799 https://docs.gitlab.com/ee/ci/yaml/
   retry:
     max: 2
@@ -75,7 +79,7 @@ mlreef-pipeline:
   script: |
     git checkout -B $TARGET_BRANCH
     echo $CI_JOB_ID >> data_pipeline.info
-%PIPELINE_STRING%
+    $PIPELINE_COMMAND
     git add .
     git status
     git commit -m "Add pipeline results [skip ci]"
