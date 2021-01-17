@@ -67,7 +67,7 @@ deploy_review:
     - sed_files deployment apps-${CI_ENVIRONMENT_SLUG}.yml
     - cat apps-${CI_ENVIRONMENT_SLUG}.yml
     - kubectl apply -f apps-${CI_ENVIRONMENT_SLUG}.yml
-    - sleep 20
+    - sleep 60
     - kubectl get deploy,svc,ing,pod -l ref="${CI_ENVIRONMENT_SLUG}"
   artifacts:
     paths:
@@ -205,7 +205,7 @@ smoke tests:
   stage: test
   <<: *run-on-all-code-changes
   when: delayed
-  start_in: 4 minutes
+  start_in: 5 minutes
   image: registry.gitlab.com/systemkern/s5:latest-git
   script: bin/ci-smoke-tests
 

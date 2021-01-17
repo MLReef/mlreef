@@ -54,7 +54,7 @@ spec:
     - ReadWriteOnce
   resources:
     requests:
-      storage: 10Gi
+      storage: 50Gi
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -67,8 +67,9 @@ spec:
     - ReadWriteOnce
   resources:
     requests:
-      storage: 20Gi
+      storage: 30Gi
 ---
+
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -135,7 +136,10 @@ spec:
                 registry_external_url "#{ENV['GITLAB_REGISTRY_EXTERNAL_SCHEME']}://#{ENV['GITLAB_REGISTRY_EXTERNAL_HOSTNAME']}"
                 registry_nginx['enable'] = true
                 # Access port for the internal Docker registry (has to be exposed via Docker as well)
-                registry_nginx['listen_port'] = 5050  
+                registry_nginx['listen_port'] = 5050 
+                # https://docs.gitlab.com/ee/administration/packages/container_registry.html#image-push-errors
+                # Following env may not be required once move to https
+                registry['env'] = { "REGISTRY_HTTP_RELATIVEURLS" => true } 
                 gitlab_rails['initial_shared_runners_registration_token'] = ENV['GITLAB_INITIAL_SHARED_RUNNERS_REGISTRATION_TOKEN']
                 nginx['client_max_body_size'] = "1024m"
   
@@ -160,11 +164,11 @@ spec:
               containerPort: 80
           resources:
             limits:
-              memory: 2500Mi
-              cpu: 500m
+              memory: 3500Mi
+              cpu: 1200m
             requests:
-              memory: 1800Mi
-              cpu: 300m
+              memory: 3000Mi
+              cpu: 1000m
           volumeMounts:
             - name: gitlab-opt
               mountPath: /var/opt/gitlab
