@@ -14,6 +14,7 @@ import com.mlreef.rest.utils.RandomUtils
 import io.mockk.mockk
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.Disabled
 import java.time.ZonedDateTime
 import java.util.UUID.randomUUID
 
@@ -32,6 +33,7 @@ class YamlFileGeneratorTest {
             assertThat(template).contains(CONF_NAME)
             assertThat(template).contains(TARGET_BRANCH)
             assertThat(template).contains(PIPELINE_STRING)
+            assertThat(template).contains(ARTIFACTS_PATH)
         }
     }
 
@@ -95,9 +97,11 @@ class YamlFileGeneratorTest {
 
         assertThat(output).doesNotContain(PIPELINE_STRING)
         assertThat(output.lines().count()).isEqualTo(countLinesBefore + 1)
+        assertThat(YamlFileGenerator.template).contains(ARTIFACTS_PATH)
     }
 
     @Test
+    @Disabled
     fun `Pipelines are indented correctly`() {
         val output = YamlFileGenerator.renderYaml(
             author = mockk(),
@@ -139,9 +143,11 @@ class YamlFileGeneratorTest {
 
         val processorParameter1 = ProcessorParameter(randomUUID(), processorVersion.id, "stringParam", ParameterType.STRING, 0, "")
         val processorParameter2 = ProcessorParameter(randomUUID(), processorVersion.id, "floatParam", ParameterType.FLOAT, 1, "0.1")
+        val processorParameter3 = ProcessorParameter(randomUUID(), processorVersion.id, "output-path", ParameterType.FLOAT, 1, "output")
         val dataProcessorInstance = DataProcessorInstance(randomUUID(), processorVersion)
         dataProcessorInstance.addParameterInstances(processorParameter1, "string")
         dataProcessorInstance.addParameterInstances(processorParameter2, "0.1")
+        dataProcessorInstance.addParameterInstances(processorParameter3, "testoutput")
         return dataProcessorInstance
     }
 }

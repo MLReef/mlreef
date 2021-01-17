@@ -20,6 +20,7 @@ const val CONF_NAME = "%CONF_NAME%"
 const val SOURCE_BRANCH = "%SOURCE_BRANCH%"
 const val TARGET_BRANCH = "%TARGET_BRANCH%"
 const val PIPELINE_STRING = "%PIPELINE_STRING%"
+const val ARTIFACTS_PATH = "%ARTIFACTS_PATH%"
 const val NEWLINE = "\n"
 
 internal object YamlFileGenerator {
@@ -66,9 +67,11 @@ internal object YamlFileGenerator {
                 "    python $path${dpInstance.processorVersion.command}.py " +
                     dpInstance.parameterInstances
                         .joinToString(" ") { "--${it.name} ${it.value}" }
-            },
+            }
         )
-
+        .replace(
+            ARTIFACTS_PATH, newValue = if (dataProcessors.isNullOrEmpty()) "output" else (dataProcessors.last().parameterInstances.firstOrNull{ it.name == "output-path" })?.value?:"output"
+        )
     //FIXME: For the moment the experiment yaml file contains PORT hardcoded in the script.
     // The best way is to move it from yml generation to the backend
     private fun normilizeGitlabHost(host: String): String {
