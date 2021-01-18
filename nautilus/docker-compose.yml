@@ -17,12 +17,11 @@ services:
       - "8080:8080"     # MLReef Backend HTTP
       - "6000:6000"     # MLReef's backend database
       - "10080:10080"   # Gitlab HTTP
-      - "5432:5432"     # Gitlab's database
     volumes:
       - gitlab-etc:/etc/gitlab
       - gitlab-log:/var/log/gitlab
       - gitlab-opt:/var/opt/gitlab
-      - mlreef-opt:/var/lib/postgresql
+      - mlreef-opt:/var/opt/mlreef
 
 volumes:
   gitlab-etc:

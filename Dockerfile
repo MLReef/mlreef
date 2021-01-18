@@ -62,11 +62,14 @@ ENV SSL_SELF_SIGNED 'false'
 
 # MLReef Confguration
 # Postgres version for MLReef backend Database
-# TODO rename to MLREEF_PG_VERSION
-ENV PG_VERSION "11"
-# TODO rename to MLREEF_PG_USER
-ENV PG_USER "postgres"
-# TODO rename to MLREEF_DB_EXTENSION
+ENV MLREEF_PG_VERSION "11"
+# Postgres OS and super user
+ENV MLREEF_PG_USER "postgres"
+# Postgres cluster name
+ENV MLREEF_PG_CLUSTER "mlreefdb"
+# Postgres mlreef log directory
+ENV MLREEF_PG_LOG "/var/log/${MLREEF_PG_CLUSTER}-postgresql"
+# TODO rename to MLREEF_DB_EXTENSION 
 ENV DB_EXTENSION "pg_trgm"
 ### Backend Config
 ENV MLREEF_BACKEND_PORT "8081"
@@ -159,21 +162,23 @@ RUN apt-get update                                                              
 # Install Postgres
 RUN apt-get update                      && \
     apt-get install -y acl sudo locales    \
-    postgresql-${PG_VERSION} postgresql-client-${PG_VERSION} postgresql-contrib-${PG_VERSION}
+    postgresql-${MLREEF_PG_VERSION} postgresql-client-${MLREEF_PG_VERSION} postgresql-contrib-${MLREEF_PG_VERSION}
 
 # Basic config changes to hba and postgresql
-RUN echo "host all all 0.0.0.0/0 md5" >> /etc/postgresql/${PG_VERSION}/main/pg_hba.conf                          && \
-    sed -i  "s/^port.*=.*\\([0-9]\\)/port = ${DB_PORT}/g" /etc/postgresql/${PG_VERSION}/main/postgresql.conf     && \
-    sed -i  "s/^#listen_addresses.*=.*'localhost'/listen_addresses='*'/g" /etc/postgresql/${PG_VERSION}/main/postgresql.conf && \
-    cat /etc/postgresql/${PG_VERSION}/main/postgresql.conf
+RUN mkdir -p ${MLREEF_PG_LOG}         && \
+    pg_createcluster ${MLREEF_PG_VERSION} ${MLREEF_PG_CLUSTER} -d /var/opt/mlreef/${MLREEF_PG_VERSION}/${MLREEF_PG_CLUSTER} \
+                     -p ${DB_PORT} -l ${MLREEF_PG_LOG}/postgresql-${MLREEF_PG_VERSION}-${MLREEF_PG_CLUSTER}.log                     && \
+    echo "host all all 0.0.0.0/0 md5" >> /etc/postgresql/${MLREEF_PG_VERSION}/${MLREEF_PG_CLUSTER}/pg_hba.conf                      && \
+    sed -i  "s/^#listen_addresses.*=.*'localhost'/listen_addresses='*'/g" /etc/postgresql/${MLREEF_PG_VERSION}/${MLREEF_PG_CLUSTER}/postgresql.conf                                 && \
+    cat /etc/postgresql/${MLREEF_PG_VERSION}/${MLREEF_PG_CLUSTER}/postgresql.conf
 
 # Default DB, DB user and extension creation
-RUN cat /etc/postgresql/${PG_VERSION}/main/postgresql.conf | grep port && pg_ctlcluster 11 main start              && \
-    ps -ef | grep postgres                                                                                         && \
-    su -c - postgres "psql -p ${DB_PORT} --command \"CREATE USER $DB_USER WITH SUPERUSER PASSWORD '$DB_PASS';\""   && \
-    su -c - postgres "createdb -p ${DB_PORT} -O ${DB_USER} ${DB_NAME}"                                             && \
-    su -c - postgres "psql -p ${DB_PORT} ${DB_NAME} --command \"CREATE EXTENSION IF NOT EXISTS ${DB_EXTENSION};\"" && \
-    pg_ctlcluster 11 main stop
+RUN pg_ctlcluster ${MLREEF_PG_VERSION} ${MLREEF_PG_CLUSTER} start                                                           && \
+    ps -ef | grep postgres                                                                                                  && \
+    su -c - ${MLREEF_PG_USER} "psql -p ${DB_PORT} --command \"CREATE USER $DB_USER WITH SUPERUSER PASSWORD '$DB_PASS';\""   && \
+    su -c - ${MLREEF_PG_USER} "createdb -p ${DB_PORT} -O ${DB_USER} ${DB_NAME}"                                             && \
+    su -c - ${MLREEF_PG_USER} "psql -p ${DB_PORT} ${DB_NAME} --command \"CREATE EXTENSION IF NOT EXISTS ${DB_EXTENSION};\"" && \
+    pg_ctlcluster ${MLREEF_PG_VERSION} ${MLREEF_PG_CLUSTER} stop
 
 
 
@@ -210,26 +215,6 @@ RUN sed -i "s/gitlab:10080/localhost:10080/" /etc/nginx/conf.d/default.conf
 RUN sed -i "s/backend:8080/localhost:8081/" /etc/nginx/conf.d/default.conf
 
 
-
-######
-###### DEVELOPER SETUP
-######
-# Edit the Gitlab embedded Postgres configuration to be able external access to the Database
-# The original line in PGCONF_TEMP is
-# listen_addresses = '<%= @listen_address %>'    # what IP address(es) to listen on;
-# The original line in PGCONF is
-
-ENV GITLAB_PGCONF_TEMP /opt/gitlab/embedded/cookbooks/postgresql/templates/default/postgresql.conf.erb
-ENV GITLAB_PGCONF /opt/gitlab/etc/gitlab.rb.template
-RUN sed -i "s/<%= @listen_address %>/*/g" ${GITLAB_PGCONF_TEMP}      && \
-    sed -i "s/#.*postgresql.*trust_auth_cidr_addresses.*/postgresql\['trust_auth_cidr_addresses'\] = \[\"0\.0\.0\.0\/0\"\]/g" ${GITLAB_PGCONF}
-
-# Expose postgres
-EXPOSE 5432 6000
-###### END: DEVELOPER SETUP
-
-
-
 # Wrapper to handle additional script to run after default gitlab image's /assets/wrapper
 ADD nautilus/assets/ /assets
 CMD ["/assets/mlreef-wrapper"]
@@ -237,8 +222,10 @@ CMD ["/assets/mlreef-wrapper"]
 # Volumes from Gitlab base image
 VOLUME ["/etc/gitlab", "/var/log/gitlab","/var/opt/gitlab"]
 # Volumes for mlreef's backend database
-VOLUME  ["/etc/postgresql", "/var/log/postgresql", "/var/lib/postgresql"]
+VOLUME  ["/etc/postgresql", "/var/log/mlreef-postgresql", "/var/opt/mlreef"]
 
+# Expose mlreef postgres
+EXPOSE $DB_PORT
 # Expose HTTPS ports
 EXPOSE $MLREEF_BACKEND_PORT 80 443 10080
 # Expose Gitlab SSH port
