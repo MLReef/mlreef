@@ -6,7 +6,7 @@ import './ResetPassword.scss';
 import PropTypes from 'prop-types';
 import PasswordManagementApi from 'apis/PasswordManagementApi';
 import CheckEmailView from './CheckEmailView';
-import icon from '../../../images/MLReef_Icon_POS_BETA-01.svg';
+import icon from '../../../images/MLReef_Icon_POS_BETA-01.png';
 
 const passwordApi = new PasswordManagementApi();
 
