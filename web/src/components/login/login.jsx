@@ -8,7 +8,7 @@ import MButton from 'components/ui/MButton';
 import { login, getUserInfo } from 'store/actions/userActions';
 import './login.css';
 // import icon from '../../images/ml_reef_icon_01.svg';
-import icon from '../../images/MLReef_Icon_POS_BETA-01.svg';
+import icon from '../../images/MLReef_Icon_POS_BETA-01.png';
 
 class Login extends React.Component {
   constructor(props) {
