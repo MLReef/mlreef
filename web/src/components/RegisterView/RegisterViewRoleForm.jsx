@@ -59,7 +59,7 @@ const RegisterViewRoleForm = (props) => {
         </h2>
         <p className="title-subtitle">
           Dear {`${username || 'user'}`},
-          MLReef is currently in an alpha stage. Incomplete functions, bugs and even data-loss might happen during this development phase.
+          MLReef is currently in an beta stage. Incomplete functions, bugs and even data-loss might happen during this development phase.
           Please be sure to keep this in mind, especially when using or working with sensitive data or code.
           We are very happy to recieve your feedback, feature or code improvements!
         </p>

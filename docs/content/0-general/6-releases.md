@@ -7,7 +7,22 @@ This will guide you through the most significant changes in MLReef. We will try 
 
 ## Release log 
 
-### r-05/2020
+### r-02-01/2021
+This release moves MLReef to beta stage, involving broad changes to the entire infrastructure and baseline. 
+
+Now, you can: 
+* Create code projects (repositories)
+  * Publish code repositories
+  * Re-publish code repositories via the publishing wizard or via commit to master of your code repository master branch
+  * Published code projects are stored in a docker registry and explorable / usable in the data pipelines directly
+* General stability and improved test coverage
+* Many smaller features, such as creating new files
+* Ad-hoc visualizations based on tabular data (insights/graphs)
+* Move to kubernetes cluster (for hosted version)
+* Development of "Nautilus", an offline and on-premise version of MLReef
+
+
+### r-01-08/2020
 
 In this release we included: 
 
