@@ -69,7 +69,7 @@ ENV MLREEF_PG_USER "postgres"
 ENV MLREEF_PG_CLUSTER "mlreefdb"
 # Postgres mlreef log directory
 ENV MLREEF_PG_LOG "/var/log/${MLREEF_PG_CLUSTER}-postgresql"
-# TODO rename to MLREEF_DB_EXTENSION 
+# TODO rename to MLREEF_DB_EXTENSION
 ENV DB_EXTENSION "pg_trgm"
 ### Backend Config
 ENV MLREEF_BACKEND_PORT "8081"

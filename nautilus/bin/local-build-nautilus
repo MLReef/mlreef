@@ -1,5 +1,6 @@
-#!/bin/sh
+#!/bin/bash
 # change to the repository root folder via the scripts location
+cd "$(dirname "$0")"/..
 . k8s/includes/ci-environment
 ########################################
 set -x  # output all commands
@@ -8,7 +9,8 @@ set -e  # exit on immediately on every error
 set -u  # error on usage of undefined variables
 ########################################
 
-docker build --tag mlreef-local:latest -f Dockerfile .
+
+docker build --tag "mlreef:snapshot" -f Dockerfile .
 
 docker run -it --rm --name mlreef     \
   --volume mlreef-opt:/var/opt/       \
@@ -18,5 +20,5 @@ docker run -it --rm --name mlreef     \
   --publish 8090:8090                 \
   --publish 5050:5050                 \
   --publish 10080:10080               \
-  mlreef-local
+  mlreef:snapshot
 
