@@ -9,11 +9,16 @@ variables:
   # mlreef.com/api/v1/code-projects/:id/publish/finish
   EPF_PUBLISH_URL: #{#EPF_PUBLISH_URL}
   EPF_PUBLISH_SECRET: #{#EPF_PUBLISH_SECRET}
+  #  DOCKER_HOST: "tcp://docker:2375"
+  DOCKER_TLS_CERTDIR: ""
+  DOCKER_DAEMON_OPTIONS: "--insecure-registry=${CI_REGISTRY}"
+
+services:
+  - name: docker:19.03.12-dind
+    entrypoint: [ "sh", "-c", "dockerd-entrypoint.sh $DOCKER_DAEMON_OPTIONS" ]
 
 job:
-  image: docker:stable
-  services:
-    - docker:dind
+  image: docker:19.03.12
   only:
     - master
   tags:
@@ -22,6 +27,7 @@ job:
   before_script:
     - apk add --update curl
   script:
+    - echo "$CI_REGISTRY"
     # Build the docker image in the repositories root directory
     - docker build --tag "$CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG" -f Dockerfile .
     # login to MLReef's docker image registry
