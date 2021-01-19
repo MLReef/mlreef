@@ -141,7 +141,7 @@ spec:
                 # Following env may not be required once move to https
                 registry['env'] = { "REGISTRY_HTTP_RELATIVEURLS" => true } 
                 gitlab_rails['initial_shared_runners_registration_token'] = ENV['GITLAB_INITIAL_SHARED_RUNNERS_REGISTRATION_TOKEN']
-                nginx['client_max_body_size'] = "1024m"
+                nginx['client_max_body_size'] = "5120m"
   
                 #  GITLAB_SSH_PORT: 10022                                      # TODO use correct environment parameter
             - name: GITLAB_HTTPS
@@ -195,7 +195,7 @@ metadata:
   annotations:
 #    nginx.ingress.kubernetes.io/tls-acme: "true"
     nginx.ingress.kubernetes.io/ingress.class: "nginx"
-    nginx.ingress.kubernetes.io/proxy-body-size: 1024m
+    nginx.ingress.kubernetes.io/proxy-body-size: 5120m
     nginx.ingress.kubernetes.io/ssl-redirect: "false"
   labels:
     app: ingress-__CI_PROJECT_NAME__
