@@ -22,6 +22,7 @@ const MProjectCard = (props) => {
     visibility,
     users,
     owner,
+    published,
     classification,
   } = props;
 
@@ -60,6 +61,7 @@ const MProjectCard = (props) => {
           <span className="p-2">Owner</span>
         </div>
       )}
+      {published && <div className={`card-marker ${classification}-marker`} style={{ right: '4rem' }}>Published</div>}
       <img
         src={visibility === PUBLIC ? publicIcon : lockIcon}
         alt={visibility === PUBLIC ? 'public' : 'private'}
