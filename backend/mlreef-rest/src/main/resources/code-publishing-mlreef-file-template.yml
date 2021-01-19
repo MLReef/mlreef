@@ -9,7 +9,7 @@ variables:
   # mlreef.com/api/v1/code-projects/:id/publish/finish
   EPF_PUBLISH_URL: #{#EPF_PUBLISH_URL}
   EPF_PUBLISH_SECRET: #{#EPF_PUBLISH_SECRET}
-  #  DOCKER_HOST: "tcp://docker:2375"
+  DOCKER_HOST: "tcp://docker:2375"
   DOCKER_TLS_CERTDIR: ""
   DOCKER_DAEMON_OPTIONS: "--insecure-registry=${CI_REGISTRY}"
 
@@ -21,11 +21,11 @@ job:
   image: docker:19.03.12
   only:
     - master
-  tags:
-    - local-docker
+  #tags:
+  #  - local-docker
   when: on_success
   before_script:
-    - apk add --update curl
+    - apk add --update curl || true
   script:
     - echo "$CI_REGISTRY"
     # Build the docker image in the repositories root directory
