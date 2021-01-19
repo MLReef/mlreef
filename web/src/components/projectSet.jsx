@@ -37,6 +37,7 @@ const ProjectSet = (props) => {
               users={proj.members}
               visibility={proj.visibilityScope}
               owner={proj.ownerId === userId}
+              published={proj.published}
               classification={classification}
             />
           ))}

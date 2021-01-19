@@ -1,5 +1,21 @@
 $border-size: 0 0 1px 1.5px;
 
+.ml-project-marker {
+  background-color: #91BD44;
+}
+
+.model-marker {
+  background-color: #E99444;
+}
+
+.data-operation-marker {
+  background-color: #D2519D;
+}
+
+.data-visualization-marker {
+  background-color: #735DA8;
+}
+
 .project-card {
   &-container {
     background-color: var(--white);
@@ -47,19 +63,19 @@ $border-size: 0 0 1px 1.5px;
     cursor: pointer;
   }
 
-  &-container.ml-project {
+  .ml-project {
     box-shadow: $border-size #91BD44;
   }
 
-  &-container.model {
+  .model {
     box-shadow: $border-size #E99444;
   }
 
-  &-container.data-operation {
+  .data-operation {
     box-shadow: $border-size #D2519D;
   }
 
-  &-container.data-visualization {
+  .data-visualization {
     box-shadow: $border-size #735DA8;
   }
 

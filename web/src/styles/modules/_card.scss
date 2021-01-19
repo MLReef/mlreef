@@ -1,6 +1,15 @@
 $card-padding: 1rem;
 
 .card {
+  &-marker {
+    width: max-content;
+    color: white;
+    position: absolute;
+    top: 0;
+    border-radius: 0.25rem;
+    padding: 0.3rem;
+  }
+
   margin-right: $card-padding;
   margin-bottom: $card-padding;
 
