@@ -74,7 +74,7 @@ internal class MLVisitor(private val result: MLParseResult = MLParseResult()) : 
     // ==> one Decorated context is equal to an annotation
     override fun visitDecorated(context: Python3Parser.DecoratedContext?) {
         if (context == null) return
-        logger.info("parsing decorated function: ${context.funcdef().NAME()} with ${context.decorators().text}")
+        logger.info("parsing decorated function: ${context.funcdef()?.NAME()} with ${context.decorators()?.text}")
         result.countFunctions += 1
         nullSafeVisitDecorated(context)
     }
