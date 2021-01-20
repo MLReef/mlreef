@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { string } from 'prop-types';
-import './emptyProject.scss';
+import './EmptyProject.scss';
 
 const EmptyProject = ({ httpUrlToRepo, namespace, slug }) => (
   <>
@@ -33,7 +33,18 @@ const EmptyProject = ({ httpUrlToRepo, namespace, slug }) => (
         Command line instructions
       </h3>
       <p>You can also upload existing files from your computer using the instructions below.</p>
+      <h5>Git global setup</h5>
       <div style={{ marginBottom: '1em' }}>
+        <fieldset>
+          <pre className="bg-light">
+            <p>
+              git config --global user.name &quot;$MLReef User Name&quot;
+            </p>
+            <p>
+              git config --global user.email &quot;$MLReef User Email&quot;
+            </p>
+          </pre>
+        </fieldset>
         <fieldset>
           <h5>Create a new repository</h5>
           <pre className="bg-light">

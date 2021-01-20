@@ -9,6 +9,7 @@ const MSimpleSelect = (props) => {
     footer,
     value,
     onChange,
+    className,
   } = props;
 
   const handleChange = (e) => {
@@ -19,7 +20,7 @@ const MSimpleSelect = (props) => {
   };
 
   return (
-    <div className="m-select">
+    <div className={`m-select ${className}`}>
       <div className="m-select_container">
         { label && <label htmlFor={label}>{ label }</label> }
         <select
