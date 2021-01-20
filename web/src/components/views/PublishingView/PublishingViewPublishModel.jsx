@@ -145,12 +145,7 @@ const PublishingViewPublishModel = (props) => {
                   <MCheckBox
                     name="acceptance-termns-checkbox"
                     labelValue="I hereby accept the Repository Producer Terms."
-                    callback={(...params) => {
-                      if (params[2]) {
-                        const dateOfUserAcceptance = new Date().getTime();
-                        dispatch({ type: 'SET_TERMS_ACCEPTED', payload: dateOfUserAcceptance.toString() });
-                      }
-                    }}
+                    callback={(...params) => dispatch({ type: 'SET_TERMS_ACCEPTED', payload: params[2] })}
                   />
                 </div>
               </div>

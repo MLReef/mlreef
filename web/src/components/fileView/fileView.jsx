@@ -67,7 +67,7 @@ export class FileView extends React.Component {
       }
     }
 
-    filesApi.getFileData(gid, encodeURIComponent(file), branch || commit)
+    filesApi.getFileData(gid, file, branch || commit)
       .then((res) => {
         const fileData = res;
         this.setState({ fileData });
