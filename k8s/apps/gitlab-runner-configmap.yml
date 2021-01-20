@@ -15,18 +15,18 @@ data:
     # Register the local docker runner
     /entrypoint register --non-interactive                        \
     --name="Packaged Dispatcher on @GITLAB_GKE_DOMAIN@"           \
-    --url="http://gitlab:10080/"                                  \
+    --url="http://gitlab.@GITLAB_GKE_DOMAIN@/"                    \
     --executor "docker"                                           \
     --docker-image alpine:latest                                  \
-    --docker-volumes /var/run/docker.sock:/var/run/docker.sock    \
+    --docker-privileged="true"                                    \
     --tag-list "docker,local-docker"                              \
     --run-untagged="false"                                        \
     --locked="false"                                              \
     --access-level="not_protected"                                \
     --limit=1
     # Register k8s runner
-    /entrypoint register --non-interactive \
-    --url http://gitlab:10080/ \
+    /entrypoint register --non-interactive                        \
+    --url http://gitlab.@GITLAB_GKE_DOMAIN@/                      \
     --template-config="/scripts/k8s-template.toml"                \
     --name="K8S runner on @GITLAB_GKE_DOMAIN@"                    \
     --executor "kubernetes"                                       \
