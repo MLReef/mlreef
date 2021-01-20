@@ -82,17 +82,16 @@ describe('test HTML presence and functionality', () => {
 
   test('assert that file creation has the correct file name', () => {
     const today = new Date();
-    const value = 'someValidContent.js';
+    const value = 'data_processor.py';
     const valueContent = 'Some content to test';
     const mockedContent = { target: { value: valueContent } };
     const mockedBranchValue = `${mockedBranch}-patch-${today.getDate()}-${today.getMonth() + 1}-${today.getFullYear()}-1`;
     wrapper.find('input[name="name-input"]').simulate('change', { target: { value } });
     wrapper
-      .find('MSelect')
+      .find('MSimpleSelect')
       .dive()
-      .find('li')
-      .at(0)
-      .simulate('click');
+      .find('select')
+      .simulate('change', { currentTarget: { value: 'dataProcessor' } });
     wrapper.find('textarea[name="commit-message"]').simulate('change', mockedContent);
     wrapper.find('input[name="target-branch"]').simulate('change', { target: { value: mockedBranchValue } });
     wrapper.find('MCheckBox').dive().find('div').simulate('click');
@@ -105,7 +104,7 @@ describe('test HTML presence and functionality', () => {
       mockedPath,
       value,
       valueContent,
-      fileCreationConstants.dataProcessor,
+      fileCreationConstants.dataProcessor.content,
       mockedBranch,
       true,
     );

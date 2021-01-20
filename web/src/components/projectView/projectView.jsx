@@ -22,7 +22,7 @@ import RepoInfo from '../repoInfo';
 import RepoFeatures from '../repoFeatures';
 import Navbar from '../navbar/navbar';
 import './projectView.css';
-import EmptyProject from './emptyProject';
+import EmptyProject from '../layout/EmptyProject/EmptyProject';
 import ProjectLastCommitSect from './LastCommitSect';
 
 const isValidBranch = (branch) => branch !== 'null' && branch !== null && branch !== undefined;

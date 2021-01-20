@@ -1,6 +1,6 @@
 import React from 'react';
 import { mount } from 'enzyme';
-import EmptyProject from 'components/projectView/emptyProject';
+import EmptyProject from 'components/layout/EmptyProject/EmptyProject';
 import { projectsArrayMock } from 'testData';
 import { MemoryRouter } from 'react-router-dom';
 
