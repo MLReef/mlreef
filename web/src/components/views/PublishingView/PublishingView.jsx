@@ -47,7 +47,7 @@ export const UnconnectedPublishingView = (props) => {
 
   const isEntryPointFormValid = entryPointFile && selectedBranch !== '';
 
-  const isFinalFormValid = mlCategory && model && areTermsAccepted;
+  const isFinalFormValid = mlCategory && model && areTermsAccepted && isRequirementsFileExisting;
 
   const hasPipelines = pipelines?.length > 0;
 

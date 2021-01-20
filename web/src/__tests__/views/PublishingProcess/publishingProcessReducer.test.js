@@ -126,5 +126,5 @@ test('assert that terms acceptance are changed', () => {
     },
   );
   const { areTermsAccepted } = result;
-  expect(areTermsAccepted).toBe(true);
+  expect(typeof areTermsAccepted).toBe('string');
 });

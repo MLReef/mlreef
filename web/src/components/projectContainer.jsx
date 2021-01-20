@@ -84,11 +84,13 @@ class ProjectContainer extends React.Component {
                 </Link>
               </AuthWrapper>
             )}
-            <AuthWrapper className="tab-disabled">
-              <Link to={`/${namespace}/${slug}/insights/-/jobs`} className="feature" id="insights">
-                Insights
-              </Link>
-            </AuthWrapper>
+            {isDataProject && (
+              <AuthWrapper className="tab-disabled">
+                <Link to={`/${namespace}/${slug}/insights/-/jobs`} className="feature" id="insights">
+                  Insights
+                </Link>
+              </AuthWrapper>
+            )}
             <AuthWrapper
               owneronly
               norender
