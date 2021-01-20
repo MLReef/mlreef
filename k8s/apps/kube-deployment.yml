@@ -258,11 +258,11 @@ spec:
           name: gateway
         resources:
           limits:
-            memory: 50Mi
-            cpu: 60m
+            memory: 200Mi
+            cpu: 200m
           requests:
-            memory: 25Mi
-            cpu: 30m
+            memory: 100Mi
+            cpu: 100m
         envFrom:
         - configMapRef:
             name: local-config
