@@ -35,6 +35,9 @@ ENV INSTANCE_HOST "localhost"
 ENV GITLAB_PORT "10080"
 # TODO rename to MLREEF_GITLAB_ROOT_URL
 ENV GITLAB_ROOT_URL "http://$INSTANCE_HOST:$GITLAB_PORT"
+ENV LOCAL_REGISTRY_PORT "5050"
+ENV LOCAL_REGISTRY_EXTERNAL_URL "http://$INSTANCE_HOST:$LOCAL_REGISTRY_PORT"  
+
 ENV GITLAB_OMNIBUS_CONFIG "\
     # This is the URL that Gitlab expects to be addressed at.   \
     # This URL will be sent to the runners as repo cloning url  \
@@ -42,11 +45,11 @@ ENV GITLAB_OMNIBUS_CONFIG "\
     # Deactivate HTTPS redirection of Gitlab's API gateway      \
     nginx['redirect_http_to_https'] = false;                    \
     # The external URL for the internal Docker registry         \
-    registry_external_url 'http://localhost:5050';              \
+    registry_external_url '$LOCAL_REGISTRY_EXTERNAL_URL';       \
     registry_nginx['enable'] = true;                            \
     # Access port for the internal Docker registry              \
     # (has to be exposed via Docker as well)                    \
-    registry_nginx['listen_port'] = 5050;                       \
+    registry_nginx['listen_port'] = $LOCAL_REGISTRY_PORT;       \
     redis['bind'] = '127.0.0.1';                                \
     redis['port'] = 6379;                                       \
     "
@@ -146,6 +149,13 @@ RUN apt-get update               && \
     # Remove nginx default config
     rm -rf /etc/nginx/sites-enabled/default
 
+# Install Docker
+RUN apt-get -y install curl apt-transport-https ca-certificates software-properties-common jq    && \
+    curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add                        && \
+    add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu xenial stable" |  \
+                        tee /etc/apt/sources.list.d/docker.list                                  && \
+    apt-get update                                                                               && \
+    apt-get install -y docker-ce
 
 
 ####
@@ -231,7 +241,7 @@ EXPOSE $MLREEF_BACKEND_PORT 80 443 10080
 # Expose Gitlab SSH port
 EXPOSE 22
 # Expose Docker registry port
-EXPOSE 5050
+EXPOSE $LOCAL_REGISTRY_PORT
 
 ENV GITLAB_ROOT_EMAIL    "roo@localhost"
 ENV GITLAB_ROOT_PASSWORD "password"

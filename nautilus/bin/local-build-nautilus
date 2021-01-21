@@ -1,6 +1,7 @@
 #!/bin/bash
+set -x
 # change to the repository root folder via the scripts location
-cd "$(dirname "$0")"/..
+cd "$(dirname "$0")"/../..
 . k8s/includes/ci-environment
 ########################################
 set -x  # output all commands
