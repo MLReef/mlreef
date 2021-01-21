@@ -13,4 +13,5 @@ logging:
     org.hibernate: WARN
     org.springframework.boot.autoconfigure: ERROR
     org.springframework.security.web.util.matcher.AndRequestMatcher: INFO
+    org.springframework.security.web.util.matcher.AntPathRequestMatcher: INFO
     org.springframework.security.web.FilterChainProxy: INFO
