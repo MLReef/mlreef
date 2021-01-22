@@ -34,11 +34,11 @@ const Files = ({ projectId, job }) => {
       .downloadArtifacts(projectId, encodedBranchName, job.name)
       .then(
         (res) => res.ok
-          ? res.blob().then((data) => FileSaver.saveAs(data, `${job.ref}-artifacts.zip`))
+          ? res
+            .blob()
+            .then((data) => FileSaver.saveAs(data, `${job.ref}-artifacts.zip`))
           : Promise.reject(res),
-      ).catch(
-        () => toastr.error('Error', 'Job artifacts were not found'),
-      )
+      ).catch(() => toastr.error('Error', 'Job artifacts were not found or cannot be parsed'))
       .finally(() => setIsDownloadingArtifacts(false));
   }
   return (

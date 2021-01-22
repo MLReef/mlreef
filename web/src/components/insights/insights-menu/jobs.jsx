@@ -24,12 +24,10 @@ const Jobs = (props) => {
   useEffect(() => {
     dataPipeApi.getProjectPipelines(id)
       .then((backendPipelines) => setBackendPipes(backendPipelines))
-      .then(() => {
-        jobsApi.getPerProject(gid)
-          .then((res) => {
-            setFilteredJobs(res);
-            setJobs(res);
-          });
+      .then(() => jobsApi.getPerProject(gid))
+      .then((res) => {
+        setFilteredJobs(res);
+        setJobs(res);
       })
       .catch(() => toastr.error('Error', 'Could not retrieve all the jobs'));
   }, [id, gid]);

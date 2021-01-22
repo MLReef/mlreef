@@ -27,12 +27,20 @@ export default class JobsApi extends ApiDirector {
     return fetch(blbuilder.build());
   }
 
+  /**
+   * 
+   * @param projectId: Gtilab number id of the project
+   * @param refName: branch name in which job was executed
+   * @param jobName: name of the job stage
+   * 
+   * 
+   * This function returns a Blob, do not treat it as Json.
+   */
   downloadArtifacts(projectId: number, refName: string, jobName: string) {
     const url = `/api/v4/projects/${projectId}/jobs/artifacts/${refName}/download?job=${jobName}`;
     const blbuilder = new BodyLessApiRequestCallBuilder(METHODS.GET, this.buildBasicHeaders(validServicesToCall.GITLAB), url);
 
-    return fetch(blbuilder.build())
-      .then(handleResponse);    
+    return fetch(blbuilder.build());
   }
 
   getLog(projectId: number, jobId: number) {
