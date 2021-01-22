@@ -48,7 +48,7 @@ const ForkView = (props) => {
         style={{ maxWidth: '250px' }}
       >
         <div>
-          <h2 className="t-dark">Froking in process</h2>
+          <h2 className="t-dark">Forking in process</h2>
           <p className="t-secondary">You may wait while we import the repository for you. You may refresh at will.</p>
         </div>
         <div
