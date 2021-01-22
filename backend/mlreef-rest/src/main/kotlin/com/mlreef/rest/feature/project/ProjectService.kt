@@ -469,6 +469,7 @@ open class ProjectServiceImpl<T : Project>(
      *
      */
     @Suppress("UNCHECKED_CAST")
+    @RefreshUserInformation(userId = "#creatorId")
     override fun forkProject(userToken: String, originalId: UUID, creatorId: UUID, name: String?, path: String?): T {        val original = repository.findByIdOrNull(originalId)
             ?: throw ProjectNotFoundException(originalId)
 
