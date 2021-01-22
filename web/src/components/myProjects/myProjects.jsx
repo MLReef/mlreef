@@ -190,7 +190,6 @@ class Myprojects extends React.Component {
     } = this.state;
     const {
       history,
-      actions,
       isLoading,
     } = this.props;
 
