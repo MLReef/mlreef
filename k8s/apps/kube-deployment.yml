@@ -34,11 +34,11 @@ spec:
               key: initial_shared_runners_registration_token
         resources:
           limits:
-            memory: 200Mi
-            cpu: 200m
+            memory: 1000Mi
+            cpu: 400m
           requests:
-            memory: 100Mi
-            cpu: 100m
+            memory: 800Mi
+            cpu: 200m
         volumeMounts:
         - name: scripts
           mountPath: /scripts
@@ -87,7 +87,7 @@ spec:
     - ReadWriteOnce
   resources:
     requests:
-      storage: 1Gi
+      storage: 5Gi
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -117,11 +117,11 @@ spec:
           name: redis
         resources:
           limits:
-            memory: 100Mi
-            cpu: 60m
+            memory: 1000Mi
+            cpu: 100m
           requests:
-            memory: 50Mi
-            cpu: 30m
+            memory: 500Mi
+            cpu: 80m
         volumeMounts:
         - name: redis-data
           mountPath: /data
@@ -141,10 +141,10 @@ metadata:
     app: mlreefdb-__CI_PROJECT_NAME__
     ref: __CI_ENVIRONMENT_SLUG__
 spec: 
-  clusterIP: None
+  type: NodePort
   ports: 
   - name: mlreefdb
-    port: 6000
+    port: 5432
     targetPort: 5432
   selector: 
     app: mlreefdb-__CI_PROJECT_NAME__
@@ -188,11 +188,11 @@ spec:
           name: mlreefdb
         resources:
           limits:
-            memory: 100Mi
-            cpu: 60m
+            memory: 1000Mi
+            cpu: 400m
           requests:
-            memory: 50Mi
-            cpu: 20m
+            memory: 800Mi
+            cpu: 200m
         volumeMounts:
         - name: mlreefdb-data
           mountPath: /var/lib/postgresql/data
@@ -210,7 +210,7 @@ spec:
     - ReadWriteOnce
   resources:
     requests:
-      storage: 1Gi
+      storage: 10Gi
 
 # gateway
 ---
@@ -258,10 +258,10 @@ spec:
           name: gateway
         resources:
           limits:
-            memory: 200Mi
+            memory: 600Mi
             cpu: 200m
           requests:
-            memory: 100Mi
+            memory: 500Mi
             cpu: 100m
         envFrom:
         - configMapRef:
@@ -334,10 +334,10 @@ spec:
             name: local-config
         resources:
           limits:
-            memory: 600Mi
-            cpu: 100m
+            memory: 1000Mi
+            cpu: 500m
           requests:
-            memory: 500Mi
-            cpu: 50m
+            memory: 800Mi
+            cpu: 300m
         imagePullPolicy: Always
 ---
