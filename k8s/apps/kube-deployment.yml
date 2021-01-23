@@ -82,6 +82,9 @@ apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: redis-pv-claim
+  labels:
+    app: redis-__CI_PROJECT_NAME__
+    ref: __CI_ENVIRONMENT_SLUG__
 spec:
   accessModes:
     - ReadWriteOnce
@@ -205,6 +208,9 @@ apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: postgres-pv-claim
+  labels:
+    app: mlreefdb-__CI_PROJECT_NAME__
+    ref: __CI_ENVIRONMENT_SLUG__
 spec:
   accessModes:
     - ReadWriteOnce
