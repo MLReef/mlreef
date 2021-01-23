@@ -49,6 +49,7 @@ metadata:
   name: gitlab-pv-claim-opt
   labels:
     app: gitlab-__CI_PROJECT_NAME__
+    ref: __CI_ENVIRONMENT_SLUG__
 spec:
   accessModes:
     - ReadWriteOnce
@@ -62,6 +63,7 @@ metadata:
   name: gitlab-pv-claim-log
   labels:
     app: gitlab-__CI_PROJECT_NAME__
+    ref: __CI_ENVIRONMENT_SLUG__
 spec:
   accessModes:
     - ReadWriteOnce

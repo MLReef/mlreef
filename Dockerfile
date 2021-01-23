@@ -35,8 +35,8 @@ ENV INSTANCE_HOST "localhost"
 ENV GITLAB_PORT "10080"
 # TODO rename to MLREEF_GITLAB_ROOT_URL
 ENV GITLAB_ROOT_URL "http://$INSTANCE_HOST:$GITLAB_PORT"
-ENV LOCAL_REGISTRY_PORT "5050"
-ENV LOCAL_REGISTRY_EXTERNAL_URL "http://$INSTANCE_HOST:$LOCAL_REGISTRY_PORT"  
+ENV MLREEF_DOCKER_REGISTRY_PORT "5050"
+ENV LOCAL_REGISTRY_EXTERNAL_URL "http://$INSTANCE_HOST:$MLREEF_DOCKER_REGISTRY_PORT"  
 
 ENV GITLAB_OMNIBUS_CONFIG "\
     # This is the URL that Gitlab expects to be addressed at.   \
@@ -49,7 +49,7 @@ ENV GITLAB_OMNIBUS_CONFIG "\
     registry_nginx['enable'] = true;                            \
     # Access port for the internal Docker registry              \
     # (has to be exposed via Docker as well)                    \
-    registry_nginx['listen_port'] = $LOCAL_REGISTRY_PORT;       \
+    registry_nginx['listen_port'] = $MLREEF_DOCKER_REGISTRY_PORT;       \
     redis['bind'] = '127.0.0.1';                                \
     redis['port'] = 6379;                                       \
     "
@@ -241,7 +241,7 @@ EXPOSE $MLREEF_BACKEND_PORT 80 443 10080
 # Expose Gitlab SSH port
 EXPOSE 22
 # Expose Docker registry port
-EXPOSE $LOCAL_REGISTRY_PORT
+EXPOSE $MLREEF_DOCKER_REGISTRY_PORT
 
 ENV GITLAB_ROOT_EMAIL    "roo@localhost"
 ENV GITLAB_ROOT_PASSWORD "password"
