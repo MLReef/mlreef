@@ -11,3 +11,6 @@
 
 !nautilus
 /nautilus/docker-compose.yml
+
+!epf/Dockerfile
+!epf/src

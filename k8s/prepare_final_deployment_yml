@@ -1,0 +1,98 @@
+#!/bin/bash
+### The script  prepares the final yml files for all the services in the namespace
+### The respective kubectl configs are in k8s/**/* location
+### It is finally called in bin/k8s-review-deploy
+
+cd "$(dirname "$0")"/..
+
+## Function for replacing variables inside k8s yml files
+function sed_files() {
+    file_type=${1:-compose}
+    file_name=$2
+    echo "File Type is $file_type"
+
+    if [[ "$file_type" == "deployment" ]]
+    then
+      echo "Applying SED on Deployment Yamls"
+      echo "CI_REGISTRY_IMAGE : ${CI_REGISTRY_IMAGE}"
+      sed -i "s~__CI_REGISTRY_IMAGE__~${CI_REGISTRY_IMAGE}~" $file_name
+      echo "CI_ENVIRONMENT_SLUG: ${CI_ENVIRONMENT_SLUG}"
+      sed -i "s/__CI_ENVIRONMENT_SLUG__/${CI_ENVIRONMENT_SLUG}/" $file_name
+      echo "CI_COMMIT_REF_SLUG: ${CI_COMMIT_REF_SLUG}"
+      sed -i "s~__VERSION__~${CI_COMMIT_REF_SLUG}~" $file_name
+      echo "CI_PROJECT_NAME: ${CI_PROJECT_NAME}"
+      sed -i "s~__CI_PROJECT_NAME__~${CI_PROJECT_NAME}~" $file_name
+      echo "CI_PROJECT_PATH_SLUG : ${CI_PROJECT_PATH_SLUG}"
+      sed -i "s~__CI_PROJECT_PATH_SLUG__~${CI_PROJECT_PATH_SLUG}~" $file_name
+      echo "KUBE_INGRESS_BASE_DOMAIN : ${KUBE_INGRESS_BASE_DOMAIN}"
+      sed -i "s/__KUBE_INGRESS_BASE_DOMAIN__/${KUBE_INGRESS_BASE_DOMAIN}/" $file_name
+    else
+      echo "Applying SED on compose Yamls"
+      sed -i "s~__CI_REGISTRY_IMAGE__~${CI_REGISTRY_IMAGE}~" docker-compose.yml
+    fi
+  }
+
+## Function to concanate multiple files in a file
+scope_files() {
+  for file in "$@"; do
+    cat "$file"
+    echo "---"
+  done
+}
+
+
+## Check if the base domain variable is set
+if [[ -z "$KUBE_INGRESS_BASE_DOMAIN" ]]; then
+    echo "A needed variable is not exported. : GITLAB_GKE_DOMAIN"
+    exit 1
+fi
+
+## Generate gitlab yml file
+scope_files \
+  k8s/gitlab/* \
+  > gitlab-full.yml
+
+echo "Using gitlab-${dashed_domain}.yml"
+cp gitlab-full.yml gitlab-${dashed_domain}.yml
+
+sed -i.bak "
+    s/@GITLAB_GKE_DOMAIN@/$CI_ENVIRONMENT_SLUG.$KUBE_INGRESS_BASE_DOMAIN/g
+" gitlab-${dashed_domain}.yml
+rm gitlab-${dashed_domain}.yml.bak
+
+sed_files deployment gitlab-${dashed_domain}.yml
+
+# Final gitlab yml file
+cat gitlab-${dashed_domain}.yml
+
+
+## Generate ingress yml file
+scope_files \
+  k8s/ingress/* \
+  > ingress-full.yml
+# Final ingress yml file
+cp ingress-full.yml ingress-${dashed_domain}.yml
+sed_files deployment ingress-${dashed_domain}.yml
+cat ingress-${dashed_domain}.yml
+
+## Generate app yml file
+scope_files \
+  k8s/apps/* \
+  > apps-full.yml
+
+echo "Using apps-${dashed_domain}.yml"
+cp apps-full.yml apps-${dashed_domain}.yml
+
+sed -i.bak "
+    s/@GITLAB_GKE_DOMAIN@/$CI_ENVIRONMENT_SLUG.$KUBE_INGRESS_BASE_DOMAIN/g
+" apps-${dashed_domain}.yml
+sed -i.bak "
+    s/@K8S_RUNNER_BEARER_TOKEN@/$K8S_RUNNER_BEARER_TOKEN/g
+" apps-${dashed_domain}.yml
+
+rm apps-${dashed_domain}.yml.bak
+
+sed_files deployment apps-${dashed_domain}.yml
+
+# Final app yml file
+cat apps-${dashed_domain}.yml
