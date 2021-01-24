@@ -1,0 +1,43 @@
+#!/bin/sh
+#The main script that is called in .gitlab-ci.yml for review environment deploy
+# change to the repository root folder via the scripts location
+cd "$(dirname "$0")"/..
+########################################
+set -x  # output all commands
+set -o  pipefail
+set -e  # exit on immediately on every error
+set -u  # error on usage of undefined variables
+########################################
+
+## Export variable that will be included in all final yml files
+export dashed_domain="${CI_ENVIRONMENT_SLUG}"
+
+# Print kubectl version
+kubectl version
+
+# Prepare the final yml files for deployment
+./k8s/prepare_final_deployment_yml
+
+# Delete resources in namespace before fresh deployment
+kubectl delete deploy,svc,ing,pod -l ref=${CI_ENVIRONMENT_SLUG}
+
+# Gitlab deployment script
+./k8s/gitlab-deployment
+
+# All other services than gitlab deployment
+./k8s/k8s_final_yml_deployment
+sleep 30
+
+# Recreate ingress as some services got created after ingress creation
+kubectl delete ing -l ref="${CI_ENVIRONMENT_SLUG}"
+kubectl apply -f ingress-${dashed_domain}.yml
+sleep 60
+
+# Print final services created
+kubectl get deploy,svc,ing,pod -l ref="${CI_ENVIRONMENT_SLUG}"
+kubectl get pvc -l ref="${CI_ENVIRONMENT_SLUG}"
+kubectl describe ing -l ref="${CI_ENVIRONMENT_SLUG}"
+
+# Print namespace for the envirnment for reference
+echo $KUBE_NAMESPACE
+

@@ -178,6 +178,22 @@ spec:
               mountPath: /etc/gitlab
             - name: gitlab-log
               mountPath: /var/log/gitlab
+          livenessProbe:
+            httpGet:
+              path: /api/v4/projects
+              port: 80
+            initialDelaySeconds: 120
+            periodSeconds: 20
+            timeoutSeconds: 10
+            failureThreshold: 5
+          readinessProbe:
+            httpGet:
+              path: /api/v4/projects
+              port: 80
+            initialDelaySeconds: 120
+            periodSeconds: 20
+            timeoutSeconds: 10
+            failureThreshold: 5
       volumes:
         - name: gitlab-config
           persistentVolumeClaim:
@@ -189,56 +205,3 @@ spec:
           persistentVolumeClaim:
             claimName: gitlab-pv-claim-log
 ---
-# Ingress Resource
-apiVersion: networking.k8s.io/v1beta1
-kind: Ingress
-metadata:
-  name: app-ingress
-  annotations:
-#    nginx.ingress.kubernetes.io/tls-acme: "true"
-    nginx.ingress.kubernetes.io/ingress.class: "nginx"
-    nginx.ingress.kubernetes.io/proxy-body-size: 5120m
-    nginx.ingress.kubernetes.io/ssl-redirect: "false"
-  labels:
-    app: ingress-__CI_PROJECT_NAME__
-    ref: __CI_ENVIRONMENT_SLUG__
-
-spec:
-#  tls:
-#  - hosts:
-#    - __CI_ENVIRONMENT_SLUG__.__KUBE_INGRESS_BASE_DOMAIN__
-#    - backend.__CI_ENVIRONMENT_SLUG__.__KUBE_INGRESS_BASE_DOMAIN__
-#    - gitlab.__CI_ENVIRONMENT_SLUG__.__KUBE_INGRESS_BASE_DOMAIN__
-#    - registry.__CI_ENVIRONMENT_SLUG__.__KUBE_INGRESS_BASE_DOMAIN__
-#    secretName: review-deploy-tls
-  rules:
-  - host: __CI_ENVIRONMENT_SLUG__.__KUBE_INGRESS_BASE_DOMAIN__
-    http:
-      paths:
-      - path: /
-        backend:
-          serviceName: gateway
-          servicePort: 80
-  - host: backend.__CI_ENVIRONMENT_SLUG__.__KUBE_INGRESS_BASE_DOMAIN__
-    http:
-      paths:
-      - path: /
-        backend:
-          serviceName: backend
-          servicePort: 8080
-  - host: gitlab.__CI_ENVIRONMENT_SLUG__.__KUBE_INGRESS_BASE_DOMAIN__
-    http:
-      paths:
-      - path: /
-        backend:
-          serviceName: gitlab
-          servicePort: 10080
-  - host: registry.__CI_ENVIRONMENT_SLUG__.__KUBE_INGRESS_BASE_DOMAIN__
-    http:
-      paths:
-      - path: /
-        backend:
-          serviceName: gitlab
-          servicePort: 5050
-
-

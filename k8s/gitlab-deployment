@@ -1,7 +1,9 @@
 #!/bin/bash
-###The script does kuberentes deployment of gitlab and its pre dependent components
-###The respective kubectl configs are in k8s/gitlab/ location
-# change to the repository root folder via the scripts location
+### The script does kuberentes deployment of gitlab and its pre dependent components
+### The respective kubectl configs are in k8s/gitlab/ location
+### This is called in bin/k8s-review-deploy
+
+# Change to the repository root folder via the scripts location
 cd "$(dirname "$0")"/..
 . k8s/includes/log
 . k8s/includes/ci-environment
@@ -13,13 +15,13 @@ set -o  pipefail
 set -e  # exit on immediately on every error
 set -u  # error on usage of undefined variables
 ########################################
-##Write instance.info. Right now it is being referred at many places, so keeping as it is.
+## Write instance.info. Right now it is being referred at many places, so keeping as it is.
 mkdir -p out
 echo $CI_ENVIRONMENT_SLUG.$KUBE_INGRESS_BASE_DOMAIN > out/instance.info
 cat out/instance.info
 ####
 
-###Need to move it to another file if required
+### Need to move it to another file if required
 # The INSTANCE_HOST variable represents the full URL to the EC2 instance MLReef is running on
 # e.g: 'ec2-3-126-88-77.eu-central-1.compute.amazonaws.com'
 # This Information is necessary so that e.g. the runners know where to find the backend
@@ -56,7 +58,7 @@ EPF_GITLAB_URL=http://gitlab.$INSTANCE_HOST
 NOREPLY_EMAIL=${NOREPLY_EMAIL-}
 NOREPLY_EMAIL_PASSWORD=${NOREPLY_EMAIL_PASSWORD-}
 
-#Local configmap that would be used by gitlab, backend and gateway pods
+# Local configmap that would be used by gitlab, backend and gateway pods
 cat > local-config-${CI_ENVIRONMENT_SLUG}.yml << LOCALCONF
 apiVersion: v1
 kind: ConfigMap
@@ -83,12 +85,12 @@ LOCALCONF
 cat local-config-${CI_ENVIRONMENT_SLUG}.yml
 kubectl apply -f local-config-${CI_ENVIRONMENT_SLUG}.yml
 
-##Create the tls secret for ingress controller.
-##openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /tmp/tls.key -out /tmp/tls.crt -subj "/CN=35.246.253.255.nip.io"
-##cat /tmp/tls.crt | base64 -w 0
-##cat /tmp/tls.key | base64 -w 0
-##Add them in Gitlab variable
-##and the same is being used for all the review environments
+## Create the tls secret for ingress controller.
+## openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /tmp/tls.key -out /tmp/tls.crt -subj "/CN=35.246.253.255.nip.io"
+## cat /tmp/tls.crt | base64 -w 0
+## cat /tmp/tls.key | base64 -w 0
+## Add them in Gitlab variable
+## and the same is being used for all the review environments
 cat > review-deploy-tls-${CI_ENVIRONMENT_SLUG}.yml << LOCALCONF
 apiVersion: v1
 kind: Secret
@@ -103,62 +105,14 @@ LOCALCONF
 cat review-deploy-tls-${CI_ENVIRONMENT_SLUG}.yml
 kubectl apply -f review-deploy-tls-${CI_ENVIRONMENT_SLUG}.yml
 
-function sed_files() {
-    file_type=${1:-compose}
-    file_name=$2
-    echo "File Type is $file_type"
-
-    if [[ "$file_type" == "deployment" ]]
-    then
-      echo "Applying SED on Deployment Yamls"
-      echo "CI_REGISTRY_IMAGE : ${CI_REGISTRY_IMAGE}"
-      sed -i "s~__CI_REGISTRY_IMAGE__~${CI_REGISTRY_IMAGE}~" $file_name
-      echo "CI_ENVIRONMENT_SLUG: ${CI_ENVIRONMENT_SLUG}"
-      sed -i "s/__CI_ENVIRONMENT_SLUG__/${CI_ENVIRONMENT_SLUG}/" $file_name
-      echo "CI_COMMIT_REF_SLUG: ${CI_COMMIT_REF_SLUG}"
-      sed -i "s~__VERSION__~${CI_COMMIT_REF_SLUG}~" $file_name
-      echo "CI_PROJECT_NAME: ${CI_PROJECT_NAME}"
-      sed -i "s~__CI_PROJECT_NAME__~${CI_PROJECT_NAME}~" $file_name
-      echo "CI_PROJECT_PATH_SLUG : ${CI_PROJECT_PATH_SLUG}"
-      sed -i "s~__CI_PROJECT_PATH_SLUG__~${CI_PROJECT_PATH_SLUG}~" $file_name
-      echo "KUBE_INGRESS_BASE_DOMAIN : ${KUBE_INGRESS_BASE_DOMAIN}"
-      sed -i "s/__KUBE_INGRESS_BASE_DOMAIN__/${KUBE_INGRESS_BASE_DOMAIN}/" $file_name
-    else
-      echo "Applying SED on compose Yamls"
-      sed -i "s~__CI_REGISTRY_IMAGE__~${CI_REGISTRY_IMAGE}~" docker-compose.yml
-    fi
-  }
-
-scope_files() {
-  for file in "$@"; do
-    cat "$file"
-    echo "---"
-  done
-}
-
-scope_files \
-  k8s/gitlab/* \
-  > gitlab-full.yml
-
-if [[ -z "$KUBE_INGRESS_BASE_DOMAIN" ]]; then
-    echo "A needed variable is not exported. : GITLAB_GKE_DOMAIN"
-    exit 1
-fi
-
-dashed_domain="${CI_ENVIRONMENT_SLUG}"
-echo "Using gitlab-${dashed_domain}.yml"
-cp gitlab-full.yml gitlab-${dashed_domain}.yml
-
-sed -i.bak "
-    s/@GITLAB_GKE_DOMAIN@/$CI_ENVIRONMENT_SLUG.$KUBE_INGRESS_BASE_DOMAIN/g
-" gitlab-${dashed_domain}.yml
-rm gitlab-${dashed_domain}.yml.bak
-
-sed_files deployment gitlab-${dashed_domain}.yml
-cat gitlab-${dashed_domain}.yml
+## Apply finally generate yml file from bin/k8s-review-deploy => k8s/prepare_final_deployment_yml
 kubectl apply -f gitlab-${dashed_domain}.yml
 
-##Verify if gitlab is up
+# Ingress deployment ( gitlab endpoint should be up before further steps)
+kubectl apply -f ingress-${dashed_domain}.yml
+
+
+## Verify if gitlab is up
 waitUntilGitlabAvailable
 
 log "Ensuring availability of the Gitlab API to start"

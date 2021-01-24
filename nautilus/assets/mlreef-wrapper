@@ -82,6 +82,7 @@ touch /var/log/configuration.log
     --executor "docker" \
     --docker-image alpine:latest \
     --docker-privileged="true"   \
+    --docker-volumes /var/run/docker.sock:/var/run/docker.sock    \
     --description "Packaged Runner"  \
     --tag-list "docker,local-docker" \
     --run-untagged="true" \
@@ -118,17 +119,17 @@ fi
 echo "Project Id: $projectId" 
 
 # Local EPF image upload
-export LOCAL_CI_REGISTRY_USER=root
-export LOCAL_CI_REGISTRY_IMAGE="${LOCAL_REGISTRY_EXTERNAL_URL}/${GITLAB_ROOTGROUP}/${GITLAB_PROJECT}"
-export LOCAL_EPF_IMAGE_PATH=$LOCAL_CI_REGISTRY_IMAGE/epf:latest
+export MLREEF_DOCKER_REGISTRY_USER=root
+export MLREEF_DOCKER_REGISTRY_IMAGE="${MLREEF_DOCKER_REGISTRY}/${GITLAB_ROOTGROUP}/${GITLAB_PROJECT}"
+export MLREEF_DOCKER_REGISTRY_EPF_IMAGE=$MLREEF_DOCKER_REGISTRY_IMAGE/epf:latest
 
-if [ -n "${LOCAL_REGISTRY_EXTERNAL_URL+x}" ] && [ -n "${LOCAL_CI_REGISTRY_USER+x}" ] && [ -n "${GITLAB_ADMIN_TOKEN+x}" ]; then
-          echo "$GITLAB_ADMIN_TOKEN" | docker login "$LOCAL_REGISTRY_EXTERNAL_URL" --username="$LOCAL_CI_REGISTRY_USER" --password-stdin
+if [ -n "${MLREEF_DOCKER_REGISTRY_EXTERNAL_URL+x}" ] && [ -n "${MLREEF_DOCKER_REGISTRY_USER+x}" ] && [ -n "${GITLAB_ADMIN_TOKEN+x}" ]; then
+          echo "$GITLAB_ADMIN_TOKEN" | docker login "$MLREEF_DOCKER_REGISTRY_EXTERNAL_URL" --username="$MLREEF_DOCKER_REGISTRY_USER" --password-stdin
 fi
 
-docker build --tag "$LOCAL_EPF_IMAGE_PATH" -f epf/Dockerfile epf
-docker push "$LOCAL_EPF_IMAGE_PATH"
-log "$LOCAL_EPF_IMAGE_PATH has been successfully uploaded "
+docker build --tag "$MLREEF_DOCKER_REGISTRY_EPF_IMAGE" -f ../epf/Dockerfile ../epf
+docker push "$MLREEF_DOCKER_REGISTRY_EPF_IMAGE"
+log "$MLREEF_DOCKER_REGISTRY_EPF_IMAGE has been successfully uploaded "
 
 
 #########################

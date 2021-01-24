@@ -60,18 +60,7 @@ deploy_review:
     url: https://$CI_ENVIRONMENT_SLUG.$KUBE_INGRESS_BASE_DOMAIN
     on_stop: stop_review
   script:
-    - kubectl version
-    - kubectl delete deploy,svc,ing,pod -l ref=${CI_ENVIRONMENT_SLUG}
-    - ./k8s/gitlab-deployment
-    - ./k8s/k8s_final_yml_deployment
-    - sed_files deployment apps-${CI_ENVIRONMENT_SLUG}.yml
-    - cat apps-${CI_ENVIRONMENT_SLUG}.yml
-    - kubectl apply -f apps-${CI_ENVIRONMENT_SLUG}.yml
-    - sleep 120
-    - kubectl get deploy,svc,ing,pod -l ref="${CI_ENVIRONMENT_SLUG}"
-    - kubectl get pvc -l ref="${CI_ENVIRONMENT_SLUG}"
-    - kubectl describe ing -l ref="${CI_ENVIRONMENT_SLUG}"
-    - echo $KUBE_NAMESPACE
+    - bin/k8s-review-deploy
   artifacts:
     paths:
       - out/instance.info             # pass instance url to later stages (see k8s/includes/ci-environment)
@@ -109,7 +98,6 @@ stop_review:
     # 1196730 is the id of the "epf's" sub-repository id
     - curl --request DELETE --header "PRIVATE-TOKEN:$GITLAB_COM_API_TOKEN"
       https://gitlab.com/api/v4/projects/$CI_PROJECT_ID/registry/repositories/1196730/tags/$CI_COMMIT_REF_SLUG
-    - kubectl delete namespace $KUBE_NAMESPACE
 
 clean rest docs folder:
   extends: [.except-docu-branches]
@@ -127,38 +115,6 @@ clean rest docs folder:
   script: |
     chmod +x docs/bin/ci-pages-cleanup
     docs/bin/ci-pages-cleanup
-
-
-.helper_functions: &helper_functions_template |
-  function sed_files() {
-    file_type=${1:-compose}
-    file_name=$2
-    echo "File Type is $file_type"
-
-    if [[ "$file_type" == "deployment" ]]
-    then
-      echo "Applying SED on Deployment Yamls"
-      echo "CI_REGISTRY_IMAGE : ${CI_REGISTRY_IMAGE}"
-      sed -i "s~__CI_REGISTRY_IMAGE__~${CI_REGISTRY_IMAGE}~" $file_name
-      echo "CI_ENVIRONMENT_SLUG: ${CI_ENVIRONMENT_SLUG}"
-      sed -i "s/__CI_ENVIRONMENT_SLUG__/${CI_ENVIRONMENT_SLUG}/" $file_name
-      echo "CI_COMMIT_REF_SLUG: ${CI_COMMIT_REF_SLUG}"
-      sed -i "s~__VERSION__~${CI_COMMIT_REF_SLUG}~" $file_name
-      echo "CI_PROJECT_NAME: ${CI_PROJECT_NAME}"
-      sed -i "s~__CI_PROJECT_NAME__~${CI_PROJECT_NAME}~" $file_name
-      echo "CI_PROJECT_PATH_SLUG : ${CI_PROJECT_PATH_SLUG}"
-      sed -i "s~__CI_PROJECT_PATH_SLUG__~${CI_PROJECT_PATH_SLUG}~" $file_name
-      echo "KUBE_INGRESS_BASE_DOMAIN : ${KUBE_INGRESS_BASE_DOMAIN}"
-      sed -i "s/__KUBE_INGRESS_BASE_DOMAIN__/${KUBE_INGRESS_BASE_DOMAIN}/" $file_name
-    else
-      echo "Applying SED on compose Yamls"
-      sed -i "s~__CI_REGISTRY_IMAGE__~${CI_REGISTRY_IMAGE}~" docker-compose.yml
-    fi
-  }
-
-before_script:
-  - *helper_functions_template
-
 
 
 
