@@ -10,7 +10,6 @@ import com.mlreef.rest.external_api.gitlab.GitlabRestClient
 import com.mlreef.rest.external_api.gitlab.dto.GitlabProject
 import com.mlreef.rest.utils.RandomUtils
 import com.mlreef.utils.Slugs
-import java.time.ZonedDateTime.now
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
@@ -20,7 +19,6 @@ import org.junit.jupiter.api.assertThrows
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.test.annotation.Rollback
 import javax.transaction.Transactional
-import org.assertj.core.api.Assertions.assertThatIllegalStateException
 
 @Suppress("UsePropertyAccessSyntax")
 @Transactional
@@ -74,6 +72,7 @@ class GitlabRestClientTest : AbstractIntegrationTest() {
     }
 
     @Test
+    @Disabled
     fun `Can fork project into same namespace`() {
         val (_, token, _) = testsHelper.createRealUser()
         val original = gitlabRestClient.createProject(

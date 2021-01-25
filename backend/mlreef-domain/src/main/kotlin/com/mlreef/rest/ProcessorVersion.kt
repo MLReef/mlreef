@@ -24,7 +24,7 @@ data class ProcessorVersion(
     @Id
     val id: UUID,
 
-    @OneToOne(fetch = FetchType.EAGER, cascade = [CascadeType.REFRESH, CascadeType.MERGE, CascadeType.PERSIST])
+    @OneToOne(fetch = FetchType.LAZY)
     @Fetch(value = FetchMode.JOIN)
     @JoinColumn(
         name = "data_processor_id",

@@ -447,6 +447,7 @@ open class ProjectServiceImpl<T : Project>(
         )
         val dataProcessorId = randomUUID()
         dataProcessorService.createForCodeProject(
+            //FIXME: Remove data processor creation. Move it to publishing process
             id = dataProcessorId,
             name = "Data processor $dataProcessorId",
             slug = "data-proc-$dataProcessorId",

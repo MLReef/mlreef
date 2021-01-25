@@ -20,7 +20,7 @@ class ParserController(
         @RequestBody request: String,
         tokenDetails: TokenDetails,
     ): ProcessorVersion? {
-        return pythonParserService.parsePythonFile(request)
+        return pythonParserService.parsePythonFile(request)?.processorVersion
     }
 
     @RequestMapping(value = ["/parse/project/{projectId}"], method = [RequestMethod.POST])
@@ -29,7 +29,7 @@ class ParserController(
         @RequestBody(required = false) request: PublishingRequest?,
         tokenDetails: TokenDetails,
     ): ProcessorVersion? {
-        return pythonParserService.findAndParseDataProcessorInProject(projectId, request?.path)
+        return pythonParserService.findAndParseDataProcessorInProject(projectId, request?.path).processorVersion
     }
 }
 

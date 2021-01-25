@@ -29,7 +29,8 @@ class DataOperation(
     lastPublishedAt: ZonedDateTime? = null,
     version: Long? = null,
     createdAt: ZonedDateTime? = null,
-    updatedAt: ZonedDateTime? = null
+    updatedAt: ZonedDateTime? = null,
+    processorVersion: ProcessorVersion? = null,
 ) : DataProcessor(
     id = id,
     slug = slug,
@@ -49,7 +50,8 @@ class DataOperation(
     lastPublishedAt = lastPublishedAt,
     version = version,
     createdAt = createdAt,
-    updatedAt = updatedAt
+    updatedAt = updatedAt,
+    processorVersion = processorVersion,
 ) {
     override fun isChainable(): Boolean = true
 
@@ -68,6 +70,7 @@ class DataOperation(
         licenceName: String?,
         licenceText: String?,
         lastPublishedAt: ZonedDateTime?,
+        processorVersion: ProcessorVersion?,
     ): DataOperation = DataOperation(
         id = id,
         slug = slug,
@@ -87,5 +90,6 @@ class DataOperation(
         version = this.version,
         createdAt = this.createdAt,
         updatedAt = this.updatedAt,
+        processorVersion = processorVersion,
     )
 }

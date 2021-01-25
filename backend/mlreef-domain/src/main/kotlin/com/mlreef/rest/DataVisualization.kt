@@ -24,7 +24,8 @@ class DataVisualization(
     lastPublishedAt: ZonedDateTime? = null,
     version: Long? = null,
     createdAt: ZonedDateTime? = null,
-    updatedAt: ZonedDateTime? = null
+    updatedAt: ZonedDateTime? = null,
+    processorVersion: ProcessorVersion? = null,
 ) : DataProcessor(
     id = id,
     slug = slug,
@@ -45,7 +46,8 @@ class DataVisualization(
     lastPublishedAt = lastPublishedAt,
     version = version,
     createdAt = createdAt,
-    updatedAt = updatedAt
+    updatedAt = updatedAt,
+    processorVersion = processorVersion,
 ) {
     override fun isChainable(): Boolean = true
 
@@ -64,6 +66,7 @@ class DataVisualization(
         licenceName: String?,
         licenceText: String?,
         lastPublishedAt: ZonedDateTime?,
+        processorVersion: ProcessorVersion?,
     ): DataVisualization = DataVisualization(
         id = id,
         slug = slug,
@@ -82,5 +85,6 @@ class DataVisualization(
         version = this.version,
         createdAt = this.createdAt,
         updatedAt = this.updatedAt,
+        processorVersion = processorVersion,
     )
 }

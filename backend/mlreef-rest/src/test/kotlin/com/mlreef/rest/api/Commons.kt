@@ -358,7 +358,7 @@ internal class AccountSubjectPreparationTrait {
         applyAccount()
     }
 
-    private fun applyAccount() {
+    fun applyAccount() {
         account = createMockUser(personGitlabId = 1L)
         account2 = createMockUser(userOverrideSuffix = "0002", personGitlabId = 2L)
         subject = account.person
@@ -409,9 +409,9 @@ internal class AccountSubjectPreparationTrait {
 @Component
 internal class PipelineTestPreparationTrait : AccountSubjectPreparationTrait() {
 
-    lateinit var dataOp1: ProcessorVersion
-    lateinit var dataOp2: ProcessorVersion
-    lateinit var dataOp3: ProcessorVersion
+    var procVersion1: ProcessorVersion? = null
+    var procVersion2: ProcessorVersion? = null
+    var procVersion3: ProcessorVersion? = null
     lateinit var dataProject: DataProject
     lateinit var dataProject2: DataProject
     lateinit var codeProject: CodeProject
@@ -462,8 +462,8 @@ internal class PipelineTestPreparationTrait : AccountSubjectPreparationTrait() {
     private lateinit var baseEnvironmentsRepository: BaseEnvironmentsRepository
 
     override fun apply() {
-        deleteAll()
-        super.deleteAll()
+//        deleteAll()
+//        super.deleteAll()
         applyAccount()
 
         baseEnv1 = baseEnvironmentsRepository.save(BaseEnvironments(randomUUID(), RandomUtils.generateRandomUserName(15), "docker1:latest", sdkVersion = "3.7"))
@@ -481,40 +481,44 @@ internal class PipelineTestPreparationTrait : AccountSubjectPreparationTrait() {
         codeProject = codeProjectRepository.save(CodeProject(randomUUID(), "code-project1", "url", "Test DataProject", "", ownerId = account.person.id,
             gitlabNamespace = "commons", gitlabId = Random.nextInt().toLong().absoluteValue, gitlabPath = "code-project1"))
 
-        val _dataOp1 = dataOperationRepository.save(DataOperation(randomUUID(), "commons-data-operation1", "name", DataType.ANY, DataType.ANY))
-        val _dataOp2 = dataAlgorithmRepository.save(DataAlgorithm(randomUUID(), "commons-algorithm", "name", DataType.ANY, DataType.ANY))
-        val _dataOp3 = dataVisualizationRepository.save(DataVisualization(randomUUID(), "commons-data-visualisation", "name", DataType.ANY))
+        var dataProc1 = dataOperationRepository.save(DataOperation(randomUUID(), "commons-data-operation1", "name", DataType.ANY, DataType.ANY))
+        var dataProc2 = dataAlgorithmRepository.save(DataAlgorithm(randomUUID(), "commons-algorithm", "name", DataType.ANY, DataType.ANY))
+        var dataProc3 = dataVisualizationRepository.save(DataVisualization(randomUUID(), "commons-data-visualisation", "name", DataType.ANY))
 
-        dataOp1 = processorVersionRepository.save(ProcessorVersion(
-            id = _dataOp1.id, dataProcessor = _dataOp1, publishingInfo = PublishingInfo(publisher = account.person),
-            command = "command", number = 1, baseEnvironment = baseEnv1))
+        procVersion1 = ProcessorVersion(
+            id = dataProc1.id, dataProcessor = dataProc1, publishingInfo = PublishingInfo(publisher = account.person),
+            command = "command", number = 1, baseEnvironment = baseEnv1)
 
-        dataOp2 = processorVersionRepository.save(ProcessorVersion(
-            id = _dataOp2.id, dataProcessor = _dataOp2, publishingInfo = PublishingInfo(publisher = account.person),
-            command = "command", number = 1, baseEnvironment = baseEnv2))
+        procVersion2 = ProcessorVersion(
+            id = dataProc2.id, dataProcessor = dataProc2, publishingInfo = PublishingInfo(publisher = account.person),
+            command = "command", number = 1, baseEnvironment = baseEnv2)
 
-        dataOp3 = processorVersionRepository.save(ProcessorVersion(
-            id = _dataOp3.id, dataProcessor = _dataOp3, publishingInfo = PublishingInfo(publisher = account.person),
-            command = "command", number = 1, baseEnvironment = baseEnv3))
+        procVersion3 = ProcessorVersion(
+            id = dataProc3.id, dataProcessor = dataProc3, publishingInfo = PublishingInfo(publisher = account.person),
+            command = "command", number = 1, baseEnvironment = baseEnv3)
 
-        processorParameterRepository.save(ProcessorParameter(randomUUID(), dataOp1.id, "stringParam", type = ParameterType.STRING, order = 0, defaultValue = ""))
-        processorParameterRepository.save(ProcessorParameter(randomUUID(), dataOp1.id, "floatParam", type = ParameterType.FLOAT, order = 1, defaultValue = ""))
-        processorParameterRepository.save(ProcessorParameter(randomUUID(), dataOp1.id, "integerParam", type = ParameterType.INTEGER, order = 2, defaultValue = ""))
-        processorParameterRepository.save(ProcessorParameter(randomUUID(), dataOp1.id, "stringList", type = ParameterType.LIST, order = 3, defaultValue = ""))
+        dataProc1 = dataOperationRepository.save(dataProc1.copy(processorVersion = procVersion1))
+        dataProc2 = dataAlgorithmRepository.save(dataProc2.copy(processorVersion = procVersion2))
+        dataProc3 = dataVisualizationRepository.save(dataProc3.copy(processorVersion = procVersion3))
+//
+        processorParameterRepository.save(ProcessorParameter(randomUUID(), procVersion1!!.id, "stringParam", type = ParameterType.STRING, order = 0, defaultValue = ""))
+        processorParameterRepository.save(ProcessorParameter(randomUUID(), procVersion1!!.id, "floatParam", type = ParameterType.FLOAT, order = 1, defaultValue = ""))
+        processorParameterRepository.save(ProcessorParameter(randomUUID(), procVersion1!!.id, "integerParam", type = ParameterType.INTEGER, order = 2, defaultValue = ""))
+        processorParameterRepository.save(ProcessorParameter(randomUUID(), procVersion1!!.id, "stringList", type = ParameterType.LIST, order = 3, defaultValue = ""))
 
-        processorParameterRepository.save(ProcessorParameter(randomUUID(), dataOp2.id, "booleanParam", type = ParameterType.BOOLEAN, order = 0, defaultValue = ""))
-        processorParameterRepository.save(ProcessorParameter(randomUUID(), dataOp2.id, "complexName", type = ParameterType.COMPLEX, order = 1, defaultValue = ""))
+        processorParameterRepository.save(ProcessorParameter(randomUUID(), procVersion2!!.id, "booleanParam", type = ParameterType.BOOLEAN, order = 0, defaultValue = ""))
+        processorParameterRepository.save(ProcessorParameter(randomUUID(), procVersion2!!.id, "complexName", type = ParameterType.COMPLEX, order = 1, defaultValue = ""))
 
-        processorParameterRepository.save(ProcessorParameter(randomUUID(), dataOp3.id, "tupleParam", type = ParameterType.TUPLE, order = 0, defaultValue = ""))
-        processorParameterRepository.save(ProcessorParameter(randomUUID(), dataOp3.id, "hashParam", type = ParameterType.DICTIONARY, order = 1, defaultValue = ""))
+        processorParameterRepository.save(ProcessorParameter(randomUUID(), procVersion3!!.id, "tupleParam", type = ParameterType.TUPLE, order = 0, defaultValue = ""))
+        processorParameterRepository.save(ProcessorParameter(randomUUID(), procVersion3!!.id, "hashParam", type = ParameterType.DICTIONARY, order = 1, defaultValue = ""))
 
     }
 
-    private fun applyAccount() {
-        account = createMockUser()
-        account2 = createMockUser(userOverrideSuffix = "0002")
-        subject = account.person
-    }
+//    override fun applyAccount() {
+//        account = createMockUser()
+//        account2 = createMockUser(userOverrideSuffix = "0002")
+//        subject = account.person
+//    }
 
     public override fun deleteAll() {
         parameterInstanceRepository.deleteAll()
@@ -533,6 +537,8 @@ internal class PipelineTestPreparationTrait : AccountSubjectPreparationTrait() {
         accountRepository.deleteAll()
         personRepository.deleteAll()
         baseEnvironmentsRepository.deleteAll()
+
+        super.deleteAll()
     }
 
 

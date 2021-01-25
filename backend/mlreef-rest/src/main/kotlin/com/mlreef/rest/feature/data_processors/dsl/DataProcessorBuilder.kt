@@ -45,16 +45,18 @@ class DataProcessorBuilder(val processorType: DataProcessorType) {
     var createdAt: ZonedDateTime? = null
     var updatedAt: ZonedDateTime? = null
 
-    fun buildVersion(dataProcessor: DataProcessor) = ProcessorVersion(
+    private var dataProcessor: DataProcessor? = null
+
+    fun buildVersion(dataProcessor: DataProcessor? = null) = ProcessorVersion(
         id = id,
         metricSchema = metricSchema,
         branch = branch,
-        dataProcessor = dataProcessor,
+        dataProcessor = dataProcessor ?: this.buildProcessor(),
         command = command,
         number = number,
         baseEnvironmentId = baseEnvironmentId,
         pipelineJobInfo = pipelineJobInfo,
-        parameters = buildParameters(dataProcessor),
+        parameters = buildParameters(dataProcessor ?: this.buildProcessor()),
         publishingInfo = PublishingInfo(publisher = publisher, publishedAt = publishedAt)
     )
 
@@ -70,11 +72,15 @@ class DataProcessorBuilder(val processorType: DataProcessorType) {
     }
 
     fun buildProcessor(): DataProcessor {
-        return when (processorType) {
+        if (dataProcessor != null) return dataProcessor!!
+
+        dataProcessor = when (processorType) {
             DataProcessorType.ALGORITHM -> buildModel()
             DataProcessorType.OPERATION -> buildOperation()
             DataProcessorType.VISUALIZATION -> buildVisualization()
         }
+
+        return dataProcessor!!
     }
 
     private fun buildOperation() = DataOperation(

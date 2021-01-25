@@ -235,6 +235,7 @@ class InitialDataLoaderTest : AbstractRepositoryTest() {
     @Test
     fun `initialDataLoader merge-saves new versions`() {
         val buildContext = initialDataLoader.prepare(author, token)
+        buildContext.mergeSaveEnvironments(baseEnvironmentsRepository)
         val codeProjectsBuilders = buildContext.codeProjects
         val processorBuilders = buildContext.processors
         var mockGitlabId = 0L
@@ -243,7 +244,9 @@ class InitialDataLoaderTest : AbstractRepositoryTest() {
         codeProjectRepository.saveAll(codeProjects)
         dataProcessorRepository.saveAll(processors)
 
-        val versions = processorBuilders.map { it.buildVersion(it.buildProcessor()) }
+        val versions = processorBuilders.map {
+            it.buildVersion()
+        }
         buildContext.mergeSave(processorVersionRepository, author, versions)
         checkState()
     }

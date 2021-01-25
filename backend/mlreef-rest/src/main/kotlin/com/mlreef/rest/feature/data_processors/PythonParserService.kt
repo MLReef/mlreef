@@ -24,7 +24,7 @@ class PythonParserService(
 ) {
     val log = LoggerFactory.getLogger(this::class.java)
 
-    fun findAndParseDataProcessorInProject(projectId: UUID, mainFilePath: String?): ProcessorVersion {
+    fun findAndParseDataProcessorInProject(projectId: UUID, mainFilePath: String?): DataProcessor {
         val project = projectResolverService.resolveProject(projectId = projectId)
             ?: throw NotFoundException(ErrorCode.NotFound, "Project $projectId not found")
 
@@ -32,7 +32,9 @@ class PythonParserService(
 
         val processors = files.filterNot { it.content == null }.map {
             log.debug(it.content)
-            parsePythonFile(it.content!!, it.path)?.copy(contentSha256 = it.sha256) //it.content!! is covered by filterNot function before this lambda
+            val processor = parsePythonFile(it.content!!, it.path)
+            val version = processor?.processorVersion?.copy(contentSha256 = it.sha256) //it.content!! is covered by filterNot function before this lambda
+            processor?.copy(processorVersion = version)
         }.filterNotNull()
 
         if (processors.size > 1) throw ProjectPublicationException(ErrorCode.Conflict, "More than 1 data processor found in the project. Please selected a main file")
@@ -43,12 +45,12 @@ class PythonParserService(
 
     fun parsePythonFile(pythonCode: String, filePath: String? = null) = parsePythonFile(pythonCode.byteInputStream(), filePath)
 
-    fun parsePythonFile(url: URL): ProcessorVersion? {
+    fun parsePythonFile(url: URL): DataProcessor? {
         log.info("Parsing url $url for DataProcessors and annotations")
         return parsePythonFile(url.openStream())
     }
 
-    private fun parsePythonFile(stream: InputStream, filePath: String? = null): ProcessorVersion? {
+    private fun parsePythonFile(stream: InputStream, filePath: String? = null): DataProcessor? {
         val annotations = parsePython3(stream).mlAnnotations
         val dataProcessors = annotations.filterIsInstance(DataProcessor::class.java)
         val parameters = annotations.filterIsInstance(ProcessorParameter::class.java)
@@ -64,27 +66,33 @@ class PythonParserService(
             throw IllegalArgumentException("Only one DataProcessor per file is allowed! Found: ${dataProcessors.size}")
         }
 
+        val dataProcessor = dataProcessors.first()
+
         val metricSchema = if (metricSchemas.isNotEmpty()) {
             metricSchemas.first()
         } else {
             MetricSchema(MetricType.UNDEFINED)
         }
 
-        return ProcessorVersion(
-            id = dataProcessors.first().id,
-            dataProcessor = dataProcessors.first(),
-            branch = "master",
-            baseEnvironment = null,
-            number = 1,
-            command = "",
-            parameters = parameters.filter { it.processorVersionId == dataProcessors.first().id },
-            metricSchema = metricSchema,
-            path = filePath,
+        return dataProcessor.copy(
+            processorVersion = ProcessorVersion(
+                id = dataProcessors.first().id,
+                dataProcessor = dataProcessors.first(),
+                branch = "master",
+                baseEnvironment = null,
+                number = 1,
+                command = "",
+                parameters = parameters.filter { it.processorVersionId == dataProcessors.first().id },
+                metricSchema = metricSchema,
+                path = filePath,
+            )
         )
     }
 
-    fun parseAndSave(url: URL): ProcessorVersion =
+    fun parseAndSave(url: URL): DataProcessor =
         this.parsePythonFile(url)
-            ?.let { dataProcessorService.saveDataProcessor(it) }
+            ?.let {
+                dataProcessorService.saveDataProcessor(it)
+            }
             ?: throw IllegalArgumentException("Could not find a DataProcessor at this url")
 }

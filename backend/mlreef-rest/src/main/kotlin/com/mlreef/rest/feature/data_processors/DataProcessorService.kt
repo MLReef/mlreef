@@ -37,8 +37,12 @@ class DataProcessorService(
         }
     }
 
-    fun saveDataProcessor(dataProcessor: ProcessorVersion): ProcessorVersion {
-        return processorVersionRepository.save(dataProcessor)
+    fun saveDataProcessor(dataProcessor: DataProcessor): DataProcessor {
+        return dataProcessorRepository.save(dataProcessor)
+    }
+
+    fun saveProcessorVersion(processorVersion: ProcessorVersion): ProcessorVersion {
+        return processorVersionRepository.save(processorVersion)
     }
 
     fun createForCodeProject(

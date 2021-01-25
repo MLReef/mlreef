@@ -25,10 +25,6 @@ import com.mlreef.rest.feature.system.SessionsService
 import com.mlreef.rest.marketplace.Star
 import com.ninjasquad.springmockk.SpykBean
 import io.mockk.every
-import java.time.Instant
-import java.time.Period
-import java.util.UUID.randomUUID
-import javax.transaction.Transactional
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
@@ -46,6 +42,10 @@ import org.springframework.restdocs.payload.PayloadDocumentation.requestFields
 import org.springframework.restdocs.payload.PayloadDocumentation.responseFields
 import org.springframework.restdocs.request.RequestDocumentation
 import org.springframework.test.annotation.Rollback
+import java.time.Instant
+import java.time.Period
+import java.util.UUID.randomUUID
+import javax.transaction.Transactional
 
 class ProjectsApiTest : AbstractRestApiTest() {
 
@@ -104,7 +104,7 @@ class ProjectsApiTest : AbstractRestApiTest() {
 
     private fun generatePipelines(): Pair<ProcessorVersion, DataProject> {
         pipelineTestPreparationTrait.apply()
-        return Pair(pipelineTestPreparationTrait.dataOp1, pipelineTestPreparationTrait.dataProject)
+        return Pair(pipelineTestPreparationTrait.procVersion1!!, pipelineTestPreparationTrait.dataProject)
     }
 
     @Transactional

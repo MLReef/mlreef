@@ -28,7 +28,8 @@ class DataAlgorithm(
     lastPublishedAt: ZonedDateTime? = null,
     version: Long? = null,
     createdAt: ZonedDateTime? = null,
-    updatedAt: ZonedDateTime? = null
+    updatedAt: ZonedDateTime? = null,
+    processorVersion: ProcessorVersion? = null,
 ) : DataProcessor(
     id = id,
     slug = slug,
@@ -48,7 +49,8 @@ class DataAlgorithm(
     lastPublishedAt = lastPublishedAt,
     version = version,
     createdAt = createdAt,
-    updatedAt = updatedAt
+    updatedAt = updatedAt,
+    processorVersion = processorVersion,
 ) {
 
     override fun isChainable(): Boolean = false
@@ -68,6 +70,7 @@ class DataAlgorithm(
         licenceName: String?,
         licenceText: String?,
         lastPublishedAt: ZonedDateTime?,
+        processorVersion: ProcessorVersion?,
     ): DataAlgorithm = DataAlgorithm(
         id = id,
         slug = slug,
@@ -87,5 +90,6 @@ class DataAlgorithm(
         version = this.version,
         createdAt = this.createdAt,
         updatedAt = this.updatedAt,
+        processorVersion = processorVersion,
     )
 }

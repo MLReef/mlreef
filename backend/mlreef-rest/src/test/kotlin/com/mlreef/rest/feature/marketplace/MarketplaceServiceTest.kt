@@ -1177,6 +1177,8 @@ class MarketplaceServiceTest : AbstractRepositoryTest() {
         val version7 = EntityMocks.processorVersion(dataProcessor7, "modelType7", "mlCategory7", publisher = author1)
         val version9 = EntityMocks.processorVersion(dataProcessor9, "modelType9", "mlCategory9", publisher = author1)
 
+//        dataProcessorRepository.save(dataProcessor0)
+        dataProcessorRepository.saveAll(listOf(dataProcessor0, dataProcessor1, dataProcessor2, dataProcessor3, dataProcessor4, dataProcessor5, dataProcessor5, dataProcessor6, dataProcessor7, dataProcessor9))
         processorVersionRepository.saveAll(listOf(version0, version1, version3, version4, version5, version6, version2, version7, version9))
 
         token1 = TokenDetails(author1.name, "1234", author1.id, author1.id, projects = mutableMapOf(
