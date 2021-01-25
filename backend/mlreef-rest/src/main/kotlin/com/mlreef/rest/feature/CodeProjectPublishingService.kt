@@ -3,6 +3,7 @@ package com.mlreef.rest.feature
 import com.mlreef.rest.ApplicationConfiguration
 import com.mlreef.rest.BaseEnvironments
 import com.mlreef.rest.BaseEnvironmentsRepository
+import com.mlreef.rest.CodeProject
 import com.mlreef.rest.EPF_CONTROLLER_PATH
 import com.mlreef.rest.ProcessorVersion
 import com.mlreef.rest.Project
@@ -14,6 +15,7 @@ import com.mlreef.rest.exceptions.ErrorCode
 import com.mlreef.rest.exceptions.InternalException
 import com.mlreef.rest.exceptions.NotFoundException
 import com.mlreef.rest.exceptions.PipelineStartException
+import com.mlreef.rest.exceptions.PythonFileParsingException
 import com.mlreef.rest.exceptions.RestException
 import com.mlreef.rest.external_api.gitlab.GitlabRestClient
 import com.mlreef.rest.external_api.gitlab.dto.Commit
@@ -85,6 +87,7 @@ class PublishingService(
             ?: throw NotFoundException(ErrorCode.NotFound, "Data processor for $projectId not found")
     }
 
+    //TODO: the chanin CodeProject->DataProcessor->ProcessorVersion needs to be reviewed and maybe totally refactored!!!!
     // https://docs.gitlab.com/ee/user/packages/container_registry/index.html#build-and-push-images-using-gitlab-cicd
     /**
      * A new code is "unpublished" (==> no mlreef.yml)
@@ -112,13 +115,30 @@ class PublishingService(
         val baseEnvironment = baseEnvironmentsRepository.findByIdOrNull(environmentId)
             ?: throw NotFoundException(ErrorCode.NotFound, "Environment $environmentId not found")
 
-        val dataProcessorVersion = pythonParserService.findAndParseDataProcessorInProject(projectId, mainFilePath)
+        val parsedProcessor = pythonParserService.findAndParseDataProcessorInProject(projectId, mainFilePath)
+        val parsedVersion = parsedProcessor.processorVersion
+            ?: throw PythonFileParsingException("No processor version found in script")
 
-        val existingDataProcessorVersion = dataProcessorService.getProcessorVersionByProjectId(project.id)
-            ?: dataProcessorVersion
+        val dataProcessorId = UUID.randomUUID()
 
-        val existingDataProcessor = dataProcessorService.getProcessorByProjectId(project.id)
-            ?: existingDataProcessorVersion.dataProcessor
+        var existingDataProcessor = project.dataProcessor
+            ?: dataProcessorService.createForCodeProject(
+                id = dataProcessorId,
+                name = parsedProcessor.name,
+                slug = "data-proc-$dataProcessorId",
+                parameters = listOf(),
+                author = parsedProcessor.author,
+                description = parsedProcessor.description,
+                visibilityScope = parsedProcessor.visibilityScope,
+                outputDataType = parsedProcessor.outputDataType,
+                inputDataType = parsedProcessor.inputDataType,
+                codeProject = project as CodeProject,
+                command = "command $dataProcessorId",
+                type = parsedProcessor.type,
+            )
+
+        val existingDataProcessorVersion = project.dataProcessor?.processorVersion
+            ?: parsedVersion
 
         val secret = pipelineService.createSecret()
         val finishUrl = "${conf.epf.backendUrl}$EPF_CONTROLLER_PATH/code-projects/${project.id}"
@@ -139,23 +159,29 @@ class PublishingService(
             throw PipelineStartException("Cannot commit $DOCKERFILE_NAME file to branch $TARGET_BRANCH for project ${project.name}: ${e.errorName}")
         }
 
-        return dataProcessorService.saveDataProcessor(
-            existingDataProcessorVersion.copy(
-                dataProcessor = existingDataProcessor.copy(codeProjectId = projectId),
-                baseEnvironment = baseEnvironment,
-                baseEnvironmentId = baseEnvironment.id,
-                modelType = modelType,
-                mlCategory = mlCategory,
-                publishingInfo = PublishingInfo(commitSha = commitMessage.id, publishedAt = ZonedDateTime.now(), secret = secret, publisher = publisher),
-                path = dataProcessorVersion.path,
-                branch = dataProcessorVersion.branch,
-                command = dataProcessorVersion.command,
-                parameters = dataProcessorVersion.parameters.map { it.copy(processorVersionId = existingDataProcessorVersion.id) },
-            )
+        existingDataProcessor = dataProcessorService.saveDataProcessor(existingDataProcessor)
+
+        val newProcessorVersion = existingDataProcessorVersion.copy(
+            dataProcessor = existingDataProcessor,
+            baseEnvironment = baseEnvironment,
+            baseEnvironmentId = baseEnvironment.id,
+            modelType = modelType,
+            mlCategory = mlCategory,
+            publishingInfo = PublishingInfo(commitSha = commitMessage.id, publishedAt = ZonedDateTime.now(), secret = secret, publisher = publisher),
+            path = parsedVersion.path,
+            branch = parsedVersion.branch,
+            command = parsedVersion.command,
+            parameters = parsedVersion.parameters.map { it.copy(processorVersionId = existingDataProcessorVersion.id) },
         )
+
+        dataProcessorService.saveDataProcessor(
+            existingDataProcessor.copy(processorVersion = newProcessorVersion)
+        )
+
+        return newProcessorVersion
     }
 
-    // https://docs.gitlab.com/ee/user/packages/container_registry/index.html#build-and-push-images-using-gitlab-cicd
+// https://docs.gitlab.com/ee/user/packages/container_registry/index.html#build-and-push-images-using-gitlab-cicd
     /**
      * A new code is "unpublished" (==> no mlreef.yml)
      * Start publishing creates a pipeline which will publish every new commit in "master" as "latest" version
@@ -245,7 +271,7 @@ class PublishingService(
             val publishingInfo = dataProcessorVersion.publishingInfo?.copy(finishedAt = null)
                 ?: PublishingInfo(finishedAt = null)
 
-            dataProcessorService.saveDataProcessor(
+            dataProcessorService.saveProcessorVersion(
                 dataProcessorVersion.copy(
                     path = null,
                     branch = dataProcessorVersion.branch,
@@ -260,7 +286,8 @@ class PublishingService(
 
             val mainScript = files[0]
 
-            val newDataProcessorVersion = pythonParserService.findAndParseDataProcessorInProject(projectId, mainScript.path)
+            val newDataProcessorVersion = pythonParserService.findAndParseDataProcessorInProject(projectId, mainScript.path).processorVersion
+                ?: throw PythonFileParsingException("No processor version found in script")
 
             val publishInfo = dataProcessorVersion.publishingInfo?.copy(
                 commitSha = mainScript.lastCommitId ?: "",
@@ -269,7 +296,7 @@ class PublishingService(
             ) ?: PublishingInfo(commitSha = mainScript.lastCommitId
                 ?: "", publishedAt = ZonedDateTime.now(), finishedAt = ZonedDateTime.now())
 
-            dataProcessorService.saveDataProcessor(
+            dataProcessorService.saveProcessorVersion(
                 dataProcessorVersion.copy(
                     publishingInfo = publishInfo,
                     path = newDataProcessorVersion.path,
@@ -280,7 +307,15 @@ class PublishingService(
                 )
             )
         } else {
-            dataProcessorVersion
+            val publishInfo = dataProcessorVersion.publishingInfo?.copy(
+                finishedAt = ZonedDateTime.now(),
+            ) ?: PublishingInfo(finishedAt = ZonedDateTime.now())
+
+            dataProcessorService.saveProcessorVersion(
+                dataProcessorVersion.copy(
+                    publishingInfo = publishInfo,
+                )
+            )
         }
     }
 

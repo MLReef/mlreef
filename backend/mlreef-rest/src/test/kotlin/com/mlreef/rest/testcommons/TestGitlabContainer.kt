@@ -22,7 +22,7 @@ class TestGitlabContainer private constructor() : GenericContainer<TestGitlabCon
         private const val GITLAB_START_LOG_FRAGMENT = "database system is ready to accept connections"
         private const val GITLAB_START_LOG_REGEX = "^.*$GITLAB_START_LOG_FRAGMENT.*\$"
 
-        private const val WAIT_FOR_COMPLETE_CONTAINER_UP_MS = 10000L
+        private const val WAIT_FOR_COMPLETE_CONTAINER_UP_MS = 15000L
 
         val instance by lazy {
             val waitStrategyForLog = LogMessageWaitStrategy()

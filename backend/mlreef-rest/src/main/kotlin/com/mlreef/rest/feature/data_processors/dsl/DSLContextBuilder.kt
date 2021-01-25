@@ -302,6 +302,14 @@ class DSLContextBuilder(val owner: Subject, val userToken: String) {
         }
     }
 
+    fun mergeSaveEnvironments(
+        baseEnvironmentsRepository: BaseEnvironmentsRepository,
+    ) {
+        executeLogged("2a. ENVIRONMENTS") {
+            mergeSave(baseEnvironmentsRepository, this.environments.map { it.build() })
+        }
+    }
+
     internal fun <T> executeLogged(message: String, f: () -> T): T {
         try {
             log.info("DataLoading: $message")

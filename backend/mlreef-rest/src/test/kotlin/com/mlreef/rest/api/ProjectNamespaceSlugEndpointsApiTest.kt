@@ -49,10 +49,30 @@ class ProjectNamespaceSlugEndpointsApiTest : AbstractRestApiTest() {
     private lateinit var sessionService: SessionsService
 
     @BeforeEach
-    @AfterEach
     @Transactional
     fun setUp() {
+        pipelineTestPreparationTrait.apply()
 
+        account = pipelineTestPreparationTrait.account
+        account2 = pipelineTestPreparationTrait.account2
+
+        token = pipelineTestPreparationTrait.token
+
+        subject = pipelineTestPreparationTrait.subject
+        subject2 = pipelineTestPreparationTrait.subject2
+
+        dataOp1 = pipelineTestPreparationTrait.procVersion1!!
+        dataProject = pipelineTestPreparationTrait.dataProject
+
+        mockGitlabPipelineWithBranch("targetBranch")
+        this.mockGetUserProjectsList(listOf(dataProject.id), account, AccessLevel.OWNER)
+
+        // To update user permissions before each test
+        sessionService.killAllSessions("username0000")
+    }
+
+    @AfterEach
+    fun cleanUp() {
         pipelineTestPreparationTrait.deleteAll()
         experimentRepository.deleteAll()
         codeProjectRepository.deleteAll()
@@ -64,22 +84,7 @@ class ProjectNamespaceSlugEndpointsApiTest : AbstractRestApiTest() {
 
         truncateAllTables()
 
-        accountSubjectPreparationTrait.apply()
-
-        account = accountSubjectPreparationTrait.account
-        account2 = accountSubjectPreparationTrait.account2
-
-        token = accountSubjectPreparationTrait.token
-
-        subject = accountSubjectPreparationTrait.subject
-        subject2 = accountSubjectPreparationTrait.subject2
-
-        pipelineTestPreparationTrait.apply()
-        dataOp1 = pipelineTestPreparationTrait.dataOp1
-        dataProject = pipelineTestPreparationTrait.dataProject
-
-        mockGitlabPipelineWithBranch("targetBranch")
-        this.mockGetUserProjectsList(listOf(dataProject.id), account, AccessLevel.OWNER)
+        pipelineTestPreparationTrait.deleteAll()
 
         // To update user permissions before each test
         sessionService.killAllSessions("username0000")

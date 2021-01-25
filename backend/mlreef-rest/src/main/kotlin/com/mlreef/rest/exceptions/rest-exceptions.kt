@@ -147,6 +147,8 @@ open class UnknownGroupException(message: String? = null)
 open class UnknownProjectException(message: String? = null)
     : NotFoundException(ErrorCode.ProjectNotExisting, message ?: "Project is unknown and does not exist")
 
+@ResponseStatus(code = HttpStatus.INTERNAL_SERVER_ERROR, reason = "Python file was parsed incorrectly")
+class PythonFileParsingException(message: String) : RestException(ErrorCode.DataProcessorNotUsable, message)
 
 class UserNotFoundException(userId: UUID? = null, userName: String? = null, email: String? = null, personId: UUID? = null, gitlabId: Long? = null, subjectId: UUID? = null)
     : NotFoundException(ErrorCode.UserNotExisting, generateUserNotFoundMessage(userId, userName, email, personId, gitlabId, subjectId))

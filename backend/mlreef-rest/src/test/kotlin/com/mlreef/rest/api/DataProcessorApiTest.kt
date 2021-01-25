@@ -59,9 +59,9 @@ class DataProcessorApiTest : AbstractRestApiTest() {
         account = pipelineTestPreparationTrait.account
         token = pipelineTestPreparationTrait.token
         subject = pipelineTestPreparationTrait.subject
-        dataOp1 = pipelineTestPreparationTrait.dataOp1
-        dataOp2 = pipelineTestPreparationTrait.dataOp2
-        dataOp3 = pipelineTestPreparationTrait.dataOp3
+        dataOp1 = pipelineTestPreparationTrait.procVersion1!!
+        dataOp2 = pipelineTestPreparationTrait.procVersion2!!
+        dataOp3 = pipelineTestPreparationTrait.procVersion3!!
 
         codeProject = codeProjectRepository.save(CodeProject(
             randomUUID(), "code-project-slug1", "url", "Test DataProject", "",

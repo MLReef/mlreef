@@ -35,6 +35,10 @@ enum class DataProcessorType {
     ALGORITHM,
     OPERATION,
     VISUALIZATION;
+
+    companion object {
+        fun default() = DataProcessorType.ALGORITHM
+    }
 }
 
 enum class MetricType {
@@ -142,6 +146,7 @@ abstract class DataProcessor(
         licenceName: String? = this.licenceName,
         licenceText: String? = this.licenceText,
         lastPublishedAt: ZonedDateTime? = this.lastPublishedAt,
+        processorVersion: ProcessorVersion? = this.processorVersion,
     ): DataProcessor
 
 

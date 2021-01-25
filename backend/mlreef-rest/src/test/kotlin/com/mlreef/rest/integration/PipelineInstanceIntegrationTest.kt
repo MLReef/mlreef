@@ -48,12 +48,16 @@ class PipelineInstanceIntegrationTest : AbstractIntegrationTest() {
     private lateinit var integrationTestsHelper: IntegrationTestsHelper
 
     @BeforeEach
+    fun preparerRepo() {
+        pipelineTestPreparationTrait.apply()
+        dataOp1 = pipelineTestPreparationTrait.procVersion1!!
+        dataOp2 = pipelineTestPreparationTrait.procVersion2!!
+        dataOp3 = pipelineTestPreparationTrait.procVersion3!!
+    }
+
     @AfterEach
     fun clearRepo() {
-        pipelineTestPreparationTrait.apply()
-        dataOp1 = pipelineTestPreparationTrait.dataOp1
-        dataOp2 = pipelineTestPreparationTrait.dataOp2
-        dataOp3 = pipelineTestPreparationTrait.dataOp3
+        pipelineTestPreparationTrait.deleteAll()
     }
 
     /**

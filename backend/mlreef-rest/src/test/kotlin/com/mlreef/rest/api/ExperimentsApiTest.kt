@@ -48,22 +48,27 @@ class ExperimentsApiTest : AbstractRestApiTest() {
     private lateinit var pipelineTestPreparationTrait: PipelineTestPreparationTrait
 
     @BeforeEach
-    @AfterEach
     @Transactional
-    fun clearRepo() {
+    fun prepareRepo() {
         MockKAnnotations.init(this, relaxUnitFun = true, relaxed = true)
         pipelineTestPreparationTrait.apply()
         account = pipelineTestPreparationTrait.account
         token = pipelineTestPreparationTrait.token
         subject = pipelineTestPreparationTrait.subject
-        dataOp1 = pipelineTestPreparationTrait.dataOp1
-        dataOp2 = pipelineTestPreparationTrait.dataOp2
-        dataOp3 = pipelineTestPreparationTrait.dataOp3
+        dataOp1 = pipelineTestPreparationTrait.procVersion1!!
+        dataOp2 = pipelineTestPreparationTrait.procVersion2!!
+        dataOp3 = pipelineTestPreparationTrait.procVersion3!!
         dataProject = pipelineTestPreparationTrait.dataProject
         dataProject2 = pipelineTestPreparationTrait.dataProject2
 
         mockGitlabPipelineWithBranch("targetBranch")
         this.mockGetUserProjectsList(listOf(dataProject.id), account, AccessLevel.OWNER)
+    }
+
+    @AfterEach
+    @Transactional
+    fun clearRepo() {
+        pipelineTestPreparationTrait.deleteAll()
     }
 
     @Transactional

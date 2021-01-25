@@ -42,19 +42,24 @@ class PipelinesConfigApiTest : AbstractRestApiTest() {
     private lateinit var pipelineTestPreparationTrait: PipelineTestPreparationTrait
 
     @BeforeEach
-    @AfterEach
-    fun clearRepo() {
+    fun prepareRepo() {
         pipelineTestPreparationTrait.apply()
         account = pipelineTestPreparationTrait.account
-        dataOp1 = pipelineTestPreparationTrait.dataOp1
-        dataOp2 = pipelineTestPreparationTrait.dataOp2
-        dataOp3 = pipelineTestPreparationTrait.dataOp3
+        dataOp1 = pipelineTestPreparationTrait.procVersion1!!
+        dataOp2 = pipelineTestPreparationTrait.procVersion2!!
+        dataOp3 = pipelineTestPreparationTrait.procVersion3!!
         subject = pipelineTestPreparationTrait.subject
         dataProject = pipelineTestPreparationTrait.dataProject
         dataProject2 = pipelineTestPreparationTrait.dataProject2
 
         this.mockGetUserProjectsList(listOf(dataProject.id), account, AccessLevel.OWNER)
     }
+
+    @AfterEach
+    fun clearRepo() {
+        pipelineTestPreparationTrait.deleteAll()
+    }
+
 
     @Transactional
     @Rollback

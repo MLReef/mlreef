@@ -49,19 +49,23 @@ class ProjectPipelinesConfigApiTest : AbstractRestApiTest() {
     private lateinit var pipelineTestPreparationTrait: PipelineTestPreparationTrait
 
     @BeforeEach
-    @AfterEach
-    fun clearRepo() {
+    fun prepareRepo() {
         pipelineTestPreparationTrait.apply()
         account = pipelineTestPreparationTrait.account
         token = pipelineTestPreparationTrait.token
-        dataOp1 = pipelineTestPreparationTrait.dataOp1
-        dataOp2 = pipelineTestPreparationTrait.dataOp2
-        dataOp3 = pipelineTestPreparationTrait.dataOp3
+        dataOp1 = pipelineTestPreparationTrait.procVersion1!!
+        dataOp2 = pipelineTestPreparationTrait.procVersion2!!
+        dataOp3 = pipelineTestPreparationTrait.procVersion3!!
         subject = pipelineTestPreparationTrait.subject
         dataProject = pipelineTestPreparationTrait.dataProject
         notOwn_dataProject = pipelineTestPreparationTrait.dataProject2
 
         mockGitlabPipelineWithBranch("targetBranch")
+    }
+
+    @AfterEach
+    fun clearRepo() {
+        pipelineTestPreparationTrait.deleteAll()
     }
 
     @Transactional

@@ -96,15 +96,14 @@ class DataProcessorServiceTest : AbstractServiceTest() {
     fun `Can save parsed DataProcessors`() {
         val filename = "resnet_annotations_demo.py"
         val resource = javaClass.classLoader.getResource(filename)!!
-        val processorVersion = pythonParserService.parseAndSave(resource)
-        val dataProcessor = processorVersion.dataProcessor
+        val dataProcessor = pythonParserService.parseAndSave(resource)
         assertNotNull(dataProcessor)
         assertThat(dataProcessor.name).isEqualTo("Resnet 2.0 Filter")
         assertThat(dataProcessor.description).isEqualTo("Transforms images with lots of magic")
         assertThat(dataProcessor.visibilityScope).isEqualTo(VisibilityScope.PUBLIC)
         assertThat(dataProcessor.inputDataType).isEqualTo(DataType.IMAGE)
         assertThat(dataProcessor.outputDataType).isEqualTo(DataType.IMAGE)
-        val parameters = processorVersion.parameters
+        val parameters = dataProcessor.processorVersion!!.parameters
         val parameter = parameters.first()
         assertThat(parameter.name).isEqualTo("images_path")
         assertThat(parameter.type).isEqualTo(ParameterType.STRING)

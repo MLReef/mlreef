@@ -36,9 +36,8 @@ class CodeProjectPublishingApiTest : AbstractRestApiTest() {
     private lateinit var pipelineTestPreparationTrait: PipelineTestPreparationTrait
 
     @BeforeEach
-    @AfterEach
     @Transactional
-    fun clearRepo() {
+    fun prepareRepo() {
         MockKAnnotations.init(this, relaxUnitFun = true, relaxed = true)
         pipelineTestPreparationTrait.apply()
         account = pipelineTestPreparationTrait.account
@@ -48,6 +47,12 @@ class CodeProjectPublishingApiTest : AbstractRestApiTest() {
 
         mockGitlabPipelineWithBranch("targetBranch")
         this.mockGetUserProjectsList(listOf(codeProject.id), account, AccessLevel.OWNER)
+    }
+
+    @AfterEach
+    @Transactional
+    fun clearRepo() {
+        pipelineTestPreparationTrait.deleteAll()
     }
 
     @Transactional
