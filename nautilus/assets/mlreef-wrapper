@@ -136,7 +136,8 @@ log "$MLREEF_DOCKER_REGISTRY_EPF_IMAGE has been successfully uploaded "
 # Start the PostgreSQL mlreefdb server
 # Postgres will self-daemonize and run in the background hence no '&' is needed
 log "starting MLReef database"
-pg_ctlcluster 11 main start
+pg_ctlcluster ${MLREEF_PG_VERSION} ${MLREEF_PG_CLUSTER} stop || echo "mlreefdb is down"
+pg_ctlcluster ${MLREEF_PG_VERSION} ${MLREEF_PG_CLUSTER} start
 
 #########################
 # Start the backend
