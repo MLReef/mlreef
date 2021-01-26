@@ -150,7 +150,7 @@ RUN apt-get update               && \
     # Remove nginx default config
     rm -rf /etc/nginx/sites-enabled/default
 
-# Install Docker
+# Install Docker and jq
 RUN apt-get -y install curl apt-transport-https ca-certificates software-properties-common jq    && \
     curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add                        && \
     add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu xenial stable" |  \
@@ -222,8 +222,8 @@ COPY --from=FRONTEND_MASTER /usr/share/coverage /usr/share/coverage
 # TODO FIXME: nginx: [emerg] "gzip" directive is duplicate in /etc/nginx/conf.d/default.conf:14
 RUN sed -i "/gzip on;/d" /etc/nginx/conf.d/default.conf
 # Adapt the NGINX rules to work on localhost
-RUN sed -i "s/gitlab:10080/localhost:10080/" /etc/nginx/conf.d/default.conf
-RUN sed -i "s/backend:8080/localhost:8081/" /etc/nginx/conf.d/default.conf
+RUN sed -i "s/gitlab:10080/localhost:$GITLAB_PORT/" /etc/nginx/conf.d/default.conf
+RUN sed -i "s/backend:8080/localhost:$MLREEF_BACKEND_PORT/" /etc/nginx/conf.d/default.conf
 
 
 # Wrapper to handle additional script to run after default gitlab image's /assets/wrapper
@@ -240,7 +240,7 @@ VOLUME  ["/etc/postgresql", "/var/log/mlreef-postgresql", "/var/opt/mlreef"]
 # Expose mlreef postgres
 EXPOSE $DB_PORT
 # Expose HTTPS ports
-EXPOSE $MLREEF_BACKEND_PORT 80 443 10080
+EXPOSE $MLREEF_BACKEND_PORT 80 443 $GITLAB_PORT
 # Expose Gitlab SSH port
 EXPOSE 22
 # Expose Docker registry port

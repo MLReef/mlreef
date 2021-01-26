@@ -14,7 +14,7 @@ services:
       - "10022:22"      # Git SSH
       - "5050:5050"     # MLReef's Docker registry
       # Developer Access
-      - "8080:8080"     # MLReef Backend HTTP
+      - "8081:8081"     # MLReef Backend HTTP
       - "6000:6000"     # MLReef's backend database
       - "10080:10080"   # Gitlab HTTP
     volumes:

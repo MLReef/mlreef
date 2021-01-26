@@ -15,11 +15,13 @@ docker build --tag "mlreef:snapshot" -f Dockerfile .
 
 docker run -it --rm --name mlreef     \
   --volume mlreef-opt:/var/opt/       \
+  --volume /var/run/docker.sock:/var/run/docker.sock \
   --publish 2022:22                   \
   --publish 80:80                     \
   --publish 8081:8081                 \
   --publish 8090:8090                 \
   --publish 5050:5050                 \
   --publish 10080:10080               \
+  --publish 6000:6000                 \
   mlreef:snapshot
 
