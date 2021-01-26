@@ -280,4 +280,4 @@ function mapDispatchToProps(dispatch) {
   };
 }
 
-export default connect(() => {}, mapDispatchToProps)(ExperimentSummary);
+export default connect(() => ({}), mapDispatchToProps)(ExperimentSummary);

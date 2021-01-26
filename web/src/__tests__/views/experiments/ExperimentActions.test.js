@@ -1,5 +1,6 @@
+import { parseLine } from 'components/ExperimentDetails/actions';
 import experimentActions from 'components/experiments-overview/ExperimentActions';
-import { backendExperiments } from 'testData';
+import { backendExperiments, jobLogMock } from 'testData';
 
 describe('test functions', () => {
   beforeEach(() => {
@@ -24,5 +25,21 @@ describe('test functions', () => {
     expect(commitSha).toBe('9d2816464e6f1eb5ab42830c02c39ec6c7de67ba');
     expect(createdAt).toBe('2020-11-06T15:03:47.796Z');
     expect(updatedAt).toBe('2020-11-06T15:03:47.919Z');
+  });
+});
+
+const lines = jobLogMock.split('\n');
+
+describe('test secondary functions', () => {
+  test('assert that parse line works correctly', () => {
+    lines.map((l) => {
+      const parsedLine = parseLine(l);
+      expect(parsedLine.classList).toBeDefined();
+      expect(parsedLine.finalLine).toBeDefined();
+
+      if (l.includes('[31;1m')) {
+        expect(parsedLine.classList.includes('t-danger t-bold')).toBe(true);
+      }
+    });
   });
 });

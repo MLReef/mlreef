@@ -2986,3 +2986,48 @@ export const mockedPipelines = [
     webUrl: 'http://ec2-18-157-161-187.eu-central-1.compute.amazonaws.com:10080/mlreef/commons-bertsent/pipelines/194',
   },
 ];
+
+
+export const jobLogMock = `
+  [0KRunning with gitlab-runner 13.7.0 (943fc252)
+  [0;m[0K  on K8S runner on review-master-8dyme2.35.246.253.255.nip.io c_L4Asze
+  [0;msection_start:1610138199:prepare_executor
+  [0K[0K[36;1mPreparing the "kubernetes" executor[0;m
+  [0;m[0KUsing Kubernetes namespace: default
+  [0;m[0;33mWARNING: Pulling GitLab Runner helper image from Docker Hub. Helper image is migrating to registry.gitlab.com, for more information see https://docs.gitlab.com/runner/configuration/advanced-configuration.html#migrating-helper-image-to-registrygitlabcom
+  [0;m[0KUsing Kubernetes executor with image registry.gitlab.com/mlreef/mlreef/epf:master ...
+  [0;msection_end:1610138199:prepare_executor
+  [0Ksection_start:1610138199:prepare_script
+  [0K[0K[36;1mPreparing environment[0;m
+  [0;mWaiting for pod default/runner-cl4asze-project-21-concurrent-0tgwkx to be running, status is Pending
+  Running on runner-cl4asze-project-21-concurrent-0tgwkx via gitlab-runner-b44f75bf5-6728m...
+  section_end:1610138204:prepare_script
+  [0Ksection_start:1610138204:get_sources
+  [0K[0K[36;1mGetting source from Git repository[0;m
+  [0;m[32;1mFetching changes with git depth set to 50...[0;m
+  Initialized empty Git repository in /builds/mlreef/sign-language-classifier/.git/
+  [32;1mCreated fresh repository.[0;m
+  [32;1mChecking out e4829f47 as experiment/literate-plancton_812021...[0;m
+
+  # The before_script handles everything git related and sets up the automatic committing
+  before_script:
+    - cat .mlreef.yml         # Debug output mlreef.yml
+    - echo "################# Logging job parameters"
+    - echo "CI_SERVER_URL   = $CI_SERVER_URL"
+    - echo "CI_SERVER_HOST  = $CI_SERVER_HOST"
+    - echo "CI_SERVER_PORT  = $CI_SERVER_PORT"
+    - echo "CI_RUNNER_ID    = $CI_RUNNER_ID"
+    - echo "CI_PROJECT_NAME = $CI_PROJECT_NAME"
+    - echo "CI_PROJECT_PATH = $CI_PROJECT_PATH"
+    - echo "#################"
+    #- it just aint working!
+    # https://stackoverflow.com/questions/42074414/gitlab-push-to-a-repository-using-access-token
+    # git remote add origin https://oauth2:<my-token>@gitlab.com/my-user/my-repo.git
+    - git remote set-url origin "http://oauth2:$GIT_PUSH_TOKEN@$EPF_GITLAB_HOST:10080/$CI_PROJECT_PATH.git"
+    - git config --global user.email "$GIT_PUSH_EMAIL"
+    - git config --global user.name "$GIT_PUSH_NAME"
+    - echo "Target branch is $TARGET_BRANCH"
+    #- background-push &
+
+  [0K[31;1mERROR: Job failed: command terminated with exit code 1
+  [0;m;`

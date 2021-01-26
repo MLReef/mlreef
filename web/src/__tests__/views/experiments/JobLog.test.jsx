@@ -1,10 +1,16 @@
 import React from 'react';
-import { shallow } from 'enzyme';
-import 'babel-polyfill';
-import JobLog from 'components/experiment-details/menu-options/jobLog';
-import { jobMock } from 'testData';
+import { mount } from 'enzyme';
+import JobLog from 'components/ExperimentDetails/MenuOptions/jobLog';
+import { jobLogMock, jobMock } from 'testData';
 import { storeFactory } from 'functions/testUtils';
 import { getTimeCreatedAgo, parseDurationInSeconds } from 'functions/dataParserHelpers';
+import jobActions from 'components/ExperimentDetails/actions';
+import { MemoryRouter as Router } from 'react-router-dom';
+
+const jobLogResponse = {
+  ok: true,
+  blob: async () => jobLogMock,
+};
 
 const store = storeFactory({
   projects: {
@@ -15,8 +21,11 @@ const store = storeFactory({
 });
 
 const setup = () => {
-  const wrapper = shallow(
-    <JobLog projectId={14448940} store={store} job={jobMock} currentState="" />,
+  jobActions.getJobLog = jest.fn(() => new Promise((resolve) => resolve(jobLogResponse)));
+  const wrapper = mount(
+    <Router>
+      <JobLog projectId={14448940} store={store} job={jobMock} currentState="" />
+    </Router>,
   );
 
   return wrapper;
@@ -25,10 +34,13 @@ const setup = () => {
 describe('assert that component includes information about job', () => {
   let wrapper;
   beforeEach(() => {
-    wrapper = setup().dive().dive();
+    wrapper = setup();
   });
 
   test('main info', () => {
+    wrapper.setProps({});
+    console.log(wrapper.debug());
+
     const { created_at } = jobMock;
     const jobTimeCreatedAgo = getTimeCreatedAgo(created_at, new Date());
     const titleText = wrapper.find('#number-and-time-ago-cont').text();

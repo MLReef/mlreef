@@ -8,9 +8,9 @@ import MSimpleTabs from 'components/ui/MSimpleTabs/MSimpleTabsRouted';
 import MLoadingSpinner from 'components/ui/MLoadingSpinner';
 import MPipes from 'components/ui/MPipes';
 import { getTimeCreatedAgo, parseDurationInSeconds } from 'functions/dataParserHelpers';
-import JobLog from 'components/experiment-details/menu-options/jobLog';
+import JobLog from 'components/ExperimentDetails/MenuOptions/jobLog';
 import { suscribeRT } from 'functions/apiCalls';
-import { toastr } from 'react-redux-toastr'
+import { toastr } from 'react-redux-toastr';
 import ParameterList from './PublishProcessViewParameterList';
 import RequirementList from './PublishProcessViewRequirementList';
 import './PublishProcessView.scss';

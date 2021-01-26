@@ -2,7 +2,7 @@ import React from 'react';
 import { shallow } from 'enzyme';
 import { MemoryRouter } from 'react-router-dom';
 import renderer from 'react-test-renderer';
-import DetailSummary from 'components/experiment-details/menu-options/DetailSummary';
+import DetailSummary from 'components/ExperimentDetails/MenuOptions/DetailSummary';
 import { RUNNING } from 'dataTypes';
 
 const setPreconfiguredOPerationsMock = jest.fn();

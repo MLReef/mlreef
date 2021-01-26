@@ -1,0 +1,49 @@
+.experiment-details-subtitle {
+    font-size: 1.5em;
+    font-weight: 700;
+    padding-left: 0.8em;
+}
+
+#experiment-data-content > .content-subdiv > div > p {
+    margin: 5px;  
+}
+
+.content-subdiv > p {
+    margin: 5px;  
+}
+
+.composed-row {
+    display: flex;
+    justify-content: space-between
+}
+
+.composed-row > p {
+    margin: 5px;
+}
+
+.experiment-details-menu {
+    display: grid;
+    height: min-content;
+    padding: 0px 2em; 
+    border-right: 1px solid #ececec;
+}
+
+.experiment-details-menu > button {
+    margin: 0.8em 0px;
+}
+
+.experiment-details-menu > .menu-button {
+  padding: 10px 15px;
+  background-color: white;
+  color: #1c2b40;
+  border: 1px solid #1c2b40;
+  border-radius: 0.3vw;
+  cursor: pointer;
+  height: 3em;
+}
+
+.experiment-details-menu > .menu-button.active {
+  border: 1px solid #16ADCE;
+  background-color: #16ADCE;
+  color: white;
+}

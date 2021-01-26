@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { toastr } from 'react-redux-toastr';
 import JobsApi from '../../../apis/JobsApi.ts';
-import JobLog from '../../experiment-details/menu-options/jobLog'
+import JobLog from '../../ExperimentDetails/MenuOptions/jobLog';
 
 const jobsApi = new JobsApi();
 

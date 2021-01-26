@@ -8,21 +8,17 @@ import {
   string,
   func,
 } from 'prop-types';
-import './experimentDetails.css';
-import ExperimentsApi from 'apis/experimentApi';
-import JobsApi from 'apis/JobsApi';
+import './ExperimentDetail.scss';
 import MSimpleTabs from 'components/ui/MSimpleTabs';
 import { setPreconfiguredOPerations } from 'store/actions/userActions';
 import Navbar from '../navbar/navbar';
 import ProjectContainer from '../projectContainer';
-import DetailsSummary from './menu-options/DetailSummary';
-import Files from './menu-options/ExperimentArtifacts';
-import JobLog from './menu-options/jobLog';
+import DetailsSummary from './MenuOptions/DetailSummary';
+import Files from './MenuOptions/ExperimentArtifacts';
+import JobLog from './MenuOptions/jobLog';
+import actions from './actions';
 
-const expApi = new ExperimentsApi();
-const jobsApi = new JobsApi();
-
-const ExperimentDetails = (props) => {
+export const UnconnectedExperimentDetails = (props) => {
   const [experiment, setExperiment] = useState({});
   const [jobs, setJobs] = useState([]);
   const {
@@ -48,10 +44,15 @@ const ExperimentDetails = (props) => {
   const uniqueName = experimentName && experimentName.split('/')[1];
   const experimentJob = jobs.filter((job) => job.ref === experiment.name)[0];
   useEffect(() => {
-    jobsApi.getPerProject(projectId)
+    actions.getExperimentDetails(backendId, experimentId)
+      .then((res) => setExperiment(res))
+      .catch(() => toastr.error('Error', 'Could not fetch the experiment'));
+
+    actions.getJobsPerProject(projectId)
       .then((js) => setJobs(js))
       .catch((err) => toastr.error('Error', err.message));
-  }, [projectId]);
+  }, [projectId, backendId, experimentId]);
+
   // Union of two arrays of parameters
   if (userParameters && allParameters) {
     const mergedArray = [...userParameters, ...allParameters];
@@ -62,12 +63,6 @@ const ExperimentDetails = (props) => {
       return isItemInSet;
     }, set);
   }
-
-  useEffect(() => {
-    expApi.getExperimentDetails(backendId, experimentId)
-      .then((res) => setExperiment(res))
-      .catch(() => toastr.error('Error', 'Could not fetch the experiment'));
-  }, [backendId, experimentId]);
 
   const breadcrumbs = useMemo(
     () => [
@@ -144,7 +139,7 @@ const ExperimentDetails = (props) => {
   );
 };
 
-ExperimentDetails.propTypes = {
+UnconnectedExperimentDetails.propTypes = {
   algorithms: arrayOf(shape({})).isRequired,
   projects: arrayOf(shape({})).isRequired,
   match: shape({
@@ -153,7 +148,7 @@ ExperimentDetails.propTypes = {
     }).isRequired,
   }).isRequired,
   setPreconfiguredOPerations: func.isRequired,
-  history: shape({}).isRequired
+  history: shape({}).isRequired,
 };
 
 function mapStateToProps(state) {
@@ -169,5 +164,4 @@ function mapActionsToProps(dispatch) {
   };
 }
 
-
-export default connect(mapStateToProps, mapActionsToProps)(ExperimentDetails);
+export default connect(mapStateToProps, mapActionsToProps)(UnconnectedExperimentDetails);
