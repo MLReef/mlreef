@@ -19,7 +19,7 @@ import NewMergeRequestView from 'components/views/MergeRequests/NewMergeReq';
 import DataInstancesView from 'components/data-instance/DataInstancesOverview';
 import DataInstanceDetailsView from 'components/data-instance/dataInstanceDetails';
 import ExperimentsView from 'components/experiments-overview/ExperimentOverview';
-import ExperimentDetailsView from 'components/experiment-details/experimentDetails';
+import ExperimentDetailsView from 'components/ExperimentDetails/ExperimentDetail';
 import PipelinesExecutionView from 'components/views/PipelinesExecutionView';
 import VisualizationsView from 'components/data-visualization/dataVisualizationOverview';
 import VisualizationDetailView from 'components/data-visualization/dataVisualizationDetail';

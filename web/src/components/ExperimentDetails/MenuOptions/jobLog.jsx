@@ -5,16 +5,10 @@ import { number, shape, string } from 'prop-types';
 import { toastr } from 'react-redux-toastr';
 import MLoadingSpinner from 'components/ui/MLoadingSpinner';
 import { SUCCESS, RUNNING, PENDING } from 'dataTypes';
-import DataPipelineApi from 'apis/DataPipelineApi';
 import { getTimeCreatedAgo, parseDurationInSeconds } from 'functions/dataParserHelpers';
 import { determineJobClass } from 'functions/pipeLinesHelpers';
 import './jobLog.scss';
-import JobsApi from 'apis/JobsApi.ts';
-import ExperimentApi from 'apis/experimentApi';
-
-const jobsApi = new JobsApi();
-const experimentApi = new ExperimentApi();
-const dataPipeApi = new DataPipelineApi();
+import jobActions, { parseLine } from '../actions';
 
 const JobLog = (props) => {
   const { projectId, selectedProject: { id, namespace, slug }, job } = props;
@@ -31,33 +25,6 @@ const JobLog = (props) => {
 
   const jobTimeCreatedAgo = getTimeCreatedAgo(createdAt, new Date());
 
-  function parseLine(line) {
-    let classList = 'line-span';
-    let finalLine = line;
-    if (finalLine.includes('\u001b[31;1mERROR:')) {
-      const errorIndex = finalLine.indexOf('[31;1mERROR:');
-      finalLine = finalLine.substr(errorIndex, finalLine.length);
-      classList = `${classList} t-danger t-bold`;
-    } else if (finalLine.includes('\u001b[32;1m')) {
-      const errorIndex = finalLine.indexOf('32;1m');
-      finalLine = finalLine.substr(errorIndex, finalLine.length);
-      classList = `${classList} t-primary t-bold`;
-    }
-
-    finalLine = finalLine
-      .replace(' ', '  ')
-      .replace('[31;1m', '')
-      .replace('32;1m', '')
-      .replace('\u001b[0K', '')
-      .replace('\u001b[0;m', '');
-
-    return (
-      <span className={classList}>
-        {finalLine}
-      </span>
-    );
-  }
-
   const mounted = useRef(false);
   const handleResponse = (res) => res
     .blob()
@@ -72,9 +39,9 @@ const JobLog = (props) => {
         try {
           const b64 = reader.result.replace(/^data:.+;base64,/, '');
           finalLog = atob(b64).split('\n');
-          if (!mounted.current) setJobLog(finalLog);
         } catch (error) {
-          toastr.error('Error', 'Something went wrong reading the log');
+          toastr.error('Error', error.message);
+        } finally {
           if (!mounted.current) setJobLog(finalLog);
         }
       };
@@ -82,22 +49,18 @@ const JobLog = (props) => {
     });
 
   useEffect(() => {
-    dataPipeApi.getProjectPipelines(id)
-      .then((backendPipelines) => backendPipelines)
-      .then((backendPipelines) => {
-        experimentApi.getExperiments(id)
-          .then((experimentList) => {
-            if (!mounted.current) setAllJobs([...backendPipelines, ...experimentList]);
-          });
+    jobActions.getProjectPipelines(id)
+      .then(([backendPipelines, experimentList]) => {
+        if (!mounted.current) setAllJobs([...backendPipelines, ...experimentList]);
       })
-      .then(() => {
-        jobsApi.getJobById(projectId, job.id)
-          .then((res) => {
-            if (!mounted.current) setDuration(res.duration);
-          })
-          .then(() => jobsApi.getLog(projectId, job.id))
-          .then((res) => res.ok ? handleResponse(res) : Promise.reject(res));
-      })
+      .catch(() => toastr.error('Error', 'To get pipelines info was not possible'));
+
+    jobActions.getJobInfo(projectId, job.id).then((res) => {
+      if (!mounted.current) setDuration(res.duration);
+    }).catch(() => toastr.error('Error', 'Error getting job info'));
+
+    jobActions.getJobLog(projectId, job.id)
+      .then((res) => res.ok ? handleResponse(res) : Promise.reject(res))
       .catch(() => toastr.error('Error', 'The job not found or error parsing it'));
 
     return () => {
@@ -172,10 +135,7 @@ const JobLog = (props) => {
           <b>{jobStatus}</b>
         </p>
       </div>
-      <div style={{
-        width: '100%',
-      }}
-      >
+      <div className="w-100">
         <div id="additional-info-job" className="flexible-div-basic-info-cont">
           <div className="job-table">
             <div className="job-table-header">
@@ -226,12 +186,15 @@ const JobLog = (props) => {
             if (line.length === 0) {
               return null;
             }
+            const { classList, finalLine } = parseLine(line);
             return (
               <div className="log-line" key={`${index.toString()} ${line}`}>
                 <div className="number-span-container">
                   <span style={{ color: 'gray' }}>{index}</span>
                 </div>
-                {parseLine(line)}
+                <span className={classList}>
+                  {finalLine}
+                </span>
               </div>
             );
           }) : (
