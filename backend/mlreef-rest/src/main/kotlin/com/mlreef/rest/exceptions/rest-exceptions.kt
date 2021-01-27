@@ -1,5 +1,6 @@
 package com.mlreef.rest.exceptions
 
+import com.mlreef.rest.feature.NEWLINE
 import org.springframework.http.HttpStatus
 import org.springframework.validation.FieldError
 import org.springframework.web.bind.annotation.ResponseStatus
@@ -64,6 +65,7 @@ enum class ErrorCode(val errorCode: Int, val errorName: String) {
     ExperimentCreationProjectMissing(3107, "DataProject is not provided"),
     ExperimentCreationDataInstanceMissing(3108, "DataInstance is not provided"),
     ExperimentCreationInvalid(3109, "Could not create Experiment"),
+    PythonFileParsingError(3150, "There are errors in script"),
 
     // Creating Pipelines 32xx
     PipelineSlugAlreadyInUse(3201, "Could not change status"),
@@ -148,7 +150,13 @@ open class UnknownProjectException(message: String? = null)
     : NotFoundException(ErrorCode.ProjectNotExisting, message ?: "Project is unknown and does not exist")
 
 @ResponseStatus(code = HttpStatus.INTERNAL_SERVER_ERROR, reason = "Python file was parsed incorrectly")
-class PythonFileParsingException(message: String) : RestException(ErrorCode.DataProcessorNotUsable, message)
+class PythonFileParsingException(message: String) : RestException(ErrorCode.PythonFileParsingError, message)
+
+@ResponseStatus(code = HttpStatus.INTERNAL_SERVER_ERROR, reason = "Python file was parsed incorrectly")
+class PythonFileParsingErrors(errorMessagesMap: Map<String, List<String>>)
+    : RestException(ErrorCode.PythonFileParsingError, errorMessagesMap.map {
+    "${it.key.toUpperCase()}:$NEWLINE\t${it.value.joinToString("$NEWLINE\t")}"
+}.joinToString(NEWLINE))
 
 class UserNotFoundException(userId: UUID? = null, userName: String? = null, email: String? = null, personId: UUID? = null, gitlabId: Long? = null, subjectId: UUID? = null)
     : NotFoundException(ErrorCode.UserNotExisting, generateUserNotFoundMessage(userId, userName, email, personId, gitlabId, subjectId))
@@ -166,6 +174,8 @@ class ProjectPublicationException(errorCode: ErrorCode, message: String) : RestE
 
 class PipelineCreateException(errorCode: ErrorCode, message: String? = "") : RestException(errorCode, message ?: "")
 class PipelineStartException(message: String) : RestException(ErrorCode.CommitPipelineScriptFailed, message)
+
+class DataProcessorIncorrectStructureException(message: String) : RestException(ErrorCode.ValidationFailed, message)
 
 // FIXME: I honestly dont understand RuntimeException
 class BadParametersException(message: String? = null) : RuntimeException(message ?: "Internal exception")
