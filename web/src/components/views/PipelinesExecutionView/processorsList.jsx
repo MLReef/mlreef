@@ -11,13 +11,16 @@ const ProcessorsList = ({ operationTypeToExecute }) => {
   const [{ currentProcessors }] = useContext(DataPipelinesContext);
   return (
     <div id="data-operations-list" className="scroll-styled">
-      {currentProcessors && currentProcessors.map((processor) => (
+      {currentProcessors.length > 0 ? currentProcessors.map((processor) => (
         <Processor
           key={`processors-available-${processor.internalProcessorId}`}
           processorData={processor}
           operationTypeToExecute={operationTypeToExecute}
         />
-      ))}
+      ))
+        : (
+          <h4 style={{ textAlign: 'center' }}>No data processors to execute</h4>
+        )}
     </div>
   );
 };

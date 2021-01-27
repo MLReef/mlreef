@@ -6,8 +6,8 @@ import { toastr } from 'react-redux-toastr';
 import cx from 'classnames';
 import './PipelinesExecutionView.scss';
 import { OPERATION, ALGORITHM, VISUALIZATION } from 'dataTypes';
-import ProjectGeneralInfoApi from 'apis/ProjectGeneralInfoApi';
-import { string, shape, arrayOf } from 'prop-types';
+import MLSearchApi from 'apis/MLSearchApi';
+import { string, shape } from 'prop-types';
 import MLoadingSpinnerContainer from 'components/ui/MLoadingSpinner/MLoadingSpinnerContainer';
 import { generateBreadCrumbs } from 'functions/helpers';
 import ExecutePipelineModal from './ExecutePipelineModal';
@@ -25,10 +25,10 @@ import {
 } from './dataModel';
 import Provider, { DataPipelinesContext } from './DataPipelineHooks/DataPipelinesProvider';
 import DragDropZone from './DragNDropZone';
-import { setProcessors } from './DataPipelineHooks/DataPipelinesReducer';
 import { SET_IS_SHOWING_EXECUTE_PIPELINE_MODAL } from './DataPipelineHooks/actions';
+import { addInformationToProcessors } from './DataPipelineHooks/DataPipelinesReducer';
 
-const projectInstance = new ProjectGeneralInfoApi();
+const mlSearchApi = new MLSearchApi();
 
 const ExecuteButton = () => {
   const [{
@@ -72,7 +72,6 @@ const FunctionalExecutionPipelinesView = (props) => {
   const {
     selectedProject: project,
     match: { path, params: { typePipelines, namespace, slug } },
-    processors,
     preconfiguredOperations,
     actions,
   } = props;
@@ -115,39 +114,37 @@ const FunctionalExecutionPipelinesView = (props) => {
   }
 
   const [processorsAndProjects, setProcessorsAndProjects] = useState([]);
-
-  const processorsForCurrentView = setProcessors(
-    processors,
-    operationTypeToExecute,
-  );
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    Promise.all(
-      processorsForCurrentView
-        .map((proc) => projectInstance.getCodeProjectById(proc.codeProjectId)),
-    )
+    setIsLoading(true);
+    mlSearchApi.searchPaginated(operationTypeToExecute, { published: true }, 0, 20)
+      .then((res) => res.content)
       .then((projects) => projects.map((proj) => {
-        const processor = processorsForCurrentView
-          .filter((proc) => proc.codeProjectId === proj.id)[0];
         const {
           gitlab_namespace: nameSpace,
           slug: projSlug,
           input_data_types: inputDataTypes,
           stars_count: stars,
+          data_processor: processor,
         } = proj;
         return {
           ...processor,
+          parameters: processor.versions[0].parameters,
           nameSpace,
           slug: projSlug,
           inputDataTypes,
           stars,
         };
       }))
-      .then(setProcessorsAndProjects);
-    // eslint-disable-next-line
-  }, [processors]);
+      .then(addInformationToProcessors)
+      .then(setProcessorsAndProjects)
+      .finally(() => {
+        setIsLoading(false);
+      });
+  }, [operationTypeToExecute]);
 
-  if (processorsAndProjects.length === 0) {
+  if (processorsAndProjects.length === 0 && isLoading) {
     return (
       <MLoadingSpinnerContainer active />
     );
@@ -234,7 +231,6 @@ const FunctionalExecutionPipelinesView = (props) => {
 
 FunctionalExecutionPipelinesView.defaultProps = {
   preconfiguredOperations: {},
-  processors: [],
 };
 
 FunctionalExecutionPipelinesView.propTypes = {
@@ -247,7 +243,6 @@ FunctionalExecutionPipelinesView.propTypes = {
       typePipelines: string,
     }).isRequired,
   }).isRequired,
-  processors: arrayOf(shape({})),
   preconfiguredOperations: shape({}),
   actions: shape({}).isRequired,
 };
@@ -256,7 +251,6 @@ function mapStateToProps(state) {
   return {
     selectedProject: state.projects.selectedProject,
     branches: state.branches,
-    processors: state.processors,
     preconfiguredOperations: state.user.preconfiguredOperations,
   };
 }

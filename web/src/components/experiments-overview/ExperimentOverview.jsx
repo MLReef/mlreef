@@ -77,7 +77,6 @@ class ExperimentsOverview extends Component {
 
     const {
       history,
-      algorithms,
       projects: {
         selectedProject: {
           namespace, slug,
@@ -140,7 +139,6 @@ class ExperimentsOverview extends Component {
                 defaultBranch={selectedProject.defaultBranch}
                 currentState={experimentClassification.status}
                 experiments={experimentClassification.values}
-                algorithms={algorithms}
               />
               ))}
           </div>
@@ -182,13 +180,11 @@ ExperimentsOverview.propTypes = {
   actions: shape({
     setIsLoading: func.isRequired,
   }).isRequired,
-  algorithms: arrayOf(shape({})).isRequired,
 };
 
 function mapStateToProps(state) {
   return {
     projects: state.projects,
-    algorithms: state.processors.algorithms,
   };
 }
 

@@ -23,7 +23,6 @@ export const UnconnectedExperimentDetails = (props) => {
   const [jobs, setJobs] = useState([]);
   const {
     projects,
-    algorithms,
     match: { params: { namespace, slug, experimentId } },
     setPreconfiguredOPerations,
     history,
@@ -34,12 +33,7 @@ export const UnconnectedExperimentDetails = (props) => {
   const userKind = selectedProject?.gitlab?.namespace?.kind;
   const name = selectedProject?.name;
   const userParameters = experiment?.processing?.parameters;
-  const expSlug = experiment?.processing?.slug;
   const { pipeline_job_info: pipelineInfo } = experiment;
-  let mergedParameters;
-  const allParameters = algorithms
-    .filter((alg) => alg.slug === expSlug)
-    .map((alg) => alg.parameters)[0];
   const experimentName = experiment.name;
   const uniqueName = experimentName && experimentName.split('/')[1];
   const experimentJob = jobs.filter((job) => job.ref === experiment.name)[0];
@@ -52,17 +46,6 @@ export const UnconnectedExperimentDetails = (props) => {
       .then((js) => setJobs(js))
       .catch((err) => toastr.error('Error', err.message));
   }, [projectId, backendId, experimentId]);
-
-  // Union of two arrays of parameters
-  if (userParameters && allParameters) {
-    const mergedArray = [...userParameters, ...allParameters];
-    const set = new Set();
-    mergedParameters = mergedArray.filter((item) => {
-      const isItemInSet = !set.has(item.name);
-      if (isItemInSet) set.add(item.name);
-      return isItemInSet;
-    }, set);
-  }
 
   const breadcrumbs = useMemo(
     () => [
@@ -108,7 +91,7 @@ export const UnconnectedExperimentDetails = (props) => {
                   inputFiles={experiment.input_files}
                   dataOperatorsExecuted={experiment.processing}
                   experimentName={uniqueName}
-                  parameters={mergedParameters}
+                  parameters={userParameters}
                   pipelineInfo={pipelineInfo}
                   setPreconfiguredOPerations={setPreconfiguredOPerations}
                   history={history}
@@ -140,7 +123,6 @@ export const UnconnectedExperimentDetails = (props) => {
 };
 
 UnconnectedExperimentDetails.propTypes = {
-  algorithms: arrayOf(shape({})).isRequired,
   projects: arrayOf(shape({})).isRequired,
   match: shape({
     params: shape({
@@ -154,7 +136,6 @@ UnconnectedExperimentDetails.propTypes = {
 function mapStateToProps(state) {
   return {
     projects: state.projects.all,
-    algorithms: state.processors.algorithms,
   };
 }
 

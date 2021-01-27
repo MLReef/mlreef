@@ -5,14 +5,12 @@ import {
   string, shape, func, arrayOf, bool,
 } from 'prop-types';
 import forkingImage from 'images/forking.png';
-import { OPERATION, ALGORITHM, VISUALIZATION } from 'dataTypes';
 import FilesContainer from 'components/FilesContainer';
 import { generateBreadCrumbs } from 'functions/helpers';
 import { PROJECT_TYPES } from 'domain/project/projectTypes';
 import { redirectNotFound } from 'store/actions/errorsActions';
 import * as projectActions from 'store/actions/projectInfoActions';
 import * as branchesActions from 'store/actions/branchesActions';
-import * as processorActions from 'store/actions/processorActions';
 import * as userActions from 'store/actions/userActions';
 import * as jobsActions from 'store/actions/jobsActions';
 import * as mergeActions from 'store/actions/mergeActions';
@@ -94,12 +92,6 @@ class ProjectView extends React.Component {
     return actions.getProjectDetailsBySlug(namespace, slug)
       .then(({ project }) => {
         const gid = project.gitlabId || project.gitlab?.id;
-
-        if (project.projectType === PROJECT_TYPES.DATA) {
-          actions.getProcessors(OPERATION);
-          actions.getProcessors(ALGORITHM);
-          actions.getProcessors(VISUALIZATION);
-        }
 
         let promises = [
           actions.getBranchesList(gid),
@@ -291,7 +283,6 @@ function mapDispatchToProps(dispatch) {
       ...jobsActions,
       ...branchesActions,
       ...mergeActions,
-      ...processorActions,
       redirectNotFound,
     }, dispatch),
   };

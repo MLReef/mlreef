@@ -26,15 +26,18 @@ import {
   CANCELED,
   FAILED,
   PENDING,
+  ALGORITHM,
 } from '../../dataTypes';
 import ExperimentCancellationModal from './cancellationModal';
 import DeleteExperimentModal from './DeletionModal';
 import { plainToClass } from 'class-transformer';
 import Experiment from 'domain/experiments/Experiment';
+import MLSearchApi from 'apis/MLSearchApi';
+import { setCodeProjects } from 'store/actions/projectInfoActions';
 
 const gitlabApi = new GitlabPipelinesApi();
 const experimentApi = new ExperimentsApi();
-const projectInstance = new ProjectGeneralInfoApi();
+const mlSearchApi = new MLSearchApi();
 
 const onPositiveDelete = (dataProjectId, experimentId) => () => experimentApi
   .delete(dataProjectId, experimentId)
@@ -45,7 +48,6 @@ const onPositiveDelete = (dataProjectId, experimentId) => () => experimentApi
 const ExperimentSummary = ({
   projectId,
   dataProjectId,
-  codeProjectId,
   projectNamespace,
   projectSlug,
   experiment,
@@ -68,6 +70,7 @@ const ExperimentSummary = ({
     processing,
     pipelineJobInfo: { commitSha },
     slug: expName,
+    processing: { slug: dataProcessorSlug }
   } = experiment;
 
   const inputFilePath = inputFiles[0].location.toString();
@@ -80,9 +83,12 @@ const ExperimentSummary = ({
   )) : [];
 
   useEffect(() => {
-    projectInstance.getCodeProjectById(codeProjectId)
-      .then((res) => setcodeProject(res));
-  }, [codeProjectId]);
+    mlSearchApi.searchPaginated(ALGORITHM, { slug: dataProcessorSlug }, 0, 1)
+      .then((res) => res.content)
+      .then((projects) => projects.length > 0 ? projects[0] : {})
+      .then(setcodeProject)
+      .catch((err) => toastr.error('Error', err.message));
+  }, [dataProcessorSlug]);
 
   const { gitlab_namespace: nameSpace, slug } = codeProject;
   const linkToRepoView = `/${basePath}/-/repository/tree/-/commit/${commitSha}`;

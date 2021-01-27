@@ -17,7 +17,6 @@ const ExperimentCard = (props) => {
     experiments,
     currentState,
     projectId,
-    algorithms,
   } = props;
   const today = new Date();
   return (
@@ -35,10 +34,6 @@ const ExperimentCard = (props) => {
 
       {experiments.map((experiment) => {
         const modelTitle = experiment.processing.name;
-        const expSlug = experiment.processing.slug;
-        const codeProjectId = algorithms
-          .filter((algo) => algo.slug === expSlug)
-          .map((cd) => cd.code_project_id)[0];
         const {
           dataProjectId,
           slug,
@@ -94,7 +89,6 @@ const ExperimentCard = (props) => {
               projectNamespace={projectNamespace}
               projectSlug={projectSlug}
               dataProjectId={dataProjectId}
-              codeProjectId={codeProjectId}
             />
           </div>
         );

@@ -1,4 +1,3 @@
-import { ALGORITHM, OPERATION } from 'dataTypes';
 import { parseToCamelCase } from 'functions/dataParserHelpers';
 import { validateForm } from 'functions/validations';
 import UUIDV1 from 'uuid/v1';
@@ -42,24 +41,13 @@ const updateOperators = (
   return ps;
 });
 
-export function setProcessors(nonFilteredProcessors, type) {
-  let filteredProcessors;
-  if (type === OPERATION) {
-    filteredProcessors = nonFilteredProcessors.operations;
-  } else if (type === ALGORITHM) {
-    filteredProcessors = nonFilteredProcessors.algorithms;
-  } else {
-    filteredProcessors = nonFilteredProcessors.visualizations;
-  }
-
-  return filteredProcessors
-    .filter((cP) => cP !== null && cP !== undefined)
-    .map((cP) => parseToCamelCase({
-      ...cP,
-      internalProcessorId: UUIDV1(),
-      parameters: cP.parameters.map((param) => ({ ...param, isValid: !param.required })),
-    }));
-}
+export const addInformationToProcessors = (processors) => processors
+  .filter((cP) => cP !== null && cP !== undefined)
+  .map((cP) => parseToCamelCase({
+    ...cP,
+    internalProcessorId: UUIDV1(),
+    parameters: cP.parameters.map((param) => ({ ...param, isValid: !param.required })),
+  }));
 
 export const initialState = {
   branchSelected: null,
