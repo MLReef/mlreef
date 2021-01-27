@@ -32,11 +32,6 @@ export default {
     paginationInfo: {},
   },
   users: [],
-  processors: {
-    operations: [],
-    algorithms: [],
-    visualizations: [],
-  },
   mergeRequests: {
     list: [],
     current: {},

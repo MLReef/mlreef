@@ -8,7 +8,6 @@ import mergeRequests from './mergeReducer';
 import user from './userReducer';
 import actionModal from './actionModalReducer';
 import groups from './groupsReducer';
-import processors from './processorReducer';
 import globalMarker from './globalMarkerReducer';
 import errors from './errorsReducer';
 
@@ -22,7 +21,6 @@ const rootReducer = combineReducers({
   user,
   actionModal,
   groups,
-  processors,
   globalMarker,
   errors,
 });

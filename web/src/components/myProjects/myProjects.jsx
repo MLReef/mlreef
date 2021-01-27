@@ -13,7 +13,6 @@ import {
 } from 'dataTypes';
 import { PROJECT_TYPES } from 'domain/project/projectTypes';
 import MScrollableSection from 'components/ui/MScrollableSection/MScrollableSection';
-import * as processorActions from 'store/actions/processorActions';
 import * as projectActions from 'store/actions/projectInfoActions';
 import * as groupsActions from 'store/actions/groupsActions';
 import * as userActions from 'store/actions/userActions';
@@ -326,7 +325,6 @@ function mapDispatchToProps(dispatch) {
       ...projectActions,
       ...groupsActions,
       ...userActions,
-      ...processorActions,
     }, dispatch),
   };
 }

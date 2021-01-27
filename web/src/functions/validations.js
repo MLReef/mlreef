@@ -2,6 +2,16 @@ import {
   INTEGER, FLOAT, regExps, BOOLEAN, bannedCharsArray, STRING,
 } from '../dataTypes';
 
+const validateListDataOperator = (testArray) => {
+  let isArray = false;
+  try {
+    isArray = Array.isArray(JSON.parse(testArray));
+    return isArray;
+  } catch (err) {
+    return false;
+  }
+}
+
 export default (value, dataType, required) => {
   if (required && (!value || value === '')) return false;
   if (value === '') return true;
@@ -12,6 +22,8 @@ export default (value, dataType, required) => {
       return regExps.FLOAT.test(value) && !Number.isNaN(Number.parseFloat(value));
     case BOOLEAN:
       return (value?.toLowerCase() === 'true') || (value?.toLowerCase() === 'false');
+    case 'LIST':
+      return validateListDataOperator(value);
     case STRING:
       return true;
     default:

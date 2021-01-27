@@ -31,12 +31,8 @@ export default class MLSearchApi extends ApiDirector {
       url,
       JSON.stringify(data),
     );
-    const response = await fetch(BLbuilder.build());
-    if (!response.ok) {
-      const body = await response.json();
-      return Promise.reject(body.error_message);
-    }
-    return response.json();
+
+    return fetch(BLbuilder.build()).then(handleResponse);
   }
 
   searchPaginated(searchableType: String, body: any, page: number, size: number) {
