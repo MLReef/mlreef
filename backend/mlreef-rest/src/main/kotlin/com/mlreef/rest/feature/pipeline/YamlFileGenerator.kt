@@ -3,6 +3,7 @@ package com.mlreef.rest.feature.pipeline
 import com.mlreef.rest.Account
 import com.mlreef.rest.DataProcessorInstance
 import com.mlreef.rest.DataProcessorType
+import com.mlreef.rest.exceptions.DataProcessorIncorrectStructureException
 import org.springframework.core.io.ClassPathResource
 import java.util.stream.Collectors
 
@@ -57,26 +58,49 @@ internal object YamlFileGenerator {
         )
         .replace(
             PIPELINE_STRING,
-            dataProcessors.joinToString(NEWLINE) { dpInstance ->
-                val path = when (dpInstance.dataProcessor.type) {
-                    DataProcessorType.ALGORITHM -> "/epf/model/"
-                    DataProcessorType.OPERATION -> "/epf/pipelines/"
-                    DataProcessorType.VISUALIZATION -> "/epf/visualisation/"
-                }
-                // the 4 space indentation is necessary for the yaml syntax
-                "    python $path${dpInstance.processorVersion.command}.py " +
-                    dpInstance.parameterInstances
-                        .joinToString(" ") { "--${it.name} ${it.value}" }
-            }
+            getExecutableCommand(dataProcessors)
         )
         .replace(
-            ARTIFACTS_PATH, newValue = if (dataProcessors.isNullOrEmpty()) "output" else (dataProcessors.last().parameterInstances.firstOrNull{ it.name == "output-path" })?.value?:"output"
+            ARTIFACTS_PATH, newValue = if (dataProcessors.isNullOrEmpty()) "output" else (dataProcessors.last().parameterInstances.firstOrNull { it.name == "output-path" })?.value
+            ?: "output"
         )
+
     //FIXME: For the moment the experiment yaml file contains PORT hardcoded in the script.
     // The best way is to move it from yml generation to the backend
     private fun normilizeGitlabHost(host: String): String {
         val hostAndPort = host.split(":")
         return if (hostAndPort.size > 2) "${hostAndPort[0]}:${hostAndPort[1]}" else host
+    }
+
+    private fun getExecutableCommand(dataProcessors: List<DataProcessorInstance>): String {
+        return dataProcessors.joinToString(NEWLINE) { dpInstance ->
+            if (dpInstance.processorVersion.command.isNotBlank()) {
+                getCommandLineFromCommand(dpInstance)
+            } else if (!dpInstance.processorVersion.path.isNullOrBlank()) {
+                getCommandLineFromPath(dpInstance)
+            } else {
+                throw DataProcessorIncorrectStructureException("Dataprocessor has neither command nor scrypt file path")
+            }
+        }
+    }
+
+    private fun getCommandLineFromCommand(dpInstance: DataProcessorInstance): String {
+        val path = when (dpInstance.dataProcessor.type) {
+            DataProcessorType.ALGORITHM -> "/epf/model/"
+            DataProcessorType.OPERATION -> "/epf/pipelines/"
+            DataProcessorType.VISUALIZATION -> "/epf/visualisation/"
+        }
+        // the 4 space indentation is necessary for the yaml syntax
+        return "    python $path${dpInstance.processorVersion.command}.py " +
+            dpInstance.parameterInstances
+                .joinToString(" ") { "--${it.name} ${it.value}" }
+    }
+
+    private fun getCommandLineFromPath(dpInstance: DataProcessorInstance): String {
+        // the 4 space indentation is necessary for the yaml syntax
+        return "    python ${dpInstance.processorVersion.path}" +
+            dpInstance.parameterInstances
+                .joinToString(" ") { "--${it.name} ${it.value}" }
     }
 
 }

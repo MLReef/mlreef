@@ -22,17 +22,22 @@ import java.util.UUID
 import java.util.logging.Logger
 
 
-fun parsePython3(inStream: InputStream): MLParseResult {
+fun parsePython3(inStream: InputStream, errorMessage: MutableList<String>? = null): MLParseResult {
     val parser: Python3Parser = CharStreams.fromStream(inStream)
         .let { Python3Lexer(it) }
         .let { CommonTokenStream(it) }
         .let { Python3Parser(it) }
 
+    parser.setParsingErrorProcessor { row, col, msg ->
+        errorMessage?.apply {
+            add("Error in line $row, column $col: $msg")
+        }
+    }
+
     return MLVisitor()
         .apply { visit(parser.file_input()) }
         .validatedResult
 }
-
 
 class MLParseResult {
     var mlAnnotations: List<EPFAnnotation> = mutableListOf()

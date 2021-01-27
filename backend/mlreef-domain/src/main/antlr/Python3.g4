@@ -39,6 +39,27 @@ grammar Python3;
 
 tokens { INDENT, DEDENT }
 
+@parser::members {
+  @FunctionalInterface
+  public interface ParsingErrorProcessor {
+    void processError(Integer row, Integer col, String message);
+  }
+
+  private ParsingErrorProcessor parsingErrorProcessor = null;
+
+  public void setParsingErrorProcessor(ParsingErrorProcessor processor) {
+    this.parsingErrorProcessor = processor;
+  }
+
+  @Override
+  public void notifyErrorListeners(Token offendingToken, String msg, RecognitionException e) {
+    if (this.parsingErrorProcessor!=null) {
+    	this.parsingErrorProcessor.processError(offendingToken.getLine(), offendingToken.getCharPositionInLine(), msg);
+    }
+    super.notifyErrorListeners(offendingToken, msg, e);
+  }
+}
+
 @lexer::members {
   // A queue where extra tokens are pushed on (see the NEWLINE lexer rule).
   private java.util.LinkedList<Token> tokens = new java.util.LinkedList<>();

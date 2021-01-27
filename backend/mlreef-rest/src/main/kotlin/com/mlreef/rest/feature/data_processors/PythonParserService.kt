@@ -9,12 +9,15 @@ import com.mlreef.rest.ProcessorVersion
 import com.mlreef.rest.exceptions.ErrorCode
 import com.mlreef.rest.exceptions.NotFoundException
 import com.mlreef.rest.exceptions.ProjectPublicationException
+import com.mlreef.rest.exceptions.PythonFileParsingErrors
 import com.mlreef.rest.feature.project.ProjectResolverService
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import java.io.InputStream
 import java.net.URL
 import java.util.UUID
+import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.CopyOnWriteArrayList
 
 @Service
 class PythonParserService(
@@ -30,28 +33,36 @@ class PythonParserService(
 
         val files = repositoryService.getFilesContentOfRepository(project.gitlabId, mainFilePath, mainFilePath == null)
 
+        val errorMessagesMap = ConcurrentHashMap<String, List<String>>()
+
         val processors = files.filterNot { it.content == null }.map {
             log.debug(it.content)
-            val processor = parsePythonFile(it.content!!, it.path)
+            val errorMessages = CopyOnWriteArrayList<String>()
+            val processor = parsePythonFile(it.content!!, it.path, errorMessages)
             val version = processor?.processorVersion?.copy(contentSha256 = it.sha256) //it.content!! is covered by filterNot function before this lambda
+            if (errorMessages.size > 0) {
+                errorMessagesMap.put(it.path, errorMessages)
+            }
             processor?.copy(processorVersion = version)
         }.filterNotNull()
 
+        if (errorMessagesMap.size > 0) throw PythonFileParsingErrors(errorMessagesMap)
         if (processors.size > 1) throw ProjectPublicationException(ErrorCode.Conflict, "More than 1 data processor found in the project. Please selected a main file")
         if (processors.size == 0) throw ProjectPublicationException(ErrorCode.DataProcessorNotUsable, "No any data processor found in the project or incorrect main file. Candidate files found: ${files.size}")
 
         return processors[0]
     }
 
-    fun parsePythonFile(pythonCode: String, filePath: String? = null) = parsePythonFile(pythonCode.byteInputStream(), filePath)
+    fun parsePythonFile(pythonCode: String, filePath: String? = null, errorMessages: MutableList<String>? = null) = parsePythonFile(pythonCode.byteInputStream(), filePath, errorMessages)
 
-    fun parsePythonFile(url: URL): DataProcessor? {
+    fun parsePythonFile(url: URL, errorMessages: MutableList<String>? = null): DataProcessor? {
         log.info("Parsing url $url for DataProcessors and annotations")
-        return parsePythonFile(url.openStream())
+        return parsePythonFile(url.openStream(), null, errorMessages)
     }
 
-    private fun parsePythonFile(stream: InputStream, filePath: String? = null): DataProcessor? {
-        val annotations = parsePython3(stream).mlAnnotations
+    private fun parsePythonFile(stream: InputStream, filePath: String? = null, errorMessages: MutableList<String>? = null): DataProcessor? {
+        val visitor = parsePython3(stream, errorMessages)
+        val annotations = visitor.mlAnnotations
         val dataProcessors = annotations.filterIsInstance(DataProcessor::class.java)
         val parameters = annotations.filterIsInstance(ProcessorParameter::class.java)
         val metricSchemas = annotations.filterIsInstance(MetricSchema::class.java)
