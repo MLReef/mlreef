@@ -13,8 +13,8 @@ import com.mlreef.rest.UserRole
 import com.mlreef.rest.utils.RandomUtils
 import io.mockk.mockk
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.Disabled
+import org.junit.jupiter.api.Test
 import java.time.ZonedDateTime
 import java.util.UUID.randomUUID
 
@@ -96,7 +96,7 @@ class YamlFileGeneratorTest {
         )
 
         assertThat(output).doesNotContain(PIPELINE_STRING)
-        assertThat(output.lines().count()).isEqualTo(countLinesBefore + 1)
+        assertThat(output.lines().count()).isEqualTo(countLinesBefore + 2)
         assertThat(YamlFileGenerator.template).contains(ARTIFACTS_PATH)
     }
 

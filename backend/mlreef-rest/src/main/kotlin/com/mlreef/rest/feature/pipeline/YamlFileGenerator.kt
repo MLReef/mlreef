@@ -22,7 +22,7 @@ const val SOURCE_BRANCH = "%SOURCE_BRANCH%"
 const val TARGET_BRANCH = "%TARGET_BRANCH%"
 const val PIPELINE_STRING = "%PIPELINE_STRING%"
 const val ARTIFACTS_PATH = "%ARTIFACTS_PATH%"
-const val NEWLINE = "\n"
+val NEWLINE = System.lineSeparator()
 
 internal object YamlFileGenerator {
     val template: String = ClassPathResource("mlreef-file-template.yml")
@@ -98,7 +98,7 @@ internal object YamlFileGenerator {
 
     private fun getCommandLineFromPath(dpInstance: DataProcessorInstance): String {
         // the 4 space indentation is necessary for the yaml syntax
-        return "    python ${dpInstance.processorVersion.path}" +
+        return "    python ${dpInstance.processorVersion.path} " +
             dpInstance.parameterInstances
                 .joinToString(" ") { "--${it.name} ${it.value}" }
     }
