@@ -10,8 +10,9 @@ build nautilus:
       - nautilus/**/*
       - k8s/**/*
       - web/**/*
-      - Dockerfile
+      - .dockerignore
       - .gitlab-ci.yml
+      - Dockerfile
   script: |
     docker build --tag $NAUTILUS_IMAGE_PATH -f Dockerfile .
     docker push "$NAUTILUS_IMAGE_PATH"

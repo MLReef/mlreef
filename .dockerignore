@@ -9,8 +9,13 @@
 /backend/mlreef-rest/build
 /backend/mlreef/system-test
 
+!epf/Dockerfile
+!epf/src
+
 !nautilus
 /nautilus/docker-compose.yml
 
-!epf/Dockerfile
-!epf/src
+!web
+/web/.storybook
+/web/cypess
+/web/node_modules
