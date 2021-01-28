@@ -20,7 +20,6 @@ variables:
   GITLAB_PROJECT:      "%GITLAB_PROJECT%"       # Gitlab project to git push pipeline results to
   TARGET_BRANCH:       "%TARGET_BRANCH%"        # Git branch pipeline results are pushed to
   #save pipeline command to extract output-path for experiments
-  PIPELINE_COMMAND:    "%PIPELINE_STRING%"
   ARTIFACTS_PATH:    "%ARTIFACTS_PATH%"
   # mlreef.com/api/v1/epf/experiments/:experiment_id
   EPF_PIPELINE_URL:    "%EPF_PIPELINE_URL%"
@@ -49,7 +48,7 @@ before_script:
   - echo "Target branch is $TARGET_BRANCH"
   - echo "Output path is $ARTIFACTS_PATH"
   #only run background-push if it is an experiment
-  - background-push "$PIPELINE_COMMAND" &
+  #- background-push "%PIPELINE_STRING%" &
 
 
 after_script:
@@ -79,7 +78,7 @@ mlreef-pipeline:
   script: |
     git checkout -B $TARGET_BRANCH
     echo $CI_JOB_ID >> data_pipeline.info
-    $PIPELINE_COMMAND
+    %PIPELINE_STRING%
     git add .
     git status
     git commit -m "Add pipeline results [skip ci]"

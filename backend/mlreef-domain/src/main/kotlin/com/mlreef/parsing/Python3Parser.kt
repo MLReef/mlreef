@@ -49,7 +49,7 @@ class MLParseResult {
 
     /** Validates python variable names to be alphanumeric + underscore. */
     fun validate() {
-        val nameValidator = Regex("[a-zA-Z0-9_]*")
+        val nameValidator = Regex("[a-zA-Z0-9_-]*")
 
         val annotatedParameterNames = mlAnnotations.filterIsInstance<ProcessorParameter>().map { it.name }
 
