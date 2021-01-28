@@ -24,4 +24,3 @@ docker run -it --rm --name mlreef     \
   --publish 10080:10080               \
   --publish 6000:6000                 \
   mlreef:snapshot
-
