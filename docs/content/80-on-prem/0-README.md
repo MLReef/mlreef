@@ -30,6 +30,8 @@ docker run -it --rm --detach --name mlreef            \
   registry.gitlab.com/mlreef/mlreef:master
 ```
 
+It will start up a local instance of mlreef with a persistent docker volume named `mlreef-opt`
+containing all user data.
 
 ### Adding Machine Learning Runners
 The best way to host additional ML runners is to run them as separate docker containers.
@@ -37,7 +39,6 @@ This can be done on machines separate from the MLReef application server.
 The runners must have network access to the MLReef application server.
 
 #### Getting the Registration token
-The best way to host e
 After startup is completed you can query MLReef's Gitlab service for the current
 runner registration token by executing this `docker exec` command
 
@@ -68,4 +69,3 @@ docker exec -it ml-runner                   \
 
 
 ### GPU Capabilities
-
