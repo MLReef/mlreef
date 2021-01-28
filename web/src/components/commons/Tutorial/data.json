@@ -1,0 +1,317 @@
+{
+  "tutorials": [
+    {
+      "id": 1,
+      "name": "MLReef Basics",
+      "visibility": "users",
+      "description": "n/a",
+      "image": "/images/tutorials/1/front.png",
+      "epilogue": "## Congratulations!\n\nNow you know how to run an **experiment!**",
+      "steps": [
+        {
+          "id": 1,
+          "name": "Fork a project",
+          "tasks": [
+            {
+              "id": 1,
+              "layoutType": 1,
+              "title": "Go to the showcase repository",
+              "instructions": "Click this [link](/mlreef/showcase-mlreef)",
+              "validators": [
+                {
+                  "type": "urlChecker",
+                  "regex": "^/mlreef/showcase-mlreef"
+                },
+                {
+                  "type": "urlChecker",
+                  "regex": "^/:username/showcase-mlreef",
+                  "placeholders": ["username"]
+                }
+              ]
+            },
+            {
+              "id": 2,
+              "layoutType": 1,
+              "title": "Fork the project",
+              "instructions": "Click on the forking button",
+              "image": "/images/tutorials/1/forking.png",
+              "validators": [
+                {
+                  "type": "urlChecker",
+                  "regex": "^/projects/.+?/fork"
+                },
+                {
+                  "type": "urlChecker",
+                  "regex": "^/:username/showcase-mlreef",
+                  "placeholders": ["username"]
+                }
+              ]
+            },
+            {
+              "id": 3,
+              "layoutType": 2,
+              "feedback": "The process could take a while",
+              "image": "/images/forking.png",
+              "validators": [
+                {
+                  "type": "urlChecker",
+                  "regex": "^/:username/showcase-mlreef",
+                  "placeholders": ["username"]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": 2,
+          "name": "Create a experiment",
+          "tasks": [
+            {
+              "id": 1,
+              "layoutType": 1,
+              "title": "In the MLproject go to experiment tab",
+              "instructions": "In the MLproject go to experiment tab ",
+              "image": "/images/tutorials/1/experiment-tab.png",
+              "validators": [
+                {
+                  "type": "urlChecker",
+                  "regex": "^/:username/showcase-mlreef/-/experiments/new",
+                  "placeholders": ["username"]
+                },
+                {
+                  "type": "clickListener",
+                  "selector": "#new-experiment"
+                }
+              ]
+            },
+            {
+              "id": 2,
+              "layoutType": 1,
+              "title": "New experiment view",
+              "instructions": "Read the content in the green marked information field, then select data click on select data",
+              "image": "/images/tutorials/1/pipeline-view.png",
+              "validators": [
+                {
+                  "type": "clickListener",
+                  "selector": "#select-data-btn"
+                }
+              ]
+            },
+            {
+              "id": 3,
+              "layoutType": 1,
+              "title": "Select input files",
+              "instructions": "Select the folder train then click accept",
+              "image": "/images/tutorials/1/files.png",
+              "validators": [
+                {
+                  "type": "clickListener",
+                  "selector": "#accept"
+                }
+              ]
+            },
+            {
+              "id": 4,
+              "layoutType": 1,
+              "title": "Pick a model",
+              "instructions": "Drag and drop Resnet50 model in the pipeline builder area",
+              "image": "/images/tutorials/1/resnet50.png",
+              "validators": [
+
+              ]
+            },
+            {
+              "id": 5,
+              "layoutType": 1,
+              "title": "Set the hyperparameter values",
+              "instructions": "",
+              "image": "/images/tutorials/1/parameters.png",
+              "validators": [
+
+              ]
+            },
+            {
+              "id": 6,
+              "layoutType": 2,
+              "feedback": "Once all parameters are set correctly the execute button will become available. Click on it to continue",
+              "image": "/images/tutorials/1/execute-button.png",
+              "validators": [
+                {
+                  "type": "clickListener",
+                  "selector": "#execute-button"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": 3,
+          "name": "Execution settings",
+          "tasks": [
+            {
+              "id": 1,
+              "layoutType": 1,
+              "title": "Execution settings",
+              "instructions": "Select the first option from the dropdown menu Small GPU option, then click execute",
+              "image": "/images/tutorials/1/execution-modal.png",
+              "validators": [
+                {
+                  "type": "clickListener",
+                  "selector": "#show-machines"
+                }
+              ]
+            },
+            {
+              "id": 2,
+              "layoutType": 2,
+              "feedback": "Now your experiment is in process of creation, you will be notified once your experiment starts.",
+              "image": "/images/tutorials/1/execution-progress.png",
+              "validators": [
+
+              ]
+            }
+          ]
+        },
+        {
+          "id": 4,
+          "name": "Experiment results",
+          "tasks": [
+            {
+              "id": 1,
+              "layoutType": 1,
+              "title": "Experiment overview",
+              "instructions": "Click on the experiment.",
+              "image": "/images/tutorials/1/experiment-results.png",
+              "validators": [
+
+              ]
+            },
+            {
+              "id": 2,
+              "layoutType": 1,
+              "title": "Parameter list",
+              "instructions": "Click on the experiment.",
+              "image": "/images/tutorials/1/parameters-view.png",
+              "validators": [
+
+              ]
+            },
+            {
+              "id": 3,
+              "layoutType": 1,
+              "title": "Experiment overview",
+              "instructions": "Click on the experiment.",
+              "image": "/images/tutorials/1/experiment-view2.png",
+              "validators": [
+
+              ]
+            },
+            {
+              "id": 4,
+              "layoutType": 1,
+              "title": "Details tab",
+              "instructions": "Click on the experiment.",
+              "image": "/images/tutorials/1/experiment-view3.png",
+              "validators": [
+
+              ]
+            },
+            {
+              "id": 5,
+              "layoutType": 1,
+              "title": "Training tab",
+              "instructions": "Click on the experiment.",
+              "image": "/images/tutorials/1/experiment-view4.png",
+              "validators": [
+
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "name": "File management",
+      "visibility": "hidden",
+      "description": "A simple tutorial for creating directories and files.",
+      "steps": [
+        {
+          "id": 1,
+          "name": "Creating a new project",
+          "tasks": [
+            {
+              "id": 1,
+              "layoutType": 1,
+              "title": "Go to new project section",
+              "instructions": "From the marketplace view, click on the New Project button.",
+              "validators": [
+                {
+                  "type": "urlChecker",
+                  "regex": "/new-project/classification/ml-project"
+                }
+              ]
+            },
+            {
+              "id": 2,
+              "layoutType": 1,
+              "title": "Fill fields and click Create",
+              "instructions": "In the new project view fill required fields and click on Create button.",
+              "validators": [
+                {
+                  "type": "clickListener",
+                  "selector": "[data-cy=create-btn]"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": 2,
+          "name": "Creating a directory",
+          "tasks": [
+            {
+              "id": 1,
+              "layoutType": 1,
+              "title": "Go to project view",
+              "instructions": "Go to project view",
+              "validators": [
+                {
+                  "type": "urlChecker",
+                  "regex": "^\/:username\/([0-9a-z\\.-]+)$",
+                  "placeholders": [
+                    "username"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": 2,
+              "layoutType": 1,
+              "title": "Open new directory dialog",
+              "instructions": "In project view click the + button and then the new directory button",
+              "validators": [
+                {
+                  "type": "clickListener",
+                  "selector": "[data-tutorial=new-directory-btn]"
+                }
+              ]
+            },
+            {
+              "id": 3,
+              "layoutType": 1,
+              "title": "Fill fields for new directory",
+              "instructions": "bla bla bla bla.",
+              "validators": [
+                {
+                  "type": "clickListener",
+                  "id": "create-button"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -78,6 +78,17 @@ export default {
     color: null,
     isLoading: false,
   },
+  tutorial: {
+    active: true,
+    current: {
+      id: null,
+      total: null,
+      step: null,
+      task: null,
+      done: [0, 0],
+    },
+    records: [],
+  },
   groups: [],
   errors: {
     hasErrors: false,

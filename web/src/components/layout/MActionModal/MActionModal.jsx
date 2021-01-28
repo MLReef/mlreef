@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react';
 import * as PropTypes from 'prop-types';
+import cx from 'classnames';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import './MActionModal.scss';
@@ -22,6 +23,8 @@ const MActionModal = (props) => {
     closable,
     noActions,
     actions,
+    image,
+    align,
   } = props;
 
   const classes = useMemo(() => ({
@@ -56,7 +59,7 @@ const MActionModal = (props) => {
   return (
     <div className={classes.main}>
       <div onClick={handleCoverClick} className="modal-cover"/>
-      <div className="m-action-modal_container modal-container">
+      <div className={cx('m-action-modal_container modal-container', { image }, align)}>
         {closable && (
           <div className="modal-container-close">
             <button
@@ -68,41 +71,53 @@ const MActionModal = (props) => {
             />
           </div>
         )}
-        <div className={classes.header}>
-          <div className="title">
-            <b>{title}</b>
+        {type === 'image' ? (
+          <div className="modal-image-container">
+            <img
+              src={image}
+              className="modal-image"
+              alt="tutorial"
+            />
           </div>
-          <div className="subtitle">{subtitle}</div>
-        </div>
-        <div className="modal-content">
-          {content}
-        </div>
-        {!noActions && (
-          <div className="modal-actions px-3">
-            {ignoreLabel && (
-              <button
-                type="button"
-                onClick={handleClose}
-                className={classes.btnIgnore}
-              >
-                {ignoreLabel}
-              </button>
+        ) : (
+          <>
+            <div className={classes.header}>
+              <div className="title">
+                <b>{title}</b>
+              </div>
+              <div className="subtitle">{subtitle}</div>
+            </div>
+            <div className="modal-content">
+              {content}
+            </div>
+            {!noActions && (
+              <div className="modal-actions px-3">
+                {ignoreLabel && (
+                  <button
+                    type="button"
+                    onClick={handleClose}
+                    className={classes.btnIgnore}
+                  >
+                    {ignoreLabel}
+                  </button>
+                )}
+                <button
+                  type="button"
+                  onClick={handleNegative}
+                  className={classes.btnNegative}
+                >
+                  {negativeLabel}
+                </button>
+                <button
+                  type="button"
+                  onClick={handlePositive}
+                  className={classes.btnPositive}
+                >
+                  {positiveLabel}
+                </button>
+              </div>
             )}
-            <button
-              type="button"
-              onClick={handleNegative}
-              className={classes.btnNegative}
-            >
-              {negativeLabel}
-            </button>
-            <button
-              type="button"
-              onClick={handlePositive}
-              className={classes.btnPositive}
-            >
-              {positiveLabel}
-            </button>
-          </div>
+          </>
         )}
       </div>
     </div>
@@ -123,6 +138,8 @@ MActionModal.defaultProps = {
   isShown: false,
   closable: true,
   noActions: false,
+  image: null,
+  align: null,
 };
 
 MActionModal.propTypes = {
@@ -141,6 +158,8 @@ MActionModal.propTypes = {
   negativeLabel: PropTypes.string,
   onNegative: PropTypes.func,
   ignoreLabel: PropTypes.string,
+  image: PropTypes.string,
+  align: PropTypes.string,
   dark: PropTypes.bool,
   small: PropTypes.bool,
   isShown: PropTypes.bool,

@@ -124,6 +124,7 @@ export class RepoFeatures extends Component {
                       type="button"
                       className="btn btn-hidden"
                       style={{ fontSize: '1rem' }}
+                      data-tutorial="new-directory-btn"
                       onClick={this.showCreateDirectoryModal}
                     >
                       New directory

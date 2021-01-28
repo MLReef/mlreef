@@ -14,6 +14,7 @@ const persistConfig = {
     'errors',
     // 'projects',
     'marketplace',
+    // 'tutorial',
   ],
 };
 

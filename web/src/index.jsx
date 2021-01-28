@@ -5,6 +5,7 @@ import './styles/theme.scss';
 import { Provider } from 'react-redux';
 import { PersistGate } from 'redux-persist/integration/react';
 import MActionModal from 'components/layout/MActionModal';
+import Tutorial from 'components/commons/Tutorial';
 import { persistStore } from 'redux-persist';
 import { Helmet } from 'react-helmet';
 import Router from 'router';
@@ -41,7 +42,9 @@ ReactDOM.render(
           <title>MLReef</title>
         </Helmet>
         <div className="main-container mb-5">
-          <Router routes={routes} />
+          <Router routes={routes}>
+            <Tutorial />
+          </Router>
         </div>
       </PersistGate>
     </ErrorHandler>
