@@ -1,0 +1,185 @@
+.tutorial {
+  position: fixed;
+  bottom: 1rem;
+  right: 1rem;
+  z-index: 4;
+
+  &-btn {
+    background-color: var(--info);
+    color: var(--white);
+    border: none;
+    border-radius: 50%;
+    padding: 1.25em;
+    font-size: 150%;
+    box-shadow: 4px 4px 4px 4px var(--secondary);
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: 85%;
+  }
+
+  &-dialog {
+    color: var(--dark);
+    padding: 0.5em;
+
+    &-container {
+      overflow: auto;
+      position: absolute;
+      bottom: calc(100% + 1rem);
+      right: 0;
+      box-shadow: 2px 2px 4px 4px var(--secondary);
+      min-width: 280px;
+      min-height: 300px;
+      height: 50vh;
+      display: none;
+      background: linear-gradient(180deg, var(--dark) 50%, var(--light) 50%);
+
+      &.show {
+        display: block;
+      }
+
+      &-close {
+        position: absolute;
+        top: 0.5em;
+        right: 0.5em;
+        color: var(--secondary);
+      }
+    }
+
+    &-header {
+      &-title {
+        color: var(--white);
+        font-size: 100%;
+        margin: 0.5em auto;
+      }
+
+      &-subtitle {
+        color: var(--white);
+        font-size: 90%;
+      }
+    }
+
+    &-card {
+      margin: 1em 0;
+      background-color: var(--white);
+      padding: 1em;
+      font-size: 90%;
+
+      &.disabled {
+        filter: brightness(0.8);
+      }
+
+      &-image {
+        background-color: var(--secondary);
+        height: 120px;
+        margin-bottom: 1em;
+        background-size: contain;
+        background-repeat: no-repeat;
+        background-position: center;
+        cursor: pointer;
+
+        &.tutorial-list {
+          background-size: cover;
+        }
+      }
+
+      &-container {
+        display: flex;
+        align-items: flex-start;
+        margin-top: 0.5em;
+      }
+
+      &-step {
+        font-family: monospace;
+        padding: 0.5em;
+        border: solid 1px var(--dark);
+        border-radius: 50%;
+        margin-right: 0.5em;
+        font-size: 90%;
+        line-height: 70%;
+        height: 0.6em;
+        font-weight: bold;
+        margin-top: 0.25em;
+      }
+
+      &-content {
+        // display: flex;
+        width: 100%;
+
+        &-title {
+          font-size: inherit;
+          margin: 0.5em 0;
+        }
+
+        &-description {
+          & a {
+            color: var(--info);
+            font-weight: bold;
+          }
+        }
+
+        &-actions {
+          margin-top: 1em;
+
+          &-btn-link {
+            background: transparent;
+            border: none;
+            color: var(--info);
+            font-weight: bold;
+            padding: 0;
+            cursor: pointer;
+          }
+        }
+      }
+    }
+
+    &-actions {
+      display: flex;
+      margin-top: 1.5em;
+    }
+  }
+
+  &-modal {
+    // min-height: 100px;
+    // width: 100%;
+    margin: 1em;
+    border: 1px #000 solid;
+    flex: 1;
+
+    &-container {
+      position: sticky;
+      z-index: 1;
+      height: 100%;
+      width: 100%;
+      top: 0;
+      bottom: 0;
+      right: 0;
+      left: 0;
+      background-color: rgba(0, 0, 0, 0.8);
+      display: flex;
+      align-items: flex-end;
+      transition: ease 0.3s;
+      display: none;
+
+      &.show {
+        display: flex;
+      }
+    }
+
+    &-content {
+      color: var(--white);
+      text-align: center;
+      padding-top: 1em;
+
+      &-title {
+        color: var(--white);
+        margin-top: 0;
+        margin-bottom: 1em;
+      }
+    }
+
+    &-actions {
+      display: flex;
+      margin: 0.5em;
+    }
+  }
+}

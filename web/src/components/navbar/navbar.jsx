@@ -6,6 +6,7 @@ import PropTypes from 'prop-types';
 import MDropdown from 'components/ui/MDropdown';
 import MWrapper from 'components/ui/MWrapper';
 import { logout } from 'store/actions/userActions';
+import { toggleTutorial } from 'store/actions/tutorialActions';
 import MGlobalMarker from 'components/ui/MGlobalMarker/MGlobalMarker';
 import mlReefIcon01 from '../../images/MLReef_Logo_navbar.png';
 import helpWhite from '../../images/help_white.png';
@@ -15,6 +16,7 @@ class Navbar extends Component {
   constructor(props) {
     super(props);
     this.handleSignOut = this.handleSignOut.bind(this);
+    this.toggleTutorial = this.toggleTutorial.bind(this);
   }
 
   handleSignOut() {
@@ -22,8 +24,13 @@ class Navbar extends Component {
     actions.logout();
   }
 
+  toggleTutorial() {
+    const { actions } = this.props;
+    actions.toggleTutorial();
+  }
+
   render() {
-    const { user, globalMarker } = this.props;
+    const { user, globalMarker, tutorialActive } = this.props;
     const avatarUrl = user.userInfo && user.userInfo.avatar_url;
 
     return (
@@ -120,10 +127,19 @@ class Navbar extends Component {
                   component={(
                     <div className="help-box">
                       <div>
-                        <a target="_blank" rel="noopener noreferrer" href="https://doc.mlreef.com">Documentation</a>
+                        <a target="_blank" rel="noopener noreferrer" href="https://doc.mlreef.com">
+                          Documentation
+                        </a>
                       </div>
                       <div>
-                        <a target="_blank" rel="noopener noreferrer" href="https://mlreefcommunity.slack.com">Slack Community</a>
+                        <a target="_blank" rel="noopener noreferrer" href="https://mlreefcommunity.slack.com">
+                          Slack Community
+                        </a>
+                      </div>
+                      <div>
+                        <button onClick={this.toggleTutorial} type="button" className="btn btn-hidden">
+                          {`${tutorialActive ? 'Hide' : 'Show'} Tutorial`}
+                        </button>
                       </div>
                     </div>
                   )}
@@ -192,6 +208,7 @@ Navbar.propTypes = {
   actions: PropTypes
     .shape({
       logout: PropTypes.func.isRequired,
+      toggleTutorial: PropTypes.func.isRequired,
     })
     .isRequired,
   user: PropTypes
@@ -208,6 +225,7 @@ Navbar.propTypes = {
     color: PropTypes.string,
     isLoading: PropTypes.bool,
   }).isRequired,
+  tutorialActive: PropTypes.bool.isRequired,
 };
 
 function mapStateToProps(state) {
@@ -215,6 +233,7 @@ function mapStateToProps(state) {
     projectsList: state.projects,
     user: state.user,
     globalMarker: state.globalMarker,
+    tutorialActive: state.tutorial.active,
   };
 }
 
@@ -222,6 +241,7 @@ function mapDispatchToProps(dispatch) {
   return {
     actions: {
       logout: bindActionCreators(logout, dispatch),
+      toggleTutorial: bindActionCreators(toggleTutorial, dispatch),
     },
   };
 }

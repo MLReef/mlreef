@@ -9,6 +9,7 @@ import user from './userReducer';
 import actionModal from './actionModalReducer';
 import groups from './groupsReducer';
 import globalMarker from './globalMarkerReducer';
+import tutorial from './tutorialReducer';
 import errors from './errorsReducer';
 
 const rootReducer = combineReducers({
@@ -22,6 +23,7 @@ const rootReducer = combineReducers({
   actionModal,
   groups,
   globalMarker,
+  tutorial,
   errors,
 });
 

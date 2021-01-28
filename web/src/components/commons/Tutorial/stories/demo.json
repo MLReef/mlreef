@@ -1,0 +1,94 @@
+[
+  {
+    "id": 99,
+    "name": "Click buttons",
+    "status": "available",
+    "description": "A simple tutorial for clicking buttons.",
+    "steps": [
+      {
+        "id": 1,
+        "name": "Click reddish buttons",
+        "tasks": [
+          {
+            "id": 1,
+            "layoutType": 1,
+            "title": "Click labelled 1",
+            "instructions": "Bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla.",
+            "validators": [
+              {
+                "type": "clickListener",
+                "selector": "[data-tutorial=label1]"
+              }
+            ]
+          },
+          {
+            "id": 2,
+            "layoutType": 1,
+            "title": "Click labelled 2",
+            "instructions": "Bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla.",
+            "validators": [
+              {
+                "type": "clickListener",
+                "selector": "#label2"
+              }
+            ]
+          },
+          {
+            "id": 3,
+            "layoutType": 1,
+            "title": "Click labelled 3",
+            "instructions": "Bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla.",
+            "validators": [
+              {
+                "type": "clickListener",
+                "selector": "#label3"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": 2,
+        "name": "Click blueish buttons",
+        "tasks": [
+          {
+            "id": 1,
+            "layoutType": 1,
+            "title": "Click ble labelled 1",
+            "instructions": "Bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla.",
+            "validators": [
+              {
+                "type": "clickListener",
+                "selector": "[data-tutorial=labelblue1]"
+              }
+            ]
+          },
+          {
+            "id": 2,
+            "layoutType": 1,
+            "title": "Click labelled 2",
+            "instructions": "Bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla.",
+            "validators": [
+              {
+                "type": "clickListener",
+                "selector": "#labelblue2"
+              }
+            ]
+          },
+          {
+            "id": 3,
+            "layoutType": 1,
+            "title": "Click labelled 3",
+            "instructions": "Bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla.",
+            "validators": [
+              {
+                "type": "clickListener",
+                "selector": "#labelblue3"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+]

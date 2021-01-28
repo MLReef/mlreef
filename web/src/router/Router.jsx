@@ -49,11 +49,13 @@ export const SwitchBase = (props) => {
 export const RouterSimple = (props) => {
   const {
     routes,
+    children,
   } = props;
 
   return (
     <BrowserRouter>
       <SwitchBase routes={routes} />
+      {children}
     </BrowserRouter>
   );
 };
@@ -61,13 +63,14 @@ export const RouterSimple = (props) => {
 // This allows to extend route's functionality, such as named routes, but also
 // can manage future features.
 const Router = (props) => {
-  const { routes } = props;
+  const { routes, children } = props;
 
   const simpleRoutes = useSimpleRoutes(routes);
 
   return (
     <RouterContext.Provider value={simpleRoutes}>
-      <RouterSimple routes={routes} />
+      {/* eslint-disable-next-line */}
+      <RouterSimple routes={routes} children={children} />
     </RouterContext.Provider>
   );
 };
@@ -78,10 +81,12 @@ SwitchBase.defaultProps = {
 
 RouterSimple.defaultProps = {
   routes: [],
+  children: null,
 };
 
 Router.defaultProps = {
   routes: [],
+  children: null,
 };
 
 SwitchBase.propTypes = {
@@ -90,10 +95,18 @@ SwitchBase.propTypes = {
 
 RouterSimple.propTypes = {
   routes: PropTypes.arrayOf(RecordedPropTypes),
+  children: PropTypes.oneOfType([
+    PropTypes.node,
+    PropTypes.string,
+  ]),
 };
 
 Router.propTypes = {
   routes: PropTypes.arrayOf(RecordedPropTypes),
+  children: PropTypes.oneOfType([
+    PropTypes.node,
+    PropTypes.string,
+  ]),
 };
 
 export default Router;

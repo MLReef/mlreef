@@ -159,6 +159,7 @@ exports[`The branches list should be displayed when dropdown button is clicked d
           >
             <button
               className="btn btn-hidden"
+              data-tutorial="new-directory-btn"
               onClick={[Function]}
               style={
                 Object {
