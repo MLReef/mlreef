@@ -72,27 +72,7 @@ RUN export JAVA_HOME
 ENV INSTANCE_HOST "localhost"
 # TODO rename to MLREEF_GITLAB_PORT
 ENV GITLAB_PORT "10080"
-# TODO rename to MLREEF_GITLAB_ROOT_URL
-ENV GITLAB_ROOT_URL "http://$INSTANCE_HOST:$GITLAB_PORT"
 ENV MLREEF_DOCKER_REGISTRY_PORT "5050"
-ENV MLREEF_DOCKER_REGISTRY "$INSTANCE_HOST:$MLREEF_DOCKER_REGISTRY_PORT"
-ENV MLREEF_DOCKER_REGISTRY_EXTERNAL_URL "http://$MLREEF_DOCKER_REGISTRY"  
-
-ENV GITLAB_OMNIBUS_CONFIG "\
-    # This is the URL that Gitlab expects to be addressed at.   \
-    # This URL will be sent to the runners as repo cloning url  \
-    external_url '$GITLAB_ROOT_URL';                            \
-    # Deactivate HTTPS redirection of Gitlab's API gateway      \
-    nginx['redirect_http_to_https'] = false;                    \
-    # The external URL for the internal Docker registry         \
-    registry_external_url '$MLREEF_DOCKER_REGISTRY_EXTERNAL_URL';       \
-    registry_nginx['enable'] = true;                            \
-    # Access port for the internal Docker registry              \
-    # (has to be exposed via Docker as well)                    \
-    registry_nginx['listen_port'] = $MLREEF_DOCKER_REGISTRY_PORT;       \
-    redis['bind'] = '127.0.0.1';                                \
-    redis['port'] = 6379;                                       \
-    "
 
 # TODO is this correct, can it be moved in the above GITLAB_OMNIBUS_CONFIG block
 ENV GITLAB_HTTPS "false"
@@ -110,8 +90,6 @@ ENV MLREEF_PG_VERSION "11"
 ENV MLREEF_PG_USER "postgres"
 # Postgres cluster name
 ENV MLREEF_PG_CLUSTER "mlreefdb"
-# Postgres mlreef log directory
-ENV MLREEF_PG_LOG "/var/log/${MLREEF_PG_CLUSTER}-postgresql"
 # TODO rename to MLREEF_DB_EXTENSION
 ENV DB_EXTENSION "pg_trgm"
 ### Backend Config
@@ -140,7 +118,6 @@ ENV REDIS_HOST "localhost"
 # Backend Startup delay
 # TODO rename to MLREEF_STARTUP_DELAY
 ENV STARTUP_DELAY "30"
-
 
 
 ###
@@ -214,24 +191,6 @@ RUN apt-get update                      && \
     apt-get install -y acl sudo locales    \
     postgresql-${MLREEF_PG_VERSION} postgresql-client-${MLREEF_PG_VERSION} postgresql-contrib-${MLREEF_PG_VERSION}
 
-# Basic config changes to hba and postgresql
-RUN mkdir -p ${MLREEF_PG_LOG}         && \
-    pg_createcluster ${MLREEF_PG_VERSION} ${MLREEF_PG_CLUSTER} -d /var/opt/mlreef/${MLREEF_PG_VERSION}/${MLREEF_PG_CLUSTER} \
-                     -p ${DB_PORT} -l ${MLREEF_PG_LOG}/postgresql-${MLREEF_PG_VERSION}-${MLREEF_PG_CLUSTER}.log                     && \
-    echo "host all all 0.0.0.0/0 md5" >> /etc/postgresql/${MLREEF_PG_VERSION}/${MLREEF_PG_CLUSTER}/pg_hba.conf                      && \
-    sed -i  "s/^#listen_addresses.*=.*'localhost'/listen_addresses='*'/g" /etc/postgresql/${MLREEF_PG_VERSION}/${MLREEF_PG_CLUSTER}/postgresql.conf                                 && \
-    cat /etc/postgresql/${MLREEF_PG_VERSION}/${MLREEF_PG_CLUSTER}/postgresql.conf
-
-# Default DB, DB user and extension creation
-RUN pg_ctlcluster ${MLREEF_PG_VERSION} ${MLREEF_PG_CLUSTER} start                                                           && \
-    ps -ef | grep postgres                                                                                                  && \
-    su -c - ${MLREEF_PG_USER} "psql -p ${DB_PORT} --command \"CREATE USER $DB_USER WITH SUPERUSER PASSWORD '$DB_PASS';\""   && \
-    su -c - ${MLREEF_PG_USER} "createdb -p ${DB_PORT} -O ${DB_USER} ${DB_NAME}"                                             && \
-    su -c - ${MLREEF_PG_USER} "psql -p ${DB_PORT} ${DB_NAME} --command \"CREATE EXTENSION IF NOT EXISTS ${DB_EXTENSION};\"" && \
-    pg_ctlcluster ${MLREEF_PG_VERSION} ${MLREEF_PG_CLUSTER} stop
-
-
-
 ######
 ###### BACKEND
 ######
@@ -269,12 +228,15 @@ RUN sed -i "s/backend:8080/localhost:$MLREEF_BACKEND_PORT/" /etc/nginx/conf.d/de
 ADD nautilus/assets/ /assets
 ADD epf/ /epf
 
+# Export derived env variables from the above defined ENV variables.These should not be directly overwritten.
+RUN cat /assets/dynamic-env > /etc/bash.bashrc
+
 CMD ["/assets/mlreef-wrapper"]
 
 # Volumes from Gitlab base image
-VOLUME ["/etc/gitlab", "/var/log/gitlab","/var/opt/gitlab"]
+VOLUME ["/etc/gitlab", "/var/log/gitlab", "/var/opt/gitlab"]
 # Volumes for mlreef's backend database
-VOLUME  ["/etc/postgresql", "/var/log/mlreef-postgresql", "/var/opt/mlreef"]
+VOLUME  ["/etc/postgresql", "/var/log/${MLREEF_PG_CLUSTER}-postgresql", "/var/opt/mlreef"]
 
 # Expose mlreef postgres
 EXPOSE $DB_PORT
@@ -285,9 +247,10 @@ EXPOSE 22
 # Expose Docker registry port
 EXPOSE $MLREEF_DOCKER_REGISTRY_PORT
 
-ENV GITLAB_ROOT_EMAIL    "roo@localhost"
+ENV GITLAB_ROOT_EMAIL    "root@localhost"
 ENV GITLAB_ROOT_PASSWORD "password"
-ENV GITLAB_ADMIN_TOKEN   "token"    # The GITLAB_ADMIN_TOKEN is shared between Gitlab and the Backend
+# The GITLAB_ADMIN_TOKEN is shared between Gitlab and the Backend
+ENV GITLAB_ADMIN_TOKEN   "token"
 
 # These secrets are used by Gitlab to encrypt passwords and tokens
 # Changing them will invalidate the GITLAB_ADMIN_TOKEN as well as all other tokens

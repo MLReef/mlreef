@@ -22,9 +22,13 @@ services:
       - gitlab-log:/var/log/gitlab
       - gitlab-opt:/var/opt/gitlab
       - mlreef-opt:/var/opt/mlreef
-
+    networks:
+      - mlreef-docker-network
 volumes:
   gitlab-etc:
   gitlab-log:
   gitlab-opt:
   mlreef-opt:
+networks:
+  mlreef-docker-network:
+    name: mlreef-docker-network

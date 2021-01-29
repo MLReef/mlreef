@@ -1,0 +1,25 @@
+### The script exports environment variables created from ENV of Dockerfile.
+### These needs to be part of wrapper as if at run time any base ENV is replaced by -e ,
+###   it does not change other ENV variables created from them
+### This script gets copied to /etc/bash.bashrc to set env after docker run
+
+
+### Gitlab dynamic variables created from ENV mentioned in Dockerfile
+export GITLAB_ROOT_URL="http://$INSTANCE_HOST:$GITLAB_PORT"
+export MLREEF_DOCKER_REGISTRY="$INSTANCE_HOST:$MLREEF_DOCKER_REGISTRY_PORT"
+export MLREEF_DOCKER_REGISTRY_EXTERNAL_URL="http://$MLREEF_DOCKER_REGISTRY"
+
+export GITLAB_OMNIBUS_CONFIG="\
+    external_url '$GITLAB_ROOT_URL';                                \
+    nginx['redirect_http_to_https'] = false;                        \
+    registry_external_url '$MLREEF_DOCKER_REGISTRY_EXTERNAL_URL';   \
+    registry_nginx['enable'] = true;                                \
+    registry_nginx['listen_port'] = $MLREEF_DOCKER_REGISTRY_PORT;   \
+    redis['bind'] = '127.0.0.1';                                    \
+    redis['port'] = 6379;                                           \
+    "
+
+### Mlreefdb dynamic variables created from ENV mentioned in Dockerfile
+# Postgres mlreef log directory
+export MLREEF_PG_LOG="/var/log/${MLREEF_PG_CLUSTER}-postgresql"
+
