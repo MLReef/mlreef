@@ -2403,20 +2403,7 @@ export const experimentMock = {
   dataProjectId: '5345bb52-5256-4cda-820a-15f3bcc5ad05',
   id: '3fbdcf9e-8c2c-45cf-889d-5704e8843489',
   inputFiles: [{ location: 'data', location_type: 'PATH' }],
-  jsonBlob: {
-    0: {
-      acc: null, val_acc: null, loss: 3.5322117805480957, val_loss: 687.5565185546875,
-    },
-    1: {
-      acc: null, val_acc: null, loss: 3.386892080307007, val_loss: 52.79811096191406,
-    },
-    2: {
-      acc: null, val_acc: null, loss: 2.0041089057922363, val_loss: 271.48876953125,
-    },
-    3: {
-      acc: null, val_acc: null, loss: 6.353485107421875, val_loss: 247.885009765625,
-    },
-  },
+  jsonBlob: `[{"acc": 0.5924170613288879, "val_acc": 0.7200000286102295, "loss": 6.273748585398163, "val_loss": 463.36395263671875}, {"acc": 0.5909090638160706, "val_acc": 0.47727271914482117, "loss": 5.471082259308208, "val_loss": 34.901180267333984}, {"acc": 0.6881188154220581, "val_acc": 0.7272727489471436, "loss": 2.8597502678005706, "val_loss": 14.14941120147705}, {"acc": 0.6445497870445251, "val_acc": 0.6363636255264282, "loss": 4.36616699136264, "val_loss": 5.456426620483398},  {"acc": 0.620853066444397, "val_acc": 0.7272727489471436, "loss": 2.1634230031786372, "val_loss": 0.6455504298210144}]`,
   name: 'experiment/kind-kraken_1062020',
   pipelineJobInfo: {
     commitSha: 'abd778adfa9b53f02d903c6c03fbd7ba03e113c1',

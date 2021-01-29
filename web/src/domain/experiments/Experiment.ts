@@ -12,7 +12,7 @@ export default class Experiment {
   private pipelineJobInfo?: any;
   private postProcessing: Array<any>;
   private processing?: any;
-  private epochs?: Array<any>;
+  private epochs: Array<any> = [];
   private jsonBlob: string = ""; // structure: {"1": {"acc": 0.198, "val_acc": 0.098, "loss": 2.802, "val_loss": 2.802}};
   private paramNames: Array<string> = [];
   private authorName?: string;
@@ -46,21 +46,20 @@ export default class Experiment {
 
   }
 
-  public fromBlobToEpochs(jsonBlob: string) {
-    if(jsonBlob === ""){
+  public fromBlobToEpochs() {
+    if(this.jsonBlob === ""){
       throw new Error("No experiment statistics yet");
     }
-    this.jsonBlob = jsonBlob;
     this.epochs = Object.values(JSON.parse(this.jsonBlob));
     this.generateParamsFromEpochs();
   }
 
   generateParamsFromEpochs(){
-    if(this.epochs){
+    if(this.epochs?.length > 0){
       this.paramNames = Object.keys(this.epochs[0]).map((key: string) => key);
     }
   }
-
+  
   public generateAverageInformation(): any {
     const epLength = this.epochs?.length;
     if(!epLength){
