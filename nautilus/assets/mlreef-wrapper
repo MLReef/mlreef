@@ -2,11 +2,14 @@
 # change directory scripts location
 cd "$(dirname "$0")"
 ########################################
-# set -x  # output all commands
+set -x  # output all commands
 set -o pipefail
 set -e # exit on immediately on every error
 set -u # error on usage of undefined variables
 ########################################
+
+# Set the bashrc to setup derived env variables
+source /etc/bash.bashrc
 
 function sigterm_handler() {
   echo "SIGTERM signal received, try to gracefully shutdown all services..."
@@ -17,6 +20,10 @@ trap "sigterm_handler; exit" TERM
 
 log() {
   echo "### $(date +%Y-%m-%d\ %H:%M:%S) ### $1"
+}
+
+checkGitlabPort() {
+  curl --silent --output /dev/null -w ''%{http_code}'' "$INSTANCE_HOST":"$GITLAB_PORT"/"${1-}"
 }
 
 recreateGitlabAdminToken() {
@@ -46,6 +53,19 @@ getGitlabRunnerRegistrationToken() {
 log "booting and configuring Gitlab ..."
 /assets/gitlab-wrapper >/dev/null
 
+log "Ensuring availability of the Gitlab API to start"
+until [ "$(checkGitlabPort /api/v4/projects)" = "200" ]; do
+  printf '.'
+  sleep 5;
+done
+log "Expecting code 200; received: $(checkGitlabPort /api/v4/projects)"
+log "Waiting for Gitlab Runners API. The runners API is running in a separate process from the normal API"
+until [ "$(checkGitlabPort /runners)" = "302" ]; do
+  printf '.'
+  sleep 5;
+done
+log "Expecting code 302; received: $(checkGitlabPort /runners)"
+
 log "Refreshing root user api-token"
 recreateGitlabAdminToken
 
@@ -57,37 +77,32 @@ log "Gitlab is ready"
 
 #########################
 # Setup gitlab-runner
-GITLAB_PORT=10080
+
+DOCKER_NETWORK="mlreef-docker-network"  #The network name should be same as docker run network
+
 # Wait for Gitlab to enable the database
 touch /var/log/configuration.lock
 touch /var/log/configuration.log
 {
-  echo "### $(date) Waiting for Gitlab Runners API. The runners API is running in a separate process from the normal API"
-  until [ "$(curl --silent --output /dev/null -w ''%{http_code}'' localhost:${GITLAB_PORT}/runners)" = "302" ]; do
-    printf '.'
-    sleep 5;
-  done
-  echo "### $(date) Expecting code 302; received: $(curl --silent --output /dev/null -w ''%{http_code}'' localhost:${GITLAB_PORT}/runners)"
-
-  echo "### Getting Gitlab runners registration token from Gitlab."
-  TOKEN=$(gitlab-rails runner -e production "puts Gitlab::CurrentSettings.current_application_settings.runners_registration_token" | tr -d '\r')
-  echo TOKEN="$TOKEN"
-
-
   echo "### Configuring gitlab runner for localhost:$GITLAB_PORT"
-
-  gitlab-runner register --non-interactive \
-    --url="http://localhost:${GITLAB_PORT}/" \
-    --registration-token "$TOKEN" \
+  # Clear runner config
+  echo '' > /etc/gitlab-runner/config.toml
+  sleep 10 # This sleep is necessary to allow the gitlab Runner to reload the now empty config file
+  CONTAINER_IP=$(hostname -I | awk '{print $1}')
+  gitlab-runner register --non-interactive            \
+    --url="http://${INSTANCE_HOST}:${GITLAB_PORT}/"   \
+    --docker-network-mode ${DOCKER_NETWORK}           \
+    --registration-token "$RUNNER_REGISTRATION_TOKEN" \
     --executor "docker" \
     --docker-image alpine:latest \
     --docker-privileged="true"   \
-    --docker-volumes /var/run/docker.sock:/var/run/docker.sock    \
     --description "Packaged Runner"  \
     --tag-list "docker,local-docker" \
     --run-untagged="true" \
     --locked="false" \
-    --access-level="not_protected"
+    --access-level="not_protected"   \
+    --docker-extra-hosts "$INSTANCE_HOST:$CONTAINER_IP"
+
 
   gitlab-runner start
 
@@ -133,11 +148,10 @@ log "$MLREEF_DOCKER_REGISTRY_EPF_IMAGE has been successfully uploaded "
 
 
 #########################
-# Start the PostgreSQL mlreefdb server
+# Setup the PostgreSQL mlreefdb server
 # Postgres will self-daemonize and run in the background hence no '&' is needed
-log "starting MLReef database"
-pg_ctlcluster ${MLREEF_PG_VERSION} ${MLREEF_PG_CLUSTER} stop || echo "mlreefdb is down"
-pg_ctlcluster ${MLREEF_PG_VERSION} ${MLREEF_PG_CLUSTER} start
+log "Setting up MLReef database"
+/assets/mlreefdb-setup
 
 #########################
 # Start the backend

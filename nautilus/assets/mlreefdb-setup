@@ -1,0 +1,62 @@
+#!/bin/bash
+# change directory scripts location
+cd "$(dirname "$0")"
+########################################
+# set -x  # output all commands
+set -o pipefail
+set -e # exit on immediately on every error
+set -u # error on usage of undefined variables
+########################################
+
+### Function to create cluster as per the PG version and given cluster name
+mlreefDBCreateCluster(){
+  pg_createcluster ${MLREEF_PG_VERSION} ${MLREEF_PG_CLUSTER} -d /var/opt/mlreef/${MLREEF_PG_VERSION}/${MLREEF_PG_CLUSTER} \
+                     -p ${DB_PORT} -l ${MLREEF_PG_LOG}/postgresql-${MLREEF_PG_VERSION}-${MLREEF_PG_CLUSTER}.log
+  ### Basic postgresql.conf and pg_hba.conf changes
+  tail -1 /etc/postgresql/${MLREEF_PG_VERSION}/${MLREEF_PG_CLUSTER}/pg_hba.conf | grep "host all all 0.0.0.0/0 md5" || \
+    echo "host all all 0.0.0.0/0 md5" >> /etc/postgresql/${MLREEF_PG_VERSION}/${MLREEF_PG_CLUSTER}/pg_hba.conf
+  sed -i "s/^#listen_addresses.*=.*'localhost'/listen_addresses='*'/g" /etc/postgresql/${MLREEF_PG_VERSION}/${MLREEF_PG_CLUSTER}/postgresql.conf
+  cat /etc/postgresql/${MLREEF_PG_VERSION}/${MLREEF_PG_CLUSTER}/postgresql.conf
+}
+
+# Create pg_log directory
+mkdir -p ${MLREEF_PG_LOG}
+
+### Check if the data directory or DB conf directory alraedy exists
+### If it's first time execution create fresh cluster, else reuse existing cluster conf/data
+
+if [ ! -d /var/opt/mlreef/${MLREEF_PG_VERSION}/${MLREEF_PG_CLUSTER} ]; then
+  if [ ! -d /etc/postgresql/${MLREEF_PG_VERSION}/${MLREEF_PG_CLUSTER} ]; then
+    mlreefDBCreateCluster
+  else
+    rm -rf /etc/postgresql/${MLREEF_PG_VERSION}/${MLREEF_PG_CLUSTER}
+    mlreefDBCreateCluster
+  fi
+else
+  if [ ! -d /etc/postgresql/${MLREEF_PG_VERSION}/${MLREEF_PG_CLUSTER} ]; then
+    echo "The data directory already exists, using that /var/opt/mlreef/${MLREEF_PG_VERSION}/${MLREEF_PG_CLUSTER}"
+    mv /var/opt/mlreef/${MLREEF_PG_VERSION}/${MLREEF_PG_CLUSTER} /var/opt/mlreef/${MLREEF_PG_VERSION}/${MLREEF_PG_CLUSTER}-tmp
+    mlreefDBCreateCluster
+    rm -rf /var/opt/mlreef/${MLREEF_PG_VERSION}/${MLREEF_PG_CLUSTER}
+    mv /var/opt/mlreef/${MLREEF_PG_VERSION}/${MLREEF_PG_CLUSTER}-tmp /var/opt/mlreef/${MLREEF_PG_VERSION}/${MLREEF_PG_CLUSTER}
+  else
+    echo "Reusing /var/opt/mlreef/${MLREEF_PG_VERSION}/${MLREEF_PG_CLUSTER} and /etc/postgresql/${MLREEF_PG_VERSION}/${MLREEF_PG_CLUSTER}"
+  fi
+fi
+
+### Default DB, DB user and extension creation
+pg_ctlcluster ${MLREEF_PG_VERSION} ${MLREEF_PG_CLUSTER} stop || echo "Cluster ${MLREEF_PG_CLUSTER} is not running..starting"
+pg_ctlcluster ${MLREEF_PG_VERSION} ${MLREEF_PG_CLUSTER} start
+ps -ef | grep postgres
+
+# Create DB user if not exists already
+su -c - ${MLREEF_PG_USER} "psql -p ${DB_PORT} --command \"SELECT 1 FROM pg_user WHERE usename = '$DB_USER';\"" | grep -q 1 || \
+    su -c - ${MLREEF_PG_USER} "psql -p ${DB_PORT} --command \"CREATE USER $DB_USER WITH SUPERUSER PASSWORD '$DB_PASS';\""
+
+# Create DB is not exists already
+su -c - ${MLREEF_PG_USER} "psql -p ${DB_PORT} --command \"SELECT 1 FROM pg_database WHERE datname = '$DB_NAME';\"" | grep -q 1 || \
+    su -c - ${MLREEF_PG_USER} "createdb -p ${DB_PORT} -O ${DB_USER} ${DB_NAME}"
+
+# Create default extension if not exists already
+su -c - ${MLREEF_PG_USER} "psql -p ${DB_PORT} ${DB_NAME} --command \"CREATE EXTENSION IF NOT EXISTS ${DB_EXTENSION};\""
+
