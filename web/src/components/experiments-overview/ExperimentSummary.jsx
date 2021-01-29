@@ -10,6 +10,8 @@ import { bindActionCreators } from 'redux';
 import { toastr } from 'react-redux-toastr';
 import './experimentsOverview.css';
 import { Line } from 'react-chartjs-2';
+import { plainToClass } from 'class-transformer';
+import Experiment from 'domain/experiments/Experiment';
 import AuthWrapper from 'components/AuthWrapper';
 import GitlabPipelinesApi from 'apis/GitlabPipelinesApi.ts';
 import ExperimentsApi from 'apis/experimentApi';
@@ -30,8 +32,6 @@ import {
 } from '../../dataTypes';
 import ExperimentCancellationModal from './cancellationModal';
 import DeleteExperimentModal from './DeletionModal';
-import { plainToClass } from 'class-transformer';
-import Experiment from 'domain/experiments/Experiment';
 import MLSearchApi from 'apis/MLSearchApi';
 import { setCodeProjects } from 'store/actions/projectInfoActions';
 
@@ -59,28 +59,17 @@ const ExperimentSummary = ({
     datasets: [],
     labels: [],
   });
-  const {
-    inputFiles,
-    sourceBranch,
-    id,
-    jsonBlob,
-    epochs,
-    name,
-    status,
-    processing,
-    pipelineJobInfo: { commitSha },
-    slug: expName,
-    processing: { slug: dataProcessorSlug }
-  } = experiment;
-
-  const inputFilePath = inputFiles[0].location.toString();
+  const dataProcessorSlug = classExp.processing?.slug;
+  const inputFilePath = classExp.inputFiles[0].location.toString();
   const basePath = `${projectNamespace}/${projectSlug}`;
   const [averageParams, setAverageParams] = useState([]);
   const [codeProject, setcodeProject] = useState({});
-  const modelName = processing ? processing.name : '';
-  const trainingData = processing.parameters ? processing.parameters.map((param) => (
-    { text: `*P: ${param.name} = ${param.value}` }
-  )) : [];
+  const modelName = classExp.processing ? classExp.processing.name : '';
+  const trainingData = classExp.processing.parameters
+    ? classExp.processing.parameters.map((param) => (
+      { text: `*P: ${param.name} = ${param.value}` }
+    ))
+    : [];
 
   useEffect(() => {
     mlSearchApi.searchPaginated(ALGORITHM, { slug: dataProcessorSlug }, 0, 1)
@@ -91,7 +80,7 @@ const ExperimentSummary = ({
   }, [dataProcessorSlug]);
 
   const { gitlab_namespace: nameSpace, slug } = codeProject;
-  const linkToRepoView = `/${basePath}/-/repository/tree/-/commit/${commitSha}`;
+  const linkToRepoView = `/${basePath}/-/repository/tree/-/commit/${classExp?.pipelineJobInfo?.commitSha}`;
 
   function handleArrowDownButtonClick() {
     const newIsShowingSum = !showSummary;
@@ -100,11 +89,12 @@ const ExperimentSummary = ({
       return;
     }
     try {
-      classExp.fromBlobToEpochs(jsonBlob);
-      setAverageParams(experiment.generateAverageInformation());
+      classExp.fromBlobToEpochs();
+      classExp.generateParamsFromEpochs();
+      setAverageParams(classExp.generateAverageInformation());
       setDataToGraph({
-        labels: Object.keys(epochs),
-        datasets: experiment.generateChartInformation(),
+        labels: Object.keys(classExp.epochs),
+        datasets: classExp.generateChartInformation(),
       });
     } catch (error) {
       toastr.info('Experiment', error.message);
@@ -113,20 +103,20 @@ const ExperimentSummary = ({
 
   function getButtonsDiv() {
     let buttons;
-    const experimentStatus = status?.toLowerCase();
+    const experimentStatus = classExp.status?.toLowerCase();
 
     const arrowBtn = (
       <ArrowButton
         callback={handleArrowDownButtonClick}
-        id={`ArrowButton-${expName}`}
-        key={`ArrowButton-${expName}`}
+        id={`ArrowButton-${classExp.slug}`}
+        key={`ArrowButton-${classExp.slug}`}
       />
     );
 
     if (experimentStatus === RUNNING || experimentStatus === PENDING) {
       buttons = [
         <button
-          key={`dangerous-red-${expName}`}
+          key={`dangerous-red-${classExp.slug}`}
           type="button"
           className="btn btn-danger"
           style={{ width: 'max-content' }}
@@ -144,7 +134,7 @@ const ExperimentSummary = ({
                   experiment.pipelineJobInfo.id,
                 )
                   .then(() => {
-                    experimentApi.cancelExperiment(dataProjectId, id);
+                    experimentApi.cancelExperiment(dataProjectId, classExp.id);
                     toastr.success('Success', 'Pipeline aborted');
                     window.location.reload();
                   })
@@ -159,7 +149,7 @@ const ExperimentSummary = ({
     } else if (experimentStatus === SUCCESS || experimentStatus === FAILED) {
       buttons = [
         <button
-          key={`dangerous-red-${expName}`}
+          key={`dangerous-red-${classExp.slug}`}
           type="button"
           label="close"
           className="btn btn-icon btn-danger fa fa-times"
@@ -177,7 +167,7 @@ const ExperimentSummary = ({
     } else if (experimentStatus === CANCELED) {
       buttons = [
         <button
-          key={`dangerous-red-${expName}`}
+          key={`dangerous-red-${classExp.slug}`}
           type="button"
           label="close"
           className="btn btn-icon btn-danger fa fa-times"
@@ -208,25 +198,25 @@ const ExperimentSummary = ({
       {getButtonsDiv()}
       {showSummary && (
         <>
-          <div key={`${name} ${experiment.status} data-summary`} className="data-summary">
+          <div key={`${classExp.name} ${experiment.status} data-summary`} className="data-summary">
             <div style={{ width: '100%', minWidth: 700, maxWidth: 750 }}>
               <Line data={dataToGraph} height={50} />
             </div>
             <div className="content">
               <p><b>Performace achieved from last epoch:</b></p>
               {
-                averageParams.map(({ adParamName, value }) => (
-                  <p key={`${adParamName}-${value}`}>
+                averageParams.map(({ name, value }) => (
+                  <p key={`${name}-${value}`}>
                     {' '}
-                    {`${adParamName}: ${parseDecimal(value)}`}
+                    {`${name}: ${parseDecimal(value)}`}
                     {' '}
                   </p>
                 ))
               }
             </div>
           </div>
-          <div style={{ flexBasis: '100%', height: 0 }} key={`${name} ${status} division2`} />
-          <div key={`${name} ${status} card-results`} className="card-results">
+          <div style={{ flexBasis: '100%', height: 0 }} key={`${classExp.name} ${classExp.status} division2`} />
+          <div key={`${classExp.name} ${classExp.status} card-results`} className="card-results">
             <DataCard
               title="Data"
               linesOfContent={[
@@ -235,13 +225,13 @@ const ExperimentSummary = ({
                   text: `*${inputFilePath}`,
                   isLink: true,
                   href: experiment.inputFiles[0].location_type === 'PATH_FILE'
-                    ? `/${basePath}/-/blob/commit/${commitSha}/path/${inputFilePath}`
+                    ? `/${basePath}/-/blob/commit/${classExp?.pipelineJobInfo?.commitSha}/path/${inputFilePath}`
                     : `${linkToRepoView}/path/${inputFilePath}`,
                 },
-                { text: sourceBranch?.startsWith('data-instance') ? 'sourcing from data instance' : 'sourcing from' },
-                { text: `*${sourceBranch || ''}`, isLink: true, href: linkToRepoView },
+                { text: classExp.sourceBranch?.startsWith('data-instance') ? 'sourcing from data instance' : 'sourcing from' },
+                { text: `*${classExp.sourceBranch || ''}`, isLink: true, href: linkToRepoView },
                 { text: 'Last commit', isLink: false },
-                { text: `${commitSha?.substring(0, 8)}`, isLink: true, href: `/${nameSpace}/${slug}/-/commits/${commitSha}` },
+                { text: `${classExp?.pipelineJobInfo?.commitSha?.substring(0, 8)}`, isLink: true, href: `/${nameSpace}/${slug}/-/commits/${classExp?.pipelineJobInfo?.commitSha}` },
               ]}
             />
             <DataCard
