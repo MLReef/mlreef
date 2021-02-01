@@ -78,7 +78,7 @@ log "Gitlab is ready"
 #########################
 # Setup gitlab-runner
 
-DOCKER_NETWORK="mlreef-docker-network"  #The network name should be same as docker run network
+DOCKER_NETWORK=$(docker inspect $(hostname) -f "{{json .NetworkSettings.Networks}}" | jq -r 'keys[0]')  
 
 # Wait for Gitlab to enable the database
 touch /var/log/configuration.lock
@@ -102,7 +102,6 @@ touch /var/log/configuration.log
     --locked="false" \
     --access-level="not_protected"   \
     --docker-extra-hosts "$INSTANCE_HOST:$CONTAINER_IP"
-
 
   gitlab-runner start
 

@@ -16,22 +16,79 @@ Nautilus Contains:
 Installation
 --------------------
 In order to run MLReef Nautilus locally you just have to execute the following `docker run` command.
-This will start up a local instance of mlreef with a persistent docker volume named `mlreef-opt`
-containing all user data.
+This will start up a local instance of mlreef with persistent docker volumes named `mlreef-opt`, `mlreef-etc`,
+and `mlreefdb-opt` containing all user data.
 
 ```
-docker run -it --rm --detach --name mlreef            \
-  --volume /var/run.docker.sock:/var/run/docker.sock  \ 
-  --volume mlreef-opt:/var/opt/       \
-  --publish 2022:22                   \
-  --publish 80:80                     \
-  --publish 5050:5050                 \
-  --publish 10080:10080               \
-  registry.gitlab.com/mlreef/mlreef:master
+docker run -it --rm --detach --name mlreef           \
+  --volume /var/run/docker.sock:/var/run/docker.sock \
+  --volume mlreef-opt:/var/opt/gitlab   \
+  --volume mlreef-etc:/etc/gitlab       \
+  --volume mlreefdb-opt:/var/opt/mlreef \
+  --publish 2022:22                     \
+  --publish 80:80                       \
+  --publish 8081:8081                   \
+  --publish 5050:5050                   \
+  --publish 10080:10080                 \
+  --publish 6000:6000                   \
+  registry.gitlab.com/mlreef/mlreef:latest
 ```
+The container comes up with a default runner running on same docker network on localhost.
 
-It will start up a local instance of mlreef with a persistent docker volume named `mlreef-opt`
-containing all user data.
+### Run mlreef with docker volume binding
+
+In order to run MLReef Nautilus locally with local volume binding, you just have to execute 
+the following `docker run` command.
+This will start up a local instance of mlreef with persistent data on `/root/mlreef-gitlab-opt`,
+`/root/mlreef-gitlab-etc` and `/root/mlreefdb-opt` paths.
+
+```
+docker run -it --rm --detach --name mlreef           \
+  --volume /var/run/docker.sock:/var/run/docker.sock \
+  --volume /root/mlreef-gitlab-opt:/var/opt/gitlab   \
+  --volume /root/mlreef-gitlab-etc:/etc/gitlab       \
+  --volume /root/mlreefdb-opt:/var/opt/mlreef        \
+  --publish 2022:22                     \
+  --publish 80:80                       \
+  --publish 8081:8081                   \
+  --publish 5050:5050                   \
+  --publish 10080:10080                 \
+  --publish 6000:6000                   \
+  registry.gitlab.com/mlreef/mlreef:latest
+```
+The container comes up with a default runner running on same docker network on localhost.
+
+
+### Run mlreef in a separate docker network
+
+In order to run MLReef Nautilus locally in a separate docker network, you just have to execute 
+the following commands.
+It includes:
+A network `mlreef-docker-network` creation if not exists and `docker run` command.
+This will start up a local instance of mlreef with persistent docker volumes named `mlreef-opt`,
+`mlreef-etc` and `mlreefdb-opt` containing all user data.
+You can use any network name instead of `mlreef-docker-network`.
+
+```
+DOCKER_NETWORK="mlreef-docker-network"
+docker network inspect $DOCKER_NETWORK >/dev/null 2>&1 || \
+  docker network create -d bridge $DOCKER_NETWORK
+
+docker run -it --rm --detach --name mlreef           \
+  --volume /var/run/docker.sock:/var/run/docker.sock \
+  --net $DOCKER_NETWORK                 \
+  --volume mlreef-opt:/var/opt/gitlab   \
+  --volume mlreef-etc:/etc/gitlab       \
+  --volume mlreefdb-opt:/var/opt/mlreef \
+  --publish 2022:22                     \
+  --publish 80:80                       \
+  --publish 8081:8081                   \
+  --publish 5050:5050                   \
+  --publish 10080:10080                 \
+  --publish 6000:6000                   \
+  registry.gitlab.com/mlreef/mlreef:latest
+```
+The container comes up with a default runner running on same docker network on localhost.
 
 ### Adding Machine Learning Runners
 The best way to host additional ML runners is to run them as separate docker containers.
