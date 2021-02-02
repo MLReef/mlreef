@@ -7,6 +7,7 @@ import React, {
 } from 'react';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
+import { useLocation } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 import TutorialModals from './TutorialModals';
 import TutorialList from './TutorialList';
@@ -28,6 +29,7 @@ const Tutorial = (props) => {
     auth,
   } = props;
 
+  const location = useLocation();
   const contRef = useRef();
   const [modalInfo, setModalInfo] = useState(['exit', null]);
   const [activeScreen, setActiveScreen] = useState('execution');
@@ -64,7 +66,7 @@ const Tutorial = (props) => {
 
   const handleClose = () => {
     ctxDispatch({ type: 'HIDE_DIALOG' });
-    if (actions) actions.close();
+    if (actions) actions.setActive(false);
   };
 
   const handleResumeTutorial = (id) => selectTutorial(id);
@@ -140,6 +142,25 @@ const Tutorial = (props) => {
     },
     // eslint-disable-next-line
     [username],
+  );
+
+  // listen tutorial instructions in url
+  useEffect(
+    () => {
+      const { search } = location;
+      const q = search.slice(1).split('&')
+        .map((i) => i.split('='))
+        .reduce((acc, [k, v]) => ({ ...acc, [k]: v }), {});
+
+      if (q.tutorial) {
+        if (actions) actions.setActive(true);
+        ctxDispatch({ type: 'SHOW_DIALOG' });
+
+        if (q.id) selectTutorial(parseInt(q.id, 10));
+      }
+    },
+    // eslint-disable-next-line
+    [location],
   );
 
   const buttonIcon = dialogShown ? 'url(/images/arrow_down_white-01.png)' : 'url(/images/Tutorials-01.png)';
@@ -255,7 +276,7 @@ Tutorial.propTypes = {
     startTutorial: PropTypes.func,
     updateCurrent: PropTypes.func,
     onCompleted: PropTypes.func,
-    close: PropTypes.func,
+    setActive: PropTypes.func,
   }),
   current: PropTypes.shape({
     id: PropTypes.number,
