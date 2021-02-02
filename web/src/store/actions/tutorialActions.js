@@ -1,8 +1,12 @@
 import * as types from '../actionTypes';
 import { fireModal } from './actionModalActions';
 
-export const toggleTutorial = (active) => (dispatch) => {
-  dispatch({ type: types.TUTORIAL_TOGGLE, active });
+export const toggleTutorial = () => (dispatch) => {
+  dispatch({ type: types.TUTORIAL_TOGGLE });
+};
+
+export const setActive = (status) => (dispatch) => {
+  dispatch({ type: types.TUTORIAL_SET_ACTIVE, status });
 };
 
 export const addStatusToRecords = (status) => (dispatch) => {

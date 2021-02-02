@@ -5,7 +5,7 @@ import {
   updateCurrent,
   onCompleted,
   displayImage,
-  toggleTutorial,
+  setActive,
 } from 'store/actions/tutorialActions';
 
 import TutorialImported from './Tutorial';
@@ -26,7 +26,7 @@ const actions = (dispatch) => ({
     updateCurrent: bindActionCreators(updateCurrent, dispatch),
     onCompleted: bindActionCreators(onCompleted, dispatch),
     displayImage: bindActionCreators(displayImage, dispatch),
-    close: bindActionCreators(() => toggleTutorial(false), dispatch),
+    setActive: bindActionCreators(setActive, dispatch),
   },
 });
 

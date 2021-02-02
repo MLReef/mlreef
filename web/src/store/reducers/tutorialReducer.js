@@ -9,6 +9,12 @@ export default (state = initialState.tutorial, action) => {
         active: !state.active,
       };
 
+    case types.TUTORIAL_SET_ACTIVE:
+      return {
+        ...state,
+        active: action.status,
+      };
+
     case types.TUTORIAL_SET_CURRENT:
       return {
         ...state,

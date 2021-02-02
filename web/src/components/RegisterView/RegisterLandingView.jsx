@@ -1,11 +1,29 @@
-import React from 'react';
+import React, { useState, useMemo } from 'react';
 import { connect } from 'react-redux';
-import { Link } from 'react-router-dom';
+import { Link } from 'router';
 import PropTypes from 'prop-types';
+import MSelect from 'components/ui/MSelect';
+import { tutorials } from 'components/commons/Tutorial/data.json';
 import './RegisterView.scss';
 
 const RegisterLandingView = (props) => {
   const { user: { userInfo: { name } } } = props;
+
+  const [tutorialId, setTutorialId] = useState(tutorials[0]?.id);
+
+  const options = tutorials.filter((t) => t.visibility !== 'hidden')
+    .map((t) => ({ label: t.name, value: t.id }));
+
+  const tutorial = useMemo(
+    () => tutorials.find((t) => t.id === tutorialId),
+    [tutorialId],
+  );
+
+  const tutorialRedirect = useMemo(
+    () => `${(tutorial?.redirect || '/')}?tutorial=1&id=${tutorial?.id}`,
+    [tutorial],
+  );
+
   return (
     <div className="landing-container">
       <div className="first-state">
@@ -16,6 +34,32 @@ const RegisterLandingView = (props) => {
         </h2>
       </div>
       <div className="second-state">
+        <div className="register-landing-view-tutorial border-rounded">
+          <div className="register-landing-view-tutorial-content">
+            <h4>Start with a tutorial</h4>
+            <p>Learn MLReef by our curated hands-on video tutorials</p>
+            <MSelect
+              value={tutorialId}
+              label="Select a tutorial"
+              options={options}
+              onSelect={setTutorialId}
+              variant="dark"
+            />
+            <Link
+              to={tutorialRedirect}
+              disabled={!tutorialId}
+              className="btn btn-primary my-3"
+            >
+              Start tutorial
+            </Link>
+          </div>
+          {tutorial?.image && (
+            <div
+              className="register-landing-view-tutorial-image border-rounded"
+              style={{ backgroundImage: `url(${tutorial.image})` }}
+            />
+          )}
+        </div>
         <div className="user-options">
           <Link className="option-link mb-3 info-box" to="/new-project/classification/ml-project">
             <div className="option-icon" style={{ backgroundColor: 'var(--info)' }} />

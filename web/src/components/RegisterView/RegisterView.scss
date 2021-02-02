@@ -128,7 +128,7 @@
     max-width: $bp-md;
     margin: 0 auto;
   };
-  
+
   .user-options {
     display: flex;
     flex-wrap: wrap;
@@ -154,7 +154,7 @@
       }
     };
 
-    
+
     .danger-box:hover {
       border-color: var(--danger);
     };
@@ -175,6 +175,37 @@
   @media screen and (max-width: $bp-md) {
     .user-options {
       flex-direction: column;
+    }
+  }
+}
+
+.register-landing-view {
+  &-tutorial {
+    display: flex;
+    background-color: var(--light);
+    padding: 0 1rem;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+    border: 1px solid var(--almostWhite);
+    box-shadow: 2px 4px 2px var(--almostWhite);
+
+    &-content {
+      flex: 1;
+      margin-right: 2rem;
+    }
+
+    &-image {
+      background-color: var(--secondary);
+      background-repeat: no-repeat;
+      background-position: center;
+      background-size: cover;
+      height: 200px;
+      width: 200px * 16 / 9;
+      margin: 1rem auto;
+    }
+
+    & .m-select {
+      max-width: 500px;
     }
   }
 }

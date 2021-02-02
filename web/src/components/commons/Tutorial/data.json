@@ -5,6 +5,7 @@
       "name": "MLReef Basics",
       "visibility": "users",
       "description": "n/a",
+      "redirect": "/mlreef/showcase-mlreef",
       "image": "/images/tutorials/1/front.png",
       "epilogue": "## Congratulations!\n\nNow you know how to run an **experiment!**",
       "steps": [

@@ -19,6 +19,70 @@ exports[`render basic landing view elements assert that snapshot matches 1`] = `
     className="second-state"
   >
     <div
+      className="register-landing-view-tutorial border-rounded"
+    >
+      <div
+        className="register-landing-view-tutorial-content"
+      >
+        <h4>
+          Start with a tutorial
+        </h4>
+        <p>
+          Learn MLReef by our curated hands-on video tutorials
+        </p>
+        <div
+          className="m-select m-dropdown  "
+        >
+          <div
+            className="m-select-button m-dropdown-button"
+          >
+            <button
+              className="btn btn-outline-dark d-flex w-100"
+              disabled={false}
+              onClick={[Function]}
+              type="button"
+            >
+              <span>
+                MLReef Basics
+              </span>
+              <i
+                className="fa fa-chevron-down ml-auto my-auto mr-0"
+              />
+            </button>
+          </div>
+          <div
+            className="m-select-list-container container-shadow border-rounded m-dropdown-list-container"
+          >
+            <ul
+              className="m-select-list m-dropdown-list"
+            >
+              <li
+                className="m-select-list-item m-dropdown-list-item"
+                onClick={[Function]}
+              >
+                MLReef Basics
+              </li>
+            </ul>
+          </div>
+        </div>
+        <a
+          className="btn btn-primary my-3"
+          href="/mlreef/showcase-mlreef?tutorial=1&id=1"
+          onClick={[Function]}
+        >
+          Start tutorial
+        </a>
+      </div>
+      <div
+        className="register-landing-view-tutorial-image border-rounded"
+        style={
+          Object {
+            "backgroundImage": "url(/images/tutorials/1/front.png)",
+          }
+        }
+      />
+    </div>
+    <div
       className="user-options"
     >
       <a
