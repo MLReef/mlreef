@@ -1,5 +1,5 @@
 include:
-  - local: .gitlab/.base-gitlab-ci-docker-build.yml
+  - local: .gitlab/.gitlab-ci-base-docker-build.yml
   - local: backend/.gitlab-ci.yml
   - local: epf/.gitlab-ci.yml
   - local: nautilus/.gitlab-ci.yml

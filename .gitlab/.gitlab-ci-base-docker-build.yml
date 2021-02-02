@@ -1,4 +1,4 @@
-.base-gitlab-ci-docker-build:
+.base-docker-build:
   extends: [".except-docu-branches"]
   stage: build
   image: docker:latest

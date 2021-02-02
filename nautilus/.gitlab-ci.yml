@@ -1,6 +1,5 @@
 build nautilus:
-  extends: [".except-docu-branches", ".base-gitlab-ci-docker-build"]
-  stage: build
+  extends: [".base-docker-build"]
   only:
     changes:
       - backend/**/*

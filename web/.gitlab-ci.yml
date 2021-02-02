@@ -10,10 +10,9 @@
       - web/node_modules
 
 
-build frontend:
+build gateway:
   # import the centralised caching configuration for npm caches
-  extends: [".except-docu-branches", ".npm-cache-config"]
-  stage: build
+  extends: [".base-docker-build", ".npm-cache-config"]
   only:
     changes:
       # changes on specific bin scripts
@@ -24,16 +23,17 @@ build frontend:
       # all files in the web directory
       - web/*
   # This docker version should correspond with the on docker version in the EC2 deployment
-  image: docker:19.03.5          # https://hub.docker.com/_/docker/
-  services:
-    - docker:dind
-  before_script:
-    - export NAUTILUS_IMAGE_PATH=$CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG
-    - export  GATEWAY_IMAGE_PATH=$CI_REGISTRY_IMAGE/gateway:$CI_COMMIT_REF_SLUG
-    - export  BACKEND_IMAGE_PATH=$CI_REGISTRY_IMAGE/backend:$CI_COMMIT_REF_SLUG
-    - export      EPF_IMAGE_PATH=$CI_REGISTRY_IMAGE/epf:$CI_COMMIT_REF_SLUG
   script: |
-    web/bin/ci-build-frontend
+    docker build --tag "$GATEWAY_IMAGE_PATH" -f web/Dockerfile web  \
+      --build-arg CI_COMMIT_REF_SLUG="$CI_COMMIT_REF_SLUG"          \
+      --build-arg CI_PIPELINE_ID="$CI_PIPELINE_ID"                  \
+
+    # Get Test coverage report from build image
+    docker create -ti --name coverage-container "$GATEWAY_IMAGE_PATH" bash
+    docker cp coverage-container:/usr/share/coverage web/coverage
+    docker rm -f coverage-container
+
+    docker build --tag "$GATEWAY_IMAGE_PATH" -f web/Dockerfile web
     docker push "$GATEWAY_IMAGE_PATH"
   artifacts:
     expire_in: 3 days

@@ -68,7 +68,6 @@ else
     echo "INFO: defaulting to 'localhost' instance"
     export INSTANCE_HOST="localhost"
   fi
-  echo "      INSTANCE_HOST= $INSTANCE_HOST"
 fi
 
 
@@ -81,5 +80,3 @@ echo ""
 export GATEWAY_IMAGE_PATH=$CI_REGISTRY_IMAGE/gateway:$CI_COMMIT_REF_SLUG
 export BACKEND_IMAGE_PATH=$CI_REGISTRY_IMAGE/backend:$CI_COMMIT_REF_SLUG
 export     EPF_IMAGE_PATH=$CI_REGISTRY_IMAGE/epf:$CI_COMMIT_REF_SLUG
-
-

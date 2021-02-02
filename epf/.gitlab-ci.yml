@@ -1,17 +1,8 @@
 build epf:
-  extends: [".except-docu-branches"]
-  stage: build
+  extends: [".base-docker-build"]
   only:
     changes:
       - epf/**/*
-  image: docker:latest
-  services:
-    - docker:dind
-  before_script:
-    - export NAUTILUS_IMAGE_PATH=$CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG
-    - export  GATEWAY_IMAGE_PATH=$CI_REGISTRY_IMAGE/gateway:$CI_COMMIT_REF_SLUG
-    - export  BACKEND_IMAGE_PATH=$CI_REGISTRY_IMAGE/backend:$CI_COMMIT_REF_SLUG
-    - export      EPF_IMAGE_PATH=$CI_REGISTRY_IMAGE/epf:$CI_COMMIT_REF_SLUG
   script: |
-    epf/bin/ci-build-epf
+    docker build --tag "$EPF_IMAGE_PATH" -f epf/Dockerfile epf
     docker push "$EPF_IMAGE_PATH"
