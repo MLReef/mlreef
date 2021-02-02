@@ -29,23 +29,14 @@ test backend:
 
 
 build backend:
-  extends: [".except-docu-branches", ".only-on-backend-code-changes"]
-  stage: build
-  image: docker:19.03.1
-  services:
-    - docker:19.03.0-dind
+  extends: [".base-docker-build", ".only-on-backend-code-changes"]
   cache:
     key: "$CI_COMMIT_REF_SLUG"
     paths:
       - backend/.gradle/wrapper
       - backend/.gradle/caches
-  before_script:
-    - export NAUTILUS_IMAGE_PATH=$CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG
-    - export  GATEWAY_IMAGE_PATH=$CI_REGISTRY_IMAGE/gateway:$CI_COMMIT_REF_SLUG
-    - export  BACKEND_IMAGE_PATH=$CI_REGISTRY_IMAGE/backend:$CI_COMMIT_REF_SLUG
-    - export      EPF_IMAGE_PATH=$CI_REGISTRY_IMAGE/epf:$CI_COMMIT_REF_SLUG
   script: |
-    backend/bin/ci-build-backend
+    docker build --tag "$BACKEND_IMAGE_PATH" -f backend/Dockerfile backend
     docker push "$BACKEND_IMAGE_PATH"
 
 
