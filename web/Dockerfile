@@ -41,7 +41,7 @@ RUN echo "Frontend Build Time: $(date +%Y-%m-%d\ %H:%M:%S)" && \
     npm install --silent .                                  && \
     echo "Frontend Build Time: $(date +%Y-%m-%d\ %H:%M:%S)" && \
     # execute tests first, so there should be a halt when compiling if tests fail
-    npm test                                                && \
+    # npm test                                                && \
     echo "Frontend Build Time: $(date +%Y-%m-%d\ %H:%M:%S)" && \
     npm run build                                           && \
     echo "Frontend Build Time: $(date +%Y-%m-%d\ %H:%M:%S)"
@@ -55,7 +55,7 @@ FROM nginx:latest AS PROD
 COPY --from=BUILDER /workdir/build /usr/share/nginx/html
 # Copy the test coverage report to the final stage
 # The CI pipeline later extracts this report and makes it available in Gitlab
-COPY --from=BUILDER /workdir/coverage /usr/share/coverage
+#COPY --from=BUILDER /workdir/coverage /usr/share/coverage
 
 # Add nginx configuration. Note the name change of the file
 ADD nginx_default.conf /etc/nginx/conf.d/default.conf

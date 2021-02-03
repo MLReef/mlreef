@@ -12,7 +12,7 @@ const setup = () => {
   });
   const location = { pathname: '/my-namespace/the-project-name/-/branches' };
   const wrapper = shallow(
-    <BranchesView location={location} store={store} />,
+    <BranchesView location={location} store={store} match={{params: { namespace: 'some-namespace', slug: 'some-slug' }}} />,
   );
   const afterDive = wrapper.dive().dive();
   return afterDive;

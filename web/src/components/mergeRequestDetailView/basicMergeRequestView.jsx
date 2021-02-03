@@ -16,7 +16,9 @@ import { pluralize as plu } from 'functions/dataParserHelpers';
 import MCheckBox from 'components/ui/MCheckBox/MCheckBox';
 import AuthWrapper from 'components/AuthWrapper';
 import MSimpleTabs from 'components/ui/MSimpleTabs';
+import hooks from 'customHooks/useSelectedProject';
 import MButton from 'components/ui/MButton';
+import MLoadingSpinnerContainer from 'components/ui/MLoadingSpinner/MLoadingSpinnerContainer';
 import MWrapper from 'components/ui/MWrapper';
 import ChangesMrSection from 'components/changes-mr-section/ChangesMrSection';
 import Navbar from '../navbar/navbar';
@@ -34,15 +36,16 @@ const mergeRequestAPI = new MergeRequestAPI();
 
 const BasicMergeRequestView = (props) => {
   const {
-    selectedProject,
-    selectedProject: {
-      gid, namespace, slug,
-    },
-    match: { params: { iid } },
+    match: { params: { iid, namespace, slug } },
     users,
     mrInfo,
     actions,
   } = props;
+
+  const [selectedProject, isFetching] = hooks.useSelectedProject(namespace, slug);
+  const {
+    gid,
+  } = selectedProject;
 
   let status;
   let mergerName;
@@ -119,11 +122,11 @@ const BasicMergeRequestView = (props) => {
     status = <span className="state-config merged">MERGED</span>;
   }
 
-  useEffect(() => { fetchMergeRequestInfo(); }, [fetchMergeRequestInfo]);
+  useEffect(() => { if (gid) fetchMergeRequestInfo(); }, [fetchMergeRequestInfo]);
 
   // fetch changes
   useEffect(() => {
-    if (sourceBranch && targetBranch) {
+    if (gid && sourceBranch && targetBranch) {
       brApi.compare(gid, sourceBranch, targetBranch)
         .then((res) => setBehind(res.commits));
 
@@ -186,6 +189,12 @@ const BasicMergeRequestView = (props) => {
       )}
     </div>
   );
+
+  if (isFetching) {
+    return (
+      <MLoadingSpinnerContainer active />
+    );
+  }
 
   return (
     <>

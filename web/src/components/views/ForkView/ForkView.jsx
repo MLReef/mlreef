@@ -1,12 +1,11 @@
 import React, { useEffect, useCallback } from 'react';
-import { useSelector } from 'react-redux';
 import PropTypes from 'prop-types';
 import { toastr } from 'react-redux-toastr';
 import './ForkView.scss';
 import forkingImage from 'images/forking.png';
 import ProjectGeneralInfoApi from 'apis/ProjectGeneralInfoApi';
-// import { getProjectDetails } from 'store/actions/projectInfoActions';
 import Navbar from 'components/navbar/navbar';
+import hooks from 'customHooks/useSelectedProject';
 
 const projectGeneralInfoApi = new ProjectGeneralInfoApi();
 
@@ -15,30 +14,28 @@ const ForkView = (props) => {
     history,
     match: {
       params: {
-        projectId,
+        namespace, slug,
       },
     },
   } = props;
 
-  const projectInfo = useSelector(({ projects }) => projects.selectedProject);
+  const [selectedProject] = hooks.useSelectedProject(namespace, slug);
+
+  const { gid, gitlabName } = selectedProject;
 
   const handleFork = useCallback(
-    () => {
-      projectGeneralInfoApi.fork(projectId, null, projectInfo.gitlabName, null)
-        .then((project) => {
-          history.push(`/${project.gitlab_namespace}/${project.slug}`);
-        })
-        .catch((err) => {
-          toastr.error('Error:', err?.message);
-          history.goBack();
-        });
-    },
-    [history, projectId, projectInfo],
+    () => projectGeneralInfoApi.fork(gid, null, gitlabName, null)
+      .then((project) => history.push(`/${project.gitlab_namespace}/${project.slug}`))
+      .catch((err) => {
+        toastr.error('Error:', err?.message);
+        history.goBack();
+      }),
+    [history, gid],
   );
 
   useEffect(() => {
-    handleFork();
-  }, [handleFork]);
+    if (gid) handleFork();
+  }, [gid, handleFork]);
 
   return (
     <div className="project-component">

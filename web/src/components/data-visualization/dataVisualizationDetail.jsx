@@ -22,16 +22,14 @@ import Navbar from '../navbar/navbar';
 import FilesTable from '../files-table/filesTable';
 import ProjectContainer from '../projectContainer';
 import actions from '../data-instance/DataInstanceActions';
+import hooks from 'customHooks/useSelectedProject';
+import MLoadingSpinnerContainer from 'components/ui/MLoadingSpinner/MLoadingSpinnerContainer';
 
 const filesApi = new FilesApi();
 
 const DataVisualizationDetails = ({ ...props }) => {
   const [files, setFiles] = useState([]);
   const {
-    project,
-    project: {
-      gitlabId,
-    },
     branches,
     match: {
       params: {
@@ -44,6 +42,10 @@ const DataVisualizationDetails = ({ ...props }) => {
   } = props;
   const [dataInstance, setDataInstance] = useState({});
   const selectedPipeline = branches.filter((item) => item.name.includes(dataInstance?.name))[0];
+
+  const [selectedProject, isFetching] = hooks.useSelectedProject(namespace, slug);
+
+  const { gitlabId, } = selectedProject;
 
   const {
     instances,
@@ -70,24 +72,27 @@ const DataVisualizationDetails = ({ ...props }) => {
   const duration = (new Date(updatedAt) - new Date(timeCreatedAgo));
   const { statusColor: statusParagraphColor } = getInfoFromStatus(diStatus);
 
-  useEffect(() => {
-    getBranchesList(gitlabId);
-    actions.getDataInstanceAndAllItsInformation(gitlabId, visId)
-      .then(setDataInstance);
+  useEffect(() => {   
+    if(gitlabId){
+      getBranchesList(gitlabId);
 
+      actions.getDataInstanceAndAllItsInformation(gitlabId, visId)
+      .then(setDataInstance);
+      
       branchName !== undefined && filesApi.getFilesPerProject(
         gitlabId,
         path || '',
         false,
         branchName,
-      ).then((filesPerProject) => setFiles(filesPerProject))
-      .catch(() => toastr.error('Error', 'Something went wrong fetching pipelines'));
+        ).then((filesPerProject) => setFiles(filesPerProject))
+        .catch(() => toastr.error('Error', 'Something went wrong fetching pipelines'));
+    }
   }, [visId, gitlabId, path, branchName]);
 
   const pipelineViewProps = {
     backendPipeline: dataInstance,
     setPreconfOps,
-    selectedProject: project,
+    selectedProject,
     history,
     routeType: '/visualizations/new',
   }
@@ -106,12 +111,18 @@ const DataVisualizationDetails = ({ ...props }) => {
     },
   ];
 
+  if (isFetching) {
+    return (
+      <MLoadingSpinnerContainer active />
+    );
+  }
+
   return (
     <div>
       <Navbar />
       <ProjectContainer
         activeFeature="data"
-        breadcrumbs={generateBreadCrumbs(project, customCrumbs)}
+        breadcrumbs={generateBreadCrumbs(selectedProject, customCrumbs)}
       />
       <div className="main-content">
         <br />
@@ -145,7 +156,7 @@ const DataVisualizationDetails = ({ ...props }) => {
                           id,
                           instances[0].id,
                         ).then(() => toastr.success('Success', 'The data instace was deleted'))
-                          .then(() => history.push(`/${project?.gitlabNamespace}/${project?.slug}/-/datasets`))
+                          .then(() => history.push(`/${selectedProject?.gitlabNamespace}/${selectedProject?.slug}/-/datasets`))
                           .catch((err) => toastr.error('Error', err?.message))
                         : actions.abortDataInstance(
                           gitlabId,

@@ -5,6 +5,7 @@ import {
   string, shape, func, arrayOf, bool,
 } from 'prop-types';
 import forkingImage from 'images/forking.png';
+import { projectClassificationsProps } from 'dataTypes';
 import FilesContainer from 'components/FilesContainer';
 import { generateBreadCrumbs } from 'functions/helpers';
 import { PROJECT_TYPES } from 'domain/project/projectTypes';
@@ -22,6 +23,17 @@ import Navbar from '../navbar/navbar';
 import './projectView.css';
 import EmptyProject from '../layout/EmptyProject/EmptyProject';
 import ProjectLastCommitSect from './LastCommitSect';
+
+export const calculateColor = (project) => {
+  if (project.searchableType === PROJECT_TYPES.DATA) {
+    return projectClassificationsProps[0].color;
+  }
+
+  const typeOfProcessor = project.dataProcessor?.type;
+
+  return projectClassificationsProps
+    .filter((prop) => prop.typeOfProcessor === typeOfProcessor)[0]?.color;
+};
 
 const isValidBranch = (branch) => branch !== 'null' && branch !== null && branch !== undefined;
 
@@ -68,6 +80,7 @@ class ProjectView extends React.Component {
     return actions.getProjectDetailsBySlug(namespace, slug, { visitor: true })
       .then(({ project }) => {
         const gid = project.gitlabId || project.gitlab?.id;
+        actions.setGlobalMarkerColor(calculateColor(project));
         return Promise.all([
           actions.getBranchesList(gid),
           actions.getMergeRequestsList(gid),
@@ -92,6 +105,7 @@ class ProjectView extends React.Component {
     return actions.getProjectDetailsBySlug(namespace, slug)
       .then(({ project }) => {
         const gid = project.gitlabId || project.gitlab?.id;
+        actions.setGlobalMarkerColor(calculateColor(project));
 
         let promises = [
           actions.getBranchesList(gid),
@@ -141,7 +155,7 @@ class ProjectView extends React.Component {
 
     const customCrumbs = [
       {
-        name: 'Data',
+        name: project.searchableType === PROJECT_TYPES.DATA ? 'Data' : 'Code',
         href: `/${namespace}/${slug}`,
       },
     ];
@@ -236,9 +250,6 @@ ProjectView.defaultProps = {
 ProjectView.propTypes = {
   project: shape({}).isRequired,
   mergeRequests: arrayOf(shape({})),
-  projects: shape({
-    all: arrayOf.isRequired,
-  }).isRequired,
   match: shape({
     params: shape({
       namespace: string.isRequired,

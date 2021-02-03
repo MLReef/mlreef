@@ -39,8 +39,6 @@ describe('assert that component includes information about job', () => {
 
   test('main info', () => {
     wrapper.setProps({});
-    console.log(wrapper.debug());
-
     const { created_at } = jobMock;
     const jobTimeCreatedAgo = getTimeCreatedAgo(created_at, new Date());
     const titleText = wrapper.find('#number-and-time-ago-cont').text();

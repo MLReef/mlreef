@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, useEffect, useState } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
@@ -7,8 +7,10 @@ import {
 } from 'prop-types';
 import { generateBreadCrumbs } from 'functions/helpers';
 import AuthWrapper from 'components/AuthWrapper';
+import MLoadingSpinnerContainer from 'components/ui/MLoadingSpinner/MLoadingSpinnerContainer';
 import MLoadingSpinner from 'components/ui/MLoadingSpinner';
 import { getMergeRequestsList } from 'store/actions/mergeActions';
+import hooks from 'customHooks/useSelectedProject';
 import Navbar from '../../navbar/navbar';
 import ProjectContainer from '../../projectContainer';
 import './merge-request-overview.css';
@@ -28,42 +30,37 @@ const classifyMrsByState = (mrs) => mrStates.map((state) => {
   };
 });
 
-class MergeRequestOverview extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      mrsList: null,
-      btnSelected: 'all',
-    };
-    this.handleFilterBtnClick = this.handleFilterBtnClick.bind(this);
-    this.fetchMergeRequests = this.fetchMergeRequests.bind(this);
-  }
+const MergeRequestOverview = (props) => {
+  const {
+    match: {
+      params: {
+        namespace,
+        slug,
+      },
+    },
+    actions,
+    mergeRequests,
+    history,
+  } = props;
 
-  componentDidMount() {
-    this.fetchMergeRequests();
-  }
+  const [mrsList] = useState(classifyMrsByState(mergeRequests));
+  const [btnSelected, setBtnSelected] = useState('all');
 
-  static getDerivedStateFromProps(nextProps, prevState) {
-    if (nextProps.mergeRequests.length > 0) {
-      const classifiedMrs = classifyMrsByState(nextProps.mergeRequests);
-      return { mrsList: classifiedMrs };
+  const [selectedProject, isFetching] = hooks.useSelectedProject(namespace, slug);
+
+  const { gid } = selectedProject;
+
+  useEffect(() => {
+    if (gid) {
+      actions.getMergeRequestsList(gid);
     }
+  }, [gid]);
 
-    if (nextProps.mergeRequests.length === 0) {
-      return { mrsList: [] };
-    }
+  const handleFilterBtnClick = (e) => {
+    setBtnSelected(e.currentTarget.id);
+  };
 
-    return prevState;
-  }
-
-  handleFilterBtnClick = (e) => {
-    this.setState({ btnSelected: e.currentTarget.id });
-  }
-
-  filterStateAndCount = (stateIndex) => {
-    const {
-      mrsList,
-    } = this.state;
+  const filterStateAndCount = (stateIndex) => {
     if (!mrsList) {
       return [];
     }
@@ -71,113 +68,97 @@ class MergeRequestOverview extends Component {
       .filter(
         (mrClass) => mrClass.mrState === mrStates[stateIndex],
       )[0] || { list: [] };
-  }
+  };
 
-  fetchMergeRequests() {
-    const {
-      actions,
-      selectedProject: { gid },
-    } = this.props;
+  const classifiedMergeRequests = {
+    open: filterStateAndCount(0),
+    closed: filterStateAndCount(1),
+    merged: filterStateAndCount(2),
+    all: mrsList,
+  };
 
-    return actions.getMergeRequestsList(gid);
-  }
+  const customCrumbs = [
+    {
+      name: 'Data',
+      href: `/${namespace}/${slug}`,
+    },
+    {
+      name: 'Merge Requests',
+      href: `/${namespace}/${slug}/-/merge_requests`,
+    },
+  ];
 
-  render() {
-    const {
-      mrsList,
-      btnSelected,
-    } = this.state;
-    const {
-      selectedProject,
-      history,
-      match: {
-        params: { namespace, slug },
-      },
-    } = this.props;
-    const classifiedMergeRequests = {
-      open: this.filterStateAndCount(0),
-      closed: this.filterStateAndCount(1),
-      merged: this.filterStateAndCount(2),
-      all: mrsList,
-    };
-
-    const customCrumbs = [
-      {
-        name: 'Data',
-        href: `/${namespace}/${slug}`,
-      },
-      {
-        name: 'Merge Requests',
-        href: `/${namespace}/${slug}/-/merge_requests`,
-      },
-    ];
-
+  if (isFetching) {
     return (
-      <>
-        <Navbar />
-        <ProjectContainer
-          activeFeature="data"
-          breadcrumbs={generateBreadCrumbs(selectedProject, customCrumbs)}
-        />
-        <div className="main-content">
-          {!mrsList
-            ? <div id="circular-progress-container"><MLoadingSpinner /></div>
-            : (
-              <>
-                <br />
-                <br />
-                <div id="filter-buttons-new-mr">
-                  <button type="button" className="btn btn-basic-dark mr-2 mb-2" id="open" onClick={this.handleFilterBtnClick}>
-                    {`${classifiedMergeRequests.open.list.length} Open`}
-                  </button>
-                  <button type="button" className="btn btn-basic-dark mr-2 mb-2" id="merged" onClick={this.handleFilterBtnClick}>
-                    {`${classifiedMergeRequests.merged.list.length} Merged`}
-                  </button>
-                  <button type="button" className="btn btn-basic-dark mr-2 mb-2" id="closed" onClick={this.handleFilterBtnClick}>
-                    {`${classifiedMergeRequests.closed.list.length} Closed`}
-                  </button>
-                  <button type="button" className="btn btn-basic-dark mr-auto mb-2" id="all" onClick={this.handleFilterBtnClick}>
-                    All
-                  </button>
-                  <AuthWrapper minRole={30} norender>
-                    <button
-                      type="button"
-                      className="btn btn-primary mr-2 ml-2 mb-2"
-                      id="new-mr-link"
-                      onClick={() => history.push(`/${namespace}/${slug}/-/merge_requests/new`)}
-                    >
-                      New merge request
-                    </button>
-                  </AuthWrapper>
-                </div>
-                <div id="merge-requests-container-div">
-                  {btnSelected === 'all' && classifiedMergeRequests.all
-                    ? classifiedMergeRequests.all.map((mrsClass) => (
-                      <MergeRequestCard
-                        namespace={namespace}
-                        slug={slug}
-                        mergeRequestsList={mrsClass}
-                        key={mrsClass.mrState}
-                      />
-                    ))
-                    : (
-                      <MergeRequestCard
-                        namespace={namespace}
-                        slug={slug}
-                        mergeRequestsList={classifiedMergeRequests[btnSelected]}
-                        key={classifiedMergeRequests[btnSelected].mrState}
-                      />
-                    )}
-                </div>
-                <br />
-                <br />
-              </>
-            )}
-        </div>
-      </>
+      <MLoadingSpinnerContainer active />
     );
   }
-}
+
+  return (
+    <>
+      <Navbar />
+      <ProjectContainer
+        activeFeature="data"
+        breadcrumbs={generateBreadCrumbs(selectedProject, customCrumbs)}
+      />
+      <div className="main-content">
+        {!mrsList
+          ? <div id="circular-progress-container"><MLoadingSpinner /></div>
+          : (
+            <>
+              <br />
+              <br />
+              <div id="filter-buttons-new-mr">
+                <button type="button" className="btn btn-basic-dark mr-2 mb-2" id="open" onClick={handleFilterBtnClick}>
+                  {`${classifiedMergeRequests.open.list.length} Open`}
+                </button>
+                <button type="button" className="btn btn-basic-dark mr-2 mb-2" id="merged" onClick={handleFilterBtnClick}>
+                  {`${classifiedMergeRequests.merged.list.length} Merged`}
+                </button>
+                <button type="button" className="btn btn-basic-dark mr-2 mb-2" id="closed" onClick={handleFilterBtnClick}>
+                  {`${classifiedMergeRequests.closed.list.length} Closed`}
+                </button>
+                <button type="button" className="btn btn-basic-dark mr-auto mb-2" id="all" onClick={handleFilterBtnClick}>
+                  All
+                </button>
+                <AuthWrapper minRole={30} norender>
+                  <button
+                    type="button"
+                    className="btn btn-primary mr-2 ml-2 mb-2"
+                    id="new-mr-link"
+                    onClick={() => history.push(`/${namespace}/${slug}/-/merge_requests/new`)}
+                  >
+                    New merge request
+                  </button>
+                </AuthWrapper>
+              </div>
+              <div id="merge-requests-container-div">
+                {btnSelected === 'all' && classifiedMergeRequests.all
+                  ? classifiedMergeRequests.all.map((mrsClass) => (
+                    <MergeRequestCard
+                      namespace={namespace}
+                      slug={slug}
+                      mergeRequestsList={mrsClass}
+                      key={mrsClass.mrState}
+                    />
+                  ))
+                  : (
+                    <MergeRequestCard
+                      namespace={namespace}
+                      slug={slug}
+                      mergeRequestsList={classifiedMergeRequests[btnSelected]}
+                      key={classifiedMergeRequests[btnSelected].mrState}
+                    />
+                  )}
+              </div>
+              <br />
+              <br />
+            </>
+          )}
+      </div>
+    </>
+  );
+};
 
 const MergeRequestCard = ({ namespace, slug, mergeRequestsList }) => {
   if (mergeRequestsList.list.length === 0) return <div />;

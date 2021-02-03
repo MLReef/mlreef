@@ -85,6 +85,12 @@ export const mrStates = [
 
 export const bannedCharsArray = ['..', '~', '^', ':', '\\', '{', '}', '[', ']', ')', '(', '$', '#', '&', '%', '*', '+', ',', '¨', '"', '!'];
 
+
+/* -------------------------- Types of Processors -------------------------- */
+export const OPERATION = 'OPERATION';
+export const ALGORITHM = 'ALGORITHM';
+export const VISUALIZATION = 'VISUALIZATION';
+
 /* -------------------------- Project classifications -------------------------- */
 
 export const ML_PROJECT = 'ml-project';
@@ -102,6 +108,7 @@ export const projectClassificationsProps = [{
 },
 {
   classification: MODEL,
+  typeOfProcessor: ALGORITHM,
   label: 'Model',
   color: '#E99444',
   description: `
@@ -114,6 +121,7 @@ export const projectClassificationsProps = [{
 },
 {
   classification: DATA_OPERATION,
+  typeOfProcessor: OPERATION,
   label: 'Data Operation',
   color: '#D2519D',
   description: `A data operation transforms your data in a data pre-processing pipeline. 
@@ -124,6 +132,7 @@ export const projectClassificationsProps = [{
 },
 {
   classification: DATA_VISUALIZATION,
+  typeOfProcessor: VISUALIZATION,
   label: 'Data visualization',
   color: '#735DA8',
   description: `A data visualization create undestandable representations of the structure in your data. 
@@ -154,11 +163,6 @@ export const privacyLevelsArr = [
     icon: global,
   },
 ];
-
-/* -------------------------- Types of Processors -------------------------- */
-export const OPERATION = 'OPERATION';
-export const ALGORITHM = 'ALGORITHM';
-export const VISUALIZATION = 'VISUALIZATION';
 
 /* --------------------------  ------------------------------------- ------------------*/
 

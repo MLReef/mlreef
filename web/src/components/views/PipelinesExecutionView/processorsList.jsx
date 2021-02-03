@@ -27,14 +27,13 @@ const ProcessorsList = ({ operationTypeToExecute }) => {
 
 export const Processor = ({ processorData, operationTypeToExecute }) => {
   const [shouldDescriptionRender, setShouldDescriptionRender] = useState(false);
+  const [, dispatch] = useContext(DataPipelinesContext);
   const {
     nameSpace,
     slug,
     inputDataTypes,
     stars,
   } = processorData;
-
-  const [, dispatch] = useContext(DataPipelinesContext);
 
   return (
     <div

@@ -209,7 +209,7 @@ export default [
   },
   {
     name: 'fork',
-    path: '/projects/:projectId/fork',
+    path: '/:namespace/:slug/-/fork',
     component: ForkView,
     exact: true,
     meta: {

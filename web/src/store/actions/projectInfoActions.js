@@ -12,7 +12,7 @@ const mlSearchApi = new MLSearchApi();
 const gitlabPipelinesApi = new GitlabPipelinesApi();
 
 // This will fetch gitlab project and add it to the mlreef project
-const mergeWithGitlabProject = (project) => projectApi.getProjectInfoApi(project.gitlab_id)
+export const mergeWithGitlabProject = (project) => projectApi.getProjectInfoApi(project.gitlab_id)
   .then(parseToCamelCase)
   .then((gitlab) => ({ ...project, gitlab }))
   .catch(() => project);

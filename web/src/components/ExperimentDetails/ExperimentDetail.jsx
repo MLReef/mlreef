@@ -2,12 +2,13 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { toastr } from 'react-redux-toastr';
+import { MLoadingSpinnerContainer } from 'components/ui/MLoadingSpinner';
 import {
   shape,
-  arrayOf,
   string,
   func,
 } from 'prop-types';
+import hooks from 'customHooks/useSelectedProject';
 import './ExperimentDetail.scss';
 import MSimpleTabs from 'components/ui/MSimpleTabs';
 import { setPreconfiguredOPerations } from 'store/actions/userActions';
@@ -22,30 +23,37 @@ export const UnconnectedExperimentDetails = (props) => {
   const [experiment, setExperiment] = useState({});
   const [jobs, setJobs] = useState([]);
   const {
-    projects,
     match: { params: { namespace, slug, experimentId } },
     setPreconfiguredOPerations,
     history,
   } = props;
-  const selectedProject = projects.filter((proj) => proj.slug === slug)[0];
-  const projectId = selectedProject?.gitlabId;
-  const backendId = selectedProject?.id;
-  const userKind = selectedProject?.gitlab?.namespace?.kind;
-  const name = selectedProject?.name;
+
+  const [selectedProject, isFetching] = hooks.useSelectedProject(namespace, slug);
+
+  const {
+    id,
+    gid,
+    name,
+    gitlab,
+  } = selectedProject;
+
+  const userKind = gitlab?.namespace?.kind;
   const userParameters = experiment?.processing?.parameters;
   const { pipeline_job_info: pipelineInfo } = experiment;
   const experimentName = experiment.name;
   const uniqueName = experimentName && experimentName.split('/')[1];
   const experimentJob = jobs.filter((job) => job.ref === experiment.name)[0];
   useEffect(() => {
-    actions.getExperimentDetails(backendId, experimentId)
-      .then((res) => setExperiment(res))
-      .catch(() => toastr.error('Error', 'Could not fetch the experiment'));
+    if (id && gid) {
+      actions.getExperimentDetails(id, experimentId)
+        .then((res) => setExperiment(res))
+        .catch(() => toastr.error('Error', 'Could not fetch the experiment'));
 
-    actions.getJobsPerProject(projectId)
-      .then((js) => setJobs(js))
-      .catch((err) => toastr.error('Error', err.message));
-  }, [projectId, backendId, experimentId]);
+      actions.getJobsPerProject(gid)
+        .then((js) => setJobs(js))
+        .catch((err) => toastr.error('Error', err.message));
+    }
+  }, [gid, id, experimentId]);
 
   const breadcrumbs = useMemo(
     () => [
@@ -68,6 +76,12 @@ export const UnconnectedExperimentDetails = (props) => {
     [namespace, slug, name, uniqueName, userKind],
   );
 
+  if (isFetching) {
+    return (
+      <MLoadingSpinnerContainer active />
+    );
+  }
+
   return (
     <>
       <Navbar />
@@ -87,7 +101,7 @@ export const UnconnectedExperimentDetails = (props) => {
                 <DetailsSummary
                   projectNamespace={namespace}
                   projectSlug={slug}
-                  projectId={projectId}
+                  projectId={gid}
                   inputFiles={experiment.input_files}
                   dataOperatorsExecuted={experiment.processing}
                   experimentName={uniqueName}
@@ -103,7 +117,7 @@ export const UnconnectedExperimentDetails = (props) => {
               label: 'Training',
               content: experimentJob && (
                 <JobLog
-                  projectId={parseInt(projectId, 10)}
+                  projectId={parseInt(gid, 10)}
                   currentState={experimentJob && experimentJob.status}
                   job={experimentJob}
                 />
@@ -111,8 +125,8 @@ export const UnconnectedExperimentDetails = (props) => {
             },
             {
               label: 'Files',
-              content: projectId && experimentJob && (
-                <Files projectId={projectId} job={experimentJob} />
+              content: gid && experimentJob && (
+                <Files projectId={gid} job={experimentJob} />
               ),
             },
           ]}
@@ -123,7 +137,6 @@ export const UnconnectedExperimentDetails = (props) => {
 };
 
 UnconnectedExperimentDetails.propTypes = {
-  projects: arrayOf(shape({})).isRequired,
   match: shape({
     params: shape({
       experimentId: string.isRequired,
@@ -133,16 +146,10 @@ UnconnectedExperimentDetails.propTypes = {
   history: shape({}).isRequired,
 };
 
-function mapStateToProps(state) {
-  return {
-    projects: state.projects.all,
-  };
-}
-
 function mapActionsToProps(dispatch) {
   return {
     setPreconfiguredOPerations: bindActionCreators(setPreconfiguredOPerations, dispatch),
   };
 }
 
-export default connect(mapStateToProps, mapActionsToProps)(UnconnectedExperimentDetails);
+export default connect(() => ({}), mapActionsToProps)(UnconnectedExperimentDetails);
