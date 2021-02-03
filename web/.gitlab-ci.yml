@@ -30,7 +30,7 @@ build gateway:
 
     # Get Test coverage report from build image
     docker create -ti --name coverage-container "$GATEWAY_IMAGE_PATH" bash
-    docker cp coverage-container:/usr/share/coverage web/coverage
+    # docker cp coverage-container:/usr/share/coverage web/coverage
     docker rm -f coverage-container
 
     docker build --tag "$GATEWAY_IMAGE_PATH" -f web/Dockerfile web
