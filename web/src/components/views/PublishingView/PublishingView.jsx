@@ -7,8 +7,10 @@ import Navbar from 'components/navbar/navbar';
 import MBreadcrumb from 'components/ui/MBreadcrumb';
 import MButton from 'components/ui/MButton';
 import MSimpleTabs from 'components/ui/MSimpleTabs/MSimpleTabsRouted';
+import hooks from 'customHooks/useSelectedProject';
 import EnvironmentsApi from 'apis/EnvironmentsApi';
 import './PublishingView.scss';
+import MLoadingSpinnerContainer from 'components/ui/MLoadingSpinner/MLoadingSpinnerContainer';
 import PublishingViewPublishModel from './PublishingViewPublishModel';
 import initialState, { reducer } from './stateManagement';
 import SelectBaseEnv from './SelectBaseEnv/SelectBaseEnv';
@@ -23,13 +25,14 @@ export const UnconnectedPublishingView = (props) => {
     match: {
       params: { namespace, slug, path },
     },
-    project,
     branches,
     history,
   } = props;
 
-  const { gitlabId, id, published } = project;
-  console.log(project); 
+  const [selectedProject, isFetching] = hooks.useSelectedProject(namespace, slug);
+
+  const { gid, id, published } = selectedProject;
+
   const [{
     selectedBranch,
     files,
@@ -51,26 +54,27 @@ export const UnconnectedPublishingView = (props) => {
   const isFinalFormValid = mlCategory && model && areTermsAccepted && isRequirementsFileExisting;
 
   useEffect(() => {
-    filesApi.getFilesPerProject(
-      gitlabId,
-      encodeURIComponent(path || ''),
-      false,
-      selectedBranch,
-    ).then((newFilesArr) => {
-      dispatch({ type: 'SET_FILES', payload: newFilesArr });
-      if (!path || path === '') {
-        dispatch({
-          type: 'SET_REQUIREMENTS_FILE_EXISTING',
-          payload: newFilesArr,
-        });
-      }
-    }).catch((error) => toastr.error('Error', error.message));
-
+    if (gid) {
+      filesApi.getFilesPerProject(
+        gid,
+        encodeURIComponent(path || ''),
+        false,
+        selectedBranch,
+      ).then((newFilesArr) => {
+        dispatch({ type: 'SET_FILES', payload: newFilesArr });
+        if (!path || path === '') {
+          dispatch({
+            type: 'SET_REQUIREMENTS_FILE_EXISTING',
+            payload: newFilesArr,
+          });
+        }
+      }).catch((error) => toastr.error('Error', error.message));
+    }
     EnvironmentsApi
       .getMany()
       .then((envs) => dispatch({ type: 'SET_LIST_OF_ENVS', payload: envs }))
       .catch((err) => toastr.error('Error', err.message));
-  }, [gitlabId, selectedBranch, path, branches]);
+  }, [gid, selectedBranch, path, branches]);
 
   const breadcrumbs = [
     {
@@ -85,6 +89,12 @@ export const UnconnectedPublishingView = (props) => {
       name: 'Publishing',
     },
   ];
+
+  if (isFetching) {
+    return (
+      <MLoadingSpinnerContainer active />
+    );
+  }
 
   return (
     <div className="publishing-view">
@@ -228,6 +238,7 @@ UnconnectedPublishingView.propTypes = {
     params: PropTypes.shape({
       namespace: PropTypes.string.isRequired,
       slug: PropTypes.string.isRequired,
+      path: PropTypes.string,
     }).isRequired,
   }).isRequired,
   project: PropTypes.shape({}).isRequired,
@@ -235,9 +246,8 @@ UnconnectedPublishingView.propTypes = {
   history: PropTypes.shape({ push: PropTypes.func }).isRequired,
 };
 
-function mapStateToProps({ projects: { selectedProject }, branches }) {
+function mapStateToProps({ branches }) {
   return {
-    project: selectedProject,
     branches,
   };
 }

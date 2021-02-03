@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Link } from 'router';
 import {
   string, objectOf, shape, arrayOf,
@@ -11,106 +11,104 @@ import { PROJECT_TYPES } from 'domain/project/projectTypes';
 import ProjectInfo from './ProjectTitleNActions';
 import ProjectNav from './project-nav/projectNav';
 
-class ProjectContainer extends React.Component {
-  componentDidMount() {
-    const { activeFeature, globalColorMarker } = this.props;
+const ProjectContainer = (props) => {
+  const {
+    activeFeature,
+    globalColorMarker,
+    project,
+    project: { namespace, slug },
+    forceShowExperimentList,
+    viewName,
+    breadcrumbs,
+  } = props;
+  useEffect(() => {
     const activeFeatureNode = document.getElementById(activeFeature);
     if (activeFeatureNode) {
       activeFeatureNode.classList.add('active');
       activeFeatureNode.style.borderBottom = `4px solid ${globalColorMarker}`;
     }
-  }
+  }, [activeFeature, globalColorMarker]);
 
-  render() {
-    const {
-      project,
-      project: { namespace, slug },
-      forceShowExperimentList,
-      viewName,
-      breadcrumbs,
-    } = this.props;
-
-    const isDataProject = project.projectType === PROJECT_TYPES.DATA_PROJ
+  const isDataProject = project.projectType === PROJECT_TYPES.DATA_PROJ
       || project.projectType === PROJECT_TYPES.DATA;
 
-    let id; let description;
-    let projectName;
+  let id; let description;
+  let projectName;
 
-    projectName = '--';
-    if (project) {
-      id = project.gid;
-      description = project.description;
-      projectName = project.gitlabName;
-    }
+  projectName = '--';
+  if (project) {
+    id = project.gid;
+    description = project.description;
+    projectName = project.gitlabName;
+  }
 
-    const projectRoute = { name: 'project', params: { namespace, slug } };
+  const projectRoute = { name: 'project', params: { namespace, slug } };
 
-    return (
-      <div className="project-container" style={{ backgroundColor: '#e5e5e5' }}>
-        <div className="project-details main-content">
-          {breadcrumbs ? (
-            <MBreadcrumb items={breadcrumbs} />
-          ) : ( // legacy
-            <ProjectNav
-              key={`project-key-${id}`}
-              folders={[
-                namespace,
-                projectName,
-                viewName,
-              ]}
-            />
-          )}
-
-          <ProjectInfo />
-          <MParagraph
-            className="project-desc"
-            text={description}
-            emptyMessage="No description"
+  return (
+    <div className="project-container" style={{ backgroundColor: '#e5e5e5' }}>
+      <div className="project-details main-content">
+        {breadcrumbs.length > 0 ? (
+          <MBreadcrumb items={breadcrumbs} />
+        ) : ( // legacy
+          <ProjectNav
+            key={`project-key-${id}`}
+            folders={[
+              namespace,
+              projectName,
+              viewName,
+            ]}
           />
-          <div className="feature-list">
-            <Link to={projectRoute} className="feature" id="data">
-              {isDataProject ? 'Data' : 'Code'}
-            </Link>
+        )}
 
-            {isDataProject && (
-              <AuthWrapper className="tab-disabled">
-                <Link
-                  onClick={forceShowExperimentList}
-                  to={`/${namespace}/${slug}/-/experiments`}
-                  className="feature"
-                  id="experiments"
-                >
-                  Experiments
-                </Link>
-              </AuthWrapper>
-            )}
-            {isDataProject && (
-              <AuthWrapper className="tab-disabled">
-                <Link to={`/${namespace}/${slug}/insights/-/jobs`} className="feature" id="insights">
-                  Insights
-                </Link>
-              </AuthWrapper>
-            )}
-            <AuthWrapper
-              owneronly
-              norender
+        <ProjectInfo />
+        <MParagraph
+          className="project-desc"
+          text={description}
+          emptyMessage="No description"
+        />
+        <div className="feature-list">
+          <Link to={projectRoute} className="feature" id="data">
+            {isDataProject ? 'Data' : 'Code'}
+          </Link>
+
+          {isDataProject && (
+          <AuthWrapper className="tab-disabled">
+            <Link
+              onClick={forceShowExperimentList}
+              to={`/${namespace}/${slug}/-/experiments`}
               className="feature"
+              id="experiments"
             >
-              <Link
-                onClick={forceShowExperimentList}
-                to={`/${namespace}/${slug}/-/settings`}
-                className="feature"
-                id="settings"
-              >
-                Settings
-              </Link>
-            </AuthWrapper>
-          </div>
+              Experiments
+            </Link>
+          </AuthWrapper>
+          )}
+          {isDataProject && (
+          <AuthWrapper className="tab-disabled">
+            <Link to={`/${namespace}/${slug}/insights/-/jobs`} className="feature" id="insights">
+              Insights
+            </Link>
+          </AuthWrapper>
+          )}
+          <AuthWrapper
+            owneronly
+            norender
+            className="feature"
+          >
+            <Link
+              onClick={forceShowExperimentList}
+              to={`/${namespace}/${slug}/-/settings`}
+              className="feature"
+              id="settings"
+            >
+              Settings
+            </Link>
+          </AuthWrapper>
         </div>
       </div>
-    );
-  }
-}
+    </div>
+  );
+};
 
 function mapStateToProps(state) {
   const { user: { globalColorMarker }, projects: { selectedProject: project } } = state;
@@ -121,7 +119,7 @@ function mapStateToProps(state) {
 }
 ProjectContainer.defaultProps = {
   viewName: 'Data',
-  breadcrumbs: undefined,
+  breadcrumbs: [],
 };
 
 ProjectContainer.propTypes = {

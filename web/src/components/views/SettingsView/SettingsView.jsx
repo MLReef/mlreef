@@ -1,7 +1,5 @@
 import React from 'react';
 import './SettingsView.scss';
-import { connect } from 'react-redux';
-// import { bindActionCreators } from 'redux';
 import PropTypes from 'prop-types';
 import ProjectContainer from 'components/projectContainer';
 import Navbar from 'components/navbar/navbar';
@@ -9,15 +7,17 @@ import MSimpleTabs from 'components/ui/MSimpleTabs';
 import { generateBreadCrumbs } from 'functions/helpers';
 import SettingsViewMembers from './SettingsViewMembers';
 import SettingsViewGeneral from './SettingsViewGeneral';
+import hooks from 'customHooks/useSelectedProject';
 
 const SettingsView = (props) => {
   const {
-    project,
-    history,
-    project: {
-      namespace,
-      slug,
+    match: { 
+      params : {
+        namespace,
+        slug,
+      }
     },
+    history,
   } = props;
   const customCrumbs = [
     {
@@ -25,13 +25,16 @@ const SettingsView = (props) => {
       href: `/${namespace}/${slug}/-/settings`,
     },
   ];
+
+  const [selectedProject,] = hooks.useSelectedProject(namespace, slug);
+
   return (
     <div>
       <Navbar />
       <ProjectContainer
         setIsForking={() => {}}
         activeFeature="settings"
-        breadcrumbs={generateBreadCrumbs(project, customCrumbs)}
+        breadcrumbs={generateBreadCrumbs(selectedProject, customCrumbs)}
       />
       <div className="settings-view main-content">
         <div className="settings-view-content">
@@ -47,13 +50,13 @@ const SettingsView = (props) => {
                 label: 'General',
                 content: (
                   <SettingsViewGeneral
-                    namespace={project.namespace}
-                    slug={project.slug}
-                    projectName={project.gitlabName}
-                    description={project.description}
-                    avatar={project.avatarUrl}
-                    ownerId={project.ownerId}
-                    projectId={project.id}
+                    namespace={selectedProject.namespace}
+                    slug={selectedProject.slug}
+                    projectName={selectedProject.gitlabName}
+                    description={selectedProject.description}
+                    avatar={selectedProject.avatarUrl}
+                    ownerId={selectedProject.ownerId}
+                    projectId={selectedProject.id}
                     history={history}
                   />
                 ),
@@ -63,8 +66,8 @@ const SettingsView = (props) => {
                 label: 'Members',
                 content: (
                   <SettingsViewMembers
-                    ownerId={project?.ownerId}
-                    projectId={project?.id}
+                    ownerId={selectedProject?.ownerId}
+                    projectId={selectedProject?.id}
                   />
                 ),
               },
@@ -105,8 +108,4 @@ SettingsView.propTypes = {
   history: PropTypes.shape({}).isRequired,
 };
 
-const mapStateToProps = (state) => ({
-  project: state.projects?.selectedProject,
-});
-
-export default connect(mapStateToProps)(SettingsView);
+export default SettingsView;

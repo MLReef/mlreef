@@ -12,6 +12,8 @@ import { Redirect } from 'react-router';
 import MCheckBox from 'components/ui/MCheckBox/MCheckBox';
 import MergeRequestAPI from 'apis/MergeRequestApi.ts';
 import MButton from 'components/ui/MButton';
+import { convertToSlug } from 'functions/dataParserHelpers';
+import hooks from 'customHooks/useSelectedProject';
 import CommitsApi from '../../../apis/CommitsApi.ts';
 import {
   SET_FILESUPLOAD,
@@ -33,7 +35,6 @@ import reducer from './uploadFileReducer';
 import ProjectNav from '../../project-nav/projectNav';
 import Navbar from '../../navbar/navbar';
 import FileToSend from './fileToSend';
-import { convertToSlug } from 'functions/dataParserHelpers';
 
 const commitsapi = new CommitsApi();
 
@@ -43,18 +44,25 @@ const UploadFile = (props) => {
   const fileInput = useRef(null);
   const dragZone = useRef(null);
   const {
-    selectedProject: {
-      name,
-      gid,
-      slug,
-      namespace: groupName,
-      emptyRepo: isEmptyRepo,
-      defaultBranch,
-    },
     branches,
     history,
-    match: { params: { branch: currentBranch, path } },
+    match: {
+      params: {
+        branch: currentBranch,
+        path,
+        namespace,
+        slug: urlSlug,
+      },
+    },
   } = props;
+  const [{
+    name,
+    gid,
+    slug,
+    namespace: groupName,
+    emptyRepo: isEmptyRepo,
+    defaultBranch,
+  }] = hooks.useSelectedProject(namespace, urlSlug);
 
   const getAValidTargetBranch = () => {
     if (isEmptyRepo) {

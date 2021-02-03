@@ -18,7 +18,7 @@ const DataInstancesCard = (props) => {
     fetchPipelines,
     fireModal,
   } = props;
-
+  
   const { statusTitle } = getInfoFromStatus(params?.currentState);
 
   function goToPipelineView(instance) {

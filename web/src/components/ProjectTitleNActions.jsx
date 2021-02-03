@@ -31,9 +31,7 @@ const ProjectTitleNActions = (props) => {
     isLoading,
     userGid,
   } = props;
-  const starrers = project
-    ?.projectStarrers
-    ?.filter((starrer) => starrer?.user?.id === userGid);
+
   const [isStarred, setIsStarred] = useState(null);
   const [isDisabledStarBtn, setIsDisabledStarBtn] = useState(false);
   const [starsCount, setStarsCount] = useState(project.starsCount);
@@ -43,15 +41,21 @@ const ProjectTitleNActions = (props) => {
   const isOwner = useGetOwned();
   const hasMinRole = useGetHasRole(10, { type: 'project' });
   const forkable = !isOwner && !hasMinRole && true;
-
-  useEffect(() => {
-    setIsStarred(starrers ? starrers.length > 0 : null);
-    setStarsCount(project.starsCount);
-  }, [starrers, project.starsCount]);
-
   const classProject = isDataProject
     ? plainToClass(DataProject, project)
     : plainToClass(CodeProject, project);
+
+  useEffect(() => {
+    const starredByMe = project
+      ?.projectStarrers
+      ?.filter((starrer) => starrer?.user?.id === userGid)?.length > 0;
+    setIsStarred(starredByMe);
+    setStarsCount(project.starsCount);
+
+    if (classProject.gid && !project.projectStarrers) {
+      actions.getProjectStarrers(classProject.gid);
+    }
+  }, [classProject.gid, classProject.starsCount, classProject.projectStarrers]);
 
   function onClickStarBtn() {
     if (isDisabledStarBtn) return;
@@ -143,7 +147,7 @@ const ProjectTitleNActions = (props) => {
         {classProject.defaultBranch !== null && forkable && (
           <div className="options d-flex mr-2">
             <Link
-              to={`/projects/${classProject.id}/fork`}
+              to={`/${project.namespace}/${project.slug}/-/fork`}
               className="option-name btn btn-hidden border-rounded-left border-rounded-right py-2 px-3 my-0"
             >
               <img className="mr-0 mr-lg-1 repo-actions-image" src="/images/svg/fork_01.svg" alt="" />

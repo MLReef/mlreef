@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import { toastr } from 'react-redux-toastr';
 import { bindActionCreators } from 'redux';
@@ -7,6 +7,8 @@ import {
   shape, string, number, func, arrayOf,
 } from 'prop-types';
 import { generateBreadCrumbs } from 'functions/helpers';
+import hooks from 'customHooks/useSelectedProject';
+import MLoadingSpinnerContainer from 'components/ui/MLoadingSpinner/MLoadingSpinnerContainer';
 import AuthWrapper from 'components/AuthWrapper';
 import * as jobsActions from 'store/actions/jobsActions';
 import * as userActions from 'store/actions/userActions';
@@ -25,34 +27,38 @@ export const buttons = [
   'Canceled',
 ];
 
-class ExperimentsOverview extends Component {
-  constructor(props) {
-    super(props);
-    const { projects: { selectedProject } } = this.props;
+const ExperimentsOverview = (props) => {
+  const {
+    history,
+    actions,
+    match: { params: { namespace, slug } },
+  } = props;
 
-    this.state = {
-      selectedProject,
-      all: [{ values: [] }],
-      experiments: [{ values: [] }],
-      selectedExperiment: null,
-    };
+  const [all, setAll] = useState([{ values: [] }]);
+  const [experiments, setExperiments] = useState([{ values: [] }]);
 
-    this.handleButtonsClick = this.handleButtonsClick.bind(this);
-  }
+  const [selectedProject, isFetching] = hooks.useSelectedProject(namespace, slug);
 
-  componentDidMount() {
-    const { projects: { selectedProject: { gid, id } }, actions } = this.props;
+  const {
+    id,
+    gid,
+    defaultBranch,
+  } = selectedProject;
+
+  useEffect(() => {
     actions.setIsLoading(true);
-    experimentActions.getAndSortExperimentsInfo(id, gid)
-      .then((experimentsClassified) => this.setState({
-        experiments: experimentsClassified,
-        all: experimentsClassified,
-      }))
-      .catch(() => toastr.error('Error', 'Could not fetch the latest experiments'))
-      .finally(() => actions.setIsLoading(false));
-  }
+    if (id) {
+      experimentActions.getAndSortExperimentsInfo(id, gid)
+        .then((experimentsClassified) => {
+          setExperiments(experimentsClassified);
+          setAll(experimentsClassified);
+        })
+        .catch(() => toastr.error('Error', 'Could not fetch the latest experiments'))
+        .finally(() => actions.setIsLoading(false));
+    }
+  }, [id]);
 
-  handleButtonsClick(e) {
+  const handleButtonsClick = (e) => {
     if (e.target.parentNode) {
       e.target.parentNode.childNodes.forEach((childNode) => {
         if (childNode.id !== e.target.id) {
@@ -62,131 +68,109 @@ class ExperimentsOverview extends Component {
       e.target.classList.add('active');
     }
 
-    const { all } = this.state;
-    let experiments = all;
+    let exps = all;
     if (e.target.id !== 'all') {
-      experiments = all.filter((exp) => exp.status?.toLowerCase() === e.target.id);
+      exps = all.filter((exp) => exp.status?.toLowerCase() === e.target.id);
     }
-    this.setState({ experiments });
-  }
 
-  render() {
-    const {
-      selectedProject, selectedExperiment, experiments, all,
-    } = this.state;
+    setExperiments(exps);
+  };
 
-    const {
-      history,
-      projects: {
-        selectedProject: {
-          namespace, slug,
-        },
-      },
-    } = this.props;
+  const customCrumbs = [
+    {
+      name: 'Experiments',
+      href: `/${namespace}/${slug}/-/experiments`,
+    },
+  ];
 
-    const customCrumbs = [
-      {
-        name: 'Experiments',
-        href: `/${namespace}/${slug}/-/experiments`,
-      },
-    ];
+  const areThereExperimentsToShow = all
+    .map((expClass) => expClass.values.length).reduce((a, b) => a + b) !== 0;
 
-    const areThereExperimentsToShow = all
-      .map((expClass) => expClass.values.length).reduce((a, b) => a + b) !== 0;
+  if (isFetching) {
     return (
-      <>
-        <Navbar />
-        <ProjectContainer
-          activeFeature="experiments"
-          viewName="Experiments"
-          breadcrumbs={generateBreadCrumbs(selectedProject, customCrumbs)}
-        />
-        {areThereExperimentsToShow ? (
-          <div className="main-content">
-            {selectedExperiment === null && (
-            <>
-              <div id="buttons-container" className="d-flex">
-                {buttons.map((name) => (
-                  <button
-                    id={name.toLowerCase()}
-                    type="button"
-                    className="btn btn-switch"
-                    onClick={this.handleButtonsClick}
-                  >
-                    {name}
-                  </button>
-                ))}
-                <AuthWrapper minRole={30} norender>
-                  <button
-                    id="new-experiment"
-                    type="button"
-                    className="btn btn-primary"
-                    onClick={() => history.push(`/${namespace}/${slug}/-/experiments/new`)}
-                  >
-                    New experiment
-                  </button>
-                </AuthWrapper>
-              </div>
-            </>
-            )}
-            {selectedExperiment === null && experiments
-              .map((experimentClassification) => experimentClassification.values.length > 0 && (
-              <ExperimentCard
-                projectNamespace={namespace}
-                projectSlug={slug}
-                key={uuidv1()}
-                projectId={selectedProject.gid}
-                defaultBranch={selectedProject.defaultBranch}
-                currentState={experimentClassification.status}
-                experiments={experimentClassification.values}
-              />
+      <MLoadingSpinnerContainer active />
+    );
+  }
+  return (
+    <>
+      <Navbar />
+      <ProjectContainer
+        activeFeature="experiments"
+        viewName="Experiments"
+        breadcrumbs={generateBreadCrumbs(selectedProject, customCrumbs)}
+      />
+      {areThereExperimentsToShow ? (
+        <div className="main-content">
+          <>
+            <div id="buttons-container" className="d-flex">
+              {buttons.map((name) => (
+                <button
+                  id={name.toLowerCase()}
+                  type="button"
+                  className="btn btn-switch"
+                  onClick={handleButtonsClick}
+                >
+                  {name}
+                </button>
               ))}
-          </div>
-        ) : (
-          <div className="main-content">
-            <div className="epmty-experiment-logo">
-              <img src={emptyLogo} width="240" alt="Create an experiment" />
-              <span>You don't have any experiment in your ML project</span>
-              <p>Why not start one?</p>
-              <AuthWrapper minRole={30}>
+              <AuthWrapper minRole={30} norender>
                 <button
                   id="new-experiment"
                   type="button"
                   className="btn btn-primary"
                   onClick={() => history.push(`/${namespace}/${slug}/-/experiments/new`)}
-                  >
-                  Start an experiment
+                >
+                  New experiment
                 </button>
               </AuthWrapper>
             </div>
+          </>
+          {experiments
+            .map((experimentClassification) => experimentClassification.values.length > 0 && (
+              <ExperimentCard
+                projectNamespace={namespace}
+                projectSlug={slug}
+                key={uuidv1()}
+                projectId={gid}
+                defaultBranch={defaultBranch}
+                currentState={experimentClassification.status}
+                experiments={experimentClassification.values}
+              />
+            ))}
+        </div>
+      ) : (
+        <div className="main-content">
+          <div className="epmty-experiment-logo">
+            <img src={emptyLogo} width="240" alt="Create an experiment" />
+            <span>You don't have any experiment in your ML project</span>
+            <p>Why not start one?</p>
+            <AuthWrapper minRole={30}>
+              <button
+                id="new-experiment"
+                type="button"
+                className="btn btn-primary"
+                onClick={() => history.push(`/${namespace}/${slug}/-/experiments/new`)}
+              >
+                Start an experiment
+              </button>
+            </AuthWrapper>
           </div>
-        )}
-        <br />
-        <br />
+        </div>
+      )}
+      <br />
+      <br />
 
-      </>
-    );
-  }
-}
+    </>
+  );
+};
 
 ExperimentsOverview.propTypes = {
-  projects: shape({
-    selectedProject: shape({
-      id: string.isRequired, // mlreef id
-      gid: number.isRequired, // gitlab id
-    }).isRequired,
-  }).isRequired,
+  match: shape({ params: shape({ namespace: string, slug: string }) }).isRequired,
   history: shape({}).isRequired,
   actions: shape({
     setIsLoading: func.isRequired,
   }).isRequired,
 };
-
-function mapStateToProps(state) {
-  return {
-    projects: state.projects,
-  };
-}
 
 function mapDispatchToProps(dispatch) {
   return {
@@ -197,4 +181,4 @@ function mapDispatchToProps(dispatch) {
   };
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(ExperimentsOverview);
+export default connect(() => ({}), mapDispatchToProps)(ExperimentsOverview);

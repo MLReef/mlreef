@@ -7,6 +7,7 @@ import {
 } from 'dataTypes';
 import moment from 'moment';
 import { bindActionCreators } from 'redux';
+import hooks from 'customHooks/useSelectedProject';
 import AuthWrapper from 'components/AuthWrapper';
 import { generateBreadCrumbs } from 'functions/helpers';
 import { goToPipelineView, getInfoFromStatus } from 'functions/pipeLinesHelpers';
@@ -22,12 +23,12 @@ import { closeModal, fireModal } from 'store/actions/actionModalActions';
 import { getBranchesList } from 'store/actions/branchesActions';
 import DataInstanteDeleteModal from 'components/DeleteDataInstance/DeleteDatainstance';
 import actions from './DataInstanceActions';
+import MLoadingSpinnerContainer from 'components/ui/MLoadingSpinner/MLoadingSpinnerContainer';
 
 const filesApi = new FilesApi();
 
 const DataInstanceDetails = (props) => {
   const {
-    project: selectedProject,
     branches,
     getBranchesList,
     match: {
@@ -39,6 +40,8 @@ const DataInstanceDetails = (props) => {
     setPreconfOps,
     fireModal,
   } = props;
+
+  const [selectedProject, isFetching] = hooks.useSelectedProject(namespace, slug);
 
   const { gitlabId } = selectedProject;
 
@@ -74,12 +77,12 @@ const DataInstanceDetails = (props) => {
   const showFilesInfo = diStatus === undefined || diStatus === RUNNING || diStatus === PENDING;
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    getBranchesList(gitlabId);
-
-    actions.getDataInstanceAndAllItsInformation(gitlabId, dataId)
-      .then(setDataInstance);
-
+    if(gitlabId) {
+      getBranchesList(gitlabId)
+        .then(() => actions.getDataInstanceAndAllItsInformation(gitlabId, dataId))
+        .then(setDataInstance)
+    }
+    
     if (branchName) {
       filesApi.getFilesPerProject(
         gitlabId,
@@ -89,7 +92,6 @@ const DataInstanceDetails = (props) => {
       ).then((filesPerProject) => setFiles(filesPerProject))
       .catch(() => toastr.error('Error', 'Something went wrong fetching pipelines'));
     }
-    // eslint-disable-next-line
   }, [gitlabId, path, branchName, dataId]);
 
   const pipelineViewProps = {
@@ -109,6 +111,12 @@ const DataInstanceDetails = (props) => {
       href: `/${namespace}/${slug}/-/datasets/${dataId}`,
     },
   ];
+
+  if(isFetching){
+    return (
+      <MLoadingSpinnerContainer active />
+    )
+  }
 
   return (
     <>

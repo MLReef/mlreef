@@ -1,4 +1,4 @@
-import React, { Component, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { toastr } from 'react-redux-toastr';
@@ -11,167 +11,162 @@ import {
 } from 'prop-types';
 import MBranchSelector from 'components/ui/MBranchSelector';
 import { generateBreadCrumbs } from 'functions/helpers';
+import hooks from 'customHooks/useSelectedProject';
+import MLoadingSpinnerContainer from 'components/ui/MLoadingSpinner/MLoadingSpinnerContainer';
 import Navbar from '../navbar/navbar';
 import ProjectContainer from '../projectContainer';
 import './CommitView.scss';
-import CommitsApi from '../../apis/CommitsApi.ts';
 import { getTimeCreatedAgo } from '../../functions/dataParserHelpers';
+import actions from './actions';
 
-const commitsApi = new CommitsApi();
-
-class CommitsView extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      commits: [],
-      commitMessageSearchedFor: '',
-    };
-  }
-
-  componentDidMount() {
-    const {
-      projects: { selectedProject: { gitlabId } },
-      match: {
-        params: {
-          branch,
-          path,
-        },
+export const UnconnectedCommitsView = (props) => {
+  const {
+    match: {
+      params: {
+        branch,
+        path,
+        namespace,
+        slug,
       },
-    } = this.props;
-    this.getCommits(gitlabId, branch, path)
-      .catch(this.handleErrorsGettingCommits);
-  }
+    },
+    branches,
+    users,
+    history,
+  } = props;
 
-  getCommits = (gitlabId, branch, path) => commitsApi.getCommits(gitlabId, branch, path)
-    .then((response) => this.setState({ commits: response }))
+  const [commits, setCommits] = useState([]);
+  const [commitMessageSearchedFor, setCommitMessage] = useState('');
 
-  handleErrorsGettingCommits = (error) => toastr.error('Error', error?.message);
+  const [selectedProject, isFetching] = hooks.useSelectedProject(namespace, slug);
 
-  onBranchSelected = (val) => {
-    const { projects: { selectedProject: project }, history } = this.props;
-    const { match: { params: { namespace, slug } } } = this.props;
-    const { gitlabId } = project;
-    this.getCommits(gitlabId, val)
+  const handleErrorsGettingCommits = (error) => toastr.error('Error', error?.message);
+
+  const onBranchSelected = (val) => {
+    const { gitlabId } = selectedProject;
+    actions.getCommits(gitlabId, val)
+      .then((response) => setCommits(response))
       .then(history.push(`/${namespace}/${slug}/-/commits/${val}`))
-      .catch(this.handleErrorsGettingCommits);
-  }
+      .catch(handleErrorsGettingCommits);
+  };
 
-  render() {
-    const {
-      commits,
-      commitMessageSearchedFor,
-    } = this.state;
-    const {
-      projects: { selectedProject: project },
-      users,
-      branches,
-      match: { params: { branch, namespace, slug } },
-    } = this.props;
+  useEffect(() => {
+    if (selectedProject.gid) {
+      actions
+        .getCommits(selectedProject.gid, branch, path)
+        .then((response) => setCommits(response))
+        .catch(handleErrorsGettingCommits);
+    }
+  }, [selectedProject]);
 
-    const customCrumbs = [
-      {
-        name: 'Data',
-        href: `/${namespace}/${slug}`,
-      },
-      {
-        name: 'Commits',
-      },
-    ];
+  const customCrumbs = [
+    {
+      name: 'Data',
+      href: `/${namespace}/${slug}`,
+    },
+    {
+      name: 'Commits',
+    },
+  ];
 
-    const distinct = [
-      ...new Set(
-        commits.map(
-          (x) => new Date(x.committed_date)
-            .toLocaleString(
-              'en-eu', {
-                day: 'numeric',
-                month: 'short',
-                year: 'numeric',
-              },
-            ),
-        ),
-      )];
+  const distinct = [
+    ...new Set(
+      commits.map(
+        (x) => new Date(x.committed_date)
+          .toLocaleString(
+            'en-eu', {
+              day: 'numeric',
+              month: 'short',
+              year: 'numeric',
+            },
+          ),
+      ),
+    )];
+
+  if (isFetching) {
     return (
-      <div id="commits-view-container">
-        <Navbar />
-        <ProjectContainer
-          activeFeature="data"
-          breadcrumbs={generateBreadCrumbs(project, customCrumbs)}
-        />
-        <br />
-        <br />
-        <div className="main-content">
-          <div className="commit-path">
-            <MBranchSelector
-              className="mr-2 mt-3"
-              branches={branches}
-              activeBranch={decodeURIComponent(branch)}
-              onBranchSelected={this.onBranchSelected}
-              showDatasets
-              showExperiments
-              showVisualizations
-            />
-            <input
-              type="text"
-              className="mt-3"
-              id="commits-filter-input"
-              placeholder="Filter by commit message"
-              onChange={(e) => {
-                const val = e.target.value;
-                this.setState({ commitMessageSearchedFor: val });
-              }}
-            />
-          </div>
-          {distinct.map((commit, index) => (
-            <div key={index.toString()} className="commit-per-date">
-              <div className="commit-header">
-                <p>
-                  Commits on
-                  {' '}
-                  {commit}
-                </p>
-              </div>
-              {commits
-                .filter((comm) => comm.title.includes(commitMessageSearchedFor)).map((item) => {
-                  let avatarImage = 'https://assets.gitlab-static.net/uploads/-/system/user/avatar/3839940/avatar.png';
-                  let userName = '';
-                  if (users) {
-                    users.forEach((user) => {
-                      const { name } = user;
-                      const avatarUrl = user.avatar_url;
-                      if (name === item.author_name) {
-                        avatarImage = avatarUrl;
-                        userName = name;
-                      }
-                    });
-                  }
-                  return (
-                    new Date(item.committed_date).toLocaleString('en-eu', { day: 'numeric', month: 'short', year: 'numeric' }) === commit
-                      ? (
-                        <CommitDiv
-                          branch={branch}
-                          key={item.short_id}
-                          namespace={namespace}
-                          slug={slug}
-                          commitid={item.id}
-                          title={item.title}
-                          name={item.author_name}
-                          id={item.short_id}
-                          time={item.committed_date}
-                          avatarImage={avatarImage}
-                          userName={userName}
-                        />
-                      )
-                      : ''
-                  );
-                })}
-            </div>
-          ))}
-        </div>
-      </div>
+      <MLoadingSpinnerContainer active />
     );
   }
-}
+  return (
+    <div id="commits-view-container">
+      <Navbar />
+      <ProjectContainer
+        activeFeature="data"
+        breadcrumbs={generateBreadCrumbs(selectedProject, customCrumbs)}
+      />
+      <br />
+      <br />
+      <div className="main-content">
+        <div className="commit-path">
+          <MBranchSelector
+            className="mr-2 mt-3"
+            branches={branches}
+            activeBranch={decodeURIComponent(branch)}
+            onBranchSelected={onBranchSelected}
+            showDatasets
+            showExperiments
+            showVisualizations
+          />
+          <input
+            type="text"
+            className="mt-3"
+            id="commits-filter-input"
+            placeholder="Filter by commit message"
+            onChange={(e) => {
+              const val = e.target.value;
+              setCommitMessage(val);
+            }}
+          />
+        </div>
+        {distinct.map((commit, index) => (
+          <div key={index.toString()} className="commit-per-date">
+            <div className="commit-header">
+              <p>
+                Commits on
+                {' '}
+                {commit}
+              </p>
+            </div>
+            {commits
+              .filter((comm) => comm.title.includes(commitMessageSearchedFor)).map((item) => {
+                let avatarImage = 'https://assets.gitlab-static.net/uploads/-/system/user/avatar/3839940/avatar.png';
+                let userName = '';
+                if (users) {
+                  users.forEach((user) => {
+                    const { name } = user;
+                    const avatarUrl = user.avatar_url;
+                    if (name === item.author_name) {
+                      avatarImage = avatarUrl;
+                      userName = name;
+                    }
+                  });
+                }
+                return (
+                  new Date(item.committed_date).toLocaleString('en-eu', { day: 'numeric', month: 'short', year: 'numeric' }) === commit
+                    ? (
+                      <CommitDiv
+                        branch={branch}
+                        key={item.short_id}
+                        namespace={namespace}
+                        slug={slug}
+                        commitid={item.id}
+                        title={item.title}
+                        name={item.author_name}
+                        id={item.short_id}
+                        time={item.committed_date}
+                        avatarImage={avatarImage}
+                        userName={userName}
+                      />
+                    )
+                    : ''
+                );
+              })}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
 
 export function CommitDiv(props) {
   const {
@@ -250,13 +245,13 @@ CommitDiv.propTypes = {
   userName: string.isRequired,
 };
 
-CommitsView.defaultProps = {
+UnconnectedCommitsView.defaultProps = {
   match: {
     params: {},
   },
 };
 
-CommitsView.propTypes = {
+UnconnectedCommitsView.propTypes = {
   match: shape({
     params: shape({
       branch: string.isRequired,
@@ -288,4 +283,4 @@ function mapStateToProps(state) {
   };
 }
 
-export default connect(mapStateToProps)(CommitsView);
+export default connect(mapStateToProps)(UnconnectedCommitsView);

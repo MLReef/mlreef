@@ -87,6 +87,10 @@ export const validateForm = (files, dataProcessors) => {
 
 
 export const validateBranchName = (branchName) => {
+  if (branchName.includes(' ')) {
+    return false;
+  }
+
   if (!branchName.length > 0) {
     return false;
   }

@@ -3,7 +3,6 @@ import {
   shape, number, string, arrayOf,
 } from 'prop-types';
 import { connect } from 'react-redux';
-import { toastr } from 'react-redux-toastr';
 import './SelectDataPipelineModal.scss';
 import MDropdown from 'components/ui/MDropdown';
 import ReturnLink from 'components/returnLink';
@@ -59,14 +58,16 @@ export const UnconnectedSelectDataPipelineModal = (props) => {
           dispatch({ type: SET_BRANCH_SELECTED, branchSelected });
         }
       })
-      .catch(() => toastr.error('Error', 'Files could not be recovered'));
+      .catch((err) => err);
   }
 
   useEffect(() => {
     updateFiles('');
+
     jobsApi.getPerProject(gid)
-      .then((jobList) => setJobs(jobList));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+      .then((jobList) => setJobs(jobList))
+      .catch((err) => err);
+  
   }, [branchSelected, gid]);
 
   function getBack() {

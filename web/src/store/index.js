@@ -10,10 +10,10 @@ const persistConfig = {
   storage,
   blacklist: [
     'actionModal',
-    'globalMarker',
     'errors',
-    // 'projects',
+    'projects',
     'marketplace',
+    'user',
     // 'tutorial',
   ],
 };

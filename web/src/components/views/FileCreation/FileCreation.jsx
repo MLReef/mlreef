@@ -11,6 +11,7 @@ import MBreadcrumb from 'components/ui/MBreadcrumb';
 import MCodeRenderer from 'components/layout/MCodefileRenderer/MCodefileRenderer';
 import actions from './actions';
 import fileCreationConstants from './fileCreationConstants';
+import hooks from 'customHooks/useSelectedProject';
 
 const FileCreation = (props) => {
   const {
@@ -23,10 +24,14 @@ const FileCreation = (props) => {
       },
     },
     history,
-    project: {
-      gid: projectId,
-    },
   } = props;
+
+  const [selectedProject] = hooks.useSelectedProject(namespace, slug);
+
+  const {
+    gid: projectId,
+  } = selectedProject;
+
   const today = new Date();
   const [template, setTemplate] = useState('');
   const [code, setCode] = useState('');
@@ -164,12 +169,6 @@ const FileCreation = (props) => {
   );
 };
 
-function mapStateToProps(state) {
-  return {
-    project: state.projects.selectedProject,
-  };
-}
-
 FileCreation.propTypes = {
   match: shape({
     params: shape({
@@ -185,4 +184,4 @@ FileCreation.propTypes = {
   }).isRequired,
 };
 
-export default connect(mapStateToProps)(FileCreation);
+export default FileCreation;

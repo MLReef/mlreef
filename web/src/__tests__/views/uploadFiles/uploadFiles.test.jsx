@@ -3,7 +3,7 @@ import { shallow } from 'enzyme';
 import UploadFile from 'components/views/uploadFile/uploadFile';
 import { projectsArrayMock } from 'testData';
 import { storeFactory } from 'functions/testUtils';
-import 'babel-polyfill';
+import hooks from 'customHooks/useSelectedProject';
 
 const setup = () => {
   const match = {
@@ -13,8 +13,9 @@ const setup = () => {
   const store = storeFactory({
     projects: {
       selectedProject: projectsArrayMock.projects.selectedProject,
-    }
+    },
   });
+  hooks.useSelectedProject = jest.fn(() => [projectsArrayMock.projects.selectedProject]);
   const wrapper = shallow(
     <UploadFile match={match} location={location} store={store} history={{ push: jest.fn() }} />,
   );

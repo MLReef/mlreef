@@ -8,6 +8,7 @@ import { DataPipelinesContext } from '../DataPipelineHooks/DataPipelinesProvider
 import InputParam from './InputParam';
 import { SelectComp } from './SelectComp';
 import { REMOVE_DATA_PROCESSOR_BY_ID, VALIDATE_FORM } from '../DataPipelineHooks/actions';
+import { arrayOf, shape } from 'prop-types';
 
 const SortableProcessor = SortableElement(({
   props: {
@@ -109,7 +110,7 @@ const SortableProcessor = SortableElement(({
             />
           </div>
 
-          {advancedParameters.length > 0 && (
+          {advancedParameters?.length > 0 && (
           <div>
             <div className="advanced-opt-drop-down">
               <div className="drop-down">
@@ -177,3 +178,11 @@ const ParametersSection = ({
     />
   );
 });
+
+ParametersSection.propTypes = {
+  parameters: arrayOf(shape()),
+}
+
+ParametersSection.defaultProps = {
+  parameters: [],
+}

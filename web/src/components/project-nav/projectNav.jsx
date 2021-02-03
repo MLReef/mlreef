@@ -8,11 +8,6 @@ import {
 
 const ProjectNav = (props) => {
   const { selectedProject } = props;
-  if (!selectedProject) {
-    return (
-      <></>
-    );
-  }
   const { folders } = props;
   const { gitlabName, namespace, slug } = selectedProject;
 

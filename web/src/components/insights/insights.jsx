@@ -1,8 +1,9 @@
 import React, { useRef } from 'react';
 import { Route, Link, Switch } from 'react-router-dom';
-import { connect } from 'react-redux';
-import { shape, number, string } from 'prop-types';
+import hooks from 'customHooks/useSelectedProject';
+import { shape } from 'prop-types';
 import { generateBreadCrumbs } from 'functions/helpers';
+import MLoadingSpinnerContainer from 'components/ui/MLoadingSpinner/MLoadingSpinnerContainer';
 import JobLogById from 'components/insights/insights-menu/jobLogById';
 import TabularData from 'components/commons/TabularData';
 import Navbar from '../navbar/navbar';
@@ -12,9 +13,12 @@ import Jobs from './insights-menu/jobs';
 
 const Insights = (props) => {
   const {
-    selectedProject, selectedProject: { gid },
     match: { params: { logId, namespace, slug } },
   } = props;
+
+  const [selectedProject, isFetching] = hooks.useSelectedProject(namespace, slug);
+
+  const { gid } = selectedProject;
 
   const tabs = useRef(null);
 
@@ -53,6 +57,12 @@ const Insights = (props) => {
       href: `/${namespace}/${slug}/insights/-/jobs`,
     },
   ];
+
+  if (isFetching) {
+    return (
+      <MLoadingSpinnerContainer active />
+    );
+  }
 
   return (
     <>
@@ -111,19 +121,10 @@ const Insights = (props) => {
 };
 
 Insights.propTypes = {
-  selectedProject: shape({
-    gid: number.isRequired,
-    gitlabName: string.isRequired,
-  }).isRequired,
   match: shape({
     params: shape({}),
   }).isRequired,
 };
 
-function mapStateToProps(state) {
-  return {
-    selectedProject: state.projects.selectedProject,
-  };
-}
 
-export default connect(mapStateToProps)(Insights);
+export default Insights;

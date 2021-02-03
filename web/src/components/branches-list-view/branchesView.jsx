@@ -12,6 +12,8 @@ import MLoadingSpinner from 'components/ui/MLoadingSpinner';
 import AuthWrapper from 'components/AuthWrapper';
 import { generateBreadCrumbs } from 'functions/helpers';
 import * as branchesActions from 'store/actions/branchesActions';
+import * as projectActions from 'store/actions/projectInfoActions';
+import MLoadingSpinnerContainer from 'components/ui/MLoadingSpinner/MLoadingSpinnerContainer';
 import Navbar from '../navbar/navbar';
 import ProjectContainer from '../projectContainer';
 import { getTimeCreatedAgo } from '../../functions/dataParserHelpers';
@@ -35,11 +37,26 @@ class BranchesView extends Component {
       nameToFilterBy: '',
     };
     this.toggleModalAndUpdateList = this.toggleModalAndUpdateList.bind(this);
+    this.getBranchesAdditionaInformation = this.getBranchesAdditionaInformation.bind(this);
   }
 
-
   componentDidMount() {
-    this.getBranchesAdditionaInformation();
+    const {
+      selectedProject,
+      actions,
+      match: {
+        params: {
+          namespace,
+          slug
+        }
+      }
+    } = this.props;
+    if (Object.keys(selectedProject).length > 0) {
+      this.getBranchesAdditionaInformation();
+    } else {
+      actions.getProjectDetailsBySlug(namespace, slug)
+        .then(() => this.getBranchesAdditionaInformation());
+    }
   }
 
   componentDidUpdate(prevProps) {
@@ -140,6 +157,11 @@ class BranchesView extends Component {
       filteredBranches = currentBranches.filter((branch) => branch.name.includes(nameToFilterBy));
     }
 
+    if (Object.keys(selectedProject).length === 0) {
+      return (
+        <MLoadingSpinnerContainer active />
+      );
+    }
     return (
       <>
         {urlToRedirect.length > 0 && <Redirect to={urlToRedirect} />}
@@ -271,6 +293,7 @@ function mapDispatchToProps(dispatch) {
   return {
     actions: bindActionCreators({
       ...branchesActions,
+      ...projectActions,
     }, dispatch),
   };
 }

@@ -10,16 +10,13 @@ import FilesApi from 'apis/FilesApi';
 import {
   arrayOf, shape, number, string, func,
 } from 'prop-types';
+import useSelectedProject from 'customHooks/useSelectedProject';
+import MLoadingSpinnerContainer from 'components/ui/MLoadingSpinner/MLoadingSpinnerContainer';
 
 const filesApi = new FilesApi();
 
 const DetailedRepositoryView = (props) => {
   const {
-    selectedProject,
-    selectedProject: {
-      gitlab,
-      name: projectName,
-    },
     users,
     match: {
       params: {
@@ -32,12 +29,20 @@ const DetailedRepositoryView = (props) => {
     },
     history,
   } = props;
+
+  const [selectedProject, isFetching] = useSelectedProject(namespace, slug);
+  const {
+    gid,
+    gitlab,
+    name: projectName,
+  } = selectedProject;
   const [files, setFiles] = useState([]);
   const finalPath = path || '';
+
   useEffect(() => {
-    if (selectedProject.gitlabId) {
+    if (gid) {
       filesApi.getFilesPerProject(
-        selectedProject.gitlabId,
+        gid,
         finalPath,
         false,
         branch || commit,
@@ -46,7 +51,7 @@ const DetailedRepositoryView = (props) => {
           toastr.error('Error', 'Something went wrong getting files');
         });
     }
-  }, [selectedProject.gitlabId, finalPath, branch, commit]);
+  }, [gid, finalPath, branch, commit]);
 
   const userKind = gitlab?.namespace?.kind;
   const customCrumbs = [
@@ -63,6 +68,12 @@ const DetailedRepositoryView = (props) => {
     },
   ];
 
+  if (isFetching) {
+    return (
+      <MLoadingSpinnerContainer active />
+    );
+  }
+
   return (
     <div className="detailed-repository-view">
       <Navbar />
@@ -76,7 +87,7 @@ const DetailedRepositoryView = (props) => {
         </div>
         <div className="main-content content">
           <ProjectLastCommitSect
-            projectId={selectedProject?.gitlabId}
+            projectId={gid}
             lastCommitId={commit}
             branch={branch}
             users={users}

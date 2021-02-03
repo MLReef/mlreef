@@ -1,7 +1,7 @@
-import React, { Component } from 'react';
+import React, { useState } from 'react';
 import { connect } from 'react-redux';
 import {
-  number, arrayOf, string, shape, func,
+  arrayOf, string, shape, func,
 } from 'prop-types';
 import { Redirect } from 'react-router-dom';
 import { toastr } from 'react-redux-toastr';
@@ -14,44 +14,37 @@ import BranchesApi from 'apis/BranchesApi.ts';
 import { generateBreadCrumbs } from 'functions/helpers';
 import { validateBranchName } from 'functions/validations';
 import './NewBranch.scss';
+import hooks from 'customHooks/useSelectedProject';
+import { MLoadingSpinnerContainer } from 'components/ui/MLoadingSpinner';
 
 const brApi = new BranchesApi();
 
-class NewBranch extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      branchSelected: null,
-      newBranchName: '',
-      redirect: false,
-      isWaiting: false,
-    };
-    this.handleCreateBranchEv = this.handleCreateBranchEv.bind(this);
-  }
-
-  setBranchSelected = (branchSelected) => this.setState(() => ({
-    branchSelected,
-  }));
-
-  handleCancel = () => {
-    const {
-      history,
-    } = this.props;
-
-    return history.goBack();
-  }
-
-  handleCreateBranchEv() {
-    const {
-      projects: {
-        selectedProject: { gid },
+const NewBranch = (props) => {
+  const {
+    history,
+    branches,
+    match: {
+      params: {
+        namespace,
+        slug,
       },
-    } = this.props;
-    const {
-      branchSelected,
-      newBranchName,
-    } = this.state;
+    },
+  } = props;
 
+  const [selectedProject, isFetching] = hooks.useSelectedProject(namespace, slug);
+
+  const { gid } = selectedProject;
+
+  const [branchSelected, setBranchSelected] = useState(null);
+  const [newBranchName, setNewBranchName] = useState('');
+  const [redirect, setRedirect] = useState(false);
+  const [isWaiting, setIsWaiting] = useState(false);
+
+  const handleCancel = () => {
+    history.goBack();
+  };
+
+  const handleCreateBranchEv = () => {
     if (branchSelected === null || branchSelected === '') {
       toastr.error('Error:', 'Select please a branch from options');
       return;
@@ -61,8 +54,7 @@ class NewBranch extends Component {
       toastr.error('Error:', 'Type please a branch name');
       return;
     }
-
-    this.setState({ isWaiting: true });
+    setIsWaiting(true);
 
     brApi.create(
       gid,
@@ -70,120 +62,99 @@ class NewBranch extends Component {
       branchSelected,
     )
       .then(() => {
-        this.setState({ redirect: true });
+        setRedirect(true);
         toastr.success('Success:', 'The branch was created');
       })
       .catch(
         () => {
-          this.setState({ isWaiting: false });
-          toastr.error('Error:', 'An error has ocurred, try later please');
+          setIsWaiting(false);
+          toastr.error('Error:', );
         },
       );
-  }
+  };
 
-  render() {
-    const {
-      branches,
-      projects: {
-        selectedProject,
-      },
-      match: {
-        params: {
-          namespace,
-          slug,
-        },
-      },
-    } = this.props;
+  const customCrumbs = [
+    {
+      name: 'Data',
+      href: `/${namespace}/${slug}`,
+    },
+    {
+      name: 'Branches',
+      href: `/${namespace}/${slug}/-/branches`,
+    },
+    {
+      name: 'New',
+    },
+  ];
 
-    const {
-      branchSelected,
-      newBranchName,
-      redirect,
-      isWaiting,
-    } = this.state;
+  const isValidBranchName = validateBranchName(newBranchName);
+  const isEnabledCreateBranchButton = ((branchSelected !== null && branchSelected !== '') && isValidBranchName);
 
-    const customCrumbs = [
-      {
-        name: 'Data',
-        href: `/${namespace}/${slug}`,
-      },
-      {
-        name: 'Branches',
-        href: `/${namespace}/${slug}/-/branches`,
-      },
-      {
-        name: 'New',
-      },
-    ];
-
-    const isValidBranchName = validateBranchName(newBranchName);
-    const isEnabledCreateBranchButton = ((branchSelected !== null && branchSelected !== '') && isValidBranchName);
-
-    return redirect ? (
-      <Redirect to={`/${namespace}/${slug}/-/tree/${encodeURIComponent(newBranchName)}`} />
-    ) : (
-      <>
-        <Navbar />
-        <ProjectContainer
-          activeFeature="data"
-          breadcrumbs={generateBreadCrumbs(selectedProject, customCrumbs)}
-        />
-
-        <div className="new-branch-view main-content">
-          <div className="new-branch-view-title">
-            <h4 className="t-dark">
-              New branch
-            </h4>
-          </div>
-
-          <div className="new-branch-view-content">
-            <div className="new-branch-view ml-5">
-              <MInput
-                className="mb-2"
-                id="new-branch-name"
-                placeholder="Branch name"
-                value={newBranchName}
-                onChange={(e) => this.setState({ newBranchName: e.target.value })}
-                error={newBranchName !== '' && !isValidBranchName && 'Invalid name.'}
-              />
-
-              <MSelect
-                id="branches-select"
-                label="Create from"
-                options={branches.map((b) => ({ label: b, value: b }))}
-                value={branchSelected}
-                onSelect={this.setBranchSelected}
-              />
-            </div>
-            <div className="new-branch-view-actions">
-              <button
-                type="button"
-                className="btn btn-basic-dark"
-                onClick={this.handleCancel}
-              >
-                Cancel
-              </button>
-              <MButton
-                id="create-branch-btn"
-                onClick={this.handleCreateBranchEv}
-                disabled={!isEnabledCreateBranchButton}
-                waiting={isWaiting}
-                className="btn btn-primary"
-              >
-                Create Branch
-              </MButton>
-            </div>
-          </div>
-        </div>
-      </>
+  if (isFetching) {
+    return (
+      <MLoadingSpinnerContainer active />
     );
   }
-}
 
-const project = shape({
-  gid: number,
-  name: string,
-});
+  return redirect ? (
+    <Redirect to={`/${namespace}/${slug}/-/tree/${encodeURIComponent(newBranchName)}`} />
+  ) : (
+    <>
+      <Navbar />
+      <ProjectContainer
+        activeFeature="data"
+        breadcrumbs={generateBreadCrumbs(selectedProject, customCrumbs)}
+      />
+
+      <div className="new-branch-view main-content">
+        <div className="new-branch-view-title">
+          <h4 className="t-dark">
+            New branch
+          </h4>
+        </div>
+
+        <div className="new-branch-view-content">
+          <div className="new-branch-view ml-5">
+            <MInput
+              className="mb-2"
+              id="new-branch-name"
+              placeholder="Branch name"
+              value={newBranchName}
+              onChange={(e) => setNewBranchName(e.target.value)}
+              error={newBranchName !== '' && !isValidBranchName && 'Invalid name.'}
+            />
+
+            <MSelect
+              id="branches-select"
+              label="Create from"
+              options={branches.map((b) => ({ label: b, value: b }))}
+              value={branchSelected}
+              onSelect={setBranchSelected}
+            />
+          </div>
+          <div className="new-branch-view-actions">
+            <button
+              type="button"
+              className="btn btn-basic-dark"
+              onClick={handleCancel}
+            >
+              Cancel
+            </button>
+            <MButton
+              id="create-branch-btn"
+              onClick={handleCreateBranchEv}
+              disabled={!isEnabledCreateBranchButton}
+              waiting={isWaiting}
+              className="btn btn-primary"
+            >
+              Create Branch
+            </MButton>
+          </div>
+        </div>
+      </div>
+    </>
+  );
+};
 
 NewBranch.propTypes = {
   match: shape({
@@ -195,16 +166,11 @@ NewBranch.propTypes = {
   history: shape({
     goBack: func.isRequired,
   }).isRequired,
-  projects: shape({
-    all: arrayOf(project),
-    selectedProject: project,
-  }).isRequired,
   branches: arrayOf(string).isRequired,
 };
 
 function mapStateToProps(state) {
   return {
-    projects: state.projects,
     branches: state.branches.map((branch) => branch.name),
   };
 }
