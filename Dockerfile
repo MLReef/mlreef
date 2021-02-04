@@ -118,7 +118,8 @@ ENV REDIS_HOST "localhost"
 # Backend Startup delay
 # TODO rename to MLREEF_STARTUP_DELAY
 ENV STARTUP_DELAY "30"
-
+# EPF image tag, by default it will pick up master
+ENV EPF_IMAGE_TAG "master"
 
 ###
 ### Modify Gitlab Omnibus scripts
@@ -219,9 +220,6 @@ ADD web/nginx_default.conf /etc/nginx/conf.d/default.conf
 RUN chmod 777 /etc/nginx/conf.d/default.conf
 # TODO FIXME: nginx: [emerg] "gzip" directive is duplicate in /etc/nginx/conf.d/default.conf:14
 RUN sed -i "/gzip on;/d" /etc/nginx/conf.d/default.conf
-# Adapt the NGINX rules to work on localhost
-RUN sed -i "s/gitlab:10080/localhost:$GITLAB_PORT/" /etc/nginx/conf.d/default.conf
-RUN sed -i "s/backend:8080/localhost:$MLREEF_BACKEND_PORT/" /etc/nginx/conf.d/default.conf
 
 
 # Wrapper to handle additional script to run after default gitlab image's /assets/wrapper

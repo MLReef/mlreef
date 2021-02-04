@@ -160,6 +160,9 @@ java -cp /app:/app/lib/* com.mlreef.rest.RestApplicationKt &
 
 ########################
 # Start the API Gateway
+# Update nginx default conf with the current parameters
+sed -i "s/gitlab:10080/localhost:$GITLAB_PORT/" /etc/nginx/conf.d/default.conf
+sed -i "s/backend:8080/localhost:$MLREEF_BACKEND_PORT/" /etc/nginx/conf.d/default.conf
 # NGINX will self-daemonize and run in the background hence no '&' is needed
 /usr/sbin/nginx
 
