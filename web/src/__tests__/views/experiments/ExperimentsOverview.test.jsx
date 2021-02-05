@@ -1,5 +1,7 @@
 import React from 'react';
-import { shallow } from 'enzyme';
+import { Provider } from 'react-redux';
+import { mount } from 'enzyme';
+import { MemoryRouter } from 'react-router-dom';
 import { projectsArrayMock, experimentsClassifiedMock } from 'testData';
 import { storeFactory } from 'functions/testUtils';
 import ExperimentsOverview, { buttons } from 'components/experiments-overview/ExperimentOverview';
@@ -7,19 +9,24 @@ import actions from 'components/experiments-overview/ExperimentActions';
 
 const mockPush = jest.fn();
 
+const { projects: { selectedProject: { namespace, slug } } } = projectsArrayMock;
+
 const setup = (sortesExperimentsMock = experimentsClassifiedMock) => {
   actions.getAndSortExperimentsInfo = jest
     .fn(() => new Promise((resolve) => resolve(sortesExperimentsMock)));
   const store = storeFactory({ projects: projectsArrayMock.projects });
-  const wrapper = shallow(
-    <ExperimentsOverview
-      store={store}
-      history={{ push: mockPush }}
-    />,
+  const wrapper = mount(
+    <MemoryRouter>
+      <Provider store={store}>
+        <ExperimentsOverview
+          history={{ push: mockPush }}
+          match={{ params: { namespace, slug } }}
+        />
+      </Provider>
+    </MemoryRouter>,
   );
-  const afterDive = wrapper.dive().dive();
 
-  return afterDive;
+  return wrapper;
 };
 
 describe('test functionality', () => {
@@ -41,7 +48,6 @@ describe('test functionality', () => {
   });
 
   test('assert that new experiment is called with the component function', () => {
-    const { projects: { selectedProject: { namespace, slug } } } = projectsArrayMock;
     wrapper.find('#new-experiment').simulate('click');
     expect(mockPush.mock.calls.length).toBe(1);
     expect(mockPush).toHaveBeenCalledWith(`/${namespace}/${slug}/-/experiments/new`);
@@ -49,8 +55,7 @@ describe('test functionality', () => {
   });
 
   test('assert that filters work', () => {
-    const handleButtonsClickMock = jest.fn();
-    wrapper.instance().handleButtonsClick = handleButtonsClickMock;
+    wrapper.setProps({});
     const id = 'failed';
     const mockedEv = { target: { id } };
     wrapper.find(`button#${id}`).simulate('click', mockedEv);
@@ -64,7 +69,6 @@ describe('test utility edge cases', () => {
     wrapper = setup([{ values: [] }]);
   });
   test('assert that new experiment is rendered when there are no experiment', () => {
-    const { projects: { selectedProject: { namespace, slug } } } = projectsArrayMock;
     wrapper.find('#new-experiment').simulate('click');
     expect(mockPush.mock.calls.length).toBe(1);
     expect(mockPush).toHaveBeenCalledWith(`/${namespace}/${slug}/-/experiments/new`);

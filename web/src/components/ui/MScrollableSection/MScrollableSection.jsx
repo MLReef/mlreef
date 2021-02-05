@@ -26,8 +26,7 @@ const MScrollableSection = ({
     window.addEventListener('scroll', onScrollCallback);
 
     return () => window.removeEventListener('scroll', onScrollCallback);
-    // eslint-disable-next-line
-  }, []);
+  }, [handleOnScrollDown]); // never remove handleOnScrollDown again from deps
 
   return (
     <div ref={containerRef} className={className}>

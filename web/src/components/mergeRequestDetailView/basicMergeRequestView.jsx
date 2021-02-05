@@ -382,6 +382,9 @@ const BasicMergeRequestView = (props) => {
                   users={users}
                   projectId={selectedProject.gid}
                   changesNumber={diffs.length}
+                  namespace={namespace}
+                  slug={slug}
+                  branch={targetBranch}
                 />
               ),
             },

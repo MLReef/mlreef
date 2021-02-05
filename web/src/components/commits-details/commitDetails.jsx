@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import {
   number,
@@ -8,7 +8,7 @@ import {
   bool,
 } from 'prop-types';
 import MLoadingSpinnerContainer from 'components/ui/MLoadingSpinner/MLoadingSpinnerContainer';
-import { getFileDifferences } from 'functions/apiCalls';
+import { toastr } from 'react-redux-toastr';
 import hooks from 'customHooks/useSelectedProject';
 import { generateBreadCrumbs } from 'functions/helpers';
 import { getTimeCreatedAgo, getCommentFromCommit } from 'functions/dataParserHelpers';
@@ -17,15 +17,8 @@ import MScrollableSection from 'components/ui/MScrollableSection/MScrollableSect
 import Navbar from '../navbar/navbar';
 import ProjectContainer from '../projectContainer';
 import './commitDetails.css';
-import CommitsApi from '../../apis/CommitsApi.ts';
 import ImageDiffSection from '../imageDiffSection/imageDiffSection';
-
-const imageFormats = [
-  '.png',
-  '.jpg',
-];
-
-const commitsApi = new CommitsApi();
+import actions from './actionsAndFunctions';
 
 const CommitDetails = (props) => {
   const [commits, setCommits] = useState({});
@@ -34,7 +27,6 @@ const CommitDetails = (props) => {
   const [filesChanged, setFiles] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
   const [scrolling, setScrolling] = useState(false);
-
   const {
     users,
     match: {
@@ -46,73 +38,44 @@ const CommitDetails = (props) => {
 
   const [selectedProject, isFetching] = hooks.useSelectedProject(namespace, slug);
 
-  const getDiffDetails = (diffsArray) => {
-    diffsArray.filter((diff) => imageFormats
-      .filter((format) => diff.old_path.includes(format))
-      .length > 0)
-      .forEach(async (imageDiff) => {
-        const {
-          previousVersionFile,
-          nextVersionFile,
-          imageFileSize,
-        } = await getFileDifferences(
-          selectedProject.gid,
-          imageDiff,
-          commits.parent_ids[0],
-          commits.id,
-        );
-        imagesToRender.push({
-          previousVersionFileParsed: previousVersionFile,
-          nextVersionFileParsed: nextVersionFile,
-          imageFileSize,
-          fileName: imageDiff.old_path.split('/').slice(-1)[0],
-        });
-        setImages({ ...imagesToRender });
-      });
-  };
+  const loadDiffCommits = (newCommits) => {
+    actions.loadDiffCommits(
+      selectedProject.gid,
+      newCommits,
+      commitHash,
+      page,
+    ).then(async ({ tp, totalFilesChanged, imagePromises }) => {
+      const images = await imagePromises;
 
-  const loadDiffCommits = () => {
-    commitsApi
-      .getCommitDiff(selectedProject?.gid, commitHash, page, true)
-      .then(({ totalPages: tp, totalFilesChanged, body }) => {
-        setTotalPages(tp);
-        setFiles(totalFilesChanged);
-        setScrolling(false);
-
-        getDiffDetails([...body]);
-      })
-      .catch(
-        (err) => err,
-      );
-  };
-
-  const get = () => commitsApi.getCommitDetails(selectedProject.gid, commitHash)
-    .then((newCommits) => {
-      setCommits(newCommits);
-      loadDiffCommits();
+      setTotalPages(tp);
+      setFiles(totalFilesChanged);
+      setImages(images);
     })
-    .catch((err) => err);
+      .catch((err) => toastr.error('Error', err.message));
+  };
 
   useEffect(() => {
     if (selectedProject.gid) {
-      get();
-    }
-  }, [selectedProject]);
+      actions.getCommitDetails(selectedProject.gid, commitHash)
+        .then((comms) => {
+          setCommits(comms);
 
-  const loadMoreCommits = () => {
+          loadDiffCommits(comms);
+        })
+        .catch((err) => err);
+    }
+  }, [selectedProject.gid, commitHash]);
+
+  const handleFileScroll = useCallback(() => {
+    if (scrolling) return null;
+    if (page <= totalPages) return null;
+
     setPage(page + 1);
     setScrolling(true);
-    loadDiffCommits();
-  };
-
-  const handleFileScroll = () => {
-    if (scrolling) return null;
-    if (totalPages <= page) return null;
-
-    loadMoreCommits();
+    loadDiffCommits(commits);
 
     return null;
-  };
+  }, [scrolling, totalPages, page, commits]);
 
   const commitId = commits.short_id;
   let avatarUrl;
@@ -251,22 +214,9 @@ const CommitDetails = (props) => {
 
 function mapStateToProps(state) {
   return {
-    projects: state.projects,
     users: state.users,
   };
 }
-
-const project = shape(
-  {
-    id: string,
-    gid: number,
-    description: string,
-    name: string,
-    avatarUrl: string,
-    starCount: number,
-    forksCount: number,
-  },
-);
 
 CommitDetails.propTypes = {
   users: arrayOf(shape(
@@ -289,10 +239,6 @@ CommitDetails.propTypes = {
       branch: string.isRequired,
       commitHash: string.isRequired,
     }),
-  }).isRequired,
-  projects: shape({
-    all: arrayOf(project),
-    selectedProject: project,
   }).isRequired,
 };
 export default connect(mapStateToProps)(CommitDetails);
