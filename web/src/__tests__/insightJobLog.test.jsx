@@ -1,5 +1,8 @@
 import React from 'react';
-import { shallow } from 'enzyme';
+import { mount } from 'enzyme';
+import { Provider } from 'react-redux';
+import { MemoryRouter } from 'react-router-dom';
+
 import { projectsArrayMock } from '../testData';
 import { storeFactory } from '../functions/testUtils';
 import Insights from '../components/insights/insights';
@@ -17,14 +20,17 @@ const setup = () => {
   const store = storeFactory({
     projects: projectsArrayMock.projects,
   });
-  const wrapper = shallow(
-    <Insights
-      store={store}
-      match={match}
-    />,
+  const wrapper = mount(
+    <MemoryRouter>
+      <Provider store={store}>
+        <Insights
+          store={store}
+          match={match}
+        />
+      </Provider>
+    </MemoryRouter>,
   );
-  const afterDive = wrapper.dive().dive();
-  return afterDive;
+  return wrapper;
 };
 
 describe('frontend contains initial insights tab elements', () => {

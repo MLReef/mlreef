@@ -1,4 +1,4 @@
-import React, { Component, useState } from 'react';
+import React, { Component, useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import {
   shape, number, string, arrayOf, func,
@@ -17,7 +17,7 @@ import './newMergeRequest.css';
 import BranchesApi from '../../../apis/BranchesApi.ts';
 import ImageDiffSection from '../../imageDiffSection/imageDiffSection';
 import CommitsList from '../../CommitList';
-import { getFileDifferences } from '../../../functions/apiCalls';
+import commitDetailActions from "components/commits-details/actionsAndFunctions";
 
 const imageFormats = [
   '.png',
@@ -62,35 +62,20 @@ const NewMergeRequest = (props) => {
   const [redirect, setRedirect] = useState(false);
   const [diffs, setDiffs] = useState([]);
 
-  const getDiffDetails = (commit, diffsArray) => {
-    let images = [];
-    diffsArray.filter((diff) => imageFormats
-      .filter((format) => diff.old_path.includes(format))
-      .length > 0)
-      .forEach(async (imageDiff) => {
-        const {
-          previousVersionFile,
-          nextVersionFile,
-          imageFileSize,
-        } = await getFileDifferences(gid, imageDiff, commit.parent_ids[0], commit.id);
-        images = [
-          ...images, {
-            previousVersionFileParsed: previousVersionFile,
-            nextVersionFileParsed: nextVersionFile,
-            imageFileSize,
-            fileName: imageDiff.old_path.split('/').slice(-1)[0],
-          }];
-        setImagesToRender(images);
-      });
-  };
+  useEffect(() => {
+    commitDetailActions.getDiffDetails(
+      selectedProject.gid,
+      diffs,
+      commits,
+    ).then(setImagesToRender);
+  }, [commits, selectedProject.gid, diffs]);
 
   const onBranchChanged = (branchSelected) => {
     setBranchToMergeInto(branchSelected);
     brApi.compare(gid, branchSelected, branch)
-      .then((res) => {
+      .then(async (res) => {
         setCommits(res.commits);
         setDiffs(res.diffs);
-        getDiffDetails(res.commit, res.diffs);
       }).catch((err) => {
         toastr.error('Error', err.message);
       });
@@ -223,6 +208,9 @@ const NewMergeRequest = (props) => {
           users={users}
           projectId={gid}
           changesNumber={diffs.length}
+          namespace={namespace}
+          slug={slug}
+          branch={branch}
         />
         )}
         {imagesToRender.map((imageFile) => (

@@ -1,7 +1,10 @@
 import React from 'react';
-import { shallow } from 'enzyme';
+import { Provider } from 'react-redux';
+import { MemoryRouter } from 'react-router-dom';
+import { mount } from 'enzyme';
 import NewMergeRequestView from 'components/views/MergeRequests/NewMergeReq';
 import actions from 'components/views/MergeRequests/mergeReqActions';
+import commitDetailActions from 'components/commits-details/actionsAndFunctions';
 import { projectsArrayMock, imagesToRender, branchesMock } from '../testData';
 import { storeFactory } from '../functions/testUtils';
 
@@ -23,23 +26,28 @@ let goBack;
 
 const setup = () => {
   actions.submit = jest.fn(() => new Promise((resolve) => resolve('resolve')));
+  commitDetailActions.getDiffDetails = jest
+    .fn(() => new Promise((resolve) => resolve(imagesToRender)));
   goBack = jest.fn();
   const store = storeFactory({
     branches: branchesMock,
     projects: projectsArrayMock.projects,
   });
-  const wrapper = shallow(
-    <NewMergeRequestView
-      store={store}
-      match={match}
-      location={location}
-      branchSelected="master"
-      history={{ goBack }}
-    />,
+  const wrapper = mount(
+    <MemoryRouter>
+      <Provider store={store}>
+        <NewMergeRequestView
+          store={store}
+          match={match}
+          location={location}
+          branchSelected="master"
+          history={{ goBack }}
+        />
+      </Provider>
+    </MemoryRouter>,
   );
-  const afterDive = wrapper.dive().dive();
-  afterDive.instance().setState({ imagesToRender });
-  return afterDive;
+
+  return wrapper;
 };
 
 describe('frontend should contain initial html elements', () => {
@@ -48,6 +56,7 @@ describe('frontend should contain initial html elements', () => {
     wrapper = setup();
   });
   test('assert that branch name is displayed', () => {
+    wrapper.setProps({});
     expect(wrapper.find('#branch-selected-name').text().includes('yes-2')).toBe(true);
     expect(wrapper.find('MergeRequestEdit').length).toBe(1);
     expect(wrapper.find('#cancel-button').length).toBe(1);
@@ -59,14 +68,12 @@ describe('frontend should contain initial html elements', () => {
     const branchSelectedIndex = 0;
     wrapper
       .find('MBranchSelector')
-      .dive()
-      .dive()
       .find('li')
       .at(branchSelectedIndex)
       .simulate('click');
     expect(wrapper.find('MBranchSelector').props().activeBranch).toBe(branchesMock[branchSelectedIndex].name);
 
-    const mergeRequestEdit = wrapper.find('MergeRequestEdit').dive().dive();
+    const mergeRequestEdit = wrapper.find('MergeRequestEdit');
     const title = 'Some title';
     const desc = 'Some description';
     mergeRequestEdit.find('input#merge-request-edit-title').simulate('change', { target: { value: title } });

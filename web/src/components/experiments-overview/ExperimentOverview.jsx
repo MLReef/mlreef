@@ -4,7 +4,7 @@ import { toastr } from 'react-redux-toastr';
 import { bindActionCreators } from 'redux';
 import uuidv1 from 'uuid/v1';
 import {
-  shape, string, number, func, arrayOf,
+  shape, string, func,
 } from 'prop-types';
 import { generateBreadCrumbs } from 'functions/helpers';
 import hooks from 'customHooks/useSelectedProject';

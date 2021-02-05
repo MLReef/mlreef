@@ -54,7 +54,7 @@ RUN echo "Frontend Build Time: $(date +%Y-%m-%d\ %H:%M:%S)" && \
     npm install --silent .                                  && \
     echo "Frontend Build Time: $(date +%Y-%m-%d\ %H:%M:%S)" && \
     # execute tests first, so there should be a halt when compiling if tests fail
-    #npm test                                                && \
+    npm test                                                && \
     echo "Frontend Build Time: $(date +%Y-%m-%d\ %H:%M:%S)" && \
     npm run build                                           && \
     echo "Frontend Build Time: $(date +%Y-%m-%d\ %H:%M:%S)"

@@ -10,14 +10,14 @@ import MSelect from 'components/ui/MSelect';
 import MButton from 'components/ui/MButton';
 import ProjectContainer from 'components/projectContainer';
 import Navbar from 'components/navbar/navbar';
-import BranchesApi from 'apis/BranchesApi.ts';
+
 import { generateBreadCrumbs } from 'functions/helpers';
 import { validateBranchName } from 'functions/validations';
 import './NewBranch.scss';
 import hooks from 'customHooks/useSelectedProject';
+import useLoading from 'customHooks/useLoading';
 import { MLoadingSpinnerContainer } from 'components/ui/MLoadingSpinner';
-
-const brApi = new BranchesApi();
+import actions from './actions';
 
 const NewBranch = (props) => {
   const {
@@ -32,45 +32,28 @@ const NewBranch = (props) => {
   } = props;
 
   const [selectedProject, isFetching] = hooks.useSelectedProject(namespace, slug);
-
   const { gid } = selectedProject;
 
   const [branchSelected, setBranchSelected] = useState(null);
   const [newBranchName, setNewBranchName] = useState('');
   const [redirect, setRedirect] = useState(false);
-  const [isWaiting, setIsWaiting] = useState(false);
 
-  const handleCancel = () => {
-    history.goBack();
-  };
-
-  const handleCreateBranchEv = () => {
-    if (branchSelected === null || branchSelected === '') {
-      toastr.error('Error:', 'Select please a branch from options');
-      return;
-    }
-
-    if (newBranchName === null || newBranchName === '') {
-      toastr.error('Error:', 'Type please a branch name');
-      return;
-    }
-    setIsWaiting(true);
-
-    brApi.create(
+  const callCreate = () => actions
+    .createBranch(
       gid,
       newBranchName,
       branchSelected,
     )
-      .then(() => {
-        setRedirect(true);
-        toastr.success('Success:', 'The branch was created');
-      })
-      .catch(
-        () => {
-          setIsWaiting(false);
-          toastr.error('Error:', );
-        },
-      );
+    .then(() => {
+      setRedirect(true);
+      toastr.success('Success:', 'The branch was created');
+    })
+    .catch((err) => toastr.error('Error:', err.message));
+
+  const [isWaiting, executeCall] = useLoading(callCreate);
+
+  const handleCancel = () => {
+    history.goBack();
   };
 
   const customCrumbs = [
@@ -142,7 +125,7 @@ const NewBranch = (props) => {
             </button>
             <MButton
               id="create-branch-btn"
-              onClick={handleCreateBranchEv}
+              onClick={() => executeCall()}
               disabled={!isEnabledCreateBranchButton}
               waiting={isWaiting}
               className="btn btn-primary"

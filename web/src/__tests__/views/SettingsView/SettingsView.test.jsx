@@ -1,7 +1,9 @@
 import React from 'react';
-import { shallow } from 'enzyme';
+import { mount } from 'enzyme';
 import SettingsView from 'components/views/SettingsView';
 import { storeFactory } from 'functions/testUtils';
+import { Provider } from 'react-redux';
+import { MemoryRouter } from 'react-router-dom';
 
 const setup = () => {
   const match = {
@@ -23,11 +25,14 @@ const setup = () => {
       },
     },
   });
-  const wrapper = shallow(
-    <SettingsView match={match} location={location} store={store} history={{ push: jest.fn() }} />,
+  const wrapper = mount(
+    <MemoryRouter>
+      <Provider store={store}>
+        <SettingsView match={match} location={location} store={store} history={{ push: jest.fn() }} />,
+      </Provider>
+    </MemoryRouter>,
   );
-  const afterDive = wrapper.dive().dive();
-  return afterDive;
+  return wrapper;
 };
 
 describe('SettingsView basics', () => {

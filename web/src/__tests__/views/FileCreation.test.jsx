@@ -31,7 +31,7 @@ const setup = () => shallow(
     history={{ push }}
     store={store}
   />,
-).dive().dive();
+);
 
 describe('test HTML presence and functionality', () => {
   let wrapper;

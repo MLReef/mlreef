@@ -6,7 +6,7 @@ import { pluralize } from 'functions/dataParserHelpers';
 import { CommitDiv } from './CommitsView/CommitView';
 
 const CommitsList = ({
-  commits, users, projectId, changesNumber,
+  commits, users, projectId, changesNumber, namespace, slug, branch
 }) => {
   function extractColaborators(commitToExtractUsers) {
     const setOfUniqueNames = new Set(commitToExtractUsers.map((commit) => commit.author_name));
@@ -90,6 +90,9 @@ const CommitsList = ({
                       time={item.committed_date}
                       avatarImage={avatarImage}
                       userName={userName}
+                      namespace={namespace}
+                      slug={slug}
+                      branch={branch}
                     />
                   )
                   : ''
@@ -111,6 +114,10 @@ CommitsList.propTypes = {
     name: string.isRequired,
     avatar_url: string.isRequired,
   })).isRequired,
+  projectId: number.isRequired,
+  namespace: string.isRequired,
+  slug: string.isRequired,
+  branch: string.isRequired,
 };
 
 export default CommitsList;
