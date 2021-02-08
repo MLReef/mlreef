@@ -1,17 +1,16 @@
-import React, { useState } from 'react';
-import { connect } from 'react-redux';
+import React, { useEffect, useState } from 'react';
 import { toastr } from 'react-redux-toastr';
-import { number, shape, string } from 'prop-types';
-import { validateBranchName } from 'functions/validations';
+import { shape, string } from 'prop-types';
+import { Base64 } from 'js-base64';
 import MCheckBox from 'components/ui/MCheckBox/MCheckBox';
 import Navbar from 'components/navbar/navbar';
-import './FileCreation.scss';
+import './FileEditor.scss';
+import hooks from 'customHooks/useSelectedProject';
 import MSimpleSelect from 'components/ui/MSimpleSelect';
 import MBreadcrumb from 'components/ui/MBreadcrumb';
 import MCodeRenderer from 'components/layout/MCodefileRenderer/MCodefileRenderer';
+import fileCreationConstants from './fileConstants';
 import actions from './actions';
-import fileCreationConstants from './fileCreationConstants';
-import hooks from 'customHooks/useSelectedProject';
 
 const FileCreation = (props) => {
   const {
@@ -21,6 +20,7 @@ const FileCreation = (props) => {
         slug,
         branch,
         path,
+        action,
       },
     },
     history,
@@ -39,8 +39,21 @@ const FileCreation = (props) => {
   const [targetBranch, setTargetbranch] = useState(branch ? `${branch}-patch-${today.getDate()}-${today.getMonth() + 1}-${today.getFullYear()}` : 'master');
   const [commitMessage, setCommitMessage] = useState('Add text file');
   const [newMergeRequest, setNewMergeRequest] = useState(false);
+  const [extension, setExtension] = useState('txt');
   const [isLoading, setLoading] = useState(false);
-  const disabled = isLoading || !actions.validateFileName(filename) || targetBranch.includes(' ') || !validateBranchName(targetBranch) || commitMessage.length === 0;
+  const disabled = isLoading
+    || actions.getIsDisabledButton(action, filename, targetBranch, commitMessage);
+  const decodedPath = decodeURIComponent(path);
+
+  useEffect(() => {
+    if (action === 'edit') {
+      actions.getFileContent(projectId, path, branch, (val) => {
+        setCode(Base64.decode(val.content));
+        setExtension(val.file_name.split('.').pop().toLowerCase());
+      })
+        .catch((err) => toastr.error('Error', err.message));
+    }
+  }, [action, branch, path, projectId]);
 
   return (
     <div className="file-creation">
@@ -59,7 +72,7 @@ const FileCreation = (props) => {
       </div>
       <div className="file-creation-container">
         <h3>
-          New File
+          {action === 'edit' ? `Edit file ${decodedPath}` : 'New File'}
         </h3>
         <div className="file-creation-container-options">
           <div className="d-flex" style={{ alignItems: 'center' }}>
@@ -72,36 +85,39 @@ const FileCreation = (props) => {
           <div className="d-flex" style={{ alignItems: 'center' }}>
             <i className="far fa-folder mr-2 ml-4" />
             <p className="file-creation-container-options-path ml-2 mr-3">
-              {path}
-              /
+              {action === 'edit' ? decodedPath : `${path || ''}/`}
             </p>
-            <input name="name-input" type="text" onChange={(e) => setFilename(e.target.value)} value={filename} />
+            {action === 'new' && (
+              <input name="name-input" type="text" onChange={(e) => setFilename(e.target.value)} value={filename} />
+            )}
           </div>
-          <div className="d-flex" style={{ alignItems: 'baseline' }}>
-            <p className="ml-3" style={{ minWidth: '7rem' }}>
-              File templates
-            </p>
-            <MSimpleSelect
-              className="mb-0"
-              options={[
-                { label: 'Select...', value: '' },
-                { label: 'Data processor', value: 'dataProcessor' },
-                { label: 'Requirements file', value: 'requirementsFile' },
-              ]}
-              onChange={(val) => {
-                if (val.length === 0) return;
-                setTemplate(val);
-                setFilename(fileCreationConstants[val].fileName);
-                setCode(fileCreationConstants[val].content);
-              }}
-              value={template}
-            />
-          </div>
+          {action === 'new' && (
+            <div className="d-flex" style={{ alignItems: 'baseline' }}>
+              <p className="ml-3" style={{ minWidth: '7rem' }}>
+                File templates
+              </p>
+              <MSimpleSelect
+                className="mb-0"
+                options={[
+                  { label: 'Select...', value: '' },
+                  { label: 'Data processor', value: 'dataProcessor' },
+                  { label: 'Requirements file', value: 'requirementsFile' },
+                ]}
+                onChange={(val) => {
+                  if (val.length === 0) return;
+                  setTemplate(val);
+                  setFilename(fileCreationConstants[val].fileName);
+                  setCode(fileCreationConstants[val].content);
+                }}
+                value={template}
+              />
+            </div>
+          )}
         </div>
         <div className="file-creation-container-editor">
           <MCodeRenderer
             code={code}
-            fileExtension="js"
+            fileExtension={extension}
             onChange={(val) => {
               setCode(val);
             }}
@@ -118,7 +134,7 @@ const FileCreation = (props) => {
             Target branch
             <input name="target-branch" type="text" className="mt-2 mb-2" value={targetBranch} onChange={(e) => setTargetbranch(e.target.value)} />
           </label>
-          {branch && (
+          {branch !== targetBranch && (
             <MCheckBox
               name="merge-req-question"
               labelValue="Start a new merge request"
@@ -135,6 +151,7 @@ const FileCreation = (props) => {
             Cancel
           </button>
           <button
+            name="submit-file"
             className={`btn btn-primary ${isLoading ? 'waiting' : ''}`}
             disabled={disabled}
             type="button"
@@ -143,25 +160,35 @@ const FileCreation = (props) => {
                 return;
               }
               setLoading(true);
-              actions.createFile(
-                projectId,
-                targetBranch,
-                path,
-                filename,
-                commitMessage,
-                code,
-                branch,
-                newMergeRequest,
-              )
-                .then(() => {
-                  toastr.success('Success', `The file with the name: ${filename} was created`);
-                  history.push(`/${namespace}/${slug}/-/tree/${targetBranch}`);
-                })
+
+              (action === 'edit'
+                ? actions.editFileAction(
+                  projectId,
+                  targetBranch,
+                  decodedPath,
+                  commitMessage,
+                  code,
+                  branch,
+                  newMergeRequest,
+                ) : actions.createFileAction(
+                  projectId,
+                  targetBranch,
+                  path,
+                  filename,
+                  commitMessage,
+                  code,
+                  branch,
+                  newMergeRequest,
+                )
+              ).then(() => {
+                toastr.success('Success', `The file with the name: ${filename} was ${action === 'edit' ? 'updated' : 'created'}`);
+                history.push(`/${namespace}/${slug}/-/tree/${targetBranch}`);
+              })
                 .catch((err) => toastr.error('Error', err.message))
                 .finally(() => setLoading(false));
             }}
           >
-            Create
+            {action === 'edit' ? 'Edit' : 'Create'}
           </button>
         </div>
       </div>
@@ -179,9 +206,6 @@ FileCreation.propTypes = {
     }),
   }).isRequired,
   history: shape({}).isRequired,
-  project: shape({
-    gid: number.isRequired,
-  }).isRequired,
 };
 
 export default FileCreation;

@@ -40,7 +40,7 @@ import Redirect from 'components/commons/Redirect';
 import DemoView from 'components/Demo';
 import DetailedRepositoryView from 'components/views/DetailedRepositoryView';
 import Publications from 'components/views/Publications/Publications';
-import FileCreation from 'components/views/FileCreation';
+import FileEditor from 'components/views/FileEditor';
 import ImportDataOverview from 'components/views/ImportDataOverview'
 import BasicMergeRequestView from './components/mergeRequestDetailView/basicMergeRequestView';
 
@@ -166,24 +166,24 @@ export default [
   },
   {
     name: 'file-creation-1',
-    path: '/:namespace/:slug/-/tree/branch/:branch/path/:path/file/new',
-    component: FileCreation,
+    path: '/:namespace/:slug/-/tree/branch/:branch/path/:path/file/editor/:action',
+    component: FileEditor,
     meta: {
       authRequired: true,
     },
   },
   {
     name: 'file-creation-2',
-    path: '/:namespace/:slug/-/tree/branch/:branch/file/new',
-    component: FileCreation,
+    path: '/:namespace/:slug/-/tree/branch/:branch/file/editor/:action',
+    component: FileEditor,
     meta: {
       authRequired: true,
     },
   },
   {
     name: 'file-creation-3',
-    path: '/:namespace/:slug/-/tree/file/new',
-    component: FileCreation,
+    path: '/:namespace/:slug/-/tree/file/editor/:action',
+    component: FileEditor,
     meta: {
       authRequired: true,
     },
@@ -242,6 +242,7 @@ export default [
   {
     name: 'fileBranch',
     path: '/:namespace/:slug/-/blob/branch/:branch(.+)/path/:file(.+)',
+    exact: true,
     component: FileView,
   },
   {

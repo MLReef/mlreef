@@ -1,7 +1,7 @@
+import { handleResponse } from 'functions/helpers';
 import ApiDirector from './ApiDirector';
 import { METHODS, validServicesToCall } from './apiBuilders/requestEnums';
 import BLApiRequestCallBuilder from './apiBuilders/BLApiRequestCallBuilder';
-import { handleResponse } from 'functions/helpers';
 import ApiRequestCallBuilder from './apiBuilders/ApiRequestCallBuilder';
 
 export default class CommitsApi extends ApiDirector {
@@ -28,8 +28,13 @@ export default class CommitsApi extends ApiDirector {
       ],
     };
     const data = JSON.stringify(branchStart ? { ...body, start_branch: branchStart } : body);
-    const url = `/api/v4/projects/${projectId}/repository/commits`
-    const blBuilder = new ApiRequestCallBuilder(METHODS.POST, this.buildBasicHeaders(validServicesToCall.GITLAB), url, data);
+    const url = `/api/v4/projects/${projectId}/repository/commits`;
+    const blBuilder = new ApiRequestCallBuilder(
+      METHODS.POST,
+      this.buildBasicHeaders(validServicesToCall.GITLAB), 
+      url,
+      data,
+    );
     return fetch(blBuilder.build())
       .then(handleResponse);
   }
@@ -38,11 +43,11 @@ export default class CommitsApi extends ApiDirector {
     projectId: number,
     body: string,
   ) {
-      const url = `/api/v4/projects/${projectId}/repository/commits`;
-      const blBuilder = new ApiRequestCallBuilder(METHODS.POST, this.buildBasicHeaders(validServicesToCall.GITLAB), url, body);
-      
-      return fetch(blBuilder.build())
-        .then(handleResponse);
+    const url = `/api/v4/projects/${projectId}/repository/commits`;
+    const blBuilder = new ApiRequestCallBuilder(METHODS.POST, this.buildBasicHeaders(validServicesToCall.GITLAB), url, body);
+
+    return fetch(blBuilder.build())
+      .then(handleResponse);
   }
 
   getCommits(projectId: number, refName = 'master', path = '', perPage = 20) {
@@ -65,7 +70,7 @@ export default class CommitsApi extends ApiDirector {
 
   async getFileDataInCertainCommit(projectId: number, pathToFile: string, commitId: number) {
     const url = `/api/v4/projects/${projectId}/repository/files/${pathToFile}/raw?ref=${commitId}`;
-    const builder = new BLApiRequestCallBuilder(METHODS.GET, this.buildBasicHeaders(validServicesToCall.GITLAB) , url);
+    const builder = new BLApiRequestCallBuilder(METHODS.GET, this.buildBasicHeaders(validServicesToCall.GITLAB), url);
     const response = await fetch(builder.build());
 
     const imageFileSize = response.headers.get('Content-Length');
@@ -75,18 +80,18 @@ export default class CommitsApi extends ApiDirector {
 
   async getCommitDiff(projectId: number, commitId: number, page: number, pageable: boolean) {
     let url = `/api/v4/projects/${projectId}/repository/commits/${commitId}/diff`;
-    if(pageable) {
+    if (pageable) {
       url = `${url}?page=${page}&per_page=10`;
     }
-    const builder = new BLApiRequestCallBuilder(METHODS.GET, this.buildBasicHeaders(validServicesToCall.GITLAB) , url);
+    const builder = new BLApiRequestCallBuilder(METHODS.GET, this.buildBasicHeaders(validServicesToCall.GITLAB), url);
     const response = await fetch(builder.build());
-    
+
     if (!response.ok) {
       return Promise.reject(response);
     }
     const body = await response.json();
     const totalFilesChanged = response.headers.get('x-total');
     const totalPages = response.headers.get('x-total-pages');
-    return {body, totalPages, totalFilesChanged};
+    return { body, totalPages, totalFilesChanged };
   }
 }

@@ -130,16 +130,16 @@ export class RepoFeatures extends Component {
                       New directory
                     </button>
                   </li>
+                  <li className="plus-option">
+                    <Link to={`/${namespace}/${slug}/-/tree/branch/${currentBranch}/${path ? `path/${path}/` : ''}file/editor/new`}>
+                      New file
+                    </Link>
+                  </li>
                   <hr />
                   <li>This repository</li>
                   <li className="plus-option">
                     <Link to={`/${namespace}/${slug}/-/branches/new`}>
                       New branch
-                    </Link>
-                  </li>
-                  <li className="plus-option">
-                    <Link to={`/${namespace}/${slug}/-/tree/branch/${currentBranch}/${path ? `path/${path}/` : ''}file/new`}>
-                      New file
                     </Link>
                   </li>
                 </ul>

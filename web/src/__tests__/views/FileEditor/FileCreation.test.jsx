@@ -1,10 +1,10 @@
 import React from 'react';
 import { shallow } from 'enzyme';
-import FileCreation from 'components/views/FileCreation';
-import actions from 'components/views/FileCreation/actions';
+import FileEditor from 'components/views/FileEditor';
+import actions from 'components/views/FileEditor/actions';
 import { storeFactory } from 'functions/testUtils';
 import { projectsArrayMock } from 'testData';
-import fileCreationConstants from 'components/views/FileCreation/fileCreationConstants';
+import fileCreationConstants from 'components/views/FileEditor/fileConstants';
 
 const store = storeFactory({ projects: projectsArrayMock.projects });
 
@@ -19,13 +19,14 @@ const mockedNamespace = 'some-namespace';
 const mockedSlug = 'some-slug';
 
 const setup = () => shallow(
-  <FileCreation
+  <FileEditor
     match={{
       params: {
         namespace: mockedNamespace,
         slug: mockedSlug,
         branch: mockedBranch,
         path: mockedPath,
+        action: 'new',
       },
     }}
     history={{ push }}
@@ -36,7 +37,7 @@ const setup = () => shallow(
 describe('test HTML presence and functionality', () => {
   let wrapper;
   beforeEach(() => {
-    actions.createFile = jest.fn(() => new Promise((resolve) => resolve('')));
+    actions.createFileAction = jest.fn(() => new Promise((resolve) => resolve('')));
     wrapper = setup();
   });
 
@@ -98,7 +99,7 @@ describe('test HTML presence and functionality', () => {
 
     wrapper.find('button').at(1).simulate('click');
 
-    expect(actions.createFile).toHaveBeenCalledWith(
+    expect(actions.createFileAction).toHaveBeenCalledWith(
       projectsArrayMock.projects.selectedProject.gid,
       `${mockedBranch}-patch-${today.getDate()}-${today.getMonth() + 1}-${today.getFullYear()}-1`,
       mockedPath,

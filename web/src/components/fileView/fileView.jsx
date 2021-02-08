@@ -86,6 +86,7 @@ const FileView = (props) => {
   let fileContent = null;
   let filepath = [];
   let extension;
+  let isImageFile = false;
   const filteredBranches = branches.filter((br) => !br.name.startsWith('data-pipeline/')
       && !br.name.startsWith('experiment/'));
   if (users && authorName) {
@@ -103,6 +104,7 @@ const FileView = (props) => {
     fileSize = fileData.size;
     fileContent = Base64.decode(fileData.content);
     extension = fileName.split('.').pop().toLowerCase();
+    isImageFile = extension === 'jpg' || extension === 'png';
     filepath = fileData.file_path.split('/');
   }
 
@@ -270,6 +272,16 @@ const FileView = (props) => {
                   Replace
                 </button>
               </MWrapper>
+              {isImageFile === false && (
+                <AuthWrapper minRole={30}>
+                  <Link
+                    className="btn btn-sm btn-basic-dark my-auto ml-2"
+                    to={`/${namespace}/${slug}/-/tree/branch/${branch}/path/${encodeURIComponent(file)}/file/editor/edit`}
+                  >
+                    Edit
+                  </Link>
+                </AuthWrapper>
+              )}
               <AuthWrapper minRole={30} norender>
                 <button
                   type="button"
@@ -309,7 +321,6 @@ const FileView = (props) => {
     </div>
   );
 };
-
 
 FileView.propTypes = {
   match: shape({
