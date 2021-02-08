@@ -79,6 +79,7 @@ if [ -z ${CI_REGISTRY_PASSWORD+x} ]; then
   echo "INFO: In order for docker push to work, you have to set the environment variable CI_REGISTRY_PASSWORD to your Gitlab access token" >&2
 fi
 
-export GATEWAY_IMAGE_PATH=$CI_REGISTRY_IMAGE/gateway:$CI_COMMIT_REF_SLUG
-export BACKEND_IMAGE_PATH=$CI_REGISTRY_IMAGE/backend:$CI_COMMIT_REF_SLUG
-export     EPF_IMAGE_PATH=$CI_REGISTRY_IMAGE/epf:$CI_COMMIT_REF_SLUG
+export    GATEWAY_IMAGE_PATH=$CI_REGISTRY_IMAGE/gateway:$CI_COMMIT_REF_SLUG
+export    BACKEND_IMAGE_PATH=$CI_REGISTRY_IMAGE/backend:$CI_COMMIT_REF_SLUG
+export        EPF_IMAGE_PATH=$CI_REGISTRY_IMAGE/epf:$CI_COMMIT_REF_SLUG
+export EXPERIMENT_IMAGE_PATH=$CI_REGISTRY_IMAGE/experiment:$CI_COMMIT_REF_SLUG

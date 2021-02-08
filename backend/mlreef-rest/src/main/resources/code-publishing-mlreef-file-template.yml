@@ -26,6 +26,7 @@ job:
   when: on_success
   before_script:
     - apk add --update curl || true
+    - apk add --update wget || true
   script:
     - echo "$CI_REGISTRY"
     # Build the docker image in the repositories root directory
@@ -35,4 +36,4 @@ job:
     # Upload the newly built docker image to MLReef's docker image registry
     - docker push "$CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG"
     # Update processor information
-    - curl --include --verbose --request PUT "$EPF_PUBLISH_URL/publish/rescan-processor-source" --header "EPF-BOT-TOKEN:$EPF_PUBLISH_SECRET"
+    - curl --include --verbose --request PUT "$EPF_PUBLISH_URL/publish/rescan-processor-source?image=$CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG" --header "EPF-BOT-TOKEN:$EPF_PUBLISH_SECRET"

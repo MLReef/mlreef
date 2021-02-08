@@ -86,6 +86,9 @@ fi
 if [ "${EPF_BUILD:-true}" = "true" ]; then
     epf/bin/ci-build-epf
 fi
+if [ "${EPF_BUILD:-true}" = "true" ]; then
+    images/experiment/bin/ci-build-experiment
+fi
 cat docker-compose.local.yml
 
 if [ "${GITLAB_ADMIN_TOKEN-}" != "" ]; then

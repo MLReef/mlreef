@@ -38,6 +38,16 @@ open class ProjectDto(
     open val published: Boolean?,
 ) : DataClassWithId
 
+@JsonInclude(JsonInclude.Include.NON_NULL)
+open class ProjectShortDto(
+    override val id: UUID,
+    open val slug: String,
+    open val owner: Boolean,
+    open val name: String,
+    open val searchableType: SearchableType,
+    open val published: Boolean?,
+) : DataClassWithId
+
 // FIXME: Coverage says: missing tests
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -132,6 +142,18 @@ fun Project.toDto(): ProjectDto {
         this.outputDataTypes.toList(),
         searchableType,
         this.dataProcessor?.toDto(),
+        this.dataProcessor?.processorVersion?.publishingInfo?.finishedAt != null
+    )
+}
+
+@Suppress("UNCHECKED_CAST")
+fun Project.toShortDto(requesterId: UUID? = null): ProjectShortDto {
+    return ProjectShortDto(
+        id,
+        this.slug,
+        this.ownerId == requesterId,
+        this.name,
+        searchableType,
         this.dataProcessor?.processorVersion?.publishingInfo?.finishedAt != null
     )
 }

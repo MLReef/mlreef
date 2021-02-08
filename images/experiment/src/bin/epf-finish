@@ -1,0 +1,16 @@
+#!/bin/sh
+set -u
+
+echo "EPF_PIPELINE_SECRET is $EPF_PIPELINE_SECRET"
+echo "EPF_PIPELINE_URL is $EPF_PIPELINE_URL"
+
+request_epf_endpoint_finish() {
+  url="$EPF_PIPELINE_URL/finish"
+  echo "$url"
+  curl --include --verbose --request PUT "$url" \
+    --header "EPF-BOT-TOKEN: $EPF_PIPELINE_SECRET" \
+    --header "Content-Type: application/json"
+}
+echo "Finalize EPF execution and send finish information to backend"
+
+request_epf_endpoint_finish

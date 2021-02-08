@@ -1,0 +1,16 @@
+build experiment:
+  extends: [".except-docu-branches"]
+  stage: build
+  only:
+    changes:
+      - images/experiment/**/*
+  image: docker:latest
+  services:
+    - docker:dind
+  before_script:
+    - export  EXPERIMENT_IMAGE_PATH=$CI_REGISTRY_IMAGE/experiment:$CI_COMMIT_REF_SLUG
+  script: |
+    whoami
+    chmod +x images/experiment/bin/ci-build-experiment
+    images/experiment/bin/ci-build-experiment
+    docker push "$EXPERIMENT_IMAGE_PATH"

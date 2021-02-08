@@ -1,3 +1,4 @@
+#@formatter:off
 #################################################################################
 # This is the MLReef configuration file.                                        #
 # It contains the current configuration of  your data pipeline, model training, #
@@ -6,27 +7,41 @@
 #################################################################################
 
 # This is the docker image your model training will be executed in
-image: registry.gitlab.com/mlreef/mlreef/epf:%EPF_IMAGE_TAG%
+image: registry.gitlab.com/mlreef/mlreef/experiment:%EPF_IMAGE_TAG%
 
 variables:
   # Variables containing the prefix CI_ are provided directly by the the pipeline environment
   # https://docs.gitlab.com/ee/ci/variables/predefined_variables.html
 
   #GIT_PUSH_TOKEN is a CI-environment variable which needs to be available in the Gitlab project
-  EPF_GITLAB_HOST:     "%EPF_GITLAB_HOST%"      # Gitlab host name without port
-  GIT_PUSH_NAME:       "%CONF_NAME%"            # The name used for git pushing pipeline results
-  GIT_PUSH_EMAIL:      "%CONF_EMAIL%"           # The email used for git pushing pipeline results
-  GITLAB_GROUP:        "%GITLAB_GROUP%"         # Gitlab namespace the project is located in
-  GITLAB_PROJECT:      "%GITLAB_PROJECT%"       # Gitlab project to git push pipeline results to
-  TARGET_BRANCH:       "%TARGET_BRANCH%"        # Git branch pipeline results are pushed to
-  #save pipeline command to extract output-path for experiments
-  ARTIFACTS_PATH:    "%ARTIFACTS_PATH%"
+  EPF_GITLAB_HOST: "%EPF_GITLAB_HOST%"      # Gitlab host name without port
+  GIT_PUSH_NAME: "%CONF_NAME%"            # The name used for git pushing pipeline results
+  GIT_PUSH_EMAIL: "%CONF_EMAIL%"           # The email used for git pushing pipeline results
+  GITLAB_GROUP: "%GITLAB_GROUP%"         # Gitlab namespace the project is located in
+  GITLAB_PROJECT: "%GITLAB_PROJECT%"       # Gitlab project to git push pipeline results to
+  TARGET_BRANCH: "%TARGET_BRANCH%"        # Git branch pipeline results are pushed to
   # mlreef.com/api/v1/epf/experiments/:experiment_id
-  EPF_PIPELINE_URL:    "%EPF_PIPELINE_URL%"
+  EPF_PIPELINE_URL: "%EPF_PIPELINE_URL%"
   EPF_PIPELINE_SECRET: "%EPF_PIPELINE_SECRET%"
 
+  # Docker-in-docker running options
+  DOCKER_HOST: "tcp://docker:2375"
+  DOCKER_TLS_CERTDIR: ""
+  DOCKER_DAEMON_OPTIONS: "--insecure-registry=${CI_REGISTRY}"
+
+%INPUT_MOUNT_POINTS%
+
+%OUTPUT_MOUNT_POINTS%
+
+  FINAL_OUTPUT_PATH: "%FINAL_OUTPUT_PATH%"
+  IS_ALGORITHM: "%IS_ALGORITHM%"
+
   # Change pip's cache directory to be inside the project directory since we can only cache local items.
-  PIP_CACHE_DIR:       "$CI_PROJECT_DIR/.cache/pip"
+  PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
+
+services:
+  - name: docker:19.03.12-dind
+    entrypoint: [ "sh", "-c", "dockerd-entrypoint.sh $DOCKER_DAEMON_OPTIONS" ]
 
 # The before_script handles everything git related and sets up the automatic committing
 before_script:
@@ -46,19 +61,17 @@ before_script:
   - git config --global user.email "$GIT_PUSH_EMAIL"
   - git config --global user.name "$GIT_PUSH_NAME"
   - echo "Target branch is $TARGET_BRANCH"
-  - echo "Output path is $ARTIFACTS_PATH"
+  - echo "The final output path is $$LAST_OUTPUT_PATH"
   #only run background-push if it is an experiment
-  #- background-push "%PIPELINE_STRING%" &
-
+  - background-push "$FINAL_OUTPUT_PATH" $IS_ALGORITHM &
 
 after_script:
   - epf-finish
 
-
 mlreef-pipeline:
   artifacts:
     paths:
-      - $ARTIFACTS_PATH/*
+%ARTIFACTS_PATHS%
   # Workaround for failing pipelines mlreef#799 https://docs.gitlab.com/ee/ci/yaml/
   retry:
     max: 2
@@ -84,3 +97,4 @@ mlreef-pipeline:
     git commit -m "Add pipeline results [skip ci]"
     git push --set-upstream origin "$TARGET_BRANCH"
     git push
+#@formatter:on
