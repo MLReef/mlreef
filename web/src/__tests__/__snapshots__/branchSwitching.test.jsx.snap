@@ -171,6 +171,16 @@ exports[`The branches list should be displayed when dropdown button is clicked d
               New directory
             </button>
           </li>
+          <li
+            className="plus-option"
+          >
+            <a
+              href="/my-namespace/the-project-name/-/tree/branch/master/path/src/file/editor/new"
+              onClick={[Function]}
+            >
+              New file
+            </a>
+          </li>
           <hr />
           <li>
             This repository
@@ -183,16 +193,6 @@ exports[`The branches list should be displayed when dropdown button is clicked d
               onClick={[Function]}
             >
               New branch
-            </a>
-          </li>
-          <li
-            className="plus-option"
-          >
-            <a
-              href="/my-namespace/the-project-name/-/tree/branch/master/path/src/file/new"
-              onClick={[Function]}
-            >
-              New file
             </a>
           </li>
         </ul>

@@ -31,7 +31,7 @@ const MCodeRenderer = ({
       language={languagesPerExtensions[fileExtension]}
       theme={theme}
       value={code}
-      options={options}
+      options={{ ...options }}
       onChange={(val) => onChange(val)}
       editorDidMount={(editor) => {
         editor.focus();
