@@ -2,6 +2,7 @@ include:
   - local: .gitlab/.gitlab-ci-base-docker-build.yml
   - local: backend/.gitlab-ci.yml
   - local: epf/.gitlab-ci.yml
+  - local: images/experiment/.gitlab-ci.yml
   - local: nautilus/.gitlab-ci.yml
   - local: web/.gitlab-ci.yml
 
@@ -35,6 +36,7 @@ variables:
       - bin/install
       - bin/resources/runner-config*
       - epf/**/*
+      - images/**/*
       - k8s/**/*
       - web/**/*
       - .gitlab-ci.yml

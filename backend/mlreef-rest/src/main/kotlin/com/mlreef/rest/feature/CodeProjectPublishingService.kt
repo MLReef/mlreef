@@ -170,7 +170,7 @@ class PublishingService(
             publishingInfo = PublishingInfo(commitSha = commitMessage.id, publishedAt = ZonedDateTime.now(), secret = secret, publisher = publisher),
             path = parsedVersion.path,
             branch = parsedVersion.branch,
-            command = parsedVersion.command,
+            command = "",
             parameters = parsedVersion.parameters.map { it.copy(processorVersionId = existingDataProcessorVersion.id) },
         )
 
@@ -250,7 +250,7 @@ class PublishingService(
         )
     }
 
-    fun rescanProcessorSource(projectId: UUID): ProcessorVersion {
+    fun rescanProcessorSource(projectId: UUID, dockerImageName: String?): ProcessorVersion {
         val project = projectResolverService.resolveProject(projectId = projectId)
             ?: throw NotFoundException(ErrorCode.NotFound, "Project $projectId not found")
 
@@ -301,7 +301,7 @@ class PublishingService(
                     publishingInfo = publishInfo,
                     path = newDataProcessorVersion.path,
                     branch = newDataProcessorVersion.branch,
-                    command = newDataProcessorVersion.command,
+                    command = dockerImageName ?: "",
                     parameters = newDataProcessorVersion.parameters.map { it.copy(processorVersionId = dataProcessorVersion.id) },
                     contentSha256 = dataProcessorVersion.contentSha256
                 )
@@ -314,6 +314,7 @@ class PublishingService(
             dataProcessorService.saveProcessorVersion(
                 dataProcessorVersion.copy(
                     publishingInfo = publishInfo,
+                    command = dockerImageName ?: "",
                 )
             )
         }

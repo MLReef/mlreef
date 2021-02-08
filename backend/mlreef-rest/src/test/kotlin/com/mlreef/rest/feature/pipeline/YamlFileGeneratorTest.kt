@@ -33,7 +33,7 @@ class YamlFileGeneratorTest {
             assertThat(template).contains(CONF_NAME)
             assertThat(template).contains(TARGET_BRANCH)
             assertThat(template).contains(PIPELINE_STRING)
-            assertThat(template).contains(ARTIFACTS_PATH)
+            assertThat(template).contains(ARTIFACTS_PATHS)
         }
     }
 
@@ -96,8 +96,8 @@ class YamlFileGeneratorTest {
         )
 
         assertThat(output).doesNotContain(PIPELINE_STRING)
-        assertThat(output.lines().count()).isEqualTo(countLinesBefore + 2)
-        assertThat(YamlFileGenerator.template).contains(ARTIFACTS_PATH)
+        assertThat(output.lines().count()).isEqualTo(countLinesBefore + 4)
+        assertThat(YamlFileGenerator.template).contains(ARTIFACTS_PATHS)
     }
 
     @Test

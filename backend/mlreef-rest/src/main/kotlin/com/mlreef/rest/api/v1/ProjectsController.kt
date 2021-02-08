@@ -13,8 +13,10 @@ import com.mlreef.rest.api.v1.dto.CodeProjectDto
 import com.mlreef.rest.api.v1.dto.DataProcessorDto
 import com.mlreef.rest.api.v1.dto.DataProjectDto
 import com.mlreef.rest.api.v1.dto.ProjectDto
+import com.mlreef.rest.api.v1.dto.ProjectShortDto
 import com.mlreef.rest.api.v1.dto.UserInProjectDto
 import com.mlreef.rest.api.v1.dto.toDto
+import com.mlreef.rest.api.v1.dto.toShortDto
 import com.mlreef.rest.exceptions.BadParametersException
 import com.mlreef.rest.exceptions.ErrorCode
 import com.mlreef.rest.exceptions.NotFoundException
@@ -24,7 +26,6 @@ import com.mlreef.rest.external_api.gitlab.TokenDetails
 import com.mlreef.rest.feature.data_processors.DataProcessorService
 import com.mlreef.rest.feature.project.ProjectService
 import com.mlreef.rest.marketplace.SearchableTag
-import java.lang.IllegalArgumentException
 import org.springframework.data.domain.Pageable
 import org.springframework.data.web.PageableDefault
 import org.springframework.http.HttpStatus
@@ -72,6 +73,22 @@ class ProjectsController(
             projectsPage.content.map { it.toDto() }
         } else {
             projectsPage.map { it.toDto() }
+        }
+    }
+
+    @GetMapping("/short")
+    fun getAllAccessibleProjectsShort(
+        profile: TokenDetails,
+        @PageableDefault(size = MAX_PAGE_SIZE) pageable: Pageable,
+        request: HttpServletRequest,
+    ): Iterable<ProjectShortDto> {
+        val isDataProjectRequest = request.requestURI.contains("data-projects");
+        val projectsPage = projectService.getAllProjectsAccessibleByUser(profile, pageable, isDataProjectRequest)
+
+        return if (pageable.pageSize == MAX_PAGE_SIZE) {
+            projectsPage.content.map { it.toShortDto(profile.personId) }
+        } else {
+            projectsPage.map { it.toShortDto(profile.personId) }
         }
     }
 
