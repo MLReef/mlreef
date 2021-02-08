@@ -18,17 +18,19 @@ const useSelectedProject = (namespace, slug) => {
   useEffect(() => {
     if (Object.keys(selectedProject).length === 0) {
       setIsFetching(true);
-      projectApi.getProjectDetails(namespace, slug)
-        .then(mergeWithGitlabProject)
-        .then(parseToCamelCase)
-        .then(adaptProjectModel)
-        .then((proj) => {
-          dispatch(setSelectedProjectSuccesfully(proj));
-          dispatch(setGlobalMarkerColor(calculateColor(proj)));
-
-          setFinalSelectedProject(proj);
-          setIsFetching(false);
-        });
+      if (namespace && slug) {
+        projectApi.getProjectDetails(namespace, slug)
+          .then(mergeWithGitlabProject)
+          .then(parseToCamelCase)
+          .then(adaptProjectModel)
+          .then((proj) => {
+            dispatch(setSelectedProjectSuccesfully(proj));
+            dispatch(setGlobalMarkerColor(calculateColor(proj)));
+            
+            setFinalSelectedProject(proj);
+            setIsFetching(false);
+          });
+      }
     }
   }, []);
 

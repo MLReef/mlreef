@@ -9,6 +9,8 @@ import {
 } from 'customHooks/permissions';
 
 import { NO_AUTH_REDIRECT } from 'apiConfig';
+import MLoadingSpinnerContainer from 'components/ui/MLoadingSpinner/MLoadingSpinnerContainer';
+import hooks from 'customHooks/useSelectedProject';
 
 // if external we need to redirect with window.location
 const isExternal = /^https?/.test(NO_AUTH_REDIRECT);
@@ -36,8 +38,11 @@ const PrivateRoute = (routeProps) => {
     role,
     accountType,
     debug,
+    computedMatch: { params: { namespace, slug } },
     ...rest
   } = routeProps;
+
+  const [selectedProject] = hooks.useSelectedProject(namespace, slug);
 
   // tries to get auth from redux state if not goes old way
   const user = useSelector((state) => state.user);
@@ -79,6 +84,12 @@ const PrivateRoute = (routeProps) => {
 
   // eslint-disable-next-line
   debug && console.table({ auth, owneronly, role, owned, hasRole, hasAccountType, permissions, allowed });
+
+  if (namespace && slug && !selectedProject.gid) {
+    return (
+      <MLoadingSpinnerContainer active />
+    );
+  }
 
   return (
     // eslint-disable-next-line
