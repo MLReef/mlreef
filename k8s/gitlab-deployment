@@ -158,5 +158,25 @@ EOM
 setMaxArtifactSizeForGitlab
 setContainerRegistryTokenExpireDelayForGitlab
 
+###gitlab local group and project creation###
+export GITLAB_ROOTGROUP=mlreef-group
+export GITLAB_PROJECT=mlreef
+
+#creating root group # 
+rootGroupId=$(curl --header "PRIVATE-TOKEN: $GITLAB_ADMIN_TOKEN" "gitlab.${INSTANCE_HOST}/api/v4/groups?search=$GITLAB_ROOTGROUP" | jq -M 'map(select(.name == "'$GITLAB_ROOTGROUP'"))| .[0].id' )
+if [ $rootGroupId == "null" ]; then
+  rootGroupId=$(curl --request POST --header "PRIVATE-TOKEN: $GITLAB_ADMIN_TOKEN" --header "Content-Type: application/json" \
+  --data '{"path": "'$GITLAB_ROOTGROUP'", "name": "'$GITLAB_ROOTGROUP'", "visibility": "public" ,"lfs_enabled": "true" , "description": "Root Group" }' \
+  "gitlab.${INSTANCE_HOST}/api/v4/groups/" | jq '.["id"]')
+fi
+echo "Root group Id: $rootGroupId"
+#project creation # 
+projectId=$(curl "gitlab.${INSTANCE_HOST}/api/v4/groups/$rootGroupId/projects?search=$GITLAB_PROJECT" -H "PRIVATE-TOKEN: $GITLAB_ADMIN_TOKEN" | jq -M 'map(select(.name == "'$GITLAB_PROJECT'"))| .[0].id'  )
+if [ $projectId == "null" ]; then
+  projectId=$(curl --request POST --header "PRIVATE-TOKEN: $GITLAB_ADMIN_TOKEN" --header "Content-Type: application/json" \
+  --data '{"path": "'$GITLAB_PROJECT'", "namespace_id": "'$rootGroupId'", "visibility": "public"}' \
+  "gitlab.${INSTANCE_HOST}/api/v4/projects/" | jq '.["id"]')
+fi
+echo "Project Id: $projectId" 
 
 
