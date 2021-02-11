@@ -47,7 +47,7 @@ class MlReefSecurityExpressionRoot(
 
     fun hasAccessToProject(projectId: UUID, minAccessLevel: String): Boolean {
         val level = AccessLevel.valueOf(minAccessLevel.toUpperCase())
-        if (level == AccessLevel.VISITOR && projectIsPublic(projectId)) return true
+        if (level == AccessLevel.VISITOR && projectIsPublic(projectId)) return true //FIXME: WAT????? Visitor can access to public project but others cannot?
         return ((this.principal as? TokenDetails)?.projects?.get(projectId)?.accessCode ?: 0) >= level.accessCode
     }
 
