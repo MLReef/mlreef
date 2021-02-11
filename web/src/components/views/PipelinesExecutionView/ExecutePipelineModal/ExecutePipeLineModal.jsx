@@ -12,12 +12,8 @@ import { SET_IS_SHOWING_EXECUTE_PIPELINE_MODAL } from '../DataPipelineHooks/acti
 
 const fakeMachinesToShow = [
   {
-    label: 'Small CPU - (CPU: 8 cores, RAM 8 GB)',
+    label: 'Medium CPU - (4 vCPUs, 62 GB memory, 100GB SSD)',
     value: 1,
-  },
-  {
-    label: 'Small GPU - (CPU: 8 cores, GPU: 1, RAM 16 GB)',
-    value: 2,
   },
 ];
 
