@@ -30,6 +30,7 @@ const FileCreation = (props) => {
 
   const {
     gid: projectId,
+    emptyRepo,
   } = selectedProject;
 
   const today = new Date();
@@ -134,7 +135,7 @@ const FileCreation = (props) => {
             Target branch
             <input name="target-branch" type="text" className="mt-2 mb-2" value={targetBranch} onChange={(e) => setTargetbranch(e.target.value)} />
           </label>
-          {branch !== targetBranch && (
+          {(branch !== targetBranch && !emptyRepo) && (
             <MCheckBox
               name="merge-req-question"
               labelValue="Start a new merge request"

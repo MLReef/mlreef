@@ -19,7 +19,7 @@ const EmptyProject = ({ httpUrlToRepo, namespace, slug }) => (
         <Link
           type="button"
           className="btn btn-primary mr-3"
-          to={`/${namespace}/${slug}/-/tree/file/new`}
+          to={`/${namespace}/${slug}/-/tree/file/editor/new`}
         >
           Create File
         </Link>
@@ -87,6 +87,8 @@ const EmptyProject = ({ httpUrlToRepo, namespace, slug }) => (
 
 EmptyProject.propTypes = {
   httpUrlToRepo: string.isRequired,
+  namespace: string.isRequired,
+  slug: string.isRequired,
 };
 
 export default EmptyProject;

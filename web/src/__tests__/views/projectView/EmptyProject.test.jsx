@@ -31,6 +31,6 @@ describe('', () => {
     const links = wrapper.find('Link');
 
     expect(links.at(0).props().to).toBe(`/${project.namespace}/${project.slug}/master/upload-file/path/`);
-    expect(links.at(1).props().to).toBe(`/${project.namespace}/${project.slug}/-/tree/file/new`);
+    expect(links.at(1).props().to).toBe(`/${project.namespace}/${project.slug}/-/tree/file/editor/new`);
   });
 });
