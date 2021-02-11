@@ -24,13 +24,13 @@ const FilesSelector = (props) => {
     });
   };
   return (
-    <div className={`${className} files-selector`}>
+    <div className={`${className} files-selector tutorial-data`}>
       {files.length === 0 ? (
         <div className="instruction">
           {instructions}
         </div>
       ) : (
-        <div className="px-3 d-flex">
+        <div className="px-3 d-flex tutorial-data-loaded">
           <div className="mr-auto d-flex" style={{ alignItems: 'center' }}>
             <div className="mr-4">
               <p>Data: </p>

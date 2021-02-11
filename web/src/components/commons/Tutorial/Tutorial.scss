@@ -27,8 +27,8 @@
       bottom: calc(100% + 1rem);
       right: 0;
       box-shadow: 2px 2px 4px 4px var(--secondary);
-      min-width: 280px;
-      min-height: 300px;
+      min-width: 300px;
+      min-height: 320px;
       height: 50vh;
       display: none;
       background: linear-gradient(180deg, var(--dark) 50%, var(--light) 50%);
@@ -64,12 +64,17 @@
       padding: 1em;
       font-size: 90%;
 
+      &:not(.disabled) {
+        border: 2px solid var(--info);
+        box-shadow: 1px 1px 5px 1px var(--info);
+      }
+
       &.disabled {
         filter: brightness(0.8);
       }
 
       &-image {
-        background-color: var(--secondary);
+        background-color: var(--light);
         height: 120px;
         margin-bottom: 1em;
         background-size: contain;
