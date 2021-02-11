@@ -555,7 +555,7 @@ class GitlabRestClient(
         return GitlabHttpEntity<String>("body", createUserHeaders(token))
             .addErrorDescription(ErrorCode.GitlabUserNotExisting, "Unable to get users projects")
             .makeRequest {
-                val url = "$gitlabServiceRootUrl/projects?membership=true"
+                val url = "$gitlabServiceRootUrl/projects?membership=true&per_page=100" //TODO: Fix retrieval all projects or paged
                 restTemplate(builder).exchange(url, HttpMethod.GET, it, typeRef<List<GitlabProject>>())
             }
     }
