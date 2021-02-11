@@ -1,4 +1,3 @@
-import { toastr } from 'react-redux-toastr';
 import ExperimentsApi from 'apis/experimentApi';
 import DataPipelineApi from 'apis/DataPipelineApi';
 import {
@@ -49,10 +48,10 @@ export const createPipelineInProject = (
     data_operations: dataOperations,
   };
 
-  dataPipelineApi.create(
+  return dataPipelineApi.create(
     backendId,
     pipelineBody,
-  ).then(() => toastr.success('Success', 'The pipeline has started'));
+  )
 };
 
 /**
@@ -70,7 +69,7 @@ const createExperimentInProject = (
   branchSelected,
   filesSelectedInModal,
 ) => dataOperationsSelected
-  .forEach(({ parameters, slug }, index) => expApi
+  .map(({ parameters, slug }, index) => expApi
     .createExperiment(
       backendId, {
         slug: `${branchName}-${index}`, // slug is NOT the branch name, it needs replacement
@@ -92,8 +91,7 @@ const createExperimentInProject = (
         },
       })
     .then((experiment) => expApi.startExperiment(backendId, experiment.id))
-    .then(() => toastr.success('Success', 'The experiment has started'))
-    .catch((err) => toastr.error('Error', err)));
+  )[0];
 
 export default createExperimentInProject;
 

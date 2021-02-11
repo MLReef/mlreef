@@ -2,6 +2,7 @@ import React, { useContext, useState } from 'react';
 import MProgressBar from 'components/ui/MProgressBar';
 import { string } from 'prop-types';
 import { Link } from 'react-router-dom';
+import { toastr } from 'react-redux-toastr';
 import MRadio from 'components/ui/MRadio';
 import './executePipeLineModal.scss';
 import MSelect from 'components/ui/MSelect';
@@ -80,6 +81,8 @@ const ExecutePipelineModal = (props) => {
     setSelectMachinesMess('Select a machine...');
   }
 
+  const handleErrors = (err) => toastr.error('Error', err?.message);
+
   const chooseExecutionType = () => {
     if (section === 1) {
       setSection(2);
@@ -90,7 +93,9 @@ const ExecutePipelineModal = (props) => {
           branchName,
           branchSelected,
           filesSelectedInModal,
-        );
+        )
+          .then(() => toastr.success('Success', 'The experiment has started'))
+          .catch(handleErrors);
       } else {
         createPipelineInProject(
           backendId,
@@ -98,7 +103,8 @@ const ExecutePipelineModal = (props) => {
           pipelineType,
           filesSelectedInModal,
           processorsSelected,
-        );
+        ).then(() => toastr.success('Success', 'The pipeline has started'))
+          .catch(handleErrors);
       }
     } else {
       cleanForm();
