@@ -54,6 +54,7 @@ const SortableProcessor = SortableElement(({
         </b>
       </p>
       <div
+        data-tutorial={value.name}
         className="data-operations-item round-border-button shadowed-element"
         key={`data-operations-item-selected-${value.internalProcessorId}`}
         style={hasTheFormErrors ? { border: '1px solid red' } : {}}

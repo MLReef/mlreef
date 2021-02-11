@@ -177,6 +177,26 @@
       flex-direction: column;
     }
   }
+
+
+  & .btn-prepend {
+    position: relative;
+    margin-left: 1.5rem;
+
+    &-icon {
+      position: absolute;
+      width: 50px;
+      height: 50px;
+      left: -25px;
+      top: -25%;
+      background-color: var(--info);
+      border-radius: 50%;
+      background-size: 90%;
+      background-repeat: no-repeat;
+      background-position: center;
+      border: 1px solid var(--white);
+    }
+  }
 }
 
 .register-landing-view {
@@ -208,4 +228,5 @@
       max-width: 500px;
     }
   }
+
 }

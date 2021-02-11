@@ -2,62 +2,46 @@
   "tutorials": [
     {
       "id": 1,
-      "name": "MLReef Basics",
+      "name": "Basics #1: Getting started!",
       "visibility": "users",
-      "description": "n/a",
-      "redirect": "/mlreef/showcase-mlreef",
-      "image": "/images/tutorials/1/front.png",
-      "epilogue": "## Congratulations!\n\nNow you know how to run an **experiment!**",
+      "description": "Learn the basics: from viewing a project, forking it and a understanding basic concepts of MLReef.",
+      "image": "/tutorials/1/basic_1.gif",
+      "epilogue": "## Congratulations!\nYou have finished your first tutorial and also created your first experiment!\n\nContinue with the next tutorial to understand how to create and publish own scripts - [Start Basic Tutorial #2](link?)",
       "steps": [
         {
           "id": 1,
-          "name": "Fork a project",
+          "name": "Explore the dashboard",
           "tasks": [
             {
               "id": 1,
               "layoutType": 1,
-              "title": "Go to the showcase repository",
-              "instructions": "Click this [link](/mlreef/showcase-mlreef)",
+              "title": "Explore public ML projects",
+              "image": "/tutorials/1/dashboard.png",
+              "instructions": "Navigate to the explore tab in your dashboard. MLProjects will host your entire ML life cycle, including your data and pipelines.",
               "validators": [
                 {
-                  "type": "urlChecker",
-                  "regex": "^/mlreef/showcase-mlreef"
-                },
-                {
-                  "type": "urlChecker",
-                  "regex": "^/:username/showcase-mlreef",
-                  "placeholders": ["username"]
+                  "type": "hashChecker",
+                  "regex": "#explore"
                 }
               ]
             },
             {
               "id": 2,
               "layoutType": 1,
-              "title": "Fork the project",
-              "instructions": "Click on the forking button",
-              "image": "/images/tutorials/1/forking.png",
-              "validators": [
-                {
-                  "type": "urlChecker",
-                  "regex": "^/projects/.+?/fork"
-                },
-                {
-                  "type": "urlChecker",
-                  "regex": "^/:username/showcase-mlreef",
-                  "placeholders": ["username"]
-                }
-              ]
+              "title": "Explore the other tabs",
+              "instructions": "The tabs **models**, **dataops** and **data visualizations** host functions which can be used in the MLProjects. ",
+              "validators": []
             },
             {
               "id": 3,
-              "layoutType": 2,
-              "feedback": "The process could take a while",
-              "image": "/images/forking.png",
+              "layoutType": 1,
+              "title": "Go to the \"Basic tutorials\" ML project",
+              "image": "/tutorials/1/basic_1_card.png",
+              "instructions": "Click this [link](/mlreef/basic-tutorials) or find the project in your dashboard under the **ML projects** / explore tab.",
               "validators": [
                 {
                   "type": "urlChecker",
-                  "regex": "^/:username/showcase-mlreef",
-                  "placeholders": ["username"]
+                  "regex": "/mlreef/basic-tutorial"
                 }
               ]
             }
@@ -65,58 +49,90 @@
         },
         {
           "id": 2,
-          "name": "Create a experiment",
+          "name": "Forking and owning projects",
           "tasks": [
             {
               "id": 1,
               "layoutType": 1,
-              "title": "In the MLproject go to experiment tab",
-              "instructions": "In the MLproject go to experiment tab ",
-              "image": "/images/tutorials/1/experiment-tab.png",
+              "title": "Fork the project",
+              "instructions": "Click the forking button. This will copy the entire project to your namespace.",
+              "image": "/tutorials/1/forking.png",
               "validators": [
                 {
                   "type": "urlChecker",
-                  "regex": "^/:username/showcase-mlreef/-/experiments/new",
-                  "placeholders": ["username"]
+                  "regex": "^/projects/.+?/fork"
                 },
                 {
-                  "type": "clickListener",
-                  "selector": "#new-experiment"
+                  "type": "urlChecker",
+                  "regex": "^/:username/basic-tutorial",
+                  "placeholders": ["username"]
                 }
               ]
             },
             {
               "id": 2,
               "layoutType": 1,
-              "title": "New experiment view",
-              "instructions": "Read the content in the green marked information field, then select data click on select data",
-              "image": "/images/tutorials/1/pipeline-view.png",
+              "title": "Wait until fork is completed",
+              "image": "/tutorials/1/forking_wait.gif",
+              "instructions": "Forking might take some minutes, please be patient!",
               "validators": [
                 {
-                  "type": "clickListener",
-                  "selector": "#select-data-btn"
+                  "type": "urlChecker",
+                  "regex": "^/:username/basic-tutorial",
+                  "placeholders": ["username"]
                 }
               ]
             },
             {
               "id": 3,
               "layoutType": 1,
-              "title": "Select input files",
-              "instructions": "Select the folder train then click accept",
-              "image": "/images/tutorials/1/files.png",
+              "title": "Explore the data",
+              "instructions": "##### Congratulations! You now own this project.\nExplore the data section and discover the files in it.",
+              "image": "/tutorials/1/basic_repository.png",
+              "validators": []
+            }
+          ]
+        },
+        {
+          "id": 3,
+          "name": "Create your first experiment!",
+          "tasks": [
+            {
+              "id": 1,
+              "layoutType": 1,
+              "title": "Open the \"Experiments\" tab",
+              "image": "/tutorials/1/experiment_tab.png",
+              "instructions": "Click the experiment tab. In this section you can start training your models with your data!",
               "validators": [
-                {
-                  "type": "clickListener",
-                  "selector": "#accept"
-                }
+
+              ]
+            },
+            {
+              "id": 2,
+              "layoutType": 1,
+              "title": "Create a new experiment",
+              "image": "/tutorials/1/new_experiment.png",
+              "instructions": "Start a new experiment!",
+              "validators": [
+
+              ]
+            },
+            {
+              "id": 3,
+              "layoutType": 1,
+              "title": "Choose your training data",
+              "image": "/tutorials/1/select_data.gif",
+              "instructions": "Click the select data button and then choose the **training** folder by selecting it. This will store the path to your dataset - in this case they are cats and dogs images.",
+              "validators": [
+
               ]
             },
             {
               "id": 4,
               "layoutType": 1,
-              "title": "Pick a model",
-              "instructions": "Drag and drop Resnet50 model in the pipeline builder area",
-              "image": "/images/tutorials/1/resnet50.png",
+              "title": "Choose the \"Resnet50\" model",
+              "image": "/tutorials/1/select_model.gif",
+              "instructions": "Search and *drag and drop* the model named **Resnet50** to your experiment pipeline.",
               "validators": [
 
               ]
@@ -124,49 +140,29 @@
             {
               "id": 5,
               "layoutType": 1,
-              "title": "Set the hyperparameter values",
-              "instructions": "",
-              "image": "/images/tutorials/1/parameters.png",
+              "title": "Enter basic parameters",
+              "image": "/tutorials/1/parameters.gif",
+              "instructions": "The data-input path should already contain the path **train**. In the output field enter **output** - your model artifacts will be stored here. Fill in all the other parameters as described!",
               "validators": [
 
               ]
             },
             {
               "id": 6,
-              "layoutType": 2,
-              "feedback": "Once all parameters are set correctly the execute button will become available. Click on it to continue",
-              "image": "/images/tutorials/1/execute-button.png",
-              "validators": [
-                {
-                  "type": "clickListener",
-                  "selector": "#execute-button"
-                }
-              ]
-            }
-          ]
-        },
-        {
-          "id": 3,
-          "name": "Execution settings",
-          "tasks": [
-            {
-              "id": 1,
               "layoutType": 1,
-              "title": "Execution settings",
-              "instructions": "Select the first option from the dropdown menu Small GPU option, then click execute",
-              "image": "/images/tutorials/1/execution-modal.png",
+              "title": "Start the experiment",
+              "instructions": "If you successfully draged your model and filled all parameters, you should be able to execute your first experiment. Click **execute**.",
+              "image": "/tutorials/1/execute.png",
               "validators": [
-                {
-                  "type": "clickListener",
-                  "selector": "#show-machines"
-                }
+
               ]
             },
             {
-              "id": 2,
-              "layoutType": 2,
-              "feedback": "Now your experiment is in process of creation, you will be notified once your experiment starts.",
-              "image": "/images/tutorials/1/execution-progress.png",
+              "id": 7,
+              "layoutType": 1,
+              "title": "Choose machine and execute",
+              "image": "/tutorials/1/execute_2.gif",
+              "instructions": "Choose the **GPU machine** from the dropdown and execute your experiment. Your model is now being trained. Press the **show results** button to continue.",
               "validators": [
 
               ]
@@ -175,14 +171,14 @@
         },
         {
           "id": 4,
-          "name": "Experiment results",
+          "name": "Review your first model",
           "tasks": [
             {
               "id": 1,
               "layoutType": 1,
-              "title": "Experiment overview",
-              "instructions": "Click on the experiment.",
-              "image": "/images/tutorials/1/experiment-results.png",
+              "title": "Discover your experiment",
+              "image": "/tutorials/1/running_experiment.png",
+              "instructions": "You now should be able to see your new experiment (if not, refresh this page!).",
               "validators": [
 
               ]
@@ -190,9 +186,9 @@
             {
               "id": 2,
               "layoutType": 1,
-              "title": "Parameter list",
-              "instructions": "Click on the experiment.",
-              "image": "/images/tutorials/1/parameters-view.png",
+              "title": "Expand an experiment",
+              "image": "/tutorials/1/expand.png",
+              "instructions": "Click the expand button to see more details about your experiment - such as a running graph, the hyperparameters, what data you used, etc.",
               "validators": [
 
               ]
@@ -200,9 +196,9 @@
             {
               "id": 3,
               "layoutType": 1,
-              "title": "Experiment overview",
-              "instructions": "Click on the experiment.",
-              "image": "/images/tutorials/1/experiment-view2.png",
+              "title": "Go more in depth!",
+              "image": "/tutorials/1/details.png",
+              "instructions": "Click on the experiment name to enter a detailed view with more insights and to download the generated model artifacts.",
               "validators": [
 
               ]
@@ -210,19 +206,9 @@
             {
               "id": 4,
               "layoutType": 1,
-              "title": "Details tab",
-              "instructions": "Click on the experiment.",
-              "image": "/images/tutorials/1/experiment-view3.png",
-              "validators": [
-
-              ]
-            },
-            {
-              "id": 5,
-              "layoutType": 1,
-              "title": "Training tab",
-              "instructions": "Click on the experiment.",
-              "image": "/images/tutorials/1/experiment-view4.png",
+              "title": "Navigate the tabs",
+              "image": "/tutorials/1/details_2.gif",
+              "instructions": "Explore the different tabs and finally navigate to the **files** tab. As soon as the experiment has finished, you can download the model and use it!",
               "validators": [
 
               ]
@@ -233,35 +219,34 @@
     },
     {
       "id": 2,
-      "name": "File management",
-      "visibility": "hidden",
-      "description": "A simple tutorial for creating directories and files.",
+      "name": "Basic #2: Data processing",
+      "visibility": "users",
+      "image": "/tutorials/2/basic_2.gif",
+      "description": "Process data and create new datasets for iterative model training.",
       "steps": [
         {
           "id": 1,
-          "name": "Creating a new project",
+          "name": "Create a new, simple dataset",
           "tasks": [
             {
               "id": 1,
               "layoutType": 1,
-              "title": "Go to new project section",
-              "instructions": "From the marketplace view, click on the New Project button.",
+              "title": "Go to the data tab",
+              "image": "/tutorials/2/data_tab.png",
+              "instructions": "Navigate to the data tab within the **Basic tutorial** ML project.",
               "validators": [
-                {
-                  "type": "urlChecker",
-                  "regex": "/new-project/classification/ml-project"
-                }
               ]
             },
             {
               "id": 2,
               "layoutType": 1,
-              "title": "Fill fields and click Create",
-              "instructions": "In the new project view fill required fields and click on Create button.",
+              "title": "Go to the **Dataops** pipeline",
+              "image": "/tutorials/2/dataops.png",
+              "instructions": "Open the dataops pipeline. Here you can pre-processa and create new datasets based on your existing files in your repository.",
               "validators": [
                 {
-                  "type": "clickListener",
-                  "selector": "[data-cy=create-btn]"
+                  "type": "urlChecker",
+                  "regex": "http://localhost:3000/mlreef/sign-language-classifier/-/datasets/new"
                 }
               ]
             }
@@ -269,45 +254,212 @@
         },
         {
           "id": 2,
-          "name": "Creating a directory",
+          "name": "Create a simple processing pipeline",
           "tasks": [
             {
               "id": 1,
               "layoutType": 1,
-              "title": "Go to project view",
-              "instructions": "Go to project view",
+              "title": "Select data to process",
+              "image": "/tutorials/2/select_data_basic_2.gif",
+              "instructions": "Click the select data button and then choose the **training** folder by selecting it. You process all files contained in this folder, while keeping the folder structure as it is.",
               "validators": [
                 {
-                  "type": "urlChecker",
-                  "regex": "^\/:username\/([0-9a-z\\.-]+)$",
-                  "placeholders": [
-                    "username"
-                  ]
+                  "type": "presence",
+                  "preSelector" : ".tutorial-data",
+                  "postSelector": ".tutorial-data-loaded"
                 }
               ]
             },
             {
               "id": 2,
               "layoutType": 1,
-              "title": "Open new directory dialog",
-              "instructions": "In project view click the + button and then the new directory button",
+              "title": "Choose the **Add noise** data operation.",
+              "image": "/tutorials/2/add_noise.gif",
+              "instructions": "In the dataops list, search the data processing operation named **add noise** and drag it into your pipeline.",
               "validators": [
                 {
-                  "type": "clickListener",
-                  "selector": "[data-tutorial=new-directory-btn]"
+                  "type": "presence",
+                  "preSelector" : "#drop-zone",
+                  "postSelector": ".pipe-line-execution [data-tutorial=dataoptest1]"
                 }
               ]
             },
             {
               "id": 3,
               "layoutType": 1,
-              "title": "Fill fields for new directory",
-              "instructions": "bla bla bla bla.",
+              "title": "Enter basic parameters",
+              "image": "/tutorials/2/add_noise_params.gif",
+              "instructions": "The data-input path should already contain the path **train**. In the output any directory name for your output images (e.g. output). Choose from the advanced section any mode you want.",
               "validators": [
                 {
                   "type": "clickListener",
-                  "id": "create-button"
+                  "selector": "#execute-button"
                 }
+              ]
+            },
+            {
+              "id": 4,
+              "layoutType": 1,
+              "title": "Start the data processing",
+              "instructions": "If you successfully draged the datops and filled all parameters, you should be able to execute your dataops pipeline to create a new dataset. Click **execute**.",
+              "image": "/tutorials/2/execute.png",
+              "validators": [
+                {
+                  "type": "clickListener",
+                  "selector": "#show-machines"
+                }
+              ]
+            },
+            {
+              "id": 5,
+              "layoutType": 1,
+              "title": "Choose machine and execute",
+              "image": "/tutorials/2/add_noise_execute.gif",
+              "instructions": "Choose the **CPU machine** from the dropdown and execute the pipeline. Your pipeline should start and cerate a new dataset.",
+              "validators": [
+              ]
+            },
+            {
+              "id": 6,
+              "layoutType": 1,
+              "title": "Return to pipeline view",
+              "instructions": "Instead of moving forward, let´s create a more complex pipeline. Return to the **dataops* pipeline view.",
+              "validators": [
+              ]
+            }
+          ]
+        },
+        {
+          "id": 3,
+          "name": "Create a more complex processing pipeline",
+          "tasks": [
+            {
+              "id": 1,
+              "layoutType": 1,
+              "title": "Select data to pre-process.",
+              "image": "/tutorials/2/select_data_basic_2.gif",
+              "instructions": "If needed, click the select data button and then choose the **training** folder by selecting it.",
+              "validators": [
+              ]
+            },
+            {
+              "id": 2,
+              "layoutType": 1,
+              "title": "Remove **add noise** operation.",
+              "image": "/tutorials/2/remove.gif",
+              "instructions": "We will start with another data operations. Remove the **add noise** operation from the pipeline",
+              "validators": [
+              ]
+            },
+            {
+              "id": 3,
+              "layoutType": 1,
+              "title": "Choose the **Augment** data operation.",
+              "image": "/tutorials/2/augment.gif",
+              "instructions": "The augment opeartion duplicates and changes your existing data. This is a easy way to create new data from existing data!",
+              "validators": [
+              ]
+            },
+            {
+              "id": 4,
+              "layoutType": 1,
+              "title": "Enter augment parameters",
+              "image": "/tutorials/2/augment_params.gif",
+              "instructions": "Enter the following parameters: \n+ **output**: out1 \n+ **iterations**: 3 \n+ **rotation-range**: 0 \n+ **width-shift-range**: 0 \n+ **height-shift-range**: 0 \n+ **shear-range**: 0.1 \n+ **zoom-range**: 0.2 \n+ **horizontal-flip**: true \n+ **vertical-flip**: false.",
+              "validators": [
+              ]
+            },
+            {
+              "id": 5,
+              "layoutType": 1,
+              "title": "Choose the **Random Crop** data operation.",
+              "image": "/tutorials/2/random_crop.gif",
+              "instructions": "The next concatenated data opeartion will crop a part of the input images. Drag the operation in position 2 into the pipeline, right after the **augment** operation.",
+              "validators": [
+              ]
+            },
+            {
+              "id": 6,
+              "layoutType": 1,
+              "title": "Enter random crop parameters",
+              "image": "/tutorials/2/random_crop_params.gif",
+              "instructions": "This time, we will use the output generated from the augment opeartion as input for the next. Type in the **input-path**: out1 (or the output-path name you entered in the augment operation). \nEnter in **output-path** a different folder name (e.g. out2). \nIn the advanced section, define the resultion of the croped images (e.g. 100px) for both height and width.",
+              "validators": [
+              ]
+            },
+            {
+              "id": 7,
+              "layoutType": 1,
+              "title": "Start the data processing",
+              "instructions": "Now let's create this more complext data processing pipeline. \nInfo: You can create any number of concatenations and chaining logics using the input and output paths!.",
+              "image": "/tutorials/2/execute.png",
+              "validators": [
+              ]
+            },
+            {
+              "id": 8,
+              "layoutType": 1,
+              "title": "Choose machine and execute",
+              "instructions": "Choose the **CPU machine** from the dropdown and execute the pipeline. Your pipeline should start and cerate a new dataset. Press the **show results** button to continue.",
+              "validators": [
+              ]
+            }
+          ]
+        },
+        {
+          "id": 4,
+          "name": "Create experiment with new datasets",
+          "tasks": [
+            {
+              "id": 1,
+              "layoutType": 1,
+              "title": "Go to experiment section",
+              "image": "/tutorials/2/experiment_tab.png",
+              "instructions": "Click the experiment tab.",
+              "validators": [
+              ]
+            },
+            {
+              "id": 2,
+              "layoutType": 1,
+              "title": "Create a new experiment.",
+              "image": "/tutorials/2/new_experiment.png",
+              "instructions": "Click the new experiment button, which is now located at the top right.",
+              "validators": [
+              ]
+            },
+            {
+              "id": 3,
+              "layoutType": 1,
+              "title": "Select new dataset",
+              "image": "/tutorials/2/select_newdataset.gif",
+              "instructions": "Click the select data button and then select the newly created datset from the dropdown button. \nInfo: all datasets are also stored as git branches.",
+              "validators": [
+              ]
+            },
+            {
+              "id": 4,
+              "layoutType": 1,
+              "title": "Review the dataset status",
+              "instructions": "In the dropdown, you can see the status of the pipelines (green = done, orange = running, red = stopped).",
+              "validators": [
+              ]
+            },
+            {
+              "id": 5,
+              "layoutType": 1,
+              "title": "Select new pre-processed files",
+              "image": "/tutorials/2/select_newdataset.gif",
+              "instructions": "You should be able to see now your newly created output folder (i.e. out 1 and out 2). Select out 2, which contains all newly created images from before. ",
+              "validators": [
+              ]
+            },
+            {
+              "id": 6,
+              "layoutType": 1,
+              "title": "Finalize with a new model training",
+              "instructions": "**Congratulations!** This is how you create and iterate using data pre-precessing. If you want, finish this tutorial with a new experiment!",
+              "validators": [
               ]
             }
           ]

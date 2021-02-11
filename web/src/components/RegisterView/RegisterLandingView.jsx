@@ -48,8 +48,12 @@ const RegisterLandingView = (props) => {
             <Link
               to={tutorialRedirect}
               disabled={!tutorialId}
-              className="btn btn-primary my-3"
+              className="btn btn-info btn-prepend my-3"
             >
+              <span
+                className="btn-prepend-icon"
+                style={{ backgroundImage: 'url(/images/Tutorials-01.png)' }}
+              />
               Start tutorial
             </Link>
           </div>
@@ -62,7 +66,7 @@ const RegisterLandingView = (props) => {
         </div>
         <div className="user-options">
           <Link className="option-link mb-3 info-box" to="/new-project/classification/ml-project">
-            <div className="option-icon" style={{ backgroundColor: 'var(--info)' }} />
+            <div className="option-icon" style={{ backgroundColor: 'var(--dark)' }} />
             <div className="state-body pl-3">
               <h4 className="state-title mt-0">Create a Project</h4>
               <p className="state-text mt-0">
