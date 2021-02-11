@@ -304,7 +304,7 @@ if [ -n "${LOCAL_CI_REGISTRY+x}" ] && [ -n "${LOCAL_CI_REGISTRY_USER+x}" ] && [ 
           echo "$GITLAB_ADMIN_TOKEN" | docker login "$LOCAL_CI_REGISTRY" --username="$LOCAL_CI_REGISTRY_USER" --password-stdin
 fi
 
-docker build --tag "$LOCAL_EXPERIMENT_IMAGE_PATH" -f images/experiment/Dockerfile experiment
+docker build --tag "$LOCAL_EXPERIMENT_IMAGE_PATH" -f images/experiment/Dockerfile images/experiment
 docker push "$LOCAL_EXPERIMENT_IMAGE_PATH"
 log "$LOCAL_EXPERIMENT_IMAGE_PATH has been successfully uploaded "
 

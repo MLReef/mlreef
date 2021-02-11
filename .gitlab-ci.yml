@@ -9,6 +9,7 @@ include:
 stages:
   - build
   - deploy
+  - post-deploy   # Till https://gitlab.com/gitlab-org/gitlab/-/issues/30632 gets resolved
   - test
   - staging
   - maintenance
@@ -66,6 +67,23 @@ deploy_review:
   artifacts:
     paths:
       - out/instance.info             # pass instance url to later stages (see k8s/includes/ci-environment)
+
+post-deploy:
+  extends: [".except-docu-branches"]
+  stage: post-deploy
+  needs: ["deploy_review"]
+  <<: *run-on-all-code-changes
+  image: docker:19.03.12
+  services:
+    - name: docker:19.03.12-dind
+      entrypoint: ["sh", "-c", "dockerd-entrypoint.sh $DOCKER_DAEMON_OPTIONS"]
+  variables:
+    DOCKER_HOST: "tcp://docker:2375"
+    DOCKER_TLS_CERTDIR: ""
+    DOCKER_DAEMON_OPTIONS: "--insecure-registry=0.0.0.0/0"
+  script:
+    - echo $DOCKER_DAEMON_OPTIONS
+    - k8s/gitlab-post-deployment
 
 stop_review:
   image:
@@ -179,7 +197,7 @@ end2end tests:
   stage: test
   <<: *run-on-all-code-changes
   needs:
-    - deploy_review                                   # wait for the deployment to be finished
+    - post-deploy                            # wait for the deployment to be finished
   # The image should be the same image as web/Dockerfile and the "build frontend" job
   image: node:10.19.0-alpine
   allow_failure: true ##Temporary till the time bug gets fixed
