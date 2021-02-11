@@ -84,6 +84,9 @@ post-deploy:
   script:
     - echo $DOCKER_DAEMON_OPTIONS
     - k8s/gitlab-post-deployment
+  artifacts:
+    paths:
+      - out/instance.info             # pass instance url to later stages (see k8s/includes/ci-environment)
 
 stop_review:
   image:
