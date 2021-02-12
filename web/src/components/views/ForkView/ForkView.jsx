@@ -21,16 +21,16 @@ const ForkView = (props) => {
 
   const [selectedProject] = hooks.useSelectedProject(namespace, slug);
 
-  const { gid, gitlabName } = selectedProject;
+  const { id, gid, gitlabName } = selectedProject;
 
   const handleFork = useCallback(
-    () => projectGeneralInfoApi.fork(gid, null, gitlabName, null)
+    () => projectGeneralInfoApi.fork(id, null, gitlabName, null)
       .then((project) => history.push(`/${project.gitlab_namespace}/${project.slug}`))
       .catch((err) => {
         toastr.error('Error:', err?.message);
         history.goBack();
       }),
-    [history, gid],
+    [history, id, gitlabName],
   );
 
   useEffect(() => {
