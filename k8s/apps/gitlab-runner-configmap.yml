@@ -45,6 +45,7 @@ data:
   k8s-template.toml: |
     # https://docs.gitlab.com/runner/executors/kubernetes.html
     # https://docs.gitlab.com/runner/configuration/advanced-configuration.html#the-runnerskubernetes-section
+    # https://docs.gitlab.com/runner/executors/kubernetes.html#job-execution
       [[runners]]
         [runners.custom_build_dir]
         [runners.cache]
