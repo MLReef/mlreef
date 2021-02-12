@@ -97,16 +97,16 @@ interface ProjectService<T : Project> {
     ): T
 
     fun createCodeProjectAndProcessor(
-            userToken: String,
-            ownerId: UUID,
-            projectSlug: String,
-            projectName: String,
-            projectNamespace: String,
-            description: String,
-            visibility: VisibilityScope = VisibilityScope.PUBLIC,
-            initializeWithReadme: Boolean = false,
-            inputDataTypes: List<DataType>,
-            dataProcessorType: DataProcessorType,
+        userToken: String,
+        ownerId: UUID,
+        projectSlug: String,
+        projectName: String,
+        projectNamespace: String,
+        description: String,
+        visibility: VisibilityScope = VisibilityScope.PUBLIC,
+        initializeWithReadme: Boolean = false,
+        inputDataTypes: List<DataType>,
+        dataProcessorType: DataProcessorType,
     ): T
 
     fun forkProject(userToken: String, originalId: UUID, creatorId: UUID, name: String? = null, path: String? = null): T
@@ -227,6 +227,8 @@ open class ProjectServiceImpl<T : Project>(
 
     private val log = LoggerFactory.getLogger(this::class.java)
 
+    private val gitlabMaxPageSizeRequest = 100
+
     override fun getAllProjectsAccessibleByUser(token: TokenDetails, pageable: Pageable?, isDataProjectRequest: Boolean): Page<T> =
         if (token.isVisitor)
             if (isDataProjectRequest)
@@ -274,7 +276,7 @@ open class ProjectServiceImpl<T : Project>(
     }
 
     override fun getProjectsByNamespaceAndSlug(namespace: String, slug: String): T? {
-      return repository.findNamespaceAndSlug(namespace, slug)
+        return repository.findNamespaceAndSlug(namespace, slug)
     }
 
     override fun getAllPublicProjects(pageable: Pageable?): List<T> {
@@ -471,7 +473,8 @@ open class ProjectServiceImpl<T : Project>(
      */
     @Suppress("UNCHECKED_CAST")
     @RefreshUserInformation(userId = "#creatorId")
-    override fun forkProject(userToken: String, originalId: UUID, creatorId: UUID, name: String?, path: String?): T {        val original = repository.findByIdOrNull(originalId)
+    override fun forkProject(userToken: String, originalId: UUID, creatorId: UUID, name: String?, path: String?): T {
+        val original = repository.findByIdOrNull(originalId)
             ?: throw ProjectNotFoundException(originalId)
 
         val gitlabFork = try {
@@ -561,7 +564,7 @@ open class ProjectServiceImpl<T : Project>(
             gitlabRestClient.userGetUserAllProjects(userToken)
         } catch (ex: Exception) {
             log.error("Cannot request projects from gitlab for user ${user.id}. Exception: $ex.")
-            listOf<GitlabProject>()
+            listOf()
         }
 
         return userProjects.mapNotNull { project ->

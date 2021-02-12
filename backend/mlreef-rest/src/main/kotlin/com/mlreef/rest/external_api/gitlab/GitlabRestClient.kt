@@ -17,6 +17,7 @@ import com.mlreef.rest.external_api.gitlab.dto.Commit
 import com.mlreef.rest.external_api.gitlab.dto.GitlabGroup
 import com.mlreef.rest.external_api.gitlab.dto.GitlabGroupInProject
 import com.mlreef.rest.external_api.gitlab.dto.GitlabNamespace
+import com.mlreef.rest.external_api.gitlab.dto.GitlabPage
 import com.mlreef.rest.external_api.gitlab.dto.GitlabPipeline
 import com.mlreef.rest.external_api.gitlab.dto.GitlabProject
 import com.mlreef.rest.external_api.gitlab.dto.GitlabProjectSimplified
@@ -53,6 +54,7 @@ import java.nio.charset.StandardCharsets
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
+import java.util.ArrayList
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicReference
 
@@ -185,14 +187,34 @@ class GitlabRestClient(
             } ?: throw Exception("GitlabRestClient: Gitlab response does not contain a body.")
     }
 
+    fun adminGetUserProjects(userId: Long): List<GitlabProject> {
+        val result = ArrayList<GitlabProject>()
+        var projectsList = this.adminGetUserProjectsPaged(userId)
+
+        while (projectsList.page <= projectsList.totalPages) {
+            result.addAll(projectsList.content ?: listOf())
+
+            if (!(projectsList.page < projectsList.totalPages)) break
+
+            projectsList = this.adminGetUserProjectsPaged(userId, pageNumber = projectsList.page + 1)
+        }
+
+        return result
+    }
+
     // https://docs.gitlab.com/ee/api/projects.html#list-user-projects
     // GET /users/:user_id/projects
-    fun adminGetUserProjects(userId: Long): List<GitlabProject> {
+    fun adminGetUserProjectsPaged(userId: Long, pageSize: Int = 100, pageNumber: Int = 1): GitlabPage<GitlabProject> {
         return GitlabHttpEntity<String>("body", createAdminHeaders())
             .addErrorDescription(ErrorCode.NotFound, "Cannot find projects")
             .makeRequest {
-                val url = "$gitlabServiceRootUrl/users/$userId/projects?per_page=100"
-                restTemplate(builder).exchange(url, HttpMethod.GET, it, typeRef<List<GitlabProject>>())
+                val params = "per_page=$pageSize&page=$pageNumber"
+
+                val url = "$gitlabServiceRootUrl/users/$userId/projects?$params"
+
+                val result = restTemplate(builder).exchange(url, HttpMethod.GET, it, typeRef<List<GitlabProject>>())
+
+                ResponseEntity.status(result.statusCodeValue).body(GitlabPage(result))
             } ?: throw Exception("GitlabRestClient: Gitlab response does not contain a body.")
     }
 
@@ -552,11 +574,32 @@ class GitlabRestClient(
 
     // https://docs.gitlab.com/ee/api/projects.html#list-all-projects
     fun userGetUserAllProjects(token: String): List<GitlabProject> {
+        val result = ArrayList<GitlabProject>()
+        var projectsList = this.userGetUserAllProjectsPaged(token)
+
+        while (projectsList.page <= projectsList.totalPages) {
+            result.addAll(projectsList.content ?: listOf())
+
+            if (!(projectsList.page < projectsList.totalPages)) break
+
+            projectsList = this.userGetUserAllProjectsPaged(token, pageNumber = projectsList.page + 1)
+        }
+
+        return result
+    }
+
+    // https://docs.gitlab.com/ee/api/projects.html#list-all-projects
+    fun userGetUserAllProjectsPaged(token: String, pageSize: Int = 100, pageNumber: Int = 1): GitlabPage<GitlabProject> {
         return GitlabHttpEntity<String>("body", createUserHeaders(token))
             .addErrorDescription(ErrorCode.GitlabUserNotExisting, "Unable to get users projects")
             .makeRequest {
-                val url = "$gitlabServiceRootUrl/projects?membership=true&per_page=100" //TODO: Fix retrieval all projects or paged
-                restTemplate(builder).exchange(url, HttpMethod.GET, it, typeRef<List<GitlabProject>>())
+                val params = "membership=true&per_page=$pageSize&page=$pageNumber"
+
+                val url = "$gitlabServiceRootUrl/projects?$params"
+
+                val result = restTemplate(builder).exchange(url, HttpMethod.GET, it, typeRef<List<GitlabProject>>())
+
+                ResponseEntity.status(result.statusCodeValue).body(GitlabPage(result))
             }
     }
 

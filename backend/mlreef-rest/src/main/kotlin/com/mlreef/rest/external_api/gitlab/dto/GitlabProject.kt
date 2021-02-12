@@ -86,3 +86,5 @@ class GitlabProject(
     val autoDevopsEnabled: Boolean = true,
     val autoDevopsDeployStrategy: DeployStrategy = DeployStrategy.CONTINUOUS
 ): GitlabProjectSimplified(id, name, nameWithNamespace, path, pathWithNamespace, createdAt, description, defaultBranch, tagList, sshUrlToRepo, httpUrlToRepo, webUrl, readmeUrl, avatarUrl, starCount, forksCount, lastActivityAt)
+
+
