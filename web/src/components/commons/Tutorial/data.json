@@ -233,7 +233,7 @@
               "layoutType": 1,
               "title": "Go to the data tab",
               "image": "/tutorials/2/data_tab.png",
-              "instructions": "Navigate to the data tab within the **Basic tutorial** ML project.",
+              "instructions": "Open the [Basic tutorial](/mlreef/basic-tutorials) ML project and navigate to the data tab.",
               "validators": [
               ]
             },
