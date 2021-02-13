@@ -65,12 +65,6 @@ export default function userReducer(state = initialState.user, action) {
         ...state,
         isLoading: action.isLoading,
       };
-    case types.SET_PRECONFIGURED_OPERATIONS:
-      return {
-        ...state,
-        preconfiguredOperations: action.preconfiguredOperations,
-      };
-
     case types.SET_USER_INSPECTED_PROFILE:
       return {
         ...state,

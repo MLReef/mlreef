@@ -11,6 +11,10 @@ import { string, shape } from 'prop-types';
 import MLoadingSpinnerContainer from 'components/ui/MLoadingSpinner/MLoadingSpinnerContainer';
 import { generateBreadCrumbs } from 'functions/helpers';
 import hooks from 'customHooks/useSelectedProject';
+import useLoading from 'customHooks/useLoading';
+import DataPiplineApi from 'apis/DataPipelineApi';
+import ExperimentsApi from 'apis/experimentApi';
+import { data } from 'components/ui/MDataTable/propTypes';
 import ExecutePipelineModal from './ExecutePipelineModal';
 import SelectDataPipelineModal from './SelectDataPipelineModal';
 import Navbar from '../../navbar/navbar';
@@ -27,10 +31,13 @@ import {
 import Provider, { DataPipelinesContext } from './DataPipelineHooks/DataPipelinesProvider';
 import DragDropZone from './DragNDropZone';
 import { SET_IS_SHOWING_EXECUTE_PIPELINE_MODAL } from './DataPipelineHooks/actions';
-import useLoading from 'customHooks/useLoading';
 import { addInformationToProcessors } from './DataPipelineHooks/DataPipelinesReducer';
 
 const mlSearchApi = new MLSearchApi();
+
+const dataPipelineApi = new DataPiplineApi();
+
+const experimentsApi = new ExperimentsApi();
 
 const ExecuteButton = () => {
   const [{
@@ -72,16 +79,25 @@ const ExecuteButton = () => {
 
 const FunctionalExecutionPipelinesView = (props) => {
   const {
-    match: { path, params: { typePipelines, namespace, slug } },
-    preconfiguredOperations,
+    match: {
+      path,
+      params: {
+        typePipelines,
+        namespace,
+        slug,
+        dataId,
+      },
+    },
     actions,
   } = props;
   const [selectedProject, isFetching] = hooks.useSelectedProject(namespace, slug);
+  const [dataOperatorsExecuted, setDataOperatorsExecuted] = useState([]);
+  const [initialInformation, setInitialInformation] = useState({ initialFiles: [] });
 
-  const isExperiment = path === '/:namespace/:slug/-/experiments/new'
+  const isExperiment = path.includes('/experiments/')
   || typePipelines === 'new-experiment';
 
-  const isDataset = path === '/:namespace/:slug/-/datasets/new'
+  const isDataset = path.includes('/datasets/')
   || typePipelines === 'new-data-pipeline';
 
   let activeFeature = 'data';
@@ -140,13 +156,40 @@ const FunctionalExecutionPipelinesView = (props) => {
     .then(addInformationToProcessors)
     .then(setProcessorsAndProjects);
 
+  const decideEndpoint = () => isExperiment
+    ? experimentsApi.getExperimentDetails(selectedProject.id, dataId)
+    : dataPipelineApi.getBackendPipelineById(dataId);
+
+  const fetchInitialInfo = () => decideEndpoint().then((res) => {
+    setDataOperatorsExecuted(
+      addInformationToProcessors(isExperiment ? [res.processing] : res.data_operations),
+    );
+    const pipeJobInfo = isExperiment
+      ? res.pipeline_job_info
+      : res.instances[0]?.pipeline_job_info;
+
+    setInitialInformation({
+      initialFiles: res?.input_files,
+      initialBranch: pipeJobInfo?.ref,
+      initialCommit: pipeJobInfo?.commit_sha,
+    });
+  });
+
   const [isProcessorsFetching, executeFetchProcessors] = useLoading(fetchProcessors);
+  const [isFetchingInitialInfo, executeFetchInitInfo] = useLoading(
+    dataId
+      ? fetchInitialInfo
+      : async () => {},
+  );
 
   useEffect(() => {
-    executeFetchProcessors();
-  }, [operationTypeToExecute]);
+    if (selectedProject.id) {
+      executeFetchProcessors();
+      executeFetchInitInfo();
+    }
+  }, [selectedProject.id, operationTypeToExecute]);
 
-  if (isFetching || isProcessorsFetching) {
+  if (isFetching || isProcessorsFetching || isFetchingInitialInfo) {
     return (
       <MLoadingSpinnerContainer active />
     );
@@ -167,7 +210,7 @@ const FunctionalExecutionPipelinesView = (props) => {
   ];
 
   return (
-    <Provider currentProcessors={processorsAndProjects}>
+    <Provider currentProcessors={processorsAndProjects} initialInformation={initialInformation}>
       <SelectDataPipelineModal />
       <ExecutePipelineModal
         type={operationTypeToExecute}
@@ -211,8 +254,9 @@ const FunctionalExecutionPipelinesView = (props) => {
 
           <MCard.Section>
             <DragDropZone
+              isExperiment={isExperiment}
               prefix={prefix}
-              initialDataOperators={preconfiguredOperations?.dataOperatorsExecuted}
+              initialDataOperators={dataOperatorsExecuted}
               actions={actions}
             />
           </MCard.Section>
@@ -231,10 +275,6 @@ const FunctionalExecutionPipelinesView = (props) => {
   );
 };
 
-FunctionalExecutionPipelinesView.defaultProps = {
-  preconfiguredOperations: {},
-};
-
 FunctionalExecutionPipelinesView.propTypes = {
   match: shape({
     path: string.isRequired,
@@ -242,14 +282,12 @@ FunctionalExecutionPipelinesView.propTypes = {
       typePipelines: string,
     }).isRequired,
   }).isRequired,
-  preconfiguredOperations: shape({}),
   actions: shape({}).isRequired,
 };
 
 function mapStateToProps(state) {
   return {
     branches: state.branches,
-    preconfiguredOperations: state.user.preconfiguredOperations,
   };
 }
 

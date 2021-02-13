@@ -23,6 +23,7 @@ MLoadingSpinnerContainer.defaultProps = {
   className: '',
   active: false,
   cover: false,
+  children: '',
 };
 
 MLoadingSpinnerContainer.propTypes = {
@@ -32,7 +33,7 @@ MLoadingSpinnerContainer.propTypes = {
   children: PropTypes.oneOfType([
     PropTypes.node,
     PropTypes.string,
-  ]).isRequired,
+  ]),
 };
 
 export default MLoadingSpinnerContainer;

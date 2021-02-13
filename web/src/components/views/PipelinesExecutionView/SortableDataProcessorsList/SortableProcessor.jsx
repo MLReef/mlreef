@@ -1,6 +1,7 @@
 import React, { useContext, useState } from 'react';
 import { SortableElement } from 'react-sortable-hoc';
 import { BOOLEAN, STRING } from 'dataTypes';
+import { arrayOf, shape } from 'prop-types';
 import { isJson } from 'functions/validations';
 import ArrowButton from 'components/arrow-button/arrowButton';
 import MWrapper from 'components/ui/MWrapper';
@@ -8,14 +9,12 @@ import { DataPipelinesContext } from '../DataPipelineHooks/DataPipelinesProvider
 import InputParam from './InputParam';
 import { SelectComp } from './SelectComp';
 import { REMOVE_DATA_PROCESSOR_BY_ID, VALIDATE_FORM } from '../DataPipelineHooks/actions';
-import { arrayOf, shape } from 'prop-types';
 
 const SortableProcessor = SortableElement(({
   props: {
     value,
     index,
     prefix,
-    filesSelectedInModal,
   },
 }) => {
   const [, dispatch] = useContext(DataPipelinesContext);
@@ -65,16 +64,18 @@ const SortableProcessor = SortableElement(({
               <button
                 type="button"
                 className="btn btn-hidden "
-                onClick={() => linkToRepo()}
+                onClick={linkToRepo}
               >
                 <b>{value.name}</b>
               </button>
             </p>
-            <p>
-              Created by
-              {' '}
-              <span><b>Keras</b></span>
-            </p>
+            {nameSpace && (
+              <p>
+                Created by
+                {' '}
+                <span><b>{nameSpace}</b></span>
+              </p>
+            )}
           </div>
           <div className="data-oper-options d-flex">
             <div>
@@ -106,7 +107,6 @@ const SortableProcessor = SortableElement(({
           <div style={{ width: 'max-content', margin: 'auto', marginLeft: '1rem' }}>
             <ParametersSection
               parameters={standardParameters}
-              filesSelectedInModal={filesSelectedInModal}
               value={value}
             />
           </div>
@@ -121,20 +121,21 @@ const SortableProcessor = SortableElement(({
                   callback={() => setIsAdvancedSectionVisible(!isAdvancedSectionVisible)}
                 />
               </div>
-              <button
-                type="button"
-                className="btn btn-hidden ml-auto"
-                onClick={() => linkToRepo()}
-                style={{ fontWeight: 600, margin: 0 }}
-              >
-                View Repository
-              </button>
+              {nameSpace && (
+                <button
+                  type="button"
+                  className="btn btn-hidden ml-auto"
+                  onClick={() => linkToRepo()}
+                  style={{ fontWeight: 600, margin: 0 }}
+                >
+                  View Repository
+                </button>
+              )}
             </div>
             {isAdvancedSectionVisible && (
             <div className="advanced-opts-div" style={{ width: 'max-content', margin: 'auto', marginLeft: '1rem' }}>
               <ParametersSection
                 parameters={advancedParameters}
-                filesSelectedInModal={filesSelectedInModal}
                 value={value}
               />
             </div>
@@ -153,7 +154,7 @@ const SortableProcessor = SortableElement(({
 export default SortableProcessor;
 
 const ParametersSection = ({
-  parameters, value, filesSelectedInModal,
+  parameters, value,
 }) => parameters.map((parameter) => {
   const isSelectable = parameter.type === BOOLEAN
       || (parameter.type === STRING && isJson(parameter.default_value));
@@ -167,14 +168,10 @@ const ParametersSection = ({
       />
     );
   }
-  let finalValue = parameter.value;
-  if (parameter.name === 'input-path') {
-    finalValue = filesSelectedInModal[0]?.path;
-  }
   return (
     <InputParam
       key={`${value.internalProcessorId} ${parameter.name}`}
-      param={{ ...parameter, value: finalValue }}
+      param={parameter}
       dataProcessorId={value.internalProcessorId}
     />
   );
@@ -182,8 +179,8 @@ const ParametersSection = ({
 
 ParametersSection.propTypes = {
   parameters: arrayOf(shape()),
-}
+};
 
 ParametersSection.defaultProps = {
   parameters: [],
-}
+};

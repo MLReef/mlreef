@@ -1,11 +1,8 @@
 import React from 'react';
-import { shallow } from 'enzyme';
 import { MemoryRouter } from 'react-router-dom';
 import renderer from 'react-test-renderer';
 import DetailSummary from 'components/ExperimentDetails/MenuOptions/DetailSummary';
 import { RUNNING } from 'dataTypes';
-
-const setPreconfiguredOPerationsMock = jest.fn();
 
 const mockPush = jest.fn();
 
@@ -40,22 +37,6 @@ const dataOperatorExecuted = {
 
 const inputFilesMock = [{ location: 'README.md', location_type: 'PATH' }];
 
-const setup = () => shallow(
-  <DetailSummary
-    projectNamespace="a-namespace"
-    projectSlug="A-testing-project"
-    currentState={RUNNING.toLowerCase()}
-    parameters={mockParameters}
-    pipelineInfo={pipelineInfoMock}
-    dataOperatorsExecuted={dataOperatorExecuted}
-    inputFiles={inputFilesMock}
-    setPreconfiguredOPerations={setPreconfiguredOPerationsMock}
-    history={history}
-    projectId={1}
-    experimentName="An exp"
-  />,
-);
-
 describe('test presence of elements in DOM', () => {
   test('compare with the latest snapshot', () => {
     const component = renderer
@@ -69,7 +50,6 @@ describe('test presence of elements in DOM', () => {
             pipelineInfo={pipelineInfoMock}
             dataOperatorsExecuted={dataOperatorExecuted}
             inputFiles={inputFilesMock}
-            setPreconfiguredOPerations={setPreconfiguredOPerationsMock}
             history={history}
             projectId={1}
             experimentName="An exp"
@@ -79,18 +59,5 @@ describe('test presence of elements in DOM', () => {
       .toJSON();
 
     expect(component).toMatchSnapshot();
-  });
-});
-
-describe('test functionality', () => {
-  let wrapper;
-  beforeEach(() => {
-    wrapper = setup();
-  });
-
-  test('assert that the view pipeline button works properly', () => {
-    wrapper.find('button#view-pipeline-btn').simulate('click');
-    expect(setPreconfiguredOPerationsMock).toHaveBeenCalled();
-    expect(mockPush).toHaveBeenCalled();
   });
 });

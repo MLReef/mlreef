@@ -281,23 +281,3 @@ export const determineJobClass = (type) => {
 
   return jobClass;
 };
-
-export const goToPipelineView = ({
-  backendPipeline,
-  setPreconfOps,
-  selectedProject,
-  history,
-  routeType,
-}) => {
-  const { dataOperations, inputFiles } = backendPipeline;
-  const { namespace, slug } = selectedProject;
-  const configuredOperations = {
-    dataOperatorsExecuted: dataOperations,
-    inputFiles,
-    pipelineBackendId: backendPipeline.id,
-  };
-  setPreconfOps(configuredOperations);
-  if (history) history.push(`/${namespace}/${slug}/-${routeType}`);
-};
-
-/* ----------------------------  ----------------------------------  -------------------------------*/

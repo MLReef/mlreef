@@ -14,25 +14,11 @@ const DataInstancesCard = (props) => {
     history,
     namespace,
     slug,
-    setPreconfiguredOPerations,
     fetchPipelines,
     fireModal,
   } = props;
   
   const { statusTitle } = getInfoFromStatus(params?.currentState);
-
-  function goToPipelineView(instance) {
-    if (!instance) return;
-    const configuredOperations = {
-      branch: instance.descTitle,
-      commit: instance.commitId,
-      dataOperatorsExecuted: instance.dataOperations,
-      inputFiles: instance.inputFiles,
-      pipelineBackendId: instance.pipelineBackendId,
-    };
-    setPreconfiguredOPerations(configuredOperations);
-    history.push(`/${namespace}/${slug}/-/datasets/new`);
-  }
 
   function getButtonsDiv(instance) {
     let buttons;
@@ -73,7 +59,7 @@ const DataInstancesCard = (props) => {
           type="button"
           key="experiment-button"
           className="btn btn-outline-dark my-auto mr-1"
-          onClick={() => goToPipelineView(instance)}
+          onClick={() => history.push(`/${namespace}/${slug}/-/datasets/${instance?.pipelineBackendId}/rebuild`)}
         >
           View Pipeline
         </button>,
@@ -111,7 +97,7 @@ const DataInstancesCard = (props) => {
           type="button"
           key="experiment-button"
           className="btn btn-outline-dark my-auto mr-1"
-          onClick={() => goToPipelineView(instance)}
+          onClick={() => history.push(`/${namespace}/${slug}/-/datasets/${instance?.pipelineBackendId}/rebuild`)}
         >
           View Pipeline
         </button>,

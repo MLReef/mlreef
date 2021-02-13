@@ -3,8 +3,14 @@ import DataPipelinesReducer, { initialState } from './DataPipelinesReducer';
 
 export const DataPipelinesContext = createContext();
 
-const Provider = ({ children, currentProcessors }) => {
-  const contextValue = useReducer(DataPipelinesReducer, { ...initialState, currentProcessors });
+const Provider = ({ children, currentProcessors, initialInformation }) => {
+  const contextValue = useReducer(
+    DataPipelinesReducer, {
+      ...initialState,
+      initialInformation,
+      currentProcessors,
+    },
+  );
   return (
     <DataPipelinesContext.Provider value={contextValue}>
       {children}

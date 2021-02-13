@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import React from 'react';
 import {
   func, string, arrayOf, shape,
 } from 'prop-types';
-import { Redirect, Link } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import {
@@ -13,8 +13,8 @@ import {
   PENDING,
 } from 'dataTypes';
 import { toastr } from 'react-redux-toastr';
+import { useHistory } from 'router';
 import { closeModal, fireModal } from 'store/actions/actionModalActions';
-import { setPreconfiguredOPerations } from 'store/actions/userActions';
 import DataInstanteDeleteModal from 'components/DeleteDataInstance/DeleteDatainstance';
 import AuthWrapper from 'components/AuthWrapper';
 import { getPipelineIcon, getInfoFromStatus } from 'functions/pipeLinesHelpers';
@@ -27,29 +27,13 @@ const DataVisualizationCard = (
     classification,
     namespace,
     slug,
-    setPreconfOps,
     callback,
     fireModal,
   },
 ) => {
+  const history = useHistory();
   const today = new Date();
-  const [redirect, setRedirect] = useState(false);
   const { statusTitle } = getInfoFromStatus(classification?.status);
-
-  function goToPipelineView(val) {
-    const {
-      data_operations: dataOperations,
-      input_files: inputFiles,
-      id,
-    } = val?.backendPipeline;
-    const configuredOperations = {
-      dataOperatorsExecuted: dataOperations,
-      inputFiles,
-      id,
-    };
-    setPreconfOps(configuredOperations);
-    setRedirect(true);
-  }
 
   function getButtonsDiv(dataVisualizationState, val) {
     let buttons;
@@ -91,7 +75,7 @@ const DataVisualizationCard = (
           type="button"
           key="experiment-button"
           className="btn btn-outline-dark my-auto mr-1"
-          onClick={() => goToPipelineView(val)}
+          onClick={() => history.push(`/${namespace}/${slug}/-/datasets/${val?.backendPipeline?.id}/rebuild`)}
         >
           View Pipeline
         </button>,
@@ -129,7 +113,7 @@ const DataVisualizationCard = (
           type="button"
           key="experiment-button"
           className="btn btn-outline-dark my-auto mr-1"
-          onClick={() => goToPipelineView(val)}
+          onClick={() => history.push(`/${namespace}/${slug}/-/datasets/${val?.backendPipeline?.id}/rebuild`)}
         >
           View Pipeline
         </button>,
@@ -164,9 +148,6 @@ const DataVisualizationCard = (
     return buttons;
   }
 
-  if (redirect) {
-    return <Redirect to={`/${namespace}/${slug}/-/visualizations/new`} />;
-  }
   return (
     <div className="pipeline-card" key={today}>
       <div className="header">
@@ -220,7 +201,6 @@ DataVisualizationCard.propTypes = {
       filesChanged: string,
     })).isRequired,
   }).isRequired,
-  setPreconfOps: func.isRequired,
   namespace: string.isRequired,
   slug: string.isRequired,
   callback: func.isRequired,
@@ -228,7 +208,6 @@ DataVisualizationCard.propTypes = {
 
 function mapActionsToProps(dispatch) {
   return {
-    setPreconfOps: bindActionCreators(setPreconfiguredOPerations, dispatch),
     fireModal: bindActionCreators(fireModal, dispatch),
     closeModal: bindActionCreators(closeModal, dispatch),
   };

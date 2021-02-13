@@ -10,7 +10,7 @@ import { bindActionCreators } from 'redux';
 import hooks from 'customHooks/useSelectedProject';
 import AuthWrapper from 'components/AuthWrapper';
 import { generateBreadCrumbs } from 'functions/helpers';
-import { goToPipelineView, getInfoFromStatus } from 'functions/pipeLinesHelpers';
+import { getInfoFromStatus } from 'functions/pipeLinesHelpers';
 import PropTypes, { shape, func } from 'prop-types';
 import DataCard from 'components/layout/DataCard';
 import FilesTable from '../files-table/filesTable';
@@ -18,7 +18,6 @@ import Navbar from '../navbar/navbar';
 import ProjectContainer from '../projectContainer';
 import './dataInstanceDetails.scss';
 import FilesApi from '../../apis/FilesApi.ts';
-import { setPreconfiguredOPerations } from 'store/actions/userActions';
 import { closeModal, fireModal } from 'store/actions/actionModalActions';
 import { getBranchesList } from 'store/actions/branchesActions';
 import DataInstanteDeleteModal from 'components/DeleteDataInstance/DeleteDatainstance';
@@ -37,7 +36,6 @@ const DataInstanceDetails = (props) => {
       },
     },
     history,
-    setPreconfOps,
     fireModal,
   } = props;
 
@@ -94,13 +92,6 @@ const DataInstanceDetails = (props) => {
     }
   }, [gitlabId, path, branchName, dataId]);
 
-  const pipelineViewProps = {
-    backendPipeline: dataInstance,
-    setPreconfOps,
-    selectedProject,
-    history,
-    routeType: '/datasets/new',
-  }
   const customCrumbs = [
     {
       name: 'Datasets',
@@ -280,7 +271,7 @@ const DataInstanceDetails = (props) => {
               <button
                 type="button"
                 className="pipeline-view-btn btn btn-outline-dark ml-2 mb-auto"
-                onClick={() => goToPipelineView(pipelineViewProps)}
+                onClick={() => history.push(`/${namespace}/${slug}/-/datasets/${id}/rebuild`)}
               >
                 View Pipeline
               </button>
@@ -365,7 +356,6 @@ function mapStateToProps(state) {
 
 function mapActionsToProps(dispatch) {
   return {
-    setPreconfOps: bindActionCreators(setPreconfiguredOPerations, dispatch),
     fireModal: bindActionCreators(fireModal, dispatch),
     closeModal: bindActionCreators(closeModal, dispatch),
     getBranchesList: bindActionCreators(getBranchesList, dispatch),
