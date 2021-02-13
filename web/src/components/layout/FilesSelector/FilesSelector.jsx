@@ -10,19 +10,21 @@ const FilesSelector = (props) => {
     buttonLabel,
     instructions,
   } = props;
-  const [{ 
+  const [{
     branchSelected: branch,
-    initialFiles,
+    initialInformation: { initialFiles },
     filesSelectedInModal,
-    isVisibleSelectFilesModal
+    isVisibleSelectFilesModal,
   }, dispatch] = useContext(DataPipelinesContext);
-  const files = initialFiles || filesSelectedInModal;
+  const files = initialFiles.lenth > 0 || filesSelectedInModal;
+
   function handleSelectData() {
     dispatch({
-      type: SET_IS_VISIBLE_FILES_MODAL, 
-      isVisibleSelectFilesModal: !isVisibleSelectFilesModal 
+      type: SET_IS_VISIBLE_FILES_MODAL,
+      isVisibleSelectFilesModal: !isVisibleSelectFilesModal,
     });
-  };
+  }
+
   return (
     <div className={`${className} files-selector`}>
       {files.length === 0 ? (
@@ -47,7 +49,7 @@ const FilesSelector = (props) => {
                 Path:
                 {'  '}
                 <b>
-                  {files[0].path}
+                  {files[0].location || files[0].path}
                 </b>
               </p>
             </div>

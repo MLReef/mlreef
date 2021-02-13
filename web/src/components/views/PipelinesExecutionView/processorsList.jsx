@@ -48,7 +48,7 @@ export const Processor = ({ processorData, operationTypeToExecute }) => {
           <p>
             Created by
             &nbsp;
-            <span><b>Keras</b></span>
+            <span><b>{nameSpace}</b></span>
           </p>
           <div>
             {inputDataTypes && <MProjectCardTypes input types={inputDataTypes} />}

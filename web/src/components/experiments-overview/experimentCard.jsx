@@ -113,9 +113,6 @@ ExperimentCard.propTypes = {
   })),
   currentState: string.isRequired,
   projectId: number.isRequired,
-  algorithms: arrayOf(shape({
-    name: string.isRequired,
-  })).isRequired,
 };
 
 ExperimentCard.defaultProps = {

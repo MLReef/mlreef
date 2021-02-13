@@ -7,7 +7,7 @@ const filesApi = new FilesApi();
  * @param {*} file: file which was used as file input when a pipeline was executed
  */
 function getIsFileChecked(initialFiles, file) {
-  if (!initialFiles) return false;
+  if (initialFiles.length === 0) return false;
 
   return initialFiles.filter((f) => f.location === file.path).length > 0;
 }

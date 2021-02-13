@@ -1,17 +1,13 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
 import { toastr } from 'react-redux-toastr';
 import { MLoadingSpinnerContainer } from 'components/ui/MLoadingSpinner';
 import {
   shape,
   string,
-  func,
 } from 'prop-types';
 import hooks from 'customHooks/useSelectedProject';
 import './ExperimentDetail.scss';
 import MSimpleTabs from 'components/ui/MSimpleTabs';
-import { setPreconfiguredOPerations } from 'store/actions/userActions';
 import Navbar from '../navbar/navbar';
 import ProjectContainer from '../projectContainer';
 import DetailsSummary from './MenuOptions/DetailSummary';
@@ -19,12 +15,11 @@ import Files from './MenuOptions/ExperimentArtifacts';
 import JobLog from './MenuOptions/jobLog';
 import actions from './actions';
 
-export const UnconnectedExperimentDetails = (props) => {
+export const ExperimentDetails = (props) => {
   const [experiment, setExperiment] = useState({});
   const [jobs, setJobs] = useState([]);
   const {
     match: { params: { namespace, slug, experimentId } },
-    setPreconfiguredOPerations,
     history,
   } = props;
 
@@ -102,12 +97,11 @@ export const UnconnectedExperimentDetails = (props) => {
                   projectNamespace={namespace}
                   projectSlug={slug}
                   projectId={gid}
-                  inputFiles={experiment.input_files}
+                  expId={experimentId}
                   dataOperatorsExecuted={experiment.processing}
                   experimentName={uniqueName}
                   parameters={userParameters}
                   pipelineInfo={pipelineInfo}
-                  setPreconfiguredOPerations={setPreconfiguredOPerations}
                   history={history}
                 />
               ),
@@ -136,20 +130,13 @@ export const UnconnectedExperimentDetails = (props) => {
   );
 };
 
-UnconnectedExperimentDetails.propTypes = {
+ExperimentDetails.propTypes = {
   match: shape({
     params: shape({
       experimentId: string.isRequired,
     }).isRequired,
   }).isRequired,
-  setPreconfiguredOPerations: func.isRequired,
   history: shape({}).isRequired,
 };
 
-function mapActionsToProps(dispatch) {
-  return {
-    setPreconfiguredOPerations: bindActionCreators(setPreconfiguredOPerations, dispatch),
-  };
-}
-
-export default connect(() => ({}), mapActionsToProps)(UnconnectedExperimentDetails);
+export default ExperimentDetails;

@@ -7,11 +7,29 @@ import { DataPipelinesContext } from '../DataPipelineHooks/DataPipelinesProvider
 import ErrorsDiv from './ErrorsDiv';
 import { VALIDATE_FORM } from '../DataPipelineHooks/actions';
 
+const getValue = (param, path) => {
+  if ((param.name === 'input-path' || param.name === 'input_path') && (!param.value || param.value === '')) {
+    return path;
+  }
+
+  return param.value;
+};
+
 const InputParam = ({ param, dataProcessorId }) => {
-  const [, dispatch] = useContext(DataPipelinesContext);
+  const [{ filesSelectedInModal }, dispatch] = useContext(DataPipelinesContext);
   const [hasErrors, setHasErrors] = useState(false);
   useEffect(() => {
-    if (param.value) {
+    if (param.name === 'input-path') {
+      const newValue = param.value || filesSelectedInModal[0]?.path;
+      console.log(newValue);
+      dispatch({
+        type: 'UPDATE_PARAM_VALUE_IN_DATA_OPERATOR',
+        newParamValue: newValue,
+        paramName: param.name,
+        procSelectedId: dataProcessorId,
+        isValid: validateInput(newValue, param.type, param.required),
+      });
+    } else if (param.value) {
       dispatch({
         type: 'UPDATE_PARAM_VALUE_IN_DATA_OPERATOR',
         newParamValue: param.value,
@@ -19,9 +37,10 @@ const InputParam = ({ param, dataProcessorId }) => {
         procSelectedId: dataProcessorId,
         isValid: validateInput(param.value, param.type, param.required),
       });
-      dispatch({ type: VALIDATE_FORM });
     }
-  }, [dataProcessorId, dispatch, param.name, param.required, param.type, param.value]);
+    dispatch({ type: VALIDATE_FORM });
+  }, [dataProcessorId, dispatch, param.name, param.required, param.type, param.value, filesSelectedInModal]);
+
   function validateFields(e) {
     const isValid = validateInput(e.currentTarget.value, param.type, param.required);
     setHasErrors(!isValid);
@@ -34,6 +53,7 @@ const InputParam = ({ param, dataProcessorId }) => {
     });
     dispatch({ type: VALIDATE_FORM });
   }
+
   return (
     <div className="mb-3">
       <div className="d-flex">
@@ -50,7 +70,7 @@ const InputParam = ({ param, dataProcessorId }) => {
         <Input
           callback={validateFields}
           placeholder={String(param.default_value)}
-          value={param.value}
+          value={param.name === 'input-path' ? filesSelectedInModal[0]?.path || param.value : param.value}
           hasErrors={hasErrors}
         />
       </div>

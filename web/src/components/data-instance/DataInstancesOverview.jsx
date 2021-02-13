@@ -1,12 +1,11 @@
-import React, { Component, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { toastr } from 'react-redux-toastr';
 import {
-  shape, objectOf, string,
+  shape, string,
 } from 'prop-types';
 import { closeModal, fireModal } from 'store/actions/actionModalActions';
-import { setPreconfiguredOPerations } from 'store/actions/userActions';
 import { generateBreadCrumbs } from 'functions/helpers';
 import { MLoadingSpinnerContainer } from 'components/ui/MLoadingSpinner';
 import { filterPipelinesOnStatus } from 'functions/pipeLinesHelpers';
@@ -25,7 +24,6 @@ const DataInstanceOverview = (props) => {
       params: { namespace, slug },
     },
     history,
-    setPreconfiguredOPerations,
     fireModal,
     closeModal,
   } = props;
@@ -165,7 +163,6 @@ const DataInstanceOverview = (props) => {
                   namespace={namespace}
                   slug={slug}
                   history={history}
-                  setPreconfiguredOPerations={setPreconfiguredOPerations}
                   params={{
                     currentState: dataInstanceClassification.status,
                     instances,
@@ -201,7 +198,6 @@ function mapStateToProps(state) {
 
 function mapActionsToProps(dispatch) {
   return {
-    setPreconfiguredOPerations: bindActionCreators(setPreconfiguredOPerations, dispatch),
     fireModal: bindActionCreators(fireModal, dispatch),
     closeModal: bindActionCreators(closeModal, dispatch),
   };

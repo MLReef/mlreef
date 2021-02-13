@@ -4,6 +4,10 @@ import DataInstanceDetails from 'components/data-instance/dataInstanceDetails';
 import { storeFactory } from 'functions/testUtils';
 import { projectsArrayMock, branchesMock } from '../testData';
 
+const pushMock = jest.fn();
+
+const history = { push: pushMock }
+
 const match = {
   params: {
     namespace: 'my-namespace',
@@ -20,7 +24,7 @@ const store = storeFactory({
 
 const setup = () => {
   const testWrapper = shallow(
-    <DataInstanceDetails store={store} match={match} />,
+    <DataInstanceDetails store={store} match={match} history={history}/>,
   );
 
   return testWrapper.dive().dive();
@@ -43,7 +47,7 @@ describe('Data instance details contains basic UI elements', () => {
 
   it('asserts that pipeline view button redirects to FunctionalExecutionPipeline', () => {
     wrapper.find('.pipeline-view-btn').simulate('click');
-    expect(wrapper.find('FunctionalExecutionPipeline'));
+    expect(pushMock).toHaveBeenCalled();
   });
 
   it('asserts that files table is shown', () => {

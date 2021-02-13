@@ -11,10 +11,9 @@ import moment from 'moment';
 import DataCard from 'components/layout/DataCard';
 import { bindActionCreators } from 'redux';
 import { closeModal, fireModal } from 'store/actions/actionModalActions';
-import { setPreconfiguredOPerations } from 'store/actions/userActions';
 import { getBranchesList } from 'store/actions/branchesActions';
 import DataInstanteDeleteModal from 'components/DeleteDataInstance/DeleteDatainstance';
-import { goToPipelineView, getInfoFromStatus } from 'functions/pipeLinesHelpers';
+import { getInfoFromStatus } from 'functions/pipeLinesHelpers';
 import { generateBreadCrumbs } from 'functions/helpers';
 import FilesApi from '../../apis/FilesApi.ts';
 import './dataVisualizationDetail.scss';
@@ -281,7 +280,7 @@ const DataVisualizationDetails = ({ ...props }) => {
               <button
                 type="button"
                 className="btn btn-outline-dark ml-2 mb-auto"
-                onClick={() => goToPipelineView(pipelineViewProps)}
+                onClick={() => history.push(`/${namespace}/${slug}/-/datasets/${dataInstance?.id}/rebuild`)}
               >
                 View Pipeline
               </button>
@@ -338,7 +337,6 @@ DataVisualizationDetails.propTypes = {
 
 function mapActionsToProps(dispatch) {
   return {
-    setPreconfOps: bindActionCreators(setPreconfiguredOPerations, dispatch),
     fireModal: bindActionCreators(fireModal, dispatch),
     closeModal: bindActionCreators(closeModal, dispatch),
     getBranchesList: bindActionCreators(getBranchesList, dispatch),

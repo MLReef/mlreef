@@ -43,6 +43,7 @@ import Publications from 'components/views/Publications/Publications';
 import FileEditor from 'components/views/FileEditor';
 import ImportDataOverview from 'components/views/ImportDataOverview'
 import BasicMergeRequestView from './components/mergeRequestDetailView/basicMergeRequestView';
+import FunctionalExecutionPipelinesView from 'components/views/PipelinesExecutionView';
 
 export default [
   {
@@ -302,6 +303,12 @@ export default [
     },
   },
   {
+    name: 'dataSetRebuild',
+    path: '/:namespace/:slug/-/datasets/:dataId/rebuild',
+    exact: true,
+    component: FunctionalExecutionPipelinesView,
+  },
+  {
     name: 'dataset',
     path: '/:namespace/:slug/-/datasets/:dataId',
     exact: true,
@@ -311,6 +318,12 @@ export default [
     name: 'datasetBranchPath',
     path: '/:namespace/:slug/-/datasets/:branch/:dataId/path/:path',
     component: DataInstanceDetailsView,
+  },
+  {
+    name: 'experimentRbuild',
+    path: '/:namespace/:slug/-/experiments/:dataId/rebuild',
+    exact: true,
+    component: FunctionalExecutionPipelinesView,
   },
   {
     name: 'experiments',

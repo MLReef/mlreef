@@ -5,7 +5,7 @@ import {
   ADD_NEW_PROCESSOR,
   UPDATE_PROCESSORS_SELECTED,
   REMOVE_DATA_PROCESSOR_BY_ID,
-  UPDATE_INITIAL_FILES,
+  UPDATE_INITIAL_INFORMATION,
   SET_IS_VISIBLE_FILES_MODAL,
   UPDATE_FILES_SELECTED_IN_MODAL,
   SET_BRANCH_SELECTED,
@@ -59,7 +59,7 @@ export const initialState = {
   processorsSelected: [],
   filesSelectedInModal: [],
   branches: [],
-  initialFiles: null,
+  initialInformation: { initialFiles: [] },
   isFormValid: false,
 };
 
@@ -83,8 +83,8 @@ const DataPipelinesReducer = (state, action) => {
           .processorsSelected
           .filter((pS) => pS.internalProcessorId !== action.id),
       };
-    case UPDATE_INITIAL_FILES:
-      return { ...state, initialFiles: action.initialFiles };
+    case UPDATE_INITIAL_INFORMATION:
+      return { ...state, initialInformation: action.initialInformation };
     case SET_IS_VISIBLE_FILES_MODAL:
       return { ...state, isVisibleSelectFilesModal: action.isVisibleSelectFilesModal };
     case UPDATE_FILES_SELECTED_IN_MODAL:
@@ -94,24 +94,7 @@ const DataPipelinesReducer = (state, action) => {
     case SET_INITIAL_OPERATORS_SELECTED:
       return {
         ...state,
-        processorsSelected: action.initialDataOperators
-          .map((initDataOPerator) => {
-            const filteredProcessor = state.currentProcessors
-              .filter((cP) => cP.slug === initDataOPerator.slug)[0];
-            return {
-              ...filteredProcessor,
-              parameters: filteredProcessor?.parameters?.map((param) => {
-                const filteredParams = initDataOPerator
-                  ?.parameters
-                  ?.filter((executedParam) => param.name === executedParam.name);
-                if (filteredParams.length === 0) return { ...param };
-                return {
-                  ...param,
-                  value: filteredParams[0].value,
-                };
-              }),
-            };
-          }),
+        processorsSelected: action.initialDataOperators,
       };
     case SET_IS_SHOWING_EXECUTE_PIPELINE_MODAL:
       return { ...state, isShowingExecutePipelineModal: action.isShowingExecutePipelineModal };

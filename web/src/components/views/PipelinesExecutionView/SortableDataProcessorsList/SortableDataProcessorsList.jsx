@@ -9,7 +9,7 @@ import SortableProcessor from './SortableProcessor';
 const SortableProcessorsList = SortableContainer(({
   prefix,
 }) => {
-  const [{ processorsSelected: items, filesSelectedInModal }] = useContext(DataPipelinesContext);
+  const [{ processorsSelected: items }] = useContext(DataPipelinesContext);
   return (
     <ul className={`${items.length > 0 ? 'p-2' : ''}`}>
       {items.map((value, index) => {
@@ -17,7 +17,6 @@ const SortableProcessorsList = SortableContainer(({
           value,
           index,
           prefix,
-          filesSelectedInModal,
         };
         return (
           <SortableProcessor

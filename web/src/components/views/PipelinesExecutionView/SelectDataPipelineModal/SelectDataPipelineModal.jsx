@@ -3,6 +3,7 @@ import {
   shape, number, string, arrayOf,
 } from 'prop-types';
 import { connect } from 'react-redux';
+import { toastr } from 'react-redux-toastr';
 import './SelectDataPipelineModal.scss';
 import MDropdown from 'components/ui/MDropdown';
 import ReturnLink from 'components/returnLink';
@@ -21,7 +22,14 @@ const fileIcon = '/images/svg/file_01.svg';
 const jobsApi = new JobsApi();
 
 export const UnconnectedSelectDataPipelineModal = (props) => {
-  const [{ isVisibleSelectFilesModal }, dispatch] = useContext(DataPipelinesContext);
+  const [{
+    isVisibleSelectFilesModal,
+    initialInformation: {
+      initialFiles,
+      initialCommit,
+      initialBranch,
+    },
+  }, dispatch] = useContext(DataPipelinesContext);
   const {
     project: {
       defaultBranch,
@@ -29,9 +37,6 @@ export const UnconnectedSelectDataPipelineModal = (props) => {
       gitlabName: projectName,
     },
     branches,
-    initialFiles,
-    initialBranch,
-    initialCommit,
   } = props;
   const [filePath, setFilepath] = useState('');
   const [jobs, setJobs] = useState([]);
@@ -56,19 +61,21 @@ export const UnconnectedSelectDataPipelineModal = (props) => {
             filesSelectedInModal: newfilesSelected,
           });
           dispatch({ type: SET_BRANCH_SELECTED, branchSelected });
+          dispatch({ type: VALIDATE_FORM });
         }
       })
-      .catch((err) => err);
+      .catch((err) => toastr.error('Error', err.message));
   }
 
   useEffect(() => {
-    updateFiles('');
+    if (gid && branchSelected) {
+      updateFiles('');
 
-    jobsApi.getPerProject(gid)
-      .then((jobList) => setJobs(jobList))
-      .catch((err) => err);
-  
-  }, [branchSelected, gid]);
+      jobsApi.getPerProject(gid)
+        .then((jobList) => setJobs(jobList))
+        .catch((err) => err);
+    }
+  }, [branchSelected, gid, initialCommit, branchSelected]);
 
   function getBack() {
     const path = filePath.substring(0, filePath.lastIndexOf('/'));
@@ -259,7 +266,7 @@ export const UnconnectedSelectDataPipelineModal = (props) => {
                             className="d-block ml-2 pb-2"
                             name={`span-file-${index}`}
                             checked={file.checked}
-                            callback={(name, labelValue, newValue) => handleClickOnCheckbox(file, newValue)}
+                            callback={(...args) => handleClickOnCheckbox(file, args[2])}
                           />
                         </td>
                         <td className="icon-container-column">
@@ -300,30 +307,18 @@ export const UnconnectedSelectDataPipelineModal = (props) => {
 
 UnconnectedSelectDataPipelineModal.propTypes = {
   project: shape({
-    gid: number.isRequired,
-    defaultBranch: string.isRequired,
+    gid: number,
+    defaultBranch: string,
   }).isRequired,
-  initialFiles: arrayOf(shape({ location: string.isRequired })),
   branches: arrayOf(shape({})).isRequired,
-  initialBranch: string,
-  initialCommit: shape({}),
-};
-
-UnconnectedSelectDataPipelineModal.defaultProps = {
-  initialFiles: [],
-  initialBranch: null,
-  initialCommit: null,
 };
 
 function mapStateToProps(
-  { projects: { selectedProject: project }, branches, user: { preconfiguredOperations } },
+  { projects: { selectedProject: project }, branches },
 ) {
   return {
     project,
     branches,
-    initialFiles: preconfiguredOperations?.inputFiles,
-    initialBranch: preconfiguredOperations?.branch,
-    initialCommit: preconfiguredOperations?.commit,
   };
 }
 

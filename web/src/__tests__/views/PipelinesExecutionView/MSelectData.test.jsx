@@ -8,12 +8,15 @@ import actions from 'components/views/PipelinesExecutionView/SelectDataPipelineM
 
 const isVisibleSelectFilesModal = true;
 let dispatchMock;
-const setup = (initialFiles) => {
+const setup = (initialFiles = []) => {
   dispatchMock = jest.fn();
   const mockUseReducer = [
     {
       ...initialState,
       isVisibleSelectFilesModal,
+      initialInformation: {
+        initialFiles,
+      },
     },
     dispatchMock,
   ];
@@ -23,7 +26,6 @@ const setup = (initialFiles) => {
       <UnconnectedSelectDataPipelineModal
         project={projectsArrayMock.projects.selectedProject}
         branches={branchesMock}
-        initialFiles={initialFiles}
       />
     </DataPipelinesContext.Provider>,
   );

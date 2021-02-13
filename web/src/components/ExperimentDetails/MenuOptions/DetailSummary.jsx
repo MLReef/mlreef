@@ -15,9 +15,7 @@ const DetailsSummary = ({
   experimentName,
   parameters,
   pipelineInfo,
-  dataOperatorsExecuted,
-  inputFiles,
-  setPreconfiguredOPerations,
+  expId,
   history,
 }) => {
   const [pipelineDetails, setDetails] = useState({});
@@ -90,17 +88,7 @@ const DetailsSummary = ({
                   id="view-pipeline-btn"
                   type="button"
                   className="btn btn-outline-dark btn-label-sm"
-                  onClick={() => {
-                    const configuredOperations = {
-                      dataOperatorsExecuted: [dataOperatorsExecuted],
-                      inputFiles,
-                      pipelineBackendId: pipelineInfo.id,
-                      branch: pipelineInfo.ref,
-                      commit: pipelineInfo.commit_sha,
-                    };
-                    setPreconfiguredOPerations(configuredOperations);
-                    history.push(`/${projectNamespace}/${projectSlug}/-/experiments/new`);
-                  }}
+                  onClick={() => history.push(`/${projectNamespace}/${projectSlug}/-/experiments/${expId}/rebuild`)}
                 >
                   View pipeline
                 </button>
@@ -222,7 +210,6 @@ const DetailsSummary = ({
 
 DetailsSummary.defaultProps = {
   experimentName: '',
-  currentState: '---',
 };
 
 DetailsSummary.propTypes = {
@@ -230,7 +217,6 @@ DetailsSummary.propTypes = {
   projectNamespace: string.isRequired,
   projectSlug: string.isRequired,
   experimentName: string,
-  currentState: string,
   history: shape({}).isRequired,
   parameters: arrayOf(
     shape({
@@ -242,7 +228,6 @@ DetailsSummary.propTypes = {
   pipelineInfo: shape({}).isRequired,
   dataOperatorsExecuted: shape({}).isRequired,
   inputFiles: arrayOf(shape({})).isRequired,
-  setPreconfiguredOPerations: func.isRequired,
 };
 
 export default DetailsSummary;
