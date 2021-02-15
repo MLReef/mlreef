@@ -25,5 +25,5 @@ export MLREEF_PG_LOG="/var/log/${MLREEF_PG_CLUSTER}-postgresql"
 
 ### Backend dynamic variables created from ENV mentioned in Dockerfile
 export EPF_BACKEND_URL=http://localhost:$MLREEF_BACKEND_PORT
-export EPF_GITLAB_URL=http://localhost
+export EPF_GITLAB_URL=http://localhost:10080
 

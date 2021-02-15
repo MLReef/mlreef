@@ -225,6 +225,7 @@ RUN sed -i "/gzip on;/d" /etc/nginx/conf.d/default.conf
 # Wrapper to handle additional script to run after default gitlab image's /assets/wrapper
 ADD nautilus/assets/ /assets
 ADD epf/ /epf
+ADD images/ /images
 
 # Export derived env variables from the above defined ENV variables.These should not be directly overwritten.
 RUN cat /assets/dynamic-env > /etc/bash.bashrc
