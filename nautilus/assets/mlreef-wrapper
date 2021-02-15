@@ -47,6 +47,17 @@ getGitlabRunnerRegistrationToken() {
   gitlab-rails runner -e production "puts Gitlab::CurrentSettings.current_application_settings.runners_registration_token" | tr -d '\r'
 }
 
+# Set max_artifacts_size using api
+setMaxArtifactSizeForGitlab() {
+  curl --request PUT --header "PRIVATE-TOKEN: $GITLAB_ADMIN_TOKEN" "${INSTANCE_HOST}:${GITLAB_PORT}"/"api/v4/application/settings?max_artifacts_size=5120"
+}
+
+# Set container_registry_token_expire_delay api
+setContainerRegistryTokenExpireDelayForGitlab() {
+  curl --request PUT --header "PRIVATE-TOKEN: $GITLAB_ADMIN_TOKEN" "${INSTANCE_HOST}:${GITLAB_PORT}"/"api/v4/application/settings?container_registry_token_expire_delay=30"
+}
+
+
 #########################
 # Call the Gitlab wrapper
 # Gitlab will self-daemonize and run in the background hence no '&' is needed
@@ -68,6 +79,12 @@ log "Expecting code 302; received: $(checkGitlabPort /runners)"
 
 log "Refreshing root user api-token"
 recreateGitlabAdminToken
+
+#########################
+# Gitlab setting changes
+log "Changing gitlab settings"
+setMaxArtifactSizeForGitlab
+setContainerRegistryTokenExpireDelayForGitlab
 
 log "Getting Gitlab runners registration token from Gitlab."
 RUNNER_REGISTRATION_TOKEN=$(getGitlabRunnerRegistrationToken)
@@ -136,10 +153,15 @@ echo "Project Id: $projectId"
 export MLREEF_DOCKER_REGISTRY_USER=root
 export MLREEF_DOCKER_REGISTRY_IMAGE="${MLREEF_DOCKER_REGISTRY}/${GITLAB_ROOTGROUP}/${GITLAB_PROJECT}"
 export MLREEF_DOCKER_REGISTRY_EPF_IMAGE=$MLREEF_DOCKER_REGISTRY_IMAGE/epf:latest
+export MLREEF_DOCKER_REGISTRY_EXPERIMENT_IMAGE=$MLREEF_DOCKER_REGISTRY_IMAGE/experiment:latest
 
 if [ -n "${MLREEF_DOCKER_REGISTRY_EXTERNAL_URL+x}" ] && [ -n "${MLREEF_DOCKER_REGISTRY_USER+x}" ] && [ -n "${GITLAB_ADMIN_TOKEN+x}" ]; then
           echo "$GITLAB_ADMIN_TOKEN" | docker login "$MLREEF_DOCKER_REGISTRY_EXTERNAL_URL" --username="$MLREEF_DOCKER_REGISTRY_USER" --password-stdin
 fi
+
+docker build --tag "$MLREEF_DOCKER_REGISTRY_EXPERIMENT_IMAGE" -f ../images/experiment/Dockerfile ../images/experiment
+docker push "$MLREEF_DOCKER_REGISTRY_EXPERIMENT_IMAGE"
+log "$MLREEF_DOCKER_REGISTRY_EXPERIMENT_IMAGE has been successfully uploaded "
 
 docker build --tag "$MLREEF_DOCKER_REGISTRY_EPF_IMAGE" -f ../epf/Dockerfile ../epf
 docker push "$MLREEF_DOCKER_REGISTRY_EPF_IMAGE"

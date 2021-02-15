@@ -4,9 +4,9 @@ MAINTAINER MLReef
 ########## MLREEF ##########
 
 RUN apk add --no-cache \
-	git \
+    git  \
     curl \
-	wget \
+    wget \
     jq 
 
 ##### ADD files to the image

@@ -12,6 +12,9 @@
 !epf/Dockerfile
 !epf/src
 
+!images/experiment/Dockerfile
+!images/experiment/src
+
 !nautilus
 /nautilus/docker-compose.yml
 
