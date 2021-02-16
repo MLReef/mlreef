@@ -1,3 +1,6 @@
+// this test has been disabled due to the problems explained inspect
+// https://gitlab.com/mlreef/mlreef/-/issues/977
+// and it's candidate to be removed
 import BranchesApi from 'apis/BranchesApi';
 import CommitsApi from 'apis/CommitsApi.ts';
 import DataPipelineApi from 'apis/DataPipelineApi';
@@ -16,7 +19,7 @@ jest.setTimeout(300000);
 
 let hasFiles = false;
 
-describe('test the pipelines environment', () => {
+xdescribe('test the pipelines environment', () => {
   beforeEach(async () => {
     const user = await assureUserRegistration();
     username = user.registerData.username;
