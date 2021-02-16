@@ -2,16 +2,13 @@ package com.mlreef.rest.api
 
 import com.mlreef.rest.AccessLevel
 import com.mlreef.rest.CodeProject
-import com.mlreef.rest.CodeProjectRepository
 import com.mlreef.rest.DataProcessor
-import com.mlreef.rest.DataProcessorRepository
 import com.mlreef.rest.DataProcessorType
 import com.mlreef.rest.DataType
 import com.mlreef.rest.ParameterType
 import com.mlreef.rest.Person
 import com.mlreef.rest.ProcessorParameter
 import com.mlreef.rest.ProcessorVersion
-import com.mlreef.rest.ProcessorVersionRepository
 import com.mlreef.rest.PublishingInfo
 import com.mlreef.rest.VisibilityScope
 import com.mlreef.rest.api.v1.DataProcessorCreateRequest
@@ -47,9 +44,6 @@ class DataProcessorApiTest : AbstractRestApiTest() {
     val rootUrl = "/api/v1/data-processors"
     val rootUrl2 = "/api/v1/code-projects"
 
-    @Autowired private lateinit var dataProcessorRepository: DataProcessorRepository
-    @Autowired private lateinit var processorVersionRepository: ProcessorVersionRepository
-    @Autowired private lateinit var codeProjectRepository: CodeProjectRepository
     @Autowired private lateinit var pipelineTestPreparationTrait: PipelineTestPreparationTrait
 
     @BeforeEach

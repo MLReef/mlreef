@@ -233,6 +233,10 @@ internal class CodeProjectPublishingServiceTest : AbstractServiceTest() {
             gitlabClient.adminGetRepositoryFileContentAndInformation(any(), any())
         }
 
+        verify(exactly = 1) {
+            gitlabClient.adminGetPipelines(any())
+        }
+
         confirmVerified(gitlabClient)
     }
 }

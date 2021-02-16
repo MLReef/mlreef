@@ -118,7 +118,7 @@ class CodeProjectPublishingApiTest : AbstractRestApiTest() {
         this.mockFilesInBranch(MLREEF_NAME)
         this.mockGetUserProjectsList(listOf(codeProject.id), account, AccessLevel.OWNER)
         this.createVersionForDataProcessor(
-            this.createDataProcessor(codeProject = codeProject)
+            this.createDataProcessor(codeProject = codeProject), published = true
         )
 
         val url = "$rootUrl/${codeProject.id}/publish"
@@ -161,6 +161,9 @@ class CodeProjectPublishingApiTest : AbstractRestApiTest() {
     fun `Can Unpublish existing Repository`() {
         this.mockFilesInBranch(MLREEF_NAME)
         this.mockGetUserProjectsList(listOf(codeProject.id), account, AccessLevel.OWNER)
+        this.createVersionForDataProcessor(
+            this.createDataProcessor(codeProject = codeProject), published = true
+        )
 
         val url = "$rootUrl/${codeProject.id}/unpublish"
         val returnedResult = this.performPost(url, token)
@@ -183,6 +186,9 @@ class CodeProjectPublishingApiTest : AbstractRestApiTest() {
 
         this.mockFilesInBranchOnlyOnce(MLREEF_NAME, "main.py")
         this.mockGetUserProjectsList(listOf(codeProject.id), account, AccessLevel.OWNER)
+        this.createVersionForDataProcessor(
+            this.createDataProcessor(codeProject = codeProject), published = true
+        )
 
         val url = "$rootUrl/${codeProject.id}/republish"
         val returnedResult = this.performPost(url, token, request)

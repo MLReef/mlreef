@@ -3,7 +3,6 @@ package com.mlreef.rest.api
 import com.mlreef.rest.AccessLevel
 import com.mlreef.rest.Account
 import com.mlreef.rest.CodeProject
-import com.mlreef.rest.CodeProjectRepository
 import com.mlreef.rest.DataProcessorType
 import com.mlreef.rest.DataProject
 import com.mlreef.rest.DataProjectRepository
@@ -41,9 +40,6 @@ class ProjectNamespaceSlugEndpointsApiTest : AbstractRestApiTest() {
 
     @Autowired
     private lateinit var dataProjectRepository: DataProjectRepository
-
-    @Autowired
-    private lateinit var codeProjectRepository: CodeProjectRepository
 
     @Autowired
     private lateinit var sessionService: SessionsService

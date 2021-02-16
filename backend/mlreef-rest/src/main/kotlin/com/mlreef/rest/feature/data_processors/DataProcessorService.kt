@@ -45,6 +45,9 @@ class DataProcessorService(
         return processorVersionRepository.save(processorVersion)
     }
 
+    fun getAllDataProcessors() = dataProcessorRepository.findAll()
+    fun getAllProcessorVersions() = processorVersionRepository.findAll()
+
     fun createForCodeProject(
         id: UUID,
         codeProject: CodeProject,

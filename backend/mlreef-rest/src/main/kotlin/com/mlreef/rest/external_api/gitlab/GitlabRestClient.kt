@@ -532,9 +532,19 @@ class GitlabRestClient(
     }
 
     // GET /projects/:id/pipelines/
-    fun getPipelines(token: String, projectId: Long): List<GitlabPipeline> {
+    fun userGetPipelines(token: String, projectId: Long): List<GitlabPipeline> {
         return GitlabHttpEntity<String>("", createUserHeaders(token))
             .let { GitlabHttpEntity(it, createUserHeaders(token)) }
+            .makeRequest {
+                val url = "$gitlabServiceRootUrl/projects/$projectId/pipelines"
+                restTemplate(builder).exchange(url, HttpMethod.GET, it, typeRef<List<GitlabPipeline>>())
+            }
+    }
+
+    // GET /projects/:id/pipelines/
+    fun adminGetPipelines(projectId: Long): List<GitlabPipeline> {
+        return GitlabHttpEntity<String>("", createAdminHeaders())
+            .let { GitlabHttpEntity(it, createAdminHeaders()) }
             .makeRequest {
                 val url = "$gitlabServiceRootUrl/projects/$projectId/pipelines"
                 restTemplate(builder).exchange(url, HttpMethod.GET, it, typeRef<List<GitlabPipeline>>())

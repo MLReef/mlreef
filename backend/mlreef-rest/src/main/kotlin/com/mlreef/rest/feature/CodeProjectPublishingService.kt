@@ -15,6 +15,7 @@ import com.mlreef.rest.exceptions.ErrorCode
 import com.mlreef.rest.exceptions.InternalException
 import com.mlreef.rest.exceptions.NotFoundException
 import com.mlreef.rest.exceptions.PipelineStartException
+import com.mlreef.rest.exceptions.ProjectPublicationException
 import com.mlreef.rest.exceptions.PythonFileParsingException
 import com.mlreef.rest.exceptions.RestException
 import com.mlreef.rest.external_api.gitlab.GitlabRestClient
@@ -81,7 +82,7 @@ class PublishingService(
         val project = projectResolverService.resolveProject(projectId = projectId)
             ?: throw NotFoundException(ErrorCode.NotFound, "Project $projectId not found")
 
-        if (!isProjectPublished(project)) throw NotFoundException(ErrorCode.NotFound, "Project is not published yet")
+        if (!isProjectPublished(project)) throw ProjectPublicationException(ErrorCode.ProjectIsInIncorrectState, "Project is not published")
 
         return dataProcessorService.getProcessorVersionByProjectId(project.id)
             ?: throw NotFoundException(ErrorCode.NotFound, "Data processor for $projectId not found")
@@ -110,7 +111,8 @@ class PublishingService(
 
         val publisher = subjectRepository.findByIdOrNull(publisherSubjectId)
 
-        if (isProjectPublished(project)) throw ConflictException(ErrorCode.Conflict, "Project is already published")
+        if (projectHasActivePublishPipeline(project)) throw ProjectPublicationException(ErrorCode.ProjectIsInIncorrectState, "Project is in publishing state")
+        if (isProjectPublished(project, userToken)) throw ConflictException(ErrorCode.Conflict, "Project is already published")
 
         val baseEnvironment = baseEnvironmentsRepository.findByIdOrNull(environmentId)
             ?: throw NotFoundException(ErrorCode.NotFound, "Environment $environmentId not found")
@@ -121,7 +123,8 @@ class PublishingService(
 
         val dataProcessorId = UUID.randomUUID()
 
-        var existingDataProcessor = project.dataProcessor
+        // DATA PROCESSOR
+        var existingDataProcessor = dataProcessorService.getProcessorByProjectId(project.id)
             ?: dataProcessorService.createForCodeProject(
                 id = dataProcessorId,
                 name = parsedProcessor.name,
@@ -137,7 +140,8 @@ class PublishingService(
                 type = parsedProcessor.type,
             )
 
-        val existingDataProcessorVersion = project.dataProcessor?.processorVersion
+        // PROCESSOR VERSION
+        val existingDataProcessorVersion = dataProcessorService.getProcessorVersionByProjectId(project.id)
             ?: parsedVersion
 
         val secret = pipelineService.createSecret()
@@ -189,33 +193,68 @@ class PublishingService(
      *   2. parse data processor
      *   3. ... ?
      */
-    fun unPublishProject(userToken: String, projectId: UUID): Commit {
+    fun unPublishProject(userToken: String, projectId: UUID): Commit? {
         val project = projectResolverService.resolveProject(projectId = projectId)
             ?: throw NotFoundException(ErrorCode.NotFound, "Project $projectId not found")
 
-        if (!isProjectPublished(project)) throw NotFoundException(ErrorCode.NotFound, "Project is not published yet")
+        if (projectHasActivePublishPipeline(project)) throw ProjectPublicationException(ErrorCode.ProjectIsInIncorrectState, "Cannot unpublish. Project is publishing. Please wait until it is finished")
+        if (!isProjectPublished(project, userToken)) throw ProjectPublicationException(ErrorCode.ProjectIsInIncorrectState, "Project is not published yet")
 
-//        val dataProcessorVersion = dataProcessorService.getProcessorVersionByProjectId(project.id)
-//
-//        dataProcessorVersion?.let {
-//            dataProcessorService.deleteDataProcessor(it)
-//        }
+        return setProjectToUnpublishState(project, userToken).first
+    }
 
-        return try {
-            gitlabRestClient.commitFiles(
-                token = userToken,
-                projectId = project.gitlabId,
-                targetBranch = TARGET_BRANCH,
-                commitMessage = UNPUBLISH_COMMIT_MESSAGE,
-                fileContents = mapOf(
-                    DOCKERFILE_NAME to "",
-                    MLREEF_NAME to ""
-                ),
-                action = "delete"
-            )
-        } catch (e: RestException) {
-            throw PipelineStartException("Cannot delete $DOCKERFILE_NAME and $MLREEF_NAME files in branch $TARGET_BRANCH for project $projectId: ${e.errorName}")
+    // Here we just set internal state of project to Unpublish. No any images are removed from registry
+    private fun setProjectToUnpublishState(project: Project, userToken: String? = null, processorVersion: ProcessorVersion? = null): Pair<Commit?, ProcessorVersion?> {
+        val commit = userToken?.let {
+            try {
+                gitlabRestClient.commitFiles(
+                    token = it,
+                    projectId = project.gitlabId,
+                    targetBranch = TARGET_BRANCH,
+                    commitMessage = UNPUBLISH_COMMIT_MESSAGE,
+                    fileContents = mapOf(
+                        DOCKERFILE_NAME to "",
+                        MLREEF_NAME to ""
+                    ),
+                    action = "delete"
+                )
+            } catch (e: RestException) {
+                log.error("Cannot delete $DOCKERFILE_NAME and $MLREEF_NAME files in branch $TARGET_BRANCH for project ${project.id}: ${e.errorName}")
+                null
+            }
         }
+
+        val currentProcessorVersion = processorVersion
+            ?: dataProcessorService.getProcessorVersionByProjectId(project.id)
+
+        val resultProcessorVersion = currentProcessorVersion?.let {
+            val publishInfo = it.publishingInfo?.copy(
+                finishedAt = null,
+            ) ?: PublishingInfo(finishedAt = null)
+
+            dataProcessorService.saveProcessorVersion(
+                it.copy(
+                    path = null,
+                    publishingInfo = publishInfo,
+                    command = "",
+                    parameters = listOf(),
+                    contentSha256 = null
+                )
+            )
+        }
+
+        return Pair(commit, resultProcessorVersion)
+    }
+
+    private fun projectHasActivePublishPipeline(project: Project): Boolean {
+        val pipelines = gitlabRestClient.adminGetPipelines(project.gitlabId).filter {
+            it.status.equals("created", true) ||
+                it.status.equals("pending", true) ||
+                it.status.equals("preparing", true) ||
+                it.status.equals("running", true)
+        }
+
+        return (pipelines.size > 0)
     }
 
     fun getBaseEnvironmentsList(): List<BaseEnvironments> {
@@ -268,19 +307,8 @@ class PublishingService(
         } else if (files.size == 0) {
             log.warn("Main script was not found in repository for project $projectId. Data processor will be cleaned")
 
-            val publishingInfo = dataProcessorVersion.publishingInfo?.copy(finishedAt = null)
-                ?: PublishingInfo(finishedAt = null)
-
-            dataProcessorService.saveProcessorVersion(
-                dataProcessorVersion.copy(
-                    path = null,
-                    branch = dataProcessorVersion.branch,
-                    publishingInfo = publishingInfo,
-                    command = "",
-                    parameters = listOf(),
-                    contentSha256 = null
-                )
-            )
+            setProjectToUnpublishState(project, processorVersion = dataProcessorVersion).second
+                ?: dataProcessorVersion
         } else if (files[0].sha256 != dataProcessorVersion.contentSha256) {
             log.warn("Main script was changed for project $projectId. Data processor will be updated")
 
@@ -320,8 +348,16 @@ class PublishingService(
         }
     }
 
-    private fun isProjectPublished(project: Project): Boolean {
-        return repositoryService.findFileInRepository(project.gitlabId, MLREEF_NAME) != null
+    private fun isProjectPublished(project: Project, userToken: String? = null): Boolean {
+        val mlreefInRepo = repositoryService.findFileInRepository(project.gitlabId, MLREEF_NAME) != null
+        val publishTimePresent = dataProcessorService.getProcessorVersionByProjectId(project.id)?.publishingInfo?.finishedAt != null
+
+        if (!mlreefInRepo && !publishTimePresent) return false
+        if (mlreefInRepo && publishTimePresent) return true
+
+        setProjectToUnpublishState(project, userToken)
+
+        return false
     }
 
     private fun generateCodePublishingYAML(projectName: String, secret: String, finishUrl: String): String {

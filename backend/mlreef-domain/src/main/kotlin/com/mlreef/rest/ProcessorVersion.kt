@@ -25,12 +25,8 @@ data class ProcessorVersion(
     val id: UUID,
 
     @OneToOne(fetch = FetchType.LAZY)
-    @Fetch(value = FetchMode.JOIN)
-    @JoinColumn(
-        name = "data_processor_id",
-        referencedColumnName = "id",
-        foreignKey = ForeignKey(name = "processorversion_dataprocessor_data_processor_id_fkey"))
-    val dataProcessor: DataProcessor,
+    @JoinColumn(name = "data_processor_id")
+    var dataProcessor: DataProcessor,
 
     @OneToMany(fetch = FetchType.EAGER, cascade = [CascadeType.ALL])
     @JoinColumn(name = "processor_version_id", foreignKey = ForeignKey(name = "processorparameter_dataprocessor_data_processor_id_fkey"))
@@ -60,7 +56,7 @@ data class ProcessorVersion(
     val modelType: String? = null,
     val mlCategory: String? = null,
 
-    val publishingInfo: PublishingInfo? = null,
+    var publishingInfo: PublishingInfo? = null,
 
     @Column(name = "content_sha_256")
     val contentSha256: String? = null,

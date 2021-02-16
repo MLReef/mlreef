@@ -8,9 +8,11 @@ import com.mlreef.rest.ApplicationProfiles
 import com.mlreef.rest.BaseEnvironments
 import com.mlreef.rest.BaseEnvironmentsRepository
 import com.mlreef.rest.CodeProject
+import com.mlreef.rest.CodeProjectRepository
 import com.mlreef.rest.DataProcessor
 import com.mlreef.rest.DataProcessorInstance
 import com.mlreef.rest.DataProcessorInstanceRepository
+import com.mlreef.rest.DataProcessorRepository
 import com.mlreef.rest.DataProcessorType
 import com.mlreef.rest.DataType
 import com.mlreef.rest.Email
@@ -30,6 +32,8 @@ import com.mlreef.rest.PipelineType
 import com.mlreef.rest.ProcessorParameter
 import com.mlreef.rest.ProcessorParameterRepository
 import com.mlreef.rest.ProcessorVersion
+import com.mlreef.rest.ProcessorVersionRepository
+import com.mlreef.rest.PublishingInfo
 import com.mlreef.rest.PublishingMachineType
 import com.mlreef.rest.UserRole
 import com.mlreef.rest.VisibilityScope
@@ -171,6 +175,15 @@ abstract class AbstractRestApiTest : AbstractRestTest() {
 
     @Autowired
     private lateinit var baseEnvironmentsRepository: BaseEnvironmentsRepository
+
+    @Autowired
+    protected lateinit var codeProjectRepository: CodeProjectRepository
+
+    @Autowired
+    protected lateinit var dataProcessorRepository: DataProcessorRepository
+
+    @Autowired
+    protected lateinit var processorVersionRepository: ProcessorVersionRepository
 
     private val passwordEncoder: PasswordEncoder = BCryptPasswordEncoder()
 
@@ -653,7 +666,7 @@ abstract class AbstractRestApiTest : AbstractRestTest() {
                                       inputDataType: DataType = DataType.IMAGE,
                                       outputDataType: DataType = DataType.IMAGE): DataProcessor {
         val id = UUID.randomUUID()
-        return dataProcessorService.createForCodeProject(
+        val dataProcessor = dataProcessorService.createForCodeProject(
             id = id, name = "dataprocessor-name",
             codeProject = codeProject,
             slug = "slug-$id", parameters = listOf(),
@@ -664,10 +677,27 @@ abstract class AbstractRestApiTest : AbstractRestTest() {
             command = "command1",
             type = type
         )
+
+        codeProject.dataProcessor = dataProcessor
+
+        codeProjectRepository.save(codeProject)
+
+        return dataProcessor
     }
 
-    protected fun createVersionForDataProcessor(processor: DataProcessor): ProcessorVersion {
-        return dataProcessorService.createVersionForDataProcessor(processor)
+    protected fun createVersionForDataProcessor(processor: DataProcessor, published: Boolean = false): ProcessorVersion {
+        val version = dataProcessorService.createVersionForDataProcessor(processor)
+
+        processor.processorVersion = version
+        dataProcessorRepository.save(processor)
+
+        if (!published) return version
+
+        version.publishingInfo = PublishingInfo(publishedAt = ZonedDateTime.now(), finishedAt = ZonedDateTime.now())
+
+        val newVersion = processorVersionRepository.save(version)
+
+        return newVersion
     }
 
 
