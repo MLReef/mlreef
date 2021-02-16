@@ -14,7 +14,7 @@ const getExperiments = (id) => expApi.getExperiments(id)
       { ...exp, pipelineJobInfo: parseToCamelCase(exp.pipelineJobInfo) }
     )));
 
-const getAndSortExperimentsInfo = (id, gid) => getExperiments(id)
+const getAndSortExperimentsInfo = (id, gid, options) => getExperiments(id)
   .then((exps) => exps.map(async (exp) => {
     const commitInfo = await commitsApi.getCommitDetails(gid, exp.pipelineJobInfo?.commitSha);
     return {
@@ -25,9 +25,8 @@ const getAndSortExperimentsInfo = (id, gid) => getExperiments(id)
   }))
   .then(async (promises) => {
     const experiments = await Promise.all(promises);
-    const experimentsClassified = classifyExperiments(experiments);
 
-    return experimentsClassified;
+    return options?.skipClassify ? experiments : classifyExperiments(experiments);
   });
 
 export default {

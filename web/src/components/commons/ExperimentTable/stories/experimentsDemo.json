@@ -1,0 +1,618 @@
+[{
+  "id": "d68c611c-defb-4a00-ba16-18235cffbeb9",
+  "dataProjectId": "352d78b9-8818-45a5-9161-f5e095388c46",
+  "dataInstanceId": null,
+  "slug": "experiment-wanted-starfish-2212021-0",
+  "name": "experiment/wanted-starfish_2212021-0",
+  "number": 4,
+  "sourceBranch": "master",
+  "targetBranch": "experiment/wanted-starfish_2212021-0",
+  "status": "success",
+  "pipelineJobInfo": {
+    "id": 16,
+    "ref": "experiment/wanted-starfish_2212021-0",
+    "commitSha": "b311d4427a0d7c9efa55afe97fb0653887bf1959",
+    "createdAt": "2021-01-22T11:48:21.057Z",
+    "updatedAt": "2021-01-22T12:13:36.341Z",
+    "finishedAt": "2021-01-22T12:13:51.773Z"
+  },
+  "inputFiles": [{
+    "location": "train",
+    "location_type": "PATH_FOLDER"
+  }],
+  "postProcessing": [],
+  "processing": {
+    "slug": "commons-resnet-50",
+    "parameters": [{
+      "name": "input-path",
+      "value": "train",
+      "type": "STRING",
+      "required": true,
+      "description": "Data input, path to the images used for training"
+    }, {
+      "name": "output-path",
+      "value": "output",
+      "type": "STRING",
+      "required": true,
+      "description": "path to output metrics and model"
+    }, {
+      "name": "height",
+      "value": "224",
+      "type": "INTEGER",
+      "required": true,
+      "description": "height of images (int)"
+    }, {
+      "name": "width",
+      "value": "224",
+      "type": "INTEGER",
+      "required": true,
+      "description": "width of images (int)"
+    }, {
+      "name": "epochs",
+      "value": "5",
+      "type": "INTEGER",
+      "required": true,
+      "description": "number of epochs for training"
+    }, {
+      "name": "channels",
+      "value": "3",
+      "type": "INTEGER",
+      "required": false,
+      "description": "channels of images: 1 = grayscale, 3 = RGB ,4=RGBA (int)"
+    }, {
+      "name": "use-pretrained",
+      "value": "true",
+      "type": "BOOLEAN",
+      "required": false,
+      "description": "use pretrained ResNet50 weights (bool)"
+    }, {
+      "name": "batch-size",
+      "value": "10",
+      "type": "INTEGER",
+      "required": false,
+      "description": "batch size fed to the neural network (int)"
+    }, {
+      "name": "validation-split",
+      "value": "0.2",
+      "type": "FLOAT",
+      "required": false,
+      "description": "fraction of images to be used for validation (float)"
+    }, {
+      "name": "class_mode",
+      "value": "sparse",
+      "type": "STRING",
+      "required": true,
+      "description": "class mode : if class_mode is categorical (default value) it must include the label column with the class/es of each image. Values in column can be string/list/tuple if a single class or list/tuple if multiple classes. if class_mode is binary or sparse it must include the given label column with class values as strings. if class_mode is raw or multi_output it should contain the columns specified in labels. if class_mode is input or None no extra column is needed."
+    }, {
+      "name": "learning-rate",
+      "value": "0.0001",
+      "type": "FLOAT",
+      "required": false,
+      "description": "learning rate of Adam Optimizer (float)"
+    }, {
+      "name": "loss",
+      "value": "sparse_categorical_crossentropy",
+      "type": "STRING",
+      "required": false,
+      "description": ": Use sparse_categorical_crossentropy loss function when there are two or more label classes. We expect labels to be provided as integers. If you want to provide labels using one-hot representation, please use categorial_crossentropy loss, binary_crossentropy means that the labels (there can be only 2) are encoded as float32 scalars with values 0 or 1."
+    }],
+    "id": "1c7a69ad-1871-4bef-bd5f-6007e60e1b62",
+    "name": "Resnet50"
+  },
+  "jsonBlob": "[{\"epoch\": 0, \"acc\": 0.8910256624221802, \"val_acc\": 0.925000011920929, \"loss\": 1.8094469286336858, \"val_loss\": 0.31471356749534607}, {\"epoch\": 1, \"acc\": 0.9807692170143127, \"val_acc\": 0.925000011920929, \"loss\": 0.07138669920523469, \"val_loss\": 1.5643727779388428}, {\"epoch\": 2, \"acc\": 0.9935897588729858, \"val_acc\": 0.925000011920929, \"loss\": 0.006441401550950205, \"val_loss\": 1.2028130186081398e-05}, {\"epoch\": 3, \"acc\": 1.0, \"val_acc\": 0.925000011920929, \"loss\": 4.2181003925051277e-07, \"val_loss\": 0.0005474972422234714}, {\"epoch\": 4, \"acc\": 1.0, \"val_acc\": 0.925000011920929, \"loss\": 1.788137593550232e-08, \"val_loss\": 1.0355331897735596}]",
+  "authorName": "mlreef"
+}, {
+  "id": "09a09fdc-9efc-43ee-bf01-1d881ae60732",
+  "dataProjectId": "352d78b9-8818-45a5-9161-f5e095388c46",
+  "dataInstanceId": null,
+  "slug": "experiment-patient-flounder-2212021-0",
+  "name": "experiment/patient-flounder_2212021-0",
+  "number": 3,
+  "sourceBranch": "master",
+  "targetBranch": "experiment/patient-flounder_2212021-0",
+  "status": "success",
+  "pipelineJobInfo": {
+    "id": 12,
+    "ref": "experiment/patient-flounder_2212021-0",
+    "commitSha": "00aae2d9412b18539cf4250d38508ff5a3fb6136",
+    "createdAt": "2021-01-22T10:44:37.707Z",
+    "updatedAt": "2021-01-22T11:10:20.837Z",
+    "finishedAt": "2021-01-22T11:10:36.207Z"
+  },
+  "inputFiles": [{
+    "location": "train",
+    "location_type": "PATH_FOLDER"
+  }],
+  "postProcessing": [],
+  "processing": {
+    "slug": "commons-resnet-50",
+    "parameters": [{
+      "name": "input-path",
+      "value": "train",
+      "type": "STRING",
+      "required": true,
+      "description": "Data input, path to the images used for training"
+    }, {
+      "name": "output-path",
+      "value": "output",
+      "type": "STRING",
+      "required": true,
+      "description": "path to output metrics and model"
+    }, {
+      "name": "height",
+      "value": "224",
+      "type": "INTEGER",
+      "required": true,
+      "description": "height of images (int)"
+    }, {
+      "name": "width",
+      "value": "224",
+      "type": "INTEGER",
+      "required": true,
+      "description": "width of images (int)"
+    }, {
+      "name": "epochs",
+      "value": "2",
+      "type": "INTEGER",
+      "required": true,
+      "description": "number of epochs for training"
+    }, {
+      "name": "channels",
+      "value": "3",
+      "type": "INTEGER",
+      "required": false,
+      "description": "channels of images: 1 = grayscale, 3 = RGB ,4=RGBA (int)"
+    }, {
+      "name": "use-pretrained",
+      "value": "true",
+      "type": "BOOLEAN",
+      "required": false,
+      "description": "use pretrained ResNet50 weights (bool)"
+    }, {
+      "name": "batch-size",
+      "value": "2",
+      "type": "INTEGER",
+      "required": false,
+      "description": "batch size fed to the neural network (int)"
+    }, {
+      "name": "validation-split",
+      "value": "0.2",
+      "type": "FLOAT",
+      "required": false,
+      "description": "fraction of images to be used for validation (float)"
+    }, {
+      "name": "class_mode",
+      "value": "sparse",
+      "type": "STRING",
+      "required": true,
+      "description": "class mode : if class_mode is categorical (default value) it must include the label column with the class/es of each image. Values in column can be string/list/tuple if a single class or list/tuple if multiple classes. if class_mode is binary or sparse it must include the given label column with class values as strings. if class_mode is raw or multi_output it should contain the columns specified in labels. if class_mode is input or None no extra column is needed."
+    }, {
+      "name": "learning-rate",
+      "value": "0.0001",
+      "type": "FLOAT",
+      "required": false,
+      "description": "learning rate of Adam Optimizer (float)"
+    }, {
+      "name": "loss",
+      "value": "sparse_categorical_crossentropy",
+      "type": "STRING",
+      "required": false,
+      "description": ": Use sparse_categorical_crossentropy loss function when there are two or more label classes. We expect labels to be provided as integers. If you want to provide labels using one-hot representation, please use categorial_crossentropy loss, binary_crossentropy means that the labels (there can be only 2) are encoded as float32 scalars with values 0 or 1."
+    }],
+    "id": "f4f9471d-6ddd-492e-839f-1f9392227b3f",
+    "name": "Resnet50"
+  },
+  "jsonBlob": "{\"0\": {\"acc\": 0.1428571492433548, \"val_acc\": 0.5, \"loss\": 10.956614358084542, \"val_loss\": 2271.182373046875}, \"1\": {\"acc\": 0.375, \"val_acc\": 0.5, \"loss\": 17.714797258377075, \"val_loss\": 76.2244873046875}}",
+  "authorName": "mlreef"
+}, {
+  "id": "f71714b2-7f73-4a9e-a82c-7076fa4f340c",
+  "dataProjectId": "352d78b9-8818-45a5-9161-f5e095388c46",
+  "dataInstanceId": null,
+  "slug": "experiment-clean-nessie-2712021-0",
+  "name": "experiment/clean-nessie_2712021-0",
+  "number": 5,
+  "sourceBranch": "master",
+  "targetBranch": "experiment/clean-nessie_2712021-0",
+  "status": "success",
+  "pipelineJobInfo": {
+    "id": 27,
+    "ref": "experiment/clean-nessie_2712021-0",
+    "commitSha": "5c60d52a57961a4ac093ac58bdf664bf3d52edd4",
+    "createdAt": "2021-01-27T19:55:23.084Z",
+    "updatedAt": "2021-01-27T20:57:57.63Z",
+    "finishedAt": "2021-01-27T20:58:12.859Z"
+  },
+  "inputFiles": [{
+    "location": "train",
+    "location_type": "PATH_FOLDER"
+  }],
+  "postProcessing": [],
+  "processing": {
+    "slug": "commons-resnet-50",
+    "parameters": [{
+      "name": "input-path",
+      "value": "train",
+      "type": "STRING",
+      "required": true,
+      "description": "Data input, path to the images used for training"
+    }, {
+      "name": "output-path",
+      "value": "output",
+      "type": "STRING",
+      "required": true,
+      "description": "path to output metrics and model"
+    }, {
+      "name": "height",
+      "value": "224",
+      "type": "INTEGER",
+      "required": true,
+      "description": "height of images (int)"
+    }, {
+      "name": "width",
+      "value": "224",
+      "type": "INTEGER",
+      "required": true,
+      "description": "width of images (int)"
+    }, {
+      "name": "epochs",
+      "value": "5",
+      "type": "INTEGER",
+      "required": true,
+      "description": "number of epochs for training"
+    }, {
+      "name": "channels",
+      "value": "3",
+      "type": "INTEGER",
+      "required": false,
+      "description": "channels of images: 1 = grayscale, 3 = RGB ,4=RGBA (int)"
+    }, {
+      "name": "use-pretrained",
+      "value": "true",
+      "type": "BOOLEAN",
+      "required": false,
+      "description": "use pretrained ResNet50 weights (bool)"
+    }, {
+      "name": "batch-size",
+      "value": "25",
+      "type": "INTEGER",
+      "required": false,
+      "description": "batch size fed to the neural network (int)"
+    }, {
+      "name": "validation-split",
+      "value": "0.2",
+      "type": "FLOAT",
+      "required": false,
+      "description": "fraction of images to be used for validation (float)"
+    }, {
+      "name": "class_mode",
+      "value": "sparse",
+      "type": "STRING",
+      "required": true,
+      "description": "class mode : if class_mode is categorical (default value) it must include the label column with the class/es of each image. Values in column can be string/list/tuple if a single class or list/tuple if multiple classes. if class_mode is binary or sparse it must include the given label column with class values as strings. if class_mode is raw or multi_output it should contain the columns specified in labels. if class_mode is input or None no extra column is needed."
+    }, {
+      "name": "learning-rate",
+      "value": "0.0001",
+      "type": "FLOAT",
+      "required": false,
+      "description": "learning rate of Adam Optimizer (float)"
+    }, {
+      "name": "loss",
+      "value": "sparse_categorical_crossentropy",
+      "type": "STRING",
+      "required": false,
+      "description": ": Use sparse_categorical_crossentropy loss function when there are two or more label classes. We expect labels to be provided as integers. If you want to provide labels using one-hot representation, please use categorial_crossentropy loss, binary_crossentropy means that the labels (there can be only 2) are encoded as float32 scalars with values 0 or 1."
+    }],
+    "id": "caf13e42-68e0-4a36-9a6b-24c061abc6a8",
+    "name": "Resnet50"
+  },
+  "jsonBlob": "[{\"acc\": 0.5306122303009033, \"val_acc\": 0.6800000071525574, \"loss\": 10.830393963930558, \"val_loss\": 597.1852416992188}, {\"acc\": 0.6000000238418579, \"val_acc\": 0.7586206793785095, \"loss\": 5.279029548168182, \"val_loss\": 133.3538360595703}, {\"acc\": 0.6770833134651184, \"val_acc\": 0.6896551847457886, \"loss\": 3.448480291912953, \"val_loss\": 55.60952377319336}, {\"acc\": 0.5600000023841858, \"val_acc\": 0.7400000095367432, \"loss\": 3.5234352201223373, \"val_loss\": 99.13957214355469}, {\"acc\": 0.6020408272743225, \"val_acc\": 0.4482758641242981, \"loss\": 2.0744390256550846, \"val_loss\": 14.941675186157227}]",
+  "authorName": "mlreef"
+}, {
+  "id": "3321c353-9fe2-4107-84d8-046284b25670",
+  "dataProjectId": "352d78b9-8818-45a5-9161-f5e095388c46",
+  "dataInstanceId": null,
+  "slug": "experiment-outgoing-moby-dick-2812021-0",
+  "name": "experiment/outgoing-moby-dick_2812021-0",
+  "number": 6,
+  "sourceBranch": "master",
+  "targetBranch": "experiment/outgoing-moby-dick_2812021-0",
+  "status": "failed",
+  "pipelineJobInfo": {
+    "id": 33,
+    "ref": "experiment/outgoing-moby-dick_2812021-0",
+    "commitSha": "dc0382a100168f3376312b3d03a1ad12097b35e1",
+    "createdAt": "2021-01-28T21:23:22.143Z",
+    "updatedAt": "2021-01-28T21:23:22.337Z",
+    "finishedAt": "2021-01-28T22:18:14.502Z"
+  },
+  "inputFiles": [{
+    "location": "train",
+    "location_type": "PATH_FOLDER"
+  }],
+  "postProcessing": [],
+  "processing": {
+    "slug": "commons-resnet-50",
+    "parameters": [{
+      "name": "input-path",
+      "value": "train",
+      "type": "STRING",
+      "required": true,
+      "description": "Data input, path to the images used for training"
+    }, {
+      "name": "output-path",
+      "value": ".",
+      "type": "STRING",
+      "required": true,
+      "description": "path to output metrics and model"
+    }, {
+      "name": "height",
+      "value": "9",
+      "type": "INTEGER",
+      "required": true,
+      "description": "height of images (int)"
+    }, {
+      "name": "width",
+      "value": "9",
+      "type": "INTEGER",
+      "required": true,
+      "description": "width of images (int)"
+    }, {
+      "name": "epochs",
+      "value": "9",
+      "type": "INTEGER",
+      "required": true,
+      "description": "number of epochs for training"
+    }, {
+      "name": "channels",
+      "value": "3",
+      "type": "INTEGER",
+      "required": false,
+      "description": "channels of images: 1 = grayscale, 3 = RGB ,4=RGBA (int)"
+    }, {
+      "name": "use-pretrained",
+      "value": "true",
+      "type": "BOOLEAN",
+      "required": false,
+      "description": "use pretrained ResNet50 weights (bool)"
+    }, {
+      "name": "batch-size",
+      "value": "25",
+      "type": "INTEGER",
+      "required": false,
+      "description": "batch size fed to the neural network (int)"
+    }, {
+      "name": "validation-split",
+      "value": "0.2",
+      "type": "FLOAT",
+      "required": false,
+      "description": "fraction of images to be used for validation (float)"
+    }, {
+      "name": "class_mode",
+      "value": "categorical",
+      "type": "STRING",
+      "required": true,
+      "description": "class mode : if class_mode is categorical (default value) it must include the label column with the class/es of each image. Values in column can be string/list/tuple if a single class or list/tuple if multiple classes. if class_mode is binary or sparse it must include the given label column with class values as strings. if class_mode is raw or multi_output it should contain the columns specified in labels. if class_mode is input or None no extra column is needed."
+    }, {
+      "name": "learning-rate",
+      "value": "0.0001",
+      "type": "FLOAT",
+      "required": false,
+      "description": "learning rate of Adam Optimizer (float)"
+    }, {
+      "name": "loss",
+      "value": "sparse_categorical_crossentropy",
+      "type": "STRING",
+      "required": false,
+      "description": ": Use sparse_categorical_crossentropy loss function when there are two or more label classes. We expect labels to be provided as integers. If you want to provide labels using one-hot representation, please use categorial_crossentropy loss, binary_crossentropy means that the labels (there can be only 2) are encoded as float32 scalars with values 0 or 1."
+    }],
+    "id": "0d646088-b462-4031-9eb2-f00743447dfa",
+    "name": "Resnet50"
+  },
+  "jsonBlob": "",
+  "authorName": "mlreef"
+}, {
+  "id": "221e8ed0-fa7c-435c-bd88-4fa109ac74ed",
+  "dataProjectId": "352d78b9-8818-45a5-9161-f5e095388c46",
+  "dataInstanceId": null,
+  "slug": "experiment-musical-octopus-2212021-0",
+  "name": "experiment/musical-octopus_2212021-0",
+  "number": 2,
+  "sourceBranch": "master",
+  "targetBranch": "experiment/musical-octopus_2212021-0",
+  "status": "canceled",
+  "pipelineJobInfo": {
+    "id": 10,
+    "ref": "experiment/musical-octopus_2212021-0",
+    "commitSha": "47e4cdc88b61068c3c8d0e698a4973db8f77971f",
+    "createdAt": "2021-01-22T10:39:23.395Z",
+    "updatedAt": "2021-01-22T10:39:23.491Z"
+  },
+  "inputFiles": [{
+    "location": "train",
+    "location_type": "PATH_FOLDER"
+  }],
+  "postProcessing": [],
+  "processing": {
+    "slug": "commons-resnet-50",
+    "parameters": [{
+      "name": "input-path",
+      "value": "train",
+      "type": "STRING",
+      "required": true,
+      "description": "Data input, path to the images used for training"
+    }, {
+      "name": "output-path",
+      "value": "output",
+      "type": "STRING",
+      "required": true,
+      "description": "path to output metrics and model"
+    }, {
+      "name": "height",
+      "value": "224",
+      "type": "INTEGER",
+      "required": true,
+      "description": "height of images (int)"
+    }, {
+      "name": "width",
+      "value": "224",
+      "type": "INTEGER",
+      "required": true,
+      "description": "width of images (int)"
+    }, {
+      "name": "epochs",
+      "value": "3",
+      "type": "INTEGER",
+      "required": true,
+      "description": "number of epochs for training"
+    }, {
+      "name": "channels",
+      "value": "3",
+      "type": "INTEGER",
+      "required": false,
+      "description": "channels of images: 1 = grayscale, 3 = RGB ,4=RGBA (int)"
+    }, {
+      "name": "use-pretrained",
+      "value": "true",
+      "type": "BOOLEAN",
+      "required": false,
+      "description": "use pretrained ResNet50 weights (bool)"
+    }, {
+      "name": "batch-size",
+      "value": "25",
+      "type": "INTEGER",
+      "required": false,
+      "description": "batch size fed to the neural network (int)"
+    }, {
+      "name": "validation-split",
+      "value": "0.2",
+      "type": "FLOAT",
+      "required": false,
+      "description": "fraction of images to be used for validation (float)"
+    }, {
+      "name": "class_mode",
+      "value": "sparse",
+      "type": "STRING",
+      "required": true,
+      "description": "class mode : if class_mode is categorical (default value) it must include the label column with the class/es of each image. Values in column can be string/list/tuple if a single class or list/tuple if multiple classes. if class_mode is binary or sparse it must include the given label column with class values as strings. if class_mode is raw or multi_output it should contain the columns specified in labels. if class_mode is input or None no extra column is needed."
+    }, {
+      "name": "learning-rate",
+      "value": "0.0001",
+      "type": "FLOAT",
+      "required": false,
+      "description": "learning rate of Adam Optimizer (float)"
+    }, {
+      "name": "loss",
+      "value": "sparse_categorical_crossentropy",
+      "type": "STRING",
+      "required": false,
+      "description": ": Use sparse_categorical_crossentropy loss function when there are two or more label classes. We expect labels to be provided as integers. If you want to provide labels using one-hot representation, please use categorial_crossentropy loss, binary_crossentropy means that the labels (there can be only 2) are encoded as float32 scalars with values 0 or 1."
+    }],
+    "id": "1ac6b280-c20a-4290-826f-3930aa185c62",
+    "name": "Resnet50"
+  },
+  "jsonBlob": "",
+  "authorName": "mlreef"
+}, {
+  "id": "03da6eda-b8cf-4792-aafc-2860161b1f57",
+  "dataProjectId": "352d78b9-8818-45a5-9161-f5e095388c46",
+  "dataInstanceId": null,
+  "slug": "experiment-big-megalodon-2112021-0",
+  "name": "experiment/big-megalodon_2112021-0",
+  "number": 1,
+  "sourceBranch": "master",
+  "targetBranch": "experiment/big-megalodon_2112021-0",
+  "status": "failed",
+  "pipelineJobInfo": {
+    "id": 2,
+    "ref": "experiment/big-megalodon_2112021-0",
+    "commitSha": "7b4ef7cc106cd0c94dc20ac41ec393d1ffe7342e",
+    "createdAt": "2021-01-21T22:48:26.748Z",
+    "updatedAt": "2021-01-21T23:17:23.174Z",
+    "finishedAt": "2021-01-22T00:07:55.076Z"
+  },
+  "inputFiles": [{
+    "location": "train",
+    "location_type": "PATH_FOLDER"
+  }],
+  "postProcessing": [],
+  "processing": {
+    "slug": "commons-resnet-50",
+    "parameters": [{
+      "name": "input-path",
+      "value": "train",
+      "type": "STRING",
+      "required": true,
+      "description": "Data input, path to the images used for training"
+    }, {
+      "name": "output-path",
+      "value": "output",
+      "type": "STRING",
+      "required": true,
+      "description": "path to output metrics and model"
+    }, {
+      "name": "height",
+      "value": "224",
+      "type": "INTEGER",
+      "required": true,
+      "description": "height of images (int)"
+    }, {
+      "name": "width",
+      "value": "224",
+      "type": "INTEGER",
+      "required": true,
+      "description": "width of images (int)"
+    }, {
+      "name": "epochs",
+      "value": "10",
+      "type": "INTEGER",
+      "required": true,
+      "description": "number of epochs for training"
+    }, {
+      "name": "channels",
+      "value": "3",
+      "type": "INTEGER",
+      "required": false,
+      "description": "channels of images: 1 = grayscale, 3 = RGB ,4=RGBA (int)"
+    }, {
+      "name": "use-pretrained",
+      "value": "true",
+      "type": "BOOLEAN",
+      "required": false,
+      "description": "use pretrained ResNet50 weights (bool)"
+    }, {
+      "name": "batch-size",
+      "value": "25",
+      "type": "INTEGER",
+      "required": false,
+      "description": "batch size fed to the neural network (int)"
+    }, {
+      "name": "validation-split",
+      "value": "0.2",
+      "type": "FLOAT",
+      "required": false,
+      "description": "fraction of images to be used for validation (float)"
+    }, {
+      "name": "class_mode",
+      "value": "sparse",
+      "type": "STRING",
+      "required": true,
+      "description": "class mode : if class_mode is categorical (default value) it must include the label column with the class/es of each image. Values in column can be string/list/tuple if a single class or list/tuple if multiple classes. if class_mode is binary or sparse it must include the given label column with class values as strings. if class_mode is raw or multi_output it should contain the columns specified in labels. if class_mode is input or None no extra column is needed."
+    }, {
+      "name": "learning-rate",
+      "value": "0.0001",
+      "type": "FLOAT",
+      "required": false,
+      "description": "learning rate of Adam Optimizer (float)"
+    }, {
+      "name": "loss",
+      "value": "sparse_categorical_crossentropy",
+      "type": "STRING",
+      "required": false,
+      "description": ": Use sparse_categorical_crossentropy loss function when there are two or more label classes. We expect labels to be provided as integers. If you want to provide labels using one-hot representation, please use categorial_crossentropy loss, binary_crossentropy means that the labels (there can be only 2) are encoded as float32 scalars with values 0 or 1."
+    }],
+    "id": "11e82faa-e46d-4f49-bc20-096f2aed317c",
+    "name": "Resnet50"
+  },
+  "jsonBlob": "{}",
+  "authorName": "mlreef"
+}]

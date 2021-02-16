@@ -18,7 +18,8 @@ import MergeRequestsView from 'components/views/MergeRequests/MergeRequestsOverv
 import NewMergeRequestView from 'components/views/MergeRequests/NewMergeReq';
 import DataInstancesView from 'components/data-instance/DataInstancesOverview';
 import DataInstanceDetailsView from 'components/data-instance/dataInstanceDetails';
-import ExperimentsView from 'components/experiments-overview/ExperimentOverview';
+import ExperimentOverview from 'components/experiments-overview/ExperimentOverview';
+import ExperimentsView from 'components/experiments-overview/ExperimentsView';
 import ExperimentDetailsView from 'components/ExperimentDetails/ExperimentDetail';
 import PipelinesExecutionView from 'components/views/PipelinesExecutionView';
 import VisualizationsView from 'components/data-visualization/dataVisualizationOverview';
@@ -329,6 +330,13 @@ export default [
     name: 'experiments',
     path: '/:namespace/:slug/-/experiments',
     component: ExperimentsView,
+    exact: true,
+  },
+  {
+    // this is a backup view of /:namespace/:slug/-/experiments
+    name: 'experiments',
+    path: '/:namespace/:slug/--/experiments',
+    component: ExperimentOverview,
     exact: true,
   },
   {

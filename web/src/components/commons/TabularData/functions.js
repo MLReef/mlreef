@@ -27,10 +27,15 @@ export const cvsToArray = (text, separator = ',') => {
 };
 
 export const jsonToArray = (input) => {
-  const row = Object.values(input)[0];
+  const items = Array.isArray(input) ? input : Object.values(input);
+
+  if (!items.length) return items;
+  // const row = Object.values(input)[0];
+  const row = items[0];
   const header = Object.keys(row).map((label) => label);
 
-  const data = Object.values(input)
+  // const data = Object.values(input)
+  const data = items
     .map((cols) => Object.values(cols).map((val) => val));
 
   const matrix = [header].concat(data);
@@ -38,16 +43,25 @@ export const jsonToArray = (input) => {
   return sanatizeMatrix(matrix);
 };
 
-export const arrayToRichData = (matrix, separator = ',') => ({
-  id: genUUID(),
-  meta: {
-    separator,
-    timestamp: new Date(),
-  },
-  matrix,
-  // data: flat(matrix.map((row, y) => row.map((value, x) => ({ x, y, value }))))
-  data: matrix.map((cols, y) => ({
-    id: y,
-    cols: cols.map((value, x) => ({ x, y, value })),
-  })),
-});
+export const arrayToRichData = (matrix, separator = ',') => {
+  const header = matrix[0];
+
+  return {
+    id: genUUID(),
+    meta: {
+      separator,
+      timestamp: new Date(),
+    },
+    matrix,
+    // data: flat(matrix.map((row, y) => row.map((value, x) => ({ x, y, value }))))
+    data: matrix.map((cols, y) => ({
+      id: y,
+      cols: cols.map((value, x) => ({
+        x,
+        y,
+        value,
+        label: header[x],
+      })),
+    })),
+  };
+};

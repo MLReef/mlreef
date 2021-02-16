@@ -8,6 +8,21 @@
   &-header {
     display: flex;
     justify-content: space-between;
+
+    &-cell {
+      cursor: pointer;
+      position: relative;
+
+      &.active {
+        filter: brightness(1.5);
+      }
+
+      & .fa {
+        position: absolute;
+        right: 0.5rem;
+        line-height: 115%;
+      }
+    }
   }
 
   &-filters {
@@ -15,7 +30,7 @@
   }
 
   &-customize-columns {
-    max-width: 300px;
+    max-width: 143px;
     text-align: right;
 
     &-box {
@@ -56,29 +71,76 @@
   }
 
   &-row {
+    &.selected {
+      background-color: var(--light);
+    }
+
     &-panel {
-      height: 300px;
+      // height: 300px;
+      &-cards {
+        display: flex;
+        padding-top: 2rem;
+        padding-bottom: 2rem;
+      }
+
+      &-card {
+        // min-width: 20%;
+        background-color: var(--white);
+        border: 1px solid var(--secondary);
+        border-top: none;
+
+        &:not(.stretch) {
+          flex: 1;
+        }
+
+        &:not(:first-child) {
+          margin-left: 1rem;
+        }
+         &:not(:last-child) {
+          margin-right: 1rem;
+        }
+        &-title {
+          background-color: var(--secondary);
+          color: var(--dark);
+          text-align: center;
+          padding: 0.5rem;
+          font-weight: bold;
+
+        }
+
+        &-content {
+
+        }
+      }
     }
   }
 
   &-row-cell {
     padding-top: 0.25em;
     padding-bottom: 0.25em;
+    text-align: center;
 
     &[data-col="index"] {
       display: none;
     }
 
     &[data-col="actions"] {
+      width: 90px;
+
       & .experiment-table-action {
         display: flex;
         margin-left: 0.5em;
 
         &-btn {
-          padding: 0.25em;
+          padding: 0.15em;
           margin-right: 0.5em;
           border: solid 1px var(--dark);
           color: var(--dark);
+        }
+
+        &-selector {
+          margin-right: 1.25em;
+          margin-left: -1px;
         }
       }
     }
@@ -124,6 +186,111 @@
     &[data-type="field"] {
       text-align: right;
       padding-left: 1em;
+    }
+  }
+
+  & .parameter-list {
+    list-style: none;
+    padding: 0.5rem;
+    margin: 0;
+
+    &-title {
+      display: flex;
+      justify-content: space-between;
+    }
+
+    &-item {
+      display: flex;
+      &:not(:last-child) {
+        border-bottom: solid 1px var(--secondary);
+      }
+
+      &-name {
+        background-color: var(--dark);
+        color: var(--white);
+        padding: 0.25rem 0.5rem;
+        width: 40%;
+      }
+
+      &-value {
+        padding: 0.25rem 0.5rem;
+        flex: 1;
+        text-align: right;
+        background-color: var(--light);
+      }
+    }
+  }
+
+  & .file-list {
+    margin: 0;
+    margin-bottom: 1rem;
+    padding: 0.5rem;
+    list-style: none;
+    color: var(--dark);
+
+    &-item {
+      font-weight: bold;
+      margin-left: 1rem;
+    }
+  }
+
+  & p {
+    color: var(--dark);
+    margin-right: 1rem;
+
+    &.flex {
+      display: flex;
+
+      & *:first-child {
+        flex: 1;
+      }
+
+      & *:last-child {
+
+      }
+    }
+  }
+
+  & .link-append {
+    background-color: var(--light);
+    display: flex;
+    width: min-content;
+    margin-right: 0.5rem;
+
+    &-link {
+      padding: 0.25rem 1rem;
+      border: solid 1px var(--secondary);
+      border-right: none;
+    }
+
+    &-copy {
+      border: solid 1px var(--secondary);
+      padding: 0.25rem 0.5rem;
+      line-height: 115%;
+      cursor: pointer;
+    }
+  }
+
+  &-btn {
+    margin-bottom: 1em;
+    margin-left: auto;
+    margin-right: 0.5em;
+    cursor: pointer;
+    // padding-left: 1em;
+    // padding-right: 1em;
+    padding: 0.5em 1em;
+    color: var(--dark);
+    background-color: var(--white);
+    border-color: var(--dark);
+
+    &.delete {
+      color: var(--white);
+      background-color: var(--danger);
+      border-color: #000;
+    }
+
+    &-group {
+      margin-left: auto;
     }
   }
 }

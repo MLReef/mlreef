@@ -112,3 +112,34 @@
     display: flex;
     flex-direction: column;
 }
+
+.experiments-overview-experiment-table {
+  width: auto !important;
+  margin-top: 2rem;
+}
+
+.experiments-overview-delete-modal-list {
+  list-style: none;
+  padding: 1rem;
+  margin: 0;
+}
+
+.experiments-overview-delete-modal-list-item {
+  padding: 0.25rem;
+}
+
+.experiments-overview-delete-modal-list-item .status {
+  font-style: italic;
+}
+
+.experiments-overview-delete-modal-list-item .status.failed {
+  color: var(--danger);
+}
+
+.experiments-overview-delete-modal-list-item .status.success {
+  color: var(--success);
+}
+
+.experiments-overview-delete-modal-list-item .status.canceled {
+  color: var(--warning);
+}

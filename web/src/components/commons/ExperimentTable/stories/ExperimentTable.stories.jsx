@@ -1,11 +1,7 @@
 import React from 'react';
-import { compose as c } from 'functions/helpers';
-import { jsonToArray, arrayToRichData } from 'components/commons/TabularData/functions';
+import { MemoryRouter, Route } from 'react-router';
 import ExperimentTable from '../ExperimentTable';
-import experiment from './experiment.json';
-import exp from './exp';
-
-const parseExperiment = c(arrayToRichData, jsonToArray)(experiment);
+import experimentsDemo from './experimentsDemo.json';
 
 export default {
   title: 'commons/ExperimentTable',
@@ -16,24 +12,50 @@ export default {
         type: 'text',
       },
     },
+    onDeleteExperiments: {
+      action: 'clicked',
+      description: 'Callback function',
+      type: { name: 'function', required: true },
+    },
+    onStopExperiments: {
+      action: 'clicked',
+      description: 'Callback function',
+      type: { name: 'function', required: true },
+    },
+    onUpdateExperiments: {
+      action: 'clicked',
+      description: 'Callback function',
+      type: { name: 'function', required: true },
+    },
   },
 };
 
-// eslint-disable-next-line
-const Template = (args) => <ExperimentTable {...args} />;
+const Template = (args) => (
+  <MemoryRouter initialEntries={['/namespace/first-demo/-/experiments']}>
+    <Route
+      component={(routerProps) => (
+        <div style={{ display: 'flex' }}>
+          {/* eslint-disable-next-line */}
+          <ExperimentTable style={{ width: '1050px' }} {...routerProps} {...args} />
+        </div>
+      )}
+      path="/:namespace/:slug/-/experiments"
+    />
+  </MemoryRouter>
+);
 
 export const Basics = Template.bind({});
 Basics.args = {
-  richData: { data: exp },
+  experiments: experimentsDemo,
 };
 
 // eslint-disable-next-line
-export const SelfControlled = (args) => {
-  return (
-    <ExperimentTable
-      // eslint-disable-next-line
-      {...args}
-      richData={parseExperiment}
-    />
-  );
-};
+// export const SelfControlled = (args) => {
+//   return (
+//     <ExperimentTable
+//       // eslint-disable-next-line
+//       {...args}
+//       experiments={experimentsDemo}
+//     />
+//   );
+// };
