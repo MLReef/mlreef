@@ -1,3 +1,5 @@
+// this view is kept for comparison purposes and for a quick roll back if needed
+// accessible in /:namespace/:slug/--/experiments
 import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import { toastr } from 'react-redux-toastr';

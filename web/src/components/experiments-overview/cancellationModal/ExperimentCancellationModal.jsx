@@ -1,3 +1,5 @@
+// this component is kept for comparison purposes and for a quick roll back if needed
+// called by ../ExperimentSummary
 import React from 'react';
 import './ExperimentCancellationModal.scss';
 import { PENDING, RUNNING, SUCCESS } from 'dataTypes';

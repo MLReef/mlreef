@@ -2,7 +2,7 @@ import React, { useState, useCallback, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
 
-const getStatus = (row) => row.cols.find((c) => c.type === 'status').value;
+const getStatus = (row) => row.cols.find((c) => c.type === 'status')?.value;
 
 const filterRowsByStatus = (rs, status) => rs.filter((r) => getStatus(r) === status);
 

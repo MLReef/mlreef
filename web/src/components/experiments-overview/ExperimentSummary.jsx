@@ -1,3 +1,5 @@
+// this component is kept for comparison purposes and for a quick roll back if needed
+// called by ./ExperimentCard
 import React, { useState, useEffect } from 'react';
 import {
   string,

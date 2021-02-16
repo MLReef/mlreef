@@ -1,3 +1,5 @@
+// this component is kept for comparison purposes and for a quick roll back if needed
+// called by ./ExperimentOverview
 import React from 'react';
 import {
   string, number, arrayOf, shape,
