@@ -8,6 +8,7 @@ import com.mlreef.rest.api.v1.dto.CommitDto
 import com.mlreef.rest.api.v1.dto.toBaseEnvironmentsDto
 import com.mlreef.rest.api.v1.dto.toCommitDto
 import com.mlreef.rest.api.v1.dto.toPublishingPipelineDto
+import com.mlreef.rest.exceptions.ProjectPublicationException
 import com.mlreef.rest.external_api.gitlab.TokenDetails
 import com.mlreef.rest.feature.PublishingService
 import org.springframework.http.HttpStatus
@@ -91,7 +92,8 @@ internal class CodeProjectPublishingController(
         @PathVariable id: UUID,
         token: TokenDetails
     ): CommitDto =
-        publishingService.unPublishProject(userToken = token.accessToken, projectId = id).toCommitDto()
+        publishingService.unPublishProject(userToken = token.accessToken, projectId = id)?.toCommitDto()
+            ?: throw ProjectPublicationException("The project cannot be unpublished")
 
     @PostMapping("{id}/republish")
     @ResponseStatus(HttpStatus.OK)

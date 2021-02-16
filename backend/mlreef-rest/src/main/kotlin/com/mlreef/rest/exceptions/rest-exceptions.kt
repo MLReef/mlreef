@@ -54,6 +54,8 @@ enum class ErrorCode(val errorCode: Int, val errorName: String) {
     ProjectNamespaceSubjectNotFound(3007, "Cannot associate gitlab namespace with a persisted Subject"),
     GitlabProjectIdAlreadyUsed(3008, "Cannot save project with a used gitlabId"),
     ProjectNameInvalidReserved(3009, "Cannot save project with a reserved name/slug"),
+    ProjectPublicationError(3010, "Project publication error"),
+    ProjectIsInIncorrectState(3011, "Project current state doesn't allow the performed operation"),
 
     // Creating Experiments 31xx
     DataProcessorNotUsable(3101, "DataProcessor cannot be used"),
@@ -170,7 +172,9 @@ class ProjectNotFoundException(projectId: UUID? = null, projectName: String? = n
 class ExperimentCreateException(errorCode: ErrorCode, message: String) : RestException(errorCode, message)
 class ExperimentUpdateException(message: String) : RestException(ErrorCode.ExperimentCannotBeChanged, message)
 class ProjectCreationException(errorCode: ErrorCode, message: String) : RestException(errorCode, message)
-class ProjectPublicationException(errorCode: ErrorCode, message: String) : RestException(errorCode, message)
+class ProjectPublicationException(errorCode: ErrorCode, message: String) : RestException(errorCode, message) {
+    constructor(message: String) : this(ErrorCode.ProjectPublicationError, message)
+}
 
 class PipelineCreateException(errorCode: ErrorCode, message: String? = "") : RestException(errorCode, message ?: "")
 class PipelineStartException(message: String) : RestException(ErrorCode.CommitPipelineScriptFailed, message)

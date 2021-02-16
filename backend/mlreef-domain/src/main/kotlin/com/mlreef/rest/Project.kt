@@ -68,7 +68,7 @@ abstract class Project(
     override val visibilityScope: VisibilityScope = VisibilityScope.default(),
 
     @OneToOne(fetch = FetchType.EAGER, mappedBy = "codeProject", optional = true)
-    val dataProcessor: DataProcessor? = null,
+    var dataProcessor: DataProcessor? = null,
 
     @Column(name = "forks_count")
     override val forksCount: Int = 0,

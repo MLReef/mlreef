@@ -18,6 +18,8 @@ services:
     entrypoint: [ "sh", "-c", "dockerd-entrypoint.sh $DOCKER_DAEMON_OPTIONS" ]
 
 job:
+  tags:
+    - local-docker
   image: docker:19.03.12
   only:
     - master

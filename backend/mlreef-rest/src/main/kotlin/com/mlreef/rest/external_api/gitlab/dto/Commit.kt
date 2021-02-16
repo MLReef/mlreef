@@ -17,5 +17,14 @@ data class Commit(
     val id: String = "",
     val shortId: String = "",
     val status: String? = null,
-    val stats: CommitStats? = null
+    val stats: CommitStats? = null,
+    val lastPipeline: CommitLastPipeline? = null,
 ) : Serializable
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class CommitLastPipeline(
+    val id: Long,
+    val ref: String,
+    val sha: String,
+    val status: String
+)

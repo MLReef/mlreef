@@ -5,13 +5,10 @@ package com.mlreef.rest.api
 import com.mlreef.rest.AccessLevel
 import com.mlreef.rest.Account
 import com.mlreef.rest.CodeProject
-import com.mlreef.rest.CodeProjectRepository
-import com.mlreef.rest.DataProcessorRepository
 import com.mlreef.rest.DataProject
 import com.mlreef.rest.DataProjectRepository
 import com.mlreef.rest.DataType
 import com.mlreef.rest.Person
-import com.mlreef.rest.ProcessorVersionRepository
 import com.mlreef.rest.SearchableTagRepository
 import com.mlreef.rest.api.v1.SearchByTextRequest
 import com.mlreef.rest.api.v1.SearchRequest
@@ -52,15 +49,6 @@ class MarketplaceApiTest : AbstractRestApiTest() {
 
     @Autowired
     private lateinit var dataProjectRepository: DataProjectRepository
-
-    @Autowired
-    private lateinit var codeProjectRepository: CodeProjectRepository
-
-    @Autowired
-    private lateinit var dataProcessorRepository: DataProcessorRepository
-
-    @Autowired
-    private lateinit var processorVersionRepository: ProcessorVersionRepository
 
     @Autowired
     private lateinit var marketplaceTagRepository: SearchableTagRepository
