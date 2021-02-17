@@ -6,7 +6,8 @@
       "visibility": "users",
       "description": "Learn the basics: from viewing a project, forking it and a understanding basic concepts of MLReef.",
       "image": "/tutorials/1/basic_1.gif",
-      "epilogue": "## Congratulations!\nYou have finished your first tutorial and also created your first experiment!\n\nContinue with the next tutorial to understand how to create and publish own scripts - [Start Basic Tutorial #2](link?)",
+      "epilogue": "## Congratulations!!\nYou have finished your first tutorial. You should now be able to:\n\n- Explore and fork public projects\n- Explore the data in your repository\n- Create a new experiment",
+      "nextTutorial": 2,
       "steps": [
         {
           "id": 1,

@@ -95,15 +95,44 @@ const Tutorial = (props) => {
     ctxDispatch({ type: 'HIDE_MODAL' });
   };
 
+  const handleGoNextTutorial = (nextTutorial) => {
+    setActiveScreen('execution');
+    ctxDispatch({ type: 'SHOW_DIALOG' });
+    if (actions) actions.closeModal({ reset: true });
+    handleSelectTutorial(nextTutorial.id);
+  };
+
   const handleCompleted = () => {
     setActiveScreen('completed');
+
+    const nextTutorial = contents.find((t) => t.id === tutorial?.nextTutorial);
 
     const payload = {
       type: 'success',
       title: 'Tutorial completed',
       noActions: true,
       content: tutorial?.epilogue ? (
-        <ReactMarkdown source={tutorial.epilogue} />
+        <div className="px-3">
+          <ReactMarkdown source={tutorial.epilogue} />
+          {nextTutorial && (
+            <>
+              <p>Why not continue with the next tutorial?</p>
+
+              <button
+                type="button"
+                onClick={() => handleGoNextTutorial(nextTutorial)}
+                style={{ border: 'none', padding: 0, cursor: 'pointer' }}
+              >
+                <img
+                  style={{ width: '300px' }}
+                  className="border-rounded"
+                  src={nextTutorial.image}
+                  alt={nextTutorial.name}
+                />
+              </button>
+            </>
+          )}
+        </div>
       ) : (
         <div>
           {/* eslint-disable-next-line */}
@@ -277,6 +306,7 @@ Tutorial.propTypes = {
     updateCurrent: PropTypes.func,
     onCompleted: PropTypes.func,
     setActive: PropTypes.func,
+    closeModal: PropTypes.func,
   }),
   current: PropTypes.shape({
     id: PropTypes.number,
