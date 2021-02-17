@@ -90,7 +90,7 @@ spec:
     - ReadWriteOnce
   resources:
     requests:
-      storage: 5Gi
+      storage: @REDIS_PV_CLAIM_SIZE@
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -120,11 +120,11 @@ spec:
           name: redis
         resources:
           limits:
-            memory: 1000Mi
-            cpu: 100m
+            memory: @REDIS_RESOURCES_LIMITS_MEMORY@
+            cpu: @REDIS_RESOURCES_LIMITS_CPU@
           requests:
-            memory: 500Mi
-            cpu: 80m
+            memory: @REDIS_RESOURCES_REQUESTS_MEMORY@
+            cpu: @REDIS_RESOURCES_REQUESTS_CPU@
         volumeMounts:
         - name: redis-data
           mountPath: /data
@@ -191,11 +191,11 @@ spec:
           name: mlreefdb
         resources:
           limits:
-            memory: 1000Mi
-            cpu: 400m
+            memory: @MLREEFDB_RESOURCES_LIMITS_MEMORY@
+            cpu: @MLREEFDB_RESOURCES_LIMITS_CPU@
           requests:
-            memory: 800Mi
-            cpu: 200m
+            memory: @MLREEFDB_RESOURCES_REQUESTS_MEMORY@
+            cpu: @MLREEFDB_RESOURCES_REQUESTS_CPU@
         volumeMounts:
         - name: mlreefdb-data
           mountPath: /var/lib/postgresql/data
@@ -216,7 +216,7 @@ spec:
     - ReadWriteOnce
   resources:
     requests:
-      storage: 10Gi
+      storage: @MLREEFDB_PV_CLAIM_SIZE@
 
 # gateway
 ---
@@ -264,11 +264,11 @@ spec:
           name: gateway
         resources:
           limits:
-            memory: 600Mi
-            cpu: 200m
+            memory: @GATEWAY_RESOURCES_LIMITS_MEMORY@
+            cpu: @GATEWAY_RESOURCES_LIMITS_CPU@
           requests:
-            memory: 500Mi
-            cpu: 100m
+            memory: @GATEWAY_RESOURCES_REQUESTS_MEMORY@
+            cpu: @GATEWAY_RESOURCES_REQUESTS_CPU@
         envFrom:
         - configMapRef:
             name: local-config
@@ -340,10 +340,10 @@ spec:
             name: local-config
         resources:
           limits:
-            memory: 1000Mi
-            cpu: 500m
+            memory: @BACKEND_RESOURCES_LIMITS_MEMORY@
+            cpu: @BACKEND_RESOURCES_LIMITS_CPU@
           requests:
-            memory: 800Mi
-            cpu: 300m
+            memory: @BACKEND_RESOURCES_REQUESTS_MEMORY@
+            cpu: @BACKEND_RESOURCES_REQUESTS_CPU@
         imagePullPolicy: Always
 ---

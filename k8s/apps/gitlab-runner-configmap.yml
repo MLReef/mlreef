@@ -70,7 +70,7 @@ data:
           helper_cpu_limit = "500m"
           helper_memory_limit = "100Mi"
           poll_interval = 5
-          poll_timeout = 3600
+          poll_timeout = 7200
           service_account_overwrite_allowed = ""
           pod_annotations_overwrite_allowed = ""
           [runners.kubernetes.affinity]
