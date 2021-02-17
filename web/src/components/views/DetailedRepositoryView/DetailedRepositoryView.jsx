@@ -10,7 +10,7 @@ import FilesApi from 'apis/FilesApi';
 import {
   arrayOf, shape, number, string, func,
 } from 'prop-types';
-import useSelectedProject from 'customHooks/useSelectedProject';
+import hooks from 'customHooks/useSelectedProject';
 import MLoadingSpinnerContainer from 'components/ui/MLoadingSpinner/MLoadingSpinnerContainer';
 
 const filesApi = new FilesApi();
@@ -30,7 +30,7 @@ const DetailedRepositoryView = (props) => {
     history,
   } = props;
 
-  const [selectedProject, isFetching] = useSelectedProject(namespace, slug);
+  const [selectedProject, isFetching] = hooks.useSelectedProject(namespace, slug);
   const {
     gid,
     gitlab,
