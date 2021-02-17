@@ -26,12 +26,13 @@ const useSelectedProject = (namespace, slug) => {
           .then((proj) => {
             dispatch(setSelectedProjectSuccesfully(proj));
             dispatch(setGlobalMarkerColor(calculateColor(proj)));
-            
+
             setFinalSelectedProject(proj);
             setIsFetching(false);
           });
       }
     }
+  // eslint-disable-next-line
   }, []);
 
   return [finalSelectedProject, isFetching];
