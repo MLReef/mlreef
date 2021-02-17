@@ -7,6 +7,7 @@ import {
   displayImage,
   setActive,
 } from 'store/actions/tutorialActions';
+import { closeModal } from 'store/actions/actionModalActions';
 
 import TutorialImported from './Tutorial';
 import rules from './rules';
@@ -27,6 +28,7 @@ const actions = (dispatch) => ({
     onCompleted: bindActionCreators(onCompleted, dispatch),
     displayImage: bindActionCreators(displayImage, dispatch),
     setActive: bindActionCreators(setActive, dispatch),
+    closeModal: bindActionCreators(closeModal, dispatch),
   },
 });
 
