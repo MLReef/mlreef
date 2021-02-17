@@ -40,7 +40,7 @@ spec:
     - ReadWriteOnce
   resources:
     requests:
-      storage: 10Gi
+      storage: @GITLAB_PV_CLAIM_CONFIG_SIZE@
 
 ---
 apiVersion: v1
@@ -55,7 +55,7 @@ spec:
     - ReadWriteOnce
   resources:
     requests:
-      storage: 50Gi
+      storage: @GITLAB_PV_CLAIM_OPT_SIZE@
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -69,7 +69,7 @@ spec:
     - ReadWriteOnce
   resources:
     requests:
-      storage: 30Gi
+      storage: @GITLAB_PV_CLAIM_LOG_SIZE@
 ---
 
 apiVersion: apps/v1
@@ -166,11 +166,11 @@ spec:
               containerPort: 80
           resources:
             limits:
-              memory: 3500Mi
-              cpu: 1200m
+              memory: @GITLAB_RESOURCES_LIMITS_MEMORY@
+              cpu: @GITLAB_RESOURCES_LIMITS_CPU@
             requests:
-              memory: 3000Mi
-              cpu: 1000m
+              memory: @GITLAB_RESOURCES_REQUESTS_MEMORY@
+              cpu: @GITLAB_RESOURCES_REQUESTS_CPU@
           volumeMounts:
             - name: gitlab-opt
               mountPath: /var/opt/gitlab

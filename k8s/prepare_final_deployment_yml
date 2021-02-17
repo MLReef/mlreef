@@ -26,9 +26,80 @@ function sed_files() {
       sed -i "s~__CI_PROJECT_PATH_SLUG__~${CI_PROJECT_PATH_SLUG}~" $file_name
       echo "KUBE_INGRESS_BASE_DOMAIN : ${KUBE_INGRESS_BASE_DOMAIN}"
       sed -i "s/__KUBE_INGRESS_BASE_DOMAIN__/${KUBE_INGRESS_BASE_DOMAIN}/" $file_name
+      sed -i "s/@GITLAB_GKE_DOMAIN@/$CI_ENVIRONMENT_SLUG.$KUBE_INGRESS_BASE_DOMAIN/" $file_name
+      sed -i "s/@K8S_RUNNER_BEARER_TOKEN@/$K8S_RUNNER_BEARER_TOKEN/" $file_name
     else
       echo "Applying SED on compose Yamls"
       sed -i "s~__CI_REGISTRY_IMAGE__~${CI_REGISTRY_IMAGE}~" docker-compose.yml
+    fi
+    ##Resource distribution separate for master and review branches
+    if [[ "$CI_COMMIT_REF_SLUG" == "master" ]]
+    then
+      echo "Applying resources for $CI_COMMIT_REF_SLUG branch"
+      #gitlab
+      sed -i "s/@GITLAB_PV_CLAIM_CONFIG_SIZE@/20Gi/" $file_name
+      sed -i "s/@GITLAB_PV_CLAIM_OPT_SIZE@/100Gi/" $file_name
+      sed -i "s/@GITLAB_PV_CLAIM_LOG_SIZE@/50Gi/" $file_name
+      sed -i "s/@GITLAB_RESOURCES_LIMITS_MEMORY@/5000Mi/" $file_name
+      sed -i "s/@GITLAB_RESOURCES_LIMITS_CPU@/1500m/" $file_name
+      sed -i "s/@GITLAB_RESOURCES_REQUESTS_MEMORY@/4500Mi/" $file_name
+      sed -i "s/@GITLAB_RESOURCES_REQUESTS_CPU@/1300m/" $file_name
+      #redis
+      sed -i "s/@REDIS_PV_CLAIM_SIZE@/5Gi/" $file_name
+      sed -i "s/@REDIS_RESOURCES_LIMITS_MEMORY@/2000Mi/" $file_name
+      sed -i "s/@REDIS_RESOURCES_LIMITS_CPU@/500m/" $file_name
+      sed -i "s/@REDIS_RESOURCES_REQUESTS_MEMORY@/1800Mi/" $file_name
+      sed -i "s/@REDIS_RESOURCES_REQUESTS_CPU@/400m/" $file_name
+      #mlreefdb
+      sed -i "s/@MLREEFDB_PV_CLAIM_SIZE@/50Gi/" $file_name
+      sed -i "s/@MLREEFDB_RESOURCES_LIMITS_MEMORY@/2000Mi/" $file_name
+      sed -i "s/@MLREEFDB_RESOURCES_LIMITS_CPU@/500m/" $file_name
+      sed -i "s/@MLREEFDB_RESOURCES_REQUESTS_MEMORY@/1800Mi/" $file_name
+      sed -i "s/@MLREEFDB_RESOURCES_REQUESTS_CPU@/400m/" $file_name
+      #gateway
+      sed -i "s/@GATEWAY_RESOURCES_LIMITS_MEMORY@/600Mi/" $file_name
+      sed -i "s/@GATEWAY_RESOURCES_LIMITS_CPU@/200m/" $file_name
+      sed -i "s/@GATEWAY_RESOURCES_REQUESTS_MEMORY@/500Mi/" $file_name
+      sed -i "s/@GATEWAY_RESOURCES_REQUESTS_CPU@/100m/" $file_name
+      #backend
+      sed -i "s/@BACKEND_RESOURCES_LIMITS_MEMORY@/1000Mi/" $file_name
+      sed -i "s/@BACKEND_RESOURCES_LIMITS_CPU@/500m/" $file_name
+      sed -i "s/@BACKEND_RESOURCES_REQUESTS_MEMORY@/800Mi/" $file_name
+      sed -i "s/@BACKEND_RESOURCES_REQUESTS_CPU@/300m/" $file_name
+    # Review branches
+    else
+      echo "Applying resources for $CI_COMMIT_REF_SLUG branch"
+      #gitlab
+      sed -i "s/@GITLAB_PV_CLAIM_CONFIG_SIZE@/10Gi/" $file_name
+      sed -i "s/@GITLAB_PV_CLAIM_OPT_SIZE@/50Gi/" $file_name
+      sed -i "s/@GITLAB_PV_CLAIM_LOG_SIZE@/30Gi/" $file_name
+      sed -i "s/@GITLAB_RESOURCES_LIMITS_MEMORY@/3500Mi/" $file_name
+      sed -i "s/@GITLAB_RESOURCES_LIMITS_CPU@/1200m/" $file_name
+      sed -i "s/@GITLAB_RESOURCES_REQUESTS_MEMORY@/3000Mi/" $file_name
+      sed -i "s/@GITLAB_RESOURCES_REQUESTS_CPU@/1000m/" $file_name
+      #redis
+      sed -i "s/@REDIS_PV_CLAIM_SIZE@/5Gi/" $file_name
+      sed -i "s/@REDIS_RESOURCES_LIMITS_MEMORY@/1000Mi/" $file_name
+      sed -i "s/@REDIS_RESOURCES_LIMITS_CPU@/100m/" $file_name
+      sed -i "s/@REDIS_RESOURCES_REQUESTS_MEMORY@/500Mi/" $file_name
+      sed -i "s/@REDIS_RESOURCES_REQUESTS_CPU@/80m/" $file_name
+      #mlreefdb
+      sed -i "s/@MLREEFDB_PV_CLAIM_SIZE@/10Gi/" $file_name
+      sed -i "s/@MLREEFDB_RESOURCES_LIMITS_MEMORY@/1000Mi/" $file_name
+      sed -i "s/@MLREEFDB_RESOURCES_LIMITS_CPU@/400m/" $file_name
+      sed -i "s/@MLREEFDB_RESOURCES_REQUESTS_MEMORY@/800Mi/" $file_name
+      sed -i "s/@MLREEFDB_RESOURCES_REQUESTS_CPU@/200m/" $file_name
+      #gateway
+      sed -i "s/@GATEWAY_RESOURCES_LIMITS_MEMORY@/500Mi/" $file_name
+      sed -i "s/@GATEWAY_RESOURCES_LIMITS_CPU@/100m/" $file_name
+      sed -i "s/@GATEWAY_RESOURCES_REQUESTS_MEMORY@/500Mi/" $file_name
+      sed -i "s/@GATEWAY_RESOURCES_REQUESTS_CPU@/100m/" $file_name
+      #backend
+      sed -i "s/@BACKEND_RESOURCES_LIMITS_MEMORY@/900Mi/" $file_name
+      sed -i "s/@BACKEND_RESOURCES_LIMITS_CPU@/400m/" $file_name
+      sed -i "s/@BACKEND_RESOURCES_REQUESTS_MEMORY@/800Mi/" $file_name
+      sed -i "s/@BACKEND_RESOURCES_REQUESTS_CPU@/200m/" $file_name
+
     fi
   }
 
@@ -54,12 +125,6 @@ scope_files \
 
 echo "Using gitlab-${dashed_domain}.yml"
 cp gitlab-full.yml gitlab-${dashed_domain}.yml
-
-sed -i.bak "
-    s/@GITLAB_GKE_DOMAIN@/$CI_ENVIRONMENT_SLUG.$KUBE_INGRESS_BASE_DOMAIN/g
-" gitlab-${dashed_domain}.yml
-rm gitlab-${dashed_domain}.yml.bak
-
 sed_files deployment gitlab-${dashed_domain}.yml
 
 # Final gitlab yml file
@@ -82,16 +147,6 @@ scope_files \
 
 echo "Using apps-${dashed_domain}.yml"
 cp apps-full.yml apps-${dashed_domain}.yml
-
-sed -i.bak "
-    s/@GITLAB_GKE_DOMAIN@/$CI_ENVIRONMENT_SLUG.$KUBE_INGRESS_BASE_DOMAIN/g
-" apps-${dashed_domain}.yml
-sed -i.bak "
-    s/@K8S_RUNNER_BEARER_TOKEN@/$K8S_RUNNER_BEARER_TOKEN/g
-" apps-${dashed_domain}.yml
-
-rm apps-${dashed_domain}.yml.bak
-
 sed_files deployment apps-${dashed_domain}.yml
 
 # Final app yml file
