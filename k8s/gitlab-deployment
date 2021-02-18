@@ -79,7 +79,10 @@ data:
   EPF_IMAGE_TAG: "$EPF_IMAGE_TAG"
   EPF_BACKEND_URL: "$EPF_BACKEND_URL"
   EPF_GITLAB_URL: "$EPF_GITLAB_URL"
-  
+  IMAGE_TAG: "$IMAGE_TAG"
+  LOCAL_EPF_IMAGE_PATH: "$LOCAL_EPF_IMAGE_PATH"
+  LOCAL_EXPERIMENT_IMAGE_PATH: "$LOCAL_EXPERIMENT_IMAGE_PATH"
+
 LOCALCONF
 
 cat local-config-${CI_ENVIRONMENT_SLUG}.yml
@@ -159,8 +162,8 @@ setMaxArtifactSizeForGitlab
 setContainerRegistryTokenExpireDelayForGitlab
 
 ###gitlab local group and project creation###
-export GITLAB_ROOTGROUP=mlreef-group
-export GITLAB_PROJECT=mlreef
+export GITLAB_ROOTGROUP=$MLREEF_GITLAB_LOCAL_REGISTRY_GROUP
+export GITLAB_PROJECT=$MLREEF_GITLAB_LOCAL_REGISTRY_PROJECT
 
 #creating root group # 
 rootGroupId=$(curl --header "PRIVATE-TOKEN: $GITLAB_ADMIN_TOKEN" "gitlab.${INSTANCE_HOST}/api/v4/groups?search=$GITLAB_ROOTGROUP" | jq -M 'map(select(.name == "'$GITLAB_ROOTGROUP'"))| .[0].id' )
