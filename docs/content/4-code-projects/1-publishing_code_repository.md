@@ -42,7 +42,7 @@ During the publishing process, you will need to define an entry point. This can 
 
 When entering the wizard, the initial step is to select your entry point. Select your main python script: 
 
-![publishing_entry_point](model_publishing.png)
+![publishing_entry_point](publishing_entry_point.png)
 
 During the publication process, the python file will be parsed to find your specified parameter annotations. This way, the script will be adjustable by these parameters when you create your data pipelines or experiments later on. 
 
@@ -53,21 +53,34 @@ Annotations are **non-intrusive** additions to your scripts, they will have no o
 **The following annotations are mandatory for every script: data input path and data output path**:
 
 ```
-@data_processor(
-    name="your code project name",
-    author="author",
-    command="command"
-    type="ALGORITHM",
-    #type can be "ALGORITHM","VISUALIZATION" or "DATAOPS"
-    description="Transforms images with lots of magic",
-    visibility="PUBLIC",
-    input_type="IMAGE",
-    output_type="MODEL"
-)
+    def data_processor(*args, **kwargs):
+        pass
+        return data_processor
 
-#@parameter(name, type, mandatory, defaultValue)
-@parameter('input-path', 'str', True, 'train')
-@parameter('output-path', 'str', True, 'output')
+
+    def parameter(*args, **kwargs):
+        pass
+        return parameter
+
+
+    @data_processor(
+        name="Add Noise",
+        author="MLReef",
+        command="im_add_noise",
+        type="OPERATION",
+        description="This data operation adds noise to an image",
+        visibility="PUBLIC",
+        input_type="IMAGE",
+        output_type="IMAGE"
+    )
+    @parameter(name="input-path", type="str", required=True, defaultValue="train",
+               description="path to directory of images or image file")
+    @parameter(name="output-path", type="str", required=True, defaultValue="output",
+               description="output directory to save images")
+    @parameter(name="mode", type="str", required=True, defaultValue="speckle",
+               description="type of noise: gaussian , localvar , poisson , salt , pepper , speckle'")
+    def init_params():
+        pass
 ```
 
 You can use the **same annotation format for any other parameter** you want to have access to. 
