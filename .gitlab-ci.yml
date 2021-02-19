@@ -66,12 +66,12 @@ deploy_review:
     - bin/k8s-review-deploy
   artifacts:
     paths:
-      - out/instance.info             # pass instance url to later stages (see k8s/includes/ci-environment)
+      - out/instance.info                                  # pass instance url to later stages (see k8s/includes/ci-environment)
+
 
 post-deploy:
   extends: [".except-docu-branches"]
   stage: post-deploy
-  needs: ["deploy_review"]
   <<: *run-on-all-code-changes
   image: docker:19.03.12
   services:
@@ -84,11 +84,9 @@ post-deploy:
   script:
     - echo $DOCKER_DAEMON_OPTIONS
     - k8s/gitlab-post-deployment
-  artifacts:
-    paths:
-      - out/instance.info             # pass instance url to later stages (see k8s/includes/ci-environment)
 
 stop_review:
+  extends: [".except-docu-branches"]
   image:
     name: registry.gitlab.com/mlreef/devops/k8s-images/k8s-kubectl:latest
     entrypoint: ["/bin/bash", "-c"]
@@ -199,8 +197,6 @@ end2end tests:
   extends: [".except-docu-branches", ".npm-cache-config"]
   stage: test
   <<: *run-on-all-code-changes
-  needs:
-    - post-deploy                            # wait for the deployment to be finished
   # The image should be the same image as web/Dockerfile and the "build frontend" job
   image: node:10.19.0-alpine
   allow_failure: true ##Temporary till the time bug gets fixed

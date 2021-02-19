@@ -12,7 +12,7 @@ set -x  # output all commands
 ########################################
 
 ###Local epf image upload ###
-export LOCAL_CI_REGISTRY="$MLREEF_GITLAB_LOCAL_REGISTRY"
+export LOCAL_CI_REGISTRY="$MLREEF_DOCKER_REGISTRY"
 export LOCAL_CI_REGISTRY_USER=root
 
 if [ -n "${LOCAL_CI_REGISTRY+x}" ] && [ -n "${LOCAL_CI_REGISTRY_USER+x}" ] && [ -n "${GITLAB_ADMIN_TOKEN+x}" ]; then
