@@ -15,11 +15,6 @@ set -o  pipefail
 set -e  # exit on immediately on every error
 set -u  # error on usage of undefined variables
 ########################################
-## Write instance.info. Right now it is being referred at many places, so keeping as it is.
-mkdir -p out
-echo $CI_ENVIRONMENT_SLUG.$KUBE_INGRESS_BASE_DOMAIN > out/instance.info
-cat out/instance.info
-####
 
 ### Need to move it to another file if required
 # The INSTANCE_HOST variable represents the full URL to the EC2 instance MLReef is running on

@@ -129,8 +129,8 @@ rm -f /var/log/configuration.lock
 # Local registry EPF image upload
 # Setup mlreef project
 # Gitlab local group and project creation
-export GITLAB_ROOTGROUP=mlreef-group
-export GITLAB_PROJECT=mlreef
+export GITLAB_ROOTGROUP="$MLREEF_GITLAB_LOCAL_REGISTRY_GROUP"
+export GITLAB_PROJECT="$MLREEF_GITLAB_LOCAL_REGISTRY_PROJECT"
 
 # Creating root group
 rootGroupId=$(curl --header "PRIVATE-TOKEN: $GITLAB_ADMIN_TOKEN" "${INSTANCE_HOST}:${GITLAB_PORT}/api/v4/groups?search=$GITLAB_ROOTGROUP" | jq -M 'map(select(.name == "'$GITLAB_ROOTGROUP'"))| .[0].id' )
@@ -151,21 +151,18 @@ echo "Project Id: $projectId"
 
 # Local EPF image upload
 export MLREEF_DOCKER_REGISTRY_USER=root
-export MLREEF_DOCKER_REGISTRY_IMAGE="${MLREEF_DOCKER_REGISTRY}/${GITLAB_ROOTGROUP}/${GITLAB_PROJECT}"
-export MLREEF_DOCKER_REGISTRY_EPF_IMAGE=$MLREEF_DOCKER_REGISTRY_IMAGE/epf:latest
-export MLREEF_DOCKER_REGISTRY_EXPERIMENT_IMAGE=$MLREEF_DOCKER_REGISTRY_IMAGE/experiment:latest
 
 if [ -n "${MLREEF_DOCKER_REGISTRY_EXTERNAL_URL+x}" ] && [ -n "${MLREEF_DOCKER_REGISTRY_USER+x}" ] && [ -n "${GITLAB_ADMIN_TOKEN+x}" ]; then
           echo "$GITLAB_ADMIN_TOKEN" | docker login "$MLREEF_DOCKER_REGISTRY_EXTERNAL_URL" --username="$MLREEF_DOCKER_REGISTRY_USER" --password-stdin
 fi
 
-docker build --tag "$MLREEF_DOCKER_REGISTRY_EXPERIMENT_IMAGE" -f ../images/experiment/Dockerfile ../images/experiment
-docker push "$MLREEF_DOCKER_REGISTRY_EXPERIMENT_IMAGE"
-log "$MLREEF_DOCKER_REGISTRY_EXPERIMENT_IMAGE has been successfully uploaded "
+docker build --tag "$LOCAL_EXPERIMENT_IMAGE_PATH" -f ../images/experiment/Dockerfile ../images/experiment
+docker push "$LOCAL_EXPERIMENT_IMAGE_PATH"
+log "$LOCAL_EXPERIMENT_IMAGE_PATH has been successfully uploaded "
 
-docker build --tag "$MLREEF_DOCKER_REGISTRY_EPF_IMAGE" -f ../epf/Dockerfile ../epf
-docker push "$MLREEF_DOCKER_REGISTRY_EPF_IMAGE"
-log "$MLREEF_DOCKER_REGISTRY_EPF_IMAGE has been successfully uploaded "
+docker build --tag "$LOCAL_EPF_IMAGE_PATH" -f ../epf/Dockerfile ../epf
+docker push "$LOCAL_EPF_IMAGE_PATH"
+log "$LOCAL_EPF_IMAGE_PATH has been successfully uploaded "
 
 
 #########################

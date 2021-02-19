@@ -271,8 +271,8 @@ echo "Done - ${DOCKER_DAEMON_JSON} changes"
 
 
 ###gitlab local group and project creation###
-export GITLAB_ROOTGROUP=mlreef-group 
-export GITLAB_PROJECT=mlreef 
+export GITLAB_ROOTGROUP=$MLREEF_GITLAB_LOCAL_REGISTRY_GROUP 
+export GITLAB_PROJECT=$MLREEF_GITLAB_LOCAL_REGISTRY_PROJECT
 
 #creating root group # 
 rootGroupId=$(curl --header "PRIVATE-TOKEN: $GITLAB_ADMIN_TOKEN" "${INSTANCE_HOST}:${GITLAB_PORT}/api/v4/groups?search=$GITLAB_ROOTGROUP" | jq -M 'map(select(.name == "'$GITLAB_ROOTGROUP'"))| .[0].id' )
@@ -294,11 +294,8 @@ echo "Project Id: $projectId"
 ###gitlab group project creation ends###
 
 ###Local epf image upload ###
-export LOCAL_CI_REGISTRY="${INSTANCE_HOST}:${REGISTRY_NGINX_PORT}"
+export LOCAL_CI_REGISTRY="${MLREEF_DOCKER_REGISTRY}"
 export LOCAL_CI_REGISTRY_USER=root
-export LOCAL_CI_REGISTRY_IMAGE="${LOCAL_CI_REGISTRY_IMAGE:-$LOCAL_CI_REGISTRY/$GITLAB_ROOTGROUP/$GITLAB_PROJECT}"
-export LOCAL_EPF_IMAGE_PATH=$LOCAL_CI_REGISTRY_IMAGE/epf:$VERSION
-export LOCAL_EXPERIMENT_IMAGE_PATH=$LOCAL_CI_REGISTRY_IMAGE/experiment:$VERSION
 
 if [ -n "${LOCAL_CI_REGISTRY+x}" ] && [ -n "${LOCAL_CI_REGISTRY_USER+x}" ] && [ -n "${GITLAB_ADMIN_TOKEN+x}" ]; then
           echo "$GITLAB_ADMIN_TOKEN" | docker login "$LOCAL_CI_REGISTRY" --username="$LOCAL_CI_REGISTRY_USER" --password-stdin

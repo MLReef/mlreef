@@ -9,6 +9,11 @@ set -e  # exit on immediately on every error
 set -u  # error on usage of undefined variables
 ########################################
 
+## Write instance.info. Right now it is being referred at many places, so keeping as it is.
+mkdir -p out
+echo $CI_ENVIRONMENT_SLUG.$KUBE_INGRESS_BASE_DOMAIN > out/instance.info
+cat out/instance.info
+
 ## Export variable that will be included in all final yml files
 export dashed_domain="${CI_ENVIRONMENT_SLUG}"
 
