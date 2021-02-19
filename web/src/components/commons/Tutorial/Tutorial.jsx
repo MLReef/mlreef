@@ -111,6 +111,7 @@ const Tutorial = (props) => {
       type: 'success',
       title: 'Tutorial completed',
       noActions: true,
+      align: null,
       content: tutorial?.epilogue ? (
         <div className="px-3">
           <ReactMarkdown source={tutorial.epilogue} />

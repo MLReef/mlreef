@@ -90,6 +90,7 @@ const ExperimentsOverview = (props) => {
         title: 'Delete experiments?',
         type: 'danger',
         closable: true,
+        align: null,
         content: (
           <section className="experiments-overview-delete-modal">
             <div id="question-for-delete-exp">
@@ -127,6 +128,7 @@ const ExperimentsOverview = (props) => {
         title: 'Abort experiments?',
         type: 'danger',
         closable: true,
+        align: null,
         content: (
           <section className="experiments-overview-delete-modal">
             <div id="question-to-abort">

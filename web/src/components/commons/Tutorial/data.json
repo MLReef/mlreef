@@ -11,14 +11,23 @@
       "steps": [
         {
           "id": 1,
-          "name": "Explore the dashboard",
+          "name": "Exploring your dashboard",
           "tasks": [
             {
               "id": 1,
               "layoutType": 1,
-              "title": "Explore public ML projects",
+              "title": "Your first tutorial!",
+              "image": "/tutorials/1/click.png",
+              "instructions": "This is the tutorial helper. It will accompany you in your journey, step by step. Now, click on the above image to make it big.",
+              "validators": [
+              ]
+            },
+            {
+              "id": 2,
+              "layoutType": 1,
+              "title": "This is your dashboard",
               "image": "/tutorials/1/dashboard.png",
-              "instructions": "Navigate to the explore tab in your dashboard. MLProjects will host your entire ML life cycle, including your data and pipelines.",
+              "instructions": "In your dashboard you can see your owned projects and explore public projects from the community.",
               "validators": [
                 {
                   "type": "hashChecker",
@@ -27,14 +36,15 @@
               ]
             },
             {
-              "id": 2,
+              "id": 3,
               "layoutType": 1,
-              "title": "Explore the other tabs",
-              "instructions": "The tabs **models**, **dataops** and **data visualizations** host functions which can be used in the MLProjects. ",
+              "title": "ML Projects, Models, Data Operations and Data Visualizations",
+              "image": "/tutorials/1/dashboard.png",
+              "instructions": "In **ML Projects** you will do all the data and ML related work. The tabs **models**, **data operations** and **data visualizations** host your code functions.",
               "validators": []
             },
             {
-              "id": 3,
+              "id": 4,
               "layoutType": 1,
               "title": "Go to the \"Basic tutorials\" ML project",
               "image": "/tutorials/1/basic_1_card.png",
@@ -87,8 +97,8 @@
             {
               "id": 3,
               "layoutType": 1,
-              "title": "Explore the data",
-              "instructions": "##### Congratulations! You now own this project.\nExplore the data section and discover the files in it.",
+              "title": "Now this ML projects is yours!",
+              "instructions": "##### Congratulations! You now own this project.\nIf you want, you can explore the data section and discover the files in it.",
               "image": "/tutorials/1/basic_repository.png",
               "validators": []
             }
@@ -101,13 +111,21 @@
             {
               "id": 1,
               "layoutType": 1,
+              "title": "Creating a cats and dogs classifier",
+              "image": "/tutorials/1/cats_dogs.png",
+              "instructions": "The objective is to train a neural network that will be able to distinguish between cats and dogs. Easy!",
+              "validators": []
+            },
+            {
+              "id": 2,
+              "layoutType": 1,
               "title": "Open the \"Experiments\" tab",
               "image": "/tutorials/1/experiment_tab.png",
-              "instructions": "Click the experiment tab. In this section you can start training your models with your data!",
+              "instructions": "Click the experiment tab. In this section you can start training your models with your cats and dogs image data.",
               "validators": [
                 {
                   "type": "urlChecker",
-                  "regex": "^/:username/basic-tutorials/-/experiments/new",
+                  "regex": "^/:username/basic-tutorials/-/experiments",
                   "placeholders": ["username"]
                 },
                 {
@@ -117,11 +135,11 @@
               ]
             },
             {
-              "id": 2,
+              "id": 3,
               "layoutType": 1,
               "title": "Create a new experiment",
               "image": "/tutorials/1/new_experiment.png",
-              "instructions": "Start a new experiment!",
+              "instructions": "An experiment is a model training. It is called an experiment, because with neural networks you don´t the exact outcome before you tried.",
               "validators": [
                 {
                   "type": "clickListener",
@@ -130,41 +148,39 @@
               ]
             },
             {
-              "id": 3,
+              "id": 4,
               "layoutType": 1,
               "title": "Choose your training data",
               "image": "/tutorials/1/select_data.gif",
-              "instructions": "Click the select data button and then choose the **training** folder by selecting it. This will store the path to your dataset - in this case they are cats and dogs images.",
+              "instructions": "Click the select data button and then choose the **train** folder. This will store the path to your dataset - in this case cats and dogs images.",
               "validators": [
-
-              ]
-            },
-            {
-              "id": 4,
-              "layoutType": 1,
-              "title": "Choose the \"Resnet50\" model",
-              "image": "/tutorials/1/select_model.gif",
-              "instructions": "Search and *drag and drop* the model named **Resnet50** to your experiment pipeline.",
-              "validators": [
-
+                {
+                  "type": "presence",
+                  "preSelector" : ".tutorial-data",
+                  "postSelector": ".tutorial-data-loaded"
+                }
               ]
             },
             {
               "id": 5,
               "layoutType": 1,
-              "title": "Enter basic parameters",
-              "image": "/tutorials/1/parameters.gif",
-              "instructions": "The data-input path should already contain the path **train**. In the output field enter **output** - your model artifacts will be stored here. Fill in all the other parameters as described!",
+              "title": "Choose the \"Resnet50\" model",
+              "image": "/tutorials/1/select_model.gif",
+              "instructions": "Search and *drag and drop* the model named **Resnet50** to your experiment pipeline.",
               "validators": [
-
+                {
+                  "type": "presence",
+                  "preSelector" : "#drop-zone",
+                  "postSelector": ".pipe-line-execution [data-tutorial=Resnet50]"
+                }
               ]
             },
             {
               "id": 6,
               "layoutType": 1,
-              "title": "Start the experiment",
-              "instructions": "If you successfully draged your model and filled all parameters, you should be able to execute your first experiment. Click **execute**.",
-              "image": "/tutorials/1/execute.png",
+              "title": "Enter basic parameters",
+              "image": "/tutorials/1/parameters.gif",
+              "instructions": "The data-input path should already contain the path **train**. In the output field enter **output** - your model artifacts will be stored here. Fill in others as we did (click the image)!",
               "validators": [
 
               ]
@@ -172,13 +188,26 @@
             {
               "id": 7,
               "layoutType": 1,
+              "title": "Start the experiment",
+              "instructions": "If you successfully draged your model and filled all parameters, you should be able to execute your first experiment. Click **execute**.",
+              "image": "/tutorials/1/execute.png",
+              "validators": [
+                {
+                  "type": "clickListener",
+                  "selector": "#execute-button"
+                }
+              ]
+            },
+            {
+              "id": 8,
+              "layoutType": 1,
               "title": "Choose machine and execute",
               "image": "/tutorials/1/execute_2.gif",
               "instructions": "Choose the **GPU machine** from the dropdown and execute your experiment. Your model is now being trained. Press the **show results** button to continue.",
               "validators": [
                 {
                   "type": "clickListener",
-                  "selector": "#accept"
+                  "selector": "#show-machines"
                 }
               ]
             }
@@ -203,7 +232,7 @@
               "layoutType": 1,
               "title": "Expand an experiment",
               "image": "/tutorials/1/expand.png",
-              "instructions": "Click the expand button to see more details about your experiment - such as a running graph, the hyperparameters, what data you used, etc.",
+              "instructions": "Click the expand button to see more details about your experiment - such as metrics, the hyperparameters, what data you used, etc.",
               "validators": [
 
               ]
@@ -215,7 +244,11 @@
               "image": "/tutorials/1/details.png",
               "instructions": "Click on the experiment name to enter a detailed view with more insights and to download the generated model artifacts.",
               "validators": [
-
+                {
+                  "type": "urlChecker",
+                  "regex": "^/:username/basic-tutorials/-/experiments/.+$",
+                  "placeholders": ["username"]
+                }
               ]
             },
             {
@@ -225,7 +258,6 @@
               "image": "/tutorials/1/details_2.gif",
               "instructions": "Explore the different tabs and finally navigate to the **files** tab. As soon as the experiment has finished, you can download the model and use it!",
               "validators": [
-
               ]
             }
           ]
@@ -316,7 +348,7 @@
               "id": 4,
               "layoutType": 1,
               "title": "Start the data processing",
-              "instructions": "If you successfully draged the datops and filled all parameters, you should be able to execute your dataops pipeline to create a new dataset. Click **execute**.",
+              "instructions": "If you successfully dragged the datops and filled all parameters, you should be able to execute your dataops pipeline to create a new dataset. Click **execute**.",
               "image": "/tutorials/2/execute.png",
               "validators": [
                 {
