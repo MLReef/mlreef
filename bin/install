@@ -144,7 +144,7 @@ if [ "$INSTANCE_HOST" != "localhost" ]; then
   #openssl rsa -pubout -in bin/resources/development.pem  > bin/resources/development.pem.pub
 #  docker exec gitlab-runner sed -i "s/###AWS_ACCESS_KEY###/$AWS_ACCESS_KEY_ID/"        $CONFIG_TEMPLATE
 #  docker exec gitlab-runner sed -i "s~###AWS_ACCESS_SECRET###~$AWS_SECRET_ACCESS_KEY~" $CONFIG_TEMPLATE
-#  docker exec gitlab-runner sed -i "s~###INSECURE_REGISTRY###~${INSTANCE_HOST}:${REGISTRY_NGINX_PORT}~" $CONFIG_TEMPLATE
+#  docker exec gitlab-runner sed -i "s~###INSECURE_REGISTRY###~${MLREEF_DOCKER_REGISTRY}~" $CONFIG_TEMPLATE
 
   #Configuration for k8s config template
   K8S_CONFIG_TEMPLATE="/etc/gitlab-runner/runner-config.k8s-template.toml" 
@@ -259,11 +259,11 @@ fi
 ###Add insecure registry entry in docker daemon"
 echo "adding entry in ${DOCKER_DAEMON_JSON}"
 if [ -f ${DOCKER_DAEMON_JSON} ]; then
-  if ! grep -P "insecure-registries.*${INSTANCE_HOST}:${REGISTRY_NGINX_PORT}.*" ${DOCKER_DAEMON_JSON} ; then
-    sed -i '$s/}/,"insecure-registries" : ["'"$INSTANCE_HOST"':'"$REGISTRY_NGINX_PORT"'"]\n}/' ${DOCKER_DAEMON_JSON}
+  if ! grep -P "insecure-registries.*${MLREEF_DOCKER_REGISTRY}.*" ${DOCKER_DAEMON_JSON} ; then
+    sed -i '$s/}/,"insecure-registries" : ["'"${MLREEF_DOCKER_REGISTRY}"'"]\n}/' ${DOCKER_DAEMON_JSON}
   fi
 else
-  echo "{ \"insecure-registries\" : [\"${INSTANCE_HOST}:${REGISTRY_NGINX_PORT}\"] }" > ${DOCKER_DAEMON_JSON}
+  echo "{ \"insecure-registries\" : [\"${MLREEF_DOCKER_REGISTRY}\"] }" > ${DOCKER_DAEMON_JSON}
 fi
 #Reload docker system config
 systemctl reload docker
