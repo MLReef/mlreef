@@ -42,7 +42,7 @@
               "validators": [
                 {
                   "type": "urlChecker",
-                  "regex": "/mlreef/basic-tutorial"
+                  "regex": "/mlreef/basic-tutorials"
                 }
               ]
             }
@@ -61,11 +61,11 @@
               "validators": [
                 {
                   "type": "urlChecker",
-                  "regex": "^/projects/.+?/fork"
+                  "regex": "^/.+/basic-tutorials/-/fork"
                 },
                 {
                   "type": "urlChecker",
-                  "regex": "^/:username/basic-tutorial",
+                  "regex": "^/:username/basic-tutorials",
                   "placeholders": ["username"]
                 }
               ]
@@ -79,7 +79,7 @@
               "validators": [
                 {
                   "type": "urlChecker",
-                  "regex": "^/:username/basic-tutorial",
+                  "regex": "^/:username/basic-tutorials",
                   "placeholders": ["username"]
                 }
               ]
@@ -105,7 +105,15 @@
               "image": "/tutorials/1/experiment_tab.png",
               "instructions": "Click the experiment tab. In this section you can start training your models with your data!",
               "validators": [
-
+                {
+                  "type": "urlChecker",
+                  "regex": "^/:username/basic-tutorials/-/experiments/new",
+                  "placeholders": ["username"]
+                },
+                {
+                  "type": "clickListener",
+                  "selector": "#new-experiment"
+                }
               ]
             },
             {
@@ -115,7 +123,10 @@
               "image": "/tutorials/1/new_experiment.png",
               "instructions": "Start a new experiment!",
               "validators": [
-
+                {
+                  "type": "clickListener",
+                  "selector": "#new-experiment"
+                }
               ]
             },
             {
@@ -165,7 +176,10 @@
               "image": "/tutorials/1/execute_2.gif",
               "instructions": "Choose the **GPU machine** from the dropdown and execute your experiment. Your model is now being trained. Press the **show results** button to continue.",
               "validators": [
-
+                {
+                  "type": "clickListener",
+                  "selector": "#accept"
+                }
               ]
             }
           ]
