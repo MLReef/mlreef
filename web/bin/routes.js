@@ -11,8 +11,7 @@ const EXTERNAL_URL = config.parsed.REACT_APP_EXTERNAL_URL;
 const API = `${EXTERNAL_URL}/api`;
 
 const staticRoutes = [
-  { name: '', priority: '1.00' },
-  '/explore',
+  { name: '/explore', priority: '1.00' },
 ];
 
 const fetchPublicProjects = () => fetch(`${API}/v1/projects`)
