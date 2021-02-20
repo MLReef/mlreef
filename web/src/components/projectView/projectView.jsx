@@ -56,10 +56,30 @@ class ProjectView extends React.Component {
       user: { auth },
     } = this.props;
     const fetch = auth ? this.fetchIfAuthenticated : this.fetchVisitor;
-
     actions.setIsLoading(true);
 
     fetch().finally(() => actions.setIsLoading(false));
+  }
+
+  componentDidUpdate() {
+    const {
+      project,
+      history,
+      match: {
+        params: {
+          namespace,
+          slug,
+        },
+      },
+    } = this.props;
+
+    const isCorrectProject = project.slug === slug && project.namespace === namespace;
+
+    if (isCorrectProject && project.emptyRepo) {
+      if (project.gitlab?.forkedFromProject) {
+        history.push(`/${namespace}/${slug}/-/fork-progress`);
+      }
+    }
   }
 
   setIsForking(status) {
@@ -258,6 +278,9 @@ ProjectView.propTypes = {
       branch: string,
       path: string,
     }),
+  }).isRequired,
+  history: shape({
+    push: func.isRequired,
   }).isRequired,
   user: shape({
     auth: bool,
