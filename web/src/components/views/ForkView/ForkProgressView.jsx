@@ -1,15 +1,16 @@
+// this view doesn't fork, it just is visible while a long forking is taking place
+// and will check every 20 seconds if branches are ready.
 import React, { useEffect, useCallback } from 'react';
 import PropTypes from 'prop-types';
-import { toastr } from 'react-redux-toastr';
 import './ForkView.scss';
 import forkingImage from 'images/forking.png';
-import ProjectGeneralInfoApi from 'apis/ProjectGeneralInfoApi';
+import BranchesApi from 'apis/BranchesApi.ts';
 import Navbar from 'components/navbar/navbar';
 import hooks from 'customHooks/useSelectedProject';
 
-const projectGeneralInfoApi = new ProjectGeneralInfoApi();
+const branchesApi = new BranchesApi();
 
-const ForkView = (props) => {
+const ForkProgressView = (props) => {
   const {
     history,
     match: {
@@ -19,23 +20,28 @@ const ForkView = (props) => {
     },
   } = props;
 
-  const [selectedProject] = hooks.useSelectedProject(namespace, slug);
+  const [{ gid }] = hooks.useSelectedProject(namespace, slug);
 
-  const { id, gid, gitlabName } = selectedProject;
-
-  const handleFork = useCallback(
-    () => projectGeneralInfoApi.fork(id, null, gitlabName, null)
-      .then((project) => history.push(`/${project.gitlab_namespace}/${project.slug}`))
-      .catch((err) => {
-        toastr.error('Error:', err?.message);
-        history.goBack();
+  const checkBranches = useCallback(
+    () => branchesApi.getBranches(gid)
+      .then((branches) => {
+        if (branches.length) {
+          // eslint-disable-next-line
+          console.log('push!');
+          history.push(`/${namespace}/${slug}`);
+        }
       }),
-    [history, id, gitlabName],
+    [namespace, slug, gid],
   );
 
-  useEffect(() => {
-    if (gid) handleFork();
-  }, [gid, handleFork]);
+  useEffect(
+    () => {
+      const intId = setInterval(() => { checkBranches(); }, 10 * 1000);
+
+      return () => clearInterval(intId);
+    },
+    [checkBranches],
+  );
 
   return (
     <div className="project-component">
@@ -61,14 +67,17 @@ const ForkView = (props) => {
   );
 };
 
-ForkView.defaultProps = {
+ForkProgressView.defaultProps = {
 
 };
 
-ForkView.propTypes = {
+ForkProgressView.propTypes = {
   history: PropTypes.shape({
     goBack: PropTypes.func.isRequired,
     push: PropTypes.func.isRequired,
+  }).isRequired,
+  location: PropTypes.shape({
+    hash: PropTypes.string,
   }).isRequired,
   match: PropTypes.shape({
     params: PropTypes.shape({
@@ -78,4 +87,4 @@ ForkView.propTypes = {
   }).isRequired,
 };
 
-export default ForkView;
+export default ForkProgressView;

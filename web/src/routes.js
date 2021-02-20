@@ -32,6 +32,7 @@ import InsightsView from 'components/insights/insights';
 import UploadFileView from 'components/views/uploadFile/uploadFile';
 import CommitDetailsView from 'components/commits-details/commitDetails';
 import ForkView from 'components/views/ForkView';
+import ForkProgressView from 'components/views/ForkView/ForkProgressView';
 import PublishingView from 'components/views/PublishingView';
 import PublishProcessView from 'components/views/PublishProcessView';
 import NotFoundView from 'components/views/ErrorView/NotFoundView';
@@ -213,6 +214,16 @@ export default [
     name: 'fork',
     path: '/:namespace/:slug/-/fork',
     component: ForkView,
+    exact: true,
+    meta: {
+      authRequired: true,
+    },
+  },
+  {
+    // this is in case of long fork, projectView will redirect here
+    name: 'fork-progress',
+    path: '/:namespace/:slug/-/fork-progress',
+    component: ForkProgressView,
     exact: true,
     meta: {
       authRequired: true,
