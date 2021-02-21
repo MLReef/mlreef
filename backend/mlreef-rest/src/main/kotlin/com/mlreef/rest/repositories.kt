@@ -190,7 +190,7 @@ interface ProjectBaseRepository<T : Project> : CrudRepository<T, UUID> {
 
     fun findBySlug(slug: String, pageable: Pageable?): Page<T>
 
-    @Query("SELECT p FROM Project p WHERE p.gitlabNamespace LIKE %:namespace% AND p.slug LIKE %:slug%")
+    @Query("SELECT p FROM Project p WHERE p.gitlabNamespace=:namespace AND p.slug=:slug")
     fun findNamespaceAndSlug(namespace: String, slug: String): T?
 }
 
