@@ -34,7 +34,7 @@ const colors = {
 //   { name: `${classification} data-types`, label: 'Tabular' },
 // ];
 
-const SIZE = 20;
+const SIZE = 10;
 
 const filterPopular = (ps) => ps.filter((p) => p.gitlabNamespace === 'mlreef');
 
@@ -48,12 +48,12 @@ const ExploreView = (props) => {
   const [started, setStarted] = useState(false);
 
   const fetchDataProjects = useCallback(
-    (page = 1) => actions.getDataProjects(page, SIZE),
+    (page = 0) => actions.getDataProjects(page, SIZE),
     [actions],
   );
 
   const fetchCodeProjects = useCallback(
-    (type, page = 1) => actions.getCodeProjects(type, { page, size: SIZE }),
+    (type, page = 0) => actions.getCodeProjects(type, { page, size: SIZE }),
     [actions],
   );
 
@@ -64,7 +64,7 @@ const ExploreView = (props) => {
         pagination: { current },
       } = type ? codeProjects[type] : dataProjects;
 
-      return projects.length && current;
+      return projects.length && current !== undefined;
     },
     [dataProjects, codeProjects],
   );

@@ -4,10 +4,11 @@
 
 .noelement-found-div {
   width: 100%;
+  min-height: 78px;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   p {
-    color: var(--secondary);   
+    color: var(--secondary);
   }
 }

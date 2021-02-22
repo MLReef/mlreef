@@ -2,7 +2,7 @@
     display: flex;
     align-items: center;
     background-color: var(--dark);
-    min-height: 3rem;
+    min-height: 3.2rem;
 }
 
 .logo {
@@ -37,7 +37,7 @@
     font-weight: 200;
     margin: 0.75em;
   }
-  
+
    & p:hover {
     background: var(--secondary);
     cursor: pointer;
@@ -62,7 +62,7 @@
     font-weight: 200;
     transition: all 0.4s ease;
   }
-  
+
   & p:hover {
     background: #c5c5c5;
     cursor: pointer;
