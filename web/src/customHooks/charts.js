@@ -1,10 +1,4 @@
-import { useCallback, useMemo } from 'react';
-
-export const usePlotly = () => useMemo(
-  // eslint-disable-next-line
-  () => require('plotly.js/lib/core'),
-  [],
-);
+import { useCallback } from 'react';
 
 export const useUnfoldValue = (getColumn) => useCallback(
   (param) => {
@@ -28,3 +22,5 @@ export const useUnfoldValue = (getColumn) => useCallback(
   },
   [getColumn],
 );
+
+export default useUnfoldValue;
