@@ -1,6 +1,6 @@
 // this component is kept for comparison purposes and for a quick roll back if needed
 // called by ./ExperimentCard
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import {
   string,
   shape,
@@ -11,7 +11,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { toastr } from 'react-redux-toastr';
 import './experimentsOverview.css';
-import { Line } from 'react-chartjs-2';
+// import { Line } from 'react-chartjs-2';
 import { plainToClass } from 'class-transformer';
 import Experiment from 'domain/experiments/Experiment';
 import AuthWrapper from 'components/AuthWrapper';
@@ -40,6 +40,8 @@ import { setCodeProjects } from 'store/actions/projectInfoActions';
 const gitlabApi = new GitlabPipelinesApi();
 const experimentApi = new ExperimentsApi();
 const mlSearchApi = new MLSearchApi();
+
+const Line = React.lazy(() => import('customImports/chartjsLine'));
 
 const onPositiveDelete = (dataProjectId, experimentId) => () => experimentApi
   .delete(dataProjectId, experimentId)
@@ -202,7 +204,9 @@ const ExperimentSummary = ({
         <>
           <div key={`${classExp.name} ${experiment.status} data-summary`} className="data-summary">
             <div style={{ width: '100%', minWidth: 700, maxWidth: 750 }}>
-              <Line data={dataToGraph} height={50} />
+              <Suspense fallback={<div>loading...</div>}>
+                <Line data={dataToGraph} height={50} />
+              </Suspense>
             </div>
             <div className="content">
               <p><b>Performace achieved from last epoch:</b></p>

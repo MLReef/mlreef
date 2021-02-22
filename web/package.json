@@ -79,7 +79,8 @@
     "redux-immutable-state-invariant": "2.1.0",
     "ts-node": "^9.0.0",
     "typescript": "^3.7.5",
-    "wait-for-expect": "^3.0.2"
+    "wait-for-expect": "^3.0.2",
+    "webpack-bundle-analyzer": "^4.4.0"
   },
   "scripts": {
     "start": "react-scripts start",
@@ -89,6 +90,7 @@
     "end2end": "jest --verbose --modulePaths=src --env=jsdom --detectOpenHandles --testPathPattern=/__end2end-tests__/*",
     "cypress": "cypress open",
     "sitemap": "node bin/sitemap-generator.js",
+    "analize-bundle": "node bin/analize-bundle.js",
     "eject": "react-scripts eject",
     "storybook": "start-storybook -p 6006 -s public",
     "build-storybook": "build-storybook -s public --quiet"

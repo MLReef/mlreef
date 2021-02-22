@@ -1,6 +1,7 @@
 import React, {
   useState,
   useCallback,
+  Suspense,
 } from 'react';
 import { useDispatch } from 'react-redux';
 import PropTypes from 'prop-types';
@@ -9,9 +10,9 @@ import MAccordion from 'components/ui/MAccordion';
 import MChart from 'components/ui/MChart';
 import { fireModal, closeModal } from 'store/actions/actionModalActions';
 import TabularDataFeeder from './TabularDataFeeder';
-import TabularDataGraphCreator from './TabularDataGraphCreator';
 import './TabularData.scss';
-// import { inspect } from 'functions/apiCalls';
+
+const TabularDataGraphCreator = React.lazy(() => import('./TabularDataGraphCreator'));
 
 const TabularData = (props) => {
   const {
@@ -59,13 +60,15 @@ const TabularData = (props) => {
       title: 'Create a Chart',
       noActions: true,
       content: (
-        <TabularDataGraphCreator
-          matrix={matrix}
-          setChart={(c) => {
-            addChart(c);
-            dispatch(closeModal({ reset: true }));
-          }}
-        />
+        <Suspense fallback={(<div>loading...</div>)}>
+          <TabularDataGraphCreator
+            matrix={matrix}
+            setChart={(c) => {
+              addChart(c);
+              dispatch(closeModal({ reset: true }));
+            }}
+          />
+        </Suspense>
       ),
     }));
   };

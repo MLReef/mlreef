@@ -6,7 +6,7 @@ import React, {
 import PropTypes from 'prop-types';
 import cx from 'classnames';
 import genUUID from 'uuid/v1';
-import { useUnfoldValue, usePlotly } from 'customHooks/charts';
+import { useUnfoldValue } from 'customHooks/charts';
 import plotTypes from './plotTypes';
 import './TabularDataGraphCreator.scss';
 
@@ -17,7 +17,8 @@ const TabularDataGraphCreator = (props) => {
     setChart,
   } = props;
 
-  const Plotly = usePlotly();
+  // eslint-disable-next-line
+  const Plotly = require('plotly.js/lib/core');
 
   const getColumn = useCallback(
     (x) => matrix.slice(1).map((row) => row.find((cols, i) => i === x)),

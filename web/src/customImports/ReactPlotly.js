@@ -1,6 +1,6 @@
-import createPlotlyComponent from 'react-plotly.js/factory';
-
 const loadReactPlotly = () => {
+  // eslint-disable-next-line
+  const createPlotlyComponent = require('react-plotly.js/factory').default;
   // eslint-disable-next-line
   const Plotly = require('plotly.js/lib/core');
 
