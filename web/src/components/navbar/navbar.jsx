@@ -33,6 +33,22 @@ class Navbar extends Component {
     const { user, globalMarker, tutorialActive } = this.props;
     const avatarUrl = user.userInfo && user.userInfo.avatar_url;
 
+    const docuLink = (
+      <div>
+        <a target="_blank" rel="noopener noreferrer" href="https://doc.mlreef.com">
+          Documentation
+        </a>
+      </div>
+    );
+
+    const slackLink = (
+      <div>
+        <a target="_blank" rel="noopener noreferrer" href="https://mlreefcommunity.slack.com">
+          Slack Community
+        </a>
+      </div>
+    );
+
     return (
       <>
         <div className="navbar">
@@ -126,16 +142,8 @@ class Navbar extends Component {
                   )}
                   component={(
                     <div className="help-box">
-                      <div>
-                        <a target="_blank" rel="noopener noreferrer" href="https://doc.mlreef.com">
-                          Documentation
-                        </a>
-                      </div>
-                      <div>
-                        <a target="_blank" rel="noopener noreferrer" href="https://mlreefcommunity.slack.com">
-                          Slack Community
-                        </a>
-                      </div>
+                      {docuLink}
+                      {slackLink}
                       <div>
                         <button onClick={this.toggleTutorial} type="button" className="btn btn-hidden">
                           {`${tutorialActive ? 'Hide' : 'Show'} Tutorial`}
@@ -182,14 +190,37 @@ class Navbar extends Component {
             )}
 
             {!user.auth && (
-              <div className="d-none d-lg-flex ml-auto my-auto">
-                <Link to="/login?redirect=goback" className="btn btn-sm btn-dark mr-3 px-3">
-                  Sign in
-                </Link>
-                <Link to="/register" className="btn btn-sm btn-outline-secondary keep-border">
-                  Register
-                </Link>
-              </div>
+              <>
+                <MDropdown
+                  align="right"
+                  className="m-dropdown ml-auto my-auto"
+                  buttonClasses="btn btn-dark d-flex p-2"
+                  label={(
+                    <img src={helpWhite} alt="" style={{ width: '1.8rem' }} />
+                  )}
+                  component={(
+                    <div className="help-box">
+                      {docuLink}
+                      {slackLink}
+                      <div>
+                        <a target="_blank" rel="noopener noreferrer" href="https://about.mlreef.com">
+                          About MLReef
+                        </a>
+                      </div>
+                    </div>
+                  )}
+                />
+              <div className="ml-1 my-auto">
+                  <Link to="/login?redirect=goback" className="btn btn-sm btn-dark mr-2 px-3">
+                    <i className="fas fa-sign-in-alt d-lg-none" />
+                    <span className="d-none d-lg-flex">Sign in</span>
+                  </Link>
+                  <Link to="/register" className="btn btn-sm btn-outline-secondary px-0 keep-border">
+                    <i className="fas fa-user-plus d-lg-none px-2" />
+                    <span className="d-none d-lg-flex px-3">Register</span>
+                  </Link>
+                </div>
+              </>
             )}
           </div>
         </div>

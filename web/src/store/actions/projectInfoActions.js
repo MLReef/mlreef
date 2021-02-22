@@ -206,7 +206,7 @@ export function getCodeProjects(searchableType, { page, size }, body = {}) {
   return (dispatch) => mlSearchApi
     .search(searchableType, body, `&page=${page}&size=${size}`)
     .then((payload) => ({
-      projects: mergeGitlabResource(payload?.content?.map((i) => parseToCamelCase(i.project))),
+      projects: mergeGitlabResource(payload?.content?.map(parseToCamelCase)),
       pagination: createPagination(payload),
     }))
     .then((codeSet) => {
