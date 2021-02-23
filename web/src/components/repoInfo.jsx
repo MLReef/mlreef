@@ -1,8 +1,14 @@
-import React from 'react';
+import React, { useMemo } from 'react';
+import { useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import * as PropTypes from 'prop-types';
 import AuthWrapper from 'components/AuthWrapper';
 import { PROJECT_TYPES } from 'domain/project/projectTypes';
+
+const calculateSize = (pipeCategoriesArray) => pipeCategoriesArray 
+  && pipeCategoriesArray?.length > 0
+  ? pipeCategoriesArray.map((cat) => cat.values.length).reduce((a, b) => a + b)
+  : 0;
 
 const RepoInfo = ({
   project,
@@ -13,6 +19,12 @@ const RepoInfo = ({
 }) => {
   const isDataProject = project.searchableType === PROJECT_TYPES.DATA_PROJ
     || project.searchableType === PROJECT_TYPES.DATA;
+
+  const datainstances = useSelector((state) => state.datainstances);
+  const visualizations = useSelector((state) => state.visualizations);
+
+  const datasetsArrSize = useMemo(() => calculateSize(datainstances), [datainstances]);
+  const visualizationsArrSize = useMemo(() => calculateSize(visualizations), [visualizations]);
 
   const openedMergeRequests = mergeRequests.filter(({ state }) => state === 'opened');
   return (
@@ -39,12 +51,20 @@ const RepoInfo = ({
           <>
             <AuthWrapper minRole={10}>
               <Link className="repo-stat" to={`/${project.namespace}/${project.slug}/-/visualizations`}>
-                <p className="stat-type">Visualizations</p>
+                <p className="stat-type">
+                  {visualizationsArrSize}
+                  {' '}
+                  Visualizations
+                </p>
               </Link>
             </AuthWrapper>
             <AuthWrapper minRole={10}>
               <Link disabled to={`/${project.namespace}/${project.slug}/-/datasets`} className="repo-stat">
-                <p className="stat-type">Datasets</p>
+                <p className="stat-type">
+                  {datasetsArrSize}
+                  {' '}
+                  Datasets
+                </p>
               </Link>
             </AuthWrapper>
           </>

@@ -3,6 +3,7 @@ import { mount } from 'enzyme';
 import { environments, modelOptions } from 'components/views/PublishingView/info2';
 import PublishingViewPublishModel from 'components/views/PublishingView/PublishingViewPublishModel';
 import { filesMock } from 'testData';
+import { ALGORITHM } from 'dataTypes';
 
 const dispatch = jest.fn();
 
@@ -12,6 +13,7 @@ const selectedEnv = environments[0];
 
 const setup = () => mount(
   <PublishingViewPublishModel
+    dataProcessorType={ALGORITHM}
     entryPointFile={scriptSelected}
     selectedBranch="master"
     selectedEnvironment={selectedEnv.name}

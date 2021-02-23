@@ -34,19 +34,15 @@ class Navbar extends Component {
     const avatarUrl = user.userInfo && user.userInfo.avatar_url;
 
     const docuLink = (
-      <div>
-        <a target="_blank" rel="noopener noreferrer" href="https://doc.mlreef.com">
-          Documentation
-        </a>
-      </div>
+      <a target="_blank" rel="noopener noreferrer" href="https://doc.mlreef.com">
+        Documentation
+      </a>
     );
 
     const slackLink = (
-      <div>
-        <a target="_blank" rel="noopener noreferrer" href="https://mlreefcommunity.slack.com">
-          Slack Community
-        </a>
-      </div>
+      <a target="_blank" rel="noopener noreferrer" href="https://mlreefcommunity.slack.com">
+        Slack Community
+      </a>
     );
 
     return (
@@ -65,26 +61,15 @@ class Navbar extends Component {
               label="Projects"
               component={(
                 <div className="project-box">
-                  {user.auth ? (
-                    <div className="user-projects">
-                      <p className="px-3">
-                        <Link to="/#personal">Your Projects</Link>
-                      </p>
-                      <p className="px-3">
-                        <Link to="/#starred">Starred Projects</Link>
-                      </p>
-                      <p className="px-3">
-                        <Link to="/#explore">Explore Projects</Link>
-                      </p>
-                    </div>
-
-                  ) : (
-                    <div className="user-projects">
-                      <p className="px-3">
-                        <Link to="/explore">Explore projects</Link>
-                      </p>
-                    </div>
-                  )}
+                  <div className="user-projects">
+                    {user.auth && (
+                    <>
+                      <Link to="/#personal">Your Projects</Link>
+                      <Link to="/#starred">Starred Projects</Link>
+                    </>
+                    )}
+                    <Link to="/#explore">Explore Projects</Link>
+                  </div>
                   <MWrapper norender>
                     <div className="project-search">
                       <input
@@ -108,12 +93,8 @@ class Navbar extends Component {
               component={(
                 <div className="project-box">
                   <div className="user-projects">
-                    <p className="px-3">
-                      <Link to="/groups">Explore Groups</Link>
-                    </p>
-                    <p className="px-3">
-                      <Link to="/groups/new">New Group</Link>
-                    </p>
+                    <Link to="/groups">Explore Groups</Link>
+                    <Link to="/groups/new">New Group</Link>
                   </div>
                   <MWrapper norender>
                     <div className="project-search">
@@ -142,13 +123,15 @@ class Navbar extends Component {
                   )}
                   component={(
                     <div className="help-box">
-                      {docuLink}
-                      {slackLink}
-                      <div>
-                        <button onClick={this.toggleTutorial} type="button" className="btn btn-hidden">
-                          {`${tutorialActive ? 'Hide' : 'Show'} Tutorial`}
-                        </button>
-                      </div>
+                      <a target="_blank" rel="noopener noreferrer" href="https://doc.mlreef.com">
+                        Documentation
+                      </a>
+                      <a target="_blank" rel="noopener noreferrer" href="https://mlreefcommunity.slack.com">
+                        Slack Community
+                      </a>
+                      <button onClick={this.toggleTutorial} type="button" className="btn" style={{ borderRadius: 0 }}>
+                        {`${tutorialActive ? 'Hide' : 'Show'} Tutorial`}
+                      </button>
                     </div>
                   )}
                 />
@@ -202,15 +185,13 @@ class Navbar extends Component {
                     <div className="help-box">
                       {docuLink}
                       {slackLink}
-                      <div>
-                        <a target="_blank" rel="noopener noreferrer" href="https://about.mlreef.com">
-                          About MLReef
-                        </a>
-                      </div>
+                      <a target="_blank" rel="noopener noreferrer" href="https://about.mlreef.com">
+                        About MLReef
+                      </a>
                     </div>
                   )}
                 />
-              <div className="ml-1 my-auto">
+                <div className="ml-1 my-auto">
                   <Link to="/login?redirect=goback" className="btn btn-sm btn-dark mr-2 px-3">
                     <i className="fas fa-sign-in-alt d-lg-none" />
                     <span className="d-none d-lg-flex">Sign in</span>

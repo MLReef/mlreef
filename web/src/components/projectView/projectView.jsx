@@ -15,6 +15,7 @@ import * as branchesActions from 'store/actions/branchesActions';
 import * as userActions from 'store/actions/userActions';
 import * as jobsActions from 'store/actions/jobsActions';
 import * as mergeActions from 'store/actions/mergeActions';
+import * as pipelineActions from 'store/actions/pipelinesActions';
 import ReadMeComponent from '../ReadMe/ReadMe';
 import ProjectContainer from '../projectContainer';
 import RepoInfo from '../repoInfo';
@@ -137,6 +138,12 @@ class ProjectView extends React.Component {
 
         if (project.searchableType === PROJECT_TYPES.CODE) {
           promises = [...promises, actions.getProjectPipelines(gid)];
+        } else {
+          promises = [
+            ...promises,
+            actions.getProjectPipelinesByType(project.id, gid, 'DATA'),
+            actions.getProjectPipelinesByType(project.id, gid, 'VISUALIZATION'),
+          ];
         }
 
         return Promise.all(promises);
@@ -317,6 +324,7 @@ function mapDispatchToProps(dispatch) {
       ...jobsActions,
       ...branchesActions,
       ...mergeActions,
+      ...pipelineActions,
       redirectNotFound,
     }, dispatch),
   };

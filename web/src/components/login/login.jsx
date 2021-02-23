@@ -168,7 +168,7 @@ class Login extends React.Component {
                     <Link
                       tabIndex="-1"
                       className="t-info"
-                      to="/user/reset-password"
+                      to="/reset-password"
                     >
                       Forgot your password?
                     </Link>

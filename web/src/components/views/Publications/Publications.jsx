@@ -61,9 +61,9 @@ const Publications = (props) => {
   const handler = (status) => () => setStatus(status);
 
   return (
-    <div className="publications">
+    <div className="publications" style={{ backgroundColor: 'var(--almostWhite)' }}>
       <Navbar />
-      <MBreadcrumb className="bg-light px-3" items={customCrumbs} />
+      <MBreadcrumb className="px-3" items={customCrumbs} />
       <MTabs>
         <MTabs.Section
           id="publications"

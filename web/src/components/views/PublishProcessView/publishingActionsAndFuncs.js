@@ -17,7 +17,7 @@ const definePipeline = (projectId, pipelineId) => pipelineId
   ? gitlabPipelinesApi.getPipesById(projectId, pipelineId)
   : gitlabPipelinesApi.getPipesByProjectId(projectId)
     .then((pipes) => pipes.length > 0
-      ? pipes[0]
+      ? pipes.pop()
       : null);
 
 const getPipelineJobs = (

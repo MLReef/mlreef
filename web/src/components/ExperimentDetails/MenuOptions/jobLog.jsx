@@ -142,18 +142,6 @@ const JobLog = (props) => {
               <p className="job-table-content">Duration: &nbsp;</p>
               <p className="job-table-content">{parsedDuration}</p>
             </div>
-            <div className="job-table-header">
-              <p className="job-table-content">Class:</p>
-              <p className="job-table-content"><b>{determineJobClass(jobClass)}</b></p>
-            </div>
-            <div className="job-table-header">
-              <p className="job-table-content">Output:</p>
-              <p className="job-table-content">
-                <b>
-                  <Link className="t-info" to={linkOutputToRoute(jobClass)}>{jobOutput}</Link>
-                </b>
-              </p>
-            </div>
             {runner
               && (
               <div className="job-table-header">

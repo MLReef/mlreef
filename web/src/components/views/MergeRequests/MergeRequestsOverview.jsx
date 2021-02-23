@@ -1,9 +1,9 @@
-import React, { Component, useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
 import {
-  number, shape, string, arrayOf, func,
+  shape, string, arrayOf, func,
 } from 'prop-types';
 import { generateBreadCrumbs } from 'functions/helpers';
 import AuthWrapper from 'components/AuthWrapper';
@@ -30,6 +30,16 @@ const classifyMrsByState = (mrs) => mrStates.map((state) => {
   };
 });
 
+const filterStateAndCount = (mrsList, stateIndex) => {
+  if (!mrsList) {
+    return [];
+  }
+  return mrsList
+    .filter(
+      (mrClass) => mrClass.mrState === mrStates[stateIndex],
+    )[0] || { list: [] };
+};
+
 const MergeRequestOverview = (props) => {
   const {
     match: {
@@ -43,7 +53,7 @@ const MergeRequestOverview = (props) => {
     history,
   } = props;
 
-  const [mrsList] = useState(classifyMrsByState(mergeRequests));
+  const [mrsList, setMrs] = useState(classifyMrsByState(mergeRequests));
   const [btnSelected, setBtnSelected] = useState('all');
 
   const [selectedProject, isFetching] = hooks.useSelectedProject(namespace, slug);
@@ -52,7 +62,8 @@ const MergeRequestOverview = (props) => {
 
   useEffect(() => {
     if (gid) {
-      actions.getMergeRequestsList(gid);
+      actions.getMergeRequestsList(gid)
+        .then((mrs) => setMrs(classifyMrsByState(mrs)));
     }
   }, [gid]);
 
@@ -60,22 +71,12 @@ const MergeRequestOverview = (props) => {
     setBtnSelected(e.currentTarget.id);
   };
 
-  const filterStateAndCount = (stateIndex) => {
-    if (!mrsList) {
-      return [];
-    }
-    return mrsList
-      .filter(
-        (mrClass) => mrClass.mrState === mrStates[stateIndex],
-      )[0] || { list: [] };
-  };
-
-  const classifiedMergeRequests = {
-    open: filterStateAndCount(0),
-    closed: filterStateAndCount(1),
-    merged: filterStateAndCount(2),
+  const classifiedMergeRequests = useMemo(() => ({
+    open: filterStateAndCount(mrsList, 0),
+    closed: filterStateAndCount(mrsList, 1),
+    merged: filterStateAndCount(mrsList, 2),
     all: mrsList,
-  };
+  }), [mrsList]);
 
   const customCrumbs = [
     {
@@ -231,11 +232,6 @@ function mapActionsToProps(dispatch) {
 }
 
 MergeRequestOverview.propTypes = {
-  selectedProject: shape({
-    gid: number.isRequired,
-    name: string.isRequired,
-    namespace: string.isRequired,
-  }).isRequired,
   actions: shape({
     getMergeRequestsList: func.isRequired,
   }).isRequired,

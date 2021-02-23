@@ -7,21 +7,12 @@ import { DataPipelinesContext } from '../DataPipelineHooks/DataPipelinesProvider
 import ErrorsDiv from './ErrorsDiv';
 import { VALIDATE_FORM } from '../DataPipelineHooks/actions';
 
-const getValue = (param, path) => {
-  if ((param.name === 'input-path' || param.name === 'input_path') && (!param.value || param.value === '')) {
-    return path;
-  }
-
-  return param.value;
-};
-
 const InputParam = ({ param, dataProcessorId }) => {
   const [{ filesSelectedInModal }, dispatch] = useContext(DataPipelinesContext);
   const [hasErrors, setHasErrors] = useState(false);
   useEffect(() => {
     if (param.name === 'input-path') {
       const newValue = param.value || filesSelectedInModal[0]?.path;
-      console.log(newValue);
       dispatch({
         type: 'UPDATE_PARAM_VALUE_IN_DATA_OPERATOR',
         newParamValue: newValue,
@@ -39,7 +30,15 @@ const InputParam = ({ param, dataProcessorId }) => {
       });
     }
     dispatch({ type: VALIDATE_FORM });
-  }, [dataProcessorId, dispatch, param.name, param.required, param.type, param.value, filesSelectedInModal]);
+  }, [
+    dataProcessorId,
+    dispatch,
+    param.name,
+    param.required,
+    param.type,
+    param.value,
+    filesSelectedInModal,
+  ]);
 
   function validateFields(e) {
     const isValid = validateInput(e.currentTarget.value, param.type, param.required);

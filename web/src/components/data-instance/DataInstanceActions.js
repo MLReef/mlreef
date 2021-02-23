@@ -48,7 +48,8 @@ const getDataInstances = (
   .then((dataPipelines) => dataPipelines.map((dp) => ({
     ...dp, dataInstanceId: dp.instances[0].id,
   })))
-  .then((dataPipelineInstances) => brApi.getBranches(gilabProjectId)
+  .then((dataPipelineInstances) => brApi
+    .getBranches(gilabProjectId)
     .then((branches) => branches.filter((branch) => branch.name.startsWith('data-pipeline')))
     .then((dataPipelineBranches) => gitlabPipelines.getPipesByProjectId(gilabProjectId)
       .then((res) => classifyPipeLines(res, dataPipelineBranches, dataPipelineInstances))));
