@@ -17,7 +17,9 @@
   "dependencies": {
     "classnames": "^2.2.6",
     "gatsby": "^2.20.12",
+    "gatsby-plugin-react-helmet": "^3.10.0",
     "gatsby-plugin-sass": "^2.2.1",
+    "gatsby-plugin-sitemap": "^2.12.0",
     "gatsby-remark-copy-linked-files": "^2.3.3",
     "gatsby-remark-images": "^3.3.7",
     "gatsby-source-filesystem": "^2.2.2",
@@ -26,6 +28,7 @@
     "node-sass": "^4.13.1",
     "react": "^16.12.0",
     "react-dom": "^16.12.0",
+    "react-helmet": "^6.1.0",
     "react-sidebar": "^3.0.2"
   },
   "devDependencies": {

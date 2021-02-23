@@ -13,6 +13,7 @@ exports.createPages = async ({ graphql, actions }) => {
           name
           childMarkdownRemark {
             html
+            excerpt
             headings {
               depth
               value
