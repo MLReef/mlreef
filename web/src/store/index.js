@@ -14,6 +14,9 @@ const persistConfig = {
     'projects',
     'marketplace',
     'user',
+    'mergeRequests',
+    'datainstances',
+    'visualizations',
     // 'tutorial',
   ],
 };

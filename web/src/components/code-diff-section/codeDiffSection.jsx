@@ -1,7 +1,8 @@
-import React, { Suspense } from 'react';
+import React, { Suspense, useEffect, useState } from 'react';
 import * as PropTypes from 'prop-types';
 import { getLanguageByExt } from 'functions/dataParserHelpers';
 import './codeDiffSection.css';
+import useMount from 'customHooks/useMount';
 
 const MonacoDiffEditor = React.lazy(() => import('customImports/MonacoDiffEditor'));
 
@@ -17,9 +18,20 @@ const CodeDiffSection = (props) => {
     onReset,
   } = props;
 
+  const [originalCode, setOriginalCode] = useState(null);
+  const [modifiedCode, setModifiedCode] = useState(null);
+  const isMounted = useMount();
+
   const options = {
     readOnly: true,
   };
+
+  useEffect(() => {
+    if (isMounted) {
+      setOriginalCode(original);
+      setModifiedCode(modified);
+    }
+  }, [original, modified, fileName]);
 
   const ext = fileName.split('.').pop();
 
@@ -48,8 +60,8 @@ const CodeDiffSection = (props) => {
         <MonacoDiffEditor
           height="600"
           language={getLanguageByExt(ext)}
-          original={original}
-          value={modified}
+          original={originalCode}
+          value={modifiedCode}
           editorWillMount={checkIntegrity}
           options={options}
         />

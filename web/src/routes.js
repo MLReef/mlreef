@@ -86,7 +86,7 @@ export default [
   },
   {
     name: 'passwordReset',
-    path: '/user/reset-password',
+    path: '/reset-password',
     component: ResetPasswordView,
   },
   {

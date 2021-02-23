@@ -98,4 +98,6 @@ export default {
       silent: false,
     },
   },
+  visualizations: [],
+  datainstances: [],
 };

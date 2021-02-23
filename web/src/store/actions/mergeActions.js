@@ -24,11 +24,15 @@ export function getMergeRequestsList(projectId) {
   return (dispatch) => instance
     .getListByProject(projectId)
     .then(
-      (mrs) => dispatch(
-        getMergeRequestsSuccessfully(
-          mrs,
-        ),
-      ),
+      (mrs) => {
+        dispatch(
+          getMergeRequestsSuccessfully(
+            mrs,
+          ),
+        )
+
+        return mrs;
+      },
     ).catch((err) => {
       throw err;
     });

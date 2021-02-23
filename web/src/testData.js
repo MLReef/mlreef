@@ -2,6 +2,7 @@ import {
   RUNNING,
   SUCCESS,
   EXPIRED,
+  ALGORITHM,
 } from './dataTypes';
 
 export const imagesToRender = [
@@ -126,6 +127,7 @@ export const projectsArrayMock = {
       {
         id: 'df778df87d78f8d7fdfdf78df7877hjjhhjfd7887',
         gid: 14448940,
+        gitlabId: 14448940,
         slug: 'some-slug',
         gitlabNamespace: 'some-namespace',
         description: 'Categorical Classification of alphabets in the American Sign Language',
@@ -251,6 +253,7 @@ export const projectsArrayMock = {
       starsCount: 2,
       forksCount: 1,
       lastActivityAt: '2019-11-11T10:36:06.189Z',
+      dataProcessor: { type: ALGORITHM },
       projectStarrers: [
         {
           starred_since: '2020-09-16T14:41:07.871Z',

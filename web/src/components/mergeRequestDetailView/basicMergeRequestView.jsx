@@ -429,11 +429,6 @@ BasicMergeRequestView.propTypes = {
       iid: string.isRequired,
     }),
   }),
-  selectedProject: shape({
-    gid: number.isRequired,
-    name: string.isRequired,
-    namespace: string.isRequired,
-  }).isRequired,
   users: arrayOf(shape({})).isRequired,
   mrInfo: shape({}).isRequired,
   actions: shape({}).isRequired,

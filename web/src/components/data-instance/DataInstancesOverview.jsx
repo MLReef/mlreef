@@ -1,7 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import { toastr } from 'react-redux-toastr';
 import {
   shape, string,
 } from 'prop-types';
@@ -9,7 +8,7 @@ import { closeModal, fireModal } from 'store/actions/actionModalActions';
 import { generateBreadCrumbs } from 'functions/helpers';
 import { MLoadingSpinnerContainer } from 'components/ui/MLoadingSpinner';
 import { filterPipelinesOnStatus } from 'functions/pipeLinesHelpers';
-import DataInstanceActions from 'components/data-instance/DataInstanceActions';
+import { getProjectPipelinesByType } from 'store/actions/pipelinesActions';
 import hooks from 'customHooks/useSelectedProject';
 import Navbar from '../navbar/navbar';
 import ProjectContainer from '../projectContainer';
@@ -23,32 +22,32 @@ const DataInstanceOverview = (props) => {
     match: {
       params: { namespace, slug },
     },
+    datainstances: datains,
     history,
     fireModal,
     closeModal,
+    getProjectPipelinesByType,
   } = props;
 
   const [selectedProject, isFetching] = hooks.useSelectedProject(namespace, slug);
 
   const { gid, id } = selectedProject;
 
-  const [allDataInstances, setAllDataInstances] = useState([]);
+  const [allDataInstances, setAllDataInstances] = useState(datains);
   const [dataInstances, setDataInstances] = useState([]);
 
-  const fetchPipelines = () => {
+  useEffect(() => {
     if (id) {
-      DataInstanceActions
-        .getDataInstances(id, gid)
-        .then((dataInstancesClassified) => {
-          setAllDataInstances(dataInstancesClassified);
-          setDataInstances(dataInstancesClassified);
-        }).catch((err) => toastr.error('Error', err?.message));
+      getProjectPipelinesByType(id, gid, 'DATA');
     }
-  };
+  }, [id]);
+
+  const fetchPipelines = useCallback(() => getProjectPipelinesByType(id, gid, 'DATA'), [id, gid]);
 
   useEffect(() => {
-    fetchPipelines();
-  }, [id]);
+    setAllDataInstances(datains);
+    setDataInstances(datains);
+  }, [datains]);
 
   const customCrumbs = [
     {
@@ -190,17 +189,14 @@ DataInstanceOverview.propTypes = {
   }).isRequired,
 };
 
-function mapStateToProps(state) {
-  return {
-    branches: state.branches,
-  };
-}
-
 function mapActionsToProps(dispatch) {
   return {
     fireModal: bindActionCreators(fireModal, dispatch),
     closeModal: bindActionCreators(closeModal, dispatch),
+    getProjectPipelinesByType: bindActionCreators(getProjectPipelinesByType, dispatch),
   };
 }
 
-export default connect(mapStateToProps, mapActionsToProps)(DataInstanceOverview);
+export default connect((state) => ({
+  datainstances: state.datainstances,
+}), mapActionsToProps)(DataInstanceOverview);

@@ -57,20 +57,21 @@
   border-radius: 3px;
   top: 120%;
 
-  & p {
+  & a {
     padding: 0.75em;
     font-weight: 200;
     transition: all 0.4s ease;
   }
-
-  & p:hover {
+  
+  & a:hover {
     background: #c5c5c5;
     cursor: pointer;
   }
 }
 
 .user-projects {
-  display: block;
+  display: flex;
+  flex-direction: column;
 }
 
 .project-search {
@@ -105,13 +106,18 @@
   position: absolute;
   width: max-content;
   background: #fff;
+  display: flex;
+  flex-direction: column;
 
-  & div {
+  & a, button {
     padding: 1rem 3.5rem 1rem 1rem;
+    text-align: left;
     transition: all 0.4s ease;
+    background-color: transparent;
 
     &:hover {
       background: var(--secondary);
+      text-decoration: underline;
       cursor: pointer;
     }
   }

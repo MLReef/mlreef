@@ -1,3 +1,5 @@
+import storage from 'redux-persist/lib/storage'; // defaults to localStorage for web
+import { persistReducer } from 'redux-persist';
 import { combineReducers } from 'redux';
 import projects from './projectReducer';
 import marketplace from './marketplaceReducer';
@@ -10,9 +12,9 @@ import actionModal from './actionModalReducer';
 import groups from './groupsReducer';
 import globalMarker from './globalMarkerReducer';
 import tutorial from './tutorialReducer';
+import visualizations from './visualizationsReducer';
+import datainstances from './datainstancesReducer';
 import errors from './errorsReducer';
-import storage from 'redux-persist/lib/storage'; // defaults to localStorage for web
-import { persistReducer } from 'redux-persist';
 
 const userPersitConfig = {
   key: 'user',
@@ -34,6 +36,8 @@ const rootReducer = combineReducers({
   groups,
   globalMarker,
   tutorial,
+  visualizations,
+  datainstances,
   errors,
 });
 

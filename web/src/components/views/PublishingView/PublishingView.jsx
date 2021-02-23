@@ -11,6 +11,8 @@ import hooks from 'customHooks/useSelectedProject';
 import EnvironmentsApi from 'apis/EnvironmentsApi';
 import './PublishingView.scss';
 import MLoadingSpinnerContainer from 'components/ui/MLoadingSpinner/MLoadingSpinnerContainer';
+import { ALGORITHM } from 'dataTypes';
+import GitlabPipelinesApi from 'apis/GitlabPipelinesApi';
 import PublishingViewPublishModel from './PublishingViewPublishModel';
 import initialState, { reducer } from './stateManagement';
 import SelectBaseEnv from './SelectBaseEnv/SelectBaseEnv';
@@ -19,6 +21,8 @@ import publishingActions from './publishingActions';
 import InterludeView from './InterludeView';
 
 const filesApi = new FilesApi();
+
+const gitlabPipelinesApi = new GitlabPipelinesApi();
 
 export const UnconnectedPublishingView = (props) => {
   const {
@@ -31,7 +35,9 @@ export const UnconnectedPublishingView = (props) => {
 
   const [selectedProject, isFetching] = hooks.useSelectedProject(namespace, slug);
 
-  const { gid, id, published } = selectedProject;
+  const {
+    gid, id, published, dataProcessor: { type },
+  } = selectedProject;
 
   const [{
     selectedBranch,
@@ -51,7 +57,11 @@ export const UnconnectedPublishingView = (props) => {
 
   const isEntryPointFormValid = entryPointFile && selectedBranch !== '';
 
-  const isFinalFormValid = mlCategory && model && areTermsAccepted && isRequirementsFileExisting;
+  const isProjectAnAlgorithm = type === ALGORITHM;
+
+  const isFinalFormValid = isProjectAnAlgorithm
+    ? mlCategory && model
+    : true && areTermsAccepted && isRequirementsFileExisting;
 
   useEffect(() => {
     if (gid) {
@@ -162,6 +172,7 @@ export const UnconnectedPublishingView = (props) => {
                         </div>
                         <div className="col-3 pl-3">
                           <div className="publishing-view-summary">
+                            {isProjectAnAlgorithm && (
                             <div className="parameter mb-3">
                               <span className="parameter-key">
                                 Status to publish:
@@ -170,6 +181,7 @@ export const UnconnectedPublishingView = (props) => {
                                 {model ? model.label : 'No model type'}
                               </strong>
                             </div>
+                            )}
                             <MButton
                               type="button"
                               disabled={!isFinalFormValid}
@@ -180,15 +192,19 @@ export const UnconnectedPublishingView = (props) => {
                                   id, {
                                     path: entryPointFile.path,
                                     environment: selectedEnv.id,
-                                    model_type: model.label,
-                                    ml_category: mlCategory.label,
+                                    model_type: model?.label,
+                                    ml_category: mlCategory?.label,
                                     accepted_publishing_terms: areTermsAccepted,
                                   },
                                   published,
                                 )
                                   .then(() => {
-                                    toastr.success('Success', 'Your project will appear in the market place');
-                                    history.push(`/${namespace}/${slug}/-/publishing/process`);
+                                    setTimeout(async () => {
+                                      const pipes = await gitlabPipelinesApi
+                                        .getPipesByProjectId(gid);
+                                      toastr.success('Success', 'Your project is being published');
+                                      history.push(`/${namespace}/${slug}/-/publications/${pipes[0]?.id}`);
+                                    }, 5000);
                                   })
                                   .catch((err) => {
                                     dispatch({ type: 'SET_IS_PUBLISHING', payload: false });
@@ -206,6 +222,7 @@ export const UnconnectedPublishingView = (props) => {
                         <div className="col-2" />
                         <div className="col-10">
                           <PublishingViewPublishModel
+                            dataProcessorType={selectedProject?.dataProcessor?.type}
                             selectedBranch={selectedBranch}
                             entryPointFile={entryPointFile}
                             selectedEnvironment={selectedEnv?.name}
