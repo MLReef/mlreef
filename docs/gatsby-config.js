@@ -10,6 +10,16 @@ module.exports = {
   /* Your site config here */
   pathPrefix,
 
+  siteMetadata: {
+    title: 'MLReef Docs',
+    siteUrl: 'https://docs.mlreef.com',
+    description: 'Documentation for MLReef platform.',
+    keywords: 'machine learning, data operations, deep learning, MLOps, artificial intelligence, machine learning pipeline, git, git lfs, classification, clustering, neural networks, computer vision, supervised learning, applied AI',
+    logo: '/logos/MLReef_Logo_POS_H-01.png',
+    email: 'hello@mlreef.com',
+    mlreefUrl: 'https://mlreef.com',
+  },
+
   plugins: [
     'gatsby-plugin-sass',
     {
@@ -50,5 +60,7 @@ module.exports = {
       //   ]
       // }
     },
+    'gatsby-plugin-react-helmet',
+    'gatsby-plugin-sitemap',
   ]
 }
