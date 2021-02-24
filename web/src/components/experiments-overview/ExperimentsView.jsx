@@ -64,7 +64,7 @@ const ExperimentsOverview = (props) => {
         .then(setExperiments)
         .finally(() => actions.setIsLoading(false));
     },
-    [id, setExperiments],
+    [id, gid, actions, setExperiments],
   );
 
   const deleteExperiment = useCallback(
@@ -117,7 +117,7 @@ const ExperimentsOverview = (props) => {
           }),
       });
     },
-    [experiments, id, actions, fetchExperiments],
+    [experiments, actions, fetchExperiments, deleteExperiment],
   );
 
   const handleStopExperiments = useCallback(
@@ -155,13 +155,13 @@ const ExperimentsOverview = (props) => {
           }),
       });
     },
-    [experiments, id, actions, fetchExperiments],
+    [experiments, actions, fetchExperiments, stopExperiment],
   );
 
   useEffect(() => {
     actions.setIsLoading(true);
     fetchExperiments();
-  }, [id]);
+  }, [id, actions, fetchExperiments]);
 
   const customCrumbs = [
     {

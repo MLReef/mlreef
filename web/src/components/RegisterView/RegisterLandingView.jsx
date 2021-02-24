@@ -65,6 +65,16 @@ const RegisterLandingView = (props) => {
           )}
         </div>
         <div className="user-options">
+          <Link className="option-link mb-3 danger-box" to="/#explore">
+            <div className="option-icon" style={{ backgroundColor: 'var(--danger)' }} />
+            <div className="state-body">
+              <h4 className="state-title mt-0">Explore Public Projects</h4>
+              <p className="state-text">
+                Public projects are an easy way to get started. Explore the ever
+                growing number of projects, get inspired and be part of the reef
+              </p>
+            </div>
+          </Link>
           <Link className="option-link mb-3 info-box" to="/new-project/classification/ml-project">
             <div className="option-icon" style={{ backgroundColor: 'var(--dark)' }} />
             <div className="state-body pl-3">
@@ -82,16 +92,6 @@ const RegisterLandingView = (props) => {
               <h4 className="state-title mt-0">Create a Group</h4>
               <p className="state-text">
                 In a group you can manage shared projects and coordinate with your group members.
-              </p>
-            </div>
-          </Link>
-          <Link className="option-link mb-3 danger-box" to="/#explore">
-            <div className="option-icon" style={{ backgroundColor: 'var(--danger)' }} />
-            <div className="state-body">
-              <h4 className="state-title mt-0">Explore Public Projects</h4>
-              <p className="state-text">
-                Public projects are an easy way to get started. Explore the ever
-                growing number of projects, get inspired and be part of the reef
               </p>
             </div>
           </Link>

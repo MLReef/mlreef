@@ -31,7 +31,7 @@ const ForkProgressView = (props) => {
           history.push(`/${namespace}/${slug}`);
         }
       }),
-    [namespace, slug, gid],
+    [namespace, slug, gid, history],
   );
 
   useEffect(
