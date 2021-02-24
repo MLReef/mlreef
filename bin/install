@@ -179,7 +179,7 @@ if [ "$INSTANCE_HOST" != "localhost" ]; then
     --registration-token="$RUNNER_REGISTRATION_TOKEN"             \
     --executor "docker"                                           \
     --docker-image alpine:latest                                  \
-    --docker-volumes /var/run/docker.sock:/var/run/docker.sock    \
+    --docker-privileged="true"                                    \
     --tag-list "docker,local-docker"                              \
     --run-untagged="false"                                        \
     --locked="false"                                              \
