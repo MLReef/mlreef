@@ -26,11 +26,11 @@ request_epf_endpoint_update() {
 }
 
 i=0
-while [ "$i" -lt 100 ]; do # run 100 iterations max
+while [ "$i" -lt 150 ]; do # run 150 iterations max
   echo "------------------------------------------------------------"
   if [ ! -f "$STAT" ]; then
     echo "MLReef-EPF statistic service #$i: $STAT does not exist yet, waiting for experiment to start.."
-    sleep 10
+    sleep 60
   else
     echo "MLReef-EPF statistic service #$i:"
     cat $STAT
@@ -39,4 +39,4 @@ while [ "$i" -lt 100 ]; do # run 100 iterations max
   fi
   i=$(($i + 1))
 done
-# 15 seconds times 100 ==> 1500 seconds => 25 minutes 
+# 15 seconds times 150 ==> 37.5 minutes 
