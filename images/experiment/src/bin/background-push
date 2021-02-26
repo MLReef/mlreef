@@ -26,17 +26,18 @@ request_epf_endpoint_update() {
 }
 
 i=0
+#wait until the image is pulled and the script starts 5 minutes
+sleep 300
 while [ "$i" -lt 150 ]; do # run 150 iterations max
   echo "------------------------------------------------------------"
   if [ ! -f "$STAT" ]; then
     echo "MLReef-EPF statistic service #$i: $STAT does not exist yet, waiting for experiment to start.."
-    sleep 60
+    sleep 120
   else
     echo "MLReef-EPF statistic service #$i:"
     cat $STAT
     request_epf_endpoint_update
-    sleep 15
+    sleep 60
   fi
   i=$(($i + 1))
 done
-# 15 seconds times 150 ==> 37.5 minutes 
