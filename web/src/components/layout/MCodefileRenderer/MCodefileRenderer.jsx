@@ -2,7 +2,7 @@ import React, { Suspense } from 'react';
 import { func, shape, string } from 'prop-types';
 import MLoadingSpinner from 'components/ui/MLoadingSpinner';
 
-const MonacoEditor = React.lazy(() => import('react-monaco-editor'));
+const MonacoEditor = React.lazy(() => import('customImports/MonacoEditor'));
 
 const languagesPerExtensions = {
   js: 'javascript',

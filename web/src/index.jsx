@@ -16,9 +16,6 @@ import ErrorHandler from './ErrorHandler';
 import checkVersion from './functions/helpers';
 import 'whatwg-fetch';
 
-// monaco-editor is needed to language highlighting
-React.lazy(() => import('monaco-editor'));
-
 checkVersion();
 
 const persistor = persistStore(store);
