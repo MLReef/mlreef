@@ -86,13 +86,28 @@
           }
         }
       }
+
+      &.steps-simple {
+        &:not(:first-child) {
+          position: relative;
+
+          &::after {
+            position: absolute;
+            content: "";
+            border-bottom:solid 1px var(--secondary);
+            top: calc(1rem + 2rem);
+            width: calc(100% - 4rem);
+            right: calc(50% + 2rem + 3px);
+          }
+        }
+      }
     }
 
     &.vertical {
       flex-direction: column;
     }
 
-    &.steps {
+    &.steps:not(.steps-simple) {
       border-bottom: solid 1px var(--light);
     }
 
@@ -116,6 +131,13 @@
             display: inline-flex;
             margin-right: 0.5rem;
 
+            &.steps-simple {
+              width: 4rem;
+              height: 4rem;
+              font-size: 2rem;
+              line-height: 100%;
+            }
+
             &.done {
               background-color: var(--primary);
             }
@@ -133,6 +155,21 @@
 
             &-ordinal {
               background-color: var(--dark);
+            }
+          }
+        }
+
+        &.steps-simple {
+          border-radius: 50%;
+
+          &.active {
+            & .label {
+              font-weight: bold;
+              color: var(--dark);
+
+              &-ordinal {
+                background-color: var(--info);
+              }
             }
           }
         }
