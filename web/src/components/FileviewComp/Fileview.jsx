@@ -1,13 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import MCodeRenderer from 'components/layout/MCodefileRenderer/MCodefileRenderer';
-import './fileView.css';
+import './Fileview.scss';
 import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
 import { toastr } from 'react-redux-toastr';
 import { Base64 } from 'js-base64';
 import { Link } from 'react-router-dom';
 import {
-  string, shape, arrayOf, func, number,
+  string, shape, arrayOf,
 } from 'prop-types';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
@@ -15,25 +14,22 @@ import AuthWrapper from 'components/AuthWrapper';
 import MDropdown from 'components/ui/MDropdown';
 import MWrapper from 'components/ui/MWrapper';
 import { generateBreadCrumbs } from 'functions/helpers';
-import { getProjectDetailsBySlug } from 'store/actions/projectInfoActions';
 import hooks from 'customHooks/useSelectedProject';
 import MLoadingSpinnerContainer from 'components/ui/MLoadingSpinner/MLoadingSpinnerContainer';
+import functions from './functions';
+
 import ProjectContainer from '../projectContainer';
-import CommitsApi from '../../apis/CommitsApi.ts';
+
 import Navbar from '../navbar/navbar';
-import FilesApi from '../../apis/FilesApi.ts';
 import DeleteFileModal from '../DeleteFileModal/DeleteFileModal';
+import ContributorsSection from './ContributorsSection';
 
 dayjs.extend(relativeTime);
 
 const file01 = '/images/svg/file_01.svg';
 
-const filesApi = new FilesApi();
-const commitsApi = new CommitsApi();
-
 const FileView = (props) => {
   const {
-    users,
     branches,
     match: {
       params: {
@@ -48,24 +44,14 @@ const FileView = (props) => {
   const [commitInfo, setCommitInfo] = useState({});
   const [fileData, setFileData] = useState(null);
   const [isDeleteModalVisible, setIsModalVisible] = useState(false);
-  const [contributors, setContributors] = useState([]);
-
-  const getCommit = (projectId, lastCommitId) => commitsApi
-    .getCommitDetails(projectId, lastCommitId)
-    .then(setCommitInfo)
-    .catch((err) => toastr.error('Error: ', err.message));
 
   useEffect(() => {
     if (gid) {
-      filesApi.getFileData(gid, file?.includes('/') ? encodeURIComponent(file) : file, branch || commit)
-        .then((fData) => {
+      functions.getFileAndInformation(gid, file, branch, commit)
+        .then(({ fData, commitInfoDet }) => {
           setFileData(fData);
-          getCommit(gid, fData.last_commit_id);
-        })
-        .catch((err) => toastr.error('Error: ', err.message));
-
-      filesApi.getContributors(gid)
-        .then(setContributors);
+          setCommitInfo(commitInfoDet);
+        });
     }
   }, [selectedProject]);
 
@@ -78,26 +64,14 @@ const FileView = (props) => {
     created_at: createdAt,
   } = commitInfo;
 
-  const numContribs = contributors.length;
-
   let fileName = null;
   let fileSize = null;
-  let avatar;
   let fileContent = null;
   let filepath = [];
   let extension;
   let isImageFile = false;
   const filteredBranches = branches.filter((br) => !br.name.startsWith('data-pipeline/')
       && !br.name.startsWith('experiment/'));
-  if (users && authorName) {
-    users.forEach((contributor) => {
-      const { name } = contributor;
-      const avatarUrl = contributor.avatar_url;
-      if (name === authorName) {
-        avatar = avatarUrl;
-      }
-    });
-  }
 
   if (fileData) {
     fileName = fileData.file_name;
@@ -122,7 +96,7 @@ const FileView = (props) => {
   }
 
   return (
-    <div className="file-view">
+    <div className="fileview">
       <DeleteFileModal
         namespace={namespace}
         slug={slug}
@@ -139,31 +113,30 @@ const FileView = (props) => {
         activeFeature="data"
         breadcrumbs={generateBreadCrumbs(selectedProject, customCrumbs)}
       />
-      <div className="branch-path">
+      <div className="fileview-branch-path">
         <MDropdown
           label={decodeURIComponent(branch || filteredBranches[0].name)}
           component={(
-            <div id="branches-list" className="select-branch fileview-select">
-              <div
-                style={{ margin: '0 50px', fontSize: '14px', padding: '0 40px' }}
-              >
+            <div className="fileview-branch-path-select-branch">
+              <div className="fileview-branch-path-select-branch-title">
                 <p>Switch Branches</p>
               </div>
               <hr />
-              <div className="search-branch">
-                <div className="branches">
+              <div>
+                <div>
                   <ul>
-                    <li className="branch-header">Branches</li>
                     {filteredBranches.map((fBranch) => {
                       const encoded = encodeURIComponent(fBranch.name);
                       return (
                         <li key={encoded}>
-                          <Link
-                            id={fBranch.name}
-                            to={`/${namespace}/${slug}/-/tree/${encoded}`}
-                          >
-                            <p>{fBranch.name}</p>
-                          </Link>
+                          <div>
+                            <Link
+                              id={fBranch.name}
+                              to={`/${namespace}/${slug}/-/tree/${encoded}`}
+                            >
+                              {fBranch.name}
+                            </Link>
+                          </div>
                         </li>
                       );
                     })}
@@ -174,7 +147,7 @@ const FileView = (props) => {
             )}
         />
 
-        <span className="filepath">
+        <span className="fileview-branch-path-filepath">
           <b>
             <Link to={`/${namespace}/${slug}`}>
               {name}
@@ -201,17 +174,10 @@ const FileView = (props) => {
           </b>
         </span>
       </div>
-      <div className="commit-container">
-        <div className="file-container-header">
-          <div className="commit-info">
-            <div className="d-flex">
-              {avatar && (
-              <Link to={`/${authorName}`} className="m-auto">
-                <img className="avatar-circle ml-3 mr-2" src={avatar} alt={authorName} />
-              </Link>
-              )}
-            </div>
-            <div className="commit-msg">
+      <div className="fileview-commit-container">
+        <div className="fileview-commit-container-header">
+          <div className="fileview-commit-container-header-commit-info">
+            <div className="fileview-commit-container-header-commit-info-msg">
               <div className="title">{message}</div>
               {!authorName?.match(/.+@.+/) && (
               <span>
@@ -227,26 +193,19 @@ const FileView = (props) => {
               )}
             </div>
           </div>
-          <div className="commit-code">
+          <div className="fileview-commit-container-header-commit-code">
             <span>{commiterShortId}</span>
             <img className="file-icon" src={file01} alt="" />
           </div>
         </div>
-        <div className="contributors">
-          <div>
-            <b>{`${numContribs} contributor${numContribs !== 1 ? 's' : ''}`}</b>
-          </div>
-          <div className="contributor-list">
-            <div className="commit-pic-circle" />
-            <div className="commit-pic-circle" />
-            <div className="commit-pic-circle" />
-          </div>
-        </div>
+        {!isFetching && gid && (
+          <ContributorsSection gid={gid} />
+        )}
       </div>
 
-      <div className="file-container">
-        <div className="file-container-header">
-          <div className="file-info">
+      <div className="fileview-file-container">
+        <div className="fileview-file-container-header">
+          <div className="fileview-file-container-header-file-info">
             <p>
               {fileName}
               {' '}
@@ -256,18 +215,19 @@ const FileView = (props) => {
               Bytes
             </p>
           </div>
-          <div className="wrapper">
-            <div className="file-actions pr-2">
+          <div className="fileview-file-container-header-wrapper">
+            <div className="file-actions pr-2 mt-2">
               <Link
                 to={`/${namespace}/${slug}/-/commits/file/${branch}/-/${file}`}
-                className="btn btn-sm btn-basic-dark my-auto ml-2"
+                className="btn btn-sm btn-basic-dark ml-2 mr-2"
+                style={{ height: 'min-content' }}
               >
                 History
               </Link>
               <MWrapper norender>
                 <button
                   type="button"
-                  className="btn btn-sm btn-basic-dark my-auto ml-2"
+                  className="btn btn-sm btn-basic-dark ml-2"
                 >
                   Replace
                 </button>
@@ -275,7 +235,8 @@ const FileView = (props) => {
               {isImageFile === false && (
                 <AuthWrapper minRole={30}>
                   <Link
-                    className="btn btn-sm btn-basic-dark my-auto ml-2"
+                    className="btn btn-sm btn-basic-dark ml-2"
+                    style={{ height: 'min-content' }}
                     to={`/${namespace}/${slug}/-/tree/branch/${branch}/path/${encodeURIComponent(file)}/file/editor/edit`}
                   >
                     Edit
@@ -285,8 +246,9 @@ const FileView = (props) => {
               <AuthWrapper minRole={30} norender>
                 <button
                   type="button"
-                  className="btn btn-sm btn-danger my-auto ml-2"
+                  className="btn btn-sm btn-danger ml-2"
                   onClick={showDeleteModal}
+                  style={{ height: 'min-content' }}
                 >
                   Delete
                 </button>
@@ -296,9 +258,9 @@ const FileView = (props) => {
         </div>
         <div
           itemProp="text"
-          className="Box-body p-0 blob-wrapper data type-text"
+          className="fileview-file-container-content"
         >
-          <div className="file-content">
+          <div className="fileview-file-container-content-blob">
             {extension === 'jpg' || extension === 'png' ? (
               <div className="d-flex">
                 <img
@@ -331,10 +293,6 @@ FileView.propTypes = {
       branch: string.isRequired,
     }),
   }).isRequired,
-  users: arrayOf(shape({
-    name: string.isRequired,
-    avatar_url: string.isRequired,
-  })).isRequired,
   branches: arrayOf(
     shape({
       name: string.isRequired,
@@ -345,7 +303,6 @@ FileView.propTypes = {
 function mapStateToProps(state) {
   return {
     branches: state.branches,
-    users: state.users,
   };
 }
 

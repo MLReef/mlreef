@@ -11,6 +11,7 @@ const MAvatar = (props) => {
       height={height}
       src={imgBase}
       alt={projectName}
+      title={projectName}
     />
   );
 };

@@ -17,7 +17,6 @@ const filesApi = new FilesApi();
 
 const DetailedRepositoryView = (props) => {
   const {
-    users,
     match: {
       params: {
         namespace,
@@ -88,9 +87,7 @@ const DetailedRepositoryView = (props) => {
         <div className="main-content content">
           <ProjectLastCommitSect
             projectId={gid}
-            lastCommitId={commit}
-            branch={branch}
-            users={users}
+            commitId={commit}
           />
           <br />
           <FilesTable

@@ -40,9 +40,13 @@ describe('presence of elements and functions', () => {
   test('assert other elements are present in Dom', () => {
     expect(wrapper.find('textarea#commitMss-text-area')).toHaveLength(1);
     expect(wrapper.find('input#target-branch')).toHaveLength(1);
-    expect(wrapper.find('MCheckBox')).toHaveLength(1);
     expect(wrapper.find('button#cancel-button')).toHaveLength(1);
     expect(wrapper.find('MButton')).toHaveLength(1);
+  });
+
+  test('assert that new MR checkbox renders when target branch is not the current branch', () => {
+    wrapper.find('input#target-branch').simulate('change', { target: { value: 'master-1' } });
+    expect(wrapper.find('MCheckBox')).toHaveLength(1);
   });
 
   test('assert that files array is updated and previous files are not deleted', () => {

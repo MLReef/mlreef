@@ -11,6 +11,18 @@ export default class UserApi extends ApiDirector {
     return Promise.resolve(true);
   }
 
+  getAvatar(email: string) {
+    const url = `/api/v4/avatar?email=${email}`;
+    const builder = new BLApiRequestCallBuilder(
+      METHODS.GET,
+      this.buildBasicHeaders(validServicesToCall.GITLAB),
+      url,
+    );
+
+    return fetch(builder.build())
+      .then(handleResponse)
+  }
+
   async getUserInfo() {
     const url = '/api/v4/user';
     const builder = new BLApiRequestCallBuilder(METHODS.GET, this.buildBasicHeaders(validServicesToCall.GITLAB), url);
@@ -20,7 +32,7 @@ export default class UserApi extends ApiDirector {
   }
 
   getUserStatus(gid: number) {
-    const url = `api/v4/users/${gid}/status`;
+    const url = `/api/v4/users/${gid}/status`;
     const headers = this.buildBasicHeaders(validServicesToCall.GITLAB);
     const builder = new BLApiRequestCallBuilder(METHODS.GET, headers, url);
 
@@ -42,7 +54,7 @@ export default class UserApi extends ApiDirector {
   }
 
   getUserByUsername(username: string) {
-    const url = `api/v4/users?username=${username}`;
+    const url = `/api/v4/users?username=${username}`;
     const headers = this.buildBasicHeaders(validServicesToCall.GITLAB);
     const builder = new BLApiRequestCallBuilder(METHODS.GET, headers, url);
 

@@ -19,7 +19,7 @@ export const SET_PROGRESS = 'setProgress';
 export const SET_LOADING = 'setLoading';
 export const SET_SENDING_FILES = 'setSendingFiles';
 
-export const MAX_SIZE_FILE_PERMITTED = 10000000;
+export const MAX_SIZE_FILE_PERMITTED = 50000000;
 
 export const initialState = {
   filesToUpload: [],
@@ -47,7 +47,7 @@ export const processFiles = (rawFiles) => {
     .reduce((currentTotalSize, currentFileSize) => currentTotalSize
     + currentFileSize);
   if (totalSize > MAX_SIZE_FILE_PERMITTED) {
-    throw new Error('The files selected is larger than size permitted (10MB)');
+    throw new Error('The files selected is larger than size permitted (100MB)');
   }
   return arrayFormatFiles
     .map((rawF) => new FileToUpload(
@@ -55,7 +55,6 @@ export const processFiles = (rawFiles) => {
       rawF.name,
       rawF.size,
       rawF.type,
-      !(rawF.type === ''),
     ));
 };
 

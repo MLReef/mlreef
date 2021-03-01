@@ -25,9 +25,9 @@ const setup = () => {
   const match = { params: { namespace: 'namespace', slug: 'slug', branch: 'master' } };
   return mount(
     <MemoryRouter>
-      <UnconnectedCommitsView 
-        match={match} 
-        history={history} 
+      <UnconnectedCommitsView
+        match={match}
+        history={history}
         projects={projectsArrayMock.projects}
         branches={branchesMock}
         users={projectsArrayMock.users}
@@ -88,25 +88,23 @@ describe('test CommitDiv', () => {
   test('assert that CommitDiv renders and events are triggered correclty', () => {
     const userName = 'mlreef';
     const wrapper = shallow(
-      
-        <CommitDiv
-          branch="feature/a-branch"
-          namespace="namespace"
-          slug="slug"
-          commitid={commitMockObject.id}
-          title={commitMockObject.title}
-          name={commitMockObject.author_name}
-          id={commitMockObject.short_id}
-          time={commitMockObject.committed_date}
-          avatarImage=""
-          userName={userName}
-        />
+      <CommitDiv
+        branch="feature/a-branch"
+        namespace="namespace"
+        slug="slug"
+        commitid={commitMockObject.id}
+        title={commitMockObject.title}
+        name={commitMockObject.author_name}
+        id={commitMockObject.short_id}
+        time={commitMockObject.committed_date}
+        avatarImage=""
+        userName={userName}
+      />
       ,
     );
-    console.log(wrapper.debug());
     const links = wrapper.find('Link');
-    expect(links.at(0).props().to).toBe(`/${userName}`);
-    expect(links.at(1).props().to).toBe(`/namespace/slug/-/commits/feature/a-branch/-/${commitMockObject.id}`);
+    /* expect(links.at(0).props().to).toBe(`/${userName}`); */
+    expect(links.at(0).props().to).toBe(`/namespace/slug/-/commits/feature/a-branch/-/${commitMockObject.id}`);
     const today = new Date();
     const previous = new Date(commitMockObject.committed_date);
     const timediff = getTimeCreatedAgo(previous, today);

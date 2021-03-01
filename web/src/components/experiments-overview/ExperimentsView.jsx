@@ -46,9 +46,6 @@ const ExperimentsOverview = (props) => {
 
   const [selectedProject, isFetching] = hooks.useSelectedProject(namespace, slug);
 
-  // eslint-disable-next-line
-  console.log('experiments', experiments);
-
   const {
     id,
     gid,

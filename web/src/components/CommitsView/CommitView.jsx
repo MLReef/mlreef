@@ -18,6 +18,7 @@ import ProjectContainer from '../projectContainer';
 import './CommitView.scss';
 import { getTimeCreatedAgo } from '../../functions/dataParserHelpers';
 import actions from './actions';
+import MEmptyAvatar from 'components/ui/MEmptyAvatar';
 
 export const UnconnectedCommitsView = (props) => {
   const {
@@ -129,7 +130,7 @@ export const UnconnectedCommitsView = (props) => {
             </div>
             {commits
               .filter((comm) => comm.title.includes(commitMessageSearchedFor)).map((item) => {
-                let avatarImage = 'https://assets.gitlab-static.net/uploads/-/system/user/avatar/3839940/avatar.png';
+                let avatarImage = null;
                 let userName = '';
                 if (users) {
                   users.forEach((user) => {
@@ -199,11 +200,14 @@ export function CommitDiv(props) {
   return (
     <div className="commits" key={id}>
       <div className="commit-list">
-        <Link to={`/${userName}`}>
-          <span style={{ position: 'relative' }}>
-            <img width="32" height="32" className="avatar-circle mt-3 ml-1" src={avatarImage} alt="avatar" />
-          </span>
-        </Link>
+        {avatarImage
+          ? (
+            <Link to={`/${userName}`}>
+              <span style={{ position: 'relative' }}>
+                <img width="32" height="32" className="avatar-circle mt-3 ml-1" src={avatarImage} alt="avatar" />
+              </span>
+            </Link>
+          ) : <MEmptyAvatar styleClass="avatar-sm" projectName={userName} />}
         <div className="commit-data">
           <Link to={`/${namespace}/${slug}/-/commits/${branch}/-/${commitid}`}>{title}</Link>
           <span>
