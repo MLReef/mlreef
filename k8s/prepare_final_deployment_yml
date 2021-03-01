@@ -38,7 +38,7 @@ function sed_files() {
       echo "Applying resources for $CI_COMMIT_REF_SLUG branch"
       #gitlab
       sed -i "s/@GITLAB_PV_CLAIM_CONFIG_SIZE@/20Gi/" $file_name
-      sed -i "s/@GITLAB_PV_CLAIM_OPT_SIZE@/100Gi/" $file_name
+      sed -i "s/@GITLAB_PV_CLAIM_OPT_SIZE@/500Gi/" $file_name
       sed -i "s/@GITLAB_PV_CLAIM_LOG_SIZE@/50Gi/" $file_name
       sed -i "s/@GITLAB_RESOURCES_LIMITS_MEMORY@/5000Mi/" $file_name
       sed -i "s/@GITLAB_RESOURCES_LIMITS_CPU@/1500m/" $file_name
