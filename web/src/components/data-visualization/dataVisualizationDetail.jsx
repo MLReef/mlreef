@@ -88,13 +88,6 @@ const DataVisualizationDetails = ({ ...props }) => {
     }
   }, [visId, gitlabId, path, branchName]);
 
-  const pipelineViewProps = {
-    backendPipeline: dataInstance,
-    setPreconfOps,
-    selectedProject,
-    history,
-    routeType: '/visualizations/new',
-  }
   const customCrumbs = [
     {
       name: 'Data',
@@ -259,7 +252,11 @@ const DataVisualizationDetails = ({ ...props }) => {
                           : `${linkToRepoView}/path/${inputFilePath}`,
                       },
                       { text: 'from' },
-                      { text: `*${branchName?.replace(/.*\//, '')}` },
+                      { 
+                        text: `*${branchName?.replace(/.*\//, '')}`,
+                        isLink: true,
+                        href: `/${namespace}/${slug}/-/repository/tree/-/commit/${commitSha}`,
+                      },
                     ]}
                   />
                   </div>

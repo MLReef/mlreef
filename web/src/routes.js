@@ -21,10 +21,9 @@ import DataInstanceDetailsView from 'components/data-instance/dataInstanceDetail
 import ExperimentOverview from 'components/experiments-overview/ExperimentOverview';
 import ExperimentsView from 'components/experiments-overview/ExperimentsView';
 import ExperimentDetailsView from 'components/ExperimentDetails/ExperimentDetail';
-import PipelinesExecutionView from 'components/views/PipelinesExecutionView';
+import FunctionalExecutionPipelinesView from 'components/views/PipelinesExecutionView';
 import VisualizationsView from 'components/data-visualization/dataVisualizationOverview';
 import VisualizationDetailView from 'components/data-visualization/dataVisualizationDetail';
-import FileView from 'components/fileView/fileView';
 import SettingsView from 'components/views/SettingsView';
 import CreateGroupView from 'components/views/create-group/createGroup';
 import CommitsView from 'components/CommitsView/CommitView';
@@ -44,8 +43,8 @@ import DetailedRepositoryView from 'components/views/DetailedRepositoryView';
 import Publications from 'components/views/Publications/Publications';
 import FileEditor from 'components/views/FileEditor';
 import ImportDataOverview from 'components/views/ImportDataOverview'
+import Fileview from 'components/FileviewComp/Fileview';
 import BasicMergeRequestView from './components/mergeRequestDetailView/basicMergeRequestView';
-import FunctionalExecutionPipelinesView from 'components/views/PipelinesExecutionView';
 
 export default [
   {
@@ -250,13 +249,13 @@ export default [
     name: 'fileCommit',
     path: '/:namespace/:slug/-/blob/commit/:commit/path/:file(.+)',
     exact: true,
-    component: FileView,
+    component: Fileview,
   },
   {
     name: 'fileBranch',
     path: '/:namespace/:slug/-/blob/branch/:branch(.+)/path/:file(.+)',
     exact: true,
-    component: FileView,
+    component: Fileview,
   },
   {
     name: 'uploadFile',
@@ -307,7 +306,7 @@ export default [
   {
     name: 'newDataset',
     path: '/:namespace/:slug/-/datasets/new',
-    component: PipelinesExecutionView,
+    component: FunctionalExecutionPipelinesView,
     exact: true,
     meta: {
       authRequired: true,
@@ -353,7 +352,7 @@ export default [
   {
     name: 'newExperiment',
     path: '/:namespace/:slug/-/experiments/new',
-    component: PipelinesExecutionView,
+    component: FunctionalExecutionPipelinesView,
     exact: true,
     meta: {
       authRequired: true,
@@ -378,7 +377,7 @@ export default [
   {
     name: 'newVisualizations',
     path: '/:namespace/:slug/-/visualizations/new',
-    component: PipelinesExecutionView,
+    component: FunctionalExecutionPipelinesView,
     exact: true,
     meta: {
       authRequired: true,

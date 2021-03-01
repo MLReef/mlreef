@@ -163,12 +163,8 @@ const UploadFile = (props) => {
   const processAndSetStatus = (rawFiles) => {
     try {
       const processedFiles = processFiles(rawFiles);
-      dispatch({ type: SET_FILESUPLOAD, payload: processedFiles.filter((pf) => pf.isValid) });
+      dispatch({ type: SET_FILESUPLOAD, payload: processedFiles });
       processedFiles.forEach((pf, pfIndex) => {
-        if (!pf.isValid) {
-          toastr.warning('Warning', `The "${pf.getName()}" file is not valid`);
-          return;
-        }
         const f = rawFiles[pfIndex];
         const fileReader = new FileReader();
         fileReader.addEventListener('progress', (event) => {
@@ -261,7 +257,7 @@ const UploadFile = (props) => {
             or
             {' '}
             <label htmlFor="file">
-              <span id="file" className="choose-file" tabIndex="0" aria-controls="filename" type="button">
+              <span id="file" className="choose-file" aria-controls="filename" type="button">
                 Choose your files
               </span>
             </label>
@@ -311,15 +307,13 @@ const UploadFile = (props) => {
               readOnly={isEmptyRepo && true}
             />
             <div>
-              {!isEmptyRepo && (
+              {!isEmptyRepo && targetBranch !== currentBranch && (
                 <MCheckBox
                   defaultChecked
                   key="isNewMr comp"
                   name="isNewMr"
                   labelValue="Start a new merge request with these changes"
-                  callback={(name, labelValue, newValue) => {
-                    dispatch({ type: SET_MR, payload: newValue });
-                  }}
+                  callback={(...args) => dispatch({ type: SET_MR, payload: args[2] })}
                 />
               )}
             </div>
@@ -351,11 +345,6 @@ const UploadFile = (props) => {
 };
 
 UploadFile.propTypes = {
-  selectedProject: shape({
-    name: string.isRequired,
-    namespace: string.isRequired,
-    slug: string.isRequired,
-  }).isRequired,
   branches: arrayOf(string).isRequired,
   match: shape({
     params: shape({

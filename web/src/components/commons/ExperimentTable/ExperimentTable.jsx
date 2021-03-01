@@ -39,14 +39,10 @@ const ExperimentTable = (props) => {
 
   const data = useMemo(() => dataTable.slice(1), [dataTable]);
 
-  // setters will be used soon
-  // eslint-disable-next-line
-  const [decimals, setDecimals] = useState(4);
-  // eslint-disable-next-line
-  const [menuShown, setMenuShown] = useState(false);
+  const [decimals] = useState(4);
+
   const [mods, setMods] = useState([null, null]);
-  // eslint-disable-next-line
-  const [header, setHeader] = useState(dataTable[0]);
+  const [header] = useState(dataTable[0]);
   const [selectedColIds, setSelectedColIds] = useState(initCols(header.cols));
   const [filteredRows, setFilteredRows] = useState(data);
   const [selectedRows, setSelectedRows] = useState([]);

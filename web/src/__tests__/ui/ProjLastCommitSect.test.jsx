@@ -2,35 +2,50 @@ import React from 'react';
 import { MemoryRouter } from 'react-router-dom';
 import { mount } from 'enzyme';
 import ProjectLastCommitSect from 'components/projectView/LastCommitSect';
-import { usersArrayMock, commitMockObject } from 'testData';
+import { commitMockObject, usersArrayMock } from 'testData';
 import { parseToCamelCase, getTimeCreatedAgo } from 'functions/dataParserHelpers';
 
 const commitInfoParsed = parseToCamelCase(commitMockObject);
 
-const setup = (testCommitData = null) => mount(
+const setup = (commitId = null) => mount(
   <MemoryRouter>
     <ProjectLastCommitSect
-      testCommitData={testCommitData}
       projectId={14448940}
-      branch="null"
-      users={[usersArrayMock[0].userInfo]}
+      branch="master"
       projectDefaultBranch="master"
+      commitId={commitId}
     />
   </MemoryRouter>,
 );
 
-describe('test most basic elements', () => {
-  test('assert that result is empty when not commit info is set', () => {
-    const wrapper = setup();
-    expect(wrapper.isEmptyRender()).toBe(true);
+const setSpy = () => jest.spyOn(global, 'fetch').mockImplementation((request) => {
+  if (request.url.includes('/commits')) {
+    return new Promise((resolve) => {
+      resolve({
+        status: 200,
+        ok: true,
+        json: () => Promise.resolve([commitMockObject]),
+      });
+    });
+  }
+  return new Promise((resolve) => {
+    resolve({
+      status: 200,
+      ok: true,
+      json: () => Promise.resolve([{ ...usersArrayMock[0].userInfo }]),
+    });
   });
 });
+
 describe('test functionality', () => {
   let wrapper;
   beforeEach(() => {
-    wrapper = setup(commitInfoParsed);
+    setSpy();
+    wrapper = setup();
   });
+
   test('assert that commit info is rendered when non-null', () => {
+    wrapper.setProps({});
     expect(wrapper.find('.last-commit-info')).toHaveLength(1);
     const avatarImg = wrapper.find('img.avatar-circle');
     expect(avatarImg).toHaveLength(1);
@@ -42,5 +57,17 @@ describe('test functionality', () => {
     expect(messageText.includes(commitInfoParsed.committerName)).toBe(true);
     expect(messageText.includes(timediff)).toBe(true);
     expect(wrapper.find('.last-commit-id').text().includes(commitInfoParsed.shortId)).toBe(true);
+  });
+
+  test('assert that commit info is fetched when commit id is not null', () => {
+    const wrapperLocal = setup(1);
+    wrapperLocal.setProps({});
+
+    expect(wrapper.find('.last-commit-info')).toHaveLength(1);
+    expect(global.fetch.mock.calls[1][0].url.includes('commits/1')).toBe(true);
+  });
+
+  afterEach(() => {
+    global.fetch.mockClear();
   });
 });

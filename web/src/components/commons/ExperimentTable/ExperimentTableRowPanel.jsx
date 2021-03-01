@@ -120,8 +120,7 @@ const ExperimentTableRowPanel = (props) => {
     if (navigator?.clipboard) {
       navigator.clipboard.writeText(JSON.stringify(parameters))
         .then(null, (er) => {
-          // eslint-disable-next-line
-          console.log('Could copy parameters to clipboard', er);
+          
         });
     }
   };
@@ -130,8 +129,7 @@ const ExperimentTableRowPanel = (props) => {
     if (navigator?.clipboard) {
       navigator.clipboard.writeText(commitSha)
         .then(null, (er) => {
-          // eslint-disable-next-line
-          console.log('Could copy commit sha to clipboard', er);
+          
         });
     }
   };
@@ -216,7 +214,6 @@ const ExperimentTableRowPanel = (props) => {
                 <Link className="link-append-link border-rounded-left" to={`${basePath}/-/commits/${currentExperiment?.pipelineJobInfo?.commitSha}`}>
                   {currentExperiment.pipelineJobInfo?.commitSha?.substring(0, 8)}
                 </Link>
-                {/* eslint-disable-next-line */}
                 <i
                   onClick={copyCommitSha}
                   className="link-append-copy border-rounded-right fa fa-copy t-dark"
@@ -235,9 +232,9 @@ const ExperimentTableRowPanel = (props) => {
                 Model used (repository)
               </p>
               <p className="file-list-item">
-                <Link to={modelPath}>
+                <a href={modelPath} target="_blank" rel="noopener noreferrer">
                   {currentExperiment.processing?.name}
-                </Link>
+                </a>
               </p>
             </div>
           )}

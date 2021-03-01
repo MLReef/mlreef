@@ -163,7 +163,6 @@ const ExperimentTableRow = (props) => {
         )}
 
         {featuredCols.metrics.map((field) => (
-          // eslint-disable-next-line
           <td
             key={`td-${field.y}-${field.x}`}
             data-type="field"
@@ -172,7 +171,6 @@ const ExperimentTableRow = (props) => {
             className={cx('experiment-table-row-cell', { active: actives.includes(field.x) })}
           >
             <span className="experiment-table-field">
-              {/* eslint-disable-next-line */}
               {isNaN(field.value) ? field.value : round(decimals)(field.value)}
             </span>
           </td>

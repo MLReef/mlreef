@@ -11,7 +11,7 @@ import hooks from 'customHooks/useSelectedProject';
 import EnvironmentsApi from 'apis/EnvironmentsApi';
 import './PublishingView.scss';
 import MLoadingSpinnerContainer from 'components/ui/MLoadingSpinner/MLoadingSpinnerContainer';
-import { ALGORITHM } from 'dataTypes';
+import { ALGORITHM, OPERATION } from 'dataTypes';
 import GitlabPipelinesApi from 'apis/GitlabPipelinesApi';
 import PublishingViewPublishModel from './PublishingViewPublishModel';
 import initialState, { reducer } from './stateManagement';
@@ -59,9 +59,24 @@ export const UnconnectedPublishingView = (props) => {
 
   const isProjectAnAlgorithm = type === ALGORITHM;
 
+  let operationToPublishType;
+
+  switch (type) {
+    case ALGORITHM:
+      operationToPublishType = 'model';
+      break;
+    case OPERATION:
+      operationToPublishType = 'operation';
+      break;
+
+    default:
+      operationToPublishType = 'visualization';
+      break;
+  }
+
   const isFinalFormValid = isProjectAnAlgorithm
     ? mlCategory && model
-    : true && areTermsAccepted && isRequirementsFileExisting;
+    : areTermsAccepted && isRequirementsFileExisting;
 
   useEffect(() => {
     if (gid) {
@@ -151,7 +166,7 @@ export const UnconnectedPublishingView = (props) => {
                   ),
                 },
                 {
-                  label: 'Publish model',
+                  label: `Publish ${operationToPublishType}`,
                   done: false,
                   disabled: !isEntryPointFormValid || !selectedEnv,
                   content: (

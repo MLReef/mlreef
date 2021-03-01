@@ -171,7 +171,6 @@ class ProjectView extends React.Component {
       history,
       mergeRequests,
       branches,
-      users,
     } = this.props;
     const {
       contributors,
@@ -235,7 +234,6 @@ class ProjectView extends React.Component {
                   projectId={gid}
                   branch={currentBranch}
                   projectDefaultBranch={project.defaultBranch}
-                  users={users}
                 />
                 <RepoFeatures
                   projectId={gid}

@@ -9,16 +9,18 @@ const DataCard = ({ title, linesOfContent, styleClasses }) => (
     <div className={`title ${styleClasses}`}>
       <p><b>{title}</b></p>
     </div>
-    <div>
+    <div className="data-card-rows">
       {linesOfContent?.map((line) => {
         const lineContent = line?.text?.startsWith('*')
           ? <b>{line.text.replace('*', '')}</b>
           : line.text;
         return line?.isLink
           ? (
-            <a key={line?.text} target="_blank" rel="noopener noreferrer" href={line.href}>
-              <b>{lineContent}</b>
-            </a>
+            <div className="link">
+              <a key={line?.text} target="_blank" rel="noopener noreferrer" href={line.href}>
+                <b>{lineContent}</b>
+              </a>
+            </div>
           )
           : <p key={line?.text} className="line">{lineContent}</p>;
       })}

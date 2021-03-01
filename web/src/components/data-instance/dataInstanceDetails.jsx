@@ -249,7 +249,11 @@ const DataInstanceDetails = (props) => {
                           : `${linkToRepoView}/path/${inputFilePath}`,
                       },
                       { text: 'from' },
-                      { text: `*${branchName?.replace(/.*\//, '')}` },
+                      { 
+                        text: `*${branchName?.replace(/.*\//, '')}`,
+                        isLink: true,
+                        href: `/${namespace}/${slug}/-/repository/tree/-/commit/${commitSha}` 
+                      },
                     ]}
                   />
                   </div>
@@ -341,7 +345,6 @@ DataInstanceDetails.propTypes = {
   history: shape({
     push: func.isRequired,
   }).isRequired,
-  setPreconfOps: func.isRequired,
   branches: PropTypes.arrayOf(
     PropTypes.shape({}).isRequired,
   ).isRequired,

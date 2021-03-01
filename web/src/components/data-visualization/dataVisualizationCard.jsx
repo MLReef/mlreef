@@ -75,7 +75,7 @@ const DataVisualizationCard = (
           type="button"
           key="experiment-button"
           className="btn btn-outline-dark my-auto mr-1"
-          onClick={() => history.push(`/${namespace}/${slug}/-/datasets/${val?.backendPipeline?.id}/rebuild`)}
+          onClick={() => history.push(`/${namespace}/${slug}/-/visualizations/${val?.backendPipeline?.id}/rebuild`)}
         >
           View Pipeline
         </button>,

@@ -13,21 +13,27 @@ exports[`assert that snapshot matches 1`] = `
       </b>
     </p>
   </div>
-  <div>
+  <div
+    className="data-card-rows"
+  >
     <p
       className="line"
     >
       Files selected from path
     </p>
-    <a
-      href="/some-path"
-      rel="noopener noreferrer"
-      target="_blank"
+    <div
+      className="link"
     >
-      <b>
-        Folder Name
-      </b>
-    </a>
+      <a
+        href="/some-path"
+        rel="noopener noreferrer"
+        target="_blank"
+      >
+        <b>
+          Folder Name
+        </b>
+      </a>
+    </div>
     <p
       className="line"
     >

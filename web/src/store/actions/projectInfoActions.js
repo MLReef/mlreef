@@ -50,10 +50,6 @@ export function setCodeProjects(codeProjectType, { pagination, projects }) {
   };
 }
 
-export function setStarredProjectsSuccessfully(projects) {
-  return { type: types.SET_STARRED_PROJECTS, projects };
-}
-
 export function setPaginationInfoSuccessfully(pagination) {
   return { type: types.SET_PAGINATION_INFO, pagination };
 }
@@ -93,6 +89,8 @@ export const getProjectsList = (page, size) => async (dispatch) => {
 };
 
 export const getPaginatedProjectsByQuery = (query = '', isFirstpage = false) => async (dispatch) => {
+  dispatch(setUserProjectsSuccessfully([]));
+
   const { user: { username }, projects: stateProjects } = store.getState();
   const { projects, pagination } = await projectApi.getProjectsList(query)
     .then(handlePaginationWithAdditionalInfo)
@@ -174,10 +172,12 @@ export function removeProject(id) {
  * @param {*} size: size of the page.
  */
 
-export function getProcessorsPaginated(
+export const getProcessorsPaginated = (
   searchableType, body = {}, page, size,
-) {
-  return (dispatch) => mlSearchApi
+) => (dispatch) => {
+  dispatch(setUserProjectsSuccessfully([]));
+
+  return mlSearchApi
     .searchPaginated(searchableType, body, page, size)
     .then(handlePaginationWithAdditionalInfo)
     .then((projsPag) => ({ ...projsPag, projects: mergeGitlabResource(projsPag.content) }))
@@ -189,7 +189,7 @@ export function getProcessorsPaginated(
         setInformationInTheStorage(username, completeArrayOfProjects, pagination)(dispatch);
       }
     });
-}
+};
 
 export function getDataProjects(page, size) {
   return (dispatch) => projectApi.getProjectsList(`/public?page=${page}&size=${size}`)

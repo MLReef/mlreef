@@ -51,48 +51,10 @@ class MProjectClassification extends Component {
           pathname,
         },
       },
-      userInfo: { username },
-      classification,
       actions,
     } = this.props;
-    let projectUrl = '/own';
-    const page = 0;
-    const size = 10;
-    if (screen === '#explore') {
-      projectUrl = '';
-    }
-
-    if (screen === '#starred') {
-      projectUrl = '/starred';
-    }
 
     actions.setIsLoading(true);
-    if (classification === ML_PROJECT) {
-      actions.getPaginatedProjectsByQuery(`${projectUrl}?page=${page}&size=${size}`, true)
-        .then(() => actions.setIsLoading(false));
-    } else {
-      let body = {};
-      if (screen === '#personal') {
-        body = {
-          ...body,
-          namespace: username,
-        };
-      } else if (screen === '#explore') {
-        body = {
-          ...body,
-          visibility: 'PUBLIC',
-        };
-      } else if (screen === '#starred') {
-        body = {
-          ...body,
-          min_stars: 1,
-        };
-      }
-
-      actions.getProcessorsPaginated(getSearchable(classification), body, page, size)
-        .then(() => actions.setIsLoading(false))
-        .catch((err) => toastr.error('Error', err.message));
-    }
     push(`${pathname}${screen}`);
   }
 

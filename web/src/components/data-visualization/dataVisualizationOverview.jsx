@@ -5,7 +5,6 @@ import {
   shape, string,
 } from 'prop-types';
 import hooks from 'customHooks/useSelectedProject';
-import MLoadingSpinner from 'components/ui/MLoadingSpinner';
 import './dataVisualizationOverview.css';
 import { closeModal, fireModal } from 'store/actions/actionModalActions';
 import { getProjectPipelinesByType } from 'store/actions/pipelinesActions';
@@ -26,22 +25,26 @@ export const DataVisualizationOverview = (props) => {
       },
     },
     visualizations: vis,
+    getProjectVisualizations,
   } = props;
 
   const [selectedProject, isFetching] = hooks.useSelectedProject(namespace, slug);
   const { id, gid } = selectedProject;
-  const [visualizations, setVisualizations] = useState([]);
+  const [visualizations, setVisualizations] = useState(vis);
   const [all, setAll] = useState(vis);
 
   useEffect(() => {
     if (gid) {
-      getProjectPipelinesByType(id, gid, 'VISUALIZATION');
+      getProjectVisualizations(id, gid, 'VISUALIZATION');
     }
-  }, [gid, vis]);
+  }, [selectedProject]);
 
   const fetchVisualizations = useCallback(() => getProjectPipelinesByType(id, gid, 'VISUALIZATION'), [id, gid]);
 
-  useEffect(() => { setAll(vis); }, [vis]);
+  useEffect(() => {
+    setVisualizations(vis);
+    setAll(vis);
+  }, [selectedProject, vis]);
 
   const customCrumbs = [
     {
@@ -82,7 +85,7 @@ export const DataVisualizationOverview = (props) => {
             id="all"
             type="button"
             className="btn btn-switch"
-            onClick={(e) => setVisualizations({ visualizations: filterPipelinesOnStatus(e, all) })}
+            onClick={(e) => setVisualizations(filterPipelinesOnStatus(e, all))}
           >
             All
           </button>
@@ -90,7 +93,7 @@ export const DataVisualizationOverview = (props) => {
             id="InProgress"
             type="button"
             className="btn btn-switch"
-            onClick={(e) => setVisualizations({ visualizations: filterPipelinesOnStatus(e, all) })}
+            onClick={(e) => setVisualizations(filterPipelinesOnStatus(e, all))}
           >
             In progress
           </button>
@@ -98,7 +101,7 @@ export const DataVisualizationOverview = (props) => {
             id="Success"
             type="button"
             className="btn btn-switch"
-            onClick={(e) => setVisualizations({ visualizations: filterPipelinesOnStatus(e, all) })}
+            onClick={(e) => setVisualizations(filterPipelinesOnStatus(e, all))}
           >
             Success
           </button>
@@ -106,7 +109,7 @@ export const DataVisualizationOverview = (props) => {
             id="Failed"
             type="button"
             className="btn btn-switch"
-            onClick={(e) => setVisualizations({ visualizations: filterPipelinesOnStatus(e, all) })}
+            onClick={(e) => setVisualizations(filterPipelinesOnStatus(e, all))}
           >
             Failed
           </button>
@@ -114,27 +117,28 @@ export const DataVisualizationOverview = (props) => {
             id="Canceled"
             type="button"
             className="btn btn-switch"
-            onClick={(e) => setVisualizations({ visualizations: filterPipelinesOnStatus(e, all) })}
+            onClick={(e) => setVisualizations(filterPipelinesOnStatus(e, all))}
           >
             Canceled
           </button>
         </div>
-        {visualizations === null
-          ? <div id="loading-circular-progress"><MLoadingSpinner /></div>
-          : visualizations
-            .filter((vis) => vis?.values?.length > 0)
-            .map((dataInsClas) => (
-              <DataVisualizationCard
-                classification={dataInsClas}
-                projectId={gid}
-                namespace={namespace}
-                slug={slug}
-                key={dataInsClas.status}
-                fireModal={fireModal}
-                closeModal={closeModal}
-                callback={fetchVisualizations}
-              />
-            ))}
+        {/*
+          The filter is required to prevent displaying not relevant divs
+        */}
+        {visualizations
+          .filter((visClass) => visClass.values.length > 0)
+          .map((visClass) => (
+            <DataVisualizationCard
+              classification={visClass}
+              projectId={gid}
+              namespace={namespace}
+              slug={slug}
+              key={visClass.status}
+              fireModal={fireModal}
+              closeModal={closeModal}
+              callback={fetchVisualizations}
+            />
+          ))}
       </div>
       <br />
     </>
@@ -151,7 +155,7 @@ function mapActionsToProps(dispatch) {
   return {
     fireModal: bindActionCreators(fireModal, dispatch),
     closeModal: bindActionCreators(closeModal, dispatch),
-    getProjectPipelinesByType: bindActionCreators(getProjectPipelinesByType, dispatch),
+    getProjectVisualizations: bindActionCreators(getProjectPipelinesByType, dispatch),
   };
 }
 

@@ -11,7 +11,11 @@ $visualizations: #735da8;
 
   @media (max-width: $bp-md) {
     height: auto;
-}
+  }
+
+  &-rows {
+    padding: 1rem;
+  }
 
   > .model {
     background-color: $models !important;
@@ -30,10 +34,6 @@ $visualizations: #735da8;
     border: 1px solid var(--almostWhite);
     background-color: var(--dark);
     color: var(--white);
-  }
-    
-  div:not(.title) {
-    padding: 3% 0% 0% 5%;
   }
   
   div {

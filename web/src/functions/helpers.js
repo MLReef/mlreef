@@ -13,6 +13,17 @@ const checkVersion = () => {
 
 export default checkVersion;
 
+
+const decodeError = (errorMss) => {
+  const isArray = Array.isArray(errorMss);
+
+  if (isArray) {
+    return errorMss[0];
+  }
+
+  return errorMss;
+}
+
 // this returns an error if code is bigger than 400
 // added an extra guard to avoid failing by bad json parsing
 export const handleResponse = async (res) => {
@@ -28,7 +39,7 @@ export const handleResponse = async (res) => {
     if (body) {
       // error_message and error_name come from Backend and message comes from Gitlab
       error.name = body.error_name || res.statusText;
-      error.message = body.message || body.error_message;
+      error.message = decodeError(body.message) || body.error_message;
     }
 
     return Promise.reject(error);
