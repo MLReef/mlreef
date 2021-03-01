@@ -227,9 +227,7 @@ class CreateProject extends Component {
       .then(() => {
         this.setState({ redirect: `/${nameSpace}/${slug}` });
       })
-      .catch((err) => {
-        toastr.error('Error', err || 'Something went wrong.');
-      })
+      .catch((err) => toastr.error('Error', err.message))
       .finally(() => {
         this.setState({ isFetching: false });
       });
