@@ -216,7 +216,7 @@ const FileView = (props) => {
             </p>
           </div>
           <div className="fileview-file-container-header-wrapper">
-            <div className="file-actions pr-2 mt-2">
+            <div className="file-actions pr-2 mt-2 d-flex">
               <Link
                 to={`/${namespace}/${slug}/-/commits/file/${branch}/-/${file}`}
                 className="btn btn-sm btn-basic-dark ml-2 mr-2"
