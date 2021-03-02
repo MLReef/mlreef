@@ -1,10 +1,10 @@
 #!/bin/sh
 #only continues if it is a model
-#if [ "$2" != "true" ]
-#   then
-#        echo "Skip background-push"
-#        exit 0
-#fi
+if [ $2 != true ]
+   then
+        echo "Skip background-push"
+        exit 0
+fi
 #sentinelhub.config --show
 echo " ISALGORITM:  $2"
 #extraction of output-path parameter and type of dataprocessor from PIPELINE_STRING mlreef-905
@@ -32,12 +32,12 @@ while [ "$i" -lt 150 ]; do # run 150 iterations max
   echo "------------------------------------------------------------"
   if [ ! -f "$STAT" ]; then
     echo "MLReef-EPF statistic service #$i: $STAT does not exist yet, waiting for experiment to start.."
-    sleep 120
+    sleep 180
   else
     echo "MLReef-EPF statistic service #$i:"
     cat $STAT
     request_epf_endpoint_update
-    sleep 60
+    sleep 180
   fi
   i=$(($i + 1))
 done
