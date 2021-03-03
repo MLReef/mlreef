@@ -26,8 +26,6 @@ const ForkProgressView = (props) => {
     () => branchesApi.getBranches(gid)
       .then((branches) => {
         if (branches.length) {
-          // eslint-disable-next-line
-          console.log('push!');
           history.push(`/${namespace}/${slug}`);
         }
       }),
