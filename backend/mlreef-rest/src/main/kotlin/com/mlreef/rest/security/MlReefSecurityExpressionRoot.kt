@@ -46,8 +46,8 @@ class MlReefSecurityExpressionRoot(
     }
 
     fun hasAccessToProject(projectId: UUID, minAccessLevel: String): Boolean {
+        if (projectIsPublic(projectId)) return true
         val level = AccessLevel.valueOf(minAccessLevel.toUpperCase())
-        if (level == AccessLevel.VISITOR && projectIsPublic(projectId)) return true //FIXME: WAT????? Visitor can access to public project but others cannot?
         return ((this.principal as? TokenDetails)?.projects?.get(projectId)?.accessCode ?: 0) >= level.accessCode
     }
 
@@ -119,7 +119,10 @@ class MlReefSecurityExpressionRoot(
     }
 
     @Deprecated("why not accesslevel maintainer?")
-    fun canCreateProject(): Boolean = ((this.principal as? TokenDetails)?.gitlabUser?.canCreateProject ?: false)
+    fun canCreateProject(): Boolean {
+        val tokenDetails = (this.principal as? TokenDetails) ?: return false
+        return !tokenDetails.isVisitor && (tokenDetails.gitlabUser?.canCreateProject ?: false)
+    }
 
     // Common security check
     fun isGitlabAdmin(): Boolean = (this.principal as? TokenDetails)?.gitlabUser?.isAdmin ?: false

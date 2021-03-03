@@ -30,7 +30,6 @@ import org.springframework.data.domain.Pageable
 import org.springframework.data.web.PageableDefault
 import org.springframework.http.HttpStatus
 import org.springframework.security.access.prepost.PostAuthorize
-import org.springframework.security.access.prepost.PostFilter
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
@@ -147,33 +146,6 @@ class ProjectsController(
         }
     }
 
-    @Deprecated("currently not used")
-    @GetMapping("/namespace/{namespace}")
-    @PostFilter("postCanViewProject()")
-    fun getProjectsByNamespace(
-        @PathVariable namespace: String,
-        @PageableDefault(size = MAX_PAGE_SIZE) pageable: Pageable,
-    ): Iterable<ProjectDto> {
-        val projectsPage = projectService.getProjectsByNamespace(namespace)
-
-        return if (pageable.pageSize == MAX_PAGE_SIZE) {
-            projectsPage.content.map { it.toDto() }
-        } else {
-            projectsPage.map { it.toDto() }
-        }
-    }
-
-    @GetMapping("/slug/{namespace}/{slug}")
-    fun getProjectByNamespaceAndSlug(
-        @PathVariable namespace: String,
-        @PathVariable slug: String,
-    ): ProjectDto {
-      val project = projectService.getProjectsByNamespaceAndSlug(namespace, slug)
-          ?: throw ProjectNotFoundException(path = "$namespace/$slug")
-
-      return project.toDto()
-    }
-
     @GetMapping("/{id}/users")
     @PreAuthorize("canViewProject(#id)")
     fun getUsersInDataProjectById(
@@ -187,6 +159,7 @@ class ProjectsController(
     @Deprecated("To be deleted, /public endpoints is doing the same")
     @GetMapping("/public/all")
     fun getPublicProjectsUnpaged(): List<ProjectDto> {
+        throw RestException(ErrorCode.AccessDenied, "Use /public endpoint to request public projects")
         val allPublicProjects = projectService.getAllPublicProjects()
         return allPublicProjects.map { it.toDto() }
     }
