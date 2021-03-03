@@ -218,93 +218,6 @@ class ProjectsApiTest : AbstractRestApiTest() {
         assertThat(returnedResult.gitlabPath).isEqualTo("project-5")
     }
 
-    /*
-    @Transactional
-    @Rollback
-    @Test
-    @Tag(TestTags.RESTDOC)
-    fun `Can retrieve own DataProjects and CodeProjects by slug`() {
-        val id1 = randomUUID()
-        val id2 = randomUUID()
-        val project1 = DataProject(id1, "slug-1", "www.url.com", "Test Data Project 1", "description", subject.id, "mlreef", "project-1", 1, VisibilityScope.PUBLIC, listOf())
-        val project2 = DataProject(randomUUID(), "slug-2", "www.url.net", "Test Data Project 2", "description", subject.id, "mlreef", "project-2", 2, VisibilityScope.PUBLIC, listOf())
-        val project3 = DataProject(randomUUID(), "slug-3", "www.url.xyz", "Test Data Project 3", "description", subject2.id, "mlreef", "project-3", 3, VisibilityScope.PUBLIC, listOf())
-        dataProjectRepository.save(project1)
-        dataProjectRepository.save(project2)
-        dataProjectRepository.save(project3)
-
-        val project4 = CodeProject(randomUUID(), "slug-4", "www.url.com", "Test Code Project 4", "description", subject.id, "group4", "project-4", 4)
-        val project5 = CodeProject(id2, "slug-5", "www.url.net", "Test Code Project 5", "description", subject.id, "group5", "project-5", 5)
-        val project6 = CodeProject(randomUUID(), "slug-6", "www.url.xyz", "Test Code Project 6", "description", subject2.id, "group6", "project-6", 6)
-        codeProjectRepository.save(project4)
-        codeProjectRepository.save(project5)
-        codeProjectRepository.save(project6)
-
-        this.mockGetUserProjectsList(listOf(project1.id, project2.id, project4.id, project5.id), account, AccessLevel.OWNER)
-
-        val returnedResult: List<ProjectDto> = this.performGet("$rootUrl/slug/slug-1", token)
-            .expectOk()
-            .document("projects-retrieve-by-slug", responseFields(projectResponseFields("[].")))
-            .returnsList(ProjectDto::class.java)
-
-        assertThat(returnedResult.size).isEqualTo(1)
-    }
-    */
-
-    @Transactional
-    @Rollback
-    @Test
-    @Tag(TestTags.RESTDOC)
-    fun `Can retrieve own DataProject by namespace`() {
-        val id1 = randomUUID()
-        val id2 = randomUUID()
-        val id3 = randomUUID()
-        val id4 = randomUUID()
-        val id5 = randomUUID()
-        val id6 = randomUUID()
-
-        val project1 = DataProject(id1, "slug-1", "www.url.com", "Test Project 1", "description", subject.id, "mlreef", "project-1", 1, VisibilityScope.PUBLIC, listOf())
-        val project2 = DataProject(id2, "slug-2", "www.url.net", "Test Project 2", "description", subject.id, "mlreef", "project-2", 2, VisibilityScope.PUBLIC, listOf())
-        val project3 = DataProject(id3, "slug-3", "www.url.xyz", "Test Project 3", "description", subject2.id, "mlreef", "project-3", 3, VisibilityScope.PUBLIC, listOf())
-        dataProjectRepository.save(project1)
-        dataProjectRepository.save(project2)
-        dataProjectRepository.save(project3)
-
-        val project4 = CodeProject(id4, "slug-4", "www.url.com", "Test Code Project 1", "description", subject.id, "mlreef", "project-4", 4)
-        val project5 = CodeProject(id5, "slug-5", "www.url.net", "Test Code Project 2", "description", subject.id, "mlreef", "project-5", 5)
-        val project6 = CodeProject(id6, "slug-6", "www.url.xyz", "Test Code Project 3", "description", subject2.id, "mlreef", "project-6", 6)
-        codeProjectRepository.save(project4)
-        codeProjectRepository.save(project5)
-        codeProjectRepository.save(project6)
-
-
-        this.mockGetUserProjectsList(listOf(project1.id, project2.id, project4.id, project5.id), account, AccessLevel.OWNER)
-
-        val returnedResult: List<ProjectDto> = this.performGet("$rootUrl/namespace/mlreef", token)
-            .expectOk()
-            .document("projects-retrieve-by-namespace", responseFields(projectResponseFields("[].")))
-            .returnsList(ProjectDto::class.java)
-
-        assertThat(returnedResult.size).isEqualTo(4)
-
-        val setOfIds = setOf(
-            returnedResult[0].id,
-            returnedResult[1].id,
-            returnedResult[2].id,
-            returnedResult[3].id
-        )
-
-        assertThat(setOfIds).containsExactlyInAnyOrder(id1, id2, id4, id5)
-        assertThat(returnedResult[0].id).isIn(id1, id2, id4, id5)
-        assertThat(returnedResult[0].gitlabPath).isIn("project-1", "project-2", "project-4", "project-5")
-        assertThat(returnedResult[1].id).isIn(id1, id2, id4, id5)
-        assertThat(returnedResult[1].gitlabPath).isIn("project-1", "project-2", "project-4", "project-5")
-        assertThat(returnedResult[2].id).isIn(id1, id2, id4, id5)
-        assertThat(returnedResult[2].gitlabPath).isIn("project-1", "project-2", "project-4", "project-5")
-        assertThat(returnedResult[3].id).isIn(id1, id2, id4, id5)
-        assertThat(returnedResult[3].gitlabPath).isIn("project-1", "project-2", "project-4", "project-5")
-    }
-
     @Transactional
     @Rollback
     @Test
@@ -1068,18 +981,18 @@ class ProjectsApiTest : AbstractRestApiTest() {
     @Rollback
     @Test
     @Tag(TestTags.RESTDOC)
-    fun `Can retrieve unpaged public Projects with |public|all`() {
+    fun `Can retrieve unpaged public Projects with |public`() {
         val project1 = dataProjectRepository.save(DataProject(randomUUID(), "slug-1", "www.url.com", "Test Project 1", "description", subject.id, "group1", "project-1", 1, VisibilityScope.PUBLIC, listOf()))
         val project2 = dataProjectRepository.save(DataProject(randomUUID(), "slug-2", "www.url.net", "Test Project 2", "description", subject.id, "group2", "project-2", 2, VisibilityScope.PUBLIC, listOf()))
         val project3 = dataProjectRepository.save(DataProject(randomUUID(), "slug-3", "www.url.xyz", "Test Project 3", "description", subject2.id, "group3", "project-3", 3, VisibilityScope.PUBLIC, listOf()))
-        val project4 = codeProjectRepository.save(CodeProject(randomUUID(), "slug-4", "www.url.com", "Test Code Project 1", "description", subject.id, "group4", "project-4", 4))
-        val project5 = codeProjectRepository.save(CodeProject(randomUUID(), "slug-5", "www.url.net", "Test Code Project 2", "description", subject.id, "group5", "project-5", 5))
-        val project6 = codeProjectRepository.save(CodeProject(randomUUID(), "slug-6", "www.url.xyz", "Test Code Project 3", "description", subject2.id, "group6", "project-6", 6))
+        val project4 = codeProjectRepository.save(CodeProject(randomUUID(), "slug-4", "www.url.com", "Test Code Project 1", "description", subject.id, "group4", "project-4", 4, VisibilityScope.PRIVATE))
+        val project5 = codeProjectRepository.save(CodeProject(randomUUID(), "slug-5", "www.url.net", "Test Code Project 2", "description", subject.id, "group5", "project-5", 5, VisibilityScope.PRIVATE))
+        val project6 = codeProjectRepository.save(CodeProject(randomUUID(), "slug-6", "www.url.xyz", "Test Code Project 3", "description", subject2.id, "group6", "project-6", 6, VisibilityScope.PRIVATE))
 
         mockGetPublicProjectsIdsList(listOf(project1.id, project2.id, project3.id))
         mockGetUserProjectsList(listOf(project1.id, project2.id, project4.id), account, AccessLevel.OWNER)
 
-        val returnedResult: List<DataProjectDto> = this.performGet("$rootUrl/public/all", token)
+        val returnedResult: List<DataProjectDto> = this.performGet("$rootUrl/public", token)
             .expectOk()
             .document("project-retrieve-public-all", responseFields(projectResponseFields("[].")))
             .returnsList(DataProjectDto::class.java)

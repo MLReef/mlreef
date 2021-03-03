@@ -103,21 +103,19 @@ class SecurityConfiguration(private val provider: AuthenticationProvider) : WebS
 
         // FIXME: what is the difference ? Please let us fix that: every url should be for visitors, and THEN the permission mechanism is applied
         //Access with anonymous check (for visitors)
-        private const val GENERIC_PROJECTS_PUBLIC_URL = "/api/v1/projects/public"
-        private const val CODE_PROJECTS_PUBLIC_URL = "/api/v1/code-projects/public"
-        private const val DATA_PROJECTS_PUBLIC_URL = "/api/v1/data-projects/public"
         private const val MARKETPLACE_PUBLIC_URL = "/api/v1/explore/entries/public"
         private const val PASSWORDS_URL = "/api/v1/password/**"
         private const val PROJECTS_URL = "/api/v1/projects/**"
+        private const val DATA_PROJECTS_URL = "/api/v1/data-projects/**"
+        private const val CODE_PROJECTS_URL = "/api/v1/code-projects/**"
 
         private val visitorsUrls = arrayOf(
             MARKETPLACE_PUBLIC_URL,
-            GENERIC_PROJECTS_PUBLIC_URL,
-            CODE_PROJECTS_PUBLIC_URL,
-            DATA_PROJECTS_PUBLIC_URL,
             EPF_BOT_URL,
             PASSWORDS_URL,
             PROJECTS_URL,
+            DATA_PROJECTS_URL,
+            CODE_PROJECTS_URL,
             EXPLORE_URL,
         )
 

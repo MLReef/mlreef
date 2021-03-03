@@ -14,6 +14,7 @@ import io.mockk.MockKAnnotations
 import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Tag
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -72,6 +73,7 @@ class CodeProjectPublishingApiTest : AbstractRestApiTest() {
     @Transactional
     @Rollback
     @Test
+    @Disabled("Currently we must no use it")
     @Tag(TestTags.RESTDOC)
     fun `Can create Environment`() {
         val request = CreateEnvironmentRequest(
@@ -98,6 +100,7 @@ class CodeProjectPublishingApiTest : AbstractRestApiTest() {
     @Transactional
     @Rollback
     @Test
+    @Disabled("Currently we must no use it")
     @Tag(TestTags.RESTDOC)
     fun `Can delete Environment`() {
         val envToDelete = createEnvironment()
