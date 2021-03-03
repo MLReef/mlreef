@@ -34,7 +34,6 @@ export default class ProjectGeneralInfoApi extends ApiDirector {
       target_name: targetName,
       // target_path: targetPath,
     }
-    console.log(bodyReq);
     const apiReqBuilder = new ApiRequestCallBuilder(
       METHODS.POST,
       this.buildBasicHeaders(validServicesToCall.BACKEND),
@@ -48,7 +47,11 @@ export default class ProjectGeneralInfoApi extends ApiDirector {
 
   getProjectInfoApi(projectId: number) {
     const url = `/api/v4/projects/${projectId}?statistics=true`;
-    const builder = new BLApiRequestCallBuilder(METHODS.GET, this.buildBasicHeaders(validServicesToCall.GITLAB), url);
+    const builder = new BLApiRequestCallBuilder(
+      METHODS.GET, 
+      this.buildBasicHeaders(validServicesToCall.GITLAB), 
+      url
+    );
 
     return fetch(builder.build())
       .then(handleResponse);
@@ -151,7 +154,7 @@ export default class ProjectGeneralInfoApi extends ApiDirector {
   }
 
   getProjectDetails(namespace: string, slug: string) {
-    const url = `/api/v1/projects/slug/${namespace}/${slug}`;
+    const url = `/api/v1/projects/${namespace}/${slug}`;
     const headers = this.buildBasicHeaders(validServicesToCall.BACKEND);
     const builder = new BLApiRequestCallBuilder(METHODS.GET, headers, url);
 

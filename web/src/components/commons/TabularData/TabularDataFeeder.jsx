@@ -98,8 +98,6 @@ const TabularDataFeeder = (props) => {
       .then(arrayToRichData)
       .then(onDataLoaded)
       .catch((err) => {
-        // eslint-disable-next-line
-        console.log(err);
       });
   };
 
