@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 #only continues if it is a model
 if [ $2 != true ]
    then
@@ -6,7 +6,9 @@ if [ $2 != true ]
         exit 0
 fi
 #sentinelhub.config --show
-echo " ISALGORITM:  $2"
+mkdir -p $1
+echo "LOG: This is a version with Inotifywait." 
+echo "LOG : ISALGORITM:  $2"
 #extraction of output-path parameter and type of dataprocessor from PIPELINE_STRING mlreef-905
 FILE="experiment.json"
 STAT="$1/$FILE"
@@ -24,20 +26,22 @@ request_epf_endpoint_update() {
     --data @"$STAT"
   echo ""
 }
-
-i=0
-#wait until the image is pulled and the script starts 5 minutes
-sleep 300
-while [ "$i" -lt 150 ]; do # run 150 iterations max
-  echo "------------------------------------------------------------"
-  if [ ! -f "$STAT" ]; then
-    echo "MLReef-EPF statistic service #$i: $STAT does not exist yet, waiting for experiment to start.."
-    sleep 180
-  else
-    echo "MLReef-EPF statistic service #$i:"
+echo "LOG: Waiting for creation of experiments file."
+#waits for creation of experiment.json file
+while read path action file; do 
+  if [ "$file"=="$FILE" ];  then
+    echo "The file '$file' appeared in directory '$path' via '$action'";
+    break;
+  fi
+done < <(inotifywait -m $1 -e create)
+echo "LOG: Starting experiment tracking"
+#pushes changes to database
+while read path action file ; do 
+    echo "MLReef-experiment statistic service:"
     cat $STAT
     request_epf_endpoint_update
-    sleep 180
-  fi
-  i=$(($i + 1))
-done
+    sleep 10 ;
+done < <(inotifywait -m $STAT -e close_write)
+
+
+# to prevent this script from running forever we kill it in ci script

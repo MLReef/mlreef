@@ -10,6 +10,7 @@
 
 
 test backend:
+  allow_failure: true
   extends: [".except-docu-branches", ".only-on-backend-code-changes"]
   stage: build
   image: java:8

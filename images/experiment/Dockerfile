@@ -7,7 +7,10 @@ RUN apk add --no-cache \
     git  \
     curl \
     wget \
-    jq 
+    jq \
+    inotify-tools \
+    bash
+
 
 ##### ADD files to the image
 WORKDIR /

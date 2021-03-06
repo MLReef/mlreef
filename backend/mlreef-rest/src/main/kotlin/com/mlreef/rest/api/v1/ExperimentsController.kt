@@ -105,7 +105,7 @@ internal class ExperimentsController(
     }
 
     @PostMapping("/{idOrNumber}/start")
-    @PreAuthorize("hasAccessToProject(#dataProjectId, 'DEVELOPER')")
+    @PreAuthorize("canViewProject(#dataProjectId)")
     fun startExperiment(
         @PathVariable dataProjectId: UUID,
         @PathVariable idOrNumber: String,
@@ -131,7 +131,7 @@ internal class ExperimentsController(
     }
 
     @PostMapping
-    @PreAuthorize("hasAccessToProject(#dataProjectId, 'DEVELOPER')")
+    @PreAuthorize("canViewProject(#dataProjectId)")
     fun createExperiment(
         @PathVariable dataProjectId: UUID,
         @Valid @RequestBody experimentCreateRequest: ExperimentCreateRequest,
@@ -185,7 +185,7 @@ internal class ExperimentsController(
 
     @Deprecated("This is a workaround solution and should be removed ASAP ") //TODO //FIXME
     @PostMapping("/{id}/cancel")
-    @PreAuthorize("hasAccessToProject(#dataProjectId, 'DEVELOPER')")
+    @PreAuthorize("canViewProject(#dataProjectId)")
     // FIXME think about a return value? usually UPDATE might return the new object in case of success
     fun updateExperimentStatus(
         @PathVariable dataProjectId: UUID,
@@ -199,7 +199,7 @@ internal class ExperimentsController(
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    @PreAuthorize("hasAccessToProject(#dataProjectId, 'DEVELOPER')")
+    @PreAuthorize("canViewProject(#dataProjectId)")
     fun deleteExperiment(
         @PathVariable dataProjectId: UUID,
         @PathVariable id: UUID
