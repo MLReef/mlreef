@@ -62,7 +62,7 @@ before_script:
   - git config --global user.name "$GIT_PUSH_NAME"
   - echo "Target branch is $TARGET_BRANCH"
   - echo "The final output path is $$LAST_OUTPUT_PATH"
-  #only run background-push if it is an experiment
+  #only run background-push if it is an experiment 
   - background-push "$FINAL_OUTPUT_PATH" $IS_ALGORITHM &
 
 after_script:
@@ -97,4 +97,6 @@ mlreef-pipeline:
     git commit -m "Add pipeline results [skip ci]"
     git push --set-upstream origin "$TARGET_BRANCH"
     git push
+    killall "background-push" 1> /dev/null 2> /dev/null
+    sleep 15
 #@formatter:on

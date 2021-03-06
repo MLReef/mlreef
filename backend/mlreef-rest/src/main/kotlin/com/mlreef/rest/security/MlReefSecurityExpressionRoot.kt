@@ -109,13 +109,15 @@ class MlReefSecurityExpressionRoot(
     }
 
     private fun projectIsPublic(projectId: UUID): Boolean {
-        return publicProjectsCache.isProjectPublic(projectId)
+        val project = projectService.getProjectById(projectId)
+
+        return project?.isPublic() ?: false
     }
 
     fun projectIsPublic(namespace: String, slug: String): Boolean {
-        val projectId = projectService.getProjectsByNamespaceAndPath(namespace, slug)?.id
-            ?: return false
-        return projectIsPublic(projectId)
+        val project = projectService.getProjectsByNamespaceAndPath(namespace, slug)
+
+        return project?.isPublic() ?: false
     }
 
     @Deprecated("why not accesslevel maintainer?")

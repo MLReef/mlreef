@@ -65,6 +65,7 @@ abstract class Project(
     val gitlabId: Long,
 
     @Enumerated(EnumType.STRING)
+    @Column(name = "visibility_scope")
     override val visibilityScope: VisibilityScope = VisibilityScope.default(),
 
     @OneToOne(fetch = FetchType.EAGER, mappedBy = "codeProject", optional = true)
@@ -216,6 +217,10 @@ abstract class Project(
         return this.clone(
             outputDataTypes = this.outputDataTypes.toMutableSet().apply { removeAll(dataTypes) }
         )
+    }
+
+    fun isPublic(): Boolean {
+      return this.visibilityScope == VisibilityScope.PUBLIC
     }
 
     abstract fun clone(
