@@ -26,6 +26,10 @@ export function logoutSuccessfully() {
 
 export function logout() {
   return (dispatch) => {
+    const now = new Date();
+    now.setMonth(now.getMonth() - 3);
+    document.cookie = `private_token=''; expires=${now.toUTCString()};`;
+
     dispatch(logoutSuccessfully());
     return Promise.resolve(true);
   };
