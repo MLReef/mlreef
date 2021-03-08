@@ -6,7 +6,6 @@ import { toastr } from 'react-redux-toastr';
 import cx from 'classnames';
 import './PipelinesExecutionView.scss';
 import { OPERATION, ALGORITHM, VISUALIZATION } from 'dataTypes';
-import MLSearchApi from 'apis/MLSearchApi';
 import { string, shape } from 'prop-types';
 import MLoadingSpinnerContainer from 'components/ui/MLoadingSpinner/MLoadingSpinnerContainer';
 import { generateBreadCrumbs } from 'functions/helpers';
@@ -14,7 +13,6 @@ import hooks from 'customHooks/useSelectedProject';
 import useLoading from 'customHooks/useLoading';
 import DataPiplineApi from 'apis/DataPipelineApi';
 import ExperimentsApi from 'apis/experimentApi';
-import { data } from 'components/ui/MDataTable/propTypes';
 import ExecutePipelineModal from './ExecutePipelineModal';
 import SelectDataPipelineModal from './SelectDataPipelineModal';
 import Navbar from '../../navbar/navbar';
@@ -31,9 +29,7 @@ import {
 import Provider, { DataPipelinesContext } from './DataPipelineHooks/DataPipelinesProvider';
 import DragDropZone from './DragNDropZone';
 import { SET_IS_SHOWING_EXECUTE_PIPELINE_MODAL } from './DataPipelineHooks/actions';
-import { addInformationToProcessors } from './DataPipelineHooks/DataPipelinesReducer';
-
-const mlSearchApi = new MLSearchApi();
+import { addInformationToProcessors, fetchProcessorsPaginatedByType } from './DataPipelineHooks/DataPipelinesReducer';
 
 const dataPipelineApi = new DataPiplineApi();
 
@@ -133,26 +129,7 @@ const FunctionalExecutionPipelinesView = (props) => {
 
   const [processorsAndProjects, setProcessorsAndProjects] = useState([]);
 
-  const fetchProcessors = () => mlSearchApi
-    .searchPaginated(operationTypeToExecute, { published: true }, 0, 20)
-    .then((res) => res.content)
-    .then((projects) => projects.map((proj) => {
-      const {
-        gitlab_namespace: nameSpace,
-        slug: projSlug,
-        input_data_types: inputDataTypes,
-        stars_count: stars,
-        data_processor: processor,
-      } = proj;
-      return {
-        ...processor,
-        parameters: processor.versions[0].parameters,
-        nameSpace,
-        slug: projSlug,
-        inputDataTypes,
-        stars,
-      };
-    }))
+  const fetchProcessors = () => fetchProcessorsPaginatedByType(operationTypeToExecute)
     .then(addInformationToProcessors)
     .then(setProcessorsAndProjects);
 
