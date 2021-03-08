@@ -1,14 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Generator: Adobe Illustrator 22.1.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
-<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px"
-     viewBox="0 0 36 36" style="enable-background:new 0 0 36 36;" xml:space="preserve">
+<!-- Generator: Adobe Illustrator 24.3.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 viewBox="0 0 150 150" style="enable-background:new 0 0 150 150;" xml:space="preserve">
 <style type="text/css">
-	.st0{fill:#F5544D;}
-	.st1{fill:none;}
+	.st0{fill:#F0554E;}
 </style>
-<g id="Group_41" transform="translate(-440.189 -250.086)">
-	<path id="Path_46" class="st0" d="M458.2,252.7l3.6,11.3l11.9-0.1l-9.6,6.9l3.7,11.3l-9.6-7l-9.6,7l3.7-11.3l-9.6-6.9l11.9,0.1
-		L458.2,252.7z"/>
-	<rect id="Rectangle_81" x="440.2" y="250.4" class="st1" width="36" height="36"/>
+<g id="Group_441" transform="translate(-0.002)">
+	<path id="Path_217" class="st0" d="M114.5,142.81c-1.24,0.01-2.47-0.31-3.55-0.92L75,121.14l-35.95,20.75
+		c-3.39,1.98-7.74,0.83-9.72-2.56c-0.9-1.54-1.18-3.37-0.8-5.11l8.6-40.64L6.3,65.8c-2.93-2.61-3.18-7.11-0.56-10.03
+		c1.17-1.31,2.79-2.14,4.54-2.33l41.28-4.4l16.91-37.94c1.22-2.5,3.75-4.1,6.54-4.12c2.79,0.01,5.32,1.65,6.47,4.19L98.38,49.1
+		l41.28,4.4c2.8,0.31,5.16,2.23,6.04,4.9c0.86,2.66,0.08,5.58-1.99,7.46l-30.83,27.78l8.6,40.64c0.57,2.75-0.51,5.58-2.77,7.25
+		C117.45,142.35,115.99,142.79,114.5,142.81z"/>
 </g>
 </svg>

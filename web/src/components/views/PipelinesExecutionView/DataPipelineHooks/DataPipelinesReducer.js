@@ -1,3 +1,4 @@
+import MLSearchApi from 'apis/MLSearchApi';
 import { parseToCamelCase } from 'functions/dataParserHelpers';
 import { validateForm } from 'functions/validations';
 import UUIDV1 from 'uuid/v1';
@@ -15,6 +16,8 @@ import {
   VALIDATE_FORM,
   UPDATE_PARAM_VALUE_IN_DATA_OPERATOR,
 } from './actions';
+
+const mlSearchApi = new MLSearchApi();
 
 const updateOperators = (
   newParamValue,
@@ -121,5 +124,27 @@ const DataPipelinesReducer = (state, action) => {
       return state;
   }
 };
+
+export const fetchProcessorsPaginatedByType = (operationTypeToExecute) => mlSearchApi
+  .searchPaginated(operationTypeToExecute, { published: true }, 0, 20)
+  .then((res) => res.content)
+  .then((projects) => projects.map((proj) => {
+    const {
+      gitlab_namespace: nameSpace,
+      slug: projSlug,
+      input_data_types: inputDataTypes,
+      stars_count: stars,
+      data_processor: processor,
+    } = proj;
+    return {
+      ...processor,
+      parameters: processor.versions[0].parameters,
+      nameSpace,
+      slug: projSlug,
+      inputDataTypes,
+      stars,
+    };
+  }))
+
 
 export default DataPipelinesReducer;
