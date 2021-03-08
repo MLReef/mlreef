@@ -96,15 +96,18 @@ class Login extends React.Component {
     this.setState({ isFetching: true });
 
     actions.login(formData)
-      .then(() => {
+      .then((userInfo) => {
+        const now = new Date();
+        now.setMonth(now.getMonth() + 1);
+        document.cookie = `private_token=${userInfo.token}; expires=${now.toUTCString()};`;
+      }).then(() => {
         toastr.success('Success:', 'Login successfully');
-        return actions.getUserInfo()
-          .catch(() => {
-            toastr.warning('Connection problem:', 'Failed to fetch user information.');
-          });
+
+        return actions.getUserInfo();
       })
-      .catch(() => {
+      .catch((err) => {
         this.setState({ hasErrors: true });
+        toastr.warning('Warning: ', err.message);
       })
       .finally(() => {
         this.setState({ isFetching: false });
