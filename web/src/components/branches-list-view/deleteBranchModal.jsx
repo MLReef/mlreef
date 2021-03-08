@@ -3,6 +3,8 @@ import { bool, func, number, string } from 'prop-types';
 import { toastr } from 'react-redux-toastr';
 import BranchesApi from '../../apis/BranchesApi.ts';
 
+const brApi = new BranchesApi();
+
 const DeleteBranchModal = ({
   isModalVisible,
   toggleIsModalVisible,
@@ -10,25 +12,27 @@ const DeleteBranchModal = ({
   branchName,
 }) => {
   const [isDeleteButtonDisabled, setIsDeleteButtonDisabled] = useState(false);
+
   function callDeleteBranchApi() {
-    const brApi = new BranchesApi();
-    brApi.delete(
+    setIsDeleteButtonDisabled(true);
+
+    return brApi.delete(
       projectId,
       branchName,
     )
       .then((res) => {
         toastr.success('Success', res.message);
         toggleIsModalVisible('', true);
-        setIsDeleteButtonDisabled(!isDeleteButtonDisabled);
       })
       .catch(() => {
         toastr.error('Error', 'Something failed, try it later');
-        setIsDeleteButtonDisabled(!isDeleteButtonDisabled);
-      });
+      })
+      .finally(() => setIsDeleteButtonDisabled(false));
   }
 
   return (
     <div className={`modal dark-cover modal-danger ${isModalVisible ? 'show' : ''}`}>
+      <div className="modal-cover" />
       <div className="modal-container">
         <div className="modal-container-close">
           <button
@@ -60,10 +64,7 @@ const DeleteBranchModal = ({
             type="button"
             className="btn btn-danger m-3"
             disabled={isDeleteButtonDisabled}
-            onClick={() => {
-              setIsDeleteButtonDisabled(!isDeleteButtonDisabled);
-              callDeleteBranchApi();
-            }}
+            onClick={callDeleteBranchApi}
           >
             DELETE
           </button>
