@@ -64,16 +64,16 @@ data:
           privileged = true
           pull_policy = "always"
           helper_image = "registry.gitlab.com/mlreef/devops/k8s-images/gitlab-runner-helper:latest"
-          cpu_limit = "1.7"
-          memory_limit = "42G"
+          cpu_limit = "1.9"
+          memory_limit = "52G"
           extended_resource_name = "nvidia.com/gpu"
           extended_resource_limit = "1"
-          service_cpu_limit = "500m"
-          service_memory_limit = "14G"
+          service_cpu_limit = "300m"
+          service_memory_limit = "4G"
           helper_cpu_limit = "500m"
           helper_memory_limit = "100Mi"
           poll_interval = 5
-          poll_timeout = 7200
+          poll_timeout = 3600
           service_account_overwrite_allowed = ""
           pod_annotations_overwrite_allowed = ""
           [runners.kubernetes.node_tolerations]

@@ -114,7 +114,7 @@ services:
   gitlab-runner:
     container_name: gitlab-runner
     restart: always
-    image: gitlab/gitlab-runner:alpine
+    image: himanchali/gitlab-runner-alpine:13.4
     volumes:
       #CI_ACTIVATE- /data/gitlab-runner:/etc/gitlab-runner/:Z       # this line gets activated by the CI/CD pipeline
       - /var/run/docker.sock:/var/run/docker.sock                   # needed for "docker in docker" to work
